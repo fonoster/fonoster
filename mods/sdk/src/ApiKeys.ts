@@ -49,12 +49,13 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *   const API_KEY = "your-api-key";
- *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+ *   const apiKey = "your-api-key";
+ *   const apiSecret = "your-api-secret"
+ *   const accessKeyId = "WO00000000000000000000000000000000";
  *
  *   try {
- *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
- *     await client.loginWithApiKey(apiKey);
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey, apiSecret);
  *
  *     const apiKeys = new SDK.ApiKeys(client);
  *     const response = await apiKeys.createApiKey(request);
@@ -69,7 +70,7 @@ import {
  *   role: "WORKSPACE_ADMIN"
  * };
  *
- * main(request).catch(console.error);
+ * main(request);
  */
 class ApiKeys {
   private client: FonosterClient;

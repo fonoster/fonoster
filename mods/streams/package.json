@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/streams",
-  "version": "0.7.36",
+  "version": "0.7.50",
   "description": "Core support for Fonoster Streams",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -18,11 +18,11 @@
     "generate:readme": "node ../../.scripts/gen-readme.js"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.7.36",
-    "uuid": "^10.0.0"
+    "@fonoster/logger": "^0.7.50",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
-    "@types/uuid": "^9.0.8"
+    "@types/uuid": "^10.0.0"
   },
   "files": [
     "dist"
@@ -37,5 +37,5 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "gitHead": "310b53e483cda3937e2d093c56428c94a15466e6"
+  "gitHead": "b3255c4512154c5bee506b234e966526f174cbec"
 }

@@ -15,19 +15,19 @@ This package provides a set of utilities for working with Fonoster services. It 
 ## Installation
 
 ```sh-session
-$ npm install --save @fonoster/sdk@next
+$ npm install --save @fonoster/sdk
 ```
 
 Or using yarn:
 
 ```sh-session
-$ yarn add @fonoster/sdk@next
+$ yarn add @fonoster/sdk
 ```
 
 Or in the browser:
 
 ```html
-<script src="https://unpkg.com/@fonoster/sdk@next"></script>
+<script src="https://unpkg.com/@fonoster/sdk"></script>
 ```
 
 ### Importing the library
@@ -47,7 +47,7 @@ import * as SDK from "@fonoster/sdk";
 Directly in the browser:
 
 ```html
-<script src="https://unpkg.com/@fonoster/sdk@next"></script>
+<script src="https://unpkg.com/@fonoster/sdk"></script>
 <script>
    // You can now use the SDK
 </script>

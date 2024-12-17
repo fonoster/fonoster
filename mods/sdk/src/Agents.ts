@@ -49,12 +49,13 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *   const API_KEY = "your-api-key";
- *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+ *   const apiKey = "your-api-key";
+ *   const apiSecret = "your-api-secret"
+ *   const accessKeyId = "WO00000000000000000000000000000000";
  *
  *   try {
- *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
- *     await client.loginWithApiKey(API_KEY);
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey, apiSecret);
  *
  *     const agents = new SDK.Agents(client);
  *     const response = await agents.createAgent(request);
@@ -74,7 +75,7 @@ import {
  *   domainRef: "00000000-0000-0000-0000-000000000000"
  * };
  *
- * main(request).catch(console.error);
+ * main(request);
  */
 class Agents {
   private client: FonosterClient;
@@ -148,9 +149,9 @@ class Agents {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getAgent(ref: string) {
+  async getAgent(ref: string): Promise<Agent> {
     const client = this.client.getAgentsClient();
-    return await makeRpcRequest<
+    const response = await makeRpcRequest<
       GetAgentRequestPB,
       AgentPB,
       BaseApiObject,
@@ -162,6 +163,34 @@ class Agents {
       request: { ref },
       enumMapping: [["privacy", PrivacyPB]]
     });
+
+    const credentials = (
+      response?.credentials as unknown as {
+        toObject: () => {
+          ref: string;
+          name: string;
+          username: string;
+        };
+      }
+    )?.toObject();
+
+    const domain = (
+      response?.domain as unknown as {
+        toObject: () => {
+          ref: string;
+          name: string;
+          domainUri: string;
+        };
+      }
+    )?.toObject();
+
+    return response
+      ? {
+          ...response,
+          credentials,
+          domain
+        }
+      : null;
   }
 
   /**

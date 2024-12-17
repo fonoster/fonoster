@@ -49,12 +49,13 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *   const API_KEY = "your-api-key";
- *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+ *   const apiKey = "your-api-key";
+ *   const apiSecret = "your-api-secret"
+ *   const accessKeyId = "WO00000000000000000000000000000000";
  *
  *   try {
- *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
- *     await client.loginWithApiKey(apiKey);
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey, apiSecret);
  *
  *     const numbers = new SDK.Numbers(client);
  *     const response = await numbers.createNumber(request);
@@ -73,7 +74,7 @@ import {
  *   countryIsoCode: "US"
  * };
  *
- * main(request).catch(console.error);
+ * main(request);
  */
 class Numbers {
   private client: FonosterClient;
@@ -144,9 +145,9 @@ class Numbers {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getNumber(ref: string) {
+  async getNumber(ref: string): Promise<INumber> {
     const client = this.client.getNumbersClient();
-    return await makeRpcRequest<
+    const response = await makeRpcRequest<
       GetNumberRequestPB,
       NumberPB,
       BaseApiObject,
@@ -157,6 +158,22 @@ class Numbers {
       metadata: this.client.getMetadata(),
       request: { ref }
     });
+
+    const trunk = (
+      response?.trunk as unknown as {
+        toObject: () => {
+          ref: string;
+          name: string;
+        };
+      }
+    )?.toObject();
+
+    return response
+      ? {
+          ...response,
+          trunk
+        }
+      : null;
   }
 
   /**

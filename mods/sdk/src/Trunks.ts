@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -46,12 +47,13 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *   const API_KEY = "your-api-key";
- *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+ *   const apiKey = "your-api-key";
+ *   const apiSecret = "your-api-secret"
+ *   const accessKeyId = "WO00000000000000000000000000000000";
  *
  *   try {
- *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
- *     await client.loginWithApiKey(apiKey);
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey, apiSecret);
  *
  *     const trunks = new SDK.Trunks(client);
  *     const response = await trunks.createTrunk(request);
@@ -67,7 +69,7 @@ import {
  *   inboundUri: "sip.company.fonoster.io"
  * };
  *
- * main(request).catch(console.error);
+ * main(request);
  */
 class Trunks {
   private client: FonosterClient;
@@ -177,7 +179,7 @@ class Trunks {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getTrunk(ref: string) {
+  async getTrunk(ref: string): Promise<Trunk> {
     const client = this.client.getTrunksClient();
     const getTrunkRequest = new GetTrunkRequestPB();
     getTrunkRequest.setRef(ref);
@@ -195,13 +197,21 @@ class Trunks {
           const obj = response.toObject();
           const outObj = {
             ...obj,
+            accessControlListRef: obj.accessControlList?.ref,
+            inboundCredentialsRef: obj.inboundCredentials?.ref,
+            outboundCredentialsRef: obj.outboundCredentials?.ref,
             uris: obj.urisList,
             createdAt: new Date(obj.createdAt * 1000),
             updatedAt: new Date(obj.updatedAt * 1000)
           };
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { urisList, ...rest } = outObj;
-          resolve(rest);
+          const {
+            urisList,
+            accessControlList,
+            inboundCredentials,
+            outboundCredentials,
+            ...rest
+          } = outObj;
+          resolve(rest as unknown as Trunk);
         }
       );
     });

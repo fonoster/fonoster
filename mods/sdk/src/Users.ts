@@ -45,12 +45,13 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *   const API_KEY = "your-api-key";
- *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+ *   const apiKey = "your-api-key";
+ *   const apiSecret = "your-api-secret"
+ *   const accessKeyId = "WO00000000000000000000000000000000";
  *
  *   try {
- *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
- *     await client.loginWithApiKey(apiKey);
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey, apiSecret);
  *
  *     const users = new SDK.Users(client);
  *     const response = await users.createUser(request);
@@ -68,7 +69,7 @@ import {
  *   avatar: "https://example.com/avatar.jpg"
  * };
  *
- * main(request).catch(console.error);
+ * main(request);
  */
 class Users {
   private client: FonosterClient;

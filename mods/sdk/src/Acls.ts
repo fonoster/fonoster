@@ -44,12 +44,13 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *   const API_KEY = "your-api-key";
- *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+ *   const apiKey = "your-api-key";
+ *   const apiSecret = "your-api-secret"
+ *   const accessKeyId = "WO00000000000000000000000000000000";
  *
  *   try {
- *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
- *     await client.loginWithApiKey(API_KEY);
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey, apiSecret);
  *
  *     const acls = new SDK.Acls(client);
  *     const response = await acls.createAcl(request);
@@ -65,7 +66,7 @@ import {
  *   allow: ["47.132.130.31"] // Allow only this IP
  * };
  *
- * main(request).catch(console.error);
+ * main(request);
  */
 class Acls {
   private client: FonosterClient;
@@ -136,7 +137,7 @@ class Acls {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getAcl(ref: string) {
+  async getAcl(ref: string): Promise<Acl> {
     const updateAclRequest = new GetAclRequestPB();
     updateAclRequest.setRef(ref);
     const client = this.client.getAclsClient();

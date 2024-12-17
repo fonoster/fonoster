@@ -21,8 +21,10 @@ import { SileroVad } from "./vad/SileroVad";
 
 const vad = new SileroVad(workerData);
 
-parentPort?.on("message", (chunk) => {
-  vad.processChunk(chunk, (voiceActivity) => {
-    parentPort?.postMessage(voiceActivity);
+vad.init().then(() => {
+  parentPort?.on("message", (chunk) => {
+    vad.processChunk(chunk, (voiceActivity) => {
+      parentPort?.postMessage(voiceActivity);
+    });
   });
 });

@@ -11,17 +11,17 @@
 
 Welcome! We are glad that you want to contribute to Fonoster! 💖
 
-As you get started, you are in the best position to give us feedback on areas of our project that we need help with including:
+As you get started, you are in the best position to give us feedback on areas of our project that we need help with, including:
 
 * Problems found during setting up a new developer environment
 * Gaps in our Quickstart Guide or documentation
 * Bugs in our automation scripts
 
-If anything doesn't make sense, or doesn't work when you run it, please open a bug report and let us know!
+If anything doesn't make sense or work when you run it, please open a bug report and let us know!
 
 ## Ways to Contribute
 
-We welcome many different types of contributions including:
+We welcome many different types of contributions, including:
 
 * New features
 * Builds, CI/CD
@@ -39,31 +39,31 @@ together.
 
 ### Come to Meetings
 
-Absolutely everyone is welcome to come to any of our meetings. You never need an invite to join us. In fact, we want you to join us, even if you don't have anything you feel like you want to contribute. Just being there is enough!
+Everyone is welcome to come to any of our meetings. You don't need an invite to join us. We want you to join us, even if you don't have anything you wish to contribute. Just being there is enough!
 
-You can find out more about our meetings [here](https://discord.gg/4QWgSz4hTC). You don't have to turn on your video. The first time you come, introducing yourself is more than enough.
+You can learn more about our meetings [here](https://discord.gg/4QWgSz4hTC). You don't have to turn on your video. The first time you come, introducing yourself is more than enough.
 
-Over time, we hope that you feel comfortable voicing your opinions, giving feedback on others' ideas, and even sharing your own ideas, and experiences.
+Over time, we hope you feel comfortable voicing your opinions, giving feedback on others' ideas, and even sharing your ideas and experiences.
 
 ## Find an Issue
 
-We have good first issues for new contributors and help wanted issues suitable for any contributor. [good first issue](https://github.com/fonoster/fonoster/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) has extra information to help you make your first contribution. [help wanted](https://github.com/fonoster/fonoster/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) are issues suitable for someone who isn't a core maintainer and is good to move onto after your first pull request.
+We have good first issues for new contributors, and help wanted issues suitable for any contributor. [good first issue](https://github.com/fonoster/fonoster/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) has extra information to help you make your first contribution. [help wanted](https://github.com/fonoster/fonoster/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) are issues suitable for someone who isn't a core maintainer and is good to move onto after your first pull request.
 
-Sometimes there won't be any issues with these labels. That's ok! There is likely still something for you to work on. If you want to contribute but you don't know where to start or can't find a suitable issue, you can reach out to us via  [Discord](https://discord.gg/4QWgSz4hTC) or [GitHub Discussions](https://github.com/fonoster/fonoster/discussions) and we will help you find something.
+Sometimes, these labels will be fine. That's ok! There is likely still something for you to work on. If you want to contribute but you don't know where to start or can't find a suitable issue, you can reach out to us via  [Discord](https://discord.gg/4QWgSz4hTC) or [GitHub Discussions](https://github.com/fonoster/fonoster/discussions), and we will help you find something.
 
-Once you see an issue that you'd like to work on, please post a comment saying that you want to work on it. Something like "I want to work on this" is fine.
+Once you see an issue you'd like to work on, please post a comment saying you want to work on it. Something like "I want to work on this" is fine.
 
 ## Ask for Help
 
 The best way to reach us with a question when contributing is to ask on:
 
-* The original github issue
+* The original GitHub issue
 * The [Discord](https://discord.gg/4QWgSz4hTC) community
 * Our [GitHub Discussions](https://github.com/fonoster/fonoster/discussions)
 
 ## Pull Request Lifecycle
 
-Before you start, ensure no one else is working on the same issue. If a related pull request exists, consider offering your assistance there. If you don't receive a response within a reasonable timeframe, you can proceed with your own pull request.
+Before you start, please ensure no one else is working on the same issue. If a related pull request exists, we would appreciate your help. If you don't get a response within a reasonable timeframe, you can proceed with your pull request.
 
 After you've submitted your pull request, it enters the review stage. During this time, the project maintainers or contributors will examine your changes. They might request modifications, such as:
 
@@ -85,9 +85,9 @@ See our [Development environment setup](https://github.com/fonoster/fonoster/tre
 
 ### DCO
 
-Licensing is important to open source projects. It provides some assurances that the software will continue to be available based under the terms that the author(s) desired. We require that contributors sign off on commits submitted to our project's repositories. The [Developer Certificate of Origin (DCO)](https://probot.github.io/apps/dco/) is a way to certify that you wrote and have the right to contribute the code you are submitting to the project.
+Licensing is important to open-source projects. It assures that the software will continue to be available based on the terms that the author(s) desired. We require that contributors sign off on commits submitted to our project's repositories. The [Developer Certificate of Origin (DCO)](https://probot.github.io/apps/dco/) is a way to certify that you wrote and have the right to contribute the code you are submitting to the project.
 
-You sign-off by adding the following to your commit messages. Your sign-off must match the git user and email associated with the commit.
+You sign off by adding the following to your commit messages. Your sign-off must match the git user and email associated with the commit.
 
 ```text
 This is my commit message
@@ -98,18 +98,20 @@ Signed-off-by: Your Name <your.name@example.com>
 Git has a `-s` command line option to do this automatically:
 
 ```text
-git commit -s -m 'This is my commit message'
+git commit -s -m 'chore: this is my commit message'
 ```
 
-If you forgot to do this and have not yet pushed your changes to the remote repository, you can amend your commit with the sign-off by running 
+You can amend your commit with the sign-off by running if you forgot to do this and have yet to push your changes to the remote repository. 
 
 ```text
 git commit --amend -s
-``` 
+```
+
+Please note that we use [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/) in our commit messages.
 
 ## Pull Request Checklist
 
-When you submit your pull request, or you push new commits to it, our automated systems will run some checks on your new code. We require that your pull request passes these checks, but we also have more criteria than just that before we can accept and merge it. We recommend that you check the following things locally before you submit your code:
+When you submit your pull request or push new commits, our automated systems will run some checks on your new code. We require that your pull request passes these checks, but we also have more criteria than just that before we can accept and merge it. We recommend that you check the following things locally before you submit your code:
 
 - [ ] Your code builds and passes tests locally
 - [ ] Your code passes our automated checks

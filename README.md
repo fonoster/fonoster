@@ -49,24 +49,41 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 Voice Application Example:
 
 ```typescript
-const { VoiceServer } = require("@fonoster/voice");
+const VoiceServer = require("@fonoster/voice").default;
+const { 
+  GatherSource, 
+  VoiceRequest, 
+  VoiceResponse 
+} = require("@fonoster/voice");
 
-const serverConfig = {
-  pathToFiles: `${process.cwd()}/sounds`,
-};
+new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
+  const { ingressNumber, sessionRef, appRef } = req;
 
-new VoiceServer(serverConfig).listen(
-  async (req, res) => {
-    console.log(req);
-    await res.answer();
-    await res.play(`sound:${req.selfEndpoint}/sounds/hello-world.sln16`);
-    await res.hangup();
-  }
-);
+  await voice.answer();
 
-// your app will live at http://127.0.0.1:3000 
+  await voice.say("Hi there! What's your name?");
+
+  const { speech: name } = await res.gather({
+    source: GatherSource.SPEECH
+  });
+
+  await voice.say("Nice to meet you " + name + "!");
+
+  await voice.say("Please enter your 4 digit pin.");
+
+  const { digits } = await voice.gather({
+    maxDigits: 4,
+    finishOnKey: "#"
+  });
+
+  await voice.say("Your pin is " + digits);
+
+  await voice.hangup();
+});
+
+// Your app will live at tcp://127.0.0.1:50061 
 // and you can easily publish it to the Internet with:
-// ngrok http 3000
+// ngrok tcp 50061
 ```
 
 Everything in Fonoster is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
@@ -74,16 +91,29 @@ Everything in Fonoster is an API first, and initiating a call is no exception. Y
 Example of originating a call with the SDK:
 
 ```typescript
-const Fonoster = require("@fonoster/sdk");
-const callManager = new Fonoster.CallManager();
+const SDK = require("@fonoster/sdk");
 
-callManager.call({
- from: "9842753574",
- to: "17853178070",
- webhook: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
-})
- .then(console.log)
- .catch(console.error);
+async function main(request) {
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
+
+  const client = SDK.Client({ accessKeyId });
+  await client.loginWithApiKey(apiKey, apiSecret);
+
+  const calls = new SDK.Calls(client);
+  const response = await calls.createCall(request);
+
+  console.log(response); // successful response
+}
+
+const request = {
+  from: "+18287854037",
+  to: "+17853178070",
+  appRef: "3e61ecb7-a1b6-4a93-84c3-4f1979165bca"
+};
+
+main(request).catch(console.error);
 ```
 
 ## Getting Started
@@ -91,9 +121,8 @@ callManager.call({
 To get started with Fonoster, use the following resources:
 
 - [Deploying Fonoster with Docker](./docs/self-hosting/deploy-with-docker.md)
+- [Guide for Early Access User](./docs/early-access/overview.md)
 - [Getting started with Fonoster](https://fonoster.com/docs/overview/)
-- [Connecting Fonoster with Dialogflow](https://fonoster.com/docs/tutorials/connecting_with_dialogflow)
-- [Using Google Speech APIs](https://fonoster.com/docs/tutorials/using_google_speech)
 - [How we created an open-source alternative to Twilio and why it matters](https://dev.to/fonoster/how-we-created-an-open-source-alternative-to-twilio-and-why-it-matters-434g)
 
 ## Give a Star! ⭐
@@ -137,6 +166,13 @@ For contributing, please see the following links:
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/obrucheoghene>
+            <img src=https://avatars.githubusercontent.com/u/111436934?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Obruche Wilfred  Oghenechohwo/>
+            <br />
+            <sub style="font-size:14px"><b>Obruche Wilfred  Oghenechohwo</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/rihernandez>
             <img src=https://avatars.githubusercontent.com/u/27718122?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Richard HC/>
             <br />
@@ -150,6 +186,8 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Hoan Luu Huu</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/speedymonster>
             <img src=https://avatars.githubusercontent.com/u/31810381?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Speedy Monster/>
@@ -157,13 +195,18 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Speedy Monster</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/BrayanMnz>
             <img src=https://avatars.githubusercontent.com/u/61812255?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Brayan Munoz V./>
             <br />
             <sub style="font-size:14px"><b>Brayan Munoz V.</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/parz3val>
+            <img src=https://avatars.githubusercontent.com/u/34773307?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=harry_dev/>
+            <br />
+            <sub style="font-size:14px"><b>harry_dev</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -187,11 +230,20 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Prasurjya Pran Borah</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/hectorvent>
             <img src=https://avatars.githubusercontent.com/u/2405682?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Hector Ventura/>
             <br />
             <sub style="font-size:14px"><b>Hector Ventura</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/CKanishka>
+            <img src=https://avatars.githubusercontent.com/u/30779692?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Kanishka Chowdhury/>
+            <br />
+            <sub style="font-size:14px"><b>Kanishka Chowdhury</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -201,8 +253,6 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>0xflotus</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/itzmanish>
             <img src=https://avatars.githubusercontent.com/u/12438068?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Manish/>
@@ -224,6 +274,8 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Paul Sütterlin</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/RiadVargas>
             <img src=https://avatars.githubusercontent.com/u/4274014?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Riad Vargas/>
@@ -245,8 +297,6 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>The Gitter Badger</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/YuriCodes>
             <img src=https://avatars.githubusercontent.com/u/80093500?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Yuri/>
@@ -268,6 +318,8 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>pavan</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/nrjchnd>
             <img src=https://avatars.githubusercontent.com/u/17134818?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=nrjchnd/>
@@ -289,8 +341,6 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Shivam Deepak Chaudhary</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/showf68>
             <img src=https://avatars.githubusercontent.com/u/45857918?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=showf68/>
@@ -312,6 +362,8 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Wisdom Elendu</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/judgegodwins>
             <img src=https://avatars.githubusercontent.com/u/38760034?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Judge Godwins/>
@@ -333,8 +385,6 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Harish Chander</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/GaryBarnes17>
             <img src=https://avatars.githubusercontent.com/u/97693048?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gary Barnes/>
@@ -356,6 +406,8 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Dung Duc Huynh (Kaka)</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/cdosoftei>
             <img src=https://avatars.githubusercontent.com/u/7636091?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Ciprian/>
@@ -377,8 +429,6 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Bruno Gomes</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/brunoarueira>
             <img src=https://avatars.githubusercontent.com/u/119518?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Bruno Arueira/>
@@ -400,6 +450,8 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Ali Firat ARI</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/alexsands>
             <img src=https://avatars.githubusercontent.com/u/4269772?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Alex/>

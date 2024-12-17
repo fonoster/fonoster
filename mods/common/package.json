@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/common",
-  "version": "0.7.36",
+  "version": "0.7.50",
   "description": "Common library for Fonoster projects",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -18,9 +18,10 @@
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.7.36",
+    "@fonoster/logger": "^0.7.50",
     "@grpc/grpc-js": "~1.10.6",
     "@grpc/proto-loader": "^0.7.12",
+    "dotenv": "^16.4.7",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",
     "nodemailer": "^6.9.13",
@@ -44,5 +45,5 @@
   "devDependencies": {
     "@types/nodemailer": "^6.4.14"
   },
-  "gitHead": "310b53e483cda3937e2d093c56428c94a15466e6"
+  "gitHead": "b3255c4512154c5bee506b234e966526f174cbec"
 }

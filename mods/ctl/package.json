@@ -1,0 +1,61 @@
+{
+  "name": "@fonoster/ctl",
+  "version": "0.7.50",
+  "description": "Fonoster Control Tool",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
+    "generate:readme": "node ../../.scripts/gen-readme.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "gitHead": "b3255c4512154c5bee506b234e966526f174cbec",
+  "bin": {
+    "fonoster": "./bin/run.js"
+  },
+  "oclif": {
+    "bin": "fonoster",
+    "commands": "./dist/commands",
+    "dirname": "fonoster",
+    "topicSeparator": ":",
+    "helpClass": "./dist/help"
+  },
+  "dependencies": {
+    "@fonoster/sdk": "^0.7.50",
+    "@inquirer/prompts": "^7.1.0",
+    "@oclif/core": "^4.0.34",
+    "cliui": "^8.0.1",
+    "figlet": "^1.8.0",
+    "moment": "^2.30.1",
+    "phone": "^3.1.55",
+    "terminal-link": "^3.0.0",
+    "twilio": "^5.4.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@oclif/test": "^4.1.3",
+    "@types/figlet": "^1.7.0",
+    "@types/node": "22.10.1"
+  }
+}
