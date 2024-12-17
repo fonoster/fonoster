@@ -37,7 +37,7 @@ export default meta;
 type Story = StoryObj<typeof InputExample>;
 
 /**
- * Example of an TextField.
+ * Example of an Input Field.
  */
 export const Input: Story = {
   args: {
