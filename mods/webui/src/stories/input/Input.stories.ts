@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
+import SearchIcon from '@mui/icons-material/Search';
+
+import InputAdornment from '@mui/material/InputAdornment';
 import InputExample from './Input';
+import React from 'react';
 
 /**
  * This story is for the Input component based on Material UI.
@@ -52,8 +56,13 @@ export const Input: Story = {
  * Example of an Input field with Icon
  * 
  */
-export const SearchIcon: Story = {
+export const InputIcon: Story = {
   args: {
-    label: "outlined"
-  }
+    label: "outlined",
+    slotProps: {
+      input: {
+        startAdornment: React.createElement(InputAdornment, { position: "start" }, React.createElement(SearchIcon)),
+      },
+    },
+  },
 };

@@ -20,4 +20,13 @@ export const StyledInput = styled(MuiTextField)(({ theme }) => ({
     "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
         transform: "translate(16px, -9px) scale(0.75)",
     },
+    // add styles for  MuiInputBase-inputAdornedStart
+    "& .MuiInputBase-inputAdornedStart": {
+        paddingLeft: "0",
+    },
+    "& .MuiInputBase-root.MuiOutlinedInput-root": {
+        "& .MuiInputAdornment-root": {
+            marginRight: 4,
+        }
+    }
 }));
