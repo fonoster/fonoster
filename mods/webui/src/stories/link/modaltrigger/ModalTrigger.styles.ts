@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { styled } from "@mui/material/styles";
+
+export const StyledModalTrigger = styled("button")(({ theme }) => ({
+  all: "unset",
+  display: "flex",
+  alignItems: "center",
+  color:
+    theme.palette.mode == "dark"
+      ? theme.palette.primary[800]
+      : theme.palette.grey[800],
+  fontSize: "16px",
+  fontWeight: 400,
+  cursor: "pointer",
+  textDecoration: "underline",
+  "&:hover": {
+    textDecoration: "underline"
+  },
+  "&:disabled": {
+    color: "#8D8D8D",
+    cursor: "not-allowed",
+    textDecoration: "underline"
+  }
+}));
+
+export const StyledIcon = styled("div")<{ disabled: boolean }>(
+  ({ theme, disabled }) => ({
+    marginRight: "8px",
+    fontSize: "16px",
+    display: "flex",
+    alignItems: "center",
+    color: disabled
+      ? "#8D8D8D"
+      : theme.palette.mode == "dark"
+        ? theme.palette.primary[500]
+        : theme.palette.grey[800],
+    pointerEvents: disabled ? "none" : "auto"
+  })
+);
