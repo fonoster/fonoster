@@ -27,10 +27,10 @@ import { VadEvent } from "./vad";
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class Autopilot {
-  private actor: Actor<typeof machine>;
-  private vadWorker: Worker;
+  private readonly actor: Actor<typeof machine>;
+  private readonly vadWorker: Worker;
 
-  constructor(private params: AutopilotParams) {
+  constructor(private readonly params: AutopilotParams) {
     const { voice, languageModel, conversationSettings } = this.params;
     const vadWorkerPath = path.resolve(__dirname, "../dist", "./vadWorker");
     this.vadWorker = new Worker(vadWorkerPath, {

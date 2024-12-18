@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { join } from "path";
 import { getLogger } from "@fonoster/logger";
 import * as ort from "onnxruntime-node";
 import { chunkToFloat32Array } from "./chunkToFloat32Array";
@@ -28,7 +27,7 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 const BUFFER_SIZE = 512;
 
 async function makeVad(params: {
-  pathToModel?: string;
+  pathToModel: string;
   activationThreshold: number;
   deactivationThreshold: number;
   debounceFrames: number;
@@ -40,9 +39,7 @@ async function makeVad(params: {
     debounceFrames
   } = params;
 
-  const effectivePath =
-    pathToModel || join(__dirname, "..", "..", "silero_vad.onnx");
-  const silero = await SileroVadModel.new(ort, effectivePath);
+  const silero = await SileroVadModel.new(ort, pathToModel);
 
   let audioBuffer: number[] = [];
   let isSpeechActive = false;

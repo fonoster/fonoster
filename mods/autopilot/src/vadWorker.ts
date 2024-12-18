@@ -18,8 +18,12 @@
  */
 import { parentPort, workerData } from "worker_threads";
 import { SileroVad } from "./vad/SileroVad";
+import { SILERO_VAD_MODEL_PATH } from "./envs";
 
-const vad = new SileroVad(workerData);
+const vad = new SileroVad({ 
+  ... workerData,
+  pathToModel: SILERO_VAD_MODEL_PATH
+ });
 
 vad.init().then(() => {
   parentPort?.on("message", (chunk) => {

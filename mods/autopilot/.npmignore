@@ -1,5 +1,6 @@
 node_modules
-silero_vad_v5.1.onnx
+Dockerfile
+intro.md
 .nyc_output
 coverage
 src
