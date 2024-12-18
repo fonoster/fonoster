@@ -68,7 +68,7 @@ function createNumbersTestCases(expect) {
           expect(response).has.property("country").to.be.equal(country);
           expect(response).has.property("countryIsoCode").to.be.equal("US");
           expect(response).has.property("agentAor").to.be.equal(agentAor);
-          expect(response).to.not.have.property("trunk");
+          expect(response).has.property("trunk");
           expect(response).to.not.have.property("appRef");
           expect(response).has.property("createdAt").to.be.a("date");
           expect(response).has.property("updatedAt").to.be.a("date");
