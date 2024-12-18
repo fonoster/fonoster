@@ -42,7 +42,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "microsoft-cognitiveservices-speech-sdk": "^1.36.0",
-    "nanoid": "^5.0.9",
+    "nanoid": "^3.3.8",
     "nats": "^2.25.0",
     "pb-util": "^1.0.3",
     "pick-port": "^2.0.1",
