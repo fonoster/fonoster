@@ -17,12 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
 import * as ort from "onnxruntime-node";
 import { chunkToFloat32Array } from "./chunkToFloat32Array";
 import { SileroVadModel } from "./SileroVadModel";
-
-const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const BUFFER_SIZE = 512;
 
@@ -60,8 +57,6 @@ async function makeVad(params: {
       const remainingBuffer = buffer.slice(BUFFER_SIZE);
 
       const result = await silero.process(new Float32Array(audioFrame));
-
-      logger.silly("last vad result", { ...result });
 
       if (result.isSpeech > activationThreshold) {
         consecutiveNonSpeechFrames = 0; // Reset non-speech counter
