@@ -25,7 +25,7 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class SileroVad implements Vad {
   private vad: (data: Uint8Array, callback: (event: string) => void) => void;
-  private params: {
+  private readonly params: {
     pathToModel?: string;
     activationThreshold: number;
     deactivationThreshold: number;
