@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/ctl",
-  "version": "0.7.53",
+  "version": "0.7.54",
   "description": "Fonoster Control Tool",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -42,7 +42,7 @@
     "helpClass": "./dist/help"
   },
   "dependencies": {
-    "@fonoster/sdk": "^0.7.53",
+    "@fonoster/sdk": "^0.7.54",
     "@inquirer/prompts": "^7.1.0",
     "@oclif/core": "^4.0.34",
     "cliui": "^8.0.1",
