@@ -36,7 +36,8 @@ export const SKIP_IDENTITY = e.SKIP_IDENTITY === "true";
 export const UNSTRUCTURED_API_KEY = e.UNSTRUCTURED_API_KEY;
 export const UNSTRUCTURED_API_URL =
   e.UNSTRUCTURED_API_URL ?? "https://api.unstructuredapp.io/general/v0/general";
-export const SILERO_VAD_MODEL_PATH = e.SILERO_VAD_MODEL_PATH ?? join(__dirname, "..", "silero_vad.onnx");
+export const SILERO_VAD_MODEL_PATH =
+  e.SILERO_VAD_MODEL_PATH ?? join(__dirname, "..", "silero_vad.onnx");
 
 if (KNOWLEDGE_BASE_ENABLED) {
   assertEnvsAreSet([
