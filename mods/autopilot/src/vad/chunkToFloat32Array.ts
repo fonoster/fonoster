@@ -24,12 +24,21 @@
 function chunkToFloat32Array(chunk: Uint8Array): Float32Array {
   let int16Array: Int16Array;
 
-  const alignedByteOffset = chunk.byteOffset % Int16Array.BYTES_PER_ELEMENT === 0;
+  const alignedByteOffset =
+    chunk.byteOffset % Int16Array.BYTES_PER_ELEMENT === 0;
   if (alignedByteOffset) {
-    int16Array = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.byteLength / Int16Array.BYTES_PER_ELEMENT);
+    int16Array = new Int16Array(
+      chunk.buffer,
+      chunk.byteOffset,
+      chunk.byteLength / Int16Array.BYTES_PER_ELEMENT
+    );
   } else {
     const alignedChunk = new Uint8Array(chunk);
-    int16Array = new Int16Array(alignedChunk.buffer, alignedChunk.byteOffset, alignedChunk.byteLength / Int16Array.BYTES_PER_ELEMENT);
+    int16Array = new Int16Array(
+      alignedChunk.buffer,
+      alignedChunk.byteOffset,
+      alignedChunk.byteLength / Int16Array.BYTES_PER_ELEMENT
+    );
   }
 
   const floatArray = new Float32Array(int16Array.length);
