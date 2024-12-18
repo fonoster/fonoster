@@ -20,8 +20,8 @@ import { readFileSync } from "fs";
 import { ONNXRuntimeAPI, SpeechProbabilities } from "./types";
 
 function getNewState(ortInstance: ONNXRuntimeAPI) {
-  const zeroes = Array(2 * 128).fill(0)
-  return new ortInstance.Tensor("float32", zeroes, [2, 1, 128])
+  const zeroes = Array(2 * 128).fill(0);
+  return new ortInstance.Tensor("float32", zeroes, [2, 1, 128]);
 }
 
 class SileroVadModel {
@@ -44,16 +44,19 @@ class SileroVadModel {
   async init() {
     const modelArrayBuffer = readFileSync(this.pathToModel).buffer;
     this._session = await this.ort.InferenceSession.create(modelArrayBuffer);
-    this._sr = new this.ort.Tensor("int64", [16000n]); 
-    this._state = getNewState(this.ort)
+    this._sr = new this.ort.Tensor("int64", [16000n]);
+    this._state = getNewState(this.ort);
   }
 
   resetState = () => {
-    this._state = getNewState(this.ort)
-  }
+    this._state = getNewState(this.ort);
+  };
 
   async process(audioFrame: Float32Array): Promise<SpeechProbabilities> {
-    const t = new this.ort.Tensor("float32", audioFrame, [1, audioFrame.length]);
+    const t = new this.ort.Tensor("float32", audioFrame, [
+      1,
+      audioFrame.length
+    ]);
 
     const inputs = {
       input: t,

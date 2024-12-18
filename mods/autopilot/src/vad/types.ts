@@ -34,15 +34,16 @@ type ONNXRuntimeAPI = {
   InferenceSession: {
     create(modelArrayBuffer: ArrayBuffer): Promise<unknown>;
   };
-
-  // this._sr = new this.ort.Tensor("int64", [16000n]); 
   Tensor: {
     new (type: "int64", data: BigInt[]): unknown;
     new (type: "int64", data: BigInt[], dims: [1]): unknown;
-    new (type: "float32", data: Float32Array | number[], dims: [2, 1, 128]): unknown;
+    new (
+      type: "float32",
+      data: Float32Array | number[],
+      dims: [2, 1, 128]
+    ): unknown;
     new (type: "float32", data: Float32Array, dims: [1, number]): unknown;
   };
 };
 
 export { ONNXRuntimeAPI, SpeechProbabilities, Vad, VadEvent };
-
