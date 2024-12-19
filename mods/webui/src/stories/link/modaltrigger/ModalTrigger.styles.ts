@@ -22,10 +22,7 @@ export const StyledModalTrigger = styled("button")(({ theme }) => ({
   all: "unset",
   display: "flex",
   alignItems: "center",
-  color:
-    theme.palette.mode === "dark"
-      ? theme.palette.primary[800]
-      : theme.palette.grey[800],
+  color: theme.palette.mode === "dark" ? theme.palette.primary[800] : "#333333",
   fontFamily: "Poppins",
   fontSize: "10px",
   fontWeight: 400,
@@ -33,6 +30,7 @@ export const StyledModalTrigger = styled("button")(({ theme }) => ({
   lineHeight: "24px",
   cursor: "pointer",
   textDecoration: "underline",
+  wordWrap: "break-word",
   "&:hover": {
     textDecoration: "underline"
   },
@@ -46,14 +44,15 @@ export const StyledModalTrigger = styled("button")(({ theme }) => ({
 export const StyledIcon = styled("div")<{ disabled: boolean }>(
   ({ theme, disabled }) => ({
     marginRight: "8px",
-    fontSize: "10px",
+    width: "16px",
+    height: "16px",
     display: "flex",
     alignItems: "center",
     color: disabled
       ? "#8D8D8D"
       : theme.palette.mode === "dark"
         ? theme.palette.primary[500]
-        : theme.palette.grey[800],
+        : "#333333",
     pointerEvents: disabled ? "none" : "auto"
   })
 );
