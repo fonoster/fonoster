@@ -43,7 +43,11 @@ class SileroVadModel {
 
   async init() {
     const modelArrayBuffer = readFileSync(this.pathToModel).buffer;
-    this._session = await this.ort.InferenceSession.create(modelArrayBuffer);
+    const sessionOption = { interOpNumThreads: 1, intraOpNumThreads: 1 };
+    this._session = await this.ort.InferenceSession.create(
+      modelArrayBuffer,
+      sessionOption
+    );
     this._sr = new this.ort.Tensor("int64", [16000n]);
     this._state = getNewState(this.ort);
   }

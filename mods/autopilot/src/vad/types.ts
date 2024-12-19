@@ -32,7 +32,13 @@ type SpeechProbabilities = {
 
 type ONNXRuntimeAPI = {
   InferenceSession: {
-    create(modelArrayBuffer: ArrayBuffer): Promise<unknown>;
+    create(
+      modelArrayBuffer: ArrayBuffer,
+      sessionOption: {
+        interOpNumThreads: number;
+        intraOpNumThreads: number;
+      }
+    ): Promise<unknown>;
   };
   Tensor: {
     new (type: "int64", data: BigInt[]): unknown;
