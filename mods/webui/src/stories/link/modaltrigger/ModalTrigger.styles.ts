@@ -43,9 +43,11 @@ export const StyledModalTrigger = styled("button")(({ theme }) => ({
 
 export const StyledIcon = styled("div")<{ disabled: boolean }>(
   ({ theme, disabled }) => ({
+    "& svg": {
+      width: "16px",
+      height: "16px"
+    },
     marginRight: "8px",
-    width: "16px",
-    height: "16px",
     display: "flex",
     alignItems: "center",
     color: disabled
