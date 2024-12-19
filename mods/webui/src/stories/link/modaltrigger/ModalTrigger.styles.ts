@@ -23,11 +23,14 @@ export const StyledModalTrigger = styled("button")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   color:
-    theme.palette.mode == "dark"
+    theme.palette.mode === "dark"
       ? theme.palette.primary[800]
       : theme.palette.grey[800],
-  fontSize: "16px",
+  fontFamily: "Poppins",
+  fontSize: "10px",
   fontWeight: 400,
+  letterSpacing: "0.5px",
+  lineHeight: "24px",
   cursor: "pointer",
   textDecoration: "underline",
   "&:hover": {
@@ -43,12 +46,12 @@ export const StyledModalTrigger = styled("button")(({ theme }) => ({
 export const StyledIcon = styled("div")<{ disabled: boolean }>(
   ({ theme, disabled }) => ({
     marginRight: "8px",
-    fontSize: "16px",
+    fontSize: "10px",
     display: "flex",
     alignItems: "center",
     color: disabled
       ? "#8D8D8D"
-      : theme.palette.mode == "dark"
+      : theme.palette.mode === "dark"
         ? theme.palette.primary[500]
         : theme.palette.grey[800],
     pointerEvents: disabled ? "none" : "auto"

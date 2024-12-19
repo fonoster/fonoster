@@ -24,14 +24,14 @@ import AddIcon from "@mui/icons-material/Add";
 export const ModalTrigger: React.FC<ModalTriggerProps> = ({
   onClick,
   disabled,
-  children
+  label
 }) => {
   return (
     <StyledModalTrigger onClick={onClick} disabled={disabled}>
       <StyledIcon disabled={disabled}>
         <AddIcon />
       </StyledIcon>
-      {children}
+      {label}
     </StyledModalTrigger>
   );
 };

@@ -36,7 +36,7 @@ const meta = {
     }
   },
   tags: ["autodocs"],
-  args: { onClick: fn(), children: "Back" },
+  args: { onClick: fn(), label: "Back" },
   argTypes: {
     onClick: {
       name: "On Click",
@@ -47,7 +47,7 @@ const meta = {
       description: "If true, the button will be disabled",
       control: "boolean"
     },
-    children: {
+    label: {
       name: "Label",
       description: "The label to display",
       control: "text"
@@ -64,7 +64,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: {
-    children: "Create New Secret",
+    label: "Create New Secret",
     disabled: false
   }
 };
@@ -74,7 +74,7 @@ export const Default: Story = {
  */
 export const Disabled: Story = {
   args: {
-    children: "Create New Secret",
+    label: "Create New Secret",
     disabled: true
   }
 };
