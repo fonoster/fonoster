@@ -60,7 +60,7 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       )} options: ${JSON.stringify(options)}]`
     );
 
-    const { voice } = this.engineConfig.config;
+    const { voice, model } = this.engineConfig.config;
     const ref = this.createMediaReference();
     const chunks = textChunksByFirstNaturalPause(text);
     const stream = new Readable({ read() {} });
@@ -85,8 +85,8 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     observeQueue();
 
-    chunks.forEach((textChunk, index) => {
-      this.doSynthesize(textChunk, voice)
+    chunks.forEach((text, index) => {
+      this.doSynthesize({ text, voice, model})
         .then((synthesizedText) => {
           results[index] = synthesizedText;
         })
@@ -98,12 +98,13 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     return { ref, stream };
   }
 
-  private async doSynthesize(text: string, voice: string): Promise<Readable> {
+  private async doSynthesize(params: { text: string; voice: string, model: string }): Promise<Readable> {
+    const { text, voice, model } = params;
     const response = await this.client.generate({
       stream: true,
       voice,
       text,
-      model_id: "eleven_turbo_v2_5",
+      model_id: model ?? "eleven_flash_v2_5",
       output_format: "pcm_16000"
     });
 
