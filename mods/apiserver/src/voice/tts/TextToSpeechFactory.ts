@@ -31,7 +31,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 type EngineConstructor<T> = new (options: T) => AbstractTextToSpeech<string>;
 
 class TextToSpeechFactory {
-  private static engines: Map<string, EngineConstructor<unknown>> = new Map();
+  private static readonly engines: Map<string, EngineConstructor<unknown>> = new Map();
 
   static registerEngine<T>(name: string, ctor: EngineConstructor<T>) {
     logger.verbose("registering tts engine", { name });

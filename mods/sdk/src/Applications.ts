@@ -82,13 +82,13 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  *   speechToText: {
  *     productRef: "stt.google",
  *     config: {
- *      languageCode: "en-US"
+ *       languageCode: "en-US"
  *     }
  *   },
  *   intelligence: {
  *     productRef: "nlu.dialogflowcx",
  *     credentials: {
- *        apiKey: "your-api-key"
+ *       apiKey: "your-api-key"
  *     },
  *     config: {
  *       agentId: "your-agent-id"
@@ -99,7 +99,7 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  * main(request);
  */
 class Applications {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Applications object.
    *
@@ -145,13 +145,13 @@ class Applications {
    *   speechToText: {
    *     productRef: "stt.google",
    *     config: {
-   *      languageCode: "en-US"
+   *       languageCode: "en-US"
    *     }
    *   },
    *   intelligence: {
    *     productRef: "nlu.dialogflowcx",
    *     credentials: {
-   *        apiKey: "your-api-key"
+   *       apiKey: "your-api-key"
    *     },
    *     config: {
    *       agentId: "your-agent-id"
