@@ -86,7 +86,7 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     observeQueue();
 
     chunks.forEach((text, index) => {
-      this.doSynthesize({ text, voice, model})
+      this.doSynthesize({ text, voice, model })
         .then((synthesizedText) => {
           results[index] = synthesizedText;
         })
@@ -98,7 +98,11 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     return { ref, stream };
   }
 
-  private async doSynthesize(params: { text: string; voice: string, model: string }): Promise<Readable> {
+  private async doSynthesize(params: {
+    text: string;
+    voice: string;
+    model: string;
+  }): Promise<Readable> {
     const { text, voice, model } = params;
     const response = await this.client.generate({
       stream: true,
