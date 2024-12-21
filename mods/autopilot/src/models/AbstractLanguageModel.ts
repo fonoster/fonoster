@@ -72,9 +72,12 @@ abstract class AbstractLanguageModel implements LanguageModel {
       for (const toolCall of response.tool_calls) {
         const { args, name } = toolCall;
 
-        logger.verbose(`invoking tool: ${name} with args: ${JSON.stringify(args)}`, {
-          firstInvocation
-        });
+        logger.verbose(
+          `invoking tool: ${name} with args: ${JSON.stringify(args)}`,
+          {
+            firstInvocation
+          }
+        );
 
         switch (name) {
           case "hangup":
