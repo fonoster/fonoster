@@ -19,7 +19,7 @@
 
 import { styled } from "@mui/material/styles";
 
-export const StyledProgressContainer = styled("div")(({ theme }) => ({
+export const StyledProgressContainer = styled("div")(() => ({
   width: "670px",
   display: "flex",
   flexDirection: "column",
@@ -37,7 +37,7 @@ export const StyledProgressIndicator = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primary[500]
 }));
 
-export const StyledIndicatorLabelList = styled("ol")(({ theme }) => ({
+export const StyledIndicatorLabelList = styled("ol")(() => ({
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-between",
@@ -47,4 +47,4 @@ export const StyledIndicatorLabelList = styled("ol")(({ theme }) => ({
   gap: "10px"
 }));
 
-export const StyledIndicatorLabel = styled("li")(({ theme }) => ({}));
+export const StyledIndicatorLabel = styled("li")(() => ({}));
