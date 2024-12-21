@@ -105,7 +105,7 @@ abstract class AbstractLanguageModel implements LanguageModel {
       }
 
       const finalResponse = (await chain.invoke({
-        text: "Please provide a final response based on the tool results."
+        text: "Please provide a final response based on the tool's results."
       })) as AIMessage;
 
       response.content = finalResponse.content ?? "";
