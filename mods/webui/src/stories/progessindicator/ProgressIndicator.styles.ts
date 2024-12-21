@@ -17,36 +17,34 @@
  * limitations under the License.
  */
 
-import { styled } from "@mui/material/styles"
+import { styled } from "@mui/material/styles";
 
 export const StyledProgressContainer = styled("div")(({ theme }) => ({
-    width: '670px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-}))
+  width: "670px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "16px"
+}));
 
 export const StyledProgressBar = styled("div")(({ theme }) => ({
-    display: 'flex',
-    height: '4px',
-    backgroundColor: theme.palette.primary[200]
-}))
+  display: "flex",
+  height: "4px",
+  backgroundColor: theme.palette.primary[200]
+}));
 
 export const StyledProgressIndicator = styled("div")(({ theme }) => ({
-    height: '100%',
-    backgroundColor: theme.palette.primary[500]
-}))
+  height: "100%",
+  backgroundColor: theme.palette.primary[500]
+}));
 
 export const StyledIndicatorLabelList = styled("ol")(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    listStyle: 'none',
-    padding: '0px',
-    margin: '0px',
-    gap: '10px'
-}))
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  listStyle: "none",
+  padding: "0px",
+  margin: "0px",
+  gap: "10px"
+}));
 
-export const StyledIndicatorLabel = styled("li")(({ theme }) => ({
-
-}))
+export const StyledIndicatorLabel = styled("li")(({ theme }) => ({}));

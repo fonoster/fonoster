@@ -17,39 +17,43 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react'
-import { Typography } from '../typography/Typography'
-import { StyledIndicatorLabel, StyledIndicatorLabelList, StyledProgressBar, StyledProgressContainer, StyledProgressIndicator, } from './ProgressIndicator.styles'
-import { ProgressIndicatorProps } from './types'
+import { useEffect, useState } from "react";
+import { Typography } from "../typography/Typography";
+import {
+  StyledIndicatorLabel,
+  StyledIndicatorLabelList,
+  StyledProgressBar,
+  StyledProgressContainer,
+  StyledProgressIndicator
+} from "./ProgressIndicator.styles";
+import { ProgressIndicatorProps } from "./types";
 
 export const ProgressIndicator = (props: ProgressIndicatorProps) => {
-    const { steps, current = 0 } = props
-    const [progress, setProgress] = useState(0);
+  const { steps, current = 0 } = props;
+  const [progress, setProgress] = useState(0);
 
-    useEffect(() => {
-        const progress = (current / (steps.length)) * 100
-        setProgress(Math.round(progress))
-    }, [steps, current])
+  useEffect(() => {
+    const progress = (current / steps.length) * 100;
+    setProgress(Math.round(progress));
+  }, [steps, current]);
 
-    return (
-        <StyledProgressContainer>
-            <StyledProgressBar>
-                <StyledProgressIndicator sx={{
-                    width: `${progress}%`
-                }} />
-            </StyledProgressBar>
+  return (
+    <StyledProgressContainer>
+      <StyledProgressBar>
+        <StyledProgressIndicator
+          sx={{
+            width: `${progress}%`
+          }}
+        />
+      </StyledProgressBar>
 
-            <StyledIndicatorLabelList>
-                {steps.map((step, i) => (
-                    <StyledIndicatorLabel key={i}>
-                        <Typography variant='body-small'>
-                            {step}
-                        </Typography>
-                    </StyledIndicatorLabel>
-                ))}
-            </StyledIndicatorLabelList>
-
-        </StyledProgressContainer>
-    )
-}
-
+      <StyledIndicatorLabelList>
+        {steps.map((step, i) => (
+          <StyledIndicatorLabel key={i}>
+            <Typography variant="body-small">{step}</Typography>
+          </StyledIndicatorLabel>
+        ))}
+      </StyledIndicatorLabelList>
+    </StyledProgressContainer>
+  );
+};

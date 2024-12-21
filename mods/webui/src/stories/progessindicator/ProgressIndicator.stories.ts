@@ -24,27 +24,27 @@ import { ProgressIndicator } from "./ProgressIndicator";
  * This story is for the ProgressIndicator component. It takes steps, and current step.
  */
 const meta = {
-    title: "Shared Components/ProgressIndicator",
-    component: ProgressIndicator,
-    parameters: {
-        layout: "centered",
-        design: {
-            type: "figma",
-            url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=16-11665&t=9fsQpnbEFLDtU7tO-4"
-        }
-    },
-    tags: ["autodocs"],
-    argTypes: {
-        steps: {
-            name: "Steps",
-            description: "The list of steps"
-        },
-        current: {
-            name: "Current",
-            control: "number",
-            description: "The current step"
-        }
+  title: "Shared Components/ProgressIndicator",
+  component: ProgressIndicator,
+  parameters: {
+    layout: "centered",
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=16-11665&t=9fsQpnbEFLDtU7tO-4"
     }
+  },
+  tags: ["autodocs"],
+  argTypes: {
+    steps: {
+      name: "Steps",
+      description: "The list of steps"
+    },
+    current: {
+      name: "Current",
+      control: "number",
+      description: "The current step"
+    }
+  }
 } satisfies Meta<typeof ProgressIndicator>;
 
 export default meta;
@@ -54,57 +54,57 @@ type Story = StoryObj<typeof meta>;
  * Example to show Progress Indicator.
  */
 export const Example: Story = {
-    args: {
-        steps: [
-            "Verify email address",
-            "Enter phone number",
-            "Verify phone number"
-        ],
-        current: 2
-    }
+  args: {
+    steps: [
+      "Verify email address",
+      "Enter phone number",
+      "Verify phone number"
+    ],
+    current: 2
+  }
 };
 
 /**
  * Example to show Progress Indicator with four steps and zero progress.
  */
 export const ZeroProgress: Story = {
-    args: {
-        steps: [
-            "Verify email address",
-            "Enter phone number",
-            "Verify phone number",
-            "Confirmation"
-        ],
-        current: 0
-    }
+  args: {
+    steps: [
+      "Verify email address",
+      "Enter phone number",
+      "Verify phone number",
+      "Confirmation"
+    ],
+    current: 0
+  }
 };
 
 /**
  * Example to show Progress Indicator with four steps and half progress.
  */
 export const HalfProgress: Story = {
-    args: {
-        steps: [
-            "Verify email address",
-            "Enter phone number",
-            "Verify phone number",
-            "Confirmation"
-        ],
-        current: 2
-    }
+  args: {
+    steps: [
+      "Verify email address",
+      "Enter phone number",
+      "Verify phone number",
+      "Confirmation"
+    ],
+    current: 2
+  }
 };
 
 /**
  * Example to show Progress Indicator with four steps and complete progress.
  */
 export const CompleteProgress: Story = {
-    args: {
-        steps: [
-            "Verify email address",
-            "Enter phone number",
-            "Verify phone number",
-            "Confirmation"
-        ],
-        current: 4
-    }
+  args: {
+    steps: [
+      "Verify email address",
+      "Enter phone number",
+      "Verify phone number",
+      "Confirmation"
+    ],
+    current: 4
+  }
 };

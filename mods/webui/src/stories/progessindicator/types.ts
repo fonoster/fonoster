@@ -18,8 +18,8 @@
  */
 
 type ProgressIndicatorProps = {
-    steps: string[];
-    current: number;
-}
+  steps: string[];
+  current: number;
+};
 
-export type { ProgressIndicatorProps }
+export type { ProgressIndicatorProps };
