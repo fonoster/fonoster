@@ -8,7 +8,7 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
 
 ## Installation
 
-First, create a new directory in your preferred location and change to it. The root directory we will use in the guide is `fonoster.`
+First, you'll need to create a new directory in your preferred location and change it. The root directory we will use in the guide is `fonoster.`
 
 ```bash
 mkdir -p fonoster/config
@@ -56,7 +56,7 @@ Your directory structure should look like this:
 3 directories, 6 files
 ```
 
-> The integrations.json file contains the credentials for the integrations (stt, tts, etc). You will need to update this file with the correct credentials for the integrations you want to use.
+> The integrations.json file contains the credentials for the integrations (stt, tts, etc). You must update this file with the correct credentials for the integrations you want to use.
 
 Finally, run the following command to start the application:
 
@@ -64,8 +64,4 @@ Finally, run the following command to start the application:
 docker compose up -d
 ```
 
-After a few moments, you can begin interacting with Fonoster using the API or SDK.
-
-## Known Issues
-
-- Running Fonoster in Windows is not currently supported because the RTPEngine container is unavailable for Windows. No workaround is available at this time.
+After a few moments, you can interact with Fonoster using the API or SDK.
