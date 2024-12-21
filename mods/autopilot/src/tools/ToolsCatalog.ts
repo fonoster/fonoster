@@ -23,7 +23,7 @@ import { Tool } from "./type";
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class ToolsCatalog {
-  private tools: Map<string, Tool>;
+  private readonly tools: Map<string, Tool>;
 
   constructor(tools: Tool[]) {
     this.tools = new Map();

@@ -67,12 +67,12 @@ abstract class AbstractLanguageModel implements LanguageModel {
     const response = (await chain.invoke({ text })) as AIMessage;
     let firstInvocation = true;
 
-    if (response.additional_kwargs?.tool_calls) {
+    if (response.tool_calls) {
       // eslint-disable-next-line no-loops/no-loops
-      for (const toolCall of response.additional_kwargs.tool_calls) {
-        const { arguments: args, name } = toolCall.function;
+      for (const toolCall of response.tool_calls) {
+        const { args, name } = toolCall;
 
-        logger.verbose(`invoking tool: ${name} with args: ${args}`, {
+        logger.verbose(`invoking tool: ${name} with args: ${JSON.stringify(args)}`, {
           firstInvocation
         });
 

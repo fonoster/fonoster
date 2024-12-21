@@ -24,11 +24,11 @@ import { Voice } from "../voice";
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function toolInvocation(params: {
-  toolName: string;
+  toolName: string,
   chatHistory: ReturnType<typeof createChatHistory>;
   toolsCatalog: ToolsCatalog;
   firstInvocation: boolean;
-  args: string;
+  args: Record<string, unknown>;
   voice: Voice;
 }): Promise<void> {
   const { firstInvocation, voice, args, toolName, chatHistory, toolsCatalog } =
@@ -45,7 +45,7 @@ async function toolInvocation(params: {
 
     const toolResult = await toolsCatalog.invokeTool(
       toolName,
-      JSON.parse(args)
+      args
     );
 
     logger.verbose("tool result: ", toolResult);
