@@ -39,12 +39,20 @@
     "commands": "./dist/commands",
     "dirname": "fonoster",
     "topicSeparator": ":",
-    "helpClass": "./dist/help"
+    "helpClass": "./dist/help",
+    "plugins": ["@oclif/plugin-warn-if-update-available"],
+    "warn-if-update-available": {
+      "timeoutInDays": 7,
+      "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>.",
+      "frequency": 1,
+      "frequencyUnit": "days"
+    }
   },
   "dependencies": {
     "@fonoster/sdk": "^0.7.57",
     "@inquirer/prompts": "^7.1.0",
     "@oclif/core": "^4.0.34",
+    "@oclif/plugin-warn-if-update-available": "^3.1.28",
     "cliui": "^8.0.1",
     "figlet": "^1.8.0",
     "moment": "^2.30.1",
