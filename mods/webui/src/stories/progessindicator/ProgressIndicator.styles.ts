@@ -37,7 +37,6 @@ export const StyledProgressIndicator = styled("div")(({ theme }) => ({
     backgroundColor: theme.palette.primary[500]
 }))
 
-
 export const StyledIndicatorLabelList = styled("ol")(({ theme }) => ({
     display: 'flex',
     flexDirection: 'row',
