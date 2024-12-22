@@ -103,7 +103,9 @@ class VoiceClientImpl implements VoiceClient {
 
         logger.verbose("rejected unauthorized session", { channelId });
 
-        await ari.channels.play({ channelId, media: "sound:beep" });
+        await ari.channels.answer({ channelId });
+        await ari.channels.play({ channelId, media: "sound:unavailable" });
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         await ari.channels.hangup({ channelId });
         return;
       }
