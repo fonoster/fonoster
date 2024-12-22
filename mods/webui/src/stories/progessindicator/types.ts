@@ -22,4 +22,12 @@ type ProgressIndicatorProps = {
   current: number;
 };
 
-export type { ProgressIndicatorProps };
+type ProgressProps = {
+  progress: `${number}%`;
+};
+
+type IndicatorLabelProps = {
+  completed?: boolean;
+  current?: boolean;
+};
+export type { ProgressIndicatorProps, ProgressProps, IndicatorLabelProps };
