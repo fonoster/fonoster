@@ -30,8 +30,8 @@ function createSession(handler: VoiceHandler) {
       voice.once(StreamEvent.DATA, async (params) => {
         const { request } = params;
 
-        if (params.request) {
-          sessionRef = params.request.sessionRef;
+        if (request) {
+          sessionRef = request.sessionRef;
           const response = new VoiceResponse(request, voice);
           await handler(request, response);
           resolve();
