@@ -3,6 +3,7 @@ LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 
 COPY asterisk/config /etc/asterisk/
 COPY asterisk/run.sh /
+COPY asterisk/sounds/ /var/lib/asterisk/sounds/en
 
 RUN apk add --no-cache --update asterisk asterisk-curl tini \
  && chmod +x /run.sh \

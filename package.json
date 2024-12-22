@@ -14,7 +14,8 @@
     "start:webui": "NODE_ENV=dev cd mods/webui && npm start",
     "start:storybook": "NODE_ENV=dev cd mods/webui && npm run storybook",
     "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver mods/apiserver/src/index.ts",
-    "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice /voice/src/demo.ts",
+    "start:authz": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/authz mods/authz/src/server/server.ts",
+    "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice mods/voice/src/demo.ts",
     "start:autopilot": "cross-env NODE_ENV=dev ASSISTANT=$(pwd)/config/assistant.json LOGS_LEVEL=verbose nodemon --watch mods/autopilot mods/autopilot/src/server.ts",
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk simplephone -d --remove-orphans",
     "start:sdk-test": "npx serve -s mods/sdk/public -l 9000",
@@ -104,12 +105,12 @@
     "node": ">=20.11.1"
   },
   "dependencies": {
-    "@prisma/client": "^6.0.1"
+    "@prisma/client": "^6.1.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-arm64-gnu": "^4.28.1",
-    "@rollup/rollup-linux-arm64-musl": "^4.28.1",
-    "@rollup/rollup-linux-x64-gnu": "^4.28.1",
-    "@rollup/rollup-linux-x64-musl": "^4.28.1"
+    "@rollup/rollup-linux-arm64-gnu": "^4.29.1",
+    "@rollup/rollup-linux-arm64-musl": "^4.29.1",
+    "@rollup/rollup-linux-x64-gnu": "^4.29.1",
+    "@rollup/rollup-linux-x64-musl": "^4.29.1"
   }
 }

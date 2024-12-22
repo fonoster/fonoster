@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "target": "es2020",
+  },
+  "exclude": ["node_modules", "dist", "test"],
+  "references": [
+    {
+      "path": "../common",
+    },
+    {
+      "path": "../identity",
+    },
+    {
+      "path": "../logger",
+    }
+  ],
+}

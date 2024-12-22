@@ -9,6 +9,9 @@
       "path": "../identity",
     },
     {
+      "path": "../authz",
+    },
+    {
       "path": "../logger",
     },
     {
