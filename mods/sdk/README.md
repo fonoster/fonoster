@@ -757,13 +757,13 @@ const request = {
   speechToText: {
     productRef: "stt.google",
     config: {
-     languageCode: "en-US"
+      languageCode: "en-US"
     }
   },
   intelligence: {
     productRef: "nlu.dialogflowcx",
     credentials: {
-       apiKey: "your-api-key"
+      apiKey: "your-api-key"
     },
     config: {
       agentId: "your-agent-id"
@@ -815,13 +815,13 @@ const request = {
   speechToText: {
     productRef: "stt.google",
     config: {
-     languageCode: "en-US"
+      languageCode: "en-US"
     }
   },
   intelligence: {
     productRef: "nlu.dialogflowcx",
     credentials: {
-       apiKey: "your-api-key"
+      apiKey: "your-api-key"
     },
     config: {
       agentId: "your-agent-id"

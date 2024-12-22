@@ -127,7 +127,7 @@ new VoiceServer().listen(handler, { port: 3000 })
 
 ### voiceResponse.answer()
 Answer the call. Before running any other verb you
-must run the anwer command.
+must run the answer command.
 
 **Kind**: instance method of [<code>VoiceResponse</code>](#VoiceResponse)  
 **Example**  
@@ -224,7 +224,7 @@ Waits for data entry from the user's keypad or from a speech provider.
 | options.maxDigits | <code>number</code> | Maximum number of digits to collect. Defaults to 1 |
 | options.timeout | <code>number</code> | Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout. |
 | options.finishOnKey | <code>string</code> | Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits |
-| options.source | <code>GatherSource</code> | Where to listen as input source. This option accepts `DTMF` and `SPEECH`. A speech provider must be configure when including the `SPEECH` source. You might inclue both with `SPEECH_AND_DTMF`. Defaults to `SPEECH_AND_DTMF` |
+| options.source | <code>GatherSource</code> | Where to listen as input source. This option accepts `DTMF` and `SPEECH`. A speech provider must be configure when including the `SPEECH` source. You might include both with `SPEECH_AND_DTMF`. Defaults to `SPEECH_AND_DTMF` |
 
 **Example**  
 ```js
@@ -377,7 +377,7 @@ async function handler (request, response) {
 <a name="VoiceResponse+unmute"></a>
 
 ### voiceResponse.unmute(options)
-Unmutes a call.
+Unmute a call.
 
 **Kind**: instance method of [<code>VoiceResponse</code>](#VoiceResponse)  
 **See**: mute  
