@@ -19,7 +19,7 @@
 
 import { useState } from 'react';
 import { Typography } from '../typography/Typography';
-import { StyledTooltipContainer, StyledTooltipContent, StyledTooltipContentList } from './Tooltip.styles'
+import { StyledTooltipArrow, StyledTooltipContainer, StyledTooltipContent, StyledTooltipContentList } from './Tooltip.styles'
 import { TooltipProps } from './types'
 
 export const Tooltip = (props: TooltipProps) => {
@@ -40,6 +40,7 @@ export const Tooltip = (props: TooltipProps) => {
                     <StyledTooltipContent>
                         <Typography variant='body-micro'>{content.toString()}</Typography>
                     </StyledTooltipContent>
+                    <StyledTooltipArrow placement={placement} />
                 </StyledTooltipContentList>
             )}
         </StyledTooltipContainer>
