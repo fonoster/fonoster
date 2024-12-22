@@ -16,6 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./server";
-export * from "./client";
-export * from "./createCheckMethodAuthorized";
+export * from "./AuthzClient"
+export * from "./AuthzServiceClient"

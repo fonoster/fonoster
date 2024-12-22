@@ -26,8 +26,8 @@ import * as grpc from "@grpc/grpc-js";
 import merge from "deepmerge";
 import { HealthImplementation } from "grpc-health-check";
 import { defaultServerConfig } from "./defaultServerConfig";
-import { serviceDefinition } from "./serviceDefinition";
-import { ServerConfig, AuthzHandler } from "./types";
+import { serviceDefinition } from "../serviceDefinition";
+import { ServerConfig, AuthzHandler } from "../types";
 
 const logger = getLogger({ service: "authz", filePath: __filename });
 

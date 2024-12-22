@@ -23,7 +23,7 @@ import {
   CheckMethodAuthorizedRequest,
   GetAccountBalanceRequest,
   VoiceRequest
-} from "./types";
+} from "../types";
 const logger = getLogger({ service: "authz", filePath: __filename });
 
 class DummyAuthzHandler implements AuthzHandler {

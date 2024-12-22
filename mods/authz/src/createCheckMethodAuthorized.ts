@@ -18,6 +18,8 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { AuthzClient } from "./client/AuthzClient";
+import { CheckMethodAuthorizedRequest } from "./types";
 
 const logger = getLogger({ service: "authz", filePath: __filename });
 
@@ -33,6 +35,7 @@ function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
     authzServer,
     methods
   });
+  const authz = new AuthzClient(authzServer);
 
   /**
    * Inner function that will be called by the gRPC server.
@@ -42,18 +45,34 @@ function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
    * @param {ServerInterceptingCall} call - The call object
    * @return {ServerInterceptingCall} - The modified call object
    */
-  return (methodDefinition: { path: string }, call: ServerInterceptingCall) => {
-    const { path } = methodDefinition;
+  return (
+    methodDefinition: { path: string },
+    call: ServerInterceptingCall
+  ) => {
+    const { path: method } = methodDefinition;
 
-    if (!methods.includes(path)) {
+    if (!methods.includes(method)) {
       // Ignore the check if the method is not in the list
-      logger.silly("method is not in the list", { path });
+      logger.silly("method is not in the list", { method });
       return call;
     }
 
-    logger.verbose("checking if method is authorized", { path });
+    logger.verbose("checking if method is authorized", { method });
 
-    // TODO: Call the authz service to check if the user is authorized to call the method
+    authz.checkMethodAuthorized({
+      accessKeyId: "",
+      method
+    } as CheckMethodAuthorizedRequest).then((authorized) => {
+      if (!authorized) {
+        logger.error("method is not authorized", { method });
+        call.sendStatus({
+          code: 7,
+          details: ""
+        });
+      } else {
+        logger.verbose("method is authorized", { method });
+      }
+    });
 
     return call;
   };

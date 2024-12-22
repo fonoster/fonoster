@@ -16,11 +16,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ServerConfig } from "./types";
-
-const defaultServerConfig: ServerConfig = {
-  port: 50071,
-  bind: "0.0.0.0"
-};
-
-export { defaultServerConfig };
+export * from "./AuthzServer"
