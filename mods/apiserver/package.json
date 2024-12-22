@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@deepgram/sdk": "^3.5.1",
+    "@fonoster/authz": "^0.7.56",
     "@fonoster/common": "^0.7.56",
     "@fonoster/identity": "^0.7.56",
     "@fonoster/logger": "^0.7.56",

@@ -124,6 +124,18 @@ if (e.IDENTITY_OAUTH2_GITHUB_ENABLED === "true") {
   ]);
 }
 
+if (e.AUTHZ_SERVICE_ENABLED === "true") {
+  assertEnvsAreSet(["AUTHZ_SERVICE_HOST"]);
+}
+
+// Authz configurations
+export const AUTHZ_SERVICE_ENABLED = e.AUTHZ_SERVICE_ENABLED === "true";
+export const AUTHZ_SERVICE_HOST = e.AUTHZ_SERVICE_HOST;
+export const AUTHZ_SERVICE_PORT = e.AUTHZ_SERVICE_PORT || 50071;
+export const AUTHZ_SERVICE_METHODS = e.AUTHZ_SERVICE_METHODS
+  ? e.AUTHZ_SERVICE_METHODS.split(",")
+  : ["/fonoster.calls.v1beta2.Calls/CreateCall"];
+
 // InfluxDB configurations
 export const INFLUXDB_BUCKET = e.INFLUXDB_INIT_BUCKET;
 

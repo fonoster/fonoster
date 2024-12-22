@@ -1,0 +1,81 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.authz.v1beta2;
+
+import "google/protobuf/empty.proto";
+
+import "voice.proto";
+
+// Authentication service definition
+service Authz {
+  // Check if a user has permission to perform an action
+  rpc CheckSessionAuthorized (fonoster.voice.v1beta2.CreateSessionRequest) returns (CheckSessionAuthorizedResponse) {}
+  // Check if a given accessKeyId has permission to access a method
+  rpc CheckMethodAuthorized (CheckMethodAuthorizedRequest) returns (CheckMethodAuthorizedResponse) {}
+  // Charge an account with a given amount
+  rpc ChargeAccount (ChargeAccountRequest) returns (google.protobuf.Empty) {}
+  // Get the account balance
+  rpc GetAccountBalance (GetAccountBalanceRequest) returns (GetAccountBalanceResponse) {}
+}
+
+// Response message for the CheckVoiceRequestAuthorized method
+message CheckSessionAuthorizedResponse {
+  // The authorization server will look for one or more parameters in the request
+  // to determine if the request is authorized. If the request is authorized, the
+  // response will have the value true.
+  bool authorized = 1;
+}
+
+// Request message for the CheckMethodAuthorized method
+message CheckMethodAuthorizedRequest {
+  // The accessKeyId to check
+  string accessKeyId = 1;
+  // The method to check
+  string method = 2;
+}
+
+// Response message for the CheckMethodAuthorized method
+message CheckMethodAuthorizedResponse {
+  // The authorization server will check the accessKeyId and method to determine if
+  // the request is authorized. If the request is authorized, the response will have
+  // the value true.
+  bool authorized = 1;
+}
+
+// Request message for the ChargeAccount method
+message ChargeAccountRequest {
+  // The accessKeyId to charge
+  string accessKeyId = 1;
+  // The amount to charge
+  double amount = 2;
+}
+
+// Request message for the GetAccountBalance method
+message GetAccountBalanceRequest {
+  // The accessKeyId to check
+  string accessKeyId = 1;
+}
+
+// Response message for the GetAccountBalance method
+message GetAccountBalanceResponse {
+  // The account balance
+  double balance = 1;
+}

@@ -16,5 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./AuthzServer";
-export * from "./createCheckMethodAuthorized";
+import { createServiceDefinition } from "@fonoster/common";
+
+const serviceDefinition = createServiceDefinition({
+  serviceName: "Authz",
+  pckg: "authz",
+  proto: "authz.proto",
+  version: "v1beta2"
+});
+
+export { serviceDefinition };

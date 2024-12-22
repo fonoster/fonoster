@@ -16,5 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./AuthzServer";
-export * from "./createCheckMethodAuthorized";
+import AuthzServer from "./AuthzServer";
+import { DummyAuthzHandler } from "./DummyAuthzHandler";
+
+new AuthzServer().listen(new DummyAuthzHandler());

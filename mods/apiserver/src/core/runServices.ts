@@ -35,22 +35,33 @@ import {
   ASTERISK_ARI_PROXY_URL,
   ASTERISK_ARI_SECRET,
   ASTERISK_ARI_USERNAME,
+  AUTHZ_SERVICE_ENABLED,
+  AUTHZ_SERVICE_HOST,
+  AUTHZ_SERVICE_METHODS,
+  AUTHZ_SERVICE_PORT,
   HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
   NATS_URL
 } from "../envs";
 import { connectToAri } from "../voice/connectToAri";
+import { createCheckMethodAuthorized } from "@fonoster/authz";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, allowList);
+const checkMethodAuthorized = createCheckMethodAuthorized(
+  `${AUTHZ_SERVICE_HOST}:${AUTHZ_SERVICE_PORT}`,
+  AUTHZ_SERVICE_METHODS
+);
 
 async function runServices() {
   const healthImpl = new HealthImplementation(statusMap);
   const credentials = await getServerCredentials({});
-  const server = new grpc.Server({
-    interceptors: [authorization]
-  });
+  const interceptors = AUTHZ_SERVICE_ENABLED
+    ? [authorization, checkMethodAuthorized]
+    : [authorization];
+
+  const server = new grpc.Server({ interceptors });
 
   // Add the health check service to the server
   healthImpl.addToServer(server);
