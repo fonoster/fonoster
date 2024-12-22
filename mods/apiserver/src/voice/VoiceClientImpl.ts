@@ -146,7 +146,7 @@ class VoiceClientImpl implements VoiceClient {
     const snoopChannel = await this.ari.channels.snoopChannel({
       app: STASIS_APP_NAME,
       channelId: this.config.sessionRef,
-      snoopId: "snoop-" + this.config.sessionRef,
+      snoopId: `snoop-${this.config.sessionRef}`,
       spy: "in"
     });
 
