@@ -40,16 +40,16 @@ export const ProgressIndicator = (props: ProgressIndicatorProps) => {
   return (
     <StyledProgressContainer>
       <StyledProgressBar>
-        <StyledProgressIndicator
-          sx={{
-            width: `${progress}%`
-          }}
-        />
+        <StyledProgressIndicator progress={`${progress}%`} />
       </StyledProgressBar>
 
       <StyledIndicatorLabelList>
         {steps.map((step, i) => (
-          <StyledIndicatorLabel key={i}>
+          <StyledIndicatorLabel
+            key={i}
+            current={current === i}
+            completed={current > i}
+          >
             <Typography variant="body-small">{step}</Typography>
           </StyledIndicatorLabel>
         ))}
