@@ -18,6 +18,7 @@
  */
 
 import { styled } from "@mui/material/styles";
+import { IndicatorLabelProps, ProgressProps } from "./types";
 
 export const StyledProgressContainer = styled("div")(() => ({
   width: "670px",
@@ -32,10 +33,13 @@ export const StyledProgressBar = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.primary[200]
 }));
 
-export const StyledProgressIndicator = styled("div")(({ theme }) => ({
-  height: "100%",
-  backgroundColor: theme.palette.primary[500]
-}));
+export const StyledProgressIndicator = styled("div")<ProgressProps>(
+  ({ theme, progress }) => ({
+    height: "100%",
+    width: progress,
+    backgroundColor: theme.palette.primary[500]
+  })
+);
 
 export const StyledIndicatorLabelList = styled("ol")(() => ({
   display: "flex",
@@ -47,4 +51,11 @@ export const StyledIndicatorLabelList = styled("ol")(() => ({
   gap: "10px"
 }));
 
-export const StyledIndicatorLabel = styled("li")(() => ({}));
+export const StyledIndicatorLabel = styled("li")<IndicatorLabelProps>(
+  ({ theme, current, completed }) => ({
+    color:
+      current || completed
+        ? theme.palette.secondary[900]
+        : theme.palette.secondary[500]
+  })
+);
