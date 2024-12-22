@@ -52,7 +52,9 @@ export class AuthzClient {
    * @param request VoiceRequest containing session details.
    * @returns Promise resolving to a boolean indicating authorization.
    */
-  async checkSessionAuthorized(request: VoiceRequest): Promise<boolean> {
+  async checkSessionAuthorized(
+    request: Partial<VoiceRequest>
+  ): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       this.client.checkSessionAuthorized(request, (error, response) => {
         if (error) {

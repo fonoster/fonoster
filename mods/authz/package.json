@@ -29,6 +29,7 @@
   "dependencies": {
     "@fonoster/common": "^0.7.56",
     "@fonoster/logger": "^0.7.56",
+    "@fonoster/identity": "^0.7.56",
     "deepmerge": "^4.3.1",
     "grpc-health-check": "^2.0.2",
     "@grpc/grpc-js": "~1.10.6"

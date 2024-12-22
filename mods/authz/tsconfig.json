@@ -13,6 +13,9 @@
       "path": "../common",
     },
     {
+      "path": "../identity",
+    },
+    {
       "path": "../logger",
     }
   ],

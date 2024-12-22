@@ -43,6 +43,12 @@ import {
 } from "./types";
 import { createExternalMediaConfig } from "./utils/createExternalMediaConfig";
 import { VoiceServiceClientConstructor } from "./utils/VoiceServiceClientConstructor";
+import {
+  AUTHZ_SERVICE_ENABLED,
+  AUTHZ_SERVICE_HOST,
+  AUTHZ_SERVICE_PORT
+} from "../envs";
+import { AuthzClient } from "@fonoster/authz";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -80,6 +86,29 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async connect() {
+    // TODO: We should improve the error handling here. As it is now,
+    // it always returns true or throws an error we should return a boolean and throw an error only if the
+    // connection is not possible or other critical error
+    if (AUTHZ_SERVICE_ENABLED) {
+      try {
+        const authz = new AuthzClient(
+          `${AUTHZ_SERVICE_HOST}:${AUTHZ_SERVICE_PORT}`
+        );
+        await authz.checkSessionAuthorized({
+          accessKeyId: this.config.accessKeyId
+        });
+      } catch (e) {
+        const { sessionRef: channelId } = this.config;
+        const { ari } = this;
+
+        logger.verbose("rejected unauthorized session", { channelId });
+
+        await ari.channels.play({ channelId, media: "sound:beep" });
+        await ari.channels.hangup({ channelId });
+        return;
+      }
+    }
+
     this.grpcClient = new VoiceServiceClientConstructor(
       this.config.endpoint,
       grpc.credentials.createInsecure()

@@ -30,7 +30,7 @@ import {
  */
 interface AuthzServiceClient extends grpc.Client {
   checkSessionAuthorized(
-    request: VoiceRequest,
+    request: Partial<VoiceRequest>,
     callback: grpc.requestCallback<{ authorized: boolean }>
   ): void;
 

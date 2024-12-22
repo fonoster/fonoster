@@ -17,9 +17,10 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { AuthzClient } from "./client/AuthzClient";
 import { CheckMethodAuthorizedRequest } from "./types";
+import { getAccessKeyIdFromCall } from "@fonoster/identity";
 
 const logger = getLogger({ service: "authz", filePath: __filename });
 
@@ -54,23 +55,26 @@ function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
       return call;
     }
 
-    logger.verbose("checking if method is authorized", { method });
+    logger.silly("checking if method is authorized", { method });
+
+    const accessKeyId = getAccessKeyIdFromCall(call);
 
     authz
       .checkMethodAuthorized({
-        accessKeyId: "",
+        accessKeyId,
         method
       } as CheckMethodAuthorizedRequest)
-      .then((authorized) => {
-        if (!authorized) {
-          logger.error("method is not authorized", { method });
-          call.sendStatus({
-            code: 7,
-            details: ""
-          });
-        } else {
-          logger.verbose("method is authorized", { method });
-        }
+      .then(() => {
+        call.sendMessage({ authorized: true }, () => {
+          logger.verbose("method is authorized", { method, accessKeyId });
+        });
+      })
+      .catch((error) => {
+        logger.verbose("method is not authorized", { method, accessKeyId });
+        call.sendStatus({
+          code: status.PERMISSION_DENIED,
+          details: `Method ${method} is not authorized for accessKeyId ${accessKeyId}`
+        });
       });
 
     return call;
