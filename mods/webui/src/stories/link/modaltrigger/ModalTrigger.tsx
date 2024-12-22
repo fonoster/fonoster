@@ -16,19 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { parentPort, workerData } from "worker_threads";
-import { SileroVad } from "./vad/SileroVad";
-import { SILERO_VAD_MODEL_PATH } from "./envs";
+import React from "react";
+import { StyledModalTrigger, StyledIcon } from "./ModalTrigger.styles";
+import { ModalTriggerProps } from "./types";
+import AddIcon from "@mui/icons-material/Add";
 
-const vad = new SileroVad({
-  ...workerData,
-  pathToModel: SILERO_VAD_MODEL_PATH
-});
-
-vad.init().then(() => {
-  parentPort?.on("message", (chunk) => {
-    vad.processChunk(chunk, (voiceActivity) => {
-      parentPort?.postMessage(voiceActivity);
-    });
-  });
-});
+export const ModalTrigger: React.FC<ModalTriggerProps> = ({
+  onClick,
+  disabled,
+  label
+}) => {
+  return (
+    <StyledModalTrigger onClick={onClick} disabled={disabled}>
+      <StyledIcon disabled={disabled}>
+        <AddIcon />
+      </StyledIcon>
+      {label}
+    </StyledModalTrigger>
+  );
+};

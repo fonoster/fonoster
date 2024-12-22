@@ -82,7 +82,35 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
             { name: "Azure", value: "tts.azure" }
           ]
         }),
+        config: {}
+      }
+    };
+
+    const answersPartTwo = {
+      textToSpeech: {
         config: {
+          model:
+            answers.textToSpeech.productRef === "tts.elevenlabs"
+              ? await select({
+                  message: "TTS Model",
+                  choices: [
+                    {
+                      name: "Multilingual v2",
+                      value: "eleven_multilingual_v2"
+                    },
+                    { name: "Flash v2.5", value: "eleven_flash_v2_5" },
+                    { name: "Flash v2", value: "eleven_flash_v" },
+                    { name: "Turbo v2", value: "eleven_turbo_v2" },
+                    { name: "Turbo v2.5", value: "eleven_turbo_v2_5" },
+                    {
+                      name: "Multilingual Speech to Speech",
+                      value: "eleven_multilingual_sts_v2"
+                    }
+                    // { name: "English Speech to Speech", value: "eleven_english_sts_v2" }
+                  ],
+                  default: null
+                })
+              : null,
           voice: await input({
             message: "TTS Voice",
             required: true
@@ -94,10 +122,15 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       })
     };
 
-    if (!answers.confirm) {
+    if (!answersPartTwo.confirm) {
       this.log("Aborted!");
       return;
     }
+
+    answers.textToSpeech.config = {
+      ...answers.textToSpeech.config,
+      ...answersPartTwo.textToSpeech.config
+    };
 
     try {
       const client = await this.createSdkClient();

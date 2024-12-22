@@ -16,19 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { parentPort, workerData } from "worker_threads";
-import { SileroVad } from "./vad/SileroVad";
-import { SILERO_VAD_MODEL_PATH } from "./envs";
 
-const vad = new SileroVad({
-  ...workerData,
-  pathToModel: SILERO_VAD_MODEL_PATH
-});
+type ModalTriggerProps = {
+  onClick?: () => void;
+  disabled?: boolean;
+  label: string;
+};
 
-vad.init().then(() => {
-  parentPort?.on("message", (chunk) => {
-    vad.processChunk(chunk, (voiceActivity) => {
-      parentPort?.postMessage(voiceActivity);
-    });
-  });
-});
+export type { ModalTriggerProps };

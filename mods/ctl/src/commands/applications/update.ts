@@ -34,6 +34,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
 
   public async run(): Promise<void> {
     const { args } = await this.parse(Update);
+    const { ref } = args;
     const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
     const applicationFromDB = await applications.getApplication(args.ref);
@@ -101,11 +102,39 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
           ],
           default: applicationFromDB.textToSpeech?.productRef
         }),
+        config: {}
+      }
+    };
+
+    const answersPartTwo = {
+      textToSpeech: {
         config: {
+          model:
+            answers.textToSpeech.productRef === "tts.elevenlabs"
+              ? await select({
+                  message: "TTS Model",
+                  choices: [
+                    {
+                      name: "Multilingual v2",
+                      value: "eleven_multilingual_v2"
+                    },
+                    { name: "Flash v2.5", value: "eleven_flash_v2_5" },
+                    { name: "Flash v2", value: "eleven_flash_v" },
+                    { name: "Turbo v2", value: "eleven_turbo_v2" },
+                    { name: "Turbo v2.5", value: "eleven_turbo_v2_5" },
+                    {
+                      name: "Multilingual Speech to Speech",
+                      value: "eleven_multilingual_sts_v2"
+                    }
+                    // { name: "English Speech to Speech", value: "eleven_english_sts_v2" }
+                  ],
+                  default: null
+                })
+              : null,
           voice: await input({
             message: "TTS Voice",
             required: true,
-            default: applicationFromDB.textToSpeech?.config.voice as string
+            default: applicationFromDB.textToSpeech?.config?.voice as string
           })
         }
       },
@@ -114,14 +143,19 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       })
     };
 
-    if (!answers.confirm) {
+    if (!answersPartTwo.confirm) {
       this.log("Aborted!");
       return;
     }
 
+    answers.textToSpeech.config = {
+      ...answers.textToSpeech.config,
+      ...answersPartTwo.textToSpeech.config
+    };
+
     try {
       await applications.updateApplication({
-        ref: args.ref,
+        ref,
         ...answers
       } as UpdateApplicationRequest);
 

@@ -28,7 +28,7 @@ async function toolInvocation(params: {
   chatHistory: ReturnType<typeof createChatHistory>;
   toolsCatalog: ToolsCatalog;
   firstInvocation: boolean;
-  args: string;
+  args: Record<string, unknown>;
   voice: Voice;
 }): Promise<void> {
   const { firstInvocation, voice, args, toolName, chatHistory, toolsCatalog } =
@@ -43,10 +43,7 @@ async function toolInvocation(params: {
       }
     }
 
-    const toolResult = await toolsCatalog.invokeTool(
-      toolName,
-      JSON.parse(args)
-    );
+    const toolResult = await toolsCatalog.invokeTool(toolName, args);
 
     logger.verbose("tool result: ", toolResult);
 

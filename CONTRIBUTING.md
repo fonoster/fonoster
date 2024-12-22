@@ -107,7 +107,7 @@ You can amend your commit with the sign-off by running if you forgot to do this 
 git commit --amend -s
 ```
 
-Please note that we use [Convential Commits](https://www.conventionalcommits.org/en/v1.0.0/) in our commit messages.
+Please note that our commit messages use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 ## Pull Request Checklist
 

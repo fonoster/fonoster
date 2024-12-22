@@ -65,7 +65,7 @@ export const Example: Story = {
     label: "Workspace setting",
     icon: React.createElement(Icon, {
       name: "Settings",
-      fontSize: "small",
+      fontSize: "small"
     })
   }
 };
@@ -78,7 +78,7 @@ export const ChangeIcon: Story = {
     label: "Workspace setting",
     icon: React.createElement(Icon, {
       name: "Search",
-      fontSize: "small",
+      fontSize: "small"
     })
   }
 };
@@ -91,7 +91,7 @@ export const ChangeIconAndLabel: Story = {
     label: "Notification setting",
     icon: React.createElement(Icon, {
       name: "NotificationsActive",
-      fontSize: "small",
+      fontSize: "small"
     })
   }
 };

@@ -19,18 +19,23 @@
 import { readFileSync } from "fs";
 import { ONNXRuntimeAPI, SpeechProbabilities } from "./types";
 
+function getNewState(ortInstance: ONNXRuntimeAPI) {
+  const zeroes = Array(2 * 128).fill(0);
+  return new ortInstance.Tensor("float32", zeroes, [2, 1, 128]);
+}
+
 class SileroVadModel {
-  _session;
-  _h: unknown;
-  _c: unknown;
-  _sr: unknown;
+  // @ts-ignore
+  private _session: any;
+  private _state: unknown;
+  private _sr: unknown;
 
   constructor(
-    private ort: ONNXRuntimeAPI,
-    private pathToModel: string
+    private readonly ort: ONNXRuntimeAPI,
+    private readonly pathToModel: string
   ) {}
 
-  static new = async (ort: ONNXRuntimeAPI, pathToModel: string) => {
+  static readonly new = async (ort: ONNXRuntimeAPI, pathToModel: string) => {
     const model = new SileroVadModel(ort, pathToModel);
     await model.init();
     return model;
@@ -38,35 +43,38 @@ class SileroVadModel {
 
   async init() {
     const modelArrayBuffer = readFileSync(this.pathToModel).buffer;
-    this._session = await this.ort.InferenceSession.create(modelArrayBuffer);
+    const sessionOption = { interOpNumThreads: 1, intraOpNumThreads: 1 };
+    this._session = await this.ort.InferenceSession.create(
+      modelArrayBuffer,
+      sessionOption
+    );
     this._sr = new this.ort.Tensor("int64", [16000n]);
-    this.resetState();
+    this._state = getNewState(this.ort);
   }
+
+  resetState = () => {
+    this._state = getNewState(this.ort);
+  };
 
   async process(audioFrame: Float32Array): Promise<SpeechProbabilities> {
     const t = new this.ort.Tensor("float32", audioFrame, [
       1,
       audioFrame.length
     ]);
+
     const inputs = {
       input: t,
-      h: this._h,
-      c: this._c,
+      state: this._state,
       sr: this._sr
     };
+
     const out = await this._session.run(inputs);
-    this._h = out.hn;
-    this._c = out.cn;
-    const [isSpeech] = out.output.data;
+    this._state = out["stateN"];
+
+    const [isSpeech] = out["output"].data;
     const notSpeech = 1 - isSpeech;
 
     return { notSpeech, isSpeech };
-  }
-
-  resetState() {
-    const zeroes = Array(2 * 64).fill(0);
-    this._h = new this.ort.Tensor("float32", zeroes, [2, 1, 64]);
-    this._c = new this.ort.Tensor("float32", zeroes, [2, 1, 64]);
   }
 }
 

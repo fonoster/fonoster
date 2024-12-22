@@ -67,14 +67,17 @@ abstract class AbstractLanguageModel implements LanguageModel {
     const response = (await chain.invoke({ text })) as AIMessage;
     let firstInvocation = true;
 
-    if (response.additional_kwargs?.tool_calls) {
+    if (response.tool_calls && response.tool_calls.length > 0) {
       // eslint-disable-next-line no-loops/no-loops
-      for (const toolCall of response.additional_kwargs.tool_calls) {
-        const { arguments: args, name } = toolCall.function;
+      for (const toolCall of response.tool_calls) {
+        const { args, name } = toolCall;
 
-        logger.verbose(`invoking tool: ${name} with args: ${args}`, {
-          firstInvocation
-        });
+        logger.verbose(
+          `invoking tool: ${name} with args: ${JSON.stringify(args)}`,
+          {
+            firstInvocation
+          }
+        );
 
         switch (name) {
           case "hangup":
@@ -102,7 +105,7 @@ abstract class AbstractLanguageModel implements LanguageModel {
       }
 
       const finalResponse = (await chain.invoke({
-        text: "Please provide a final response based on the tool results."
+        text: "Please provide a final response based on the tool's results."
       })) as AIMessage;
 
       response.content = finalResponse.content ?? "";

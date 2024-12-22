@@ -38,14 +38,15 @@
     "generate:prisma-clients": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",
     "check:updates": "lerna exec -- npx npm-check-updates",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --timeout 30000 mods/**/*.test.ts",
-    "pretest": "npm run generate:keypair",
+    "pretest": "./.scripts/check-preconditions.sh && npm run generate:keypair",
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --slow 50000 --timeout 10000 mods/**/node.integration.ts",
     "preintegration:web": "npx playwright install && npx playwright install-deps",
     "integration:web": "web-test-runner --node-resolve --playwright --browsers chromium webkit firefox",
     "release": "lerna publish --yes --no-git-reset --dist-tag next $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
     "release:prerelease": "lerna publish --dist-tag next",
     "release:frompackages": "lerna publish from-package",
-    "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM"
+    "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
+    "postinstall": "npm run generate:prisma-clients"
   },
   "prisma": {
     "seed": "tsx ./mods/apiserver/src/core/seed.ts"
@@ -68,10 +69,10 @@
     "husky": "^9.0.11",
     "jsdoc-to-markdown": "^9.1.1",
     "lerna": "^8.1.7",
-    "mocha": "^11.0.1",
+    "mocha": "^11.0.2",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2",
-    "prisma": "^6.0.1",
+    "prisma": "^6.1.0",
     "rimraf": "^6.0.1",
     "sinon": "^19.0.2",
     "sinon-chai": "^4.0.0",
