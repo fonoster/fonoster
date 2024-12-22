@@ -14,8 +14,7 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:readme": "node ../../.scripts/gen-readme.js"
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "bin": {
     "authz": "./dist/server.js"

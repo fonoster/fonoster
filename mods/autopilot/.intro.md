@@ -1,7 +1,7 @@
 autopilot
 =================
 
-[![Autopilot](https://img.shields.io/badge/autopilot-api-brightgreen.svg)](https://fonoster.com)
+[![Autopilot](https://img.shields.io/badge/autopilot-server-brightgreen.svg)](https://fonoster.com)
 [![Version](https://img.shields.io/npm/v/@fonoster/autopilot.svg)](https://npmjs.org/package/@fonoster/autopilot)
 [![Downloads/week](https://img.shields.io/npm/dw/@fonoster/autopilot.svg)](https://npmjs.org/package/@fonoster/autopilot)
 [![License](https://img.shields.io/npm/l/@fonoster/autopilot.svg)](https://github.com/fonoster/fonoster/blob/main/package.json)
