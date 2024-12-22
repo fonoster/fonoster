@@ -6,9 +6,9 @@ authz
 [![Downloads/week](https://img.shields.io/npm/dw/@fonoster/authz.svg)](https://npmjs.org/package/@fonoster/authz)
 [![License](https://img.shields.io/npm/l/@fonoster/authz.svg)](https://github.com/fonoster/fonoster/blob/main/package.json)
 
-Authz is a simple and extensible authorization module for Fonoster. It provides a way to authorization incoming call as well as api calls. 
+Authz is a simple and extensible authorization module for Fonoster. It provides a way to authorize incoming phone and API calls. 
 
-The module has a simple interface that allows you to create your own authorization strategies. That includes the ability to verify if a session is authorized, if a grpc method is authorized, charge an account, and get the account balance.
+The module has a simple interface that allows you to create authorization strategies. That includes verifying if a session is authorized, if a GRPC method is authorized, charging an account, and getting the account balance.
 
 The interface is defined as follows:
 
@@ -23,7 +23,7 @@ type AuthzHandler = {
 };
 ```
 
-Please look at the [DummyAuthzHandler](./src/server/DummyAuthzHandler.ts) for an example of how to implement your own authorization strategy.
+Please look at the [DummyAuthzHandler](./src/server/DummyAuthzHandler.ts) for an example of implementing your authorization strategy.
 
 ## Enabling the Authz module
 
