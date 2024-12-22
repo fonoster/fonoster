@@ -52,10 +52,9 @@ export const StyledIndicatorLabelList = styled("ol")(() => ({
 }));
 
 export const StyledIndicatorLabel = styled("li")<IndicatorLabelProps>(
-  ({ theme, current, completed }) => ({
-    color:
-      current || completed
-        ? theme.palette.secondary[900]
-        : theme.palette.secondary[500]
+  ({ theme, completed }) => ({
+    color: completed
+      ? theme.palette.secondary[900]
+      : theme.palette.secondary[500]
   })
 );

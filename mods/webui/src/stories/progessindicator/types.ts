@@ -28,6 +28,5 @@ type ProgressProps = {
 
 type IndicatorLabelProps = {
   completed?: boolean;
-  current?: boolean;
 };
 export type { ProgressIndicatorProps, ProgressProps, IndicatorLabelProps };
