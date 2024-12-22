@@ -29,12 +29,12 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     "initiate a call to a phone number or SIP URI";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
-    "from-number": Flags.string({
+    "from": Flags.string({
       char: "f",
       description: "The number to make the call from",
       required: true
     }),
-    "to-number": Flags.string({
+    "to": Flags.string({
       char: "t",
       description: "The number to make the call to",
       required: true
@@ -64,8 +64,8 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       const calls = new SDK.Calls(client);
 
       const callRequest: CreateCallRequest = {
-        from: this.flags["from-number"],
-        to: this.flags["to-number"],
+        from: this.flags["from"],
+        to: this.flags["to"],
         appRef: this.flags["app-ref"],
         timeout: parseInt(this.flags.timeout || "30")
       };
