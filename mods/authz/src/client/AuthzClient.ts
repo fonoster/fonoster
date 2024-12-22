@@ -52,9 +52,7 @@ export class AuthzClient {
    * @param request VoiceRequest containing session details.
    * @returns Promise resolving to a boolean indicating authorization.
    */
-  async checkSessionAuthorized(
-    request: VoiceRequest
-  ): Promise<boolean> {
+  async checkSessionAuthorized(request: VoiceRequest): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       this.client.checkSessionAuthorized(request, (error, response) => {
         if (error) {
@@ -67,9 +65,7 @@ export class AuthzClient {
           resolve(response.authorized);
         } else {
           reject(
-            new Error(
-              `checkSessionAuthorized failed: Invalid response format.`
-            )
+            new Error(`checkSessionAuthorized failed: Invalid response format.`)
           );
         }
       });
@@ -88,17 +84,13 @@ export class AuthzClient {
       this.client.checkMethodAuthorized(request, (error, response) => {
         if (error) {
           reject(
-            new Error(
-              `checkMethodAuthorized failed: ${error.message || error}`
-            )
+            new Error(`checkMethodAuthorized failed: ${error.message || error}`)
           );
         } else if (response && typeof response.authorized === "boolean") {
           resolve(response.authorized);
         } else {
           reject(
-            new Error(
-              `checkMethodAuthorized failed: Invalid response format.`
-            )
+            new Error(`checkMethodAuthorized failed: Invalid response format.`)
           );
         }
       });
@@ -114,9 +106,7 @@ export class AuthzClient {
     return new Promise<void>((resolve, reject) => {
       this.client.chargeAccount(request, (error, _response) => {
         if (error) {
-          reject(
-            new Error(`chargeAccount failed: ${error.message || error}`)
-          );
+          reject(new Error(`chargeAccount failed: ${error.message || error}`));
         } else {
           resolve();
         }
@@ -129,24 +119,18 @@ export class AuthzClient {
    * @param request GetAccountBalanceRequest containing accessKeyId.
    * @returns Promise resolving to the account balance.
    */
-  async getAccountBalance(
-    request: GetAccountBalanceRequest
-  ): Promise<number> {
+  async getAccountBalance(request: GetAccountBalanceRequest): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       this.client.getAccountBalance(request, (error, response) => {
         if (error) {
           reject(
-            new Error(
-              `getAccountBalance failed: ${error.message || error}`
-            )
+            new Error(`getAccountBalance failed: ${error.message || error}`)
           );
         } else if (response && typeof response.balance === "number") {
           resolve(response.balance);
         } else {
           reject(
-            new Error(
-              `getAccountBalance failed: Invalid response format.`
-            )
+            new Error(`getAccountBalance failed: Invalid response format.`)
           );
         }
       });

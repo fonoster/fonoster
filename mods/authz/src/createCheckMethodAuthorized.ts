@@ -45,10 +45,7 @@ function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
    * @param {ServerInterceptingCall} call - The call object
    * @return {ServerInterceptingCall} - The modified call object
    */
-  return (
-    methodDefinition: { path: string },
-    call: ServerInterceptingCall
-  ) => {
+  return (methodDefinition: { path: string }, call: ServerInterceptingCall) => {
     const { path: method } = methodDefinition;
 
     if (!methods.includes(method)) {
@@ -59,20 +56,22 @@ function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
 
     logger.verbose("checking if method is authorized", { method });
 
-    authz.checkMethodAuthorized({
-      accessKeyId: "",
-      method
-    } as CheckMethodAuthorizedRequest).then((authorized) => {
-      if (!authorized) {
-        logger.error("method is not authorized", { method });
-        call.sendStatus({
-          code: 7,
-          details: ""
-        });
-      } else {
-        logger.verbose("method is authorized", { method });
-      }
-    });
+    authz
+      .checkMethodAuthorized({
+        accessKeyId: "",
+        method
+      } as CheckMethodAuthorizedRequest)
+      .then((authorized) => {
+        if (!authorized) {
+          logger.error("method is not authorized", { method });
+          call.sendStatus({
+            code: 7,
+            details: ""
+          });
+        } else {
+          logger.verbose("method is authorized", { method });
+        }
+      });
 
     return call;
   };

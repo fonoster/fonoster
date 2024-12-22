@@ -16,5 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./AuthzClient"
-export * from "./AuthzServiceClient"
+export * from "./AuthzClient";
+export * from "./AuthzServiceClient";
