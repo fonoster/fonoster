@@ -93,7 +93,7 @@ class VoiceResponse {
 
   /**
    * Answer the call. Before running any other verb you
-   * must run the anwer command.
+   * must run the answer command.
    * @example
    *
    * async function handler (request, response) {
@@ -199,7 +199,7 @@ class VoiceResponse {
    * @param {number} options.timeout - Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
    * @param {string} options.finishOnKey - Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits
    * @param {GatherSource} options.source - Where to listen as input source. This option accepts `DTMF` and `SPEECH`. A speech provider must be configure
-   * when including the `SPEECH` source. You might inclue both with `SPEECH_AND_DTMF`. Defaults to `SPEECH_AND_DTMF`
+   * when including the `SPEECH` source. You might include both with `SPEECH_AND_DTMF`. Defaults to `SPEECH_AND_DTMF`
    * @note When including `SPEECH` the default timeout is 10000 (10s).
    * @example
    *
@@ -431,7 +431,7 @@ class VoiceResponse {
   }
 
   /**
-   * Unmutes a call.
+   * Unmute a call.
    *
    * @param {MuteOptions} options - Options to control the unmute operation
    * @param {MuteDirection} options.direction - The direction to unmute the call (IN, OUT, BOTH). Default is BOTH
