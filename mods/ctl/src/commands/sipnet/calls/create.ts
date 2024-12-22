@@ -29,12 +29,12 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     "initiate a call to a phone number or SIP URI";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
-    "from": Flags.string({
+    from: Flags.string({
       char: "f",
       description: "The number to make the call from",
       required: true
     }),
-    "to": Flags.string({
+    to: Flags.string({
       char: "t",
       description: "The number to make the call to",
       required: true
