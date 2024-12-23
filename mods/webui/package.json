@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/webui",
-  "version": "0.8.9",
+  "version": "0.8.11",
   "type": "module",
   "scripts": {
     "start": "vite",
