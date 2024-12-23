@@ -18,8 +18,7 @@ type AuthzHandler = {
   checkMethodAuthorized(
     request: CheckMethodAuthorizedRequest
   ): Promise<boolean>;
-  chargeAccount(request: ChargeAccountRequest): Promise<void>;
-  getAccountBalance(request: GetAccountBalanceRequest): Promise<number>;
+  addBillingMeterEvent(request: AddBillingMeterEventRequest): Promise<void>;
 };
 ```
 
@@ -29,4 +28,4 @@ Please look at the [DummyAuthzHandler](./src/server/DummyAuthzHandler.ts) for an
 
 To enable the Authz module you need to set the `AUTHZ_SERVICE_ENABLED` environment variable to `true`. Also, you need the `AUTHZ_SERVICE_HOST` (required), `AUTHZ_SERVICE_PORT` (defaults), and `AUTHZ_SERVICE_METHODS` (default is `/fonoster.calls.v1beta2.Calls/CreateCall`) environment variables.
 
-Imagine you want to authorize the creation of new Workspaces. You can add the `/fonoster.workspaces.v1beta2.Workspaces/CreateWorkspace` method to the `AUTHZ_SERVICE_METHODS` environment variable and implement the `checkMethodAuthorized` method in your AuthzHandler.
+Imagine you want to authorize the creation of new Workspaces. You can add the `/fonoster.identity.v1beta2.Identity/CreateWorkspace` method to the `AUTHZ_SERVICE_METHODS` environment variable and implement the `checkMethodAuthorized` method in your AuthzHandler.
