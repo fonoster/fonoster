@@ -17,18 +17,14 @@
  * limitations under the License.
  */
 
-import React from 'react'
+import React from "react";
 
 type TooltipProps = {
-    content: string | string[],
-    placement?: TooltipPlacement,
-    children: React.ReactNode
-}
+  content: string | string[];
+  placement?: TooltipPlacement;
+  children: React.ReactNode;
+};
 
-type TooltipPlacement =
-    | 'top'
-    | 'right'
-    | 'bottom'
-    | 'left'
+type TooltipPlacement = "top" | "right" | "bottom" | "left";
 
-export type { TooltipProps, TooltipPlacement }
+export type { TooltipProps, TooltipPlacement };
