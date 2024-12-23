@@ -26,3 +26,4 @@ export * from "./service";
 export * from "./users";
 export * from "./utils";
 export * from "./workspaces";
+export * from "./db";

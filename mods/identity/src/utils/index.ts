@@ -18,6 +18,7 @@
  */
 export * from "./createCallAccessToken";
 export * from "./createSendEmail";
+export * from "./createGetUserByWorkspaceAccessKeyId";
 export * from "./decodeToken";
 export * from "./generateAccessKeyId";
 export * from "./getAccessKeyIdFromCall";

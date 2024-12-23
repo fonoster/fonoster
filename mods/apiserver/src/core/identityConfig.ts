@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { assertEnvsAreSet } from "@fonoster/common";
 import {
   CLOAK_ENCRYPTION_KEY,
   IDENTITY_ACCESS_TOKEN_EXPIRES_IN,
@@ -24,9 +25,11 @@ import {
   IDENTITY_ISSUER,
   IDENTITY_OAUTH2_GITHUB_CLIENT_ID,
   IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET,
+  IDENTITY_OAUTH2_GITHUB_ENABLED,
   IDENTITY_PRIVATE_KEY,
   IDENTITY_PUBLIC_KEY,
   IDENTITY_REFRESH_TOKEN_EXPIRES_IN,
+  IDENTITY_USER_VERIFICATION_REQUIRED,
   SMTP_AUTH_PASS,
   SMTP_AUTH_USER,
   SMTP_HOST,
@@ -37,6 +40,21 @@ import {
   TWILIO_AUTH_TOKEN,
   TWILIO_PHONE_NUMBER
 } from "../envs";
+
+if (IDENTITY_USER_VERIFICATION_REQUIRED) {
+  assertEnvsAreSet([
+    "TWILIO_ACCOUNT_SID",
+    "TWILIO_AUTH_TOKEN",
+    "TWILIO_PHONE_NUMBER"
+  ]);
+}
+
+if (IDENTITY_OAUTH2_GITHUB_ENABLED) {
+  assertEnvsAreSet([
+    "IDENTITY_OAUTH2_GITHUB_CLIENT_ID",
+    "IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET"
+  ]);
+}
 
 const identityConfig = {
   issuer: IDENTITY_ISSUER,
