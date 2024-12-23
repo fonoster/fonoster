@@ -12,12 +12,11 @@ ENV DOCKERIZE_VERSION v0.7.0
 # Manually install rollup and nx for arm64 for compatibility
 RUN apk add --no-cache --update git \
   && npm install \
-  && npm run generate:prisma-clients \
   && npm run build \
   && cd mods/apiserver \
   && npm pack \
   && npm install -g $(ls *.tgz) \
-  && cp schema.prisma /usr/local/lib/node_modules/@fonoster/apiserver/ \
+  && cp /work/mods/apiserver/schema.prisma /usr/local/lib/node_modules/@fonoster/apiserver/ \
   && cp /work/mods/identity/schema.prisma /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/ \
   && cd /usr/local/lib/node_modules/@fonoster/apiserver/ \
   && npx prisma generate \
