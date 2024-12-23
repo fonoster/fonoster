@@ -20,6 +20,7 @@ model User {
   avatar              String?  @db.VarChar(255)
   createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+  extended            Json?
 
   // Relations
   ownedWorkspaces Workspace[] // Workspaces owned by the user
