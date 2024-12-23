@@ -39,15 +39,17 @@ export const Tooltip = (props: TooltipProps) => {
             {children}
             {show && (
                 <StyledTooltipContentList placement={placement}>
-
                     {typeof content === "string" ? (
-                        <StyledTooltipContent> <Typography variant="body-micro">{content}</Typography>  </StyledTooltipContent>
+                        <StyledTooltipContent>
+                            <Typography variant="body-micro">{content}</Typography>{" "}
+                        </StyledTooltipContent>
                     ) : (
                         content.map((value, i) => (
-                            <StyledTooltipContent> <Typography variant="body-micro">{value}</Typography>  </StyledTooltipContent>
+                            <StyledTooltipContent key={i}>
+                                <Typography variant="body-micro">{value}</Typography>{" "}
+                            </StyledTooltipContent>
                         ))
                     )}
-
                     <StyledTooltipArrow placement={placement} />
                 </StyledTooltipContentList>
             )}
