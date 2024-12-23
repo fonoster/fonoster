@@ -17,97 +17,108 @@
  * limitations under the License.
  */
 
-import { styled, Theme } from "@mui/material/styles"
-import { TooltipPlacement } from './types'
+import { styled, Theme } from "@mui/material/styles";
+import { TooltipPlacement } from "./types";
 
 export const StyledTooltipContainer = styled("div")(() => ({
-    position: 'relative',
-}))
+  position: "relative"
+}));
 
-export const StyledTooltipContentList = styled("div")(({ theme }) => ({
-    position: 'absolute',
-    // width: '124px',
-    left: "50%",
-    backgroundColor: theme.palette.secondary[700],
-    borderRadius: '4px',
-    padding: '5px',
-    paddingLeft: '10px',
-    whiteSpace: "nowrap",
-    paddingRight: '10px',
-    transform: "translateX(-50%)",
-    zIndex: 100,
-    ...getTooltipPositionStyles('top'),
-
-}))
+export const StyledTooltipContentList = styled("div")<{
+  placement: TooltipPlacement;
+}>(({ theme, placement }) => ({
+  position: "absolute",
+  left: "50%",
+  backgroundColor: theme.palette.secondary[700],
+  borderRadius: "4px",
+  padding: "5px",
+  paddingLeft: "10px",
+  paddingRight: "10px",
+  whiteSpace: "nowrap",
+  transform: "translateX(-50%)",
+  zIndex: 100,
+  ...getTooltipPositionStyles(placement)
+}));
 
 export const StyledTooltipContent = styled("div")(({ theme }) => ({
-    color: theme.palette.primary[50],
-}))
+  color: theme.palette.primary[50]
+}));
 
-export const StyledTooltipArrow = styled("span")<{ placement: TooltipPlacement }>(({ theme, placement }) => ({
-    content: "''",
-    position: "absolute",
-    border: "solid transparent",
-    height: 0,
-    width: 0,
-    pointerEvents: "none",
-    borderWidth: '6px',
-    ...getTooltipArrowStyles(placement, theme),
-
-}))
+export const StyledTooltipArrow = styled("span")<{
+  placement: TooltipPlacement;
+}>(({ theme, placement }) => ({
+  content: "''",
+  position: "absolute",
+  border: "solid transparent",
+  height: 0,
+  width: 0,
+  pointerEvents: "none",
+  borderWidth: "6px",
+  ...getTooltipArrowStyles(placement, theme)
+}));
 
 const getTooltipPositionStyles = (placement: TooltipPlacement) => {
-    const margin = "30px";
-    switch (placement) {
-        case "top":
-            return { top: `calc(-1 * ${margin})` };
-        case "right":
-            return {
-                left: `calc(100% + ${margin})`,
-                top: "50%",
-                transform: "translateX(0) translateY(-50%)",
-            };
-        case "bottom":
-            return { bottom: `calc(-1 * ${margin})` };
-        case "left":
-            return {
-                left: "auto",
-                right: `calc(100% + ${margin})`,
-                top: "50%",
-                transform: "translateX(0) translateY(-50%)",
-            };
-        default:
-            return {};
-    }
+  switch (placement) {
+    case "top":
+      return {
+        top: "-45px"
+      };
+    case "right":
+      return {
+        left: "calc(100% + 10px)",
+        top: "50%",
+        transform: "translateX(0) translateY(-50%)"
+      };
+    case "bottom":
+      return {
+        bottom: `-45px`
+      };
+    case "left":
+      return {
+        left: "auto",
+        right: `calc(100% + 10px)`,
+        top: "50%",
+        transform: "translateX(0) translateY(-50%)"
+      };
+    default:
+      return {};
+  }
 };
 
 const getTooltipArrowStyles = (placement: TooltipPlacement, theme: Theme) => {
-    const arrowSize = "6px";
-    const backgroundColor = theme.palette.secondary[700];
-    switch (placement) {
-        case "top":
-            return { top: "100%", borderTopColor: backgroundColor };
-        case "right":
-            return {
-                left: `calc(-1 * ${arrowSize})`,
-                top: "50%",
-                transform: "translateX(0) translateY(-50%)",
-                borderRightColor: backgroundColor,
-            };
-        case "bottom":
-            return {
-                bottom: "100%",
-                borderBottomColor: backgroundColor,
-            };
-        case "left":
-            return {
-                left: "auto",
-                right: `calc(-2 * ${arrowSize})`,
-                top: "50%",
-                transform: "translateX(0) translateY(-50%)",
-                borderLeftColor: backgroundColor,
-            };
-        default:
-            return {};
-    }
+  const arrowSize = "6px";
+  const backgroundColor = theme.palette.secondary[700];
+  switch (placement) {
+    case "top":
+      return {
+        top: "100%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        borderTopColor: backgroundColor
+      };
+    case "right":
+      return {
+        right: `100%`,
+        top: "50%",
+        transform: "translateX(0) translateY(-50%)",
+        borderRightColor: backgroundColor
+      };
+    case "bottom":
+      return {
+        bottom: "100%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        borderBottomColor: backgroundColor
+      };
+    case "left":
+      return {
+        left: "auto",
+        right: `calc(-2 * ${arrowSize})`,
+        top: "50%",
+        transform: "translateX(0) translateY(-50%)",
+        borderLeftColor: backgroundColor
+      };
+    default:
+      return {};
+  }
 };
