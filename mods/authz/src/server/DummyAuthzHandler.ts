@@ -38,7 +38,9 @@ class DummyAuthzHandler implements AuthzHandler {
     return true;
   }
 
-  async addBillingMeterEvent(request: AddBillingMeterEventRequest): Promise<void> {
+  async addBillingMeterEvent(
+    request: AddBillingMeterEventRequest
+  ): Promise<void> {
     logger.verbose("chargeAccount called", request);
   }
 }

@@ -103,11 +103,15 @@ export class AuthzClient {
    * @param request AddBillingMeterEventRequest containing accessKeyId and amount.
    * @returns Promise resolving when the charge is successful.
    */
-  async addBillingMeterEvent(request: AddBillingMeterEventRequest): Promise<void> {
+  async addBillingMeterEvent(
+    request: AddBillingMeterEventRequest
+  ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.client.addBillingMeterEvent(request, (error, _response) => {
         if (error) {
-          reject(new Error(`addBillingMeterEvent failed: ${error.message || error}`));
+          reject(
+            new Error(`addBillingMeterEvent failed: ${error.message || error}`)
+          );
         } else {
           resolve();
         }

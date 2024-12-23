@@ -112,7 +112,7 @@ export default class AuthzServer {
             const request = {
               accessKeyId: call.request.accessKeyId,
               payload: struct.decode(call.request.payload)
-            }
+            };
             await handler.addBillingMeterEvent(request);
             callback(null, {});
           } catch (error) {
