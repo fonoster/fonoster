@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import {
-  assertEnvsAreSet,
   GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
@@ -42,8 +41,6 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-assertEnvsAreSet(["IDENTITY_WORKSPACE_INVITATION_URL"]);
 
 function resendWorkspaceMembershipInvitation(
   prisma: Prisma,

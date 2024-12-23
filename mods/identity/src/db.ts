@@ -19,9 +19,6 @@
 import { Prisma as DMMF, PrismaClient } from "./generated/@prisma/client";
 import { fieldEncryptionExtension } from "prisma-field-encryption";
 import { CLOAK_ENCRYPTION_KEY } from "./envs";
-import { assertEnvsAreSet } from "@fonoster/common";
-
-assertEnvsAreSet(["DATABASE_URL", "CLOAK_ENCRYPTION_KEY"]);
 
 // Check the link for details on dmff:
 // https://www.npmjs.com/package/prisma-field-encryption#custom-prisma-client-location
