@@ -32,7 +32,7 @@ import { struct } from "pb-util";
 
 const logger = getLogger({ service: "authz", filePath: __filename });
 
-export default class AuthzServer {
+class AuthzServer {
   config: ServerConfig;
 
   constructor(config: ServerConfig = defaultServerConfig) {
@@ -142,3 +142,5 @@ export default class AuthzServer {
     }
   }
 }
+
+export { AuthzServer };
