@@ -17,12 +17,13 @@
  * limitations under the License.
  */
 
-import type { Meta, StoryObj } from "@storybook/react"
-import { Tooltip } from './Tooltip'
-import React from 'react';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Tooltip } from "./Tooltip";
+import React from "react";
+import { Button } from '../button/Button';
 
 /**
- * This story is for the Tooltip Component.
+ * This story is for the Tooltip Component. It takes content, placement and children
  */
 
 const meta = {
@@ -37,11 +38,20 @@ const meta = {
         tags: ["autodocs"],
         argTypes: {
             content: {
-
-            }
+                name: "Content",
+                description: "This is the content"
+            },
+            placement: {
+                name: "Placement",
+                description: "This is position of the tooltip relative to the children"
+            },
+            children: {
+                name: "Children",
+                description: "This the component the tip will be placed on",
+            },
         }
     }
-} satisfies Meta<typeof Tooltip>
+} satisfies Meta<typeof Tooltip>;
 
 export default meta;
 
@@ -54,6 +64,64 @@ export const Example: Story = {
     args: {
         content: "Request Video Call",
         placement: "top",
-        children: React.createElement("div", null, "Hello, world!")
+        children: React.createElement(Button, null, "Video call")
     }
-}
+};
+
+/**
+ * Example to show Multiline Tooltip
+ */
+export const Multiline: Story = {
+    args: {
+        content: [
+            "Request Video Call",
+            // "Request Video Call",
+        ],
+        placement: "top",
+        children: React.createElement(Button, null, "Video call")
+    }
+};
+
+/**
+ * Example to show Tooltip top placement
+ */
+export const Top: Story = {
+    args: {
+        content: "Request Video Call",
+        placement: "top",
+        children: React.createElement(Button, null, "Video call")
+    }
+};
+
+/**
+ * Example to show Tooltip right placement
+ */
+export const Right: Story = {
+    args: {
+        content: "Request Video Call",
+        placement: "right",
+        children: React.createElement(Button, null, "Video call")
+    }
+};
+
+/**
+ * Example to show Tooltip left placement
+ */
+export const Left: Story = {
+    args: {
+        content: "Request Video Call",
+        placement: "left",
+        children: React.createElement(Button, null, "Video call")
+    }
+};
+
+/**
+ * Example to show Tooltip bottom placement
+ */
+export const Bottom: Story = {
+    args: {
+        content: "Request Video Call",
+        placement: "bottom",
+        children: React.createElement(Button, null, "Video call")
+    }
+};
