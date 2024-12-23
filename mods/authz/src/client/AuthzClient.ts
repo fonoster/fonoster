@@ -20,8 +20,7 @@ import * as grpc from "@grpc/grpc-js";
 import { serviceDefinition } from "../serviceDefinition";
 import {
   CheckMethodAuthorizedRequest,
-  ChargeAccountRequest,
-  GetAccountBalanceRequest,
+  AddBillingMeterEventRequest,
   VoiceRequest
 } from "../types";
 import { AuthzServiceClient } from "./AuthzServiceClient";
@@ -100,40 +99,17 @@ export class AuthzClient {
   }
 
   /**
-   * Charges an account by a specified amount.
-   * @param request ChargeAccountRequest containing accessKeyId and amount.
+   * Adds a billing meter event.
+   * @param request AddBillingMeterEventRequest containing accessKeyId and amount.
    * @returns Promise resolving when the charge is successful.
    */
-  async chargeAccount(request: ChargeAccountRequest): Promise<void> {
+  async addBillingMeterEvent(request: AddBillingMeterEventRequest): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.client.chargeAccount(request, (error, _response) => {
+      this.client.addBillingMeterEvent(request, (error, _response) => {
         if (error) {
-          reject(new Error(`chargeAccount failed: ${error.message || error}`));
+          reject(new Error(`addBillingMeterEvent failed: ${error.message || error}`));
         } else {
           resolve();
-        }
-      });
-    });
-  }
-
-  /**
-   * Retrieves the account balance.
-   * @param request GetAccountBalanceRequest containing accessKeyId.
-   * @returns Promise resolving to the account balance.
-   */
-  async getAccountBalance(request: GetAccountBalanceRequest): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
-      this.client.getAccountBalance(request, (error, response) => {
-        if (error) {
-          reject(
-            new Error(`getAccountBalance failed: ${error.message || error}`)
-          );
-        } else if (response && typeof response.balance === "number") {
-          resolve(response.balance);
-        } else {
-          reject(
-            new Error(`getAccountBalance failed: Invalid response format.`)
-          );
         }
       });
     });

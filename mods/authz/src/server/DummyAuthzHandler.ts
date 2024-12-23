@@ -19,9 +19,8 @@
 import { getLogger } from "@fonoster/logger";
 import {
   AuthzHandler,
-  ChargeAccountRequest,
+  AddBillingMeterEventRequest,
   CheckMethodAuthorizedRequest,
-  GetAccountBalanceRequest,
   VoiceRequest
 } from "../types";
 const logger = getLogger({ service: "authz", filePath: __filename });
@@ -39,13 +38,8 @@ class DummyAuthzHandler implements AuthzHandler {
     return true;
   }
 
-  async chargeAccount(request: ChargeAccountRequest): Promise<void> {
+  async addBillingMeterEvent(request: AddBillingMeterEventRequest): Promise<void> {
     logger.verbose("chargeAccount called", request);
-  }
-
-  async getAccountBalance(request: GetAccountBalanceRequest): Promise<number> {
-    logger.verbose("getAccountBalance called", request);
-    return 20.2;
   }
 }
 

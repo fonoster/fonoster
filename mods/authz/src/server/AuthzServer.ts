@@ -28,6 +28,7 @@ import { HealthImplementation } from "grpc-health-check";
 import { defaultServerConfig } from "./defaultServerConfig";
 import { serviceDefinition } from "../serviceDefinition";
 import { ServerConfig, AuthzHandler } from "../types";
+import { struct } from "pb-util";
 
 const logger = getLogger({ service: "authz", filePath: __filename });
 
@@ -73,7 +74,6 @@ export default class AuthzServer {
             });
           }
         },
-
         checkMethodAuthorized: async (
           call: grpc.ServerUnaryCall<any, any>,
           callback: grpc.sendUnaryData<any>
@@ -101,36 +101,22 @@ export default class AuthzServer {
             });
           }
         },
-        chargeAccount: async (
+        addBillingMeterEvent: async (
           call: grpc.ServerUnaryCall<any, any>,
           callback: grpc.sendUnaryData<any>
         ) => {
-          logger.verbose("chargeAccount called");
+          logger.verbose("addBillingMeterEvent called");
           logger.verbose(JSON.stringify(call.request));
 
           try {
-            await handler.chargeAccount(call.request);
+            const request = {
+              accessKeyId: call.request.accessKeyId,
+              payload: struct.decode(call.request.payload)
+            }
+            await handler.addBillingMeterEvent(request);
             callback(null, {});
           } catch (error) {
-            logger.error("Error in chargeAccount:", error);
-            callback({
-              code: grpc.status.INTERNAL,
-              message: "Internal server error."
-            });
-          }
-        },
-        getAccountBalance: async (
-          call: grpc.ServerUnaryCall<any, any>,
-          callback: grpc.sendUnaryData<any>
-        ) => {
-          logger.verbose("getAccountBalance called");
-          logger.verbose(JSON.stringify(call.request));
-
-          try {
-            const balance = await handler.getAccountBalance(call.request);
-            callback(null, { balance });
-          } catch (error) {
-            logger.error("Error in getAccountBalance:", error);
+            logger.error("Error in while adding billing meter event:", error);
             callback({
               code: grpc.status.INTERNAL,
               message: "Internal server error."

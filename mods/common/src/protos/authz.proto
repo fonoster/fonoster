@@ -20,6 +20,7 @@ syntax = "proto3";
 
 package fonoster.authz.v1beta2;
 
+import "google/protobuf/struct.proto";
 import "google/protobuf/empty.proto";
 
 import "voice.proto";
@@ -30,10 +31,8 @@ service Authz {
   rpc CheckSessionAuthorized (fonoster.voice.v1beta2.CreateSessionRequest) returns (CheckSessionAuthorizedResponse) {}
   // Check if a given accessKeyId has permission to access a method
   rpc CheckMethodAuthorized (CheckMethodAuthorizedRequest) returns (CheckMethodAuthorizedResponse) {}
-  // Charge an account with a given amount
-  rpc ChargeAccount (ChargeAccountRequest) returns (google.protobuf.Empty) {}
-  // Get the account balance
-  rpc GetAccountBalance (GetAccountBalanceRequest) returns (GetAccountBalanceResponse) {}
+  // Add billing meter event to an account
+  rpc AddBillingMeterEvent (AddBillingMeterEventRequest) returns (google.protobuf.Empty) {}
 }
 
 // Response message for the CheckVoiceRequestAuthorized method
@@ -61,21 +60,9 @@ message CheckMethodAuthorizedResponse {
 }
 
 // Request message for the ChargeAccount method
-message ChargeAccountRequest {
+message AddBillingMeterEventRequest {
   // The accessKeyId to charge
   string accessKeyId = 1;
-  // The amount to charge
-  double amount = 2;
-}
-
-// Request message for the GetAccountBalance method
-message GetAccountBalanceRequest {
-  // The accessKeyId to check
-  string accessKeyId = 1;
-}
-
-// Response message for the GetAccountBalance method
-message GetAccountBalanceResponse {
-  // The account balance
-  double balance = 1;
+  // The payload for the event
+  google.protobuf.Struct payload = 2;
 }

@@ -28,13 +28,9 @@ type CheckMethodAuthorizedRequest = {
   method: string;
 };
 
-type ChargeAccountRequest = {
+type AddBillingMeterEventRequest = {
   accessKeyId: string;
-  amount: number;
-};
-
-type GetAccountBalanceRequest = {
-  accessKeyId: string;
+  payload: Record<string, unknown>;
 };
 
 type AuthzHandler = {
@@ -42,8 +38,7 @@ type AuthzHandler = {
   checkMethodAuthorized(
     request: CheckMethodAuthorizedRequest
   ): Promise<boolean>;
-  chargeAccount(request: ChargeAccountRequest): Promise<void>;
-  getAccountBalance(request: GetAccountBalanceRequest): Promise<number>;
+  addBillingMeterEvent(request: AddBillingMeterEventRequest): Promise<void>;
 };
 
 export {
@@ -51,6 +46,5 @@ export {
   AuthzHandler,
   VoiceRequest,
   CheckMethodAuthorizedRequest,
-  ChargeAccountRequest,
-  GetAccountBalanceRequest
+  AddBillingMeterEventRequest
 };

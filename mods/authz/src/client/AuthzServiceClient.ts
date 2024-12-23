@@ -19,9 +19,8 @@
 import * as grpc from "@grpc/grpc-js";
 import {
   CheckMethodAuthorizedRequest,
-  ChargeAccountRequest,
-  GetAccountBalanceRequest,
-  VoiceRequest
+  VoiceRequest,
+  AddBillingMeterEventRequest
 } from "../types";
 
 /**
@@ -39,14 +38,9 @@ interface AuthzServiceClient extends grpc.Client {
     callback: grpc.requestCallback<{ authorized: boolean }>
   ): void;
 
-  chargeAccount(
-    request: ChargeAccountRequest,
+  addBillingMeterEvent(
+    request: AddBillingMeterEventRequest,
     callback: grpc.requestCallback<{}>
-  ): void;
-
-  getAccountBalance(
-    request: GetAccountBalanceRequest,
-    callback: grpc.requestCallback<{ balance: number }>
   ): void;
 }
 
