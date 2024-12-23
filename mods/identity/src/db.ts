@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma as DMMF, PrismaClient } from "@prisma/identity-client";
+import { Prisma as DMMF, PrismaClient } from "./generated/@prisma/client";
 import { fieldEncryptionExtension } from "prisma-field-encryption";
 import { CLOAK_ENCRYPTION_KEY } from "./envs";
 import { assertEnvsAreSet } from "@fonoster/common";

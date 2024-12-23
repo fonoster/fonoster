@@ -21,7 +21,7 @@ import {
   CreateApplicationRequest,
   UpdateApplicationRequest
 } from "@fonoster/types";
-import { ApplicationType } from "@prisma/client";
+import { ApplicationType } from "../../generated/@prisma/client";
 import { struct } from "pb-util";
 
 function prepareForValidation(

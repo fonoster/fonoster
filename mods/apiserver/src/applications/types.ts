@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApplicationType } from "@prisma/client";
+import { ApplicationType } from "../generated/@prisma/client";
 
 // For Prisma schema
 type ApplicationData = {

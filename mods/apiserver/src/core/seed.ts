@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../generated/@prisma/client";
 
 const prisma = new PrismaClient();
 

@@ -21,24 +21,25 @@
     "start:sdk-test": "npx serve -s mods/sdk/public -l 9000",
     "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams mods/streams/src/example.ts",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
-    "prebuild": "npm run generate:prisma-clients",
     "build": "lerna run build",
-    "postbuild": "npm run copy:hbstemplates",
+    "prebuild": "npm run generate:prisma-clients",
+    "postbuild": "npm run copy:hbstemplates && npm run copy:prisma-clients",
     "format": "prettier --write mods/**/src",
     "clean": "rimraf mods/**/dist mods/**/node_modules mods/**/package-lock.json node_modules package-lock.json",
     "prepare": "husky",
     "copy:hbstemplates": "node .scripts/copy-hbs.js",
-    "db:migrate": "npx prisma migrate dev --schema ./mods/apiserver/schema.prisma --name changeme --preview-feature && npx prisma migrate dev --schema ./mods/identity/schema.prisma --name changeme --preview-feature",
-    "db:seed": "tsx ./mods/apiserver/src/core/seed.ts",
+    "db:migrate": "npx prisma migrate dev --schema mods/apiserver/schema.prisma --name changeme --preview-feature && npx prisma migrate dev --schema mods/identity/schema.prisma --name changeme --preview-feature",
+    "db:seed": "tsx mods/apiserver/src/core/seed.ts",
     "generate:docs": "node .scripts/gen-docs.js",
     "generate:readme": "lerna run generate:readme && git add mods/**/README.md",
     "generate:keypair": ".scripts/gen-keypair.sh",
     "generate:protos": ".scripts/gen-code-proto.sh",
     "postgenerate:protos": "lerna run build",
-    "generate:prisma-clients": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",
+    "generate:prisma-clients": "npx prisma generate --schema mods/apiserver/schema.prisma && npx prisma generate --schema mods/identity/schema.prisma",
+    "copy:prisma-clients": ".scripts/copy-prisma-clients.sh",
     "check:updates": "lerna exec -- npx npm-check-updates",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --timeout 30000 mods/**/*.test.ts",
-    "pretest": "./.scripts/check-preconditions.sh && npm run generate:keypair",
+    "pretest": ".scripts/check-preconditions.sh && npm run generate:keypair",
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --slow 50000 --timeout 10000 mods/**/node.integration.ts",
     "preintegration:web": "npx playwright install && npx playwright install-deps",
     "integration:web": "web-test-runner --node-resolve --playwright --browsers chromium webkit firefox",
@@ -49,7 +50,7 @@
     "postinstall": "npm run generate:prisma-clients"
   },
   "prisma": {
-    "seed": "tsx ./mods/apiserver/src/core/seed.ts"
+    "seed": "tsx mods/apiserver/src/core/seed.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
@@ -87,7 +88,7 @@
   },
   "nodemonConfig": {
     "watch": [
-      "./mods/**"
+      "mods/**"
     ],
     "ext": "ts",
     "exec": "tsx",

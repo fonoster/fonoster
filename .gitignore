@@ -1,5 +1,4 @@
 node_modules/
-!mods/identity/node_modules/@prisma/identity-client
 .env*
 !.env.example
 !.env.example.dev

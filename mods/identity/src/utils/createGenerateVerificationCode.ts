@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerificationType } from "@prisma/identity-client";
+import { VerificationType } from "../generated/@prisma/client";
 import { VERIFICATION_CODE_EXPIRATION } from "../constants";
 import { Prisma } from "../db";
 

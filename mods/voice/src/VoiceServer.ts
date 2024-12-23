@@ -45,12 +45,6 @@ export default class VoiceServer {
 
       let server: grpc.Server;
 
-      // Fixme: The identity verification is currently broken due to a dependency
-      // on @prisma/identity-client. For instance, running the VoiceServer in a container
-      // requires extra setup, including generating the identity-client.
-      //
-      // We will need to decouple the createAuthInterceptor and getPublicKeyClient from
-      // the identity-client to make this work.
       if (this.config.skipIdentity) {
         server = new grpc.Server();
       } else {
