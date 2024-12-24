@@ -17,9 +17,6 @@
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
     "generate:readme": "node ../../.scripts/gen-readme.js"
   },
-  "bin": {
-    "autopilot": "./dist/server.js"
-  },
   "files": [
     "dist",
     "silero_vad.onnx"

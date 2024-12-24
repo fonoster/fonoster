@@ -2,7 +2,7 @@
 # Build stage
 ##
 FROM node:20-slim AS builder
-LABEL Fonoster Team <team@fonoster.com>
+LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /work
 COPY . .
@@ -25,7 +25,7 @@ COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/silero_vad.onnx
 COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/silero_vad_16k_op15.onnx /home/appuser/autopilot/silero_vad_16k_op15.onnx
 
 WORKDIR /home/appuser/autopilot
- 
+
 # Workaround for missing voice module
 RUN npm install @fonoster/voice
 
