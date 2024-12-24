@@ -9,7 +9,6 @@ COPY . .
 
 ENV DOCKERIZE_VERSION v0.7.0
 
-# Manually install rollup and nx for arm64 for compatibility
 RUN apk add --no-cache --update git \
   && npm install \
   && npm run build \
