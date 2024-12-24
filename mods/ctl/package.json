@@ -32,7 +32,7 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "gitHead": "bfbf55db4130837e7441c67cc7f92ed8d89efb23",
+  "gitHead": "3509817cc2cf3ef6684437e33ffd694d1174510b",
   "bin": {
     "fonoster": "./bin/run.js"
   },
