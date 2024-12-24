@@ -1,7 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "src/generated/@prisma/client"
-  binaryTargets = ["native", "linux-arm64-openssl-1.1.x", "linux-arm64-openssl-3.0.x"]
+  provider      = "prisma-client-js"
+  output        = "src/generated/@prisma/client"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -14,7 +14,7 @@ model Application {
   accessKeyId String          @map("access_key_id")
   name        String          @db.VarChar(255)
   type        ApplicationType
-  endpoint String          @db.VarChar(255)
+  endpoint    String          @db.VarChar(255)
   createdAt   DateTime        @default(now()) @map("created_at")
   updatedAt   DateTime        @default(now()) @map("updated_at")
 

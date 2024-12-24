@@ -1,7 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "src/generated/@prisma/client"
-    binaryTargets = ["native", "linux-arm64-openssl-1.1.x"]
+  provider      = "prisma-client-js"
+  output        = "src/generated/@prisma/client"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -90,7 +90,7 @@ model ApiKey {
 
 model VerificationCode {
   ref       String           @id @default(uuid())
-  type      VerificationType  
+  type      VerificationType
   code      String           @db.VarChar(6)
   value     String           @db.VarChar(255)
   expiresAt DateTime         @map("expires_at") @db.Timestamptz(3)
