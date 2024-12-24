@@ -16,14 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PrismaClient } from "../generated/@prisma/client";
+import { Prisma as DMMF, PrismaClient } from "../generated/@prisma/client";
 import { fieldEncryptionExtension } from "prisma-field-encryption";
 import { CLOAK_ENCRYPTION_KEY } from "../envs";
 
 // We encrypt all fields marked with /// encrypted in the schema
 const prisma = new PrismaClient().$extends(
   fieldEncryptionExtension({
-    encryptionKey: CLOAK_ENCRYPTION_KEY
+    encryptionKey: CLOAK_ENCRYPTION_KEY,
+    dmmf: DMMF.dmmf
   })
 );
 
