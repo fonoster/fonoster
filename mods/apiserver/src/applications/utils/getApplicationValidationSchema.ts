@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { hostOrHostPortSchema } from "@fonoster/common";
-import { ApplicationType } from "../../generated/@prisma/client";
+import { ApplicationType } from "@prisma/client";
 import { z } from "zod";
 import { Deepgram as DeepgramStt } from "../../voice/stt/Deepgram";
 import { Google as GoogleStt } from "../../voice/stt/Google";
