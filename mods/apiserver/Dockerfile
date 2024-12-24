@@ -15,6 +15,9 @@ RUN apk add --no-cache --update git \
   && cd mods/apiserver \
   && npm pack \
   && npm install -g $(ls *.tgz) \
+  && cp schema.prisma /usr/local/lib/node_modules/@fonoster/apiserver/ \
+  && cd /usr/local/lib/node_modules/@fonoster/apiserver/ \
+  && npx prisma generate \
   && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
   && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
   && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz $(ls *.tgz)
