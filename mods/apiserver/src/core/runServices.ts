@@ -44,12 +44,12 @@ import {
   NATS_URL
 } from "../envs";
 import { connectToAri } from "../voice/connectToAri";
-import { createCheckMethodAuthorized } from "@fonoster/authz";
+import { makeCheckMethodAuthorized } from "@fonoster/authz";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, allowList);
-const checkMethodAuthorized = createCheckMethodAuthorized(
+const checkMethodAuthorized = makeCheckMethodAuthorized(
   `${AUTHZ_SERVICE_HOST}:${AUTHZ_SERVICE_PORT}`,
   AUTHZ_SERVICE_METHODS
 );

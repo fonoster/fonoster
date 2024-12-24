@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createInterceptingCall } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { AuthzClient } from "./client/AuthzClient";
@@ -31,7 +32,7 @@ const logger = getLogger({ service: "authz", filePath: __filename });
  * @param {string} authzServer - The public key to validate the token
  * @return {Function} - The gRPC interceptor
  */
-function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
+function makeCheckMethodAuthorized(authzServer: string, methods: string[]) {
   logger.verbose("creating check method authorized interceptor", {
     authzServer,
     methods
@@ -65,9 +66,7 @@ function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
         method
       } as CheckMethodAuthorizedRequest)
       .then(() => {
-        call.sendMessage({ authorized: true }, () => {
-          logger.verbose("method is authorized", { method, accessKeyId });
-        });
+        call.sendMessage({ authorized: true }, () => {});
       })
       .catch((error) => {
         logger.verbose("method is not authorized", { method, accessKeyId });
@@ -81,4 +80,4 @@ function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
   };
 }
 
-export { createCheckMethodAuthorized };
+export { makeCheckMethodAuthorized };

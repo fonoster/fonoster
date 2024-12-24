@@ -19,8 +19,8 @@ RUN apk add --no-cache --update git \
   && npx prisma generate --schema /usr/local/lib/node_modules/@fonoster/apiserver/schema.prisma \
   && cd /work \
   && npx prisma generate --schema mods/identity/schema.prisma \
-  && mv mods/identity/src/generated /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist/generated \
-  && ls -la /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist/generated \
+  && rm -rf /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist/generated \
+  && mv mods/identity/src/generated /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist \
   && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
   && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
   && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz $(ls *.tgz)
