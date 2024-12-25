@@ -51,8 +51,7 @@ class AuthzServer {
           call: grpc.ServerUnaryCall<any, any>,
           callback: grpc.sendUnaryData<any>
         ) => {
-          logger.verbose("checkSessionAuthorized called");
-          logger.verbose(JSON.stringify(call.request));
+          logger.verbose("checkSessionAuthorized called", call.request);
 
           try {
             const isAuthorized = await handler.checkSessionAuthorized(
@@ -78,8 +77,7 @@ class AuthzServer {
           call: grpc.ServerUnaryCall<any, any>,
           callback: grpc.sendUnaryData<any>
         ) => {
-          logger.verbose("checkMethodAuthorized called");
-          logger.verbose(JSON.stringify(call.request));
+          logger.verbose("checkMethodAuthorized called", call.request);
 
           try {
             const isAuthorized = await handler.checkMethodAuthorized(
@@ -105,8 +103,7 @@ class AuthzServer {
           call: grpc.ServerUnaryCall<any, any>,
           callback: grpc.sendUnaryData<any>
         ) => {
-          logger.verbose("addBillingMeterEvent called");
-          logger.verbose(JSON.stringify(call.request));
+          logger.verbose("addBillingMeterEvent called", call.request);
 
           try {
             const request = {

@@ -60,23 +60,33 @@ function makeCheckMethodAuthorized(authzServer: string, methods: string[]) {
 
     const accessKeyId = getAccessKeyIdFromCall(call);
 
-    authz
-      .checkMethodAuthorized({
-        accessKeyId,
-        method
-      } as CheckMethodAuthorizedRequest)
-      .then(() => {
-        call.sendMessage({ authorized: true }, () => {});
-      })
-      .catch((error) => {
-        logger.verbose("method is not authorized", { method, accessKeyId });
-        call.sendStatus({
-          code: status.PERMISSION_DENIED,
-          details: `Method ${method} is not authorized for accessKeyId ${accessKeyId}`
-        });
-      });
+    return new ServerInterceptingCall(call, {
+      start: async (next) => {
+        try {
+          await authz.checkMethodAuthorized({
+            accessKeyId,
+            method
+          } as CheckMethodAuthorizedRequest);
 
-    return call;
+          logger.verbose("method authorized by external service", {
+            method,
+            accessKeyId
+          });
+
+          next();
+        } catch (error) {
+          logger.verbose("method unauthorized by external service", {
+            method,
+            accessKeyId
+          });
+          createInterceptingCall({
+            call,
+            code: status.PERMISSION_DENIED,
+            details: `Method '${method}' unauthorized by external service - accessKeyId ${accessKeyId}`
+          });
+        }
+      }
+    });
   };
 }
 
