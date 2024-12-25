@@ -28,7 +28,7 @@ import { NATS_URL } from "../envs";
 
 async function buildService(influxdb: InfluxDBClient) {
   const callPublisher = await createCallPublisher(NATS_URL);
-  const nc = await connect({ servers: NATS_URL });
+  const nc = await connect({ servers: NATS_URL,  maxReconnectAttempts: -1 });
 
   return {
     definition: {

@@ -41,7 +41,7 @@ async function streamEvents(subscription, callback: NatsEventCallback) {
  */
 function watchNats(natsUrl: string, callback: NatsEventCallback) {
   (async () => {
-    const nc = await connect({ servers: natsUrl });
+    const nc = await connect({ servers: natsUrl, maxReconnectAttempts: -1 });
 
     const a = nc.subscribe(ROUTR_CALL_SUBJECT);
 

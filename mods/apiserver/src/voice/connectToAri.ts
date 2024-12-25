@@ -65,7 +65,7 @@ async function connectToAri(filesServer) {
 
     const createContainer = makeCreateContainer(prisma, INTEGRATIONS_FILE);
 
-    const nats = await connect({ servers: NATS_URL });
+    const nats = await connect({ servers: NATS_URL,  maxReconnectAttempts: -1 });
 
     const dispatcher = new VoiceDispatcher(
       ari,
