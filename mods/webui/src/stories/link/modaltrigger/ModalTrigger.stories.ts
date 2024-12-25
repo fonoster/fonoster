@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 
-/**
- * This story is for the modal trigger component based on Material UI.
- * It has a enabled and disabled variants.
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { ModalTrigger } from "./ModalTrigger";
 import { fn } from "@storybook/test";
 
+/**
+ * This story is for the modal trigger component based on Material UI.
+ * It has a enabled and disabled variants.
+ */
 const meta = {
   title: "Shared Components/ModalTrigger",
   component: ModalTrigger,
