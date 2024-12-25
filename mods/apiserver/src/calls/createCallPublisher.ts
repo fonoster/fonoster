@@ -26,7 +26,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 async function createCallPublisher(natsUrl: string) {
   logger.verbose("connecting to nats", { natsUrl });
 
-  const nc = await connect({ servers: natsUrl,  maxReconnectAttempts: -1 });
+  const nc = await connect({ servers: natsUrl, maxReconnectAttempts: -1 });
 
   return {
     publishCall: async (request: CreateCallRequest & { ref: string }) => {
