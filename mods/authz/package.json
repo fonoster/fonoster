@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/authz",
-  "version": "0.8.18",
+  "version": "0.8.19",
   "description": "Authorization module for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
