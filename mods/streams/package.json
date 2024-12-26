@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/streams",
-  "version": "0.8.20",
+  "version": "0.8.22",
   "description": "Core support for Fonoster Streams",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -18,7 +18,7 @@
     "generate:readme": "node ../../.scripts/gen-readme.js"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.8.20",
+    "@fonoster/logger": "^0.8.22",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
