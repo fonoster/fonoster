@@ -98,7 +98,9 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
             enabled: true,
             weight: 1,
             priority: 1,
-            user: "placeholder"
+            user: await input({
+              message: "User"
+            })
           }
         ]
       };

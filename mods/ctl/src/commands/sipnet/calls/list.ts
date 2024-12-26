@@ -44,10 +44,10 @@ export default class List extends AuthenticatedCommand<typeof List> {
       pageSize: parseInt(flags["page-size"])
     });
 
-    const ui = cliui({ width: 100 });
+    const ui = cliui({ width: 125 });
 
     ui.div(
-      { text: "CALL ID", padding: [0, 0, 0, 0], width: 25 },
+      { text: "REF", padding: [0, 0, 0, 0], width: 40 },
       { text: "STARTED AT", padding: [0, 0, 0, 0], width: 25 },
       { text: "ENDED AT", padding: [0, 0, 0, 0], width: 25 },
       { text: "FROM", padding: [0, 0, 0, 0], width: 30 },
@@ -57,7 +57,7 @@ export default class List extends AuthenticatedCommand<typeof List> {
 
     response.items.forEach((call) => {
       ui.div(
-        { text: (call as any).callId, padding: [0, 0, 0, 0], width: 25 },
+        { text: call.ref, padding: [0, 0, 0, 0], width: 40 },
         {
           text: moment(call.startedAt).format("YYYY-MM-DD HH:mm:ss"),
           padding: [0, 0, 0, 0],

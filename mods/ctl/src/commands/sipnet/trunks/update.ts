@@ -115,7 +115,9 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
             enabled: true,
             weight: 1,
             priority: 1,
-            user: "placeholder"
+            user: await input({
+              message: "User"
+            })
           }
         ]
       };
