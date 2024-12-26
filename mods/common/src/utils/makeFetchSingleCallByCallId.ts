@@ -24,20 +24,19 @@ import {
 import { CallDetailRecord } from "@fonoster/types";
 import { InfluxDBClient } from "./types";
 
-function createFetchSingleCall(influxdb: InfluxDBClient) {
+function makeFetchSingleCallByCallId(influxdb: InfluxDBClient) {
   return async (
-    accessKeyId: string,
     callId: string
   ): Promise<CallDetailRecord> => {
     const query = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
-      |> range(start: -5m)
+      |> range(start: -365d)
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with
           duration: int(v: r.endedAt) - int(v: r.startedAt)
         }))
       |> filter(fn: (r) => r._measurement == "${CALL_DETAIL_RECORD_MEASUREMENT}")
-      |> filter(fn: (r) => r.callId == ${callId} and r.accessKeyId == "${accessKeyId}")
+      |> filter(fn: (r) => r.callId == ${callId})
       |> sort(columns: ["_time"], desc: true)
       |> limit(n: 1)`;
 
@@ -47,4 +46,4 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
   };
 }
 
-export { createFetchSingleCall };
+export { makeFetchSingleCallByCallId };

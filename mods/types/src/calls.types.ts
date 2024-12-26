@@ -44,6 +44,7 @@ enum CallDirection {
 
 type CallDetailRecord = {
   ref: string;
+  accessKeyId: string;
   status: CallStatus;
   type: CallType;
   from: string;

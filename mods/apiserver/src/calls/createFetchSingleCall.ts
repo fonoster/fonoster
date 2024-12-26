@@ -33,7 +33,7 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
     ref: string
   ): Promise<CallDetailRecord> => {
     const query = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
-      |> range(start: -360d)
+      |> range(start: -365d)
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with

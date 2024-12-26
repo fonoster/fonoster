@@ -28,3 +28,4 @@ export * from "./withErrorHandling";
 export * from "./withErrorHandlingAndValidation";
 export * from "./withValidation";
 export * from "./types";
+export * from "./makeFetchSingleCallByCallId";
