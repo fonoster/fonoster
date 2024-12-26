@@ -58,7 +58,7 @@ function createFetchCalls(influxdb: InfluxDBClient) {
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with
-          duration: (int(v: r.endedAt) - int(v: r.startedAt)) / 1000,
+          duration: int(v: r.endedAt) - int(v: r.startedAt),
           startedAtParsed: int(v: r.startedAt) / 1000,
         }))
       |> filter(fn: (r) =>

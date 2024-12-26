@@ -115,7 +115,7 @@ describe("@calls/fetchCalls", function () {
     expect(queryStr).to.include("from(bucket: \"calls\")");
     // expect(queryStr).to.include("range(start: 2024-01-01T00:00:00.000Z, stop: 2024-01-02T23:00:00.000Z)");
     expect(queryStr).to.include("pivot(rowKey: [\"callId\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
-    expect(queryStr).to.include("duration: (int(v: r.endedAt) - int(v: r.startedAt)) / 1000,");
+    expect(queryStr).to.include("duration: int(v: r.endedAt) - int(v: r.startedAt),");
     expect(queryStr).to.include("r._measurement == \"cdr\"");
     expect(queryStr).to.include("group()");
     expect(queryStr).to.include("sort(columns: [\"startedAtParsed\"], desc: true)");

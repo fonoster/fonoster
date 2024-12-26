@@ -37,8 +37,7 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with
-          duration: (int(v: r.endedAt) - int(v: r.startedAt)) / 1000,
-          startedAtParsed: int(v: r.startedAt) / 1000,
+          duration: int(v: r.endedAt) - int(v: r.startedAt)
         }))
       |> filter(fn: (r) => r._measurement == "${CALL_DETAIL_RECORD_MEASUREMENT}")
       |> filter(fn: (r) => r.ref == ${ref} and r.accessKeyId == "${accessKeyId}")
