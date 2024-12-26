@@ -37,7 +37,7 @@ export const StyledTooltipContentList = styled("div")<{
   backgroundColor: theme.palette.secondary[700],
   borderRadius: "4px",
   padding: "10px",
-  paddingTop: '5px',
+  paddingTop: "5px",
   whiteSpace: "nowrap",
   transform: "translateX(-50%)",
   zIndex: 100,
@@ -57,7 +57,7 @@ export const StyledTooltipArrow = styled("span")<{
   height: 0,
   width: 0,
   pointerEvents: "none",
-  borderWidth: '10px',
+  borderWidth: "10px",
   ...getTooltipArrowStyles(placement, theme)
 }));
 
@@ -89,7 +89,10 @@ const getTooltipPositionStyles = (placement: TooltipPlacement) => {
   }
 };
 
-const getTooltipArrowStyles = (placement: TooltipPlacement, theme: Theme): React.CSSProperties => {
+const getTooltipArrowStyles = (
+  placement: TooltipPlacement,
+  theme: Theme
+): React.CSSProperties => {
   const backgroundColor = theme.palette.secondary[700];
 
   switch (placement) {

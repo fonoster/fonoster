@@ -20,39 +20,39 @@
 import { useState } from "react";
 import { Typography } from "../typography/Typography";
 import {
-    StyledTooltipArrow,
-    StyledTooltipContainer,
-    StyledTooltipContent,
-    StyledTooltipContentList
+  StyledTooltipArrow,
+  StyledTooltipContainer,
+  StyledTooltipContent,
+  StyledTooltipContentList
 } from "./Tooltip.styles";
 import { TooltipProps } from "./types";
 
 export const Tooltip = (props: TooltipProps) => {
-    const { content, placement = "top", children } = props;
-    const [show, setShow] = useState(false);
+  const { content, placement = "top", children } = props;
+  const [show, setShow] = useState(false);
 
-    const showTip = () => setShow(true);
-    const hideTip = () => setShow(false);
+  const showTip = () => setShow(true);
+  const hideTip = () => setShow(false);
 
-    return (
-        <StyledTooltipContainer onMouseEnter={showTip} onMouseLeave={hideTip}>
-            {children}
-            {show && (
-                <StyledTooltipContentList placement={placement}>
-                    {typeof content === "string" ? (
-                        <StyledTooltipContent>
-                            <Typography variant="body-micro">{content}</Typography>{" "}
-                        </StyledTooltipContent>
-                    ) : (
-                        content.map((value, i) => (
-                            <StyledTooltipContent key={i}>
-                                <Typography variant="body-micro">{value}</Typography>{" "}
-                            </StyledTooltipContent>
-                        ))
-                    )}
-                    <StyledTooltipArrow placement={placement} />
-                </StyledTooltipContentList>
-            )}
-        </StyledTooltipContainer>
-    );
+  return (
+    <StyledTooltipContainer onMouseEnter={showTip} onMouseLeave={hideTip}>
+      {children}
+      {show && (
+        <StyledTooltipContentList placement={placement}>
+          {typeof content === "string" ? (
+            <StyledTooltipContent>
+              <Typography variant="body-micro">{content}</Typography>{" "}
+            </StyledTooltipContent>
+          ) : (
+            content.map((value, i) => (
+              <StyledTooltipContent key={i}>
+                <Typography variant="body-micro">{value}</Typography>{" "}
+              </StyledTooltipContent>
+            ))
+          )}
+          <StyledTooltipArrow placement={placement} />
+        </StyledTooltipContentList>
+      )}
+    </StyledTooltipContainer>
+  );
 };
