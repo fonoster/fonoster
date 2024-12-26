@@ -59,7 +59,7 @@ function handleError(
     case grpc.status.ALREADY_EXISTS:
       logAndCallback(
         status.ALREADY_EXISTS,
-        message || "Duplicated resource",
+        "The resource already exists",
         "duplicated entity error"
       );
       break;
@@ -67,7 +67,7 @@ function handleError(
     case grpc.status.NOT_FOUND:
       logAndCallback(
         status.NOT_FOUND,
-        message || "The requested resource was not found",
+        "The requested resource was not found",
         "not found error"
       );
       break;
@@ -75,22 +75,29 @@ function handleError(
     case grpc.status.FAILED_PRECONDITION:
       logAndCallback(
         status.FAILED_PRECONDITION,
-        message || "Failed precondition error (e.g., missing dependency)",
+        "Failed precondition error (e.g., missing dependency)",
         "failed precondition error"
       );
       break;
     case grpc.status.PERMISSION_DENIED:
       logAndCallback(
         status.PERMISSION_DENIED,
-        message || "Permission denied",
+        "You don't have permission to perform this action",
         "permission denied error"
       );
       break;
     case grpc.status.UNAUTHENTICATED:
       logAndCallback(
         status.UNAUTHENTICATED,
-        message || "Unauthenticated",
+        "You need to be authenticated to perform this action",
         "unauthenticated error"
+      );
+      break;
+    case grpc.status.INVALID_ARGUMENT:
+      logAndCallback(
+        status.INVALID_ARGUMENT,
+        "Your request has invalid arguments",
+        "invalid argument error"
       );
       break;
     default:
