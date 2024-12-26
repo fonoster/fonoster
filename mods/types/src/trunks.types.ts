@@ -34,7 +34,7 @@ type TrunkURI = {
   host: string;
   port: number;
   transport: Transport;
-  user: string;
+  user?: string;
   weight: number;
   priority: number;
   enabled: boolean;
