@@ -18,6 +18,7 @@
  */
 import { CallType } from "@fonoster/types";
 import { mapCallDirectionToEnum } from "./mapCallDirectionToEnum";
+import { v4 as uuidv4 } from "uuid";
 
 const ACCESS_KEY_ID_HEADER = "X-Access-Key-Id";
 const CALL_REF_HEADER = "X-Call-Ref";
@@ -54,13 +55,17 @@ function transformEvent(
   }
 
   const extraHeaders = event.extraHeaders as Record<string, string>;
-  if (extraHeaders) {
+
+  if (extraHeaders && Object.keys(extraHeaders).length > 0) {
     if (extraHeaders[ACCESS_KEY_ID_HEADER]) {
       transformedEvent.accessKeyId = extraHeaders[ACCESS_KEY_ID_HEADER];
     }
 
     if (extraHeaders[CALL_REF_HEADER]) {
       transformedEvent.ref = extraHeaders[CALL_REF_HEADER];
+    } else {
+      // SIP originated calls don't have a ref so we need to create one
+      transformedEvent.ref = uuidv4();
     }
 
     if (extraHeaders[DOD_NUMBER_HEADER]) {
