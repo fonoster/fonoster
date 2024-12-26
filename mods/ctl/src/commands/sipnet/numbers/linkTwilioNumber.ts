@@ -29,7 +29,6 @@ import {
   FONOSTER_ORIGINATION_URI_BASE
 } from "../../../constants";
 import { linkTwilioNumberToApplication } from "../../../utils";
-import { get } from "http";
 
 export default class LinkTwilioNumber extends AuthenticatedCommand<
   typeof LinkTwilioNumber
