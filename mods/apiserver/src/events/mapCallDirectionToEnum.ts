@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallDirection } from "../calls/types";
+import { CallDirection } from "@fonoster/types";
 
 function mapCallDirectionToEnum(direction: string): CallDirection {
   switch (direction) {

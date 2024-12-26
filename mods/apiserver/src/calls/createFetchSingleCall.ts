@@ -19,11 +19,13 @@
 import { getLogger } from "@fonoster/logger";
 import { flux } from "@influxdata/influxdb-client";
 import {
-  CALL_DETAIL_RECORD_MEASUREMENT,
-  CallDetailRecord,
+  CallDetailRecord
+} from "@fonoster/types";
+import { 
+  CALL_DETAIL_RECORD_MEASUREMENT, 
+  INFLUXDB_CALLS_BUCKET,
   InfluxDBClient
-} from "./types";
-import { INFLUXDB_BUCKET } from "../envs";
+} from "@fonoster/common";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -32,7 +34,7 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
     accessKeyId: string,
     ref: string
   ): Promise<CallDetailRecord> => {
-    const query = flux`from(bucket: "${INFLUXDB_BUCKET}")
+    const query = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
       |> range(start: -360d)
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({

@@ -21,3 +21,5 @@ import { ServingStatus } from "grpc-health-check";
 export const GRPC_NOT_SERVING_STATUS = "NOT_SERVING" as ServingStatus;
 export const GRPC_SERVING_STATUS = "SERVING" as ServingStatus;
 export const STASIS_APP_NAME = "mediacontroller";
+export const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
+export const INFLUXDB_CALLS_BUCKET = "calls";

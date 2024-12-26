@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import {
-  BaseApiObject,
   DialStatus,
   Validators as V,
   withErrorHandlingAndValidation
@@ -26,6 +25,7 @@ import { getLogger } from "@fonoster/logger";
 import { NatsConnection } from "nats";
 import { CallStream, TrackCallResponse } from "./types";
 import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
+import { BaseApiObject } from "@fonoster/types";
 
 const FINAL_STATUSES = [
   DialStatus.BUSY,

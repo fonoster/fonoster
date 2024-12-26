@@ -17,23 +17,7 @@
  * limitations under the License.
  */
 import { DialStatus, GrpcErrorMessage } from "@fonoster/common";
-import { CallDirection, CallStatus, CallType } from "@fonoster/types";
-import { ParameterizedQuery } from "@influxdata/influxdb-client";
-
-const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
-
-type CallDetailRecord = {
-  ref: string;
-  callId: string;
-  status: CallStatus;
-  type: CallType;
-  from: string;
-  to: string;
-  duration: number;
-  direction: CallDirection;
-  startedAt: number;
-  endedAt: number;
-};
+import { CallDetailRecord, CallStatus, CallType } from "@fonoster/types";
 
 type ListCallsRequest = {
   after?: string;
@@ -53,10 +37,6 @@ type ListCallsResponse = {
 
 type GetCallRequest = {
   ref: string;
-};
-
-type InfluxDBClient = {
-  collectRows(query: ParameterizedQuery): Promise<unknown[]>;
 };
 
 // If appRef is not provided, we will use the application associated
@@ -91,16 +71,10 @@ type TrackCallSubscriber = {
 };
 
 export {
-  CALL_DETAIL_RECORD_MEASUREMENT,
-  CallDetailRecord,
-  CallDirection,
   CallPublisher,
-  CallStatus,
   CallStream,
-  CallType,
   CreateCallRequest,
   GetCallRequest,
-  InfluxDBClient,
   ListCallsRequest,
   ListCallsResponse,
   TrackCallResponse,

@@ -18,8 +18,6 @@
  */
 import { BaseApiObject, ListResponse } from "./common";
 
-const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
-
 enum CallType {
   SIP_ORIGINATED = "SIP_ORIGINATED",
   API_ORIGINATED = "API_ORIGINATED"
@@ -94,7 +92,6 @@ type TrackCallSubscriber = {
 };
 
 export {
-  CALL_DETAIL_RECORD_MEASUREMENT,
   CallDetailRecord,
   CallDirection,
   CallPublisher,

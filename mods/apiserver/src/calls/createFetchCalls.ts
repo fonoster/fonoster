@@ -19,13 +19,11 @@
 import { getLogger } from "@fonoster/logger";
 import { flux } from "@influxdata/influxdb-client";
 import {
-  CALL_DETAIL_RECORD_MEASUREMENT,
   CallDetailRecord,
-  InfluxDBClient,
   ListCallsRequest,
   ListCallsResponse
-} from "./types";
-import { INFLUXDB_BUCKET } from "../envs";
+} from "@fonoster/types";
+import { InfluxDBClient, CALL_DETAIL_RECORD_MEASUREMENT, INFLUXDB_CALLS_BUCKET } from "@fonoster/common";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -53,7 +51,7 @@ function createFetchCalls(influxdb: InfluxDBClient) {
       ? new Date(before).getTime() / 1000
       : new Date().getTime() / 1000;
 
-    const query = flux`from(bucket: "${INFLUXDB_BUCKET}")
+    const query = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
       |> range(start: ${parsedAfter})
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({

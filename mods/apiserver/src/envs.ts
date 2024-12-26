@@ -143,8 +143,6 @@ export const AUTHZ_SERVICE_METHODS = e.AUTHZ_SERVICE_METHODS
   : ["/fonoster.calls.v1beta2.Calls/CreateCall"];
 
 // InfluxDB configurations
-export const INFLUXDB_BUCKET = e.INFLUXDB_INIT_BUCKET;
-
 export const INFLUXDB_ORG = e.INFLUXDB_INIT_ORG;
 
 export const INFLUXDB_PASSWORD = e.INFLUXDB_INIT_PASSWORD;

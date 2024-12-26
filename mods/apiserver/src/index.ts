@@ -19,11 +19,9 @@
  */
 import { upsertDefaultUser } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { CALL_DETAIL_RECORD_MEASUREMENT } from "./calls/types";
 import runServices from "./core/runServices";
 import { upsertDefaultPeer } from "./core/upsertDefaultPeer";
 import {
-  INFLUXDB_BUCKET,
   INFLUXDB_ORG,
   INFLUXDB_TOKEN,
   INFLUXDB_URL,
@@ -35,6 +33,7 @@ import {
 import { createInfluxDbPub } from "./events/createInfluxDbPub";
 import { watchNats } from "./events/nats";
 import { transformEvent } from "./events/transformEvent";
+import { CALL_DETAIL_RECORD_MEASUREMENT, INFLUXDB_CALLS_BUCKET } from "@fonoster/common";
 
 import("./core/removeSwaggerNotice");
 
@@ -58,7 +57,7 @@ async function main() {
     url: INFLUXDB_URL,
     token: INFLUXDB_TOKEN,
     org: INFLUXDB_ORG,
-    bucket: INFLUXDB_BUCKET
+    bucket: INFLUXDB_CALLS_BUCKET
   });
 
   // Subscribe to NATs events

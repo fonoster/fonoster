@@ -17,14 +17,13 @@
  * limitations under the License.
  */
 import {
-  BaseApiObject,
   GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { CreateCallRequest } from "@fonoster/types";
+import { BaseApiObject, CreateCallRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { v4 as uuidv4 } from "uuid";
 import { CallPublisher } from "./types";

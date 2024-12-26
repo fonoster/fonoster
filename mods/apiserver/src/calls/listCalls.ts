@@ -19,13 +19,14 @@
 import {
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation
+  withErrorHandlingAndValidation,
+  InfluxDBClient
 } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createFetchCalls } from "./createFetchCalls";
-import { InfluxDBClient, ListCallsRequest, ListCallsResponse } from "./types";
+import { ListCallsRequest, ListCallsResponse } from "@fonoster/types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

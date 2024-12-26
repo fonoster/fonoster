@@ -16,9 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type NumberPreconditionsCheck = (request: {
-  appRef?: string;
-  agentAor?: string;
-}) => Promise<void>;
+import { ParameterizedQuery } from "@influxdata/influxdb-client";
 
-export { NumberPreconditionsCheck };
+type InfluxDBClient = {
+    collectRows(query: ParameterizedQuery): Promise<unknown[]>;
+};
+
+export { InfluxDBClient };

@@ -22,7 +22,7 @@ import { createCallPublisher } from "./createCallPublisher";
 import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
 import { makeTrackCall } from "./makeTrackCall";
-import { InfluxDBClient } from "./types";
+import { InfluxDBClient } from "@fonoster/common";
 import { prisma } from "../core/db";
 import { NATS_URL } from "../envs";
 

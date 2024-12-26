@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import {
-  BaseApiObject,
   GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
@@ -27,6 +26,7 @@ import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromToken } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
+import { BaseApiObject } from "@fonoster/types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
