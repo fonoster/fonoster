@@ -96,13 +96,13 @@ function handleError(
     case grpc.status.INVALID_ARGUMENT:
       logAndCallback(
         status.INVALID_ARGUMENT,
-        "Your request has invalid arguments",
+        message ?? "Your request has invalid arguments",
         "invalid argument error"
       );
       break;
     default:
       logger.error("unknown error:", error);
-      callback({ code: status.UNKNOWN, message: message || "Unknown error" });
+      callback({ code: status.UNKNOWN, message: "Unknown error" });
   }
 }
 
