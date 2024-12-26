@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallType } from "@fonoster/types";
+import { CallType, CallStatus } from "@fonoster/types";
 import * as chai from "chai"; import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { CallStatus, InfluxDBClient } from "../../src/calls/types";
+import { InfluxDBClient } from "@fonoster/common";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

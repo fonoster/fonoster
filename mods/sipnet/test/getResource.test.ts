@@ -84,7 +84,7 @@ describe("@sipnet[resources/getResource]", function () {
     const domains = {
       getDomain: sandbox.stub().throws({
         code: grpc.status.NOT_FOUND,
-        message: "Domain not found"
+        message: "The requested resource was not found"
       })
     } as unknown as DomainsApi;
 
@@ -108,7 +108,7 @@ describe("@sipnet[resources/getResource]", function () {
     expect(callback).to.have.been.calledOnce;
     expect(callback).to.have.been.calledWithMatch({
       code: grpc.status.NOT_FOUND,
-      message: "Domain not found"
+      message: "The requested resource was not found"
     });
   });
 });

@@ -85,7 +85,7 @@ describe("@identity[users/createUser]", function () {
       // Assert
       expect(error).to.deep.equal({
         code: status.ALREADY_EXISTS,
-        message: "Duplicated resource"
+        message: "The resource already exists"
       });
     });
   });

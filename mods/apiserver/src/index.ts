@@ -33,7 +33,10 @@ import {
 import { createInfluxDbPub } from "./events/createInfluxDbPub";
 import { watchNats } from "./events/nats";
 import { transformEvent } from "./events/transformEvent";
-import { CALL_DETAIL_RECORD_MEASUREMENT, INFLUXDB_CALLS_BUCKET } from "@fonoster/common";
+import {
+  CALL_DETAIL_RECORD_MEASUREMENT,
+  INFLUXDB_CALLS_BUCKET
+} from "@fonoster/common";
 
 import("./core/removeSwaggerNotice");
 

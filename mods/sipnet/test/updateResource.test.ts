@@ -81,7 +81,7 @@ describe("@sipnet[resources/updateResource]", function () {
     const domains = {
       updateDomain: sandbox.stub().throws({
         code: grpc.status.NOT_FOUND,
-        message: "Domain not found"
+        message: "The requested resource was not found"
       }),
       getDomain: getExtendedFieldsHelper(sandbox)
     } as unknown as DomainsApi;
@@ -110,7 +110,7 @@ describe("@sipnet[resources/updateResource]", function () {
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly({
       code: grpc.status.NOT_FOUND,
-      message: "Domain not found"
+      message: "The requested resource was not found"
     });
   });
 });

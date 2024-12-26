@@ -84,7 +84,7 @@ describe("@sipnet[resources/createResource]", function () {
     const domains = {
       createDomain: sandbox.stub().throws({
         code: grpc.status.ALREADY_EXISTS,
-        message: "Domain already exists"
+        message: "The resource already exists"
       }),
       getDomain: getExtendedFieldsHelper(sandbox)
     } as unknown as DomainsApi;
@@ -113,7 +113,7 @@ describe("@sipnet[resources/createResource]", function () {
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly({
       code: grpc.status.ALREADY_EXISTS,
-      message: "Domain already exists"
+      message: "The resource already exists"
     });
   });
 });

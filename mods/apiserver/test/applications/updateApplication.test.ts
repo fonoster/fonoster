@@ -118,6 +118,6 @@ describe("@applications/updateApplication", function () {
     });
 
     // Assert
-    await expect(response).to.be.rejectedWith("Application not found");
+    await expect(response).to.be.rejectedWith("The requested resource was not found");
   });
 });

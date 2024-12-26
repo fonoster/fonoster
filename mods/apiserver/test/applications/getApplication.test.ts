@@ -109,7 +109,7 @@ describe("@applications/getApplication", function () {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,
-        message: "Application not found"
+        message: "The requested resource was not found"
       });
     });
   });

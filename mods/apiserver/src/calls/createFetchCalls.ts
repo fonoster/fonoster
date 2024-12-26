@@ -23,7 +23,11 @@ import {
   ListCallsRequest,
   ListCallsResponse
 } from "@fonoster/types";
-import { InfluxDBClient, CALL_DETAIL_RECORD_MEASUREMENT, INFLUXDB_CALLS_BUCKET } from "@fonoster/common";
+import {
+  InfluxDBClient,
+  CALL_DETAIL_RECORD_MEASUREMENT,
+  INFLUXDB_CALLS_BUCKET
+} from "@fonoster/common";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

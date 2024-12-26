@@ -91,7 +91,7 @@ describe("@secrets/createSecret", function () {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.ALREADY_EXISTS,
-        message: "Duplicated resource"
+        message: "The resource already exists"
       });
     });
   });

@@ -18,11 +18,9 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { flux } from "@influxdata/influxdb-client";
+import { CallDetailRecord } from "@fonoster/types";
 import {
-  CallDetailRecord
-} from "@fonoster/types";
-import { 
-  CALL_DETAIL_RECORD_MEASUREMENT, 
+  CALL_DETAIL_RECORD_MEASUREMENT,
   INFLUXDB_CALLS_BUCKET,
   InfluxDBClient
 } from "@fonoster/common";

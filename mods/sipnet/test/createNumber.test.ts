@@ -187,7 +187,7 @@ describe("@sipnet[sipnet/createNumber]", function () {
 
     const checkNumberPreconditions = sandbox.stub().throws({
       code: grpc.status.FAILED_PRECONDITION,
-      message: `Application not found for ref: ${call.request.appRef}`
+      message: `Failed precondition error (e.g., missing dependency)`
     });
 
     const create = createNumber(numbers, checkNumberPreconditions);
@@ -198,7 +198,7 @@ describe("@sipnet[sipnet/createNumber]", function () {
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly({
       code: grpc.status.FAILED_PRECONDITION,
-      message: `Application not found for ref: ${call.request.appRef}`
+      message: `Failed precondition error (e.g., missing dependency)`
     });
     expect(numbers.createNumber).to.not.have.been.called;
   });

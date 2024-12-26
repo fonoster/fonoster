@@ -17,7 +17,10 @@
  * limitations under the License.
  */
 import { flux } from "@influxdata/influxdb-client";
-import { CALL_DETAIL_RECORD_MEASUREMENT, INFLUXDB_CALLS_BUCKET } from "../constants";
+import {
+  CALL_DETAIL_RECORD_MEASUREMENT,
+  INFLUXDB_CALLS_BUCKET
+} from "../constants";
 import { CallDetailRecord } from "@fonoster/types";
 import { InfluxDBClient } from "./types";
 
