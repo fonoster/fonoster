@@ -45,11 +45,14 @@ RUN npm install -g prisma@6.1.0 npm@latest
 
 USER appuser
 
-# TODO: Fix hardcode host for db
-CMD sh -c "dockerize -wait tcp://postgres:5432 -timeout 30s && \
+# Extract database host and port from DATABASE_URL environment variable
+CMD DB_HOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^:/]*\)[:/].*/\1/p') && \
+  DB_PORT=$(echo $DATABASE_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p') && \
+  if [ -z "$DB_PORT" ]; then DB_PORT=5432; fi && \
+  dockerize -wait tcp://${DB_HOST}:${DB_PORT} -timeout 30s && \
   cd /service/core && \
   npx prisma migrate deploy && \
   cd /service/identity && \
   npx prisma migrate deploy && \
   node /usr/local/lib/node_modules/@fonoster/apiserver/dist/core/seed.js && \
-  node /usr/local/lib/node_modules/@fonoster/apiserver/dist/index.js"
+  node /usr/local/lib/node_modules/@fonoster/apiserver/dist/index.js
