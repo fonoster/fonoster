@@ -34,10 +34,10 @@ import { Voice } from "../voice";
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 abstract class AbstractLanguageModel implements LanguageModel {
-  private chain: ReturnType<typeof createChain>;
-  private chatHistory: ReturnType<typeof createChatHistory>;
-  private toolsCatalog: ToolsCatalog;
-  private voice: Voice;
+  private readonly chain: ReturnType<typeof createChain>;
+  private readonly chatHistory: ReturnType<typeof createChatHistory>;
+  private readonly toolsCatalog: ToolsCatalog;
+  private readonly voice: Voice;
 
   constructor(
     params: LanguageModelParams,

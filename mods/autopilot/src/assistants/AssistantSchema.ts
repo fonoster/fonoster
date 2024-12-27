@@ -22,7 +22,7 @@ import { toolSchema } from "../tools/ToolSchema";
 import { LANGUAGE_MODEL_PROVIDER } from "../types";
 
 const conversationSettingsSchema = z.object({
-  firstMessage: z.string(),
+  firstMessage: z.string().optional(),
   systemTemplate: z.string(),
   goodbyeMessage: z.string(),
   systemErrorMessage: z.string(),

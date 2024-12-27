@@ -23,7 +23,7 @@ type AutopilotContext = {
   sessionRef: string;
   languageModel: LanguageModel;
   voice: Voice;
-  firstMessage: string;
+  firstMessage?: string;
   goodbyeMessage: string;
   transferMessage?: string;
   transferPhoneNumber?: string;

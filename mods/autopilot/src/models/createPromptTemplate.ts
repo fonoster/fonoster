@@ -25,7 +25,7 @@ import {
 import { TelephonyContext } from "./types";
 
 export function createPromptTemplate(params: {
-  firstMessage: string;
+  firstMessage?: string;
   systemTemplate: string;
   telephonyContext: TelephonyContext;
 }) {

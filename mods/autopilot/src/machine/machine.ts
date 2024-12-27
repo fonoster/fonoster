@@ -48,7 +48,9 @@ const machine = setup({
 
       await context.voice.answer();
 
-      await context.voice.say(context.firstMessage);
+      if (context.firstMessage) {
+        await context.voice.say(context.firstMessage);
+      }
     },
     goodbye: async ({ context }) => {
       logger.verbose("called goodbye action", {
