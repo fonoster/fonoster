@@ -28,7 +28,10 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
     "retrieve details of a Secret by reference";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
-    ref: Args.string({ description: "The Secret to show details about" })
+    ref: Args.string({
+      description: "The Secret to show details about",
+      required: true
+    })
   };
 
   public async run(): Promise<void> {

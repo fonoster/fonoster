@@ -22,8 +22,6 @@ import { Args } from "@oclif/core";
 import cliui from "cliui";
 import moment from "moment";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
-import { getConfig } from "../../../config";
-import { CONFIG_FILE } from "../../../constants";
 import { Application } from "@fonoster/types";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
@@ -31,7 +29,10 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
     "retrieve details of a Number by reference";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
-    ref: Args.string({ description: "the Number to show details about" })
+    ref: Args.string({
+      description: "the Number to show details about",
+      required: true
+    })
   };
 
   public async run(): Promise<void> {

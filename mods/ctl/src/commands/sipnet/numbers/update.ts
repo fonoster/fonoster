@@ -28,7 +28,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "modify the configuration of a Number";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
-    ref: Args.string({ description: "the Number to update" })
+    ref: Args.string({ description: "the Number to update", required: true })
   };
 
   public async run(): Promise<void> {

@@ -29,7 +29,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     "modify the value or metadata of a Secret";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
-    ref: Args.string({ description: "the Secret to update" })
+    ref: Args.string({ description: "the Secret to update", required: true })
   };
 
   public async run(): Promise<void> {

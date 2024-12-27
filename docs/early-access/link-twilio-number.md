@@ -52,7 +52,7 @@ Your output should show the newly created application. Here is an example of wha
 
 ```bash
 REF                                     NAME                          TYPE      ENDPOINT
-3e61ecb7-a1b6-4a93-84c3-4f1979165bca    Emma at Bella Ristorante      EXTERNAL  2.tcp.ngrok.io:19301
+3e61ecb7-a1b6-4a93-84c3-4f1979165bca    Enma at Bella Ristorante      EXTERNAL  2.tcp.ngrok.io:19301
 c495ee94-b93e-4ad1-b8bb-716833914c57    Julian at Papaton             EXTERNAL  3.tcp.ngrok.io:59421
 dbdb871b-e701-4080-b91b-d62b79b7050d    Peters AI Assistant           EXTERNAL  6.tcp.ngrok.io:49705
 ```
@@ -90,7 +90,7 @@ Your output should show the newly linked Twilio number. Here is an example of wh
 
 ```bash
 REF                                     NAME                          TEL URL                
-131ff7f4-8359-41a6-b701-02283ecdda9b    Emma at Bella Ristorante      tel:+19842051452 (US)
+131ff7f4-8359-41a6-b701-02283ecdda9b    Enma at Bella Ristorante      tel:+19842051452 (US)
 347b0fd8-97d6-4f3c-a923-a76ab5c7bf4f    Julian at Ridesgur            tel:+18456134823 (US)
 f8c0c4e4-49f3-46ba-9cdb-982729cfc8b9    Peter's AI Assistant          tel:+18559473625 (US)
 ```
