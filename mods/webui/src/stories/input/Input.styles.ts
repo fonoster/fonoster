@@ -16,9 +16,10 @@ export const StyledInput = styled(MuiTextField)(({ theme }) => ({
     "& .MuiFormLabel-root.MuiInputLabel-root.Mui-focused": {
         transform: "translate(14px, -9px) scale(0.75)",
     },
-    // when MuiFormLabel-filled
+    // when MuiFormLabel-filled .MuiFormLabel-root-MuiInputLabel-root.Mui-focused
     "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
         transform: "translate(16px, -9px) scale(0.75)",
+        color: "rgba(0, 0, 0, 0.6)"
     },
     // add styles for  MuiInputBase-inputAdornedStart
     "& .MuiInputBase-inputAdornedStart": {
