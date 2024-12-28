@@ -28,7 +28,7 @@ import { Access, TokenUseEnum } from "./types";
 import { tokenHasAccessKeyId } from "./tokenHasAccessKeyId";
 import { permissionDeniedError, unauthenticatedError } from "./errors";
 
-const logger = getLogger({ service: "identity", filePath: __filename });
+const logger = getLogger({ service: "common", filePath: __filename });
 
 /**
  * This function is a gRPC interceptor that checks if the request is valid

@@ -80,8 +80,10 @@ export default class VoiceServer {
     } catch (err) {
       if (err.code === grpc.status.UNAVAILABLE) {
         logger.error("failed to connect to identity service");
-        process.exit(1);
+      } else {
+        logger.error("failed to start voice server", err);
       }
+      process.exit(1);
     }
   }
 }

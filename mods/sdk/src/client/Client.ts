@@ -38,9 +38,9 @@ import { TrunksClient } from "../generated/node/trunks_grpc_pb";
 const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
 
 export class Client extends AbstractClient {
-  private endpoint: string;
-  private tokenRefresherInterceptor: Interceptor;
-  private channelCredentials: ChannelCredentials;
+  private readonly endpoint: string;
+  private readonly tokenRefresherInterceptor: Interceptor;
+  private readonly channelCredentials: ChannelCredentials;
 
   constructor(config: {
     endpoint?: string;

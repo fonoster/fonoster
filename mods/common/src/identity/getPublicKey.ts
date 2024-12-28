@@ -34,11 +34,13 @@ const IdentityServiceClient = grpc.makeGenericClientConstructor(
   {}
 );
 
-function getPublicKey(endpoint: string) {
+function getPublicKey(endpoint: string, allowInsecure: boolean = false) {
   return new Promise<GetPublicKeyResponse>((resolve, reject) => {
     const client = new IdentityServiceClient(
       endpoint,
-      grpc.credentials.createInsecure()
+      allowInsecure
+        ? grpc.credentials.createInsecure()
+        : grpc.credentials.createSsl()
     );
 
     client.getPublicKey(
