@@ -36,6 +36,13 @@ function createLanguageModel(params: {
   const { languageModel: languageModelSettings, conversationSettings } =
     assistantConfig;
 
+  // Ensure that the transfer tool is only added if the transfer options exist
+  const tools = languageModelSettings.tools.concat(
+    assistantConfig.conversationSettings.transferOptions
+      ? [hangupToolDefinition, transferToolDefinition]
+      : [hangupToolDefinition]
+  );
+
   return LanguageModelFactory.getLanguageModel(
     languageModelSettings.provider,
     {
@@ -48,11 +55,7 @@ function createLanguageModel(params: {
       systemTemplate: conversationSettings.systemTemplate,
       baseUrl: languageModelSettings.baseUrl!,
       knowledgeBase,
-      tools: [
-        ...languageModelSettings.tools,
-        hangupToolDefinition,
-        transferToolDefinition
-      ]
+      tools
     },
     voice,
     telephonyContext
