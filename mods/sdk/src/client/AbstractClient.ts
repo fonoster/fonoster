@@ -150,6 +150,10 @@ abstract class AbstractClient implements FonosterClient {
     this._accessToken = accessToken;
   }
 
+  async setAccessToken(accessToken: string): Promise<void> {
+    this._accessToken = accessToken;
+  }
+
   async sendVerificationCode(
     contactType: ContactType,
     value: string
@@ -166,7 +170,7 @@ abstract class AbstractClient implements FonosterClient {
       requestPBObjectConstructor: SendVerificationCodeRequestPB,
       metadata: {},
       request: {
-        contactType: contactType as ContactType,
+        contactType,
         value
       },
       enumMapping: [["contactType", ContactTypePB]]

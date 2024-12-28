@@ -46,6 +46,7 @@ export class Client extends AbstractClient {
     endpoint?: string;
     accessKeyId: string;
     allowInsecure?: boolean;
+    withoutInterceptors?: boolean;
   }) {
     const channelCredentials = config.allowInsecure
       ? credentials.createInsecure()
@@ -58,9 +59,12 @@ export class Client extends AbstractClient {
 
     this.channelCredentials = channelCredentials;
     this.endpoint = config?.endpoint || DEFAULT_ENDPOINT;
-    this.tokenRefresherInterceptor = new TokenRefresherNode(this)
-      .createInterceptor()
-      .bind(this);
+    this.tokenRefresherInterceptor = 
+      config.withoutInterceptors ?
+        null :
+        new TokenRefresherNode(this)
+          .createInterceptor()
+          .bind(this);
   }
 
   getMetadata(): Metadata {
