@@ -56,33 +56,49 @@ function makeCheckMethodAuthorized(authzServer: string, methods: string[]) {
       return call;
     }
 
-    logger.silly("checking if method is authorized", { method });
-
     const accessKeyId = getAccessKeyIdFromCall(call);
+
+    logger.verbose("checking if method is authorized", { method, accessKeyId });
 
     return new ServerInterceptingCall(call, {
       start: async (next) => {
         try {
-          await authz.checkMethodAuthorized({
+          const authorized = await authz.checkMethodAuthorized({
             accessKeyId,
             method
           } as CheckMethodAuthorizedRequest);
 
-          logger.verbose("method authorized by external service", {
+          logger.verbose("the status of the method authorization", {
             method,
-            accessKeyId
+            accessKeyId,
+            authorized
           });
+
+          if (!authorized) {
+            logger.verbose("method unauthorized by external service", {
+              method,
+              accessKeyId
+            });
+            createInterceptingCall({
+              call,
+              code: status.PERMISSION_DENIED,
+              details: `Method '${method}' unauthorized by external service - accessKeyId ${accessKeyId}`
+            });
+            return;
+          }
 
           next();
         } catch (error) {
-          logger.verbose("method unauthorized by external service", {
+          logger.error("error checking if method is authorized", {
             method,
-            accessKeyId
+            accessKeyId,
+            error
           });
+
           createInterceptingCall({
             call,
-            code: status.PERMISSION_DENIED,
-            details: `Method '${method}' unauthorized by external service - accessKeyId ${accessKeyId}`
+            code: status.INTERNAL,
+            details: "Internal server error"
           });
         }
       }

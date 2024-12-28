@@ -101,8 +101,8 @@ function handleError(
       );
       break;
     default:
-      logger.error("unknown error:", error);
-      callback({ code: status.UNKNOWN, message: "Unknown error" });
+      logger.error("internal server error:", error);
+      callback({ code: status.INTERNAL, message: "Internal server error" });
   }
 }
 

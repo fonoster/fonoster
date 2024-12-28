@@ -54,19 +54,12 @@ class AuthzServer {
           logger.verbose("checkSessionAuthorized called", call.request);
 
           try {
-            const isAuthorized = await handler.checkSessionAuthorized(
+            const authorized = await handler.checkSessionAuthorized(
               call.request
             );
-            if (isAuthorized) {
-              callback(null, { authorized: true });
-            } else {
-              callback({
-                code: grpc.status.PERMISSION_DENIED,
-                message: "Session is not authorized."
-              });
-            }
+            callback(null, { authorized });
           } catch (error) {
-            logger.error("Error in checkSessionAuthorized:", error);
+            logger.error("error in checkSessionAuthorized:", error);
             callback({
               code: grpc.status.INTERNAL,
               message: "Internal server error."
@@ -80,19 +73,12 @@ class AuthzServer {
           logger.verbose("checkMethodAuthorized called", call.request);
 
           try {
-            const isAuthorized = await handler.checkMethodAuthorized(
+            const authorized = await handler.checkMethodAuthorized(
               call.request
             );
-            if (isAuthorized) {
-              callback(null, { authorized: true });
-            } else {
-              callback({
-                code: grpc.status.PERMISSION_DENIED,
-                message: "Method is not authorized."
-              });
-            }
+            callback(null, { authorized });
           } catch (error) {
-            logger.error("Error in checkMethodAuthorized:", error);
+            logger.error("error in checkMethodAuthorized:", error);
             callback({
               code: grpc.status.INTERNAL,
               message: "Internal server error."
