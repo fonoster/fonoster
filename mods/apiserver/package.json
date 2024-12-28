@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apiserver",
-  "version": "0.8.24",
+  "version": "0.8.25",
   "description": "APIServer for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -21,11 +21,11 @@
   },
   "dependencies": {
     "@deepgram/sdk": "^3.5.1",
-    "@fonoster/authz": "^0.8.24",
-    "@fonoster/common": "^0.8.24",
-    "@fonoster/identity": "^0.8.24",
+    "@fonoster/authz": "^0.8.25",
+    "@fonoster/common": "^0.8.25",
+    "@fonoster/identity": "^0.8.25",
     "@fonoster/logger": "^0.8.24",
-    "@fonoster/sipnet": "^0.8.24",
+    "@fonoster/sipnet": "^0.8.25",
     "@fonoster/streams": "^0.8.24",
     "@fonoster/types": "^0.8.24",
     "@google-cloud/speech": "^6.6.0",
