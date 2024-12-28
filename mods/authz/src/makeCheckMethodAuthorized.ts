@@ -82,7 +82,7 @@ function makeCheckMethodAuthorized(authzServer: string, methods: string[]) {
             createInterceptingCall({
               call,
               code: status.PERMISSION_DENIED,
-              details: `Method '${method}' unauthorized by external service - accessKeyId ${accessKeyId}`
+              details: `Method unauthorized`
             });
             return;
           }
