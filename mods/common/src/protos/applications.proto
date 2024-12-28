@@ -65,8 +65,8 @@ message Application {
   ProductContainer text_to_speech = 5;
   // Speech to text product
   ProductContainer speech_to_text = 6;
-  // Conversation product
-  ProductContainer conversation = 7;
+  // Intelligence product
+  ProductContainer intelligence = 7;
   // Creation time
   int32 created_at = 8;
   // Update time
@@ -85,7 +85,7 @@ message CreateApplicationRequest {
   ProductContainer text_to_speech = 4;
   // Speech to text product
   ProductContainer speech_to_text = 5;
-  // Conversation product
+  // Inference engine
   ProductContainer intelligence = 6;
 }
 
@@ -131,7 +131,7 @@ message UpdateApplicationRequest {
   ProductContainer text_to_speech = 5;
   // Speech to text product
   ProductContainer speech_to_text = 6;
-  // Conversation product
+  // Intelligence product
   ProductContainer intelligence = 7;
 }
 

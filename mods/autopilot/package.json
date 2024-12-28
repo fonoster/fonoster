@@ -37,6 +37,7 @@
     "@fonoster/logger": "^0.8.26",
     "@fonoster/types": "^0.8.26",
     "@fonoster/voice": "^0.8.26",
+    "@fonoster/sdk": "^0.8.26",
     "@langchain/community": "^0.3.19",
     "@langchain/core": "^0.3.23",
     "@langchain/groq": "^0.1.2",
