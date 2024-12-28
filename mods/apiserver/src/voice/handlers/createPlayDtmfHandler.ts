@@ -16,4 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCreateContainer";
+import { PlayDtmfRequest } from "@fonoster/common";
+import { Client } from "ari-client";
+import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
+
+function createPlayDtmfHandler(ari: Client, voiceClient: VoiceClient) {
+  return withErrorHandling(async (request: PlayDtmfRequest) => {
+    const { sessionRef, digits } = request;
+
+    await ari.channels.sendDTMF({
+      channelId: sessionRef,
+      dtmf: digits
+    });
+
+    voiceClient.sendResponse({
+      playDtmfResponse: {
+        sessionRef
+      }
+    });
+  });
+}
+
+export { createPlayDtmfHandler };

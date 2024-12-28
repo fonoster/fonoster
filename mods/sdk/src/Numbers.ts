@@ -77,7 +77,7 @@ import {
  * main(request);
  */
 class Numbers {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Numbers object.
    *

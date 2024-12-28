@@ -16,4 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCreateContainer";
+import { VerbRequest } from "@fonoster/common";
+import { Client } from "ari-client";
+import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
+
+function createHangupHandler(ari: Client, voiceClient: VoiceClient) {
+  return withErrorHandling(async (request: VerbRequest) => {
+    const { sessionRef } = request;
+
+    // Give some time for the last sound to play
+    setTimeout(() => {
+      ari.channels.hangup({ channelId: sessionRef });
+
+      voiceClient.sendResponse({
+        hangupResponse: {
+          sessionRef
+        }
+      });
+
+      voiceClient.close();
+    }, 2000);
+  });
+}
+
+export { createHangupHandler };

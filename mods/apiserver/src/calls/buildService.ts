@@ -21,7 +21,7 @@ import { createCall } from "./createCall";
 import { createCallPublisher } from "./createCallPublisher";
 import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
-import { makeTrackCall } from "./makeTrackCall";
+import { createTrackCall } from "./createTrackCall";
 import { InfluxDBClient } from "@fonoster/common";
 import { prisma } from "../core/db";
 import { NATS_URL } from "../envs";
@@ -41,7 +41,7 @@ async function buildService(influxdb: InfluxDBClient) {
       createCall: createCall(prisma, callPublisher),
       listCalls: listCalls(influxdb),
       getCall: getCall(influxdb),
-      trackCall: makeTrackCall(nc)
+      trackCall: createTrackCall(nc)
     }
   };
 }

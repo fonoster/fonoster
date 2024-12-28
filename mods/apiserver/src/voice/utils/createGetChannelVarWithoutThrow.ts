@@ -16,4 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCreateContainer";
+import { Channel } from "ari-client";
+import { ChannelVar } from "../types";
+
+function createGetChannelVarWithoutThrow(channel: Channel) {
+  return async function getChannelVarWithoutThrow(variable: ChannelVar) {
+    try {
+      return await channel.getChannelVar({
+        variable
+      });
+    } catch (e) {
+      return null;
+    }
+  };
+}
+
+export { createGetChannelVarWithoutThrow };

@@ -73,7 +73,7 @@ import {
  * main(request);
  */
 class ApiKeys {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new ApiKeys object.
    *

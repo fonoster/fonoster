@@ -16,4 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCreateContainer";
+import { NatsConnection } from "nats";
+import { mapDialStatus } from "./mapDialStatus";
+import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
+
+function createHandleDialEventsWithNats(nc: NatsConnection) {
+  return async function handleDialEventsWithNats(callRef: string, event: { dialstatus: string }) {
+    const mappedStatus = mapDialStatus(event.dialstatus);
+    if (!mappedStatus) return; // Ignore the event if status is not mapped
+
+    nc.publish(
+      CALLS_TRACK_CALL_SUBJECT,
+      JSON.stringify({ ref: callRef, status: mappedStatus })
+    );
+  };
+}
+
+export { createHandleDialEventsWithNats };

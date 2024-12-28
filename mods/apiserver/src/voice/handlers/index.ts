@@ -16,15 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./Answer";
-export * from "./Hangup";
-export * from "./Mute";
-export * from "./Play";
-export * from "./PlayDtmf";
-export * from "./PlaybackControl";
-export * from "./Record";
-export * from "./Say";
-export * from "./StreamGather";
-export * from "./Unmute";
-export * from "./dial/Dial";
-export * from "./gather/Gather";
+export * from "./createAnswerHandler";
+export * from "./createHangupHandler";
+export * from "./createMuteHandler";
+export * from "./createStreamHandler";
+export * from "./createPlayHandler";
+export * from "./createPlayDtmfHandler";
+export * from "./createPlaybackControlHandler";
+export * from "./createRecordHandler";
+export * from "./createSayHandler";
+export * from "./createStreamGatherHandler";
+export * from "./createUnmuteHandler";
+export * from "./dial/createDialHandler";
+export * from "./gather/createGatherHandler";
+

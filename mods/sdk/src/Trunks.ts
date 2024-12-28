@@ -72,7 +72,7 @@ import {
  * main(request);
  */
 class Trunks {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Trunks object.
    *

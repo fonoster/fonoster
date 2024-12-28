@@ -78,7 +78,7 @@ import {
  * main(request);
  */
 class Agents {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Agents object.
    *

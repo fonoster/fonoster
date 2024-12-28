@@ -75,7 +75,7 @@ import {
  * main(request);
  */
 class Credentials {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Credentials object.
    *

@@ -69,7 +69,7 @@ import {
  * main(request);
  */
 class Acls {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Acls object.
    *

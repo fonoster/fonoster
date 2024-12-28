@@ -83,7 +83,7 @@ import {
  * main(request);
  */
 class Workspaces {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Workspaces object.
    *

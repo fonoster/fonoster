@@ -18,5 +18,5 @@
  */
 export * from "./VoiceServiceClientConstructor";
 export * from "./createExternalMediaConfig";
-export * from "./makeGetChannelVar";
-export * from "./makeGetChannelVarWithoutThrow";
+export * from "./createGetChannelVar";
+export * from "./createGetChannelVarWithoutThrow";

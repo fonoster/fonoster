@@ -77,7 +77,7 @@ import { dialStatusToString } from "./utils";
  * main(request);
  */
 class Calls {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Calls object.
    *

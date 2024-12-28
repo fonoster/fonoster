@@ -16,6 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./makeCheckNumberPreconditions";
-export * from "./makeHandleDialEventsWithNats";
-export * from "./makeHandleDialEventsWithVoiceClient";
+export * from "./createCheckNumberPreconditions";
+export * from "./createHandleDialEventsWithNats";
+export * from "./createHandleDialEventsWithVoiceClient";

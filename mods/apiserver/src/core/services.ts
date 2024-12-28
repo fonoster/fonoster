@@ -32,7 +32,7 @@ import { buildApplicationsService } from "../applications";
 import { buildCallsService } from "../calls";
 import { influxdb } from "../calls/influxdb";
 import { buildSecretsService } from "../secrets";
-import { makeCheckNumberPreconditions } from "../utils";
+import { createCheckNumberPreconditions } from "../utils";
 
 const applicationsService = buildApplicationsService(prisma);
 const secretsService = buildSecretsService(prisma);
@@ -44,7 +44,7 @@ const credentialsService = buildCredentialsService(routrConfig);
 const trunksService = buildTrunksService(routrConfig);
 const numbersService = buildNumbersService(
   routrConfig,
-  makeCheckNumberPreconditions(prisma)
+  createCheckNumberPreconditions(prisma)
 );
 const aclsService = buildAclsService(routrConfig);
 

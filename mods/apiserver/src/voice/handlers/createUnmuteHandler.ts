@@ -16,4 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCreateContainer";
+import { MuteRequest } from "@fonoster/common";
+import { Client } from "ari-client";
+import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
+
+function createUnmuteHandler(ari: Client, voiceClient: VoiceClient) {
+  return withErrorHandling(async (request: MuteRequest) => {
+    const { sessionRef, direction } = request;
+
+    await ari.channels.unmute({
+      channelId: sessionRef,
+      direction
+    });
+
+    voiceClient.sendResponse({
+      muteResponse: {
+        sessionRef
+      }
+    });
+  });
+}
+
+export { createUnmuteHandler };

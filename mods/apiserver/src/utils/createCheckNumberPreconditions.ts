@@ -16,4 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCreateContainer";
+import { GrpcError } from "@fonoster/common";
+import { status } from "@grpc/grpc-js";
+import { Prisma } from "../core/db";
+
+function createCheckNumberPreconditions(prisma: Prisma) {
+  return async function checkNumberPreconditions({ appRef, accessKeyId }) {
+    if (!appRef) {
+      // Not needed to check for the precondition
+      return;
+    }
+
+    const app = await prisma.application.findUnique({
+      where: { ref: appRef, accessKeyId }
+    });
+
+    if (!app) {
+      throw new GrpcError(
+        status.NOT_FOUND,
+        "Application not found for ref: " + appRef
+      );
+    }
+  };
+}
+
+export { createCheckNumberPreconditions };

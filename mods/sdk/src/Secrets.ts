@@ -74,7 +74,7 @@ import {
  * main(request);
  */
 class Secrets {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Secrets object.
    *

@@ -16,4 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCreateContainer";
+import { VerbRequest } from "@fonoster/common";
+import { Client } from "ari-client";
+import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
+
+function createAnswerHandler(ari: Client, voiceClient: VoiceClient) {
+  return withErrorHandling(async (request: VerbRequest) => {
+    const { sessionRef } = request;
+
+    await ari.channels.answer({ channelId: sessionRef });
+
+    voiceClient.sendResponse({
+      answerResponse: {
+        sessionRef
+      }
+    });
+  });
+}
+
+export { createAnswerHandler };

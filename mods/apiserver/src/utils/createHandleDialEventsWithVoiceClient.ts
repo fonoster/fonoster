@@ -16,4 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCreateContainer";
+import { mapDialStatus } from "./mapDialStatus";
+import { VoiceClient } from "../voice/types";
+
+function createHandleDialEventsWithVoiceClient(voiceClient: VoiceClient) {
+  return async function handleDialEventsWithVoiceClient(event: { dialstatus: string }) {
+    const mappedStatus = mapDialStatus(event.dialstatus);
+    if (!mappedStatus) return; // Ignore the event if status is not mapped
+
+    voiceClient.sendResponse({
+      dialResponse: {
+        status: mappedStatus
+      }
+    });
+  };
+}
+
+export { createHandleDialEventsWithVoiceClient };

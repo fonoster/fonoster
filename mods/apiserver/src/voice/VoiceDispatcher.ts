@@ -21,22 +21,22 @@ import { getLogger } from "@fonoster/logger";
 import { Channel, Client, Dial, StasisStart } from "ari-client";
 import { NatsConnection } from "nats";
 import {
-  answerHandler,
-  dialHandler,
-  gatherHandler,
-  hangupHandler,
-  muteHandler,
-  playDtmfHandler,
-  playHandler,
-  playbackControlHandler,
-  sayHandler,
-  streamGatherHandler,
-  unmuteHandler
+  createAnswerHandler,
+  createDialHandler,
+  createGatherHandler,
+  createHangupHandler,
+  createMuteHandler,
+  createPlayDtmfHandler,
+  createPlayHandler,
+  createPlaybackControlHandler,
+  createSayHandler,
+  createStreamGatherHandler,
+  createUnmuteHandler,
+  createStreamHandler
 } from "./handlers";
-import { streamHandler } from "./handlers/Stream";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "./types";
-import { makeHandleDialEventsWithNats } from "../utils";
-import { makeGetChannelVarWithoutThrow } from "./utils/makeGetChannelVarWithoutThrow";
+import { createHandleDialEventsWithNats } from "../utils";
+import { createGetChannelVarWithoutThrow } from "./utils";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -75,7 +75,7 @@ class VoiceDispatcher {
   async handleStasisStart(event: StasisStart, channel: Channel) {
     const { ari, voiceClients, createVoiceClient, isHandledElsewhere } = this;
 
-    const getChannelVar = makeGetChannelVarWithoutThrow(channel);
+    const getChannelVar = createGetChannelVarWithoutThrow(channel);
     const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
 
     // This check feels strange but is necessary as ARI calls this event twice
@@ -96,24 +96,24 @@ class VoiceDispatcher {
 
       voiceClients.set(channel.id, vc);
 
-      vc.on(SC.ANSWER_REQUEST, answerHandler(ari, vc).bind(this));
-      vc.on(SC.HANGUP_REQUEST, hangupHandler(ari, vc).bind(this));
-      vc.on(SC.MUTE_REQUEST, muteHandler(ari, vc).bind(this));
-      vc.on(SC.UNMUTE_REQUEST, unmuteHandler(ari, vc).bind(this));
-      vc.on(SC.PLAY_REQUEST, playHandler(ari, vc).bind(this));
-      vc.on(SC.PLAY_DTMF_REQUEST, playDtmfHandler(ari, vc).bind(this));
-      vc.on(SC.SAY_REQUEST, sayHandler(ari, vc).bind(this));
-      vc.on(SC.GATHER_REQUEST, gatherHandler(vc).bind(this));
-      vc.on(SC.DIAL_REQUEST, dialHandler(ari, vc).bind(this));
+      vc.on(SC.ANSWER_REQUEST, createAnswerHandler(ari, vc).bind(this));
+      vc.on(SC.HANGUP_REQUEST, createHangupHandler(ari, vc).bind(this));
+      vc.on(SC.MUTE_REQUEST, createMuteHandler(ari, vc).bind(this));
+      vc.on(SC.UNMUTE_REQUEST, createUnmuteHandler(ari, vc).bind(this));
+      vc.on(SC.PLAY_REQUEST, createPlayHandler(ari, vc).bind(this));
+      vc.on(SC.PLAY_DTMF_REQUEST, createPlayDtmfHandler(ari, vc).bind(this));
+      vc.on(SC.SAY_REQUEST, createSayHandler(ari, vc).bind(this));
+      vc.on(SC.GATHER_REQUEST, createGatherHandler(vc).bind(this));
+      vc.on(SC.DIAL_REQUEST, createDialHandler(ari, vc).bind(this));
       vc.on(
         SC.PLAYBACK_CONTROL_REQUEST,
-        playbackControlHandler(ari, vc).bind(this)
+        createPlaybackControlHandler(ari, vc).bind(this)
       );
-      vc.on(SC.START_STREAM_GATHER_REQUEST, streamGatherHandler(vc).bind(this));
+      vc.on(SC.START_STREAM_GATHER_REQUEST, createStreamGatherHandler(vc).bind(this));
       vc.on(SC.STOP_STREAM_GATHER_REQUEST, () => {
         vc.stopStreamGather();
       });
-      vc.on(SC.START_STREAM_REQUEST, streamHandler(vc).bind(this));
+      vc.on(SC.START_STREAM_REQUEST, createStreamHandler(vc).bind(this));
     } catch (err) {
       logger.error("error handling stasis start", { error: err.message });
     }
@@ -131,13 +131,13 @@ class VoiceDispatcher {
   }
 
   async handleDial(event: Dial, channel: Channel) {
-    makeHandleDialEventsWithNats(this.nc)(channel.id, event);
+    createHandleDialEventsWithNats(this.nc)(channel.id, event);
   }
 
   async isHandledElsewhere(channel: Channel) {
     return (
       (
-        await makeGetChannelVarWithoutThrow(channel)(
+        await createGetChannelVarWithoutThrow(channel)(
           ChannelVar.FROM_EXTERNAL_MEDIA
         )
       )?.value === "true"

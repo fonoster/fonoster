@@ -74,7 +74,7 @@ import {
  * main(request);
  */
 class Domains {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Domains object.
    *

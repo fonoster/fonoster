@@ -20,8 +20,8 @@ import { getLogger } from "@fonoster/logger";
 import ariClient from "ari-client";
 import { connect } from "nats";
 import wait from "wait-port";
-import { makeCreateContainer } from "./integrations";
-import { makeCreateVoiceClient } from "./makeCreateVoiceClient";
+import { createCreateContainer } from "./integrations";
+import { createCreateVoiceClient } from "./createCreateVoiceClient";
 import { AriEvent } from "./types";
 import { VoiceDispatcher } from "./VoiceDispatcher";
 import { prisma } from "../core/db";
@@ -63,14 +63,14 @@ async function connectToAri(filesServer) {
 
     logger.info("asterisk is ready");
 
-    const createContainer = makeCreateContainer(prisma, INTEGRATIONS_FILE);
+    const createContainer = createCreateContainer(prisma, INTEGRATIONS_FILE);
 
     const nats = await connect({ servers: NATS_URL, maxReconnectAttempts: -1 });
 
     const dispatcher = new VoiceDispatcher(
       ari,
       nats,
-      makeCreateVoiceClient(createContainer, filesServer)
+      createCreateVoiceClient(createContainer, filesServer)
     );
 
     dispatcher.start();

@@ -34,7 +34,7 @@ describe("@calls/trackCall", function () {
   });
 
   it("should track the status of a call", async function () {
-    const { makeTrackCall } = await import("../../src/calls/makeTrackCall");
+    const { createTrackCall } = await import("../../src/calls/createTrackCall");
     const callRef = "5d8c253a-62a0-48d5-9c8f-cfd00279936f";
 
     const call = {
@@ -48,9 +48,9 @@ describe("@calls/trackCall", function () {
     const subscription = { callback: sandbox.stub() };
     const nc = { subscribe: sandbox.stub().returns(subscription) } as unknown as NatsConnection;
 
-    const trackCallHandler = makeTrackCall(nc);
+    const trackCall = createTrackCall(nc);
 
-    trackCallHandler(call, () => {});
+    trackCall(call, () => {});
 
     const msg = {
       json: sandbox.stub().onFirstCall().returns({ ref: callRef, status: DialStatus.TRYING })

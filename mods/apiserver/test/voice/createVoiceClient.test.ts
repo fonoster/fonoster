@@ -40,8 +40,8 @@ describe("@voice/createVoiceClient", function () {
 
   it("should create a voice client", async function () {
     // Arrange
-    const { makeCreateVoiceClient } = await import(
-      "../../src/voice/makeCreateVoiceClient"
+    const { createCreateVoiceClient } = await import(
+      "../../src/voice/createCreateVoiceClient"
     );
 
     const createContainer = async (appRef: string) => {
@@ -82,7 +82,7 @@ describe("@voice/createVoiceClient", function () {
     } as unknown as Channel;
 
     // Act
-    const voiceClient = await makeCreateVoiceClient(
+    const voiceClient = await createCreateVoiceClient(
       createContainer as unknown as CreateContainer,
       null
     )({

@@ -72,7 +72,7 @@ import {
  * main(request);
  */
 class Users {
-  private client: FonosterClient;
+  private readonly client: FonosterClient;
   /**
    * Constructs a new Users object.
    *
