@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceLanguage } from "@fonoster/common/src/tts/types";
+import { VoiceLanguage } from "@fonoster/common";
 
 type SpeechResult = {
   speech: string;
