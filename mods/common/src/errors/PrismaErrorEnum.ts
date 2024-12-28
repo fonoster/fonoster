@@ -18,8 +18,7 @@
  */
 enum PrismaErrorEnum {
   RECORD_ALREADY_EXISTS = "P2002",
-  RECORD_NOT_FOUND = "P2025",
-  FAILED_PRECONDITION = "P2003"
+  RECORD_NOT_FOUND = "P2025"
 }
 
 export { PrismaErrorEnum };

@@ -22,8 +22,8 @@ import { Prisma } from "../core/db";
 
 function createCheckNumberPreconditions(prisma: Prisma) {
   return async function checkNumberPreconditions({ appRef, accessKeyId }) {
+    // You can have a Number without an Application but it must exist
     if (!appRef) {
-      // Not needed to check for the precondition
       return;
     }
 
@@ -33,7 +33,7 @@ function createCheckNumberPreconditions(prisma: Prisma) {
 
     if (!app) {
       throw new GrpcError(
-        status.NOT_FOUND,
+        status.INVALID_ARGUMENT,
         "Application not found for ref: " + appRef
       );
     }

@@ -71,14 +71,6 @@ function handleError(
         "not found error"
       );
       break;
-    case PrismaErrorEnum.FAILED_PRECONDITION:
-    case grpc.status.FAILED_PRECONDITION:
-      logAndCallback(
-        status.FAILED_PRECONDITION,
-        "Failed precondition error (e.g., missing dependency)",
-        "failed precondition error"
-      );
-      break;
     case grpc.status.PERMISSION_DENIED:
       logAndCallback(
         status.PERMISSION_DENIED,
@@ -96,7 +88,7 @@ function handleError(
     case grpc.status.INVALID_ARGUMENT:
       logAndCallback(
         status.INVALID_ARGUMENT,
-        message ?? "Your request has invalid arguments",
+        message ?? "Your request has one or more invalid arguments",
         "invalid argument error"
       );
       break;
