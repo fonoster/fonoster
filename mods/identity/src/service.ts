@@ -18,31 +18,31 @@
  */
 import { prisma } from "./db";
 import { IDENTITY_USER_VERIFICATION_REQUIRED } from "./envs";
-import { exchangeOauth2Code } from "./exchanges/exchangeOauth2Code";
+import { createExchangeOauth2Code } from "./exchanges/createExchangeOauth2Code";
 import { IdentityConfig } from "./exchanges/types";
-import { getPublicKey } from "./getPublicKey";
+import { createGetPublicKey } from "./getPublicKey";
 import { createSendVerificationCode, createVerifyCode } from "./verification";
 import {
-  createApiKey,
-  createUser,
-  createWorkspace,
-  deleteApiKey,
-  deleteUser,
-  deleteWorkspace,
-  exchangeApiKey,
-  exchangeCredentials,
-  exchangeRefreshToken,
-  getUser,
-  getWorkspace,
-  inviteUserToWorkspace,
-  listApiKeys,
-  listWorkspaces,
-  regenerateApiKey,
-  removeUserFromWorkspace,
-  resendWorkspaceMembershipInvitation,
+  createCreateApiKey,
+  createCreateUser,
+  createCreateWorkspace,
+  createDeleteApiKey,
+  createDeleteUser,
+  createDeleteWorkspace,
+  createExchangeApiKey,
+  createExchangeCredentials,
+  createExchangeRefreshToken,
+  createGetUser,
+  createGetWorkspace,
+  createInviteUserToWorkspace,
+  createListApiKeys,
+  createListWorkspaces,
+  createRegenerateApiKey,
+  createRemoveUserFromWorkspace,
+  createResendWorkspaceMembershipInvitation,
   sendInvite,
-  updateUser,
-  updateWorkspace
+  createUpdateUser,
+  createUpdateWorkspace
 } from ".";
 
 const serviceDefinitionParams = {
@@ -57,38 +57,39 @@ function buildIdentityService(identityConfig: IdentityConfig) {
     definition: serviceDefinitionParams,
     handlers: {
       // Workspace operations
-      createWorkspace: createWorkspace(prisma),
-      deleteWorkspace: deleteWorkspace(prisma),
-      getWorkspace: getWorkspace(prisma),
-      updateWorkspace: updateWorkspace(prisma),
-      listWorkspaces: listWorkspaces(prisma),
-      inviteUserToWorkspace: inviteUserToWorkspace(
+      createWorkspace: createCreateWorkspace(prisma),
+      deleteWorkspace: createDeleteWorkspace(prisma),
+      getWorkspace: createGetWorkspace(prisma),
+      updateWorkspace: createUpdateWorkspace(prisma),
+      listWorkspaces: createListWorkspaces(prisma),
+      inviteUserToWorkspace: createInviteUserToWorkspace(
         prisma,
         identityConfig,
         sendInvite
       ),
-      resendWorkspaceMembershipInvitation: resendWorkspaceMembershipInvitation(
-        prisma,
-        identityConfig,
-        sendInvite
-      ),
-      removeUserFromWorkspace: removeUserFromWorkspace(prisma),
+      resendWorkspaceMembershipInvitation:
+        createResendWorkspaceMembershipInvitation(
+          prisma,
+          identityConfig,
+          sendInvite
+        ),
+      removeUserFromWorkspace: createRemoveUserFromWorkspace(prisma),
       // User operations
-      createUser: createUser(prisma),
-      getUser: getUser(prisma),
-      deleteUser: deleteUser(prisma),
-      updateUser: updateUser(prisma),
+      createUser: createCreateUser(prisma),
+      getUser: createGetUser(prisma),
+      deleteUser: createDeleteUser(prisma),
+      updateUser: createUpdateUser(prisma),
       // ApiKey operations
-      createApiKey: createApiKey(prisma),
-      deleteApiKey: deleteApiKey(prisma),
-      listApiKeys: listApiKeys(prisma),
-      regenerateApiKey: regenerateApiKey(prisma),
+      createApiKey: createCreateApiKey(prisma),
+      deleteApiKey: createDeleteApiKey(prisma),
+      listApiKeys: createListApiKeys(prisma),
+      regenerateApiKey: createRegenerateApiKey(prisma),
       // Exchanges
-      exchangeApiKey: exchangeApiKey(prisma, identityConfig),
-      exchangeCredentials: exchangeCredentials(prisma, identityConfig),
-      exchangeOauth2Code: exchangeOauth2Code(prisma, identityConfig),
-      exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig),
-      getPublicKey: getPublicKey(identityConfig.publicKey),
+      exchangeApiKey: createExchangeApiKey(prisma, identityConfig),
+      exchangeCredentials: createExchangeCredentials(prisma, identityConfig),
+      exchangeOauth2Code: createExchangeOauth2Code(prisma, identityConfig),
+      exchangeRefreshToken: createExchangeRefreshToken(prisma, identityConfig),
+      getPublicKey: createGetPublicKey(identityConfig.publicKey),
       // Placeholders for conditional handlers
       sendVerificationCode: undefined as unknown as ReturnType<
         typeof createSendVerificationCode

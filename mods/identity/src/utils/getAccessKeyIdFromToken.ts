@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { decodeToken } from "./decodeToken";
-import { TokenUseEnum } from "../exchanges/TokenUseEnum";
+import { TokenUseEnum, decodeToken } from "@fonoster/common";
 
 function getAccessKeyIdFromToken(token: string): string {
   const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token);

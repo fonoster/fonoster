@@ -20,9 +20,9 @@ import {
   GrpcErrorMessage,
   NumberPreconditionsCheck,
   Validators as V,
-  withErrorHandlingAndValidation
+  withErrorHandlingAndValidation,
+  getAccessKeyIdFromCall
 } from "@fonoster/common";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import {
   BaseApiObject,

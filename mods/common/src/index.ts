@@ -30,3 +30,4 @@ export * as Validators from "./validators";
 export * from "./validators";
 export * from "./voice";
 export * from "./countryIsoCodes";
+export * from "./identity";

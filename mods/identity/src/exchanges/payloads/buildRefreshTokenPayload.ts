@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { TokenUseEnum } from "../TokenUseEnum";
-import { IdentityConfig, RefreshToken } from "../types";
+import { RefreshToken, TokenUseEnum } from "@fonoster/common";
+import { IdentityConfig } from "../types";
 
 function buildRefreshTokenPayload(params: {
   identityConfig: IdentityConfig;

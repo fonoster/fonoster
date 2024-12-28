@@ -19,9 +19,9 @@
 import {
   GRPC_SERVING_STATUS,
   getServerCredentials,
-  statusMap
+  statusMap,
+  createAuthInterceptor
 } from "@fonoster/common";
-import { createAuthInterceptor } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";

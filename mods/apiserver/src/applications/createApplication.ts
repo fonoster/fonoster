@@ -16,8 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
+import {
+  getAccessKeyIdFromCall,
+  GrpcErrorMessage,
+  withErrorHandling
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";

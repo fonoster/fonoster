@@ -25,15 +25,15 @@ type GetPublicKeyResponse = {
   publicKey: string;
 };
 
-function getPublicKey(publicKey: string) {
-  return async (
+function createGetPublicKey(publicKey: string) {
+  return async function getPublicKey(
     _: unknown,
     callback: (error: GrpcErrorMessage, response?: GetPublicKeyResponse) => void
-  ) => {
+  ) {
     logger.verbose("getting public key for JWT verification");
 
     callback(null, { publicKey });
   };
 }
 
-export { getPublicKey };
+export { createGetPublicKey };

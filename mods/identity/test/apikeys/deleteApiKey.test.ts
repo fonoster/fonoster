@@ -56,10 +56,10 @@ describe("@identity[apikeys/deleteApiKey]", function () {
       }
     } as unknown as Prisma;
 
-    const { deleteApiKey } = await import("../../src/apikeys/deleteApiKey");
+    const { createDeleteApiKey } = await import("../../src/apikeys/createDeleteApiKey");
 
     // Act
-    await deleteApiKey(prisma)(call, (error, response) => {
+    await createDeleteApiKey(prisma)(call, (error, response) => {
       // Assert
       expect(response).to.have.property("ref", "123");
     });

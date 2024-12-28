@@ -52,13 +52,13 @@ describe("@identity[workspaces/deleteWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { deleteWorkspace } = await import(
-      "../../src/workspaces/deleteWorkspace"
+    const { createDeleteWorkspace } = await import(
+      "../../src/workspaces/createDeleteWorkspace"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      deleteWorkspace(prisma)(call, (error, response) => {
+      createDeleteWorkspace(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -86,12 +86,12 @@ describe("@identity[workspaces/deleteWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { deleteWorkspace } = await import(
-      "../../src/workspaces/deleteWorkspace"
+    const { createDeleteWorkspace } = await import(
+      "../../src/workspaces/createDeleteWorkspace"
     );
 
     // Act
-    await deleteWorkspace(prisma)(call, (error) => {
+    await createDeleteWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,

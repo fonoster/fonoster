@@ -52,10 +52,10 @@ describe("@identity[users/createUser]", function () {
       }
     } as unknown as Prisma;
 
-    const { createUser } = await import("../../src/users/createUser");
+    const { createCreateUser } = await import("../../src/users/createCreateUser");
 
     // Act
-    await createUser(prisma)(call, (error, response) => {
+    await createCreateUser(prisma)(call, (error, response) => {
       // Assert
       expect(response).to.deep.equal({ ref: "123" });
     });
@@ -78,10 +78,10 @@ describe("@identity[users/createUser]", function () {
       }
     } as unknown as Prisma;
 
-    const { createUser } = await import("../../src/users/createUser");
+    const { createCreateUser } = await import("../../src/users/createCreateUser");
 
     // Act
-    await createUser(prisma)(call, (error) => {
+    await createCreateUser(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: status.ALREADY_EXISTS,
@@ -104,10 +104,10 @@ describe("@identity[users/createUser]", function () {
     // Doesn't matter because it will not be called
     const prisma = {} as unknown as Prisma;
 
-    const { createUser } = await import("../../src/users/createUser");
+    const { createCreateUser } = await import("../../src/users/createCreateUser");
 
     // Act
-    await createUser(prisma)(call, (error) => {
+    await createCreateUser(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: status.INVALID_ARGUMENT,

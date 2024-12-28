@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandling } from "@fonoster/common";
-import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
+import { getAccessKeyIdFromCall, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { UpdateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -25,6 +24,7 @@ import { createGetFnUtil } from "./createGetFnUtil";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./utils/validOrThrow";
 import { Prisma } from "../core/db";
+import { withAccess } from "@fonoster/identity";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

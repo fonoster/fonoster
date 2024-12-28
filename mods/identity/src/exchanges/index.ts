@@ -1,4 +1,3 @@
-export * from "./TokenUseEnum";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,8 +16,8 @@ export * from "./TokenUseEnum";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./exchangeApiKey";
-export * from "./exchangeCredentials";
-export * from "./exchangeOauth2Code";
-export * from "./exchangeRefreshToken";
+export * from "./createExchangeApiKey";
+export * from "./createExchangeCredentials";
+export * from "./createExchangeOauth2Code";
+export * from "./createExchangeRefreshToken";
 export * from "./types";

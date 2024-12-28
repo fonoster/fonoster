@@ -20,9 +20,9 @@ import {
   GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation,
-  InfluxDBClient
+  InfluxDBClient,
+  getAccessKeyIdFromCall
 } from "@fonoster/common";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createFetchCalls } from "./createFetchCalls";

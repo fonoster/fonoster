@@ -64,13 +64,13 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { removeUserFromWorkspace } = await import(
-      "../../src/workspaces/removeUserFromWorkspace"
+    const { createRemoveUserFromWorkspace } = await import(
+      "../../src/workspaces/createRemoveUserFromWorkspace"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      removeUserFromWorkspace(prisma)(call, (error, response) => {
+      createRemoveUserFromWorkspace(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -106,13 +106,13 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { removeUserFromWorkspace } = await import(
-      "../../src/workspaces/removeUserFromWorkspace"
+    const { createRemoveUserFromWorkspace } = await import(
+      "../../src/workspaces/createRemoveUserFromWorkspace"
     );
 
     // Act
     // FIXME: This should be a promise
-    await removeUserFromWorkspace(prisma)(call, (error) => {
+    await createRemoveUserFromWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.PERMISSION_DENIED,

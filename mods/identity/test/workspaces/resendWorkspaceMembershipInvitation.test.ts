@@ -88,13 +88,13 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     const sendInvite = sandbox.stub().resolves();
 
     // Act
-    const { resendWorkspaceMembershipInvitation } = await import(
-      "../../src/workspaces/resendWorkspaceMembershipInvitation"
+    const { createResendWorkspaceMembershipInvitation } = await import(
+      "../../src/workspaces/createResendWorkspaceMembershipInvitation"
     );
 
     const callback = sandbox.stub();
 
-    await resendWorkspaceMembershipInvitation(
+    await createResendWorkspaceMembershipInvitation(
       prisma,
       identityConfig,
       sendInvite
@@ -139,11 +139,11 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     const sendInvite = sandbox.stub().resolves();
 
     // Act
-    const { resendWorkspaceMembershipInvitation } = await import(
-      "../../src/workspaces/resendWorkspaceMembershipInvitation"
+    const { createResendWorkspaceMembershipInvitation } = await import(
+      "../../src/workspaces/createResendWorkspaceMembershipInvitation"
     );
 
-    resendWorkspaceMembershipInvitation(
+    createResendWorkspaceMembershipInvitation(
       prisma,
       identity,
       sendInvite

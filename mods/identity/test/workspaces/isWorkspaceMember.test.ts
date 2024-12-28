@@ -43,12 +43,12 @@ describe("@identity[workspaces/isWorkspaceMember]", function () {
       }
     } as unknown as Prisma;
 
-    const { isWorkspaceMember } = await import(
-      "../../src/workspaces/isWorkspaceMember"
+    const { createIsWorkspaceMember } = await import(
+      "../../src/workspaces/createIsWorkspaceMember"
     );
 
     // Act
-    const result = await isWorkspaceMember(prisma)("123", "123");
+    const result = await createIsWorkspaceMember(prisma)("123", "123");
 
     // Assert
     expect(result).to.be.true;
@@ -65,12 +65,12 @@ describe("@identity[workspaces/isWorkspaceMember]", function () {
       }
     } as unknown as Prisma;
 
-    const { isWorkspaceMember } = await import(
-      "../../src/workspaces/isWorkspaceMember"
+    const { createIsWorkspaceMember } = await import(
+      "../../src/workspaces/createIsWorkspaceMember"
     );
 
     // Act
-    const result = await isWorkspaceMember(prisma)("123", "123");
+    const result = await createIsWorkspaceMember(prisma)("123", "123");
 
     // Assert
     expect(result).to.be.true;
@@ -87,12 +87,12 @@ describe("@identity[workspaces/isWorkspaceMember]", function () {
       }
     } as unknown as Prisma;
 
-    const { isWorkspaceMember } = await import(
-      "../../src/workspaces/isWorkspaceMember"
+    const { createIsWorkspaceMember } = await import(
+      "../../src/workspaces/createIsWorkspaceMember"
     );
 
     // Act
-    const result = await isWorkspaceMember(prisma)("123", "123");
+    const result = await createIsWorkspaceMember(prisma)("123", "123");
 
     // Assert
     expect(result).to.be.false;

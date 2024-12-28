@@ -19,9 +19,9 @@
 import {
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation
+  withErrorHandlingAndValidation,
+  getAccessKeyIdFromCall
 } from "@fonoster/common";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { AclsApi, BaseApiObject, CreateAclRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";

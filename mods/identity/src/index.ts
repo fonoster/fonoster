@@ -18,9 +18,7 @@
  * limitations under the License.
  */
 export * from "./apikeys";
-export * from "./createAuthInterceptor";
 export * from "./exchanges";
-export * from "./getPublicKeyClient";
 export * from "./invites";
 export * from "./service";
 export * from "./users";

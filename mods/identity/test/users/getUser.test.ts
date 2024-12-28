@@ -62,11 +62,11 @@ describe("@identity[users/getUser]", function () {
       }
     } as unknown as Prisma;
 
-    const { getUser } = await import("../../src/users/getUser");
+    const { createGetUser } = await import("../../src/users/createGetUser");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      getUser(prisma)(call, (error, response) => {
+      createGetUser(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -94,10 +94,10 @@ describe("@identity[users/getUser]", function () {
       }
     } as unknown as Prisma;
 
-    const { getUser } = await import("../../src/users/getUser");
+    const { createGetUser } = await import("../../src/users/createGetUser");
 
     // Act
-    await getUser(prisma)(call, (error) => {
+    await createGetUser(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,

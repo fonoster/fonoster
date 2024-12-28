@@ -87,12 +87,12 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { inviteUserToWorkspace } = await import(
-      "../../src/workspaces/inviteUserToWorkspace"
+    const { createInviteUserToWorkspace } = await import(
+      "../../src/workspaces/createInviteUserToWorkspace"
     );
 
     // Act
-    await inviteUserToWorkspace(
+    await createInviteUserToWorkspace(
       prisma,
       identityConfig,
       sendInvite
@@ -145,13 +145,13 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { inviteUserToWorkspace } = await import(
-      "../../src/workspaces/inviteUserToWorkspace"
+    const { createInviteUserToWorkspace } = await import(
+      "../../src/workspaces/createInviteUserToWorkspace"
     );
 
     // Act
     const callback = sandbox.stub();
-    await inviteUserToWorkspace(
+    await createInviteUserToWorkspace(
       prisma,
       identityConfig,
       sendInvite
@@ -199,13 +199,13 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { inviteUserToWorkspace } = await import(
-      "../../src/workspaces/inviteUserToWorkspace"
+    const { createInviteUserToWorkspace } = await import(
+      "../../src/workspaces/createInviteUserToWorkspace"
     );
 
     // Act
     const callback = sandbox.stub();
-    await inviteUserToWorkspace(
+    await createInviteUserToWorkspace(
       prisma,
       identityConfig,
       sendInvite

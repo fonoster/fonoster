@@ -1,4 +1,3 @@
-export * from "./getAccessTokenPayload";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,5 +16,6 @@ export * from "./getAccessTokenPayload";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./getIdTokenPayload";
-export * from "./getRefreshTokenPayload";
+export * from "./createGetAccessTokenPayload";
+export * from "./createGetIdTokenPayload";
+export * from "./createGetRefreshTokenPayload";

@@ -53,11 +53,11 @@ describe("@identity[users/updateUser]", function () {
       }
     } as unknown as Prisma;
 
-    const { updateUser } = await import("../../src/users/updateUser");
+    const { createUpdateUser } = await import("../../src/users/createUpdateUser");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      updateUser(prisma)(call, (error, response) => {
+      createUpdateUser(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -86,11 +86,11 @@ describe("@identity[users/updateUser]", function () {
       }
     } as unknown as Prisma;
 
-    const { updateUser } = await import("../../src/users/updateUser");
+    const { createUpdateUser } = await import("../../src/users/createUpdateUser");
 
     // Act
     const response = new Promise((resolve, reject) => {
-      updateUser(prisma)(call, (error, response) => {
+      createUpdateUser(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });

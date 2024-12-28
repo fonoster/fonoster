@@ -30,7 +30,7 @@ import { createIsValidVerificationCode } from "../utils/createIsValidVerificatio
 function createVerifyCode(prisma: Prisma) {
   const isValidVerificationCode = createIsValidVerificationCode(prisma);
 
-  const fn = async (
+  const verifyCode = async (
     call: { request: VerifyCodeRequest },
     callback: (error: GrpcErrorMessage) => void
   ) => {
@@ -64,7 +64,7 @@ function createVerifyCode(prisma: Prisma) {
     callback(null);
   };
 
-  return withErrorHandlingAndValidation(fn, V.verifyCodeRequestSchema);
+  return withErrorHandlingAndValidation(verifyCode, V.verifyCodeRequestSchema);
 }
 
 export { createVerifyCode };

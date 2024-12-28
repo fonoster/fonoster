@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createUser";
-export * from "./deleteUser";
-export * from "./getUser";
-export * from "./updateUser";
+export * from "./createCreateUser";
+export * from "./createDeleteUser";
+export * from "./createGetUser";
+export * from "./createUpdateUser";
 export * from "./upsertDefaultUser";

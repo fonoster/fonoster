@@ -19,7 +19,9 @@
 import {
   GRPC_SERVING_STATUS,
   getServerCredentials,
-  statusMap
+  statusMap,
+  getPublicKey,
+  createAuthInterceptor
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
@@ -49,10 +51,7 @@ export default class VoiceServer {
         server = new grpc.Server();
       } else {
         // Get the public key from the identity service
-        const { getPublicKeyClient, createAuthInterceptor } = await import(
-          "@fonoster/identity"
-        );
-        const response = await getPublicKeyClient(this.config.identityAddress);
+        const response = await getPublicKey(this.config.identityAddress);
 
         const authorization = createAuthInterceptor(response.publicKey, [
           "/grpc.health.v1.Health/Check"

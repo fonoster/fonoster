@@ -17,47 +17,7 @@
  * limitations under the License.
  */
 import { Validators as V } from "@fonoster/common";
-import { WorkspaceRoleEnum } from "@fonoster/types";
 import { z } from "zod";
-import { TokenUseEnum } from "./TokenUseEnum";
-
-type Role = {
-  name: string;
-  description: string;
-  access: string[];
-};
-
-type Access = {
-  accessKeyId: string;
-  role: WorkspaceRoleEnum;
-};
-
-type BaseToken = {
-  iss: string;
-  sub: string;
-  aud: string;
-  exp: number;
-  iat: number;
-  tokenUse: TokenUseEnum;
-  accessKeyId: string;
-};
-
-type IdToken = BaseToken & {
-  emailVerified: boolean;
-  phoneNumberVerified: boolean;
-  phoneNumber: string;
-  email: string;
-  tokenUse: TokenUseEnum.ID;
-};
-
-type AccessToken = BaseToken & {
-  access: Access[];
-  tokenUse: TokenUseEnum.ACCESS;
-};
-
-type RefreshToken = BaseToken & {
-  tokenUse: TokenUseEnum.REFRESH;
-};
 
 type IdentityConfig = {
   issuer: string;
@@ -89,14 +49,6 @@ type IdentityConfig = {
   };
 };
 
-type DecodedToken<T extends TokenUseEnum> = T extends TokenUseEnum.ID
-  ? IdToken
-  : T extends TokenUseEnum.ACCESS
-    ? AccessToken
-    : T extends TokenUseEnum.REFRESH
-      ? TokenUseEnum
-      : never;
-
 type ExchangeApiKeysRequest = z.infer<typeof V.exchangeApiKeysRequestSchema>;
 
 type ExchangeOauth2CodeRequest = z.infer<typeof V.exchangeOauth2RequestSchema>;
@@ -116,16 +68,10 @@ type ExchangeRefreshTokenRequest = z.infer<
 >;
 
 export {
-  Access,
-  AccessToken,
-  DecodedToken,
   ExchangeApiKeysRequest,
   ExchangeCredentialsRequest,
   ExchangeOauth2CodeRequest,
   ExchangeRefreshTokenRequest,
   ExchangeResponse,
-  IdToken,
-  IdentityConfig,
-  RefreshToken,
-  Role
+  IdentityConfig
 };

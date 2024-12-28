@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createWorkspace";
-export * from "./deleteWorkspace";
-export * from "./getWorkspace";
-export * from "./inviteUserToWorkspace";
-export * from "./listWorkspaces";
-export * from "./removeUserFromWorkspace";
-export * from "./resendWorkspaceMembershipInvitation";
-export * from "./updateWorkspace";
+export * from "./createCreateWorkspace";
+export * from "./createDeleteWorkspace";
+export * from "./createGetWorkspace";
+export * from "./createInviteUserToWorkspace";
+export * from "./createListWorkspaces";
+export * from "./createRemoveUserFromWorkspace";
+export * from "./createResendWorkspaceMembershipInvitation";
+export * from "./createUpdateWorkspace";

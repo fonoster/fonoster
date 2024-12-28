@@ -61,11 +61,11 @@ describe("@identity[workspaces/getWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { getWorkspace } = await import("../../src/workspaces/getWorkspace");
+    const { createGetWorkspace } = await import("../../src/workspaces/createGetWorkspace");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      getWorkspace(prisma)(call, (error, response) => {
+      createGetWorkspace(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -93,10 +93,10 @@ describe("@identity[workspaces/getWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { getWorkspace } = await import("../../src/workspaces/getWorkspace");
+    const { createGetWorkspace } = await import("../../src/workspaces/createGetWorkspace");
 
     // Act
-    await getWorkspace(prisma)(call, (error) => {
+    await createGetWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,

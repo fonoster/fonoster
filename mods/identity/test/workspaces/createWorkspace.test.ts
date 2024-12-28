@@ -52,12 +52,12 @@ describe("@identity[workspaces/createWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { createWorkspace } = await import(
-      "../../src/workspaces/createWorkspace"
+    const { createCreateWorkspace } = await import(
+      "../../src/workspaces/createCreateWorkspace"
     );
 
     // Act
-    await createWorkspace(prisma)(call, (_, response) => {
+    await createCreateWorkspace(prisma)(call, (_, response) => {
       // Assert
       expect(response).to.deep.equal({ ref: "123" });
     });
@@ -80,12 +80,12 @@ describe("@identity[workspaces/createWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { createWorkspace } = await import(
-      "../../src/workspaces/createWorkspace"
+    const { createCreateWorkspace } = await import(
+      "../../src/workspaces/createCreateWorkspace"
     );
 
     // Act
-    await createWorkspace(prisma)(call, (error) => {
+    await createCreateWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.ALREADY_EXISTS,
@@ -105,12 +105,12 @@ describe("@identity[workspaces/createWorkspace]", function () {
     // Doesn't matter because it will not be called
     const prisma = {} as unknown as Prisma;
 
-    const { createWorkspace } = await import(
-      "../../src/workspaces/createWorkspace"
+    const { createCreateWorkspace } = await import(
+      "../../src/workspaces/createCreateWorkspace"
     );
 
     // Act
-    await createWorkspace(prisma)(call, (error) => {
+    await createCreateWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.INVALID_ARGUMENT,

@@ -57,13 +57,13 @@ describe("@identity[workspace/updateWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { updateWorkspace } = await import(
-      "../../src/workspaces/updateWorkspace"
+    const { createUpdateWorkspace } = await import(
+      "../../src/workspaces/createUpdateWorkspace"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      updateWorkspace(prisma)(call, (error, response) => {
+      createUpdateWorkspace(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -92,11 +92,11 @@ describe("@identity[workspace/updateWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { updateUser } = await import("../../src/users/updateUser");
+    const { createUpdateUser } = await import("../../src/users/createUpdateUser");
 
     // Act
     const response = new Promise((resolve, reject) => {
-      updateUser(prisma)(call, (error, response) => {
+      createUpdateUser(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });

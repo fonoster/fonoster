@@ -16,12 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createInterceptingCall } from "@fonoster/common";
+import {
+  getAccessKeyIdFromCall,
+  createInterceptingCall
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { AuthzClient } from "./client/AuthzClient";
 import { CheckMethodAuthorizedRequest } from "./types";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
 
 const logger = getLogger({ service: "authz", filePath: __filename });
 

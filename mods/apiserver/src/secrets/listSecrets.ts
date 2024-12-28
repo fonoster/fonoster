@@ -20,9 +20,10 @@ import {
   GrpcErrorMessage,
   Validators as V,
   datesMapper,
-  withErrorHandlingAndValidation
+  withErrorHandlingAndValidation,
+  getAccessKeyIdFromCall
 } from "@fonoster/common";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
+import {} from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ListSecretsRequest, ListSecretsResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";

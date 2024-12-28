@@ -60,13 +60,13 @@ describe("@identity[workspaces/listWorkspaces]", function () {
       }
     } as unknown as Prisma;
 
-    const { listWorkspaces } = await import(
-      "../../src/workspaces/listWorkspaces"
+    const { createListWorkspaces } = await import(
+      "../../src/workspaces/createListWorkspaces"
     );
 
     // Act
     const response = (await new Promise((resolve, reject) => {
-      listWorkspaces(prisma)(call, (error, response) => {
+      createListWorkspaces(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response as { items: unknown[] });
       });
@@ -94,13 +94,13 @@ describe("@identity[workspaces/listWorkspaces]", function () {
       }
     } as unknown as Prisma;
 
-    const { listWorkspaces } = await import(
-      "../../src/workspaces/listWorkspaces"
+    const { createListWorkspaces } = await import(
+      "../../src/workspaces/createListWorkspaces"
     );
 
     // Act
     const response = (await new Promise((resolve, reject) => {
-      listWorkspaces(prisma)(call, (error, response) => {
+      createListWorkspaces(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response as { items: unknown[] });
       });

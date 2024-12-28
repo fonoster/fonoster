@@ -19,9 +19,12 @@
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { JsonObject } from "@prisma/client/runtime/library";
-import { decodeToken } from "./decodeToken";
-import { getTokenFromCall } from "./getTokenFromCall";
-import { Access, TokenUseEnum } from "../exchanges";
+import {
+  Access,
+  TokenUseEnum,
+  decodeToken,
+  getTokenFromCall
+} from "@fonoster/common";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 

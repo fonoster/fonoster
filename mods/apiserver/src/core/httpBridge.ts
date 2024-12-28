@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Readable } from "stream";
-import { updateMembershipStatus } from "@fonoster/identity";
+import { createUpdateMembershipStatus } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import express, { Request, Response } from "express";
 import { identityConfig } from "./identityConfig";
@@ -63,7 +63,9 @@ function httpBridge(params: { port: number }) {
     "/api/identity/accept-invite",
     async (req: Request, res: Response) => {
       try {
-        await updateMembershipStatus(identityConfig)(req.query.token as string);
+        await createUpdateMembershipStatus(identityConfig)(
+          req.query.token as string
+        );
         res.redirect(APP_URL);
       } catch (error) {
         logger.verbose("error updating membership status", error);

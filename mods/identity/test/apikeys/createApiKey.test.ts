@@ -64,10 +64,10 @@ describe("@identity[apikeys/createApiKey]", function () {
       }
     } as unknown as Prisma;
 
-    const { createApiKey } = await import("../../src/apikeys/createApiKey");
+    const { createCreateApiKey } = await import("../../src/apikeys/createCreateApiKey");
 
     // Act
-    await createApiKey(prisma)(call, (_, response) => {
+    await createCreateApiKey(prisma)(call, (_, response) => {
       // Assert
       expect(response).has.property("ref").to.be.equal("123");
       expect(response).has.property("accessKeyId").to.be.equal("accessKeyId");
@@ -99,10 +99,10 @@ describe("@identity[apikeys/createApiKey]", function () {
       }
     } as unknown as Prisma;
 
-    const { createApiKey } = await import("../../src/apikeys/createApiKey");
+    const { createCreateApiKey } = await import("../../src/apikeys/createCreateApiKey");
 
     // Act
-    await createApiKey(prisma)(call, (error) => {
+    await createCreateApiKey(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.ALREADY_EXISTS,

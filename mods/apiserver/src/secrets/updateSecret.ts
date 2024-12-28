@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Validators as V } from "@fonoster/common";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
+import { Validators as V, getAccessKeyIdFromCall } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { UpdateSecretRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";

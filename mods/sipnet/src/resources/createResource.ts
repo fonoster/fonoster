@@ -18,9 +18,9 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandlingAndValidation
+  withErrorHandlingAndValidation,
+  getAccessKeyIdFromCall
 } from "@fonoster/common";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";

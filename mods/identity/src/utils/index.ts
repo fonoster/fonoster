@@ -16,17 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createCallAccessToken";
+export * from "./createGenerateCallAccessToken";
 export * from "./createSendEmail";
 export * from "./createGetUserByWorkspaceAccessKeyId";
-export * from "./decodeToken";
 export * from "./generateAccessKeyId";
-export * from "./getAccessKeyIdFromCall";
 export * from "./getAccessKeyIdFromToken";
-export * from "./getTokenFromCall";
-export * from "./hasAccess";
 export * from "./hasAccessToResource";
-export * from "./isValidToken";
-export * from "./tokenHasAccessKeyId";
-export * from "./updateMembershipStatus";
+export * from "./createUpdateMembershipStatus";
 export * from "./withAccess";

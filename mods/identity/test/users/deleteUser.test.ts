@@ -52,11 +52,11 @@ describe("@identity[users/deleteUser]", function () {
       }
     } as unknown as Prisma;
 
-    const { deleteUser } = await import("../../src/users/deleteUser");
+    const { createDeleteUser } = await import("../../src/users/createDeleteUser");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      deleteUser(prisma)(call, (error, response) => {
+      createDeleteUser(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -84,10 +84,10 @@ describe("@identity[users/deleteUser]", function () {
       }
     } as unknown as Prisma;
 
-    const { deleteUser } = await import("../../src/users/deleteUser");
+    const { createDeleteUser } = await import("../../src/users/createDeleteUser");
 
     // Act
-    await deleteUser(prisma)(call, (error) => {
+    await createDeleteUser(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,

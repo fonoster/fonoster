@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createCallAccessToken } from "@fonoster/identity";
+import { createGenerateCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { Channel, Client, StasisStart } from "ari-client";
 import { CreateContainer } from "./integrations/types";
@@ -28,7 +28,7 @@ import { mapCallDirectionToEnum } from "../events/mapCallDirectionToEnum";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const createToken = createCallAccessToken(identityConfig);
+const generateCallAccessToken = createGenerateCallAccessToken(identityConfig);
 
 // Note: By the time the call arrives here the owner of the app MUST be authenticated
 function createCreateVoiceClient(
@@ -55,7 +55,7 @@ function createCreateVoiceClient(
 
     const { accessKeyId, endpoint, tts, stt } = await createContainer(appRef);
 
-    const sessionToken = await createToken({ accessKeyId, appRef });
+    const sessionToken = await generateCallAccessToken({ accessKeyId, appRef });
 
     const metadataStr = (await getChannelVar(ChannelVar.METADATA))?.value;
 

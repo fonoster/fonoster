@@ -38,16 +38,16 @@ function exchangeTokens(prisma: Prisma, identityConfig: IdentityConfig) {
     let refreshToken = null;
 
     if (accessKeyId.startsWith("US")) {
-      const idTokenPayload = await US.getIdTokenPayload(prisma, identityConfig)(accessKeyId);
-      const accessTokenPayload = await US.getAccessTokenPayload(prisma, identityConfig)(accessKeyId);
-      const refreshTokenPayload = await US.getRefreshTokenPayload(prisma, identityConfig)(accessKeyId);
+      const idTokenPayload = await US.createGetIdTokenPayload(prisma, identityConfig)(accessKeyId);
+      const accessTokenPayload = await US.createGetAccessTokenPayload(prisma, identityConfig)(accessKeyId);
+      const refreshTokenPayload = await US.createGetRefreshTokenPayload(prisma, identityConfig)(accessKeyId);
 
       idToken = jwt.sign(idTokenPayload, privateKey, idTokenSignOptions);
       accessToken = jwt.sign(accessTokenPayload, privateKey, accessTokenSignOptions);
       refreshToken = jwt.sign(refreshTokenPayload, privateKey, refreshTokenSignOptions);
     } else {
-      const accessTokenPayload = await AK.getAccessTokenPayload(prisma, identityConfig)(accessKeyId);
-      const refreshTokenPayload = await AK.getRefreshTokenPayload(prisma, identityConfig)(accessKeyId);
+      const accessTokenPayload = await AK.createGetAccessTokenPayload(prisma, identityConfig)(accessKeyId);
+      const refreshTokenPayload = await AK.createGetRefreshTokenPayload(prisma, identityConfig)(accessKeyId);
 
       accessToken = jwt.sign(accessTokenPayload, privateKey, accessTokenSignOptions);
       refreshToken = jwt.sign(refreshTokenPayload, privateKey, refreshTokenSignOptions);

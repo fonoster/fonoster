@@ -21,7 +21,7 @@ import { Prisma } from "../core/db";
 import { notFoundError } from "../core/notFoundError";
 
 function createGetFnUtil(prisma: Prisma) {
-  return async (ref: string) => {
+  return async function getFnUtil(ref: string) {
     const response = await prisma.secret.findUnique({
       where: { ref }
     });
