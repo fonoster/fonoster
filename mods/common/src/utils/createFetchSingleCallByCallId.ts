@@ -25,7 +25,9 @@ import { CallDetailRecord } from "@fonoster/types";
 import { InfluxDBClient } from "./types";
 
 function createFetchSingleCallByCallId(influxdb: InfluxDBClient) {
-  return async function fetchSingleCallByCallId(callId: string): Promise<CallDetailRecord> {
+  return async function fetchSingleCallByCallId(
+    callId: string
+  ): Promise<CallDetailRecord> {
     const query = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
       |> range(start: -365d)
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")

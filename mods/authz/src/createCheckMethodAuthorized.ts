@@ -47,7 +47,10 @@ function createCheckMethodAuthorized(authzServer: string, methods: string[]) {
    * @param {ServerInterceptingCall} call - The call object
    * @return {ServerInterceptingCall} - The modified call object
    */
-  return function checkMethodAuthorized(methodDefinition: { path: string }, call: ServerInterceptingCall) {
+  return function checkMethodAuthorized(
+    methodDefinition: { path: string },
+    call: ServerInterceptingCall
+  ) {
     const { path: method } = methodDefinition;
 
     if (!methods.includes(method)) {

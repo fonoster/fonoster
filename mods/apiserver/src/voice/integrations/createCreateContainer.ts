@@ -55,7 +55,9 @@ function createCreateContainer(prisma: Prisma, pathToIntegrations: string) {
     process.exit(1);
   }
 
-  return async function createContainer(appRef: string): Promise<IntegrationsContainer> {
+  return async function createContainer(
+    appRef: string
+  ): Promise<IntegrationsContainer> {
     logger.verbose("creating integrations container", { appRef });
 
     const app = await prisma.application.findUnique({

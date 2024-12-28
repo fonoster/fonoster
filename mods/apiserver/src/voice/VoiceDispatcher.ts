@@ -109,7 +109,10 @@ class VoiceDispatcher {
         SC.PLAYBACK_CONTROL_REQUEST,
         createPlaybackControlHandler(ari, vc).bind(this)
       );
-      vc.on(SC.START_STREAM_GATHER_REQUEST, createStreamGatherHandler(vc).bind(this));
+      vc.on(
+        SC.START_STREAM_GATHER_REQUEST,
+        createStreamGatherHandler(vc).bind(this)
+      );
       vc.on(SC.STOP_STREAM_GATHER_REQUEST, () => {
         vc.stopStreamGather();
       });

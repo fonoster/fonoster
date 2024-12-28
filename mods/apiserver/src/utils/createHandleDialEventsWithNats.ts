@@ -21,7 +21,10 @@ import { mapDialStatus } from "./mapDialStatus";
 import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
 
 function createHandleDialEventsWithNats(nc: NatsConnection) {
-  return async function handleDialEventsWithNats(callRef: string, event: { dialstatus: string }) {
+  return async function handleDialEventsWithNats(
+    callRef: string,
+    event: { dialstatus: string }
+  ) {
     const mappedStatus = mapDialStatus(event.dialstatus);
     if (!mappedStatus) return; // Ignore the event if status is not mapped
 
