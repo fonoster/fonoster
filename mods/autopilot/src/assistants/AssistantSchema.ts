@@ -21,6 +21,9 @@ import { z } from "zod";
 import { toolSchema } from "../tools/ToolSchema";
 import { LANGUAGE_MODEL_PROVIDER } from "../types";
 
+const NUMBER_BETWEEN_0_AND_1 = "must be a number between 0 and 1";
+const NUMBER_BETWEEN_0_AND_2 = "must be a number between 0 and 2";
+
 const conversationSettingsSchema = z.object({
   firstMessage: z.string().optional(),
   systemTemplate: z.string(),
@@ -60,8 +63,11 @@ const conversationSettingsSchema = z.object({
     .optional(),
   vad: z.object({
     pathToModel: z.string().optional(),
-    activationThreshold: z.number(),
-    deactivationThreshold: z.number(),
+    activationThreshold: z.number()
+      .max(1)
+      .min(0)
+      .positive({ message: NUMBER_BETWEEN_0_AND_1 }),
+    deactivationThreshold: z.number().max(1).min(0).positive({ message: NUMBER_BETWEEN_0_AND_1 }),
     debounceFrames: z
       .number()
       .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
@@ -75,7 +81,9 @@ const languageModelConfigSchema = z.object({
   }),
   apiKey: z.string().optional(),
   model: z.string(),
-  temperature: z.number(),
+  temperature: z.number()
+    .max(2, { message: NUMBER_BETWEEN_0_AND_2 })
+    .min(0, { message: NUMBER_BETWEEN_0_AND_2 }),
   maxTokens: z
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })

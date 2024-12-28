@@ -68,13 +68,11 @@ const getActorInput = () => ({
     maxSpeechWaitTimeout: 10000,
     initialDtmf: "1",
     idleOptions: {
-      enabled: true,
       message: IDLE_MESSAGE,
       timeout: 3000,
       maxTimeoutCount: 3
     },
     transferOptions: {
-      enabled: false,
       phoneNumber: "+1234567890",
       message: "Transferring call"
     },
