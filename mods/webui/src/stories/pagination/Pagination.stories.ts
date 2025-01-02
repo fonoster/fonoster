@@ -22,7 +22,7 @@ import { fn } from "@storybook/test";
 
 /**
  *  Story of the Pagination component
-* */
+ * */
 
 const meta = {
   title: "Shared Components/Pagination",
@@ -53,7 +53,7 @@ const meta = {
       control: "number"
     }
   }
-} satisfies Meta<typeof Chip>;
+} satisfies Meta<typeof Pagination>;
 
 export default meta;
 
@@ -61,36 +61,35 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * Example of a Pagination with the count of 32
- * and default rowsPerpage of 10
+ * and default rowsPerPage of 10
  */
 export const Default: Story = {
   args: {
     count: 32,
-    disabled: false,
+    disabled: false
   }
 };
 
 /**
  *  Example of Pagination Component with the count of 4269
- * and explicit 69 per page 
+ * and explicit rowsPerPage of 69
  */
 
 export const WithExplicitOnPage: Story = {
   args: {
     count: 4269,
     disabled: false,
-    rowsPerPage: 69,
+    rowsPerPage: 69
   }
-}
+};
 
 /**
- * Example of disabled pagination component 
+ * Example of disabled pagination component
  */
 
 export const Disable: Story = {
   args: {
     count: 100,
-    disabled: true,
+    disabled: true
   }
-}
-
+};
