@@ -27,15 +27,19 @@ import {
   AWS_S3_SECRET_ACCESS_KEY,
   KNOWLEDGE_BASE_ENABLED,
   UNSTRUCTURED_API_KEY,
-  UNSTRUCTURED_API_URL
+  UNSTRUCTURED_API_URL,
+  CONVERSATION_PROVIDER,
+  CONVERSATION_PROVIDER_FILE
 } from "./envs";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
-import Autopilot, { S3KnowledgeBase, VoiceImpl } from ".";
+import Autopilot, { ConversationProvider, S3KnowledgeBase, VoiceImpl } from ".";
+import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const { accessKeyId, ingressNumber, sessionRef, appRef, callDirection } = req;
+
   logger.verbose("voice request", {
     accessKeyId,
     ingressNumber,
@@ -44,9 +48,10 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     metadata: req.metadata
   });
 
-  const assistantConfig = loadAssistantConfigFromFile(
-    `${process.cwd()}/config/assistant.json`
-  );
+  const assistantConfig =
+    CONVERSATION_PROVIDER === ConversationProvider.FILE
+      ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE!)
+      : await loadAssistantFromAPI(req);
 
   let knowledgeBase;
 
@@ -87,8 +92,10 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     }
   });
 
+  const { conversationSettings } = assistantConfig;
+
   const autopilot = new Autopilot({
-    conversationSettings: assistantConfig.conversationSettings,
+    conversationSettings,
     voice,
     languageModel
   });

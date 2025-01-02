@@ -59,12 +59,9 @@ export class Client extends AbstractClient {
 
     this.channelCredentials = channelCredentials;
     this.endpoint = config?.endpoint || DEFAULT_ENDPOINT;
-    this.tokenRefresherInterceptor = 
-      config.withoutInterceptors ?
-        null :
-        new TokenRefresherNode(this)
-          .createInterceptor()
-          .bind(this);
+    this.tokenRefresherInterceptor = config.withoutInterceptors
+      ? null
+      : new TokenRefresherNode(this).createInterceptor().bind(this);
   }
 
   getMetadata(): Metadata {

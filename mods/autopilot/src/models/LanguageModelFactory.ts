@@ -30,7 +30,7 @@ import {
   OpenAIParams
 } from "./openai";
 import { BaseModelParams, TelephonyContext } from "./types";
-import { LANGUAGE_MODEL_PROVIDER } from "../types";
+import { LanguageModelProvider } from "../types";
 import { Voice } from "../voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -43,14 +43,16 @@ type LanguageModelConstructor<T extends BaseModelParams = BaseModelParams> =
   ) => AbstractLanguageModel;
 
 type LanguageModelConfigMap = {
-  [LANGUAGE_MODEL_PROVIDER.OPENAI]: OpenAIParams;
-  [LANGUAGE_MODEL_PROVIDER.GROQ]: GroqParams;
-  [LANGUAGE_MODEL_PROVIDER.OLLAMA]: OllamaParams;
+  [LanguageModelProvider.OPENAI]: OpenAIParams;
+  [LanguageModelProvider.GROQ]: GroqParams;
+  [LanguageModelProvider.OLLAMA]: OllamaParams;
 };
 
 class LanguageModelFactory {
-  private static languageModels: Map<string, LanguageModelConstructor> =
-    new Map();
+  private static readonly languageModels: Map<
+    string,
+    LanguageModelConstructor
+  > = new Map();
 
   static registerLanguageModel<T extends BaseModelParams>(
     name: string,

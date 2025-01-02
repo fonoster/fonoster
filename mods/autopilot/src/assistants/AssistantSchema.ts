@@ -19,7 +19,7 @@
 import { Messages } from "@fonoster/common";
 import { z } from "zod";
 import { toolSchema } from "../tools/ToolSchema";
-import { LANGUAGE_MODEL_PROVIDER } from "../types";
+import { LanguageModelProvider } from "../types";
 
 const NUMBER_BETWEEN_0_AND_1 = "must be a number between 0 and 1";
 const NUMBER_BETWEEN_0_AND_2 = "must be a number between 0 and 2";
@@ -76,7 +76,7 @@ const conversationSettingsSchema = z.object({
 });
 
 const languageModelConfigSchema = z.object({
-  provider: z.nativeEnum(LANGUAGE_MODEL_PROVIDER, {
+  provider: z.nativeEnum(LanguageModelProvider, {
     message: "Invalid language model provider."
   }),
   apiKey: z.string().optional(),

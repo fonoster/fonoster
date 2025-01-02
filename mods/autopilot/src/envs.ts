@@ -19,6 +19,7 @@
 import { join } from "path";
 import { assertEnvsAreSet } from "@fonoster/common";
 import dotenv from "dotenv";
+import { ConversationProvider } from "./types";
 
 if (process.env.NODE_ENV === "dev") {
   dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
@@ -26,18 +27,36 @@ if (process.env.NODE_ENV === "dev") {
 
 const e = process.env;
 
-export const AWS_S3_ACCESS_KEY_ID = e.AWS_S3_ACCESS_KEY_ID;
-export const AWS_S3_ENDPOINT = e.AWS_S3_ENDPOINT;
-export const AWS_S3_REGION = e.AWS_S3_REGION ?? "us-east-1";
-export const AWS_S3_SECRET_ACCESS_KEY = e.AWS_S3_SECRET_ACCESS_KEY;
-export const KNOWLEDGE_BASE_ENABLED = e.KNOWLEDGE_BASE_ENABLED === "true";
+export const SKIP_IDENTITY = e.AUTOPILOT_SKIP_IDENTITY === "true";
+export const AWS_S3_ACCESS_KEY_ID = e.AUTOPILOT_AWS_S3_ACCESS_KEY_ID;
+export const AWS_S3_ENDPOINT = e.AUTOPILOT_AWS_S3_ENDPOINT;
+export const AWS_S3_REGION = e.AUTOPILOT_AWS_S3_REGION ?? "us-east-1";
+export const AWS_S3_SECRET_ACCESS_KEY = e.AUTOPILOT_AWS_S3_SECRET_ACCESS_KEY;
+export const KNOWLEDGE_BASE_ENABLED =
+  e.AUTOPILOT_KNOWLEDGE_BASE_ENABLED === "true";
 export const NODE_ENV = e.NODE_ENV || "production";
-export const SKIP_IDENTITY = e.SKIP_IDENTITY === "true";
-export const UNSTRUCTURED_API_KEY = e.UNSTRUCTURED_API_KEY;
+export const UNSTRUCTURED_API_KEY = e.AUTOPILOT_UNSTRUCTURED_API_KEY;
 export const UNSTRUCTURED_API_URL =
   e.UNSTRUCTURED_API_URL ?? "https://api.unstructuredapp.io/general/v0/general";
 export const SILERO_VAD_MODEL_PATH =
   e.SILERO_VAD_MODEL_PATH ?? join(__dirname, "..", "silero_vad.onnx");
+export const CONVERSATION_PROVIDER = e.AUTOPILOT_CONVERSATION_PROVIDER
+  ? e.CONVERSATION_PROVIDER
+  : ConversationProvider.FILE;
+export const CONVERSATION_PROVIDER_FILE = e.AUTOPILOT_CONVERSATION_PROVIDER_FILE
+  ? e.CONVERSATION_PROVIDER_FILE
+  : `${process.cwd()}/config/assistant.json`;
+export const AUTOPILOT_APISERVER_ENDPOINT = e.AUTOPILOT_APISERVER_ENDPOINT
+  ? e.AUTOPILOT_APISERVER_ENDPOINT
+  : "apiserver:50051";
+
+if (
+  CONVERSATION_PROVIDER!.toLocaleLowerCase() !== ConversationProvider.API &&
+  CONVERSATION_PROVIDER!.toLocaleLowerCase() !== ConversationProvider.FILE
+) {
+  console.error("CONVERSATION_PROVIDER must be set to 'api' or 'file'");
+  process.exit(1);
+}
 
 if (KNOWLEDGE_BASE_ENABLED) {
   assertEnvsAreSet([
