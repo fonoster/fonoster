@@ -17,10 +17,13 @@
  * limitations under the License.
  */
 type PaginationProps = {
-  onClick?: (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => void;
+  onClick?: (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => void;
   count: number;
-  disabled: boolean,
-  rowsPerPage?: number,
+  disabled: boolean;
+  rowsPerPage?: number;
 };
 
 export type { PaginationProps };

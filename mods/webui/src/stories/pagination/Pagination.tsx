@@ -28,29 +28,36 @@ export const Pagination = (props: PaginationProps) => {
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number,
+    newPage: number
   ) => {
-    onClick(event, newPage)
+    onClick(event, newPage);
     setPage(newPage);
   };
 
-  const renderDisplayedRows = ({ from, to, count }: { from: number; to: number; count: number }) => (
-    <Typography variant="body-medium" >
-      {`${from}-${to} of ${count}`}
-    </Typography>
+  const renderDisplayedRows = ({
+    from,
+    to,
+    count
+  }: {
+    from: number;
+    to: number;
+    count: number;
+  }) => (
+    <Typography variant="body-medium">{`${from}-${to} of ${count}`}</Typography>
   );
 
-
-  return <StyledPagination
-    count={count}
-    disabled={disabled}
-    component="div"
-    onPageChange={handleChangePage}
-    page={page}
-    rowsPerPage={rowsPerPage ? rowsPerPage : 10}
-    rowsPerPageOptions={[]}
-    labelRowsPerPage=''
-    labelDisplayedRows={renderDisplayedRows}
-    className={disabled ? "disabled" : ""}
-  />;
+  return (
+    <StyledPagination
+      count={count}
+      disabled={disabled}
+      component="div"
+      onPageChange={handleChangePage}
+      page={page}
+      rowsPerPage={rowsPerPage ? rowsPerPage : 10}
+      rowsPerPageOptions={[]}
+      labelRowsPerPage=""
+      labelDisplayedRows={renderDisplayedRows}
+      className={disabled ? "disabled" : ""}
+    />
+  );
 };
