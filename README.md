@@ -497,4 +497,4 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
 
 ## License
 
-Copyright (C) 2024 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
+Copyright (C) 2025 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
