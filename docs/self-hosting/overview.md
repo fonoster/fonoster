@@ -5,4 +5,5 @@ Self-hosting Fonoster involves running Fonoster's server on your data center. Se
 Check out the following sections to get started:
 
 - [Deploy with Docker](./deploy-with-docker.md)
+- [First ApiKeys to log in](./first-apikeys.md)
 - [Securing the backend and APIs](./securing-the-api.md)
