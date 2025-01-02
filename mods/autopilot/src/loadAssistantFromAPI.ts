@@ -19,13 +19,13 @@
 import { VoiceRequest } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
 import { AssistantConfig } from "./assistants";
-import { AUTOPILOT_APISERVER_ENDPOINT } from "./envs";
+import { APISERVER_ENDPOINT } from "./envs";
 
 function loadAssistantFromAPI(req: VoiceRequest): Promise<AssistantConfig> {
   return new Promise((resolve, reject) => {
     const clientConfig = {
       accessKeyId: req.accessKeyId,
-      endpoint: AUTOPILOT_APISERVER_ENDPOINT,
+      endpoint: APISERVER_ENDPOINT,
       allowInsecure: true,
       withoutInterceptors: true
     };
