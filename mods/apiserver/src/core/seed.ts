@@ -86,7 +86,18 @@ async function main() {
       ref: "llm.openai",
       name: "OpenAI Language Model",
       vendor: "OPENAI",
-      type: "ASSISTANT"
+      type: "LLM"
+    }
+  });
+
+  await prisma.product.upsert({
+    where: { ref: "llm.groq" },
+    update: {},
+    create: {
+      ref: "llm.groq",
+      name: "Groq Language Model",
+      vendor: "GROQ",
+      type: "LLM"
     }
   });
 

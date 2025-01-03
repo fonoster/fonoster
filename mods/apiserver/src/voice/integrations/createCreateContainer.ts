@@ -35,7 +35,7 @@ const integrationsConfigSchema = z.array(
   z.object({
     name: z.string(),
     productRef: z.string(),
-    type: z.enum(["tts", "stt"]),
+    type: z.enum(["tts", "stt", "llm"]),
     credentials: z.record(z.unknown())
   })
 );

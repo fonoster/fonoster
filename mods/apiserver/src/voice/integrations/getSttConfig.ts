@@ -16,9 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceLanguage } from "@fonoster/common";
+import { VoiceLanguage, findIntegrationsCredentials } from "@fonoster/common";
 import { Application } from "@fonoster/types";
-import { findIntegrationsCredentials } from "./findIntegrationsCredentials";
 import { IntegrationConfig } from "./types";
 
 function getSttConfig(integrations: IntegrationConfig[], app: Application) {

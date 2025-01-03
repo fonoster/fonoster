@@ -28,6 +28,7 @@ function applicationWithEncodedStruct(application): Application {
   const result = { ...application };
 
   if (application.textToSpeech) {
+    delete application.textToSpeech.credentials;
     result.textToSpeech = {
       ...application.textToSpeech,
       config: encodeConfig(application.textToSpeech)
@@ -35,6 +36,7 @@ function applicationWithEncodedStruct(application): Application {
   }
 
   if (application.speechToText) {
+    delete application.speechToText.credentials;
     result.speechToText = {
       ...application.speechToText,
       config: encodeConfig(application.speechToText)

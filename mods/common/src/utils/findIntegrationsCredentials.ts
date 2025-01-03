@@ -16,10 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IntegrationConfig } from "./types";
-
 function findIntegrationsCredentials(
-  integrations: IntegrationConfig[],
+  integrations: {
+    productRef: string;
+    credentials: Record<string, unknown>;
+  }[],
   engine: string
 ) {
   return integrations.find(

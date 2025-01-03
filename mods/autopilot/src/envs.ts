@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { join } from "path";
-import { assertEnvsAreSet } from "@fonoster/common";
+import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
 import dotenv from "dotenv";
 import { ConversationProvider } from "./types";
 
@@ -48,6 +48,9 @@ export const CONVERSATION_PROVIDER_FILE = e.CONVERSATION_PROVIDER_FILE
 export const APISERVER_ENDPOINT = e.APISERVER_ENDPOINT
   ? e.APISERVER_ENDPOINT
   : "apiserver:50051";
+export const INTEGRATIONS_FILE = e.INTEGRATIONS_FILE
+  ? e.INTEGRATIONS_FILE
+  : `${process.cwd()}/config/integrations.json`;
 
 if (
   CONVERSATION_PROVIDER!.toLocaleLowerCase() !== ConversationProvider.API &&
@@ -55,6 +58,10 @@ if (
 ) {
   console.error("CONVERSATION_PROVIDER must be set to 'api' or 'file'");
   process.exit(1);
+}
+
+if (CONVERSATION_PROVIDER!.toLocaleLowerCase() === ConversationProvider.API) {
+  assertFileExists(INTEGRATIONS_FILE);
 }
 
 if (KNOWLEDGE_BASE_ENABLED) {
