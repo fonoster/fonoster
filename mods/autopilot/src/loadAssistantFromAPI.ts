@@ -16,12 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest } from "@fonoster/common";
+import { findIntegrationsCredentials, VoiceRequest } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
 import { AssistantConfig } from "./assistants";
 import { APISERVER_ENDPOINT } from "./envs";
+import { getLogger } from "@fonoster/logger";
 
-function loadAssistantFromAPI(req: VoiceRequest): Promise<AssistantConfig> {
+const logger = getLogger({ service: "autopilot", filePath: __filename });
+
+function loadAssistantFromAPI(
+  req: VoiceRequest,
+  integrations: {
+    productRef: string;
+    credentials: Record<string, unknown>;
+  }[]
+): Promise<AssistantConfig> {
   return new Promise((resolve, reject) => {
     const clientConfig = {
       accessKeyId: req.accessKeyId,
@@ -33,15 +42,33 @@ function loadAssistantFromAPI(req: VoiceRequest): Promise<AssistantConfig> {
     const client = new SDK.Client(clientConfig);
     client.setAccessToken(req.sessionToken);
     const applications = new SDK.Applications(client);
+
+    logger.verbose(`loading assistant config from api`, {
+      apiserver: APISERVER_ENDPOINT,
+      appRef: req.appRef
+    });
+
     applications
       .getApplication(req.appRef)
       .then((app) => {
-        // TODO: Improve error handling here. We should
-        // throw a clear error if the intelligence section is empty
-        resolve(app.intelligence?.config as AssistantConfig);
+        logger.verbose(`get credentials for assistant`, {
+          appRef: req.appRef,
+          productRef: app.intelligence?.productRef
+        });
+
+        const credentials = findIntegrationsCredentials(
+          integrations,
+          app.intelligence?.productRef!
+        );
+
+        const assistantConfig = app.intelligence?.config as AssistantConfig;
+
+        assistantConfig.languageModel.apiKey = credentials?.apiKey as string;
+
+        resolve(assistantConfig);
       })
       .catch((err) => {
-        reject(new Error("Failed to load assistant config"));
+        reject(new Error(`Failed to load assistant config from API: ${err}`));
       });
   });
 }
