@@ -53,7 +53,7 @@ export const Pagination = (props: PaginationProps) => {
       component="div"
       onPageChange={handleChangePage}
       page={page}
-      rowsPerPage={rowsPerPage ? rowsPerPage : 10}
+      rowsPerPage={rowsPerPage ?? 10}
       rowsPerPageOptions={[]}
       labelRowsPerPage=""
       labelDisplayedRows={renderDisplayedRows}

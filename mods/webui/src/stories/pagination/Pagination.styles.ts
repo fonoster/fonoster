@@ -17,28 +17,37 @@
  * limitations under the License.
  */
 import { styled } from "@mui/material/styles";
-import TablePagination from "@mui/material/TablePagination";
+import TablePagination, {
+  TablePaginationProps
+} from "@mui/material/TablePagination";
+import React from "react";
 
-export const StyledPagination = styled(TablePagination)(({ theme }) => ({
-  "& .MuiTablePagination-toolbar": {
-    display: "flex",
-    justifyContent: "flex-start",
-    gap: theme.spacing(0.5)
-  },
-  "& .MuiTablePagination-actions": {
-    order: -1,
-    gap: theme.spacing(0.1),
-    "& .MuiSvgIcon-root": {
-      fontSize: "2rem",
-      fontWeight: 700
+export type StyledPaginationProps = TablePaginationProps & {
+  component?: React.ElementType;
+};
+
+export const StyledPagination = styled(TablePagination)<StyledPaginationProps>(
+  ({ theme }) => ({
+    "& .MuiTablePagination-toolbar": {
+      display: "flex",
+      justifyContent: "flex-start",
+      gap: theme.spacing(0.5)
     },
-    "& button": {
-      margin: 0,
-      padding: theme.spacing(0.1)
+    "& .MuiTablePagination-actions": {
+      order: -1,
+      gap: theme.spacing(0.1),
+      "& .MuiSvgIcon-root": {
+        fontSize: "2rem",
+        fontWeight: 700
+      },
+      "& button": {
+        margin: 0,
+        padding: theme.spacing(0.1)
+      }
+    },
+    "&.disabled": {
+      color: theme.palette.secondary[200],
+      pointerEvents: "none"
     }
-  },
-  "&.disabled": {
-    color: theme.palette.secondary[200],
-    pointerEvents: "none"
-  }
-}));
+  })
+);
