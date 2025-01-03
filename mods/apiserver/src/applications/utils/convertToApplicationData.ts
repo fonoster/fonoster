@@ -20,13 +20,13 @@ import {
   CreateApplicationRequest,
   UpdateApplicationRequest
 } from "@fonoster/types";
-import { ApplicationType } from "@prisma/client";
+import { Application, ApplicationType } from "@prisma/client";
 import { struct } from "pb-util";
 import { ApplicationData } from "../types";
 
 function convertToApplicationData(
   request: CreateApplicationRequest | UpdateApplicationRequest
-) {
+): Application {
   const type = (request.type as ApplicationType) || ApplicationType.EXTERNAL;
 
   const result = {
@@ -39,16 +39,16 @@ function convertToApplicationData(
   const createProperty = (property) => {
     return property
       ? {
-          create: {
-            productRef: property.productRef,
-            credentials: property.credentials
-              ? JSON.stringify(struct.decode(property.credentials))
-              : undefined,
-            config: property.config ? struct.decode(property.config) : null
-          }
+        create: {
+          productRef: property.productRef,
+          credentials: property.credentials
+            ? JSON.stringify(struct.decode(property.credentials))
+            : undefined,
+          config: property.config ? struct.decode(property.config) : null
         }
-      : undefined;
-  };
+      }
+      : undefined
+  }
 
   if (request.textToSpeech) {
     result.textToSpeech = createProperty(request.textToSpeech);
@@ -62,7 +62,7 @@ function convertToApplicationData(
     result.intelligence = createProperty(request.intelligence);
   }
 
-  return result;
+  return result as Application;
 }
 
 export { convertToApplicationData };

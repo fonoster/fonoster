@@ -29,13 +29,17 @@ import {
   UNSTRUCTURED_API_KEY,
   UNSTRUCTURED_API_URL,
   CONVERSATION_PROVIDER,
-  CONVERSATION_PROVIDER_FILE
+  CONVERSATION_PROVIDER_FILE,
+  INTEGRATIONS_FILE
 } from "./envs";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
 import Autopilot, { ConversationProvider, S3KnowledgeBase, VoiceImpl } from ".";
 import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
+import fs from "fs";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
+
+const integrations = JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"));
 
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const { accessKeyId, ingressNumber, sessionRef, appRef, callDirection } = req;
@@ -51,7 +55,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const assistantConfig =
     CONVERSATION_PROVIDER === ConversationProvider.FILE
       ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE!)
-      : await loadAssistantFromAPI(req);
+      : await loadAssistantFromAPI(req, integrations);
 
   let knowledgeBase;
 
