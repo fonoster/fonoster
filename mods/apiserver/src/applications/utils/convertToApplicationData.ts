@@ -39,16 +39,16 @@ function convertToApplicationData(
   const createProperty = (property) => {
     return property
       ? {
-        create: {
-          productRef: property.productRef,
-          credentials: property.credentials
-            ? JSON.stringify(struct.decode(property.credentials))
-            : undefined,
-          config: property.config ? struct.decode(property.config) : null
+          create: {
+            productRef: property.productRef,
+            credentials: property.credentials
+              ? JSON.stringify(struct.decode(property.credentials))
+              : undefined,
+            config: property.config ? struct.decode(property.config) : null
+          }
         }
-      }
-      : undefined
-  }
+      : undefined;
+  };
 
   if (request.textToSpeech) {
     result.textToSpeech = createProperty(request.textToSpeech);
