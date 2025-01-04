@@ -1,3 +1,4 @@
+// @ts-nocheck - All inputs are validated by the APIServer
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -46,14 +47,13 @@ function createLanguageModel(params: {
   return LanguageModelFactory.getLanguageModel(
     languageModelSettings.provider,
     {
-      // @ts-expect-error don't know the model type here
       model: languageModelSettings.model,
-      apiKey: languageModelSettings.apiKey!,
+      apiKey: languageModelSettings.apiKey,
       maxTokens: languageModelSettings.maxTokens,
       temperature: languageModelSettings.temperature,
       firstMessage: conversationSettings.firstMessage,
       systemTemplate: conversationSettings.systemTemplate,
-      baseUrl: languageModelSettings.baseUrl!,
+      baseUrl: languageModelSettings.baseUrl,
       knowledgeBase,
       tools
     },

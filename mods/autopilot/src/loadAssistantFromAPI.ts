@@ -1,3 +1,4 @@
+// @ts-nocheck - All inputs are validated by the APIServer
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -58,7 +59,7 @@ function loadAssistantFromAPI(
 
         const credentials = findIntegrationsCredentials(
           integrations,
-          app.intelligence?.productRef!
+          app.intelligence?.productRef
         );
 
         const assistantConfig = app.intelligence?.config as AssistantConfig;

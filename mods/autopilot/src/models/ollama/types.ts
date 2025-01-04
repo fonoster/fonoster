@@ -24,7 +24,7 @@ enum OllamaModel {
 
 type OllamaParams = BaseModelParams & {
   model: OllamaModel;
-  baseUrl: string;
+  baseUrl?: string;
   maxTokens: number;
   temperature: number;
 };
