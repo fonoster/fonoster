@@ -40,8 +40,6 @@ import fs from "fs";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-const integrations = JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"));
-
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const { accessKeyId, ingressNumber, sessionRef, appRef, callDirection } = req;
 
@@ -56,7 +54,10 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const assistantConfig =
     CONVERSATION_PROVIDER === ConversationProvider.FILE
       ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE)
-      : await loadAssistantFromAPI(req, integrations);
+      : await loadAssistantFromAPI(
+          req,
+          JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"))
+        );
 
   let knowledgeBase;
 

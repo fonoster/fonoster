@@ -27,6 +27,7 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 function loadAssistantFromAPI(
   req: VoiceRequest,
+  // TODO: Add validation for integrations
   integrations: {
     productRef: string;
     credentials: Record<string, unknown>;
