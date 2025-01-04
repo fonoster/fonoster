@@ -19,7 +19,7 @@
 import fs from "fs";
 import { getLogger } from "@fonoster/logger";
 import { AssistantConfig } from "./types";
-import { assistantSchema } from "../assistants/AssistantSchema";
+import { assistantSchema } from "@fonoster/common";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

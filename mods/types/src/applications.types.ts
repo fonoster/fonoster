@@ -20,7 +20,8 @@ import { BaseApiObject, ListRequest, ListResponse } from "./common";
 import { Flatten } from "./utils";
 
 enum ApplicationType {
-  EXTERNAL = "EXTERNAL"
+  EXTERNAL = "EXTERNAL",
+  AUTOPILOT = "AUTOPILOT"
 }
 
 type Application = {

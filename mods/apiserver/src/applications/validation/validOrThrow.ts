@@ -16,19 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./assistants";
-export * from "./GrpcError";
-export * from "./constants";
-export * from "./errors";
-export * from "./grpcStatusMap";
-export * as Messages from "./messages";
-export * from "./messages";
-export * from "./notifications";
-export * from "./tts";
-export * from "./types";
-export * from "./utils";
-export * as Validators from "./validators";
-export * from "./validators";
-export * from "./voice";
-export * from "./countryIsoCodes";
-export * from "./identity";
+import {
+  CreateApplicationRequest,
+  UpdateApplicationRequest
+} from "@fonoster/types";
+import { createValidationSchema } from "./createValidationSchema";
+import { prepareForValidation } from "./prepareForValidation";
+
+function validOrThrow(
+  request: CreateApplicationRequest | UpdateApplicationRequest
+) {
+  const data = prepareForValidation(request);
+
+  const schema = createValidationSchema({
+    applicationType: request.type,
+    ttsEngineName: request.textToSpeech?.productRef,
+    sttEngineName: request.speechToText?.productRef
+  });
+
+  schema.parse(data);
+}
+
+export { validOrThrow };

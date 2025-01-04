@@ -16,23 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  CreateApplicationRequest,
-  UpdateApplicationRequest
-} from "@fonoster/types";
-import { getApplicationValidationSchema } from "./getApplicationValidationSchema";
-import { prepareForValidation } from "./prepareForValidation";
+import { z } from "zod";
+import { conversationSettingsSchema } from "./conversationSettingsSchema";
+import { languageModelConfigSchema } from "./languageModelConfigSchema";
 
-function validOrThrow(
-  request: CreateApplicationRequest | UpdateApplicationRequest
-) {
-  const data = prepareForValidation(request);
-  const schema = getApplicationValidationSchema({
-    ttsEngineName: request.textToSpeech?.productRef,
-    sttEngineName: request.speechToText?.productRef
-  });
+const assistantSchema = z.object({
+  conversationSettings: conversationSettingsSchema,
+  languageModel: languageModelConfigSchema
+});
 
-  schema.parse(data);
-}
-
-export { validOrThrow };
+export { assistantSchema };

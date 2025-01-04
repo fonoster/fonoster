@@ -22,7 +22,7 @@ import { UpdateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
-import { validOrThrow } from "./utils/validOrThrow";
+import { validOrThrow } from "./validation/validOrThrow";
 import { Prisma } from "../core/db";
 import { withAccess } from "@fonoster/identity";
 

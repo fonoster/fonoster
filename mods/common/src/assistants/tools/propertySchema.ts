@@ -16,19 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./assistants";
-export * from "./GrpcError";
-export * from "./constants";
-export * from "./errors";
-export * from "./grpcStatusMap";
-export * as Messages from "./messages";
-export * from "./messages";
-export * from "./notifications";
-export * from "./tts";
-export * from "./types";
-export * from "./utils";
-export * as Validators from "./validators";
-export * from "./validators";
-export * from "./voice";
-export * from "./countryIsoCodes";
-export * from "./identity";
+import { z } from "zod";
+
+const propertySchema = z
+  .object({
+    type: z.string(),
+    format: z.string().optional(),
+    pattern: z.string().optional()
+  })
+  .refine(
+    (data) => {
+      return !("format" in data && "pattern" in data);
+    },
+    {
+      message: "Property can only have either 'format' or 'pattern', not both."
+    }
+  );
+
+export { propertySchema };

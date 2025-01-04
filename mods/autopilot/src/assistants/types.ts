@@ -21,7 +21,7 @@ import {
   assistantSchema,
   conversationSettingsSchema,
   languageModelConfigSchema
-} from "./AssistantSchema";
+} from "@fonoster/common";
 
 type ConversationSettings = z.infer<typeof conversationSettingsSchema>;
 type LanguageModelConfig = z.infer<typeof languageModelConfigSchema>;

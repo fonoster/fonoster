@@ -16,13 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Messages } from "@fonoster/common";
 import { z } from "zod";
-import { toolSchema } from "../tools/ToolSchema";
-import { LanguageModelProvider } from "../types";
+import * as Messages from "../messages";
 
-const NUMBER_BETWEEN_0_AND_1 = "must be a number between 0 and 1";
-const NUMBER_BETWEEN_0_AND_2 = "must be a number between 0 and 2";
+const NUMBER_BETWEEN_0_AND_1 = "Must be a number between 0 and 1";
 
 const conversationSettingsSchema = z.object({
   firstMessage: z.string().optional(),
@@ -63,11 +60,16 @@ const conversationSettingsSchema = z.object({
     .optional(),
   vad: z.object({
     pathToModel: z.string().optional(),
-    activationThreshold: z.number()
+    activationThreshold: z
+      .number()
       .max(1)
       .min(0)
       .positive({ message: NUMBER_BETWEEN_0_AND_1 }),
-    deactivationThreshold: z.number().max(1).min(0).positive({ message: NUMBER_BETWEEN_0_AND_1 }),
+    deactivationThreshold: z
+      .number()
+      .max(1)
+      .min(0)
+      .positive({ message: NUMBER_BETWEEN_0_AND_1 }),
     debounceFrames: z
       .number()
       .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
@@ -75,44 +77,4 @@ const conversationSettingsSchema = z.object({
   })
 });
 
-const languageModelConfigSchema = z.object({
-  provider: z.nativeEnum(LanguageModelProvider, {
-    message: "Invalid language model provider."
-  }),
-  apiKey: z.string().optional(),
-  model: z.string(),
-  temperature: z.number()
-    .max(2, { message: NUMBER_BETWEEN_0_AND_2 })
-    .min(0, { message: NUMBER_BETWEEN_0_AND_2 }),
-  maxTokens: z
-    .number()
-    .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
-  baseUrl: z
-    .string()
-    .url({
-      message: Messages.VALID_URL
-    })
-    .optional(),
-  knowledgeBase: z.array(
-    z.object({
-      type: z.enum(["s3"]),
-      title: z.string(),
-      document: z.string().regex(/\.pdf$/, {
-        message: "Document must be a pdf file."
-      })
-    })
-  ),
-  tools: z.array(toolSchema)
-});
-
-const assistantSchema = z.object({
-  conversationSettings: conversationSettingsSchema,
-  languageModel: languageModelConfigSchema
-});
-
-export {
-  assistantSchema,
-  conversationSettingsSchema,
-  languageModelConfigSchema
-};
+export { conversationSettingsSchema };

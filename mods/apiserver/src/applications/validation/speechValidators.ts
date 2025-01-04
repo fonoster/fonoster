@@ -16,9 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { hostOrHostPortSchema } from "@fonoster/common";
-import { ApplicationType } from "@prisma/client";
-import { z } from "zod";
 import { Deepgram as DeepgramStt } from "../../voice/stt/Deepgram";
 import { Google as GoogleStt } from "../../voice/stt/Google";
 import { Azure as AzureTts } from "../../voice/tts/Azure";
@@ -26,9 +23,7 @@ import { Deepgram as DeepgramTts } from "../../voice/tts/Deepgram";
 import { ElevenLabs as ElevenLabsTts } from "../../voice/tts/ElevenLabs";
 import { Google as GoogleTts } from "../../voice/tts/Google";
 
-const MAX_NAME_MESSAGE = "Name must contain at most 255 characters";
-
-const validators = {
+const speechValidators = {
   ttsConfigValidators: {
     "tts.google": GoogleTts.getConfigValidationSchema,
     "tts.azure": AzureTts.getConfigValidationSchema,
@@ -51,31 +46,4 @@ const validators = {
   }
 };
 
-function getApplicationValidationSchema(request: {
-  ttsEngineName: string;
-  sttEngineName: string;
-}) {
-  const { ttsEngineName, sttEngineName } = request;
-
-  return z.object({
-    name: z.string().max(255, MAX_NAME_MESSAGE),
-    type: z.nativeEnum(ApplicationType, {
-      message: "Invalid application type."
-    }),
-    endpoint: hostOrHostPortSchema,
-    textToSpeech: ttsEngineName
-      ? z.object({
-          productRef: z.string(),
-          config: validators.ttsConfigValidators[ttsEngineName]()
-        })
-      : z.undefined(),
-    speechToText: sttEngineName
-      ? z.object({
-          productRef: z.string(),
-          config: validators.sttConfigValidators[sttEngineName]()
-        })
-      : z.undefined()
-  });
-}
-
-export { getApplicationValidationSchema };
+export { speechValidators };
