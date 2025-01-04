@@ -40,6 +40,8 @@ service Applications {
 enum ApplicationType {
   // Programmable Voice
   EXTERNAL = 0;
+  // Internal LLM based applications
+  AUTOPILOT = 1;
 }
 
 message ProductContainer {

@@ -33,8 +33,8 @@ import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function listApplications(prisma: Prisma) {
-  const fn = async (
+function createListApplications(prisma: Prisma) {
+  const listApplications = async (
     call: {
       request: ListApplicationsRequest;
     },
@@ -75,7 +75,7 @@ function listApplications(prisma: Prisma) {
     });
   };
 
-  return withErrorHandlingAndValidation(fn, V.listRequestSchema);
+  return withErrorHandlingAndValidation(listApplications, V.listRequestSchema);
 }
 
-export { listApplications };
+export { createListApplications };

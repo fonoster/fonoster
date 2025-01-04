@@ -30,8 +30,8 @@ import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createApplication(prisma: Prisma) {
-  const fn = async (
+function createCreateApplication(prisma: Prisma) {
+  const createApplication = async (
     call: { request: CreateApplicationRequest },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
@@ -59,7 +59,7 @@ function createApplication(prisma: Prisma) {
     callback(null, { ref: result.ref });
   };
 
-  return withErrorHandling(fn);
+  return withErrorHandling(createApplication);
 }
 
-export { createApplication };
+export { createCreateApplication };

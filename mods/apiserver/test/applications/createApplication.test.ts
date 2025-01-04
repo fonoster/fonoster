@@ -37,8 +37,8 @@ describe("@applications/createApplication", function () {
 
   it("should create an application", async function () {
     // Arrange
-    const { createApplication } = await import(
-      "../../src/applications/createApplication"
+    const { createCreateApplication } = await import(
+      "../../src/applications/createCreateApplication"
     );
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -61,7 +61,7 @@ describe("@applications/createApplication", function () {
     const callback = sandbox.stub();
 
     // Act
-    await createApplication(applications)(call, callback);
+    await createCreateApplication(applications)(call, callback);
 
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
@@ -87,12 +87,12 @@ describe("@applications/createApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createApplication } = await import(
-      "../../src/applications/createApplication"
+    const { createCreateApplication } = await import(
+      "../../src/applications/createCreateApplication"
     );
 
     // Act
-    await createApplication(prisma)(call, (error) => {
+    await createCreateApplication(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.ALREADY_EXISTS,

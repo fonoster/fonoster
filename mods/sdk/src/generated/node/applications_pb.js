@@ -2645,7 +2645,8 @@ proto.fonoster.applications.v1beta2.DeleteApplicationResponse.prototype.setRef =
  * @enum {number}
  */
 proto.fonoster.applications.v1beta2.ApplicationType = {
-  EXTERNAL: 0
+  EXTERNAL: 0,
+  AUTOPILOT: 1
 };
 
 goog.object.extend(exports, proto.fonoster.applications.v1beta2);

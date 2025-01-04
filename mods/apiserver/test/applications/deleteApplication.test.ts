@@ -61,12 +61,12 @@ describe("@applications/deleteApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { deleteApplication } = await import(
-      "../../src/applications/deleteApplication"
+    const { createDeleteApplication } = await import(
+      "../../src/applications/createDeleteApplication"
     );
 
     // Act
-    await deleteApplication(prisma)(call, (_, response) => {
+    await createDeleteApplication(prisma)(call, (_, response) => {
       // Assert
       expect(response).to.have.property("ref", appRef);
     });

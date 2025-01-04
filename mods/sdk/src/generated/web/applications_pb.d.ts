@@ -319,4 +319,5 @@ export namespace DeleteApplicationResponse {
 
 export enum ApplicationType { 
   EXTERNAL = 0,
+  AUTOPILOT = 1,
 }

@@ -16,37 +16,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Validators as V,
-  withErrorHandlingAndValidation
-} from "@fonoster/common";
-import { withAccess } from "@fonoster/identity";
+import { Validators as V } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { BaseApiObject } from "@fonoster/types";
+import { Application, BaseApiObject } from "@fonoster/types";
 import { createGetFnUtil } from "./createGetFnUtil";
+import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../core/db";
+import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function deleteApplication(prisma: Prisma) {
+function createGetApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
-  const fn = async (call: {
+  const getApplication = async (call: {
     request: BaseApiObject;
-  }): Promise<BaseApiObject> => {
+  }): Promise<Application> => {
     const { ref } = call.request;
 
-    logger.verbose("call to deleteApplication", { ref });
+    logger.verbose("call to getApplication", { ref });
 
-    await prisma.application.delete({ where: { ref } });
+    const result = await getFn(ref);
 
-    return { ref };
+    return result ? applicationWithEncodedStruct(result) : null;
   };
 
-  return withErrorHandlingAndValidation(
-    withAccess(fn, (ref: string) => getFn(ref)),
+  return withErrorHandlingAndValidationAndAccess(
+    getApplication,
+    (ref: string) => getFn(ref),
     V.emptySchema
   );
 }
 
-export { deleteApplication };
+export { createGetApplication };

@@ -63,13 +63,13 @@ describe("@applications/listApplications", function () {
       }
     } as unknown as Prisma;
 
-    const { listApplications } = await import(
-      "../../src/applications/listApplications"
+    const { createListApplications } = await import(
+      "../../src/applications/createListApplications"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      listApplications(prisma)(call, (error, response) => {
+      createListApplications(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -105,13 +105,13 @@ describe("@applications/listApplications", function () {
       }
     } as unknown as Prisma;
 
-    const { listApplications } = await import(
-      "../../src/applications/listApplications"
+    const { createListApplications } = await import(
+      "../../src/applications/createListApplications"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      listApplications(prisma)(call, (error, response) => {
+      createListApplications(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });

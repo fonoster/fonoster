@@ -62,13 +62,13 @@ describe("@applications/getApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { getApplication } = await import(
-      "../../src/applications/getApplication"
+    const { createGetApplication } = await import(
+      "../../src/applications/createGetApplication"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      getApplication(prisma)(call, (error, response) => {
+      createGetApplication(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -100,12 +100,12 @@ describe("@applications/getApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { getApplication } = await import(
-      "../../src/applications/getApplication"
+    const { createGetApplication } = await import(
+      "../../src/applications/createGetApplication"
     );
 
     // Act
-    await getApplication(prisma)(call, (error) => {
+    await createGetApplication(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,

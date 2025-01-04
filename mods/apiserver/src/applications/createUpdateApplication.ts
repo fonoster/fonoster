@@ -28,10 +28,12 @@ import { withAccess } from "@fonoster/identity";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function updateApplication(prisma: Prisma) {
+function createUpdateApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
-  const fn = async (call: { request: UpdateApplicationRequest }) => {
+  const updateApplication = async (call: {
+    request: UpdateApplicationRequest;
+  }) => {
     const { request } = call;
     const { type, ref: applicationRef } = request;
 
@@ -74,7 +76,9 @@ function updateApplication(prisma: Prisma) {
     return { ref: applicationRef };
   };
 
-  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
+  return withErrorHandling(
+    withAccess(updateApplication, (ref: string) => getFn(ref))
+  );
 }
 
-export { updateApplication };
+export { createUpdateApplication };
