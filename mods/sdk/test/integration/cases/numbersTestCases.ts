@@ -52,7 +52,7 @@ function createNumbersTestCases(expect) {
           countryIsoCode: "US",
           appRef: "00000000-0000-0000-0000-000000000000"
         },
-        grpcCode: 5
+        grpcCode: 3
       },
       {
         id: `${idBase}-02`,
