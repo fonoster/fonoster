@@ -41,7 +41,8 @@ function createAcl(api: AclsApi) {
 
     logger.verbose("call to createAcl", { ...request, accessKeyId });
 
-    const response = await api.createAcl({ ...request, deny: ["0.0.0.0/0"] });
+    const response = await api.createAcl({ ...request, deny: ["0.0.0.0/0"],
+      extended: { accessKeyId } });
 
     callback(null, response);
   };

@@ -54,7 +54,7 @@ function listResources<T, R, U>(api: U, resource: string) {
 
     const items = response.items.filter(
       (item: { extended: { accessKeyId: string } }) =>
-        item.extended.accessKeyId === accessKeyId
+        item.extended?.accessKeyId === accessKeyId
     );
 
     callback(null, {
