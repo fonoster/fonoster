@@ -103,7 +103,7 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
       );
 
       const activeWorkspace = getActiveWorkspace(getConfig(CONFIG_FILE));
-      const accessKeyId = `WO${activeWorkspace.workspaceRef.replaceAll("-", "")}`;
+      const accessKeyId = activeWorkspace.workspaceAccessKeyId;
 
       await linkTwilioNumberToApplication(twilioClient, fonosterClient, {
         phoneNumber: answers.number,

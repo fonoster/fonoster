@@ -39,7 +39,7 @@ export abstract class AuthenticatedCommand<
     try {
       const client = new SDK.Client({
         endpoint: activeWorkspace.endpoint,
-        accessKeyId: `WO${activeWorkspace.workspaceRef.replaceAll("-", "")}`,
+        accessKeyId: activeWorkspace.workspaceAccessKeyId,
         allowInsecure: this.flags.insecure
       });
 
