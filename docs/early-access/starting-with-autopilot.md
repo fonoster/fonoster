@@ -1,6 +1,6 @@
 # Getting started with Fonoster Autopilot
 
-This guide shows how to quickly set up and run a voice-based AI Agent with Fonoster Autopilot, configure your assistant, run it in a Docker container, and expose it to external callers with Ngrok.
+This guide shows how to set up and run a voice-based AI Agent with Fonoster Autopilot, configure your assistant, run it in a Docker container, and expose it to external callers with Ngrok.
 
 ## What Autopilot Does
 

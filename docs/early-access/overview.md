@@ -4,5 +4,6 @@ This section provides a step-by-step approach to configuring and running a Voice
 
 Check out the following sections to get started:
 
-- [Getting started with Fonoster Autopilot](./starting-with-autopilot.md)
+- [Install the CTL and Login](./install-the-ctl-and-login.md)
 - [Link a Twilio Number to a Fonoster Application](./link-twilio-number.md)
+- [Getting started with Fonoster Autopilot](./starting-with-autopilot.md)
