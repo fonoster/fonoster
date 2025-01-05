@@ -16,12 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createGenerateCallAccessToken";
-export * from "./createSendEmail";
-export * from "./createGetUserByWorkspaceAccessKeyId";
-export * from "./createGetUserByAccessKeyId";
-export * from "./generateAccessKeyId";
-export * from "./getAccessKeyIdFromToken";
-export * from "./hasAccessToResource";
-export * from "./createUpdateMembershipStatus";
-export * from "./withAccess";
+import { Prisma } from "../db";
+
+function createGetUserByAccessKeyId(prisma: Prisma) {
+  return function getUserByAccessKeyId (accessKeyId: string){
+    return prisma.user.findFirst({
+      where: { accessKeyId }
+    });
+  };
+}
+
+export { createGetUserByAccessKeyId };
