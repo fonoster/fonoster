@@ -40,9 +40,6 @@ services:
   autopilot:
     image: fonoster/autopilot:latest
     restart: unless-stopped
-    volumes:
-      - ./config/assistant.json:/home/appuser/autopilot/config/assistant.json:ro
-      - ./config/sample.pdf:/home/appuser/autopilot/config/sample.pdf:ro
     expose:
       - 50061
     environment:
@@ -57,6 +54,10 @@ services:
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_FORMAT: ${LOGS_FORMAT}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      CONVERSATION_PROVIDER: "api"
+      INTEGRATIONS_FILE: /opt/fonoster/integrations.json
+    volumes:
+      - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   routr:
     image: fonoster/routr-one:latest
