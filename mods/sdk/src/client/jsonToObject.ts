@@ -59,7 +59,7 @@ function jsonToObject<J extends Record<string, unknown>, T>(params: {
     }
   });
 
-  return instance as T;
+  return instance;
 }
 
 export { jsonToObject };
