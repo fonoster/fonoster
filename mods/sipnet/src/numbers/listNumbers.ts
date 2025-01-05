@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
@@ -28,6 +29,7 @@ import {
   NumbersApi
 } from "@fonoster/types";
 import { convertToFonosterNumber } from "./convertToFonosterNumber";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
@@ -42,7 +44,13 @@ function listNumbers(api: NumbersApi) {
 
     const response = await api.listNumbers(request);
 
-    const items = response.items.map(convertToFonosterNumber);
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
+
+    const items = response.items
+      .filter((item) => item.extended.accessKeyId === accessKeyId)
+      .map(convertToFonosterNumber);
 
     callback(null, {
       items: items,

@@ -40,6 +40,7 @@ describe("@sipnet[resources/listResources]", function () {
     const { listResources } = await import("../src/resources/listResources");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
+    metadata.set("accesskeyid", "WO00000000000000000000000000000000");
 
     const domain = {
       ref: "123",
@@ -49,7 +50,10 @@ describe("@sipnet[resources/listResources]", function () {
         description: "test"
       },
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      extended: {
+        accessKeyId: "WO00000000000000000000000000000000"
+      }
     };
 
     const domains = {
