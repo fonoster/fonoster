@@ -19,7 +19,7 @@
 import { Prisma } from "../db";
 
 function createGetUserByAccessKeyId(prisma: Prisma) {
-  return function getUserByAccessKeyId (accessKeyId: string){
+  return function getUserByAccessKeyId(accessKeyId: string) {
     return prisma.user.findFirst({
       where: { accessKeyId }
     });
