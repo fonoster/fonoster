@@ -42,6 +42,11 @@ const meta = {
     onClose: fn()
   },
   argTypes: {
+    title: {
+      name: "Title",
+      description: "The title to display in the terms modal",
+      control: "text"
+    },
     message: {
       name: "Message",
       description: "The message to display in the terms modal",

@@ -18,11 +18,19 @@
  */
 import { styled } from "@mui/material/styles";
 
-export const StyledTerms = styled("div")(() => ({
+export const StyledTerms = {
   backgroundColor: "#FFFFFF",
   boxShadow: "0px 4px 32px 0px rgba(0, 0, 0, 0.15)",
-  padding: "24px"
-}));
+  padding: "24px",
+  outline: "none",
+  border: "none",
+  maxWidth: "100%",
+  margin: "auto",
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)"
+};
 
 export const StyledTitleContainer = styled("div")(() => ({
   display: "flex",
@@ -30,7 +38,7 @@ export const StyledTitleContainer = styled("div")(() => ({
   justifyContent: "space-between"
 }));
 
-export const StyledTitle = styled("div")(() => ({
+export const StyledTitle = {
   fontFamily: "Poppins",
   fontSize: "16px",
   fontWeight: 400,
@@ -40,9 +48,9 @@ export const StyledTitle = styled("div")(() => ({
   letterSpacing: "0.01em",
   lineHeight: "21px",
   color: "#333333"
-}));
+};
 
-export const StyledMessage = styled("div")(() => ({
+export const StyledMessage = {
   marginTop: "24px",
   fontFamily: "Poppins",
   fontSize: "14px",
@@ -53,7 +61,7 @@ export const StyledMessage = styled("div")(() => ({
   letterSpacing: "0.01em",
   lineHeight: "22px",
   color: "#333333"
-}));
+};
 
 export const StyledCloseButtonContainer = styled("div")(() => ({
   width: "auto",
