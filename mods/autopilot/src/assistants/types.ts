@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -21,7 +21,7 @@ import {
   assistantSchema,
   conversationSettingsSchema,
   languageModelConfigSchema
-} from "./AssistantSchema";
+} from "@fonoster/common";
 
 type ConversationSettings = z.infer<typeof conversationSettingsSchema>;
 type LanguageModelConfig = z.infer<typeof languageModelConfigSchema>;

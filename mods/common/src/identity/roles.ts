@@ -1,6 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -123,7 +123,10 @@ const roles = [
   {
     name: VOICE_SERVICE_ROLE,
     description: "Role with access only to the Voice service endpoint",
-    access: ["/fonoster.voice.v1beta2.Voice/CreateSession"]
+    access: [
+      "/fonoster.voice.v1beta2.Voice/CreateSession",
+      "/fonoster.applications.v1beta2.Applications/GetApplication"
+    ]
   }
 ] as Role[];
 

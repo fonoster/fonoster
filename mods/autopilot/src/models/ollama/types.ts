@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -24,7 +24,7 @@ enum OllamaModel {
 
 type OllamaParams = BaseModelParams & {
   model: OllamaModel;
-  baseUrl: string;
+  baseUrl?: string;
   maxTokens: number;
   temperature: number;
 };

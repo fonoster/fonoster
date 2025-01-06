@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -87,9 +87,6 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  *   },
  *   intelligence: {
  *     productRef: "nlu.dialogflowcx",
- *     credentials: {
- *       apiKey: "your-api-key"
- *     },
  *     config: {
  *       agentId: "your-agent-id"
  *     }
@@ -126,7 +123,6 @@ class Applications {
    * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" })
    * @param {Intelligence} request.intelligence - The intelligence configuration
    * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., nlu.dialogflowcx)
-   * @param {object} request.intelligence.credentials - The credentials object for the intelligence engine (e.g., { apiKey: "your-api-key" })
    * @param {object} request.intelligence.config - The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" })
    * @return {Promise<CreateAppResponse>} - The response object that contains the reference to the newly created application
    * @example
@@ -150,9 +146,6 @@ class Applications {
    *   },
    *   intelligence: {
    *     productRef: "nlu.dialogflowcx",
-   *     credentials: {
-   *       apiKey: "your-api-key"
-   *     },
    *     config: {
    *       agentId: "your-agent-id"
    *     }
@@ -243,7 +236,6 @@ class Applications {
    * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" })
    * @param {Intelligence} request.intelligence - The intelligence configuration
    * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., nlu.dialogflowcx)
-   * @param {object} request.intelligence.credentials - The credentials object for the intelligence engine (e.g., { apiKey: "your-api-key" })
    * @param {object} request.intelligence.config - The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" })
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated application
    * @example

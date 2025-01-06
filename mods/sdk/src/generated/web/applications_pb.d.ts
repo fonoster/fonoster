@@ -56,10 +56,10 @@ export class Application extends jspb.Message {
   hasSpeechToText(): boolean;
   clearSpeechToText(): Application;
 
-  getConversation(): ProductContainer | undefined;
-  setConversation(value?: ProductContainer): Application;
-  hasConversation(): boolean;
-  clearConversation(): Application;
+  getIntelligence(): ProductContainer | undefined;
+  setIntelligence(value?: ProductContainer): Application;
+  hasIntelligence(): boolean;
+  clearIntelligence(): Application;
 
   getCreatedAt(): number;
   setCreatedAt(value: number): Application;
@@ -83,7 +83,7 @@ export namespace Application {
     endpoint: string,
     textToSpeech?: ProductContainer.AsObject,
     speechToText?: ProductContainer.AsObject,
-    conversation?: ProductContainer.AsObject,
+    intelligence?: ProductContainer.AsObject,
     createdAt: number,
     updatedAt: number,
   }
@@ -319,4 +319,5 @@ export namespace DeleteApplicationResponse {
 
 export enum ApplicationType { 
   EXTERNAL = 0,
+  AUTOPILOT = 1,
 }

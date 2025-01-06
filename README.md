@@ -196,6 +196,13 @@ For contributing, please see the following links:
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/parz3val>
+            <img src=https://avatars.githubusercontent.com/u/34773307?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=harry_dev/>
+            <br />
+            <sub style="font-size:14px"><b>harry_dev</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Nageswari-droid>
             <img src=https://avatars.githubusercontent.com/u/65342122?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Nageswari/>
             <br />
@@ -214,13 +221,6 @@ For contributing, please see the following links:
             <img src=https://avatars.githubusercontent.com/u/61812255?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Brayan Munoz V./>
             <br />
             <sub style="font-size:14px"><b>Brayan Munoz V.</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/parz3val>
-            <img src=https://avatars.githubusercontent.com/u/34773307?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=harry_dev/>
-            <br />
-            <sub style="font-size:14px"><b>harry_dev</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -416,6 +416,13 @@ For contributing, please see the following links:
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/eatskolnikov>
+            <img src=https://avatars.githubusercontent.com/u/1693000?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Enmanuel Toribio/>
+            <br />
+            <sub style="font-size:14px"><b>Enmanuel Toribio</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/jellydn>
             <img src=https://avatars.githubusercontent.com/u/870029?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Dung Duc Huynh (Kaka)/>
             <br />
@@ -443,6 +450,8 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Bruno Gomes</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/brunoarueira>
             <img src=https://avatars.githubusercontent.com/u/119518?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Bruno Arueira/>
@@ -450,8 +459,6 @@ For contributing, please see the following links:
             <sub style="font-size:14px"><b>Bruno Arueira</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/antoniusostermann>
             <img src=https://avatars.githubusercontent.com/u/2332002?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Antonius Ostermann/>
@@ -497,4 +504,4 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
 
 ## License
 
-Copyright (C) 2024 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
+Copyright (C) 2025 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).

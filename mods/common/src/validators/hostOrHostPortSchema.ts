@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -18,21 +18,18 @@
  */
 import { z } from "zod";
 
-const hostOrHostPortSchema = z
-  .string()
-  .optional()
-  .refine(
-    (value) => {
-      const hostRegex =
-        /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)*|(\d{1,3}\.){3}\d{1,3})$/;
-      const hostPortRegex =
-        /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)*|(\d{1,3}\.){3}\d{1,3}):\d{1,5}$/;
+const hostOrHostPortSchema = z.string().refine(
+  (value) => {
+    const hostRegex =
+      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)*|(\d{1,3}\.){3}\d{1,3})$/;
+    const hostPortRegex =
+      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)*|(\d{1,3}\.){3}\d{1,3}):\d{1,5}$/;
 
-      return hostRegex.test(value) || hostPortRegex.test(value);
-    },
-    {
-      message: "Invalid format. Expects 'host' or 'host:port'"
-    }
-  );
+    return hostRegex.test(value) || hostPortRegex.test(value);
+  },
+  {
+    message: "Invalid format. Expects 'host' or 'host:port'"
+  }
+);
 
 export { hostOrHostPortSchema };

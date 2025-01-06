@@ -1,5 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -27,8 +27,9 @@ model Application {
 }
 
 model TextToSpeech {
-  ref    String @id @default(uuid())
-  config Json
+  ref         String  @id @default(uuid())
+  config      Json
+  credentials String? @map("credentials_hash") /// @encrypted
 
   // Relations
   application    Application @relation(fields: [applicationRef], references: [ref], onDelete: Cascade)
@@ -43,8 +44,9 @@ model TextToSpeech {
 }
 
 model SpeechToText {
-  ref    String @id @default(uuid())
-  config Json
+  ref         String  @id @default(uuid())
+  config      Json
+  credentials String? @map("credentials_hash") /// @encrypted
 
   // Relations
   application    Application @relation(fields: [applicationRef], references: [ref], onDelete: Cascade)
@@ -59,9 +61,9 @@ model SpeechToText {
 }
 
 model Intelligence {
-  ref         String @id @default(uuid())
+  ref         String  @id @default(uuid())
   config      Json
-  credentials String @map("credentials_hash") /// @encrypted
+  credentials String? @map("credentials_hash") /// @encrypted
 
   // Relations
   application    Application @relation(fields: [applicationRef], references: [ref], onDelete: Cascade)
@@ -106,6 +108,7 @@ model Secret {
 
 enum ApplicationType {
   EXTERNAL
+  AUTOPILOT
 
   // Maps
   @@map("application_types")
@@ -114,7 +117,7 @@ enum ApplicationType {
 enum ProductType {
   TTS
   STT
-  ASSISTANT
+  LLM
 
   // Maps
   @@map("product_types")

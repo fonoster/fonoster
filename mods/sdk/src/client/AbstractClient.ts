@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -150,6 +150,10 @@ abstract class AbstractClient implements FonosterClient {
     this._accessToken = accessToken;
   }
 
+  async setAccessToken(accessToken: string): Promise<void> {
+    this._accessToken = accessToken;
+  }
+
   async sendVerificationCode(
     contactType: ContactType,
     value: string
@@ -166,7 +170,7 @@ abstract class AbstractClient implements FonosterClient {
       requestPBObjectConstructor: SendVerificationCodeRequestPB,
       metadata: {},
       request: {
-        contactType: contactType as ContactType,
+        contactType,
         value
       },
       enumMapping: [["contactType", ContactTypePB]]

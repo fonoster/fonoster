@@ -1,6 +1,6 @@
 /* eslint-disable new-cap */
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -86,23 +86,31 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async connect() {
-    // TODO: We should improve the error handling here. As it is now,
-    // it always returns true or throws an error we should return a boolean and throw an error only if the
-    // connection is not possible or other critical error
     if (AUTHZ_SERVICE_ENABLED) {
+      const { sessionRef: channelId } = this.config;
+      const { ari } = this;
+
       try {
         const authz = new AuthzClient(
           `${AUTHZ_SERVICE_HOST}:${AUTHZ_SERVICE_PORT}`
         );
-        await authz.checkSessionAuthorized({
+        const authorized = await authz.checkSessionAuthorized({
           accessKeyId: this.config.accessKeyId
         });
+
+        if (!authorized) {
+          logger.verbose("rejected unauthorized session", { channelId });
+
+          await ari.channels.answer({ channelId });
+          await ari.channels.play({ channelId, media: "sound:unavailable" });
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          await ari.channels.hangup({ channelId });
+          return;
+        }
       } catch (e) {
-        const { sessionRef: channelId } = this.config;
-        const { ari } = this;
+        logger.error("authz service error", e);
 
-        logger.verbose("rejected unauthorized session", { channelId });
-
+        // TODO: Play a different sound
         await ari.channels.answer({ channelId });
         await ari.channels.play({ channelId, media: "sound:unavailable" });
         await new Promise((resolve) => setTimeout(resolve, 2000));

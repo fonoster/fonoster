@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -17,11 +17,13 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
@@ -44,9 +46,19 @@ function listResources<T, R, U>(api: U, resource: string) {
 
     logger.verbose(`call to list${res}s`, { request });
 
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
+
     const response = await api[`list${res}s`](request);
+
+    const items = response.items.filter(
+      (item: { extended: { accessKeyId: string } }) =>
+        item.extended?.accessKeyId === accessKeyId
+    );
+
     callback(null, {
-      items: response.items,
+      items,
       nextPageToken: response.nextPageToken
     });
   };

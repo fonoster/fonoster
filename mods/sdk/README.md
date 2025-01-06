@@ -762,9 +762,6 @@ const request = {
   },
   intelligence: {
     productRef: "nlu.dialogflowcx",
-    credentials: {
-      apiKey: "your-api-key"
-    },
     config: {
       agentId: "your-agent-id"
     }
@@ -795,7 +792,6 @@ Creates a new Application in Fonoster. The only required fields are the name and
 | request.speechToText.config | <code>object</code> | The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" }) |
 | request.intelligence | <code>Intelligence</code> | The intelligence configuration |
 | request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., nlu.dialogflowcx) |
-| request.intelligence.credentials | <code>object</code> | The credentials object for the intelligence engine (e.g., { apiKey: "your-api-key" }) |
 | request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" }) |
 
 **Example**  
@@ -820,9 +816,6 @@ const request = {
   },
   intelligence: {
     productRef: "nlu.dialogflowcx",
-    credentials: {
-      apiKey: "your-api-key"
-    },
     config: {
       agentId: "your-agent-id"
     }
@@ -879,7 +872,6 @@ Updates an existing application in Fonoster.
 | request.speechToText.config | <code>object</code> | The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" }) |
 | request.intelligence | <code>Intelligence</code> | The intelligence configuration |
 | request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., nlu.dialogflowcx) |
-| request.intelligence.credentials | <code>object</code> | The credentials object for the intelligence engine (e.g., { apiKey: "your-api-key" }) |
 | request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" }) |
 
 **Example**  

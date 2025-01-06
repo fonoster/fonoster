@@ -530,7 +530,7 @@ proto.fonoster.applications.v1beta2.Application.toObject = function(includeInsta
     endpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
     textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
     speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
-    conversation: (f = msg.getConversation()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
+    intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
     createdAt: jspb.Message.getFieldWithDefault(msg, 8, 0),
     updatedAt: jspb.Message.getFieldWithDefault(msg, 9, 0)
   };
@@ -598,7 +598,7 @@ proto.fonoster.applications.v1beta2.Application.deserializeBinaryFromReader = fu
     case 7:
       var value = new proto.fonoster.applications.v1beta2.ProductContainer;
       reader.readMessage(value,proto.fonoster.applications.v1beta2.ProductContainer.deserializeBinaryFromReader);
-      msg.setConversation(value);
+      msg.setIntelligence(value);
       break;
     case 8:
       var value = /** @type {number} */ (reader.readInt32());
@@ -681,7 +681,7 @@ proto.fonoster.applications.v1beta2.Application.serializeBinaryToWriter = functi
       proto.fonoster.applications.v1beta2.ProductContainer.serializeBinaryToWriter
     );
   }
-  f = message.getConversation();
+  f = message.getIntelligence();
   if (f != null) {
     writer.writeMessage(
       7,
@@ -853,10 +853,10 @@ proto.fonoster.applications.v1beta2.Application.prototype.hasSpeechToText = func
 
 
 /**
- * optional ProductContainer conversation = 7;
+ * optional ProductContainer intelligence = 7;
  * @return {?proto.fonoster.applications.v1beta2.ProductContainer}
  */
-proto.fonoster.applications.v1beta2.Application.prototype.getConversation = function() {
+proto.fonoster.applications.v1beta2.Application.prototype.getIntelligence = function() {
   return /** @type{?proto.fonoster.applications.v1beta2.ProductContainer} */ (
     jspb.Message.getWrapperField(this, proto.fonoster.applications.v1beta2.ProductContainer, 7));
 };
@@ -866,7 +866,7 @@ proto.fonoster.applications.v1beta2.Application.prototype.getConversation = func
  * @param {?proto.fonoster.applications.v1beta2.ProductContainer|undefined} value
  * @return {!proto.fonoster.applications.v1beta2.Application} returns this
 */
-proto.fonoster.applications.v1beta2.Application.prototype.setConversation = function(value) {
+proto.fonoster.applications.v1beta2.Application.prototype.setIntelligence = function(value) {
   return jspb.Message.setWrapperField(this, 7, value);
 };
 
@@ -875,8 +875,8 @@ proto.fonoster.applications.v1beta2.Application.prototype.setConversation = func
  * Clears the message field making it undefined.
  * @return {!proto.fonoster.applications.v1beta2.Application} returns this
  */
-proto.fonoster.applications.v1beta2.Application.prototype.clearConversation = function() {
-  return this.setConversation(undefined);
+proto.fonoster.applications.v1beta2.Application.prototype.clearIntelligence = function() {
+  return this.setIntelligence(undefined);
 };
 
 
@@ -884,7 +884,7 @@ proto.fonoster.applications.v1beta2.Application.prototype.clearConversation = fu
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.fonoster.applications.v1beta2.Application.prototype.hasConversation = function() {
+proto.fonoster.applications.v1beta2.Application.prototype.hasIntelligence = function() {
   return jspb.Message.getField(this, 7) != null;
 };
 
@@ -2645,7 +2645,8 @@ proto.fonoster.applications.v1beta2.DeleteApplicationResponse.prototype.setRef =
  * @enum {number}
  */
 proto.fonoster.applications.v1beta2.ApplicationType = {
-  EXTERNAL: 0
+  EXTERNAL: 0,
+  AUTOPILOT: 1
 };
 
 goog.object.extend(exports, proto.fonoster.applications.v1beta2);

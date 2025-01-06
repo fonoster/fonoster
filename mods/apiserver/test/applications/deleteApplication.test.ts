@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -61,12 +61,12 @@ describe("@applications/deleteApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { deleteApplication } = await import(
-      "../../src/applications/deleteApplication"
+    const { createDeleteApplication } = await import(
+      "../../src/applications/createDeleteApplication"
     );
 
     // Act
-    await deleteApplication(prisma)(call, (_, response) => {
+    await createDeleteApplication(prisma)(call, (_, response) => {
       // Assert
       expect(response).to.have.property("ref", appRef);
     });

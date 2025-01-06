@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -41,7 +41,11 @@ function createAcl(api: AclsApi) {
 
     logger.verbose("call to createAcl", { ...request, accessKeyId });
 
-    const response = await api.createAcl({ ...request, deny: ["0.0.0.0/0"] });
+    const response = await api.createAcl({
+      ...request,
+      deny: ["0.0.0.0/0"],
+      extended: { accessKeyId }
+    });
 
     callback(null, response);
   };

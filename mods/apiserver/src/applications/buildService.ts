@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createApplication } from "./createApplication";
-import { deleteApplication } from "./deleteApplication";
-import { getApplication } from "./getApplication";
-import { listApplications } from "./listApplications";
-import { updateApplication } from "./updateApplication";
+import { createCreateApplication } from "./createCreateApplication";
+import { createDeleteApplication } from "./createDeleteApplication";
+import { createGetApplication } from "./createGetApplication";
+import { createListApplications } from "./createListApplications";
+import { createUpdateApplication } from "./createUpdateApplication";
 import { Prisma } from "../core/db";
 
 function buildService(prisma: Prisma) {
@@ -32,11 +32,11 @@ function buildService(prisma: Prisma) {
       proto: "applications.proto"
     },
     handlers: {
-      createApplication: createApplication(prisma),
-      getApplication: getApplication(prisma),
-      listApplications: listApplications(prisma),
-      deleteApplication: deleteApplication(prisma),
-      updateApplication: updateApplication(prisma)
+      createApplication: createCreateApplication(prisma),
+      getApplication: createGetApplication(prisma),
+      listApplications: createListApplications(prisma),
+      deleteApplication: createDeleteApplication(prisma),
+      updateApplication: createUpdateApplication(prisma)
     }
   };
 }

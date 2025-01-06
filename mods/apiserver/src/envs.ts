@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -56,6 +56,9 @@ const IDENTITY_PUBLIC_KEY_PATH =
 export const APISERVER_BIND_ADDR = e.APISERVER_BIND_ADDR || "0.0.0.0:50051";
 
 export const APISERVER_HOST = e.APISERVER_HOST || "apiserver";
+
+export const APISERVER_AUTOPILOT_ENDPOINT =
+  e.APISERVER_AUTOPILOT_ENDPOINT || "autopilot:50061";
 
 // Frontend configurations
 export const APP_URL = e.APP_URL;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -19,8 +19,6 @@
 import { BaseModelParams } from "../types";
 
 enum GroqModel {
-  GEMMA7B = "gemma-7b-it",
-  LLAMA3_GROQ_70B_8192_TOOL_USE_PREVIEW = "llama3-groq-70b-8192-tool-use-preview",
   LLAMA3_1_8B_INSTANT = "llama-3.1-8b-instant",
   LLAMA3_3_3_70B_SPECDEC = "llama-3.3-70b-specdec"
 }

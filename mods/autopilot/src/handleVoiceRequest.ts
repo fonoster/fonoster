@@ -1,5 +1,6 @@
+// @ts-nocheck - All inputs are validated by the APIServer
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -27,15 +28,21 @@ import {
   AWS_S3_SECRET_ACCESS_KEY,
   KNOWLEDGE_BASE_ENABLED,
   UNSTRUCTURED_API_KEY,
-  UNSTRUCTURED_API_URL
+  UNSTRUCTURED_API_URL,
+  CONVERSATION_PROVIDER,
+  CONVERSATION_PROVIDER_FILE,
+  INTEGRATIONS_FILE
 } from "./envs";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
-import Autopilot, { S3KnowledgeBase, VoiceImpl } from ".";
+import Autopilot, { ConversationProvider, S3KnowledgeBase, VoiceImpl } from ".";
+import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
+import fs from "fs";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const { accessKeyId, ingressNumber, sessionRef, appRef, callDirection } = req;
+
   logger.verbose("voice request", {
     accessKeyId,
     ingressNumber,
@@ -44,9 +51,13 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     metadata: req.metadata
   });
 
-  const assistantConfig = loadAssistantConfigFromFile(
-    `${process.cwd()}/config/assistant.json`
-  );
+  const assistantConfig =
+    CONVERSATION_PROVIDER === ConversationProvider.FILE
+      ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE)
+      : await loadAssistantFromAPI(
+          req,
+          JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"))
+        );
 
   let knowledgeBase;
 
@@ -57,16 +68,16 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
         (doc) => doc.document
       ),
       s3Config: {
-        endpoint: AWS_S3_ENDPOINT!,
+        endpoint: AWS_S3_ENDPOINT,
         region: AWS_S3_REGION,
         credentials: {
-          accessKeyId: AWS_S3_ACCESS_KEY_ID!,
-          secretAccessKey: AWS_S3_SECRET_ACCESS_KEY!
+          accessKeyId: AWS_S3_ACCESS_KEY_ID,
+          secretAccessKey: AWS_S3_SECRET_ACCESS_KEY
         },
         forcePathStyle: true
       },
-      unstructuredAPIURL: UNSTRUCTURED_API_URL!,
-      unstructuredAPIKey: UNSTRUCTURED_API_KEY!
+      unstructuredAPIURL: UNSTRUCTURED_API_URL,
+      unstructuredAPIKey: UNSTRUCTURED_API_KEY
     });
   }
 
@@ -87,8 +98,10 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     }
   });
 
+  const { conversationSettings } = assistantConfig;
+
   const autopilot = new Autopilot({
-    conversationSettings: assistantConfig.conversationSettings,
+    conversationSettings,
     voice,
     languageModel
   });

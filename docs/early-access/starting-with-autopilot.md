@@ -1,6 +1,6 @@
 # Getting started with Fonoster Autopilot
 
-This guide shows how to quickly set up and run a voice-based AI Agent with Fonoster Autopilot, configure your assistant, run it in a Docker container, and expose it to external callers with Ngrok.
+This guide shows how to set up and run a voice-based AI Agent with Fonoster Autopilot, configure your assistant, run it in a Docker container, and expose it to external callers with Ngrok.
 
 ## What Autopilot Does
 
@@ -19,26 +19,28 @@ Your `assistant.json` defines how the AI agent behaves:
 ```json
 {
   "conversationSettings": {
-    "firstMessage": "Hello, this is Olivia from Dr. Green's Family Medicine. How can I assist you today?",
-    "systemTemplate": "You are a Customer Service Representative. You are here to help the caller with their needs.",
+    "firstMessage": "Hi, this is Enmma your Pizza expert. How can I help you today?",
+    "systemTemplate": "You are an expert on all things Pizza",
+    "goodbyeMessage": "Goodbye! Have a great day!",
     "systemErrorMessage": "I'm sorry, but I seem to be having trouble. Please try again later.",
-    "initialDtmf": "6589",
-    "transferOptions": {
-      "phoneNumber": "+15555555555",
-      "message": "Please hold while I transfer you.",
-      "timeout": 30000
-    },
+    "maxSpeechWaitTimeout": 10000,
     "idleOptions": {
       "message": "Are you still there?",
-      "timeout": 10000,
-      "maxTimeoutCount": 3
+      "timeout": 15000,
+      "maxTimeoutCount": 2
+    },
+    "vad": {
+      "activationThreshold": 0.30,
+      "deactivationThreshold": 0.15,
+      "debounceFrames": 1
     }
   },
   "languageModel": {
-    "provider": "openai",
-    "model": "gpt-4o-mini",
-    "maxTokens": 250,
-    "temperature": 0.7,
+    "provider": "groq",
+    "apiKey": "your-api-key",
+    "model": "llama3-groq-70b-8192-tool-use-preview",
+    "temperature": 0.4,
+    "maxTokens": 200,
     "knowledgeBase": [],
     "tools": []
   }
@@ -56,11 +58,8 @@ Prepare the following before running Autopilot:
 # Running Autopilot with Docker
 
 ```bash
-docker run -d \
+docker run \
   -p 50061:50061 \
-  -e SKIP_IDENTITY="true" \
-  -e KNOWLEDGE_BASE_ENABLED="false" \
-  -e OPENAI_API_KEY="sk-proj-xxx" \
   -e LOGS_LEVEL="verbose" \
   -v $(pwd)/assistant.json:/home/appuser/autopilot/config/assistant.json:ro \
   fonoster/autopilot:latest

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -39,7 +39,7 @@ export abstract class AuthenticatedCommand<
     try {
       const client = new SDK.Client({
         endpoint: activeWorkspace.endpoint,
-        accessKeyId: `WO${activeWorkspace.workspaceRef.replaceAll("-", "")}`,
+        accessKeyId: activeWorkspace.workspaceAccessKeyId,
         allowInsecure: this.flags.insecure
       });
 

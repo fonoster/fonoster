@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -19,6 +19,7 @@
 export * from "./createGenerateCallAccessToken";
 export * from "./createSendEmail";
 export * from "./createGetUserByWorkspaceAccessKeyId";
+export * from "./createGetUserByAccessKeyId";
 export * from "./generateAccessKeyId";
 export * from "./getAccessKeyIdFromToken";
 export * from "./hasAccessToResource";

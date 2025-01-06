@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -103,7 +103,7 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
       );
 
       const activeWorkspace = getActiveWorkspace(getConfig(CONFIG_FILE));
-      const accessKeyId = `WO${activeWorkspace.workspaceRef.replaceAll("-", "")}`;
+      const accessKeyId = activeWorkspace.workspaceAccessKeyId;
 
       await linkTwilioNumberToApplication(twilioClient, fonosterClient, {
         phoneNumber: answers.number,

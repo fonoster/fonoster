@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -35,7 +35,7 @@ const integrationsConfigSchema = z.array(
   z.object({
     name: z.string(),
     productRef: z.string(),
-    type: z.enum(["tts", "stt"]),
+    type: z.enum(["tts", "stt", "llm"]),
     credentials: z.record(z.unknown())
   })
 );

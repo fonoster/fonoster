@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -28,6 +28,7 @@ function applicationWithEncodedStruct(application): Application {
   const result = { ...application };
 
   if (application.textToSpeech) {
+    delete application.textToSpeech.credentials;
     result.textToSpeech = {
       ...application.textToSpeech,
       config: encodeConfig(application.textToSpeech)
@@ -35,6 +36,7 @@ function applicationWithEncodedStruct(application): Application {
   }
 
   if (application.speechToText) {
+    delete application.speechToText.credentials;
     result.speechToText = {
       ...application.speechToText,
       config: encodeConfig(application.speechToText)

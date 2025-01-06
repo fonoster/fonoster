@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -69,13 +69,13 @@ describe("@applications/updateApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { updateApplication } = await import(
-      "../../src/applications/updateApplication"
+    const { createUpdateApplication } = await import(
+      "../../src/applications/createUpdateApplication"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      updateApplication(prisma)(call, (error, response) => {
+      createUpdateApplication(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -105,13 +105,13 @@ describe("@applications/updateApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { updateApplication } = await import(
-      "../../src/applications/updateApplication"
+    const { createUpdateApplication } = await import(
+      "../../src/applications/createUpdateApplication"
     );
 
     // Act
     const response = new Promise((resolve, reject) => {
-      updateApplication(prisma)(call, (error, response) => {
+      createUpdateApplication(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });

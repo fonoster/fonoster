@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -82,13 +82,7 @@ function createApplicationsTestCases(expect) {
         request: {
           ref: "{{ref}}",
           name: "My renamed Application",
-          intelligence: {
-            productRef: "llm.openai",
-            credentials: "xxx",
-            config: {
-              agent: "yyy"
-            }
-          }
+          endpoint: "localhost:50061"
         },
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
@@ -116,19 +110,13 @@ function createApplicationsTestCases(expect) {
             .to.have.property("type")
             .to.be.equal("EXTERNAL");
           expect(response.items[0]).to.have.property("endpoint").to.not.be.null;
-          expect(response.items[0]).to.have.property("textToSpeech").to.not.be
-            .null;
-          expect(response.items[0]).to.have.property("speechToText").to.not.be
-            .null;
-          expect(response.items[0]).to.not.have.property("intelligence");
           expect(response.items[0])
             .to.have.property("createdAt")
             .to.be.a("date");
           expect(response.items[0])
             .to.have.property("updatedAt")
             .to.be.a("date");
-        },
-        skip: true
+        }
       },
       {
         id: `${idBase}-05`,

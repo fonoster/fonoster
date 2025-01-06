@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -19,7 +19,7 @@
 import fs from "fs";
 import { getLogger } from "@fonoster/logger";
 import { AssistantConfig } from "./types";
-import { assistantSchema } from "../assistants/AssistantSchema";
+import { assistantSchema } from "@fonoster/common";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
