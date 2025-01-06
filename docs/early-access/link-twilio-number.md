@@ -3,7 +3,7 @@
 To link an application to a Twilio number, you can use the following command:
 
 ```bash
-fonoster numbers:linkTwilioNumber
+sipnet:numbers:linkTwilioNumber 
 ```
 
 You will be asked to enter a number already existing in your Twilio account and the application you want to link to that number. Once you have entered this information, the application will be linked to the Twilio number.
