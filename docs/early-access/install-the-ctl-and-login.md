@@ -1,4 +1,4 @@
-# Link a Twilio Number to a Fonoster Application
+# Install the ctl and Login
 
 Fonoster CTL is a command-line tool that allows you to manage your Fonoster resources. You can use it to create, update, and delete Fonoster resources like phone numbers, SIP trunks, and more.
 
