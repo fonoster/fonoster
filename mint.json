@@ -31,8 +31,8 @@
   },
   "tabs": [
     {
-      "name": "API Reference",
-      "url": "api-reference"
+      "name": "SDKs",
+      "url": "sdk"
     }
   ],
   "anchors": [
