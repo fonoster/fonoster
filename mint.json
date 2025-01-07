@@ -1,9 +1,9 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Starter Kit",
+  "name": "Fonoster",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "dark": "/logo/fonoster-dark.svg",
+    "light": "/logo/fonoster-light.svg"
   },
   "favicon": "/favicon.svg",
   "colors": {
@@ -84,8 +84,8 @@
     }
   ],
   "footerSocials": {
-    "x": "https://x.com/mintlify",
-    "github": "https://github.com/mintlify",
-    "linkedin": "https://linkedin.com/company/mintlify"
+    "x": "https://x.com/fonoster",
+    "github": "https://github.com/fonoster",
+    "linkedin": "https://linkedin.com/company/fonoster"
   }
 }
