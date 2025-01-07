@@ -9,13 +9,13 @@
     "light": "/logo/fonoster-light.svg"
   },
   "font": {
-  "headings": {
-    "family": "Poppins"
+    "headings": {
+      "family": "Poppins"
+    },
+    "body": {
+      "family": "Poppins"
+    }
   },
-  "body": {
-    "family": "Poppins"
-  }
-},
   "theme": "quill",
   "favicon": "/favicon.svg",
   "colors": {
@@ -47,7 +47,7 @@
     {
       "name": "Documentation",
       "icon": "book-open-cover",
-      "url": "https://mintlify.com/docs"
+      "url": "https://docs.fonoster.dev"
     },
     {
       "name": "Community",
@@ -66,7 +66,14 @@
     {
       "group": "Concepts",
       "pages": [
-        "concepts/programmable-voice"
+        "concepts/programmable-voice",
+        "concepts/voice-streaming",
+        "concepts/autopilot",
+        "concepts/calling",
+        "concepts/workspaces",
+        "concepts/apikeys",
+        "concepts/sipnetwork",
+        "concepts/voice-streaming",
       ]
     }
   ],
