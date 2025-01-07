@@ -1,6 +1,9 @@
 {
   "$schema": "https://mintlify.com/schema.json",
   "name": "Fonoster",
+  "modeToggle": {
+    "default": "light",
+  },
   "logo": {
     "dark": "/logo/fonoster-dark.svg",
     "light": "/logo/fonoster-light.svg"
