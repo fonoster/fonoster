@@ -5,7 +5,7 @@
     "dark": "/logo/fonoster-dark.svg",
     "light": "/logo/fonoster-light.svg"
   },
-  "theme": "prism",
+  "theme": "venus",
   "favicon": "/favicon.svg",
   "colors": {
     "primary": "#39E19E",
