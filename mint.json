@@ -5,11 +5,12 @@
     "dark": "/logo/fonoster-dark.svg",
     "light": "/logo/fonoster-light.svg"
   },
+  theme: "venus",
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#053204",
-    "light": "#CCEFE1",
-    "dark": "#053204",
+    "primary": "#39E19E",
+    "light": "#053204",
+    "dark": "#CCEFE1",
     "anchors": {
       "from": "#053204",
       "to": "#CCEFE1"
