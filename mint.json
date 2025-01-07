@@ -5,8 +5,8 @@
     "default": "light"
   },
   "logo": {
-    "dark": "/logo/fonoster-dark.svg",
-    "light": "/logo/fonoster-light.svg"
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
   },
   "font": {
     "headings": {
