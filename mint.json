@@ -8,6 +8,14 @@
     "dark": "/logo/fonoster-dark.svg",
     "light": "/logo/fonoster-light.svg"
   },
+  "font": {
+  "headings": {
+    "family": "Poppins"
+  },
+  "body": {
+    "family": "Poppins"
+  }
+},
   "theme": "quill",
   "favicon": "/favicon.svg",
   "colors": {
