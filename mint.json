@@ -73,7 +73,7 @@
         "concepts/workspaces",
         "concepts/apikeys",
         "concepts/sipnetwork",
-        "concepts/voice-streaming",
+        "concepts/voice-streaming"
       ]
     }
   ],
