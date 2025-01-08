@@ -59,21 +59,7 @@
     {
       "group": "Get Started",
       "pages": [
-        "introduction",
-        "quickstart"
-      ]
-    },
-    {
-      "group": "Concepts",
-      "pages": [
-        "concepts/programmable-voice",
-        "concepts/voice-streaming",
-        "concepts/autopilot",
-        "concepts/calling",
-        "concepts/workspaces",
-        "concepts/apikeys",
-        "concepts/sipnetwork",
-        "concepts/voice-streaming"
+        "introduction"
       ]
     }
   ],
