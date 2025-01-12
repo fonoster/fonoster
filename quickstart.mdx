@@ -9,6 +9,7 @@ Before integrating Fonoster into your application, you need an account, setup th
   <Step title="Request early access">
     To get started, you need to request early access to Fonoster. You can do this by visiting the <a href="https://github.com/orgs/fonoster/discussions/695">GitHub discussions</a> and following the instructions.
   </Step>
+
   <Step title="Create a simple voice application">
     Voice applications in Fonoster require of Node.js to run. If you don't have Node.js installed, you can download it from the <a href="https://nodejs.org/en/download/">official website</a>. Once you have Node.js installed, you can create a simple voice application by running the following commands:
 
@@ -40,6 +41,7 @@ Before integrating Fonoster into your application, you need an account, setup th
 
     > Keep the application running for the next steps.
   </Step>
+
   <Step title="Publish your application">
     To make your application available to the public, you need to expose it to the internet. One way to do this is by using a service like <a href="https://ngrok.com/">ngrok</a>. You can install ngrok by running the following command:
 
@@ -55,6 +57,7 @@ Before integrating Fonoster into your application, you need an account, setup th
 
     This will give you a public URL that you can use to access your application.
   </Step>
+
   <Step title="Link a virtual phone number">
     Follow the next steps to link a virtual phone number to your application:
 
@@ -75,6 +78,7 @@ Before integrating Fonoster into your application, you need an account, setup th
 
       If the installation was successful, you should see the version number of the command-line tool that you installed.
     </Accordion>
+
     <Accordion title="Log in to a Fonoster Workspace">
       Before you can use the command-line tool, you need to log in to a Workspace. You can do this by running the following command:
 
@@ -82,8 +86,9 @@ Before integrating Fonoster into your application, you need an account, setup th
       fonoster workspaces:login
       ```
 
-      This command will prompt you to enter your _AccessKeyId_ and _AccessKeySecret_. Once you have entered this information, you will be logged in to your Workspace.
+      This command will prompt you to enter your *AccessKeyId* and *AccessKeySecret*. Once you have entered this information, you will be logged in to your Workspace.
     </Accordion>
+
     <Accordion title="Create a new Application">
       To create a new Application, you can use the following command:
 
@@ -101,6 +106,7 @@ Before integrating Fonoster into your application, you need an account, setup th
 
       Your output should show the newly created Application.
     </Accordion>
+
     <Accordion title="Link a Twilio phone number">
       To link a Twilio phone number to your application, you can use the following command:
 
@@ -108,7 +114,7 @@ Before integrating Fonoster into your application, you need an account, setup th
       fonoster sipnet:numbers:linkTwilioNumber
       ```
 
-      You will be asked to enter the _Twilio SID_ and _Twilio Auth Token_. Once you have entered this information, the Twilio phone number will be linked to your application.
+      You will be asked to enter the *Twilio SID* and *Twilio Auth Token*. Once you have entered this information, the Twilio phone number will be linked to your application.
 
       To confirm that the phone number was linked successfully, you can run the following command:
 
@@ -120,6 +126,7 @@ Before integrating Fonoster into your application, you need an account, setup th
 
       > Twilio is used as an example. You can use other SIP providers as well.
     </Accordion>
+
     <Accordion title="Make an outbound call">
       To make an outbound call, you can use the command-line tool or the SDK. To make an outbound call, first you need the reference of the application you created. You can get the reference by running the following command:
 
@@ -147,7 +154,7 @@ Before integrating Fonoster into your application, you need an account, setup th
       client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
         .then(async() => {
           const calls = new SDK.Calls(client);
-  
+
           const response = await calls.createCall({
             from: "+18456134823",
             to: "+17853134923",
@@ -157,7 +164,7 @@ Before integrating Fonoster into your application, you need an account, setup th
           console.log(response);
         });
       ```
-      
+
       Replace the placeholders with the appropriate values.
 
       > The SDK is available for Node.js and the browser.
@@ -168,10 +175,11 @@ Before integrating Fonoster into your application, you need an account, setup th
 Now that you created your first voice application, learn more about the advanced features and concepts of Fonoster.
 
 <CardGroup cols={2}>
-  <Card title="Programmable Voice" icon="application" color="#5765F2" href="https://discord.com/invite/4QWgSz4hTC">
+  <Card title="Programmable Voice" icon="rocket-launch" color="#5765F2" href="https://discord.com/invite/4QWgSz4hTC">
     Learn more about the Programmable Voice API and how to build advanced voice applications.
   </Card>
-  <Card title="SDKs" icon="tool" color="#5765F2" href="https://discord.com/invite/4QWgSz4hTC">
+
+  <Card title="SDKs" icon="code" color="#5765F2" href="https://discord.com/invite/4QWgSz4hTC">
     Learn how to use the Node.js and Web SDKs to interact with Fonoster programmatically.
   </Card>
 </CardGroup>
