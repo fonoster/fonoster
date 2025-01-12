@@ -67,7 +67,14 @@
       "group": "Concepts",
       "pages": [
         "concepts/workspaces",
-        "concepts/apikeys"
+        "concepts/apikeys",
+        "concepts/identity-and-tokens",
+        "concepts/sdks",
+        "concepts/programmable-voice",
+        "concepts/voice-streaming",
+        "concepts/autopilot",
+        "concepts/sipnetwork",
+        "concepts/calling"
       ]
     }
   ],
