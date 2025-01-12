@@ -80,8 +80,8 @@
     {
       "group": "Guides",
       "pages": [
-        "guides": "guides/overwriting-speech-voices",
-        "guides": "guides/prompting-guide"
+        "guides/overwriting-speech-voices",
+        "guides/prompting-guide"
       ]
     },
     {
