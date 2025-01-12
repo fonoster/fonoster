@@ -87,6 +87,7 @@
     {
       "group": "Self Hosting",
       "pages": [
+        "self-hosting/overview",
         "self-hosting/deploy-with-docker",
         "self-hosting/first-apikeys",
         "self-hosting/securing-the-api"
