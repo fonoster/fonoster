@@ -43,7 +43,7 @@ Before integrating Fonoster into your application, you need an account, setup th
   </Step>
 
   <Step title="Publish your application">
-    To make your application available to the public, you need to expose it to the internet. One way to do this is by using a service like <a href="https://ngrok.com/">ngrok</a>. You can install ngrok by running the following command:
+    To make your application available to the public, you must expose it to the internet. One way to do this is by using a service like <a href="https://ngrok.com/">ngrok</a>. You can install ngrok by running the following command:
 
     ```bash
     npm install -g ngrok
@@ -62,7 +62,7 @@ Before integrating Fonoster into your application, you need an account, setup th
     Follow the next steps to link a virtual phone number to your application:
 
     <Accordion title="Install the command-line tool">
-      Fonoster CTL is a command-line tool that allows you to manage your Fonoster resources. You can use it to create, update, and delete Fonoster resources like phone numbers, SIP trunks, and more.
+      Fonoster CTL is a command-line tool that allows you to manage your Fonoster resources. You can create, update, and delete Fonoster resources like phone numbers, SIP trunks, etc.
 
       You can install the tool using the following command:
 
@@ -76,11 +76,11 @@ Before integrating Fonoster into your application, you need an account, setup th
       fonoster --version
       ```
 
-      If the installation was successful, you should see the version number of the command-line tool that you installed.
+      If the installation was successful, you should see the version number of the command-line tool.
     </Accordion>
 
     <Accordion title="Log in to a Fonoster Workspace">
-      Before you can use the command-line tool, you need to log in to a Workspace. You can do this by running the following command:
+      Before using the command-line tool, log in to a Workspace. You can do this by running the following command:
 
       ```bash
       fonoster workspaces:login
@@ -114,7 +114,7 @@ Before integrating Fonoster into your application, you need an account, setup th
       fonoster sipnet:numbers:linkTwilioNumber
       ```
 
-      You will be asked to enter the *Twilio SID* and *Twilio Auth Token*. Once you have entered this information, the Twilio phone number will be linked to your application.
+        You will be asked to enter the *Twilio SID* and *Twilio Auth Token*. Once you have entered this information, the Twilio phone number will be linked to your application.
 
       To confirm that the phone number was linked successfully, you can run the following command:
 
@@ -128,7 +128,7 @@ Before integrating Fonoster into your application, you need an account, setup th
     </Accordion>
 
     <Accordion title="Make an outbound call">
-      To make an outbound call, you can use the command-line tool or the SDK. To make an outbound call, first you need the reference of the application you created. You can get the reference by running the following command:
+      To make an outbound call, you can use the command-line tool or the SDK. To make an outbound call, first, you need the reference of the application you created. You can get the reference by running the following command:
 
       ```bash
       fonoster applications:list
@@ -175,11 +175,11 @@ Before integrating Fonoster into your application, you need an account, setup th
 Now that you created your first voice application, learn more about the advanced features and concepts of Fonoster.
 
 <CardGroup cols={2}>
-  <Card title="Programmable Voice" icon="rocket-launch" color="#5765F2" href="https://discord.com/invite/4QWgSz4hTC">
+  <Card title="Programmable Voice" icon="rocket-launch" href="https://discord.com/invite/4QWgSz4hTC">
     Learn more about the Programmable Voice API and how to build advanced voice applications.
   </Card>
 
-  <Card title="SDKs" icon="code" color="#5765F2" href="https://discord.com/invite/4QWgSz4hTC">
+  <Card title="SDKs" icon="code" href="https://discord.com/invite/4QWgSz4hTC">
     Learn how to use the Node.js and Web SDKs to interact with Fonoster programmatically.
   </Card>
 </CardGroup>
