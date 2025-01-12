@@ -76,6 +76,21 @@
         "concepts/sipnetwork",
         "concepts/calling"
       ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides": "guides/overwriting-speech-voices",
+        "guides": "guides/prompting-guide"
+      ]
+    }
+    {
+      "group": "Self Hosting",
+      "pages": [
+        "self-hosting/deploy-with-docker",
+        "self-hosting/first-apikeys",
+        "self-hosting/securing-the-api"
+      ]
     }
   ],
   "footerSocials": {
