@@ -7,78 +7,171 @@ Before integrating Fonoster into your application, you need an account, setup th
 
 <Steps>
   <Step title="Request early access">
-    These are instructions or content that only pertain to the first step.
+    To get started, you need to request early access to Fonoster. You can do this by visiting the <a href="https://github.com/orgs/fonoster/discussions/695">GitHub discussions</a> and following the instructions.
   </Step>
+  <Step title="Create a simple voice application">
+    Voice applications in Fonoster require of Node.js to run. If you don't have Node.js installed, you can download it from the <a href="https://nodejs.org/en/download/">official website</a>. Once you have Node.js installed, you can create a simple voice application by running the following commands:
 
-  <Step title="Install the command-line tool">
-    These are instructions or content that only pertain to the second step.
+    ```bash
+    # Create a new directory
+    mkdir my-voice-app
+    cd my-voice-app
+    npm init -y
+    npm install @fonoster/voice
+    ```
+
+    Create a new file called `index.js` and add the following code:
+
+    ```javascript
+      const VoiceServer = require("@fonoster/voice").default;
+
+      new VoiceServer().listen(async (req, voice) => {
+        await voice.answer();
+        await voice.say("Hello from Fonoster!");
+        await voice.hangup();
+      });
+    ```
+
+    Finally, run the application with the following command:
+
+    ```bash
+    node index.js
+    ```
+
+    > Keep the application running for the next steps.
   </Step>
+  <Step title="Publish your application">
+    To make your application available to the public, you need to expose it to the internet. One way to do this is by using a service like <a href="https://ngrok.com/">ngrok</a>. You can install ngrok by running the following command:
 
-  <Step title="Create a new application">
-    These are instructions or content that only pertain to the third step.
+    ```bash
+    npm install -g ngrok
+    ```
+
+    Once you have ngrok installed, you can expose your application by running the following command:
+
+    ```bash
+    ngrok tcp 50061
+    ```
+
+    This will give you a public URL that you can use to access your application.
+  </Step>
+  <Step title="Link a virtual phone number">
+    Follow the next steps to link a virtual phone number to your application:
+
+    <Accordion title="Install the command-line tool">
+      Fonoster CTL is a command-line tool that allows you to manage your Fonoster resources. You can use it to create, update, and delete Fonoster resources like phone numbers, SIP trunks, and more.
+
+      You can install the tool using the following command:
+
+      ```bash
+      npm install -g @fonoster/ctl
+      ```
+
+      Check that the installation was successful by running the following command:
+
+      ```bash
+      fonoster --version
+      ```
+
+      If the installation was successful, you should see the version number of the command-line tool that you installed.
+    </Accordion>
+    <Accordion title="Log in to a Fonoster Workspace">
+      Before you can use the command-line tool, you need to log in to a Workspace. You can do this by running the following command:
+
+      ```bash
+      fonoster workspaces:login
+      ```
+
+      This command will prompt you to enter your _AccessKeyId_ and _AccessKeySecret_. Once you have entered this information, you will be logged in to your Workspace.
+    </Accordion>
+    <Accordion title="Create a new Application">
+      To create a new Application, you can use the following command:
+
+      ```bash
+      fonoster applications:create
+      ```
+
+      You will be asked to enter the name of the Application, speech information, and other details. Once you have entered this information, the Application will be created.
+
+      To confirm that the application was created successfully, you can run the following command:
+
+      ```bash
+      fonoster applications:list
+      ```
+
+      Your output should show the newly created Application.
+    </Accordion>
+    <Accordion title="Link a Twilio phone number">
+      To link a Twilio phone number to your application, you can use the following command:
+
+      ```bash
+      fonoster sipnet:numbers:linkTwilioNumber
+      ```
+
+      You will be asked to enter the _Twilio SID_ and _Twilio Auth Token_. Once you have entered this information, the Twilio phone number will be linked to your application.
+
+      To confirm that the phone number was linked successfully, you can run the following command:
+
+      ```bash
+      fonoster sipnet:numbers:list
+      ```
+
+      You can now call the Twilio phone number to access your voice application.
+
+      > Twilio is used as an example. You can use other SIP providers as well.
+    </Accordion>
+    <Accordion title="Make an outbound call">
+      To make an outbound call, you can use the command-line tool or the SDK. To make an outbound call, first you need the reference of the application you created. You can get the reference by running the following command:
+
+      ```bash
+      fonoster applications:list
+      ```
+
+      Once you have the reference, you can use the `fonoster sipnet:calls:create` command to make an outbound call. Here is an example:
+
+      ```bash
+      fonoster sipnet:calls:create --app-ref 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 \
+       --from +18456134823 \
+       --to +17853134923
+      ```
+
+      Replace the example values with the appropriate values.
+
+      You can also use the SDK to make an outbound call. To do this, you can use the following code:
+
+      ```javascript
+      const SDK = require("@fonoster/sdk");
+
+      const client = SDK.Client({ accessKeyId: "00000000-0000-0000-0000-000000000000" });
+
+      client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
+        .then(async() => {
+          const calls = new SDK.Calls(client);
+  
+          const response = await calls.createCall({
+            from: "+18456134823",
+            to: "+17853134923",
+            appRef: "4b01c9b1-8cb1-48fb-bd49-f3daf13463a9"
+          })
+
+          console.log(response);
+        });
+      ```
+      
+      Replace the placeholders with the appropriate values.
+
+      > The SDK is available for Node.js and the browser.
+    </Accordion>
   </Step>
 </Steps>
 
-### Edit and preview
+Now that you created your first voice application, learn more about the advanced features and concepts of Fonoster.
 
-<AccordionGroup>
-  <Accordion icon="github" title="Clone your docs locally">
-    During the onboarding process, we created a repository on your Github with
-    your docs content. You can find this repository on our
-    [dashboard](https://dashboard.mintlify.com). To clone the repository
-    locally, follow these
-    [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-    in your terminal.
-  </Accordion>
-
-  <Accordion icon="rectangle-terminal" title="Preview changes">
-    Previewing helps you make sure your changes look as intended. We built a
-    command line interface to render these changes locally. 1. Install the
-    [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the
-    documentation changes locally with this command: `npm i -g mintlify`
-    2\. Run the following command at the root of your documentation (where
-    `mint.json` is): `mintlify dev`
-  </Accordion>
-</AccordionGroup>
-
-### Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="message-bot" title="Install our Github app">
-    Our Github app automatically deploys your changes to your docs site, so you
-    don't need to manage deployments yourself. You can find the link to install on
-    your [dashboard](https://dashboard.mintlify.com). Once the bot has been
-    successfully installed, there should be a check mark next to the commit hash
-    of the repo.
-  </Accordion>
-
-  <Accordion icon="rocket" title="Push your changes">
-    [Commit and push your changes to
-    Git](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository#about-git-push)
-    for your changes to update in your docs site. If you push and don't see that
-    the Github app successfully deployed your changes, you can also manually
-    update your docs through our [dashboard](https://dashboard.mintlify.com).
-  </Accordion>
-</AccordionGroup>
-
-## Update your docs
-
-Add content directly in your files with MDX syntax and React components. You can use any of our components, or even build your own.
-
-<CardGroup>
-  <Card title="Style Your Docs" icon="paintbrush" href="/settings/global">
-    Add flair to your docs with personalized branding.
+<CardGroup cols={2}>
+  <Card title="Programmable Voice" icon="application" color="#5765F2" href="https://discord.com/invite/4QWgSz4hTC">
+    Learn more about the Programmable Voice API and how to build advanced voice applications.
   </Card>
-
-  <Card title="Add API Endpoints" icon="square-code" href="/api-playground/configuration">
-    Implement your OpenAPI spec and enable API user interaction.
-  </Card>
-
-  <Card title="Integrate Analytics" icon="chart-mixed" href="/analytics/supported-integrations">
-    Draw insights from user interactions with your documentation.
-  </Card>
-
-  <Card title="Host on a Custom Domain" icon="browser" href="/settings/custom-domain/subdomain">
-    Keep your docs on your own website's subdomain.
+  <Card title="SDKs" icon="tool" color="#5765F2" href="https://discord.com/invite/4QWgSz4hTC">
+    Learn how to use the Node.js and Web SDKs to interact with Fonoster programmatically.
   </Card>
 </CardGroup>
