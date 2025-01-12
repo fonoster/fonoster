@@ -1,4 +1,47 @@
 ---
 title: 'API Keys'
-description: 'Description of your new file.'
+description: 'API keys are used to authenticate requests to the API.'
 ---
+
+API keys are used to authenticate requests to the API. API keys operate at the Workspace level and are used to authenticate requests to the API. You can create multiple API keys for a single Workspace, and each API key can be given different permissions.
+
+All API keys have an Access Key ID and an Access Key Secret. The Access Key ID is used to identify the API key, and the Access Key Secret is used to authenticate the request. You should keep the Access Key Secret secure and never share it with anyone.
+
+You can differentiate API keys' Access Key ID from Workspace's Access Key ID by the prefix "AP" (Workspace's Access Key ID has the "WO" prefix, and User's Access Key ID has the "US" prefix).
+
+To create an API key with the SDK, first create a new Node.js project and install the SDK:
+
+```bash
+mkdir create-apikey
+cd create-apikey
+npm init -y
+npm install @fonoster/sdk
+```
+
+Then, create a new file called `index.js` and add the following code:
+
+```javascript
+const SDK = require("@fonoster/sdk");
+
+// Replace with your Workspace's Access Key ID
+const client = new SDK.Client({ accessKeyId: "WO00000000000000000000000000000000" });
+
+// Use the username and password of your Fonoster account
+client.login("youruser@youremail.com", "yourpassword").then(async () => {
+  const apikeys = new SDK.ApiKeys(client);
+
+  apikeys.createApiKey({
+    role: "WORKSPACE_ADMIN",
+  }).then((result) => {
+    console.log(result);
+  });
+});
+```
+
+Run the script with the following command:
+
+```bash
+node index.js
+```
+
+Remember to save the Access Key ID and Access Key Secret in a secure location. You will not be able to retrieve the Access Key Secret again.
