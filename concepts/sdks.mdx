@@ -1,6 +1,6 @@
 ---
 title: 'SDKs'
-description: 'NodeJS and WebSDK for Fonoster.'
+description: 'SDKs for the Browser and NodeJS environment.'
 ---
 
 Fonoster SDKs provide you with control of a set of Fonoster resources. We currently offer SDKs for the Node.js and browser environment, and we plan to add more in the future.
@@ -71,47 +71,30 @@ const client = new SDK.WebClient({ accessKeyId: "WO00000000000000000000000000000
 ```
 
 <Tip>
- Note the only difference is the name of the constructor.
+  Note the only difference is the name of the constructor.
 </Tip>
 
 ### Login in and make requests
 
 ```javascript
-const username = "youruser@example.com";
-const password = "yourpassword";
-
-async function main() {
-  await client.login(username, password);
-  const applications = new SDK.Applications(client);
-  await applications.createApplication({
+client.login("youruser@example.com", "yourpassword")
+  .then(() => new SDK.Applications(client).createApplication({
     name: "MyApp",
     type: "EXTERNAL",
-    endpoint: "localhost:50061" // Your app's endpoint
- });
-}
-
-main().catch(console.error);
+    endpoint: "localhost:50061"
+  }))
+  .then(() => console.log("Application created successfully"))
+  .catch(console.error);
 ```
 
 <Tip>
-In addition to the `login` method, the SDK provides a `loginWithApiKey` and `loginWithRefreshToken` methods. The `loginWithRefreshToken` is helpful in browser environments where you want to keep the user logged in between sessions.
+  In addition to the `login` method, the SDK provides a `loginWithApiKey` and `loginWithRefreshToken` methods. The `loginWithRefreshToken` is helpful in browser environments where you want to keep the user logged in between sessions.
 </Tip>
 
 <Tip>
   The SDK will automatically refresh the token when it expires.
 </Tip>
 
-## APIs
-
-* [`Applications`](#Applications)
-* [`Acls`](#Acls)
-* [`Agents`](#Agents)
-* [`ApiKeys`](#ApiKeys)
-* [`Calls`](#Calls)
-* [`Credentials`](#Credentials)
-* [`Domains`](#Domains)
-* [`Numbers`](#Numbers)
-* [`Secrets`](#Secrets)
-* [`Trunks`](#Trunks)
-* [`Users`](#Users)
-* [`Workspaces`](#Workspaces)
+<Card title="See NPM for details" icon="npm" color="#FFFFFF" iconType="brands" href="https://www.npmjs.com/package/@fonoster/sdk">
+    For full documentation, please visit NPM.
+</Card>
