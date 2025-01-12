@@ -16,7 +16,7 @@
       "family": "Poppins"
     }
   },
-  "theme": "prism",
+  "theme": "quill",
   "favicon": "/favicon.svg",
   "colors": {
     "primary": "#39E19E",
