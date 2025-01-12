@@ -7,16 +7,15 @@ Before integrating Fonoster into your application, you need an account, setup th
 
 <Steps>
   <Step title="Request early access">
-    To get started, you need to request early access to Fonoster. You can do this by visiting the <a href="https://github.com/orgs/fonoster/discussions/695">GitHub discussions</a> and following the instructions.
+    To get started, you need to request early access to Fonoster. You can do this by visiting the <a href="https://github.com/orgs/fonoster/discussions/695">GitHub Discussions</a> and following the instructions.
   </Step>
 
   <Step title="Create a simple voice application">
-    Voice applications in Fonoster require of Node.js to run. If you don't have Node.js installed, you can download it from the <a href="https://nodejs.org/en/download/">official website</a>. Once you have Node.js installed, you can create a simple voice application by running the following commands:
+    Voice applications in Fonoster require Node.js to run. If you don't have Node.js installed, you can download it from the <a href="https://nodejs.org/en/download/">official website</a>. Once you have Node.js installed, you can create a simple voice application by running the following commands:
 
     ```bash
-    # Create a new directory
-    mkdir my-voice-app
-    cd my-voice-app
+    mkdir voice-app
+    cd voice-app
     npm init -y
     npm install @fonoster/voice
     ```
@@ -96,7 +95,7 @@ Before integrating Fonoster into your application, you need an account, setup th
       fonoster applications:create
       ```
 
-      You will be asked to enter the name of the Application, speech information, and other details. Once you have entered this information, the Application will be created.
+      You will be asked to enter the Application's name, speech information, and other details. Once you have entered this information, the Application will be created.
 
       To confirm that the application was created successfully, you can run the following command:
 
@@ -114,7 +113,7 @@ Before integrating Fonoster into your application, you need an account, setup th
       fonoster sipnet:numbers:linkTwilioNumber
       ```
 
-        You will be asked to enter the *Twilio SID* and *Twilio Auth Token*. Once you have entered this information, the Twilio phone number will be linked to your application.
+      You will be asked to enter the *Twilio SID* and *Twilio Auth Token*. Once you have entered this information, the Twilio phone number will be linked to your application.
 
       To confirm that the phone number was linked successfully, you can run the following command:
 
@@ -128,7 +127,7 @@ Before integrating Fonoster into your application, you need an account, setup th
     </Accordion>
 
     <Accordion title="Make an outbound call">
-      To make an outbound call, you can use the command-line tool or the SDK. To make an outbound call, first, you need the reference of the application you created. You can get the reference by running the following command:
+      You can use the command-line tool or the SDK to make an outbound call. To make an outbound call, first, you need the reference of the application you created. You can get the reference by running the following command:
 
       ```bash
       fonoster applications:list
@@ -142,13 +141,12 @@ Before integrating Fonoster into your application, you need an account, setup th
        --to +17853134923
       ```
 
-      Replace the example values with the appropriate values.
-
       You can also use the SDK to make an outbound call. To do this, you can use the following code:
 
       ```javascript
       const SDK = require("@fonoster/sdk");
 
+      # This is your Workspace Access Key ID
       const client = SDK.Client({ accessKeyId: "00000000-0000-0000-0000-000000000000" });
 
       client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
@@ -165,9 +163,7 @@ Before integrating Fonoster into your application, you need an account, setup th
         });
       ```
 
-      Replace the placeholders with the appropriate values.
-
-      > The SDK is available for Node.js and the browser.
+      Replace the example values with the appropriate ones.
     </Accordion>
   </Step>
 </Steps>
