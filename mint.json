@@ -83,7 +83,7 @@
         "guides": "guides/overwriting-speech-voices",
         "guides": "guides/prompting-guide"
       ]
-    }
+    },
     {
       "group": "Self Hosting",
       "pages": [
