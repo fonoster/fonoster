@@ -3,11 +3,13 @@ title: 'Securing the API'
 description: 'Securing the API with TLS.'
 ---
 
-Securing Fonoster's API with Let's Encrypt certificates is essential to ensure encrypted communication. This process involves setting up a temporary Nginx server, obtaining the certificate, and configuring auto-renewal. Here's a guide to accomplish this task using Docker commands without docker-compose:
+Securing Fonoster's API with Let's Encrypt certificates is essential to ensure encrypted communication. This process involves setting up a temporary Nginx server, obtaining the certificate, and configuring auto-renewal. 
+
+Here are the steps to accomplish this task:
 
 <Steps>
   <Step title="Prepare the environment">
-    First, create the necessary directories for our setup:
+    First, create the necessary directories:
 
     ```bash
     mkdir -p letsencrypt/nginx-conf
@@ -17,9 +19,9 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
   </Step>
 
   <Step title="Configure Nginx">
-    Next, create an Nginx configuration file named nginx.conf in the letsencrypt/nginx-conf directory with the following content:
+    Next, create an Nginx configuration file named `nginx.conf` in the `letsencrypt/nginx-conf` directory with the following content:
 
-    ```text
+    ```text nginx.conf
     events {
       worker_connections 1024;
     }
@@ -41,7 +43,9 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
     }
     ```
 
+    <Note>
     Replace `api.example.com` with your domain name, and remember to point the domain to the server's IP address.
+    </Note>
   </Step>
 
   <Step title="Start the container">
@@ -71,7 +75,9 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
 
     Replace the email and domain name with your information.
 
+    <Tip>
     You should see a message indicating that the certificate was successfully obtained.
+    </Tip>
   </Step>
 
   <Step title="Remove the container">
@@ -84,9 +90,9 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
   </Step>
 
   <Step title="Set the auto-renewal">
-    Next, set up auto-renewal by creating a script named renew\_cert.sh:
+    Next, set up auto-renewal by creating a script named `renew_cert.sh`:
 
-    ```bash
+    ```bash renew_cert.sh
     #!/bin/bash
 
     docker run --rm \
@@ -104,7 +110,9 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
     (crontab -l 2>/dev/null; echo "0 0,12 * * * /path/to/renew_cert.sh") | crontab -
     ```
 
-    Replace `/path/to` with the actual path to the script.
+    <Note>
+      Replace `/path/to` with the actual path to the script.
+    </Note>
   </Step>
 
   <Step title="Finalize settings and run the process">
