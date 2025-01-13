@@ -19,9 +19,9 @@ Here are the steps to accomplish this task:
   </Step>
 
   <Step title="Configure Nginx">
-    Next, create an Nginx configuration file named `nginx.conf` in the `letsencrypt/nginx-conf` directory with the following content:
+    Next, create Nginx's configuration file with the following content:
 
-    ```text nginx.conf
+    ```text letsencrypt/nginx-conf/nginx.conf
     events {
       worker_connections 1024;
     }
