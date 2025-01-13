@@ -20,9 +20,9 @@ Most of Fonoster's use cases require an account, the Command-line interface, and
     npm install @fonoster/voice
     ```
 
-    Create a new file called `index.js` and add the following code:
+    Create a new script and add the following code:
 
-    ```javascript
+    ```javascript index.js
       const VoiceServer = require("@fonoster/voice").default;
 
       new VoiceServer().listen(async (req, voice) => {
@@ -69,111 +69,111 @@ Most of Fonoster's use cases require an account, the Command-line interface, and
     <AccordionGroup>
       <Accordion title="Install the command-line tool">
         Fonoster CTL is a command-line tool that allows you to manage your Fonoster resources. You can create, update, and delete Fonoster resources like phone numbers, SIP trunks, etc.
-  
+
         You can install the tool using the following command:
-  
+
         ```bash
         npm install -g @fonoster/ctl
         ```
-  
+
         Check that the installation was successful by running the following command:
-  
+
         ```bash
         fonoster --version
         ```
-  
+
         If the installation was successful, you should see the version number of the command-line tool.
       </Accordion>
-  
+
       <Accordion title="Log in to a Fonoster Workspace">
         Before using the command-line tool, log in to a Workspace. You can do this by running the following command:
-  
+
         ```bash
         fonoster workspaces:login
         ```
-  
+
         This command will prompt you to enter your *AccessKeyId* and *AccessKeySecret*. Once you have entered this information, you will be logged in to your Workspace.
       </Accordion>
-  
+
       <Accordion title="Create a new Application">
         To create a new Application, you can use the following command:
-  
+
         ```bash
         fonoster applications:create
         ```
-  
+
         You will be asked to enter the Application's name, speech information, and other details. Once you have entered this information, the Application will be created.
-  
+
         Your output should look like this:
-  
+
         <img width="100%" src="/images/create-application.png" />
-  
+
         To can list your existing applications with the following command:
-  
+
         ```bash
         fonoster applications:list
         ```
       </Accordion>
-  
+
       <Accordion title="Link a Twilio phone number">
         To link a Twilio phone number to your application, you can use the following command:
-  
+
         ```bash
         fonoster sipnet:numbers:linkTwilioNumber
         ```
-  
+
         You will be asked to enter an existing virtual phone number, the *Twilio SID*, and the *Twilio Auth Token*. Once you have entered this information, the Twilio phone number will be linked to your application.
-  
+
         To confirm that the phone number was linked successfully, you can run the following command:
-  
+
         ```bash
         fonoster sipnet:numbers:list
         ```
-  
+
         You can now call the Twilio phone number to access your voice application.
-  
+
         <Tip>
           Twilio is used as an example. You can use other SIP providers as well.
         </Tip>
       </Accordion>
-  
+
       <Accordion title="Make an outbound call">
         You can use the command-line tool or the SDK to make an outbound call. To make an outbound call, first, you need the reference of the application you created. You can get the reference by running the following command:
-  
+
         ```bash
         fonoster applications:list
         ```
-  
+
         Once you have the reference, you can use the `fonoster sipnet:calls:create` command to make an outbound call. Here is an example:
-  
+
         ```bash
         fonoster sipnet:calls:create --app-ref 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 \
          --from +18456134823 \
          --to +17853134923
         ```
-  
+
         You can also use the SDK to make an outbound call. To do this, you can use the following code:
-  
-        ```javascript
+
+        ```javascript call.js
         const SDK = require("@fonoster/sdk");
-  
+
         # Replace with your Workspace Access Key ID
         const client = SDK.Client({ accessKeyId: "00000000-0000-0000-0000-000000000000" });
-  
+
         client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
           .then(async() => {
             const calls = new SDK.Calls(client);
-  
+
             const response = await calls.createCall({
               from: "+18456134823",
               to: "+17853134923",
               appRef: "4b01c9b1-8cb1-48fb-bd49-f3daf13463a9"
             })
-  
+
             console.log(response);
           });
         ```
-  
+
         Replace the example values with the appropriate ones.
       </Accordion>
     </AccordionGroup>
