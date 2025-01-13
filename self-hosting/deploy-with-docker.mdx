@@ -9,7 +9,8 @@ Docker is the easiest way to deploy a self-hosted instance of Fonoster. This gui
 
 The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/get-docker/) installed on the host machine.
 
-## Installation
+<Steps>
+  <Step title="Prepare the environment">
 
 First, you'll need to create a new directory in your preferred location and change it. The root directory we will use in the guide is `fonoster.`
 
@@ -18,7 +19,7 @@ mkdir -p fonoster/config
 cd fonoster
 ```
 
-Next, copy the `.env.example` from the repository to the current directory and rename it to `.env.` This file contains all the environment variables that the services need to run. You can use the following command to copy the file:
+Then, copy the `.env.example` from the repository to the current directory and rename it to `.env.` This file contains all the environment variables that the services need to run. You can use the following command to copy the file:
 
 ```bash
 curl -o .env https://raw.githubusercontent.com/fonoster/fonoster/master/.env.example
@@ -35,6 +36,7 @@ Then, open the `.env` file with your favorite editor and update the following va
 
 In addition to the previous variables, you should update all the secrets and ensure the `.env` file is safely stored.
 
+<Step title="Generate keys">
 Next, generate a set of public and private keys for the server. You can use the following command to generate the keys:
 
 ```bash
@@ -63,7 +65,9 @@ Your directory structure should look like this:
 <Note>
   The integrations.json file contains the credentials for the integrations (stt, tts, etc). You must update this file with the correct credentials for the integrations you want to use.
 </Note>
+</Step>
 
+<Step title="Start the server">
 Finally, run the following command to start the application:
 
 ```bash
@@ -71,6 +75,8 @@ docker compose up -d
 ```
 
 After a few moments, you can interact with Fonoster using the API or SDK.
+</Step>
+</Steps>
 
 <CardGroup cols={2}>
   <Card title="SDK" icon="npm" color="#C53635" href="https://www.npmjs.com/package/@fonoster/sdk">
