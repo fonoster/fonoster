@@ -80,6 +80,7 @@
     {
       "group": "Guides",
       "pages": [
+        "guides/linking-a-twilio-number",
         "guides/overwriting-speech-voices",
         "guides/prompting-guide"
       ]
