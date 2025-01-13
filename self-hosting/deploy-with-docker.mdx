@@ -23,7 +23,7 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
         ```
       </Accordion>
 
-      <Accordion title="Download example environment">
+      <Accordion title="Download the example configuration">
         Copy the `.env.example` from the repository to the current directory and rename it to `.env.` This file contains all the environment variables that the services need to run.
 
         You can use the following commands to copy all the necessary files:
@@ -36,13 +36,16 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
         ```
       </Accordion>
 
-      <Accordion title="Update environment variables">
+      <Accordion title="Update the configuration">
         Then, open the `.env` file with your favorite editor and update the following variables:
 
         * `DOCKER_HOST_ADDRESS`: The public IP address of your Docker host. If running locally, you can use your local IP address. If you are running the application on a server, you must use a routable IP address for the server.
 
         * `ASTERISK_SIPPROXY_HOST`: Set this variable to the IP address of the host machine.
 
+    <Note>
+      The [integrations.json](https://github.com/fonoster/fonoster/blob/main/config/integrations.example.json) file contains the credentials for the integrations (stt, tts, etc). You must update this file with the correct credentials for the integrations you want to use.
+    </Note>
         <Warning>
           In addition to the previous variables, you should update all the secrets and ensure the `.env` file is safely stored.
         </Warning>
@@ -75,10 +78,6 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
 
     3 directories, 6 files
     ```
-
-    <Note>
-      The [integrations.json](https://github.com/fonoster/fonoster/blob/main/config/integrations.example.json) file contains the credentials for the integrations (stt, tts, etc). You must update this file with the correct credentials for the integrations you want to use.
-    </Note>
   </Step>
 
   <Step title="Start the server">
