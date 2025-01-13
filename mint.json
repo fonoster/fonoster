@@ -4,6 +4,9 @@
   "modeToggle": {
     "default": "light"
   },
+  "codeBlock": {
+    "mode": "auto"
+  },
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
