@@ -30,7 +30,7 @@ const appConfig = {
     config: {
       languageCode: "en-US"
     }
-  },  
+  },
   textToSpeech: {
     productRef: "tts.deepgram",
     config: {
@@ -42,13 +42,23 @@ const appConfig = {
     config: {
       conversationSettings: {
         firstMessage: "Hello, this is Olivia from Dr. Green's Family Medicine. How can I assist you today?",
-        systemTemplate: "You are a Customer Service Representative. You are here to help the caller with their needs."
+        systemTemplate: "You are a Customer Service Representative. You are here to help the caller with their needs.",
+        goodbyeMessage: "Goodbye, have a great day!",
+        systemErrorMessage: "I'm sorry, I didn't understand that. Can you please repeat it?",
+        maxSpeechWaitTimeout: 30,
+        vad: {
+          activationThreshold: 0.30,
+          deactivationThreshold: 0.15,
+          debounceFrames: 1
+        }
       },
       languageModel: {
         provider: "groq",
         model: "llama-3.3-70b-specdec",
         maxTokens: 250,
-        temperature: 0.7  
+        temperature: 0.7,
+        knowledgeBase: [],
+        tools: []
       }
     }
   }
