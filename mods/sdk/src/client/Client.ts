@@ -54,7 +54,10 @@ export class Client extends AbstractClient {
 
     super({
       accessKeyId: config.accessKeyId,
-      identityClient: new IdentityClient(config.endpoint ?? DEFAULT_ENDPOINT, channelCredentials)
+      identityClient: new IdentityClient(
+        config.endpoint ?? DEFAULT_ENDPOINT,
+        channelCredentials
+      )
     });
 
     this.channelCredentials = channelCredentials;
