@@ -7,11 +7,11 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 
 <WipDocsWarning />
 
-Fonoster's Autopilot is a component within the platform that allows you to create powerful conversational experiences. It is built on top of Fonoster Programmable Voice, and takes advantage of the latest advances in large language models (LLMs) to provide a more natural and engaging experience for users.
-
 <Warning>
-  The Autopilot is currently in overview mode an only available via the SDK.
+  The Autopilot is currently in overview mode and only available via the SDK and the Knowledgebase features have been disabled.
 </Warning>
+
+Fonoster's Autopilot is a component within the platform that allows you to create powerful conversational experiences. It is built on top of Fonoster Programmable Voice and takes advantage of the latest advances in large language models (LLMs) to provide a more natural and engaging experience for users.
 
 ## Creating an Autopilot Application
 
@@ -86,14 +86,14 @@ The `languageModel` object allows you to define the language model used by the A
 
 The following is a list of the supported settings:
 
-| Setting      | Description                                                                                    |
-| ------------ | ---------------------------------------------------------------------------------------------- |
-| provider     | The provider of the language model. Supported providers are `openai`, `groq`, and `ollama`     |
-| model        | The model to use. The available models depend on the provider                                  |
-| maxTokens    | The maximum number of tokens the language model can generate in a single response              |
-| temperature  | The randomness of the language model. A higher temperature will result in more random responses|
-| knowledgeBase| A list of knowledge bases to use for the language model                                        |
-| tools        | A list of tools to use for the language model                                                  |
+| Setting       | Description                                                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------- |
+| provider      | The provider of the language model. Supported providers are `openai`, `groq`, and `ollama`      |
+| model         | The model to use. The available models depend on the provider                                   |
+| maxTokens     | The maximum number of tokens the language model can generate in a single response               |
+| temperature   | The randomness of the language model. A higher temperature will result in more random responses |
+| knowledgeBase | A list of knowledge bases to use for the language model                                         |
+| tools         | A list of tools to use for the language model                                                   |
 
 ### LLM providers and models
 
@@ -119,11 +119,11 @@ Fonoster's Autopilot allows you to use tool to enhance the conversational experi
 
 The following is a list of built-in tools:
 
-| Tool       | Description                                                                                   |
-| ---------- | --------------------------------------------------------------------------------------------- |
-| hangup     | A tool to end the conversation                                                                |
-| transfer   | A tool to transfer the call to a live agent                                                   |
-| hold       | A tool to put the call on hold (Coming soon)                                                  |
+| Tool     | Description                                  |
+| -------- | -------------------------------------------- |
+| hangup   | A tool to end the conversation               |
+| transfer | A tool to transfer the call to a live agent  |
+| hold     | A tool to put the call on hold (Coming soon) |
 
 You can add custom tools to the language model by add an entry to the `tools` array. The following is an example of how to add a custom tool:
 
