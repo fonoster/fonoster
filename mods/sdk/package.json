@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/sdk",
-  "version": "0.8.31",
+  "version": "0.8.33",
   "description": "Web and Node.js SDK for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
