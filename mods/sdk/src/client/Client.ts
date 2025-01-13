@@ -54,11 +54,12 @@ export class Client extends AbstractClient {
 
     super({
       accessKeyId: config.accessKeyId,
-      identityClient: new IdentityClient(config.endpoint, channelCredentials)
+      identityClient: new IdentityClient(config.endpoint ?? DEFAULT_ENDPOINT, channelCredentials)
     });
 
     this.channelCredentials = channelCredentials;
-    this.endpoint = config?.endpoint || DEFAULT_ENDPOINT;
+    this.endpoint = config?.endpoint ?? DEFAULT_ENDPOINT;
+
     this.tokenRefresherInterceptor = config.withoutInterceptors
       ? null
       : new TokenRefresherNode(this).createInterceptor().bind(this);

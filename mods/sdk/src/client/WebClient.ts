@@ -39,10 +39,10 @@ export class WebClient extends AbstractClient {
 
     super({
       accessKeyId,
-      identityClient: new IdentityClient(url || DEFAULT_URL, null, null)
+      identityClient: new IdentityClient(url ?? DEFAULT_URL, null, null)
     });
 
-    this.url = url || DEFAULT_URL;
+    this.url = url ?? DEFAULT_URL;
   }
 
   getMetadata() {
