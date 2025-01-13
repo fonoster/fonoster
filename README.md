@@ -17,7 +17,7 @@
 
 ## Features 
 
-The most notable features of Fonoster 0.4 are:
+The most notable features of Fonoster are:
 
 - [x] Multitenancy
 - [x] Easy deployment of PBX functionalities
