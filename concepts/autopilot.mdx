@@ -13,20 +13,6 @@ Fonoster's Autopilot is a component within the platform that allows you to creat
   The Autopilot is currently in overview mode an only available via the SDK.
 </Warning>
 
-## LLM Providers and Models
-
-The Autopilot supports multiple language model providers. The following is a list of the supported providers:
-
-| Provider | Description                                                | Supported models                                        |
-| -------- | ---------------------------------------------------------- | ------------------------------------------------------- |
-| OpenAI   | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo` |
-| Groq     | Groq offers high-performance AI models optimized for speed | `llama-3.1-8b-instant`, `llama-3.3-70b-specdec`         |
-| Ollama   | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                  |
-
-<Tip>
-  We are constantly updating the list of supported providers and models. If you have a specific model you would like to use, please let us know.
-</Tip>
-
 ## Creating an Autopilot Application
 
 The following is an example of how to create an Autopilot application using the SDK:
@@ -37,7 +23,7 @@ import SDK from "@fonoster/sdk";
 const client = SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
 
 const appConfig = {
-  name: "My First Autopilot Application",
+  name: "Dr. Green's AI Assistant",
   type: "AUTOPILOT",
   speechToText: {
     productRef: "stt.deepgram",
@@ -72,3 +58,110 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
   .then(async() => new SDK.Applications(client).createApplication(appConfig))
   .catch(console.error);
 ```
+
+## Refining the conversation
+
+The `conversationSettings` object allows you to define the conversational behavior of the Autopilot. The conversation settings are independent of the language model used.
+
+The following is a list of the supported settings:
+
+| Setting                     | Description                                                                                              |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- |
+| firstMessage                | The first message the Autopilot will say when the conversation starts                                    |
+| systemTemplate              | A template that describes the role of the Autopilot. This is used to set the context of the conversation |
+| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                  |
+| initialDtmf                 | A DTMF to play when the conversation starts                                                              |
+| transferOptions             | The options to transfer the call to a live agent                                                         |
+| transferOptions.phoneNumber | The phone number to transfer the call to                                                                 |
+| transferOptions.message     | The message to play before transferring the call                                                         |
+| transferOptions.timeout     | The time in milliseconds to wait before hanging up the call if the transfer is not completed             |
+| idleOptions                 | The options to handle idle time during the conversation                                                  |
+| idleOptions.message         | The message to play after the idle time is reached                                                       |
+| idleOptions.timeout         | The time in milliseconds to wait before playing the idle message                                         |
+| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                   |
+
+## Configuring the language model
+
+The `languageModel` object allows you to define the language model used by the Autopilot. The language model is responsible for generating responses to the user's input.
+
+The following is a list of the supported settings:
+
+| Setting      | Description                                                                                    |
+| ------------ | ---------------------------------------------------------------------------------------------- |
+| provider     | The provider of the language model. Supported providers are `openai`, `groq`, and `ollama`     |
+| model        | The model to use. The available models depend on the provider                                  |
+| maxTokens    | The maximum number of tokens the language model can generate in a single response              |
+| temperature  | The randomness of the language model. A higher temperature will result in more random responses|
+| knowledgeBase| A list of knowledge bases to use for the language model                                        |
+| tools        | A list of tools to use for the language model                                                  |
+
+### LLM providers and models
+
+The Autopilot supports multiple language model providers. The following is a list of the supported providers:
+
+| Provider | Description                                                | Supported models                                        |
+| -------- | ---------------------------------------------------------- | ------------------------------------------------------- |
+| OpenAI   | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo` |
+| Groq     | Groq offers high-performance AI models optimized for speed | `llama-3.1-8b-instant`, `llama-3.3-70b-specdec`         |
+| Ollama   | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                  |
+
+<Tip>
+  We are constantly updating the list of supported providers and models. If you have a specific model you would like to use, please let us know.
+</Tip>
+
+### Knowledge bases
+
+Coming soon...
+
+### Tools
+
+Fonoster's Autopilot allows you to use tool to enhance the conversational experience. Tools are used to perform specific actions during the conversation.
+
+The following is a list of built-in tools:
+
+| Tool       | Description                                                                                   |
+| ---------- | --------------------------------------------------------------------------------------------- |
+| hangup     | A tool to end the conversation                                                                |
+| transfer   | A tool to transfer the call to a live agent                                                   |
+| hold       | A tool to put the call on hold (Coming soon)                                                  |
+
+You can add custom tools to the language model by add an entry to the `tools` array. The following is an example of how to add a custom tool:
+
+```javascript
+const appConfig = {
+  ...
+  intelligence: {
+    ...
+    languageModel: {
+      ...
+      "tools": [
+        {
+          "name": "getAvailableTimes",
+          "description": "Get available appointment times for a specific date.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "required": [
+              "date"
+            ]
+          },
+          "operation": {
+            "type": "get",
+            "url": "https://api.example.com/appointment-times",
+            "headers": {
+              "x-api-key": "your-api-key"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+Please see the tool's [schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts) for additional properties.
