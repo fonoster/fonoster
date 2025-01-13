@@ -7,4 +7,69 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 
 <WipDocsWarning />
 
-Coming soon.
+Fonoster's Autopilot is a component within the platform that allows you to create powerful conversational experiences. It is built on top of Fonoster Programmable Voice, and takes advantage of the latest advances in large language models (LLMs) to provide a more natural and engaging experience for users.
+
+<Warning>
+The Autopilot is currently in overview mode an only available via the SDK.
+</Warning>
+
+## LLM Providers and Models
+
+The Autopilot supports multiple language model providers. The following is a list of the supported providers:
+
+| Provider   | Description                                                | Supported models
+|------------|------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| OpenAI     | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo`                                    |
+| Groq       | Groq offers high-performance AI models optimized for speed | `llama-3.1-8b-instant`, `llama-3.3-70b-specdec`                                            |
+| Ollama     | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                                                     |
+
+<Tip>
+We are constantly updating the list of supported providers and models. If you have a specific model you would like to use, please let us know.
+</Tip>
+
+## Creating an Autopilot Application
+
+Use the SDK to create an Autopilot application. The following is an example of how to create a simple voice application using the OpenAI GPT-4o model:
+
+```javascript
+import SDK from "@fonoster/sdk";
+
+const client = SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+
+const appConfig = {
+  name: "My First Autopilot Application",
+  type: "AUTOPILOT",
+  speechToText: {
+    productRef: "stt.deepgram",
+    config: {
+      languageCode: "en-US"
+    }
+  },  
+  textToSpeech: {
+    productRef: "tts.deepgram",
+    config: {
+      voice: "aura-asteria-en"
+    }
+  },
+  intelligence: {
+    productRef: "llm.groq",
+    config: {
+      conversationSettings: {
+        firstMessage: "Hello, this is Olivia from Dr. Green's Family Medicine. How can I assist you today?",
+        systemTemplate: "You are a Customer Service Representative. You are here to help the caller with their needs."
+      },
+      languageModel: {
+        provider: "groq",
+        model: "llama-3.3-70b-specdec",
+        maxTokens: 250,
+        temperature: 0.7  
+      }
+    }
+  }
+}
+
+client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
+  .then(async() => new SDK.Applications(client).createApplication(appConfig))
+  .catch(console.error);
+```
+
