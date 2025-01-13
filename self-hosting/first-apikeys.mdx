@@ -18,7 +18,7 @@ You must create API keys to log in to a Workspace and perform operations.
 <Steps>
   <Step title="Prepare the environment">
     First, create a new folder (e.g., fonoster-apikeys-demo) and navigate to it.
-    
+
     ```bash
     mkdir fonoster-apikeys-demo
     cd fonoster-apikeys-demo
@@ -28,7 +28,7 @@ You must create API keys to log in to a Workspace and perform operations.
 
   <Step title="Install the SDK">
     Install the `@fonoster/sdk` package.
-    
+
     ```bash
     npm install @fonoster/sdk
     ```
@@ -36,21 +36,21 @@ You must create API keys to log in to a Workspace and perform operations.
 
   <Step title="Create the script">
     Once the installation is complete, create a new file called `index.js` and add the following code:
-  
+
     ```javascript
     const SDK = require("@fonoster/sdk");
-    
-    // Replace these with your actual values
+
+    // Replace these with your values
     const client = new SDK.Client({ 
       accessKeyId: "WO00000000000000000000000000000000",
       endpoint: "localhost:50051",
       allowInsecure: true
     });
-    
+
     // Use your actual username and password here
     client.login("admin@fonoster.local", "changeme").then(async () => {
       const apikeys = new SDK.ApiKeys(client);
-    
+
       apikeys.createApiKey({
         role: "WORKSPACE_ADMIN",
       }).then((result) => {
@@ -58,9 +58,9 @@ You must create API keys to log in to a Workspace and perform operations.
       });
     });
     ```
-    
+
     Finally, run the script.
-    
+
     ```bash
     node index.js
     ```
@@ -68,3 +68,13 @@ You must create API keys to log in to a Workspace and perform operations.
 </Steps>
 
 If everything goes well, you should see the new API key printed to the console, and you can use it to log in to your Workspace.
+
+<CardGroup cols={2}>
+  <Card title="SDK" icon="code" href="https://www.npmjs.com/package/@fonoster/sdk">
+    SDK documentation at NPM.
+  </Card>
+
+  <Card title="Command-Line" icon="square-terminal" href="https://www.npmjs.com/package/@fonoster/ctl">
+    Command-line documentation at NPM.
+  </Card>
+</CardGroup>
