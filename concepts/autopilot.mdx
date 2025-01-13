@@ -18,7 +18,7 @@ Fonoster's Autopilot is a component within the platform that allows you to creat
 The following is an example of how to create an Autopilot application using the SDK:
 
 ```javascript
-import SDK from "@fonoster/sdk";
+const SDK = require("@fonoster/sdk");
 
 const client = SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
 
@@ -61,7 +61,7 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
 
 ## Refining the conversation
 
-The `conversationSettings` object allows you to define the conversational behavior of the Autopilot. The conversation settings are independent of the language model used.
+The `conversationSettings` object allows you to define the Autopilot's conversational behavior. The conversation settings are independent of the language model used.
 
 The following is a list of the supported settings:
 
@@ -82,7 +82,7 @@ The following is a list of the supported settings:
 
 ## Configuring the language model
 
-The `languageModel` object allows you to define the language model used by the Autopilot. The language model is responsible for generating responses to the user's input.
+The `languageModel` object allows you to define the language model the Autopilot uses. The language model is responsible for generating responses to the user's input.
 
 The following is a list of the supported settings:
 
@@ -106,7 +106,7 @@ The Autopilot supports multiple language model providers. The following is a lis
 | Ollama   | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                  |
 
 <Tip>
-  We are constantly updating the list of supported providers and models. If you have a specific model you would like to use, please let us know.
+  We are constantly updating the list of supported providers and models. Please let us know if you have a specific model you want to use.
 </Tip>
 
 ### Knowledge bases
@@ -115,7 +115,7 @@ Coming soon...
 
 ### Tools
 
-Fonoster's Autopilot allows you to use tool to enhance the conversational experience. Tools are used to perform specific actions during the conversation.
+Fonoster's Autopilot allows you to use tools to enhance the conversational experience. Tools are used to perform specific actions during the conversation.
 
 The following is a list of built-in tools:
 
@@ -125,7 +125,7 @@ The following is a list of built-in tools:
 | transfer | A tool to transfer the call to a live agent  |
 | hold     | A tool to put the call on hold (Coming soon) |
 
-You can add custom tools to the language model by add an entry to the `tools` array. The following is an example of how to add a custom tool:
+You can add custom tools to the language model by adding an entry to the `tools` array. The following is an example of how to add a custom tool:
 
 ```javascript
 const appConfig = {
