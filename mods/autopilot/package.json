@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/autopilot",
-  "version": "0.8.33",
+  "version": "0.8.34",
   "description": "Voice AI for the Fonoster platform",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -35,7 +35,7 @@
     "@aws-sdk/client-s3": "^3.712.0",
     "@fonoster/common": "^0.8.31",
     "@fonoster/logger": "^0.8.28",
-    "@fonoster/sdk": "^0.8.33",
+    "@fonoster/sdk": "^0.8.34",
     "@fonoster/types": "^0.8.31",
     "@fonoster/voice": "^0.8.32",
     "@langchain/community": "^0.3.19",
