@@ -43,9 +43,10 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
 
         * `ASTERISK_SIPPROXY_HOST`: Set this variable to the IP address of the host machine.
 
-    <Note>
-      The [integrations.json](https://github.com/fonoster/fonoster/blob/main/config/integrations.example.json) file contains the credentials for the integrations (stt, tts, etc). You must update this file with the correct credentials for the integrations you want to use.
-    </Note>
+        <Note>
+          The [integrations.json](https://github.com/fonoster/fonoster/blob/main/config/integrations.example.json) file contains the credentials for the integrations (stt, tts, etc). You must update this file with the correct credentials for the integrations you want to use.
+        </Note>
+
         <Warning>
           In addition to the previous variables, you should update all the secrets and ensure the `.env` file is safely stored.
         </Warning>
@@ -62,7 +63,9 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
     openssl rsa -pubout -in config/keys/private.pem -out config/keys/public.pem
     chmod 644 config/keys/*
     ```
+  </Step>
 
+  <Step title="Confirm the directory structure">
     Your directory structure should look like this:
 
     ```bash
@@ -78,6 +81,8 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
 
     3 directories, 6 files
     ```
+
+    If it looks different, go back and review your steps.
   </Step>
 
   <Step title="Start the server">
