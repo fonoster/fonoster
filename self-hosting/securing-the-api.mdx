@@ -1,6 +1,6 @@
 ---
 title: 'Securing the API'
-description: 'Adding TLS to the API.'
+description: 'Securing the API with TLS.'
 ---
 
 Securing Fonoster's API with Let's Encrypt certificates is essential to ensure encrypted communication. This process involves setting up a temporary Nginx server, obtaining the certificate, and configuring auto-renewal. Here's a guide to accomplish this task using Docker commands without docker-compose:
@@ -8,7 +8,7 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
 <Steps>
   <Step title="Prepare the environment">
     First, create the necessary directories for our setup:
-    
+
     ```bash
     mkdir -p letsencrypt/nginx-conf
     mkdir -p letsencrypt/certbot/www
@@ -18,29 +18,29 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
 
   <Step title="Configure Nginx">
     Next, create an Nginx configuration file named nginx.conf in the letsencrypt/nginx-conf directory with the following content:
-    
+
     ```text
     events {
       worker_connections 1024;
     }
-    
+
     http {
       server {
         listen 80;
         listen [::]:80;
         server_name api.example.com;
-    
+
         location /.well-known/acme-challenge/ {
           root /var/www/html;
         }
-    
+
         location / {
           return 404;
         }
       }
     }
     ```
-    
+
     Replace `api.example.com` with your domain name, and remember to point the domain to the server's IP address.
   </Step>
 
@@ -58,7 +58,7 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
 
   <Step title="Retrieve the certificates">
     Now, run Certbot to obtain the Let's Encrypt certificate:
-    
+
     ```bash
     docker run -it --rm \
       -v $(pwd)/letsencrypt/certbot/conf:/etc/letsencrypt \
@@ -75,7 +75,6 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
   </Step>
 
   <Step title="Remove the container">
-
     After obtaining the certificate, stop and remove the temporary Nginx container:
 
     ```bash
@@ -85,11 +84,11 @@ Securing Fonoster's API with Let's Encrypt certificates is essential to ensure e
   </Step>
 
   <Step title="Set the auto-renewal">
-    Next, set up auto-renewal by creating a script named renew_cert.sh:
+    Next, set up auto-renewal by creating a script named renew\_cert.sh:
 
     ```bash
     #!/bin/bash
-    
+
     docker run --rm \
      -v /path/to/letsencrypt/certbot/conf:/etc/letsencrypt \
       -v /path/to/letsencrypt/certbot/www:/var/www/html \
