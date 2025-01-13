@@ -3,7 +3,7 @@ title: 'Securing the API'
 description: 'Securing the API with TLS.'
 ---
 
-Securing Fonoster's API with Let's Encrypt certificates is essential to ensure encrypted communication. This process involves setting up a temporary Nginx server, obtaining the certificate, and configuring auto-renewal. 
+Securing Fonoster's API with Let's Encrypt certificates is essential to ensure encrypted communication. This process involves setting up a temporary Nginx server, obtaining the certificate, and configuring auto-renewal.
 
 Here are the steps to accomplish this task:
 
@@ -44,7 +44,7 @@ Here are the steps to accomplish this task:
     ```
 
     <Note>
-    Replace `api.example.com` with your domain name, and remember to point the domain to the server's IP address.
+      Replace `api.example.com` with your domain name, and remember to point the domain to the server's IP address.
     </Note>
   </Step>
 
@@ -73,10 +73,12 @@ Here are the steps to accomplish this task:
       -d api.example.com
     ```
 
-    Replace the email and domain name with your information.
+    <Note>
+      Replace the email and domain name with your information.
+    </Note>
 
     <Tip>
-    You should see a message indicating that the certificate was successfully obtained.
+      You should see a message indicating that the certificate was successfully obtained.
     </Tip>
   </Step>
 
@@ -101,7 +103,9 @@ Here are the steps to accomplish this task:
      certbot/certbot renew
     ```
 
-    Please replace `/path/to` with the actual path to the directories.
+    <Note>
+      Please replace `/path/to` with the actual path to the directories.
+    </Note>
 
     Make the script executable and add a cron job to run it twice daily:
 
