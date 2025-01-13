@@ -7,14 +7,6 @@
 
 ![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yaml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yaml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
-> [!WARNING]
-> 
-> **Exploring Fonoster**: We encourage new users to initially explore Fonoster's features through our SaaS (Software as a Service) option. This platform is free to start and offers a comprehensive experience of what Fonoster can do.
-> 
-> **Installation Advisory**: Please note that the current installation process for Fonoster is complex. We are actively working to simplify this process. We recommend waiting for our upcoming v0.9.x release before attempting a direct installation. We are working to offer a more user-friendly installation experience.
->
->Thank you for your interest in Fonoster. We are committed to enhancing your experience with every release.
-
 ## Features 
 
 The most notable features of Fonoster are:
