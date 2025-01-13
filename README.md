@@ -112,9 +112,9 @@ main(request).catch(console.error);
 
 To get started with Fonoster, use the following resources:
 
-- [Deploying Fonoster with Docker](./docs/self-hosting/deploy-with-docker.md)
-- [Guide for Early Access User](./docs/early-access/overview.md)
-- [Getting started with Fonoster](https://fonoster.com/docs/overview/)
+- [Deploying Fonoster with Docker](https://docs.fonoster.com/self-hosting)
+- [Guide for Early Access User](https://docs.fonoster.com/quickstart)
+- [Getting started with Fonoster](https://docs.fonoster.com/quickstart)
 - [How we created an open-source alternative to Twilio and why it matters](https://dev.to/fonoster/how-we-created-an-open-source-alternative-to-twilio-and-why-it-matters-434g)
 
 ## Give a Star! ⭐
