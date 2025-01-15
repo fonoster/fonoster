@@ -25,7 +25,7 @@ The most notable features of Fonoster are:
 
 ## Code Examples
 
-A Voice Application is a server that takes control of the flow in a call. A Voice Application can use any combination of the following verbs:
+A Voice Application is a server that controls a call's flow. A Voice Application can use any combination of the following verbs:
 
 - `Answer` - Accepts an incoming call
 - `Hangup` - Closes the call
