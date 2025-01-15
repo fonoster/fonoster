@@ -25,7 +25,7 @@ const hangupToolDefinition: Tool = {
   parameters: {
     type: "object",
     properties: {},
-    required: ["message"]
+    required: []
   },
   operation: {
     type: AllowedOperations.BUILT_IN
