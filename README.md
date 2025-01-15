@@ -30,6 +30,7 @@ A Voice Application is a server that controls a call's flow. A Voice Application
 - `Answer` - Accepts an incoming call
 - `Hangup` - Closes the call
 - `Play` - Takes a URL or file and streams the sound back to the calling party
+- `PlayDtmf` - Takes a DTMF sequence and plays it back to the calling party
 - `Say` - Takes a text, synthesizes the text into audio, and streams back the result
 - `Gather` - Waits for DTMF or speech events and returns back the result
 - `SGather` - Returns a stream for future DTMF and speech results
