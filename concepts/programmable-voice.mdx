@@ -7,4 +7,49 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 
 <WipDocsWarning />
 
-All about verbs, the voice server, speech providers, etc.
+Programmable Voice in Fonoster allows you to control the flow of a phone call using a set of verbs. Verbs work in conjunction with the VoiceServer to create a voice application.
+
+## VoiceServer
+
+The VoiceServer works similarly to an Express server. It accepts requests and returns responses. The VoiceServer is responsible for processing the verbs and executing the desired actions.
+
+An example of running a VoiceServer in Fonoster:
+
+```javascript index.js
+const VoiceServer = require("@fonoster/voice").default;
+
+new VoiceServer().listen(async (req, response) => {
+  // Verbs go here
+  await response.answer();
+  await response.say("Hello World!");
+  await response.hangup();
+});
+```
+
+Like with Express, you can use the request object to access information about the call. For example, you can access the caller's phone number with `req.callerNumber`.
+
+## Verbs
+
+Verbs are the building blocks of a voice application. They are used to control the flow of a phone call. Verbs are executed in the order they are called.
+
+Here is a list of the available verbs in Fonoster:
+
+- `Answer` - Accepts an incoming call
+- `Hangup` - Closes the call
+- `Play` - Takes a URL or file and streams the sound back to the calling party
+- `PlayDtmf` - Takes a DTMF sequence and plays it back to the calling party
+- `Say` - Takes a text, synthesizes the text into audio, and streams back the result
+- `Gather` - Waits for DTMF or speech events and returns back the result
+- `SGather` - Returns a stream for future DTMF and speech results
+- `Dial` - Passes the call to an Agent or a Number at the PSTN
+- `Record` - It records the voice of the calling party and saves the audio on the Storage sub-system
+- `Mute` - It tells the channel to stop sending media, effectively muting the channel
+- `Unmute` - It tells the channel to allow media flow
+
+<Tip>
+  Run any setup code before calling the Answer verb. The Answer verb should be the first verb in your application. Similarly, the Hangup verb should be the last in your application.
+</Tip>
+
+<Card title="See NPM for details" icon="npm" color="#C53635" href="https://www.npmjs.com/package/@fonoster/voice">
+  For full documentation, please visit NPM.
+</Card>
