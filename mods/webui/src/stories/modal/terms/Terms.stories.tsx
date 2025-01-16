@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -20,6 +20,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Terms } from "./Terms";
 import { fn } from "@storybook/test";
+import { DemoWrapper } from "./DemoWrapper";
 
 /**
  * This story is for the Terms and Conditions Modal component based on Material UI.
@@ -72,42 +73,5 @@ type Story = StoryObj<typeof meta>;
  * Default Terms Modal
  */
 export const TermsModal: Story = {
-  args: {
-    message:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-  }
-};
-
-/**
- * Terms Modal Open
- */
-export const TermsModalOpen: Story = {
-  args: {
-    message:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-    open: true
-  }
-};
-
-/**
- * Terms Modal Not Open
- */
-export const TermsModalNotOpen: Story = {
-  args: {
-    message:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-    open: false
-  }
-};
-
-/**
- * Terms Modal with onClose function
- */
-export const WithOnClose: Story = {
-  args: {
-    message:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-    open: true,
-    onClose: fn()
-  }
+  render: () => <DemoWrapper />
 };
