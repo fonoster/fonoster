@@ -21,7 +21,7 @@ import { ServerConfig } from "./types";
 const defaultServerConfig: ServerConfig = {
   port: 50061,
   bind: "0.0.0.0",
-  identityAddress: "api.fonoster.dev",
+  identityAddress: "api.fonoster.com",
   skipIdentity: false
 };
 

@@ -29,7 +29,7 @@ import { NumbersClient } from "../generated/web/NumbersServiceClientPb";
 import { SecretsClient } from "../generated/web/SecretsServiceClientPb";
 import { TrunksClient } from "../generated/web/TrunksServiceClientPb";
 
-const DEFAULT_URL = "https://api.fonoster.io/v1beta2";
+const DEFAULT_URL = "https://api.fonoster.com/v1beta2";
 
 export class WebClient extends AbstractClient {
   private url: string;
@@ -39,10 +39,10 @@ export class WebClient extends AbstractClient {
 
     super({
       accessKeyId,
-      identityClient: new IdentityClient(url || DEFAULT_URL, null, null)
+      identityClient: new IdentityClient(url ?? DEFAULT_URL, null, null)
     });
 
-    this.url = url || DEFAULT_URL;
+    this.url = url ?? DEFAULT_URL;
   }
 
   getMetadata() {

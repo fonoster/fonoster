@@ -1,23 +1,15 @@
 
 # Fonoster: The open-source alternative to Twilio
 
-[Fonoster Inc](https://fonoster.com) is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.
+[Fonoster](https://fonoster.com) is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.
 
 <a href="https://discord.gg/mpWSRUhG7e"><img alt="Fonoster community banner" src="https://raw.githubusercontent.com/fonoster/.github/main/profile/community.png"></img></a>
 
 ![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yaml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yaml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
-> [!WARNING]
-> 
-> **Exploring Fonoster**: We encourage new users to initially explore Fonoster's features through our SaaS (Software as a Service) option. This platform is free to start and offers a comprehensive experience of what Fonoster can do.
-> 
-> **Installation Advisory**: Please note that the current installation process for Fonoster is complex. We are actively working to simplify this process. We recommend waiting for our upcoming v0.9.x release before attempting a direct installation. We are working to offer a more user-friendly installation experience.
->
->Thank you for your interest in Fonoster. We are committed to enhancing your experience with every release.
-
 ## Features 
 
-The most notable features of Fonoster 0.4 are:
+The most notable features of Fonoster are:
 
 - [x] Multitenancy
 - [x] Easy deployment of PBX functionalities
@@ -33,11 +25,12 @@ The most notable features of Fonoster 0.4 are:
 
 ## Code Examples
 
-A Voice Application is a server that takes control of the flow in a call. A Voice Application can use any combination of the following verbs:
+A Voice Application is a server that controls a call's flow. A Voice Application can use any combination of the following verbs:
 
 - `Answer` - Accepts an incoming call
 - `Hangup` - Closes the call
-- `Play` - Takes a URL or file and streams the sound back to the calling party
+- `Play`: Takes a URL with a media file and streams the sound back to the calling party
+- `PlayDtmf` - Takes a DTMF sequence and plays it back to the calling party
 - `Say` - Takes a text, synthesizes the text into audio, and streams back the result
 - `Gather` - Waits for DTMF or speech events and returns back the result
 - `SGather` - Returns a stream for future DTMF and speech results
@@ -120,9 +113,9 @@ main(request).catch(console.error);
 
 To get started with Fonoster, use the following resources:
 
-- [Deploying Fonoster with Docker](./docs/self-hosting/deploy-with-docker.md)
-- [Guide for Early Access User](./docs/early-access/overview.md)
-- [Getting started with Fonoster](https://fonoster.com/docs/overview/)
+- [Deploying Fonoster with Docker](https://docs.fonoster.com/self-hosting)
+- [Guide for Early Access User](https://docs.fonoster.com/quickstart)
+- [Getting started with Fonoster](https://docs.fonoster.com/quickstart)
 - [How we created an open-source alternative to Twilio and why it matters](https://dev.to/fonoster/how-we-created-an-open-source-alternative-to-twilio-and-why-it-matters-434g)
 
 ## Give a Star! ⭐
@@ -357,9 +350,9 @@ For contributing, please see the following links:
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/showf68>
-            <img src=https://avatars.githubusercontent.com/u/45857918?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=showf68/>
+            <img src=https://avatars.githubusercontent.com/u/45857918?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Yossef Haim/>
             <br />
-            <sub style="font-size:14px"><b>showf68</b></sub>
+            <sub style="font-size:14px"><b>Yossef Haim</b></sub>
         </a>
     </td>
 </tr>

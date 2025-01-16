@@ -35,7 +35,7 @@ import { NumbersClient } from "../generated/node/numbers_grpc_pb";
 import { SecretsClient } from "../generated/node/secrets_grpc_pb";
 import { TrunksClient } from "../generated/node/trunks_grpc_pb";
 
-const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
+const DEFAULT_ENDPOINT = "api.fonoster.com";
 
 export class Client extends AbstractClient {
   private readonly endpoint: string;
@@ -54,11 +54,15 @@ export class Client extends AbstractClient {
 
     super({
       accessKeyId: config.accessKeyId,
-      identityClient: new IdentityClient(config.endpoint, channelCredentials)
+      identityClient: new IdentityClient(
+        config.endpoint ?? DEFAULT_ENDPOINT,
+        channelCredentials
+      )
     });
 
     this.channelCredentials = channelCredentials;
-    this.endpoint = config?.endpoint || DEFAULT_ENDPOINT;
+    this.endpoint = config?.endpoint ?? DEFAULT_ENDPOINT;
+
     this.tokenRefresherInterceptor = config.withoutInterceptors
       ? null
       : new TokenRefresherNode(this).createInterceptor().bind(this);

@@ -35,7 +35,7 @@ export default class Login extends BaseCommand<typeof Login> {
     const answers = {
       endpoint: await input({
         message: "Endpoint",
-        default: "api.fonoster.dev"
+        default: "api.fonoster.com"
       }),
       accessKeyId: await input({
         message: "Access Key Id",
