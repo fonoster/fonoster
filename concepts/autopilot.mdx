@@ -157,7 +157,7 @@ The following links provide information on the available voices for each vendor:
 
 ## Conversational settings
 
-The `conversationSettings` object allows you to define the Autopilot's conversational behavior. The conversation settings are independent of the language model used.
+The _conversationSettings_ object allows you to define the Autopilot's conversational behavior. The conversation settings are independent of the language model used.
 
 The following is a list of the supported settings:
 
@@ -185,9 +185,9 @@ A few noteworthy settings include the *maxSpeechWaitTimeout*, *intialDtmf*, *idl
 
 ### Max Speech Wait Timeout
 
-The *maxSpeechWaitTimeout* property allows you to specify the maximum time in milliseconds to wait for the caller before returning the speech-to-text result. If the caller does not speak within the specified time, the speech-to-text engine will return the result.
+The _maxSpeechWaitTimeout_ property allows you to specify the maximum time in milliseconds to wait for the caller before returning the speech-to-text result. If the caller does not speak within the specified time, the speech-to-text engine will return the result.
 
-We recommend setting the *maxSpeechWaitTimeout* to a value that is appropriate for your use case. A value that is too low may result in the speech-to-text engine returning the result before the caller finishes speaking. A value that is too high may result in the speech-to-text engine waiting too long for the caller to speak.
+We recommend setting the *maxSpeechWaitTimeout* to a value appropriate for your use case. A value that is too low may result in the speech-to-text engine returning the result before the caller finishes speaking. A value that is too high may result in the speech-to-text engine waiting too long for the caller to speak.
 
 ### Initial DTMF
 
@@ -197,19 +197,19 @@ Sometimes, users will use call forwarding to reach the number in Fonoster. Some 
 
 The *vad* object allows you to configure the voice activity detection settings. Voice activity detection is used to detect when the caller is speaking and when they are not speaking.
 
-The *vad* object has the *activationThreshold*, *deactivationThreshold*, *debounceFrames* properties. The *actionThreshold* property is the activation threshold for voice activity detection. The *deactivationThreshold* property is the deactivation threshold for voice activity detection. The *debounceFrames* property is the number of frames to debounce the voice activity detection.
+The _*vad*_ object has the _*activationThreshold*_, _*deactivationThreshold*_, _*debounceFrames*_ properties. The _*actionThreshold_ property is the activation threshold for voice activity detection. The _deactivationThreshold_ property is the deactivation threshold for voice activity detection. The _debounceFrames_ property is the number of frames to debounce the voice activity detection.
 
-Consider that a lower *activationThreshold* will result in the voice activity detection being more sensitive to the caller's speech. A higher *activationThreshold* will result in the voice activity detection being less sensitive to the caller's speech.
+A lower activation threshold will make the detection more sensitive to the caller's speech. A higher activation threshold will result in the voice activity detection being less sensitive to the caller's speech.
 
-A lower *deactivationThreshold* will result in more aggressive voice activity detection deactivation. A higher *deactivationThreshold* will result in less aggressive voice activity detection deactivation.
+A lower deactivation threshold will result in more aggressive voice activity detection deactivation. A higher deactivation threshold will result in less aggressive voice activity detection deactivation.
 
-The *debounceFrames* parameter introduces a delay mechanism that ensures that transitions between "speech" and "non-speech" states are stable and not too sensitive to small fluctuations in the input audio signal. Here’s how it works:
+The _debounceFrames_ parameter introduces a delay mechanism that ensures that transitions between "speech" and "non-speech" states are stable and not too sensitive to small fluctuations in the input audio signal. Here's how it works:
 
 By requiring multiple consecutive frames (debounceFrames) to confirm speech or non-speech, the system filters out short bursts of noise or brief gaps in speech that might otherwise cause erratic state changes.
 
 ## Langue model configuration
 
-The `languageModel` object allows you to define the language model the Autopilot uses. The language model is responsible for generating responses to the user's input.
+The _languageModel_ object allows you to define the language model the Autopilot uses. The language model is responsible for generating responses to the user's input.
 
 The following is a list of the supported settings:
 
@@ -262,9 +262,9 @@ The following is a list of built-in tools:
 
 You can add custom tools to the language model by adding an entry to the `tools` array. The following is an example of how to add a custom tool:
 
-Custom tools are govern by the [tool schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
+Custom tools are governed by the [tool schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
 
-An example of a custom tool to get available appointment times:
+An custom tool to get available appointment times would look as follows:
 
 ```json
 {
