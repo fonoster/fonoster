@@ -45,25 +45,15 @@ const appConfig = {
         systemTemplate: "You are a Customer Service Representative. You are here to help the caller with their needs.",
         goodbyeMessage: "Goodbye, have a great day!",
         systemErrorMessage: "I'm sorry, I didn't understand that. Can you please repeat it?",
-        maxSpeechWaitTimeout: 10000,
         "idleOptions": {
-          "message": "Are you still there?",
-          "timeout": 10000,
-          "maxTimeoutCount": 3
-        },
-        vad: {
-          activationThreshold: 0.30,
-          deactivationThreshold: 0.15,
-          debounceFrames: 1
+          "message": "Are you still there?"
         }
       },
       languageModel: {
         provider: "groq",
         model: "llama-3.3-70b-specdec",
         maxTokens: 250,
-        temperature: 0.7,
-        knowledgeBase: [],
-        tools: []
+        temperature: 0.7
       }
     }
   }
