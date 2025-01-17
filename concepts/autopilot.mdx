@@ -8,12 +8,12 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 <WipDocsWarning />
 
 <Warning>
-  The Autopilot is currently in overview mode and only available via the SDK, and the Knowledgebase features have been disabled.
+  The Autopilot is currently in overview mode and only available via the SDK, and the KnowledgeBase features have been disabled.
 </Warning>
 
-Fonoster's Autopilot is a component within the platform that allows you to create powerful conversational experiences. It is built on top of Fonoster Programmable Voice. It uses the latest advances in large language models (LLMs) to provide a more natural and engaging experience.
+Fonoster's Autopilot is a component within the platform that allows you to create powerful conversational experiences. It is built on top of Fonoster [Programmable voice](./programmable-voice) and uses the latest advances in large language models (LLMs) to provide a natural and engaging experience.
 
-## Creating an Autopilot Application
+## Overview
 
 The following is an example of how to create an Autopilot application using the SDK:
 
@@ -64,28 +64,150 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
   .catch(console.error);
 ```
 
-## Refining the conversation
+## General configuration
+
+The Autopilot configuration is divided into a general section and three sub-sections: `speechToText`, `textToSpeech`, and `intelligence`.
+
+The general section contains *name*, *type*, and *endpoint* properties.
+
+The *name* property is the name of the Autopilot application. The *type* property is the type of the application, which should always be set to `AUTOPILOT`. The *endpoint* is an optional property allowing you to specify the endpoint for self-hosted Autopilots.
+
+## Configuring speech-to-text
+
+The `speechToText` object allows you to define the speech-to-text engine to use. The speech-to-text engine is responsible for converting the caller's speech into text.
+
+The `speechToText` object has the *productRef* and *config* properties. The *productRef* property is the reference to the speech-to-text vendor you want to use. The *config* property is an object that contains the configuration settings for the speech-to-text engine. The configuration settings vary depending on the vendor.
+
+At the moment, only *Deepgram* is supported as a speech-to-text vendor, but we are working on adding more vendors.
+
+### Deepgram configuration
+
+Deepgram is a speech-to-text vendor that provides high-quality transcription services. Deepgram supports the *languageCode* as well as *model* properties. The *languageCode* property is the language code of the speech you want to transcribe. The *model* property is the model to use for transcription and defaults to `nova-2-phonecall`.
+
+The Autopilot currently supports the models `nova-2`, `nova-2-phonecall`, and `nova-2-conversationalai`.
+
+Example of a Deepgram configuration for Spanish:
+
+```javascript
+const appConfig = {
+  ...
+  speechToText: {
+    productRef: "stt.deepgram",
+    config: {
+      model: "nova-2"
+      languageCode: "es",
+    }
+  },
+  ...
+}
+```
+
+<Note>
+  For languageCode other than `en-US`, you need to use the `nova-2` model. Please refer to the [Deepgram documentation](https://developers.deepgram.com/docs/models-languages-overview) for more information.
+</Note>
+
+## Configuring text-to-speech
+
+The `textToSpeech` object allows you to define the text-to-speech engine to use. The text-to-speech engine is responsible for converting the Autopilot's responses into speech.
+
+The `textToSpeech` object has the *productRef* and *config* properties. The *productRef* property is the reference to the text-to-speech vendor you want to use. The *config* property is an object that contains the configuration settings for the text-to-speech engine. The configuration settings vary depending on the vendor.
+
+We currently support *Google*, *Azure*, *Deepgram*, and *ElevenLabs* as text-to-speech vendors.
+
+Most vendors only support the *voice* property, which is the voice to use for the text-to-speech. The voice is a string that represents the voice to use. The available voices depend on the vendor.
+
+Please visit the vendor's documentation for more information on the available voices.
+
+<Tip>
+  In addition to the *voice* property, the *ElevenLabs* vendor supports the *model* property. The *model* property is the model to use for text-to-speech and defaults to `tts-1`.
+  Please refer to the [ElevenLabs documentation](https://elevenlabs.io/docs/developer-guides/models) for additional information about the available models.
+</Tip>
+
+Example of a text-to-speech configuration for *ElevenLabs*:
+
+```javascript
+const appConfig = {
+  ...
+  textToSpeech: {
+    productRef: "tts.elevenlabs",
+    config: {
+      voice: "CaJslL1xziwefCeTNzHv",
+      mode: "eleven_flash_v2_5"
+    }
+  },
+  ...
+}
+```
+
+### Available voices by vendor
+
+The following links provide information on the available voices for each vendor:
+
+* [Deepgram](https://developers.deepgram.com/docs/tts-models)
+
+* [ElevenLabs](https://elevenlabs.io/docs/product/voices/default-voices)
+
+* [Google](https://cloud.google.com/text-to-speech/docs/voices)
+
+* [Azure](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support)
+
+<Warning>
+  If you need a non-default *ElevenLabs* voices please let us know, and we will add it for you.
+</Warning>
+
+## Conversational settings
 
 The `conversationSettings` object allows you to define the Autopilot's conversational behavior. The conversation settings are independent of the language model used.
 
 The following is a list of the supported settings:
 
-| Setting                     | Description                                                                                              |
-| --------------------------- | -------------------------------------------------------------------------------------------------------- |
-| firstMessage                | The first message the Autopilot will say when the conversation starts                                    |
-| systemTemplate              | A template that describes the role of the Autopilot. This is used to set the context of the conversation |
-| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                  |
-| initialDtmf                 | A DTMF to play when the conversation starts                                                              |
-| transferOptions             | The options to transfer the call to a live agent                                                         |
-| transferOptions.phoneNumber | The phone number to transfer the call to                                                                 |
-| transferOptions.message     | The message to play before transferring the call                                                         |
-| transferOptions.timeout     | The time in milliseconds to wait before hanging up the call if the transfer is not completed             |
-| idleOptions                 | The options to handle idle time during the conversation                                                  |
-| idleOptions.message         | The message to play after the idle time is reached                                                       |
-| idleOptions.timeout         | The time in milliseconds to wait before playing the idle message                                         |
-| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                   |
+| Setting                     | Description                                                                                                               |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| firstMessage                | The first message the Autopilot will say when the conversation starts                                                     |
+| systemTemplate              | A template that describes the role of the Autopilot. This is used to set the context of the conversation                  |
+| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                                   |
+| maxSpeechWaitTimeout        | The maximum time in milliseconds to wait for the caller before returning the speech-to-text result. Default to `10000 ms` |
+| initialDtmf                 | A DTMF to play when the conversation starts                                                                               |
+| transferOptions             | The options to transfer the call to a live agent                                                                          |
+| transferOptions.phoneNumber | The phone number to transfer the call to                                                                                  |
+| transferOptions.message     | The message to play before transferring the call                                                                          |
+| transferOptions.timeout     | The time in milliseconds to wait before hanging up the call if the transfer is not completed. Default to `30000 ms`       |
+| idleOptions                 | The options to handle idle time during the conversation                                                                   |
+| idleOptions.message         | The message to play after the idle time is reached                                                                        |
+| idleOptions.timeout         | The time in milliseconds to wait before playing the idle message. Defaults to `10000 ms`                                  |
+| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                                    |
+| vad                         | The voice activity detection settings                                                                                     |
+| vad.activationThreshold     | The activation threshold for the voice activity detection. Default to `0.30`                                              |
+| vad.deactivationThreshold   | The deactivation threshold for the voice activity detection. Default to `0.15`                                            |
+| vad.debounceFrames          | The number of frames to debounce the voice activity detection. Default to `1`                                             |
 
-## Configuring the language model
+A few noteworthy settings include the *maxSpeechWaitTimeout*, *intialDtmf*, *idleOptions*, and *vad*.
+
+### Max Speech Wait Timeout
+
+The *maxSpeechWaitTimeout* property allows you to specify the maximum time in milliseconds to wait for the caller before returning the speech-to-text result. If the caller does not speak within the specified time, the speech-to-text engine will return the result.
+
+We recommend setting the *maxSpeechWaitTimeout* to a value that is appropriate for your use case. A value that is too low may result in the speech-to-text engine returning the result before the caller finishes speaking. A value that is too high may result in the speech-to-text engine waiting too long for the caller to speak.
+
+### Initial DTMF
+
+Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a DTMF to be played before the call is connected. The *initialDtmf* property allows you to specify a DTMF to play when the conversation starts.
+
+### Voice Activity Detection (VAD)
+
+The *vad* object allows you to configure the voice activity detection settings. Voice activity detection is used to detect when the caller is speaking and when they are not speaking.
+
+The *vad* object has the *activationThreshold*, *deactivationThreshold*, *debounceFrames* properties. The *actionThreshold* property is the activation threshold for voice activity detection. The *deactivationThreshold* property is the deactivation threshold for voice activity detection. The *debounceFrames* property is the number of frames to debounce the voice activity detection.
+
+Consider that a lower *activationThreshold* will result in the voice activity detection being more sensitive to the caller's speech. A higher *activationThreshold* will result in the voice activity detection being less sensitive to the caller's speech.
+
+A lower *deactivationThreshold* will result in more aggressive voice activity detection deactivation. A higher *deactivationThreshold* will result in less aggressive voice activity detection deactivation.
+
+The *debounceFrames* parameter introduces a delay mechanism that ensures that transitions between "speech" and "non-speech" states are stable and not too sensitive to small fluctuations in the input audio signal. Here’s how it works:
+
+By requiring multiple consecutive frames (debounceFrames) to confirm speech or non-speech, the system filters out short bursts of noise or brief gaps in speech that might otherwise cause erratic state changes.
+
+## Langue model configuration
 
 The `languageModel` object allows you to define the language model the Autopilot uses. The language model is responsible for generating responses to the user's input.
 
@@ -104,17 +226,18 @@ The following is a list of the supported settings:
 
 The Autopilot supports multiple language model providers. The following is a list of the supported providers:
 
-| Provider | Description                                                | Supported models                                        |
-| -------- | ---------------------------------------------------------- | ------------------------------------------------------- |
-| OpenAI   | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo` |
-| Groq     | Groq offers high-performance AI models optimized for speed | `llama-3.1-8b-instant`, `llama-3.3-70b-specdec`, `llama-3.3-70b-versatile`         |
-| Ollama   | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                  |
+| Provider | Description                                                | Supported models                                                           |
+| -------- | ---------------------------------------------------------- | -------------------------------------------------------------------------- |
+| OpenAI   | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo`                    |
+| Groq     | Groq offers high-performance AI models optimized for speed | `llama-3.1-8b-instant`, `llama-3.3-70b-specdec`, `llama-3.3-70b-versatile` |
+| Ollama   | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                                     |
 
 <Tip>
   We are constantly updating the list of supported providers and models. Please let us know if you have a specific model you want to use.
 </Tip>
+
 <Warning>
-We have noticed that Groq models, particularly llama-3.3-70b-versatile, often require greater prompting specificity for effective tool usage. We will share best practices to ensure more consistent behavior, as we gain more insights
+  We have noticed that Groq models, particularly `llama-3.3-70b-versatile`, often require greater prompting specificity for effective tool usage. We will share best practices to ensure more consistent behavior as we gain more insights
 </Warning>
 
 ### Knowledge bases
@@ -125,6 +248,8 @@ Coming soon...
 
 Fonoster's Autopilot allows you to use tools to enhance the conversational experience. Tools are used to perform specific actions during the conversation.
 
+### Built-in tools
+
 The following is a list of built-in tools:
 
 | Tool     | Description                                  |
@@ -133,43 +258,41 @@ The following is a list of built-in tools:
 | transfer | A tool to transfer the call to a live agent  |
 | hold     | A tool to put the call on hold (Coming soon) |
 
+### Custom tools
+
 You can add custom tools to the language model by adding an entry to the `tools` array. The following is an example of how to add a custom tool:
 
-```javascript
-const appConfig = {
-  ...
-  intelligence: {
-    ...
-    languageModel: {
-      ...
-      "tools": [
-        {
-          "name": "getAvailableTimes",
-          "description": "Get available appointment times for a specific date.",
-          "parameters": {
-            "type": "object",
-            "properties": {
-              "date": {
-                "type": "string",
-                "format": "date"
-              }
-            },
-            "required": [
-              "date"
-            ]
-          },
-          "operation": {
-            "type": "get",
-            "url": "https://api.example.com/appointment-times",
-            "headers": {
-              "x-api-key": "your-api-key"
-            }
-          }
-        }
-      ]
+Custom tools are govern by the [tool schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
+
+An example of a custom tool to get available appointment times:
+
+```json
+{
+  "name": "getAvailableTimes",
+  "description": "Get available appointment times for a specific date.",
+  "requestStartMessage": "I'm looking for available appointment times for the date you provided.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "date": {
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "required": [
+      "date"
+    ]
+  },
+  "operation": {
+    "type": "get",
+    "url": "https://api.example.com/appointment-times",
+    "headers": {
+      "x-api-key": "your-api-key"
     }
   }
 }
 ```
 
-Please see the tool's [schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts) for additional properties.
+<Tip>
+  Use `operation.type` "post" for POST requests. If you want the Autopilot to wait for POST requests to complete, set `operation.waitForResponse` to `true`. For "get" requests, the Autopilot will wait for the response by default.
+</Tip>
