@@ -66,23 +66,23 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
 
 ## General configuration
 
-The Autopilot configuration is divided into a general section and three sub-sections: `speechToText`, `textToSpeech`, and `intelligence`.
+The Autopilot configuration is divided into a general section and three sub-sections: _*speechToText*_, _*textToSpeech*_, and _*intelligence*_.
 
 The general section contains *name*, *type*, and *endpoint* properties.
 
-The *name* property is the name of the Autopilot application. The *type* property is the type of the application, which should always be set to `AUTOPILOT`. The *endpoint* is an optional property allowing you to specify the endpoint for self-hosted Autopilots.
+The _name_ property is the name of the Autopilot application. The _type_ property is the type of the application, which should always be set to `AUTOPILOT`. The _endpoint_ is an optional property allowing you to specify the endpoint for self-hosted Autopilots.
 
 ## Configuring speech-to-text
 
-The `speechToText` object allows you to define the speech-to-text engine to use. The speech-to-text engine is responsible for converting the caller's speech into text.
+The _speechToText_ object allows you to define the speech-to-text engine to use. The speech-to-text engine is responsible for converting the caller's speech into text.
 
-The `speechToText` object has the *productRef* and *config* properties. The *productRef* property identifies the speech-to-text vendor you want to use. The *config* property is an object that contains the configuration settings for the speech-to-text engine. The configuration settings vary depending on the vendor.
+The _speechToText_ object has the _productRef_ and _config_ properties. The _productRef_ property identifies the speech-to-text vendor you want to use. The _config_ property is an object that contains the configuration settings for the speech-to-text engine. The configuration settings vary depending on the vendor.
 
 Currently, only *Deepgram* is supported as a speech-to-text vendor, but we are working on adding more vendors.
 
 ### Deepgram configuration
 
-Deepgram is a speech-to-text vendor that provides high-quality transcription services. Deepgram supports the *languageCode* as well as *model* properties. The *languageCode* property is the language code of the speech you want to transcribe. The *model* property is the model to use for transcription and defaults to `nova-2-phonecall`.
+Deepgram is a speech-to-text vendor that provides high-quality transcription services. Deepgram supports the _languageCode_ as well as _model_ properties. The _languageCode_ property is the language code of the speech you want to transcribe. The _model_ property is the model to use for transcription and defaults to `nova-2-phonecall`.
 
 The Autopilot supports the models `nova-2`, `nova-2-phonecall`, and `nova-2-conversationalai`.
 
@@ -103,18 +103,18 @@ const appConfig = {
 ```
 
 <Note>
-  For languageCode other than `en-US`, you need to use the `nova-2` model. Please refer to the [Deepgram documentation](https://developers.deepgram.com/docs/models-languages-overview) for more information.
+  For _languageCode_ other than `en-US`, you need to use the `nova-2` model. Please refer to the [Deepgram documentation](https://developers.deepgram.com/docs/models-languages-overview) for more information.
 </Note>
 
 ## Configuring text-to-speech
 
-The `textToSpeech` object allows you to define the text-to-speech engine to use. The text-to-speech engine is responsible for converting the Autopilot's responses into speech.
+The _textToSpeech_ object allows you to define the text-to-speech engine. The text-to-speech engine is responsible for converting the Autopilot's responses into speech.
 
-The `textToSpeech` object has the *productRef* and *config* properties. The *productRef* property identifies the text-to-speech vendor you want to use. The *config* property is an object that contains the configuration settings for the text-to-speech engine. The configuration settings vary depending on the vendor.
+The _textToSpeech_ object has the _productRef_ and _config_ properties. The _productRef_ property identifies the text-to-speech vendor you want to use. The _config_ property is an object that contains the configuration settings for the text-to-speech engine. The configuration settings vary depending on the vendor.
 
 We currently support *Google*, *Azure*, *Deepgram*, and *ElevenLabs* as text-to-speech vendors.
 
-Most vendors only support the *voice* property, which is the voice to use for the text-to-speech. The voice is a string that represents the voice to use. The available voices depend on the vendor.
+Most vendors only support the _voice_ property, which is the voice to use for the text-to-speech. The voice is a string that represents the voice to use. The available voices depend on the vendor.
 
 Please visit the vendor's documentation for more information on the available voices.
 
