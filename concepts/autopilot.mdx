@@ -187,17 +187,17 @@ A few noteworthy settings include the *maxSpeechWaitTimeout*, *intialDtmf*, *idl
 
 The _maxSpeechWaitTimeout_ property allows you to specify the maximum time in milliseconds to wait for the caller before returning the speech-to-text result. If the caller does not speak within the specified time, the speech-to-text engine will return the result.
 
-We recommend setting the *maxSpeechWaitTimeout* to a value appropriate for your use case. A value that is too low may result in the speech-to-text engine returning the result before the caller finishes speaking. A value that is too high may result in the speech-to-text engine waiting too long for the caller to speak.
+A value that is too low may result in the speech-to-text engine returning the result before the caller finishes speaking. A value that is too high may result in the speech-to-text engine waiting too long for the caller to speak.
 
 ### Initial DTMF
 
-Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a DTMF to be played before the call is connected. The *initialDtmf* property allows you to specify a DTMF to play when the conversation starts.
+Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a Dual-tone multi-frequency (DTMF) to be played before the call is connected. The _initialDtmf_ property allows you to specify a DTMF to play when the session starts.
 
 ### Voice Activity Detection (VAD)
 
 The *vad* object allows you to configure the voice activity detection settings. Voice activity detection is used to detect when the caller is speaking and when they are not speaking.
 
-The _*vad*_ object has the _*activationThreshold*_, _*deactivationThreshold*_, _*debounceFrames*_ properties. The _*actionThreshold_ property is the activation threshold for voice activity detection. The _deactivationThreshold_ property is the deactivation threshold for voice activity detection. The _debounceFrames_ property is the number of frames to debounce the voice activity detection.
+The _vad_ object has the _activationThreshold_, _deactivationThreshold_, _debounceFrames_ properties. The _actionThreshold_ property is the activation threshold for voice activity detection. The _deactivationThreshold_ property is the deactivation threshold for voice activity detection. The _debounceFrames_ property is the number of frames to debounce the voice activity detection.
 
 A lower activation threshold will make the detection more sensitive to the caller's speech. A higher activation threshold will result in the voice activity detection being less sensitive to the caller's speech.
 
