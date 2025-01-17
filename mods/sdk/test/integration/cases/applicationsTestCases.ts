@@ -77,6 +77,16 @@ function createApplicationsTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
+        name: "should fail with a bad request error",
+        method: "updateApplication",
+        request: {
+          name: "My renamed Application",
+          endpoint: "localhost:50061"
+        },
+        grpcCode: 3
+      },
+      {
+        id: `${idBase}-03`,
         name: "should update the name of the application",
         method: "updateApplication",
         request: {

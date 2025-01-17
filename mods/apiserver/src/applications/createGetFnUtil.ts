@@ -16,11 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { badRequestError } from "../core/badRequestError";
 import { Prisma } from "../core/db";
 import { notFoundError } from "../core/notFoundError";
 
 function createGetFnUtil(prisma: Prisma) {
   return async (ref: string) => {
+    if (!ref) {
+      throw badRequestError("The reference to the resource is required");
+    }
+
     const response = await prisma.application.findUnique({
       where: { ref },
       include: {
