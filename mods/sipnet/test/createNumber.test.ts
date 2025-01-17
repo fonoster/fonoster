@@ -24,7 +24,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { TEST_TOKEN } from "./testToken";
-import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "../src/constants";
+import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "@fonoster/common";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

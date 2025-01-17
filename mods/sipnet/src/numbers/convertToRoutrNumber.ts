@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "@fonoster/common";
 import { CreateNumberRequest, UpdateNumberRequest } from "@fonoster/types";
-import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "../constants";
 
 function convertToRoutrNumber(
   number: CreateNumberRequest,

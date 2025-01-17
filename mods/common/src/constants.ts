@@ -23,3 +23,5 @@ export const GRPC_SERVING_STATUS = "SERVING" as ServingStatus;
 export const STASIS_APP_NAME = "mediacontroller";
 export const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
 export const INFLUXDB_CALLS_BUCKET = "calls";
+export const APP_REF_HEADER = "x-app-ref";
+export const ROUTR_DEFAULT_PEER_AOR = "sip:voice@default";

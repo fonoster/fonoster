@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APP_REF_HEADER } from "@fonoster/common";
 import { INumber, INumberExtended } from "@fonoster/types";
-import { APP_REF_HEADER } from "../constants";
 
 function convertToFonosterNumber(number: INumberExtended): INumber {
   const appRef = number.extraHeaders?.find(
