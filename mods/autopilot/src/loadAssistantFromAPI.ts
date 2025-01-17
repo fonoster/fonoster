@@ -22,6 +22,7 @@ import * as SDK from "@fonoster/sdk";
 import { AssistantConfig } from "./assistants";
 import { APISERVER_ENDPOINT } from "./envs";
 import { getLogger } from "@fonoster/logger";
+import { assistantSchema } from "@fonoster/common";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -67,7 +68,7 @@ function loadAssistantFromAPI(
 
         assistantConfig.languageModel.apiKey = credentials?.apiKey as string;
 
-        resolve(assistantConfig);
+        resolve(assistantSchema.parse(assistantConfig));
       })
       .catch((err) => {
         reject(new Error(`Failed to load assistant config from API: ${err}`));

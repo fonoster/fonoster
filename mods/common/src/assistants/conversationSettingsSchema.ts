@@ -20,6 +20,12 @@ import { z } from "zod";
 import * as Messages from "../messages";
 
 const NUMBER_BETWEEN_0_AND_1 = "Must be a number between 0 and 1";
+const MAX_SPEECH_WAIT_TIMEOUT = 10000;
+const IDLE_OPTIONS_TIMEOUT = 10000;
+const IDLE_OPTIONS_MAX_TIMEOUT_COUNT = 3;
+const VAD_ACTIVATION_THRESHOLD = 0.3;
+const VAD_DEACTIVATION_THRESHOLD = 0.15;
+const VAD_DEBOUNCE_FRAMES = 1;
 
 const conversationSettingsSchema = z.object({
   firstMessage: z.string().optional(),
@@ -33,7 +39,8 @@ const conversationSettingsSchema = z.object({
   maxSpeechWaitTimeout: z
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
+    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+    .default(MAX_SPEECH_WAIT_TIMEOUT),
   transferOptions: z
     .object({
       phoneNumber: z.string(),
@@ -42,39 +49,45 @@ const conversationSettingsSchema = z.object({
         .number()
         .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
         .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-        .optional()
+        .default(30000)
     })
     .optional(),
-  idleOptions: z
+  idleOptions: z.object({
+    message: z.string(),
+    timeout: z
+      .number()
+      .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+      .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+      .default(IDLE_OPTIONS_TIMEOUT),
+    maxTimeoutCount: z
+      .number()
+      .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+      .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+      .default(IDLE_OPTIONS_MAX_TIMEOUT_COUNT)
+  }),
+  vad: z
     .object({
-      message: z.string(),
-      timeout: z
+      pathToModel: z.string().optional(),
+      activationThreshold: z
         .number()
-        .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-        .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
-      maxTimeoutCount: z
+        .max(1)
+        .min(0)
+        .positive({ message: NUMBER_BETWEEN_0_AND_1 }),
+      deactivationThreshold: z
+        .number()
+        .max(1)
+        .min(0)
+        .positive({ message: NUMBER_BETWEEN_0_AND_1 }),
+      debounceFrames: z
         .number()
         .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
         .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
     })
-    .optional(),
-  vad: z.object({
-    pathToModel: z.string().optional(),
-    activationThreshold: z
-      .number()
-      .max(1)
-      .min(0)
-      .positive({ message: NUMBER_BETWEEN_0_AND_1 }),
-    deactivationThreshold: z
-      .number()
-      .max(1)
-      .min(0)
-      .positive({ message: NUMBER_BETWEEN_0_AND_1 }),
-    debounceFrames: z
-      .number()
-      .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-      .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-  })
+    .default({
+      activationThreshold: VAD_ACTIVATION_THRESHOLD,
+      deactivationThreshold: VAD_DEACTIVATION_THRESHOLD,
+      debounceFrames: VAD_DEBOUNCE_FRAMES
+    })
 });
 
 export { conversationSettingsSchema };

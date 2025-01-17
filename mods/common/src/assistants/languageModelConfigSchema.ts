@@ -43,16 +43,18 @@ const languageModelConfigSchema = z.object({
       message: Messages.VALID_URL
     })
     .optional(),
-  knowledgeBase: z.array(
-    z.object({
-      type: z.enum(["s3"]),
-      title: z.string(),
-      document: z.string().regex(/\.pdf$/, {
-        message: "Document must be a pdf file"
+  knowledgeBase: z
+    .array(
+      z.object({
+        type: z.enum(["s3"]),
+        title: z.string(),
+        document: z.string().regex(/\.pdf$/, {
+          message: "Document must be a pdf file"
+        })
       })
-    })
-  ),
-  tools: z.array(toolSchema)
+    )
+    .default([]),
+  tools: z.array(toolSchema).default([])
 });
 
 export { languageModelConfigSchema };
