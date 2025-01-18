@@ -20,12 +20,12 @@ import { z } from "zod";
 import * as Messages from "../messages";
 
 const NUMBER_BETWEEN_0_AND_1 = "Must be a number between 0 and 1";
-const MAX_SPEECH_WAIT_TIMEOUT = 10000;
+const MAX_SPEECH_WAIT_TIMEOUT = 5000;
 const IDLE_OPTIONS_TIMEOUT = 10000;
 const IDLE_OPTIONS_MAX_TIMEOUT_COUNT = 3;
 const VAD_ACTIVATION_THRESHOLD = 0.3;
-const VAD_DEACTIVATION_THRESHOLD = 0.15;
-const VAD_DEBOUNCE_FRAMES = 1;
+const VAD_DEACTIVATION_THRESHOLD = 0.25;
+const VAD_DEBOUNCE_FRAMES = 3;
 
 const conversationSettingsSchema = z.object({
   firstMessage: z.string().optional(),
@@ -36,6 +36,7 @@ const conversationSettingsSchema = z.object({
     .string()
     .regex(/^[0-9*#]+$/, { message: Messages.VALID_DTMF })
     .optional(),
+  maxSessionDuration: z.number().int().positive().default(30 * 60 * 1000), // 30 minutes
   maxSpeechWaitTimeout: z
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })

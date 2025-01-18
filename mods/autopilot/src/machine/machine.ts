@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { assign, fromPromise, setup } from "xstate";
+import { assign, fromPromise, setup, and, not } from "xstate";
 import { AutopilotContext } from "./types";
 import { ConversationSettings } from "../assistants";
 import { LanguageModel } from "../models";
@@ -59,7 +59,6 @@ const machine = setup({
       });
 
       await context.voice.say(context.goodbyeMessage);
-
       await context.voice.hangup();
     },
     announceSystemError: async ({ context }) => {
@@ -97,10 +96,14 @@ const machine = setup({
         speech: (event as { speech: string }).speech
       });
 
-      const speech = (event as { speech: string }).speech;
+      const speech = (event as { speech: string }).speech
+
+      if (!speech) {
+        return context;
+      }
 
       context.speechBuffer = (
-        (context.speechBuffer || "") +
+        (context.speechBuffer ?? "") +
         " " +
         speech
       ).trimStart();
@@ -130,26 +133,35 @@ const machine = setup({
 
       context.isSpeaking = false;
       return context;
+    }),
+    resetState: assign(({ context }) => {
+      logger.verbose("called resetState action");
+      return {
+        ...context,
+        speechBuffer: "",
+        idleTimeoutCount: 0,
+        isSpeaking: false
+      };
     })
   },
   guards: {
     idleTimeoutCountExceedsMax: function ({ context }) {
       logger.verbose("called idleTimeoutCountExceedsMax guard", {
-        idleTimeoutCount: context.idleTimeoutCount,
+        idleTimeoutCount: context.idleTimeoutCount + 1,
         maxIdleTimeoutCount: context.maxIdleTimeoutCount
       });
 
-      return context.idleTimeoutCount >= context.maxIdleTimeoutCount;
+      return context.idleTimeoutCount + 1 > context.maxIdleTimeoutCount;
     },
     hasSpeechResult: function ({ context }) {
       return context.speechBuffer !== "";
     },
-    isNotSpeaking: function ({ context }) {
-      logger.verbose("called isNotSpeaking guard", {
+    isSpeaking: function ({ context }) {
+      logger.verbose("called isSpeaking guard", {
         isSpeaking: context.isSpeaking
       });
 
-      return !context.isSpeaking;
+      return context.isSpeaking;
     }
   },
   delays: {
@@ -158,6 +170,10 @@ const machine = setup({
     },
     MAX_SPEECH_WAIT_TIMEOUT: ({ context }) => {
       return context.maxSpeechWaitTimeout;
+    },
+    SESSION_TIMEOUT: ({ context }) => {
+      const elapsed = Date.now() - context.sessionStartTime;
+      return Math.max(0, context.maxSessionDuration - elapsed);
     }
   },
   actors: {
@@ -210,6 +226,20 @@ const machine = setup({
         }
       }
     )
+  },
+  on: {
+    ERROR: {
+      target: "systemError",
+      actions: "logError"
+    }
+  },
+  after: {
+    SESSION_TIMEOUT: {
+      target: "hangup",
+      actions: [
+        "goodbye"
+      ]
+    }
   }
 }).createMachine({
   context: ({ input }) => ({
@@ -229,8 +259,9 @@ const machine = setup({
       input.conversationSettings.idleOptions?.maxTimeoutCount || 3,
     idleTimeoutCount: 0,
     maxSpeechWaitTimeout: input.conversationSettings.maxSpeechWaitTimeout,
-    speechResponseTime: 0,
-    isSpeaking: false
+    isSpeaking: false,
+    sessionStartTime: Date.now(),
+    maxSessionDuration: input.conversationSettings.maxSessionDuration
   }),
   id: "fnAI",
   initial: "greeting",
@@ -258,25 +289,26 @@ const machine = setup({
         IDLE_TIMEOUT: [
           {
             target: "hangup",
-            actions: {
-              type: "goodbye"
-            },
-            guard: {
-              type: "idleTimeoutCountExceedsMax"
-            }
+            actions: { type: "goodbye" },
+            guard: and([
+              "idleTimeoutCountExceedsMax",
+              not("isSpeaking")
+            ])
           },
           {
-            target: "transitioningToIdle",
+            target: "idleTransition",
+            guard: not("isSpeaking"),
             actions: [
-              {
-                type: "increaseIdleTimeoutCount"
-              },
-              {
-                type: "announceIdleTimeout"
-              }
+              { type: "increaseIdleTimeoutCount" },
+              { type: "announceIdleTimeout" }
             ]
           }
         ]
+      }
+    },
+    idleTransition: {
+      always: {
+        target: "idle"
       }
     },
     waitingForUserRequest: {
@@ -301,54 +333,40 @@ const machine = setup({
     hangup: {
       type: "final"
     },
-    transitioningToIdle: {
-      always: {
-        target: "idle"
-      }
-    },
     updatingSpeech: {
       on: {
+        SPEECH_END: {
+          actions: [
+            {
+              type: "setSpeakingDone"
+            }
+          ]
+        },
         SPEECH_RESULT: [
           {
             target: "processingUserRequest",
             actions: {
               type: "appendSpeech"
             },
-            guard: {
-              type: "isNotSpeaking"
-            },
+            guard: not("isSpeaking"),
             description: "Speech result from the Speech to Text provider."
           },
-          {
-            target: "updatingSpeech",
-            actions: {
-              type: "appendSpeech"
-            }
-          }
         ],
-        SPEECH_END: [
+      },
+      after: {
+        MAX_SPEECH_WAIT_TIMEOUT: [
           {
             target: "processingUserRequest",
-            actions: {
-              type: "setSpeakingDone"
-            },
-            guard: {
-              type: "hasSpeechResult"
-            },
-            description: "Event from VAD or similar system."
+            guard: and([not("isSpeaking"), "hasSpeechResult"])
           },
           {
-            target: "updatingSpeech",
+            target: "idle",
+            guard: not("isSpeaking"),
             actions: {
-              type: "setSpeakingDone"
+              type: "announceIdleTimeout"
             }
           }
         ]
-      },
-      after: {
-        MAX_SPEECH_WAIT_TIMEOUT: {
-          target: "processingUserRequest"
-        }
       }
     },
     processingUserRequest: {
@@ -363,6 +381,15 @@ const machine = setup({
         input: ({ context }) => ({ context }),
         onDone: {
           target: "idle"
+        }
+      }
+    },
+    systemError: {
+      entry: "announceSystemError",
+      after: {
+        SYSTEM_ERROR_RECOVERY_TIMEOUT: {
+          target: "idle",
+          actions: "resetState"
         }
       }
     }

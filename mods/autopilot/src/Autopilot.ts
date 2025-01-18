@@ -80,6 +80,8 @@ class Autopilot {
 
       if (event === "SPEECH_START") {
         this.actor.send({ type: "SPEECH_START" });
+      } else if (event === "SPEECH_END") {
+        this.actor.send({ type: "SPEECH_END" });
       }
     });
   }
@@ -100,8 +102,6 @@ class Autopilot {
       logger.verbose("received speech result", { speech });
 
       if (speech) {
-        // Testing using STT for both VAD and STT (experimental)
-        this.actor.send({ type: "SPEECH_END" });
         this.actor.send({ type: "SPEECH_RESULT", speech });
       }
     });

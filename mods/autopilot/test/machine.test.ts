@@ -79,7 +79,7 @@ const getActorInput = () => ({
     vad: {
       activationThreshold: 0.3,
       deactivationThreshold: 0.2,
-      debounceFrames: 2
+      debounceFrames: 3
     }
   }
 });
@@ -115,7 +115,6 @@ describe("@autopilot/machine", function () {
     expect(context.maxIdleTimeoutCount).to.equal(3);
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.speechBuffer).to.equal("");
-    expect(context.speechResponseTime).to.equal(0);
     expect(context.isSpeaking).to.equal(false);
     expect(input.voice.answer).to.have.been.calledOnce;
     expect(input.voice.say).to.have.been.calledOnceWith(FIRST_MESSAGE);
@@ -175,20 +174,13 @@ describe("@autopilot/machine", function () {
 
     await waitFor(500);
 
-    actor.send({ type: "SPEECH_RESULT", speech: "Hello" });
-
-    await waitFor(500);
-
-    actor.send({ type: "SPEECH_RESULT", speech: "World!" });
-
-    await waitFor(500);
-
     actor.send({ type: "SPEECH_END" });
 
     await waitFor(500);
 
-    // FIXME: It should go back to idle without the USER_REQUEST_PROCESSED event
-    actor.send({ type: "USER_REQUEST_PROCESSED" });
+    actor.send({ type: "SPEECH_RESULT", speech: "Hello World!" });
+
+    await waitFor(500);
 
     // Assert
     const { context, value: state } = actor.getSnapshot();
