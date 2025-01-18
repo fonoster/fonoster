@@ -36,7 +36,11 @@ const conversationSettingsSchema = z.object({
     .string()
     .regex(/^[0-9*#]+$/, { message: Messages.VALID_DTMF })
     .optional(),
-  maxSessionDuration: z.number().int().positive().default(30 * 60 * 1000), // 30 minutes
+  maxSessionDuration: z
+    .number()
+    .int()
+    .positive()
+    .default(30 * 60 * 1000), // 30 minutes
   maxSpeechWaitTimeout: z
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })

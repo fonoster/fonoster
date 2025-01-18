@@ -96,7 +96,7 @@ const machine = setup({
         speech: (event as { speech: string }).speech
       });
 
-      const speech = (event as { speech: string }).speech
+      const speech = (event as { speech: string }).speech;
 
       if (!speech) {
         return context;
@@ -236,9 +236,7 @@ const machine = setup({
   after: {
     SESSION_TIMEOUT: {
       target: "hangup",
-      actions: [
-        "goodbye"
-      ]
+      actions: ["goodbye"]
     }
   }
 }).createMachine({
@@ -290,10 +288,7 @@ const machine = setup({
           {
             target: "hangup",
             actions: { type: "goodbye" },
-            guard: and([
-              "idleTimeoutCountExceedsMax",
-              not("isSpeaking")
-            ])
+            guard: and(["idleTimeoutCountExceedsMax", not("isSpeaking")])
           },
           {
             target: "idleTransition",
@@ -350,8 +345,8 @@ const machine = setup({
             },
             guard: not("isSpeaking"),
             description: "Speech result from the Speech to Text provider."
-          },
-        ],
+          }
+        ]
       },
       after: {
         MAX_SPEECH_WAIT_TIMEOUT: [
