@@ -171,15 +171,15 @@ The following is a list of the supported settings:
 | transferOptions             | The options to transfer the call to a live agent                                                                          |
 | transferOptions.phoneNumber | The phone number to transfer the call to                                                                                  |
 | transferOptions.message     | The message to play before transferring the call                                                                          |
-| transferOptions.timeout     | The time in milliseconds to wait before hanging up the call if the transfer is not completed. Default to `30000 ms`       |
+| transferOptions.timeout     | The time in milliseconds to wait before hanging up the call if the transfer is incomplete. Default to `30000 ms`       |
 | idleOptions                 | The options to handle idle time during the conversation                                                                   |
 | idleOptions.message         | The message to play after the idle time is reached                                                                        |
 | idleOptions.timeout         | The time in milliseconds to wait before playing the idle message. Defaults to `10000 ms`                                  |
 | idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                                    |
 | vad                         | The voice activity detection settings                                                                                     |
-| vad.activationThreshold     | The activation threshold for the voice activity detection. Default to `0.30`                                              |
-| vad.deactivationThreshold   | The deactivation threshold for the voice activity detection. Default to `0.15`                                            |
-| vad.debounceFrames          | The number of frames to debounce the voice activity detection. Default to `1`                                             |
+| vad.activationThreshold     | The activation threshold for the voice activity detection. Default to `0.3`                                              |
+| vad.deactivationThreshold   | The deactivation threshold for the voice activity detection. Default to `0.25`                                            |
+| vad.debounceFrames          | The number of frames to debounce the voice activity detection. Default to `3`                                             |
 
 A few noteworthy settings include the *maxSpeechWaitTimeout*, *intialDtmf*, *idleOptions*, and *vad*.
 
