@@ -22,10 +22,12 @@
 //
 // Q. Would it be the same if we just created a new Uint8Array from the chunk?
 function chunkToFloat32Array(chunk: Uint8Array): Float32Array {
-  let int16Array: Int16Array;
-
+  // Check if byteOffset is not aligned
   const alignedByteOffset =
     chunk.byteOffset % Int16Array.BYTES_PER_ELEMENT === 0;
+
+  let int16Array: Int16Array;
+
   if (alignedByteOffset) {
     int16Array = new Int16Array(
       chunk.buffer,
@@ -33,6 +35,7 @@ function chunkToFloat32Array(chunk: Uint8Array): Float32Array {
       chunk.byteLength / Int16Array.BYTES_PER_ELEMENT
     );
   } else {
+    // Create a new aligned Uint8Array and then an Int16Array from it
     const alignedChunk = new Uint8Array(chunk);
     int16Array = new Int16Array(
       alignedChunk.buffer,
@@ -42,6 +45,7 @@ function chunkToFloat32Array(chunk: Uint8Array): Float32Array {
   }
 
   const floatArray = new Float32Array(int16Array.length);
+
   for (let i = 0; i < int16Array.length; i++) {
     floatArray[i] = int16Array[i] / 32768.0;
   }
