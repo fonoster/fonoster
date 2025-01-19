@@ -39,7 +39,6 @@ const machine = setup({
       | { type: "SPEECH_START" }
       | { type: "SPEECH_END" }
       | { type: "SPEECH_RESULT"; speech: string }
-      | { type: "USER_REQUEST_PROCESSED" }
   },
   actions: {
     greetUser: async ({ context }): Promise<void> => {
@@ -154,7 +153,7 @@ const machine = setup({
       return context.idleTimeoutCount + 1 > context.maxIdleTimeoutCount;
     },
     hasSpeechResult: function ({ context }) {
-      return context.speechBuffer !== "";
+      return context.speechBuffer;
     },
     isSpeaking: function ({ context }) {
       logger.verbose("called isSpeaking guard", {
@@ -339,12 +338,19 @@ const machine = setup({
         },
         SPEECH_RESULT: [
           {
+            actions: {
+              type: "appendSpeech"
+            },
+            guard: "isSpeaking",
+            description: "Just append the speech result."
+          },
+          {
             target: "processingUserRequest",
             actions: {
               type: "appendSpeech"
             },
             guard: not("isSpeaking"),
-            description: "Speech result from the Speech to Text provider."
+            description: "Append the speech result and process it."
           }
         ]
       },
@@ -352,14 +358,14 @@ const machine = setup({
         MAX_SPEECH_WAIT_TIMEOUT: [
           {
             target: "processingUserRequest",
-            guard: and([not("isSpeaking"), "hasSpeechResult"])
+            guard: "hasSpeechResult",
+            actions: {
+              type: "setSpeakingDone"
+            }
           },
           {
             target: "idle",
-            guard: not("isSpeaking"),
-            actions: {
-              type: "announceIdleTimeout"
-            }
+            guard: not("isSpeaking")
           }
         ]
       }

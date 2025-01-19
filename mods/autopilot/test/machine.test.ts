@@ -65,7 +65,7 @@ const getActorInput = () => ({
     goodbyeMessage: GOODBYE_MESSAGE,
     systemTemplate: "System template",
     systemErrorMessage: SYSTEM_ERROR_MESSAGE,
-    maxSpeechWaitTimeout: 10000,
+    maxSpeechWaitTimeout: 5000,
     initialDtmf: "1",
     idleOptions: {
       message: IDLE_MESSAGE,
@@ -89,7 +89,7 @@ describe("@autopilot/machine", function () {
     return sandbox.restore();
   });
 
-  it("should create an actor from a machine and set the state to 'idle'", async function () {
+  it("should say the first message then set the state to 'idle'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
     this.slow(30000);
@@ -107,24 +107,29 @@ describe("@autopilot/machine", function () {
     // Assert
     const { context, value: state } = actor.getSnapshot();
     expect(state).to.equal("idle");
+    expect(input.voice.answer).to.have.been.calledOnce;
+    expect(input.voice.say).to.have.been.calledOnceWith(FIRST_MESSAGE);
+    expect(input.voice.hangup).to.not.have.been.called;
     expect(context.firstMessage).to.equal(FIRST_MESSAGE);
     expect(context.goodbyeMessage).to.equal(GOODBYE_MESSAGE);
     expect(context.systemErrorMessage).to.equal(SYSTEM_ERROR_MESSAGE);
     expect(context.idleMessage).to.equal(IDLE_MESSAGE);
     expect(context.idleTimeout).to.equal(3000);
+    expect(context.maxSpeechWaitTimeout).to.equal(5000);
+    expect(context.transferMessage).to.equal("Transferring call");
+    expect(context.transferPhoneNumber).to.equal("+1234567890");
     expect(context.maxIdleTimeoutCount).to.equal(3);
+    expect(context.idleMessage).to.equal(IDLE_MESSAGE);
+    expect(context.idleTimeout).to.equal(3000);
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.speechBuffer).to.equal("");
     expect(context.isSpeaking).to.equal(false);
-    expect(input.voice.answer).to.have.been.calledOnce;
-    expect(input.voice.say).to.have.been.calledOnceWith(FIRST_MESSAGE);
-    expect(input.voice.hangup).to.not.have.been.called;
 
     // Cleanup
     actor.stop();
   }).timeout(20000);
 
-  it("should create an actor from a machine and set the state to 'idle' and then to 'updatingSpeech'", async function () {
+  it("should set the state to 'idle' and then 'updatingSpeech'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
     this.slow(30000);
@@ -136,12 +141,7 @@ describe("@autopilot/machine", function () {
 
     // Act
     actor.start();
-
-    await waitFor(500);
-
     actor.send({ type: "SPEECH_START" });
-
-    await waitFor(500);
 
     // Assert
     const { context, value: state } = actor.getSnapshot();
@@ -149,13 +149,13 @@ describe("@autopilot/machine", function () {
     expect(context.speechBuffer).to.equal("");
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.isSpeaking).to.equal(true);
-    expect(input.voice.stopSpeech).to.have.been.calledOnceWith();
+    expect(input.voice.stopSpeech).to.have.been.calledOnce;
 
     // Cleanup
     actor.stop();
   }).timeout(20000);
 
-  it("should create an actor from a machine and set the state to 'idle' and then to 'updatingSpeech' and 'processingUserRequest'", async function () {
+  it("should append the speech to the buffer and set the state to 'idle'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
     this.slow(30000);
@@ -168,24 +168,22 @@ describe("@autopilot/machine", function () {
     // Act
     actor.start();
 
-    await waitFor(500);
+    await waitFor(50);
 
     actor.send({ type: "SPEECH_START" });
-
-    await waitFor(500);
-
+    actor.send({ type: "SPEECH_RESULT", speech: "Well, I personally think that" });
     actor.send({ type: "SPEECH_END" });
 
-    await waitFor(500);
+    await waitFor(50);
 
-    actor.send({ type: "SPEECH_RESULT", speech: "Hello World!" });
+    actor.send({ type: "SPEECH_RESULT", speech: "the best way to learn is by doing" });
 
-    await waitFor(500);
+    await waitFor(50);
 
     // Assert
     const { context, value: state } = actor.getSnapshot();
     expect(state).to.equal("idle");
-    expect(context.speechBuffer).to.equal("Hello World!");
+    expect(context.speechBuffer).to.equal("Well, I personally think that the best way to learn is by doing");
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.isSpeaking).to.equal(false);
     expect(input.voice.say).to.have.been.calledTwice;
@@ -195,7 +193,7 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
-  it("from updatingSpeech calls SPEECH_END and then SPEECH_RESULT to move to 'processingUserRequest'", async function () {
+  it("from updatingSpeech call SPEECH_RESULT and wait to move to 'processingUserRequest'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
     this.slow(30000);
@@ -208,22 +206,16 @@ describe("@autopilot/machine", function () {
     // Act
     actor.start();
 
-    await waitFor(500);
+    await waitFor(50);
 
     actor.send({ type: "SPEECH_START" });
 
-    await waitFor(500);
-
-    actor.send({ type: "SPEECH_END" });
-
-    await waitFor(500);
+    await waitFor(50);
 
     actor.send({ type: "SPEECH_RESULT", speech: "Hello" });
 
-    await waitFor(500);
-
-    // FIXME: It should go back to idle without the USER_REQUEST_PROCESSED event
-    actor.send({ type: "USER_REQUEST_PROCESSED" });
+    // Goes to "processingUserRequest" because of MAX_SPEECH_WAIT_TIMEOUT
+    await waitFor(6000);
 
     // Assert
     const { context, value: state } = actor.getSnapshot();
@@ -259,8 +251,9 @@ describe("@autopilot/machine", function () {
     expect(state).to.equal("hangup");
     expect(context.idleTimeoutCount).to.equal(3);
     expect(input.voice.say).to.have.been.callCount(5);
+    expect(input.voice.say).to.have.been.calledWith(FIRST_MESSAGE);
     expect(input.voice.say).to.have.been.calledWith(IDLE_MESSAGE);
-    expect(input.voice.say).to.have.been.calledWith(IDLE_MESSAGE);
+    expect(input.voice.say).to.have.been.calledWith(GOODBYE_MESSAGE);
     expect(input.voice.hangup).to.have.been.calledOnce;
 
     // Cleanup
