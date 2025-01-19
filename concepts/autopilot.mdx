@@ -42,7 +42,7 @@ const appConfig = {
     config: {
       conversationSettings: {
         firstMessage: "Hello, this is Olivia from Dr. Green's Family Medicine. How can I assist you today?",
-        systemTemplate: "You are a Customer Service Representative. You are here to help the caller with their needs.",
+        systemPrompt: "You are a Customer Service Representative. You are here to help the caller with their needs.",
         goodbyeMessage: "Goodbye, have a great day!",
         systemErrorMessage: "I'm sorry, I didn't understand that. Can you please repeat it?",
         idleOptions: {
@@ -166,7 +166,8 @@ The following is a list of the supported settings:
 | firstMessage                | The first message the Autopilot will say when the conversation starts                                                     |
 | systemTemplate              | A template that describes the role of the Autopilot. This is used to set the context of the conversation                  |
 | systemErrorMessage          | The message the Autopilot will say when an error occurs                                                                   |
-| maxSpeechWaitTimeout        | The maximum time in milliseconds to wait for the caller before returning the speech-to-text result. Default to `10000 ms` |
+| maxSessionDuration          | The maximum time in milliseconds the conversation can last. Default to `30 x 60 x 1000 ms` (30 minutes)                   |
+| maxSpeechWaitTimeout        | The maximum time in milliseconds to wait for the caller before returning the speech-to-text result. Default to `5000 ms` |
 | initialDtmf                 | A DTMF to play when the conversation starts                                                                               |
 | transferOptions             | The options to transfer the call to a live agent                                                                          |
 | transferOptions.phoneNumber | The phone number to transfer the call to                                                                                  |
@@ -177,7 +178,7 @@ The following is a list of the supported settings:
 | idleOptions.timeout         | The time in milliseconds to wait before playing the idle message. Defaults to `10000 ms`                                  |
 | idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                                    |
 | vad                         | The voice activity detection settings                                                                                     |
-| vad.activationThreshold     | The activation threshold for the voice activity detection. Default to `0.3`                                              |
+| vad.activationThreshold     | The activation threshold for the voice activity detection. Default to `0.3`                                               |
 | vad.deactivationThreshold   | The deactivation threshold for the voice activity detection. Default to `0.25`                                            |
 | vad.debounceFrames          | The number of frames to debounce the voice activity detection. Default to `3`                                             |
 

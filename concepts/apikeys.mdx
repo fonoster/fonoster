@@ -35,7 +35,7 @@ const SDK = require("@fonoster/sdk");
 const client = new SDK.Client({ accessKeyId: "WO00000000000000000000000000000000" });
 
 // Use the username and password of your Fonoster account
-client.login("youruser@youremail.com", "yourpassword").then(async () => {
+client.login("you@example.com", "yourpassword").then(async () => {
   const apikeys = new SDK.ApiKeys(client);
 
   apikeys.createApiKey({
