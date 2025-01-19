@@ -17,14 +17,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { join } from "path";
+import { getLogger } from "@fonoster/logger";
 import * as ort from "onnxruntime-node";
 import { chunkToFloat32Array } from "./chunkToFloat32Array";
 import { SileroVadModel } from "./SileroVadModel";
 
-const BUFFER_SIZE = 512;
+const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-async function createVad(params: {
-  pathToModel: string;
+const BUFFER_SIZE = 16000;
+
+async function makeVad(params: {
+  pathToModel?: string;
   activationThreshold: number;
   deactivationThreshold: number;
   debounceFrames: number;
@@ -36,7 +40,9 @@ async function createVad(params: {
     debounceFrames
   } = params;
 
-  const silero = await SileroVadModel.new(ort, pathToModel);
+  const effectivePath =
+    pathToModel || join(__dirname, "..", "..", "silero_vad.onnx");
+  const silero = await SileroVadModel.new(ort, effectivePath);
 
   let audioBuffer: number[] = [];
   let isSpeechActive = false;
@@ -57,6 +63,8 @@ async function createVad(params: {
       const remainingBuffer = buffer.slice(BUFFER_SIZE);
 
       const result = await silero.process(new Float32Array(audioFrame));
+
+      logger.silly("last vad result", { ...result });
 
       if (result.isSpeech > activationThreshold) {
         consecutiveNonSpeechFrames = 0; // Reset non-speech counter
@@ -88,4 +96,4 @@ async function createVad(params: {
   };
 }
 
-export { createVad };
+export { makeVad };

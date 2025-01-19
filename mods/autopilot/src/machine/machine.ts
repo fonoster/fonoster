@@ -272,6 +272,7 @@ const machine = setup({
       }
     },
     idle: {
+      entry: { type: "cleanSpeech" },
       on: {
         SPEECH_START: {
           target: "waitingForUserRequest",
@@ -306,18 +307,9 @@ const machine = setup({
         target: "updatingSpeech"
       },
       entry: [
-        {
-          type: "cleanSpeech"
-        },
-        {
-          type: "interruptPlayback"
-        },
-        {
-          type: "resetIdleTimeoutCount"
-        },
-        {
-          type: "setSpeaking"
-        }
+        { type: "interruptPlayback" },
+        { type: "resetIdleTimeoutCount" },
+        { type: "setSpeaking" }
       ]
     },
     hangup: {
@@ -325,27 +317,29 @@ const machine = setup({
     },
     updatingSpeech: {
       on: {
-        SPEECH_END: {
-          target: "waitingForSpeechTimeout",
-          actions: [
-            {
-              type: "setSpeakingDone"
-            }
-          ]
-        },
+        SPEECH_END: [
+          {
+            target: "processingUserRequest",
+            guard: "hasSpeechResult",
+            actions: [{ type: "setSpeakingDone" }],
+            description: "Process immediately if we have speech"
+          },
+          {
+            target: "waitingForSpeechTimeout",
+            guard: not("hasSpeechResult"),
+            actions: [{ type: "setSpeakingDone" }],
+            description: "Wait for more speech if no results yet"
+          }
+        ],
         SPEECH_RESULT: [
           {
-            actions: {
-              type: "appendSpeech"
-            },
+            actions: { type: "appendSpeech" },
             guard: "isSpeaking",
             description: "Just append the speech result."
           },
           {
             target: "processingUserRequest",
-            actions: {
-              type: "appendSpeech"
-            },
+            actions: { type: "appendSpeech" },
             guard: not("isSpeaking"),
             description: "Append the speech result and process it."
           }
@@ -357,10 +351,7 @@ const machine = setup({
         MAX_SPEECH_WAIT_TIMEOUT: [
           {
             target: "processingUserRequest",
-            guard: "hasSpeechResult",
-            actions: {
-              type: "appendSpeech"
-            }
+            guard: "hasSpeechResult"
           },
           {
             target: "idle"
@@ -385,7 +376,20 @@ const machine = setup({
       on: {
         SPEECH_START: {
           target: "waitingForUserRequest",
-          description: "Event from VAD or similar system."
+          description: "Event from VAD or similar system.",
+          actions: [
+            { type: "interruptPlayback" },
+            { type: "cleanSpeech" }
+          ]
+        },
+        SPEECH_RESULT: {
+          target: "waitingForUserRequest",
+          description: "User interrupted with new speech",
+          actions: [
+            { type: "interruptPlayback" },
+            { type: "cleanSpeech" },
+            { type: "appendSpeech" }
+          ]
         }
       },
       invoke: {
