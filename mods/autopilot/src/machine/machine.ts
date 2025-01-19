@@ -377,10 +377,7 @@ const machine = setup({
         SPEECH_START: {
           target: "waitingForUserRequest",
           description: "Event from VAD or similar system.",
-          actions: [
-            { type: "interruptPlayback" },
-            { type: "cleanSpeech" }
-          ]
+          actions: [{ type: "interruptPlayback" }, { type: "cleanSpeech" }]
         },
         SPEECH_RESULT: {
           target: "waitingForUserRequest",
