@@ -1,3 +1,4 @@
+/* eslint-disable no-loops/no-loops */
 /*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,24 +17,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { parentPort, workerData } from "worker_threads";
-import { SileroVad } from "./vad/SileroVad";
-import { SileroVad as SileroVadV5 } from "./vadv5/SileroVad";
-import { SILERO_VAD_VERSION } from "./envs";
-import { join } from "path";
-
-const vad = SILERO_VAD_VERSION === "v4" ? new SileroVad({
-  ...workerData,
-  pathToModel: join(__dirname, "..", "silero_vad.onnx")
-}) : new SileroVadV5({
-  ...workerData,
-  pathToModel: join(__dirname, "..", "silero_vad_v5.onnx")
-});
-
-vad.init().then(() => {
-  parentPort?.on("message", (chunk) => {
-    vad.processChunk(chunk, (voiceActivity) => {
-      parentPort?.postMessage(voiceActivity);
-    });
-  });
-});
+export * from "./SileroVad";
+export * from "./types";

@@ -18,37 +18,37 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { makeVad } from "./makeVad";
+import { createVad } from "./createVad";
 import { Vad } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class SileroVad implements Vad {
   private vad: (data: Uint8Array, callback: (event: string) => void) => void;
-  private params: {
-    pathToModel?: string;
+  private readonly params: {
+    pathToModel: string;
     activationThreshold: number;
     deactivationThreshold: number;
     debounceFrames: number;
   };
 
   constructor(params: {
-    pathToModel?: string;
+    pathToModel: string;
     activationThreshold: number;
     deactivationThreshold: number;
     debounceFrames: number;
   }) {
-    logger.verbose("starting instance of silero vad v4", { ...params });
+    logger.verbose("starting instance of silero vad v5", { ...params });
     this.params = params;
   }
 
-  pathToModel?: string;
+  pathToModel: string;
   activationThreshold: number;
   deactivationThreshold: number;
   debounceFrames: number;
 
   async init() {
-    this.vad = await makeVad(this.params);
+    this.vad = await createVad(this.params);
   }
 
   processChunk(

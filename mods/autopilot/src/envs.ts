@@ -37,8 +37,7 @@ export const NODE_ENV = e.NODE_ENV || "production";
 export const UNSTRUCTURED_API_KEY = e.UNSTRUCTURED_API_KEY;
 export const UNSTRUCTURED_API_URL =
   e.UNSTRUCTURED_API_URL ?? "https://api.unstructuredapp.io/general/v0/general";
-export const SILERO_VAD_MODEL_PATH =
-  e.SILERO_VAD_MODEL_PATH ?? join(__dirname, "..", "silero_vad.onnx");
+export const SILERO_VAD_VERSION = e.SILERO_VAD_VERSION ?? "v4";
 export const CONVERSATION_PROVIDER = e.CONVERSATION_PROVIDER
   ? e.CONVERSATION_PROVIDER
   : ConversationProvider.FILE;
@@ -51,6 +50,11 @@ export const APISERVER_ENDPOINT = e.APISERVER_ENDPOINT
 export const INTEGRATIONS_FILE = e.INTEGRATIONS_FILE
   ? e.INTEGRATIONS_FILE
   : `${process.cwd()}/config/integrations.json`;
+
+if (SILERO_VAD_VERSION !== "v4" && SILERO_VAD_VERSION !== "v5") {
+  console.error("SILERO_VAD_VERSION must be set to 'v4' or 'v5'");
+  process.exit(1);
+}
 
 if (
   CONVERSATION_PROVIDER!.toLocaleLowerCase() !== ConversationProvider.API &&
