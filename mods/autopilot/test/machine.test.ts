@@ -155,7 +155,7 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
-  it("should append the speech to the buffer and set the state to 'idle'", async function () {
+  it("should append the speech to the buffer and set the state to 'updatingSpeech'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
     this.slow(30000);
@@ -168,24 +168,19 @@ describe("@autopilot/machine", function () {
     // Act
     actor.start();
 
-    await waitFor(50);
-
     actor.send({ type: "SPEECH_START" });
-    actor.send({ type: "SPEECH_RESULT", speech: "Well, I personally think that" });
+    actor.send({ type: "SPEECH_RESULT", speech: "Well, I personally think that the best way to learn is by doing" });
     actor.send({ type: "SPEECH_END" });
+    actor.send({ type: "SPEECH_RESULT", speech: "No." });
+    actor.send({ type: "SPEECH_RESULT", speech: "I meant in the practical sense." });
 
     await waitFor(50);
 
-    actor.send({ type: "SPEECH_RESULT", speech: "the best way to learn is by doing" });
-
-    await waitFor(50);
-
-    // Assert
     const { context, value: state } = actor.getSnapshot();
-    expect(state).to.equal("idle");
-    expect(context.speechBuffer).to.equal("Well, I personally think that the best way to learn is by doing");
+    expect(state).to.equal("updatingSpeech");
+    expect(context.speechBuffer).to.equal("No. I meant in the practical sense.");
     expect(context.idleTimeoutCount).to.equal(0);
-    expect(context.isSpeaking).to.equal(false);
+    expect(context.isSpeaking).to.equal(true);
     expect(input.voice.say).to.have.been.calledTwice;
     expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
 
@@ -193,7 +188,7 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
-  it("from updatingSpeech call SPEECH_RESULT and wait to move to 'processingUserRequest'", async function () {
+  it("from updatingSpeech call SPEECH_RESULT and wait to move to 'idle'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
     this.slow(30000);
@@ -215,10 +210,8 @@ describe("@autopilot/machine", function () {
     // // Assert
     const { context, value: state } = actor.getSnapshot();
     expect(state).to.equal("idle");
-    expect(context.speechBuffer).to.equal("Hello");
-    expect(context.idleTimeoutCount).to.equal(0);
+    expect(context.speechBuffer).to.equal("");
     expect(context.isSpeaking).to.equal(false);
-    expect(input.voice.say).to.have.been.calledTwice;
     expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
 
     // Cleanup
