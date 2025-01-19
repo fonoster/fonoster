@@ -52,7 +52,7 @@ function createLanguageModel(params: {
       maxTokens: languageModelSettings.maxTokens,
       temperature: languageModelSettings.temperature,
       firstMessage: conversationSettings.firstMessage,
-      systemTemplate: conversationSettings.systemTemplate,
+      systemPrompt: conversationSettings.systemPrompt,
       baseUrl: languageModelSettings.baseUrl,
       knowledgeBase,
       tools

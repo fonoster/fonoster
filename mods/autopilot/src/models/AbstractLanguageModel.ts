@@ -44,14 +44,14 @@ abstract class AbstractLanguageModel implements LanguageModel {
     voice: Voice,
     telephonyContext: TelephonyContext
   ) {
-    const { model, firstMessage, systemTemplate, knowledgeBase, tools } =
+    const { model, firstMessage, systemPrompt, knowledgeBase, tools } =
       params;
     this.chatHistory = createChatHistory();
     this.toolsCatalog = new ToolsCatalog(tools);
     this.voice = voice;
     const promptTemplate = createPromptTemplate({
       firstMessage,
-      systemTemplate,
+      systemPrompt,
       telephonyContext
     });
     this.chain = createChain(

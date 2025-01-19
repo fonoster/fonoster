@@ -63,7 +63,7 @@ const getActorInput = () => ({
   conversationSettings: {
     firstMessage: FIRST_MESSAGE,
     goodbyeMessage: GOODBYE_MESSAGE,
-    systemTemplate: "System template",
+    systemPrompt: "System template",
     systemErrorMessage: SYSTEM_ERROR_MESSAGE,
     maxSpeechWaitTimeout: 5000,
     initialDtmf: "1",

@@ -37,7 +37,7 @@ describe("@apiserver[common/assistants/assistantSchema]", function () {
     const assistantConfig = {
       conversationSettings: {
         firstMessage: "Hello",
-        systemTemplate: "systemTemplate",
+        systemPrompt: "systemPrompt",
         goodbyeMessage: "goodbyeMessage",
         systemErrorMessage: "systemErrorMessage",
         initialDtmf: "1234",

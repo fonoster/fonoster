@@ -26,15 +26,15 @@ import { TelephonyContext } from "./types";
 
 export function createPromptTemplate(params: {
   firstMessage?: string;
-  systemTemplate: string;
+  systemPrompt: string;
   telephonyContext: TelephonyContext;
 }) {
-  const { firstMessage, systemTemplate, telephonyContext } = params;
+  const { firstMessage, systemPrompt, telephonyContext } = params;
 
   return ChatPromptTemplate.fromMessages([
     new MessagesPlaceholder("history"),
     SystemMessagePromptTemplate.fromTemplate(`firstMessage: ${firstMessage}`),
-    SystemMessagePromptTemplate.fromTemplate(systemTemplate),
+    SystemMessagePromptTemplate.fromTemplate(systemPrompt),
     SystemMessagePromptTemplate.fromTemplate("{context}"),
     SystemMessagePromptTemplate.fromTemplate(
       `callReceivedAt:${new Date().toISOString()}

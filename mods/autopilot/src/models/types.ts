@@ -27,7 +27,7 @@ type LanguageModel = {
 
 type BaseModelParams = {
   firstMessage?: string;
-  systemTemplate: string;
+  systemPrompt: string;
   knowledgeBase: KnowledgeBase;
   tools: Tool[];
   telephonyContext: TelephonyContext;

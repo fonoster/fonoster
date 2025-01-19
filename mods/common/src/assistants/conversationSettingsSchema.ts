@@ -29,7 +29,7 @@ const VAD_DEBOUNCE_FRAMES = 3;
 
 const conversationSettingsSchema = z.object({
   firstMessage: z.string().optional(),
-  systemTemplate: z.string(),
+  systemPrompt: z.string(),
   goodbyeMessage: z.string(),
   systemErrorMessage: z.string(),
   initialDtmf: z

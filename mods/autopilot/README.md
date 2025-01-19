@@ -35,7 +35,7 @@ The configuration file has two major sections: `conversationSettings` and `langu
 {
   "conversationSettings": {
     "firstMessage": "Hello, this is Olivia from Dr. Green's Family Medicine. How can I assist you today?",
-    "systemTemplate": "You are a Customer Service Representative. You are here to help the caller with their needs.",
+    "systemPrompt": "You are a Customer Service Representative. You are here to help the caller with their needs.",
     "systemErrorMessage": "I'm sorry, but I seem to be having trouble. Please try again later.",
     "initialDtmf": "6589",
     "transferOptions": {
