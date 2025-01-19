@@ -22,13 +22,16 @@ import { SileroVad as SileroVadV5 } from "./vadv5/SileroVad";
 import { SILERO_VAD_VERSION } from "./envs";
 import { join } from "path";
 
-const vad = SILERO_VAD_VERSION === "v4" ? new SileroVad({
-  ...workerData,
-  pathToModel: join(__dirname, "..", "silero_vad.onnx")
-}) : new SileroVadV5({
-  ...workerData,
-  pathToModel: join(__dirname, "..", "silero_vad_v5.onnx")
-});
+const vad =
+  SILERO_VAD_VERSION === "v4"
+    ? new SileroVad({
+        ...workerData,
+        pathToModel: join(__dirname, "..", "silero_vad.onnx")
+      })
+    : new SileroVadV5({
+        ...workerData,
+        pathToModel: join(__dirname, "..", "silero_vad_v5.onnx")
+      });
 
 vad.init().then(() => {
   parentPort?.on("message", (chunk) => {
