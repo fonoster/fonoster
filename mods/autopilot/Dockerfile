@@ -22,7 +22,8 @@ COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/dist /home/appu
 COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/package.json /home/appuser/autopilot/package.json
 COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/node_modules /home/appuser/autopilot/node_modules
 COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/silero_vad.onnx /home/appuser/autopilot/silero_vad.onnx
-COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/silero_vad_16k_op15.onnx /home/appuser/autopilot/silero_vad_16k_op15.onnx
+COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/silero_vad_v5.onnx /home/appuser/autopilot/silero_vad_v5.onnx
+COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/silero_vad_v5_16k_op15.onnx /home/appuser/autopilot/silero_vad_v5_16k_op15.onnx
 
 WORKDIR /home/appuser/autopilot
 
