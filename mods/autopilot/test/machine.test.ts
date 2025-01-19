@@ -205,19 +205,14 @@ describe("@autopilot/machine", function () {
 
     // Act
     actor.start();
-
-    await waitFor(50);
-
     actor.send({ type: "SPEECH_START" });
-
-    await waitFor(50);
-
     actor.send({ type: "SPEECH_RESULT", speech: "Hello" });
+    actor.send({ type: "SPEECH_END" });
 
-    // Goes to "processingUserRequest" because of MAX_SPEECH_WAIT_TIMEOUT
+    // Goes to "processingUserRequest" then to "idle" because of MAX_SPEECH_WAIT_TIMEOUT
     await waitFor(6000);
 
-    // Assert
+    // // Assert
     const { context, value: state } = actor.getSnapshot();
     expect(state).to.equal("idle");
     expect(context.speechBuffer).to.equal("Hello");
