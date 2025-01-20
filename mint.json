@@ -70,8 +70,8 @@
       "group": "Concepts",
       "pages": [
         "concepts/workspaces",
-        "concepts/apikeys",
         "concepts/identity-and-tokens",
+        "concepts/apikeys",
         "concepts/sdks",
         "concepts/programmable-voice",
         "concepts/voice-streaming",
