@@ -25,7 +25,7 @@ const IDLE_OPTIONS_TIMEOUT = 10000;
 const IDLE_OPTIONS_MAX_TIMEOUT_COUNT = 3;
 const VAD_ACTIVATION_THRESHOLD = 0.3;
 const VAD_DEACTIVATION_THRESHOLD = 0.25;
-const VAD_DEBOUNCE_FRAMES = 3;
+const VAD_DEBOUNCE_FRAMES = 2;
 
 const conversationSettingsSchema = z.object({
   firstMessage: z.string().optional(),

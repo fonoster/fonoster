@@ -65,7 +65,7 @@ describe("@apiserver[common/assistants/assistantSchema]", function () {
     expect(result.languageModel.knowledgeBase).to.be.an("array").that.is.empty;
     expect(result.conversationSettings.vad.activationThreshold).to.be.equal(0.30);
     expect(result.conversationSettings.vad.deactivationThreshold).to.be.equal(0.25);
-    expect(result.conversationSettings.vad.debounceFrames).to.be.equal(3);
+    expect(result.conversationSettings.vad.debounceFrames).to.be.equal(2);
     expect(result.conversationSettings.transferOptions.timeout).to.be.equal(30000);
     expect(result.conversationSettings.maxSpeechWaitTimeout).to.be.equal(5000);
     expect(result.conversationSettings.idleOptions.timeout).to.be.equal(10000);

@@ -277,6 +277,11 @@ const machine = setup({
         SPEECH_START: {
           target: "waitingForUserRequest",
           description: "Event from VAD system."
+        },
+        SPEECH_RESULT: {
+          target: "waitingForUserRequest",
+          description: "User started speaking before SPEECH_START event",
+          actions: [{ type: "appendSpeech" }]
         }
       },
       after: {
@@ -335,29 +340,12 @@ const machine = setup({
           {
             actions: { type: "appendSpeech" },
             guard: "isSpeaking",
-            description: "Just append the speech result."
-          },
-          {
-            target: "processingUserRequest",
-            actions: { type: "appendSpeech" },
-            guard: not("isSpeaking"),
-            description: "Append the speech result and process it."
+            description: "Just append the speech result when actively speaking"
           }
         ]
       }
     },
     waitingForSpeechTimeout: {
-      after: {
-        MAX_SPEECH_WAIT_TIMEOUT: [
-          {
-            target: "processingUserRequest",
-            guard: "hasSpeechResult"
-          },
-          {
-            target: "idle"
-          }
-        ]
-      },
       on: {
         SPEECH_START: {
           target: "waitingForUserRequest",
@@ -370,6 +358,17 @@ const machine = setup({
           },
           description: "Append final speech and process the request"
         }
+      },
+      after: {
+        MAX_SPEECH_WAIT_TIMEOUT: [
+          {
+            target: "processingUserRequest",
+            guard: "hasSpeechResult"
+          },
+          {
+            target: "idle"
+          }
+        ]
       }
     },
     processingUserRequest: {
