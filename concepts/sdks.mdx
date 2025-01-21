@@ -85,7 +85,7 @@ client.login("youruser@example.com", "yourpassword")
   .then(() => new SDK.Applications(client).createApplication({
     name: "MyApp",
     type: "EXTERNAL",
-    endpoint: "localhost:50061"
+    endpoint: "0.tcp.ngrok.io:17263"
   }))
   .then(() => console.log("Application created successfully"))
   .catch(console.error);

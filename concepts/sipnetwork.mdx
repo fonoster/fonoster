@@ -1,10 +1,89 @@
 ---
 title: 'SIP Network'
-description: 'SIP resources in Fonoster.'
+description: 'Understanding SIP networking in Fonoster'
 ---
 
-import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
+# SIP Network
 
-<WipDocsWarning />
+Fonoster's SIP Network provides a robust infrastructure for handling Voice over IP (VoIP) communications powered by [Routr.io.](https://routr.io) This foundation enables integration between modern applications and traditional telephony systems through the Session Initiation Protocol (SIP).
 
-Coming soon.
+## Overview
+
+The SIP Network in Fonoster is designed with a telephony-first approach, making it particularly powerful for:
+
+- Connecting legacy SIP-based systems with modern applications
+- Enabling voice communications across different networks
+- Managing complex routing scenarios between various endpoints
+- Providing secure and controlled access to telephony resources
+
+## Core Components
+
+The SIP Network consists of several key components that work together to enable voice communications:
+
+### Domains
+
+A Domain represents a logical grouping of SIP resources. It defines the scope and boundaries for SIP communications and includes routing policies, access control rules, and context settings for SIP addressing.
+
+### Agents
+
+Agents are SIP endpoints that can initiate and receive calls within a Domain. These could be SIP phones, Softphones, SIP-enabled applications, and Browser-based softphones like [SIP.js](https://sipjs.com/).
+
+### Numbers
+
+Numbers represent telephone numbers in the system and define how calls are routed to/from the PSTN network and mapping between telephone numbers and SIP addresses.
+
+<Tip>
+ You can also define the geographic information associated with a number.
+</Tip>
+
+### Trunks
+
+Trunks provide connectivity to external networks, particularly PSTN (Public Switched Telephone Network) connectivity, connections to other SIP providers, and gateway services for external communications.
+
+### Access Control Lists (ACLs)
+
+ACLs provide security by controlling which IP addresses can access the system, what operations are allowed, and access patterns and restrictions.
+
+ACLs in Fonoster operate at the Domain level.
+
+## Routing Types
+
+Fonoster's SIP Network supports various routing scenarios:
+
+### Agent-to-Agent
+
+It enables direct communication between Agents within the same domain, which is ideal for internal communications.
+
+### Agent-to-PSTN
+
+Allows agents to make calls to external telephone numbers through configured trunks.
+
+### PSTN-to-Agent
+
+Enables incoming calls from external telephone numbers to reach specific agents.
+
+## Key Benefits
+
+Fonoster's SIP Network architecture provides several advantages:
+
+1. **Legacy Integration**: Interconnection with traditional telephony systems with modern applications
+
+2. **Flexibility**: Support for various routing scenarios and communication patterns
+
+3. **Security**: Built-in access control and authentication mechanisms
+
+4. **Scalability**: Distributed architecture supporting growth in usage and complexity
+
+5. **Standards Compliance**: Implementation based on established SIP protocols and standards
+
+## Use Cases
+
+The SIP Network is particularly valuable for:
+
+- Contact Centers integrating with existing telephony infrastructure
+- Voice applications requiring PSTN connectivity
+- Organizations modernizing legacy phone systems
+- Businesses requiring complex call routing scenarios
+- Applications needing secure voice communication capabilities
+
+By leveraging Fonoster's SIP Network, developers can build sophisticated voice applications while maintaining compatibility with traditional telephony systems and modern communication needs.

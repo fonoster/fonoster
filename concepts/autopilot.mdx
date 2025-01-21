@@ -17,7 +17,7 @@ Fonoster's Autopilot is a component within the platform that allows you to creat
 
 The following is an example of how to create an Autopilot application using the SDK:
 
-```javascript
+```javascript index.js {7,20-39}
 const SDK = require("@fonoster/sdk");
 
 const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
@@ -72,88 +72,11 @@ The general section contains _name_, _type_, and _endpoint_ properties.
 
 The _name_ property is the name of the Autopilot application. The _type_ property is the type of the application, which should always be set to `AUTOPILOT`. The _endpoint_ is an optional property allowing you to specify the endpoint for self-hosted Autopilots.
 
-## Configuring speech-to-text
+## Speech settings
 
-The _speechToText_ object allows you to define the speech-to-text engine to use. The speech-to-text engine is responsible for converting the caller's speech into text.
+Autopilot applications support a variety of speech-to-text and text-to-speech vendors. The _speechToText_ and _textToSpeech_ objects allow you to define the speech-to-text and text-to-speech engines to use.
 
-The _speechToText_ object has the _productRef_ and _config_ properties. The _productRef_ property identifies the speech-to-text vendor you want to use. The _config_ property is an object that contains the configuration settings for the speech-to-text engine. The configuration settings vary depending on the vendor.
-
-Currently, only *Deepgram* is supported as a speech-to-text vendor, but we are working on adding more vendors.
-
-### Deepgram configuration
-
-_Deepgram_ is a speech-to-text vendor that provides high-quality transcription services. Deepgram supports the _languageCode_ as well as _model_ properties. The _languageCode_ property is the language code of the speech you want to transcribe. The _model_ property is the model to use for transcription and defaults to `nova-2-phonecall`.
-
-The Autopilot supports the models `nova-2`, `nova-2-phonecall`, and `nova-2-conversationalai`.
-
-Example of a Deepgram configuration for Spanish:
-
-```javascript
-const appConfig = {
-  ...
-  speechToText: {
-    productRef: "stt.deepgram",
-    config: {
-      model: "nova-2"
-      languageCode: "es",
-    }
-  },
-  ...
-}
-```
-
-<Note>
-  For _languageCode_ other than `en-US`, you need to use the `nova-2` model. Please refer to the [Deepgram documentation](https://developers.deepgram.com/docs/models-languages-overview) for more information.
-</Note>
-
-## Configuring text-to-speech
-
-The _textToSpeech_ object allows you to define the text-to-speech engine. The text-to-speech engine is responsible for converting the Autopilot's responses into speech.
-
-The _textToSpeech_ object has the _productRef_ and _config_ properties. The _productRef_ property identifies the text-to-speech vendor you want to use. The _config_ property is an object that contains the configuration settings for the text-to-speech engine. The configuration settings vary depending on the vendor.
-
-We currently support *Google*, *Azure*, *Deepgram*, and *ElevenLabs* as text-to-speech vendors.
-
-Most vendors only support the _voice_ property, which is the voice to use for the text-to-speech. The voice is a string that represents the voice to use. The available voices depend on the vendor.
-
-Please visit the vendor's documentation for more information on the available voices.
-
-<Tip>
-  In addition to the *voice* property, the _ElevenLabs_ vendor supports the *model* property. The *model* property is the model to use for text-to-speech and defaults to `eleven_flash_v2_5`.
-  Please refer to the [ElevenLabs documentation](https://elevenlabs.io/docs/developer-guides/models) for additional information about the available models.
-</Tip>
-
-Example of a text-to-speech configuration for *ElevenLabs*:
-
-```javascript
-const appConfig = {
-  ...
-  textToSpeech: {
-    productRef: "tts.elevenlabs",
-    config: {
-      voice: "CaJslL1xziwefCeTNzHv",
-      model: "eleven_flash_v2_5"
-    }
-  },
-  ...
-}
-```
-
-### Available voices by vendor
-
-The following links provide information on the available voices for each vendor:
-
-* [Deepgram](https://developers.deepgram.com/docs/tts-models)
-
-* [ElevenLabs](https://elevenlabs.io/docs/product/voices/default-voices)
-
-* [Google](https://cloud.google.com/text-to-speech/docs/voices)
-
-* [Azure](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support)
-
-<Warning>
-  If you need a non-default *ElevenLabs* voices please let us know, and we will add it for you.
-</Warning>
+You can mix and match vendors to suit your needs. For example, you can use _Deepgram_ for speech-to-text and Google for text-to-speech. Please check the [Speech Vendors](./speech-vendors) section for more information on configuring speech-to-text and text-to-speech.
 
 ## Conversational settings
 
@@ -182,7 +105,7 @@ The following is a list of the supported settings:
 | vad.deactivationThreshold   | The deactivation threshold for the voice activity detection. Default to `0.25`                                            |
 | vad.debounceFrames          | The number of frames to debounce the voice activity detection. Default to `3`                                             |
 
-A few noteworthy settings include the *maxSpeechWaitTimeout*, *intialDtmf*, *idleOptions*, and *vad*.
+A few noteworthy settings include the *maxSpeechWaitTimeout*, *initialDtmf*, *idleOptions*, and *vad*.
 
 ### Max Speech Wait Timeout
 
@@ -192,7 +115,7 @@ A value that is too low may result in the speech-to-text engine returning the re
 
 ### Initial DTMF
 
-Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a Dual-tone multi-frequency (DTMF) to be played before the call is connected. The _initialDtmf_ property allows you to specify a DTMF to play when the session starts.
+Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a Dual-tone multi-frequency (DTMF) to be played before connecting the call. The _initialDtmf_ property allows you to specify a DTMF to play when the session starts.
 
 ### Voice Activity Detection (VAD)
 
@@ -200,7 +123,7 @@ The *vad* object allows you to configure the voice activity detection settings. 
 
 The _vad_ object has the _activationThreshold_, _deactivationThreshold_, _debounceFrames_ properties. The _actionThreshold_ property is the activation threshold for voice activity detection. The _deactivationThreshold_ property is the deactivation threshold for voice activity detection. The _debounceFrames_ property is the number of frames to debounce the voice activity detection.
 
-A lower activation threshold will make the detection more sensitive to the caller's speech. A higher activation threshold will result in the voice activity detection being less sensitive to the caller's speech.
+A lower activation threshold will make the detection more sensitive to the caller's speech. A higher activation threshold will make detecting voice activity less sensitive to the caller's speech.
 
 A lower deactivation threshold will result in more aggressive voice activity detection deactivation. A higher deactivation threshold will result in less aggressive voice activity detection deactivation.
 

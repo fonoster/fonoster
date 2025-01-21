@@ -7,4 +7,142 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 
 <WipDocsWarning />
 
-Coming soon.
+While Fonoster supports multiple SIP providers, Twilio is one of the easiest to set up. This guide will show you how to link a Twilio phone number to your application using the command-line tool.
+
+<Steps>
+  <Step title="Request early access">
+    To get started, you need to request early access to Fonoster. You can do this by visiting the <a href="https://github.com/orgs/fonoster/discussions/695">GitHub Discussions</a> and following the instructions.
+  </Step>
+
+  <Step title="Sign up for a Twilio account">
+    You need a Twilio account to link a Twilio phone number to your Fonoster application. You can sign up for a Twilio account by visiting the <a href="https://www.twilio.com/try-twilio">Twilio website</a> and following their documentation.
+  </Step>
+ 
+  <Step title="Link your virtual phone number">
+    Follow the next steps to link a virtual phone number to your application:
+
+    <AccordionGroup>
+      <Accordion title="Install the command-line tool">
+        Fonoster CTL is a command-line tool that allows you to manage your Fonoster resources. You can create, update, and delete Fonoster resources like phone numbers, SIP trunks, etc.
+
+        You can install the tool using the following command:
+
+        ```bash
+        npm install -g @fonoster/ctl
+        ```
+
+        Check that the installation was successful by running the following command:
+
+        ```bash
+        fonoster --version
+        ```
+
+        If the installation was successful, you should see the version number of the command-line tool.
+      </Accordion>
+
+      <Accordion title="Log in to a Fonoster Workspace">
+        Before using the command-line tool, log in to a Workspace. You can do this by running the following command:
+
+        ```bash
+        fonoster workspaces:login
+        ```
+
+        This command will prompt you to enter your *AccessKeyId* and *AccessKeySecret*. Once you have entered this information, you will be logged in to your Workspace.
+      </Accordion>
+
+      <Accordion title="Create a new Application">
+        To create a new Application, you can use the following command:
+
+        ```bash
+        fonoster applications:create
+        ```
+
+        You will be asked to enter the Application's name, speech information, and other details. Once you have entered this information, the Application will be created.
+
+        Your output should look like this:
+
+        <img width="100%" src="/images/create-application.png" />
+
+        Yo can list your existing applications with the following command:
+
+        ```bash
+        fonoster applications:list
+        ```
+      </Accordion>
+
+      <Accordion title="Link a Twilio phone number">
+        To link a Twilio phone number to your application, you can use the following command:
+
+        ```bash
+        fonoster sipnet:numbers:linkTwilioNumber
+        ```
+
+        You will be asked to enter an existing virtual phone number, the *Twilio SID*, and the *Twilio Auth Token*. Once you have entered this information, the Twilio phone number will be linked to your application.
+
+        To confirm that the phone number was linked successfully, you can run the following command:
+
+        ```bash
+        fonoster sipnet:numbers:list
+        ```
+
+        You can now call the Twilio phone number to access your voice application.
+
+        <Tip>
+          Twilio is used as an example. You can use other SIP providers as well.
+        </Tip>
+      </Accordion>
+
+      <Accordion title="Make an outbound call">
+        You can use the command-line tool or the SDK to make an outbound call. To make an outbound call, first, you need the reference of the application you created. You can get the reference by running the following command:
+
+        ```bash
+        fonoster applications:list
+        ```
+
+        Once you have the reference, you can use the `fonoster sipnet:calls:create` command to make an outbound call. Here is an example:
+
+        ```bash
+        fonoster sipnet:calls:create --app-ref 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 \
+         --from +18456134823 \
+         --to +17853134923
+        ```
+
+        You can also use the SDK to make an outbound call. To do this, you can use the following code:
+
+        ```javascript call.js
+        const SDK = require("@fonoster/sdk");
+
+        # Replace with your Workspace Access Key Id
+        const client = SDK.Client({ accessKeyId: "00000000-0000-0000-0000-000000000000" });
+
+        client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
+          .then(async() => {
+            const calls = new SDK.Calls(client);
+
+            const response = await calls.createCall({
+              from: "+18456134823",
+              to: "+17853134923",
+              appRef: "4b01c9b1-8cb1-48fb-bd49-f3daf13463a9"
+            })
+
+            console.log(response);
+          });
+        ```
+
+        Replace the example values with the appropriate ones.
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+</Steps>
+
+Now that you have linked a Twilio phone number to your application, you can start making and receiving calls using the command-line tool or the SDK.
+
+<CardGroup cols={2}>
+  <Card title="Programmable Voice" icon="rocket-launch" href="https://discord.com/invite/4QWgSz4hTC">
+    Learn more about the Programmable Voice API and how to build advanced voice applications.
+  </Card>
+
+  <Card title="SDKs" icon="code" href="https://discord.com/invite/4QWgSz4hTC">
+    Learn how to use the Node.js and Web SDKs to interact with Fonoster programmatically.
+  </Card>
+</CardGroup>

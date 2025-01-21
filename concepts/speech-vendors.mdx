@@ -1,0 +1,130 @@
+---
+title: 'Speech Vendors'
+description: 'Speech-to-text and text-to-speech vendors in Fonoster.'
+---
+
+import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
+
+<WipDocsWarning />
+
+Speech vendors in Fonoster provide speech-to-text and text-to-speech services for applications. Speech vendors are used to convert speech into text and text into speech.
+
+## Overview
+
+Both _AUTOPILOT_ and _EXTERNAL_ applications use speech APIs. To illustrate the use of speech in Fonoster, look at the following example using the SDK:
+
+```javascript
+const SDK = require("@fonoster/sdk");
+
+const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+
+const appConfig = {
+  name: "Custom Voice App",
+  type: "EXTERNAL",
+  speechToText: {
+    productRef: "stt.deepgram",
+    config: {
+      languageCode: "en-US"
+    }
+  },
+  textToSpeech: {
+    productRef: "tts.deepgram",
+    config: {
+      voice: "aura-asteria-en"
+    }
+  }
+}
+
+client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
+  .then(async() => new SDK.Applications(client).createApplication(appConfig))
+  .catch(console.error);
+```
+
+In the example above, we create a new voice application using the SDK. The application is configured to use Deepgram for speech-to-text and text-to-speech. The application is also configured to use the "aura-asteria-en" voice for text-to-speech.
+
+In Fonoster, you can mix and match speech vendors to suit your needs. For example, you can use Deepgram for speech-to-text and Google for text-to-speech.
+
+## Configuring speech-to-text
+
+The _speechToText_ object allows you to define the speech-to-text engine to use. The speech-to-text engine is responsible for converting the caller's speech into text.
+
+The _speechToText_ object has the _productRef_ and _config_ properties. The _productRef_ property identifies the speech-to-text vendor you want to use. The _config_ property is an object that contains the configuration settings for the speech-to-text engine. The configuration settings vary depending on the vendor.
+
+Currently, only *Deepgram* is supported as a speech-to-text vendor, but we are working on adding more vendors.
+
+### Deepgram configuration
+
+_Deepgram_ is a speech-to-text vendor that provides high-quality transcription services. Deepgram supports the _languageCode_ as well as _model_ properties. The _languageCode_ property is the language code of the speech you want to transcribe. The _model_ property is the model to use for transcription and defaults to `nova-2-phonecall`.
+
+The Autopilot supports the models `nova-2`, `nova-2-phonecall`, and `nova-2-conversationalai`.
+
+Example of a Deepgram configuration for Spanish:
+
+```javascript
+const appConfig = {
+  ...
+  speechToText: {
+    productRef: "stt.deepgram",
+    config: {
+      model: "nova-2"
+      languageCode: "es",
+    }
+  },
+  ...
+}
+```
+
+<Note>
+For _languageCode_ other than `en-US`, you need to use the `nova-2` model. 
+  
+Please refer to the [Deepgram documentation](https://developers.deepgram.com/docs/models-languages-overview) for more information.
+</Note>
+
+## Configuring text-to-speech
+
+The _textToSpeech_ object allows you to define the text-to-speech engine. The text-to-speech engine is responsible for converting the Autopilot's responses into speech.
+
+The _textToSpeech_ object has the _productRef_ and _config_ properties. The _productRef_ property identifies the text-to-speech vendor you want to use. The _config_ property is an object that contains the configuration settings for the text-to-speech engine. The configuration settings vary depending on the vendor.
+
+We currently support *Google*, *Azure*, *Deepgram*, and *ElevenLabs* as text-to-speech vendors.
+
+Most vendors only support the _voice_ property as the voice for the text-to-speech. The voice is a string that represents the voice to use. The available voices depend on the vendor.
+
+Please visit the vendor's documentation for more information on the available voices.
+
+<Tip>
+  In addition to the *voice* property, the _ElevenLabs_ vendor supports the *model* property. The *model* property is the model to use for text-to-speech and defaults to `eleven_flash_v2_5`.
+  Please refer to the [ElevenLabs documentation](https://elevenlabs.io/docs/developer-guides/models) for additional information about the available models.
+</Tip>
+
+Example of a text-to-speech configuration for *ElevenLabs*:
+
+```javascript
+const appConfig = {
+  ...
+  textToSpeech: {
+    productRef: "tts.elevenlabs",
+    config: {
+      voice: "CaJslL1xziwefCeTNzHv",
+      model: "eleven_flash_v2_5"
+    }
+  },
+  ...
+}
+```
+
+### Available voices by vendor
+
+The following links provide information on the available voices for each vendor:
+
+* [Deepgram](https://developers.deepgram.com/docs/tts-models)
+
+* [ElevenLabs](https://elevenlabs.io/docs/product/voices/default-voices)
+
+* [Google](https://cloud.google.com/text-to-speech/docs/voices)
+
+* [Azure](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support)
+
+<Warning>
+  If you need a non-default *ElevenLabs* voice, please let us know, and we will add it for you.
+</Warning>

@@ -1,5 +1,5 @@
 ---
-title: 'Programmable voice'
+title: 'Programmable Voice'
 description: 'Verb-based voice call control in Fonoster.'
 ---
 
@@ -9,13 +9,53 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 
 Programmable Voice in Fonoster allows you to control the flow of a phone call using a set of verbs. Verbs work in conjunction with the VoiceServer to create a voice application.
 
+## Overview
+
+The following is an example of how to create a programmable voice application using the SDK:
+
+```javascript create-app.js
+const SDK = require("@fonoster/sdk");
+
+const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+
+const appConfig = {
+  name: "Custom Voice App",
+  type: "EXTERNAL",
+  endpoint: "0.tcp.ngrok.io:17263",
+  speechToText: {
+    productRef: "stt.deepgram",
+    config: {
+      languageCode: "en-US"
+    }
+  },
+  textToSpeech: {
+    productRef: "tts.deepgram",
+    config: {
+      voice: "aura-asteria-en"
+    }
+  }
+}
+
+client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
+  .then(async() => new SDK.Applications(client).createApplication(appConfig))
+  .catch(console.error);
+```
+
+In the example above, we create a new voice application using the SDK. The application is configured to use Deepgram for speech-to-text and text-to-speech. The application is also configured to use the "aura-asteria-en" voice for text-to-speech.
+
+## Speech settings
+
+Programmable voice applications support a variety of speech-to-text and text-to-speech vendors. The _speechToText_ and _textToSpeech_ objects allow you to define the speech-to-text and text-to-speech engines to use.
+
+You can mix and match vendors to suit your needs. For example, you can use _Deepgram_ for speech-to-text and Google for text-to-speech. Please check the [Speech Vendors](./speech-vendors) section for more information on configuring speech-to-text and text-to-speech.
+
 ## VoiceServer
 
-The VoiceServer works similarly to an Express server. It accepts requests and returns responses. The VoiceServer is responsible for processing the verbs and executing the desired actions.
+The VoiceServer works similarly to an Express server. It accepts requests and returns responses. The _VoiceServer_ processes verbs and executes the desired actions.
 
 An example of running a VoiceServer in Fonoster:
 
-```javascript index.js
+```javascript server.js
 const VoiceServer = require("@fonoster/voice").default;
 
 new VoiceServer().listen(async (req, response) => {
@@ -49,6 +89,18 @@ Here is a list of the available verbs in Fonoster:
 <Tip>
   Run any setup code before calling the Answer verb. The Answer verb should be the first verb in your application. Similarly, the Hangup verb should be the last in your application.
 </Tip>
+
+## Exposing the VoiceServer with Ngrok
+
+During development, you can use [Ngrok](https://ngrok.com/) to expose your VoiceServer to the internet. Ngrok creates a secure tunnel to your local machine. This allows you to test your voice application without deploying it to a server.
+
+To use Ngrok, install it on your machine and run the following command:
+
+```bash
+ngrok tcp 50061
+```
+
+Replace `50061` with the port your VoiceServer is running on. Ngrok will provide you with a URL that you can use to access your VoiceServer.
 
 <Card title="See NPM for details" icon="npm" color="#C53635" href="https://www.npmjs.com/package/@fonoster/voice">
   For full documentation, please visit NPM.

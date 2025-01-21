@@ -7,4 +7,63 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 
 <WipDocsWarning />
 
-Coming soon.
+When creating a voice application, you will define the voice used to speak the text. To illustrate this, let's define a simple voice application using _Deepgram_ for speech-to-text using the SDK:
+
+```javascript index.js {10,13}
+const SDK = require("@fonoster/sdk");
+
+const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+
+const appConfig = {
+  name: "Custom Voice App",
+  type: "EXTERNAL",
+  endpoint: "0.tcp.ngrok.io:17263",
+  speechToText: {
+    productRef: "stt.deepgram",
+    config: {
+      languageCode: "en-US"
+    }
+  },
+  textToSpeech: {
+    productRef: "tts.deepgram",
+    config: {
+      voice: "aura-asteria-en"
+    }
+  }
+}
+
+client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
+  .then(async() => new SDK.Applications(client).createApplication(appConfig))
+  .catch(console.error);
+```
+
+And now, let's create a simple voice application using the `Say` verb:
+
+```javascript index.js
+const VoiceServer = require("@fonoster/voice").default;
+
+new VoiceServer().listen(async (req, response) => {
+  // Verbs go here
+  await response.answer();
+  await response.say("Hello World!");
+  await response.hangup();
+});
+```
+
+The application in the example above uses the speech settings described in the application configuration. The `Say` verb will use the voice defined in the `textToSpeech` object. In this case, the voice used is "aura-asteria-en".
+
+If you want to overwrite the voice the `Say` verb uses, you can pass the _voice_ attribute to the `say` method. Here is an example:
+
+```javascript index.js {7}
+const VoiceServer = require("@fonoster/voice").default;
+
+new VoiceServer().listen(async (req, response) => {
+  // Verbs go here
+  await response.answer();
+  await response.say("Hello World by Aura Asteria!");
+  await response.say("Hello World by Aura Luna!", { voice: "aura-luna-en" });
+  await response.hangup();
+});
+```
+
+In the example above, the first `say` method will use the "aura-asteria-en" voice, and the second `say` method will use the "aura-luna-en" voice. The _voice_ attribute is optional. If you don't pass it, the `Say` verb will use the voice defined in the application configuration.

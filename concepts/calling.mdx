@@ -7,4 +7,164 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 
 <WipDocsWarning />
 
-Coming soon.
+Fonoster provides capabilities for handling both inbound and outbound calls. Before making or receiving calls, you'll need three key components:
+
+1. A SIP Trunk to connect to the telephony network
+2. A virtual phone number associated with your trunk
+3. An application to handle the call logic
+
+Please see the [Linking a Twilio Number](/concepts/linking-a-twilio-number) guide for a quick start.
+
+## Prerequisites
+
+First, create an application that will handle your calls. You can do this using the SDK:
+
+```javascript create-app.js
+const SDK = require("@fonoster/sdk");
+
+const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+
+const appConfig = {
+  name: "My Calling App",
+  type: "EXTERNAL",
+  endpoint: "0.tcp.ngrok.io:17263",
+  speechToText: {
+    productRef: "stt.deepgram",
+    config: {
+      languageCode: "en-US"
+    }
+  },
+  textToSpeech: {
+    productRef: "tts.deepgram",
+    config: {
+      voice: "aura-asteria-en"
+    }
+  }
+}
+
+client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
+  .then(async() => new SDK.Applications(client).createApplication(appConfig))
+  .catch(console.error);
+```
+
+Or using the command-line tool:
+
+```bash
+fonoster applications:create
+```
+
+## Inbound calls
+
+You need a virtual phone number linked to your application to receive inbound calls. The easiest way to get started is with a Twillio number.
+
+To link an application to a Twilio number, run the following command and follow the prompts:
+
+```bash
+fonoster sipnet:numbers:linkTwilioNumber
+```
+
+Then, create a voice application to handle incoming calls:
+
+```javascript server.js
+const VoiceServer = require("@fonoster/voice").default;
+
+new VoiceServer().listen(async (req, voice) => {
+  // Access caller information
+  console.log(`Incoming call from ${req.callerNumber}`);
+  
+  await voice.answer();
+  await voice.say("Thank you for calling!");
+  await voice.hangup();
+});
+```
+
+You are now ready to begin accepting inbound calls.
+
+## Outbound calls
+
+You can make outbound calls using either the SDK or the command-line tool.
+
+### Using the SDK
+
+```javascript call.js
+const SDK = require("@fonoster/sdk");
+
+const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+
+async function makeCall() {
+  const calls = new SDK.Calls(client);
+
+  try {
+    const { ref, statusStream } = await calls.createCall({
+      from: "+18287854037",
+      to: "+17853178070",
+      appRef: "app-ref-uuid",    // Your application reference
+      timeout: 30
+    });
+
+    console.log(`Call created with reference: ${ref}`);
+
+    // Monitor call status
+    for await (const status of statusStream) {
+      console.log(`Call status: ${status}`);
+    }
+  } catch (err) {
+    console.error("Error making call:", err);
+  }
+}
+
+client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
+  .then(() => makeCall())
+  .catch(console.error);
+```
+
+### Using the command-line tool
+
+First, get your application reference:
+
+```bash
+fonoster applications:list
+```
+
+Then make the call:
+
+```bash
+fonoster sipnet:calls:create \
+  --app-ref 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 \
+  --from +18287854037 \
+  --to +17853178070
+```
+
+## Call status monitoring
+
+When using the SDK, you can monitor call status through the _statusStream_:
+
+```javascript
+const { ref, statusStream } = await calls.createCall({
+  from: "+18287854037",
+  to: "+17853178070",
+  appRef: "app-ref-uuid"
+});
+
+// Monitor call status changes
+for await (const status of statusStream) {
+  switch(status) {
+    case "RINGING":
+      console.log("Call is ringing");
+      break;
+    case "IN_PROGRESS":
+      console.log("Call is connected");
+      break;
+    case "COMPLETED":
+      console.log("Call completed successfully");
+      break;
+    case "FAILED":
+      console.log("Call failed");
+      break;
+  }
+}
+```
+
+<Card title="Learn More" icon="book-open">
+  For more advanced call control features, check out the [Programmable Voice](./programmable-voice) documentation.
+</Card>
