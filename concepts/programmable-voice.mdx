@@ -11,9 +11,9 @@ Programmable Voice in Fonoster allows you to control the flow of a phone call us
 
 ## Overview
 
-The following is an example of how to create a programmable voice application using the SDK:
+The following is an example of how to create a programmable voice application in Fonoster using the SDK:
 
-```javascript create-app.js
+```javascript create-app.js {8}
 const SDK = require("@fonoster/sdk");
 
 const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
@@ -41,13 +41,11 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
   .catch(console.error);
 ```
 
-In the example above, we create a new voice application using the SDK. The application is configured to use Deepgram for speech-to-text and text-to-speech. The application is also configured to use the "aura-asteria-en" voice for text-to-speech.
+In the example above, we created a new voice application using the SDK. The application is configured to use Deepgram for speech-to-text and text-to-speech. The application is also configured to use the "aura-asteria-en" voice for text-to-speech.
 
-## Speech settings
+However, so far, we have only told Fonoster the speech configuration and the location of the application represented by the _endpoint_ property. 
 
-Programmable voice applications support a variety of speech-to-text and text-to-speech vendors. The _speechToText_ and _textToSpeech_ objects allow you to define the speech-to-text and text-to-speech engines to use.
-
-You can mix and match vendors to suit your needs. For example, you can use _Deepgram_ for speech-to-text and Google for text-to-speech. Please check the [Speech Vendors](./speech-vendors) section for more information on configuring speech-to-text and text-to-speech.
+You also need to run a VoiceServer using your application's logic.
 
 ## VoiceServer
 
@@ -89,6 +87,12 @@ Here is a list of the available verbs in Fonoster:
 <Tip>
   Run any setup code before calling the Answer verb. The Answer verb should be the first verb in your application. Similarly, the Hangup verb should be the last in your application.
 </Tip>
+
+## Speech settings
+
+Programmable voice applications support a variety of speech-to-text and text-to-speech vendors. The _speechToText_ and _textToSpeech_ objects allow you to define the speech-to-text and text-to-speech engines to use.
+
+You can mix and match vendors to suit your needs. For example, you can use _Deepgram_ for speech-to-text and Google for text-to-speech. Please check the [Speech Vendors](./speech-vendors) section for more information on configuring speech-to-text and text-to-speech.
 
 ## Exposing the VoiceServer with Ngrok
 
