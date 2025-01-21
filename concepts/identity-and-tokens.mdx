@@ -53,7 +53,7 @@ The Identity module employs JSON Web Tokens (JWTs) for secure and flexible authe
 
 ID tokens identify the user and contain information about their identity. Typically short-lived, issued upon successful authentication. The following is an example of an ID token:
 
-```json
+```json tokenUse=id
 {
   "iss": "https://identity-global.fonoster.com",
   "sub": "00000000-0000-0000-0000-000000000000",
@@ -71,7 +71,7 @@ ID tokens identify the user and contain information about their identity. Typica
 
 Access tokens enhance security with short lifespans (e.g., minutes to 15m). They contain claims about the user or service, represented as a JSON object. The following is an example of an access token:
 
-```json
+```json tokenUse=access
 {
   "iss": "https://identity-global.fonoster.com",
   "sub": "00000000-0000-0000-0000-000000000000",
@@ -97,7 +97,7 @@ By default, refresh tokens are issued with a 24-hour expiration time. You can ad
 
 An example of a refresh token:
 
-```json
+```json tokenUse=refresh
 {
   "iss": "https://identity-global.fonoster.com",
   "sub": "00000000-0000-0000-0000-000000000000",
