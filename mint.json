@@ -74,8 +74,9 @@
         "concepts/apikeys",
         "concepts/sdks",
         "concepts/programmable-voice",
-        "concepts/voice-streaming",
         "concepts/autopilot",
+        "concepts/speech-vendors",
+        "concepts/voice-streaming",
         "concepts/sipnetwork",
         "concepts/calling"
       ]
