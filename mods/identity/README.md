@@ -18,7 +18,7 @@ The Fonoster Identity Module provides the cornerstone for secure user management
 
 This module offers comprehensive identity management functionality, including creating, reading, updating, and deleting user and workspace entities. Users may represent individual accounts or service accounts. Workspaces provide a way to organize users and streamline permission administration logically. A user can belong to multiple workspaces.
 
-The Identity module ensures secure authentication by employing industry-standard JSON Web Tokens (JWTs). It supports a variety of authentication mechanisms, including username and password, Multi-Factor Authentication (MFA) for added security, OAuth2 for integration with external identity providers, and seamless token exchange to accommodate diverse scenarios.
+The Identity module ensures secure authentication by employing industry-standard JSON Web Tokens (JWTs). It supports a variety of authentication mechanisms, including username and password, Multi-Factor Authentication (MFA) for added security, OAuth2 for integration with external identity providers, and token exchange to accommodate diverse scenarios.
 
 Authorization is implemented through a Role-Based Access Control (RBAC) model, allowing for granular control over user and service actions. Predefined roles offer convenience, while the option to create custom roles provides maximum flexibility.
 
@@ -145,15 +145,11 @@ The Identity Module simplifies the renewal process for expired access tokens. Us
 
 ## Refresh-Token Rotation Policy
 
-A well-defined refresh token rotation policy is crucial for maintaining security. Fonoster Identity will provide a time-based refresh token, which means a refresh token will expire after a fixed amount of time.
-
-Along with the rotation policy, the Identity module will provide a mechanism to invalidate existing refresh tokens to address scenarios like compromised devices or accounts.
+Fonoster Identity uses a time-based refresh token, which means a refresh token will expire after a fixed amount of time. The Identity service must provide a mechanism to invalidate existing refresh tokens to address scenarios like compromised devices or accounts.
 
 ## Token Verification
 
-The Identity module employs the RS256 algorithm to sign JWTs, guaranteeing their authenticity and integrity. A system can retrieve the public key from the issuer's JSON Web Key Set (JWKS) endpoint and use it to validate a token.
-
-A client application may build the URL by appending the issuer's URL with the `/.well-known/jwks.json `endpoint. For example, if the issuer is `https://identity-global.fonoster.com`, the client application will build the URL `https://identity-global.fonoster.com/.well-known/jwks.json`.
+The Identity module employs the RS256 algorithm to sign JWTs, guaranteeing their authenticity and integrity. A system can retrieve the public key from the issuer's `fonoster.identity.v1beta2.Identity.GetPublicKey` gRPC endpoint and use it to validate a token.
 
 The verification process involves two steps: first, confirming the token's signature using the correct private key, and second, validating claims such as the issuer, intended audience, and expiration time to establish the token's overall validity.
 
