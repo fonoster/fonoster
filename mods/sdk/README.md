@@ -64,7 +64,7 @@ In Node.js:
 ```typescript
 const SDK = require("@fonoster/sdk");
 const ACCESS_KEY_ID = "WO00000000000000000000000000000000";
-const ENDPOINT = "api.fonoster.io";
+const ENDPOINT = "api.fonoster.com";
 const client = new SDK.Client({ accessKeyId: ACCESS_KEY_ID, endpoint: ENDPOINT });
 ```
 
@@ -75,13 +75,13 @@ In the browser:
 ```typescript
 const SDK = require("@fonoster/sdk");
 const ACCESS_KEY_ID = "WO00000000000000000000000000000000";
-const URL = "https://api.fonoster.io/v1beta2";
+const URL = "https://api.fonoster.com/v1beta2";
 const client = new SDK.WebClient({ accessKeyId: ACCESS_KEY_ID, url: URL });
 ```
 
 When connecting to Fonoster's cloud services, you can omit the `url` parameter.
 
-### Login in and making requests
+### Login in and make requests
 
 ```typescript
 const username = "admin@fonoster.local";
@@ -93,7 +93,7 @@ async function main() {
   await applications.createApplication({
     name: "MyApp",
     type: "EXTERNAL",
-    endpoint: "localhost:3000" // Your app's endpoint
+    endpoint: "localhost:50061" // Your app's endpoint
  });
 }
 

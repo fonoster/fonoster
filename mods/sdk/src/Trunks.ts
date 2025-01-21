@@ -264,6 +264,7 @@ class Trunks {
     const updateTrunkRequest = new UpdateTrunkRequestPB();
     updateTrunkRequest.setRef(request.ref);
     updateTrunkRequest.setName(request.name);
+    updateTrunkRequest.setInboundUri(request.inboundUri);
     updateTrunkRequest.setSendRegister(request.sendRegister);
     updateTrunkRequest.setAccessControlListRef(request.accessControlListRef);
     updateTrunkRequest.setInboundCredentialsRef(request.inboundCredentialsRef);
