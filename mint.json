@@ -76,6 +76,7 @@
         "concepts/programmable-voice",
         "concepts/autopilot",
         "concepts/speech-vendors",
+        "concepts/bidirectional-streams",
         "concepts/voice-streaming",
         "concepts/sipnetwork",
         "concepts/calling"
