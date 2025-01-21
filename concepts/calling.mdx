@@ -13,7 +13,7 @@ Fonoster provides capabilities for handling both inbound and outbound calls. Bef
 2. A virtual phone number associated with your trunk
 3. An application to handle the call logic
 
-Please see the [Linking a Twilio Number](/concepts/linking-a-twilio-number) guide for a quick start.
+Please see the [Linking a Twilio number](/concepts/linking-a-twilio-number) guide for a quick start.
 
 ## Prerequisites
 
@@ -98,7 +98,7 @@ async function makeCall() {
     const { ref, statusStream } = await calls.createCall({
       from: "+18287854037",
       to: "+17853178070",
-      appRef: "app-ref-uuid",    // Your application reference
+      appRef: "4b01c9b1-8cb1-48fb-bd49-f3daf13463a9",    // Replace with your application reference
       timeout: 30
     });
 
@@ -130,7 +130,7 @@ Then make the call:
 
 ```bash
 fonoster sipnet:calls:create \
-  --app-ref 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 \
+  --app-ref 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 \ # // Replace with your application reference
   --from +18287854037 \
   --to +17853178070
 ```
@@ -143,7 +143,7 @@ When using the SDK, you can monitor call status through the _statusStream_:
 const { ref, statusStream } = await calls.createCall({
   from: "+18287854037",
   to: "+17853178070",
-  appRef: "app-ref-uuid"
+  appRef: "4b01c9b1-8cb1-48fb-bd49-f3daf13463a9"
 });
 
 // Monitor call status changes
