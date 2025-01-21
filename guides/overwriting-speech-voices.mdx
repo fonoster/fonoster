@@ -9,7 +9,7 @@ import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
 
 When creating a voice application, you will define the voice used to speak the text. To illustrate this, let's define a simple voice application using _Deepgram_ for speech-to-text using the SDK:
 
-```javascript index.js {10-13}
+```javascript create-app.js {10-13}
 const SDK = require("@fonoster/sdk");
 
 const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
@@ -39,7 +39,7 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
 
 And now, let's create a simple voice application using the `Say` verb:
 
-```javascript index.js
+```javascript server.js
 const VoiceServer = require("@fonoster/voice").default;
 
 new VoiceServer().listen(async (req, response) => {
@@ -54,7 +54,7 @@ The application in the example above uses the speech settings described in the a
 
 If you want to overwrite the voice the `Say` verb uses, you can pass the _voice_ attribute to the `say` method. Here is an example:
 
-```javascript index.js {7}
+```javascript server.js {7}
 const VoiceServer = require("@fonoster/voice").default;
 
 new VoiceServer().listen(async (req, response) => {
