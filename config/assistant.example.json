@@ -24,9 +24,9 @@
   "languageModel": {
     "provider": "openai",
     "apiKey": "your-api-key",
-    "model": "gpt-4o-mini",
-    "temperature": 0.2,
-    "maxTokens": 100,
+    "model": "gpt-4o",
+    "temperature": 1,
+    "maxTokens": 240,
     "knowledgeBase": [],
     "tools": [
       {

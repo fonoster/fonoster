@@ -69,9 +69,9 @@ class SileroVadModel {
     };
 
     const out = await this._session.run(inputs);
-    this._state = out["stateN"];
+    this._state = out.stateN;
 
-    const [isSpeech] = out["output"].data;
+    const [isSpeech] = out.output.data;
     const notSpeech = 1 - isSpeech;
 
     return { notSpeech, isSpeech };
