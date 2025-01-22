@@ -3,21 +3,17 @@ title: 'Bidirectional Streams'
 description: 'Bidirectional voice streaming in Fonoster.'
 ---
 
-import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
-
-<WipDocsWarning />
-
-Bidirectional streams are the foundation for modern Voice applications. They allow for more granular control over the audio stream, granting the ability to manipulate the audio in real-time. In Fonoster, bidirectional streams are implemented on the `Stream` verb.
+Bidirectional streams are the foundation for modern Voice applications. They allow for more granular control over the audio stream, manipulating it in real time. In Fonoster, bidirectional streams are implemented on the `Stream` verb.
 
 ## The Stream verb
 
 The _Stream_ verb lets you create a bidirectional stream to send and receive audio from a caller. Unlike other verbs in Fonoster, the Stream verb is asynchronous, meaning it does not block the execution of subsequent verbs in the script.
 
-A common use case for the Stream verb is real-time transcription. In such scenarios, the Stream verb sends audio to a transcription service and receives transcribed text in return.
+A common use case for the Stream verb is real-time transcription. In such scenarios, the Stream verb sends audio to a transcription service and receives the transcribed text.
 
 ### Example using the Streams verb
 
-Please see the highlighted lines for the most important parts of the code.
+Please see the highlighted lines for the most critical parts of the code.
 
 ```javascript server.js {4,9,11-16,26}
 const VoiceServer = require("@fonoster/voice").default;
@@ -55,7 +51,7 @@ async function handler(request, response) {
 
   response.say("Hello, please speak now.");
   
-  // TODO: Add the rest of the logic here including hangup
+  // TODO: Add the rest of the logic here, including hangup
 }
 
 new VoiceServer().listen(handler);
@@ -66,5 +62,5 @@ In the example above, we created a _VoiceServer_ that listens for incoming calls
 Next, a connection is established to a transcription service (Deepgram in this case). The transcription service processes the audio payloads and returns the transcribed text.
 
 <Warning>
-The _Stream_ verb doesn't yet support the "IN", towards the caller, direction. However you can use the _Play_ and _Say_ verbs to send audio to the caller.
+The _Stream_ verb doesn't yet support the "IN", towards the caller, direction. However, you can use the _Play_ and _Say_ verbs to send audio to the caller.
 </Warning>
