@@ -153,6 +153,9 @@ const machine = setup({
       return context.idleTimeoutCount + 1 > context.maxIdleTimeoutCount;
     },
     hasSpeechResult: function ({ context }) {
+      logger.verbose("called hasSpeechResult guard", {
+        speechBuffer: context.speechBuffer
+      });
       return context.speechBuffer;
     },
     isSpeaking: function ({ context }) {
@@ -275,11 +278,11 @@ const machine = setup({
       entry: { type: "cleanSpeech" },
       on: {
         SPEECH_START: {
-          target: "waitingForUserRequest",
+          target: "listeningToUser",
           description: "Event from VAD system."
         },
         SPEECH_RESULT: {
-          target: "waitingForUserRequest",
+          target: "listeningToUser",
           description: "User started speaking before SPEECH_START event",
           actions: [{ type: "appendSpeech" }]
         }
@@ -303,24 +306,19 @@ const machine = setup({
       }
     },
     idleTransition: {
+      // This intermediate state is necessary to ensure the IDLE_TIMEOUT
+      // event is properly reset and retriggered when returning to idle.
+      // Without it, the timer would not restart correctly.
       always: {
         target: "idle"
       }
     },
-    waitingForUserRequest: {
-      always: {
-        target: "updatingSpeech"
-      },
+    listeningToUser: {
       entry: [
         { type: "interruptPlayback" },
         { type: "resetIdleTimeoutCount" },
         { type: "setSpeaking" }
-      ]
-    },
-    hangup: {
-      type: "final"
-    },
-    updatingSpeech: {
+      ],
       on: {
         SPEECH_END: [
           {
@@ -341,6 +339,14 @@ const machine = setup({
             actions: { type: "appendSpeech" },
             guard: "isSpeaking",
             description: "Just append the speech result when actively speaking"
+          },
+          {
+            target: "processingUserRequest",
+            guard: not("isSpeaking"),
+            actions: [
+              { type: "appendSpeech" }
+            ],
+            description: "Append final speech and process the request"
           }
         ]
       }
@@ -348,7 +354,7 @@ const machine = setup({
     waitingForSpeechTimeout: {
       on: {
         SPEECH_START: {
-          target: "waitingForUserRequest",
+          target: "listeningToUser",
           description: "User started speaking again"
         },
         SPEECH_RESULT: {
@@ -371,22 +377,17 @@ const machine = setup({
         ]
       }
     },
+    hangup: {
+      type: "final"
+    },
     processingUserRequest: {
       on: {
         SPEECH_START: {
-          target: "waitingForUserRequest",
+          target: "listeningToUser",
           description: "Event from VAD or similar system.",
-          actions: [{ type: "interruptPlayback" }, { type: "cleanSpeech" }]
+          actions: [{ type: "cleanSpeech" }]
         },
-        SPEECH_RESULT: {
-          target: "waitingForUserRequest",
-          description: "User interrupted with new speech",
-          actions: [
-            { type: "interruptPlayback" },
-            { type: "cleanSpeech" },
-            { type: "appendSpeech" }
-          ]
-        }
+
       },
       invoke: {
         src: "doProcessUserRequest",
@@ -398,12 +399,7 @@ const machine = setup({
     },
     systemError: {
       entry: "announceSystemError",
-      after: {
-        SYSTEM_ERROR_RECOVERY_TIMEOUT: {
-          target: "idle",
-          actions: "resetState"
-        }
-      }
+      target: "idle"
     }
   }
 });

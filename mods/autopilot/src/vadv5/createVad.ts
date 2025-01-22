@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import * as ort from "onnxruntime-node";
-import { chunkToFloat32Array } from "./chunkToFloat32Array";
+import { chunkToFloat32Array } from "../vad/chunkToFloat32Array";
 import { SileroVadModel } from "./SileroVadModel";
 
 const BUFFER_SIZE = 512;

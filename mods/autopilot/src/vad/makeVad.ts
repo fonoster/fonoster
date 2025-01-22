@@ -25,7 +25,7 @@ import { SileroVadModel } from "./SileroVadModel";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-const BUFFER_SIZE = 16000;
+const BUFFER_SIZE = 8000;
 
 async function makeVad(params: {
   pathToModel?: string;
