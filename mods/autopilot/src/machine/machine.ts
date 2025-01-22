@@ -343,9 +343,7 @@ const machine = setup({
           {
             target: "processingUserRequest",
             guard: not("isSpeaking"),
-            actions: [
-              { type: "appendSpeech" }
-            ],
+            actions: [{ type: "appendSpeech" }],
             description: "Append final speech and process the request"
           }
         ]
@@ -386,8 +384,7 @@ const machine = setup({
           target: "listeningToUser",
           description: "Event from VAD or similar system.",
           actions: [{ type: "cleanSpeech" }]
-        },
-
+        }
       },
       invoke: {
         src: "doProcessUserRequest",
