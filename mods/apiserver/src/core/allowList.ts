@@ -27,7 +27,7 @@ const allowList = [
   "/fonoster.identity.v1beta2.Identity/SendVerificationCode",
   "/fonoster.identity.v1beta2.Identity/VerifyCode",
   "/fonoster.identity.v1beta2.Identity/GetPublicKey",
-  "/fonoster.voice.v1beta2.Voice/CreateSession",
+  "/fonoster.voice.v1beta2.Voice/CreateSession"
 ];
 
 export { allowList };

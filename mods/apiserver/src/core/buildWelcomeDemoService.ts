@@ -35,51 +35,62 @@ function buildWelcomeDemoService() {
       createSession: (voice: VoiceSessionStreamServer) => {
         let sessionRef: string | undefined;
 
-        voice.on(StreamEvent.DATA, (params: { 
-          request?: { sessionRef: string; callerNumber: string }; 
-          sayResponse?: unknown;
-        }) => {
-          try {
-            const { request, sayResponse } = params;
-            
-            if (request) {
-              const { callerNumber } = request;
-              sessionRef = request.sessionRef;
+        voice.on(
+          StreamEvent.DATA,
+          (params: {
+            request?: { sessionRef: string; callerNumber: string };
+            sayResponse?: unknown;
+          }) => {
+            try {
+              const { request, sayResponse } = params;
 
-              logger.verbose("welcome demo session started", { sessionRef, callerNumber });
+              if (request) {
+                const { callerNumber } = request;
+                sessionRef = request.sessionRef;
 
-              voice.write({
-                answerRequest: {
-                  sessionRef: request.sessionRef
-                }
-              });
-              
-              voice.write({
-                sayRequest: {
-                  text: "Welcome to Fonoster! Your system is configured correctly and ready for voice application development. Goodbye!",
-                  sessionRef: request.sessionRef
-                }
-              });
-            }
+                logger.verbose("welcome demo session started", {
+                  sessionRef,
+                  callerNumber
+                });
 
-            if (sayResponse && sessionRef) {
-              logger.verbose("hanging up welcome demo session", { sessionRef });
-              voice.write({
-                hangupRequest: {
+                voice.write({
+                  answerRequest: {
+                    sessionRef: request.sessionRef
+                  }
+                });
+
+                voice.write({
+                  sayRequest: {
+                    text: "Welcome to Fonoster! Your system is configured correctly and ready for voice application development. Goodbye!",
+                    sessionRef: request.sessionRef
+                  }
+                });
+              }
+
+              if (sayResponse && sessionRef) {
+                logger.verbose("hanging up welcome demo session", {
                   sessionRef
-                }
+                });
+                voice.write({
+                  hangupRequest: {
+                    sessionRef
+                  }
+                });
+              }
+            } catch (error) {
+              logger.error("error in welcome demo session", {
+                sessionRef,
+                error
               });
+              if (sessionRef) {
+                voice.write({
+                  hangupRequest: { sessionRef }
+                });
+              }
+              voice.end();
             }
-          } catch (error) {
-            logger.error("error in welcome demo session", { sessionRef, error });
-            if (sessionRef) {
-              voice.write({
-                hangupRequest: { sessionRef }
-              });
-            }
-            voice.end();
           }
-        });
+        );
 
         voice.once(StreamEvent.END, () => {
           voice.end();
@@ -87,7 +98,10 @@ function buildWelcomeDemoService() {
         });
 
         voice.on(StreamEvent.ERROR, (error) => {
-          logger.error("stream error in welcome demo session", { sessionRef, error });
+          logger.error("stream error in welcome demo session", {
+            sessionRef,
+            error
+          });
           voice.end();
         });
       }
