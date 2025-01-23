@@ -89,6 +89,7 @@ const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" 
 
 async function makeCall() {
   const calls = new SDK.Calls(client);
+  const breakReasons = ["ANSWER", "NOANSWER", "BUSY", "FAILED", "CANCEL"];
 
   try {
     const { ref, statusStream } = await calls.createCall({
@@ -101,9 +102,14 @@ async function makeCall() {
     console.log(`Call created with reference: ${ref}`);
 
     // Monitor call status
-    for await (const status of statusStream) {
-      console.log(`Call status: ${status}`);
+    for await (const s of statusStream) {
+      console.log(`Call status: ${s.status}`);
+      if (breakReasons.includes(s.status)) {
+        break;
+      }
     }
+
+    process.exit(0);
   } catch (err) {
     console.error("Error making call:", err);
   }
