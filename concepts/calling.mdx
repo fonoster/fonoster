@@ -18,7 +18,7 @@ First, create an application that will handle your calls. You can do this using 
 ```javascript create-app.js
 const SDK = require("@fonoster/sdk");
 
-const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" });
 
 const appConfig = {
   name: "My Calling App",
@@ -85,7 +85,7 @@ You can make outbound calls using either the SDK or the command-line tool.
 ```javascript call.js
 const SDK = require("@fonoster/sdk");
 
-const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" });
 
 async function makeCall() {
   const calls = new SDK.Calls(client);
