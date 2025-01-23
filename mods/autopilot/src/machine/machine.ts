@@ -339,12 +339,6 @@ const machine = setup({
             actions: { type: "appendSpeech" },
             guard: "isSpeaking",
             description: "Just append the speech result when actively speaking"
-          },
-          {
-            target: "processingUserRequest",
-            guard: not("isSpeaking"),
-            actions: [{ type: "appendSpeech" }],
-            description: "Append final speech and process the request"
           }
         ]
       }
