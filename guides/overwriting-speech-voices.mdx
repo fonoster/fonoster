@@ -8,7 +8,7 @@ When creating a voice application, you will define the voice used to speak the t
 ```javascript create-app.js {10-13}
 const SDK = require("@fonoster/sdk");
 
-const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" });
 
 const appConfig = {
   name: "Custom Voice App",
@@ -35,7 +35,7 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
 
 And now, let's create a simple voice application using the `Say` verb:
 
-```javascript server.js
+```javascript voice-server.js
 const VoiceServer = require("@fonoster/voice").default;
 
 new VoiceServer().listen(async (req, response) => {
@@ -50,7 +50,7 @@ The application in the example above uses the speech settings described in the a
 
 If you want to overwrite the voice the `Say` verb uses, you can pass the _voice_ attribute to the `say` method. Here is an example:
 
-```javascript server.js {7}
+```javascript voice-server.js {7}
 const VoiceServer = require("@fonoster/voice").default;
 
 new VoiceServer().listen(async (req, response) => {

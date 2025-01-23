@@ -61,7 +61,7 @@ fonoster sipnet:numbers:linkTwilioNumber
 
 Then, create a voice application to handle incoming calls:
 
-```javascript server.js
+```javascript voice-server.js
 const VoiceServer = require("@fonoster/voice").default;
 
 new VoiceServer().listen(async (req, voice) => {

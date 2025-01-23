@@ -12,7 +12,7 @@ The following is an example of how to create an application in Fonoster using th
 ```javascript create-app.js {8}
 const SDK = require("@fonoster/sdk");
 
-const client = new SDK.Client({ accessKeyId: "WO000000-0000-0000-0000-000000000000" });
+const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" });
 
 const appConfig = {
   name: "Custom Voice App",
@@ -49,7 +49,7 @@ The VoiceServer works similarly to an Express server. It accepts requests and re
 
 An example of running a VoiceServer in Fonoster:
 
-```javascript server.js
+```javascript voice-server.js
 const VoiceServer = require("@fonoster/voice").default;
 
 new VoiceServer().listen(async (req, response) => {
