@@ -25,7 +25,6 @@ export const StyledCard = styled(Card)<{
   disabled: boolean;
   workspaceVariant?: string;
 }>(({ disabled, workspaceVariant }) => ({
-  width: "325px",
   height: "325px",
   backgroundColor:
     workspaceVariant === "regular" ? "rgba(244, 244, 244, 1)" : "#ffffff",
