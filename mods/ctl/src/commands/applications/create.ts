@@ -22,6 +22,7 @@ import { CreateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import errorHandler from "../../errorHandler";
+import { WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS } from "@fonoster/common";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description =
@@ -43,6 +44,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       }),
       endpoint: await input({
         message: "Endpoint",
+        default: WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS,
         required: true
       }),
       speechToText: {
