@@ -76,12 +76,12 @@ const client = new SDK.WebClient({ accessKeyId: "WO00000000000000000000000000000
 
 ### Login in and make requests
 
-```javascript
+```javascript {5}
 client.login("youruser@example.com", "yourpassword")
   .then(() => new SDK.Applications(client).createApplication({
     name: "MyApp",
     type: "EXTERNAL",
-    endpoint: "0.tcp.ngrok.io:17263"
+    endpoint: "welcome.demo.fonoster.local" // Demo application
   }))
   .then(() => console.log("Application created successfully"))
   .catch(console.error);
