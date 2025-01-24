@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getAccessKeyIdFromCall, withErrorHandling } from "@fonoster/common";
+import {
+  AUTOPILOT_SPECIAL_LOCAL_ADDRESS,
+  getAccessKeyIdFromCall,
+  withErrorHandling
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ApplicationType, UpdateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -25,7 +29,6 @@ import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./validation/validOrThrow";
 import { Prisma } from "../core/db";
 import { withAccess } from "@fonoster/identity";
-import { APISERVER_AUTOPILOT_ENDPOINT } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -44,9 +47,9 @@ function createUpdateApplication(prisma: Prisma) {
 
     if (type === ApplicationType.AUTOPILOT && !request.endpoint) {
       logger.verbose("setting default endpoint for autopilot application", {
-        autopilotEndpoint: APISERVER_AUTOPILOT_ENDPOINT
+        autopilotEndpoint: AUTOPILOT_SPECIAL_LOCAL_ADDRESS
       });
-      request.endpoint = APISERVER_AUTOPILOT_ENDPOINT;
+      request.endpoint = AUTOPILOT_SPECIAL_LOCAL_ADDRESS;
     }
 
     validOrThrow(request);

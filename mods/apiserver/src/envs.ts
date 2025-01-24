@@ -57,9 +57,6 @@ export const APISERVER_BIND_ADDR = e.APISERVER_BIND_ADDR || "0.0.0.0:50051";
 
 export const APISERVER_HOST = e.APISERVER_HOST || "apiserver";
 
-export const APISERVER_AUTOPILOT_ENDPOINT =
-  e.APISERVER_AUTOPILOT_ENDPOINT || "autopilot:50061";
-
 // Frontend configurations
 export const APP_URL = e.APP_URL;
 

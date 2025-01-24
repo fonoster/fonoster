@@ -25,3 +25,6 @@ export const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
 export const INFLUXDB_CALLS_BUCKET = "calls";
 export const APP_REF_HEADER = "x-app-ref";
 export const ROUTR_DEFAULT_PEER_AOR = "sip:voice@default";
+export const AUTOPILOT_SPECIAL_LOCAL_ADDRESS = "autopilot.fonoster.local";
+export const AUTOPILOT_INTERNAL_ADDRESS = "autopilot:50061";
+export const WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS = "welcome.demo.fonoster.local";

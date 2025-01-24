@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  AUTOPILOT_SPECIAL_LOCAL_ADDRESS,
   getAccessKeyIdFromCall,
   GrpcErrorMessage,
   withErrorHandling
@@ -27,7 +28,6 @@ import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./validation/validOrThrow";
 import { Prisma } from "../core/db";
-import { APISERVER_AUTOPILOT_ENDPOINT } from "../envs";
 import { ApplicationType } from "@prisma/client";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -51,9 +51,9 @@ function createCreateApplication(prisma: Prisma) {
 
     if (type === ApplicationType.AUTOPILOT && !request.endpoint) {
       logger.verbose("setting default endpoint for autopilot application", {
-        autopilotEndpoint: APISERVER_AUTOPILOT_ENDPOINT
+        autopilotEndpoint: AUTOPILOT_SPECIAL_LOCAL_ADDRESS
       });
-      request.endpoint = APISERVER_AUTOPILOT_ENDPOINT;
+      request.endpoint = AUTOPILOT_SPECIAL_LOCAL_ADDRESS;
     }
 
     validOrThrow(request);

@@ -28,6 +28,12 @@ import { IntegrationsContainer } from "./types";
 import { Prisma } from "../../core/db";
 import { SpeechToTextFactory } from "../stt/SpeechToTextFactory";
 import { TextToSpeechFactory } from "../tts/TextToSpeechFactory";
+import {
+  AUTOPILOT_INTERNAL_ADDRESS,
+  AUTOPILOT_SPECIAL_LOCAL_ADDRESS,
+  WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS
+} from "@fonoster/common";
+import { APISERVER_HOST } from "../../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -86,10 +92,17 @@ function createCreateContainer(prisma: Prisma, pathToIntegrations: string) {
       sttConfig
     );
 
+    const actualEndpoint =
+      app.endpoint === AUTOPILOT_SPECIAL_LOCAL_ADDRESS
+        ? AUTOPILOT_INTERNAL_ADDRESS
+        : app.endpoint === WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS
+          ? `${APISERVER_HOST}:50051`
+          : app.endpoint;
+
     return {
       ref: appRef,
       accessKeyId: app.accessKeyId,
-      endpoint: app.endpoint,
+      endpoint: actualEndpoint,
       tts,
       stt
     };
