@@ -92,7 +92,7 @@ export const IDENTITY_AUDIENCE = e.IDENTITY_AUDIENCE || "api";
 export const IDENTITY_ID_TOKEN_EXPIRES_IN =
   e.IDENTITY_ID_TOKEN_EXPIRES_IN || "15m";
 
-export const IDENTITY_ISSUER = e.IDENTITY_ISSUER || "https://fonoster.local";
+export const IDENTITY_ISSUER = e.IDENTITY_ISSUER || "http://fonoster.local";
 
 export const IDENTITY_USER_VERIFICATION_REQUIRED =
   e.IDENTITY_USER_VERIFICATION_REQUIRED === "true";
