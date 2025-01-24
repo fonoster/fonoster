@@ -15,7 +15,7 @@ Please see the [Linking a Twilio number](/concepts/linking-a-twilio-number) guid
 
 First, create an application that will handle your calls. You can do this using the SDK:
 
-```javascript create-app.js
+```javascript create-app.js {8}
 const SDK = require("@fonoster/sdk");
 
 const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" });
@@ -23,7 +23,7 @@ const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" 
 const appConfig = {
   name: "My Calling App",
   type: "EXTERNAL",
-  endpoint: "0.tcp.ngrok.io:17263",
+  endpoint: "welcome.demo.fonoster.local", // Demo application
   speechToText: {
     productRef: "stt.deepgram",
     config: {
@@ -57,21 +57,6 @@ To link an application to a Twilio number, run the following command and follow 
 
 ```bash
 fonoster sipnet:numbers:linkTwilioNumber
-```
-
-Then, create a voice application to handle incoming calls:
-
-```javascript voice-server.js
-const VoiceServer = require("@fonoster/voice").default;
-
-new VoiceServer().listen(async (req, voice) => {
-  // Access caller information
-  console.log(`Incoming call from ${req.callerNumber}`);
-  
-  await voice.answer();
-  await voice.say("Thank you for calling!");
-  await voice.hangup();
-});
 ```
 
 You are now ready to begin accepting inbound calls.
