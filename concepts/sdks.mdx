@@ -70,9 +70,9 @@ const SDK = require("@fonoster/sdk");
 const client = new SDK.WebClient({ accessKeyId: "WO00000000000000000000000000000000" });
 ```
 
-<Tip>
+<Note>
   Note the only difference is the name of the constructor.
-</Tip>
+</Note>
 
 ### Login in and make requests
 
@@ -89,10 +89,6 @@ client.login("youruser@example.com", "yourpassword")
 
 <Tip>
   In addition to the `login` method, the SDK provides a `loginWithApiKey` and `loginWithRefreshToken` methods. The `loginWithRefreshToken` is helpful in browser environments where you want to keep the user logged in between sessions.
-</Tip>
-
-<Tip>
-  The SDK will automatically refresh the token when it expires.
 </Tip>
 
 <Card title="See NPM for details" icon="npm" color="#C53635" iconType="brands" href="https://www.npmjs.com/package/@fonoster/sdk">
