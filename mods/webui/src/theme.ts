@@ -52,10 +52,14 @@ const fnLight = createTheme({
       primary: "#555"
     }
   },
-  shape: {
-    borderRadius: 40
-  },
   components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 40
+        }
+      }
+    },
     MuiButtonBase: {
       defaultProps: {
         disableRipple: true
