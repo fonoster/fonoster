@@ -39,7 +39,7 @@ const meta = {
   args: {
     onClick: fn(),
     label: "Label",
-    defaultValue: "Input",
+    defaultValue: "Input"
   },
   argTypes: {
     onClick: {
@@ -49,7 +49,7 @@ const meta = {
     disabled: {
       name: "Disabled",
       description: "Disables the input",
-      control: "boolean",
+      control: "boolean"
     },
     label: {
       name: "Label",
@@ -85,7 +85,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: {
-    defaultValue: "Input",
+    defaultValue: "Input"
   }
 };
 
@@ -99,7 +99,10 @@ export const WithLabel: Story = {};
  */
 export const TrailingIcon: Story = {
   args: {
-    trailingIcon: React.createElement(Icon, { name: "ArrowDropDown", fontSize: "medium" })
+    trailingIcon: React.createElement(Icon, {
+      name: "ArrowDropDown",
+      fontSize: "medium"
+    })
   }
 };
 
@@ -109,7 +112,10 @@ export const TrailingIcon: Story = {
 export const TrailingIconAndSupportingText: Story = {
   args: {
     supportingText: "Supporting text",
-    trailingIcon: React.createElement(Icon, { name: "ArrowDropDown", fontSize: "medium" })
+    trailingIcon: React.createElement(Icon, {
+      name: "ArrowDropDown",
+      fontSize: "medium"
+    })
   }
 };
 
@@ -119,8 +125,14 @@ export const TrailingIconAndSupportingText: Story = {
 export const LeadingAndTrailingIconAndSupportingText: Story = {
   args: {
     supportingText: "Supporting text",
-    leadingIcon: React.createElement(Icon, { name: "Search", fontSize: "small" }),
-    trailingIcon: React.createElement(Icon, { name: "ArrowDropDown", fontSize: "medium" }),
+    leadingIcon: React.createElement(Icon, {
+      name: "Search",
+      fontSize: "small"
+    }),
+    trailingIcon: React.createElement(Icon, {
+      name: "ArrowDropDown",
+      fontSize: "medium"
+    })
   }
 };
 
@@ -129,7 +141,10 @@ export const LeadingAndTrailingIconAndSupportingText: Story = {
  */
 export const LeadingIcon: Story = {
   args: {
-    leadingIcon: React.createElement(Icon, { name: "Search", fontSize: "small" })
+    leadingIcon: React.createElement(Icon, {
+      name: "Search",
+      fontSize: "small"
+    })
   }
 };
 

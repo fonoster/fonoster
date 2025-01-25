@@ -27,24 +27,24 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     fontFamily: theme.typography.fontFamily,
     fontWeight: 400,
     lineHeight: "normal",
-    letterSpacing: "0.12px",
+    letterSpacing: "0.12px"
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.Mui-focused": {
     fontFamily: theme.typography.fontFamily,
     fontWeight: 500,
     lineHeight: "normal",
     transform: "translate(16px, -11px) scale(0.66)",
-    color: theme.palette.text.primary,
+    color: theme.palette.text.primary
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
     fontFamily: theme.typography.fontFamily,
     fontWeight: 500,
     lineHeight: "normal",
     transform: "translate(16px, -11px) scale(0.66)",
-    color: theme.palette.text.primary,
+    color: theme.palette.text.primary
   },
   "& .MuiInputBase-inputAdornedStart": {
-    paddingLeft: "0",
+    paddingLeft: "0"
   },
   "& .MuiInputBase-root.MuiOutlinedInput-root": {
     "& .MuiInputAdornment-root": {
@@ -55,10 +55,10 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     }
   },
   "& .MuiInputAdornment-root": {
-    color: theme.palette.text.primary,
+    color: theme.palette.text.primary
   },
   "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: `1px solid ${theme.palette.primary.main}`,
+    border: `1px solid ${theme.palette.primary.main}`
   },
   "& .MuiFormHelperText-root": {
     fontFamily: theme.typography.fontFamily,
@@ -67,6 +67,6 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     lineHeight: "normal",
     letterSpacing: "0.12px",
     marginTop: "8px",
-    color: theme.palette.text.primary,
+    color: theme.palette.text.primary
   }
 }));

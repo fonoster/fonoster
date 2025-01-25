@@ -51,14 +51,14 @@ export const InputText: React.FC<InputTextProps> = ({
       slotProps={{
         input: {
           ...(leadingIcon && {
-            startAdornment: <InputAdornment position="start">
-              {leadingIcon}
-            </InputAdornment>
+            startAdornment: (
+              <InputAdornment position="start">{leadingIcon}</InputAdornment>
+            )
           }),
           ...(trailingIcon && {
-            endAdornment: <InputAdornment position="end">
-              {trailingIcon}
-            </InputAdornment>
+            endAdornment: (
+              <InputAdornment position="end">{trailingIcon}</InputAdornment>
+            )
           })
         }
       }}
