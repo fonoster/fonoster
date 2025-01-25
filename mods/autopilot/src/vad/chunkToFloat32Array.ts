@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 // This version of the chunkToFloat32Array accounts for the case where
 // the byteOffset is misaligned.
 //

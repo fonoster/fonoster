@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 // Here we update and get the default system user because we don't have
 // a way to get the user we just created unless we login which
 // is not possible in this test environment.
