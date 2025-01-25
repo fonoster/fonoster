@@ -34,7 +34,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Body/Large
+ * Body/Large.
  */
 export const BodyLarge: Story = {
   args: {
@@ -44,7 +44,7 @@ export const BodyLarge: Story = {
 };
 
 /**
- * Body/Medium
+ * Body/Medium.
  */
 export const BodyMedium: Story = {
   args: {
@@ -54,7 +54,7 @@ export const BodyMedium: Story = {
 };
 
 /**
- * Body/Micro
+ * Body/Micro.
  */
 export const BodyMicro: Story = {
   args: {
@@ -64,7 +64,7 @@ export const BodyMicro: Story = {
 };
 
 /**
- * Body/Small
+ * Body/Small.
  */
 export const BodySmall: Story = {
   args: {
@@ -74,7 +74,7 @@ export const BodySmall: Story = {
 };
 
 /**
- * Body/Small Underline
+ * Body/Small Underline.
  */
 export const BodySmallUnderline: Story = {
   args: {
@@ -84,7 +84,7 @@ export const BodySmallUnderline: Story = {
 };
 
 /**
- * Drawer Label
+ * Drawer Label.
  */
 export const DrawerLabel: Story = {
   args: {
@@ -94,7 +94,7 @@ export const DrawerLabel: Story = {
 };
 
 /**
- * Drawer Title
+ * Drawer Title.
  */
 export const DrawerTitle: Story = {
   args: {
@@ -104,7 +104,7 @@ export const DrawerTitle: Story = {
 };
 
 /**
- * Heading/Large
+ * Heading/Large.
  */
 export const HeadingLarge: Story = {
   args: {
@@ -114,7 +114,7 @@ export const HeadingLarge: Story = {
 };
 
 /**
- * Heading/Medium
+ * Heading/Medium.
  */
 export const HeadingMedium: Story = {
   args: {
@@ -124,7 +124,7 @@ export const HeadingMedium: Story = {
 };
 
 /**
- * Heading/Small
+ * Heading/Small.
  */
 export const HeadingSmall: Story = {
   args: {
@@ -134,7 +134,7 @@ export const HeadingSmall: Story = {
 };
 
 /**
- * Mono/Medium
+ * Mono/Medium.
  */
 export const MonoMedium: Story = {
   args: {
@@ -144,7 +144,7 @@ export const MonoMedium: Story = {
 };
 
 /**
- * Mono/Medium Underline
+ * Mono/Medium Underline.
  */
 export const MonoMediumUnderline: Story = {
   args: {
@@ -154,7 +154,7 @@ export const MonoMediumUnderline: Story = {
 };
 
 /**
- * Mono/Small
+ * Mono/Small.
  */
 export const MonoSmall: Story = {
   args: {

@@ -22,8 +22,8 @@ import { fn } from "@storybook/test";
 
 /**
  *  Story of the Pagination component
- * */
-
+ * 
+ */
 const meta = {
   title: "Shared Components/Pagination",
   component: Pagination,
@@ -74,7 +74,6 @@ export const Default: Story = {
  *  Example of Pagination Component with the count of 4269
  * and explicit rowsPerPage of 69
  */
-
 export const WithExplicitOnPage: Story = {
   args: {
     count: 4269,
@@ -86,7 +85,6 @@ export const WithExplicitOnPage: Story = {
 /**
  * Example of disabled pagination component
  */
-
 export const Disable: Story = {
   args: {
     count: 100,

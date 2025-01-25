@@ -16,16 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { Tooltip } from "./Tooltip";
 import React from "react";
 import { Button } from "../button/Button";
 
 /**
- * This story is for the Tooltip Component. It takes content, placement and children
+ * This story is for the Tooltip Component. It takes content, placement and children.
  */
-
 const meta = {
   title: "Shared Components/Tooltip",
   component: Tooltip,
@@ -58,7 +56,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Example to show Tooltip usage
+ * Example to show Tooltip usage.
  */
 export const Example: Story = {
   args: {
@@ -69,7 +67,7 @@ export const Example: Story = {
 };
 
 /**
- * Example to show Tooltip top placement
+ * Example to show Tooltip top placement.
  */
 export const Top: Story = {
   args: {
@@ -80,7 +78,7 @@ export const Top: Story = {
 };
 
 /**
- * Example to show Tooltip right placement
+ * Example to show Tooltip right placement.
  */
 export const Right: Story = {
   args: {
@@ -91,7 +89,7 @@ export const Right: Story = {
 };
 
 /**
- * Example to show Tooltip left placement
+ * Example to show Tooltip left placement.
  */
 export const Left: Story = {
   args: {
@@ -102,7 +100,7 @@ export const Left: Story = {
 };
 
 /**
- * Example to show Tooltip bottom placement
+ * Example to show Tooltip bottom placement.
  */
 export const Bottom: Story = {
   args: {
@@ -113,7 +111,7 @@ export const Bottom: Story = {
 };
 
 /**
- * Example to show Multiline Tooltip top placement
+ * Example to show Multiline Tooltip top placement.
  */
 export const MultilineTop: Story = {
   args: {
@@ -128,7 +126,7 @@ export const MultilineTop: Story = {
 };
 
 /**
- * Example to show Multiline Tooltip right placement
+ * Example to show Multiline Tooltip right placement.
  */
 export const MultilineRight: Story = {
   args: {
@@ -143,7 +141,7 @@ export const MultilineRight: Story = {
 };
 
 /**
- * Example to show Multiline Tooltip left placement
+ * Example to show Multiline Tooltip left placement.
  */
 export const MultilineLeft: Story = {
   args: {
@@ -158,7 +156,7 @@ export const MultilineLeft: Story = {
 };
 
 /**
- * Example to show Multiline Tooltip bottom placement
+ * Example to show Multiline Tooltip bottom placement.
  */
 export const MultilineBottom: Story = {
   args: {

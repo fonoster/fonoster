@@ -55,6 +55,7 @@ const meta = {
 } satisfies Meta<typeof OverviewCard>;
 
 export default meta;
+
 type Story = StoryObj<typeof meta>;
 
 /**

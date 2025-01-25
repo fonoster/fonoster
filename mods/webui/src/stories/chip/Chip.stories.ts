@@ -24,7 +24,6 @@ import { fn } from "@storybook/test";
  * This story is for the Chip component based on MUI chip component
  * It takes a label, onRemove and enabled.
  */
-
 const meta = {
   title: "Shared Components/Chip",
   component: Chip,

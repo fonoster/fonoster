@@ -16,18 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type SnackBarProps = {
-  autoHideDuration: number;
-  message: string;
-  open: boolean;
-  onClose: () => void;
-  position:
-    | "top-center"
-    | "top-right"
-    | "top-left"
-    | "bottom-center"
-    | "bottom-right"
-    | "bottom-left";
-};
 
-export type { SnackBarProps };
+import { Box } from "@mui/material";
+import { styled } from "@mui/material/styles";
+
+export const StyledBox = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  cursor: "pointer",
+  width: "fit-content",
+  color: theme.palette.secondary[500],
+
+  "&:hover": {
+    color: theme.palette.secondary[800]
+  },
+
+  "&.disabled": {
+    color: theme.palette.secondary[200],
+    cursor: "not-allowed",
+    pointerEvents: "none"
+  }
+}));

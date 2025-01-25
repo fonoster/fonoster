@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import React from "react";
 import { WorkspaceProps } from "./types";
 import {
@@ -25,7 +24,7 @@ import {
   StyledNewWorkSpaceDescription,
   StyledDescription,
   StyledDateContainer,
-  StyledBottomConatiner,
+  StyledBottomContainer,
   StyledDate,
   StyledIcon,
   StyledAddIconContainer
@@ -83,7 +82,7 @@ export const WorkspaceCard: React.FC<WorkspaceProps> = ({
         <CardContent sx={{ flexGrow: 1, alignContent: "end" }}>
           {region && <RegionLabel children={region} type="landing-page" />}
           {description && <StyledDescription>{description}</StyledDescription>}
-          <StyledBottomConatiner>
+          <StyledBottomContainer>
             <StyledDateContainer>
               <StyledIcon>
                 <CalendarTodayOutlinedIcon />
@@ -93,7 +92,7 @@ export const WorkspaceCard: React.FC<WorkspaceProps> = ({
             <StyledIcon onClick={onSettingsClick}>
               <SettingsOutlinedIcon />
             </StyledIcon>
-          </StyledBottomConatiner>
+          </StyledBottomContainer>
         </CardContent>
       </StyledCardContentContainer>
     </StyledCard>

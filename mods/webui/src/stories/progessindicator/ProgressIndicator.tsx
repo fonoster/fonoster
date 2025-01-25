@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { useEffect, useState } from "react";
 import { Typography } from "../typography/Typography";
 import {
@@ -42,7 +41,6 @@ export const ProgressIndicator = (props: ProgressIndicatorProps) => {
       <StyledProgressBar>
         <StyledProgressIndicator progress={`${progress}%`} />
       </StyledProgressBar>
-
       <StyledIndicatorLabelList>
         {steps.map((step, i) => (
           <StyledIndicatorLabel key={i} completed={current > i}>

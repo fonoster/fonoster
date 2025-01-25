@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
@@ -78,7 +77,7 @@ export const StyledDescription = styled(Typography)(() => ({
   color: "#333333"
 }));
 
-export const StyledBottomConatiner = styled("div")(() => ({
+export const StyledBottomContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",

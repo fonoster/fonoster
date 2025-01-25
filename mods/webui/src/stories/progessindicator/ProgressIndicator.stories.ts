@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { ProgressIndicator } from "./ProgressIndicator";
 
@@ -48,6 +47,7 @@ const meta = {
 } satisfies Meta<typeof ProgressIndicator>;
 
 export default meta;
+
 type Story = StoryObj<typeof meta>;
 
 /**

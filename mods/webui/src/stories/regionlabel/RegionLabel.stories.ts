@@ -51,6 +51,7 @@ const meta = {
 } satisfies Meta<typeof RegionLabel>;
 
 export default meta;
+
 type Story = StoryObj<typeof meta>;
 
 /**

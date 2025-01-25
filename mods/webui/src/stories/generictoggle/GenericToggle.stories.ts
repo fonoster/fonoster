@@ -60,6 +60,7 @@ const meta = {
 } satisfies Meta<typeof GenericToggle>;
 
 export default meta;
+
 type Story = StoryObj<typeof meta>;
 
 /**

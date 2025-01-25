@@ -61,6 +61,7 @@ const meta = {
 } satisfies Meta<typeof NavButton>;
 
 export default meta;
+
 type Story = StoryObj<typeof meta>;
 
 /**
