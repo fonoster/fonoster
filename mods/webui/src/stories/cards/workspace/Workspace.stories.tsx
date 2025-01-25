@@ -32,7 +32,7 @@ const meta = {
     layout: "centered",
     design: {
       type: "figma",
-      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=8-8505&p=f&t=NCJIzjsjMFiDAc1s-0"
+      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=301-1817&t=eso3h9wj1XxZF3Vy-0"
     }
   },
   tags: ["autodocs"],
@@ -52,23 +52,17 @@ const meta = {
       control: "text",
       defaultValue: { summary: "workspaceRef" }
     },
-    region: {
-      name: "Region",
-      description: "The region label of the card",
-      control: "text",
-      defaultValue: { summary: "Region" }
-    },
-    description: {
-      name: "Description",
-      description: "The description of the workspace",
-      control: "text",
-      defaultValue: { summary: "Workspace description" }
-    },
-    date: {
-      name: "Date",
-      description: "The date associated with the workspace",
-      control: "text",
-      defaultValue: { summary: "4/14/24" }
+    regularDetails: {
+      name: "Regular Workspace Details",
+      description: "The regular workspace details",
+      control: "object",
+      defaultValue: {
+        summary: {
+          region: "Region",
+          description: "Demo Workspace With Wrapping Title.",
+          date: new Date("October 13, 2025")
+        }
+      }
     },
     variant: {
       name: "Variant",
@@ -91,30 +85,18 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Example of a regular WorkspaceCard with region, description, and date
+ * Example of a regular WorkspaceCard with regular details
  */
 export const RegularCard: Story = {
   args: {
-    region: "Region",
-    description: "Demo Workspace With Wrapping Title.",
-    date: "4/14/24",
+    regularDetails: {
+      region: "Region",
+      description: "Demo Workspace With Wrapping Title.",
+      date: new Date("October 13, 2025")
+    },
     variant: "regular",
     disabled: false,
-    onSettingsClick: fn(),
-    onClick: fn()
-  }
-};
-
-/**
- * Example of a regular WorkspaceCard that is disabled
- */
-export const DisabledCard: Story = {
-  args: {
-    region: "Region",
-    description: "Demo Workspace With Wrapping Title.",
-    date: "4/14/24",
-    variant: "regular",
-    disabled: true
+    onSettingsClick: fn()
   }
 };
 
@@ -124,8 +106,7 @@ export const DisabledCard: Story = {
 export const EmptyCard: Story = {
   args: {
     variant: "empty",
-    disabled: false,
-    onClick: fn()
+    disabled: false
   }
 };
 

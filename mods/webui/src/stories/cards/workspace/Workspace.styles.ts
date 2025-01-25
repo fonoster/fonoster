@@ -22,10 +22,11 @@ import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
 
 export const StyledCard = styled(Card)<{
-  disabled: boolean;
+  disabled?: boolean;
   workspaceVariant?: string;
 }>(({ disabled, workspaceVariant }) => ({
   height: "325px",
+  width: "325px",
   backgroundColor:
     workspaceVariant === "regular" ? "rgba(244, 244, 244, 1)" : "#ffffff",
   cursor: disabled ? "not-allowed" : "pointer",
@@ -33,7 +34,8 @@ export const StyledCard = styled(Card)<{
   border: disabled
     ? "1px solid rgba(232, 232, 232, 1)"
     : "1px solid rgba(57, 225, 158, 1)",
-  padding: "30px 30px 16px 30px"
+  padding: "30px 30px 16px 30px",
+  boxShadow: "none"
 }));
 
 export const StyledCardContentContainer = styled("div")(() => ({
@@ -75,7 +77,8 @@ export const StyledDescription = styled(Typography)(() => ({
   textAlign: "left",
   textUnderlinePosition: "from-font",
   textDecorationSkipInk: "none",
-  color: "#333333"
+  color: "rgba(5, 50, 4, 1)",
+  marginTop: "12px"
 }));
 
 export const StyledBottomConatiner = styled("div")(() => ({

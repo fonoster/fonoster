@@ -17,14 +17,18 @@
  * limitations under the License.
  */
 
+type RegularDetails = {
+  region: string;
+  description: string;
+  date: Date;
+};
+
 type WorkspaceProps = {
-  onClick?: () => void;
-  region?: string;
-  description?: string;
-  date?: string;
+  onClick: (workspaceRef: string) => void;
   variant: "regular" | "empty";
-  disabled: boolean;
-  workspaceRef?: React.RefObject<HTMLDivElement>;
+  regularDetails?: RegularDetails;
+  disabled?: boolean;
+  workspaceRef?: string;
   onSettingsClick?: () => void;
 };
 
