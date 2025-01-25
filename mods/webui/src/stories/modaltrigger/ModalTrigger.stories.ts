@@ -69,7 +69,7 @@ export const Default: Story = {
 };
 
 /**
- * Example of a disabled modal trigger
+ * Example of a disabled modal trigger.
  */
 export const Disabled: Story = {
   args: {
