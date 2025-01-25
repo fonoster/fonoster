@@ -21,6 +21,6 @@ type NavButtonProps = {
   isOpen: boolean;
   label: string | number;
   onClick: () => void;
-}
+};
 
 export type { NavButtonProps };

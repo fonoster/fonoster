@@ -21,8 +21,7 @@ import { Pagination } from "./Pagination";
 import { fn } from "@storybook/test";
 
 /**
- *  Story of the Pagination component
- * 
+ *  Story of the Pagination component.
  */
 const meta = {
   title: "Shared Components/Pagination",
