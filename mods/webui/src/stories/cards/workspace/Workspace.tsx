@@ -38,9 +38,7 @@ import { CardContent } from "@mui/material";
 
 export const WorkspaceCard: React.FC<WorkspaceProps> = ({
   onClick,
-  region,
-  description,
-  date,
+  regularDetails,
   variant,
   disabled = false,
   workspaceRef,
@@ -49,9 +47,8 @@ export const WorkspaceCard: React.FC<WorkspaceProps> = ({
   if (variant === "empty") {
     return (
       <StyledCard
-        onClick={!disabled ? onClick : undefined}
+        onClick={!disabled ? () => onClick(workspaceRef) : undefined}
         disabled={disabled}
-        ref={workspaceRef}
       >
         <StyledCardContentContainer>
           <CardContent
@@ -73,10 +70,15 @@ export const WorkspaceCard: React.FC<WorkspaceProps> = ({
     );
   }
 
+  const { region, description, date } = regularDetails || {};
+  let formattedDate = date.toLocaleDateString("en-US", {
+    month: "numeric",
+    day: "numeric",
+    year: "2-digit"
+  });
   return (
     <StyledCard
-      onClick={!disabled ? onClick : undefined}
-      disabled={disabled}
+      onClick={() => onClick(workspaceRef)}
       workspaceVariant={variant}
     >
       <StyledCardContentContainer>
@@ -88,7 +90,7 @@ export const WorkspaceCard: React.FC<WorkspaceProps> = ({
               <StyledIcon>
                 <CalendarTodayOutlinedIcon />
               </StyledIcon>
-              {date && <StyledDate>{date}</StyledDate>}
+              {date && <StyledDate>{formattedDate}</StyledDate>}
             </StyledDateContainer>
             <StyledIcon onClick={onSettingsClick}>
               <SettingsOutlinedIcon />
