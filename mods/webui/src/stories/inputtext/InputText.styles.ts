@@ -57,8 +57,11 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiInputAdornment-root": {
     color: theme.palette.text.primary
   },
-  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: `1px solid ${theme.palette.primary.main}`
+  "& .MuiOutlinedInput-root": {
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: theme.palette.primary.main,
+      borderWidth: "1px"
+    }
   },
   "& .MuiFormHelperText-root": {
     fontFamily: theme.typography.fontFamily,
@@ -69,13 +72,13 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     marginTop: "8px",
     color: theme.palette.text.primary
   },
-  // Update so that when there is label but no text the label change size accordingly
-  "& .MuiInputLabel-root": {
+  "& .MuiFormLabel-root.MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
     fontFamily: theme.typography.fontFamily,
     fontSize: "12px",
-    fontWeight: 400,
+    fontWeight: 500,
     lineHeight: "normal",
     letterSpacing: "0.12px",
     marginTop: "-2px",
+    color: theme.palette.text.primary
   },
 }));
