@@ -17,48 +17,49 @@
  * limitations under the License.
  */
 import React from "react";
-import { Modal, Typography, Box } from "@mui/material";
+import { Modal, Box, useTheme } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  StyledTerms,
+  StyledModalTerms,
   StyledTitleContainer,
-  StyledTitle,
-  StyledMessage,
-  StyledCloseButtonContainer
-} from "./Terms.styles";
+  StyledCloseButtonContainer,
+  StyledTitle
+} from "./ModalTerms.styles";
 import { TermsProps } from "./types";
+import { Typography } from "../typography/Typography";
 
-export const Terms: React.FC<TermsProps> = ({
+export const ModalTerms: React.FC<TermsProps> = ({
   title = "Terms and Conditions",
   message,
   open,
   onClose
 }) => {
+  const theme = useTheme();
+  
   return (
     <Modal
       open={open}
       onClose={onClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
-      sx={{ outline: "none" }}
       slotProps={{
         backdrop: {
           sx: {
-            backgroundColor: "rgba(230, 255, 245, 0.75)"
+            backgroundColor: `${theme.palette.primary.main}1A`
           }
         }
       }}
     >
-      <Box sx={StyledTerms}>
-        <StyledTitleContainer>
-          <Typography id="modal-modal-title" sx={StyledTitle}>
+      <Box sx={StyledModalTerms}>
+        <StyledTitleContainer sx={StyledTitle}>
+          <Typography variant="body-large"> 
             {title}
           </Typography>
           <StyledCloseButtonContainer onClick={onClose}>
             <CloseIcon htmlColor="#333333" />
           </StyledCloseButtonContainer>
         </StyledTitleContainer>
-        <Typography id="modal-modal-description" sx={StyledMessage}>
+        <Typography variant="body-medium">
           {message}
         </Typography>
       </Box>

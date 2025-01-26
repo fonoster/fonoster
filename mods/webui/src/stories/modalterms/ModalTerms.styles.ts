@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { styled } from "@mui/material/styles";
+import { styled, Theme } from "@mui/material/styles";
 
-export const StyledTerms = {
-  backgroundColor: "#FFFFFF",
+export const StyledModalTerms = (theme: Theme) => ({
+  backgroundColor: theme.palette.common.white,
   boxShadow: "0px 4px 32px 0px rgba(0, 0, 0, 0.15)",
   padding: "24px",
   outline: "none",
@@ -30,7 +30,7 @@ export const StyledTerms = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)"
-};
+});
 
 export const StyledTitleContainer = styled("div")(() => ({
   display: "flex",
@@ -39,29 +39,10 @@ export const StyledTitleContainer = styled("div")(() => ({
 }));
 
 export const StyledTitle = {
-  fontFamily: "Poppins",
-  fontSize: "16px",
-  fontWeight: 400,
-  textAlign: "left",
-  textUnderlinePosition: "from-font",
-  textDecorationSkipInk: "none",
-  letterSpacing: "0.01em",
-  lineHeight: "21px",
-  color: "#333333"
+  fontFamily: (theme: Theme) => theme.typography.fontFamily,
+  marginBottom: (theme: Theme) => theme.spacing(3)
 };
 
-export const StyledMessage = {
-  marginTop: "24px",
-  fontFamily: "Poppins",
-  fontSize: "14px",
-  fontWeight: 500,
-  textAlign: "left",
-  textUnderlinePosition: "from-font",
-  textDecorationSkipInk: "none",
-  letterSpacing: "0.01em",
-  lineHeight: "22px",
-  color: "#333333"
-};
 
 export const StyledCloseButtonContainer = styled("div")(() => ({
   width: "auto",

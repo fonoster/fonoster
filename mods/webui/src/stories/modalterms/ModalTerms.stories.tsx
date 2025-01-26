@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from "@storybook/react";
-import { Terms } from "./Terms";
+import { ModalTerms } from "./ModalTerms";
 import { fn } from "@storybook/test";
 import { DemoWrapper } from "./DemoWrapper";
 
@@ -25,8 +25,8 @@ import { DemoWrapper } from "./DemoWrapper";
  * This story is for the Terms and Conditions Modal component based on Material UI.
  */
 const meta = {
-  title: "Shared Components/Modal/Terms",
-  component: Terms,
+  title: "Shared Components/ModalTerms",
+  component: ModalTerms,
   parameters: {
     layout: "centered",
     design: {
@@ -62,7 +62,7 @@ const meta = {
       description: "Function to call when terms modal is closed"
     }
   }
-} satisfies Meta<typeof Terms>;
+} satisfies Meta<typeof ModalTerms>;
 
 export default meta;
 
