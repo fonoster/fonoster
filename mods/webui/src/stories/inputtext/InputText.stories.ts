@@ -72,6 +72,25 @@ const meta = {
     supportingText: {
       name: "Supporting Text",
       description: "Supporting text for the input"
+    },
+    value: {
+      name: "Value",
+      description: "Value for the input"
+    },
+    onChange: {
+      name: "On Change",
+      description: "Function to execute on change"
+    },
+    type: {
+      name: "Type",
+      description: "Type of input",
+      control: "select",
+      options: ["text", "password", "email", "number"]
+    },
+    error: {
+      name: "Error",
+      description: "Error state of the input",
+      control: "boolean"
     }
   }
 } satisfies Meta<typeof InputText>;

@@ -68,5 +68,14 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     letterSpacing: "0.12px",
     marginTop: "8px",
     color: theme.palette.text.primary
-  }
+  },
+  // Update so that when there is label but no text the label change size accordingly
+  "& .MuiInputLabel-root": {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: "12px",
+    fontWeight: 400,
+    lineHeight: "normal",
+    letterSpacing: "0.12px",
+    marginTop: "-2px",
+  },
 }));
