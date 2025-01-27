@@ -27,7 +27,7 @@ import { Icon } from "../icon/Icon";
  * It has a contained variant and full width with optional start and end icons.
  */
 const meta = {
-  title: "Shared Components/Buttons, Links, and Chips/Button",
+  title: "Core Components/Buttons, Links, and Chips/Button",
   component: Button,
   parameters: {
     layout: "padded",

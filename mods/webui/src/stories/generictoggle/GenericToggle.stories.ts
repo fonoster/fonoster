@@ -25,7 +25,7 @@ import { GenericToggle } from "./GenericToggle";
  * It takes a defaultValue, value, disabled and onChange.
  */
 const meta = {
-  title: "Shared Components/Buttons, Links, and Chips/GenericToggle",
+  title: "Core Components/Buttons, Links, and Chips/GenericToggle",
   component: GenericToggle,
   parameters: {
     layout: "centered",

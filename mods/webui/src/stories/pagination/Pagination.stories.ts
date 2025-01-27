@@ -24,7 +24,7 @@ import { fn } from "@storybook/test";
  *  Story of the Pagination component.
  */
 const meta = {
-  title: "Shared Components/Buttons, Links, and Chips/Pagination",
+  title: "Core Components/Buttons, Links, and Chips/Pagination",
   component: Pagination,
   parameters: {
     layout: "centered",

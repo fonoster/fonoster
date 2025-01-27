@@ -25,7 +25,7 @@ import { fn } from "@storybook/test";
  * It takes a label, onRemove and enabled.
  */
 const meta = {
-  title: "Shared Components/Buttons, Links, and Chips/Chip",
+  title: "Core Components/Buttons, Links, and Chips/Chip",
   component: Chip,
   parameters: {
     layout: "centered",

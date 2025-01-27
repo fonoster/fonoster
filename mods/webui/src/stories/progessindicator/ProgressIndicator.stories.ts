@@ -23,7 +23,7 @@ import { ProgressIndicator } from "./ProgressIndicator";
  * This story is for the ProgressIndicator component. It takes steps, and current step.
  */
 const meta = {
-  title: "Shared Components/Navigation/ProgressIndicator",
+  title: "Core Components/Navigation/ProgressIndicator",
   component: ProgressIndicator,
   parameters: {
     layout: "centered",

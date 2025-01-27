@@ -26,7 +26,7 @@ import { Icon } from "../icon/Icon";
  * This file is a storybook file for the InputText component.
  */
 const meta = {
-  title: "Shared Components/Inputs and Checkbox/InputText",
+  title: "Core Components/Inputs and Checkbox/InputText",
   component: InputText,
   parameters: {
     layout: "centered",

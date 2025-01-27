@@ -20,7 +20,7 @@ import { Meta, StoryObj } from "@storybook/react";
 import { Typography } from "./Typography";
 
 const meta = {
-  title: "Shared Components/Icons, Badges, and Labels/Typography",
+  title: "Core Components/Icons, Badges, and Labels/Typography",
   component: Typography,
   argTypes: {},
   parameters: {

@@ -24,7 +24,7 @@ import { RegionLabel } from "./RegionLabel";
  * It has a contained variant and full width with optional start and end icons.
  */
 const meta = {
-  title: "Shared Components/Icons, Badges, and Labels/RegionLabel",
+  title: "Core Components/Icons, Badges, and Labels/RegionLabel",
   component: RegionLabel,
   parameters: {
     layout: "centered",

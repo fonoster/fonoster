@@ -25,7 +25,7 @@ import { DemoWrapper } from "./DemoWrapper";
  * This story is for the Terms and Conditions Modal component based on Material UI.
  */
 const meta = {
-  title: "Shared Components/Modals and Popups/ModalTerms",
+  title: "Core Components/Modals and Popups/ModalTerms",
   component: ModalTerms,
   parameters: {
     layout: "centered",

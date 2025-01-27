@@ -24,7 +24,7 @@ import { Icon } from "./Icon";
  * It can be used to display icons in the application with different sizes.
  */
 const meta = {
-  title: "Shared Components/Icons, Badges, and Labels/Icon",
+  title: "Core Components/Icons, Badges, and Labels/Icon",
   component: Icon,
   parameters: {
     layout: "centered",
