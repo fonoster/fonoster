@@ -26,7 +26,7 @@ import React from "react";
  * This story is for the OverviewCard component. It takes a label, icon and onClick.
  */
 const meta = {
-  title: "Shared Components/OverviewCard",
+  title: "Shared Components/Cards/OverviewCard",
   component: OverviewCard,
   parameters: {
     layout: "centered",

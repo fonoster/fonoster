@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type WorkspaceProps = {
+type WorkspaceCardProps = {
   onClick?: () => void;
   region?: string;
   description?: string;
@@ -27,4 +27,4 @@ type WorkspaceProps = {
   onSettingsClick?: () => void;
 };
 
-export type { WorkspaceProps };
+export type { WorkspaceCardProps };

@@ -25,7 +25,7 @@ import { fn } from "@storybook/test";
  * It has a enabled and disabled variants.
  */
 const meta = {
-  title: "Shared Components/ModalTrigger",
+  title: "Shared Components/Buttons, Links, and Chips/ModalTrigger",
   component: ModalTrigger,
   parameters: {
     layout: "centered",

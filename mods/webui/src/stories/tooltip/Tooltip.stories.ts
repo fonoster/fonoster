@@ -25,7 +25,7 @@ import { Button } from "../button/Button";
  * This story is for the Tooltip Component. It takes content, placement and children.
  */
 const meta = {
-  title: "Shared Components/Tooltip",
+  title: "Shared Components/Modals and Popups/Tooltip",
   component: Tooltip,
   parameters: {
     layout: "centered",

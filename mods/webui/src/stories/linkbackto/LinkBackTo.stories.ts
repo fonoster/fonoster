@@ -3,7 +3,7 @@ import { fn } from "@storybook/test";
 import { LinkBackTo } from "./LinkBackTo";
 
 const meta = {
-  title: "Shared Components/LinkBackTo",
+  title: "Shared Components/Buttons, Links, and Chips/LinkBackTo",
   component: LinkBackTo,
   parameters: {
     layout: "padded",

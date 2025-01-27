@@ -28,11 +28,11 @@ import {
   StyledDate,
   StyledIcon,
   StyledAddIconContainer
-} from "./Workspace.styles";
+} from "./WorkspaceCard.styles";
 import AddIcon from "@mui/icons-material/Add";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import { RegionLabel } from "../../regionlabel/RegionLabel";
+import { RegionLabel } from "../regionlabel/RegionLabel";
 import { CardContent } from "@mui/material";
 
 export const WorkspaceCard: React.FC<WorkspaceProps> = ({

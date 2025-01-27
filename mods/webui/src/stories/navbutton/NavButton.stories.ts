@@ -25,7 +25,7 @@ import { NavButton } from "./NavButton";
  * in the AppBar. It is a button with an icon and a badge.
  */
 const meta = {
-  title: "Shared Components/NavButton",
+  title: "Shared Components/Icons, Badges, and Labels/NavButton",
   component: NavButton,
   parameters: {
     layout: "centered",

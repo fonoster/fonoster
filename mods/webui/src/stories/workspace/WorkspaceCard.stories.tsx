@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from "@storybook/react";
-import { WorkspaceCard } from "./Workspace";
+import { WorkspaceCard } from "./WorkspaceCard";
 import { fn } from "@storybook/test";
 
 /**
@@ -25,7 +25,7 @@ import { fn } from "@storybook/test";
  * It supports both regular and empty variants and can be disabled.
  */
 const meta = {
-  title: "Shared Components/WorkspaceCard",
+  title: "Shared Components/Cards/WorkspaceCard",
   component: WorkspaceCard,
   parameters: {
     layout: "centered",

@@ -25,7 +25,7 @@ import { action } from "@storybook/addon-actions";
  * It demonstrates different positions and behavior of the snackbar.
  */
 const meta = {
-  title: "Shared Components/Snackbar",
+  title: "Shared Components/Modals and Popups/Snackbar",
   component: Snackbar,
   parameters: {
     layout: "centered",

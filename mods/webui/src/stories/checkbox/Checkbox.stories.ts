@@ -25,7 +25,7 @@ import { Checkbox } from "./Checkbox";
  * It has a checkbox with optional label and can be in a checked or disabled state.
  */
 const meta = {
-  title: "Shared Components/Checkbox",
+  title: "Shared Components/Inputs and Checkbox/Checkbox",
   component: Checkbox,
   parameters: {
     layout: "padded",

@@ -24,7 +24,7 @@ import { VersionLabel } from "./VersionLabel";
  * It has a contained variant and full width with optional start and end icons.
  */
 const meta = {
-  title: "Shared Components/VersionLabel",
+  title: "Shared Components/Icons, Badges, and Labels/VersionLabel",
   component: VersionLabel,
   parameters: {
     layout: "centered",
