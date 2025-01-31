@@ -15,7 +15,7 @@ The following is an example of creating an Autopilot application using the SDK.
 
 First, add the following content to a file named `appConfig.yaml`:
 
-```yaml appConfig.yaml {2,12-19}
+```yaml appConfig.yaml {2,12-31}
 name: "Awesome Autopilot"
 type: "AUTOPILOT"
 speechToText:
@@ -31,7 +31,7 @@ intelligence:
   productRef: "llm.groq"
   config:
     conversationSettings:
-      firstMessage: ""
+      firstMessage: "Hello, I'm your AI asssitant."
       systemPrompt: |
         You are a Customer Service Representative. You are here to help the caller with their needs.
       goodbyeMessage: "Thank you so much, bye!"
