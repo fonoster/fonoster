@@ -11,54 +11,61 @@ Fonoster's Autopilot is a component within the platform that allows you to creat
 
 ## Overview
 
-The following is an example of how to create an Autopilot application using the SDK:
+The following is an example of creating an Autopilot application using the SDK.
 
-```javascript index.js {7,20-39}
+First, add the following content to a file named `appConfig.yaml`:
+
+```yaml appConfig.yaml {2,12-19}
+name: "Awesome Autopilot"
+type: "AUTOPILOT"
+speechToText:
+  productRef: "stt.deepgram"
+  config:
+    model: "nova-2-phonecall"
+    languageCode: "en-US"
+textToSpeech:
+  productRef: "tts.deepgram"
+  config:
+    voice: "aura-asteria-en"
+intelligence:
+  productRef: "llm.groq"
+  config:
+    conversationSettings:
+      firstMessage: ""
+      systemPrompt: |
+        You are a Customer Service Representative. You are here to help the caller with their needs.
+      goodbyeMessage: "Thank you so much, bye!"
+      systemErrorMessage: "I'm sorry, I didn't understand that. Can you please repeat it?"
+      vad:
+        activationThreshold: 0.3
+        deactivationThreshold: 0.15
+        debounceFrames: 1
+      idleOptions:
+        message: "Are you still there?"
+    languageModel:
+      provider: "groq"
+      model: "llama-3.3-70b-versatile"
+      maxTokens: 240
+      temperature: 0.4
+```
+
+Then, create a script to apply the configuration as follows:
+
+```javascript apply-autopilot-config.js
+const fs = require("fs");
+const yaml = require("js-yaml");
 const SDK = require("@fonoster/sdk");
 
-const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" });
+const client = new SDK.Client({ accessKeyId: "WO00000000000000000000000000000000" });
 
-const appConfig = {
-  name: "Dr. Green's AI Assistant",
-  type: "AUTOPILOT",
-  speechToText: {
-    productRef: "stt.deepgram",
-    config: {
-      languageCode: "en-US"
-    }
-  },
-  textToSpeech: {
-    productRef: "tts.deepgram",
-    config: {
-      voice: "aura-asteria-en"
-    }
-  },
-  intelligence: {
-    productRef: "llm.groq",
-    config: {
-      conversationSettings: {
-        firstMessage: "Hello, this is Olivia from Dr. Green's Family Medicine. How can I assist you today?",
-        systemPrompt: "You are a Customer Service Representative. You are here to help the caller with their needs.",
-        goodbyeMessage: "Goodbye, have a great day!",
-        systemErrorMessage: "I'm sorry, I didn't understand that. Can you please repeat it?",
-        idleOptions: {
-          "message": "Are you still there?"
-        }
-      },
-      languageModel: {
-        provider: "groq",
-        model: "llama-3.3-70b-specdec",
-        maxTokens: 250,
-        temperature: 0.7
-      }
-    }
-  }
-}
+const appConfig = yaml.load(fs.readFileSync("./appConfig.yaml", "utf8"));
 
 client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
-  .then(async() => new SDK.Applications(client).createApplication(appConfig))
+  .then(async () => (new SDK.Applications(client)).createApplication(appConfig))
   .catch(console.error);
 ```
+
+Please note that you must install the _js-yaml_ and the _@fonsoter/sdk_ dependencies in your Node.JS project.
 
 ## General configuration
 
