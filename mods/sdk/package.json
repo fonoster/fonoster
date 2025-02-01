@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/sdk",
-  "version": "0.8.47",
+  "version": "0.8.49",
   "description": "Web and Node.js SDK for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -26,7 +26,7 @@
     "fonoster"
   ],
   "dependencies": {
-    "@fonoster/common": "^0.8.47",
+    "@fonoster/common": "^0.8.49",
     "@fonoster/types": "^0.8.47",
     "@grpc/grpc-js": "~1.10.6",
     "@grpc/proto-loader": "^0.7.12",
