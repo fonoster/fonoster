@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import React from "react";
-import { WorkspaceProps } from "./types";
+import { WorkspaceCardProps } from "./types";
 import {
   StyledCard,
   StyledCardContentContainer,
@@ -35,7 +35,7 @@ import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined
 import { RegionLabel } from "../regionlabel/RegionLabel";
 import { CardContent } from "@mui/material";
 
-export const WorkspaceCard: React.FC<WorkspaceProps> = ({
+export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
   onClick,
   region,
   description,
