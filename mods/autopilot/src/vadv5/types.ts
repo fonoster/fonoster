@@ -25,31 +25,38 @@ type Vad = {
   ) => void;
 };
 
-type SpeechProbabilities = {
+export interface SpeechProbabilities {
   notSpeech: number;
   isSpeech: number;
-};
+}
 
-type ONNXRuntimeAPI = {
+export interface ONNXRuntimeAPI {
   InferenceSession: {
-    create(
-      modelArrayBuffer: ArrayBuffer,
-      sessionOption: {
-        interOpNumThreads: number;
-        intraOpNumThreads: number;
-      }
-    ): Promise<unknown>;
+    create: (
+      modelPath: ArrayBuffer | string,
+      options?: { interOpNumThreads: number; intraOpNumThreads: number }
+    ) => Promise<ONNXSession>;
   };
-  Tensor: {
-    new (type: "int64", data: BigInt[]): unknown;
-    new (type: "int64", data: BigInt[], dims: [1]): unknown;
-    new (
-      type: "float32",
-      data: Float32Array | number[],
-      dims: [2, 1, 128]
-    ): unknown;
-    new (type: "float32", data: Float32Array, dims: [1, number]): unknown;
-  };
-};
+  Tensor: new (
+    type: string,
+    data: Float32Array | bigint[],
+    dims: number[]
+  ) => ONNXTensor;
+}
 
-export { ONNXRuntimeAPI, SpeechProbabilities, Vad, VadEvent };
+export interface ONNXSession {
+  run: (feeds: { [key: string]: ONNXTensor }) => Promise<{
+    output: { data: Float32Array };
+    stateN: ONNXTensor;
+  }>;
+  inputNames: string[];
+  outputNames: string[];
+}
+
+export interface ONNXTensor {
+  data: Float32Array | bigint[];
+  dims: number[];
+  type: string;
+}
+
+export { Vad, VadEvent };

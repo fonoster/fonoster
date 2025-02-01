@@ -17,18 +17,22 @@
  * limitations under the License.
  */
 import { readFileSync } from "fs";
-import { ONNXRuntimeAPI, SpeechProbabilities } from "./types";
+import { ONNXRuntimeAPI, ONNXSession, ONNXTensor, SpeechProbabilities } from "./types";
+
+const SAMPLE_RATE = 16000;
 
 function getNewState(ortInstance: ONNXRuntimeAPI) {
-  const zeroes = Array(2 * 128).fill(0);
-  return new ortInstance.Tensor("float32", zeroes, [2, 1, 128]);
+  return new ortInstance.Tensor(
+    "float32",
+    new Float32Array(2 * 1 * 128), // Use Float32Array for consistency
+    [2, 1, 128]
+  );
 }
 
 class SileroVadModel {
-  // @ts-ignore
-  private _session: any;
-  private _state: unknown;
-  private _sr: unknown;
+  private _session: ONNXSession;
+  private _state: ONNXTensor;
+  private _sr: ONNXTensor;
 
   constructor(
     private readonly ort: ONNXRuntimeAPI,
@@ -48,7 +52,21 @@ class SileroVadModel {
       modelArrayBuffer,
       sessionOption
     );
-    this._sr = new this.ort.Tensor("int64", [16000n]);
+
+    // Validate model inputs/outputs
+    const requiredInputs = ["input", "state", "sr"];
+    for (const name of requiredInputs) {
+      if (!this._session.inputNames.includes(name)) {
+        throw new Error(`Model is missing expected input "${name}"`);
+      }
+    }
+    if (!this._session.outputNames.includes("output") || 
+        !this._session.outputNames.includes("stateN")) {
+      throw new Error("Model is missing expected outputs");
+    }
+
+    // Use BigInt for sample rate tensor
+    this._sr = new this.ort.Tensor("int64", [BigInt(SAMPLE_RATE)], []);
     this._state = getNewState(this.ort);
   }
 
@@ -57,18 +75,15 @@ class SileroVadModel {
   };
 
   async process(audioFrame: Float32Array): Promise<SpeechProbabilities> {
-    const t = new this.ort.Tensor("float32", audioFrame, [
-      1,
-      audioFrame.length
-    ]);
+    const inputTensor = new this.ort.Tensor("float32", audioFrame, [1, audioFrame.length]);
 
-    const inputs = {
-      input: t,
+    const feeds = {
+      input: inputTensor,
       state: this._state,
       sr: this._sr
     };
 
-    const out = await this._session.run(inputs);
+    const out = await this._session.run(feeds);
     this._state = out.stateN;
 
     const [isSpeech] = out.output.data;

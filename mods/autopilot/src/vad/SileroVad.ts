@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { makeVad } from "./makeVad";
+import { createVad } from "./createVad";
 import { Vad } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -48,7 +48,7 @@ class SileroVad implements Vad {
   debounceFrames: number;
 
   async init() {
-    this.vad = await makeVad(this.params);
+    this.vad = await createVad(this.params);
   }
 
   processChunk(

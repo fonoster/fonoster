@@ -37,7 +37,7 @@ export const NODE_ENV = e.NODE_ENV || "production";
 export const UNSTRUCTURED_API_KEY = e.UNSTRUCTURED_API_KEY;
 export const UNSTRUCTURED_API_URL =
   e.UNSTRUCTURED_API_URL ?? "https://api.unstructuredapp.io/general/v0/general";
-export const SILERO_VAD_VERSION = e.SILERO_VAD_VERSION ?? "v4";
+export const SILERO_VAD_VERSION = e.SILERO_VAD_VERSION ?? "v5";
 export const CONVERSATION_PROVIDER = e.CONVERSATION_PROVIDER
   ? e.CONVERSATION_PROVIDER
   : ConversationProvider.FILE;

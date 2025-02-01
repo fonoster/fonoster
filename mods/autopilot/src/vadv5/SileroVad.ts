@@ -56,7 +56,7 @@ class SileroVad implements Vad {
     callback: (event: "SPEECH_START" | "SPEECH_END") => void
   ) {
     if (!this.vad) {
-      throw new Error("VAD not initialized)");
+      throw new Error("VAD not initialized");
     }
     this.vad(data, callback);
   }

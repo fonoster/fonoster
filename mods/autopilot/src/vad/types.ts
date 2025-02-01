@@ -25,6 +25,13 @@ type Vad = {
   ) => void;
 };
 
+type VadParams = {
+  pathToModel?: string;
+  activationThreshold: number;
+  deactivationThreshold: number;
+  debounceFrames: number;
+}
+
 type SpeechProbabilities = {
   notSpeech: number;
   isSpeech: number;
@@ -42,4 +49,4 @@ type ONNXRuntimeAPI = {
   };
 };
 
-export { ONNXRuntimeAPI, SpeechProbabilities, Vad, VadEvent };
+export { ONNXRuntimeAPI, SpeechProbabilities, Vad, VadParams, VadEvent };
