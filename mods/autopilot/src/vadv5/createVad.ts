@@ -37,8 +37,8 @@ async function createVad(params: VadParams) {
     debounceFrames
   } = params;
 
-    const effectivePath =
-      pathToModel || join(__dirname, "..", "..", "silero_vad_v5.onnx");
+  const effectivePath =
+    pathToModel || join(__dirname, "..", "..", "silero_vad_v5.onnx");
   const silero = await SileroVadModel.new(ort, effectivePath);
 
   let sampleBuffer: number[] = [];
@@ -85,7 +85,10 @@ async function createVad(params: VadParams) {
 
       if (isSpeechActive) {
         // If already in speech, check if the score has dropped below deactivationThreshold
-        if (rawScore < deactivationThreshold && framesSinceStateChange >= debounceFrames) {
+        if (
+          rawScore < deactivationThreshold &&
+          framesSinceStateChange >= debounceFrames
+        ) {
           callback("SPEECH_END");
           resetState();
           logger.silly("Speech end detected", { rawScore });
@@ -93,7 +96,10 @@ async function createVad(params: VadParams) {
         }
       } else {
         // If currently not speaking, check if the score is above activationThreshold
-        if (rawScore > activationThreshold && framesSinceStateChange >= debounceFrames) {
+        if (
+          rawScore > activationThreshold &&
+          framesSinceStateChange >= debounceFrames
+        ) {
           isSpeechActive = true;
           framesSinceStateChange = 0;
           callback("SPEECH_START");

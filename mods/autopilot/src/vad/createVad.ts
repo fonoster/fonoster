@@ -71,7 +71,7 @@ async function createVad(params: VadParams) {
       const frame = fullFrame.slice(fullFrame.length - FRAME_SIZE);
       const result = await silero.process(new Float32Array(frame));
       const rawScore = result.isSpeech;
-      
+
       logger.silly("Frame processing", {
         rawScore,
         isSpeechActive,
@@ -83,7 +83,10 @@ async function createVad(params: VadParams) {
 
       if (isSpeechActive) {
         // If currently in speech, check if the score has dropped below the deactivation threshold
-        if (rawScore < deactivationThreshold && framesSinceStateChange >= debounceFrames) {
+        if (
+          rawScore < deactivationThreshold &&
+          framesSinceStateChange >= debounceFrames
+        ) {
           isSpeechActive = false;
           callback("SPEECH_END");
           silero.resetState(); // Reset VAD state after speech ends
@@ -92,7 +95,10 @@ async function createVad(params: VadParams) {
         }
       } else {
         // If not currently in speech, check if the score exceeds the activation threshold
-        if (rawScore > activationThreshold && framesSinceStateChange >= debounceFrames) {
+        if (
+          rawScore > activationThreshold &&
+          framesSinceStateChange >= debounceFrames
+        ) {
           isSpeechActive = true;
           framesSinceStateChange = 0;
           callback("SPEECH_START");

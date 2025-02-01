@@ -43,7 +43,6 @@ export const StyledTitle = {
   marginBottom: (theme: Theme) => theme.spacing(3)
 };
 
-
 export const StyledCloseButtonContainer = styled("div")(() => ({
   width: "auto",
   height: "auto",

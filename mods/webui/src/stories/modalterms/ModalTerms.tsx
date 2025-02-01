@@ -35,7 +35,7 @@ export const ModalTerms: React.FC<TermsProps> = ({
   onClose
 }) => {
   const theme = useTheme();
-  
+
   return (
     <Modal
       open={open}
@@ -52,16 +52,12 @@ export const ModalTerms: React.FC<TermsProps> = ({
     >
       <Box sx={StyledModalTerms}>
         <StyledTitleContainer sx={StyledTitle}>
-          <Typography variant="body-large"> 
-            {title}
-          </Typography>
+          <Typography variant="body-large">{title}</Typography>
           <StyledCloseButtonContainer onClick={onClose}>
             <CloseIcon htmlColor="#333333" />
           </StyledCloseButtonContainer>
         </StyledTitleContainer>
-        <Typography variant="body-medium">
-          {message}
-        </Typography>
+        <Typography variant="body-medium">{message}</Typography>
       </Box>
     </Modal>
   );

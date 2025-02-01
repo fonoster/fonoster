@@ -80,5 +80,5 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     letterSpacing: "0.12px",
     marginTop: "-2px",
     color: theme.palette.text.primary
-  },
+  }
 }));

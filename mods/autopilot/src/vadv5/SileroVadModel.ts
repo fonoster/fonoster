@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { readFileSync } from "fs";
-import { ONNXRuntimeAPI, ONNXSession, ONNXTensor, SpeechProbabilities } from "./types";
+import {
+  ONNXRuntimeAPI,
+  ONNXSession,
+  ONNXTensor,
+  SpeechProbabilities
+} from "./types";
 
 const SAMPLE_RATE = 16000;
 
@@ -60,8 +65,10 @@ class SileroVadModel {
         throw new Error(`Model is missing expected input "${name}"`);
       }
     }
-    if (!this._session.outputNames.includes("output") || 
-        !this._session.outputNames.includes("stateN")) {
+    if (
+      !this._session.outputNames.includes("output") ||
+      !this._session.outputNames.includes("stateN")
+    ) {
       throw new Error("Model is missing expected outputs");
     }
 
@@ -75,7 +82,10 @@ class SileroVadModel {
   };
 
   async process(audioFrame: Float32Array): Promise<SpeechProbabilities> {
-    const inputTensor = new this.ort.Tensor("float32", audioFrame, [1, audioFrame.length]);
+    const inputTensor = new this.ort.Tensor("float32", audioFrame, [
+      1,
+      audioFrame.length
+    ]);
 
     const feeds = {
       input: inputTensor,

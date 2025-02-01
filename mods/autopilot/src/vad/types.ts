@@ -30,7 +30,7 @@ type VadParams = {
   activationThreshold: number;
   deactivationThreshold: number;
   debounceFrames: number;
-}
+};
 
 type SpeechProbabilities = {
   notSpeech: number;
