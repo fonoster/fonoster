@@ -215,8 +215,6 @@ describe("@autopilot/machine", function () {
   }).timeout(20000);
 
   it("should timeout three times and then hangup", async function () {
-    this.slow(30000);
-
     // Arrange
     const { machine } = await import("../src/machine");
 
