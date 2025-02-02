@@ -85,14 +85,13 @@ const getActorInput = () => ({
 });
 
 describe("@autopilot/machine", function () {
-  afterEach(function () {
-    return sandbox.restore();
-  });
+  this.slow(30000);
 
+  afterEach(() => sandbox.restore());
+  
   it("should say the first message then set the state to 'idle'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
-    this.slow(30000);
 
     const input = getActorInput();
     const actor = createActor(machine, {
@@ -132,7 +131,6 @@ describe("@autopilot/machine", function () {
   it("should set the state to 'idle' and then 'listeningToUser'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
-    this.slow(30000);
 
     const input = getActorInput();
     const actor = createActor(machine, {
@@ -158,7 +156,6 @@ describe("@autopilot/machine", function () {
   it.skip("should append the speech to the buffer and set the state to 'listeningToUser'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
-    this.slow(30000);
 
     const input = getActorInput();
     const actor = createActor(machine, {
@@ -191,7 +188,6 @@ describe("@autopilot/machine", function () {
   it("from 'listeningToUser' call SPEECH_RESULT and wait to move to 'idle'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
-    this.slow(30000);
 
     const input = getActorInput();
     const actor = createActor(machine, {
