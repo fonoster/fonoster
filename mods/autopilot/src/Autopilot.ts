@@ -98,11 +98,13 @@ class Autopilot {
     const { voice } = this.params;
     const stream = await voice.sgather();
 
-    stream.onData((speech: string) => {
-      logger.verbose("received speech result", { speech });
+    stream.onData((payload: { speech: string, responseTime: number }) => {
+      const { speech, responseTime } = payload;
 
-      if (speech) {
-        this.actor.send({ type: "SPEECH_RESULT", speech });
+      logger.verbose("received speech result", { speech, responseTime });
+
+      if (payload.speech) {
+        this.actor.send({ type: "SPEECH_RESULT", speech, responseTime });
       }
     });
   }

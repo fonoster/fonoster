@@ -21,6 +21,7 @@ import { VoiceLanguage } from "@fonoster/common";
 type SpeechResult = {
   speech: string;
   isFinal: boolean;
+  responseTime: number;
 };
 
 type StreamSpeech = {

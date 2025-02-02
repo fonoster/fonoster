@@ -33,6 +33,7 @@ type StartStreamGatherRequest = VerbRequest & StreamGatherOptions;
 type StreamGatherPayload = VerbResponse & {
   speech?: string;
   digit?: string;
+  responseTime: number;
 };
 
 export {

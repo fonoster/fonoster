@@ -18,7 +18,7 @@
  */
 type GatherStream = {
   stop: () => Promise<void>;
-  onData: (cb: (speech: string) => void) => void;
+  onData: (cb: (payload: { speech: string, responseTime: number }) => void) => void;
 };
 
 type Stream = {

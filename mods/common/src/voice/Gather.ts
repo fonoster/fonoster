@@ -36,6 +36,7 @@ type GatherRequest = VerbRequest & GatherOptions;
 type GatherResponse = VerbResponse & {
   speech?: string;
   digits?: string;
+  responseTime: number;
 };
 
 export { GatherOptions, GatherRequest, GatherResponse, GatherSource };

@@ -32,7 +32,7 @@ class VoiceImpl implements Voice {
   sessionRef: string;
   sgatherStream: {
     stop: () => Promise<void>;
-    onData: (cb: (speech: string) => void) => void;
+    onData: (cb: (payload: { speech: string, responseTime: number }) => void) => void;
   };
   vadStream: {
     stop: () => Promise<void>;
@@ -69,9 +69,12 @@ class VoiceImpl implements Voice {
         stream.close();
         stream.cleanup(() => {});
       },
-      onData: (cb: (speech: string) => void) => {
-        stream.onPayload((payload: StreamGatherPayload) => {
-          cb(payload.speech!);
+      onData: (cb: (payload: { speech: string, responseTime: number} ) => void) => {
+        stream.onPayload((payload: { speech: string, responseTime: number}) => {
+          cb({
+            speech: payload.speech!,
+            responseTime: payload.responseTime
+          });
         });
       }
     };

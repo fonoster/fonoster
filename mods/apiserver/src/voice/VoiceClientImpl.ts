@@ -228,7 +228,7 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async startSpeechGather(
-    callback: (stream: { speech?: string; digit?: string }) => void
+    callback: (stream: { speech?: string; digits?: string; responseTime: number; }) => void
   ) {
     try {
       const out = this.stt.streamTranscribe(this.transcriptionsStream);
