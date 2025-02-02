@@ -169,6 +169,7 @@ message GatherResponse {
     string speech = 2;
     string digits = 3;
   }
+  int32 response_time = 4;
 }
 
 // RecordRequest is the request message to initiate a recording
@@ -359,6 +360,7 @@ message StreamGatherPayload {
     string speech = 2;
     string digit = 3;
   }
+  int32 response_time = 4;
 }
 
 // VoiceInStream is the input stream for the voice service
