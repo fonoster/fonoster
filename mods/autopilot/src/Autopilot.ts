@@ -98,7 +98,7 @@ class Autopilot {
     const { voice } = this.params;
     const stream = await voice.sgather();
 
-    stream.onData((payload: { speech: string, responseTime: number }) => {
+    stream.onData((payload: { speech: string; responseTime: number }) => {
       const { speech, responseTime } = payload;
 
       logger.verbose("received speech result", { speech, responseTime });

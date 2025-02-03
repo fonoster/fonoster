@@ -25,11 +25,11 @@ function getTimeoutPromise(timeout: number) {
 
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  const timeoutPromise = new Promise<string>((resolve) => {
+  const timeoutPromise = new Promise<unknown>((resolve) => {
     timeoutId = setTimeout(() => {
       resolve("");
     }, effectiveTimeout);
-  }) as PromiseWithResetTimer<string>;
+  }) as PromiseWithResetTimer<unknown>;
 
   timeoutPromise.cancelGlobalTimer = () => {
     if (timeoutId) {

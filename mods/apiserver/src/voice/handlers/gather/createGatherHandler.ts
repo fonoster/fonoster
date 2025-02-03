@@ -61,7 +61,7 @@ function createGatherHandler(voiceClient: VoiceClient) {
     const promises = [timeoutPromise];
 
     if (effectiveSource.includes(GatherSource.SPEECH)) {
-      promises.push(voiceClient.transcribe().then((result) => result.speech));
+      promises.push(voiceClient.transcribe().then((result) => result));
     }
 
     if (effectiveSource.includes(GatherSource.DTMF)) {
@@ -74,17 +74,22 @@ function createGatherHandler(voiceClient: VoiceClient) {
             timeout: effectiveTimeout,
             onDigitReceived: timeoutPromise.cancelGlobalTimer
           })
-          .then(({ digits }) => digits)
+          .then((result) => result)
       );
     }
 
-    const result = await Promise.race(promises);
+    const result = (await Promise.race(promises)) as {
+      responseTime: number;
+      speech?: string;
+      digits?: string;
+    };
 
     voiceClient.sendResponse({
       gatherResponse: {
         sessionRef,
-        speech: isDtmf(result) ? null : result,
-        digits: isDtmf(result) ? result : null
+        responseTime: result.responseTime,
+        speech: isDtmf(result.digits) ? undefined : result.speech,
+        digits: isDtmf(result.digits) ? result.digits : undefined
       }
     });
   });

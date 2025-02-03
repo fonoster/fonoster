@@ -35,10 +35,12 @@ type VoiceClient = {
   close: () => void;
   synthesize: (text: string, options: SayOptions) => Promise<string>;
   transcribe: () => Promise<SpeechResult>;
-  startSpeechGather: (callback: (stream: { speech: string, responseTime: number }) => void) => void;
+  startSpeechGather: (
+    callback: (stream: { speech: string; responseTime: number }) => void
+  ) => void;
   startDtmfGather: (
     sessionRef: string,
-    callback: (event: { digit: string, responseTime: number }) => void
+    callback: (event: { digit: string; }) => void
   ) => void;
   // Stops both speech and dtmf gather
   stopStreamGather: () => void;

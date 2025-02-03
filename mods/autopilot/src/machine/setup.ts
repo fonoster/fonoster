@@ -38,7 +38,7 @@ const machineSetup = setup({
     events: {} as
       | { type: "SPEECH_START" }
       | { type: "SPEECH_END" }
-      | { type: "SPEECH_RESULT"; speech: string, responseTime: number }
+      | { type: "SPEECH_RESULT"; speech: string; responseTime: number }
   },
   actions,
   guards,
