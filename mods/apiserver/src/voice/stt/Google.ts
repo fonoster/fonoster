@@ -48,6 +48,8 @@ class Google
   }
 
   async transcribe(stream: Stream): Promise<SpeechResult> {
+    const startTime = performance.now();
+
     const languageCode =
       this.engineConfig.config.languageCode || VoiceLanguage.EN_US;
 
@@ -60,15 +62,12 @@ class Google
       }
     };
 
-    const startTime = performance.now();
-
     return new Promise((resolve, reject) => {
       const recognizeStream = this.client
         .streamingRecognize(audioConfig)
         .on("error", (e: Error) => reject(e))
         .on("data", (data: Record<string, unknown>) => {
-          const endTime = performance.now();
-          const responseTime = endTime - startTime;
+          const responseTime = performance.now() - startTime;
 
           if (data.results[0]?.alternatives[0]) {
             const result = {

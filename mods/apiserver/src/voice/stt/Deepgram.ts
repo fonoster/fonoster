@@ -86,6 +86,8 @@ class Deepgram
 
   async transcribe(stream: Stream): Promise<SpeechResult> {
     return new Promise((resolve, reject) => {
+      const startTime = performance.now();
+
       const connection = this.client.listen.live(
         buildTranscribeConfig(this.engineConfig.config)
       );
@@ -99,7 +101,8 @@ class Deepgram
           if (data.channel.alternatives[0].transcript && data.speech_final) {
             const result: SpeechResult = {
               speech: data.channel.alternatives[0].transcript,
-              isFinal: true
+              isFinal: true,
+              responseTime: performance.now() - startTime
             };
 
             resolve(result);
