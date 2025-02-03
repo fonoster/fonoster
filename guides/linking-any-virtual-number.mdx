@@ -7,85 +7,77 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
 
 <Steps>
   <Step title="Set Up Authentication">
-    <AccordionGroup>
-      <Accordion title="SIP Authentication (If required)">
-        If your VoIP provider requires SIP authentication, run the following command and follow the interactive prompts:
+    <Accordion title="SIP Authentication (If required)">
+      If your VoIP provider requires SIP authentication, run the following command and follow the interactive prompts:
 
-        ```bash
-        fonoster sipnet:credentials:create
-        ```
+      ```bash
+      fonoster sipnet:credentials:create
+      ```
 
-        After running this command, please request the necessary credentials from your provider.
-      </Accordion>
+      After running this command, please request the necessary credentials from your provider.
+    </Accordion>
 
-      <Accordion title="Static IP Authentication (If required)">
-        If your provider uses static IP authentication, provide them with the following IP address:
+    <Accordion title="Static IP Authentication (If required)">
+      If your provider uses static IP authentication, provide them with the following IP address:
 
-        **165.22.7.155**
+      **165.22.7.155**
 
-        This IP is used to verify the origin of the signaling.
-      </Accordion>
-    </AccordionGroup>
+      This IP is used to verify the origin of the signaling.
+    </Accordion>
   </Step>
 
   <Step title="Configure Your SIP Trunk">
-    <AccordionGroup>
-      <Accordion title="Verify Provider Protocol">
-        Before creating your trunk, verify with your provider the preferred transport protocol (e.g., TCP, UDP, or TLS). Use the same protocol when specifying your _Outbound URI_.
-      </Accordion>
+    <Accordion title="Verify Provider Protocol">
+      Before creating your trunk, verify with your provider the preferred transport protocol (e.g., TCP, UDP, or TLS). Use the same protocol when specifying your _Outbound URI_.
+    </Accordion>
 
-      <Accordion title="Create a SIP Trunk">
-        Run the following command to create your trunk:
+    <Accordion title="Create a SIP Trunk">
+      Run the following command to create your trunk:
 
-        ```bash
-        fonoster sipnet:trunks:create
-        ```
+      ```bash
+      fonoster sipnet:trunks:create
+      ```
 
-        Follow the prompts to complete the configuration. Make sure that your _Inbound URI_ ends with **.sip.fonoster.com**. For example, if your company is **Acme Corp**, you might use:
+      Follow the prompts to complete the configuration. Make sure that your _Inbound URI_ ends with **.sip.fonoster.com**. For example, if your company is **Acme Corp**, you might use:
 
-        ```
-        acme.sip.fonoster.com
-        ```
+      ```
+      acme.sip.fonoster.com
+      ```
 
-        <Note>
-          The _Inbound URI_ must be globally unique. If you receive an error, please try using a different value.
-        </Note>
-      </Accordion>
-    </AccordionGroup>
+      <Note>
+        The _Inbound URI_ must be globally unique. If you receive an error, please try using a different value.
+      </Note>
+    </Accordion>
   </Step>
 
   <Step title="Create and Link Your Virtual Number">
-    <AccordionGroup>
-      <Accordion title="Creating the Virtual Number">
-        With your trunk in place, create a virtual number to route incoming SIP traffic. Execute the command below:
+    <Accordion title="Creating the Virtual Number">
+      With your trunk in place, create a virtual number to route incoming SIP traffic. Execute the command below:
 
-        ```bash
-        fonoster sipnet:numbers:create
-        ```
+      ```bash
+      fonoster sipnet:numbers:create
+      ```
 
-        You will be prompted for the details of your virtual number. **Important:** Ensure that this number exactly matches the value your provider sends in the **FROM** header of the SIP traffic. Any discrepancy may prevent proper traffic matching.
-      </Accordion>
+      You will be prompted for the details of your virtual number. **Important:** Ensure that this number exactly matches the value your provider sends in the **FROM** header of the SIP traffic. Any discrepancy may prevent proper traffic matching.
+    </Accordion>
 
-      <Accordion title="Handling Number Conflicts">
-        If you encounter an error such as "Number already exists," please contact the [Fonoster support team](https://discord.gg/4QWgSz4hTC). They will help resolve any conflicts with existing numbers.
-      </Accordion>
-    </AccordionGroup>
+    <Accordion title="Handling Number Conflicts">
+      If you encounter an error such as "Number already exists," please contact the [Fonoster support team](https://discord.gg/4QWgSz4hTC). They will help resolve any conflicts with existing numbers.
+    </Accordion>
   </Step>
 
   <Step title="Quick Verification">
-    <AccordionGroup>
-      <Accordion title="Verify Your Virtual Number">
-        To check that your virtual number has been linked successfully, list your numbers with:
+    <Accordion title="Verify Your Virtual Number">
+      To check that your virtual number has been linked successfully, list your numbers with:
 
-        ```bash
-        fonoster sipnet:numbers:list
-        ```
-      </Accordion>
+      ```bash
+      fonoster sipnet:numbers:list
+      ```
+    </Accordion>
 
-      <Accordion title="Test Your Setup">
-        Once the number is linked, try making a call to your virtual number to ensure that your voice application is accessible.
-      </Accordion>
-    </AccordionGroup>
+    <Accordion title="Test Your Setup">
+      Once the number is linked, try making a call to your virtual number to ensure that your voice application is accessible.
+    </Accordion>
   </Step>
 </Steps>
 
