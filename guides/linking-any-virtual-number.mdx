@@ -31,15 +31,13 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
   </Step>
 
   <Step title="Configure Your SIP Trunk">
-    Before creating your trunk, verify with your provider the preferred transport protocol (e.g., TCP, UDP, or TLS). Use the same protocol when specifying your _Outbound URI_.
-
-    Then, use the following command to create your trunk:
+    Before creating your trunk, verify with your provider the preferred transport protocol (e.g., _TCP_ or _UDP_). Use the same protocol when specifying your _Outbound URI_. Use the following command to create your trunk:
 
     ```bash
     fonoster sipnet:trunks:create
     ```
 
-    Follow the prompts to complete the configuration. Ensure your _Inbound URI_ ends with **.sip.fonoster.com**. For example, if your company is **Acme Corp**, you might use `acme.sip.fonoster.com`
+    Follow the prompts to complete the configuration. Ensure your _Inbound URI_ ends with `.sip.fonoster.com`. For example, if your company is **Acme Corp**, you might use `acme.sip.fonoster.com`
 
     <Note>
       The _Inbound URI_ must be globally unique. If you receive an error, please try using a different value.
