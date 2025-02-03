@@ -25,7 +25,7 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
 
     If your provider uses static IP authentication, provide them with the following IP address:
 
-    **165.22.7.155**
+    `165.22.7.155`
 
     Your provider will use it to verify the origin of the signaling.
   </Step>
@@ -40,7 +40,7 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
     Follow the prompts to complete the configuration. Ensure your _Inbound URI_ ends with `.sip.fonoster.com`. For example, if your company is **Acme Corp**, you might use `acme.sip.fonoster.com`
 
     <Note>
-      The _Inbound URI_ must be globally unique. If you receive an error, please try using a different value.
+      _Inbound URIs_ are globally unique. If you receive an error, please try using a different value.
     </Note>
   </Step>
 
@@ -55,13 +55,13 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
 
     If you encounter an error such as "Number already exists," please contact the [Fonoster support team](https://discord.gg/4QWgSz4hTC). They will help resolve any conflicts with existing numbers.
 
-    Finally, to check that your virtual number has been linked successfully, list your numbers with:
+    Finally, to check that your virtual Number has been linked successfully by listing your Numbers with:
 
     ```bash
     fonoster sipnet:numbers:list
     ```
 
-    Once the number is linked, try calling your virtual number to ensure that your voice application is accessible.
+    Once the Number is linked, try calling it to ensure the voice application is accessible.
   </Step>
 </Steps>
 
