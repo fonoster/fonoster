@@ -86,6 +86,7 @@
       "group": "Guides",
       "pages": [
         "guides/linking-a-twilio-number",
+        "guides/linking-any-virtual-number",
         "guides/overwriting-speech-voices",
         "guides/prompting-guide"
       ]
