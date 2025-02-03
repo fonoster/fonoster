@@ -3,8 +3,6 @@ title: 'Linking any virtual number'
 description: 'Description of your new file.'
 ---
 
-# Fonoster SIP Integration Documentation
-
 This guide provides step-by-step instructions for integrating your SIP provider with Fonoster. It covers creating SIP credentials, configuring trunks, and linking numbers. 
 
 <Note>
@@ -27,11 +25,13 @@ Request the credentials to your VoIP provider.
 
 If your provider authenticates using static IP addresses, please give them IP `165.22.7.155`.
 
-## Creating and Configuring a Trunk
+They will use the value to validate the origin of the signaling.
 
-After setting up the credentials (if needed), configure your trunk. Before creating the trunk, please verify their preferred transport protocol with your provider and use it for your _Outbound URI_.
+## Creating and configuring a Trunk
 
-Run the command below to create your trunk:
+After setting up the credentials (if needed), configure your trunk. Before creating the trunk, please verify the preferred transport protocol with your provider and use it for your _Outbound URI_.
+
+Run the command below to create your Trunk:
 
 ```bash
 fonoster sipnet:trunks:create
@@ -45,7 +45,7 @@ For example, if your company's name is **Acme Corp**, you could use `acme.sip.fo
 The _Inbound URI_ is globally unique. If you get an error, try using another value.
 </Note>
 
-### Creating the virtual number
+## Creating the virtual number
 
 Next, create a virtual number that will be used to route incoming SIP traffic. Execute the following command:
 
@@ -55,17 +55,15 @@ fonoster sipnet:numbers:create
 
 You will be prompted to provide the details of the number.
 
-<Warning>
-Ensure that the number matches what your provider will send in the **FROM** header of the SIP traffic. Any discrepancy will prevent successful traffic matching.
-</Warning>
+Please ensure that the number matches what your provider will send in the **FROM** header of the SIP traffic. Any discrepancy will prevent successful traffic matching, and the calls will fail.
 
-### Handling Number Conflicts:**
+### Handling number conflicts
 
 If you encounter an error message such as "Number already exists" during creation, please contact the [Fonoster support team](https://discord.gg/4QWgSz4hTC). They will assist in resolving any conflicts with existing numbers.
 
-## Quick Reference for Twilio Users
+## Quick reference for Twilio users
 
-For Twilio customers, it is recommended to use the following command to link any virtual number:
+For Twilio customers, it is recommended to use the following command to link an existing number:
 
 ```bash
 fonoster sipnet:numbers:linkTwilioNumber
