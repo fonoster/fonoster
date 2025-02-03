@@ -40,7 +40,7 @@ type VoiceClient = {
   ) => void;
   startDtmfGather: (
     sessionRef: string,
-    callback: (event: { digit: string; }) => void
+    callback: (event: { digit: string }) => void
   ) => void;
   // Stops both speech and dtmf gather
   stopStreamGather: () => void;
