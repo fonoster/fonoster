@@ -5,6 +5,11 @@ description: 'Connecting any SIP provider with Fonoster.'
 
 This guide will walk you through connecting your SIP provider to Fonoster by setting up authentication, configuring a SIP trunk, and creating your virtual number. Follow the steps below to link any virtual number to your application.
 
+<Note>
+  If you are linking a Twilio number, consider using the dedicated command 
+  <code>fonoster sipnet:numbers:linkTwilioNumber</code> for a simplified process.
+</Note>
+
 <Steps>
   <Step title="Request early access">
     To get started, you need to request early access to Fonoster. You can do this by visiting the <a href="https://github.com/orgs/fonoster/discussions/695">GitHub Discussions</a> and following the instructions.
@@ -58,14 +63,9 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
     fonoster sipnet:numbers:list
     ```
 
-    Once the number is linked, try making a call to your virtual number to ensure that your voice application is accessible.
+    Once the number is linked, try calling your virtual number to ensure that your voice application is accessible.
   </Step>
 </Steps>
-
-<Tip>
-  If you are linking a Twilio number, consider using the dedicated command 
-  <code>fonoster sipnet:numbers:linkTwilioNumber</code> for a simplified process.
-</Tip>
 
 <CardGroup cols={2}>
   <Card title="Programmable Voice" icon="rocket-launch" href="https://discord.com/invite/4QWgSz4hTC">
