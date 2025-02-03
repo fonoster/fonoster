@@ -39,12 +39,12 @@ function createStreamGatherHandler(voiceClient: VoiceClient) {
 
     if (effectiveSource.includes(StreamGatherSource.DTMF)) {
       voiceClient.startDtmfGather(sessionRef, (event) => {
-        const { digit, responseTime } = event;
+        const { digit } = event;
         voiceClient.sendResponse({
           streamGatherPayload: {
             sessionRef,
             digit,
-            responseTime
+            responseTime: 0
           }
         });
       });
