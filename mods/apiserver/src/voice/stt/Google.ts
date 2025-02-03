@@ -23,6 +23,7 @@ import * as z from "zod";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
 import { GoogleSttConfig, SpeechResult, StreamSpeech } from "./types";
 import { SpeechToText } from "../types";
+import { performance } from "perf_hooks";
 
 const ENGINE_NAME = "stt.google";
 
@@ -59,19 +60,25 @@ class Google
       }
     };
 
+    const startTime = performance.now();
+
     return new Promise((resolve, reject) => {
       const recognizeStream = this.client
         .streamingRecognize(audioConfig)
         .on("error", (e: Error) => reject(e))
         .on("data", (data: Record<string, unknown>) => {
+          const endTime = performance.now();
+          const responseTime = endTime - startTime;
+
           if (data.results[0]?.alternatives[0]) {
             const result = {
               speech: data.results[0].alternatives[0].transcript,
-              isFinal: true
+              isFinal: true,
+              responseTime
             };
             resolve(result);
           } else {
-            resolve({ speech: "", isFinal: true });
+            resolve({ speech: "", isFinal: true, responseTime });
           }
           recognizeStream.destroy();
         });
