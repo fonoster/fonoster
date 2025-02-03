@@ -3,7 +3,7 @@ title: 'Linking any virtual number'
 description: 'Accepting and sending calls from any SIP provider.'
 ---
 
-This guide provides step-by-step instructions for connecting your SIP provider with Fonoster. It covers creating SIP credentials, configuring trunks, and linking numbers. 
+This guide provides step-by-step instructions for connecting your SIP provider with Fonoster. It covers creating SIP Credentials, configuring Trunks, and linking Numbers. 
 
 <Note>
 The preferred way to link a Twilio number is to use the `sipnet:numbers:linkTwilioNumber` command.
@@ -45,7 +45,7 @@ For example, if your company's name is **Acme Corp**, you could use `acme.sip.fo
 The _Inbound URI_ is globally unique. If you get an error, try using another value.
 </Note>
 
-## Creating the virtual number
+## Creating the virtual Number
 
 Next, create a virtual number that will be used to route incoming SIP traffic. Execute the following command:
 
@@ -53,17 +53,17 @@ Next, create a virtual number that will be used to route incoming SIP traffic. E
 fonoster sipnet:numbers:create
 ```
 
-You will be prompted to provide the details of the number.
+You will be prompted to provide the details of the Number.
 
-Please ensure that the number matches what your provider will send in the **FROM** header of the SIP traffic. Any discrepancy will prevent successful traffic matching, and the calls will fail.
+Please ensure that the Nymber matches what your provider will send in the **FROM** header of the SIP traffic. Any discrepancy will prevent successful traffic matching, and the calls will fail.
 
-### Handling number conflicts
+### Handling Number conflicts
 
-If you encounter an error message such as "Number already exists" during creation, please contact the [Fonoster support team](https://discord.gg/4QWgSz4hTC). They will assist in resolving any conflicts with existing numbers.
+If you encounter an error message such as "Number already exists" during creation, please contact the [Fonoster support team](https://discord.gg/4QWgSz4hTC). They will assist in resolving any conflicts with existing Numbers.
 
 ## Quick reference for Twilio users
 
-For Twilio customers, it is recommended to use the following command to link an existing number:
+For Twilio customers, it is recommended to use the following command to link an existing Number:
 
 ```bash
 fonoster sipnet:numbers:linkTwilioNumber
