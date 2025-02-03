@@ -1,74 +1,105 @@
 ---
 title: 'Linking any virtual number'
-description: 'Accepting and sending calls from any SIP provider.'
+description: 'Connecting any SIP provider with Fonoster.'
 ---
 
-This guide provides step-by-step instructions for connecting your SIP provider with Fonoster. It covers creating SIP Credentials, configuring Trunks, and linking Numbers. 
+This guide will walk you through connecting your SIP provider to Fonoster by setting up authentication, configuring a SIP trunk, and creating your virtual number. Follow the steps below to link any virtual number to your application.
 
-<Note>
-The preferred way to link a Twilio number is to use the `sipnet:numbers:linkTwilioNumber` command.
-</Note>
+<Steps>
+  <Step title="Set Up Authentication">
+    <AccordionGroup>
+      <Accordion title="SIP Authentication (If required)">
+        If your VoIP provider requires SIP authentication, run the following command and follow the interactive prompts:
 
-## SIP Authentication (If required)
+        ```bash
+        fonoster sipnet:credentials:create
+        ```
 
-If your VoIP provider requires SIP authentication, you must add the credentials in Fonoster for outbound (towards your provider) calling.
+        After running this command, please request the necessary credentials from your provider.
+      </Accordion>
 
-Run the following command and follow the interactive prompts:
+      <Accordion title="Static IP Authentication (If required)">
+        If your provider uses static IP authentication, provide them with the following IP address:
 
-```bash
-fonoster sipnet:credentials:create
-```
+        **165.22.7.155**
 
-Request the credentials to your VoIP provider.
+        This IP is used to verify the origin of the signaling.
+      </Accordion>
+    </AccordionGroup>
+  </Step>
 
-## Static IP Authentication (If required)
+  <Step title="Configure Your SIP Trunk">
+    <AccordionGroup>
+      <Accordion title="Verify Provider Protocol">
+        Before creating your trunk, verify with your provider the preferred transport protocol (e.g., TCP, UDP, or TLS). Use the same protocol when specifying your _Outbound URI_.
+      </Accordion>
 
-If your provider authenticates using static IP addresses, please give them IP `165.22.7.155`.
+      <Accordion title="Create a SIP Trunk">
+        Run the following command to create your trunk:
 
-They will use the value to validate the origin of the signaling.
+        ```bash
+        fonoster sipnet:trunks:create
+        ```
 
-## Creating and configuring a Trunk
+        Follow the prompts to complete the configuration. Make sure that your _Inbound URI_ ends with **.sip.fonoster.com**. For example, if your company is **Acme Corp**, you might use:
 
-After setting up the credentials (if needed), configure your trunk. Before creating the trunk, please verify the preferred transport protocol with your provider and use it for your _Outbound URI_.
+        ```
+        acme.sip.fonoster.com
+        ```
 
-Run the command below to create your Trunk:
+        <Note>
+          The _Inbound URI_ must be globally unique. If you receive an error, please try using a different value.
+        </Note>
+      </Accordion>
+    </AccordionGroup>
+  </Step>
 
-```bash
-fonoster sipnet:trunks:create
-```
+  <Step title="Create and Link Your Virtual Number">
+    <AccordionGroup>
+      <Accordion title="Creating the Virtual Number">
+        With your trunk in place, create a virtual number to route incoming SIP traffic. Execute the command below:
 
-Follow the prompts to complete the trunk configuration, ensuring that the _Outbound URI_ is set according to your provider's requirements and the _Inbound URI_ ends with `.sip.fonoster.com`
+        ```bash
+        fonoster sipnet:numbers:create
+        ```
 
-For example, if your company's name is **Acme Corp**, you could use `acme.sip.fonoster.com` as your _Inbound URI_.
+        You will be prompted for the details of your virtual number. **Important:** Ensure that this number exactly matches the value your provider sends in the **FROM** header of the SIP traffic. Any discrepancy may prevent proper traffic matching.
+      </Accordion>
 
-<Note>
-The _Inbound URI_ is globally unique. If you get an error, try using another value.
-</Note>
+      <Accordion title="Handling Number Conflicts">
+        If you encounter an error such as "Number already exists," please contact the [Fonoster support team](https://discord.gg/4QWgSz4hTC). They will help resolve any conflicts with existing numbers.
+      </Accordion>
+    </AccordionGroup>
+  </Step>
 
-## Creating the virtual Number
+  <Step title="Quick Verification">
+    <AccordionGroup>
+      <Accordion title="Verify Your Virtual Number">
+        To check that your virtual number has been linked successfully, list your numbers with:
 
-Next, create a virtual number that will be used to route incoming SIP traffic. Execute the following command:
+        ```bash
+        fonoster sipnet:numbers:list
+        ```
+      </Accordion>
 
-```bash
-fonoster sipnet:numbers:create
-```
+      <Accordion title="Test Your Setup">
+        Once the number is linked, try making a call to your virtual number to ensure that your voice application is accessible.
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+</Steps>
 
-You will be prompted to provide the details of the Number.
+<Tip>
+  If you are linking a Twilio number, consider using the dedicated command 
+  <code>fonoster sipnet:numbers:linkTwilioNumber</code> for a simplified process.
+</Tip>
 
-Please ensure that the Nymber matches what your provider will send in the **FROM** header of the SIP traffic. Any discrepancy will prevent successful traffic matching, and the calls will fail.
+<CardGroup cols={2}>
+  <Card title="Programmable Voice" icon="rocket-launch" href="https://discord.com/invite/4QWgSz4hTC">
+    Learn more about the Programmable Voice API and how to build advanced voice applications.
+  </Card>
 
-### Handling Number conflicts
-
-If you encounter an error message such as "Number already exists" during creation, please contact the [Fonoster support team](https://discord.gg/4QWgSz4hTC). They will assist in resolving any conflicts with existing Numbers.
-
-## Quick reference for Twilio users
-
-For Twilio customers, it is recommended to use the following command to link an existing Number:
-
-```bash
-fonoster sipnet:numbers:linkTwilioNumber
-```
-
-This command simplifies the process by automatically linking your virtual Twilio number with Fonoster, streamlining your integration.
-
-For more details, please refer to the [Linking a Twilio number](./linking-a-twilio-number) guide.
+  <Card title="SDKs" icon="code" href="https://discord.com/invite/4QWgSz4hTC">
+    Learn how to use the Node.js and Web SDKs to interact with Fonoster programmatically.
+  </Card>
+</CardGroup>
