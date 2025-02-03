@@ -25,40 +25,35 @@ Request the credentials to your VoIP provider.
 
 ## Static IP Authentication (If required)
 
-If your provider authenticates using static IP addresses, please then use the `165.22.7.155` IP.
+If your provider authenticates using static IP addresses, please give them IP `165.22.7.155`.
 
 ## Creating and Configuring a Trunk
 
 After setting up the credentials (if needed), configure your trunk. Before creating the trunk, please verify their preferred transport protocol with your provider and use it for your _Outbound URI_.
 
-
 Run the command below to create your trunk:
 
-   ```bash
-   fonoster sipnet:trunks:create
-   ```
+```bash
+fonoster sipnet:trunks:create
+```
 
 Follow the prompts to complete the trunk configuration, ensuring that the _Outbound URI_ is set according to your provider's requirements and the _Inbound URI_ ends with `.sip.fonoster.com`
 
-For example, if your company's name is **Acme Corp**, you use `acme.sip.fonoster.com` as your _Inbound URI_.
+For example, if your company's name is **Acme Corp**, you could use `acme.sip.fonoster.com` as your _Inbound URI_.
 
 <Note>
-The _Inbound URI_ is globally unique. If you get an error, try with another value.
+The _Inbound URI_ is globally unique. If you get an error, try using another value.
 </Note>
 
-Creating the virtual number
+### Creating the virtual number
 
-Next, create a virtual number that will be used to route incoming SIP traffic.
-
-1. **Create a New Number:**
-
-Execute the following command:
+Next, create a virtual number that will be used to route incoming SIP traffic. Execute the following command:
 
 ```bash
 fonoster sipnet:numbers:create
 ```
 
-You will be prompted to provide the number's details. 
+You will be prompted to provide the details of the number.
 
 <Warning>
 Ensure that the number matches what your provider will send in the **FROM** header of the SIP traffic. Any discrepancy will prevent successful traffic matching.
