@@ -96,7 +96,7 @@ async function linkTwilioNumberToApplication(
           host: `${resourceRef}.${TWILIO_PSTN_URI_BASE}`,
           port: 5060,
           // TODO: This should be a parameter (e.g., a flag)
-          transport: "TCP" as Transport,
+          transport: "UDP" as Transport,
           enabled: true,
           weight: 10,
           priority: 10
