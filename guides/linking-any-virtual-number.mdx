@@ -6,6 +6,9 @@ description: 'Connecting any SIP provider with Fonoster.'
 This guide will walk you through connecting your SIP provider to Fonoster by setting up authentication, configuring a SIP trunk, and creating your virtual number. Follow the steps below to link any virtual number to your application.
 
 <Steps>
+    <Step title="Request early access">
+    To get started, you need to request early access to Fonoster. You can do this by visiting the <a href="https://github.com/orgs/fonoster/discussions/695">GitHub Discussions</a> and following the instructions.
+  </Step>
   <Step title="Set Up Authentication">
     <Accordion title="SIP Authentication (If required)">
       If your VoIP provider requires SIP authentication, run the following command and follow the interactive prompts:
@@ -38,7 +41,7 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
       fonoster sipnet:trunks:create
       ```
 
-      Follow the prompts to complete the configuration. Make sure that your _Inbound URI_ ends with **.sip.fonoster.com**. For example, if your company is **Acme Corp**, you might use:
+      Follow the prompts to complete the configuration. Ensure that your _Inbound URI_ ends with **.sip.fonoster.com**. For example, if your company is **Acme Corp**, you might use:
 
       ```
       acme.sip.fonoster.com
