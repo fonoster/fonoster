@@ -70,8 +70,15 @@ class Deepgram
           return;
         }
 
+        const words = data.channel.alternatives[0].words;
+
+        const responseTime = words.length > 0 
+          ? (words.reduce((acc: number, word: any) => acc + (word.end - word.start), 0) * 1000) / words.length
+          : 0;
+
         out.emit("data", {
-          speech: data.channel.alternatives[0].transcript
+          speech: data.channel.alternatives[0].transcript,
+          responseTime
         });
       });
 

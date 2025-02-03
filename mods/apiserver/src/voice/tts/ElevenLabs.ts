@@ -109,7 +109,9 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       voice,
       text,
       model_id: model ?? "eleven_flash_v2_5",
-      output_format: "pcm_16000"
+      output_format: "pcm_16000",
+      // TODO: Make this configurable
+      optimize_streaming_latency: 2
     });
 
     return (await streamToBuffer(response)) as unknown as Readable;
