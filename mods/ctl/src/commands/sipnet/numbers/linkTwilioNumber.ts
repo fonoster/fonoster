@@ -68,12 +68,12 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
     this.log("Press ^C at any time to quit.");
 
     const answers = {
+      friendlyName: await input({
+        message: "Friendly Name"
+      }),
       number: await input({
         message: "Number to link (E.164 format)",
         required: true
-      }),
-      friendlyName: await input({
-        message: "Friendly Name"
       }),
       applicationRef: await select({
         message: "Application",
