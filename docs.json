@@ -1,0 +1,113 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "willow",
+  "name": "Fonoster",
+  "colors": {
+    "primary": "#39E19E",
+    "light": "#39E19E",
+    "dark": "#39E19E"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/workspaces",
+              "concepts/identity-and-tokens",
+              "concepts/apikeys",
+              "concepts/sdks",
+              "concepts/programmable-voice",
+              "concepts/autopilot",
+              "concepts/speech-vendors",
+              "concepts/bidirectional-streams",
+              "concepts/voice-streaming",
+              "concepts/sipnetwork",
+              "concepts/calling"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/linking-a-twilio-number",
+              "guides/linking-any-virtual-number",
+              "guides/overwriting-speech-voices",
+              "guides/prompting-guide"
+            ]
+          },
+          {
+            "group": "Self Hosting",
+            "pages": [
+              "self-hosting/overview",
+              "self-hosting/deploy-with-docker",
+              "self-hosting/first-apikeys",
+              "self-hosting/securing-the-api"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "https://docs.fonoster.dev",
+          "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Community",
+          "href": "https://discord.gg/4QWgSz4hTC",
+          "icon": "discord"
+        }
+      ]
+    }
+  },
+  "styling": {
+    "codeblocks": "system"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "appearance": {
+    "default": "light"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "https://form.typeform.com/to/DVAwugzh"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://form.typeform.com/to/sDv75mFr"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/fonoster",
+      "github": "https://github.com/fonoster",
+      "linkedin": "https://linkedin.com/company/fonoster"
+    }
+  },
+  "fonts": {
+    "heading": {
+      "family": "Poppins"
+    },
+    "body": {
+      "family": "Poppins"
+    }
+  }
+}
