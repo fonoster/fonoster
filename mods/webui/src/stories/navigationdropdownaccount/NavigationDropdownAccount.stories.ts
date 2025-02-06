@@ -21,7 +21,8 @@ import { NavigationDropdownAccount } from "./NavigationDropdownAccount";
 import { fn } from "@storybook/test";
 
 /**
- * This story is for the Navigation Dropdown Account. It takes open, onAccountSettingsClicked and onSignoutClicked.
+ * This story is for the Navigation Dropdown Account. 
+ * It takes open, onAccountSettingsClicked and onSignoutClicked.
  */
 const meta = {
   title: "Shared Components/NavigationDropdownAccount",
@@ -57,10 +58,11 @@ type Story = StoryObj<typeof meta>;
 /**
  * Example to show NavigationDropdownAccount usage.
  */
-export const Example: Story = {
+export const Default: Story = {
   args: {
     open: true,
     onAccountSettingsClicked: fn(),
     onSignoutClicked: fn()
   }
 };
+
