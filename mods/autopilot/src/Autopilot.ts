@@ -39,7 +39,7 @@ class Autopilot {
     this.actor = createActor(machine, {
       input: {
         conversationSettings,
-        languageModel: languageModel,
+        languageModel,
         voice
       }
     });

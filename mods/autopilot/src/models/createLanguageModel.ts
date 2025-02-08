@@ -25,7 +25,7 @@ import {
   Voice,
   hangupToolDefinition,
   transferToolDefinition
-} from ".";
+} from "..";
 
 function createLanguageModel(params: {
   voice: Voice;
@@ -37,7 +37,7 @@ function createLanguageModel(params: {
   const { languageModel: languageModelSettings, conversationSettings } =
     assistantConfig;
 
-  // Ensure that the transfer tool is only added if the transfer options exist
+  // The transfer tool is only added if the transfer options exist
   const tools = languageModelSettings.tools.concat(
     assistantConfig.conversationSettings.transferOptions
       ? [hangupToolDefinition, transferToolDefinition]
@@ -47,13 +47,8 @@ function createLanguageModel(params: {
   return LanguageModelFactory.getLanguageModel(
     languageModelSettings.provider,
     {
-      model: languageModelSettings.model,
-      apiKey: languageModelSettings.apiKey,
-      maxTokens: languageModelSettings.maxTokens,
-      temperature: languageModelSettings.temperature,
-      firstMessage: conversationSettings.firstMessage,
-      systemPrompt: conversationSettings.systemPrompt,
-      baseUrl: languageModelSettings.baseUrl,
+      ...languageModelSettings,
+      ...conversationSettings,
       knowledgeBase,
       tools
     },

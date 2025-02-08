@@ -20,7 +20,7 @@
 import { StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
-import { createLanguageModel } from "./createLanguageModel";
+import { createLanguageModel } from "./models/createLanguageModel";
 import {
   AWS_S3_ACCESS_KEY_ID,
   AWS_S3_ENDPOINT,
@@ -87,14 +87,16 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
 
   const voice = new VoiceImpl(sessionRef, res);
 
+  const { ingressNumber, callerNumber, callDirection } = req;
+
   const languageModel = createLanguageModel({
     voice,
     assistantConfig,
     knowledgeBase,
     telephonyContext: {
       callDirection,
-      ingressNumber: req.ingressNumber,
-      callerNumber: req.callerNumber
+      ingressNumber,
+      callerNumber
     }
   });
 

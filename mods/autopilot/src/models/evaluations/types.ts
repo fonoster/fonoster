@@ -16,15 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
-import { conversationSettingsSchema } from "./conversationSettingsSchema";
-import { languageModelConfigSchema } from "./languageModelConfigSchema";
-import { testCasesSchema } from "./testCasesSchema";
+enum ExpectedTextType {
+  EXACT = "exact",
+  SIMILAR = "similar"
+}
 
-const assistantSchema = z.object({
-  conversationSettings: conversationSettingsSchema,
-  languageModel: languageModelConfigSchema,
-  testCases: testCasesSchema.optional()
-});
-
-export { assistantSchema };
+export { ExpectedTextType };

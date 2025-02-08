@@ -40,6 +40,7 @@ async function toolInvocation(params: {
       const message = tool?.requestStartMessage ?? "";
       if (message) {
         await voice.say(message);
+        await chatHistory.addAIMessage(message);
       }
     }
 

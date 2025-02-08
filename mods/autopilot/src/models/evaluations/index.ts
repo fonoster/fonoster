@@ -16,15 +16,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
-import { conversationSettingsSchema } from "./conversationSettingsSchema";
-import { languageModelConfigSchema } from "./languageModelConfigSchema";
-import { testCasesSchema } from "./testCasesSchema";
-
-const assistantSchema = z.object({
-  conversationSettings: conversationSettingsSchema,
-  languageModel: languageModelConfigSchema,
-  testCases: testCasesSchema.optional()
-});
-
-export { assistantSchema };
+export * from "./evals";
