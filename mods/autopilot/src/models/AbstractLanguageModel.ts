@@ -66,11 +66,14 @@ abstract class AbstractLanguageModel implements LanguageModel {
     const response = (await chain.invoke({ text })) as AIMessage;
     let isFirstTool = true;
 
-    if (
-      response.tool_calls &&
-      response.tool_calls.length > 0 &&
-      !response.content?.toString().trim()
-    ) {
+    logger.verbose("invoke", { text });
+    logger.verbose("response", { content: response.content });
+    logger.verbose("tools?", {
+      hasTools: response.tool_calls?.length! > 0,
+      tools: response.tool_calls?.map((tool) => tool.name)
+    });
+
+    if (response.tool_calls && response.tool_calls.length > 0) {
       // eslint-disable-next-line no-loops/no-loops
       for (const toolCall of response.tool_calls) {
         const { args, name: toolName } = toolCall;
@@ -111,10 +114,12 @@ abstract class AbstractLanguageModel implements LanguageModel {
       }
 
       const finalResponse = (await chain.invoke({
-        text: "Look at the tool calls and provide a final response based on the tool's results."
+        text: "Write a quick message based on the tools results"
       })) as AIMessage;
 
-      response.content = finalResponse.content ?? "";
+      logger.verbose("finalResponse by AI", { content: finalResponse.content });
+
+      response.content = finalResponse.content?.toString() ?? "";
     }
 
     await chatHistory.addUserMessage(text);

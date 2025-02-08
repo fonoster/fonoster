@@ -29,7 +29,7 @@ async function toolInvocation(params: {
   toolsCatalog: ToolsCatalog;
   isFirstTool: boolean;
   args: Record<string, unknown>;
-}): Promise<void> {
+}): Promise<string> {
   const { isFirstTool, args, toolName, chatHistory, toolsCatalog } = params;
 
   try {
@@ -43,13 +43,19 @@ async function toolInvocation(params: {
 
     const toolResult = await toolsCatalog.invokeTool(toolName, args);
 
-    logger.verbose("tool result: ", toolResult);
+    logger.verbose(`tool result (${toolName}):`, { result: toolResult.result });
 
-    await chatHistory.addAIMessage(`tool result: ${toolResult.result}`);
+    await chatHistory.addAIMessage(
+      `tool result (${toolName}): ${toolResult.result}`
+    );
+
+    return toolResult.result;
   } catch (error) {
     logger.error(`tool error: ${error.message}`);
 
     await chatHistory.addAIMessage(`tool error: ${error.message}`);
+
+    return "";
   }
 }
 
