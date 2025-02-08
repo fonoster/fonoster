@@ -30,9 +30,9 @@ const testCasesSchema = z.object({
     apiKey: z.string()
   }),
   evalsSystemPrompt: z.string().optional(),
-  sessions: z.array(
+  scenarios: z.array(
     z.object({
-      id: z.string(),
+      ref: z.string(),
       description: z.string(),
       telephonyContext: z.object({
         callDirection: z.nativeEnum(CallDirection),

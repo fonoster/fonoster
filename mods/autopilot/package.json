@@ -45,6 +45,7 @@
     "@langchain/openai": "^0.3.14",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",
+    "js-yaml": "^4.1.0",
     "langchain": "^0.3.6",
     "onnxruntime-node": "^1.19.0",
     "pdf-parse": "^1.1.1",

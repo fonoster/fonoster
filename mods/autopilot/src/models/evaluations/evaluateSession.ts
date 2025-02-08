@@ -62,8 +62,6 @@ export async function evaluateSession(
         }
       }
 
-      console.log(JSON.stringify(response, null, 2));
-
       // Evaluate tools if expected
       if (step.expected.tools && step.expected.tools.length > 0) {
         stepResult.toolEvaluations = [];

@@ -66,19 +66,23 @@ abstract class AbstractLanguageModel implements LanguageModel {
     const response = (await chain.invoke({ text })) as AIMessage;
     let isFirstTool = true;
 
-    if (response.tool_calls && response.tool_calls.length > 0) {
+    if (
+      response.tool_calls &&
+      response.tool_calls.length > 0 &&
+      !response.content?.toString().trim()
+    ) {
       // eslint-disable-next-line no-loops/no-loops
       for (const toolCall of response.tool_calls) {
-        const { args, name } = toolCall;
+        const { args, name: toolName } = toolCall;
 
         logger.verbose(
-          `invoking tool: ${name} with args: ${JSON.stringify(args)}`,
+          `invoking tool: ${toolName} with args: ${JSON.stringify(args)}`,
           {
             isFirstTool
           }
         );
 
-        switch (name) {
+        switch (toolName) {
           case "hangup":
             await chatHistory.addAIMessage(
               "tool result: call hangup initiated"
@@ -88,11 +92,10 @@ abstract class AbstractLanguageModel implements LanguageModel {
             await chatHistory.addAIMessage(
               "tool result: call transfer initiated"
             );
-
             return { type: "transfer" };
           default:
             if (isFirstTool) {
-              const tool = toolsCatalog.getTool(name);
+              const tool = toolsCatalog.getTool(toolName);
               await this.voice.say(tool?.requestStartMessage ?? "");
             }
 
@@ -100,7 +103,7 @@ abstract class AbstractLanguageModel implements LanguageModel {
               args,
               chatHistory,
               isFirstTool,
-              toolName: name,
+              toolName,
               toolsCatalog
             });
             isFirstTool = false;

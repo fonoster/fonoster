@@ -34,7 +34,7 @@ export async function evalTestCases(
 
   const evaluationReports: SessionEvaluationReport[] = [];
 
-  for (const session of testCases?.sessions!) {
+  for (const session of testCases?.scenarios!) {
     const languageModel = createLanguageModel({
       voice,
       assistantConfig,
