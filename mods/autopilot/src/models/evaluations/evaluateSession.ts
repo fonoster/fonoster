@@ -25,8 +25,6 @@ export async function evaluateSession(
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>
 ): Promise<void> {
   for (const step of session.conversation) {
-    console.log(`User: ${step.userInput}`);
-
     let response;
 
     try {

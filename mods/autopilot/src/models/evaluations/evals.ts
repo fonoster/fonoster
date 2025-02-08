@@ -26,17 +26,10 @@ import { evaluateSession } from "./evaluateSession";
 export async function evalTestCases(
   assistantConfig: AssistantConfig
 ): Promise<void> {
-  if (!assistantConfig.testCases) {
-    console.log("No test cases provided. Skipping evaluation.");
-    return;
-  }
-
   const { testCases } = assistantConfig;
   const voice = {} as Voice;
 
-  for (const session of testCases.sessions!) {
-    console.log(`Evaluating session: ${session.id} - ${session.description}`);
-
+  for (const session of testCases?.sessions!) {
     const languageModel = createLanguageModel({
       voice,
       assistantConfig,
@@ -47,22 +40,16 @@ export async function evalTestCases(
       telephonyContext: session.telephonyContext as TelephonyContext
     });
 
-    console.log(`Evaluating session: ${session.id} - ${session.description}`);
-
     const testTextSimilarity = createTestTextSimilarity(
       {
         provider: assistantConfig.testCases?.evalsLanguageModel?.provider,
-        model: assistantConfig.testCases?.evalsLanguageModel?.model,
+        model: assistantConfig.testCases?.evalsLanguageModel?.model!,
         apiKey: assistantConfig.testCases?.evalsLanguageModel?.apiKey
       },
       assistantConfig.testCases?.evalsSystemPrompt ||
-        "Are Text1 and Text2 somewhat similar? Please respond with 'true' or 'false'."
+        "Are Text1 and Text2 similar? Please respond with 'true' or 'false'."
     );
 
     await evaluateSession(session, languageModel, testTextSimilarity);
-
-    console.log(`Session "${session.id}" evaluation passed.`);
   }
-
-  console.log("All evaluations passed successfully.");
 }
