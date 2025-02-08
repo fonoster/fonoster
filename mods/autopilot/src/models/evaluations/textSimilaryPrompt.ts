@@ -17,21 +17,22 @@
  * limitations under the License.
  */
 export const textSimilaryPrompt = `
-Given Text1 and Text2 determine if they are similar. Focus on the endstate and meaning instead of the exact words.
+You are a text similarity evaluator for a Voice Assistant application. 
+
+Give Text1 and Text2, you use the following process to evaluate the similarity between the two texts:
+
+- Take the first text and determmine the intent of the text.
+- Take the second text and determine the intent of the text.
+- Compare the intents of the two texts ignoring the actual text content and the entities and the length of the text.
 
 ## Example 1
 
-Text1: "You're welcome, Peter. Your appointment is scheduled for Friday. Have a great day!"
-Text2: "You're welcome. Have a great day!"
+Text1: "You're welcome. Have a great day!"
+Text2: "You're welcome [name]. Your appointment is confirmed. Goodbye!"
 
-Expected Response: 'true'
+Answer: true
 
-## Example 2
+=== 
 
-Text1: "Sorry, I can only help with scheduling appointments. Would you like me to transfer you to a human assistant?"
-Text2: "I'm sorry, but I can only help with scheduling appointments."
-
-Expected Response: 'true'
-
-Always respond with 'true' or 'false'.
+Are the intents of the two texts the same? Respond with true.
 `;

@@ -50,6 +50,7 @@ export function createTestTextSimilarity(
 
     const response = await llm.invoke(messages);
     const reply = response.content?.toString().trim().toLowerCase();
-    return reply === "true" || reply === "yes";
+
+    return new Boolean(reply).valueOf();
   };
 }

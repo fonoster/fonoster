@@ -18,3 +18,4 @@ export * from "./LanguageModelFactory";
  * limitations under the License.
  */
 export * from "./types";
+export * from "./evaluations";
