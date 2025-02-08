@@ -22,12 +22,17 @@ import { createLanguageModel } from "../createLanguageModel";
 import { TelephonyContext } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateSession } from "./evaluateSession";
+import { SessionEvaluationReport } from "./types";
 
 export async function evalTestCases(
   assistantConfig: AssistantConfig
-): Promise<void> {
+): Promise<SessionEvaluationReport[]> {
   const { testCases } = assistantConfig;
-  const voice = {} as Voice;
+  const voice = {
+    say: async (_: string) => {}
+  } as Voice;
+
+  const evaluationReports: SessionEvaluationReport[] = [];
 
   for (const session of testCases?.sessions!) {
     const languageModel = createLanguageModel({
@@ -50,6 +55,13 @@ export async function evalTestCases(
         "Are Text1 and Text2 similar? Please respond with 'true' or 'false'."
     );
 
-    await evaluateSession(session, languageModel, testTextSimilarity);
+    const evaluationReport = await evaluateSession(
+      session,
+      languageModel,
+      testTextSimilarity
+    );
+    evaluationReports.push(evaluationReport);
   }
+
+  return evaluationReports;
 }

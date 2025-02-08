@@ -64,7 +64,7 @@ abstract class AbstractLanguageModel implements LanguageModel {
   async invoke(text: string): Promise<InvocationResult> {
     const { chain, chatHistory, toolsCatalog } = this;
     const response = (await chain.invoke({ text })) as AIMessage;
-    let firstInvocation = true;
+    let isFirstTool = true;
 
     if (response.tool_calls && response.tool_calls.length > 0) {
       // eslint-disable-next-line no-loops/no-loops
@@ -74,7 +74,7 @@ abstract class AbstractLanguageModel implements LanguageModel {
         logger.verbose(
           `invoking tool: ${name} with args: ${JSON.stringify(args)}`,
           {
-            firstInvocation
+            isFirstTool
           }
         );
 
@@ -91,20 +91,24 @@ abstract class AbstractLanguageModel implements LanguageModel {
 
             return { type: "transfer" };
           default:
+            if (isFirstTool) {
+              const tool = toolsCatalog.getTool(name);
+              await this.voice.say(tool?.requestStartMessage ?? "");
+            }
+
             await toolInvocation({
               args,
               chatHistory,
-              firstInvocation,
+              isFirstTool,
               toolName: name,
-              toolsCatalog,
-              voice: this.voice
+              toolsCatalog
             });
-            firstInvocation = false;
+            isFirstTool = false;
         }
       }
 
       const finalResponse = (await chain.invoke({
-        text: "Please provide a final response based on the tool's results."
+        text: "Look at the tool calls and provide a final response based on the tool's results."
       })) as AIMessage;
 
       response.content = finalResponse.content ?? "";
@@ -117,7 +121,8 @@ abstract class AbstractLanguageModel implements LanguageModel {
 
     return {
       type: "say",
-      content: response.content.toString()
+      content: response.content.toString(),
+      toolCalls: response.tool_calls
     };
   }
 }

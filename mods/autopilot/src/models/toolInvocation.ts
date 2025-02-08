@@ -27,19 +27,16 @@ async function toolInvocation(params: {
   toolName: string;
   chatHistory: ReturnType<typeof createChatHistory>;
   toolsCatalog: ToolsCatalog;
-  firstInvocation: boolean;
+  isFirstTool: boolean;
   args: Record<string, unknown>;
-  voice: Voice;
 }): Promise<void> {
-  const { firstInvocation, voice, args, toolName, chatHistory, toolsCatalog } =
-    params;
+  const { isFirstTool, args, toolName, chatHistory, toolsCatalog } = params;
 
   try {
-    if (firstInvocation) {
+    if (isFirstTool) {
       const tool = toolsCatalog.getTool(toolName);
       const message = tool?.requestStartMessage ?? "";
       if (message) {
-        await voice.say(message);
         await chatHistory.addAIMessage(message);
       }
     }

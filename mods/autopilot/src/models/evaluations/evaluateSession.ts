@@ -17,79 +17,126 @@
  * limitations under the License.
  */
 import { LanguageModel } from "../types";
-import { ExpectedTextType } from "./types";
+import {
+  ExpectedTextType,
+  SessionEvaluationReport,
+  StepEvaluationReport,
+  ToolEvaluationReport
+} from "./types";
 
 export async function evaluateSession(
   session: any,
   languageModel: LanguageModel,
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>
-): Promise<void> {
-  for (const step of session.conversation) {
-    let response;
+): Promise<SessionEvaluationReport> {
+  const results: StepEvaluationReport[] = [];
 
+  for (const step of session.conversation) {
+    const stepResult: StepEvaluationReport = {
+      humanInput: step.userInput,
+      expectedResponse: step.expected.text.response,
+      aiResponse: "", // will be filled if invoke is successful
+      evaluationType: step.expected.text.type,
+      passed: true
+    };
+
+    let response;
     try {
       response = await languageModel.invoke(step.userInput);
-    } catch (error) {
-      throw new Error(
-        `Language model error for input "${step.userInput}": ${error}`
-      );
-    }
+      stepResult.aiResponse = response.content;
 
-    const expectedText = step.expected.text.response;
-    const expectedType = step.expected.text.type;
-
-    if (expectedType === ExpectedTextType.EXACT) {
-      if (response.content !== expectedText) {
-        throw new Error(
-          `Session "${session.id}" failed at input "${step.userInput}". Expected exact response "${expectedText}", but got "${response.text}".`
-        );
-      }
-    } else if (expectedType === ExpectedTextType.SIMILAR) {
-      const isSimilar = await testTextSimilarity(
-        expectedText,
-        response.content
-      );
-
-      if (!isSimilar) {
-        throw new Error(
-          `Session "${session.id}" failed at input "${step.userInput}". Expected an similar response to "${expectedText}", but got "${response.text}".`
-        );
-      }
-    }
-
-    if (step.expected.functions && step.expected.functions.length > 0) {
-      if (
-        !response.functions ||
-        response.functions.length !== step.expected.functions.length
-      ) {
-        throw new Error(
-          `Session "${session.id}" failed at input "${step.userInput}". Expected ${step.expected.functions.length} function(s), but got ${
-            response.functions ? response.functions.length : 0
-          }.`
-        );
-      }
-
-      for (let i = 0; i < step.expected.functions.length; i++) {
-        const expectedFunc = step.expected.functions[i];
-        const actualFunc = response.functions[i];
-
-        if (actualFunc.tool !== expectedFunc.tool) {
-          throw new Error(
-            `Session "${session.id}" failed at input "${step.userInput}". Expected function tool "${expectedFunc.tool}" but got "${actualFunc.tool}".`
-          );
+      if (step.expected.text.type === ExpectedTextType.EXACT) {
+        if (response.content !== step.expected.text.response) {
+          stepResult.passed = false;
+          stepResult.errorMessage = `Expected exact response "${step.expected.text.response}", but got "${response.content}".`;
         }
+      } else if (step.expected.text.type === ExpectedTextType.SIMILAR) {
+        const isSimilar = await testTextSimilarity(
+          step.expected.text.response,
+          response.content
+        );
+
+        if (!isSimilar) {
+          stepResult.passed = false;
+          stepResult.errorMessage = `Expected similar response to "${step.expected.text.response}", but got "${response.content}".`;
+        }
+      }
+
+      console.log(JSON.stringify(response, null, 2));
+
+      // Evaluate tools if expected
+      if (step.expected.tools && step.expected.tools.length > 0) {
+        stepResult.toolEvaluations = [];
 
         if (
-          JSON.stringify(actualFunc.parameters) !==
-          JSON.stringify(expectedFunc.parameters)
+          !response.toolCalls ||
+          response.toolCalls.length !== step.expected.tools.length
         ) {
-          throw new Error(
-            `Session "${session.id}" failed at input "${step.userInput}". Expected parameters ${JSON.stringify(
-              expectedFunc.parameters
-            )}, but got ${JSON.stringify(actualFunc.parameters)}.`
-          );
+          stepResult.passed = false;
+          stepResult.toolEvaluations.push({
+            expectedTool: "", // no specific tool comparison possible
+            actualTool: "",
+            passed: false,
+            expectedParameters: undefined,
+            actualParameters: response.toolCalls
+              ? response.toolCalls.length
+              : 0,
+            errorMessage: `Expected ${step.expected.tools.length} tool invocation(s), but got ${
+              response.toolCalls ? response.toolCalls.length : 0
+            }.`
+          });
+        } else {
+          for (let i = 0; i < step.expected.tools.length; i++) {
+            const expectedTool = step.expected.tools[i];
+            const actualCall = response.toolCalls[i];
+            const toolResult: ToolEvaluationReport = {
+              expectedTool: expectedTool.tool,
+              actualTool: actualCall.name,
+              passed: true,
+              expectedParameters: expectedTool.parameters,
+              actualParameters: actualCall.args
+            };
+
+            if (actualCall.name !== expectedTool.tool) {
+              toolResult.passed = false;
+              toolResult.errorMessage = `Expected tool "${expectedTool.tool}" but got "${actualCall.name}".`;
+              stepResult.passed = false;
+            }
+
+            // Check only the keys in the expected parameters list
+            const expectedParams = expectedTool.parameters || {};
+            const actualParams = actualCall.args || {};
+
+            for (const key of Object.keys(expectedParams)) {
+              if (actualParams[key] !== expectedParams[key]) {
+                toolResult.passed = false;
+                const msg = `Expected parameter "${key}" to have value ${JSON.stringify(
+                  expectedParams[key]
+                )}, but got ${JSON.stringify(actualParams[key])}.`;
+                toolResult.errorMessage = toolResult.errorMessage
+                  ? toolResult.errorMessage + " " + msg
+                  : msg;
+                stepResult.passed = false;
+              }
+            }
+
+            stepResult.toolEvaluations.push(toolResult);
+          }
         }
       }
+    } catch (error) {
+      stepResult.passed = false;
+      stepResult.errorMessage = `Language model error for input "${step.userInput}": ${error}`;
     }
+
+    results.push(stepResult);
   }
+
+  const overallPassed = results.every((step) => step.passed);
+
+  return {
+    sessionId: session.id,
+    overallPassed,
+    steps: results
+  };
 }

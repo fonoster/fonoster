@@ -47,7 +47,7 @@ const testCasesSchema = z.object({
               type: z.enum(["exact", "similar"]),
               response: z.string()
             }),
-            functions: z
+            tools: z
               .array(
                 z.object({
                   tool: z.string(),

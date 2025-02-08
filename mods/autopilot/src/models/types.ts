@@ -20,6 +20,7 @@ import { CallDirection } from "@fonoster/types";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { KnowledgeBase } from "../knowledge";
 import { Tool } from "../tools/type";
+import { ToolCall } from "@langchain/core/dist/messages/tool";
 
 type LanguageModel = {
   invoke: (text: string) => Promise<InvocationResult>;
@@ -40,6 +41,7 @@ type LanguageModelParams = BaseModelParams & {
 type InvocationResult = {
   type: "say" | "hangup" | "transfer";
   content?: string;
+  toolCalls?: ToolCall[];
 };
 
 type TelephonyContext = {

@@ -21,4 +21,34 @@ enum ExpectedTextType {
   SIMILAR = "similar"
 }
 
-export { ExpectedTextType };
+type SessionEvaluationReport = {
+  sessionId: string;
+  overallPassed: boolean;
+  steps: StepEvaluationReport[];
+};
+
+type StepEvaluationReport = {
+  humanInput: string;
+  expectedResponse: string;
+  aiResponse: string;
+  evaluationType: ExpectedTextType;
+  passed: boolean;
+  errorMessage?: string;
+  toolEvaluations?: ToolEvaluationReport[];
+};
+
+type ToolEvaluationReport = {
+  expectedTool: string;
+  actualTool: string;
+  passed: boolean;
+  expectedParameters?: Record<string, unknown>;
+  actualParameters?: Record<string, unknown>;
+  errorMessage?: string;
+};
+
+export {
+  ExpectedTextType,
+  SessionEvaluationReport,
+  StepEvaluationReport,
+  ToolEvaluationReport
+};
