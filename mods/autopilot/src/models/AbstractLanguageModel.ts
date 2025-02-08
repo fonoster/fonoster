@@ -90,12 +90,20 @@ abstract class AbstractLanguageModel implements LanguageModel {
             await chatHistory.addAIMessage(
               "tool result: call hangup initiated"
             );
-            return { type: "hangup" };
+            return {
+              type: "hangup",
+              content: "tool result: call hangup initiated",
+              toolCalls: response.tool_calls
+            };
           case "transfer":
             await chatHistory.addAIMessage(
               "tool result: call transfer initiated"
             );
-            return { type: "transfer" };
+            return {
+              type: "transfer",
+              content: "tool result: call transfer initiated",
+              toolCalls: response.tool_calls
+            };
           default:
             if (isFirstTool) {
               const tool = toolsCatalog.getTool(toolName);

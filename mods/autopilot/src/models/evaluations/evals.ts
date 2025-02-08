@@ -21,20 +21,21 @@ import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
 import { TelephonyContext } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
-import { evaluateSession } from "./evaluateSession";
-import { SessionEvaluationReport } from "./types";
+import { evaluateScenario } from "./evaluateScenario";
+import { textSimilaryPrompt } from "./textSimilaryPrompt";
+import { ScenarioEvaluationReport } from "./types";
 
 export async function evalTestCases(
   assistantConfig: AssistantConfig
-): Promise<SessionEvaluationReport[]> {
+): Promise<ScenarioEvaluationReport[]> {
   const { testCases } = assistantConfig;
   const voice = {
     say: async (_: string) => {}
   } as Voice;
 
-  const evaluationReports: SessionEvaluationReport[] = [];
+  const evaluationReports: ScenarioEvaluationReport[] = [];
 
-  for (const session of testCases?.scenarios!) {
+  for (const scenario of testCases?.scenarios!) {
     const languageModel = createLanguageModel({
       voice,
       assistantConfig,
@@ -42,7 +43,7 @@ export async function evalTestCases(
         load: async () => {},
         queryKnowledgeBase: async (query: string, k?: number) => query
       },
-      telephonyContext: session.telephonyContext as TelephonyContext
+      telephonyContext: scenario.telephonyContext as TelephonyContext
     });
 
     const testTextSimilarity = createTestTextSimilarity(
@@ -51,15 +52,15 @@ export async function evalTestCases(
         model: assistantConfig.testCases?.evalsLanguageModel?.model!,
         apiKey: assistantConfig.testCases?.evalsLanguageModel?.apiKey
       },
-      assistantConfig.testCases?.evalsSystemPrompt ||
-        "Are Text1 and Text2 similar? Please respond with 'true' or 'false'."
+      assistantConfig.testCases?.evalsSystemPrompt || textSimilaryPrompt
     );
 
-    const evaluationReport = await evaluateSession(
-      session,
+    const evaluationReport = await evaluateScenario({
+      assistantConfig,
+      scenario,
       languageModel,
       testTextSimilarity
-    );
+    });
     evaluationReports.push(evaluationReport);
   }
 

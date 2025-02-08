@@ -20,7 +20,7 @@ import { CallDirection } from "@fonoster/types";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { KnowledgeBase } from "../knowledge";
 import { Tool } from "../tools/type";
-import { ToolCall } from "@langchain/core/dist/messages/tool";
+import { ToolCall } from "@langchain/core/messages/tool";
 
 type LanguageModel = {
   invoke: (text: string) => Promise<InvocationResult>;

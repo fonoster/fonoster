@@ -16,13 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AssistantConfig } from "../../assistants";
+import { LanguageModel } from "../types";
+
 enum ExpectedTextType {
   EXACT = "exact",
   SIMILAR = "similar"
 }
 
-type SessionEvaluationReport = {
-  sessionId: string;
+type ScenarioEvaluationReport = {
+  scenarioRef: string;
   overallPassed: boolean;
   steps: StepEvaluationReport[];
 };
@@ -37,6 +40,13 @@ type StepEvaluationReport = {
   toolEvaluations?: ToolEvaluationReport[];
 };
 
+type EvaluateStepParams = {
+  step: any;
+  languageModel: LanguageModel;
+  testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
+  assistantConfig: AssistantConfig;
+};
+
 type ToolEvaluationReport = {
   expectedTool: string;
   actualTool: string;
@@ -46,9 +56,18 @@ type ToolEvaluationReport = {
   errorMessage?: string;
 };
 
+type ScenarioEvaluationConfig = {
+  assistantConfig: AssistantConfig;
+  scenario: any;
+  languageModel: LanguageModel;
+  testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
+};
+
 export {
   ExpectedTextType,
-  SessionEvaluationReport,
+  ScenarioEvaluationReport,
   StepEvaluationReport,
-  ToolEvaluationReport
+  ToolEvaluationReport,
+  ScenarioEvaluationConfig,
+  EvaluateStepParams
 };
