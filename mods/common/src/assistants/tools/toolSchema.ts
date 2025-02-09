@@ -19,7 +19,7 @@
 import { z } from "zod";
 import { propertySchema } from "./propertySchema";
 import * as Messages from "../../messages";
-import { AllowedOperations } from "./AllowedOperations";
+import { AllowedMethods } from "./AllowedMethods";
 
 const toolSchema = z.object({
   name: z.string(),
@@ -32,21 +32,12 @@ const toolSchema = z.object({
   requestStartMessage: z.string().optional(),
   operation: z
     .object({
-      type: z.nativeEnum(AllowedOperations, {
-        message: "Invalid operation type"
+      method: z.nativeEnum(AllowedMethods, {
+        message: "Invalid method"
       }),
-      // Make url required if operation type is not built-in
-      url: z.string().url({ message: Messages.VALID_URL }).optional(),
+      url: z.string().url({ message: Messages.VALID_URL }),
       waitForResponse: z.boolean().optional(),
       headers: z.record(z.string()).optional()
-    })
-    .superRefine(({ url, type }, ctx: z.RefinementCtx) => {
-      if (type !== AllowedOperations.BUILT_IN && !url) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Url is required for non built-in operations."
-        });
-      }
     })
 });
 

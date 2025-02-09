@@ -16,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum AllowedOperations {
+enum AllowedMethods {
   GET = "get",
   POST = "post",
-  BUILT_IN = "built-in"
 }
 
-export { AllowedOperations };
+export { AllowedMethods };

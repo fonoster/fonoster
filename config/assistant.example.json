@@ -46,7 +46,7 @@
         },
         "requestStartMessage": "Please wait a moment.",
         "operation": {
-          "type": "get",
+          "method": "get",
           "url": "https://api.example.com/getAvailableTimes",
           "waitForResponse": true
         }
