@@ -30,3 +30,4 @@ export * from "./withValidation";
 export * from "./types";
 export * from "./createFetchSingleCallByCallId";
 export * from "./findIntegrationsCredentials";
+export * from "./sendHttpRequest";

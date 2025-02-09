@@ -16,19 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AllowedOperations } from "../ToolSchema";
-import { Tool } from "../type";
+import { BuiltInTool } from "../type";
 
-const transferToolDefinition: Tool = {
+const transferToolDefinition: BuiltInTool = {
   name: "transfer",
   description: "Transfer the call to a live agent",
   parameters: {
     type: "object",
     properties: {},
     required: []
-  },
-  operation: {
-    type: AllowedOperations.BUILT_IN
   }
 };
 

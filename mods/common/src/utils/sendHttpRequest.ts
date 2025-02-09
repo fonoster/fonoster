@@ -18,7 +18,6 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
-import { AllowedOperations } from "./ToolSchema";
 
 const responseSchema = z.object({
   result: z.string()
@@ -26,14 +25,20 @@ const responseSchema = z.object({
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-async function sendRequest(input: {
-  method: AllowedOperations;
+enum AllowedHttpMethod {
+  GET = "get",
+  POST = "post"
+}
+
+async function sendHttpRequest(params: {
+  method: AllowedHttpMethod;
   url: string;
   waitForResponse: boolean;
   headers?: Record<string, string>;
   body?: Record<string, unknown>;
 }): Promise<{ result: string }> {
-  const { url, method, body, headers, waitForResponse } = input;
+  const { url, method, body, headers, waitForResponse } = params;
+  const effectiveMethod = method.toLowerCase() as "get" | "post";
 
   const options = {
     method,
@@ -41,12 +46,15 @@ async function sendRequest(input: {
       "Content-Type": "application/json",
       ...headers
     },
-    body: method === AllowedOperations.POST ? JSON.stringify(body) : undefined
+    body: effectiveMethod === "post" ? JSON.stringify(body) : undefined
   };
 
-  logger.verbose(`sending request to ${url}`, { body, method });
+  logger.verbose(`sending request to ${url}`, {
+    body,
+    method: effectiveMethod
+  });
 
-  if (waitForResponse && method === AllowedOperations.POST) {
+  if (waitForResponse && effectiveMethod === "post") {
     setTimeout(() => fetch(url, options), 0);
     return { result: "request sent" };
   } else {
@@ -54,7 +62,7 @@ async function sendRequest(input: {
     const data = await response.json();
 
     try {
-      return responseSchema.parse(data);
+      return responseSchema.parse(data) as { result: string };
     } catch (error) {
       throw new Error(
         `Invalid response: expected ${JSON.stringify(responseSchema, null, 2)}, got ${JSON.stringify(data, null, 2)}`
@@ -63,4 +71,4 @@ async function sendRequest(input: {
   }
 }
 
-export { sendRequest };
+export { sendHttpRequest, AllowedHttpMethod };

@@ -17,16 +17,27 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { conversationSettingsSchema } from "./conversationSettingsSchema";
-import { languageModelConfigSchema } from "./languageModelConfigSchema";
-import { testCasesSchema } from "./testCasesSchema";
-import { eventsHookSchema } from "./eventsHookSchema";
+import { AllowedHttpMethod } from "../utils/sendHttpRequest";
+import * as Messages from "../messages";
 
-const assistantSchema = z.object({
-  conversationSettings: conversationSettingsSchema,
-  languageModel: languageModelConfigSchema,
-  eventsHook: eventsHookSchema.optional(),
-  testCases: testCasesSchema.optional()
+enum EventsHookAllowedEvents {
+  ALL = "all",
+  CONVERSATION_STARTED = "conversation.started",
+  CONVERSATION_ENDED = "conversation.ended"
+}
+
+const eventsHookSchema = z.object({
+  url: z.string().url({ message: Messages.VALID_URL }),
+  method: z
+    .nativeEnum(AllowedHttpMethod, {
+      message: "Invalid method"
+    })
+    .default(AllowedHttpMethod.GET),
+  headers: z.record(z.string()).optional(),
+  events: z
+    .array(z.nativeEnum(EventsHookAllowedEvents))
+    .min(1)
+    .default([EventsHookAllowedEvents.ALL])
 });
 
-export { assistantSchema };
+export { eventsHookSchema, EventsHookAllowedEvents };

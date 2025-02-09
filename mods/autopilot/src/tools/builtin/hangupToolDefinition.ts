@@ -16,19 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AllowedOperations } from "../ToolSchema";
-import { Tool } from "../type";
+import { BuiltInTool } from "../type";
 
-const hangupToolDefinition: Tool = {
+const hangupToolDefinition: BuiltInTool = {
   name: "hangup",
   description: "Hangup the call and end the conversation",
   parameters: {
     type: "object",
     properties: {},
     required: []
-  },
-  operation: {
-    type: AllowedOperations.BUILT_IN
   }
 };
 

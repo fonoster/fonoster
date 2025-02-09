@@ -141,6 +141,10 @@ abstract class AbstractLanguageModel implements LanguageModel {
       toolCalls: response.tool_calls
     };
   }
+
+  async getChatHistoryMessages() {
+    return this.chatHistory.getMessages();
+  }
 }
 
 export { AbstractLanguageModel };

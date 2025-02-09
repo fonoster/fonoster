@@ -19,7 +19,7 @@
 import { z } from "zod";
 import { propertySchema } from "./propertySchema";
 import * as Messages from "../../messages";
-import { AllowedMethods } from "./AllowedMethods";
+import { AllowedHttpMethod } from "../../utils/sendHttpRequest";
 
 const toolSchema = z.object({
   name: z.string(),
@@ -31,11 +31,13 @@ const toolSchema = z.object({
   }),
   requestStartMessage: z.string().optional(),
   operation: z.object({
-    method: z.nativeEnum(AllowedMethods, {
-      message: "Invalid method"
-    }),
+    method: z
+      .nativeEnum(AllowedHttpMethod, {
+        message: "Invalid method"
+      })
+      .default(AllowedHttpMethod.GET),
     url: z.string().url({ message: Messages.VALID_URL }),
-    waitForResponse: z.boolean().optional(),
+    waitForResponse: z.boolean().default(true),
     headers: z.record(z.string()).optional()
   })
 });
