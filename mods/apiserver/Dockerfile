@@ -7,7 +7,7 @@ LABEL team="Fonoster Team <team@fonoster.com>"
 WORKDIR /work
 COPY . .
 
-ENV DOCKERIZE_VERSION v0.7.0
+ENV DOCKERIZE_VERSION=v0.7.0
 
 RUN apk add --no-cache --update git \
   && npm install \

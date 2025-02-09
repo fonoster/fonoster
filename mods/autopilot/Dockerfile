@@ -14,7 +14,7 @@ RUN npm rebuild
 ##
 FROM node:20-slim
 
-ENV ASSISTANT /opt/fonoster/assistant.json
+ENV ASSISTANT=/opt/fonoster/assistant.json
 
 RUN groupadd -r appuser && useradd -r -g appuser -m -d /home/appuser appuser
 
