@@ -23,7 +23,7 @@ Give Text1 and Text2, you use the following process to evaluate the similarity b
 
 - Take the first text and determmine the intent of the text.
 - Take the second text and determine the intent of the text.
-- Compare the intents of the two texts ignoring the actual text content and the entities and the length of the text.
+- Compare the intents of the two texts ignoring the actual text content, the entities, and length of the text.
 
 ## Example 1
 

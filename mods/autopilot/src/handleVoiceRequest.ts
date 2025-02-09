@@ -41,7 +41,14 @@ import fs from "fs";
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
-  const { accessKeyId, ingressNumber, sessionRef, appRef, callDirection } = req;
+  const {
+    accessKeyId,
+    callerNumber,
+    ingressNumber,
+    sessionRef,
+    appRef,
+    callDirection
+  } = req;
 
   logger.verbose("voice request", {
     accessKeyId,
@@ -86,8 +93,6 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   });
 
   const voice = new VoiceImpl(sessionRef, res);
-
-  const { ingressNumber, callerNumber, callDirection } = req;
 
   const languageModel = createLanguageModel({
     voice,
