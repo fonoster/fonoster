@@ -16,7 +16,7 @@
     "build": "tsc -b tsconfig.json",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
     "postpack": "rimraf oclif.manifest.json",
-    "prepack": "oclif manifest && generate:readme",
+    "prepack": "oclif manifest && npm run generate:readme",
     "generate:readme": "oclif readme && git add README.md && git commit -m 'chore: update CLI readme' || true"
   },
   "files": [
@@ -32,7 +32,7 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
+  "gitHead": "3af6123a7fe16652f8cb3e30574b4a9e3700bff6",
   "bin": {
     "fonoster": "./bin/run.js"
   },
