@@ -16,7 +16,7 @@
     "build": "tsc -b tsconfig.json",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
     "postpack": "rimraf oclif.manifest.json",
-    "prepack": "oclif manifest && oclif readme",
+    "prepack": "oclif manifest && oclif readme && git add README.md",
     "generate:readme": "oclif readme"
   },
   "files": [
