@@ -7,7 +7,7 @@ description: 'Voice applications powered by LLMs.'
   The Autopilot is currently in overview mode and only available via the SDK, and the KnowledgeBase features have been disabled.
 </Note>
 
-Fonoster's Autopilot is a component within the platform that allows you to create powerful conversational experiences. It is built on top of Fonoster [Programmable Voice](./programmable-voice) and uses the latest advances in large language models (LLMs) to provide a natural and engaging experience.
+Fonoster's Autopilot is a component within the platform that allows you to create powerful conversational experiences. It is built on top of Fonoster [Programmable Voice](./programmable-voice) and uses the latest advances in Large Language Models (LLMs) to provide a natural and engaging experience.
 
 ## Overview
 
@@ -67,78 +67,78 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
 
 Please note that you must install the `js-yaml` and the `@fonoster/sdk` dependencies in your Node.JS project.
 
-Once you create the application, you can use the _updateApplication_ function instead of _createApplication_ to quickly iterate over your Autopilot.
+Once you create the application, you can use the *updateApplication* function instead of *createApplication* to quickly iterate over your Autopilot.
 
 ## General configuration
 
-The Autopilot configuration is divided into a general section and three sub-sections: _speechToText_, _textToSpeech_, and _intelligence_.
+The Autopilot configuration is divided into a general section and three sub-sections: *speechToText*, *textToSpeech*, and *intelligence*.
 
-The general section contains _name_, _type_, and _endpoint_ properties.
+The general section contains *name*, *type*, and *endpoint* properties.
 
-The _name_ property is the name of the Autopilot application. The _type_ property is the type of the application, which should always be set to `AUTOPILOT`. The _endpoint_ is an optional property allowing you to specify the endpoint for self-hosted Autopilots.
+The *name* property is the name of the Autopilot application. The *type* property is the type of the application, which should always be set to `AUTOPILOT`. The *endpoint* is an optional property allowing you to specify the endpoint for self-hosted Autopilots.
 
 ## Speech settings
 
-Autopilot applications support a variety of speech-to-text and text-to-speech vendors. The _speechToText_ and _textToSpeech_ objects allow you to define the speech-to-text and text-to-speech engines to use.
+Autopilot applications support a variety of speech-to-text and text-to-speech vendors. The *speechToText* and *textToSpeech* objects allow you to define the speech-to-text and text-to-speech engines to use.
 
-You can mix and match vendors to suit your needs. For example, you can use _Deepgram_ for speech-to-text and Google for text-to-speech. Please check the [Speech Vendors](./speech-vendors) section for more information on configuring speech-to-text and text-to-speech.
+You can mix and match vendors to suit your needs. For example, you can use *Deepgram* for speech-to-text and Google for text-to-speech. Please check the [Speech Vendors](./speech-vendors) section for more information on configuring speech-to-text and text-to-speech.
 
 ## Conversational settings
 
-The _conversationSettings_ object allows you to define the Autopilot's conversational behavior. The conversation settings are independent of the language model used.
+The *conversationSettings* object allows you to define the Autopilot's conversational behavior. The conversation settings are independent of the language model used.
 
 The following is a list of the supported settings:
 
-| Setting                     | Description                                                                                                               |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| firstMessage                | The first message the Autopilot will say when the conversation starts                                                     |
-| systemTemplate              | A template that describes the role of the Autopilot. This is used to set the context of the conversation                  |
-| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                                   |
-| maxSessionDuration          | The maximum time in milliseconds the conversation can last. Default to `30 x 60 x 1000 ms` (30 minutes)                   |
+| Setting                     | Description                                                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| firstMessage                | The first message the Autopilot will say when the conversation starts                                                    |
+| systemPrompt                | A prompt that describes the behavior of the Autopilot and sets the context of the conversation                           |
+| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                                  |
+| maxSessionDuration          | The maximum time in milliseconds the conversation can last. Default to `30 x 60 x 1000 ms` (30 minutes)                  |
 | maxSpeechWaitTimeout        | The maximum time in milliseconds to wait for the caller before returning the speech-to-text result. Default to `5000 ms` |
-| initialDtmf                 | A DTMF to play when the conversation starts                                                                               |
-| transferOptions             | The options to transfer the call to a live agent                                                                          |
-| transferOptions.phoneNumber | The phone number to transfer the call to                                                                                  |
-| transferOptions.message     | The message to play before transferring the call                                                                          |
-| transferOptions.timeout     | The time in milliseconds to wait before hanging up the call if the transfer is incomplete. Default to `30000 ms`       |
-| idleOptions                 | The options to handle idle time during the conversation                                                                   |
-| idleOptions.message         | The message to play after the idle time is reached                                                                        |
-| idleOptions.timeout         | The time in milliseconds to wait before playing the idle message. Defaults to `10000 ms`                                  |
-| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                                    |
-| vad                         | The voice activity detection settings                                                                                     |
-| vad.activationThreshold     | The activation threshold for the voice activity detection. Default to `0.3`                                               |
-| vad.deactivationThreshold   | The deactivation threshold for the voice activity detection. Default to `0.25`                                            |
-| vad.debounceFrames          | The number of frames to debounce the voice activity detection. Default to `3`                                             |
+| initialDtmf                 | A DTMF to play when the conversation starts                                                                              |
+| transferOptions             | The options to transfer the call to a live agent                                                                         |
+| transferOptions.phoneNumber | The phone number to transfer the call to                                                                                 |
+| transferOptions.message     | The message to play before transferring the call                                                                         |
+| transferOptions.timeout     | The time in milliseconds to wait before hanging up the call if the transfer is incomplete. Default to `30000 ms`         |
+| idleOptions                 | The options to handle idle time during the conversation                                                                  |
+| idleOptions.message         | The message to play after the idle time is reached                                                                       |
+| idleOptions.timeout         | The time in milliseconds to wait before playing the idle message. Defaults to `10000 ms`                                 |
+| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                                   |
+| vad                         | The voice activity detection settings                                                                                    |
+| vad.activationThreshold     | The activation threshold for the voice activity detection. Default to `0.3`                                              |
+| vad.deactivationThreshold   | The deactivation threshold for the voice activity detection. Default to `0.25`                                           |
+| vad.debounceFrames          | The number of frames to debounce the voice activity detection. Default to `3`                                            |
 
 A few noteworthy settings include the *maxSpeechWaitTimeout*, *initialDtmf*, *idleOptions*, and *vad*.
 
 ### Max Speech Wait Timeout
 
-The _maxSpeechWaitTimeout_ property allows you to specify the maximum time in milliseconds to wait for the caller before returning the speech-to-text result. If the caller does not speak within the specified time, the speech-to-text engine will return the result.
+The *maxSpeechWaitTimeout* property allows you to specify the maximum time in milliseconds to wait for the caller before returning the speech-to-text result. If the caller does not speak within the specified time, the speech-to-text engine will return the result.
 
 A value that is too low may result in the speech-to-text engine returning the result before the caller finishes speaking. A value that is too high may result in the speech-to-text engine waiting too long for the caller to speak.
 
 ### Initial DTMF
 
-Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a Dual-tone multi-frequency (DTMF) to be played before connecting the call. The _initialDtmf_ property allows you to specify a DTMF to play when the session starts.
+Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a Dual-tone multi-frequency (DTMF) to be played before connecting the call. The *initialDtmf* property allows you to specify a DTMF to play when the session starts.
 
 ### Voice Activity Detection (VAD)
 
 The *vad* object allows you to configure the voice activity detection settings. Voice activity detection is used to detect when the caller is speaking and when they are not speaking.
 
-The _vad_ object has the _activationThreshold_, _deactivationThreshold_, _debounceFrames_ properties. The _actionThreshold_ property is the activation threshold for voice activity detection. The _deactivationThreshold_ property is the deactivation threshold for voice activity detection. The _debounceFrames_ property is the number of frames to debounce the voice activity detection.
+The *vad* object has the *activationThreshold*, *deactivationThreshold*, *debounceFrames* properties. The *actionThreshold* property is the activation threshold for voice activity detection. The *deactivationThreshold* property is the deactivation threshold for voice activity detection. The *debounceFrames* property is the number of frames to debounce the voice activity detection.
 
 A lower activation threshold will make the detection more sensitive to the caller's speech. A higher activation threshold will make detecting voice activity less sensitive to the caller's speech.
 
 A lower deactivation threshold will result in more aggressive voice activity detection deactivation. A higher deactivation threshold will result in less aggressive voice activity detection deactivation.
 
-The _debounceFrames_ parameter introduces a delay mechanism that ensures that transitions between "speech" and "non-speech" states are stable and not too sensitive to small fluctuations in the input audio signal. Here's how it works:
+The *debounceFrames* parameter introduces a delay mechanism that ensures that transitions between "speech" and "non-speech" states are stable and not too sensitive to small fluctuations in the input audio signal. Here's how it works:
 
 By requiring multiple consecutive frames (debounceFrames) to confirm speech or non-speech, the system filters out short bursts of noise or brief gaps in speech that might otherwise cause erratic state changes.
 
 ## Langue model configuration
 
-The _languageModel_ object allows you to define the language model the Autopilot uses. The language model is responsible for generating responses to the user's input.
+The *languageModel* object allows you to define the language model the Autopilot uses. The language model is responsible for generating responses to the user's input.
 
 The following is a list of the supported settings:
 
@@ -162,7 +162,7 @@ The Autopilot supports multiple language model providers. The following is a lis
 | Ollama   | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                                     |
 
 <Info>
-We have noticed that Groq models, particularly `llama-3.3-70b-versatile`, often require greater prompting specificity for effective tool usage. We will share best practices to ensure more consistent behavior as we gain more insights
+  We have noticed that Groq models, particularly `llama-3.3-70b-versatile`, often require greater prompting specificity for effective tool usage. We will share best practices to ensure more consistent behavior as we gain more insights
 </Info>
 
 ### Knowledge bases
