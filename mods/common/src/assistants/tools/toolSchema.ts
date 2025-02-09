@@ -30,15 +30,14 @@ const toolSchema = z.object({
     required: z.array(z.string()).optional()
   }),
   requestStartMessage: z.string().optional(),
-  operation: z
-    .object({
-      method: z.nativeEnum(AllowedMethods, {
-        message: "Invalid method"
-      }),
-      url: z.string().url({ message: Messages.VALID_URL }),
-      waitForResponse: z.boolean().optional(),
-      headers: z.record(z.string()).optional()
-    })
+  operation: z.object({
+    method: z.nativeEnum(AllowedMethods, {
+      message: "Invalid method"
+    }),
+    url: z.string().url({ message: Messages.VALID_URL }),
+    waitForResponse: z.boolean().optional(),
+    headers: z.record(z.string()).optional()
+  })
 });
 
 export { toolSchema };

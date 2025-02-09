@@ -18,7 +18,7 @@
  */
 enum AllowedMethods {
   GET = "get",
-  POST = "post",
+  POST = "post"
 }
 
 export { AllowedMethods };
