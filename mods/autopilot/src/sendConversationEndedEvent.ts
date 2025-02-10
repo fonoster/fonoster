@@ -51,7 +51,7 @@ export async function sendConversationEndedEvent(
 
   try {
     await sendHttpRequest({
-      url: parsedEventsHook.url,
+      url: parsedEventsHook.url!,
       method: AllowedHttpMethod.POST,
       headers: parsedEventsHook.headers,
       waitForResponse: false,
