@@ -61,7 +61,7 @@ const client = new SDK.Client({ accessKeyId: "WO00000000000000000000000000000000
 const appConfig = yaml.load(fs.readFileSync("./appConfig.yaml", "utf8"));
 
 client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
-  .then(() => (new SDK.Applications(client)).updateApplication(appConfig))
+  .then(() => (new SDK.Applications(client)).createApplication(appConfig))
   .catch(console.error);
 ```
 
