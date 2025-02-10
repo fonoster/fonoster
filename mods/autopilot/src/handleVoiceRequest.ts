@@ -122,10 +122,6 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
 
     const rawChatHistory = await languageModel.getChatHistoryMessages();
     const chatHistory = rawChatHistory
-      .filter(
-        (msg: BaseMessage) =>
-          !msg.content?.toString().startsWith("tool result:")
-      ) // FIXME: Hardcoded filter
       .map((msg: BaseMessage) => {
         if (msg.constructor.name === "HumanMessage") {
           return { human: msg.content };

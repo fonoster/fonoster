@@ -38,18 +38,31 @@ abstract class AbstractLanguageModel implements LanguageModel {
   private readonly chatHistory: ReturnType<typeof createChatHistory>;
   private readonly toolsCatalog: ToolsCatalog;
   private readonly voice: Voice;
+  private readonly goodbyeMessage: string;
+  private readonly firstMessage: string;
+  private readonly transferOptions: { message: string };
 
   constructor(
     params: LanguageModelParams,
     voice: Voice,
     telephonyContext: TelephonyContext
   ) {
-    const { model, firstMessage, systemPrompt, knowledgeBase, tools } = params;
+    const {
+      model,
+      firstMessage,
+      transferOptions,
+      systemPrompt,
+      goodbyeMessage,
+      knowledgeBase,
+      tools
+    } = params;
     this.chatHistory = createChatHistory();
     this.toolsCatalog = new ToolsCatalog(tools);
     this.voice = voice;
+    this.firstMessage = firstMessage!;
+    this.goodbyeMessage = goodbyeMessage!;
+    this.transferOptions = transferOptions!;
     const promptTemplate = createPromptTemplate({
-      firstMessage,
       systemPrompt,
       telephonyContext
     });
@@ -66,12 +79,17 @@ abstract class AbstractLanguageModel implements LanguageModel {
     const response = (await chain.invoke({ text })) as AIMessage;
     let isFirstTool = true;
 
-    logger.verbose("invoke", { text });
-    logger.verbose("response", { content: response.content });
-    logger.verbose("tools?", {
+    logger.verbose("invoke", {
+      text,
+      response: response.content,
       hasTools: response.tool_calls?.length! > 0,
       tools: response.tool_calls?.map((tool) => tool.name)
     });
+
+    // Begin the conversation with the first message
+    if ((await chatHistory.getMessages()).length === 0 && this.firstMessage) {
+      await chatHistory.addAIMessage(this.firstMessage);
+    }
 
     if (response.tool_calls && response.tool_calls.length > 0) {
       // eslint-disable-next-line no-loops/no-loops
@@ -87,21 +105,19 @@ abstract class AbstractLanguageModel implements LanguageModel {
 
         switch (toolName) {
           case "hangup":
-            await chatHistory.addAIMessage(
-              "tool result: call hangup initiated"
-            );
+            await chatHistory.addUserMessage(text);
+            await chatHistory.addAIMessage(this.goodbyeMessage);
             return {
               type: "hangup",
-              content: "tool result: call hangup initiated",
+              content: "tool_result: call hangup initiated",
               toolCalls: response.tool_calls
             };
           case "transfer":
-            await chatHistory.addAIMessage(
-              "tool result: call transfer initiated"
-            );
+            await chatHistory.addUserMessage(text);
+            await chatHistory.addAIMessage(this.transferOptions.message);
             return {
               type: "transfer",
-              content: "tool result: call transfer initiated",
+              content: "tool_result: call transfer initiated",
               toolCalls: response.tool_calls
             };
           default:
