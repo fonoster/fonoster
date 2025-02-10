@@ -23,7 +23,7 @@ const responseSchema = z.object({
   result: z.string()
 });
 
-const logger = getLogger({ service: "autopilot", filePath: __filename });
+const logger = getLogger({ service: "common", filePath: __filename });
 
 enum AllowedHttpMethod {
   GET = "get",
@@ -49,7 +49,7 @@ async function sendHttpRequest(params: {
     body: effectiveMethod === "post" ? JSON.stringify(body) : undefined
   };
 
-  logger.verbose(`sending request to ${url}`, {
+  logger.silly(`sending request to ${url}`, {
     body,
     method: effectiveMethod
   });

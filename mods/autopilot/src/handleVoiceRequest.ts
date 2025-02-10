@@ -37,6 +37,8 @@ import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
 import Autopilot, { ConversationProvider, S3KnowledgeBase, VoiceImpl } from ".";
 import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
 import fs from "fs";
+import { sendConversationEndedEvent } from "./sendConversationEndedEvent";
+import { BaseMessage } from "@langchain/core/messages";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -115,8 +117,26 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
 
   autopilot.start();
 
-  res.on(StreamEvent.END, () => {
+  res.on(StreamEvent.END, async () => {
     autopilot.stop();
+
+    const rawChatHistory = await languageModel.getChatHistoryMessages();
+    const chatHistory = rawChatHistory
+      .filter(
+        (msg: BaseMessage) =>
+          !msg.content?.toString().startsWith("tool result:")
+      ) // FIXME: Hardcoded filter
+      .map((msg: BaseMessage) => {
+        if (msg.constructor.name === "HumanMessage") {
+          return { human: msg.content };
+        } else if (msg.constructor.name === "AIMessage") {
+          return { ai: msg.content };
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    await sendConversationEndedEvent(assistantConfig.eventsHook, chatHistory);
   });
 }
 

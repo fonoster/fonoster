@@ -28,11 +28,6 @@ enum EventsHookAllowedEvents {
 
 const eventsHookSchema = z.object({
   url: z.string().url({ message: Messages.VALID_URL }),
-  method: z
-    .nativeEnum(AllowedHttpMethod, {
-      message: "Invalid method"
-    })
-    .default(AllowedHttpMethod.GET),
   headers: z.record(z.string()).optional(),
   events: z
     .array(z.nativeEnum(EventsHookAllowedEvents))

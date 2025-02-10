@@ -94,5 +94,13 @@
         }
       }
     ]
+  },
+  "eventsHook": {
+    "url": "https://api.example.com/events",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Basic NDcxM..."
+    },
+    "events": ["all"]
   }
 }
