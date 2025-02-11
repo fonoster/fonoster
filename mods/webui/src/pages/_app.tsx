@@ -13,7 +13,8 @@ export default function App({ Component }: { Component: React.ElementType }) {
     router.pathname === '/signup/verify' ||
     router.pathname === '/forgot-password' ||
     router.pathname === '/forgot-password/[token]' ||
-    router.pathname === '/workspace/create'
+    router.pathname === '/workspace/create' ||
+    router.pathname === '/workspace/list' 
 
   const [session, setSession] = useState<Session | null>(null)
 
