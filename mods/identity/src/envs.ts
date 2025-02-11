@@ -16,11 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const getEnvString = (moduleKey: string, serverKey: string, defaultValue?: string): string => {
+const getEnvString = (
+  moduleKey: string,
+  serverKey: string,
+  defaultValue?: string
+): string => {
   return process.env[moduleKey] || process.env[serverKey] || defaultValue || "";
 };
 
-const getEnvBoolean = (moduleKey: string, serverKey: string, defaultValue = false): boolean => {
+const getEnvBoolean = (
+  moduleKey: string,
+  serverKey: string,
+  defaultValue = false
+): boolean => {
   const moduleValue = process.env[moduleKey];
   const serverValue = process.env[serverKey];
   return moduleValue === "true" || serverValue === "true" || defaultValue;
