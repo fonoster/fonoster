@@ -41,6 +41,30 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const WorkspaceGrid = () => {
+  const mockWorkspaces = [
+    {
+      id: 'workspace-1',
+      region: 'us-east',
+      description: 'Demo Workspace With Wrapping Title.',
+      date: '01/14/24',
+    },
+    {
+      id: 'workspace-2',
+      region: 'eu-central',
+      description: 'Another Workspace Example',
+      date: '01/15/24',
+    },
+  ];
+
+  const handleWorkspaceClick = (workspaceId: string) => {
+    console.log('Navigate to:', `/workspace/${workspaceId}/overview`);
+  };
+
+  const handleSettingsClick = (e: React.MouseEvent, workspaceId: string) => {
+    e.stopPropagation();
+    console.log('Navigate to:', `/workspace/${workspaceId}/settings`);
+  };
+
   return (
     <Box sx={{ width: '100%', maxWidth: '1000px', p: 3 }}>
       <Typography variant="h4" component="h1" align="center">
@@ -65,24 +89,18 @@ const WorkspaceGrid = () => {
               width: '100%',
             }}
           >
-            <WorkspaceCard
-              variant="regular"
-              region="us-east"
-              description="Demo Workspace With Wrapping Title."
-              date="01/14/24"
-              onClick={() => console.log('Workspace clicked')}
-              onSettingsClick={() => console.log('Settings clicked')}
-              disabled={false}
-            />
-            <WorkspaceCard
-              variant="regular"
-              region="eu-central"
-              description="Another Workspace Example"
-              date="01/15/24"
-              onClick={() => console.log('Workspace clicked')}
-              onSettingsClick={() => console.log('Settings clicked')}
-              disabled={false}
-            />
+            {mockWorkspaces.map((workspace) => (
+              <WorkspaceCard
+                key={workspace.id}
+                variant="regular"
+                region={workspace.region}
+                description={workspace.description}
+                date={workspace.date}
+                onClick={() => handleWorkspaceClick(workspace.id)}
+                onSettingsClick={(e) => handleSettingsClick(e, workspace.id)}
+                disabled={false}
+              />
+            ))}
             <WorkspaceCard
               variant="empty"
               onClick={() => console.log('Create new workspace')}

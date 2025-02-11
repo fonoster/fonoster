@@ -47,13 +47,27 @@ const WorkspaceGrid = styled(Box)(({ theme }) => ({
   width: '100%',
 }));
 
+interface Workspace {
+  id: string;
+  region: string;
+  description: string;
+  date: string;
+}
+
 const ListWorkspacePage = () => {
   const router = useRouter();
-  const [workspaces] = useState([
+  const [workspaces] = useState<Workspace[]>([
     {
+      id: 'workspace-1',
       region: 'us-east',
       description: 'Demo Workspace With Wrapping Title.',
       date: '01/14/24',
+    },
+    {
+      id: 'workspace-2',
+      region: 'eu-central',
+      description: 'Another Workspace Example',
+      date: '01/15/24',
     },
     // Add more workspaces as needed
   ]);
@@ -62,14 +76,13 @@ const ListWorkspacePage = () => {
     router.push('/workspace/create');
   };
 
-  const handleWorkspaceClick = (index: number) => {
-    // Handle workspace click
-    console.log('Clicked workspace:', index);
+  const handleWorkspaceClick = (workspaceId: string) => {
+    router.push(`/workspace/${workspaceId}/overview`);
   };
 
-  const handleSettingsClick = () => {
-    // Handle settings click
-    console.log('Settings clicked');
+  const handleSettingsClick = (e: React.MouseEvent, workspaceId: string) => {
+    e.stopPropagation(); // Prevent workspace click when clicking settings
+    router.push(`/workspace/${workspaceId}/settings`);
   };
 
   return (
@@ -91,15 +104,15 @@ const ListWorkspacePage = () => {
         <CardContainer>
           <VerifyCard>
             <WorkspaceGrid>
-              {workspaces.map((workspace, index) => (
+              {workspaces.map((workspace) => (
                 <WorkspaceCard
-                  key={index}
+                  key={workspace.id}
                   variant="regular"
                   region={workspace.region}
                   description={workspace.description}
                   date={workspace.date}
-                  onClick={() => handleWorkspaceClick(index)}
-                  onSettingsClick={handleSettingsClick}
+                  onClick={() => handleWorkspaceClick(workspace.id)}
+                  onSettingsClick={(e) => handleSettingsClick(e, workspace.id)}
                   disabled={false}
                 />
               ))}
