@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("IDENTITY_DATABASE_URL")
+  url      = env("APISERVER_IDENTITY_DATABASE_URL")
 }
 
 model User {

@@ -16,17 +16,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const e = process.env;
+const getEnvString = (moduleKey: string, serverKey: string, defaultValue?: string): string => {
+  return process.env[moduleKey] || process.env[serverKey] || defaultValue || "";
+};
 
-export const CLOAK_ENCRYPTION_KEY = e.CLOAK_ENCRYPTION_KEY;
-export const IDENTITY_MFA_REQUIRED = e.IDENTITY_MFA_REQUIRED === "true";
-export const IDENTITY_OAUTH2_GITHUB_CLIENT_ID =
-  e.IDENTITY_OAUTH2_GITHUB_CLIENT_ID;
-export const IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET =
-  e.IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET;
-export const IDENTITY_USER_VERIFICATION_REQUIRED =
-  e.IDENTITY_USER_VERIFICATION_REQUIRED === "true";
-export const IDENTITY_WORKSPACE_INVITATION_URL =
-  e.IDENTITY_WORKSPACE_INVITATION_URL;
-export const IDENTITY_WORKSPACE_INVITE_EXPIRATION =
-  e.IDENTITY_WORKSPACE_INVITE_EXPIRATION || "1d";
+const getEnvBoolean = (moduleKey: string, serverKey: string, defaultValue = false): boolean => {
+  const moduleValue = process.env[moduleKey];
+  const serverValue = process.env[serverKey];
+  return moduleValue === "true" || serverValue === "true" || defaultValue;
+};
+
+export const CLOAK_ENCRYPTION_KEY = getEnvString(
+  "CLOAK_ENCRYPTION_KEY",
+  "APISERVER_CLOAK_ENCRYPTION_KEY"
+);
+
+export const IDENTITY_MFA_REQUIRED = getEnvBoolean(
+  "IDENTITY_MFA_REQUIRED",
+  "APISERVER_IDENTITY_MFA_REQUIRED"
+);
+
+export const IDENTITY_OAUTH2_GITHUB_CLIENT_ID = getEnvString(
+  "IDENTITY_OAUTH2_GITHUB_CLIENT_ID",
+  "APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_ID"
+);
+
+export const IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET = getEnvString(
+  "IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET",
+  "APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET"
+);
+
+export const IDENTITY_USER_VERIFICATION_REQUIRED = getEnvBoolean(
+  "IDENTITY_USER_VERIFICATION_REQUIRED",
+  "APISERVER_IDENTITY_USER_VERIFICATION_REQUIRED"
+);
+
+export const IDENTITY_WORKSPACE_INVITATION_URL = getEnvString(
+  "IDENTITY_WORKSPACE_INVITATION_URL",
+  "APISERVER_IDENTITY_WORKSPACE_INVITATION_URL"
+);
+
+export const IDENTITY_WORKSPACE_INVITE_EXPIRATION = getEnvString(
+  "IDENTITY_WORKSPACE_INVITE_EXPIRATION",
+  "APISERVER_IDENTITY_WORKSPACE_INVITE_EXPIRATION",
+  "1d"
+);
