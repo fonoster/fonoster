@@ -34,10 +34,12 @@ const DEFAULT_URL = "https://api.fonoster.com/v1beta2";
 export class WebClient extends AbstractClient {
   private url: string;
 
-  constructor(config: { url?: string; accessKeyId: string } = {
-    url: DEFAULT_URL,
-    accessKeyId: ""
-  }) {
+  constructor(
+    config: { url?: string; accessKeyId: string } = {
+      url: DEFAULT_URL,
+      accessKeyId: ""
+    }
+  ) {
     const { url, accessKeyId } = config;
 
     super({

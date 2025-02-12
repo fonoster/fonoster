@@ -85,7 +85,11 @@ abstract class AbstractClient implements FonosterClient {
   }
 
   async loginWithRefreshToken(refreshToken: string): Promise<void> {
-    const { accessToken, refreshToken: newRefreshToken, idToken } = await makeRpcRequest<
+    const {
+      accessToken,
+      refreshToken: newRefreshToken,
+      idToken
+    } = await makeRpcRequest<
       ExchangeRefreshTokenRequestPB,
       ExchangeCredentialsResponsePB,
       { refreshToken: string },
@@ -207,7 +211,7 @@ abstract class AbstractClient implements FonosterClient {
     });
   }
 
-  async refreshToken(): Promise<void> { 
+  async refreshToken(): Promise<void> {
     return this.loginWithRefreshToken(this._refreshToken);
   }
 

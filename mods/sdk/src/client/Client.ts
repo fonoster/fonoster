@@ -42,17 +42,19 @@ export class Client extends AbstractClient {
   private readonly tokenRefresherInterceptor: Interceptor;
   private readonly channelCredentials: ChannelCredentials;
 
-  constructor(config: {
-    endpoint?: string;
-    accessKeyId: string;
-    allowInsecure?: boolean;
-    withoutInterceptors?: boolean;
-  } = {
-    endpoint: DEFAULT_ENDPOINT,
-    accessKeyId: "",
-    allowInsecure: false,
-    withoutInterceptors: false
-  }) {
+  constructor(
+    config: {
+      endpoint?: string;
+      accessKeyId: string;
+      allowInsecure?: boolean;
+      withoutInterceptors?: boolean;
+    } = {
+      endpoint: DEFAULT_ENDPOINT,
+      accessKeyId: "",
+      allowInsecure: false,
+      withoutInterceptors: false
+    }
+  ) {
     const channelCredentials = config.allowInsecure
       ? credentials.createInsecure()
       : credentials.createSsl();
