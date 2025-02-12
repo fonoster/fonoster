@@ -47,6 +47,11 @@ export class Client extends AbstractClient {
     accessKeyId: string;
     allowInsecure?: boolean;
     withoutInterceptors?: boolean;
+  } = {
+    endpoint: DEFAULT_ENDPOINT,
+    accessKeyId: "",
+    allowInsecure: false,
+    withoutInterceptors: false
   }) {
     const channelCredentials = config.allowInsecure
       ? credentials.createInsecure()
