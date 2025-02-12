@@ -21,7 +21,7 @@ import { NavigationDropdownAccount } from "./NavigationDropdownAccount";
 import { fn } from "@storybook/test";
 
 /**
- * This story is for the Navigation Dropdown Account. 
+ * This story is for the Navigation Dropdown Account.
  * It takes open, onAccountSettingsClicked and onSignoutClicked.
  */
 const meta = {
@@ -65,4 +65,3 @@ export const Default: Story = {
     onSignoutClicked: fn()
   }
 };
-
