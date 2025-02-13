@@ -45,7 +45,7 @@ import {
  *
  * const client = SDK.Client();
  * const users = new SDK.Users(client);
- * 
+ *
  * const request = {
  *   name: "John Doe",
  *   email: "john.doe@example.com",

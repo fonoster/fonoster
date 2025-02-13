@@ -29,7 +29,7 @@ import { NumbersClient } from "../generated/web/NumbersServiceClientPb";
 import { SecretsClient } from "../generated/web/SecretsServiceClientPb";
 import { TrunksClient } from "../generated/web/TrunksServiceClientPb";
 
-const DEFAULT_URL = "https://api.fonoster.com/v1beta2";
+const DEFAULT_URL = "https://api.fonoster.com";
 
 export class WebClient extends AbstractClient {
   private url: string;
