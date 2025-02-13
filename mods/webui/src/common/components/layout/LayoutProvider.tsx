@@ -2,31 +2,24 @@ import * as React from 'react'
 import { NextAppProvider } from '@toolpad/core/nextjs'
 import Head from 'next/head'
 import { fnLight, fnDark } from '../../../../theme/theme'
-import type { Session } from '@toolpad/core/AppProvider'
+import type { Authentication as ToolpadAuth } from '@toolpad/core/AppProvider'
+import { BaseLayoutProps } from '@/types/layout'
 
-interface AuthLayoutProps {
-  children: React.ReactNode
-  session: Session | null
-  authentication: {
-    signIn: () => void
-    signOut: () => void
-  }
-}
-
-export default function AuthLayout({
-  children,
-  session,
-  authentication
-}: AuthLayoutProps) {
+export default function AuthLayout({ children, session, authentication }: BaseLayoutProps) {
   const BRANDING = {
     title: 'Fonoster'
+  }
+
+  const toolpadAuth: ToolpadAuth = {
+    signIn: () => authentication.signIn({ username: '', password: '' }),
+    signOut: authentication.signOut
   }
 
   return (
     <NextAppProvider
       branding={BRANDING}
       session={session}
-      authentication={authentication}
+      authentication={toolpadAuth}
       theme={{
         light: fnLight,
         dark: fnDark

@@ -3,8 +3,10 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  // const isAuthenticated = request.cookies.has('auth-token')
-  const isAuthenticated = true
+  const accessToken = request.cookies.get('access-token')
+  const refreshToken = request.cookies.get('refresh-token')
+  
+  const isAuthenticated = accessToken && refreshToken
 
   // Actualizar las rutas públicas para manejar correctamente la ruta dinámica
   const isPublicRoute = 

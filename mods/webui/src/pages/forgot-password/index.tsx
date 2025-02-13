@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Layout, PageContainer, Card } from '@/common/component/layout/Layout';
+import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
 
 const TempResetButton = () => {
   const router = useRouter();

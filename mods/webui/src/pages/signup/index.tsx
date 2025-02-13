@@ -12,7 +12,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { Google as GoogleIcon } from '@mui/icons-material';
-import { Layout, PageContainer, Card } from '@/common/component/layout/Layout';
+import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
 import { useRouter } from 'next/router';
 
 const SignUpPage = () => {

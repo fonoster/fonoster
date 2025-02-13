@@ -7,7 +7,7 @@ import {
   Stack,
   Link as MuiLink
 } from '@mui/material';
-import { Layout, PageContainer, Card } from '@/common/component/layout/Layout';
+import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 

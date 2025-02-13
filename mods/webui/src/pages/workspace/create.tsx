@@ -21,7 +21,7 @@ import {
   InputLabel
 } from '@mui/material';
 import Check from '@mui/icons-material/Check';
-import { Layout } from '@/common/component/layout/Layout';
+import { Layout } from '@/common/components/layout/Layout';
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,

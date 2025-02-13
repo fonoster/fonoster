@@ -1,28 +1,49 @@
 import { useState } from 'react';
 import {
   Box,
-  Button,
   TextField,
   Typography,
-  Container,
-  styled,
   useTheme,
   Stack,
-  Link as MuiLink
 } from '@mui/material';
 import { Google as GoogleIcon } from '@mui/icons-material';
-import { Layout, PageContainer, Card } from '@/common/component/layout/Layout';
+import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import { Controller, useForm, ControllerRenderProps } from 'react-hook-form';
+import { useFonosterClient } from '@/common/hooks/useFonosterClient';
+import { Button } from '../../../stories/button/Button';
+import { InputText } from '../../../stories/inputtext/InputText';
+
+interface LoginForm {
+  email: string;
+  password: string;
+}
 
 const LoginPage = () => {
   const theme = useTheme();
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { authentication } = useFonosterClient();
+  const { control, handleSubmit, setError, formState: { errors } } = useForm<LoginForm>({
+    defaultValues: {
+      email: '',
+      password: ''
+    }
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginForm) => {
+    try {
+      await authentication.signIn({
+        username: data.email,
+        password: data.password
+      });
+      router.push('/workspace/list');
+    } catch (error) {
+      console.log('Error de autenticación:', error);
+      setError('root', {
+        type: 'manual',
+        message: error instanceof Error ? error.message : 'Error de autenticación'
+      });
+    }
   };
 
   const handleSignUpClick = () => {
@@ -32,79 +53,65 @@ const LoginPage = () => {
   return (
     <Layout>
       <PageContainer>
-        <Card onSubmit={handleSubmit}>
+        <Card onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={3}>
             <Typography variant="h5" align="center">
               Sign In
             </Typography>
 
-            <TextField
-              fullWidth
-              label="Email Address"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              helperText="Please enter your email address"
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                },
+            <Controller
+              name="email"
+              control={control}
+              rules={{
+                required: 'Email is required',
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Invalid email address'
+                }
               }}
+              render={({ field }: { field: ControllerRenderProps<LoginForm, 'email'> }) => (
+                <InputText
+                  {...field}
+                  label="Email Address"
+                  type="email"
+                  error={!!errors.email}
+                  supportingText={errors.email?.message || 'Please enter your email address'}
+                />
+              )}
             />
 
-            <Box>
-              <TextField
-                fullWidth
-                label="Password"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                helperText="Please enter your password"
-                variant="outlined"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: theme.palette.primary.main,
-                    },
-                  },
-                }}
-              />
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                <Link href="/forgot-password" passHref>
-                  <MuiLink
-                    component="span"
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                      textDecoration: 'none',
-                      '&:hover': {
-                        textDecoration: 'underline',
-                        color: 'primary.main',
-                      }
-                    }}
-                  >
-                    Forgot password?
-                  </MuiLink>
-                </Link>
-              </Box>
-            </Box>
+            <Controller
+              name="password"
+              control={control}
+              rules={{
+                required: 'Password is required',
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 6 characters'
+                }
+              }}
+              render={({ field }: { field: ControllerRenderProps<LoginForm, 'password'> }) => (
+                <InputText
+                  {...field}
+                  label="Password"
+                  type="password"
+                  error={!!errors.password}
+                  supportingText={errors.password?.message || 'Please enter your password'}
+                />
+              )}
+            />
+
+            {errors.root && (
+              <Typography color="error" variant="body2" align="center">
+                {errors.root.message}
+              </Typography>
+            )}
 
             <Button
-              type="submit"
+              onClick={handleSubmit(onSubmit)}
               fullWidth
               variant="contained"
               size="large"
-              sx={{
-                boxShadow: theme.shadows[2],
-                '&:hover': {
-                  boxShadow: theme.shadows[4],
-                },
-              }}
             >
               Sign In
             </Button>
@@ -112,7 +119,7 @@ const LoginPage = () => {
             <Box sx={{ 
               position: 'relative', 
               textAlign: 'center',
-              my: 2, // Margen arriba y abajo
+              my: 2,
               '&::before': {
                 content: '""',
                 position: 'absolute',

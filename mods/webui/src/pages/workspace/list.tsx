@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Container, styled, Typography, Box, Paper } from '@mui/material';
-import { Layout } from '@/common/component/layout/Layout';
+import { Layout } from '@/common/components/layout/Layout';
 import { WorkspaceCard } from '../../../stories/workspace/WorkspaceCard';
 import { useRouter } from 'next/router';
 

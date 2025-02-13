@@ -1,18 +1,24 @@
 import * as React from 'react'
-import Document, {
+import {
   Html,
   Head,
   Main,
   NextScript,
-  DocumentContext
 } from 'next/document'
+
+import {
+  DocumentHeadTags,
+  documentGetInitialProps,
+  DocumentHeadTagsProps,
+} from '@mui/material-nextjs/v15-pagesRouter';
+
 import { fnLight } from '../../theme/theme'
 
-export default class MyDocument extends Document {
-  render() {
+export default function MyDocument(props: DocumentHeadTagsProps) {
     return (
       <Html lang="es" data-toolpad-color-scheme="light">
         <Head>
+          <DocumentHeadTags {...props} />
           <meta name="theme-color" content={fnLight.palette.primary.main} />
           <link
             rel="stylesheet"
@@ -26,10 +32,6 @@ export default class MyDocument extends Document {
         </body>
       </Html>
     )
-  }
 }
 
-MyDocument.getInitialProps = async (ctx: DocumentContext) => {
-  const initialProps = await Document.getInitialProps(ctx)
-  return initialProps
-}
+MyDocument.getInitialProps = documentGetInitialProps;

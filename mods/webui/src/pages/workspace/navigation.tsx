@@ -12,7 +12,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import GppGoodIcon from '@mui/icons-material/GppGood';
 import VpnLockIcon from '@mui/icons-material/VpnLock';
 import { Navigation, NavigationPageItem } from '@toolpad/core/AppProvider';
-import WorkspaceSelector from '@/pages/workspace/_component/WorkspaceSelector';
+import WorkspaceSelector from '@/pages/workspace/_components/WorkspaceSelector';
 import BusinessIcon from '@mui/icons-material/Business';
 
 interface CustomNavigationPageItem extends NavigationPageItem {

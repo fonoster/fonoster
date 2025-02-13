@@ -17,7 +17,7 @@ import {
   StepIconProps
 } from '@mui/material';
 import Check from '@mui/icons-material/Check';
-import { Header } from '@/common/component/layout/Layout';
+import { Header } from '@/common/components/layout/Layout';
 
 const VerifyContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,

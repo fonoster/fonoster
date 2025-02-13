@@ -1,10 +1,10 @@
 import { Box, Typography } from '@mui/material';
 
-export default function ApplicationsPage() {
+export default function SettingsPage() {
   return (
     <Box>
       <Typography variant="body1">
-        Manage all your Fonoster applications here. Create, edit, and monitor your running applications.
+        Manage all your Fonoster settings here. Create, edit, and monitor your running settings.
       </Typography>
     </Box>
   );
