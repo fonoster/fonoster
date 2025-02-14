@@ -20,10 +20,13 @@ import { Access, Role } from "./types";
 import { roles, USER_ROLE } from "./roles";
 
 // This function only checks if the role has access to the grpc method
-function hasAccess(decodedToken: {
-  access: Access[];
-  accessKeyId: string;
-}, method: string) {
+function hasAccess(
+  decodedToken: {
+    access: Access[];
+    accessKeyId: string;
+  },
+  method: string
+) {
   const { access, accessKeyId } = decodedToken;
   const roleList = accessKeyId.startsWith("US") // US is for user; user tokens only have USER role
     ? [USER_ROLE]

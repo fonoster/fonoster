@@ -107,7 +107,7 @@ const roles = [
   {
     name: USER_ROLE,
     description: "Access to User and Workspace endpoints",
-    access: [ 
+    access: [
       "/fonoster.identity.v1beta2.Identity/GetUser",
       "/fonoster.identity.v1beta2.Identity/UpdateUser",
       "/fonoster.identity.v1beta2.Identity/DeleteUser",
