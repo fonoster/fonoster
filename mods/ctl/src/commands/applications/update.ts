@@ -131,7 +131,8 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
                       value: "eleven_multilingual_sts_v2"
                     }
                   ],
-                  default: applicationFromDB.textToSpeech?.config?.model as string
+                  default: applicationFromDB.textToSpeech?.config
+                    ?.model as string
                 })
               : null,
           voice: await input({
