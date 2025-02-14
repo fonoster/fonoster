@@ -80,13 +80,13 @@ function createAuthInterceptor(
     logger.verbose("checking access for accessKeyId", {
       accessKeyId,
       path,
-      hasAccess: hasAccess(decodedToken.access, path),
+      hasAccess: hasAccess(decodedToken, path),
       pathIsWorkspacePath: workspaceAccess.includes(path),
       tokenHasAccessKeyId: tokenHasAccessKeyId(token, accessKeyId)
     });
 
     if (
-      !hasAccess(decodedToken.access, path) ||
+      !hasAccess(decodedToken, path) ||
       (workspaceAccess.includes(path) &&
         !tokenHasAccessKeyId(token, accessKeyId))
     ) {

@@ -17,11 +17,17 @@
  * limitations under the License.
  */
 import { Access, Role } from "./types";
-import { roles } from "./roles";
+import { roles, USER_ROLE } from "./roles";
 
 // This function only checks if the role has access to the grpc method
-function hasAccess(access: Access[], method: string) {
-  const roleList = access.map((a: Access) => a.role);
+function hasAccess(decodedToken: {
+  access: Access[];
+  accessKeyId: string;
+}, method: string) {
+  const { access, accessKeyId } = decodedToken;
+  const roleList = accessKeyId.startsWith("US") // US is for user; user tokens only have USER role
+    ? [USER_ROLE]
+    : access.map((a: Access) => a.role);
 
   return roleList.some((r: string) =>
     roles.find((role: Role) => role.name === r && role.access.includes(method))

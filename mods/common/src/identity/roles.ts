@@ -22,6 +22,10 @@ import { Role } from "./types";
 
 const VOICE_SERVICE_ROLE = "VOICE_SERVICE";
 
+// The WorkspaceRoleEnum.USER is the same as the USER_ROLE constant
+// We will split this two roles in the future
+const USER_ROLE = "USER";
+
 const workspaceAccess = [
   "/fonoster.applications.v1beta2.Applications/CreateApplication",
   "/fonoster.applications.v1beta2.Applications/UpdateApplication",
@@ -101,9 +105,9 @@ const roles = [
     access: [...fullIdentityAccess, ...workspaceAccess]
   },
   {
-    name: WorkspaceRoleEnum.USER,
+    name: USER_ROLE,
     description: "Access to User and Workspace endpoints",
-    access: [
+    access: [ 
       "/fonoster.identity.v1beta2.Identity/GetUser",
       "/fonoster.identity.v1beta2.Identity/UpdateUser",
       "/fonoster.identity.v1beta2.Identity/DeleteUser",
@@ -130,4 +134,4 @@ const roles = [
   }
 ] as Role[];
 
-export { VOICE_SERVICE_ROLE, roles, workspaceAccess };
+export { USER_ROLE, VOICE_SERVICE_ROLE, roles, workspaceAccess };
