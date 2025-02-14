@@ -119,9 +119,9 @@ jobs:
     - name: Starting services for integration tests
       run: |
         npm run generate:keypair
-        cp .env.example .env
         cp config/integrations.example.json config/integrations.json
-        sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=127.0.0.1|g" .env 
+        cp .env.example .env
+        echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env
         sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
         sed -i "s|ROUTR_RTPENGINE_HOST=.*|ROUTR_RTPENGINE_HOST=127.0.0.1|g" .env 
         sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
