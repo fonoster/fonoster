@@ -83,6 +83,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
           model: await select({
             message: "STT Model",
             choices: [
+              { name: "Nova 3", value: "nova-3" },
               { name: "Nova 2", value: "nova-2" },
               { name: "Nova 2 Phone Call", value: "nova-2-phonecall" },
               {
@@ -129,9 +130,8 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
                       name: "Multilingual Speech to Speech",
                       value: "eleven_multilingual_sts_v2"
                     }
-                    // { name: "English Speech to Speech", value: "eleven_english_sts_v2" }
                   ],
-                  default: null
+                  default: applicationFromDB.textToSpeech?.config?.model as string
                 })
               : null,
           voice: await input({
