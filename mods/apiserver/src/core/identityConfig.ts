@@ -41,21 +41,6 @@ import {
   TWILIO_PHONE_NUMBER
 } from "../envs";
 
-if (IDENTITY_USER_VERIFICATION_REQUIRED) {
-  assertEnvsAreSet([
-    "TWILIO_ACCOUNT_SID",
-    "TWILIO_AUTH_TOKEN",
-    "TWILIO_PHONE_NUMBER"
-  ]);
-}
-
-if (IDENTITY_OAUTH2_GITHUB_ENABLED) {
-  assertEnvsAreSet([
-    "IDENTITY_OAUTH2_GITHUB_CLIENT_ID",
-    "IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET"
-  ]);
-}
-
 const identityConfig = {
   issuer: IDENTITY_ISSUER,
   audience: IDENTITY_AUDIENCE,

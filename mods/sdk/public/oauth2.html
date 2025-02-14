@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub OAuth2 Login</title>
     <script src="https://unpkg.com/@fonoster/sdk"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 </head>
 <body>
     <h1>GitHub OAuth2 Login</h1>
@@ -12,8 +13,8 @@
     <pre id="output">Check the console for the response!</pre>
 
     <script>
-        const clientId = "176eada057a4bbd96736"; // Replace with your GitHub Client ID
-        const username = "usern@example.com"; // Must be the user email associated with the GitHub account
+        const clientId = "09ae6a73c171c39d4924"; // Replace with your GitHub Client ID
+        const username = "user@example.com"; // Must be a valid email for a real GitHub user
         const redirectUri = window.location.origin + window.location.pathname;
         
         function loginWithGitHub() {
@@ -41,13 +42,12 @@
             }
 
             try {
-                const client = new SDK.WebClient();
+                const client = new SDK.WebClient({ url: "http://localhost:8449" });
                 await client.loginWithOauth2Code("GITHUB", username, code);
 
-                const workspaces = new SDK.Workspaces(client);
-                const response = await workspaces.listWorkspaces();
-
-                document.getElementById("output").textContent = JSON.stringify(response, null, 2);
+                const decodedIdToken = jwt_decode(client.getIdToken());
+                
+                document.getElementById("output").textContent = JSON.stringify(decodedIdToken, null, 2);
             } catch (e) {
                 console.error(e);
                 document.getElementById("output").textContent = "Error: " + e.message;
