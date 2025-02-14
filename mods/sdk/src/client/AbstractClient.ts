@@ -144,14 +144,15 @@ abstract class AbstractClient implements FonosterClient {
       { provider: "GITHUB"; username: string; code: string },
       { refreshToken: string; accessToken: string; idToken: string }
     >({
-      method: this.identityClient.exchangeOauth2Code,
+      method: this.identityClient.exchangeOauth2Code.bind(this.identityClient),
       requestPBObjectConstructor: ExchangeOauth2CodeRequestPB,
       metadata: {},
       request: {
         provider,
         username,
         code
-      }
+      },
+      enumMapping: [["provider", ExchangeOauth2CodeRequestPB.Oauth2Provider]]
     });
 
     this._refreshToken = refreshToken;

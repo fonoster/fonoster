@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub OAuth2 Login</title>
+    <script src="https://unpkg.com/@fonoster/sdk"></script>
+</head>
+<body>
+    <h1>GitHub OAuth2 Login</h1>
+    <button id="loginButton">Login with GitHub</button>
+    <pre id="output">Check the console for the response!</pre>
+
+    <script>
+        const clientId = "176eada057a4bbd96736"; // Replace with your GitHub Client ID
+        const username = "usern@example.com"; // Must be the user email associated with the GitHub account
+        const redirectUri = window.location.origin + window.location.pathname;
+        
+        function loginWithGitHub() {
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read:user`;
+            window.location.href = authUrl;
+        }
+
+        async function main(retries = 5) {
+            // Wait for SDK to load
+            if (!window.SDK) {
+                if (retries > 0) {
+                    console.warn("SDK not loaded yet, retrying...");
+                    return setTimeout(() => main(retries - 1), 500);
+                }
+                console.error("Failed to load @fonoster/sdk");
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get("code");
+
+            if (!code) {
+                document.getElementById("loginButton").style.display = "block";
+                return;
+            }
+
+            try {
+                const client = new SDK.WebClient();
+                await client.loginWithOauth2Code("GITHUB", username, code);
+
+                const workspaces = new SDK.Workspaces(client);
+                const response = await workspaces.listWorkspaces();
+
+                document.getElementById("output").textContent = JSON.stringify(response, null, 2);
+            } catch (e) {
+                console.error(e);
+                document.getElementById("output").textContent = "Error: " + e.message;
+            }
+        }
+
+        document.getElementById("loginButton").addEventListener("click", loginWithGitHub);
+        main().catch(console.error);
+    </script>
+</body>
+</html>

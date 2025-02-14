@@ -2159,23 +2159,8 @@ Constructs a new Users object.
 ```js
 const SDK = require("@fonoster/sdk");
 
-async function main(request) {
-  const apiKey = "your-api-key";
-  const apiSecret = "your-api-secret"
-  const accessKeyId = "WO00000000000000000000000000000000";
-
-  try {
-    const client = SDK.Client({ accessKeyId });
-    await client.loginWithApiKey(apiKey, apiSecret);
-
-    const users = new SDK.Users(client);
-    const response = await users.createUser(request);
-
-    console.log(response); // successful response
-  } catch (e) {
-    console.error(e); // an error occurred
-  }
-}
+const client = SDK.Client();
+const users = new SDK.Users(client);
 
 const request = {
   name: "John Doe",
@@ -2184,7 +2169,9 @@ const request = {
   avatar: "https://example.com/avatar.jpg"
 };
 
-main(request);
+users.createUser(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Users+createUser"></a>
 
