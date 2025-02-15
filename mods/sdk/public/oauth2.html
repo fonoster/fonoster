@@ -18,7 +18,7 @@
   <pre id="output">{}</pre>
 
   <script>
-    const clientId = "09ae6a73c171c39d4924"; // Replace with your GitHub Client ID
+    const clientId = "176eada057a4bbd96736"; // Fonoster's Production GitHub Client ID
     const redirectUri = window.location.origin + window.location.pathname;
 
     function loginWithGitHub() {
@@ -46,7 +46,7 @@
       }
 
       try {
-        const client = new SDK.WebClient({ url: "http://localhost:8449" });
+        const client = new SDK.WebClient();
         await client.loginWithOauth2Code("GITHUB", code);
 
         const decodedIdToken = jwt_decode(client.getIdToken());
