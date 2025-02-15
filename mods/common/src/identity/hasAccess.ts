@@ -28,7 +28,8 @@ function hasAccess(
   method: string
 ) {
   const { access, accessKeyId } = decodedToken;
-  const roleList = accessKeyId.startsWith("US") // US is for user; user tokens only have USER role
+  const roleList = accessKeyId.startsWith("US")  // US is for user; user tokens only have USER role
+    && access.length === 0 // If it is a user token, and has no access, we still allow it in case it is a user method
     ? [USER_ROLE]
     : access.map((a: Access) => a.role);
 
