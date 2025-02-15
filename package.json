@@ -106,7 +106,7 @@
     "node": ">=20.11.1"
   },
   "dependencies": {
-    "@prisma/client": "^6.1.0"
+    "@prisma/client": "^6.3.1"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-arm64-gnu": "^4.29.1",
