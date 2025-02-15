@@ -1,63 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub OAuth2 Login</title>
-    <script src="https://unpkg.com/@fonoster/sdk"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub OAuth2 Login</title>
+  <script src="https://unpkg.com/@fonoster/sdk"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 </head>
+
 <body>
-    <h1>GitHub OAuth2 Login</h1>
-    <button id="loginButton">Login with GitHub</button>
-    <br />
-    <br />
-    <pre>Decoded Id Token:</pre>
-    <pre id="output">{}</pre>
+  <h1>GitHub OAuth2 Login</h1>
+  <button id="loginButton">Login with GitHub</button>
+  <br />
+  <br />
+  <pre>Decoded Id Token:</pre>
+  <pre id="output">{}</pre>
 
-    <script>
-        const clientId = "09ae6a73c171c39d4924"; // Replace with your GitHub Client ID
-        const redirectUri = window.location.origin + window.location.pathname;
-        
-        function loginWithGitHub() {
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read:user`;
-            window.location.href = authUrl;
+  <script>
+    const clientId = "09ae6a73c171c39d4924"; // Replace with your GitHub Client ID
+    const redirectUri = window.location.origin + window.location.pathname;
+
+    function loginWithGitHub() {
+      const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read:user`;
+      window.location.href = authUrl;
+    }
+
+    async function main(retries = 5) {
+      // Wait for SDK to load
+      if (!window.SDK) {
+        if (retries > 0) {
+          console.warn("SDK not loaded yet, retrying...");
+          return setTimeout(() => main(retries - 1), 500);
         }
+        console.error("Failed to load @fonoster/sdk");
+        return;
+      }
 
-        async function main(retries = 5) {
-            // Wait for SDK to load
-            if (!window.SDK) {
-                if (retries > 0) {
-                    console.warn("SDK not loaded yet, retrying...");
-                    return setTimeout(() => main(retries - 1), 500);
-                }
-                console.error("Failed to load @fonoster/sdk");
-                return;
-            }
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
 
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get("code");
+      if (!code) {
+        document.getElementById("loginButton").style.display = "block";
+        return;
+      }
 
-            if (!code) {
-                document.getElementById("loginButton").style.display = "block";
-                return;
-            }
+      try {
+        const client = new SDK.WebClient({ url: "http://localhost:8449" });
+        await client.loginWithOauth2Code("GITHUB", code);
 
-            try {
-                const client = new SDK.WebClient({ url: "http://localhost:8449" });
-                await client.loginWithOauth2Code("GITHUB", code);
+        const decodedIdToken = jwt_decode(client.getIdToken());
 
-                const decodedIdToken = jwt_decode(client.getIdToken());
-                
-                document.getElementById("output").textContent = JSON.stringify(decodedIdToken, null, 2);
-            } catch (e) {
-                console.error(e);
-                document.getElementById("output").textContent = "Error: " + e.message;
-            }
-        }
+        document.getElementById("output").textContent = JSON.stringify(decodedIdToken, null, 2);
+      } catch (e) {
+        console.error(e);
+        document.getElementById("output").textContent = "Error: " + e.message;
+      }
+    }
 
-        document.getElementById("loginButton").addEventListener("click", loginWithGitHub);
-        main().catch(console.error);
-    </script>
+    document.getElementById("loginButton").addEventListener("click", loginWithGitHub);
+    main().catch(console.error);
+  </script>
 </body>
+
 </html>
