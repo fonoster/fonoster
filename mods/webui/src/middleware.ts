@@ -15,7 +15,9 @@ export function middleware(request: NextRequest) {
   }
 
   const refreshToken = request.cookies.get('refreshToken')?.value || null;
-  const isAuthenticated = refreshToken && !tokenUtils.isTokenExpired(refreshToken);
+  // const isAuthenticated = refreshToken && !tokenUtils.isTokenExpired(refreshToken);
+  const isAuthenticated = true;
+
 
   const publicRoutes = [
     '/signin',
