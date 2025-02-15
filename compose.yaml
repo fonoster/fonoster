@@ -81,8 +81,6 @@ services:
     ports:
       - 5060:5060/udp
       - 5060-5063:5060-5063
-    volumes:
-      - routrdb:/var/lib/postgresql/data
 
   # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
   # is not possible in Docker, we need to use network_mode: host.
@@ -176,5 +174,4 @@ services:
 
 volumes:
   db:
-  routrdb:
   influxdb:
