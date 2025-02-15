@@ -123,7 +123,7 @@ jobs:
         cp .env.example .env
         echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env
         sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
-        sed -i "s|ROUTR_RTPENGINE_HOST=.*|ROUTR_RTPENGINE_HOST=127.0.0.1|g" .env 
+        sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
         sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
         sed -i "s|APISERVER_SMTP_HOST=.*|SMTP_HOST=mailhog|g" .env
         sed -i "s|APISERVER_SMTP_PORT=.*|SMTP_PORT=1025|g" .env
