@@ -38,7 +38,6 @@ const SignUpPage = () => {
     e.preventDefault();
     
     if (!formData.agreeToTerms) {
-      // Aquí puedes implementar tu sistema de notificaciones
       alert('Please agree to the terms and conditions');
       return;
     }
@@ -49,7 +48,6 @@ const SignUpPage = () => {
     }
 
     try {
-      // Aquí iría la lógica de registro
       router.push('/signup/verify');
     } catch (error) {
       alert('An error occurred during registration');

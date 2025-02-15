@@ -1,5 +1,5 @@
 import { Box, Typography, styled, Grid } from '@mui/material';
-import { OverviewCard } from '../../../../stories/overviewcard/OverviewCard';
+import { OverviewCard } from '../../../../../stories/overviewcard/OverviewCard';
 import { useRouter } from 'next/router';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
@@ -38,7 +38,6 @@ export default function OverviewPage() {
     router.push(`/workspace/${workspaceId}/${path}`);
   };
 
-  // Mock data - In a real app, this would come from an API
   const apiKeysCount = 3;
   const expiringKeysCount = 2;
 

@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, styled, Typography, Box, Paper } from '@mui/material';
 import { Layout } from '@/common/components/layout/Layout';
 import { WorkspaceCard } from '../../../stories/workspace/WorkspaceCard';
 import { useRouter } from 'next/router';
+import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';
 
-// Reusing styles from create.tsx
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
   display: 'flex',
@@ -56,21 +56,48 @@ interface Workspace {
 
 const ListWorkspacePage = () => {
   const router = useRouter();
-  const [workspaces] = useState<Workspace[]>([
-    {
-      id: 'workspace-1',
-      region: 'us-east',
-      description: 'Demo Workspace With Wrapping Title.',
-      date: '01/14/24',
-    },
-    {
-      id: 'workspace-2',
-      region: 'eu-central',
-      description: 'Another Workspace Example',
-      date: '01/15/24',
-    },
-    // Add more workspaces as needed
-  ]);
+  const { isReady, listWorkspaces } = useWorkspaces();
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchWorkspaces = async () => {
+      if (!isReady || !mounted) return;
+
+      try {
+        const response = await listWorkspaces();
+        if (!mounted) return;
+        if (!response) return;
+        
+        const { items } = response;
+        
+        const formattedWorkspaces = items.map(workspace => ({
+          id: workspace.id,
+          region: workspace.region || 'unknown',
+          description: workspace.name || 'No description',
+          date: new Date(workspace.createdAt).toLocaleDateString(),
+        }));
+
+        if (mounted) {
+          setWorkspaces(formattedWorkspaces);
+        }
+      } catch (error) {
+        console.error('Error fetching workspaces:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchWorkspaces();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isReady]);
 
   const handleCreateWorkspace = () => {
     router.push('/workspace/create');
@@ -81,7 +108,7 @@ const ListWorkspacePage = () => {
   };
 
   const handleSettingsClick = (e: React.MouseEvent, workspaceId: string) => {
-    e.stopPropagation(); // Prevent workspace click when clicking settings
+    e.stopPropagation();
     router.push(`/workspace/${workspaceId}/settings`);
   };
 
@@ -104,23 +131,29 @@ const ListWorkspacePage = () => {
         <CardContainer>
           <VerifyCard>
             <WorkspaceGrid>
-              {workspaces.map((workspace) => (
-                <WorkspaceCard
-                  key={workspace.id}
-                  variant="regular"
-                  region={workspace.region}
-                  description={workspace.description}
-                  date={workspace.date}
-                  onClick={() => handleWorkspaceClick(workspace.id)}
-                  onSettingsClick={(e) => handleSettingsClick(e, workspace.id)}
-                  disabled={false}
-                />
-              ))}
-              <WorkspaceCard
-                variant="empty"
-                onClick={handleCreateWorkspace}
-                disabled={false}
-              />
+              {loading ? (
+                <Typography>Loading workspaces...</Typography>
+              ) : (
+                <>
+                  {workspaces.map((workspace) => (
+                    <WorkspaceCard
+                      key={workspace.id}
+                      variant="regular"
+                      region={workspace.region}
+                      description={workspace.description}
+                      date={workspace.date}
+                      onClick={() => handleWorkspaceClick(workspace.id)}
+                      onSettingsClick={(e: React.MouseEvent) => handleSettingsClick(e, workspace.id)}
+                      disabled={false}
+                    />
+                  ))}
+                  <WorkspaceCard
+                    variant="empty"
+                    onClick={handleCreateWorkspace}
+                    disabled={false}
+                  />
+                </>
+              )}
             </WorkspaceGrid>
           </VerifyCard>
         </CardContainer>

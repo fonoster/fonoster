@@ -5,25 +5,16 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout'
 import Head from 'next/head'
 import { fnLight, fnDark } from '../../../theme/theme'
 import { NAVIGATION } from './navigation'
-import type { Authentication as ToolpadAuth } from '@toolpad/core/AppProvider'
-import { BaseLayoutProps } from '@/types/layout'
 
-export default function Layout({ children, session, authentication }: BaseLayoutProps) {
+export default function Layout({ children}: { children: React.ReactNode }) {
   const BRANDING = {
     title: 'Fonoster'
-  }
-
-  const toolpadAuth: ToolpadAuth = {
-    signIn: () => authentication.signIn({ username: '', password: '' }),
-    signOut: authentication.signOut
   }
 
   return (
     <NextAppProvider
       navigation={NAVIGATION}
       branding={BRANDING}
-      session={session}
-      authentication={toolpadAuth}
       theme={{
         light: fnLight,
         dark: fnDark

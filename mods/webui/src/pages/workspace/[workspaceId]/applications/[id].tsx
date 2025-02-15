@@ -13,12 +13,6 @@ export default function EditApplicationPage() {
     const fetchApplication = async () => {
       if (id) {
         try {
-          // Aquí implementarías la lógica para obtener la aplicación
-          // Por ejemplo:
-          // const data = await getApplication(workspaceId as string, id as string);
-          // setApplication(data);
-          
-          // Por ahora, usamos datos de ejemplo
           setApplication({
             name: 'Aplicación de ejemplo',
             description: 'Descripción de ejemplo',
@@ -37,15 +31,9 @@ export default function EditApplicationPage() {
 
   const handleSubmit = async (data: ApplicationFormData) => {
     try {
-      // Aquí implementarías la lógica para actualizar la aplicación
-      // Por ejemplo:
-      // await updateApplication(workspaceId as string, id as string, data);
-      
-      // Redirigir a la lista de aplicaciones después de actualizar
       router.push(`/workspace/${workspaceId}/applications`);
     } catch (error) {
       console.error('Error al actualizar la aplicación:', error);
-      // Aquí podrías mostrar un mensaje de error
     }
   };
 

@@ -23,5 +23,4 @@ declare module '@mui/material/styles' {
   }
 }
 
-// Asegurarse de que TypeScript reconozca este archivo como un módulo
 export {} 
