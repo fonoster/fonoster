@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   Box,
-  TextField,
   Typography,
   useTheme,
   Stack,
@@ -10,7 +9,7 @@ import { Google as GoogleIcon } from '@mui/icons-material';
 import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
 import { useRouter } from 'next/router';
 import { Controller, useForm, ControllerRenderProps } from 'react-hook-form';
-import { useFonosterClient } from '@/common/hooks/useFonosterClient';
+import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 import { Button } from '../../../stories/button/Button';
 import { InputText } from '../../../stories/inputtext/InputText';
 
@@ -23,31 +22,48 @@ const LoginPage = () => {
   const theme = useTheme();
   const router = useRouter();
   const { authentication } = useFonosterClient();
-  const { control, handleSubmit, setError, formState: { errors } } = useForm<LoginForm>({
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const { 
+    control, 
+    handleSubmit, 
+    setError, 
+    formState: { errors, isSubmitting }
+  } = useForm<LoginForm>({
     defaultValues: {
-      email: '',
-      password: ''
+      email: 'team@fonoster.com',
+      password: 'changeme'
     }
   });
 
   const onSubmit = async (data: LoginForm) => {
+    if (isRedirecting) return;
+
     try {
-      await authentication.signIn({
+      setIsRedirecting(true);
+      console.log('Attempting login with:', data);
+      
+       await authentication.signIn({
         username: data.email,
         password: data.password
       });
-      router.push('/workspace/list');
+      console.log('Login successful, redirecting...');
+      
+  
+      await router.replace('/workspace/list');
+   
     } catch (error) {
-      console.log('Error de autenticación:', error);
+      console.error('Authentication error:', error);
       setError('root', {
         type: 'manual',
-        message: error instanceof Error ? error.message : 'Error de autenticación'
+        message: error instanceof Error ? error.message : 'Authentication failed'
       });
+    } finally {
+      setIsRedirecting(false);
     }
   };
 
   const handleSignUpClick = () => {
-    router.push('/signup');
+    router.push('/signup'); 
   };
 
   return (
@@ -112,8 +128,9 @@ const LoginPage = () => {
               fullWidth
               variant="contained"
               size="large"
+              disabled={isSubmitting || isRedirecting}
             >
-              Sign In
+              {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
 
             <Box sx={{ 

@@ -11,7 +11,6 @@ const meta = {
   },
 } satisfies Meta<typeof WorkspaceCard>;
 
-// Reusing styles from create page
 const CardContainer = styled(Box)({
   display: 'flex',
   justifyContent: 'center',

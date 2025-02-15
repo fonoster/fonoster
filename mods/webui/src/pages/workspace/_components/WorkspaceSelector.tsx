@@ -18,7 +18,6 @@ interface Workspace {
   description: string
 }
 
-// Datos de ejemplo
 const workspaces: Workspace[] = [
   {
     id: '1',
