@@ -130,24 +130,38 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const signOut = async () => {
     if (client) {
       try {
+<<<<<<< HEAD
         // Limpiar tokens del cliente
+=======
+>>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
         client.logout ?.() || null;
       } catch (error) {
         console.error('Error during logout:', error);
       }
     }
     
+<<<<<<< HEAD
     // Limpiar cookies
+=======
+>>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
     setCookie('idToken', '', { maxAge: 0 });
     setCookie('accessToken', '', { maxAge: 0 });
     setCookie('refreshToken', '', { maxAge: 0 });
     
+<<<<<<< HEAD
     // Actualizar estado
+=======
+
+>>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
     setSession({ isAuthenticated: false });
     setClient(null);
     setIsInitialized(false);
     
+<<<<<<< HEAD
     // Redirigir
+=======
+
+>>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
     router.push('/signin');
   };
 

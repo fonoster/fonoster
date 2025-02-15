@@ -72,7 +72,10 @@ const ListWorkspacePage = () => {
         if (!response) return;
         
         const { items } = response;
+<<<<<<< HEAD
         console.log(items, 'items');
+=======
+>>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
         
         const formattedWorkspaces = items.map(workspace => ({
           id: workspace.id,
