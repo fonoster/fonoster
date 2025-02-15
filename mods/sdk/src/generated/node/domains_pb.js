@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.fonoster.domains.v1beta2.CreateDomainRequest', null, global);
 goog.exportSymbol('proto.fonoster.domains.v1beta2.CreateDomainResponse', null, global);
@@ -289,11 +295,11 @@ proto.fonoster.domains.v1beta2.Domain.prototype.toObject = function(opt_includeI
  */
 proto.fonoster.domains.v1beta2.Domain.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    domainUri: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+domainUri: jspb.Message.getFieldWithDefault(msg, 3, ""),
+createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -539,8 +545,8 @@ proto.fonoster.domains.v1beta2.EgressPolicy.prototype.toObject = function(opt_in
  */
 proto.fonoster.domains.v1beta2.EgressPolicy.toObject = function(includeInstance, msg) {
   var f, obj = {
-    rule: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    numberRef: jspb.Message.getFieldWithDefault(msg, 2, "")
+rule: jspb.Message.getFieldWithDefault(msg, 1, ""),
+numberRef: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -706,10 +712,10 @@ proto.fonoster.domains.v1beta2.CreateDomainRequest.prototype.toObject = function
  */
 proto.fonoster.domains.v1beta2.CreateDomainRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    domainUri: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    accessControlListRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    egressPoliciesList: jspb.Message.toObjectList(msg.getEgressPoliciesList(),
+name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+domainUri: jspb.Message.getFieldWithDefault(msg, 2, ""),
+accessControlListRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+egressPoliciesList: jspb.Message.toObjectList(msg.getEgressPoliciesList(),
     proto.fonoster.domains.v1beta2.EgressPolicy.toObject, includeInstance)
   };
 
@@ -949,7 +955,7 @@ proto.fonoster.domains.v1beta2.CreateDomainResponse.prototype.toObject = functio
  */
 proto.fonoster.domains.v1beta2.CreateDomainResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1086,10 +1092,10 @@ proto.fonoster.domains.v1beta2.UpdateDomainRequest.prototype.toObject = function
  */
 proto.fonoster.domains.v1beta2.UpdateDomainRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    accessControlListRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    egressPoliciesList: jspb.Message.toObjectList(msg.getEgressPoliciesList(),
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+accessControlListRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+egressPoliciesList: jspb.Message.toObjectList(msg.getEgressPoliciesList(),
     proto.fonoster.domains.v1beta2.EgressPolicy.toObject, includeInstance)
   };
 
@@ -1329,7 +1335,7 @@ proto.fonoster.domains.v1beta2.UpdateDomainResponse.prototype.toObject = functio
  */
 proto.fonoster.domains.v1beta2.UpdateDomainResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1459,7 +1465,7 @@ proto.fonoster.domains.v1beta2.GetDomainRequest.prototype.toObject = function(op
  */
 proto.fonoster.domains.v1beta2.GetDomainRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1589,7 +1595,7 @@ proto.fonoster.domains.v1beta2.DeleteDomainRequest.prototype.toObject = function
  */
 proto.fonoster.domains.v1beta2.DeleteDomainRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1719,7 +1725,7 @@ proto.fonoster.domains.v1beta2.DeleteDomainResponse.prototype.toObject = functio
  */
 proto.fonoster.domains.v1beta2.DeleteDomainResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1849,8 +1855,8 @@ proto.fonoster.domains.v1beta2.ListDomainsRequest.prototype.toObject = function(
  */
 proto.fonoster.domains.v1beta2.ListDomainsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -2016,9 +2022,9 @@ proto.fonoster.domains.v1beta2.ListDomainsResponse.prototype.toObject = function
  */
 proto.fonoster.domains.v1beta2.ListDomainsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.domains.v1beta2.Domain.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {

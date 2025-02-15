@@ -43,7 +43,7 @@ function createExchangeOauth2Code(
     callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { request } = call;
-    const { provider, username: email, code } = request;
+    const { provider, code } = request;
 
     logger.verbose("call to exchangeOauth2Code", { provider });
 
@@ -73,9 +73,9 @@ function createExchangeOauth2Code(
     });
 
     const userData = await userResponse.json();
-    const user = await createGetUserByEmail(prisma)(email);
+    const user = await createGetUserByEmail(prisma)(userData.email);
 
-    if (userData.email !== email || !user) {
+    if (!user) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"

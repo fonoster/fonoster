@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.fonoster.credentials.v1beta2.CreateCredentialsRequest', null, global);
 goog.exportSymbol('proto.fonoster.credentials.v1beta2.CreateCredentialsResponse', null, global);
@@ -267,11 +273,11 @@ proto.fonoster.credentials.v1beta2.Credentials.prototype.toObject = function(opt
  */
 proto.fonoster.credentials.v1beta2.Credentials.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    username: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+username: jspb.Message.getFieldWithDefault(msg, 3, ""),
+createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -517,9 +523,9 @@ proto.fonoster.credentials.v1beta2.CreateCredentialsRequest.prototype.toObject =
  */
 proto.fonoster.credentials.v1beta2.CreateCredentialsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    username: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 3, "")
+name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+username: jspb.Message.getFieldWithDefault(msg, 2, ""),
+password: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -707,7 +713,7 @@ proto.fonoster.credentials.v1beta2.CreateCredentialsResponse.prototype.toObject 
  */
 proto.fonoster.credentials.v1beta2.CreateCredentialsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -837,10 +843,10 @@ proto.fonoster.credentials.v1beta2.UpdateCredentialsRequest.prototype.toObject =
  */
 proto.fonoster.credentials.v1beta2.UpdateCredentialsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    username: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 4, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+username: jspb.Message.getFieldWithDefault(msg, 3, ""),
+password: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -1057,7 +1063,7 @@ proto.fonoster.credentials.v1beta2.UpdateCredentialsResponse.prototype.toObject 
  */
 proto.fonoster.credentials.v1beta2.UpdateCredentialsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1187,7 +1193,7 @@ proto.fonoster.credentials.v1beta2.GetCredentialsRequest.prototype.toObject = fu
  */
 proto.fonoster.credentials.v1beta2.GetCredentialsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1317,7 +1323,7 @@ proto.fonoster.credentials.v1beta2.DeleteCredentialsRequest.prototype.toObject =
  */
 proto.fonoster.credentials.v1beta2.DeleteCredentialsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1447,7 +1453,7 @@ proto.fonoster.credentials.v1beta2.DeleteCredentialsResponse.prototype.toObject 
  */
 proto.fonoster.credentials.v1beta2.DeleteCredentialsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1577,8 +1583,8 @@ proto.fonoster.credentials.v1beta2.ListCredentialsRequest.prototype.toObject = f
  */
 proto.fonoster.credentials.v1beta2.ListCredentialsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1744,9 +1750,9 @@ proto.fonoster.credentials.v1beta2.ListCredentialsResponse.prototype.toObject = 
  */
 proto.fonoster.credentials.v1beta2.ListCredentialsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.credentials.v1beta2.Credentials.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {

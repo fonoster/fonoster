@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallDetailRecord', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallDirection', null, global);
@@ -227,16 +233,16 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.toObject = function(opt_
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    callId: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    type: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    status: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    startedAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    endedAt: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    from: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    to: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    duration: jspb.Message.getFieldWithDefault(msg, 9, 0),
-    direction: jspb.Message.getFieldWithDefault(msg, 10, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+callId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+type: jspb.Message.getFieldWithDefault(msg, 3, 0),
+status: jspb.Message.getFieldWithDefault(msg, 4, 0),
+startedAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
+endedAt: jspb.Message.getFieldWithDefault(msg, 6, 0),
+from: jspb.Message.getFieldWithDefault(msg, 7, ""),
+to: jspb.Message.getFieldWithDefault(msg, 8, ""),
+duration: jspb.Message.getFieldWithDefault(msg, 9, 0),
+direction: jspb.Message.getFieldWithDefault(msg, 10, 0)
   };
 
   if (includeInstance) {
@@ -627,10 +633,10 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.toObject = function(opt
  */
 proto.fonoster.calls.v1beta2.CreateCallRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    from: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    to: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    appRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    timeout: jspb.Message.getFieldWithDefault(msg, 4, 0)
+from: jspb.Message.getFieldWithDefault(msg, 1, ""),
+to: jspb.Message.getFieldWithDefault(msg, 2, ""),
+appRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+timeout: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -847,7 +853,7 @@ proto.fonoster.calls.v1beta2.CreateCallResponse.prototype.toObject = function(op
  */
 proto.fonoster.calls.v1beta2.CreateCallResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -977,14 +983,14 @@ proto.fonoster.calls.v1beta2.ListCallsRequest.prototype.toObject = function(opt_
  */
 proto.fonoster.calls.v1beta2.ListCallsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    after: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    before: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    type: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    status: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    from: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    to: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 7, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 8, "")
+after: jspb.Message.getFieldWithDefault(msg, 1, ""),
+before: jspb.Message.getFieldWithDefault(msg, 2, ""),
+type: jspb.Message.getFieldWithDefault(msg, 3, 0),
+status: jspb.Message.getFieldWithDefault(msg, 4, 0),
+from: jspb.Message.getFieldWithDefault(msg, 5, ""),
+to: jspb.Message.getFieldWithDefault(msg, 6, ""),
+pageSize: jspb.Message.getFieldWithDefault(msg, 7, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -1324,9 +1330,9 @@ proto.fonoster.calls.v1beta2.ListCallsResponse.prototype.toObject = function(opt
  */
 proto.fonoster.calls.v1beta2.ListCallsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.calls.v1beta2.CallDetailRecord.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1507,7 +1513,7 @@ proto.fonoster.calls.v1beta2.GetCallRequest.prototype.toObject = function(opt_in
  */
 proto.fonoster.calls.v1beta2.GetCallRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1637,7 +1643,7 @@ proto.fonoster.calls.v1beta2.TrackCallRequest.prototype.toObject = function(opt_
  */
 proto.fonoster.calls.v1beta2.TrackCallRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1767,7 +1773,7 @@ proto.fonoster.calls.v1beta2.TrackCallResponse.prototype.toObject = function(opt
  */
 proto.fonoster.calls.v1beta2.TrackCallResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    status: jspb.Message.getFieldWithDefault(msg, 1, 0)
+status: jspb.Message.getFieldWithDefault(msg, 1, 0)
   };
 
   if (includeInstance) {

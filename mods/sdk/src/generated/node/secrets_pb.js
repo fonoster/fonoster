@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.fonoster.secrets.v1beta2.CreateSecretRequest', null, global);
 goog.exportSymbol('proto.fonoster.secrets.v1beta2.CreateSecretResponse', null, global);
@@ -267,11 +273,11 @@ proto.fonoster.secrets.v1beta2.Secret.prototype.toObject = function(opt_includeI
  */
 proto.fonoster.secrets.v1beta2.Secret.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    secret: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+secret: jspb.Message.getFieldWithDefault(msg, 3, ""),
+createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -517,8 +523,8 @@ proto.fonoster.secrets.v1beta2.CreateSecretRequest.prototype.toObject = function
  */
 proto.fonoster.secrets.v1beta2.CreateSecretRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    secret: jspb.Message.getFieldWithDefault(msg, 2, "")
+name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+secret: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -677,7 +683,7 @@ proto.fonoster.secrets.v1beta2.CreateSecretResponse.prototype.toObject = functio
  */
 proto.fonoster.secrets.v1beta2.CreateSecretResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -807,9 +813,9 @@ proto.fonoster.secrets.v1beta2.UpdateSecretRequest.prototype.toObject = function
  */
 proto.fonoster.secrets.v1beta2.UpdateSecretRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    secret: jspb.Message.getFieldWithDefault(msg, 3, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+secret: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -997,7 +1003,7 @@ proto.fonoster.secrets.v1beta2.UpdateSecretResponse.prototype.toObject = functio
  */
 proto.fonoster.secrets.v1beta2.UpdateSecretResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1127,7 +1133,7 @@ proto.fonoster.secrets.v1beta2.GetSecretRequest.prototype.toObject = function(op
  */
 proto.fonoster.secrets.v1beta2.GetSecretRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1257,7 +1263,7 @@ proto.fonoster.secrets.v1beta2.DeleteSecretRequest.prototype.toObject = function
  */
 proto.fonoster.secrets.v1beta2.DeleteSecretRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1387,7 +1393,7 @@ proto.fonoster.secrets.v1beta2.DeleteSecretResponse.prototype.toObject = functio
  */
 proto.fonoster.secrets.v1beta2.DeleteSecretResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1517,8 +1523,8 @@ proto.fonoster.secrets.v1beta2.ListSecretsRequest.prototype.toObject = function(
  */
 proto.fonoster.secrets.v1beta2.ListSecretsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1684,9 +1690,9 @@ proto.fonoster.secrets.v1beta2.ListSecretsResponse.prototype.toObject = function
  */
 proto.fonoster.secrets.v1beta2.ListSecretsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.secrets.v1beta2.Secret.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {

@@ -276,8 +276,7 @@ message ExchangeOauth2CodeRequest {
     GITHUB = 0;
   }
   Oauth2Provider provider = 1;
-  string username = 2;
-  string code = 3;
+  string code = 2;
 }
 
 message ExchangeOauth2CodeResponse {

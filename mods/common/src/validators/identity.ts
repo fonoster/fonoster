@@ -58,9 +58,6 @@ const exchangeCredentialsRequestSchema = z.object({
 
 const exchangeOauth2RequestSchema = z.object({
   provider: z.enum(["GITHUB"]).default("GITHUB"),
-  username: z
-    .string()
-    .email({ message: "Invalid username. Must be an email address" }),
   code: z.string()
 });
 

@@ -889,9 +889,6 @@ export class ExchangeOauth2CodeRequest extends jspb.Message {
   getProvider(): ExchangeOauth2CodeRequest.Oauth2Provider;
   setProvider(value: ExchangeOauth2CodeRequest.Oauth2Provider): ExchangeOauth2CodeRequest;
 
-  getUsername(): string;
-  setUsername(value: string): ExchangeOauth2CodeRequest;
-
   getCode(): string;
   setCode(value: string): ExchangeOauth2CodeRequest;
 
@@ -906,7 +903,6 @@ export class ExchangeOauth2CodeRequest extends jspb.Message {
 export namespace ExchangeOauth2CodeRequest {
   export type AsObject = {
     provider: ExchangeOauth2CodeRequest.Oauth2Provider,
-    username: string,
     code: string,
   }
 

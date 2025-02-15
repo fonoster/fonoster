@@ -133,15 +133,11 @@ abstract class AbstractClient implements FonosterClient {
     this._accessToken = accessToken;
   }
 
-  async loginWithOauth2Code(
-    provider: "GITHUB",
-    username: string,
-    code: string
-  ): Promise<void> {
+  async loginWithOauth2Code(provider: "GITHUB", code: string): Promise<void> {
     const { refreshToken, accessToken, idToken } = await makeRpcRequest<
       ExchangeOauth2CodeRequestPB,
       ExchangeOauth2CodeResponsePB,
-      { provider: "GITHUB"; username: string; code: string },
+      { provider: "GITHUB"; code: string },
       { refreshToken: string; accessToken: string; idToken: string }
     >({
       method: this.identityClient.exchangeOauth2Code.bind(this.identityClient),
@@ -149,7 +145,6 @@ abstract class AbstractClient implements FonosterClient {
       metadata: {},
       request: {
         provider,
-        username,
         code
       },
       enumMapping: [["provider", ExchangeOauth2CodeRequestPB.Oauth2Provider]]

@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.fonoster.trunks.v1beta2.CreateTrunkRequest', null, global);
 goog.exportSymbol('proto.fonoster.trunks.v1beta2.CreateTrunkResponse', null, global);
@@ -333,13 +339,13 @@ proto.fonoster.trunks.v1beta2.TrunkURI.prototype.toObject = function(opt_include
  */
 proto.fonoster.trunks.v1beta2.TrunkURI.toObject = function(includeInstance, msg) {
   var f, obj = {
-    host: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    port: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    transport: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    user: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    weight: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    priority: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    enabled: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
+host: jspb.Message.getFieldWithDefault(msg, 1, ""),
+port: jspb.Message.getFieldWithDefault(msg, 2, 0),
+transport: jspb.Message.getFieldWithDefault(msg, 3, ""),
+user: jspb.Message.getFieldWithDefault(msg, 4, ""),
+weight: jspb.Message.getFieldWithDefault(msg, 5, 0),
+priority: jspb.Message.getFieldWithDefault(msg, 6, 0),
+enabled: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -650,16 +656,16 @@ proto.fonoster.trunks.v1beta2.Trunk.prototype.toObject = function(opt_includeIns
  */
 proto.fonoster.trunks.v1beta2.Trunk.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    sendRegister: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
-    inboundUri: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    accessControlList: (f = msg.getAccessControlList()) && proto.fonoster.trunks.v1beta2.Trunk.Acl.toObject(includeInstance, f),
-    inboundCredentials: (f = msg.getInboundCredentials()) && proto.fonoster.trunks.v1beta2.Trunk.Credentials.toObject(includeInstance, f),
-    outboundCredentials: (f = msg.getOutboundCredentials()) && proto.fonoster.trunks.v1beta2.Trunk.Credentials.toObject(includeInstance, f),
-    urisList: jspb.Message.toObjectList(msg.getUrisList(),
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+sendRegister: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
+inboundUri: jspb.Message.getFieldWithDefault(msg, 4, ""),
+createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0),
+accessControlList: (f = msg.getAccessControlList()) && proto.fonoster.trunks.v1beta2.Trunk.Acl.toObject(includeInstance, f),
+inboundCredentials: (f = msg.getInboundCredentials()) && proto.fonoster.trunks.v1beta2.Trunk.Credentials.toObject(includeInstance, f),
+outboundCredentials: (f = msg.getOutboundCredentials()) && proto.fonoster.trunks.v1beta2.Trunk.Credentials.toObject(includeInstance, f),
+urisList: jspb.Message.toObjectList(msg.getUrisList(),
     proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance)
   };
 
@@ -886,10 +892,10 @@ proto.fonoster.trunks.v1beta2.Trunk.Acl.prototype.toObject = function(opt_includ
  */
 proto.fonoster.trunks.v1beta2.Trunk.Acl.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
-    denyList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
+denyList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1144,9 +1150,9 @@ proto.fonoster.trunks.v1beta2.Trunk.Credentials.prototype.toObject = function(op
  */
 proto.fonoster.trunks.v1beta2.Trunk.Credentials.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    username: jspb.Message.getFieldWithDefault(msg, 3, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+username: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -1598,13 +1604,13 @@ proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.toObject = function(o
  */
 proto.fonoster.trunks.v1beta2.CreateTrunkRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    sendRegister: jspb.Message.getBooleanFieldWithDefault(msg, 2, false),
-    inboundUri: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    accessControlListRef: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    inboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    outboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    urisList: jspb.Message.toObjectList(msg.getUrisList(),
+name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+sendRegister: jspb.Message.getBooleanFieldWithDefault(msg, 2, false),
+inboundUri: jspb.Message.getFieldWithDefault(msg, 3, ""),
+accessControlListRef: jspb.Message.getFieldWithDefault(msg, 4, ""),
+inboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 5, ""),
+outboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
+urisList: jspb.Message.toObjectList(msg.getUrisList(),
     proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance)
   };
 
@@ -1931,7 +1937,7 @@ proto.fonoster.trunks.v1beta2.CreateTrunkResponse.prototype.toObject = function(
  */
 proto.fonoster.trunks.v1beta2.CreateTrunkResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2068,14 +2074,14 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.toObject = function(o
  */
 proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    sendRegister: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
-    inboundUri: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    accessControlListRef: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    inboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    outboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    urisList: jspb.Message.toObjectList(msg.getUrisList(),
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+sendRegister: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
+inboundUri: jspb.Message.getFieldWithDefault(msg, 4, ""),
+accessControlListRef: jspb.Message.getFieldWithDefault(msg, 5, ""),
+inboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
+outboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 7, ""),
+urisList: jspb.Message.toObjectList(msg.getUrisList(),
     proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance)
   };
 
@@ -2431,7 +2437,7 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkResponse.prototype.toObject = function(
  */
 proto.fonoster.trunks.v1beta2.UpdateTrunkResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2561,7 +2567,7 @@ proto.fonoster.trunks.v1beta2.GetTrunkRequest.prototype.toObject = function(opt_
  */
 proto.fonoster.trunks.v1beta2.GetTrunkRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2691,7 +2697,7 @@ proto.fonoster.trunks.v1beta2.DeleteTrunkRequest.prototype.toObject = function(o
  */
 proto.fonoster.trunks.v1beta2.DeleteTrunkRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2821,7 +2827,7 @@ proto.fonoster.trunks.v1beta2.DeleteTrunkResponse.prototype.toObject = function(
  */
 proto.fonoster.trunks.v1beta2.DeleteTrunkResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2951,8 +2957,8 @@ proto.fonoster.trunks.v1beta2.ListTrunksRequest.prototype.toObject = function(op
  */
 proto.fonoster.trunks.v1beta2.ListTrunksRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -3118,9 +3124,9 @@ proto.fonoster.trunks.v1beta2.ListTrunksResponse.prototype.toObject = function(o
  */
 proto.fonoster.trunks.v1beta2.ListTrunksResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.trunks.v1beta2.Trunk.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {

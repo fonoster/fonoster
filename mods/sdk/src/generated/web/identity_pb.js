@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 goog.object.extend(proto, google_protobuf_empty_pb);
@@ -1063,12 +1069,12 @@ proto.fonoster.identity.v1beta2.Workspace.prototype.toObject = function(opt_incl
  */
 proto.fonoster.identity.v1beta2.Workspace.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    ownerRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+ownerRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+accessKeyId: jspb.Message.getFieldWithDefault(msg, 4, ""),
+createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
   };
 
   if (includeInstance) {
@@ -1343,7 +1349,7 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.prototype.toObject = func
  */
 proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 1, "")
+name: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1473,7 +1479,7 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.toObject = fun
  */
 proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1603,7 +1609,7 @@ proto.fonoster.identity.v1beta2.DeleteWorkspaceRequest.prototype.toObject = func
  */
 proto.fonoster.identity.v1beta2.DeleteWorkspaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1733,7 +1739,7 @@ proto.fonoster.identity.v1beta2.DeleteWorkspaceResponse.prototype.toObject = fun
  */
 proto.fonoster.identity.v1beta2.DeleteWorkspaceResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1863,7 +1869,7 @@ proto.fonoster.identity.v1beta2.GetWorkspaceRequest.prototype.toObject = functio
  */
 proto.fonoster.identity.v1beta2.GetWorkspaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1993,8 +1999,8 @@ proto.fonoster.identity.v1beta2.ListWorkspacesRequest.prototype.toObject = funct
  */
 proto.fonoster.identity.v1beta2.ListWorkspacesRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0)
+pageToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
+pageSize: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -2160,9 +2166,9 @@ proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.toObject = func
  */
 proto.fonoster.identity.v1beta2.ListWorkspacesResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.identity.v1beta2.Workspace.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -2343,8 +2349,8 @@ proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.prototype.toObject = func
  */
 proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -2503,7 +2509,7 @@ proto.fonoster.identity.v1beta2.UpdateWorkspaceResponse.prototype.toObject = fun
  */
 proto.fonoster.identity.v1beta2.UpdateWorkspaceResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2633,9 +2639,9 @@ proto.fonoster.identity.v1beta2.InviteUserToWorkspaceRequest.prototype.toObject 
  */
 proto.fonoster.identity.v1beta2.InviteUserToWorkspaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    email: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    role: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 3, "")
+email: jspb.Message.getFieldWithDefault(msg, 1, ""),
+role: jspb.Message.getFieldWithDefault(msg, 2, ""),
+name: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -2823,7 +2829,7 @@ proto.fonoster.identity.v1beta2.InviteUserToWorkspaceResponse.prototype.toObject
  */
 proto.fonoster.identity.v1beta2.InviteUserToWorkspaceResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
+userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2953,7 +2959,7 @@ proto.fonoster.identity.v1beta2.RemoveUserFromWorkspaceRequest.prototype.toObjec
  */
 proto.fonoster.identity.v1beta2.RemoveUserFromWorkspaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
+userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -3083,7 +3089,7 @@ proto.fonoster.identity.v1beta2.RemoveUserFromWorkspaceResponse.prototype.toObje
  */
 proto.fonoster.identity.v1beta2.RemoveUserFromWorkspaceResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
+userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -3213,7 +3219,7 @@ proto.fonoster.identity.v1beta2.ResendWorkspaceMembershipInvitationRequest.proto
  */
 proto.fonoster.identity.v1beta2.ResendWorkspaceMembershipInvitationRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
+userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -3343,7 +3349,7 @@ proto.fonoster.identity.v1beta2.ResendWorkspaceMembershipInvitationResponse.prot
  */
 proto.fonoster.identity.v1beta2.ResendWorkspaceMembershipInvitationResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
+userRef: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -3473,10 +3479,10 @@ proto.fonoster.identity.v1beta2.CreateUserRequest.prototype.toObject = function(
  */
 proto.fonoster.identity.v1beta2.CreateUserRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    email: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    avatar: jspb.Message.getFieldWithDefault(msg, 4, "")
+email: jspb.Message.getFieldWithDefault(msg, 1, ""),
+password: jspb.Message.getFieldWithDefault(msg, 2, ""),
+name: jspb.Message.getFieldWithDefault(msg, 3, ""),
+avatar: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -3693,7 +3699,7 @@ proto.fonoster.identity.v1beta2.CreateUserResponse.prototype.toObject = function
  */
 proto.fonoster.identity.v1beta2.CreateUserResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -3823,7 +3829,7 @@ proto.fonoster.identity.v1beta2.GetUserRequest.prototype.toObject = function(opt
  */
 proto.fonoster.identity.v1beta2.GetUserRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -3953,12 +3959,12 @@ proto.fonoster.identity.v1beta2.User.prototype.toObject = function(opt_includeIn
  */
 proto.fonoster.identity.v1beta2.User.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    email: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    avatar: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+email: jspb.Message.getFieldWithDefault(msg, 2, ""),
+name: jspb.Message.getFieldWithDefault(msg, 3, ""),
+avatar: jspb.Message.getFieldWithDefault(msg, 4, ""),
+createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
   };
 
   if (includeInstance) {
@@ -4233,10 +4239,10 @@ proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.toObject = function(
  */
 proto.fonoster.identity.v1beta2.UpdateUserRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    avatar: jspb.Message.getFieldWithDefault(msg, 4, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+password: jspb.Message.getFieldWithDefault(msg, 2, ""),
+name: jspb.Message.getFieldWithDefault(msg, 3, ""),
+avatar: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -4453,7 +4459,7 @@ proto.fonoster.identity.v1beta2.UpdateUserResponse.prototype.toObject = function
  */
 proto.fonoster.identity.v1beta2.UpdateUserResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -4583,7 +4589,7 @@ proto.fonoster.identity.v1beta2.DeleteUserRequest.prototype.toObject = function(
  */
 proto.fonoster.identity.v1beta2.DeleteUserRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -4713,7 +4719,7 @@ proto.fonoster.identity.v1beta2.DeleteUserResponse.prototype.toObject = function
  */
 proto.fonoster.identity.v1beta2.DeleteUserResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -4843,8 +4849,8 @@ proto.fonoster.identity.v1beta2.SendVerificationCodeRequest.prototype.toObject =
  */
 proto.fonoster.identity.v1beta2.SendVerificationCodeRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    contactType: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    value: jspb.Message.getFieldWithDefault(msg, 2, "")
+contactType: jspb.Message.getFieldWithDefault(msg, 1, 0),
+value: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -5003,10 +5009,10 @@ proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.toObject = function(
  */
 proto.fonoster.identity.v1beta2.VerifyCodeRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    username: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    contactType: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    value: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    verificationCode: jspb.Message.getFieldWithDefault(msg, 4, "")
+username: jspb.Message.getFieldWithDefault(msg, 1, ""),
+contactType: jspb.Message.getFieldWithDefault(msg, 2, 0),
+value: jspb.Message.getFieldWithDefault(msg, 3, ""),
+verificationCode: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -5223,8 +5229,8 @@ proto.fonoster.identity.v1beta2.CreateApiKeyRequest.prototype.toObject = functio
  */
 proto.fonoster.identity.v1beta2.CreateApiKeyRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    role: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    expiresAt: jspb.Message.getFieldWithDefault(msg, 2, 0)
+role: jspb.Message.getFieldWithDefault(msg, 1, ""),
+expiresAt: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -5383,9 +5389,9 @@ proto.fonoster.identity.v1beta2.CreateApiKeyResponse.prototype.toObject = functi
  */
 proto.fonoster.identity.v1beta2.CreateApiKeyResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    accessKeySecret: jspb.Message.getFieldWithDefault(msg, 3, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+accessKeySecret: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -5573,7 +5579,7 @@ proto.fonoster.identity.v1beta2.DeleteApiKeyRequest.prototype.toObject = functio
  */
 proto.fonoster.identity.v1beta2.DeleteApiKeyRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -5703,7 +5709,7 @@ proto.fonoster.identity.v1beta2.DeleteApiKeyResponse.prototype.toObject = functi
  */
 proto.fonoster.identity.v1beta2.DeleteApiKeyResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -5833,8 +5839,8 @@ proto.fonoster.identity.v1beta2.ListApiKeysRequest.prototype.toObject = function
  */
 proto.fonoster.identity.v1beta2.ListApiKeysRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageSize: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+pageSize: jspb.Message.getFieldWithDefault(msg, 3, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -6000,9 +6006,9 @@ proto.fonoster.identity.v1beta2.ListApiKeysResponse.prototype.toObject = functio
  */
 proto.fonoster.identity.v1beta2.ListApiKeysResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.identity.v1beta2.ApiKey.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -6183,7 +6189,7 @@ proto.fonoster.identity.v1beta2.RegenerateApiKeyRequest.prototype.toObject = fun
  */
 proto.fonoster.identity.v1beta2.RegenerateApiKeyRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -6313,9 +6319,9 @@ proto.fonoster.identity.v1beta2.RegenerateApiKeyResponse.prototype.toObject = fu
  */
 proto.fonoster.identity.v1beta2.RegenerateApiKeyResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    accessKeySecret: jspb.Message.getFieldWithDefault(msg, 3, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+accessKeySecret: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -6503,12 +6509,12 @@ proto.fonoster.identity.v1beta2.ApiKey.prototype.toObject = function(opt_include
  */
 proto.fonoster.identity.v1beta2.ApiKey.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    role: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    expiresAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+role: jspb.Message.getFieldWithDefault(msg, 3, ""),
+expiresAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
+createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
   };
 
   if (includeInstance) {
@@ -6783,9 +6789,9 @@ proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.prototype.toObject = 
  */
 proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    username: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    verificationCode: jspb.Message.getFieldWithDefault(msg, 3, "")
+username: jspb.Message.getFieldWithDefault(msg, 1, ""),
+password: jspb.Message.getFieldWithDefault(msg, 2, ""),
+verificationCode: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -6973,9 +6979,9 @@ proto.fonoster.identity.v1beta2.ExchangeCredentialsResponse.prototype.toObject =
  */
 proto.fonoster.identity.v1beta2.ExchangeCredentialsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    idToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    refreshToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+idToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
+accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+refreshToken: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -7163,8 +7169,8 @@ proto.fonoster.identity.v1beta2.ExchangeApiKeyRequest.prototype.toObject = funct
  */
 proto.fonoster.identity.v1beta2.ExchangeApiKeyRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessKeySecret: jspb.Message.getFieldWithDefault(msg, 2, "")
+accessKeyId: jspb.Message.getFieldWithDefault(msg, 1, ""),
+accessKeySecret: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -7323,9 +7329,9 @@ proto.fonoster.identity.v1beta2.ExchangeApiKeyResponse.prototype.toObject = func
  */
 proto.fonoster.identity.v1beta2.ExchangeApiKeyResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    idToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    refreshToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+idToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
+accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+refreshToken: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -7513,9 +7519,8 @@ proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.prototype.toObject = f
  */
 proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    provider: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    username: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    code: jspb.Message.getFieldWithDefault(msg, 3, "")
+provider: jspb.Message.getFieldWithDefault(msg, 1, 0),
+code: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -7558,10 +7563,6 @@ proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.deserializeBinaryFromR
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUsername(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
       msg.setCode(value);
       break;
     default:
@@ -7600,17 +7601,10 @@ proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.serializeBinaryToWrite
       f
     );
   }
-  f = message.getUsername();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
   f = message.getCode();
   if (f.length > 0) {
     writer.writeString(
-      3,
+      2,
       f
     );
   }
@@ -7643,10 +7637,10 @@ proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.prototype.setProvider 
 
 
 /**
- * optional string username = 2;
+ * optional string code = 2;
  * @return {string}
  */
-proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.prototype.getUsername = function() {
+proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.prototype.getCode = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
@@ -7655,26 +7649,8 @@ proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.prototype.getUsername 
  * @param {string} value
  * @return {!proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest} returns this
  */
-proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.prototype.setUsername = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-/**
- * optional string code = 3;
- * @return {string}
- */
-proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.prototype.getCode = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest} returns this
- */
 proto.fonoster.identity.v1beta2.ExchangeOauth2CodeRequest.prototype.setCode = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -7710,9 +7686,9 @@ proto.fonoster.identity.v1beta2.ExchangeOauth2CodeResponse.prototype.toObject = 
  */
 proto.fonoster.identity.v1beta2.ExchangeOauth2CodeResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    idToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    refreshToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+idToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
+accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+refreshToken: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -7900,7 +7876,7 @@ proto.fonoster.identity.v1beta2.ExchangeRefreshTokenRequest.prototype.toObject =
  */
 proto.fonoster.identity.v1beta2.ExchangeRefreshTokenRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    refreshToken: jspb.Message.getFieldWithDefault(msg, 1, "")
+refreshToken: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -8030,9 +8006,9 @@ proto.fonoster.identity.v1beta2.ExchangeRefreshTokenResponse.prototype.toObject 
  */
 proto.fonoster.identity.v1beta2.ExchangeRefreshTokenResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    idToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    refreshToken: jspb.Message.getFieldWithDefault(msg, 3, "")
+idToken: jspb.Message.getFieldWithDefault(msg, 1, ""),
+accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+refreshToken: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -8220,7 +8196,7 @@ proto.fonoster.identity.v1beta2.RevokeTokenRequest.prototype.toObject = function
  */
 proto.fonoster.identity.v1beta2.RevokeTokenRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    token: jspb.Message.getFieldWithDefault(msg, 1, "")
+token: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -8350,7 +8326,7 @@ proto.fonoster.identity.v1beta2.RevokeTokenResponse.prototype.toObject = functio
  */
 proto.fonoster.identity.v1beta2.RevokeTokenResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    token: jspb.Message.getFieldWithDefault(msg, 1, "")
+token: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -8480,7 +8456,7 @@ proto.fonoster.identity.v1beta2.GetPublicKeyResponse.prototype.toObject = functi
  */
 proto.fonoster.identity.v1beta2.GetPublicKeyResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    publicKey: jspb.Message.getFieldWithDefault(msg, 1, "")
+publicKey: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
