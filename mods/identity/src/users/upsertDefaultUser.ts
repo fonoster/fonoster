@@ -19,7 +19,8 @@
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
-import { prisma } from "../db";
+import { createPrismaClient } from "../db";
+import { IdentityConfig } from "../exchanges";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -39,7 +40,15 @@ const WORKSPACE_REF = "00000000-0000-0000-0000-000000000000";
 const USER_ACCESS_KEY_ID = "US00000000000000000000000000000000";
 const WORKSPACE_ACCESS_KEY_ID = "WO00000000000000000000000000000000";
 
-async function upsertDefaultUser(request: CreateUserRequest) {
+async function upsertDefaultUser(
+  identityConfig: IdentityConfig,
+  request: CreateUserRequest
+) {
+  const prisma = createPrismaClient(
+    identityConfig.dbUrl,
+    identityConfig.encryptionKey
+  );
+
   try {
     const validatedRequest = createUserRequestSchema.parse(request);
 

@@ -31,10 +31,6 @@ import {
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { createIsAdminMember } from "./createIsAdminMember";
 import { Prisma } from "../db";
-import {
-  IDENTITY_WORKSPACE_INVITATION_URL,
-  IDENTITY_WORKSPACE_INVITE_EXPIRATION
-} from "../envs";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites";
 import { createSendEmail } from "../utils";
@@ -110,7 +106,7 @@ function createResendWorkspaceMembershipInvitation(
       userRef: member.user.ref,
       memberRef: member.ref,
       accessKeyId: member.user.accessKeyId,
-      expiresIn: IDENTITY_WORKSPACE_INVITE_EXPIRATION
+      expiresIn: identityConfig.workspaceInviteExpiration
     });
 
     await sendInvite(createSendEmail(identityConfig), {
@@ -118,7 +114,7 @@ function createResendWorkspaceMembershipInvitation(
       oneTimePassword: member.user.password,
       workspaceName: member.workspace.name,
       isExistingUser: true,
-      inviteUrl: `${IDENTITY_WORKSPACE_INVITATION_URL}?token=${inviteeToken}`
+      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`
     });
 
     callback(null, {

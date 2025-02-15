@@ -37,6 +37,7 @@ import {
   CALL_DETAIL_RECORD_MEASUREMENT,
   INFLUXDB_CALLS_BUCKET
 } from "@fonoster/common";
+import { identityConfig } from "./core/identityConfig";
 
 import("./core/removeSwaggerNotice");
 
@@ -47,7 +48,7 @@ async function main() {
       email: OWNER_EMAIL,
       password: OWNER_PASSWORD
     };
-    await upsertDefaultUser(user);
+    await upsertDefaultUser(identityConfig, user);
   }
 
   // Upsert a Peer for the default region, if it doesn't already exist

@@ -17,17 +17,19 @@
  * limitations under the License.
  */
 import { Readable } from "stream";
-import { createUpdateMembershipStatus } from "@fonoster/identity";
+import {
+  createUpdateMembershipStatus,
+  IdentityConfig
+} from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import express, { Request, Response } from "express";
-import { identityConfig } from "./identityConfig";
-import { APP_URL, IDENTITY_WORKSPACE_INVITATION_FAIL_URL } from "../envs";
+import { APP_URL } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 const CONTENT_TYPE = "audio/L16;rate=16000;channels=1";
 
-function httpBridge(params: { port: number }) {
+function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
   const { port } = params;
   const app = express();
   const streamMap = new Map<string, Readable>();
@@ -69,7 +71,7 @@ function httpBridge(params: { port: number }) {
         res.redirect(APP_URL);
       } catch (error) {
         logger.verbose("error updating membership status", error);
-        res.redirect(IDENTITY_WORKSPACE_INVITATION_FAIL_URL);
+        res.redirect(identityConfig.workspaceInviteFailUrl);
       }
     }
   );

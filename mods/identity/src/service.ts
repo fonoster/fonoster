@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { prisma } from "./db";
-import { IDENTITY_USER_VERIFICATION_REQUIRED } from "./envs";
+import { createPrismaClient } from "./db";
 import { createExchangeOauth2Code } from "./exchanges/createExchangeOauth2Code";
 import { IdentityConfig } from "./exchanges/types";
 import { createGetPublicKey } from "./getPublicKey";
@@ -53,6 +52,11 @@ const serviceDefinitionParams = {
 };
 
 function buildIdentityService(identityConfig: IdentityConfig) {
+  const prisma = createPrismaClient(
+    identityConfig.dbUrl,
+    identityConfig.encryptionKey
+  );
+
   const service = {
     definition: serviceDefinitionParams,
     handlers: {
@@ -98,7 +102,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
     }
   };
 
-  if (IDENTITY_USER_VERIFICATION_REQUIRED) {
+  if (identityConfig.userVerificationRequired) {
     service.handlers.sendVerificationCode = createSendVerificationCode(
       prisma,
       identityConfig
