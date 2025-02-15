@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { assertEnvsAreSet } from "@fonoster/common";
 import {
   CLOAK_ENCRYPTION_KEY,
   IDENTITY_ACCESS_TOKEN_EXPIRES_IN,
@@ -25,11 +24,9 @@ import {
   IDENTITY_ISSUER,
   IDENTITY_OAUTH2_GITHUB_CLIENT_ID,
   IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET,
-  IDENTITY_OAUTH2_GITHUB_ENABLED,
   IDENTITY_PRIVATE_KEY,
   IDENTITY_PUBLIC_KEY,
   IDENTITY_REFRESH_TOKEN_EXPIRES_IN,
-  IDENTITY_USER_VERIFICATION_REQUIRED,
   SMTP_AUTH_PASS,
   SMTP_AUTH_USER,
   SMTP_HOST,
