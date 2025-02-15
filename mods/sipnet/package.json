@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/sipnet",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Routr-based SIP stack",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -20,8 +20,8 @@
     "fonoster": "./dist/index.js"
   },
   "dependencies": {
-    "@fonoster/common": "^0.9.4",
-    "@fonoster/identity": "^0.9.4",
+    "@fonoster/common": "^0.9.5",
+    "@fonoster/identity": "^0.9.5",
     "@fonoster/logger": "^0.9.0",
     "@fonoster/types": "^0.9.0",
     "@grpc/grpc-js": "~1.10.6",
