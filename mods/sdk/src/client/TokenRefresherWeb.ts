@@ -43,7 +43,7 @@ class TokenRefresherWeb {
       }
 
       on(eventType: string, callback: () => void) {
-        const token = this.refresher.client.getRefreshToken();
+        const token = this.refresher.client.getAccessToken();
 
         if (isJwtExpired(token)) {
           this.refresher.client.refreshToken().then(() => {});
