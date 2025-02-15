@@ -27,7 +27,6 @@ if (process.env.NODE_ENV === "dev") {
 
 const e = process.env;
 
-export const SKIP_IDENTITY = e.AUTOPILOT_SKIP_IDENTITY === "true";
 export const AWS_S3_ACCESS_KEY_ID = e.AUTOPILOT_AWS_S3_ACCESS_KEY_ID;
 export const AWS_S3_ENDPOINT = e.AUTOPILOT_AWS_S3_ENDPOINT;
 export const AWS_S3_REGION = e.AUTOPILOT_AWS_S3_REGION ?? "us-east-1";
@@ -52,6 +51,8 @@ export const APISERVER_ENDPOINT = e.AUTOPILOT_APISERVER_ENDPOINT
 export const INTEGRATIONS_FILE = e.AUTOPILOT_INTEGRATIONS_FILE
   ? e.AUTOPILOT_INTEGRATIONS_FILE
   : `${process.cwd()}/config/integrations.json`;
+export const OPENAI_API_KEY = e.AUTOPILOT_OPENAI_API_KEY;
+export const SKIP_IDENTITY = e.AUTOPILOT_SKIP_IDENTITY === "true";
 
 if (SILERO_VAD_VERSION !== "v4" && SILERO_VAD_VERSION !== "v5") {
   console.error("SILERO_VAD_VERSION must be set to 'v4' or 'v5'");

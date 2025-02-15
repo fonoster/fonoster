@@ -18,15 +18,17 @@
  */
 import fluentLogger from "fluent-logger";
 import winston from "winston";
+import { getEnv } from "./getEnv";
 
 const FluentTransport = fluentLogger.support.winstonTransport();
 
-const LOGS_DRIVER_HOST = process.env.LOGS_DRIVER_HOST;
-const LOGS_DRIVER_PORT = process.env.LOGS_DRIVER_PORT || 24224;
-const LOGS_OPT_TAG_PREFIX = process.env.LOGS_OPT_TAG_PREFIX || "fonoster-logs";
-const LOGS_FORMAT = process.env.LOGS_FORMAT || "json";
-const LOGS_LEVEL = process.env.LOGS_LEVEL || "info";
-const LOGS_TRANSPORT = process.env.LOGS_TRANSPORT || "console";
+const LOGS_DRIVER_HOST = getEnv("LOGS_DRIVER_HOST");
+// Note: if LOGS_DRIVER_PORT is provided as a string in the environment, it will be used as-is.
+const LOGS_DRIVER_PORT = getEnv("LOGS_DRIVER_PORT", 24224);
+const LOGS_OPT_TAG_PREFIX = getEnv("LOGS_OPT_TAG_PREFIX", "fonoster-logs");
+const LOGS_FORMAT = getEnv("LOGS_FORMAT", "json");
+const LOGS_LEVEL = getEnv("LOGS_LEVEL", "info");
+const LOGS_TRANSPORT = getEnv("LOGS_TRANSPORT", "console");
 
 const fluent = new FluentTransport(`${LOGS_OPT_TAG_PREFIX}`, {
   host: LOGS_DRIVER_HOST,
