@@ -136,7 +136,7 @@ jobs:
 
     - name: Waiting for services to be ready
       run: |
-        sleep 30
+        sleep 120 # Enough time for Routr to start in a low spec machine
         docker ps -a
 
     - name: Run integration tests for the SDK
