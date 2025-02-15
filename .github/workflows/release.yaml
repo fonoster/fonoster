@@ -129,9 +129,9 @@ jobs:
         sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
         sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
         sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
-        sed -i "s|APISERVER_SMTP_HOST=.*|SMTP_HOST=mailhog|g" .env
-        sed -i "s|APISERVER_SMTP_PORT=.*|SMTP_PORT=1025|g" .env
-        sed -i "s|APISERVER_SMTP_SECURE=.*|SMTP_SECURE=false|g" .env
+        sed -i "s|APISERVER_SMTP_HOST=.*|APISERVER_SMTP_HOST=mailhog|g" .env
+        sed -i "s|APISERVER_SMTP_PORT=.*|APISERVER_SMTP_PORT=1025|g" .env
+        sed -i "s|APISERVER_SMTP_SECURE=.*|APISERVER_SMTP_SECURE=false|g" .env
         docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver asterisk mailhog
 
     - name: Waiting for services to be ready

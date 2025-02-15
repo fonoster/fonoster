@@ -50,7 +50,7 @@ export const APISERVER_ENDPOINT = e.AUTOPILOT_APISERVER_ENDPOINT
   : "apiserver:50051";
 export const INTEGRATIONS_FILE = e.AUTOPILOT_INTEGRATIONS_FILE
   ? e.AUTOPILOT_INTEGRATIONS_FILE
-  : `${process.cwd()}/config/integrations.json`;
+  : "/opt/fonoster/integrations.json";
 export const OPENAI_API_KEY = e.AUTOPILOT_OPENAI_API_KEY;
 export const SKIP_IDENTITY = e.AUTOPILOT_SKIP_IDENTITY === "true";
 
