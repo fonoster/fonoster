@@ -31,7 +31,11 @@ jobs:
 
     - name: Run unit tests
       run: |
-        cp .env.example.dev .env 
+        cp .env.example.dev .env
+        
+        # FIXME: This is a workaround to prevent the unit tests from failing
+        sed -i "s|AUTOPILOT_INTEGRATIONS_FILE=.*|AUTOPILOT_INTEGRATIONS_FILE=./config/integrations.json|g" .env 
+
         npm run test
 
     # We will do this manually for now
@@ -122,12 +126,6 @@ jobs:
         cp config/integrations.example.json config/integrations.json
         cp .env.example .env
         echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env
-
-        # FIXME: This is a workaround to prevent the unit tests from failing
-        # However, they Autopilot tests will fail because of this
-        # We need to find a better way to handle this
-        sed -i "s|AUTOPILOT_INTEGRATIONS_FILE=.*|AUTOPILOT_INTEGRATIONS_FILE=./config/integrations.json|g" .env 
-
         sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
         sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
         sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
