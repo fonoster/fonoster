@@ -2305,7 +2305,7 @@ Note that an active Fonoster deployment is required.
     * [.getWorkspace(ref)](#Workspaces+getWorkspace) ⇒ <code>Promise.&lt;Acl&gt;</code>
     * [.updateWorkspace(request)](#Workspaces+updateWorkspace) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.deleteWorkspace(ref)](#Workspaces+deleteWorkspace) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
-    * [.listWorkspaces(request)](#Workspaces+listWorkspaces) ⇒ <code>Promise.&lt;ListWorkspacesResponse&gt;</code>
+    * [.listWorkspaces()](#Workspaces+listWorkspaces) ⇒ <code>Promise.&lt;ListWorkspacesResponse&gt;</code>
     * [.inviteUserToWorkspace(request)](#Workspaces+inviteUserToWorkspace) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.resendWorkspaceMembershipInvitation(userRef)](#Workspaces+resendWorkspaceMembershipInvitation) ⇒ <code>Promise.&lt;ResendWorkspaceMembershipInvitationResponse&gt;</code>
     * [.removeUserFromWorkspace(userRef)](#Workspaces+removeUserFromWorkspace) ⇒ <code>Promise.&lt;RemoveUserFromWorkspaceResponse&gt;</code>
@@ -2451,29 +2451,17 @@ workspaces
 ```
 <a name="Workspaces+listWorkspaces"></a>
 
-### workspaces.listWorkspaces(request) ⇒ <code>Promise.&lt;ListWorkspacesResponse&gt;</code>
+### workspaces.listWorkspaces() ⇒ <code>Promise.&lt;ListWorkspacesResponse&gt;</code>
 Retrieves a list of Workspaces from a Workspace.
 
 **Kind**: instance method of [<code>Workspaces</code>](#Workspaces)  
 **Returns**: <code>Promise.&lt;ListWorkspacesResponse&gt;</code> - - The response object that contains the list of Workspaces  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| request | <code>ListWorkspacesRequest</code> | The request object that contains the necessary information to retrieve a list of Workspaces |
-| request.pageSize | <code>number</code> | The workspace of Workspaces to retrieve |
-| request.pageToken | <code>string</code> | The token to retrieve the next page of Workspaces |
-
 **Example**  
 ```js
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-const request = {
-  pageSize: 10,
-  pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 workspaces
-  .listWorkspaces(request)
+  .listWorkspaces()
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```
