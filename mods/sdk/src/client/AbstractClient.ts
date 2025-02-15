@@ -84,6 +84,12 @@ abstract class AbstractClient implements FonosterClient {
     this._idToken = idToken;
   }
 
+  logout() {
+    this._refreshToken = "";
+    this._accessToken = "";
+    this._idToken = "";
+  }
+
   async loginWithRefreshToken(refreshToken: string): Promise<void> {
     const {
       accessToken,
