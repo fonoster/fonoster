@@ -231,20 +231,12 @@ class Workspaces {
   /**
    * Retrieves a list of Workspaces from a Workspace.
    *
-   * @param {ListWorkspacesRequest} request - The request object that contains the necessary information to retrieve a list of Workspaces
-   * @param {number} request.pageSize - The workspace of Workspaces to retrieve
-   * @param {string} request.pageToken - The token to retrieve the next page of Workspaces
    * @return {Promise<ListWorkspacesResponse>} - The response object that contains the list of Workspaces
    * @example
    * const workspaces = new SDK.Workspaces(client); // Existing client object
    *
-   * const request = {
-   *   pageSize: 10,
-   *   pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * workspaces
-   *   .listWorkspaces(request)
+   *   .listWorkspaces()
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
