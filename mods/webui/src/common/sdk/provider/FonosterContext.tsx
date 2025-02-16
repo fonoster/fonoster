@@ -1,7 +1,9 @@
+/// <reference types="react" />
 import React, { createContext, useState, useMemo, useEffect, useContext } from 'react';
 import * as SDK from '@fonoster/sdk';
-import { setCookie } from 'cookies-next';
+import { setCookie, getCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
+import { LoadingScreen } from '@/common/components/loading/LoadingScreen';
 
 export interface Session {
   isAuthenticated: boolean;
@@ -38,12 +40,45 @@ export const useFonoster = () => {
   return context;
 };
 
-export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [session, setSession] = useState<Session>({ isAuthenticated: false });
   const [client, setClient] = useState<SDK.WebClient | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const saveTokensAndUpdateSession = (client: SDK.WebClient) => {
+    const idToken = client.getIdToken();
+    const accessToken = client.getAccessToken();
+    const refreshToken = client.getRefreshToken();
+
+    
+    setCookie('idToken', idToken, { 
+      maxAge: 60 * 60 * 24, 
+      path: '/'
+    });
+    setCookie('accessToken', accessToken, { 
+      maxAge: 60 * 60 * 24,
+      path: '/'
+    });
+    setCookie('refreshToken', refreshToken, { 
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/'
+    });
+
+    setSession({
+      isAuthenticated: true,
+      userIdToken: idToken,
+      accessToken,
+      refreshToken
+    });
+  };
+
+  const clearAuthCookies = () => {
+    setCookie('idToken', '', { maxAge: 0, path: '/' });
+    setCookie('accessToken', '', { maxAge: 0, path: '/' });
+    setCookie('refreshToken', '', { maxAge: 0, path: '/' });
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -61,33 +96,27 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
 
         const newClient = new SDK.WebClient(config);
-        
         if (!mounted) return;
 
-        const refreshToken = document.cookie.includes('refreshToken');
-        if (refreshToken) {
+        const storedRefreshToken = getCookie('refreshToken');
+        const storedAccessToken = getCookie('accessToken');
+        const storedIdToken = getCookie('idToken');
+
+        if (storedRefreshToken && storedAccessToken && storedIdToken) {
           try {
-            await newClient.refreshToken();
+            await newClient.loginWithRefreshToken(storedRefreshToken);
             if (!mounted) return;
-            
-            setSession({
-              isAuthenticated: true,
-              refreshToken: newClient.getRefreshToken(),
-              accessToken: newClient.getAccessToken(),
-              userIdToken: newClient.getIdToken()
-            });
+
+            saveTokensAndUpdateSession(newClient);
           } catch (error) {
             if (!mounted) return;
-            setCookie('idToken', '', { maxAge: 0 });
-            setCookie('accessToken', '', { maxAge: 0 });
-            setCookie('refreshToken', '', { maxAge: 0 });
+            clearAuthCookies();
           }
         }
 
         setClient(newClient);
         setIsInitialized(true);
       } catch (error) {
-        console.error('Error initializing Fonoster client:', error);
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -106,23 +135,8 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!client) throw new Error('Client is not initialized');
     try {
       await client.login(credentials.username, credentials.password);
-
-      const idToken = client.getIdToken();
-      const accessToken = client.getAccessToken();
-      const refreshToken = client.getRefreshToken();
-
-      setCookie('idToken', idToken, { maxAge: 60 * 60 * 24 });
-      setCookie('accessToken', accessToken, { maxAge: 60 * 60 * 24 });
-      setCookie('refreshToken', refreshToken, { maxAge: 60 * 60 * 24 * 7 });
-
-      setSession({
-        isAuthenticated: true,
-        userIdToken: idToken,
-        accessToken,
-        refreshToken
-      });
+      saveTokensAndUpdateSession(client);
     } catch (error) {
-      console.error('Login error:', error);
       throw error;
     }
   };
@@ -130,38 +144,14 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const signOut = async () => {
     if (client) {
       try {
-<<<<<<< HEAD
-        // Limpiar tokens del cliente
-=======
->>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
-        client.logout ?.() || null;
+        client.logout?.() || null;
       } catch (error) {
-        console.error('Error during logout:', error);
       }
     }
-    
-<<<<<<< HEAD
-    // Limpiar cookies
-=======
->>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
-    setCookie('idToken', '', { maxAge: 0 });
-    setCookie('accessToken', '', { maxAge: 0 });
-    setCookie('refreshToken', '', { maxAge: 0 });
-    
-<<<<<<< HEAD
-    // Actualizar estado
-=======
-
->>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
+    clearAuthCookies();
     setSession({ isAuthenticated: false });
     setClient(null);
     setIsInitialized(false);
-    
-<<<<<<< HEAD
-    // Redirigir
-=======
-
->>>>>>> afe773f69 (general auth improvements, integration with the fonester sdk, creation of fonester context, hook and custom hooks per entity, hooks for notifications, for ease of use, general improvements)
     router.push('/signin');
   };
 
@@ -179,7 +169,7 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 
   if (isLoading) {
-    return <div>Initializing...</div>;
+    return <LoadingScreen logoSize="large" />;
   }
 
   return (

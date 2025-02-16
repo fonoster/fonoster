@@ -5,7 +5,6 @@ import { tokenUtils } from '@/common/utils/tokenUtils'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
-  // Ignorar recursos estáticos y API
   if (
     pathname.startsWith('/_next') || 
     pathname.startsWith('/api') ||

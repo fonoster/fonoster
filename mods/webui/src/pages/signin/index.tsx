@@ -40,19 +40,16 @@ const LoginPage = () => {
 
     try {
       setIsRedirecting(true);
-      console.log('Attempting login with:', data);
       
        await authentication.signIn({
         username: data.email,
         password: data.password
       });
-      console.log('Login successful, redirecting...');
       
   
       await router.replace('/workspace/list');
    
     } catch (error) {
-      console.error('Authentication error:', error);
       setError('root', {
         type: 'manual',
         message: error instanceof Error ? error.message : 'Authentication failed'

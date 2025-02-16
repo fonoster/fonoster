@@ -1,3 +1,4 @@
+import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';
 import { Box, Typography, styled, Grid } from '@mui/material';
 import { OverviewCard } from '../../../../../stories/overviewcard/OverviewCard';
 import { useRouter } from 'next/router';
@@ -6,6 +7,10 @@ import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import { PageContainer } from '@toolpad/core/PageContainer';
+import { useEffect, useState } from 'react';
+import {
+  BaseApiObject,
+} from '@fonoster/types'
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(6),
@@ -32,20 +37,53 @@ const CardsContainer = styled(Box)(({ theme }) => ({
 
 export default function OverviewPage() {
   const router = useRouter();
+  const { isReady, getWorkspace } = useWorkspaces();
   const { workspaceId } = router.query;
+  const [workspace, setWorkspace] = useState<BaseApiObject | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleCardClick = (path: string) => {
-    router.push(`/workspace/${workspaceId}/${path}`);
+    router.push(`/workspace/${workspaceId}/overview/${path}`);
   };
 
   const apiKeysCount = 3;
   const expiringKeysCount = 2;
 
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchWorkspaces = async () => {
+      if (!isReady || !mounted) return;
+
+      try {
+        const response = await getWorkspace(workspaceId as string);
+        if (!mounted) return;
+        if (!response) return;
+
+        if (mounted) {
+          setWorkspace(response);
+        }
+      } catch (error) {
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchWorkspaces();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isReady]);
+
   return (
     <PageContainer>
       <Box sx={{ p: 3 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          {workspaceId} Overview
+          {workspace?.name} Overview
         </Typography>
 
         <ContentContainer>
