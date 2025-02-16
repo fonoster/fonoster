@@ -30,13 +30,14 @@ cp config/integrations.example.json config/integrations.json
 
 In the *.env* file you will need to find and update the following variables. All variables will need to be updated to a routable IP within your local environment.
 
-* ROUTR\_EXTERNAL\_ADDRS
 
-* ROUTR\_RTPENGINE\_HOST
 
-* ASTERISK\_SIPPROXY\_HOST
-
-* APISERVER\_ROUTR\_API\_ENDPOINT
+| Variable                        |   | Description                                                          |   |
+| ------------------------------- | - | -------------------------------------------------------------------- | - |
+| ROUTR\_EXTERNAL\_ADDRS          |   | The IP used by Routr to advertise it's address to othe SIP endpoints |   |
+| ROUTR\_RTPENGINE\_HOST          |   | The address of RTPEngine                                             |   |
+| ASTERISK\_SIPPROXY\_HOST        |   | Address pointing to Routr SIP Server                                 |   |
+| APISERVER\_ROUTR\_API\_ENDPOINT |   | The entrypoint to Routr's API                                        |   |
 
 <Tip>
   With `ifconfig | grep "en0" -A 5` on Linux or Mac you will see a good candidate to use as the IP.
