@@ -22,7 +22,10 @@ export const useApplications = () => {
     }
   };
 
-  const listApplications = async (data: ListApplicationsRequest): Promise<ListApplicationsResponse | undefined> => {
+  const listApplications = async (data: ListApplicationsRequest = {    
+    pageSize: 10,
+    pageToken: undefined
+  }): Promise<ListApplicationsResponse | undefined> => {
     try {
       return await applications.listApplications(data);
     } catch (error: any) {

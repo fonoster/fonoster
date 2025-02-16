@@ -1,11 +1,12 @@
 import { Box, Typography, Button } from '@mui/material';
 import { useRouter } from 'next/router';
-import QueryUsers, { User } from "@/common/components/context-table/Examples/QueryUser";
 import { ColumnDef } from "@tanstack/react-table";
 import ReactTable from "@/common/components/context-table/ReactTable"
+import QueryApplications from './_components/QueryApplications';
+import { Application } from '@fonoster/types';
 
 
-const columns: ColumnDef<User>[] = [
+const columns: ColumnDef<Application>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
@@ -40,8 +41,8 @@ export default function ApplicationsPage() {
       <Typography variant="body1">
         Administra todas tus aplicaciones Fonoster aquí. Crea, edita y monitorea tus aplicaciones en ejecución.
       </Typography>
-      <ReactTable<User> columns={columns} >
-                <QueryUsers />
+      <ReactTable<Application> columns={columns} >
+                <QueryApplications />
             </ReactTable>
     </Box>
   );
