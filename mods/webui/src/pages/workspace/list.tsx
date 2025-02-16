@@ -72,7 +72,6 @@ const ListWorkspacePage = () => {
         if (!response) return;
         
         const { items } = response;
-        console.log(items, 'items');
         
         const formattedWorkspaces = items.map(workspace => ({
           id: workspace.id,

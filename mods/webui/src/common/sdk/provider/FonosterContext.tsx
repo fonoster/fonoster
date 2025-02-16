@@ -130,24 +130,20 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const signOut = async () => {
     if (client) {
       try {
-        // Limpiar tokens del cliente
         client.logout ?.() || null;
       } catch (error) {
         console.error('Error during logout:', error);
       }
     }
     
-    // Limpiar cookies
     setCookie('idToken', '', { maxAge: 0 });
     setCookie('accessToken', '', { maxAge: 0 });
     setCookie('refreshToken', '', { maxAge: 0 });
     
-    // Actualizar estado
     setSession({ isAuthenticated: false });
     setClient(null);
     setIsInitialized(false);
     
-    // Redirigir
     router.push('/signin');
   };
 
