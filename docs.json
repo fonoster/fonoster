@@ -52,6 +52,13 @@
               "self-hosting/first-apikeys",
               "self-hosting/securing-the-api"
             ]
+          },
+                    {
+            "group": "Contributing",
+            "pages": [
+              "contributing/overview",
+              "contributing/hacking-the-backend"
+            ]
           }
         ]
       }
