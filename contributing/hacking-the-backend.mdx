@@ -1,0 +1,74 @@
+---
+title: "Hacking the Backend"
+description: "A quick guide to contributing to Fonoster's backend"
+---
+
+This guide contains the development environment setup for Fonoster. It includes the API Server and supporting infrastructure.
+
+### Prerequisites
+
+[](https://github.com/truecaller/web-callhero-dev-env/tree/1f26e774d9b32d699262b6aa52265af04ef24af1#prerequisites)
+
+* Docker and Docker Compose
+
+* NodeJS >= v20
+
+* Git (Optional)
+
+### Hacking the Backend
+
+To start hacking the backend, start by cloning the project, and copying the *.env.example.dev* and *./config/integrations.example.json*
+
+Here is an example:
+
+```bash
+git clone https://github.com/fonoster/fonoster
+cd fonoster
+cp .env.example.dev .env
+cp config/integrations.example.json config/integrations.json
+```
+
+In the *.env* file you will need to find and update the following variables. All variables will need to be updated to a routable IP within your local environment.
+
+* ROUTR\_EXTERNAL\_ADDRS
+
+* ROUTR\_RTPENGINE\_HOST
+
+* ASTERISK\_SIPPROXY\_HOST
+
+* APISERVER\_ROUTR\_API\_ENDPOINT
+
+<Tip>
+  With `ifconfig | grep "en0" -A 5` on Linux or Mac you will see a good candidate to use as the IP.
+</Tip>
+
+Next, you need to install and build the project.
+
+```bash
+npm install
+npm run build
+npm run test
+```
+
+Then, you need to start the infrastructure and initialize the database using the following commands:
+
+```bash
+npm run start:services
+npm run db:migrate
+```
+
+The previous command will start all the services including `envoy`, `mailhog`, `adminer`, `influxdb`, `postgres`, and `asterisk`.
+
+Finally, start the API Server with:
+
+```bash
+npm run start:apiserver
+```
+
+### Running the Integration Tests
+
+A good indicator that your environment is correctly setup is having ALL passing in your integration tests. Run the integration test, on a separate terminal, with the following command:
+
+```bash
+npm run integration
+```
