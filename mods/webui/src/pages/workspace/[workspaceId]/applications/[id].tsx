@@ -19,7 +19,6 @@ export default function EditApplicationPage() {
             endpoint: 'https://ejemplo.com',
           });
         } catch (error) {
-          console.error('Error al obtener la aplicación:', error);
         } finally {
           setIsLoading(false);
         }
@@ -33,7 +32,6 @@ export default function EditApplicationPage() {
     try {
       router.push(`/workspace/${workspaceId}/applications`);
     } catch (error) {
-      console.error('Error al actualizar la aplicación:', error);
     }
   };
 

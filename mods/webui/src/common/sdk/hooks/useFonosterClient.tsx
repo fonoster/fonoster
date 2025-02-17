@@ -1,8 +1,7 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import * as SDK from '@fonoster/sdk';
 import { FonosterContext } from '@/common/sdk/provider/FonosterContext';
-import { tokenUtils } from '@/common/utils/tokenUtils';
 
 interface FonosterClient {
   client: SDK.WebClient | null;

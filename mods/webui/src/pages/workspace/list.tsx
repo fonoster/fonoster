@@ -24,9 +24,10 @@ const CardContainer = styled(Box)({
 
 const VerifyCard = styled(Paper)(({ theme }) => ({
   width: '100%',
-  maxWidth: 800,
+  maxWidth: '100%',
   margin: 'auto',
   padding: theme.spacing(6),
+  overflowX: 'auto',
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius * 2,
   boxShadow: theme.palette.mode === 'light'
@@ -42,9 +43,16 @@ const VerifyCard = styled(Paper)(({ theme }) => ({
 
 const WorkspaceGrid = styled(Box)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+  gridTemplateColumns: 'repeat(auto-fill, 250px)',
+  gridAutoFlow: 'row dense',
   gap: theme.spacing(3),
   width: '100%',
+  overflowX: 'auto',
+  padding: theme.spacing(1),
+  '@media (max-width: 600px)': {
+    gridAutoFlow: 'row',
+    gridTemplateColumns: '1fr',
+  }
 }));
 
 interface Workspace {
@@ -72,10 +80,9 @@ const ListWorkspacePage = () => {
         if (!response) return;
         
         const { items } = response;
-        
         const formattedWorkspaces = items.map(workspace => ({
-          id: workspace.id,
-          region: workspace.region || 'unknown',
+          ref: workspace.ref,
+          region: workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION,
           description: workspace.name || 'No description',
           date: new Date(workspace.createdAt).toLocaleDateString(),
         }));
@@ -84,7 +91,6 @@ const ListWorkspacePage = () => {
           setWorkspaces(formattedWorkspaces);
         }
       } catch (error) {
-        console.error('Error fetching workspaces:', error);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -137,13 +143,13 @@ const ListWorkspacePage = () => {
                 <>
                   {workspaces.map((workspace) => (
                     <WorkspaceCard
-                      key={workspace.id}
+                      key={workspace.ref}
                       variant="regular"
                       region={workspace.region}
                       description={workspace.description}
                       date={workspace.date}
-                      onClick={() => handleWorkspaceClick(workspace.id)}
-                      onSettingsClick={(e: React.MouseEvent) => handleSettingsClick(e, workspace.id)}
+                      onClick={() => handleWorkspaceClick(workspace.ref)}
+                      onSettingsClick={(e: React.MouseEvent) => handleSettingsClick(e, workspace.ref)}
                       disabled={false}
                     />
                   ))}

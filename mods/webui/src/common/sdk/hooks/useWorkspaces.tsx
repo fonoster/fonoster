@@ -1,8 +1,8 @@
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient'
 import { useNotification, ErrorType } from '@/common/hooks/useNotification'
-import { 
-  CreateWorkspaceRequest, 
-  UpdateWorkspaceRequest, 
+import {
+  CreateWorkspaceRequest,
+  UpdateWorkspaceRequest,
   ListWorkspacesResponse,
   BaseApiObject,
   ResendWorkspaceMembershipInvitationResponse,

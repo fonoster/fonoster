@@ -12,12 +12,10 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 export default function ResetPassword() {
-  console.log('Rendering ResetPassword page with token');
   const theme = useTheme();
   const router = useRouter();
   const { token } = router.query;
 
-  // // Mostrar un loading state mientras el token no esté disponible
   // if (!token) {
   //   return (
   //     <>
@@ -28,8 +26,6 @@ export default function ResetPassword() {
   //     </>
   //   );
   // }
-
-  console.log('Reset Password Page - Token:', token);
 
   return (
     <>

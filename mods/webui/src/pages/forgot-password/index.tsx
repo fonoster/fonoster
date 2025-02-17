@@ -22,7 +22,6 @@ const TempResetButton = () => {
         query: { token: '1257' }
       });
     } catch (error) {
-      console.error('Navigation error:', error);
     }
   };
 
@@ -39,7 +38,6 @@ const TempResetButton = () => {
 };
 
 export default function ForgotPassword() {
-  console.log('Rendering ForgotPassword index page');
   const theme = useTheme();
 
   return (
@@ -86,7 +84,6 @@ export default function ForgotPassword() {
               SEND ME A RESET LINK
             </Button>
 
-            {/* Nuevo componente para el botón temporal */}
             <TempResetButton />
 
             <Box sx={{ textAlign: 'center' }}>
