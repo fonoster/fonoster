@@ -15,7 +15,9 @@ export const useNotification = () => {
   };
 
   const notifyError = useCallback((error: ErrorType) => {
+    console.log(error);
     const { code, details } = error;
+    if (!code) return;
     let title = code.replace(/_/g, ' ');
     let message = '';
 

@@ -6,7 +6,6 @@ import { CreateApplicationRequest , UpdateApplicationRequest, ListApplicationsRe
 export const useApplications = () => {
   const { client, isReady, SDK } = useFonosterClient();
   const { notifyError } = useNotification();
-
   const applications = useMemo(() => {
     if (!client) {
       throw new Error("Fonoster client is not initialized.");
@@ -27,7 +26,11 @@ export const useApplications = () => {
     pageToken: undefined
   }): Promise<ListApplicationsResponse | undefined> => {
     try {
-      return await applications.listApplications(data);
+console.log(client, isReady, SDK);  
+
+      if (!isReady) return undefined;
+      const _applications = new SDK.Applications(client);
+      return await _applications.listApplications(data);
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
