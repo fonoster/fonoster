@@ -1,11 +1,61 @@
-import { Box, Typography } from '@mui/material';
+import PageWithTable from '@/common/components/page-with-table';
+import { Button } from '@mui/material';
+import { useRouter } from 'next/router';
+import { Agent } from '@fonoster/types';
+import { ColumnDef } from "@tanstack/react-table";
+
+const columns: ColumnDef<Agent>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'username',
+    header: 'Username',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'domain',
+    header: 'Domain',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'privacy',
+    header: 'Privacy',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: (info: any) => info.getValue(),
+  }
+];
 
 export default function AgentsPage() {
+  const router = useRouter();
+  const { workspaceId } = router.query;
+
   return (
-    <Box>
-      <Typography variant="body1">
+    <PageWithTable>
+      <PageWithTable.Header
+        title="Agents"
+        actions={
+          <Button variant="contained" onClick={() => { }}>
+            New Agent
+          </Button>
+        }
+      />
+      <PageWithTable.Description>
         Manage your SIP agents and their configurations.
-      </Typography>
-    </Box>
+      </PageWithTable.Description>
+
+      <PageWithTable.Content<Agent> columns={columns} tableId="agents-table" />
+    </PageWithTable>
   );
 } 

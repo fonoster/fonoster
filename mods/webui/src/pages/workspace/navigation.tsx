@@ -40,7 +40,7 @@ export const NAVIGATION: Navigation = [
     segment: 'overview',
     title: 'Overview',
     icon: <DashboardIcon />,
-    href: '/workspace/1/overview'
+    href: '/workspace/overview'
   },
   {
     segment: 'applications',

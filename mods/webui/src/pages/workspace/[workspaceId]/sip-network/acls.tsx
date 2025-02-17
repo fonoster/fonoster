@@ -1,11 +1,45 @@
-import { Box, Typography } from '@mui/material';
+import PageWithTable from '@/common/components/page-with-table';
+import { Button } from '@mui/material';
+import { Acl } from '@fonoster/types';
+import { ColumnDef } from "@tanstack/react-table";
+
+
+const columns: ColumnDef<Acl>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'denyList',
+    header: 'Deny List',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'allowList',
+    header: 'Allow List',
+    cell: (info: any) => info.getValue(),
+  }
+];
+
 
 export default function AclsPage() {
+
   return (
-    <Box>
-      <Typography variant="body1">
-        Configure access control lists for your SIP network security.
-      </Typography>
-    </Box>
+    <PageWithTable>
+      <PageWithTable.Header
+        title="IP/CIDR Access Control List (ACL)"
+        actions={
+          <Button variant="contained" onClick={() => { }}>
+            Create New Agent
+          </Button>
+        }
+      />
+      <PageWithTable.Description>
+        Create an Access Control List (ACL) to allow or deny access from external networks to your infrastructure.
+      </PageWithTable.Description>
+
+      <PageWithTable.Content<Acl> columns={columns} tableId="acl-table" />
+    </PageWithTable>
   );
 } 

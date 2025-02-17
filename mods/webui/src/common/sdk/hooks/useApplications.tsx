@@ -26,8 +26,6 @@ export const useApplications = () => {
     pageToken: undefined
   }): Promise<ListApplicationsResponse | undefined> => {
     try {
-console.log(client, isReady, SDK);  
-
       if (!isReady) return undefined;
       const _applications = new SDK.Applications(client);
       return await _applications.listApplications(data);

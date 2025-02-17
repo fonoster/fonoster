@@ -1,20 +1,43 @@
-import { Box, Typography, Button } from '@mui/material';
 import { useRouter } from 'next/router';
 import { ColumnDef } from "@tanstack/react-table";
-import ReactTable from "@/common/components/context-table/ReactTable"
-import QueryApplications from './_components/QueryApplications';
 import { Application } from '@fonoster/types';
-
+import PageWithTable from '@/common/components/page-with-table';
+import { Button } from '@mui/material';
 
 const columns: ColumnDef<Application>[] = [
+  {
+    accessorKey: 'ref',
+    header: 'Ref',
+    cell: (info: any) => info.getValue(),
+  },
   {
     accessorKey: 'name',
     header: 'Name',
     cell: (info: any) => info.getValue(),
   },
   {
-    accessorKey: 'email',
-    header: 'Email',
+    accessorKey: 'projectId',
+    header: 'Project ID',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'tts',
+    header: 'TTS',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'stt',
+    header: 'STT',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'intelligence',
+    header: 'Inteligence',
+    cell: (info: any) => info.getValue(),
+  },
+  {
+    accessorKey: 'actions',
+    header: 'Actions',
     cell: (info: any) => info.getValue(),
   },
 ];
@@ -23,27 +46,22 @@ export default function ApplicationsPage() {
   const router = useRouter();
   const { workspaceId } = router.query;
 
-  const handleCreateNew = () => {
-    router.push(`/workspace/${workspaceId}/applications/new`);
-  };
-
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5">
-          Aplicaciones
-        </Typography>
-        <Button variant="contained" onClick={handleCreateNew}>
-          Nueva Aplicación
-        </Button>
-      </Box>
 
-      <Typography variant="body1">
-        Administra todas tus aplicaciones Fonoster aquí. Crea, edita y monitorea tus aplicaciones en ejecución.
-      </Typography>
-      <ReactTable<Application> columns={columns} >
-                <QueryApplications />
-            </ReactTable>
-    </Box>
+    <PageWithTable>
+      <PageWithTable.Header
+        title="Applications"
+        actions={
+          <Button variant="contained" onClick={() => { }}>
+            New Application
+          </Button>
+        }
+      />
+      <PageWithTable.Description>
+        Manage all your Fonoster applications here. Create, edit and monitor your applications in execution.
+      </PageWithTable.Description>
+
+      <PageWithTable.Content<Application> columns={columns} tableId="applications-table" />
+    </PageWithTable>
   );
-} 
+}
