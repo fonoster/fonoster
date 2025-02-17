@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { INumber } from '@fonoster/types';
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 
 const columns: ColumnDef<INumber>[] = [
@@ -33,8 +33,8 @@ const columns: ColumnDef<INumber>[] = [
 
 export default function NumbersPage() {
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Numbers"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -42,11 +42,11 @@ export default function NumbersPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Manage your phone numbers inventory and configuration.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<INumber> columns={columns} tableId="numbers-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<INumber> columns={columns} tableId="numbers-table" />
+    </PageContainer>
   );
 }

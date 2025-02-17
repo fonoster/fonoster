@@ -1,4 +1,4 @@
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 import { Acl } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";
@@ -26,8 +26,8 @@ const columns: ColumnDef<Acl>[] = [
 export default function AclsPage() {
 
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="IP/CIDR Access Control List (ACL)"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -35,11 +35,11 @@ export default function AclsPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Create an Access Control List (ACL) to allow or deny access from external networks to your infrastructure.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<Acl> columns={columns} tableId="acl-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<Acl> columns={columns} tableId="acl-table" />
+    </PageContainer>
   );
 } 

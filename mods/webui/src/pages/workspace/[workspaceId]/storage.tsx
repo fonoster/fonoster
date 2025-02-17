@@ -1,4 +1,4 @@
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 import { Agent } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";
@@ -33,9 +33,10 @@ const columns: ColumnDef<Agent>[] = [
 ];
 
 export default function StoragePage() {
+
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Storage"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -43,11 +44,11 @@ export default function StoragePage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Manage your storage resources and configurations.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<Agent> columns={columns} tableId="storage-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<Agent> columns={columns} tableId="storage-table" />
+    </PageContainer>
   );
 } 

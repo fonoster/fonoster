@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { ColumnDef } from "@tanstack/react-table";
 import { Application } from '@fonoster/types';
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 
 const columns: ColumnDef<Application>[] = [
@@ -48,8 +48,8 @@ export default function ApplicationsPage() {
 
   return (
 
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Applications"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -57,11 +57,11 @@ export default function ApplicationsPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Manage all your Fonoster applications here. Create, edit and monitor your applications in execution.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<Application> columns={columns} tableId="applications-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<Application> columns={columns} tableId="applications-table" />
+    </PageContainer>
   );
 }

@@ -1,4 +1,4 @@
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 import { CallDetailRecord } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";
@@ -44,8 +44,8 @@ const columns: ColumnDef<CallDetailRecord>[] = [
 
 export default function MonitoringPage() {
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Monitoring / Call Logs"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -53,11 +53,11 @@ export default function MonitoringPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Monitor your system performance and health metrics.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<CallDetailRecord> columns={columns} tableId="call-detail-records-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<CallDetailRecord> columns={columns} tableId="call-detail-records-table" />
+    </PageContainer>
   );
 } 

@@ -1,4 +1,4 @@
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 import { Secret } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";
@@ -15,8 +15,8 @@ const columns: ColumnDef<Secret>[] = [
 
 export default function SecretsPage() {
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Secrets"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -24,11 +24,11 @@ export default function SecretsPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Securely manage your application secrets and credentials.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<Secret> columns={columns} tableId="secrets-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<Secret> columns={columns} tableId="secrets-table" />
+    </PageContainer>
   );
 }

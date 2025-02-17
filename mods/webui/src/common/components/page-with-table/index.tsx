@@ -3,7 +3,7 @@ import { Box, Typography, Divider } from '@mui/material';
 import { ColumnDef } from "@tanstack/react-table";
 import ReactTable from "@/common/components/context-table/ReactTable";
 
-interface PageWithTableProps {
+interface PageContainerProps {
   children: ReactNode;
 }
 
@@ -22,7 +22,7 @@ interface ContentProps<T extends object> {
   tableId?: string;
 }
 
-function PageWithTable({ children }: PageWithTableProps) {
+function PageContainer({ children }: PageContainerProps) {
   return <Box>{children}</Box>;
 }
 
@@ -35,7 +35,7 @@ function Header({ title, actions }: HeaderProps) {
   );
 }
 
-function Description({ children }: DescriptionProps) {
+function Subheader({ children }: DescriptionProps) {
   return (
     <Typography variant="body1" sx={{ mb: 3 }}>
       {children}
@@ -43,39 +43,39 @@ function Description({ children }: DescriptionProps) {
   );
 }
 
-function Content<T extends object>({ columns, children, tableId = "table" }: ContentProps<T>) {
+function ContentTable<T extends object>({ columns, children, tableId = "table" }: ContentProps<T>) {
   return (
     <ReactTable<T> columns={columns}>
       <ReactTable.Header>
-          <ReactTable.Header.Filter
-            value={''}
-            onChange={() => {}}
-            options={[
-              { value: 'all', label: 'All' },
-              { value: 'active', label: 'Active' },
-              { value: 'inactive', label: 'Inactive' }
-            ]}
-          />
-          <ReactTable.Header.Search
-            value={''}
-            onChange={() => {}}
-            placeholder="Search numbers..."
-          />
-          <ReactTable.Header.Pagination
-            currentPage={1}
-            totalPages={10}
-            onPageChange={() => {}}
-          />
-        </ReactTable.Header>
-        <Divider sx={{ mb: 0, mt: 1 }} />
-        <ReactTable.Content id={tableId} />
+        <ReactTable.Header.Filter
+          value={''}
+          onChange={() => { }}
+          options={[
+            { value: 'all', label: 'All' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' }
+          ]}
+        />
+        <ReactTable.Header.Search
+          value={''}
+          onChange={() => { }}
+          placeholder="Search numbers..."
+        />
+        <ReactTable.Header.Pagination
+          currentPage={1}
+          totalPages={10}
+          onPageChange={() => { }}
+        />
+      </ReactTable.Header>
+      <Divider sx={{ mb: 0, mt: 1 }} />
+      <ReactTable.Content id={tableId} />
       {children}
     </ReactTable>
   );
 }
 
-PageWithTable.Header = Header;
-PageWithTable.Description = Description;
-PageWithTable.Content = Content;
+PageContainer.Header = Header;
+PageContainer.Subheader = Subheader;
+PageContainer.ContentTable = ContentTable;
 
-export default PageWithTable;
+export default PageContainer;

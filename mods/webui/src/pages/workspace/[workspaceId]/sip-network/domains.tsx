@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Domain } from '@fonoster/types';
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 
 const columns: ColumnDef<Domain>[] = [
@@ -23,8 +23,8 @@ const columns: ColumnDef<Domain>[] = [
 
 export default function DomainsPage() {
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Domains"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -32,11 +32,11 @@ export default function DomainsPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Configure and manage your SIP domains and related settings.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<Domain> columns={columns} tableId="domains-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<Domain> columns={columns} tableId="domains-table" />
+    </PageContainer>
   );
 } 

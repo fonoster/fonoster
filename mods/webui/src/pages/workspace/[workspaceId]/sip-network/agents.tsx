@@ -1,4 +1,4 @@
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Agent } from '@fonoster/types';
@@ -42,8 +42,8 @@ export default function AgentsPage() {
   const { workspaceId } = router.query;
 
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Agents"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -51,11 +51,11 @@ export default function AgentsPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Manage your SIP agents and their configurations.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<Agent> columns={columns} tableId="agents-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<Agent> columns={columns} tableId="agents-table" />
+    </PageContainer>
   );
 } 

@@ -1,4 +1,4 @@
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 import { Credentials } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";
@@ -19,8 +19,8 @@ const columns: ColumnDef<Credentials>[] = [
 
 export default function CredentialsPage() {
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Credentials"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -28,11 +28,11 @@ export default function CredentialsPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Manage authentication credentials for your SIP network.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<Credentials> columns={columns} tableId="acl-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<Credentials> columns={columns} tableId="acl-table" />
+    </PageContainer>
   );
 } 

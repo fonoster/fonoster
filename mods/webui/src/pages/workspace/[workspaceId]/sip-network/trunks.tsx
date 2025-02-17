@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { ColumnDef } from "@tanstack/react-table";
 import ReactTable from "@/common/components/context-table/ReactTable"
 import { Trunk } from '@fonoster/types';
-import PageWithTable from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
 
 const columns: ColumnDef<Trunk>[] = [
@@ -30,8 +30,8 @@ const columns: ColumnDef<Trunk>[] = [
 
 export default function TrunksPage() {
   return (
-    <PageWithTable>
-      <PageWithTable.Header
+    <PageContainer>
+      <PageContainer.Header
         title="Trunks"
         actions={
           <Button variant="contained" onClick={() => { }}>
@@ -39,11 +39,11 @@ export default function TrunksPage() {
           </Button>
         }
       />
-      <PageWithTable.Description>
+      <PageContainer.Subheader>
         Configure and manage your SIP trunks. Monitor trunk status and performance.
-      </PageWithTable.Description>
+      </PageContainer.Subheader>
 
-      <PageWithTable.Content<Trunk> columns={columns} tableId="trunks-table" />
-    </PageWithTable>
+      <PageContainer.ContentTable<Trunk> columns={columns} tableId="trunks-table" />
+    </PageContainer>
   );
 } 
