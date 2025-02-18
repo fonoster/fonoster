@@ -16,18 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type InputTextProps = {
+import { ReactNode } from "react";
+
+export interface InputTextProps {
   onClick?: () => void;
   disabled?: boolean;
   label?: string;
+  leadingIcon?: ReactNode;
+  trailingIcon?: ReactNode;
   defaultValue?: string;
-  leadingIcon?: React.ReactNode;
-  trailingIcon?: React.ReactNode;
   supportingText?: string;
   value?: string;
-  type?: "text" | "password" | "email" | "number";
-  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   error?: boolean;
-};
-
-export type { InputTextProps };
+  type?: string;
+  inputRef?: React.Ref<any>;
+  name?: string;
+  [key: string]: any;
+}

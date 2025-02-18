@@ -1,27 +1,20 @@
 import { useState } from 'react';
 import {
   Button,
-  TextField,
   Typography,
   Container,
   styled,
-  useTheme,
   Stack,
-  Stepper,
-  Step,
-  StepLabel,
   Paper,
   Box,
-  StepConnector,
-  stepConnectorClasses,
-  StepIconProps,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel
 } from '@mui/material';
-import Check from '@mui/icons-material/Check';
 import { Layout } from '@/common/components/layout/Layout';
+import { ProgressIndicator } from '../../../stories/progessindicator/ProgressIndicator';
+import { useForm, FormProvider } from 'react-hook-form';
+import { InputContext } from '@/common/hooksForm/InputContext';
+import { SelectContext } from '@/common/hooksForm/SelectContext';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
@@ -31,36 +24,6 @@ const WorkspaceContainer = styled(Container)(({ theme }) => ({
   marginTop: 80,
   maxWidth: '1000px !important',
   padding: theme.spacing(3),
-}));
-
-const StepperContainer = styled(Box)(({ theme }) => ({
-  width: '100%',
-  maxWidth: 600,
-  marginBottom: theme.spacing(12),
-  marginTop: theme.spacing(8),
-  '& .MuiStepLabel-label': {
-    fontSize: '0.875rem',
-    cursor: 'pointer',
-  },
-  '& .MuiStepLabel-root': {
-    flexDirection: 'column',
-    '& .MuiStepLabel-labelContainer': {
-      marginTop: theme.spacing(1),
-    },
-  },
-  '& .step-description': {
-    color: theme.palette.text.secondary,
-    fontSize: '0.75rem',
-    marginTop: theme.spacing(0.5),
-  },
-  '& .MuiStepConnector-line': {
-    minHeight: 2,
-  },
-  '& .MuiStepIcon-root': {
-    width: 28,
-    height: 28,
-    cursor: 'pointer',
-  },
 }));
 
 const CardContainer = styled(Box)({
@@ -87,102 +50,84 @@ const VerifyCard = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const CustomConnector = styled(StepConnector)(({ theme }) => ({
-  [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 14,
-    left: 'calc(-50% + 14px)',
-    right: 'calc(50% + 14px)',
-  },
-  [`&.${stepConnectorClasses.active}`]: {
-    [`& .${stepConnectorClasses.line}`]: {
-      borderColor: theme.palette.primary.main,
-    },
-  },
-  [`&.${stepConnectorClasses.completed}`]: {
-    [`& .${stepConnectorClasses.line}`]: {
-      borderColor: theme.palette.primary.main,
-    },
-  },
-  [`& .${stepConnectorClasses.line}`]: {
-    borderColor: theme.palette.mode === 'light' 
-      ? theme.palette.grey[300] 
-      : theme.palette.grey[800],
-    borderTopWidth: 3,
-    borderRadius: 1,
-  },
-}));
+const createWorkspaceSchema = z.object({
+  workspaceName: z.string().min(1, "Workspace name is required"),
+  region: z.string().min(1, "Region is required"),
+  apiKey: z.string().optional()
+});
 
-const CustomStepIconRoot = styled('div')<{ ownerState: { active?: boolean } }>(
-  ({ theme, ownerState }) => ({
-    color: theme.palette.mode === 'light' 
-      ? theme.palette.grey[300] 
-      : theme.palette.grey[800],
-    display: 'flex',
-    height: 22,
-    alignItems: 'center',
-    ...(theme.palette.mode === 'dark' && {
-      color: theme.palette.grey[700],
-    }),
-    '& .StepIcon-completedIcon': {
-      color: theme.palette.primary.main,
-      zIndex: 1,
-      fontSize: 18,
-    },
-    '& .StepIcon-circle': {
-      width: 8,
-      height: 8,
-      borderRadius: '50%',
-      backgroundColor: 'currentColor',
-    },
-    ...(ownerState.active && {
-      color: theme.palette.primary.main,
-    }),
-  }),
-);
+const stepValidationSchemas = [
+  z.object({ workspaceName: z.string().min(1, "Workspace name is required") }),
+  z.object({ region: z.string().min(1, "Region is required") }),
+  z.object({ apiKey: z.string().optional() })
+];
 
-const CustomStepIcon = (props: StepIconProps) => {
-  const { active, completed, className } = props;
+type FormData = z.infer<typeof createWorkspaceSchema>;
 
-  return (
-    <CustomStepIconRoot ownerState={{ active }} className={className}>
-      {completed ? (
-        <Check className="StepIcon-completedIcon" />
-      ) : (
-        <div className="StepIcon-circle" />
-      )}
-    </CustomStepIconRoot>
-  );
-};
+const regions = [
+  { value: 'us-east', label: 'US East' },
+  { value: 'us-west', label: 'US West' },
+  { value: 'eu-central', label: 'EU Central' },
+  { value: 'asia-pacific', label: 'Asia Pacific' }
+];
+
+const accessRoles = [
+  { value: 'admin', label: 'Admin' },
+  { value: 'user', label: 'User' },
+  { value: 'viewer', label: 'Viewer' }
+];
 
 const steps = [
-  {
-    label: 'Create workspace',
-    description: 'Set up your workspace name'
-  },
-  {
-    label: 'Select region',
-    description: 'Choose your region'
-  },
-  {
-    label: 'Copy API Key',
-    description: 'Get your API credentials'
-  }
+  'Create workspace',
+  'Select region',
+  'Copy API Key'
 ];
 
 const CreateWorkspacePage = () => {
-  const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
-  const [workspaceName, setWorkspaceName] = useState('');
-  const [region, setRegion] = useState('');
   const [apiKey, setApiKey] = useState('generated-api-key-example');
 
-  const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
+  const methods = useForm<FormData>({
+    resolver: zodResolver(createWorkspaceSchema),
+    defaultValues: {
+      workspaceName: '',
+      region: '',
+      apiKey: ''
+    },
+    mode: 'onChange'
+  });
+
+  const { handleSubmit, trigger, watch, formState: { errors } } = methods;
+  const currentValues = watch();
+
+  const validateCurrentStep = async () => {
+    const currentStepFields = Object.keys(stepValidationSchemas[activeStep].shape);
+    
+    const isValid = await trigger(currentStepFields as any);
+    return isValid;
   };
 
-  const handleStepClick = (step: number) => {
-    if (step <= activeStep + 1) {
-      setActiveStep(step);
+  const handleNext = async () => {
+    const isValid = await validateCurrentStep();
+    if (isValid) {
+      setActiveStep((prevStep) => prevStep + 1);
+    }
+  };
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const isValid = await validateCurrentStep();
+      
+      if (!isValid) {
+        return;
+      }
+
+      if (activeStep === steps.length - 1) {
+      } else {
+        handleNext();
+      }
+    } catch (error) {
+      console.error('Error in onSubmit:', error);
     }
   };
 
@@ -198,24 +143,32 @@ const CreateWorkspacePage = () => {
               Set up your workspace to start managing your queue
             </Typography>
 
-            <TextField
-              fullWidth
+            <InputContext
+              name="workspaceName"
               label="Workspace Name"
-              value={workspaceName}
-              onChange={(e) => setWorkspaceName(e.target.value)}
-              variant="outlined"
-              placeholder="Enter your workspace name"
+              type="text"
+              leadingIcon={null}
+              trailingIcon={null}
             />
+            
+            {errors.workspaceName && (
+              <Typography color="error" variant="caption">
+                {errors.workspaceName.message}
+              </Typography>
+            )}
 
             <Button
               fullWidth
               variant="contained"
               size="large"
               onClick={handleNext}
-              disabled={!workspaceName}
             >
               Create Workspace
             </Button>
+
+            <Typography variant="caption" color="text.secondary">
+              Current value: {currentValues.workspaceName || 'empty'}
+            </Typography>
           </Stack>
         );
 
@@ -229,26 +182,18 @@ const CreateWorkspacePage = () => {
               Select the region closest to your business operations
             </Typography>
 
-            <FormControl fullWidth>
-              <InputLabel>Select Region</InputLabel>
-              <Select
-                value={region}
-                label="Select Region"
-                onChange={(e) => setRegion(e.target.value)}
-              >
-                <MenuItem value="us-east">US East</MenuItem>
-                <MenuItem value="us-west">US West</MenuItem>
-                <MenuItem value="eu-central">EU Central</MenuItem>
-                <MenuItem value="asia-pacific">Asia Pacific</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectContext
+              name="region"
+              label="Select Region"
+              options={regions}
+              defaultValue=""
+            />
 
             <Button
               fullWidth
               variant="contained"
               size="large"
               onClick={handleNext}
-              disabled={!region}
             >
               Continue
             </Button>
@@ -265,21 +210,34 @@ const CreateWorkspacePage = () => {
               Store this API key securely. You won't be able to see it again.
             </Typography>
 
-            <TextField
-              fullWidth
-              label="Secret Key"
-              value={apiKey}
-              variant="outlined"
-              InputProps={{
-                readOnly: true,
-              }}
+            <InputContext
+              name="secretName"
+              label="Secret Name"
+              type="text"
+              leadingIcon={null}
+              trailingIcon={null}
+            />
+
+            <InputContext
+              name="apiKeyDescription"
+              label="API Key Description"
+              type="text"
+              leadingIcon={null}
+              trailingIcon={null}
+            />
+
+            <SelectContext
+              name="accessRole"
+              label="Access Role"
+              options={accessRoles}
+              defaultValue=""
             />
 
             <Button
               fullWidth
               variant="contained"
               size="large"
-              onClick={() => navigator.clipboard.writeText(apiKey)}
+              onClick={handleSubmit(onSubmit)}
             >
               Copy API Key
             </Button>
@@ -298,26 +256,19 @@ const CreateWorkspacePage = () => {
   return (
     <Layout>
       <WorkspaceContainer>
-        <StepperContainer>
-          <Stepper 
-            alternativeLabel 
-            activeStep={activeStep} 
-            connector={<CustomConnector />}
-          >
-            {steps.map((step, index) => (
-              <Step key={step.label} onClick={() => handleStepClick(index)}>
-                <StepLabel StepIconComponent={CustomStepIcon}>
-                  <Typography className="step-description">
-                    {step.label}
-                  </Typography>
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </StepperContainer>
+        <Box sx={{ width: '100%', maxWidth: 600, mb: 12, mt: 8 }}>
+          <ProgressIndicator 
+            steps={steps}
+            current={activeStep}
+          />
+        </Box>
         <CardContainer>
           <VerifyCard>
-            {getStepContent(activeStep)}
+            <FormProvider {...methods}>
+              <form onSubmit={(e) => e.preventDefault()}>
+                {getStepContent(activeStep)}
+              </form>
+            </FormProvider>
           </VerifyCard>
         </CardContainer>
       </WorkspaceContainer>

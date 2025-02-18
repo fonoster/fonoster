@@ -1,22 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
   useTheme,
   Stack,
 } from '@mui/material';
-import { Google as GoogleIcon } from '@mui/icons-material';
+import { GitHub as GitHubIcon } from '@mui/icons-material';
 import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
 import { useRouter } from 'next/router';
 import { Controller, useForm, ControllerRenderProps } from 'react-hook-form';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 import { Button } from '../../../stories/button/Button';
 import { InputText } from '../../../stories/inputtext/InputText';
+import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
 
 interface LoginForm {
   email: string;
   password: string;
 }
+
+interface OAuthConfig {
+  clientId: string;
+  redirectUri: string;
+  redirectUriCallback: string;
+  scope: string;
+  authUrl: string;
+}
+
+interface OAuthResponse {
+  code: string;
+  provider?: string;
+}
+
+const GITHUB_CONFIG: OAuthConfig = {
+  clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
+  redirectUri: process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI!,
+  redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI_CALLBACK!,
+  scope: process.env.NEXT_PUBLIC_GITHUB_SCOPE!,
+  authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!
+};
 
 const LoginPage = () => {
   const theme = useTheme();
@@ -33,22 +55,72 @@ const LoginPage = () => {
       email: 'team@fonoster.com',
       password: 'changeme'
     }
+
   });
+
+useEffect(() => {
+  if (!router.isReady) return;
+  const { code, state } = router.query;
+  if (!code || !state) return;
+
+  let providerFromState: string;
+  try {
+    const decoded = JSON.parse(decodeURIComponent(state as string));
+    providerFromState = decoded.provider;
+  } catch (error) {
+    console.error('Error decoding state', error);
+    providerFromState = '';
+  }
+
+  const oauthResponse: OAuthResponse = {
+    code: code as string,
+    provider: providerFromState,
+  };
+  handleOAuthCallback(oauthResponse);
+}, [router.isReady, router.query]);
+
+
+
+  const handleOAuthCallback = async (oauthResponse: OAuthResponse) => {
+    if (isRedirecting) return;
+    try {
+      setIsRedirecting(true);
+      await authentication.signIn({ 
+        credentials: { username: '', password: '' },
+        provider: oauthResponse.provider,
+        oauthCode: oauthResponse.code 
+      });
+      await router.replace(GITHUB_CONFIG.redirectUri);
+    } catch (error) {
+      setError('root', {
+        type: 'manual',
+        message: error instanceof Error ? error.message : 'Authentication failed'
+      });
+    } finally {
+      setIsRedirecting(false);
+    }
+  };
+
+  const handleGitHubSignIn = () => {
+    const stateData = {
+      provider: AuthProvider.GITHUB,
+      nonce: Math.random().toString(36).substring(2),
+    };
+    const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
+    const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUriCallback)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
+    window.location.href = authUrl;
+  };
 
   const onSubmit = async (data: LoginForm) => {
     if (isRedirecting) return;
-
     try {
       setIsRedirecting(true);
-      
-       await authentication.signIn({
-        username: data.email,
-        password: data.password
+      await authentication.signIn({
+        credentials: { username: data.email, password: data.password },
+        provider: AuthProvider.CREDENTIALS,
+        oauthCode: ''
       });
-      
-  
       await router.replace('/workspace/list');
-   
     } catch (error) {
       setError('root', {
         type: 'manual',
@@ -60,7 +132,7 @@ const LoginPage = () => {
   };
 
   const handleSignUpClick = () => {
-    router.push('/signup'); 
+    router.push('/signup');
   };
 
   return (
@@ -164,9 +236,11 @@ const LoginPage = () => {
               fullWidth
               variant="outlined"
               size="large"
-              startIcon={<GoogleIcon />}
+              startIcon={<GitHubIcon />}
+              onClick={handleGitHubSignIn}
+              disabled={isRedirecting}
             >
-              Sign in with Google
+              Sign in with GitHub
             </Button>
 
             <Box sx={{ textAlign: 'center' }}>
@@ -199,4 +273,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

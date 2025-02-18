@@ -7,7 +7,8 @@ import {
   BaseApiObject,
   ResendWorkspaceMembershipInvitationResponse,
   RemoveUserFromWorkspaceResponse,
-  InviteUserToWorkspaceRequest
+  InviteUserToWorkspaceRequest,
+  Workspace
 } from '@fonoster/types'
 
 export const useWorkspaces = () => {
@@ -26,7 +27,7 @@ export const useWorkspaces = () => {
     }
   };
 
-  const createWorkspace = async (data: CreateWorkspaceRequest): Promise<BaseApiObject | undefined> => {
+  const createWorkspace = async (data: CreateWorkspaceRequest): Promise<Workspace | undefined> => {
     if (!isReady) return undefined;
 
     try {

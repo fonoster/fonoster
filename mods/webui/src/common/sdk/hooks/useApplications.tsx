@@ -26,6 +26,7 @@ export const useApplications = () => {
     try {
       return await applications.listApplications(data);
     } catch (error: any) {
+      console.error('listApplications error', error);
       notifyError(error as ErrorType);
     }
   };

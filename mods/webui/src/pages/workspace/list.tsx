@@ -115,7 +115,7 @@ const ListWorkspacePage = () => {
 
   const handleSettingsClick = (e: React.MouseEvent, workspaceId: string) => {
     e.stopPropagation();
-    router.push(`/workspace/${workspaceId}/settings`);
+    router.push(`/workspace/${workspaceId}/overview/settings`);
   };
 
   return (
