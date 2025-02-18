@@ -20,7 +20,6 @@ import React from "react";
 import { InputTextProps } from "./types";
 import { InputAdornment } from "@mui/material";
 import { StyledTextField } from "./InputText.styles";
-import { Icon } from "../icon/Icon";
 
 export const InputText: React.FC<InputTextProps> = ({
   onClick,
@@ -33,10 +32,16 @@ export const InputText: React.FC<InputTextProps> = ({
   value,
   onChange,
   error,
-  type
+  type,
+  inputRef,
+  name,
+  ...rest
 }) => {
   return (
     <StyledTextField
+      {...rest}
+      name={name}
+      inputRef={inputRef}
       variant="outlined"
       fullWidth
       onClick={onClick}
@@ -48,19 +53,13 @@ export const InputText: React.FC<InputTextProps> = ({
       onChange={onChange}
       error={error}
       type={type}
-      slotProps={{
-        input: {
-          ...(leadingIcon && {
-            startAdornment: (
-              <InputAdornment position="start">{leadingIcon}</InputAdornment>
-            )
-          }),
-          ...(trailingIcon && {
-            endAdornment: (
-              <InputAdornment position="end">{trailingIcon}</InputAdornment>
-            )
-          })
-        }
+      InputProps={{
+        startAdornment: leadingIcon && (
+          <InputAdornment position="start">{leadingIcon}</InputAdornment>
+        ),
+        endAdornment: trailingIcon && (
+          <InputAdornment position="end">{trailingIcon}</InputAdornment>
+        )
       }}
     />
   );

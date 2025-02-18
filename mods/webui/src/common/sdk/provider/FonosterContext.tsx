@@ -12,11 +12,29 @@ export interface Session {
   refreshToken?: string;
 }
 
+export enum AuthProvider {
+  CREDENTIALS = 'credentials',
+  GOOGLE = 'google',
+  GITHUB = 'github',
+  OTHER = 'other'
+}
+
+export interface SignInCredentials {
+  username: string;
+  password: string;
+}
+
+export interface SignInOptions {
+  credentials?: SignInCredentials;
+  provider: AuthProvider;
+  oauthCode?: string;
+}
+
 export interface FonosterContextType {
   client: SDK.WebClient
   isInitialized: boolean;
   authentication: {
-    signIn: (credentials: { username: string; password: string }) => Promise<void>;
+    signIn: (options: SignInOptions) => Promise<void>;
     signOut: () => Promise<void>;
   };
   session: Session;
@@ -52,16 +70,15 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const accessToken = client.getAccessToken();
     const refreshToken = client.getRefreshToken();
 
-    
-    setCookie('idToken', idToken, { 
-      maxAge: 60 * 60 * 24, 
-      path: '/'
-    });
-    setCookie('accessToken', accessToken, { 
+    setCookie('idToken', idToken, {
       maxAge: 60 * 60 * 24,
       path: '/'
     });
-    setCookie('refreshToken', refreshToken, { 
+    setCookie('accessToken', accessToken, {
+      maxAge: 60 * 60 * 24,
+      path: '/'
+    });
+    setCookie('refreshToken', refreshToken, {
       maxAge: 60 * 60 * 24 * 7,
       path: '/'
     });
@@ -131,12 +148,30 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, []);
 
-  const signIn = async (credentials: { username: string; password: string }) => {
+  const signIn = async (options: SignInOptions) => {
     if (!client) throw new Error('Client is not initialized');
     try {
-      await client.login(credentials.username, credentials.password);
+      switch (options.provider) {
+        case AuthProvider.CREDENTIALS:
+          await client.login(options.credentials!.username, options.credentials!.password);
+          break;
+        case AuthProvider.GITHUB:
+          if (!options.oauthCode) {
+            throw new Error('OAuth code is required for GitHub authentication');
+          }
+          await client.loginWithOauth2Code("GITHUB", options.oauthCode);
+          break;
+        case AuthProvider.GOOGLE:
+          // Commented out for future implementation
+          // await client.loginWithOauth2Code("GOOGLE", options.oauthCode);
+          throw new Error('Google authentication not implemented');
+        default:
+          throw new Error('Invalid authentication provider');
+      }
+      
       saveTokensAndUpdateSession(client);
     } catch (error) {
+      console.error('signIn error', error);
       throw error;
     }
   };

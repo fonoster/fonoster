@@ -28,13 +28,7 @@ export function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(pathname) || 
     pathname.startsWith('/forgot-password/');
 
-
-  if (pathname === '/' && isAuthenticated) {
-    return NextResponse.redirect(new URL('/workspace/list', request.url));
-  }
-
-
-  if (!isAuthenticated && !isPublicRoute && pathname !== '/') {
+  if (!isAuthenticated && !isPublicRoute) {
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 

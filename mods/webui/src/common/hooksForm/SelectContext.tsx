@@ -4,7 +4,6 @@ import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
 
-
 interface SelectOption {
   value: string | number;
   label: string;
@@ -22,16 +21,15 @@ interface SelectContextProps {
     formatOption: (item:SelectOption) => SelectOption;
   };
   formatOption?: (item:SelectOption) => SelectOption;
+  inputRef?: React.Ref<HTMLInputElement>;
 }
-
-
 
 const defaultOptionConfig = {
   labelKey: "label",
   valueKey: "value",
   formatOption: (item: SelectOption) => ({
-    value: item.id,
-    label: item.name || item.label
+    value: item.value,
+    label: item.label
   })
 };
 
@@ -41,27 +39,12 @@ const SelectContext = ({
   options = [],
   disabled = false,
   defaultValue = '',
-  optionConfig = defaultOptionConfig,
-  formatOption
+  optionConfig = defaultOptionConfig
 }: SelectContextProps) => {
   const {
     register,
     formState: { errors },
   } = useFormContext();
-
-  const formatOptionFn = formatOption || optionConfig.formatOption;
-
-  const formattedOptions = options.map((option) => 
-    typeof option === 'object' ? formatOptionFn(option) : option
-  );
-
-  const getOptionLabel = (option) => {
-    return typeof option === 'object' ? option[optionConfig.labelKey] : option;
-  };
-
-  const getOptionValue = (option) => {
-    return typeof option === 'object' ? option[optionConfig.valueKey] : option;
-  };
 
   return (
     <FormControl
@@ -72,21 +55,23 @@ const SelectContext = ({
     >
       <InputLabel>{label}</InputLabel>
       <Select
-        {...register(name, { required: `${label} is required` })}
+        {...register(name)}
         label={label}
         defaultValue={defaultValue}
       >
-        {formattedOptions.map((option) => (
+        {options.map((option) => (
           <MenuItem 
-            key={getOptionValue(option)} 
-            value={getOptionValue(option)}
+            key={option.value} 
+            value={option.value}
           >
-            {getOptionLabel(option)}
+            {option.label}
           </MenuItem>
         ))}
       </Select>
       {errors[name] && (
-        <FormHelperText>{errors[name].message}</FormHelperText>
+        <FormHelperText>
+          {errors[name]?.message as string}
+        </FormHelperText>
       )}
     </FormControl>
   );

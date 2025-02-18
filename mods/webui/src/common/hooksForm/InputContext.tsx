@@ -10,7 +10,13 @@ interface InputContextProps {
   type?: string;
 }
 
-const InputContext = ({ name, label, leadingIcon, trailingIcon, type = "text" }: InputContextProps) => {
+const InputContext = ({ 
+  name, 
+  label, 
+  leadingIcon, 
+  trailingIcon, 
+  type = "text"
+}: InputContextProps) => {
   const {
     register,
     formState: { errors },
@@ -18,7 +24,7 @@ const InputContext = ({ name, label, leadingIcon, trailingIcon, type = "text" }:
 
   return (
     <InputText
-      {...register(name, { required: `${label} is required` })}
+      {...register(name)}
       label={label}
       error={!!errors[name]}
       supportingText={errors[name]?.message || ""}

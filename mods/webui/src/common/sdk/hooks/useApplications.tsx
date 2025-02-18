@@ -30,6 +30,7 @@ export const useApplications = () => {
       const _applications = new SDK.Applications(client);
       return await _applications.listApplications(data);
     } catch (error: any) {
+      console.error('listApplications error', error);
       notifyError(error as ErrorType);
     }
   };
