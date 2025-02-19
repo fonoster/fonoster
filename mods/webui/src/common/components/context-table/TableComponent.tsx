@@ -19,11 +19,12 @@ import {
   Checkbox,
   styled,
   tableCellClasses,
+  Box,
 } from '@mui/material';
 import classNames from 'classnames';
 import { useTableContext } from './useTableContext';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -36,6 +37,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.body}`]: {
     fontSize: '0.875rem',
     color: theme.palette.text.secondary,
+    borderBottom: '1px solid rgba(233, 236, 239, 0.5)',
   },
 }));
 
@@ -55,11 +57,17 @@ const StyledTableSortLabel = styled(TableSortLabel)(({ theme }) => ({
   '& .MuiTableSortLabel-icon': {
     opacity: 1,
     color: theme.palette.text.secondary,
+    // width: '12px',
+    // height: '12px',
+    marginLeft: '4px'
   },
   '&.Mui-active': {
     color: theme.palette.text.primary,
     '& .MuiTableSortLabel-icon': {
       color: theme.palette.text.primary,
+      opacity: 1,
+      // width: '12px',
+      // height: '12px'
     },
   },
 }));
@@ -105,6 +113,15 @@ interface TableComponentProps<TData extends Object> {
   id: string;
 }
 
+const SortIcon = () => {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: '4px' }}>
+      <KeyboardArrowUpIcon sx={{ fontSize: 15, marginBottom: -0.5 }} />
+      <KeyboardArrowDownIcon sx={{ fontSize: 15, marginTop: -0.5 }} />
+    </Box>
+  );
+};
+
 const TableComponent = <TData extends Object>({
   id,
   tableClassName,
@@ -137,7 +154,9 @@ const TableComponent = <TData extends Object>({
                       active={header.column.getIsSorted() !== false}
                       direction={header.column.getIsSorted() === 'desc' ? 'desc' : 'asc'}
                       onClick={header.column.getToggleSortingHandler()}
-                      IconComponent={header.column.getIsSorted() === 'desc' ? ArrowDownwardIcon : ArrowUpwardIcon}
+                      IconComponent={header.column.getIsSorted() === false ?
+                        () => <SortIcon /> :
+                        header.column.getIsSorted() === 'desc' ? KeyboardArrowDownIcon : KeyboardArrowUpIcon}
                     >
                       {header.column.columnDef.header ? (
                         flexRender(header.column.columnDef.header, { column: header.column, table, header })
