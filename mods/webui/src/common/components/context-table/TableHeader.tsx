@@ -18,9 +18,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { useTableContext } from './useTableContext';
 
 interface FilterProps {
-  value?: string;
-  onChange?: (value: string) => void;
-  options?: { value: string; label: string }[];
+  defaultFilter?: string
 }
 
 interface SearchProps {
@@ -46,8 +44,6 @@ interface TableHeaderComponent extends React.FC<TableHeaderProps> {
 }
 
 const TableHeaderComponent = <T extends object,>({ children }: TableHeaderProps) => {
-  const tableProps = useTableContext<T>();
-
   // Separar los children en controles y paginación
   const childrenArray = React.Children.toArray(children);
   const paginationComponent = childrenArray.find(
@@ -70,27 +66,36 @@ const TableHeaderComponent = <T extends object,>({ children }: TableHeaderProps)
 };
 
 // Compound Components
-TableHeaderComponent.Filter = ({ value = 'all', onChange, options = [] }: FilterProps) => (
-  <FormControl size="small" sx={{ minWidth: 120 }}>
-    <Select
-      value={value}
-      onChange={(e) => onChange?.(e.target.value)}
-      sx={{
-        height: '36px',
-        '& .MuiSelect-select': {
-          paddingTop: '6px',
-          paddingBottom: '6px',
-        },
-      }}
-    >
-      {options.map(({ value, label }) => (
-        <MenuItem key={value} value={value}>
-          {label}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-);
+TableHeaderComponent.Filter = ({ defaultFilter = 'All' }: { defaultFilter?: string }) => {
+  const { headers, setGlobalFilter, globalFilter } = useTableContext();
+  return (
+    <FormControl size="small" sx={{ minWidth: 120 }}>
+      <Select
+        value={globalFilter || defaultFilter || ''}
+        onChange={(e) => setGlobalFilter?.(e.target.value)}
+        sx={{
+          height: '36px',
+          '& .MuiSelect-select': {
+            paddingTop: '6px',
+            paddingBottom: '6px',
+          },
+        }}
+      >
+        {headers.map(({ id, header }, index) => (
+          index === 0 ? (
+            <MenuItem key={index} value={'All'}>
+              All
+            </MenuItem>
+          ) : (
+            <MenuItem key={id} value={id}>
+              {header as string}
+            </MenuItem>
+          )
+        ))}
+      </Select>
+    </FormControl>
+  );
+};
 
 TableHeaderComponent.Search = ({ value = '', onChange, placeholder = 'Search...' }: SearchProps) => (
   <TextField

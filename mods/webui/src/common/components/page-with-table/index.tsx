@@ -47,15 +47,7 @@ function ContentTable<T extends object>({ columns, children, tableId = "table" }
   return (
     <ReactTable<T> columns={columns}>
       <ReactTable.Header>
-        <ReactTable.Header.Filter
-          value={''}
-          onChange={() => { }}
-          options={[
-            { value: 'all', label: 'All' },
-            { value: 'active', label: 'Active' },
-            { value: 'inactive', label: 'Inactive' }
-          ]}
-        />
+        <ReactTable.Header.Filter />
         <ReactTable.Header.Search
           value={''}
           onChange={() => { }}
@@ -67,7 +59,7 @@ function ContentTable<T extends object>({ columns, children, tableId = "table" }
           onPageChange={() => { }}
         />
       </ReactTable.Header>
-      <Divider sx={{ mb: 0, mt: 1 }} />
+      <Box sx={{ mb: 0, mt: 1 }} />
       <ReactTable.Content id={tableId} />
       {children}
     </ReactTable>

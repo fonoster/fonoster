@@ -3,42 +3,43 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Application } from '@fonoster/types';
 import PageContainer from '@/common/components/page-with-table';
 import { Button } from '@mui/material';
+import QueryApplications from './_components/QueryApplications';
+import { ApplicationDTO } from '@/types/dto/ApplicationDTO';
 
-const columns: ColumnDef<Application>[] = [
+const columns: ColumnDef<ApplicationDTO>[] = [
   {
-    accessorKey: 'ref',
+    id: 'ref',
     header: 'Ref',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: ApplicationDTO } }) => props.row.original.ref,
   },
   {
-    accessorKey: 'name',
+    id: 'name',
     header: 'Name',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: ApplicationDTO } }) => props.row.original.name,
   },
   {
-    accessorKey: 'projectId',
+    id: 'projectId',
     header: 'Project ID',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: ApplicationDTO } }) => props.row.original.projectId,
   },
   {
-    accessorKey: 'tts',
+    id: 'tts',
     header: 'TTS',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: ApplicationDTO } }) => props.row.original.tts,
   },
   {
-    accessorKey: 'stt',
+    id: 'stt',
     header: 'STT',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: ApplicationDTO } }) => props.row.original.stt,
   },
   {
-    accessorKey: 'intelligence',
+    id: 'intelligence',
     header: 'Inteligence',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: ApplicationDTO } }) => props.row.original.intelligence?.productRef,
   },
   {
-    accessorKey: 'actions',
+    id: 'actions',
     header: 'Actions',
-    cell: (info: any) => info.getValue(),
   },
 ];
 
@@ -61,7 +62,9 @@ export default function ApplicationsPage() {
         Manage all your Fonoster applications here. Create, edit and monitor your applications in execution.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<Application> columns={columns} tableId="applications-table" />
+      <PageContainer.ContentTable<ApplicationDTO> columns={columns} tableId="applications-table">
+        <QueryApplications />
+      </PageContainer.ContentTable>
     </PageContainer>
   );
 }
