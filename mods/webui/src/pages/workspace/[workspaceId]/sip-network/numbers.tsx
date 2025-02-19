@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { INumber } from '@fonoster/types';
-import PageContainer from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/content/PageLayout';
 import { Button } from '@mui/material';
 
 const columns: ColumnDef<INumber>[] = [

@@ -32,7 +32,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (isAuthenticated && isPublicRoute) {
-    return NextResponse.redirect(new URL('/workspace/list', request.url));
+    return NextResponse.redirect(new URL('/workspace/', request.url));
   }
 
   return NextResponse.next();

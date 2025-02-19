@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { NextAppProvider } from '@toolpad/core/nextjs'
 import Head from 'next/head'
-import { fnLight, fnDark } from '../../../../theme/theme'
+import { fnLight, fnDark } from '../../../../../theme/theme'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const BRANDING = {

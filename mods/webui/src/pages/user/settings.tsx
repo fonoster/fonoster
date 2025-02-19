@@ -16,7 +16,7 @@ import { InputContext } from '@/common/hooksForm/InputContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser } from '@/common/sdk/hooks/useUser';
-import PageContainer from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/content/PageLayout';
 import { useRouter } from 'next/router';
 
 const { ContentForm, Header } = PageContainer;

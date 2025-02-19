@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import {
   BaseApiObject,
 } from '@fonoster/types'
-import PageContainer from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/content/PageLayout';
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(6),

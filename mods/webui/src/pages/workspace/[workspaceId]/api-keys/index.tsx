@@ -1,4 +1,4 @@
-import PageContainer from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/content/PageLayout';
 import { Button } from '@mui/material';
 import { Secret } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";
@@ -6,29 +6,28 @@ import { ColumnDef } from "@tanstack/react-table";
 
 const columns: ColumnDef<Secret>[] = [
   {
-    accessorKey: 'secrets',
-    header: 'Secrets',
+    accessorKey: 'Name',
+    header: 'name',
     cell: (info: any) => info.getValue(),
   },
 ];
 
-
-export default function SecretsPage() {
+export default function ApiKeysPage() {
   return (
     <PageContainer>
       <PageContainer.Header
-        title="Secrets"
+        title="API Keys"
         actions={
           <Button variant="contained" onClick={() => { }}>
-            Create New Secret
+            Create New API Key
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Securely manage your application secrets and credentials.
+        Manage your API keys for accessing Fonoster services.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<Secret> columns={columns} tableId="secrets-table" />
+      <PageContainer.ContentTable<Secret> columns={columns} tableId="api-keys-table" />
     </PageContainer>
   );
 }

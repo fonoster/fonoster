@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useRouter } from 'next/router'
-import { FullLayout } from './FullLayout'
-import { SimpleLayout } from './SimpleLayout'
+import { FullLayout } from '@/pages/workspace/_components/layouts/FullLayout'
+import { SimpleLayout } from '@/common/components/layout/auth/SimpleLayout'
 import Head from 'next/head'
 import {
     Box,
@@ -23,19 +23,19 @@ import {
 } from '@mui/icons-material'
 import { NextAppProvider } from '@toolpad/core/nextjs'
 import { fnLight, fnDark } from '../../../../../theme/theme'
-import { NAVIGATION } from './navigation'
+import { NAVIGATION } from '@/pages/workspace/_components/layouts/navigation'
 import { Logo } from '@/common/components/logo/Logo'
 import { ThemeSwitcher } from '@toolpad/core/DashboardLayout'
 
 const SIMPLE_LAYOUT_ROUTES = [
-    '/workspace/list',
+    '/workspace/',
     '/workspace/create',
     '/user/settings'
 ]
 
 const BRANDING = {
     title: '',
-    logo: <Logo size="small"/>
+    logo: <Logo size="small" />
 }
 
 const user = {

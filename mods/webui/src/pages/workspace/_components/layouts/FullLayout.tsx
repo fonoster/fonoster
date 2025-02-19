@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { PageContainer } from '@toolpad/core/PageContainer'
 import { DashboardLayout } from '@toolpad/core/DashboardLayout'
-import { ToolbarActions } from './LayoutWrapper'
+import { ToolbarActions } from '@/common/components/layout/auth/LayoutWrapper'
 
 export function FullLayout({ children }: { children: React.ReactNode }) {
     return (

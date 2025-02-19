@@ -1,14 +1,19 @@
+import path from 'path'
 import { NextConfig } from 'next'
 
 const config: NextConfig = {
-  transpilePackages: ['@mui/material', '@mui/lab', '@toolpad/core'],
-  experimental: {
-    turbo: {
-      resolveAlias: {
-        '@mui/material/utils': '@mui/system/utils'
-      }
+  reactStrictMode: true,
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+      '@theme': path.resolve(__dirname, 'theme'),
+      '@components': path.resolve(__dirname, 'src/common/components'),
+      '@layouts': path.resolve(__dirname, 'src/common/components/layout'),
+      '@utils': path.resolve(__dirname, 'src/utils'),
     }
-  }
+    return config
+  },
 }
 
 export default config

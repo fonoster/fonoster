@@ -1,4 +1,4 @@
-import PageContainer from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/content/PageLayout';
 import { Button } from '@mui/material';
 import { useRouter } from 'next/router';
 import { Agent } from '@fonoster/types';

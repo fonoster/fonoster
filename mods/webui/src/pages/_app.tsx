@@ -1,10 +1,9 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import { AppCacheProvider } from '@mui/material-nextjs/v15-pagesRouter';
-import LayoutProvider from '@/common/components/layout/LayoutProvider'
-import { LayoutWrapper } from '@/pages/workspace/_components/layouts/LayoutWrapper'
+import LayoutProvider from '@/common/components/layout/noAuth/LayoutProvider'
+import { LayoutWrapper } from '@/common/components/layout/auth/LayoutWrapper'
 import { FonosterProvider } from '@/common/sdk/provider/FonosterContext'
-import FormContextProvider from '@/common/hooksForm/FormContextProvider'
 
 export default function App({ Component }: { Component: React.ElementType }) {
   const router = useRouter()
@@ -19,7 +18,6 @@ export default function App({ Component }: { Component: React.ElementType }) {
   return (
     <AppCacheProvider>
       <FonosterProvider>
-        <FormContextProvider>
           {isPageNotAuthentication ? (
             <LayoutProvider >
               <Component />
@@ -29,7 +27,6 @@ export default function App({ Component }: { Component: React.ElementType }) {
               <Component />
             </LayoutWrapper>
           )}
-        </FormContextProvider>
       </FonosterProvider>
     </AppCacheProvider>
   )

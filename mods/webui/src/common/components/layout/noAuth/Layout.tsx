@@ -1,5 +1,5 @@
 import { Box, Container, styled } from '@mui/material';
-import { Logo } from '../logo/Logo';
+import { Logo } from '@/common/components/logo/Logo';
 
 const HeaderWrapper = styled(Box)(({ theme }) => ({
   width: '100%',

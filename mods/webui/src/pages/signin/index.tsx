@@ -6,7 +6,7 @@ import {
   Stack,
 } from '@mui/material';
 import { GitHub as GitHubIcon } from '@mui/icons-material';
-import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
+import { Layout, PageContainer, Card } from '@/common/components/layout/noAtuh/Layout';
 import { useRouter } from 'next/router';
 import { Controller, useForm, ControllerRenderProps } from 'react-hook-form';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
@@ -45,10 +45,10 @@ const LoginPage = () => {
   const router = useRouter();
   const { authentication } = useFonosterClient();
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const { 
-    control, 
-    handleSubmit, 
-    setError, 
+  const {
+    control,
+    handleSubmit,
+    setError,
     formState: { errors, isSubmitting }
   } = useForm<LoginForm>({
     defaultValues: {
@@ -58,26 +58,26 @@ const LoginPage = () => {
 
   });
 
-useEffect(() => {
-  if (!router.isReady) return;
-  const { code, state } = router.query;
-  if (!code || !state) return;
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { code, state } = router.query;
+    if (!code || !state) return;
 
-  let providerFromState: string;
-  try {
-    const decoded = JSON.parse(decodeURIComponent(state as string));
-    providerFromState = decoded.provider;
-  } catch (error) {
-    console.error('Error decoding state', error);
-    providerFromState = '';
-  }
+    let providerFromState: string;
+    try {
+      const decoded = JSON.parse(decodeURIComponent(state as string));
+      providerFromState = decoded.provider;
+    } catch (error) {
+      console.error('Error decoding state', error);
+      providerFromState = '';
+    }
 
-  const oauthResponse: OAuthResponse = {
-    code: code as string,
-    provider: providerFromState,
-  };
-  handleOAuthCallback(oauthResponse);
-}, [router.isReady, router.query]);
+    const oauthResponse: OAuthResponse = {
+      code: code as string,
+      provider: providerFromState,
+    };
+    handleOAuthCallback(oauthResponse);
+  }, [router.isReady, router.query]);
 
 
 
@@ -85,10 +85,10 @@ useEffect(() => {
     if (isRedirecting) return;
     try {
       setIsRedirecting(true);
-      await authentication.signIn({ 
+      await authentication.signIn({
         credentials: { username: '', password: '' },
         provider: oauthResponse.provider,
-        oauthCode: oauthResponse.code 
+        oauthCode: oauthResponse.code
       });
       await router.replace(GITHUB_CONFIG.redirectUri);
     } catch (error) {
@@ -120,7 +120,7 @@ useEffect(() => {
         provider: AuthProvider.CREDENTIALS,
         oauthCode: ''
       });
-      await router.replace('/workspace/list');
+      await router.replace('/workspace/');
     } catch (error) {
       setError('root', {
         type: 'manual',
@@ -202,8 +202,8 @@ useEffect(() => {
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
 
-            <Box sx={{ 
-              position: 'relative', 
+            <Box sx={{
+              position: 'relative',
               textAlign: 'center',
               my: 2,
               '&::before': {
@@ -218,10 +218,10 @@ useEffect(() => {
                   : 'rgba(255, 255, 255, 0.12)',
               }
             }}>
-              <Typography 
-                variant="body2" 
+              <Typography
+                variant="body2"
                 color="text.secondary"
-                sx={{ 
+                sx={{
                   position: 'relative',
                   display: 'inline-block',
                   px: 2,
@@ -244,8 +244,8 @@ useEffect(() => {
             </Button>
 
             <Box sx={{ textAlign: 'center' }}>
-              <Typography 
-                variant="body2" 
+              <Typography
+                variant="body2"
                 color="text.secondary"
                 display="inline"
               >

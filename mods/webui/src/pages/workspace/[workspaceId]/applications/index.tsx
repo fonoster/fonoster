@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { ColumnDef } from "@tanstack/react-table";
 import { Application } from '@fonoster/types';
-import PageContainer from '@/common/components/page-with-table';
+import PageContainer from '@/common/components/content/PageLayout';
 import { Button } from '@mui/material';
 import QueryApplications from './_components/QueryApplications';
 import { ApplicationDTO } from '@/types/dto/ApplicationDTO';
