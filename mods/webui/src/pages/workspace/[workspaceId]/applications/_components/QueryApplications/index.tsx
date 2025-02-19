@@ -1,12 +1,12 @@
 import { useTableContext } from "@/common/components/context-table/useTableContext";
-import { Application } from "@fonoster/types";
 import { useCallback, useEffect, useState } from "react";
 import { useApplications } from "../../_hook/useApplications";
+import { ApplicationDTO } from "@/types/dto/ApplicationDTO";
 
 const QueryApplications = () => {
-  const { setData, setLoadingData } = useTableContext<Application[]>();
+  const { setData, setLoadingData, data } = useTableContext<ApplicationDTO>();
   const [loading, setLoading] = useState(false);
-
+  console.log(data);
   const { fetch } = useApplications();
   // useEffect(() => {
   //     setData([]);
@@ -18,7 +18,38 @@ const QueryApplications = () => {
 
   const handleFetch = useCallback(async () => {
     setLoadingData(true);
-    await fetch();
+    // await fetch();
+    console.log('handleFetch');
+    setData([
+      {
+        ref: '1',
+        name: 'Aplicación 1',
+        projectId: 'project-123',
+        tts: 'enabled',
+        stt: 'enabled',
+        intelligence: {
+          productRef: 'intell-123',
+          config: {
+            'key1': 'value1',
+            'key2': 'value2',
+          }
+        },
+      },
+      {
+        ref: '2',
+        name: 'Aplicación 2',
+        projectId: 'project-456',
+        tts: 'disabled',
+        stt: 'disabled',
+        intelligence: {
+          productRef: 'intell-456',
+          config: {
+            'key1': 'value1',
+            'key2': 'value2',
+          }
+        }
+      }
+    ]);
     setLoadingData(false);
   }, []);
 

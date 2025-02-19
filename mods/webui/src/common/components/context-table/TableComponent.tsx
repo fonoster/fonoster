@@ -17,9 +17,70 @@ import {
   Paper,
   TableSortLabel,
   Checkbox,
+  styled,
+  tableCellClasses,
+  Box,
 } from '@mui/material';
 import classNames from 'classnames';
 import { useTableContext } from './useTableContext';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.text.primary,
+    // fontWeight: 600,
+    fontSize: '0.800rem',
+    borderBottom: '1px solid #E9ECEF',
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: '0.875rem',
+    color: theme.palette.text.secondary,
+    borderBottom: '1px solid rgba(233, 236, 239, 0.5)',
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(odd)': {
+    backgroundColor: theme.palette.background.default,
+  },
+  '&:hover': {
+    backgroundColor: '#F8F9FA',
+  },
+  '&:last-child td, &:last-child th': {
+    borderBottom: 0,
+  },
+}));
+
+const StyledTableSortLabel = styled(TableSortLabel)(({ theme }) => ({
+  '& .MuiTableSortLabel-icon': {
+    opacity: 1,
+    color: theme.palette.text.secondary,
+    // width: '12px',
+    // height: '12px',
+    marginLeft: '4px'
+  },
+  '&.Mui-active': {
+    color: theme.palette.text.primary,
+    '& .MuiTableSortLabel-icon': {
+      color: theme.palette.text.primary,
+      opacity: 1,
+      // width: '12px',
+      // height: '12px'
+    },
+  },
+}));
+
+const StyledTableContainer = styled(TableContainer)({
+  boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.12)',
+  borderRadius: '8px',
+  border: '1px solid #E9ECEF',
+  '& .MuiTable-root': {
+    borderCollapse: 'separate',
+    borderSpacing: '0',
+  },
+});
 
 interface MyDataType {
   name: string;
@@ -31,7 +92,7 @@ interface MyDataType {
 interface MyTableProps {
   id: string;
   data: MyDataType[];
-  columns: ColumnDef<MyDataType, any>[]; // Cambié el tipo de ColumnDef
+  columns: ColumnDef<MyDataType, any>[];
   tableClassName?: string;
   headerClassName?: string;
   bodyClassName?: string;
@@ -52,101 +113,79 @@ interface TableComponentProps<TData extends Object> {
   id: string;
 }
 
+const SortIcon = () => {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: '4px' }}>
+      <KeyboardArrowUpIcon sx={{ fontSize: 15, marginBottom: -0.5 }} />
+      <KeyboardArrowDownIcon sx={{ fontSize: 15, marginTop: -0.5 }} />
+    </Box>
+  );
+};
 
 const TableComponent = <TData extends Object>({
   id,
-  // data,
-  // columns,
   tableClassName,
   headerClassName,
   bodyClassName,
   rowClassName,
   options,
 }: TableComponentProps<TData>) => {
-  // const [sorting, setSorting] = React.useState<SortingState>([]);
-
-  // const table = useReactTable({
-  //   data,
-  //   columns,
-  //   getCoreRowModel: getCoreRowModel(),
-  //   getSortedRowModel: getSortedRowModel(),
-  //   onSortingChange: setSorting,
-  //   state: {
-  //     sorting,
-  //   },
-  // });
-
   const { table, loadingData } = useTableContext<TData>();
 
-  const headerStyle = {
-    backgroundColor: '#f5f5f5',
-    fontWeight: 'bold',
-  };
-
-  const cellStyle = {
-    padding: '8px 16px',
-  };
-
-  const rowStyle = {
-    borderBottom: '0.5px solid #e0e0e0',
-  };
-
   return (
-    <TableContainer component={Paper}>
-      <MUITable
-        id={`table-${id}`}
-        className={classNames(tableClassName, loadingData ? 'loading' : '')}
-      >
-        <TableHead className={headerClassName}>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableCell
-                  key={header.id}
-                  style={{ ...headerStyle, ...cellStyle }}
-                >
-                  <TableSortLabel
-                    active={header.column.getIsSorted() !== false}
-                    direction={header.column.getIsSorted() === 'desc' ? 'desc' : 'asc'}
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    {header.column.columnDef.header ? (
-                      flexRender(header.column.columnDef.header, { column: header.column, table, header })
-                    ) : (
-                      <span>{header.id}</span>
-                    )}
-                  </TableSortLabel>
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableHead>
-        <TableBody className={classNames(bodyClassName)}>
-          {table.getRowModel().rows.map((row, i) => {
-            const rowClass = i % 2 === 0 ? 'even' : 'odd';
+    <StyledTableContainer>
+      <Paper elevation={0}>
+        <MUITable
+          id={`table-${id}`}
+          className={classNames(tableClassName, loadingData ? 'loading' : '')}
+          sx={{ borderRadius: '8px' }}
+          size="small"
 
-            return (
-              <TableRow
-                key={row.id}
-                className={classNames(rowClassName, rowClass)}
-                style={rowStyle}
-              >
-                {/* <TableCell padding="checkbox">
-                  <Checkbox
-                    color="primary"
-                  />
-                </TableCell> */}
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} style={cellStyle}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+        >
+          <TableHead className={headerClassName}>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <StyledTableCell
+                    key={header.id}
+                    align="left"
+                  >
+                    <StyledTableSortLabel
+                      active={header.column.getIsSorted() !== false}
+                      direction={header.column.getIsSorted() === 'desc' ? 'desc' : 'asc'}
+                      onClick={header.column.getToggleSortingHandler()}
+                      IconComponent={header.column.getIsSorted() === false ?
+                        () => <SortIcon /> :
+                        header.column.getIsSorted() === 'desc' ? KeyboardArrowDownIcon : KeyboardArrowUpIcon}
+                    >
+                      {header.column.columnDef.header ? (
+                        flexRender(header.column.columnDef.header, { column: header.column, table, header })
+                      ) : (
+                        <span>{header.id}</span>
+                      )}
+                    </StyledTableSortLabel>
+                  </StyledTableCell>
                 ))}
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </MUITable>
-    </TableContainer>
+            ))}
+          </TableHead>
+          <TableBody className={classNames(bodyClassName)}>
+            {table.getRowModel().rows.map((row, i) => (
+              <StyledTableRow
+                key={row.id}
+                className={classNames(rowClassName)}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <StyledTableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </StyledTableCell>
+                ))}
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </MUITable>
+      </Paper>
+    </StyledTableContainer>
   );
 };
 
