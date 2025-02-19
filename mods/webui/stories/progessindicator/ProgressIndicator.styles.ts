@@ -20,7 +20,9 @@ import { styled } from "@mui/material/styles";
 import { IndicatorLabelProps, ProgressProps } from "./types";
 
 export const StyledProgressContainer = styled("div")(() => ({
-  width: "670px",
+  width: "100%",
+  maxWidth: "670px",
+  margin: "0 auto",
   display: "flex",
   flexDirection: "column",
   gap: "16px"

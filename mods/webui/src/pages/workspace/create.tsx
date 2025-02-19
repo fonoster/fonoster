@@ -8,7 +8,6 @@ import {
   Paper,
   Box,
 } from '@mui/material';
-import { Layout } from '@/common/components/layout/Layout';
 import { ProgressIndicator } from '../../../stories/progessindicator/ProgressIndicator';
 import { useForm, FormProvider } from 'react-hook-form';
 import { InputContext } from '@/common/hooksForm/InputContext';
@@ -21,7 +20,6 @@ const WorkspaceContainer = styled(Container)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  marginTop: 80,
   maxWidth: '1000px !important',
   padding: theme.spacing(3),
 }));
@@ -32,23 +30,6 @@ const CardContainer = styled(Box)({
   width: '100%'
 });
 
-const VerifyCard = styled(Paper)(({ theme }) => ({
-  width: '100%',
-  maxWidth: 530,
-  margin: 'auto',
-  padding: theme.spacing(6),
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: theme.palette.mode === 'light'
-    ? '0px 3px 15px rgba(0, 0, 0, 0.1)'
-    : '0px 3px 15px rgba(0, 0, 0, 0.4)',
-  transition: theme.transitions.create(['box-shadow']),
-  '&:hover': {
-    boxShadow: theme.palette.mode === 'light'
-      ? '0px 4px 20px rgba(0, 0, 0, 0.15)'
-      : '0px 4px 20px rgba(0, 0, 0, 0.5)',
-  },
-}));
 
 const createWorkspaceSchema = z.object({
   workspaceName: z.string().min(1, "Workspace name is required"),
@@ -102,7 +83,7 @@ const CreateWorkspacePage = () => {
 
   const validateCurrentStep = async () => {
     const currentStepFields = Object.keys(stepValidationSchemas[activeStep].shape);
-    
+
     const isValid = await trigger(currentStepFields as any);
     return isValid;
   };
@@ -117,7 +98,7 @@ const CreateWorkspacePage = () => {
   const onSubmit = async (data: FormData) => {
     try {
       const isValid = await validateCurrentStep();
-      
+
       if (!isValid) {
         return;
       }
@@ -150,7 +131,7 @@ const CreateWorkspacePage = () => {
               leadingIcon={null}
               trailingIcon={null}
             />
-            
+
             {errors.workspaceName && (
               <Typography color="error" variant="caption">
                 {errors.workspaceName.message}
@@ -165,10 +146,6 @@ const CreateWorkspacePage = () => {
             >
               Create Workspace
             </Button>
-
-            <Typography variant="caption" color="text.secondary">
-              Current value: {currentValues.workspaceName || 'empty'}
-            </Typography>
           </Stack>
         );
 
@@ -254,25 +231,27 @@ const CreateWorkspacePage = () => {
   };
 
   return (
-    <Layout>
-      <WorkspaceContainer>
-        <Box sx={{ width: '100%', maxWidth: 600, mb: 12, mt: 8 }}>
-          <ProgressIndicator 
-            steps={steps}
-            current={activeStep}
-          />
-        </Box>
-        <CardContainer>
-          <VerifyCard>
-            <FormProvider {...methods}>
-              <form onSubmit={(e) => e.preventDefault()}>
-                {getStepContent(activeStep)}
-              </form>
-            </FormProvider>
-          </VerifyCard>
-        </CardContainer>
-      </WorkspaceContainer>
-    </Layout>
+    <WorkspaceContainer>
+      <Box sx={{
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        mb: 12,
+        mt: 8
+      }}>
+        <ProgressIndicator
+          steps={steps}
+          current={activeStep}
+        />
+      </Box>
+      <CardContainer>
+        <FormProvider {...methods}>
+          <form onSubmit={(e) => e.preventDefault()}>
+            {getStepContent(activeStep)}
+          </form>
+        </FormProvider>
+      </CardContainer>
+    </WorkspaceContainer>
   );
 };
 

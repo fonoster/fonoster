@@ -1,66 +1,34 @@
 import { useState, useEffect } from 'react';
-import { Container, styled, Typography, Box, Paper } from '@mui/material';
-import { Layout } from '@/common/components/layout/Layout';
+import { Container, styled, Typography, Box } from '@mui/material';
 import { WorkspaceCard } from '../../../stories/workspace/WorkspaceCard';
 import { useRouter } from 'next/router';
 import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';
+import { Workspace } from '@fonoster/types';
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  marginTop: 80,
-  maxWidth: '1000px !important',
   padding: theme.spacing(3),
-}));
-
-const CardContainer = styled(Box)({
-  display: 'flex',
-  justifyContent: 'center',
-  width: '100%',
-  marginTop: 24,
-});
-
-const VerifyCard = styled(Paper)(({ theme }) => ({
-  width: '100%',
-  maxWidth: '100%',
-  margin: 'auto',
-  padding: theme.spacing(6),
-  overflowX: 'auto',
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: theme.palette.mode === 'light'
-    ? '0px 3px 15px rgba(0, 0, 0, 0.1)'
-    : '0px 3px 15px rgba(0, 0, 0, 0.4)',
-  transition: theme.transitions.create(['box-shadow']),
-  '&:hover': {
-    boxShadow: theme.palette.mode === 'light'
-      ? '0px 4px 20px rgba(0, 0, 0, 0.15)'
-      : '0px 4px 20px rgba(0, 0, 0, 0.5)',
-  },
+  maxWidth: 'none !important',
 }));
 
 const WorkspaceGrid = styled(Box)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, 250px)',
+  gridTemplateColumns: 'repeat(auto-fit, 344px)',
+  justifyContent: 'center',
   gridAutoFlow: 'row dense',
   gap: theme.spacing(3),
   width: '100%',
-  overflowX: 'auto',
   padding: theme.spacing(1),
-  '@media (max-width: 600px)': {
-    gridAutoFlow: 'row',
-    gridTemplateColumns: '1fr',
+  margin: '0 auto',
+  overflowX: 'hidden',
+  '@media (max-width: 767px)': {
+    gridTemplateColumns: 'minmax(300px, 344px)',
+    justifyContent: 'center'
   }
 }));
-
-interface Workspace {
-  id: string;
-  region: string;
-  description: string;
-  date: string;
-}
 
 const ListWorkspacePage = () => {
   const router = useRouter();
@@ -76,21 +44,23 @@ const ListWorkspacePage = () => {
 
       try {
         const response = await listWorkspaces();
-        if (!mounted) return;
-        if (!response) return;
-        
+        if (!mounted || !response) return;
+
         const { items } = response;
-        const formattedWorkspaces = items.map(workspace => ({
+        const formattedWorkspaces: Workspace[] = items.map(workspace => ({
           ref: workspace.ref,
           region: workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION,
+          name: workspace.name,
           description: workspace.name || 'No description',
           date: new Date(workspace.createdAt).toLocaleDateString(),
+          createdAt: workspace.createdAt
         }));
 
         if (mounted) {
           setWorkspaces(formattedWorkspaces);
         }
       } catch (error) {
+        console.error('Error fetching workspaces:', error);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -103,7 +73,7 @@ const ListWorkspacePage = () => {
     return () => {
       mounted = false;
     };
-  }, [isReady]);
+  }, [isReady, listWorkspaces]);
 
   const handleCreateWorkspace = () => {
     router.push('/workspace/create');
@@ -119,52 +89,46 @@ const ListWorkspacePage = () => {
   };
 
   return (
-    <Layout>
-      <WorkspaceContainer>
-        <Typography variant="h4" component="h1" align="center">
-          Workspaces
-        </Typography>
-        <Typography 
-          variant="body1" 
-          color="text.secondary" 
-          align="center" 
-          mt={1} 
-          mb={2}
-        >
-          Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.
-        </Typography>
+    <WorkspaceContainer>
+      <Typography variant="h4" component="h1" align="center">
+        Workspaces
+      </Typography>
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        align="center"
+        mt={1}
+        mb={2}
+      >
+        Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.
+      </Typography>
 
-        <CardContainer>
-          <VerifyCard>
-            <WorkspaceGrid>
-              {loading ? (
-                <Typography>Loading workspaces...</Typography>
-              ) : (
-                <>
-                  {workspaces.map((workspace) => (
-                    <WorkspaceCard
-                      key={workspace.ref}
-                      variant="regular"
-                      region={workspace.region}
-                      description={workspace.description}
-                      date={workspace.date}
-                      onClick={() => handleWorkspaceClick(workspace.ref)}
-                      onSettingsClick={(e: React.MouseEvent) => handleSettingsClick(e, workspace.ref)}
-                      disabled={false}
-                    />
-                  ))}
-                  <WorkspaceCard
-                    variant="empty"
-                    onClick={handleCreateWorkspace}
-                    disabled={false}
-                  />
-                </>
-              )}
-            </WorkspaceGrid>
-          </VerifyCard>
-        </CardContainer>
-      </WorkspaceContainer>
-    </Layout>
+      <WorkspaceGrid>
+        {loading ? (
+          <Typography>Loading workspaces...</Typography>
+        ) : (
+          <>
+            {workspaces.map((workspace) => (
+              <WorkspaceCard
+                key={workspace.ref}
+                variant="regular"
+                region={workspace.region}
+                description={workspace.description}
+                date={workspace.date}
+                onClick={() => handleWorkspaceClick(workspace.ref)}
+                onSettingsClick={(e) => handleSettingsClick(e, workspace.ref)}
+                disabled={false}
+              />
+            ))}
+            <WorkspaceCard
+              variant="empty"
+              onClick={handleCreateWorkspace}
+              disabled={false}
+            />
+          </>
+        )}
+      </WorkspaceGrid>
+    </WorkspaceContainer>
   );
 };
 

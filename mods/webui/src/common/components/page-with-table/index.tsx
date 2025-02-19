@@ -1,8 +1,9 @@
 import { ReactNode } from 'react';
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography, Divider, Stack } from '@mui/material';
 import { ColumnDef } from "@tanstack/react-table";
 import ReactTable from "@/common/components/context-table/ReactTable";
-
+import { FormProvider, UseFormReturn } from "react-hook-form";
+import { LinkBackTo } from '../../../../stories/linkbackto/LinkBackTo';
 interface PageContainerProps {
   children: ReactNode;
 }
@@ -22,15 +23,52 @@ interface ContentProps<T extends object> {
   tableId?: string;
 }
 
+interface ContentFormProps<T extends object> {
+  children?: ReactNode;
+  formId?: string;
+  methods: UseFormReturn<T>;
+}
+
 function PageContainer({ children }: PageContainerProps) {
   return <Box>{children}</Box>;
 }
 
-function Header({ title, actions }: HeaderProps) {
+interface HeaderProps {
+  title: string;
+  actions?: ReactNode;
+  backTo?: {
+    label: string;
+    onClick: () => void;
+  };
+}
+
+function Header({ title, actions, backTo }: HeaderProps) {
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-      <Typography variant="h5">{title}</Typography>
-      {actions}
+    <Box sx={{ mb: 4 }}>
+      {backTo && (
+        <Box sx={{ mb: 1.5 }}>
+          <LinkBackTo
+            label={backTo.label}
+            onClick={backTo.onClick}
+          />
+        </Box>
+      )}
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 500,
+            fontSize: '1.5rem'
+          }}
+        >
+          {title}
+        </Typography>
+        {actions}
+      </Box>
     </Box>
   );
 }
@@ -74,8 +112,54 @@ function ContentTable<T extends object>({ columns, children, tableId = "table" }
   );
 }
 
+function ContentForm<T extends object>({ children, formId, methods }: ContentFormProps<T>) {
+  return (
+
+    <Box
+      component="form"
+      id={formId}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+        p: 3,
+        borderColor: 'divider',
+        borderRadius: 1,
+        bgcolor: 'background.paper',
+        '& .MuiFormControl-root': {
+          width: '100%',
+          maxWidth: '500px'
+        },
+        '& .MuiInputLabel-root': {
+          mb: 1,
+          color: 'text.primary',
+          fontWeight: 500
+        },
+        '& .MuiOutlinedInput-root': {
+          bgcolor: 'background.default'
+        }
+      }}
+      noValidate
+      autoComplete="off"
+    >
+      <Stack
+        spacing={{ xs: 1, sm: 2, md: 3 }}
+        useFlexGap
+        sx={{
+          alignItems: "flex-start",
+        }}
+      >
+        <FormProvider {...methods}>
+          {children}
+        </FormProvider>
+      </Stack>
+    </Box>
+  );
+}
+
 PageContainer.Header = Header;
 PageContainer.Subheader = Subheader;
 PageContainer.ContentTable = ContentTable;
+PageContainer.ContentForm = ContentForm;
 
 export default PageContainer;

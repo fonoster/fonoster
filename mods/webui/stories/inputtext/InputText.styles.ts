@@ -30,11 +30,11 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     letterSpacing: "0.12px"
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.Mui-focused": {
+    color: theme.palette.primary.main,
     fontFamily: theme.typography.fontFamily,
     fontWeight: 500,
     lineHeight: "normal",
-    transform: "translate(16px, -11px) scale(0.66)",
-    color: theme.palette.text.primary
+    transform: "translate(16px, -11px) scale(0.66)"
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
     fontFamily: theme.typography.fontFamily,
@@ -58,9 +58,12 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     color: theme.palette.text.primary
   },
   "& .MuiOutlinedInput-root": {
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: theme.palette.primary.main
+    },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
       borderColor: theme.palette.primary.main,
-      borderWidth: "1px"
+      borderWidth: "2px"
     }
   },
   "& .MuiFormHelperText-root": {

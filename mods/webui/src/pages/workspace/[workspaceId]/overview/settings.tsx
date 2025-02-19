@@ -1,10 +1,14 @@
-import { useEffect } from 'react';
-import { Box, Typography, Button } from '@mui/material';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { Button, Typography } from '@mui/material';
+import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
+import PageContainer from '@/common/components/page-with-table';
 import { InputContext } from '@/common/hooksForm/InputContext';
-import { SelectContext } from '@/common/hooksForm/SelectContext.tsx';
+import { SelectContext } from '@/common/hooksForm/SelectContext';
 import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';
+import { Workspace } from '@fonoster/types';
+
+const { ContentForm } = PageContainer;
 
 const timezones = [
   { value: 'UTC', label: 'UTC' },
@@ -14,6 +18,7 @@ const timezones = [
 
 export default function SettingsPage() {
   const { isReady, getWorkspace } = useWorkspaces();
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const router = useRouter();
   const { workspaceId } = router.query;
   const methods = useForm({
@@ -22,6 +27,7 @@ export default function SettingsPage() {
       timezone: 'PST: UTC-8:00'
     }
   });
+
 
   const { handleSubmit, reset } = methods;
 
@@ -46,40 +52,47 @@ export default function SettingsPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Workspace Settings
-      </Typography>
-      
-      <FormProvider {...methods}>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-
-          <InputContext
-            name="name"
-            label="Workspace Name"
-            type="text"
-            leadingIcon={null}
-            trailingIcon={null}
-          />
-          
-          <SelectContext
-            name="timezone"
-            label="Timezone"
-            options={timezones}
-            defaultValue={process.env.NEXT_PUBLIC_FONOSTER_REGION}
-          />
-          
-          <Button 
+    <PageContainer>
+      <PageContainer.Header title="Workspace Settings"
+        backTo={{
+          label: 'Back to Overview',
+          onClick: () => router.push(`/workspace/${workspaceId}/overview`)
+        }}
+        actions={
+          <Button
             type="submit"
             variant="contained"
             color="primary"
-            sx={{ mt: 3 }}
-            fullWidth
           >
             Save Settings
           </Button>
-        </Box>
-      </FormProvider>
-    </Box>
+        }
+      />
+      <ContentForm methods={methods} formId="settings-form">
+        <Typography variant="caption" >
+          NYC01
+        </Typography>
+        <Typography variant="h6">
+          [Workspace Name]
+        </Typography>
+
+        <InputContext
+          name="name"
+          label="Workspace Name"
+          type="text"
+          leadingIcon={null}
+          trailingIcon={null}
+          id="settings-form-name"
+        />
+
+        <SelectContext
+          name="timezone"
+          label="Timezone"
+          options={timezones}
+          defaultValue={process.env.NEXT_PUBLIC_FONOSTER_REGION}
+          id="settings-form-timezone"
+        />
+      </ContentForm>
+    </PageContainer>
   );
 } 

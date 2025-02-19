@@ -4,8 +4,6 @@ import {
   Button,
   TextField,
   Typography,
-  Container,
-  styled,
   useTheme,
   Stack,
   Checkbox,
@@ -36,7 +34,7 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.agreeToTerms) {
       alert('Please agree to the terms and conditions');
       return;
@@ -137,8 +135,8 @@ const SignUpPage = () => {
               SIGN UP
             </Button>
 
-            <Box sx={{ 
-              position: 'relative', 
+            <Box sx={{
+              position: 'relative',
               textAlign: 'center',
               my: 2,
               '&::before': {
@@ -153,10 +151,10 @@ const SignUpPage = () => {
                   : 'rgba(255, 255, 255, 0.12)',
               }
             }}>
-              <Typography 
-                variant="body2" 
+              <Typography
+                variant="body2"
                 color="text.secondary"
-                sx={{ 
+                sx={{
                   position: 'relative',
                   display: 'inline-block',
                   px: 2,
@@ -177,8 +175,8 @@ const SignUpPage = () => {
             </Button>
 
             <Box sx={{ textAlign: 'center' }}>
-              <Typography 
-                variant="body2" 
+              <Typography
+                variant="body2"
                 color="text.secondary"
                 display="inline"
               >

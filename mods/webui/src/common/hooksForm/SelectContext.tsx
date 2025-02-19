@@ -1,45 +1,29 @@
 import { useFormContext } from "react-hook-form";
-import { Select, MenuItem } from "@mui/material";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
-import InputLabel from "@mui/material/InputLabel";
-
-interface SelectOption {
-  value: string | number;
-  label: string;
-}
+import { Select } from "../../../stories/select/Select";
+import { ReactNode } from "react";
 
 interface SelectContextProps {
   name: string;
   label: string;
-  options: SelectOption[];
+  options: Array<{
+    value: string | number;
+    label: string;
+  }>;
+  leadingIcon?: ReactNode;
+  trailingIcon?: ReactNode;
   disabled?: boolean;
   defaultValue?: string | number;
-  optionConfig?: {
-    labelKey: string;
-    valueKey: string;
-    formatOption: (item:SelectOption) => SelectOption;
-  };
-  formatOption?: (item:SelectOption) => SelectOption;
-  inputRef?: React.Ref<HTMLInputElement>;
+  id: string;
 }
-
-const defaultOptionConfig = {
-  labelKey: "label",
-  valueKey: "value",
-  formatOption: (item: SelectOption) => ({
-    value: item.value,
-    label: item.label
-  })
-};
 
 const SelectContext = ({
   name,
   label,
-  options = [],
+  options,
+  leadingIcon,
+  trailingIcon,
   disabled = false,
-  defaultValue = '',
-  optionConfig = defaultOptionConfig
+  defaultValue = ''
 }: SelectContextProps) => {
   const {
     register,
@@ -47,34 +31,18 @@ const SelectContext = ({
   } = useFormContext();
 
   return (
-    <FormControl
-      fullWidth
+    <Select
+      {...register(name)}
+      label={label}
       error={!!errors[name]}
+      supportingText={errors[name]?.message || ""}
+      options={options}
+      leadingIcon={leadingIcon}
+      trailingIcon={trailingIcon}
       disabled={disabled}
-      margin="normal"
-    >
-      <InputLabel>{label}</InputLabel>
-      <Select
-        {...register(name)}
-        label={label}
-        defaultValue={defaultValue}
-      >
-        {options.map((option) => (
-          <MenuItem 
-            key={option.value} 
-            value={option.value}
-          >
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
-      {errors[name] && (
-        <FormHelperText>
-          {errors[name]?.message as string}
-        </FormHelperText>
-      )}
-    </FormControl>
+      defaultValue={defaultValue}
+    />
   );
 };
 
-export { SelectContext }; 
+export { SelectContext };

@@ -6,11 +6,11 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import { PageContainer } from '@toolpad/core/PageContainer';
 import { useEffect, useState } from 'react';
 import {
   BaseApiObject,
 } from '@fonoster/types'
+import PageContainer from '@/common/components/page-with-table';
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(6),
@@ -81,53 +81,48 @@ export default function OverviewPage() {
 
   return (
     <PageContainer>
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          {workspace?.name} Overview
-        </Typography>
+      <PageContainer.Header title="Workspace Overview" />
+      <ContentContainer>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <SectionContainer>
+              <SectionTitle>SETTINGS</SectionTitle>
+              <CardsContainer>
+                <OverviewCard
+                  label="Workspace Settings"
+                  icon={<SettingsOutlinedIcon />}
+                  onClick={() => handleCardClick('settings')}
+                />
+                <OverviewCard
+                  label="Workspace Members"
+                  icon={<GroupOutlinedIcon />}
+                  onClick={() => handleCardClick('members')}
+                />
+              </CardsContainer>
+            </SectionContainer>
+          </Grid>
 
-        <ContentContainer>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <SectionContainer>
-                <SectionTitle>SETTINGS</SectionTitle>
-                <CardsContainer>
+          <Grid item xs={12} md={6}>
+            <SectionContainer>
+              <SectionTitle>API KEYS</SectionTitle>
+              <CardsContainer>
+                <OverviewCard
+                  label={`You currently have [${apiKeysCount}] API Keys`}
+                  icon={<VpnKeyOutlinedIcon />}
+                  onClick={() => handleCardClick('api-keys')}
+                />
+                {expiringKeysCount > 0 && (
                   <OverviewCard
-                    label="Workspace Settings"
-                    icon={<SettingsOutlinedIcon />}
-                    onClick={() => handleCardClick('settings')}
-                  />
-                  <OverviewCard
-                    label="Workspace Members"
-                    icon={<GroupOutlinedIcon />}
-                    onClick={() => handleCardClick('members')}
-                  />
-                </CardsContainer>
-              </SectionContainer>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <SectionContainer>
-                <SectionTitle>API KEYS</SectionTitle>
-                <CardsContainer>
-                  <OverviewCard
-                    label={`You currently have [${apiKeysCount}] API Keys`}
-                    icon={<VpnKeyOutlinedIcon />}
+                    label={`You have ${expiringKeysCount} API Key that is almost expired`}
+                    icon={<NotificationsOutlinedIcon />}
                     onClick={() => handleCardClick('api-keys')}
                   />
-                  {expiringKeysCount > 0 && (
-                    <OverviewCard
-                      label={`You have ${expiringKeysCount} API Key that is almost expired`}
-                      icon={<NotificationsOutlinedIcon />}
-                      onClick={() => handleCardClick('api-keys')}
-                    />
-                  )}
-                </CardsContainer>
-              </SectionContainer>
-            </Grid>
+                )}
+              </CardsContainer>
+            </SectionContainer>
           </Grid>
-        </ContentContainer>
-      </Box>
+        </Grid>
+      </ContentContainer>
     </PageContainer>
   );
 } 

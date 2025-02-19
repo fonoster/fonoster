@@ -47,7 +47,6 @@ export default function ApplicationsPage() {
   const { workspaceId } = router.query;
 
   return (
-
     <PageContainer>
       <PageContainer.Header
         title="Applications"
