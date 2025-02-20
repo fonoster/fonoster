@@ -44,8 +44,8 @@ export const FonosterContext = createContext<FonosterContextType>({
   client: null,
   isInitialized: false,
   authentication: {
-    signIn: async () => {},
-    signOut: async () => {}
+    signIn: async () => { },
+    signOut: async () => { }
   },
   session: { isAuthenticated: false }
 });
@@ -168,7 +168,7 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         default:
           throw new Error('Invalid authentication provider');
       }
-      
+
       saveTokensAndUpdateSession(client);
     } catch (error) {
       console.error('signIn error', error);

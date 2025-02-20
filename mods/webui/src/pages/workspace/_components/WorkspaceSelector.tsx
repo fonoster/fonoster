@@ -44,48 +44,36 @@ const WorkspaceSelector = () => {
   }
 
   return (
-    <Box sx={{ p: 4, maxWidth: 600, mx: 'auto' }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Stack spacing={3}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-            <BusinessIcon color="primary" sx={{ fontSize: 32 }} />
-            <Typography variant="h5" component="h1">
-              Seleccionar Workspace
-            </Typography>
-          </Box>
-
-          <FormControl fullWidth>
-            <InputLabel id="workspace-select-label">Workspace</InputLabel>
-            <Select
-              labelId="workspace-select-label"
-              id="workspace-select"
-              value={selectedWorkspace}
-              label="Workspace"
-              onChange={handleChange}
-            >
-              {workspaces.map((workspace) => (
-                <MenuItem key={workspace.id} value={workspace.id}>
-                  <Box>
-                    <Typography variant="subtitle1">{workspace.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {workspace.description}
-                    </Typography>
-                  </Box>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {selectedWorkspace && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body1" color="primary">
-                Workspace seleccionado:{' '}
-                {workspaces.find((w) => w.id === selectedWorkspace)?.name}
-              </Typography>
-            </Box>
-          )}
-        </Stack>
-      </Paper>
+    <Box
+      sx={{ width: '100%', minWidth: 250 }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      <FormControl fullWidth>
+        <InputLabel id="workspace-select-label">Select Workspace</InputLabel>
+        <Select
+          labelId="workspace-select-label"
+          id="workspace-select"
+          value={selectedWorkspace}
+          label="Select Workspace"
+          onChange={handleChange}
+          size="medium"
+          fullWidth
+        >
+          {workspaces.map((workspace) => (
+            <MenuItem key={workspace.id} value={workspace.id}>
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{workspace.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {workspace.description}
+                </Typography>
+              </Box>
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </Box>
   )
 }

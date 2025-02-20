@@ -15,23 +15,24 @@ import { Navigation, NavigationPageItem } from '@toolpad/core/AppProvider';
 import WorkspaceSelector from '@/pages/workspace/_components/WorkspaceSelector';
 import BusinessIcon from '@mui/icons-material/Business';
 
-interface CustomNavigationPageItem extends NavigationPageItem {
+interface CustomNavigationPageItem extends Partial<NavigationPageItem> {
   component?: React.ComponentType;
   children?: Navigation;
   collapsible?: boolean;
   badge?: string;
   badgeColor?: string;
+  icon?: React.ReactNode;
 }
 
 export const NAVIGATION: Navigation = [
   {
-    kind: 'page',
-    segment: 'selector',
-    title: 'Workspace',
-    icon: <BusinessIcon />,
-    component: WorkspaceSelector
+    href: '#',
+    icon: <WorkspaceSelector />,
+    component: WorkspaceSelector,
   } as CustomNavigationPageItem,
-
+  {
+    kind: 'divider',
+  },
   {
     kind: 'header',
     title: 'General',
