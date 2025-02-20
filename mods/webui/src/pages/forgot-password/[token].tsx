@@ -1,115 +1,93 @@
 import {
   Box,
-  Button,
-  TextField,
   Typography,
   useTheme,
-  Stack,
-  Link as MuiLink
 } from '@mui/material';
-import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
+import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { InputContext } from '@/common/hooksForm/InputContext';
+import { LinkBackTo } from '@stories/linkbackto/LinkBackTo';
+import { Button } from '@stories/button/Button';
+
+const resetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one symbol'),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPassword() {
   const theme = useTheme();
   const router = useRouter();
   const { token } = router.query;
 
-  // if (!token) {
-  //   return (
-  //     <>
-  //       <Header />
-  //       <LoginContainer>
-  //         <Typography>Loading...</Typography>
-  //       </LoginContainer>
-  //     </>
-  //   );
-  // }
+  const methods = useForm<ResetPasswordForm>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
+
+  const onSubmit = async (data: ResetPasswordForm) => {
+    console.log(data);
+  };
 
   return (
-    <>
-      <Layout>
+    <Layout methods={methods}>
       <PageContainer>
         <Card>
-          <Stack spacing={3}>
-            <Typography variant="h5" align="center">
-              Reset your password
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center">
-              Please reset your password using 8+ characters with upper, lower,
-              number, and symbol.
-            </Typography>
+          <Content title="Reset your password">
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+              <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 5 }}>
+                Please reset your password using 8+ characters with upper, lower,
+                number, and symbol.
+              </Typography>
 
-            <TextField
-              fullWidth
-              label="Password"
-              type="password"
-              autoComplete="new-password"
-              helperText="Please enter your new password"
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                },
-              }}
-            />
+              <InputContext
+                name="password"
+                label="Password"
+                type="password"
+                id="reset-password"
+                helperText="Please enter your new password"
+              />
 
-            <TextField
-              fullWidth
-              label="Confirm Password"
-              type="password"
-              autoComplete="new-password"
-              helperText="Please confirm your new password"
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                },
-              }}
-            />
+              <Box sx={{ mt: 3 }}>
+                <InputContext
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  type="password"
+                  id="confirm-password"
+                  helperText="Please confirm your new password"
+                />
+              </Box>
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              size="large"
-              sx={{
-                boxShadow: theme.shadows[2],
-                '&:hover': {
-                  boxShadow: theme.shadows[4],
-                },
-              }}
-            >
-              RESET PASSWORD
-            </Button>
-
-            <Box sx={{ textAlign: 'center' }}>
-              <Link href="/signin" passHref>
-                <MuiLink
-                  component="span"
-                  variant="body2"
-                  sx={{
-                    color: 'text.secondary',
-                    textDecoration: 'none',
-                    '&:hover': {
-                      textDecoration: 'underline',
-                      color: 'primary.main',
-                    }
-                  }}
+              <Box sx={{ textAlign: 'center', mt: 5 }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  onClick={methods.handleSubmit(onSubmit)}
                 >
-                  Back to sign in
-                </MuiLink>
-              </Link>
-            </Box>
-          </Stack>
+                  RESET PASSWORD
+                </Button>
+              </Box>
+
+              <Box sx={{ textAlign: 'center', mt: 2 }}>
+                <LinkBackTo label="Back to forgot password" />
+              </Box>
+            </form>
+          </Content>
         </Card>
       </PageContainer>
-      </Layout>
-    </>
+    </Layout>
   );
 } 

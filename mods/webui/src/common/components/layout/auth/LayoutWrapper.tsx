@@ -28,7 +28,7 @@ import { Logo } from '@/common/components/logo/Logo'
 import { ThemeSwitcher } from '@toolpad/core/DashboardLayout'
 
 const SIMPLE_LAYOUT_ROUTES = [
-    '/workspace/',
+    '/workspace',
     '/workspace/create',
     '/user/settings'
 ]
@@ -51,7 +51,6 @@ export const ToolbarActions = React.memo(() => {
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
     const [notificationAnchorEl, setNotificationAnchorEl] = React.useState<HTMLElement | null>(null)
 
-    // Mock notifications - En producción esto vendría de tu backend
     const [notifications, setNotifications] = React.useState([
         {
             id: 1,
@@ -107,8 +106,6 @@ export const ToolbarActions = React.memo(() => {
     return (
         <>
             <ThemeSwitcher />
-
-            {/* Notification Icon & Menu */}
             <IconButton
                 color="inherit"
                 onClick={handleNotificationClick}
@@ -203,7 +200,6 @@ export const ToolbarActions = React.memo(() => {
                 </MenuItem>
             </Menu>
 
-            {/* Existing User Menu */}
             <IconButton
                 onClick={handleMenuOpen}
                 color="inherit"

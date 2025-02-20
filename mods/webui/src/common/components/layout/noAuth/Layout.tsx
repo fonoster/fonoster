@@ -1,68 +1,105 @@
-import { Box, Container, styled } from '@mui/material';
+import { AppBar, Box, Container, Stack, Typography, styled } from '@mui/material';
 import { Logo } from '@/common/components/logo/Logo';
+import { FormProvider, UseFormReturn } from 'react-hook-form';
 
-const HeaderWrapper = styled(Box)(({ theme }) => ({
-  width: '100%',
+const HEADER_HEIGHT = 80;
+const HEADER_TO_CONTENT_SPACING = 44;
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
   position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  height: 80,
   backgroundColor: theme.palette.background.paper,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  boxShadow: 'none',
+  borderBottom: '1px solid',
+  borderColor: theme.palette.divider,
+  height: HEADER_HEIGHT,
   zIndex: theme.zIndex.appBar,
-  boxShadow: theme.palette.mode === 'light'
-    ? '0px 3px 15px rgba(0, 0, 0, 0.1)'
-    : '0px 3px 15px rgba(0, 0, 0, 0.4)',
-  transition: theme.transitions.create(['box-shadow']),
 }));
 
 export const Header = () => {
   return (
-    <HeaderWrapper>
-      <Logo size="medium" />
-    </HeaderWrapper>
+    <StyledAppBar>
+      <Container maxWidth="lg" sx={{ height: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+          }}
+        >
+          <Logo size="small" />
+        </Box>
+      </Container>
+    </StyledAppBar>
   );
 };
 
 export const PageContainer = styled(Container)(({ theme }) => ({
-  minHeight: `calc(100vh - 80px)`,
+  flex: 1,
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center',
-  marginTop: 80,
-  maxWidth: '1000px !important',
+  maxWidth: '100%!important',
+  marginTop: HEADER_HEIGHT + HEADER_TO_CONTENT_SPACING,
   padding: theme.spacing(3),
 }));
 
 export const Card = styled('form')(({ theme }) => ({
   width: '100%',
-  maxWidth: 530,
-  padding: theme.spacing(6),
+  maxWidth: 480,
   backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: theme.palette.mode === 'light'
-    ? '0px 3px 15px rgba(0, 0, 0, 0.1)'
-    : '0px 3px 15px rgba(0, 0, 0, 0.4)',
-  transition: theme.transitions.create(['box-shadow']),
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  boxShadow: 'none',
+  padding: theme.spacing(4),
   '&:hover': {
-    boxShadow: theme.palette.mode === 'light'
-      ? '0px 4px 20px rgba(0, 0, 0, 0.15)'
-      : '0px 4px 20px rgba(0, 0, 0, 0.5)',
+    boxShadow: 'none',
   },
 }));
 
-interface LayoutProps {
+interface AuthContentProps {
+  title: string;
   children: React.ReactNode;
 }
 
-export const Layout = ({ children }: LayoutProps) => {
+export const Content = ({ title, children }: AuthContentProps) => {
   return (
     <>
-      <Header />
-      {children}
+      <Typography
+        variant="h5"
+        sx={{
+          marginBottom: 3,
+          fontWeight: 500,
+          color: 'text.primary',
+        }}
+      >
+        {title}
+      </Typography>
+      <Stack spacing={3} sx={{ width: '100%' }}>
+        {children}
+      </Stack>
     </>
+  );
+};
+
+interface LayoutProps {
+  children: React.ReactNode;
+  methods: UseFormReturn<any>;
+}
+
+export const Layout = ({ children, methods }: LayoutProps) => {
+  return (
+    <Box sx={{
+      backgroundColor: 'background.default',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+      <Header />
+      <FormProvider {...methods}>
+        {children}
+      </FormProvider>
+    </Box>
   );
 }; 

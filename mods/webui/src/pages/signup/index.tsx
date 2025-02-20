@@ -1,50 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
-  TextField,
   Typography,
   useTheme,
-  Stack,
-  Checkbox,
-  FormControlLabel,
 } from '@mui/material';
 import { Google as GoogleIcon } from '@mui/icons-material';
-import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
+import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useRouter } from 'next/router';
+import { ModalTerms } from '@stories/modalterms/ModalTerms';
+import { useForm } from 'react-hook-form';
+import { InputContext } from '@/common/hooksForm/InputContext';
+import { CheckboxContext } from '@/common/hooksForm/CheckboxContext';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const signUpSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+      'Password must contain uppercase, lowercase, number and symbol'),
+  confirmPassword: z.string(),
+  agreeToTerms: z.boolean().refine(val => val === true, {
+    message: 'You must agree to the terms and conditions'
+  })
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+});
+
+type SignUpFormData = z.infer<typeof signUpSchema>;
 
 const SignUpPage = () => {
   const theme = useTheme();
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeToTerms: false,
+  const [openTerms, setOpenTerms] = useState(false);
+
+  const methods = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      agreeToTerms: false
+    }
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+  const handleTermsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setOpenTerms(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCloseTerms = () => {
+    setOpenTerms(false);
+  };
 
-    if (!formData.agreeToTerms) {
-      alert('Please agree to the terms and conditions');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
-
+  const onSubmit = async (data: SignUpFormData) => {
     try {
       router.push('/signup/verify');
     } catch (error) {
@@ -52,72 +66,70 @@ const SignUpPage = () => {
     }
   };
 
+  const watchAgreeToTerms = methods.watch('agreeToTerms');
+  useEffect(() => {
+    if (watchAgreeToTerms) {
+      setOpenTerms(true);
+    }
+  }, [watchAgreeToTerms]);
+
   return (
-    <Layout>
+    <Layout methods={methods}>
       <PageContainer>
-        <Card onSubmit={handleSubmit}>
-          <Stack spacing={3}>
-            <Typography variant="h5" align="center">
-              Sign up for Fonoster
-            </Typography>
-
-            <TextField
-              fullWidth
-              label="Name"
+        <Card onSubmit={methods.handleSubmit(onSubmit)}>
+          <Content title="Sign up for Fonoster">
+            <InputContext
               name="name"
-              value={formData.name}
-              onChange={handleInputChange}
+              label="Name"
+              id="name"
               helperText="Please enter your name"
-              required
-              variant="outlined"
             />
 
-            <TextField
-              fullWidth
-              label="Email Address"
+            <InputContext
               name="email"
+              label="Email Address"
               type="email"
-              value={formData.email}
-              onChange={handleInputChange}
+              id="email"
               helperText="Please enter your email address"
-              required
-              variant="outlined"
             />
 
-            <TextField
-              fullWidth
-              label="Password"
+            <InputContext
               name="password"
+              label="Password"
               type="password"
-              value={formData.password}
-              onChange={handleInputChange}
+              id="password"
               helperText="8+ characters with upper, lower, number, and symbol"
-              required
-              variant="outlined"
             />
 
-            <TextField
-              fullWidth
-              label="Confirm Password"
+            <InputContext
               name="confirmPassword"
+              label="Confirm Password"
               type="password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
+              id="confirmPassword"
               helperText="Please confirm your password"
-              required
-              variant="outlined"
             />
 
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onChange={handleInputChange}
-                  color="primary"
-                />
+            <CheckboxContext
+              name="agreeToTerms"
+              label={
+                <Typography variant="body2">
+                  Agree to the{' '}
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    color="primary"
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      }
+                    }}
+                    onClick={handleTermsClick}
+                  >
+                    terms and conditions
+                  </Typography>
+                </Typography>
               }
-              label="Agree to the terms and conditions"
             />
 
             <Button
@@ -197,9 +209,41 @@ const SignUpPage = () => {
                 Sign in
               </Typography>
             </Box>
-          </Stack>
+          </Content>
         </Card>
       </PageContainer>
+
+      <ModalTerms
+        open={openTerms}
+        onClose={handleCloseTerms}
+        title="Terms and Conditions"
+        message={`
+          Welcome to Fonoster! These Terms and Conditions govern your use of our services.
+          
+          1. Acceptance of Terms
+          By accessing and using our services, you agree to be bound by these terms.
+          
+          2. Privacy Policy
+          Your privacy is important to us. Please review our Privacy Policy to understand how we collect and use your information.
+          
+          3. User Responsibilities
+          You are responsible for maintaining the security of your account and any activities that occur under your account.
+          
+          4. Service Usage
+          Our services are provided "as is" and we make no warranties about their availability or functionality.
+          
+          5. Intellectual Property
+          All content and materials available through our services are protected by intellectual property rights.
+          
+          6. Termination
+          We reserve the right to terminate or suspend access to our services at our discretion.
+          
+          7. Changes to Terms
+          We may modify these terms at any time. Continued use of our services constitutes acceptance of any changes.
+          
+          By clicking "Agree", you confirm that you have read and agree to these terms.
+        `}
+      />
     </Layout>
   );
 };

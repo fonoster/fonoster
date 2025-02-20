@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
-import PageContainer from '@/common/components/content/PageLayout';
+import PageContainer from '@/common/components/layout/pages';
 import { InputContext } from '@/common/hooksForm/InputContext';
 import { SelectContext } from '@/common/hooksForm/SelectContext';
 import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';

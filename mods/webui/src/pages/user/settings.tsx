@@ -11,12 +11,12 @@ import {
     IconButton
 } from '@mui/material';
 import { PhotoCamera, Lock, Mail, Person } from '@mui/icons-material';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { InputContext } from '@/common/hooksForm/InputContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser } from '@/common/sdk/hooks/useUser';
-import PageContainer from '@/common/components/content/PageLayout';
+import PageContainer from '@/common/components/layout/pages';
 import { useRouter } from 'next/router';
 
 const { ContentForm, Header } = PageContainer;

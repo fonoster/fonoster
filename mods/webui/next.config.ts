@@ -11,6 +11,7 @@ const config: NextConfig = {
       '@components': path.resolve(__dirname, 'src/common/components'),
       '@layouts': path.resolve(__dirname, 'src/common/components/layout'),
       '@utils': path.resolve(__dirname, 'src/utils'),
+      '@stories': path.resolve(__dirname, 'stories'),
     }
     return config
   },

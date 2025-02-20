@@ -2,16 +2,15 @@ import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
-  useTheme,
-  Stack,
+  useTheme
 } from '@mui/material';
 import { GitHub as GitHubIcon } from '@mui/icons-material';
-import { Layout, PageContainer, Card } from '@/common/components/layout/noAtuh/Layout';
+import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useRouter } from 'next/router';
-import { Controller, useForm, ControllerRenderProps } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
-import { Button } from '../../../stories/button/Button';
-import { InputText } from '../../../stories/inputtext/InputText';
+import { Button } from '@stories/button/Button';
+import { InputText } from '@stories/inputtext/InputText';
 import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
 
 interface LoginForm {
@@ -45,18 +44,19 @@ const LoginPage = () => {
   const router = useRouter();
   const { authentication } = useFonosterClient();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const methods = useForm<LoginForm>({
+    defaultValues: {
+      email: 'team@fonoster.com',
+      password: 'changeme'
+    }
+  });
+
   const {
     control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting }
-  } = useForm<LoginForm>({
-    defaultValues: {
-      email: 'team@fonoster.com',
-      password: 'changeme'
-    }
-
-  });
+  } = methods;
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -78,8 +78,6 @@ const LoginPage = () => {
     };
     handleOAuthCallback(oauthResponse);
   }, [router.isReady, router.query]);
-
-
 
   const handleOAuthCallback = async (oauthResponse: OAuthResponse) => {
     if (isRedirecting) return;
@@ -136,62 +134,29 @@ const LoginPage = () => {
   };
 
   return (
-    <Layout>
+    <Layout methods={methods}>
       <PageContainer>
         <Card onSubmit={handleSubmit(onSubmit)}>
-          <Stack spacing={3}>
-            <Typography variant="h5" align="center">
-              Sign In
-            </Typography>
-
-            <Controller
+          <Content title="Sign In">
+            <InputText
               name="email"
-              control={control}
-              rules={{
-                required: 'Email is required',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address'
-                }
-              }}
-              render={({ field }: { field: ControllerRenderProps<LoginForm, 'email'> }) => (
-                <InputText
-                  {...field}
-                  label="Email Address"
-                  type="email"
-                  error={!!errors.email}
-                  supportingText={errors.email?.message || 'Please enter your email address'}
-                />
-              )}
+              label="Email Address"
+              type="email"
+              error={!!errors.email}
+              supportingText={errors.email?.message || 'Please enter your email address'}
             />
-
-            <Controller
+            <InputText
               name="password"
-              control={control}
-              rules={{
-                required: 'Password is required',
-                minLength: {
-                  value: 6,
-                  message: 'Password must be at least 6 characters'
-                }
-              }}
-              render={({ field }: { field: ControllerRenderProps<LoginForm, 'password'> }) => (
-                <InputText
-                  {...field}
-                  label="Password"
-                  type="password"
-                  error={!!errors.password}
-                  supportingText={errors.password?.message || 'Please enter your password'}
-                />
-              )}
+              label="Password"
+              type="password"
+              error={!!errors.password}
+              supportingText={errors.password?.message || 'Please enter your password'}
             />
-
             {errors.root && (
               <Typography color="error" variant="body2" align="center">
                 {errors.root.message}
               </Typography>
             )}
-
             <Button
               onClick={handleSubmit(onSubmit)}
               fullWidth
@@ -201,7 +166,6 @@ const LoginPage = () => {
             >
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
-
             <Box sx={{
               position: 'relative',
               textAlign: 'center',
@@ -231,7 +195,6 @@ const LoginPage = () => {
                 Or
               </Typography>
             </Box>
-
             <Button
               fullWidth
               variant="outlined"
@@ -242,7 +205,6 @@ const LoginPage = () => {
             >
               Sign in with GitHub
             </Button>
-
             <Box sx={{ textAlign: 'center' }}>
               <Typography
                 variant="body2"
@@ -266,7 +228,7 @@ const LoginPage = () => {
                 Sign up here
               </Typography>
             </Box>
-          </Stack>
+          </Content>
         </Card>
       </PageContainer>
     </Layout>

@@ -1,4 +1,4 @@
-import PageContainer from '@/common/components/content/PageLayout';
+import PageContainer from '@/common/components/layout/pages';
 import { Button } from '@mui/material';
 import { Acl } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";

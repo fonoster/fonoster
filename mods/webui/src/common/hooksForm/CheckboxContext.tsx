@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { Checkbox } from "../../../stories/checkbox/Checkbox";
+import { Checkbox } from "@stories/checkbox/Checkbox";
 
 const CheckboxContext = ({ name, label }) => {
   const {

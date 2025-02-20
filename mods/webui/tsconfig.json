@@ -29,7 +29,9 @@
     "src/**/*.tsx",
     "theme/**/*.ts",
     "theme/**/*.d.ts",
-    "types/**/*.d.ts"
+    "types/**/*.d.ts",
+    "stories/**/*.ts",
+    "stories/**/*.tsx"
   ],
   "exclude": [
     "node_modules",

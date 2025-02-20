@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { InputText } from "../../../stories/inputtext/InputText";
+import { InputText } from "@stories/inputtext/InputText";
 import { ReactNode } from "react";
 
 interface InputContextProps {

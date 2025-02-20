@@ -1,23 +1,35 @@
 import {
   Box,
-  Button,
-  TextField,
-  Typography,
   useTheme,
-  Stack,
-  Link as MuiLink
+  Link as MuiLink,
+  Typography
 } from '@mui/material';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { Layout, PageContainer, Card } from '@/common/components/layout/Layout';
+import router, { useRouter } from 'next/router';
+import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { InputContext } from '@/common/hooksForm/InputContext';
+import { z } from 'zod';
+import { LinkBackTo } from '@stories/linkbackto/LinkBackTo';
+import { Button } from '@stories/button/Button';
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
+});
+
+export type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
+
 
 const TempResetButton = () => {
   const router = useRouter();
 
-  const handleClick = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleClick = () => {
     try {
-      await router.push({
+      router.push({
         pathname: '/forgot-password/[token]',
         query: { token: '1257' }
       });
@@ -36,75 +48,55 @@ const TempResetButton = () => {
     </Button>
   );
 };
-
 export default function ForgotPassword() {
   const theme = useTheme();
+  const methods = useForm<ForgotPasswordForm>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
+
+  const onSubmit = async (data: ForgotPasswordForm) => {
+    console.log(data);
+  };
 
   return (
-    <Layout>
+    <Layout methods={methods}>
       <PageContainer>
         <Card>
-          <Stack spacing={3}>
-            <Typography variant="h5" align="center">
-              Forgot Password?
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center">
-              Enter the email associated with your account and we'll send you a link
-              to reset your password.
-            </Typography>
+          <Content title="Forgot Password?">
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
 
-            <TextField
-              fullWidth
-              label="Email Address"
-              type="email"
-              autoComplete="email"
-              helperText="Please enter your email address"
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                },
-              }}
-            />
+              <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 5 }}>
+                Enter the email associated with your account and we'll send you a link
+                to reset your password.
+              </Typography>
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              size="large"
-              sx={{
-                boxShadow: theme.shadows[2],
-                '&:hover': {
-                  boxShadow: theme.shadows[4],
-                },
-              }}
-            >
-              SEND ME A RESET LINK
-            </Button>
+              <InputContext
+                name="email"
+                label="Email Address"
+                type="email"
+                id="forgot-password-email"
+                helperText="Please enter your email address"
+              />
 
-            <TempResetButton />
-
-            <Box sx={{ textAlign: 'center' }}>
-              <Link href="/signin" passHref>
-                <MuiLink
-                  component="span"
-                  variant="body2"
-                  sx={{
-                    color: 'text.secondary',
-                    textDecoration: 'none',
-                    '&:hover': {
-                      textDecoration: 'underline',
-                      color: 'primary.main',
-                    }
-                  }}
+              <Box sx={{ textAlign: 'center', mt: 5 }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  onClick={methods.handleSubmit(onSubmit)}
                 >
-                  Back to sign in
-                </MuiLink>
-              </Link>
-            </Box>
-          </Stack>
+                  SEND ME A RESET LINK
+                </Button>
+              </Box>
+              <Box sx={{ textAlign: 'center', mt: 1 }}>
+                <TempResetButton />
+              </Box>
+
+              <Box sx={{ textAlign: 'center', mt: 2 }}>
+                <LinkBackTo label="Back to sign in" onClick={() => router.push('/forgot-password')} />
+              </Box>
+            </form>
+          </Content>
         </Card>
       </PageContainer>
     </Layout>

@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 import { Box, Typography, Stack } from '@mui/material';
 import { ColumnDef } from "@tanstack/react-table";
-import ReactTable from "@/common/components/context-table/ReactTable";
+import ReactTable from "@/common/contexts/table/ReactTable";
 import { FormProvider, UseFormReturn } from "react-hook-form";
-import { LinkBackTo } from '../../../../../stories/linkbackto/LinkBackTo';
+import { LinkBackTo } from '@stories/linkbackto/LinkBackTo';
 interface PageContainerProps {
   children: ReactNode;
 }

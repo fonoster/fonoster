@@ -1,4 +1,4 @@
-import PageContainer from '@/common/components/content/PageLayout';
+import PageContainer from '@/common/components/layout/pages';
 import { Box, TextField, Button, Stack } from '@mui/material';
 import router from 'next/router';
 import { useState } from 'react';

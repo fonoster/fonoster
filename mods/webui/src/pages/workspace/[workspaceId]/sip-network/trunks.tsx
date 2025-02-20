@@ -1,8 +1,6 @@
-import { useRouter } from 'next/router';
 import { ColumnDef } from "@tanstack/react-table";
-import ReactTable from "@/common/components/context-table/ReactTable"
 import { Trunk } from '@fonoster/types';
-import PageContainer from '@/common/components/content/PageLayout';
+import PageContainer from '@/common/components/layout/pages';
 import { Button } from '@mui/material';
 
 const columns: ColumnDef<Trunk>[] = [

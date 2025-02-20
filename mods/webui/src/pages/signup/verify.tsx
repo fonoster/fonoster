@@ -17,7 +17,7 @@ import {
   StepIconProps
 } from '@mui/material';
 import Check from '@mui/icons-material/Check';
-import { Header } from '@/common/components/layout/Layout';
+import { Header } from '@/common/components/layout/noAuth/Layout';
 
 const VerifyContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
@@ -100,8 +100,8 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
-    borderColor: theme.palette.mode === 'light' 
-      ? theme.palette.grey[300] 
+    borderColor: theme.palette.mode === 'light'
+      ? theme.palette.grey[300]
       : theme.palette.grey[800],
     borderTopWidth: 3,
     borderRadius: 1,
@@ -110,8 +110,8 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
 
 const CustomStepIconRoot = styled('div')<{ ownerState: { active?: boolean } }>(
   ({ theme }) => ({
-    color: theme.palette.mode === 'light' 
-      ? theme.palette.grey[300] 
+    color: theme.palette.mode === 'light'
+      ? theme.palette.grey[300]
       : theme.palette.grey[800],
     display: 'flex',
     height: 22,
@@ -387,16 +387,16 @@ const VerifyPage = () => {
       <Header />
       <VerifyContainer>
         <StepperContainer>
-          <Stepper 
-            alternativeLabel 
-            activeStep={activeStep} 
+          <Stepper
+            alternativeLabel
+            activeStep={activeStep}
             connector={<CustomConnector />}
           >
             {steps.map((step, index) => (
               <Step key={step.label} onClick={() => handleStepClick(index)}>
                 <StepLabel StepIconComponent={CustomStepIcon}>
                   <Typography className="step-description">
-                  {step.label}
+                    {step.label}
                   </Typography>
                 </StepLabel>
               </Step>

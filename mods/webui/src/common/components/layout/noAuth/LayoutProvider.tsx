@@ -17,6 +17,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     >
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <meta charSet="utf-8" />
+        <meta name="description" content="Fonoster" />
+        <title>Fonoster</title>
       </Head>
       {children}
     </NextAppProvider>

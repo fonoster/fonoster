@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { Select } from "../../../stories/select/Select";
+import { Select } from "@stories/select/Select";
 import { ReactNode } from "react";
 
 interface SelectContextProps {
