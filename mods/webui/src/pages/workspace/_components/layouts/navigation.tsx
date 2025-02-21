@@ -41,7 +41,7 @@ export const NAVIGATION: Navigation = [
     segment: 'overview',
     title: 'Overview',
     icon: <DashboardIcon />,
-    href: '/workspace/overview'
+    href: '/workspace'
   },
   {
     segment: 'applications',
