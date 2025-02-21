@@ -63,7 +63,14 @@ type ScenarioEvaluationConfig = {
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
 };
 
+type AutopilotApplication = {
+  intelligence: {
+    config: AssistantConfig;
+  };
+};
+
 export {
+  AutopilotApplication,
   ExpectedTextType,
   ScenarioEvaluationReport,
   StepEvaluationReport,

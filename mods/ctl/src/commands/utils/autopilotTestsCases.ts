@@ -20,9 +20,14 @@
 import { Flags } from "@oclif/core";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
-import { AssistantConfig, evalTestCases, printEval } from "@fonoster/autopilot";
+import {
+  AutopilotApplication,
+  evalTestCases,
+  printEval
+} from "@fonoster/autopilot";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import * as path from "path";
+import { assistantSchema } from "@fonoster/common";
 
 export default class AutopilotTestsCases extends AuthenticatedCommand<
   typeof AutopilotTestsCases
@@ -49,15 +54,15 @@ export default class AutopilotTestsCases extends AuthenticatedCommand<
     const fileContent = fs.readFileSync(flags.file, "utf8");
     const extension = path.extname(flags.file).toLowerCase();
 
-    let assistantConfig: AssistantConfig;
+    let rawAutopilotApplication: AutopilotApplication;
 
     switch (extension) {
       case ".yaml":
       case ".yml":
-        assistantConfig = yaml.load(fileContent);
+        rawAutopilotApplication = yaml.load(fileContent);
         break;
       case ".json":
-        assistantConfig = JSON.parse(fileContent);
+        rawAutopilotApplication = JSON.parse(fileContent);
         break;
       default:
         throw new Error(
@@ -65,7 +70,18 @@ export default class AutopilotTestsCases extends AuthenticatedCommand<
         );
     }
 
-    const result = await evalTestCases(assistantConfig);
+    const parsedAutopilotApplication = assistantSchema.parse(
+      rawAutopilotApplication.intelligence.config
+    );
+
+    // We only need the config from the autopilot application
+    const autopilotApplication = {
+      intelligence: {
+        config: parsedAutopilotApplication
+      }
+    };
+
+    const result = await evalTestCases(autopilotApplication);
     printEval(result);
   }
 }
