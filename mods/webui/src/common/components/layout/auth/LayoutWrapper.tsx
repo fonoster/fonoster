@@ -30,7 +30,7 @@ import { ThemeSwitcher } from '@toolpad/core/DashboardLayout'
 const SIMPLE_LAYOUT_ROUTES = [
     '/workspace',
     '/workspace/create',
-    '/user/settings'
+    '/personal/settings'
 ]
 
 const BRANDING = {
@@ -83,7 +83,7 @@ export const ToolbarActions = React.memo(() => {
     }
 
     const handleProfileSettings = () => {
-        router.push('/user/settings')
+        router.push('/personal/settings')
         handleMenuClose()
     }
 

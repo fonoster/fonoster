@@ -24,7 +24,7 @@ interface IDToken {
 
 
 export const useUser = () => {
-  const { client, isReady, SDK } = useFonosterClient();
+  const { client, isReady, SDK, executeWithRefresh } = useFonosterClient();
   const { notifyError } = useNotification();
   const users = new SDK.Users(client);
 
@@ -33,7 +33,7 @@ export const useUser = () => {
     if (!isReady) return undefined;
 
     try {
-      return await users.createUser(data);
+      return await executeWithRefresh(() => users.createUser(data));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -42,7 +42,7 @@ export const useUser = () => {
 
   const getUser = async (ref: string): Promise<User | undefined> => {
     try {
-      return await users.getUser(ref);
+      return await executeWithRefresh(() => users.getUser(ref));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -50,7 +50,7 @@ export const useUser = () => {
 
   const updateUser = async (data: UpdateUserRequest): Promise<BaseApiObject | undefined> => {
     try {
-      return await users.updateUser(data);
+      return await executeWithRefresh(() => users.updateUser(data));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -58,13 +58,23 @@ export const useUser = () => {
 
   const deleteUser = async (ref: string): Promise<BaseApiObject | undefined> => {
     try {
-      return await users.deleteUser(ref);
+      return await executeWithRefresh(() => users.deleteUser(ref));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const loginUser = async (): Promise<User | undefined> => {
+  const loggedUser = async (): Promise<User | undefined> => {
+    try {
+      const idToken = client.getIdToken();
+      const user = jwtDecode<IDToken>(idToken);
+      return await getUser(user.sub);
+    } catch (error: any) {
+      notifyError(error as ErrorType);
+    }
+  };
+
+  const idToken = async (): Promise<User | undefined> => {
     try {
       const idToken = client.getIdToken();
       const user = jwtDecode<IDToken>(idToken);
@@ -80,6 +90,7 @@ export const useUser = () => {
     getUser,
     updateUser,
     deleteUser,
-    loginUser
+    loggedUser,
+    idToken
   };
 }; 

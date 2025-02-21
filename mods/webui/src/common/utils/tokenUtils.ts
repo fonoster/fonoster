@@ -39,5 +39,10 @@ export const tokenUtils = {
     } catch {
       return null;
     }
+  },
+
+  decodeToken: (token: string | null): DecodedToken | null => {
+    if (!token) return null;
+    return jwtDecode<DecodedToken>(token);
   }
 }; 

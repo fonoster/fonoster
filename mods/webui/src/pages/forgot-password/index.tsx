@@ -93,7 +93,7 @@ export default function ForgotPassword() {
               </Box>
 
               <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <LinkBackTo label="Back to sign in" onClick={() => router.push('/forgot-password')} />
+                <LinkBackTo label="Back to sign in" onClick={() => router.push('/signin')} />
               </Box>
             </form>
           </Content>
