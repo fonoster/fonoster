@@ -324,8 +324,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.3.1
-   * Query Engine version: 11f085a2012c0f4778414c8db2651556ee0ef959
+   * Prisma Client JS version: 6.4.1
+   * Query Engine version: a9055b89e58b4b5bfb59600785423b1db3d0e75d
    */
   export type PrismaVersion = {
     client: string
@@ -782,6 +782,10 @@ export namespace Prisma {
             args: Prisma.UserUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
+          updateManyAndReturn: {
+            args: Prisma.UserUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
           upsert: {
             args: Prisma.UserUpsertArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$UserPayload>
@@ -851,6 +855,10 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.WorkspaceUpdateManyArgs<ExtArgs>
             result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WorkspaceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>[]
           }
           upsert: {
             args: Prisma.WorkspaceUpsertArgs<ExtArgs>
@@ -922,6 +930,10 @@ export namespace Prisma {
             args: Prisma.WorkspaceMemberUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
+          updateManyAndReturn: {
+            args: Prisma.WorkspaceMemberUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceMemberPayload>[]
+          }
           upsert: {
             args: Prisma.WorkspaceMemberUpsertArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$WorkspaceMemberPayload>
@@ -992,6 +1004,10 @@ export namespace Prisma {
             args: Prisma.ApiKeyUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
+          updateManyAndReturn: {
+            args: Prisma.ApiKeyUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>[]
+          }
           upsert: {
             args: Prisma.ApiKeyUpsertArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>
@@ -1061,6 +1077,10 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.VerificationCodeUpdateManyArgs<ExtArgs>
             result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.VerificationCodeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VerificationCodePayload>[]
           }
           upsert: {
             args: Prisma.VerificationCodeUpsertArgs<ExtArgs>
@@ -1578,6 +1598,20 @@ export namespace Prisma {
     extended?: boolean
   }, ExtArgs["result"]["user"]>
 
+  export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    ref?: boolean
+    accessKeyId?: boolean
+    name?: boolean
+    email?: boolean
+    emailVerified?: boolean
+    password?: boolean
+    phoneNumber?: boolean
+    phoneNumberVerified?: boolean
+    avatar?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    extended?: boolean
+  }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
     ref?: boolean
@@ -1601,6 +1635,7 @@ export namespace Prisma {
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
@@ -1828,6 +1863,36 @@ export namespace Prisma {
      * 
      */
     updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Users and returns the data updated in the database.
+     * @param {UserUpdateManyAndReturnArgs} args - Arguments to update many Users.
+     * @example
+     * // Update many Users
+     * const user = await prisma.user.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Users and only return the `ref`
+     * const userWithRefOnly = await prisma.user.updateManyAndReturn({
+     *   select: { ref: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserUpdateManyAndReturnArgs>(args: SelectSubset<T, UserUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "updateManyAndReturn", ClientOptions>>
 
     /**
      * Create or update one User.
@@ -2320,6 +2385,36 @@ export namespace Prisma {
      * Filter which Users to update
      */
     where?: UserWhereInput
+    /**
+     * Limit how many Users to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * User updateManyAndReturn
+   */
+  export type UserUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * The data used to update Users.
+     */
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
+    /**
+     * Filter which Users to update
+     */
+    where?: UserWhereInput
+    /**
+     * Limit how many Users to update.
+     */
+    limit?: number
   }
 
   /**
@@ -2382,6 +2477,10 @@ export namespace Prisma {
      * Filter which Users to delete
      */
     where?: UserWhereInput
+    /**
+     * Limit how many Users to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -2639,6 +2738,15 @@ export namespace Prisma {
     owner?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
 
+  export type WorkspaceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    ref?: boolean
+    accessKeyId?: boolean
+    name?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    ownerRef?: boolean
+    owner?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspace"]>
 
   export type WorkspaceSelectScalar = {
     ref?: boolean
@@ -2657,6 +2765,9 @@ export namespace Prisma {
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WorkspaceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | UserDefaultArgs<ExtArgs>
   }
 
@@ -2878,6 +2989,36 @@ export namespace Prisma {
      * 
      */
     updateMany<T extends WorkspaceUpdateManyArgs>(args: SelectSubset<T, WorkspaceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Workspaces and returns the data updated in the database.
+     * @param {WorkspaceUpdateManyAndReturnArgs} args - Arguments to update many Workspaces.
+     * @example
+     * // Update many Workspaces
+     * const workspace = await prisma.workspace.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Workspaces and only return the `ref`
+     * const workspaceWithRefOnly = await prisma.workspace.updateManyAndReturn({
+     *   select: { ref: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkspaceUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkspaceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "updateManyAndReturn", ClientOptions>>
 
     /**
      * Create or update one Workspace.
@@ -3369,6 +3510,40 @@ export namespace Prisma {
      * Filter which Workspaces to update
      */
     where?: WorkspaceWhereInput
+    /**
+     * Limit how many Workspaces to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Workspace updateManyAndReturn
+   */
+  export type WorkspaceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workspace
+     */
+    select?: WorkspaceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workspace
+     */
+    omit?: WorkspaceOmit<ExtArgs> | null
+    /**
+     * The data used to update Workspaces.
+     */
+    data: XOR<WorkspaceUpdateManyMutationInput, WorkspaceUncheckedUpdateManyInput>
+    /**
+     * Filter which Workspaces to update
+     */
+    where?: WorkspaceWhereInput
+    /**
+     * Limit how many Workspaces to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3431,6 +3606,10 @@ export namespace Prisma {
      * Filter which Workspaces to delete
      */
     where?: WorkspaceWhereInput
+    /**
+     * Limit how many Workspaces to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -3696,6 +3875,17 @@ export namespace Prisma {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspaceMember"]>
 
+  export type WorkspaceMemberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    ref?: boolean
+    status?: boolean
+    role?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    userRef?: boolean
+    workspaceRef?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceMember"]>
 
   export type WorkspaceMemberSelectScalar = {
     ref?: boolean
@@ -3713,6 +3903,10 @@ export namespace Prisma {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }
   export type WorkspaceMemberIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+  }
+  export type WorkspaceMemberIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }
@@ -3935,6 +4129,36 @@ export namespace Prisma {
      * 
      */
     updateMany<T extends WorkspaceMemberUpdateManyArgs>(args: SelectSubset<T, WorkspaceMemberUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceMembers and returns the data updated in the database.
+     * @param {WorkspaceMemberUpdateManyAndReturnArgs} args - Arguments to update many WorkspaceMembers.
+     * @example
+     * // Update many WorkspaceMembers
+     * const workspaceMember = await prisma.workspaceMember.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WorkspaceMembers and only return the `ref`
+     * const workspaceMemberWithRefOnly = await prisma.workspaceMember.updateManyAndReturn({
+     *   select: { ref: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkspaceMemberUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkspaceMemberUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "updateManyAndReturn", ClientOptions>>
 
     /**
      * Create or update one WorkspaceMember.
@@ -4426,6 +4650,40 @@ export namespace Prisma {
      * Filter which WorkspaceMembers to update
      */
     where?: WorkspaceMemberWhereInput
+    /**
+     * Limit how many WorkspaceMembers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceMember updateManyAndReturn
+   */
+  export type WorkspaceMemberUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceMember
+     */
+    select?: WorkspaceMemberSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceMember
+     */
+    omit?: WorkspaceMemberOmit<ExtArgs> | null
+    /**
+     * The data used to update WorkspaceMembers.
+     */
+    data: XOR<WorkspaceMemberUpdateManyMutationInput, WorkspaceMemberUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceMembers to update
+     */
+    where?: WorkspaceMemberWhereInput
+    /**
+     * Limit how many WorkspaceMembers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceMemberIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -4488,6 +4746,10 @@ export namespace Prisma {
      * Filter which WorkspaceMembers to delete
      */
     where?: WorkspaceMemberWhereInput
+    /**
+     * Limit how many WorkspaceMembers to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -4712,6 +4974,17 @@ export namespace Prisma {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["apiKey"]>
 
+  export type ApiKeySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    ref?: boolean
+    accessKeyId?: boolean
+    accessKeySecret?: boolean
+    role?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    expiresAt?: boolean
+    workspaceRef?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["apiKey"]>
 
   export type ApiKeySelectScalar = {
     ref?: boolean
@@ -4729,6 +5002,9 @@ export namespace Prisma {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }
   export type ApiKeyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+  }
+  export type ApiKeyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }
 
@@ -4953,6 +5229,36 @@ export namespace Prisma {
      * 
      */
     updateMany<T extends ApiKeyUpdateManyArgs>(args: SelectSubset<T, ApiKeyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApiKeys and returns the data updated in the database.
+     * @param {ApiKeyUpdateManyAndReturnArgs} args - Arguments to update many ApiKeys.
+     * @example
+     * // Update many ApiKeys
+     * const apiKey = await prisma.apiKey.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ApiKeys and only return the `ref`
+     * const apiKeyWithRefOnly = await prisma.apiKey.updateManyAndReturn({
+     *   select: { ref: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ApiKeyUpdateManyAndReturnArgs>(args: SelectSubset<T, ApiKeyUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "updateManyAndReturn", ClientOptions>>
 
     /**
      * Create or update one ApiKey.
@@ -5444,6 +5750,40 @@ export namespace Prisma {
      * Filter which ApiKeys to update
      */
     where?: ApiKeyWhereInput
+    /**
+     * Limit how many ApiKeys to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ApiKey updateManyAndReturn
+   */
+  export type ApiKeyUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * The data used to update ApiKeys.
+     */
+    data: XOR<ApiKeyUpdateManyMutationInput, ApiKeyUncheckedUpdateManyInput>
+    /**
+     * Filter which ApiKeys to update
+     */
+    where?: ApiKeyWhereInput
+    /**
+     * Limit how many ApiKeys to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -5506,6 +5846,10 @@ export namespace Prisma {
      * Filter which ApiKeys to delete
      */
     where?: ApiKeyWhereInput
+    /**
+     * Limit how many ApiKeys to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -5710,6 +6054,14 @@ export namespace Prisma {
     createdAt?: boolean
   }, ExtArgs["result"]["verificationCode"]>
 
+  export type VerificationCodeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    ref?: boolean
+    type?: boolean
+    code?: boolean
+    value?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["verificationCode"]>
 
   export type VerificationCodeSelectScalar = {
     ref?: boolean
@@ -5936,6 +6288,36 @@ export namespace Prisma {
      * 
      */
     updateMany<T extends VerificationCodeUpdateManyArgs>(args: SelectSubset<T, VerificationCodeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VerificationCodes and returns the data updated in the database.
+     * @param {VerificationCodeUpdateManyAndReturnArgs} args - Arguments to update many VerificationCodes.
+     * @example
+     * // Update many VerificationCodes
+     * const verificationCode = await prisma.verificationCode.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more VerificationCodes and only return the `ref`
+     * const verificationCodeWithRefOnly = await prisma.verificationCode.updateManyAndReturn({
+     *   select: { ref: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends VerificationCodeUpdateManyAndReturnArgs>(args: SelectSubset<T, VerificationCodeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VerificationCodePayload<ExtArgs>, T, "updateManyAndReturn", ClientOptions>>
 
     /**
      * Create or update one VerificationCode.
@@ -6392,6 +6774,36 @@ export namespace Prisma {
      * Filter which VerificationCodes to update
      */
     where?: VerificationCodeWhereInput
+    /**
+     * Limit how many VerificationCodes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VerificationCode updateManyAndReturn
+   */
+  export type VerificationCodeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VerificationCode
+     */
+    select?: VerificationCodeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VerificationCode
+     */
+    omit?: VerificationCodeOmit<ExtArgs> | null
+    /**
+     * The data used to update VerificationCodes.
+     */
+    data: XOR<VerificationCodeUpdateManyMutationInput, VerificationCodeUncheckedUpdateManyInput>
+    /**
+     * Filter which VerificationCodes to update
+     */
+    where?: VerificationCodeWhereInput
+    /**
+     * Limit how many VerificationCodes to update.
+     */
+    limit?: number
   }
 
   /**
@@ -6446,6 +6858,10 @@ export namespace Prisma {
      * Filter which VerificationCodes to delete
      */
     where?: VerificationCodeWhereInput
+    /**
+     * Limit how many VerificationCodes to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -6631,6 +7047,13 @@ export namespace Prisma {
    * Reference to a field of type 'Json'
    */
   export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -7507,12 +7930,13 @@ export namespace Prisma {
   export type JsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
@@ -7655,12 +8079,13 @@ export namespace Prisma {
   export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
@@ -8297,12 +8722,13 @@ export namespace Prisma {
   export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>

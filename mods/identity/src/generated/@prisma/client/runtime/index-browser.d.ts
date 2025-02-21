@@ -16,6 +16,8 @@ declare type Args<T, F extends Operation> = T extends {
 declare class DbNull extends NullTypesEnumValue {
 }
 
+export declare function Decimal(n: Decimal.Value): Decimal;
+
 export declare namespace Decimal {
     export type Constructor = typeof Decimal;
     export type Instance = Decimal;
