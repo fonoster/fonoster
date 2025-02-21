@@ -43,9 +43,6 @@ export const SimpleLayout = ({ children }: SimpleLayoutProps) => {
             <Container
                 component="main"
                 maxWidth="lg"
-                sx={{
-                    p: 5
-                }}
             >
                 {children}
             </Container>

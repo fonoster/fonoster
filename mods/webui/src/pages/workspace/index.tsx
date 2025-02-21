@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Container, styled, Typography, Box } from '@mui/material';
-import { WorkspaceCard } from '../../../stories/workspace/WorkspaceCard';
+import { WorkspaceCard } from '@stories/workspace/WorkspaceCard';
 import { useRouter } from 'next/router';
 import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';
 import { Workspace } from '@fonoster/types';
+
+import * as SDK from '@fonoster/sdk';
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: theme.spacing(3),
+  padding: theme.spacing(6),
   maxWidth: 'none !important',
 }));
 
@@ -41,7 +43,6 @@ const ListWorkspacePage = () => {
 
     const fetchWorkspaces = async () => {
       if (!isReady || !mounted) return;
-
       try {
         const response = await listWorkspaces();
         if (!mounted || !response) return;
@@ -55,6 +56,14 @@ const ListWorkspacePage = () => {
           date: new Date(workspace.createdAt).toLocaleDateString(),
           createdAt: workspace.createdAt
         }));
+        console.log(formattedWorkspaces)
+        const accessKeyId = items[0].ref
+        console.log(accessKeyId, 'accessKeyId')
+
+        const client = new SDK.WebClient({ accessKeyId });
+        const apps = new SDK.Applications(client);
+        const responseApps = await apps.listApplications({});
+        console.log(responseApps, 'responseApps')
 
         if (mounted) {
           setWorkspaces(formattedWorkspaces);
@@ -132,4 +141,4 @@ const ListWorkspacePage = () => {
   );
 };
 
-export default ListWorkspacePage; 
+export default ListWorkspacePage;

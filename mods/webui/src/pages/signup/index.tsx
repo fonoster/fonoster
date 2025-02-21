@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   Box,
-  Button,
   Typography,
   useTheme,
 } from '@mui/material';
-import { Google as GoogleIcon } from '@mui/icons-material';
+import { GitHub as GitHubIcon } from '@mui/icons-material';
 import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useRouter } from 'next/router';
 import { ModalTerms } from '@stories/modalterms/ModalTerms';
@@ -14,6 +13,8 @@ import { InputContext } from '@/common/hooksForm/InputContext';
 import { CheckboxContext } from '@/common/hooksForm/CheckboxContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Button } from '@stories/button/Button';
+import { useUser } from '@/common/sdk/hooks/useUser';
 
 const signUpSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -37,6 +38,8 @@ const SignUpPage = () => {
   const theme = useTheme();
   const router = useRouter();
   const [openTerms, setOpenTerms] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const { createUser, isReady } = useUser();
 
   const methods = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -59,11 +62,24 @@ const SignUpPage = () => {
   };
 
   const onSubmit = async (data: SignUpFormData) => {
+    if (!isReady) return;
+
     try {
+      setIsRedirecting(true);
+      await createUser({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        avatar: ''
+      });
       router.push('/signup/verify');
     } catch (error) {
       alert('An error occurred during registration');
     }
+  };
+
+  const handleGitHubSignUp = () => {
+    router.push('/signup/verify');
   };
 
   const watchAgreeToTerms = methods.watch('agreeToTerms');
@@ -133,7 +149,6 @@ const SignUpPage = () => {
             />
 
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               size="large"
@@ -181,9 +196,11 @@ const SignUpPage = () => {
               fullWidth
               variant="outlined"
               size="large"
-              startIcon={<GoogleIcon />}
+              startIcon={<GitHubIcon />}
+              onClick={handleGitHubSignUp}
+              disabled={isRedirecting}
             >
-              Sign up with Google
+              Sign in with GitHub
             </Button>
 
             <Box sx={{ textAlign: 'center' }}>

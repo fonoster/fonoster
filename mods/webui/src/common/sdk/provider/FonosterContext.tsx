@@ -4,6 +4,7 @@ import * as SDK from '@fonoster/sdk';
 import { setCookie, getCookie } from 'cookies-next';
 import { useRouter } from 'next/router';
 import { LoadingScreen } from '@/common/components/loading/LoadingScreen';
+import { tokenUtils } from '@/common/utils/tokenUtils';
 
 export interface Session {
   isAuthenticated: boolean;
@@ -36,6 +37,7 @@ export interface FonosterContextType {
   authentication: {
     signIn: (options: SignInOptions) => Promise<void>;
     signOut: () => Promise<void>;
+    refreshSession: () => Promise<void>;
   };
   session: Session;
 }
@@ -45,7 +47,8 @@ export const FonosterContext = createContext<FonosterContextType>({
   isInitialized: false,
   authentication: {
     signIn: async () => { },
-    signOut: async () => { }
+    signOut: async () => { },
+    refreshSession: async () => { }
   },
   session: { isAuthenticated: false }
 });
@@ -104,10 +107,8 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (!mounted) return;
 
       try {
-        const config: { accessKeyId: string; url?: string } = {
-          accessKeyId: process.env.NEXT_PUBLIC_FONOSTER_ACCESS_KEY_ID!
-        };
 
+        let config: { url?: string } = {};
         if (process.env.NEXT_PUBLIC_FONOSTER_URL) {
           config.url = process.env.NEXT_PUBLIC_FONOSTER_URL;
         }
@@ -190,13 +191,37 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     router.push('/signin');
   };
 
+  const refreshSession = async () => {
+    if (!client) return;
+
+    try {
+      const refreshToken = getCookie('refreshToken') as string;
+
+      if (tokenUtils.isTokenExpired(refreshToken)) {
+        router.push('/signin');
+      }
+
+      if (!refreshToken) {
+        router.push('/signin');
+      }
+
+      await client.loginWithRefreshToken(refreshToken);
+      saveTokensAndUpdateSession(client);
+    } catch (error) {
+      clearAuthCookies();
+      setSession({ isAuthenticated: false });
+      router.push('/signin');
+    }
+  };
+
   const value = useMemo(
     () => ({
       client,
       isInitialized,
       authentication: {
         signIn,
-        signOut
+        signOut,
+        refreshSession
       },
       session
     }),

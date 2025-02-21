@@ -17,6 +17,21 @@ export function middleware(request: NextRequest) {
   const isAuthenticated = refreshToken && !tokenUtils.isTokenExpired(refreshToken);
 
 
+  // TODO: remove this when the SDK has already implemented the code verification tests and create new accounts.
+  // if(isAuthenticated){
+  //   const idToken = request.cookies.get('idToken')?.value || null;
+  //   if(idToken){
+  //     const decodedToken = tokenUtils.decodeToken(idToken);
+  //     if(decodedToken && !decodedToken.emailVerified && pathname !== '/signup/verify'){
+  //       return NextResponse.redirect(new URL('/signup/verify', request.url));
+  //     }
+  //     if(decodedToken && !decodedToken.phoneNumberVerified && pathname !== '/signup/verify'){
+  //       return NextResponse.redirect(new URL('/signup/verify', request.url));
+  //     }
+  //   }
+  // }
+
+
   const publicRoutes = [
     '/signin',
     '/signup',
@@ -32,7 +47,13 @@ export function middleware(request: NextRequest) {
   }
 
   if (isAuthenticated && isPublicRoute) {
-    return NextResponse.redirect(new URL('/workspace/', request.url));
+    const idToken = request.cookies.get('idToken')?.value || null;
+    if(idToken){
+      const decodedToken = tokenUtils.decodeToken(idToken);
+      if(decodedToken && decodedToken.emailVerified && decodedToken.phoneNumberVerified){
+        return NextResponse.redirect(new URL('/workspace/', request.url));
+      }
+    }
   }
 
   return NextResponse.next();

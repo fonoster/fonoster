@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   Box,
+  Link,
   Typography,
-  useTheme
+  useTheme,
+
 } from '@mui/material';
 import { GitHub as GitHubIcon } from '@mui/icons-material';
 import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
@@ -34,7 +36,7 @@ interface OAuthResponse {
 const GITHUB_CONFIG: OAuthConfig = {
   clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
   redirectUri: process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI!,
-  redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI_CALLBACK!,
+  redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + '/signin',
   scope: process.env.NEXT_PUBLIC_GITHUB_SCOPE!,
   authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!
 };
@@ -152,6 +154,24 @@ const LoginPage = () => {
               error={!!errors.password}
               supportingText={errors.password?.message || 'Please enter your password'}
             />
+            <Box sx={{ textAlign: 'right', mb: 2 }}>
+              <Link href="/forgot-password" style={{ textDecoration: 'none' }}>
+                <Typography
+                  variant="body2"
+                  color="secondary.700"
+                  sx={{
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                      color: 'primary.main'
+                    }
+                  }}
+                >
+                  Forgot password?
+                </Typography>
+              </Link>
+            </Box>
             {errors.root && (
               <Typography color="error" variant="body2" align="center">
                 {errors.root.message}
@@ -231,7 +251,7 @@ const LoginPage = () => {
           </Content>
         </Card>
       </PageContainer>
-    </Layout>
+    </Layout >
   );
 };
 
