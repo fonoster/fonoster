@@ -221,6 +221,10 @@ abstract class AbstractClient implements FonosterClient {
     return this.accessKeyId;
   }
 
+  setAccessKeyId(accessKeyId: string) {
+    this.accessKeyId = accessKeyId;
+  }
+
   getAccessToken(): string {
     return this._accessToken;
   }
