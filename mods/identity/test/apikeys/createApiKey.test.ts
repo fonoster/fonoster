@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRole } from "@fonoster/types";
+import { Role } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import * as chai from "chai";
 import { expect } from "chai";
@@ -44,7 +44,7 @@ describe("@identity[apikeys/createApiKey]", function () {
       metadata,
       request: {
         workspaceRef: "123",
-        role: ApiRole.WORKSPACE_ADMIN,
+        role: Role.WORKSPACE_ADMIN,
         expiresAt: new Date().getMilliseconds()
       }
     };
@@ -85,7 +85,7 @@ describe("@identity[apikeys/createApiKey]", function () {
       metadata,
       request: {
         workspaceRef: "123",
-        role: ApiRole.WORKSPACE_ADMIN,
+        role: Role.WORKSPACE_ADMIN,
         expiresAt: new Date().getMilliseconds()
       }
     };

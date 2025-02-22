@@ -201,14 +201,11 @@ exports.WorkspaceMemberStatus = exports.$Enums.WorkspaceMemberStatus = {
   ACTIVE: 'ACTIVE'
 };
 
-exports.WorkspaceMemberRole = exports.$Enums.WorkspaceMemberRole = {
-  OWNER: 'OWNER',
-  ADMIN: 'ADMIN',
-  USER: 'USER'
-};
-
-exports.ApiKeyRole = exports.$Enums.ApiKeyRole = {
-  WORKSPACE_ADMIN: 'WORKSPACE_ADMIN'
+exports.Role = exports.$Enums.Role = {
+  USER: 'USER',
+  WORKSPACE_ADMIN: 'WORKSPACE_ADMIN',
+  WORKSPACE_OWNER: 'WORKSPACE_OWNER',
+  WORKSPACE_MEMBER: 'WORKSPACE_MEMBER'
 };
 
 exports.VerificationType = exports.$Enums.VerificationType = {

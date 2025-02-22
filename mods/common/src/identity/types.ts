@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceRole } from "@fonoster/types";
+import { Role } from "@fonoster/types";
 
 enum TokenUseEnum {
   ID = "id",
@@ -29,7 +29,7 @@ enum JsonWebErrorEnum {
   TokenExpiredError = "TokenExpiredError"
 }
 
-type Role = {
+type RoleType = {
   name: string;
   description: string;
   access: string[];
@@ -37,7 +37,7 @@ type Role = {
 
 type Access = {
   accessKeyId: string;
-  role: WorkspaceRole;
+  role: Role;
 };
 
 type BaseToken = {
@@ -81,7 +81,7 @@ export {
   DecodedToken,
   IdToken,
   RefreshToken,
-  Role,
+  RoleType,
   TokenUseEnum,
   JsonWebErrorEnum
 };

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { ApiRole } from "@fonoster/types";
+import { Role } from "@fonoster/types";
 import { Flags } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
@@ -36,7 +36,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     role: Flags.string({
       char: "r",
       description: "API Key role",
-      default: "WORKSPACE_ADMIN",
+      default: Role.WORKSPACE_ADMIN,
       required: false
     })
   };
@@ -47,7 +47,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     const sdkClient = await this.createSdkClient();
     const apiKeys = new SDK.ApiKeys(sdkClient);
     const result = await apiKeys.createApiKey({
-      role: flags.role as ApiRole
+      role: flags.role as Role
     });
 
     this.log("Access Key regenerated successfully!");

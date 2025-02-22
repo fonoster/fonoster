@@ -54,7 +54,7 @@ model Workspace {
 model WorkspaceMember {
   ref       String                @id @default(uuid())
   status    WorkspaceMemberStatus @default(PENDING)
-  role      WorkspaceMemberRole   @default(USER)
+  role      Role                  @default(WORKSPACE_MEMBER)
   createdAt DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime              @default(now()) @map("updated_at") @db.Timestamptz(3)
 
@@ -69,13 +69,13 @@ model WorkspaceMember {
 }
 
 model ApiKey {
-  ref             String     @id @default(uuid())
-  accessKeyId     String     @unique @map("access_key_id") @db.VarChar(255)
-  accessKeySecret String     @map("access_key_secret") @db.VarChar(255) /// @encrypted
-  role            ApiKeyRole @default(WORKSPACE_ADMIN)
-  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt       DateTime   @default(now()) @map("updated_at") @db.Timestamptz(3)
-  expiresAt       DateTime?  @map("expires_at") @db.Timestamptz(3)
+  ref             String    @id @default(uuid())
+  accessKeyId     String    @unique @map("access_key_id") @db.VarChar(255)
+  accessKeySecret String    @map("access_key_secret") @db.VarChar(255) /// @encrypted
+  role            Role      @default(WORKSPACE_MEMBER)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz(3)
+  expiresAt       DateTime? @map("expires_at") @db.Timestamptz(3)
 
   // Relations
   workspace    Workspace @relation(fields: [workspaceRef], references: [ref], onDelete: Cascade)
@@ -119,18 +119,4 @@ enum Role {
   WORKSPACE_MEMBER
 
   @@map("role")
-}
-
-enum WorkspaceMemberRole {
-  OWNER
-  ADMIN
-  USER
-
-  @@map("workspace_member_role")
-}
-
-enum ApiKeyRole {
-  WORKSPACE_ADMIN
-
-  @@map("api_key_role")
 }

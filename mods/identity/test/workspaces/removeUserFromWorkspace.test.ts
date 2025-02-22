@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceRole } from "@fonoster/types";
+import { Role } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import * as chai from "chai";
 import { expect } from "chai";
@@ -59,7 +59,7 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
           ref: "123",
           accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
           ownerRef: userRef,
-          members: [{ userRef, role: WorkspaceRole.ADMIN }]
+          members: [{ userRef, role: Role.WORKSPACE_ADMIN }]
         })
       }
     } as unknown as Prisma;
@@ -97,7 +97,7 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
       workspace: {
         findUnique: sandbox.stub().resolves({
           ownerRef: "another-user-id",
-          members: [{ userId: "another-user-id", role: WorkspaceRole.USER }]
+          members: [{ userId: "another-user-id", role: Role.USER }]
         })
       },
       workspaceMember: {

@@ -18,7 +18,7 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { workspaceAccess } from "./roles";
+import { workspaceResourceAccess } from "./roles";
 import { getAccessKeyIdFromCall } from "./getAccessKeyIdFromCall";
 import { getTokenFromCall } from "./getTokenFromCall";
 import { isValidToken } from "./isValidToken";
@@ -81,13 +81,13 @@ function createAuthInterceptor(
       accessKeyId,
       path,
       hasAccess: hasAccess(decodedToken, path),
-      pathIsWorkspacePath: workspaceAccess.includes(path),
+      pathIsWorkspacePath: workspaceResourceAccess.includes(path),
       tokenHasAccessKeyId: tokenHasAccessKeyId(token, accessKeyId)
     });
 
     if (
       !hasAccess(decodedToken, path) ||
-      (workspaceAccess.includes(path) &&
+      (workspaceResourceAccess.includes(path) &&
         !tokenHasAccessKeyId(token, accessKeyId))
     ) {
       return permissionDeniedError(call);

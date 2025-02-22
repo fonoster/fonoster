@@ -68,22 +68,6 @@ export const Role: {
 
 export type Role = (typeof Role)[keyof typeof Role]
 
-
-export const WorkspaceMemberRole: {
-  OWNER: 'OWNER',
-  ADMIN: 'ADMIN',
-  USER: 'USER'
-};
-
-export type WorkspaceMemberRole = (typeof WorkspaceMemberRole)[keyof typeof WorkspaceMemberRole]
-
-
-export const ApiKeyRole: {
-  WORKSPACE_ADMIN: 'WORKSPACE_ADMIN'
-};
-
-export type ApiKeyRole = (typeof ApiKeyRole)[keyof typeof ApiKeyRole]
-
 }
 
 export type VerificationType = $Enums.VerificationType
@@ -97,14 +81,6 @@ export const WorkspaceMemberStatus: typeof $Enums.WorkspaceMemberStatus
 export type Role = $Enums.Role
 
 export const Role: typeof $Enums.Role
-
-export type WorkspaceMemberRole = $Enums.WorkspaceMemberRole
-
-export const WorkspaceMemberRole: typeof $Enums.WorkspaceMemberRole
-
-export type ApiKeyRole = $Enums.ApiKeyRole
-
-export const ApiKeyRole: typeof $Enums.ApiKeyRole
 
 /**
  * ##  Prisma Client ʲˢ
@@ -3706,7 +3682,7 @@ export namespace Prisma {
   export type WorkspaceMemberMinAggregateOutputType = {
     ref: string | null
     status: $Enums.WorkspaceMemberStatus | null
-    role: $Enums.WorkspaceMemberRole | null
+    role: $Enums.Role | null
     createdAt: Date | null
     updatedAt: Date | null
     userRef: string | null
@@ -3716,7 +3692,7 @@ export namespace Prisma {
   export type WorkspaceMemberMaxAggregateOutputType = {
     ref: string | null
     status: $Enums.WorkspaceMemberStatus | null
-    role: $Enums.WorkspaceMemberRole | null
+    role: $Enums.Role | null
     createdAt: Date | null
     updatedAt: Date | null
     userRef: string | null
@@ -3841,7 +3817,7 @@ export namespace Prisma {
   export type WorkspaceMemberGroupByOutputType = {
     ref: string
     status: $Enums.WorkspaceMemberStatus
-    role: $Enums.WorkspaceMemberRole
+    role: $Enums.Role
     createdAt: Date
     updatedAt: Date
     userRef: string
@@ -3934,7 +3910,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       ref: string
       status: $Enums.WorkspaceMemberStatus
-      role: $Enums.WorkspaceMemberRole
+      role: $Enums.Role
       createdAt: Date
       updatedAt: Date
       userRef: string
@@ -4366,7 +4342,7 @@ export namespace Prisma {
   interface WorkspaceMemberFieldRefs {
     readonly ref: FieldRef<"WorkspaceMember", 'String'>
     readonly status: FieldRef<"WorkspaceMember", 'WorkspaceMemberStatus'>
-    readonly role: FieldRef<"WorkspaceMember", 'WorkspaceMemberRole'>
+    readonly role: FieldRef<"WorkspaceMember", 'Role'>
     readonly createdAt: FieldRef<"WorkspaceMember", 'DateTime'>
     readonly updatedAt: FieldRef<"WorkspaceMember", 'DateTime'>
     readonly userRef: FieldRef<"WorkspaceMember", 'String'>
@@ -4799,7 +4775,7 @@ export namespace Prisma {
     ref: string | null
     accessKeyId: string | null
     accessKeySecret: string | null
-    role: $Enums.ApiKeyRole | null
+    role: $Enums.Role | null
     createdAt: Date | null
     updatedAt: Date | null
     expiresAt: Date | null
@@ -4810,7 +4786,7 @@ export namespace Prisma {
     ref: string | null
     accessKeyId: string | null
     accessKeySecret: string | null
-    role: $Enums.ApiKeyRole | null
+    role: $Enums.Role | null
     createdAt: Date | null
     updatedAt: Date | null
     expiresAt: Date | null
@@ -4940,7 +4916,7 @@ export namespace Prisma {
     ref: string
     accessKeyId: string
     accessKeySecret: string
-    role: $Enums.ApiKeyRole
+    role: $Enums.Role
     createdAt: Date
     updatedAt: Date
     expiresAt: Date | null
@@ -5034,7 +5010,7 @@ export namespace Prisma {
        * @encrypted
        */
       accessKeySecret: string
-      role: $Enums.ApiKeyRole
+      role: $Enums.Role
       createdAt: Date
       updatedAt: Date
       expiresAt: Date | null
@@ -5466,7 +5442,7 @@ export namespace Prisma {
     readonly ref: FieldRef<"ApiKey", 'String'>
     readonly accessKeyId: FieldRef<"ApiKey", 'String'>
     readonly accessKeySecret: FieldRef<"ApiKey", 'String'>
-    readonly role: FieldRef<"ApiKey", 'ApiKeyRole'>
+    readonly role: FieldRef<"ApiKey", 'Role'>
     readonly createdAt: FieldRef<"ApiKey", 'DateTime'>
     readonly updatedAt: FieldRef<"ApiKey", 'DateTime'>
     readonly expiresAt: FieldRef<"ApiKey", 'DateTime'>
@@ -7086,30 +7062,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'WorkspaceMemberRole'
+   * Reference to a field of type 'Role'
    */
-  export type EnumWorkspaceMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WorkspaceMemberRole'>
+  export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
     
 
 
   /**
-   * Reference to a field of type 'WorkspaceMemberRole[]'
+   * Reference to a field of type 'Role[]'
    */
-  export type ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WorkspaceMemberRole[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'ApiKeyRole'
-   */
-  export type EnumApiKeyRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApiKeyRole'>
-    
-
-
-  /**
-   * Reference to a field of type 'ApiKeyRole[]'
-   */
-  export type ListEnumApiKeyRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApiKeyRole[]'>
+  export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
     
 
 
@@ -7309,7 +7271,7 @@ export namespace Prisma {
     NOT?: WorkspaceMemberWhereInput | WorkspaceMemberWhereInput[]
     ref?: StringFilter<"WorkspaceMember"> | string
     status?: EnumWorkspaceMemberStatusFilter<"WorkspaceMember"> | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFilter<"WorkspaceMember"> | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFilter<"WorkspaceMember"> | $Enums.Role
     createdAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     userRef?: StringFilter<"WorkspaceMember"> | string
@@ -7337,7 +7299,7 @@ export namespace Prisma {
     OR?: WorkspaceMemberWhereInput[]
     NOT?: WorkspaceMemberWhereInput | WorkspaceMemberWhereInput[]
     status?: EnumWorkspaceMemberStatusFilter<"WorkspaceMember"> | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFilter<"WorkspaceMember"> | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFilter<"WorkspaceMember"> | $Enums.Role
     createdAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     userRef?: StringFilter<"WorkspaceMember"> | string
@@ -7365,7 +7327,7 @@ export namespace Prisma {
     NOT?: WorkspaceMemberScalarWhereWithAggregatesInput | WorkspaceMemberScalarWhereWithAggregatesInput[]
     ref?: StringWithAggregatesFilter<"WorkspaceMember"> | string
     status?: EnumWorkspaceMemberStatusWithAggregatesFilter<"WorkspaceMember"> | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleWithAggregatesFilter<"WorkspaceMember"> | $Enums.WorkspaceMemberRole
+    role?: EnumRoleWithAggregatesFilter<"WorkspaceMember"> | $Enums.Role
     createdAt?: DateTimeWithAggregatesFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceMember"> | Date | string
     userRef?: StringWithAggregatesFilter<"WorkspaceMember"> | string
@@ -7379,7 +7341,7 @@ export namespace Prisma {
     ref?: StringFilter<"ApiKey"> | string
     accessKeyId?: StringFilter<"ApiKey"> | string
     accessKeySecret?: StringFilter<"ApiKey"> | string
-    role?: EnumApiKeyRoleFilter<"ApiKey"> | $Enums.ApiKeyRole
+    role?: EnumRoleFilter<"ApiKey"> | $Enums.Role
     createdAt?: DateTimeFilter<"ApiKey"> | Date | string
     updatedAt?: DateTimeFilter<"ApiKey"> | Date | string
     expiresAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
@@ -7406,7 +7368,7 @@ export namespace Prisma {
     OR?: ApiKeyWhereInput[]
     NOT?: ApiKeyWhereInput | ApiKeyWhereInput[]
     accessKeySecret?: StringFilter<"ApiKey"> | string
-    role?: EnumApiKeyRoleFilter<"ApiKey"> | $Enums.ApiKeyRole
+    role?: EnumRoleFilter<"ApiKey"> | $Enums.Role
     createdAt?: DateTimeFilter<"ApiKey"> | Date | string
     updatedAt?: DateTimeFilter<"ApiKey"> | Date | string
     expiresAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
@@ -7435,7 +7397,7 @@ export namespace Prisma {
     ref?: StringWithAggregatesFilter<"ApiKey"> | string
     accessKeyId?: StringWithAggregatesFilter<"ApiKey"> | string
     accessKeySecret?: StringWithAggregatesFilter<"ApiKey"> | string
-    role?: EnumApiKeyRoleWithAggregatesFilter<"ApiKey"> | $Enums.ApiKeyRole
+    role?: EnumRoleWithAggregatesFilter<"ApiKey"> | $Enums.Role
     createdAt?: DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
     expiresAt?: DateTimeNullableWithAggregatesFilter<"ApiKey"> | Date | string | null
@@ -7685,7 +7647,7 @@ export namespace Prisma {
   export type WorkspaceMemberCreateInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutMembershipsInput
@@ -7695,7 +7657,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedCreateInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     userRef: string
@@ -7705,7 +7667,7 @@ export namespace Prisma {
   export type WorkspaceMemberUpdateInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMembershipsNestedInput
@@ -7715,7 +7677,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedUpdateInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userRef?: StringFieldUpdateOperationsInput | string
@@ -7725,7 +7687,7 @@ export namespace Prisma {
   export type WorkspaceMemberCreateManyInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     userRef: string
@@ -7735,7 +7697,7 @@ export namespace Prisma {
   export type WorkspaceMemberUpdateManyMutationInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7743,7 +7705,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedUpdateManyInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userRef?: StringFieldUpdateOperationsInput | string
@@ -7754,7 +7716,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     accessKeySecret: string
-    role?: $Enums.ApiKeyRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     expiresAt?: Date | string | null
@@ -7765,7 +7727,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     accessKeySecret: string
-    role?: $Enums.ApiKeyRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     expiresAt?: Date | string | null
@@ -7776,7 +7738,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     accessKeySecret?: StringFieldUpdateOperationsInput | string
-    role?: EnumApiKeyRoleFieldUpdateOperationsInput | $Enums.ApiKeyRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7787,7 +7749,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     accessKeySecret?: StringFieldUpdateOperationsInput | string
-    role?: EnumApiKeyRoleFieldUpdateOperationsInput | $Enums.ApiKeyRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7798,7 +7760,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     accessKeySecret: string
-    role?: $Enums.ApiKeyRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     expiresAt?: Date | string | null
@@ -7809,7 +7771,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     accessKeySecret?: StringFieldUpdateOperationsInput | string
-    role?: EnumApiKeyRoleFieldUpdateOperationsInput | $Enums.ApiKeyRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7819,7 +7781,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     accessKeySecret?: StringFieldUpdateOperationsInput | string
-    role?: EnumApiKeyRoleFieldUpdateOperationsInput | $Enums.ApiKeyRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8159,11 +8121,11 @@ export namespace Prisma {
     not?: NestedEnumWorkspaceMemberStatusFilter<$PrismaModel> | $Enums.WorkspaceMemberStatus
   }
 
-  export type EnumWorkspaceMemberRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.WorkspaceMemberRole | EnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.WorkspaceMemberRole[] | ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.WorkspaceMemberRole[] | ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumWorkspaceMemberRoleFilter<$PrismaModel> | $Enums.WorkspaceMemberRole
+  export type EnumRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
   }
 
   export type WorkspaceScalarRelationFilter = {
@@ -8216,21 +8178,14 @@ export namespace Prisma {
     _max?: NestedEnumWorkspaceMemberStatusFilter<$PrismaModel>
   }
 
-  export type EnumWorkspaceMemberRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.WorkspaceMemberRole | EnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.WorkspaceMemberRole[] | ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.WorkspaceMemberRole[] | ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumWorkspaceMemberRoleWithAggregatesFilter<$PrismaModel> | $Enums.WorkspaceMemberRole
+  export type EnumRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumWorkspaceMemberRoleFilter<$PrismaModel>
-    _max?: NestedEnumWorkspaceMemberRoleFilter<$PrismaModel>
-  }
-
-  export type EnumApiKeyRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.ApiKeyRole | EnumApiKeyRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.ApiKeyRole[] | ListEnumApiKeyRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ApiKeyRole[] | ListEnumApiKeyRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumApiKeyRoleFilter<$PrismaModel> | $Enums.ApiKeyRole
+    _min?: NestedEnumRoleFilter<$PrismaModel>
+    _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -8275,16 +8230,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
     expiresAt?: SortOrder
     workspaceRef?: SortOrder
-  }
-
-  export type EnumApiKeyRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ApiKeyRole | EnumApiKeyRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.ApiKeyRole[] | ListEnumApiKeyRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ApiKeyRole[] | ListEnumApiKeyRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumApiKeyRoleWithAggregatesFilter<$PrismaModel> | $Enums.ApiKeyRole
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumApiKeyRoleFilter<$PrismaModel>
-    _max?: NestedEnumApiKeyRoleFilter<$PrismaModel>
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8559,8 +8504,8 @@ export namespace Prisma {
     set?: $Enums.WorkspaceMemberStatus
   }
 
-  export type EnumWorkspaceMemberRoleFieldUpdateOperationsInput = {
-    set?: $Enums.WorkspaceMemberRole
+  export type EnumRoleFieldUpdateOperationsInput = {
+    set?: $Enums.Role
   }
 
   export type UserUpdateOneRequiredWithoutMembershipsNestedInput = {
@@ -8583,10 +8528,6 @@ export namespace Prisma {
     create?: XOR<WorkspaceCreateWithoutApiKeysInput, WorkspaceUncheckedCreateWithoutApiKeysInput>
     connectOrCreate?: WorkspaceCreateOrConnectWithoutApiKeysInput
     connect?: WorkspaceWhereUniqueInput
-  }
-
-  export type EnumApiKeyRoleFieldUpdateOperationsInput = {
-    set?: $Enums.ApiKeyRole
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -8757,11 +8698,11 @@ export namespace Prisma {
     not?: NestedEnumWorkspaceMemberStatusFilter<$PrismaModel> | $Enums.WorkspaceMemberStatus
   }
 
-  export type NestedEnumWorkspaceMemberRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.WorkspaceMemberRole | EnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.WorkspaceMemberRole[] | ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.WorkspaceMemberRole[] | ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumWorkspaceMemberRoleFilter<$PrismaModel> | $Enums.WorkspaceMemberRole
+  export type NestedEnumRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
   }
 
   export type NestedEnumWorkspaceMemberStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -8774,21 +8715,14 @@ export namespace Prisma {
     _max?: NestedEnumWorkspaceMemberStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumWorkspaceMemberRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.WorkspaceMemberRole | EnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.WorkspaceMemberRole[] | ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.WorkspaceMemberRole[] | ListEnumWorkspaceMemberRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumWorkspaceMemberRoleWithAggregatesFilter<$PrismaModel> | $Enums.WorkspaceMemberRole
+  export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumWorkspaceMemberRoleFilter<$PrismaModel>
-    _max?: NestedEnumWorkspaceMemberRoleFilter<$PrismaModel>
-  }
-
-  export type NestedEnumApiKeyRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.ApiKeyRole | EnumApiKeyRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.ApiKeyRole[] | ListEnumApiKeyRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ApiKeyRole[] | ListEnumApiKeyRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumApiKeyRoleFilter<$PrismaModel> | $Enums.ApiKeyRole
+    _min?: NestedEnumRoleFilter<$PrismaModel>
+    _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -8800,16 +8734,6 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedEnumApiKeyRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ApiKeyRole | EnumApiKeyRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.ApiKeyRole[] | ListEnumApiKeyRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ApiKeyRole[] | ListEnumApiKeyRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumApiKeyRoleWithAggregatesFilter<$PrismaModel> | $Enums.ApiKeyRole
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumApiKeyRoleFilter<$PrismaModel>
-    _max?: NestedEnumApiKeyRoleFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8876,7 +8800,7 @@ export namespace Prisma {
   export type WorkspaceMemberCreateWithoutUserInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     workspace: WorkspaceCreateNestedOneWithoutMembersInput
@@ -8885,7 +8809,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedCreateWithoutUserInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     workspaceRef: string
@@ -8951,7 +8875,7 @@ export namespace Prisma {
     NOT?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
     ref?: StringFilter<"WorkspaceMember"> | string
     status?: EnumWorkspaceMemberStatusFilter<"WorkspaceMember"> | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFilter<"WorkspaceMember"> | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFilter<"WorkspaceMember"> | $Enums.Role
     createdAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     userRef?: StringFilter<"WorkspaceMember"> | string
@@ -8998,7 +8922,7 @@ export namespace Prisma {
   export type WorkspaceMemberCreateWithoutWorkspaceInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutMembershipsInput
@@ -9007,7 +8931,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedCreateWithoutWorkspaceInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     userRef: string
@@ -9027,7 +8951,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     accessKeySecret: string
-    role?: $Enums.ApiKeyRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     expiresAt?: Date | string | null
@@ -9037,7 +8961,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     accessKeySecret: string
-    role?: $Enums.ApiKeyRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     expiresAt?: Date | string | null
@@ -9135,7 +9059,7 @@ export namespace Prisma {
     ref?: StringFilter<"ApiKey"> | string
     accessKeyId?: StringFilter<"ApiKey"> | string
     accessKeySecret?: StringFilter<"ApiKey"> | string
-    role?: EnumApiKeyRoleFilter<"ApiKey"> | $Enums.ApiKeyRole
+    role?: EnumRoleFilter<"ApiKey"> | $Enums.Role
     createdAt?: DateTimeFilter<"ApiKey"> | Date | string
     updatedAt?: DateTimeFilter<"ApiKey"> | Date | string
     expiresAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
@@ -9345,7 +9269,7 @@ export namespace Prisma {
   export type WorkspaceMemberCreateManyUserInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     workspaceRef: string
@@ -9382,7 +9306,7 @@ export namespace Prisma {
   export type WorkspaceMemberUpdateWithoutUserInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspace?: WorkspaceUpdateOneRequiredWithoutMembersNestedInput
@@ -9391,7 +9315,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedUpdateWithoutUserInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspaceRef?: StringFieldUpdateOperationsInput | string
@@ -9400,7 +9324,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedUpdateManyWithoutUserInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspaceRef?: StringFieldUpdateOperationsInput | string
@@ -9409,7 +9333,7 @@ export namespace Prisma {
   export type WorkspaceMemberCreateManyWorkspaceInput = {
     ref?: string
     status?: $Enums.WorkspaceMemberStatus
-    role?: $Enums.WorkspaceMemberRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     userRef: string
@@ -9419,7 +9343,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     accessKeySecret: string
-    role?: $Enums.ApiKeyRole
+    role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
     expiresAt?: Date | string | null
@@ -9428,7 +9352,7 @@ export namespace Prisma {
   export type WorkspaceMemberUpdateWithoutWorkspaceInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMembershipsNestedInput
@@ -9437,7 +9361,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedUpdateWithoutWorkspaceInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userRef?: StringFieldUpdateOperationsInput | string
@@ -9446,7 +9370,7 @@ export namespace Prisma {
   export type WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceInput = {
     ref?: StringFieldUpdateOperationsInput | string
     status?: EnumWorkspaceMemberStatusFieldUpdateOperationsInput | $Enums.WorkspaceMemberStatus
-    role?: EnumWorkspaceMemberRoleFieldUpdateOperationsInput | $Enums.WorkspaceMemberRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userRef?: StringFieldUpdateOperationsInput | string
@@ -9456,7 +9380,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     accessKeySecret?: StringFieldUpdateOperationsInput | string
-    role?: EnumApiKeyRoleFieldUpdateOperationsInput | $Enums.ApiKeyRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9466,7 +9390,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     accessKeySecret?: StringFieldUpdateOperationsInput | string
-    role?: EnumApiKeyRoleFieldUpdateOperationsInput | $Enums.ApiKeyRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9476,7 +9400,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     accessKeySecret?: StringFieldUpdateOperationsInput | string
-    role?: EnumApiKeyRoleFieldUpdateOperationsInput | $Enums.ApiKeyRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceRole } from "@fonoster/types";
+import { Role } from "@fonoster/types";
 import { Prisma } from "../db";
 
 function createIsAdminMember(prisma: Prisma) {
@@ -42,7 +42,7 @@ function createIsAdminMember(prisma: Prisma) {
       (member) => member.ref === adminRef
     )?.role;
 
-    return role === WorkspaceRole.ADMIN || role === WorkspaceRole.OWNER;
+    return role === Role.WORKSPACE_ADMIN || role === Role.WORKSPACE_OWNER;
   };
 }
 

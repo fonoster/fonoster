@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceMemberStatus, WorkspaceRole } from "@fonoster/types";
+import { Role, WorkspaceMemberStatus } from "@fonoster/types";
 import { Prisma } from "../../../db";
 import { AccessToken, TokenUseEnum } from "@fonoster/common";
 import { IdentityConfig } from "../../types";
@@ -51,14 +51,14 @@ function createGetAccessTokenPayload(
 
     const access = ownedWorkspaces.map((workspace) => ({
       accessKeyId: workspace.accessKeyId,
-      role: WorkspaceRole.OWNER
+      role: Role.WORKSPACE_OWNER
     }));
 
     memberships.forEach((membership) => {
       membership.status === WorkspaceMemberStatus.ACTIVE &&
         access.push({
           accessKeyId: membership.workspace.accessKeyId,
-          role: membership.role as WorkspaceRole
+          role: membership.role as Role
         });
     });
 

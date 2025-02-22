@@ -26,7 +26,7 @@ import { getLogger } from "@fonoster/logger";
 import {
   ListWorkspaceMembersResponse,
   ListWorkspaceMembersRequest,
-  WorkspaceMemberRole,
+  Role,
   WorkspaceMemberStatus
 } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -72,7 +72,7 @@ function createListWorkspaceMembers(prisma: Prisma) {
         ...item,
         name: item.user.name,
         email: item.user.email,
-        role: item.role as WorkspaceMemberRole,
+        role: item.role as Role,
         status: item.status as WorkspaceMemberStatus
       })),
       nextPageToken: items[items.length - 1]?.ref
@@ -87,46 +87,3 @@ function createListWorkspaceMembers(prisma: Prisma) {
 
 export { createListWorkspaceMembers };
 
-// function createListApiKeys(prisma: Prisma) {
-//   const listApiKeys = async (
-//     call: { request: ListApiKeysRequest },
-//     callback: (error: GrpcErrorMessage, response?: ListApiKeysResponse) => void
-//   ) => {
-//     const { pageSize, pageToken } = call.request;
-
-//     const accessKeyId = getAccessKeyIdFromCall(
-//       call as unknown as ServerInterceptingCall
-//     );
-
-//     logger.verbose("list keys for workspace", { accessKeyId });
-
-//     const workspace = await prisma.workspace.findUnique({
-//       where: {
-//         accessKeyId
-//       }
-//     });
-
-//     const keys = await prisma.apiKey.findMany({
-//       where: {
-//         workspaceRef: workspace.ref
-//       },
-//       take: pageSize,
-//       skip: pageToken ? 1 : 0,
-//       cursor: pageToken ? { ref: pageToken } : undefined
-//     });
-
-//     const items = keys.map((key) => ({
-//       ...key,
-//       role: key.role as ApiRole
-//     }));
-
-//     const response: ListApiKeysResponse = {
-//       items,
-//       nextPageToken: items[items.length - 1]?.ref
-//     };
-
-//     callback(null, response);
-//   };
-
-//   return withErrorHandlingAndValidation(listApiKeys, V.listRequestSchema);
-// }
