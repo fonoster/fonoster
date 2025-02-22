@@ -333,47 +333,43 @@ export namespace ResendWorkspaceMembershipInvitationResponse {
   }
 }
 
-export class Member extends jspb.Message {
+export class WorkspaceMember extends jspb.Message {
   getRef(): string;
-  setRef(value: string): Member;
+  setRef(value: string): WorkspaceMember;
 
   getUserRef(): string;
-  setUserRef(value: string): Member;
-
-  getWorkspaceRef(): string;
-  setWorkspaceRef(value: string): Member;
+  setUserRef(value: string): WorkspaceMember;
 
   getName(): string;
-  setName(value: string): Member;
+  setName(value: string): WorkspaceMember;
 
   getEmail(): string;
-  setEmail(value: string): Member;
+  setEmail(value: string): WorkspaceMember;
 
   getRole(): string;
-  setRole(value: string): Member;
+  setRole(value: string): WorkspaceMember;
 
   getStatus(): string;
-  setStatus(value: string): Member;
+  setStatus(value: string): WorkspaceMember;
 
   getCreatedAt(): number;
-  setCreatedAt(value: number): Member;
+  setCreatedAt(value: number): WorkspaceMember;
 
   getUpdatedAt(): number;
-  setUpdatedAt(value: number): Member;
+  setUpdatedAt(value: number): WorkspaceMember;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Member.AsObject;
-  static toObject(includeInstance: boolean, msg: Member): Member.AsObject;
-  static serializeBinaryToWriter(message: Member, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Member;
-  static deserializeBinaryFromReader(message: Member, reader: jspb.BinaryReader): Member;
+  toObject(includeInstance?: boolean): WorkspaceMember.AsObject;
+  static toObject(includeInstance: boolean, msg: WorkspaceMember): WorkspaceMember.AsObject;
+  static serializeBinaryToWriter(message: WorkspaceMember, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): WorkspaceMember;
+  static deserializeBinaryFromReader(message: WorkspaceMember, reader: jspb.BinaryReader): WorkspaceMember;
 }
 
-export namespace Member {
+export namespace WorkspaceMember {
   export type AsObject = {
     ref: string,
     userRef: string,
-    workspaceRef: string,
     name: string,
     email: string,
     role: string,
@@ -406,10 +402,10 @@ export namespace ListWorkspaceMembersRequest {
 }
 
 export class ListWorkspaceMembersResponse extends jspb.Message {
-  getItemsList(): Array<Member>;
-  setItemsList(value: Array<Member>): ListWorkspaceMembersResponse;
+  getItemsList(): Array<WorkspaceMember>;
+  setItemsList(value: Array<WorkspaceMember>): ListWorkspaceMembersResponse;
   clearItemsList(): ListWorkspaceMembersResponse;
-  addItems(value?: Member, index?: number): Member;
+  addItems(value?: WorkspaceMember, index?: number): WorkspaceMember;
 
   getNextPageToken(): string;
   setNextPageToken(value: string): ListWorkspaceMembersResponse;
@@ -424,7 +420,7 @@ export class ListWorkspaceMembersResponse extends jspb.Message {
 
 export namespace ListWorkspaceMembersResponse {
   export type AsObject = {
-    itemsList: Array<Member.AsObject>,
+    itemsList: Array<WorkspaceMember.AsObject>,
     nextPageToken: string,
   }
 }

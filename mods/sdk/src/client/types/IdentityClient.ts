@@ -50,6 +50,8 @@ import {
   RemoveUserFromWorkspaceResponse,
   ResendWorkspaceMembershipInvitationRequest,
   ResendWorkspaceMembershipInvitationResponse,
+  ListWorkspaceMembersRequest,
+  ListWorkspaceMembersResponse,
   SendVerificationCodeRequest,
   UpdateUserRequest,
   UpdateWorkspaceRequest,
@@ -105,6 +107,10 @@ type IdentityClient = {
   resendWorkspaceMembershipInvitation: ClientFunction<
     ResendWorkspaceMembershipInvitationRequest,
     ResendWorkspaceMembershipInvitationResponse
+  >;
+  listWorkspaceMembers: ClientFunction<
+    ListWorkspaceMembersRequest,
+    ListWorkspaceMembersResponse
   >;
   removeUserFromWorkspace: ClientFunction<
     RemoveUserFromWorkspaceRequest,

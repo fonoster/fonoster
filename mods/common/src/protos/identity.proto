@@ -135,7 +135,7 @@ message ResendWorkspaceMembershipInvitationResponse {
   string user_ref = 1;
 }
 
-message Member {
+message WorkspaceMember {
   string ref = 1;
   string user_ref = 2;
   string name = 3;
@@ -152,7 +152,7 @@ message ListWorkspaceMembersRequest {
 }
 
 message ListWorkspaceMembersResponse {
-  repeated Member items = 1;
+  repeated WorkspaceMember items = 1;
   string next_page_token = 2;
 }
 
