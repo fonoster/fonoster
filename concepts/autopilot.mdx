@@ -186,13 +186,9 @@ The following is a list of built-in tools available for an agent:
 
 ### Custom tools
 
-## Adding a Custom Tool
-
 You can add custom tools under `intelligence.config.languageModel.tools`, which is an array where each tool is defined as an object. These tools enable your assistant to interact with external services, APIs, or execute specific actions.
 
 Each tool must follow the [tool schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts), for consistency and compatibility.
-
-### Example: Adding a Tool to Retrieve Available Appointment Times
 
 The following example demonstrates how to add a custom tool that fetches available appointment times for a specific date:
 
