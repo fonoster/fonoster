@@ -332,10 +332,10 @@ class Workspaces {
       request: { userRef }
     });
   }
-  
+
   /**
    * List the members of a Workspace
-   * 
+   *
    * @param {ListWorkspaceMembersRequest} request - Request object to list the members of a Workspace
    * @param {number} request.pageSize - The number of members to return in the response
    * @param {string} request.pageToken - The page token to return the next page of members
