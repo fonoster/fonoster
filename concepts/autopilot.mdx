@@ -47,6 +47,7 @@ intelligence:
       model: "llama-3.3-70b-versatile"
       maxTokens: 240
       temperature: 0.4
+      tools: []
 ```
 
 Then, create a script to apply the configuration as follows:
@@ -185,38 +186,51 @@ The following is a list of built-in tools available for an agent:
 
 ### Custom tools
 
-You can add custom tools to the language model by adding an entry to the `tools` array. The following is an example of how to add a custom tool:
+## Adding a Custom Tool
 
-Custom tools are governed by the [tool schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
+You can add custom tools under `intelligence.config.languageModel.tools`, which is an array where each tool is defined as an object. These tools enable your assistant to interact with external services, APIs, or execute specific actions.
 
-An custom tool to get available appointment times would look as follows:
+Each tool must follow the [tool schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts), for consistency and compatibility.
 
-```json
-{
-  "name": "getAvailableTimes",
-  "description": "Get available appointment times for a specific date.",
-  "requestStartMessage": "I'm looking for available appointment times for the date you provided.",
-  "parameters": {
-    "type": "object",
-    "properties": {
-      "date": {
-        "type": "string",
-        "format": "date"
-      }
-    },
-    "required": [
-      "date"
-    ]
-  },
-  "operation": {
-    "type": "get",
-    "url": "https://api.example.com/appointment-times",
-    "headers": {
-      "x-api-key": "your-api-key"
-    }
-  }
-}
+### Example: Adding a Tool to Retrieve Available Appointment Times
+
+The following example demonstrates how to add a custom tool that fetches available appointment times for a specific date:
+
+```yaml
+name: getAvailableTimes
+description: Get available appointment times for a specific date.
+requestStartMessage: "I'm looking for available appointment times for the date you provided."
+parameters:
+  type: object
+  properties:
+    date:
+      type: string
+      format: date
+  required:
+    - date
+operation:
+  method: get
+  url: https://api.example.com/appointment-times
+  headers:
+    x-api-key: your-api-key
 ```
+
+### Key Components of a Tool Definition:
+
+- **`name`**: A unique identifier for the tool
+- **`description`**: A brief explanation of what the tool does
+- **`requestStartMessage`**: The message sent when the tool is triggered
+- **`parameters`**: Defines the expected input structure in accordance with the [JSON Schema standard](https://json-schema.org/), which is also required for OpenAI compatible tool calling
+  - **`type`**: Defines the structure of the input (typically `object`)
+  - **`properties`**: Specifies the fields expected in the input
+  - **`required`**: Lists the fields that must be provided
+- **`operation`**:
+  - **`method`**: The HTTP method (`get`, `post`, etc.)
+  - **`url`**: The endpoint that the assistant will call
+  - **`headers`**: Any necessary headers, such as authentication keys
+
+For additional details, refer to the [tool schema documentation](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
+
 
 <Tip>
   Use `operation.type` "post" for POST requests. If you want the Autopilot to wait for POST requests to complete, set `operation.waitForResponse` to `true`. For "get" requests, the Autopilot will wait for the response by default.
