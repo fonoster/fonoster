@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { ToolEvaluationReport } from "./types";
+import moment from "moment";
 
 export function evaluateToolCalls(
   expectedTools: any[],
@@ -62,6 +63,17 @@ export function evaluateToolCalls(
     const actualParams = actualCall.args || {};
 
     for (const key of Object.keys(expectedParams)) {
+      if (moment(expectedParams[key], moment.ISO_8601, true).isValid()) {
+        actualParams[key] = moment(actualParams[key], moment.ISO_8601, true);
+
+        if (!actualParams[key].isValid()) {
+          toolPassed = false;
+          const paramMsg = `Expected parameter "${key}" to be a valid date, but got ${JSON.stringify(actualParams[key])}.`;
+          errorMessage = errorMessage ? errorMessage + " " + paramMsg : paramMsg;
+        }
+        continue;
+      }
+
       if (actualParams[key] !== expectedParams[key]) {
         toolPassed = false;
         const paramMsg = `Expected parameter "${key}" to have value ${JSON.stringify(expectedParams[key])}, but got ${JSON.stringify(actualParams[key])}.`;
