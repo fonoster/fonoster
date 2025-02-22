@@ -320,6 +320,28 @@ function deserialize_fonoster_identity_v1beta2_ListApiKeysResponse(buffer_arg) {
   return identity_pb.ListApiKeysResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_ListWorkspaceMembersRequest(arg) {
+  if (!(arg instanceof identity_pb.ListWorkspaceMembersRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ListWorkspaceMembersRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ListWorkspaceMembersRequest(buffer_arg) {
+  return identity_pb.ListWorkspaceMembersRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_ListWorkspaceMembersResponse(arg) {
+  if (!(arg instanceof identity_pb.ListWorkspaceMembersResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ListWorkspaceMembersResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ListWorkspaceMembersResponse(buffer_arg) {
+  return identity_pb.ListWorkspaceMembersResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_ListWorkspacesRequest(arg) {
   if (!(arg instanceof identity_pb.ListWorkspacesRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.ListWorkspacesRequest');
@@ -619,6 +641,17 @@ createWorkspace: {
     requestDeserialize: deserialize_fonoster_identity_v1beta2_ResendWorkspaceMembershipInvitationRequest,
     responseSerialize: serialize_fonoster_identity_v1beta2_ResendWorkspaceMembershipInvitationResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_ResendWorkspaceMembershipInvitationResponse,
+  },
+  listWorkspaceMembers: {
+    path: '/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.ListWorkspaceMembersRequest,
+    responseType: identity_pb.ListWorkspaceMembersResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_ListWorkspaceMembersRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_ListWorkspaceMembersRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_ListWorkspaceMembersResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_ListWorkspaceMembersResponse,
   },
   // User specific actions
 createUser: {

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { ApiRoleEnum } from "@fonoster/types";
+import { ApiRole } from "@fonoster/types";
 import { Flags } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
@@ -47,7 +47,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     const sdkClient = await this.createSdkClient();
     const apiKeys = new SDK.ApiKeys(sdkClient);
     const result = await apiKeys.createApiKey({
-      role: flags.role as ApiRoleEnum
+      role: flags.role as ApiRole
     });
 
     this.log("Access Key regenerated successfully!");

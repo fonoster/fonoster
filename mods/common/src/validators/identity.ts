@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
+import { ApiRole, WorkspaceRole } from "@fonoster/types";
 import { z } from "zod";
 import { POSITIVE_INTEGER_MESSAGE } from "../messages";
 
@@ -35,7 +35,7 @@ const createWorkspaceRequestSchema = z.object({
 });
 
 const createApiKeyRequestSchema = z.object({
-  role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
+  role: z.enum([ApiRole.WORKSPACE_ADMIN]),
   expiresAt: z
     .number()
     .int({ message: POSITIVE_INTEGER_MESSAGE })
@@ -88,7 +88,7 @@ const updateUserRequestSchema = z.object({
 const inviteUserToWorkspaceRequestSchema = z.object({
   email: z.string().email({ message: EMAIL_MESSAGE }),
   name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
-  role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
+  role: z.enum([WorkspaceRole.ADMIN, WorkspaceRole.USER]),
   password: z.string().min(8, { message: PASSWORD_MESSAGE }).or(z.undefined())
 });
 

@@ -17,9 +17,16 @@
  * limitations under the License.
  */
 import { ListRequest, ListResponse } from "./common";
+import { WorkspaceMemberStatus } from "./workspaces.types";
 
-enum ApiRoleEnum {
+enum ApiRole {
   WORKSPACE_ADMIN = "WORKSPACE_ADMIN"
+}
+
+enum WorkspaceMemberRole {
+  OWNER = "OWNER",
+  ADMIN = "WORKSPACE_ADMIN",
+  USER = "USER"
 }
 
 type User = {
@@ -27,6 +34,17 @@ type User = {
   email: string;
   name: string;
   avatar: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type Member = {
+  ref: string;
+  userRef: string;
+  name: string;
+  email: string;
+  role: WorkspaceMemberRole;
+  status: WorkspaceMemberStatus;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -52,7 +70,7 @@ type UpdateUserRequest = {
 };
 
 type CreateApiKeyRequest = {
-  role: ApiRoleEnum;
+  role: ApiRole;
   expiresAt?: number;
 };
 
@@ -65,7 +83,7 @@ type RegenerateApiKeyResponse = {
 type ApiKey = {
   ref: string;
   accessKeyId: string;
-  role: ApiRoleEnum;
+  role: ApiRole;
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -75,14 +93,21 @@ type ListApiKeysRequest = ListRequest;
 
 type ListApiKeysResponse = ListResponse<ApiKey>;
 
+type ListWorkspaceMembersRequest = ListRequest;
+
+type ListWorkspaceMembersResponse = ListResponse<Member>;
+
 export {
-  ApiRoleEnum,
+  ApiRole,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
   CreateUserRequest,
   ListApiKeysRequest,
   ListApiKeysResponse,
   RegenerateApiKeyResponse,
+  ListWorkspaceMembersRequest,
+  ListWorkspaceMembersResponse,
   UpdateUserRequest,
-  User
+  User,
+  WorkspaceMemberRole
 };

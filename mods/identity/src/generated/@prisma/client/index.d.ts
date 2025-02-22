@@ -59,6 +59,16 @@ export const WorkspaceMemberStatus: {
 export type WorkspaceMemberStatus = (typeof WorkspaceMemberStatus)[keyof typeof WorkspaceMemberStatus]
 
 
+export const Role: {
+  USER: 'USER',
+  WORKSPACE_ADMIN: 'WORKSPACE_ADMIN',
+  WORKSPACE_OWNER: 'WORKSPACE_OWNER',
+  WORKSPACE_MEMBER: 'WORKSPACE_MEMBER'
+};
+
+export type Role = (typeof Role)[keyof typeof Role]
+
+
 export const WorkspaceMemberRole: {
   OWNER: 'OWNER',
   ADMIN: 'ADMIN',
@@ -83,6 +93,10 @@ export const VerificationType: typeof $Enums.VerificationType
 export type WorkspaceMemberStatus = $Enums.WorkspaceMemberStatus
 
 export const WorkspaceMemberStatus: typeof $Enums.WorkspaceMemberStatus
+
+export type Role = $Enums.Role
+
+export const Role: typeof $Enums.Role
 
 export type WorkspaceMemberRole = $Enums.WorkspaceMemberRole
 

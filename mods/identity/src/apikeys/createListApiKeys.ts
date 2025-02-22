@@ -24,7 +24,7 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
-  ApiRoleEnum,
+  ApiRole,
   ListApiKeysRequest,
   ListApiKeysResponse
 } from "@fonoster/types";
@@ -63,7 +63,7 @@ function createListApiKeys(prisma: Prisma) {
 
     const items = keys.map((key) => ({
       ...key,
-      role: key.role as ApiRoleEnum
+      role: key.role as ApiRole
     }));
 
     const response: ListApiKeysResponse = {

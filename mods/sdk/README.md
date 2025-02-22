@@ -598,7 +598,7 @@ Creates a new ApiKey for a Workspace.
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>CreateApiKeyRequest</code> | The request object that contains the necessary information to create a new ApiKey |
-| request.role | <code>ApiRoleEnum</code> | The role of the ApiKey |
+| request.role | <code>ApiRole</code> | The role of the ApiKey |
 
 **Example**  
 ```js

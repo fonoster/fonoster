@@ -18,7 +18,7 @@ import { ListResponse } from "./common";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum WorkspaceRoleEnum {
+enum WorkspaceRole {
   OWNER = "OWNER",
   ADMIN = "ADMIN",
   USER = "USER"
@@ -57,7 +57,7 @@ type InviteUserToWorkspaceResponse = {
 type InviteUserToWorkspaceRequest = {
   email: string;
   name: string;
-  role: WorkspaceRoleEnum;
+  role: WorkspaceRole;
   password: string;
 };
 
@@ -89,5 +89,5 @@ export {
   UpdateWorkspaceRequest,
   Workspace,
   WorkspaceMemberStatus,
-  WorkspaceRoleEnum
+  WorkspaceRole
 };

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceRoleEnum } from "@fonoster/types";
+import { WorkspaceRole } from "@fonoster/types";
 
 enum TokenUseEnum {
   ID = "id",
@@ -37,7 +37,7 @@ type Role = {
 
 type Access = {
   accessKeyId: string;
-  role: WorkspaceRoleEnum;
+  role: WorkspaceRole;
 };
 
 type BaseToken = {

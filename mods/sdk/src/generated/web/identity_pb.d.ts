@@ -333,6 +333,102 @@ export namespace ResendWorkspaceMembershipInvitationResponse {
   }
 }
 
+export class Member extends jspb.Message {
+  getRef(): string;
+  setRef(value: string): Member;
+
+  getUserRef(): string;
+  setUserRef(value: string): Member;
+
+  getWorkspaceRef(): string;
+  setWorkspaceRef(value: string): Member;
+
+  getName(): string;
+  setName(value: string): Member;
+
+  getEmail(): string;
+  setEmail(value: string): Member;
+
+  getRole(): string;
+  setRole(value: string): Member;
+
+  getStatus(): string;
+  setStatus(value: string): Member;
+
+  getCreatedAt(): number;
+  setCreatedAt(value: number): Member;
+
+  getUpdatedAt(): number;
+  setUpdatedAt(value: number): Member;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Member.AsObject;
+  static toObject(includeInstance: boolean, msg: Member): Member.AsObject;
+  static serializeBinaryToWriter(message: Member, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Member;
+  static deserializeBinaryFromReader(message: Member, reader: jspb.BinaryReader): Member;
+}
+
+export namespace Member {
+  export type AsObject = {
+    ref: string,
+    userRef: string,
+    workspaceRef: string,
+    name: string,
+    email: string,
+    role: string,
+    status: string,
+    createdAt: number,
+    updatedAt: number,
+  }
+}
+
+export class ListWorkspaceMembersRequest extends jspb.Message {
+  getPageToken(): string;
+  setPageToken(value: string): ListWorkspaceMembersRequest;
+
+  getPageSize(): number;
+  setPageSize(value: number): ListWorkspaceMembersRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListWorkspaceMembersRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ListWorkspaceMembersRequest): ListWorkspaceMembersRequest.AsObject;
+  static serializeBinaryToWriter(message: ListWorkspaceMembersRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListWorkspaceMembersRequest;
+  static deserializeBinaryFromReader(message: ListWorkspaceMembersRequest, reader: jspb.BinaryReader): ListWorkspaceMembersRequest;
+}
+
+export namespace ListWorkspaceMembersRequest {
+  export type AsObject = {
+    pageToken: string,
+    pageSize: number,
+  }
+}
+
+export class ListWorkspaceMembersResponse extends jspb.Message {
+  getItemsList(): Array<Member>;
+  setItemsList(value: Array<Member>): ListWorkspaceMembersResponse;
+  clearItemsList(): ListWorkspaceMembersResponse;
+  addItems(value?: Member, index?: number): Member;
+
+  getNextPageToken(): string;
+  setNextPageToken(value: string): ListWorkspaceMembersResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListWorkspaceMembersResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ListWorkspaceMembersResponse): ListWorkspaceMembersResponse.AsObject;
+  static serializeBinaryToWriter(message: ListWorkspaceMembersResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListWorkspaceMembersResponse;
+  static deserializeBinaryFromReader(message: ListWorkspaceMembersResponse, reader: jspb.BinaryReader): ListWorkspaceMembersResponse;
+}
+
+export namespace ListWorkspaceMembersResponse {
+  export type AsObject = {
+    itemsList: Array<Member.AsObject>,
+    nextPageToken: string,
+  }
+}
+
 export class CreateUserRequest extends jspb.Message {
   getEmail(): string;
   setEmail(value: string): CreateUserRequest;
@@ -658,11 +754,11 @@ export namespace DeleteApiKeyResponse {
 }
 
 export class ListApiKeysRequest extends jspb.Message {
-  getPageSize(): number;
-  setPageSize(value: number): ListApiKeysRequest;
-
   getPageToken(): string;
   setPageToken(value: string): ListApiKeysRequest;
+
+  getPageSize(): number;
+  setPageSize(value: number): ListApiKeysRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListApiKeysRequest.AsObject;
@@ -674,8 +770,8 @@ export class ListApiKeysRequest extends jspb.Message {
 
 export namespace ListApiKeysRequest {
   export type AsObject = {
-    pageSize: number,
     pageToken: string,
+    pageSize: number,
   }
 }
 

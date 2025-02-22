@@ -32,7 +32,8 @@ service Identity {
   rpc InviteUserToWorkspace (InviteUserToWorkspaceRequest) returns (InviteUserToWorkspaceResponse) {}
   rpc RemoveUserFromWorkspace (RemoveUserFromWorkspaceRequest) returns (RemoveUserFromWorkspaceResponse) {}
   rpc ResendWorkspaceMembershipInvitation (ResendWorkspaceMembershipInvitationRequest) returns (ResendWorkspaceMembershipInvitationResponse) {}
-  
+  rpc ListWorkspaceMembers (ListWorkspaceMembersRequest) returns (ListWorkspaceMembersResponse) {}
+
   // User specific actions
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
   rpc GetUser (GetUserRequest) returns (User) {}
@@ -134,6 +135,27 @@ message ResendWorkspaceMembershipInvitationResponse {
   string user_ref = 1;
 }
 
+message Member {
+  string ref = 1;
+  string user_ref = 2;
+  string name = 3;
+  string email = 4;
+  string role = 5;
+  string status = 6;
+  int32 created_at = 7;
+  int32 updated_at = 8;
+}
+
+message ListWorkspaceMembersRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListWorkspaceMembersResponse {
+  repeated Member items = 1;
+  string next_page_token = 2;
+}
+
 // User Resources
 enum ContactType {
   EMAIL = 0;
@@ -217,8 +239,8 @@ message DeleteApiKeyResponse {
 }
 
 message ListApiKeysRequest {
-  int32 page_size = 3;
-  string page_token = 2;
+  string page_token = 1;
+  int32 page_size = 2;
 }
 
 message ListApiKeysResponse {

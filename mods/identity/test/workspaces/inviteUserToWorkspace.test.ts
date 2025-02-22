@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceRoleEnum } from "@fonoster/types";
+import { WorkspaceRole } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import * as chai from "chai";
 import { expect } from "chai";
@@ -37,7 +37,7 @@ const inviteRequest = {
   workspaceRef: "1",
   email: "john@example.com",
   name: "John Doe",
-  role: WorkspaceRoleEnum.ADMIN,
+  role: WorkspaceRole.ADMIN,
   password: "12345678"
 };
 

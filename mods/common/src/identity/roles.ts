@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
+import { ApiRole, WorkspaceRole } from "@fonoster/types";
 import { Role } from "./types";
 
 const VOICE_SERVICE_ROLE = "VOICE_SERVICE";
 
-// The WorkspaceRoleEnum.USER is the same as the USER_ROLE constant
+// The WorkspaceRole.USER is the same as the USER_ROLE constant
 // We will split this two roles in the future
 const USER_ROLE = "USER";
 
@@ -82,6 +82,7 @@ const fullIdentityAccess = [
   "/fonoster.identity.v1beta2.Identity/GetWorkspace",
   "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
   "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+  "/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers",
   "/fonoster.identity.v1beta2.Identity/DeleteWorkspace",
   "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
   "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
@@ -95,12 +96,12 @@ const fullIdentityAccess = [
 
 const roles = [
   {
-    name: WorkspaceRoleEnum.OWNER,
+    name: WorkspaceRole.OWNER,
     description: "Access to all endpoints",
     access: [...fullIdentityAccess, ...workspaceAccess]
   },
   {
-    name: WorkspaceRoleEnum.ADMIN,
+    name: WorkspaceRole.ADMIN,
     description: "Access to all endpoints",
     access: [...fullIdentityAccess, ...workspaceAccess]
   },
@@ -120,7 +121,7 @@ const roles = [
     ]
   },
   {
-    name: ApiRoleEnum.WORKSPACE_ADMIN,
+    name: ApiRole.WORKSPACE_ADMIN,
     description: "Access to all endpoints",
     access: [...fullIdentityAccess, ...workspaceAccess]
   },

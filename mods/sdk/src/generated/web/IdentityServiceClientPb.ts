@@ -384,6 +384,49 @@ export class IdentityClient {
     this.methodDescriptorResendWorkspaceMembershipInvitation);
   }
 
+  methodDescriptorListWorkspaceMembers = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers',
+    grpcWeb.MethodType.UNARY,
+    identity_pb.ListWorkspaceMembersRequest,
+    identity_pb.ListWorkspaceMembersResponse,
+    (request: identity_pb.ListWorkspaceMembersRequest) => {
+      return request.serializeBinary();
+    },
+    identity_pb.ListWorkspaceMembersResponse.deserializeBinary
+  );
+
+  listWorkspaceMembers(
+    request: identity_pb.ListWorkspaceMembersRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.ListWorkspaceMembersResponse>;
+
+  listWorkspaceMembers(
+    request: identity_pb.ListWorkspaceMembersRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: identity_pb.ListWorkspaceMembersResponse) => void): grpcWeb.ClientReadableStream<identity_pb.ListWorkspaceMembersResponse>;
+
+  listWorkspaceMembers(
+    request: identity_pb.ListWorkspaceMembersRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: identity_pb.ListWorkspaceMembersResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers',
+        request,
+        metadata || {},
+        this.methodDescriptorListWorkspaceMembers,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers',
+    request,
+    metadata || {},
+    this.methodDescriptorListWorkspaceMembers);
+  }
+
   methodDescriptorCreateUser = new grpcWeb.MethodDescriptor(
     '/fonoster.identity.v1beta2.Identity/CreateUser',
     grpcWeb.MethodType.UNARY,

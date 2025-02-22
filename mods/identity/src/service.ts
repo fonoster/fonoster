@@ -41,7 +41,8 @@ import {
   createResendWorkspaceMembershipInvitation,
   sendInvite,
   createUpdateUser,
-  createUpdateWorkspace
+  createUpdateWorkspace,
+  createListWorkspaceMembers
 } from ".";
 
 const serviceDefinitionParams = {
@@ -66,6 +67,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       getWorkspace: createGetWorkspace(prisma),
       updateWorkspace: createUpdateWorkspace(prisma),
       listWorkspaces: createListWorkspaces(prisma),
+      listWorkspaceMembers: createListWorkspaceMembers(prisma),
       inviteUserToWorkspace: createInviteUserToWorkspace(
         prisma,
         identityConfig,
