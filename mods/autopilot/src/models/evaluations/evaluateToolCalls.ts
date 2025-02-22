@@ -69,7 +69,9 @@ export function evaluateToolCalls(
         if (!actualParams[key].isValid()) {
           toolPassed = false;
           const paramMsg = `Expected parameter "${key}" to be a valid date, but got ${JSON.stringify(actualParams[key])}.`;
-          errorMessage = errorMessage ? errorMessage + " " + paramMsg : paramMsg;
+          errorMessage = errorMessage
+            ? errorMessage + " " + paramMsg
+            : paramMsg;
         }
         continue;
       }

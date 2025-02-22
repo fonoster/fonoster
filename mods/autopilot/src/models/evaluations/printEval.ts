@@ -39,12 +39,12 @@ export function printEval(results: ScenarioEvaluationReport[]): void {
         "Passed"
       ],
       colWidths: [
-        6,        // Step
-        28,        // Human Input
-        28,        // Expected
-        28,        // AI Response
-        null,      // Tool Calls - dynamic width
-        8         // Passed
+        6, // Step
+        28, // Human Input
+        28, // Expected
+        28, // AI Response
+        null, // Tool Calls - dynamic width
+        8 // Passed
       ],
       wordWrap: true
     });
@@ -58,17 +58,21 @@ export function printEval(results: ScenarioEvaluationReport[]): void {
             if (!Object.keys(toolEval.actualParameters || {}).length) {
               return `${toolEval.actualTool}()`;
             }
-            const params = JSON.stringify(toolEval.actualParameters || {}, null, 1)
-              .split('\n')
+            const params = JSON.stringify(
+              toolEval.actualParameters || {},
+              null,
+              1
+            )
+              .split("\n")
               .map((line, index, arr) => {
-                if (index === 0) return '';
-                if (index === arr.length - 1) return '';
-                return ' ' + line.trim();
+                if (index === 0) return "";
+                if (index === arr.length - 1) return "";
+                return " " + line.trim();
               })
-              .join('\n');
+              .join("\n");
             return `${toolEval.actualTool}({${params}})`;
           })
-          .join("\n\n");  // Add extra line between multiple tool calls
+          .join("\n\n"); // Add extra line between multiple tool calls
       }
 
       table.push([
