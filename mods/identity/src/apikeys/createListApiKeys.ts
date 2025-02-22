@@ -23,11 +23,7 @@ import {
   getAccessKeyIdFromCall
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import {
-  Role,
-  ListApiKeysRequest,
-  ListApiKeysResponse
-} from "@fonoster/types";
+import { Role, ListApiKeysRequest, ListApiKeysResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 

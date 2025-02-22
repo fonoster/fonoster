@@ -36,7 +36,9 @@ function hasAccess(
       : access.map((a: Access) => a.role);
 
   return roleList.some((r: string) =>
-    roles.find((role: RoleType) => role.name === r && role.access.includes(method))
+    roles.find(
+      (role: RoleType) => role.name === r && role.access.includes(method)
+    )
   );
 }
 
