@@ -19,6 +19,7 @@
 const allowList = [
   "/grpc.health.v1.Health/Check",
   "/fonoster.identity.v1beta2.Identity/CreateUser",
+  "/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code",
   "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
   "/fonoster.identity.v1beta2.Identity/ExchangeApiKey",
   "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",

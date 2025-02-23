@@ -36,6 +36,7 @@ service Identity {
 
   // User specific actions
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+  rpc CreateUserWithOauth2Code (CreateUserWithOauth2CodeRequest) returns (ExchangeCredentialsResponse) {}
   rpc GetUser (GetUserRequest) returns (User) {}
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
@@ -173,6 +174,10 @@ message CreateUserRequest {
 
 message CreateUserResponse {
   string ref = 1;
+}
+
+message CreateUserWithOauth2CodeRequest {
+  string code = 1;
 }
 
 message GetUserRequest {

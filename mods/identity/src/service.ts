@@ -24,6 +24,7 @@ import { createSendVerificationCode, createVerifyCode } from "./verification";
 import {
   createCreateApiKey,
   createCreateUser,
+  createCreateUserWithOauth2Code,
   createCreateWorkspace,
   createDeleteApiKey,
   createDeleteUser,
@@ -84,6 +85,10 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       removeUserFromWorkspace: createRemoveUserFromWorkspace(prisma),
       // User operations
       createUser: createCreateUser(prisma),
+      createUserWithOauth2Code: createCreateUserWithOauth2Code(
+        prisma,
+        identityConfig
+      ),
       getUser: createGetUser(prisma),
       deleteUser: createDeleteUser(prisma),
       updateUser: createUpdateUser(prisma),

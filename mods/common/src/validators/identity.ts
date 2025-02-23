@@ -72,6 +72,10 @@ const createUserRequestSchema = z.object({
   avatar: z.string().url().max(255, { message: "Invalid avatar URL" })
 });
 
+const createUserWithOauth2CodeRequestSchema = z.object({
+  code: z.string()
+});
+
 const updateUserRequestSchema = z.object({
   ref: z.string().uuid({ message: USER_REF_MESSAGE }),
   name: z
@@ -149,5 +153,6 @@ export {
   updateWorkspaceRequestSchema,
   verifyCodeRequestSchema,
   sendResetPasswordCodeRequestSchema,
-  resetPasswordRequestSchema
+  resetPasswordRequestSchema,
+  createUserWithOauth2CodeRequestSchema
 };

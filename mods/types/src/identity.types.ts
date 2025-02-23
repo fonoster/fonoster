@@ -46,6 +46,10 @@ type CreateUserRequest = {
   avatar: string;
 };
 
+type CreateUserWithOauth2CodeRequest = {
+  code: string;
+};
+
 type CreateApiKeyResponse = {
   ref: string;
   accessKeyId: string;
@@ -100,6 +104,7 @@ type ListWorkspaceMembersResponse = ListResponse<Member>;
 export {
   CreateApiKeyRequest,
   CreateApiKeyResponse,
+  CreateUserWithOauth2CodeRequest,
   CreateUserRequest,
   ListApiKeysRequest,
   ListApiKeysResponse,
