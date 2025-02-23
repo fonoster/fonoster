@@ -40,7 +40,7 @@ import {
   SendResetPasswordCodeRequest as SendResetPasswordCodeRequestPB,
   ResetPasswordRequest as ResetPasswordRequestPB,
   CreateUserWithOauth2CodeRequest as CreateUserWithOauth2CodeRequestPB,
-  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
+  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB
 } from "./generated/node/identity_pb";
 
 /**
@@ -119,7 +119,7 @@ class Users {
 
   /**
    * Create a new User using an OAuth2 code and return the id, access, and refresh tokens for the User.
-   * 
+   *
    * @param {CreateUserWithOauth2CodeRequest} request - The request object with the OAuth2 code
    * @param {string} request.code - The OAuth2 code of the User
    * @return {Promise<ExchangeCredentialsResponse>} - The response object that contains the id, access, and refresh tokens
@@ -134,8 +134,10 @@ class Users {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async createUserWithOauth2Code(request: CreateUserWithOauth2CodeRequest): Promise<ExchangeCredentialsResponse> {
-    console.log("request", request);  
+  async createUserWithOauth2Code(
+    request: CreateUserWithOauth2CodeRequest
+  ): Promise<ExchangeCredentialsResponse> {
+    console.log("request", request);
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
       CreateUserWithOauth2CodeRequestPB,
@@ -167,12 +169,7 @@ class Users {
    */
   async getUser(ref: string): Promise<User> {
     const client = this.client.getIdentityClient();
-    return await makeRpcRequest<
-      GetUserRequestPB,
-      UserPB,
-      BaseApiObject,
-      User
-    >({
+    return await makeRpcRequest<GetUserRequestPB, UserPB, BaseApiObject, User>({
       method: client.getUser.bind(client),
       requestPBObjectConstructor: GetUserRequestPB,
       metadata: this.client.getMetadata(),
