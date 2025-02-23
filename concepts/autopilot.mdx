@@ -286,6 +286,10 @@ Each scenario contains a series of conversation turns. A turn represents a singl
 | expected.tools.tool | The name of the tool to be used |
 | expected.tools.parameters | The parameters to be used in the tool. The parameters must match the tool's parameters exactly or the test will fail. For dates, you can use the special value `valid-date` the response must contain a valid date. |
 
+<Tip>
+  Use `type: "similar"` for text responses to allow for natural language variations in the Autopilot's responses while maintaining the same semantic meaning.
+</Tip>
+
 The `expected` object can validate:
 
 - **Text responses** via the `text` property:
@@ -304,6 +308,39 @@ The `expected` object can validate:
         param2: "valid-date" # The response must contain a valid date or the test will fail.
   ```
 
-<Tip>
-  Use `type: "similar"` for text responses to allow for natural language variations in the Autopilot's responses while maintaining the same semantic meaning.
-</Tip>
+### Example
+
+Here is an example of a test case:
+
+```yaml
+testCases:
+  evalsLanguageModel:
+    provider: openai
+    model: gpt-4o
+    apiKey: sk-proj-REDACTED
+  scenarios:
+    - ref: test-case-1
+      description: Test Case 1 Description
+      telephonyContext:
+        callDirection: FROM_PSTN
+        ingressNumber: '+1234567890'
+        callerNumber: '+1234567890'
+      conversation:
+        - userInput: 'Hi, can you tell me what''s in the menu?'
+          expected:
+            text:
+              type: similar
+              response: |
+                We have a variety of sandwiches, salads, and drinks. Anything
+                in particular you're looking for?
+        - userInput: 'Nevermind, I want to speak to a human'
+          expected:
+            text:
+              type: similar
+              response: |
+                I'll transfer you to a human representative. Please hold while I
+                connect you.
+            tools:
+              - tool: transfer
+                parameters: {}
+```
