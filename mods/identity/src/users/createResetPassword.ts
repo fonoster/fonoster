@@ -21,26 +21,31 @@ import {
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
-import { ContactType } from "@fonoster/types";
-import { status } from "@grpc/grpc-js";
-import { VerifyCodeRequest } from "./types";
+import { getLogger } from "@fonoster/logger";
+import { ResetPasswordRequest, ContactType } from "@fonoster/types";
 import { Prisma } from "../db";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
+import { status } from "@grpc/grpc-js";
 
-function createVerifyCode(prisma: Prisma) {
+const logger = getLogger({ service: "identity", filePath: __filename });
+
+function createResetPassword(
+  prisma: Prisma
+) {
   const isValidVerificationCode = createIsValidVerificationCode(prisma);
 
-  const verifyCode = async (
-    call: { request: VerifyCodeRequest },
-    callback: (error: GrpcErrorMessage) => void
+  const resetPassword = async (
+    call: { request: ResetPasswordRequest },
+    callback: (error?: GrpcErrorMessage) => void
   ) => {
     const { request } = call;
-    const { username, contactType, value, verificationCode } = request;
-    const actualContactType = contactType ?? ContactType.EMAIL;
+    const { username, password, verificationCode } = request;
+
+    logger.verbose("call to resetPassword", { username, password, verificationCode });
 
     const isValid = await isValidVerificationCode({
-      type: actualContactType,
-      value,
+      type: ContactType.EMAIL,
+      value: username,
       code: verificationCode
     });
 
@@ -49,22 +54,20 @@ function createVerifyCode(prisma: Prisma) {
         code: status.PERMISSION_DENIED,
         message: "Invalid verification code"
       });
-    } else if (actualContactType === ContactType.EMAIL && isValid) {
-      await prisma.user.update({
-        where: { email: username },
-        data: { emailVerified: true }
-      });
-    } else if (actualContactType === ContactType.PHONE && isValid) {
-      await prisma.user.update({
-        where: { email: username, phoneNumber: value },
-        data: { phoneNumberVerified: true }
-      });
     }
+
+    await prisma.user.update({
+      where: { email: username },
+      data: { password }
+    });
 
     callback(null);
   };
 
-  return withErrorHandlingAndValidation(verifyCode, V.verifyCodeRequestSchema);
+  return withErrorHandlingAndValidation(
+    resetPassword,
+    V.resetPasswordRequestSchema
+  );
 }
 
-export { createVerifyCode };
+export { createResetPassword };

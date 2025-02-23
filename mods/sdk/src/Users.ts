@@ -19,6 +19,8 @@
 import {
   BaseApiObject,
   CreateUserRequest,
+  SendResetPasswordCodeRequest,
+  ResetPasswordRequest,
   UpdateUserRequest,
   User
 } from "@fonoster/types";
@@ -32,7 +34,9 @@ import {
   GetUserRequest as GetUserRequestPB,
   UpdateUserRequest as UpdateUserRequestPB,
   UpdateUserResponse as UpdateUserResponsePB,
-  User as UserPB
+  User as UserPB,
+  SendResetPasswordCodeRequest as SendResetPasswordCodeRequestPB,
+  ResetPasswordRequest as ResetPasswordRequestPB
 } from "./generated/node/identity_pb";
 
 /**
@@ -173,6 +177,73 @@ class Users {
     >({
       method: client.updateUser.bind(client),
       requestPBObjectConstructor: UpdateUserRequestPB,
+      metadata: this.client.getMetadata(),
+      request
+    });
+  }
+
+  /**
+   * Sends a reset password code to the User.
+   * 
+   * @param {string} username - The username of the User
+   * @return {Promise<void>} - The response object that contains the reference to the User
+   * @example
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * const username = "john.doe@example.com";
+   *
+   * users
+   *   .sendResetPasswordCode(username)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
+   */
+  async sendResetPasswordCode(username: string): Promise<BaseApiObject> {
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      SendResetPasswordCodeRequestPB,
+      null,
+      SendResetPasswordCodeRequest,
+      never
+    >({
+      method: client.sendResetPasswordCode.bind(client),
+      requestPBObjectConstructor: SendResetPasswordCodeRequestPB,
+      metadata: this.client.getMetadata(),
+      request: { username }
+    });
+  }
+
+  /**
+   * Resets the password of the User.
+   * 
+   * @param {ResetPasswordRequest} request - The request object that contains the necessary information to reset the password of a User
+   * @param {string} request.username - The username of the User
+   * @param {string} request.password - The new password of the User
+   * @param {string} request.verificationCode - The verification code of the User
+   * @return {Promise<void>} - The response object that contains the reference to the User
+   * @example
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * const request = {
+   *   username: "john.doe@example.com",  
+   *   password: "password",
+   *   verificationCode: "123456"
+   * };
+   *
+   * users
+   *   .resetPassword(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
+   */
+  async resetPassword(request: ResetPasswordRequest): Promise<void> {
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      ResetPasswordRequestPB,
+      null,
+      ResetPasswordRequest,
+      never
+    >({
+      method: client.resetPassword.bind(client),
+      requestPBObjectConstructor: ResetPasswordRequestPB,
       metadata: this.client.getMetadata(),
       request
     });
