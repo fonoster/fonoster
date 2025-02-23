@@ -67,6 +67,17 @@ function deserialize_fonoster_identity_v1beta2_CreateUserResponse(buffer_arg) {
   return identity_pb.CreateUserResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_CreateUserWithOauth2CodeRequest(arg) {
+  if (!(arg instanceof identity_pb.CreateUserWithOauth2CodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.CreateUserWithOauth2CodeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_CreateUserWithOauth2CodeRequest(buffer_arg) {
+  return identity_pb.CreateUserWithOauth2CodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_CreateWorkspaceRequest(arg) {
   if (!(arg instanceof identity_pb.CreateWorkspaceRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.CreateWorkspaceRequest');
@@ -686,6 +697,17 @@ createUser: {
     requestDeserialize: deserialize_fonoster_identity_v1beta2_CreateUserRequest,
     responseSerialize: serialize_fonoster_identity_v1beta2_CreateUserResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_CreateUserResponse,
+  },
+  createUserWithOauth2Code: {
+    path: '/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.CreateUserWithOauth2CodeRequest,
+    responseType: identity_pb.ExchangeCredentialsResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_CreateUserWithOauth2CodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_CreateUserWithOauth2CodeRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeCredentialsResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeCredentialsResponse,
   },
   getUser: {
     path: '/fonoster.identity.v1beta2.Identity/GetUser',

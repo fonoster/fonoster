@@ -473,6 +473,24 @@ export namespace CreateUserResponse {
   }
 }
 
+export class CreateUserWithOauth2CodeRequest extends jspb.Message {
+  getCode(): string;
+  setCode(value: string): CreateUserWithOauth2CodeRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CreateUserWithOauth2CodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: CreateUserWithOauth2CodeRequest): CreateUserWithOauth2CodeRequest.AsObject;
+  static serializeBinaryToWriter(message: CreateUserWithOauth2CodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CreateUserWithOauth2CodeRequest;
+  static deserializeBinaryFromReader(message: CreateUserWithOauth2CodeRequest, reader: jspb.BinaryReader): CreateUserWithOauth2CodeRequest;
+}
+
+export namespace CreateUserWithOauth2CodeRequest {
+  export type AsObject = {
+    code: string,
+  }
+}
+
 export class GetUserRequest extends jspb.Message {
   getRef(): string;
   setRef(value: string): GetUserRequest;

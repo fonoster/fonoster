@@ -22,7 +22,9 @@ import {
   SendResetPasswordCodeRequest,
   ResetPasswordRequest,
   UpdateUserRequest,
-  User
+  User,
+  CreateUserWithOauth2CodeRequest,
+  ExchangeCredentialsResponse
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
@@ -36,7 +38,9 @@ import {
   UpdateUserResponse as UpdateUserResponsePB,
   User as UserPB,
   SendResetPasswordCodeRequest as SendResetPasswordCodeRequestPB,
-  ResetPasswordRequest as ResetPasswordRequestPB
+  ResetPasswordRequest as ResetPasswordRequestPB,
+  CreateUserWithOauth2CodeRequest as CreateUserWithOauth2CodeRequestPB,
+  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
 } from "./generated/node/identity_pb";
 
 /**
@@ -114,6 +118,39 @@ class Users {
   }
 
   /**
+   * Create a new User using an OAuth2 code and return the id, access, and refresh tokens for the User.
+   * 
+   * @param {CreateUserWithOauth2CodeRequest} request - The request object with the OAuth2 code
+   * @param {string} request.code - The OAuth2 code of the User
+   * @return {Promise<ExchangeCredentialsResponse>} - The response object that contains the id, access, and refresh tokens
+   * @example
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * const request = {
+   *   code: "fd4d78beb31aa25b93de"
+   * };
+   *
+   * users.createUserWithOauth2Code(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
+   */
+  async createUserWithOauth2Code(request: CreateUserWithOauth2CodeRequest): Promise<ExchangeCredentialsResponse> {
+    console.log("request", request);  
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      CreateUserWithOauth2CodeRequestPB,
+      ExchangeCredentialsResponsePB,
+      CreateUserWithOauth2CodeRequest,
+      ExchangeCredentialsResponse
+    >({
+      method: client.createUserWithOauth2Code.bind(client),
+      requestPBObjectConstructor: CreateUserWithOauth2CodeRequestPB,
+      metadata: this.client.getMetadata(),
+      request
+    });
+  }
+
+  /**
    * Retrieves an existing User in the Workspace.
    *
    * @param {string} ref - The reference of the User to retrieve
@@ -133,7 +170,7 @@ class Users {
     return await makeRpcRequest<
       GetUserRequestPB,
       UserPB,
-      { ref: string },
+      BaseApiObject,
       User
     >({
       method: client.getUser.bind(client),

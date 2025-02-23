@@ -20,6 +20,7 @@ import {
   CreateApiKeyRequest,
   CreateApiKeyResponse,
   CreateUserRequest,
+  CreateUserWithOauth2CodeRequest,
   CreateUserResponse,
   CreateWorkspaceRequest,
   DeleteApiKeyRequest,
@@ -89,6 +90,10 @@ type IdentityClient = {
   >;
   // User
   createUser: ClientFunction<CreateUserRequest, CreateUserResponse>;
+  createUserWithOauth2Code: ClientFunction<
+    CreateUserWithOauth2CodeRequest,
+    ExchangeCredentialsResponse
+  >;
   getUser: ClientFunction<GetUserRequest, User>;
   updateUser: ClientFunction<UpdateUserRequest, CreateUserResponse>;
   deleteUser: ClientFunction<DeleteUserRequest, DeleteUserResponse>;

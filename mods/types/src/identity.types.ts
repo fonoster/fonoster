@@ -93,6 +93,12 @@ type ResetPasswordRequest = {
   verificationCode: string;
 };
 
+type ExchangeCredentialsResponse = {
+  accessToken: string;
+  refreshToken: string;
+  idToken: string;
+};
+
 type ListApiKeysRequest = ListRequest;
 
 type ListApiKeysResponse = ListResponse<ApiKey>;
@@ -114,5 +120,6 @@ export {
   UpdateUserRequest,
   SendResetPasswordCodeRequest,
   ResetPasswordRequest,
-  User
+  User,
+  ExchangeCredentialsResponse
 };

@@ -470,6 +470,49 @@ export class IdentityClient {
     this.methodDescriptorCreateUser);
   }
 
+  methodDescriptorCreateUserWithOauth2Code = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code',
+    grpcWeb.MethodType.UNARY,
+    identity_pb.CreateUserWithOauth2CodeRequest,
+    identity_pb.ExchangeCredentialsResponse,
+    (request: identity_pb.CreateUserWithOauth2CodeRequest) => {
+      return request.serializeBinary();
+    },
+    identity_pb.ExchangeCredentialsResponse.deserializeBinary
+  );
+
+  createUserWithOauth2Code(
+    request: identity_pb.CreateUserWithOauth2CodeRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.ExchangeCredentialsResponse>;
+
+  createUserWithOauth2Code(
+    request: identity_pb.CreateUserWithOauth2CodeRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: identity_pb.ExchangeCredentialsResponse) => void): grpcWeb.ClientReadableStream<identity_pb.ExchangeCredentialsResponse>;
+
+  createUserWithOauth2Code(
+    request: identity_pb.CreateUserWithOauth2CodeRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: identity_pb.ExchangeCredentialsResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code',
+        request,
+        metadata || {},
+        this.methodDescriptorCreateUserWithOauth2Code,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code',
+    request,
+    metadata || {},
+    this.methodDescriptorCreateUserWithOauth2Code);
+  }
+
   methodDescriptorGetUser = new grpcWeb.MethodDescriptor(
     '/fonoster.identity.v1beta2.Identity/GetUser',
     grpcWeb.MethodType.UNARY,
