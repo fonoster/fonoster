@@ -33,6 +33,7 @@ type IdentityConfig = {
   workspaceInviteUrl: string;
   workspaceInviteFailUrl: string;
   userVerificationRequired: boolean;
+  resetPasswordUrl: string;
   smtpConfig: {
     sender: string;
     host: string;

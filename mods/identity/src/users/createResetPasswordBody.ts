@@ -16,34 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EmailParams } from "@fonoster/common";
-import { createInviteBody } from "./createInviteBody";
-import { InviteParams } from "./types";
+import path from "path";
+import { compileTemplate } from "@fonoster/common";
+import { TemplatesEnum } from "../templates/TemplatesEnum";
+import { SendResetPasswordEmailRequest } from "./types";
 
-async function sendInvite(
-  sendEmail: (params: EmailParams) => Promise<void>,
-  request: InviteParams
+function createResetPasswordBody(
+  params: Omit<SendResetPasswordEmailRequest, "recipient">
 ) {
-  const {
-    recipient,
-    inviteUrl,
-    oneTimePassword,
-    isExistingUser,
-    workspaceName,
-    templateDir
-  } = request;
+  const { templateDir: emailTemplateDir, resetPasswordUrl } = params;
 
-  await sendEmail({
-    to: recipient,
-    subject: "Invitation to join a Fonoster workspace",
-    html: createInviteBody({
-      templateDir,
-      isExistingUser,
-      workspaceName,
-      oneTimePassword: isExistingUser ? undefined : oneTimePassword,
-      inviteUrl
-    })
+  const template = TemplatesEnum.RESET_PASSWORD;
+
+  const templateDir =
+    emailTemplateDir || path.join(__dirname, "..", "templates");
+
+  const templatePath = `${templateDir}/${template}.hbs`;
+
+  return compileTemplate({
+    filePath: templatePath,
+    data: {
+      resetPasswordUrl
+    }
   });
 }
 
-export { sendInvite };
+export { createResetPasswordBody };

@@ -42,7 +42,8 @@ import {
   sendInvite,
   createUpdateUser,
   createUpdateWorkspace,
-  createListWorkspaceMembers
+  createListWorkspaceMembers,
+  createSendResetPasswordCode
 } from ".";
 
 const serviceDefinitionParams = {
@@ -85,6 +86,10 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       getUser: createGetUser(prisma),
       deleteUser: createDeleteUser(prisma),
       updateUser: createUpdateUser(prisma),
+      sendResetPasswordCode: createSendResetPasswordCode(
+        prisma,
+        identityConfig
+      ),
       // ApiKey operations
       createApiKey: createCreateApiKey(prisma),
       deleteApiKey: createDeleteApiKey(prisma),

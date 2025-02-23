@@ -79,6 +79,16 @@ type ApiKey = {
   updatedAt: Date;
 };
 
+type SendResetPasswordCodeRequest = {
+  username: string;
+};
+
+type ResetPasswordRequest = {
+  username: string;
+  password: string;
+  verificationCode: string;
+};
+
 type ListApiKeysRequest = ListRequest;
 
 type ListApiKeysResponse = ListResponse<ApiKey>;
@@ -97,5 +107,7 @@ export {
   ListWorkspaceMembersRequest,
   ListWorkspaceMembersResponse,
   UpdateUserRequest,
+  SendResetPasswordCodeRequest,
+  ResetPasswordRequest,
   User
 };

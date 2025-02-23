@@ -41,6 +41,8 @@ service Identity {
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
   rpc SendVerificationCode (SendVerificationCodeRequest) returns (google.protobuf.Empty) {}
   rpc VerifyCode (VerifyCodeRequest) returns (google.protobuf.Empty) {}
+  rpc SendResetPasswordCode (SendResetPasswordCodeRequest) returns (google.protobuf.Empty) {}
+  rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty) {}
 
   // ApiKey actions
   rpc CreateApiKey (CreateApiKeyRequest) returns (CreateApiKeyResponse) {}
@@ -215,6 +217,16 @@ message VerifyCodeRequest {
   ContactType contact_type = 2;
   string value = 3;
   string verification_code = 4;
+}
+
+message SendResetPasswordCodeRequest {
+  string username = 1;
+}
+
+message ResetPasswordRequest {
+  string username = 1;
+  string password = 2;
+  string verification_code = 3;
 }
 
 // ApiKey Resources

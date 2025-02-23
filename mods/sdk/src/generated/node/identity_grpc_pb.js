@@ -430,6 +430,17 @@ function deserialize_fonoster_identity_v1beta2_ResendWorkspaceMembershipInvitati
   return identity_pb.ResendWorkspaceMembershipInvitationResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_ResetPasswordRequest(arg) {
+  if (!(arg instanceof identity_pb.ResetPasswordRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ResetPasswordRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ResetPasswordRequest(buffer_arg) {
+  return identity_pb.ResetPasswordRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_RevokeTokenRequest(arg) {
   if (!(arg instanceof identity_pb.RevokeTokenRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.RevokeTokenRequest');
@@ -450,6 +461,17 @@ function serialize_fonoster_identity_v1beta2_RevokeTokenResponse(arg) {
 
 function deserialize_fonoster_identity_v1beta2_RevokeTokenResponse(buffer_arg) {
   return identity_pb.RevokeTokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest(arg) {
+  if (!(arg instanceof identity_pb.SendResetPasswordCodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.SendResetPasswordCodeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest(buffer_arg) {
+  return identity_pb.SendResetPasswordCodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonoster_identity_v1beta2_SendVerificationCodeRequest(arg) {
@@ -717,6 +739,28 @@ createUser: {
     responseType: google_protobuf_empty_pb.Empty,
     requestSerialize: serialize_fonoster_identity_v1beta2_VerifyCodeRequest,
     requestDeserialize: deserialize_fonoster_identity_v1beta2_VerifyCodeRequest,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  sendResetPasswordCode: {
+    path: '/fonoster.identity.v1beta2.Identity/SendResetPasswordCode',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.SendResetPasswordCodeRequest,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  resetPassword: {
+    path: '/fonoster.identity.v1beta2.Identity/ResetPassword',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.ResetPasswordRequest,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_fonoster_identity_v1beta2_ResetPasswordRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_ResetPasswordRequest,
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },

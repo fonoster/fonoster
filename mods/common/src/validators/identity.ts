@@ -121,6 +121,18 @@ const verifyCodeRequestSchema = z.object({
   verificationCode: z.string()
 });
 
+const sendResetPasswordCodeRequestSchema = z.object({
+  username: z
+    .string()
+    .email({ message: "Invalid username. Must be an email address" })
+});
+
+const resetPasswordRequestSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+  verificationCode: z.string()
+});
+
 export {
   createApiKeyRequestSchema,
   createUserRequestSchema,
@@ -135,5 +147,7 @@ export {
   sendVerificationCodeRequestSchema,
   updateUserRequestSchema,
   updateWorkspaceRequestSchema,
-  verifyCodeRequestSchema
+  verifyCodeRequestSchema,
+  sendResetPasswordCodeRequestSchema,
+  resetPasswordRequestSchema
 };

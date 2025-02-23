@@ -685,6 +685,92 @@ export class IdentityClient {
     this.methodDescriptorVerifyCode);
   }
 
+  methodDescriptorSendResetPasswordCode = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/SendResetPasswordCode',
+    grpcWeb.MethodType.UNARY,
+    identity_pb.SendResetPasswordCodeRequest,
+    google_protobuf_empty_pb.Empty,
+    (request: identity_pb.SendResetPasswordCodeRequest) => {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
+
+  sendResetPasswordCode(
+    request: identity_pb.SendResetPasswordCodeRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<google_protobuf_empty_pb.Empty>;
+
+  sendResetPasswordCode(
+    request: identity_pb.SendResetPasswordCodeRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: google_protobuf_empty_pb.Empty) => void): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
+
+  sendResetPasswordCode(
+    request: identity_pb.SendResetPasswordCodeRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: google_protobuf_empty_pb.Empty) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.identity.v1beta2.Identity/SendResetPasswordCode',
+        request,
+        metadata || {},
+        this.methodDescriptorSendResetPasswordCode,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.identity.v1beta2.Identity/SendResetPasswordCode',
+    request,
+    metadata || {},
+    this.methodDescriptorSendResetPasswordCode);
+  }
+
+  methodDescriptorResetPassword = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/ResetPassword',
+    grpcWeb.MethodType.UNARY,
+    identity_pb.ResetPasswordRequest,
+    google_protobuf_empty_pb.Empty,
+    (request: identity_pb.ResetPasswordRequest) => {
+      return request.serializeBinary();
+    },
+    google_protobuf_empty_pb.Empty.deserializeBinary
+  );
+
+  resetPassword(
+    request: identity_pb.ResetPasswordRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<google_protobuf_empty_pb.Empty>;
+
+  resetPassword(
+    request: identity_pb.ResetPasswordRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: google_protobuf_empty_pb.Empty) => void): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
+
+  resetPassword(
+    request: identity_pb.ResetPasswordRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: google_protobuf_empty_pb.Empty) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.identity.v1beta2.Identity/ResetPassword',
+        request,
+        metadata || {},
+        this.methodDescriptorResetPassword,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.identity.v1beta2.Identity/ResetPassword',
+    request,
+    metadata || {},
+    this.methodDescriptorResetPassword);
+  }
+
   methodDescriptorCreateApiKey = new grpcWeb.MethodDescriptor(
     '/fonoster.identity.v1beta2.Identity/CreateApiKey',
     grpcWeb.MethodType.UNARY,

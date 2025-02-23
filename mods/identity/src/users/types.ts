@@ -16,12 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum TemplatesEnum {
-  INVITE_NEW_USER = "inviteNewUser",
-  INVITE_EXISTING_USER = "inviteExistingUser",
-  VERIFY_EMAIL = "verifyEmail",
-  VERIFY_PHONE = "verifyPhone",
-  RESET_PASSWORD = "resetPassword"
-}
+type SendResetPasswordEmailRequest = {
+  recipient: string;
+  templateDir?: string;
+  resetPasswordUrl: string;
+};
 
-export { TemplatesEnum };
+export { SendResetPasswordEmailRequest };

@@ -665,6 +665,50 @@ export namespace VerifyCodeRequest {
   }
 }
 
+export class SendResetPasswordCodeRequest extends jspb.Message {
+  getUsername(): string;
+  setUsername(value: string): SendResetPasswordCodeRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SendResetPasswordCodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SendResetPasswordCodeRequest): SendResetPasswordCodeRequest.AsObject;
+  static serializeBinaryToWriter(message: SendResetPasswordCodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SendResetPasswordCodeRequest;
+  static deserializeBinaryFromReader(message: SendResetPasswordCodeRequest, reader: jspb.BinaryReader): SendResetPasswordCodeRequest;
+}
+
+export namespace SendResetPasswordCodeRequest {
+  export type AsObject = {
+    username: string,
+  }
+}
+
+export class ResetPasswordRequest extends jspb.Message {
+  getUsername(): string;
+  setUsername(value: string): ResetPasswordRequest;
+
+  getPassword(): string;
+  setPassword(value: string): ResetPasswordRequest;
+
+  getVerificationCode(): string;
+  setVerificationCode(value: string): ResetPasswordRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ResetPasswordRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ResetPasswordRequest): ResetPasswordRequest.AsObject;
+  static serializeBinaryToWriter(message: ResetPasswordRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResetPasswordRequest;
+  static deserializeBinaryFromReader(message: ResetPasswordRequest, reader: jspb.BinaryReader): ResetPasswordRequest;
+}
+
+export namespace ResetPasswordRequest {
+  export type AsObject = {
+    username: string,
+    password: string,
+    verificationCode: string,
+  }
+}
+
 export class CreateApiKeyRequest extends jspb.Message {
   getRole(): string;
   setRole(value: string): CreateApiKeyRequest;
