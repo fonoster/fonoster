@@ -29,9 +29,7 @@ import { status } from "@grpc/grpc-js";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-function createResetPassword(
-  prisma: Prisma
-) {
+function createResetPassword(prisma: Prisma) {
   const isValidVerificationCode = createIsValidVerificationCode(prisma);
 
   const resetPassword = async (
@@ -41,7 +39,11 @@ function createResetPassword(
     const { request } = call;
     const { username, password, verificationCode } = request;
 
-    logger.verbose("call to resetPassword", { username, password, verificationCode });
+    logger.verbose("call to resetPassword", {
+      username,
+      password,
+      verificationCode
+    });
 
     const isValid = await isValidVerificationCode({
       type: ContactType.EMAIL,

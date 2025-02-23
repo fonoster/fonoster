@@ -94,10 +94,7 @@ type IdentityClient = {
   deleteUser: ClientFunction<DeleteUserRequest, DeleteUserResponse>;
   sendVerificationCode: ClientFunction<SendVerificationCodeRequest, never>;
   verifyCode: ClientFunction<VerifyCodeRequest, never>;
-  sendResetPasswordCode: ClientFunction<
-    SendResetPasswordCodeRequest,
-    never
-  >;
+  sendResetPasswordCode: ClientFunction<SendResetPasswordCodeRequest, never>;
   resetPassword: ClientFunction<ResetPasswordRequest, never>;
   // Workspaces
   createWorkspace: ClientFunction<CreateWorkspaceRequest, CreateUserResponse>;

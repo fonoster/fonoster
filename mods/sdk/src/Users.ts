@@ -184,7 +184,7 @@ class Users {
 
   /**
    * Sends a reset password code to the User.
-   * 
+   *
    * @param {string} username - The username of the User
    * @return {Promise<void>} - The response object that contains the reference to the User
    * @example
@@ -214,7 +214,7 @@ class Users {
 
   /**
    * Resets the password of the User.
-   * 
+   *
    * @param {ResetPasswordRequest} request - The request object that contains the necessary information to reset the password of a User
    * @param {string} request.username - The username of the User
    * @param {string} request.password - The new password of the User
@@ -224,7 +224,7 @@ class Users {
    * const users = new SDK.Users(client); // Existing client object
    *
    * const request = {
-   *   username: "john.doe@example.com",  
+   *   username: "john.doe@example.com",
    *   password: "password",
    *   verificationCode: "123456"
    * };
