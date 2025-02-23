@@ -58,12 +58,12 @@ export function evaluateToolCalls(
       errorMessage = `Expected tool "${expectedTool.tool}" but got "${actualCall.name}".`;
     }
 
-    // Validate expected parameters against the actual ones
     const expectedParams = expectedTool.parameters || {};
     const actualParams = actualCall.args || {};
 
     for (const key of Object.keys(expectedParams)) {
-      if (moment(expectedParams[key], moment.ISO_8601, true).isValid()) {
+      // Check for the special case of a valid-date
+      if (expectedParams[key].trim() === "valid-date") {
         actualParams[key] = moment(actualParams[key], moment.ISO_8601, true);
 
         if (!actualParams[key].isValid()) {
