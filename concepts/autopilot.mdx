@@ -231,3 +231,79 @@ For additional details, refer to the [tool schema documentation](https://github.
 <Tip>
   Use `operation.method` "post" for POST requests. If you want the Autopilot to wait for POST requests to complete, set `operation.waitForResponse` to `true`. For "get" requests, the Autopilot will wait for the response by default.
 </Tip>
+
+## Autopilot's Test Cases
+
+<Warning>
+  Test cases are an experimental feature and the behavior might change in the future.
+</Warning>
+
+The Autopilot supports automated testing through test cases defined in the configuration. Test cases allow you to verify the behavior of your Autopilot before deploying it to production.
+
+### Evaluation Language Model
+
+The `evalsLanguageModel` section defines the model used to evaluate test cases:
+
+| Setting  | Description                                                                           |
+| -------- | ------------------------------------------------------------------------------------- |
+| provider | The provider of the language model. Currently, only `openai` is supported for evals   |
+| model    | The OpenAI model to use for evaluations                                               |
+| apiKey   | The API key for the evaluation model                                                  |
+
+<Note>
+  The evaluation model is separate from the model used in actual conversations. This separation allows for consistent evaluation results regardless of the production model being used.
+</Note>
+
+### Test Scenarios
+
+Each test scenario represents a complete conversation flow. The scenario includes:
+
+- **`ref`**: A unique identifier for the test case
+- **`description`**: A brief description of what the test case verifies
+- **`telephonyContext`**: Emulates the context of a real phone call with the following properties:
+  - `callDirection`: The direction of the call (e.g., "FROM_PSTN")
+  - `ingressNumber`: The number being called
+  - `callerNumber`: The number making the call
+
+This information is available to the AI model to help it understand the context of the call and might be use in your prompts.
+
+<Tip>
+  While write a prompt you can reference the information in the `telephonyContext`.
+</Tip>
+
+### Conversation Turns
+
+Each scenario contains a series of conversation turns. A turn represents a single interaction between the user and the Autopilot, consisting of:
+
+| Component  | Description                                                                    |
+| ---------- | ------------------------------------------------------------------------------ |
+| userInput  | The text representing what the user says                                       |
+| expected   | The expected response from the Autopilot                                       |
+| expected.text | The expected text response from the Autopilot |
+| expected.text.type | We support two types of expected responses: `similar` and `exact` |
+| expected.text.response | The actual text response from the Autopilot |
+| expected.tools | The expected tools to be used in the response |
+| expected.tools.tool | The name of the tool to be used |
+| expected.tools.parameters | The parameters to be used in the tool. The parameters must match the tool's parameters exactly or the test will fail. For dates, you can use the special value `valid-date` the response must contain a valid date. |
+
+The `expected` object can validate:
+
+- **Text responses** via the `text` property:
+  ```yaml
+  text:
+    type: "similar"
+    response: "Expected response..."
+  ```
+
+- **Tool usage** via the `tools` property:
+  ```yaml
+  tools:
+    - tool: "toolName"
+      parameters:
+        param1: "value1"
+        param2: "valid-date" # The response must contain a valid date or the test will fail.
+  ```
+
+<Tip>
+  Use `type: "similar"` for text responses to allow for natural language variations in the Autopilot's responses while maintaining the same semantic meaning.
+</Tip>
