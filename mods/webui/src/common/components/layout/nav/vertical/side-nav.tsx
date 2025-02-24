@@ -3,6 +3,7 @@ import RouterLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
+import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { ArrowSquareOut as ArrowSquareOutIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareOut';
@@ -47,30 +48,20 @@ export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.
         ...styles,
         bgcolor: 'var(--SideNav-background)',
         borderRight: '1px solid #E0E0E0',
+        boxShadow: '2px 0 4px rgba(0, 0, 0, 0.05)',
         color: 'var(--SideNav-color)',
         display: { xs: 'none', lg: 'flex' },
         flexDirection: 'column',
-        height: '100%',
-        left: 0,
-        position: 'fixed',
-        top: 0,
+        height: 'calc(100vh - var(--MainNav-height))',
         width: 'var(--SideNav-width)',
-        zIndex: 'var(--SideNav-zIndex)',
+        position: 'sticky',
+        top: 'var(--MainNav-height)',
       }}
     >
       <Stack spacing={2} sx={{ p: 2 }}>
-        <div>
-          {/* <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-            <LogoResidential color={logoColor} height={64} width={244} />
-          </Box> */}
-          {/* <Typography sx={{ fontSize: '1.5rem', fontWeight: 600, lineHeight: 1.2, textAlign: 'center' }}>
-                <Typography color="primary.main" component="span" variant="inherit">
-                  Condominio RD 4
-                </Typography>
-              </Typography> */}
-        </div>
         <WorkspacesSwitch />
       </Stack>
+      <Divider />
       <Box
         component="nav"
         sx={{
@@ -84,8 +75,8 @@ export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.
         {renderNavGroups({ items, pathname })}
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Typography sx={{ 
-          lineHeight: 1.2, 
+        <Typography sx={{
+          lineHeight: 1.2,
           textAlign: 'center',
           fontFamily: 'monospace',
           fontSize: '14px',

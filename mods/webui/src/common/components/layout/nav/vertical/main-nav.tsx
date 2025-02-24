@@ -21,6 +21,7 @@ import { NotificationsPopover } from '../notifications-popover';
 import { UserPopover } from '../user-popover/user-popover';
 // import { useUser } from '@/hooks/use-user';
 import { stringAvatar } from '@/utils/stringAvatar';
+import { Logo } from '../../../logo/Logo'
 
 export interface MainNavProps {
   items: NavItemConfig[];
@@ -45,23 +46,25 @@ export function MainNav({ items }: MainNavProps): React.JSX.Element {
           '--MainNav-divider': '#E0E0E0',
           bgcolor: 'var(--MainNav-background)',
           borderBottom: '1px solid #E0E0E0',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
           left: 0,
           position: 'sticky',
-          pt: { lg: 'var(--Layout-gap)' },
           top: 0,
-          width: '100%',
-          zIndex: 'var(--MainNav-zIndex)',
+          zIndex: 'var(--MainNav-zIndex, 1000)',
         }}
       >
-        <Box
+        <Stack
+          direction="row"
+          spacing={2}
           sx={{
-            display: 'flex',
-            flex: '1 1 auto',
-            minHeight: 'var(--MainNav-height)',
-            px: { xs: 2, lg: 3 },
+            minHeight: 64,
+            px: 2,
             py: 1,
           }}
         >
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Logo size="small" />
+          </Box>
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flex: '1 1 auto' }}>
             <IconButton
               onClick={(): void => {
@@ -80,7 +83,7 @@ export function MainNav({ items }: MainNavProps): React.JSX.Element {
             <NotificationsButton />
             <UserButton />
           </Stack>
-        </Box>
+        </Stack>
       </Box>
       <MobileNav
         items={items}
@@ -89,36 +92,6 @@ export function MainNav({ items }: MainNavProps): React.JSX.Element {
         }}
         open={openNav}
       />
-    </React.Fragment>
-  );
-}
-
-/* function SearchButton(): React.JSX.Element {
-  const dialog = useDialog();
-
-  return (
-    <React.Fragment>
-      <Tooltip title="Buscar">
-        <IconButton onClick={dialog.handleOpen} sx={{ display: { xs: 'inline-flex', lg: 'inline-flex' } }}>
-          <MagnifyingGlassIcon />
-        </IconButton>
-      </Tooltip>
-      <SearchDialog onClose={dialog.handleClose} open={dialog.open} />
-    </React.Fragment>
-  );
-} */
-
-function ContactsButton(): React.JSX.Element {
-  const popover = usePopover<HTMLButtonElement>();
-
-  return (
-    <React.Fragment>
-      <Tooltip title="Contacts">
-        <IconButton onClick={popover.handleOpen} ref={popover.anchorRef}>
-          <UsersIcon />
-        </IconButton>
-      </Tooltip>
-      {/* <ContactsPopover anchorEl={popover.anchorRef.current} onClose={popover.handleClose} open={popover.open} /> */}
     </React.Fragment>
   );
 }
@@ -134,7 +107,17 @@ function NotificationsButton(): React.JSX.Element {
           sx={{ '& .MuiBadge-dot': { borderRadius: '50%', height: '10px', right: '6px', top: '6px', width: '10px' } }}
           variant="dot"
         >
-          <IconButton onClick={popover.handleOpen} ref={popover.anchorRef}>
+          <IconButton
+            onClick={popover.handleOpen}
+            ref={popover.anchorRef}
+            sx={{
+              backgroundColor: 'rgba(0, 171, 85, 0.08)',
+              borderRadius: '50%',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 171, 85, 0.16)',
+              }
+            }}
+          >
             <BellIcon />
           </IconButton>
         </Badge>
@@ -144,33 +127,8 @@ function NotificationsButton(): React.JSX.Element {
   );
 }
 
-// function LanguageSwitch(): React.JSX.Element {
-//   const { i18n } = useTranslation();
-//   const popover = usePopover<HTMLButtonElement>();
-//   const language = (i18n.language || 'en') as Language;
-//   const flag = languageFlags[language];
-
-//   return (
-//     <React.Fragment>
-//       <Tooltip title="Language">
-//         <IconButton
-//           onClick={popover.handleOpen}
-//           ref={popover.anchorRef}
-//           sx={{ display: { xs: 'none', lg: 'inline-flex' } }}
-//         >
-//           <Box sx={{ height: '24px', width: '24px' }}>
-//             <Box alt={language} component="img" src={flag} sx={{ height: 'auto', width: '100%' }} />
-//           </Box>
-//         </IconButton>
-//       </Tooltip>
-//       <LanguagePopover anchorEl={popover.anchorRef.current} onClose={popover.handleClose} open={popover.open} />
-//     </React.Fragment>
-//   );
-// }
-
 export function UserButton(): React.JSX.Element {
   const popover = usePopover<HTMLButtonElement>();
-  // const { user } = useUser();
 
   return (
     <React.Fragment>
@@ -178,7 +136,19 @@ export function UserButton(): React.JSX.Element {
         component="button"
         onClick={popover.handleOpen}
         ref={popover.anchorRef}
-        sx={{ border: 'none', background: 'transparent', cursor: 'pointer', p: 0 }}
+        sx={{
+          border: 'none',
+          background: 'rgba(0, 171, 85, 0.08)',
+          cursor: 'pointer',
+          p: 0.5,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 171, 85, 0.16)',
+          }
+        }}
       >
         <Badge
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}

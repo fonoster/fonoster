@@ -43,9 +43,9 @@ export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Ele
           minHeight: '100%',
         }}
       >
-        <SideNav color={'blend_in'} items={layoutConfig.navItems} />
-        <Box sx={{ display: 'flex', flex: '1 1 auto', flexDirection: 'column', pl: { lg: 'var(--SideNav-width)' } }}>
-          <MainNav items={layoutConfig.navItems} />
+        <MainNav items={layoutConfig.navItems} />
+        <Box sx={{ display: 'flex', flex: '1 1 auto' }}>
+          <SideNav color={'blend_in'} items={layoutConfig.navItems} />
           <Box
             component="main"
             sx={{
