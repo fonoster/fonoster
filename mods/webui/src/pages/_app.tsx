@@ -1,11 +1,15 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import { AppCacheProvider } from '@mui/material-nextjs/v15-pagesRouter';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import type { AppProps } from 'next/app';
 import LayoutProvider from '@/common/components/layout/noAuth/LayoutProvider'
 import { LayoutWrapper } from '@/common/components/layout/auth/LayoutWrapper'
 import { FonosterProvider } from '@/common/sdk/provider/FonosterContext'
+import { fnLight } from '@theme/theme';
 
-export default function App({ Component }: { Component: React.ElementType }) {
+export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
 
   const isPageNotAuthentication =
@@ -17,17 +21,20 @@ export default function App({ Component }: { Component: React.ElementType }) {
 
   return (
     <AppCacheProvider>
-      <FonosterProvider>
+      <ThemeProvider theme={fnLight}>
+        <CssBaseline enableColorScheme />
+        <FonosterProvider>
           {isPageNotAuthentication ? (
-            <LayoutProvider >
-              <Component />
+            <LayoutProvider>
+              <Component {...pageProps} />
             </LayoutProvider>
           ) : (
             <LayoutWrapper>
-              <Component />
+              <Component {...pageProps} />
             </LayoutWrapper>
           )}
-      </FonosterProvider>
+        </FonosterProvider>
+      </ThemeProvider>
     </AppCacheProvider>
   )
 }
