@@ -1,5 +1,59 @@
+// export const paths = {
+//   home: '/',
+//   overview: '/overview',
+//   workspaces: {
+//     list: '/workspaces',
+//     applications: (workspaceId: string) => `/workspaces/${workspaceId}/applications`,
+//     sipNetwork: {
+//       list: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/`,
+//       trunks: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/trunks`,
+//       numbers: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/numbers`,
+//       domains: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/domains`,
+//       agents: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/agents`,
+//       acls: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/acls`,
+//       credentials: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/credentials`,
+//     },
+//   },
+
+
+//     dashboard: {
+//     overview: '/dashboard',
+//     settings: {
+//       account: '/dashboard/settings/account',
+//       billing: '/dashboard/settings/billing',
+//       integrations: '/dashboard/settings/integrations',
+//       notifications: '/dashboard/settings/notifications',
+//       security: '/dashboard/settings/security',
+//       team: '/dashboard/settings/team',
+//     }
+//   }
+// } as const;
+
+
 export const paths = {
   home: '/',
+  overview: '/overview',
+  workspaces: {
+    list: '/workspaces',
+    applications: (workspaceId: string) => `/workspaces/${workspaceId}/applications`,
+    sipNetwork: {
+      list: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/`,
+      trunks: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/trunks`,
+      numbers: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/numbers`,
+      domains: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/domains`,
+      agents: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/agents`,
+      acls: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/acls`,
+      credentials: (workspaceId: string) => `workspaces/${workspaceId}/sip-network/credentials`,
+    },
+    storage: (workspaceId: string) => `/workspaces/${workspaceId}/storage`,
+    secrets: (workspaceId: string) => `/workspaces/${workspaceId}/secrets`,
+    apiKey: (workspaceId: string) => `/workspaces/${workspaceId}/api-keys`,
+    monitoring: (workspaceId: string) => `/workspaces/${workspaceId}/monitoring`,
+  },
+
+
+
+  // To remove
   checkout: '/checkout',
   contact: '/contact',
   pricing: '/pricing',
