@@ -32,7 +32,7 @@ export function WorkspacesSwitch(): React.JSX.Element {
         <Avatar src={workspace.avatar} variant="rounded" />
         <Box sx={{ flex: '1 1 auto' }}>
           <Typography color="var(--Workspaces-title-color)" variant="caption">
-            Condominio
+            Demo
           </Typography>
           <Typography color="var(--Workspaces-name-color)" variant="subtitle2">
             {workspace.name}

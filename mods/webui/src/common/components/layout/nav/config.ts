@@ -14,12 +14,12 @@ export const layoutConfig = {
   navItems: [
     {
       key: 'dashboards',
-      title: 'Dashboards',
+      // title: 'Dashboards',
       items: [
-        { key: 'overview', title: 'Overview', href: paths.dashboard.overview, icon: 'house' },
-        { key: 'analytics', title: 'Analytics', href: paths.dashboard.analytics, icon: 'chart-pie' },
-        { key: 'ecommerce', title: 'E-commerce', href: paths.dashboard.eCommerce, icon: 'cube' },
-        { key: 'crypto', title: 'Crypto', href: paths.dashboard.crypto, icon: 'currency-eth' },
+        { key: 'overview', title: 'Overview', href: paths.dashboard.overview },
+        { key: 'analytics', title: 'Analytics', href: paths.dashboard.analytics},
+        { key: 'ecommerce', title: 'E-commerce', href: paths.dashboard.eCommerce},
+        { key: 'crypto', title: 'Crypto', href: paths.dashboard.crypto},
       ],
     },
     {

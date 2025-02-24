@@ -7,7 +7,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
 export const workspaces = [
-  { name: 'Don Honorio', avatar: '' },
+  { name: 'Demo Workspace', avatar: '' },
   { name: '...', avatar: '' },
 ] satisfies Workspaces[];
 
