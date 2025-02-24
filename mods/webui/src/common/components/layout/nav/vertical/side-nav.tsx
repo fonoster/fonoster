@@ -210,6 +210,7 @@ function NavItem({
           position: 'relative',
           textDecoration: 'none',
           whiteSpace: 'nowrap',
+          transition: 'all 0.2s ease-in-out',
           ...(disabled && {
             bgcolor: 'var(--NavItem-disabled-background)',
             color: 'var(--NavItem-disabled-color)',
@@ -233,7 +234,12 @@ function NavItem({
           ...(open && { color: 'var(--NavItem-open-color)' }),
           '&:hover': {
             ...(!disabled &&
-              !active && { bgcolor: 'var(--NavItem-hover-background)', color: 'var(--NavItem-hover-color)' }),
+              !active && { 
+                bgcolor: '#00ab5514',
+                color: 'var(--NavItem-hover-color)',
+                transform: 'translateX(4px)',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+              }),
           },
         }}
         tabIndex={0}
@@ -250,9 +256,28 @@ function NavItem({
         <Box sx={{ flex: '1 1 auto' }}>
           <Typography
             component="span"
-            sx={{ color: 'inherit', fontSize: '0.875rem', fontWeight: 500, lineHeight: '28px' }}
+            sx={{ 
+              color: 'inherit', 
+              fontSize: '0.875rem', 
+              fontWeight: 500, 
+              lineHeight: '28px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
           >
             {title}
+            {active && (
+              <Box
+                sx={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#00ab55',
+                  display: 'inline-block'
+                }}
+              />
+            )}
           </Typography>
         </Box>
         {label ? <Chip color="primary" label={label} size="small" /> : null}

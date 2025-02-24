@@ -52,7 +52,7 @@ export default function ApplicationsPage() {
       <PageContainer.Header
         title="Applications"
         actions={
-          <Button variant="contained" onClick={() => { }}>
+          <Button variant="outlined" onClick={() => { }} color='inherit'>
             New Application
           </Button>
         }
