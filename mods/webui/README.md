@@ -1,53 +1,70 @@
-# Fonoster WebUI Codebase Improvements
+# Fonoster WebUI
 
-This document summarizes the improvements made to the Fonoster WebUI codebase to enhance readability, maintainability, and reduce potential bugs.
+Fonoster WebUI is a modern and powerful user interface for the Fonoster platform, built with Next.js and Material UI. This application provides an intuitive user experience for managing Fonoster resources, with a robust authentication system and a scalable architecture.
 
-## Key Improvements
+## Main Features
 
-### 1. Authentication System Refactoring
+- **Complete Authentication**: Support for credential and OAuth (GitHub) login
+- **Session Management**: Automatic handling of JWT tokens with renewal
+- **SDK Integration**: Direct connection with the Fonoster SDK
+- **Modern Interface**: UI components based on Material UI
+- **Responsive Experience**: Adaptive design for mobile and desktop devices
+- **Storybook Development**: Documented component library
 
-- **AuthClient**: Completely refactored to follow best practices with clear separation of concerns
-- **Token Management**: Enhanced token validation and refresh logic to prevent infinite loops
-- **Cookie Handling**: Centralized cookie management in a dedicated utility
+## Project Structure
+
+```
+fonoster-webui/
+├── .storybook/         # Storybook configuration
+├── public/             # Static files
+├── src/
+│   ├── common/         # Shared code
+│   │   ├── components/ # Reusable components
+│   │   ├── contexts/   # React contexts
+│   │   ├── hooks/      # Custom hooks
+│   │   ├── sdk/        # Fonoster SDK integration
+│   │   └── utils/      # Utilities
+│   ├── components/     # Application-specific components
+│   ├── pages/          # Next.js pages
+│   ├── stories/        # Storybook stories
+│   └── types/          # Type definitions
+├── theme/              # Theme configuration
+└── ...
+```
+
+## Code Improvements
+
+### 1. Authentication System
+
+- **AuthClient**: Robust implementation following best practices
+- **Token Management**: Automatic validation and renewal of JWT tokens
+- **Cookie Handling**: Centralized system for cookie management
 
 ### 2. SDK Configuration
 
-- **WebClient Interface**: Created a proper interface extending the SDK's Client
-- **Client Creation**: Improved client initialization with proper configuration
-- **Error Handling**: Added robust error handling throughout the authentication flow
+- **WebClient Interface**: Typed extension of the Fonoster SDK client
+- **Client Initialization**: Optimized configuration
+- **Error Handling**: Robust system for capturing and managing errors
 
 ### 3. Code Organization
 
-- **Utility Modules**: Created dedicated utility modules for tokens and cookies
-- **Clear Comments**: Added comprehensive JSDoc comments for all methods
-- **Consistent Naming**: Standardized naming conventions across the codebase
+- **Utility Modules**: Specific functions for tokens and cookies
+- **Documentation**: JSDoc comments on all main methods
+- **Naming Conventions**: Standardized nomenclature
 
-### 4. Performance Improvements
+### 4. Performance
 
-- **Memoization**: Used React's useCallback for performance optimization
-- **State Management**: Improved state management to prevent unnecessary re-renders
-- **Session Checking**: Optimized session verification to happen only when necessary
+- **Memoization**: Use of useCallback and useMemo for optimization
+- **State Management**: Prevention of unnecessary re-renders
+- **Session Verification**: Optimization of authentication checks
 
 ### 5. Type Safety
 
-- **Strong Typing**: Enhanced TypeScript interfaces for better type safety
-- **Error Handling**: Improved error handling with proper type checking
-- **Null Safety**: Added null checks to prevent runtime errors
+- **TypeScript**: Robust interfaces for type safety
+- **Error Handling**: Type checking in errors
+- **Null Safety**: Checks to prevent runtime errors
 
-## File Structure
-
-The main components of the authentication system are:
-
-- `src/common/sdk/auth/AuthClient.ts` - Core authentication client
-- `src/common/sdk/config/sdkConfig.ts` - SDK configuration and client creation
-- `src/common/sdk/provider/FonosterContext.tsx` - React context for authentication state
-- `src/common/sdk/hooks/useFonosterClient.tsx` - Hook for accessing the client
-- `src/common/utils/tokenUtils.ts` - JWT token utilities
-- `src/common/utils/cookieUtils.ts` - Cookie management utilities
-
-## Usage
-
-The authentication system can be used as follows:
+## Using the Authentication System
 
 ```tsx
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
@@ -68,47 +85,119 @@ function MyComponent() {
 ## Best Practices
 
 1. Always check `isReady` before using the client
-2. Use `authentication.executeWithRefresh` for operations that require authentication
-3. Handle errors properly with try/catch blocks
+2. Use `authentication.executeWithRefresh` for authenticated operations
+3. Handle errors with try/catch blocks
 4. Check `isAuthenticated` to determine if the user is logged in
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+## Next.js Basic Concepts
+
+Next.js is a React framework that offers:
+
+### File System Based Routing
+
+- Each file in `pages/` automatically becomes a route
+- Files like `pages/about.tsx` generate the `/about` route
+- Nested folders like `pages/blog/[slug].tsx` generate dynamic routes
+
+### Hybrid Rendering
+
+- **Static Site Generation (SSG)**: Pages generated at build time
+- **Server-Side Rendering (SSR)**: Rendering on each request
+- **Client-Side Rendering**: Rendering in the browser
+- **Incremental Static Regeneration**: Updating static pages
+
+### Automatic Optimization
+
+- **Images**: `Image` component for automatic optimization
+- **Fonts**: Optimization and loading of web fonts
+- **Scripts**: Optimized JavaScript loading
+
+### API Routes
+
+- Serverless API endpoints in `pages/api/`
+- Ideal for creating APIs without needing a separate server
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+2. Configure environment variables:
+
+```
+# Copy the example file
+cp .env.example .env.local
+
+# Edit variables according to your environment
+```
+
+3. Start the development server:
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Development with Storybook
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+To develop and test components in isolation:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+```bash
+npm run storybook
+# or
+yarn storybook
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:6006](http://localhost:6006) to see the component library.
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+### Deployment on Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+The easiest way to deploy this application is to use [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Import your repository to Vercel
+2. Configure environment variables
+3. Deploy
 
-## Deploy on Vercel
+### Manual Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To build the application for production:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+```bash
+npm run build
+# or
+yarn build
+```
+
+Then, start the production server:
+
+```bash
+npm run start
+# or
+yarn start
+```
+
+## Next.js Resources
+
+- [Next.js Documentation](https://nextjs.org/docs) - Features and API
+- [Next.js Tutorial](https://nextjs.org/learn-pages-router) - Interactive tutorial
+- [Next.js Repository](https://github.com/vercel/next.js) - Source code and contributions
+
+## Contributing
+
+Contributions are welcome. Please follow these steps:
+
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
