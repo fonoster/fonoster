@@ -54,7 +54,6 @@ const LoginPage = () => {
   });
 
   const {
-    control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting }
@@ -65,18 +64,18 @@ const LoginPage = () => {
     const { code, state } = router.query;
     if (!code || !state) return;
 
-    let providerFromState: string;
+    let provider: string;
     try {
       const decoded = JSON.parse(decodeURIComponent(state as string));
-      providerFromState = decoded.provider;
+      provider = decoded.provider;
     } catch (error) {
       console.error('Error decoding state', error);
-      providerFromState = '';
+      provider = '';
     }
 
     const oauthResponse: OAuthResponse = {
       code: code as string,
-      provider: providerFromState,
+      provider: provider,
     };
     handleOAuthCallback(oauthResponse);
   }, [router.isReady, router.query]);
@@ -87,7 +86,7 @@ const LoginPage = () => {
       setIsRedirecting(true);
       await authentication.signIn({
         credentials: { username: '', password: '' },
-        provider: oauthResponse.provider,
+        provider: oauthResponse.provider as AuthProvider,
         oauthCode: oauthResponse.code
       });
       await router.replace(GITHUB_CONFIG.redirectUri);

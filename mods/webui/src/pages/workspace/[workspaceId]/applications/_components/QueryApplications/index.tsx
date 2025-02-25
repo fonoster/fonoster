@@ -18,7 +18,7 @@ const QueryApplications = () => {
 
   const handleFetch = useCallback(async () => {
     setLoadingData(true);
-    // await fetch();
+    await fetch();
     console.log('handleFetch');
     setData([
       {

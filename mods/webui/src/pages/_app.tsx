@@ -1,11 +1,12 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import { AppCacheProvider } from '@mui/material-nextjs/v15-pagesRouter';
-import LayoutProvider from '@/common/components/layout/noAuth/LayoutProvider'
-import { LayoutWrapper } from '@/common/components/layout/auth/LayoutWrapper'
+import { NoAuthLayout } from '@/common/components/layout/noAuth/NoAuthLayout'
+import { LayoutWrapper as LayoutAuth } from '@/common/components/layout/auth/LayoutWrapper'
 import { FonosterProvider } from '@/common/sdk/provider/FonosterContext'
+import { WorkspaceProvider } from '@/common/sdk/provider/WorkspaceContext'
 
-export default function App({ Component }: { Component: React.ElementType }) {
+export default function App({ Component, pageProps }: { Component: React.ElementType, pageProps: any }) {
   const router = useRouter()
 
   const isPageNotAuthentication =
@@ -13,20 +14,23 @@ export default function App({ Component }: { Component: React.ElementType }) {
     router.pathname === '/signup' ||
     router.pathname === '/signup/verify' ||
     router.pathname === '/forgot-password' ||
-    router.pathname === '/forgot-password/[token]'
+    router.pathname === '/forgot-password/[token]' ||
+    router.pathname === '/404'
 
   return (
     <AppCacheProvider>
       <FonosterProvider>
-          {isPageNotAuthentication ? (
-            <LayoutProvider >
-              <Component />
-            </LayoutProvider>
-          ) : (
-            <LayoutWrapper>
-              <Component />
-            </LayoutWrapper>
-          )}
+        {isPageNotAuthentication ? (
+          <NoAuthLayout>
+            <Component {...pageProps} />
+          </NoAuthLayout>
+        ) : (
+          <WorkspaceProvider>
+            <LayoutAuth>
+              <Component {...pageProps} />
+            </LayoutAuth>
+          </WorkspaceProvider>
+        )}
       </FonosterProvider>
     </AppCacheProvider>
   )

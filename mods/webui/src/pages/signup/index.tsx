@@ -51,6 +51,7 @@ const SignUpPage = () => {
       agreeToTerms: false
     }
   });
+  const { watch, handleSubmit } = methods;
 
   const handleTermsClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -82,7 +83,7 @@ const SignUpPage = () => {
     router.push('/signup/verify');
   };
 
-  const watchAgreeToTerms = methods.watch('agreeToTerms');
+  const watchAgreeToTerms = watch('agreeToTerms');
   useEffect(() => {
     if (watchAgreeToTerms) {
       setOpenTerms(true);
@@ -92,7 +93,7 @@ const SignUpPage = () => {
   return (
     <Layout methods={methods}>
       <PageContainer>
-        <Card onSubmit={methods.handleSubmit(onSubmit)}>
+        <Card >
           <Content title="Sign up for Fonoster">
             <InputContext
               name="name"
@@ -152,6 +153,7 @@ const SignUpPage = () => {
               fullWidth
               variant="contained"
               size="large"
+              onClick={handleSubmit(onSubmit)}
               sx={{
                 boxShadow: theme.shadows[2],
                 '&:hover': {

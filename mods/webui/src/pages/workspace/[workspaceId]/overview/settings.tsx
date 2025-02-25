@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Typography } from '@mui/material';
+import { Button, Typography, Skeleton } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import PageContainer from '@/common/components/layout/pages';
@@ -16,38 +16,83 @@ const timezones = [
   { value: 'EST: UTC-5:00', label: 'EST: UTC-5:00' },
 ];
 
+interface WorkspaceFormData extends Workspace {
+  timezone: {
+    value: string;
+    label: string;
+  };
+}
+
+const FormSkeleton = () => {
+  return (
+    <div style={{ padding: '20px', maxWidth: '600px' }}>
+
+      <Skeleton variant="text" width={60} height={20} sx={{ mb: 1 }} />
+
+      <Skeleton variant="text" width={200} height={32} sx={{ mb: 3 }} />
+
+      <div style={{ marginBottom: '24px' }}>
+        <Skeleton variant="text" width={120} height={20} sx={{ mb: 1 }} /> {/* Label */}
+        <Skeleton variant="rounded" height={40} /> {/* Input field */}
+      </div>
+
+      <div style={{ marginBottom: '24px' }}>
+        <Skeleton variant="text" width={80} height={20} sx={{ mb: 1 }} /> {/* Label */}
+        <Skeleton variant="rounded" height={40} /> {/* Select field */}
+      </div>
+    </div>
+  );
+};
+
 export default function SettingsPage() {
-  const { isReady, getWorkspace } = useWorkspaces();
-  const [workspace, setWorkspace] = useState<Workspace | null>(null);
+  const { getWorkspace, updateWorkspace } = useWorkspaces();
   const router = useRouter();
   const { workspaceId } = router.query;
-  const methods = useForm({
+  const [name, setName] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  const methods = useForm<WorkspaceFormData>({
     defaultValues: {
       name: '',
-      timezone: 'PST: UTC-8:00'
+      timezone: timezones[0],
+      ref: ''
     }
   });
-
-
-  const { handleSubmit, reset } = methods;
 
   useEffect(() => {
     if (workspaceId) {
       const loadSettings = async () => {
+        setIsLoading(true);
         try {
-          // const settings = await getWorkspaceSettings(workspaceId);
-          // reset(settings);
+          const settings = await getWorkspace(workspaceId as string);
+          const currentTimezone = timezones.find(tz => tz.value === settings?.timezone) || timezones[0];
+
+          methods.reset({
+            name: settings?.name || '',
+            ref: settings?.ref || '',
+            timezone: currentTimezone
+          });
+          setName(settings?.name || '');
         } catch (error) {
+          console.error('Error loading settings:', error);
+        } finally {
+          setIsLoading(false);
         }
       };
       loadSettings();
     }
-  }, [workspaceId, reset]);
+  }, [workspaceId, methods]);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: WorkspaceFormData) => {
     try {
-      // await updateWorkspaceSettings(workspaceId, data);
+      const submitData = {
+        ...data,
+        timezone: data.timezone.value
+      };
+      await updateWorkspace(workspaceId as string, submitData);
+      setName(data.name);
     } catch (error) {
+      console.error('Error updating workspace:', error);
     }
   };
 
@@ -63,36 +108,43 @@ export default function SettingsPage() {
             type="submit"
             variant="contained"
             color="primary"
+            disabled={isLoading}
           >
             Save Settings
           </Button>
         }
       />
-      <ContentForm methods={methods} formId="settings-form">
-        <Typography variant="caption" >
-          NYC01
-        </Typography>
-        <Typography variant="h6">
-          [Workspace Name]
-        </Typography>
+      <div style={{ transition: 'opacity 0.3s ease' }}>
+        {isLoading ? (
+          <FormSkeleton />
+        ) : (
+          <ContentForm methods={methods} formId="settings-form">
+            <Typography variant="caption" >
+              NYC01
+            </Typography>
+            <Typography variant="h6">
+              {name}
+            </Typography>
 
-        <InputContext
-          name="name"
-          label="Workspace Name"
-          type="text"
-          leadingIcon={null}
-          trailingIcon={null}
-          id="settings-form-name"
-        />
+            <InputContext
+              name="name"
+              label="Workspace Name"
+              type="text"
+              leadingIcon={null}
+              trailingIcon={null}
+              id="settings-form-name"
+            />
 
-        <SelectContext
-          name="timezone"
-          label="Timezone"
-          options={timezones}
-          defaultValue={process.env.NEXT_PUBLIC_FONOSTER_REGION}
-          id="settings-form-timezone"
-        />
-      </ContentForm>
+            <SelectContext
+              name="timezone"
+              label="Timezone"
+              options={timezones}
+              defaultValue={timezones[0].value}
+              id="settings-form-timezone"
+            />
+          </ContentForm>
+        )}
+      </div>
     </PageContainer>
   );
 } 

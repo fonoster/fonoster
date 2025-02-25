@@ -17,7 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser } from '@/common/sdk/hooks/useUser';
 import PageContainer from '@/common/components/layout/pages';
-import { useRouter } from 'next/router';
+import router from 'next/router';
 
 const { ContentForm, Header } = PageContainer;
 
@@ -25,7 +25,6 @@ type SettingsFormData = {
     ref: string;
     name: string;
     email: string;
-    currentPassword?: string;
     newPassword?: string;
     confirmPassword?: string;
     avatar?: string;
@@ -35,7 +34,6 @@ const settingsSchema = z.object({
     ref: z.string().optional(),
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email address'),
-    currentPassword: z.string().optional(),
     newPassword: z.string()
         .min(8, 'Password must be at least 8 characters')
         .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -60,18 +58,14 @@ const SettingsPage = () => {
     const theme = useTheme();
     const [loading, setLoading] = useState(true);
     const [lightMode, setLightMode] = useState(true);
-    const [avatar, setAvatar] = useState('');
-    const { getUser, updateUser, loginUser } = useUser();
-    const router = useRouter();
-    const { workspaceId } = router.query;
+    const { updateUser, loggedUser } = useUser();
 
     const methods = useForm<SettingsFormData>({
-        resolver: zodResolver<SettingsFormData>(settingsSchema),
+        resolver: zodResolver(settingsSchema),
         defaultValues: {
             ref: '',
             name: '',
             email: '',
-            currentPassword: '',
             newPassword: '',
             confirmPassword: '',
             avatar: ''
@@ -81,20 +75,15 @@ const SettingsPage = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const user = await loginUser();
-                console.log(user);
-                // const response = await getUser();
-                // const { items } = response;
-                // const formattedWorkspaces = items.map(workspace => ({
-                //   ref: workspace.ref,
-                //   region: workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION,
-                //   description: workspace.name || 'No description',
-                //   date: new Date(workspace.createdAt).toLocaleDateString(),
-                // }));
-
-                // if (mounted) {
-                //   setWorkspaces(formattedWorkspaces);
-                // }
+                const userData = await loggedUser();
+                methods.reset({
+                    ref: userData?.ref || '',
+                    name: userData?.name || '',
+                    email: userData?.email || '',
+                    avatar: userData?.avatar || '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
             } catch (error) {
                 console.error('Error fetching user data:', error);
             } finally {
@@ -103,7 +92,7 @@ const SettingsPage = () => {
         };
 
         fetchUser();
-    }, [methods]);
+    }, []);
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -112,12 +101,30 @@ const SettingsPage = () => {
         }
     };
 
-    const onSubmit = async (data: SettingsFormData) => {
+    const getInitials = (name: string) => {
+        const nameParts = name.trim().split(' ');
+        if (nameParts.length >= 2) {
+            return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
+        }
+        return nameParts[0][0]?.toUpperCase() || '';
+    };
 
+    const avatar = methods.watch('avatar');
+    const name = methods.watch('name');
+
+    const onSubmit = async (data: SettingsFormData) => {
         try {
-            await updateUser({ ...data });
+            const updatedData = {
+                ...data,
+                currentPassword: data.currentPassword || undefined,
+                newPassword: data.newPassword || undefined,
+                confirmPassword: data.confirmPassword || undefined,
+            };
+
+            await updateUser(updatedData);
             alert('Settings updated successfully');
         } catch (error) {
+            console.error('Error updating settings:', error);
             alert('An error occurred while updating settings');
         }
     };
@@ -132,12 +139,12 @@ const SettingsPage = () => {
                 actions={<Button type="submit" variant="contained" size="large">SAVE CHANGES</Button>}
                 backTo={{
                     label: 'Back to Overview',
-                    onClick: () => router.push(`/workspace/${workspaceId}/overview`)
+                    onClick: () => router.push(`/workspace/`)
                 }}
             />
 
 
-            <ContentForm methods={methods} formId="user-settings-form">
+            <ContentForm methods={methods} formId="personal-settings-form" onSubmit={methods.handleSubmit(onSubmit)}>
                 <InputContext
                     id="user-settings-name"
                     name="name"
@@ -156,14 +163,6 @@ const SettingsPage = () => {
                 <Typography variant="body1" sx={{ mt: 2 }}>
                     Change Password
                 </Typography>
-
-                <InputContext
-                    id="user-settings-current-password"
-                    name="currentPassword"
-                    label="Current Password"
-                    type="password"
-                    leadingIcon={<Lock />}
-                />
 
                 <InputContext
                     id="user-settings-new-password"
@@ -187,10 +186,17 @@ const SettingsPage = () => {
                 }}>
                     <Box sx={{ position: 'relative' }}>
                         <Avatar
-                            src={avatar || '/default-avatar.png'}
-                            alt="User Avatar"
-                            sx={{ width: 100, height: 100 }}
-                        />
+                            src={avatar || ''}
+                            alt={name}
+                            sx={{
+                                width: 100,
+                                height: 100,
+                                bgcolor: !avatar ? 'primary.main' : undefined,
+                                fontSize: !avatar ? '2rem' : undefined
+                            }}
+                        >
+                            {!avatar && getInitials(name)}
+                        </Avatar>
                         <IconButton
                             color="primary"
                             aria-label="upload picture"

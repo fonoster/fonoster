@@ -1,21 +1,23 @@
-import { useContext } from 'react';
-import * as SDK from '@fonoster/sdk';
-import { FonosterContext, SignInOptions } from '@/common/sdk/provider/FonosterContext';
+import { useContext, useEffect, useCallback, useState } from 'react';
+import { WebClient } from '@/common/sdk/config/sdkConfig';
+import { FonosterContext } from '@/common/sdk/provider/FonosterContext';
 import { ErrorType, useNotification } from '@/common/hooks/useNotification';
-import { tokenUtils } from '@/common/utils/tokenUtils';
+import { SignInOptions } from '../auth/AuthClient';
 
+// Type definitions
 interface FonosterClient {
-  client: SDK.Client | null;
+  client: WebClient | null;
   isReady: boolean;
+  isAuthenticated: boolean;
   authentication: {
     signIn: (options: SignInOptions) => Promise<void>;
     signOut: () => Promise<void>;
-    refreshSession: () => Promise<void>;
+    executeWithRefresh: <T>(operation: () => Promise<T>) => Promise<T>;
+    handleOAuth2Signup: (tokens: { idToken: string; accessToken: string; refreshToken: string }) => Promise<void>;
   };
-  SDK: typeof SDK;
-  verifyCode: (params: VerifyCode) => Promise<VerifyCode | undefined>;
-  sendVerificationCode: (params: SendVerificationCode) => Promise<SendVerificationCode | undefined>;
-  executeWithRefresh: <T>(operation: () => Promise<T>) => Promise<T>;
+  verifyCode: (params: VerifyCode) => Promise<any>;
+  sendVerificationCode: (params: SendVerificationCode) => Promise<any>;
+  setAccessKeyId: (accessKeyId: string) => Promise<void>;
 }
 
 enum CodeType {
@@ -35,62 +37,115 @@ interface SendVerificationCode {
   value: string;
 }
 
+/**
+ * Hook to access the Fonoster client and its functionalities
+ * @returns Object with client and authentication methods
+ */
 export function useFonosterClient(): FonosterClient {
-  const context = useContext(FonosterContext);
+  const { client, isInitialized, session, authClient } = useContext(FonosterContext);
   const { notifyError } = useNotification();
+  const [hasCheckedSession, setHasCheckedSession] = useState(false);
+  
+  useEffect(() => {
+    let isMounted = true;
 
-  if (!context) {
-    throw new Error('useFonosterClient must be used within a Fonoster Context.Provider');
-  }
+    const checkSession = async () => {
+      if (!authClient || !isInitialized || hasCheckedSession) return;
 
-  const executeWithRefresh = async <T,>(operation: () => Promise<T>): Promise<T> => {
-    try {
-        try {
-          await context.authentication.refreshSession();
-        } catch (refreshError) {
-          notifyError(refreshError as ErrorType);
-          throw refreshError;
-        }
-      return await operation();
-    } catch (error: any) {
-      if (error?.message?.includes('token expired') || error?.message?.includes('invalid token')) {
-        try {
-          await context.authentication.refreshSession();
-          return await operation();
-        } catch (refreshError) {
-          notifyError(refreshError as ErrorType);
-          throw refreshError;
-        }
+      setHasCheckedSession(true);
+
+      try {
+        await authClient.refreshSession();
+      } catch (error) {
+        console.error('Error refreshing session on mount:', error);
       }
-      throw error;
-    }
-  };
+    };
 
-  const verifyCode = async (params: VerifyCode): Promise<VerifyCode | undefined> => {
+    checkSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [authClient, isInitialized, hasCheckedSession]);
+
+  /**
+   * Verifies an authentication code
+   */
+  const verifyCode = useCallback(async (params: VerifyCode): Promise<any> => {
     try {
-      return await executeWithRefresh(() => context.client!.verifyCode(params));
+      if (!authClient || !client) {
+        return undefined;
+      }
+      return await authClient.executeWithRefresh(() => {
+        return client.verifyCode(params as any);
+      });
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;
     }
-  };
+  }, [authClient, client, notifyError]);
 
-  const sendVerificationCode = async (params: SendVerificationCode): Promise<SendVerificationCode | undefined> => {
+  /**
+   * Sends a verification code
+   */
+  const sendVerificationCode = useCallback(async (params: SendVerificationCode): Promise<any> => {
     try {
-      return await executeWithRefresh(() => context.client!.sendVerificationCode(params));
+      if (!authClient || !client) {
+        return undefined;
+      }
+      return await authClient.executeWithRefresh(() => {
+        return client.sendVerificationCode(params as any);
+      });
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;
+    }
+  }, [authClient, client, notifyError]);
+
+  /**
+   * Sets the access key ID
+   */
+  const setAccessKeyId = useCallback(async (accessKeyId: string) => {
+    if (client && accessKeyId) {
+      try {
+        client.setAccessKeyId(accessKeyId, undefined);
+      } catch (error) {
+      }
+    } else {
+    }
+  }, [client]);
+
+  /**
+   * Authentication methods
+   */
+  const authentication = {
+    signIn: (options: SignInOptions) => {
+      if (!authClient) throw new Error('AuthClient is not initialized');
+      return authClient.signIn(options);
+    },
+    signOut: () => {
+      if (!authClient) throw new Error('AuthClient is not initialized');
+      return authClient.signOut();
+    },
+    executeWithRefresh: <T,>(operation: () => Promise<T>) => {
+      if (!authClient) throw new Error('AuthClient is not initialized');
+      return authClient.executeWithRefresh(operation);
+    },
+    handleOAuth2Signup: (tokens: { idToken: string; accessToken: string; refreshToken: string }) => {
+      if (!authClient) throw new Error('AuthClient is not initialized');
+      return authClient.handleOAuth2Signup(tokens);
     }
   };
 
   return {
-    client: context.client,
-    isReady: context.isInitialized && context.client !== null,
-    authentication: context.authentication,
-    SDK,
+    client,
+    isReady: isInitialized && client !== null,
+    isAuthenticated: session.isAuthenticated,
+    authentication,
     verifyCode,
     sendVerificationCode,
-    executeWithRefresh
+    setAccessKeyId
   };
 }
+
+

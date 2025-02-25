@@ -1,16 +1,12 @@
 /// <reference types="react" />
 import React, { createContext, useState, useMemo, useEffect, useContext } from 'react';
-import * as SDK from '@fonoster/sdk';
-import { setCookie, getCookie } from 'cookies-next';
-import { useRouter } from 'next/router';
+import { WebClient, createFonosterClient, SDK_CONFIG } from '@/common/sdk/config/sdkConfig';
 import { LoadingScreen } from '@/common/components/loading/LoadingScreen';
-import { tokenUtils } from '@/common/utils/tokenUtils';
+import { AuthClient } from '../auth/AuthClient';
 
+// Type definitions
 export interface Session {
   isAuthenticated: boolean;
-  userIdToken?: string;
-  accessToken?: string;
-  refreshToken?: string;
 }
 
 export enum AuthProvider {
@@ -32,27 +28,26 @@ export interface SignInOptions {
 }
 
 export interface FonosterContextType {
-  client: SDK.WebClient
+  client: WebClient | null;
   isInitialized: boolean;
-  authentication: {
-    signIn: (options: SignInOptions) => Promise<void>;
-    signOut: () => Promise<void>;
-    refreshSession: () => Promise<void>;
-  };
   session: Session;
+  setSession: (session: Session) => void;
+  authClient: AuthClient | null;
 }
 
+// Context creation
 export const FonosterContext = createContext<FonosterContextType>({
   client: null,
   isInitialized: false,
-  authentication: {
-    signIn: async () => { },
-    signOut: async () => { },
-    refreshSession: async () => { }
-  },
-  session: { isAuthenticated: false }
+  session: { isAuthenticated: false },
+  setSession: () => { },
+  authClient: null
 });
 
+/**
+ * Hook to access the Fonoster context
+ * @returns The Fonoster context
+ */
 export const useFonoster = () => {
   const context = useContext(FonosterContext);
   if (!context) {
@@ -61,75 +56,48 @@ export const useFonoster = () => {
   return context;
 };
 
-export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ children }: { children: React.ReactNode }) => {
-  const router = useRouter();
+/**
+ * Provider for the Fonoster context
+ * @param children Child components
+ */
+export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // State
+  const [client, setClient] = useState<WebClient | null>(null);
   const [session, setSession] = useState<Session>({ isAuthenticated: false });
-  const [client, setClient] = useState<SDK.WebClient | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  const saveTokensAndUpdateSession = (client: SDK.WebClient) => {
-    const idToken = client.getIdToken();
-    const accessToken = client.getAccessToken();
-    const refreshToken = client.getRefreshToken();
-
-    setCookie('idToken', idToken, {
-      maxAge: 60 * 60 * 24,
-      path: '/'
-    });
-    setCookie('accessToken', accessToken, {
-      maxAge: 60 * 60 * 24,
-      path: '/'
-    });
-    setCookie('refreshToken', refreshToken, {
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/'
-    });
-
-    setSession({
-      isAuthenticated: true,
-      userIdToken: idToken,
-      accessToken,
-      refreshToken
-    });
-  };
-
-  const clearAuthCookies = () => {
-    setCookie('idToken', '', { maxAge: 0, path: '/' });
-    setCookie('accessToken', '', { maxAge: 0, path: '/' });
-    setCookie('refreshToken', '', { maxAge: 0, path: '/' });
-  };
+  const [authClient, setAuthClient] = useState<AuthClient | null>(null);
+  const [initializationAttempted, setInitializationAttempted] = useState(false);
 
   useEffect(() => {
     let mounted = true;
 
-    const initializeFonosterClient = async () => {
-      if (!mounted) return;
+    const initialize = async () => {
+      if (!mounted || initializationAttempted) return;
+      setInitializationAttempted(true);
 
       try {
+        const config: { url?: string } = {};
 
-        let config: { url?: string } = {};
-        if (process.env.NEXT_PUBLIC_FONOSTER_URL) {
-          config.url = process.env.NEXT_PUBLIC_FONOSTER_URL;
+        if (SDK_CONFIG.API_URL) {
+          config.url = SDK_CONFIG.API_URL;
         }
 
-        const newClient = new SDK.WebClient(config);
+        const newClient = createFonosterClient(config);
         if (!mounted) return;
 
-        const storedRefreshToken = getCookie('refreshToken');
-        const storedAccessToken = getCookie('accessToken');
-        const storedIdToken = getCookie('idToken');
-
-        if (storedRefreshToken && storedAccessToken && storedIdToken) {
-          try {
-            await newClient.loginWithRefreshToken(storedRefreshToken);
-            if (!mounted) return;
-
-            saveTokensAndUpdateSession(newClient);
-          } catch (error) {
-            if (!mounted) return;
-            clearAuthCookies();
-          }
+        if (!authClient) {
+          const newAuthClient = new AuthClient(
+            newClient,
+            (newSession) => {
+              if (mounted) {
+                setSession(newSession);
+              }
+            },
+            () => {}
+          );
+          const initialized = newAuthClient.initializeWithStoredTokens();
+          setAuthClient(newAuthClient);
         }
 
         setClient(newClient);
@@ -142,96 +110,27 @@ export const FonosterProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     };
 
-    initializeFonosterClient();
-
+    initialize();
     return () => {
       mounted = false;
     };
-  }, []);
-
-  const signIn = async (options: SignInOptions) => {
-    if (!client) throw new Error('Client is not initialized');
-    try {
-      switch (options.provider) {
-        case AuthProvider.CREDENTIALS:
-          await client.login(options.credentials!.username, options.credentials!.password);
-          break;
-        case AuthProvider.GITHUB:
-          if (!options.oauthCode) {
-            throw new Error('OAuth code is required for GitHub authentication');
-          }
-          await client.loginWithOauth2Code("GITHUB", options.oauthCode);
-          break;
-        case AuthProvider.GOOGLE:
-          // Commented out for future implementation
-          // await client.loginWithOauth2Code("GOOGLE", options.oauthCode);
-          throw new Error('Google authentication not implemented');
-        default:
-          throw new Error('Invalid authentication provider');
-      }
-
-      saveTokensAndUpdateSession(client);
-    } catch (error) {
-      console.error('signIn error', error);
-      throw error;
-    }
-  };
-
-  const signOut = async () => {
-    if (client) {
-      try {
-        client.logout?.() || null;
-      } catch (error) {
-      }
-    }
-    clearAuthCookies();
-    setSession({ isAuthenticated: false });
-    setClient(null);
-    setIsInitialized(false);
-    router.push('/signin');
-  };
-
-  const refreshSession = async () => {
-    if (!client) return;
-
-    try {
-      const refreshToken = getCookie('refreshToken') as string;
-
-      if (tokenUtils.isTokenExpired(refreshToken)) {
-        router.push('/signin');
-      }
-
-      if (!refreshToken) {
-        router.push('/signin');
-      }
-
-      await client.loginWithRefreshToken(refreshToken);
-      saveTokensAndUpdateSession(client);
-    } catch (error) {
-      clearAuthCookies();
-      setSession({ isAuthenticated: false });
-      router.push('/signin');
-    }
-  };
+  }, [authClient, initializationAttempted]);
 
   const value = useMemo(
     () => ({
       client,
       isInitialized,
-      authentication: {
-        signIn,
-        signOut,
-        refreshSession
-      },
-      session
+      session,
+      setSession,
+      authClient
     }),
-    [client, isInitialized, session]
+    [client, isInitialized, session, authClient]
   );
 
   if (isLoading) {
     return <LoadingScreen logoSize="large" />;
   }
-
+  
   return (
     <FonosterContext.Provider value={value}>
       {children}

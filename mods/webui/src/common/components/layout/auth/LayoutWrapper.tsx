@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, memo, useState, MouseEvent } from 'react'
 import { useRouter } from 'next/router'
 import { FullLayout } from '@/pages/workspace/_components/layouts/FullLayout'
 import { SimpleLayout } from '@/common/components/layout/auth/SimpleLayout'
@@ -11,7 +11,6 @@ import {
     Avatar,
     Typography,
     Divider,
-    useTheme,
     Badge,
     List,
     ListItem,
@@ -26,6 +25,9 @@ import { fnLight, fnDark } from '../../../../../theme/theme'
 import { NAVIGATION } from '@/pages/workspace/_components/layouts/navigation'
 import { Logo } from '@/common/components/logo/Logo'
 import { ThemeSwitcher } from '@toolpad/core/DashboardLayout'
+import { useUser } from '@/common/sdk/hooks/useUser'
+import { User } from '@fonoster/types'
+import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 
 const SIMPLE_LAYOUT_ROUTES = [
     '/workspace',
@@ -38,20 +40,23 @@ const BRANDING = {
     logo: <Logo size="small" />
 }
 
-const user = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    avatar: '/path/to/avatar.jpg'
-}
-
-export const ToolbarActions = React.memo(() => {
+export const ToolbarActions = memo(() => {
     const router = useRouter()
-    const theme = useTheme()
-    const [mode, setMode] = React.useState<'light' | 'dark'>(theme.palette.mode)
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
-    const [notificationAnchorEl, setNotificationAnchorEl] = React.useState<HTMLElement | null>(null)
+    const { loggedUser } = useUser();
+    const { authentication } = useFonosterClient();
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+    const [notificationAnchorEl, setNotificationAnchorEl] = useState<HTMLElement | null>(null)
+    const [user, setUser] = useState<User | null>(null)
 
-    const [notifications, setNotifications] = React.useState([
+    useEffect(() => {
+        const fetchUser = async () => {
+            const user = await loggedUser();
+            setUser(user || null);
+        };
+        fetchUser();
+    }, [loggedUser])
+
+    const [notifications, setNotifications] = useState([
         {
             id: 1,
             title: 'New Message',
@@ -70,7 +75,7 @@ export const ToolbarActions = React.memo(() => {
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget)
     }
 
@@ -79,7 +84,8 @@ export const ToolbarActions = React.memo(() => {
     }
 
     const handleLogout = () => {
-        handleMenuClose()
+        handleMenuClose();
+        authentication.signOut();
     }
 
     const handleProfileSettings = () => {
@@ -205,10 +211,10 @@ export const ToolbarActions = React.memo(() => {
                 color="inherit"
                 sx={{ p: 0.5 }}
             >
-                {user.avatar ? (
+                {user?.avatar ? (
                     <Avatar src={user.avatar} alt={user.name} sx={{ width: 32, height: 32 }} />
                 ) : (
-                    <AccountCircle />
+                    <AccountCircle sx={{ width: 32, height: 32 }} />
                 )}
             </IconButton>
             <Menu
@@ -229,9 +235,9 @@ export const ToolbarActions = React.memo(() => {
             >
                 <MenuItem sx={{ pointerEvents: 'none' }}>
                     <div>
-                        <Typography variant="subtitle1">{user.name}</Typography>
+                        <Typography variant="subtitle1">{user?.name}</Typography>
                         <Typography variant="body2" color="textSecondary">
-                            {user.email}
+                            {user?.email}
                         </Typography>
                     </div>
                 </MenuItem>

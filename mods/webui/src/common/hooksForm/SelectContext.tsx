@@ -35,7 +35,7 @@ const SelectContext = ({
       {...register(name)}
       label={label}
       error={!!errors[name]}
-      supportingText={errors[name]?.message || ""}
+      supportingText={errors[name]?.message?.toString() || ""}
       options={options}
       leadingIcon={leadingIcon}
       trailingIcon={trailingIcon}

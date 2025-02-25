@@ -11,9 +11,9 @@ import DnsIcon from '@mui/icons-material/Dns';
 import GroupIcon from '@mui/icons-material/Group';
 import GppGoodIcon from '@mui/icons-material/GppGood';
 import VpnLockIcon from '@mui/icons-material/VpnLock';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { Navigation, NavigationPageItem } from '@toolpad/core/AppProvider';
 import WorkspaceSelector from '@/pages/workspace/_components/WorkspaceSelector';
-import BusinessIcon from '@mui/icons-material/Business';
 
 interface CustomNavigationPageItem extends Partial<NavigationPageItem> {
   component?: React.ComponentType;
@@ -22,14 +22,47 @@ interface CustomNavigationPageItem extends Partial<NavigationPageItem> {
   badge?: string;
   badgeColor?: string;
   icon?: React.ReactNode;
+  segment?: string;
+  href?: string;
+  sx?: any;
 }
 
-export const NAVIGATION: Navigation = [
-  {
-    href: '#',
+// Create a custom type for the workspace nav item
+interface WorkspaceNavigationItem extends CustomNavigationPageItem {
+  kind: 'custom';
+  title: string;
+  icon: React.ReactNode;
+  collapsible: boolean;
+  sx: {
+    width: string;
+    minWidth: number;
+    padding: number;
+    '& .MuiListItemText-root': {
+      display: string;
+    };
+  };
+}
+
+// Update the WorkspaceNavItem component
+const WorkspaceNavItem = (): CustomNavigationPageItem => {
+  return {
+    segment: 'workspace-selector',
     icon: <WorkspaceSelector />,
-    component: WorkspaceSelector,
-  } as CustomNavigationPageItem,
+    sx: {
+      width: '100%',
+      '& .MuiListItemButton-root': {
+        p: 0,
+      },
+      '& .MuiListItemIcon-root': {
+        minWidth: 'unset',
+        width: '100%',
+      }
+    }
+  };
+};
+
+export const NAVIGATION: Navigation = [
+  WorkspaceNavItem(),
   {
     kind: 'divider',
   },

@@ -14,8 +14,17 @@ export function middleware(request: NextRequest) {
   }
 
   const refreshToken = request.cookies.get('refreshToken')?.value || null;
+  const accessToken = request.cookies.get('accessToken')?.value || null;
+  const idToken = request.cookies.get('idToken')?.value || null;
+  
   const isAuthenticated = refreshToken && !tokenUtils.isTokenExpired(refreshToken);
 
+  if (pathname === '/') {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL('/workspace', request.url));
+    }
+    return NextResponse.redirect(new URL('/signin', request.url));
+  }
 
   // TODO: remove this when the SDK has already implemented the code verification tests and create new accounts.
   // if(isAuthenticated){
@@ -30,7 +39,6 @@ export function middleware(request: NextRequest) {
   //     }
   //   }
   // }
-
 
   const publicRoutes = [
     '/signin',
@@ -47,11 +55,11 @@ export function middleware(request: NextRequest) {
   }
 
   if (isAuthenticated && isPublicRoute) {
-    const idToken = request.cookies.get('idToken')?.value || null;
     if(idToken){
       const decodedToken = tokenUtils.decodeToken(idToken);
+      
       if(decodedToken && decodedToken.emailVerified && decodedToken.phoneNumberVerified){
-        return NextResponse.redirect(new URL('/workspace/', request.url));
+        return NextResponse.redirect(new URL('/workspace', request.url));
       }
     }
   }

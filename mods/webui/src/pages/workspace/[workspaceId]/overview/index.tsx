@@ -11,6 +11,7 @@ import {
   BaseApiObject,
 } from '@fonoster/types'
 import PageContainer from '@/common/components/layout/pages';
+import { useApplications } from '@/common/sdk/hooks/useApplications';
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(6),
@@ -38,6 +39,7 @@ const CardsContainer = styled(Box)(({ theme }) => ({
 export default function OverviewPage() {
   const router = useRouter();
   const { isReady, getWorkspace } = useWorkspaces();
+  const { listApplications } = useApplications();
   const { workspaceId } = router.query;
   const [workspace, setWorkspace] = useState<BaseApiObject | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,6 +60,9 @@ export default function OverviewPage() {
 
       try {
         const response = await getWorkspace(workspaceId as string);
+        const responseapp = await listApplications({});
+        console.log(responseapp, 'responseapp');
+
         if (!mounted) return;
         if (!response) return;
 

@@ -5,7 +5,6 @@ import {
   Container,
   styled,
   Stack,
-  Paper,
   Box,
 } from '@mui/material';
 import { ProgressIndicator } from '../../../stories/progessindicator/ProgressIndicator';
@@ -66,6 +65,7 @@ const steps = [
 
 const CreateWorkspacePage = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const [currentProgress, setCurrentProgress] = useState(0);
   const [apiKey, setApiKey] = useState('generated-api-key-example');
 
   const methods = useForm<FormData>({
@@ -79,23 +79,14 @@ const CreateWorkspacePage = () => {
   });
 
   const { handleSubmit, trigger, watch, formState: { errors } } = methods;
-  const currentValues = watch();
 
   const validateCurrentStep = async () => {
-    const currentStepFields = Object.keys(stepValidationSchemas[activeStep].shape);
-
-    const isValid = await trigger(currentStepFields as any);
-    return isValid;
+    const currentStepSchema = stepValidationSchemas[activeStep];
+    const currentStepFields = Object.keys(currentStepSchema.shape);
+    return await trigger(currentStepFields as any);
   };
 
-  const handleNext = async () => {
-    const isValid = await validateCurrentStep();
-    if (isValid) {
-      setActiveStep((prevStep) => prevStep + 1);
-    }
-  };
-
-  const onSubmit = async (data: FormData) => {
+  const handleStepSubmit = async (step: number) => {
     try {
       const isValid = await validateCurrentStep();
 
@@ -103,12 +94,21 @@ const CreateWorkspacePage = () => {
         return;
       }
 
-      if (activeStep === steps.length - 1) {
-      } else {
-        handleNext();
+      if (step === 0) {
+        // Lógica para crear el workspace
+        setActiveStep(1);
+        setCurrentProgress(1);
+      } else if (step === 1) {
+        // Lógica para seleccionar región
+        setActiveStep(2);
+        setCurrentProgress(2);
+      } else if (step === 2) {
+        // Lógica final para generar y copiar API key
+        // Aquí iría la llamada a tu API para finalizar el proceso
+        console.log('Proceso completado');
       }
     } catch (error) {
-      console.error('Error in onSubmit:', error);
+      console.error('Error en el envío:', error);
     }
   };
 
@@ -125,6 +125,7 @@ const CreateWorkspacePage = () => {
             </Typography>
 
             <InputContext
+              id="workspace-create-workspace-name"
               name="workspaceName"
               label="Workspace Name"
               type="text"
@@ -142,7 +143,8 @@ const CreateWorkspacePage = () => {
               fullWidth
               variant="contained"
               size="large"
-              onClick={handleNext}
+              onClick={() => handleStepSubmit(0)}
+              id="workspace-create-button-create-workspace"
             >
               Create Workspace
             </Button>
@@ -160,17 +162,25 @@ const CreateWorkspacePage = () => {
             </Typography>
 
             <SelectContext
+              id="workspace-create-region"
               name="region"
               label="Select Region"
               options={regions}
               defaultValue=""
+              disabled={false}
             />
+
+            {errors.region && (
+              <Typography color="error" variant="caption">
+                {errors.region.message}
+              </Typography>
+            )}
 
             <Button
               fullWidth
               variant="contained"
               size="large"
-              onClick={handleNext}
+              onClick={() => handleStepSubmit(1)}
             >
               Continue
             </Button>
@@ -188,6 +198,7 @@ const CreateWorkspacePage = () => {
             </Typography>
 
             <InputContext
+              id="workspace-create-secret-name"
               name="secretName"
               label="Secret Name"
               type="text"
@@ -196,6 +207,7 @@ const CreateWorkspacePage = () => {
             />
 
             <InputContext
+              id="workspace-create-api-key-description"
               name="apiKeyDescription"
               label="API Key Description"
               type="text"
@@ -204,6 +216,7 @@ const CreateWorkspacePage = () => {
             />
 
             <SelectContext
+              id="workspace-create-access-role"
               name="accessRole"
               label="Access Role"
               options={accessRoles}
@@ -211,10 +224,11 @@ const CreateWorkspacePage = () => {
             />
 
             <Button
+              id="workspace-create-button-copy-api-key"
               fullWidth
               variant="contained"
               size="large"
-              onClick={handleSubmit(onSubmit)}
+              onClick={() => handleStepSubmit(2)}
             >
               Copy API Key
             </Button>
@@ -241,7 +255,7 @@ const CreateWorkspacePage = () => {
       }}>
         <ProgressIndicator
           steps={steps}
-          current={activeStep}
+          current={currentProgress}
         />
       </Box>
       <CardContainer>

@@ -14,7 +14,7 @@ import { ProgressIndicator } from '@stories/progessindicator/ProgressIndicator';
 import { useUser } from '@/common/sdk/hooks/useUser';
 import { useRouter } from 'next/router';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
-import { CodeType } from '@fonoster/sdk/dist/node/generated/web/identity_pb';
+import { ContactType, CodeType } from '@fonoster/types';
 
 const steps = [
   'Verify email address',
@@ -56,21 +56,30 @@ const VerifyPage = () => {
   }, []);
 
   useEffect(() => {
-    const initEmailVerification = async () => {
+    const initVerificationFlow = async () => {
       try {
-        const user = await loggedUser();
-        if (user?.email) {
-          await sendVerificationCode({
-            type: CodeType.EMAIL,
-            value: user.email
-          });
+        const token = await idToken();
+        if (token) {
+          if (token.emailVerified) {
+            setActiveStep(2);
+            setCurrentProgress(2);
+          } else {
+            setActiveStep(1);
+            setCurrentProgress(1);
+            if (token.email) {
+              await sendVerificationCode({
+                type: 'EMAIL' as CodeType,
+                value: token.email
+              });
+            }
+          }
         }
       } catch (error) {
-        console.error('Error sending email verification:', error);
+        console.error('Error initializing verification flow:', error);
       }
     };
 
-    initEmailVerification();
+    initVerificationFlow();
   }, []);
 
   const emailMethods = useForm<EmailVerificationData>({
@@ -110,8 +119,8 @@ const VerifyPage = () => {
       }
 
       const result = await verifyCode({
-        username: user.username,
-        contactType: CodeType.EMAIL,
+        username: user.id,
+        contactType: 'EMAIL' as CodeType,
         value: user.email,
         verificationCode: code
       });
@@ -128,7 +137,7 @@ const VerifyPage = () => {
   const handlePhoneSubmit = async (phoneNumber: string) => {
     try {
       await sendVerificationCode({
-        type: CodeType.PHONE,
+        type: 'PHONE' as CodeType,
         value: phoneNumber
       });
       setActiveStep(3);
@@ -143,14 +152,14 @@ const VerifyPage = () => {
       const user = await loggedUser();
       const phoneNumber = phoneMethods.getValues('phoneNumber');
 
-      if (!user?.username || !phoneNumber) {
+      if (!user?.id || !phoneNumber) {
         console.error('Missing user info or phone number');
         return;
       }
 
       const result = await verifyCode({
-        username: user.username,
-        contactType: CodeType.PHONE,
+        username: user.id,
+        contactType: 'PHONE' as CodeType,
         value: phoneNumber,
         verificationCode: code
       });

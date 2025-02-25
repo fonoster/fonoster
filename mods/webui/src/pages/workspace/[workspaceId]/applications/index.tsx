@@ -5,6 +5,8 @@ import PageContainer from '@/common/components/layout/pages';
 import { Button } from '@mui/material';
 import QueryApplications from './_components/QueryApplications';
 import { ApplicationDTO } from '@/types/dto/ApplicationDTO';
+import { useApplications } from '@/common/sdk/hooks/useApplications';
+import { useEffect } from 'react';
 
 const columns: ColumnDef<ApplicationDTO>[] = [
   {
@@ -44,8 +46,6 @@ const columns: ColumnDef<ApplicationDTO>[] = [
 ];
 
 export default function ApplicationsPage() {
-  const router = useRouter();
-  const { workspaceId } = router.query;
 
   return (
     <PageContainer>

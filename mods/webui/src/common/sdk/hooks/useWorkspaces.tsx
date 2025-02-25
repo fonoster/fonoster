@@ -8,40 +8,53 @@ import {
   ResendWorkspaceMembershipInvitationResponse,
   RemoveUserFromWorkspaceResponse,
   InviteUserToWorkspaceRequest,
-  Workspace
+  Workspace,
+  ListWorkspaceMembersResponse,
+  ListWorkspaceMembersRequest
 } from '@fonoster/types'
+import { Workspaces } from '@fonoster/sdk';
+import { useMemo } from 'react';
 
 export const useWorkspaces = () => {
-  const { client, isReady, SDK } = useFonosterClient();
+  const { client, isReady, authentication } = useFonosterClient();
   const { notifyError } = useNotification();
+
+  const _workspaces = useMemo(() => {
+    if (!client) {
+      throw new Error("Fonoster client is not initialized.");
+    }
+
+    try {
+      return new Workspaces(client as any);
+    } catch (error) {
+      throw new Error("Failed to initialize Workspaces client");
+    }
+  }, [client]);
 
   const listWorkspaces = async (): Promise<ListWorkspacesResponse | undefined> => {
     if (!isReady) return undefined;
 
     try {
-      const workspaces = new SDK.Workspaces(client);
-      return await workspaces.listWorkspaces();
+      return await authentication.executeWithRefresh(() => _workspaces.listWorkspaces());
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;
     }
   };
 
-  const createWorkspace = async (data: CreateWorkspaceRequest): Promise<Workspace | undefined> => {
+  const createWorkspace = async (data: CreateWorkspaceRequest): Promise<BaseApiObject | undefined> => {
     if (!isReady) return undefined;
 
     try {
-      const workspaces = new SDK.Workspaces(client);
-      return await workspaces.createWorkspace(data);
+      return await authentication.executeWithRefresh(() => _workspaces.createWorkspace(data));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const getWorkspace = async (ref: string): Promise<BaseApiObject | undefined>  => {
+  const getWorkspace = async (ref: string): Promise<Workspace | undefined> => {
     try {
-      const workspaces = new SDK.Workspaces(client);
-      return await workspaces.getWorkspace(ref);
+      return await authentication.executeWithRefresh(() => _workspaces.getWorkspace(ref));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -49,8 +62,7 @@ export const useWorkspaces = () => {
 
   const updateWorkspace = async (data: UpdateWorkspaceRequest): Promise<BaseApiObject | undefined> => {
     try {
-      const workspaces = new SDK.Workspaces(client);
-      return await workspaces.updateWorkspace(data);
+      return await authentication.executeWithRefresh(() => _workspaces.updateWorkspace(data));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -58,8 +70,7 @@ export const useWorkspaces = () => {
 
   const deleteWorkspace = async (ref: string): Promise<BaseApiObject | undefined> => {
     try {
-      const workspaces = new SDK.Workspaces(client);
-      return await workspaces.deleteWorkspace(ref);
+      return await authentication.executeWithRefresh(() => _workspaces.deleteWorkspace(ref));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -67,8 +78,7 @@ export const useWorkspaces = () => {
 
   const inviteUserToWorkspace = async (data: InviteUserToWorkspaceRequest): Promise<BaseApiObject | undefined> => {
     try {
-      const workspaces = new SDK.Workspaces(client);
-      return await workspaces.inviteUserToWorkspace(data);
+      return await authentication.executeWithRefresh(() => _workspaces.inviteUserToWorkspace(data));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -76,8 +86,7 @@ export const useWorkspaces = () => {
 
   const resendWorkspaceMembershipInvitation = async (userRef: string): Promise<ResendWorkspaceMembershipInvitationResponse | undefined> => {
     try {
-      const workspaces = new SDK.Workspaces(client);
-      return await workspaces.resendWorkspaceMembershipInvitation(userRef);
+      return await authentication.executeWithRefresh(() => _workspaces.resendWorkspaceMembershipInvitation(userRef));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -85,10 +94,20 @@ export const useWorkspaces = () => {
 
   const removeUserFromWorkspace = async (userRef: string): Promise<RemoveUserFromWorkspaceResponse | undefined> => {
     try {
-      const workspaces = new SDK.Workspaces(client);
-      return await workspaces.removeUserFromWorkspace(userRef);
+      return await authentication.executeWithRefresh(() => _workspaces.removeUserFromWorkspace(userRef));
     } catch (error: any) {
       notifyError(error as ErrorType);
+    }
+  };
+
+  const listWorkspaceMembers = async (request: ListWorkspaceMembersRequest): Promise<ListWorkspaceMembersResponse | undefined> => {
+    if (!isReady) return undefined;
+
+    try {
+      return await authentication.executeWithRefresh(() => _workspaces.listWorkspaceMembers(request));
+    } catch (error: any) {
+      notifyError(error as ErrorType);
+      return undefined;
     }
   };
 
@@ -101,6 +120,8 @@ export const useWorkspaces = () => {
     deleteWorkspace,
     inviteUserToWorkspace,
     resendWorkspaceMembershipInvitation,
-    removeUserFromWorkspace
+    removeUserFromWorkspace,
+    listWorkspaceMembers,
+    client
   };
-}; 
+};

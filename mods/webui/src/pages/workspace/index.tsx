@@ -1,11 +1,8 @@
-import { useState, useEffect } from 'react';
 import { Container, styled, Typography, Box } from '@mui/material';
 import { WorkspaceCard } from '@stories/workspace/WorkspaceCard';
 import { useRouter } from 'next/router';
-import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';
-import { Workspace } from '@fonoster/types';
-
-import * as SDK from '@fonoster/sdk';
+import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
+import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
@@ -34,66 +31,21 @@ const WorkspaceGrid = styled(Box)(({ theme }) => ({
 
 const ListWorkspacePage = () => {
   const router = useRouter();
-  const { isReady, listWorkspaces } = useWorkspaces();
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchWorkspaces = async () => {
-      if (!isReady || !mounted) return;
-      try {
-        const response = await listWorkspaces();
-        if (!mounted || !response) return;
-
-        const { items } = response;
-        const formattedWorkspaces: Workspace[] = items.map(workspace => ({
-          ref: workspace.ref,
-          region: workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION,
-          name: workspace.name,
-          description: workspace.name || 'No description',
-          date: new Date(workspace.createdAt).toLocaleDateString(),
-          createdAt: workspace.createdAt
-        }));
-        console.log(formattedWorkspaces)
-        const accessKeyId = items[0].ref
-        console.log(accessKeyId, 'accessKeyId')
-
-        const client = new SDK.WebClient({ accessKeyId });
-        const apps = new SDK.Applications(client);
-        const responseApps = await apps.listApplications({});
-        console.log(responseApps, 'responseApps')
-
-        if (mounted) {
-          setWorkspaces(formattedWorkspaces);
-        }
-      } catch (error) {
-        console.error('Error fetching workspaces:', error);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchWorkspaces();
-
-    return () => {
-      mounted = false;
-    };
-  }, [isReady, listWorkspaces]);
+  const { workspaces, isLoading } = useWorkspaceContext();
+  const { setAccessKeyId } = useFonosterClient();
 
   const handleCreateWorkspace = () => {
     router.push('/workspace/create');
   };
 
   const handleWorkspaceClick = (workspaceId: string) => {
+    setAccessKeyId(workspaceId);
     router.push(`/workspace/${workspaceId}/overview`);
   };
 
   const handleSettingsClick = (e: React.MouseEvent, workspaceId: string) => {
     e.stopPropagation();
+    setAccessKeyId(workspaceId);
     router.push(`/workspace/${workspaceId}/overview/settings`);
   };
 
@@ -113,7 +65,7 @@ const ListWorkspacePage = () => {
       </Typography>
 
       <WorkspaceGrid>
-        {loading ? (
+        {isLoading ? (
           <Typography>Loading workspaces...</Typography>
         ) : (
           <>
@@ -121,9 +73,9 @@ const ListWorkspacePage = () => {
               <WorkspaceCard
                 key={workspace.ref}
                 variant="regular"
-                region={workspace.region}
-                description={workspace.description}
-                date={workspace.date}
+                region={workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION}
+                description={workspace.name}
+                date={workspace.createdAt.toLocaleDateString()}
                 onClick={() => handleWorkspaceClick(workspace.ref)}
                 onSettingsClick={(e) => handleSettingsClick(e, workspace.ref)}
                 disabled={false}

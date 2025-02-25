@@ -1,11 +1,14 @@
 import PageContainer from '@/common/components/layout/pages';
 import { Button } from '@mui/material';
-import { User } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";
-import router, { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { InviteMemberModal } from '@/pages/workspace/_components/InviteMemberModal';
+import { MemberDTO } from '@/types/dto/workspace/MemberDTO';
+import QueryMembers from './_components/queryMembers';
 
 
-const columns: ColumnDef<User>[] = [
+const columns: ColumnDef<MemberDTO>[] = [
   {
     accessorKey: 'name',
     header: 'NAME',
@@ -41,13 +44,22 @@ const columns: ColumnDef<User>[] = [
 export default function MembersPage() {
   const router = useRouter();
   const { workspaceId } = router.query;
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
+  const handleInviteMember = (data: any) => {
+    console.log('Invite member data:', data);
+    setIsInviteModalOpen(false);
+  };
 
   return (
     <PageContainer>
       <PageContainer.Header
         title="Workspace Members"
         actions={
-          <Button variant="contained" onClick={() => { }}>
+          <Button
+            variant="contained"
+            onClick={() => setIsInviteModalOpen(true)}
+          >
             Invite new member
           </Button>
         }
@@ -60,7 +72,15 @@ export default function MembersPage() {
         Manage your workspace members and their roles.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<User> columns={columns} tableId="members-table" />
+      <PageContainer.ContentTable<MemberDTO> columns={columns} tableId="members-table" >
+        <QueryMembers />
+      </PageContainer.ContentTable>
+
+      <InviteMemberModal
+        open={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        onSubmit={handleInviteMember}
+      />
     </PageContainer>
   );
 } 
