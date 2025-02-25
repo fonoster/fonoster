@@ -254,14 +254,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const useSimpleLayout = SIMPLE_LAYOUT_ROUTES.includes(router.pathname)
 
     return (
-        <NextAppProvider
-            navigation={NAVIGATION}
-            branding={BRANDING}
-            theme={{
-                light: fnLight,
-                dark: fnDark
-            }}
-        >
+        <React.Fragment>
             <Head>
                 <meta name="viewport" content="initial-scale=1, width=device-width" />
                 <meta charSet="utf-8" />
@@ -275,6 +268,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                     <FullLayout>{children}</FullLayout>
                 )}
             </Box>
-        </NextAppProvider>
+        </React.Fragment>
     )
-} 
+}
+
