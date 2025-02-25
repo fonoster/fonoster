@@ -2,7 +2,7 @@ import { Dialog, DialogTitle, DialogContent, Box, Button } from '@mui/material';
 import { FormProvider, useForm } from 'react-hook-form';
 import { SelectContext } from '@/common/hooksForm/SelectContext';
 import { InputContext } from '@/common/hooksForm/InputContext';
-import { WorkspaceRoleEnum } from '@fonoster/types';
+import { Role } from '@fonoster/types';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -31,7 +31,7 @@ export const InviteMemberModal = ({ open, onClose, onSubmit }: Props) => {
     },
   });
 
-  const roleOptions = Object.entries(WorkspaceRoleEnum).map(([key, value]) => ({
+  const roleOptions = Object.entries(Role).map(([key, value]) => ({
     value: value,
     label: key,
   }));

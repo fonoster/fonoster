@@ -32,8 +32,8 @@
 
 export const paths = {
   home: '/',
-  overview: '/overview',
   workspaces: {
+    overview: (workspaceId: string) => `/workspace/${workspaceId}/overview`,
     list: '/workspaces',
     applications: (workspaceId: string) => `/workspace/${workspaceId}/applications`,
     sipNetwork: {

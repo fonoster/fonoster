@@ -14,6 +14,7 @@ import type { NavItemConfig } from '@/types/layout';
 import { paths } from './paths';
 import { isNavItemActive } from '@/utils/is-nav-item-active';
 import { Logo } from '../../logo/Logo';
+import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 
 import { icons } from './nav-icons';
 import { WorkspacesSwitch } from './workspaces-switch';
@@ -26,6 +27,8 @@ export interface MobileNavProps {
 
 export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.JSX.Element {
   const pathname = usePathname();
+  const { selectedWorkspace } = useWorkspaceContext();
+  const workspaceId = selectedWorkspace?.ref || '1'; // Fallback to '1' if no workspace is selected
 
   return (
     <Drawer
@@ -78,7 +81,7 @@ export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.
         <WorkspacesSwitch />
       </Stack>
       <Box component="nav" sx={{ flex: '1 1 auto', p: 2 }}>
-        {renderNavGroups({ items, onClose, pathname })}
+        {renderNavGroups({ items, onClose, pathname, workspaceId })}
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
         <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, lineHeight: 1.2, textAlign: 'center' }}>
@@ -95,12 +98,29 @@ function renderNavGroups({
   items,
   onClose,
   pathname,
+  workspaceId,
 }: {
   items: NavItemConfig[];
   onClose?: () => void;
   pathname: string;
+  workspaceId: string;
 }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
+    // Process items to check for dynamic paths
+    let processedItems = curr.items;
+    if (curr.items) {
+      processedItems = curr.items.map(item => {
+        if (item.href && item.href.startsWith('/workspace/')) {
+          const pathParts = item.href.split('/');
+          if (pathParts.length > 2) {
+            pathParts[2] = workspaceId;
+            return { ...item, href: pathParts.join('/') };
+          }
+        }
+        return item;
+      });
+    }
+
     acc.push(
       <Stack component="li" key={curr.key} spacing={1.5}>
         {curr.title ? (
@@ -110,7 +130,7 @@ function renderNavGroups({
             </Typography>
           </div>
         ) : null}
-        <div>{renderNavItems({ depth: 0, items: curr.items, onClose, pathname })}</div>
+        <div>{renderNavItems({ depth: 0, items: processedItems, onClose, pathname, workspaceId })}</div>
       </Stack>
     );
 
@@ -129,22 +149,51 @@ function renderNavItems({
   items = [],
   onClose,
   pathname,
+  workspaceId,
 }: {
   depth: number;
   items?: NavItemConfig[];
   onClose?: () => void;
   pathname: string;
+  workspaceId: string;
 }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { items: childItems, key, ...item } = curr;
 
-    const forceOpen = childItems
-      ? Boolean(childItems.find((childItem) => childItem.href && pathname && pathname.startsWith(childItem.href)))
+    // Process dynamic paths from the paths object
+    let processedItem = { ...item };
+    if (item.href && item.href.startsWith('/workspace/')) {
+      // This is a dynamic path that needs the workspace ID
+      const pathParts = item.href.split('/');
+      if (pathParts.length > 2) {
+        // Replace the workspace ID placeholder with the actual ID
+        pathParts[2] = workspaceId;
+        processedItem.href = pathParts.join('/');
+      }
+    }
+
+    // Process child items to check for dynamic paths
+    let processedChildItems = childItems;
+    if (childItems) {
+      processedChildItems = childItems.map(childItem => {
+        if (childItem.href && childItem.href.startsWith('/workspace/')) {
+          const pathParts = childItem.href.split('/');
+          if (pathParts.length > 2) {
+            pathParts[2] = workspaceId;
+            return { ...childItem, href: pathParts.join('/') };
+          }
+        }
+        return childItem;
+      });
+    }
+
+    const forceOpen = processedChildItems
+      ? Boolean(processedChildItems.find((childItem) => childItem.href && pathname && pathname.startsWith(childItem.href)))
       : false;
 
     acc.push(
-      <NavItem depth={depth} forceOpen={forceOpen} key={key} onClose={onClose} pathname={pathname} {...item}>
-        {childItems ? renderNavItems({ depth: depth + 1, items: childItems, onClose, pathname }) : null}
+      <NavItem depth={depth} forceOpen={forceOpen} key={key} onClose={onClose} pathname={pathname} workspaceId={workspaceId} {...processedItem}>
+        {processedChildItems ? renderNavItems({ depth: depth + 1, items: processedChildItems, onClose, pathname, workspaceId }) : null}
       </NavItem>
     );
 
@@ -164,6 +213,7 @@ interface NavItemProps extends Omit<NavItemConfig, 'items'> {
   forceOpen?: boolean;
   onClose?: () => void;
   pathname: string;
+  workspaceId: string;
 }
 
 function NavItem({
@@ -179,6 +229,7 @@ function NavItem({
   onClose,
   pathname,
   title,
+  workspaceId,
 }: NavItemProps): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(forceOpen);
   const active = isNavItemActive({ disabled, external, href, matcher, pathname });

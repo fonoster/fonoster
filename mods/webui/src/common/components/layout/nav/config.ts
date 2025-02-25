@@ -15,7 +15,7 @@ export const layoutConfig = {
     {
       key: 'home',
       items: [
-        { key: 'overview', title: 'Overview', href: paths.overview },
+        { key: 'overview', title: 'Overview', href: paths.workspaces.overview('1') },
         { key: 'applications', title: 'Applications', href: paths.workspaces.applications('1') },
         // { key: 'analytics', title: 'Analytics', href: paths.dashboard.analytics},
       ]

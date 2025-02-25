@@ -15,6 +15,7 @@ import { Users as UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
 import type { NavItemConfig } from '@/types/layout';
 import type { User } from '@/types/user';
 import { usePopover } from '@/common/hooks/use-popover';
+import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 
 import { MobileNav } from '../mobile-nav';
 import { NotificationsPopover } from '../notifications-popover';
@@ -36,6 +37,8 @@ const user = {
 
 export function MainNav({ items }: MainNavProps): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
+  const { selectedWorkspace } = useWorkspaceContext();
+  const workspaceId = selectedWorkspace?.ref || '1'; // Fallback to '1' if no workspace is selected
 
   return (
     <React.Fragment>
