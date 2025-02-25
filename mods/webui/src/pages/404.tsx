@@ -73,7 +73,7 @@ const NotFound = () => {
         size="large"
         onClick={() => router.push('/')}
       >
-        Back to Dashboard
+        Back to workspaces
       </Button>
     </Box>
   );

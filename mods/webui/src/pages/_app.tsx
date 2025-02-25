@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { AppCacheProvider } from '@mui/material-nextjs/v15-pagesRouter';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { NoAuthLayout } from '@/common/components/layout/noAuth/NoAuthLayout'
 import { LayoutWrapper as LayoutAuth } from '@/common/components/layout/auth/LayoutWrapper'
 import { FonosterProvider } from '@/common/sdk/provider/FonosterContext'
@@ -22,7 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
     router.pathname === '/404'
 
   return (
-    <AppCacheProvider>
+    <AppRouterCacheProvider>
       <ThemeProvider theme={fnLight}>
         <CssBaseline enableColorScheme />
         <FonosterProvider>
@@ -39,6 +39,6 @@ export default function App({ Component, pageProps }: AppProps) {
           )}
         </FonosterProvider>
       </ThemeProvider>
-    </AppCacheProvider>
+    </AppRouterCacheProvider>
   )
 }

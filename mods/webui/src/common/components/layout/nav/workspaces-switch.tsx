@@ -5,17 +5,45 @@ import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import { CaretUpDown as CaretUpDownIcon } from '@phosphor-icons/react/dist/ssr/CaretUpDown';
-
 import { usePopover } from '@/common/hooks/use-popover';
-import { workspaces, WorkspacesPopover } from './workspaces-popover';
+import { WorkspacesPopover } from './workspaces-popover';
+import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 
 export function WorkspacesSwitch(): React.JSX.Element {
   const popover = usePopover<HTMLDivElement>();
-  const workspace = workspaces[0];
+
+  const { selectedWorkspace, workspaces, isLoading, handleSetSelectedWorkspace } = useWorkspaceContext();
+
+  if (isLoading) {
+    return (
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          alignItems: 'center',
+          border: '1px solid var(--Workspaces-border-color)',
+          borderRadius: '12px',
+          p: '4px 8px',
+          height: '48px', // Altura fija para evitar saltos
+        }}
+      >
+        <CircularProgress size={24} color="primary" />
+        <Box sx={{ flex: '1 1 auto' }}>
+          <Typography color="var(--Workspaces-title-color)" variant="caption">
+            loading...
+          </Typography>
+          <Typography color="var(--Workspaces-name-color)" variant="subtitle2">
+            waiting...
+          </Typography>
+        </Box>
+      </Stack>
+    );
+  }
 
   return (
-    <React.Fragment>
+    <>
       <Stack
         direction="row"
         onClick={popover.handleOpen}
@@ -27,25 +55,27 @@ export function WorkspacesSwitch(): React.JSX.Element {
           borderRadius: '12px',
           cursor: 'pointer',
           p: '4px 8px',
+          height: '48px', // Misma altura que el estado de carga
         }}
       >
-        <Avatar src={workspace.avatar} variant="rounded" />
         <Box sx={{ flex: '1 1 auto' }}>
           <Typography color="var(--Workspaces-title-color)" variant="caption">
-            Demo
+            {process.env.NEXT_PUBLIC_FONOSTER_REGION || 'NYC01'}
           </Typography>
           <Typography color="var(--Workspaces-name-color)" variant="subtitle2">
-            {workspace.name}
+            {selectedWorkspace?.name}
           </Typography>
         </Box>
         <CaretUpDownIcon color="var(--Workspaces-expand-color)" fontSize="var(--icon-fontSize-sm)" />
       </Stack>
       <WorkspacesPopover
         anchorEl={popover.anchorRef.current}
-        onChange={popover.handleClose}
+        onChange={handleSetSelectedWorkspace}
         onClose={popover.handleClose}
         open={popover.open}
+        workspaces={workspaces}
+        handleSetSelectedWorkspace={handleSetSelectedWorkspace}
       />
-    </React.Fragment>
+    </>
   );
 }

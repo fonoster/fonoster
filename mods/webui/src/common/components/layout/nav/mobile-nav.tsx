@@ -139,7 +139,7 @@ function renderNavItems({
     const { items: childItems, key, ...item } = curr;
 
     const forceOpen = childItems
-      ? Boolean(childItems.find((childItem) => childItem.href && pathname.startsWith(childItem.href)))
+      ? Boolean(childItems.find((childItem) => childItem.href && pathname && pathname.startsWith(childItem.href)))
       : false;
 
     acc.push(

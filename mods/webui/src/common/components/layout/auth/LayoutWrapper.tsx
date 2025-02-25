@@ -20,10 +20,6 @@ import {
     AccountCircle,
     Notifications as NotificationsIcon
 } from '@mui/icons-material'
-import { NextAppProvider } from '@toolpad/core/nextjs'
-import { fnLight, fnDark } from '../../../../../theme/theme'
-import { NAVIGATION } from '@/pages/workspace/_components/layouts/navigation'
-import { Logo } from '@/common/components/logo/Logo'
 import { ThemeSwitcher } from '@toolpad/core/DashboardLayout'
 import { useUser } from '@/common/sdk/hooks/useUser'
 import { User } from '@fonoster/types'
@@ -34,11 +30,6 @@ const SIMPLE_LAYOUT_ROUTES = [
     '/workspace/create',
     '/personal/settings'
 ]
-
-const BRANDING = {
-    title: '',
-    logo: <Logo size="small" />
-}
 
 export const ToolbarActions = memo(() => {
     const router = useRouter()
@@ -252,9 +243,8 @@ export const ToolbarActions = memo(() => {
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const useSimpleLayout = SIMPLE_LAYOUT_ROUTES.includes(router.pathname)
-
     return (
-        <React.Fragment>
+        <>
             <Head>
                 <meta name="viewport" content="initial-scale=1, width=device-width" />
                 <meta charSet="utf-8" />
@@ -268,7 +258,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                     <FullLayout>{children}</FullLayout>
                 )}
             </Box>
-        </React.Fragment>
+        </>
     )
 }
 

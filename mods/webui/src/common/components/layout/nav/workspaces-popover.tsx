@@ -1,19 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-
-export const workspaces = [
-  { name: 'Demo Workspace', avatar: 'Demo 1' },
-  { name: 'Demo Workspace 2', avatar: 'Demo 2' },
-] satisfies Workspaces[];
 
 export interface Workspaces {
   name: string;
   avatar: string;
+  ref: string;
 }
 
 export interface WorkspacesPopoverProps {
@@ -21,6 +15,7 @@ export interface WorkspacesPopoverProps {
   onChange?: (tenant: string) => void;
   onClose?: () => void;
   open?: boolean;
+  workspaces: Workspaces[];
 }
 
 export function WorkspacesPopover({
@@ -28,6 +23,7 @@ export function WorkspacesPopover({
   onChange,
   onClose,
   open = false,
+  workspaces,
 }: WorkspacesPopoverProps): React.JSX.Element {
   return (
     <Menu
@@ -42,12 +38,9 @@ export function WorkspacesPopover({
         <MenuItem
           key={workspace.name}
           onClick={() => {
-            onChange?.(workspace.name);
+            onChange?.(workspace.ref);
           }}
         >
-          <ListItemAvatar>
-            <Avatar src={workspace.avatar} sx={{ '--Avatar-size': '32px' }} variant="rounded" />
-          </ListItemAvatar>
           {workspace.name}
         </MenuItem>
       ))}
