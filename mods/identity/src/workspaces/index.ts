@@ -21,6 +21,7 @@ export * from "./createDeleteWorkspace";
 export * from "./createGetWorkspace";
 export * from "./createInviteUserToWorkspace";
 export * from "./createListWorkspaces";
+export * from "./createListWorkspaceMembers";
 export * from "./createRemoveUserFromWorkspace";
 export * from "./createResendWorkspaceMembershipInvitation";
 export * from "./createUpdateWorkspace";

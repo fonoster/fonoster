@@ -20,6 +20,7 @@ import {
   CreateApiKeyRequest,
   CreateApiKeyResponse,
   CreateUserRequest,
+  CreateUserWithOauth2CodeRequest,
   CreateUserResponse,
   CreateWorkspaceRequest,
   DeleteApiKeyRequest,
@@ -50,7 +51,11 @@ import {
   RemoveUserFromWorkspaceResponse,
   ResendWorkspaceMembershipInvitationRequest,
   ResendWorkspaceMembershipInvitationResponse,
+  ListWorkspaceMembersRequest,
+  ListWorkspaceMembersResponse,
   SendVerificationCodeRequest,
+  SendResetPasswordCodeRequest,
+  ResetPasswordRequest,
   UpdateUserRequest,
   UpdateWorkspaceRequest,
   UpdateWorkspaceResponse,
@@ -85,11 +90,17 @@ type IdentityClient = {
   >;
   // User
   createUser: ClientFunction<CreateUserRequest, CreateUserResponse>;
+  createUserWithOauth2Code: ClientFunction<
+    CreateUserWithOauth2CodeRequest,
+    ExchangeCredentialsResponse
+  >;
   getUser: ClientFunction<GetUserRequest, User>;
   updateUser: ClientFunction<UpdateUserRequest, CreateUserResponse>;
   deleteUser: ClientFunction<DeleteUserRequest, DeleteUserResponse>;
   sendVerificationCode: ClientFunction<SendVerificationCodeRequest, never>;
   verifyCode: ClientFunction<VerifyCodeRequest, never>;
+  sendResetPasswordCode: ClientFunction<SendResetPasswordCodeRequest, never>;
+  resetPassword: ClientFunction<ResetPasswordRequest, never>;
   // Workspaces
   createWorkspace: ClientFunction<CreateWorkspaceRequest, CreateUserResponse>;
   getWorkspace: ClientFunction<GetWorkspaceRequest, Workspace>;
@@ -105,6 +116,10 @@ type IdentityClient = {
   resendWorkspaceMembershipInvitation: ClientFunction<
     ResendWorkspaceMembershipInvitationRequest,
     ResendWorkspaceMembershipInvitationResponse
+  >;
+  listWorkspaceMembers: ClientFunction<
+    ListWorkspaceMembersRequest,
+    ListWorkspaceMembersResponse
   >;
   removeUserFromWorkspace: ClientFunction<
     RemoveUserFromWorkspaceRequest,

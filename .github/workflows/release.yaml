@@ -31,7 +31,11 @@ jobs:
 
     - name: Run unit tests
       run: |
-        cp .env.example.dev .env 
+        cp .env.example.dev .env
+        
+        # FIXME: This is a workaround to prevent the unit tests from failing
+        sed -i "s|AUTOPILOT_INTEGRATIONS_FILE=.*|AUTOPILOT_INTEGRATIONS_FILE=./config/integrations.example.json|g" .env 
+
         npm run test
 
     # We will do this manually for now
@@ -119,18 +123,20 @@ jobs:
     - name: Starting services for integration tests
       run: |
         npm run generate:keypair
-        cp .env.example .env
         cp config/integrations.example.json config/integrations.json
-        sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=127.0.0.1|g" .env 
+        cp .env.example .env
+        echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env
+        sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
+        sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
         sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
-        sed -i "s|SMTP_HOST=.*|SMTP_HOST=mailhog|g" .env
-        sed -i "s|SMTP_PORT=.*|SMTP_PORT=1025|g" .env
-        sed -i "s|SMTP_SECURE=.*|SMTP_SECURE=false|g" .env
+        sed -i "s|APISERVER_SMTP_HOST=.*|APISERVER_SMTP_HOST=mailhog|g" .env
+        sed -i "s|APISERVER_SMTP_PORT=.*|APISERVER_SMTP_PORT=1025|g" .env
+        sed -i "s|APISERVER_SMTP_SECURE=.*|APISERVER_SMTP_SECURE=false|g" .env
         docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver asterisk mailhog
 
     - name: Waiting for services to be ready
       run: |
-        sleep 30
+        sleep 120 # Enough time for Routr to start in a low spec machine
         docker ps -a
 
     - name: Run integration tests for the SDK

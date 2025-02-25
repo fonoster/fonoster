@@ -1,7 +1,7 @@
 {
-  "name": "fonoster",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@fonoster/webui",
+  "version": "0.9.12",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

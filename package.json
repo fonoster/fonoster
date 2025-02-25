@@ -18,7 +18,8 @@
     "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice mods/voice/src/demo.ts",
     "start:autopilot": "cross-env NODE_ENV=dev ASSISTANT=$(pwd)/config/assistant.json LOGS_LEVEL=verbose nodemon --watch mods/autopilot mods/autopilot/src/server.ts",
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk simplephone -d --remove-orphans",
-    "start:sdk-test": "npx serve -s mods/sdk/public -l 9000",
+    "start:sdk-demo": "npx serve -s mods/sdk/public -l 9000",
+    "start:oauth2-demo": "npx serve mods/sdk/public -l 9000",
     "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams mods/streams/src/example.ts",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "build": "lerna run build",
@@ -69,11 +70,13 @@
     "grpc-tools": "^1.12.4",
     "husky": "^9.0.11",
     "jsdoc-to-markdown": "^8.0.1",
-    "lerna": "^8.1.7",
+    "lerna": "^8.1.9",
     "mocha": "^11.0.2",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2",
-    "prisma": "^6.1.0",
+    "prisma": "^6.4.1",
+    "protoc-gen-grpc-web": "^1.5.0",
+    "protoc-gen-js": "^3.21.4-4",
     "rimraf": "^6.0.1",
     "sinon": "^19.0.2",
     "sinon-chai": "^4.0.0",
@@ -105,7 +108,7 @@
     "node": ">=20.11.1"
   },
   "dependencies": {
-    "@prisma/client": "^6.1.0"
+    "@prisma/client": "^6.4.1"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-arm64-gnu": "^4.29.1",

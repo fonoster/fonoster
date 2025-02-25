@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get GitHub OAuth2 Challenge Code</title>
+</head>
+
+<body>
+  <h1>Get GitHub OAuth2 Challenge Code</h1>
+  <button id="getCode">Get OAuth2 Code from GitHub</button>
+  <br />
+  <br />
+  <pre id="output">OAuth2 Code:</pre>
+
+  <script>
+    const clientId = "176eada057a4bbd96736"; // Fonoster's Production GitHub Client ID
+    const redirectUri = window.location.origin + window.location.pathname;
+
+    function getCodeWithGitHub() {
+      const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email`;
+      window.location.href = authUrl;
+    }
+
+    async function main(retries = 5) {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      if (!code) {
+        document.getElementById("getCode").style.display = "block";
+        return;
+      }
+
+      try {
+        document.getElementById("output").textContent = "OAuth2 Code: " + code;
+      } catch (e) {
+        console.error(e);
+        document.getElementById("output").textContent = "Error: " + e.message;
+      }
+    }
+
+    document.getElementById("getCode").addEventListener("click", getCodeWithGitHub);
+    main().catch(console.error);
+  </script>
+</body>
+
+</html>

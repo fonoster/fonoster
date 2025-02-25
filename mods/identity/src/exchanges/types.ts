@@ -20,6 +20,7 @@ import { Validators as V } from "@fonoster/common";
 import { z } from "zod";
 
 type IdentityConfig = {
+  dbUrl: string;
   issuer: string;
   audience: string;
   privateKey: string;
@@ -28,6 +29,11 @@ type IdentityConfig = {
   accessTokenExpiresIn: number | string;
   refreshTokenExpiresIn: number | string;
   idTokenExpiresIn: number | string;
+  workspaceInviteExpiration: string;
+  workspaceInviteUrl: string;
+  workspaceInviteFailUrl: string;
+  userVerificationRequired: boolean;
+  resetPasswordUrl: string;
   smtpConfig: {
     sender: string;
     host: string;

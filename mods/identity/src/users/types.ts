@@ -16,17 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const e = process.env;
+type SendResetPasswordEmailRequest = {
+  recipient: string;
+  templateDir?: string;
+  resetPasswordUrl: string;
+};
 
-export const CLOAK_ENCRYPTION_KEY = e.CLOAK_ENCRYPTION_KEY;
-export const IDENTITY_MFA_REQUIRED = e.IDENTITY_MFA_REQUIRED === "true";
-export const IDENTITY_OAUTH2_GITHUB_CLIENT_ID =
-  e.IDENTITY_OAUTH2_GITHUB_CLIENT_ID;
-export const IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET =
-  e.IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET;
-export const IDENTITY_USER_VERIFICATION_REQUIRED =
-  e.IDENTITY_USER_VERIFICATION_REQUIRED === "true";
-export const IDENTITY_WORKSPACE_INVITATION_URL =
-  e.IDENTITY_WORKSPACE_INVITATION_URL;
-export const IDENTITY_WORKSPACE_INVITE_EXPIRATION =
-  e.IDENTITY_WORKSPACE_INVITE_EXPIRATION || "1d";
+export { SendResetPasswordEmailRequest };

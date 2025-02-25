@@ -20,10 +20,12 @@ import { z } from "zod";
 import { conversationSettingsSchema } from "./conversationSettingsSchema";
 import { languageModelConfigSchema } from "./languageModelConfigSchema";
 import { testCasesSchema } from "./testCasesSchema";
+import { eventsHookSchema } from "./eventsHookSchema";
 
 const assistantSchema = z.object({
   conversationSettings: conversationSettingsSchema,
   languageModel: languageModelConfigSchema,
+  eventsHook: eventsHookSchema.optional(),
   testCases: testCasesSchema.optional()
 });
 

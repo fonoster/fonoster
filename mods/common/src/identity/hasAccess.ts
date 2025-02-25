@@ -16,15 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Access, Role } from "./types";
+import { Role } from "@fonoster/types";
+import { Access, RoleType } from "./types";
 import { roles } from "./roles";
 
 // This function only checks if the role has access to the grpc method
-function hasAccess(access: Access[], method: string) {
-  const roleList = access.map((a: Access) => a.role);
+function hasAccess(
+  decodedToken: {
+    access: Access[];
+    accessKeyId: string;
+  },
+  method: string
+) {
+  const { access, accessKeyId } = decodedToken;
+  const roleList =
+    accessKeyId.startsWith("US") && // US is for user; user tokens only have USER role
+    access.length === 0 // If it is a user token, and has no access, we still allow it in case it is a user method
+      ? [Role.USER]
+      : access.map((a: Access) => a.role);
 
   return roleList.some((r: string) =>
-    roles.find((role: Role) => role.name === r && role.access.includes(method))
+    roles.find(
+      (role: RoleType) => role.name === r && role.access.includes(method)
+    )
   );
 }
 

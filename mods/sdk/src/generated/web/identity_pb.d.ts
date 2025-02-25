@@ -333,6 +333,98 @@ export namespace ResendWorkspaceMembershipInvitationResponse {
   }
 }
 
+export class WorkspaceMember extends jspb.Message {
+  getRef(): string;
+  setRef(value: string): WorkspaceMember;
+
+  getUserRef(): string;
+  setUserRef(value: string): WorkspaceMember;
+
+  getName(): string;
+  setName(value: string): WorkspaceMember;
+
+  getEmail(): string;
+  setEmail(value: string): WorkspaceMember;
+
+  getRole(): string;
+  setRole(value: string): WorkspaceMember;
+
+  getStatus(): string;
+  setStatus(value: string): WorkspaceMember;
+
+  getCreatedAt(): number;
+  setCreatedAt(value: number): WorkspaceMember;
+
+  getUpdatedAt(): number;
+  setUpdatedAt(value: number): WorkspaceMember;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): WorkspaceMember.AsObject;
+  static toObject(includeInstance: boolean, msg: WorkspaceMember): WorkspaceMember.AsObject;
+  static serializeBinaryToWriter(message: WorkspaceMember, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): WorkspaceMember;
+  static deserializeBinaryFromReader(message: WorkspaceMember, reader: jspb.BinaryReader): WorkspaceMember;
+}
+
+export namespace WorkspaceMember {
+  export type AsObject = {
+    ref: string,
+    userRef: string,
+    name: string,
+    email: string,
+    role: string,
+    status: string,
+    createdAt: number,
+    updatedAt: number,
+  }
+}
+
+export class ListWorkspaceMembersRequest extends jspb.Message {
+  getPageToken(): string;
+  setPageToken(value: string): ListWorkspaceMembersRequest;
+
+  getPageSize(): number;
+  setPageSize(value: number): ListWorkspaceMembersRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListWorkspaceMembersRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ListWorkspaceMembersRequest): ListWorkspaceMembersRequest.AsObject;
+  static serializeBinaryToWriter(message: ListWorkspaceMembersRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListWorkspaceMembersRequest;
+  static deserializeBinaryFromReader(message: ListWorkspaceMembersRequest, reader: jspb.BinaryReader): ListWorkspaceMembersRequest;
+}
+
+export namespace ListWorkspaceMembersRequest {
+  export type AsObject = {
+    pageToken: string,
+    pageSize: number,
+  }
+}
+
+export class ListWorkspaceMembersResponse extends jspb.Message {
+  getItemsList(): Array<WorkspaceMember>;
+  setItemsList(value: Array<WorkspaceMember>): ListWorkspaceMembersResponse;
+  clearItemsList(): ListWorkspaceMembersResponse;
+  addItems(value?: WorkspaceMember, index?: number): WorkspaceMember;
+
+  getNextPageToken(): string;
+  setNextPageToken(value: string): ListWorkspaceMembersResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListWorkspaceMembersResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ListWorkspaceMembersResponse): ListWorkspaceMembersResponse.AsObject;
+  static serializeBinaryToWriter(message: ListWorkspaceMembersResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListWorkspaceMembersResponse;
+  static deserializeBinaryFromReader(message: ListWorkspaceMembersResponse, reader: jspb.BinaryReader): ListWorkspaceMembersResponse;
+}
+
+export namespace ListWorkspaceMembersResponse {
+  export type AsObject = {
+    itemsList: Array<WorkspaceMember.AsObject>,
+    nextPageToken: string,
+  }
+}
+
 export class CreateUserRequest extends jspb.Message {
   getEmail(): string;
   setEmail(value: string): CreateUserRequest;
@@ -378,6 +470,24 @@ export class CreateUserResponse extends jspb.Message {
 export namespace CreateUserResponse {
   export type AsObject = {
     ref: string,
+  }
+}
+
+export class CreateUserWithOauth2CodeRequest extends jspb.Message {
+  getCode(): string;
+  setCode(value: string): CreateUserWithOauth2CodeRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CreateUserWithOauth2CodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: CreateUserWithOauth2CodeRequest): CreateUserWithOauth2CodeRequest.AsObject;
+  static serializeBinaryToWriter(message: CreateUserWithOauth2CodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CreateUserWithOauth2CodeRequest;
+  static deserializeBinaryFromReader(message: CreateUserWithOauth2CodeRequest, reader: jspb.BinaryReader): CreateUserWithOauth2CodeRequest;
+}
+
+export namespace CreateUserWithOauth2CodeRequest {
+  export type AsObject = {
+    code: string,
   }
 }
 
@@ -573,6 +683,50 @@ export namespace VerifyCodeRequest {
   }
 }
 
+export class SendResetPasswordCodeRequest extends jspb.Message {
+  getUsername(): string;
+  setUsername(value: string): SendResetPasswordCodeRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SendResetPasswordCodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SendResetPasswordCodeRequest): SendResetPasswordCodeRequest.AsObject;
+  static serializeBinaryToWriter(message: SendResetPasswordCodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SendResetPasswordCodeRequest;
+  static deserializeBinaryFromReader(message: SendResetPasswordCodeRequest, reader: jspb.BinaryReader): SendResetPasswordCodeRequest;
+}
+
+export namespace SendResetPasswordCodeRequest {
+  export type AsObject = {
+    username: string,
+  }
+}
+
+export class ResetPasswordRequest extends jspb.Message {
+  getUsername(): string;
+  setUsername(value: string): ResetPasswordRequest;
+
+  getPassword(): string;
+  setPassword(value: string): ResetPasswordRequest;
+
+  getVerificationCode(): string;
+  setVerificationCode(value: string): ResetPasswordRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ResetPasswordRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ResetPasswordRequest): ResetPasswordRequest.AsObject;
+  static serializeBinaryToWriter(message: ResetPasswordRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResetPasswordRequest;
+  static deserializeBinaryFromReader(message: ResetPasswordRequest, reader: jspb.BinaryReader): ResetPasswordRequest;
+}
+
+export namespace ResetPasswordRequest {
+  export type AsObject = {
+    username: string,
+    password: string,
+    verificationCode: string,
+  }
+}
+
 export class CreateApiKeyRequest extends jspb.Message {
   getRole(): string;
   setRole(value: string): CreateApiKeyRequest;
@@ -658,11 +812,11 @@ export namespace DeleteApiKeyResponse {
 }
 
 export class ListApiKeysRequest extends jspb.Message {
-  getPageSize(): number;
-  setPageSize(value: number): ListApiKeysRequest;
-
   getPageToken(): string;
   setPageToken(value: string): ListApiKeysRequest;
+
+  getPageSize(): number;
+  setPageSize(value: number): ListApiKeysRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListApiKeysRequest.AsObject;
@@ -674,8 +828,8 @@ export class ListApiKeysRequest extends jspb.Message {
 
 export namespace ListApiKeysRequest {
   export type AsObject = {
-    pageSize: number,
     pageToken: string,
+    pageSize: number,
   }
 }
 
@@ -889,9 +1043,6 @@ export class ExchangeOauth2CodeRequest extends jspb.Message {
   getProvider(): ExchangeOauth2CodeRequest.Oauth2Provider;
   setProvider(value: ExchangeOauth2CodeRequest.Oauth2Provider): ExchangeOauth2CodeRequest;
 
-  getUsername(): string;
-  setUsername(value: string): ExchangeOauth2CodeRequest;
-
   getCode(): string;
   setCode(value: string): ExchangeOauth2CodeRequest;
 
@@ -906,7 +1057,6 @@ export class ExchangeOauth2CodeRequest extends jspb.Message {
 export namespace ExchangeOauth2CodeRequest {
   export type AsObject = {
     provider: ExchangeOauth2CodeRequest.Oauth2Provider,
-    username: string,
     code: string,
   }
 

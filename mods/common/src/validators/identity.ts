@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
+import { Role } from "@fonoster/types";
 import { z } from "zod";
 import { POSITIVE_INTEGER_MESSAGE } from "../messages";
 
@@ -35,7 +35,7 @@ const createWorkspaceRequestSchema = z.object({
 });
 
 const createApiKeyRequestSchema = z.object({
-  role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
+  role: z.enum([Role.WORKSPACE_ADMIN]),
   expiresAt: z
     .number()
     .int({ message: POSITIVE_INTEGER_MESSAGE })
@@ -58,9 +58,6 @@ const exchangeCredentialsRequestSchema = z.object({
 
 const exchangeOauth2RequestSchema = z.object({
   provider: z.enum(["GITHUB"]).default("GITHUB"),
-  username: z
-    .string()
-    .email({ message: "Invalid username. Must be an email address" }),
   code: z.string()
 });
 
@@ -73,6 +70,10 @@ const createUserRequestSchema = z.object({
   email: z.string().email({ message: EMAIL_MESSAGE }),
   password: z.string().min(8, { message: PASSWORD_MESSAGE }).max(100),
   avatar: z.string().url().max(255, { message: "Invalid avatar URL" })
+});
+
+const createUserWithOauth2CodeRequestSchema = z.object({
+  code: z.string()
 });
 
 const updateUserRequestSchema = z.object({
@@ -91,7 +92,7 @@ const updateUserRequestSchema = z.object({
 const inviteUserToWorkspaceRequestSchema = z.object({
   email: z.string().email({ message: EMAIL_MESSAGE }),
   name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
-  role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
+  role: z.enum([Role.WORKSPACE_ADMIN, Role.WORKSPACE_MEMBER]),
   password: z.string().min(8, { message: PASSWORD_MESSAGE }).or(z.undefined())
 });
 
@@ -124,6 +125,18 @@ const verifyCodeRequestSchema = z.object({
   verificationCode: z.string()
 });
 
+const sendResetPasswordCodeRequestSchema = z.object({
+  username: z
+    .string()
+    .email({ message: "Invalid username. Must be an email address" })
+});
+
+const resetPasswordRequestSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+  verificationCode: z.string()
+});
+
 export {
   createApiKeyRequestSchema,
   createUserRequestSchema,
@@ -138,5 +151,8 @@ export {
   sendVerificationCodeRequestSchema,
   updateUserRequestSchema,
   updateWorkspaceRequestSchema,
-  verifyCodeRequestSchema
+  verifyCodeRequestSchema,
+  sendResetPasswordCodeRequestSchema,
+  resetPasswordRequestSchema,
+  createUserWithOauth2CodeRequestSchema
 };

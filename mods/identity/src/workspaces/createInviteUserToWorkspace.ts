@@ -34,10 +34,6 @@ import { customAlphabet } from "nanoid";
 import { createIsAdminMember } from "./createIsAdminMember";
 import { createIsWorkspaceMember } from "./createIsWorkspaceMember";
 import { Prisma } from "../db";
-import {
-  IDENTITY_WORKSPACE_INVITATION_URL,
-  IDENTITY_WORKSPACE_INVITE_EXPIRATION
-} from "../envs";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites";
 import {
@@ -167,7 +163,7 @@ function createInviteUserToWorkspace(
       userRef: user.ref,
       memberRef: newMember.ref,
       accessKeyId: user.accessKeyId,
-      expiresIn: IDENTITY_WORKSPACE_INVITE_EXPIRATION
+      expiresIn: identityConfig.workspaceInviteExpiration
     });
 
     await sendInvite(createSendEmail(identityConfig), {
@@ -175,7 +171,7 @@ function createInviteUserToWorkspace(
       oneTimePassword,
       workspaceName: newMember.workspace.name,
       isExistingUser,
-      inviteUrl: `${IDENTITY_WORKSPACE_INVITATION_URL}?token=${inviteeToken}`
+      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`
     });
 
     callback(null, {

@@ -17,12 +17,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.1.0
- * Query Engine version: 11f085a2012c0f4778414c8db2651556ee0ef959
+ * Prisma Client JS version: 6.4.1
+ * Query Engine version: a9055b89e58b4b5bfb59600785423b1db3d0e75d
  */
 Prisma.prismaVersion = {
-  client: "6.1.0",
-  engine: "11f085a2012c0f4778414c8db2651556ee0ef959"
+  client: "6.4.1",
+  engine: "a9055b89e58b4b5bfb59600785423b1db3d0e75d"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -201,14 +201,11 @@ exports.WorkspaceMemberStatus = exports.$Enums.WorkspaceMemberStatus = {
   ACTIVE: 'ACTIVE'
 };
 
-exports.WorkspaceMemberRole = exports.$Enums.WorkspaceMemberRole = {
-  OWNER: 'OWNER',
-  ADMIN: 'ADMIN',
-  USER: 'USER'
-};
-
-exports.ApiKeyRole = exports.$Enums.ApiKeyRole = {
-  WORKSPACE_ADMIN: 'WORKSPACE_ADMIN'
+exports.Role = exports.$Enums.Role = {
+  USER: 'USER',
+  WORKSPACE_ADMIN: 'WORKSPACE_ADMIN',
+  WORKSPACE_OWNER: 'WORKSPACE_OWNER',
+  WORKSPACE_MEMBER: 'WORKSPACE_MEMBER'
 };
 
 exports.VerificationType = exports.$Enums.VerificationType = {

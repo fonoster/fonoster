@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
-import { Role } from "./types";
+import { Role } from "@fonoster/types";
+import { RoleType } from "./types";
 
 const VOICE_SERVICE_ROLE = "VOICE_SERVICE";
 
-const workspaceAccess = [
+const workspaceResourceAccess = [
   "/fonoster.applications.v1beta2.Applications/CreateApplication",
   "/fonoster.applications.v1beta2.Applications/UpdateApplication",
   "/fonoster.applications.v1beta2.Applications/GetApplication",
@@ -78,6 +78,7 @@ const fullIdentityAccess = [
   "/fonoster.identity.v1beta2.Identity/GetWorkspace",
   "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
   "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+  "/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers",
   "/fonoster.identity.v1beta2.Identity/DeleteWorkspace",
   "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
   "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
@@ -91,17 +92,7 @@ const fullIdentityAccess = [
 
 const roles = [
   {
-    name: WorkspaceRoleEnum.OWNER,
-    description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceAccess]
-  },
-  {
-    name: WorkspaceRoleEnum.ADMIN,
-    description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceAccess]
-  },
-  {
-    name: WorkspaceRoleEnum.USER,
+    name: Role.USER,
     description: "Access to User and Workspace endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUser",
@@ -112,13 +103,27 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
       "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
-      ...workspaceAccess
+      ...workspaceResourceAccess
     ]
   },
   {
-    name: ApiRoleEnum.WORKSPACE_ADMIN,
+    name: Role.WORKSPACE_OWNER,
     description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceAccess]
+    access: [...fullIdentityAccess, ...workspaceResourceAccess]
+  },
+  {
+    name: Role.WORKSPACE_ADMIN,
+    description: "Access to all endpoints",
+    access: [...fullIdentityAccess, ...workspaceResourceAccess]
+  },
+  {
+    name: Role.WORKSPACE_MEMBER,
+    description: "Access to User and Workspace endpoints",
+    access: [
+      "/fonoster.identity.v1beta2.Identity/GetWorkspace",
+      "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+      ...workspaceResourceAccess
+    ]
   },
   {
     name: VOICE_SERVICE_ROLE,
@@ -128,6 +133,6 @@ const roles = [
       "/fonoster.applications.v1beta2.Applications/GetApplication"
     ]
   }
-] as Role[];
+] as RoleType[];
 
-export { VOICE_SERVICE_ROLE, roles, workspaceAccess };
+export { VOICE_SERVICE_ROLE, roles, workspaceResourceAccess };

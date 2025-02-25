@@ -63,6 +63,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
           model: await select({
             message: "STT Model",
             choices: [
+              { name: "Nova 3", value: "nova-3" },
               { name: "Nova 2", value: "nova-2" },
               { name: "Nova 2 Phone Call", value: "nova-2-phonecall" },
               {
@@ -70,7 +71,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
                 value: "nova-2-conversationalai"
               }
             ],
-            default: "nova-2"
+            default: "nova-3"
           })
         }
       },
@@ -108,9 +109,8 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
                       name: "Multilingual Speech to Speech",
                       value: "eleven_multilingual_sts_v2"
                     }
-                    // { name: "English Speech to Speech", value: "eleven_english_sts_v2" }
                   ],
-                  default: null
+                  default: "eleven_flash_v2_5"
                 })
               : null,
           voice: await input({

@@ -19,6 +19,7 @@
 const allowList = [
   "/grpc.health.v1.Health/Check",
   "/fonoster.identity.v1beta2.Identity/CreateUser",
+  "/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code",
   "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
   "/fonoster.identity.v1beta2.Identity/ExchangeApiKey",
   "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",
@@ -27,6 +28,8 @@ const allowList = [
   "/fonoster.identity.v1beta2.Identity/SendVerificationCode",
   "/fonoster.identity.v1beta2.Identity/VerifyCode",
   "/fonoster.identity.v1beta2.Identity/GetPublicKey",
+  "/fonoster.identity.v1beta2.Identity/SendResetPasswordCode",
+  "/fonoster.identity.v1beta2.Identity/ResetPassword",
   "/fonoster.voice.v1beta2.Voice/CreateSession"
 ];
 

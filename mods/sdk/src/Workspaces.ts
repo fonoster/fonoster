@@ -21,6 +21,8 @@ import {
   CreateWorkspaceRequest,
   InviteUserToWorkspaceRequest,
   ListWorkspacesResponse,
+  ListWorkspaceMembersRequest,
+  ListWorkspaceMembersResponse,
   RemoveUserFromWorkspaceRequest,
   RemoveUserFromWorkspaceResponse,
   ResendWorkspaceMembershipInvitationRequest,
@@ -40,13 +42,16 @@ import {
   InviteUserToWorkspaceResponse as InviteUserToWorkspaceResponsePB,
   ListWorkspacesRequest as ListWorkspacesRequestPB,
   ListWorkspacesResponse as ListWorkspacesResponsePB,
+  ListWorkspaceMembersRequest as ListWorkspaceMembersRequestPB,
+  ListWorkspaceMembersResponse as ListWorkspaceMembersResponsePB,
   RemoveUserFromWorkspaceRequest as RemoveUserFromWorkspaceRequestPB,
   RemoveUserFromWorkspaceResponse as RemoveUserFromWorkspaceResponsePB,
   ResendWorkspaceMembershipInvitationRequest as ResendWorkspaceMembershipInvitationRequestPB,
   ResendWorkspaceMembershipInvitationResponse as ResendWorkspaceMembershipInvitationResponsePB,
   UpdateWorkspaceRequest as UpdateWorkspaceRequestPB,
   UpdateWorkspaceResponse as UpdateWorkspaceResponsePB,
-  Workspace as WorkspacePB
+  Workspace as WorkspacePB,
+  WorkspaceMember as WorkspaceMemberPB
 } from "./generated/node/identity_pb";
 
 /**
@@ -229,22 +234,14 @@ class Workspaces {
   }
 
   /**
-   * Retrieves a list of Workspaces from a Workspace.
+   * Retrieves a list of all Workspaces for the logged in user.
    *
-   * @param {ListWorkspacesRequest} request - The request object that contains the necessary information to retrieve a list of Workspaces
-   * @param {number} request.pageSize - The workspace of Workspaces to retrieve
-   * @param {string} request.pageToken - The token to retrieve the next page of Workspaces
    * @return {Promise<ListWorkspacesResponse>} - The response object that contains the list of Workspaces
    * @example
    * const workspaces = new SDK.Workspaces(client); // Existing client object
    *
-   * const request = {
-   *   pageSize: 10,
-   *   pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * workspaces
-   *   .listWorkspaces(request)
+   *   .listWorkspaces()
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
@@ -333,6 +330,44 @@ class Workspaces {
       requestPBObjectConstructor: ResendWorkspaceMembershipInvitationRequestPB,
       metadata: this.client.getMetadata(),
       request: { userRef }
+    });
+  }
+
+  /**
+   * List the members of a Workspace
+   *
+   * @param {ListWorkspaceMembersRequest} request - Request object to list the members of a Workspace
+   * @param {number} request.pageSize - The number of members to return in the response
+   * @param {string} request.pageToken - The page token to return the next page of members
+   * @return {Promise<ListWorkspaceMembersResponse>} - The response object that contains the list of members
+   * @example
+   * const workspaces = new SDK.Workspaces(client); // Existing client object
+   *
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * workspaces
+   *   .listWorkspaceMembers(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
+   */
+  async listWorkspaceMembers(
+    request: ListWorkspaceMembersRequest
+  ): Promise<ListWorkspaceMembersResponse> {
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      ListWorkspaceMembersRequestPB,
+      ListWorkspaceMembersResponsePB,
+      ListWorkspaceMembersRequest,
+      ListWorkspaceMembersResponse
+    >({
+      method: client.listWorkspaceMembers.bind(client),
+      requestPBObjectConstructor: ListWorkspaceMembersRequestPB,
+      metadata: this.client.getMetadata(),
+      request,
+      repeatableObjectMapping: [["itemsList", WorkspaceMemberPB]]
     });
   }
 

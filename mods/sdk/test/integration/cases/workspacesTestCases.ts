@@ -93,7 +93,7 @@ function createWorkspacesTestCases(expect) {
         request: {
           name: "Any doe",
           email: `any.doe.${Date.now()}@example.com`,
-          role: "USER"
+          role: "WORKSPACE_MEMBER"
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("userRef");

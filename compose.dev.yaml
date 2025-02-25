@@ -8,9 +8,9 @@ services:
     ports:
       - 50051:50051
     environment:
-      ROUTR_API_ENDPOINT: ${ROUTR_API_ENDPOINT}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_SECURE: ${SMTP_SECURE}
+      - APISERVER_ROUTR_API_ENDPOINT
+      - APISERVER_SMTP_PORT
+      - APISERVER_SMTP_SECURE
 
   autopilot:
     build:

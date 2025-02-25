@@ -35,7 +35,7 @@ async function sendInvite(
 
   await sendEmail({
     to: recipient,
-    subject: "Invite to join a Fonoster workspace",
+    subject: "Invitation to join a Fonoster workspace",
     html: createInviteBody({
       templateDir,
       isExistingUser,

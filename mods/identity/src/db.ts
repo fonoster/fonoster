@@ -18,17 +18,20 @@
  */
 import { Prisma as DMMF, PrismaClient } from "./generated/@prisma/client";
 import { fieldEncryptionExtension } from "prisma-field-encryption";
-import { CLOAK_ENCRYPTION_KEY } from "./envs";
 
-// Check the link for details on dmff:
-// https://www.npmjs.com/package/prisma-field-encryption#custom-prisma-client-location
-const prisma = new PrismaClient().$extends(
-  fieldEncryptionExtension({
-    encryptionKey: CLOAK_ENCRYPTION_KEY,
-    dmmf: DMMF.dmmf
-  })
-);
+export const createPrismaClient = (
+  dbUrl: string,
+  cloakEncryptionKey: string
+) => {
+  return new PrismaClient({
+    datasources: { db: { url: dbUrl } }
+  }).$extends(
+    fieldEncryptionExtension({
+      encryptionKey: cloakEncryptionKey,
+      dmmf: DMMF.dmmf
+    })
+  );
+};
 
-type Prisma = typeof prisma;
-
-export { Prisma, prisma };
+// Export the Prisma type corresponding to the returned extended Prisma client instance.
+export type Prisma = ReturnType<typeof createPrismaClient>;

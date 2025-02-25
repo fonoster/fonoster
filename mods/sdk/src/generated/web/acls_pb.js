@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.fonoster.acls.v1beta2.Acl', null, global);
 goog.exportSymbol('proto.fonoster.acls.v1beta2.CreateAclRequest', null, global);
@@ -274,11 +280,11 @@ proto.fonoster.acls.v1beta2.Acl.prototype.toObject = function(opt_includeInstanc
  */
 proto.fonoster.acls.v1beta2.Acl.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
-    createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
+createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -550,8 +556,8 @@ proto.fonoster.acls.v1beta2.CreateAclRequest.prototype.toObject = function(opt_i
  */
 proto.fonoster.acls.v1beta2.CreateAclRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    allowList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f
+name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+allowList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -729,7 +735,7 @@ proto.fonoster.acls.v1beta2.CreateAclResponse.prototype.toObject = function(opt_
  */
 proto.fonoster.acls.v1beta2.CreateAclResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -866,9 +872,9 @@ proto.fonoster.acls.v1beta2.UpdateAclRequest.prototype.toObject = function(opt_i
  */
 proto.fonoster.acls.v1beta2.UpdateAclRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1075,7 +1081,7 @@ proto.fonoster.acls.v1beta2.UpdateAclResponse.prototype.toObject = function(opt_
  */
 proto.fonoster.acls.v1beta2.UpdateAclResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1205,7 +1211,7 @@ proto.fonoster.acls.v1beta2.GetAclRequest.prototype.toObject = function(opt_incl
  */
 proto.fonoster.acls.v1beta2.GetAclRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1335,7 +1341,7 @@ proto.fonoster.acls.v1beta2.DeleteAclRequest.prototype.toObject = function(opt_i
  */
 proto.fonoster.acls.v1beta2.DeleteAclRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1465,7 +1471,7 @@ proto.fonoster.acls.v1beta2.DeleteAclResponse.prototype.toObject = function(opt_
  */
 proto.fonoster.acls.v1beta2.DeleteAclResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1595,8 +1601,8 @@ proto.fonoster.acls.v1beta2.ListAclsRequest.prototype.toObject = function(opt_in
  */
 proto.fonoster.acls.v1beta2.ListAclsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1762,9 +1768,9 @@ proto.fonoster.acls.v1beta2.ListAclsResponse.prototype.toObject = function(opt_i
  */
 proto.fonoster.acls.v1beta2.ListAclsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.acls.v1beta2.Acl.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {

@@ -31,6 +31,7 @@ import {
 } from "./types";
 import { Prisma } from "../db";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
+import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -43,39 +44,19 @@ function createExchangeOauth2Code(
     callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { request } = call;
-    const { provider, username: email, code } = request;
+    const { provider, code } = request;
 
     logger.verbose("call to exchangeOauth2Code", { provider });
 
-    const tokenResponse = await fetch(
-      "https://github.com/login/oauth/access_token",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        },
-        body: JSON.stringify({
-          client_id: identityConfig.githubOauth2Config.clientId,
-          client_secret: identityConfig.githubOauth2Config.clientSecret,
-          code
-        })
-      }
-    );
-
-    const tokenData = await tokenResponse.json();
-    const accessToken = tokenData?.access_token;
-
-    const userResponse = await fetch("https://api.github.com/user", {
-      headers: {
-        Authorization: `token ${accessToken}`
-      }
+    const userData = await getGitHubUserWithOauth2Code({
+      clientId: identityConfig.githubOauth2Config.clientId,
+      clientSecret: identityConfig.githubOauth2Config.clientSecret,
+      code
     });
 
-    const userData = await userResponse.json();
-    const user = await createGetUserByEmail(prisma)(email);
+    const user = await createGetUserByEmail(prisma)(userData.email);
 
-    if (userData.email !== email || !user) {
+    if (!user) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"

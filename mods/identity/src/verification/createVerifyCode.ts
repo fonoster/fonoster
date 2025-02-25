@@ -40,8 +40,8 @@ function createVerifyCode(prisma: Prisma) {
 
     const isValid = await isValidVerificationCode({
       type: actualContactType,
-      code: verificationCode,
-      value
+      value,
+      code: verificationCode
     });
 
     if (!isValid) {

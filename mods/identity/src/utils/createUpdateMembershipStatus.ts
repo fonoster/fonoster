@@ -19,10 +19,15 @@
 import { WorkspaceMemberStatus } from "@fonoster/types";
 import { jwtDecode } from "jwt-decode";
 import { isValidToken } from "@fonoster/common";
-import { prisma } from "../db";
+import { createPrismaClient } from "../db";
 import { IdentityConfig } from "../exchanges";
 
 function createUpdateMembershipStatus(identityConfig: IdentityConfig) {
+  const prisma = createPrismaClient(
+    identityConfig.dbUrl,
+    identityConfig.encryptionKey
+  );
+
   return async function pdateMembershipStatus(token: string): Promise<void> {
     if (!isValidToken(token, identityConfig.privateKey)) {
       throw new Error("Invalid token");

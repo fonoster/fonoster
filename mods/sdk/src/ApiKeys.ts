@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {
-  ApiRoleEnum,
+  Role,
   BaseApiObject,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
@@ -89,7 +89,7 @@ class ApiKeys {
    * Creates a new ApiKey for a Workspace.
    *
    * @param {CreateApiKeyRequest} request - The request object that contains the necessary information to create a new ApiKey
-   * @param {ApiRoleEnum} request.role - The role of the ApiKey
+   * @param {Role} request.role - The role of the ApiKey
    * @return {Promise<CreateApiKeyResponse>} - The response object that contains the reference to the created ApiKey
    * @example
    * const apiKeys = new SDK.ApiKeys(client); // Existing client object
@@ -117,7 +117,7 @@ class ApiKeys {
       requestPBObjectConstructor: CreateApiKeyRequestPB,
       metadata: this.client.getMetadata(),
       request,
-      enumMapping: [["role", ApiRoleEnum]]
+      enumMapping: [["role", Role]]
     });
   }
 

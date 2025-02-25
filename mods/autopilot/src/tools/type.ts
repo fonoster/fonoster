@@ -17,13 +17,15 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { toolSchema } from "./ToolSchema";
+import { toolSchema } from "@fonoster/common";
 
 type Tool = z.infer<typeof toolSchema>;
+
+type BuiltInTool = Omit<Tool, "operation">;
 
 type OpenAITool = {
   type: "function";
   function: Omit<Tool, "operation">;
 };
 
-export { OpenAITool, Tool };
+export { OpenAITool, Tool, BuiltInTool };

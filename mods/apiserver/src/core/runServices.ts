@@ -45,6 +45,7 @@ import {
 } from "../envs";
 import { connectToAri } from "../voice/connectToAri";
 import { createCheckMethodAuthorized } from "@fonoster/authz";
+import { identityConfig } from "./identityConfig";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -70,7 +71,7 @@ async function runServices() {
   loadServices(server, await services);
 
   // Connecting to Asterisk ARI
-  await connectToAri(httpBridge({ port: HTTP_BRIDGE_PORT }));
+  await connectToAri(httpBridge(identityConfig, { port: HTTP_BRIDGE_PORT }));
 
   // Additional Call Managers subscriber may be added here to handle call events
   await runCallManager({

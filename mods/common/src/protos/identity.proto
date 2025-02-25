@@ -32,14 +32,18 @@ service Identity {
   rpc InviteUserToWorkspace (InviteUserToWorkspaceRequest) returns (InviteUserToWorkspaceResponse) {}
   rpc RemoveUserFromWorkspace (RemoveUserFromWorkspaceRequest) returns (RemoveUserFromWorkspaceResponse) {}
   rpc ResendWorkspaceMembershipInvitation (ResendWorkspaceMembershipInvitationRequest) returns (ResendWorkspaceMembershipInvitationResponse) {}
-  
+  rpc ListWorkspaceMembers (ListWorkspaceMembersRequest) returns (ListWorkspaceMembersResponse) {}
+
   // User specific actions
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+  rpc CreateUserWithOauth2Code (CreateUserWithOauth2CodeRequest) returns (ExchangeCredentialsResponse) {}
   rpc GetUser (GetUserRequest) returns (User) {}
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
   rpc SendVerificationCode (SendVerificationCodeRequest) returns (google.protobuf.Empty) {}
   rpc VerifyCode (VerifyCodeRequest) returns (google.protobuf.Empty) {}
+  rpc SendResetPasswordCode (SendResetPasswordCodeRequest) returns (google.protobuf.Empty) {}
+  rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty) {}
 
   // ApiKey actions
   rpc CreateApiKey (CreateApiKeyRequest) returns (CreateApiKeyResponse) {}
@@ -134,6 +138,27 @@ message ResendWorkspaceMembershipInvitationResponse {
   string user_ref = 1;
 }
 
+message WorkspaceMember {
+  string ref = 1;
+  string user_ref = 2;
+  string name = 3;
+  string email = 4;
+  string role = 5;
+  string status = 6;
+  int32 created_at = 7;
+  int32 updated_at = 8;
+}
+
+message ListWorkspaceMembersRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListWorkspaceMembersResponse {
+  repeated WorkspaceMember items = 1;
+  string next_page_token = 2;
+}
+
 // User Resources
 enum ContactType {
   EMAIL = 0;
@@ -149,6 +174,10 @@ message CreateUserRequest {
 
 message CreateUserResponse {
   string ref = 1;
+}
+
+message CreateUserWithOauth2CodeRequest {
+  string code = 1;
 }
 
 message GetUserRequest {
@@ -195,6 +224,16 @@ message VerifyCodeRequest {
   string verification_code = 4;
 }
 
+message SendResetPasswordCodeRequest {
+  string username = 1;
+}
+
+message ResetPasswordRequest {
+  string username = 1;
+  string password = 2;
+  string verification_code = 3;
+}
+
 // ApiKey Resources
 
 message CreateApiKeyRequest {
@@ -217,8 +256,8 @@ message DeleteApiKeyResponse {
 }
 
 message ListApiKeysRequest {
-  int32 page_size = 3;
-  string page_token = 2;
+  string page_token = 1;
+  int32 page_size = 2;
 }
 
 message ListApiKeysResponse {
@@ -276,8 +315,7 @@ message ExchangeOauth2CodeRequest {
     GITHUB = 0;
   }
   Oauth2Provider provider = 1;
-  string username = 2;
-  string code = 3;
+  string code = 2;
 }
 
 message ExchangeOauth2CodeResponse {

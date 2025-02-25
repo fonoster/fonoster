@@ -39,7 +39,7 @@ class TokenRefresherNode {
     ): InterceptingCall => {
       return new InterceptingCall(nextCall(options), {
         sendMessage: async (message, next) => {
-          const token = this.client.getRefreshToken();
+          const token = this.client.getAccessToken();
 
           if (isJwtExpired(token)) {
             await this.client.refreshToken();

@@ -47,6 +47,7 @@ abstract class AbstractClient implements FonosterClient {
   protected accessKeyId: string;
   protected _accessToken: string;
   protected _refreshToken: string;
+  protected _idToken: string;
   protected identityClient: IdentityClient;
 
   constructor(config: { accessKeyId: string; identityClient: IdentityClient }) {
@@ -54,6 +55,7 @@ abstract class AbstractClient implements FonosterClient {
     this.identityClient = config.identityClient;
     this._accessToken = "";
     this._refreshToken = "";
+    this._idToken = "";
   }
 
   async login(
@@ -61,11 +63,11 @@ abstract class AbstractClient implements FonosterClient {
     password: string,
     verificationCode?: string
   ): Promise<void> {
-    const { refreshToken, accessToken } = await makeRpcRequest<
+    const { refreshToken, accessToken, idToken } = await makeRpcRequest<
       ExchangeCredentialsRequestPB,
       ExchangeCredentialsResponsePB,
       { username: string; password: string; verificationCode?: string },
-      { refreshToken: string; accessToken: string }
+      { refreshToken: string; accessToken: string; idToken: string }
     >({
       method: this.identityClient.exchangeCredentials.bind(this.identityClient),
       requestPBObjectConstructor: ExchangeCredentialsRequestPB,
@@ -79,14 +81,25 @@ abstract class AbstractClient implements FonosterClient {
 
     this._refreshToken = refreshToken;
     this._accessToken = accessToken;
+    this._idToken = idToken;
+  }
+
+  logout() {
+    this._refreshToken = "";
+    this._accessToken = "";
+    this._idToken = "";
   }
 
   async loginWithRefreshToken(refreshToken: string): Promise<void> {
-    const { accessToken, refreshToken: newRefreshToken } = await makeRpcRequest<
+    const {
+      accessToken,
+      refreshToken: newRefreshToken,
+      idToken
+    } = await makeRpcRequest<
       ExchangeRefreshTokenRequestPB,
       ExchangeCredentialsResponsePB,
       { refreshToken: string },
-      { accessToken: string; refreshToken: string }
+      { accessToken: string; refreshToken: string; idToken: string }
     >({
       method: this.identityClient.exchangeRefreshToken.bind(
         this.identityClient
@@ -100,6 +113,7 @@ abstract class AbstractClient implements FonosterClient {
 
     this._refreshToken = newRefreshToken;
     this._accessToken = accessToken;
+    this._idToken = idToken;
   }
 
   async loginWithApiKey(
@@ -125,32 +139,29 @@ abstract class AbstractClient implements FonosterClient {
     this._accessToken = accessToken;
   }
 
-  async loginWithOauth2Code(
-    provider: "GITHUB",
-    username: string,
-    code: string
-  ): Promise<void> {
-    const { refreshToken, accessToken } = await makeRpcRequest<
+  async loginWithOauth2Code(provider: "GITHUB", code: string): Promise<void> {
+    const { refreshToken, accessToken, idToken } = await makeRpcRequest<
       ExchangeOauth2CodeRequestPB,
       ExchangeOauth2CodeResponsePB,
-      { provider: "GITHUB"; username: string; code: string },
-      { refreshToken: string; accessToken: string }
+      { provider: "GITHUB"; code: string },
+      { refreshToken: string; accessToken: string; idToken: string }
     >({
-      method: this.identityClient.exchangeOauth2Code,
+      method: this.identityClient.exchangeOauth2Code.bind(this.identityClient),
       requestPBObjectConstructor: ExchangeOauth2CodeRequestPB,
       metadata: {},
       request: {
         provider,
-        username,
         code
-      }
+      },
+      enumMapping: [["provider", ExchangeOauth2CodeRequestPB.Oauth2Provider]]
     });
 
     this._refreshToken = refreshToken;
     this._accessToken = accessToken;
+    this._idToken = idToken;
   }
 
-  async setAccessToken(accessToken: string): Promise<void> {
+  setAccessToken(accessToken: string) {
     this._accessToken = accessToken;
   }
 
@@ -158,7 +169,7 @@ abstract class AbstractClient implements FonosterClient {
     contactType: ContactType,
     value: string
   ): Promise<void> {
-    await makeRpcRequest<
+    return makeRpcRequest<
       SendVerificationCodeRequestPB,
       null,
       { contactType: ContactType; value: string },
@@ -183,7 +194,7 @@ abstract class AbstractClient implements FonosterClient {
     value: string;
     verificationCode: string;
   }): Promise<void> {
-    await makeRpcRequest<
+    return makeRpcRequest<
       VerifyCodeRequestPB,
       null,
       {
@@ -203,11 +214,15 @@ abstract class AbstractClient implements FonosterClient {
   }
 
   async refreshToken(): Promise<void> {
-    return await this.loginWithRefreshToken(this._refreshToken);
+    return this.loginWithRefreshToken(this._refreshToken);
   }
 
   getAccessKeyId(): string {
     return this.accessKeyId;
+  }
+
+  setAccessKeyId(accessKeyId: string) {
+    this.accessKeyId = accessKeyId;
   }
 
   getAccessToken(): string {
@@ -216,6 +231,10 @@ abstract class AbstractClient implements FonosterClient {
 
   getRefreshToken(): string {
     return this._refreshToken;
+  }
+
+  getIdToken(): string {
+    return this._idToken;
   }
 
   abstract getMetadata(): unknown;

@@ -19,7 +19,7 @@
 import { z } from "zod";
 import { propertySchema } from "./propertySchema";
 import * as Messages from "../../messages";
-import { AllowedOperations } from "./AllowedOperations";
+import { AllowedHttpMethod } from "../../utils/sendHttpRequest";
 
 const toolSchema = z.object({
   name: z.string(),
@@ -30,24 +30,16 @@ const toolSchema = z.object({
     required: z.array(z.string()).optional()
   }),
   requestStartMessage: z.string().optional(),
-  operation: z
-    .object({
-      type: z.nativeEnum(AllowedOperations, {
-        message: "Invalid operation type"
-      }),
-      // Make url required if operation type is not built-in
-      url: z.string().url({ message: Messages.VALID_URL }).optional(),
-      waitForResponse: z.boolean().optional(),
-      headers: z.record(z.string()).optional()
-    })
-    .superRefine(({ url, type }, ctx: z.RefinementCtx) => {
-      if (type !== AllowedOperations.BUILT_IN && !url) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Url is required for non built-in operations."
-        });
-      }
-    })
+  operation: z.object({
+    method: z
+      .nativeEnum(AllowedHttpMethod, {
+        message: "Invalid method"
+      })
+      .default(AllowedHttpMethod.GET),
+    url: z.string().url({ message: Messages.VALID_URL }),
+    waitForResponse: z.boolean().default(true),
+    headers: z.record(z.string()).optional()
+  })
 });
 
 export { toolSchema };

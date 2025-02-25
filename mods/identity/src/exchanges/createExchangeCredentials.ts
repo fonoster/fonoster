@@ -30,18 +30,20 @@ import {
   IdentityConfig
 } from "./types";
 import { Prisma } from "../db";
-import { IDENTITY_USER_VERIFICATION_REQUIRED } from "../envs";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import { ContactType } from "../verification";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const verificationRequiredButNotProvided = (user: {
-  emailVerified: boolean;
-  phoneNumberVerified: boolean;
-}) =>
-  IDENTITY_USER_VERIFICATION_REQUIRED &&
+const verificationRequiredButNotProvided = (
+  identityConfig: IdentityConfig,
+  user: {
+    emailVerified: boolean;
+    phoneNumberVerified: boolean;
+  }
+) =>
+  identityConfig.userVerificationRequired &&
   (!user.emailVerified || !user.phoneNumberVerified);
 
 function createExchangeCredentials(
@@ -68,14 +70,14 @@ function createExchangeCredentials(
       });
     }
 
-    if (verificationRequiredButNotProvided(user)) {
+    if (verificationRequiredButNotProvided(identityConfig, user)) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "User contact information not verified"
       });
     }
 
-    if (IDENTITY_USER_VERIFICATION_REQUIRED) {
+    if (identityConfig.userVerificationRequired) {
       const isValid = await isValidVerificationCode({
         type: ContactType.EMAIL,
         value: email,

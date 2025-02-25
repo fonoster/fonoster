@@ -46,7 +46,7 @@
         },
         "requestStartMessage": "Please wait a moment.",
         "operation": {
-          "type": "get",
+          "method": "get",
           "url": "https://api.example.com/getAvailableTimes",
           "waitForResponse": true
         }
@@ -94,5 +94,13 @@
         }
       }
     ]
+  },
+  "eventsHook": {
+    "url": "https://api.example.com/events",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Basic NDcxM..."
+    },
+    "events": ["all"]
   }
 }

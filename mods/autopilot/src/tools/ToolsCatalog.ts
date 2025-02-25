@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { sendRequest } from "./sendRequest";
+import { sendHttpRequest, toolSchema } from "@fonoster/common";
 import { Tool } from "./type";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -41,11 +41,14 @@ class ToolsCatalog {
       throw new Error(`Tool '${toolName}' not found in the catalog`);
     }
 
-    return await sendRequest({
-      method: tool.operation.type,
-      url: tool.operation.url!,
-      waitForResponse: tool.operation.waitForResponse!,
-      headers: tool.operation.headers,
+    const parsedTool = toolSchema.parse(tool);
+
+    // FIXME: We shouldn't have to check the nullability of the operation
+    return await sendHttpRequest({
+      method: parsedTool.operation?.method!,
+      url: parsedTool.operation?.url!,
+      waitForResponse: parsedTool.operation?.waitForResponse!,
+      headers: parsedTool.operation?.headers,
       body: args
     });
   }
@@ -55,7 +58,7 @@ class ToolsCatalog {
   }
 
   addTool(toolDef: Tool) {
-    this.tools.set(toolDef.name, toolDef);
+    this.tools.set(toolDef.name!, toolDef);
   }
 
   listTools(): Tool[] {

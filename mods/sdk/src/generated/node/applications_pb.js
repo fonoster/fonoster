@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 var google_protobuf_struct_pb = require('google-protobuf/google/protobuf/struct_pb.js');
 goog.object.extend(proto, google_protobuf_struct_pb);
@@ -292,9 +298,9 @@ proto.fonoster.applications.v1beta2.ProductContainer.prototype.toObject = functi
  */
 proto.fonoster.applications.v1beta2.ProductContainer.toObject = function(includeInstance, msg) {
   var f, obj = {
-    productRef: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    config: (f = msg.getConfig()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f),
-    credentials: (f = msg.getCredentials()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f)
+productRef: jspb.Message.getFieldWithDefault(msg, 1, ""),
+config: (f = msg.getConfig()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f),
+credentials: (f = msg.getCredentials()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -524,15 +530,15 @@ proto.fonoster.applications.v1beta2.Application.prototype.toObject = function(op
  */
 proto.fonoster.applications.v1beta2.Application.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    type: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    endpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
-    speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
-    intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 8, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 9, 0)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+type: jspb.Message.getFieldWithDefault(msg, 3, 0),
+endpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
+textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
+speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
+intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
+createdAt: jspb.Message.getFieldWithDefault(msg, 8, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 9, 0)
   };
 
   if (includeInstance) {
@@ -957,12 +963,12 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.toObject 
  */
 proto.fonoster.applications.v1beta2.CreateApplicationRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    type: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    endpoint: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
-    speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
-    intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f)
+name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+type: jspb.Message.getFieldWithDefault(msg, 2, 0),
+endpoint: jspb.Message.getFieldWithDefault(msg, 3, ""),
+textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
+speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
+intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1300,7 +1306,7 @@ proto.fonoster.applications.v1beta2.CreateApplicationResponse.prototype.toObject
  */
 proto.fonoster.applications.v1beta2.CreateApplicationResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1430,7 +1436,7 @@ proto.fonoster.applications.v1beta2.GetApplicationRequest.prototype.toObject = f
  */
 proto.fonoster.applications.v1beta2.GetApplicationRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1560,8 +1566,8 @@ proto.fonoster.applications.v1beta2.ListApplicationsRequest.prototype.toObject =
  */
 proto.fonoster.applications.v1beta2.ListApplicationsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1727,9 +1733,9 @@ proto.fonoster.applications.v1beta2.ListApplicationsResponse.prototype.toObject 
  */
 proto.fonoster.applications.v1beta2.ListApplicationsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.applications.v1beta2.Application.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1910,13 +1916,13 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.toObject 
  */
 proto.fonoster.applications.v1beta2.UpdateApplicationRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    type: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    endpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
-    speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
-    intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f)
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+type: jspb.Message.getFieldWithDefault(msg, 3, 0),
+endpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
+textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
+speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
+intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -2283,7 +2289,7 @@ proto.fonoster.applications.v1beta2.UpdateApplicationResponse.prototype.toObject
  */
 proto.fonoster.applications.v1beta2.UpdateApplicationResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2413,7 +2419,7 @@ proto.fonoster.applications.v1beta2.DeleteApplicationRequest.prototype.toObject 
  */
 proto.fonoster.applications.v1beta2.DeleteApplicationRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2543,7 +2549,7 @@ proto.fonoster.applications.v1beta2.DeleteApplicationResponse.prototype.toObject
  */
 proto.fonoster.applications.v1beta2.DeleteApplicationResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {

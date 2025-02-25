@@ -17,10 +17,7 @@
  * limitations under the License.
  */
 import { ListRequest, ListResponse } from "./common";
-
-enum ApiRoleEnum {
-  WORKSPACE_ADMIN = "WORKSPACE_ADMIN"
-}
+import { WorkspaceMemberStatus, Role } from "./workspaces.types";
 
 type User = {
   ref: string;
@@ -31,11 +28,26 @@ type User = {
   updatedAt: Date;
 };
 
+type Member = {
+  ref: string;
+  userRef: string;
+  name: string;
+  email: string;
+  role: Role;
+  status: WorkspaceMemberStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 type CreateUserRequest = {
   name: string;
   email: string;
   password: string;
   avatar: string;
+};
+
+type CreateUserWithOauth2CodeRequest = {
+  code: string;
 };
 
 type CreateApiKeyResponse = {
@@ -52,7 +64,7 @@ type UpdateUserRequest = {
 };
 
 type CreateApiKeyRequest = {
-  role: ApiRoleEnum;
+  role: Role;
   expiresAt?: number;
 };
 
@@ -65,24 +77,49 @@ type RegenerateApiKeyResponse = {
 type ApiKey = {
   ref: string;
   accessKeyId: string;
-  role: ApiRoleEnum;
+  role: Role;
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
+};
+
+type SendResetPasswordCodeRequest = {
+  username: string;
+};
+
+type ResetPasswordRequest = {
+  username: string;
+  password: string;
+  verificationCode: string;
+};
+
+type ExchangeCredentialsResponse = {
+  accessToken: string;
+  refreshToken: string;
+  idToken: string;
 };
 
 type ListApiKeysRequest = ListRequest;
 
 type ListApiKeysResponse = ListResponse<ApiKey>;
 
+type ListWorkspaceMembersRequest = ListRequest;
+
+type ListWorkspaceMembersResponse = ListResponse<Member>;
+
 export {
-  ApiRoleEnum,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
+  CreateUserWithOauth2CodeRequest,
   CreateUserRequest,
   ListApiKeysRequest,
   ListApiKeysResponse,
   RegenerateApiKeyResponse,
+  ListWorkspaceMembersRequest,
+  ListWorkspaceMembersResponse,
   UpdateUserRequest,
-  User
+  SendResetPasswordCodeRequest,
+  ResetPasswordRequest,
+  User,
+  ExchangeCredentialsResponse
 };

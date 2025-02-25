@@ -67,6 +67,17 @@ function deserialize_fonoster_identity_v1beta2_CreateUserResponse(buffer_arg) {
   return identity_pb.CreateUserResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_CreateUserWithOauth2CodeRequest(arg) {
+  if (!(arg instanceof identity_pb.CreateUserWithOauth2CodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.CreateUserWithOauth2CodeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_CreateUserWithOauth2CodeRequest(buffer_arg) {
+  return identity_pb.CreateUserWithOauth2CodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_CreateWorkspaceRequest(arg) {
   if (!(arg instanceof identity_pb.CreateWorkspaceRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.CreateWorkspaceRequest');
@@ -320,6 +331,28 @@ function deserialize_fonoster_identity_v1beta2_ListApiKeysResponse(buffer_arg) {
   return identity_pb.ListApiKeysResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_ListWorkspaceMembersRequest(arg) {
+  if (!(arg instanceof identity_pb.ListWorkspaceMembersRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ListWorkspaceMembersRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ListWorkspaceMembersRequest(buffer_arg) {
+  return identity_pb.ListWorkspaceMembersRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_ListWorkspaceMembersResponse(arg) {
+  if (!(arg instanceof identity_pb.ListWorkspaceMembersResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ListWorkspaceMembersResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ListWorkspaceMembersResponse(buffer_arg) {
+  return identity_pb.ListWorkspaceMembersResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_ListWorkspacesRequest(arg) {
   if (!(arg instanceof identity_pb.ListWorkspacesRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.ListWorkspacesRequest');
@@ -408,6 +441,17 @@ function deserialize_fonoster_identity_v1beta2_ResendWorkspaceMembershipInvitati
   return identity_pb.ResendWorkspaceMembershipInvitationResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_ResetPasswordRequest(arg) {
+  if (!(arg instanceof identity_pb.ResetPasswordRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ResetPasswordRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ResetPasswordRequest(buffer_arg) {
+  return identity_pb.ResetPasswordRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_RevokeTokenRequest(arg) {
   if (!(arg instanceof identity_pb.RevokeTokenRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.RevokeTokenRequest');
@@ -428,6 +472,17 @@ function serialize_fonoster_identity_v1beta2_RevokeTokenResponse(arg) {
 
 function deserialize_fonoster_identity_v1beta2_RevokeTokenResponse(buffer_arg) {
   return identity_pb.RevokeTokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest(arg) {
+  if (!(arg instanceof identity_pb.SendResetPasswordCodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.SendResetPasswordCodeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest(buffer_arg) {
+  return identity_pb.SendResetPasswordCodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonoster_identity_v1beta2_SendVerificationCodeRequest(arg) {
@@ -620,6 +675,17 @@ createWorkspace: {
     responseSerialize: serialize_fonoster_identity_v1beta2_ResendWorkspaceMembershipInvitationResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_ResendWorkspaceMembershipInvitationResponse,
   },
+  listWorkspaceMembers: {
+    path: '/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.ListWorkspaceMembersRequest,
+    responseType: identity_pb.ListWorkspaceMembersResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_ListWorkspaceMembersRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_ListWorkspaceMembersRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_ListWorkspaceMembersResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_ListWorkspaceMembersResponse,
+  },
   // User specific actions
 createUser: {
     path: '/fonoster.identity.v1beta2.Identity/CreateUser',
@@ -631,6 +697,17 @@ createUser: {
     requestDeserialize: deserialize_fonoster_identity_v1beta2_CreateUserRequest,
     responseSerialize: serialize_fonoster_identity_v1beta2_CreateUserResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_CreateUserResponse,
+  },
+  createUserWithOauth2Code: {
+    path: '/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.CreateUserWithOauth2CodeRequest,
+    responseType: identity_pb.ExchangeCredentialsResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_CreateUserWithOauth2CodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_CreateUserWithOauth2CodeRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeCredentialsResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeCredentialsResponse,
   },
   getUser: {
     path: '/fonoster.identity.v1beta2.Identity/GetUser',
@@ -684,6 +761,28 @@ createUser: {
     responseType: google_protobuf_empty_pb.Empty,
     requestSerialize: serialize_fonoster_identity_v1beta2_VerifyCodeRequest,
     requestDeserialize: deserialize_fonoster_identity_v1beta2_VerifyCodeRequest,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  sendResetPasswordCode: {
+    path: '/fonoster.identity.v1beta2.Identity/SendResetPasswordCode',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.SendResetPasswordCodeRequest,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  resetPassword: {
+    path: '/fonoster.identity.v1beta2.Identity/ResetPassword',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.ResetPasswordRequest,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_fonoster_identity_v1beta2_ResetPasswordRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_ResetPasswordRequest,
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },

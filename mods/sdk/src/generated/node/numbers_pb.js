@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = (function() { return this || window || global || self || Function('return this')(); }).call(null);
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.fonoster.numbers.v1beta2.CreateNumberRequest', null, global);
 goog.exportSymbol('proto.fonoster.numbers.v1beta2.CreateNumberRequest.IngressHandlerCase', null, global);
@@ -318,17 +324,17 @@ proto.fonoster.numbers.v1beta2.Number.prototype.toObject = function(opt_includeI
  */
 proto.fonoster.numbers.v1beta2.Number.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    telUrl: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    city: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    country: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    countryIsoCode: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 7, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 8, 0),
-    trunk: (f = msg.getTrunk()) && proto.fonoster.numbers.v1beta2.Number.Trunk.toObject(includeInstance, f),
-    agentAor: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    appRef: jspb.Message.getFieldWithDefault(msg, 11, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+telUrl: jspb.Message.getFieldWithDefault(msg, 3, ""),
+city: jspb.Message.getFieldWithDefault(msg, 4, ""),
+country: jspb.Message.getFieldWithDefault(msg, 5, ""),
+countryIsoCode: jspb.Message.getFieldWithDefault(msg, 6, ""),
+createdAt: jspb.Message.getFieldWithDefault(msg, 7, 0),
+updatedAt: jspb.Message.getFieldWithDefault(msg, 8, 0),
+trunk: (f = msg.getTrunk()) && proto.fonoster.numbers.v1beta2.Number.Trunk.toObject(includeInstance, f),
+agentAor: (f = jspb.Message.getField(msg, 10)) == null ? undefined : f,
+appRef: (f = jspb.Message.getField(msg, 11)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -552,8 +558,8 @@ proto.fonoster.numbers.v1beta2.Number.Trunk.prototype.toObject = function(opt_in
  */
 proto.fonoster.numbers.v1beta2.Number.Trunk.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -991,14 +997,14 @@ proto.fonoster.numbers.v1beta2.CreateNumberRequest.prototype.toObject = function
  */
 proto.fonoster.numbers.v1beta2.CreateNumberRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    telUrl: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    city: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    country: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    countryIsoCode: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    trunkRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    agentAor: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    appRef: jspb.Message.getFieldWithDefault(msg, 8, "")
+name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+telUrl: jspb.Message.getFieldWithDefault(msg, 2, ""),
+city: jspb.Message.getFieldWithDefault(msg, 3, ""),
+country: jspb.Message.getFieldWithDefault(msg, 4, ""),
+countryIsoCode: jspb.Message.getFieldWithDefault(msg, 5, ""),
+trunkRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
+agentAor: (f = jspb.Message.getField(msg, 7)) == null ? undefined : f,
+appRef: (f = jspb.Message.getField(msg, 8)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1367,7 +1373,7 @@ proto.fonoster.numbers.v1beta2.CreateNumberResponse.prototype.toObject = functio
  */
 proto.fonoster.numbers.v1beta2.CreateNumberResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1523,11 +1529,11 @@ proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.toObject = function
  */
 proto.fonoster.numbers.v1beta2.UpdateNumberRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    trunkRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    agentAor: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    appRef: jspb.Message.getFieldWithDefault(msg, 5, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+trunkRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+agentAor: (f = jspb.Message.getField(msg, 4)) == null ? undefined : f,
+appRef: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1809,7 +1815,7 @@ proto.fonoster.numbers.v1beta2.UpdateNumberResponse.prototype.toObject = functio
  */
 proto.fonoster.numbers.v1beta2.UpdateNumberResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1939,7 +1945,7 @@ proto.fonoster.numbers.v1beta2.GetNumberRequest.prototype.toObject = function(op
  */
 proto.fonoster.numbers.v1beta2.GetNumberRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2069,7 +2075,7 @@ proto.fonoster.numbers.v1beta2.DeleteNumberRequest.prototype.toObject = function
  */
 proto.fonoster.numbers.v1beta2.DeleteNumberRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2199,7 +2205,7 @@ proto.fonoster.numbers.v1beta2.DeleteNumberResponse.prototype.toObject = functio
  */
 proto.fonoster.numbers.v1beta2.DeleteNumberResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -2329,8 +2335,8 @@ proto.fonoster.numbers.v1beta2.ListNumbersRequest.prototype.toObject = function(
  */
 proto.fonoster.numbers.v1beta2.ListNumbersRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+pageSize: jspb.Message.getFieldWithDefault(msg, 1, 0),
+pageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -2496,9 +2502,9 @@ proto.fonoster.numbers.v1beta2.ListNumbersResponse.prototype.toObject = function
  */
 proto.fonoster.numbers.v1beta2.ListNumbersResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
+itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.numbers.v1beta2.Number.toObject, includeInstance),
-    nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {

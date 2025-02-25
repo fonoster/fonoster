@@ -19,8 +19,12 @@
 import {
   BaseApiObject,
   CreateUserRequest,
+  SendResetPasswordCodeRequest,
+  ResetPasswordRequest,
   UpdateUserRequest,
-  User
+  User,
+  CreateUserWithOauth2CodeRequest,
+  ExchangeCredentialsResponse
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
@@ -32,7 +36,11 @@ import {
   GetUserRequest as GetUserRequestPB,
   UpdateUserRequest as UpdateUserRequestPB,
   UpdateUserResponse as UpdateUserResponsePB,
-  User as UserPB
+  User as UserPB,
+  SendResetPasswordCodeRequest as SendResetPasswordCodeRequestPB,
+  ResetPasswordRequest as ResetPasswordRequestPB,
+  CreateUserWithOauth2CodeRequest as CreateUserWithOauth2CodeRequestPB,
+  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB
 } from "./generated/node/identity_pb";
 
 /**
@@ -41,26 +49,10 @@ import {
  * Note that an active Fonoster deployment is required.
  *
  * @example
- *
  * const SDK = require("@fonoster/sdk");
  *
- * async function main(request) {
- *   const apiKey = "your-api-key";
- *   const apiSecret = "your-api-secret"
- *   const accessKeyId = "WO00000000000000000000000000000000";
- *
- *   try {
- *     const client = SDK.Client({ accessKeyId });
- *     await client.loginWithApiKey(apiKey, apiSecret);
- *
- *     const users = new SDK.Users(client);
- *     const response = await users.createUser(request);
- *
- *     console.log(response); // successful response
- *   } catch (e) {
- *     console.error(e); // an error occurred
- *   }
- * }
+ * const client = SDK.Client();
+ * const users = new SDK.Users(client);
  *
  * const request = {
  *   name: "John Doe",
@@ -69,7 +61,9 @@ import {
  *   avatar: "https://example.com/avatar.jpg"
  * };
  *
- * main(request);
+ * users.createUser(request)
+ *   .then(console.log) // successful response
+ *   .catch(console.error); // an error occurred
  */
 class Users {
   private readonly client: FonosterClient;
@@ -124,6 +118,41 @@ class Users {
   }
 
   /**
+   * Create a new User using an OAuth2 code and return the id, access, and refresh tokens for the User.
+   *
+   * @param {CreateUserWithOauth2CodeRequest} request - The request object with the OAuth2 code
+   * @param {string} request.code - The OAuth2 code of the User
+   * @return {Promise<ExchangeCredentialsResponse>} - The response object that contains the id, access, and refresh tokens
+   * @example
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * const request = {
+   *   code: "fd4d78beb31aa25b93de"
+   * };
+   *
+   * users.createUserWithOauth2Code(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
+   */
+  async createUserWithOauth2Code(
+    request: CreateUserWithOauth2CodeRequest
+  ): Promise<ExchangeCredentialsResponse> {
+    console.log("request", request);
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      CreateUserWithOauth2CodeRequestPB,
+      ExchangeCredentialsResponsePB,
+      CreateUserWithOauth2CodeRequest,
+      ExchangeCredentialsResponse
+    >({
+      method: client.createUserWithOauth2Code.bind(client),
+      requestPBObjectConstructor: CreateUserWithOauth2CodeRequestPB,
+      metadata: this.client.getMetadata(),
+      request
+    });
+  }
+
+  /**
    * Retrieves an existing User in the Workspace.
    *
    * @param {string} ref - The reference of the User to retrieve
@@ -140,12 +169,7 @@ class Users {
    */
   async getUser(ref: string): Promise<User> {
     const client = this.client.getIdentityClient();
-    return await makeRpcRequest<
-      GetUserRequestPB,
-      UserPB,
-      { ref: string },
-      User
-    >({
+    return await makeRpcRequest<GetUserRequestPB, UserPB, BaseApiObject, User>({
       method: client.getUser.bind(client),
       requestPBObjectConstructor: GetUserRequestPB,
       metadata: this.client.getMetadata(),
@@ -187,6 +211,73 @@ class Users {
     >({
       method: client.updateUser.bind(client),
       requestPBObjectConstructor: UpdateUserRequestPB,
+      metadata: this.client.getMetadata(),
+      request
+    });
+  }
+
+  /**
+   * Sends a reset password code to the User.
+   *
+   * @param {string} username - The username of the User
+   * @return {Promise<void>} - The response object that contains the reference to the User
+   * @example
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * const username = "john.doe@example.com";
+   *
+   * users
+   *   .sendResetPasswordCode(username)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
+   */
+  async sendResetPasswordCode(username: string): Promise<BaseApiObject> {
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      SendResetPasswordCodeRequestPB,
+      null,
+      SendResetPasswordCodeRequest,
+      never
+    >({
+      method: client.sendResetPasswordCode.bind(client),
+      requestPBObjectConstructor: SendResetPasswordCodeRequestPB,
+      metadata: this.client.getMetadata(),
+      request: { username }
+    });
+  }
+
+  /**
+   * Resets the password of the User.
+   *
+   * @param {ResetPasswordRequest} request - The request object that contains the necessary information to reset the password of a User
+   * @param {string} request.username - The username of the User
+   * @param {string} request.password - The new password of the User
+   * @param {string} request.verificationCode - The verification code of the User
+   * @return {Promise<void>} - The response object that contains the reference to the User
+   * @example
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * const request = {
+   *   username: "john.doe@example.com",
+   *   password: "password",
+   *   verificationCode: "123456"
+   * };
+   *
+   * users
+   *   .resetPassword(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
+   */
+  async resetPassword(request: ResetPasswordRequest): Promise<void> {
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      ResetPasswordRequestPB,
+      null,
+      ResetPasswordRequest,
+      never
+    >({
+      method: client.resetPassword.bind(client),
+      requestPBObjectConstructor: ResetPasswordRequestPB,
       metadata: this.client.getMetadata(),
       request
     });

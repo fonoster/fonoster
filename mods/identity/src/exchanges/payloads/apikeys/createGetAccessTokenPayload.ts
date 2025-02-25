@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceRoleEnum } from "@fonoster/types";
 import { Prisma } from "../../../db";
 import { AccessToken, TokenUseEnum } from "@fonoster/common/";
 import { IdentityConfig } from "../../types";
@@ -47,7 +46,7 @@ function createGetAccessTokenPayload(
     const access = [
       {
         accessKeyId: workspace.accessKeyId,
-        role: apiKey.role as WorkspaceRoleEnum
+        role: apiKey.role
       }
     ];
 

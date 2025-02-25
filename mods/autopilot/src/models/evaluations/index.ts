@@ -16,5 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./evals";
+export * from "./evalTestCases";
 export * from "./printEval";
+export * from "./types";

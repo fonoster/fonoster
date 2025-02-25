@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { LanguageModelProvider } from "./LanguageModelProvider";
 import { CallDirection } from "@fonoster/types";
 
 const testCasesSchema = z.object({

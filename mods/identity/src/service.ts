@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { prisma } from "./db";
-import { IDENTITY_USER_VERIFICATION_REQUIRED } from "./envs";
+import { createPrismaClient } from "./db";
 import { createExchangeOauth2Code } from "./exchanges/createExchangeOauth2Code";
 import { IdentityConfig } from "./exchanges/types";
 import { createGetPublicKey } from "./getPublicKey";
@@ -25,6 +24,7 @@ import { createSendVerificationCode, createVerifyCode } from "./verification";
 import {
   createCreateApiKey,
   createCreateUser,
+  createCreateUserWithOauth2Code,
   createCreateWorkspace,
   createDeleteApiKey,
   createDeleteUser,
@@ -42,7 +42,10 @@ import {
   createResendWorkspaceMembershipInvitation,
   sendInvite,
   createUpdateUser,
-  createUpdateWorkspace
+  createUpdateWorkspace,
+  createListWorkspaceMembers,
+  createSendResetPasswordCode,
+  createResetPassword
 } from ".";
 
 const serviceDefinitionParams = {
@@ -53,6 +56,11 @@ const serviceDefinitionParams = {
 };
 
 function buildIdentityService(identityConfig: IdentityConfig) {
+  const prisma = createPrismaClient(
+    identityConfig.dbUrl,
+    identityConfig.encryptionKey
+  );
+
   const service = {
     definition: serviceDefinitionParams,
     handlers: {
@@ -62,6 +70,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       getWorkspace: createGetWorkspace(prisma),
       updateWorkspace: createUpdateWorkspace(prisma),
       listWorkspaces: createListWorkspaces(prisma),
+      listWorkspaceMembers: createListWorkspaceMembers(prisma),
       inviteUserToWorkspace: createInviteUserToWorkspace(
         prisma,
         identityConfig,
@@ -76,9 +85,18 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       removeUserFromWorkspace: createRemoveUserFromWorkspace(prisma),
       // User operations
       createUser: createCreateUser(prisma),
+      createUserWithOauth2Code: createCreateUserWithOauth2Code(
+        prisma,
+        identityConfig
+      ),
       getUser: createGetUser(prisma),
       deleteUser: createDeleteUser(prisma),
       updateUser: createUpdateUser(prisma),
+      sendResetPasswordCode: createSendResetPasswordCode(
+        prisma,
+        identityConfig
+      ),
+      resetPassword: createResetPassword(prisma),
       // ApiKey operations
       createApiKey: createCreateApiKey(prisma),
       deleteApiKey: createDeleteApiKey(prisma),
@@ -98,7 +116,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
     }
   };
 
-  if (IDENTITY_USER_VERIFICATION_REQUIRED) {
+  if (identityConfig.userVerificationRequired) {
     service.handlers.sendVerificationCode = createSendVerificationCode(
       prisma,
       identityConfig

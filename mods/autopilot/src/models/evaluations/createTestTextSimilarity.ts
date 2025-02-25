@@ -51,6 +51,6 @@ export function createTestTextSimilarity(
     const response = await llm.invoke(messages);
     const reply = response.content?.toString().trim().toLowerCase();
 
-    return new Boolean(reply).valueOf();
+    return reply === "true" || reply === "yes";
   };
 }

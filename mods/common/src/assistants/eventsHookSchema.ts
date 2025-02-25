@@ -16,10 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum AllowedOperations {
-  GET = "get",
-  POST = "post",
-  BUILT_IN = "built-in"
+import { z } from "zod";
+import { AllowedHttpMethod } from "../utils/sendHttpRequest";
+import * as Messages from "../messages";
+
+enum EventsHookAllowedEvents {
+  ALL = "all",
+  CONVERSATION_STARTED = "conversation.started",
+  CONVERSATION_ENDED = "conversation.ended"
 }
 
-export { AllowedOperations };
+const eventsHookSchema = z.object({
+  url: z.string().url({ message: Messages.VALID_URL }),
+  headers: z.record(z.string()).optional(),
+  events: z
+    .array(z.nativeEnum(EventsHookAllowedEvents))
+    .min(1)
+    .default([EventsHookAllowedEvents.ALL])
+});
+
+export { eventsHookSchema, EventsHookAllowedEvents };
