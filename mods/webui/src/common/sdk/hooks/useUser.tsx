@@ -151,6 +151,9 @@ export const useUser = () => {
     updateUser,
     deleteUser,
     loggedUser,
-    idToken
+    idToken,
+    sendResetPasswordCode,
+    resetPassword,
+    createUserWithOauth2Code
   };
 };
