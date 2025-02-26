@@ -1,10 +1,7 @@
 import {
   Box,
-  useTheme,
-  Link as MuiLink,
   Typography
 } from '@mui/material';
-import Link from 'next/link';
 import router, { useRouter } from 'next/router';
 import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useForm } from 'react-hook-form';
@@ -13,6 +10,8 @@ import { InputContext } from '@/common/hooksForm/InputContext';
 import { z } from 'zod';
 import { LinkBackTo } from '@stories/linkbackto/LinkBackTo';
 import { Button } from '@stories/button/Button';
+import { useUser } from '@/common/sdk/hooks/useUser';
+import { useEffect } from 'react';
 
 export const forgotPasswordSchema = z.object({
   email: z
@@ -49,13 +48,26 @@ const TempResetButton = () => {
   );
 };
 export default function ForgotPassword() {
-  const theme = useTheme();
+  const { sendResetPasswordCode } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    const { code } = router.query;
+    if (code && typeof code === 'string') {
+      router.push({
+        pathname: '/forgot-password/[code]',
+        query: { code: code }
+      });
+    }
+  }, [router.query, router]);
+
   const methods = useForm<ForgotPasswordForm>({
     resolver: zodResolver(forgotPasswordSchema),
   });
 
   const onSubmit = async (data: ForgotPasswordForm) => {
     console.log(data);
+    await sendResetPasswordCode(data.email);
   };
 
   return (
