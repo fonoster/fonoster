@@ -74,7 +74,6 @@ export function WorkspacesSwitch(): React.JSX.Element {
         onClose={popover.handleClose}
         open={popover.open}
         workspaces={workspaces}
-        handleSetSelectedWorkspace={handleSetSelectedWorkspace}
       />
     </>
   );

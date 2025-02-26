@@ -3,19 +3,14 @@
 import * as React from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-
-export interface Workspaces {
-  name: string;
-  avatar: string;
-  ref: string;
-}
+import { Workspace } from '@fonoster/types';
 
 export interface WorkspacesPopoverProps {
   anchorEl: null | Element;
   onChange?: (tenant: string) => void;
   onClose?: () => void;
   open?: boolean;
-  workspaces: Workspaces[];
+  workspaces: Workspace[];
 }
 
 export function WorkspacesPopover({
