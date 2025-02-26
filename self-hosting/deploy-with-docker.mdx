@@ -3,10 +3,6 @@ title: 'Deploy with Docker'
 description: 'Self-hosting with Docker and Docker Compose.'
 ---
 
-import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
-
-<WipDocsWarning />
-
 Docker is the easiest way to deploy a self-hosted instance of Fonoster. This guide will walk you through deploying the Fonoster services using Docker and Docker Compose.
 
 ## Prerequisites
@@ -45,9 +41,11 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
       <Accordion title="Update the configuration">
         Then, open the `.env` file with your favorite editor and update the following variables:
 
-        * `DOCKER_HOST_ADDRESS`: The public IP address of your Docker host. If running locally, you can use your local IP address. If you are running the application on a server, you must use a routable IP address for the server.
-
         * `ASTERISK_SIPPROXY_HOST`: Set this variable to the IP address of the host machine.
+
+        * `ROUTR_EXTERNAL_ADDRS`: Set this variable to the IP address of the host machine.
+
+        * `ROUTR_RTPENGINE_HOST`: Set this variable to the IP address of the host machine.
 
         <Note>
           The [integrations.json](https://github.com/fonoster/fonoster/blob/main/config/integrations.example.json) file contains the credentials for the integrations (stt, tts, etc). You must update this file with the correct credentials for the integrations you want to use.
