@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import GlobalStyles from '@mui/material/GlobalStyles';
@@ -10,13 +8,6 @@ import { SideNav } from './side-nav';
 export interface VerticalLayoutProps {
   children?: React.ReactNode;
 }
-
-// const user = {
-//   id: '1',
-//   name: 'Fonoster',
-//   avatar: 'https://avatars.githubusercontent.com/u/1099404?v=4',
-//   email: 'support@fonoster.com',
-// } as User;
 
 export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Element {
 
@@ -43,9 +34,11 @@ export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Ele
           minHeight: '100%',
         }}
       >
+        {/* Header */}
         <MainNav items={layoutConfig.navItems} />
+        {/* Sidebar */}
         <Box sx={{ display: 'flex', flex: '1 1 auto' }}>
-          <SideNav color={'blend_in'} items={layoutConfig.navItems} />
+          <SideNav items={layoutConfig.navItems} />
           <Box
             component="main"
             sx={{

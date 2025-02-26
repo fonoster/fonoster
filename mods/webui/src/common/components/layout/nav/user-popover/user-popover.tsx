@@ -41,7 +41,7 @@ export function UserPopover({ anchorEl, onClose, open, user }: UserPopoverProps)
         </Typography>
       </Box>
       <Divider />
-      <List sx={{ p: 1 }}>
+      {/* <List sx={{ p: 1 }}>
         <MenuItem component={RouterLink} href={paths.dashboard.settings.account} onClick={onClose}>
           <ListItemIcon>
             <UserIcon />
@@ -54,7 +54,7 @@ export function UserPopover({ anchorEl, onClose, open, user }: UserPopoverProps)
           </ListItemIcon>
           Seguridad
         </MenuItem>
-      </List>
+      </List> */}
       <Divider />
       <Box sx={{ p: 1 }}>
         <CustomSignOut />

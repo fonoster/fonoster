@@ -14,14 +14,15 @@ export const layoutConfig = {
   navItems: [
     {
       key: 'home',
+      title: '',
       items: [
         { key: 'overview', title: 'Overview', href: paths.workspaces.overview('1') },
         { key: 'applications', title: 'Applications', href: paths.workspaces.applications('1') },
-        // { key: 'analytics', title: 'Analytics', href: paths.dashboard.analytics},
       ]
     },
     {
-      'key': 'sip-network:group',
+      key: 'sip-network:group',
+      title: '',
       items: [
         {
           key: 'sip-network',

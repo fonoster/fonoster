@@ -1,6 +1,7 @@
 import * as React from 'react';
 import RouterLink from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
@@ -10,45 +11,26 @@ import { ArrowSquareOut as ArrowSquareOutIcon } from '@phosphor-icons/react/dist
 import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/dist/ssr/CaretDown';
 import { CaretRight as CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 
-import type { NavItemConfig, NavColor, ColorScheme } from '@/types/layout';
-import { paths } from '../paths';
+import type { NavItemConfig } from '@/types/layout';
 import { isNavItemActive } from '@/utils/is-nav-item-active';
-// import { useSettings } from '@/hooks/use-settings';
-// import { Logo } from '@/components/logo/Logo';
-import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 
 import { icons } from '../nav-icons';
 import { WorkspacesSwitch } from '../workspaces-switch';
-import { navColorStyles } from './styles';
-// import { LogoResidential } from '@/components/core/logoResidential';
-
-const logoColors = {
-  dark: { blend_in: 'light', discrete: 'dark', evident: 'light' },
-  light: { blend_in: 'dark', discrete: 'dark', evident: 'light' },
-} as Record<ColorScheme, Record<NavColor, 'dark' | 'light'>>;
 
 export interface SideNavProps {
-  color?: NavColor;
   items?: NavItemConfig[];
 }
 
-export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.JSX.Element {
+export function SideNav({ items = [] }: SideNavProps): React.JSX.Element {
   const pathname = usePathname();
-  const { selectedWorkspace } = useWorkspaceContext();
-  const workspaceId = selectedWorkspace?.ref || '1'; // Fallback to '1' if no workspace is selected
+  const router = useRouter();
 
-  const colorScheme = 'light';
-  // const {
-  //   settings: { colorScheme = 'light' },
-  // } = useSettings();
-
-  const styles = navColorStyles[colorScheme][color];
-  const logoColor = logoColors[colorScheme][color];
+  // Fallback to router.pathname if usePathname() returns undefined
+  const currentPath = pathname || router.pathname;
 
   return (
     <Box
       sx={{
-        ...styles,
         bgcolor: 'var(--SideNav-background)',
         borderRight: '1px solid #E0E0E0',
         boxShadow: '2px 0 4px rgba(0, 0, 0, 0.05)',
@@ -75,7 +57,7 @@ export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.
           '&::-webkit-scrollbar': { display: 'none' },
         }}
       >
-        {renderNavGroups({ items, pathname, workspaceId })}
+        {renderNavGroups({ items, pathname: currentPath })}
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
         <Typography sx={{
@@ -92,23 +74,8 @@ export function SideNav({ color = 'evident', items = [] }: SideNavProps): React.
   );
 }
 
-function renderNavGroups({ items, pathname, workspaceId }: { items: NavItemConfig[]; pathname: string; workspaceId: string }): React.JSX.Element {
+function renderNavGroups({ items, pathname }: { items: NavItemConfig[]; pathname: string }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
-    // Process items to check for dynamic paths
-    let processedItems = curr.items;
-    if (curr.items) {
-      processedItems = curr.items.map(item => {
-        if (item.href && item.href.startsWith('/workspace/')) {
-          const pathParts = item.href.split('/');
-          if (pathParts.length > 2) {
-            pathParts[2] = workspaceId;
-            return { ...item, href: pathParts.join('/') };
-          }
-        }
-        return item;
-      });
-    }
-
     acc.push(
       <Stack component="li" key={curr.key} spacing={1.5}>
         {curr.title ? (
@@ -118,7 +85,7 @@ function renderNavGroups({ items, pathname, workspaceId }: { items: NavItemConfi
             </Typography>
           </div>
         ) : null}
-        <div>{renderNavItems({ depth: 0, items: processedItems, pathname, workspaceId })}</div>
+        <div>{renderNavItems({ depth: 0, items: curr.items, pathname })}</div>
       </Stack>
     );
 
@@ -136,50 +103,22 @@ function renderNavItems({
   depth = 0,
   items = [],
   pathname,
-  workspaceId,
 }: {
   depth: number;
   items?: NavItemConfig[];
   pathname: string;
-  workspaceId: string;
 }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { items: childItems, key, ...item } = curr;
 
-    // Process dynamic paths from the paths object
-    let processedItem = { ...item };
-    if (item.href && item.href.startsWith('/workspace/')) {
-      // This is a dynamic path that needs the workspace ID
-      const pathParts = item.href.split('/');
-      if (pathParts.length > 2) {
-        // Replace the workspace ID placeholder with the actual ID
-        pathParts[2] = workspaceId;
-        processedItem.href = pathParts.join('/');
-      }
-    }
-
-    // Process child items to check for dynamic paths
-    let processedChildItems = childItems;
-    if (childItems) {
-      processedChildItems = childItems.map(childItem => {
-        if (childItem.href && childItem.href.startsWith('/workspace/')) {
-          const pathParts = childItem.href.split('/');
-          if (pathParts.length > 2) {
-            pathParts[2] = workspaceId;
-            return { ...childItem, href: pathParts.join('/') };
-          }
-        }
-        return childItem;
-      });
-    }
-
-    const forceOpen = processedChildItems
-      ? Boolean(processedChildItems.find((childItem) => childItem.href && pathname && pathname.startsWith(childItem.href)))
+    console.log({ depth, item, pathname });
+    const forceOpen = childItems
+      ? Boolean(childItems.find((childItem) => childItem.href && pathname.startsWith(childItem.href)))
       : false;
 
     acc.push(
-      <NavItem depth={depth} forceOpen={forceOpen} key={key} pathname={pathname} workspaceId={workspaceId} {...processedItem}>
-        {processedChildItems ? renderNavItems({ depth: depth + 1, pathname, items: processedChildItems, workspaceId }) : null}
+      <NavItem depth={depth} forceOpen={forceOpen} key={key} pathname={pathname} {...item}>
+        {childItems ? renderNavItems({ depth: depth + 1, pathname, items: childItems }) : null}
       </NavItem>
     );
 
@@ -198,7 +137,6 @@ interface NavItemProps extends Omit<NavItemConfig, 'items'> {
   depth: number;
   forceOpen?: boolean;
   pathname: string;
-  workspaceId: string;
 }
 
 function NavItem({
@@ -213,7 +151,6 @@ function NavItem({
   matcher,
   pathname,
   title,
-  workspaceId,
 }: NavItemProps): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(forceOpen);
   const active = isNavItemActive({ disabled, external, href, matcher, pathname });

@@ -11,9 +11,7 @@ import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/dist/ssr/Caret
 import { CaretRight as CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 
 import type { NavItemConfig } from '@/types/layout';
-import { paths } from './paths';
 import { isNavItemActive } from '@/utils/is-nav-item-active';
-import { Logo } from '../../logo/Logo';
 import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 
 import { icons } from './nav-icons';

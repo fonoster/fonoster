@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
@@ -9,18 +7,13 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import { Bell as BellIcon } from '@phosphor-icons/react/dist/ssr/Bell';
 import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
-import { Users as UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
-// import { useTranslation } from 'next-i18next';
-
 import type { NavItemConfig } from '@/types/layout';
 import type { User } from '@/types/user';
 import { usePopover } from '@/common/hooks/use-popover';
-import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 
 import { MobileNav } from '../mobile-nav';
-import { NotificationsPopover } from '../notifications-popover';
+import { NotificationsPopover } from '../notifications';
 import { UserPopover } from '../user-popover/user-popover';
-// import { useUser } from '@/hooks/use-user';
 import { stringAvatar } from '@/utils/stringAvatar';
 import { Logo } from '../../../logo/Logo'
 
@@ -37,8 +30,6 @@ const user = {
 
 export function MainNav({ items }: MainNavProps): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
-  const { selectedWorkspace } = useWorkspaceContext();
-  const workspaceId = selectedWorkspace?.ref || '1'; // Fallback to '1' if no workspace is selected
 
   return (
     <React.Fragment>
