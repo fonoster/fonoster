@@ -14,30 +14,18 @@ import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 import { Button } from '@stories/button/Button';
 import { InputText } from '@stories/inputtext/InputText';
 import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
+import { OAuthConfig, OAuthResponse } from '@/types/oauth';
 
 interface LoginForm {
   email: string;
   password: string;
 }
 
-interface OAuthConfig {
-  clientId: string;
-  redirectUri: string;
-  redirectUriCallback: string;
-  scope: string;
-  authUrl: string;
-}
-
-interface OAuthResponse {
-  code: string;
-  provider?: string;
-}
-
 const GITHUB_CONFIG: OAuthConfig = {
   clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
-  redirectUri: process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI!,
+  redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI!,
   redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + '/signin',
-  scope: process.env.NEXT_PUBLIC_GITHUB_SCOPE!,
+  scope: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE!,
   authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!
 };
 
