@@ -88,7 +88,7 @@ export function TableProvider<TData>({
 }) {
   const [loadingData, setLoadingData] = useState(false);
   const [data, setData] = useState<TData[]>([]);
-  console.log(data)
+
   const table = useReactTable<TData>({
     columns,
     data,

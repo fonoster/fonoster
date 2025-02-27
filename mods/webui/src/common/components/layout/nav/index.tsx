@@ -1,24 +1,17 @@
-'use client';
-
 import * as React from 'react';
-import Box from '@mui/material/Box';
+import { IconButton, Stack, useMediaQuery, useTheme, Box } from '@mui/material';
+import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { layoutConfig } from '../config';
-import { MainNav } from './main-nav';
-import { SideNav } from './side-nav';
+import { Header } from './header';
+import { Sidebar as DesktopSidebar, MobileNav as MobileSidebar } from './sidebar';
 
-export interface VerticalLayoutProps {
+
+export interface SecuredLayoutProps {
   children?: React.ReactNode;
 }
 
-// const user = {
-//   id: '1',
-//   name: 'Fonoster',
-//   avatar: 'https://avatars.githubusercontent.com/u/1099404?v=4',
-//   email: 'support@fonoster.com',
-// } as User;
-
-export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Element {
+export function SecuredLayout({ children }: SecuredLayoutProps): React.JSX.Element {
+  const [openNav, setOpenNav] = React.useState<boolean>(false);
 
   return (
     <React.Fragment>
@@ -43,9 +36,24 @@ export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Ele
           minHeight: '100%',
         }}
       >
-        <MainNav items={layoutConfig.navItems} />
+        {/* Header */}
+        <Header
+          hamburgerIcon={
+            <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flex: '1 1 auto', display: { lg: 'none' } }}>
+              <IconButton
+                onClick={(): void => {
+                  setOpenNav(true);
+                }}
+              >
+                <ListIcon />
+              </IconButton>
+            </Stack>
+          }
+        />
+        {/* Sidebar */}
         <Box sx={{ display: 'flex', flex: '1 1 auto' }}>
-          <SideNav color={'blend_in'} items={layoutConfig.navItems} />
+          <MobileSidebar open={openNav} onClose={() => setOpenNav(false)} />
+          <DesktopSidebar />
           <Box
             component="main"
             sx={{
