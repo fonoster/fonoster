@@ -13,7 +13,7 @@ import { LockKey as LockKeyIcon } from '@phosphor-icons/react/dist/ssr/LockKey';
 import { User as UserIcon } from '@phosphor-icons/react/dist/ssr/User';
 
 import type { User } from '@/types/user';
-import { paths } from '../paths';
+import { paths } from '../utils/paths';
 import { CustomSignOut } from './custom-sign-out';
 
 export interface UserPopoverProps {

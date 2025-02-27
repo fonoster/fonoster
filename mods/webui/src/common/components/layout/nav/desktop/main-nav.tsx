@@ -7,19 +7,16 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import { Bell as BellIcon } from '@phosphor-icons/react/dist/ssr/Bell';
 import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
-import type { NavItemConfig } from '@/types/layout';
 import type { User } from '@/types/user';
 import { usePopover } from '@/common/hooks/use-popover';
 
-import { MobileNav } from '../mobile-nav';
+import { MobileNav } from '../mobile';
 import { NotificationsPopover } from '../notifications';
 import { UserPopover } from '../user-popover/user-popover';
 import { stringAvatar } from '@/utils/stringAvatar';
 import { Logo } from '../../../logo/Logo'
 
-export interface MainNavProps {
-  items: NavItemConfig[];
-}
+export interface MainNavProps {}
 
 const user = {
   id: '1',
@@ -28,7 +25,7 @@ const user = {
   email: 'support@fonoster.com',
 } as User;
 
-export function MainNav({ items }: MainNavProps): React.JSX.Element {
+export function MainNav(): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
 
   return (
@@ -80,7 +77,6 @@ export function MainNav({ items }: MainNavProps): React.JSX.Element {
         </Stack>
       </Box>
       <MobileNav
-        items={items}
         onClose={() => {
           setOpenNav(false);
         }}

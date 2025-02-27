@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -31,8 +29,8 @@ const notifications = [
     createdAt: dayjs().subtract(7, 'minute').subtract(5, 'hour').subtract(1, 'day').toDate(),
     read: false,
     type: 'welcome',
-    author: { name: 'CondominioRD', avatar: '/assets/avatar-8.png' },
-    job: { title: 'Bienvenido' },
+    author: { name: 'Fonoster', avatar: '/assets/avatar-8.png' },
+    job: { title: 'Welcome' },
   },
   // {
   //   id: 'EV-003',

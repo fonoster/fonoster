@@ -14,16 +14,14 @@ import { CaretRight as CaretRightIcon } from '@phosphor-icons/react/dist/ssr/Car
 import type { NavItemConfig } from '@/types/layout';
 import { isNavItemActive } from '@/utils/is-nav-item-active';
 
-import { icons } from '../nav-icons';
+import { icons } from '../utils/nav-icons';
 import { WorkspacesSwitch } from '../workspaces-switch';
+import { useNavConfig } from '../hook/useNavConfig';
 
-export interface SideNavProps {
-  items?: NavItemConfig[];
-}
-
-export function SideNav({ items = [] }: SideNavProps): React.JSX.Element {
+export function SideNav(): React.JSX.Element {
   const pathname = usePathname();
   const router = useRouter();
+  const { items } = useNavConfig();
 
   // Fallback to router.pathname if usePathname() returns undefined
   const currentPath = pathname || router.pathname;
@@ -111,7 +109,6 @@ function renderNavItems({
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { items: childItems, key, ...item } = curr;
 
-    console.log({ depth, item, pathname });
     const forceOpen = childItems
       ? Boolean(childItems.find((childItem) => childItem.href && pathname.startsWith(childItem.href)))
       : false;

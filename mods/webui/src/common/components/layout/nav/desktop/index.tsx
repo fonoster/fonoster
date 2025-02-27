@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { layoutConfig } from '../config';
 import { MainNav } from './main-nav';
 import { SideNav } from './side-nav';
 
@@ -10,7 +9,6 @@ export interface VerticalLayoutProps {
 }
 
 export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Element {
-
   return (
     <React.Fragment>
       <GlobalStyles
@@ -35,10 +33,10 @@ export function VerticalLayout({ children }: VerticalLayoutProps): React.JSX.Ele
         }}
       >
         {/* Header */}
-        <MainNav items={layoutConfig.navItems} />
+        <MainNav />
         {/* Sidebar */}
         <Box sx={{ display: 'flex', flex: '1 1 auto' }}>
-          <SideNav items={layoutConfig.navItems} />
+          <SideNav />
           <Box
             component="main"
             sx={{
