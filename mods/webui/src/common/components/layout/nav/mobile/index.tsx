@@ -283,9 +283,20 @@ function NavItem({
         <Box sx={{ flex: '1 1 auto' }}>
           <Typography
             component="span"
-            sx={{ color: 'inherit', fontSize: '0.875rem', fontWeight: 500, lineHeight: '28px' }}
+            sx={{ color: 'inherit', fontSize: '0.875rem', fontWeight: 500, lineHeight: '28px', display: 'flex', alignItems: 'center', gap: 1 }}
           >
             {title}
+            {active && (
+              <Box
+                sx={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#00ab55',
+                  display: 'inline-block'
+                }}
+              />
+            )}
           </Typography>
         </Box>
         {label ? <Chip color="primary" label={label} size="small" /> : null}
