@@ -16,7 +16,7 @@ import { UserPopover } from '../user-popover/user-popover';
 import { stringAvatar } from '@/utils/stringAvatar';
 import { Logo } from '../../../logo/Logo'
 
-export interface MainNavProps {}
+export interface MainNavProps { }
 
 const user = {
   id: '1',
@@ -53,7 +53,7 @@ export function MainNav(): React.JSX.Element {
             py: 1,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
             <Logo size="small" />
           </Box>
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flex: '1 1 auto' }}>

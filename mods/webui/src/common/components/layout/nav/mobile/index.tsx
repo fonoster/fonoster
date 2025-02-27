@@ -49,7 +49,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
           '--Workspaces-title-color': 'var(--mui-palette-neutral-400)',
           '--Workspaces-name-color': 'var(--mui-palette-neutral-300)',
           '--Workspaces-expand-color': 'var(--mui-palette-neutral-400)',
-          bgcolor: 'var(--MobileNav-background)',
+          // bgcolor: 'var(--MobileNav-background)',
           color: 'var(--MobileNav-color)',
           display: 'flex',
           flexDirection: 'column',
@@ -60,6 +60,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
           '&::-webkit-scrollbar': { display: 'none' },
         },
       }}
+      variant="temporary"
       onClose={onClose}
       open={open}
     >
