@@ -2,6 +2,8 @@ import PageContainer from '@/common/components/layout/pages';
 import { Button } from '@mui/material';
 import { Secret } from '@fonoster/types';
 import { ColumnDef } from "@tanstack/react-table";
+import { useRouter } from 'next/router';
+import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 
 
 const columns: ColumnDef<Secret>[] = [
@@ -13,12 +15,15 @@ const columns: ColumnDef<Secret>[] = [
 ];
 
 export default function ApiKeysPage() {
+  const router = useRouter();
+  const { selectedWorkspace } = useWorkspaceContext();
+
   return (
     <PageContainer>
       <PageContainer.Header
         title="API Keys"
         actions={
-          <Button variant="contained" onClick={() => { }}>
+          <Button variant="contained" onClick={() => router.push(`/workspace/${selectedWorkspace?.ref}/api-keys/new`)}>
             Create New API Key
           </Button>
         }
