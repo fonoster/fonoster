@@ -4,7 +4,7 @@ import { Application } from '@fonoster/types';
 import PageContainer from '@/common/components/layout/pages';
 import { Button } from '@mui/material';
 import QueryApplications from './_components/QueryApplications';
-import { ApplicationDTO } from '@/types/dto/ApplicationDTO';
+import { ApplicationDTO } from '@/types/dto/applications/ApplicationDTO';
 import { useApplications } from '@/common/sdk/hooks/useApplications';
 import { useEffect } from 'react';
 

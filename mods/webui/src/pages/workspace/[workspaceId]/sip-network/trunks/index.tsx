@@ -1,28 +1,29 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Trunk } from '@fonoster/types';
 import PageContainer from '@/common/components/layout/pages';
 import { Button } from '@mui/material';
+import QueryTrunks from "./_components/query-trunks";
+import { TrunkDTO } from "@/types/dto";
 
-const columns: ColumnDef<Trunk>[] = [
+const columns: ColumnDef<TrunkDTO>[] = [
   {
-    accessorKey: 'name',
+    id: 'name',
     header: 'Name',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: TrunkDTO } }) => props.row.original.name,
   },
   {
-    accessorKey: 'sendRegister',
+    id: 'sendRegister',
     header: 'Send Register',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: TrunkDTO } }) => props.row.original.sendRegister ? 'True' : 'False',
   },
   {
-    accessorKey: 'inboundSip',
+    id: 'inboundUri',
     header: 'Inbound SIP',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: TrunkDTO } }) => props.row.original.inboundUri,
   },
   {
-    accessorKey: 'outboundSipUri',
+    id: 'outboundUri',
     header: 'Outbound SIP URI',
-    cell: (info: any) => info.getValue(),
+    cell: (props: { row: { original: TrunkDTO } }) => props.row.original.outboundCredentialsRef,
   }
 ];
 
@@ -41,7 +42,9 @@ export default function TrunksPage() {
         Configure and manage your SIP trunks. Monitor trunk status and performance.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<Trunk> columns={columns} tableId="trunks-table" />
+      <PageContainer.ContentTable<TrunkDTO> columns={columns} tableId="trunks-table">
+        <QueryTrunks />
+      </PageContainer.ContentTable>
     </PageContainer>
   );
 } 

@@ -19,6 +19,7 @@ import {
 } from '@tanstack/react-table';
 
 export interface PaginationProps {
+  totalPages?: number;
   pageIndex?: number;
   pageSize?: number;
   canPreviousPage?: boolean;
@@ -29,6 +30,7 @@ export interface PaginationProps {
   firstPage?: () => void;
   gotoPage?: (updater: Updater<number>) => void;
   setPageSize?: (updater: Updater<number>) => void;
+  setNextPageCursor?: (updater: Updater<string | null>) => void;
   pageCount?: number;
 }
 
@@ -38,10 +40,13 @@ export interface FilterProps {
   globalFilter?: string;
   setGlobalFilter?: (updater: Updater<any>) => void;
 }
-export interface TableContextProps<TData>
-  extends Object,
-  PaginationProps,
-  FilterProps {
+
+export interface CursorResponse<TData> {
+  items?: TData[];
+  nextPageToken?: string;
+}
+
+export interface TableContextProps<TData> extends Object, PaginationProps, FilterProps {
   reset: () => void;
   getState: () => TableState;
   setState: (updater: Updater<TableState>) => void;
@@ -63,6 +68,10 @@ export interface TableContextProps<TData>
   setLoadingData: React.Dispatch<React.SetStateAction<boolean>>;
   setData: React.Dispatch<React.SetStateAction<TData[]>>;
   data: TData[];
+  cursorResponse: CursorResponse<TData> | undefined;
+  setCursorResponse: React.Dispatch<React.SetStateAction<CursorResponse<TData> | undefined>>;
+  nextPageCursor: string | null;
+  setNextPageCursor: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const TableContext = createContext<TableContextProps<any> | undefined>(undefined);
@@ -88,6 +97,8 @@ export function TableProvider<TData>({
 }) {
   const [loadingData, setLoadingData] = useState(false);
   const [data, setData] = useState<TData[]>([]);
+  const [cursorResponse, setCursorResponse] = useState<CursorResponse<TData> | undefined>(undefined);
+  const [nextPageCursor, setNextPageCursor] = useState<string | null>(null);
 
   const table = useReactTable<TData>({
     columns,
@@ -116,9 +127,16 @@ export function TableProvider<TData>({
     table.resetPageIndex();
   }, [columnFilters]);
 
+  useEffect(() => {
+    if (cursorResponse) {
+      setData(cursorResponse?.items || []);
+    }
+  }, [cursorResponse, data]);
+
   return (
     <TableContext.Provider value={{
       table,
+      totalPages: table.getPageCount(),
       pageIndex: table.getState().pagination.pageIndex,
       pageSize: table.getState().pagination.pageSize,
       sortBy: table.getState().sorting,
@@ -151,7 +169,13 @@ export function TableProvider<TData>({
       loadingData,
       setLoadingData,
       setData,
-      data: table.options.data
+      data: table.options.data,
+
+      // External Cursor API handlers
+      cursorResponse,
+      setCursorResponse,
+      nextPageCursor,
+      setNextPageCursor,
     }}>
       {children}
     </TableContext.Provider>
