@@ -1,4 +1,4 @@
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { InputContext } from '@/common/hooksForm/InputContext';
@@ -110,54 +110,58 @@ export default function APIKeyForm({
           </Button>
         }
       />
-        <PageContainer.ContentForm methods={methods} formId={formId}>
-          <InputContext
-            name="name"
-            label="API Key Name"
-            type="text"
-            leadingIcon={null}
-            trailingIcon={null}
-            id={`${formId}-name`}
-          />
 
-          <InputContext
-            name="description"
-            label="Description"
-            type="text"
-            leadingIcon={null}
-            trailingIcon={null}
-            id={`${formId}-description`}
-          />
+      <PageContainer.Subheader>
+        You API Keeys are only available for use within this Workspace.
+      </PageContainer.Subheader>
+      <PageContainer.ContentForm methods={methods} formId={formId}>
+        <InputContext
+          name="name"
+          label="API Key Name"
+          type="text"
+          leadingIcon={null}
+          trailingIcon={null}
+          id={`${formId}-name`}
+        />
 
-          <SelectContext
-            name="role"
-            label="Access Role"
-            options={roleOptions}
-            id={`${formId}-role`}
-          />
+        <InputContext
+          name="description"
+          label="Description"
+          type="text"
+          leadingIcon={null}
+          trailingIcon={null}
+          id={`${formId}-description`}
+        />
 
-          <Snackbar
-            open={!!error}
-            autoHideDuration={6000}
-            onClose={() => setError(null)}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          >
-            <Alert onClose={() => setError(null)} severity="error">
-              {error}
-            </Alert>
-          </Snackbar>
+        <SelectContext
+          name="role"
+          label="Access Role"
+          options={roleOptions}
+          id={`${formId}-role`}
+        />
 
-          <Snackbar
-            open={!!success}
-            autoHideDuration={3000}
-            onClose={() => setSuccess(null)}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          >
-            <Alert onClose={() => setSuccess(null)} severity="success">
-              {success}
-            </Alert>
-          </Snackbar>
-        </PageContainer.ContentForm>
+        <Snackbar
+          open={!!error}
+          autoHideDuration={6000}
+          onClose={() => setError(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={() => setError(null)} severity="error">
+            {error}
+          </Alert>
+        </Snackbar>
+
+        <Snackbar
+          open={!!success}
+          autoHideDuration={3000}
+          onClose={() => setSuccess(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={() => setSuccess(null)} severity="success">
+            {success}
+          </Alert>
+        </Snackbar>
+      </PageContainer.ContentForm>
     </PageContainer>
   );
 } 
