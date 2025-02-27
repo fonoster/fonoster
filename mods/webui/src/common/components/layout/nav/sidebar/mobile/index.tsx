@@ -12,10 +12,10 @@ import { CaretRight as CaretRightIcon } from '@phosphor-icons/react/dist/ssr/Car
 
 import type { NavItemConfig } from '@/types/layout';
 import { isNavItemActive } from '@/utils/is-nav-item-active';
-import { useNavConfig } from '../hook/useNavConfig';
+import { useNavConfig } from '../../hook/useNavConfig';
 
-import { icons } from '../utils/nav-icons';
-import { WorkspacesSwitch } from '../workspaces-switch';
+import { icons } from '../../utils/nav-icons';
+import { WorkspacesSwitch } from '../../../../workspaces-switch';
 import { Logo } from '@/common/components/logo/Logo';
 
 export interface MobileNavProps {
@@ -139,11 +139,11 @@ function renderNavItems({
     // Check if current pathname matches this item or any of its nested children
     const shouldForceOpen = (items: NavItemConfig[] | undefined, path: string): boolean => {
       if (!items) return false;
-      
+
       // Check if any direct child matches
       const directMatch = items.some(childItem => childItem.href && path && path.startsWith(childItem.href));
       if (directMatch) return true;
-      
+
       // Check nested children recursively
       return items.some(childItem => childItem.items && shouldForceOpen(childItem.items, path));
     };
@@ -189,14 +189,14 @@ function NavItem({
   title
 }: NavItemProps): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(forceOpen);
-  
+
   // Update open state when forceOpen changes
   React.useEffect(() => {
     if (forceOpen) {
       setOpen(true);
     }
   }, [forceOpen]);
-  
+
   const active = isNavItemActive({ disabled, external, href, matcher, pathname });
   const Icon = icon ? icons[icon] : null;
   const ExpandIcon = open ? CaretDownIcon : CaretRightIcon;

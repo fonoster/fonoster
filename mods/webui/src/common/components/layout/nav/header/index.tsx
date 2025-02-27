@@ -6,17 +6,16 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import { Bell as BellIcon } from '@phosphor-icons/react/dist/ssr/Bell';
-import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
 import type { User } from '@/types/user';
 import { usePopover } from '@/common/hooks/use-popover';
 
-import { MobileNav } from '../mobile';
-import { NotificationsPopover } from '../notifications';
-import { UserPopover } from '../user-popover/user-popover';
+// import { MobileNav } from './sidebar/mobile';
+import { NotificationsPopover } from './notifications';
+import { UserPopover } from './user-popover';
 import { stringAvatar } from '@/utils/stringAvatar';
 import { Logo } from '../../../logo/Logo'
 
-export interface MainNavProps { }
+export interface HeaderProps { }
 
 const user = {
   id: '1',
@@ -25,8 +24,11 @@ const user = {
   email: 'support@fonoster.com',
 } as User;
 
-export function MainNav(): React.JSX.Element {
-  const [openNav, setOpenNav] = React.useState<boolean>(false);
+export function Header({
+  hamburgerIcon,
+}: {
+  hamburgerIcon?: React.ReactNode;
+}): React.JSX.Element {
 
   return (
     <React.Fragment>
@@ -56,16 +58,7 @@ export function MainNav(): React.JSX.Element {
           <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
             <Logo size="small" />
           </Box>
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flex: '1 1 auto' }}>
-            <IconButton
-              onClick={(): void => {
-                setOpenNav(true);
-              }}
-              sx={{ display: { lg: 'none' } }}
-            >
-              <ListIcon />
-            </IconButton>
-          </Stack>
+          {hamburgerIcon}
           <Stack
             direction="row"
             spacing={2}
@@ -76,12 +69,6 @@ export function MainNav(): React.JSX.Element {
           </Stack>
         </Stack>
       </Box>
-      <MobileNav
-        onClose={() => {
-          setOpenNav(false);
-        }}
-        open={openNav}
-      />
     </React.Fragment>
   );
 }
