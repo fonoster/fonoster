@@ -23,5 +23,11 @@ export function isNavItemActive({
     return false;
   }
 
+  // For parent routes with nested children, check if the current path starts with the href
+  // This helps highlight parent items when a child route is active
+  if (href.endsWith('/') || href.split('/').length <= 4) {
+    return pathname.startsWith(href);
+  }
+
   return pathname === href;
 }

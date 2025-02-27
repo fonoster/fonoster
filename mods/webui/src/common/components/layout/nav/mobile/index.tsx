@@ -16,6 +16,7 @@ import { useNavConfig } from '../hook/useNavConfig';
 
 import { icons } from '../utils/nav-icons';
 import { WorkspacesSwitch } from '../workspaces-switch';
+import { Logo } from '@/common/components/logo/Logo';
 
 export interface MobileNavProps {
   onClose?: () => void;
@@ -65,6 +66,9 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
       open={open}
     >
       <Stack spacing={2} sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+          <Logo size="small" />
+        </Box>
         <WorkspacesSwitch />
       </Stack>
       <Box component="nav" sx={{ flex: '1 1 auto', p: 2 }}>
@@ -132,9 +136,19 @@ function renderNavItems({
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { items: childItems, key, ...item } = curr;
 
-    const forceOpen = childItems
-      ? Boolean(childItems.find((childItem) => childItem.href && pathname && pathname.startsWith(childItem.href)))
-      : false;
+    // Check if current pathname matches this item or any of its nested children
+    const shouldForceOpen = (items: NavItemConfig[] | undefined, path: string): boolean => {
+      if (!items) return false;
+      
+      // Check if any direct child matches
+      const directMatch = items.some(childItem => childItem.href && path && path.startsWith(childItem.href));
+      if (directMatch) return true;
+      
+      // Check nested children recursively
+      return items.some(childItem => childItem.items && shouldForceOpen(childItem.items, path));
+    };
+
+    const forceOpen = childItems ? shouldForceOpen(childItems, pathname) : false;
 
     acc.push(
       <NavItem depth={depth} forceOpen={forceOpen} key={key} onClose={onClose} pathname={pathname} {...item}>
@@ -175,6 +189,14 @@ function NavItem({
   title
 }: NavItemProps): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(forceOpen);
+  
+  // Update open state when forceOpen changes
+  React.useEffect(() => {
+    if (forceOpen) {
+      setOpen(true);
+    }
+  }, [forceOpen]);
+  
   const active = isNavItemActive({ disabled, external, href, matcher, pathname });
   const Icon = icon ? icons[icon] : null;
   const ExpandIcon = open ? CaretDownIcon : CaretRightIcon;
