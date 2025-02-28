@@ -16,10 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createTheme } from "@mui/material/styles";
+import { createTheme, ThemeOptions } from "@mui/material/styles";
 
-const fnLight = createTheme({
+// Definir las opciones del tema claro
+const lightThemeOptions: ThemeOptions = {
   palette: {
+    mode: 'light',
     primary: {
       "50": "#FFFFFF",
       "100": "#E6FFF5",
@@ -27,7 +29,11 @@ const fnLight = createTheme({
       "500": "#39E19E",
       "700": "#008751",
       "800": "#053204",
-      "900": "#011900"
+      "900": "#011900",
+      main: "#39E19E",
+      light: "#CCEFE1",
+      dark: "#008751",
+      contrastText: "#FFFFFF"
     },
     secondary: {
       "50": "#F4F4F4",
@@ -37,7 +43,10 @@ const fnLight = createTheme({
       "700": "#555555",
       "800": "#333333",
       "900": "#252525",
-      main: "#C2C2C2"
+      main: "#C2C2C2", 
+      light: "#E8E8E8",
+      dark: "#8D8D8D",
+      contrastText: "#000000"
     },
     warning: {
       "50": "#FFFFFF",
@@ -46,10 +55,15 @@ const fnLight = createTheme({
       "500": "#FF9965",
       "700": "#C46C3F",
       "800": "#612E13",
-      "900": "#27150C"
+      "900": "#27150C",
+      main: "#FF9965", 
+      light: "#FFF4F0",
+      dark: "#C46C3F",
+      contrastText: "#000000"
     },
     text: {
-      primary: "#555"
+      primary: "#555555",
+      secondary: "#757575"
     }
   },
   components: {
@@ -82,9 +96,9 @@ const fnLight = createTheme({
       }
     }
   }
-});
+};
 
-const fnDark = createTheme({
+const darkThemeOptions: ThemeOptions = {
   palette: {
     mode: 'dark',
     primary: {
@@ -94,7 +108,11 @@ const fnDark = createTheme({
       "500": "#39E19E",
       "700": "#2AAA78",
       "800": "#1D7D57",
-      "900": "#0F4A33"
+      "900": "#0F4A33",
+      main: "#39E19E",
+      light: "#2AAA78",
+      dark: "#164A35",
+      contrastText: "#FFFFFF"
     },
     secondary: {
       "50": "#1A1A1A",
@@ -104,7 +122,10 @@ const fnDark = createTheme({
       "700": "#AAAAAA",
       "800": "#CCCCCC",
       "900": "#EBEBEB",
-      main: "#3D3D3D"
+      main: "#3D3D3D", 
+      light: "#8D8D8D",
+      dark: "#1A1A1A",
+      contrastText: "#FFFFFF"
     },
     warning: {
       "50": "#1F1410",
@@ -113,7 +134,11 @@ const fnDark = createTheme({
       "500": "#FF9965",
       "700": "#FFB38C",
       "800": "#FFCDB2",
-      "900": "#FFE8D9"
+      "900": "#FFE8D9",
+      main: "#FF9965", 
+      light: "#FFB38C",
+      dark: "#4A2F25",
+      contrastText: "#000000"
     },
     background: {
       default: "#121212",
@@ -154,6 +179,14 @@ const fnDark = createTheme({
       }
     }
   }
-});
+};
+
+// Crear los temas
+const fnLight = createTheme(lightThemeOptions);
+const fnDark = createTheme(darkThemeOptions);
+
+// Verificar que los temas se hayan creado correctamente
+console.log('theme.ts - fnLight primary main:', fnLight.palette.primary.main);
+console.log('theme.ts - fnDark primary main:', fnDark.palette.primary.main);
 
 export { fnLight, fnDark };
