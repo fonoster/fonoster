@@ -46,5 +46,13 @@
     ".next",
     "out",
     "dist"
+  ],
+  "references": [
+    {
+      "path": "../logger",
+    },
+    {
+      "path": "../sdk",
+    }
   ]
 }
