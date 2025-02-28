@@ -11,7 +11,7 @@
     "mods/*"
   ],
   "scripts": {
-    "start:webui": "NODE_ENV=dev cd mods/webui && npm start",
+    "start:webui": "NODE_ENV=dev cd mods/webui && npm run dev",
     "start:storybook": "NODE_ENV=dev cd mods/webui && npm run storybook",
     "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver mods/apiserver/src/index.ts",
     "start:authz": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/authz mods/authz/src/server/server.ts",

@@ -1,58 +1,73 @@
-import { Box, Typography } from '@mui/material';
-import ACLsForm, { ACLsFormData } from '@/pages/workspace/[workspaceId]/sip-network/acls/_components/form/ACLsForm';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { useACL } from '@/common/sdk/hooks/useACL';
+import ACLsForm, { ACLsFormData } from '@/pages/workspace/[workspaceId]/sip-network/acls/_components/form/ACLsForm';
+import { Box, CircularProgress } from '@mui/material';
 
-export default function EditACLsPage() {
+export default function EditACLPage() {
   const router = useRouter();
-  const { workspaceId, id } = router.query;
+  const { id } = router.query;
+  const { getAcl } = useACL();
   const [acl, setAcl] = useState<ACLsFormData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchApplication = async () => {
+    const fetchACL = async () => {
       if (id) {
         try {
-          setAcl({
-            name: 'Aplicación de ejemplo',
-            description: 'Descripción de ejemplo',
-            endpoint: 'https://ejemplo.com',
-          });
+          const response = await getAcl(id as string);
+
+          if (response) {
+            const endpoint = response.allow && response.allow.length > 0 ? response.allow[0] : '';
+
+            setAcl({
+              name: response.name,
+              description: '',
+              endpoint: endpoint,
+              ref: response.ref
+            });
+          }
+          setIsLoading(false);
         } catch (error) {
-        } finally {
+          setError('Error loading ACL data');
           setIsLoading(false);
         }
       }
     };
 
-    fetchApplication();
-  }, [id, workspaceId]);
-
-  const handleSubmit = async (data: ACLsFormData) => {
-    try {
-      router.push(`/workspace/${workspaceId}/sip-network/acls`);
-    } catch (error) {
-    }
-  };
+    fetchACL();
+  }, [id]);
 
   if (isLoading) {
-    return <Box>Cargando...</Box>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box>
+        Error: {error}
+      </Box>
+    );
   }
 
   if (!acl) {
-    return <Box>No se encontró la aplicación</Box>;
+    return (
+      <Box>
+        ACL not found
+      </Box>
+    );
   }
 
   return (
-    <Box>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        Editar ACLs
-      </Typography>
-
-      <ACLsForm
-        initialData={acl}
-        onSubmit={handleSubmit}
-      />
-    </Box>
+    <ACLsForm
+      aclId={id as string}
+      formId="acl-form"
+      initialData={acl}
+    />
   );
 }
