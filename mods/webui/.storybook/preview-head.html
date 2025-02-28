@@ -69,4 +69,12 @@
   .sbdocs :is(strong:not(.sb-anchor, .sb-unstyled, .sb-unstyled strong)) {
     font-weight: 700;
   }
+
+  /* Asegurarse de que los estilos de Material UI se apliquen correctamente */
+  .MuiButton-root {
+    text-transform: uppercase !important;
+    font-family: "Roboto Mono", monospace !important;
+  }
+
+  /* Eliminar los estilos forzados para permitir que el tema se aplique correctamente */
 </style>

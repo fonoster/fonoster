@@ -9,13 +9,19 @@
     "plugins": [{ "name": "next" }],
     "baseUrl": "../",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@theme/*": ["theme/*"],
+      "@stories/*": ["stories/*"]
     }
   },
   "include": [
-    "../src/**/*.stories.ts",
-    "../src/**/*.stories.tsx",
-    "../src/**/*.stories.mdx",
+    "../stories/**/*.stories.ts",
+    "../stories/**/*.stories.tsx",
+    "../stories/**/*.stories.mdx",
+    "../theme/**/*.ts",
+    "../theme/**/*.tsx",
+    "../src/**/*.ts",
+    "../src/**/*.tsx",
     "*.ts",
     "*.tsx"
   ],
