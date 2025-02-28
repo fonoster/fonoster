@@ -19,12 +19,13 @@
 import { useState } from "react";
 import { ModalTerms } from "./ModalTerms";
 import { Button } from "../button/Button";
+import { fn } from "@storybook/test";
 
 export const DemoWrapper = () => {
   const [open, setOpen] = useState(false);
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = fn(() => setOpen(true));
+  const handleClose = fn(() => setOpen(false));
 
   return (
     <div>
