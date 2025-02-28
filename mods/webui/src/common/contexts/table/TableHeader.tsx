@@ -81,14 +81,14 @@ TableHeaderComponent.Filter = ({ defaultFilter = 'All' }: { defaultFilter?: stri
           },
         }}
       >
-        {headers.map(({ id, header }, index) => (
+        {headers.map((column, index) => (
           index === 0 ? (
             <MenuItem key={index} value={'All'}>
               All
             </MenuItem>
           ) : (
-            <MenuItem key={id} value={id}>
-              {header as string}
+            <MenuItem key={index} value={column.id || `column-${index}`}>
+              {column.header ? (typeof column.header === 'string' ? column.header : 'Column') : `Column ${index}`}
             </MenuItem>
           )
         ))}
@@ -114,28 +114,40 @@ TableHeaderComponent.Search = ({ value = '', onChange, placeholder = 'Search...'
   />
 );
 
-TableHeaderComponent.Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-    <Typography variant="body2" color="text.secondary">
-      {currentPage}-{totalPages} of {totalPages}
-    </Typography>
-    <Box sx={{ display: 'flex' }}>
-      <IconButton
-        size="small"
-        onClick={() => onPageChange?.(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        <KeyboardArrowLeftIcon />
-      </IconButton>
-      <IconButton
-        size="small"
-        onClick={() => onPageChange?.(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        <KeyboardArrowRightIcon />
-      </IconButton>
+TableHeaderComponent.Pagination = () => {
+  const { fonosterResponse, setNextPageCursor, setPrevPageCursor, nextPage, previousPage, pageIndex, pageSize, totalPages } = useTableContext();
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography variant="body2" color="text.secondary">
+        {pageIndex || 0 + 1}-{pageSize} of {totalPages}
+      </Typography>
+      <Box sx={{ display: 'flex' }}>
+        <IconButton
+          size="small"
+          onClick={() => {
+            setPrevPageCursor?.(fonosterResponse?.prevPageToken);
+            // Set Table API previous page
+            previousPage?.();
+          }}
+          disabled={pageIndex === 0}
+        >
+          <KeyboardArrowLeftIcon />
+        </IconButton>
+        <IconButton
+          size="small"
+          onClick={() => {
+            setNextPageCursor?.(fonosterResponse?.nextPageToken);
+            // Set Table API next page
+            nextPage?.();
+          }}
+          disabled={!fonosterResponse?.nextPageToken}
+        >
+          <KeyboardArrowRightIcon />
+        </IconButton>
+      </Box>
     </Box>
-  </Box>
-);
+  )
+};
 
 export const TableHeader = TableHeaderComponent as TableHeaderComponent;
