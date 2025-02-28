@@ -1,25 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
-import { useTableContext } from "@/common/contexts/table/useTableContext";
 import { useTrunks } from "@/common/sdk/hooks/useTrunks";
 import { TrunkDTO } from "@/types/dto";
+import { useQueryData } from "@/common/contexts/table/QueryData";
 
 const QueryTrunks = () => {
-    const { setLoadingData, setCursorResponse, nextPageCursor } = useTableContext<TrunkDTO>();
     const { listTrunks } = useTrunks();
 
-    useEffect(() => {
-        handleFetch(nextPageCursor || undefined);
-    }, [nextPageCursor]);
-
-    const handleFetch = useCallback(async (pageToken: string | undefined) => {
-        setLoadingData(true);
-        const response = await listTrunks({
-            pageToken
-        });
-        setCursorResponse(response);
-        setLoadingData(false);
-    }, []);
+    // Using the new reusable hook
+    useQueryData<TrunkDTO>({
+        fetchFunction: listTrunks,
+        pageSize: 10
+    });
 
     return null;
 };
+
 export default QueryTrunks;

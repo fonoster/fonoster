@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -30,7 +30,10 @@ export interface PaginationProps {
   firstPage?: () => void;
   gotoPage?: (updater: Updater<number>) => void;
   setPageSize?: (updater: Updater<number>) => void;
-  setNextPageCursor?: (updater: Updater<string | null>) => void;
+  setNextPageCursor?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setPrevPageCursor?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  nextPageCursor?: string | undefined;
+  prevPageCursor?: string | undefined;
   pageCount?: number;
 }
 
@@ -41,9 +44,10 @@ export interface FilterProps {
   setGlobalFilter?: (updater: Updater<any>) => void;
 }
 
-export interface CursorResponse<TData> {
+export interface FonosterResponse<TData> {
   items?: TData[];
   nextPageToken?: string;
+  prevPageToken?: string;
 }
 
 export interface TableContextProps<TData> extends Object, PaginationProps, FilterProps {
@@ -68,10 +72,8 @@ export interface TableContextProps<TData> extends Object, PaginationProps, Filte
   setLoadingData: React.Dispatch<React.SetStateAction<boolean>>;
   setData: React.Dispatch<React.SetStateAction<TData[]>>;
   data: TData[];
-  cursorResponse: CursorResponse<TData> | undefined;
-  setCursorResponse: React.Dispatch<React.SetStateAction<CursorResponse<TData> | undefined>>;
-  nextPageCursor: string | null;
-  setNextPageCursor: React.Dispatch<React.SetStateAction<string | null>>;
+  fonosterResponse: FonosterResponse<TData> | undefined;
+  handleFonosterResponse: (response: FonosterResponse<TData> | undefined) => void;
 }
 
 const TableContext = createContext<TableContextProps<any> | undefined>(undefined);
@@ -97,8 +99,9 @@ export function TableProvider<TData>({
 }) {
   const [loadingData, setLoadingData] = useState(false);
   const [data, setData] = useState<TData[]>([]);
-  const [cursorResponse, setCursorResponse] = useState<CursorResponse<TData> | undefined>(undefined);
-  const [nextPageCursor, setNextPageCursor] = useState<string | null>(null);
+  const [fonosterResponse, setFonosterResponse] = useState<FonosterResponse<TData> | undefined>(undefined);
+  const [prevPageCursor, setPrevPageCursor] = useState<string | undefined>(undefined);
+  const [nextPageCursor, setNextPageCursor] = useState<string | undefined>(undefined);
 
   const table = useReactTable<TData>({
     columns,
@@ -122,16 +125,22 @@ export function TableProvider<TData>({
   });
 
   const columnFilters = table.getState().columnFilters;
+  const pageIndex = table.getState().pagination.pageIndex;
 
   useEffect(() => {
     table.resetPageIndex();
   }, [columnFilters]);
 
-  useEffect(() => {
-    if (cursorResponse) {
-      setData(cursorResponse?.items || []);
-    }
-  }, [cursorResponse, data]);
+  const handleFonosterResponse = useCallback((response: FonosterResponse<TData> | undefined) => {
+    setFonosterResponse(
+      {
+        ...response,
+        nextPageToken: response?.nextPageToken || undefined,
+        prevPageToken: pageIndex > 1 ? fonosterResponse?.nextPageToken : '',
+      }
+    );
+    setData(response?.items || []);
+  }, [fonosterResponse, pageIndex]);
 
   return (
     <TableContext.Provider value={{
@@ -172,10 +181,12 @@ export function TableProvider<TData>({
       data: table.options.data,
 
       // External Cursor API handlers
-      cursorResponse,
-      setCursorResponse,
+      fonosterResponse,
+      handleFonosterResponse,
       nextPageCursor,
       setNextPageCursor,
+      prevPageCursor,
+      setPrevPageCursor,
     }}>
       {children}
     </TableContext.Provider>

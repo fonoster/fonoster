@@ -3,6 +3,8 @@ import PageContainer from '@/common/components/layout/pages';
 import { Button } from '@mui/material';
 import QueryTrunks from "./_components/query-trunks";
 import { TrunkDTO } from "@/types/dto";
+import { QueryData } from "@/common/contexts/table/QueryData";
+import { useTrunks } from "@/common/sdk/hooks/useTrunks";
 
 const columns: ColumnDef<TrunkDTO>[] = [
   {
@@ -28,6 +30,8 @@ const columns: ColumnDef<TrunkDTO>[] = [
 ];
 
 export default function TrunksPage() {
+  const { listTrunks } = useTrunks();
+
   return (
     <PageContainer>
       <PageContainer.Header
@@ -43,7 +47,10 @@ export default function TrunksPage() {
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<TrunkDTO> columns={columns} tableId="trunks-table">
-        <QueryTrunks />
+        <QueryData<TrunkDTO>
+          fetchFunction={listTrunks}
+          pageSize={10}
+        />
       </PageContainer.ContentTable>
     </PageContainer>
   );

@@ -115,7 +115,7 @@ TableHeaderComponent.Search = ({ value = '', onChange, placeholder = 'Search...'
 );
 
 TableHeaderComponent.Pagination = () => {
-  const { cursorResponse, setNextPageCursor, nextPage, previousPage, pageIndex, pageSize, totalPages } = useTableContext();
+  const { fonosterResponse, setNextPageCursor, setPrevPageCursor, nextPage, previousPage, pageIndex, pageSize, totalPages } = useTableContext();
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -126,7 +126,7 @@ TableHeaderComponent.Pagination = () => {
         <IconButton
           size="small"
           onClick={() => {
-            setNextPageCursor?.(cursorResponse?.nextPageToken || '');
+            setPrevPageCursor?.(fonosterResponse?.prevPageToken);
             // Set Table API previous page
             previousPage?.();
           }}
@@ -137,11 +137,11 @@ TableHeaderComponent.Pagination = () => {
         <IconButton
           size="small"
           onClick={() => {
-            setNextPageCursor?.(cursorResponse?.nextPageToken || '');
+            setNextPageCursor?.(fonosterResponse?.nextPageToken);
             // Set Table API next page
             nextPage?.();
           }}
-          disabled={!cursorResponse?.nextPageToken}
+          disabled={!fonosterResponse?.nextPageToken}
         >
           <KeyboardArrowRightIcon />
         </IconButton>

@@ -19,22 +19,21 @@ export const useTrunks = () => {
     }
   }, [client]);
 
-  const createTrunk = async (data: CreateTrunkRequest): Promise<BaseApiObject | undefined> => {
+  const createTrunk = async (payload: CreateTrunkRequest): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _trunks.createTrunk(data));
+      return await authentication.executeWithRefresh(() => _trunks.createTrunk(payload));
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const listTrunks = async (data: ListTrunksRequest = {
+  const listTrunks = async (payload: ListTrunksRequest = {
     pageSize: 10,
     pageToken: undefined
   }): Promise<ListTrunksResponse | undefined> => {
     try {
       if (!isReady) return undefined;
-
-      return await authentication.executeWithRefresh(() => _trunks.listTrunks(data));
+      return await authentication.executeWithRefresh(() => _trunks.listTrunks(payload));
     } catch (error: any) {
       console.error(error);
       notifyError(error as ErrorType);
