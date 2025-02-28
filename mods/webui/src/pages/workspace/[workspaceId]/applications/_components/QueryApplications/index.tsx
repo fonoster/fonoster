@@ -6,7 +6,7 @@ import { useTableContext } from "@/common/contexts/table/useTableContext";
 const QueryApplications = () => {
   const { setData, setLoadingData, data } = useTableContext<ApplicationDTO>();
   const [loading, setLoading] = useState(false);
-  console.log(data);
+
   const { fetch } = useApplications();
   // useEffect(() => {
   //     setData([]);

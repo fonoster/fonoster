@@ -19,7 +19,7 @@ const QueryMembers = () => {
             pageToken: ""
         });
         console.log('members', members);
-        setData(members);
+        setData(members?.items || []);
         setLoadingData(false);
     }, []);
 

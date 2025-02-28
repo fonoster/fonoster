@@ -24,7 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <AppRouterCacheProvider>
       <ThemeProvider theme={fnLight}>
-        <CssBaseline enableColorScheme />
+        <CssBaseline />
         <FonosterProvider>
           {isPageNotAuthentication ? (
             <NoAuthLayout>

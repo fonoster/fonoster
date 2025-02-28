@@ -2,17 +2,22 @@ import { useFormContext } from "react-hook-form";
 import { Select } from "@stories/select/Select";
 import { ReactNode } from "react";
 
+
+
+interface option {
+  value: string | number;
+  label: string;
+}
+
+
 interface SelectContextProps {
   name: string;
   label: string;
-  options: Array<{
-    value: string | number;
-    label: string;
-  }>;
+  options: Array<option>;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
   disabled?: boolean;
-  defaultValue?: string | number;
+  defaultValue?: option;
   id: string;
 }
 
@@ -23,7 +28,7 @@ const SelectContext = ({
   leadingIcon,
   trailingIcon,
   disabled = false,
-  defaultValue = ''
+  defaultValue = { value: '', label: '' }
 }: SelectContextProps) => {
   const {
     register,
@@ -40,7 +45,7 @@ const SelectContext = ({
       leadingIcon={leadingIcon}
       trailingIcon={trailingIcon}
       disabled={disabled}
-      defaultValue={defaultValue}
+      defaultValue={defaultValue.value}
     />
   );
 };

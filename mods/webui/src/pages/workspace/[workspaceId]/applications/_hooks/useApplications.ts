@@ -11,7 +11,6 @@ export const useApplications = () => {
     setFetching(true);
     const response = await sdkApplications.listApplications({});
     const items = response?.items || [];
-    console.log(items, 'items USEAPPLICATIONS');
     setItems(items);
     setFetching(false);
   };

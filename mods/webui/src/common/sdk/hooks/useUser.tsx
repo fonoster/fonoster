@@ -44,7 +44,7 @@ export const useUser = () => {
     }
 
     try {
-      return new Users(client);
+      return new Users(client as any);
     } catch (error) {
       throw new Error("Failed to initialize Users client");
     }
@@ -151,6 +151,9 @@ export const useUser = () => {
     updateUser,
     deleteUser,
     loggedUser,
-    idToken
+    idToken,
+    sendResetPasswordCode,
+    resetPassword,
+    createUserWithOauth2Code
   };
 };

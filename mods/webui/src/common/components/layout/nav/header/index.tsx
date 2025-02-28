@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
@@ -8,25 +6,16 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import { Bell as BellIcon } from '@phosphor-icons/react/dist/ssr/Bell';
-import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
-import { Users as UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
-// import { useTranslation } from 'next-i18next';
-
-import type { NavItemConfig } from '@/types/layout';
 import type { User } from '@/types/user';
 import { usePopover } from '@/common/hooks/use-popover';
-import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 
-import { MobileNav } from '../mobile-nav';
-import { NotificationsPopover } from '../notifications-popover';
-import { UserPopover } from '../user-popover/user-popover';
-// import { useUser } from '@/hooks/use-user';
+// import { MobileNav } from './sidebar/mobile';
+import { NotificationsPopover } from './notifications';
+import { UserPopover } from './user-popover';
 import { stringAvatar } from '@/utils/stringAvatar';
 import { Logo } from '../../../logo/Logo'
 
-export interface MainNavProps {
-  items: NavItemConfig[];
-}
+export interface HeaderProps { }
 
 const user = {
   id: '1',
@@ -35,10 +24,11 @@ const user = {
   email: 'support@fonoster.com',
 } as User;
 
-export function MainNav({ items }: MainNavProps): React.JSX.Element {
-  const [openNav, setOpenNav] = React.useState<boolean>(false);
-  const { selectedWorkspace } = useWorkspaceContext();
-  const workspaceId = selectedWorkspace?.ref || '1'; // Fallback to '1' if no workspace is selected
+export function Header({
+  hamburgerIcon,
+}: {
+  hamburgerIcon?: React.ReactNode;
+}): React.JSX.Element {
 
   return (
     <React.Fragment>
@@ -65,19 +55,10 @@ export function MainNav({ items }: MainNavProps): React.JSX.Element {
             py: 1,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
             <Logo size="small" />
           </Box>
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flex: '1 1 auto' }}>
-            <IconButton
-              onClick={(): void => {
-                setOpenNav(true);
-              }}
-              sx={{ display: { lg: 'none' } }}
-            >
-              <ListIcon />
-            </IconButton>
-          </Stack>
+          {hamburgerIcon}
           <Stack
             direction="row"
             spacing={2}
@@ -88,13 +69,6 @@ export function MainNav({ items }: MainNavProps): React.JSX.Element {
           </Stack>
         </Stack>
       </Box>
-      <MobileNav
-        items={items}
-        onClose={() => {
-          setOpenNav(false);
-        }}
-        open={openNav}
-      />
     </React.Fragment>
   );
 }

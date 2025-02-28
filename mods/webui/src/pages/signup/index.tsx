@@ -15,6 +15,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@stories/button/Button';
 import { useUser } from '@/common/sdk/hooks/useUser';
+import { OAuthConfig, OAuthResponse } from '@/types/oauth';
+import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
 
 const signUpSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -34,12 +36,20 @@ const signUpSchema = z.object({
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
+const GITHUB_CONFIG: OAuthConfig = {
+  clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
+  redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI!,
+  redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + '/signup',
+  scope: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE!,
+  authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!
+};
+
 const SignUpPage = () => {
   const theme = useTheme();
   const router = useRouter();
   const [openTerms, setOpenTerms] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const { createUser, isReady } = useUser();
+  const { createUser, isReady, createUserWithOauth2Code } = useUser();
 
   const methods = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -51,7 +61,44 @@ const SignUpPage = () => {
       agreeToTerms: false
     }
   });
-  const { watch, handleSubmit } = methods;
+  const { watch, handleSubmit, setError } = methods;
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { code, state } = router.query;
+    if (!code || !state) return;
+
+    let provider: string;
+    try {
+      const decoded = JSON.parse(decodeURIComponent(state as string));
+      provider = decoded.provider;
+    } catch (error) {
+      console.error('Error decoding state', error);
+      provider = '';
+    }
+
+    const oauthResponse: OAuthResponse = {
+      code: code as string,
+      provider: provider,
+    };
+    handleOAuthCallback(oauthResponse);
+  }, [router.isReady, router.query]);
+
+  const handleOAuthCallback = async (oauthResponse: OAuthResponse) => {
+    if (isRedirecting) return;
+    try {
+      setIsRedirecting(true);
+      await createUserWithOauth2Code(oauthResponse.code);
+      await router.replace(GITHUB_CONFIG.redirectUri);
+    } catch (error) {
+      setError('root', {
+        type: 'manual',
+        message: error instanceof Error ? error.message : 'Authentication failed'
+      });
+    } finally {
+      setIsRedirecting(false);
+    }
+  };
 
   const handleTermsClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -80,7 +127,13 @@ const SignUpPage = () => {
   };
 
   const handleGitHubSignUp = () => {
-    router.push('/signup/verify');
+    const stateData = {
+      provider: AuthProvider.GITHUB,
+      nonce: Math.random().toString(36).substring(2),
+    };
+    const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
+    const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUriCallback)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
+    window.location.href = authUrl;
   };
 
   const watchAgreeToTerms = watch('agreeToTerms');

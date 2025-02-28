@@ -11,24 +11,21 @@ import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/dist/ssr/Caret
 import { CaretRight as CaretRightIcon } from '@phosphor-icons/react/dist/ssr/CaretRight';
 
 import type { NavItemConfig } from '@/types/layout';
-import { paths } from './paths';
 import { isNavItemActive } from '@/utils/is-nav-item-active';
-import { Logo } from '../../logo/Logo';
-import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
+import { useNavConfig } from '../../hook/useNavConfig';
 
-import { icons } from './nav-icons';
-import { WorkspacesSwitch } from './workspaces-switch';
+import { icons } from '../../utils/nav-icons';
+import { WorkspacesSwitch } from '../../../../workspaces-switch';
+import { Logo } from '@/common/components/logo/Logo';
 
 export interface MobileNavProps {
   onClose?: () => void;
   open?: boolean;
-  items?: NavItemConfig[];
 }
 
-export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.JSX.Element {
+export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element {
   const pathname = usePathname();
-  const { selectedWorkspace } = useWorkspaceContext();
-  const workspaceId = selectedWorkspace?.ref || '1'; // Fallback to '1' if no workspace is selected
+  const { items } = useNavConfig();
 
   return (
     <Drawer
@@ -53,7 +50,7 @@ export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.
           '--Workspaces-title-color': 'var(--mui-palette-neutral-400)',
           '--Workspaces-name-color': 'var(--mui-palette-neutral-300)',
           '--Workspaces-expand-color': 'var(--mui-palette-neutral-400)',
-          bgcolor: 'var(--MobileNav-background)',
+          // bgcolor: 'var(--MobileNav-background)',
           color: 'var(--MobileNav-color)',
           display: 'flex',
           flexDirection: 'column',
@@ -64,30 +61,28 @@ export function MobileNav({ items = [], open, onClose }: MobileNavProps): React.
           '&::-webkit-scrollbar': { display: 'none' },
         },
       }}
+      variant="temporary"
       onClose={onClose}
       open={open}
     >
       <Stack spacing={2} sx={{ p: 2 }}>
-        <div>
-          {/* <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-            <LogoResidential color="light" height={64} width={244} />
-          </Box> */}
-          {/* <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, lineHeight: 1.2, textAlign: 'center' }}>
-            <Typography color="primary.main" component="span" variant="inherit">
-              Condominio RD
-            </Typography>
-          </Typography> */}
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+          <Logo size="small" />
+        </Box>
         <WorkspacesSwitch />
       </Stack>
       <Box component="nav" sx={{ flex: '1 1 auto', p: 2 }}>
-        {renderNavGroups({ items, onClose, pathname, workspaceId })}
+        {renderNavGroups({ items, onClose, pathname })}
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, lineHeight: 1.2, textAlign: 'center' }}>
-          <Typography color="primary.main" component="span" variant="inherit">
-            Condominio RD
-          </Typography>
+        <Typography sx={{
+          lineHeight: 1.2,
+          textAlign: 'center',
+          fontFamily: 'monospace',
+          fontSize: '14px',
+          color: 'text.secondary'
+        }}>
+          &copy; 2024, FONOSTER. V0.3.4
         </Typography>
       </Stack>
     </Drawer>
@@ -98,29 +93,12 @@ function renderNavGroups({
   items,
   onClose,
   pathname,
-  workspaceId,
 }: {
   items: NavItemConfig[];
   onClose?: () => void;
   pathname: string;
-  workspaceId: string;
 }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
-    // Process items to check for dynamic paths
-    let processedItems = curr.items;
-    if (curr.items) {
-      processedItems = curr.items.map(item => {
-        if (item.href && item.href.startsWith('/workspace/')) {
-          const pathParts = item.href.split('/');
-          if (pathParts.length > 2) {
-            pathParts[2] = workspaceId;
-            return { ...item, href: pathParts.join('/') };
-          }
-        }
-        return item;
-      });
-    }
-
     acc.push(
       <Stack component="li" key={curr.key} spacing={1.5}>
         {curr.title ? (
@@ -130,7 +108,7 @@ function renderNavGroups({
             </Typography>
           </div>
         ) : null}
-        <div>{renderNavItems({ depth: 0, items: processedItems, onClose, pathname, workspaceId })}</div>
+        <div>{renderNavItems({ depth: 0, items: curr.items, onClose, pathname })}</div>
       </Stack>
     );
 
@@ -149,51 +127,32 @@ function renderNavItems({
   items = [],
   onClose,
   pathname,
-  workspaceId,
 }: {
   depth: number;
   items?: NavItemConfig[];
   onClose?: () => void;
   pathname: string;
-  workspaceId: string;
 }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { items: childItems, key, ...item } = curr;
 
-    // Process dynamic paths from the paths object
-    let processedItem = { ...item };
-    if (item.href && item.href.startsWith('/workspace/')) {
-      // This is a dynamic path that needs the workspace ID
-      const pathParts = item.href.split('/');
-      if (pathParts.length > 2) {
-        // Replace the workspace ID placeholder with the actual ID
-        pathParts[2] = workspaceId;
-        processedItem.href = pathParts.join('/');
-      }
-    }
+    // Check if current pathname matches this item or any of its nested children
+    const shouldForceOpen = (items: NavItemConfig[] | undefined, path: string): boolean => {
+      if (!items) return false;
 
-    // Process child items to check for dynamic paths
-    let processedChildItems = childItems;
-    if (childItems) {
-      processedChildItems = childItems.map(childItem => {
-        if (childItem.href && childItem.href.startsWith('/workspace/')) {
-          const pathParts = childItem.href.split('/');
-          if (pathParts.length > 2) {
-            pathParts[2] = workspaceId;
-            return { ...childItem, href: pathParts.join('/') };
-          }
-        }
-        return childItem;
-      });
-    }
+      // Check if any direct child matches
+      const directMatch = items.some(childItem => childItem.href && path && path.startsWith(childItem.href));
+      if (directMatch) return true;
 
-    const forceOpen = processedChildItems
-      ? Boolean(processedChildItems.find((childItem) => childItem.href && pathname && pathname.startsWith(childItem.href)))
-      : false;
+      // Check nested children recursively
+      return items.some(childItem => childItem.items && shouldForceOpen(childItem.items, path));
+    };
+
+    const forceOpen = childItems ? shouldForceOpen(childItems, pathname) : false;
 
     acc.push(
-      <NavItem depth={depth} forceOpen={forceOpen} key={key} onClose={onClose} pathname={pathname} workspaceId={workspaceId} {...processedItem}>
-        {processedChildItems ? renderNavItems({ depth: depth + 1, items: processedChildItems, onClose, pathname, workspaceId }) : null}
+      <NavItem depth={depth} forceOpen={forceOpen} key={key} onClose={onClose} pathname={pathname} {...item}>
+        {childItems ? renderNavItems({ depth: depth + 1, items: childItems, onClose, pathname }) : null}
       </NavItem>
     );
 
@@ -213,7 +172,6 @@ interface NavItemProps extends Omit<NavItemConfig, 'items'> {
   forceOpen?: boolean;
   onClose?: () => void;
   pathname: string;
-  workspaceId: string;
 }
 
 function NavItem({
@@ -228,10 +186,17 @@ function NavItem({
   matcher,
   onClose,
   pathname,
-  title,
-  workspaceId,
+  title
 }: NavItemProps): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(forceOpen);
+
+  // Update open state when forceOpen changes
+  React.useEffect(() => {
+    if (forceOpen) {
+      setOpen(true);
+    }
+  }, [forceOpen]);
+
   const active = isNavItemActive({ disabled, external, href, matcher, pathname });
   const Icon = icon ? icons[icon] : null;
   const ExpandIcon = open ? CaretDownIcon : CaretRightIcon;
@@ -318,9 +283,20 @@ function NavItem({
         <Box sx={{ flex: '1 1 auto' }}>
           <Typography
             component="span"
-            sx={{ color: 'inherit', fontSize: '0.875rem', fontWeight: 500, lineHeight: '28px' }}
+            sx={{ color: 'inherit', fontSize: '0.875rem', fontWeight: 500, lineHeight: '28px', display: 'flex', alignItems: 'center', gap: 1 }}
           >
             {title}
+            {active && (
+              <Box
+                sx={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#00ab55',
+                  display: 'inline-block'
+                }}
+              />
+            )}
           </Typography>
         </Box>
         {label ? <Chip color="primary" label={label} size="small" /> : null}
