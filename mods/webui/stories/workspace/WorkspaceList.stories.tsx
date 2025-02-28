@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { WorkspaceCard } from './WorkspaceCard';
 import { Box, Typography, Paper, styled } from '@mui/material';
 import React from 'react';
+import { fn } from '@storybook/test';
 
 const meta = {
   title: 'Workspace/WorkspaceList',
@@ -55,24 +56,24 @@ const WorkspaceGrid = () => {
     },
   ];
 
-  const handleWorkspaceClick = (workspaceId: string) => {
+  const handleWorkspaceClick = fn((workspaceId: string) => {
     console.log('Navigate to:', `/workspace/${workspaceId}/overview`);
-  };
+  });
 
-  const handleSettingsClick = (e: React.MouseEvent, workspaceId: string) => {
+  const handleSettingsClick = fn((e: React.MouseEvent, workspaceId: string) => {
     e.stopPropagation();
     console.log('Navigate to:', `/workspace/${workspaceId}/settings`);
-  };
+  });
 
   return (
     <Box sx={{ width: '100%', maxWidth: '1000px', p: 3 }}>
       <Typography variant="h4" component="h1" align="center">
         Workspaces
       </Typography>
-      <Typography 
-        variant="body1" 
-        color="text.secondary" 
-        align="center" 
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        align="center"
         sx={{ mt: 1, mb: 2 }}
       >
         Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.
@@ -102,7 +103,7 @@ const WorkspaceGrid = () => {
             ))}
             <WorkspaceCard
               variant="empty"
-              onClick={() => console.log('Create new workspace')}
+              onClick={fn(() => console.log('Create new workspace'))}
               disabled={false}
             />
           </Box>
@@ -119,7 +120,7 @@ export const Default: Story = {
 export const EmptyCard: Story = {
   args: {
     variant: 'empty',
-    onClick: () => console.log('Create new workspace'),
+    onClick: fn(() => console.log('Create new workspace')),
     disabled: false,
   },
 };
@@ -130,8 +131,8 @@ export const WorkspaceCardExample: Story = {
     region: 'us-east',
     description: 'Demo Workspace With Wrapping Title.',
     date: '01/14/24',
-    onClick: () => console.log('Workspace clicked'),
-    onSettingsClick: () => console.log('Settings clicked'),
+    onClick: fn(() => console.log('Workspace clicked')),
+    onSettingsClick: fn(() => console.log('Settings clicked')),
     disabled: false,
   },
 }; 
