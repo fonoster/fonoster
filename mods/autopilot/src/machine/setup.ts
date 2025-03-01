@@ -89,10 +89,12 @@ const machineSetup = setup({
       return context;
     }),
     setSpeakingDone: assign(({ context }) => {
-      logger.verbose("called the setSpeakingDone action", { isSpeaking: false });
+      logger.verbose("called the setSpeakingDone action", {
+        isSpeaking: false
+      });
       context.isSpeaking = false;
       return context;
-    }),
+    })
   },
   guards,
   delays,
