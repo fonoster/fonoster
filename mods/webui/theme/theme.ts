@@ -19,9 +19,8 @@
 import { createTheme, ThemeOptions } from "@mui/material/styles";
 
 // Definir las opciones del tema claro
-const lightThemeOptions: ThemeOptions = {
+const fnLight = createTheme({
   palette: {
-    mode: 'light',
     primary: {
       "50": "#FFFFFF",
       "100": "#E6FFF5",
@@ -29,11 +28,7 @@ const lightThemeOptions: ThemeOptions = {
       "500": "#39E19E",
       "700": "#008751",
       "800": "#053204",
-      "900": "#011900",
-      main: "#39E19E",
-      light: "#CCEFE1",
-      dark: "#008751",
-      contrastText: "#FFFFFF"
+      "900": "#011900"
     },
     secondary: {
       "50": "#F4F4F4",
@@ -43,10 +38,7 @@ const lightThemeOptions: ThemeOptions = {
       "700": "#555555",
       "800": "#333333",
       "900": "#252525",
-      main: "#C2C2C2", 
-      light: "#E8E8E8",
-      dark: "#8D8D8D",
-      contrastText: "#000000"
+      main: "#C2C2C2"
     },
     warning: {
       "50": "#FFFFFF",
@@ -55,15 +47,10 @@ const lightThemeOptions: ThemeOptions = {
       "500": "#FF9965",
       "700": "#C46C3F",
       "800": "#612E13",
-      "900": "#27150C",
-      main: "#FF9965", 
-      light: "#FFF4F0",
-      dark: "#C46C3F",
-      contrastText: "#000000"
+      "900": "#27150C"
     },
     text: {
-      primary: "#555555",
-      secondary: "#757575"
+      primary: "#555"
     }
   },
   components: {
@@ -96,7 +83,7 @@ const lightThemeOptions: ThemeOptions = {
       }
     }
   }
-};
+});
 
 const darkThemeOptions: ThemeOptions = {
   palette: {
@@ -122,7 +109,7 @@ const darkThemeOptions: ThemeOptions = {
       "700": "#AAAAAA",
       "800": "#CCCCCC",
       "900": "#EBEBEB",
-      main: "#3D3D3D", 
+      main: "#3D3D3D",
       light: "#8D8D8D",
       dark: "#1A1A1A",
       contrastText: "#FFFFFF"
@@ -135,7 +122,7 @@ const darkThemeOptions: ThemeOptions = {
       "700": "#FFB38C",
       "800": "#FFCDB2",
       "900": "#FFE8D9",
-      main: "#FF9965", 
+      main: "#FF9965",
       light: "#FFB38C",
       dark: "#4A2F25",
       contrastText: "#000000"
@@ -182,7 +169,7 @@ const darkThemeOptions: ThemeOptions = {
 };
 
 // Crear los temas
-const fnLight = createTheme(lightThemeOptions);
+// const fnLight = createTheme(lightThemeOptions);
 const fnDark = createTheme(darkThemeOptions);
 
 // Verificar que los temas se hayan creado correctamente

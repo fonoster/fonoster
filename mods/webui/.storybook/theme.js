@@ -14,8 +14,8 @@ export default create({
   appBorderRadius: 4,
 
   // Tipografía
-  fontBase: '"Poppins", sans-serif',
-  fontCode: '"Roboto Mono", monospace',
+  // fontBase: '"Poppins", sans-serif',
+  // fontCode: '"Roboto Mono", monospace',
 
   // Colores del texto
   textColor: '#333333',
