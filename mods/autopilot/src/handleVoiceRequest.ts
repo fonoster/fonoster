@@ -36,8 +36,17 @@ import {
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
 import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
 import { createLanguageModel } from "./models/createLanguageModel";
-import { sendConversationEndedEvent } from "./sendConversationEndedEvent";
-import Autopilot, { ConversationProvider, S3KnowledgeBase, VoiceImpl } from ".";
+import {
+  EventsHook,
+  sendConversationEndedEvent
+} from "./sendConversationEndedEvent";
+import Autopilot, {
+  ConversationProvider,
+  ConversationSettings,
+  LanguageModel,
+  S3KnowledgeBase,
+  VoiceImpl
+} from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -63,18 +72,18 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     CONVERSATION_PROVIDER === ConversationProvider.FILE
       ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE)
       : await loadAssistantFromAPI(
-          req,
-          JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"))
-        );
+        req,
+        JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"))
+      );
 
   let knowledgeBase;
 
   if (KNOWLEDGE_BASE_ENABLED) {
     knowledgeBase = new S3KnowledgeBase({
       bucket: req.accessKeyId.toLowerCase(),
-      documents: assistantConfig.languageModel.knowledgeBase.map(
+      documents: assistantConfig.languageModel?.knowledgeBase?.map(
         (doc) => doc.document
-      ),
+      ) as string[],
       s3Config: {
         endpoint: AWS_S3_ENDPOINT,
         region: AWS_S3_REGION,
@@ -109,9 +118,9 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const { conversationSettings } = assistantConfig;
 
   const autopilot = new Autopilot({
-    conversationSettings,
-    voice,
-    languageModel
+    conversationSettings: conversationSettings as ConversationSettings,
+    voice: voice as VoiceImpl,
+    languageModel: languageModel as LanguageModel
   });
 
   autopilot.start();
@@ -131,7 +140,12 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
       })
       .filter(Boolean);
 
-    await sendConversationEndedEvent(assistantConfig.eventsHook, chatHistory);
+    if (assistantConfig.eventsHook?.url) {
+      await sendConversationEndedEvent(
+        assistantConfig.eventsHook as EventsHook,
+        chatHistory as any
+      );
+    }
   });
 }
 

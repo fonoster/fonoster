@@ -28,7 +28,10 @@ const LOGS_DRIVER_PORT = getEnv("LOGS_DRIVER_PORT", 24224);
 const LOGS_OPT_TAG_PREFIX = getEnv("LOGS_OPT_TAG_PREFIX", "fonoster-logs");
 const LOGS_FORMAT = getEnv("LOGS_FORMAT", "json");
 const LOGS_LEVEL = getEnv("LOGS_LEVEL", "info");
-const LOGS_TRANSPORT = getEnv("LOGS_TRANSPORT", "console");
+const LOGS_TRANSPORT = getEnv<"console" | "fluent">(
+  "LOGS_TRANSPORT",
+  "console"
+);
 
 const fluent = new FluentTransport(`${LOGS_OPT_TAG_PREFIX}`, {
   host: LOGS_DRIVER_HOST,

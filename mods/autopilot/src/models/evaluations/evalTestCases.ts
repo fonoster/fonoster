@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AssistantConfig } from "../../assistants";
 import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
 import { TelephonyContext } from "../types";
@@ -23,10 +24,13 @@ import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";
 import { ScenarioEvaluationReport } from "./types";
-import { AutopilotApplication } from "./types";
 
 export async function evalTestCases(
-  autopilotApplication: AutopilotApplication
+  autopilotApplication: {
+    intelligence: {
+      config: AssistantConfig;
+    };
+  }
 ): Promise<ScenarioEvaluationReport[]> {
   const { testCases } = autopilotApplication.intelligence.config;
   const { config: assistantConfig } = autopilotApplication.intelligence;

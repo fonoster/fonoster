@@ -26,7 +26,7 @@ import { getLogger } from "@fonoster/logger";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-type EventsHook = {
+export type EventsHook = {
   url: string;
   events: EventsHookAllowedEvents[];
   headers?: Record<string, string>;

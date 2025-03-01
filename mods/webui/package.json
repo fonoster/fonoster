@@ -56,7 +56,6 @@
     "@types/react-dom": "^19",
     "postcss": "^8",
     "storybook": "^8.5.3",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "tailwindcss": "^3.4.1"
   }
 }
