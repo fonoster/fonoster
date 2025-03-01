@@ -22,7 +22,7 @@ import {
   toolSchema
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { Tool } from "./type";
+import { Tool } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
