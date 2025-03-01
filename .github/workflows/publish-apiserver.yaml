@@ -1,0 +1,72 @@
+name: publish apiserver
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Get version
+        run: |
+          lerna_version=$(node -p "require('./lerna.json').version")
+          echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
+
+      - name: Install dependencies and build the project
+        run: npm install && npm run build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Publish the APIServer to Docker Hub
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: fonoster/apiserver
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          context: .
+          dockerfile: mods/apiserver/Dockerfile     
+          tags: "latest,${{ env.LERNA_VERSION }}"
+          platforms: linux/amd64,linux/arm64
+
+      - name: Starting services for integration tests
+        run: |
+          npm run generate:keypair
+          cp config/integrations.example.json config/integrations.json
+          cp .env.example .env
+          echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env
+          sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
+          sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
+          sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
+          sed -i "s|APISERVER_SMTP_HOST=.*|APISERVER_SMTP_HOST=mailhog|g" .env
+          sed -i "s|APISERVER_SMTP_PORT=.*|APISERVER_SMTP_PORT=1025|g" .env
+          sed -i "s|APISERVER_SMTP_SECURE=.*|APISERVER_SMTP_SECURE=false|g" .env
+          docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver asterisk mailhog
+
+      - name: Waiting for services to be ready
+        run: |
+          sleep 120 # Enough time for Routr to start in a low spec machine
+          docker ps -a
+
+      - name: Run integration tests for the SDK
+      uses: nick-fields/retry@v2
+      with:
+        timeout_minutes: 1
+        # This makes sure Routr is ready before running the tests
+        # We could improve this by checking the status of the services
+        retry_wait_seconds: 30
+        max_attempts: 2
+        command: npm run integration 

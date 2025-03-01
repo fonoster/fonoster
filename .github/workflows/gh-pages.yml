@@ -13,25 +13,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Installing Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: "20.x"
-    - name: Populate out directory
-      run: |
-        # Create out directory
-        mkdir -p out/site-assets
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Installing Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+      - name: Populate out directory
+        run: |
+          # Create out directory
+          mkdir -p out/site-assets
 
-        # Copy site assets
-        cp -a site/site-assets/* out/site-assets
-        cp site/index.html out/index.html
-        echo > out/.nojekyll
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./out
-        publish_branch: gh-pages
-        cname: fonoster.com
+          # Copy site assets
+          cp -a site/site-assets/* out/site-assets
+          cp site/index.html out/index.html
+          echo > out/.nojekyll
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out
+          publish_branch: gh-pages
+          cname: fonoster.com
