@@ -24,13 +24,6 @@ jobs:
         # Create out directory
         mkdir -p out/site-assets
 
-        # # Build and copy docs
-        # cd docs
-        # npm install
-        # npm run build
-        # cp -a build/* ../out/
-        # cd ..
-        
         # Copy site assets
         cp -a site/site-assets/* out/site-assets
         cp site/index.html out/index.html
