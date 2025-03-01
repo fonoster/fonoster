@@ -62,11 +62,11 @@ jobs:
           docker ps -a
 
       - name: Run integration tests for the SDK
-      uses: nick-fields/retry@v2
-      with:
-        timeout_minutes: 1
-        # This makes sure Routr is ready before running the tests
-        # We could improve this by checking the status of the services
-        retry_wait_seconds: 30
-        max_attempts: 2
-        command: npm run integration 
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          # This makes sure Routr is ready before running the tests
+          # We could improve this by checking the status of the services
+          retry_wait_seconds: 30
+          max_attempts: 2
+          command: npm run integration 
