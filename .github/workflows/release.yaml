@@ -1,12 +1,12 @@
 name: release
 
 on:
-  # push:
-  #   paths:
-  #   - mods/**
-  #   - asterisk/**
-  #   branches:
-  #   - main
+  push:
+    paths:
+    - mods/**
+    - asterisk/**
+    branches:
+    - main
   workflow_dispatch:
 
 jobs:
@@ -39,25 +39,25 @@ jobs:
         npm run test
 
     # We will do this manually for now
-    # - name: Check for next release
-    #   run: |
-    #     release=$(.scripts/next-release.sh)
-    #     echo "Next release: $release"
-    #     echo "RELEASE=$release" >> $GITHUB_ENV
+    - name: Check for next release
+      run: |
+        release=$(.scripts/next-release.sh)
+        echo "Next release: $release"
+        echo "RELEASE=$release" >> $GITHUB_ENV
 
-    # - name: Publish packages to NPM
-    #   if: env.RELEASE != 'none'
-    #   run: |
-    #     echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
-    #     echo "GITHUB_TOKEN=${{ secrets.GH_PAT }}" >> $GITHUB_ENV
-    #     echo "@routr:registry=https://registry.npmjs.org/" > .npmrc
-    #     echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+    - name: Publish packages to NPM
+      if: env.RELEASE != 'none'
+      run: |
+        echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=${{ secrets.GH_PAT }}" >> $GITHUB_ENV
+        echo "@routr:registry=https://registry.npmjs.org/" > .npmrc
+        echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
 
-    #     git config --global user.name "GitHub Actions Bot"
-    #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-    #     git checkout package-lock.json
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout package-lock.json
 
-    #     npm run release
+        npm run release
   
     - name: Get version from Lerna
       run: |
