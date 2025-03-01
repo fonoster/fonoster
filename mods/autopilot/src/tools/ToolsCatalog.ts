@@ -16,8 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  AllowedHttpMethod,
+  sendHttpRequest,
+  toolSchema
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { sendHttpRequest, toolSchema } from "@fonoster/common";
 import { Tool } from "./type";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -45,10 +49,10 @@ class ToolsCatalog {
 
     // FIXME: We shouldn't have to check the nullability of the operation
     return await sendHttpRequest({
-      method: parsedTool.operation?.method!,
-      url: parsedTool.operation?.url!,
-      waitForResponse: parsedTool.operation?.waitForResponse!,
-      headers: parsedTool.operation?.headers,
+      method: parsedTool.operation?.method ?? AllowedHttpMethod.GET,
+      url: parsedTool.operation?.url ?? "",
+      waitForResponse: parsedTool.operation?.waitForResponse ?? true,
+      headers: parsedTool.operation?.headers ?? {},
       body: args
     });
   }

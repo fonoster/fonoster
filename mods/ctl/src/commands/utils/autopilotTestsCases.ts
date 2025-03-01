@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 /*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,17 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Flags } from "@oclif/core";
 import * as fs from "fs";
-import * as yaml from "js-yaml";
+import * as path from "path";
 import {
   AutopilotApplication,
   evalTestCases,
   printEval
 } from "@fonoster/autopilot";
-import { AuthenticatedCommand } from "../../AuthenticatedCommand";
-import * as path from "path";
 import { assistantSchema } from "@fonoster/common";
+import { Flags } from "@oclif/core";
+import * as yaml from "js-yaml";
+import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
 export default class AutopilotTestsCases extends AuthenticatedCommand<
   typeof AutopilotTestsCases

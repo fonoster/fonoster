@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { RefreshToken } from "@fonoster/common";
 import { Prisma } from "../../../db";
 import { IdentityConfig } from "../../types";
-import { RefreshToken } from "@fonoster/common";
 import { buildRefreshTokenPayload } from "../buildRefreshTokenPayload";
 
 function createGetRefreshTokenPayload(

@@ -36,13 +36,13 @@ export async function evalTestCases(
 
   const evaluationReports: ScenarioEvaluationReport[] = [];
 
-  for (const scenario of testCases?.scenarios!) {
+  for (const scenario of testCases?.scenarios ?? []) {
     const languageModel = createLanguageModel({
       voice,
       assistantConfig: autopilotApplication.intelligence.config,
       knowledgeBase: {
         load: async () => {},
-        queryKnowledgeBase: async (query: string, k?: number) => query
+        queryKnowledgeBase: async (query: string) => query
       },
       telephonyContext: scenario.telephonyContext as TelephonyContext
     });
@@ -50,7 +50,7 @@ export async function evalTestCases(
     const testTextSimilarity = createTestTextSimilarity(
       {
         provider: assistantConfig.testCases?.evalsLanguageModel?.provider,
-        model: assistantConfig.testCases?.evalsLanguageModel?.model!,
+        model: assistantConfig.testCases?.evalsLanguageModel?.model ?? "",
         apiKey: assistantConfig.testCases?.evalsLanguageModel?.apiKey
       },
       assistantConfig.testCases?.evalsSystemPrompt || textSimilaryPrompt

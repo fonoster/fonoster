@@ -18,9 +18,9 @@
  */
 import {
   AllowedHttpMethod,
+  EventsHookAllowedEvents,
   eventsHookSchema,
-  sendHttpRequest,
-  EventsHookAllowedEvents
+  sendHttpRequest
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 

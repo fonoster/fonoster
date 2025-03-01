@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 /*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -20,7 +19,7 @@
 import * as SDK from "@fonoster/sdk";
 import { confirm, input, password } from "@inquirer/prompts";
 import { BaseCommand } from "../../BaseCommand";
-import { WorkspaceConfig, addWorkspace, getConfig } from "../../config";
+import { addWorkspace, getConfig, WorkspaceConfig } from "../../config";
 import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 

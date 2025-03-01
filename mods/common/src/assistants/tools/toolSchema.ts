@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { propertySchema } from "./propertySchema";
 import * as Messages from "../../messages";
 import { AllowedHttpMethod } from "../../utils/sendHttpRequest";
+import { propertySchema } from "./propertySchema";
 
 const toolSchema = z.object({
   name: z.string(),

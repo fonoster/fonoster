@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import {
-  ServiceDefinitionParams,
-  createServiceDefinition
+  createServiceDefinition,
+  ServiceDefinitionParams
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";

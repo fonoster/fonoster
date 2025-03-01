@@ -17,6 +17,17 @@
  * limitations under the License.
  */
 import { ContactType } from "@fonoster/types";
+import {
+  ContactType as ContactTypePB,
+  ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
+  ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
+  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
+  ExchangeOauth2CodeRequest as ExchangeOauth2CodeRequestPB,
+  ExchangeOauth2CodeResponse as ExchangeOauth2CodeResponsePB,
+  ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
+  SendVerificationCodeRequest as SendVerificationCodeRequestPB,
+  VerifyCodeRequest as VerifyCodeRequestPB
+} from "../generated/node/identity_pb";
 import { makeRpcRequest } from "./makeRpcRequest";
 import {
   ApplicationsClient,
@@ -31,17 +42,6 @@ import { CredentialsClient } from "./types/CredentialsClient";
 import { DomainsClient } from "./types/DomainsClient";
 import { NumbersClient } from "./types/NumbersClient";
 import { TrunksClient } from "./types/TrunksClient";
-import {
-  ContactType as ContactTypePB,
-  ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
-  ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
-  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
-  ExchangeOauth2CodeRequest as ExchangeOauth2CodeRequestPB,
-  ExchangeOauth2CodeResponse as ExchangeOauth2CodeResponsePB,
-  ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
-  SendVerificationCodeRequest as SendVerificationCodeRequestPB,
-  VerifyCodeRequest as VerifyCodeRequestPB
-} from "../generated/node/identity_pb";
 
 abstract class AbstractClient implements FonosterClient {
   protected accessKeyId: string;

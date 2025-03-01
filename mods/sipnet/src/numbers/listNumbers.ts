@@ -28,8 +28,8 @@ import {
   ListNumbersResponse,
   NumbersApi
 } from "@fonoster/types";
-import { convertToFonosterNumber } from "./convertToFonosterNumber";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { convertToFonosterNumber } from "./convertToFonosterNumber";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 

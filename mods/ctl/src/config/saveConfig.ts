@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import fs from "fs";
-import { WorkspaceConfig } from "./types";
 import { BASE_DIR } from "../constants";
+import { WorkspaceConfig } from "./types";
 
 function saveConfig(path: string, config: WorkspaceConfig[]): void {
   if (!fs.existsSync(BASE_DIR)) {

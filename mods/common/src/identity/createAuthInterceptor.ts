@@ -18,15 +18,15 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { workspaceResourceAccess } from "./roles";
+import { decodeToken } from "./decodeToken";
+import { permissionDeniedError, unauthenticatedError } from "./errors";
 import { getAccessKeyIdFromCall } from "./getAccessKeyIdFromCall";
 import { getTokenFromCall } from "./getTokenFromCall";
-import { isValidToken } from "./isValidToken";
-import { decodeToken } from "./decodeToken";
 import { hasAccess } from "./hasAccess";
-import { Access, TokenUseEnum } from "./types";
+import { isValidToken } from "./isValidToken";
+import { workspaceResourceAccess } from "./roles";
 import { tokenHasAccessKeyId } from "./tokenHasAccessKeyId";
-import { permissionDeniedError, unauthenticatedError } from "./errors";
+import { Access, TokenUseEnum } from "./types";
 
 const logger = getLogger({ service: "common", filePath: __filename });
 

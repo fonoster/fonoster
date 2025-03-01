@@ -18,8 +18,8 @@
  */
 import { getLogger } from "@fonoster/logger";
 import {
-  AuthzHandler,
   AddBillingMeterEventRequest,
+  AuthzHandler,
   CheckMethodAuthorizedRequest,
   VoiceRequest
 } from "../types";

@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientFunction } from "./common";
 import {
   Acl,
   CreateAclRequest,
@@ -29,6 +28,7 @@ import {
   UpdateAclRequest,
   UpdateAclResponse
 } from "../../generated/web/acls_pb";
+import { ClientFunction } from "./common";
 
 type AclsClient = {
   createAcl: ClientFunction<CreateAclRequest, CreateAclResponse>;

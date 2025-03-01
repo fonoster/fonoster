@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Prisma } from "../core/db";
 import { createCreateApplication } from "./createCreateApplication";
 import { createDeleteApplication } from "./createDeleteApplication";
 import { createGetApplication } from "./createGetApplication";
 import { createListApplications } from "./createListApplications";
 import { createUpdateApplication } from "./createUpdateApplication";
-import { Prisma } from "../core/db";
 
 function buildService(prisma: Prisma) {
   return {

@@ -18,8 +18,8 @@
  */
 import path from "path";
 import { compileTemplate } from "@fonoster/common";
-import { VerificationParams } from "./types";
 import { TemplatesEnum } from "../templates/TemplatesEnum";
+import { VerificationParams } from "./types";
 
 function createBodyForVerificationEmail(
   params: Omit<VerificationParams, "recipient">

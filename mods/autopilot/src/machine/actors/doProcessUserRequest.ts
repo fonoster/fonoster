@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { fromPromise } from "xstate";
 import { getLogger } from "@fonoster/logger";
+import { fromPromise } from "xstate";
 import { AutopilotContext } from "../types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });

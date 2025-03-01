@@ -19,7 +19,6 @@
 import {
   DialRecordDirection,
   PlaybackControlAction,
-  StreamGatherPayload,
   StreamGatherSource,
   StreamPayload
 } from "@fonoster/common";

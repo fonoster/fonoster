@@ -19,8 +19,8 @@
 import * as grpc from "@grpc/grpc-js";
 import { serviceDefinition } from "../serviceDefinition";
 import {
-  CheckMethodAuthorizedRequest,
   AddBillingMeterEventRequest,
+  CheckMethodAuthorizedRequest,
   VoiceRequest
 } from "../types";
 import { AuthzServiceClient } from "./AuthzServiceClient";

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 /*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -21,8 +20,6 @@ import * as SDK from "@fonoster/sdk";
 import { Flags } from "@oclif/core";
 import cliui from "cliui";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
-import { getConfig } from "../../../config";
-import { CONFIG_FILE } from "../../../constants";
 
 export default class List extends AuthenticatedCommand<typeof List> {
   static override readonly description =

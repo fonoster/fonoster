@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { createChatHistory } from "./chatHistory";
 import { ToolsCatalog } from "../tools";
-import { Voice } from "../voice";
+import { createChatHistory } from "./chatHistory";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

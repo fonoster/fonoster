@@ -21,6 +21,7 @@ import { Stream } from "stream";
 import { Messages, VoiceLanguage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
+import { SpeechToText } from "../types";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
 import {
   DeepgramModel,
@@ -28,7 +29,6 @@ import {
   SpeechResult,
   StreamSpeech
 } from "./types";
-import { SpeechToText } from "../types";
 const {
   DeepgramClient,
   LiveTranscriptionEvents,

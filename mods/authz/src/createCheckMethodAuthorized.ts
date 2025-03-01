@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import {
-  getAccessKeyIdFromCall,
-  createInterceptingCall
+  createInterceptingCall,
+  getAccessKeyIdFromCall
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall, status } from "@grpc/grpc-js";

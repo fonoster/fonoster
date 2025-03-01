@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
+  getTokenFromCall,
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation,
-  getAccessKeyIdFromCall,
-  getTokenFromCall
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
@@ -29,13 +29,13 @@ import {
   ResendWorkspaceMembershipInvitationResponse
 } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
-import { createIsAdminMember } from "./createIsAdminMember";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites";
 import { createSendEmail } from "../utils";
 import { createGenerateWorkspaceInviteToken } from "../utils/createGenerateWorkspaceInviteToken";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
+import { createIsAdminMember } from "./createIsAdminMember";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

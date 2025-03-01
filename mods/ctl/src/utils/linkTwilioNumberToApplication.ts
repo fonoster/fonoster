@@ -22,13 +22,13 @@ import phone from "phone";
 import { Twilio } from "twilio";
 import { TWILIO_PSTN_URI_BASE } from "../constants";
 import {
-  LinkTwilioNumberToApplicationParams,
   assignTwilioNumberToTrunk,
   createTwilioTrunk,
   getFonosterNumberByTelUrl,
   getFonosterTrunkByInboundUri,
   getTwilioNumber,
-  getTwilioTrunk
+  getTwilioTrunk,
+  LinkTwilioNumberToApplicationParams
 } from ".";
 
 async function linkTwilioNumberToApplication(

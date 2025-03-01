@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { mapDialStatus } from "./mapDialStatus";
 import { VoiceClient } from "../voice/types";
+import { mapDialStatus } from "./mapDialStatus";
 
 function createHandleDialEventsWithVoiceClient(voiceClient: VoiceClient) {
   return async function handleDialEventsWithVoiceClient(event: {

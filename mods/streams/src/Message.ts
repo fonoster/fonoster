@@ -20,8 +20,8 @@ import { parse as uuidParse, stringify as uuidStringify } from "uuid";
 import {
   ErrorCode,
   MAXIMUM_MESSAGE_LENGTH,
-  MINIMUM_MESSAGE_LENGTH,
-  MessageType
+  MessageType,
+  MINIMUM_MESSAGE_LENGTH
 } from "./types";
 
 class Message {

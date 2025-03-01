@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
 import { toolSchema } from "@fonoster/common";
+import { z } from "zod";
 
 type Tool = z.infer<typeof toolSchema>;
 

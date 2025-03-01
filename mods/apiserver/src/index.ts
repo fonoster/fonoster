@@ -17,8 +17,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  CALL_DETAIL_RECORD_MEASUREMENT,
+  INFLUXDB_CALLS_BUCKET
+} from "@fonoster/common";
 import { upsertDefaultUser } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { identityConfig } from "./core/identityConfig";
 import runServices from "./core/runServices";
 import { upsertDefaultPeer } from "./core/upsertDefaultPeer";
 import {
@@ -33,11 +38,6 @@ import {
 import { createInfluxDbPub } from "./events/createInfluxDbPub";
 import { watchNats } from "./events/nats";
 import { transformEvent } from "./events/transformEvent";
-import {
-  CALL_DETAIL_RECORD_MEASUREMENT,
-  INFLUXDB_CALLS_BUCKET
-} from "@fonoster/common";
-import { identityConfig } from "./core/identityConfig";
 
 import("./core/removeSwaggerNotice");
 

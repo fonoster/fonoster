@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientFunction } from "./common";
 import {
   Application,
   CreateApplicationRequest,
@@ -29,6 +28,7 @@ import {
   UpdateApplicationRequest,
   UpdateApplicationResponse
 } from "../../generated/web/applications_pb";
+import { ClientFunction } from "./common";
 
 type ApplicationsClient = {
   createApplication: ClientFunction<

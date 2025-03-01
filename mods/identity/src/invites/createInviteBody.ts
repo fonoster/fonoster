@@ -18,8 +18,8 @@
  */
 import path from "path";
 import { compileTemplate } from "@fonoster/common";
-import { InviteParams } from "./types";
 import { TemplatesEnum } from "../templates/TemplatesEnum";
+import { InviteParams } from "./types";
 
 function createInviteBody(params: Omit<InviteParams, "recipient">) {
   const {

@@ -19,8 +19,8 @@
 import { hostOrHostPortSchema } from "@fonoster/common";
 import { ApplicationType } from "@prisma/client";
 import { z } from "zod";
-import { speechValidators } from "./speechValidators";
 import { assistantWithoutApiKeySchema } from "./assistantWithoutApiKeySchema";
+import { speechValidators } from "./speechValidators";
 
 const MAX_NAME_MESSAGE = "Name must contain at most 255 characters";
 

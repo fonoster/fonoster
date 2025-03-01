@@ -17,18 +17,18 @@
  * limitations under the License.
  */
 import {
-  GRPC_SERVING_STATUS,
   getServerCredentials,
+  GRPC_SERVING_STATUS,
   statusMap
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import merge from "deepmerge";
 import { HealthImplementation } from "grpc-health-check";
-import { defaultServerConfig } from "./defaultServerConfig";
-import { serviceDefinition } from "../serviceDefinition";
-import { ServerConfig, AuthzHandler } from "../types";
 import { struct } from "pb-util";
+import { serviceDefinition } from "../serviceDefinition";
+import { AuthzHandler, ServerConfig } from "../types";
+import { defaultServerConfig } from "./defaultServerConfig";
 
 const logger = getLogger({ service: "authz", filePath: __filename });
 

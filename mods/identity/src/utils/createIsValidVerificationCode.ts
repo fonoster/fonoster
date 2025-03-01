@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerificationType } from "../generated/@prisma/client";
 import { VERIFICATION_CODE_EXPIRATION } from "../constants";
 import { Prisma } from "../db";
+import { VerificationType } from "../generated/@prisma/client";
 
 function createIsValidVerificationCode(prisma: Prisma) {
   return async (params: {

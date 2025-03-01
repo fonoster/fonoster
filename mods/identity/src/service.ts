@@ -36,16 +36,16 @@ import {
   createGetWorkspace,
   createInviteUserToWorkspace,
   createListApiKeys,
+  createListWorkspaceMembers,
   createListWorkspaces,
   createRegenerateApiKey,
   createRemoveUserFromWorkspace,
   createResendWorkspaceMembershipInvitation,
-  sendInvite,
+  createResetPassword,
+  createSendResetPasswordCode,
   createUpdateUser,
   createUpdateWorkspace,
-  createListWorkspaceMembers,
-  createSendResetPasswordCode,
-  createResetPassword
+  sendInvite
 } from ".";
 
 const serviceDefinitionParams = {

@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { isValidToken } from "@fonoster/common";
 import { WorkspaceMemberStatus } from "@fonoster/types";
 import { jwtDecode } from "jwt-decode";
-import { isValidToken } from "@fonoster/common";
 import { createPrismaClient } from "../db";
 import { IdentityConfig } from "../exchanges";
 

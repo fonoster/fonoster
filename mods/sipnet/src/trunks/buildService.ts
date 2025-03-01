@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import SDK from "@routr/sdk";
+import { ClientOptions } from "../types";
 import {
   createTrunk,
   deleteTrunk,
@@ -24,7 +25,6 @@ import {
   listTrunks,
   updateTrunk
 } from "./operations";
-import { ClientOptions } from "../types";
 
 function buildService(clientOptions: ClientOptions) {
   const client = new SDK.Trunks(clientOptions);

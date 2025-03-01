@@ -18,11 +18,11 @@
  */
 import {
   StreamEvent,
+  toCamelCase,
   VerbRequest,
   VoiceIn,
   VoiceRequest,
-  VoiceSessionStreamServer,
-  toCamelCase
+  VoiceSessionStreamServer
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";

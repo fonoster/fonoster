@@ -17,13 +17,13 @@
  * limitations under the License.
  */
 import {
-  Role,
   BaseApiObject,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
   ListApiKeysRequest,
   ListApiKeysResponse,
-  RegenerateApiKeyResponse
+  RegenerateApiKeyResponse,
+  Role
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";

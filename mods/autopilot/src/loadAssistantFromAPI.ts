@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 import { findIntegrationsCredentials, VoiceRequest } from "@fonoster/common";
+import { assistantSchema } from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
 import * as SDK from "@fonoster/sdk";
 import { AssistantConfig } from "./assistants";
 import { APISERVER_ENDPOINT } from "./envs";
-import { getLogger } from "@fonoster/logger";
-import { assistantSchema } from "@fonoster/common";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

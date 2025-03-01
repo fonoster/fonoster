@@ -19,12 +19,12 @@
 import { createGenerateCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { Channel, Client, StasisStart } from "ari-client";
+import { identityConfig } from "../core/identityConfig";
+import { mapCallDirectionToEnum } from "../events/mapCallDirectionToEnum";
 import { CreateContainer } from "./integrations/types";
 import { ChannelVar, VoiceClient } from "./types";
 import { createGetChannelVarWithoutThrow } from "./utils/createGetChannelVarWithoutThrow";
 import { VoiceClientImpl } from "./VoiceClientImpl";
-import { identityConfig } from "../core/identityConfig";
-import { mapCallDirectionToEnum } from "../events/mapCallDirectionToEnum";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

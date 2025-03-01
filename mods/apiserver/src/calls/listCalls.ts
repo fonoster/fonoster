@@ -17,16 +17,16 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
-  Validators as V,
-  withErrorHandlingAndValidation,
   InfluxDBClient,
-  getAccessKeyIdFromCall
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { ListCallsRequest, ListCallsResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createFetchCalls } from "./createFetchCalls";
-import { ListCallsRequest, ListCallsResponse } from "@fonoster/types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

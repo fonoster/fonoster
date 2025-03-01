@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Table from "cli-table3";
 import chalk from "chalk";
+import Table from "cli-table3";
 import { ScenarioEvaluationReport } from "./types";
 
 export function printEval(results: ScenarioEvaluationReport[]): void {

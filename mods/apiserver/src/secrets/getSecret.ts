@@ -19,9 +19,9 @@
 import { Validators as V } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, Secret } from "@fonoster/types";
-import { createGetFnUtil } from "./createGetFnUtil";
 import { Prisma } from "../core/db";
 import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
+import { createGetFnUtil } from "./createGetFnUtil";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

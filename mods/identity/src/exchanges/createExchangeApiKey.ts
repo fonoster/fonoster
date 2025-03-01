@@ -23,14 +23,14 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
+import { Prisma } from "../db";
+import { createGetApiKeyByAccessKeyId } from "../utils/createGetApiKeyByAccessKeyId";
 import { exchangeTokens } from "./exchangeTokens";
 import {
   ExchangeApiKeysRequest,
   ExchangeResponse,
   IdentityConfig
 } from "./types";
-import { Prisma } from "../db";
-import { createGetApiKeyByAccessKeyId } from "../utils/createGetApiKeyByAccessKeyId";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

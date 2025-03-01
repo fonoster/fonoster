@@ -18,14 +18,14 @@
  * limitations under the License.
  */
 import { setup } from "xstate";
-import { AutopilotContext } from "./types";
 import { ConversationSettings } from "../assistants";
 import { LanguageModel } from "../models";
 import { Voice } from "../voice";
-import * as actors from "./actors";
-import * as guards from "./guards";
 import * as actions from "./actions";
+import * as actors from "./actors";
 import delays from "./delays";
+import * as guards from "./guards";
+import { AutopilotContext } from "./types";
 
 const machineSetup = setup({
   types: {

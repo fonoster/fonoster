@@ -1,5 +1,3 @@
-import { createDialHandler } from "./createDialHandler";
-
 /*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster

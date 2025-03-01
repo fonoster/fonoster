@@ -17,28 +17,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import fs from "fs";
 import { StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
-import { createLanguageModel } from "./models/createLanguageModel";
+import { BaseMessage } from "@langchain/core/messages";
 import {
   AWS_S3_ACCESS_KEY_ID,
   AWS_S3_ENDPOINT,
   AWS_S3_REGION,
   AWS_S3_SECRET_ACCESS_KEY,
-  KNOWLEDGE_BASE_ENABLED,
-  UNSTRUCTURED_API_KEY,
-  UNSTRUCTURED_API_URL,
   CONVERSATION_PROVIDER,
   CONVERSATION_PROVIDER_FILE,
-  INTEGRATIONS_FILE
+  INTEGRATIONS_FILE,
+  KNOWLEDGE_BASE_ENABLED,
+  UNSTRUCTURED_API_KEY,
+  UNSTRUCTURED_API_URL
 } from "./envs";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
-import Autopilot, { ConversationProvider, S3KnowledgeBase, VoiceImpl } from ".";
 import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
-import fs from "fs";
+import { createLanguageModel } from "./models/createLanguageModel";
 import { sendConversationEndedEvent } from "./sendConversationEndedEvent";
-import { BaseMessage } from "@langchain/core/messages";
+import Autopilot, { ConversationProvider, S3KnowledgeBase, VoiceImpl } from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientFunction } from "./common";
 import {
   CreateSecretRequest,
   CreateSecretResponse,
@@ -29,6 +28,7 @@ import {
   UpdateSecretRequest,
   UpdateSecretResponse
 } from "../../generated/web/secrets_pb";
+import { ClientFunction } from "./common";
 
 type SecretsClient = {
   createSecret: ClientFunction<CreateSecretRequest, CreateSecretResponse>;

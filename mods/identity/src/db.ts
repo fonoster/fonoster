@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma as DMMF, PrismaClient } from "./generated/@prisma/client";
 import { fieldEncryptionExtension } from "prisma-field-encryption";
+import { Prisma as DMMF, PrismaClient } from "./generated/@prisma/client";
 
 export const createPrismaClient = (
   dbUrl: string,

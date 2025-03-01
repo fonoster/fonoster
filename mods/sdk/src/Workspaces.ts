@@ -20,9 +20,9 @@ import {
   BaseApiObject,
   CreateWorkspaceRequest,
   InviteUserToWorkspaceRequest,
-  ListWorkspacesResponse,
   ListWorkspaceMembersRequest,
   ListWorkspaceMembersResponse,
+  ListWorkspacesResponse,
   RemoveUserFromWorkspaceRequest,
   RemoveUserFromWorkspaceResponse,
   ResendWorkspaceMembershipInvitationRequest,
@@ -40,18 +40,18 @@ import {
   GetWorkspaceRequest as GetWorkspaceRequestPB,
   InviteUserToWorkspaceRequest as InviteUserToWorkspaceRequestPB,
   InviteUserToWorkspaceResponse as InviteUserToWorkspaceResponsePB,
-  ListWorkspacesRequest as ListWorkspacesRequestPB,
-  ListWorkspacesResponse as ListWorkspacesResponsePB,
   ListWorkspaceMembersRequest as ListWorkspaceMembersRequestPB,
   ListWorkspaceMembersResponse as ListWorkspaceMembersResponsePB,
+  ListWorkspacesRequest as ListWorkspacesRequestPB,
+  ListWorkspacesResponse as ListWorkspacesResponsePB,
   RemoveUserFromWorkspaceRequest as RemoveUserFromWorkspaceRequestPB,
   RemoveUserFromWorkspaceResponse as RemoveUserFromWorkspaceResponsePB,
   ResendWorkspaceMembershipInvitationRequest as ResendWorkspaceMembershipInvitationRequestPB,
   ResendWorkspaceMembershipInvitationResponse as ResendWorkspaceMembershipInvitationResponsePB,
   UpdateWorkspaceRequest as UpdateWorkspaceRequestPB,
   UpdateWorkspaceResponse as UpdateWorkspaceResponsePB,
-  Workspace as WorkspacePB,
-  WorkspaceMember as WorkspaceMemberPB
+  WorkspaceMember as WorkspaceMemberPB,
+  Workspace as WorkspacePB
 } from "./generated/node/identity_pb";
 
 /**

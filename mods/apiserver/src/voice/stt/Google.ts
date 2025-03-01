@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { performance } from "perf_hooks";
 import { Stream } from "stream";
 import { Messages, VoiceLanguage } from "@fonoster/common";
 import { SpeechClient } from "@google-cloud/speech";
 import * as z from "zod";
+import { SpeechToText } from "../types";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
 import { GoogleSttConfig, SpeechResult, StreamSpeech } from "./types";
-import { SpeechToText } from "../types";
-import { performance } from "perf_hooks";
 
 const ENGINE_NAME = "stt.google";
 

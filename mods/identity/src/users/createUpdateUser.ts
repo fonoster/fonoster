@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import {
+  getTokenFromCall,
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation,
-  getTokenFromCall
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, UpdateUserRequest } from "@fonoster/types";

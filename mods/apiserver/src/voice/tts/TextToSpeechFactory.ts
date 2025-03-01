@@ -18,13 +18,13 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
-import { ENGINE_NAME as AZURE_ENGINE_NAME, Azure } from "./Azure";
-import { ENGINE_NAME as DEEPGRAM_ENGINE_NAME, Deepgram } from "./Deepgram";
+import { Azure, ENGINE_NAME as AZURE_ENGINE_NAME } from "./Azure";
+import { Deepgram, ENGINE_NAME as DEEPGRAM_ENGINE_NAME } from "./Deepgram";
 import {
   ENGINE_NAME as ELEVEN_LABS_ENGINE_NAME,
   ElevenLabs
 } from "./ElevenLabs";
-import { ENGINE_NAME as GOOGLE_ENGINE_NAME, Google } from "./Google";
+import { Google, ENGINE_NAME as GOOGLE_ENGINE_NAME } from "./Google";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

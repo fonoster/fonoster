@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation,
-  getAccessKeyIdFromCall
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
-  ListWorkspaceMembersResponse,
   ListWorkspaceMembersRequest,
+  ListWorkspaceMembersResponse,
   Role,
   WorkspaceMemberStatus
 } from "@fonoster/types";

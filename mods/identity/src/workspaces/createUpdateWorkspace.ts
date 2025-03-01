@@ -17,17 +17,17 @@
  * limitations under the License.
  */
 import {
+  getTokenFromCall,
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation,
-  getTokenFromCall
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, UpdateWorkspaceRequest } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
-import { createIsWorkspaceMember } from "./createIsWorkspaceMember";
 import { Prisma } from "../db";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
+import { createIsWorkspaceMember } from "./createIsWorkspaceMember";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

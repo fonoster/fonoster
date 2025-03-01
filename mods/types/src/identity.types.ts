@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { ListRequest, ListResponse } from "./common";
-import { WorkspaceMemberStatus, Role } from "./workspaces.types";
+import { Role, WorkspaceMemberStatus } from "./workspaces.types";
 
 type User = {
   ref: string;

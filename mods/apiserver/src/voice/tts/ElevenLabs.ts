@@ -20,11 +20,11 @@ import { Readable } from "stream";
 import { getLogger } from "@fonoster/logger";
 import { ElevenLabsClient } from "elevenlabs";
 import * as z from "zod";
+import { textChunksByFirstNaturalPause } from "../handlers/utils/textChunksByFirstNaturalPause"; // Assuming this is the chunking function
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { streamToBuffer } from "./streamToBuffer";
 import { SynthOptions } from "./types";
-import { textChunksByFirstNaturalPause } from "../handlers/utils/textChunksByFirstNaturalPause"; // Assuming this is the chunking function
 
 const ENGINE_NAME = "tts.elevenlabs";
 

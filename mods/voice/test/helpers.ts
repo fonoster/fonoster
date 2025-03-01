@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SinonSandbox } from "sinon";
 import { CallDirection } from "@fonoster/types";
+import { SinonSandbox } from "sinon";
 import { VoiceRequest } from "../src";
 
 const sessionRef = "848b8803-7106-48b7-b820-515b05c40d6b";

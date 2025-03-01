@@ -22,11 +22,11 @@ import {
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { SendResetPasswordCodeRequest, ContactType } from "@fonoster/types";
+import { ContactType, SendResetPasswordCodeRequest } from "@fonoster/types";
 import { Prisma } from "../db";
-import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
 import { IdentityConfig } from "../exchanges/types";
 import { createSendEmail } from "../utils";
+import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
 import { sendResetPasswordEmail } from "./sendResetPasswordEmail";
 
 const logger = getLogger({ service: "identity", filePath: __filename });

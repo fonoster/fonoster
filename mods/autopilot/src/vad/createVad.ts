@@ -45,15 +45,6 @@ async function createVad(params: VadParams) {
   let isSpeechActive = false;
   let framesSinceStateChange = 0;
 
-  // Helper to reset internal state after a state change.
-  const resetState = () => {
-    isSpeechActive = false;
-    framesSinceStateChange = 0;
-    audioBuffer = [];
-    silero.resetState();
-    logger.silly("State reset -- audioBuffer cleared");
-  };
-
   return async function process(
     chunk: Uint8Array,
     callback: (event: "SPEECH_START" | "SPEECH_END") => void

@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import jwt from "jsonwebtoken";
+import { Prisma } from "../db";
 import * as AK from "./payloads/apikeys";
 import * as US from "./payloads/users";
 import { IdentityConfig } from "./types";
-import { Prisma } from "../db";
 
 const SIGN_ALGORITHM = "RS256";
 

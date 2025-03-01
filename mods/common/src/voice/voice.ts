@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { CallDirection } from "@fonoster/types";
+import { GrpcError } from "../GrpcError";
 import { DialRequest, DialStatus } from "./Dial";
 import { GatherRequest, GatherResponse } from "./Gather";
 import { MuteRequest } from "./Mute";
@@ -32,7 +33,6 @@ import {
 } from "./Stream";
 import { StartStreamGatherRequest, StreamGatherPayload } from "./StreamGather";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
-import { GrpcError } from "../GrpcError";
 
 const DATA = "data";
 const END = "end";

@@ -22,10 +22,10 @@ import {
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { NatsConnection } from "nats";
-import { CallStream, TrackCallResponse } from "./types";
-import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
 import { BaseApiObject } from "@fonoster/types";
+import { NatsConnection } from "nats";
+import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
+import { CallStream, TrackCallResponse } from "./types";
 
 const FINAL_STATUSES = [
   DialStatus.BUSY,

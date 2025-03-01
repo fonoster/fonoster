@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientFunction } from "./common";
 import {
   CreateCredentialsRequest,
   CreateCredentialsResponse,
@@ -29,6 +28,7 @@ import {
   UpdateCredentialsRequest,
   UpdateCredentialsResponse
 } from "../../generated/web/credentials_pb";
+import { ClientFunction } from "./common";
 
 type CredentialsClient = {
   createCredentials: ClientFunction<

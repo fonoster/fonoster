@@ -23,10 +23,10 @@ import {
   POSITIVE_INTEGER_MESSAGE
 } from "@fonoster/common";
 import { z } from "zod";
-import { getTimeoutPromise } from "./getTimeoutPromise";
 import { VoiceClient } from "../../types";
 import { isDtmf } from "../utils";
 import { withErrorHandling } from "../utils/withErrorHandling";
+import { getTimeoutPromise } from "./getTimeoutPromise";
 
 const gatherRequestSchema = z.object({
   source: z

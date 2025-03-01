@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation,
-  getAccessKeyIdFromCall
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { AclsApi, BaseApiObject, UpdateAclRequest } from "@fonoster/types";

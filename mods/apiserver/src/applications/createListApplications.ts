@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation,
-  getAccessKeyIdFromCall
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
@@ -28,8 +28,8 @@ import {
   ListApplicationsResponse
 } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../core/db";
+import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

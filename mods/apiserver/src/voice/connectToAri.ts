@@ -20,10 +20,6 @@ import { getLogger } from "@fonoster/logger";
 import ariClient from "ari-client";
 import { connect } from "nats";
 import wait from "wait-port";
-import { createCreateContainer } from "./integrations";
-import { createCreateVoiceClient } from "./createCreateVoiceClient";
-import { AriEvent } from "./types";
-import { VoiceDispatcher } from "./VoiceDispatcher";
 import { prisma } from "../core/db";
 import {
   ASTERISK_ARI_PROXY_URL,
@@ -32,6 +28,10 @@ import {
   INTEGRATIONS_FILE,
   NATS_URL
 } from "../envs";
+import { createCreateVoiceClient } from "./createCreateVoiceClient";
+import { createCreateContainer } from "./integrations";
+import { AriEvent } from "./types";
+import { VoiceDispatcher } from "./VoiceDispatcher";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

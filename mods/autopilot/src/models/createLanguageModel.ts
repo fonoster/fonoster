@@ -19,12 +19,12 @@
  */
 import {
   AssistantConfig,
+  hangupToolDefinition,
   KnowledgeBase,
   LanguageModelFactory,
   TelephonyContext,
-  Voice,
-  hangupToolDefinition,
-  transferToolDefinition
+  transferToolDefinition,
+  Voice
 } from "..";
 
 function createLanguageModel(params: {

@@ -18,9 +18,9 @@
  */
 import { z } from "zod";
 import { conversationSettingsSchema } from "./conversationSettingsSchema";
+import { eventsHookSchema } from "./eventsHookSchema";
 import { languageModelConfigSchema } from "./languageModelConfigSchema";
 import { testCasesSchema } from "./testCasesSchema";
-import { eventsHookSchema } from "./eventsHookSchema";
 
 const assistantSchema = z.object({
   conversationSettings: conversationSettingsSchema,

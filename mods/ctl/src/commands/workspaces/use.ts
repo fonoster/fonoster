@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 /*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -19,8 +18,8 @@
  */
 import { Args, Command } from "@oclif/core";
 import {
-  getConfig,
   getActiveWorkspace,
+  getConfig,
   setActiveWorkspace
 } from "../../config";
 import { saveConfig } from "../../config/saveConfig";

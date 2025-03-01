@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import {
-  TokenUseEnum,
   decodeToken,
-  GrpcErrorMessage,
   getTokenFromCall,
+  GrpcErrorMessage,
+  TokenUseEnum,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
