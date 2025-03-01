@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -33,6 +32,7 @@ const {
   DeepgramClient,
   LiveTranscriptionEvents,
   createClient
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
 } = require("@deepgram/sdk"); // Why Deepgram :(
 
 const ENGINE_NAME = "stt.deepgram";

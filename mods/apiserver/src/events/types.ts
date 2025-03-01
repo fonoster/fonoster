@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The register event is sent by Routr when a new endpoint is registered
 type RegisterEvent = {
   // The address of record (aor) is the unique identifier for the endpoint
   // And it is formatted as `sip:username@domain`

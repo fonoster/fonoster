@@ -1,5 +1,4 @@
-/* eslint-disable no-loops/no-loops */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
