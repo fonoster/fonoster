@@ -28,9 +28,6 @@ jobs:
         npm install
         npm run build
 
-        # FIXME: When the npm run build is fixed, remove this
-        npm run postbuild
-
     - name: Run unit tests
       run: |
         cp .env.example.dev .env
