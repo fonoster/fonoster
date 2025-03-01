@@ -1,4 +1,4 @@
-name: dco check
+name: check developer certificate of origin
 
 on:
   pull_request:
