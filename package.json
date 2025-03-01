@@ -39,10 +39,10 @@
     "format": "prettier --write mods/**/src",
     "clean": "rimraf mods/**/dist mods/**/node_modules mods/**/package-lock.json node_modules package-lock.json",
     "prepare": "husky",
-    "copy:hbstemplates": "node .scripts/copy-hbs.js",
+    "copy:hbstemplates": "node .scripts/copy-hbs.cjs",
     "db:migrate": "npx prisma migrate dev --schema mods/apiserver/schema.prisma --name changeme --preview-feature && npx prisma migrate dev --schema mods/identity/schema.prisma --name changeme --preview-feature",
     "db:seed": "tsx mods/apiserver/src/core/seed.ts",
-    "generate:docs": "node .scripts/gen-docs.js",
+    "generate:docs": "node .scripts/gen-docs.cjs",
     "generate:readme": "lerna run generate:readme && git add mods/**/README.md",
     "generate:keypair": ".scripts/gen-keypair.sh",
     "generate:protos": ".scripts/gen-code-proto.sh",
@@ -84,6 +84,7 @@
     "eslint": "^8",
     "eslint-config-next": "^14.1.0",
     "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -103,7 +104,8 @@
     "rimraf": "^6.0.1",
     "sinon": "^19.0.2",
     "sinon-chai": "^4.0.0",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "eslint-plugin-import": "^2.29.1"
   },
   "repository": {
     "type": "git",
