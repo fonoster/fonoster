@@ -72,9 +72,9 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     CONVERSATION_PROVIDER === ConversationProvider.FILE
       ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE)
       : await loadAssistantFromAPI(
-        req,
-        JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"))
-      );
+          req,
+          JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"))
+        );
 
   let knowledgeBase;
 

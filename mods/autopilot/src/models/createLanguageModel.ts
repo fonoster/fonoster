@@ -33,7 +33,7 @@ function createLanguageModel(params: {
   telephonyContext: TelephonyContext;
 }) {
   const { voice, assistantConfig, knowledgeBase, telephonyContext } = params;
-  const { languageModel, conversationSettings } = assistantConfig
+  const { languageModel, conversationSettings } = assistantConfig;
 
   // The transfer tool is only added if the transfer options exist
   const tools = languageModel.tools.concat(

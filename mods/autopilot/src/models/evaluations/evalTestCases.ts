@@ -25,13 +25,11 @@ import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";
 import { ScenarioEvaluationReport } from "./types";
 
-export async function evalTestCases(
-  autopilotApplication: {
-    intelligence: {
-      config: AssistantConfig;
-    };
-  }
-): Promise<ScenarioEvaluationReport[]> {
+export async function evalTestCases(autopilotApplication: {
+  intelligence: {
+    config: AssistantConfig;
+  };
+}): Promise<ScenarioEvaluationReport[]> {
   const { testCases } = autopilotApplication.intelligence.config;
   const { config: assistantConfig } = autopilotApplication.intelligence;
   const voice = {
