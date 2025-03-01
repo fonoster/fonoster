@@ -84,6 +84,9 @@
     "eslint": "^8",
     "eslint-config-next": "^14.1.0",
     "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-headers": "^1.2.1",
+    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react": "^7.33.2",
@@ -104,8 +107,7 @@
     "rimraf": "^6.0.1",
     "sinon": "^19.0.2",
     "sinon-chai": "^4.0.0",
-    "tsx": "^4.19.2",
-    "eslint-plugin-import": "^2.29.1"
+    "tsx": "^4.19.2"
   },
   "repository": {
     "type": "git",
