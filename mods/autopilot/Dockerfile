@@ -7,7 +7,7 @@ LABEL team="Fonoster Team <team@fonoster.com>"
 WORKDIR /work
 COPY . .
 
-RUN npm rebuild
+RUN npm install && npm run build
 
 ##
 # Run stage
