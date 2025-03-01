@@ -61,7 +61,6 @@ export default [
           'object',     // object imports
           'type'        // type imports
         ],
-        'newlines-between': 'always',
         'alphabetize': {
           'order': 'asc',
           'caseInsensitive': true
