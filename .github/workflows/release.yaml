@@ -2,11 +2,11 @@ name: release
 
 on:
   push:
-    paths:
-    - mods/**
-    - asterisk/**
     branches:
-    - main
+      - main
+    paths:
+      - mods/**
+      - asterisk/**
   workflow_dispatch:
 
 jobs:
