@@ -59,7 +59,9 @@
     "release:prerelease": "lerna publish --dist-tag next",
     "release:frompackages": "lerna publish from-package",
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
-    "postinstall": "npm run generate:prisma-clients"
+    "postinstall": "npm run generate:prisma-clients",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "prisma": {
     "seed": "tsx mods/apiserver/src/core/seed.ts"
@@ -83,15 +85,25 @@
     "jsdoc-to-markdown": "^8.0.1",
     "lerna": "^8.1.9",
     "mocha": "^11.0.2",
+    "next": "^14.1.0",
     "nodemon": "^3.1.9",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.0",
     "prisma": "^6.4.1",
     "protoc-gen-grpc-web": "^1.5.0",
     "protoc-gen-js": "^3.21.4-4",
     "rimraf": "^6.0.1",
     "sinon": "^19.0.2",
     "sinon-chai": "^4.0.0",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "eslint": "^8",
+    "eslint-config-next": "^14.1.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "@eslint/eslintrc": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0"
   },
   "repository": {
     "type": "git",
@@ -126,5 +138,6 @@
     "@rollup/rollup-linux-arm64-musl": "^4.29.1",
     "@rollup/rollup-linux-x64-gnu": "^4.29.1",
     "@rollup/rollup-linux-x64-musl": "^4.29.1"
-  }
+  },
+  "type": "module"
 }
