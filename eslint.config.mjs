@@ -59,23 +59,6 @@ import headerPlugin from 'eslint-plugin-header'; export default [
   },
   {
     files: ['mods/**/*.ts', 'mods/**/*.tsx'],
-    ignores: [
-      '**/dist/**',
-      '**/node_modules/**',
-      '**/*.d.ts',
-      '**/bin/**',
-      ".scripts/**",
-      'site/**',
-      'mods/webui/**',
-      'mods/**/*.test.ts',
-      'mods/**/*.proto',
-      '**/generated/**',
-      'mods/sdk/public/fonoster.min.js',
-      'mods/**/*.integration.ts',
-      // TODO: Avoid ignoring this file after we fix the issue addign the headers
-      'mods/autopilot/src/server.ts',
-      'mods/apiserver/src/index.ts'
-    ],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
