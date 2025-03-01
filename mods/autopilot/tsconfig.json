@@ -1,7 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    // As per the xtate5 docs https://stately.ai/docs/typescript#set-up-your-tsconfigjson-file
+    // "skipLibCheck": true,
+    // "strictNullChecks": true,
     "target": "es2020",
   },
   "exclude": ["node_modules", "dist", "test"],

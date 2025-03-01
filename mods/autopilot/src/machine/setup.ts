@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { setup } from "xstate";
+import { setup, assign } from "xstate";
 import { ConversationSettings } from "../assistants";
 import { LanguageModel } from "../models";
 import { Voice } from "../voice";
@@ -24,7 +24,10 @@ import * as actions from "./actions";
 import * as actors from "./actors";
 import delays from "./delays";
 import * as guards from "./guards";
-import { AutopilotContext } from "./types";
+import { AutopilotContext, AutopilotEvents } from "./types";
+import { getLogger } from "@fonoster/logger";
+
+const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const machineSetup = setup({
   types: {
@@ -34,21 +37,66 @@ const machineSetup = setup({
       languageModel: LanguageModel;
       voice: Voice;
     },
-    events: {} as
-      | { type: "SPEECH_START" }
-      | { type: "SPEECH_END" }
-      | { type: "SPEECH_RESULT"; speech: string; responseTime: number }
+    events: {} as AutopilotEvents
   },
-  actions,
+  actions: {
+    ...actions,
+    // FIX: Move all this to the actions folder
+    appendSpeech: assign(({ context, event }) => {
+      const speech = (event as unknown as { speech: string }).speech;
+
+      logger.verbose("called the appendSpeech action", { speech });
+
+      if (!speech) {
+        return context;
+      }
+
+      context.speechBuffer = (
+        (context.speechBuffer ?? "") +
+        " " +
+        speech
+      ).trimStart();
+
+      return context;
+    }),
+    cleanSpeech: assign({ speechBuffer: "" }),
+    increaseIdleTimeoutCount: assign(({ context }) => {
+      logger.verbose("called the increaseIdleTimeoutCount action", {
+        idleTimeoutCount: context.idleTimeoutCount + 1
+      });
+      context.idleTimeoutCount++;
+      return context;
+    }),
+    resetIdleTimeoutCount: assign(({ context }) => {
+      logger.verbose("called the resetIdleTimeoutCount action", {
+        idleTimeoutCount: 0
+      });
+      context.idleTimeoutCount = 0;
+      return context;
+    }),
+    resetState: assign(({ context }) => {
+      logger.verbose("called the resetState action");
+      return {
+        ...context,
+        speechBuffer: "",
+        idleTimeoutCount: 0,
+        isSpeaking: false
+      };
+    }),
+    setSpeaking: assign(({ context }) => {
+      logger.verbose("called the setSpeaking action", { isSpeaking: true });
+      context.isSpeaking = true;
+      return context;
+    }),
+    setSpeakingDone: assign(({ context }) => {
+      logger.verbose("called the setSpeakingDone action", { isSpeaking: false });
+      context.isSpeaking = false;
+      return context;
+    }),
+  },
   guards,
   delays,
-  actors,
-  after: {
-    SESSION_TIMEOUT: {
-      target: "hangup",
-      actions: ["goodbye"]
-    }
-  }
+  actors
 });
 
 export { machineSetup };

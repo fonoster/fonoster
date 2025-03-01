@@ -39,4 +39,9 @@ type AutopilotContext = {
   knowledgeBaseSourceUrl?: string;
 };
 
-export { AutopilotContext };
+type AutopilotEvents =
+  | { type: "SPEECH_START" }
+  | { type: "SPEECH_END" }
+  | { type: "SPEECH_RESULT"; speech: string; responseTime: number };
+
+export { AutopilotContext, AutopilotEvents };
