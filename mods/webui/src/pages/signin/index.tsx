@@ -12,14 +12,21 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 import { Button } from '@stories/button/Button';
-import { InputText } from '@stories/inputtext/InputText';
 import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
 import { OAuthConfig, OAuthResponse } from '@/types/oauth';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { InputContext } from '@/common/hooksForm/InputContext';
 
 interface LoginForm {
   email: string;
   password: string;
 }
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string()
+});
 
 const GITHUB_CONFIG: OAuthConfig = {
   clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
@@ -38,7 +45,9 @@ const LoginPage = () => {
     defaultValues: {
       email: '',
       password: ''
-    }
+    },
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange'
   });
 
   const {
@@ -125,21 +134,22 @@ const LoginPage = () => {
   return (
     <Layout methods={methods}>
       <PageContainer>
-        <Card onSubmit={handleSubmit(onSubmit)}>
+        <Card>
           <Content title="Sign In">
-            <InputText
+            <InputContext
               name="email"
               label="Email Address"
               type="email"
-              error={!!errors.email}
-              supportingText={errors.email?.message || 'Please enter your email address'}
+              id="email"
+              helperText="Please enter your email address"
             />
-            <InputText
+
+            <InputContext
               name="password"
               label="Password"
               type="password"
-              error={!!errors.password}
-              supportingText={errors.password?.message || 'Please enter your password'}
+              id="password"
+              helperText="Please enter your password"
             />
             <Box sx={{ textAlign: 'right', mb: 2 }}>
               <Link href="/forgot-password" style={{ textDecoration: 'none' }}>
