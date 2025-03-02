@@ -1,13 +1,15 @@
 name: test sdk install
 
 on:
-  # avoid this for now
-  # push:
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'mods/common/**'
+      - 'mods/types/**'
+      - 'mods/sdk/**'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 jobs:

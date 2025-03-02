@@ -8,7 +8,18 @@
   "main": "dist/index",
   "types": "dist/index",
   "workspaces": [
-    "mods/*"
+    "mods/apiserver",
+    "mods/authz",
+    "mods/autopilot",
+    "mods/common",
+    "mods/ctl",
+    "mods/identity",
+    "mods/logger",
+    "mods/sdk",
+    "mods/sipnet",
+    "mods/streams",
+    "mods/types",
+    "mods/voice"
   ],
   "scripts": {
     "start:webui": "NODE_ENV=dev cd mods/webui && npm run dev",

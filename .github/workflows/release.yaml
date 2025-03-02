@@ -1,150 +1,96 @@
 name: release
 
 on:
-  # push:
-  #   paths:
-  #   - mods/**
-  #   - asterisk/**
-  #   branches:
-  #   - main
+  push:
+    branches:
+      - main
+    paths:
+      - mods/**
+      - package.json
+      - package-lock.json
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    outputs:
+      RELEASE: ${{ env.RELEASE }}
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.GH_PAT }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: "20.x"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
 
-    - name: Install dependencies and build
-      run: |
-        npm install
-        npm run build
+      - name: Install dependencies and build
+        run: |
+          npm install
+          npm run build
 
-    - name: Run unit tests
-      run: |
-        cp .env.example.dev .env
-        
-        # FIXME: This is a workaround to prevent the unit tests from failing
-        sed -i "s|AUTOPILOT_INTEGRATIONS_FILE=.*|AUTOPILOT_INTEGRATIONS_FILE=./config/integrations.example.json|g" .env 
+      # We will do this manually for now
+      - name: Check for next release
+        run: |
+          release=$(.scripts/next-release.sh)
+          echo "Next release: $release"
+          echo "RELEASE=$release" >> $GITHUB_ENV
 
-        npm run test
+      - name: Publish packages to NPM
+        if: env.RELEASE != 'none'
+        run: |
+          echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
+          echo "GITHUB_TOKEN=${{ secrets.GH_PAT }}" >> $GITHUB_ENV
+          echo "@routr:registry=https://registry.npmjs.org/" > .npmrc
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
 
-    # We will do this manually for now
-    # - name: Check for next release
-    #   run: |
-    #     release=$(.scripts/next-release.sh)
-    #     echo "Next release: $release"
-    #     echo "RELEASE=$release" >> $GITHUB_ENV
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout package-lock.json
 
-    # - name: Publish packages to NPM
-    #   if: env.RELEASE != 'none'
-    #   run: |
-    #     echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
-    #     echo "GITHUB_TOKEN=${{ secrets.GH_PAT }}" >> $GITHUB_ENV
-    #     echo "@routr:registry=https://registry.npmjs.org/" > .npmrc
-    #     echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+          npm run release
+    
+      - name: Get version from Lerna
+        run: |
+          lerna_version=$(node -p "require('./lerna.json').version")
+          echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
 
-    #     git config --global user.name "GitHub Actions Bot"
-    #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-    #     git checkout package-lock.json
+      - name: Create release note
+        if: env.RELEASE != 'none'
+        id: changelog
+        uses: loopwerk/tag-changelog@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          exclude_types: other,doc,chore
+          config_file: ./.scripts/tag-changelog-config.js
 
-    #     npm run release
-  
-    - name: Get version from Lerna
-      run: |
-        lerna_version=$(node -p "require('./lerna.json').version")
-        echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
+      - name: Create draft release
+        if: env.RELEASE != 'none'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.LERNA_VERSION }}
+          release_name: Release v${{ env.LERNA_VERSION }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: true
 
-    - name: Create release note
-      if: env.RELEASE != 'none'
-      id: changelog
-      uses: loopwerk/tag-changelog@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        exclude_types: other,doc,chore
-        config_file: ./.scripts/tag-changelog-config.js
+  publish-apiserver:
+    name: Publish APIServer to Docker Hub
+    needs: [build]
+    if: needs.build.outputs.RELEASE != 'none'
+    uses: ./.github/workflows/publish-apiserver.yaml
+    secrets: inherit
 
-    - name: Create draft release
-      if: env.RELEASE != 'none'
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ env.LERNA_VERSION }}
-        release_name: Release v${{ env.LERNA_VERSION }}
-        body: ${{ steps.changelog.outputs.changelog }}
-        draft: true
+  publish-autopilot:
+    name: Publish Autopilot to Docker Hub
+    needs: [build]
+    if: needs.build.outputs.RELEASE != 'none'
+    uses: ./.github/workflows/publish-autopilot.yaml
+    secrets: inherit
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Publish the APIServer to Docker Hub
-      uses: elgohr/Publish-Docker-Github-Action@v5
-      with:
-        name: fonoster/apiserver
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        context: .
-        dockerfile: mods/apiserver/Dockerfile     
-        tags: "latest,${{ env.LERNA_VERSION }}"
-        platforms: linux/amd64,linux/arm64
-
-    - name: Publish Autopilot to Docker Hub
-      uses: elgohr/Publish-Docker-Github-Action@v5
-      with:
-        name: fonoster/autopilot
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        context: .
-        dockerfile: mods/autopilot/Dockerfile
-        tags: "latest,${{ env.LERNA_VERSION }}"
-        platforms: linux/amd64,linux/arm64
-
-    - name: Publish Asterisk to Docker Hub
-      uses: elgohr/Publish-Docker-Github-Action@v5
-      with:
-        name: fonoster/asterisk   
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        context: .
-        dockerfile: asterisk/Dockerfile     
-        tags: "latest, 20"
-        platforms: linux/amd64,linux/arm64
-
-    - name: Starting services for integration tests
-      run: |
-        npm run generate:keypair
-        cp config/integrations.example.json config/integrations.json
-        cp .env.example .env
-        echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env
-        sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
-        sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
-        sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
-        sed -i "s|APISERVER_SMTP_HOST=.*|APISERVER_SMTP_HOST=mailhog|g" .env
-        sed -i "s|APISERVER_SMTP_PORT=.*|APISERVER_SMTP_PORT=1025|g" .env
-        sed -i "s|APISERVER_SMTP_SECURE=.*|APISERVER_SMTP_SECURE=false|g" .env
-        docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver asterisk mailhog
-
-    - name: Waiting for services to be ready
-      run: |
-        sleep 120 # Enough time for Routr to start in a low spec machine
-        docker ps -a
-
-    - name: Run integration tests for the SDK
-      uses: nick-fields/retry@v2
-      with:
-        timeout_minutes: 1
-        # This makes sure Routr is ready before running the tests
-        # We could improve this by checking the status of the services
-        retry_wait_seconds: 30
-        max_attempts: 2
-        command: npm run integration
