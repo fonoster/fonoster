@@ -43,17 +43,7 @@ const VerifyPage = () => {
   const { loggedUser, idToken } = useUser();
   const [currentProgress, setCurrentProgress] = useState(1);
   const [isVerificationComplete, setIsVerificationComplete] = useState(false);
-  const { verifyCode, sendVerificationCode } = useFonosterClient();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const user = await loggedUser();
-      const token = await idToken();
-      console.log(user);
-      console.log(token);
-    };
-    fetchUser();
-  }, []);
+  const { verifyCode, sendVerificationCode, isReady } = useFonosterClient();
 
   useEffect(() => {
     const initVerificationFlow = async () => {
@@ -67,7 +57,7 @@ const VerifyPage = () => {
             setActiveStep(1);
             setCurrentProgress(1);
             if (token.email) {
-              await sendVerificationCode({
+              const result = await sendVerificationCode({
                 type: 'EMAIL' as CodeType,
                 value: token.email
               });
@@ -75,12 +65,13 @@ const VerifyPage = () => {
           }
         }
       } catch (error) {
-        console.error('Error initializing verification flow:', error);
+       
       }
     };
-
-    initVerificationFlow();
-  }, []);
+    if (isReady) {
+      initVerificationFlow();
+    }
+  }, [isReady]);
 
   const emailMethods = useForm<EmailVerificationData>({
     resolver: zodResolver(emailVerificationSchema),
@@ -114,7 +105,6 @@ const VerifyPage = () => {
     try {
       const user = await loggedUser();
       if (!user?.email) {
-        console.error('No email found');
         return;
       }
 
@@ -130,7 +120,6 @@ const VerifyPage = () => {
         setCurrentProgress(2);
       }
     } catch (error) {
-      console.error('Error verifying email:', error);
     }
   };
 
@@ -143,7 +132,6 @@ const VerifyPage = () => {
       setActiveStep(3);
       setCurrentProgress(3);
     } catch (error) {
-      console.error('Error sending phone verification:', error);
     }
   };
 
@@ -153,7 +141,6 @@ const VerifyPage = () => {
       const phoneNumber = phoneMethods.getValues('phoneNumber');
 
       if (!user?.id || !phoneNumber) {
-        console.error('Missing user info or phone number');
         return;
       }
 
@@ -168,11 +155,9 @@ const VerifyPage = () => {
         setIsVerificationComplete(true);
         setCurrentProgress(3);
         await router.push('/workspace').catch((error) => {
-          console.error('Navigation error:', error);
         });
       }
     } catch (error) {
-      console.error('Verification error:', error);
     }
   };
 
@@ -284,12 +269,9 @@ const VerifyPage = () => {
                 variant="contained"
                 size="large"
                 onClick={async () => {
-                  console.log('Button clicked');
                   const code = phoneMethods.getValues('code');
                   if (code) {
                     await handleVerifyPhone(code);
-                  } else {
-                    console.log('No code provided');
                   }
                 }}
               >

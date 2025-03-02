@@ -36,8 +36,8 @@ const LoginPage = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const methods = useForm<LoginForm>({
     defaultValues: {
-      email: 'team@fonoster.com',
-      password: 'changeme'
+      email: '',
+      password: ''
     }
   });
 

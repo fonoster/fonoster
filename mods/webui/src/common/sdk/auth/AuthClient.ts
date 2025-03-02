@@ -28,7 +28,7 @@ export class AuthClient {
     private client: WebClient,
     private setSession: (session: { isAuthenticated: boolean }) => void,
     private onSignOut: () => void
-  ) {}
+  ) { }
 
   // ==================== PUBLIC METHODS ====================
 
@@ -56,11 +56,11 @@ export class AuthClient {
 
     try {
       this.setTokensOnClient(
-        tokens.accessToken, 
-        tokens.refreshToken as string | undefined, 
+        tokens.accessToken,
+        tokens.refreshToken as string | undefined,
         tokens.idToken as string | undefined
       );
-      
+
       this.setSession({ isAuthenticated: true });
       return true;
     } catch (error) {
@@ -74,18 +74,12 @@ export class AuthClient {
    */
   public async signIn(options: SignInOptions): Promise<void> {
     if (!this.client) throw new Error('Client is not initialized');
-    
+
     try {
       await this.authenticateWithProvider(options);
       this.saveTokensAndUpdateSession();
-      
-      // Redirect to workspace page after successful login
-      if (typeof window !== 'undefined') {
-        setTimeout(() => {
-          window.location.href = '/workspace';
-        }, 1500);
-      }
     } catch (error) {
+      console.error('Sign in error:', error);
       throw error;
     }
   }
@@ -95,7 +89,7 @@ export class AuthClient {
    * @param options Sign up options
    */
   public async signUp(options: SignInOptions): Promise<void> {
-    return this.signIn(options); 
+    return this.signIn(options);
   }
 
   /**
@@ -103,18 +97,12 @@ export class AuthClient {
    */
   public async signOut(): Promise<void> {
     if (this.client) {
-      try {
         if (typeof this.client.logout === 'function') {
           await this.client.logout();
         }
-      } catch (error) {
-        // Silently handle error
-      }
     }
     this.clearAuthCookies();
     this.onSignOut();
-    
-    // Redirect to sign-in page
     if (typeof window !== 'undefined') {
       window.location.href = '/signin';
     }
@@ -130,14 +118,14 @@ export class AuthClient {
 
     try {
       const refreshToken = cookieUtils.getCookie(AUTH_COOKIES.REFRESH_TOKEN.name);
-      
+
       if (!this.validateRefreshToken(refreshToken)) {
         return;
       }
 
       if (cookieUtils.shouldRefreshAccessToken()) {
         await this.refreshTokenWithServer(refreshToken);
-      } 
+      }
     } catch (error) {
       this.handleAuthError();
     }
@@ -149,16 +137,13 @@ export class AuthClient {
    * @returns Result of the operation
    */
   public async executeWithRefresh<T>(operation: () => Promise<T>): Promise<T> {
-    
     await this.refreshIfNeeded();
-    
     try {
       return await operation();
     } catch (error: any) {
       if (this.isTokenError(error)) {
         return await this.retryOperationWithFreshToken(operation);
       }
-      throw error;
     }
   }
 
@@ -169,7 +154,7 @@ export class AuthClient {
   public async handleOAuth2Signup(tokens: { idToken: string; accessToken: string; refreshToken: string }): Promise<void> {
     this.setTokensOnClient(tokens.accessToken, tokens.refreshToken, tokens.idToken);
     cookieUtils.saveAuthTokens(tokens.idToken, tokens.accessToken, tokens.refreshToken);
-    
+
     this.setSession({ isAuthenticated: true });
   }
 
@@ -183,29 +168,29 @@ export class AuthClient {
       let idToken = '';
       let accessToken = '';
       let refreshToken = '';
-      
+
       if (typeof this.client.getIdToken === 'function') {
         idToken = this.client.getIdToken();
       } else if ((this.client as any).idToken) {
         idToken = (this.client as any).idToken;
       }
-      
+
       if (typeof this.client.getAccessToken === 'function') {
         accessToken = this.client.getAccessToken();
       } else if ((this.client as any).accessToken) {
         accessToken = (this.client as any).accessToken;
       }
-      
+
       if (typeof this.client.getRefreshToken === 'function') {
         refreshToken = this.client.getRefreshToken();
       } else if ((this.client as any).refreshToken) {
         refreshToken = (this.client as any).refreshToken;
       }
-      
+
       if (!accessToken || !refreshToken) {
         return;
       }
-      
+
       cookieUtils.saveAuthTokens(idToken, accessToken, refreshToken);
       this.setSession({ isAuthenticated: true });
     } catch (error) {
@@ -256,38 +241,37 @@ export class AuthClient {
    * Authenticates with the specified provider
    */
   private async authenticateWithProvider(options: SignInOptions): Promise<void> {
-      switch (options.provider) {
-        case AuthProvider.CREDENTIALS:
-          await this.client.login(options.credentials!.username, options.credentials!.password);
-          break;
-        case AuthProvider.GITHUB:
-          if (!options.oauthCode) {
-            throw new Error('OAuth code is required for GitHub authentication');
-          }
-          await this.client.loginWithOauth2Code("GITHUB", options.oauthCode);
-          break;
-        case AuthProvider.GOOGLE:
-          throw new Error('Google authentication not implemented');
-        default:
-          throw new Error('Invalid authentication provider');
-      }
+    switch (options.provider) {
+      case AuthProvider.CREDENTIALS:
+        return await this.client.login(options.credentials!.username, options.credentials!.password);
+      case AuthProvider.GITHUB:
+        if (!options.oauthCode) {
+          throw new Error('OAuth code is required for GitHub authentication');
+        }
+        return await this.client.loginWithOauth2Code("GITHUB", options.oauthCode);
+        break;
+      case AuthProvider.GOOGLE:
+        throw new Error('Google authentication not implemented');
+      default:
+        throw new Error('Invalid authentication provider');
+    }
   }
 
   /**
    * Validates the refresh token
    */
   private validateRefreshToken(refreshToken: string | null): boolean {
-    
+
     if (!refreshToken) {
       this.handleAuthError();
       return false;
     }
-    
+
     if (tokenUtils.isTokenExpired(refreshToken)) {
       this.handleAuthError();
       return false;
     }
-    
+
     return true;
   }
 
@@ -299,7 +283,7 @@ export class AuthClient {
       this.handleAuthError();
       return;
     }
-    
+
     try {
       await this.client.loginWithRefreshToken(refreshToken);
       this.saveTokensAndUpdateSession();
@@ -333,19 +317,19 @@ export class AuthClient {
    * Checks if an error is related to the token
    */
   private isTokenError(error: any): boolean {
-    return error?.message?.includes('token expired') || 
-           error?.message?.includes('invalid token');
+    return error?.message?.includes('token expired') ||
+      error?.message?.includes('invalid token');
   }
 
   /**
    * Retries an operation with a fresh token
    */
   private async retryOperationWithFreshToken<T>(operation: () => Promise<T>): Promise<T> {
-        try {
-          await this.refreshSession();
-          return await operation();
-        } catch (refreshError) {
-          throw refreshError;
+    try {
+      await this.refreshSession();
+      return await operation();
+    } catch (refreshError) {
+      throw refreshError;
     }
   }
 }

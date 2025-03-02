@@ -18,7 +18,7 @@ export default function App({ Component, pageProps }: AppProps) {
     router.pathname === '/signup' ||
     router.pathname === '/signup/verify' ||
     router.pathname === '/forgot-password' ||
-    router.pathname === '/forgot-password/[token]' ||
+    router.pathname === '/reset-password' ||
     router.pathname === '/404'
 
   return (
