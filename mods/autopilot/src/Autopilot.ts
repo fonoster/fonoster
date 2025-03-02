@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -104,7 +104,11 @@ class Autopilot {
       logger.verbose("received speech result", { speech, responseTime });
 
       if (payload.speech) {
-        this.actor.send({ type: "SPEECH_RESULT", speech, responseTime });
+        this.actor.send({
+          type: "SPEECH_RESULT",
+          speech: payload.speech ?? "",
+          responseTime
+        });
       }
     });
   }

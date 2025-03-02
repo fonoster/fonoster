@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,18 +17,18 @@
  * limitations under the License.
  */
 import {
-  GrpcErrorMessage,
-  Validators as V,
   createSendEmail,
   createSendSmsTwilioImpl,
+  GrpcErrorMessage,
+  Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
-import { sendVerificationEmail } from "./sendVerificationEmail";
-import { sendVerificationMessage } from "./sendVerificationMessage";
-import { ContactType, SendVerificationCodeRequest } from "./types";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
+import { sendVerificationEmail } from "./sendVerificationEmail";
+import { sendVerificationMessage } from "./sendVerificationMessage";
+import { ContactType, SendVerificationCodeRequest } from "./types";
 
 function createSendVerificationCode(
   prisma: Prisma,

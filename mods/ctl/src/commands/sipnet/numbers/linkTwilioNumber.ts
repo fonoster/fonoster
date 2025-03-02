@@ -1,5 +1,4 @@
-/* eslint-disable import/no-unresolved */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -22,7 +21,7 @@ import { confirm, input, password, select } from "@inquirer/prompts";
 import { Flags } from "@oclif/core";
 import { Twilio } from "twilio";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
-import { getConfig, getActiveWorkspace } from "../../../config";
+import { getActiveWorkspace, getConfig } from "../../../config";
 import {
   CONFIG_FILE,
   FONOSTER_ACCESS_CONTROL_LIST,

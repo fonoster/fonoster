@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,9 +18,9 @@
  */
 import { Stream } from "stream";
 import * as z from "zod";
-import { SpeechResult, StreamSpeech, SttConfig } from "./types";
 import { MethodNotImplementedError } from "../errors/MethodNotImplementedError";
 import { SpeechToText } from "../types";
+import { SpeechResult, StreamSpeech, SttConfig } from "./types";
 
 abstract class AbstractSpeechToText<E, T extends SttConfig = SttConfig>
   implements SpeechToText

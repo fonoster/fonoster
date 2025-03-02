@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import {
-  ServiceDefinitionParams,
-  createServiceDefinition
+  createServiceDefinition,
+  ServiceDefinitionParams
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";

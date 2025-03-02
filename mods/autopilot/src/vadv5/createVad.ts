@@ -1,5 +1,4 @@
-/* eslint-disable no-loops/no-loops */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { join } from "path";
+import { getLogger } from "@fonoster/logger";
 import * as ort from "onnxruntime-node";
 import { chunkToFloat32Array } from "../vad/chunkToFloat32Array";
-import { SileroVadModel } from "./SileroVadModel";
-import { getLogger } from "@fonoster/logger";
 import { VadParams } from "../vad/types";
-import { join } from "path";
+import { SileroVadModel } from "./SileroVadModel";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

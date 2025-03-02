@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,8 +18,8 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
-import { ENGINE_NAME as DEEPGRAM_ENGINE_NAME, Deepgram } from "./Deepgram";
-import { ENGINE_NAME as GOOGLE_ENGINE_NAME, Google } from "./Google";
+import { Deepgram, ENGINE_NAME as DEEPGRAM_ENGINE_NAME } from "./Deepgram";
+import { Google, ENGINE_NAME as GOOGLE_ENGINE_NAME } from "./Google";
 import { SttConfig } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,8 +18,8 @@
  */
 import { getLogger } from "@fonoster/logger";
 import {
-  AuthzHandler,
   AddBillingMeterEventRequest,
+  AuthzHandler,
   CheckMethodAuthorizedRequest,
   VoiceRequest
 } from "../types";

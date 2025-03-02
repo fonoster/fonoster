@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,21 +17,21 @@
  * limitations under the License.
  */
 import {
-  GrpcErrorMessage,
   exchangeOauth2RequestSchema,
+  GrpcErrorMessage,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
+import { Prisma } from "../db";
+import { createGetUserByEmail } from "../utils/createGetUserByEmail";
+import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
 import { exchangeTokens } from "./exchangeTokens";
 import {
   ExchangeOauth2CodeRequest,
   ExchangeResponse,
   IdentityConfig
 } from "./types";
-import { Prisma } from "../db";
-import { createGetUserByEmail } from "../utils/createGetUserByEmail";
-import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

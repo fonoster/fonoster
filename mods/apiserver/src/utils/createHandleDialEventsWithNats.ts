@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { NatsConnection } from "nats";
-import { mapDialStatus } from "./mapDialStatus";
 import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
+import { mapDialStatus } from "./mapDialStatus";
 
 function createHandleDialEventsWithNats(nc: NatsConnection) {
   return async function handleDialEventsWithNats(

@@ -1,5 +1,4 @@
-/* eslint-disable no-loops/no-loops */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -44,15 +43,6 @@ async function createVad(params: VadParams) {
   let audioBuffer: number[] = [];
   let isSpeechActive = false;
   let framesSinceStateChange = 0;
-
-  // Helper to reset internal state after a state change.
-  const resetState = () => {
-    isSpeechActive = false;
-    framesSinceStateChange = 0;
-    audioBuffer = [];
-    silero.resetState();
-    logger.silly("State reset -- audioBuffer cleared");
-  };
 
   return async function process(
     chunk: Uint8Array,

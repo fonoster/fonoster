@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,9 +18,9 @@
  */
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { RunnableSequence } from "@langchain/core/runnables";
+import { KnowledgeBase } from "../knowledge";
 import { createChatHistory } from "./chatHistory";
 import { createPromptTemplate } from "./createPromptTemplate";
-import { KnowledgeBase } from "../knowledge";
 
 function createChain(
   model: BaseChatModel,

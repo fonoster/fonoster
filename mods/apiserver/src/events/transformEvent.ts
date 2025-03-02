@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { CallType } from "@fonoster/types";
-import { mapCallDirectionToEnum } from "./mapCallDirectionToEnum";
 import { v4 as uuidv4 } from "uuid";
+import { mapCallDirectionToEnum } from "./mapCallDirectionToEnum";
 
 const ACCESS_KEY_ID_HEADER = "X-Access-Key-Id";
 const CALL_REF_HEADER = "X-Call-Ref";

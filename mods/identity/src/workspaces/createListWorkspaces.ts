@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import {
-  TokenUseEnum,
   decodeToken,
-  GrpcErrorMessage,
   getTokenFromCall,
+  GrpcErrorMessage,
+  TokenUseEnum,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";

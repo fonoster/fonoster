@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import * as path from "path";
-import { AssistantConfig, loadAndValidateAssistant } from ".";
 import { getLogger } from "@fonoster/logger";
+import { AssistantConfig, loadAndValidateAssistant } from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

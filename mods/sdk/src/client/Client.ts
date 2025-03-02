@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,12 +18,10 @@
  */
 import {
   ChannelCredentials,
+  credentials,
   Interceptor,
-  Metadata,
-  credentials
+  Metadata
 } from "@grpc/grpc-js";
-import { AbstractClient } from "./AbstractClient";
-import { TokenRefresherNode } from "./TokenRefresherNode";
 import { AclsClient } from "../generated/node/acls_grpc_pb";
 import { AgentsClient } from "../generated/node/agents_grpc_pb";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
@@ -34,6 +32,8 @@ import { IdentityClient } from "../generated/node/identity_grpc_pb";
 import { NumbersClient } from "../generated/node/numbers_grpc_pb";
 import { SecretsClient } from "../generated/node/secrets_grpc_pb";
 import { TrunksClient } from "../generated/node/trunks_grpc_pb";
+import { AbstractClient } from "./AbstractClient";
+import { TokenRefresherNode } from "./TokenRefresherNode";
 
 const DEFAULT_ENDPOINT = "api.fonoster.com";
 

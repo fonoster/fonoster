@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -20,8 +20,8 @@ import {
   CreateApiKeyRequest,
   CreateApiKeyResponse,
   CreateUserRequest,
-  CreateUserWithOauth2CodeRequest,
   CreateUserResponse,
+  CreateUserWithOauth2CodeRequest,
   CreateWorkspaceRequest,
   DeleteApiKeyRequest,
   DeleteApiKeyResponse,
@@ -43,6 +43,8 @@ import {
   InviteUserToWorkspaceResponse,
   ListApiKeysRequest,
   ListApiKeysResponse,
+  ListWorkspaceMembersRequest,
+  ListWorkspaceMembersResponse,
   ListWorkspacesRequest,
   ListWorkspacesResponse,
   RegenerateApiKeyRequest,
@@ -51,11 +53,9 @@ import {
   RemoveUserFromWorkspaceResponse,
   ResendWorkspaceMembershipInvitationRequest,
   ResendWorkspaceMembershipInvitationResponse,
-  ListWorkspaceMembersRequest,
-  ListWorkspaceMembersResponse,
-  SendVerificationCodeRequest,
-  SendResetPasswordCodeRequest,
   ResetPasswordRequest,
+  SendResetPasswordCodeRequest,
+  SendVerificationCodeRequest,
   UpdateUserRequest,
   UpdateWorkspaceRequest,
   UpdateWorkspaceResponse,

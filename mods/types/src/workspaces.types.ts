@@ -1,6 +1,4 @@
-import { ListResponse } from "./common";
-
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,6 +16,8 @@ import { ListResponse } from "./common";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ListResponse } from "./common";
+
 enum Role {
   USER = "USER",
   WORKSPACE_OWNER = "WORKSPACE_OWNER",

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,11 +18,11 @@
  */
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatOpenAI } from "@langchain/openai";
-import { OpenAIParams } from "./types";
 import { convertToolToOpenAITool } from "../../tools";
 import { Voice } from "../../voice";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 import { TelephonyContext } from "../types";
+import { OpenAIParams } from "./types";
 
 const LANGUAGE_MODEL_NAME = "llm.openai";
 

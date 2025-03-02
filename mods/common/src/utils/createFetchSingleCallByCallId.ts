@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CallDetailRecord } from "@fonoster/types";
 import { flux } from "@influxdata/influxdb-client";
 import {
   CALL_DETAIL_RECORD_MEASUREMENT,
   INFLUXDB_CALLS_BUCKET
 } from "../constants";
-import { CallDetailRecord } from "@fonoster/types";
 import { InfluxDBClient } from "./types";
 
 function createFetchSingleCallByCallId(influxdb: InfluxDBClient) {

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -20,13 +20,13 @@ import { STASIS_APP_NAME } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import ariClient from "ari-client";
 import { connect } from "nats";
-import { CreateCallRequest } from "./types";
 import {
   ASTERISK_SYSTEM_DOMAIN,
   ASTERISK_TRUNK,
   CALLS_CREATE_SUBJECT,
   DEFAULT_NATS_QUEUE_GROUP
 } from "../envs";
+import { CreateCallRequest } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

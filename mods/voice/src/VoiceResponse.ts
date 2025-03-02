@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -23,9 +23,9 @@ import {
   GatherSource,
   MuteDirection,
   MuteOptions,
+  PlaybackControlAction,
   PlayOptions,
   PlayResponse,
-  PlaybackControlAction,
   RecordOptions,
   RecordResponse,
   SayOptions,
@@ -46,8 +46,8 @@ import {
   Hangup,
   Mute,
   Play,
-  PlayDtmf,
   PlaybackControl,
+  PlayDtmf,
   Record,
   Say,
   StartStream,

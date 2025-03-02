@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -27,14 +27,15 @@ if (process.env.NODE_ENV === "dev") {
 
 const e = process.env;
 
-export const AWS_S3_ACCESS_KEY_ID = e.AUTOPILOT_AWS_S3_ACCESS_KEY_ID;
-export const AWS_S3_ENDPOINT = e.AUTOPILOT_AWS_S3_ENDPOINT;
+export const AWS_S3_ACCESS_KEY_ID = e.AUTOPILOT_AWS_S3_ACCESS_KEY_ID ?? "";
+export const AWS_S3_ENDPOINT = e.AUTOPILOT_AWS_S3_ENDPOINT ?? "";
 export const AWS_S3_REGION = e.AUTOPILOT_AWS_S3_REGION ?? "us-east-1";
-export const AWS_S3_SECRET_ACCESS_KEY = e.AUTOPILOT_AWS_S3_SECRET_ACCESS_KEY;
+export const AWS_S3_SECRET_ACCESS_KEY =
+  e.AUTOPILOT_AWS_S3_SECRET_ACCESS_KEY ?? "";
 export const KNOWLEDGE_BASE_ENABLED =
   e.AUTOPILOT_KNOWLEDGE_BASE_ENABLED === "true";
 export const NODE_ENV = e.NODE_ENV || "production";
-export const UNSTRUCTURED_API_KEY = e.AUTOPILOT_UNSTRUCTURED_API_KEY;
+export const UNSTRUCTURED_API_KEY = e.AUTOPILOT_UNSTRUCTURED_API_KEY ?? "";
 export const UNSTRUCTURED_API_URL =
   e.AUTOPILOT_UNSTRUCTURED_API_URL ??
   "https://api.unstructuredapp.io/general/v0/general";

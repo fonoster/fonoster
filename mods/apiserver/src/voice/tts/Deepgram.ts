@@ -1,5 +1,4 @@
-/* eslint-disable no-loops/no-loops */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,15 +17,15 @@
  * limitations under the License.
  */
 import { Readable } from "stream";
-import { DeepgramClient, createClient } from "@deepgram/sdk";
+import { createClient, DeepgramClient } from "@deepgram/sdk";
 import { DeepgramVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
+import { textChunksByFirstNaturalPause } from "../handlers/utils/textChunksByFirstNaturalPause";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { streamToBuffer } from "./streamToBuffer";
 import { SynthOptions } from "./types";
-import { textChunksByFirstNaturalPause } from "../handlers/utils/textChunksByFirstNaturalPause";
 
 const ENGINE_NAME = "tts.deepgram";
 

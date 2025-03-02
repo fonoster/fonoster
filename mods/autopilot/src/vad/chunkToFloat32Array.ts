@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,10 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// This version of the chunkToFloat32Array accounts for the case where
-// the byteOffset is misaligned.
-//
-// Q. Would it be the same if we just created a new Uint8Array from the chunk?
 function chunkToFloat32Array(chunk: Uint8Array): Float32Array {
   // Create a DataView to handle endianness explicitly
   const dataView = new DataView(

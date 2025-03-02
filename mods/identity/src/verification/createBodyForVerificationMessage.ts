@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,8 +18,8 @@
  */
 import path from "path";
 import { compileTemplate } from "@fonoster/common";
-import { VerificationParams } from "./types";
 import { TemplatesEnum } from "../templates/TemplatesEnum";
+import { VerificationParams } from "./types";
 
 function createBodyForVerificationMessage(
   params: Omit<VerificationParams, "recipient">

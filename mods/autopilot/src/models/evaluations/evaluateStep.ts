@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EvaluateStepParams, StepEvaluationReport } from "./types";
 import { evaluateTextResponse } from "./evaluateTextResponse";
 import { evaluateToolCalls } from "./evaluateToolCalls";
+import { EvaluateStepParams, StepEvaluationReport } from "./types";
 
 export async function evaluateStep({
   step,
@@ -42,15 +42,15 @@ export async function evaluateStep({
       const topTool = response.toolCalls[0];
       if (topTool.name === "hangup") {
         stepResult.aiResponse =
-          assistantConfig.conversationSettings?.goodbyeMessage!;
+          assistantConfig.conversationSettings?.goodbyeMessage || "";
       } else if (topTool.name === "transfer") {
         stepResult.aiResponse =
-          assistantConfig.conversationSettings?.transferOptions?.message! ?? "";
+          assistantConfig.conversationSettings?.transferOptions?.message ?? "";
       } else {
-        stepResult.aiResponse = response.content!;
+        stepResult.aiResponse = response.content ?? "";
       }
     } else {
-      stepResult.aiResponse = response.content!;
+      stepResult.aiResponse = response.content ?? "";
     }
 
     const textEvaluation = await evaluateTextResponse(

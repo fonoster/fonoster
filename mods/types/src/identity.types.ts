@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { ListRequest, ListResponse } from "./common";
-import { WorkspaceMemberStatus, Role } from "./workspaces.types";
+import { Role, WorkspaceMemberStatus } from "./workspaces.types";
 
 type User = {
   ref: string;

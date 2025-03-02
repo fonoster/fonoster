@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createGetUserByEmail } from "./createGetUserByEmail";
 import { Prisma } from "../db";
+import { createGetUserByEmail } from "./createGetUserByEmail";
 
 function createGetAccessKeyIdFromEmail(prisma: Prisma) {
   return async function getAccessKeyIdFromEmail(

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import {
-  GRPC_SERVING_STATUS,
-  getServerCredentials,
-  statusMap,
+  createAuthInterceptor,
   getPublicKey,
-  createAuthInterceptor
+  getServerCredentials,
+  GRPC_SERVING_STATUS,
+  statusMap
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";

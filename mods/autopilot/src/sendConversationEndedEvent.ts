@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,15 +18,15 @@
  */
 import {
   AllowedHttpMethod,
+  EventsHookAllowedEvents,
   eventsHookSchema,
-  sendHttpRequest,
-  EventsHookAllowedEvents
+  sendHttpRequest
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-type EventsHook = {
+export type EventsHook = {
   url: string;
   events: EventsHookAllowedEvents[];
   headers?: Record<string, string>;

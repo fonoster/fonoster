@@ -39,10 +39,10 @@
     "format": "prettier --write mods/**/src",
     "clean": "rimraf mods/**/dist mods/**/node_modules mods/**/package-lock.json node_modules package-lock.json",
     "prepare": "husky",
-    "copy:hbstemplates": "node .scripts/copy-hbs.js",
+    "copy:hbstemplates": "node .scripts/copy-hbs.cjs",
     "db:migrate": "npx prisma migrate dev --schema mods/apiserver/schema.prisma --name changeme --preview-feature && npx prisma migrate dev --schema mods/identity/schema.prisma --name changeme --preview-feature",
     "db:seed": "tsx mods/apiserver/src/core/seed.ts",
-    "generate:docs": "node .scripts/gen-docs.js",
+    "generate:docs": "node .scripts/gen-docs.cjs",
     "generate:readme": "lerna run generate:readme && git add mods/**/README.md",
     "generate:keypair": ".scripts/gen-keypair.sh",
     "generate:protos": ".scripts/gen-code-proto.sh",
@@ -59,7 +59,9 @@
     "release:prerelease": "lerna publish --dist-tag next",
     "release:frompackages": "lerna publish from-package",
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
-    "postinstall": "npm run generate:prisma-clients"
+    "postinstall": "npm run generate:prisma-clients",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "prisma": {
     "seed": "tsx mods/apiserver/src/core/seed.ts"
@@ -67,15 +69,28 @@
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
+    "@eslint/eslintrc": "^3.0.0",
     "@types/chai": "^5.0.1",
     "@types/chai-as-promised": "^8.0.1",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.17.22",
     "@types/sinon": "^17.0.3",
     "@types/sinon-chai": "^4.0.0",
     "@types/webrtc": "^0.0.44",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
     "chai-as-promised": "^8.0.1",
     "cross-env": "^7.0.3",
+    "eslint": "^8",
+    "eslint-config-next": "^14.1.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-headers": "^1.2.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^15.13.0",
     "grpc_tools_node_protoc_ts": "^5.3.3",
     "grpc-tools": "^1.12.4",
@@ -83,8 +98,9 @@
     "jsdoc-to-markdown": "^8.0.1",
     "lerna": "^8.1.9",
     "mocha": "^11.0.2",
+    "next": "^14.1.0",
     "nodemon": "^3.1.9",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.0",
     "prisma": "^6.4.1",
     "protoc-gen-grpc-web": "^1.5.0",
     "protoc-gen-js": "^3.21.4-4",
@@ -126,5 +142,6 @@
     "@rollup/rollup-linux-arm64-musl": "^4.29.1",
     "@rollup/rollup-linux-x64-gnu": "^4.29.1",
     "@rollup/rollup-linux-x64-musl": "^4.29.1"
-  }
+  },
+  "type": "module"
 }

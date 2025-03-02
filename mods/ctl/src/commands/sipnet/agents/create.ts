@@ -1,5 +1,4 @@
-/* eslint-disable import/no-unresolved */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,7 +17,7 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { CreateAclRequest, CreateAgentRequest } from "@fonoster/types";
+import { CreateAgentRequest } from "@fonoster/types";
 import { confirm, input, number, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";

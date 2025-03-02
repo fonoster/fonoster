@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -23,17 +23,17 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { CreateUserWithOauth2CodeRequest } from "@fonoster/types";
+import * as grpc from "@grpc/grpc-js";
+import { customAlphabet } from "nanoid";
 import { Prisma } from "../db";
+import { exchangeTokens } from "../exchanges/exchangeTokens";
+import { ExchangeResponse, IdentityConfig } from "../exchanges/types";
+import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import {
   AccessKeyIdType,
   generateAccessKeyId
 } from "../utils/generateAccessKeyId";
-import { ExchangeResponse, IdentityConfig } from "../exchanges/types";
 import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
-import { createGetUserByEmail } from "../utils/createGetUserByEmail";
-import * as grpc from "@grpc/grpc-js";
-import { customAlphabet } from "nanoid";
-import { exchangeTokens } from "../exchanges/exchangeTokens";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

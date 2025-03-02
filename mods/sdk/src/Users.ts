@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -19,28 +19,28 @@
 import {
   BaseApiObject,
   CreateUserRequest,
-  SendResetPasswordCodeRequest,
-  ResetPasswordRequest,
-  UpdateUserRequest,
-  User,
   CreateUserWithOauth2CodeRequest,
-  ExchangeCredentialsResponse
+  ExchangeCredentialsResponse,
+  ResetPasswordRequest,
+  SendResetPasswordCodeRequest,
+  UpdateUserRequest,
+  User
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
   CreateUserRequest as CreateUserRequestPB,
   CreateUserResponse as CreateUserResponsePB,
+  CreateUserWithOauth2CodeRequest as CreateUserWithOauth2CodeRequestPB,
   DeleteUserRequest as DeleteUserRequestPB,
   DeleteUserResponse as DeleteUserResponsePB,
+  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
   GetUserRequest as GetUserRequestPB,
+  ResetPasswordRequest as ResetPasswordRequestPB,
+  SendResetPasswordCodeRequest as SendResetPasswordCodeRequestPB,
   UpdateUserRequest as UpdateUserRequestPB,
   UpdateUserResponse as UpdateUserResponsePB,
-  User as UserPB,
-  SendResetPasswordCodeRequest as SendResetPasswordCodeRequestPB,
-  ResetPasswordRequest as ResetPasswordRequestPB,
-  CreateUserWithOauth2CodeRequest as CreateUserWithOauth2CodeRequestPB,
-  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB
+  User as UserPB
 } from "./generated/node/identity_pb";
 
 /**

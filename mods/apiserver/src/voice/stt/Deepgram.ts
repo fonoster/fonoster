@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -21,6 +20,7 @@ import { Stream } from "stream";
 import { Messages, VoiceLanguage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
+import { SpeechToText } from "../types";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
 import {
   DeepgramModel,
@@ -28,11 +28,11 @@ import {
   SpeechResult,
   StreamSpeech
 } from "./types";
-import { SpeechToText } from "../types";
 const {
   DeepgramClient,
   LiveTranscriptionEvents,
   createClient
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
 } = require("@deepgram/sdk"); // Why Deepgram :(
 
 const ENGINE_NAME = "stt.deepgram";

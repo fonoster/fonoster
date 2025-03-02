@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { createChatHistory } from "./chatHistory";
 import { ToolsCatalog } from "../tools";
-import { Voice } from "../voice";
+import { createChatHistory } from "./chatHistory";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

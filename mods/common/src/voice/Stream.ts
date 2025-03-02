@@ -1,6 +1,4 @@
-import { VerbRequest, VerbResponse } from "./Verb";
-
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,6 +16,8 @@ import { VerbRequest, VerbResponse } from "./Verb";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { VerbRequest, VerbResponse } from "./Verb";
+
 enum StreamDirection {
   IN = "IN",
   OUT = "OUT",

@@ -1,5 +1,4 @@
-// @ts-nocheck - All inputs are validated by the APIServer
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -19,12 +18,12 @@
  */
 import {
   AssistantConfig,
+  hangupToolDefinition,
   KnowledgeBase,
   LanguageModelFactory,
   TelephonyContext,
-  Voice,
-  hangupToolDefinition,
-  transferToolDefinition
+  transferToolDefinition,
+  Voice
 } from "..";
 
 function createLanguageModel(params: {
@@ -34,24 +33,23 @@ function createLanguageModel(params: {
   telephonyContext: TelephonyContext;
 }) {
   const { voice, assistantConfig, knowledgeBase, telephonyContext } = params;
-  const { languageModel: languageModelSettings, conversationSettings } =
-    assistantConfig;
+  const { languageModel, conversationSettings } = assistantConfig;
 
   // The transfer tool is only added if the transfer options exist
-  const tools = languageModelSettings.tools.concat(
-    assistantConfig.conversationSettings.transferOptions
+  const tools = languageModel.tools.concat(
+    conversationSettings.transferOptions
       ? [hangupToolDefinition, transferToolDefinition]
       : [hangupToolDefinition]
   );
 
   return LanguageModelFactory.getLanguageModel(
-    languageModelSettings.provider,
+    languageModel.provider,
     {
-      ...languageModelSettings,
+      ...languageModel,
       ...conversationSettings,
       knowledgeBase,
       tools
-    },
+    } as any,
     voice,
     telephonyContext
   );

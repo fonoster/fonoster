@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -39,4 +39,9 @@ type AutopilotContext = {
   knowledgeBaseSourceUrl?: string;
 };
 
-export { AutopilotContext };
+type AutopilotEvents =
+  | { type: "SPEECH_START" }
+  | { type: "SPEECH_END" }
+  | { type: "SPEECH_RESULT"; speech: string; responseTime: number };
+
+export { AutopilotContext, AutopilotEvents };

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { connect } from "nats";
-import { createCall } from "./createCall";
-import { createCallPublisher } from "./createCallPublisher";
-import { getCall } from "./getCall";
-import { listCalls } from "./listCalls";
-import { createTrackCall } from "./createTrackCall";
 import { InfluxDBClient } from "@fonoster/common";
+import { connect } from "nats";
 import { prisma } from "../core/db";
 import { NATS_URL } from "../envs";
+import { createCall } from "./createCall";
+import { createCallPublisher } from "./createCallPublisher";
+import { createTrackCall } from "./createTrackCall";
+import { getCall } from "./getCall";
+import { listCalls } from "./listCalls";
 
 async function buildService(influxdb: InfluxDBClient) {
   const callPublisher = await createCallPublisher(NATS_URL);

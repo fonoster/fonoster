@@ -1,5 +1,4 @@
-/* eslint-disable import/no-unresolved */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -20,7 +19,7 @@
 import * as SDK from "@fonoster/sdk";
 import { Command } from "@oclif/core";
 import { BaseCommand } from "./BaseCommand"; // Adjust the import based on your structure
-import { getConfig, getActiveWorkspace } from "./config";
+import { getActiveWorkspace, getConfig } from "./config";
 import { CONFIG_FILE } from "./constants";
 
 export abstract class AuthenticatedCommand<

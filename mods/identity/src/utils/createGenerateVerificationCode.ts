@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerificationType } from "../generated/@prisma/client";
 import { VERIFICATION_CODE_EXPIRATION } from "../constants";
 import { Prisma } from "../db";
+import { VerificationType } from "../generated/@prisma/client";
 
 function createGenerateVerificationCode(prisma: Prisma) {
   return async (params: { type: VerificationType; value: string }) => {

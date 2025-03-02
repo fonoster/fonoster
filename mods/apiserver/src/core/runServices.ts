@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,19 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createCheckMethodAuthorized } from "@fonoster/authz";
 import {
-  GRPC_SERVING_STATUS,
+  createAuthInterceptor,
   getServerCredentials,
-  statusMap,
-  createAuthInterceptor
+  GRPC_SERVING_STATUS,
+  statusMap
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
-import { allowList } from "./allowList";
-import { httpBridge } from "./httpBridge";
-import loadServices from "./loadServices";
-import services from "./services";
 import { createCreateCallSubscriber as runCallManager } from "../calls/runCallManager";
 import {
   APISERVER_BIND_ADDR,
@@ -44,8 +41,11 @@ import {
   NATS_URL
 } from "../envs";
 import { connectToAri } from "../voice/connectToAri";
-import { createCheckMethodAuthorized } from "@fonoster/authz";
+import { allowList } from "./allowList";
+import { httpBridge } from "./httpBridge";
 import { identityConfig } from "./identityConfig";
+import loadServices from "./loadServices";
+import services from "./services";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

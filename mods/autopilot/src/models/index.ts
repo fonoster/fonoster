@@ -1,5 +1,4 @@
-export * from "./LanguageModelFactory";
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,5 +16,7 @@ export * from "./LanguageModelFactory";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./LanguageModelFactory";
+
 export * from "./types";
 export * from "./evaluations";
