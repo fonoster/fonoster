@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { setup, assign } from "xstate";
+import { getLogger } from "@fonoster/logger";
+import { assign, setup } from "xstate";
 import { ConversationSettings } from "../assistants";
 import { LanguageModel } from "../models";
 import { Voice } from "../voice";
@@ -25,7 +26,6 @@ import * as actors from "./actors";
 import delays from "./delays";
 import * as guards from "./guards";
 import { AutopilotContext, AutopilotEvents } from "./types";
-import { getLogger } from "@fonoster/logger";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

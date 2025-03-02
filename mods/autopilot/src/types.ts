@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Application } from "@fonoster/types";
 import { AssistantConfig, ConversationSettings } from "./assistants";
 import { LanguageModel } from "./models";
 import { Voice } from "./voice";
-import { Application } from "@fonoster/types";
 
 enum LanguageModelProvider {
   OPENAI = "openai",
