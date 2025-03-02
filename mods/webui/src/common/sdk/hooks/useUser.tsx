@@ -5,12 +5,12 @@ import {
   CreateUserRequest,
   UpdateUserRequest,
   User,
-  ResetPasswordRequest,
-  CreateUserWithOauth2CodeRequest
+  ResetPasswordRequest
 } from '@fonoster/types'
 import { Users } from '@fonoster/sdk';
 import { jwtDecode } from 'jwt-decode';
 import { useMemo } from 'react';
+import { AUTH_COOKIES, cookieUtils } from '@/common/utils/cookieUtils';
 
 interface IDToken {
   iss: string;
@@ -54,27 +54,52 @@ export const useUser = () => {
     if (!isReady) return undefined;
 
     try {
-      return await authentication.executeWithRefresh(() => _users.createUser(data));
+      return await _users.createUser(data);
     } catch (error: any) {
       notifyError(error as ErrorType);
+      throw error;
     }
   };
 
   const createUserWithOauth2Code = async (code: string): Promise<any> => {
-    if (!isReady) return undefined;
+    if (!isReady) {
+      return undefined;
+    }
 
     try {
       const result = await authentication.executeWithRefresh(async () => {
-        const response = await _users.createUserWithOauth2Code({ code }) as unknown as ExchangeCredentialsResponse;
-        if (response && response.tokens) {
-          await authentication.handleOAuth2Signup(response.tokens);
+        try {
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('API call timed out after 10 seconds')), 10000)
+          );
+
+
+          const apiCallPromise = _users.createUserWithOauth2Code({ code });
+
+
+          const response = await Promise.race([
+            apiCallPromise,
+            timeoutPromise
+          ]) as unknown as ExchangeCredentialsResponse;
+          if (response && response.tokens) {
+            try {
+              await authentication.handleOAuth2Signup(response.tokens);
+
+            } catch (tokenError) {
+              throw tokenError;
+            }
+          } 
+
+          return response;
+        } catch (apiError: any) {
+          throw apiError;
         }
-        return response;
       });
 
       return result;
     } catch (error: any) {
       notifyError(error as ErrorType);
+      throw error;
     }
   };
 
@@ -104,7 +129,7 @@ export const useUser = () => {
 
   const loggedUser = async (): Promise<User | undefined> => {
     try {
-      const idToken = client?.getIdToken();
+      const idToken = cookieUtils.getCookie(AUTH_COOKIES.ID_TOKEN.name);
       if (!idToken) {
         return undefined;
       }
@@ -117,7 +142,7 @@ export const useUser = () => {
 
   const idToken = async (): Promise<IDToken | undefined> => {
     try {
-      const idToken = client?.getIdToken();
+      const idToken = cookieUtils.getCookie(AUTH_COOKIES.ID_TOKEN.name);
       if (!idToken) {
         return undefined;
       }
