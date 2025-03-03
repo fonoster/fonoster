@@ -61,42 +61,22 @@ export const useUser = () => {
     }
   };
 
-  const createUserWithOauth2Code = async (code: string): Promise<any> => {
+  const createUserWithOauth2Code = async (code: string): Promise<ExchangeCredentialsResponse> => {
     if (!isReady) {
-      return undefined;
+      throw new Error("Fonoster client is not initialized.");
     }
 
     try {
-      const result = await authentication.executeWithRefresh(async () => {
+      const response = await _users.createUserWithOauth2Code({ code });
+      if (response && response.tokens) {
         try {
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('API call timed out after 10 seconds')), 10000)
-          );
-
-
-          const apiCallPromise = _users.createUserWithOauth2Code({ code });
-
-
-          const response = await Promise.race([
-            apiCallPromise,
-            timeoutPromise
-          ]) as unknown as ExchangeCredentialsResponse;
-          if (response && response.tokens) {
-            try {
-              await authentication.handleOAuth2Signup(response.tokens);
-
-            } catch (tokenError) {
-              throw tokenError;
-            }
-          } 
-
-          return response;
-        } catch (apiError: any) {
-          throw apiError;
+          await authentication.handleOAuth2Signup(response.tokens);
+        } catch (tokenError) {
+          throw tokenError;
         }
-      });
+      }
 
-      return result;
+      return response;
     } catch (error: any) {
       notifyError(error as ErrorType);
       throw error;
