@@ -2,18 +2,11 @@
 import React, { createContext, useState, useMemo, useEffect, useContext } from 'react';
 import { WebClient, createFonosterClient, SDK_CONFIG } from '@/common/sdk/config/sdkConfig';
 import { LoadingScreen } from '@/common/components/loading/LoadingScreen';
-import { AuthClient } from '../auth/AuthClient';
+import { AuthClient, AuthProvider } from '@/common/sdk/auth/AuthClient';
 
 // Type definitions
 export interface Session {
   isAuthenticated: boolean;
-}
-
-export enum AuthProvider {
-  CREDENTIALS = 'credentials',
-  GOOGLE = 'google',
-  GITHUB = 'github',
-  OTHER = 'other'
 }
 
 export interface SignInCredentials {
