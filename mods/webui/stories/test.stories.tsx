@@ -17,40 +17,39 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from "@storybook/react";
-import { VersionLabel } from "./VersionLabel";
 import React from "react";
 
-/**
- * This story is for the regular Button component based on Material UI.
- * It has a contained variant and full width with optional start and end icons.
- */
+// Simple test component
+const TestComponent = ({ text }: { text: string }) => {
+  return <div style={{ padding: "20px", border: "1px solid #ccc" }}>{text}</div>;
+};
+
 const meta = {
-  title: "Core Components/Icons, Badges, and Labels/VersionLabel",
-  component: VersionLabel,
+  title: "Test/TestComponent",
+  component: TestComponent,
   parameters: {
-    layout: "centered",
-    design: {
-      type: "figma",
-      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=607-3145"
-    }
+    layout: "padded"
   },
   tags: ["autodocs"],
   argTypes: {
-    children: {
-      name: "Text",
-      description: "The text to display"
+    text: {
+      control: "text",
+      description: "Text to display"
     }
   }
-} satisfies Meta<typeof VersionLabel>;
+} satisfies Meta<typeof TestComponent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/**
- * Example of a VersionLabel with a body large variant.
- */
-export const VersionLabelExample: Story = {
+export const Default: Story = {
   args: {
-    children: "© 2024, Fonoster. v0.9.0"
+    text: "This is a test component"
+  }
+};
+
+export const WithLongText: Story = {
+  args: {
+    text: "This is a test component with a longer text to test wrapping and layout"
   }
 };

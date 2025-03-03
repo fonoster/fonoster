@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Snackbar } from "./SnackBar";
 import { action } from "@storybook/addon-actions";
+import React from "react";
 
 /**
  * This story is for the Snackbar component based on Material UI.

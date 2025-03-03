@@ -18,6 +18,7 @@
  */
 import { Meta, StoryObj } from "@storybook/react";
 import { Typography } from "./Typography";
+import React from "react";
 
 const meta = {
   title: "Core Components/Icons, Badges, and Labels/Typography",

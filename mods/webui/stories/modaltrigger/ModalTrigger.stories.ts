@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { ModalTrigger } from "./ModalTrigger";
 import { fn } from "@storybook/test";
+import React from "react";
 
 /**
  * This story is for the modal trigger component based on Material UI.

@@ -20,6 +20,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { ModalTerms } from "./ModalTerms";
 import { fn } from "@storybook/test";
 import { DemoWrapper } from "./DemoWrapper";
+import React from "react";
 
 /**
  * This story is for the Terms and Conditions Modal component based on Material UI.

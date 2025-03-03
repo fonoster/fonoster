@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import { NavButton } from "./NavButton";
+import React from "react";
 
 /**
  * This story is for the NavButton component which is used for navigation

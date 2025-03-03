@@ -15,6 +15,7 @@ import { Button } from '@stories/button/Button';
 import { InputText } from '@stories/inputtext/InputText';
 import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
 import { OAuthConfig, OAuthResponse } from '@/types/oauth';
+import { Icon } from '@stories/icon/Icon';
 
 interface LoginForm {
   email: string;
@@ -44,7 +45,7 @@ const LoginPage = () => {
   const {
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = methods;
 
   useEffect(() => {
@@ -133,6 +134,11 @@ const LoginPage = () => {
               type="email"
               error={!!errors.email}
               supportingText={errors.email?.message || 'Please enter your email address'}
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
             />
             <InputText
               name="password"
@@ -169,7 +175,7 @@ const LoginPage = () => {
               fullWidth
               variant="contained"
               size="large"
-              disabled={isSubmitting || isRedirecting}
+              disabled={isSubmitting || isRedirecting || !isValid}
             >
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
