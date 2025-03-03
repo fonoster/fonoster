@@ -32,70 +32,98 @@ fonoster-webui/
 └── ...
 ```
 
-## GitHub OAuth Configuration
+## OAuth Configuration
 
-### GitHub Setup
+## Environment Variables
 
-To enable GitHub authentication, you must correctly configure your OAuth application in GitHub:
+The application uses a centralized OAuth configuration system. All OAuth-related environment variables are managed through a single configuration module.
 
-1. **Register an OAuth application in GitHub**:
-   - Go to your GitHub account → Settings → Developer settings → OAuth Apps → New OAuth App
-   - Fill in your application information:
-     - **Application name**: Fonoster Cloud (or your preferred name)
-     - **Homepage URL**: Your application URL (e.g., http://localhost:3000)
-     - **Application description**: Optional description of your application
-     - **Authorization callback URL**: Redirect URLs (IMPORTANT)
+### Base OAuth Configuration
+```env
+# Frontend URL (used for callback construction)
+NEXT_PUBLIC_FRONTEND_URL=http://localhost:3000
 
-2. **Redirect URLs Configuration**:
-   - In the "Authorization callback URL" field, you must add ALL redirect URLs that your application will use
-   - For local development, you typically need:
-     ```
-     http://localhost:3000/signup,http://localhost:3000/signin
-     ```
-   - If you have more redirect URLs, add them separated by commas
-   - **IMPORTANT**: URLs must match EXACTLY with those used in your code, including:
-     - Protocol (http/https)
-     - Exact domain (including subdomains)
-     - Port (if applicable)
-     - Complete path
-     - No trailing slashes
-
-3. **Get the credentials**:
-   - After registering the application, GitHub will provide you with:
-     - **Client ID**: Required for the `NEXT_PUBLIC_GITHUB_CLIENT_ID` variable
-     - **Client Secret**: Store it securely (not used in the frontend)
-
-### Environment Variables Configuration
-
-Copy the `.env.example` file to `.env.local` and configure the following variables:
-
-```bash
-# Copy the example file
-cp .env.example .env.local
-
-# Edit variables according to your environment
+# OAuth Callback Path (used for all OAuth providers)
+NEXT_PUBLIC_OAUTH_REDIRECT_URI=/oauth/callback
 ```
 
-#### GitHub OAuth Variables
+### GitHub OAuth Configuration
+```env
+# GitHub Client ID from OAuth App
+NEXT_PUBLIC_GITHUB_CLIENT_ID=your_client_id_here
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `NEXT_PUBLIC_GITHUB_CLIENT_ID` | Client ID provided by GitHub | `abcd1234...` |
-| `NEXT_PUBLIC_GITHUB_URL` | Base URL for GitHub authorization | `https://github.com/login/oauth/authorize` |
-| `NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI` | Redirect path for sign in | `/workspace` or full URL |
-| `NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE` | Permissions requested for sign in | `read:user` |
-| `NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI` | Redirect path for registration | `/workspace` or full URL |
-| `NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE` | Permissions requested for registration | `user:email` |
+# GitHub OAuth Base URL
+NEXT_PUBLIC_GITHUB_URL=https://github.com/login/oauth/authorize
 
-**IMPORTANT**: If you use relative paths (like `/workspace`), they will be combined with `NEXT_PUBLIC_FRONTEND_URL`. If you use absolute URLs, make sure they match exactly with those configured in GitHub.
+# Sign In Configuration
+NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI=/workspace  # Post-signin redirect
+NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE=read:user         # Signin permissions
 
-### Configuration Verification
+# Sign Up Configuration
+NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI=/workspace # Post-signup redirect
+NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE=user:email       # Signup permissions
+```
 
-To verify that your GitHub OAuth configuration works correctly:
+## OAuth Implementation
 
-1. Make sure the URLs in GitHub and in your environment variables match exactly
-2. Check the browser console when clicking "Sign in with GitHub" to see the generated URL
-3. If you receive the error "The redirect_uri is not associated with this application", compare the generated URL with the one configured in GitHub
+The application uses a centralized OAuth configuration system located in `src/config/oauth.ts`. This provides:
+
+- Unified configuration for all OAuth providers
+- Shared base configuration
+- Specific configurations for signin and signup flows
+- Type-safe configuration objects
+
+### Usage Example
+
+```typescript
+import { OAUTH_CONFIG } from '@/config/oauth';
+
+// For signin
+const signinConfig = OAUTH_CONFIG.signin;
+
+// For signup
+const signupConfig = OAUTH_CONFIG.signup;
+```
+
+### Configuration Structure
+
+The OAuth configuration is structured as follows:
+
+```typescript
+const BASE_OAUTH_CONFIG = {
+    clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
+    redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!,
+    authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!,
+};
+
+export const OAUTH_CONFIG = {
+    signin: {
+        ...BASE_OAUTH_CONFIG,
+        redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI!,
+        scope: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE!,
+    },
+    signup: {
+        ...BASE_OAUTH_CONFIG,
+        redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI!,
+        scope: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE!,
+    }
+};
+```
+
+## OAuth Flow
+
+1. User initiates OAuth flow (signin/signup)
+2. Application redirects to provider with appropriate configuration
+3. Provider redirects back to `/oauth/callback`
+4. Callback handler processes authentication
+5. User is redirected to appropriate destination
+
+## Important Notes
+
+- The callback URL (`/oauth/callback`) must be registered in your OAuth provider application
+- Different scopes are used for signin and signup to request appropriate permissions
+- All redirects are handled through the centralized callback handler
+- Environment variables must be properly set in production
 
 ## Code Improvements
 
