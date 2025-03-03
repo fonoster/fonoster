@@ -12,11 +12,12 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 import { Button } from '@stories/button/Button';
-import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
-import { OAuthConfig, OAuthResponse } from '@/types/oauth';
+import { OAuthState } from '@/types/oauth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { InputContext } from '@/common/hooksForm/InputContext';
+import { AuthProvider } from '@/common/sdk/auth/AuthClient';
+import { OAUTH_CONFIG } from '@/config/oauth';
 
 interface LoginForm {
   email: string;
@@ -28,13 +29,7 @@ const loginSchema = z.object({
   password: z.string()
 });
 
-const GITHUB_CONFIG: OAuthConfig = {
-  clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
-  redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI!,
-  redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + '/signin',
-  scope: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE!,
-  authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!
-};
+export const GITHUB_CONFIG = OAUTH_CONFIG.signin;
 
 const LoginPage = () => {
   const theme = useTheme();
@@ -56,51 +51,11 @@ const LoginPage = () => {
     formState: { errors, isSubmitting }
   } = methods;
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    const { code, state } = router.query;
-    if (!code || !state) return;
-
-    let provider: string;
-    try {
-      const decoded = JSON.parse(decodeURIComponent(state as string));
-      provider = decoded.provider;
-    } catch (error) {
-      console.error('Error decoding state', error);
-      provider = '';
-    }
-
-    const oauthResponse: OAuthResponse = {
-      code: code as string,
-      provider: provider,
-    };
-    handleOAuthCallback(oauthResponse);
-  }, [router.isReady, router.query]);
-
-  const handleOAuthCallback = async (oauthResponse: OAuthResponse) => {
-    if (isRedirecting) return;
-    try {
-      setIsRedirecting(true);
-      await authentication.signIn({
-        credentials: { username: '', password: '' },
-        provider: oauthResponse.provider as AuthProvider,
-        oauthCode: oauthResponse.code
-      });
-      await router.replace(GITHUB_CONFIG.redirectUri);
-    } catch (error) {
-      setError('root', {
-        type: 'manual',
-        message: error instanceof Error ? error.message : 'Authentication failed'
-      });
-    } finally {
-      setIsRedirecting(false);
-    }
-  };
-
   const handleGitHubSignIn = () => {
-    const stateData = {
+    const stateData: OAuthState = {
       provider: AuthProvider.GITHUB,
       nonce: Math.random().toString(36).substring(2),
+      action: 'signin'
     };
     const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
     const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUriCallback)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
