@@ -65,7 +65,7 @@ const VerifyPage = () => {
           }
         }
       } catch (error) {
-       
+
       }
     };
     if (isReady) {
@@ -103,15 +103,15 @@ const VerifyPage = () => {
 
   const handleVerifyEmail = async (code: string) => {
     try {
-      const user = await loggedUser();
-      if (!user?.email) {
+      const token = await idToken();
+      if (!token?.email) {
         return;
       }
 
       const result = await verifyCode({
-        username: user.id,
+        username: token.email,
         contactType: 'EMAIL' as CodeType,
-        value: user.email,
+        value: token.email,
         verificationCode: code
       });
 
