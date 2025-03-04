@@ -69,7 +69,7 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiFormHelperText-root": {
     fontFamily: theme.typography.fontFamily,
     fontSize: "10px",
-    fontWeight: 600,
+    fontWeight: 500,
     lineHeight: "normal",
     letterSpacing: "0.12px",
     marginTop: "8px",

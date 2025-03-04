@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   Box,
-  Typography,
+  Divider,
+  Stack,
   useTheme,
 } from '@mui/material';
 import { GitHub as GitHubIcon } from '@mui/icons-material';
@@ -19,6 +20,8 @@ import { OAuthState } from '@/types/oauth';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 import { AuthProvider } from '@/common/sdk/auth/AuthClient';
 import { OAUTH_CONFIG } from '@/config/oauth';
+import { Typography } from '@stories/typography/Typography';
+import { Link } from '@/common/components';
 
 const signUpSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -180,103 +183,58 @@ const SignUpPage = () => {
               helperText={errors.confirmPassword?.message || "Please confirm your password"}
             />
 
-            <CheckboxContext
-              name="agreeToTerms"
-              label={
-                <Typography variant="body2">
-                  Agree to the{' '}
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color="primary"
-                    sx={{
-                      cursor: 'pointer',
-                      '&:hover': {
-                        textDecoration: 'underline',
-                      }
-                    }}
-                    onClick={handleTermsClick}
-                  >
-                    terms and conditions
-                  </Typography>
-                </Typography>
-              }
-            />
-
-            <Button
-              fullWidth
-              variant="contained"
-              size="large"
-              onClick={handleSubmit(onSubmit)}
-              disabled={isRedirecting}
-            >
-              {isRedirecting ? 'SIGNING UP...' : 'SIGN UP'}
-            </Button>
-
-            <Box sx={{
-              position: 'relative',
-              textAlign: 'center',
-              my: 2,
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: '50%',
-                left: 0,
-                right: 0,
-                height: '1px',
-                backgroundColor: theme.palette.mode === 'light'
-                  ? 'rgba(0, 0, 0, 0.12)'
-                  : 'rgba(255, 255, 255, 0.12)',
-              }
-            }}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  position: 'relative',
-                  display: 'inline-block',
-                  px: 2,
-                  backgroundColor: theme.palette.background.paper,
-                }}
-              >
-                Or
-              </Typography>
+            <Box style={{ marginBottom: '25px', textAlign: 'center' }}>
+              <CheckboxContext
+                name="agreeToTerms"
+                label={'Agree to the terms and conditions'}
+              />
             </Box>
 
-            <Button
-              fullWidth
-              variant="outlined"
-              size="large"
-              startIcon={<GitHubIcon />}
-              onClick={handleGitHubSignUp}
-              disabled={isRedirecting}
-            >
-              Sign in with GitHub
-            </Button>
+            <Stack direction="column" spacing={1.5}>
+              <Button
+                fullWidth
+                variant="contained"
+                size="large"
+                onClick={handleSubmit(onSubmit)}
+                disabled={isRedirecting}
+              >
+                {isRedirecting ? 'SIGNING UP...' : 'SIGN UP FOR FONOSTER'}
+              </Button>
 
-            <Box sx={{ textAlign: 'center' }}>
+              <Divider>
+                <Typography
+                  variant="body-small"
+                  color="text.secondary"
+                >
+                  Or
+                </Typography>
+              </Divider>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                size="large"
+                startIcon={<GitHubIcon />}
+                onClick={handleGitHubSignUp}
+                disabled={isRedirecting}
+              >
+                Sign in with GitHub
+              </Button>
+
+            </Stack>
+            <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.3}>
               <Typography
-                variant="body2"
+                variant="body-small"
                 color="text.secondary"
                 display="inline"
               >
-                Already have an account?{' '}
+                Already have an account?
               </Typography>
-              <Typography
-                variant="body2"
-                component="span"
-                color="primary"
-                onClick={() => router.push('/signin')}
-                sx={{
-                  cursor: 'pointer',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  }
-                }}
-              >
-                Sign in
-              </Typography>
-            </Box>
+              <Link
+                href="/signin"
+                label="Sign In"
+              />
+            </Stack>
           </Content>
         </Card>
       </PageContainer>
