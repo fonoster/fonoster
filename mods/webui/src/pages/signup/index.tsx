@@ -15,9 +15,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@stories/button/Button';
 import { useUser } from '@/common/sdk/hooks/useUser';
-import { OAuthConfig, OAuthResponse } from '@/types/oauth';
-import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
+import { OAuthState } from '@/types/oauth';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
+import { AuthProvider } from '@/common/sdk/auth/AuthClient';
+import { OAUTH_CONFIG } from '@/config/oauth';
 
 const signUpSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -37,20 +38,14 @@ const signUpSchema = z.object({
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
-const GITHUB_CONFIG: OAuthConfig = {
-  clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
-  redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI!,
-  redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + '/signup',
-  scope: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE!,
-  authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!
-};
+export const GITHUB_CONFIG = OAUTH_CONFIG.signup;
 
 const SignUpPage = () => {
   const theme = useTheme();
   const router = useRouter();
-  const [openTerms, setOpenTerms] = useState(true);
+  const [openTerms, setOpenTerms] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const { createUser, isReady, createUserWithOauth2Code } = useUser();
+  const { createUser, isReady } = useUser();
   const { authentication } = useFonosterClient();
 
   const methods = useForm<SignUpFormData>({
@@ -60,87 +55,11 @@ const SignUpPage = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      agreeToTerms: true
+      agreeToTerms: false
     },
     mode: 'onChange'
   });
   const { watch, handleSubmit, setError, formState: { errors } } = methods;
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    const { code, state } = router.query;
-    if (!code || !state) return;
-
-    let provider: string;
-    try {
-      const decoded = JSON.parse(decodeURIComponent(state as string));
-      provider = decoded.provider;
-    } catch (error) {
-      provider = '';
-    }
-
-    const oauthResponse: OAuthResponse = {
-      code: code as string,
-      provider: provider,
-    };
-    handleOAuthCallback(oauthResponse);
-  }, [router.isReady, router.query]);
-
-  const handleOAuthCallback = async (oauthResponse: OAuthResponse) => {
-    if (isRedirecting) return;
-    try {
-      setIsRedirecting(true);
-      try {
-        const response = await createUserWithOauth2Code(oauthResponse.code);
-
-        if (!response) {
-          setError('root', {
-            type: 'manual',
-            message: 'Authentication failed: No response from server'
-          });
-          return;
-        }
-
-        if (response.tokens) {
-          await router.replace(GITHUB_CONFIG.redirectUri);
-        } else {
-          console.error('Authentication response missing tokens:', response);
-          setError('root', {
-            type: 'manual',
-            message: 'Authentication failed: Invalid response format'
-          });
-        }
-      } catch (apiError: any) {
-        let errorMessage = 'Authentication failed';
-
-        if (apiError.message) {
-          if (apiError.message.includes('Network Error')) {
-            errorMessage = 'Network error: Unable to connect to the server';
-          } else if (apiError.message.includes('timed out')) {
-            errorMessage = 'Server timeout: The request took too long to complete';
-          } else if (apiError.message.includes('404')) {
-            errorMessage = 'API endpoint not found: Check server configuration';
-          } else if (apiError.message.includes('401') || apiError.message.includes('403')) {
-            errorMessage = 'Authentication error: Invalid credentials or insufficient permissions';
-          } else {
-            errorMessage = `Error: ${apiError.message}`;
-          }
-        }
-
-        setError('root', {
-          type: 'manual',
-          message: errorMessage
-        });
-      }
-    } catch (error: any) {
-      setError('root', {
-        type: 'manual',
-        message: error instanceof Error ? error.message : 'Authentication failed due to an unexpected error'
-      });
-    } finally {
-      setIsRedirecting(false);
-    }
-  };
 
   const handleTermsClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -163,6 +82,7 @@ const SignUpPage = () => {
         password: data.password,
         avatar: ''
       });
+
 
       if (!result) {
         throw new Error('Failed to create user: No result returned');
@@ -207,20 +127,14 @@ const SignUpPage = () => {
   };
 
   const handleGitHubSignUp = () => {
-    try {
-      const stateData = {
-        provider: AuthProvider.GITHUB,
-        nonce: Math.random().toString(36).substring(2),
-      };
-      const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
-      const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUri)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
-      window.location.href = authUrl;
-    } catch (error) {
-      setError('root', {
-        type: 'manual',
-        message: 'Failed to initiate GitHub authentication'
-      });
-    }
+    const stateData: OAuthState = {
+      provider: AuthProvider.GITHUB,
+      nonce: Math.random().toString(36).substring(2),
+      action: 'signup'
+    };
+    const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
+    const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUriCallback)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
+    window.location.href = authUrl;
   };
 
   const watchAgreeToTerms = watch('agreeToTerms');

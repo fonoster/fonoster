@@ -13,10 +13,12 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 import { Button } from '@stories/button/Button';
-import { InputText } from '@stories/inputtext/InputText';
-import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
-import { OAuthConfig, OAuthResponse } from '@/types/oauth';
-import { Icon } from '@stories/icon/Icon';
+import { OAuthState } from '@/types/oauth';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { InputContext } from '@/common/hooksForm/InputContext';
+import { AuthProvider } from '@/common/sdk/auth/AuthClient';
+import { OAUTH_CONFIG } from '@/config/oauth';
 import { Typography } from '@stories/typography/Typography';
 
 interface LoginForm {
@@ -24,13 +26,12 @@ interface LoginForm {
   password: string;
 }
 
-const GITHUB_CONFIG: OAuthConfig = {
-  clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
-  redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI!,
-  redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + '/signin',
-  scope: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE!,
-  authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!
-};
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string()
+});
+
+export const GITHUB_CONFIG = OAUTH_CONFIG.signin;
 
 const LoginPage = () => {
   const theme = useTheme();
@@ -39,9 +40,11 @@ const LoginPage = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const methods = useForm<LoginForm>({
     defaultValues: {
-      email: 'wandyhernandez86@gmail.com',
-      password: 'Ww@12345678'
-    }
+      email: '',
+      password: ''
+    },
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange'
   });
 
   const {
@@ -50,51 +53,11 @@ const LoginPage = () => {
     formState: { errors, isSubmitting, isValid }
   } = methods;
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    const { code, state } = router.query;
-    if (!code || !state) return;
-
-    let provider: string;
-    try {
-      const decoded = JSON.parse(decodeURIComponent(state as string));
-      provider = decoded.provider;
-    } catch (error) {
-      console.error('Error decoding state', error);
-      provider = '';
-    }
-
-    const oauthResponse: OAuthResponse = {
-      code: code as string,
-      provider: provider,
-    };
-    handleOAuthCallback(oauthResponse);
-  }, [router.isReady, router.query]);
-
-  const handleOAuthCallback = async (oauthResponse: OAuthResponse) => {
-    if (isRedirecting) return;
-    try {
-      setIsRedirecting(true);
-      await authentication.signIn({
-        credentials: { username: '', password: '' },
-        provider: oauthResponse.provider as AuthProvider,
-        oauthCode: oauthResponse.code
-      });
-      await router.replace(GITHUB_CONFIG.redirectUri);
-    } catch (error) {
-      setError('root', {
-        type: 'manual',
-        message: error instanceof Error ? error.message : 'Authentication failed'
-      });
-    } finally {
-      setIsRedirecting(false);
-    }
-  };
-
   const handleGitHubSignIn = () => {
-    const stateData = {
+    const stateData: OAuthState = {
       provider: AuthProvider.GITHUB,
       nonce: Math.random().toString(36).substring(2),
+      action: 'signin'
     };
     const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
     const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUriCallback)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
@@ -128,24 +91,24 @@ const LoginPage = () => {
   return (
     <Layout methods={methods}>
       <PageContainer>
-        <Card onSubmit={handleSubmit(onSubmit)}>
+        <Card>
           <Content title="Sign In">
-            <InputText
+            <InputContext
               name="email"
               label="Email Address"
               type="email"
-              error={!!errors.email}
-              supportingText={errors.email?.message || 'Please enter your email address'}
               shrink
-
+              id="email"
+              helperText="Please enter your email address"
             />
-            <InputText
+
+            <InputContext
               name="password"
               label="Password"
               type="password"
-              error={!!errors.password}
-              supportingText={errors.password?.message || 'Please enter your password'}
               shrink
+              id="password"
+              helperText="Please enter your password"
             />
             <Box sx={{ textAlign: 'right', mb: 2 }}>
               <Link href="/forgot-password" color="inherit" style={{ textDecoration: 'none' }}>

@@ -57,7 +57,6 @@ export function useFonosterClient(): FonosterClient {
       try {
         await authClient.refreshSession();
       } catch (error) {
-        console.error('Error refreshing session on mount:', error);
       }
     };
 
@@ -89,7 +88,6 @@ export function useFonosterClient(): FonosterClient {
   const sendVerificationCode = useCallback(async (params: SendVerificationCode): Promise<any> => {
     try {
       if (!authClient || !client) {
-        console.error('authClient or client is not initialized');
         return undefined;
       }
       return await authClient.executeWithRefresh(() => client.sendVerificationCode(params as any));
@@ -97,7 +95,7 @@ export function useFonosterClient(): FonosterClient {
       notifyError(error as ErrorType);
       return undefined;
     }
-  }, [client]);
+  }, [authClient, client]);
 
   /**
    * Sets the access key ID
@@ -110,7 +108,7 @@ export function useFonosterClient(): FonosterClient {
       }
     } else {
     }
-  }, [client]);
+  }, [authClient, client]);
 
   /**
    * Authentication methods

@@ -42,11 +42,11 @@ export function middleware(request: NextRequest) {
     '/signin',
     '/signup',
     '/forgot-password',
-    '/reset-password'
+    '/reset-password',
+    '/oauth/callback'
   ];
 
-  const isPublicRoute = publicRoutes.includes(pathname) ||
-    pathname.startsWith('/forgot-password/');
+  const isPublicRoute = publicRoutes.includes(pathname)
 
   if (!isAuthenticated && !isPublicRoute) {
     console.log('Redirecting to signin because not authenticated and not public route');

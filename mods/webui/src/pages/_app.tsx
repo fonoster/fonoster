@@ -19,7 +19,8 @@ export default function App({ Component, pageProps }: AppProps) {
     router.pathname === '/signup/verify' ||
     router.pathname === '/forgot-password' ||
     router.pathname === '/reset-password' ||
-    router.pathname === '/404'
+    router.pathname === '/404' ||
+    router.pathname === '/oauth/callback'
 
   return (
     <AppRouterCacheProvider>
