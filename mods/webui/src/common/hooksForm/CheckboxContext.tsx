@@ -4,14 +4,11 @@ import { Checkbox } from "@stories/checkbox/Checkbox";
 const CheckboxContext = ({ name, label }) => {
   const {
     register,
-    formState: { errors },
+    formState: { errors }
   } = useFormContext();
 
   return (
-    <Checkbox
-      {...register(name)}
-      error={!!errors[name]}
-    >
+    <Checkbox {...register(name)} error={!!errors[name]}>
       {label}
     </Checkbox>
   );

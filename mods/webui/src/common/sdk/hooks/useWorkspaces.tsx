@@ -1,5 +1,5 @@
-import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient'
-import { useNotification, ErrorType } from '@/common/hooks/useNotification'
+import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
+import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
@@ -11,9 +11,9 @@ import {
   Workspace,
   ListWorkspaceMembersResponse,
   ListWorkspaceMembersRequest
-} from '@fonoster/types'
-import { Workspaces } from '@fonoster/sdk';
-import { useMemo } from 'react';
+} from "@fonoster/types";
+import { Workspaces } from "@fonoster/sdk";
+import { useMemo } from "react";
 
 export const useWorkspaces = () => {
   const { client, isReady, authentication } = useFonosterClient();
@@ -31,22 +31,30 @@ export const useWorkspaces = () => {
     }
   }, [client]);
 
-  const listWorkspaces = async (): Promise<ListWorkspacesResponse | undefined> => {
+  const listWorkspaces = async (): Promise<
+    ListWorkspacesResponse | undefined
+  > => {
     if (!isReady) return undefined;
 
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.listWorkspaces());
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.listWorkspaces()
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;
     }
   };
 
-  const createWorkspace = async (data: CreateWorkspaceRequest): Promise<BaseApiObject | undefined> => {
+  const createWorkspace = async (
+    data: CreateWorkspaceRequest
+  ): Promise<BaseApiObject | undefined> => {
     if (!isReady) return undefined;
 
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.createWorkspace(data));
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.createWorkspace(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -54,57 +62,83 @@ export const useWorkspaces = () => {
 
   const getWorkspace = async (ref: string): Promise<Workspace | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.getWorkspace(ref));
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.getWorkspace(ref)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const updateWorkspace = async (data: UpdateWorkspaceRequest): Promise<BaseApiObject | undefined> => {
+  const updateWorkspace = async (
+    data: UpdateWorkspaceRequest
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.updateWorkspace(data));
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.updateWorkspace(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const deleteWorkspace = async (ref: string): Promise<BaseApiObject | undefined> => {
+  const deleteWorkspace = async (
+    ref: string
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.deleteWorkspace(ref));
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.deleteWorkspace(ref)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const inviteUserToWorkspace = async (data: InviteUserToWorkspaceRequest): Promise<BaseApiObject | undefined> => {
+  const inviteUserToWorkspace = async (
+    data: InviteUserToWorkspaceRequest
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.inviteUserToWorkspace(data));
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.inviteUserToWorkspace(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const resendWorkspaceMembershipInvitation = async (userRef: string): Promise<ResendWorkspaceMembershipInvitationResponse | undefined> => {
+  const resendWorkspaceMembershipInvitation = async (
+    userRef: string
+  ): Promise<ResendWorkspaceMembershipInvitationResponse | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.resendWorkspaceMembershipInvitation(userRef));
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.resendWorkspaceMembershipInvitation(userRef)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const removeUserFromWorkspace = async (userRef: string): Promise<RemoveUserFromWorkspaceResponse | undefined> => {
+  const removeUserFromWorkspace = async (
+    userRef: string
+  ): Promise<RemoveUserFromWorkspaceResponse | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.removeUserFromWorkspace(userRef));
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.removeUserFromWorkspace(userRef)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const listWorkspaceMembers = async (request: ListWorkspaceMembersRequest): Promise<ListWorkspaceMembersResponse | undefined> => {
+  const listWorkspaceMembers = async (
+    request: ListWorkspaceMembersRequest
+  ): Promise<ListWorkspaceMembersResponse | undefined> => {
     if (!isReady) return undefined;
 
     try {
-      return await authentication.executeWithRefresh(() => _workspaces.listWorkspaceMembers(request));
+      return await authentication.executeWithRefresh(() =>
+        _workspaces.listWorkspaceMembers(request)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;

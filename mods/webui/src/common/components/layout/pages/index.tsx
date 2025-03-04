@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
-import { Box, Typography, Stack } from '@mui/material';
+import { ReactNode } from "react";
+import { Box, Typography, Stack } from "@mui/material";
 import { ColumnDef } from "@tanstack/react-table";
 import ReactTable from "@/common/contexts/table/ReactTable";
 import { FormProvider, UseFormReturn } from "react-hook-form";
-import { LinkBackTo } from '@stories/linkbackto/LinkBackTo';
+import { LinkBackTo } from "@stories/linkbackto/LinkBackTo";
 interface PageContainerProps {
   children: ReactNode;
 }
@@ -47,22 +47,21 @@ function Header({ title, actions, backTo }: HeaderProps) {
     <Box sx={{ mb: 4 }}>
       {backTo && (
         <Box sx={{ mb: 1.5 }}>
-          <LinkBackTo
-            label={backTo.label}
-            onClick={backTo.onClick}
-          />
+          <LinkBackTo label={backTo.label} onClick={backTo.onClick} />
         </Box>
       )}
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}
+      >
         <Typography
           variant="h5"
           sx={{
             fontWeight: 500,
-            fontSize: '1.5rem'
+            fontSize: "1.5rem"
           }}
         >
           {title}
@@ -81,20 +80,24 @@ function Subheader({ children }: DescriptionProps) {
   );
 }
 
-function ContentTable<T extends object>({ columns, children, tableId = "table" }: ContentProps<T>) {
+function ContentTable<T extends object>({
+  columns,
+  children,
+  tableId = "table"
+}: ContentProps<T>) {
   return (
     <ReactTable<T> columns={columns}>
       <ReactTable.Header>
         <ReactTable.Header.Filter />
         <ReactTable.Header.Search
-          value={''}
-          onChange={() => { }}
+          value={""}
+          onChange={() => {}}
           placeholder="Search..."
         />
         <ReactTable.Header.Pagination
           currentPage={1}
           totalPages={10}
-          onPageChange={() => { }}
+          onPageChange={() => {}}
         />
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />
@@ -104,31 +107,34 @@ function ContentTable<T extends object>({ columns, children, tableId = "table" }
   );
 }
 
-function ContentForm<T extends object>({ children, formId, methods }: ContentFormProps<T>) {
+function ContentForm<T extends object>({
+  children,
+  formId,
+  methods
+}: ContentFormProps<T>) {
   return (
-
     <Box
       component="form"
       id={formId}
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
+        display: "flex",
+        flexDirection: "column",
         gap: 3,
         p: 3,
-        borderColor: 'divider',
+        borderColor: "divider",
         borderRadius: 1,
-        bgcolor: 'background.paper',
-        '& .MuiFormControl-root': {
-          width: '100%',
-          maxWidth: '500px'
+        bgcolor: "background.paper",
+        "& .MuiFormControl-root": {
+          width: "100%",
+          maxWidth: "500px"
         },
-        '& .MuiInputLabel-root': {
+        "& .MuiInputLabel-root": {
           mb: 1,
-          color: 'text.primary',
+          color: "text.primary",
           fontWeight: 500
         },
-        '& .MuiOutlinedInput-root': {
-          bgcolor: 'background.default'
+        "& .MuiOutlinedInput-root": {
+          bgcolor: "background.default"
         }
       }}
       noValidate
@@ -138,12 +144,10 @@ function ContentForm<T extends object>({ children, formId, methods }: ContentFor
         spacing={{ xs: 1, sm: 2, md: 3 }}
         useFlexGap
         sx={{
-          alignItems: "flex-start",
+          alignItems: "flex-start"
         }}
       >
-        <FormProvider {...methods}>
-          {children}
-        </FormProvider>
+        <FormProvider {...methods}>{children}</FormProvider>
       </Stack>
     </Box>
   );

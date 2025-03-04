@@ -31,7 +31,7 @@ const InputContext = ({
 }: InputContextProps) => {
   const {
     register,
-    formState: { errors },
+    formState: { errors }
   } = useFormContext();
 
   if (type === "file") {

@@ -1,1 +1,1 @@
-export * from './ApplicationDTO'
+export * from "./ApplicationDTO";

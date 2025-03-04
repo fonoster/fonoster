@@ -1,16 +1,16 @@
-import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient'
-import { useNotification, ErrorType } from '@/common/hooks/useNotification'
+import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
+import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
   BaseApiObject,
   CreateUserRequest,
   UpdateUserRequest,
   User,
   ResetPasswordRequest
-} from '@fonoster/types'
-import { Users } from '@fonoster/sdk';
-import { jwtDecode } from 'jwt-decode';
-import { useMemo } from 'react';
-import { AUTH_COOKIES, cookieUtils } from '@/common/utils/cookieUtils';
+} from "@fonoster/types";
+import { Users } from "@fonoster/sdk";
+import { jwtDecode } from "jwt-decode";
+import { useMemo } from "react";
+import { AUTH_COOKIES, cookieUtils } from "@/common/utils/cookieUtils";
 
 interface IDToken {
   iss: string;
@@ -50,7 +50,9 @@ export const useUser = () => {
     }
   }, [client]);
 
-  const createUser = async (data: CreateUserRequest): Promise<BaseApiObject | undefined> => {
+  const createUser = async (
+    data: CreateUserRequest
+  ): Promise<BaseApiObject | undefined> => {
     if (!isReady) return undefined;
 
     try {
@@ -61,7 +63,9 @@ export const useUser = () => {
     }
   };
 
-  const createUserWithOauth2Code = async (code: string): Promise<ExchangeCredentialsResponse> => {
+  const createUserWithOauth2Code = async (
+    code: string
+  ): Promise<ExchangeCredentialsResponse> => {
     if (!isReady) {
       throw new Error("Fonoster client is not initialized.");
     }
@@ -91,17 +95,25 @@ export const useUser = () => {
     }
   };
 
-  const updateUser = async (data: UpdateUserRequest): Promise<BaseApiObject | undefined> => {
+  const updateUser = async (
+    data: UpdateUserRequest
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _users.updateUser(data));
+      return await authentication.executeWithRefresh(() =>
+        _users.updateUser(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const deleteUser = async (ref: string): Promise<BaseApiObject | undefined> => {
+  const deleteUser = async (
+    ref: string
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _users.deleteUser(ref));
+      return await authentication.executeWithRefresh(() =>
+        _users.deleteUser(ref)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
@@ -133,17 +145,25 @@ export const useUser = () => {
     }
   };
 
-  const sendResetPasswordCode = async (data: string): Promise<BaseApiObject | undefined> => {
+  const sendResetPasswordCode = async (
+    data: string
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _users.sendResetPasswordCode(data));
+      return await authentication.executeWithRefresh(() =>
+        _users.sendResetPasswordCode(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const resetPassword = async (data: ResetPasswordRequest): Promise<void | undefined> => {
+  const resetPassword = async (
+    data: ResetPasswordRequest
+  ): Promise<void | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _users.resetPassword(data));
+      return await authentication.executeWithRefresh(() =>
+        _users.resetPassword(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }

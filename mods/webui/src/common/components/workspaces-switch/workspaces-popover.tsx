@@ -1,9 +1,9 @@
-import * as React from 'react';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import { Workspace } from '@fonoster/types';
-import { useRouter } from 'next/router';
-import Box from '@mui/material/Box';
+import * as React from "react";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { Workspace } from "@fonoster/types";
+import { useRouter } from "next/router";
+import Box from "@mui/material/Box";
 
 export interface WorkspacesPopoverProps {
   anchorEl: null | Element;
@@ -20,7 +20,7 @@ export function WorkspacesPopover({
   onClose,
   open = false,
   workspaces,
-  selectedWorkspace,
+  selectedWorkspace
 }: WorkspacesPopoverProps): React.JSX.Element {
   const router = useRouter();
 
@@ -30,15 +30,15 @@ export function WorkspacesPopover({
 
     // 2. Change the workspace ID in the current route
     const currentPath = router.asPath;
-    const pathParts = currentPath.split('/');
+    const pathParts = currentPath.split("/");
 
     // Find the index of 'workspace' in the path
-    const workspaceIndex = pathParts.findIndex(part => part === 'workspace');
+    const workspaceIndex = pathParts.findIndex((part) => part === "workspace");
 
     if (workspaceIndex !== -1 && workspaceIndex + 1 < pathParts.length) {
       // Replace the workspace ID in the path
       pathParts[workspaceIndex + 1] = workspace.ref;
-      const newPath = pathParts.join('/');
+      const newPath = pathParts.join("/");
 
       // Navigate to the new path
       router.push(newPath);
@@ -51,11 +51,11 @@ export function WorkspacesPopover({
   return (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       onClose={onClose}
       open={open}
-      slotProps={{ paper: { sx: { width: '250px' } } }}
-      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      slotProps={{ paper: { sx: { width: "250px" } } }}
+      transformOrigin={{ horizontal: "right", vertical: "top" }}
     >
       {workspaces.map((workspace) => {
         const isSelected = selectedWorkspace?.ref === workspace.ref;
@@ -65,24 +65,24 @@ export function WorkspacesPopover({
             key={workspace.name}
             onClick={() => handleWorkspaceChange(workspace)}
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              backgroundColor: isSelected ? 'action.selected' : 'inherit',
-              '&:hover': {
-                backgroundColor: isSelected ? 'action.selected' : 'action.hover',
-              },
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              backgroundColor: isSelected ? "action.selected" : "inherit",
+              "&:hover": {
+                backgroundColor: isSelected ? "action.selected" : "action.hover"
+              }
             }}
           >
             {workspace.name}
             {isSelected && (
               <Box
                 sx={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: 'success.main',
-                  ml: 1,
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: "success.main",
+                  ml: 1
                 }}
               />
             )}

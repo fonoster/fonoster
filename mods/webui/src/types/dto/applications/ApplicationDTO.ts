@@ -1,8 +1,8 @@
-import { Application } from '@fonoster/types';
+import { Application } from "@fonoster/types";
 
 export type ApplicationDTO = {
-    ref: string;
-    projectId: string;
-    tts: string;
-    stt: string;
+  ref: string;
+  projectId: string;
+  tts: string;
+  stt: string;
 } & Partial<Application>;

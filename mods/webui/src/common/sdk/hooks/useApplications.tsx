@@ -1,8 +1,15 @@
-import { useMemo } from 'react';
-import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient'
-import { useNotification, ErrorType } from '@/common/hooks/useNotification'
-import { CreateApplicationRequest, UpdateApplicationRequest, ListApplicationsRequest, ListApplicationsResponse, Application, BaseApiObject } from '@fonoster/types'
-import { Applications } from '@fonoster/sdk';
+import { useMemo } from "react";
+import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
+import { useNotification, ErrorType } from "@/common/hooks/useNotification";
+import {
+  CreateApplicationRequest,
+  UpdateApplicationRequest,
+  ListApplicationsRequest,
+  ListApplicationsResponse,
+  Application,
+  BaseApiObject
+} from "@fonoster/types";
+import { Applications } from "@fonoster/sdk";
 
 export const useApplications = () => {
   const { client, isReady, authentication } = useFonosterClient();
@@ -19,49 +26,66 @@ export const useApplications = () => {
     }
   }, [client]);
 
-  const createApplication = async (data: CreateApplicationRequest): Promise<BaseApiObject | undefined> => {
+  const createApplication = async (
+    data: CreateApplicationRequest
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _applications.createApplication(data));
+      return await authentication.executeWithRefresh(() =>
+        _applications.createApplication(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const listApplications = async (data: ListApplicationsRequest = {
-    pageSize: 10,
-    pageToken: undefined
-  }): Promise<ListApplicationsResponse | undefined> => {
+  const listApplications = async (
+    data: ListApplicationsRequest = {
+      pageSize: 10,
+      pageToken: undefined
+    }
+  ): Promise<ListApplicationsResponse | undefined> => {
     try {
       if (!isReady) return undefined;
 
-      return await authentication.executeWithRefresh(() => _applications.listApplications(data));
+      return await authentication.executeWithRefresh(() =>
+        _applications.listApplications(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-
-  const getApplication = async (ref: string): Promise<Application | undefined> => {
+  const getApplication = async (
+    ref: string
+  ): Promise<Application | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _applications.getApplication(ref));
+      return await authentication.executeWithRefresh(() =>
+        _applications.getApplication(ref)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const deleteApplication = async (ref: string): Promise<BaseApiObject | undefined> => {
+  const deleteApplication = async (
+    ref: string
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _applications.deleteApplication(ref));
+      return await authentication.executeWithRefresh(() =>
+        _applications.deleteApplication(ref)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-
-
-  const updateApplication = async (data: UpdateApplicationRequest): Promise<BaseApiObject | undefined> => {
+  const updateApplication = async (
+    data: UpdateApplicationRequest
+  ): Promise<BaseApiObject | undefined> => {
     try {
-      return await authentication.executeWithRefresh(() => _applications.updateApplication(data));
+      return await authentication.executeWithRefresh(() =>
+        _applications.updateApplication(data)
+      );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
