@@ -69,10 +69,9 @@ export const Content = ({ title, description, children }: AuthContentProps) => {
   return (
     <>
       <Typography
-        variant="heading-medium"
+        variant="heading-large"
         sx={{
-          marginBottom: 3,
-          fontWeight: 500,
+          marginBottom: description ? 20 : 40,
           color: 'text.primary',
         }}
       >
@@ -80,8 +79,8 @@ export const Content = ({ title, description, children }: AuthContentProps) => {
       </Typography>
       {description && (
         <Typography
-          variant="body-medium"
-          sx={{ marginBottom: 4, color: 'text.secondary' }}
+          variant="body-small"
+          sx={{ marginBottom: 30, color: 'text.secondary', textAlign: 'center' }}
         >
           {description}
         </Typography>
