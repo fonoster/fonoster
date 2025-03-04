@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import MenuItem from '@mui/material/MenuItem';
+import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
 
 // import { authClient } from '@/lib/auth/custom/client';
 // import { logger } from '@/lib/default-logger';
@@ -11,26 +12,13 @@ import MenuItem from '@mui/material/MenuItem';
 
 export function CustomSignOut(): React.JSX.Element {
   // const { checkSession, logout } = useUser();
+  const { authentication } = useFonosterClient();
 
   const router = useRouter();
 
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
-      // await logout();
-      // const { error } = await authClient.signOut();
-
-      // if (error) {
-      //   logger.error('Sign out error', error);
-      //   toast.error('Something went wrong, unable to sign out');
-      //   return;
-      // }
-
-      // // Refresh the auth state
-      // await checkSession?.();
-
-      // // UserProvider, for this case, will not refresh the router and we need to do it manually
-      // router.refresh();
-      // After refresh, AuthGuard will handle the redirect
+      authentication.signOut();
     } catch (err) {
       // logger.error('Sign out error', err);
       // toast.error('Something went wrong, unable to sign out');
@@ -41,7 +29,7 @@ export function CustomSignOut(): React.JSX.Element {
 
   return (
     <MenuItem component="div" onClick={handleSignOut} sx={{ justifyContent: 'center' }}>
-      Salir
+      Logout
     </MenuItem>
   );
 }

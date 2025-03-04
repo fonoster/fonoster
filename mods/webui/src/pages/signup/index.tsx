@@ -15,8 +15,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@stories/button/Button';
 import { useUser } from '@/common/sdk/hooks/useUser';
-import { OAuthConfig, OAuthResponse } from '@/types/oauth';
-import { AuthProvider } from '@/common/sdk/provider/FonosterContext';
+import { OAuthState } from '@/types/oauth';
+import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
+import { AuthProvider } from '@/common/sdk/auth/AuthClient';
+import { OAUTH_CONFIG } from '@/config/oauth';
 
 const signUpSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -24,7 +26,7 @@ const signUpSchema = z.object({
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      'Password must contain uppercase, lowercase, number and symbol'),
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'),
   confirmPassword: z.string(),
   agreeToTerms: z.boolean().refine(val => val === true, {
     message: 'You must agree to the terms and conditions'
@@ -36,20 +38,15 @@ const signUpSchema = z.object({
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
-const GITHUB_CONFIG: OAuthConfig = {
-  clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
-  redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI!,
-  redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + '/signup',
-  scope: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE!,
-  authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!
-};
+export const GITHUB_CONFIG = OAUTH_CONFIG.signup;
 
 const SignUpPage = () => {
   const theme = useTheme();
   const router = useRouter();
   const [openTerms, setOpenTerms] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const { createUser, isReady, createUserWithOauth2Code } = useUser();
+  const { createUser, isReady } = useUser();
+  const { authentication } = useFonosterClient();
 
   const methods = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -59,46 +56,10 @@ const SignUpPage = () => {
       password: '',
       confirmPassword: '',
       agreeToTerms: false
-    }
+    },
+    mode: 'onChange'
   });
-  const { watch, handleSubmit, setError } = methods;
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    const { code, state } = router.query;
-    if (!code || !state) return;
-
-    let provider: string;
-    try {
-      const decoded = JSON.parse(decodeURIComponent(state as string));
-      provider = decoded.provider;
-    } catch (error) {
-      console.error('Error decoding state', error);
-      provider = '';
-    }
-
-    const oauthResponse: OAuthResponse = {
-      code: code as string,
-      provider: provider,
-    };
-    handleOAuthCallback(oauthResponse);
-  }, [router.isReady, router.query]);
-
-  const handleOAuthCallback = async (oauthResponse: OAuthResponse) => {
-    if (isRedirecting) return;
-    try {
-      setIsRedirecting(true);
-      await createUserWithOauth2Code(oauthResponse.code);
-      await router.replace(GITHUB_CONFIG.redirectUri);
-    } catch (error) {
-      setError('root', {
-        type: 'manual',
-        message: error instanceof Error ? error.message : 'Authentication failed'
-      });
-    } finally {
-      setIsRedirecting(false);
-    }
-  };
+  const { watch, handleSubmit, setError, formState: { errors } } = methods;
 
   const handleTermsClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -114,22 +75,62 @@ const SignUpPage = () => {
 
     try {
       setIsRedirecting(true);
-      await createUser({
+
+      const result = await createUser({
         name: data.name,
         email: data.email,
         password: data.password,
         avatar: ''
       });
-      router.push('/signup/verify');
-    } catch (error) {
-      alert('An error occurred during registration');
+
+
+      if (!result) {
+        throw new Error('Failed to create user: No result returned');
+      }
+
+      try {
+        await authentication.signIn({
+          provider: AuthProvider.CREDENTIALS,
+          credentials: {
+            username: data.email,
+            password: data.password
+          },
+          oauthCode: ''
+        });
+        router.push('/signup/verify');
+      } catch (loginError) {
+        router.push('/signup/verify');
+      }
+
+      setIsRedirecting(false);
+    } catch (error: any) {
+      let errorMessage = 'An error occurred during registration';
+
+      if (error?.message) {
+        if (error.message.includes('already exists')) {
+          errorMessage = 'An account with this email already exists. Please try signing in.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'The server took too long to respond. Please try again later.';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setError('root', {
+        type: 'manual',
+        message: errorMessage
+      });
+      setIsRedirecting(false);
     }
   };
 
   const handleGitHubSignUp = () => {
-    const stateData = {
+    const stateData: OAuthState = {
       provider: AuthProvider.GITHUB,
       nonce: Math.random().toString(36).substring(2),
+      action: 'signup'
     };
     const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
     const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUriCallback)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
@@ -168,7 +169,7 @@ const SignUpPage = () => {
               label="Password"
               type="password"
               id="password"
-              helperText="8+ characters with upper, lower, number, and symbol"
+              helperText={errors.password?.message || "8+ characters with upper, lower, number, and symbol"}
             />
 
             <InputContext
@@ -176,7 +177,7 @@ const SignUpPage = () => {
               label="Confirm Password"
               type="password"
               id="confirmPassword"
-              helperText="Please confirm your password"
+              helperText={errors.confirmPassword?.message || "Please confirm your password"}
             />
 
             <CheckboxContext
@@ -207,14 +208,9 @@ const SignUpPage = () => {
               variant="contained"
               size="large"
               onClick={handleSubmit(onSubmit)}
-              sx={{
-                boxShadow: theme.shadows[2],
-                '&:hover': {
-                  boxShadow: theme.shadows[4],
-                },
-              }}
+              disabled={isRedirecting}
             >
-              SIGN UP
+              {isRedirecting ? 'SIGNING UP...' : 'SIGN UP'}
             </Button>
 
             <Box sx={{

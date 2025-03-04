@@ -13,6 +13,7 @@ interface InputContextProps {
   helperText?: string;
   onFileChange?: (files: FileList | null) => void;
   id: string;
+  shrink?: boolean;
 }
 
 const InputContext = ({
@@ -25,7 +26,8 @@ const InputContext = ({
   multiple = false,
   helperText,
   onFileChange,
-  id
+  id,
+  shrink = true
 }: InputContextProps) => {
   const {
     register,
@@ -52,6 +54,7 @@ const InputContext = ({
         trailingIcon={trailingIcon}
         accept={accept}
         multiple={multiple}
+        shrink={shrink}
       />
     );
   }
@@ -66,6 +69,7 @@ const InputContext = ({
       leadingIcon={leadingIcon}
       trailingIcon={trailingIcon}
       type={type}
+      shrink={shrink}
     />
   );
 };

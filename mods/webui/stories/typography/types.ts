@@ -33,7 +33,9 @@ type TypographyVariant =
 
 type TypographyProps = {
   variant?: TypographyVariant;
-  children: string;
+  children: React.ReactNode;
+  color?: string;
+  [key: string]: any;
 };
 
 export type { TypographyProps, TypographyVariant };

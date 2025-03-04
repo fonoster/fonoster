@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import { LinkBackTo } from "./LinkBackTo";
+import React from "react";
 
 const meta = {
   title: "Core Components/Buttons, Links, and Chips/LinkBackTo",

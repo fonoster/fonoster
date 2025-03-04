@@ -91,6 +91,12 @@ const meta = {
       name: "Error",
       description: "Error state of the input",
       control: "boolean"
+    },
+    shrink: {
+      name: "Shrink",
+      description: "The input label `shrink` state isn't always correct. The input label is supposed to shrink as soon as the input is displaying something. In some circumstances, we can't determine the `shrink` state (number input, datetime input, Stripe input). You might notice an overlap.",
+      control: "boolean",
+      defaultValue: false
     }
   }
 } satisfies Meta<typeof InputText>;
@@ -177,3 +183,13 @@ export const WithError: Story = {
     defaultValue: "Invalid input"
   }
 };
+
+/**
+ * Example for an InputText component with a shrink state.
+ */
+export const Shrink: Story = {
+  args: {
+    shrink: true,
+  }
+};
+

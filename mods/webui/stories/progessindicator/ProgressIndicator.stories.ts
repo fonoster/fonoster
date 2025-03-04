@@ -18,6 +18,7 @@
  */
 import type { Meta, StoryObj } from "@storybook/react";
 import { ProgressIndicator } from "./ProgressIndicator";
+import React from "react";
 
 /**
  * This story is for the ProgressIndicator component. It takes steps, and current step.

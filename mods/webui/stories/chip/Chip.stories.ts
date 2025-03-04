@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Chip } from "./Chip";
 import { fn } from "@storybook/test";
+import React from "react";
 
 /**
  * This story is for the Chip component based on MUI chip component

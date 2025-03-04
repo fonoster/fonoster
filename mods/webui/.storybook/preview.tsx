@@ -1,24 +1,30 @@
-import React from 'react'
-import type { Preview } from '@storybook/react'
-import { StoriesProvider } from './providers/StoriesProvider'
+import type { Preview } from "@storybook/react";
+import React from "react";
+import { MainProvider } from "../stories/main";
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {
       matchers: {
         color: /(background|color)$/i,
-        date: /Date$/i,
-      },
+        date: /Date$/i
+      }
     },
-  },
-  decorators: [
-    (Story) => (
-      <StoriesProvider>
-        <Story />
-      </StoriesProvider>
-    ),
-  ],
-}
+    options: {
+      storySort: {
+        order: ["Introduction", "Brand Identity", "Shared Components"],
+        includeName: true
+      }
+    }
+  }
+};
 
-export default preview
+export const decorators = [
+  (Story) => (
+    <MainProvider>
+      <Story />
+    </MainProvider>
+  ),
+];
+
+export default preview;

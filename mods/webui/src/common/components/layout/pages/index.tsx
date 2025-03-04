@@ -89,7 +89,7 @@ function ContentTable<T extends object>({ columns, children, tableId = "table" }
         <ReactTable.Header.Search
           value={''}
           onChange={() => { }}
-          placeholder="Search numbers..."
+          placeholder="Search..."
         />
         <ReactTable.Header.Pagination
           currentPage={1}

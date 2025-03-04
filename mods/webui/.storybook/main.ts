@@ -1,36 +1,38 @@
-import type { StorybookConfig } from '@storybook/nextjs'
-import path from 'path'
+import type { StorybookConfig } from "@storybook/react-vite";
 
-const config: StorybookConfig = {
-  stories: ['../stories/**/*.mdx', '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-  addons: [
-    '@storybook/addon-links',
-    '@storybook/addon-essentials',
-    '@storybook/addon-onboarding',
-    '@storybook/addon-interactions',
-  ],
-  framework: {
-    name: '@storybook/nextjs',
-    options: {}
-  },
-  docs: {
-    autodocs: 'tag'
-  },
-  webpackFinal: async (config) => {
-    if (config.resolve) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@': path.resolve(__dirname, '../src')
-      }
-    }
-    return config
-  },
-  typescript: {
-    check: true,
-    checkOptions: {
-      tsconfig: './.storybook/tsconfig.json'
-    }
-  }
+import { join, dirname } from "path";
+
+/**
+ * This function is used to resolve the absolute path of a package.
+ * It is needed in projects that use Yarn PnP or are set up within a monorepo.
+ */
+function getAbsolutePath(value: string) {
+  return dirname(require.resolve(join(value, "package.json")));
 }
 
-export default config
+const staticDirs = [join(process.cwd(), ".storybook/public")];
+
+const config: StorybookConfig = {
+  staticDirs,
+  stories: [
+    "../src/**/*.mdx", 
+    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../stories/**/*.mdx",
+    "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)"
+  ],
+  addons: [
+    getAbsolutePath("@storybook/addon-onboarding"),
+    getAbsolutePath("@storybook/addon-essentials"),
+    getAbsolutePath("@storybook/addon-interactions"),
+    getAbsolutePath("@storybook/addon-themes"),
+    getAbsolutePath("@storybook/addon-designs")
+  ],
+  framework: {
+    name: getAbsolutePath("@storybook/react-vite"),
+    options: {}
+  },
+  core: {
+    disableTelemetry: true
+  }
+};
+export default config;

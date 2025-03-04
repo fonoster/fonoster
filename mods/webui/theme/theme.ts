@@ -16,8 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createTheme } from "@mui/material/styles";
+import { createTheme, ThemeOptions } from "@mui/material/styles";
 
+// Definir las opciones del tema claro
 const fnLight = createTheme({
   palette: {
     primary: {
@@ -84,7 +85,7 @@ const fnLight = createTheme({
   }
 });
 
-const fnDark = createTheme({
+const darkThemeOptions: ThemeOptions = {
   palette: {
     mode: 'dark',
     primary: {
@@ -94,7 +95,11 @@ const fnDark = createTheme({
       "500": "#39E19E",
       "700": "#2AAA78",
       "800": "#1D7D57",
-      "900": "#0F4A33"
+      "900": "#0F4A33",
+      main: "#39E19E",
+      light: "#2AAA78",
+      dark: "#164A35",
+      contrastText: "#FFFFFF"
     },
     secondary: {
       "50": "#1A1A1A",
@@ -104,7 +109,10 @@ const fnDark = createTheme({
       "700": "#AAAAAA",
       "800": "#CCCCCC",
       "900": "#EBEBEB",
-      main: "#3D3D3D"
+      main: "#3D3D3D",
+      light: "#8D8D8D",
+      dark: "#1A1A1A",
+      contrastText: "#FFFFFF"
     },
     warning: {
       "50": "#1F1410",
@@ -113,7 +121,11 @@ const fnDark = createTheme({
       "500": "#FF9965",
       "700": "#FFB38C",
       "800": "#FFCDB2",
-      "900": "#FFE8D9"
+      "900": "#FFE8D9",
+      main: "#FF9965",
+      light: "#FFB38C",
+      dark: "#4A2F25",
+      contrastText: "#000000"
     },
     background: {
       default: "#121212",
@@ -154,6 +166,14 @@ const fnDark = createTheme({
       }
     }
   }
-});
+};
+
+// Crear los temas
+// const fnLight = createTheme(lightThemeOptions);
+const fnDark = createTheme(darkThemeOptions);
+
+// Verificar que los temas se hayan creado correctamente
+console.log('theme.ts - fnLight primary main:', fnLight.palette.primary.main);
+console.log('theme.ts - fnDark primary main:', fnDark.palette.primary.main);
 
 export { fnLight, fnDark };

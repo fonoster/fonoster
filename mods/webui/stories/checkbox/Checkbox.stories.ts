@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import { Checkbox } from "./Checkbox";
+import React from "react";
 
 /**
  * This story is for the Checkbox component based on Material UI.

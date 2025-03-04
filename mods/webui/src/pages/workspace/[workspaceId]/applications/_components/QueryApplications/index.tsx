@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useApplications } from "../../_hooks/useApplications";
-import { ApplicationDTO } from "@/types/dto/ApplicationDTO";
+import { ApplicationDTO } from "@/types/dto/applications/ApplicationDTO";
 import { useTableContext } from "@/common/contexts/table/useTableContext";
 
 const QueryApplications = () => {

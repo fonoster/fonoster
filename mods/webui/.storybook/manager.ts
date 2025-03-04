@@ -1,12 +1,9 @@
-import type { ManagerConfig } from '@storybook/types';
-import { fnLight, fnDark } from '../theme/theme';
+import { addons } from '@storybook/manager-api';
+import theme from './theme';
 
-export const config: ManagerConfig = {
+addons.setConfig({
   sidebar: {
     showRoots: false
   },
-  theme: {
-    ...fnLight,
-    ...fnDark
-  }
-};
+  theme
+});

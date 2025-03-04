@@ -45,7 +45,7 @@ export function useFonosterClient(): FonosterClient {
   const { client, isInitialized, session, authClient } = useContext(FonosterContext);
   const { notifyError } = useNotification();
   const [hasCheckedSession, setHasCheckedSession] = useState(false);
-  
+
   useEffect(() => {
     let isMounted = true;
 
@@ -57,7 +57,6 @@ export function useFonosterClient(): FonosterClient {
       try {
         await authClient.refreshSession();
       } catch (error) {
-        console.error('Error refreshing session on mount:', error);
       }
     };
 
@@ -76,14 +75,12 @@ export function useFonosterClient(): FonosterClient {
       if (!authClient || !client) {
         return undefined;
       }
-      return await authClient.executeWithRefresh(() => {
-        return client.verifyCode(params as any);
-      });
+      return await authClient.executeWithRefresh(() => client.verifyCode(params as any));
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;
     }
-  }, [authClient, client, notifyError]);
+  }, [authClient, client]);
 
   /**
    * Sends a verification code
@@ -93,14 +90,12 @@ export function useFonosterClient(): FonosterClient {
       if (!authClient || !client) {
         return undefined;
       }
-      return await authClient.executeWithRefresh(() => {
-        return client.sendVerificationCode(params as any);
-      });
+      return await authClient.executeWithRefresh(() => client.sendVerificationCode(params as any));
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;
     }
-  }, [authClient, client, notifyError]);
+  }, [authClient, client]);
 
   /**
    * Sets the access key ID
@@ -113,7 +108,7 @@ export function useFonosterClient(): FonosterClient {
       }
     } else {
     }
-  }, [client]);
+  }, [authClient, client]);
 
   /**
    * Authentication methods

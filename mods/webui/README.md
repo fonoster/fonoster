@@ -32,6 +32,99 @@ fonoster-webui/
 └── ...
 ```
 
+## OAuth Configuration
+
+## Environment Variables
+
+The application uses a centralized OAuth configuration system. All OAuth-related environment variables are managed through a single configuration module.
+
+### Base OAuth Configuration
+```env
+# Frontend URL (used for callback construction)
+NEXT_PUBLIC_FRONTEND_URL=http://localhost:3000
+
+# OAuth Callback Path (used for all OAuth providers)
+NEXT_PUBLIC_OAUTH_REDIRECT_URI=/oauth/callback
+```
+
+### GitHub OAuth Configuration
+```env
+# GitHub Client ID from OAuth App
+NEXT_PUBLIC_GITHUB_CLIENT_ID=your_client_id_here
+
+# GitHub OAuth Base URL
+NEXT_PUBLIC_GITHUB_URL=https://github.com/login/oauth/authorize
+
+# Sign In Configuration
+NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI=/workspace  # Post-signin redirect
+NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE=read:user         # Signin permissions
+
+# Sign Up Configuration
+NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI=/workspace # Post-signup redirect
+NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE=user:email       # Signup permissions
+```
+
+## OAuth Implementation
+
+The application uses a centralized OAuth configuration system located in `src/config/oauth.ts`. This provides:
+
+- Unified configuration for all OAuth providers
+- Shared base configuration
+- Specific configurations for signin and signup flows
+- Type-safe configuration objects
+
+### Usage Example
+
+```typescript
+import { OAUTH_CONFIG } from '@/config/oauth';
+
+// For signin
+const signinConfig = OAUTH_CONFIG.signin;
+
+// For signup
+const signupConfig = OAUTH_CONFIG.signup;
+```
+
+### Configuration Structure
+
+The OAuth configuration is structured as follows:
+
+```typescript
+const BASE_OAUTH_CONFIG = {
+    clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
+    redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!,
+    authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!,
+};
+
+export const OAUTH_CONFIG = {
+    signin: {
+        ...BASE_OAUTH_CONFIG,
+        redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI!,
+        scope: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE!,
+    },
+    signup: {
+        ...BASE_OAUTH_CONFIG,
+        redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI!,
+        scope: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE!,
+    }
+};
+```
+
+## OAuth Flow
+
+1. User initiates OAuth flow (signin/signup)
+2. Application redirects to provider with appropriate configuration
+3. Provider redirects back to `/oauth/callback`
+4. Callback handler processes authentication
+5. User is redirected to appropriate destination
+
+## Important Notes
+
+- The callback URL (`/oauth/callback`) must be registered in your OAuth provider application
+- Different scopes are used for signin and signup to request appropriate permissions
+- All redirects are handled through the centralized callback handler
+- Environment variables must be properly set in production
+
 ## Code Improvements
 
 ### 1. Authentication System

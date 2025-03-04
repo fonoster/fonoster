@@ -4,9 +4,9 @@ import { tokenUtils } from '@/common/utils/tokenUtils'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  
+
   if (
-    pathname.startsWith('/_next') || 
+    pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.includes('.')
   ) {
@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get('refreshToken')?.value || null;
   const accessToken = request.cookies.get('accessToken')?.value || null;
   const idToken = request.cookies.get('idToken')?.value || null;
-  
+
   const isAuthenticated = refreshToken && !tokenUtils.isTokenExpired(refreshToken);
 
   if (pathname === '/') {
@@ -26,44 +26,32 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 
-  // TODO: remove this when the SDK has already implemented the code verification tests and create new accounts.
-  // if(isAuthenticated){
-  //   const idToken = request.cookies.get('idToken')?.value || null;
-  //   if(idToken){
-  //     const decodedToken = tokenUtils.decodeToken(idToken);
-  //     if(decodedToken && !decodedToken.emailVerified && pathname !== '/signup/verify'){
-  //       return NextResponse.redirect(new URL('/signup/verify', request.url));
-  //     }
-  //     if(decodedToken && !decodedToken.phoneNumberVerified && pathname !== '/signup/verify'){
-  //       return NextResponse.redirect(new URL('/signup/verify', request.url));
-  //     }
-  //   }
-  // }
+  if (isAuthenticated) {
+    if (idToken) {
+      const decodedToken = tokenUtils.decodeToken(idToken);
+      if (decodedToken && !decodedToken.emailVerified && pathname !== '/signup/verify') {
+        return NextResponse.redirect(new URL('/signup/verify', request.url));
+      }
+      if (decodedToken && !decodedToken.phoneNumberVerified && pathname !== '/signup/verify') {
+        return NextResponse.redirect(new URL('/signup/verify', request.url));
+      }
+    }
+  }
 
   const publicRoutes = [
     '/signin',
     '/signup',
     '/forgot-password',
-    '/signup/verify'
+    '/reset-password',
+    '/oauth/callback'
   ];
 
-  const isPublicRoute = publicRoutes.includes(pathname) || 
-    pathname.startsWith('/forgot-password/');
+  const isPublicRoute = publicRoutes.includes(pathname)
 
   if (!isAuthenticated && !isPublicRoute) {
+    console.log('Redirecting to signin because not authenticated and not public route');
     return NextResponse.redirect(new URL('/signin', request.url));
   }
-
-  if (isAuthenticated && isPublicRoute) {
-    if(idToken){
-      const decodedToken = tokenUtils.decodeToken(idToken);
-      
-      if(decodedToken && decodedToken.emailVerified && decodedToken.phoneNumberVerified){
-        return NextResponse.redirect(new URL('/workspace', request.url));
-      }
-    }
-  }
-
   return NextResponse.next();
 }
 

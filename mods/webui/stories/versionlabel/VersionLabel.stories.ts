@@ -18,6 +18,7 @@
  */
 import type { Meta, StoryObj } from "@storybook/react";
 import { VersionLabel } from "./VersionLabel";
+import React from "react";
 
 /**
  * This story is for the regular Button component based on Material UI.
