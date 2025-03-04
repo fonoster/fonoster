@@ -1,5 +1,4 @@
-/* eslint-disable import/no-unresolved */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -20,9 +19,9 @@
 import * as SDK from "@fonoster/sdk";
 import { UpdateNumberRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
+import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
-import { Args } from "@oclif/core";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "modify the configuration of a Number";

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { TokenUseEnum, VOICE_SERVICE_ROLE } from "@fonoster/common";
 import jwt from "jsonwebtoken";
 import { SIGN_ALGORITHM } from "../constants";
-import { TokenUseEnum, VOICE_SERVICE_ROLE } from "@fonoster/common";
 import { IdentityConfig } from "../exchanges/types";
 
 function createGenerateCallAccessToken(identityConfig: IdentityConfig) {

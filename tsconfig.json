@@ -11,6 +11,9 @@
     "target": "es6",
     "moduleResolution": "node",
     "downlevelIteration": true,
+    // TODO: Enable strictNullChecks and strictPropertyInitialization
+    // "strictNullChecks": true,
+    // "strictPropertyInitialization": true,
     "lib": [
       "es2021",
       "dom",

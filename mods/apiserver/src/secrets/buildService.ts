@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Prisma } from "../core/db";
 import { createSecret } from "./createSecret";
 import { deleteSecret } from "./deleteSecret";
 import { getSecret } from "./getSecret";
 import { listSecrets } from "./listSecrets";
 import { updateSecret } from "./updateSecret";
-import { Prisma } from "../core/db";
 
 function buildService(prisma: Prisma) {
   return {

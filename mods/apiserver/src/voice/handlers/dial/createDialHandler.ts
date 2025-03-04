@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -19,13 +19,13 @@
 import { DialRequest, DialStatus, STASIS_APP_NAME } from "@fonoster/common";
 import { Client } from "ari-client";
 import { v4 as uuidv4 } from "uuid";
-import { handleChannelLeftBridge } from "./handleChannelLeftBridge";
-import { handleStasisEnd } from "./handleStasisEnd";
-import { handleStasisStart } from "./handleStasisStart";
 import { ASTERISK_SYSTEM_DOMAIN, ASTERISK_TRUNK } from "../../../envs";
 import { createHandleDialEventsWithVoiceClient } from "../../../utils";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "../../types";
 import { createGetChannelVar } from "../../utils/createGetChannelVar";
+import { handleChannelLeftBridge } from "./handleChannelLeftBridge";
+import { handleStasisEnd } from "./handleStasisEnd";
+import { handleStasisStart } from "./handleStasisStart";
 
 // TODO: Needs request validation
 function createDialHandler(ari: Client, voiceClient: VoiceClient) {

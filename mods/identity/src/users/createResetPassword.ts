@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -22,10 +22,10 @@ import {
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { ResetPasswordRequest, ContactType } from "@fonoster/types";
+import { ContactType, ResetPasswordRequest } from "@fonoster/types";
+import { status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
-import { status } from "@grpc/grpc-js";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

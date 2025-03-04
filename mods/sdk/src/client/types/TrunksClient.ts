@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientFunction } from "./common";
 import {
   CreateTrunkRequest,
   CreateTrunkResponse,
@@ -29,6 +28,7 @@ import {
   UpdateTrunkRequest,
   UpdateTrunkResponse
 } from "../../generated/web/trunks_pb";
+import { ClientFunction } from "./common";
 
 type TrunksClient = {
   createTrunk: ClientFunction<CreateTrunkRequest, CreateTrunkResponse>;

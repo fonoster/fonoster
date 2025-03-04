@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { join } from "path";
 import { parentPort, workerData } from "worker_threads";
+import { SILERO_VAD_VERSION } from "./envs";
 import { SileroVad } from "./vad/SileroVad";
 import { SileroVad as SileroVadV5 } from "./vadv5/SileroVad";
-import { SILERO_VAD_VERSION } from "./envs";
-import { join } from "path";
 
 const vad =
   SILERO_VAD_VERSION === "v4"

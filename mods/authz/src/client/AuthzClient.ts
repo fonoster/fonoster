@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -19,8 +19,8 @@
 import * as grpc from "@grpc/grpc-js";
 import { serviceDefinition } from "../serviceDefinition";
 import {
-  CheckMethodAuthorizedRequest,
   AddBillingMeterEventRequest,
+  CheckMethodAuthorizedRequest,
   VoiceRequest
 } from "../types";
 import { AuthzServiceClient } from "./AuthzServiceClient";

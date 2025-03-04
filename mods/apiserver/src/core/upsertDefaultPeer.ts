@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -21,13 +20,13 @@ import { getLogger } from "@fonoster/logger";
 import { CommonTypes as CT } from "@routr/common";
 import SDK from "@routr/sdk";
 import { CreatePeerRequest } from "@routr/sdk/dist/peers/types";
-import { routrConfig } from "./routrConfig";
 import {
   ROUTR_DEFAULT_PEER_AOR,
   ROUTR_DEFAULT_PEER_NAME,
   ROUTR_DEFAULT_PEER_PASSWORD,
   ROUTR_DEFAULT_PEER_USERNAME
 } from "../envs";
+import { routrConfig } from "./routrConfig";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

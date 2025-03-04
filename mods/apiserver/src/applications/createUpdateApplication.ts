@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -21,14 +21,14 @@ import {
   getAccessKeyIdFromCall,
   withErrorHandling
 } from "@fonoster/common";
+import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ApplicationType, UpdateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { Prisma } from "../core/db";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./validation/validOrThrow";
-import { Prisma } from "../core/db";
-import { withAccess } from "@fonoster/identity";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
 import {
   assistantSchema,
   conversationSettingsSchema,
   languageModelConfigSchema
 } from "@fonoster/common";
+import { z } from "zod";
 
 type ConversationSettings = z.infer<typeof conversationSettingsSchema>;
 type LanguageModelConfig = z.infer<typeof languageModelConfigSchema>;

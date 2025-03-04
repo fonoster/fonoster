@@ -1,5 +1,4 @@
-// @ts-nocheck - All inputs are validated by the APIServer
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,11 +17,12 @@
  * limitations under the License.
  */
 import { findIntegrationsCredentials, VoiceRequest } from "@fonoster/common";
+import { assistantSchema } from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
 import * as SDK from "@fonoster/sdk";
 import { AssistantConfig } from "./assistants";
 import { APISERVER_ENDPOINT } from "./envs";
-import { getLogger } from "@fonoster/logger";
-import { assistantSchema } from "@fonoster/common";
+import { AutopilotApplication } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -53,22 +53,26 @@ function loadAssistantFromAPI(
 
     applications
       .getApplication(req.appRef)
-      .then((app) => {
+      .then((app: AutopilotApplication) => {
         logger.verbose(`get credentials for assistant`, {
           appRef: req.appRef,
-          productRef: app.intelligence?.productRef
+          productRef: app.intelligence.productRef
         });
 
         const credentials = findIntegrationsCredentials(
           integrations,
-          app.intelligence?.productRef
+          app.intelligence.productRef
         );
 
-        const assistantConfig = app.intelligence?.config as AssistantConfig;
-
-        assistantConfig.languageModel.apiKey = credentials?.apiKey as string;
-
-        resolve(assistantSchema.parse(assistantConfig));
+        resolve(
+          assistantSchema.parse({
+            ...app.intelligence.config,
+            languageModel: {
+              ...app.intelligence.config.languageModel,
+              apiKey: credentials.apiKey as string
+            }
+          })
+        );
       })
       .catch((err) => {
         reject(new Error(`Failed to load assistant config from API: ${err}`));

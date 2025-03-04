@@ -1,5 +1,4 @@
-// @ts-nocheck - All inputs are validated by the APIServer
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,28 +16,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import fs from "fs";
 import { StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
-import { createLanguageModel } from "./models/createLanguageModel";
+import { BaseMessage } from "@langchain/core/messages";
 import {
   AWS_S3_ACCESS_KEY_ID,
   AWS_S3_ENDPOINT,
   AWS_S3_REGION,
   AWS_S3_SECRET_ACCESS_KEY,
-  KNOWLEDGE_BASE_ENABLED,
-  UNSTRUCTURED_API_KEY,
-  UNSTRUCTURED_API_URL,
   CONVERSATION_PROVIDER,
   CONVERSATION_PROVIDER_FILE,
-  INTEGRATIONS_FILE
+  INTEGRATIONS_FILE,
+  KNOWLEDGE_BASE_ENABLED,
+  UNSTRUCTURED_API_KEY,
+  UNSTRUCTURED_API_URL
 } from "./envs";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
-import Autopilot, { ConversationProvider, S3KnowledgeBase, VoiceImpl } from ".";
 import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
-import fs from "fs";
-import { sendConversationEndedEvent } from "./sendConversationEndedEvent";
-import { BaseMessage } from "@langchain/core/messages";
+import { createLanguageModel } from "./models/createLanguageModel";
+import {
+  EventsHook,
+  sendConversationEndedEvent
+} from "./sendConversationEndedEvent";
+import Autopilot, {
+  ConversationProvider,
+  ConversationSettings,
+  LanguageModel,
+  S3KnowledgeBase,
+  VoiceImpl
+} from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -73,9 +81,9 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   if (KNOWLEDGE_BASE_ENABLED) {
     knowledgeBase = new S3KnowledgeBase({
       bucket: req.accessKeyId.toLowerCase(),
-      documents: assistantConfig.languageModel.knowledgeBase.map(
+      documents: assistantConfig.languageModel?.knowledgeBase?.map(
         (doc) => doc.document
-      ),
+      ) as string[],
       s3Config: {
         endpoint: AWS_S3_ENDPOINT,
         region: AWS_S3_REGION,
@@ -110,9 +118,9 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const { conversationSettings } = assistantConfig;
 
   const autopilot = new Autopilot({
-    conversationSettings,
-    voice,
-    languageModel
+    conversationSettings: conversationSettings as ConversationSettings,
+    voice: voice as VoiceImpl,
+    languageModel: languageModel as LanguageModel
   });
 
   autopilot.start();
@@ -132,7 +140,12 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
       })
       .filter(Boolean);
 
-    await sendConversationEndedEvent(assistantConfig.eventsHook, chatHistory);
+    if (assistantConfig.eventsHook?.url) {
+      await sendConversationEndedEvent(
+        assistantConfig.eventsHook as EventsHook,
+        chatHistory as any
+      );
+    }
   });
 }
 

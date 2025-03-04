@@ -1,5 +1,4 @@
-export * from "./acls.types";
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,6 +16,8 @@ export * from "./acls.types";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./acls.types";
+
 export * from "./agents.types";
 export * from "./applications.types";
 export * from "./calls.types";

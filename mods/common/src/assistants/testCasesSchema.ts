@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
 import { CallDirection } from "@fonoster/types";
+import { z } from "zod";
 
 const testCasesSchema = z.object({
   evalsLanguageModel: z.object({

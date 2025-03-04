@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -23,9 +23,9 @@ import {
 } from "@fonoster/common";
 import { ContactType } from "@fonoster/types";
 import { status } from "@grpc/grpc-js";
-import { VerifyCodeRequest } from "./types";
 import { Prisma } from "../db";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
+import { VerifyCodeRequest } from "./types";
 
 function createVerifyCode(prisma: Prisma) {
   const isValidVerificationCode = createIsValidVerificationCode(prisma);

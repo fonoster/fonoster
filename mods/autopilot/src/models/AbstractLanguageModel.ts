@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,6 +18,8 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { AIMessage } from "@langchain/core/messages";
+import { ToolsCatalog } from "../tools";
+import { Voice } from "../voice";
 import { createChatHistory } from "./chatHistory";
 import { createChain } from "./createChain";
 import { createPromptTemplate } from "./createPromptTemplate";
@@ -28,8 +30,6 @@ import {
   LanguageModelParams,
   TelephonyContext
 } from "./types";
-import { ToolsCatalog } from "../tools";
-import { Voice } from "../voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -82,7 +82,7 @@ abstract class AbstractLanguageModel implements LanguageModel {
     logger.verbose("invoke", {
       text,
       response: response.content,
-      hasTools: response.tool_calls?.length! > 0,
+      hasTools: (response.tool_calls?.length ?? 0) > 0,
       tools: response.tool_calls?.map((tool) => tool.name)
     });
 

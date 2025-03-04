@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,12 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Here we update and get the default system user because we don't have
-// a way to get the user we just created unless we login which
-// is not possible in this test environment.
-//
-// Additionally, we are not testing the delete user method because
-// we don't want to delete the default system user.
 function createUsersTestCases(expect) {
   const idBase = "users";
 

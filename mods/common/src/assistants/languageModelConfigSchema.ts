@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { toolSchema } from "./tools";
-import { LanguageModelProvider } from "./LanguageModelProvider";
 import * as Messages from "../messages";
+import { LanguageModelProvider } from "./LanguageModelProvider";
+import { toolSchema } from "./tools";
 
 const NUMBER_BETWEEN_0_AND_2 = "Must be a number between 0 and 2";
 

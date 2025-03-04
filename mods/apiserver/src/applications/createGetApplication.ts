@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -19,10 +19,10 @@
 import { Validators as V } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Application, BaseApiObject } from "@fonoster/types";
-import { createGetFnUtil } from "./createGetFnUtil";
-import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../core/db";
 import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
+import { createGetFnUtil } from "./createGetFnUtil";
+import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,12 +18,12 @@
  */
 import { NumberPreconditionsCheck } from "@fonoster/common";
 import SDK from "@routr/sdk";
+import { ClientOptions } from "../types";
 import { createNumber } from "./createNumber";
 import { getNumber } from "./getNumber";
 import { listNumbers } from "./listNumbers";
 import { deleteNumber } from "./operations";
 import { updateNumber } from "./updateNumber";
-import { ClientOptions } from "../types";
 
 function buildService(
   clientOptions: ClientOptions,

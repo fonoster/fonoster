@@ -1,5 +1,4 @@
-/* eslint-disable import/no-unresolved */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
 import { CreateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import errorHandler from "../../errorHandler";
-import { WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS } from "@fonoster/common";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description =

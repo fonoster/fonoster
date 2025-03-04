@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,9 +18,9 @@
  */
 import { z } from "zod";
 import { conversationSettingsSchema } from "./conversationSettingsSchema";
+import { eventsHookSchema } from "./eventsHookSchema";
 import { languageModelConfigSchema } from "./languageModelConfigSchema";
 import { testCasesSchema } from "./testCasesSchema";
-import { eventsHookSchema } from "./eventsHookSchema";
 
 const assistantSchema = z.object({
   conversationSettings: conversationSettingsSchema,

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { jwtDecode } from "jwt-decode";
-import { TokenUseEnum, DecodedToken } from "./types";
+import { DecodedToken, TokenUseEnum } from "./types";
 
 function decodeToken<T extends TokenUseEnum>(token: string): DecodedToken<T> {
   return jwtDecode(token);

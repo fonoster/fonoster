@@ -38,7 +38,6 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^3",
     "@emotion/babel-plugin": "^11.13.5",
-    "@eslint/eslintrc": "^3",
     "@storybook/addon-designs": "^8.1.0",
     "@storybook/addon-docs": "^8.6.2",
     "@storybook/addon-essentials": "^8.6.2",
@@ -56,10 +55,6 @@
     "@types/node": "^22.13.1",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.1.6",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.3",
     "postcss": "^8",
     "prettier": "3.5.0",
     "storybook": "^8.6.2",

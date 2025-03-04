@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { Role } from "@fonoster/types";
-import { Access, RoleType } from "./types";
 import { roles } from "./roles";
+import { Access, RoleType } from "./types";
 
 // This function only checks if the role has access to the grpc method
 function hasAccess(

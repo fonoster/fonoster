@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceLanguage, findIntegrationsCredentials } from "@fonoster/common";
+import { findIntegrationsCredentials, VoiceLanguage } from "@fonoster/common";
 import { Application } from "@fonoster/types";
 import { IntegrationConfig } from "./types";
 
