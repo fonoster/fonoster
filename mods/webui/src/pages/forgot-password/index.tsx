@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InputContext } from '@/common/hooksForm/InputContext';
 import { z } from 'zod';
+import { LinkBackTo } from '@stories/linkbackto/LinkBackTo';
 import { Button } from '@stories/button/Button';
 import { useUser } from '@/common/sdk/hooks/useUser';
 import { useEffect, useState } from 'react';
@@ -72,10 +73,8 @@ export default function ForgotPassword() {
       <NotificationComponent />
       <PageContainer>
         <Card>
-          <Content title="Forgot Password?"
-            description="Enter the email associated with your account and we'll send you a link
-          to reset your password."
-          >
+          <Content title="Forgot Password?" description="Enter the email associated with your account and we'll send you a link
+              to reset your password.">
 
             <InputContext
               name="email"
@@ -85,7 +84,7 @@ export default function ForgotPassword() {
               helperText="Please enter your email address"
             />
 
-            <Box sx={{ textAlign: 'center', mt: 10 }}>
+            <Box style={{ textAlign: 'center', marginTop: '35px' }}>
               <Button
                 fullWidth
                 variant="contained"
@@ -98,7 +97,7 @@ export default function ForgotPassword() {
               </Button>
             </Box>
 
-            <Box sx={{ textAlign: 'center', mt: 3 }}>
+            <Box style={{ textAlign: 'center', marginTop: '10px' }}>
               <Link
                 href="/signin"
                 label="Back to sign in"
@@ -109,4 +108,4 @@ export default function ForgotPassword() {
       </PageContainer>
     </Layout>
   );
-}
+} 
