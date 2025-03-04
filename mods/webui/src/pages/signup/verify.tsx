@@ -14,7 +14,7 @@ import { ProgressIndicator } from '@stories/progessindicator/ProgressIndicator';
 import { useUser } from '@/common/sdk/hooks/useUser';
 import { useRouter } from 'next/router';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
-import { ContactType, CodeType } from '@fonoster/types';
+import { CodeType } from '@fonoster/types';
 
 const steps = [
   'Verify email address',
