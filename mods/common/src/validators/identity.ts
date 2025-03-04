@@ -69,7 +69,7 @@ const createUserRequestSchema = z.object({
   name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
   email: z.string().email({ message: EMAIL_MESSAGE }),
   password: z.string().min(8, { message: PASSWORD_MESSAGE }).max(100),
-  avatar: z.string().url().max(255, { message: "Invalid avatar URL" })
+  avatar: z.string().url().max(255, { message: "Invalid avatar URL" }).optional()
 });
 
 const createUserWithOauth2CodeRequestSchema = z.object({
