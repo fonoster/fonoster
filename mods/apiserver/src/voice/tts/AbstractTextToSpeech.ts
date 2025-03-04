@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -19,8 +19,8 @@
 import { Readable } from "stream";
 import { v4 as uuidv4 } from "uuid";
 import * as z from "zod";
-import { SynthOptions } from "./types";
 import { MethodNotImplementedError } from "../errors/MethodNotImplementedError";
+import { SynthOptions } from "./types";
 
 abstract class AbstractTextToSpeech<E, S extends SynthOptions = SynthOptions> {
   abstract readonly engineName: E;

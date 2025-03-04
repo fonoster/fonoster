@@ -13,6 +13,9 @@
     },
     {
       "path": "../sdk"
+    },
+    {
+      "path": "../autopilot"
     }
   ],
   "exclude": ["node_modules", "dist", "test"]

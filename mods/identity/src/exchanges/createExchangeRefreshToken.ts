@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,20 +17,20 @@
  * limitations under the License.
  */
 import {
-  GrpcErrorMessage,
   exchangeRefreshTokenRequestSchema,
+  GrpcErrorMessage,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import jwt from "jsonwebtoken";
+import { SIGN_ALGORITHM } from "../constants";
+import { Prisma } from "../db";
 import { exchangeTokens } from "./exchangeTokens";
 import {
   ExchangeRefreshTokenRequest,
   ExchangeResponse,
   IdentityConfig
 } from "./types";
-import { SIGN_ALGORITHM } from "../constants";
-import { Prisma } from "../db";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

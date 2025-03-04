@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -19,7 +19,6 @@
 import {
   DialRecordDirection,
   PlaybackControlAction,
-  StreamGatherPayload,
   StreamGatherSource,
   StreamPayload
 } from "@fonoster/common";

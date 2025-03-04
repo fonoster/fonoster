@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
+  getTokenFromCall,
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandlingAndValidation,
-  getAccessKeyIdFromCall,
-  getTokenFromCall
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
@@ -31,8 +31,6 @@ import {
 } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
-import { createIsAdminMember } from "./createIsAdminMember";
-import { createIsWorkspaceMember } from "./createIsWorkspaceMember";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites";
@@ -43,6 +41,8 @@ import {
 } from "../utils";
 import { createGenerateWorkspaceInviteToken } from "../utils/createGenerateWorkspaceInviteToken";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
+import { createIsAdminMember } from "./createIsAdminMember";
+import { createIsWorkspaceMember } from "./createIsWorkspaceMember";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -20,22 +20,22 @@ import { StreamContent as SC, STASIS_APP_NAME } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Channel, Client, Dial, StasisStart } from "ari-client";
 import { NatsConnection } from "nats";
+import { createHandleDialEventsWithNats } from "../utils";
 import {
   createAnswerHandler,
   createDialHandler,
   createGatherHandler,
   createHangupHandler,
   createMuteHandler,
+  createPlaybackControlHandler,
   createPlayDtmfHandler,
   createPlayHandler,
-  createPlaybackControlHandler,
   createSayHandler,
   createStreamGatherHandler,
-  createUnmuteHandler,
-  createStreamHandler
+  createStreamHandler,
+  createUnmuteHandler
 } from "./handlers";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "./types";
-import { createHandleDialEventsWithNats } from "../utils";
 import { createGetChannelVarWithoutThrow } from "./utils";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });

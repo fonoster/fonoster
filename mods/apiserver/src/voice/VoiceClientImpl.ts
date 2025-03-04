@@ -1,5 +1,4 @@
-/* eslint-disable new-cap */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,10 +17,11 @@
  * limitations under the License.
  */
 import { Stream } from "stream";
+import { AuthzClient } from "@fonoster/authz";
 import {
   GrpcError,
-  STASIS_APP_NAME,
   SayOptions,
+  STASIS_APP_NAME,
   StreamEvent,
   VoiceClientConfig,
   VoiceIn,
@@ -32,6 +32,11 @@ import { AudioSocket } from "@fonoster/streams";
 import * as grpc from "@grpc/grpc-js";
 import { Bridge, Client } from "ari-client";
 import { pickPort } from "pick-port";
+import {
+  AUTHZ_SERVICE_ENABLED,
+  AUTHZ_SERVICE_HOST,
+  AUTHZ_SERVICE_PORT
+} from "../envs";
 import { SpeechResult } from "./stt/types";
 import { transcribeOnConnection } from "./transcribeOnConnection";
 import {
@@ -43,12 +48,6 @@ import {
 } from "./types";
 import { createExternalMediaConfig } from "./utils/createExternalMediaConfig";
 import { VoiceServiceClientConstructor } from "./utils/VoiceServiceClientConstructor";
-import {
-  AUTHZ_SERVICE_ENABLED,
-  AUTHZ_SERVICE_HOST,
-  AUTHZ_SERVICE_PORT
-} from "../envs";
-import { AuthzClient } from "@fonoster/authz";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

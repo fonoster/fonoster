@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,8 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbstractClient } from "./AbstractClient";
-import { TokenRefresherWeb } from "./TokenRefresherWeb";
 import { AclsClient } from "../generated/web/AclsServiceClientPb";
 import { AgentsClient } from "../generated/web/AgentsServiceClientPb";
 import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
@@ -28,6 +26,8 @@ import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
 import { NumbersClient } from "../generated/web/NumbersServiceClientPb";
 import { SecretsClient } from "../generated/web/SecretsServiceClientPb";
 import { TrunksClient } from "../generated/web/TrunksServiceClientPb";
+import { AbstractClient } from "./AbstractClient";
+import { TokenRefresherWeb } from "./TokenRefresherWeb";
 
 const DEFAULT_URL = "https://api.fonoster.com";
 

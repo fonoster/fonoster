@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -25,10 +25,10 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { ApplicationType } from "@prisma/client";
+import { Prisma } from "../core/db";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./validation/validOrThrow";
-import { Prisma } from "../core/db";
-import { ApplicationType } from "@prisma/client";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

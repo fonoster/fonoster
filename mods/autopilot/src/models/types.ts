@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,9 +18,9 @@
  */
 import { CallDirection } from "@fonoster/types";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { Tool } from "../tools/type";
 import { ToolCall } from "@langchain/core/messages/tool";
 import { KnowledgeBase } from "../knowledge";
+import { Tool } from "../tools/types";
 
 type LanguageModel = {
   invoke: (text: string) => Promise<InvocationResult>;

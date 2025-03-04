@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,9 +18,9 @@
  */
 import * as grpc from "@grpc/grpc-js";
 import {
+  AddBillingMeterEventRequest,
   CheckMethodAuthorizedRequest,
-  VoiceRequest,
-  AddBillingMeterEventRequest
+  VoiceRequest
 } from "../types";
 
 /**
@@ -40,7 +40,7 @@ interface AuthzServiceClient extends grpc.Client {
 
   addBillingMeterEvent(
     request: AddBillingMeterEventRequest,
-    callback: grpc.requestCallback<{}>
+    callback: grpc.requestCallback<object>
   ): void;
 }
 

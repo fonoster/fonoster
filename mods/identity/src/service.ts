@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -36,16 +36,16 @@ import {
   createGetWorkspace,
   createInviteUserToWorkspace,
   createListApiKeys,
+  createListWorkspaceMembers,
   createListWorkspaces,
   createRegenerateApiKey,
   createRemoveUserFromWorkspace,
   createResendWorkspaceMembershipInvitation,
-  sendInvite,
+  createResetPassword,
+  createSendResetPasswordCode,
   createUpdateUser,
   createUpdateWorkspace,
-  createListWorkspaceMembers,
-  createSendResetPasswordCode,
-  createResetPassword
+  sendInvite
 } from ".";
 
 const serviceDefinitionParams = {

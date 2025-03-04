@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -23,8 +23,8 @@ import { VectorStore } from "@langchain/core/vectorstores";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { KnowledgeBase } from "./types";
 import { OPENAI_API_KEY } from "../envs";
+import { KnowledgeBase } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

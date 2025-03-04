@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientFunction } from "./common";
 import {
   CreateDomainRequest,
   CreateDomainResponse,
@@ -29,6 +28,7 @@ import {
   UpdateDomainRequest,
   UpdateDomainResponse
 } from "../../generated/web/domains_pb";
+import { ClientFunction } from "./common";
 
 type DomainsClient = {
   createDomain: ClientFunction<CreateDomainRequest, CreateDomainResponse>;

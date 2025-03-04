@@ -1,5 +1,4 @@
-/* eslint-disable import/no-unresolved */
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -18,9 +17,9 @@
  * limitations under the License.
  */
 import { Command } from "@oclif/core";
+import cliui from "cliui";
 import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
-import cliui from "cliui";
 
 export default class Active extends Command {
   static override description = "display the name of the active Workspace";

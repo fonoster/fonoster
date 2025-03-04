@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientFunction } from "./common";
 import {
   CreateNumberRequest,
   CreateNumberResponse,
@@ -29,6 +28,7 @@ import {
   UpdateNumberRequest,
   UpdateNumberResponse
 } from "../../generated/web/numbers_pb";
+import { ClientFunction } from "./common";
 
 type NumbersClient = {
   createNumber: ClientFunction<CreateNumberRequest, CreateNumberResponse>;

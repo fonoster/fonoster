@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { AllowedHttpMethod } from "../utils/sendHttpRequest";
 import * as Messages from "../messages";
 
 enum EventsHookAllowedEvents {

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -23,9 +23,15 @@ function findIntegrationsCredentials(
   }[],
   engine: string
 ) {
-  return integrations.find(
+  const integration = integrations.find(
     (i: { productRef: string }) => i.productRef === engine
   )?.credentials;
+
+  if (!integration) {
+    throw new Error(`Integration ${engine} not found`);
+  }
+
+  return integration;
 }
 
 export { findIntegrationsCredentials };
