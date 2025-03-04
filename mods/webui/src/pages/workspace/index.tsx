@@ -1,8 +1,9 @@
-import { Container, styled, Typography, Box } from '@mui/material';
+import { Container, styled, Box } from '@mui/material';
 import { WorkspaceCard } from '@stories/workspace/WorkspaceCard';
 import { useRouter } from 'next/router';
 import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
 import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
+import { Typography } from '@stories/typography/Typography';
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
@@ -51,10 +52,10 @@ const ListWorkspacePage = () => {
 
   return (
     <WorkspaceContainer>
-      <Typography variant="h4" component="h1" align="center">
-        Workspaces
+      <Typography variant="heading-large">
+        Hey [USER], welcome to Fonoster!
       </Typography>
-      <Typography
+      {/* <Typography
         variant="body1"
         color="text.secondary"
         align="center"
@@ -62,7 +63,7 @@ const ListWorkspacePage = () => {
         mb={2}
       >
         Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.
-      </Typography>
+      </Typography> */}
 
       <WorkspaceGrid>
         {isLoading ? (

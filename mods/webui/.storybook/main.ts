@@ -1,60 +1,38 @@
-import type { StorybookConfig } from '@storybook/nextjs'
-import path, { dirname, join } from 'path';
+import type { StorybookConfig } from "@storybook/react-vite";
 
-const config: StorybookConfig = {
-  stories: ['../stories/**/*.mdx', '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-  addons: [
-    getAbsolutePath("@storybook/addon-links"),
-    getAbsolutePath("@storybook/addon-essentials"),
-    getAbsolutePath("@storybook/addon-onboarding"),
-    getAbsolutePath("@storybook/addon-interactions"),
-    '@chromatic-com/storybook'
-  ],
-  framework: {
-    name: getAbsolutePath("@storybook/nextjs"),
-    options: {}
-  },
-  docs: {},
-  webpackFinal: async (config) => {
-    if (config.resolve) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@': path.resolve(__dirname, '../src'),
-        '@theme': path.resolve(__dirname, '../theme'),
-        '@stories': path.resolve(__dirname, '../stories'),
-        // Asegurarse de que Material UI pueda acceder al tema
-        '@mui/material/styles': path.resolve(__dirname, '../node_modules/@mui/material/styles'),
-        '@mui/material': path.resolve(__dirname, '../node_modules/@mui/material')
-      }
-    }
+import { join, dirname } from "path";
 
-    // Imprimir la configuración para depuración
-    console.log('Webpack aliases:', config.resolve?.alias);
-
-    return config
-  },
-  typescript: {
-    reactDocgen: 'react-docgen-typescript',
-    reactDocgenTypescriptOptions: {
-      compilerOptions: {
-        allowSyntheticDefaultImports: false,
-        esModuleInterop: false,
-      },
-      propFilter: { skipPropsWithoutDoc: true },
-    },
-  },
-  // Configuración adicional para asegurarse de que se carguen los módulos correctamente
-  core: {
-    builder: 'webpack5',
-  },
-  features: {
-    storyStoreV7: true,
-  },
-  staticDirs: ['../public'],
-}
-
-export default config
-
-function getAbsolutePath(value: string): any {
+/**
+ * This function is used to resolve the absolute path of a package.
+ * It is needed in projects that use Yarn PnP or are set up within a monorepo.
+ */
+function getAbsolutePath(value: string) {
   return dirname(require.resolve(join(value, "package.json")));
 }
+
+const staticDirs = [join(process.cwd(), ".storybook/public")];
+
+const config: StorybookConfig = {
+  staticDirs,
+  stories: [
+    "../src/**/*.mdx", 
+    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../stories/**/*.mdx",
+    "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)"
+  ],
+  addons: [
+    getAbsolutePath("@storybook/addon-onboarding"),
+    getAbsolutePath("@storybook/addon-essentials"),
+    getAbsolutePath("@storybook/addon-interactions"),
+    getAbsolutePath("@storybook/addon-themes"),
+    getAbsolutePath("@storybook/addon-designs")
+  ],
+  framework: {
+    name: getAbsolutePath("@storybook/react-vite"),
+    options: {}
+  },
+  core: {
+    disableTelemetry: true
+  }
+};
+export default config;

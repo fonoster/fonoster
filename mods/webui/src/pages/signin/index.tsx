@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
   Box,
+  Divider,
   Link,
-  Typography,
+  Stack,
   useTheme,
 
 } from '@mui/material';
@@ -18,6 +19,7 @@ import { z } from 'zod';
 import { InputContext } from '@/common/hooksForm/InputContext';
 import { AuthProvider } from '@/common/sdk/auth/AuthClient';
 import { OAUTH_CONFIG } from '@/config/oauth';
+import { Typography } from '@stories/typography/Typography';
 
 interface LoginForm {
   email: string;
@@ -48,7 +50,7 @@ const LoginPage = () => {
   const {
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = methods;
 
   const handleGitHubSignIn = () => {
@@ -95,6 +97,7 @@ const LoginPage = () => {
               name="email"
               label="Email Address"
               type="email"
+              shrink
               id="email"
               helperText="Please enter your email address"
             />
@@ -103,29 +106,24 @@ const LoginPage = () => {
               name="password"
               label="Password"
               type="password"
+              shrink
               id="password"
               helperText="Please enter your password"
             />
             <Box sx={{ textAlign: 'right', mb: 2 }}>
-              <Link href="/forgot-password" style={{ textDecoration: 'none' }}>
+              <Link href="/forgot-password" color="inherit" style={{ textDecoration: 'none' }}>
                 <Typography
-                  variant="body2"
-                  color="secondary.700"
-                  sx={{
-                    cursor: 'pointer',
-                    textDecoration: 'none',
-                    '&:hover': {
-                      textDecoration: 'underline',
-                      color: 'primary.main'
-                    }
-                  }}
+                  variant="body-small-underline"
                 >
                   Forgot password?
                 </Typography>
               </Link>
             </Box>
-            {errors.root && (
-              <Typography color="error" variant="body2" align="center">
+            {errors.root && errors.root.message && (
+              <Typography
+                variant="body-small"
+                color="error"
+              >
                 {errors.root.message}
               </Typography>
             )}
@@ -134,39 +132,18 @@ const LoginPage = () => {
               fullWidth
               variant="contained"
               size="large"
-              disabled={isSubmitting || isRedirecting}
+              disabled={isSubmitting || isRedirecting || !isValid}
             >
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
-            <Box sx={{
-              position: 'relative',
-              textAlign: 'center',
-              my: 2,
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: '50%',
-                left: 0,
-                right: 0,
-                height: '1px',
-                backgroundColor: theme.palette.mode === 'light'
-                  ? 'rgba(0, 0, 0, 0.12)'
-                  : 'rgba(255, 255, 255, 0.12)',
-              }
-            }}>
+            <Divider>
               <Typography
-                variant="body2"
+                variant="body-small"
                 color="text.secondary"
-                sx={{
-                  position: 'relative',
-                  display: 'inline-block',
-                  px: 2,
-                  backgroundColor: theme.palette.background.paper,
-                }}
               >
                 Or
               </Typography>
-            </Box>
+            </Divider>
             <Button
               fullWidth
               variant="outlined"
@@ -178,27 +155,23 @@ const LoginPage = () => {
               Sign in with GitHub
             </Button>
             <Box sx={{ textAlign: 'center' }}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                display="inline"
-              >
-                Don't have an account?{' '}
-              </Typography>
-              <Typography
-                variant="body2"
-                component="span"
-                color="primary"
-                onClick={handleSignUpClick}
-                sx={{
-                  cursor: 'pointer',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  }
-                }}
-              >
-                Sign up here
-              </Typography>
+
+              <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.3}>
+                <Typography
+                  variant="body-small"
+                  color="text.secondary"
+                >
+                  Don't have an account?
+                </Typography>
+                <Typography
+                  variant="body-small"
+                  onClick={handleSignUpClick}
+                >
+                  Sign up
+                </Typography>
+                <Link href="/signup" color="inherit" style={{ textDecoration: 'none' }}><Typography variant="body-small-underline" color="primary">here</Typography></Link>
+              </Stack>
+
             </Box>
           </Content>
         </Card>

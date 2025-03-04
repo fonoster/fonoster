@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import { GenericToggle } from "./GenericToggle";
+import React from "react";
 
 /**
  * This story is for the Generic Toggle component based on MUI switch component

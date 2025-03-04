@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { WorkspaceCard } from "./WorkspaceCard";
 import { fn } from "@storybook/test";
+import React from "react";
 
 /**
  * This story is for the WorkspaceCard component based on Material UI.

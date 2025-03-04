@@ -35,6 +35,7 @@ export const InputText: React.FC<InputTextProps> = ({
   type,
   inputRef,
   name,
+  shrink,
   ...rest
 }) => {
   return (
@@ -60,6 +61,11 @@ export const InputText: React.FC<InputTextProps> = ({
         endAdornment: trailingIcon && (
           <InputAdornment position="end">{trailingIcon}</InputAdornment>
         )
+      }}
+      slotProps={{
+        inputLabel: {
+          shrink: shrink,
+        },
       }}
     />
   );

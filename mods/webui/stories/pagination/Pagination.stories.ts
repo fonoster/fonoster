@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Pagination } from "./Pagination";
 import { fn } from "@storybook/test";
+import React from "react";
 
 /**
  *  Story of the Pagination component.

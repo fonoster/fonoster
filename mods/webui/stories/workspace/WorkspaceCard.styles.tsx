@@ -23,29 +23,16 @@ import Typography from "@mui/material/Typography";
 export const StyledCard = styled(Card)<{
   disabled: boolean;
   workspaceVariant?: string;
-}>(({ theme, disabled, workspaceVariant }) => ({
+}>(({ disabled, workspaceVariant }) => ({
   height: "325px",
-  backgroundColor: workspaceVariant === "regular" 
-    ? theme.palette.background.default
-    : theme.palette.background.paper,
+  backgroundColor:
+    workspaceVariant === "regular" ? "rgba(244, 244, 244, 1)" : "#ffffff",
   cursor: disabled ? "not-allowed" : "pointer",
   borderRadius: "10px",
-  border: `1px solid ${theme.palette.divider}`,
-  padding: theme.spacing(3.75, 3.75, 2, 3.75),
-  boxShadow: 'none',
-  transition: theme.transitions.create(['border-color', 'transform', 'box-shadow'], {
-    duration: theme.transitions.duration.shorter
-  }),
-  
-  ...(!disabled && {
-    '&:hover': {
-      border: `1px solid ${theme.palette.primary.main}`,
-      transform: 'translateY(-2px)',
-      boxShadow: theme.palette.mode === 'light'
-        ? '0px 4px 20px rgba(0, 0, 0, 0.1)'
-        : '0px 4px 20px rgba(0, 0, 0, 0.3)',
-    }
-  })
+  border: disabled
+    ? "1px solid rgba(232, 232, 232, 1)"
+    : "1px solid rgba(57, 225, 158, 1)",
+  padding: "30px 30px 16px 30px"
 }));
 
 export const StyledCardContentContainer = styled("div")(() => ({
@@ -56,85 +43,71 @@ export const StyledCardContentContainer = styled("div")(() => ({
 
 export const StyledNewWorkSpaceDescription = styled(Typography)<{
   disabled: boolean;
-}>(({ theme, disabled }) => ({
-  fontFamily: theme.typography.fontFamily,
-  fontSize: theme.typography.h6.fontSize,
-  fontWeight: theme.typography.fontWeightBold,
-  lineHeight: 1.5,
+}>(({ disabled }) => ({
+  fontFamily: "Poppins",
+  fontSize: "21px",
+  fontWeight: 600,
+  lineHeight: "31.5px",
   letterSpacing: "0.5px",
   textAlign: "center",
-  color: disabled 
-    ? theme.palette.text.disabled 
-    : theme.palette.text.secondary,
-  transition: theme.transitions.create('color', {
-    duration: theme.transitions.duration.shorter
-  }),
-  '.MuiCard-root:hover &': {
-    color: disabled 
-      ? theme.palette.text.disabled 
-      : theme.palette.primary.main,
-  }
+  textUnderlinePosition: "from-font",
+  textDecorationSkipInk: "none",
+  color: disabled ? "rgba(194, 194, 194, 1)" : "rgba(0, 135, 81, 1)"
 }));
 
 export const StyledAddIconContainer = styled("div")<{
   disabled: boolean;
-}>(({ theme, disabled }) => ({
-  color: disabled 
-    ? theme.palette.text.disabled 
-    : theme.palette.text.secondary,
-  transition: theme.transitions.create('color', {
-    duration: theme.transitions.duration.shorter
-  }),
-  '.MuiCard-root:hover &': {
-    color: disabled 
-      ? theme.palette.text.disabled 
-      : theme.palette.primary.main,
-  },
+}>(({ disabled }) => ({
+  color: disabled ? "rgba(194, 194, 194, 1)" : "rgba(0, 135, 81, 1)",
   "& svg": {
-    width: 40,
-    height: 40
+    width: "40px",
+    height: "40px"
   }
 }));
 
-export const StyledDescription = styled(Typography)(({ theme }) => ({
-  fontFamily: theme.typography.fontFamily,
-  fontSize: theme.typography.h6.fontSize,
-  fontWeight: theme.typography.fontWeightBold,
-  lineHeight: 1.5,
+export const StyledDescription = styled(Typography)(() => ({
+  fontFamily: "Poppins",
+  fontSize: "21px",
+  fontWeight: 600,
+  lineHeight: "31.5px",
   letterSpacing: "0.5px",
   textAlign: "left",
-  color: theme.palette.text.primary
+  textUnderlinePosition: "from-font",
+  textDecorationSkipInk: "none",
+  color: "#333333"
 }));
 
-export const StyledBottomContainer = styled("div")(({ theme }) => ({
+export const StyledBottomContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  marginTop: theme.spacing(3)
+  marginTop: "24px"
 }));
 
-export const StyledDateContainer = styled("div")(({ theme }) => ({
+export const StyledDateContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
-  gap: theme.spacing(1)
+  gap: "7.5px"
 }));
 
-export const StyledDate = styled(Typography)(({ theme }) => ({
+export const StyledDate = styled(Typography)(() => ({
   fontFamily: "Roboto Mono",
-  color: theme.palette.text.secondary,
-  fontSize: theme.typography.caption.fontSize,
-  fontWeight: theme.typography.fontWeightBold,
-  lineHeight: 1.5,
+  color: "rgba(85, 85, 85, 1)",
+  fontSize: "10px",
+  fontWeight: 700,
+  lineHeight: "21px",
   letterSpacing: "0.5px",
-  textAlign: "left"
+  textAlign: "left",
+  textUnderlinePosition: "from-font",
+  textDecorationSkipInk: "none"
 }));
 
-export const StyledIcon = styled("div")(({ theme }) => ({
-  color: theme.palette.text.primary,
+export const StyledIcon = styled("div")(() => ({
+  color: "rgba(51, 51, 51, 1)",
   display: "flex",
   alignItems: "center",
   "& svg": {
-    width: 16,
-    height: 16
+    width: "16px",
+    height: "16px"
   }
 }));

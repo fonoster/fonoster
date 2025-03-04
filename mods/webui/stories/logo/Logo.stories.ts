@@ -18,6 +18,7 @@
  */
 import type { Meta, StoryObj } from "@storybook/react";
 import { Logo } from "./Logo";
+import React from "react";
 
 /**
  * This story is for the Logo component which is used for branding in the app.
