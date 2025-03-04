@@ -67,7 +67,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           exclude_types: other,doc,chore
-          config_file: ./.scripts/tag-changelog-config.js
+          config_file: ./.scripts/tag-changelog-config.cjs
 
       - name: Create draft release
         if: env.RELEASE != 'none'

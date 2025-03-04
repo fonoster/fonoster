@@ -348,7 +348,7 @@ Starts a server-side stream gather operation which sends transcription data to t
 ```js
 async function handler (request, response) {
  await response.answer();
- const sGather = await response.streamGather({ source: StreamGatherSource.SPEECH });
+ const sGather = await response.sgather({ source: StreamGatherSource.SPEECH });
  sGather.onPayload((payload) => {
    console.log("Payload: %s", payload);
  });

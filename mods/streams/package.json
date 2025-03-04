@@ -15,7 +15,7 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:readme": "node ../../.scripts/gen-readme.js"
+    "generate:readme": "node ../../.scripts/gen-readme.cjs"
   },
   "dependencies": {
     "@fonoster/logger": "^0.9.12",
