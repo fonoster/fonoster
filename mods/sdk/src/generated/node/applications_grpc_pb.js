@@ -198,4 +198,4 @@ deleteApplication: {
   },
 };
 
-exports.ApplicationsClient = grpc.makeGenericClientConstructor(ApplicationsService);
+exports.ApplicationsClient = grpc.makeGenericClientConstructor(ApplicationsService, 'Applications');

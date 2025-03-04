@@ -57,7 +57,7 @@ function createExchangeCredentials(
     callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { request } = call;
-    const { username: email, password, verificationCode } = request;
+    const { username: email, password, twoFactorCode } = request;
 
     logger.verbose("call to exchangeCredentials", { username: email });
 
@@ -83,7 +83,7 @@ function createExchangeCredentials(
       const isValid = await isValidVerificationCode({
         type: ContactType.EMAIL,
         value: email,
-        code: verificationCode
+        code: twoFactorCode
       });
 
       if (!isValid) {

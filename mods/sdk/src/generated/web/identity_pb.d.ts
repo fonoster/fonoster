@@ -946,8 +946,8 @@ export class ExchangeCredentialsRequest extends jspb.Message {
   getPassword(): string;
   setPassword(value: string): ExchangeCredentialsRequest;
 
-  getVerificationCode(): string;
-  setVerificationCode(value: string): ExchangeCredentialsRequest;
+  getTwoFactorCode(): string;
+  setTwoFactorCode(value: string): ExchangeCredentialsRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ExchangeCredentialsRequest.AsObject;
@@ -961,7 +961,7 @@ export namespace ExchangeCredentialsRequest {
   export type AsObject = {
     username: string,
     password: string,
-    verificationCode: string,
+    twoFactorCode: string,
   }
 }
 

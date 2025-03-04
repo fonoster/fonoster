@@ -197,4 +197,4 @@ listSecrets: {
   },
 };
 
-exports.SecretsClient = grpc.makeGenericClientConstructor(SecretsService);
+exports.SecretsClient = grpc.makeGenericClientConstructor(SecretsService, 'Secrets');

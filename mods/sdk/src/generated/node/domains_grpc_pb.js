@@ -197,4 +197,4 @@ deleteDomain: {
   },
 };
 
-exports.DomainsClient = grpc.makeGenericClientConstructor(DomainsService);
+exports.DomainsClient = grpc.makeGenericClientConstructor(DomainsService, 'Domains');
