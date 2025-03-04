@@ -26,12 +26,13 @@ import { TypographyProps } from "./types";
 import { variantMapping } from "./variantMapping";
 
 function Typography(props: TypographyProps) {
-  const { variant = "body-medium", children } = props;
+  const { variant = "body-medium", children, ...rest } = props;
 
   const { muiVariant, style } = variantMapping[variant];
 
   return (
     <MuiTypography
+      {...rest}
       variant={
         muiVariant as OverridableStringUnion<
           Variant | "inherit",

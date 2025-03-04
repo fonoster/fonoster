@@ -1,6 +1,7 @@
-import { AppBar, Box, Container, Stack, Typography, styled } from '@mui/material';
+import { AppBar, Box, Container, Stack, styled } from '@mui/material';
 import { Logo } from '@/common/components/logo/Logo';
 import { FormProvider, UseFormReturn } from 'react-hook-form';
+import { Typography } from '@stories/typography/Typography';
 
 const HEADER_HEIGHT = 80;
 const HEADER_TO_CONTENT_SPACING = 44;
@@ -68,7 +69,7 @@ export const Content = ({ title, description, children }: AuthContentProps) => {
   return (
     <>
       <Typography
-        variant="h5"
+        variant="heading-medium"
         sx={{
           marginBottom: 3,
           fontWeight: 500,
@@ -79,7 +80,7 @@ export const Content = ({ title, description, children }: AuthContentProps) => {
       </Typography>
       {description && (
         <Typography
-          variant="body1"
+          variant="body-medium"
           sx={{ marginBottom: 4, color: 'text.secondary' }}
         >
           {description}
