@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
-import { Box, Divider, Link, Stack, useTheme } from "@mui/material";
+import { Box, Divider, Stack, useTheme } from "@mui/material";
 import { GitHub as GitHubIcon } from "@mui/icons-material";
-import {
-  Box,
-  Divider,
-  Stack,
-  useTheme,
-
-} from '@mui/material';
-import { GitHub as GitHubIcon } from '@mui/icons-material';
 import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';

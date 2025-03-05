@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Typography, useTheme, Box } from "@mui/material";
+import { useTheme, Box, Stack } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { InputContext } from "@/common/hooksForm/InputContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,8 @@ import { useUser } from "@/common/sdk/hooks/useUser";
 import { useRouter } from "next/router";
 import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
 import { CodeType } from "@fonoster/types";
+import { Typography } from "@stories/typography/Typography";
+import { Button } from '@stories/button/Button';
 
 const steps = [
   "Verify email address",
@@ -64,7 +66,7 @@ const VerifyPage = () => {
             }
           }
         }
-      } catch (error) {}
+      } catch (error) { }
     };
     if (isReady) {
       initVerificationFlow();
@@ -119,7 +121,7 @@ const VerifyPage = () => {
         setActiveStep(2);
         setCurrentProgress(2);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handlePhoneSubmit = async (phoneNumber: string) => {
@@ -130,7 +132,7 @@ const VerifyPage = () => {
       });
       setActiveStep(3);
       setCurrentProgress(3);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleVerifyPhone = async (code: string) => {
@@ -152,9 +154,9 @@ const VerifyPage = () => {
       if (result) {
         setIsVerificationComplete(true);
         setCurrentProgress(3);
-        await router.push("/workspace").catch((error) => {});
+        await router.push("/workspace").catch((error) => { });
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const getStepContent = (step: number) => {
@@ -163,7 +165,14 @@ const VerifyPage = () => {
         return (
           <Content
             title="Verify your email"
-            description="Please enter the verification code we've sent to your email address."
+            description={
+              <Typography
+                variant="body-medium"
+                sx={{ marginBottom: 30, color: 'text.secondary', textAlign: 'center' }}
+              >
+                Please enter the verification code we've sent to your email address.
+              </Typography>
+            }
           >
             <Box>
               <InputContext
@@ -174,52 +183,68 @@ const VerifyPage = () => {
                 helperText="Please enter your verification code"
               />
 
-              <Button
-                fullWidth
-                variant="contained"
-                size="large"
-                onClick={() => {
-                  const code = emailMethods.getValues("code");
-                  if (code) handleVerifyEmail(code);
-                }}
-              >
-                Verify email address
-              </Button>
-
-              <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Box style={{ textAlign: 'center', marginTop: '35px' }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  onClick={() => {
+                    const code = emailMethods.getValues("code");
+                    if (code) handleVerifyEmail(code);
+                  }}
+                >
+                  Verify email address
+                </Button>
+              </Box>
+              <Stack direction="row" spacing={1} sx={{ mt: 2, justifyContent: "center" }}>
                 <Typography
-                  variant="body2"
+                  variant="body-small"
                   color="text.secondary"
                   display="inline"
                 >
                   Didn't receive the code?{" "}
                 </Typography>
                 {emailResendTimer > 0 ? (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    display="inline"
-                  >
-                    Send again in {emailResendTimer} seconds
-                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    <Typography
+                      variant="body-small-underline"
+                      onClick={() => {
+                        startResendTimer(setEmailResendTimer);
+                        handleVerifyEmail(emailMethods.getValues("code"));
+                      }}
+                      sx={{
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" }
+                      }}
+                    >
+                      Send again
+                    </Typography>
+                    <Typography
+                      variant="body-small"
+                      color="text.secondary"
+                      display="inline"
+                    >
+                      in {emailResendTimer} seconds
+                    </Typography>
+                  </Stack>
                 ) : (
-                  <Typography
-                    variant="body2"
-                    component="span"
-                    color="primary"
-                    onClick={() => {
-                      startResendTimer(setEmailResendTimer);
-                      handleVerifyEmail(emailMethods.getValues("code"));
-                    }}
-                    sx={{
-                      cursor: "pointer",
-                      "&:hover": { textDecoration: "underline" }
-                    }}
-                  >
-                    Send again
-                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    <Typography
+                      variant="body-small-underline"
+                      onClick={() => {
+                        startResendTimer(setEmailResendTimer);
+                        handleVerifyEmail(emailMethods.getValues("code"));
+                      }}
+                      sx={{
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" }
+                      }}
+                    >
+                      Send again
+                    </Typography>
+                  </Stack>
                 )}
-              </Box>
+              </Stack>
             </Box>
           </Content>
         );
@@ -255,10 +280,10 @@ const VerifyPage = () => {
         return isVerificationComplete ? (
           <Content title="Verification Complete">
             <Box sx={{ textAlign: "center" }}>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body-small" color="text.secondary">
                 Your account has been successfully verified.
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography variant="body-small" color="text.secondary" sx={{ mt: 1 }}>
                 Redirecting to workspace...
               </Typography>
             </Box>
@@ -274,52 +299,71 @@ const VerifyPage = () => {
                 helperText="Enter the code sent to your phone"
               />
 
-              <Button
-                fullWidth
-                variant="contained"
-                size="large"
-                onClick={async () => {
-                  const code = phoneMethods.getValues("code");
-                  if (code) {
-                    await handleVerifyPhone(code);
-                  }
-                }}
-              >
-                Verify Code
-              </Button>
+              <Box style={{ textAlign: 'center', marginTop: '35px' }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  onClick={async () => {
+                    const code = phoneMethods.getValues("code");
+                    if (code) {
+                      await handleVerifyPhone(code);
+                    }
+                  }}
+                >
+                  Verify Code
+                </Button>
+              </Box>
 
               <Box sx={{ textAlign: "center", mt: 2 }}>
                 <Typography
-                  variant="body2"
+                  variant="body-small"
                   color="text.secondary"
                   display="inline"
                 >
                   Didn't receive the code?{" "}
                 </Typography>
                 {phoneResendTimer > 0 ? (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    display="inline"
-                  >
-                    Send again in {phoneResendTimer} seconds
-                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    <Typography
+                      variant="body-small-underline"
+                      onClick={() => {
+                        startResendTimer(setPhoneResendTimer);
+                        handlePhoneSubmit(phoneMethods.getValues("phoneNumber"));
+                      }}
+                      sx={{
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" }
+                      }}
+                    >
+                      Send again
+                    </Typography>
+                    <Typography
+                      variant="body-small"
+                      color="text.secondary"
+                      display="inline"
+                    >
+                      in {phoneResendTimer} seconds
+                    </Typography>
+                  </Stack>
                 ) : (
-                  <Typography
-                    variant="body2"
-                    component="span"
-                    color="primary"
-                    onClick={() => {
-                      startResendTimer(setPhoneResendTimer);
-                      handlePhoneSubmit(phoneMethods.getValues("phoneNumber"));
-                    }}
-                    sx={{
-                      cursor: "pointer",
-                      "&:hover": { textDecoration: "underline" }
-                    }}
-                  >
-                    Send again
-                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    <Typography
+                      variant="body-small-underline"
+                      component="span"
+                      color="primary"
+                      onClick={() => {
+                        startResendTimer(setPhoneResendTimer);
+                        handlePhoneSubmit(phoneMethods.getValues("phoneNumber"));
+                      }}
+                      sx={{
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" }
+                      }}
+                    >
+                      Send again
+                    </Typography>
+                  </Stack>
                 )}
               </Box>
             </Box>

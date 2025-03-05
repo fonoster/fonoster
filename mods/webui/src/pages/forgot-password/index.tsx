@@ -1,21 +1,14 @@
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
-import {
-  Box,
-  CircularProgress
-} from '@mui/material';
-import { useRouter } from 'next/router';
 import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InputContext } from '@/common/hooksForm/InputContext';
 import { z } from 'zod';
-import { LinkBackTo } from '@stories/linkbackto/LinkBackTo';
 import { Button } from '@stories/button/Button';
 import { useUser } from '@/common/sdk/hooks/useUser';
 import { useEffect, useState } from 'react';
 import { useNotification } from '@/common/hooks/useNotification';
-import { Typography } from '@stories/typography/Typography';
 import { Link } from '@/common/components';
 
 export const forgotPasswordSchema = z.object({
