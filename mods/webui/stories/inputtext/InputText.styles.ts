@@ -38,7 +38,7 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
     fontFamily: theme.typography.fontFamily,
-    fontWeight: 500,
+    fontWeight: 600,
     lineHeight: "normal",
     transform: "translate(16px, -11px) scale(0.66)",
     color: theme.palette.text.primary
