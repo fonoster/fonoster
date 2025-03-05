@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   ColumnDef,
   getSortedRowModel,
-  SortingState,
-} from '@tanstack/react-table';
+  SortingState
+} from "@tanstack/react-table";
 import {
   Table as MUITable,
   TableBody,
@@ -19,67 +19,67 @@ import {
   Checkbox,
   styled,
   tableCellClasses,
-  Box,
-} from '@mui/material';
-import classNames from 'classnames';
-import { useTableContext } from './useTableContext';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+  Box
+} from "@mui/material";
+import classNames from "classnames";
+import { useTableContext } from "./useTableContext";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.grey[200],
     color: theme.palette.text.primary,
     // fontWeight: 600,
-    fontSize: '0.800rem',
-    borderBottom: '1px solid #E9ECEF',
+    fontSize: "0.800rem",
+    borderBottom: "1px solid #E9ECEF"
   },
   [`&.${tableCellClasses.body}`]: {
-    fontSize: '0.875rem',
+    fontSize: "0.875rem",
     color: theme.palette.text.secondary,
-    borderBottom: '1px solid rgba(233, 236, 239, 0.5)',
-  },
+    borderBottom: "1px solid rgba(233, 236, 239, 0.5)"
+  }
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(odd)': {
-    backgroundColor: theme.palette.background.default,
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.background.default
   },
-  '&:hover': {
-    backgroundColor: '#F8F9FA',
+  "&:hover": {
+    backgroundColor: "#F8F9FA"
   },
-  '&:last-child td, &:last-child th': {
-    borderBottom: 0,
-  },
+  "&:last-child td, &:last-child th": {
+    borderBottom: 0
+  }
 }));
 
 const StyledTableSortLabel = styled(TableSortLabel)(({ theme }) => ({
-  '& .MuiTableSortLabel-icon': {
+  "& .MuiTableSortLabel-icon": {
     opacity: 1,
     color: theme.palette.text.secondary,
     // width: '12px',
     // height: '12px',
-    marginLeft: '4px'
+    marginLeft: "4px"
   },
-  '&.Mui-active': {
+  "&.Mui-active": {
     color: theme.palette.text.primary,
-    '& .MuiTableSortLabel-icon': {
+    "& .MuiTableSortLabel-icon": {
       color: theme.palette.text.primary,
-      opacity: 1,
+      opacity: 1
       // width: '12px',
       // height: '12px'
-    },
-  },
+    }
+  }
 }));
 
 const StyledTableContainer = styled(TableContainer)({
-  boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.12)',
-  borderRadius: '8px',
-  border: '1px solid #E9ECEF',
-  '& .MuiTable-root': {
-    borderCollapse: 'separate',
-    borderSpacing: '0',
-  },
+  boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.12)",
+  borderRadius: "8px",
+  border: "1px solid #E9ECEF",
+  "& .MuiTable-root": {
+    borderCollapse: "separate",
+    borderSpacing: "0"
+  }
 });
 
 interface MyDataType {
@@ -101,7 +101,7 @@ interface MyTableProps {
 }
 
 interface TableOptions {
-  filtersDirection: 'up' | 'down' | undefined;
+  filtersDirection: "up" | "down" | undefined;
 }
 
 interface TableComponentProps<TData extends Object> {
@@ -115,7 +115,14 @@ interface TableComponentProps<TData extends Object> {
 
 const SortIcon = () => {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: '4px' }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        marginLeft: "4px"
+      }}
+    >
       <KeyboardArrowUpIcon sx={{ fontSize: 15, marginBottom: -0.5 }} />
       <KeyboardArrowDownIcon sx={{ fontSize: 15, marginTop: -0.5 }} />
     </Box>
@@ -128,7 +135,7 @@ const TableComponent = <TData extends Object>({
   headerClassName,
   bodyClassName,
   rowClassName,
-  options,
+  options
 }: TableComponentProps<TData>) => {
   const { table, loadingData } = useTableContext<TData>();
 
@@ -137,29 +144,35 @@ const TableComponent = <TData extends Object>({
       <Paper elevation={0}>
         <MUITable
           id={`table-${id}`}
-          className={classNames(tableClassName, loadingData ? 'loading' : '')}
-          sx={{ borderRadius: '8px' }}
+          className={classNames(tableClassName, loadingData ? "loading" : "")}
+          sx={{ borderRadius: "8px" }}
           size="small"
-
         >
           <TableHead className={headerClassName}>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <StyledTableCell
-                    key={header.id}
-                    align="left"
-                  >
+                  <StyledTableCell key={header.id} align="left">
                     <StyledTableSortLabel
                       active={header.column.getIsSorted() !== false}
-                      direction={header.column.getIsSorted() === 'desc' ? 'desc' : 'asc'}
+                      direction={
+                        header.column.getIsSorted() === "desc" ? "desc" : "asc"
+                      }
                       onClick={header.column.getToggleSortingHandler()}
-                      IconComponent={header.column.getIsSorted() === false ?
-                        () => <SortIcon /> :
-                        header.column.getIsSorted() === 'desc' ? KeyboardArrowDownIcon : KeyboardArrowUpIcon}
+                      IconComponent={
+                        header.column.getIsSorted() === false
+                          ? () => <SortIcon />
+                          : header.column.getIsSorted() === "desc"
+                            ? KeyboardArrowDownIcon
+                            : KeyboardArrowUpIcon
+                      }
                     >
                       {header.column.columnDef.header ? (
-                        flexRender(header.column.columnDef.header, { column: header.column, table, header })
+                        flexRender(header.column.columnDef.header, {
+                          column: header.column,
+                          table,
+                          header
+                        })
                       ) : (
                         <span>{header.id}</span>
                       )}
@@ -171,10 +184,7 @@ const TableComponent = <TData extends Object>({
           </TableHead>
           <TableBody className={classNames(bodyClassName)}>
             {table.getRowModel().rows.map((row, i) => (
-              <StyledTableRow
-                key={row.id}
-                className={classNames(rowClassName)}
-              >
+              <StyledTableRow key={row.id} className={classNames(rowClassName)}>
                 {row.getVisibleCells().map((cell) => (
                   <StyledTableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

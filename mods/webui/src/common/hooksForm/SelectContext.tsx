@@ -2,13 +2,10 @@ import { useFormContext } from "react-hook-form";
 import { Select } from "@stories/select/Select";
 import { ReactNode } from "react";
 
-
-
 interface option {
   value: string | number;
   label: string;
 }
-
 
 interface SelectContextProps {
   name: string;
@@ -28,11 +25,11 @@ const SelectContext = ({
   leadingIcon,
   trailingIcon,
   disabled = false,
-  defaultValue = { value: '', label: '' }
+  defaultValue = { value: "", label: "" }
 }: SelectContextProps) => {
   const {
     register,
-    formState: { errors },
+    formState: { errors }
   } = useFormContext();
 
   return (

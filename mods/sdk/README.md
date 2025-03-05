@@ -2141,8 +2141,11 @@ Note that an active Fonoster deployment is required.
 * [Users](#Users)
     * [new Users(client)](#new_Users_new)
     * [.createUser(request)](#Users+createUser) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.createUserWithOauth2Code(request)](#Users+createUserWithOauth2Code) ⇒ <code>Promise.&lt;ExchangeCredentialsResponse&gt;</code>
     * [.getUser(ref)](#Users+getUser) ⇒ <code>Promise.&lt;Acl&gt;</code>
     * [.updateUser(request)](#Users+updateUser) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.sendResetPasswordCode(username)](#Users+sendResetPasswordCode) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.resetPassword(request)](#Users+resetPassword) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.deleteUser(ref)](#Users+deleteUser) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
 
 <a name="new_Users_new"></a>
@@ -2205,6 +2208,31 @@ users
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```
+<a name="Users+createUserWithOauth2Code"></a>
+
+### users.createUserWithOauth2Code(request) ⇒ <code>Promise.&lt;ExchangeCredentialsResponse&gt;</code>
+Create a new User using an OAuth2 code and return the id, access, and refresh tokens for the User.
+
+**Kind**: instance method of [<code>Users</code>](#Users)  
+**Returns**: <code>Promise.&lt;ExchangeCredentialsResponse&gt;</code> - - The response object that contains the id, access, and refresh tokens  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>CreateUserWithOauth2CodeRequest</code> | The request object with the OAuth2 code |
+| request.code | <code>string</code> | The OAuth2 code of the User |
+
+**Example**  
+```js
+const users = new SDK.Users(client); // Existing client object
+
+const request = {
+  code: "fd4d78beb31aa25b93de"
+};
+
+users.createUserWithOauth2Code(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
 <a name="Users+getUser"></a>
 
 ### users.getUser(ref) ⇒ <code>Promise.&lt;Acl&gt;</code>
@@ -2260,6 +2288,59 @@ users
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```
+<a name="Users+sendResetPasswordCode"></a>
+
+### users.sendResetPasswordCode(username) ⇒ <code>Promise.&lt;void&gt;</code>
+Sends a reset password code to the User.
+
+**Kind**: instance method of [<code>Users</code>](#Users)  
+**Returns**: <code>Promise.&lt;void&gt;</code> - - The response object that contains the reference to the User  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| username | <code>string</code> | The username of the User |
+
+**Example**  
+```js
+const users = new SDK.Users(client); // Existing client object
+
+const username = "john.doe@example.com";
+
+users
+  .sendResetPasswordCode(username)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Users+resetPassword"></a>
+
+### users.resetPassword(request) ⇒ <code>Promise.&lt;void&gt;</code>
+Resets the password of the User.
+
+**Kind**: instance method of [<code>Users</code>](#Users)  
+**Returns**: <code>Promise.&lt;void&gt;</code> - - The response object that contains the reference to the User  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>ResetPasswordRequest</code> | The request object that contains the necessary information to reset the password of a User |
+| request.username | <code>string</code> | The username of the User |
+| request.password | <code>string</code> | The new password of the User |
+| request.verificationCode | <code>string</code> | The verification code of the User |
+
+**Example**  
+```js
+const users = new SDK.Users(client); // Existing client object
+
+const request = {
+  username: "john.doe@example.com",
+  password: "password",
+  verificationCode: "123456"
+};
+
+users
+  .resetPassword(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
 <a name="Users+deleteUser"></a>
 
 ### users.deleteUser(ref) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
@@ -2308,6 +2389,7 @@ Note that an active Fonoster deployment is required.
     * [.listWorkspaces()](#Workspaces+listWorkspaces) ⇒ <code>Promise.&lt;ListWorkspacesResponse&gt;</code>
     * [.inviteUserToWorkspace(request)](#Workspaces+inviteUserToWorkspace) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.resendWorkspaceMembershipInvitation(userRef)](#Workspaces+resendWorkspaceMembershipInvitation) ⇒ <code>Promise.&lt;ResendWorkspaceMembershipInvitationResponse&gt;</code>
+    * [.listWorkspaceMembers(request)](#Workspaces+listWorkspaceMembers) ⇒ <code>Promise.&lt;ListWorkspaceMembersResponse&gt;</code>
     * [.removeUserFromWorkspace(userRef)](#Workspaces+removeUserFromWorkspace) ⇒ <code>Promise.&lt;RemoveUserFromWorkspaceResponse&gt;</code>
 
 <a name="new_Workspaces_new"></a>
@@ -2452,7 +2534,7 @@ workspaces
 <a name="Workspaces+listWorkspaces"></a>
 
 ### workspaces.listWorkspaces() ⇒ <code>Promise.&lt;ListWorkspacesResponse&gt;</code>
-Retrieves a list of Workspaces from a Workspace.
+Retrieves a list of all Workspaces for the logged in user.
 
 **Kind**: instance method of [<code>Workspaces</code>](#Workspaces)  
 **Returns**: <code>Promise.&lt;ListWorkspacesResponse&gt;</code> - - The response object that contains the list of Workspaces  
@@ -2516,6 +2598,34 @@ const userRef: "00000000-0000-0000-0000-000000000000";
 
 workspaces
   .resendWorkspaceMembershipInvitation(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Workspaces+listWorkspaceMembers"></a>
+
+### workspaces.listWorkspaceMembers(request) ⇒ <code>Promise.&lt;ListWorkspaceMembersResponse&gt;</code>
+List the members of a Workspace
+
+**Kind**: instance method of [<code>Workspaces</code>](#Workspaces)  
+**Returns**: <code>Promise.&lt;ListWorkspaceMembersResponse&gt;</code> - - The response object that contains the list of members  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>ListWorkspaceMembersRequest</code> | Request object to list the members of a Workspace |
+| request.pageSize | <code>number</code> | The number of members to return in the response |
+| request.pageToken | <code>string</code> | The page token to return the next page of members |
+
+**Example**  
+```js
+const workspaces = new SDK.Workspaces(client); // Existing client object
+
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+workspaces
+  .listWorkspaceMembers(request)
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```

@@ -1,9 +1,11 @@
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { useAPIKey } from '@/common/sdk/hooks/useAPIKey';
-import APIKeyForm, { APIKeyFormData } from '@/pages/workspace/[workspaceId]/api-keys/_components/form/APIKeyForm';
-import { Box, CircularProgress } from '@mui/material';
-import { Role } from '@fonoster/types';
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useAPIKey } from "@/common/sdk/hooks/useAPIKey";
+import APIKeyForm, {
+  APIKeyFormData
+} from "@/pages/workspace/[workspaceId]/api-keys/_components/form/APIKeyForm";
+import { Box, CircularProgress } from "@mui/material";
+import { Role } from "@fonoster/types";
 
 export default function EditAPIKeyPage() {
   const router = useRouter();
@@ -22,8 +24,8 @@ export default function EditAPIKeyPage() {
           if (response) {
             setTimeout(() => {
               setApiKey({
-                name: 'Example API Key',
-                description: 'Example description',
+                name: "Example API Key",
+                description: "Example description",
                 role: Role.WORKSPACE_ADMIN,
                 ref: id as string
               });
@@ -33,7 +35,7 @@ export default function EditAPIKeyPage() {
             setIsLoading(false);
           }
         } catch (error) {
-          setError('Error loading API Key data');
+          setError("Error loading API Key data");
           setIsLoading(false);
         }
       }
@@ -44,26 +46,23 @@ export default function EditAPIKeyPage() {
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="200px"
+      >
         <CircularProgress />
       </Box>
     );
   }
 
   if (error) {
-    return (
-      <Box>
-        Error: {error}
-      </Box>
-    );
+    return <Box>Error: {error}</Box>;
   }
 
   if (!apiKey) {
-    return (
-      <Box>
-        API Key not found
-      </Box>
-    );
+    return <Box>API Key not found</Box>;
   }
 
   return (

@@ -197,4 +197,4 @@ listNumbers: {
   },
 };
 
-exports.NumbersClient = grpc.makeGenericClientConstructor(NumbersService);
+exports.NumbersClient = grpc.makeGenericClientConstructor(NumbersService, 'Numbers');

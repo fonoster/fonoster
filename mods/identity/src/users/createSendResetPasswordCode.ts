@@ -28,7 +28,6 @@ import { IdentityConfig } from "../exchanges/types";
 import { createSendEmail } from "../utils";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
 import { sendResetPasswordEmail } from "./sendResetPasswordEmail";
-
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 function createSendResetPasswordCode(
@@ -45,6 +44,16 @@ function createSendResetPasswordCode(
     const { username } = request;
 
     logger.verbose("call to sendResetPasswordCode", { username });
+
+    const user = await prisma.user.findUnique({
+      where: { email: username }
+    });
+
+    if (!user) {
+      // The WebUI or any other client should display something like:
+      // "If a user with this email exists, a password reset code has been sent"
+      return callback(null);
+    }
 
     const verificationCode = await generateVerificationCode({
       type: ContactType.EMAIL,

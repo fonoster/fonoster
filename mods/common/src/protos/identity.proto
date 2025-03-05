@@ -289,8 +289,8 @@ message ApiKey {
 message ExchangeCredentialsRequest {
   string username = 1;
   string password = 2;
-  // Optional code for multi-factor authentication
-  string verification_code = 3;
+  // Required only if the 2FA feature flag is enabled 
+  string two_factor_code = 3;
 }
 
 message ExchangeCredentialsResponse {

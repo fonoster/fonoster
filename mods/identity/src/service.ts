@@ -116,7 +116,10 @@ function buildIdentityService(identityConfig: IdentityConfig) {
     }
   };
 
-  if (identityConfig.userVerificationRequired) {
+  if (
+    identityConfig.contactVerificationRequired ||
+    identityConfig.twoFactorAuthenticationRequired
+  ) {
     service.handlers.sendVerificationCode = createSendVerificationCode(
       prisma,
       identityConfig

@@ -197,4 +197,4 @@ listCredentials: {
   },
 };
 
-exports.CredentialsServiceClient = grpc.makeGenericClientConstructor(CredentialsServiceService);
+exports.CredentialsServiceClient = grpc.makeGenericClientConstructor(CredentialsServiceService, 'CredentialsService');

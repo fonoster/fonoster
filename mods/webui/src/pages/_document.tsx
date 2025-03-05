@@ -1,18 +1,13 @@
-import * as React from 'react'
-import {
-  Html,
-  Head,
-  Main,
-  NextScript,
-} from 'next/document'
+import * as React from "react";
+import { Html, Head, Main, NextScript } from "next/document";
 
 import {
   DocumentHeadTags,
   documentGetInitialProps,
-  DocumentHeadTagsProps,
-} from '@mui/material-nextjs/v15-pagesRouter';
+  DocumentHeadTagsProps
+} from "@mui/material-nextjs/v15-pagesRouter";
 
-import { fnLight } from '../../theme/theme'
+import { fnLight } from "../../theme/theme";
 
 export default function MyDocument(props: DocumentHeadTagsProps) {
   return (
@@ -22,16 +17,23 @@ export default function MyDocument(props: DocumentHeadTagsProps) {
         <meta name="theme-color" content={fnLight.palette.primary.main} />
         <meta
           name="description"
-          content="Fonoster: The open-source alternative to Twilio" />
+          content="Fonoster: The open-source alternative to Twilio"
+        />
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover" />
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap"
-          rel="stylesheet" />
+          rel="stylesheet"
+        />
         <style>
           {`
             html {
@@ -47,7 +49,7 @@ export default function MyDocument(props: DocumentHeadTagsProps) {
         <NextScript />
       </body>
     </Html>
-  )
+  );
 }
 
 MyDocument.getInitialProps = documentGetInitialProps;

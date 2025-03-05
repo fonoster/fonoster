@@ -3,7 +3,9 @@ import { useTableContext } from "./useTableContext";
 import { FonosterResponse } from "./TableProvider";
 
 interface QueryDataProps<TData, TParams = any> {
-  fetchFunction: (params: TParams) => Promise<FonosterResponse<TData> | undefined>;
+  fetchFunction: (
+    params: TParams
+  ) => Promise<FonosterResponse<TData> | undefined>;
   pageSize?: number;
   initialParams?: Partial<TParams>;
   onFetchStart?: () => void;
@@ -18,11 +20,11 @@ export function useQueryData<TData, TParams = any>({
   onFetchStart,
   onFetchComplete
 }: QueryDataProps<TData, TParams>) {
-  const { 
-    setLoadingData, 
-    handleFonosterResponse, 
-    nextPageCursor, 
-    prevPageCursor 
+  const {
+    setLoadingData,
+    handleFonosterResponse,
+    nextPageCursor,
+    prevPageCursor
   } = useTableContext<TData>();
 
   useEffect(() => {
@@ -41,22 +43,33 @@ export function useQueryData<TData, TParams = any>({
     handleFetch(prevPageCursor);
   }, [prevPageCursor]);
 
-  const handleFetch = useCallback(async (pageToken: string | undefined) => {
-    setLoadingData(true);
-    if (onFetchStart) onFetchStart();
-    
-    const params = {
-      ...initialParams,
+  const handleFetch = useCallback(
+    async (pageToken: string | undefined) => {
+      setLoadingData(true);
+      if (onFetchStart) onFetchStart();
+
+      const params = {
+        ...initialParams,
+        pageSize,
+        pageToken
+      } as TParams;
+
+      const response = await fetchFunction(params);
+      handleFonosterResponse(response);
+
+      if (onFetchComplete) onFetchComplete(response);
+      setLoadingData(false);
+    },
+    [
+      fetchFunction,
+      initialParams,
       pageSize,
-      pageToken
-    } as TParams;
-    
-    const response = await fetchFunction(params);
-    handleFonosterResponse(response);
-    
-    if (onFetchComplete) onFetchComplete(response);
-    setLoadingData(false);
-  }, [fetchFunction, initialParams, pageSize, setLoadingData, handleFonosterResponse, onFetchStart, onFetchComplete]);
+      setLoadingData,
+      handleFonosterResponse,
+      onFetchStart,
+      onFetchComplete
+    ]
+  );
 
   return { handleFetch };
 }
@@ -64,7 +77,7 @@ export function useQueryData<TData, TParams = any>({
 /**
  * A reusable component for handling data fetching and pagination logic for tables.
  * This component can be used directly in JSX to fetch data for a table.
- * 
+ *
  * Example usage:
  * ```tsx
  * <QueryData<TrunkDTO>

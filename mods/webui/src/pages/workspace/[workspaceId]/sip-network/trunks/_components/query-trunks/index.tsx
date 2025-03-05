@@ -3,15 +3,15 @@ import { TrunkDTO } from "@/types/dto";
 import { useQueryData } from "@/common/contexts/table/QueryData";
 
 const QueryTrunks = () => {
-    const { listTrunks } = useTrunks();
+  const { listTrunks } = useTrunks();
 
-    // Using the new reusable hook
-    useQueryData<TrunkDTO>({
-        fetchFunction: listTrunks,
-        pageSize: 10
-    });
+  // Using the new reusable hook
+  useQueryData<TrunkDTO>({
+    fetchFunction: listTrunks,
+    pageSize: 10
+  });
 
-    return null;
+  return null;
 };
 
 export default QueryTrunks;

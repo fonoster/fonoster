@@ -901,4 +901,4 @@ getPublicKey: {
   },
 };
 
-exports.IdentityClient = grpc.makeGenericClientConstructor(IdentityService);
+exports.IdentityClient = grpc.makeGenericClientConstructor(IdentityService, 'Identity');

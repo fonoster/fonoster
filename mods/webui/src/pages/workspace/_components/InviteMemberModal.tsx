@@ -1,16 +1,15 @@
-import { Dialog, DialogTitle, DialogContent, Box, Button } from '@mui/material';
-import { FormProvider, useForm } from 'react-hook-form';
-import { SelectContext } from '@/common/hooksForm/SelectContext';
-import { InputContext } from '@/common/hooksForm/InputContext';
-import { Role } from '@fonoster/types';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-
+import { Dialog, DialogTitle, DialogContent, Box, Button } from "@mui/material";
+import { FormProvider, useForm } from "react-hook-form";
+import { SelectContext } from "@/common/hooksForm/SelectContext";
+import { InputContext } from "@/common/hooksForm/InputContext";
+import { Role } from "@fonoster/types";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const inviteMemberSchema = z.object({
-  role: z.string().min(1, 'Please select a role'),
-  name: z.string().min(1, 'Please enter full name'),
-  email: z.string().email('Invalid email').min(1, 'Please enter email address'),
+  role: z.string().min(1, "Please select a role"),
+  name: z.string().min(1, "Please enter full name"),
+  email: z.string().email("Invalid email").min(1, "Please enter email address")
 });
 
 type InviteMemberFormData = z.infer<typeof inviteMemberSchema>;
@@ -25,24 +24,26 @@ export const InviteMemberModal = ({ open, onClose, onSubmit }: Props) => {
   const methods = useForm<InviteMemberFormData>({
     resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
-      role: '',
-      name: '',
-      email: '',
-    },
+      role: "",
+      name: "",
+      email: ""
+    }
   });
 
   const roleOptions = Object.entries(Role).map(([key, value]) => ({
     value: value,
-    label: key,
+    label: key
   }));
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{
-        fontSize: '1.2rem',
-        fontWeight: 500,
-        pb: 1
-      }}>
+      <DialogTitle
+        sx={{
+          fontSize: "1.2rem",
+          fontWeight: 500,
+          pb: 1
+        }}
+      >
         Invite a new member to your workspace
       </DialogTitle>
       <DialogContent>
@@ -86,7 +87,7 @@ export const InviteMemberModal = ({ open, onClose, onSubmit }: Props) => {
               fullWidth
               sx={{
                 mt: 2,
-                textTransform: 'uppercase',
+                textTransform: "uppercase",
                 py: 1.5
               }}
             >
@@ -97,4 +98,4 @@ export const InviteMemberModal = ({ open, onClose, onSubmit }: Props) => {
       </DialogContent>
     </Dialog>
   );
-}; 
+};

@@ -61,12 +61,12 @@ abstract class AbstractClient implements FonosterClient {
   async login(
     username: string,
     password: string,
-    verificationCode?: string
+    twoFactorCode?: string
   ): Promise<void> {
     const { refreshToken, accessToken, idToken } = await makeRpcRequest<
       ExchangeCredentialsRequestPB,
       ExchangeCredentialsResponsePB,
-      { username: string; password: string; verificationCode?: string },
+      { username: string; password: string; twoFactorCode?: string },
       { refreshToken: string; accessToken: string; idToken: string }
     >({
       method: this.identityClient.exchangeCredentials.bind(this.identityClient),
@@ -75,7 +75,7 @@ abstract class AbstractClient implements FonosterClient {
       request: {
         username,
         password,
-        verificationCode
+        twoFactorCode
       }
     });
 

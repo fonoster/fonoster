@@ -1,25 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { Box, Divider, Link, Stack, useTheme } from "@mui/material";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
 import {
-  Box,
-  Divider,
-  Link,
-  Stack,
-  useTheme,
-
-} from '@mui/material';
-import { GitHub as GitHubIcon } from '@mui/icons-material';
-import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
-import { useRouter } from 'next/router';
-import { useForm } from 'react-hook-form';
-import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
-import { Button } from '@stories/button/Button';
-import { OAuthState } from '@/types/oauth';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { InputContext } from '@/common/hooksForm/InputContext';
-import { AuthProvider } from '@/common/sdk/auth/AuthClient';
-import { OAUTH_CONFIG } from '@/config/oauth';
-import { Typography } from '@stories/typography/Typography';
+  Layout,
+  PageContainer,
+  Card,
+  Content
+} from "@/common/components/layout/noAuth/Layout";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
+import { Button } from "@stories/button/Button";
+import { OAuthState } from "@/types/oauth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { InputContext } from "@/common/hooksForm/InputContext";
+import { AuthProvider } from "@/common/sdk/auth/AuthClient";
+import { OAUTH_CONFIG } from "@/config/oauth";
+import { Typography } from "@stories/typography/Typography";
 
 interface LoginForm {
   email: string;
@@ -40,11 +38,11 @@ const LoginPage = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const methods = useForm<LoginForm>({
     defaultValues: {
-      email: '',
-      password: ''
+      email: "",
+      password: ""
     },
     resolver: zodResolver(loginSchema),
-    mode: 'onChange'
+    mode: "onChange"
   });
 
   const {
@@ -57,7 +55,7 @@ const LoginPage = () => {
     const stateData: OAuthState = {
       provider: AuthProvider.GITHUB,
       nonce: Math.random().toString(36).substring(2),
-      action: 'signin'
+      action: "signin"
     };
     const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
     const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUriCallback)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
@@ -71,13 +69,14 @@ const LoginPage = () => {
       await authentication.signIn({
         credentials: { username: data.email, password: data.password },
         provider: AuthProvider.CREDENTIALS,
-        oauthCode: ''
+        oauthCode: ""
       });
-      await router.replace('/workspace/');
+      await router.replace("/workspace/");
     } catch (error) {
-      setError('root', {
-        type: 'manual',
-        message: error instanceof Error ? error.message : 'Authentication failed'
+      setError("root", {
+        type: "manual",
+        message:
+          error instanceof Error ? error.message : "Authentication failed"
       });
     } finally {
       setIsRedirecting(false);
@@ -85,7 +84,7 @@ const LoginPage = () => {
   };
 
   const handleSignUpClick = () => {
-    router.push('/signup');
+    router.push("/signup");
   };
 
   return (
@@ -110,20 +109,19 @@ const LoginPage = () => {
               id="password"
               helperText="Please enter your password"
             />
-            <Box sx={{ textAlign: 'right', mb: 2 }}>
-              <Link href="/forgot-password" color="inherit" style={{ textDecoration: 'none' }}>
-                <Typography
-                  variant="body-small-underline"
-                >
+            <Box sx={{ textAlign: "right", mb: 2 }}>
+              <Link
+                href="/forgot-password"
+                color="inherit"
+                style={{ textDecoration: "none" }}
+              >
+                <Typography variant="body-small-underline">
                   Forgot password?
                 </Typography>
               </Link>
             </Box>
             {errors.root && errors.root.message && (
-              <Typography
-                variant="body-small"
-                color="error"
-              >
+              <Typography variant="body-small" color="error">
                 {errors.root.message}
               </Typography>
             )}
@@ -134,13 +132,10 @@ const LoginPage = () => {
               size="large"
               disabled={isSubmitting || isRedirecting || !isValid}
             >
-              {isSubmitting ? 'Signing in...' : 'Sign In'}
+              {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
             <Divider>
-              <Typography
-                variant="body-small"
-                color="text.secondary"
-              >
+              <Typography variant="body-small" color="text.secondary">
                 Or
               </Typography>
             </Divider>
@@ -154,29 +149,34 @@ const LoginPage = () => {
             >
               Sign in with GitHub
             </Button>
-            <Box sx={{ textAlign: 'center' }}>
-
-              <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.3}>
-                <Typography
-                  variant="body-small"
-                  color="text.secondary"
-                >
+            <Box sx={{ textAlign: "center" }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                spacing={0.3}
+              >
+                <Typography variant="body-small" color="text.secondary">
                   Don't have an account?
                 </Typography>
-                <Typography
-                  variant="body-small"
-                  onClick={handleSignUpClick}
-                >
+                <Typography variant="body-small" onClick={handleSignUpClick}>
                   Sign up
                 </Typography>
-                <Link href="/signup" color="inherit" style={{ textDecoration: 'none' }}><Typography variant="body-small-underline" color="primary">here</Typography></Link>
+                <Link
+                  href="/signup"
+                  color="inherit"
+                  style={{ textDecoration: "none" }}
+                >
+                  <Typography variant="body-small-underline" color="primary">
+                    here
+                  </Typography>
+                </Link>
               </Stack>
-
             </Box>
           </Content>
         </Card>
       </PageContainer>
-    </Layout >
+    </Layout>
   );
 };
 

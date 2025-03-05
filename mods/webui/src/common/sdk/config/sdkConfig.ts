@@ -1,4 +1,4 @@
-import { WebClient } from '@fonoster/sdk';
+import { WebClient } from "@fonoster/sdk";
 
 /**
  * Extended interface for the Fonoster client
@@ -25,38 +25,38 @@ export interface WebClient {
  * @param config Client configuration
  * @returns Fonoster client
  */
-export function createFonosterClient(config: { url?: string } = {}): WebClient { 
+export function createFonosterClient(config: { url?: string } = {}): WebClient {
   const sdkConfig = {
     endpoint: config.url,
-    accessKeyId: 'temporary',
-    allowInsecure: process.env.NODE_ENV === 'development',
+    accessKeyId: "temporary",
+    allowInsecure: process.env.NODE_ENV === "development",
     withoutInterceptors: false
   };
-  
+
   try {
     const client = new WebClient(sdkConfig);
-    
-    if (typeof client.setAccessToken === 'function') {
+
+    if (typeof client.setAccessToken === "function") {
       const originalSetAccessToken = client.setAccessToken;
-      client.setAccessToken = function(token: string) {
+      client.setAccessToken = function (token: string) {
         return originalSetAccessToken.call(this, token);
       };
     }
-    
-    if (typeof client.setRefreshToken === 'function') {
+
+    if (typeof client.setRefreshToken === "function") {
       const originalSetRefreshToken = client.setRefreshToken;
-      client.setRefreshToken = function(token: string) {
+      client.setRefreshToken = function (token: string) {
         return originalSetRefreshToken.call(this, token);
       };
     }
-    
-    if (typeof client.setIdToken === 'function') {
+
+    if (typeof client.setIdToken === "function") {
       const originalSetIdToken = client.setIdToken;
-      client.setIdToken = function(token: string) {
+      client.setIdToken = function (token: string) {
         return originalSetIdToken.call(this, token);
       };
     }
-    
+
     return client;
   } catch (error) {
     throw error;
@@ -70,18 +70,18 @@ export const SDK_CONFIG = {
   /**
    * Fonoster API URL
    */
-  API_URL: process.env.NEXT_PUBLIC_FONOSTER_URL || '',
-  
+  API_URL: process.env.NEXT_PUBLIC_FONOSTER_URL || "",
+
   /**
    * Access token expiration time in seconds
    */
   ACCESS_TOKEN_EXPIRY: 60 * 60 * 24, // 1 day
-  
+
   /**
    * Refresh token expiration time in seconds
    */
   REFRESH_TOKEN_EXPIRY: 60 * 60 * 24 * 7, // 7 days
-  
+
   /**
    * Threshold for refreshing the token in minutes
    */

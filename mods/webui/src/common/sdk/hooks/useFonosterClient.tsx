@@ -1,8 +1,8 @@
-import { useContext, useEffect, useCallback, useState } from 'react';
-import { WebClient } from '@/common/sdk/config/sdkConfig';
-import { FonosterContext } from '@/common/sdk/provider/FonosterContext';
-import { ErrorType, useNotification } from '@/common/hooks/useNotification';
-import { SignInOptions } from '../auth/AuthClient';
+import { useContext, useEffect, useCallback, useState } from "react";
+import { WebClient } from "@/common/sdk/config/sdkConfig";
+import { FonosterContext } from "@/common/sdk/provider/FonosterContext";
+import { ErrorType, useNotification } from "@/common/hooks/useNotification";
+import { SignInOptions } from "../auth/AuthClient";
 
 // Type definitions
 interface FonosterClient {
@@ -13,7 +13,11 @@ interface FonosterClient {
     signIn: (options: SignInOptions) => Promise<void>;
     signOut: () => Promise<void>;
     executeWithRefresh: <T>(operation: () => Promise<T>) => Promise<T>;
-    handleOAuth2Signup: (tokens: { idToken: string; accessToken: string; refreshToken: string }) => Promise<void>;
+    handleOAuth2Signup: (tokens: {
+      idToken: string;
+      accessToken: string;
+      refreshToken: string;
+    }) => Promise<void>;
   };
   verifyCode: (params: VerifyCode) => Promise<any>;
   sendVerificationCode: (params: SendVerificationCode) => Promise<any>;
@@ -42,7 +46,8 @@ interface SendVerificationCode {
  * @returns Object with client and authentication methods
  */
 export function useFonosterClient(): FonosterClient {
-  const { client, isInitialized, session, authClient } = useContext(FonosterContext);
+  const { client, isInitialized, session, authClient } =
+    useContext(FonosterContext);
   const { notifyError } = useNotification();
   const [hasCheckedSession, setHasCheckedSession] = useState(false);
 
@@ -56,8 +61,7 @@ export function useFonosterClient(): FonosterClient {
 
       try {
         await authClient.refreshSession();
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     checkSession();
@@ -70,64 +74,80 @@ export function useFonosterClient(): FonosterClient {
   /**
    * Verifies an authentication code
    */
-  const verifyCode = useCallback(async (params: VerifyCode): Promise<any> => {
-    try {
-      if (!authClient || !client) {
+  const verifyCode = useCallback(
+    async (params: VerifyCode): Promise<any> => {
+      try {
+        if (!authClient || !client) {
+          return undefined;
+        }
+        return await authClient.executeWithRefresh(() =>
+          client.verifyCode(params as any)
+        );
+      } catch (error: any) {
+        notifyError(error as ErrorType);
         return undefined;
       }
-      return await authClient.executeWithRefresh(() => client.verifyCode(params as any));
-    } catch (error: any) {
-      notifyError(error as ErrorType);
-      return undefined;
-    }
-  }, [authClient, client]);
+    },
+    [authClient, client]
+  );
 
   /**
    * Sends a verification code
    */
-  const sendVerificationCode = useCallback(async (params: SendVerificationCode): Promise<any> => {
-    try {
-      if (!authClient || !client) {
+  const sendVerificationCode = useCallback(
+    async (params: SendVerificationCode): Promise<any> => {
+      try {
+        if (!authClient || !client) {
+          return undefined;
+        }
+        return await authClient.executeWithRefresh(() =>
+          client.sendVerificationCode(params as any)
+        );
+      } catch (error: any) {
+        notifyError(error as ErrorType);
         return undefined;
       }
-      return await authClient.executeWithRefresh(() => client.sendVerificationCode(params as any));
-    } catch (error: any) {
-      notifyError(error as ErrorType);
-      return undefined;
-    }
-  }, [authClient, client]);
+    },
+    [authClient, client]
+  );
 
   /**
    * Sets the access key ID
    */
-  const setAccessKeyId = useCallback(async (accessKeyId: string) => {
-    if (client && accessKeyId) {
-      try {
-        client.setAccessKeyId(accessKeyId, undefined);
-      } catch (error) {
+  const setAccessKeyId = useCallback(
+    async (accessKeyId: string) => {
+      if (client && accessKeyId) {
+        try {
+          client.setAccessKeyId(accessKeyId, undefined);
+        } catch (error) {}
+      } else {
       }
-    } else {
-    }
-  }, [authClient, client]);
+    },
+    [authClient, client]
+  );
 
   /**
    * Authentication methods
    */
   const authentication = {
     signIn: (options: SignInOptions) => {
-      if (!authClient) throw new Error('AuthClient is not initialized');
+      if (!authClient) throw new Error("AuthClient is not initialized");
       return authClient.signIn(options);
     },
     signOut: () => {
-      if (!authClient) throw new Error('AuthClient is not initialized');
+      if (!authClient) throw new Error("AuthClient is not initialized");
       return authClient.signOut();
     },
     executeWithRefresh: <T,>(operation: () => Promise<T>) => {
-      if (!authClient) throw new Error('AuthClient is not initialized');
+      if (!authClient) throw new Error("AuthClient is not initialized");
       return authClient.executeWithRefresh(operation);
     },
-    handleOAuth2Signup: (tokens: { idToken: string; accessToken: string; refreshToken: string }) => {
-      if (!authClient) throw new Error('AuthClient is not initialized');
+    handleOAuth2Signup: (tokens: {
+      idToken: string;
+      accessToken: string;
+      refreshToken: string;
+    }) => {
+      if (!authClient) throw new Error("AuthClient is not initialized");
       return authClient.handleOAuth2Signup(tokens);
     }
   };
@@ -142,5 +162,3 @@ export function useFonosterClient(): FonosterClient {
     setAccessKeyId
   };
 }
-
-

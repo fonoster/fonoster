@@ -1,6 +1,6 @@
-import {useApplications as useSDKApplications } from '@/common/sdk/hooks/useApplications'
-import { useState } from 'react';
-import { Application } from '@fonoster/types';
+import { useApplications as useSDKApplications } from "@/common/sdk/hooks/useApplications";
+import { useState } from "react";
+import { Application } from "@fonoster/types";
 
 export const useApplications = () => {
   const sdkApplications = useSDKApplications();
@@ -15,4 +15,4 @@ export const useApplications = () => {
     setFetching(false);
   };
   return { sdkApplications, fetch, fetching, items };
-}
+};
