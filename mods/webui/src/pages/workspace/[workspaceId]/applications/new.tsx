@@ -1,6 +1,8 @@
-import { Box, Typography } from '@mui/material';
-import ApplicationForm, { ApplicationFormData } from '@/pages/workspace/[workspaceId]/applications/_components/form/ApplicationForm';
-import { useRouter } from 'next/router';
+import { Box, Typography } from "@mui/material";
+import ApplicationForm, {
+  ApplicationFormData
+} from "@/pages/workspace/[workspaceId]/applications/_components/form/ApplicationForm";
+import { useRouter } from "next/router";
 
 export default function NewApplicationPage() {
   const router = useRouter();
@@ -10,7 +12,7 @@ export default function NewApplicationPage() {
     try {
       router.push(`/workspace/${workspaceId}/applications`);
     } catch (error) {
-      console.error('Error al crear la aplicación:', error);
+      console.error("Error al crear la aplicación:", error);
     }
   };
 
@@ -19,7 +21,7 @@ export default function NewApplicationPage() {
       <Typography variant="h5" sx={{ mb: 3 }}>
         Crear Nueva Aplicación
       </Typography>
-      
+
       <ApplicationForm onSubmit={handleSubmit} />
     </Box>
   );

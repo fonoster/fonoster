@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Box,
   Grid,
@@ -10,15 +10,15 @@ import {
   Typography,
   Select,
   MenuItem,
-  FormControl,
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { useTableContext } from './useTableContext';
+  FormControl
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { useTableContext } from "./useTableContext";
 
 interface FilterProps {
-  defaultFilter?: string
+  defaultFilter?: string;
 }
 
 interface SearchProps {
@@ -43,22 +43,41 @@ interface TableHeaderComponent extends React.FC<TableHeaderProps> {
   Pagination: React.FC<PaginationProps>;
 }
 
-const TableHeaderComponent = <T extends object,>({ children }: TableHeaderProps) => {
+const TableHeaderComponent = <T extends object>({
+  children
+}: TableHeaderProps) => {
   // Separar los children en controles y paginación
   const childrenArray = React.Children.toArray(children);
   const paginationComponent = childrenArray.find(
-    child => React.isValidElement(child) && child.type === TableHeaderComponent.Pagination
+    (child) =>
+      React.isValidElement(child) &&
+      child.type === TableHeaderComponent.Pagination
   );
   const otherComponents = childrenArray.filter(
-    child => React.isValidElement(child) && child.type !== TableHeaderComponent.Pagination
+    (child) =>
+      React.isValidElement(child) &&
+      child.type !== TableHeaderComponent.Pagination
   );
 
   return (
     <Grid container spacing={2} alignItems="center">
-      <Grid item xs={12} md={6} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+      <Grid
+        item
+        xs={12}
+        md={6}
+        sx={{ display: "flex", gap: 2, alignItems: "center" }}
+      >
         {otherComponents}
       </Grid>
-      <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+      <Grid
+        item
+        xs={12}
+        md={6}
+        sx={{
+          display: "flex",
+          justifyContent: { xs: "flex-start", md: "flex-end" }
+        }}
+      >
         {paginationComponent}
       </Grid>
     </Grid>
@@ -66,38 +85,50 @@ const TableHeaderComponent = <T extends object,>({ children }: TableHeaderProps)
 };
 
 // Compound Components
-TableHeaderComponent.Filter = ({ defaultFilter = 'All' }: { defaultFilter?: string }) => {
+TableHeaderComponent.Filter = ({
+  defaultFilter = "All"
+}: {
+  defaultFilter?: string;
+}) => {
   const { headers, setGlobalFilter, globalFilter } = useTableContext();
   return (
     <FormControl size="small" sx={{ minWidth: 120 }}>
       <Select
-        value={globalFilter || defaultFilter || ''}
+        value={globalFilter || defaultFilter || ""}
         onChange={(e) => setGlobalFilter?.(e.target.value)}
         sx={{
-          height: '36px',
-          '& .MuiSelect-select': {
-            paddingTop: '6px',
-            paddingBottom: '6px',
-          },
+          height: "36px",
+          "& .MuiSelect-select": {
+            paddingTop: "6px",
+            paddingBottom: "6px"
+          }
         }}
       >
-        {headers.map((column, index) => (
+        {headers.map((column, index) =>
           index === 0 ? (
-            <MenuItem key={index} value={'All'}>
+            <MenuItem key={index} value={"All"}>
               All
             </MenuItem>
           ) : (
             <MenuItem key={index} value={column.id || `column-${index}`}>
-              {column.header ? (typeof column.header === 'string' ? column.header : 'Column') : `Column ${index}`}
+              {column.header
+                ? typeof column.header === "string"
+                  ? column.header
+                  : "Column"
+                : `Column ${index}`}
             </MenuItem>
           )
-        ))}
+        )}
       </Select>
     </FormControl>
   );
 };
 
-TableHeaderComponent.Search = ({ value = '', onChange, placeholder = 'Search...' }: SearchProps) => (
+TableHeaderComponent.Search = ({
+  value = "",
+  onChange,
+  placeholder = "Search..."
+}: SearchProps) => (
   <TextField
     size="small"
     value={value}
@@ -106,23 +137,32 @@ TableHeaderComponent.Search = ({ value = '', onChange, placeholder = 'Search...'
     InputProps={{
       startAdornment: (
         <InputAdornment position="start">
-          <SearchIcon sx={{ color: 'text.secondary' }} />
+          <SearchIcon sx={{ color: "text.secondary" }} />
         </InputAdornment>
       ),
-      sx: { height: '36px' },
+      sx: { height: "36px" }
     }}
   />
 );
 
 TableHeaderComponent.Pagination = () => {
-  const { fonosterResponse, setNextPageCursor, setPrevPageCursor, nextPage, previousPage, pageIndex, pageSize, totalPages } = useTableContext();
+  const {
+    fonosterResponse,
+    setNextPageCursor,
+    setPrevPageCursor,
+    nextPage,
+    previousPage,
+    pageIndex,
+    pageSize,
+    totalPages
+  } = useTableContext();
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Typography variant="body2" color="text.secondary">
         {pageIndex || 0 + 1}-{pageSize} of {totalPages}
       </Typography>
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: "flex" }}>
         <IconButton
           size="small"
           onClick={() => {
@@ -147,7 +187,7 @@ TableHeaderComponent.Pagination = () => {
         </IconButton>
       </Box>
     </Box>
-  )
+  );
 };
 
 export const TableHeader = TableHeaderComponent as TableHeaderComponent;

@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export function Logo({ size = "large" }: { size: "micro" | "small" | "medium" | "large" }) {
+export function Logo({
+  size = "large"
+}: {
+  size: "micro" | "small" | "medium" | "large";
+}) {
   if (size === "micro") {
     return (
       <svg

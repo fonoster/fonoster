@@ -163,4 +163,4 @@ trackCall: {
   },
 };
 
-exports.CallsClient = grpc.makeGenericClientConstructor(CallsService);
+exports.CallsClient = grpc.makeGenericClientConstructor(CallsService, 'Calls');

@@ -1,3 +1,5 @@
+import { Box, Typography, CircularProgress } from "@mui/material";
+import { useRouter } from "next/router";
 import {
   Box,
   CircularProgress
@@ -19,8 +21,8 @@ import { Link } from '@/common/components';
 export const forgotPasswordSchema = z.object({
   email: z
     .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+    .min(1, "Email is required")
+    .email("Please enter a valid email address")
 });
 
 export type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
@@ -30,20 +32,21 @@ export default function ForgotPassword() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
-  const { notifySuccess, notifyError, NotificationComponent } = useNotification();
+  const { notifySuccess, notifyError, NotificationComponent } =
+    useNotification();
 
   useEffect(() => {
     const { code } = router.query;
-    if (code && typeof code === 'string') {
+    if (code && typeof code === "string") {
       router.push({
-        pathname: '/forgot-password/[code]',
+        pathname: "/forgot-password/[code]",
         query: { code: code }
       });
     }
   }, [router.query, router]);
 
   const methods = useForm<ForgotPasswordForm>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(forgotPasswordSchema)
   });
 
   const onSubmit = async (data: ForgotPasswordForm) => {
@@ -51,17 +54,21 @@ export default function ForgotPassword() {
       setIsLoading(true);
 
       const result = await sendResetPasswordCode(data.email);
-      notifySuccess(`Password reset link sent to ${data.email}. Please check your inbox and follow the instructions to reset your password.`, {
-        duration: 8000,
-        position: { vertical: 'top', horizontal: 'center' }
-      });
+      notifySuccess(
+        `Password reset link sent to ${data.email}. Please check your inbox and follow the instructions to reset your password.`,
+        {
+          duration: 8000,
+          position: { vertical: "top", horizontal: "center" }
+        }
+      );
 
       setResetSuccess(true);
       methods.reset();
     } catch (error: any) {
       notifyError({
-        code: error?.code || 'SEND_RESET_CODE_ERROR',
-        message: error?.message || 'Failed to send reset link. Please try again later.'
+        code: error?.code || "SEND_RESET_CODE_ERROR",
+        message:
+          error?.message || "Failed to send reset link. Please try again later."
       });
     } finally {
       setIsLoading(false);
@@ -91,9 +98,13 @@ export default function ForgotPassword() {
                 size="large"
                 onClick={methods.handleSubmit(onSubmit)}
                 disabled={isLoading}
-                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+                startIcon={
+                  isLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : null
+                }
               >
-                {isLoading ? 'SENDING RESET LINK...' : 'SEND ME A RESET LINK'}
+                {isLoading ? "SENDING RESET LINK..." : "SEND ME A RESET LINK"}
               </Button>
             </Box>
 

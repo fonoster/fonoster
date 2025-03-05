@@ -1,30 +1,30 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { InputContext } from '@/common/hooksForm/InputContext';
-import { SelectContext } from '@/common/hooksForm/SelectContext';
-import { Role } from '@fonoster/types';
-import { useState } from 'react';
-import { useAPIKey } from '@/common/sdk/hooks/useAPIKey';
-import { useRouter } from 'next/router';
-import { Alert, Snackbar, Button } from '@mui/material';
-import PageContainer from '@/common/components/layout/pages';
-import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { InputContext } from "@/common/hooksForm/InputContext";
+import { SelectContext } from "@/common/hooksForm/SelectContext";
+import { Role } from "@fonoster/types";
+import { useState } from "react";
+import { useAPIKey } from "@/common/sdk/hooks/useAPIKey";
+import { useRouter } from "next/router";
+import { Alert, Snackbar, Button } from "@mui/material";
+import PageContainer from "@/common/components/layout/pages";
+import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 
 const apiKeySchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  role: z.string().min(1, 'Role is required'),
+  role: z.string().min(1, "Role is required"),
   ref: z.string().optional()
 });
 
 export type APIKeyFormData = z.infer<typeof apiKeySchema>;
 
 const roleOptions = [
-  { value: Role.USER, label: 'User' },
-  { value: Role.WORKSPACE_OWNER, label: 'Workspace Owner' },
-  { value: Role.WORKSPACE_ADMIN, label: 'Workspace Admin' },
-  { value: Role.WORKSPACE_MEMBER, label: 'Workspace Member' }
+  { value: Role.USER, label: "User" },
+  { value: Role.WORKSPACE_OWNER, label: "Workspace Owner" },
+  { value: Role.WORKSPACE_ADMIN, label: "Workspace Admin" },
+  { value: Role.WORKSPACE_MEMBER, label: "Workspace Member" }
 ];
 
 interface APIKeyFormProps {
@@ -35,7 +35,7 @@ interface APIKeyFormProps {
 
 export default function APIKeyForm({
   initialData,
-  formId = 'api-key-form',
+  formId = "api-key-form",
   apiKeyId
 }: APIKeyFormProps) {
   const router = useRouter();
@@ -50,10 +50,10 @@ export default function APIKeyForm({
   const methods = useForm<APIKeyFormData>({
     resolver: zodResolver(apiKeySchema),
     defaultValues: {
-      name: initialData?.name || '',
-      description: initialData?.description || '',
+      name: initialData?.name || "",
+      description: initialData?.description || "",
       role: initialData?.role || Role.WORKSPACE_ADMIN,
-      ref: initialData?.ref || ''
+      ref: initialData?.ref || ""
     }
   });
 
@@ -70,21 +70,27 @@ export default function APIKeyForm({
         });
 
         if (result) {
-          setSuccess('API Key created successfully');
+          setSuccess("API Key created successfully");
         }
       } else {
         if (data.ref) {
           const regenerateResult = await regenerateAPIKey(data.ref);
           if (!regenerateResult) {
-            throw new Error('Failed to regenerate API Key');
+            throw new Error("Failed to regenerate API Key");
           }
         }
 
-        setSuccess('API Key updated successfully');
+        setSuccess("API Key updated successfully");
       }
     } catch (error: any) {
-      console.error(`Error ${!isEditMode ? 'creating' : 'updating'} API Key:`, error);
-      setError(error.message || `Failed to ${!isEditMode ? 'create' : 'update'} API Key`);
+      console.error(
+        `Error ${!isEditMode ? "creating" : "updating"} API Key:`,
+        error
+      );
+      setError(
+        error.message ||
+          `Failed to ${!isEditMode ? "create" : "update"} API Key`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -93,10 +99,11 @@ export default function APIKeyForm({
   return (
     <PageContainer>
       <PageContainer.Header
-        title={!isEditMode ? 'Create New API Key' : 'Edit API Key'}
+        title={!isEditMode ? "Create New API Key" : "Edit API Key"}
         backTo={{
-          label: 'Back to API Keys',
-          onClick: () => router.push(`/workspace/${selectedWorkspace?.ref}/api-keys`)
+          label: "Back to API Keys",
+          onClick: () =>
+            router.push(`/workspace/${selectedWorkspace?.ref}/api-keys`)
         }}
         actions={
           <Button
@@ -106,7 +113,7 @@ export default function APIKeyForm({
             color="primary"
             disabled={isSubmitting}
           >
-            {!isEditMode ? 'Create API Key' : 'Update API Key'}
+            {!isEditMode ? "Create API Key" : "Update API Key"}
           </Button>
         }
       />
@@ -144,7 +151,7 @@ export default function APIKeyForm({
           open={!!error}
           autoHideDuration={6000}
           onClose={() => setError(null)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >
           <Alert onClose={() => setError(null)} severity="error">
             {error}
@@ -155,7 +162,7 @@ export default function APIKeyForm({
           open={!!success}
           autoHideDuration={3000}
           onClose={() => setSuccess(null)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >
           <Alert onClose={() => setSuccess(null)} severity="success">
             {success}
@@ -164,4 +171,4 @@ export default function APIKeyForm({
       </PageContainer.ContentForm>
     </PageContainer>
   );
-} 
+}

@@ -1,20 +1,20 @@
-import PageContainer from '@/common/components/layout/pages';
-import { Button } from '@mui/material';
-import { Credentials } from '@fonoster/types';
+import PageContainer from "@/common/components/layout/pages";
+import { Button } from "@mui/material";
+import { Credentials } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { useRouter } from 'next/router';
-import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
+import { useRouter } from "next/router";
+import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 
 const columns: ColumnDef<Credentials>[] = [
   {
-    accessorKey: 'name',
-    header: 'Name',
-    cell: (info: any) => info.getValue(),
+    accessorKey: "name",
+    header: "Name",
+    cell: (info: any) => info.getValue()
   },
   {
-    accessorKey: 'username',
-    header: 'Username',
-    cell: (info: any) => info.getValue(),
+    accessorKey: "username",
+    header: "Username",
+    cell: (info: any) => info.getValue()
   }
 ];
 
@@ -23,7 +23,9 @@ export default function CredentialsPage() {
   const { selectedWorkspace } = useWorkspaceContext();
 
   const handleCreateNew = () => {
-    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/credentials/new`);
+    router.push(
+      `/workspace/${selectedWorkspace?.ref}/sip-network/credentials/new`
+    );
   };
 
   return (
@@ -40,7 +42,10 @@ export default function CredentialsPage() {
         Manage authentication credentials for your SIP network.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<Credentials> columns={columns} tableId="credential-table" />
+      <PageContainer.ContentTable<Credentials>
+        columns={columns}
+        tableId="credential-table"
+      />
     </PageContainer>
   );
-} 
+}

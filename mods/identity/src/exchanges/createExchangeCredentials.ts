@@ -43,7 +43,7 @@ const verificationRequiredButNotProvided = (
     phoneNumberVerified: boolean;
   }
 ) =>
-  identityConfig.userVerificationRequired &&
+  identityConfig.contactVerificationRequired &&
   (!user.emailVerified || !user.phoneNumberVerified);
 
 function createExchangeCredentials(
@@ -57,7 +57,7 @@ function createExchangeCredentials(
     callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { request } = call;
-    const { username: email, password, verificationCode } = request;
+    const { username: email, password, twoFactorCode } = request;
 
     logger.verbose("call to exchangeCredentials", { username: email });
 
@@ -77,17 +77,19 @@ function createExchangeCredentials(
       });
     }
 
-    if (identityConfig.userVerificationRequired) {
+    // TODO: Rename verifcation methods to be more generic
+    // At the moment name would suggest that 2FA and verification are the same thing
+    if (identityConfig.twoFactorAuthenticationRequired) {
       const isValid = await isValidVerificationCode({
         type: ContactType.EMAIL,
         value: email,
-        code: verificationCode
+        code: twoFactorCode
       });
 
       if (!isValid) {
         return callback({
           code: grpc.status.PERMISSION_DENIED,
-          message: "Invalid verification code"
+          message: "Invalid 2FA code"
         });
       }
     }

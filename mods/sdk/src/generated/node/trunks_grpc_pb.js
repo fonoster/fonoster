@@ -197,4 +197,4 @@ listTrunks: {
   },
 };
 
-exports.TrunksClient = grpc.makeGenericClientConstructor(TrunksService);
+exports.TrunksClient = grpc.makeGenericClientConstructor(TrunksService, 'Trunks');

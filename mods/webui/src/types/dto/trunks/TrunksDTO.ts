@@ -1,3 +1,3 @@
-import { Trunk } from '@fonoster/types';
+import { Trunk } from "@fonoster/types";
 
-export interface TrunkDTO extends Trunk { }
+export interface TrunkDTO extends Trunk {}

@@ -1,39 +1,37 @@
-import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';
-import { Box, Typography, styled, Grid } from '@mui/material';
-import { OverviewCard } from '../../../../../stories/overviewcard/OverviewCard';
-import { useRouter } from 'next/router';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
-import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import { useEffect, useState } from 'react';
-import {
-  BaseApiObject,
-} from '@fonoster/types'
-import PageContainer from '@/common/components/layout/pages';
-import { useApplications } from '@/common/sdk/hooks/useApplications';
+import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
+import { Box, Typography, styled, Grid } from "@mui/material";
+import { OverviewCard } from "../../../../../stories/overviewcard/OverviewCard";
+import { useRouter } from "next/router";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
+import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
+import { useEffect, useState } from "react";
+import { BaseApiObject } from "@fonoster/types";
+import PageContainer from "@/common/components/layout/pages";
+import { useApplications } from "@/common/sdk/hooks/useApplications";
 
 const ContentContainer = styled(Box)(({ theme }) => ({
-  marginTop: theme.spacing(6),
+  marginTop: theme.spacing(6)
 }));
 
 const SectionContainer = styled(Box)(({ theme }) => ({
-  width: '100%',
+  width: "100%"
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
-  fontSize: '0.75rem',
+  fontSize: "0.75rem",
   fontWeight: 500,
-  textTransform: 'uppercase',
-  letterSpacing: '0.1em',
-  marginBottom: theme.spacing(2),
+  textTransform: "uppercase",
+  letterSpacing: "0.1em",
+  marginBottom: theme.spacing(2)
 }));
 
 const CardsContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: theme.spacing(2),
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(2)
 }));
 
 export default function OverviewPage() {
@@ -51,7 +49,6 @@ export default function OverviewPage() {
   const apiKeysCount = 3;
   const expiringKeysCount = 2;
 
-
   useEffect(() => {
     let mounted = true;
 
@@ -61,7 +58,7 @@ export default function OverviewPage() {
       try {
         const response = await getWorkspace(workspaceId as string);
         const responseapp = await listApplications({});
-        console.log(responseapp, 'responseapp');
+        console.log(responseapp, "responseapp");
 
         if (!mounted) return;
         if (!response) return;
@@ -96,12 +93,12 @@ export default function OverviewPage() {
                 <OverviewCard
                   label="Workspace Settings"
                   icon={<SettingsOutlinedIcon />}
-                  onClick={() => handleCardClick('settings')}
+                  onClick={() => handleCardClick("settings")}
                 />
                 <OverviewCard
                   label="Workspace Members"
                   icon={<GroupOutlinedIcon />}
-                  onClick={() => handleCardClick('members')}
+                  onClick={() => handleCardClick("members")}
                 />
               </CardsContainer>
             </SectionContainer>
@@ -114,13 +111,13 @@ export default function OverviewPage() {
                 <OverviewCard
                   label={`You currently have [${apiKeysCount}] API Keys`}
                   icon={<VpnKeyOutlinedIcon />}
-                  onClick={() => handleCardClick('api-keys')}
+                  onClick={() => handleCardClick("api-keys")}
                 />
                 {expiringKeysCount > 0 && (
                   <OverviewCard
                     label={`You have ${expiringKeysCount} API Key that is almost expired`}
                     icon={<NotificationsOutlinedIcon />}
-                    onClick={() => handleCardClick('api-keys')}
+                    onClick={() => handleCardClick("api-keys")}
                   />
                 )}
               </CardsContainer>
@@ -130,4 +127,4 @@ export default function OverviewPage() {
       </ContentContainer>
     </PageContainer>
   );
-} 
+}

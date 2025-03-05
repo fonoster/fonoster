@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/sdk",
-  "version": "0.9.20",
+  "version": "0.9.24",
   "description": "Web and Node.js SDK for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -19,15 +19,15 @@
     "build": "rollup -c rollup.config.mjs && tsc --project tsconfig.json",
     "postbuild": "mv dist/node/src/* dist/node && rm -rf dist/node/generated && cp -a src/generated dist/node/generated/ && cp dist/web/fonoster.min.js public/fonoster.min.js",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:readme": "node ../../.scripts/gen-readme.js"
+    "generate:readme": "node ../../.scripts/gen-readme.cjs"
   },
   "keywords": [
     "sdk",
     "fonoster"
   ],
   "dependencies": {
-    "@fonoster/common": "^0.9.20",
-    "@fonoster/types": "^0.9.20",
+    "@fonoster/common": "^0.9.24",
+    "@fonoster/types": "^0.9.22",
     "@grpc/grpc-js": "~1.10.6",
     "@grpc/proto-loader": "^0.7.12",
     "google-protobuf": "^3.21.2",

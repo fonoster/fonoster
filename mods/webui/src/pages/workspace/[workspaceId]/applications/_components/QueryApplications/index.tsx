@@ -19,33 +19,33 @@ const QueryApplications = () => {
   const handleFetch = useCallback(async () => {
     setLoadingData(true);
     await fetch();
-    console.log('handleFetch');
+    console.log("handleFetch");
     setData([
       {
-        ref: '1',
-        name: 'Aplicación 1',
-        projectId: 'project-123',
-        tts: 'enabled',
-        stt: 'enabled',
+        ref: "1",
+        name: "Aplicación 1",
+        projectId: "project-123",
+        tts: "enabled",
+        stt: "enabled",
         intelligence: {
-          productRef: 'intell-123',
+          productRef: "intell-123",
           config: {
-            'key1': 'value1',
-            'key2': 'value2',
+            key1: "value1",
+            key2: "value2"
           }
-        },
+        }
       },
       {
-        ref: '2',
-        name: 'Aplicación 2',
-        projectId: 'project-456',
-        tts: 'disabled',
-        stt: 'disabled',
+        ref: "2",
+        name: "Aplicación 2",
+        projectId: "project-456",
+        tts: "disabled",
+        stt: "disabled",
         intelligence: {
-          productRef: 'intell-456',
+          productRef: "intell-456",
           config: {
-            'key1': 'value1',
-            'key2': 'value2',
+            key1: "value1",
+            key2: "value2"
           }
         }
       }

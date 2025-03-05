@@ -1,17 +1,13 @@
 import { useFormContext } from "react-hook-form";
 import { Checkbox } from "@stories/checkbox/Checkbox";
 
-const CheckboxContext = ({ name, label }) => {
+const CheckboxContext = ({ name, label }: { name: string; label: string }) => {
   const {
     register,
-    formState: { errors },
   } = useFormContext();
 
   return (
-    <Checkbox
-      {...register(name)}
-      error={!!errors[name]}
-    >
+    <Checkbox {...register(name)}>
       {label}
     </Checkbox>
   );

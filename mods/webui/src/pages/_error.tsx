@@ -1,7 +1,7 @@
-import { NextPage } from 'next'
+import { NextPage } from "next";
 
 interface ErrorProps {
-  statusCode?: number
+  statusCode?: number;
 }
 
 const Error: NextPage<ErrorProps> = ({ statusCode }) => {
@@ -9,9 +9,9 @@ const Error: NextPage<ErrorProps> = ({ statusCode }) => {
     <p>
       {statusCode
         ? `Un error ${statusCode} ocurrió en el servidor`
-        : 'Un error ocurrió en el cliente'}
+        : "Un error ocurrió en el cliente"}
     </p>
-  )
-}
+  );
+};
 
-export default Error 
+export default Error;

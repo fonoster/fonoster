@@ -1,24 +1,28 @@
-import { setCookie as setNextCookie, getCookie as getNextCookie, deleteCookie as deleteNextCookie } from 'cookies-next';
-import { tokenUtils } from './tokenUtils';
+import {
+  setCookie as setNextCookie,
+  getCookie as getNextCookie,
+  deleteCookie as deleteNextCookie
+} from "cookies-next";
+import { tokenUtils } from "./tokenUtils";
 
 /**
  * Authentication cookies configuration
  */
 export const AUTH_COOKIES = {
   ID_TOKEN: {
-    name: 'idToken',
+    name: "idToken",
     maxAge: 60 * 60 * 24, // 1 day
-    path: '/'
+    path: "/"
   },
   ACCESS_TOKEN: {
-    name: 'accessToken',
+    name: "accessToken",
     maxAge: 60 * 60 * 24, // 1 day
-    path: '/'
+    path: "/"
   },
   REFRESH_TOKEN: {
-    name: 'refreshToken',
+    name: "refreshToken",
     maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: '/'
+    path: "/"
   }
 };
 
@@ -32,17 +36,21 @@ export const cookieUtils = {
    * @param value Cookie value
    * @param options Cookie options
    */
-  setCookie: (name: string, value: string, options: { maxAge?: number; path?: string } = {}) => {
+  setCookie: (
+    name: string,
+    value: string,
+    options: { maxAge?: number; path?: string } = {}
+  ) => {
     try {
       // Asegurar que las opciones incluyan secure y sameSite
       const cookieOptions = {
         ...options,
         // En desarrollo, no usar secure para permitir pruebas locales
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === "production",
         // Usar 'lax' para permitir redirecciones
-        sameSite: 'lax' as const
+        sameSite: "lax" as const
       };
-      
+
       setNextCookie(name, value, cookieOptions);
     } catch (error) {
       // Silently handle error
@@ -74,7 +82,11 @@ export const cookieUtils = {
    * @param accessToken Access token
    * @param refreshToken Refresh token
    */
-  saveAuthTokens: (idToken: string, accessToken: string, refreshToken: string) => {
+  saveAuthTokens: (
+    idToken: string,
+    accessToken: string,
+    refreshToken: string
+  ) => {
     try {
       cookieUtils.setCookie(AUTH_COOKIES.ID_TOKEN.name, idToken, {
         maxAge: AUTH_COOKIES.ID_TOKEN.maxAge,
@@ -163,4 +175,4 @@ export const cookieUtils = {
     const accessToken = cookieUtils.getCookie(AUTH_COOKIES.ACCESS_TOKEN.name);
     return tokenUtils.shouldRefreshToken(accessToken);
   }
-}; 
+};

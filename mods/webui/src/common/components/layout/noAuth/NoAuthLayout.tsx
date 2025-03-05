@@ -1,12 +1,12 @@
-import * as React from 'react'
-import { NextAppProvider } from '@toolpad/core/nextjs'
-import Head from 'next/head'
-import { fnLight, fnDark } from '../../../../../theme/theme'
+import * as React from "react";
+import { NextAppProvider } from "@toolpad/core/nextjs";
+import Head from "next/head";
+import { fnLight, fnDark } from "../../../../../theme/theme";
 
 export function NoAuthLayout({ children }: { children: React.ReactNode }) {
   const BRANDING = {
-    title: 'Fonoster'
-  }
+    title: "Fonoster"
+  };
   return (
     <NextAppProvider
       branding={BRANDING}
@@ -23,5 +23,5 @@ export function NoAuthLayout({ children }: { children: React.ReactNode }) {
       </Head>
       {children}
     </NextAppProvider>
-  )
+  );
 }

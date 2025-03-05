@@ -1,32 +1,37 @@
+import { Box, Typography, Alert, CircularProgress } from "@mui/material";
 import {
-  Box,
-  Typography,
-  Alert,
-  CircularProgress
-} from '@mui/material';
-import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
-import { useRouter } from 'next/router';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { InputContext } from '@/common/hooksForm/InputContext';
-import { LinkBackTo } from '@stories/linkbackto/LinkBackTo';
-import { Button } from '@stories/button/Button';
-import { useEffect, useState } from 'react';
-import { useUser } from '@/common/sdk/hooks/useUser';
-import { useNotification } from '@/common/hooks/useNotification';
+  Layout,
+  PageContainer,
+  Card,
+  Content
+} from "@/common/components/layout/noAuth/Layout";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { InputContext } from "@/common/hooksForm/InputContext";
+import { LinkBackTo } from "@stories/linkbackto/LinkBackTo";
+import { Button } from "@stories/button/Button";
+import { useEffect, useState } from "react";
+import { useUser } from "@/common/sdk/hooks/useUser";
+import { useNotification } from "@/common/hooks/useNotification";
 
-const resetPasswordSchema = z.object({
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'),
-  confirmPassword: z.string(),
-  code: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)"
+      ),
+    confirmPassword: z.string(),
+    code: z.string()
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"]
+  });
 
 type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
@@ -34,7 +39,8 @@ export default function ResetPassword() {
   const router = useRouter();
   const { code } = router.query;
   const { resetPassword } = useUser();
-  const { notifySuccessWithStyle, notifyError, NotificationComponent } = useNotification();
+  const { notifySuccessWithStyle, notifyError, NotificationComponent } =
+    useNotification();
   const [codeError, setCodeError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -42,20 +48,22 @@ export default function ResetPassword() {
   const methods = useForm<ResetPasswordForm>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      password: '',
-      confirmPassword: '',
-      code: ''
+      password: "",
+      confirmPassword: "",
+      code: ""
     }
   });
 
   useEffect(() => {
     if (!router.isReady) return;
 
-    if (!code || (typeof code === 'string' && code.trim() === '')) {
-      setCodeError('Verification code is missing. Please use the link from your email.');
-    } else if (typeof code === 'string') {
+    if (!code || (typeof code === "string" && code.trim() === "")) {
+      setCodeError(
+        "Verification code is missing. Please use the link from your email."
+      );
+    } else if (typeof code === "string") {
       setCodeError(null);
-      methods.setValue('code', code);
+      methods.setValue("code", code);
     }
   }, [code, methods, router.isReady]);
 
@@ -67,25 +75,26 @@ export default function ResetPassword() {
     try {
       setIsLoading(true);
       const response = await resetPassword({
-        username: 'test',
+        username: "test",
         password: data.password,
-        verificationCode: data.code || ''
+        verificationCode: data.code || ""
       });
 
-      notifySuccessWithStyle('Your password has been successfully reset.', {
+      notifySuccessWithStyle("Your password has been successfully reset.", {
         showCountdown: true,
         countdownDuration: 3,
-        onClose: () => router.push('/signin')
+        onClose: () => router.push("/signin")
       });
 
       setResetSuccess(true);
 
       methods.reset();
-
     } catch (error: any) {
       notifyError({
-        code: error?.code || 'RESET_PASSWORD_ERROR',
-        message: error?.message || 'Failed to reset password. Please try again or request a new reset link.'
+        code: error?.code || "RESET_PASSWORD_ERROR",
+        message:
+          error?.message ||
+          "Failed to reset password. Please try again or request a new reset link."
       });
     } finally {
       setIsLoading(false);
@@ -103,7 +112,12 @@ export default function ResetPassword() {
                 {codeError}
               </Alert>
             )}
-            <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 5 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              align="center"
+              sx={{ mb: 5 }}
+            >
               Please reset your password using 8+ characters with upper, lower,
               number, and symbol.
             </Typography>
@@ -127,29 +141,36 @@ export default function ResetPassword() {
             </Box>
 
             {/* Hidden field for code */}
-            <input type="hidden" {...methods.register('code')} />
+            <input type="hidden" {...methods.register("code")} />
 
-            <Box sx={{ textAlign: 'center', mt: 5 }}>
+            <Box sx={{ textAlign: "center", mt: 5 }}>
               <Button
                 fullWidth
                 variant="contained"
                 size="large"
                 onClick={methods.handleSubmit(onSubmit)}
                 disabled={isLoading || resetSuccess || !!codeError}
-                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+                startIcon={
+                  isLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : null
+                }
               >
-                {isLoading ? 'RESETTING PASSWORD...' : 'RESET PASSWORD'}
+                {isLoading ? "RESETTING PASSWORD..." : "RESET PASSWORD"}
               </Button>
             </Box>
 
             {!resetSuccess && (
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <LinkBackTo label="Back to forgot password" onClick={() => router.push('/forgot-password')} />
+              <Box sx={{ textAlign: "center", mt: 2 }}>
+                <LinkBackTo
+                  label="Back to forgot password"
+                  onClick={() => router.push("/forgot-password")}
+                />
               </Box>
             )}
           </Content>
         </Card>
       </PageContainer>
-    </Layout >
+    </Layout>
   );
-} 
+}

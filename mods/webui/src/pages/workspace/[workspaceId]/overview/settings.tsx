@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react';
-import { Button, Typography, Skeleton } from '@mui/material';
-import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/router';
-import PageContainer from '@/common/components/layout/pages';
-import { InputContext } from '@/common/hooksForm/InputContext';
-import { SelectContext } from '@/common/hooksForm/SelectContext';
-import { useWorkspaces } from '@/common/sdk/hooks/useWorkspaces';
-import { Workspace } from '@fonoster/types';
+import { useEffect, useState } from "react";
+import { Button, Typography, Skeleton } from "@mui/material";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/router";
+import PageContainer from "@/common/components/layout/pages";
+import { InputContext } from "@/common/hooksForm/InputContext";
+import { SelectContext } from "@/common/hooksForm/SelectContext";
+import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
+import { Workspace } from "@fonoster/types";
 
 const { ContentForm } = PageContainer;
 
 const timezones = [
-  { value: 'UTC', label: 'UTC' },
-  { value: 'PST: UTC-8:00', label: 'PST: UTC-8:00' },
-  { value: 'EST: UTC-5:00', label: 'EST: UTC-5:00' },
+  { value: "UTC", label: "UTC" },
+  { value: "PST: UTC-8:00", label: "PST: UTC-8:00" },
+  { value: "EST: UTC-5:00", label: "EST: UTC-5:00" }
 ];
 
 interface WorkspaceFormData extends Workspace {
@@ -25,19 +25,20 @@ interface WorkspaceFormData extends Workspace {
 
 const FormSkeleton = () => {
   return (
-    <div style={{ padding: '20px', maxWidth: '600px' }}>
-
+    <div style={{ padding: "20px", maxWidth: "600px" }}>
       <Skeleton variant="text" width={60} height={20} sx={{ mb: 1 }} />
 
       <Skeleton variant="text" width={200} height={32} sx={{ mb: 3 }} />
 
-      <div style={{ marginBottom: '24px' }}>
-        <Skeleton variant="text" width={120} height={20} sx={{ mb: 1 }} /> {/* Label */}
+      <div style={{ marginBottom: "24px" }}>
+        <Skeleton variant="text" width={120} height={20} sx={{ mb: 1 }} />{" "}
+        {/* Label */}
         <Skeleton variant="rounded" height={40} /> {/* Input field */}
       </div>
 
-      <div style={{ marginBottom: '24px' }}>
-        <Skeleton variant="text" width={80} height={20} sx={{ mb: 1 }} /> {/* Label */}
+      <div style={{ marginBottom: "24px" }}>
+        <Skeleton variant="text" width={80} height={20} sx={{ mb: 1 }} />{" "}
+        {/* Label */}
         <Skeleton variant="rounded" height={40} /> {/* Select field */}
       </div>
     </div>
@@ -48,14 +49,14 @@ export default function SettingsPage() {
   const { getWorkspace, updateWorkspace } = useWorkspaces();
   const router = useRouter();
   const { workspaceId } = router.query;
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   const methods = useForm<WorkspaceFormData>({
     defaultValues: {
-      name: '',
+      name: "",
       timezone: timezones[0],
-      ref: ''
+      ref: ""
     }
   });
 
@@ -65,16 +66,18 @@ export default function SettingsPage() {
         setIsLoading(true);
         try {
           const settings = await getWorkspace(workspaceId as string);
-          const currentTimezone = timezones.find(tz => tz.value === settings?.timezone) || timezones[0];
+          const currentTimezone =
+            timezones.find((tz) => tz.value === settings?.timezone) ||
+            timezones[0];
 
           methods.reset({
-            name: settings?.name || '',
-            ref: settings?.ref || '',
+            name: settings?.name || "",
+            ref: settings?.ref || "",
             timezone: currentTimezone
           });
-          setName(settings?.name || '');
+          setName(settings?.name || "");
         } catch (error) {
-          console.error('Error loading settings:', error);
+          console.error("Error loading settings:", error);
         } finally {
           setIsLoading(false);
         }
@@ -92,15 +95,16 @@ export default function SettingsPage() {
       await updateWorkspace(workspaceId as string, submitData);
       setName(data.name);
     } catch (error) {
-      console.error('Error updating workspace:', error);
+      console.error("Error updating workspace:", error);
     }
   };
 
   return (
     <PageContainer>
-      <PageContainer.Header title="Workspace Settings"
+      <PageContainer.Header
+        title="Workspace Settings"
         backTo={{
-          label: 'Back to Overview',
+          label: "Back to Overview",
           onClick: () => router.push(`/workspace/${workspaceId}/overview`)
         }}
         actions={
@@ -114,17 +118,13 @@ export default function SettingsPage() {
           </Button>
         }
       />
-      <div style={{ transition: 'opacity 0.3s ease' }}>
+      <div style={{ transition: "opacity 0.3s ease" }}>
         {isLoading ? (
           <FormSkeleton />
         ) : (
           <ContentForm methods={methods} formId="settings-form">
-            <Typography variant="caption" >
-              NYC01
-            </Typography>
-            <Typography variant="h6">
-              {name}
-            </Typography>
+            <Typography variant="caption">NYC01</Typography>
+            <Typography variant="h6">{name}</Typography>
 
             <InputContext
               name="name"
@@ -147,4 +147,4 @@ export default function SettingsPage() {
       </div>
     </PageContainer>
   );
-} 
+}

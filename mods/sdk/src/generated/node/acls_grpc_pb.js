@@ -197,4 +197,4 @@ listAcls: {
   },
 };
 
-exports.AclsClient = grpc.makeGenericClientConstructor(AclsService);
+exports.AclsClient = grpc.makeGenericClientConstructor(AclsService, 'Acls');

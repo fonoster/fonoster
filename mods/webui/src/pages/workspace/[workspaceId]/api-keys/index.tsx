@@ -1,17 +1,16 @@
-import PageContainer from '@/common/components/layout/pages';
-import { Button } from '@mui/material';
-import { Secret } from '@fonoster/types';
+import PageContainer from "@/common/components/layout/pages";
+import { Button } from "@mui/material";
+import { Secret } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { useRouter } from 'next/router';
-import { useWorkspaceContext } from '@/common/sdk/provider/WorkspaceContext';
-
+import { useRouter } from "next/router";
+import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 
 const columns: ColumnDef<Secret>[] = [
   {
-    accessorKey: 'Name',
-    header: 'name',
-    cell: (info: any) => info.getValue(),
-  },
+    accessorKey: "Name",
+    header: "name",
+    cell: (info: any) => info.getValue()
+  }
 ];
 
 export default function ApiKeysPage() {
@@ -23,7 +22,12 @@ export default function ApiKeysPage() {
       <PageContainer.Header
         title="API Keys"
         actions={
-          <Button variant="contained" onClick={() => router.push(`/workspace/${selectedWorkspace?.ref}/api-keys/new`)}>
+          <Button
+            variant="contained"
+            onClick={() =>
+              router.push(`/workspace/${selectedWorkspace?.ref}/api-keys/new`)
+            }
+          >
             Create New API Key
           </Button>
         }
@@ -32,7 +36,10 @@ export default function ApiKeysPage() {
         Manage your API keys for accessing Fonoster services.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<Secret> columns={columns} tableId="api-keys-table" />
+      <PageContainer.ContentTable<Secret>
+        columns={columns}
+        tableId="api-keys-table"
+      />
     </PageContainer>
   );
 }

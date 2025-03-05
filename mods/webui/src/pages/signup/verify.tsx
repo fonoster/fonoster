@@ -1,34 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { Button, Typography, useTheme, Box } from "@mui/material";
+import { useForm } from "react-hook-form";
+import { InputContext } from "@/common/hooksForm/InputContext";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
-  Button,
-  Typography,
-  useTheme,
-  Box
-} from '@mui/material';
-import { useForm } from 'react-hook-form';
-import { InputContext } from '@/common/hooksForm/InputContext';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
-import { ProgressIndicator } from '@stories/progessindicator/ProgressIndicator';
-import { useUser } from '@/common/sdk/hooks/useUser';
-import { useRouter } from 'next/router';
-import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
-import { CodeType } from '@fonoster/types';
+  Layout,
+  PageContainer,
+  Card,
+  Content
+} from "@/common/components/layout/noAuth/Layout";
+import { ProgressIndicator } from "@stories/progessindicator/ProgressIndicator";
+import { useUser } from "@/common/sdk/hooks/useUser";
+import { useRouter } from "next/router";
+import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
+import { CodeType } from "@fonoster/types";
 
 const steps = [
-  'Verify email address',
-  'Enter phone number',
-  'Verify phone number'
+  "Verify email address",
+  "Enter phone number",
+  "Verify phone number"
 ];
 
 const emailVerificationSchema = z.object({
-  code: z.string().min(6, 'Invalid code'),
+  code: z.string().min(6, "Invalid code")
 });
 
 const phoneVerificationSchema = z.object({
-  phoneNumber: z.string().min(10, 'Invalid phone number'),
-  code: z.string().min(6, 'Invalid code').optional()
+  phoneNumber: z.string().min(10, "Invalid phone number"),
+  code: z.string().min(6, "Invalid code").optional()
 });
 
 type EmailVerificationData = z.infer<typeof emailVerificationSchema>;
@@ -58,15 +58,13 @@ const VerifyPage = () => {
             setCurrentProgress(1);
             if (token.email) {
               const result = await sendVerificationCode({
-                type: 'EMAIL' as CodeType,
+                type: "EMAIL" as CodeType,
                 value: token.email
               });
             }
           }
         }
-      } catch (error) {
-
-      }
+      } catch (error) {}
     };
     if (isReady) {
       initVerificationFlow();
@@ -76,19 +74,21 @@ const VerifyPage = () => {
   const emailMethods = useForm<EmailVerificationData>({
     resolver: zodResolver(emailVerificationSchema),
     defaultValues: {
-      code: ''
+      code: ""
     }
   });
 
   const phoneMethods = useForm<PhoneVerificationData>({
     resolver: zodResolver(phoneVerificationSchema),
     defaultValues: {
-      phoneNumber: '',
-      code: ''
+      phoneNumber: "",
+      code: ""
     }
   });
 
-  const startResendTimer = (setTimer: React.Dispatch<React.SetStateAction<number>>) => {
+  const startResendTimer = (
+    setTimer: React.Dispatch<React.SetStateAction<number>>
+  ) => {
     setTimer(30);
     const interval = setInterval(() => {
       setTimer((prev) => {
@@ -110,7 +110,7 @@ const VerifyPage = () => {
 
       const result = await verifyCode({
         username: token.email,
-        contactType: 'EMAIL' as CodeType,
+        contactType: "EMAIL" as CodeType,
         value: token.email,
         verificationCode: code
       });
@@ -119,26 +119,24 @@ const VerifyPage = () => {
         setActiveStep(2);
         setCurrentProgress(2);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handlePhoneSubmit = async (phoneNumber: string) => {
     try {
       await sendVerificationCode({
-        type: 'PHONE' as CodeType,
+        type: "PHONE" as CodeType,
         value: phoneNumber
       });
       setActiveStep(3);
       setCurrentProgress(3);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleVerifyPhone = async (code: string) => {
     try {
       const user = await loggedUser();
-      const phoneNumber = phoneMethods.getValues('phoneNumber');
+      const phoneNumber = phoneMethods.getValues("phoneNumber");
 
       if (!user?.id || !phoneNumber) {
         return;
@@ -146,7 +144,7 @@ const VerifyPage = () => {
 
       const result = await verifyCode({
         username: user.id,
-        contactType: 'PHONE' as CodeType,
+        contactType: "PHONE" as CodeType,
         value: phoneNumber,
         verificationCode: code
       });
@@ -154,18 +152,19 @@ const VerifyPage = () => {
       if (result) {
         setIsVerificationComplete(true);
         setCurrentProgress(3);
-        await router.push('/workspace').catch((error) => {
-        });
+        await router.push("/workspace").catch((error) => {});
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const getStepContent = (step: number) => {
     switch (step) {
       case 1:
         return (
-          <Content title="Verify your email" description="Please enter the verification code we've sent to your email address.">
+          <Content
+            title="Verify your email"
+            description="Please enter the verification code we've sent to your email address."
+          >
             <Box>
               <InputContext
                 name="code"
@@ -180,19 +179,27 @@ const VerifyPage = () => {
                 variant="contained"
                 size="large"
                 onClick={() => {
-                  const code = emailMethods.getValues('code');
+                  const code = emailMethods.getValues("code");
                   if (code) handleVerifyEmail(code);
                 }}
               >
                 Verify email address
               </Button>
 
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <Typography variant="body2" color="text.secondary" display="inline">
-                  Didn't receive the code?{' '}
+              <Box sx={{ textAlign: "center", mt: 2 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  display="inline"
+                >
+                  Didn't receive the code?{" "}
                 </Typography>
                 {emailResendTimer > 0 ? (
-                  <Typography variant="body2" color="text.secondary" display="inline">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    display="inline"
+                  >
                     Send again in {emailResendTimer} seconds
                   </Typography>
                 ) : (
@@ -202,9 +209,12 @@ const VerifyPage = () => {
                     color="primary"
                     onClick={() => {
                       startResendTimer(setEmailResendTimer);
-                      handleVerifyEmail(emailMethods.getValues('code'));
+                      handleVerifyEmail(emailMethods.getValues("code"));
                     }}
-                    sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                    sx={{
+                      cursor: "pointer",
+                      "&:hover": { textDecoration: "underline" }
+                    }}
                   >
                     Send again
                   </Typography>
@@ -231,7 +241,7 @@ const VerifyPage = () => {
                 variant="contained"
                 size="large"
                 onClick={() => {
-                  const phoneNumber = phoneMethods.getValues('phoneNumber');
+                  const phoneNumber = phoneMethods.getValues("phoneNumber");
                   if (phoneNumber) handlePhoneSubmit(phoneNumber);
                 }}
               >
@@ -244,7 +254,7 @@ const VerifyPage = () => {
       case 3:
         return isVerificationComplete ? (
           <Content title="Verification Complete">
-            <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ textAlign: "center" }}>
               <Typography variant="body1" color="text.secondary">
                 Your account has been successfully verified.
               </Typography>
@@ -269,7 +279,7 @@ const VerifyPage = () => {
                 variant="contained"
                 size="large"
                 onClick={async () => {
-                  const code = phoneMethods.getValues('code');
+                  const code = phoneMethods.getValues("code");
                   if (code) {
                     await handleVerifyPhone(code);
                   }
@@ -278,12 +288,20 @@ const VerifyPage = () => {
                 Verify Code
               </Button>
 
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <Typography variant="body2" color="text.secondary" display="inline">
-                  Didn't receive the code?{' '}
+              <Box sx={{ textAlign: "center", mt: 2 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  display="inline"
+                >
+                  Didn't receive the code?{" "}
                 </Typography>
                 {phoneResendTimer > 0 ? (
-                  <Typography variant="body2" color="text.secondary" display="inline">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    display="inline"
+                  >
                     Send again in {phoneResendTimer} seconds
                   </Typography>
                 ) : (
@@ -293,9 +311,12 @@ const VerifyPage = () => {
                     color="primary"
                     onClick={() => {
                       startResendTimer(setPhoneResendTimer);
-                      handlePhoneSubmit(phoneMethods.getValues('phoneNumber'));
+                      handlePhoneSubmit(phoneMethods.getValues("phoneNumber"));
                     }}
-                    sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                    sx={{
+                      cursor: "pointer",
+                      "&:hover": { textDecoration: "underline" }
+                    }}
                   >
                     Send again
                   </Typography>
@@ -313,21 +334,18 @@ const VerifyPage = () => {
   return (
     <Layout methods={activeStep === 1 ? emailMethods : phoneMethods}>
       <PageContainer>
-        <Box sx={{
-          width: '100%',
-          maxWidth: 1000,
-          margin: '0 auto',
-          marginBottom: theme.spacing(4),
-          marginTop: theme.spacing(4),
-        }}>
-          <ProgressIndicator
-            steps={steps}
-            current={currentProgress}
-          />
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 1000,
+            margin: "0 auto",
+            marginBottom: theme.spacing(4),
+            marginTop: theme.spacing(4)
+          }}
+        >
+          <ProgressIndicator steps={steps} current={currentProgress} />
         </Box>
-        <Card>
-          {getStepContent(activeStep)}
-        </Card>
+        <Card>{getStepContent(activeStep)}</Card>
       </PageContainer>
     </Layout>
   );

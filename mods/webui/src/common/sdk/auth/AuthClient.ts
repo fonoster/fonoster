@@ -1,12 +1,12 @@
-import { WebClient } from '@/common/sdk/config/sdkConfig';
-import { cookieUtils, AUTH_COOKIES } from '@/common/utils/cookieUtils';
-import { tokenUtils } from '@/common/utils/tokenUtils';
+import { WebClient } from "@/common/sdk/config/sdkConfig";
+import { cookieUtils, AUTH_COOKIES } from "@/common/utils/cookieUtils";
+import { tokenUtils } from "@/common/utils/tokenUtils";
 
 export enum AuthProvider {
-  CREDENTIALS = 'credentials',
-  GOOGLE = 'google',
-  GITHUB = 'github',
-  OTHER = 'other'
+  CREDENTIALS = "credentials",
+  GOOGLE = "google",
+  GITHUB = "github",
+  OTHER = "other"
 }
 
 export interface SignInCredentials {
@@ -73,13 +73,13 @@ export class AuthClient {
    * @param options Sign in options
    */
   public async signIn(options: SignInOptions): Promise<void> {
-    if (!this.client) throw new Error('Client is not initialized');
+    if (!this.client) throw new Error("Client is not initialized");
 
     try {
       await this.authenticateWithProvider(options);
       this.saveTokensAndUpdateSession();
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error("Sign in error:", error);
       throw error;
     }
   }
@@ -97,14 +97,14 @@ export class AuthClient {
    */
   public async signOut(): Promise<void> {
     if (this.client) {
-        if (typeof this.client.logout === 'function') {
-          await this.client.logout();
-        }
+      if (typeof this.client.logout === "function") {
+        await this.client.logout();
+      }
     }
     this.clearAuthCookies();
     this.onSignOut();
-    if (typeof window !== 'undefined') {
-      window.location.href = '/signin';
+    if (typeof window !== "undefined") {
+      window.location.href = "/signin";
     }
   }
 
@@ -117,7 +117,9 @@ export class AuthClient {
     }
 
     try {
-      const refreshToken = cookieUtils.getCookie(AUTH_COOKIES.REFRESH_TOKEN.name);
+      const refreshToken = cookieUtils.getCookie(
+        AUTH_COOKIES.REFRESH_TOKEN.name
+      );
 
       if (!this.validateRefreshToken(refreshToken)) {
         return;
@@ -144,6 +146,7 @@ export class AuthClient {
       if (this.isTokenError(error)) {
         return await this.retryOperationWithFreshToken(operation);
       }
+      throw error;
     }
   }
 
@@ -151,9 +154,21 @@ export class AuthClient {
    * Handles OAuth2 signup
    * @param tokens OAuth2 tokens
    */
-  public async handleOAuth2Signup(tokens: { idToken: string; accessToken: string; refreshToken: string }): Promise<void> {
-    this.setTokensOnClient(tokens.accessToken, tokens.refreshToken, tokens.idToken);
-    cookieUtils.saveAuthTokens(tokens.idToken, tokens.accessToken, tokens.refreshToken);
+  public async handleOAuth2Signup(tokens: {
+    idToken: string;
+    accessToken: string;
+    refreshToken: string;
+  }): Promise<void> {
+    this.setTokensOnClient(
+      tokens.accessToken,
+      tokens.refreshToken,
+      tokens.idToken
+    );
+    cookieUtils.saveAuthTokens(
+      tokens.idToken,
+      tokens.accessToken,
+      tokens.refreshToken
+    );
 
     this.setSession({ isAuthenticated: true });
   }
@@ -165,23 +180,23 @@ export class AuthClient {
    */
   private saveTokensAndUpdateSession(): void {
     try {
-      let idToken = '';
-      let accessToken = '';
-      let refreshToken = '';
+      let idToken = "";
+      let accessToken = "";
+      let refreshToken = "";
 
-      if (typeof this.client.getIdToken === 'function') {
+      if (typeof this.client.getIdToken === "function") {
         idToken = this.client.getIdToken();
       } else if ((this.client as any).idToken) {
         idToken = (this.client as any).idToken;
       }
 
-      if (typeof this.client.getAccessToken === 'function') {
+      if (typeof this.client.getAccessToken === "function") {
         accessToken = this.client.getAccessToken();
       } else if ((this.client as any).accessToken) {
         accessToken = (this.client as any).accessToken;
       }
 
-      if (typeof this.client.getRefreshToken === 'function') {
+      if (typeof this.client.getRefreshToken === "function") {
         refreshToken = this.client.getRefreshToken();
       } else if ((this.client as any).refreshToken) {
         refreshToken = (this.client as any).refreshToken;
@@ -209,16 +224,20 @@ export class AuthClient {
   /**
    * Sets tokens on the client
    */
-  private setTokensOnClient(accessToken: string, refreshToken?: string, idToken?: string): void {
+  private setTokensOnClient(
+    accessToken: string,
+    refreshToken?: string,
+    idToken?: string
+  ): void {
     try {
-      if (typeof this.client.setAccessToken === 'function') {
+      if (typeof this.client.setAccessToken === "function") {
         this.client.setAccessToken(accessToken);
       } else {
         (this.client as any).accessToken = accessToken;
       }
 
       if (refreshToken) {
-        if (typeof this.client.setRefreshToken === 'function') {
+        if (typeof this.client.setRefreshToken === "function") {
           this.client.setRefreshToken(refreshToken);
         } else {
           (this.client as any).refreshToken = refreshToken;
@@ -226,7 +245,7 @@ export class AuthClient {
       }
 
       if (idToken) {
-        if (typeof this.client.setIdToken === 'function') {
+        if (typeof this.client.setIdToken === "function") {
           this.client.setIdToken(idToken);
         } else {
           (this.client as any).idToken = idToken;
@@ -240,20 +259,28 @@ export class AuthClient {
   /**
    * Authenticates with the specified provider
    */
-  private async authenticateWithProvider(options: SignInOptions): Promise<void> {
+  private async authenticateWithProvider(
+    options: SignInOptions
+  ): Promise<void> {
     switch (options.provider) {
       case AuthProvider.CREDENTIALS:
-        return await this.client.login(options.credentials!.username, options.credentials!.password);
+        return await this.client.login(
+          options.credentials!.username,
+          options.credentials!.password
+        );
       case AuthProvider.GITHUB:
         if (!options.oauthCode) {
-          throw new Error('OAuth code is required for GitHub authentication');
+          throw new Error("OAuth code is required for GitHub authentication");
         }
-        return await this.client.loginWithOauth2Code("GITHUB", options.oauthCode);
+        return await this.client.loginWithOauth2Code(
+          "GITHUB",
+          options.oauthCode
+        );
         break;
       case AuthProvider.GOOGLE:
-        throw new Error('Google authentication not implemented');
+        throw new Error("Google authentication not implemented");
       default:
-        throw new Error('Invalid authentication provider');
+        throw new Error("Invalid authentication provider");
     }
   }
 
@@ -261,7 +288,6 @@ export class AuthClient {
    * Validates the refresh token
    */
   private validateRefreshToken(refreshToken: string | null): boolean {
-
     if (!refreshToken) {
       this.handleAuthError();
       return false;
@@ -278,7 +304,9 @@ export class AuthClient {
   /**
    * Refreshes the token with the server
    */
-  private async refreshTokenWithServer(refreshToken: string | null): Promise<void> {
+  private async refreshTokenWithServer(
+    refreshToken: string | null
+  ): Promise<void> {
     if (!refreshToken) {
       this.handleAuthError();
       return;
@@ -317,14 +345,18 @@ export class AuthClient {
    * Checks if an error is related to the token
    */
   private isTokenError(error: any): boolean {
-    return error?.message?.includes('token expired') ||
-      error?.message?.includes('invalid token');
+    return (
+      error?.message?.includes("token expired") ||
+      error?.message?.includes("invalid token")
+    );
   }
 
   /**
    * Retries an operation with a fresh token
    */
-  private async retryOperationWithFreshToken<T>(operation: () => Promise<T>): Promise<T> {
+  private async retryOperationWithFreshToken<T>(
+    operation: () => Promise<T>
+  ): Promise<T> {
     try {
       await this.refreshSession();
       return await operation();

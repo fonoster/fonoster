@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState
+} from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -15,8 +21,8 @@ import {
   TableOptionsResolved,
   RowModel,
   Column,
-  HeaderGroup,
-} from '@tanstack/react-table';
+  HeaderGroup
+} from "@tanstack/react-table";
 
 export interface PaginationProps {
   totalPages?: number;
@@ -50,7 +56,10 @@ export interface FonosterResponse<TData> {
   prevPageToken?: string;
 }
 
-export interface TableContextProps<TData> extends Object, PaginationProps, FilterProps {
+export interface TableContextProps<TData>
+  extends Object,
+    PaginationProps,
+    FilterProps {
   reset: () => void;
   getState: () => TableState;
   setState: (updater: Updater<TableState>) => void;
@@ -73,10 +82,14 @@ export interface TableContextProps<TData> extends Object, PaginationProps, Filte
   setData: React.Dispatch<React.SetStateAction<TData[]>>;
   data: TData[];
   fonosterResponse: FonosterResponse<TData> | undefined;
-  handleFonosterResponse: (response: FonosterResponse<TData> | undefined) => void;
+  handleFonosterResponse: (
+    response: FonosterResponse<TData> | undefined
+  ) => void;
 }
 
-const TableContext = createContext<TableContextProps<any> | undefined>(undefined);
+const TableContext = createContext<TableContextProps<any> | undefined>(
+  undefined
+);
 
 export function TableProvider<TData>({
   children,
@@ -86,7 +99,7 @@ export function TableProvider<TData>({
   initialState = {},
   enableColumnFilters = true,
   manualFiltering = true,
-  manualSorting = true,
+  manualSorting = true
 }: {
   children: React.ReactNode;
   columns: ColumnDef<TData>[];
@@ -99,9 +112,15 @@ export function TableProvider<TData>({
 }) {
   const [loadingData, setLoadingData] = useState(false);
   const [data, setData] = useState<TData[]>([]);
-  const [fonosterResponse, setFonosterResponse] = useState<FonosterResponse<TData> | undefined>(undefined);
-  const [prevPageCursor, setPrevPageCursor] = useState<string | undefined>(undefined);
-  const [nextPageCursor, setNextPageCursor] = useState<string | undefined>(undefined);
+  const [fonosterResponse, setFonosterResponse] = useState<
+    FonosterResponse<TData> | undefined
+  >(undefined);
+  const [prevPageCursor, setPrevPageCursor] = useState<string | undefined>(
+    undefined
+  );
+  const [nextPageCursor, setNextPageCursor] = useState<string | undefined>(
+    undefined
+  );
 
   const table = useReactTable<TData>({
     columns,
@@ -110,10 +129,10 @@ export function TableProvider<TData>({
     initialState: {
       pagination: initialState.pagination || {
         pageIndex: 0,
-        pageSize: perPage,
+        pageSize: perPage
       },
       columnFilters: initialState.columnFilters || [],
-      sorting: initialState.sorting || [],
+      sorting: initialState.sorting || []
     },
     autoResetPageIndex: false,
     manualFiltering,
@@ -121,7 +140,7 @@ export function TableProvider<TData>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
-    getSortedRowModel: getSortedRowModel(),
+    getSortedRowModel: getSortedRowModel()
   });
 
   const columnFilters = table.getState().columnFilters;
@@ -131,63 +150,67 @@ export function TableProvider<TData>({
     table.resetPageIndex();
   }, [columnFilters]);
 
-  const handleFonosterResponse = useCallback((response: FonosterResponse<TData> | undefined) => {
-    setFonosterResponse(
-      {
+  const handleFonosterResponse = useCallback(
+    (response: FonosterResponse<TData> | undefined) => {
+      setFonosterResponse({
         ...response,
         nextPageToken: response?.nextPageToken || undefined,
-        prevPageToken: pageIndex > 1 ? fonosterResponse?.nextPageToken : '',
-      }
-    );
-    setData(response?.items || []);
-  }, [fonosterResponse, pageIndex]);
+        prevPageToken: pageIndex > 1 ? fonosterResponse?.nextPageToken : ""
+      });
+      setData(response?.items || []);
+    },
+    [fonosterResponse, pageIndex]
+  );
 
   return (
-    <TableContext.Provider value={{
-      table,
-      totalPages: table.getPageCount(),
-      pageIndex: table.getState().pagination.pageIndex,
-      pageSize: table.getState().pagination.pageSize,
-      sortBy: table.getState().sorting,
-      reset: table.reset,
-      getState: table.getState,
-      setState: table.setState,
-      tableOptions: table.options,
-      setOptions: table.setOptions,
-      getCoreRowModel: table.getCoreRowModel,
-      getAllColumns: table.getAllColumns,
-      getColumn: table.getColumn,
-      getHeaderGroups: table.getHeaderGroups,
-      getFooterGroups: table.getFooterGroups,
-      columnFilters: table.getState().columnFilters,
-      setColumnFilters: table.setColumnFilters,
-      headers: table.options.columns,
-      headerGroups: table.getHeaderGroups(),
-      rows: table.getRowModel().rows,
-      setPageSize: (updater: number | ((old: number) => number)) => table.setPageSize(updater),
-      filters: table.getState().columnFilters,
-      globalFilter: table.getState().globalFilter,
-      setGlobalFilter: table.setGlobalFilter,
-      canPreviousPage: table.getCanPreviousPage(),
-      canNextPage: table.getCanNextPage(),
-      nextPage: table.nextPage,
-      previousPage: table.previousPage,
-      gotoPage: table.setPageIndex,
-      firstPage: table.firstPage,
-      lastPage: table.lastPage,
-      loadingData,
-      setLoadingData,
-      setData,
-      data: table.options.data,
+    <TableContext.Provider
+      value={{
+        table,
+        totalPages: table.getPageCount(),
+        pageIndex: table.getState().pagination.pageIndex,
+        pageSize: table.getState().pagination.pageSize,
+        sortBy: table.getState().sorting,
+        reset: table.reset,
+        getState: table.getState,
+        setState: table.setState,
+        tableOptions: table.options,
+        setOptions: table.setOptions,
+        getCoreRowModel: table.getCoreRowModel,
+        getAllColumns: table.getAllColumns,
+        getColumn: table.getColumn,
+        getHeaderGroups: table.getHeaderGroups,
+        getFooterGroups: table.getFooterGroups,
+        columnFilters: table.getState().columnFilters,
+        setColumnFilters: table.setColumnFilters,
+        headers: table.options.columns,
+        headerGroups: table.getHeaderGroups(),
+        rows: table.getRowModel().rows,
+        setPageSize: (updater: number | ((old: number) => number)) =>
+          table.setPageSize(updater),
+        filters: table.getState().columnFilters,
+        globalFilter: table.getState().globalFilter,
+        setGlobalFilter: table.setGlobalFilter,
+        canPreviousPage: table.getCanPreviousPage(),
+        canNextPage: table.getCanNextPage(),
+        nextPage: table.nextPage,
+        previousPage: table.previousPage,
+        gotoPage: table.setPageIndex,
+        firstPage: table.firstPage,
+        lastPage: table.lastPage,
+        loadingData,
+        setLoadingData,
+        setData,
+        data: table.options.data,
 
-      // External Cursor API handlers
-      fonosterResponse,
-      handleFonosterResponse,
-      nextPageCursor,
-      setNextPageCursor,
-      prevPageCursor,
-      setPrevPageCursor,
-    }}>
+        // External Cursor API handlers
+        fonosterResponse,
+        handleFonosterResponse,
+        nextPageCursor,
+        setNextPageCursor,
+        prevPageCursor,
+        setPrevPageCursor
+      }}
+    >
       {children}
     </TableContext.Provider>
   );

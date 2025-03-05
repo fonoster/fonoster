@@ -8063,7 +8063,7 @@ proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.toObject = function(i
   var f, obj = {
 username: jspb.Message.getFieldWithDefault(msg, 1, ""),
 password: jspb.Message.getFieldWithDefault(msg, 2, ""),
-verificationCode: jspb.Message.getFieldWithDefault(msg, 3, "")
+twoFactorCode: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -8110,7 +8110,7 @@ proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.deserializeBinaryFrom
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setVerificationCode(value);
+      msg.setTwoFactorCode(value);
       break;
     default:
       reader.skipField();
@@ -8155,7 +8155,7 @@ proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.serializeBinaryToWrit
       f
     );
   }
-  f = message.getVerificationCode();
+  f = message.getTwoFactorCode();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -8202,10 +8202,10 @@ proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.prototype.setPassword
 
 
 /**
- * optional string verification_code = 3;
+ * optional string two_factor_code = 3;
  * @return {string}
  */
-proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.prototype.getVerificationCode = function() {
+proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.prototype.getTwoFactorCode = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -8214,7 +8214,7 @@ proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.prototype.getVerifica
  * @param {string} value
  * @return {!proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest} returns this
  */
-proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.prototype.setVerificationCode = function(value) {
+proto.fonoster.identity.v1beta2.ExchangeCredentialsRequest.prototype.setTwoFactorCode = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 

@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { Box, Divider, Link, Stack, useTheme } from "@mui/material";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -40,11 +42,11 @@ const LoginPage = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const methods = useForm<LoginForm>({
     defaultValues: {
-      email: '',
-      password: ''
+      email: "",
+      password: ""
     },
     resolver: zodResolver(loginSchema),
-    mode: 'onChange'
+    mode: "onChange"
   });
 
   const {
@@ -57,7 +59,7 @@ const LoginPage = () => {
     const stateData: OAuthState = {
       provider: AuthProvider.GITHUB,
       nonce: Math.random().toString(36).substring(2),
-      action: 'signin'
+      action: "signin"
     };
     const stateEncoded = encodeURIComponent(JSON.stringify(stateData));
     const authUrl = `${GITHUB_CONFIG.authUrl}?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(GITHUB_CONFIG.redirectUriCallback)}&scope=${GITHUB_CONFIG.scope}&state=${stateEncoded}`;
@@ -71,13 +73,14 @@ const LoginPage = () => {
       await authentication.signIn({
         credentials: { username: data.email, password: data.password },
         provider: AuthProvider.CREDENTIALS,
-        oauthCode: ''
+        oauthCode: ""
       });
-      await router.replace('/workspace/');
+      await router.replace("/workspace/");
     } catch (error) {
-      setError('root', {
-        type: 'manual',
-        message: error instanceof Error ? error.message : 'Authentication failed'
+      setError("root", {
+        type: "manual",
+        message:
+          error instanceof Error ? error.message : "Authentication failed"
       });
     } finally {
       setIsRedirecting(false);
@@ -85,7 +88,7 @@ const LoginPage = () => {
   };
 
   const handleSignUpClick = () => {
-    router.push('/signup');
+    router.push("/signup");
   };
 
   return (
@@ -117,10 +120,7 @@ const LoginPage = () => {
               />
             </Box>
             {errors.root && errors.root.message && (
-              <Typography
-                variant="body-small"
-                color="error"
-              >
+              <Typography variant="body-small" color="error">
                 {errors.root.message}
               </Typography>
             )}
@@ -131,13 +131,10 @@ const LoginPage = () => {
               size="large"
               disabled={isSubmitting || isRedirecting || !isValid}
             >
-              {isSubmitting ? 'Signing in...' : 'Sign In'}
+              {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
             <Divider>
-              <Typography
-                variant="body-small"
-                color="text.secondary"
-              >
+              <Typography variant="body-small" color="text.secondary">
                 Or
               </Typography>
             </Divider>
@@ -151,19 +148,17 @@ const LoginPage = () => {
             >
               Sign in with GitHub
             </Button>
-            <Box sx={{ textAlign: 'center' }}>
-
-              <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.3}>
-                <Typography
-                  variant="body-small"
-                  color="text.secondary"
-                >
+            <Box sx={{ textAlign: "center" }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                spacing={0.3}
+              >
+                <Typography variant="body-small" color="text.secondary">
                   Don't have an account?
                 </Typography>
-                <Typography
-                  variant="body-small"
-                  onClick={handleSignUpClick}
-                >
+                <Typography variant="body-small" onClick={handleSignUpClick}>
                   Sign up
                 </Typography>
 
@@ -173,12 +168,11 @@ const LoginPage = () => {
                 />
 
               </Stack>
-
             </Box>
           </Content>
         </Card>
       </PageContainer>
-    </Layout >
+    </Layout>
   );
 };
 

@@ -22,7 +22,6 @@
     "@mui/material": "^6.4.3",
     "@mui/material-nextjs": "^6.4.3",
     "@phosphor-icons/react": "2.0.15",
-    "@storybook/addon-links": "^8.6.2",
     "@tanstack/react-table": "^8.21.2",
     "@toolpad/core": "0.12.0",
     "classnames": "^2.5.1",
@@ -38,28 +37,37 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^3",
     "@emotion/babel-plugin": "^11.13.5",
-    "@storybook/addon-designs": "^8.1.0",
-    "@storybook/addon-docs": "^8.6.2",
-    "@storybook/addon-essentials": "^8.6.2",
-    "@storybook/addon-interactions": "^8.6.2",
-    "@storybook/addon-onboarding": "^8.6.2",
-    "@storybook/addon-themes": "^8.6.2",
-    "@storybook/blocks": "^8.6.2",
-    "@storybook/manager-api": "^8.6.2",
-    "@storybook/nextjs": "^8.6.2",
-    "@storybook/react": "^8.6.2",
-    "@storybook/react-vite": "^8.6.2",
-    "@storybook/test": "^8.6.2",
-    "@storybook/theming": "^8.6.2",
-    "@storybook/types": "^8.6.2",
+    "@storybook/addon-designs": "^8.2.0",
+    "@storybook/addon-docs": "^8.6.3",
+    "@storybook/addon-essentials": "^8.6.3",
+    "@storybook/addon-interactions": "^8.6.3",
+    "@storybook/addon-links": "^8.6.3",
+    "@storybook/addon-onboarding": "^8.6.3",
+    "@storybook/addon-themes": "^8.6.3",
+    "@storybook/blocks": "^8.6.3",
+    "@storybook/manager-api": "^8.6.3",
+    "@storybook/nextjs": "^8.6.3",
+    "@storybook/react": "^8.6.3",
+    "@storybook/react-vite": "^8.6.3",
+    "@storybook/test": "^8.6.3",
+    "@storybook/theming": "^8.6.3",
+    "@storybook/types": "^8.6.3",
     "@types/node": "^22.13.1",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19",
     "postcss": "^8",
     "prettier": "3.5.0",
-    "storybook": "^8.6.2",
+    "storybook": "^8.6.3",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "vite": "^6.2.0"
+  },
+  "overrides": {
+    "@storybook/addon-designs": {
+      "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    },
+    "@storybook/blocks": {
+      "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    }
   }
 }

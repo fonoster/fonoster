@@ -1,4 +1,4 @@
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
 /**
  * Interface for the decoded token
@@ -39,17 +39,20 @@ export const tokenUtils = {
    * @param thresholdMinutes Minutes before expiration to consider it should be refreshed
    * @returns true if the token should be refreshed, false otherwise
    */
-  shouldRefreshToken: (token: string | null, thresholdMinutes: number = 5): boolean => {
+  shouldRefreshToken: (
+    token: string | null,
+    thresholdMinutes: number = 5
+  ): boolean => {
     if (!token) return true;
-    
+
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       if (!decoded.exp) return true;
-      
+
       const expirationTime = decoded.exp * 1000; // Convert to milliseconds
       const currentTime = Date.now();
       const timeUntilExpiry = expirationTime - currentTime;
-      
+
       // If the token expires in less than the threshold, it should be refreshed
       return timeUntilExpiry < thresholdMinutes * 60 * 1000;
     } catch (error) {
@@ -80,7 +83,7 @@ export const tokenUtils = {
    */
   decodeToken: (token: string | null): DecodedToken | null => {
     if (!token) return null;
-    
+
     try {
       return jwtDecode<DecodedToken>(token);
     } catch (error) {
@@ -95,15 +98,15 @@ export const tokenUtils = {
    */
   getTimeUntilExpiry: (token: string | null): number => {
     if (!token) return 0;
-    
+
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       if (!decoded.exp) return 0;
-      
+
       const expirationTime = decoded.exp * 1000; // Convert to milliseconds
       const currentTime = Date.now();
       const timeUntilExpiry = expirationTime - currentTime;
-      
+
       return Math.max(0, timeUntilExpiry);
     } catch (error) {
       return 0;
@@ -117,11 +120,11 @@ export const tokenUtils = {
    */
   isTokenValid: (token: string | null): boolean => {
     if (!token) return false;
-    
+
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       const currentTime = Date.now() / 1000;
-      
+
       // Check that the token has an expiration date and has not expired
       return !!decoded.exp && decoded.exp > currentTime;
     } catch (error) {
@@ -136,7 +139,7 @@ export const tokenUtils = {
    */
   getSubjectId: (token: string | null): string | null => {
     if (!token) return null;
-    
+
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       return decoded.sub || null;
@@ -144,4 +147,4 @@ export const tokenUtils = {
       return null;
     }
   }
-}; 
+};

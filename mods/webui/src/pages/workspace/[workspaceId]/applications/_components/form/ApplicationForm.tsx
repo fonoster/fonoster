@@ -1,5 +1,5 @@
-import { Box, TextField, Button, Stack } from '@mui/material';
-import { useState } from 'react';
+import { Box, TextField, Button, Stack } from "@mui/material";
+import { useState } from "react";
 
 export interface ApplicationFormData {
   name: string;
@@ -13,12 +13,16 @@ interface ApplicationFormProps {
   isLoading?: boolean;
 }
 
-export default function ApplicationForm({ initialData, onSubmit, isLoading = false }: ApplicationFormProps) {
+export default function ApplicationForm({
+  initialData,
+  onSubmit,
+  isLoading = false
+}: ApplicationFormProps) {
   const [formData, setFormData] = useState<ApplicationFormData>(
     initialData || {
-      name: '',
-      description: '',
-      endpoint: '',
+      name: "",
+      description: "",
+      endpoint: ""
     }
   );
 
@@ -31,7 +35,7 @@ export default function ApplicationForm({ initialData, onSubmit, isLoading = fal
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
@@ -46,7 +50,7 @@ export default function ApplicationForm({ initialData, onSubmit, isLoading = fal
           onChange={handleChange}
           required
         />
-        
+
         <TextField
           fullWidth
           label="Descripción"
@@ -66,14 +70,10 @@ export default function ApplicationForm({ initialData, onSubmit, isLoading = fal
           required
         />
 
-        <Button 
-          type="submit" 
-          variant="contained" 
-          disabled={isLoading}
-        >
-          {initialData ? 'Actualizar' : 'Crear'} Aplicación
+        <Button type="submit" variant="contained" disabled={isLoading}>
+          {initialData ? "Actualizar" : "Crear"} Aplicación
         </Button>
       </Stack>
     </Box>
   );
-} 
+}

@@ -1,31 +1,31 @@
-import { AppBar, Box, Container, Stack, styled } from '@mui/material';
-import { Logo } from '@/common/components/logo/Logo';
-import { FormProvider, UseFormReturn } from 'react-hook-form';
-import { Typography } from '@stories/typography/Typography';
+import { AppBar, Box, Container, Stack, styled } from "@mui/material";
+import { Logo } from "@/common/components/logo/Logo";
+import { FormProvider, UseFormReturn } from "react-hook-form";
+import { Typography } from "@stories/typography/Typography";
 
 const HEADER_HEIGHT = 80;
 const HEADER_TO_CONTENT_SPACING = 44;
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  position: 'fixed',
+  position: "fixed",
   backgroundColor: theme.palette.background.paper,
-  boxShadow: 'none',
-  borderBottom: '1px solid',
+  boxShadow: "none",
+  borderBottom: "1px solid",
   borderColor: theme.palette.divider,
   height: HEADER_HEIGHT,
-  zIndex: theme.zIndex.appBar,
+  zIndex: theme.zIndex.appBar
 }));
 
 export const Header = () => {
   return (
     <StyledAppBar>
-      <Container maxWidth="lg" sx={{ height: '100%' }}>
+      <Container maxWidth="lg" sx={{ height: "100%" }}>
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%"
           }}
         >
           <Logo size="small" />
@@ -37,26 +37,26 @@ export const Header = () => {
 
 export const PageContainer = styled(Container)(({ theme }) => ({
   flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  maxWidth: '100%!important',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  maxWidth: "100%!important",
   marginTop: HEADER_HEIGHT + HEADER_TO_CONTENT_SPACING,
-  padding: theme.spacing(3),
+  padding: theme.spacing(3)
 }));
 
-export const Card = styled('form')(({ theme }) => ({
-  width: '100%',
+export const Card = styled("form")(({ theme }) => ({
+  width: "100%",
   maxWidth: 480,
   backgroundColor: theme.palette.background.paper,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  boxShadow: 'none',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  boxShadow: "none",
   padding: theme.spacing(4),
-  '&:hover': {
-    boxShadow: 'none',
-  },
+  "&:hover": {
+    boxShadow: "none"
+  }
 }));
 
 interface AuthContentProps {
@@ -85,7 +85,7 @@ export const Content = ({ title, description, children }: AuthContentProps) => {
           {description}
         </Typography>
       )}
-      <Stack spacing={3} sx={{ width: '100%' }}>
+      <Stack spacing={3} sx={{ width: "100%" }}>
         {children}
       </Stack>
     </>
@@ -99,16 +99,16 @@ interface LayoutProps {
 
 export const Layout = ({ children, methods }: LayoutProps) => {
   return (
-    <Box sx={{
-      backgroundColor: 'background.default',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <Box
+      sx={{
+        backgroundColor: "background.default",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
       <Header />
-      <FormProvider {...methods}>
-        {children}
-      </FormProvider>
+      <FormProvider {...methods}>{children}</FormProvider>
     </Box>
   );
-}; 
+};
