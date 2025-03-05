@@ -28,7 +28,7 @@ export class AuthClient {
     private client: WebClient,
     private setSession: (session: { isAuthenticated: boolean }) => void,
     private onSignOut: () => void
-  ) {}
+  ) { }
 
   // ==================== PUBLIC METHODS ====================
 
@@ -146,6 +146,7 @@ export class AuthClient {
       if (this.isTokenError(error)) {
         return await this.retryOperationWithFreshToken(operation);
       }
+      throw error;
     }
   }
 
