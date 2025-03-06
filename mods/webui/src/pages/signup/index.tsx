@@ -22,6 +22,7 @@ import { AuthProvider } from '@/common/sdk/auth/AuthClient';
 import { OAUTH_CONFIG } from '@/config/oauth';
 import { Typography } from '@stories/typography/Typography';
 import { Link } from '@/common/components';
+import { useNotification } from '@/common/hooks/useNotification';
 
 const signUpSchema = z
   .object({
@@ -49,8 +50,8 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 export const GITHUB_CONFIG = OAUTH_CONFIG.signup;
 
 const SignUpPage = () => {
-  const theme = useTheme();
   const router = useRouter();
+  const { notifyError, NotificationComponent } = useNotification();
   const [openTerms, setOpenTerms] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const { createUser, isReady } = useUser();
@@ -70,7 +71,6 @@ const SignUpPage = () => {
   const {
     watch,
     handleSubmit,
-    setError,
     formState: { errors }
   } = methods;
 
@@ -119,7 +119,7 @@ const SignUpPage = () => {
       let errorMessage = "An error occurred during registration";
 
       if (error?.message) {
-        if (error.message.includes("already exists")) {
+        if (error.message.includes("already exists") || error.code === 6) {
           errorMessage =
             "An account with this email already exists. Please try signing in.";
         } else if (error.message.includes("timeout")) {
@@ -132,9 +132,8 @@ const SignUpPage = () => {
           errorMessage = error.message;
         }
       }
-
-      setError("root", {
-        type: "manual",
+      notifyError({
+        code: "error",
         message: errorMessage
       });
       setIsRedirecting(false);
@@ -161,6 +160,7 @@ const SignUpPage = () => {
 
   return (
     <Layout methods={methods}>
+      <NotificationComponent />
       <PageContainer>
         <Card>
           <Content title="Sign up for Fonoster">
