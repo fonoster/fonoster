@@ -139,7 +139,8 @@ import headerPlugin from 'eslint-plugin-header'; export default [
       'mods/**/*.integration.ts',
       // TODO: Avoid ignoring this file after we fix the issue addign the headers
       'mods/autopilot/src/server.ts',
-      'mods/apiserver/src/index.ts'
+      'mods/apiserver/src/index.ts',
+      'mods/mcp/src/index.ts'
     ]
   }
 ];

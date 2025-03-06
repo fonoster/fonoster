@@ -7,6 +7,9 @@
   "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",
+  "bin": {
+    "fonoster-mcp": "./dist/index.js"
+  },
   "directories": {
     "src": "src",
     "test": "test"

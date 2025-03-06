@@ -1,14 +1,15 @@
 {
   "mcpServers": {
     "fonoster": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/Users/psanders/Projects/fonoster/mods/mcp/dist/index.js"
+        "-y",
+        "@fonoster/mcp"
       ],
       "env": {
-        "WORKSPACE_ACCESS_KEY_ID": "WO00000000000000000000000000000001",
-        "WORKSPACE_API_KEY": "APk1f3t0xp0xcwiv9mcaitbjq5otebujvw",
-        "WORKSPACE_API_SECRET": "Moq8ShDQVItqzy9YFll0JkwM9QIMAkonUsXl0mgcskiQmVn0p5vavONYTa3np4rD"
+        "WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
+        "APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
+        "APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
       }
     }
   }
