@@ -61,7 +61,7 @@ export const Card = styled("form")(({ theme }) => ({
 
 interface AuthContentProps {
   title: string;
-  description?: string;
+  description?: string | React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -77,13 +77,15 @@ export const Content = ({ title, description, children }: AuthContentProps) => {
       >
         {title}
       </Typography>
-      {description && (
+      {typeof description === "string" ? (
         <Typography
           variant="body-small"
           sx={{ marginBottom: 30, color: 'text.secondary', textAlign: 'center' }}
         >
           {description}
         </Typography>
+      ) : (
+        description
       )}
       <Stack spacing={3} sx={{ width: "100%" }}>
         {children}
