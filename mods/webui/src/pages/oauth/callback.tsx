@@ -115,8 +115,6 @@ const OAuthCallback = () => {
 
       if (action === "signup") {
         const response = await createUserWithOauth2Code(code);
-        console.log("response", response);
-        console.log("SIGNUP_CONFIG", SIGNUP_CONFIG);
         await router.replace(SIGNUP_CONFIG.redirectUri);
       }
     } catch (error) {
