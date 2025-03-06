@@ -34,8 +34,4 @@ const CreateCallSchema = z.object({
   app_ref: z.string().describe("The application reference to use for the call")
 });
 
-export {
-  ListApplicationsSchema,
-  CreateCallSchema,
-  ListNumbersSchema
-};
+export { ListApplicationsSchema, CreateCallSchema, ListNumbersSchema };

@@ -26,27 +26,28 @@ import { ListApplicationsSchema } from "../schemas";
  * @returns A function that lists applications
  */
 export function createListApplications(client: SDK.Client) {
-  return async function listApplications(params: z.infer<typeof ListApplicationsSchema>) {
+  return async function listApplications(
+    params: z.infer<typeof ListApplicationsSchema>
+  ) {
     const apps = new SDK.Applications(client);
 
-  const response = await apps.listApplications({
-    pageSize: params.page_size,
-    pageToken: params.page_token
-  });
+    const response = await apps.listApplications({
+      pageSize: params.page_size,
+      pageToken: params.page_token
+    });
 
-  return {
-    content: response.items.map((app) => ({
-      type: "text" as const,
-      text: JSON.stringify({
-        ref: app.ref,
-        name: app.name,
-        endpoint: app.endpoint,
-        createdAt: app.createdAt,
-        updatedAt: app.updatedAt,
-        type: app.type
-      })
-    }))
+    return {
+      content: response.items.map((app) => ({
+        type: "text" as const,
+        text: JSON.stringify({
+          ref: app.ref,
+          name: app.name,
+          endpoint: app.endpoint,
+          createdAt: app.createdAt,
+          updatedAt: app.updatedAt,
+          type: app.type
+        })
+      }))
     };
   };
 }
-

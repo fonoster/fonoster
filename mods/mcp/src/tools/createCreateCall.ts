@@ -41,4 +41,3 @@ export function createCreateCall(client: SDK.Client) {
     };
   };
 }
-

@@ -17,7 +17,11 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { ACCESS_KEY_SECRET, ACCESS_KEY_ID, WORKSPACE_ACCESS_KEY_ID } from "../env";
+import {
+  ACCESS_KEY_SECRET,
+  ACCESS_KEY_ID,
+  WORKSPACE_ACCESS_KEY_ID
+} from "../env";
 
 export async function createClient() {
   const client = new SDK.Client({ accessKeyId: WORKSPACE_ACCESS_KEY_ID });

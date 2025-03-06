@@ -22,7 +22,7 @@ import { ListNumbersSchema } from "../schemas";
 
 /**
  * Lists numbers from Fonoster
- * @param client The Fonoster client  
+ * @param client The Fonoster client
  * @returns A function that lists numbers
  */
 export function createListNumbers(client: SDK.Client) {
