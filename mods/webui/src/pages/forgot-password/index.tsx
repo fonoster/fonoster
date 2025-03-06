@@ -1,10 +1,5 @@
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
-import {
-  Box,
-  CircularProgress
-} from '@mui/material';
-import { useRouter } from 'next/router';
 import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
