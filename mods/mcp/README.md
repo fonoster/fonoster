@@ -56,9 +56,9 @@ Add the following to your `claude_desktop_config.json`:
         "@fonoster/mcp"
       ],
       "env": {
-        "MCP_WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
-        "MCP_ACCESS_KEY_ID": "your-apikey-access-key-id",
-        "MCP_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
+        "WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
+        "APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
+        "APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
       }
     }
   }
@@ -77,17 +77,17 @@ Add the following to your `claude_desktop_config.json`:
         "-i",
         "--rm",
         "-e",
-        "MCP_WORKSPACE_ACCESS_KEY_ID",
+        "WORKSPACE_ACCESS_KEY_ID",
         "-e",
-        "MCP_ACCESS_KEY_ID",
+        "APIKEY_ACCESS_KEY_ID",
         "-e",
-        "MCP_ACCESS_KEY_SECRET",
+        "APIKEY_ACCESS_KEY_SECRET",
         "fonoster/mcp"
       ],
       "env": {
-        "MCP_WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
-        "MCP_ACCESS_KEY_ID": "your-apikey-access-key-id",
-        "MCP_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
+        "WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
+        "APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
+        "APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
       }
     }
   }
@@ -97,9 +97,9 @@ Add the following to your `claude_desktop_config.json`:
 ### Testing with the MCP Inspector
 
 ```bash
-MCP_WORKSPACE_ACCESS_KEY_ID="your-workspace-access-key-id" \
-MCP_ACCESS_KEY_ID="your-apikey-access-key-id" \
-MCP_ACCESS_KEY_SECRET="your-apikey-access-key_secret" \
+WORKSPACE_ACCESS_KEY_ID="your-workspace-access-key-id" \
+APIKEY_ACCESS_KEY_ID="your-apikey-access-key-id" \
+APIKEY_ACCESS_KEY_SECRET="your-apikey-access-key_secret" \
 npx @modelcontextprotocol/inspector \
 node /Users/psanders/Projects/fonoster/mods/mcp/dist/index.js
 ```
