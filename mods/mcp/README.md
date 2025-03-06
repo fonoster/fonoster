@@ -1,0 +1,120 @@
+# Fonoster MCP Server
+
+[![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
+
+MCP Server for the Fonoster API, enabling MCP clients to interact with Fonoster's telephony services. This module is part of the [Fonoster](https://fonoster.com) open-source project. For more information about the project, please visit [https://github.com/fonoster/fonoster](https://github.com/fonoster/fonoster).
+
+## Tools
+
+1. `list_numbers`
+   - Returns a list of numbers from Fonoster in a table format (using markdown)
+   - Optional inputs:
+     - `page_size` (number): Maximum number of numbers to return
+     - `page_token` (string): Pagination token for next page
+   - Returns: List of numbers with their refs, names, and telUrls
+
+2. `list_applications`
+   - Lists applications from Fonoster in a table format (using markdown)
+   - Optional inputs:
+     - `page_size` (number): Maximum number of applications to return
+     - `page_token` (string): Pagination token for next page
+   - Returns: List of applications with their refs, names, endpoints, creation dates, update dates, and types
+
+3. `create_call`
+   - Creates a call from Fonoster
+   - Required inputs:
+     - `from` (string): The number to call from
+     - `to` (string): The number to call to
+     - `app_ref` (string): The reference to the application to use for the call
+   - Returns: Call creation confirmation with reference ID
+
+## Prompts
+
+1. `create_call_prompt`
+   - A prompt for creating a call step by step
+   - Guides Claude through the process of:
+     - Asking the user for the number to call
+     - Offering a list of available numbers using the `list_numbers` tool
+     - Asking for the application name and finding its reference
+     - Creating a call using the `create_call` tool
+
+## Setup
+
+### Usage with Claude Desktop
+
+Add the following to your `claude_desktop_config.json`:
+
+#### npx
+
+```json
+{
+  "mcpServers": {
+    "fonoster": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@fonoster/mcp"
+      ],
+      "env": {
+        "MCP_WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
+        "MCP_ACCESS_KEY_ID": "your-apikey-access-key-id",
+        "MCP_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
+      }
+    }
+  }
+}
+```
+
+#### docker
+
+```json
+{
+  "mcpServers": {
+    "fonoster": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "MCP_WORKSPACE_ACCESS_KEY_ID",
+        "-e",
+        "MCP_ACCESS_KEY_ID",
+        "-e",
+        "MCP_ACCESS_KEY_SECRET",
+        "fonoster/mcp"
+      ],
+      "env": {
+        "MCP_WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
+        "MCP_ACCESS_KEY_ID": "your-apikey-access-key-id",
+        "MCP_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
+      }
+    }
+  }
+}
+```
+
+### Testing with the MCP Inspector
+
+```bash
+MCP_WORKSPACE_ACCESS_KEY_ID="your-workspace-access-key-id" \
+MCP_ACCESS_KEY_ID="your-apikey-access-key-id" \
+MCP_ACCESS_KEY_SECRET="your-apikey-access-key_secret" \
+npx @modelcontextprotocol/inspector \
+node /Users/psanders/Projects/fonoster/mods/mcp/dist/index.js
+```
+
+### Troubleshooting
+
+If you encounter authentication errors, verify that:
+1. Your Fonoster credentials are correct
+2. The environment variables are properly set
+3. You have the necessary permissions to access the Fonoster API
+
+## Build
+
+Docker build:
+
+```bash
+docker build -t fonoster/mcp -f Dockerfile .
+```

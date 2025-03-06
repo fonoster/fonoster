@@ -1,0 +1,39 @@
+{
+  "name": "@fonoster/mcp",
+  "version": "0.9.24",
+  "description": "Model Context Protocol for Fonoster",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@fonoster/common": "^0.9.22",
+    "@fonoster/logger": "^0.9.22",
+    "@fonoster/sdk": "^0.9.22",
+    "@modelcontextprotocol/sdk": "^1.4.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579"
+}
