@@ -46,7 +46,7 @@ export const ToolbarActions = memo(() => {
       setUser(user || null);
     };
     fetchUser();
-  }, [loggedUser]);
+  }, []);
 
   const [notifications, setNotifications] = useState([
     {
