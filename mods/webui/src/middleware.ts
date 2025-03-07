@@ -35,14 +35,14 @@ export function middleware(request: NextRequest) {
         !decodedToken.emailVerified &&
         pathname !== "/signup/verify"
       ) {
-        return NextResponse.redirect(new URL("/signup/verify", request.url));
+        // return NextResponse.redirect(new URL("/signup/verify", request.url));
       }
       if (
         decodedToken &&
         !decodedToken.phoneNumberVerified &&
         pathname !== "/signup/verify"
       ) {
-        return NextResponse.redirect(new URL("/signup/verify", request.url));
+        // return NextResponse.redirect(new URL("/signup/verify", request.url));
       }
     }
   }

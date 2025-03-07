@@ -5,6 +5,7 @@ import { MenuItem, InputAdornment } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
+import { Select as MuiSelect } from "@mui/material";
 
 export const Select: React.FC<SelectProps> = ({
   onClick,
@@ -27,7 +28,8 @@ export const Select: React.FC<SelectProps> = ({
     <FormControl
       fullWidth={fullWidth}
       error={error}
-      sx={{
+      size="small"
+      style={{
         minWidth: '120px',
         '& .MuiFormControl-root': {
           margin: 0

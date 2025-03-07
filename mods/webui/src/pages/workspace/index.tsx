@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
 import { Typography } from "@stories/typography/Typography";
+import { Content } from "@/common/components/layout/noAuth/Layout";
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
@@ -11,7 +12,8 @@ const WorkspaceContainer = styled(Container)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   padding: theme.spacing(6),
-  maxWidth: "none !important"
+  maxWidth: "none !important",
+  marginTop: theme.spacing(6),
 }));
 
 const WorkspaceGrid = styled(Box)(({ theme }) => ({
@@ -52,46 +54,40 @@ const ListWorkspacePage = () => {
 
   return (
     <WorkspaceContainer>
-      <Typography variant="heading-large">
-        Hey [USER], welcome to Fonoster!
-      </Typography>
-      {/* <Typography
-        variant="body1"
-        color="text.secondary"
-        align="center"
-        mt={1}
-        mb={2}
+      <Content title="Hey [USER], welcome to Fonoster! 👋"
+        description={'Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.'}
+        descriptionFontSize="body-medium"
       >
-        Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.
-      </Typography> */}
 
-      <WorkspaceGrid>
-        {isLoading ? (
-          <Typography>Loading workspaces...</Typography>
-        ) : (
-          <>
-            {workspaces.map((workspace) => (
+
+        <WorkspaceGrid>
+          {isLoading ? (
+            <Typography>Loading workspaces...</Typography>
+          ) : (
+            <>
+              {workspaces.map((workspace) => (
+                <WorkspaceCard
+                  key={workspace.ref}
+                  variant="regular"
+                  region={
+                    workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION
+                  }
+                  description={workspace.name}
+                  date={workspace.createdAt.toLocaleDateString()}
+                  onClick={() => handleWorkspaceClick(workspace.ref)}
+                  onSettingsClick={(e) => handleSettingsClick(e, workspace.ref)}
+                  disabled={false}
+                />
+              ))}
               <WorkspaceCard
-                key={workspace.ref}
-                variant="regular"
-                region={
-                  workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION
-                }
-                description={workspace.name}
-                date={workspace.createdAt.toLocaleDateString()}
-                onClick={() => handleWorkspaceClick(workspace.ref)}
-                onSettingsClick={(e) => handleSettingsClick(e, workspace.ref)}
+                variant="empty"
+                onClick={handleCreateWorkspace}
                 disabled={false}
               />
-            ))}
-            <WorkspaceCard
-              variant="empty"
-              onClick={handleCreateWorkspace}
-              disabled={false}
-            />
-          </>
-        )}
-      </WorkspaceGrid>
+            </>
+          )}
+        </WorkspaceGrid>
+      </Content>
     </WorkspaceContainer>
   );
 };

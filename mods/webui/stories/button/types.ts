@@ -34,6 +34,7 @@ type OriginalButtonVariant = OverridableStringUnion<
 >;
 
 type ButtonProps = {
+  id?: string;
   variant?: ButtonVariant;
   size?: "small" | "large";
   fullWidth?: boolean;

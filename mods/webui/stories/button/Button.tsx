@@ -22,6 +22,7 @@ import { ButtonProps, OriginalButtonVariant } from "./types";
 
 export const Button = (props: ButtonProps) => {
   const {
+    id,
     size,
     variant,
     fullWidth,
@@ -35,6 +36,7 @@ export const Button = (props: ButtonProps) => {
 
   return (
     <StyledMuiButton
+      id={id}
       variant={(variant || "contained") as OriginalButtonVariant}
       fullWidth={fullWidth}
       disabled={disabled}
