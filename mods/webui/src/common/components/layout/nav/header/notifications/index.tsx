@@ -8,31 +8,32 @@ import ListItem from "@mui/material/ListItem";
 import Popover from "@mui/material/Popover";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
+import { Typography } from "@stories/typography/Typography";
 import { ChatText as ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
-import { EnvelopeSimple as EnvelopeSimpleIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { User as UserIcon } from "@phosphor-icons/react/dist/ssr/User";
 import { X as XIcon } from "@phosphor-icons/react/dist/ssr/X";
+import { Divider } from "@mui/material";
 
 import { dayjs } from "@/utils/dayjs";
+import { User } from "@/types/user";
 
 export type Notification = { id: string; createdAt: Date; read: boolean } & (
   | { type: "new_feature"; description: string }
   | {
-      type: "new_company";
-      author: { name: string; avatar?: string };
-      company: { name: string };
-    }
+    type: "new_company";
+    author: { name: string; avatar?: string };
+    company: { name: string };
+  }
   | {
-      type: "new_job";
-      author: { name: string; avatar?: string };
-      job: { title: string };
-    }
+    type: "new_job";
+    author: { name: string; avatar?: string };
+    job: { title: string };
+  }
   | {
-      type: "welcome";
-      author: { name: string; avatar?: string };
-      job: { title: string };
-    }
+    type: "welcome";
+    author: { name: string; avatar?: string };
+    job: { title: string };
+  }
 );
 
 const notifications = [
@@ -64,6 +65,7 @@ export interface NotificationsPopoverProps {
   onMarkAllAsRead?: () => void;
   onRemoveOne?: (id: string) => void;
   open?: boolean;
+  user: User;
 }
 
 export function NotificationsPopover({
@@ -71,7 +73,8 @@ export function NotificationsPopover({
   onClose,
   onMarkAllAsRead,
   onRemoveOne,
-  open = false
+  open = false,
+  user
 }: NotificationsPopoverProps): React.JSX.Element {
   return (
     <Popover
@@ -79,35 +82,50 @@ export function NotificationsPopover({
       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       onClose={onClose}
       open={open}
-      slotProps={{ paper: { sx: { width: "380px" } } }}
+      slotProps={{
+        paper: {
+          sx: {
+            width: "251px",
+            mt: 1,
+            boxShadow: '0px 5px 10px 0px #0000001A',
+            borderRadius: '8px',
+            overflow: 'visible',
+            '&:before': {
+              content: '""',
+              display: 'block',
+              position: 'absolute',
+              top: -8,
+              right: 20,
+              width: 16,
+              height: 16,
+              bgcolor: 'background.paper',
+              transform: 'rotate(45deg)',
+              zIndex: 0,
+            },
+          }
+        }
+      }}
       transformOrigin={{ horizontal: "right", vertical: "top" }}
     >
-      <Stack
-        direction="row"
-        spacing={2}
-        sx={{
-          alignItems: "center",
-          justifyContent: "space-between",
-          px: 3,
-          py: 2
-        }}
-      >
-        <Typography variant="h6">Notificaciones</Typography>
-        <Tooltip title="Marcar todos como leídos">
-          <IconButton edge="end" onClick={onMarkAllAsRead}>
-            <EnvelopeSimpleIcon />
-          </IconButton>
-        </Tooltip>
-      </Stack>
+      <Box sx={{ p: 1.5, pb: 1 }}>
+        <Typography variant="body-medium" fontWeight="600" sx={{ color: 'text.primary', mb: 0.5 }}>
+          Notifications
+        </Typography>
+      </Box>
+      <Divider />
+
       {notifications.length === 0 ? (
-        <Box sx={{ p: 2 }}>
-          <Typography variant="subtitle2">Sin notificaciones</Typography>
+        <Box sx={{ p: 2, textAlign: 'center' }}>
+          <Typography variant="body-small" sx={{ color: 'text.primary' }}>
+            You're all caught up!
+          </Typography>
         </Box>
       ) : (
         <Box sx={{ maxHeight: "270px", overflowY: "auto" }}>
           <List disablePadding>
             {notifications.map((notification, index) => (
               <NotificationItem
+                user={user}
                 divider={index < notifications.length - 1}
                 key={notification.id}
                 notification={notification}
@@ -118,8 +136,9 @@ export function NotificationsPopover({
             ))}
           </List>
         </Box>
-      )}
-    </Popover>
+      )
+      }
+    </Popover >
   );
 }
 
@@ -127,19 +146,21 @@ interface NotificationItemProps {
   divider?: boolean;
   notification: Notification;
   onRemove?: () => void;
+  user: User;
 }
 
 function NotificationItem({
   divider,
   notification,
-  onRemove
+  onRemove,
+  user
 }: NotificationItemProps): React.JSX.Element {
   return (
     <ListItem
       divider={divider}
       sx={{ alignItems: "flex-start", justifyContent: "space-between" }}
     >
-      <NotificationContent notification={notification} />
+      <NotificationContent notification={notification} user={user} />
       <Tooltip title="Remove">
         <IconButton edge="end" onClick={onRemove} size="small">
           <XIcon />
@@ -151,10 +172,12 @@ function NotificationItem({
 
 interface NotificationContentProps {
   notification: Notification;
+  user: User;
 }
 
 function NotificationContent({
-  notification
+  notification,
+  user
 }: NotificationContentProps): React.JSX.Element {
   if (notification.type === "new_feature") {
     return (
@@ -163,9 +186,9 @@ function NotificationContent({
           <ChatTextIcon fontSize="var(--Icon-fontSize)" />
         </Avatar>
         <div>
-          <Typography variant="subtitle2">Nueva carcaterística!</Typography>
-          <Typography variant="body2">{notification.description}</Typography>
-          <Typography color="text.secondary" variant="caption">
+          <Typography variant="heading-small">New feature!</Typography>
+          <Typography variant="body-medium">{notification.description}</Typography>
+          <Typography variant="body-small" sx={{ color: 'text.secondary' }}>
             {dayjs(notification.createdAt).format("MMM D, hh:mm A")}
           </Typography>
         </div>
@@ -180,17 +203,17 @@ function NotificationContent({
           <UserIcon />
         </Avatar>
         <div>
-          <Typography variant="body2">
-            <Typography component="span" variant="subtitle2">
+          <Typography variant="body-medium">
+            <Typography component="span" variant="heading-small">
               {notification.author.name}
             </Typography>{" "}
             created{" "}
-            <Link underline="always" variant="body2">
+            <Link underline="always">
               {notification.company.name}
             </Link>{" "}
             empresa
           </Typography>
-          <Typography color="text.secondary" variant="caption">
+          <Typography variant="body-small" sx={{ color: 'text.secondary' }}>
             {dayjs(notification.createdAt).format("MMM D, hh:mm A")}
           </Typography>
         </div>
@@ -205,16 +228,37 @@ function NotificationContent({
           <UserIcon />
         </Avatar>
         <div>
-          <Typography variant="body2">
-            <Typography component="span" variant="subtitle2">
+          <Typography variant="body-medium">
+            <Typography component="span" variant="heading-small">
               {notification.author.name}
             </Typography>{" "}
             agregar nuevo{" "}
-            <Link underline="always" variant="body2">
+            <Link underline="always">
               {notification.job.title}
             </Link>
           </Typography>
-          <Typography color="text.secondary" variant="caption">
+          <Typography variant="body-small" sx={{ color: 'text.secondary' }}>
+            {dayjs(notification.createdAt).format("MMM D, hh:mm A")}
+          </Typography>
+        </div>
+      </Stack>
+    );
+  }
+
+  if (notification.type === "welcome") {
+    return (
+      <Stack direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
+        <Avatar src={user.avatar}>
+          <UserIcon />
+        </Avatar>
+        <div>
+          <Typography variant="body-medium">
+            <Typography component="span" variant="heading-small">
+              {notification.author.name}
+            </Typography>{" "}
+            welcomes you to {user.name}
+          </Typography>
+          <Typography variant="body-small" sx={{ color: 'text.secondary' }}>
             {dayjs(notification.createdAt).format("MMM D, hh:mm A")}
           </Typography>
         </div>
