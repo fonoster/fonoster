@@ -58,9 +58,6 @@ export function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(pathname);
 
   if (!isAuthenticated && !isPublicRoute) {
-    console.log(
-      "Redirecting to signin because not authenticated and not public route"
-    );
     return NextResponse.redirect(new URL("/signin", request.url));
   }
   return NextResponse.next();
