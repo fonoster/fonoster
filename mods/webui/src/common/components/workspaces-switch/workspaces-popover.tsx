@@ -1,9 +1,13 @@
 import * as React from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Divider from "@mui/material/Divider";
 import { Workspace } from "@fonoster/types";
 import { useRouter } from "next/router";
 import Box from "@mui/material/Box";
+import { Typography } from "@stories/typography/Typography";
+import { useTheme } from "@mui/material/styles";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 export interface WorkspacesPopoverProps {
   anchorEl: null | Element;
@@ -23,72 +27,148 @@ export function WorkspacesPopover({
   selectedWorkspace
 }: WorkspacesPopoverProps): React.JSX.Element {
   const router = useRouter();
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
+  const secondaryColor = theme.palette.secondary.main;
+  const secondaryColor900 = theme.palette.secondary.dark;
+  const hoverColor = theme.palette.secondary.light;
+  const textColor = theme.palette.text.primary;
 
   const handleWorkspaceChange = (workspace: Workspace) => {
-    // 1. Update the context with the selected workspace
     onChange?.(workspace.ref);
 
-    // 2. Change the workspace ID in the current route
     const currentPath = router.asPath;
     const pathParts = currentPath.split("/");
 
-    // Find the index of 'workspace' in the path
     const workspaceIndex = pathParts.findIndex((part) => part === "workspace");
 
     if (workspaceIndex !== -1 && workspaceIndex + 1 < pathParts.length) {
-      // Replace the workspace ID in the path
       pathParts[workspaceIndex + 1] = workspace.ref;
       const newPath = pathParts.join("/");
-
-      // Navigate to the new path
       router.push(newPath);
     }
+    onClose?.();
+  };
 
-    // 3. Close the popover
+  const handleNewWorkspace = () => {
+    router.push("/workspace/create");
+    onClose?.();
+  };
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
     onClose?.();
   };
 
   return (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
       onClose={onClose}
       open={open}
-      slotProps={{ paper: { sx: { width: "250px" } } }}
-      transformOrigin={{ horizontal: "right", vertical: "top" }}
+      sx={{
+        '& .MuiPaper-root': {
+          left: '6% !important',
+          transform: 'translateX(-47%) !important',
+          [theme.breakpoints.up('xs')]: { top: '120px !important' },
+          [theme.breakpoints.up('sm')]: { top: '136px !important' },
+          [theme.breakpoints.up('md')]: { top: '153px !important' }
+        }
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            width: "242px",
+            mt: 0,
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            borderRadius: 0,
+            overflow: "hidden",
+            padding: 0,
+            backgroundColor: "#FFFFFF",
+            borderTop: "none",
+            [theme.breakpoints.up('xs')]: { top: '120px !important' },
+            [theme.breakpoints.up('sm')]: { top: '136px !important' },
+            [theme.breakpoints.up('md')]: { top: '153px !important' }
+          }
+        }
+      }}
+      transformOrigin={{ horizontal: "left", vertical: "top" }}
     >
-      {workspaces.map((workspace) => {
+      {workspaces.map((workspace, index) => {
         const isSelected = selectedWorkspace?.ref === workspace.ref;
 
         return (
-          <MenuItem
-            key={workspace.name}
-            onClick={() => handleWorkspaceChange(workspace)}
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              backgroundColor: isSelected ? "action.selected" : "inherit",
-              "&:hover": {
-                backgroundColor: isSelected ? "action.selected" : "action.hover"
-              }
-            }}
-          >
-            {workspace.name}
-            {isSelected && (
-              <Box
-                sx={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  backgroundColor: "success.main",
-                  ml: 1
-                }}
-              />
-            )}
-          </MenuItem>
+          <React.Fragment key={workspace.name}>
+            <MenuItem
+              onClick={() => handleWorkspaceChange(workspace)}
+              sx={{
+                py: 2,
+                px: 3,
+                display: "flex",
+                height: '36px',
+                "&:hover": {
+                  backgroundColor: hoverColor
+                }
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+                <Typography
+                  variant="body-medium"
+                  sx={{
+                    color: textColor,
+                    fontWeight: 400
+                  }}
+                >
+                  {workspace.name}
+                </Typography>
+                {isSelected && (
+                  <Box
+                    sx={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: primaryColor,
+                      ml: 1
+                    }}
+                  />
+                )}
+              </Box>
+            </MenuItem>
+            {index < workspaces.length - 1 && <Divider sx={{ margin: '0' }} />}
+          </React.Fragment>
         );
       })}
+      <Divider sx={{ margin: '0' }} />
+      <MenuItem
+        onClick={handleNewWorkspace}
+        sx={{
+          py: 2,
+          px: 3,
+          color: secondaryColor,
+          height: '36px',
+          "&:hover": {
+            backgroundColor: hoverColor
+          }
+        }}
+      >
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          justifyContent: 'space-between',
+          "&:hover": {
+            color: secondaryColor900
+          }
+        }}>
+          <Typography variant="body-medium">New Workspace</Typography>
+          <AddOutlinedIcon
+            fontSize="small"
+            sx={{
+              fontSize: '18px'
+            }}
+          />
+        </Box>
+      </MenuItem>
     </Menu>
   );
 }
