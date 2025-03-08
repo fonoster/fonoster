@@ -32,6 +32,7 @@ import {
   ExchangeResponse,
   IdentityConfig
 } from "./types";
+import { verificationRequiredButNotProvided } from "../utils/verificationRequiredButNotProvided";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -60,6 +61,13 @@ function createExchangeOauth2Code(
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"
+      });
+    }
+
+    if (verificationRequiredButNotProvided(identityConfig, user)) {
+      return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: "User contact information not verified"
       });
     }
 

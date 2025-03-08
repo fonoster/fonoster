@@ -33,18 +33,9 @@ import {
   ExchangeResponse,
   IdentityConfig
 } from "./types";
+import { verificationRequiredButNotProvided } from "../utils/verificationRequiredButNotProvided";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const verificationRequiredButNotProvided = (
-  identityConfig: IdentityConfig,
-  user: {
-    emailVerified: boolean;
-    phoneNumberVerified: boolean;
-  }
-) =>
-  identityConfig.contactVerificationRequired &&
-  (!user.emailVerified || !user.phoneNumberVerified);
 
 function createExchangeCredentials(
   prisma: Prisma,
