@@ -12,7 +12,7 @@ import { Typography } from "@stories/typography/Typography";
 import { ChatText as ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
 import { User as UserIcon } from "@phosphor-icons/react/dist/ssr/User";
 import { X as XIcon } from "@phosphor-icons/react/dist/ssr/X";
-import { Divider } from "@mui/material";
+import { NotificationDropdown } from "@stories/notificationdropdown/NotificationDropdown";
 
 import { dayjs } from "@/utils/dayjs";
 import { User } from "@/types/user";
@@ -81,63 +81,41 @@ export function NotificationsPopover({
       anchorEl={anchorEl}
       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       onClose={onClose}
-      open={open}
-      slotProps={{
-        paper: {
-          sx: {
-            width: "251px",
-            mt: 1,
-            boxShadow: '0px 5px 10px 0px #0000001A',
-            borderRadius: '8px',
-            overflow: 'visible',
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: -8,
-              right: 20,
-              width: 16,
-              height: 16,
-              bgcolor: 'background.paper',
-              transform: 'rotate(45deg)',
-              zIndex: 0,
-            },
-          }
+      open={Boolean(open)}
+      transformOrigin={{ horizontal: "right", vertical: "top" }}
+      PaperProps={{
+        sx: {
+          width: "251px",
+          p: 0,
+          mt: 3,
+          boxShadow: "0px 5px 10px 0px #0000001A"
         }
       }}
-      transformOrigin={{ horizontal: "right", vertical: "top" }}
     >
-      <Box sx={{ p: 1.5, pb: 1 }}>
-        <Typography variant="body-medium" fontWeight="600" sx={{ color: 'text.primary', mb: 0.5 }}>
-          Notifications
-        </Typography>
-      </Box>
-      <Divider />
-
-      {notifications.length === 0 ? (
-        <Box sx={{ p: 2, textAlign: 'center' }}>
-          <Typography variant="body-small" sx={{ color: 'text.primary' }}>
-            You're all caught up!
-          </Typography>
-        </Box>
-      ) : (
-        <Box sx={{ maxHeight: "270px", overflowY: "auto" }}>
-          <List disablePadding>
-            {notifications.map((notification, index) => (
-              <NotificationItem
-                user={user}
-                divider={index < notifications.length - 1}
-                key={notification.id}
-                notification={notification}
-                onRemove={() => {
-                  onRemoveOne?.(notification.id);
-                }}
-              />
-            ))}
-          </List>
-        </Box>
-      )
-      }
+      <NotificationDropdown
+        notifications={[
+          {
+            id: '1',
+            isRead: false,
+            message: 'Lorem ipsum dolor sit amet lorem ipsum dolor',
+            timestamp: 'x hours ago'
+          },
+          {
+            id: '2',
+            isRead: true,
+            message: 'Lorem ipsum dolor sit amet lorem ipsum dolor',
+            timestamp: 'x hours ago'
+          },
+          {
+            id: '3',
+            isRead: true,
+            message: 'Lorem ipsum dolor sit amet lorem ipsum dolor',
+            timestamp: 'x hours ago'
+          }
+        ]}
+        onNotificationClick={onClose}
+        onVisitSiteClick={() => { }}
+      />
     </Popover >
   );
 }

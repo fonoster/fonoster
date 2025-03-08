@@ -38,7 +38,6 @@ export const NotificationDropdownHeader = styled("div")(() => ({
   alignItems: "center",
   height: "42px",
   padding: "0px 16px",
-  borderBottom: "1px solid #f0f0f0"
 }));
 
 export const NotificationItem = styled("div")<{ isRead: boolean }>(({ theme, isRead }) => ({
@@ -47,7 +46,7 @@ export const NotificationItem = styled("div")<{ isRead: boolean }>(({ theme, isR
   cursor: "pointer",
   borderBottom: "1px solid #f0f0f0",
   position: "relative",
-  backgroundColor: isRead ? "transparent" : "rgba(232, 245, 233, 0.3)",
+  // backgroundColor: isRead ? "transparent" : "rgba(232, 245, 233, 0.3)",
   "&:hover": {
     backgroundColor: theme.palette.action.hover
   }
@@ -60,22 +59,20 @@ export const NotificationContent = styled("div")(() => ({
 }));
 
 export const NotificationIcon = styled("div")(() => ({
-  width: "32px",
-  height: "32px",
-  borderRadius: "50%",
-  backgroundColor: "#4caf50",
   color: "#fff",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   marginRight: "12px",
-  fontSize: "14px"
+  marginBottom: "20px",
+
 }));
 
 export const NotificationTimestamp = styled("div")(() => ({
   fontSize: "12px",
   color: "#757575",
-  marginTop: "4px"
+  marginLeft: "auto",
+  whiteSpace: "nowrap"
 }));
 
 export const NotificationReadIndicator = styled("div")(() => ({

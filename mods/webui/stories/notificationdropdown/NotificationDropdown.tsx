@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import React from "react";
 import {
   NotificationDropdownContainer,
   NotificationDropdownContent,
@@ -24,16 +25,12 @@ import {
   NotificationContent,
   NotificationIcon,
   NotificationTimestamp,
-  NotificationReadIndicator,
-  NotificationFooter,
-  VisitSiteLink,
-  LinkIcon
 } from "./NotificationDropdown.styles";
 import { NotificationDropdownProps } from "./types";
 import { Typography } from "../typography/Typography";
 
 export const NotificationDropdown = (props: NotificationDropdownProps) => {
-  const { notifications, onVisitSiteClick, onNotificationClick } = props;
+  const { notifications, onNotificationClick } = props;
 
   return (
     <NotificationDropdownContainer>
@@ -42,33 +39,32 @@ export const NotificationDropdown = (props: NotificationDropdownProps) => {
           <Typography variant="body-medium">Notifications</Typography>
         </NotificationDropdownHeader>
 
-        {notifications.map((notification) => (
-          <NotificationItem 
-            key={notification.id} 
-            isRead={notification.isRead}
-            onClick={() => onNotificationClick && onNotificationClick(notification.id)}
-          >
-            <NotificationIcon>
-              F
-            </NotificationIcon>
-            <NotificationContent>
-              <Typography variant="body-small">{notification.message}</Typography>
-              <NotificationTimestamp>{notification.timestamp}</NotificationTimestamp>
-            </NotificationContent>
-            {!notification.isRead && <NotificationReadIndicator />}
-          </NotificationItem>
-        ))}
-
-        <NotificationFooter>
-          <VisitSiteLink onClick={onVisitSiteClick}>
-            <Typography variant="body-small">Visit Site</Typography>
-            <LinkIcon>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </LinkIcon>
-          </VisitSiteLink>
-        </NotificationFooter>
+        {notifications.length === 0 ? (
+          <div style={{ padding: "16px", textAlign: "center" }}>
+            <Typography variant="body-small">You're all caught up!</Typography>
+          </div>
+        ) : (
+          notifications.map((notification) => (
+            <NotificationItem
+              key={notification.id}
+              isRead={notification.isRead}
+              onClick={() => onNotificationClick && onNotificationClick(notification.id)}
+            >
+              <NotificationIcon>
+                <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 7.5102C16 3.36243 12.4183 0 8 0C3.58172 0 0 3.36243 0 7.5102V16H7.47826C12.1847 16 16 12.4183 16 8V7.5102Z" fill="#39E19E" />
+                  <path d="M5.73047 11.802V4.7207H11.212V6.15692H7.59554V7.6829H10.5751V9.0094H7.59554V11.802H5.73047Z" fill="#333333" />
+                </svg>
+              </NotificationIcon>
+              <NotificationContent>
+                <Typography variant="body-small">{notification.message}</Typography>
+              </NotificationContent>
+              <NotificationTimestamp>
+                <Typography variant="body-micro">{notification.timestamp}</Typography>
+              </NotificationTimestamp>
+            </NotificationItem>
+          ))
+        )}
       </NotificationDropdownContent>
     </NotificationDropdownContainer>
   );

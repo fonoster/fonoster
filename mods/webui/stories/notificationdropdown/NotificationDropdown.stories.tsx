@@ -21,7 +21,7 @@ import { NotificationDropdown } from "./NotificationDropdown";
 import { NotificationItem } from "./types";
 
 const meta: Meta<typeof NotificationDropdown> = {
-  title: "Components/NotificationDropdown",
+  title: "Core Components/Notification/NotificationDropdown",
   component: NotificationDropdown,
   parameters: {
     layout: "centered"

@@ -26,7 +26,7 @@ import React from "react";
  * It takes open, onAccountSettingsClicked and onSignoutClicked.
  */
 const meta = {
-    title: "Shared Components/NavigationDropdownAccount",
+    title: "Core Components/Navigation/NavigationDropdownAccount",
     component: NavigationDropdownAccount,
     parameters: {
         layout: "centered",
