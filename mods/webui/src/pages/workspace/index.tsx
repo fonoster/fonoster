@@ -7,14 +7,14 @@ import { Typography } from "@stories/typography/Typography";
 import { useUser } from "@/common/sdk/hooks/useUser";
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
-
+import { Content } from "@/common/components/layout/noAuth/Layout";
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   height: "100%",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   maxWidth: "none !important",
-  padding: theme.spacing(10),
+  padding: theme.spacing(8),
   overflow: "auto"
 }));
 
@@ -25,7 +25,7 @@ const WorkspaceGrid = styled(Box)(({ theme }) => ({
   gridAutoFlow: "row dense",
   gap: theme.spacing(3),
   width: "100%",
-  padding: theme.spacing(10),
+  padding: theme.spacing(8),
   margin: "0 auto",
   "@media (max-width: 767px)": {
     gridTemplateColumns: "minmax(300px, 344px)",
@@ -66,45 +66,40 @@ const ListWorkspacePage = () => {
 
   return (
     <WorkspaceContainer>
-      <Typography variant="heading-medium">
-        {`Hey ${user?.name}, welcome to Fonoster!`}
-      </Typography>
-      <Typography
-        variant="body-large"
-        color="text.secondary"
-        align="center"
-        mt={1}
-        mb={2}
+      <Content title={"Hey ${user?.name}, welcome to Fonoster! 👋"}
+        description={'Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.'}
+        descriptionFontSize="body-medium"
       >
-        Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.
-      </Typography>
-      <WorkspaceGrid>
-        {isLoading ? (
-          <Typography>Loading workspaces...</Typography>
-        ) : (
-          <>
-            {workspaces.map((workspace) => (
+
+
+        <WorkspaceGrid>
+          {isLoading ? (
+            <Typography>Loading workspaces...</Typography>
+          ) : (
+            <>
+              {workspaces.map((workspace) => (
+                <WorkspaceCard
+                  key={workspace.ref}
+                  variant="regular"
+                  region={
+                    workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION
+                  }
+                  description={workspace.name}
+                  date={workspace.createdAt.toLocaleDateString()}
+                  onClick={() => handleWorkspaceClick(workspace.ref)}
+                  onSettingsClick={(e) => handleSettingsClick(e, workspace.ref)}
+                  disabled={false}
+                />
+              ))}
               <WorkspaceCard
-                key={workspace.ref}
-                variant="regular"
-                region={
-                  workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION
-                }
-                description={workspace.name}
-                date={workspace.createdAt.toLocaleDateString()}
-                onClick={() => handleWorkspaceClick(workspace.ref)}
-                onSettingsClick={(e) => handleSettingsClick(e, workspace.ref)}
+                variant="empty"
+                onClick={handleCreateWorkspace}
                 disabled={false}
               />
-            ))}
-            <WorkspaceCard
-              variant="empty"
-              onClick={handleCreateWorkspace}
-              disabled={false}
-            />
-          </>
-        )}
-      </WorkspaceGrid>
+            </>
+          )}
+        </WorkspaceGrid>
+      </Content>
     </WorkspaceContainer>
   );
 };
