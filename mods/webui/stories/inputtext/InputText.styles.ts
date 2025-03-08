@@ -24,20 +24,20 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     padding: "6px 16px",
     height: "28px",
     fontSize: "12px",
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: "'Poppins', sans-serif",
     fontWeight: 400,
     lineHeight: "normal",
     letterSpacing: "0.12px"
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.Mui-focused": {
     color: theme.palette.primary.main,
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: "'Poppins', sans-serif",
     fontWeight: 500,
     lineHeight: "normal",
     transform: "translate(16px, -11px) scale(0.66)"
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: "'Poppins', sans-serif",
     fontWeight: 500,
     lineHeight: "normal",
     transform: "translate(16px, -11px) scale(0.66)",
@@ -67,7 +67,7 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     }
   },
   "& .MuiFormHelperText-root": {
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: "'Poppins', sans-serif",
     fontSize: "10px",
     fontWeight: 500,
     lineHeight: "normal",
@@ -76,7 +76,7 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     color: theme.palette.text.primary
   },
   "& .MuiFormLabel-root.MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: "'Poppins', sans-serif",
     fontSize: "12px",
     fontWeight: 500,
     lineHeight: "normal",
