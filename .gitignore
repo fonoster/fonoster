@@ -16,3 +16,4 @@ config/assistant*
 !assistant.example.json
 .next
 next-env.d.ts
+.npmrc

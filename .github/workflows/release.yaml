@@ -51,10 +51,10 @@ jobs:
 
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout package-lock.json
+          git checkout .
 
           npm run release
-    
+
       - name: Get version from Lerna
         run: |
           lerna_version=$(node -p "require('./lerna.json').version")
