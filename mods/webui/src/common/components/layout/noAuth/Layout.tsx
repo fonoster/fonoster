@@ -2,6 +2,8 @@ import { AppBar, Box, Container, Stack, styled } from "@mui/material";
 import { Logo } from "@/common/components/logo/Logo";
 import { FormProvider, UseFormReturn } from "react-hook-form";
 import { Typography } from "@stories/typography/Typography";
+import { NextAppProvider } from "@toolpad/core/nextjs";
+import { fnLight, fnDark } from "@theme/theme";
 
 const HEADER_HEIGHT = 80;
 const HEADER_TO_CONTENT_SPACING = 44;
@@ -114,3 +116,23 @@ export const Layout = ({ children, methods }: LayoutProps) => {
     </Box>
   );
 };
+
+
+
+
+export function NoAuthLayout({ children }: { children: React.ReactNode }) {
+  const BRANDING = {
+      title: "Fonoster"
+  };
+  return (
+      <NextAppProvider
+          branding={BRANDING}
+          theme={{
+              light: fnLight,
+              dark: fnDark
+          }}
+      >
+          {children}
+      </NextAppProvider>
+  );
+}
