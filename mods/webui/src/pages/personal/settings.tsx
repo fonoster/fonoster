@@ -146,7 +146,7 @@ const SettingsPage = () => {
         formId="personal-settings-form"
         onSubmit={methods.handleSubmit(onSubmit)}
       >
-        <Typography variant="body-medium" sx={{ mt: 2 }}>
+        <Typography variant="heading-small" sx={{ mt: 2 }}>
           Personal Settings
         </Typography>
         <InputContext
@@ -162,7 +162,7 @@ const SettingsPage = () => {
           type="email"
         />
 
-        <Typography variant="body-medium" sx={{ mt: 2 }}>
+        <Typography variant="heading-small" sx={{ mt: 2 }}>
           Change Password
         </Typography>
 
@@ -232,12 +232,12 @@ const SettingsPage = () => {
             checked={lightMode}
             onChange={() => setLightMode(e.target.checked)}
           />
-          <Typography variant="body-small">
+          <Typography variant="body-medium">
             Light Mode
           </Typography>
         </Stack>
 
-        <Button variant="contained" size="large">
+        <Button variant="contained">
           SAVE CHANGES
         </Button>
       </ContentForm>

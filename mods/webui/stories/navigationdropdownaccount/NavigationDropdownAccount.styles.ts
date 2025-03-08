@@ -19,18 +19,13 @@
 import { styled } from "@mui/material/styles";
 
 export const NavigationDropdownAccountContainer = styled("div")(() => ({
-    position: "relative"
+    width: "100%"
 }));
 
-export const NavigationDropdownAccountContent = styled("div")<{
-    open: boolean;
-}>(({ open }) => ({
-    position: "absolute",
-    display: open ? "flex" : "none",
+export const NavigationDropdownAccountContent = styled("div")(() => ({
+    display: "flex",
     flexDirection: "column",
-    width: "251px",
-    boxShadow: "0px 5px 10px 0px #0000001A",
-    zIndex: 10,
+    width: "100%",
     padding: "10px 0px"
 }));
 
@@ -48,6 +43,6 @@ export const NavigationDropdownAccountMenuItem = styled("div")(({ theme }) => ({
     padding: "0px 10px",
     cursor: "pointer",
     "&:hover": {
-        backgroundColor: theme.palette.secondary[50]
+        backgroundColor: theme.palette.action.hover
     }
-})); 
+}));

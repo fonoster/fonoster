@@ -28,11 +28,11 @@ import { Typography } from "../typography/Typography";
 export const NavigationDropdownAccount = (
     props: NavigationDropdownAccountProps
 ) => {
-    const { open, onAccountSettingsClicked, onSignoutClicked } = props;
+    const { onAccountSettingsClicked, onSignoutClicked } = props;
 
     return (
         <NavigationDropdownAccountContainer>
-            <NavigationDropdownAccountContent open={open}>
+            <NavigationDropdownAccountContent>
                 <NavigationDropdownAccountHeader>
                     <Typography variant="body-medium">Account</Typography>
                 </NavigationDropdownAccountHeader>
@@ -47,4 +47,4 @@ export const NavigationDropdownAccount = (
             </NavigationDropdownAccountContent>
         </NavigationDropdownAccountContainer>
     );
-}; 
+};
