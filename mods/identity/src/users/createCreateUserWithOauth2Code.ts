@@ -63,7 +63,7 @@ function createCreateUserWithOauth2Code(
       });
     }
 
-    const userFromDB = await createGetUserByEmail(prisma)(userData?.email);
+    const userFromDB = await createGetUserByEmail(prisma)(userData.email);
 
     if (userFromDB) {
       return callback({

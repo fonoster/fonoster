@@ -19,7 +19,8 @@
     "mods/sipnet",
     "mods/streams",
     "mods/types",
-    "mods/voice"
+    "mods/voice",
+    "mods/mcp"
   ],
   "scripts": {
     "start:webui": "NODE_ENV=dev cd mods/webui && npm run dev",
@@ -32,6 +33,7 @@
     "start:sdk-demo": "npx serve -s mods/sdk/public -l 9000",
     "start:oauth2-demo": "npx serve mods/sdk/public -l 9000",
     "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams mods/streams/src/example.ts",
+    "start:mcp": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/mcp mods/mcp/src/index.ts",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "build": "lerna run build",
     "prebuild": "npm run generate:prisma-clients",
