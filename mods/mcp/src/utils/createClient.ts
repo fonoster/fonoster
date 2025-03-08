@@ -18,8 +18,8 @@
  */
 import * as SDK from "@fonoster/sdk";
 import {
-  ACCESS_KEY_SECRET,
   ACCESS_KEY_ID,
+  ACCESS_KEY_SECRET,
   WORKSPACE_ACCESS_KEY_ID
 } from "../env";
 

@@ -26,13 +26,13 @@ import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
+import { verificationRequiredButNotProvided } from "../utils/verificationRequiredButNotProvided";
 import { exchangeTokens } from "./exchangeTokens";
 import {
   ExchangeOauth2CodeRequest,
   ExchangeResponse,
   IdentityConfig
 } from "./types";
-import { verificationRequiredButNotProvided } from "../utils/verificationRequiredButNotProvided";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 

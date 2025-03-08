@@ -26,6 +26,7 @@ import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
+import { verificationRequiredButNotProvided } from "../utils/verificationRequiredButNotProvided";
 import { ContactType } from "../verification";
 import { exchangeTokens } from "./exchangeTokens";
 import {
@@ -33,7 +34,6 @@ import {
   ExchangeResponse,
   IdentityConfig
 } from "./types";
-import { verificationRequiredButNotProvided } from "../utils/verificationRequiredButNotProvided";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
