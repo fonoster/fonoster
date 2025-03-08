@@ -66,7 +66,7 @@ const ListWorkspacePage = () => {
 
   return (
     <WorkspaceContainer>
-      <Content title={"Hey ${user?.name}, welcome to Fonoster! 👋"}
+      <Content title={`Hey ${user?.name}, welcome to Fonoster! 👋`}
         description={'Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.'}
         descriptionFontSize="body-medium"
       >
