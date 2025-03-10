@@ -26,6 +26,7 @@ import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
+import { verificationRequiredButNotProvided } from "../utils/verificationRequiredButNotProvided";
 import { exchangeTokens } from "./exchangeTokens";
 import {
   ExchangeOauth2CodeRequest,
@@ -60,6 +61,13 @@ function createExchangeOauth2Code(
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"
+      });
+    }
+
+    if (verificationRequiredButNotProvided(identityConfig, user)) {
+      return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: "User contact information not verified"
       });
     }
 

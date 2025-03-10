@@ -51,10 +51,14 @@ jobs:
 
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout package-lock.json
+          git checkout .
+
+          # FIXME: This is a workaround to prevent the unit tests from failing
+          cp .env.example.dev .env
+          sed -i "s|AUTOPILOT_INTEGRATIONS_FILE=.*|AUTOPILOT_INTEGRATIONS_FILE=./config/integrations.example.json|g" .env          
 
           npm run release
-    
+
       - name: Get version from Lerna
         run: |
           lerna_version=$(node -p "require('./lerna.json').version")

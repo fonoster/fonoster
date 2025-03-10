@@ -26,6 +26,7 @@ import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
+import { verificationRequiredButNotProvided } from "../utils/verificationRequiredButNotProvided";
 import { ContactType } from "../verification";
 import { exchangeTokens } from "./exchangeTokens";
 import {
@@ -35,16 +36,6 @@ import {
 } from "./types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const verificationRequiredButNotProvided = (
-  identityConfig: IdentityConfig,
-  user: {
-    emailVerified: boolean;
-    phoneNumberVerified: boolean;
-  }
-) =>
-  identityConfig.contactVerificationRequired &&
-  (!user.emailVerified || !user.phoneNumberVerified);
 
 function createExchangeCredentials(
   prisma: Prisma,

@@ -16,17 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as SDK from "@fonoster/sdk";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
   CreateCallSchema,
   ListApplicationsSchema,
   ListNumbersSchema
 } from "../schemas";
+import { createClient } from "../utils/createClient";
 import { createCreateCall } from "./createCreateCall";
 import { createListApplications } from "./createListApplications";
 import { createListNumbers } from "./createListNumbers";
-import { createClient } from "../utils/createClient";
 
 /**
  * Registers all tools with the MCP server

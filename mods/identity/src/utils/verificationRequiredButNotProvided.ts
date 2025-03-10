@@ -16,20 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma } from "../db";
+import { IdentityConfig } from "../exchanges/types";
 
-function createGetUserByEmail(prisma: Prisma) {
-  return async function getUserByEmail(email: string) {
-    if (!email) {
-      return null;
-    }
-
-    return await prisma.user.findFirst({
-      where: {
-        email
-      }
-    });
-  };
+function verificationRequiredButNotProvided(
+  identityConfig: IdentityConfig,
+  user: {
+    emailVerified: boolean;
+    phoneNumberVerified: boolean;
+  }
+) {
+  return (
+    identityConfig.contactVerificationRequired &&
+    (!user.emailVerified || !user.phoneNumberVerified)
+  );
 }
 
-export { createGetUserByEmail };
+export { verificationRequiredButNotProvided };
