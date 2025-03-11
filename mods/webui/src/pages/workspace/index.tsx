@@ -4,14 +4,20 @@ import { useRouter } from "next/router";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
 import { Typography } from "@stories/typography/Typography";
+import { useUser } from "@/common/sdk/hooks/useUser";
+import { useEffect, useState } from "react";
+import { User } from "@/types/user";
+import { Content } from "@/common/components/layout/noAuth/Layout";
+import { CreateWorkspaceModal } from "./_components/CreateWorkspaceModal";
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
-  minHeight: `calc(100vh - 80px)`,
+  height: "100%",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  padding: theme.spacing(6),
-  maxWidth: "none !important"
+  maxWidth: "none !important",
+  padding: theme.spacing(8),
+  overflow: "auto"
 }));
 
 const WorkspaceGrid = styled(Box)(({ theme }) => ({
@@ -21,22 +27,45 @@ const WorkspaceGrid = styled(Box)(({ theme }) => ({
   gridAutoFlow: "row dense",
   gap: theme.spacing(3),
   width: "100%",
-  padding: theme.spacing(1),
+  padding: theme.spacing(8),
   margin: "0 auto",
-  overflowX: "hidden",
   "@media (max-width: 767px)": {
     gridTemplateColumns: "minmax(300px, 344px)",
-    justifyContent: "center"
+    justifyContent: "center",
+    padding: theme.spacing(2)
   }
 }));
 
 const ListWorkspacePage = () => {
   const router = useRouter();
-  const { workspaces, isLoading } = useWorkspaceContext();
+  const { workspaces, isLoading, refreshWorkspaces } = useWorkspaceContext();
   const { setAccessKeyId } = useFonosterClient();
+  const { loggedUser } = useUser();
+  const [user, setUser] = useState<User | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const logged = await loggedUser();
+      setUser(logged ? (logged as unknown) as User : null);
+    };
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    refreshWorkspaces();
+  }, []);
 
   const handleCreateWorkspace = () => {
-    router.push("/workspace/create");
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSuccess = () => {
+    refreshWorkspaces();
   };
 
   const handleWorkspaceClick = (workspaceId: string) => {
@@ -44,54 +73,43 @@ const ListWorkspacePage = () => {
     router.push(`/workspace/${workspaceId}/overview`);
   };
 
-  const handleSettingsClick = (e: React.MouseEvent, workspaceId: string) => {
-    e.stopPropagation();
-    setAccessKeyId(workspaceId);
-    router.push(`/workspace/${workspaceId}/overview/settings`);
-  };
-
   return (
     <WorkspaceContainer>
-      <Typography variant="heading-large">
-        Hey [USER], welcome to Fonoster!
-      </Typography>
-      {/* <Typography
-        variant="body1"
-        color="text.secondary"
-        align="center"
-        mt={1}
-        mb={2}
+      <Content title={`Hey ${user?.name}, welcome to Fonoster! 👋`}
+        description={'Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.'}
+        descriptionFontSize="body-medium"
       >
-        Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.
-      </Typography> */}
 
-      <WorkspaceGrid>
-        {isLoading ? (
-          <Typography>Loading workspaces...</Typography>
-        ) : (
-          <>
-            {workspaces.map((workspace) => (
+        <WorkspaceGrid>
+          {isLoading && workspaces.length === 0 ? (
+            <Typography>Loading workspaces...</Typography>
+          ) : (
+            <>
+              {workspaces.map((workspace) => (
+                <WorkspaceCard
+                  key={workspace.ref}
+                  variant="regular"
+                  region={process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
+                  description={workspace.name}
+                  date={workspace.createdAt.toLocaleDateString()}
+                  onClick={() => handleWorkspaceClick(workspace.ref)}
+                  disabled={false}
+                />
+              ))}
               <WorkspaceCard
-                key={workspace.ref}
-                variant="regular"
-                region={
-                  workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION
-                }
-                description={workspace.name}
-                date={workspace.createdAt.toLocaleDateString()}
-                onClick={() => handleWorkspaceClick(workspace.ref)}
-                onSettingsClick={(e) => handleSettingsClick(e, workspace.ref)}
+                variant="empty"
+                onClick={handleCreateWorkspace}
                 disabled={false}
               />
-            ))}
-            <WorkspaceCard
-              variant="empty"
-              onClick={handleCreateWorkspace}
-              disabled={false}
-            />
-          </>
-        )}
-      </WorkspaceGrid>
+            </>
+          )}
+        </WorkspaceGrid>
+      </Content>
+      <CreateWorkspaceModal
+        open={isCreateModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={handleCreateSuccess}
+      />
     </WorkspaceContainer>
   );
 };

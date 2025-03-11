@@ -2,6 +2,7 @@ import { AppBar, Box, Container, Stack, styled } from "@mui/material";
 import { Logo } from "@/common/components/logo/Logo";
 import { FormProvider, UseFormReturn } from "react-hook-form";
 import { Typography } from "@stories/typography/Typography";
+import { TypographyVariant } from "@stories/typography/types";
 
 const HEADER_HEIGHT = 80;
 const HEADER_TO_CONTENT_SPACING = 44;
@@ -61,30 +62,33 @@ export const Card = styled("form")(({ theme }) => ({
 
 interface AuthContentProps {
   title: string;
-  description?: string;
+  description?: string | React.ReactNode;
+  descriptionFontSize?: TypographyVariant;
   children: React.ReactNode;
 }
 
-export const Content = ({ title, description, children }: AuthContentProps) => {
+export const Content = ({ title, description, descriptionFontSize = "body-small", children }: AuthContentProps) => {
   return (
     <>
       <Typography
-        variant="heading-medium"
+        variant="heading-large"
         sx={{
-          marginBottom: 3,
-          fontWeight: 500,
-          color: "text.primary"
+          marginBottom: description ? 20 : 40,
+          color: 'text.primary',
+          textAlign: 'center'
         }}
       >
         {title}
       </Typography>
-      {description && (
+      {typeof description === "string" ? (
         <Typography
-          variant="body-medium"
-          sx={{ marginBottom: 4, color: "text.secondary" }}
+          variant={descriptionFontSize}
+          sx={{ marginBottom: 30, color: 'text.secondary', textAlign: 'center' }}
         >
           {description}
         </Typography>
+      ) : (
+        description
       )}
       <Stack spacing={3} sx={{ width: "100%" }}>
         {children}

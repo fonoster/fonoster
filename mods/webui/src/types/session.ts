@@ -1,8 +1,7 @@
-import type { Session } from "@toolpad/core/AppProvider";
 
-export interface CustomSession extends Session {
+export interface CustomSession {
   isAuthenticated: boolean;
-  userIdToken?: string;
+  idToken?: string;
   accessToken?: string;
   refreshToken?: string;
 }

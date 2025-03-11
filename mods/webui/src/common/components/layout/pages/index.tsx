@@ -1,9 +1,11 @@
 import { ReactNode } from "react";
-import { Box, Typography, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { ColumnDef } from "@tanstack/react-table";
 import ReactTable from "@/common/contexts/table/ReactTable";
 import { FormProvider, UseFormReturn } from "react-hook-form";
 import { LinkBackTo } from "@stories/linkbackto/LinkBackTo";
+import { Typography } from "@stories/typography/Typography";
+
 interface PageContainerProps {
   children: ReactNode;
 }
@@ -58,11 +60,7 @@ function Header({ title, actions, backTo }: HeaderProps) {
         }}
       >
         <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 500,
-            fontSize: "1.5rem"
-          }}
+          variant="heading-medium"
         >
           {title}
         </Typography>
@@ -74,7 +72,7 @@ function Header({ title, actions, backTo }: HeaderProps) {
 
 function Subheader({ children }: DescriptionProps) {
   return (
-    <Typography variant="body1" sx={{ mb: 3 }}>
+    <Typography variant="body-medium" sx={{ mb: 3 }}>
       {children}
     </Typography>
   );
@@ -91,13 +89,13 @@ function ContentTable<T extends object>({
         <ReactTable.Header.Filter />
         <ReactTable.Header.Search
           value={""}
-          onChange={() => {}}
+          onChange={() => { }}
           placeholder="Search..."
         />
         <ReactTable.Header.Pagination
           currentPage={1}
           totalPages={10}
-          onPageChange={() => {}}
+          onPageChange={() => { }}
         />
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />

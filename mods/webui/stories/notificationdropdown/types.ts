@@ -17,9 +17,15 @@
  * limitations under the License.
  */
 
-type NavigationDropdownAccountProps = {
-    onSignoutClicked: () => void;
-    onAccountSettingsClicked: () => void;
+export type NotificationItem = {
+  id: string;
+  message: string;
+  timestamp: string;
+  isRead: boolean;
 };
 
-export type { NavigationDropdownAccountProps };
+export type NotificationDropdownProps = {
+  notifications: NotificationItem[];
+  onVisitSiteClick: () => void;
+  onNotificationClick?: (id: string) => void;
+};

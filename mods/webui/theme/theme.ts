@@ -18,7 +18,6 @@
  */
 import { createTheme, ThemeOptions } from "@mui/material/styles";
 
-// Definir las opciones del tema claro
 const fnLight = createTheme({
   palette: {
     primary: {
@@ -51,7 +50,8 @@ const fnLight = createTheme({
     },
     text: {
       primary: "#555"
-    }
+    },
+    divider: "#E8E8E8"
   },
   components: {
     MuiButton: {
@@ -79,6 +79,30 @@ const fnLight = createTheme({
               marginTop: "2px"
             }
           }
+        }
+      }
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid var(--Neutrals-06, #E8E8E8)',
+        }
+      }
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: "#E8E8E8",
+          "&::before, &::after": {
+            borderColor: "#E8E8E8"
+          }
+        }
+      }
+    },
+    MuiCssBaseline: {
+      styleOverrides: {
+        ':root': {
+          '--Neutrals-06': '#E8E8E8'
         }
       }
     }
@@ -134,7 +158,8 @@ const darkThemeOptions: ThemeOptions = {
     text: {
       primary: "#FFFFFF",
       secondary: "#B0B0B0"
-    }
+    },
+    divider: "#164A35"
   },
   components: {
     MuiButton: {
@@ -164,16 +189,33 @@ const darkThemeOptions: ThemeOptions = {
           }
         }
       }
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid var(--Neutrals-06, #E8E8E8)',
+        }
+      }
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: "#E8E8E8",
+          "&::before, &::after": {
+            borderColor: "#E8E8E8"
+          }
+        }
+      }
+    },
+    MuiCssBaseline: {
+      styleOverrides: {
+        ':root': {
+          '--Neutrals-06': '#E8E8E8'
+        }
+      }
     }
   }
 };
-
-// Crear los temas
-// const fnLight = createTheme(lightThemeOptions);
 const fnDark = createTheme(darkThemeOptions);
-
-// Verificar que los temas se hayan creado correctamente
-console.log('theme.ts - fnLight primary main:', fnLight.palette.primary.main);
-console.log('theme.ts - fnDark primary main:', fnDark.palette.primary.main);
 
 export { fnLight, fnDark };

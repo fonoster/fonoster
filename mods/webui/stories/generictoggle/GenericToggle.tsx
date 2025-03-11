@@ -17,8 +17,10 @@
  * limitations under the License.
  */
 import { useEffect, useState } from "react";
-import { StyledMuiSwitch } from "./GenericToggle.styles";
+import { StyledMuiSwitch, StyledIcon } from "./GenericToggle.styles";
 import { GenericToggleProps } from "./types";
+import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 export const GenericToggle = (props: GenericToggleProps) => {
   const { defaultValue, value, disabled, onChange } = props;
@@ -41,6 +43,16 @@ export const GenericToggle = (props: GenericToggleProps) => {
       checked={isChecked}
       disabled={disabled}
       onChange={handleChange}
+      icon={
+        <StyledIcon>
+          <DarkModeOutlinedIcon sx={{ color: "black", fontSize: 8 }} />
+        </StyledIcon>
+      }
+      checkedIcon={
+        <StyledIcon checked>
+          <LightModeOutlinedIcon sx={{ fontSize: 8 }} />
+        </StyledIcon>
+      }
     />
   );
 };

@@ -1,4 +1,4 @@
-import { Box, Typography, Alert, CircularProgress } from "@mui/material";
+import { Box, Alert, CircularProgress } from "@mui/material";
 import {
   Layout,
   PageContainer,
@@ -10,11 +10,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { InputContext } from "@/common/hooksForm/InputContext";
-import { LinkBackTo } from "@stories/linkbackto/LinkBackTo";
 import { Button } from "@stories/button/Button";
 import { useEffect, useState } from "react";
 import { useUser } from "@/common/sdk/hooks/useUser";
 import { useNotification } from "@/common/hooks/useNotification";
+import { Link } from "@/common/components";
 
 const resetPasswordSchema = z
   .object({
@@ -106,22 +106,13 @@ export default function ResetPassword() {
       <NotificationComponent />
       <PageContainer>
         <Card>
-          <Content title="Reset your password">
+          <Content title="Reset your password" description="Please reset your password using 8+ characters with upper, lower,
+              number, and symbol.">
             {codeError && (
               <Alert severity="error" sx={{ mb: 3 }}>
                 {codeError}
               </Alert>
             )}
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              align="center"
-              sx={{ mb: 5 }}
-            >
-              Please reset your password using 8+ characters with upper, lower,
-              number, and symbol.
-            </Typography>
-
             <InputContext
               name="password"
               label="Password"
@@ -160,14 +151,21 @@ export default function ResetPassword() {
               </Button>
             </Box>
 
-            {!resetSuccess && (
-              <Box sx={{ textAlign: "center", mt: 2 }}>
-                <LinkBackTo
+            {!resetSuccess ?
+              <Box style={{ textAlign: 'center', marginTop: '10px' }}>
+                <Link
+                  href="/forgot-password"
                   label="Back to forgot password"
-                  onClick={() => router.push("/forgot-password")}
                 />
               </Box>
-            )}
+
+              :
+              <Box style={{ textAlign: 'center', marginTop: '10px' }}>
+                <Link
+                  href="/signin"
+                  label="Back to sign in"
+                />
+              </Box>}
           </Content>
         </Card>
       </PageContainer>

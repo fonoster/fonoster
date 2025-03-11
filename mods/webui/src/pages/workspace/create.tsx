@@ -1,14 +1,12 @@
 import { useState } from "react";
 import {
-  Button,
-  Typography,
   Container,
   styled,
   Stack,
   Box,
   TextField,
   IconButton,
-  InputAdornment
+  InputAdornment,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { ProgressIndicator } from "../../../stories/progessindicator/ProgressIndicator";
@@ -20,6 +18,11 @@ import { z } from "zod";
 import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
 import { useAPIKey } from "@/common/sdk/hooks/useAPIKey";
 import { Role } from "@fonoster/types";
+import { useRouter } from "next/router";
+import { Content } from "@/common/components/layout/noAuth/Layout";
+import { Button } from "@stories/button/Button";
+import { Typography } from "@stories/typography/Typography";
+
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   minHeight: `calc(100vh - 80px)`,
   display: "flex",
@@ -32,16 +35,21 @@ const WorkspaceContainer = styled(Container)(({ theme }) => ({
 const CardContainer = styled(Box)({
   display: "flex",
   justifyContent: "center",
-  width: "100%"
+  width: "50%"
 });
 
+type option = {
+  value: string;
+  label: string;
+};
+
 const combinedSchema = z.object({
-  workspaceName: z.string().optional(),
+  workspaceName: z.string().min(1, "Workspace name is required"),
   region: z.string().optional(),
   apiKey: z.string().optional(),
-  secretName: z.string().optional(),
+  secretName: z.string().min(1, "Secret name is required"),
   apiKeyDescription: z.string().optional(),
-  accessRole: z.string().optional()
+  accessRole: z.string().min(1, "Access role is required")
 });
 
 const regions = [{ value: "NYC01", label: "NYC01" }];
@@ -59,6 +67,7 @@ const deafultRegion = {
 };
 
 const CreateWorkspacePage = () => {
+  const router = useRouter();
   const [activeStep, setActiveStep] = useState(0);
   const [currentProgress, setCurrentProgress] = useState(0);
   const [apiKey, setApiKey] = useState("");
@@ -88,48 +97,88 @@ const CreateWorkspacePage = () => {
   } = methods;
 
   const validateCurrentStep = async () => {
-    // All steps are optional now, so we always return true
+    const currentValues = methods.getValues();
+    const activeStepFields = {
+      0: ["workspaceName"],
+      1: ["region"],
+      2: ["secretName", "apiKeyDescription", "accessRole"]
+    };
+
+    if (activeStep === 0) {
+      if (!currentValues.workspaceName?.trim()) {
+        methods.setError("workspaceName", {
+          type: "required",
+          message: "Workspace name is required"
+        });
+        return false;
+      }
+      const isValid = await trigger("workspaceName");
+      return isValid;
+    }
+    else if (activeStep === 1) {
+      return true;
+    }
+    else if (activeStep === 2) {
+      if (!isApiKeyGenerated) {
+        if (!currentValues.secretName?.trim()) {
+          methods.setError("secretName", {
+            type: "required",
+            message: "Secret name is required"
+          });
+          return false;
+        }
+        if (!currentValues.accessRole) {
+          methods.setError("accessRole", {
+            type: "required",
+            message: "Access role is required"
+          });
+          return false;
+        }
+        const isValid = await trigger(["secretName", "accessRole"]);
+        return isValid;
+      }
+      return true;
+    }
+
     return true;
   };
 
   const handleStepSubmit = async (step: number) => {
     try {
       const isValid = await validateCurrentStep();
+
+      if (!isValid) {
+        return;
+      }
+
       const data = methods.getValues();
 
       if (step === 0) {
         if (data.workspaceName) {
-          await createWorkspace({
-            name: data.workspaceName
+          const result = await createWorkspace({
+            name: data.workspaceName as string
           });
+          setActiveStep(1);
+          setCurrentProgress(1);
         }
-        setActiveStep(1);
-        setCurrentProgress(1);
       } else if (step === 1) {
-        // if (data.region) {
-        //   await createRegion({
-        //     region: data.region
-        //   });
-        // }
         setActiveStep(2);
         setCurrentProgress(2);
       } else if (step === 2) {
-        if (!isApiKeyGenerated && data.secretName) {
+        if (!isApiKeyGenerated && data.secretName && data.accessRole) {
           const result = await createAPIKey({
-            name: data.secretName,
-            description: data.apiKeyDescription || "",
             role: data.accessRole as Role
           });
 
           if (result) {
-            setApiKey(result.apiKey);
-            setApiKeySecret(result.apiSecret);
+            setApiKey(result.accessKeyId);
+            setApiKeySecret(result.accessKeySecret);
             setIsApiKeyGenerated(true);
           }
         }
       }
     } catch (error) {
-      console.error("Error en el envío:", error);
+      console.error("Error in submission:", error);
     }
   };
 
@@ -141,7 +190,15 @@ const CreateWorkspacePage = () => {
       setActiveStep(2);
       setCurrentProgress(2);
     } else if (step === 2) {
-      console.log("Proceso completado");
+      router.push("/workspace");
+    }
+  };
+
+  const backStep = () => {
+    const prevStep = activeStep - 1;
+    if (prevStep >= 0) {
+      setActiveStep(prevStep);
+      setCurrentProgress(prevStep);
     }
   };
 
@@ -153,212 +210,227 @@ const CreateWorkspacePage = () => {
     switch (step) {
       case 0:
         return (
-          <Stack spacing={3}>
-            <Typography variant="h5" align="center">
-              Create a workspace to begin
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center">
-              Set up your workspace to start managing your queue
-            </Typography>
+          <Content title="Create a workspace to begin managing your queue"
+            description={'Manage all resources in your Fonoster workspace. You can also invite members, access applications, enable integrations, and more.'}
 
-            <InputContext
-              id="workspace-create-workspace-name"
-              name="workspaceName"
-              label="Workspace Name"
-              type="text"
-              leadingIcon={null}
-              trailingIcon={null}
-            />
+          >
+            <Stack spacing={3}>
+              <InputContext
+                id="workspace-create-workspace-name"
+                name="workspaceName"
+                label="Workspace Name"
+                type="text"
+                leadingIcon={null}
+                trailingIcon={null}
+                helperText="Please enter your workspace name"
+              />
 
-            {errors.workspaceName && (
-              <Typography color="error" variant="caption">
-                {errors.workspaceName.message}
-              </Typography>
-            )}
+              {errors.workspaceName && (
+                <Typography color="error" variant="body-small">
+                  {errors.workspaceName.message}
+                </Typography>
+              )}
 
-            <Button
-              fullWidth
-              variant="contained"
-              size="large"
-              onClick={() => handleStepSubmit(0)}
-              id="workspace-create-button-create-workspace"
-            >
-              Create Workspace
-            </Button>
+              <Box style={{ display: "flex", justifyContent: "center", marginTop: '2.5rem' }}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  onClick={() => handleStepSubmit(0)}
+                  id="workspace-create-button-create-workspace"
+                >
+                  Create Workspace
+                </Button>
+              </Box>
 
-            <Box sx={{ textAlign: "center", mt: 1 }}>
-              <Typography
-                variant="body2"
-                color="primary"
-                sx={{ cursor: "pointer", textDecoration: "underline" }}
-                onClick={() => skipStep(0)}
-              >
-                Skip step
-              </Typography>
-            </Box>
-          </Stack>
+
+              <Box style={{ display: "flex", justifyContent: "center", marginTop: '15px' }}>
+                <Typography
+                  variant="body-small-underline"
+                  sx={{ cursor: "pointer" }}
+                  onClick={() => skipStep(0)}
+                >
+                  Skip this step
+                </Typography>
+              </Box>
+            </Stack>
+          </Content>
         );
 
       case 1:
         return (
-          <Stack spacing={3}>
-            <Typography variant="h5" align="center">
-              Select your region
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center">
-              Select the region closest to your business operations
-            </Typography>
-
-            <SelectContext
-              id="workspace-create-region"
-              name="region"
-              label="Select Region"
-              options={regions}
-              defaultValue={deafultRegion}
-              disabled={true}
-            />
-
-            {errors.region && (
-              <Typography color="error" variant="caption">
-                {errors.region.message}
-              </Typography>
-            )}
-
-            <Button
-              fullWidth
-              variant="contained"
-              size="large"
-              onClick={() => handleStepSubmit(1)}
+          <Stack>
+            <Content title="Select your region"
+              description={'Select the region closest to your business operations'}
             >
-              Continue
-            </Button>
+              <SelectContext
+                id="workspace-create-region"
+                name="region"
+                label="Select Region"
+                options={regions}
+                defaultValue={deafultRegion}
+                disabled={true}
+              />
 
-            <Box sx={{ textAlign: "center", mt: 1 }}>
-              <Typography
-                variant="body2"
-                color="primary"
-                sx={{ cursor: "pointer", textDecoration: "underline" }}
-                onClick={() => skipStep(1)}
+              {errors.region && (
+                <Typography color="error" variant="body-small">
+                  {errors.region.message}
+                </Typography>
+              )}
+
+              <Button
+                fullWidth
+                variant="contained"
+                size="large"
+                onClick={() => handleStepSubmit(1)}
+                id="workspace-create-button-continue"
               >
-                Skip step
-              </Typography>
-            </Box>
+                Continue
+              </Button>
+
+              <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+                <Typography
+                  variant="body-small-underline"
+                  color="primary"
+                  sx={{ cursor: "pointer", textDecoration: "underline" }}
+                  onClick={backStep}
+                >
+                  Back Step
+                </Typography>
+                <Typography
+                  variant="body-small-underline"
+                  color="primary"
+                  sx={{ cursor: "pointer", textDecoration: "underline" }}
+                  onClick={() => skipStep(1)}
+                >
+                  Skip Step
+                </Typography>
+              </Box>
+            </Content>
           </Stack>
         );
 
       case 2:
         return (
           <Stack spacing={3}>
-            <Typography variant="h5" align="center">
-              {isApiKeyGenerated ? "Copy API Key" : "Generate API Key"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center">
-              {isApiKeyGenerated
+            <Content title={
+              isApiKeyGenerated ? "Copy API Key" : "Generate API Key"
+            }
+              description={isApiKeyGenerated
                 ? "Store this API key securely. You won't be able to see it again."
                 : "Fill in the details to generate your API key."}
-            </Typography>
+            >
+              {!isApiKeyGenerated ? (
+                <>
+                  <InputContext
+                    id="workspace-create-secret-name"
+                    name="secretName"
+                    label="Secret Name"
+                    type="text"
+                    leadingIcon={null}
+                    trailingIcon={null}
+                  />
 
-            {!isApiKeyGenerated ? (
-              <>
-                <InputContext
-                  id="workspace-create-secret-name"
-                  name="secretName"
-                  label="Secret Name"
-                  type="text"
-                  leadingIcon={null}
-                  trailingIcon={null}
-                />
+                  <InputContext
+                    id="workspace-create-api-key-description"
+                    name="apiKeyDescription"
+                    label="API Key Description"
+                    type="text"
+                    leadingIcon={null}
+                    trailingIcon={null}
+                  />
 
-                <InputContext
-                  id="workspace-create-api-key-description"
-                  name="apiKeyDescription"
-                  label="API Key Description"
-                  type="text"
-                  leadingIcon={null}
-                  trailingIcon={null}
-                />
+                  <SelectContext
+                    id="workspace-create-access-role"
+                    name="accessRole"
+                    label="Access Role"
+                    options={accessRoles}
+                    defaultValue={{ value: "admin", label: "Admin" }}
+                  />
 
-                <SelectContext
-                  id="workspace-create-access-role"
-                  name="accessRole"
-                  label="Access Role"
-                  options={accessRoles}
-                  defaultValue="admin"
-                />
+                  <Button
+                    id="workspace-create-button-generate-api-key"
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    onClick={() => handleStepSubmit(2)}
+                  >
+                    Generate API Key
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <TextField
+                    fullWidth
+                    label="API Key"
+                    value={apiKey}
+                    InputProps={{
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            edge="end"
+                            onClick={() => copyToClipboard(apiKey)}
+                            aria-label="copy api key"
+                          >
+                            <ContentCopyIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                    variant="outlined"
+                    margin="normal"
+                  />
 
-                <Button
-                  id="workspace-create-button-generate-api-key"
-                  fullWidth
-                  variant="contained"
-                  size="large"
-                  onClick={() => handleStepSubmit(2)}
+                  <TextField
+                    fullWidth
+                    label="API Secret"
+                    value={apiKeySecret}
+                    InputProps={{
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            edge="end"
+                            onClick={() => copyToClipboard(apiKeySecret)}
+                            aria-label="copy api secret"
+                          >
+                            <ContentCopyIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                    variant="outlined"
+                    margin="normal"
+                  />
+
+                  <Typography variant="body-small" color="error" align="center">
+                    Make sure to copy your API key and secret before closing this
+                    window. You won't be able to see them again.
+                  </Typography>
+                </>
+              )}
+
+              <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+                <Typography
+                  variant="body-small-underline"
+                  color="primary"
+                  sx={{ cursor: "pointer", textDecoration: "underline" }}
+                  onClick={backStep}
                 >
-                  Generate API Key
-                </Button>
-              </>
-            ) : (
-              <>
-                <TextField
-                  fullWidth
-                  label="API Key"
-                  value={apiKey}
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          edge="end"
-                          onClick={() => copyToClipboard(apiKey)}
-                          aria-label="copy api key"
-                        >
-                          <ContentCopyIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                  variant="outlined"
-                  margin="normal"
-                />
-
-                <TextField
-                  fullWidth
-                  label="API Secret"
-                  value={apiKeySecret}
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          edge="end"
-                          onClick={() => copyToClipboard(apiKeySecret)}
-                          aria-label="copy api secret"
-                        >
-                          <ContentCopyIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                  variant="outlined"
-                  margin="normal"
-                />
-
-                <Typography variant="body2" color="error" align="center">
-                  Make sure to copy your API key and secret before closing this
-                  window. You won't be able to see them again.
+                  Back Step
                 </Typography>
-              </>
-            )}
+                <Typography
+                  variant="body-small-underline"
+                  color="primary"
+                  sx={{ cursor: "pointer", textDecoration: "underline" }}
+                  onClick={() => skipStep(2)}
+                >
+                  Skip Step
+                </Typography>
+              </Box>
+            </Content>
 
-            <Box sx={{ textAlign: "center", mt: 1 }}>
-              <Typography
-                variant="body2"
-                color="primary"
-                sx={{ cursor: "pointer", textDecoration: "underline" }}
-                onClick={() => skipStep(2)}
-              >
-                Skip step
-              </Typography>
-            </Box>
           </Stack>
         );
 
@@ -372,10 +444,10 @@ const CreateWorkspacePage = () => {
       <Box
         sx={{
           width: "100%",
-          display: "flex",
+          // display: "flex",
           justifyContent: "center",
-          mb: 12,
-          mt: 8
+          mb: 7,
+          mt: 2
         }}
       >
         <ProgressIndicator steps={steps} current={currentProgress} />

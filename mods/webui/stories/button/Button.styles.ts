@@ -36,7 +36,7 @@ export const StyledMuiButton = styled(Button)(({ theme, variant, size }) => ({
   justifyContent: "center",
   alignItems: "flex-start",
   gap: "10px",
-  fontFamily: "Roboto Mono",
+  fontFamily: "'Poppins', Roboto Mono",
   fontSize: size === "large" ? "11px" : "10px",
   fontStyle: "normal",
   fontWeight: 500,

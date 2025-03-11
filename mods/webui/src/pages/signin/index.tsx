@@ -1,23 +1,19 @@
 import { useState, useEffect } from "react";
-import { Box, Divider, Link, Stack, useTheme } from "@mui/material";
+import { Box, Divider, Stack, useTheme } from "@mui/material";
 import { GitHub as GitHubIcon } from "@mui/icons-material";
-import {
-  Layout,
-  PageContainer,
-  Card,
-  Content
-} from "@/common/components/layout/noAuth/Layout";
-import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
-import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
-import { Button } from "@stories/button/Button";
-import { OAuthState } from "@/types/oauth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { InputContext } from "@/common/hooksForm/InputContext";
-import { AuthProvider } from "@/common/sdk/auth/AuthClient";
-import { OAUTH_CONFIG } from "@/config/oauth";
-import { Typography } from "@stories/typography/Typography";
+import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
+import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
+import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
+import { Button } from '@stories/button/Button';
+import { OAuthState } from '@/types/oauth';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { InputContext } from '@/common/hooksForm/InputContext';
+import { AuthProvider } from '@/common/sdk/auth/AuthClient';
+import { OAUTH_CONFIG } from '@/config/oauth';
+import { Typography } from '@stories/typography/Typography';
+import { Link } from '@/common/components';
 
 interface LoginForm {
   email: string;
@@ -26,13 +22,12 @@ interface LoginForm {
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string()
+  password: z.string().min(4)
 });
 
 export const GITHUB_CONFIG = OAUTH_CONFIG.signin;
 
 const LoginPage = () => {
-  const theme = useTheme();
   const router = useRouter();
   const { authentication } = useFonosterClient();
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -97,7 +92,7 @@ const LoginPage = () => {
               label="Email Address"
               type="email"
               shrink
-              id="email"
+              id="signin-email"
               helperText="Please enter your email address"
             />
 
@@ -106,19 +101,14 @@ const LoginPage = () => {
               label="Password"
               type="password"
               shrink
-              id="password"
+              id="signin-password"
               helperText="Please enter your password"
             />
-            <Box sx={{ textAlign: "right", mb: 2 }}>
+            <Box sx={{ textAlign: 'right', mb: 2 }}>
               <Link
                 href="/forgot-password"
-                color="inherit"
-                style={{ textDecoration: "none" }}
-              >
-                <Typography variant="body-small-underline">
-                  Forgot password?
-                </Typography>
-              </Link>
+                label="Forgot password?"
+              />
             </Box>
             {errors.root && errors.root.message && (
               <Typography variant="body-small" color="error">
@@ -162,15 +152,12 @@ const LoginPage = () => {
                 <Typography variant="body-small" onClick={handleSignUpClick}>
                   Sign up
                 </Typography>
+
                 <Link
                   href="/signup"
-                  color="inherit"
-                  style={{ textDecoration: "none" }}
-                >
-                  <Typography variant="body-small-underline" color="primary">
-                    here
-                  </Typography>
-                </Link>
+                  label="here"
+                />
+
               </Stack>
             </Box>
           </Content>

@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   Box,
-  Button,
-  Typography,
   useTheme,
   Stack,
   Switch,
@@ -18,6 +16,9 @@ import * as z from "zod";
 import { useUser } from "@/common/sdk/hooks/useUser";
 import PageContainer from "@/common/components/layout/pages";
 import router from "next/router";
+import { Typography } from "@stories/typography/Typography";
+import { Button } from "@stories/button/Button";
+import { GenericToggle } from "@stories/generictoggle/GenericToggle";
 
 const { ContentForm, Header } = PageContainer;
 
@@ -140,29 +141,18 @@ const SettingsPage = () => {
 
   return (
     <PageContainer>
-      <Header
-        title="Personal Settings"
-        actions={
-          <Button type="submit" variant="contained" size="large">
-            SAVE CHANGES
-          </Button>
-        }
-        backTo={{
-          label: "Back to Overview",
-          onClick: () => router.push(`/workspace/`)
-        }}
-      />
-
       <ContentForm
         methods={methods}
         formId="personal-settings-form"
         onSubmit={methods.handleSubmit(onSubmit)}
       >
+        <Typography variant="heading-small" sx={{ mt: 2 }}>
+          Personal Settings
+        </Typography>
         <InputContext
           id="user-settings-name"
           name="name"
           label="Name"
-          leadingIcon={<Person />}
         />
 
         <InputContext
@@ -170,10 +160,9 @@ const SettingsPage = () => {
           name="email"
           label="Email Address"
           type="email"
-          leadingIcon={<Mail />}
         />
 
-        <Typography variant="body1" sx={{ mt: 2 }}>
+        <Typography variant="heading-small" sx={{ mt: 2 }}>
           Change Password
         </Typography>
 
@@ -182,7 +171,6 @@ const SettingsPage = () => {
           name="newPassword"
           label="New Password"
           type="password"
-          leadingIcon={<Lock />}
         />
 
         <InputContext
@@ -190,7 +178,6 @@ const SettingsPage = () => {
           name="confirmPassword"
           label="Confirm New Password"
           type="password"
-          leadingIcon={<Lock />}
         />
 
         <Box
@@ -235,20 +222,24 @@ const SettingsPage = () => {
           </Box>
         </Box>
 
-        <Typography variant="body1" sx={{ mt: 2 }}>
+        <Typography variant="body-medium" sx={{ mt: 2 }}>
           Display Settings
         </Typography>
 
-        <FormControlLabel
-          control={
-            <Switch
-              checked={lightMode}
-              onChange={(e) => setLightMode(e.target.checked)}
-              color="primary"
-            />
-          }
-          label="Light Mode"
-        />
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <GenericToggle
+            defaultValue
+            checked={lightMode}
+            onChange={() => setLightMode(e.target.checked)}
+          />
+          <Typography variant="body-medium">
+            Light Mode
+          </Typography>
+        </Stack>
+
+        <Button variant="contained">
+          SAVE CHANGES
+        </Button>
       </ContentForm>
     </PageContainer>
   );

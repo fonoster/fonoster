@@ -1,20 +1,15 @@
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
-import {
-  Layout,
-  PageContainer,
-  Card,
-  Content
-} from "@/common/components/layout/noAuth/Layout";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { InputContext } from "@/common/hooksForm/InputContext";
-import { z } from "zod";
-import { LinkBackTo } from "@stories/linkbackto/LinkBackTo";
-import { Button } from "@stories/button/Button";
-import { useUser } from "@/common/sdk/hooks/useUser";
-import { useEffect, useState } from "react";
-import { useNotification } from "@/common/hooks/useNotification";
+import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { InputContext } from '@/common/hooksForm/InputContext';
+import { z } from 'zod';
+import { Button } from '@stories/button/Button';
+import { useUser } from '@/common/sdk/hooks/useUser';
+import { useEffect, useState } from 'react';
+import { useNotification } from '@/common/hooks/useNotification';
+import { Link } from '@/common/components';
 
 export const forgotPasswordSchema = z.object({
   email: z
@@ -78,16 +73,8 @@ export default function ForgotPassword() {
       <NotificationComponent />
       <PageContainer>
         <Card>
-          <Content title="Forgot Password?">
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              align="center"
-              sx={{ mb: 5 }}
-            >
-              Enter the email associated with your account and we'll send you a
-              link to reset your password.
-            </Typography>
+          <Content title="Forgot Password?" description="Enter the email associated with your account and we'll send you a link
+              to reset your password.">
 
             <InputContext
               name="email"
@@ -97,7 +84,7 @@ export default function ForgotPassword() {
               helperText="Please enter your email address"
             />
 
-            <Box sx={{ textAlign: "center", mt: 5 }}>
+            <Box style={{ textAlign: 'center', marginTop: '35px' }}>
               <Button
                 fullWidth
                 variant="contained"
@@ -114,10 +101,10 @@ export default function ForgotPassword() {
               </Button>
             </Box>
 
-            <Box sx={{ textAlign: "center", mt: 2 }}>
-              <LinkBackTo
+            <Box style={{ textAlign: 'center', marginTop: '10px' }}>
+              <Link
+                href="/signin"
                 label="Back to sign in"
-                onClick={() => router.push("/signin")}
               />
             </Box>
           </Content>
@@ -125,4 +112,4 @@ export default function ForgotPassword() {
       </PageContainer>
     </Layout>
   );
-}
+} 

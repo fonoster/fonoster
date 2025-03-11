@@ -1,25 +1,28 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
 import { GitHub as GitHubIcon } from "@mui/icons-material";
 import {
-  Layout,
-  PageContainer,
-  Card,
-  Content
-} from "@/common/components/layout/noAuth/Layout";
-import { useRouter } from "next/router";
-import { ModalTerms } from "@stories/modalterms/ModalTerms";
-import { useForm } from "react-hook-form";
-import { InputContext } from "@/common/hooksForm/InputContext";
-import { CheckboxContext } from "@/common/hooksForm/CheckboxContext";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@stories/button/Button";
-import { useUser } from "@/common/sdk/hooks/useUser";
-import { OAuthState } from "@/types/oauth";
-import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
-import { AuthProvider } from "@/common/sdk/auth/AuthClient";
-import { OAUTH_CONFIG } from "@/config/oauth";
+  Box,
+  Divider,
+  Stack,
+  useTheme,
+} from '@mui/material';
+import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
+import { useRouter } from 'next/router';
+import { ModalTerms } from '@stories/modalterms/ModalTerms';
+import { useForm } from 'react-hook-form';
+import { InputContext } from '@/common/hooksForm/InputContext';
+import { CheckboxContext } from '@/common/hooksForm/CheckboxContext';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@stories/button/Button';
+import { useUser } from '@/common/sdk/hooks/useUser';
+import { OAuthState } from '@/types/oauth';
+import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
+import { AuthProvider } from '@/common/sdk/auth/AuthClient';
+import { OAUTH_CONFIG } from '@/config/oauth';
+import { Typography } from '@stories/typography/Typography';
+import { Link } from '@/common/components';
+import { useNotification } from '@/common/hooks/useNotification';
 
 const signUpSchema = z
   .object({
@@ -47,8 +50,8 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 export const GITHUB_CONFIG = OAUTH_CONFIG.signup;
 
 const SignUpPage = () => {
-  const theme = useTheme();
   const router = useRouter();
+  const { notifyError, NotificationComponent } = useNotification();
   const [openTerms, setOpenTerms] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const { createUser, isReady } = useUser();
@@ -68,7 +71,6 @@ const SignUpPage = () => {
   const {
     watch,
     handleSubmit,
-    setError,
     formState: { errors }
   } = methods;
 
@@ -117,7 +119,7 @@ const SignUpPage = () => {
       let errorMessage = "An error occurred during registration";
 
       if (error?.message) {
-        if (error.message.includes("already exists")) {
+        if (error.message.includes("already exists") || error.code === 6) {
           errorMessage =
             "An account with this email already exists. Please try signing in.";
         } else if (error.message.includes("timeout")) {
@@ -130,9 +132,8 @@ const SignUpPage = () => {
           errorMessage = error.message;
         }
       }
-
-      setError("root", {
-        type: "manual",
+      notifyError({
+        code: "error",
         message: errorMessage
       });
       setIsRedirecting(false);
@@ -159,6 +160,7 @@ const SignUpPage = () => {
 
   return (
     <Layout methods={methods}>
+      <NotificationComponent />
       <PageContainer>
         <Card>
           <Content title="Sign up for Fonoster">
@@ -199,106 +201,58 @@ const SignUpPage = () => {
               }
             />
 
-            <CheckboxContext
-              name="agreeToTerms"
-              label={
-                <Typography variant="body2">
-                  Agree to the{" "}
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color="primary"
-                    sx={{
-                      cursor: "pointer",
-                      "&:hover": {
-                        textDecoration: "underline"
-                      }
-                    }}
-                    onClick={handleTermsClick}
-                  >
-                    terms and conditions
-                  </Typography>
-                </Typography>
-              }
-            />
-
-            <Button
-              fullWidth
-              variant="contained"
-              size="large"
-              onClick={handleSubmit(onSubmit)}
-              disabled={isRedirecting}
-            >
-              {isRedirecting ? "SIGNING UP..." : "SIGN UP"}
-            </Button>
-
-            <Box
-              sx={{
-                position: "relative",
-                textAlign: "center",
-                my: 2,
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  top: "50%",
-                  left: 0,
-                  right: 0,
-                  height: "1px",
-                  backgroundColor:
-                    theme.palette.mode === "light"
-                      ? "rgba(0, 0, 0, 0.12)"
-                      : "rgba(255, 255, 255, 0.12)"
-                }
-              }}
-            >
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  position: "relative",
-                  display: "inline-block",
-                  px: 2,
-                  backgroundColor: theme.palette.background.paper
-                }}
-              >
-                Or
-              </Typography>
+            <Box style={{ marginBottom: '25px', textAlign: 'center' }}>
+              <CheckboxContext
+                name="agreeToTerms"
+                label={'Agree to the terms and conditions'}
+              />
             </Box>
 
-            <Button
-              fullWidth
-              variant="outlined"
-              size="large"
-              startIcon={<GitHubIcon />}
-              onClick={handleGitHubSignUp}
-              disabled={isRedirecting}
-            >
-              Sign in with GitHub
-            </Button>
+            <Stack direction="column" spacing={1.5}>
+              <Button
+                fullWidth
+                variant="contained"
+                size="large"
+                onClick={handleSubmit(onSubmit)}
+                disabled={isRedirecting}
+              >
+                {isRedirecting ? 'SIGNING UP...' : 'SIGN UP FOR FONOSTER'}
+              </Button>
 
-            <Box sx={{ textAlign: "center" }}>
+              <Divider>
+                <Typography
+                  variant="body-small"
+                  color="text.secondary"
+                >
+                  Or
+                </Typography>
+              </Divider>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                size="large"
+                startIcon={<GitHubIcon />}
+                onClick={handleGitHubSignUp}
+                disabled={isRedirecting}
+              >
+                Sign in with GitHub
+              </Button>
+
+            </Stack>
+            <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.3}>
               <Typography
-                variant="body2"
+                variant="body-small"
                 color="text.secondary"
                 display="inline"
               >
-                Already have an account?{" "}
+                Already have an account?
               </Typography>
-              <Typography
-                variant="body2"
-                component="span"
-                color="primary"
-                onClick={() => router.push("/signin")}
-                sx={{
-                  cursor: "pointer",
-                  "&:hover": {
-                    textDecoration: "underline"
-                  }
-                }}
-              >
-                Sign in
-              </Typography>
-            </Box>
+              <Link
+                href="/signin"
+                label="Sign In"
+              />
+            </Stack>
           </Content>
         </Card>
       </PageContainer>

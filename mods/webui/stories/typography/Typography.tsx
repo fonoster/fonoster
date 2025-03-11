@@ -26,7 +26,7 @@ import { TypographyProps } from "./types";
 import { variantMapping } from "./variantMapping";
 
 function Typography(props: TypographyProps) {
-  const { variant = "body-medium", children, ...rest } = props;
+  const { variant = "body-medium", children, sx, ...rest } = props;
 
   const { muiVariant, style } = variantMapping[variant];
 
@@ -39,7 +39,10 @@ function Typography(props: TypographyProps) {
           TypographyPropsVariantOverrides
         >
       }
-      style={style}
+      style={{
+        ...style,
+        ...sx
+      }}
     >
       {children}
     </MuiTypography>
