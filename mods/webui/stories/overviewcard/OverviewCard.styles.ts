@@ -21,7 +21,7 @@ import { styled } from "@mui/material/styles";
 
 export const StyledMuiBox = styled(Box)(({ theme }) => ({
   display: "flex",
-  width: "439px",
+  width: "100%",
   height: "76px",
   alignItems: "center",
   justifyContent: "space-between",

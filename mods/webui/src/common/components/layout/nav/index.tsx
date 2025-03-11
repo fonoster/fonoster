@@ -128,7 +128,9 @@ export function SecuredLayout({
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                margin: { xs: '24px', sm: '44px', md: '64px', lg: '84px' },
+                marginTop: { xs: '24px', sm: '44px', md: '64px' },
+                marginLeft: { xs: '24px', sm: '44px', md: '64px', lg: '150px' },
+                marginRight: { xs: '24px', sm: '44px', md: '64px', lg: '150px' },
                 width: "100%"
               }}>
                 {children}
