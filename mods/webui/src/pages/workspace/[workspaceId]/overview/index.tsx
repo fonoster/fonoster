@@ -1,5 +1,5 @@
 import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
-import { Box, Typography, styled, Grid } from "@mui/material";
+import { Box, styled, Grid2 } from "@mui/material";
 import { OverviewCard } from "../../../../../stories/overviewcard/OverviewCard";
 import { useRouter } from "next/router";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { BaseApiObject } from "@fonoster/types";
 import PageContainer from "@/common/components/layout/pages";
 import { useApplications } from "@/common/sdk/hooks/useApplications";
+import { Typography } from "@stories/typography/Typography";
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(6)
@@ -85,8 +86,8 @@ export default function OverviewPage() {
     <PageContainer>
       <PageContainer.Header title="Workspace Overview" />
       <ContentContainer>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+        <Grid2 container spacing={2} columnSpacing={2}>
+          <Grid2 size={{ xs: 12, md: 6, lg: 6 }}>
             <SectionContainer>
               <SectionTitle>SETTINGS</SectionTitle>
               <CardsContainer>
@@ -102,9 +103,9 @@ export default function OverviewPage() {
                 />
               </CardsContainer>
             </SectionContainer>
-          </Grid>
+          </Grid2>
 
-          <Grid item xs={12} md={6}>
+          <Grid2 size={{ xs: 12, md: 6, lg: 6 }}>
             <SectionContainer>
               <SectionTitle>API KEYS</SectionTitle>
               <CardsContainer>
@@ -122,8 +123,8 @@ export default function OverviewPage() {
                 )}
               </CardsContainer>
             </SectionContainer>
-          </Grid>
-        </Grid>
+          </Grid2>
+        </Grid2>
       </ContentContainer>
     </PageContainer>
   );
