@@ -36,7 +36,7 @@ export function Header({
           "--MainNav-divider": "#E0E0E0",
           bgcolor: "var(--MainNav-background)",
           borderBottom: "1px solid #E0E0E0",
-          boxShadow: "0 0px 2px rgba(0, 0, 0, 0.05)",
+          boxShadow: "0.5px 0 2px rgba(0, 0, 0, 0.05)",
           left: 0,
           position: "sticky",
           top: 0,
