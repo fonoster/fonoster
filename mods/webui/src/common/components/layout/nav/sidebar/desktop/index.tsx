@@ -6,7 +6,7 @@ import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import { Typography } from "@stories/typography/Typography";
 import { ArrowSquareOut as ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import { CaretDown as CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import { CaretRight as CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
@@ -31,7 +31,7 @@ export function Sidebar(): React.JSX.Element {
       sx={{
         bgcolor: "var(--SideNav-background)",
         borderRight: "1px solid #E0E0E0",
-        boxShadow: "2px 0 4px rgba(0, 0, 0, 0.05)",
+        boxShadow: "0.5px 0 2px rgba(0, 0, 0, 0.05)",
         color: "var(--SideNav-color)",
         display: { xs: "none", lg: "flex" },
         flexDirection: "column",
@@ -59,13 +59,7 @@ export function Sidebar(): React.JSX.Element {
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
         <Typography
-          sx={{
-            lineHeight: 1.2,
-            textAlign: "center",
-            fontFamily: "monospace",
-            fontSize: "14px",
-            color: "text.secondary"
-          }}
+          variant="mono-small"
         >
           &copy; 2024, FONOSTER. V0.3.4
         </Typography>
@@ -88,11 +82,7 @@ function renderNavGroups({
           {curr.title ? (
             <div>
               <Typography
-                sx={{
-                  color: "var(--NavGroup-title-color)",
-                  fontSize: "0.875rem",
-                  fontWeight: 500
-                }}
+                variant="drawer-label"
               >
                 {curr.title}
               </Typography>
@@ -228,26 +218,26 @@ function NavItem({
       <Box
         {...(isBranch
           ? {
-              onClick: (): void => {
+            onClick: (): void => {
+              setOpen(!open);
+            },
+            onKeyUp: (event: React.KeyboardEvent<HTMLDivElement>): void => {
+              if (event.key === "Enter" || event.key === " ") {
                 setOpen(!open);
-              },
-              onKeyUp: (event: React.KeyboardEvent<HTMLDivElement>): void => {
-                if (event.key === "Enter" || event.key === " ") {
-                  setOpen(!open);
-                }
-              },
-              role: "button"
-            }
+              }
+            },
+            role: "button"
+          }
           : {
-              ...(href
-                ? {
-                    component: external ? "a" : RouterLink,
-                    href,
-                    target: external ? "_blank" : undefined,
-                    rel: external ? "noreferrer" : undefined
-                  }
-                : { role: "button" })
-            })}
+            ...(href
+              ? {
+                component: external ? "a" : RouterLink,
+                href,
+                target: external ? "_blank" : undefined,
+                rel: external ? "noreferrer" : undefined
+              }
+              : { role: "button" })
+          })}
         sx={{
           alignItems: "center",
           borderRadius: 1,
@@ -285,11 +275,11 @@ function NavItem({
           "&:hover": {
             ...(!disabled &&
               !active && {
-                bgcolor: "#00ab5514",
-                color: "var(--NavItem-hover-color)",
-                transform: "translateX(4px)",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
-              })
+              bgcolor: "#00ab5514",
+              color: "var(--NavItem-hover-color)",
+              transform: "translateX(4px)",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
+            })
           }
         }}
         tabIndex={0}
@@ -317,15 +307,8 @@ function NavItem({
         <Box sx={{ flex: "1 1 auto" }}>
           <Typography
             component="span"
-            sx={{
-              color: "inherit",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              lineHeight: "28px",
-              display: "flex",
-              alignItems: "center",
-              gap: 1
-            }}
+            variant="drawer-label"
+
           >
             {title}
             {active && (
@@ -335,7 +318,8 @@ function NavItem({
                   height: "8px",
                   borderRadius: "50%",
                   backgroundColor: "#00ab55",
-                  display: "inline-block"
+                  display: "inline-block",
+                  marginLeft: "8px"
                 }}
               />
             )}
