@@ -8,6 +8,8 @@ import { useUser } from "@/common/sdk/hooks/useUser";
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { Content } from "@/common/components/layout/noAuth/Layout";
+import { CreateWorkspaceModal } from "./_components/CreateWorkspaceModal";
+
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
   height: "100%",
   display: "flex",
@@ -36,10 +38,11 @@ const WorkspaceGrid = styled(Box)(({ theme }) => ({
 
 const ListWorkspacePage = () => {
   const router = useRouter();
-  const { workspaces, isLoading } = useWorkspaceContext();
+  const { workspaces, isLoading, refreshWorkspaces } = useWorkspaceContext();
   const { setAccessKeyId } = useFonosterClient();
   const { loggedUser } = useUser();
   const [user, setUser] = useState<User | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -49,19 +52,25 @@ const ListWorkspacePage = () => {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    refreshWorkspaces();
+  }, []);
+
   const handleCreateWorkspace = () => {
-    router.push("/workspace/create");
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSuccess = () => {
+    refreshWorkspaces();
   };
 
   const handleWorkspaceClick = (workspaceId: string) => {
     setAccessKeyId(workspaceId);
     router.push(`/workspace/${workspaceId}/overview`);
-  };
-
-  const handleSettingsClick = (e: React.MouseEvent, workspaceId: string) => {
-    e.stopPropagation();
-    setAccessKeyId(workspaceId);
-    router.push(`/workspace/${workspaceId}/overview/settings`);
   };
 
   return (
@@ -71,9 +80,8 @@ const ListWorkspacePage = () => {
         descriptionFontSize="body-medium"
       >
 
-
         <WorkspaceGrid>
-          {isLoading ? (
+          {isLoading && workspaces.length === 0 ? (
             <Typography>Loading workspaces...</Typography>
           ) : (
             <>
@@ -81,13 +89,10 @@ const ListWorkspacePage = () => {
                 <WorkspaceCard
                   key={workspace.ref}
                   variant="regular"
-                  region={
-                    workspace.region || process.env.NEXT_PUBLIC_FONOSTER_REGION
-                  }
+                  region={process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
                   description={workspace.name}
                   date={workspace.createdAt.toLocaleDateString()}
                   onClick={() => handleWorkspaceClick(workspace.ref)}
-                  onSettingsClick={(e) => handleSettingsClick(e, workspace.ref)}
                   disabled={false}
                 />
               ))}
@@ -100,6 +105,11 @@ const ListWorkspacePage = () => {
           )}
         </WorkspaceGrid>
       </Content>
+      <CreateWorkspaceModal
+        open={isCreateModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={handleCreateSuccess}
+      />
     </WorkspaceContainer>
   );
 };

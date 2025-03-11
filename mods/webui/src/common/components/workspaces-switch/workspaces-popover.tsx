@@ -16,6 +16,7 @@ export interface WorkspacesPopoverProps {
   open?: boolean;
   workspaces: Workspace[];
   selectedWorkspace?: Workspace | null;
+  onNewWorkspace?: () => void;
 }
 
 export function WorkspacesPopover({
@@ -24,7 +25,8 @@ export function WorkspacesPopover({
   onClose,
   open = false,
   workspaces,
-  selectedWorkspace
+  selectedWorkspace,
+  onNewWorkspace
 }: WorkspacesPopoverProps): React.JSX.Element {
   const router = useRouter();
   const theme = useTheme();
@@ -51,7 +53,9 @@ export function WorkspacesPopover({
   };
 
   const handleNewWorkspace = () => {
-    router.push("/workspace/create");
+    if (onNewWorkspace) {
+      onNewWorkspace();
+    }
     onClose?.();
   };
 

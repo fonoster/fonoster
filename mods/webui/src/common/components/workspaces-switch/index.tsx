@@ -8,16 +8,33 @@ import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import { usePopover } from "@/common/hooks/use-popover";
 import { WorkspacesPopover } from "./workspaces-popover";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
+import { CreateWorkspaceModal } from "@/pages/workspace/_components/CreateWorkspaceModal";
+import { useState } from "react";
 
 export function WorkspacesSwitch(): React.JSX.Element {
   const popover = usePopover<HTMLDivElement>();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const {
     selectedWorkspace,
     workspaces,
     isLoading,
-    handleSetSelectedWorkspace
+    handleSetSelectedWorkspace,
+    refreshWorkspaces
   } = useWorkspaceContext();
+
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+    popover.handleClose();
+  };
+
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSuccess = () => {
+    refreshWorkspaces();
+  };
 
   if (isLoading) {
     return (
@@ -94,6 +111,12 @@ export function WorkspacesSwitch(): React.JSX.Element {
         open={popover.open}
         workspaces={workspaces}
         selectedWorkspace={selectedWorkspace}
+        onNewWorkspace={handleOpenCreateModal}
+      />
+      <CreateWorkspaceModal
+        open={isCreateModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={handleCreateSuccess}
       />
     </>
   );
