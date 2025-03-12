@@ -1,6 +1,6 @@
 import { User } from "@fonoster/types";
 
-export type MemberDTO = {
+export type MemberDTO = Omit<{
   ref: string;
   name: string;
   email: string;
@@ -8,4 +8,7 @@ export type MemberDTO = {
   status: string;
   createdAt: string;
   updatedAt: string;
-} & Partial<User>;
+} & Partial<User>, 'createdAt' | 'updatedAt'> & {
+  createdAt: string;
+  updatedAt: string;
+};

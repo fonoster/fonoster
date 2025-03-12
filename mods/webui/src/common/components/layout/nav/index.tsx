@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IconButton, Stack, Box, Container } from "@mui/material";
+import { IconButton, Stack, Box, Container, useTheme } from "@mui/material";
 import { List as ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { Header } from "./header";
@@ -18,6 +18,8 @@ export function SecuredLayout({
   showSidebar = true
 }: SecuredLayoutProps): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
+
+  const theme = useTheme();
 
   return (
     <>
@@ -121,7 +123,8 @@ export function SecuredLayout({
                   maxWidth: "none",
                   padding: 0,
                   margin: 0
-                }
+                },
+                bgcolor: theme.palette.grey[50]
               }}
             >
               <Box sx={{

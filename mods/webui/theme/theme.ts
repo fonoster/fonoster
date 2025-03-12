@@ -51,7 +51,12 @@ const fnLight = createTheme({
     text: {
       primary: "#555"
     },
-    divider: "#E8E8E8"
+    divider: "#E8E8E8",
+    grey: {
+      "50": "#fafafa",
+      "100": "#f5f5f5",
+      "200": "#E8E8E8"
+    }
   },
   components: {
     MuiButton: {
@@ -153,7 +158,8 @@ const darkThemeOptions: ThemeOptions = {
     },
     background: {
       default: "#121212",
-      paper: "#1E1E1E"
+      paper: "#1E1E1E",
+
     },
     text: {
       primary: "#FFFFFF",
