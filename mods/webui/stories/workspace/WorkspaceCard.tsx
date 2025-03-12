@@ -60,10 +60,10 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
               justifyItems: "center"
             }}
           >
-            <StyledAddIconContainer disabled={disabled}>
+            <StyledAddIconContainer disabled={disabled} className="workspace-icon">
               <AddIcon />
             </StyledAddIconContainer>
-            <StyledNewWorkSpaceDescription disabled={disabled}>
+            <StyledNewWorkSpaceDescription disabled={disabled} className="workspace-text">
               New Workspace
             </StyledNewWorkSpaceDescription>
           </CardContent>
@@ -89,7 +89,7 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
               </StyledIcon>
               {date && <StyledDate>{date}</StyledDate>}
             </StyledDateContainer>
-            <StyledIcon onClick={onSettingsClick}>
+            <StyledIcon onClick={onSettingsClick} clickable={!disabled && !!onSettingsClick}>
               <SettingsOutlinedIcon />
             </StyledIcon>
           </StyledBottomContainer>
