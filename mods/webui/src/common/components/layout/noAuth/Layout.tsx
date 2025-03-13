@@ -73,7 +73,7 @@ export const Content = ({ title, description, descriptionFontSize = "body-small"
       <Typography
         variant="heading-large"
         sx={{
-          marginBottom: description ? 20 : 40,
+          marginBottom: description ? 10 : 40,
           color: 'text.primary',
           textAlign: 'center'
         }}
@@ -83,7 +83,7 @@ export const Content = ({ title, description, descriptionFontSize = "body-small"
       {typeof description === "string" ? (
         <Typography
           variant={descriptionFontSize}
-          sx={{ marginBottom: 30, color: 'text.secondary', textAlign: 'center' }}
+          sx={{ color: 'text.secondary', textAlign: 'center' }}
         >
           {description}
         </Typography>
