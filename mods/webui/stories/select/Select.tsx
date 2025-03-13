@@ -5,7 +5,6 @@ import { MenuItem, InputAdornment } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
-import { Select as MuiSelect } from "@mui/material";
 
 export const Select: React.FC<SelectProps> = ({
   onClick,
@@ -24,36 +23,74 @@ export const Select: React.FC<SelectProps> = ({
   fullWidth = false,
   ...rest
 }) => {
+  const hasLeadingIcon = !!leadingIcon;
+  const hasTrailingIcon = !!trailingIcon;
+
+  const { InputLabelProps, slotProps, ...validRestProps } = rest;
+
   return (
     <FormControl
       fullWidth={fullWidth}
       error={error}
       size="small"
-      style={{
-        minWidth: '120px',
-        '& .MuiFormControl-root': {
-          margin: 0
+      sx={{
+        '& .MuiInputLabel-root': {
+          fontFamily: "'Poppins', sans-serif",
+          fontSize: '16px',
+          fontWeight: 500,
+          lineHeight: 'normal',
+          letterSpacing: '0.12px'
+        },
+        '& .MuiOutlinedInput-root': {
+          height: '42px',
+          borderRadius: '4px',
+          '& fieldset': {
+            borderColor: theme => theme.palette.inputBorder
+          },
+          '&:hover fieldset': {
+            borderColor: theme => theme.palette.primary.main
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: theme => theme.palette.primary.main,
+            borderWidth: '2px'
+          }
         }
       }}
     >
-      <InputLabel>{label}</InputLabel>
+      <InputLabel shrink>{label}</InputLabel>
       <StyledSelect
-        {...rest}
+        {...validRestProps}
         name={name}
         inputRef={inputRef}
-        variant="outlined"
         value={value}
         defaultValue={defaultValue}
         onChange={onChange}
         label={label}
         disabled={disabled}
+        variant="outlined"
+        displayEmpty
+        MenuProps={{
+          PaperProps: {
+            sx: {
+              maxHeight: 224,
+              mt: 0.5
+            }
+          }
+        }}
+        renderValue={(selected) => {
+          if (selected === '' || selected === undefined) {
+            return <span style={{ opacity: 0 }}></span>;
+          }
+          const selectedOption = options.find(option => option.value === selected);
+          return selectedOption ? selectedOption.label : '';
+        }}
         startAdornment={
-          leadingIcon && (
+          hasLeadingIcon && (
             <InputAdornment position="start">{leadingIcon}</InputAdornment>
           )
         }
         endAdornment={
-          trailingIcon && (
+          hasTrailingIcon && (
             <InputAdornment position="end">{trailingIcon}</InputAdornment>
           )
         }
@@ -64,7 +101,9 @@ export const Select: React.FC<SelectProps> = ({
             value={option.value}
             sx={{
               fontSize: '12px',
-              minHeight: '32px'
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: 400,
+              lineHeight: 'normal'
             }}
           >
             {option.label}

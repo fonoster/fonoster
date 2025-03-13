@@ -58,6 +58,9 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     color: theme.palette.text.primary
   },
   "& .MuiOutlinedInput-root": {
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: theme.palette.inputBorder
+    },
     "&:hover .MuiOutlinedInput-notchedOutline": {
       borderColor: theme.palette.primary.main
     },
