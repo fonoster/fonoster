@@ -36,6 +36,8 @@ export function SecuredLayout({
           },
           html: {
             boxSizing: "border-box",
+            height: "100%",
+            overflow: "hidden"
           },
           "*, *:before, *:after": {
             boxSizing: "inherit",
@@ -48,7 +50,7 @@ export function SecuredLayout({
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          minHeight: "100vh",
+          height: "100vh",
           width: "100%",
           overflowX: "hidden"
         }}
@@ -84,13 +86,23 @@ export function SecuredLayout({
             marginTop: 0,
             width: "100%",
             position: "relative",
-            paddingTop: 0
+            paddingTop: 0,
+            height: "calc(100vh - var(--MainNav-height))",
+            overflow: "hidden"
           }}
         >
           {showSidebar && (
             <>
               <MobileSidebar open={openNav} onClose={() => setOpenNav(false)} />
-              <DesktopSidebar />
+              <DesktopSidebar
+                sx={{
+                  height: "100%",
+                  overflow: "hidden",
+                  position: { lg: "fixed" },
+                  top: { lg: "var(--MainNav-height)" },
+                  bottom: { lg: 0 }
+                }}
+              />
             </>
           )}
           <Box
@@ -107,6 +119,7 @@ export function SecuredLayout({
               flex: "1 1 auto",
               flexDirection: "column",
               width: "100%",
+              overflowY: "auto",
               overflowX: "hidden"
             }}
           >
