@@ -5,6 +5,7 @@ import ReactTable from "@/common/contexts/table/ReactTable";
 import { FormProvider, UseFormReturn } from "react-hook-form";
 import { LinkBackTo } from "@stories/linkbackto/LinkBackTo";
 import { Typography } from "@stories/typography/Typography";
+import React from "react";
 
 interface PageContainerProps {
   children: ReactNode;
@@ -23,6 +24,7 @@ interface ContentProps<T extends object> {
   columns: ColumnDef<T>[];
   children?: ReactNode;
   tableId?: string;
+  showHeader?: boolean;
 }
 
 interface ContentFormProps<T extends object> {
@@ -32,7 +34,7 @@ interface ContentFormProps<T extends object> {
 }
 
 function PageContainer({ children }: PageContainerProps) {
-  return <Box>{children}</Box>;
+  return <Box sx={{ mb: 8 }}>{children}</Box>;
 }
 
 interface HeaderProps {
@@ -81,24 +83,29 @@ function Subheader({ children }: DescriptionProps) {
 function ContentTable<T extends object>({
   columns,
   children,
-  tableId = "table"
+  tableId = "table",
+  showHeader = true
 }: ContentProps<T>) {
   return (
     <ReactTable<T> columns={columns}>
-      <ReactTable.Header>
-        <ReactTable.Header.Filter />
-        <ReactTable.Header.Search
-          value={""}
-          onChange={() => { }}
-          placeholder="Search..."
-        />
-        <ReactTable.Header.Pagination
-          currentPage={1}
-          totalPages={10}
-          onPageChange={() => { }}
-        />
-      </ReactTable.Header>
-      <Box sx={{ mb: 0, mt: 1 }} />
+      {showHeader && (
+        <React.Fragment>
+          <ReactTable.Header>
+            <ReactTable.Header.Filter />
+            <ReactTable.Header.Search
+              value={""}
+              onChange={() => { }}
+              placeholder="Search..."
+            />
+            <ReactTable.Header.Pagination
+              currentPage={1}
+              totalPages={10}
+              onPageChange={() => { }}
+            />
+          </ReactTable.Header>
+          <Box sx={{ mb: 0, mt: 1 }} />
+        </React.Fragment>
+      )}
       <ReactTable.Content id={tableId} />
       {children}
     </ReactTable>
@@ -114,14 +121,13 @@ function ContentForm<T extends object>({
     <Box
       component="form"
       id={formId}
+
       sx={{
         display: "flex",
         flexDirection: "column",
         gap: 3,
-        p: 3,
         borderColor: "divider",
         borderRadius: 1,
-        bgcolor: "background.paper",
         "& .MuiFormControl-root": {
           width: "100%",
           maxWidth: "500px"

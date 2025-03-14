@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IconButton, Stack, Box, Container } from "@mui/material";
+import { IconButton, Stack, Box, Container, useTheme } from "@mui/material";
 import { List as ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { Header } from "./header";
@@ -19,6 +19,8 @@ export function SecuredLayout({
 }: SecuredLayoutProps): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
 
+  const theme = useTheme();
+
   return (
     <>
       <GlobalStyles
@@ -36,6 +38,8 @@ export function SecuredLayout({
           },
           html: {
             boxSizing: "border-box",
+            height: "100%",
+            overflow: "hidden"
           },
           "*, *:before, *:after": {
             boxSizing: "inherit",
@@ -48,7 +52,7 @@ export function SecuredLayout({
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          minHeight: "100vh",
+          height: "100vh",
           width: "100%",
           overflowX: "hidden"
         }}
@@ -84,13 +88,23 @@ export function SecuredLayout({
             marginTop: 0,
             width: "100%",
             position: "relative",
-            paddingTop: 0
+            paddingTop: 0,
+            height: "calc(100vh - var(--MainNav-height))",
+            overflow: "hidden"
           }}
         >
           {showSidebar && (
             <>
               <MobileSidebar open={openNav} onClose={() => setOpenNav(false)} />
-              <DesktopSidebar />
+              <DesktopSidebar
+                sx={{
+                  height: "100%",
+                  overflow: "hidden",
+                  position: { lg: "fixed" },
+                  top: { lg: "var(--MainNav-height)" },
+                  bottom: { lg: 0 }
+                }}
+              />
             </>
           )}
           <Box
@@ -107,6 +121,7 @@ export function SecuredLayout({
               flex: "1 1 auto",
               flexDirection: "column",
               width: "100%",
+              overflowY: "auto",
               overflowX: "hidden"
             }}
           >
@@ -121,7 +136,8 @@ export function SecuredLayout({
                   maxWidth: "none",
                   padding: 0,
                   margin: 0
-                }
+                },
+                bgcolor: theme.palette.grey[50]
               }}
             >
               <Box sx={{

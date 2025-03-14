@@ -23,6 +23,7 @@
     "@mui/material-nextjs": "^6.4.3",
     "@phosphor-icons/react": "2.0.15",
     "@tanstack/react-table": "^8.21.2",
+    "@vitejs/plugin-react": "^4.3.4",
     "classnames": "^2.5.1",
     "cookies-next": "^5.1.0",
     "install": "^0.13.0",

@@ -23,16 +23,28 @@ import Typography from "@mui/material/Typography";
 export const StyledCard = styled(Card)<{
   disabled: boolean;
   workspaceVariant?: string;
-}>(({ disabled, workspaceVariant }) => ({
+}>(({ disabled, workspaceVariant, theme }) => ({
   height: "325px",
   backgroundColor:
     workspaceVariant === "regular" ? "rgba(244, 244, 244, 1)" : "#ffffff",
   cursor: disabled ? "not-allowed" : "pointer",
   borderRadius: "10px",
   border: disabled
-    ? "1px solid rgba(232, 232, 232, 1)"
-    : "1px solid rgba(57, 225, 158, 1)",
-  padding: "30px 30px 16px 30px"
+    ? `1px solid ${theme.palette.secondary.light}`
+    : `1px solid ${theme.palette.divider}`,
+  padding: "30px 30px 16px 30px",
+  transition: "border-color 0.3s ease",
+  "&:hover": {
+    border: disabled
+      ? `1px solid ${theme.palette.secondary.light}`
+      : `1px solid ${theme.palette.primary.main}`,
+    "& .workspace-icon": {
+      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.primary.main
+    },
+    "& .workspace-text": {
+      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.primary.main
+    }
+  }
 }));
 
 export const StyledCardContentContainer = styled("div")(() => ({
@@ -43,7 +55,7 @@ export const StyledCardContentContainer = styled("div")(() => ({
 
 export const StyledNewWorkSpaceDescription = styled(Typography)<{
   disabled: boolean;
-}>(({ disabled }) => ({
+}>(({ disabled, theme }) => ({
   fontFamily: "Poppins",
   fontSize: "21px",
   fontWeight: 600,
@@ -52,13 +64,16 @@ export const StyledNewWorkSpaceDescription = styled(Typography)<{
   textAlign: "center",
   textUnderlinePosition: "from-font",
   textDecorationSkipInk: "none",
-  color: disabled ? "rgba(194, 194, 194, 1)" : "rgba(0, 135, 81, 1)"
+  color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.secondary.main,
 }));
 
 export const StyledAddIconContainer = styled("div")<{
   disabled: boolean;
-}>(({ disabled }) => ({
-  color: disabled ? "rgba(194, 194, 194, 1)" : "rgba(0, 135, 81, 1)",
+}>(({ disabled, theme }) => ({
+  color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.secondary.main,
+  display: "flex",
+  justifyContent: "center",
+  marginBottom: "16px",
   "& svg": {
     width: "40px",
     height: "40px"
@@ -102,10 +117,15 @@ export const StyledDate = styled(Typography)(() => ({
   textDecorationSkipInk: "none"
 }));
 
-export const StyledIcon = styled("div")(() => ({
+export const StyledIcon = styled("div")<{ clickable?: boolean }>(({ clickable = false, theme }) => ({
   color: "rgba(51, 51, 51, 1)",
   display: "flex",
   alignItems: "center",
+  cursor: clickable ? "pointer" : "default",
+  transition: "color 0.2s ease",
+  "&:hover": {
+    color: clickable ? theme.palette.primary.main : "rgba(51, 51, 51, 1)",
+  },
   "& svg": {
     width: "16px",
     height: "16px"

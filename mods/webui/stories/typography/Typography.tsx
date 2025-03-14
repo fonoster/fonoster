@@ -33,6 +33,7 @@ function Typography(props: TypographyProps) {
   return (
     <MuiTypography
       {...rest}
+      {...sx}
       variant={
         muiVariant as OverridableStringUnion<
           Variant | "inherit",
@@ -40,8 +41,7 @@ function Typography(props: TypographyProps) {
         >
       }
       style={{
-        ...style,
-        ...sx
+        ...style
       }}
     >
       {children}
