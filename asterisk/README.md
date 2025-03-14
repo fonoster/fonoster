@@ -5,6 +5,7 @@
 [![publish to docker hub](https://github.com/fonoster/fonoster/actions/workflows/release.yaml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yaml)
 
 This repository contains a dockerized distribution of Asterisk PBX 16 for use in [Fonoster](https://github.com/fonoster/fonoster). For more documentation on how Fonoster images are constructed and how to work with them, please see the [documentation](https://github.com/fonoster/fonoster).
+..
 
 ## Available Versions
 
