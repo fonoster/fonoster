@@ -6,7 +6,7 @@
 
 This repository contains a dockerized distribution of Asterisk PBX 16 for use in [Fonoster](https://github.com/fonoster/fonoster). For more documentation on how Fonoster images are constructed and how to work with them, please see the [documentation](https://github.com/fonoster/fonoster).
 ..
-
+..
 ## Available Versions
 
 You can see all images available to pull from Docker Hub via the [Tags](https://hub.docker.com/repository/docker/fonoster/asterisk/tags?page=1) page. Docker tag names that begin with a "change type" word such as task, bug, or feature are available for testing and may be removed at any time.
