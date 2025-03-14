@@ -24,7 +24,9 @@ interface ContentProps<T extends object> {
   columns: ColumnDef<T>[];
   children?: ReactNode;
   tableId?: string;
-  showHeader?: boolean;
+  showFilters?: boolean;
+  showSearch?: boolean;
+  showPagination?: boolean;
 }
 
 interface ContentFormProps<T extends object> {
@@ -84,28 +86,26 @@ function ContentTable<T extends object>({
   columns,
   children,
   tableId = "table",
-  showHeader = true
+  showFilters = true,
+  showSearch = true,
+  showPagination = true
 }: ContentProps<T>) {
   return (
     <ReactTable<T> columns={columns}>
-      {showHeader && (
-        <React.Fragment>
-          <ReactTable.Header>
-            <ReactTable.Header.Filter />
-            <ReactTable.Header.Search
-              value={""}
-              onChange={() => { }}
-              placeholder="Search..."
-            />
-            <ReactTable.Header.Pagination
-              currentPage={1}
-              totalPages={10}
-              onPageChange={() => { }}
-            />
-          </ReactTable.Header>
-          <Box sx={{ mb: 0, mt: 1 }} />
-        </React.Fragment>
-      )}
+      <ReactTable.Header>
+        {showFilters && <ReactTable.Header.Filter />}
+        {showSearch && <ReactTable.Header.Search
+          value={""}
+          onChange={() => { }}
+          placeholder="Search..."
+        />}
+        {showPagination && <ReactTable.Header.Pagination
+          currentPage={1}
+          totalPages={10}
+          onPageChange={() => { }}
+        />}
+      </ReactTable.Header>
+      <Box sx={{ mb: 0, mt: 1 }} />
       <ReactTable.Content id={tableId} />
       {children}
     </ReactTable>

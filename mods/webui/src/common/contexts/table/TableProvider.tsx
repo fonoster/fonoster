@@ -58,8 +58,8 @@ export interface FonosterResponse<TData> {
 
 export interface TableContextProps<TData>
   extends Object,
-    PaginationProps,
-    FilterProps {
+  PaginationProps,
+  FilterProps {
   reset: () => void;
   getState: () => TableState;
   setState: (updater: Updater<TableState>) => void;
@@ -137,10 +137,12 @@ export function TableProvider<TData>({
     autoResetPageIndex: false,
     manualFiltering,
     manualSorting,
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
-    getSortedRowModel: getSortedRowModel()
+    getSortedRowModel: getSortedRowModel(),
+    debugTable: true
   });
 
   const columnFilters = table.getState().columnFilters;
@@ -150,16 +152,75 @@ export function TableProvider<TData>({
     table.resetPageIndex();
   }, [columnFilters]);
 
+  useEffect(() => {
+    if (data.length > 0) {
+      // Ensure the table state is updated with the new data
+      table.setOptions((prev) => ({
+        ...prev,
+        data: [...data] // Create a new array reference to force update
+      }));
+    }
+  }, [data, table]);
+
+  useEffect(() => {
+    if (fonosterResponse) {
+      // Make sure pagination state is correctly set
+      table.setPagination({
+        pageIndex: table.getState().pagination.pageIndex,
+        pageSize: table.getState().pagination.pageSize
+      });
+    }
+  }, [fonosterResponse, table]);
+
   const handleFonosterResponse = useCallback(
     (response: FonosterResponse<TData> | undefined) => {
-      setFonosterResponse({
-        ...response,
-        nextPageToken: response?.nextPageToken || undefined,
-        prevPageToken: pageIndex > 1 ? fonosterResponse?.nextPageToken : ""
-      });
-      setData(response?.items || []);
+      // Store the current page token before updating with the new response
+      // This will be used as the previous page token when navigating forward
+      const currentToken = fonosterResponse?.nextPageToken;
+      console.log("response fonoster:", response);
+
+      // Only update if we have a valid response
+      if (response) {
+        // First set the data to ensure it's available for the table
+        const newData = response.items || [];
+
+        // Important: Create a new array reference to force React to detect the change
+        setData([...newData]);
+
+        // Store tokens for debugging
+        const responseNextToken = response.nextPageToken;
+        const responsePrevToken = response.prevPageToken;
+
+        // Create a new fonosterResponse object with the correct tokens
+        const updatedResponse = {
+          ...response,
+          nextPageToken: responseNextToken,
+          // If the response already has a prevPageToken, use it
+          // Otherwise, use the stored token from the previous response
+          prevPageToken: responsePrevToken || (pageIndex > 0 ? currentToken : undefined)
+        };
+
+        // Update the fonosterResponse with the new object
+        setFonosterResponse(updatedResponse);
+
+        // Force table to update with the new data immediately
+        table.setOptions((prev) => ({
+          ...prev,
+          data: [...newData]
+        }));
+
+        // Log for debugging
+        console.log("Updated fonosterResponse:", {
+          responseNextToken,
+          responsePrevToken,
+          currentToken,
+          pageIndex,
+          updatedPrevToken: updatedResponse.prevPageToken,
+          dataLength: newData.length
+        });
+      }
     },
-    [fonosterResponse, pageIndex]
+    [fonosterResponse, pageIndex, table]
   );
 
   return (

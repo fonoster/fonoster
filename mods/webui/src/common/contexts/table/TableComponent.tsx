@@ -137,7 +137,7 @@ const TableComponent = <TData extends Object>({
   rowClassName,
   options
 }: TableComponentProps<TData>) => {
-  const { table, loadingData } = useTableContext<TData>();
+  const { table, loadingData, data } = useTableContext<TData>();
 
   return (
     <StyledTableContainer>
@@ -181,15 +181,23 @@ const TableComponent = <TData extends Object>({
           ))}
         </TableHead>
         <TableBody className={classNames(bodyClassName)}>
-          {table.getRowModel().rows.map((row, i) => (
-            <StyledTableRow key={row.id} className={classNames(rowClassName)}>
-              {row.getVisibleCells().map((cell) => (
-                <StyledTableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </StyledTableCell>
-              ))}
-            </StyledTableRow>
-          ))}
+          {table.getRowModel().rows.length > 0 ? (
+            table.getRowModel().rows.map((row, i) => (
+              <StyledTableRow key={row.id} className={classNames(rowClassName)}>
+                {row.getVisibleCells().map((cell) => (
+                  <StyledTableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </StyledTableCell>
+                ))}
+              </StyledTableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={table.getAllColumns().length} align="center">
+                {loadingData ? "Loading..." : "No data available"}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </MUITable>
     </StyledTableContainer>
