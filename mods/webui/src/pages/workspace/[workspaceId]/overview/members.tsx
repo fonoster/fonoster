@@ -67,13 +67,11 @@ export default function MembersPage() {
           onClick: () => router.push(`/workspace/${workspaceId}/overview`)
         }}
       />
-      <PageContainer.Subheader>
-        Manage your workspace members and their roles.
-      </PageContainer.Subheader>
 
       <PageContainer.ContentTable<MemberDTO>
         columns={columns}
         tableId="members-table"
+        showHeader={false}
       >
         <QueryMembers />
       </PageContainer.ContentTable>

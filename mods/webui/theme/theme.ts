@@ -130,6 +130,10 @@ const fnLight = createTheme({
         background: "#D0E4FF",
         text: "#0C3E6F"
       }
+    grey: {
+      "50": "#fafafa",
+      "100": "#f5f5f5",
+      "200": "#E8E8E8"
     }
   },
   components: {
@@ -235,7 +239,8 @@ const darkThemeOptions: ThemeOptions = {
     },
     background: {
       default: "#121212",
-      paper: "#1E1E1E"
+      paper: "#1E1E1E",
+
     },
     text: {
       primary: "#FFFFFF",

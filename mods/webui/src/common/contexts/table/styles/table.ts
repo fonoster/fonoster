@@ -2,7 +2,8 @@
 import { Paper, styled } from "@mui/material";
 
 export const StyledTable = styled(Paper)(({ theme }) => ({
-  borderRadius: "8px",
+  borderTopLeftRadius: "8px",
+  borderTopRightRadius: "8px",
   boxShadow: "none",
   overflow: "hidden",
   "& table": {
