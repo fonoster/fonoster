@@ -42,61 +42,50 @@ export default class UpdateApp extends AuthenticatedCommand<typeof UpdateApp> {
   };
 
   public async run(): Promise<void> {
-    this.log(
-      "This utility will help you associate an agent with an application for autopilot integration."
-    );
-    this.log("Press ^C at any time to quit.");
-
-    const { args } = await this.parse(UpdateApp);
-    const { ref, appRef } = args;
-    const client = await this.createSdkClient();
-    const agents = new SDK.Agents(client);
-    const applications = new SDK.Applications(client);
-
-    // Verify agent exists
     try {
+      this.log(
+        "This utility will help you associate an agent with an application for autopilot integration."
+      );
+      this.log("Press ^C at any time to quit.");
+
+      const { args } = await this.parse(UpdateApp);
+      const { ref, appRef } = args;
+      const client = await this.createSdkClient();
+      const agents = new SDK.Agents(client);
+      const applications = new SDK.Applications(client);
+
+      // Verify agent exists
       const agent = await agents.getAgent(ref);
       if (!agent) {
         this.error(`Agent with reference ${ref} not found.`);
         return;
       }
       this.log(`Found agent: ${agent.name} (${agent.username})`);
-    } catch (e) {
-      this.error(`Agent with reference ${ref} not found.`);
-      return;
-    }
 
-    // Verify application exists
-    try {
+      // Verify application exists
       const app = await applications.getApplication(appRef);
       if (!app) {
         this.error(`Application with reference ${appRef} not found.`);
         return;
       }
       this.log(`Found application: ${app.name}`);
-    } catch (e) {
-      this.error(`Application with reference ${appRef} not found.`);
-      return;
-    }
 
-    const confirmUpdate = await confirm({
-      message: `Are you sure you want to associate agent ${ref} with application ${appRef}?`,
-      default: true
-    });
+      const confirmUpdate = await confirm({
+        message: `Are you sure you want to associate agent ${ref} with application ${appRef}?`,
+        default: true
+      });
 
-    if (!confirmUpdate) {
-      this.log("Aborted!");
-      return;
-    }
+      if (!confirmUpdate) {
+        this.log("Aborted!");
+        return;
+      }
 
-    try {
+      // Update the agent with the application reference
       await agents.updateAgent({
         ref,
         appRef
       } as UpdateAgentRequest);
-      this.log(
-        `Successfully associated agent ${ref} with application ${appRef}!`
-      );
+      this.log(`Successfully associated agent ${ref} with application ${appRef}!`);
     } catch (e) {
       errorHandler(e, this.error.bind(this));
     }
