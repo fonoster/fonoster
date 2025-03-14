@@ -218,19 +218,19 @@ For contributing, please see the following links:
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/CKanishka>
-            <img src=https://avatars.githubusercontent.com/u/30779692?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Kanishka Chowdhury/>
+        <a href=https://github.com/enesgul23>
+            <img src=https://avatars.githubusercontent.com/u/43697357?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Enes GUL/>
             <br />
-            <sub style="font-size:14px"><b>Kanishka Chowdhury</b></sub>
+            <sub style="font-size:14px"><b>Enes GUL</b></sub>
         </a>
     </td>
 </tr>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/enesgul23>
-            <img src=https://avatars.githubusercontent.com/u/43697357?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Enes GUL/>
+        <a href=https://github.com/CKanishka>
+            <img src=https://avatars.githubusercontent.com/u/30779692?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Kanishka Chowdhury/>
             <br />
-            <sub style="font-size:14px"><b>Enes GUL</b></sub>
+            <sub style="font-size:14px"><b>Kanishka Chowdhury</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
