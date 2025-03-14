@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Validators as V } from "@fonoster/common";
+import { GrpcErrorMessage, Validators as V, withErrorHandlingAndValidation } from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
 import {
   AgentExtended,
   AgentsApi,
@@ -32,6 +33,7 @@ import { listResources } from "../resources/listResources";
 import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Agent";
+const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function createAgent(agents: AgentsApi) {
   return createResource<AgentExtended, CreateAgentRequestExtended, AgentsApi>(
@@ -42,11 +44,33 @@ function createAgent(agents: AgentsApi) {
 }
 
 function updateAgent(agents: AgentsApi) {
-  return updateResource<AgentExtended, UpdateAgentRequest, AgentsApi>(
+  // Use standard updateResource for normal agent updates
+  const standardUpdate = updateResource<AgentExtended, UpdateAgentRequest, AgentsApi>(
     agents,
     RESOURCE,
     V.updateAgentRequestSchema
   );
+  
+  // Wrap it with custom logic to handle appRef while maintaining original functionality
+  const fn = async (
+    call: { request: UpdateAgentRequest },
+    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
+  ) => {
+    const { request } = call;
+    
+    // Log when updating agent with application reference
+    if (request.appRef) {
+      logger.verbose("updating agent with application reference", { 
+        ref: request.ref, 
+        appRef: request.appRef 
+      });
+    }
+
+    // Use the standard update handler
+    standardUpdate(call, callback);
+  };
+
+  return fn;
 }
 
 function getAgent(agents: AgentsApi) {

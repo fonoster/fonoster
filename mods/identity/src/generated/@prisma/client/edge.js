@@ -203,7 +203,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/psanders/Projects/fonoster/mods/identity/src/generated/@prisma/client",
+      "value": "C:\\Users\\EnesGul\\PycharmProjects\\fonostereg\\fonoster\\mods\\identity\\src\\generated\\@prisma\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -212,17 +212,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "windows",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/psanders/Projects/fonoster/mods/identity/schema.prisma",
+    "sourceFilePath": "C:\\Users\\EnesGul\\PycharmProjects\\fonostereg\\fonoster\\mods\\identity\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../..",
   "clientVersion": "6.5.0",
