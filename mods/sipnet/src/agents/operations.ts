@@ -16,10 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  GrpcErrorMessage,
-  Validators as V
-} from "@fonoster/common";
+import { GrpcErrorMessage, Validators as V } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   AgentExtended,
@@ -48,24 +45,24 @@ function createAgent(agents: AgentsApi) {
 
 function updateAgent(agents: AgentsApi) {
   // Use standard updateResource for normal agent updates
-  const standardUpdate = updateResource<AgentExtended, UpdateAgentRequest, AgentsApi>(
-    agents,
-    RESOURCE,
-    V.updateAgentRequestSchema
-  );
-  
+  const standardUpdate = updateResource<
+    AgentExtended,
+    UpdateAgentRequest,
+    AgentsApi
+  >(agents, RESOURCE, V.updateAgentRequestSchema);
+
   // Wrap it with custom logic to handle appRef while maintaining original functionality
   const fn = async (
     call: { request: UpdateAgentRequest },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
-    
+
     // Log when updating agent with application reference
     if (request.appRef) {
-      logger.verbose("updating agent with application reference", { 
-        ref: request.ref, 
-        appRef: request.appRef 
+      logger.verbose("updating agent with application reference", {
+        ref: request.ref,
+        appRef: request.appRef
       });
     }
 

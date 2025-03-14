@@ -17,9 +17,6 @@
  * limitations under the License.
  */
 
-// eslint-disable-next-line no-undef
-const exports = {};
-
 /**
  * Converts Fonoster UpdateAgentRequest to Router format
  * @param {Object} request - The update agent request

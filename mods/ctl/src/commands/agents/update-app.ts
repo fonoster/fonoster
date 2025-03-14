@@ -95,10 +95,7 @@ export default class UpdateApp extends AuthenticatedCommand<typeof UpdateApp> {
         ref,
         appRef
       } as UpdateAgentRequest);
-      
-      this.log(
-        `Successfully associated agent ${ref} with application ${appRef}!`
-      );
+      this.log(`Successfully associated agent ${ref} with application ${appRef}!`);
     } catch (e) {
       errorHandler(e, this.error.bind(this));
     }
