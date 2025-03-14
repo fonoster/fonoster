@@ -41,20 +41,18 @@ export const doProcessUserRequest = fromPromise(
         logger.verbose("call might already be hung up");
         return;
       } else if (response.type === "hangup") {
-        const message = context.goodbyeMessage;
-        await context.voice.say(message);
+        await context.voice.say(context.goodbyeMessage);
         await context.voice.hangup();
         return;
       } else if (response.type === "transfer") {
         logger.verbose("transferring call to a number in the PSTN", {
           phoneNumber: context.transferPhoneNumber
         });
-        const message = context.transferMessage!;
-        await context.voice.say(message);
+        await context.voice.say(context.transferMessage!);
         await context.voice.stopStreams();
         await context.voice.transfer(context.transferPhoneNumber!, {
           record: true,
-          timeout: 30
+          timeout: context.transferTimeout / 1000
         });
         return;
       }
