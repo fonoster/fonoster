@@ -1,28 +1,23 @@
-import { Box, Typography } from "@mui/material";
-import ApplicationForm, {
-  ApplicationFormData
-} from "@/pages/workspace/[workspaceId]/applications/_components/form/ApplicationForm";
-import { useRouter } from "next/router";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import ApplicationForm from './_components/form/ApplicationForm';
+import { ApplicationType } from '@fonoster/types';
 
 export default function NewApplicationPage() {
-  const router = useRouter();
-  const { workspaceId } = router.query;
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleSubmit = async (data: ApplicationFormData) => {
-    try {
-      router.push(`/workspace/${workspaceId}/applications`);
-    } catch (error) {
-      console.error("Error al crear la aplicación:", error);
-    }
-  };
+  // Simulate loading for demonstration purposes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <Box>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        Crear Nueva Aplicación
-      </Typography>
-
-      <ApplicationForm onSubmit={handleSubmit} />
-    </Box>
+    <ApplicationForm
+      isLoading={isLoading}
+    />
   );
 }

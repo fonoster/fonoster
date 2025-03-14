@@ -1,12 +1,10 @@
 import { useRouter } from "next/router";
 import { ColumnDef } from "@tanstack/react-table";
-import { Application } from "@fonoster/types";
-import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
+import PageContainer from "@/common/components/layout/pages";;
 import QueryApplications from "./_components/QueryApplications";
 import { ApplicationDTO } from "@/types/dto/applications/ApplicationDTO";
-import { useApplications } from "@/common/sdk/hooks/useApplications";
-import { useEffect } from "react";
+import { Button } from "@stories/button/Button";
+
 
 const columns: ColumnDef<ApplicationDTO>[] = [
   {
@@ -52,12 +50,19 @@ const columns: ColumnDef<ApplicationDTO>[] = [
 ];
 
 export default function ApplicationsPage() {
+  const router = useRouter();
+  const { workspaceId } = router.query;
+
+  const handleNewApplication = () => {
+    router.push(`/workspace/${workspaceId}/applications/new`);
+  };
+
   return (
     <PageContainer>
       <PageContainer.Header
         title="Applications"
         actions={
-          <Button variant="outlined" onClick={() => {}} color="inherit">
+          <Button variant="outlined" onClick={() => handleNewApplication()} >
             New Application
           </Button>
         }
