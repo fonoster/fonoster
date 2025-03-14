@@ -20,25 +20,32 @@ const CLAUSE_BOUNDARIES = /[.?!;]+/g;
 
 function textChunkTextByClause(text: string) {
   const boundaries = [...text.matchAll(CLAUSE_BOUNDARIES)];
-  const chunks = [];
-  let start = 0;
-
-  for (let i = 0; i < boundaries.length; i++) {
-    if (chunks.length >= 2) {
-      break;
-    }
-    const boundary = boundaries[i];
-    const end = boundary.index + boundary[0].length;
-    chunks.push(text.slice(start, end).trim());
-    start = end;
-  }
+  
+  // Use reduce instead of a for loop to build the chunks
+  const { chunks, start } = boundaries.reduce(
+    (acc, boundary, index) => {
+      // If we already have 2 or more chunks, don't process more
+      if (acc.chunks.length >= 2) {
+        return acc;
+      }
+      
+      const end = boundary.index + boundary[0].length;
+      const chunk = text.slice(acc.start, end).trim();
+      
+      return {
+        chunks: [...acc.chunks, chunk],
+        start: end
+      };
+    },
+    { chunks: [] as string[], start: 0 }
+  );
 
   const remainingText = text.slice(start).trim();
-  if (remainingText.length > 0) {
-    chunks.push(remainingText);
-  }
+  const finalChunks = remainingText.length > 0 
+    ? [...chunks, remainingText] 
+    : chunks;
 
-  return chunks;
+  return finalChunks;
 }
 
 export { textChunkTextByClause };

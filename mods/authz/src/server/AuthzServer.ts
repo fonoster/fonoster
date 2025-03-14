@@ -19,7 +19,8 @@
 import {
   getServerCredentials,
   GRPC_SERVING_STATUS,
-  statusMap
+  statusMap,
+  VoiceRequest
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
@@ -27,8 +28,19 @@ import merge from "deepmerge";
 import { HealthImplementation } from "grpc-health-check";
 import { struct } from "pb-util";
 import { serviceDefinition } from "../serviceDefinition";
-import { AuthzHandler, ServerConfig } from "../types";
+import { 
+  AddBillingMeterEventRequest,
+  AuthzHandler, 
+  CheckMethodAuthorizedRequest, 
+  ServerConfig 
+} from "../types";
 import { defaultServerConfig } from "./defaultServerConfig";
+
+interface AuthorizedResponse {
+  authorized: boolean;
+}
+
+interface BillingResponse {}
 
 const logger = getLogger({ service: "authz", filePath: __filename });
 
@@ -48,8 +60,8 @@ class AuthzServer {
 
       server.addService(serviceDefinition, {
         checkSessionAuthorized: async (
-          call: grpc.ServerUnaryCall<any, any>,
-          callback: grpc.sendUnaryData<any>
+          call: grpc.ServerUnaryCall<VoiceRequest, AuthorizedResponse>,
+          callback: grpc.sendUnaryData<AuthorizedResponse>
         ) => {
           logger.verbose("checkSessionAuthorized called", call.request);
 
@@ -59,16 +71,19 @@ class AuthzServer {
             );
             callback(null, { authorized });
           } catch (error) {
-            logger.error("error in checkSessionAuthorized:", error);
-            callback({
-              code: grpc.status.INTERNAL,
-              message: "Internal server error."
-            });
+            logger.error("checkSessionAuthorized error", { error });
+            callback(
+              {
+                code: grpc.status.INTERNAL,
+                message: `${error}`
+              },
+              null
+            );
           }
         },
         checkMethodAuthorized: async (
-          call: grpc.ServerUnaryCall<any, any>,
-          callback: grpc.sendUnaryData<any>
+          call: grpc.ServerUnaryCall<CheckMethodAuthorizedRequest, AuthorizedResponse>,
+          callback: grpc.sendUnaryData<AuthorizedResponse>
         ) => {
           logger.verbose("checkMethodAuthorized called", call.request);
 
@@ -78,50 +93,55 @@ class AuthzServer {
             );
             callback(null, { authorized });
           } catch (error) {
-            logger.error("error in checkMethodAuthorized:", error);
-            callback({
-              code: grpc.status.INTERNAL,
-              message: "Internal server error."
-            });
+            logger.error("checkMethodAuthorized error", { error });
+            callback(
+              {
+                code: grpc.status.INTERNAL,
+                message: `${error}`
+              },
+              null
+            );
           }
         },
         addBillingMeterEvent: async (
-          call: grpc.ServerUnaryCall<any, any>,
-          callback: grpc.sendUnaryData<any>
+          call: grpc.ServerUnaryCall<AddBillingMeterEventRequest, BillingResponse>,
+          callback: grpc.sendUnaryData<BillingResponse>
         ) => {
           logger.verbose("addBillingMeterEvent called", call.request);
 
           try {
-            const request = {
-              accessKeyId: call.request.accessKeyId,
-              payload: struct.decode(call.request.payload)
-            };
-            await handler.addBillingMeterEvent(request);
+            await handler.addBillingMeterEvent(call.request);
             callback(null, {});
           } catch (error) {
-            logger.error("Error in while adding billing meter event:", error);
-            callback({
-              code: grpc.status.INTERNAL,
-              message: "Internal server error."
-            });
+            logger.error("addBillingMeterEvent error", { error });
+            callback(
+              {
+                code: grpc.status.INTERNAL,
+                message: `${error}`
+              },
+              null
+            );
           }
         }
       });
 
-      healthImpl.addToServer(server);
+      server.bindAsync(
+        `${this.config.bind}:${this.config.port}`,
+        credentials,
+        (error, port) => {
+          if (error) {
+            logger.error("server bind error", { error });
+            throw error;
+          }
 
-      const bindAddr = `${this.config.bind}:${this.config.port}`;
-
-      server.bindAsync(bindAddr, credentials, async (err, port) => {
-        if (err) {
-          logger.error("Failed to bind server:", err);
-          return;
+          healthImpl.setStatus("fonoster.authz.v3alpha1", GRPC_SERVING_STATUS);
+          server.start();
+          logger.info("authz server started", { port });
         }
-        healthImpl.setStatus("", GRPC_SERVING_STATUS);
-        logger.info(`Authz server started at ${this.config.bind}:${port}`);
-      });
-    } catch (err) {
-      logger.error("Error starting AuthzServer:", err);
+      );
+    } catch (error) {
+      logger.error("server initialization error", { error });
+      throw error;
     }
   }
 }

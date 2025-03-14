@@ -17,11 +17,21 @@
  * limitations under the License.
  */
 async function streamToBuffer(readableStream): Promise<Buffer> {
-  const chunks = [];
-  for await (const chunk of readableStream) {
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks);
+  return new Promise<Buffer>((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    
+    readableStream.on('data', (chunk) => {
+      chunks.push(Buffer.from(chunk));
+    });
+    
+    readableStream.on('end', () => {
+      resolve(Buffer.concat(chunks));
+    });
+    
+    readableStream.on('error', (err) => {
+      reject(err);
+    });
+  });
 }
 
-export { streamToBuffer };
+export default streamToBuffer;
