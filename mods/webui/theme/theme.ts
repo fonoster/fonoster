@@ -18,6 +18,66 @@
  */
 import { createTheme, ThemeOptions } from "@mui/material/styles";
 
+declare module '@mui/material/styles' {
+  interface Palette {
+    inputBorder: string;
+    notification: {
+      success: {
+        background: string;
+        text: string;
+      };
+      error: {
+        background: string;
+        text: string;
+      };
+      warning: {
+        background: string;
+        text: string;
+      };
+      info: {
+        background: string;
+        text: string;
+      };
+    };
+  }
+  interface PaletteOptions {
+    inputBorder?: string;
+    notification?: {
+      success?: {
+        background?: string;
+        text?: string;
+      };
+      error?: {
+        background?: string;
+        text?: string;
+      };
+      warning?: {
+        background?: string;
+        text?: string;
+      };
+      info?: {
+        background?: string;
+        text?: string;
+      };
+    };
+  }
+
+  interface PaletteColor {
+    50?: string;
+    100?: string;
+    200?: string;
+    500?: string;
+    700?: string;
+    800?: string;
+    900?: string;
+    main: string;
+  }
+
+  interface TypeText {
+    primary: string;
+  }
+}
+
 const fnLight = createTheme({
   palette: {
     primary: {
@@ -52,6 +112,24 @@ const fnLight = createTheme({
       primary: "#555"
     },
     divider: "#E8E8E8",
+    inputBorder: "#C2C2C2",
+    notification: {
+      success: {
+        background: "#CCEFE1",
+        text: "#053204"
+      },
+      error: {
+        background: "#FCDADA",
+        text: "#5F2120"
+      },
+      warning: {
+        background: "#FFF4DD",
+        text: "#663C00"
+      },
+      info: {
+        background: "#D0E4FF",
+        text: "#0C3E6F"
+      }
     grey: {
       "50": "#fafafa",
       "100": "#f5f5f5",
@@ -91,6 +169,9 @@ const fnLight = createTheme({
       styleOverrides: {
         root: {
           borderBottom: '1px solid var(--Neutrals-06, #E8E8E8)',
+          boxShadow: 'none',
+          '--Paper-shadow': 'none',
+          '--Paper-overlay': 'none'
         }
       }
     },
@@ -165,7 +246,26 @@ const darkThemeOptions: ThemeOptions = {
       primary: "#FFFFFF",
       secondary: "#B0B0B0"
     },
-    divider: "#164A35"
+    divider: "#164A35",
+    inputBorder: "#3D3D3D",
+    notification: {
+      success: {
+        background: "#164A35",
+        text: "#39E19E"
+      },
+      error: {
+        background: "#3B1A1A",
+        text: "#FF8A8A"
+      },
+      warning: {
+        background: "#3D2800",
+        text: "#FFB45A"
+      },
+      info: {
+        background: "#0A2A4A",
+        text: "#64B5FF"
+      }
+    }
   },
   components: {
     MuiButton: {
@@ -200,6 +300,9 @@ const darkThemeOptions: ThemeOptions = {
       styleOverrides: {
         root: {
           borderBottom: '1px solid var(--Neutrals-06, #E8E8E8)',
+          boxShadow: 'none',
+          '--Paper-shadow': 'none',
+          '--Paper-overlay': 'none'
         }
       }
     },

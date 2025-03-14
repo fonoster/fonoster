@@ -34,7 +34,7 @@ interface ContentFormProps<T extends object> {
 }
 
 function PageContainer({ children }: PageContainerProps) {
-  return <Box>{children}</Box>;
+  return <Box sx={{ mb: 8 }}>{children}</Box>;
 }
 
 interface HeaderProps {
@@ -121,14 +121,13 @@ function ContentForm<T extends object>({
     <Box
       component="form"
       id={formId}
+
       sx={{
         display: "flex",
         flexDirection: "column",
         gap: 3,
-        p: 3,
         borderColor: "divider",
         borderRadius: 1,
-        bgcolor: "background.paper",
         "& .MuiFormControl-root": {
           width: "100%",
           maxWidth: "500px"

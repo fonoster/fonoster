@@ -70,8 +70,8 @@ export const StyledSnackbarContainer = styled("div")<{ position: string }>(({
 export const StyledSnackbar = styled("div")(({ theme }) => {
   return {
     width: "344px",
-    backgroundColor: "#CCEFE1",
-    color: "#053204",
+    backgroundColor: `var(--background-color, ${theme.palette.primary.main})`,
+    color: `var(--text-color, ${theme.palette.primary.main})`,
     borderRadius: "4px",
     padding: "16px",
     boxShadow: theme.shadows[4],

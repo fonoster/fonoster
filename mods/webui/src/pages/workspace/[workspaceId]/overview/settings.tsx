@@ -32,14 +32,12 @@ const FormSkeleton = () => {
 
       <div style={{ marginBottom: "24px" }}>
         <Skeleton variant="text" width={120} height={20} sx={{ mb: 1 }} />{" "}
-        {/* Label */}
-        <Skeleton variant="rounded" height={40} /> {/* Input field */}
+        <Skeleton variant="rounded" height={40} /> 
       </div>
 
       <div style={{ marginBottom: "24px" }}>
         <Skeleton variant="text" width={80} height={20} sx={{ mb: 1 }} />{" "}
-        {/* Label */}
-        <Skeleton variant="rounded" height={40} /> {/* Select field */}
+        <Skeleton variant="rounded" height={40} /> 
       </div>
     </div>
   );

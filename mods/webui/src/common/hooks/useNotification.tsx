@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import {
-  Snackbar,
+  Snackbar as MuiSnackbar,
   Alert,
   AlertTitle,
   IconButton,
@@ -8,6 +8,7 @@ import {
   SnackbarOrigin
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import CustomSnackbarWrapper from "@/common/components/CustomSnackbarWrapper";
 
 export interface ErrorType {
   code: string | number;
@@ -32,6 +33,7 @@ export interface NotificationOptions {
   onClose?: () => void;
   showCountdown?: boolean;
   countdownDuration?: number;
+  useCustomSnackbar?: boolean;
 }
 
 export const useNotification = () => {
@@ -42,12 +44,13 @@ export const useNotification = () => {
       message: "",
       type: "error",
       duration: 6000,
-      position: { vertical: "top", horizontal: "right" },
+      position: { vertical: "top", horizontal: "center" },
       showIcon: true,
       autoHide: true,
       customStyle: undefined,
       showCountdown: false,
-      countdownDuration: 0
+      countdownDuration: 0,
+      useCustomSnackbar: true
     }
   );
   const [countdown, setCountdown] = useState(0);
@@ -65,7 +68,6 @@ export const useNotification = () => {
     }
   };
 
-  // For backward compatibility
   const notifyError = useCallback((error: ErrorType) => {
     const { code, details, message: errorMessage } = error;
     if (!code) return;
@@ -74,7 +76,8 @@ export const useNotification = () => {
       notify({
         title: "Error",
         message: errorMessage,
-        type: "error"
+        type: "error",
+        useCustomSnackbar: true
       });
     } else {
       let title = (code as string).replace(/_/g, " ");
@@ -108,7 +111,8 @@ export const useNotification = () => {
       notify({
         title,
         message,
-        type: "error"
+        type: "error",
+        useCustomSnackbar: true
       });
     }
   }, []);
@@ -146,6 +150,8 @@ export const useNotification = () => {
       notify({
         message,
         type: "success",
+        useCustomSnackbar: true,
+        position: { vertical: "top", horizontal: "center" },
         ...options
       });
     },
@@ -157,6 +163,8 @@ export const useNotification = () => {
       notify({
         message,
         type: "warning",
+        useCustomSnackbar: true,
+        position: { vertical: "top", horizontal: "center" },
         ...options
       });
     },
@@ -168,6 +176,8 @@ export const useNotification = () => {
       notify({
         message,
         type: "info",
+        useCustomSnackbar: true,
+        position: { vertical: "top", horizontal: "center" },
         ...options
       });
     },
@@ -179,10 +189,7 @@ export const useNotification = () => {
       notify({
         message,
         type: "success",
-        customStyle: {
-          backgroundColor: "#e8f5e9",
-          color: "#2e7d32"
-        },
+        useCustomSnackbar: true,
         position: { vertical: "top", horizontal: "center" },
         autoHide: false,
         ...options
@@ -192,6 +199,8 @@ export const useNotification = () => {
   );
 
   const NotificationComponent = () => {
+    if (!open) return null;
+
     let alertStyle = {};
     if (notificationInfo.customStyle) {
       alertStyle = {
@@ -204,8 +213,33 @@ export const useNotification = () => {
       };
     }
 
+    if (notificationInfo.useCustomSnackbar) {
+      const position = notificationInfo.position?.vertical === "top"
+        ? (notificationInfo.position?.horizontal === "center"
+          ? "top-center"
+          : notificationInfo.position?.horizontal === "right"
+            ? "top-right"
+            : "top-left")
+        : (notificationInfo.position?.horizontal === "center"
+          ? "bottom-center"
+          : notificationInfo.position?.horizontal === "right"
+            ? "bottom-right"
+            : "bottom-left");
+
+      return (
+        <CustomSnackbarWrapper
+          open={open}
+          message={notificationInfo.message}
+          onClose={handleClose}
+          position={position}
+          autoHideDuration={notificationInfo.autoHide ? notificationInfo.duration || 5000 : 5000}
+          type={notificationInfo.type}
+        />
+      );
+    }
+
     return (
-      <Snackbar
+      <MuiSnackbar
         open={open}
         autoHideDuration={
           notificationInfo.autoHide ? notificationInfo.duration : null
@@ -262,7 +296,7 @@ export const useNotification = () => {
             </Typography>
           )}
         </Alert>
-      </Snackbar>
+      </MuiSnackbar>
     );
   };
 

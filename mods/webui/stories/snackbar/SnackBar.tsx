@@ -41,13 +41,15 @@ export const Snackbar: React.FC<SnackBarProps> = ({
     }
   }, [open, autoHideDuration, onClose]);
 
+  const textColor = `var(--text-color, ${theme.palette.notification.success.text})`;
+
   return (
     <Grow in={open}>
       <StyledSnackbarContainer position={position}>
         <StyledSnackbar>
           <StyledMessage>{message}</StyledMessage>
           <StyledCloseButtonContainer onClick={onClose}>
-            <CloseIcon htmlColor="#053204" />
+            <CloseIcon htmlColor={textColor} />
           </StyledCloseButtonContainer>
         </StyledSnackbar>
       </StyledSnackbarContainer>

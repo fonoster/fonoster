@@ -7,7 +7,6 @@ import { Typography } from "@stories/typography/Typography";
 import { useUser } from "@/common/sdk/hooks/useUser";
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
-import { Content } from "@/common/components/layout/noAuth/Layout";
 import { CreateWorkspaceModal } from "./_components/CreateWorkspaceModal";
 
 const WorkspaceContainer = styled(Container)(({ theme }) => ({
@@ -75,42 +74,51 @@ const ListWorkspacePage = () => {
 
   return (
     <WorkspaceContainer>
-      <Content title={`Hey ${user?.name}, welcome to Fonoster! 👋`}
-        description={'Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.'}
-        descriptionFontSize="body-medium"
-      >
 
-        <WorkspaceGrid>
-          {isLoading && workspaces.length === 0 ? (
-            <Typography>Loading workspaces...</Typography>
-          ) : (
-            <>
-              {workspaces.map((workspace) => (
-                <WorkspaceCard
-                  key={workspace.ref}
-                  variant="regular"
-                  region={process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
-                  description={workspace.name}
-                  date={workspace.createdAt.toLocaleDateString()}
-                  onClick={() => handleWorkspaceClick(workspace.ref)}
-                  disabled={false}
-                />
-              ))}
+      <Typography
+        variant="heading-large"
+        sx={{ mt: 3 }}
+      >
+        {`Hey ${user?.name}, welcome to Fonoster! 👋`}
+      </Typography>
+
+      <Typography
+        variant="body-medium"
+        sx={{ color: 'text.secondary', mt: 3, mb: 3 }}
+      >
+        {'Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.'}
+      </Typography>
+
+      <WorkspaceGrid>
+        {isLoading && workspaces.length === 0 ? (
+          <Typography variant="body-medium">Loading workspaces...</Typography>
+        ) : (
+          <>
+            {workspaces.filter(workspace => workspace && workspace.ref).map((workspace) => (
               <WorkspaceCard
-                variant="empty"
-                onClick={handleCreateWorkspace}
+                key={workspace.ref}
+                variant="regular"
+                region={process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
+                description={workspace.name}
+                date={workspace.createdAt ? workspace.createdAt.toLocaleDateString() : 'N/A'}
+                onClick={() => handleWorkspaceClick(workspace.ref)}
                 disabled={false}
               />
-            </>
-          )}
-        </WorkspaceGrid>
-      </Content>
+            ))}
+            <WorkspaceCard
+              variant="empty"
+              onClick={handleCreateWorkspace}
+              disabled={false}
+            />
+          </>
+        )}
+      </WorkspaceGrid>
       <CreateWorkspaceModal
         open={isCreateModalOpen}
         onClose={handleCloseModal}
         onSuccess={handleCreateSuccess}
       />
-    </WorkspaceContainer>
+    </WorkspaceContainer >
   );
 };
 
