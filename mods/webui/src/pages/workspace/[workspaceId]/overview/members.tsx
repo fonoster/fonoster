@@ -1,11 +1,12 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { InviteMemberModal } from "@/pages/workspace/_components/InviteMemberModal";
 import { MemberDTO } from "@/types/dto/workspace/MemberDTO";
 import QueryMembers from "./_components/queryMembers";
+import { Button } from "@stories/button/Button";
+import { Icon } from "@stories/icon/Icon";
 
 const columns: ColumnDef<MemberDTO>[] = [
   {
@@ -56,8 +57,9 @@ export default function MembersPage() {
         title="Workspace Members"
         actions={
           <Button
-            variant="contained"
             onClick={() => setIsInviteModalOpen(true)}
+            endIcon={<Icon fontSize="small" name="Add" />}
+            variant="outlined"
           >
             Invite new member
           </Button>
