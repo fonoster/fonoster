@@ -25,7 +25,7 @@ jobs:
       - name: Publish Asterisk to Docker Hub
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: fonoster/asterisk   
+          name: enesgul23/asterisk   
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           context: .

@@ -31,7 +31,7 @@ jobs:
       - name: Publish Autopilot to Docker Hub
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: fonoster/autopilot
+          name: enesgul23/autopilot
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           context: .

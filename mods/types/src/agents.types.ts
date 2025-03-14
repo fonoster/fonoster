@@ -32,6 +32,7 @@ type Agent = {
   enabled: boolean;
   maxContacts?: number;
   expires?: number;
+  appRef?: string;
   domain?: {
     ref: string;
     name: string;
@@ -57,6 +58,7 @@ type CreateAgentRequest = {
   enabled: boolean;
   maxContacts: number;
   expires: number;
+  appRef?: string;
   domainRef?: string;
   credentialsRef?: string;
 };
