@@ -24,7 +24,8 @@ import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 
 export default class UpdateApp extends AuthenticatedCommand<typeof UpdateApp> {
-  static override readonly description = "associate an agent with an application for autopilot integration";
+  static override readonly description =
+    "associate an agent with an application for autopilot integration";
   static override readonly examples = [
     "<%= config.bin %> <%= command.id %> REF APP_REF",
     "<%= config.bin %> <%= command.id %> 001 002"
@@ -41,7 +42,9 @@ export default class UpdateApp extends AuthenticatedCommand<typeof UpdateApp> {
   };
 
   public async run(): Promise<void> {
-    this.log("This utility will help you associate an agent with an application for autopilot integration.");
+    this.log(
+      "This utility will help you associate an agent with an application for autopilot integration."
+    );
     this.log("Press ^C at any time to quit.");
 
     const { args } = await this.parse(UpdateApp);
@@ -91,7 +94,9 @@ export default class UpdateApp extends AuthenticatedCommand<typeof UpdateApp> {
         ref,
         appRef
       } as UpdateAgentRequest);
-      this.log(`Successfully associated agent ${ref} with application ${appRef}!`);
+      this.log(
+        `Successfully associated agent ${ref} with application ${appRef}!`
+      );
     } catch (e) {
       errorHandler(e, this.error.bind(this));
     }
