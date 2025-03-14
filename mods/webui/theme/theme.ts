@@ -129,7 +129,8 @@ const fnLight = createTheme({
       info: {
         background: "#D0E4FF",
         text: "#0C3E6F"
-      }
+      },
+    },
     grey: {
       "50": "#fafafa",
       "100": "#f5f5f5",
