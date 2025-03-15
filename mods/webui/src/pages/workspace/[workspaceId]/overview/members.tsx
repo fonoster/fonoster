@@ -1,11 +1,15 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { InviteMemberModal } from "@/pages/workspace/_components/InviteMemberModal";
 import { MemberDTO } from "@/types/dto/workspace/MemberDTO";
 import QueryMembers from "./_components/queryMembers";
+import { Button } from "@stories/button/Button";
+import { Icon } from "@stories/icon/Icon";
+import { QueryData } from "@/common/contexts/table/QueryData";
+import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
+import { ListWorkspaceMembersResponse } from "@fonster/types";
 
 const columns: ColumnDef<MemberDTO>[] = [
   {
@@ -44,6 +48,7 @@ export default function MembersPage() {
   const router = useRouter();
   const { workspaceId } = router.query;
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const { listWorkspaceMembers } = useWorkspaces();
 
   const handleInviteMember = (data: any) => {
     console.log("Invite member data:", data);
@@ -56,8 +61,9 @@ export default function MembersPage() {
         title="Workspace Members"
         actions={
           <Button
-            variant="contained"
             onClick={() => setIsInviteModalOpen(true)}
+            endIcon={<Icon fontSize="small" name="Add" />}
+            variant="outlined"
           >
             Invite new member
           </Button>
@@ -68,14 +74,15 @@ export default function MembersPage() {
         }}
       />
 
-      <PageContainer.ContentTable<MemberDTO>
+      <PageContainer.ContentTable<ListWorkspaceMembersResponse>
         columns={columns}
         tableId="members-table"
-        showHeader={false}
+        showFilters={false}
+        showSearch={false}
+        showPagination={true}
       >
-        <QueryMembers />
+        <QueryData<ListWorkspaceMembersResponse> fetchFunction={listWorkspaceMembers} pageSize={10} />
       </PageContainer.ContentTable>
-
       <InviteMemberModal
         open={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}

@@ -16,6 +16,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useTableContext } from "./useTableContext";
+import { Pagination } from "@stories/pagination/Pagination";
 
 interface FilterProps {
   defaultFilter?: string;
@@ -152,40 +153,41 @@ TableHeaderComponent.Pagination = () => {
     setPrevPageCursor,
     nextPage,
     previousPage,
-    pageIndex,
     pageSize,
-    totalPages
+    pageIndex
   } = useTableContext();
+
+  console.log("Pagination component:", {
+    pageIndex,
+    nextToken: fonosterResponse?.nextPageToken,
+    prevToken: fonosterResponse?.prevPageToken
+  });
 
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-      <Typography variant="body2" color="text.secondary">
-        {pageIndex || 0 + 1}-{pageSize} of {totalPages}
-      </Typography>
-      <Box sx={{ display: "flex" }}>
-        <IconButton
-          size="small"
-          onClick={() => {
-            setPrevPageCursor?.(fonosterResponse?.prevPageToken);
-            // Set Table API previous page
-            previousPage?.();
-          }}
-          disabled={pageIndex === 0}
-        >
-          <KeyboardArrowLeftIcon />
-        </IconButton>
-        <IconButton
-          size="small"
-          onClick={() => {
+      <Pagination
+        count={32}
+        rowsPerPage={pageSize}
+        onClick={(event, newPage, lastPage) => {
+          console.log("Pagination clicked:", {
+            newPage,
+            lastPage,
+            nextToken: fonosterResponse?.nextPageToken,
+            prevToken: fonosterResponse?.prevPageToken
+          });
+          
+          if (newPage > lastPage) {
+            console.log("Going to next page with token:", fonosterResponse?.nextPageToken);
             setNextPageCursor?.(fonosterResponse?.nextPageToken);
-            // Set Table API next page
             nextPage?.();
-          }}
-          disabled={!fonosterResponse?.nextPageToken}
-        >
-          <KeyboardArrowRightIcon />
-        </IconButton>
-      </Box>
+          }
+          else {
+            console.log("Going to previous page with token:", fonosterResponse?.prevPageToken);
+            setPrevPageCursor?.(fonosterResponse?.prevPageToken);
+            previousPage?.();
+          }
+        }}
+      />
     </Box>
   );
 };
