@@ -75,7 +75,7 @@ class Deepgram
         const responseTime =
           words.length > 0
             ? (words.reduce(
-                (acc: number, word: any) => acc + (word.end - word.start),
+                (acc: number, word: { start: number; end: number }) => acc + (word.end - word.start),
                 0
               ) *
                 1000) /

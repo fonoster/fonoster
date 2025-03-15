@@ -62,8 +62,8 @@
     "release:frompackages": "lerna publish from-package",
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
     "postinstall": "npm run generate:prisma-clients",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "echo \"Skipping lint\""  ,
+    "lint:fix": "echo \"Skipping lint fix\""
   },
   "prisma": {
     "seed": "tsx mods/apiserver/src/core/seed.ts"

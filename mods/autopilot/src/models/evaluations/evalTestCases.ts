@@ -36,36 +36,40 @@ export async function evalTestCases(autopilotApplication: {
     say: async (_: string) => {}
   } as Voice;
 
-  const evaluationReports: ScenarioEvaluationReport[] = [];
+  // Use Array.reduce instead of a for loop
+  return (testCases?.scenarios ?? []).reduce(
+    async (previousPromise, scenario) => {
+      // Wait for the previous promise to resolve
+      const accumulatedReports = await previousPromise;
+      
+      const languageModel = createLanguageModel({
+        voice,
+        assistantConfig: autopilotApplication.intelligence.config,
+        knowledgeBase: {
+          load: async () => {},
+          queryKnowledgeBase: async (query: string) => query
+        },
+        telephonyContext: scenario.telephonyContext as TelephonyContext
+      });
+      
+      const testTextSimilarity = createTestTextSimilarity(
+        {
+          provider: assistantConfig.testCases?.evalsLanguageModel?.provider,
+          model: assistantConfig.testCases?.evalsLanguageModel?.model ?? "",
+          apiKey: assistantConfig.testCases?.evalsLanguageModel?.apiKey
+        },
+        assistantConfig.testCases?.evalsSystemPrompt || textSimilaryPrompt
+      );
 
-  for (const scenario of testCases?.scenarios ?? []) {
-    const languageModel = createLanguageModel({
-      voice,
-      assistantConfig: autopilotApplication.intelligence.config,
-      knowledgeBase: {
-        load: async () => {},
-        queryKnowledgeBase: async (query: string) => query
-      },
-      telephonyContext: scenario.telephonyContext as TelephonyContext
-    });
-
-    const testTextSimilarity = createTestTextSimilarity(
-      {
-        provider: assistantConfig.testCases?.evalsLanguageModel?.provider,
-        model: assistantConfig.testCases?.evalsLanguageModel?.model ?? "",
-        apiKey: assistantConfig.testCases?.evalsLanguageModel?.apiKey
-      },
-      assistantConfig.testCases?.evalsSystemPrompt || textSimilaryPrompt
-    );
-
-    const evaluationReport = await evaluateScenario({
-      assistantConfig,
-      scenario,
-      languageModel,
-      testTextSimilarity
-    });
-    evaluationReports.push(evaluationReport);
-  }
-
-  return evaluationReports;
+      // Process this scenario and add its report
+      const report = await evaluateScenario({
+        assistantConfig,
+        scenario,
+        languageModel,
+        testTextSimilarity
+      });
+      return [...accumulatedReports, report];
+    },
+    Promise.resolve([] as ScenarioEvaluationReport[])
+  );
 }

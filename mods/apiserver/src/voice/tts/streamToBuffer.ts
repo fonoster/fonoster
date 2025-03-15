@@ -20,15 +20,15 @@ async function streamToBuffer(readableStream): Promise<Buffer> {
   return new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
     
-    readableStream.on('data', (chunk) => {
+    readableStream.on("data", (chunk) => {
       chunks.push(Buffer.from(chunk));
     });
     
-    readableStream.on('end', () => {
+    readableStream.on("end", () => {
       resolve(Buffer.concat(chunks));
     });
     
-    readableStream.on('error', (err) => {
+    readableStream.on("error", (err) => {
       reject(err);
     });
   });

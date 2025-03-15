@@ -23,7 +23,7 @@ function textChunkTextByClause(text: string) {
   
   // Use reduce instead of a for loop to build the chunks
   const { chunks, start } = boundaries.reduce(
-    (acc, boundary, index) => {
+    (acc, boundary, _index) => {
       // If we already have 2 or more chunks, don't process more
       if (acc.chunks.length >= 2) {
         return acc;
@@ -41,9 +41,7 @@ function textChunkTextByClause(text: string) {
   );
 
   const remainingText = text.slice(start).trim();
-  const finalChunks = remainingText.length > 0 
-    ? [...chunks, remainingText] 
-    : chunks;
+  const finalChunks = remainingText.length > 0 ? [...chunks, remainingText] : chunks;
 
   return finalChunks;
 }

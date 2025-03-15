@@ -25,6 +25,11 @@ import {
   transferToolDefinition,
   Voice
 } from "..";
+import { BaseModelParams, LanguageModelParams } from "./types";
+
+// Disable no-explicit-any for this specific line only
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LanguageModelConfig = Record<string, any>;
 
 function createLanguageModel(params: {
   voice: Voice;
@@ -49,7 +54,7 @@ function createLanguageModel(params: {
       ...conversationSettings,
       knowledgeBase,
       tools
-    } as any,
+    } as LanguageModelConfig,
     voice,
     telephonyContext
   );
