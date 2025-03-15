@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { and, not } from "xstate";
+import { and } from "xstate";
 import { context } from "./context";
 import { machineSetup } from "./setup";
 
 const machine = machineSetup.createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgOigJzDABcBLVKAYgG0AGAXUVAAcB7WE0l1RkAD0QCMADgHYAzAHYAnADYJYgExCaMmSJkAaEAE9EUsQFZsUiaoUGpAhQsMSAvna1os2EhAA2YCgGUACgFF-AGEACQB9bwAVdAAlSNoGJBBWdk5uJP4EAQMAFiFxHLkJbLEaAxkBCS1dLIEcnPFFZSkpHIklQwcnDBw3Tx8A4PCY-28AVQAZePoeFI4SLh5MyzFsBUrzHJMrAxtqxAkcoxyFHMqt0pbsrpBnXo8vXlgiAEMiMGwX5He8AApMAAiE38YUimAAsv4APJjSIASgod1cDwSszY80WGUQMgMRgEUhokgMYjyMlKAn2WQUJmwEnK23a5jEQhuSL6j2ebw+Xx+-yBILBkJh8MRPWRnioAkSzHRaSWgjqNGwQnkNAU0iEYi1VR0emy2Bk+iOpU1bRkrLFRDwL1QqQWqDIUEiLEwD2oMySczlWIQygUtOyORohX0uLJlKkBlE7WJNEqZJVKgtLncJGeYAd5GdY1gYDwA0CoTC-gAcgDUZ7Zfb5VkNdgDMUVAZTYGDJSxDjjMShLGJNI+wJzY5bmLU+nM06WDm8wWhsWy5Lpckq5jQJkBGVRKdTKozhZLO2o8qtQY44dynSysmcGP3hPs7n835C8NRpNpkuvdWfZUpPkGwIVjWJquQKBGg7GB2ZQ0CYYhSDY17YAA7i88zkAAYiweDeEwhAAMYABaRCQAC2YAsAArkQs5FlEsQfmidqrnwggduIzYKCopw0DQdLlJSuISNgbRBpY1LrKcOSIShaFQJh2G4WAhHEWRlHUc+c4jOMUwVjKTHpGuiBiHU9YqFs6y8SqFSUiI4jWJYBKamSJIGNJqGkBhWE4fhRGkeRVEUE8rzvJ83x5r84LoAAGhEgxFgA6lgkSghC0KwgiSIyR5cleYpyl+WpunLvpNZ5A0Hb1AmwaSZS5iiLsWpklYwg9hILLDpl7mOvJ3lKb5qkBUFXKhbykUxRpCVJSlQrpaKLhZd1uU+Sp-lEIujEYgZLEIKeeK4lsgFtW1pRtrqO0CKswZRsGZJBsIQ7dC4TB4CweFwOw5DTngMRgAAjhRcDURAXAfGQABuLAANYfEiz2ve9jpfT9-2Awg4OvW89oJEVX7MeuuwyNgarNpU8akqdNRWPUxg8TQQjrDI9lSR1Ypw29sAfVASN-QDzw0eEdFxDjK5beuPYNJqhyWGamp05SchGHIvEXUIhrGQIDjDqgLAQHAPB3Bt3qGQgAC0F2E8SphCH+GqHEolIm0YLTO-T1u5Gq9SIfghDZYb37GybQj-pIag2zbJxCBGCiE200ikko9TyIh7J+3jiANv6FSDtSFSJ4SUcx328HBoSdKdCzLhWja+mOs6rqeKnot6kY5JRpIzIkh2EZbMq8GM8ISjwQ2iG3hmtdTo+jc1tkEEcXBKzWzIvGUhIKjGNS0iAcyZ6uRXOALZ5CnLQVVFTz60fYC1JxFzxOL8Wd8+0qcViEtH8inIhBE2lAFFMGfxuARMiIP8eQ6Z00MJHM6F1rDCVMDBOkcCVAPRHE9F67NObcxRs8f+21rBHiOvBQcZwWianlgScQJho7kkULkXeDggA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgOigJzDABcBLVKAYgG0AGAXUVAAcB7WE0l1RkAD0QCMADgHYAzAHYAnADYJYgExCaMmSJkAaEAE9EUsQFZsUiaoUGpAhQsMSAvna1os2EhAA2YCgGUACgFF-AGEACQB9bwAVdAAlSNoGJBBWdk5uJP4EKRoJbCEDGwklABZ5OQktXQQJIQVjFUkJGmFpYoUHJwwcN08KXlgiAEMiMGxB5BG8AApMABEAGX8wyMwAWX8AeQBVSIBKCmdujzAEnhSOEi4eTINi4uwaYuyisVkBYubKwQUJUSEpKQGGiSAwCAyKIQdECHVzHPoDYajcaTGYLJYrdbbPYHLqwzxUASJZhsC5XDKIV7YNQmGrFAQ0BQ0AwyMRfBACYRSKnFArWWS1O4GKEwoh4QaoVKXVBkKCRFiYOGnJLnNLXClCe6yRQyAwaoRiYpiR5sjk0LlNGpSBQc6TSYW49wkAZgaXkOVbWBgPA+ALBcIxfzeLbzeL0M4k1XkhAyYpCPIsqTFBOyEzFNliGQ0YwmW4KbKPd7A+0uR3O12ylger3woYjMYTL2oxbLNabHb7GGlkbl92evBK4mSsmgTICV73cy3ZoCGTCSQKE00IRxmhM5p5pNvGTFnAAd0GF3IADEWHhvExCABjAAWkRIAFswCwAK5EH2BUIRaJxAfJCNStV2Qke55FTMQMykZQ8zZAwCmwAwmgUO4eXBQxIUcaFcX3Q8oBPM8LzAG870fF8336WskQbaZVnQAANCJfU-AB1LBIhbTF2xxFxsNIY9T3PK9bwfJ9X1-FUAKjWN7gzO4WWUNo7jZcxRAKcCWSsYR8hqHdsCYPAWEvOB2HIKs8BiMAAEdnzgN8IC4UYyAANxYABrUYYT0gyjJlUzzKsmyECcgzhilBIxP-Yc+EEekZAeSQjVqJRlwzNlZDqK0rUNQEZBMMEdM8wzYGMqBfMs6yBnfP0v1iUMiT-Id0hHaL-ji2QCjBK0bE0HREBqURshkawnjUCxtyhVAWAgOAeEOcMGsAgBaDkjAUHKimBK0l1UIQTRjB4bEMdS6RERMdPwQheKgObSUaqKEAWuRsFWkxGVeRkhG21LVuwUppEZD4QUMHSejAa7IyahAELqWcZzzWc7iaVkeqyb7fs2gGJHBIUMJFMUJRumU5QVTwwYkiHsng2RHkeW5BtjAQTXpONGRqHVINjUF2hxh0nW7QnKz7UnIsyIQmjyAR9CZMQZ0MW4YNnPJlCXCCxHydDOm4g9LrwgTCKEkjXyF27R0e2cPqUTNVqTNNkdec0kKsHLJBizGdOvcUoGfJgjcAj6-l1W5fmOukDBNPM6kdnIniebJDXy-TCuK0r-IGH2ozBcFxBh1mgQOmDRcV1cNQzcErXsBw7CAA */
   context,
   id: "fnAI",
   initial: "greeting",
@@ -37,16 +37,11 @@ const machine = machineSetup.createMachine({
     },
 
     idle: {
-      entry: { type: "cleanSpeech" },
+      entry: [{ type: "cleanSpeech" }, { type: "setSpeakingDone" }],
       on: {
         SPEECH_START: {
           target: "listeningToUser",
           description: "Event from VAD system."
-        },
-        SPEECH_RESULT: {
-          target: "listeningToUser",
-          description: "Detected speech before SPEECH_START event.",
-          actions: [{ type: "appendSpeech" }]
         }
       },
       after: {
@@ -54,7 +49,7 @@ const machine = machineSetup.createMachine({
           {
             target: "hangup",
             actions: { type: "goodbye" },
-            guard: and(["idleTimeoutCountExceedsMax", not("isSpeaking")])
+            guard: and(["idleTimeoutCountExceedsMax"])
           },
           {
             target: "transitioningToIdle",
@@ -83,28 +78,23 @@ const machine = machineSetup.createMachine({
         { type: "setSpeaking" }
       ],
       on: {
-        SPEECH_END: [
-          {
-            target: "processingUserRequest",
-            guard: "hasSpeechResult",
-            actions: [{ type: "setSpeakingDone" }],
-            description:
-              "Process the request immediately since we already speech."
+        SPEECH_RESULT: {
+          target: "waitingForSpeechTimeout",
+          actions: {
+            type: "appendSpeech"
           },
+          description: "Append final speech and process the request.",
+          reenter: true
+        }
+      },
+      after: {
+        IDLE_TIMEOUT: [
           {
-            target: "waitingForSpeechTimeout",
-            guard: not("hasSpeechResult"),
-            actions: [{ type: "setSpeakingDone" }],
-            description:
-              "Wait for more speech since we don't have any speech yet."
-          }
-        ],
-        SPEECH_RESULT: [
-          {
-            actions: { type: "appendSpeech" },
-            guard: "isSpeaking",
-            description:
-              "The user is still speaking. With only want to append the speech."
+            target: "transitioningToIdle",
+            actions: [
+              { type: "increaseIdleTimeoutCount" },
+              { type: "announceIdleTimeout" }
+            ]
           }
         ]
       }
@@ -115,29 +105,15 @@ const machine = machineSetup.createMachine({
         SPEECH_START: {
           target: "listeningToUser",
           description: "User started speaking again."
-        },
-        SPEECH_RESULT: {
-          target: "processingUserRequest",
-          actions: {
-            type: "appendSpeech"
-          },
-          description: "Append final speech and process the request."
         }
       },
       after: {
-        MAX_SPEECH_WAIT_TIMEOUT: [
-          {
-            target: "processingUserRequest",
-            description:
-              "Proceed to process the request as we have speech and the user is not speaking.",
-            guard: "hasSpeechResult"
-          },
-          {
-            target: "idle",
-            description:
-              "We have no speech and the user is not speaking. Return to idle."
-          }
-        ]
+        MAX_SPEECH_WAIT_TIMEOUT: {
+          target: "processingUserRequest",
+          description:
+            "This will give the person time to breathe and speak again.",
+          reenter: true
+        }
       }
     },
 

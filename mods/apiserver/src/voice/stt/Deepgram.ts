@@ -82,6 +82,11 @@ class Deepgram
               words.length
             : 0;
 
+        logger.verbose("transcribe result", {
+          speech: data.channel.alternatives[0].transcript,
+          responseTime
+        });
+
         out.emit("data", {
           speech: data.channel.alternatives[0].transcript,
           responseTime
@@ -117,6 +122,11 @@ class Deepgram
               isFinal: true,
               responseTime: performance.now() - startTime
             };
+
+            logger.verbose("transcribe result", {
+              speech: result.speech,
+              responseTime: result.responseTime
+            });
 
             resolve(result);
             connection.destroy();
@@ -165,6 +175,7 @@ function buildTranscribeConfig(config: {
   languageCode: VoiceLanguage;
 }) {
   return {
+    ...config,
     model: config.model || DeepgramModel.NOVA_2_PHONECALL,
     encoding: "linear16",
     sample_rate: 16000,

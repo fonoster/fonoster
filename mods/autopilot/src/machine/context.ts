@@ -16,7 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const context = ({ input }) => ({
+import { ConversationSettings } from "../assistants";
+import { LanguageModel } from "../models";
+import { Voice } from "../voice";
+
+const context = ({
+  input
+}: {
+  input: {
+    voice: Voice;
+    languageModel: LanguageModel;
+    conversationSettings: ConversationSettings;
+  };
+}) => ({
   sessionRef: input.voice.sessionRef,
   voice: input.voice,
   languageModel: input.languageModel,
@@ -25,11 +37,11 @@ const context = ({ input }) => ({
   goodbyeMessage: input.conversationSettings.goodbyeMessage,
   transferMessage: input.conversationSettings.transferOptions?.message,
   transferPhoneNumber: input.conversationSettings.transferOptions?.phoneNumber,
+  transferTimeout: input.conversationSettings.transferOptions?.timeout,
   systemErrorMessage: input.conversationSettings.systemErrorMessage,
-  idleMessage: input.conversationSettings.idleOptions?.message || "",
-  idleTimeout: input.conversationSettings.idleOptions?.timeout || 10000,
-  maxIdleTimeoutCount:
-    input.conversationSettings.idleOptions?.maxTimeoutCount || 3,
+  idleMessage: input.conversationSettings.idleOptions.message,
+  idleTimeout: input.conversationSettings.idleOptions.timeout,
+  maxIdleTimeoutCount: input.conversationSettings.idleOptions.maxTimeoutCount,
   idleTimeoutCount: 0,
   maxSpeechWaitTimeout: input.conversationSettings.maxSpeechWaitTimeout,
   isSpeaking: false,

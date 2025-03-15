@@ -24,7 +24,10 @@ import { getAccessKeyIdFromCall } from "./getAccessKeyIdFromCall";
 import { getTokenFromCall } from "./getTokenFromCall";
 import { hasAccess } from "./hasAccess";
 import { isValidToken } from "./isValidToken";
-import { workspaceResourceAccess } from "./roles";
+import {
+  workspaceResourceAccess,
+  workspaceResourceOwnerOrAdminAccess
+} from "./roles";
 import { tokenHasAccessKeyId } from "./tokenHasAccessKeyId";
 import { Access, TokenUseEnum } from "./types";
 
@@ -88,6 +91,8 @@ function createAuthInterceptor(
     if (
       !hasAccess(decodedToken, path) ||
       (workspaceResourceAccess.includes(path) &&
+        !tokenHasAccessKeyId(token, accessKeyId)) ||
+      (workspaceResourceOwnerOrAdminAccess.includes(path) &&
         !tokenHasAccessKeyId(token, accessKeyId))
     ) {
       return permissionDeniedError(call);
