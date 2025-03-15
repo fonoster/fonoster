@@ -16,16 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import chalk from "chalk";
+import ansis from "ansis";
 import Table from "cli-table3";
 import { ScenarioEvaluationReport } from "./types";
 
 export function printEval(results: ScenarioEvaluationReport[]): void {
   results.forEach((result) => {
-    console.log(chalk.bold.blue(`\nScenario: ${result.scenarioRef}`));
+    console.log(ansis.bold.blue(`\nScenario: ${result.scenarioRef}`));
     console.log(
-      chalk.bold(
-        `Overall Passed: ${result.overallPassed ? chalk.green("✔") : chalk.red("✘")}`
+      ansis.bold(
+        `Overall Passed: ${result.overallPassed ? ansis.green("✔") : ansis.red("✘")}`
       )
     );
 
@@ -81,21 +81,21 @@ export function printEval(results: ScenarioEvaluationReport[]): void {
         step.expectedResponse,
         step.aiResponse,
         toolEvalText,
-        step.passed ? chalk.green("✔") : chalk.red("✘")
+        step.passed ? ansis.green("✔") : ansis.red("✘")
       ]);
 
       // Print error message if step failed
       if (!step.passed && step.errorMessage) {
-        console.log(chalk.red(`\nError in step ${index + 1}:`));
-        console.log(chalk.red(step.errorMessage));
+        console.log(ansis.red(`\nError in step ${index + 1}:`));
+        console.log(ansis.red(step.errorMessage));
       }
 
       // Print tool evaluation errors if any
       if (step.toolEvaluations) {
         step.toolEvaluations.forEach((toolEval) => {
           if (!toolEval.passed && toolEval.errorMessage) {
-            console.log(chalk.red(`\nTool Error in step ${index + 1}:`));
-            console.log(chalk.red(toolEval.errorMessage));
+            console.log(ansis.red(`\nTool Error in step ${index + 1}:`));
+            console.log(ansis.red(toolEval.errorMessage));
           }
         });
       }
