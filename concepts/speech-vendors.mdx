@@ -1,6 +1,6 @@
 ---
-title: 'Speech vendors'
-description: 'Speech-to-text and text-to-speech vendors in Fonoster.'
+title: "Speech vendors"
+description: "Speech-to-text and text-to-speech vendors in Fonoster."
 ---
 
 Speech vendors in Fonoster provide speech-to-text and text-to-speech services for applications. Speech vendors are used to convert speech into text and text into speech.
@@ -47,13 +47,13 @@ The _speechToText_ object allows you to define the speech-to-text engine to use.
 
 The _speechToText_ object has the _productRef_ and _config_ properties. The _productRef_ property identifies the speech-to-text vendor you want to use. The _config_ property is an object that contains the configuration settings for the speech-to-text engine. The configuration settings vary depending on the vendor.
 
-Currently, only *Deepgram* is supported as a speech-to-text vendor, but we are working on adding more vendors.
+Currently, only _Deepgram_ is supported as a speech-to-text vendor, but we are working on adding more vendors.
 
 ### Deepgram configuration
 
 _Deepgram_ is a speech-to-text vendor that provides high-quality transcription services. Deepgram supports the _languageCode_ as well as _model_ properties. The _languageCode_ property is the language code of the speech you want to transcribe. The _model_ property is the model to use for transcription and defaults to `nova-2-phonecall`.
 
-The Autopilot supports the models `nova-2`, `nova-2-phonecall`, and `nova-2-conversationalai`.
+The Autopilot supports the models `nova-2`, `nova-2-phonecall`, and `nova-2-conversationalai`, `nova-3`.
 
 Example of a Deepgram configuration for Spanish:
 
@@ -72,9 +72,9 @@ const appConfig = {
 ```
 
 <Note>
-For _languageCode_ other than `en-US`, you need to use the `nova-2` model. 
-  
-Please refer to the [Deepgram documentation](https://developers.deepgram.com/docs/models-languages-overview) for more information.
+  For _languageCode_ other than `en-US`, you need to use the `nova-2` model.
+
+  Please refer to the [Deepgram documentation](https://developers.deepgram.com/docs/models-languages-overview) for more information.
 </Note>
 
 ## Configuring text-to-speech
@@ -83,18 +83,18 @@ The _textToSpeech_ object allows you to define the text-to-speech engine. The te
 
 The _textToSpeech_ object has the _productRef_ and _config_ properties. The _productRef_ property identifies the text-to-speech vendor you want to use. The _config_ property is an object that contains the configuration settings for the text-to-speech engine. The configuration settings vary depending on the vendor.
 
-We currently support *Google*, *Azure*, *Deepgram*, and *ElevenLabs* as text-to-speech vendors.
+We currently support _Google_, _Azure_, _Deepgram_, and _ElevenLabs_ as text-to-speech vendors.
 
 Most vendors only support the _voice_ property as the voice for the text-to-speech. The voice is a string that represents the voice to use. The available voices depend on the vendor.
 
 Please visit the vendor's documentation for more information on the available voices.
 
 <Tip>
-  In addition to the *voice* property, the _ElevenLabs_ vendor supports the *model* property. The *model* property is the model to use for text-to-speech and defaults to `eleven_flash_v2_5`.
+  In addition to the _voice_ property, the _ElevenLabs_ vendor supports the _model_ property. The _model_ property is the model to use for text-to-speech and defaults to `eleven_flash_v2_5`.
   Please refer to the [ElevenLabs documentation](https://elevenlabs.io/docs/developer-guides/models) for additional information about the available models.
 </Tip>
 
-Example of a text-to-speech configuration for *ElevenLabs*:
+Example of a text-to-speech configuration for _ElevenLabs_:
 
 ```javascript
 const appConfig = {
@@ -114,14 +114,11 @@ const appConfig = {
 
 The following links provide information on the available voices for each vendor:
 
-* [Deepgram](https://developers.deepgram.com/docs/tts-models)
-
-* [ElevenLabs](https://elevenlabs.io/docs/product/voices/default-voices)
-
-* [Google](https://cloud.google.com/text-to-speech/docs/voices)
-
-* [Azure](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support)
+- [Deepgram](https://developers.deepgram.com/docs/tts-models)
+- [ElevenLabs](https://elevenlabs.io/docs/product/voices/default-voices)
+- [Google](https://cloud.google.com/text-to-speech/docs/voices)
+- [Azure](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support)
 
 <Warning>
-  If you need a non-default *ElevenLabs* voice, please let us know, and we will add it for you.
+  If you need a non-default _ElevenLabs_ voice, please let us know, and we will add it for you.
 </Warning>
