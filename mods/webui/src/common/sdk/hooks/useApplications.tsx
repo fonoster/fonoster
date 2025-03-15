@@ -4,12 +4,29 @@ import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
   CreateApplicationRequest,
   UpdateApplicationRequest,
-  ListApplicationsRequest,
-  ListApplicationsResponse,
+  ListApplicationsRequest as BaseListApplicationsRequest,
+  ListApplicationsResponse as BaseListApplicationsResponse,
   Application,
-  BaseApiObject
+  BaseApiObject,
+  ApplicationType
 } from "@fonoster/types";
 import { Applications } from "@fonoster/sdk";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
+import { ApplicationDTO } from "@/types/dto";
+
+// Define the extended response type for our paginated data
+interface ListApplicationsResponse extends BaseListApplicationsResponse {
+  prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+// Define the request type for our paginated data
+interface ListApplicationsRequest extends BaseListApplicationsRequest {
+  filterBy?: Record<string, string>;
+  pageSize?: number;
+  pageToken?: string;
+}
 
 export const useApplications = () => {
   const { client, isReady, authentication } = useFonosterClient();
@@ -25,6 +42,24 @@ export const useApplications = () => {
       throw new Error("Failed to initialize Applications client");
     }
   }, [client]);
+
+  // Handle Fake data - make sure all required Application properties are non-optional
+  const { listItems } = usePaginatedData<Application>({
+    generateFakeData: (index) => ({
+      ref: `app-${index}`,
+      name: `Application ${index + 1}`, // This is required to be non-optional
+      projectId: `project-${index + 1}`,
+      tts: index % 2 === 0 ? "Google" : "Fonoster",
+      stt: index % 2 === 0 ? "Google" : "Fonoster",
+      intelligence: index % 2 === 0 ? { productRef: "Google", config: {} } : { productRef: "Fonoster", config: {} },
+      // Add any other required fields from Application type
+      type: index % 2 === 0 ? ApplicationType.EXTERNAL : ApplicationType.AUTOPILOT,
+      createdAt: new Date(Date.now() - (index * 86400000)),
+      updatedAt: new Date(Date.now() - (index * 43200000))
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
 
   const createApplication = async (
     data: CreateApplicationRequest
@@ -45,11 +80,8 @@ export const useApplications = () => {
     }
   ): Promise<ListApplicationsResponse | undefined> => {
     try {
-      if (!isReady) return undefined;
-
-      return await authentication.executeWithRefresh(() =>
-        _applications.listApplications(data)
-      );
+      // The return type of listItems is now compatible with ListApplicationsResponse
+      return await listItems(data) as ListApplicationsResponse;
     } catch (error: any) {
       notifyError(error as ErrorType);
     }

@@ -13,10 +13,11 @@ import {
   ListWorkspaceMembersResponse as BaseListWorkspaceMembersResponse,
   ListWorkspaceMembersRequest as BaseListWorkspaceMembersRequest,
   Role,
-  WorkspaceMemberStatus
+  WorkspaceMemberStatus,
 } from "@fonoster/types";
 import { Workspaces } from "@fonoster/sdk";
 import { useMemo } from "react";
+import { WorkspaceMemberDTO } from "@/types/dto/workspace/WorkspaceMemberDTO";
 
 // Extend the ListWorkspaceMembersResponse to include prevPageToken
 interface ListWorkspaceMembersResponse extends BaseListWorkspaceMembersResponse {
@@ -28,17 +29,6 @@ interface ListWorkspaceMembersResponse extends BaseListWorkspaceMembersResponse 
 interface ListWorkspaceMembersRequest extends BaseListWorkspaceMembersRequest {
   filterBy?: Record<string, string>;
   pageSize?: number;
-}
-
-interface WorkspaceMember {
-  ref: string;
-  userRef: string;
-  name: string;
-  email: string;
-  role: Role;
-  status: WorkspaceMemberStatus;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export const useWorkspaces = () => {
@@ -57,7 +47,8 @@ export const useWorkspaces = () => {
     }
   }, [client]);
 
-  const { listItems } = usePaginatedData<WorkspaceMember>({
+  // Handle Fake data
+  const { listItems } = usePaginatedData<WorkspaceMemberDTO>({
     generateFakeData: (index) => ({
       ref: `member-${index}`,
       userRef: `user-${index}`,

@@ -3,14 +3,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { InviteMemberModal } from "@/pages/workspace/_components/InviteMemberModal";
-import { MemberDTO } from "@/types/dto/workspace/MemberDTO";
-import QueryMembers from "./_components/queryMembers";
 import { Button } from "@stories/button/Button";
 import { Icon } from "@stories/icon/Icon";
 import { QueryData } from "@/common/contexts/table/QueryData";
 import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
 import { ListWorkspaceMembersResponse } from "@fonster/types";
 import { formatToShortDate } from "@/utils/dayjs";
+import { Stack } from "@mui/material";
 
 const columns: ColumnDef<ListWorkspaceMembersResponse>[] = [
   {
@@ -47,9 +46,12 @@ const columns: ColumnDef<ListWorkspaceMembersResponse>[] = [
   },
   {
     id: "actions",
-    header: "ACTIONS",
+    header: "Actions",
     cell: (props: { row: { original: ListWorkspaceMembersResponse } }) =>
-      props.row.original.ref
+      <Stack direction="row" spacing={1} alignItems="center">
+        <Icon name="Email" fontSize="small" />
+        <Icon name="Delete" fontSize="small" />
+      </Stack>
   }
 ];
 
