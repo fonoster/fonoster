@@ -26,6 +26,7 @@ import {
 import Grow from "@mui/material/Grow";
 import { SnackBarProps } from "./types";
 import CloseIcon from "@mui/icons-material/Close";
+import { useTheme } from "@mui/material/styles";
 
 export const Snackbar: React.FC<SnackBarProps> = ({
   message,
@@ -34,6 +35,8 @@ export const Snackbar: React.FC<SnackBarProps> = ({
   position,
   autoHideDuration = 5000
 }) => {
+  const theme = useTheme();
+
   useEffect(() => {
     if (open && autoHideDuration) {
       const timer = setTimeout(onClose, autoHideDuration);
