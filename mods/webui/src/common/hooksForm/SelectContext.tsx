@@ -57,8 +57,19 @@ const SelectContext = ({
   const fieldValue = watch(name);
 
   const handleChange = (event: { target: { value: any } }) => {
+    console.log(event.target.value, 'event.target.value');
     setValue(name, event.target.value, { shouldValidate: true });
     onChange(event);
+  };
+
+
+  const getDefaultValue = () => {
+    if (multiple) {
+      return Array.isArray(defaultValue)
+        ? defaultValue.map(option => option.value)
+        : [];
+    }
+    return !Array.isArray(defaultValue) ? defaultValue.value : "";
   };
 
   return (
@@ -75,7 +86,7 @@ const SelectContext = ({
       ref={ref}
       onBlur={onBlur}
       onChange={handleChange}
-      value={fieldValue || (multiple ? [] : defaultValue.value)}
+      value={fieldValue || getDefaultValue()}
       multiple={multiple}
     />
   );
