@@ -1,4 +1,3 @@
-import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
 import { Box, styled, Grid2 } from "@mui/material";
 import { OverviewCard } from "../../../../../stories/overviewcard/OverviewCard";
 import { useRouter } from "next/router";
@@ -6,11 +5,9 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import { useEffect, useState } from "react";
-import { BaseApiObject } from "@fonoster/types";
 import PageContainer from "@/common/components/layout/pages";
-import { useApplications } from "@/common/sdk/hooks/useApplications";
 import { Typography } from "@stories/typography/Typography";
+import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(6)
@@ -37,11 +34,8 @@ const CardsContainer = styled(Box)(({ theme }) => ({
 
 export default function OverviewPage() {
   const router = useRouter();
-  const { isReady, getWorkspace } = useWorkspaces();
-  const { listApplications } = useApplications();
+  const { selectedWorkspace } = useWorkspaceContext();
   const { workspaceId } = router.query;
-  const [workspace, setWorkspace] = useState<BaseApiObject | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const handleCardClick = (path: string) => {
     router.push(`/workspace/${workspaceId}/overview/${path}`);
@@ -50,41 +44,9 @@ export default function OverviewPage() {
   const apiKeysCount = 3;
   const expiringKeysCount = 2;
 
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchWorkspaces = async () => {
-      if (!isReady || !mounted) return;
-
-      try {
-        const response = await getWorkspace(workspaceId as string);
-        const responseapp = await listApplications({});
-        console.log(responseapp, "responseapp");
-
-        if (!mounted) return;
-        if (!response) return;
-
-        if (mounted) {
-          setWorkspace(response);
-        }
-      } catch (error) {
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchWorkspaces();
-
-    return () => {
-      mounted = false;
-    };
-  }, [isReady]);
-
   return (
     <PageContainer>
-      <PageContainer.Header title="Workspace Overview" />
+      <PageContainer.Header title={`${selectedWorkspace?.name} Overview`} />
       <ContentContainer>
         <Grid2 container spacing={2} columnSpacing={2}>
           <Grid2 size={{ xs: 12, md: 6, lg: 6 }}>
