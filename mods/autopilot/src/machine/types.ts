@@ -27,6 +27,7 @@ type AutopilotContext = {
   goodbyeMessage: string;
   transferMessage?: string;
   transferPhoneNumber?: string;
+  transferTimeout?: number;
   systemErrorMessage: string;
   idleMessage: string;
   idleTimeout: number;

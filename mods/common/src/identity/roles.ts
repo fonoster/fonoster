@@ -66,7 +66,18 @@ const workspaceResourceAccess = [
   "/fonoster.calls.v1beta2.Calls/ListCalls",
   "/fonoster.calls.v1beta2.Calls/GetCall",
   "/fonoster.calls.v1beta2.Calls/TrackCall",
-  "/fonoster.voice.v1beta2.Voice/CreateSession"
+  "/fonoster.voice.v1beta2.Voice/CreateSession",
+  "/fonoster.identity.v1beta2.Identity/CreateApiKey",
+  "/fonoster.identity.v1beta2.Identity/DeleteApiKey",
+  "/fonoster.identity.v1beta2.Identity/ListApiKeys",
+  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
+];
+
+const workspaceResourceOwnerOrAdminAccess = [
+  "/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers",
+  "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
+  "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
+  "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation"
 ];
 
 const fullIdentityAccess = [
@@ -77,43 +88,33 @@ const fullIdentityAccess = [
   "/fonoster.identity.v1beta2.Identity/GetWorkspace",
   "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
   "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
-  "/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers",
   "/fonoster.identity.v1beta2.Identity/DeleteWorkspace",
-  "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
-  "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
-  "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation",
-  "/fonoster.identity.v1beta2.Identity/RefreshToken",
-  "/fonoster.identity.v1beta2.Identity/CreateApiKey",
-  "/fonoster.identity.v1beta2.Identity/DeleteApiKey",
-  "/fonoster.identity.v1beta2.Identity/ListApiKeys",
-  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
+  "/fonoster.identity.v1beta2.Identity/RefreshToken"
 ];
 
 const roles = [
   {
     name: Role.USER,
     description: "Access to User and Workspace endpoints",
-    access: [
-      "/fonoster.identity.v1beta2.Identity/GetUser",
-      "/fonoster.identity.v1beta2.Identity/UpdateUser",
-      "/fonoster.identity.v1beta2.Identity/DeleteUser",
-      "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
-      "/fonoster.identity.v1beta2.Identity/GetWorkspace",
-      "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
-      "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
-      "/fonoster.identity.v1beta2.Identity/RefreshToken",
-      ...workspaceResourceAccess
-    ]
+    access: [...fullIdentityAccess, ...workspaceResourceAccess]
   },
   {
     name: Role.WORKSPACE_OWNER,
     description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceResourceAccess]
+    access: [
+      ...fullIdentityAccess,
+      ...workspaceResourceAccess,
+      ...workspaceResourceOwnerOrAdminAccess
+    ]
   },
   {
     name: Role.WORKSPACE_ADMIN,
     description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceResourceAccess]
+    access: [
+      ...fullIdentityAccess,
+      ...workspaceResourceAccess,
+      ...workspaceResourceOwnerOrAdminAccess
+    ]
   },
   {
     name: Role.WORKSPACE_MEMBER,
@@ -134,4 +135,9 @@ const roles = [
   }
 ] as RoleType[];
 
-export { VOICE_SERVICE_ROLE, roles, workspaceResourceAccess };
+export {
+  VOICE_SERVICE_ROLE,
+  roles,
+  workspaceResourceAccess,
+  workspaceResourceOwnerOrAdminAccess
+};

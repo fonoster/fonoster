@@ -1,10 +1,11 @@
 import React from "react";
 import { SelectProps } from "./types";
 import { StyledSelect } from "./Select.styles";
-import { MenuItem, InputAdornment } from "@mui/material";
+import { MenuItem, InputAdornment, Box } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
+import { Chip } from "@stories/chip/Chip";
 
 export const Select: React.FC<SelectProps> = ({
   onClick,
@@ -22,12 +23,21 @@ export const Select: React.FC<SelectProps> = ({
   name,
   fullWidth = false,
   size = "medium",
+  multiple = false,
   ...rest
 }) => {
   const hasLeadingIcon = !!leadingIcon;
   const hasTrailingIcon = !!trailingIcon;
 
   const { InputLabelProps, slotProps, ...validRestProps } = rest;
+
+  const handleDelete = (valueToDelete: string | number) => (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (Array.isArray(value)) {
+      const newValue = value.filter((val) => val !== valueToDelete);
+      onChange?.({ target: { value: newValue } } as any);
+    }
+  };
 
   return (
     <FormControl
@@ -79,6 +89,7 @@ export const Select: React.FC<SelectProps> = ({
         variant="outlined"
         displayEmpty
         size={size}
+        multiple={multiple}
         MenuProps={{
           PaperProps: {
             sx: {
@@ -91,6 +102,26 @@ export const Select: React.FC<SelectProps> = ({
           if (selected === '' || selected === undefined) {
             return <span style={{ opacity: 0 }}></span>;
           }
+
+          if (multiple && Array.isArray(selected)) {
+            return (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((value) => {
+                  const option = options.find(opt => opt.value === value);
+                  return option ? (
+                    <Chip
+                      key={value}
+                      label={option.label}
+                      enabled={true}
+                      onRemove={handleDelete(value)}
+                      size="small"
+                    />
+                  ) : null;
+                })}
+              </Box>
+            );
+          }
+
           const selectedOption = options.find(option => option.value === selected);
           return selectedOption ? selectedOption.label : '';
         }}

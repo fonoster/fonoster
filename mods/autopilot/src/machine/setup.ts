@@ -57,6 +57,10 @@ const machineSetup = setup({
         speech
       ).trimStart();
 
+      logger.verbose("appended speech to the buffer", {
+        speechBuffer: context.speechBuffer
+      });
+
       return context;
     }),
     cleanSpeech: assign({ speechBuffer: "" }),

@@ -20,12 +20,12 @@ import { z } from "zod";
 import * as Messages from "../messages";
 
 const NUMBER_BETWEEN_0_AND_1 = "Must be a number between 0 and 1";
-const MAX_SPEECH_WAIT_TIMEOUT = 5000;
+const MAX_SPEECH_WAIT_TIMEOUT = 500;
 const IDLE_OPTIONS_TIMEOUT = 10000;
 const IDLE_OPTIONS_MAX_TIMEOUT_COUNT = 3;
 const VAD_ACTIVATION_THRESHOLD = 0.3;
 const VAD_DEACTIVATION_THRESHOLD = 0.25;
-const VAD_DEBOUNCE_FRAMES = 2;
+const VAD_DEBOUNCE_FRAMES = 3;
 
 const conversationSettingsSchema = z.object({
   firstMessage: z.string().optional(),

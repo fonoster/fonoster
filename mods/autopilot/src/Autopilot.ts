@@ -101,7 +101,11 @@ class Autopilot {
     stream.onData((payload: { speech: string; responseTime: number }) => {
       const { speech, responseTime } = payload;
 
-      logger.verbose("received speech result", { speech, responseTime });
+      logger.verbose("received speech result", {
+        event: "SPEECH_RESULT",
+        speech,
+        responseTime
+      });
 
       if (payload.speech) {
         this.actor.send({

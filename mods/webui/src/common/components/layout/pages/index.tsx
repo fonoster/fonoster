@@ -36,7 +36,7 @@ interface ContentFormProps<T extends object> {
 }
 
 function PageContainer({ children }: PageContainerProps) {
-  return <Box sx={{ mb: 8 }}>{children}</Box>;
+  return <Box sx={{ mb: 6 }}>{children}</Box>;
 }
 
 interface HeaderProps {
@@ -50,7 +50,7 @@ interface HeaderProps {
 
 function Header({ title, actions, backTo }: HeaderProps) {
   return (
-    <Box sx={{ mb: 4 }}>
+    <Box sx={{ mb: 2 }}>
       {backTo && (
         <Box sx={{ mb: 1.5 }}>
           <LinkBackTo label={backTo.label} onClick={backTo.onClick} />
@@ -76,7 +76,7 @@ function Header({ title, actions, backTo }: HeaderProps) {
 
 function Subheader({ children }: DescriptionProps) {
   return (
-    <Typography variant="body-medium" sx={{ mb: 3 }}>
+    <Typography variant="body-medium" sx={{ mb: 8 }}>
       {children}
     </Typography>
   );
