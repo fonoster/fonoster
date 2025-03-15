@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { SelectChangeEvent } from "@mui/material/Select";
 
 export interface SelectOption {
   value: string | number;
