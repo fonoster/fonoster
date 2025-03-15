@@ -22,6 +22,7 @@ export const Select: React.FC<SelectProps> = ({
   inputRef,
   name,
   fullWidth = false,
+  size = "medium",
   multiple = false,
   ...rest
 }) => {
@@ -47,19 +48,27 @@ export const Select: React.FC<SelectProps> = ({
     <FormControl
       fullWidth={fullWidth}
       error={error}
-      size="small"
+      size={size}
       sx={{
         '& .MuiInputLabel-root': {
-          fontFamily: "'Poppins', sans-serif",
-          fontSize: '16px',
+          fontFamily: "'Poppins'",
+          fontSize: size === "small" ? '11px' : '12px',
           fontWeight: 500,
           lineHeight: 'normal',
           letterSpacing: '0.12px'
         },
         '& .MuiOutlinedInput-root': {
-          minHeight: '42px',
+          minHeight:  size === "small" ? '32px' : '42px',
           height: 'auto',
           borderRadius: '4px',
+          '& .MuiSelect-select': {
+            padding: size === "small" ? '4px 14px' : '6px 16px',
+            fontSize: size === "small" ? '11px' : '12px',
+            fontFamily: "'Poppins'",
+            fontWeight: 400,
+            lineHeight: 'normal',
+            letterSpacing: '0.12px'
+          },
           '& fieldset': {
             borderColor: theme => theme.palette.inputBorder
           },
@@ -85,6 +94,7 @@ export const Select: React.FC<SelectProps> = ({
         disabled={disabled}
         variant="outlined"
         displayEmpty
+        size={size}
         multiple={multiple}
         MenuProps={{
           PaperProps: {
@@ -137,7 +147,7 @@ export const Select: React.FC<SelectProps> = ({
             key={option.value}
             value={option.value}
             sx={{
-              fontSize: '12px',
+              fontSize: size === "small" ? '11px' : '12px',
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 400,
               lineHeight: 'normal'
@@ -152,4 +162,4 @@ export const Select: React.FC<SelectProps> = ({
       )}
     </FormControl>
   );
-}; 
+};

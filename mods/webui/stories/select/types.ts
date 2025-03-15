@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { SelectChangeEvent } from "@mui/material/Select";
 
 export interface SelectOption {
   value: string | number;
@@ -22,5 +21,6 @@ export interface SelectProps {
   name?: string;
   fullWidth?: boolean;
   multiple?: boolean;
+  size?: "small" | "medium";
   [key: string]: any;
 } 

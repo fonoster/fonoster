@@ -32,5 +32,6 @@ export interface InputTextProps {
   type?: string;
   inputRef?: React.Ref<any>;
   name?: string;
+  size?: "small" | "medium";
   [key: string]: any;
 }

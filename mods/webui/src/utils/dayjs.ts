@@ -23,4 +23,8 @@ dayjs.updateLocale("en", {
   }
 });
 
+export const formatToShortDate = (date: string | Date) => {
+  return dayjs(date).format("DD/MM/YYYY");
+};
+
 export { dayjs };

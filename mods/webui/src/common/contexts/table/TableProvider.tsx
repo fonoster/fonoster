@@ -1,7 +1,6 @@
 import React, {
   createContext,
   useCallback,
-  useContext,
   useEffect,
   useState
 } from "react";
@@ -54,6 +53,7 @@ export interface FonosterResponse<TData> {
   items?: TData[];
   nextPageToken?: string;
   prevPageToken?: string;
+  recordTotal?: number;
 }
 
 export interface TableContextProps<TData>
@@ -142,7 +142,7 @@ export function TableProvider<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
     getSortedRowModel: getSortedRowModel(),
-    debugTable: true
+    debugTable: false
   });
 
   const columnFilters = table.getState().columnFilters;
@@ -177,7 +177,6 @@ export function TableProvider<TData>({
       // Store the current page token before updating with the new response
       // This will be used as the previous page token when navigating forward
       const currentToken = fonosterResponse?.nextPageToken;
-      console.log("response fonoster:", response);
 
       // Only update if we have a valid response
       if (response) {
@@ -206,18 +205,9 @@ export function TableProvider<TData>({
         // Force table to update with the new data immediately
         table.setOptions((prev) => ({
           ...prev,
-          data: [...newData]
+          data: [...newData],
+          recordTotal: response.recordTotal
         }));
-
-        // Log for debugging
-        console.log("Updated fonosterResponse:", {
-          responseNextToken,
-          responsePrevToken,
-          currentToken,
-          pageIndex,
-          updatedPrevToken: updatedResponse.prevPageToken,
-          dataLength: newData.length
-        });
       }
     },
     [fonosterResponse, pageIndex, table]
