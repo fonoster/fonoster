@@ -137,8 +137,7 @@ const TableComponent = <TData extends Object>({
   rowClassName,
   options
 }: TableComponentProps<TData>) => {
-  const { table, loadingData, data } = useTableContext<TData>();
-
+  const { table, loadingData } = useTableContext<TData>();
   return (
     <StyledTableContainer>
       <MUITable

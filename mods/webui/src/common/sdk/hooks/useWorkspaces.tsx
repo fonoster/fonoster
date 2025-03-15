@@ -10,7 +10,7 @@ import {
   InviteUserToWorkspaceRequest,
   Workspace,
   ListWorkspaceMembersResponse as BaseListWorkspaceMembersResponse,
-  ListWorkspaceMembersRequest,
+  ListWorkspaceMembersRequest as BaseListWorkspaceMembersRequest,
   Role,
   WorkspaceMemberStatus
 } from "@fonoster/types";
@@ -20,6 +20,21 @@ import { useMemo } from "react";
 // Extend the ListWorkspaceMembersResponse to include prevPageToken
 interface ListWorkspaceMembersResponse extends BaseListWorkspaceMembersResponse {
   prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+// Extend the base request to include dynamic filter properties
+interface ColumnFilter {
+  id: string;
+  value: string;
+}
+
+interface ListWorkspaceMembersRequest extends BaseListWorkspaceMembersRequest {
+  columnFilters?: ColumnFilter[];
+  globalFilter?: string;
+  filterBy?: Record<string, string>;
+  pageSize?: number;
 }
 
 export const useWorkspaces = () => {
@@ -143,8 +158,6 @@ export const useWorkspaces = () => {
       pageToken: undefined
     }
   ): Promise<ListWorkspaceMembersResponse | undefined> => {
-    // Generate fake data instead of making an API call
-
     console.log("listWorkspaceMembers payload:", payload);
     try {
       // Create a collection of 30 fake members
@@ -155,60 +168,63 @@ export const useWorkspaces = () => {
         email: `user${index + 1}@example.com`,
         role: index % 3 === 0 ? Role.WORKSPACE_ADMIN : index % 3 === 1 ? Role.WORKSPACE_MEMBER : Role.WORKSPACE_OWNER,
         status: index % 4 === 0 ? WorkspaceMemberStatus.PENDING : WorkspaceMemberStatus.ACTIVE,
-        createdAt: new Date(Date.now() - (index * 86400000)), // Different dates as Date objects
-        updatedAt: new Date(Date.now() - (index * 43200000))  // Different dates as Date objects
+        createdAt: new Date(Date.now() - (index * 86400000)),
+        updatedAt: new Date(Date.now() - (index * 43200000))
       }));
+
+      // Apply filters if they exist
+      let filteredMembers = [...allFakeMembers];
+
+      // Apply filterBy if it exists
+      if (payload.filterBy) {
+        Object.entries(payload.filterBy).forEach(([key, value]) => {
+          if (value) {
+            filteredMembers = filteredMembers.filter(member => {
+              const memberValue = member[key as keyof typeof member];
+              if (typeof memberValue === 'string') {
+                return memberValue.toLowerCase().includes(value.toLowerCase());
+              }
+              return false;
+            });
+          }
+        });
+      }
 
       // Get pagination parameters
       const pageSize = payload.pageSize || 10;
       const pageToken = payload.pageToken;
 
+      // Calculate total records after filtering
+      const recordTotal = filteredMembers.length;
+
       // Determine the starting index based on the cursor token
       let startIndex = 0;
       if (pageToken) {
-        // Extract the index from the token (format: "cursor-{index}")
         const tokenParts = pageToken.split("-");
         if (tokenParts.length === 2) {
           startIndex = parseInt(tokenParts[1], 10);
         }
       }
 
-      console.log("Token received:", pageToken, "Starting index:", startIndex);
-
       // Get the current page of members
-      const endIndex = Math.min(startIndex + pageSize, allFakeMembers.length);
-      const pageMembers = allFakeMembers.slice(startIndex, endIndex);
+      const endIndex = Math.min(startIndex + pageSize, filteredMembers.length);
+      const pageMembers = filteredMembers.slice(startIndex, endIndex);
 
       // Determine if there are more pages
-      const hasNextPage = endIndex < allFakeMembers.length;
+      const hasNextPage = endIndex < filteredMembers.length;
       const hasPrevPage = startIndex > 0;
 
       // Create the next page token if there are more pages
       const nextPageToken = hasNextPage ? `cursor-${endIndex}` : undefined;
 
       // Create the previous page token if we're not on the first page
-      // This is crucial for backward pagination
       const prevPageToken = hasPrevPage ? `cursor-${Math.max(0, startIndex - pageSize)}` : undefined;
-
-      // For debugging
-      console.log("Pagination info:", {
-        startIndex,
-        endIndex,
-        totalMembers: allFakeMembers.length,
-        returnedMembers: pageMembers.length,
-        hasNextPage,
-        nextPageToken,
-        hasPrevPage,
-        prevPageToken,
-        pageMembers: pageMembers.map(m => m.name) // Just log names for brevity
-      });
-
-      // Return the paginated response with both nextPageToken and prevPageToken
+      console.log("pageMembers", pageMembers);
       return {
         items: pageMembers,
         nextPageToken: nextPageToken,
-        // Include prevPageToken in the response to support backward pagination
-        prevPageToken: prevPageToken
+        prevPageToken: prevPageToken,
+        recordTotal: recordTotal
       };
     } catch (error: any) {
       notifyError(error as ErrorType);

@@ -24,12 +24,14 @@ export function useQueryData<TData, TParams = any>({
     setLoadingData,
     handleFonosterResponse,
     nextPageCursor,
-    prevPageCursor
+    prevPageCursor,
+    globalFilter,
+    filters: columnFilters
   } = useTableContext<TData>();
 
   useEffect(() => {
     handleFetch(undefined);
-  }, []);
+  }, [globalFilter, columnFilters]);
 
   // Next page
   useEffect(() => {
@@ -43,17 +45,48 @@ export function useQueryData<TData, TParams = any>({
     handleFetch(prevPageCursor);
   }, [prevPageCursor]);
 
+  const constructFilters = useCallback(() => {
+    const filters: Record<string, string> = {};
+
+    // Add property filter if exists
+    if (columnFilters && columnFilters.length > 0) {
+      const currentFilter = columnFilters[0];
+      if (currentFilter?.id && typeof currentFilter.value === 'string') {
+        filters[currentFilter.id] = globalFilter as string;
+      }
+    }
+
+    // Add global filter if exists
+    if (globalFilter && typeof globalFilter === 'string') {
+      // If there's no property filter, use a default property
+      if (!columnFilters || columnFilters.length === 0) {
+        filters["query"] = globalFilter;
+      } else {
+        // Use the property from columnFilters
+        const propertyId = columnFilters[0]?.id;
+        if (propertyId) {
+          filters[propertyId] = globalFilter;
+        }
+      }
+    }
+
+    return filters;
+  }, [globalFilter, columnFilters]);
+
   const handleFetch = useCallback(
     async (pageToken: string | undefined) => {
       setLoadingData(true);
       if (onFetchStart) onFetchStart();
 
+      const filters = constructFilters();
+
       const params = {
         ...initialParams,
         pageSize,
-        pageToken
+        pageToken,
+        filterBy: filters
       } as TParams;
-
+      console.log("params", params);
       const response = await fetchFunction(params);
       handleFonosterResponse(response);
 
@@ -67,7 +100,8 @@ export function useQueryData<TData, TParams = any>({
       setLoadingData,
       handleFonosterResponse,
       onFetchStart,
-      onFetchComplete
+      onFetchComplete,
+      constructFilters
     ]
   );
 

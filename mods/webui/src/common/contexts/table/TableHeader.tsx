@@ -3,20 +3,13 @@
 import React from "react";
 import {
   Box,
-  Grid,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Typography,
-  Select,
-  MenuItem,
-  FormControl
+  Grid
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useTableContext } from "./useTableContext";
 import { Pagination } from "@stories/pagination/Pagination";
+import { InputText } from "@stories/inputtext/InputText";
+import { Icon } from "@stories/icon/Icon";
+import { Select } from "@stories/select/Select";
 
 interface FilterProps {
   defaultFilter?: string;
@@ -91,37 +84,37 @@ TableHeaderComponent.Filter = ({
 }: {
   defaultFilter?: string;
 }) => {
-  const { headers, setGlobalFilter, globalFilter } = useTableContext();
+  const { headers, setColumnFilters, columnFilters } = useTableContext();
+
+  const options = headers.map((column, index) => ({
+    label: index === 0 ? "All" : (column.header && typeof column.header === "string" ? column.header : `Column ${index}`),
+    value: index === 0 ? "All" : (column.id || `column-${index}`)
+  }));
+
+  // Get the first column filter if it exists
+  const currentFilter = columnFilters?.[0]?.value as string || defaultFilter || "";
+
   return (
-    <FormControl size="small" sx={{ minWidth: 120 }}>
-      <Select
-        value={globalFilter || defaultFilter || ""}
-        onChange={(e) => setGlobalFilter?.(e.target.value)}
-        sx={{
-          height: "36px",
-          "& .MuiSelect-select": {
-            paddingTop: "6px",
-            paddingBottom: "6px"
-          }
-        }}
-      >
-        {headers.map((column, index) =>
-          index === 0 ? (
-            <MenuItem key={index} value={"All"}>
-              All
-            </MenuItem>
-          ) : (
-            <MenuItem key={index} value={column.id || `column-${index}`}>
-              {column.header
-                ? typeof column.header === "string"
-                  ? column.header
-                  : "Column"
-                : `Column ${index}`}
-            </MenuItem>
-          )
-        )}
-      </Select>
-    </FormControl>
+    <Select
+      value={currentFilter}
+      onChange={(e) => {
+        const value = e.target.value;
+        if (value === "All") {
+          setColumnFilters?.([]);
+        } else {
+          setColumnFilters?.([
+            {
+              id: value,
+              value: value as string
+            }
+          ]);
+        }
+      }}
+      options={options}
+      label=""
+      size="small"
+      fullWidth
+    />
   );
 };
 
@@ -129,22 +122,23 @@ TableHeaderComponent.Search = ({
   value = "",
   onChange,
   placeholder = "Search..."
-}: SearchProps) => (
-  <TextField
-    size="small"
-    value={value}
-    onChange={(e) => onChange?.(e.target.value)}
-    placeholder={placeholder}
-    InputProps={{
-      startAdornment: (
-        <InputAdornment position="start">
-          <SearchIcon sx={{ color: "text.secondary" }} />
-        </InputAdornment>
-      ),
-      sx: { height: "36px" }
-    }}
-  />
-);
+}: SearchProps) => {
+  const {
+    globalFilter,
+    setGlobalFilter
+  } = useTableContext();
+
+  return (
+    <InputText
+      leadingIcon={<Icon fontSize="small" name="Search" />}
+      onChange={(e) => setGlobalFilter?.(e.target.value)}
+      value={globalFilter || value}
+      placeholder={placeholder}
+      shrink={false}
+      size="small"
+    />
+  )
+};
 
 TableHeaderComponent.Pagination = () => {
   const {
@@ -153,36 +147,20 @@ TableHeaderComponent.Pagination = () => {
     setPrevPageCursor,
     nextPage,
     previousPage,
-    pageSize,
-    pageIndex
+    pageSize
   } = useTableContext();
-
-  console.log("Pagination component:", {
-    pageIndex,
-    nextToken: fonosterResponse?.nextPageToken,
-    prevToken: fonosterResponse?.prevPageToken
-  });
 
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Pagination
-        count={32}
+        count={fonosterResponse?.recordTotal || 0}
         rowsPerPage={pageSize}
         onClick={(event, newPage, lastPage) => {
-          console.log("Pagination clicked:", {
-            newPage,
-            lastPage,
-            nextToken: fonosterResponse?.nextPageToken,
-            prevToken: fonosterResponse?.prevPageToken
-          });
-          
           if (newPage > lastPage) {
-            console.log("Going to next page with token:", fonosterResponse?.nextPageToken);
             setNextPageCursor?.(fonosterResponse?.nextPageToken);
             nextPage?.();
           }
           else {
-            console.log("Going to previous page with token:", fonosterResponse?.prevPageToken);
             setPrevPageCursor?.(fonosterResponse?.prevPageToken);
             previousPage?.();
           }
@@ -192,4 +170,10 @@ TableHeaderComponent.Pagination = () => {
   );
 };
 
-export const TableHeader = TableHeaderComponent as TableHeaderComponent;
+
+
+
+
+
+
+export default TableHeaderComponent;

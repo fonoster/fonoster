@@ -19,5 +19,7 @@ export interface SelectProps {
   options: SelectOption[];
   inputRef?: React.Ref<any>;
   name?: string;
+  fullWidth?: boolean;
+  size?: "small" | "medium";
   [key: string]: any;
-} 
+}

@@ -99,11 +99,7 @@ function ContentTable<T extends object>({
           onChange={() => { }}
           placeholder="Search..."
         />}
-        {showPagination && <ReactTable.Header.Pagination
-          currentPage={1}
-          totalPages={10}
-          onPageChange={() => { }}
-        />}
+        {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />
       <ReactTable.Content id={tableId} />

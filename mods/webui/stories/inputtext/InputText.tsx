@@ -36,6 +36,7 @@ export const InputText: React.FC<InputTextProps> = ({
   inputRef,
   name,
   shrink,
+  size,
   ...rest
 }) => {
   return (
@@ -54,6 +55,7 @@ export const InputText: React.FC<InputTextProps> = ({
       onChange={onChange}
       error={error}
       type={type}
+      size={'small'}
       InputProps={{
         startAdornment: leadingIcon && (
           <InputAdornment position="start">{leadingIcon}</InputAdornment>
