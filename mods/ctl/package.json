@@ -41,7 +41,7 @@
     "commands": "./dist/commands",
     "dirname": "fonoster",
     "topicSeparator": ":",
-    "helpClass": "./dist/help",
+    "helpClass": "./dist/Help",
     "plugins": [
       "@oclif/plugin-warn-if-update-available"
     ],
