@@ -86,7 +86,7 @@ export function useQueryData<TData, TParams = any>({
         pageToken,
         filterBy: filters
       } as TParams;
-      console.log("params", params);
+
       const response = await fetchFunction(params);
       handleFonosterResponse(response);
 

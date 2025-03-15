@@ -104,7 +104,7 @@ TableHeaderComponent.Filter = ({
         } else {
           setColumnFilters?.([
             {
-              id: value,
+              id: value as string,
               value: value as string
             }
           ]);

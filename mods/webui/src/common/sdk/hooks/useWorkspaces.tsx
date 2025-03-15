@@ -24,15 +24,7 @@ interface ListWorkspaceMembersResponse extends BaseListWorkspaceMembersResponse 
   filterBy?: Record<string, string>;
 }
 
-// Extend the base request to include dynamic filter properties
-interface ColumnFilter {
-  id: string;
-  value: string;
-}
-
 interface ListWorkspaceMembersRequest extends BaseListWorkspaceMembersRequest {
-  columnFilters?: ColumnFilter[];
-  globalFilter?: string;
   filterBy?: Record<string, string>;
   pageSize?: number;
 }
@@ -158,7 +150,6 @@ export const useWorkspaces = () => {
       pageToken: undefined
     }
   ): Promise<ListWorkspaceMembersResponse | undefined> => {
-    console.log("listWorkspaceMembers payload:", payload);
     try {
       // Create a collection of 30 fake members
       const allFakeMembers = Array.from({ length: 30 }).map((_, index) => ({
@@ -219,7 +210,7 @@ export const useWorkspaces = () => {
 
       // Create the previous page token if we're not on the first page
       const prevPageToken = hasPrevPage ? `cursor-${Math.max(0, startIndex - pageSize)}` : undefined;
-      console.log("pageMembers", pageMembers);
+
       return {
         items: pageMembers,
         nextPageToken: nextPageToken,
