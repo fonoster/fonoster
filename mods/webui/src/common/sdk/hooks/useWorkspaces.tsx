@@ -1,5 +1,6 @@
 import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
 import { useNotification, ErrorType } from "@/common/hooks/useNotification";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
 import {
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
@@ -29,6 +30,17 @@ interface ListWorkspaceMembersRequest extends BaseListWorkspaceMembersRequest {
   pageSize?: number;
 }
 
+interface WorkspaceMember {
+  ref: string;
+  userRef: string;
+  name: string;
+  email: string;
+  role: Role;
+  status: WorkspaceMemberStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export const useWorkspaces = () => {
   const { client, isReady, authentication } = useFonosterClient();
   const { notifyError } = useNotification();
@@ -44,6 +56,21 @@ export const useWorkspaces = () => {
       throw new Error("Failed to initialize Workspaces client");
     }
   }, [client]);
+
+  const { listItems } = usePaginatedData<WorkspaceMember>({
+    generateFakeData: (index) => ({
+      ref: `member-${index}`,
+      userRef: `user-${index}`,
+      name: `User ${index + 1}`,
+      email: `user${index + 1}@example.com`,
+      role: index % 3 === 0 ? Role.WORKSPACE_ADMIN : index % 3 === 1 ? Role.WORKSPACE_MEMBER : Role.WORKSPACE_OWNER,
+      status: index % 4 === 0 ? WorkspaceMemberStatus.PENDING : WorkspaceMemberStatus.ACTIVE,
+      createdAt: new Date(Date.now() - (index * 86400000)),
+      updatedAt: new Date(Date.now() - (index * 43200000))
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
 
   const listWorkspaces = async (): Promise<
     ListWorkspacesResponse | undefined
@@ -151,72 +178,7 @@ export const useWorkspaces = () => {
     }
   ): Promise<ListWorkspaceMembersResponse | undefined> => {
     try {
-      // Create a collection of 30 fake members
-      const allFakeMembers = Array.from({ length: 30 }).map((_, index) => ({
-        ref: `member-${index}`,
-        userRef: `user-${index}`,
-        name: `User ${index + 1}`,
-        email: `user${index + 1}@example.com`,
-        role: index % 3 === 0 ? Role.WORKSPACE_ADMIN : index % 3 === 1 ? Role.WORKSPACE_MEMBER : Role.WORKSPACE_OWNER,
-        status: index % 4 === 0 ? WorkspaceMemberStatus.PENDING : WorkspaceMemberStatus.ACTIVE,
-        createdAt: new Date(Date.now() - (index * 86400000)),
-        updatedAt: new Date(Date.now() - (index * 43200000))
-      }));
-
-      // Apply filters if they exist
-      let filteredMembers = [...allFakeMembers];
-
-      // Apply filterBy if it exists
-      if (payload.filterBy) {
-        Object.entries(payload.filterBy).forEach(([key, value]) => {
-          if (value) {
-            filteredMembers = filteredMembers.filter(member => {
-              const memberValue = member[key as keyof typeof member];
-              if (typeof memberValue === 'string') {
-                return memberValue.toLowerCase().includes(value.toLowerCase());
-              }
-              return false;
-            });
-          }
-        });
-      }
-
-      // Get pagination parameters
-      const pageSize = payload.pageSize || 10;
-      const pageToken = payload.pageToken;
-
-      // Calculate total records after filtering
-      const recordTotal = filteredMembers.length;
-
-      // Determine the starting index based on the cursor token
-      let startIndex = 0;
-      if (pageToken) {
-        const tokenParts = pageToken.split("-");
-        if (tokenParts.length === 2) {
-          startIndex = parseInt(tokenParts[1], 10);
-        }
-      }
-
-      // Get the current page of members
-      const endIndex = Math.min(startIndex + pageSize, filteredMembers.length);
-      const pageMembers = filteredMembers.slice(startIndex, endIndex);
-
-      // Determine if there are more pages
-      const hasNextPage = endIndex < filteredMembers.length;
-      const hasPrevPage = startIndex > 0;
-
-      // Create the next page token if there are more pages
-      const nextPageToken = hasNextPage ? `cursor-${endIndex}` : undefined;
-
-      // Create the previous page token if we're not on the first page
-      const prevPageToken = hasPrevPage ? `cursor-${Math.max(0, startIndex - pageSize)}` : undefined;
-
-      return {
-        items: pageMembers,
-        nextPageToken: nextPageToken,
-        prevPageToken: prevPageToken,
-        recordTotal: recordTotal
-      };
+      return await listItems(payload);
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;
