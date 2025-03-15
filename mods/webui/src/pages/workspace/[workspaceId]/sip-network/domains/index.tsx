@@ -2,6 +2,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Domain } from "@fonoster/types";
 import PageContainer from "@/common/components/layout/pages";
 import { Button } from "@mui/material";
+import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
+import { useRouter } from "next/router";
 
 const columns: ColumnDef<Domain>[] = [
   {
@@ -22,12 +24,21 @@ const columns: ColumnDef<Domain>[] = [
 ];
 
 export default function DomainsPage() {
+  const router = useRouter();
+  const { selectedWorkspace } = useWorkspaceContext();
+
+  const handleNew = () => {
+    router.push(
+      `/workspace/${selectedWorkspace?.ref}/sip-network/domains/new`
+    );
+  };
+
   return (
     <PageContainer>
       <PageContainer.Header
         title="Domains"
         actions={
-          <Button variant="contained" onClick={() => {}}>
+          <Button variant="contained" onClick={handleNew}>
             New Domain
           </Button>
         }

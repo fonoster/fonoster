@@ -6,7 +6,7 @@ import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
 import { Chip } from "@stories/chip/Chip";
-
+import { SelectChangeEvent } from "@mui/material/Select";
 export const Select: React.FC<SelectProps> = ({
   onClick,
   disabled,
@@ -30,11 +30,16 @@ export const Select: React.FC<SelectProps> = ({
 
   const { InputLabelProps, slotProps, ...validRestProps } = rest;
 
-  const handleDelete = (valueToDelete: string | number) => (event: React.MouseEvent) => {
-    event.stopPropagation();
-    if (Array.isArray(value)) {
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
+    if (onChange) {
+      onChange({ target: { value: event.target.value as any } });
+    }
+  };
+
+  const handleChipRemove = (valueToDelete: string | number) => () => {
+    if (Array.isArray(value) && onChange) {
       const newValue = value.filter((val) => val !== valueToDelete);
-      onChange?.({ target: { value: newValue } } as any);
+      onChange({ target: { value: newValue } });
     }
   };
 
@@ -52,7 +57,8 @@ export const Select: React.FC<SelectProps> = ({
           letterSpacing: '0.12px'
         },
         '& .MuiOutlinedInput-root': {
-          height: '42px',
+          minHeight: '42px',
+          height: 'auto',
           borderRadius: '4px',
           '& fieldset': {
             borderColor: theme => theme.palette.inputBorder
@@ -74,7 +80,7 @@ export const Select: React.FC<SelectProps> = ({
         inputRef={inputRef}
         value={value}
         defaultValue={defaultValue}
-        onChange={onChange}
+        onChange={handleChange}
         label={label}
         disabled={disabled}
         variant="outlined"
@@ -103,7 +109,7 @@ export const Select: React.FC<SelectProps> = ({
                       key={value}
                       label={option.label}
                       enabled={true}
-                      onRemove={handleDelete(value)}
+                      onRemove={handleChipRemove(value)}
                       size="small"
                     />
                   ) : null;
