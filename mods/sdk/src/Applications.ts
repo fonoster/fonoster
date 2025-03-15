@@ -72,23 +72,18 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  * const request = {
  *   name: "My application",
  *   type: "EXTERNAL",
- *   endpoint: "myapp.mydomain.com",
- *   textToSpeech: {
- *     productRef: "tts.google",
- *     config: {
- *       voice: "en-US-Casual-K"
- *     }
- *   },
+ *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
  *   speechToText: {
- *     productRef: "stt.google",
+ *     productRef: "stt.deepgram",
  *     config: {
+ *       model: "nova-2",
  *       languageCode: "en-US"
  *     }
  *   },
- *   intelligence: {
- *     productRef: "nlu.dialogflowcx",
+ *   textToSpeech: {
+ *     productRef: "tts.elevenlabs",
  *     config: {
- *       agentId: "your-agent-id"
+ *       voice: "lrTWbMInQjSJ9q5ywFKP"
  *     }
  *   }
  * };
@@ -131,23 +126,17 @@ class Applications {
    * const request = {
    *   name: "My application",
    *   type: "EXTERNAL",
-   *   endpoint: "myapp.mydomain.com",
-   *   textToSpeech: {
-   *     productRef: "tts.google",
-   *     config: {
-   *       voice: "en-US-Casual-K"
-   *     }
-   *   },
+   *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
    *   speechToText: {
-   *     productRef: "stt.google",
+   *     productRef: "stt.deepgram",
    *     config: {
    *       languageCode: "en-US"
    *     }
    *   },
-   *   intelligence: {
-   *     productRef: "nlu.dialogflowcx",
+   *   textToSpeech: {
+   *     productRef: "tts.elevenlabs",
    *     config: {
-   *       agentId: "your-agent-id"
+   *       voice: "lrTWbMInQjSJ9q5ywFKP"
    *     }
    *   }
    * };
@@ -244,7 +233,7 @@ class Applications {
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "My application",
-   *   endpoint: "myapp.mydomain.com"
+   *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
    * };
    *
    * apps
