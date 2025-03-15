@@ -66,7 +66,7 @@ const getActorInput = () => ({
     systemPrompt: "System template",
     systemErrorMessage: SYSTEM_ERROR_MESSAGE,
     maxSpeechWaitTimeout: 500,
-    maxSessionDuration: 3600,
+    maxSessionDuration: 30 * 60 * 1000,
     initialDtmf: "1",
     idleOptions: {
       message: IDLE_MESSAGE,

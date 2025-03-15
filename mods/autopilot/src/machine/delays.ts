@@ -19,10 +19,7 @@
 const delays = {
   IDLE_TIMEOUT: ({ context }) => context.idleTimeout,
   MAX_SPEECH_WAIT_TIMEOUT: ({ context }) => context.maxSpeechWaitTimeout,
-  SESSION_TIMEOUT: ({ context }) => {
-    const elapsed = Date.now() - context.sessionStartTime;
-    return Math.max(0, context.maxSessionDuration - elapsed);
-  }
+  MAX_SESSION_DURATION: ({ context }) => context.maxSessionDuration
 };
 
 export { delays as default };
