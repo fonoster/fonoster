@@ -44,7 +44,6 @@
     "copy:hbstemplates": "node .scripts/copy-hbs.cjs",
     "db:migrate": "npx prisma migrate dev --schema mods/apiserver/schema.prisma --name changeme --preview-feature && npx prisma migrate dev --schema mods/identity/schema.prisma --name changeme --preview-feature",
     "db:seed": "tsx mods/apiserver/src/core/seed.ts",
-    "generate:docs": "node .scripts/gen-docs.cjs",
     "generate:readme": "lerna run generate:readme && git add mods/**/README.md",
     "generate:keypair": ".scripts/gen-keypair.sh",
     "generate:protos": ".scripts/gen-code-proto.sh",

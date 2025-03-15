@@ -747,23 +747,18 @@ async function main(request) {
 const request = {
   name: "My application",
   type: "EXTERNAL",
-  endpoint: "myapp.mydomain.com",
-  textToSpeech: {
-    productRef: "tts.google",
-    config: {
-      voice: "en-US-Casual-K"
-    }
-  },
+  endpoint: "welcome.demo.fonoster.local", // Built-in demo application
   speechToText: {
-    productRef: "stt.google",
+    productRef: "stt.deepgram",
     config: {
+      model: "nova-2",
       languageCode: "en-US"
     }
   },
-  intelligence: {
-    productRef: "nlu.dialogflowcx",
+  textToSpeech: {
+    productRef: "tts.elevenlabs",
     config: {
-      agentId: "your-agent-id"
+      voice: "lrTWbMInQjSJ9q5ywFKP"
     }
   }
 };
@@ -784,15 +779,15 @@ Creates a new Application in Fonoster. The only required fields are the name and
 | request.name | <code>string</code> | The name of the application |
 | request.type | <code>ApplicationType</code> | The type of application (e.g., EXTERNAL) |
 | request.endpoint | <code>string</code> | The endpoint where the application is hosted |
-| request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
-| request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.google) |
-| request.textToSpeech.config | <code>object</code> | The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" }) |
 | request.speechToText | <code>SpeechToText</code> | The speech-to-text configuration |
-| request.speechToText.productRef | <code>string</code> | The product reference of the speech-to-text engine (e.g., stt.google) |
-| request.speechToText.config | <code>object</code> | The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" }) |
+| request.speechToText.productRef | <code>string</code> | The product reference of the speech-to-text engine (e.g., stt.deepgram) |
+| request.speechToText.config | <code>object</code> | The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" }) |
+| request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
+| request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.elevenlabs) |
+| request.textToSpeech.config | <code>object</code> | The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" }) |
 | request.intelligence | <code>Intelligence</code> | The intelligence configuration |
-| request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., nlu.dialogflowcx) |
-| request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" }) |
+| request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., llm.groq) |
+| request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine |
 
 **Example**  
 ```js
@@ -801,23 +796,17 @@ const apps = new SDK.Applications(client); // Existing client object
 const request = {
   name: "My application",
   type: "EXTERNAL",
-  endpoint: "myapp.mydomain.com",
-  textToSpeech: {
-    productRef: "tts.google",
-    config: {
-      voice: "en-US-Casual-K"
-    }
-  },
+  endpoint: "welcome.demo.fonoster.local", // Built-in demo application
   speechToText: {
-    productRef: "stt.google",
+    productRef: "stt.deepgram",
     config: {
       languageCode: "en-US"
     }
   },
-  intelligence: {
-    productRef: "nlu.dialogflowcx",
+  textToSpeech: {
+    productRef: "tts.elevenlabs",
     config: {
-      agentId: "your-agent-id"
+      voice: "lrTWbMInQjSJ9q5ywFKP"
     }
   }
 };
@@ -864,15 +853,15 @@ Updates an existing application in Fonoster.
 | request.ref | <code>string</code> | The reference of the application to update |
 | request.name | <code>string</code> | The name of the application |
 | request.endpoint | <code>string</code> | The endpoint where the application is hosted |
-| request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
-| request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.google) |
-| request.textToSpeech.config | <code>object</code> | The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" }) |
 | request.speechToText | <code>SpeechToText</code> | The speech-to-text configuration |
-| request.speechToText.productRef | <code>string</code> | The product reference of the speech-to-text engine (e.g., stt.google) |
-| request.speechToText.config | <code>object</code> | The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" }) |
+| request.speechToText.productRef | <code>string</code> | The product reference of the speech-to-text engine (e.g., stt.deepgram) |
+| request.speechToText.config | <code>object</code> | The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" }) |
+| request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
+| request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.elevenlabs) |
+| request.textToSpeech.config | <code>object</code> | The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" }) |
 | request.intelligence | <code>Intelligence</code> | The intelligence configuration |
-| request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., nlu.dialogflowcx) |
-| request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" }) |
+| request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., llm.groq) |
+| request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine |
 
 **Example**  
 ```js
@@ -881,7 +870,7 @@ const apps = new SDK.Applications(client); // Existing client object
 const request = {
   ref: "00000000-0000-0000-0000-000000000000",
   name: "My application",
-  endpoint: "myapp.mydomain.com"
+  endpoint: "welcome.demo.fonoster.local", // Built-in demo application
 };
 
 apps
