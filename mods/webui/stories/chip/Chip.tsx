@@ -16,18 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StyledMuiChip } from "./Chip.styles";
 import { ChipProps } from "./types";
+import { StyledMuiChip } from "./Chip.styles";
 import CloseIcon from "@mui/icons-material/Close";
 
-export const Chip = (props: ChipProps) => {
-  const { label, onRemove, enabled } = props;
-
+export const Chip = ({ label, onRemove, enabled = true, size = 'medium' }: ChipProps) => {
   return (
     <StyledMuiChip
       label={label}
       onDelete={onRemove}
       disabled={!enabled}
+      size={size}
       deleteIcon={<CloseIcon />}
     />
   );

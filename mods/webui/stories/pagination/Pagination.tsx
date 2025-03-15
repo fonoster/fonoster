@@ -29,7 +29,7 @@ export const Pagination = (props: PaginationProps) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    onClick(event, newPage);
+    onClick && onClick(event, newPage, page);
     setPage(newPage);
   };
 

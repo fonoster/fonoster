@@ -20,7 +20,7 @@ import NotificationsIcon from "@mui/icons-material/NotificationsActiveOutlined";
 import { Avatar, Badge, IconButton, styled } from "@mui/material";
 
 const StyledIconButton = styled(IconButton, {
-  shouldForwardProp: (prop) => prop !== "isActive"
+  shouldForwardProp: (prop) => prop !== "isOpen"
 })<{
   isOpen: boolean;
 }>(({ theme, isOpen }) => ({

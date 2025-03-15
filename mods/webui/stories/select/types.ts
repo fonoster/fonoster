@@ -11,13 +11,15 @@ export interface SelectProps {
   label?: string;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
-  defaultValue?: string | number;
+  defaultValue?: string | number | Array<string | number>;
   supportingText?: string;
-  value?: string | number;
-  onChange?: (event: any) => void;
+  value?: string | number | Array<string | number>;
+  onChange?: (event: { target: { value: string | number | Array<string | number> } }) => void;
   error?: boolean;
-  options: SelectOption[];
-  inputRef?: React.Ref<any>;
+  options?: SelectOption[];
+  inputRef?: any;
   name?: string;
+  fullWidth?: boolean;
+  multiple?: boolean;
   [key: string]: any;
 } 

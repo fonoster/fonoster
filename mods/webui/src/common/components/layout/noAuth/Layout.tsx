@@ -73,7 +73,7 @@ export const Content = ({ title, description, descriptionFontSize = "body-small"
       <Typography
         variant="heading-large"
         sx={{
-          marginBottom: description ? 10 : 40,
+          marginBottom: description ? 10 : 6,
           color: 'text.primary',
           textAlign: 'center'
         }}

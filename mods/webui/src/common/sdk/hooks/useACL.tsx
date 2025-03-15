@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
 import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
-  CreateAclRequest,
+  CreateAclRequestExtended,
   UpdateAclRequest,
   ListAclsRequest,
   ListAclsResponse,
@@ -27,7 +27,7 @@ export const useACL = () => {
   }, [client]);
 
   const createAcl = async (
-    data: CreateAclRequest
+    data: CreateAclRequestExtended
   ): Promise<BaseApiObject | undefined> => {
     try {
       return await authentication.executeWithRefresh(() =>

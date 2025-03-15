@@ -19,7 +19,8 @@
 type PaginationProps = {
   onClick?: (
     event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
+    newPage: number,
+    lastPage: number
   ) => void;
   count: number;
   disabled: boolean;

@@ -2,37 +2,70 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { InputContext } from "@/common/hooksForm/InputContext";
-import { useState } from "react";
 import { useCredential } from "@/common/sdk/hooks/useCredential";
 import { useRouter } from "next/router";
-import { Alert, Snackbar, Button, Typography, Box } from "@mui/material";
 import PageContainer from "@/common/components/layout/pages";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
+import { Box, Skeleton } from "@mui/material";
 
-const credentialSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
-    username: z.string().min(1, "Username is required"),
-    password: z.string().min(1, "Password is required"),
-    confirmPassword: z.string().min(1, "Confirm password is required"),
-    ref: z.string().optional()
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"]
-  });
+import { Button } from "@stories/button/Button";
+import { ErrorType, useNotification } from "@/common/hooks/useNotification";
 
-const editModeSchema = z.object({
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/;
+const passwordMessage = "Password must have 8+ characters with upper, lower, number, and symbol";
+
+const credentialSchema = z.object({
+  ref: z.string().optional(),
   name: z.string().min(1, "Name is required"),
-  username: z.string(),
-  password: z.string(),
-  confirmPassword: z.string(),
-  ref: z.string().optional()
+  username: z.string().min(1, "Username is required"),
+  password: z.string().optional(),
+  confirmPassword: z.string().optional(),
+  isEditMode: z.boolean().default(false)
+}).superRefine((data, ctx) => {
+  if (!data.isEditMode) {
+    if (!data.password) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Password is required",
+        path: ["password"]
+      });
+    } else if (!passwordRegex.test(data.password)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: passwordMessage,
+        path: ["password"]
+      });
+    }
+
+    if (!data.confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Confirm password is required",
+        path: ["confirmPassword"]
+      });
+    }
+  }
+
+  if (data.password && data.password !== data.confirmPassword) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Passwords don't match",
+      path: ["confirmPassword"]
+    });
+  }
+
+  if (data.isEditMode && data.password && !passwordRegex.test(data.password)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: passwordMessage,
+      path: ["password"]
+    });
+  }
 });
 
 export type CredentialFormData = Omit<
   z.infer<typeof credentialSchema>,
-  "confirmPassword"
+  "confirmPassword" | "isEditMode"
 > & {
   confirmPassword?: string;
 };
@@ -41,63 +74,124 @@ interface CredentialFormProps {
   initialData?: CredentialFormData;
   formId?: string;
   credentialId?: string | null;
+  isLoading?: boolean;
+}
+
+const defaultValues: CredentialFormData = {
+  ref: undefined,
+  name: "",
+  username: "",
+  password: "",
+  confirmPassword: ""
+};
+
+function FormSkeleton({ formId = "credential-form" }: { formId?: string }) {
+  return (
+    <PageContainer>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        mb: 2,
+        px: 3,
+        pt: 3
+      }}>
+        <Box>
+          <Box sx={{ mb: 1 }}>
+            <Skeleton variant="text" width={117} height={18} />
+          </Box>
+          <Skeleton variant="text" width={264} height={32} />
+        </Box>
+
+        <Skeleton variant="rectangular" width={138} height={33} sx={{ borderRadius: 4 }} />
+      </Box>
+
+      <Box sx={{ px: 3, mb: 8 }}>
+        <Skeleton variant="text" width={350} height={20} />
+      </Box>
+
+      <Box sx={{ px: 3, pb: 3 }}>
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+        </Box>
+
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+        </Box>
+
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+        </Box>
+
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton variant="text" width={300} height={16} sx={{ mt: 0.5 }} />
+        </Box>
+      </Box>
+    </PageContainer>
+  );
 }
 
 export default function CredentialForm({
   initialData,
   formId = "credential-form",
-  credentialId
+  credentialId,
+  isLoading
 }: CredentialFormProps) {
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
   const { createCredentials, updateCredentials } = useCredential();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { notifyError, notifySuccess } = useNotification();
 
   const isEditMode = !!credentialId;
 
-  const schema = isEditMode ? editModeSchema : credentialSchema;
-
-  const methods = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
+  const methods = useForm<z.infer<typeof credentialSchema>>({
+    resolver: zodResolver(credentialSchema),
     defaultValues: {
-      name: initialData?.name || "",
-      username: initialData?.username || "",
-      password: initialData?.password || "",
-      confirmPassword: initialData?.password || "",
-      ref: initialData?.ref || ""
-    }
+      ...(initialData || defaultValues),
+      isEditMode
+    },
+    mode: "onChange"
   });
+  const { formState: { isValid }, handleSubmit } = methods;
 
-  const handleSubmit = methods.handleSubmit(async (data) => {
-    setIsSubmitting(true);
-    setError(null);
+  if (isLoading) {
+    return <FormSkeleton formId={formId} />;
+  }
+
+  const onSubmit = handleSubmit(async (data) => {
 
     try {
       if (!isEditMode) {
         const result = await createCredentials({
           name: data.name,
-          username: data.username,
-          password: data.password
+          username: data.username as string,
+          password: data.password as string
         });
 
+        notifySuccess("Credential created successfully");
+
         if (result) {
-          setSuccess("Credential created successfully");
           setTimeout(() => {
             router.push(
               `/workspace/${selectedWorkspace?.ref}/sip-network/credentials`
             );
           }, 1500);
         }
+
       } else {
-        const result = await updateCredentials({
+        const updateData: any = {
           ref: credentialId as string,
           name: data.name
-        });
+        };
 
+        if (data.password) {
+          updateData.password = data.password;
+        }
+
+        const result = await updateCredentials(updateData);
+        notifySuccess("Credential updated successfully");
         if (result) {
-          setSuccess("Credential updated successfully");
           setTimeout(() => {
             router.push(
               `/workspace/${selectedWorkspace?.ref}/sip-network/credentials`
@@ -106,16 +200,7 @@ export default function CredentialForm({
         }
       }
     } catch (error: any) {
-      console.error(
-        `Error ${!isEditMode ? "creating" : "updating"} Credential:`,
-        error
-      );
-      setError(
-        error.message ||
-          `Failed to ${!isEditMode ? "create" : "update"} Credential`
-      );
-    } finally {
-      setIsSubmitting(false);
+      notifyError(error as ErrorType);
     }
   });
 
@@ -132,13 +217,9 @@ export default function CredentialForm({
         }}
         actions={
           <Button
-            type="submit"
-            form={formId}
             variant="contained"
-            color="primary"
-            disabled={isSubmitting}
-            loading={isSubmitting}
-            onClick={handleSubmit}
+            disabled={!isValid}
+            onClick={onSubmit}
           >
             {!isEditMode ? "Create Credential" : "Update Credential"}
           </Button>
@@ -157,90 +238,33 @@ export default function CredentialForm({
           id={`${formId}-name`}
         />
 
-        {!isEditMode ? (
-          <>
-            <InputContext
-              name="username"
-              label="Username"
-              type="text"
-              leadingIcon={null}
-              trailingIcon={null}
-              id={`${formId}-username`}
-            />
+        <InputContext
+          name="username"
+          label="Username"
+          type="text"
+          leadingIcon={null}
+          trailingIcon={null}
+          id={`${formId}-username`}
+        />
 
-            <InputContext
-              name="password"
-              label="Password"
-              type="password"
-              leadingIcon={null}
-              trailingIcon={null}
-              id={`${formId}-password`}
-            />
+        <InputContext
+          name="password"
+          label="Password"
+          type="password"
+          leadingIcon={null}
+          trailingIcon={null}
+          id={`${formId}-password`}
+        />
 
-            <InputContext
-              name="confirmPassword"
-              label="Confirm Password"
-              type="password"
-              leadingIcon={null}
-              trailingIcon={null}
-              id={`${formId}-confirm-password`}
-            />
-          </>
-        ) : (
-          <>
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Username
-              </Typography>
-              <Typography variant="body1">
-                {initialData?.username || ""}
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mt: 0.5, display: "block" }}
-              >
-                Username cannot be changed after creation
-              </Typography>
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Password
-              </Typography>
-              <Typography variant="body1">••••••••</Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mt: 0.5, display: "block" }}
-              >
-                Password cannot be changed after creation
-              </Typography>
-            </Box>
-          </>
-        )}
-
-        <Snackbar
-          open={!!error}
-          autoHideDuration={6000}
-          onClose={() => setError(null)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert onClose={() => setError(null)} severity="error">
-            {error}
-          </Alert>
-        </Snackbar>
-
-        <Snackbar
-          open={!!success}
-          autoHideDuration={3000}
-          onClose={() => setSuccess(null)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert onClose={() => setSuccess(null)} severity="success">
-            {success}
-          </Alert>
-        </Snackbar>
+        <InputContext
+          name="confirmPassword"
+          label="Confirm Password"
+          type="password"
+          leadingIcon={null}
+          trailingIcon={null}
+          id={`${formId}-confirm-password`}
+          helperText="8+ characters with upper, lower, number, and symbol."
+        />
       </PageContainer.ContentForm>
     </PageContainer>
   );

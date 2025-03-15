@@ -15,6 +15,7 @@ interface InputContextProps {
   id: string;
   shrink?: boolean;
   multiline?: boolean;
+  placeholder?: string;
 }
 
 const InputContext = ({
@@ -29,7 +30,8 @@ const InputContext = ({
   onFileChange,
   id,
   shrink = true,
-  multiline = false
+  multiline = false,
+  placeholder = ""
 }: InputContextProps) => {
   const {
     register,
@@ -57,6 +59,7 @@ const InputContext = ({
         accept={accept}
         multiple={multiple}
         shrink={shrink}
+        placeholder={placeholder}
       />
     );
   }
@@ -73,6 +76,7 @@ const InputContext = ({
       type={type}
       shrink={shrink}
       multiline={multiline}
+      placeholder={placeholder}
     />
   );
 };
