@@ -17,17 +17,17 @@ import { ModalTrigger } from "@stories/modaltrigger/ModalTrigger";
 const aclSchema = z.object({
   ref: z.string().optional(),
   name: z.string().min(1, "Name is required"),
-  allowedNetworks: z.array(z.string()).default([]),
-  deniedNetworks: z.array(z.string()).default([]),
+  allow: z.array(z.string()).default([]),
+  deny: z.array(z.string()).default([]),
   isEditMode: z.boolean().default(false)
 }).superRefine((data, ctx) => {
   if (!data.isEditMode) {
-    if ((!data.allowedNetworks || data.allowedNetworks.length === 0) &&
-      (!data.deniedNetworks || data.deniedNetworks.length === 0)) {
+    if ((!data.allow || data.allow.length === 0) &&
+      (!data.deny || data.deny.length === 0)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "At least one network rule (allow or deny) is required",
-        path: ["allowedNetworks"]
+        path: ["allow"]
       });
     }
   }
@@ -45,8 +45,8 @@ interface ACLsFormProps {
 const defaultValues: ACLsFormData = {
   ref: undefined,
   name: "",
-  allowedNetworks: [],
-  deniedNetworks: []
+  allow: [],
+  deny: []
 };
 
 function FormSkeleton({ formId = "acl-form" }: { formId?: string }) {
@@ -104,7 +104,7 @@ export default function ACLsForm({
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
   const { createAcl, updateAcl } = useACL();
-  const { notifyError, notifySuccess } = useNotification();
+  const { notifyError, notifySuccess, NotificationComponent } = useNotification();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isEditMode = !!aclId;
@@ -119,8 +119,8 @@ export default function ACLsForm({
   });
 
   const { formState: { isValid }, handleSubmit, setValue, watch } = methods;
-  const allowedNetworks = watch('allowedNetworks');
-  const deniedNetworks = watch('deniedNetworks');
+  const allow = watch('allow');
+  const deny = watch('deny');
 
   if (isLoading) {
     return <FormSkeleton formId={formId} />;
@@ -128,11 +128,11 @@ export default function ACLsForm({
 
   const handleAddRule = (rule: { ipOrCIDR: string; category: 'Allow' | 'Deny' }) => {
     if (rule.category === 'Allow') {
-      const newNetworks = [...allowedNetworks, rule.ipOrCIDR];
-      setValue('allowedNetworks', newNetworks, { shouldValidate: true });
+      const newNetworks = [...allow, rule.ipOrCIDR];
+      setValue('allow', newNetworks, { shouldValidate: true });
     } else {
-      const newNetworks = [...deniedNetworks, rule.ipOrCIDR];
-      setValue('deniedNetworks', newNetworks, { shouldValidate: true });
+      const newNetworks = [...deny, rule.ipOrCIDR];
+      setValue('deny', newNetworks, { shouldValidate: true });
     }
   };
 
@@ -141,34 +141,20 @@ export default function ACLsForm({
       if (!isEditMode) {
         const result = await createAcl({
           name: data.name,
-          allow: data.allowedNetworks
+          allow: data.allow,
+          deny: data.deny
         });
 
         notifySuccess("ACL created successfully");
-
-        if (result) {
-          setTimeout(() => {
-            router.push(
-              `/workspace/${selectedWorkspace?.ref}/sip-network/acls`
-            );
-          }, 1500);
-        }
       } else {
         const result = await updateAcl({
-          ref: aclId as string,
+          ref: data.ref as string,
           name: data.name,
-          allow: data.allowedNetworks,
-          deny: data.deniedNetworks
+          allow: data.allow,
+          deny: data.deny
         });
 
         notifySuccess("ACL updated successfully");
-        if (result) {
-          setTimeout(() => {
-            router.push(
-              `/workspace/${selectedWorkspace?.ref}/sip-network/acls`
-            );
-          }, 1500);
-        }
       }
     } catch (error: any) {
       notifyError(error as ErrorType);
@@ -177,6 +163,7 @@ export default function ACLsForm({
 
   return (
     <PageContainer>
+      <NotificationComponent />
       <PageContainer.Header
         title={!isEditMode ? "Create New ACL" : "Edit ACL"}
         backTo={{
@@ -208,26 +195,26 @@ export default function ACLsForm({
         />
 
         <SelectContext
-          name="allowedNetworks"
+          name="allow"
           label="Allowed Networks"
           leadingIcon={null}
           trailingIcon={null}
-          id={`${formId}-allowedNetworks`}
+          id={`${formId}-allow`}
           multiple={true}
-          options={allowedNetworks.map((network) => ({
+          options={allow.map((network) => ({
             value: network,
             label: network
           }))}
         />
 
         <SelectContext
-          name="deniedNetworks"
+          name="deny"
           label="Denied Networks"
           leadingIcon={null}
           trailingIcon={null}
-          id={`${formId}-deniedNetworks`}
+          id={`${formId}-deny`}
           multiple={true}
-          options={deniedNetworks.map((network) => ({
+          options={deny.map((network) => ({
             value: network,
             label: network
           }))}
