@@ -5,8 +5,8 @@ import type { User } from "@/types/user";
 import { usePopover } from "@/common/hooks/use-popover";
 import { NotificationsPopover } from "./notifications";
 import { UserPopover } from "./user-popover";
-import { Logo } from "../../../logo/Logo";
-import { NavButton } from "../../../../../../stories/navbutton/NavButton";
+import { Logo } from "@/common/components/logo/Logo";
+import { NavButton } from "@stories/navbutton/NavButton";
 import { useUser } from "@/common/sdk/hooks/useUser";
 
 export interface HeaderProps { }

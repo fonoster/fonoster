@@ -98,49 +98,55 @@ export function WorkspacesPopover({
       }}
       transformOrigin={{ horizontal: "left", vertical: "top" }}
     >
-      {workspaces.map((workspace, index) => {
+      {workspaces.flatMap((workspace, index) => {
         const isSelected = selectedWorkspace?.ref === workspace.ref;
 
-        return (
-          <React.Fragment key={workspace.name}>
-            <MenuItem
-              onClick={() => handleWorkspaceChange(workspace)}
-              sx={{
-                py: 2,
-                px: 3,
-                display: "flex",
-                height: '36px',
-                "&:hover": {
-                  backgroundColor: hoverColor
-                }
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-                <Typography
-                  variant="body-medium"
+        const menuItems = [
+          <MenuItem
+            key={`workspace-${workspace.name}`}
+            onClick={() => handleWorkspaceChange(workspace)}
+            sx={{
+              py: 2,
+              px: 3,
+              display: "flex",
+              height: '36px',
+              "&:hover": {
+                backgroundColor: hoverColor
+              }
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+              <Typography
+                variant="body-medium"
+                sx={{
+                  color: textColor,
+                  fontWeight: 400
+                }}
+              >
+                {workspace.name}
+              </Typography>
+              {isSelected && (
+                <Box
                   sx={{
-                    color: textColor,
-                    fontWeight: 400
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    backgroundColor: primaryColor,
+                    ml: 1
                   }}
-                >
-                  {workspace.name}
-                </Typography>
-                {isSelected && (
-                  <Box
-                    sx={{
-                      width: "8px",
-                      height: "8px",
-                      borderRadius: "50%",
-                      backgroundColor: primaryColor,
-                      ml: 1
-                    }}
-                  />
-                )}
-              </Box>
-            </MenuItem>
-            {index < workspaces.length - 1 && <Divider sx={{ margin: '0' }} />}
-          </React.Fragment>
-        );
+                />
+              )}
+            </Box>
+          </MenuItem>
+        ];
+
+        if (index < workspaces.length - 1) {
+          menuItems.push(
+            <Divider key={`divider-${workspace.name}`} sx={{ margin: '0' }} />
+          );
+        }
+
+        return menuItems;
       })}
       <Divider sx={{ margin: '0' }} />
       <MenuItem
