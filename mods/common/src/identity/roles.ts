@@ -96,20 +96,25 @@ const roles = [
   {
     name: Role.USER,
     description: "Access to User and Workspace endpoints",
-    access: [
-      ...fullIdentityAccess,
-      ...workspaceResourceAccess
-    ]
+    access: [...fullIdentityAccess, ...workspaceResourceAccess]
   },
   {
     name: Role.WORKSPACE_OWNER,
     description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceResourceAccess, ...workspaceResourceOwnerOrAdminAccess]
+    access: [
+      ...fullIdentityAccess,
+      ...workspaceResourceAccess,
+      ...workspaceResourceOwnerOrAdminAccess
+    ]
   },
   {
     name: Role.WORKSPACE_ADMIN,
     description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceResourceAccess, ...workspaceResourceOwnerOrAdminAccess]
+    access: [
+      ...fullIdentityAccess,
+      ...workspaceResourceAccess,
+      ...workspaceResourceOwnerOrAdminAccess
+    ]
   },
   {
     name: Role.WORKSPACE_MEMBER,
@@ -130,4 +135,9 @@ const roles = [
   }
 ] as RoleType[];
 
-export { VOICE_SERVICE_ROLE, roles, workspaceResourceAccess, workspaceResourceOwnerOrAdminAccess };
+export {
+  VOICE_SERVICE_ROLE,
+  roles,
+  workspaceResourceAccess,
+  workspaceResourceOwnerOrAdminAccess
+};
