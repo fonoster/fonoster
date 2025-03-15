@@ -1,6 +1,6 @@
 ---
-title: 'Programmable Voice'
-description: 'Verb-based voice call control in Fonoster.'
+title: "Programmable Voice"
+description: "Verb-based voice call control in Fonoster."
 ---
 
 Programmable Voice in Fonoster allows you to control the flow of a phone call using a set of verbs. Verbs work in conjunction with the VoiceServer to create a voice application.
@@ -17,7 +17,7 @@ const client = new SDK.Client({ accessKeyId: "WO000000000000000000000000000000" 
 const appConfig = {
   name: "Custom Voice App",
   type: "EXTERNAL",
-  endpoint: "welcome.demo.fonoster.local", // Demo application
+  endpoint: "welcome.demo.fonoster.local", // Built-in demo application
   speechToText: {
     productRef: "stt.deepgram",
     config: {
@@ -39,7 +39,7 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
 
 In the example above, we created a new voice application using the SDK. The application is configured to use Deepgram for speech-to-text and text-to-speech. The application is also configured to use the "aura-asteria-en" voice for text-to-speech.
 
-However, so far, we have only told Fonoster the speech configuration and the location of the application represented by the _endpoint_ property. 
+However, so far, we have only told Fonoster the speech configuration and the location of the application represented by the _endpoint_ property.
 
 You also need to run a VoiceServer using your application's logic.
 
