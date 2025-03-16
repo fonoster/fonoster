@@ -62,27 +62,39 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       )} options: ${JSON.stringify(options)}]`
     );
 
-    const { voice } = this.engineConfig.config;
-
-    const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
-
-    const request = {
-      input: isSsml(text) ? { ssml: text } : { text },
-      audioConfig: {
-        audioEncoding: this.AUDIO_ENCODING,
-        sampleRateHertz: this.SAMPLE_RATE_HERTZ
-      },
-      voice: {
-        languageCode: lang,
-        name: voice
-      }
-    };
-
-    const [response] = await this.client.synthesizeSpeech(request);
-
     const ref = this.createMediaReference();
 
-    return { ref, stream: Readable.from(response.audioContent) };
+    try {
+      const { voice } = this.engineConfig.config;
+      const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
+
+      logger.verbose(`calling tts.google with voice=${voice}, language=${lang}`);
+
+      const request = {
+        input: isSsml(text) ? { ssml: text } : { text },
+        audioConfig: {
+          audioEncoding: this.AUDIO_ENCODING,
+          sampleRateHertz: this.SAMPLE_RATE_HERTZ
+        },
+        voice: {
+          languageCode: lang,
+          name: voice
+        }
+      };
+
+      const [response] = await this.client.synthesizeSpeech(request);
+      const stream = Readable.from(response.audioContent);
+      return { ref, stream };
+    } catch (error) {
+      const errorStream = new Readable({ read() {} });
+      errorStream.emit("error", new Error(`Google synthesis failed: ${error.message}`));
+      errorStream.push(null);
+      
+      return { 
+        ref,
+        stream: errorStream 
+      };
+    }
   }
 
   static getConfigValidationSchema(): z.Schema {

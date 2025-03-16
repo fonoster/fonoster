@@ -70,6 +70,7 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const results = new Array(chunks.length);
     let nextIndexToPush = 0;
+    let hasError = false;
 
     function observeQueue() {
       if (
@@ -91,10 +92,16 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     chunks.forEach((text, index) => {
       this.doSynthesize(text, voice as DeepgramVoice)
         .then((synthesizedText) => {
-          results[index] = synthesizedText;
+          if (!hasError) {
+            results[index] = synthesizedText;
+          }
         })
         .catch((error) => {
-          stream.emit("error", error);
+          if (!hasError) {
+            hasError = true;
+            stream.emit("error", new Error(`Synthesis failed: ${error.message}`));
+            stream.push(null);
+          }
         });
     });
 
@@ -105,6 +112,8 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     text: string,
     voice: DeepgramVoice
   ): Promise<Readable> {
+    logger.verbose(`calling tts.deepgram with voice=${voice || DeepgramVoice.AURA_ASTERIA_EN}`);
+    
     const response = await this.client.speak.request(
       { text },
       {

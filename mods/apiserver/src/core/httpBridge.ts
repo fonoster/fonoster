@@ -46,8 +46,12 @@ function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
     res.setHeader("content-type", CONTENT_TYPE);
 
     stream.on("error", (error) => {
-      logger.error(`Error reading file: ${error.message}`);
-      res.status(500).send("Error reading file!");
+      logger.error(`error reading file: ${error.message}`);
+      if (!res.headersSent) {
+        res.status(500).send("Error reading file!");
+      } else {
+        res.end();
+      }
     });
 
     stream.on("end", () => {
@@ -85,6 +89,11 @@ function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
       streamMap.set(id, stream);
     },
     removeStream: (id: string) => {
+      logger.verbose(`removing stream with id: ${id}`);
+      const stream = streamMap.get(id);
+      if (stream) {
+        stream.destroy();
+      }
       streamMap.delete(id);
     },
     getStream: (id: string) => {

@@ -67,6 +67,7 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const results = new Array(chunks.length);
     let nextIndexToPush = 0;
+    let hasError = false;
 
     function observeQueue() {
       if (
@@ -88,10 +89,16 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     chunks.forEach((text, index) => {
       this.doSynthesize({ text, voice, model })
         .then((synthesizedText) => {
-          results[index] = synthesizedText;
+          if (!hasError) {
+            results[index] = synthesizedText;
+          }
         })
         .catch((error) => {
-          stream.emit("error", error);
+          if (!hasError) {
+            hasError = true;
+            stream.emit("error", new Error(`Synthesis failed: ${error.message}`));
+            stream.push(null);
+          }
         });
     });
 
@@ -104,6 +111,9 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     model: string;
   }): Promise<Readable> {
     const { text, voice, model } = params;
+
+    logger.verbose(`calling tts.elevenlabs with voice=${voice}, model=${model || "eleven_flash_v2_5"}`);
+    
     const response = await this.client.generate({
       stream: true,
       voice,

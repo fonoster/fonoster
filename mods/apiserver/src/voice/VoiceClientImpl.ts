@@ -109,7 +109,6 @@ class VoiceClientImpl implements VoiceClient {
       } catch (e) {
         logger.error("authz service error", e);
 
-        // TODO: Play a different sound
         await ari.channels.answer({ channelId });
         await ari.channels.play({ channelId, media: "sound:unavailable" });
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -211,8 +210,24 @@ class VoiceClientImpl implements VoiceClient {
     });
   }
 
-  async synthesize(text: string, options: SayOptions): Promise<string> {
+  async synthesize(text: string, options: SayOptions): Promise<string> {  
     const { ref, stream } = await this.tts.synthesize(text, options);
+
+    stream.on("error", async (error) => {
+      logger.error(`stream error for ref ${ref}: ${error.message}`, {
+        errorDetails: error.stack || 'No stack trace'
+      });
+
+      const { sessionRef: channelId } = this.config;
+      const { ari } = this;
+
+      await ari.channels.play({ channelId, media: "sound:unavailable" });
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await ari.channels.hangup({ channelId });
+
+      this.filesServer.removeStream(ref);
+    });
+    
     this.filesServer.addStream(ref, stream);
     return ref;
   }
