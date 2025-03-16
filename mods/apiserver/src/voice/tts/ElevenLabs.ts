@@ -96,7 +96,10 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
         .catch((error) => {
           if (!hasError) {
             hasError = true;
-            stream.emit("error", new Error(`Synthesis failed: ${error.message}`));
+            stream.emit(
+              "error",
+              new Error(`Synthesis failed: ${error.message}`)
+            );
             stream.push(null);
           }
         });
@@ -112,8 +115,10 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   }): Promise<Readable> {
     const { text, voice, model } = params;
 
-    logger.verbose(`calling tts.elevenlabs with voice=${voice}, model=${model || "eleven_flash_v2_5"}`);
-    
+    logger.verbose(
+      `calling tts.elevenlabs with voice=${voice}, model=${model || "eleven_flash_v2_5"}`
+    );
+
     const response = await this.client.generate({
       stream: true,
       voice,

@@ -60,12 +60,14 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const ref = this.createMediaReference();
     const stream = new Readable({ read() {} });
-    
+
     try {
       const { subscriptionKey, serviceRegion } = this.config.credentials;
       const voice = options.voice || this.config.config.voice;
 
-      logger.verbose(`Calling Azure TTS API with voice=${voice}, region=${serviceRegion}`);
+      logger.verbose(
+        `calling tts.azure with voice=${voice}, region=${serviceRegion}`
+      );
 
       const speechConfig = sdk.SpeechConfig.fromSubscription(
         subscriptionKey,
@@ -104,20 +106,23 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       });
 
       const dataStream = Readable.from(audioData);
-      
-      dataStream.on('data', (chunk) => stream.push(chunk));
-      dataStream.on('end', () => stream.push(null));
-      dataStream.on('error', (error) => {
+
+      dataStream.on("data", (chunk) => stream.push(chunk));
+      dataStream.on("end", () => stream.push(null));
+      dataStream.on("error", (error) => {
         logger.error(`Azure stream error: ${error.message}`);
-        stream.emit('error', error);
+        stream.emit("error", error);
         stream.push(null);
       });
 
       return { ref, stream };
     } catch (error) {
-      stream.emit("error", new Error(`Azure synthesis failed: ${error.message}`));
+      stream.emit(
+        "error",
+        new Error(`Azure synthesis failed: ${error.message}`)
+      );
       stream.push(null);
-      
+
       return { ref, stream };
     }
   }

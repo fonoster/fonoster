@@ -210,12 +210,12 @@ class VoiceClientImpl implements VoiceClient {
     });
   }
 
-  async synthesize(text: string, options: SayOptions): Promise<string> {  
+  async synthesize(text: string, options: SayOptions): Promise<string> {
     const { ref, stream } = await this.tts.synthesize(text, options);
 
     stream.on("error", async (error) => {
       logger.error(`stream error for ref ${ref}: ${error.message}`, {
-        errorDetails: error.stack || 'No stack trace'
+        errorDetails: error.stack || "No stack trace"
       });
 
       const { sessionRef: channelId } = this.config;
@@ -227,7 +227,7 @@ class VoiceClientImpl implements VoiceClient {
 
       this.filesServer.removeStream(ref);
     });
-    
+
     this.filesServer.addStream(ref, stream);
     return ref;
   }

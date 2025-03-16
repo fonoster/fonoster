@@ -68,7 +68,9 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       const { voice } = this.engineConfig.config;
       const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
 
-      logger.verbose(`calling tts.google with voice=${voice}, language=${lang}`);
+      logger.verbose(
+        `calling tts.google with voice=${voice}, language=${lang}`
+      );
 
       const request = {
         input: isSsml(text) ? { ssml: text } : { text },
@@ -87,12 +89,15 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       return { ref, stream };
     } catch (error) {
       const errorStream = new Readable({ read() {} });
-      errorStream.emit("error", new Error(`Google synthesis failed: ${error.message}`));
+      errorStream.emit(
+        "error",
+        new Error(`Google synthesis failed: ${error.message}`)
+      );
       errorStream.push(null);
-      
-      return { 
+
+      return {
         ref,
-        stream: errorStream 
+        stream: errorStream
       };
     }
   }

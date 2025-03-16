@@ -99,7 +99,10 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
         .catch((error) => {
           if (!hasError) {
             hasError = true;
-            stream.emit("error", new Error(`Synthesis failed: ${error.message}`));
+            stream.emit(
+              "error",
+              new Error(`Synthesis failed: ${error.message}`)
+            );
             stream.push(null);
           }
         });
@@ -112,8 +115,10 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     text: string,
     voice: DeepgramVoice
   ): Promise<Readable> {
-    logger.verbose(`calling tts.deepgram with voice=${voice || DeepgramVoice.AURA_ASTERIA_EN}`);
-    
+    logger.verbose(
+      `calling tts.deepgram with voice=${voice || DeepgramVoice.AURA_ASTERIA_EN}`
+    );
+
     const response = await this.client.speak.request(
       { text },
       {
