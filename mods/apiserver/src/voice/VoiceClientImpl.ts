@@ -211,7 +211,7 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async synthesize(text: string, options: SayOptions): Promise<string> {
-    const { ref, stream } = await this.tts.synthesize(text, options);
+    const { ref, stream } = this.tts.synthesize(text, options);
 
     stream.on("error", async (error) => {
       logger.error(`stream error for ref ${ref}: ${error.message}`, {

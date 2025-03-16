@@ -18,24 +18,14 @@
  */
 import { Readable } from "stream";
 import { AzureVoice } from "@fonoster/common";
-import { getLogger } from "@fonoster/logger";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
-import { isSsml } from "./isSsml";
-import { SynthOptions } from "./types";
+import { AzureTTSConfig, SynthOptions } from "./types";
+import { createChunkedSynthesisStream } from "./utils/createChunkedSynthesisStream";
+import { isSsml } from "./utils/isSsml";
 
 const ENGINE_NAME = "tts.azure";
-
-type AzureTTSConfig = {
-  [key: string]: Record<string, string>;
-  credentials: {
-    subscriptionKey: string;
-    serviceRegion: string;
-  };
-};
-
-const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   config: AzureTTSConfig;
@@ -48,83 +38,64 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.config = config;
   }
 
-  async synthesize(
+  synthesize(
     text: string,
     options: SynthOptions
-  ): Promise<{ ref: string; stream: Readable }> {
-    logger.verbose(
-      `synthesize [input: ${text}, isSsml=${isSsml(
-        text
-      )} options: ${JSON.stringify(options)}]`
-    );
+  ): { ref: string; stream: Readable } {
+    this.logSynthesisRequest(text, options);
 
     const ref = this.createMediaReference();
-    const stream = new Readable({ read() {} });
+    const { subscriptionKey, serviceRegion } = this.config.credentials;
+    const voice = options.voice || this.config.config.voice;
+    const speechConfig = sdk.SpeechConfig.fromSubscription(
+      subscriptionKey,
+      serviceRegion
+    );
+    speechConfig.speechSynthesisVoiceName = voice;
+    speechConfig.speechSynthesisOutputFormat =
+      sdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm;
 
-    try {
-      const { subscriptionKey, serviceRegion } = this.config.credentials;
-      const voice = options.voice || this.config.config.voice;
-
-      logger.verbose(
-        `calling tts.azure with voice=${voice}, region=${serviceRegion}`
-      );
-
-      const speechConfig = sdk.SpeechConfig.fromSubscription(
-        subscriptionKey,
-        serviceRegion
-      );
-
-      speechConfig.speechSynthesisVoiceName = voice;
-      speechConfig.speechSynthesisOutputFormat =
-        sdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm;
-
+    const stream = createChunkedSynthesisStream(text, async (chunkText) => {
       const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
-      const isSSML = isSsml(text);
+      const isSSML = isSsml(chunkText);
       const func = isSSML ? "speakSsmlAsync" : "speakTextAsync";
 
-      const audioData = await new Promise<Buffer>((resolve, reject) => {
-        const audioChunks: Buffer[] = [];
+      try {
+        const audioData = await new Promise<Buffer>((resolve, reject) => {
+          const audioChunks: Buffer[] = [];
 
-        synthesizer[func](
-          text,
-          (result) => {
-            if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-              audioChunks.push(Buffer.from(result.audioData));
-              resolve(Buffer.concat(audioChunks));
-            } else {
-              reject(
-                new Error("Speech synthesis canceled: " + result.errorDetails)
-              );
+          synthesizer[func](
+            chunkText,
+            (result) => {
+              if (
+                result.reason === sdk.ResultReason.SynthesizingAudioCompleted
+              ) {
+                audioChunks.push(Buffer.from(result.audioData));
+                resolve(Buffer.concat(audioChunks));
+              } else {
+                reject(
+                  new Error("Speech synthesis canceled: " + result.errorDetails)
+                );
+              }
+              synthesizer.close();
+            },
+            (err: string) => {
+              synthesizer.close();
+              reject(new Error(err));
             }
-            synthesizer.close();
-          },
-          (err: string) => {
-            synthesizer.close();
-            reject(new Error(err));
-          }
-        );
-      });
+          );
+        });
 
-      const dataStream = Readable.from(audioData);
+        // Ignore the first 44 bytes of the response to avoid the WAV header
+        return audioData.subarray(44);
+      } catch (error) {
+        // Make sure synthesizer is closed in case of error
+        synthesizer.close();
+        throw error;
+      }
+    });
 
-      dataStream.on("data", (chunk) => stream.push(chunk));
-      dataStream.on("end", () => stream.push(null));
-      dataStream.on("error", (error) => {
-        logger.error(`Azure stream error: ${error.message}`);
-        stream.emit("error", error);
-        stream.push(null);
-      });
-
-      return { ref, stream };
-    } catch (error) {
-      stream.emit(
-        "error",
-        new Error(`Azure synthesis failed: ${error.message}`)
-      );
-      stream.push(null);
-
-      return { ref, stream };
-    }
+    return { ref, stream };
   }
 
   static getConfigValidationSchema(): z.Schema {

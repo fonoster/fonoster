@@ -18,24 +18,14 @@
  */
 import { Readable } from "stream";
 import { GoogleVoice } from "@fonoster/common";
-import { getLogger } from "@fonoster/logger";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
-import { isSsml } from "./isSsml";
-import { SynthOptions } from "./types";
+import { GoogleTtsConfig, SynthOptions } from "./types";
+import { createChunkedSynthesisStream } from "./utils/createChunkedSynthesisStream";
+import { isSsml } from "./utils/isSsml";
 
 const ENGINE_NAME = "tts.google";
-
-type GoogleTtsConfig = {
-  [key: string]: Record<string, string>;
-  credentials: {
-    client_email: string;
-    private_key: string;
-  };
-};
-
-const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   client: TextToSpeechClient;
@@ -52,28 +42,19 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.engineConfig = config;
   }
 
-  async synthesize(
+  synthesize(
     text: string,
     options: SynthOptions
-  ): Promise<{ ref: string; stream: Readable }> {
-    logger.verbose(
-      `synthesize [input: ${text}, isSsml=${isSsml(
-        text
-      )} options: ${JSON.stringify(options)}]`
-    );
+  ): { ref: string; stream: Readable } {
+    this.logSynthesisRequest(text, options);
 
     const ref = this.createMediaReference();
+    const { voice } = this.engineConfig.config;
+    const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
 
-    try {
-      const { voice } = this.engineConfig.config;
-      const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
-
-      logger.verbose(
-        `calling tts.google with voice=${voice}, language=${lang}`
-      );
-
+    const stream = createChunkedSynthesisStream(text, async (chunkText) => {
       const request = {
-        input: isSsml(text) ? { ssml: text } : { text },
+        input: isSsml(chunkText) ? { ssml: chunkText } : { text: chunkText },
         audioConfig: {
           audioEncoding: this.AUDIO_ENCODING,
           sampleRateHertz: this.SAMPLE_RATE_HERTZ
@@ -85,21 +66,12 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       };
 
       const [response] = await this.client.synthesizeSpeech(request);
-      const stream = Readable.from(response.audioContent);
-      return { ref, stream };
-    } catch (error) {
-      const errorStream = new Readable({ read() {} });
-      errorStream.emit(
-        "error",
-        new Error(`Google synthesis failed: ${error.message}`)
-      );
-      errorStream.push(null);
+      const audioContent = response.audioContent as Buffer;
+      // Ignore the first 44 bytes of the response to avoid the WAV header
+      return audioContent.subarray(44);
+    });
 
-      return {
-        ref,
-        stream: errorStream
-      };
-    }
+    return { ref, stream };
   }
 
   static getConfigValidationSchema(): z.Schema {
