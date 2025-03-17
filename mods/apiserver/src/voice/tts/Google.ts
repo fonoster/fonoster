@@ -18,24 +18,14 @@
  */
 import { Readable } from "stream";
 import { GoogleVoice } from "@fonoster/common";
-import { getLogger } from "@fonoster/logger";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
-import { isSsml } from "./isSsml";
-import { SynthOptions } from "./types";
+import { GoogleTtsConfig, SynthOptions } from "./types";
+import { createChunkedSynthesisStream } from "./utils/createChunkedSynthesisStream";
+import { isSsml } from "./utils/isSsml";
 
 const ENGINE_NAME = "tts.google";
-
-type GoogleTtsConfig = {
-  [key: string]: Record<string, string>;
-  credentials: {
-    client_email: string;
-    private_key: string;
-  };
-};
-
-const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   client: TextToSpeechClient;
@@ -52,37 +42,36 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.engineConfig = config;
   }
 
-  async synthesize(
+  synthesize(
     text: string,
     options: SynthOptions
-  ): Promise<{ ref: string; stream: Readable }> {
-    logger.verbose(
-      `synthesize [input: ${text}, isSsml=${isSsml(
-        text
-      )} options: ${JSON.stringify(options)}]`
-    );
-
-    const { voice } = this.engineConfig.config;
-
-    const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
-
-    const request = {
-      input: isSsml(text) ? { ssml: text } : { text },
-      audioConfig: {
-        audioEncoding: this.AUDIO_ENCODING,
-        sampleRateHertz: this.SAMPLE_RATE_HERTZ
-      },
-      voice: {
-        languageCode: lang,
-        name: voice
-      }
-    };
-
-    const [response] = await this.client.synthesizeSpeech(request);
+  ): { ref: string; stream: Readable } {
+    this.logSynthesisRequest(text, options);
 
     const ref = this.createMediaReference();
+    const { voice } = this.engineConfig.config;
+    const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
 
-    return { ref, stream: Readable.from(response.audioContent) };
+    const stream = createChunkedSynthesisStream(text, async (chunkText) => {
+      const request = {
+        input: isSsml(chunkText) ? { ssml: chunkText } : { text: chunkText },
+        audioConfig: {
+          audioEncoding: this.AUDIO_ENCODING,
+          sampleRateHertz: this.SAMPLE_RATE_HERTZ
+        },
+        voice: {
+          languageCode: lang,
+          name: voice
+        }
+      };
+
+      const [response] = await this.client.synthesizeSpeech(request);
+      const audioContent = response.audioContent as Buffer;
+      // Ignore the first 44 bytes of the response to avoid the WAV header
+      return audioContent.subarray(44);
+    });
+
+    return { ref, stream };
   }
 
   static getConfigValidationSchema(): z.Schema {

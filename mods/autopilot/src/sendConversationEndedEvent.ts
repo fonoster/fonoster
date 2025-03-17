@@ -58,7 +58,7 @@ export async function sendConversationEndedEvent(
       body
     });
   } catch (e) {
-    logger.error("error sending event", {
+    logger.warn("sending event", {
       url: parsedEventsHook.url,
       method: AllowedHttpMethod.POST,
       waitForResponse: false,

@@ -117,36 +117,40 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
 
   const { conversationSettings } = assistantConfig;
 
-  const autopilot = new Autopilot({
-    conversationSettings: conversationSettings as ConversationSettings,
-    voice: voice as VoiceImpl,
-    languageModel: languageModel as LanguageModel
-  });
+  try {
+    const autopilot = new Autopilot({
+      conversationSettings: conversationSettings as ConversationSettings,
+      voice: voice as VoiceImpl,
+      languageModel: languageModel as LanguageModel
+    });
 
-  autopilot.start();
+    autopilot.start();
 
-  res.on(StreamEvent.END, async () => {
-    autopilot.stop();
+    res.on(StreamEvent.END, async () => {
+      autopilot.stop();
 
-    const rawChatHistory = await languageModel.getChatHistoryMessages();
-    const chatHistory = rawChatHistory
-      .map((msg: BaseMessage) => {
-        if (msg.constructor.name === "HumanMessage") {
-          return { human: msg.content };
-        } else if (msg.constructor.name === "AIMessage") {
-          return { ai: msg.content };
-        }
-        return null;
-      })
-      .filter(Boolean);
+      const rawChatHistory = await languageModel.getChatHistoryMessages();
+      const chatHistory = rawChatHistory
+        .map((msg: BaseMessage) => {
+          if (msg.constructor.name === "HumanMessage") {
+            return { human: msg.content };
+          } else if (msg.constructor.name === "AIMessage") {
+            return { ai: msg.content };
+          }
+          return null;
+        })
+        .filter(Boolean);
 
-    if (assistantConfig.eventsHook?.url) {
-      await sendConversationEndedEvent(
-        assistantConfig.eventsHook as EventsHook,
-        chatHistory as any
-      );
-    }
-  });
+      if (assistantConfig.eventsHook?.url) {
+        await sendConversationEndedEvent(
+          assistantConfig.eventsHook as EventsHook,
+          chatHistory as any
+        );
+      }
+    });
+  } catch (error) {
+    logger.error("error handling voice request", { error });
+  }
 }
 
 export { handleVoiceRequest };

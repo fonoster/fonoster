@@ -16,44 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type SynthOptions = {
-  voice: string;
-};
+import { Readable } from "stream";
 
-type DeepgramTtsConfig = {
-  [key: string]: Record<string, string>;
-  credentials: {
-    apiKey: string;
-  };
-};
+function createErrorStream(errorMessage: string): Readable {
+  const errorStream = new Readable({ read() {} });
+  errorStream.emit("error", new Error(errorMessage));
+  errorStream.push(null);
+  return errorStream;
+}
 
-type ElevenLabsTtsConfig = {
-  [key: string]: Record<string, string>;
-  credentials: {
-    apiKey: string;
-  };
-};
-
-type GoogleTtsConfig = {
-  [key: string]: Record<string, string>;
-  credentials: {
-    client_email: string;
-    private_key: string;
-  };
-};
-
-type AzureTTSConfig = {
-  [key: string]: Record<string, string>;
-  credentials: {
-    subscriptionKey: string;
-    serviceRegion: string;
-  };
-};
-
-export {
-  SynthOptions,
-  AzureTTSConfig,
-  DeepgramTtsConfig,
-  ElevenLabsTtsConfig,
-  GoogleTtsConfig
-};
+export { createErrorStream };

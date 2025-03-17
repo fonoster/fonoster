@@ -58,7 +58,7 @@ type TextToSpeech = {
   synthesize: (
     text: string,
     options: Record<string, unknown>
-  ) => Promise<{ ref: string; stream: Readable }>;
+  ) => { ref: string; stream: Readable };
 };
 
 type SpeechToText = {
