@@ -149,11 +149,7 @@ const SettingsPage = () => {
         <Typography variant="heading-small" sx={{ mt: 2 }}>
           Personal Settings
         </Typography>
-        <InputContext
-          id="user-settings-name"
-          name="name"
-          label="Name"
-        />
+        <InputContext id="user-settings-name" name="name" label="Name" />
 
         <InputContext
           id="user-settings-email"
@@ -232,14 +228,10 @@ const SettingsPage = () => {
             checked={lightMode}
             onChange={() => setLightMode(e.target.checked)}
           />
-          <Typography variant="body-medium">
-            Light Mode
-          </Typography>
+          <Typography variant="body-medium">Light Mode</Typography>
         </Stack>
 
-        <Button variant="contained">
-          SAVE CHANGES
-        </Button>
+        <Button variant="contained">SAVE CHANGES</Button>
       </ContentForm>
     </PageContainer>
   );

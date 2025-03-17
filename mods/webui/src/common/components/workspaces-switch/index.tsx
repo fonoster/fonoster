@@ -51,10 +51,16 @@ export function WorkspacesSwitch(): React.JSX.Element {
       >
         <CircularProgress size={24} color="primary" />
         <Box sx={{ flex: "1 1 auto" }}>
-          <Typography color="var(--Workspaces-title-color)" variant="body-micro">
+          <Typography
+            color="var(--Workspaces-title-color)"
+            variant="body-micro"
+          >
             loading...
           </Typography>
-          <Typography color="var(--Workspaces-name-color)" variant="body-medium">
+          <Typography
+            color="var(--Workspaces-name-color)"
+            variant="body-medium"
+          >
             waiting...
           </Typography>
         </Box>
@@ -79,10 +85,16 @@ export function WorkspacesSwitch(): React.JSX.Element {
         }}
       >
         <Box sx={{ flex: "1 1 auto" }}>
-          <Typography color="var(--Workspaces-title-color)" variant="body-micro">
+          <Typography
+            color="var(--Workspaces-title-color)"
+            variant="body-micro"
+          >
             {process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
           </Typography>
-          <Typography color="var(--Workspaces-name-color)" variant="body-medium">
+          <Typography
+            color="var(--Workspaces-name-color)"
+            variant="body-medium"
+          >
             {selectedWorkspace?.name}
           </Typography>
         </Box>

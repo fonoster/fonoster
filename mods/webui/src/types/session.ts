@@ -1,4 +1,3 @@
-
 export interface CustomSession {
   isAuthenticated: boolean;
   idToken?: string;

@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useEffect,
-  useState
-} from "react";
+import React, { createContext, useCallback, useEffect, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -58,8 +53,8 @@ export interface FonosterResponse<TData> {
 
 export interface TableContextProps<TData>
   extends Object,
-  PaginationProps,
-  FilterProps {
+    PaginationProps,
+    FilterProps {
   reset: () => void;
   getState: () => TableState;
   setState: (updater: Updater<TableState>) => void;
@@ -196,7 +191,8 @@ export function TableProvider<TData>({
           nextPageToken: responseNextToken,
           // If the response already has a prevPageToken, use it
           // Otherwise, use the stored token from the previous response
-          prevPageToken: responsePrevToken || (pageIndex > 0 ? currentToken : undefined)
+          prevPageToken:
+            responsePrevToken || (pageIndex > 0 ? currentToken : undefined)
         };
 
         // Update the fonosterResponse with the new object

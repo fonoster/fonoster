@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import ApplicationForm from './_components/form/ApplicationForm';
-import { ApplicationType } from '@fonoster/types';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import ApplicationForm from "./_components/form/ApplicationForm";
+import { ApplicationType } from "@fonoster/types";
 
 export default function NewApplicationPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -15,9 +15,5 @@ export default function NewApplicationPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  return (
-    <ApplicationForm
-      isLoading={isLoading}
-    />
-  );
+  return <ApplicationForm isLoading={isLoading} />;
 }

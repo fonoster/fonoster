@@ -1,7 +1,5 @@
 import React from "react";
-import {
-  flexRender
-} from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
 import {
   Table as MUITable,
   TableBody,
@@ -125,7 +123,7 @@ const TableComponent = <TData extends Object>({
       <MUITable
         id={`table-${id}`}
         className={classNames(tableClassName, loadingData ? "loading" : "")}
-      // size="small"
+        // size="small"
       >
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (

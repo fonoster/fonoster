@@ -1,28 +1,28 @@
 import { useState, useEffect } from "react";
 import { GitHub as GitHubIcon } from "@mui/icons-material";
+import { Box, Divider, Stack, useTheme } from "@mui/material";
 import {
-  Box,
-  Divider,
-  Stack,
-  useTheme,
-} from '@mui/material';
-import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
-import { useRouter } from 'next/router';
-import { ModalTerms } from '@stories/modalterms/ModalTerms';
-import { useForm } from 'react-hook-form';
-import { InputContext } from '@/common/hooksForm/InputContext';
-import { CheckboxContext } from '@/common/hooksForm/CheckboxContext';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@stories/button/Button';
-import { useUser } from '@/common/sdk/hooks/useUser';
-import { OAuthState } from '@/types/oauth';
-import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
-import { AuthProvider } from '@/common/sdk/auth/AuthClient';
-import { OAUTH_CONFIG } from '@/config/oauth';
-import { Typography } from '@stories/typography/Typography';
-import { Link } from '@/common/components';
-import { useNotification } from '@/common/hooks/useNotification';
+  Layout,
+  PageContainer,
+  Card,
+  Content
+} from "@/common/components/layout/noAuth/Layout";
+import { useRouter } from "next/router";
+import { ModalTerms } from "@stories/modalterms/ModalTerms";
+import { useForm } from "react-hook-form";
+import { InputContext } from "@/common/hooksForm/InputContext";
+import { CheckboxContext } from "@/common/hooksForm/CheckboxContext";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@stories/button/Button";
+import { useUser } from "@/common/sdk/hooks/useUser";
+import { OAuthState } from "@/types/oauth";
+import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
+import { AuthProvider } from "@/common/sdk/auth/AuthClient";
+import { OAUTH_CONFIG } from "@/config/oauth";
+import { Typography } from "@stories/typography/Typography";
+import { Link } from "@/common/components";
+import { useNotification } from "@/common/hooks/useNotification";
 
 const signUpSchema = z
   .object({
@@ -201,10 +201,10 @@ const SignUpPage = () => {
               }
             />
 
-            <Box style={{ marginBottom: '25px', textAlign: 'center' }}>
+            <Box style={{ marginBottom: "25px", textAlign: "center" }}>
               <CheckboxContext
                 name="agreeToTerms"
-                label={'Agree to the terms and conditions'}
+                label={"Agree to the terms and conditions"}
               />
             </Box>
 
@@ -216,14 +216,11 @@ const SignUpPage = () => {
                 onClick={handleSubmit(onSubmit)}
                 disabled={isRedirecting}
               >
-                {isRedirecting ? 'SIGNING UP...' : 'SIGN UP FOR FONOSTER'}
+                {isRedirecting ? "SIGNING UP..." : "SIGN UP FOR FONOSTER"}
               </Button>
 
               <Divider>
-                <Typography
-                  variant="body-small"
-                  color="text.secondary"
-                >
+                <Typography variant="body-small" color="text.secondary">
                   Or
                 </Typography>
               </Divider>
@@ -238,9 +235,13 @@ const SignUpPage = () => {
               >
                 Sign in with GitHub
               </Button>
-
             </Stack>
-            <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.3}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="center"
+              spacing={0.3}
+            >
               <Typography
                 variant="body-small"
                 color="text.secondary"
@@ -248,10 +249,7 @@ const SignUpPage = () => {
               >
                 Already have an account?
               </Typography>
-              <Link
-                href="/signin"
-                label="Sign In"
-              />
+              <Link href="/signin" label="Sign In" />
             </Stack>
           </Content>
         </Card>

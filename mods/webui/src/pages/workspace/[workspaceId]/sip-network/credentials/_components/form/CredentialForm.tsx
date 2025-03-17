@@ -12,56 +12,63 @@ import { Button } from "@stories/button/Button";
 import { ErrorType, useNotification } from "@/common/hooks/useNotification";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/;
-const passwordMessage = "Password must have 8+ characters with upper, lower, number, and symbol";
+const passwordMessage =
+  "Password must have 8+ characters with upper, lower, number, and symbol";
 
-const credentialSchema = z.object({
-  ref: z.string().optional(),
-  name: z.string().min(1, "Name is required"),
-  username: z.string().min(1, "Username is required"),
-  password: z.string().optional(),
-  confirmPassword: z.string().optional(),
-  isEditMode: z.boolean().default(false)
-}).superRefine((data, ctx) => {
-  if (!data.isEditMode) {
-    if (!data.password) {
+const credentialSchema = z
+  .object({
+    ref: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    username: z.string().min(1, "Username is required"),
+    password: z.string().optional(),
+    confirmPassword: z.string().optional(),
+    isEditMode: z.boolean().default(false)
+  })
+  .superRefine((data, ctx) => {
+    if (!data.isEditMode) {
+      if (!data.password) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Password is required",
+          path: ["password"]
+        });
+      } else if (!passwordRegex.test(data.password)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: passwordMessage,
+          path: ["password"]
+        });
+      }
+
+      if (!data.confirmPassword) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Confirm password is required",
+          path: ["confirmPassword"]
+        });
+      }
+    }
+
+    if (data.password && data.password !== data.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Password is required",
-        path: ["password"]
+        message: "Passwords don't match",
+        path: ["confirmPassword"]
       });
-    } else if (!passwordRegex.test(data.password)) {
+    }
+
+    if (
+      data.isEditMode &&
+      data.password &&
+      !passwordRegex.test(data.password)
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: passwordMessage,
         path: ["password"]
       });
     }
-
-    if (!data.confirmPassword) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Confirm password is required",
-        path: ["confirmPassword"]
-      });
-    }
-  }
-
-  if (data.password && data.password !== data.confirmPassword) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Passwords don't match",
-      path: ["confirmPassword"]
-    });
-  }
-
-  if (data.isEditMode && data.password && !passwordRegex.test(data.password)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: passwordMessage,
-      path: ["password"]
-    });
-  }
-});
+  });
 
 export type CredentialFormData = Omit<
   z.infer<typeof credentialSchema>,
@@ -88,14 +95,16 @@ const defaultValues: CredentialFormData = {
 function FormSkeleton({ formId = "credential-form" }: { formId?: string }) {
   return (
     <PageContainer>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 2,
-        px: 3,
-        pt: 3
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+          px: 3,
+          pt: 3
+        }}
+      >
         <Box>
           <Box sx={{ mb: 1 }}>
             <Skeleton variant="text" width={117} height={18} />
@@ -103,7 +112,12 @@ function FormSkeleton({ formId = "credential-form" }: { formId?: string }) {
           <Skeleton variant="text" width={264} height={32} />
         </Box>
 
-        <Skeleton variant="rectangular" width={138} height={33} sx={{ borderRadius: 4 }} />
+        <Skeleton
+          variant="rectangular"
+          width={138}
+          height={33}
+          sx={{ borderRadius: 4 }}
+        />
       </Box>
 
       <Box sx={{ px: 3, mb: 8 }}>
@@ -112,19 +126,39 @@ function FormSkeleton({ formId = "credential-form" }: { formId?: string }) {
 
       <Box sx={{ px: 3, pb: 3 }}>
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
           <Skeleton variant="text" width={300} height={16} sx={{ mt: 0.5 }} />
         </Box>
       </Box>
@@ -153,14 +187,16 @@ export default function CredentialForm({
     },
     mode: "onChange"
   });
-  const { formState: { isValid }, handleSubmit } = methods;
+  const {
+    formState: { isValid },
+    handleSubmit
+  } = methods;
 
   if (isLoading) {
     return <FormSkeleton formId={formId} />;
   }
 
   const onSubmit = handleSubmit(async (data) => {
-
     try {
       if (!isEditMode) {
         const result = await createCredentials({
@@ -178,7 +214,6 @@ export default function CredentialForm({
             );
           }, 1500);
         }
-
       } else {
         const updateData: any = {
           ref: credentialId as string,
@@ -216,11 +251,7 @@ export default function CredentialForm({
             )
         }}
         actions={
-          <Button
-            variant="contained"
-            disabled={!isValid}
-            onClick={onSubmit}
-          >
+          <Button variant="contained" disabled={!isValid} onClick={onSubmit}>
             {!isEditMode ? "Create Credential" : "Update Credential"}
           </Button>
         }

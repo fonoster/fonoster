@@ -47,11 +47,12 @@ const columns: ColumnDef<ListWorkspaceMembersResponse>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: (props: { row: { original: ListWorkspaceMembersResponse } }) =>
+    cell: (props: { row: { original: ListWorkspaceMembersResponse } }) => (
       <Stack direction="row" spacing={1} alignItems="center">
         <Icon name="Email" fontSize="small" />
         <Icon name="Delete" fontSize="small" />
       </Stack>
+    )
   }
 ];
 
@@ -92,7 +93,10 @@ export default function MembersPage() {
         showSearch={true}
         showPagination={true}
       >
-        <QueryData<ListWorkspaceMembersResponse> fetchFunction={listWorkspaceMembers} pageSize={10} />
+        <QueryData<ListWorkspaceMembersResponse>
+          fetchFunction={listWorkspaceMembers}
+          pageSize={10}
+        />
       </PageContainer.ContentTable>
       <InviteMemberModal
         open={isInviteModalOpen}

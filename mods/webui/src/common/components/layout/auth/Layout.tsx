@@ -1,7 +1,5 @@
 import { useRouter } from "next/router";
-import {
-  Box
-} from "@mui/material";
+import { Box } from "@mui/material";
 import { SecuredLayout } from "../nav";
 
 const SIMPLE_LAYOUT_ROUTES = [

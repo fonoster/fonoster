@@ -58,9 +58,7 @@ export function Sidebar(): React.JSX.Element {
         {renderNavGroups({ items, pathname: currentPath })}
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Typography
-          variant="mono-small"
-        >
+        <Typography variant="mono-small">
           &copy; 2024, FONOSTER. V0.3.4
         </Typography>
       </Stack>
@@ -81,11 +79,7 @@ function renderNavGroups({
         <Stack component="li" key={curr.key} spacing={1.5}>
           {curr.title ? (
             <div>
-              <Typography
-                variant="drawer-label"
-              >
-                {curr.title}
-              </Typography>
+              <Typography variant="drawer-label">{curr.title}</Typography>
             </div>
           ) : null}
           <div>{renderNavItems({ depth: 0, items: curr.items, pathname })}</div>
@@ -218,26 +212,26 @@ function NavItem({
       <Box
         {...(isBranch
           ? {
-            onClick: (): void => {
-              setOpen(!open);
-            },
-            onKeyUp: (event: React.KeyboardEvent<HTMLDivElement>): void => {
-              if (event.key === "Enter" || event.key === " ") {
+              onClick: (): void => {
                 setOpen(!open);
-              }
-            },
-            role: "button"
-          }
+              },
+              onKeyUp: (event: React.KeyboardEvent<HTMLDivElement>): void => {
+                if (event.key === "Enter" || event.key === " ") {
+                  setOpen(!open);
+                }
+              },
+              role: "button"
+            }
           : {
-            ...(href
-              ? {
-                component: external ? "a" : RouterLink,
-                href,
-                target: external ? "_blank" : undefined,
-                rel: external ? "noreferrer" : undefined
-              }
-              : { role: "button" })
-          })}
+              ...(href
+                ? {
+                    component: external ? "a" : RouterLink,
+                    href,
+                    target: external ? "_blank" : undefined,
+                    rel: external ? "noreferrer" : undefined
+                  }
+                : { role: "button" })
+            })}
         sx={{
           alignItems: "center",
           borderRadius: 1,
@@ -275,11 +269,11 @@ function NavItem({
           "&:hover": {
             ...(!disabled &&
               !active && {
-              bgcolor: "#00ab5514",
-              color: "var(--NavItem-hover-color)",
-              transform: "translateX(4px)",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
-            })
+                bgcolor: "#00ab5514",
+                color: "var(--NavItem-hover-color)",
+                transform: "translateX(4px)",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
+              })
           }
         }}
         tabIndex={0}
@@ -305,11 +299,7 @@ function NavItem({
           ) : null}
         </Box>
         <Box sx={{ flex: "1 1 auto" }}>
-          <Typography
-            component="span"
-            variant="drawer-label"
-
-          >
+          <Typography component="span" variant="drawer-label">
             {title}
             {active && (
               <Box

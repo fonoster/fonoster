@@ -51,13 +51,13 @@ export function useQueryData<TData, TParams = any>({
     // Add property filter if exists
     if (columnFilters && columnFilters.length > 0) {
       const currentFilter = columnFilters[0];
-      if (currentFilter?.id && typeof currentFilter.value === 'string') {
+      if (currentFilter?.id && typeof currentFilter.value === "string") {
         filters[currentFilter.id] = globalFilter as string;
       }
     }
 
     // Add global filter if exists
-    if (globalFilter && typeof globalFilter === 'string') {
+    if (globalFilter && typeof globalFilter === "string") {
       // If there's no property filter, use a default property
       if (!columnFilters || columnFilters.length === 0) {
         filters["query"] = globalFilter;

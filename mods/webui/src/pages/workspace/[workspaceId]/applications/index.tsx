@@ -1,13 +1,12 @@
 import { useRouter } from "next/router";
 import { ColumnDef } from "@tanstack/react-table";
-import PageContainer from "@/common/components/layout/pages";;
+import PageContainer from "@/common/components/layout/pages";
 import { Button } from "@stories/button/Button";
 import { useApplications } from "@/common/sdk/hooks/useApplications";
 import { QueryData } from "@/common/contexts/table/QueryData";
 import { ListApplicationsResponse } from "@fonster/types";
 import { Stack } from "@mui/material";
 import { Icon } from "@stories/icon/Icon";
-
 
 const columns: ColumnDef<ListApplicationsResponse>[] = [
   {
@@ -45,7 +44,7 @@ const columns: ColumnDef<ListApplicationsResponse>[] = [
     header: "Inteligence",
     cell: (props: { row: { original: ListApplicationsResponse } }) =>
       props.row.original.intelligence?.productRef
-  },
+  }
 ];
 
 export default function ApplicationsPage() {
@@ -62,7 +61,7 @@ export default function ApplicationsPage() {
       <PageContainer.Header
         title="Applications"
         actions={
-          <Button variant="outlined" onClick={() => handleNewApplication()} >
+          <Button variant="outlined" onClick={() => handleNewApplication()}>
             New Application
           </Button>
         }
@@ -76,7 +75,10 @@ export default function ApplicationsPage() {
         columns={columns}
         tableId="applications-table"
       >
-        <QueryData<ListApplicationsResponse> fetchFunction={listApplications} pageSize={10} />
+        <QueryData<ListApplicationsResponse>
+          fetchFunction={listApplications}
+          pageSize={10}
+        />
       </PageContainer.ContentTable>
     </PageContainer>
   );

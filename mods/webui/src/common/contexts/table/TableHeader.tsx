@@ -1,10 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  Grid
-} from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { useTableContext } from "./useTableContext";
 import { Pagination } from "@stories/pagination/Pagination";
 import { InputText } from "@stories/inputtext/InputText";
@@ -87,12 +84,18 @@ TableHeaderComponent.Filter = ({
   const { headers, setColumnFilters, columnFilters } = useTableContext();
 
   const options = headers.map((column, index) => ({
-    label: index === 0 ? "All" : (column.header && typeof column.header === "string" ? column.header : `Column ${index}`),
-    value: index === 0 ? "All" : (column.id || `column-${index}`)
+    label:
+      index === 0
+        ? "All"
+        : column.header && typeof column.header === "string"
+          ? column.header
+          : `Column ${index}`,
+    value: index === 0 ? "All" : column.id || `column-${index}`
   }));
 
   // Get the first column filter if it exists
-  const currentFilter = columnFilters?.[0]?.value as string || defaultFilter || "";
+  const currentFilter =
+    (columnFilters?.[0]?.value as string) || defaultFilter || "";
 
   return (
     <Select
@@ -123,10 +126,7 @@ TableHeaderComponent.Search = ({
   onChange,
   placeholder = "Search..."
 }: SearchProps) => {
-  const {
-    globalFilter,
-    setGlobalFilter
-  } = useTableContext();
+  const { globalFilter, setGlobalFilter } = useTableContext();
 
   return (
     <InputText
@@ -137,7 +137,7 @@ TableHeaderComponent.Search = ({
       shrink={false}
       size="small"
     />
-  )
+  );
 };
 
 TableHeaderComponent.Pagination = () => {
@@ -159,8 +159,7 @@ TableHeaderComponent.Pagination = () => {
           if (newPage > lastPage) {
             setNextPageCursor?.(fonosterResponse?.nextPageToken);
             nextPage?.();
-          }
-          else {
+          } else {
             setPrevPageCursor?.(fonosterResponse?.prevPageToken);
             previousPage?.();
           }
@@ -169,11 +168,5 @@ TableHeaderComponent.Pagination = () => {
     </Box>
   );
 };
-
-
-
-
-
-
 
 export default TableHeaderComponent;

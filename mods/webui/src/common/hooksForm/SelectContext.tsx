@@ -38,9 +38,9 @@ const SelectContext = ({
   } = useFormContext();
 
   const getNestedError = (name: string) => {
-    if (!name.includes('.')) return errors[name];
+    if (!name.includes(".")) return errors[name];
 
-    const parts = name.split('.');
+    const parts = name.split(".");
     let error = errors as any;
 
     for (const part of parts) {
@@ -57,16 +57,15 @@ const SelectContext = ({
   const fieldValue = watch(name);
 
   const handleChange = (event: { target: { value: any } }) => {
-    console.log(event.target.value, 'event.target.value');
+    console.log(event.target.value, "event.target.value");
     setValue(name, event.target.value, { shouldValidate: true });
     onChange(event);
   };
 
-
   const getDefaultValue = () => {
     if (multiple) {
       return Array.isArray(defaultValue)
-        ? defaultValue.map(option => option.value)
+        ? defaultValue.map((option) => option.value)
         : [];
     }
     return !Array.isArray(defaultValue) ? defaultValue.value : "";

@@ -106,8 +106,11 @@ export default function ResetPassword() {
       <NotificationComponent />
       <PageContainer>
         <Card>
-          <Content title="Reset your password" description="Please reset your password using 8+ characters with upper, lower,
-              number, and symbol.">
+          <Content
+            title="Reset your password"
+            description="Please reset your password using 8+ characters with upper, lower,
+              number, and symbol."
+          >
             {codeError && (
               <Alert severity="error" sx={{ mb: 3 }}>
                 {codeError}
@@ -151,21 +154,15 @@ export default function ResetPassword() {
               </Button>
             </Box>
 
-            {!resetSuccess ?
-              <Box style={{ textAlign: 'center', marginTop: '10px' }}>
-                <Link
-                  href="/forgot-password"
-                  label="Back to forgot password"
-                />
+            {!resetSuccess ? (
+              <Box style={{ textAlign: "center", marginTop: "10px" }}>
+                <Link href="/forgot-password" label="Back to forgot password" />
               </Box>
-
-              :
-              <Box style={{ textAlign: 'center', marginTop: '10px' }}>
-                <Link
-                  href="/signin"
-                  label="Back to sign in"
-                />
-              </Box>}
+            ) : (
+              <Box style={{ textAlign: "center", marginTop: "10px" }}>
+                <Link href="/signin" label="Back to sign in" />
+              </Box>
+            )}
           </Content>
         </Card>
       </PageContainer>

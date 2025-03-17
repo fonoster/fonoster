@@ -67,15 +67,20 @@ interface AuthContentProps {
   children: React.ReactNode;
 }
 
-export const Content = ({ title, description, descriptionFontSize = "body-small", children }: AuthContentProps) => {
+export const Content = ({
+  title,
+  description,
+  descriptionFontSize = "body-small",
+  children
+}: AuthContentProps) => {
   return (
     <>
       <Typography
         variant="heading-large"
         sx={{
           marginBottom: description ? 10 : 6,
-          color: 'text.primary',
-          textAlign: 'center'
+          color: "text.primary",
+          textAlign: "center"
         }}
       >
         {title}
@@ -83,7 +88,7 @@ export const Content = ({ title, description, descriptionFontSize = "body-small"
       {typeof description === "string" ? (
         <Typography
           variant={descriptionFontSize}
-          sx={{ color: 'text.secondary', textAlign: 'center' }}
+          sx={{ color: "text.secondary", textAlign: "center" }}
         >
           {description}
         </Typography>

@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
 import { CodeType } from "@fonoster/types";
 import { Typography } from "@stories/typography/Typography";
-import { Button } from '@stories/button/Button';
+import { Button } from "@stories/button/Button";
 
 const steps = [
   "Verify email address",
@@ -66,7 +66,7 @@ const VerifyPage = () => {
             }
           }
         }
-      } catch (error) { }
+      } catch (error) {}
     };
     if (isReady) {
       initVerificationFlow();
@@ -121,7 +121,7 @@ const VerifyPage = () => {
         setActiveStep(2);
         setCurrentProgress(2);
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const handlePhoneSubmit = async (phoneNumber: string) => {
@@ -132,7 +132,7 @@ const VerifyPage = () => {
       });
       setActiveStep(3);
       setCurrentProgress(3);
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const handleVerifyPhone = async (code: string) => {
@@ -154,9 +154,9 @@ const VerifyPage = () => {
       if (result) {
         setIsVerificationComplete(true);
         setCurrentProgress(3);
-        await router.push("/workspace").catch((error) => { });
+        await router.push("/workspace").catch((error) => {});
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const getStepContent = (step: number) => {
@@ -168,9 +168,14 @@ const VerifyPage = () => {
             description={
               <Typography
                 variant="body-medium"
-                sx={{ marginBottom: 30, color: 'text.secondary', textAlign: 'center' }}
+                sx={{
+                  marginBottom: 30,
+                  color: "text.secondary",
+                  textAlign: "center"
+                }}
               >
-                Please enter the verification code we've sent to your email address.
+                Please enter the verification code we've sent to your email
+                address.
               </Typography>
             }
           >
@@ -183,7 +188,7 @@ const VerifyPage = () => {
                 helperText="Please enter your verification code"
               />
 
-              <Box style={{ textAlign: 'center', marginTop: '35px' }}>
+              <Box style={{ textAlign: "center", marginTop: "35px" }}>
                 <Button
                   fullWidth
                   variant="contained"
@@ -196,7 +201,11 @@ const VerifyPage = () => {
                   Verify email address
                 </Button>
               </Box>
-              <Stack direction="row" spacing={1} sx={{ mt: 2, justifyContent: "center" }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ mt: 2, justifyContent: "center" }}
+              >
                 <Typography
                   variant="body-small"
                   color="text.secondary"
@@ -283,7 +292,11 @@ const VerifyPage = () => {
               <Typography variant="body-small" color="text.secondary">
                 Your account has been successfully verified.
               </Typography>
-              <Typography variant="body-small" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography
+                variant="body-small"
+                color="text.secondary"
+                sx={{ mt: 1 }}
+              >
                 Redirecting to workspace...
               </Typography>
             </Box>
@@ -299,7 +312,7 @@ const VerifyPage = () => {
                 helperText="Enter the code sent to your phone"
               />
 
-              <Box style={{ textAlign: 'center', marginTop: '35px' }}>
+              <Box style={{ textAlign: "center", marginTop: "35px" }}>
                 <Button
                   fullWidth
                   variant="contained"
@@ -329,7 +342,9 @@ const VerifyPage = () => {
                       variant="body-small-underline"
                       onClick={() => {
                         startResendTimer(setPhoneResendTimer);
-                        handlePhoneSubmit(phoneMethods.getValues("phoneNumber"));
+                        handlePhoneSubmit(
+                          phoneMethods.getValues("phoneNumber")
+                        );
                       }}
                       sx={{
                         cursor: "pointer",
@@ -354,7 +369,9 @@ const VerifyPage = () => {
                       color="primary"
                       onClick={() => {
                         startResendTimer(setPhoneResendTimer);
-                        handlePhoneSubmit(phoneMethods.getValues("phoneNumber"));
+                        handlePhoneSubmit(
+                          phoneMethods.getValues("phoneNumber")
+                        );
                       }}
                       sx={{
                         cursor: "pointer",

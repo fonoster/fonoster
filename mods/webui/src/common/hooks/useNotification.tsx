@@ -214,17 +214,18 @@ export const useNotification = () => {
     }
 
     if (notificationInfo.useCustomSnackbar) {
-      const position = notificationInfo.position?.vertical === "top"
-        ? (notificationInfo.position?.horizontal === "center"
-          ? "top-center"
-          : notificationInfo.position?.horizontal === "right"
-            ? "top-right"
-            : "top-left")
-        : (notificationInfo.position?.horizontal === "center"
-          ? "bottom-center"
-          : notificationInfo.position?.horizontal === "right"
-            ? "bottom-right"
-            : "bottom-left");
+      const position =
+        notificationInfo.position?.vertical === "top"
+          ? notificationInfo.position?.horizontal === "center"
+            ? "top-center"
+            : notificationInfo.position?.horizontal === "right"
+              ? "top-right"
+              : "top-left"
+          : notificationInfo.position?.horizontal === "center"
+            ? "bottom-center"
+            : notificationInfo.position?.horizontal === "right"
+              ? "bottom-right"
+              : "bottom-left";
 
       return (
         <CustomSnackbarWrapper
@@ -232,7 +233,9 @@ export const useNotification = () => {
           message={notificationInfo.message}
           onClose={handleClose}
           position={position}
-          autoHideDuration={notificationInfo.autoHide ? notificationInfo.duration || 5000 : 5000}
+          autoHideDuration={
+            notificationInfo.autoHide ? notificationInfo.duration || 5000 : 5000
+          }
           type={notificationInfo.type}
         />
       );

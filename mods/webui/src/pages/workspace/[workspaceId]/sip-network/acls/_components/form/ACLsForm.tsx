@@ -14,24 +14,28 @@ import CreateRuleModal from "../modal/CreateRuleModal";
 import { SelectContext } from "@/common/hooksForm/SelectContext";
 import { ModalTrigger } from "@stories/modaltrigger/ModalTrigger";
 
-const aclSchema = z.object({
-  ref: z.string().optional(),
-  name: z.string().min(1, "Name is required"),
-  allow: z.array(z.string()).default([]),
-  deny: z.array(z.string()).default([]),
-  isEditMode: z.boolean().default(false)
-}).superRefine((data, ctx) => {
-  if (!data.isEditMode) {
-    if ((!data.allow || data.allow.length === 0) &&
-      (!data.deny || data.deny.length === 0)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "At least one network rule (allow or deny) is required",
-        path: ["allow"]
-      });
+const aclSchema = z
+  .object({
+    ref: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    allow: z.array(z.string()).default([]),
+    deny: z.array(z.string()).default([]),
+    isEditMode: z.boolean().default(false)
+  })
+  .superRefine((data, ctx) => {
+    if (!data.isEditMode) {
+      if (
+        (!data.allow || data.allow.length === 0) &&
+        (!data.deny || data.deny.length === 0)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "At least one network rule (allow or deny) is required",
+          path: ["allow"]
+        });
+      }
     }
-  }
-});
+  });
 
 export type ACLsFormData = Omit<z.infer<typeof aclSchema>, "isEditMode">;
 
@@ -52,14 +56,16 @@ const defaultValues: ACLsFormData = {
 function FormSkeleton({ formId = "acl-form" }: { formId?: string }) {
   return (
     <PageContainer>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 2,
-        px: 4,
-        pt: 3
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+          px: 4,
+          pt: 3
+        }}
+      >
         <Box>
           <Box sx={{ mb: 1 }}>
             <Skeleton variant="text" width={117} height={18} />
@@ -67,7 +73,12 @@ function FormSkeleton({ formId = "acl-form" }: { formId?: string }) {
           <Skeleton variant="text" width={264} height={32} />
         </Box>
 
-        <Skeleton variant="rectangular" width={138} height={33} sx={{ borderRadius: 4 }} />
+        <Skeleton
+          variant="rectangular"
+          width={138}
+          height={33}
+          sx={{ borderRadius: 4 }}
+        />
       </Box>
 
       <Box sx={{ px: 3, mb: 8 }}>
@@ -76,15 +87,30 @@ function FormSkeleton({ formId = "acl-form" }: { formId?: string }) {
 
       <Box sx={{ px: 3, pb: 3 }}>
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         <Box sx={{ mt: 4 }}>
@@ -104,7 +130,8 @@ export default function ACLsForm({
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
   const { createAcl, updateAcl } = useACL();
-  const { notifyError, notifySuccess, NotificationComponent } = useNotification();
+  const { notifyError, notifySuccess, NotificationComponent } =
+    useNotification();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isEditMode = !!aclId;
@@ -118,21 +145,29 @@ export default function ACLsForm({
     mode: "onChange"
   });
 
-  const { formState: { isValid }, handleSubmit, setValue, watch } = methods;
-  const allow = watch('allow');
-  const deny = watch('deny');
+  const {
+    formState: { isValid },
+    handleSubmit,
+    setValue,
+    watch
+  } = methods;
+  const allow = watch("allow");
+  const deny = watch("deny");
 
   if (isLoading) {
     return <FormSkeleton formId={formId} />;
   }
 
-  const handleAddRule = (rule: { ipOrCIDR: string; category: 'Allow' | 'Deny' }) => {
-    if (rule.category === 'Allow') {
+  const handleAddRule = (rule: {
+    ipOrCIDR: string;
+    category: "Allow" | "Deny";
+  }) => {
+    if (rule.category === "Allow") {
       const newNetworks = [...allow, rule.ipOrCIDR];
-      setValue('allow', newNetworks, { shouldValidate: true });
+      setValue("allow", newNetworks, { shouldValidate: true });
     } else {
       const newNetworks = [...deny, rule.ipOrCIDR];
-      setValue('deny', newNetworks, { shouldValidate: true });
+      setValue("deny", newNetworks, { shouldValidate: true });
     }
   };
 
@@ -172,11 +207,7 @@ export default function ACLsForm({
             router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/acls`)
         }}
         actions={
-          <Button
-            variant="contained"
-            disabled={!isValid}
-            onClick={onSubmit}
-          >
+          <Button variant="contained" disabled={!isValid} onClick={onSubmit}>
             {!isEditMode ? "Create ACL" : "Update ACL"}
           </Button>
         }
@@ -220,11 +251,7 @@ export default function ACLsForm({
           }))}
         />
 
-        <ModalTrigger
-          label="Add Rule"
-          onClick={() => setIsModalOpen(true)}
-        />
-
+        <ModalTrigger label="Add Rule" onClick={() => setIsModalOpen(true)} />
       </PageContainer.ContentForm>
       <CreateRuleModal
         open={isModalOpen}
