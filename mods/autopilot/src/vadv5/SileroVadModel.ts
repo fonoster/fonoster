@@ -52,7 +52,12 @@ class SileroVadModel {
 
   async init() {
     const modelArrayBuffer = readFileSync(this.pathToModel).buffer;
-    const sessionOption = { interOpNumThreads: 1, intraOpNumThreads: 1 };
+    const sessionOption = {
+      interOpNumThreads: 1,
+      intraOpNumThreads: 1,
+      enableCpuMemArena: false
+    };
+
     this._session = await this.ort.InferenceSession.create(
       modelArrayBuffer,
       sessionOption

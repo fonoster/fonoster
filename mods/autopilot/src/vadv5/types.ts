@@ -34,7 +34,11 @@ export interface ONNXRuntimeAPI {
   InferenceSession: {
     create: (
       modelPath: ArrayBuffer | string,
-      options?: { interOpNumThreads: number; intraOpNumThreads: number }
+      options?: {
+        interOpNumThreads: number;
+        intraOpNumThreads: number;
+        enableCpuMemArena: boolean;
+      }
     ) => Promise<ONNXSession>;
   };
   Tensor: new (
