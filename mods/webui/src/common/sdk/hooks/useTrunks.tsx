@@ -4,12 +4,25 @@ import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
   CreateTrunkRequest,
   UpdateTrunkRequest,
-  ListTrunksRequest,
-  ListTrunksResponse,
+  ListTrunksRequest as BaseListTrunksRequest,
+  ListTrunksResponse as BaseListTrunksResponse,
   Trunk,
   BaseApiObject
 } from "@fonoster/types";
 import { Trunks } from "@fonoster/sdk";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
+
+// Extend the ListTrunksResponse to include prevPageToken
+interface ListTrunksResponse extends BaseListTrunksResponse {
+  prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+interface ListTrunksRequest extends BaseListTrunksRequest {
+  filterBy?: Record<string, string>;
+  pageSize?: number;
+}
 
 export const useTrunks = () => {
   const { client, isReady, authentication } = useFonosterClient();
@@ -25,6 +38,23 @@ export const useTrunks = () => {
       throw new Error("Failed to initialize Trunks client");
     }
   }, [client]);
+
+  // Handle Fake data - make sure all required Trunk properties are non-optional
+  const { listItems } = usePaginatedData<Trunk>({
+    generateFakeData: (index: number) => ({
+      ref: `trunk-${index}`,
+      name: `Trunk ${index + 1}`, // This is required to be non-optional
+      projectId: `project-${index + 1}`,
+      sendRegister: index % 2 === 0,
+      inboundUri: `sip:trunk-${index + 1}@sip.fonoster.com`,
+      outboundUri: `sip:trunk-${index + 1}@sip.fonoster.com`,
+      // Add any other required fields from Trunk type
+      createdAt: new Date(Date.now() - (index * 86400000)),
+      updatedAt: new Date(Date.now() - (index * 43200000))
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
 
   const createTrunk = async (
     payload: CreateTrunkRequest
@@ -45,10 +75,12 @@ export const useTrunks = () => {
     }
   ): Promise<ListTrunksResponse | undefined> => {
     try {
-      if (!isReady) return undefined;
-      return await authentication.executeWithRefresh(() =>
-        _trunks.listTrunks(payload)
-      );
+      return await listItems(payload);
+
+      // if (!isReady) return undefined;
+      // return await authentication.executeWithRefresh(() =>
+      //   _trunks.listTrunks(payload)
+      // );
     } catch (error: any) {
       console.error(error);
       notifyError(error as ErrorType);
