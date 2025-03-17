@@ -217,14 +217,6 @@ class VoiceClientImpl implements VoiceClient {
       logger.error(`stream error for ref ${ref}: ${error.message}`, {
         errorDetails: error.stack || "No stack trace"
       });
-
-      const { sessionRef: channelId } = this.config;
-      const { ari } = this;
-
-      await ari.channels.play({ channelId, media: "sound:unavailable" });
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      await ari.channels.hangup({ channelId });
-
       this.filesServer.removeStream(ref);
     });
 
@@ -241,15 +233,21 @@ class VoiceClientImpl implements VoiceClient {
     }
   }
 
-  async startSpeechGather(
+  startSpeechGather(
     callback: (stream: { speech: string; responseTime: number }) => void
   ) {
-    try {
-      const out = this.stt.streamTranscribe(this.transcriptionsStream);
-      out.on("data", callback);
-    } catch (e) {
-      logger.error(e);
-    }
+    const out = this.stt.streamTranscribe(this.transcriptionsStream);
+
+    out.on("data", callback);
+
+    out.on("error", async (error) => {
+      logger.error("speech recognition error", { error });
+
+      const { sessionRef: channelId } = this.config;
+      const { ari } = this;
+
+      ari.channels.hangup({ channelId });
+    });
   }
 
   async startDtmfGather(
