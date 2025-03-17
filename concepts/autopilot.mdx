@@ -52,12 +52,12 @@ intelligence:
 
 Then, create a script to apply the configuration as follows:
 
-```javascript apply-autopilot-config.js {5}
+```javascript apply-autopilot-config.js {6}
 const fs = require("fs");
 const yaml = require("js-yaml");
 const SDK = require("@fonoster/sdk");
 
-// Get the Workspace Acces Key ID with the "fonoster workspaces:active" command
+// Use "fonoster workspaces:active" to get the Workspace Access Key Id
 const client = new SDK.Client({ accessKeyId: "WO00000000000000000000000000000000" });
 
 const appConfig = yaml.load(fs.readFileSync("./appConfig.yaml", "utf8"));
