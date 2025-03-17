@@ -24,7 +24,9 @@ interface ContentProps<T extends object> {
   columns: ColumnDef<T>[];
   children?: ReactNode;
   tableId?: string;
-  showHeader?: boolean;
+  showFilters?: boolean;
+  showSearch?: boolean;
+  showPagination?: boolean;
 }
 
 interface ContentFormProps<T extends object> {
@@ -34,7 +36,7 @@ interface ContentFormProps<T extends object> {
 }
 
 function PageContainer({ children }: PageContainerProps) {
-  return <Box sx={{ mb: 8 }}>{children}</Box>;
+  return <Box sx={{ mb: 6 }}>{children}</Box>;
 }
 
 interface HeaderProps {
@@ -48,7 +50,7 @@ interface HeaderProps {
 
 function Header({ title, actions, backTo }: HeaderProps) {
   return (
-    <Box sx={{ mb: 4 }}>
+    <Box sx={{ mb: 2 }}>
       {backTo && (
         <Box sx={{ mb: 1.5 }}>
           <LinkBackTo label={backTo.label} onClick={backTo.onClick} />
@@ -74,7 +76,7 @@ function Header({ title, actions, backTo }: HeaderProps) {
 
 function Subheader({ children }: DescriptionProps) {
   return (
-    <Typography variant="body-medium" sx={{ mb: 3 }}>
+    <Typography variant="body-medium" sx={{ mb: 8 }}>
       {children}
     </Typography>
   );
@@ -84,28 +86,22 @@ function ContentTable<T extends object>({
   columns,
   children,
   tableId = "table",
-  showHeader = true
+  showFilters = true,
+  showSearch = true,
+  showPagination = true
 }: ContentProps<T>) {
   return (
     <ReactTable<T> columns={columns}>
-      {showHeader && (
-        <React.Fragment>
-          <ReactTable.Header>
-            <ReactTable.Header.Filter />
-            <ReactTable.Header.Search
-              value={""}
-              onChange={() => { }}
-              placeholder="Search..."
-            />
-            <ReactTable.Header.Pagination
-              currentPage={1}
-              totalPages={10}
-              onPageChange={() => { }}
-            />
-          </ReactTable.Header>
-          <Box sx={{ mb: 0, mt: 1 }} />
-        </React.Fragment>
-      )}
+      <ReactTable.Header>
+        {showFilters && <ReactTable.Header.Filter />}
+        {showSearch && <ReactTable.Header.Search
+          value={""}
+          onChange={() => { }}
+          placeholder="Search..."
+        />}
+        {showPagination && <ReactTable.Header.Pagination />}
+      </ReactTable.Header>
+      <Box sx={{ mb: 0, mt: 1 }} />
       <ReactTable.Content id={tableId} />
       {children}
     </ReactTable>

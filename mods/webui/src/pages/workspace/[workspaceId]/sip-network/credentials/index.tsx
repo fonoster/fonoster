@@ -22,7 +22,7 @@ export default function CredentialsPage() {
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
 
-  const handleCreateNew = () => {
+  const handleNew = () => {
     router.push(
       `/workspace/${selectedWorkspace?.ref}/sip-network/credentials/new`
     );
@@ -33,7 +33,7 @@ export default function CredentialsPage() {
       <PageContainer.Header
         title="Credentials"
         actions={
-          <Button variant="contained" onClick={handleCreateNew}>
+          <Button variant="contained" onClick={handleNew}>
             Create New Credential
           </Button>
         }

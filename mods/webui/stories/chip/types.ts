@@ -16,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type ChipProps = {
-  onRemove?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  enabled?: boolean;
+export interface ChipProps {
   label: string;
-};
-
-export type { ChipProps };
+  onRemove?: () => void;
+  enabled?: boolean;
+  size?: 'small' | 'medium';
+}

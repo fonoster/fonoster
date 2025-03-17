@@ -17,21 +17,20 @@
  * limitations under the License.
  */
 import { styled } from "@mui/material/styles";
-import Chip from "@mui/material/Chip";
+import { Chip } from "@mui/material";
 
 export const StyledMuiChip = styled(Chip)(({ theme }) => ({
+  fontFamily: "'Poppins', sans-serif",
   display: "flex",
   alignItems: "center",
-  borderRadius: 8,
-  size: "medium",
-  fontWeight: 500,
+  borderRadius: 18,
   backgroundColor: theme.palette.primary[200],
   color: theme.palette.text.primary,
   "& .MuiChip-label": {
-    color: theme.palette.secondary[800]
+    color: theme.palette.secondary[900]
   },
   "& .MuiChip-deleteIcon": {
-    color: theme.palette.primary
+    color: theme.palette.secondary[900]
   },
   "&:hover": {
     backgroundColor: theme.palette.primary[500]
@@ -40,5 +39,27 @@ export const StyledMuiChip = styled(Chip)(({ theme }) => ({
     backgroundColor: theme.palette.secondary[100],
     color: theme.palette.secondary[500],
     pointerEvents: "none"
-  }
+  },
+  '&.MuiChip-sizeSmall': {
+    height: '24px',
+    fontSize: '12px',
+    '.MuiChip-label': {
+      padding: '0 8px',
+    },
+    '.MuiChip-deleteIcon': {
+      fontSize: '16px',
+      margin: '0 4px',
+    },
+  },
+  '&.MuiChip-sizeMedium': {
+    height: '32px',
+    fontSize: '14px',
+    '.MuiChip-label': {
+      padding: '0 12px',
+    },
+    '.MuiChip-deleteIcon': {
+      fontSize: '20px',
+      margin: '0 6px',
+    },
+  },
 }));

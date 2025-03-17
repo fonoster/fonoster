@@ -10,12 +10,13 @@ interface option {
 interface SelectContextProps {
   name: string;
   label: string;
-  options: Array<option>;
+  options?: Array<option>;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
   disabled?: boolean;
-  defaultValue?: option;
+  defaultValue?: option | option[];
   id: string;
+  multiple?: boolean;
 }
 
 const SelectContext = ({
@@ -26,7 +27,8 @@ const SelectContext = ({
   trailingIcon,
   disabled = false,
   defaultValue = { value: "", label: "" },
-  id
+  id,
+  multiple = false
 }: SelectContextProps) => {
   const {
     register,
@@ -54,6 +56,22 @@ const SelectContext = ({
   const { ref, onChange, onBlur, name: fieldName } = register(name);
   const fieldValue = watch(name);
 
+  const handleChange = (event: { target: { value: any } }) => {
+    console.log(event.target.value, 'event.target.value');
+    setValue(name, event.target.value, { shouldValidate: true });
+    onChange(event);
+  };
+
+
+  const getDefaultValue = () => {
+    if (multiple) {
+      return Array.isArray(defaultValue)
+        ? defaultValue.map(option => option.value)
+        : [];
+    }
+    return !Array.isArray(defaultValue) ? defaultValue.value : "";
+  };
+
   return (
     <Select
       id={id}
@@ -67,8 +85,9 @@ const SelectContext = ({
       name={fieldName}
       ref={ref}
       onBlur={onBlur}
-      onChange={onChange}
-      value={fieldValue || defaultValue.value}
+      onChange={handleChange}
+      value={fieldValue || getDefaultValue()}
+      multiple={multiple}
     />
   );
 };

@@ -1,1 +1,1 @@
-export * from "./MemberDTO";
+export * from "./WorkspaceMemberDTO";

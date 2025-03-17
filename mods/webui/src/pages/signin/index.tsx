@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Box, Divider, Stack, useTheme } from "@mui/material";
+import { useState } from "react";
+import { Box, Divider, Stack } from "@mui/material";
 import { GitHub as GitHubIcon } from "@mui/icons-material";
 import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
 import { useRouter } from 'next/router';

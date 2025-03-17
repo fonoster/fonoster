@@ -26,9 +26,18 @@ export const ModalTrigger: React.FC<ModalTriggerProps> = ({
   disabled,
   label
 }) => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onClick?.();
+  };
+
   return (
-    <StyledModalTrigger onClick={onClick} disabled={disabled}>
-      <StyledIcon disabled={disabled}>
+    <StyledModalTrigger
+      onClick={handleClick}
+      disabled={disabled}
+      type="button"
+    >
+      <StyledIcon disabled={disabled ?? false}>
         <AddIcon />
       </StyledIcon>
       {label}

@@ -3,7 +3,8 @@ import { Select } from "@mui/material";
 
 export const StyledSelect = styled(Select)(({ theme }) => ({
   "& .MuiInputBase-root": {
-    height: "56px",
+    minHeight: "42px",
+    height: "auto",
   },
   "& .MuiOutlinedInput-input": {
     padding: "16.5px 14px",
@@ -17,6 +18,20 @@ export const StyledSelect = styled(Select)(({ theme }) => ({
     letterSpacing: "0.12px",
     display: "flex",
     alignItems: "center",
+    flexWrap: "wrap",
+    gap: "4px",
+    padding: "8px 14px",
+    "& .MuiChip-root": {
+      margin: "2px",
+      pointerEvents: "auto",
+      "& .MuiChip-deleteIcon": {
+        pointerEvents: "auto",
+        cursor: "pointer",
+        "&:hover": {
+          color: theme.palette.error.main,
+        },
+      },
+    },
   },
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: theme.palette.grey[300],

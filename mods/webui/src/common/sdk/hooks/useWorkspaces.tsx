@@ -1,5 +1,6 @@
 import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
 import { useNotification, ErrorType } from "@/common/hooks/useNotification";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
 import {
   CreateWorkspaceRequest,
   UpdateWorkspaceRequest,
@@ -9,11 +10,26 @@ import {
   RemoveUserFromWorkspaceResponse,
   InviteUserToWorkspaceRequest,
   Workspace,
-  ListWorkspaceMembersResponse,
-  ListWorkspaceMembersRequest
+  ListWorkspaceMembersResponse as BaseListWorkspaceMembersResponse,
+  ListWorkspaceMembersRequest as BaseListWorkspaceMembersRequest,
+  Role,
+  WorkspaceMemberStatus,
 } from "@fonoster/types";
 import { Workspaces } from "@fonoster/sdk";
 import { useMemo } from "react";
+import { WorkspaceMemberDTO } from "@/types/dto/workspace/WorkspaceMemberDTO";
+
+// Extend the ListWorkspaceMembersResponse to include prevPageToken
+interface ListWorkspaceMembersResponse extends BaseListWorkspaceMembersResponse {
+  prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+interface ListWorkspaceMembersRequest extends BaseListWorkspaceMembersRequest {
+  filterBy?: Record<string, string>;
+  pageSize?: number;
+}
 
 export const useWorkspaces = () => {
   const { client, isReady, authentication } = useFonosterClient();
@@ -30,6 +46,22 @@ export const useWorkspaces = () => {
       throw new Error("Failed to initialize Workspaces client");
     }
   }, [client]);
+
+  // Handle Fake data
+  const { listItems } = usePaginatedData<WorkspaceMemberDTO>({
+    generateFakeData: (index) => ({
+      ref: `member-${index}`,
+      userRef: `user-${index}`,
+      name: `User ${index + 1}`,
+      email: `user${index + 1}@example.com`,
+      role: index % 3 === 0 ? Role.WORKSPACE_ADMIN : index % 3 === 1 ? Role.WORKSPACE_MEMBER : Role.WORKSPACE_OWNER,
+      status: index % 4 === 0 ? WorkspaceMemberStatus.PENDING : WorkspaceMemberStatus.ACTIVE,
+      createdAt: new Date(Date.now() - (index * 86400000)),
+      updatedAt: new Date(Date.now() - (index * 43200000))
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
 
   const listWorkspaces = async (): Promise<
     ListWorkspacesResponse | undefined
@@ -131,14 +163,13 @@ export const useWorkspaces = () => {
   };
 
   const listWorkspaceMembers = async (
-    request: ListWorkspaceMembersRequest
+    payload: ListWorkspaceMembersRequest = {
+      pageSize: 10,
+      pageToken: undefined
+    }
   ): Promise<ListWorkspaceMembersResponse | undefined> => {
-    if (!isReady) return undefined;
-
     try {
-      return await authentication.executeWithRefresh(() =>
-        _workspaces.listWorkspaceMembers(request)
-      );
+      return await listItems(payload);
     } catch (error: any) {
       notifyError(error as ErrorType);
       return undefined;

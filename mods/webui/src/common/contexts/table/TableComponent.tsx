@@ -1,11 +1,6 @@
 import React from "react";
 import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  ColumnDef,
-  getSortedRowModel,
-  SortingState
+  flexRender
 } from "@tanstack/react-table";
 import {
   Table as MUITable,
@@ -14,9 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TableSortLabel,
-  Checkbox,
   styled,
   tableCellClasses,
   Box
@@ -89,17 +82,6 @@ interface MyDataType {
   [key: string]: any;
 }
 
-interface MyTableProps {
-  id: string;
-  data: MyDataType[];
-  columns: ColumnDef<MyDataType, any>[];
-  tableClassName?: string;
-  headerClassName?: string;
-  bodyClassName?: string;
-  rowClassName?: string;
-  loadingData?: boolean;
-}
-
 interface TableOptions {
   filtersDirection: "up" | "down" | undefined;
 }
@@ -138,7 +120,6 @@ const TableComponent = <TData extends Object>({
   options
 }: TableComponentProps<TData>) => {
   const { table, loadingData } = useTableContext<TData>();
-
   return (
     <StyledTableContainer>
       <MUITable
@@ -181,15 +162,23 @@ const TableComponent = <TData extends Object>({
           ))}
         </TableHead>
         <TableBody className={classNames(bodyClassName)}>
-          {table.getRowModel().rows.map((row, i) => (
-            <StyledTableRow key={row.id} className={classNames(rowClassName)}>
-              {row.getVisibleCells().map((cell) => (
-                <StyledTableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </StyledTableCell>
-              ))}
-            </StyledTableRow>
-          ))}
+          {table.getRowModel().rows.length > 0 ? (
+            table.getRowModel().rows.map((row, i) => (
+              <StyledTableRow key={row.id} className={classNames(rowClassName)}>
+                {row.getVisibleCells().map((cell) => (
+                  <StyledTableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </StyledTableCell>
+                ))}
+              </StyledTableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={table.getAllColumns().length} align="center">
+                {loadingData ? "Loading..." : "No data available"}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </MUITable>
     </StyledTableContainer>

@@ -16,19 +16,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StyledMuiChip } from "./Chip.styles";
+import React from "react";
 import { ChipProps } from "./types";
+import { StyledMuiChip } from "./Chip.styles";
 import CloseIcon from "@mui/icons-material/Close";
 
-export const Chip = (props: ChipProps) => {
-  const { label, onRemove, enabled } = props;
+export const Chip = ({ label, onRemove, enabled = true, size = 'medium' }: ChipProps) => {
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (onRemove) {
+      onRemove();
+    }
+
+    return false;
+  };
+
+  const CustomCloseIcon = (props: any) => (
+    <div
+      onClick={handleDelete}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}
+      style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+    >
+      <CloseIcon {...props} />
+    </div>
+  );
 
   return (
     <StyledMuiChip
       label={label}
-      onDelete={onRemove}
+      onDelete={handleDelete}
       disabled={!enabled}
-      deleteIcon={<CloseIcon />}
+      size={size}
+      deleteIcon={<CustomCloseIcon />}
     />
   );
 };
