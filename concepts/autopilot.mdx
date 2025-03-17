@@ -1,6 +1,6 @@
 ---
-title: 'Autopilot'
-description: 'Voice applications powered by LLMs.'
+title: "Autopilot"
+description: "Voice applications powered by LLMs."
 ---
 
 <Note>
@@ -21,7 +21,7 @@ type: "AUTOPILOT"
 speechToText:
   productRef: "stt.deepgram"
   config:
-    model: "nova-3"
+    model: "nova-2-phonecall"
     languageCode: "en-US"
 textToSpeech:
   productRef: "tts.deepgram"
@@ -52,11 +52,12 @@ intelligence:
 
 Then, create a script to apply the configuration as follows:
 
-```javascript apply-autopilot-config.js
+```javascript apply-autopilot-config.js {5}
 const fs = require("fs");
 const yaml = require("js-yaml");
 const SDK = require("@fonoster/sdk");
 
+// Get the Workspace Acces Key ID with the "fonoster workspaces:active" command
 const client = new SDK.Client({ accessKeyId: "WO00000000000000000000000000000000" });
 
 const appConfig = yaml.load(fs.readFileSync("./appConfig.yaml", "utf8"));
@@ -68,84 +69,84 @@ client.loginWithApiKey("AP0eerv2g7qow3e950k7twu4rvydcunq3k", "fNc...")
 
 Please note that you must install the `js-yaml` and the `@fonoster/sdk` dependencies in your Node.JS project.
 
-Once you create the application, you can use the *updateApplication* function instead of *createApplication* to quickly iterate over your Autopilot.
+Once you create the application, you can use the _updateApplication_ function instead of _createApplication_ to quickly iterate over your Autopilot.
 
 ## General configuration
 
-The Autopilot configuration is divided into a general section and three sub-sections: *speechToText*, *textToSpeech*, and *intelligence*.
+The Autopilot configuration is divided into a general section and three sub-sections: _speechToText_, _textToSpeech_, and _intelligence_.
 
-The general section contains *name*, *type*, and *endpoint* properties.
+The general section contains _name_, _type_, and _endpoint_ properties.
 
-The *name* property is the name of the Autopilot application. The *type* property is the type of the application, which should always be set to `AUTOPILOT`. The *endpoint* is an optional property allowing you to specify the endpoint for self-hosted Autopilots.
+The _name_ property is the name of the Autopilot application. The _type_ property is the type of the application, which should always be set to `AUTOPILOT`. The _endpoint_ is an optional property allowing you to specify the endpoint for self-hosted Autopilots.
 
 ## Speech settings
 
-Autopilot applications support a variety of speech-to-text and text-to-speech vendors. The *speechToText* and *textToSpeech* objects allow you to define the speech-to-text and text-to-speech engines to use.
+Autopilot applications support a variety of speech-to-text and text-to-speech vendors. The _speechToText_ and _textToSpeech_ objects allow you to define the speech-to-text and text-to-speech engines to use.
 
-You can mix and match vendors to suit your needs. For example, you can use *Deepgram* for speech-to-text and Google for text-to-speech. Please check the [Speech Vendors](./speech-vendors) section for more information on configuring speech-to-text and text-to-speech.
+You can mix and match vendors to suit your needs. For example, you can use _Deepgram_ for speech-to-text and Google for text-to-speech. Please check the [Speech Vendors](./speech-vendors) section for more information on configuring speech-to-text and text-to-speech.
 
 ## Conversational settings
 
-The *conversationSettings* object allows you to define the Autopilot's conversational behavior. The conversation settings are independent of the language model used.
+The _conversationSettings_ object allows you to define the Autopilot's conversational behavior. The conversation settings are independent of the language model used.
 
 The following is a list of the supported settings:
 
-| Setting                     | Description                                                                                                              |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| firstMessage                | The first message the Autopilot will say when the conversation starts                                                    |
-| systemPrompt                | A prompt that describes the behavior of the Autopilot and sets the context of the conversation                           |
-| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                                  |
-| maxSessionDuration          | The maximum time in milliseconds the conversation can last. Default to `30 x 60 x 1000 ms` (30 minutes)                  |
-| maxSpeechWaitTimeout        | The maximum time in milliseconds to wait for the caller before returning the speech-to-text result. Default to `5000 ms` |
-| initialDtmf                 | A DTMF to play when the conversation starts                                                                              |
-| transferOptions             | The options to transfer the call to a live agent                                                                         |
-| transferOptions.phoneNumber | The phone number to transfer the call to                                                                                 |
-| transferOptions.message     | The message to play before transferring the call                                                                         |
-| transferOptions.timeout     | The time in milliseconds to wait before hanging up the call if the transfer is incomplete. Default to `30000 ms`         |
-| idleOptions                 | The options to handle idle time during the conversation                                                                  |
-| idleOptions.message         | The message to play after the idle time is reached                                                                       |
-| idleOptions.timeout         | The time in milliseconds to wait before playing the idle message. Defaults to `10000 ms`                                 |
-| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                                   |
-| vad                         | The voice activity detection settings                                                                                    |
-| vad.activationThreshold     | The activation threshold for the voice activity detection. Default to `0.3`                                              |
-| vad.deactivationThreshold   | The deactivation threshold for the voice activity detection. Default to `0.25`                                           |
-| vad.debounceFrames          | The number of frames to debounce the voice activity detection. Default to `3`                                            |
+| Setting                     | Description                                                                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| firstMessage                | The first message the Autopilot will say when the conversation starts                                           |
+| systemPrompt                | A prompt that describes the behavior of the Autopilot and sets the context of the conversation                  |
+| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                         |
+| maxSessionDuration          |                                                                                                                 |
+| maxSpeechWaitTimeout        |                                                                                                                 |
+| initialDtmf                 | A DTMF to play when the conversation starts                                                                     |
+| transferOptions             | The options to transfer the call to a live agent                                                                |
+| transferOptions.phoneNumber | The phone number to transfer the call to                                                                        |
+| transferOptions.message     | The message to play before transferring the call                                                                |
+| transferOptions.timeout     |                                                                                                                 |
+| idleOptions                 | The options to handle idle time during the conversation                                                         |
+| idleOptions.message         | The message to play after the idle time is reached                                                              |
+| idleOptions.timeout         |                                                                                                                 |
+| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                          |
+| vad                         | The voice activity detection settings                                                                           |
+| vad.activationThreshold     |                                                                                                                 |
+| vad.deactivationThreshold   |                                                                                                                 |
+| vad.debounceFrames          |                                                                                                                 |
 
-A few noteworthy settings include the *maxSpeechWaitTimeout*, *initialDtmf*, *idleOptions*, and *vad*.
+A few noteworthy settings include the _maxSpeechWaitTimeout_, _initialDtmf_, _idleOptions_, and _vad_.
 
 ### Max Speech Wait Timeout
 
-The *maxSpeechWaitTimeout* property allows you to specify the maximum time in milliseconds to wait for the caller before returning the speech-to-text result. If the caller does not speak within the specified time, the speech-to-text engine will return the result.
+The _maxSpeechWaitTimeout_ property allows you to specify the maximum time in milliseconds to wait for the caller before returning the speech-to-text result. If the caller does not speak within the specified time, the speech-to-text engine will return the result.
 
 A value that is too low may result in the speech-to-text engine returning the result before the caller finishes speaking. A value that is too high may result in the speech-to-text engine waiting too long for the caller to speak.
 
 ### Initial DTMF
 
-Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a Dual-tone multi-frequency (DTMF) to be played before connecting the call. The *initialDtmf* property allows you to specify a DTMF to play when the session starts.
+Sometimes, users will use call forwarding to reach the number in Fonoster. Some telephony service providers require a Dual-tone multi-frequency (DTMF) to be played before connecting the call. The _initialDtmf_ property allows you to specify a DTMF to play when the session starts.
 
 ### Voice Activity Detection (VAD)
 
-The *vad* object allows you to configure the voice activity detection settings. Voice activity detection is used to detect when the caller is speaking and when they are not speaking.
+The _vad_ object allows you to configure the voice activity detection settings. Voice activity detection is used to detect when the caller is speaking and when they are not speaking.
 
-The *vad* object has the *activationThreshold*, *deactivationThreshold*, *debounceFrames* properties. The *actionThreshold* property is the activation threshold for voice activity detection. The *deactivationThreshold* property is the deactivation threshold for voice activity detection. The *debounceFrames* property is the number of frames to debounce the voice activity detection.
+The _vad_ object has the _activationThreshold_, _deactivationThreshold_, _debounceFrames_ properties. The _actionThreshold_ property is the activation threshold for voice activity detection. The _deactivationThreshold_ property is the deactivation threshold for voice activity detection. The _debounceFrames_ property is the number of frames to debounce the voice activity detection.
 
 A lower activation threshold will make the detection more sensitive to the caller's speech. A higher activation threshold will make detecting voice activity less sensitive to the caller's speech.
 
 A lower deactivation threshold will result in more aggressive voice activity detection deactivation. A higher deactivation threshold will result in less aggressive voice activity detection deactivation.
 
-The *debounceFrames* parameter introduces a delay mechanism that ensures that transitions between "speech" and "non-speech" states are stable and not too sensitive to small fluctuations in the input audio signal. Here's how it works:
+The _debounceFrames_ parameter introduces a delay mechanism that ensures that transitions between "speech" and "non-speech" states are stable and not too sensitive to small fluctuations in the input audio signal. Here's how it works:
 
 By requiring multiple consecutive frames (debounceFrames) to confirm speech or non-speech, the system filters out short bursts of noise or brief gaps in speech that might otherwise cause erratic state changes.
 
 ## Langue model configuration
 
-The *languageModel* object allows you to define the language model the Autopilot uses. The language model is responsible for generating responses to the user's input.
+The _languageModel_ object allows you to define the language model the Autopilot uses. The language model is responsible for generating responses to the user's input.
 
 The following is a list of the supported settings:
 
 | Setting       | Description                                                                                     |
 | ------------- | ----------------------------------------------------------------------------------------------- |
-| provider      | The provider of the language model. Supported providers are `openai`, `groq`, and `ollama`      |
+| provider      |                                                                                                 |
 | model         | The model to use. The available models depend on the provider                                   |
 | maxTokens     | The maximum number of tokens the language model can generate in a single response               |
 | temperature   | The randomness of the language model. A higher temperature will result in more random responses |
@@ -156,11 +157,11 @@ The following is a list of the supported settings:
 
 The Autopilot supports multiple language model providers. The following is a list of the supported providers:
 
-| Provider | Description                                                | Supported models                                        |
-| -------- | ---------------------------------------------------------- | ------------------------------------------------------- |
-| OpenAI   | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo` |
-| Groq     | Groq offers high-performance AI models optimized for speed | `llama-3.3-70b-specdec`, `llama-3.3-70b-versatile`      |
-| Ollama   | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                  |
+| Provider | Description                                                | Supported models      |
+| -------- | ---------------------------------------------------------- | --------------------- |
+| OpenAI   | OpenAI provides various GPT models for conversational AI   |                       |
+| Groq     | Groq offers high-performance AI models optimized for speed |                       |
+| Ollama   | Self-hosted Ollama models                                  |                       |
 
 <Info>
   We have noticed that Groq models, particularly `llama-3.3-70b-versatile`, often require greater prompting specificity for effective tool usage. We will share best practices to ensure more consistent behavior as we gain more insights
@@ -213,27 +214,17 @@ operation:
 
 ### Key Components of a Tool Definition:
 
-* **`name`**: A unique identifier for the tool
-
-* **`description`**: A brief explanation of what the tool does
-
-* **`requestStartMessage`**: The message sent when the tool is triggered
-
-* **`parameters`**: Defines the expected input structure in accordance with the [JSON Schema standard](https://json-schema.org/), which is also required for OpenAI compatible tool calling
-
-  * **`type`**: Defines the structure of the input (typically `object`)
-
-  * **`properties`**: Specifies the fields expected in the input
-
-  * **`required`**: Lists the fields that must be provided
-
-* **`operation`**:
-
-  * **`method`**: The HTTP method (`get` and `post` are supported)
-
-  * **`url`**: The endpoint to send the request to
-
-  * **`headers`**: Any necessary headers, such as authentication keys
+- : A unique identifier for the tool
+- : A brief explanation of what the tool does
+- : The message sent when the tool is triggered
+- : Defines the expected input structure in accordance with the [JSON Schema standard](https://json-schema.org/), which is also required for OpenAI compatible tool calling
+  - : Defines the structure of the input (typically `object`)
+  - : Specifies the fields expected in the input
+  - : Lists the fields that must be provided
+- :
+  - : The HTTP method (`get` and `post` are supported)
+  - : The endpoint to send the request to
+  - : Any necessary headers, such as authentication keys
 
 For additional details, refer to the [tool schema documentation](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
 
@@ -253,11 +244,11 @@ The Autopilot supports automated testing through test cases defined in the confi
 
 The `evalsLanguageModel` section defines the model used to evaluate test cases:
 
-| Setting  | Description                                                                         |
-| -------- | ----------------------------------------------------------------------------------- |
-| provider | The provider of the language model. Currently, only `openai` is supported for evals |
-| model    | The OpenAI model to use for evaluations                                             |
-| apiKey   | The API key for the evaluation model                                                |
+| Setting  | Description                                          |
+| -------- | ---------------------------------------------------- |
+| provider |                                                      |
+| model    | The OpenAI model to use for evaluations              |
+| apiKey   | The API key for the evaluation model                 |
 
 <Note>
   The evaluation model is separate from the model used in actual conversations. This separation allows for consistent evaluation results regardless of the production model being used.
@@ -267,17 +258,12 @@ The `evalsLanguageModel` section defines the model used to evaluate test cases:
 
 Each test scenario represents a complete conversation flow. The scenario includes:
 
-* **`ref`**: A unique identifier for the test case
-
-* **`description`**: A brief description of what the test case verifies
-
-* **`telephonyContext`**: Emulates the context of a real phone call with the following properties:
-
-  * `callDirection`: The direction of the call (e.g., "FROM\_PSTN")
-
-  * `ingressNumber`: The number being called
-
-  * `callerNumber`: The number making the call
+- : A unique identifier for the test case
+- : A brief description of what the test case verifies
+- : Emulates the context of a real phone call with the following properties:
+  - `callDirection`: The direction of the call (e.g., "FROM_PSTN")
+  - `ingressNumber`: The number being called
+  - `callerNumber`: The number making the call
 
 This information is available to the AI model to help it understand the context of the call and might be use in your prompts.
 
@@ -285,16 +271,16 @@ This information is available to the AI model to help it understand the context 
 
 Each scenario contains a series of conversation turns. A turn represents a single interaction between the user and the Autopilot, consisting of:
 
-| Component                 | Description                                                                                                                                                                                                         |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| userInput                 | The text representing what the user says                                                                                                                                                                            |
-| expected                  | The expected response from the Autopilot                                                                                                                                                                            |
-| expected.text             | The expected text response from the Autopilot                                                                                                                                                                       |
-| expected.text.type        | We support two types of expected responses: `similar` and `exact`                                                                                                                                                   |
-| expected.text.response    | The actual text response from the Autopilot                                                                                                                                                                         |
-| expected.tools            | The expected tools to be used in the response                                                                                                                                                                       |
-| expected.tools.tool       | The name of the tool to be used                                                                                                                                                                                     |
-| expected.tools.parameters | The parameters to be used in the tool. The parameters must match the tool's parameters exactly or the test will fail. For dates, you can use the special value `valid-date` the response must contain a valid date. |
+| Component                 | Description                                                                                                                                                     |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| userInput                 | The text representing what the user says                                                                                                                        |
+| expected                  | The expected response from the Autopilot                                                                                                                        |
+| expected.text             | The expected text response from the Autopilot                                                                                                                   |
+| expected.text.type        |                                                                                                                                                                 |
+| expected.text.response    | The actual text response from the Autopilot                                                                                                                     |
+| expected.tools            | The expected tools to be used in the response                                                                                                                   |
+| expected.tools.tool       | The name of the tool to be used                                                                                                                                 |
+| expected.tools.parameters |                                                                                                                                                                 |
 
 <Tip>
   Use `type: "similar"` for text responses to allow for natural language variations in the Autopilot's responses while maintaining the same semantic meaning.
@@ -302,15 +288,14 @@ Each scenario contains a series of conversation turns. A turn represents a singl
 
 The `expected` object can validate:
 
-* **Text responses** via the `text` property:
+- **Text responses** via the `text` property:
 
   ```yaml
   text:
     type: "similar"
     response: "Expected response..."
   ```
-
-* **Tool usage** via the `tools` property:
+- **Tool usage** via the `tools` property:
 
   ```yaml
   tools:
