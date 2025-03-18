@@ -34,6 +34,9 @@ const vad =
       });
 
 vad.init().then(() => {
+  // Send ready message to parent
+  parentPort?.postMessage("VAD_READY");
+
   parentPort?.on("message", (chunk) => {
     vad.processChunk(chunk, (voiceActivity) => {
       parentPort?.postMessage(voiceActivity);

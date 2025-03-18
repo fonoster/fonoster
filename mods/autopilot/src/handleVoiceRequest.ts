@@ -124,7 +124,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
       languageModel: languageModel as LanguageModel
     });
 
-    autopilot.start();
+    await autopilot.start();
 
     res.on(StreamEvent.END, async () => {
       autopilot.stop();

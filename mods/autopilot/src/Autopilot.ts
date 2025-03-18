@@ -29,6 +29,7 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 class Autopilot {
   private readonly actor: Actor<typeof machine>;
   private readonly vadWorker: Worker;
+  private vadWorkerReady: Promise<void>;
 
   constructor(private readonly params: AutopilotParams) {
     const { voice, languageModel, conversationSettings } = this.params;
@@ -36,6 +37,18 @@ class Autopilot {
     this.vadWorker = new Worker(vadWorkerPath, {
       workerData: conversationSettings.vad
     });
+
+    this.vadWorkerReady = new Promise((resolve, reject) => {
+      logger.verbose("waiting for vad worker to be ready");
+      this.vadWorker.once("message", (message) => {
+        if (message === "VAD_READY") {
+          logger.verbose("vad worker is ready");
+          resolve();
+        }
+      });
+      this.vadWorker.once("error", reject);
+    });
+
     this.actor = createActor(machine, {
       input: {
         conversationSettings,
@@ -45,13 +58,17 @@ class Autopilot {
     });
   }
 
-  start() {
+  async start() {
+    // Wait for all the streams and vad worker to be ready before proceeding starting the actor
+    await this.vadWorkerReady;
+    await this.setupVoiceStream();
+    await this.setupSpeechGathering();
+
     this.actor.start();
+
     this.actor.subscribe((state) => {
       logger.verbose("actor's new state is", { state: state.value });
     });
-    this.setupVoiceStream();
-    this.setupSpeechGathering();
 
     this.vadWorker.on("error", (err) => {
       logger.error("vad worker error", err);
