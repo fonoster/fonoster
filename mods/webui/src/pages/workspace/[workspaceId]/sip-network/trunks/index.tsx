@@ -1,9 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
+import { Button, Box, Typography } from "@mui/material";
 import { QueryData } from "@/common/contexts/table/QueryData";
 import { useTrunks } from "@/common/sdk/hooks/useTrunks";
 import { ListTrunksResponse } from "@fonster/types";
+import { useTableContext } from "@/common/contexts/table/useTableContext";
 
 const columns: ColumnDef<ListTrunksResponse>[] = [
   {
@@ -52,9 +53,35 @@ export default function TrunksPage() {
       <PageContainer.ContentTable<ListTrunksResponse>
         columns={columns}
         tableId="trunks-table"
+        options={{
+          enableRowSelection: true
+        }}
       >
         <QueryData<ListTrunksResponse> fetchFunction={listTrunks} pageSize={10} />
+        <SelectedRowsInfo />
       </PageContainer.ContentTable>
     </PageContainer>
+  );
+}
+
+// Componente para mostrar información sobre las filas seleccionadas
+function SelectedRowsInfo() {
+  const { rowSelection, getSelectedRowModel } = useTableContext<ListTrunksResponse>();
+  
+  const selectedRows = getSelectedRowModel().rows;
+  
+  return (
+    <Box mt={2} p={2} bgcolor="#f5f5f5" borderRadius={1}>
+      <Typography variant="body2">
+        {Object.keys(rowSelection).length} trunks seleccionados
+      </Typography>
+      {selectedRows.length > 0 && (
+        <Box mt={1}>
+          <Typography variant="caption">
+            Trunks seleccionados: {selectedRows.map(row => row.original.name).join(', ')}
+          </Typography>
+        </Box>
+      )}
+    </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, ReactNode } from "react";
+import { useCallback, useEffect, ReactNode, useRef, useState } from "react";
 import { useTableContext } from "./useTableContext";
 import { FonosterResponse } from "./TableProvider";
 
@@ -29,21 +29,81 @@ export function useQueryData<TData, TParams = any>({
     filters: columnFilters
   } = useTableContext<TData>();
 
-  useEffect(() => {
-    handleFetch(undefined);
+  // Control de estado local para evitar bucles infinitos
+  const [isInitialized, setIsInitialized] = useState(false);
+  const isFetchingRef = useRef(false);
+  const prevFiltersRef = useRef({ globalFilter, columnFilters });
+  const prevCursorsRef = useRef({ nextPageCursor, prevPageCursor });
+
+  // Función para comparar si los filtros han cambiado realmente
+  const haveFiltersChanged = useCallback(() => {
+    const oldFilters = prevFiltersRef.current;
+    const newFilters = { globalFilter, columnFilters };
+
+    const oldGlobalFilter = oldFilters.globalFilter;
+    const oldColumnFilters = oldFilters.columnFilters;
+
+    // Comparar globalFilter
+    if (oldGlobalFilter !== newFilters.globalFilter) {
+      return true;
+    }
+
+    // Comparar columnFilters
+    if (oldColumnFilters?.length !== newFilters.columnFilters?.length) {
+      return true;
+    }
+
+    // Comparar cada filtro individual
+    for (let i = 0; i < (oldColumnFilters?.length || 0); i++) {
+      if (oldColumnFilters?.[i]?.id !== newFilters?.columnFilters?.[i]?.id ||
+        oldColumnFilters?.[i]?.value !== newFilters?.columnFilters?.[i]?.value) {
+        return true;
+      }
+    }
+
+    return false;
   }, [globalFilter, columnFilters]);
 
-  // Next page
+  // Inicialización - solo se ejecuta una vez
   useEffect(() => {
-    if (nextPageCursor === undefined) return;
-    handleFetch(nextPageCursor);
-  }, [nextPageCursor]);
+    if (!isInitialized && !isFetchingRef.current) {
+      setIsInitialized(true);
+      handleFetch(undefined);
+    }
+  }, [isInitialized]);
 
-  // Previous page
+  // Efecto para filtros
   useEffect(() => {
-    if (prevPageCursor === undefined) return;
-    handleFetch(prevPageCursor);
-  }, [prevPageCursor]);
+    if (!isInitialized) return;
+
+    if (!isFetchingRef.current && haveFiltersChanged()) {
+      prevFiltersRef.current = { globalFilter, columnFilters };
+      handleFetch(undefined);
+    }
+  }, [globalFilter, columnFilters, haveFiltersChanged, isInitialized]);
+
+  // Efecto para cursores de paginación
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const oldCursors = prevCursorsRef.current;
+    const newCursors = { nextPageCursor, prevPageCursor };
+
+    // Solo ejecutar si los cursores han cambiado
+    if (oldCursors.nextPageCursor !== newCursors.nextPageCursor &&
+      newCursors.nextPageCursor !== undefined) {
+      prevCursorsRef.current = newCursors;
+      if (!isFetchingRef.current) {
+        handleFetch(nextPageCursor);
+      }
+    } else if (oldCursors.prevPageCursor !== newCursors.prevPageCursor &&
+      newCursors.prevPageCursor !== undefined) {
+      prevCursorsRef.current = newCursors;
+      if (!isFetchingRef.current) {
+        handleFetch(prevPageCursor);
+      }
+    }
+  }, [nextPageCursor, prevPageCursor, isInitialized]);
 
   const constructFilters = useCallback(() => {
     const filters: Record<string, string> = {};
@@ -75,23 +135,40 @@ export function useQueryData<TData, TParams = any>({
 
   const handleFetch = useCallback(
     async (pageToken: string | undefined) => {
+      // Evitar múltiples peticiones simultáneas
+      if (isFetchingRef.current) return;
+
+      isFetchingRef.current = true;
       setLoadingData(true);
       if (onFetchStart) onFetchStart();
 
-      const filters = constructFilters();
+      try {
+        const filters = constructFilters();
 
-      const params = {
-        ...initialParams,
-        pageSize,
-        pageToken,
-        filterBy: filters
-      } as TParams;
+        const params = {
+          ...initialParams,
+          pageSize,
+          pageToken,
+          filterBy: filters
+        } as TParams;
 
-      const response = await fetchFunction(params);
-      handleFonosterResponse(response);
+        const response = await fetchFunction(params);
 
-      if (onFetchComplete) onFetchComplete(response);
-      setLoadingData(false);
+        // Solo actualizar si la respuesta es válida
+        if (response) {
+          handleFonosterResponse(response);
+          if (onFetchComplete) onFetchComplete(response);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        // Usar setTimeout para asegurar que estas actualizaciones
+        // no se ejecuten en el mismo ciclo de renderizado
+        setTimeout(() => {
+          setLoadingData(false);
+          isFetchingRef.current = false;
+        }, 0);
+      }
     },
     [
       fetchFunction,
@@ -128,13 +205,25 @@ export function QueryData<TData, TParams = any>({
   onFetchComplete,
   children
 }: QueryDataProps<TData, TParams>) {
-  useQueryData<TData, TParams>({
+  // Usar el hook sin efectos secundarios directos
+  const { handleFetch } = useQueryData<TData, TParams>({
     fetchFunction,
     pageSize,
     initialParams,
     onFetchStart,
     onFetchComplete
   });
+
+  // Efecto de inicialización - solo se ejecuta una vez al montar
+  const isInitializedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+    }
+    // No incluir handleFetch en las dependencias para evitar re-ejecuciones
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return children ? <>{children}</> : null;
 }

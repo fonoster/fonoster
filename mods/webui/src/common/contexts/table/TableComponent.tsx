@@ -18,6 +18,7 @@ import classNames from "classnames";
 import { useTableContext } from "./useTableContext";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -75,15 +76,9 @@ const StyledTableContainer = styled(TableContainer)({
   }
 });
 
-interface MyDataType {
-  name: string;
-  domainURI: string;
-  egressRules: string;
-  [key: string]: any;
-}
-
-interface TableOptions {
-  filtersDirection: "up" | "down" | undefined;
+export interface TableOptions {
+  filtersDirection?: "up" | "down" | undefined;
+  enableRowSelection?: boolean;
 }
 
 interface TableComponentProps<TData extends Object> {
@@ -119,7 +114,17 @@ const TableComponent = <TData extends Object>({
   rowClassName,
   options
 }: TableComponentProps<TData>) => {
-  const { table, loadingData } = useTableContext<TData>();
+  const { 
+    table, 
+    loadingData, 
+    getIsAllRowsSelected, 
+    getIsSomeRowsSelected, 
+    getToggleAllRowsSelectedHandler 
+  } = useTableContext<TData>();
+  
+  // Verificar si la selección de filas está habilitada
+  const enableRowSelection = options?.enableRowSelection || false;
+  
   return (
     <StyledTableContainer>
       <MUITable
@@ -130,6 +135,16 @@ const TableComponent = <TData extends Object>({
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
+              {/* Checkbox para seleccionar todas las filas */}
+              {enableRowSelection && (
+                <StyledTableCell padding="checkbox" align="center" style={{ width: '48px' }}>
+                  <IndeterminateCheckbox
+                    checked={getIsAllRowsSelected()}
+                    indeterminate={getIsSomeRowsSelected()}
+                    onChange={getToggleAllRowsSelectedHandler()}
+                  />
+                </StyledTableCell>
+              )}
               {headerGroup.headers.map((header) => (
                 <StyledTableCell key={header.id} align="left">
                   <StyledTableSortLabel
@@ -165,6 +180,17 @@ const TableComponent = <TData extends Object>({
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row, i) => (
               <StyledTableRow key={row.id} className={classNames(rowClassName)}>
+                {/* Checkbox para seleccionar una fila */}
+                {enableRowSelection && (
+                  <StyledTableCell padding="checkbox" align="center">
+                    <IndeterminateCheckbox
+                      checked={row.getIsSelected()}
+                      disabled={!row.getCanSelect()}
+                      indeterminate={row.getIsSomeSelected()}
+                      onChange={row.getToggleSelectedHandler()}
+                    />
+                  </StyledTableCell>
+                )}
                 {row.getVisibleCells().map((cell) => (
                   <StyledTableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -174,7 +200,7 @@ const TableComponent = <TData extends Object>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={table.getAllColumns().length} align="center">
+              <TableCell colSpan={enableRowSelection ? table.getAllColumns().length + 1 : table.getAllColumns().length} align="center">
                 {loadingData ? "Loading..." : "No data available"}
               </TableCell>
             </TableRow>

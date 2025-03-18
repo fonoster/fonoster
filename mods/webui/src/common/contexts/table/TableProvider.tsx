@@ -2,7 +2,8 @@ import React, {
   createContext,
   useCallback,
   useEffect,
-  useState
+  useState,
+  useRef
 } from "react";
 import {
   useReactTable,
@@ -20,7 +21,8 @@ import {
   TableOptionsResolved,
   RowModel,
   Column,
-  HeaderGroup
+  HeaderGroup,
+  RowSelectionState
 } from "@tanstack/react-table";
 
 export interface PaginationProps {
@@ -85,6 +87,12 @@ export interface TableContextProps<TData>
   handleFonosterResponse: (
     response: FonosterResponse<TData> | undefined
   ) => void;
+  rowSelection: RowSelectionState;
+  setRowSelection: (updater: Updater<RowSelectionState>) => void;
+  getSelectedRowModel: () => RowModel<TData>;
+  getIsAllRowsSelected: () => boolean;
+  getIsSomeRowsSelected: () => boolean;
+  getToggleAllRowsSelectedHandler: () => (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const TableContext = createContext<TableContextProps<any> | undefined>(
@@ -99,7 +107,8 @@ export function TableProvider<TData>({
   initialState = {},
   enableColumnFilters = true,
   manualFiltering = true,
-  manualSorting = true
+  manualSorting = true,
+  enableRowSelection = false
 }: {
   children: React.ReactNode;
   columns: ColumnDef<TData>[];
@@ -109,6 +118,7 @@ export function TableProvider<TData>({
   enableColumnFilters?: boolean;
   manualFiltering?: boolean;
   manualSorting?: boolean;
+  enableRowSelection?: boolean;
 }) {
   const [loadingData, setLoadingData] = useState(false);
   const [data, setData] = useState<TData[]>([]);
@@ -121,19 +131,23 @@ export function TableProvider<TData>({
   const [nextPageCursor, setNextPageCursor] = useState<string | undefined>(
     undefined
   );
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const table = useReactTable<TData>({
     columns,
     data,
     enableColumnFilters,
-    initialState: {
+    enableRowSelection,
+    state: {
       pagination: initialState.pagination || {
         pageIndex: 0,
         pageSize: perPage
       },
       columnFilters: initialState.columnFilters || [],
-      sorting: initialState.sorting || []
+      sorting: initialState.sorting || [],
+      rowSelection
     },
+    onRowSelectionChange: setRowSelection,
     autoResetPageIndex: false,
     manualFiltering,
     manualSorting,
@@ -142,75 +156,124 @@ export function TableProvider<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
     getSortedRowModel: getSortedRowModel(),
-    debugTable: false
+    debugTable: false,
+    // Usar un identificador único para cada fila en lugar del índice
+    getRowId: (originalRow: any, index: number) => {
+      // Intentar usar un campo id o _id si existe en los datos
+      if ('id' in originalRow) {
+        return String(originalRow.id);
+      } else if ('_id' in originalRow) {
+        return String(originalRow._id);
+      } else if ('ref' in originalRow) {
+        return String(originalRow.ref);
+      } else {
+        // Si no hay un identificador único, usar una combinación de datos para crear uno
+        // Esto es una solución de respaldo, es mejor tener un ID único real
+        return `${index}-${JSON.stringify(originalRow)}`;
+      }
+    }
   });
 
   const columnFilters = table.getState().columnFilters;
   const pageIndex = table.getState().pagination.pageIndex;
 
-  useEffect(() => {
-    table.resetPageIndex();
-  }, [columnFilters]);
+  // Usar una referencia para controlar si ya se ha reseteado el índice de página
+  const resetPageIndexRef = useRef(false);
 
   useEffect(() => {
-    if (data.length > 0) {
-      // Ensure the table state is updated with the new data
-      table.setOptions((prev) => ({
-        ...prev,
-        data: [...data] // Create a new array reference to force update
-      }));
+    // Solo resetear si los filtros han cambiado y no estamos en medio de otra actualización
+    if (!resetPageIndexRef.current) {
+      resetPageIndexRef.current = true;
+      // Usar setTimeout para asegurar que esta actualización ocurra en el siguiente ciclo
+      setTimeout(() => {
+        table.resetPageIndex();
+        resetPageIndexRef.current = false;
+      }, 0);
+    }
+  }, [columnFilters, table]);
+
+  // Usar una referencia para prevenir actualizaciones cíclicas
+  const dataUpdateRef = useRef(false);
+
+  useEffect(() => {
+    if (data.length > 0 && !dataUpdateRef.current) {
+      const currentData = table.options.data;
+      if (JSON.stringify(currentData) !== JSON.stringify(data)) {
+        dataUpdateRef.current = true;
+        // Usar setTimeout para romper el ciclo de actualizaciones
+        setTimeout(() => {
+          table.setOptions((prev) => ({
+            ...prev,
+            data: [...data]
+          }));
+          dataUpdateRef.current = false;
+        }, 0);
+      }
     }
   }, [data, table]);
 
   useEffect(() => {
     if (fonosterResponse) {
-      // Make sure pagination state is correctly set
-      table.setPagination({
-        pageIndex: table.getState().pagination.pageIndex,
-        pageSize: table.getState().pagination.pageSize
-      });
+      // Usar setTimeout para evitar actualizaciones en el mismo ciclo de renderizado
+      setTimeout(() => {
+        table.setPagination({
+          pageIndex: table.getState().pagination.pageIndex,
+          pageSize: table.getState().pagination.pageSize
+        });
+      }, 0);
     }
   }, [fonosterResponse, table]);
 
+  // Referencia para controlar el estado de la actualización de la respuesta
+  const responseUpdateRef = useRef(false);
+
   const handleFonosterResponse = useCallback(
     (response: FonosterResponse<TData> | undefined) => {
-      // Store the current page token before updating with the new response
-      // This will be used as the previous page token when navigating forward
+      // Evitar actualizaciones simultáneas
+      if (responseUpdateRef.current) return;
+      
       const currentToken = fonosterResponse?.nextPageToken;
 
-      // Only update if we have a valid response
       if (response) {
-        // First set the data to ensure it's available for the table
-        const newData = response.items || [];
+        responseUpdateRef.current = true;
+        
+        // Ejecutar las actualizaciones en el siguiente ciclo
+        setTimeout(() => {
+          try {
+            const newData = response.items || [];
 
-        // Important: Create a new array reference to force React to detect the change
-        setData([...newData]);
+            const currentData = data;
+            if (JSON.stringify(currentData) !== JSON.stringify(newData)) {
+              setData([...newData]);
+            }
 
-        // Store tokens for debugging
-        const responseNextToken = response.nextPageToken;
-        const responsePrevToken = response.prevPageToken;
+            const responseNextToken = response.nextPageToken;
+            const responsePrevToken = response.prevPageToken;
 
-        // Create a new fonosterResponse object with the correct tokens
-        const updatedResponse = {
-          ...response,
-          nextPageToken: responseNextToken,
-          // If the response already has a prevPageToken, use it
-          // Otherwise, use the stored token from the previous response
-          prevPageToken: responsePrevToken || (pageIndex > 0 ? currentToken : undefined)
-        };
+            const updatedResponse = {
+              ...response,
+              nextPageToken: responseNextToken,
+              prevPageToken: responsePrevToken || (pageIndex > 0 ? currentToken : undefined)
+            };
 
-        // Update the fonosterResponse with the new object
-        setFonosterResponse(updatedResponse);
+            if (JSON.stringify(fonosterResponse) !== JSON.stringify(updatedResponse)) {
+              setFonosterResponse(updatedResponse);
+            }
 
-        // Force table to update with the new data immediately
-        table.setOptions((prev) => ({
-          ...prev,
-          data: [...newData],
-          recordTotal: response.recordTotal
-        }));
+            if (JSON.stringify(table.options.data) !== JSON.stringify(newData)) {
+              table.setOptions((prev) => ({
+                ...prev,
+                data: [...newData],
+                recordTotal: response.recordTotal
+              }));
+            }
+          } finally {
+            responseUpdateRef.current = false;
+          }
+        }, 0);
       }
     },
-    [fonosterResponse, pageIndex, table]
+    [fonosterResponse, pageIndex, table, data]
   );
 
   return (
@@ -253,7 +316,13 @@ export function TableProvider<TData>({
         setData,
         data: table.options.data,
 
-        // External Cursor API handlers
+        rowSelection: table.getState().rowSelection,
+        setRowSelection: table.setRowSelection,
+        getSelectedRowModel: table.getSelectedRowModel,
+        getIsAllRowsSelected: table.getIsAllRowsSelected,
+        getIsSomeRowsSelected: table.getIsSomeRowsSelected,
+        getToggleAllRowsSelectedHandler: table.getToggleAllRowsSelectedHandler,
+
         fonosterResponse,
         handleFonosterResponse,
         nextPageCursor,
