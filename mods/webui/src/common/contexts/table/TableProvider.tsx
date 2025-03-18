@@ -157,9 +157,9 @@ export function TableProvider<TData>({
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
     getSortedRowModel: getSortedRowModel(),
     debugTable: false,
-    // Usar un identificador único para cada fila en lugar del índice
+    // Use a unique identifier for each row instead of the index
     getRowId: (originalRow: any, index: number) => {
-      // Intentar usar un campo id o _id si existe en los datos
+      // Try to use an id or _id field if it exists in the data
       if ('id' in originalRow) {
         return String(originalRow.id);
       } else if ('_id' in originalRow) {
@@ -167,8 +167,8 @@ export function TableProvider<TData>({
       } else if ('ref' in originalRow) {
         return String(originalRow.ref);
       } else {
-        // Si no hay un identificador único, usar una combinación de datos para crear uno
-        // Esto es una solución de respaldo, es mejor tener un ID único real
+        // If there's no unique identifier, use a combination of data to create one
+        // This is a fallback solution, it's better to have a real unique ID
         return `${index}-${JSON.stringify(originalRow)}`;
       }
     }
@@ -177,14 +177,14 @@ export function TableProvider<TData>({
   const columnFilters = table.getState().columnFilters;
   const pageIndex = table.getState().pagination.pageIndex;
 
-  // Usar una referencia para controlar si ya se ha reseteado el índice de página
+  // Use a reference to control if the page index has already been reset
   const resetPageIndexRef = useRef(false);
 
   useEffect(() => {
-    // Solo resetear si los filtros han cambiado y no estamos en medio de otra actualización
+    // Only reset if filters have changed and we're not in the middle of another update
     if (!resetPageIndexRef.current) {
       resetPageIndexRef.current = true;
-      // Usar setTimeout para asegurar que esta actualización ocurra en el siguiente ciclo
+      // Use setTimeout to ensure this update happens in the next cycle
       setTimeout(() => {
         table.resetPageIndex();
         resetPageIndexRef.current = false;
@@ -192,7 +192,7 @@ export function TableProvider<TData>({
     }
   }, [columnFilters, table]);
 
-  // Usar una referencia para prevenir actualizaciones cíclicas
+  // Use a reference to prevent cyclic updates
   const dataUpdateRef = useRef(false);
 
   useEffect(() => {
@@ -200,7 +200,7 @@ export function TableProvider<TData>({
       const currentData = table.options.data;
       if (JSON.stringify(currentData) !== JSON.stringify(data)) {
         dataUpdateRef.current = true;
-        // Usar setTimeout para romper el ciclo de actualizaciones
+        // Use setTimeout to break the update cycle
         setTimeout(() => {
           table.setOptions((prev) => ({
             ...prev,
@@ -214,7 +214,7 @@ export function TableProvider<TData>({
 
   useEffect(() => {
     if (fonosterResponse) {
-      // Usar setTimeout para evitar actualizaciones en el mismo ciclo de renderizado
+      // Use setTimeout to avoid updates in the same rendering cycle
       setTimeout(() => {
         table.setPagination({
           pageIndex: table.getState().pagination.pageIndex,
@@ -224,12 +224,12 @@ export function TableProvider<TData>({
     }
   }, [fonosterResponse, table]);
 
-  // Referencia para controlar el estado de la actualización de la respuesta
+  // Reference to control the state of the response update
   const responseUpdateRef = useRef(false);
 
   const handleFonosterResponse = useCallback(
     (response: FonosterResponse<TData> | undefined) => {
-      // Evitar actualizaciones simultáneas
+      // Avoid simultaneous updates
       if (responseUpdateRef.current) return;
       
       const currentToken = fonosterResponse?.nextPageToken;
@@ -237,7 +237,7 @@ export function TableProvider<TData>({
       if (response) {
         responseUpdateRef.current = true;
         
-        // Ejecutar las actualizaciones en el siguiente ciclo
+        // Execute updates in the next cycle
         setTimeout(() => {
           try {
             const newData = response.items || [];

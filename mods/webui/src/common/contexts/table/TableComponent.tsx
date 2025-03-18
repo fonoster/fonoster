@@ -122,7 +122,7 @@ const TableComponent = <TData extends Object>({
     getToggleAllRowsSelectedHandler 
   } = useTableContext<TData>();
   
-  // Verificar si la selección de filas está habilitada
+  // Check if row selection is enabled
   const enableRowSelection = options?.enableRowSelection || false;
   
   return (
@@ -135,14 +135,14 @@ const TableComponent = <TData extends Object>({
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {/* Checkbox para seleccionar todas las filas */}
+              {/* Checkbox to select all rows */}
               {enableRowSelection && (
                 <StyledTableCell padding="checkbox" align="center" style={{ width: '48px' }}>
                   <IndeterminateCheckbox
                     checked={getIsAllRowsSelected()}
                     indeterminate={getIsSomeRowsSelected()}
                     onChange={(e) => {
-                      e.stopPropagation(); // Evitar propagación del evento
+                      e.stopPropagation(); // Prevent event propagation
                       table.toggleAllRowsSelected(!getIsAllRowsSelected());
                     }}
                   />
@@ -183,7 +183,7 @@ const TableComponent = <TData extends Object>({
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row, i) => (
               <StyledTableRow key={row.id} className={classNames(rowClassName)}>
-                {/* Checkbox para seleccionar una fila */}
+                {/* Checkbox to select a row */}
                 {enableRowSelection && (
                   <StyledTableCell padding="checkbox" align="center">
                     <IndeterminateCheckbox
@@ -191,8 +191,8 @@ const TableComponent = <TData extends Object>({
                       disabled={!row.getCanSelect()}
                       indeterminate={row.getIsSomeSelected()}
                       onChange={(e) => {
-                        // Usar un manejador de eventos más estable
-                        e.stopPropagation(); // Evitar propagación del evento
+                        // Use a more stable event handler
+                        e.stopPropagation(); // Prevent event propagation
                         row.toggleSelected(!row.getIsSelected());
                       }}
                     />

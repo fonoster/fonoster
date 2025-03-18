@@ -17,16 +17,19 @@ const IndeterminateCheckbox: React.FC<IndeterminateCheckboxProps> = ({
     }
   }, [indeterminate, rest.checked]);
 
-  return <Checkbox 
-    inputRef={ref} 
-    size="small" 
-    {...rest} 
-    disableRipple 
+  return <Checkbox
+    inputRef={ref}
+    size="small"
+    sx={{
+      padding: 0
+    }}
+    {...rest}
+    disableRipple
   />;
 };
 
 export default memo(IndeterminateCheckbox, (prevProps, nextProps) => {
-  return prevProps.checked === nextProps.checked && 
-         prevProps.indeterminate === nextProps.indeterminate &&
-         prevProps.disabled === nextProps.disabled;
+  return prevProps.checked === nextProps.checked &&
+    prevProps.indeterminate === nextProps.indeterminate &&
+    prevProps.disabled === nextProps.disabled;
 });

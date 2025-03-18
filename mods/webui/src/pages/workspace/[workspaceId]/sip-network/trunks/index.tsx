@@ -58,30 +58,7 @@ export default function TrunksPage() {
         }}
       >
         <QueryData<ListTrunksResponse> fetchFunction={listTrunks} pageSize={10} />
-        <SelectedRowsInfo />
       </PageContainer.ContentTable>
     </PageContainer>
-  );
-}
-
-// Componente para mostrar información sobre las filas seleccionadas
-function SelectedRowsInfo() {
-  const { rowSelection, getSelectedRowModel } = useTableContext<ListTrunksResponse>();
-  
-  const selectedRows = getSelectedRowModel().rows;
-  
-  return (
-    <Box mt={2} p={2} bgcolor="#f5f5f5" borderRadius={1}>
-      <Typography variant="body2">
-        {Object.keys(rowSelection).length} trunks seleccionados
-      </Typography>
-      {selectedRows.length > 0 && (
-        <Box mt={1}>
-          <Typography variant="caption">
-            Trunks seleccionados: {selectedRows.map(row => row.original.name).join(', ')}
-          </Typography>
-        </Box>
-      )}
-    </Box>
   );
 }

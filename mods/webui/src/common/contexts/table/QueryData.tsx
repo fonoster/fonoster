@@ -24,18 +24,25 @@ export function useQueryData<TData, TParams = any>({
     setLoadingData,
     handleFonosterResponse,
     nextPageCursor,
+    setNextPageCursor,
     prevPageCursor,
+    setPrevPageCursor,
     globalFilter,
-    filters: columnFilters
+    filters: columnFilters,
+    pageIndex = 0 
   } = useTableContext<TData>();
 
-  // Control de estado local para evitar bucles infinitos
+  // Local state control to avoid infinite loops
   const [isInitialized, setIsInitialized] = useState(false);
   const isFetchingRef = useRef(false);
   const prevFiltersRef = useRef({ globalFilter, columnFilters });
   const prevCursorsRef = useRef({ nextPageCursor, prevPageCursor });
 
-  // Función para comparar si los filtros han cambiado realmente
+  // Store a history of tokens to facilitate bidirectional navigation
+  const tokensHistoryRef = useRef<{ [key: number]: { next?: string, prev?: string } }>({});
+  const prevPageIndexRef = useRef<number>(0);
+
+  // Function to compare if filters have actually changed
   const haveFiltersChanged = useCallback(() => {
     const oldFilters = prevFiltersRef.current;
     const newFilters = { globalFilter, columnFilters };
@@ -43,17 +50,17 @@ export function useQueryData<TData, TParams = any>({
     const oldGlobalFilter = oldFilters.globalFilter;
     const oldColumnFilters = oldFilters.columnFilters;
 
-    // Comparar globalFilter
+    // Compare globalFilter
     if (oldGlobalFilter !== newFilters.globalFilter) {
       return true;
     }
 
-    // Comparar columnFilters
+    // Compare columnFilters
     if (oldColumnFilters?.length !== newFilters.columnFilters?.length) {
       return true;
     }
 
-    // Comparar cada filtro individual
+    // Compare each individual filter
     for (let i = 0; i < (oldColumnFilters?.length || 0); i++) {
       if (oldColumnFilters?.[i]?.id !== newFilters?.columnFilters?.[i]?.id ||
         oldColumnFilters?.[i]?.value !== newFilters?.columnFilters?.[i]?.value) {
@@ -64,7 +71,7 @@ export function useQueryData<TData, TParams = any>({
     return false;
   }, [globalFilter, columnFilters]);
 
-  // Inicialización - solo se ejecuta una vez
+  // Initialization - only runs once
   useEffect(() => {
     if (!isInitialized && !isFetchingRef.current) {
       setIsInitialized(true);
@@ -72,38 +79,85 @@ export function useQueryData<TData, TParams = any>({
     }
   }, [isInitialized]);
 
-  // Efecto para filtros
+  // Effect for filters
   useEffect(() => {
     if (!isInitialized) return;
 
     if (!isFetchingRef.current && haveFiltersChanged()) {
       prevFiltersRef.current = { globalFilter, columnFilters };
+      // Reset token history when filters change
+      tokensHistoryRef.current = {};
+      prevPageIndexRef.current = 0;
       handleFetch(undefined);
     }
   }, [globalFilter, columnFilters, haveFiltersChanged, isInitialized]);
 
-  // Efecto para cursores de paginación
+  // Effect to detect changes in page index
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    // If pageIndex has changed and setNextPageCursor/setPrevPageCursor are defined
+    if (pageIndex !== prevPageIndexRef.current && setNextPageCursor && setPrevPageCursor) {
+      const direction = pageIndex > prevPageIndexRef.current ? 'next' : 'prev';
+
+      // Determine which token to use based on direction and history
+      let tokenToUse: string | undefined = undefined;
+
+      if (direction === 'next') {
+        // Moving to the next page
+        tokenToUse = tokensHistoryRef.current[prevPageIndexRef.current]?.next;
+        if (tokenToUse) {
+          setNextPageCursor(tokenToUse);
+        }
+      } else {
+        // Moving back to the previous page
+        tokenToUse = tokensHistoryRef.current[prevPageIndexRef.current]?.prev;
+        if (tokenToUse) {
+          setPrevPageCursor(tokenToUse);
+        }
+      }
+
+      // Update previous page index
+      prevPageIndexRef.current = pageIndex;
+    }
+  }, [pageIndex, isInitialized, setNextPageCursor, setPrevPageCursor]);
+
+  // Effect for pagination cursors
   useEffect(() => {
     if (!isInitialized) return;
 
     const oldCursors = prevCursorsRef.current;
     const newCursors = { nextPageCursor, prevPageCursor };
 
-    // Solo ejecutar si los cursores han cambiado
+    // Only execute if cursors have changed
     if (oldCursors.nextPageCursor !== newCursors.nextPageCursor &&
       newCursors.nextPageCursor !== undefined) {
       prevCursorsRef.current = newCursors;
       if (!isFetchingRef.current) {
+        // Save token in history
+        if (pageIndex !== undefined) {
+          tokensHistoryRef.current[pageIndex] = {
+            ...tokensHistoryRef.current[pageIndex],
+            next: nextPageCursor
+          };
+        }
         handleFetch(nextPageCursor);
       }
     } else if (oldCursors.prevPageCursor !== newCursors.prevPageCursor &&
       newCursors.prevPageCursor !== undefined) {
       prevCursorsRef.current = newCursors;
       if (!isFetchingRef.current) {
+        // Save token in history
+        if (pageIndex !== undefined) {
+          tokensHistoryRef.current[pageIndex] = {
+            ...tokensHistoryRef.current[pageIndex],
+            prev: prevPageCursor
+          };
+        }
         handleFetch(prevPageCursor);
       }
     }
-  }, [nextPageCursor, prevPageCursor, isInitialized]);
+  }, [nextPageCursor, prevPageCursor, isInitialized, pageIndex]);
 
   const constructFilters = useCallback(() => {
     const filters: Record<string, string> = {};
@@ -135,7 +189,7 @@ export function useQueryData<TData, TParams = any>({
 
   const handleFetch = useCallback(
     async (pageToken: string | undefined) => {
-      // Evitar múltiples peticiones simultáneas
+      // Avoid multiple simultaneous requests
       if (isFetchingRef.current) return;
 
       isFetchingRef.current = true;
@@ -149,54 +203,63 @@ export function useQueryData<TData, TParams = any>({
           ...initialParams,
           pageSize,
           pageToken,
-          filterBy: filters
-        } as TParams;
+          ...filters
+        } as unknown as TParams;
 
         const response = await fetchFunction(params);
 
-        // Solo actualizar si la respuesta es válida
-        if (response) {
-          handleFonosterResponse(response);
-          if (onFetchComplete) onFetchComplete(response);
+        // Update token history with the response
+        if (response && pageIndex !== undefined) {
+          tokensHistoryRef.current[pageIndex] = {
+            ...tokensHistoryRef.current[pageIndex],
+            next: response.nextPageToken,
+            prev: response.prevPageToken
+          };
+
+          // If we're moving to a new page, save the previous token for the next page
+          if (pageToken === nextPageCursor && pageIndex + 1 < Object.keys(tokensHistoryRef.current).length) {
+            tokensHistoryRef.current[pageIndex + 1] = {
+              ...tokensHistoryRef.current[pageIndex + 1],
+              prev: response.nextPageToken
+            };
+          }
+
+          // If we're moving back, save the next token for the previous page
+          if (pageToken === prevPageCursor && pageIndex - 1 >= 0) {
+            tokensHistoryRef.current[pageIndex - 1] = {
+              ...tokensHistoryRef.current[pageIndex - 1],
+              next: response.prevPageToken
+            };
+          }
         }
+
+        handleFonosterResponse(response);
+        if (onFetchComplete) onFetchComplete(response);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        // Usar setTimeout para asegurar que estas actualizaciones
-        // no se ejecuten en el mismo ciclo de renderizado
-        setTimeout(() => {
-          setLoadingData(false);
-          isFetchingRef.current = false;
-        }, 0);
+        setLoadingData(false);
+        isFetchingRef.current = false;
       }
     },
     [
-      fetchFunction,
       initialParams,
       pageSize,
-      setLoadingData,
+      constructFilters,
+      fetchFunction,
       handleFonosterResponse,
-      onFetchStart,
       onFetchComplete,
-      constructFilters
+      onFetchStart,
+      setLoadingData,
+      pageIndex,
+      nextPageCursor,
+      prevPageCursor
     ]
   );
 
   return { handleFetch };
 }
 
-/**
- * A reusable component for handling data fetching and pagination logic for tables.
- * This component can be used directly in JSX to fetch data for a table.
- *
- * Example usage:
- * ```tsx
- * <QueryData<TrunkDTO>
- *   fetchFunction={listTrunks}
- *   pageSize={10}
- * />
- * ```
- */
 export function QueryData<TData, TParams = any>({
   fetchFunction,
   pageSize = 10,
@@ -205,8 +268,7 @@ export function QueryData<TData, TParams = any>({
   onFetchComplete,
   children
 }: QueryDataProps<TData, TParams>) {
-  // Usar el hook sin efectos secundarios directos
-  const { handleFetch } = useQueryData<TData, TParams>({
+  useQueryData({
     fetchFunction,
     pageSize,
     initialParams,
@@ -214,16 +276,7 @@ export function QueryData<TData, TParams = any>({
     onFetchComplete
   });
 
-  // Efecto de inicialización - solo se ejecuta una vez al montar
-  const isInitializedRef = useRef(false);
-
-  useEffect(() => {
-    if (!isInitializedRef.current) {
-      isInitializedRef.current = true;
-    }
-    // No incluir handleFetch en las dependencias para evitar re-ejecuciones
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return children ? <>{children}</> : null;
+  return <>{children}</>;
 }
+
+export default QueryData;
