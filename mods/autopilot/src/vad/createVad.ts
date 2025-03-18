@@ -22,11 +22,12 @@ import * as ort from "onnxruntime-node";
 import { chunkToFloat32Array } from "./chunkToFloat32Array";
 import { SileroVadModel } from "./SileroVadModel";
 import { VadParams } from "./types";
+import { ONNXRuntimeAPI } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-const FULL_FRAME_SIZE = 1600; // Equivalent to 100ms @ 16kHz
-const FRAME_SIZE = 480; // Use last 30ms from the full frame for VAD processing
+const FULL_FRAME_SIZE = 1024; // 64ms @ 16kHz
+const BUFFER_SIZE = 512; // 32ms @ 16kHz
 
 async function createVad(params: VadParams) {
   const {
@@ -37,28 +38,47 @@ async function createVad(params: VadParams) {
   } = params;
 
   const effectivePath =
-    pathToModel || join(__dirname, "..", "..", "silero_vad.onnx");
-  const silero = await SileroVadModel.new(ort, effectivePath);
+    pathToModel || join(__dirname, "..", "..", "silero_vad_v5.onnx");
 
-  let audioBuffer: number[] = [];
+  const ortAdapter: ONNXRuntimeAPI = {
+    InferenceSession: {
+      create: ort.InferenceSession.create.bind(ort.InferenceSession)
+    },
+    Tensor: ort.Tensor as unknown as ONNXRuntimeAPI["Tensor"]
+  };
+
+  const silero = await SileroVadModel.new(ortAdapter, effectivePath);
+
+  let sampleBuffer: number[] = [];
   let isSpeechActive = false;
   let framesSinceStateChange = 0;
+
+  // Reset internal state after a state change.
+  const resetState = () => {
+    isSpeechActive = false;
+    framesSinceStateChange = 0;
+    // Clear any pending audio samples to avoid using outdated values.
+    sampleBuffer = [];
+    silero.resetState();
+
+    logger.silly("State reset -- sampleBuffer cleared");
+  };
 
   return async function process(
     chunk: Uint8Array,
     callback: (event: "SPEECH_START" | "SPEECH_END") => void
   ) {
+    // Convert the incoming chunk to normalized Float32 samples (using chunkToFloat32Array)
     const float32Array = chunkToFloat32Array(chunk);
-    audioBuffer.push(...float32Array);
+    sampleBuffer.push(...float32Array);
 
-    // Process full frames from the buffer
-    while (audioBuffer.length >= FULL_FRAME_SIZE) {
-      // Extract one full frame worth of samples
-      const fullFrame = audioBuffer.slice(0, FULL_FRAME_SIZE);
-      audioBuffer = audioBuffer.slice(FULL_FRAME_SIZE);
+    // Wait until we've collected a full frame worth of samples.
+    while (sampleBuffer.length >= FULL_FRAME_SIZE) {
+      const fullFrame = sampleBuffer.slice(0, FULL_FRAME_SIZE);
+      sampleBuffer = sampleBuffer.slice(FULL_FRAME_SIZE);
 
-      // Use the last FRAME_SIZE samples from the full frame for VAD processing
-      const frame = fullFrame.slice(fullFrame.length - FRAME_SIZE);
+      // Use the last BUFFER_SIZE samples from the full frame.
+      const frame = fullFrame.slice(fullFrame.length - BUFFER_SIZE);
       const result = await silero.process(new Float32Array(frame));
       const rawScore = result.isSpeech;
 
@@ -66,25 +86,24 @@ async function createVad(params: VadParams) {
         rawScore,
         isSpeechActive,
         framesSinceStateChange,
-        pendingSamples: audioBuffer.length
+        pendingSamples: sampleBuffer.length
       });
 
       framesSinceStateChange++;
 
       if (isSpeechActive) {
-        // If currently in speech, check if the score has dropped below the deactivation threshold
+        // If already in speech, check if the score has dropped below deactivationThreshold
         if (
           rawScore < deactivationThreshold &&
           framesSinceStateChange >= debounceFrames
         ) {
-          isSpeechActive = false;
           callback("SPEECH_END");
-          silero.resetState(); // Reset VAD state after speech ends
-          framesSinceStateChange = 0;
+          resetState();
           logger.silly("Speech end detected", { rawScore });
+          continue;
         }
       } else {
-        // If not currently in speech, check if the score exceeds the activation threshold
+        // If currently not speaking, check if the score is above activationThreshold
         if (
           rawScore > activationThreshold &&
           framesSinceStateChange >= debounceFrames
@@ -99,4 +118,4 @@ async function createVad(params: VadParams) {
   };
 }
 
-export { createVad };
+export { createVad, VadParams };
