@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, memo } from "react";
 import { Checkbox, CheckboxProps } from "@mui/material";
 
 interface IndeterminateCheckboxProps extends Omit<CheckboxProps, "indeterminate"> {
@@ -15,9 +15,18 @@ const IndeterminateCheckbox: React.FC<IndeterminateCheckboxProps> = ({
     if (ref.current) {
       ref.current.indeterminate = !rest.checked && indeterminate;
     }
-  }, [ref, indeterminate, rest.checked]);
+  }, [indeterminate, rest.checked]);
 
-  return <Checkbox inputRef={ref} size="small" {...rest} />;
+  return <Checkbox 
+    inputRef={ref} 
+    size="small" 
+    {...rest} 
+    disableRipple 
+  />;
 };
 
-export default IndeterminateCheckbox;
+export default memo(IndeterminateCheckbox, (prevProps, nextProps) => {
+  return prevProps.checked === nextProps.checked && 
+         prevProps.indeterminate === nextProps.indeterminate &&
+         prevProps.disabled === nextProps.disabled;
+});

@@ -141,7 +141,10 @@ const TableComponent = <TData extends Object>({
                   <IndeterminateCheckbox
                     checked={getIsAllRowsSelected()}
                     indeterminate={getIsSomeRowsSelected()}
-                    onChange={getToggleAllRowsSelectedHandler()}
+                    onChange={(e) => {
+                      e.stopPropagation(); // Evitar propagación del evento
+                      table.toggleAllRowsSelected(!getIsAllRowsSelected());
+                    }}
                   />
                 </StyledTableCell>
               )}
@@ -187,7 +190,11 @@ const TableComponent = <TData extends Object>({
                       checked={row.getIsSelected()}
                       disabled={!row.getCanSelect()}
                       indeterminate={row.getIsSomeSelected()}
-                      onChange={row.getToggleSelectedHandler()}
+                      onChange={(e) => {
+                        // Usar un manejador de eventos más estable
+                        e.stopPropagation(); // Evitar propagación del evento
+                        row.toggleSelected(!row.getIsSelected());
+                      }}
                     />
                   </StyledTableCell>
                 )}
