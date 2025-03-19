@@ -87,7 +87,7 @@ export default function CreateRuleModal({ open, onClose, onSave }: CreateRuleMod
                         Create a new ACL to protect your Domains, Peers, and Trunks
                     </PageContainer.Subheader>
                     <PageContainer.ContentForm methods={methods} formId="rule-form">
-                       <InputContext
+                        <InputContext
                             name="ipOrCIDR"
                             label="IP or CIDR*"
                             type="text"
@@ -103,7 +103,7 @@ export default function CreateRuleModal({ open, onClose, onSave }: CreateRuleMod
                             options={categoryOptions}
                             id="acl-category"
                         />
-           
+
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, pb: 3 }}>
                             <Button
                                 variant="contained"
