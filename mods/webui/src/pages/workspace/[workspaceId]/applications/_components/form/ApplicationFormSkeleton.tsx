@@ -1,30 +1,24 @@
 import React from "react";
 import { Box, Skeleton } from "@mui/material";
 import PageContainer from "@/common/components/layout/pages";
-import { Typography } from "@stories/typography/Typography";
 
-const { ContentForm } = PageContainer;
 
 const DESCRIPTION_MAX_WIDTH = "510px";
-const SECTION_HEADER_STYLES = { textTransform: 'uppercase' as const };
 const DESCRIPTION_STYLES = { mt: -2, maxWidth: DESCRIPTION_MAX_WIDTH };
 
-// Skeleton for form fields
+
 const FormFieldSkeleton = () => (
     <Box sx={{ mb: 3 }}>
-        <Skeleton variant="text" width={120} height={24} sx={{ mb: 1 }} />
-        <Skeleton variant="rounded" height={56} />
+        <Skeleton variant="rounded" height={42} width="40%" />
     </Box>
 );
 
-// Skeleton for section headers
 const SectionHeaderSkeleton = () => (
     <Box sx={{ mb: 2, mt: 3 }}>
         <Skeleton variant="text" width={150} height={24} />
     </Box>
 );
 
-// Skeleton for description text
 const DescriptionSkeleton = () => (
     <Box sx={DESCRIPTION_STYLES}>
         <Skeleton variant="text" width="100%" height={20} />
