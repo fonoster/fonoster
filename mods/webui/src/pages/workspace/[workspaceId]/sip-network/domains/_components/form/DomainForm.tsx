@@ -108,7 +108,7 @@ export default function DomainForm({
     const router = useRouter();
     const { selectedWorkspace } = useWorkspaceContext();
     const { createDomain, updateDomain } = useDomains();
-    const { notifyError, notifySuccess } = useNotification();
+    const { notifyError, notifySuccess, NotificationComponent } = useNotification();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [outboundNumbers, setOutboundNumbers] = useState([
@@ -200,6 +200,7 @@ export default function DomainForm({
 
     return (
         <PageContainer>
+            <NotificationComponent />
             <PageContainer.Header
                 title={!isEditMode ? "Create New Domain" : "Edit Domain"}
                 backTo={{
