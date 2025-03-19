@@ -51,14 +51,13 @@ export const Select: React.FC<SelectProps> = ({
       size={size}
       sx={{
         '& .MuiInputLabel-root': {
-          fontFamily: "'Poppins'",
-          fontSize: size === "small" ? '11px' : '12px',
+          fontFamily: "'Poppins', sans-serif",
           fontWeight: 500,
-          lineHeight: 'normal',
-          letterSpacing: '0.12px'
+          lineHeight: "normal",
+          transform: "translate(16px, -11px) scale(0.66)"
         },
         '& .MuiOutlinedInput-root': {
-          minHeight:  size === "small" ? '32px' : '42px',
+          minHeight: size === "small" ? '32px' : '42px',
           height: 'auto',
           borderRadius: '4px',
           '& .MuiSelect-select': {

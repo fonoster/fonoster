@@ -48,7 +48,6 @@ export const StyledSelect = styled(Select)(({ theme }) => ({
   "& .MuiInputLabel-root": {
     transform: "translate(14px, 16px) scale(1)",
     fontFamily: "'Poppins', sans-serif",
-    fontSize: "12px",
     fontWeight: 500,
     "&.MuiInputLabel-shrink": {
       transform: "translate(14px, -9px) scale(0.75)"

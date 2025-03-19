@@ -16,6 +16,7 @@ interface InputContextProps {
   shrink?: boolean;
   multiline?: boolean;
   placeholder?: string;
+  size?: "small" | "medium";
 }
 
 const InputContext = ({
@@ -31,7 +32,8 @@ const InputContext = ({
   id,
   shrink = true,
   multiline = false,
-  placeholder = ""
+  placeholder = "",
+  size = "small"
 }: InputContextProps) => {
   const {
     register,
@@ -60,6 +62,7 @@ const InputContext = ({
         multiple={multiple}
         shrink={shrink}
         placeholder={placeholder}
+        size={size}
       />
     );
   }
@@ -77,6 +80,7 @@ const InputContext = ({
       shrink={shrink}
       multiline={multiline}
       placeholder={placeholder}
+      size={size}
     />
   );
 };
