@@ -1,10 +1,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 import PageContainer from "@/common/components/layout/pages";
-import { Button, Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { Button } from "@stories/button/Button";
+
 import { QueryData } from "@/common/contexts/table/QueryData";
 import { useTrunks } from "@/common/sdk/hooks/useTrunks";
 import { ListTrunksResponse } from "@fonster/types";
 import { useTableContext } from "@/common/contexts/table/useTableContext";
+import { Icon } from "@stories/icon/Icon";
 
 const columns: ColumnDef<ListTrunksResponse>[] = [
   {
@@ -40,14 +43,13 @@ export default function TrunksPage() {
       <PageContainer.Header
         title="Trunks"
         actions={
-          <Button variant="contained" onClick={() => { }}>
-            New Trunk
+          <Button variant="contained" onClick={() => { }} endIcon={<Icon fontSize="small" name="Add" />}>
+            Create New SIP Trunk
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Configure and manage your SIP trunks. Monitor trunk status and
-        performance.
+        Use this section to configure your VoIP Providers for inbound and outbound calls to the PSTN.
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<ListTrunksResponse>

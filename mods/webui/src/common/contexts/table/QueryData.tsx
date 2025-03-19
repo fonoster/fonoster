@@ -29,7 +29,7 @@ export function useQueryData<TData, TParams = any>({
     setPrevPageCursor,
     globalFilter,
     filters: columnFilters,
-    pageIndex = 0 
+    pageIndex = 0
   } = useTableContext<TData>();
 
   // Local state control to avoid infinite loops
@@ -160,28 +160,32 @@ export function useQueryData<TData, TParams = any>({
   }, [nextPageCursor, prevPageCursor, isInitialized, pageIndex]);
 
   const constructFilters = useCallback(() => {
-    const filters: Record<string, string> = {};
+    // Object individual filters
+    const filterValues: Record<string, string> = {};
 
-    // Add property filter if exists
+    // GEt columnFilters values
     if (columnFilters && columnFilters.length > 0) {
       const currentFilter = columnFilters[0];
-      if (currentFilter?.id && typeof currentFilter.value === 'string') {
-        filters[currentFilter.id] = globalFilter as string;
+
+      // IF there are a column ID and a value
+      if (currentFilter?.id && currentFilter.value &&
+        typeof currentFilter.value === 'string' &&
+        currentFilter.value.trim() !== '') {
+        // Add filter to the filter objects
+        filterValues[currentFilter.id] = currentFilter.value;
       }
     }
+    // Compatibility case: if there is not a column filter but there is a global filter
+    else if (globalFilter && typeof globalFilter === 'string' && globalFilter.trim() !== '') {
+      filterValues["query"] = globalFilter;
+    }
 
-    // Add global filter if exists
-    if (globalFilter && typeof globalFilter === 'string') {
-      // If there's no property filter, use a default property
-      if (!columnFilters || columnFilters.length === 0) {
-        filters["query"] = globalFilter;
-      } else {
-        // Use the property from columnFilters
-        const propertyId = columnFilters[0]?.id;
-        if (propertyId) {
-          filters[propertyId] = globalFilter;
-        }
-      }
+    // Build parameters final object
+    const filters: Record<string, any> = {};
+
+    // Only add filterBy if there are some one
+    if (Object.keys(filterValues).length > 0) {
+      filters.filterBy = filterValues;
     }
 
     return filters;

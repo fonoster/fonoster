@@ -42,6 +42,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey["100"]}`
   },
   padding: "8px 16px",
+  paddingLeft: 'unset',
   height: "13px"
 }));
 
@@ -114,17 +115,14 @@ const TableComponent = <TData extends Object>({
   rowClassName,
   options
 }: TableComponentProps<TData>) => {
-  const { 
-    table, 
-    loadingData, 
-    getIsAllRowsSelected, 
-    getIsSomeRowsSelected, 
-    getToggleAllRowsSelectedHandler 
+  const {
+    table,
+    loadingData
   } = useTableContext<TData>();
-  
+
   // Check if row selection is enabled
   const enableRowSelection = options?.enableRowSelection || false;
-  
+
   return (
     <StyledTableContainer>
       <MUITable
@@ -135,17 +133,10 @@ const TableComponent = <TData extends Object>({
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {/* Checkbox to select all rows */}
+              {/* Row selection column - empty header cell */}
               {enableRowSelection && (
                 <StyledTableCell padding="checkbox" align="center" style={{ width: '48px' }}>
-                  <IndeterminateCheckbox
-                    checked={getIsAllRowsSelected()}
-                    indeterminate={getIsSomeRowsSelected()}
-                    onChange={(e) => {
-                      e.stopPropagation(); // Prevent event propagation
-                      table.toggleAllRowsSelected(!getIsAllRowsSelected());
-                    }}
-                  />
+                  {/* Select all checkbox moved to TableHeader.tsx */}
                 </StyledTableCell>
               )}
               {headerGroup.headers.map((header) => (

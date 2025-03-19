@@ -132,6 +132,7 @@ export function TableProvider<TData>({
     undefined
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [localColumnFilters, setLocalColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable<TData>({
     columns,
@@ -143,10 +144,11 @@ export function TableProvider<TData>({
         pageIndex: 0,
         pageSize: perPage
       },
-      columnFilters: initialState.columnFilters || [],
+      columnFilters: localColumnFilters,
       sorting: initialState.sorting || [],
       rowSelection
     },
+    onColumnFiltersChange: setLocalColumnFilters,
     onRowSelectionChange: setRowSelection,
     autoResetPageIndex: false,
     manualFiltering,
@@ -174,7 +176,6 @@ export function TableProvider<TData>({
     }
   });
 
-  const columnFilters = table.getState().columnFilters;
   const pageIndex = table.getState().pagination.pageIndex;
 
   // Use a reference to control if the page index has already been reset
@@ -190,7 +191,7 @@ export function TableProvider<TData>({
         resetPageIndexRef.current = false;
       }, 0);
     }
-  }, [columnFilters, table]);
+  }, [localColumnFilters, table]);
 
   // Use a reference to prevent cyclic updates
   const dataUpdateRef = useRef(false);
@@ -231,12 +232,12 @@ export function TableProvider<TData>({
     (response: FonosterResponse<TData> | undefined) => {
       // Avoid simultaneous updates
       if (responseUpdateRef.current) return;
-      
+
       const currentToken = fonosterResponse?.nextPageToken;
 
       if (response) {
         responseUpdateRef.current = true;
-        
+
         // Execute updates in the next cycle
         setTimeout(() => {
           try {
@@ -294,8 +295,8 @@ export function TableProvider<TData>({
         getColumn: table.getColumn,
         getHeaderGroups: table.getHeaderGroups,
         getFooterGroups: table.getFooterGroups,
-        columnFilters: table.getState().columnFilters,
-        setColumnFilters: table.setColumnFilters,
+        columnFilters: localColumnFilters,
+        setColumnFilters: setLocalColumnFilters,
         headers: table.options.columns,
         headerGroups: table.getHeaderGroups(),
         rows: table.getRowModel().rows,

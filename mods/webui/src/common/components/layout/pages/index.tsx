@@ -32,6 +32,7 @@ interface ContentProps<T extends object> {
   showFilters?: boolean;
   showSearch?: boolean;
   showPagination?: boolean;
+  showSelectAll?: boolean;
   options?: TableOptions;
 }
 
@@ -86,17 +87,15 @@ function ContentTable<T extends object>({
   showFilters = true,
   showSearch = true,
   showPagination = true,
+  showSelectAll = true,
   options
 }: ContentProps<T>) {
   return (
     <ReactTable<T> columns={columns} enableRowSelection={options?.enableRowSelection}>
       <ReactTable.Header>
+        {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}
-        {showSearch && <ReactTable.Header.Search
-          value={""}
-          onChange={() => { }}
-          placeholder="Search..."
-        />}
+        {showSearch && <ReactTable.Header.Search />}
         {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />
