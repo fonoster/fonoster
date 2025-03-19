@@ -9,11 +9,12 @@ import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { Box, Skeleton } from "@mui/material";
 import { Button } from "@stories/button/Button";
 import { ErrorType, useNotification } from "@/common/hooks/useNotification";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import AddEgressRuleModal from "../modal/AddEgressRuleModal";
 import { ModalTrigger } from "@stories/modaltrigger/ModalTrigger";
-import { SelectContext } from "@/common/hooksForm/SelectContext";
+import { ChipsContext } from "@/common/hooksForm/ChipsContext";
 import { Typography } from "@stories/typography/Typography";
+import { useNumbers } from "@/common/sdk/hooks/useNumbers";
 
 const DESCRIPTION_MAX_WIDTH = "510px";
 
@@ -28,7 +29,6 @@ const domainSchema = z.object({
         .min(1, "Domain URI is required")
         .regex(/^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$/,
             "Domain URI must be a valid domain format (e.g., example.com)"),
-    egressRulesDisplay: z.array(z.string()).default([]),
     egressRules: z.array(
         z.object({
             rule: z.string(),
@@ -40,7 +40,7 @@ const domainSchema = z.object({
 
 export type DomainFormData = Omit<
     z.infer<typeof domainSchema>,
-    "isEditMode" | "egressRulesDisplay"
+    "isEditMode"
 >;
 
 interface DomainFormProps {
@@ -108,14 +108,11 @@ export default function DomainForm({
     const router = useRouter();
     const { selectedWorkspace } = useWorkspaceContext();
     const { createDomain, updateDomain } = useDomains();
+    const { listNumbers } = useNumbers();
     const { notifyError, notifySuccess, NotificationComponent } = useNotification();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const [outboundNumbers, setOutboundNumbers] = useState([
-        { value: "(785)317-8070", label: "(785)317-8070" },
-        { value: "(555)123-4567", label: "(555)123-4567" },
-        { value: "(888)555-1212", label: "(888)555-1212" }
-    ]);
+    const [outboundNumbers, setOutboundNumbers] = useState<{ value: string; label: string }[]>([]);
 
     const isEditMode = !!domainId;
 
@@ -123,7 +120,6 @@ export default function DomainForm({
         resolver: zodResolver(domainSchema),
         defaultValues: {
             ...(initialData || defaultValues),
-            egressRulesDisplay: [],
             isEditMode
         },
         mode: "onChange"
@@ -131,40 +127,24 @@ export default function DomainForm({
 
     const { formState: { isValid }, handleSubmit, setValue, watch } = methods;
     const egressRules = watch('egressRules') || [];
-    const egressRulesDisplay = watch('egressRulesDisplay') || [];
+
+    const fetchNumbers = async () => {
+        const response = await listNumbers({});
+        console.log("response numbers", response);
+        const items = response?.items;
+        setOutboundNumbers(items?.map((item) => ({
+            value: item.ref,
+            label: item.ref
+        })) || []);
+    };
 
     useEffect(() => {
-        if (egressRules.length > 0 && egressRulesDisplay.length !== egressRules.length) {
-            const updatedEgressRules = egressRules.filter(rule => {
-                const displayValue = getEgressRuleDisplayValue(rule);
-                return egressRulesDisplay.includes(displayValue);
-            });
-            setValue('egressRules', updatedEgressRules, { shouldValidate: true });
-        }
-    }, [egressRulesDisplay]);
-
-    useEffect(() => {
-        if (initialData?.egressRules && initialData.egressRules.length > 0) {
-            const displayValues: string[] = [];
-            const newEgressRulesMap: Record<string, { rule: string; numberRef: string }> = {};
-
-            initialData.egressRules.forEach(rule => {
-                const displayValue = getEgressRuleDisplayValue(rule);
-                displayValues.push(displayValue);
-                newEgressRulesMap[displayValue] = rule;
-            });
-
-            setValue('egressRules', initialData.egressRules);
-            setValue('egressRulesDisplay', displayValues);
-        }
-    }, [initialData, egressRules]);
+        fetchNumbers();
+    }, []);
 
     const handleAddEgressRule = (data: { rule: string; numberRef: string }) => {
         const newEgressRules = [...egressRules, data];
         setValue('egressRules', newEgressRules, { shouldValidate: true });
-        const displayValue = getEgressRuleDisplayValue(data);
-        const newEgressRulesDisplay = [...egressRulesDisplay, displayValue];
-        setValue('egressRulesDisplay', newEgressRulesDisplay, { shouldValidate: true });
     };
 
     const onSubmit = handleSubmit(async (data) => {
@@ -192,7 +172,6 @@ export default function DomainForm({
             notifyError(error as ErrorType);
         }
     });
-
 
     if (isLoading) {
         return <FormSkeleton formId={formId} />;
@@ -247,21 +226,18 @@ export default function DomainForm({
                     id={`${formId}-domain-uri`}
                 />
 
-                <SelectContext
-                    name="egressRulesDisplay"
+                <ChipsContext
+                    name="egressRules"
                     label="Egress Rules"
-                    leadingIcon={null}
-                    trailingIcon={null}
-                    id={`${formId}-egress-rules`}
-                    multiple={true}
-                    options={egressRulesDisplay.map(display => ({
-                        value: display,
-                        label: display
-                    }))}
+                    placeholder="Add egress rules"
+                    transformValue={(value) => ({
+                        value,
+                        label: getEgressRuleDisplayValue(value)
+                    })}
                 />
 
                 <ModalTrigger
-                    label="Create New Egress Rule"
+                    label="Add Egress Rule"
                     onClick={() => setIsModalOpen(true)}
                 />
 
