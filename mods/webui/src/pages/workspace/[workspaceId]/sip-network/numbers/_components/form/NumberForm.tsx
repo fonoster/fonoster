@@ -136,7 +136,6 @@ export default function NumberForm({
     const [isLoadingTrunks, setIsLoadingTrunks] = useState(false);
     const [applications, setApplications] = useState<{ value: string; label: string }[]>([]);
     const [isLoadingApplications, setIsLoadingApplications] = useState(false);
-    const [countries, setCountries] = useState<{ value: string; label: string }[]>([]);
 
 
     const isEditMode = !!numberId;
