@@ -17,37 +17,20 @@
  * limitations under the License.
  */
 import path from "path";
-import { Worker } from "worker_threads";
 import { getLogger } from "@fonoster/logger";
 import { Actor, createActor } from "xstate";
 import { machine } from "./machine/machine";
 import { AutopilotParams } from "./types";
-import { VadEvent } from "./vad";
+import { SileroVad, Vad, VadEvent } from "./vad";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class Autopilot {
   private readonly actor: Actor<typeof machine>;
-  private readonly vadWorker: Worker;
-  private vadWorkerReady: Promise<void>;
+  private vad: Vad;
 
   constructor(private readonly params: AutopilotParams) {
     const { voice, languageModel, conversationSettings } = this.params;
-    const vadWorkerPath = path.resolve(__dirname, "../dist", "./vadWorker");
-    this.vadWorker = new Worker(vadWorkerPath, {
-      workerData: conversationSettings.vad
-    });
-
-    this.vadWorkerReady = new Promise((resolve, reject) => {
-      logger.verbose("waiting for vad worker to be ready");
-      this.vadWorker.once("message", (message) => {
-        if (message === "VAD_READY") {
-          logger.verbose("vad worker is ready");
-          resolve();
-        }
-      });
-      this.vadWorker.once("error", reject);
-    });
 
     this.actor = createActor(machine, {
       input: {
@@ -59,25 +42,28 @@ class Autopilot {
   }
 
   async start() {
-    // Wait for all the streams and vad worker to be ready before proceeding starting the actor
-    await this.vadWorkerReady;
+    const vadParams = this.params.conversationSettings.vad;
+    const sileroVad = new SileroVad({
+      pathToModel:
+        vadParams.pathToModel ||
+        path.resolve(__dirname, "..", "silero_vad_v5.onnx"),
+      activationThreshold: vadParams.activationThreshold,
+      deactivationThreshold: vadParams.deactivationThreshold,
+      debounceFrames: vadParams.debounceFrames
+    });
+
+    await sileroVad.init();
+    this.vad = sileroVad;
+
     await this.setupVoiceStream();
     await this.setupSpeechGathering();
 
     this.actor.start();
 
+    logger.verbose("autopilot is ready");
+
     this.actor.subscribe((state) => {
       logger.verbose("actor's new state is", { state: state.value });
-    });
-
-    this.vadWorker.on("error", (err) => {
-      logger.error("vad worker error", err);
-    });
-
-    this.vadWorker.on("exit", (code) => {
-      if (code !== 0) {
-        logger.error("vad worker stopped with exit code", { code });
-      }
     });
   }
 
@@ -91,21 +77,25 @@ class Autopilot {
     const stream = await voice.stream();
 
     stream.onData(this.handleVoicePayload.bind(this));
-
-    this.vadWorker.on("message", (event: VadEvent) => {
-      logger.verbose("received speech event from vad", { event });
-
-      if (event === "SPEECH_START") {
-        this.actor.send({ type: "SPEECH_START" });
-      } else if (event === "SPEECH_END") {
-        this.actor.send({ type: "SPEECH_END" });
-      }
-    });
   }
 
   private handleVoicePayload(chunk: Uint8Array) {
     try {
-      this.vadWorker.postMessage(chunk);
+      if (!this.vad) {
+        logger.error("VAD not initialized");
+        return;
+      }
+
+      // Process the audio chunk with the VAD directly
+      this.vad.processChunk(chunk, (event: VadEvent) => {
+        logger.verbose("received speech event from vad", { event });
+
+        if (event === "SPEECH_START") {
+          this.actor.send({ type: "SPEECH_START" });
+        } else if (event === "SPEECH_END") {
+          this.actor.send({ type: "SPEECH_END" });
+        }
+      });
     } catch (err) {
       logger.error("an error occurred while processing vad", err);
     }
