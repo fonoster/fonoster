@@ -3,6 +3,7 @@ import { Workspace } from "@fonoster/types";
 import { useRouter } from "next/router";
 import { useWorkspaces } from "../hooks/useWorkspaces";
 import { useFonosterClient } from "../hooks/useFonosterClient";
+import { LoadingScreen } from "@/common/components/loading/LoadingScreen";
 
 interface WorkspaceContextType {
   workspaces: Workspace[];
@@ -80,6 +81,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       handleSetSelectedWorkspace(workspaceId as string);
     }
   }, [workspaceId, workspaces, client, isReady, isAuthenticated]);
+
+
+  if (isLoading) {
+    return <LoadingScreen logoSize="large" />;
+  }
 
   return (
     <WorkspaceContext.Provider
