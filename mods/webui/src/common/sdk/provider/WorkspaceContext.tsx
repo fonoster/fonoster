@@ -62,7 +62,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (error) {
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     }
   };
 
