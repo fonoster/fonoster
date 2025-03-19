@@ -34,7 +34,7 @@ const trunkSchema = z.object({
     name: z.string().min(1, "Friendly Name is required"),
     inboundUri: z.string().min(1, "Inbound URI is required"),
     sendRegister: z.boolean().default(false),
-    aclRef: z.string().nullable().optional(),
+    accessControlListRef: z.string().nullable().optional(),
     inboundCredentialsRef: z.string().nullable().optional(),
     outboundCredentialsRef: z.string().nullable().optional(),
     uris: z.array(z.object({
@@ -58,7 +58,7 @@ const TRUNK_DEFAULTS: TrunkFormData = {
     name: "",
     inboundUri: "",
     sendRegister: false,
-    aclRef: undefined,
+    accessControlListRef: undefined,
     inboundCredentialsRef: undefined,
     outboundCredentialsRef: undefined,
     uris: []
@@ -240,7 +240,7 @@ export default function TrunkForm({
                     name: data.name,
                     inboundUri: data.inboundUri,
                     sendRegister: data.sendRegister,
-                    accessControlListRef: convertNullToUndefined(data.aclRef),
+                    accessControlListRef: convertNullToUndefined(data.accessControlListRef),
                     inboundCredentialsRef: convertNullToUndefined(data.inboundCredentialsRef),
                     outboundCredentialsRef: convertNullToUndefined(data.outboundCredentialsRef),
                     uris: apiURIs
@@ -253,7 +253,7 @@ export default function TrunkForm({
                     name: data.name,
                     inboundUri: data.inboundUri,
                     sendRegister: data.sendRegister,
-                    accessControlListRef: convertNullToUndefined(data.aclRef),
+                    accessControlListRef: convertNullToUndefined(data.accessControlListRef),
                     inboundCredentialsRef: convertNullToUndefined(data.inboundCredentialsRef),
                     outboundCredentialsRef: convertNullToUndefined(data.outboundCredentialsRef),
                     uris: apiURIs
@@ -300,7 +300,7 @@ export default function TrunkForm({
             const createdAcl = acls.find(a => a.name === acl.name);
 
             if (createdAcl) {
-                setValue('aclRef', createdAcl.ref, { shouldValidate: true });
+                setValue('accessControlListRef', createdAcl.ref, { shouldValidate: true });
             }
         }
     };
@@ -430,11 +430,11 @@ export default function TrunkForm({
                 />
 
                 <SelectContext
-                    name="aclRef"
+                    name="accessControlListRef"
                     label="Access Control List*"
                     leadingIcon={null}
                     trailingIcon={isLoadingAcls ? <CircularProgress size={20} /> : null}
-                    id={`${formId}-aclRef`}
+                    id={`${formId}-accessControlListRef`}
                     disabled={isLoadingAcls}
                     options={acls.map(acl => ({
                         value: acl.ref,

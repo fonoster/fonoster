@@ -6,10 +6,24 @@ import {
   BaseApiObject,
   CreateTrunkRequest,
   UpdateTrunkRequest,
-  ListTrunksRequest,
-  ListTrunksResponse,
+  ListTrunksRequest as BaseListTrunksRequest,
+  ListTrunksResponse as BaseListTrunksResponse,
 } from "@fonoster/types";
 import { Trunks } from "@fonoster/sdk";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
+
+// Extend the ListTrunksResponse to include prevPageToken
+interface ListTrunksResponse extends BaseListTrunksResponse {
+  prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+interface ListTrunksRequest extends BaseListTrunksRequest {
+  filterBy?: Record<string, string>;
+  pageSize?: number;
+  pageToken?: string;
+}
 
 export const useTrunks = () => {
   const { client, isReady, authentication } = useFonosterClient();
@@ -26,6 +40,23 @@ export const useTrunks = () => {
     }
   }, [client]);
 
+  // Handle Fake data - make sure all required Trunk properties are non-optional
+  const { listItems } = usePaginatedData<Trunk>({
+    generateFakeData: (index: number) => ({
+      ref: `trunk-${index}`,
+      name: `Trunk ${index + 1}`, // This is required to be non-optional
+      projectId: `project-${index + 1}`,
+      sendRegister: index % 2 === 0,
+      inboundUri: `sip:trunk-${index + 1}@sip.fonoster.com`,
+      outboundUri: `sip:trunk-${index + 1}@sip.fonoster.com`,
+      // Add any other required fields from Trunk type
+      createdAt: new Date(Date.now() - (index * 86400000)),
+      updatedAt: new Date(Date.now() - (index * 43200000))
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
+
   const createTrunk = async (
     data: CreateTrunkRequest
   ): Promise<BaseApiObject | undefined> => {
@@ -38,9 +69,7 @@ export const useTrunks = () => {
     }
   };
 
-  const getTrunk = async (
-    ref: string
-  ): Promise<Trunk | undefined> => {
+  const getTrunk = async (ref: string): Promise<Trunk | undefined> => {
     try {
       return await authentication.executeWithRefresh(() =>
         _trunks.getTrunk(ref)

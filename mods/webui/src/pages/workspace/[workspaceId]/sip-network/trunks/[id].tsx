@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import TrunkForm from "./_components/form/TrunkForm";
-import { TrunkFormData } from "./_components/form/TrunkForm";
+import TrunkForm, { TrunkFormData } from "./_components/form/TrunkForm";
 import { useTrunks } from "@/common/sdk/hooks/useTrunks";
 import { ErrorType, useNotification } from "@/common/hooks/useNotification";
 
@@ -19,9 +18,6 @@ export default function EditTrunkPage() {
                 if (id && typeof id === "string") {
                     const trunk = await getTrunk(id);
                     if (trunk) {
-                        // Extract outboundUri from the first URI if available
-                        const outboundUri = trunk.uris && trunk.uris.length > 0 ? trunk.uris[0].host : undefined;
-
                         setInitialData({
                             ref: trunk.ref,
                             name: trunk.name,
@@ -30,7 +26,10 @@ export default function EditTrunkPage() {
                             accessControlListRef: trunk.accessControlListRef,
                             inboundCredentialsRef: trunk.inboundCredentialsRef,
                             outboundCredentialsRef: trunk.outboundCredentialsRef,
-                            outboundUri
+                            uris: trunk.uris?.map(uri => ({
+                                value: uri,
+                                label: `${uri.host}:${uri.port} (${uri.transport})${uri.enabled ? '' : ' (disabled)'}`
+                            })) || []
                         });
                     }
                 }
