@@ -15,7 +15,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.14.0",
-    "@fonoster/sdk": "^0.9.30",
+    "@fonoster/sdk": "^0.9.42",
     "@fontsource/poppins": "^5.1.0",
     "@hookform/resolvers": "^4.1.0",
     "@mui/icons-material": "^6.4.4",
