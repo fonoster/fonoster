@@ -18,16 +18,9 @@ export type CredentialData = {
  * Props for the CreateCredentialModal component
  */
 interface CreateCredentialModalProps {
-    /** Controls whether the modal is visible */
     open: boolean;
-
-    /** Function to call when the modal should close */
     onClose: () => void;
-
-    /** Optional callback when a credential is successfully created */
     onSave?: (credential: CredentialData) => void;
-
-    /** Optional title for the modal */
     title?: string;
 }
 
@@ -44,8 +37,6 @@ export default function CreateCredentialModal({
     title = "Create New Credential"
 }: CreateCredentialModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Initialize form with the credential hook
     const { methods, isValid, onSubmit, reset } = useCredentialForm({
         isEditMode: false,
         onSuccess: (credential) => {
@@ -56,17 +47,11 @@ export default function CreateCredentialModal({
         }
     });
 
-    /**
-     * Handles modal close action, resetting the form
-     */
     const handleClose = () => {
         reset();
         onClose();
     };
 
-    /**
-     * Handles form submission with loading state
-     */
     const handleSubmit = () => {
         setIsSubmitting(true);
         onSubmit().finally(() => {
