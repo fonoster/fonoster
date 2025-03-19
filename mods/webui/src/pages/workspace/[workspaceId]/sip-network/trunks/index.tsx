@@ -6,6 +6,8 @@ import { QueryData } from "@/common/contexts/table/QueryData";
 import { useTrunks } from "@/common/sdk/hooks/useTrunks";
 import { ListTrunksResponse } from "@fonoster/types";
 import { Icon } from "@stories/icon/Icon";
+import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
+import { useRouter } from "next/router";
 
 const columns: ColumnDef<ListTrunksResponse>[] = [
   {
@@ -35,13 +37,22 @@ const columns: ColumnDef<ListTrunksResponse>[] = [
 
 export default function TrunksPage() {
   const { listTrunks } = useTrunks();
+  const router = useRouter();
+  const { selectedWorkspace } = useWorkspaceContext();
+
+  const handleNew = () => {
+    router.push(
+      `/workspace/${selectedWorkspace?.ref}/sip-network/trunks/new`
+    );
+  };
+
 
   return (
     <PageContainer>
       <PageContainer.Header
         title="Trunks"
         actions={
-          <Button variant="contained" onClick={() => { }} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
             Create New SIP Trunk
           </Button>
         }
