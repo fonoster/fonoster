@@ -25,21 +25,12 @@ const vad = new SileroVad({
   pathToModel: join(__dirname, "..", "silero_vad_v5.onnx")
 });
 
-const vad2 = new SileroVad({
-  ...workerData,
-  pathToModel: join(__dirname, "..", "silero_vad_v5.onnx")
-});
-
 vad.init().then(() => {
   // Send ready message to parent
   parentPort?.postMessage("VAD_READY");
 
   parentPort?.on("message", (chunk) => {
     vad.processChunk(chunk, (voiceActivity) => {
-      parentPort?.postMessage(voiceActivity);
-    });
-
-    vad2.processChunk(chunk, (voiceActivity) => {
       parentPort?.postMessage(voiceActivity);
     });
   });
