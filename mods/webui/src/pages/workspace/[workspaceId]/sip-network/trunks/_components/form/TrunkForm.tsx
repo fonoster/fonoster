@@ -544,6 +544,7 @@ export default function TrunkForm({
                 open={isTrunkURIModalOpen}
                 onClose={() => setIsTrunkURIModalOpen(false)}
                 onSave={handleTrunkURISave}
+                existingUris={methods.getValues('uris') || []}
             />
         </PageContainer>
     );

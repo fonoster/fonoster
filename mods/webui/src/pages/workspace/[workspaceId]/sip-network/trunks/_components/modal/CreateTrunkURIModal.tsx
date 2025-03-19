@@ -4,6 +4,7 @@ import PageContainer from '@/common/components/layout/pages';
 import { useState } from 'react';
 import { TrunkURIFormFields } from '../shared/TrunkURIFormFields';
 import { useTrunkURIForm, TrunkURIFormData } from '../hooks/useTrunkURIForm';
+import { ChipData } from '@/common/hooksForm/ChipsContext';
 
 /**
  * Type definition for a TrunkURI object used in callbacks
@@ -25,6 +26,9 @@ interface CreateTrunkURIModalProps {
 
     /** Optional title for the modal */
     title?: string;
+
+    /** Existing URIs to validate against */
+    existingUris?: ChipData<TrunkURIData>[];
 }
 
 /**
@@ -38,12 +42,24 @@ export default function CreateTrunkURIModal({
     open,
     onClose,
     onSave,
-    title = "Create New Outbound SIP URI"
+    title = "Create New Outbound SIP URI",
+    existingUris = []
 }: CreateTrunkURIModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const { methods, isValid, onSubmit, reset } = useTrunkURIForm({
         onSuccess: (uri) => {
+            const isDuplicate = existingUris.some(existingUri =>
+                existingUri.value.host === uri.host &&
+                existingUri.value.port === uri.port
+            );
+
+            if (isDuplicate) {
+                setError("A URI with this host and port combination already exists");
+                return;
+            }
+
             if (onSave) {
                 onSave(uri);
             }
@@ -56,6 +72,7 @@ export default function CreateTrunkURIModal({
      */
     const handleClose = () => {
         reset();
+        setError(null);
         onClose();
     };
 
@@ -64,6 +81,7 @@ export default function CreateTrunkURIModal({
      */
     const handleSubmit = () => {
         setIsSubmitting(true);
+        setError(null);
         onSubmit();
         setIsSubmitting(false);
     };
@@ -90,6 +108,12 @@ export default function CreateTrunkURIModal({
                         Define an outbound SIP URI to connect to your provider
                     </PageContainer.Subheader>
 
+                    {error && (
+                        <Box sx={{ color: 'error.main' }}>
+                            {error}
+                        </Box>
+                    )}
+
                     <TrunkURIFormFields
                         methods={methods}
                         formId="trunk-uri-modal-form"
@@ -100,7 +124,7 @@ export default function CreateTrunkURIModal({
                                 onClick={handleSubmit}
                                 disabled={!isValid || isSubmitting}
                             >
-                                {isSubmitting ? "SAVING..." : "SAVE"}
+                                {isSubmitting ? "adding..." : "Add URI"}
                             </Button>
                         </Box>
                     </TrunkURIFormFields>
