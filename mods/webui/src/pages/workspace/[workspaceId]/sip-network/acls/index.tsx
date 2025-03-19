@@ -27,13 +27,9 @@ export default function AclsPage() {
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
 
-
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/acls/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/acls/new`);
   };
-
 
   return (
     <PageContainer>

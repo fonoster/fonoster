@@ -60,17 +60,37 @@ class Deepgram
 
     const out = new Stream();
 
+    // Add error handler immediately to catch any connection errors
+    connection.on(LiveTranscriptionEvents.Error, (err) => {
+      logger.error("error on Deepgram connection", { err });
+      // Emit error properly for handling upstream
+      out.emit("error", new Error("Speech recognition service error"));
+
+      try {
+        connection.destroy();
+      } catch (destroyErr) {
+        logger.error("error destroying connection", { destroyErr });
+      }
+    });
+
     connection.on(LiveTranscriptionEvents.Open, () => {
       stream.on("data", (chunk) => {
-        connection.send(chunk);
+        try {
+          connection.send(chunk);
+        } catch (err) {
+          logger.error("error sending chunk to Deepgram", { err });
+        }
       });
 
       connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-        if (!data.channel.alternatives[0].transcript || !data.speech_final) {
+        if (
+          !data.channel?.alternatives?.[0]?.transcript ||
+          !data.speech_final
+        ) {
           return;
         }
 
-        const words = data.channel.alternatives[0].words;
+        const words = data.channel.alternatives[0].words || [];
 
         const responseTime =
           words.length > 0
@@ -92,11 +112,31 @@ class Deepgram
           responseTime
         });
       });
+    });
 
-      connection.on(LiveTranscriptionEvents.Error, (err) => {
-        logger.warn("error on Deepgram connection", { err });
-        connection.destroy();
+    // Handle stream errors and cleanup
+    stream.on("error", (err) => {
+      logger.warn("error on input stream", { err });
+      // Instead of emitting an error, just end the stream with a message
+      out.emit("data", {
+        speech: "Error with audio input stream",
+        responseTime: 0
       });
+      out.emit("end");
+
+      try {
+        connection.destroy();
+      } catch (destroyErr) {
+        logger.warn("error destroying connection", { destroyErr });
+      }
+    });
+
+    stream.on("end", () => {
+      try {
+        connection.destroy();
+      } catch (err) {
+        logger.error("error destroying connection on stream end", { err });
+      }
     });
 
     return out;
@@ -140,11 +180,19 @@ class Deepgram
       });
 
       stream.on("end", () => {
-        connection.destroy();
+        try {
+          connection.destroy();
+        } catch (destroyErr) {
+          logger.error("error destroying connection", { destroyErr });
+        }
       });
 
       stream.on("error", (err) => {
-        connection.destroy();
+        try {
+          connection.destroy();
+        } catch (destroyErr) {
+          logger.error("error destroying connection", { destroyErr });
+        }
         reject(err);
       });
     });

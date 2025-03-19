@@ -51,11 +51,15 @@ export const useApplications = () => {
       projectId: `project-${index + 1}`,
       tts: index % 2 === 0 ? "Google" : "Fonoster",
       stt: index % 2 === 0 ? "Google" : "Fonoster",
-      intelligence: index % 2 === 0 ? { productRef: "Google", config: {} } : { productRef: "Fonoster", config: {} },
+      intelligence:
+        index % 2 === 0
+          ? { productRef: "Google", config: {} }
+          : { productRef: "Fonoster", config: {} },
       // Add any other required fields from Application type
-      type: index % 2 === 0 ? ApplicationType.EXTERNAL : ApplicationType.AUTOPILOT,
-      createdAt: new Date(Date.now() - (index * 86400000)),
-      updatedAt: new Date(Date.now() - (index * 43200000))
+      type:
+        index % 2 === 0 ? ApplicationType.EXTERNAL : ApplicationType.AUTOPILOT,
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
     }),
     totalItems: 30,
     defaultPageSize: 10
@@ -81,7 +85,7 @@ export const useApplications = () => {
   ): Promise<ListApplicationsResponse | undefined> => {
     try {
       // The return type of listItems is now compatible with ListApplicationsResponse
-      return await listItems(data) as ListApplicationsResponse;
+      return (await listItems(data)) as ListApplicationsResponse;
     } catch (error: any) {
       notifyError(error as ErrorType);
     }

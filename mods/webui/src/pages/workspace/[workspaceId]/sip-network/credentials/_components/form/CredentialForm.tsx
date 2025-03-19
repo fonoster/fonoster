@@ -35,7 +35,12 @@ function FormSkeleton({ formId = "credential-form" }: { formId?: string }) {
           <Skeleton variant="text" width={264} height={32} />
         </Box>
 
-        <Skeleton variant="rectangular" width={138} height={33} sx={{ borderRadius: 4 }} />
+        <Skeleton
+          variant="rectangular"
+          width={138}
+          height={33}
+          sx={{ borderRadius: 4 }}
+        />
       </Box>
 
       {/* Subheader skeleton */}
@@ -47,22 +52,42 @@ function FormSkeleton({ formId = "credential-form" }: { formId?: string }) {
       <Box sx={{ px: 3, pb: 3 }}>
         {/* Name field */}
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         {/* Username field */}
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         {/* Password field */}
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         {/* Confirm password field */}
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
           <Skeleton variant="text" width={300} height={16} sx={{ mt: 0.5 }} />
         </Box>
       </Box>
@@ -115,11 +140,7 @@ export default function CredentialForm({
             )
         }}
         actions={
-          <Button
-            variant="contained"
-            disabled={!isValid}
-            onClick={onSubmit}
-          >
+          <Button variant="contained" disabled={!isValid} onClick={onSubmit}>
             {!isEditMode ? "Create Credential" : "Update Credential"}
           </Button>
         }

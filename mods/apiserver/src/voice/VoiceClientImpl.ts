@@ -109,7 +109,6 @@ class VoiceClientImpl implements VoiceClient {
       } catch (e) {
         logger.error("authz service error", e);
 
-        // TODO: Play a different sound
         await ari.channels.answer({ channelId });
         await ari.channels.play({ channelId, media: "sound:unavailable" });
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -212,7 +211,15 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async synthesize(text: string, options: SayOptions): Promise<string> {
-    const { ref, stream } = await this.tts.synthesize(text, options);
+    const { ref, stream } = this.tts.synthesize(text, options);
+
+    stream.on("error", async (error) => {
+      logger.error(`stream error for ref ${ref}: ${error.message}`, {
+        errorDetails: error.stack || "No stack trace"
+      });
+      this.filesServer.removeStream(ref);
+    });
+
     this.filesServer.addStream(ref, stream);
     return ref;
   }
@@ -226,15 +233,21 @@ class VoiceClientImpl implements VoiceClient {
     }
   }
 
-  async startSpeechGather(
+  startSpeechGather(
     callback: (stream: { speech: string; responseTime: number }) => void
   ) {
-    try {
-      const out = this.stt.streamTranscribe(this.transcriptionsStream);
-      out.on("data", callback);
-    } catch (e) {
-      logger.error(e);
-    }
+    const out = this.stt.streamTranscribe(this.transcriptionsStream);
+
+    out.on("data", callback);
+
+    out.on("error", async (error) => {
+      logger.error("speech recognition error", { error });
+
+      const { sessionRef: channelId } = this.config;
+      const { ari } = this;
+
+      ari.channels.hangup({ channelId });
+    });
   }
 
   async startDtmfGather(

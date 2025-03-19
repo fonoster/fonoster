@@ -42,7 +42,7 @@ export function SecuredLayout({
             overflow: "hidden"
           },
           "*, *:before, *:after": {
-            boxSizing: "inherit",
+            boxSizing: "inherit"
           }
         }}
       />
@@ -125,11 +125,12 @@ export function SecuredLayout({
               overflowX: "hidden"
             }}
           >
-            <Container maxWidth={false}
+            <Container
+              maxWidth={false}
               disableGutters
               sx={{
                 flex: 1,
-                display: 'flex',
+                display: "flex",
                 width: "100%",
                 maxWidth: "100%",
                 "& .MuiContainer-root": {
@@ -140,15 +141,27 @@ export function SecuredLayout({
                 bgcolor: theme.palette.grey[50]
               }}
             >
-              <Box sx={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                marginTop: { xs: '24px', sm: '44px', md: '64px' },
-                marginLeft: { xs: '24px', sm: '44px', md: '64px', lg: '150px' },
-                marginRight: { xs: '24px', sm: '44px', md: '64px', lg: '150px' },
-                width: "100%"
-              }}>
+              <Box
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  marginTop: { xs: "24px", sm: "44px", md: "64px" },
+                  marginLeft: {
+                    xs: "24px",
+                    sm: "44px",
+                    md: "64px",
+                    lg: "150px"
+                  },
+                  marginRight: {
+                    xs: "24px",
+                    sm: "44px",
+                    md: "64px",
+                    lg: "150px"
+                  },
+                  width: "100%"
+                }}
+              >
                 {children}
               </Box>
             </Container>

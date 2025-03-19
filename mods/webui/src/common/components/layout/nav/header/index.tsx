@@ -9,7 +9,7 @@ import { Logo } from "@/common/components/logo/Logo";
 import { NavButton } from "@stories/navbutton/NavButton";
 import { useUser } from "@/common/sdk/hooks/useUser";
 
-export interface HeaderProps { }
+export interface HeaderProps {}
 
 export function Header({
   hamburgerIcon
@@ -22,7 +22,7 @@ export function Header({
   React.useEffect(() => {
     const fetchUser = async () => {
       const logged = await loggedUser();
-      setUser(logged ? (logged as unknown) as User : null);
+      setUser(logged ? (logged as unknown as User) : null);
     };
     fetchUser();
   }, []);
@@ -80,7 +80,11 @@ export function Header({
   );
 }
 
-function NotificationsButton({ user }: { user: User | null }): React.JSX.Element {
+function NotificationsButton({
+  user
+}: {
+  user: User | null;
+}): React.JSX.Element {
   const popover = usePopover<HTMLButtonElement>();
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -89,8 +93,6 @@ function NotificationsButton({ user }: { user: User | null }): React.JSX.Element
       popover.anchorRef.current = buttonRef.current;
     }
   }, [buttonRef.current]);
-
-
 
   return (
     <React.Fragment>

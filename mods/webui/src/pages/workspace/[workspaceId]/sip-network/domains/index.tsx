@@ -28,9 +28,7 @@ export default function DomainsPage() {
   const { selectedWorkspace } = useWorkspaceContext();
 
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/domains/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/domains/new`);
   };
 
   return (

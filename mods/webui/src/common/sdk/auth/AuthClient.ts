@@ -28,7 +28,7 @@ export class AuthClient {
     private client: WebClient,
     private setSession: (session: { isAuthenticated: boolean }) => void,
     private onSignOut: () => void
-  ) { }
+  ) {}
 
   // ==================== PUBLIC METHODS ====================
 

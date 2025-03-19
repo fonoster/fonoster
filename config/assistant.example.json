@@ -85,7 +85,7 @@
         },
         "requestStartMessage": "Please wait a moment.",
         "operation": {
-          "type": "post",
+          "method": "post",
           "url": "https://api.example.com/bookReservation",
           "waitForResponse": false,
           "headers": {

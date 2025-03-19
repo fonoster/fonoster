@@ -61,11 +61,7 @@ function Header({ title, actions, backTo }: HeaderProps) {
           alignItems: "center"
         }}
       >
-        <Typography
-          variant="heading-medium"
-        >
-          {title}
-        </Typography>
+        <Typography variant="heading-medium">{title}</Typography>
         {actions}
       </Box>
     </Box>
@@ -95,7 +91,13 @@ function ContentTable<T extends object>({
       <ReactTable.Header>
         {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}
-        {showSearch && <ReactTable.Header.Search />}
+        {showSearch && (
+          <ReactTable.Header.Search
+            value={""}
+            onChange={() => {}}
+            placeholder="Search..."
+          />
+        )}
         {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />
@@ -114,7 +116,6 @@ function ContentForm<T extends object>({
     <Box
       component="form"
       id={formId}
-
       sx={{
         display: "flex",
         flexDirection: "column",

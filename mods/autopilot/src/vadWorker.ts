@@ -18,22 +18,17 @@
  */
 import { join } from "path";
 import { parentPort, workerData } from "worker_threads";
-import { SILERO_VAD_VERSION } from "./envs";
 import { SileroVad } from "./vad/SileroVad";
-import { SileroVad as SileroVadV5 } from "./vadv5/SileroVad";
 
-const vad =
-  SILERO_VAD_VERSION === "v4"
-    ? new SileroVad({
-        ...workerData,
-        pathToModel: join(__dirname, "..", "silero_vad.onnx")
-      })
-    : new SileroVadV5({
-        ...workerData,
-        pathToModel: join(__dirname, "..", "silero_vad_v5.onnx")
-      });
+const vad = new SileroVad({
+  ...workerData,
+  pathToModel: join(__dirname, "..", "silero_vad_v5.onnx")
+});
 
 vad.init().then(() => {
+  // Send ready message to parent
+  parentPort?.postMessage("VAD_READY");
+
   parentPort?.on("message", (chunk) => {
     vad.processChunk(chunk, (voiceActivity) => {
       parentPort?.postMessage(voiceActivity);

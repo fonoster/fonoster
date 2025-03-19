@@ -5,19 +5,22 @@ import { SelectContext } from "@/common/hooksForm/SelectContext";
 import { ApplicationType } from "@fonoster/types";
 import PageContainer from "@/common/components/layout/pages";
 import { useRouter } from "next/router";
-import { Button } from '@stories/button/Button';
+import { Button } from "@stories/button/Button";
 import { Box, Grid } from "@mui/material";
 import { Typography } from "@stories/typography/Typography";
 import { useApplications } from "@/common/sdk/hooks/useApplications";
 import { ErrorType, useNotification } from "@/common/hooks/useNotification";
-import { applicationSchema, ApplicationFormSchema, transformToApiFormat } from "./applicationSchema";
+import {
+  applicationSchema,
+  ApplicationFormSchema,
+  transformToApiFormat
+} from "./applicationSchema";
 import ApplicationFormSkeleton from "./ApplicationFormSkeleton";
-
 
 const { ContentForm } = PageContainer;
 
 const DESCRIPTION_MAX_WIDTH = "510px";
-const SECTION_HEADER_STYLES = { textTransform: 'uppercase' as const };
+const SECTION_HEADER_STYLES = { textTransform: "uppercase" as const };
 const DESCRIPTION_STYLES = { mt: -2, maxWidth: DESCRIPTION_MAX_WIDTH };
 
 export interface ApplicationFormData {
@@ -48,27 +51,15 @@ const applicationTypes = [
   { value: ApplicationType.AUTOPILOT, label: "Autopilot" }
 ];
 
-const ttsVendors = [
-  { value: "deepgram", label: "Deepgram" }
-];
+const ttsVendors = [{ value: "deepgram", label: "Deepgram" }];
 
-const ttsVoices = [
-  { value: "aura_asteria_en", label: "Aura Asteria (en)" }
-];
+const ttsVoices = [{ value: "aura_asteria_en", label: "Aura Asteria (en)" }];
 
-const sttVendors = [
-  { value: "deepgram", label: "Deepgram" }
-];
+const sttVendors = [{ value: "deepgram", label: "Deepgram" }];
 
-const sttModels = [
-  { value: "nova-2", label: "Nova 2" }
-];
+const sttModels = [{ value: "nova-2", label: "Nova 2" }];
 
-const languages = [
-  { value: "en-US", label: "en-US" }
-];
-
-
+const languages = [{ value: "en-US", label: "en-US" }];
 
 export default function ApplicationForm({
   initialValues,
@@ -78,22 +69,23 @@ export default function ApplicationForm({
   const router = useRouter();
   const { workspaceId } = router.query;
   const { createApplication, updateApplication } = useApplications();
-  const { notifySuccess, notifyError, NotificationComponent } = useNotification();
+  const { notifySuccess, notifyError, NotificationComponent } =
+    useNotification();
   const isUpdate = !!initialValues?.ref;
 
   const defaultInitialValues: ApplicationFormSchema = {
     ref: null,
-    name: '',
+    name: "",
     type: ApplicationType.EXTERNAL,
-    endpoint: '',
+    endpoint: "",
     textToSpeech: {
-      vendor: 'deepgram',
-      voice: 'aura_asteria_en'
+      vendor: "deepgram",
+      voice: "aura_asteria_en"
     },
     speechToText: {
-      vendor: 'deepgram',
-      model: 'nova-2',
-      language: 'en-US'
+      vendor: "deepgram",
+      model: "nova-2",
+      language: "en-US"
     }
   };
 
@@ -103,7 +95,11 @@ export default function ApplicationForm({
     mode: "onChange"
   });
 
-  const { handleSubmit, formState: { errors, isValid }, setValue } = methods;
+  const {
+    handleSubmit,
+    formState: { errors, isValid },
+    setValue
+  } = methods;
 
   const onSubmit = async (data: ApplicationFormSchema) => {
     try {
@@ -113,18 +109,20 @@ export default function ApplicationForm({
         await updateApplication(apiData as any);
       } else {
         const response = await createApplication(apiData as any);
-        setValue('ref', response?.ref);
+        setValue("ref", response?.ref);
       }
-      notifySuccess(`Application ${isUpdate ? "updated" : "created"} successfully`);
+      notifySuccess(
+        `Application ${isUpdate ? "updated" : "created"} successfully`
+      );
       router.push(`/workspace/${workspaceId}/applications`);
     } catch (error) {
       notifyError(error as ErrorType);
     }
-  }
+  };
 
   const handleTestCall = () => {
     console.log("Test call");
-  }
+  };
 
   if (isLoading) {
     return <ApplicationFormSkeleton />;
@@ -140,7 +138,7 @@ export default function ApplicationForm({
           onClick: () => router.push(`/workspace/${workspaceId}/applications`)
         }}
         actions={
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               variant="outlined"
               disabled={isLoading}
@@ -155,14 +153,14 @@ export default function ApplicationForm({
             >
               SAVE VOICE APPLICATION
             </Button>
-
           </Box>
         }
       />
 
       <Box sx={{ mb: 4, mt: -2, maxWidth: DESCRIPTION_MAX_WIDTH }}>
         <Typography variant="body-small">
-          Create a programmable voice application to connect your Telephony infrastructure with your Dialogflow Agents
+          Create a programmable voice application to connect your Telephony
+          infrastructure with your Dialogflow Agents
         </Typography>
       </Box>
 
@@ -199,7 +197,8 @@ export default function ApplicationForm({
           TEXT TO SPEECH
         </Typography>
         <Typography variant="body-micro" sx={DESCRIPTION_STYLES}>
-          This section allows you to configure the transcription settings for the assistant.
+          This section allows you to configure the transcription settings for
+          the assistant.
         </Typography>
 
         <SelectContext
@@ -221,7 +220,10 @@ export default function ApplicationForm({
         </Typography>
 
         <Typography variant="body-micro" sx={DESCRIPTION_STYLES}>
-          Choose from the list of voices or sync your voice library. If you aren't able to find your voice in the dropdown, if you are still facing any error, you can enable custom voice and add a voice ID manually.
+          Choose from the list of voices or sync your voice library. If you
+          aren't able to find your voice in the dropdown, if you are still
+          facing any error, you can enable custom voice and add a voice ID
+          manually.
         </Typography>
 
         <SelectContext
@@ -245,6 +247,6 @@ export default function ApplicationForm({
           id={`${formId}-stt-language`}
         />
       </ContentForm>
-    </PageContainer >
+    </PageContainer>
   );
 }

@@ -24,24 +24,24 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class SileroVad implements Vad {
   private vad: (data: Uint8Array, callback: (event: string) => void) => void;
-  private params: {
-    pathToModel?: string;
+  private readonly params: {
+    pathToModel: string;
     activationThreshold: number;
     deactivationThreshold: number;
     debounceFrames: number;
   };
 
   constructor(params: {
-    pathToModel?: string;
+    pathToModel: string;
     activationThreshold: number;
     deactivationThreshold: number;
     debounceFrames: number;
   }) {
-    logger.verbose("starting instance of silero vad v4", { ...params });
+    logger.verbose("starting instance of silero vad v5", { ...params });
     this.params = params;
   }
 
-  pathToModel?: string;
+  pathToModel: string;
   activationThreshold: number;
   deactivationThreshold: number;
   debounceFrames: number;
@@ -55,7 +55,7 @@ class SileroVad implements Vad {
     callback: (event: "SPEECH_START" | "SPEECH_END") => void
   ) {
     if (!this.vad) {
-      throw new Error("VAD not initialized)");
+      throw new Error("VAD not initialized");
     }
     this.vad(data, callback);
   }

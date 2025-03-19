@@ -72,23 +72,18 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  * const request = {
  *   name: "My application",
  *   type: "EXTERNAL",
- *   endpoint: "myapp.mydomain.com",
- *   textToSpeech: {
- *     productRef: "tts.google",
- *     config: {
- *       voice: "en-US-Casual-K"
- *     }
- *   },
+ *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
  *   speechToText: {
- *     productRef: "stt.google",
+ *     productRef: "stt.deepgram",
  *     config: {
+ *       model: "nova-2",
  *       languageCode: "en-US"
  *     }
  *   },
- *   intelligence: {
- *     productRef: "nlu.dialogflowcx",
+ *   textToSpeech: {
+ *     productRef: "tts.elevenlabs",
  *     config: {
- *       agentId: "your-agent-id"
+ *       voice: "lrTWbMInQjSJ9q5ywFKP"
  *     }
  *   }
  * };
@@ -115,15 +110,15 @@ class Applications {
    * @param {string} request.name - The name of the application
    * @param {ApplicationType} request.type - The type of application (e.g., EXTERNAL)
    * @param {string} request.endpoint - The endpoint where the application is hosted
-   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
-   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.google)
-   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" })
    * @param {SpeechToText} request.speechToText - The speech-to-text configuration
-   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.google)
-   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" })
+   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.deepgram)
+   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" })
+   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
+   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.elevenlabs)
+   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" })
    * @param {Intelligence} request.intelligence - The intelligence configuration
-   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., nlu.dialogflowcx)
-   * @param {object} request.intelligence.config - The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" })
+   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
+   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
    * @return {Promise<CreateAppResponse>} - The response object that contains the reference to the newly created application
    * @example
    * const apps = new SDK.Applications(client); // Existing client object
@@ -131,23 +126,17 @@ class Applications {
    * const request = {
    *   name: "My application",
    *   type: "EXTERNAL",
-   *   endpoint: "myapp.mydomain.com",
-   *   textToSpeech: {
-   *     productRef: "tts.google",
-   *     config: {
-   *       voice: "en-US-Casual-K"
-   *     }
-   *   },
+   *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
    *   speechToText: {
-   *     productRef: "stt.google",
+   *     productRef: "stt.deepgram",
    *     config: {
    *       languageCode: "en-US"
    *     }
    *   },
-   *   intelligence: {
-   *     productRef: "nlu.dialogflowcx",
+   *   textToSpeech: {
+   *     productRef: "tts.elevenlabs",
    *     config: {
-   *       agentId: "your-agent-id"
+   *       voice: "lrTWbMInQjSJ9q5ywFKP"
    *     }
    *   }
    * };
@@ -228,15 +217,15 @@ class Applications {
    * @param {string} request.ref - The reference of the application to update
    * @param {string} request.name - The name of the application
    * @param {string} request.endpoint - The endpoint where the application is hosted
-   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
-   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.google)
-   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" })
    * @param {SpeechToText} request.speechToText - The speech-to-text configuration
-   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.google)
-   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" })
+   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.deepgram)
+   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" })
+   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
+   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.elevenlabs)
+   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" })
    * @param {Intelligence} request.intelligence - The intelligence configuration
-   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., nlu.dialogflowcx)
-   * @param {object} request.intelligence.config - The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" })
+   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
+   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated application
    * @example
    * const apps = new SDK.Applications(client); // Existing client object
@@ -244,7 +233,7 @@ class Applications {
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "My application",
-   *   endpoint: "myapp.mydomain.com"
+   *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
    * };
    *
    * apps

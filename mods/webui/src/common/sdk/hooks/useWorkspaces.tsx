@@ -13,14 +13,15 @@ import {
   ListWorkspaceMembersResponse as BaseListWorkspaceMembersResponse,
   ListWorkspaceMembersRequest as BaseListWorkspaceMembersRequest,
   Role,
-  WorkspaceMemberStatus,
+  WorkspaceMemberStatus
 } from "@fonoster/types";
 import { Workspaces } from "@fonoster/sdk";
 import { useMemo } from "react";
 import { WorkspaceMemberDTO } from "@/types/dto/workspace/WorkspaceMemberDTO";
 
 // Extend the ListWorkspaceMembersResponse to include prevPageToken
-interface ListWorkspaceMembersResponse extends BaseListWorkspaceMembersResponse {
+interface ListWorkspaceMembersResponse
+  extends BaseListWorkspaceMembersResponse {
   prevPageToken?: string;
   recordTotal?: number;
   filterBy?: Record<string, string>;
@@ -54,10 +55,18 @@ export const useWorkspaces = () => {
       userRef: `user-${index}`,
       name: `User ${index + 1}`,
       email: `user${index + 1}@example.com`,
-      role: index % 3 === 0 ? Role.WORKSPACE_ADMIN : index % 3 === 1 ? Role.WORKSPACE_MEMBER : Role.WORKSPACE_OWNER,
-      status: index % 4 === 0 ? WorkspaceMemberStatus.PENDING : WorkspaceMemberStatus.ACTIVE,
-      createdAt: new Date(Date.now() - (index * 86400000)),
-      updatedAt: new Date(Date.now() - (index * 43200000))
+      role:
+        index % 3 === 0
+          ? Role.WORKSPACE_ADMIN
+          : index % 3 === 1
+            ? Role.WORKSPACE_MEMBER
+            : Role.WORKSPACE_OWNER,
+      status:
+        index % 4 === 0
+          ? WorkspaceMemberStatus.PENDING
+          : WorkspaceMemberStatus.ACTIVE,
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
     }),
     totalItems: 30,
     defaultPageSize: 10

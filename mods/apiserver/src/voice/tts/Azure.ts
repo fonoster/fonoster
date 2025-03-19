@@ -18,24 +18,14 @@
  */
 import { Readable } from "stream";
 import { AzureVoice } from "@fonoster/common";
-import { getLogger } from "@fonoster/logger";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
-import { isSsml } from "./isSsml";
-import { SynthOptions } from "./types";
+import { AzureTTSConfig, SynthOptions } from "./types";
+import { createChunkedSynthesisStream } from "./utils/createChunkedSynthesisStream";
+import { isSsml } from "./utils/isSsml";
 
 const ENGINE_NAME = "tts.azure";
-
-type AzureTTSConfig = {
-  [key: string]: Record<string, string>;
-  credentials: {
-    subscriptionKey: string;
-    serviceRegion: string;
-  };
-};
-
-const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   config: AzureTTSConfig;
@@ -48,56 +38,62 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.config = config;
   }
 
-  async synthesize(
+  synthesize(
     text: string,
     options: SynthOptions
-  ): Promise<{ ref: string; stream: Readable }> {
-    logger.verbose(
-      `synthesize [input: ${text}, isSsml=${isSsml(
-        text
-      )} options: ${JSON.stringify(options)}]`
-    );
+  ): { ref: string; stream: Readable } {
+    this.logSynthesisRequest(text, options);
 
+    const ref = this.createMediaReference();
     const { subscriptionKey, serviceRegion } = this.config.credentials;
-
+    const voice = options.voice || this.config.config.voice;
     const speechConfig = sdk.SpeechConfig.fromSubscription(
       subscriptionKey,
       serviceRegion
     );
-
-    speechConfig.speechSynthesisVoiceName = options.voice;
+    speechConfig.speechSynthesisVoiceName = voice;
     speechConfig.speechSynthesisOutputFormat =
       sdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm;
 
-    const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
-    const isSSML = isSsml(text);
-    const func = isSSML ? "speakSsmlAsync" : "speakTextAsync";
+    const stream = createChunkedSynthesisStream(text, async (chunkText) => {
+      const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
+      const isSSML = isSsml(chunkText);
+      const func = isSSML ? "speakSsmlAsync" : "speakTextAsync";
 
-    const audioData = await new Promise<Buffer>((resolve, reject) => {
-      const audioChunks: Buffer[] = [];
+      try {
+        const audioData = await new Promise<Buffer>((resolve, reject) => {
+          const audioChunks: Buffer[] = [];
 
-      synthesizer[func](
-        text,
-        (result) => {
-          if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-            audioChunks.push(Buffer.from(result.audioData));
-            resolve(Buffer.concat(audioChunks));
-          } else {
-            reject(
-              new Error("Speech synthesis canceled: " + result.errorDetails)
-            );
-          }
-          synthesizer.close();
-        },
-        (err: string) => {
-          synthesizer.close();
-          reject(new Error(err));
-        }
-      );
+          synthesizer[func](
+            chunkText,
+            (result) => {
+              if (
+                result.reason === sdk.ResultReason.SynthesizingAudioCompleted
+              ) {
+                audioChunks.push(Buffer.from(result.audioData));
+                resolve(Buffer.concat(audioChunks));
+              } else {
+                reject(
+                  new Error("Speech synthesis canceled: " + result.errorDetails)
+                );
+              }
+              synthesizer.close();
+            },
+            (err: string) => {
+              synthesizer.close();
+              reject(new Error(err));
+            }
+          );
+        });
+
+        // Ignore the first 44 bytes of the response to avoid the WAV header
+        return audioData.subarray(44);
+      } catch (error) {
+        // Make sure synthesizer is closed in case of error
+        synthesizer.close();
+        throw error;
+      }
     });
-
-    const ref = this.createMediaReference();
-    const stream = Readable.from(audioData);
 
     return { ref, stream };
   }

@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
-import {  Layout as LayoutAuth } from "@/common/components/layout/auth/Layout";
+import { Layout as LayoutAuth } from "@/common/components/layout/auth/Layout";
 import { FonosterProvider } from "@/common/sdk/provider/FonosterContext";
 import { WorkspaceProvider } from "@/common/sdk/provider/WorkspaceContext";
 import { ThemeProvider } from "@mui/material/styles";
@@ -33,15 +33,15 @@ export default function App({ Component, pageProps }: AppProps) {
           />
         </Head>
         <FonosterProvider>
-          {isPageNotAuthentication ?
+          {isPageNotAuthentication ? (
             <Component {...pageProps} />
-            : (
-              <WorkspaceProvider>
-                <LayoutAuth>
-                  <Component {...pageProps} />
-                </LayoutAuth>
-              </WorkspaceProvider>
-            )}
+          ) : (
+            <WorkspaceProvider>
+              <LayoutAuth>
+                <Component {...pageProps} />
+              </LayoutAuth>
+            </WorkspaceProvider>
+          )}
         </FonosterProvider>
       </ThemeProvider>
     </AppRouterCacheProvider>

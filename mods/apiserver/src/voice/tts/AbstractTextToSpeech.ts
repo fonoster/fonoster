@@ -17,10 +17,15 @@
  * limitations under the License.
  */
 import { Readable } from "stream";
+import { getLogger } from "@fonoster/logger";
 import { v4 as uuidv4 } from "uuid";
 import * as z from "zod";
 import { MethodNotImplementedError } from "../errors/MethodNotImplementedError";
 import { SynthOptions } from "./types";
+import { createErrorStream } from "./utils/createErrorStream";
+import { isSsml } from "./utils/isSsml";
+
+const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 abstract class AbstractTextToSpeech<E, S extends SynthOptions = SynthOptions> {
   abstract readonly engineName: E;
@@ -30,7 +35,7 @@ abstract class AbstractTextToSpeech<E, S extends SynthOptions = SynthOptions> {
   abstract synthesize(
     text: string,
     options: S
-  ): Promise<{ ref: string; stream: Readable }>;
+  ): { ref: string; stream: Readable };
 
   static getConfigValidationSchema(): z.Schema {
     throw new MethodNotImplementedError();
@@ -46,6 +51,31 @@ abstract class AbstractTextToSpeech<E, S extends SynthOptions = SynthOptions> {
 
   getName(): E {
     return this.engineName;
+  }
+
+  protected logSynthesisRequest(text: string, options: S): void {
+    logger.verbose(
+      `synthesize [input: ${text}, isSsml=${isSsml(
+        text
+      )} options: ${JSON.stringify(options)}]`
+    );
+  }
+
+  protected async safeSynthesize(
+    ref: string,
+    synthesisFunction: () => Promise<Readable>
+  ): Promise<{ ref: string; stream: Readable }> {
+    try {
+      const stream = await synthesisFunction();
+      return { ref, stream };
+    } catch (error) {
+      return {
+        ref,
+        stream: createErrorStream(
+          `${this.engineName} synthesis failed: ${error.message}`
+        )
+      };
+    }
   }
 }
 

@@ -46,7 +46,7 @@ const ListWorkspacePage = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const logged = await loggedUser();
-      setUser(logged ? (logged as unknown) as User : null);
+      setUser(logged ? (logged as unknown as User) : null);
     };
     fetchUser();
   }, []);
@@ -71,19 +71,17 @@ const ListWorkspacePage = () => {
 
   return (
     <WorkspaceContainer>
-
-      <Typography
-        variant="heading-large"
-        sx={{ mt: 3 }}
-      >
+      <Typography variant="heading-large" sx={{ mt: 3 }}>
         {`Hey ${user?.name}, welcome to Fonoster! 👋`}
       </Typography>
 
       <Typography
         variant="body-medium"
-        sx={{ color: 'text.secondary', mt: 3, mb: 3 }}
+        sx={{ color: "text.secondary", mt: 3, mb: 3 }}
       >
-        {'Create a new workspace to begin managing your SIP Network and Programmable Voice Applications.'}
+        {
+          "Create a new workspace to begin managing your SIP Network and Programmable Voice Applications."
+        }
       </Typography>
 
       <WorkspaceGrid>
@@ -91,17 +89,23 @@ const ListWorkspacePage = () => {
           <Typography variant="body-medium">Loading workspaces...</Typography>
         ) : (
           <>
-            {workspaces.filter(workspace => workspace && workspace.ref).map((workspace) => (
-              <WorkspaceCard
-                key={workspace.ref}
-                variant="regular"
-                region={process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
-                description={workspace.name}
-                date={workspace.createdAt ? workspace.createdAt.toLocaleDateString() : 'N/A'}
-                onClick={() => handleWorkspaceClick(workspace.ref)}
-                disabled={false}
-              />
-            ))}
+            {workspaces
+              .filter((workspace) => workspace && workspace.ref)
+              .map((workspace) => (
+                <WorkspaceCard
+                  key={workspace.ref}
+                  variant="regular"
+                  region={process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
+                  description={workspace.name}
+                  date={
+                    workspace.createdAt
+                      ? workspace.createdAt.toLocaleDateString()
+                      : "N/A"
+                  }
+                  onClick={() => handleWorkspaceClick(workspace.ref)}
+                  disabled={false}
+                />
+              ))}
             <WorkspaceCard
               variant="empty"
               onClick={handleCreateWorkspace}
@@ -115,7 +119,7 @@ const ListWorkspacePage = () => {
         onClose={handleCloseModal}
         onSuccess={handleCreateSuccess}
       />
-    </WorkspaceContainer >
+    </WorkspaceContainer>
   );
 };
 

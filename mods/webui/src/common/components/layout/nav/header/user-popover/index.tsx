@@ -32,15 +32,12 @@ export function UserPopover({
     if (onClose) {
       onClose();
     }
-    router.push('/personal/settings');
+    router.push("/personal/settings");
   };
 
-  const handleSignOut = React.useCallback(
-    async (): Promise<void> => {
-      authentication.signOut();
-    },
-    [authentication]
-  );
+  const handleSignOut = React.useCallback(async (): Promise<void> => {
+    authentication.signOut();
+  }, [authentication]);
   return (
     <Popover
       anchorEl={anchorEl}

@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { Box, Divider, Stack } from "@mui/material";
 import { GitHub as GitHubIcon } from "@mui/icons-material";
-import { Layout, PageContainer, Card, Content } from '@/common/components/layout/noAuth/Layout';
-import { useRouter } from 'next/router';
-import { useForm } from 'react-hook-form';
-import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
-import { Button } from '@stories/button/Button';
-import { OAuthState } from '@/types/oauth';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { InputContext } from '@/common/hooksForm/InputContext';
-import { AuthProvider } from '@/common/sdk/auth/AuthClient';
-import { OAUTH_CONFIG } from '@/config/oauth';
-import { Typography } from '@stories/typography/Typography';
-import { Link } from '@/common/components';
+import {
+  Layout,
+  PageContainer,
+  Card,
+  Content
+} from "@/common/components/layout/noAuth/Layout";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
+import { Button } from "@stories/button/Button";
+import { OAuthState } from "@/types/oauth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { InputContext } from "@/common/hooksForm/InputContext";
+import { AuthProvider } from "@/common/sdk/auth/AuthClient";
+import { OAUTH_CONFIG } from "@/config/oauth";
+import { Typography } from "@stories/typography/Typography";
+import { Link } from "@/common/components";
 
 interface LoginForm {
   email: string;
@@ -104,11 +109,8 @@ const LoginPage = () => {
               id="signin-password"
               helperText="Please enter your password"
             />
-            <Box sx={{ textAlign: 'right', mb: 2 }}>
-              <Link
-                href="/forgot-password"
-                label="Forgot password?"
-              />
+            <Box sx={{ textAlign: "right", mb: 2 }}>
+              <Link href="/forgot-password" label="Forgot password?" />
             </Box>
             {errors.root && errors.root.message && (
               <Typography variant="body-small" color="error">
@@ -153,11 +155,7 @@ const LoginPage = () => {
                   Sign up
                 </Typography>
 
-                <Link
-                  href="/signup"
-                  label="here"
-                />
-
+                <Link href="/signup" label="here" />
               </Stack>
             </Box>
           </Content>

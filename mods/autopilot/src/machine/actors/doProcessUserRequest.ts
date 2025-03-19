@@ -38,7 +38,7 @@ export const doProcessUserRequest = fromPromise(
 
     try {
       if (response.type === "say" && !response.content) {
-        logger.verbose("call might already be hung up");
+        logger.warn("ignoring say response with no content");
         return;
       } else if (response.type === "hangup") {
         await context.voice.say(context.goodbyeMessage);

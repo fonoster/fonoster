@@ -6,7 +6,7 @@ import {
   Box,
   TextField,
   IconButton,
-  InputAdornment,
+  InputAdornment
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { ProgressIndicator } from "../../../stories/progessindicator/ProgressIndicator";
@@ -114,11 +114,9 @@ const CreateWorkspacePage = () => {
       }
       const isValid = await trigger("workspaceName");
       return isValid;
-    }
-    else if (activeStep === 1) {
+    } else if (activeStep === 1) {
       return true;
-    }
-    else if (activeStep === 2) {
+    } else if (activeStep === 2) {
       if (!isApiKeyGenerated) {
         if (!currentValues.secretName?.trim()) {
           methods.setError("secretName", {
@@ -210,9 +208,11 @@ const CreateWorkspacePage = () => {
     switch (step) {
       case 0:
         return (
-          <Content title="Create a workspace to begin managing your queue"
-            description={'Manage all resources in your Fonoster workspace. You can also invite members, access applications, enable integrations, and more.'}
-
+          <Content
+            title="Create a workspace to begin managing your queue"
+            description={
+              "Manage all resources in your Fonoster workspace. You can also invite members, access applications, enable integrations, and more."
+            }
           >
             <Stack spacing={3}>
               <InputContext
@@ -231,7 +231,13 @@ const CreateWorkspacePage = () => {
                 </Typography>
               )}
 
-              <Box style={{ display: "flex", justifyContent: "center", marginTop: '2.5rem' }}>
+              <Box
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "2.5rem"
+                }}
+              >
                 <Button
                   fullWidth
                   variant="contained"
@@ -243,8 +249,13 @@ const CreateWorkspacePage = () => {
                 </Button>
               </Box>
 
-
-              <Box style={{ display: "flex", justifyContent: "center", marginTop: '15px' }}>
+              <Box
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "15px"
+                }}
+              >
                 <Typography
                   variant="body-small-underline"
                   sx={{ cursor: "pointer" }}
@@ -260,8 +271,11 @@ const CreateWorkspacePage = () => {
       case 1:
         return (
           <Stack>
-            <Content title="Select your region"
-              description={'Select the region closest to your business operations'}
+            <Content
+              title="Select your region"
+              description={
+                "Select the region closest to your business operations"
+              }
             >
               <SelectContext
                 id="workspace-create-region"
@@ -288,7 +302,9 @@ const CreateWorkspacePage = () => {
                 Continue
               </Button>
 
-              <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}
+              >
                 <Typography
                   variant="body-small-underline"
                   color="primary"
@@ -313,12 +329,13 @@ const CreateWorkspacePage = () => {
       case 2:
         return (
           <Stack spacing={3}>
-            <Content title={
-              isApiKeyGenerated ? "Copy API Key" : "Generate API Key"
-            }
-              description={isApiKeyGenerated
-                ? "Store this API key securely. You won't be able to see it again."
-                : "Fill in the details to generate your API key."}
+            <Content
+              title={isApiKeyGenerated ? "Copy API Key" : "Generate API Key"}
+              description={
+                isApiKeyGenerated
+                  ? "Store this API key securely. You won't be able to see it again."
+                  : "Fill in the details to generate your API key."
+              }
             >
               {!isApiKeyGenerated ? (
                 <>
@@ -405,13 +422,15 @@ const CreateWorkspacePage = () => {
                   />
 
                   <Typography variant="body-small" color="error" align="center">
-                    Make sure to copy your API key and secret before closing this
-                    window. You won't be able to see them again.
+                    Make sure to copy your API key and secret before closing
+                    this window. You won't be able to see them again.
                   </Typography>
                 </>
               )}
 
-              <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}
+              >
                 <Typography
                   variant="body-small-underline"
                   color="primary"
@@ -430,7 +449,6 @@ const CreateWorkspacePage = () => {
                 </Typography>
               </Box>
             </Content>
-
           </Stack>
         );
 

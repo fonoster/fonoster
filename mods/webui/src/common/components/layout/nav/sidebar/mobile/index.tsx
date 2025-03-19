@@ -79,9 +79,7 @@ export function MobileNav({
         {renderNavGroups({ items, onClose, pathname })}
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Typography
-          variant="mono-small"
-        >
+        <Typography variant="mono-small">
           &copy; 2024, FONOSTER. V0.3.4
         </Typography>
       </Stack>
@@ -104,11 +102,7 @@ function renderNavGroups({
         <Stack component="li" key={curr.key} spacing={1.5}>
           {curr.title ? (
             <div>
-              <Typography
-                variant="drawer-label"
-              >
-                {curr.title}
-              </Typography>
+              <Typography variant="drawer-label">{curr.title}</Typography>
             </div>
           ) : null}
           <div>
@@ -180,11 +174,11 @@ function renderNavItems({
         >
           {childItems
             ? renderNavItems({
-              depth: depth + 1,
-              items: childItems,
-              onClose,
-              pathname
-            })
+                depth: depth + 1,
+                items: childItems,
+                onClose,
+                pathname
+              })
             : null}
         </NavItem>
       );
@@ -254,29 +248,29 @@ function NavItem({
       <Box
         {...(isBranch
           ? {
-            onClick: (): void => {
-              setOpen(!open);
-            },
-            onKeyUp: (event: React.KeyboardEvent<HTMLElement>): void => {
-              if (event.key === "Enter" || event.key === " ") {
+              onClick: (): void => {
                 setOpen(!open);
-              }
-            },
-            role: "button"
-          }
-          : {
-            ...(href
-              ? {
-                component: external ? "a" : RouterLink,
-                href,
-                target: external ? "_blank" : undefined,
-                rel: external ? "noreferrer" : undefined,
-                onClick: (): void => {
-                  onClose?.();
+              },
+              onKeyUp: (event: React.KeyboardEvent<HTMLElement>): void => {
+                if (event.key === "Enter" || event.key === " ") {
+                  setOpen(!open);
                 }
-              }
-              : { role: "button" })
-          })}
+              },
+              role: "button"
+            }
+          : {
+              ...(href
+                ? {
+                    component: external ? "a" : RouterLink,
+                    href,
+                    target: external ? "_blank" : undefined,
+                    rel: external ? "noreferrer" : undefined,
+                    onClick: (): void => {
+                      onClose?.();
+                    }
+                  }
+                : { role: "button" })
+            })}
         sx={{
           alignItems: "center",
           borderRadius: 1,
@@ -313,9 +307,9 @@ function NavItem({
           "&:hover": {
             ...(!disabled &&
               !active && {
-              bgcolor: "var(--NavItem-hover-background)",
-              color: "var(--NavItem-hover-color)"
-            })
+                bgcolor: "var(--NavItem-hover-background)",
+                color: "var(--NavItem-hover-color)"
+              })
           }
         }}
         tabIndex={0}
@@ -341,11 +335,7 @@ function NavItem({
           ) : null}
         </Box>
         <Box sx={{ flex: "1 1 auto" }}>
-          <Typography
-            component="span"
-            variant="drawer-label"
-
-          >
+          <Typography component="span" variant="drawer-label">
             {title}
             {active && (
               <Box

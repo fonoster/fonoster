@@ -123,7 +123,9 @@ abstract class AbstractLanguageModel implements LanguageModel {
           default:
             if (isFirstTool) {
               const tool = toolsCatalog.getTool(toolName);
-              await this.voice.say(tool?.requestStartMessage ?? "");
+              if (tool?.requestStartMessage) {
+                await this.voice.say(tool?.requestStartMessage);
+              }
             }
 
             await toolInvocation({

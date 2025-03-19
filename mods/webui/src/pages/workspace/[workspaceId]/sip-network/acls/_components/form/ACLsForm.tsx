@@ -47,7 +47,12 @@ function FormSkeleton({ formId = "acl-form" }: { formId?: string }) {
           <Skeleton variant="text" width={264} height={32} />
         </Box>
 
-        <Skeleton variant="rectangular" width={138} height={33} sx={{ borderRadius: 4 }} />
+        <Skeleton
+          variant="rectangular"
+          width={138}
+          height={33}
+          sx={{ borderRadius: 4 }}
+        />
       </Box>
 
       {/* Subheader skeleton */}
@@ -59,17 +64,32 @@ function FormSkeleton({ formId = "acl-form" }: { formId?: string }) {
       <Box sx={{ px: 3, pb: 3 }}>
         {/* Name field */}
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         {/* Allowed Networks field */}
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         {/* Denied Networks field */}
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={40} width={440} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={40}
+            width={440}
+            sx={{ borderRadius: 1 }}
+          />
         </Box>
 
         {/* Add Rule button */}
@@ -125,11 +145,7 @@ export default function ACLsForm({
             router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/acls`)
         }}
         actions={
-          <Button
-            variant="contained"
-            disabled={!isValid}
-            onClick={onSubmit}
-          >
+          <Button variant="contained" disabled={!isValid} onClick={onSubmit}>
             {!isEditMode ? "Create ACL" : "Update ACL"}
           </Button>
         }

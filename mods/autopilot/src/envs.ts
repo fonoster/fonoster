@@ -39,7 +39,6 @@ export const UNSTRUCTURED_API_KEY = e.AUTOPILOT_UNSTRUCTURED_API_KEY ?? "";
 export const UNSTRUCTURED_API_URL =
   e.AUTOPILOT_UNSTRUCTURED_API_URL ??
   "https://api.unstructuredapp.io/general/v0/general";
-export const SILERO_VAD_VERSION = e.AUTOPILOT_SILERO_VAD_VERSION ?? "v5";
 export const CONVERSATION_PROVIDER = e.AUTOPILOT_CONVERSATION_PROVIDER
   ? e.AUTOPILOT_CONVERSATION_PROVIDER
   : ConversationProvider.FILE;
@@ -54,11 +53,6 @@ export const INTEGRATIONS_FILE = e.AUTOPILOT_INTEGRATIONS_FILE
   : "/opt/fonoster/integrations.json";
 export const OPENAI_API_KEY = e.AUTOPILOT_OPENAI_API_KEY;
 export const SKIP_IDENTITY = e.AUTOPILOT_SKIP_IDENTITY === "true";
-
-if (SILERO_VAD_VERSION !== "v4" && SILERO_VAD_VERSION !== "v5") {
-  console.error("SILERO_VAD_VERSION must be set to 'v4' or 'v5'");
-  process.exit(1);
-}
 
 if (
   CONVERSATION_PROVIDER!.toLocaleLowerCase() !== ConversationProvider.API &&
