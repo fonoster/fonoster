@@ -2,12 +2,12 @@ import { useMemo } from "react";
 import { useFonosterClient } from "@/common/sdk/hooks/useFonosterClient";
 import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
+  Trunk,
+  BaseApiObject,
   CreateTrunkRequest,
   UpdateTrunkRequest,
   ListTrunksRequest,
   ListTrunksResponse,
-  Trunk,
-  BaseApiObject
 } from "@fonoster/types";
 import { Trunks } from "@fonoster/sdk";
 
@@ -27,50 +27,23 @@ export const useTrunks = () => {
   }, [client]);
 
   const createTrunk = async (
-    payload: CreateTrunkRequest
+    data: CreateTrunkRequest
   ): Promise<BaseApiObject | undefined> => {
     try {
       return await authentication.executeWithRefresh(() =>
-        _trunks.createTrunk(payload)
+        _trunks.createTrunk(data)
       );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
   };
 
-  const listTrunks = async (
-    payload: ListTrunksRequest = {
-      pageSize: 10,
-      pageToken: undefined
-    }
-  ): Promise<ListTrunksResponse | undefined> => {
-    try {
-      if (!isReady) return undefined;
-      return await authentication.executeWithRefresh(() =>
-        _trunks.listTrunks(payload)
-      );
-    } catch (error: any) {
-      console.error(error);
-      notifyError(error as ErrorType);
-    }
-  };
-
-  const getTrunk = async (ref: string): Promise<Trunk | undefined> => {
+  const getTrunk = async (
+    ref: string
+  ): Promise<Trunk | undefined> => {
     try {
       return await authentication.executeWithRefresh(() =>
         _trunks.getTrunk(ref)
-      );
-    } catch (error: any) {
-      notifyError(error as ErrorType);
-    }
-  };
-
-  const deleteTrunk = async (
-    ref: string
-  ): Promise<BaseApiObject | undefined> => {
-    try {
-      return await authentication.executeWithRefresh(() =>
-        _trunks.deleteTrunk(ref)
       );
     } catch (error: any) {
       notifyError(error as ErrorType);
@@ -89,12 +62,41 @@ export const useTrunks = () => {
     }
   };
 
+  const listTrunks = async (
+    data: ListTrunksRequest = {
+      pageSize: 10,
+      pageToken: undefined
+    }
+  ): Promise<ListTrunksResponse | undefined> => {
+    try {
+      if (!isReady) return undefined;
+
+      return await authentication.executeWithRefresh(() =>
+        _trunks.listTrunks(data)
+      );
+    } catch (error: any) {
+      notifyError(error as ErrorType);
+    }
+  };
+
+  const deleteTrunk = async (
+    ref: string
+  ): Promise<BaseApiObject | undefined> => {
+    try {
+      return await authentication.executeWithRefresh(() =>
+        _trunks.deleteTrunk(ref)
+      );
+    } catch (error: any) {
+      notifyError(error as ErrorType);
+    }
+  };
+
   return {
     isReady,
     createTrunk,
-    listTrunks,
-    updateTrunk,
     getTrunk,
+    updateTrunk,
+    listTrunks,
     deleteTrunk
   };
 };
