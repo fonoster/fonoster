@@ -104,11 +104,11 @@ TableHeaderComponent.Filter = ({
   ], [headers]);
 
   // Direct handler function
-  const handleChange = useCallback((event: { target: { value: string | number } }) => {
-    const value = event.target.value as string;
+  const handleChange = useCallback((event: { target: { value: string | number | (string | number)[] } }) => {
+    const value = Array.isArray(event.target.value) ? event.target.value[0] : event.target.value;
 
     // Update local state immediately
-    setSelectedOption(value);
+    setSelectedOption(value as string);
 
     // Then update the table filters
     if (value === "Filter By") {
@@ -121,7 +121,7 @@ TableHeaderComponent.Filter = ({
       if (setColumnFilters) {
         const newFilters = [
           {
-            id: value,
+            id: value as string,
             value: ""
           }
         ];
@@ -136,6 +136,7 @@ TableHeaderComponent.Filter = ({
       onChange={handleChange}
       options={options}
       label=""
+      size="medium"
       fullWidth
     />
   );
@@ -143,7 +144,7 @@ TableHeaderComponent.Filter = ({
 
 TableHeaderComponent.Search = ({
   placeholder = "Search Term",
-  size = "small",
+  size = "medium",
   fullWidth = true
 }: {
   placeholder?: string;
@@ -212,6 +213,7 @@ TableHeaderComponent.Pagination = () => {
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Pagination
+        disabled={fonosterResponse?.recordTotal === 0}
         count={fonosterResponse?.recordTotal || 0}
         rowsPerPage={pageSize}
         onClick={(event, newPage, lastPage) => {
@@ -244,8 +246,8 @@ TableHeaderComponent.SelectAll = () => {
         display: "flex",
         alignItems: "center",
         borderRadius: '4px',
-        height: '43px',
-        minWidth: '43px',
+        height: '42px',
+        minWidth: '42px',
         justifyContent: 'center',
         backgroundColor: `inherit`,
         border: `1px solid ${theme.palette.grey['200']}`,

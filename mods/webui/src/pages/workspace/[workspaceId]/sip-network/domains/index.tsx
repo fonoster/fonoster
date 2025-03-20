@@ -4,28 +4,34 @@ import PageContainer from "@/common/components/layout/pages";
 import { Button } from "@mui/material";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useRouter } from "next/router";
+import { Icon } from "@stories/icon/Icon";
+import QueryData from "@/common/contexts/table/QueryData";
+import { useDomains } from "@/common/sdk/hooks/useDomains";
 
 const columns: ColumnDef<Domain>[] = [
   {
-    accessorKey: "name",
+    id: "name",
     header: "Name",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: Domain } }) => props.row.original.name
   },
   {
-    accessorKey: "domainUri",
+    id: "domainUri",
     header: "Domain URI",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: Domain } }) => props.row.original.domainUri
   },
   {
-    accessorKey: "egressRules",
+    id: "egressRules",
     header: "Egress Rules",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: any } }) => props.row.original.egressRules
   }
 ];
 
 export default function DomainsPage() {
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
+
+  const { listDomains } = useDomains();
+
 
   const handleNew = () => {
     router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/domains/new`);
@@ -36,7 +42,7 @@ export default function DomainsPage() {
       <PageContainer.Header
         title="Domains"
         actions={
-          <Button variant="contained" onClick={handleNew}>
+          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
             New Domain
           </Button>
         }
@@ -48,7 +54,14 @@ export default function DomainsPage() {
       <PageContainer.ContentTable<Domain>
         columns={columns}
         tableId="domains-table"
-      />
+        showSelectAll={true}
+        options={{
+          enableRowSelection: true
+        }}
+      >
+        <QueryData<Domain> fetchFunction={listDomains} pageSize={10} />
+
+      </PageContainer.ContentTable>
     </PageContainer>
   );
 }

@@ -78,8 +78,6 @@ export default function NumbersPage() {
         <QueryData<INumber> fetchFunction={listNumbers} pageSize={10} />
 
       </PageContainer.ContentTable>
-
-
     </PageContainer>
   );
 }
