@@ -7,6 +7,7 @@ import { JSX } from "react";
 type ReactTableProps<T extends object> = {
   columns: ColumnDef<T>[];
   children?: React.ReactNode;
+  enableRowSelection?: boolean;
 };
 
 interface ReactTableComponent {
@@ -21,9 +22,10 @@ interface ReactTableComponent {
 
 const ReactTable = <T extends object>({
   columns,
-  children
+  children,
+  enableRowSelection = false
 }: ReactTableProps<T>) => {
-  return <TableProvider<T> columns={columns}>{children}</TableProvider>;
+  return <TableProvider<T> columns={columns} enableRowSelection={enableRowSelection}>{children}</TableProvider>;
 };
 
 // Compound Components

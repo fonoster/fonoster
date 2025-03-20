@@ -6,6 +6,7 @@ import { FormProvider, UseFormReturn } from "react-hook-form";
 import { LinkBackTo } from "@stories/linkbackto/LinkBackTo";
 import { Typography } from "@stories/typography/Typography";
 import React from "react";
+import { TableOptions } from "@/common/contexts/table/TableComponent";
 
 interface PageContainerProps {
   children: ReactNode;
@@ -14,6 +15,10 @@ interface PageContainerProps {
 interface HeaderProps {
   title: string;
   actions?: ReactNode;
+  backTo?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 interface DescriptionProps {
@@ -27,6 +32,8 @@ interface ContentProps<T extends object> {
   showFilters?: boolean;
   showSearch?: boolean;
   showPagination?: boolean;
+  showSelectAll?: boolean;
+  options?: TableOptions;
 }
 
 interface ContentFormProps<T extends object> {
@@ -37,15 +44,6 @@ interface ContentFormProps<T extends object> {
 
 function PageContainer({ children }: PageContainerProps) {
   return <Box sx={{ mb: 6 }}>{children}</Box>;
-}
-
-interface HeaderProps {
-  title: string;
-  actions?: ReactNode;
-  backTo?: {
-    label: string;
-    onClick: () => void;
-  };
 }
 
 function Header({ title, actions, backTo }: HeaderProps) {
@@ -84,11 +82,14 @@ function ContentTable<T extends object>({
   tableId = "table",
   showFilters = true,
   showSearch = true,
-  showPagination = true
+  showPagination = true,
+  showSelectAll = true,
+  options
 }: ContentProps<T>) {
   return (
-    <ReactTable<T> columns={columns}>
+    <ReactTable<T> columns={columns} enableRowSelection={options?.enableRowSelection}>
       <ReactTable.Header>
+        {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}
         {showSearch && (
           <ReactTable.Header.Search
@@ -100,7 +101,7 @@ function ContentTable<T extends object>({
         {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />
-      <ReactTable.Content id={tableId} />
+      <ReactTable.Content id={tableId} options={options} />
       {children}
     </ReactTable>
   );

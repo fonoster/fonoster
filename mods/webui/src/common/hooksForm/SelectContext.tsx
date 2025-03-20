@@ -57,7 +57,6 @@ const SelectContext = ({
   const fieldValue = watch(name);
 
   const handleChange = (event: { target: { value: any } }) => {
-    console.log(event.target.value, "event.target.value");
     setValue(name, event.target.value, { shouldValidate: true });
     onChange(event);
   };

@@ -1,21 +1,26 @@
 "use client";
 
-import React from "react";
-import { Box, Grid } from "@mui/material";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import {
+  Box,
+  Grid,
+  useTheme
+} from "@mui/material";
 import { useTableContext } from "./useTableContext";
 import { Pagination } from "@stories/pagination/Pagination";
 import { InputText } from "@stories/inputtext/InputText";
-import { Icon } from "@stories/icon/Icon";
 import { Select } from "@stories/select/Select";
+import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
+import { Icon } from "@stories/icon/Icon";
 
 interface FilterProps {
   defaultFilter?: string;
 }
 
 interface SearchProps {
-  value?: string;
-  onChange?: (value: string) => void;
   placeholder?: string;
+  size?: "small" | "medium";
+  fullWidth?: boolean;
 }
 
 interface PaginationProps {
@@ -32,6 +37,7 @@ interface TableHeaderComponent extends React.FC<TableHeaderProps> {
   Filter: React.FC<FilterProps>;
   Search: React.FC<SearchProps>;
   Pagination: React.FC<PaginationProps>;
+  SelectAll: React.FC;
 }
 
 const TableHeaderComponent = <T extends object>({
@@ -77,65 +83,119 @@ const TableHeaderComponent = <T extends object>({
 
 // Compound Components
 TableHeaderComponent.Filter = ({
-  defaultFilter = "All"
+  defaultFilter = "Filter By"
 }: {
   defaultFilter?: string;
 }) => {
   const { headers, setColumnFilters, columnFilters } = useTableContext();
 
-  const options = headers.map((column, index) => ({
-    label:
-      index === 0
-        ? "All"
-        : column.header && typeof column.header === "string"
-          ? column.header
-          : `Column ${index}`,
-    value: index === 0 ? "All" : column.id || `column-${index}`
-  }));
+  // Use local state to control the select value directly
+  const [selectedOption, setSelectedOption] = useState<string>(defaultFilter);
 
-  // Get the first column filter if it exists
-  const currentFilter =
-    (columnFilters?.[0]?.value as string) || defaultFilter || "";
+  // Simple options array - use useMemo to prevent recreation on every render
+  const options = useMemo(() => [
+    { label: "Filter By", value: "Filter By" },
+    ...headers
+      .filter(column => column.id)
+      .map(column => ({
+        label: typeof column.header === "string" ? column.header : String(column.id),
+        value: column.id as string
+      }))
+  ], [headers]);
+
+  // Direct handler function
+  const handleChange = useCallback((event: { target: { value: string | number | (string | number)[] } }) => {
+    const value = Array.isArray(event.target.value) ? event.target.value[0] : event.target.value;
+
+    // Update local state immediately
+    setSelectedOption(value as string);
+
+    // Then update the table filters
+    if (value === "Filter By") {
+      // Clear filters completely
+      if (setColumnFilters) {
+        setColumnFilters([]);
+      }
+    } else {
+      // Set the new filter - ensure we're creating a new array to trigger state updates
+      if (setColumnFilters) {
+        const newFilters = [
+          {
+            id: value as string,
+            value: ""
+          }
+        ];
+        setColumnFilters(newFilters);
+      }
+    }
+  }, [setColumnFilters]);
 
   return (
     <Select
-      value={currentFilter}
-      onChange={(e) => {
-        const value = e.target.value;
-        if (value === "All") {
-          setColumnFilters?.([]);
-        } else {
-          setColumnFilters?.([
-            {
-              id: value as string,
-              value: value as string
-            }
-          ]);
-        }
-      }}
+      value={selectedOption}
+      onChange={handleChange}
       options={options}
       label=""
-      size="small"
+      size="medium"
       fullWidth
     />
   );
 };
 
 TableHeaderComponent.Search = ({
-  value = "",
-  onChange,
-  placeholder = "Search..."
-}: SearchProps) => {
-  const { globalFilter, setGlobalFilter } = useTableContext();
+  placeholder = "Search Term",
+  size = "medium",
+  fullWidth = true
+}: {
+  placeholder?: string;
+  size?: "small" | "medium";
+  fullWidth?: boolean;
+}) => {
+  const { setGlobalFilter, columnFilters, setColumnFilters } = useTableContext();
+  const [searchValue, setSearchValue] = useState("");
+
+  // Sync with global filter when has internally changes
+  useEffect(() => {
+    // If there is a column filter selected, update the search value
+    if (columnFilters && columnFilters.length > 0) {
+      const currentFilter = columnFilters[0];
+      if (currentFilter?.value && typeof currentFilter.value === 'string') {
+        setSearchValue(currentFilter.value);
+      }
+    }
+  }, [columnFilters]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+
+    // If there is a column filter selected, update its value
+    if (columnFilters && columnFilters.length > 0) {
+      const currentFilter = columnFilters[0];
+      if (setColumnFilters) {
+        setColumnFilters([
+          {
+            id: currentFilter.id,
+            value: value
+          }
+        ]);
+      }
+    } else {
+      // If there is not a column filter, use the global filter
+      if (setGlobalFilter) {
+        setGlobalFilter(value);
+      }
+    }
+  }, [setGlobalFilter, columnFilters, setColumnFilters]);
 
   return (
     <InputText
-      leadingIcon={<Icon fontSize="small" name="Search" />}
-      onChange={(e) => setGlobalFilter?.(e.target.value)}
-      value={globalFilter || value}
       placeholder={placeholder}
-      shrink={false}
-      size="small"
+      value={searchValue}
+      onChange={handleChange}
+      size={size}
+      fullWidth={fullWidth}
+      trailingIcon={<Icon fontSize="small" name="Search" />}
     />
   );
 };
@@ -153,16 +213,61 @@ TableHeaderComponent.Pagination = () => {
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Pagination
+        disabled={fonosterResponse?.recordTotal === 0}
         count={fonosterResponse?.recordTotal || 0}
         rowsPerPage={pageSize}
         onClick={(event, newPage, lastPage) => {
           if (newPage > lastPage) {
             setNextPageCursor?.(fonosterResponse?.nextPageToken);
             nextPage?.();
-          } else {
+          }
+          else {
             setPrevPageCursor?.(fonosterResponse?.prevPageToken);
             previousPage?.();
           }
+        }}
+      />
+    </Box>
+  );
+};
+
+TableHeaderComponent.SelectAll = () => {
+  const {
+    getIsAllRowsSelected,
+    getIsSomeRowsSelected,
+    table
+  } = useTableContext();
+
+  const theme = useTheme()
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        borderRadius: '4px',
+        height: '42px',
+        minWidth: '42px',
+        justifyContent: 'center',
+        backgroundColor: `${theme.palette.grey['200']}`,
+        padding: '8px 12px',
+        '&:hover': {
+          borderColor: 'rgba(0, 0, 0, 0.87)',
+          cursor: 'pointer',
+          backgroundColor: '#F8F9FA'
+        }
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        table.toggleAllRowsSelected(!getIsAllRowsSelected());
+      }}
+    >
+      <IndeterminateCheckbox
+        checked={getIsAllRowsSelected()}
+        indeterminate={getIsSomeRowsSelected()}
+        onChange={(e) => {
+          e.stopPropagation(); // Prevent event propagation
+          table.toggleAllRowsSelected(!getIsAllRowsSelected());
         }}
       />
     </Box>

@@ -16,6 +16,7 @@ import classNames from "classnames";
 import { useTableContext } from "./useTableContext";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -39,6 +40,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey["100"]}`
   },
   padding: "8px 16px",
+  paddingLeft: 'unset',
   height: "13px"
 }));
 
@@ -73,15 +75,9 @@ const StyledTableContainer = styled(TableContainer)({
   }
 });
 
-interface MyDataType {
-  name: string;
-  domainURI: string;
-  egressRules: string;
-  [key: string]: any;
-}
-
-interface TableOptions {
-  filtersDirection: "up" | "down" | undefined;
+export interface TableOptions {
+  filtersDirection?: "up" | "down" | undefined;
+  enableRowSelection?: boolean;
 }
 
 interface TableComponentProps<TData extends Object> {
@@ -117,7 +113,14 @@ const TableComponent = <TData extends Object>({
   rowClassName,
   options
 }: TableComponentProps<TData>) => {
-  const { table, loadingData } = useTableContext<TData>();
+  const {
+    table,
+    loadingData
+  } = useTableContext<TData>();
+
+  // Check if row selection is enabled
+  const enableRowSelection = options?.enableRowSelection || false;
+
   return (
     <StyledTableContainer>
       <MUITable
@@ -128,6 +131,12 @@ const TableComponent = <TData extends Object>({
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
+              {/* Row selection column - empty header cell */}
+              {enableRowSelection && (
+                <StyledTableCell padding="checkbox" align="center" style={{ width: '48px' }}>
+                  {/* Select all checkbox moved to TableHeader.tsx */}
+                </StyledTableCell>
+              )}
               {headerGroup.headers.map((header) => (
                 <StyledTableCell key={header.id} align="left">
                   <StyledTableSortLabel
@@ -163,6 +172,21 @@ const TableComponent = <TData extends Object>({
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row, i) => (
               <StyledTableRow key={row.id} className={classNames(rowClassName)}>
+                {/* Checkbox to select a row */}
+                {enableRowSelection && (
+                  <StyledTableCell padding="checkbox" align="center">
+                    <IndeterminateCheckbox
+                      checked={row.getIsSelected()}
+                      disabled={!row.getCanSelect()}
+                      indeterminate={row.getIsSomeSelected()}
+                      onChange={(e) => {
+                        // Use a more stable event handler
+                        e.stopPropagation(); // Prevent event propagation
+                        row.toggleSelected(!row.getIsSelected());
+                      }}
+                    />
+                  </StyledTableCell>
+                )}
                 {row.getVisibleCells().map((cell) => (
                   <StyledTableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -172,7 +196,7 @@ const TableComponent = <TData extends Object>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={table.getAllColumns().length} align="center">
+              <TableCell colSpan={enableRowSelection ? table.getAllColumns().length + 1 : table.getAllColumns().length} align="center">
                 {loadingData ? "Loading..." : "No data available"}
               </TableCell>
             </TableRow>
