@@ -104,11 +104,11 @@ TableHeaderComponent.Filter = ({
   ], [headers]);
 
   // Direct handler function
-  const handleChange = useCallback((event: { target: { value: string | number } }) => {
-    const value = event.target.value as string;
+  const handleChange = useCallback((event: { target: { value: string | number | (string | number)[] } }) => {
+    const value = Array.isArray(event.target.value) ? event.target.value[0] : event.target.value;
 
     // Update local state immediately
-    setSelectedOption(value);
+    setSelectedOption(value as string);
 
     // Then update the table filters
     if (value === "Filter By") {
@@ -121,7 +121,7 @@ TableHeaderComponent.Filter = ({
       if (setColumnFilters) {
         const newFilters = [
           {
-            id: value,
+            id: value as string,
             value: ""
           }
         ];
@@ -213,6 +213,7 @@ TableHeaderComponent.Pagination = () => {
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Pagination
+        disabled={fonosterResponse?.recordTotal === 0}
         count={fonosterResponse?.recordTotal || 0}
         rowsPerPage={pageSize}
         onClick={(event, newPage, lastPage) => {
