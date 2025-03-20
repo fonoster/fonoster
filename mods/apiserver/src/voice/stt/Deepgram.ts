@@ -229,9 +229,10 @@ function buildTranscribeConfig(config: {
   return {
     ...config,
     model: config.model || DeepgramModel.NOVA_2_PHONECALL,
+    language: config.languageCode || VoiceLanguage.EN_US,
     encoding: "linear16",
     sample_rate: 16000,
-    language: config.languageCode || VoiceLanguage.EN_US,
+    channels: 1,
     smart_format: config.smartFormat || true,
     // This needs to be set to true to avoid delays while using smart_format
     no_delay: config.noDelay || true
