@@ -1,37 +1,38 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button, CircularProgress, Box } from "@mui/material";
 import { useRouter } from "next/router";
-import { INumberExtended } from "@fonoster/types";
+import { INumber } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useNumbers } from "@/common/sdk/hooks/useNumbers";
-import { useEffect, useState } from "react";
+import { Icon } from "@stories/icon/Icon";
+import QueryData from "@/common/contexts/table/QueryData";
+import { Button } from "@stories/button/Button";
 
-const columns: ColumnDef<INumberExtended>[] = [
+const columns: ColumnDef<INumber>[] = [
   {
-    accessorKey: "name",
+    id: "name",
     header: "Name",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: INumber } }) => props.row.original.name
   },
   {
-    accessorKey: "telUrl",
+    id: "telUrl",
     header: "Tel URL",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: INumber } }) => props.row.original.telUrl
   },
   {
-    accessorKey: "city",
-    header: "City",
-    cell: (info: any) => info.getValue()
+    id: "city",
+    header: "Address",
+    cell: (props: { row: { original: INumber } }) => `${props.row.original.city}, ${props.row.original.countryIsoCode}, ${props.row.original.country}`
   },
   {
-    accessorKey: "country",
-    header: "Country",
-    cell: (info: any) => info.getValue()
+    id: "agentAor",
+    header: "Agent AOR",
+    cell: (props: { row: { original: INumber } }) => props.row.original.agentAor
   },
   {
-    accessorKey: "trunk",
-    header: "Trunk",
-    cell: (info: any) => info.getValue()?.name || "-"
+    id: "appRef",
+    header: "Application",
+    cell: (props: { row: { original: INumber } }) => props.row.original.appRef
   }
 ];
 
@@ -39,25 +40,6 @@ export default function NumbersPage() {
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
   const { listNumbers } = useNumbers();
-  const [numbers, setNumbers] = useState<INumberExtended[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchNumbers = async () => {
-      try {
-        const response = await listNumbers();
-        if (response && response.items) {
-          setNumbers(response.items);
-        }
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching numbers:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchNumbers();
-  }, []);
 
   const handleNew = () => {
     router.push(
@@ -65,7 +47,7 @@ export default function NumbersPage() {
     );
   };
 
-  const handleRowClick = (number: INumberExtended) => {
+  const handleRowClick = (number: INumber) => {
     router.push(
       `/workspace/${selectedWorkspace?.ref}/sip-network/numbers/${number.ref}`
     );
@@ -76,25 +58,28 @@ export default function NumbersPage() {
       <PageContainer.Header
         title="Numbers"
         actions={
-          <Button variant="contained" onClick={handleNew}>
-            New Number
+          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+            Create New Number
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Manage your phone numbers and their configurations.
+        You will need a Number to make and receive calls from the PSTN (traditional phones).
       </PageContainer.Subheader>
 
-      {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <PageContainer.ContentTable<INumberExtended>
-          columns={columns}
-          tableId="numbers-table"
-        />
-      )}
+      <PageContainer.ContentTable<INumber>
+        columns={columns}
+        tableId="numbers-table"
+        showSelectAll={true}
+        options={{
+          enableRowSelection: true
+        }}
+      >
+        <QueryData<INumber> fetchFunction={listNumbers} pageSize={10} />
+
+      </PageContainer.ContentTable>
+
+
     </PageContainer>
   );
 }
