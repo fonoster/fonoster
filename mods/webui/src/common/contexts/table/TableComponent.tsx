@@ -17,6 +17,8 @@ import { useTableContext } from "./useTableContext";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
+import { Typography } from "@stories/typography/Typography";
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -40,7 +42,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey["100"]}`
   },
   padding: "8px 16px",
-  paddingLeft: 'unset',
   height: "13px"
 }));
 
@@ -126,7 +127,7 @@ const TableComponent = <TData extends Object>({
       <MUITable
         id={`table-${id}`}
         className={classNames(tableClassName, loadingData ? "loading" : "")}
-        // size="small"
+      // size="small"
       >
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -197,7 +198,9 @@ const TableComponent = <TData extends Object>({
           ) : (
             <TableRow>
               <TableCell colSpan={enableRowSelection ? table.getAllColumns().length + 1 : table.getAllColumns().length} align="center">
-                {loadingData ? "Loading..." : "No data available"}
+                <Typography variant="body-small">
+                  {loadingData ? "Loading..." : "No data available"}
+                </Typography>
               </TableCell>
             </TableRow>
           )}

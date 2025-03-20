@@ -136,7 +136,6 @@ TableHeaderComponent.Filter = ({
       onChange={handleChange}
       options={options}
       label=""
-      size="small"
       fullWidth
     />
   );
@@ -245,16 +244,12 @@ TableHeaderComponent.SelectAll = () => {
         display: "flex",
         alignItems: "center",
         borderRadius: '4px',
-        height: '33px',
-        minWidth: '33px',
+        height: '43px',
+        minWidth: '43px',
         justifyContent: 'center',
-        backgroundColor: `${theme.palette.grey['200']}`,
-        padding: '8px 12px',
-        '&:hover': {
-          borderColor: 'rgba(0, 0, 0, 0.87)',
-          cursor: 'pointer',
-          backgroundColor: '#F8F9FA'
-        }
+        backgroundColor: `inherit`,
+        border: `1px solid ${theme.palette.grey['200']}`,
+        padding: '8px 12px'
       }}
       onClick={(e) => {
         e.stopPropagation();

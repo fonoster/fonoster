@@ -38,6 +38,7 @@ export interface ApplicationFormData {
     model: string;
     language: string;
   };
+
 }
 
 interface ApplicationFormProps {

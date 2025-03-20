@@ -12,7 +12,6 @@ import {
 } from "@fonoster/types";
 import { Applications } from "@fonoster/sdk";
 import { usePaginatedData } from "@/common/hooks/usePaginatedData";
-import { ApplicationDTO } from "@/types/dto";
 
 // Define the extended response type for our paginated data
 interface ListApplicationsResponse extends BaseListApplicationsResponse {
@@ -48,13 +47,19 @@ export const useApplications = () => {
     generateFakeData: (index) => ({
       ref: `app-${index}`,
       name: `Application ${index + 1}`, // This is required to be non-optional
-      projectId: `project-${index + 1}`,
-      tts: index % 2 === 0 ? "Google" : "Fonoster",
-      stt: index % 2 === 0 ? "Google" : "Fonoster",
-      intelligence:
-        index % 2 === 0
-          ? { productRef: "Google", config: {} }
-          : { productRef: "Fonoster", config: {} },
+      textToSpeech: {
+        productRef: `textToSpeech ${index + 1}`,
+        config: {
+          voice: "aura_asteria_en"
+        }
+      },
+      speechToText: {
+        productRef: `speechToText ${index + 1}`,
+        config: {
+          model: "nova-2",
+          language: "en-US"
+        }
+      },
       // Add any other required fields from Application type
       type:
         index % 2 === 0 ? ApplicationType.EXTERNAL : ApplicationType.AUTOPILOT,

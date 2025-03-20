@@ -83,7 +83,7 @@ function ContentTable<T extends object>({
   showFilters = true,
   showSearch = true,
   showPagination = true,
-  showSelectAll = true,
+  showSelectAll = false,
   options
 }: ContentProps<T>) {
   return (
@@ -92,11 +92,7 @@ function ContentTable<T extends object>({
         {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}
         {showSearch && (
-          <ReactTable.Header.Search
-            value={""}
-            onChange={() => {}}
-            placeholder="Search..."
-          />
+          <ReactTable.Header.Search/>
         )}
         {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>

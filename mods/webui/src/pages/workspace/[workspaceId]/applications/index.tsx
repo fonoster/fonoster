@@ -4,46 +4,32 @@ import PageContainer from "@/common/components/layout/pages";
 import { Button } from "@stories/button/Button";
 import { useApplications } from "@/common/sdk/hooks/useApplications";
 import { QueryData } from "@/common/contexts/table/QueryData";
-import { ListApplicationsResponse } from "@fonster/types";
-import { Stack } from "@mui/material";
-import { Icon } from "@stories/icon/Icon";
+import { Application } from "@fonster/types";
 
-const columns: ColumnDef<ListApplicationsResponse>[] = [
+const columns: ColumnDef<Application>[] = [
   {
     id: "ref",
     header: "Ref",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
+    cell: (props: { row: { original: Application } }) =>
       props.row.original.ref
   },
   {
     id: "name",
     header: "Name",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
+    cell: (props: { row: { original: Application } }) =>
       props.row.original.name
   },
   {
-    id: "projectId",
-    header: "Project ID",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.projectId
-  },
-  {
-    id: "tts",
+    id: "textToSpeech",
     header: "TTS",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.tts
+    cell: (props: { row: { original: Application } }) =>
+      props.row.original.textToSpeech?.productRef
   },
   {
-    id: "stt",
+    id: "speechToText",
     header: "STT",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.stt
-  },
-  {
-    id: "intelligence",
-    header: "Inteligence",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.intelligence?.productRef
+    cell: (props: { row: { original: Application } }) =>
+      props.row.original.speechToText?.productRef
   }
 ];
 
@@ -71,11 +57,11 @@ export default function ApplicationsPage() {
         your applications in execution.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<ListApplicationsResponse>
+      <PageContainer.ContentTable<Application>
         columns={columns}
         tableId="applications-table"
       >
-        <QueryData<ListApplicationsResponse>
+        <QueryData<Application>
           fetchFunction={listApplications}
           pageSize={10}
         />

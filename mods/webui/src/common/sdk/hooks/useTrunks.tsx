@@ -13,7 +13,7 @@ import { Trunks } from "@fonoster/sdk";
 import { usePaginatedData } from "@/common/hooks/usePaginatedData";
 
 // Extend the ListTrunksResponse to include prevPageToken
-interface ListTrunksResponse extends BaseListTrunksResponse {
+interface ListTrunksResponse extends BaseListTrunksResponse, Trunk {
   prevPageToken?: string;
   recordTotal?: number;
   filterBy?: Record<string, string>;
@@ -48,7 +48,7 @@ export const useTrunks = () => {
       projectId: `project-${index + 1}`,
       sendRegister: index % 2 === 0,
       inboundUri: `sip:trunk-${index + 1}@sip.fonoster.com`,
-      outboundUri: `sip:trunk-${index + 1}@sip.fonoster.com`,
+      outboundCredentialsRef: `sip:trunk-${index + 1}@sip.fonoster.com`,
       // Add any other required fields from Trunk type
       createdAt: new Date(Date.now() - (index * 86400000)),
       updatedAt: new Date(Date.now() - (index * 43200000))
@@ -98,11 +98,13 @@ export const useTrunks = () => {
     }
   ): Promise<ListTrunksResponse | undefined> => {
     try {
-      if (!isReady) return undefined;
+      return (await listItems(data)) as ListTrunksResponse;
 
-      return await authentication.executeWithRefresh(() =>
-        _trunks.listTrunks(data)
-      );
+      // if (!isReady) return undefined;
+
+      // return await authentication.executeWithRefresh(() =>
+      //   _trunks.listTrunks(data)
+      // );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }

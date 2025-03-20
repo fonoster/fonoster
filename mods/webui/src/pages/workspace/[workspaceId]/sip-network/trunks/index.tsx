@@ -4,34 +4,34 @@ import { Button } from "@stories/button/Button";
 
 import { QueryData } from "@/common/contexts/table/QueryData";
 import { useTrunks } from "@/common/sdk/hooks/useTrunks";
-import { ListTrunksResponse } from "@fonoster/types";
+import { Trunk } from "@fonoster/types";
 import { Icon } from "@stories/icon/Icon";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useRouter } from "next/router";
 
-const columns: ColumnDef<ListTrunksResponse>[] = [
+const columns: ColumnDef<Trunk>[] = [
   {
     id: "name",
     header: "Name",
-    cell: (props: { row: { original: ListTrunksResponse } }) => props.row.original.name
+    cell: (props: { row: { original: Trunk } }) => props.row.original.name
   },
   {
     id: "sendRegister",
     header: "Send Register",
-    cell: (props: { row: { original: ListTrunksResponse } }) =>
+    cell: (props: { row: { original: Trunk } }) =>
       props.row.original.sendRegister ? "True" : "False"
   },
   {
     id: "inboundUri",
     header: "Inbound SIP",
-    cell: (props: { row: { original: ListTrunksResponse } }) =>
+    cell: (props: { row: { original: Trunk } }) =>
       props.row.original.inboundUri
   },
   {
-    id: "outboundUri",
+    id: "outboundCredentialsRef",
     header: "Outbound SIP URI",
-    cell: (props: { row: { original: ListTrunksResponse } }) =>
-      props.row.original.outboundUri
+    cell: (props: { row: { original: Trunk } }) =>
+      props.row.original.outboundCredentialsRef
   }
 ];
 
@@ -61,14 +61,15 @@ export default function TrunksPage() {
         Use this section to configure your VoIP Providers for inbound and outbound calls to the PSTN.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<ListTrunksResponse>
+      <PageContainer.ContentTable<Trunk>
         columns={columns}
         tableId="trunks-table"
+        showSelectAll={true}
         options={{
           enableRowSelection: true
         }}
       >
-        <QueryData<ListTrunksResponse> fetchFunction={listTrunks} pageSize={10} />
+        <QueryData<Trunk> fetchFunction={listTrunks} pageSize={10} />
       </PageContainer.ContentTable>
     </PageContainer>
   );
