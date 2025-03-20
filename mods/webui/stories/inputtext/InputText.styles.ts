@@ -22,7 +22,7 @@ import TextField from "@mui/material/TextField";
 export const StyledTextField = styled(TextField)(({ theme, size }) => ({
   "& .MuiInputBase-input": {
     padding: size === "small" ? "4px 14px" : "6px 16px",
-    height: size === "small" ? "24px" : "28px",
+    height: size === "small" ? "24px" : "30px",
     fontSize: size === "small" ? "11px" : "12px",
     fontFamily: "'Poppins', sans-serif",
     fontWeight: 400,
