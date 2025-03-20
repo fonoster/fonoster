@@ -136,7 +136,7 @@ TableHeaderComponent.Filter = ({
       onChange={handleChange}
       options={options}
       label=""
-      size="small"
+      size="medium"
       fullWidth
     />
   );
@@ -144,7 +144,7 @@ TableHeaderComponent.Filter = ({
 
 TableHeaderComponent.Search = ({
   placeholder = "Search Term",
-  size = "small",
+  size = "medium",
   fullWidth = true
 }: {
   placeholder?: string;
@@ -245,8 +245,8 @@ TableHeaderComponent.SelectAll = () => {
         display: "flex",
         alignItems: "center",
         borderRadius: '4px',
-        height: '33px',
-        minWidth: '33px',
+        height: '31px',
+        minWidth: '31px',
         justifyContent: 'center',
         backgroundColor: `${theme.palette.grey['200']}`,
         padding: '8px 12px',
