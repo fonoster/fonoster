@@ -56,6 +56,8 @@ type DeepgramSttConfig = {
   config: {
     languageCode: VoiceLanguage;
     model: DeepgramModel;
+    smartFormat: boolean;
+    noDelay: boolean;
   };
   credentials: {
     apiKey: string;
