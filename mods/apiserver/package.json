@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apiserver",
-  "version": "0.9.42",
+  "version": "0.9.44",
   "description": "APIServer for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
