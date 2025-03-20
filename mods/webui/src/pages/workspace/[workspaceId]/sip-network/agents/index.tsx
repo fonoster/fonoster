@@ -26,7 +26,7 @@ const columns: ColumnDef<Agent>[] = [
   {
     accessorKey: "enabled",
     header: "Status",
-    cell: (info: any) => info.getValue() ? "Enabled" : "Disabled"
+    cell: (info: any) => (info.getValue() ? "Enabled" : "Disabled")
   },
   {
     accessorKey: "privacy",
@@ -60,9 +60,7 @@ export default function AgentsPage() {
   }, []);
 
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/agents/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/agents/new`);
   };
 
   const handleRowClick = (agent: Agent) => {
@@ -86,7 +84,7 @@ export default function AgentsPage() {
       </PageContainer.Subheader>
 
       {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
           <CircularProgress />
         </Box>
       ) : (

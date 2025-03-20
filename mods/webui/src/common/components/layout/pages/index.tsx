@@ -87,7 +87,10 @@ function ContentTable<T extends object>({
   options
 }: ContentProps<T>) {
   return (
-    <ReactTable<T> columns={columns} enableRowSelection={options?.enableRowSelection}>
+    <ReactTable<T>
+      columns={columns}
+      enableRowSelection={options?.enableRowSelection}
+    >
       <ReactTable.Header>
         {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}

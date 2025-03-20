@@ -7,7 +7,7 @@ import {
   CreateTrunkRequest,
   UpdateTrunkRequest,
   ListTrunksRequest as BaseListTrunksRequest,
-  ListTrunksResponse as BaseListTrunksResponse,
+  ListTrunksResponse as BaseListTrunksResponse
 } from "@fonoster/types";
 import { Trunks } from "@fonoster/sdk";
 import { usePaginatedData } from "@/common/hooks/usePaginatedData";
@@ -50,8 +50,8 @@ export const useTrunks = () => {
       inboundUri: `sip:trunk-${index + 1}@sip.fonoster.com`,
       outboundUri: `sip:trunk-${index + 1}@sip.fonoster.com`,
       // Add any other required fields from Trunk type
-      createdAt: new Date(Date.now() - (index * 86400000)),
-      updatedAt: new Date(Date.now() - (index * 43200000))
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
     }),
     totalItems: 30,
     defaultPageSize: 10

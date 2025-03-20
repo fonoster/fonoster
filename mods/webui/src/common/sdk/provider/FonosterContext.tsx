@@ -42,7 +42,7 @@ export const FonosterContext = createContext<FonosterContextType>({
   client: null,
   isInitialized: false,
   session: { isAuthenticated: false },
-  setSession: () => { },
+  setSession: () => {},
   authClient: null
 });
 

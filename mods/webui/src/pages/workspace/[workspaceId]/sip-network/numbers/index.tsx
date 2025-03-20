@@ -60,9 +60,7 @@ export default function NumbersPage() {
   }, []);
 
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/numbers/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/numbers/new`);
   };
 
   const handleRowClick = (number: INumberExtended) => {
@@ -86,7 +84,7 @@ export default function NumbersPage() {
       </PageContainer.Subheader>
 
       {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
           <CircularProgress />
         </Box>
       ) : (

@@ -84,7 +84,6 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [workspaceId, workspaces, client, isReady, isAuthenticated]);
 
-
   if (isLoading) {
     return <LoadingScreen logoSize="large" />;
   }

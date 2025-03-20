@@ -60,8 +60,8 @@ export interface FonosterResponse<TData> {
 
 export interface TableContextProps<TData>
   extends Object,
-  PaginationProps,
-  FilterProps {
+    PaginationProps,
+    FilterProps {
   reset: () => void;
   getState: () => TableState;
   setState: (updater: Updater<TableState>) => void;
@@ -92,7 +92,9 @@ export interface TableContextProps<TData>
   getSelectedRowModel: () => RowModel<TData>;
   getIsAllRowsSelected: () => boolean;
   getIsSomeRowsSelected: () => boolean;
-  getToggleAllRowsSelectedHandler: () => (event: React.ChangeEvent<HTMLInputElement>) => void;
+  getToggleAllRowsSelectedHandler: () => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void;
 }
 
 const TableContext = createContext<TableContextProps<any> | undefined>(
@@ -132,7 +134,8 @@ export function TableProvider<TData>({
     undefined
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [localColumnFilters, setLocalColumnFilters] = useState<ColumnFiltersState>([]);
+  const [localColumnFilters, setLocalColumnFilters] =
+    useState<ColumnFiltersState>([]);
 
   const table = useReactTable<TData>({
     columns,
@@ -162,11 +165,11 @@ export function TableProvider<TData>({
     // Use a unique identifier for each row instead of the index
     getRowId: (originalRow: any, index: number) => {
       // Try to use an id or _id field if it exists in the data
-      if ('id' in originalRow) {
+      if ("id" in originalRow) {
         return String(originalRow.id);
-      } else if ('_id' in originalRow) {
+      } else if ("_id" in originalRow) {
         return String(originalRow._id);
-      } else if ('ref' in originalRow) {
+      } else if ("ref" in originalRow) {
         return String(originalRow.ref);
       } else {
         // If there's no unique identifier, use a combination of data to create one
@@ -254,14 +257,20 @@ export function TableProvider<TData>({
             const updatedResponse = {
               ...response,
               nextPageToken: responseNextToken,
-              prevPageToken: responsePrevToken || (pageIndex > 0 ? currentToken : undefined)
+              prevPageToken:
+                responsePrevToken || (pageIndex > 0 ? currentToken : undefined)
             };
 
-            if (JSON.stringify(fonosterResponse) !== JSON.stringify(updatedResponse)) {
+            if (
+              JSON.stringify(fonosterResponse) !==
+              JSON.stringify(updatedResponse)
+            ) {
               setFonosterResponse(updatedResponse);
             }
 
-            if (JSON.stringify(table.options.data) !== JSON.stringify(newData)) {
+            if (
+              JSON.stringify(table.options.data) !== JSON.stringify(newData)
+            ) {
               table.setOptions((prev) => ({
                 ...prev,
                 data: [...newData],
