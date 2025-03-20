@@ -4,16 +4,53 @@ import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
     CreateAgentRequestExtended,
     UpdateAgentRequest,
-    ListAgentsRequest,
-    ListAgentsResponse,
+    ListAgentsRequest as BaseListAgentsRequest,
+    ListAgentsResponse as BaseListAgentsResponse,
     BaseApiObject,
-    Agent
+    Agent,
+    Privacy
 } from "@fonoster/types";
 import { Agents } from "@fonoster/sdk";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
+
+// Extend the ListAgentsResponse to include prevPageToken
+interface ListAgentsResponse extends BaseListAgentsResponse, Agent {
+    prevPageToken?: string;
+    recordTotal?: number;
+    filterBy?: Record<string, string>;
+}
+
+interface ListAgentsRequest extends BaseListAgentsRequest {
+    filterBy?: Record<string, string>;
+    pageSize?: number;
+    pageToken?: string;
+}
+
 
 export const useAgents = () => {
     const { client, isReady, authentication } = useFonosterClient();
     const { notifyError } = useNotification();
+
+    // Handle Fake data - make sure all required Trunk properties are non-optional
+    const { listItems } = usePaginatedData<Agent>({
+        generateFakeData: (index: number) => ({
+            ref: `agent-${index}`,
+            name: `Agent ${index + 1}`,
+            username: `agent${index + 1}`,
+            privacy: Privacy.PRIVATE,
+            enabled: true,
+            domain: {
+                ref: `domain-${index + 1}`,
+                name: `Domain ${index + 1}`,
+                domainUri: `uri-${index + 1}`
+            },
+            // Add any other required fields from Trunk type
+            createdAt: new Date(Date.now() - (index * 86400000)),
+            updatedAt: new Date(Date.now() - (index * 43200000))
+        }),
+        totalItems: 30,
+        defaultPageSize: 10
+    });
 
     const _agents = useMemo(() => {
         if (!client) {
@@ -69,11 +106,12 @@ export const useAgents = () => {
         }
     ): Promise<ListAgentsResponse | undefined> => {
         try {
-            if (!isReady) return undefined;
+            return (await listItems(data)) as ListAgentsResponse;
+            // if (!isReady) return undefined;
 
-            return await authentication.executeWithRefresh(() =>
-                _agents.listAgents(data)
-            );
+            // return await authentication.executeWithRefresh(() =>
+            //     _agents.listAgents(data)
+            // );
         } catch (error: any) {
             notifyError(error as ErrorType);
         }

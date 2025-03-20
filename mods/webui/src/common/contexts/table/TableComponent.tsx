@@ -26,10 +26,9 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.text.primary,
     fontSize: "10px",
     lineHeight: "16px",
-    fontFamily: "Roboto Mono",
+    fontFamily: "Poppins",
     fontWeight: 500,
-    letterSpacing: "5%",
-    textTransform: "uppercase"
+    letterSpacing: "5%"
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: "10px",

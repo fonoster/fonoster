@@ -6,32 +6,33 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useAgents } from "@/common/sdk/hooks/useAgents";
 import { useEffect, useState } from "react";
+import QueryData from "@/common/contexts/table/QueryData";
 
 const columns: ColumnDef<Agent>[] = [
   {
-    accessorKey: "name",
+    id: "name",
     header: "Name",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: Agent } }) => props.row.original.name
   },
   {
-    accessorKey: "username",
+    id: "username",
     header: "Username",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: Agent } }) => props.row.original.username
   },
   {
-    accessorKey: "domain",
+    id: "domain",
     header: "Domain",
-    cell: (info: any) => info.getValue()?.name || "-"
+    cell: (props: { row: { original: Agent } }) => props.row.original.domain?.name || "-"
   },
   {
-    accessorKey: "enabled",
+    id: "enabled",
     header: "Status",
-    cell: (info: any) => info.getValue() ? "Enabled" : "Disabled"
+    cell: (props: { row: { original: Agent } }) => props.row.original.enabled ? "Enabled" : "Disabled"
   },
   {
-    accessorKey: "privacy",
+    id: "privacy",
     header: "Privacy",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: Agent } }) => props.row.original.privacy
   }
 ];
 
@@ -39,25 +40,6 @@ export default function AgentsPage() {
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
   const { listAgents } = useAgents();
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        const response = await listAgents();
-        if (response && response.items) {
-          setAgents(response.items);
-        }
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching agents:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchAgents();
-  }, []);
 
   const handleNew = () => {
     router.push(
@@ -85,16 +67,17 @@ export default function AgentsPage() {
         Manage your SIP agents and their configurations.
       </PageContainer.Subheader>
 
-      {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <PageContainer.ContentTable<Agent>
-          columns={columns}
-          tableId="agents-table"
-        />
-      )}
+      <PageContainer.ContentTable<Agent>
+        columns={columns}
+        tableId="agents-table"
+        showSelectAll={true}
+        options={{
+          enableRowSelection: true
+        }}
+      >
+        <QueryData<Agent> fetchFunction={listAgents} pageSize={10} />
+
+      </PageContainer.ContentTable>
     </PageContainer>
   );
 }
