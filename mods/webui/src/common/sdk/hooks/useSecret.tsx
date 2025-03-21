@@ -4,16 +4,42 @@ import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
   CreateSecretRequest,
   UpdateSecretRequest,
-  ListSecretsRequest,
-  ListSecretsResponse,
+  ListSecretsRequest as BaseListSecretsRequest,
+  ListSecretsResponse as BaseListSecretsResponse,
   Secret,
   BaseApiObject
 } from "@fonoster/types";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
 import { Secrets } from "@fonoster/sdk";
 
+// Extend the ListSecretsResponse to include prevPageToken
+interface ListSecretsResponse extends BaseListSecretsResponse, Secret {
+  prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+interface ListSecretsRequest extends BaseListSecretsRequest {
+  filterBy?: Record<string, string>;
+  pageSize?: number;
+  pageToken?: string;
+}
 export const useSecret = () => {
   const { client, isReady, authentication } = useFonosterClient();
   const { notifyError } = useNotification();
+
+  // Handle Fake data - make sure all required Secret properties are non-optional
+  const { listItems } = usePaginatedData<Secret>({
+    generateFakeData: (index: number) => ({
+      ref: `secret-${index}`,
+      name: `Secret ${index + 1}`, // This is required to be non-optional
+      secret: `Secret ${index + 1}`, // This is required to be non-optional
+      createdAt: new Date(Date.now() - (index * 86400000)).getTime(),
+      updatedAt: new Date(Date.now() - (index * 43200000)).getTime()
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
 
   const _secrets = useMemo(() => {
     if (!client) {
@@ -67,11 +93,13 @@ export const useSecret = () => {
     }
   ): Promise<ListSecretsResponse | undefined> => {
     try {
-      if (!isReady) return undefined;
+      return (await listItems(data)) as ListSecretsResponse;
 
-      return await authentication.executeWithRefresh(() =>
-        _secrets.listSecrets(data)
-      );
+      // if (!isReady) return undefined;
+
+      // return await authentication.executeWithRefresh(() =>
+      //   _secrets.listSecrets(data)
+      // );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
