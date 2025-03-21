@@ -7,6 +7,7 @@ import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useAgents } from "@/common/sdk/hooks/useAgents";
 import { useEffect, useState } from "react";
 import QueryData from "@/common/contexts/table/QueryData";
+import { Icon } from "@stories/icon/Icon";
 
 const columns: ColumnDef<Agent>[] = [
   {
@@ -58,13 +59,13 @@ export default function AgentsPage() {
       <PageContainer.Header
         title="Agents"
         actions={
-          <Button variant="contained" onClick={handleNew}>
-            New Agent
+          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+            Create New Agent
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Manage your SIP agents and their configurations.
+        SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<Agent>

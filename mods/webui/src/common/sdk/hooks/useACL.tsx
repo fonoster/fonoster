@@ -4,16 +4,45 @@ import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
   CreateAclRequestExtended,
   UpdateAclRequest,
-  ListAclsRequest,
-  ListAclsResponse,
+  ListAclsRequest as BaseListAclsRequest,
+  ListAclsResponse as BaseListAclsResponse,
   Acl,
   BaseApiObject
 } from "@fonoster/types";
 import { Acls } from "@fonoster/sdk";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
+
+// Extend the ListAclsResponse to include prevPageToken
+interface ListAclsResponse extends BaseListAclsResponse, Acl {
+  prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+interface ListAclsRequest extends BaseListAclsRequest {
+  filterBy?: Record<string, string>;
+  pageSize?: number;
+  pageToken?: string;
+}
 
 export const useACL = () => {
   const { client, isReady, authentication } = useFonosterClient();
   const { notifyError } = useNotification();
+
+  // Handle Fake data - make sure all required Trunk properties are non-optional
+  const { listItems } = usePaginatedData<Acl>({
+    generateFakeData: (index: number) => ({
+      ref: `number-${index}`,
+      name: `Number ${index + 1}`, // This is required to be non-optional
+      allow: [`City ${index + 1}`],
+      deny: [`Country ${index + 1}`],
+      // Add any other required fields from Trunk type
+      createdAt: new Date(Date.now() - (index * 86400000)),
+      updatedAt: new Date(Date.now() - (index * 43200000))
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
 
   const _acls = useMemo(() => {
     if (!client) {
@@ -65,11 +94,12 @@ export const useACL = () => {
     }
   ): Promise<ListAclsResponse | undefined> => {
     try {
-      if (!isReady) return undefined;
+      return (await listItems(data)) as ListAclsResponse;
+      // if (!isReady) return undefined;
 
-      return await authentication.executeWithRefresh(() =>
-        _acls.listAcls(data)
-      );
+      // return await authentication.executeWithRefresh(() =>
+      //   _acls.listAcls(data)
+      // );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }

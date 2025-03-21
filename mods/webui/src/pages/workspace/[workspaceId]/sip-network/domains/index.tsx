@@ -1,12 +1,12 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Domain } from "@fonoster/types";
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useRouter } from "next/router";
 import { Icon } from "@stories/icon/Icon";
 import QueryData from "@/common/contexts/table/QueryData";
 import { useDomains } from "@/common/sdk/hooks/useDomains";
+import { Button } from "@stories/button/Button";
 
 const columns: ColumnDef<Domain>[] = [
   {
