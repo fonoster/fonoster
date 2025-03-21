@@ -4,15 +4,39 @@ import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
   CreateApiKeyRequest,
   CreateApiKeyResponse,
-  ListApiKeysRequest,
-  ListApiKeysResponse,
-  BaseApiObject
+  ListApiKeysRequest as BaseListApiKeysRequest,
+  ListApiKeysResponse as BaseListApiKeysResponse,
+  BaseApiObject,
 } from "@fonoster/types";
 import { ApiKeys } from "@fonoster/sdk";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
+
+// Extend the ListApiKeysResponse to include prevPageToken
+interface ListApiKeysResponse extends BaseListApiKeysResponse {
+  prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+interface ListApiKeysRequest extends BaseListApiKeysRequest {
+  filterBy?: Record<string, string>;
+  pageSize?: number;
+  pageToken?: string;
+}
 
 export const useAPIKey = () => {
   const { client, isReady, authentication } = useFonosterClient();
   const { notifyError } = useNotification();
+
+  // Handle Fake data
+  const { listItems } = usePaginatedData<any>({
+    generateFakeData: (index: number) => ({
+      ref: `api-${index}`,
+      name: `API Key ${index + 1}`,
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
 
   const _apiKeys = useMemo(() => {
     if (!client) {
@@ -56,11 +80,13 @@ export const useAPIKey = () => {
     }
   ): Promise<ListApiKeysResponse | undefined> => {
     try {
-      if (!isReady) return undefined;
+      return (await listItems(data)) as ListApiKeysResponse;
 
-      return await authentication.executeWithRefresh(() =>
-        _apiKeys.listApiKeys(data)
-      );
+      // if (!isReady) return undefined;
+
+      // return await authentication.executeWithRefresh(() =>
+      //   _apiKeys.listApiKeys(data)
+      // );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }
