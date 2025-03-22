@@ -52,7 +52,7 @@ export default function TrunksPage() {
       <PageContainer.Header
         title="Trunks"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
             Create New SIP Trunk
           </Button>
         }
@@ -65,9 +65,6 @@ export default function TrunksPage() {
         columns={columns}
         tableId="trunks-table"
         showSelectAll={true}
-        options={{
-          enableRowSelection: true
-        }}
       >
         <QueryData<Trunk> fetchFunction={listTrunks} pageSize={10} />
       </PageContainer.ContentTable>

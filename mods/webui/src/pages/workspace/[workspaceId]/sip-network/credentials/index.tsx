@@ -38,7 +38,7 @@ export default function CredentialsPage() {
       <PageContainer.Header
         title="Credentials"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
             Create New Credential
           </Button>
         }
@@ -51,9 +51,6 @@ export default function CredentialsPage() {
         columns={columns}
         tableId="credential-table"
         showSelectAll={true}
-        options={{
-          enableRowSelection: true
-        }}
       >
         <QueryData<Credentials> fetchFunction={listCredentials} pageSize={10} />
       </PageContainer.ContentTable>

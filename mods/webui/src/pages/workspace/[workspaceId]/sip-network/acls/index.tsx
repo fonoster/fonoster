@@ -1,5 +1,4 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { Acl } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
@@ -7,6 +6,7 @@ import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { Icon } from "@stories/icon/Icon";
 import QueryData from "@/common/contexts/table/QueryData";
 import { useACL } from "@/common/sdk/hooks/useACL";
+import { Button } from "@stories/button/Button";
 
 const columns: ColumnDef<Acl>[] = [
   {
@@ -40,7 +40,7 @@ export default function AclsPage() {
       <PageContainer.Header
         title="IP/CIDR Access Control List (ACL)"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
             Create New ACL
           </Button>
         }
@@ -53,9 +53,6 @@ export default function AclsPage() {
         columns={columns}
         tableId="acl-table"
         showSelectAll={true}
-        options={{
-          enableRowSelection: true
-        }}
       >
         <QueryData<Acl> fetchFunction={listAcls} pageSize={10} />
 

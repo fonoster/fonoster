@@ -5,6 +5,7 @@ import { Button } from "@stories/button/Button";
 import { useApplications } from "@/common/sdk/hooks/useApplications";
 import { QueryData } from "@/common/contexts/table/QueryData";
 import { Application } from "@fonster/types";
+import { Icon } from "@stories/icon/Icon";
 
 const columns: ColumnDef<Application>[] = [
   {
@@ -42,24 +43,29 @@ export default function ApplicationsPage() {
     router.push(`/workspace/${workspaceId}/applications/new`);
   };
 
+  const handleEdit = (application: Application) => {
+    router.push(`/workspace/${workspaceId}/applications/${application.ref}`)
+  }
+
   return (
     <PageContainer>
       <PageContainer.Header
-        title="Applications"
+        title="Voice Applications"
         actions={
-          <Button variant="outlined" onClick={() => handleNewApplication()}>
-            New Application
+          <Button variant="outlined" onClick={() => handleNewApplication()} endIcon={<Icon fontSize="small" name="Add" />}>
+            Create New Application
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Manage all your Fonoster applications here. Create, edit and monitor
-        your applications in execution.
+        Use this section to connect your Dialogflow, IBM Watson, and OpenAI Assistants with your numbers.
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<Application>
         columns={columns}
         tableId="applications-table"
+        showSelectAll={true}
+        onRowSelection={handleEdit}
       >
         <QueryData<Application>
           fetchFunction={listApplications}

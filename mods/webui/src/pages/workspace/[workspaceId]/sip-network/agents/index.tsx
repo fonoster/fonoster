@@ -59,7 +59,7 @@ export default function AgentsPage() {
       <PageContainer.Header
         title="Agents"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
             Create New Agent
           </Button>
         }
@@ -72,9 +72,6 @@ export default function AgentsPage() {
         columns={columns}
         tableId="agents-table"
         showSelectAll={true}
-        options={{
-          enableRowSelection: true
-        }}
       >
         <QueryData<Agent> fetchFunction={listAgents} pageSize={10} />
 

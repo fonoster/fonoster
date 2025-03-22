@@ -1,9 +1,9 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { CallDetailRecord, CallStatus, CallDirection, CallType } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
 import QueryData from "@/common/contexts/table/QueryData";
 import { usePaginatedData } from "@/common/hooks/usePaginatedData";
+import { Button } from "@stories/button/Button";
 
 const columns: ColumnDef<CallDetailRecord>[] = [
   {
@@ -71,7 +71,7 @@ export default function MonitoringPage() {
       <PageContainer.Header
         title="Monitoring / Call Logs"
         actions={
-          <Button variant="contained" onClick={() => { }}>
+          <Button variant="outlined" onClick={() => { }}>
             Export CSV
           </Button>
         }
