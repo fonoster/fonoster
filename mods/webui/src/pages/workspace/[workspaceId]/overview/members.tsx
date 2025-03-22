@@ -1,70 +1,32 @@
 import PageContainer from "@/common/components/layout/pages";
-import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { InviteMemberModal } from "@/pages/workspace/_components/InviteMemberModal";
 import { Button } from "@stories/button/Button";
 import { Icon } from "@stories/icon/Icon";
-import { QueryData } from "@/common/contexts/table/QueryData";
+import MembersTable from "./_components/members-table";
+import { WorkspaceMemberDTO } from "@/types/dto/workspace/WorkspaceMemberDTO";
 import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
-import { ListWorkspaceMembersResponse } from "@fonster/types";
-import { formatToShortDate } from "@/utils/dayjs";
-import { Stack } from "@mui/material";
-
-const columns: ColumnDef<ListWorkspaceMembersResponse>[] = [
-  {
-    id: "name",
-    accessorKey: "name",
-    header: "NAME",
-    cell: (props: { row: { original: ListWorkspaceMembersResponse } }) =>
-      props.row.original.name
-  },
-  {
-    id: "email",
-    accessorKey: "email",
-    header: "EMAIL",
-    cell: (props: { row: { original: ListWorkspaceMembersResponse } }) =>
-      props.row.original.email
-  },
-  {
-    id: "role",
-    header: "ROLE",
-    cell: (props: { row: { original: ListWorkspaceMembersResponse } }) =>
-      props.row.original.role
-  },
-  {
-    id: "dateAdded",
-    header: "DATE ADDED",
-    cell: (props: { row: { original: ListWorkspaceMembersResponse } }) =>
-      formatToShortDate(props.row.original.createdAt)
-  },
-  {
-    id: "status",
-    header: "STATUS",
-    cell: (props: { row: { original: ListWorkspaceMembersResponse } }) =>
-      props.row.original.status
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: (props: { row: { original: ListWorkspaceMembersResponse } }) => (
-      <Stack direction="row" spacing={1} alignItems="center">
-        <Icon name="Email" fontSize="small" />
-        <Icon name="Delete" fontSize="small" />
-      </Stack>
-    )
-  }
-];
 
 export default function MembersPage() {
   const router = useRouter();
   const { workspaceId } = router.query;
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const { listWorkspaceMembers } = useWorkspaces();
+  const { deleteWorkspace, resendWorkspaceMembershipInvitation } = useWorkspaces();
 
   const handleInviteMember = (data: any) => {
     console.log("Invite member data:", data);
     setIsInviteModalOpen(false);
+  };
+
+  const handleDeleteMember = async (data: WorkspaceMemberDTO) => {
+    const response = await deleteWorkspace(data.ref);
+    alert("Member deleted successfully");
+  };
+
+  const handleSendEmail = async (data: WorkspaceMemberDTO) => {
+    const response = await resendWorkspaceMembershipInvitation(data.userRef);
+    alert("Email sent successfully");
   };
 
   return (
@@ -86,18 +48,10 @@ export default function MembersPage() {
         }}
       />
 
-      <PageContainer.ContentTable<ListWorkspaceMembersResponse>
-        columns={columns}
-        tableId="members-table"
-        showFilters={true}
-        showSearch={true}
-        showPagination={true}
-      >
-        <QueryData<ListWorkspaceMembersResponse>
-          fetchFunction={listWorkspaceMembers}
-          pageSize={10}
-        />
-      </PageContainer.ContentTable>
+      <MembersTable
+        onDelete={handleDeleteMember}
+        onSendEmail={handleSendEmail}
+      />
       <InviteMemberModal
         open={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}

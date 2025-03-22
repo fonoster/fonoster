@@ -77,7 +77,6 @@ const StyledTableContainer = styled(TableContainer)({
 
 export interface TableOptions {
   filtersDirection?: "up" | "down" | undefined;
-  enableRowSelection?: boolean;
 }
 
 interface TableComponentProps<TData extends Object> {
@@ -85,6 +84,7 @@ interface TableComponentProps<TData extends Object> {
   headerClassName?: string;
   rowClassName?: string;
   bodyClassName?: string;
+  enableRowSelection?: boolean;
   options?: TableOptions;
   id: string;
 }
@@ -111,15 +111,12 @@ const TableComponent = <TData extends Object>({
   headerClassName,
   bodyClassName,
   rowClassName,
-  options
+  enableRowSelection
 }: TableComponentProps<TData>) => {
   const {
     table,
     loadingData
   } = useTableContext<TData>();
-
-  // Check if row selection is enabled
-  const enableRowSelection = options?.enableRowSelection || false;
 
   return (
     <StyledTableContainer>

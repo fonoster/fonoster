@@ -86,18 +86,19 @@ function ContentTable<T extends object>({
   showSelectAll = false,
   options
 }: ContentProps<T>) {
+
   return (
-    <ReactTable<T> columns={columns} enableRowSelection={options?.enableRowSelection}>
+    <ReactTable<T> columns={columns} enableRowSelection={showSelectAll}>
       <ReactTable.Header>
         {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}
         {showSearch && (
-          <ReactTable.Header.Search/>
+          <ReactTable.Header.Search />
         )}
         {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />
-      <ReactTable.Content id={tableId} options={options} />
+      <ReactTable.Content id={tableId} options={options} enableRowSelection={showSelectAll} />
       {children}
     </ReactTable>
   );

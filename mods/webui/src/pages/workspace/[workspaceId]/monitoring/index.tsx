@@ -84,9 +84,6 @@ export default function MonitoringPage() {
         columns={columns}
         tableId="call-detail-records-table"
         showSelectAll={true}
-        options={{
-          enableRowSelection: true
-        }}
       >
         <QueryData<CallDetailRecord> fetchFunction={listItems} pageSize={10} />
 
