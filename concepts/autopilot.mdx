@@ -36,10 +36,6 @@ intelligence:
         You are a Customer Service Representative. You are here to help the caller with their needs.
       goodbyeMessage: "Thank you so much, bye!"
       systemErrorMessage: "I'm sorry, I didn't understand that. Can you please repeat it?"
-      vad:
-        activationThreshold: 0.3
-        deactivationThreshold: 0.15
-        debounceFrames: 1
       idleOptions:
         message: "Are you still there?"
     languageModel:
@@ -47,7 +43,6 @@ intelligence:
       model: "llama-3.3-70b-versatile"
       maxTokens: 240
       temperature: 0.4
-      tools: []
 ```
 
 Then, create a script to apply the configuration as follows:
@@ -157,11 +152,11 @@ The following is a list of the supported settings:
 
 The Autopilot supports multiple language model providers. The following is a list of the supported providers:
 
-| Provider | Description                                                | Supported models      |
-| -------- | ---------------------------------------------------------- | --------------------- |
-| OpenAI   | OpenAI provides various GPT models for conversational AI   |                       |
-| Groq     | Groq offers high-performance AI models optimized for speed |                       |
-| Ollama   | Self-hosted Ollama models                                  |                       |
+| Provider | Description                                                | Supported models                                        |
+| -------- | ---------------------------------------------------------- | ------------------------------------------------------- |
+| OpenAI   | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo` |
+| Groq     | Groq offers high-performance AI models optimized for speed | `llama-3.3-70b-specdec`, `llama-3.3-70b-versatile`      |
+| Ollama   | Self-hosted Ollama models                                  | `llama3-groq-tool-use`                                  |
 
 <Info>
   We have noticed that Groq models, particularly `llama-3.3-70b-versatile`, often require greater prompting specificity for effective tool usage. We will share best practices to ensure more consistent behavior as we gain more insights
