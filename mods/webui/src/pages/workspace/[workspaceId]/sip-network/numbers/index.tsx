@@ -22,7 +22,8 @@ const columns: ColumnDef<INumber>[] = [
   {
     id: "city",
     header: "Address",
-    cell: (props: { row: { original: INumber } }) => `${props.row.original.city}, ${props.row.original.countryIsoCode}, ${props.row.original.country}`
+    cell: (props: { row: { original: INumber } }) =>
+      `${props.row.original.city}, ${props.row.original.countryIsoCode}, ${props.row.original.country}`
   },
   {
     id: "agentAor",
@@ -56,13 +57,18 @@ export default function NumbersPage() {
       <PageContainer.Header
         title="Numbers"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="contained"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New Number
           </Button>
         }
       />
       <PageContainer.Subheader>
-        You will need a Number to make and receive calls from the PSTN (traditional phones).
+        You will need a Number to make and receive calls from the PSTN
+        (traditional phones).
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<INumber>
@@ -74,7 +80,6 @@ export default function NumbersPage() {
         }}
       >
         <QueryData<INumber> fetchFunction={listNumbers} pageSize={10} />
-
       </PageContainer.ContentTable>
     </PageContainer>
   );

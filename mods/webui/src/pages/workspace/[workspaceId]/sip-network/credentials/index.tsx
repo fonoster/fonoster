@@ -17,7 +17,8 @@ const columns: ColumnDef<Credentials>[] = [
   {
     id: "username",
     header: "Username",
-    cell: (info: { row: { original: Credentials } }) => info.row.original.username
+    cell: (info: { row: { original: Credentials } }) =>
+      info.row.original.username
   }
 ];
 
@@ -38,7 +39,11 @@ export default function CredentialsPage() {
       <PageContainer.Header
         title="Credentials"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="contained"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New Credential
           </Button>
         }

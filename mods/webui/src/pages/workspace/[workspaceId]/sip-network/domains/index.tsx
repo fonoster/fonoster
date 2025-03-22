@@ -32,7 +32,6 @@ export default function DomainsPage() {
 
   const { listDomains } = useDomains();
 
-
   const handleNew = () => {
     router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/domains/new`);
   };
@@ -42,7 +41,11 @@ export default function DomainsPage() {
       <PageContainer.Header
         title="Domains"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="contained"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             New Domain
           </Button>
         }
@@ -60,7 +63,6 @@ export default function DomainsPage() {
         }}
       >
         <QueryData<Domain> fetchFunction={listDomains} pageSize={10} />
-
       </PageContainer.ContentTable>
     </PageContainer>
   );

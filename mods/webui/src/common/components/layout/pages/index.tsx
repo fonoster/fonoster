@@ -94,9 +94,7 @@ function ContentTable<T extends object>({
       <ReactTable.Header>
         {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}
-        {showSearch && (
-          <ReactTable.Header.Search/>
-        )}
+        {showSearch && <ReactTable.Header.Search />}
         {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />

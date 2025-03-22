@@ -24,8 +24,7 @@ const columns: ColumnDef<Trunk>[] = [
   {
     id: "inboundUri",
     header: "Inbound SIP",
-    cell: (props: { row: { original: Trunk } }) =>
-      props.row.original.inboundUri
+    cell: (props: { row: { original: Trunk } }) => props.row.original.inboundUri
   },
   {
     id: "outboundCredentialsRef",

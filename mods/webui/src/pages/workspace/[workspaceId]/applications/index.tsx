@@ -10,14 +10,12 @@ const columns: ColumnDef<Application>[] = [
   {
     id: "ref",
     header: "Ref",
-    cell: (props: { row: { original: Application } }) =>
-      props.row.original.ref
+    cell: (props: { row: { original: Application } }) => props.row.original.ref
   },
   {
     id: "name",
     header: "Name",
-    cell: (props: { row: { original: Application } }) =>
-      props.row.original.name
+    cell: (props: { row: { original: Application } }) => props.row.original.name
   },
   {
     id: "textToSpeech",

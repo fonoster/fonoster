@@ -23,12 +23,14 @@ const columns: ColumnDef<Agent>[] = [
   {
     id: "domain",
     header: "Domain",
-    cell: (props: { row: { original: Agent } }) => props.row.original.domain?.name || "-"
+    cell: (props: { row: { original: Agent } }) =>
+      props.row.original.domain?.name || "-"
   },
   {
     id: "enabled",
     header: "Status",
-    cell: (props: { row: { original: Agent } }) => props.row.original.enabled ? "Enabled" : "Disabled"
+    cell: (props: { row: { original: Agent } }) =>
+      props.row.original.enabled ? "Enabled" : "Disabled"
   },
   {
     id: "privacy",
@@ -57,13 +59,18 @@ export default function AgentsPage() {
       <PageContainer.Header
         title="Agents"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="contained"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New Agent
           </Button>
         }
       />
       <PageContainer.Subheader>
-        SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)
+        SIP Agents in the same Domain can call each other with Voice Over IP
+        using a Software Phone (e.g Zoiper)
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<Agent>
@@ -75,7 +82,6 @@ export default function AgentsPage() {
         }}
       >
         <QueryData<Agent> fetchFunction={listAgents} pageSize={10} />
-
       </PageContainer.ContentTable>
     </PageContainer>
   );

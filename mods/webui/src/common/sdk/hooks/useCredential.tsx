@@ -7,13 +7,15 @@ import {
   ListCredentialsRequest as BaseListCredentialsRequest,
   ListCredentialsResponse as BaseListCredentialsResponse,
   Credentials as CredentialsType,
-  BaseApiObject,
+  BaseApiObject
 } from "@fonoster/types";
 import { Credentials } from "@fonoster/sdk";
 import { usePaginatedData } from "@/common/hooks/usePaginatedData";
 
 // Extend the ListCredentialsResponse to include prevPageToken
-interface ListCredentialsResponse extends BaseListCredentialsResponse, CredentialsType {
+interface ListCredentialsResponse
+  extends BaseListCredentialsResponse,
+    CredentialsType {
   prevPageToken?: string;
   recordTotal?: number;
   filterBy?: Record<string, string>;
@@ -34,10 +36,10 @@ export const useCredential = () => {
     generateFakeData: (index: number) => ({
       ref: `number-${index}`,
       name: `Number ${index + 1}`, // This is required to be non-optional
-      username: `username-${index + 1}`, // This is required to be non-optional        
+      username: `username-${index + 1}`, // This is required to be non-optional
       // Add any other required fields from Trunk type
-      createdAt: new Date(Date.now() - (index * 86400000)),
-      updatedAt: new Date(Date.now() - (index * 43200000))
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
     }),
     totalItems: 30,
     defaultPageSize: 10

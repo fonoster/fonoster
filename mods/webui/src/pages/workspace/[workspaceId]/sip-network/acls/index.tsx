@@ -17,12 +17,14 @@ const columns: ColumnDef<Acl>[] = [
   {
     id: "deny",
     header: "Deny List",
-    cell: (info: { row: { original: any } }) => info.row.original.deny.map((d: any) => d)
+    cell: (info: { row: { original: any } }) =>
+      info.row.original.deny.map((d: any) => d)
   },
   {
     id: "allow",
     header: "Allow List",
-    cell: (info: { row: { original: Acl } }) => info.row.original.allow.map((a) => a)
+    cell: (info: { row: { original: Acl } }) =>
+      info.row.original.allow.map((a) => a)
   }
 ];
 
@@ -40,13 +42,18 @@ export default function AclsPage() {
       <PageContainer.Header
         title="IP/CIDR Access Control List (ACL)"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="contained"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New ACL
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Create an Access Control List (ACL) to allow or deny access from external networks to your infrastructure.
+        Create an Access Control List (ACL) to allow or deny access from
+        external networks to your infrastructure.
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<Acl>
@@ -58,7 +65,6 @@ export default function AclsPage() {
         }}
       >
         <QueryData<Acl> fetchFunction={listAcls} pageSize={10} />
-
       </PageContainer.ContentTable>
     </PageContainer>
   );

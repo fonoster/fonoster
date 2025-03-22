@@ -26,15 +26,19 @@ export default function ApiKeysPage() {
       <PageContainer.Header
         title="API Keys"
         actions={
-          <Button variant="contained" onClick={
-            () => { }
-          } endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="contained"
+            onClick={() => {}}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Upload New API Key
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Key management here. API keys are encrypted values that you can use to make calls to Fonoster’s APIs. Your API Keys are only available for use within this Workspace.
+        Key management here. API keys are encrypted values that you can use to
+        make calls to Fonoster’s APIs. Your API Keys are only available for use
+        within this Workspace.
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<any>
@@ -46,7 +50,6 @@ export default function ApiKeysPage() {
         }}
       >
         <QueryData<any> fetchFunction={listAPIKeys} pageSize={10} />
-
       </PageContainer.ContentTable>
     </PageContainer>
   );

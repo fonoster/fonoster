@@ -252,13 +252,13 @@ TableHeaderComponent.SelectAll = () => {
       sx={{
         display: "flex",
         alignItems: "center",
-        borderRadius: '4px',
-        height: '42px',
-        minWidth: '42px',
-        justifyContent: 'center',
+        borderRadius: "4px",
+        height: "42px",
+        minWidth: "42px",
+        justifyContent: "center",
         backgroundColor: `inherit`,
-        border: `1px solid ${theme.palette.grey['200']}`,
-        padding: '8px 12px'
+        border: `1px solid ${theme.palette.grey["200"]}`,
+        padding: "8px 12px"
       }}
       onClick={(e) => {
         e.stopPropagation();

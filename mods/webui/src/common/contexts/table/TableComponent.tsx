@@ -19,7 +19,6 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
 import { Typography } from "@stories/typography/Typography";
 
-
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.grey[200],
@@ -42,7 +41,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
   padding: "8px 16px",
   height: "13px",
-  paddingLeft: "unset",
+  paddingLeft: "unset"
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -124,7 +123,7 @@ const TableComponent = <TData extends Object>({
       <MUITable
         id={`table-${id}`}
         className={classNames(tableClassName, loadingData ? "loading" : "")}
-      // size="small"
+        // size="small"
       >
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -198,7 +197,14 @@ const TableComponent = <TData extends Object>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={enableRowSelection ? table.getAllColumns().length + 1 : table.getAllColumns().length} align="center">
+              <TableCell
+                colSpan={
+                  enableRowSelection
+                    ? table.getAllColumns().length + 1
+                    : table.getAllColumns().length
+                }
+                align="center"
+              >
                 <Typography variant="body-small">
                   {loadingData ? "Loading..." : "No data available"}
                 </Typography>
