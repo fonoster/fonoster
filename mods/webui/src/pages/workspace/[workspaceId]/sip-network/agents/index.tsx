@@ -43,9 +43,7 @@ export default function AgentsPage() {
   const { listAgents } = useAgents();
 
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/agents/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/agents/new`);
   };
 
   const handleRowClick = (agent: Agent) => {

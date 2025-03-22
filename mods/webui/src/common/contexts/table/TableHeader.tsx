@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import {
-  Box,
-  Grid,
-  useTheme
-} from "@mui/material";
+import { Box, Grid, useTheme } from "@mui/material";
 import { useTableContext } from "./useTableContext";
 import { Pagination } from "@stories/pagination/Pagination";
 import { InputText } from "@stories/inputtext/InputText";
@@ -93,42 +89,53 @@ TableHeaderComponent.Filter = ({
   const [selectedOption, setSelectedOption] = useState<string>(defaultFilter);
 
   // Simple options array - use useMemo to prevent recreation on every render
-  const options = useMemo(() => [
-    { label: "Filter By", value: "Filter By" },
-    ...headers
-      .filter(column => column.id)
-      .map(column => ({
-        label: typeof column.header === "string" ? column.header : String(column.id),
-        value: column.id as string
-      }))
-  ], [headers]);
+  const options = useMemo(
+    () => [
+      { label: "Filter By", value: "Filter By" },
+      ...headers
+        .filter((column) => column.id)
+        .map((column) => ({
+          label:
+            typeof column.header === "string"
+              ? column.header
+              : String(column.id),
+          value: column.id as string
+        }))
+    ],
+    [headers]
+  );
 
   // Direct handler function
-  const handleChange = useCallback((event: { target: { value: string | number | (string | number)[] } }) => {
-    const value = Array.isArray(event.target.value) ? event.target.value[0] : event.target.value;
+  const handleChange = useCallback(
+    (event: { target: { value: string | number | (string | number)[] } }) => {
+      const value = Array.isArray(event.target.value)
+        ? event.target.value[0]
+        : event.target.value;
 
-    // Update local state immediately
-    setSelectedOption(value as string);
+      // Update local state immediately
+      setSelectedOption(value as string);
 
-    // Then update the table filters
-    if (value === "Filter By") {
-      // Clear filters completely
-      if (setColumnFilters) {
-        setColumnFilters([]);
+      // Then update the table filters
+      if (value === "Filter By") {
+        // Clear filters completely
+        if (setColumnFilters) {
+          setColumnFilters([]);
+        }
+      } else {
+        // Set the new filter - ensure we're creating a new array to trigger state updates
+        if (setColumnFilters) {
+          const newFilters = [
+            {
+              id: value as string,
+              value: ""
+            }
+          ];
+          setColumnFilters(newFilters);
+        }
       }
-    } else {
-      // Set the new filter - ensure we're creating a new array to trigger state updates
-      if (setColumnFilters) {
-        const newFilters = [
-          {
-            id: value as string,
-            value: ""
-          }
-        ];
-        setColumnFilters(newFilters);
-      }
-    }
-  }, [setColumnFilters]);
+    },
+    [setColumnFilters]
+  );
 
   return (
     <Select
@@ -151,7 +158,8 @@ TableHeaderComponent.Search = ({
   size?: "small" | "medium";
   fullWidth?: boolean;
 }) => {
-  const { setGlobalFilter, columnFilters, setColumnFilters } = useTableContext();
+  const { setGlobalFilter, columnFilters, setColumnFilters } =
+    useTableContext();
   const [searchValue, setSearchValue] = useState("");
 
   // Sync with global filter when has internally changes
@@ -159,34 +167,37 @@ TableHeaderComponent.Search = ({
     // If there is a column filter selected, update the search value
     if (columnFilters && columnFilters.length > 0) {
       const currentFilter = columnFilters[0];
-      if (currentFilter?.value && typeof currentFilter.value === 'string') {
+      if (currentFilter?.value && typeof currentFilter.value === "string") {
         setSearchValue(currentFilter.value);
       }
     }
   }, [columnFilters]);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchValue(value);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchValue(value);
 
-    // If there is a column filter selected, update its value
-    if (columnFilters && columnFilters.length > 0) {
-      const currentFilter = columnFilters[0];
-      if (setColumnFilters) {
-        setColumnFilters([
-          {
-            id: currentFilter.id,
-            value: value
-          }
-        ]);
+      // If there is a column filter selected, update its value
+      if (columnFilters && columnFilters.length > 0) {
+        const currentFilter = columnFilters[0];
+        if (setColumnFilters) {
+          setColumnFilters([
+            {
+              id: currentFilter.id,
+              value: value
+            }
+          ]);
+        }
+      } else {
+        // If there is not a column filter, use the global filter
+        if (setGlobalFilter) {
+          setGlobalFilter(value);
+        }
       }
-    } else {
-      // If there is not a column filter, use the global filter
-      if (setGlobalFilter) {
-        setGlobalFilter(value);
-      }
-    }
-  }, [setGlobalFilter, columnFilters, setColumnFilters]);
+    },
+    [setGlobalFilter, columnFilters, setColumnFilters]
+  );
 
   return (
     <InputText
@@ -220,8 +231,7 @@ TableHeaderComponent.Pagination = () => {
           if (newPage > lastPage) {
             setNextPageCursor?.(fonosterResponse?.nextPageToken);
             nextPage?.();
-          }
-          else {
+          } else {
             setPrevPageCursor?.(fonosterResponse?.prevPageToken);
             previousPage?.();
           }
@@ -232,13 +242,10 @@ TableHeaderComponent.Pagination = () => {
 };
 
 TableHeaderComponent.SelectAll = () => {
-  const {
-    getIsAllRowsSelected,
-    getIsSomeRowsSelected,
-    table
-  } = useTableContext();
+  const { getIsAllRowsSelected, getIsSomeRowsSelected, table } =
+    useTableContext();
 
-  const theme = useTheme()
+  const theme = useTheme();
 
   return (
     <Box

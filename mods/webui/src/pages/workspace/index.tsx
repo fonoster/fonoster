@@ -51,7 +51,6 @@ const ListWorkspacePage = () => {
     fetchUser();
   }, []);
 
-
   const handleCreateWorkspace = () => {
     setIsCreateModalOpen(true);
   };

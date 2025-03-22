@@ -41,24 +41,26 @@ export default function TrunksPage() {
   const { selectedWorkspace } = useWorkspaceContext();
 
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/trunks/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/trunks/new`);
   };
-
 
   return (
     <PageContainer>
       <PageContainer.Header
         title="Trunks"
         actions={
-          <Button variant="contained" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="contained"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New SIP Trunk
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Use this section to configure your VoIP Providers for inbound and outbound calls to the PSTN.
+        Use this section to configure your VoIP Providers for inbound and
+        outbound calls to the PSTN.
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<Trunk>

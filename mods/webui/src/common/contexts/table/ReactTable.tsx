@@ -25,7 +25,11 @@ const ReactTable = <T extends object>({
   children,
   enableRowSelection = false
 }: ReactTableProps<T>) => {
-  return <TableProvider<T> columns={columns} enableRowSelection={enableRowSelection}>{children}</TableProvider>;
+  return (
+    <TableProvider<T> columns={columns} enableRowSelection={enableRowSelection}>
+      {children}
+    </TableProvider>
+  );
 };
 
 // Compound Components

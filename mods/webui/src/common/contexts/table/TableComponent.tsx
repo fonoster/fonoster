@@ -41,7 +41,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey["100"]}`
   },
   padding: "8px 16px",
-  height: "13px"
+  height: "13px",
+  paddingLeft: "unset",
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -113,10 +114,7 @@ const TableComponent = <TData extends Object>({
   rowClassName,
   options
 }: TableComponentProps<TData>) => {
-  const {
-    table,
-    loadingData
-  } = useTableContext<TData>();
+  const { table, loadingData } = useTableContext<TData>();
 
   // Check if row selection is enabled
   const enableRowSelection = options?.enableRowSelection || false;
@@ -133,7 +131,11 @@ const TableComponent = <TData extends Object>({
             <TableRow key={headerGroup.id}>
               {/* Row selection column - empty header cell */}
               {enableRowSelection && (
-                <StyledTableCell padding="checkbox" align="center" style={{ width: '48px' }}>
+                <StyledTableCell
+                  padding="checkbox"
+                  align="center"
+                  style={{ width: "48px" }}
+                >
                   {/* Select all checkbox moved to TableHeader.tsx */}
                 </StyledTableCell>
               )}

@@ -39,7 +39,9 @@ export function useQueryData<TData, TParams = any>({
   const prevCursorsRef = useRef({ nextPageCursor, prevPageCursor });
 
   // Store a history of tokens to facilitate bidirectional navigation
-  const tokensHistoryRef = useRef<{ [key: number]: { next?: string, prev?: string } }>({});
+  const tokensHistoryRef = useRef<{
+    [key: number]: { next?: string; prev?: string };
+  }>({});
   const prevPageIndexRef = useRef<number>(0);
 
   // Function to compare if filters have actually changed
@@ -62,8 +64,10 @@ export function useQueryData<TData, TParams = any>({
 
     // Compare each individual filter
     for (let i = 0; i < (oldColumnFilters?.length || 0); i++) {
-      if (oldColumnFilters?.[i]?.id !== newFilters?.columnFilters?.[i]?.id ||
-        oldColumnFilters?.[i]?.value !== newFilters?.columnFilters?.[i]?.value) {
+      if (
+        oldColumnFilters?.[i]?.id !== newFilters?.columnFilters?.[i]?.id ||
+        oldColumnFilters?.[i]?.value !== newFilters?.columnFilters?.[i]?.value
+      ) {
         return true;
       }
     }
@@ -97,13 +101,17 @@ export function useQueryData<TData, TParams = any>({
     if (!isInitialized) return;
 
     // If pageIndex has changed and setNextPageCursor/setPrevPageCursor are defined
-    if (pageIndex !== prevPageIndexRef.current && setNextPageCursor && setPrevPageCursor) {
-      const direction = pageIndex > prevPageIndexRef.current ? 'next' : 'prev';
+    if (
+      pageIndex !== prevPageIndexRef.current &&
+      setNextPageCursor &&
+      setPrevPageCursor
+    ) {
+      const direction = pageIndex > prevPageIndexRef.current ? "next" : "prev";
 
       // Determine which token to use based on direction and history
       let tokenToUse: string | undefined = undefined;
 
-      if (direction === 'next') {
+      if (direction === "next") {
         // Moving to the next page
         tokenToUse = tokensHistoryRef.current[prevPageIndexRef.current]?.next;
         if (tokenToUse) {
@@ -130,8 +138,10 @@ export function useQueryData<TData, TParams = any>({
     const newCursors = { nextPageCursor, prevPageCursor };
 
     // Only execute if cursors have changed
-    if (oldCursors.nextPageCursor !== newCursors.nextPageCursor &&
-      newCursors.nextPageCursor !== undefined) {
+    if (
+      oldCursors.nextPageCursor !== newCursors.nextPageCursor &&
+      newCursors.nextPageCursor !== undefined
+    ) {
       prevCursorsRef.current = newCursors;
       if (!isFetchingRef.current) {
         // Save token in history
@@ -143,8 +153,10 @@ export function useQueryData<TData, TParams = any>({
         }
         handleFetch(nextPageCursor);
       }
-    } else if (oldCursors.prevPageCursor !== newCursors.prevPageCursor &&
-      newCursors.prevPageCursor !== undefined) {
+    } else if (
+      oldCursors.prevPageCursor !== newCursors.prevPageCursor &&
+      newCursors.prevPageCursor !== undefined
+    ) {
       prevCursorsRef.current = newCursors;
       if (!isFetchingRef.current) {
         // Save token in history
@@ -168,15 +180,22 @@ export function useQueryData<TData, TParams = any>({
       const currentFilter = columnFilters[0];
 
       // IF there are a column ID and a value
-      if (currentFilter?.id && currentFilter.value &&
-        typeof currentFilter.value === 'string' &&
-        currentFilter.value.trim() !== '') {
+      if (
+        currentFilter?.id &&
+        currentFilter.value &&
+        typeof currentFilter.value === "string" &&
+        currentFilter.value.trim() !== ""
+      ) {
         // Add filter to the filter objects
         filterValues[currentFilter.id] = currentFilter.value;
       }
     }
     // Compatibility case: if there is not a column filter but there is a global filter
-    else if (globalFilter && typeof globalFilter === 'string' && globalFilter.trim() !== '') {
+    else if (
+      globalFilter &&
+      typeof globalFilter === "string" &&
+      globalFilter.trim() !== ""
+    ) {
       filterValues["query"] = globalFilter;
     }
 
@@ -221,7 +240,10 @@ export function useQueryData<TData, TParams = any>({
           };
 
           // If we're moving to a new page, save the previous token for the next page
-          if (pageToken === nextPageCursor && pageIndex + 1 < Object.keys(tokensHistoryRef.current).length) {
+          if (
+            pageToken === nextPageCursor &&
+            pageIndex + 1 < Object.keys(tokensHistoryRef.current).length
+          ) {
             tokensHistoryRef.current[pageIndex + 1] = {
               ...tokensHistoryRef.current[pageIndex + 1],
               prev: response.nextPageToken

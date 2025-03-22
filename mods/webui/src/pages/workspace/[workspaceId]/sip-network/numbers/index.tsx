@@ -42,9 +42,7 @@ export default function NumbersPage() {
   const { listNumbers } = useNumbers();
 
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/numbers/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/numbers/new`);
   };
 
   const handleRowClick = (number: INumber) => {
