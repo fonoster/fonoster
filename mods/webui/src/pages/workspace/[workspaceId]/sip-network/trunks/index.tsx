@@ -46,6 +46,9 @@ export default function TrunksPage() {
     );
   };
 
+  const handleEdit = (row: Trunk) => {
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/trunks/${row.ref}`)
+  }
 
   return (
     <PageContainer>
@@ -65,6 +68,7 @@ export default function TrunksPage() {
         columns={columns}
         tableId="trunks-table"
         showSelectAll={true}
+        onRowSelection={handleEdit}
       >
         <QueryData<Trunk> fetchFunction={listTrunks} pageSize={10} />
       </PageContainer.ContentTable>

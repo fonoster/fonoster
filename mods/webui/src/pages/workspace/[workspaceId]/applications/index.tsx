@@ -43,8 +43,8 @@ export default function ApplicationsPage() {
     router.push(`/workspace/${workspaceId}/applications/new`);
   };
 
-  const handleEdit = (application: Application) => {
-    router.push(`/workspace/${workspaceId}/applications/${application.ref}`)
+  const handleEdit = (row: Application) => {
+    router.push(`/workspace/${workspaceId}/applications/${row.ref}`)
   }
 
   return (
