@@ -141,7 +141,7 @@ The following is a list of the supported settings:
 
 | Setting       | Description                                                                                     |
 | ------------- | ----------------------------------------------------------------------------------------------- |
-| provider      |                                                                                                 |
+| provider      | Model provider                                                                                  |
 | model         | The model to use. The available models depend on the provider                                   |
 | maxTokens     | The maximum number of tokens the language model can generate in a single response               |
 | temperature   | The randomness of the language model. A higher temperature will result in more random responses |
@@ -198,7 +198,7 @@ parameters:
   properties:
     date:
       type: string
-      format: date
+      format: date // only 'enum' and 'date-time' are supported
   required:
     - date
 operation:
@@ -214,17 +214,17 @@ The response from your endpoint must be a JSON object containing a `result` prop
 
 ### Key Components of a Tool Definition:
 
-- : A unique identifier for the tool
-- : A brief explanation of what the tool does
-- : The message sent when the tool is triggered
-- : Defines the expected input structure in accordance with the [JSON Schema standard](https://json-schema.org/), which is also required for OpenAI compatible tool calling
-  - : Defines the structure of the input (typically `object`)
-  - : Specifies the fields expected in the input
-  - : Lists the fields that must be provided
-- :
-  - : The HTTP method (`get` and `post` are supported)
-  - : The endpoint to send the request to
-  - : Any necessary headers, such as authentication keys
+- `name`: A unique identifier for the tool
+- `description`: A brief explanation of what the tool does
+- `requestStartMessage`: The message sent when the tool is triggered
+- `parameters`: Defines the expected input structure in accordance with the [JSON Schema standard](https://json-schema.org/), which is also required for OpenAI compatible tool calling
+  - `parameters.type`: Defines the structure of the input (typically `object`)
+  - `parameters.properties`: Specifies the fields expected in the input
+  - `parameters.required`: Lists the fields that must be provided
+- `operation`:
+  - `operation.method`: The HTTP method (`get` and `post` are supported)
+  - `operation.url`: The endpoint to send the request to
+  - `operation.headers`: Any necessary headers, such as authentication keys
 
 For additional details, refer to the [tool schema documentation](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
 
@@ -240,13 +240,48 @@ For additional details, refer to the [tool schema documentation](https://github.
 
 The Autopilot supports automated testing through test cases defined in the configuration. Test cases allow you to verify the behavior of your Autopilot before deploying it to production.
 
+The following is an example of creating a test case for Fonoster Autopilot:
+
+```yaml
+testCases:
+  evalsLanguageModel:
+    provider: openai
+    model: gpt-4o
+    apiKey: sk-proj-REDACTED
+  scenarios:
+    - ref: test-case-1
+      description: Test Case 1 Description
+      telephonyContext:
+        callDirection: FROM_PSTN
+        ingressNumber: '+1234567890'
+        callerNumber: '+1234567890'
+      conversation:
+        - userInput: 'Hi, can you tell me what''s in the menu?'
+          expected:
+            text:
+              type: similar
+              response: |
+                We have a variety of sandwiches, salads, and drinks. Anything
+                in particular you're looking for?
+        - userInput: 'Nevermind, I want to speak to a human'
+          expected:
+            text:
+              type: similar
+              response: |
+                I'll transfer you to a human representative. Please hold while I
+                connect you.
+            tools:
+              - tool: transfer
+                parameters: {}
+```
+
 ### Evaluation Language Model
 
 The `evalsLanguageModel` section defines the model used to evaluate test cases:
 
 | Setting  | Description                                          |
 | -------- | ---------------------------------------------------- |
-| provider |                                                      |
+| provider | Evaluation provider                                  |
 | model    | The OpenAI model to use for evaluations              |
 | apiKey   | The API key for the evaluation model                 |
 
@@ -258,9 +293,9 @@ The `evalsLanguageModel` section defines the model used to evaluate test cases:
 
 Each test scenario represents a complete conversation flow. The scenario includes:
 
-- : A unique identifier for the test case
-- : A brief description of what the test case verifies
-- : Emulates the context of a real phone call with the following properties:
+- `ref`: A unique identifier for the test case
+- `description`: A brief description of what the test case verifies
+- `telephonyContext`: Emulates the context of a real phone call with the following properties:
   - `callDirection`: The direction of the call (e.g., "FROM_PSTN")
   - `ingressNumber`: The number being called
   - `callerNumber`: The number making the call
@@ -304,40 +339,3 @@ The `expected` object can validate:
         param1: "value1"
         param2: "valid-date" # The response must contain a valid date or the test will fail.
   ```
-
-### Example
-
-Here is an example of a test case:
-
-```yaml
-testCases:
-  evalsLanguageModel:
-    provider: openai
-    model: gpt-4o
-    apiKey: sk-proj-REDACTED
-  scenarios:
-    - ref: test-case-1
-      description: Test Case 1 Description
-      telephonyContext:
-        callDirection: FROM_PSTN
-        ingressNumber: '+1234567890'
-        callerNumber: '+1234567890'
-      conversation:
-        - userInput: 'Hi, can you tell me what''s in the menu?'
-          expected:
-            text:
-              type: similar
-              response: |
-                We have a variety of sandwiches, salads, and drinks. Anything
-                in particular you're looking for?
-        - userInput: 'Nevermind, I want to speak to a human'
-          expected:
-            text:
-              type: similar
-              response: |
-                I'll transfer you to a human representative. Please hold while I
-                connect you.
-            tools:
-              - tool: transfer
-                parameters: {}
-```
