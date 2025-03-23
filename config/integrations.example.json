@@ -49,5 +49,13 @@
     "credentials": {
       "apiKey": "REDACTED"
     }
+  },
+  {
+    "name": "Google Large Language Models",
+    "productRef": "llm.google",
+    "type": "llm",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
   }
 ]

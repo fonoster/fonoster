@@ -16,11 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum LanguageModelProvider {
-  OPENAI = "openai",
-  GROQ = "groq",
-  OLLAMA = "ollama",
-  GOOGLE = "google"
+import { BaseModelParams } from "../types";
+
+enum GoogleModel {
+  GEMINI_2_0_FLASH = "gemini-2.0-flash",
+  GEMINI_2_0_FLASH_LITE = "gemini-2.0-flash-lite",
+  GEMINI_2_0_PRO_EXP_02_05 = "gemini-2.0-pro-exp-02-05"
 }
 
-export { LanguageModelProvider };
+type GoogleParams = BaseModelParams & {
+  model: GoogleModel;
+  apiKey: string;
+  maxTokens: number;
+  temperature: number;
+};
+
+export { GoogleModel, GoogleParams };
