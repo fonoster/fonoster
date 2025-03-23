@@ -20,7 +20,7 @@ import { BaseModelParams } from "../types";
 
 enum AnthropicModel {
   CLAUDE_3_5_SONNET = "claude-3-5-sonnet-latest",
-  CLAUDE_3_5_HAIKU = "claude-3-5-haiku-latest",
+  CLAUDE_3_5_HAIKU = "claude-3-5-haiku-latest"
 }
 
 type AnthropicParams = BaseModelParams & {

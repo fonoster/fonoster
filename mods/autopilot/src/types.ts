@@ -39,8 +39,4 @@ type AutopilotApplication = Application & {
   };
 };
 
-export {
-  AutopilotParams,
-  ConversationProvider,
-  AutopilotApplication
-};
+export { AutopilotParams, ConversationProvider, AutopilotApplication };

@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatAnthropic } from "@langchain/anthropic";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { convertToolToOpenAITool } from "../../tools";
 import { Voice } from "../../voice";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
@@ -33,7 +33,7 @@ class Anthropic extends AbstractLanguageModel {
     telephonyContext: TelephonyContext
   ) {
     const model = new ChatAnthropic({
-      ...params,
+      ...params
     }).bind({
       tools: params.tools.map(convertToolToOpenAITool)
     }) as unknown as BaseChatModel;
