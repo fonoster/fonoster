@@ -332,10 +332,10 @@ The `expected` object can validate:
   ```
 - **Tool usage** via the `tools` property:
 
-  ```yaml
+  ```yaml {5}
   tools:
     - tool: "toolName"
       parameters:
         param1: "value1"
-        param2: "valid-date" # The response must contain a valid date or the test will fail.
+        param2: "valid-date" # Special keyword to test for a valid date
   ```
