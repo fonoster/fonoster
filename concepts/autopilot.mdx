@@ -218,13 +218,13 @@ The response from your endpoint must be a JSON object containing a `result` prop
 - `description`: A brief explanation of what the tool does
 - `requestStartMessage`: The message sent when the tool is triggered
 - `parameters`: Defines the expected input structure in accordance with the [JSON Schema standard](https://json-schema.org/), which is also required for OpenAI compatible tool calling
-  - `parameters.type`: Defines the structure of the input (typically `object`)
-  - `parameters.properties`: Specifies the fields expected in the input
-  - `parameters.required`: Lists the fields that must be provided
+  - `type`: Defines the structure of the input (typically `object`)
+  - `properties`: Specifies the fields expected in the input
+  - `required`: Lists the fields that must be provided
 - `operation`:
-  - `operation.method`: The HTTP method (`get` and `post` are supported)
-  - `operation.url`: The endpoint to send the request to
-  - `operation.headers`: Any necessary headers, such as authentication keys
+  - `method`: The HTTP method (`get` and `post` are supported)
+  - `url`: The endpoint to send the request to
+  - `headers`: Any necessary headers, such as authentication keys
 
 For additional details, refer to the [tool schema documentation](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
 
