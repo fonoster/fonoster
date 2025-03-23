@@ -4,17 +4,17 @@ import TrunkForm from "./_components/form/TrunkForm";
 import { TrunkFormData } from "./_components/form/TrunkForm";
 
 export default function NewTrunkPage() {
-    const router = useRouter();
-    const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 500);
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
 
-        return () => clearTimeout(timer);
-    }, []);
+    return () => clearTimeout(timer);
+  }, []);
 
-    return <TrunkForm isLoading={isLoading} />;
-} 
+  return <TrunkForm isLoading={isLoading} />;
+}

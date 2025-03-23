@@ -34,8 +34,8 @@ export const useSecret = () => {
       ref: `secret-${index}`,
       name: `Secret ${index + 1}`, // This is required to be non-optional
       secret: `Secret ${index + 1}`, // This is required to be non-optional
-      createdAt: new Date(Date.now() - (index * 86400000)).getTime(),
-      updatedAt: new Date(Date.now() - (index * 43200000)).getTime()
+      createdAt: new Date(Date.now() - index * 86400000).getTime(),
+      updatedAt: new Date(Date.now() - index * 43200000).getTime()
     }),
     totalItems: 30,
     defaultPageSize: 10

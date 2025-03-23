@@ -200,6 +200,8 @@ class Deepgram
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
+      smartFormat: z.boolean().optional(),
+      noDelay: z.boolean().optional(),
       languageCode: z
         .nativeEnum(VoiceLanguage, {
           message: Messages.VALID_LANGUAGE_CODE
@@ -221,14 +223,19 @@ class Deepgram
 function buildTranscribeConfig(config: {
   model: DeepgramModel;
   languageCode: VoiceLanguage;
+  smartFormat?: boolean;
+  noDelay?: boolean;
 }) {
   return {
     ...config,
     model: config.model || DeepgramModel.NOVA_2_PHONECALL,
+    language: config.languageCode || VoiceLanguage.EN_US,
     encoding: "linear16",
     sample_rate: 16000,
-    language: config.languageCode || VoiceLanguage.EN_US,
-    smart_format: true
+    channels: 1,
+    smart_format: config.smartFormat || true,
+    // This needs to be set to true to avoid delays while using smart_format
+    no_delay: config.noDelay || true
   };
 }
 

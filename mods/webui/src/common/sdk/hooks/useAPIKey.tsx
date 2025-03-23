@@ -6,7 +6,7 @@ import {
   CreateApiKeyResponse,
   ListApiKeysRequest as BaseListApiKeysRequest,
   ListApiKeysResponse as BaseListApiKeysResponse,
-  BaseApiObject,
+  BaseApiObject
 } from "@fonoster/types";
 import { ApiKeys } from "@fonoster/sdk";
 import { usePaginatedData } from "@/common/hooks/usePaginatedData";
@@ -32,7 +32,7 @@ export const useAPIKey = () => {
   const { listItems } = usePaginatedData<any>({
     generateFakeData: (index: number) => ({
       ref: `api-${index}`,
-      name: `API Key ${index + 1}`,
+      name: `API Key ${index + 1}`
     }),
     totalItems: 30,
     defaultPageSize: 10

@@ -17,7 +17,8 @@ const columns: ColumnDef<Credentials>[] = [
   {
     id: "username",
     header: "Username",
-    cell: (info: { row: { original: Credentials } }) => info.row.original.username
+    cell: (info: { row: { original: Credentials } }) =>
+      info.row.original.username
   }
 ];
 

@@ -22,7 +22,8 @@ const columns: ColumnDef<INumber>[] = [
   {
     id: "city",
     header: "Address",
-    cell: (props: { row: { original: INumber } }) => `${props.row.original.city}, ${props.row.original.countryIsoCode}, ${props.row.original.country}`
+    cell: (props: { row: { original: INumber } }) =>
+      `${props.row.original.city}, ${props.row.original.countryIsoCode}, ${props.row.original.country}`
   },
   {
     id: "agentAor",
@@ -42,9 +43,7 @@ export default function NumbersPage() {
   const { listNumbers } = useNumbers();
 
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/numbers/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/numbers/new`);
   };
 
   const handleRowClick = (number: INumber) => {
@@ -64,7 +63,8 @@ export default function NumbersPage() {
         }
       />
       <PageContainer.Subheader>
-        You will need a Number to make and receive calls from the PSTN (traditional phones).
+        You will need a Number to make and receive calls from the PSTN
+        (traditional phones).
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<INumber>
@@ -73,7 +73,6 @@ export default function NumbersPage() {
         showSelectAll={true}
       >
         <QueryData<INumber> fetchFunction={listNumbers} pageSize={10} />
-
       </PageContainer.ContentTable>
     </PageContainer>
   );

@@ -30,12 +30,13 @@ const columns: ColumnDef<Agent>[] = [
   {
     id: "info",
     header: "Info",
-    cell: (props: { row: { original: any } }) => <Icon fontSize="small" name="Info" />
+    cell: (props: { row: { original: any } }) => (
+      <Icon fontSize="small" name="Info" />
+    )
   }
 ];
 
 export default function StoragePage() {
-
   // Handle Fake data - make sure all required Domain properties are non-optional
   const { listItems } = usePaginatedData<any>({
     generateFakeData: (index: number) => ({
@@ -43,9 +44,13 @@ export default function StoragePage() {
       name: `Domain ${index + 1}`, // This is required to be non-optional
       size: `123-${index}MB`,
       fileType: `Audio/WAV`,
-      lastModified: new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(Date.now() - (index * 86400000))),
-      createdAt: new Date(Date.now() - (index * 86400000)),
-      updatedAt: new Date(Date.now() - (index * 43200000))
+      lastModified: new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      }).format(new Date(Date.now() - index * 86400000)),
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
     }),
     totalItems: 30,
     defaultPageSize: 10
@@ -56,7 +61,11 @@ export default function StoragePage() {
       <PageContainer.Header
         title="Storage"
         actions={
-          <Button variant="contained" onClick={() => { }} endIcon={<Icon fontSize="small" name="Upload" />}>
+          <Button
+            variant="contained"
+            onClick={() => {}}
+            endIcon={<Icon fontSize="small" name="Upload" />}
+          >
             Upload New File
           </Button>
         }
@@ -74,7 +83,6 @@ export default function StoragePage() {
         }}
       >
         <QueryData<any> fetchFunction={listItems} pageSize={10} />
-
       </PageContainer.ContentTable>
     </PageContainer>
   );

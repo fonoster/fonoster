@@ -38,8 +38,9 @@ export default function SecretsPage() {
         }
       />
       <PageContainer.Subheader>
-        Safeguard your credentials in the Secrets Vault.
-        Secrets are encrypted variables that you can use in your Voice Applications and APIs. Secrets are only available for use within the project.
+        Safeguard your credentials in the Secrets Vault. Secrets are encrypted
+        variables that you can use in your Voice Applications and APIs. Secrets
+        are only available for use within the project.
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<Secret>
@@ -51,7 +52,6 @@ export default function SecretsPage() {
         }}
       >
         <QueryData<Secret> fetchFunction={listSecrets} pageSize={10} />
-
       </PageContainer.ContentTable>
     </PageContainer>
   );

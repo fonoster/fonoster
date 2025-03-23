@@ -24,8 +24,7 @@ const columns: ColumnDef<Trunk>[] = [
   {
     id: "inboundUri",
     header: "Inbound SIP",
-    cell: (props: { row: { original: Trunk } }) =>
-      props.row.original.inboundUri
+    cell: (props: { row: { original: Trunk } }) => props.row.original.inboundUri
   },
   {
     id: "outboundCredentialsRef",
@@ -41,9 +40,7 @@ export default function TrunksPage() {
   const { selectedWorkspace } = useWorkspaceContext();
 
   const handleNew = () => {
-    router.push(
-      `/workspace/${selectedWorkspace?.ref}/sip-network/trunks/new`
-    );
+    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/trunks/new`);
   };
 
   const handleEdit = (row: Trunk) => {
@@ -61,7 +58,8 @@ export default function TrunksPage() {
         }
       />
       <PageContainer.Subheader>
-        Use this section to configure your VoIP Providers for inbound and outbound calls to the PSTN.
+        Use this section to configure your VoIP Providers for inbound and
+        outbound calls to the PSTN.
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<Trunk>

@@ -19,7 +19,6 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
 import { Typography } from "@stories/typography/Typography";
 
-
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.grey[200],
@@ -41,7 +40,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey["100"]}`
   },
   padding: "8px 16px",
-  height: "13px"
+  height: "13px",
+  paddingLeft: "unset"
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -115,24 +115,25 @@ const TableComponent = <TData extends Object>({
   onRowSelection,
   enableRowSelection
 }: TableComponentProps<TData>) => {
-  const {
-    table,
-    loadingData
-  } = useTableContext<TData>();
+  const { table, loadingData } = useTableContext<TData>();
 
   return (
     <StyledTableContainer>
       <MUITable
         id={`table-${id}`}
         className={classNames(tableClassName, loadingData ? "loading" : "")}
-      // size="small"
+        // size="small"
       >
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {/* Row selection column - empty header cell */}
               {enableRowSelection && (
-                <StyledTableCell padding="checkbox" align="center" style={{ width: '48px' }}>
+                <StyledTableCell
+                  padding="checkbox"
+                  align="center"
+                  style={{ width: "48px" }}
+                >
                   {/* Select all checkbox moved to TableHeader.tsx */}
                 </StyledTableCell>
               )}
@@ -200,7 +201,14 @@ const TableComponent = <TData extends Object>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={enableRowSelection ? table.getAllColumns().length + 1 : table.getAllColumns().length} align="center">
+              <TableCell
+                colSpan={
+                  enableRowSelection
+                    ? table.getAllColumns().length + 1
+                    : table.getAllColumns().length
+                }
+                align="center"
+              >
                 <Typography variant="body-small">
                   {loadingData ? "Loading..." : "No data available"}
                 </Typography>

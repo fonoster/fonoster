@@ -36,8 +36,8 @@ export const useDomains = () => {
       name: `Domain ${index + 1}`, // This is required to be non-optional
       domainUri: `sip:domain-${index + 1}@sip.fonoster.com`,
       egressRules: `Egress Rule ${index + 1}`,
-      createdAt: new Date(Date.now() - (index * 86400000)),
-      updatedAt: new Date(Date.now() - (index * 43200000))
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
     }),
     totalItems: 30,
     defaultPageSize: 10

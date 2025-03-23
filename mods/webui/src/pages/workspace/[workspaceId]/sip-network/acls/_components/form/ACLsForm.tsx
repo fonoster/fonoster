@@ -32,14 +32,16 @@ function FormSkeleton({ formId = "acl-form" }: { formId?: string }) {
   return (
     <PageContainer>
       {/* Header skeleton */}
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 2,
-        px: 4,
-        pt: 3
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+          px: 4,
+          pt: 3
+        }}
+      >
         <Box>
           <Box sx={{ mb: 1 }}>
             <Skeleton variant="text" width={117} height={18} />
@@ -103,7 +105,7 @@ function FormSkeleton({ formId = "acl-form" }: { formId?: string }) {
 
 /**
  * Main component for creating or editing ACLs
- * 
+ *
  * This component provides a full page form for ACL management,
  * with support for both creating new ACLs and editing existing ones.
  */

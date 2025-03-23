@@ -37,8 +37,8 @@ export const useACL = () => {
       allow: [`City ${index + 1}`],
       deny: [`Country ${index + 1}`],
       // Add any other required fields from Trunk type
-      createdAt: new Date(Date.now() - (index * 86400000)),
-      updatedAt: new Date(Date.now() - (index * 43200000))
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
     }),
     totalItems: 30,
     defaultPageSize: 10

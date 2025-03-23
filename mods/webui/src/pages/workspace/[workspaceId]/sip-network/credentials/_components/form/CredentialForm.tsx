@@ -3,7 +3,10 @@ import PageContainer from "@/common/components/layout/pages";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { Box, Skeleton } from "@mui/material";
 import { Button } from "@stories/button/Button";
-import { useCredentialForm, CredentialFormData } from "../hooks/useCredentialForm";
+import {
+  useCredentialForm,
+  CredentialFormData
+} from "../hooks/useCredentialForm";
 import { CredentialFormFields } from "../shared/CredentialFormFields";
 
 interface CredentialFormProps {
@@ -20,14 +23,16 @@ function FormSkeleton({ formId = "credential-form" }: { formId?: string }) {
   return (
     <PageContainer>
       {/* Header skeleton */}
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 2,
-        px: 3,
-        pt: 3
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+          px: 3,
+          pt: 3
+        }}
+      >
         <Box>
           <Box sx={{ mb: 1 }}>
             <Skeleton variant="text" width={117} height={18} />
@@ -97,7 +102,7 @@ function FormSkeleton({ formId = "credential-form" }: { formId?: string }) {
 
 /**
  * Main component for creating or editing credentials
- * 
+ *
  * This component provides a full page form for credential management,
  * with support for both creating new credentials and editing existing ones.
  */
