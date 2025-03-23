@@ -32,7 +32,6 @@ export function createPromptTemplate(params: {
   const { firstMessage, systemPrompt, telephonyContext } = params;
 
   return ChatPromptTemplate.fromMessages([
-    new MessagesPlaceholder("history"),
     SystemMessagePromptTemplate.fromTemplate(
       `${systemPrompt}
 
@@ -49,6 +48,7 @@ export function createPromptTemplate(params: {
        callDirection: ${telephonyContext.callDirection}
        `
     ),
+    new MessagesPlaceholder("history"),
     HumanMessagePromptTemplate.fromTemplate("{input}")
   ]);
 }
