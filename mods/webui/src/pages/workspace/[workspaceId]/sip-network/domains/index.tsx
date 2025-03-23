@@ -41,7 +41,11 @@ export default function DomainsPage() {
       <PageContainer.Header
         title="Domains"
         actions={
-          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="outlined"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             New Domain
           </Button>
         }

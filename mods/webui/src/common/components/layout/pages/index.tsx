@@ -33,7 +33,7 @@ interface ContentProps<T extends object> {
   showSearch?: boolean;
   showPagination?: boolean;
   showSelectAll?: boolean;
-  onRowSelection?: (row: T) => void
+  onRowSelection?: (row: T) => void;
   options?: TableOptions;
 }
 
@@ -88,19 +88,21 @@ function ContentTable<T extends object>({
   onRowSelection,
   options
 }: ContentProps<T>) {
-
   return (
     <ReactTable<T> columns={columns} enableRowSelection={showSelectAll}>
       <ReactTable.Header>
         {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}
-        {showSearch && (
-          <ReactTable.Header.Search />
-        )}
+        {showSearch && <ReactTable.Header.Search />}
         {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />
-      <ReactTable.Content id={tableId} options={options} enableRowSelection={showSelectAll} onRowSelection={onRowSelection} />
+      <ReactTable.Content
+        id={tableId}
+        options={options}
+        enableRowSelection={showSelectAll}
+        onRowSelection={onRowSelection}
+      />
       {children}
     </ReactTable>
   );

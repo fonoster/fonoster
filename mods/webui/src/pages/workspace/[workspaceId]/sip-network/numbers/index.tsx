@@ -57,7 +57,11 @@ export default function NumbersPage() {
       <PageContainer.Header
         title="Numbers"
         actions={
-          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="outlined"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New Number
           </Button>
         }

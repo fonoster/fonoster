@@ -85,7 +85,7 @@ interface TableComponentProps<TData extends Object> {
   rowClassName?: string;
   bodyClassName?: string;
   enableRowSelection?: boolean;
-  onRowSelection?: (row: TData) => void
+  onRowSelection?: (row: TData) => void;
   options?: TableOptions;
   id: string;
 }
@@ -175,7 +175,7 @@ const TableComponent = <TData extends Object>({
                 key={row.id}
                 className={classNames(rowClassName)}
                 onClick={() => onRowSelection?.(row.original)}
-                sx={{ cursor: onRowSelection ? 'pointer' : '' }}
+                sx={{ cursor: onRowSelection ? "pointer" : "" }}
               >
                 {/* Checkbox to select a row */}
                 {enableRowSelection && (

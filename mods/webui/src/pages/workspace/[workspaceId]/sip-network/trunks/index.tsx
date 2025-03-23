@@ -44,15 +44,21 @@ export default function TrunksPage() {
   };
 
   const handleEdit = (row: Trunk) => {
-    router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/trunks/${row.ref}`)
-  }
+    router.push(
+      `/workspace/${selectedWorkspace?.ref}/sip-network/trunks/${row.ref}`
+    );
+  };
 
   return (
     <PageContainer>
       <PageContainer.Header
         title="Trunks"
         actions={
-          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="outlined"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New SIP Trunk
           </Button>
         }

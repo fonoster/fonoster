@@ -42,7 +42,11 @@ export default function AclsPage() {
       <PageContainer.Header
         title="IP/CIDR Access Control List (ACL)"
         actions={
-          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="outlined"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New ACL
           </Button>
         }

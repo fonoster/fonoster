@@ -42,21 +42,26 @@ export default function ApplicationsPage() {
   };
 
   const handleEdit = (row: Application) => {
-    router.push(`/workspace/${workspaceId}/applications/${row.ref}`)
-  }
+    router.push(`/workspace/${workspaceId}/applications/${row.ref}`);
+  };
 
   return (
     <PageContainer>
       <PageContainer.Header
         title="Voice Applications"
         actions={
-          <Button variant="outlined" onClick={() => handleNewApplication()} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="outlined"
+            onClick={() => handleNewApplication()}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New Application
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Use this section to connect your Dialogflow, IBM Watson, and OpenAI Assistants with your numbers.
+        Use this section to connect your Dialogflow, IBM Watson, and OpenAI
+        Assistants with your numbers.
       </PageContainer.Subheader>
 
       <PageContainer.ContentTable<Application>

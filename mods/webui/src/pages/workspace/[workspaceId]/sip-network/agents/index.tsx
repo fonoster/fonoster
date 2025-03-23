@@ -59,7 +59,11 @@ export default function AgentsPage() {
       <PageContainer.Header
         title="Agents"
         actions={
-          <Button variant="outlined" onClick={handleNew} endIcon={<Icon fontSize="small" name="Add" />}>
+          <Button
+            variant="outlined"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New Agent
           </Button>
         }

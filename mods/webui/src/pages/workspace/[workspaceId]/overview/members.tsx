@@ -12,7 +12,8 @@ export default function MembersPage() {
   const router = useRouter();
   const { workspaceId } = router.query;
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const { deleteWorkspace, resendWorkspaceMembershipInvitation } = useWorkspaces();
+  const { deleteWorkspace, resendWorkspaceMembershipInvitation } =
+    useWorkspaces();
 
   const handleInviteMember = (data: any) => {
     console.log("Invite member data:", data);
