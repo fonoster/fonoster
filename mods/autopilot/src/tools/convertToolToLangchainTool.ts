@@ -17,21 +17,18 @@
  * limitations under the License.
  */
 import { z } from "zod";
+import { JSONSchemaToZod } from "@dmitryrechkin/json-schema-to-zod";
+import { StructuredToolParams } from "@langchain/core/tools";
+import { Tool } from "./types";
 
-const propertySchema = z
-  .object({
-    type: z.string(),
-    // NOTICE: We are adopting Gemini's format which only supports 'enum' and 'date-time'
-    format: z.enum(["enum", "date-time"]).optional(),
-    pattern: z.string().optional()
-  })
-  .refine(
-    (data) => {
-      return !("format" in data && "pattern" in data);
-    },
-    {
-      message: "Property can only have either 'format' or 'pattern', not both."
-    }
-  );
+function convertToolToLangchainTool(customTool: Tool): StructuredToolParams {
+  return {
+    name: customTool.name,
+    description: customTool.description,
+    schema: customTool.parameters?.properties
+      ? (JSONSchemaToZod.convert(customTool.parameters) as z.ZodObject<any>)
+      : z.object({})
+  };
+}
 
-export { propertySchema };
+export { convertToolToLangchainTool };

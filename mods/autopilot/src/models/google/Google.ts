@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// import { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-//import { convertToolToOpenAITool } from "../../tools";
 import { Voice } from "../../voice";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 import { TelephonyContext } from "../types";
 import { GoogleParams } from "./types";
+import { convertToolToLangchainTool } from "../../tools/convertToolToLangchainTool";
 
 const LANGUAGE_MODEL_NAME = "llm.google";
 
@@ -34,14 +34,9 @@ class Google extends AbstractLanguageModel {
   ) {
     const model = new ChatGoogleGenerativeAI({
       ...params
-    });
-
-    // TODO: Add tools to the model
-    // const model = new ChatGoogleGenerativeAI({
-    //   ...params
-    // }).bind({
-    //   tools: params.tools.map(convertToolToOpenAITool)
-    // }) as unknown as BaseChatModel;
+    }).bindTools(
+      params.tools.map(convertToolToLangchainTool)
+    ) as unknown as BaseChatModel;
 
     super(
       {
