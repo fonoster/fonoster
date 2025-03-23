@@ -31,7 +31,21 @@ const ListNumbersSchema = z.object({
 const CreateCallSchema = z.object({
   from: z.string().describe("The phone number to call from"),
   to: z.string().describe("The phone number to call to"),
-  app_ref: z.string().describe("The application reference to use for the call")
+  app_ref: z.string().describe("The application reference to use for the call"),
+  timeout: z.number().optional().describe("The timeout for the call")
 });
 
-export { ListApplicationsSchema, CreateCallSchema, ListNumbersSchema };
+const CreateCallBatchSchema = z.object({
+  from: z.string().min(1),
+  to_array: z.array(z.string().min(1)).min(1),
+  app_ref: z.string().min(1),
+  timeout: z.number().optional(),
+  calls_per_minute: z.number().min(1).max(60).optional().default(20)
+});
+
+export {
+  ListApplicationsSchema,
+  CreateCallSchema,
+  ListNumbersSchema,
+  CreateCallBatchSchema
+};

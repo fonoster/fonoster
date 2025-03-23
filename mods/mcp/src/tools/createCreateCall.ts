@@ -31,7 +31,8 @@ export function createCreateCall(client: SDK.Client) {
     const call = await calls.createCall({
       from: params.from,
       to: params.to,
-      appRef: params.app_ref
+      appRef: params.app_ref,
+      timeout: params.timeout
     });
 
     return {

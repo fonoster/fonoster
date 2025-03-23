@@ -17,6 +17,7 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
+    "postbuild": "chmod +x ./dist/index.js",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {

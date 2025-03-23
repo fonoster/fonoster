@@ -19,13 +19,10 @@
  */
 import { readFileSync } from "fs";
 import { join } from "path";
-import { getLogger } from "@fonoster/logger";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerPrompts } from "./prompts/index";
 import { registerTools } from "./tools/index";
-
-const logger = getLogger({ service: "mcp", filePath: __filename });
 
 async function main() {
   // Read package.json using fs module
@@ -45,10 +42,8 @@ async function main() {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  logger.info("Fonoster MCP Server running on stdio");
 }
 
 main().catch((error) => {
-  logger.error("Error starting MCP server:", error);
   process.exit(1);
 });
