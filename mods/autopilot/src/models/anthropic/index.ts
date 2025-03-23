@@ -16,18 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseModelParams } from "../types";
+export * from "./Anthropic";
 
-enum GroqModel {
-  LLAMA3_3_3_70B_SPECDEC = "llama-3.3-70b-specdec",
-  LLAMA3_3_3_70B_VERSATILE = "llama-3.3-70b-versatile"
-}
-
-type GroqParams = BaseModelParams & {
-  model: GroqModel;
-  apiKey: string;
-  maxTokens: number;
-  temperature: number;
-};
-
-export { GroqModel, GroqParams };
+export * from "./types";

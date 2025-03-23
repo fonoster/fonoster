@@ -21,6 +21,11 @@ import { getLogger } from "@fonoster/logger";
 import { Voice } from "../voice";
 import { AbstractLanguageModel } from "./AbstractLanguageModel";
 import {
+  Anthropic,
+  LANGUAGE_MODEL_NAME as ANTHROPIC_LLM_NAME,
+  AnthropicParams
+} from "./anthropic";
+import {
   Google,
   LANGUAGE_MODEL_NAME as GOOGLE_LLM_NAME,
   GoogleParams
@@ -37,7 +42,6 @@ import {
   OpenAIParams
 } from "./openai";
 import { BaseModelParams, TelephonyContext } from "./types";
-
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 type LanguageModelConstructor<T extends BaseModelParams = BaseModelParams> =
@@ -52,6 +56,7 @@ type LanguageModelConfigMap = {
   [LanguageModelProvider.GROQ]: GroqParams;
   [LanguageModelProvider.OLLAMA]: OllamaParams;
   [LanguageModelProvider.GOOGLE]: GoogleParams;
+  [LanguageModelProvider.ANTHROPIC]: AnthropicParams;
 };
 
 class LanguageModelFactory {
@@ -89,5 +94,6 @@ LanguageModelFactory.registerLanguageModel(OPENAI_LLM_NAME, OpenAI);
 LanguageModelFactory.registerLanguageModel(GROQ_LLM_NAME, Groq);
 LanguageModelFactory.registerLanguageModel(OLLAMA_LLM_NAME, Ollama);
 LanguageModelFactory.registerLanguageModel(GOOGLE_LLM_NAME, Google);
+LanguageModelFactory.registerLanguageModel(ANTHROPIC_LLM_NAME, Anthropic);
 
 export { LanguageModelFactory };

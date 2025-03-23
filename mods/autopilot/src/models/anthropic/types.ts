@@ -18,16 +18,16 @@
  */
 import { BaseModelParams } from "../types";
 
-enum GroqModel {
-  LLAMA3_3_3_70B_SPECDEC = "llama-3.3-70b-specdec",
-  LLAMA3_3_3_70B_VERSATILE = "llama-3.3-70b-versatile"
+enum AnthropicModel {
+  CLAUDE_3_5_SONNET = "claude-3-5-sonnet-latest",
+  CLAUDE_3_5_HAIKU = "claude-3-5-haiku-latest"
 }
 
-type GroqParams = BaseModelParams & {
-  model: GroqModel;
+type AnthropicParams = BaseModelParams & {
+  model: AnthropicModel;
   apiKey: string;
   maxTokens: number;
   temperature: number;
 };
 
-export { GroqModel, GroqParams };
+export { AnthropicModel, AnthropicParams };

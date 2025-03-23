@@ -38,6 +38,7 @@
     "@fonoster/sdk": "^0.9.46",
     "@fonoster/types": "^0.9.46",
     "@fonoster/voice": "^0.9.46",
+    "@langchain/anthropic": "^0.3.15",
     "@langchain/community": "^0.3.32",
     "@langchain/core": "^0.3.40",
     "@langchain/google-genai": "^0.1.11",
