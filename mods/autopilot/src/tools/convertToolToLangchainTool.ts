@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
 import { JSONSchemaToZod } from "@dmitryrechkin/json-schema-to-zod";
 import { StructuredToolParams } from "@langchain/core/tools";
+import { z } from "zod";
 import { Tool } from "./types";
 
 function convertToolToLangchainTool(customTool: Tool): StructuredToolParams {
