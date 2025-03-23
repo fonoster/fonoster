@@ -16,31 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Application } from "@fonoster/types";
-import { AssistantConfig, ConversationSettings } from "./assistants";
-import { LanguageModel } from "./models";
-import { Voice } from "./voice";
+import { BaseModelParams } from "../types";
 
-enum ConversationProvider {
-  FILE = "file",
-  API = "api"
+enum AnthropicModel {
+  CLAUDE_3_5_SONNET = "claude-3-5-sonnet-latest",
+  CLAUDE_3_5_HAIKU = "claude-3-5-haiku-latest",
 }
 
-type AutopilotParams = {
-  voice: Voice;
-  conversationSettings: ConversationSettings;
-  languageModel: LanguageModel;
+type AnthropicParams = BaseModelParams & {
+  model: AnthropicModel;
+  apiKey: string;
+  maxTokens: number;
+  temperature: number;
 };
 
-type AutopilotApplication = Application & {
-  intelligence: {
-    productRef: string;
-    config: AssistantConfig;
-  };
-};
-
-export {
-  AutopilotParams,
-  ConversationProvider,
-  AutopilotApplication
-};
+export { AnthropicModel, AnthropicParams };

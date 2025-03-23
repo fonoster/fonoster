@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { LanguageModelProvider } from "../types";
+import { LanguageModelProvider } from "@fonoster/common";
 import { Voice } from "../voice";
 import { AbstractLanguageModel } from "./AbstractLanguageModel";
 import { Groq, LANGUAGE_MODEL_NAME as GROQ_LLM_NAME, GroqParams } from "./groq";
@@ -31,8 +31,12 @@ import {
   LANGUAGE_MODEL_NAME as OPENAI_LLM_NAME,
   OpenAIParams
 } from "./openai";
+import {
+  Anthropic,
+  LANGUAGE_MODEL_NAME as ANTHROPIC_LLM_NAME,
+  AnthropicParams
+} from "./anthropic";
 import { BaseModelParams, TelephonyContext } from "./types";
-
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 type LanguageModelConstructor<T extends BaseModelParams = BaseModelParams> =
@@ -46,6 +50,7 @@ type LanguageModelConfigMap = {
   [LanguageModelProvider.OPENAI]: OpenAIParams;
   [LanguageModelProvider.GROQ]: GroqParams;
   [LanguageModelProvider.OLLAMA]: OllamaParams;
+  [LanguageModelProvider.ANTHROPIC]: AnthropicParams;
 };
 
 class LanguageModelFactory {
@@ -82,5 +87,6 @@ class LanguageModelFactory {
 LanguageModelFactory.registerLanguageModel(OPENAI_LLM_NAME, OpenAI);
 LanguageModelFactory.registerLanguageModel(GROQ_LLM_NAME, Groq);
 LanguageModelFactory.registerLanguageModel(OLLAMA_LLM_NAME, Ollama);
+LanguageModelFactory.registerLanguageModel(ANTHROPIC_LLM_NAME, Anthropic);
 
 export { LanguageModelFactory };
