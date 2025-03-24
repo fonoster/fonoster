@@ -53,7 +53,7 @@ export function Header({
           spacing={2}
           sx={{
             minHeight: 80,
-            px: 2
+            px: 4
           }}
         >
           <Box
