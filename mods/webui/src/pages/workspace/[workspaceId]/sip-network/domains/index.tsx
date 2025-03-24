@@ -42,7 +42,7 @@ export default function DomainsPage() {
         title="Domains"
         actions={
           <Button
-            variant="contained"
+            variant="outlined"
             onClick={handleNew}
             endIcon={<Icon fontSize="small" name="Add" />}
           >
@@ -58,9 +58,6 @@ export default function DomainsPage() {
         columns={columns}
         tableId="domains-table"
         showSelectAll={true}
-        options={{
-          enableRowSelection: true
-        }}
       >
         <QueryData<Domain> fetchFunction={listDomains} pageSize={10} />
       </PageContainer.ContentTable>

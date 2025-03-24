@@ -77,7 +77,6 @@ const StyledTableContainer = styled(TableContainer)({
 
 export interface TableOptions {
   filtersDirection?: "up" | "down" | undefined;
-  enableRowSelection?: boolean;
 }
 
 interface TableComponentProps<TData extends Object> {
@@ -85,6 +84,8 @@ interface TableComponentProps<TData extends Object> {
   headerClassName?: string;
   rowClassName?: string;
   bodyClassName?: string;
+  enableRowSelection?: boolean;
+  onRowSelection?: (row: TData) => void;
   options?: TableOptions;
   id: string;
 }
@@ -111,12 +112,10 @@ const TableComponent = <TData extends Object>({
   headerClassName,
   bodyClassName,
   rowClassName,
-  options
+  onRowSelection,
+  enableRowSelection
 }: TableComponentProps<TData>) => {
   const { table, loadingData } = useTableContext<TData>();
-
-  // Check if row selection is enabled
-  const enableRowSelection = options?.enableRowSelection || false;
 
   return (
     <StyledTableContainer>
@@ -172,7 +171,12 @@ const TableComponent = <TData extends Object>({
         <TableBody className={classNames(bodyClassName)}>
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row, i) => (
-              <StyledTableRow key={row.id} className={classNames(rowClassName)}>
+              <StyledTableRow
+                key={row.id}
+                className={classNames(rowClassName)}
+                onClick={() => onRowSelection?.(row.original)}
+                sx={{ cursor: onRowSelection ? "pointer" : "" }}
+              >
                 {/* Checkbox to select a row */}
                 {enableRowSelection && (
                   <StyledTableCell padding="checkbox" align="center">

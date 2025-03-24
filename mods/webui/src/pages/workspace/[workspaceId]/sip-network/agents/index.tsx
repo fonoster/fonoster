@@ -60,7 +60,7 @@ export default function AgentsPage() {
         title="Agents"
         actions={
           <Button
-            variant="contained"
+            variant="outlined"
             onClick={handleNew}
             endIcon={<Icon fontSize="small" name="Add" />}
           >
@@ -77,9 +77,6 @@ export default function AgentsPage() {
         columns={columns}
         tableId="agents-table"
         showSelectAll={true}
-        options={{
-          enableRowSelection: true
-        }}
       >
         <QueryData<Agent> fetchFunction={listAgents} pageSize={10} />
       </PageContainer.ContentTable>

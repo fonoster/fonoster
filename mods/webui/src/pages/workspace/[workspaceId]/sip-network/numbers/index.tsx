@@ -58,7 +58,7 @@ export default function NumbersPage() {
         title="Numbers"
         actions={
           <Button
-            variant="contained"
+            variant="outlined"
             onClick={handleNew}
             endIcon={<Icon fontSize="small" name="Add" />}
           >
@@ -75,9 +75,6 @@ export default function NumbersPage() {
         columns={columns}
         tableId="numbers-table"
         showSelectAll={true}
-        options={{
-          enableRowSelection: true
-        }}
       >
         <QueryData<INumber> fetchFunction={listNumbers} pageSize={10} />
       </PageContainer.ContentTable>
