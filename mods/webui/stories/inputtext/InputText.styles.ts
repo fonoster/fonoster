@@ -76,7 +76,7 @@ export const StyledTextField = styled(TextField)(({ theme, size }) => ({
     lineHeight: "normal",
     letterSpacing: "0.12px",
     marginTop: "8px",
-    color: theme.palette.text.primary
+    color: theme.palette.text.secondary
   },
   "& .MuiFormLabel-root.MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
     fontFamily: "'Poppins', sans-serif",

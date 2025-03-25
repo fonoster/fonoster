@@ -34,7 +34,7 @@ export function WorkspacesPopover({
   const secondaryColor = theme.palette.secondary.main;
   const secondaryColor900 = theme.palette.secondary.dark;
   const hoverColor = theme.palette.secondary.light;
-  const textColor = theme.palette.text.primary;
+  const textColor = theme.palette.text.secondary;
 
   const handleWorkspaceChange = (workspace: Workspace) => {
     onChange?.(workspace.ref);
