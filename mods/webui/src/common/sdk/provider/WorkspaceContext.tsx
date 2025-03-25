@@ -48,10 +48,6 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
 
-    // if (!isAuthenticated) {
-    //   return;
-    // }
-
     setIsLoading(true);
     try {
       const response = await listWorkspaces();
