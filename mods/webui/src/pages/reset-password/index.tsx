@@ -37,7 +37,7 @@ type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPassword() {
   const router = useRouter();
-  const { code } = router.query;
+  const { code, username } = router.query;
   const { resetPassword } = useUser();
   const { notifySuccessWithStyle, notifyError, NotificationComponent } =
     useNotification();
@@ -72,10 +72,21 @@ export default function ResetPassword() {
       return;
     }
 
+    if (!username) {
+      notifyError({
+        code: "RESET_PASSWORD_ERROR",
+        message:
+          "Username is missing. Please try again or request a new reset link."
+      });
+
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const response = await resetPassword({
-        username: "test",
+
+      await resetPassword({
+        username: String(username),
         password: data.password,
         verificationCode: data.code || ""
       });
