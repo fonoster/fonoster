@@ -54,7 +54,12 @@ const languageModelConfigSchema = z.object({
       })
     )
     .default([]),
-  tools: z.array(toolSchema).default([])
+  tools: z.array(toolSchema).default([]),
+  mcpServers: z.array(z.object({
+    name: z.string(),
+    url: z.string().url(),
+    headers: z.record(z.string(), z.string())
+  })).default([])
 });
 
 export { languageModelConfigSchema };

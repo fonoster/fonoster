@@ -25,8 +25,9 @@ import {
   transferToolDefinition,
   Voice
 } from "..";
+import { MultiServerMCPClient } from '@langchain/mcp-adapters';
 
-function createLanguageModel(params: {
+async function createLanguageModel(params: {
   voice: Voice;
   assistantConfig: AssistantConfig;
   knowledgeBase: KnowledgeBase;
@@ -35,12 +36,27 @@ function createLanguageModel(params: {
   const { voice, assistantConfig, knowledgeBase, telephonyContext } = params;
   const { languageModel, conversationSettings } = assistantConfig;
 
+  let mcpTools: Tool[] = [];
+  if (languageModel.mcpServers.length > 0) {
+    const mcpClient = new MultiServerMCPClient();
+
+    for (const mcpServer of languageModel.mcpServers) {
+      await mcpClient.connectToServerViaSSE(mcpServer.name, mcpServer.url, mcpServer.headers);
+    }
+
+    mcpTools = mcpClient.getTools();
+  }
+
   // The transfer tool is only added if the transfer options exist
-  const tools = languageModel.tools.concat(
+  let tools = languageModel.tools.concat(
     conversationSettings.transferOptions
       ? [hangupToolDefinition, transferToolDefinition]
       : [hangupToolDefinition]
   );
+
+  if (mcpTools.length > 0) {
+    tools = tools.concat(mcpTools);
+  }
 
   return LanguageModelFactory.getLanguageModel(
     languageModel.provider,

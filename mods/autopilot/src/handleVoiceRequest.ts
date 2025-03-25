@@ -104,7 +104,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
 
   const voice = new VoiceImpl(sessionRef, res);
 
-  const languageModel = createLanguageModel({
+  const languageModel = await createLanguageModel({
     voice,
     assistantConfig,
     knowledgeBase,
