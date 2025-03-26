@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
 import CloseIcon from "@mui/icons-material/Close";
 import { Button } from "@stories/button/Button";
-import { styled, Theme } from "@mui/material/styles";
+import { alpha, styled, Theme } from "@mui/material/styles";
 import { Typography } from "@stories/typography/Typography";
 import { ErrorType, useNotification } from "@/common/hooks/useNotification";
 
@@ -89,13 +89,20 @@ export const CreateWorkspaceModal = ({
       onClose={onClose}
       maxWidth="xs"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: "4px",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          maxWidth: "430px",
-          margin: "0 auto",
-          overflow: "visible"
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: "0px",
+            boxShadow: "0px 4px 32px 0px rgba(0, 0, 0, 0.15)",
+            maxWidth: "430px",
+            margin: "0 auto",
+            overflow: "visible"
+          }
+        },
+        backdrop: {
+          sx: (theme) => ({
+            backgroundColor: alpha(String(theme.palette.primary["100"]), 0.75)
+          })
         }
       }}
     >
@@ -113,7 +120,7 @@ export const CreateWorkspaceModal = ({
           <CloseIcon />
         </IconButton>
       </StyledDialogTitle>
-      <StyledDialogContent>
+      <StyledDialogContent sx={{ overflow: "visible" }}>
         <FormProvider {...methods}>
           <Box
             component="form"

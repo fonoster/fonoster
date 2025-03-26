@@ -28,15 +28,23 @@ MCP Server for the Fonoster API, enabling MCP clients to interact with Fonoster'
      - `app_ref` (string): The reference to the application to use for the call
    - Returns: Call creation confirmation with reference ID
 
+4. `create_call_batch`
+   - Creates a batch of calls from Fonoster
+   - Required inputs:
+     - `from` (string): The number to call from
+     - `to_array` (array): The numbers to call to
+     - `app_ref` (string): The reference to the application to use for the call
+   - Returns: Batch creation confirmation with reference ID
+
 ## Prompts
 
 1. `create_call_prompt`
    - A prompt for creating a call step by step
    - Guides Claude through the process of:
-     - Asking the user for the number to call
+     - Asking the user for the number or numbers to call if not already provided
      - Offering a list of available numbers using the `list_numbers` tool
      - Asking for the application name and finding its reference
-     - Creating a call using the `create_call` tool
+     - Creating a call using the `create_call` or `create_call_batch` tool depending on the user's request
 
 ## Setup
 
@@ -101,7 +109,7 @@ WORKSPACE_ACCESS_KEY_ID="your-workspace-access-key-id" \
 APIKEY_ACCESS_KEY_ID="your-apikey-access-key-id" \
 APIKEY_ACCESS_KEY_SECRET="your-apikey-access-key_secret" \
 npx @modelcontextprotocol/inspector \
-node /Users/psanders/Projects/fonoster/mods/mcp/dist/index.js
+node /path/to/fonoster/mods/mcp/dist/index.js
 ```
 
 ### Troubleshooting

@@ -32,6 +32,10 @@ export const greetUser = async ({
 
   await context.voice.answer();
 
+  if (context.initialDtmf) {
+    await context.voice.playDtmf(context.initialDtmf);
+  }
+
   if (context.firstMessage) {
     await context.voice.say(context.firstMessage);
   }

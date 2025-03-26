@@ -60,6 +60,10 @@ class VoiceImpl implements Voice {
     await this.voice.say(text, { playbackRef: this.playbackRef });
   }
 
+  async playDtmf(dtmf: string) {
+    await this.voice.playDtmf(dtmf);
+  }
+
   async sgather() {
     const stream = await this.voice.sgather({
       source: StreamGatherSource.SPEECH

@@ -52,8 +52,6 @@ export function useFonosterClient(): FonosterClient {
   const [hasCheckedSession, setHasCheckedSession] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
     const checkSession = async () => {
       if (!authClient || !isInitialized || hasCheckedSession) return;
 
@@ -65,10 +63,6 @@ export function useFonosterClient(): FonosterClient {
     };
 
     checkSession();
-
-    return () => {
-      isMounted = false;
-    };
   }, [authClient, isInitialized, hasCheckedSession]);
 
   /**

@@ -8,6 +8,7 @@ import { UserPopover } from "./user-popover";
 import { Logo } from "@/common/components/logo/Logo";
 import { NavButton } from "@stories/navbutton/NavButton";
 import { useUser } from "@/common/sdk/hooks/useUser";
+import Link from "next/link";
 
 export interface HeaderProps {}
 
@@ -53,18 +54,20 @@ export function Header({
           spacing={2}
           sx={{
             minHeight: 80,
-            px: 2
+            px: "40px"
           }}
         >
           <Box
             sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}
           >
-            <Logo size="small" />
+            <Link href="/workspace" style={{ lineHeight: "0px" }}>
+              <Logo size="small" />
+            </Link>
           </Box>
           {hamburgerIcon}
           <Stack
             direction="row"
-            spacing={2}
+            spacing={1}
             sx={{
               alignItems: "center",
               flex: "1 1 auto",

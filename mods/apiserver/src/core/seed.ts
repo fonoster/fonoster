@@ -80,6 +80,17 @@ async function main() {
   });
 
   await prisma.product.upsert({
+    where: { ref: "tts.azure" },
+    update: {},
+    create: {
+      ref: "tts.azure",
+      name: "Azure Text-to-Speech",
+      vendor: "MICROSOFT",
+      type: "TTS"
+    }
+  });
+
+  await prisma.product.upsert({
     where: { ref: "llm.openai" },
     update: {},
     create: {
@@ -102,13 +113,24 @@ async function main() {
   });
 
   await prisma.product.upsert({
-    where: { ref: "tts.azure" },
+    where: { ref: "llm.anthropic" },
     update: {},
     create: {
-      ref: "tts.azure",
-      name: "Azure Text-to-Speech",
-      vendor: "MICROSOFT",
-      type: "TTS"
+      ref: "llm.anthropic",
+      name: "Anthropic Language Model",
+      vendor: "ANTHROPIC",
+      type: "LLM"
+    }
+  });
+
+  await prisma.product.upsert({
+    where: { ref: "llm.google" },
+    update: {},
+    create: {
+      ref: "llm.google",
+      name: "Google Language Model",
+      vendor: "GOOGLE",
+      type: "LLM"
     }
   });
 }

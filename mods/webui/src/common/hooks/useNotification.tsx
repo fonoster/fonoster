@@ -97,6 +97,10 @@ export const useNotification = () => {
         case "UNAUTHENTICATED":
           message = "You need to be authenticated to perform this action.";
           break;
+        case "RESET_PASSWORD_ERROR":
+          message =
+            "Failed to reset password. Please try again or request a new reset link.";
+          break;
         case "INVALID_ARGUMENT":
           message = details || "One or more provided arguments are invalid.";
           break;

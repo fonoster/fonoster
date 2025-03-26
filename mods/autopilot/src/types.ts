@@ -21,12 +21,6 @@ import { AssistantConfig, ConversationSettings } from "./assistants";
 import { LanguageModel } from "./models";
 import { Voice } from "./voice";
 
-enum LanguageModelProvider {
-  OPENAI = "openai",
-  GROQ = "groq",
-  OLLAMA = "ollama"
-}
-
 enum ConversationProvider {
   FILE = "file",
   API = "api"
@@ -45,9 +39,4 @@ type AutopilotApplication = Application & {
   };
 };
 
-export {
-  AutopilotParams,
-  LanguageModelProvider,
-  ConversationProvider,
-  AutopilotApplication
-};
+export { AutopilotParams, ConversationProvider, AutopilotApplication };

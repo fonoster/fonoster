@@ -16,10 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { LanguageModelProvider } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { LanguageModelProvider } from "../types";
 import { Voice } from "../voice";
 import { AbstractLanguageModel } from "./AbstractLanguageModel";
+import {
+  Anthropic,
+  LANGUAGE_MODEL_NAME as ANTHROPIC_LLM_NAME,
+  AnthropicParams
+} from "./anthropic";
+import {
+  Google,
+  LANGUAGE_MODEL_NAME as GOOGLE_LLM_NAME,
+  GoogleParams
+} from "./google";
 import { Groq, LANGUAGE_MODEL_NAME as GROQ_LLM_NAME, GroqParams } from "./groq";
 import {
   Ollama,
@@ -32,7 +42,6 @@ import {
   OpenAIParams
 } from "./openai";
 import { BaseModelParams, TelephonyContext } from "./types";
-
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 type LanguageModelConstructor<T extends BaseModelParams = BaseModelParams> =
@@ -46,6 +55,8 @@ type LanguageModelConfigMap = {
   [LanguageModelProvider.OPENAI]: OpenAIParams;
   [LanguageModelProvider.GROQ]: GroqParams;
   [LanguageModelProvider.OLLAMA]: OllamaParams;
+  [LanguageModelProvider.GOOGLE]: GoogleParams;
+  [LanguageModelProvider.ANTHROPIC]: AnthropicParams;
 };
 
 class LanguageModelFactory {
@@ -82,5 +93,7 @@ class LanguageModelFactory {
 LanguageModelFactory.registerLanguageModel(OPENAI_LLM_NAME, OpenAI);
 LanguageModelFactory.registerLanguageModel(GROQ_LLM_NAME, Groq);
 LanguageModelFactory.registerLanguageModel(OLLAMA_LLM_NAME, Ollama);
+LanguageModelFactory.registerLanguageModel(GOOGLE_LLM_NAME, Google);
+LanguageModelFactory.registerLanguageModel(ANTHROPIC_LLM_NAME, Anthropic);
 
 export { LanguageModelFactory };

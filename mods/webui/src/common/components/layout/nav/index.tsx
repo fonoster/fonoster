@@ -96,15 +96,7 @@ export function SecuredLayout({
           {showSidebar && (
             <>
               <MobileSidebar open={openNav} onClose={() => setOpenNav(false)} />
-              <DesktopSidebar
-                sx={{
-                  height: "100%",
-                  overflow: "hidden",
-                  position: { lg: "fixed" },
-                  top: { lg: "var(--MainNav-height)" },
-                  bottom: { lg: 0 }
-                }}
-              />
+              <DesktopSidebar />
             </>
           )}
           <Box
@@ -138,7 +130,7 @@ export function SecuredLayout({
                   padding: 0,
                   margin: 0
                 },
-                bgcolor: theme.palette.grey[50]
+                bgcolor: theme.palette.primary["50"]
               }}
             >
               <Box

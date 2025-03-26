@@ -19,7 +19,9 @@
 enum LanguageModelProvider {
   OPENAI = "openai",
   GROQ = "groq",
-  OLLAMA = "ollama"
+  OLLAMA = "ollama",
+  GOOGLE = "google",
+  ANTHROPIC = "anthropic"
 }
 
 export { LanguageModelProvider };

@@ -19,13 +19,14 @@
 import { z } from "zod";
 import * as Messages from "../messages";
 
+const ZERO_OR_GREATER_THAN_ZERO = "Must be a number greater than or equal to 0";
 const NUMBER_BETWEEN_0_AND_1 = "Must be a number between 0 and 1";
-const MAX_SPEECH_WAIT_TIMEOUT = 500;
+const MAX_SPEECH_WAIT_TIMEOUT = 0;
 const IDLE_OPTIONS_TIMEOUT = 10000;
-const IDLE_OPTIONS_MAX_TIMEOUT_COUNT = 3;
-const VAD_ACTIVATION_THRESHOLD = 0.3;
+const IDLE_OPTIONS_MAX_TIMEOUT_COUNT = 2;
+const VAD_ACTIVATION_THRESHOLD = 0.4;
 const VAD_DEACTIVATION_THRESHOLD = 0.25;
-const VAD_DEBOUNCE_FRAMES = 3;
+const VAD_DEBOUNCE_FRAMES = 4;
 
 const conversationSettingsSchema = z.object({
   firstMessage: z.string().optional(),
@@ -44,7 +45,7 @@ const conversationSettingsSchema = z.object({
   maxSpeechWaitTimeout: z
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+    .gte(0, { message: ZERO_OR_GREATER_THAN_ZERO })
     .default(MAX_SPEECH_WAIT_TIMEOUT),
   transferOptions: z
     .object({

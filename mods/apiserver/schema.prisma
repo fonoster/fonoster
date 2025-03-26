@@ -132,6 +132,7 @@ enum ProductVendor {
   RASA
   OPENAI
   GROQ
+  ANTHROPIC
   ELEVEN_LABS
   GENERIC
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { GitHub as GitHubIcon } from "@mui/icons-material";
-import { Box, Divider, Stack, useTheme } from "@mui/material";
+import { Box, Divider, Stack } from "@mui/material";
 import {
   Layout,
   PageContainer,
@@ -73,11 +72,6 @@ const SignUpPage = () => {
     handleSubmit,
     formState: { errors }
   } = methods;
-
-  const handleTermsClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setOpenTerms(true);
-  };
 
   const handleCloseTerms = () => {
     setOpenTerms(false);
@@ -152,6 +146,7 @@ const SignUpPage = () => {
   };
 
   const watchAgreeToTerms = watch("agreeToTerms");
+
   useEffect(() => {
     if (watchAgreeToTerms) {
       setOpenTerms(true);
@@ -203,6 +198,7 @@ const SignUpPage = () => {
 
             <Box style={{ marginBottom: "25px", textAlign: "center" }}>
               <CheckboxContext
+                id="agreeToTerms"
                 name="agreeToTerms"
                 label={"Agree to the terms and conditions"}
               />
@@ -229,11 +225,10 @@ const SignUpPage = () => {
                 fullWidth
                 variant="outlined"
                 size="large"
-                startIcon={<GitHubIcon />}
                 onClick={handleGitHubSignUp}
                 disabled={isRedirecting}
               >
-                Sign in with GitHub
+                Sign up with GitHub
               </Button>
             </Stack>
             <Stack
@@ -259,32 +254,6 @@ const SignUpPage = () => {
         open={openTerms}
         onClose={handleCloseTerms}
         title="Terms and Conditions"
-        message={`
-          Welcome to Fonoster! These Terms and Conditions govern your use of our services.
-          
-          1. Acceptance of Terms
-          By accessing and using our services, you agree to be bound by these terms.
-          
-          2. Privacy Policy
-          Your privacy is important to us. Please review our Privacy Policy to understand how we collect and use your information.
-          
-          3. User Responsibilities
-          You are responsible for maintaining the security of your account and any activities that occur under your account.
-          
-          4. Service Usage
-          Our services are provided "as is" and we make no warranties about their availability or functionality.
-          
-          5. Intellectual Property
-          All content and materials available through our services are protected by intellectual property rights.
-          
-          6. Termination
-          We reserve the right to terminate or suspend access to our services at our discretion.
-          
-          7. Changes to Terms
-          We may modify these terms at any time. Continued use of our services constitutes acceptance of any changes.
-          
-          By clicking "Agree", you confirm that you have read and agree to these terms.
-        `}
       />
     </Layout>
   );
