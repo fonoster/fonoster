@@ -14,6 +14,7 @@ const WorkspaceContainer = styled(Container)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  justifyContent: "center",
   maxWidth: "none !important",
   padding: theme.spacing(8),
   overflow: "auto"
@@ -26,7 +27,7 @@ const WorkspaceGrid = styled(Box)(({ theme }) => ({
   gridAutoFlow: "row dense",
   gap: theme.spacing(3),
   width: "100%",
-  padding: theme.spacing(8),
+  padding: theme.spacing(6),
   margin: "0 auto",
   "@media (max-width: 767px)": {
     gridTemplateColumns: "minmax(300px, 344px)",
@@ -37,7 +38,7 @@ const WorkspaceGrid = styled(Box)(({ theme }) => ({
 
 const ListWorkspacePage = () => {
   const router = useRouter();
-  const { workspaces, isLoading, refreshWorkspaces } = useWorkspaceContext();
+  const { workspaces, refreshWorkspaces } = useWorkspaceContext();
   const { setAccessKeyId } = useFonosterClient();
   const { loggedUser } = useUser();
   const [user, setUser] = useState<User | null>(null);
@@ -70,13 +71,19 @@ const ListWorkspacePage = () => {
 
   return (
     <WorkspaceContainer>
-      <Typography variant="heading-large" sx={{ mt: 3 }}>
-        {`Hey ${user?.name}, welcome to Fonoster! 👋`}
+      <Typography
+        variant="heading-large"
+        sx={{ mt: 2, color: "text.secondary" }}
+      >
+        {user?.name
+          ? `Hey ${user?.name}, welcome to Fonoster! 👋`
+          : "Welcome to Fonoster! 👋"}
       </Typography>
 
       <Typography
-        variant="body-medium"
-        sx={{ color: "text.secondary", mt: 3, mb: 3 }}
+        variant="body-large"
+        sx={{ color: "text.secondary", mt: 2, mb: 2, maxWidth: 500 }}
+        textAlign="center"
       >
         {
           "Create a new workspace to begin managing your SIP Network and Programmable Voice Applications."
@@ -84,34 +91,29 @@ const ListWorkspacePage = () => {
       </Typography>
 
       <WorkspaceGrid>
-        {isLoading && workspaces.length === 0 ? (
-          <Typography variant="body-medium">Loading workspaces...</Typography>
-        ) : (
-          <>
-            {workspaces
-              .filter((workspace) => workspace && workspace.ref)
-              .map((workspace) => (
-                <WorkspaceCard
-                  key={workspace.ref}
-                  variant="regular"
-                  region={process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
-                  description={workspace.name}
-                  date={
-                    workspace.createdAt
-                      ? workspace.createdAt.toLocaleDateString()
-                      : "N/A"
-                  }
-                  onClick={() => handleWorkspaceClick(workspace.ref)}
-                  disabled={false}
-                />
-              ))}
+        {workspaces
+          .filter((workspace) => workspace && workspace.ref)
+          .map((workspace) => (
             <WorkspaceCard
-              variant="empty"
-              onClick={handleCreateWorkspace}
+              key={workspace.ref}
+              variant="regular"
+              region={process.env.NEXT_PUBLIC_FONOSTER_REGION || "NYC01"}
+              description={workspace.name}
+              date={
+                workspace.createdAt
+                  ? workspace.createdAt.toLocaleDateString()
+                  : "N/A"
+              }
+              onClick={() => handleWorkspaceClick(workspace.ref)}
               disabled={false}
             />
-          </>
-        )}
+          ))}
+
+        <WorkspaceCard
+          variant="empty"
+          onClick={handleCreateWorkspace}
+          disabled={false}
+        />
       </WorkspaceGrid>
       <CreateWorkspaceModal
         open={isCreateModalOpen}

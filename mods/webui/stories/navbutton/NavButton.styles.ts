@@ -26,7 +26,7 @@ const StyledIconButton = styled(IconButton, {
 }>(({ theme, isOpen }) => ({
   backgroundColor: isOpen
     ? theme.palette.primary[800]
-    : theme.palette.primary[100],
+    : theme.palette.primary[200],
   width: "33px",
   height: "33px",
   color: isOpen ? theme.palette.common.white : theme.palette.primary[800],
@@ -61,7 +61,7 @@ const StyledBadge = styled(Badge)<{
     paddingTop: label > 9 ? "2px" : "1px",
     top: "-5px",
     right: "-5px",
-    color: theme.palette.warning[50]
+    color: theme.palette.common.white,
   }
 }));
 
@@ -83,7 +83,7 @@ const StyledAvatar = styled(Avatar, {
   color: isOpen ? theme.palette.common.white : theme.palette.primary[800],
   backgroundColor: isOpen
     ? theme.palette.primary[800]
-    : theme.palette.primary[100]
+    : theme.palette.primary[200]
 }));
 
 export { StyledAvatar, StyledBadge, StyledIconButton, StyledNotificationsIcon };

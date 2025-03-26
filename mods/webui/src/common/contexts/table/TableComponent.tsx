@@ -32,7 +32,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.body}`]: {
     fontSize: "10px",
     lineHeight: "16px",
-    color: theme.palette.text.secondary["700"],
+    color: theme.palette.text.secondary,
     fontFamily: "Poppins",
     fontWeight: 500,
     paragraphSpacing: "12px",

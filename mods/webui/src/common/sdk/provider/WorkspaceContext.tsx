@@ -38,18 +38,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (isReady && !authChecked) {
       setAuthChecked(true);
-      if (isAuthenticated) {
-        refreshWorkspaces();
-      }
+
+      refreshWorkspaces();
     }
-  }, [isReady, isAuthenticated, authChecked, router]);
+  }, [isReady, authChecked, router]);
 
   const refreshWorkspaces = async () => {
     if (!isReady) {
-      return;
-    }
-
-    if (!isAuthenticated) {
       return;
     }
 
@@ -64,7 +59,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setTimeout(() => {
         setIsLoading(false);
-      }, 1000);
+      }, 0);
     }
   };
 

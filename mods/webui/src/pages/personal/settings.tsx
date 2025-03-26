@@ -1,29 +1,20 @@
 import { useState, useEffect } from "react";
-import {
-  Box,
-  useTheme,
-  Stack,
-  Switch,
-  FormControlLabel,
-  Avatar,
-  IconButton
-} from "@mui/material";
-import { PhotoCamera, Lock, Mail, Person } from "@mui/icons-material";
+import { Box, useTheme, Stack, Avatar, IconButton } from "@mui/material";
+import { PhotoCamera } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { InputContext } from "@/common/hooksForm/InputContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useUser } from "@/common/sdk/hooks/useUser";
 import PageContainer from "@/common/components/layout/pages";
-import router from "next/router";
 import { Typography } from "@stories/typography/Typography";
 import { Button } from "@stories/button/Button";
 import { GenericToggle } from "@stories/generictoggle/GenericToggle";
 
-const { ContentForm, Header } = PageContainer;
+const { ContentForm } = PageContainer;
 
 type SettingsFormData = {
-  ref: string;
+  ref?: string;
   name: string;
   email: string;
   newPassword?: string;
@@ -122,16 +113,13 @@ const SettingsPage = () => {
     try {
       const updatedData = {
         ...data,
-        currentPassword: data.currentPassword || undefined,
-        newPassword: data.newPassword || undefined,
-        confirmPassword: data.confirmPassword || undefined
+        ref: String(data.ref),
+        password: data.newPassword || undefined
       };
 
       await updateUser(updatedData);
-      alert("Settings updated successfully");
     } catch (error) {
       console.error("Error updating settings:", error);
-      alert("An error occurred while updating settings");
     }
   };
 
@@ -226,7 +214,7 @@ const SettingsPage = () => {
           <GenericToggle
             defaultValue
             checked={lightMode}
-            onChange={() => setLightMode(e.target.checked)}
+            onChange={(e) => setLightMode(e.target.checked)}
           />
           <Typography variant="body-medium">Light Mode</Typography>
         </Stack>
