@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Command, Flags } from "@oclif/core";
 import * as fs from "fs";
+import os from "os";
 import * as path from "path";
+import { Command, Flags } from "@oclif/core";
 import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
-import os from "os";
 
 export default class Configure extends Command {
   static override description = "configure MCP client settings";
