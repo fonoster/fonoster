@@ -56,7 +56,7 @@
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --slow 50000 --timeout 10000 mods/**/node.integration.ts",
     "preintegration:web": "npx playwright install && npx playwright install-deps",
     "integration:web": "web-test-runner --node-resolve --playwright --browsers chromium webkit firefox",
-    "release": "lerna publish --yes --no-git-reset --dist-tag next $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
+    "release": "lerna publish --yes --no-git-reset --dist-tag latest $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
     "release:prerelease": "lerna publish --dist-tag next",
     "release:frompackages": "lerna publish from-package",
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",

@@ -26,6 +26,7 @@ MCP Server for the Fonoster API, enabling MCP clients to interact with Fonoster'
      - `from` (string): The number to call from
      - `to` (string): The number to call to
      - `app_ref` (string): The reference to the application to use for the call
+     - `metadata` (object): Metadata to be sent to the application
    - Returns: Call creation confirmation with reference ID
 
 4. `create_call_batch`
@@ -34,6 +35,7 @@ MCP Server for the Fonoster API, enabling MCP clients to interact with Fonoster'
      - `from` (string): The number to call from
      - `to_array` (array): The numbers to call to
      - `app_ref` (string): The reference to the application to use for the call
+     - `metadata` (object): Metadata to be sent to the application
    - Returns: Batch creation confirmation with reference ID
 
 ## Prompts
