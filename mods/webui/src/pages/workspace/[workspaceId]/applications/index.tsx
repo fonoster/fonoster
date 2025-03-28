@@ -11,24 +11,24 @@ const columns: ColumnDef<Application>[] = [
   {
     id: "ref",
     header: "Ref",
-    cell: (props: { row: { original: Application } }) => props.row.original.ref,
+    cell: (props: { row: { original: Application } }) => props.row.original.ref
   },
   {
     id: "name",
     header: "Name",
-    cell: (props: { row: { original: Application } }) => props.row.original.name,
+    cell: (props: { row: { original: Application } }) => props.row.original.name
   },
   {
     id: "textToSpeech",
     header: "TTS",
     cell: (props: { row: { original: Application } }) =>
-      props.row.original.textToSpeech?.productRef,
+      props.row.original.textToSpeech?.productRef
   },
   {
     id: "speechToText",
     header: "STT",
     cell: (props: { row: { original: Application } }) =>
-      props.row.original.speechToText?.productRef,
+      props.row.original.speechToText?.productRef
   }
 ];
 
@@ -70,7 +70,10 @@ export default function ApplicationsPage() {
         showSelectAll={true}
         onRowSelection={handleEdit}
       >
-        <QueryData<Application> fetchFunction={listApplications} pageSize={10} />
+        <QueryData<Application>
+          fetchFunction={listApplications}
+          pageSize={10}
+        />
       </PageContainer.ContentTable>
     </PageContainer>
   );

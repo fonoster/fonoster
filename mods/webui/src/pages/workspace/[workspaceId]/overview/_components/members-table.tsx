@@ -82,8 +82,7 @@ export default function MembersTable({
     <PageContainer.ContentTable<WorkspaceMemberDTO>
       columns={columnsList}
       tableId="members-table"
-    // showSelectAll={true}
-
+      // showSelectAll={true}
     >
       <QueryData<WorkspaceMemberDTO>
         fetchFunction={listWorkspaceMembers}

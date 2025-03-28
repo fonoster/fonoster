@@ -11,7 +11,7 @@ interface PaginatedRequest {
   filterBy?: Record<string, string>;
   pageSize?: number;
   pageToken?: string;
-  sortBy?: Array<{ field: string; order: 'ASC' | 'DESC' }>;
+  sortBy?: Array<{ field: string; order: "ASC" | "DESC" }>;
 }
 
 interface UsePaginatedDataOptions<T> {
@@ -64,10 +64,10 @@ export const usePaginatedData = <T extends Record<string, any>>(
             const bValue = b[field];
 
             if (aValue < bValue) {
-              return order === 'ASC' ? -1 : 1;
+              return order === "ASC" ? -1 : 1;
             }
             if (aValue > bValue) {
-              return order === 'ASC' ? 1 : -1;
+              return order === "ASC" ? 1 : -1;
             }
           }
           return 0;

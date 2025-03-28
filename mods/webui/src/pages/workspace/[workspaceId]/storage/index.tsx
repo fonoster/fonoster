@@ -63,7 +63,7 @@ export default function StoragePage() {
         actions={
           <Button
             variant="contained"
-            onClick={() => { }}
+            onClick={() => {}}
             endIcon={<Icon fontSize="small" name="Upload" />}
           >
             Upload New File

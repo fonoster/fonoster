@@ -28,7 +28,7 @@ export default function ApiKeysPage() {
         actions={
           <Button
             variant="contained"
-            onClick={() => { }}
+            onClick={() => {}}
             endIcon={<Icon fontSize="small" name="Add" />}
           >
             Upload New API Key

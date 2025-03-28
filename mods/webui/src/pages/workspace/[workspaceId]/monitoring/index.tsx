@@ -91,7 +91,7 @@ export default function MonitoringPage() {
       <PageContainer.Header
         title="Monitoring / Call Logs"
         actions={
-          <Button variant="outlined" onClick={() => { }}>
+          <Button variant="outlined" onClick={() => {}}>
             Export CSV
           </Button>
         }

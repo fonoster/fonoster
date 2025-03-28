@@ -17,8 +17,8 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   workspaces: [],
   selectedWorkspace: null,
   isLoading: true,
-  refreshWorkspaces: async () => { },
-  handleSetSelectedWorkspace: () => { }
+  refreshWorkspaces: async () => {},
+  handleSetSelectedWorkspace: () => {}
 });
 
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({

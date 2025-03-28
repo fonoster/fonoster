@@ -23,7 +23,7 @@ interface ListApplicationsResponse extends BaseListApplicationsResponse {
 // Define the sort option type
 interface SortOption {
   field: string;
-  order: 'ASC' | 'DESC';
+  order: "ASC" | "DESC";
 }
 
 // Define the request type for our paginated data
