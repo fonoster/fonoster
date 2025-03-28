@@ -96,7 +96,6 @@ export const useApplications = () => {
     }
   ): Promise<ListApplicationsResponse | undefined> => {
     try {
-      console.log("useApplications - listApplications called with:", data);
       // The return type of listItems is now compatible with ListApplicationsResponse
       return (await listItems(data)) as ListApplicationsResponse;
     } catch (error: any) {

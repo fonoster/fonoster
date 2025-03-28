@@ -1,11 +1,7 @@
 import PageContainer from "@/common/components/layout/pages";
 import { ColumnDef } from "@tanstack/react-table";
-import { useRouter } from "next/router";
-import { useState } from "react";
-import { InviteMemberModal } from "@/pages/workspace/_components/InviteMemberModal";
-import { Button } from "@stories/button/Button";
 import { Icon } from "@stories/icon/Icon";
-import { QueryData } from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
 import { WorkspaceMemberDTO } from "@/types/dto/workspace/WorkspaceMemberDTO";
 import { formatToShortDate } from "@/utils/dayjs";
@@ -86,9 +82,8 @@ export default function MembersTable({
     <PageContainer.ContentTable<WorkspaceMemberDTO>
       columns={columnsList}
       tableId="members-table"
-      showFilters={true}
-      showSearch={true}
-      showPagination={true}
+    // showSelectAll={true}
+
     >
       <QueryData<WorkspaceMemberDTO>
         fetchFunction={listWorkspaceMembers}

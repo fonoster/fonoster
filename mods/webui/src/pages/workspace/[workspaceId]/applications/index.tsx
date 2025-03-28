@@ -3,11 +3,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import PageContainer from "@/common/components/layout/pages";
 import { Button } from "@stories/button/Button";
 import { useApplications } from "@/common/sdk/hooks/useApplications";
-import { QueryData } from "@/common/contexts/table/QueryData";
 import { Application } from "@fonster/types";
 import { Icon } from "@stories/icon/Icon";
-import ReactTable from "@/common/contexts/table/ReactTable";
-import { Box } from "@mui/material";
+import { QueryData } from "@stories/table/QueryData";
 
 const columns: ColumnDef<Application>[] = [
   {

@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useCredential } from "@/common/sdk/hooks/useCredential";
-import QueryData from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { Icon } from "@stories/icon/Icon";
 import { Button } from "@stories/button/Button";
 

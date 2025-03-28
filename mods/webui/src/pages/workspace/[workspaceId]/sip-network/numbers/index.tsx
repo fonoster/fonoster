@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useNumbers } from "@/common/sdk/hooks/useNumbers";
 import { Icon } from "@stories/icon/Icon";
-import QueryData from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { Button } from "@stories/button/Button";
 
 const columns: ColumnDef<INumber>[] = [

@@ -16,10 +16,15 @@ import classNames from "classnames";
 import { useTableContext } from "./useTableContext";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
+import IndeterminateCheckbox from "./checkbox/IndeterminateCheckbox";
 import { Typography } from "@stories/typography/Typography";
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+// Define an interface for the StyledTableCell props
+interface StyledTableCellProps {
+  enableRowSelection?: boolean;
+}
+
+const StyledTableCell = styled(TableCell)<StyledTableCellProps>(({ theme, enableRowSelection }: { theme: any, enableRowSelection?: boolean }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.grey[200],
     color: theme.palette.text.primary,
@@ -41,7 +46,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
   padding: "8px 16px",
   height: "13px",
-  paddingLeft: "unset"
+  paddingLeft: enableRowSelection ? "8px" : "16px"
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -133,12 +138,13 @@ const TableComponent = <TData extends Object>({
                   padding="checkbox"
                   align="center"
                   style={{ width: "48px" }}
+                  enableRowSelection={enableRowSelection}
                 >
                   {/* Select all checkbox moved to TableHeader.tsx */}
                 </StyledTableCell>
               )}
               {headerGroup.headers.map((header) => (
-                <StyledTableCell key={header.id} align="left">
+                <StyledTableCell key={header.id} align="left" enableRowSelection={enableRowSelection}>
                   <StyledTableSortLabel
                     active={header.column.getIsSorted() !== false}
                     direction={
@@ -202,7 +208,7 @@ const TableComponent = <TData extends Object>({
               >
                 {/* Checkbox to select a row */}
                 {enableRowSelection && (
-                  <StyledTableCell padding="checkbox" align="center">
+                  <StyledTableCell padding="checkbox" align="center" enableRowSelection={enableRowSelection}>
                     <IndeterminateCheckbox
                       checked={row.getIsSelected()}
                       disabled={!row.getCanSelect()}
@@ -216,7 +222,7 @@ const TableComponent = <TData extends Object>({
                   </StyledTableCell>
                 )}
                 {row.getVisibleCells().map((cell) => (
-                  <StyledTableCell key={cell.id}>
+                  <StyledTableCell key={cell.id} enableRowSelection={enableRowSelection}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </StyledTableCell>
                 ))}

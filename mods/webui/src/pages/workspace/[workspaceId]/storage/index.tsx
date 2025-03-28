@@ -3,7 +3,7 @@ import { Agent } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@stories/button/Button";
 import { Icon } from "@stories/icon/Icon";
-import QueryData from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { usePaginatedData } from "@/common/hooks/usePaginatedData";
 
 const columns: ColumnDef<Agent>[] = [
@@ -63,7 +63,7 @@ export default function StoragePage() {
         actions={
           <Button
             variant="contained"
-            onClick={() => {}}
+            onClick={() => { }}
             endIcon={<Icon fontSize="small" name="Upload" />}
           >
             Upload New File

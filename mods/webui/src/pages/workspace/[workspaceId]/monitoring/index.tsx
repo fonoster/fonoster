@@ -6,7 +6,7 @@ import {
   CallType
 } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
-import QueryData from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { usePaginatedData } from "@/common/hooks/usePaginatedData";
 import { Button } from "@stories/button/Button";
 
@@ -91,7 +91,7 @@ export default function MonitoringPage() {
       <PageContainer.Header
         title="Monitoring / Call Logs"
         actions={
-          <Button variant="outlined" onClick={() => {}}>
+          <Button variant="outlined" onClick={() => { }}>
             Export CSV
           </Button>
         }

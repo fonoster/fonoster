@@ -6,7 +6,7 @@ import { useTableContext } from "./useTableContext";
 import { Pagination } from "@stories/pagination/Pagination";
 import { InputText } from "@stories/inputtext/InputText";
 import { Select } from "@stories/select/Select";
-import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
+import IndeterminateCheckbox from "./checkbox/IndeterminateCheckbox";
 import { Icon } from "@stories/icon/Icon";
 
 interface FilterProps {

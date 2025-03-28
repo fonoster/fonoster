@@ -4,7 +4,7 @@ import PageContainer from "@/common/components/layout/pages";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useRouter } from "next/router";
 import { Icon } from "@stories/icon/Icon";
-import QueryData from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { useDomains } from "@/common/sdk/hooks/useDomains";
 import { Button } from "@stories/button/Button";
 

@@ -2,7 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import PageContainer from "@/common/components/layout/pages";
 import { Button } from "@stories/button/Button";
 
-import { QueryData } from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { useTrunks } from "@/common/sdk/hooks/useTrunks";
 import { Trunk } from "@fonoster/types";
 import { Icon } from "@stories/icon/Icon";

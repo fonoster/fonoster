@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useAgents } from "@/common/sdk/hooks/useAgents";
 import { useEffect, useState } from "react";
-import QueryData from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { Icon } from "@stories/icon/Icon";
 
 const columns: ColumnDef<Agent>[] = [

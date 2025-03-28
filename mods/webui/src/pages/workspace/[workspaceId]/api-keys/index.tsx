@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
-import QueryData from "@/common/contexts/table/QueryData";
+import { QueryData } from "@stories/table/QueryData";
 import { Icon } from "@stories/icon/Icon";
 import { useAPIKey } from "@/common/sdk/hooks/useAPIKey";
 
@@ -28,7 +28,7 @@ export default function ApiKeysPage() {
         actions={
           <Button
             variant="contained"
-            onClick={() => {}}
+            onClick={() => { }}
             endIcon={<Icon fontSize="small" name="Add" />}
           >
             Upload New API Key
