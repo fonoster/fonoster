@@ -20,11 +20,18 @@ interface ListApplicationsResponse extends BaseListApplicationsResponse {
   filterBy?: Record<string, string>;
 }
 
+// Define the sort option type
+interface SortOption {
+  field: string;
+  order: 'ASC' | 'DESC';
+}
+
 // Define the request type for our paginated data
 interface ListApplicationsRequest extends BaseListApplicationsRequest {
   filterBy?: Record<string, string>;
   pageSize?: number;
   pageToken?: string;
+  sortBy?: SortOption[];
 }
 
 export const useApplications = () => {
@@ -89,6 +96,7 @@ export const useApplications = () => {
     }
   ): Promise<ListApplicationsResponse | undefined> => {
     try {
+      console.log("useApplications - listApplications called with:", data);
       // The return type of listItems is now compatible with ListApplicationsResponse
       return (await listItems(data)) as ListApplicationsResponse;
     } catch (error: any) {

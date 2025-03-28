@@ -122,7 +122,7 @@ const TableComponent = <TData extends Object>({
       <MUITable
         id={`table-${id}`}
         className={classNames(tableClassName, loadingData ? "loading" : "")}
-        // size="small"
+      // size="small"
       >
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -144,14 +144,37 @@ const TableComponent = <TData extends Object>({
                     direction={
                       header.column.getIsSorted() === "desc" ? "desc" : "asc"
                     }
-                    onClick={header.column.getToggleSortingHandler()}
-                    IconComponent={
-                      header.column.getIsSorted() === false
-                        ? () => <SortIcon />
-                        : header.column.getIsSorted() === "desc"
-                          ? KeyboardArrowDownIcon
-                          : KeyboardArrowUpIcon
-                    }
+                    onClick={(e) => {
+                      table.setSorting(old => {
+                        // If this column is already being sorted
+                        const existingIndex = old.findIndex(d => d.id === header.id);
+
+                        if (existingIndex > -1) {
+                          // Toggle between ascending, descending, and removing
+                          const existingSort = old[existingIndex];
+                          const newSort = {
+                            ...existingSort,
+                            desc: !existingSort.desc
+                          };
+                          return [newSort];
+                        }
+
+                        return [{ id: header.id, desc: false }];
+                      });
+
+                    }}
+                    IconComponent={() => {
+                      // Directly check the sorting state for this column
+                      const sortDir = header.column.getIsSorted();
+
+                      if (sortDir === false) {
+                        return <SortIcon />;
+                      } else if (sortDir === "desc") {
+                        return <KeyboardArrowDownIcon />;
+                      } else {
+                        return <KeyboardArrowUpIcon />;
+                      }
+                    }}
                   >
                     {header.column.columnDef.header ? (
                       flexRender(header.column.columnDef.header, {

@@ -6,29 +6,31 @@ import { useApplications } from "@/common/sdk/hooks/useApplications";
 import { QueryData } from "@/common/contexts/table/QueryData";
 import { Application } from "@fonster/types";
 import { Icon } from "@stories/icon/Icon";
+import ReactTable from "@/common/contexts/table/ReactTable";
+import { Box } from "@mui/material";
 
 const columns: ColumnDef<Application>[] = [
   {
     id: "ref",
     header: "Ref",
-    cell: (props: { row: { original: Application } }) => props.row.original.ref
+    cell: (props: { row: { original: Application } }) => props.row.original.ref,
   },
   {
     id: "name",
     header: "Name",
-    cell: (props: { row: { original: Application } }) => props.row.original.name
+    cell: (props: { row: { original: Application } }) => props.row.original.name,
   },
   {
     id: "textToSpeech",
     header: "TTS",
     cell: (props: { row: { original: Application } }) =>
-      props.row.original.textToSpeech?.productRef
+      props.row.original.textToSpeech?.productRef,
   },
   {
     id: "speechToText",
     header: "STT",
     cell: (props: { row: { original: Application } }) =>
-      props.row.original.speechToText?.productRef
+      props.row.original.speechToText?.productRef,
   }
 ];
 
@@ -64,17 +66,27 @@ export default function ApplicationsPage() {
         Assistants with your numbers.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<Application>
+      <ReactTable<Application>
         columns={columns}
-        tableId="applications-table"
-        showSelectAll={true}
-        onRowSelection={handleEdit}
+        enableRowSelection={true}
       >
+        <ReactTable.Header>
+          <ReactTable.Header.SelectAll />
+          <ReactTable.Header.Filter />
+          <ReactTable.Header.Search />
+          <ReactTable.Header.Pagination />
+        </ReactTable.Header>
+        <Box sx={{ mb: 0, mt: 1 }} />
+        <ReactTable.Content
+          id="applications-table"
+          enableRowSelection={true}
+          onRowSelection={handleEdit}
+        />
         <QueryData<Application>
           fetchFunction={listApplications}
           pageSize={10}
         />
-      </PageContainer.ContentTable>
+      </ReactTable>
     </PageContainer>
   );
 }
