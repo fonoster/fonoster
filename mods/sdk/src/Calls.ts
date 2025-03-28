@@ -24,6 +24,7 @@ import {
   ListCallsRequest,
   ListCallsResponse
 } from "@fonoster/types";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { DataResponse, FonosterClient } from "./client/types";
 import {
@@ -40,7 +41,6 @@ import {
   TrackCallRequest as TrackCallRequestPB
 } from "./generated/node/calls_pb";
 import { dialStatusToString } from "./utils";
-import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 
 /**
  * @classdesc Fonoster Calls, part of the Fonoster Media subsystem,
