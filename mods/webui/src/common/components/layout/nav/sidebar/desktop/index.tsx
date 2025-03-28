@@ -30,36 +30,34 @@ export function Sidebar(): React.JSX.Element {
     <Box
       sx={{
         bgcolor: "var(--SideNav-background)",
-        borderRight: "1px solid #E0E0E0",
-        boxShadow: "0.5px 0 2px rgba(0, 0, 0, 0.05)",
+        borderRight: "1px solid #E8E8E8",
         color: "var(--SideNav-color)",
         display: { xs: "none", lg: "flex" },
         flexDirection: "column",
         height: "calc(100vh - var(--MainNav-height))",
-        width: "var(--SideNav-width)",
+        minWidth: "var(--SideNav-width)",
         position: "sticky",
         top: "var(--MainNav-height)"
       }}
     >
-      <Stack spacing={2} sx={{ p: 2 }}>
+      <Stack spacing={2} sx={{ py: 1.5, px: 2 }}>
         <WorkspacesSwitch />
       </Stack>
-      <Divider />
       <Box
         component="nav"
         sx={{
           flex: "1 1 auto",
           overflowY: "auto",
-          p: 2,
+          paddingTop: "8px",
           scrollbarWidth: "none",
           "&::-webkit-scrollbar": { display: "none" }
         }}
       >
         {renderNavGroups({ items, pathname: currentPath })}
       </Box>
-      <Stack spacing={2} sx={{ p: 2 }}>
-        <Typography variant="mono-small">
-          &copy; 2024, FONOSTER. V0.3.4
+      <Stack spacing={2} sx={{ padding: "10px", paddingLeft: "40px" }}>
+        <Typography variant="mono-small" color="var(--SideNav-footer-color)">
+          &copy; {new Date().getFullYear()}, FONOSTER. V0.3.4
         </Typography>
       </Stack>
     </Box>
@@ -92,7 +90,7 @@ function renderNavGroups({
   );
 
   return (
-    <Stack component="ul" spacing={2} sx={{ listStyle: "none", m: 0, p: 0 }}>
+    <Stack component="ul" sx={{ listStyle: "none", margin: 0, padding: 0 }}>
       {children}
     </Stack>
   );
@@ -304,10 +302,10 @@ function NavItem({
             {active && (
               <Box
                 sx={{
-                  width: "8px",
-                  height: "8px",
+                  width: "6px",
+                  height: "6px",
                   borderRadius: "50%",
-                  backgroundColor: "#00ab55",
+                  backgroundColor: "#39E19E",
                   display: "inline-block",
                   marginLeft: "8px"
                 }}
