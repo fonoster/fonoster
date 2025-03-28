@@ -6,7 +6,7 @@ import { useTableContext } from "./useTableContext";
 import { Pagination } from "@stories/pagination/Pagination";
 import { InputText } from "@stories/inputtext/InputText";
 import { Select } from "@stories/select/Select";
-import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
+import IndeterminateCheckbox from "./checkbox/IndeterminateCheckbox";
 import { Icon } from "@stories/icon/Icon";
 
 interface FilterProps {
@@ -256,13 +256,9 @@ TableHeaderComponent.SelectAll = () => {
         height: "42px",
         minWidth: "42px",
         justifyContent: "center",
-        backgroundColor: `${theme.palette.grey["200"]}`,
-        padding: "8px 12px",
-        "&:hover": {
-          borderColor: "rgba(0, 0, 0, 0.87)",
-          cursor: "pointer",
-          backgroundColor: "#F8F9FA"
-        }
+        backgroundColor: `inherit`,
+        border: `1px solid ${theme.palette.grey["200"]}`,
+        padding: "8px 12px"
       }}
       onClick={(e) => {
         e.stopPropagation();

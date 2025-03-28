@@ -16,18 +16,23 @@ import classNames from "classnames";
 import { useTableContext } from "./useTableContext";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import IndeterminateCheckbox from "../../components/checkbox/IndeterminateCheckbox";
+import IndeterminateCheckbox from "./checkbox/IndeterminateCheckbox";
+import { Typography } from "@stories/typography/Typography";
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+// Define an interface for the StyledTableCell props
+interface StyledTableCellProps {
+  enableRowSelection?: boolean;
+}
+
+const StyledTableCell = styled(TableCell)<StyledTableCellProps>(({ theme, enableRowSelection }: { theme: any, enableRowSelection?: boolean }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.grey[200],
     color: theme.palette.text.primary,
     fontSize: "10px",
     lineHeight: "16px",
-    fontFamily: "Roboto Mono",
+    fontFamily: "Poppins",
     fontWeight: 500,
-    letterSpacing: "5%",
-    textTransform: "uppercase"
+    letterSpacing: "5%"
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: "10px",
@@ -40,8 +45,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.grey["100"]}`
   },
   padding: "8px 16px",
-  paddingLeft: "unset",
-  height: "13px"
+  height: "13px",
+  paddingLeft: enableRowSelection ? "8px" : "16px"
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -77,7 +82,6 @@ const StyledTableContainer = styled(TableContainer)({
 
 export interface TableOptions {
   filtersDirection?: "up" | "down" | undefined;
-  enableRowSelection?: boolean;
 }
 
 interface TableComponentProps<TData extends Object> {
@@ -85,6 +89,8 @@ interface TableComponentProps<TData extends Object> {
   headerClassName?: string;
   rowClassName?: string;
   bodyClassName?: string;
+  enableRowSelection?: boolean;
+  onRowSelection?: (row: TData) => void;
   options?: TableOptions;
   id: string;
 }
@@ -111,19 +117,17 @@ const TableComponent = <TData extends Object>({
   headerClassName,
   bodyClassName,
   rowClassName,
-  options
+  onRowSelection,
+  enableRowSelection
 }: TableComponentProps<TData>) => {
   const { table, loadingData } = useTableContext<TData>();
-
-  // Check if row selection is enabled
-  const enableRowSelection = options?.enableRowSelection || false;
 
   return (
     <StyledTableContainer>
       <MUITable
         id={`table-${id}`}
         className={classNames(tableClassName, loadingData ? "loading" : "")}
-        // size="small"
+      // size="small"
       >
         <TableHead className={headerClassName}>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -134,25 +138,49 @@ const TableComponent = <TData extends Object>({
                   padding="checkbox"
                   align="center"
                   style={{ width: "48px" }}
+                  enableRowSelection={enableRowSelection}
                 >
                   {/* Select all checkbox moved to TableHeader.tsx */}
                 </StyledTableCell>
               )}
               {headerGroup.headers.map((header) => (
-                <StyledTableCell key={header.id} align="left">
+                <StyledTableCell key={header.id} align="left" enableRowSelection={enableRowSelection}>
                   <StyledTableSortLabel
                     active={header.column.getIsSorted() !== false}
                     direction={
                       header.column.getIsSorted() === "desc" ? "desc" : "asc"
                     }
-                    onClick={header.column.getToggleSortingHandler()}
-                    IconComponent={
-                      header.column.getIsSorted() === false
-                        ? () => <SortIcon />
-                        : header.column.getIsSorted() === "desc"
-                          ? KeyboardArrowDownIcon
-                          : KeyboardArrowUpIcon
-                    }
+                    onClick={(e) => {
+                      table.setSorting(old => {
+                        // If this column is already being sorted
+                        const existingIndex = old.findIndex(d => d.id === header.id);
+
+                        if (existingIndex > -1) {
+                          // Toggle between ascending, descending, and removing
+                          const existingSort = old[existingIndex];
+                          const newSort = {
+                            ...existingSort,
+                            desc: !existingSort.desc
+                          };
+                          return [newSort];
+                        }
+
+                        return [{ id: header.id, desc: false }];
+                      });
+
+                    }}
+                    IconComponent={() => {
+                      // Directly check the sorting state for this column
+                      const sortDir = header.column.getIsSorted();
+
+                      if (sortDir === false) {
+                        return <SortIcon />;
+                      } else if (sortDir === "desc") {
+                        return <KeyboardArrowDownIcon />;
+                      } else {
+                        return <KeyboardArrowUpIcon />;
+                      }
+                    }}
                   >
                     {header.column.columnDef.header ? (
                       flexRender(header.column.columnDef.header, {
@@ -172,10 +200,15 @@ const TableComponent = <TData extends Object>({
         <TableBody className={classNames(bodyClassName)}>
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row, i) => (
-              <StyledTableRow key={row.id} className={classNames(rowClassName)}>
+              <StyledTableRow
+                key={row.id}
+                className={classNames(rowClassName)}
+                onClick={() => onRowSelection?.(row.original)}
+                sx={{ cursor: onRowSelection ? "pointer" : "" }}
+              >
                 {/* Checkbox to select a row */}
                 {enableRowSelection && (
-                  <StyledTableCell padding="checkbox" align="center">
+                  <StyledTableCell padding="checkbox" align="center" enableRowSelection={enableRowSelection}>
                     <IndeterminateCheckbox
                       checked={row.getIsSelected()}
                       disabled={!row.getCanSelect()}
@@ -189,7 +222,7 @@ const TableComponent = <TData extends Object>({
                   </StyledTableCell>
                 )}
                 {row.getVisibleCells().map((cell) => (
-                  <StyledTableCell key={cell.id}>
+                  <StyledTableCell key={cell.id} enableRowSelection={enableRowSelection}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </StyledTableCell>
                 ))}
@@ -205,7 +238,9 @@ const TableComponent = <TData extends Object>({
                 }
                 align="center"
               >
-                {loadingData ? "Loading..." : "No data available"}
+                <Typography variant="body-small">
+                  {loadingData ? "Loading..." : "No data available"}
+                </Typography>
               </TableCell>
             </TableRow>
           )}

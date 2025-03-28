@@ -29,13 +29,17 @@ export function useQueryData<TData, TParams = any>({
     setPrevPageCursor,
     globalFilter,
     filters: columnFilters,
+    sortBy,
     pageIndex = 0
   } = useTableContext<TData>();
+
+  console.log("useQueryData", { globalFilter, columnFilters, sortBy, pageIndex });
 
   // Local state control to avoid infinite loops
   const [isInitialized, setIsInitialized] = useState(false);
   const isFetchingRef = useRef(false);
   const prevFiltersRef = useRef({ globalFilter, columnFilters });
+  const prevSortByRef = useRef(sortBy);
   const prevCursorsRef = useRef({ nextPageCursor, prevPageCursor });
 
   // Store a history of tokens to facilitate bidirectional navigation
@@ -75,6 +79,31 @@ export function useQueryData<TData, TParams = any>({
     return false;
   }, [globalFilter, columnFilters]);
 
+  // Function to compare if sorting has changed
+  const hasSortingChanged = useCallback(() => {
+    const oldSortBy = prevSortByRef.current;
+    console.log("Checking sort change - Current:", sortBy, "Previous:", oldSortBy);
+
+    // Compare length
+    if ((oldSortBy?.length || 0) !== (sortBy?.length || 0)) {
+      console.log("Sort length changed");
+      return true;
+    }
+
+    // Compare each sort criteria
+    for (let i = 0; i < (sortBy?.length || 0); i++) {
+      if (
+        oldSortBy?.[i]?.id !== sortBy?.[i]?.id ||
+        oldSortBy?.[i]?.desc !== sortBy?.[i]?.desc
+      ) {
+        console.log("Sort criteria changed at index", i);
+        return true;
+      }
+    }
+
+    return false;
+  }, [sortBy]);
+
   // Initialization - only runs once
   useEffect(() => {
     if (!isInitialized && !isFetchingRef.current) {
@@ -95,6 +124,29 @@ export function useQueryData<TData, TParams = any>({
       handleFetch(undefined);
     }
   }, [globalFilter, columnFilters, haveFiltersChanged, isInitialized]);
+
+  // Effect for sorting
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    console.log("sortBy changed in effect:", sortBy);
+    
+    if (!isFetchingRef.current) {
+      // Check if sorting has actually changed to avoid unnecessary fetches
+      if (hasSortingChanged()) {
+        console.log("Sorting changed, updating reference and fetching data");
+        prevSortByRef.current = sortBy;
+        // Reset token history when sorting changes
+        tokensHistoryRef.current = {};
+        prevPageIndexRef.current = 0;
+        handleFetch(undefined);
+      } else {
+        console.log("Sorting state received but no actual change detected");
+      }
+    } else {
+      console.log("Fetch already in progress, skipping sort change handling");
+    }
+  }, [sortBy, hasSortingChanged, isInitialized]);
 
   // Effect to detect changes in page index
   useEffect(() => {
@@ -210,6 +262,24 @@ export function useQueryData<TData, TParams = any>({
     return filters;
   }, [globalFilter, columnFilters]);
 
+  const constructSorting = useCallback(() => {
+    // Build sorting parameters
+    const sortingParams: Record<string, any> = {};
+
+    if (sortBy && sortBy.length > 0) {
+      // Convert the sortBy array to the format expected by the API
+      const sortingValues = sortBy.map(sort => ({
+        field: sort.id,
+        order: sort.desc ? 'DESC' : 'ASC'
+      }));
+
+      sortingParams.sortBy = sortingValues;
+      console.log("Constructed sorting parameters:", sortingParams);
+    }
+
+    return sortingParams;
+  }, [sortBy]);
+
   const handleFetch = useCallback(
     async (pageToken: string | undefined) => {
       // Avoid multiple simultaneous requests
@@ -221,15 +291,20 @@ export function useQueryData<TData, TParams = any>({
 
       try {
         const filters = constructFilters();
+        const sorting = constructSorting();
 
         const params = {
           ...initialParams,
           pageSize,
           pageToken,
-          ...filters
+          ...filters,
+          ...sorting
         } as unknown as TParams;
 
+        console.log("Making API request with params:", JSON.stringify(params, null, 2));
+
         const response = await fetchFunction(params);
+        console.log("API response received:", response);
 
         // Update token history with the response
         if (response && pageIndex !== undefined) {
@@ -272,6 +347,7 @@ export function useQueryData<TData, TParams = any>({
       initialParams,
       pageSize,
       constructFilters,
+      constructSorting,
       fetchFunction,
       handleFonosterResponse,
       onFetchComplete,

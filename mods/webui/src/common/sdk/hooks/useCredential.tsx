@@ -4,16 +4,46 @@ import { useNotification, ErrorType } from "@/common/hooks/useNotification";
 import {
   CreateCredentialsRequest,
   UpdateCredentialsRequest,
-  ListCredentialsRequest,
-  ListCredentialsResponse,
+  ListCredentialsRequest as BaseListCredentialsRequest,
+  ListCredentialsResponse as BaseListCredentialsResponse,
   Credentials as CredentialsType,
   BaseApiObject
 } from "@fonoster/types";
 import { Credentials } from "@fonoster/sdk";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
+
+// Extend the ListCredentialsResponse to include prevPageToken
+interface ListCredentialsResponse
+  extends BaseListCredentialsResponse,
+    CredentialsType {
+  prevPageToken?: string;
+  recordTotal?: number;
+  filterBy?: Record<string, string>;
+}
+
+interface ListCredentialsRequest extends BaseListCredentialsRequest {
+  filterBy?: Record<string, string>;
+  pageSize?: number;
+  pageToken?: string;
+}
 
 export const useCredential = () => {
   const { client, isReady, authentication } = useFonosterClient();
   const { notifyError } = useNotification();
+
+  // Handle Fake data - make sure all required Trunk properties are non-optional
+  const { listItems } = usePaginatedData<CredentialsType>({
+    generateFakeData: (index: number) => ({
+      ref: `number-${index}`,
+      name: `Number ${index + 1}`, // This is required to be non-optional
+      username: `username-${index + 1}`, // This is required to be non-optional
+      // Add any other required fields from Trunk type
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
 
   const _credentials = useMemo(() => {
     if (!client) {
@@ -69,11 +99,12 @@ export const useCredential = () => {
     }
   ): Promise<ListCredentialsResponse | undefined> => {
     try {
-      if (!isReady) return undefined;
+      return (await listItems(data)) as ListCredentialsResponse;
+      // if (!isReady) return undefined;
 
-      return await authentication.executeWithRefresh(() =>
-        _credentials.listCredentials(data)
-      );
+      // return await authentication.executeWithRefresh(() =>
+      //   _credentials.listCredentials(data)
+      // );
     } catch (error: any) {
       notifyError(error as ErrorType);
     }

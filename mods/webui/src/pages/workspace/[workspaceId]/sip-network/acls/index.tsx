@@ -1,31 +1,37 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { Acl } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
+import { Icon } from "@stories/icon/Icon";
+import { QueryData } from "@stories/table/QueryData";
+import { useACL } from "@/common/sdk/hooks/useACL";
+import { Button } from "@stories/button/Button";
 
 const columns: ColumnDef<Acl>[] = [
   {
-    accessorKey: "name",
+    id: "name",
     header: "Name",
-    cell: (info: any) => info.getValue()
+    cell: (info: { row: { original: Acl } }) => info.row.original.name
   },
   {
-    accessorKey: "denyList",
+    id: "deny",
     header: "Deny List",
-    cell: (info: any) => info.getValue()
+    cell: (info: { row: { original: any } }) =>
+      info.row.original.deny.map((d: any) => d)
   },
   {
-    accessorKey: "allowList",
+    id: "allow",
     header: "Allow List",
-    cell: (info: any) => info.getValue()
+    cell: (info: { row: { original: Acl } }) =>
+      info.row.original.allow.map((a) => a)
   }
 ];
 
 export default function AclsPage() {
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
+  const { listAcls } = useACL();
 
   const handleNew = () => {
     router.push(`/workspace/${selectedWorkspace?.ref}/sip-network/acls/new`);
@@ -36,8 +42,12 @@ export default function AclsPage() {
       <PageContainer.Header
         title="IP/CIDR Access Control List (ACL)"
         actions={
-          <Button variant="contained" onClick={handleNew}>
-            Create New Agent
+          <Button
+            variant="outlined"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
+            Create New ACL
           </Button>
         }
       />
@@ -46,7 +56,13 @@ export default function AclsPage() {
         external networks to your infrastructure.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<Acl> columns={columns} tableId="acl-table" />
+      <PageContainer.ContentTable<Acl>
+        columns={columns}
+        tableId="acl-table"
+        showSelectAll={true}
+      >
+        <QueryData<Acl> fetchFunction={listAcls} pageSize={10} />
+      </PageContainer.ContentTable>
     </PageContainer>
   );
 }

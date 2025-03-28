@@ -3,47 +3,32 @@ import { ColumnDef } from "@tanstack/react-table";
 import PageContainer from "@/common/components/layout/pages";
 import { Button } from "@stories/button/Button";
 import { useApplications } from "@/common/sdk/hooks/useApplications";
-import { QueryData } from "@/common/contexts/table/QueryData";
-import { ListApplicationsResponse } from "@fonster/types";
-import { Stack } from "@mui/material";
+import { Application } from "@fonster/types";
 import { Icon } from "@stories/icon/Icon";
+import { QueryData } from "@stories/table/QueryData";
 
-const columns: ColumnDef<ListApplicationsResponse>[] = [
+const columns: ColumnDef<Application>[] = [
   {
     id: "ref",
     header: "Ref",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.ref
+    cell: (props: { row: { original: Application } }) => props.row.original.ref
   },
   {
     id: "name",
     header: "Name",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.name
+    cell: (props: { row: { original: Application } }) => props.row.original.name
   },
   {
-    id: "projectId",
-    header: "Project ID",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.projectId
-  },
-  {
-    id: "tts",
+    id: "textToSpeech",
     header: "TTS",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.tts
+    cell: (props: { row: { original: Application } }) =>
+      props.row.original.textToSpeech?.productRef
   },
   {
-    id: "stt",
+    id: "speechToText",
     header: "STT",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.stt
-  },
-  {
-    id: "intelligence",
-    header: "Inteligence",
-    cell: (props: { row: { original: ListApplicationsResponse } }) =>
-      props.row.original.intelligence?.productRef
+    cell: (props: { row: { original: Application } }) =>
+      props.row.original.speechToText?.productRef
   }
 ];
 
@@ -56,26 +41,36 @@ export default function ApplicationsPage() {
     router.push(`/workspace/${workspaceId}/applications/new`);
   };
 
+  const handleEdit = (row: Application) => {
+    router.push(`/workspace/${workspaceId}/applications/${row.ref}`);
+  };
+
   return (
     <PageContainer>
       <PageContainer.Header
-        title="Applications"
+        title="Voice Applications"
         actions={
-          <Button variant="outlined" onClick={() => handleNewApplication()}>
-            New Application
+          <Button
+            variant="outlined"
+            onClick={() => handleNewApplication()}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
+            Create New Application
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Manage all your Fonoster applications here. Create, edit and monitor
-        your applications in execution.
+        Use this section to connect your Dialogflow, IBM Watson, and OpenAI
+        Assistants with your numbers.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<ListApplicationsResponse>
+      <PageContainer.ContentTable<Application>
         columns={columns}
-        tableId="applications-table"
+        tableId="applications"
+        showSelectAll={true}
+        onRowSelection={handleEdit}
       >
-        <QueryData<ListApplicationsResponse>
+        <QueryData<Application>
           fetchFunction={listApplications}
           pageSize={10}
         />

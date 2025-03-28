@@ -11,205 +11,6 @@ Fonoster WebUI is a modern and powerful user interface for the Fonoster platform
 - **Responsive Experience**: Adaptive design for mobile and desktop devices
 - **Storybook Development**: Documented component library
 
-## Project Structure
-
-```
-fonoster-webui/
-├── .storybook/         # Storybook configuration
-├── public/             # Static files
-├── src/
-│   ├── common/         # Shared code
-│   │   ├── components/ # Reusable components
-│   │   ├── contexts/   # React contexts
-│   │   ├── hooks/      # Custom hooks
-│   │   ├── sdk/        # Fonoster SDK integration
-│   │   └── utils/      # Utilities
-│   ├── components/     # Application-specific components
-│   ├── pages/          # Next.js pages
-│   ├── stories/        # Storybook stories
-│   └── types/          # Type definitions
-├── theme/              # Theme configuration
-└── ...
-```
-
-## OAuth Configuration
-
-## Environment Variables
-
-The application uses a centralized OAuth configuration system. All OAuth-related environment variables are managed through a single configuration module.
-
-### Base OAuth Configuration
-```env
-# Frontend URL (used for callback construction)
-NEXT_PUBLIC_FRONTEND_URL=http://localhost:3000
-
-# OAuth Callback Path (used for all OAuth providers)
-NEXT_PUBLIC_OAUTH_REDIRECT_URI=/oauth/callback
-```
-
-### GitHub OAuth Configuration
-```env
-# GitHub Client ID from OAuth App
-NEXT_PUBLIC_GITHUB_CLIENT_ID=your_client_id_here
-
-# GitHub OAuth Base URL
-NEXT_PUBLIC_GITHUB_URL=https://github.com/login/oauth/authorize
-
-# Sign In Configuration
-NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI=/workspace  # Post-signin redirect
-NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE=read:user         # Signin permissions
-
-# Sign Up Configuration
-NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI=/workspace # Post-signup redirect
-NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE=user:email       # Signup permissions
-```
-
-## OAuth Implementation
-
-The application uses a centralized OAuth configuration system located in `src/config/oauth.ts`. This provides:
-
-- Unified configuration for all OAuth providers
-- Shared base configuration
-- Specific configurations for signin and signup flows
-- Type-safe configuration objects
-
-### Usage Example
-
-```typescript
-import { OAUTH_CONFIG } from '@/config/oauth';
-
-// For signin
-const signinConfig = OAUTH_CONFIG.signin;
-
-// For signup
-const signupConfig = OAUTH_CONFIG.signup;
-```
-
-### Configuration Structure
-
-The OAuth configuration is structured as follows:
-
-```typescript
-const BASE_OAUTH_CONFIG = {
-    clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!,
-    redirectUriCallback: process.env.NEXT_PUBLIC_FRONTEND_URL! + process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!,
-    authUrl: process.env.NEXT_PUBLIC_GITHUB_URL!,
-};
-
-export const OAUTH_CONFIG = {
-    signin: {
-        ...BASE_OAUTH_CONFIG,
-        redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI!,
-        scope: process.env.NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE!,
-    },
-    signup: {
-        ...BASE_OAUTH_CONFIG,
-        redirectUri: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI!,
-        scope: process.env.NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE!,
-    }
-};
-```
-
-## OAuth Flow
-
-1. User initiates OAuth flow (signin/signup)
-2. Application redirects to provider with appropriate configuration
-3. Provider redirects back to `/oauth/callback`
-4. Callback handler processes authentication
-5. User is redirected to appropriate destination
-
-## Important Notes
-
-- The callback URL (`/oauth/callback`) must be registered in your OAuth provider application
-- Different scopes are used for signin and signup to request appropriate permissions
-- All redirects are handled through the centralized callback handler
-- Environment variables must be properly set in production
-
-## Code Improvements
-
-### 1. Authentication System
-
-- **AuthClient**: Robust implementation following best practices
-- **Token Management**: Automatic validation and renewal of JWT tokens
-- **Cookie Handling**: Centralized system for cookie management
-
-### 2. SDK Configuration
-
-- **WebClient Interface**: Typed extension of the Fonoster SDK client
-- **Client Initialization**: Optimized configuration
-- **Error Handling**: Robust system for capturing and managing errors
-
-### 3. Code Organization
-
-- **Utility Modules**: Specific functions for tokens and cookies
-- **Documentation**: JSDoc comments on all main methods
-- **Naming Conventions**: Standardized nomenclature
-
-### 4. Performance
-
-- **Memoization**: Use of useCallback and useMemo for optimization
-- **State Management**: Prevention of unnecessary re-renders
-- **Session Verification**: Optimization of authentication checks
-
-### 5. Type Safety
-
-- **TypeScript**: Robust interfaces for type safety
-- **Error Handling**: Type checking in errors
-- **Null Safety**: Checks to prevent runtime errors
-
-## Using the Authentication System
-
-```tsx
-import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
-
-function MyComponent() {
-  const { 
-    client, 
-    isReady, 
-    isAuthenticated, 
-    authentication 
-  } = useFonosterClient();
-
-  // Use the client and authentication methods
-  // ...
-}
-```
-
-## Best Practices
-
-1. Always check `isReady` before using the client
-2. Use `authentication.executeWithRefresh` for authenticated operations
-3. Handle errors with try/catch blocks
-4. Check `isAuthenticated` to determine if the user is logged in
-
-## Next.js Basic Concepts
-
-Next.js is a React framework that offers:
-
-### File System Based Routing
-
-- Each file in `pages/` automatically becomes a route
-- Files like `pages/about.tsx` generate the `/about` route
-- Nested folders like `pages/blog/[slug].tsx` generate dynamic routes
-
-### Hybrid Rendering
-
-- **Static Site Generation (SSG)**: Pages generated at build time
-- **Server-Side Rendering (SSR)**: Rendering on each request
-- **Client-Side Rendering**: Rendering in the browser
-- **Incremental Static Regeneration**: Updating static pages
-
-### Automatic Optimization
-
-- **Images**: `Image` component for automatic optimization
-- **Fonts**: Optimization and loading of web fonts
-- **Scripts**: Optimized JavaScript loading
-
-### API Routes
-
-- Serverless API endpoints in `pages/api/`
-- Ideal for creating APIs without needing a separate server
-
 ## Getting Started
 
 1. Install dependencies:
@@ -222,7 +23,7 @@ yarn install
 
 2. Configure environment variables:
 
-```
+```bash
 # Copy the example file
 cp .env.example .env.local
 
@@ -239,7 +40,29 @@ yarn dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Development with Storybook
+## Configuration
+
+### Environment Variables
+
+The application uses a centralized configuration system. Configure these variables in your `.env.local`:
+
+```env
+# Frontend URL
+NEXT_PUBLIC_FRONTEND_URL=http://localhost:3000
+
+# OAuth Configuration
+NEXT_PUBLIC_OAUTH_REDIRECT_URI=/oauth/callback
+NEXT_PUBLIC_GITHUB_CLIENT_ID=your_client_id_here
+NEXT_PUBLIC_GITHUB_URL=https://github.com/login/oauth/authorize
+NEXT_PUBLIC_GITHUB_SIGNIN_REDIRECT_URI=/workspace
+NEXT_PUBLIC_GITHUB_SIGNIN_SCOPE=read:user
+NEXT_PUBLIC_GITHUB_SIGNUP_REDIRECT_URI=/workspace
+NEXT_PUBLIC_GITHUB_SIGNUP_SCOPE=user:email
+```
+
+## Development Tools
+
+### Development with Storybook
 
 To develop and test components in isolation:
 
@@ -251,39 +74,6 @@ yarn storybook
 
 Open [http://localhost:6006](http://localhost:6006) to see the component library.
 
-## Deployment
-
-### Deployment on Vercel
-
-The easiest way to deploy this application is to use [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme):
-
-1. Import your repository to Vercel
-2. Configure environment variables
-3. Deploy
-
-### Manual Deployment
-
-To build the application for production:
-
-```bash
-npm run build
-# or
-yarn build
-```
-
-Then, start the production server:
-
-```bash
-npm run start
-# or
-yarn start
-```
-
-## Next.js Resources
-
-- [Next.js Documentation](https://nextjs.org/docs) - Features and API
-- [Next.js Tutorial](https://nextjs.org/learn-pages-router) - Interactive tutorial
-- [Next.js Repository](https://github.com/vercel/next.js) - Source code and contributions
 
 ## Contributing
 
@@ -294,3 +84,215 @@ Contributions are welcome. Please follow these steps:
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Project Structure
+
+```
+fonoster-webui/
+├── .next/              # Next.js build output
+├── .storybook/         # Storybook configuration
+├── .vscode/           # VS Code configuration
+├── docs/              # Project documentation
+├── node_modules/      # Dependencies
+├── public/            # Static files
+├── src/
+│   ├── common/        # Shared code and components
+│   ├── config/        # Configuration files
+│   ├── pages/         # Next.js pages
+│   │   ├── signin/    # Authentication pages
+│   │   ├── signup/    # Registration pages
+│   │   ├── oauth/     # OAuth handling
+│   │   ├── workspace/ # Main application workspace
+│   │   ├── personal/  # User profile settings
+│   │   ├── reset-password/ # Password reset flow
+│   │   ├── forgot-password/ # Password recovery
+│   │   ├── reset/     # Password reset confirmation
+│   │   ├── _app.tsx   # Main application wrapper
+│   │   ├── _document.tsx # Custom document component
+│   │   ├── _error.tsx # Error handling page
+│   │   └── 404.tsx    # Custom 404 page
+│   ├── types/         # TypeScript type definitions
+│   ├── utils/         # Utility functions
+│   └── middleware.ts  # Next.js middleware
+├── stories/           # Storybook stories
+├── theme/             # Theme configuration
+├── .env              # Environment variables
+├── .env.example      # Example environment variables
+├── .env.local        # Local environment variables
+├── next.config.ts    # Next.js configuration
+├── package.json      # Project dependencies and scripts
+├── postcss.config.mjs # PostCSS configuration
+├── tsconfig.json     # TypeScript configuration
+└── vite.config.ts    # Vite configuration
+```
+
+## Core Concepts
+
+### Authentication System
+
+```typescript
+import { useFonosterClient } from '@/common/sdk/hooks/useFonosterClient';
+
+function MyComponent() {
+  const { 
+    client, 
+    isReady, 
+    isAuthenticated, 
+    authentication 
+  } = useFonosterClient();
+
+  // Use the client and authentication methods
+}
+```
+
+Best Practices:
+1. Always check `isReady` before using the client
+2. Use `authentication.executeWithRefresh` for authenticated operations
+3. Handle errors with try/catch blocks
+4. Check `isAuthenticated` to determine if the user is logged in
+
+### Next.js Integration
+
+1. **File System Based Routing**:
+   - Each file in `pages/` automatically becomes a route
+   - Files like `pages/about.tsx` generate the `/about` route
+   - Nested folders like `pages/blog/[slug].tsx` generate dynamic routes
+
+2. **Hybrid Rendering**:
+   - Static Site Generation (SSG)
+   - Server-Side Rendering (SSR)
+   - Client-Side Rendering
+   - Incremental Static Regeneration
+
+3. **API Routes**:
+   - Serverless API endpoints in `pages/api/`
+   - Ideal for creating APIs without a separate server
+
+## Development Guides
+
+### Form Creation Guide
+
+This guide explains how to create forms following the project's standard structure.
+
+#### Form Structure
+
+```
+src/pages/workspace/[workspaceId]/your-feature/
+├── _components/
+│   └── form/
+│       └── YourFeatureForm.tsx    # Main form component
+├── [id].tsx                       # Edit page
+└── new.tsx                        # Create page
+```
+
+#### Available Components
+
+1. **Layout Components** (`@/common/components/layout/pages`):
+   - `PageContainer`: Main wrapper for all forms
+   - `PageContainer.Header`: Page title and actions
+   - `PageContainer.Subheader`: Form description
+   - `PageContainer.ContentForm`: Form content wrapper
+
+2. **Form Fields** (`@/common/hooksForm/`):
+   - `InputContext`: Text input fields
+   - `SelectContext`: Dropdown select fields
+   - `TextAreaContext`: Multiline text fields
+   - `CheckboxContext`: Checkbox fields
+   - `RadioContext`: Radio button groups
+   - `DatePickerContext`: Date selection fields
+
+3. **Validation** (`@hookform/resolvers/zod`):
+   - Uses Zod for schema validation
+   - Located in each form component
+   - Defines form field rules and types
+
+#### Best Practices
+
+1. **Form Organization**:
+   - Keep forms in `_components/form/` directory
+   - Use consistent naming conventions
+   - Separate business logic from UI
+
+2. **State Management**:
+   - Track loading, error, and success states
+   - Handle form submission status
+   - Manage API interactions
+   - Use notifications for user feedback (see Notifications System section)
+
+3. **User Experience**:
+   - Show clear validation messages
+   - Provide loading indicators
+   - Display success/error notifications
+   - Enable form navigation
+
+4. **Type Safety**:
+   - Use TypeScript interfaces
+   - Implement Zod schemas
+   - Export form data types
+
+### Notifications System
+
+The project provides a unified way to display notifications using the `useNotification` hook.
+
+#### Usage Example:
+
+```typescript
+import { useNotification } from "@/common/hooks/useNotification";
+
+function YourComponent() {
+  const { 
+    notifySuccess, 
+    notifyError, 
+    notifyWarning, 
+    notifyInfo,
+    NotificationComponent 
+  } = useNotification();
+
+  // Show success message
+  notifySuccess("Operation completed successfully");
+
+  return (
+    <>
+      <NotificationComponent />
+      {/* Your component content */}
+    </>
+  );
+}
+```
+
+#### Available Methods:
+
+1. **notifySuccess**: Green background, auto-hides after 6 seconds
+2. **notifyError**: Handles error objects with code and message
+3. **notifyWarning**: Yellow/orange background for alerts
+4. **notifyInfo**: Blue background for general notifications
+
+#### Customization Options:
+
+```typescript
+interface NotificationOptions {
+  title?: string;              // Optional header text
+  message: string;             // Main notification message
+  type?: "success" | "error" | "warning" | "info";
+  duration?: number;           // Time in milliseconds
+  position?: {                 // Notification position
+    vertical: "top" | "bottom";
+    horizontal: "left" | "center" | "right";
+  };
+  showIcon?: boolean;          // Show/hide status icon
+  autoHide?: boolean;          // Auto-dismiss notification
+  customStyle?: {              // Custom styling
+    backgroundColor?: string;
+    color?: string;
+  };
+  onClose?: () => void;        // Close callback
+  showCountdown?: boolean;     // Show countdown timer
+  countdownDuration?: number;  // Countdown time in seconds
+}
+```
+
+## Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Next.js Tutorial](https://nextjs.org/learn-pages-router)
+- [Next.js Repository](https://github.com/vercel/next.js)

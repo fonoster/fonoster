@@ -53,13 +53,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await listWorkspaces();
       if (response?.items) {
         setWorkspaces(response.items);
-      } else {
       }
     } catch (error) {
+      //notify error
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 0);
+      setIsLoading(false);
     }
   };
 
