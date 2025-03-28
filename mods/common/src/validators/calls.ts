@@ -28,7 +28,7 @@ const createCallRequestSchema = z.object({
     .number()
     .max(120, { message: "Timeout must be less than 120s" })
     .default(30),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
 });
 
 const getCallRequestSchema = z.object({

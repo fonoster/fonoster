@@ -32,7 +32,8 @@ export function createCreateCall(client: SDK.Client) {
       from: params.from,
       to: params.to,
       appRef: params.app_ref,
-      timeout: params.timeout
+      timeout: params.timeout,
+      metadata: params.metadata
     });
 
     return {
