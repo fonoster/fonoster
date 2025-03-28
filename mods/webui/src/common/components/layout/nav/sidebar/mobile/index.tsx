@@ -32,37 +32,18 @@ export function MobileNav({
 
   return (
     <Drawer
-      PaperProps={{
-        sx: {
-          "--MobileNav-background": "var(--mui-palette-neutral-950)",
-          "--MobileNav-color": "var(--mui-palette-common-white)",
-          "--NavGroup-title-color": "var(--mui-palette-neutral-400)",
-          "--NavItem-color": "var(--mui-palette-neutral-300)",
-          "--NavItem-hover-background": "rgba(255, 255, 255, 0.04)",
-          "--NavItem-active-background": "var(--mui-palette-primary-main)",
-          "--NavItem-active-color": "var(--mui-palette-primary-contrastText)",
-          "--NavItem-disabled-color": "var(--mui-palette-neutral-500)",
-          "--NavItem-icon-color": "var(--mui-palette-neutral-400)",
-          "--NavItem-icon-active-color":
-            "var(--mui-palette-primary-contrastText)",
-          "--NavItem-icon-disabled-color": "var(--mui-palette-neutral-600)",
-          "--NavItem-expand-color": "var(--mui-palette-neutral-400)",
-          "--NavItem-children-border": "var(--mui-palette-neutral-700)",
-          "--NavItem-children-indicator": "var(--mui-palette-neutral-400)",
-          "--Workspaces-background": "var(--mui-palette-neutral-950)",
-          "--Workspaces-border-color": "var(--mui-palette-neutral-700)",
-          "--Workspaces-title-color": "var(--mui-palette-neutral-400)",
-          "--Workspaces-name-color": "var(--mui-palette-neutral-300)",
-          "--Workspaces-expand-color": "var(--mui-palette-neutral-400)",
-          // bgcolor: 'var(--MobileNav-background)',
-          color: "var(--MobileNav-color)",
-          display: "flex",
-          flexDirection: "column",
-          maxWidth: "100%",
-          width: "var(--MobileNav-width)",
-          zIndex: "var(--MobileNav-zIndex)",
-          scrollbarWidth: "none",
-          "&::-webkit-scrollbar": { display: "none" }
+      slotProps={{
+        paper: {
+          sx: {
+            color: "var(--MobileNav-color)",
+            display: "flex",
+            flexDirection: "column",
+            maxWidth: "100%",
+            width: "var(--MobileNav-width)",
+            zIndex: "var(--MobileNav-zIndex)",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" }
+          }
         }
       }}
       variant="temporary"
@@ -80,7 +61,7 @@ export function MobileNav({
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
         <Typography variant="mono-small">
-          &copy; 2024, FONOSTER. V0.3.4
+          &copy; {new Date().getFullYear()}, FONOSTER. V0.3.4
         </Typography>
       </Stack>
     </Drawer>
@@ -273,7 +254,6 @@ function NavItem({
             })}
         sx={{
           alignItems: "center",
-          borderRadius: 1,
           color: "var(--NavItem-color)",
           cursor: "pointer",
           display: "flex",
