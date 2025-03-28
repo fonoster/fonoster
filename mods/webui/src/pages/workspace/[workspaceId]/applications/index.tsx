@@ -66,27 +66,14 @@ export default function ApplicationsPage() {
         Assistants with your numbers.
       </PageContainer.Subheader>
 
-      <ReactTable<Application>
+      <PageContainer.ContentTable<Application>
         columns={columns}
-        enableRowSelection={true}
+        tableId="applications"
+        showSelectAll={true}
+        onRowSelection={handleEdit}
       >
-        <ReactTable.Header>
-          <ReactTable.Header.SelectAll />
-          <ReactTable.Header.Filter />
-          <ReactTable.Header.Search />
-          <ReactTable.Header.Pagination />
-        </ReactTable.Header>
-        <Box sx={{ mb: 0, mt: 1 }} />
-        <ReactTable.Content
-          id="applications-table"
-          enableRowSelection={true}
-          onRowSelection={handleEdit}
-        />
-        <QueryData<Application>
-          fetchFunction={listApplications}
-          pageSize={10}
-        />
-      </ReactTable>
+        <QueryData<Application> fetchFunction={listApplications} pageSize={10} />
+      </PageContainer.ContentTable>
     </PageContainer>
   );
 }
