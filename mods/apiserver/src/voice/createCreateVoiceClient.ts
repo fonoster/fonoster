@@ -57,7 +57,8 @@ function createCreateVoiceClient(
 
     const sessionToken = await generateCallAccessToken({ accessKeyId, appRef });
 
-    const metadataStr = (await getChannelVar(ChannelVar.METADATA))?.value ?? "{}";
+    const metadataStr =
+      (await getChannelVar(ChannelVar.METADATA))?.value ?? "{}";
 
     const config = {
       appRef,
