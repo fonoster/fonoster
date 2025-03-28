@@ -92,7 +92,7 @@ async function main(request) {
   const apiSecret = "your-api-secret"
   const accessKeyId = "WO00000000000000000000000000000000";
 
-  const client = SDK.Client({ accessKeyId });
+  const client = new SDK.Client({ accessKeyId });
   await client.loginWithApiKey(apiKey, apiSecret);
 
   const calls = new SDK.Calls(client);
@@ -104,7 +104,12 @@ async function main(request) {
 const request = {
   from: "+18287854037",
   to: "+17853178070",
-  appRef: "3e61ecb7-a1b6-4a93-84c3-4f1979165bca"
+  appRef: "3e61ecb7-a1b6-4a93-84c3-4f1979165bca",
+  // Optional metadata to be sent to the Voice Application
+  metadata: {
+    name: "John Doe",
+    message: "Please call me back."
+  }
 };
 
 main(request).catch(console.error);

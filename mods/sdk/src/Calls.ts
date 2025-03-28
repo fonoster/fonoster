@@ -40,6 +40,7 @@ import {
   TrackCallRequest as TrackCallRequestPB
 } from "./generated/node/calls_pb";
 import { dialStatusToString } from "./utils";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 
 /**
  * @classdesc Fonoster Calls, part of the Fonoster Media subsystem,
@@ -133,7 +134,13 @@ class Calls {
       method: client.createCall.bind(client),
       requestPBObjectConstructor: CreateCallRequestPB,
       metadata: this.client.getMetadata(),
-      request
+      request: {
+        ...request,
+        metadata: Struct.fromJavaScript(request.metadata) as unknown as Record<
+          string,
+          unknown
+        >
+      }
     });
 
     const trackCallRequest = new TrackCallRequestPB();
