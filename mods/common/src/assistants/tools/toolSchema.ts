@@ -38,7 +38,7 @@ const toolSchema = z.object({
       .default(AllowedHttpMethod.GET),
     url: z.string().url({ message: Messages.VALID_URL }),
     waitForResponse: z.boolean().default(true),
-    headers: z.record(z.string()).optional()
+    headers: z.record(z.string(), z.string()).optional()
   })
 });
 

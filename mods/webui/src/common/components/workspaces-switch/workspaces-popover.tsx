@@ -59,11 +59,6 @@ export function WorkspacesPopover({
     onClose?.();
   };
 
-  const handleNavigation = (path: string) => {
-    router.push(path);
-    onClose?.();
-  };
-
   return (
     <Menu
       anchorEl={anchorEl}
@@ -82,7 +77,7 @@ export function WorkspacesPopover({
       slotProps={{
         paper: {
           sx: {
-            width: "242px",
+            width: "200px",
             mt: 0,
             boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
             borderRadius: 0,

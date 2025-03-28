@@ -57,7 +57,8 @@ function createCreateVoiceClient(
 
     const sessionToken = await generateCallAccessToken({ accessKeyId, appRef });
 
-    const metadataStr = (await getChannelVar(ChannelVar.METADATA))?.value;
+    const metadataStr =
+      (await getChannelVar(ChannelVar.METADATA))?.value ?? "{}";
 
     const config = {
       appRef,
@@ -69,7 +70,7 @@ function createCreateVoiceClient(
       ingressNumber,
       sessionToken,
       callDirection: mapCallDirectionToEnum(callDirection),
-      metadata: metadataStr ? JSON.parse(metadataStr) : {}
+      metadata: JSON.parse(metadataStr)
     };
 
     logger.verbose("creating voice client with config: ", {

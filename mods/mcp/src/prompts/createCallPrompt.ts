@@ -42,6 +42,7 @@ export async function createCallPrompt() {
             2. Offer the user a list of numbers to use for the call using the 'listNumbers' tool
             3. Then ask for the name of application and use that to find the 'ref' of the application
             4. Create a call to the selected application using the 'createCall' or 'createCallBatch' tool depending on the user's request
+            5. Any additional data must be added as property in the **metadata** parameter of either 'createCall' or 'createCallBatch'
 
             ## Example 1:
             User: I want to call +1234567890

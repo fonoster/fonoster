@@ -21,6 +21,7 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var calls_pb = require('./calls_pb.js');
+var google_protobuf_struct_pb = require('google-protobuf/google/protobuf/struct_pb.js');
 
 function serialize_fonoster_calls_v1beta2_CallDetailRecord(arg) {
   if (!(arg instanceof calls_pb.CallDetailRecord)) {

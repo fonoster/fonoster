@@ -1,5 +1,6 @@
 import * as jspb from 'google-protobuf'
 
+import * as google_protobuf_struct_pb from 'google-protobuf/google/protobuf/struct_pb'; // proto import: "google/protobuf/struct.proto"
 
 
 export class CallDetailRecord extends jspb.Message {
@@ -69,6 +70,11 @@ export class CreateCallRequest extends jspb.Message {
   getTimeout(): number;
   setTimeout(value: number): CreateCallRequest;
 
+  getMetadata(): google_protobuf_struct_pb.Struct | undefined;
+  setMetadata(value?: google_protobuf_struct_pb.Struct): CreateCallRequest;
+  hasMetadata(): boolean;
+  clearMetadata(): CreateCallRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateCallRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateCallRequest): CreateCallRequest.AsObject;
@@ -83,6 +89,7 @@ export namespace CreateCallRequest {
     to: string,
     appRef: string,
     timeout: number,
+    metadata?: google_protobuf_struct_pb.Struct.AsObject,
   }
 }
 

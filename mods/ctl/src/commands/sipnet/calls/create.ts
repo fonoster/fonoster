@@ -30,29 +30,35 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly flags = {
     from: Flags.string({
       char: "f",
-      description: "The number to make the call from",
+      description: "the number to make the call from",
       required: true
     }),
     to: Flags.string({
       char: "t",
-      description: "The number to make the call to",
+      description: "the number to make the call to",
       required: true
     }),
     "app-ref": Flags.string({
       char: "a",
-      description: "The application reference",
+      description: "the reference to the application to use",
       required: true
     }),
     timeout: Flags.string({
       char: "o",
-      description: "The call timeout",
+      description: "the call timeout",
       default: "30",
       required: false
     }),
     "track-call": Flags.boolean({
       char: "c",
-      description: "Track the call",
+      description: "track the call",
       default: false,
+      required: false
+    }),
+    metadata: Flags.string({
+      char: "m",
+      description:
+        'a JSON object with metadata for the voice application (e.g. \'{"name": "John Doe"}\')',
       required: false
     })
   };
@@ -66,7 +72,8 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
         from: this.flags["from"],
         to: this.flags["to"],
         appRef: this.flags["app-ref"],
-        timeout: parseInt(this.flags.timeout || "30")
+        timeout: parseInt(this.flags.timeout || "30"),
+        metadata: JSON.parse(this.flags.metadata || "{}")
       };
 
       const response = await calls.createCall(callRequest);

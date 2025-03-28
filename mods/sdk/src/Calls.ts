@@ -24,6 +24,7 @@ import {
   ListCallsRequest,
   ListCallsResponse
 } from "@fonoster/types";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { DataResponse, FonosterClient } from "./client/types";
 import {
@@ -133,7 +134,13 @@ class Calls {
       method: client.createCall.bind(client),
       requestPBObjectConstructor: CreateCallRequestPB,
       metadata: this.client.getMetadata(),
-      request
+      request: {
+        ...request,
+        metadata: Struct.fromJavaScript(request.metadata) as unknown as Record<
+          string,
+          unknown
+        >
+      }
     });
 
     const trackCallRequest = new TrackCallRequestPB();

@@ -66,7 +66,7 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
         logger.error(err);
       }
 
-      const { ref, from, to, appRef, accessKeyId, timeout } =
+      const { ref, from, to, appRef, accessKeyId, timeout, metadata } =
         msg.json() as CreateCallRequest & {
           ref: string;
           accessKeyId: string;
@@ -88,7 +88,8 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true",
           CALL_DIRECTION: "peer-to-pstn",
           INGRESS_NUMBER: from,
-          APP_REF: appRef
+          APP_REF: appRef,
+          METADATA: JSON.stringify(metadata)
         }
       });
     };
