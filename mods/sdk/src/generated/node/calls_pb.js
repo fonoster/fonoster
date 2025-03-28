@@ -21,6 +21,8 @@ var global =
     (function () { return this; }).call(null) ||
     Function('return this')();
 
+var google_protobuf_struct_pb = require('google-protobuf/google/protobuf/struct_pb.js');
+goog.object.extend(proto, google_protobuf_struct_pb);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallDetailRecord', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallDirection', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallStatus', null, global);
@@ -636,7 +638,8 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.toObject = function(includeInstan
 from: jspb.Message.getFieldWithDefault(msg, 1, ""),
 to: jspb.Message.getFieldWithDefault(msg, 2, ""),
 appRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
-timeout: jspb.Message.getFieldWithDefault(msg, 4, 0)
+timeout: jspb.Message.getFieldWithDefault(msg, 4, 0),
+metadata: (f = msg.getMetadata()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -688,6 +691,11 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.deserializeBinaryFromReader = fun
     case 4:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setTimeout(value);
+      break;
+    case 5:
+      var value = new google_protobuf_struct_pb.Struct;
+      reader.readMessage(value,google_protobuf_struct_pb.Struct.deserializeBinaryFromReader);
+      msg.setMetadata(value);
       break;
     default:
       reader.skipField();
@@ -744,6 +752,14 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.serializeBinaryToWriter = functio
     writer.writeInt32(
       4,
       f
+    );
+  }
+  f = message.getMetadata();
+  if (f != null) {
+    writer.writeMessage(
+      5,
+      f,
+      google_protobuf_struct_pb.Struct.serializeBinaryToWriter
     );
   }
 };
@@ -818,6 +834,43 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.getTimeout = function()
  */
 proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.setTimeout = function(value) {
   return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional google.protobuf.Struct metadata = 5;
+ * @return {?proto.google.protobuf.Struct}
+ */
+proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.getMetadata = function() {
+  return /** @type{?proto.google.protobuf.Struct} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 5));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.Struct|undefined} value
+ * @return {!proto.fonoster.calls.v1beta2.CreateCallRequest} returns this
+*/
+proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.setMetadata = function(value) {
+  return jspb.Message.setWrapperField(this, 5, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.fonoster.calls.v1beta2.CreateCallRequest} returns this
+ */
+proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.clearMetadata = function() {
+  return this.setMetadata(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.hasMetadata = function() {
+  return jspb.Message.getField(this, 5) != null;
 };
 
 

@@ -69,7 +69,7 @@ function createCreateVoiceClient(
       ingressNumber,
       sessionToken,
       callDirection: mapCallDirectionToEnum(callDirection),
-      metadata: metadataStr ? JSON.parse(metadataStr) : {}
+      metadata: JSON.parse(metadataStr)
     };
 
     logger.verbose("creating voice client with config: ", {
