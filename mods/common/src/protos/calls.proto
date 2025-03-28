@@ -20,6 +20,8 @@ syntax = "proto3";
 
 package fonoster.calls.v1beta2;
 
+import "google/protobuf/struct.proto";
+
 // Calls service definition
 service Calls {
   // Call a number and returns the call status
@@ -91,6 +93,8 @@ message CreateCallRequest {
   string app_ref = 3;
   // Optional timeout in seconds
   int32 timeout = 4;
+  // Optional metadata to send to the application
+  google.protobuf.Struct metadata = 5;
 }
 
 // The response message for Calls.Call

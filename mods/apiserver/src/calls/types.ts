@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { DialStatus, GrpcErrorMessage } from "@fonoster/common";
-import { CallDetailRecord, CallStatus, CallType } from "@fonoster/types";
+import {
+  CallDetailRecord,
+  CallStatus,
+  CallType,
+  CreateCallRequest
+} from "@fonoster/types";
 
 type ListCallsRequest = {
   after?: string;
@@ -37,15 +42,6 @@ type ListCallsResponse = {
 
 type GetCallRequest = {
   ref: string;
-};
-
-// If appRef is not provided, we will use the application associated
-// with the 'from' number
-type CreateCallRequest = {
-  from: string;
-  to: string;
-  appRef?: string;
-  timeout?: number;
 };
 
 type CallPublisher = {

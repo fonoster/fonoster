@@ -32,7 +32,7 @@ export function createCreateCallBatch(client: SDK.Client) {
     const calls = new SDK.Calls(client);
 
     const validatedParams = CreateCallBatchSchema.parse(params);
-    const { from, to_array, app_ref, timeout, calls_per_minute } =
+    const { from, to_array, app_ref, timeout, metadata, calls_per_minute } =
       validatedParams;
     const batchId = Date.now().toString();
 
@@ -41,7 +41,8 @@ export function createCreateCallBatch(client: SDK.Client) {
         from,
         to,
         appRef: app_ref,
-        timeout
+        timeout,
+        metadata
       });
 
     const delayBetweenCalls = Math.ceil(60000 / calls_per_minute);
