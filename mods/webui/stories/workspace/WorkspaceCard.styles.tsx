@@ -24,9 +24,9 @@ export const StyledCard = styled(Card)<{
   disabled: boolean;
   workspaceVariant?: string;
 }>(({ disabled, workspaceVariant, theme }) => ({
-  height: "325px",
+  minHeight: "325px",
   backgroundColor:
-    workspaceVariant === "regular" ? "rgba(244, 244, 244, 1)" : "#ffffff",
+    workspaceVariant === "regular" ? "#F4F4F4" : "#ffffff",
   cursor: disabled ? "not-allowed" : "pointer",
   borderRadius: "10px",
   border: disabled
@@ -89,7 +89,8 @@ export const StyledDescription = styled(Typography)(() => ({
   textAlign: "left",
   textUnderlinePosition: "from-font",
   textDecorationSkipInk: "none",
-  color: "#333333"
+  color: "#053204",
+  marginTop: "12px",
 }));
 
 export const StyledBottomContainer = styled("div")(() => ({

@@ -21,7 +21,8 @@ import { z } from "zod";
 const propertySchema = z
   .object({
     type: z.string(),
-    format: z.string().optional(),
+    // NOTICE: We are adopting Gemini's format which only supports 'enum' and 'date-time'
+    format: z.enum(["enum", "date-time"]).optional(),
     pattern: z.string().optional()
   })
   .refine(

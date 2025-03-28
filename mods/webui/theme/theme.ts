@@ -109,7 +109,8 @@ const fnLight = createTheme({
       "900": "#27150C"
     },
     text: {
-      primary: "#555"
+      primary: "#333333",
+      secondary: "#555555"
     },
     divider: "#E8E8E8",
     inputBorder: "#C2C2C2",

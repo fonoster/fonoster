@@ -18,7 +18,7 @@
  */
 type TermsProps = {
   title?: string;
-  message: string;
+  message?: string;
   open: boolean;
   onClose: () => void;
 };

@@ -17,8 +17,8 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   workspaces: [],
   selectedWorkspace: null,
   isLoading: true,
-  refreshWorkspaces: async () => {},
-  handleSetSelectedWorkspace: () => {}
+  refreshWorkspaces: async () => { },
+  handleSetSelectedWorkspace: () => { }
 });
 
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -38,18 +38,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (isReady && !authChecked) {
       setAuthChecked(true);
-      if (isAuthenticated) {
-        refreshWorkspaces();
-      }
+
+      refreshWorkspaces();
     }
-  }, [isReady, isAuthenticated, authChecked, router]);
+  }, [isReady, authChecked, router]);
 
   const refreshWorkspaces = async () => {
     if (!isReady) {
-      return;
-    }
-
-    if (!isAuthenticated) {
       return;
     }
 
@@ -58,13 +53,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await listWorkspaces();
       if (response?.items) {
         setWorkspaces(response.items);
-      } else {
       }
     } catch (error) {
+      //notify error
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
+      setIsLoading(false);
     }
   };
 

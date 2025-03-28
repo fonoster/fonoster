@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Box, Divider, Stack } from "@mui/material";
-import { GitHub as GitHubIcon } from "@mui/icons-material";
 import {
   Layout,
   PageContainer,
@@ -19,6 +18,7 @@ import { AuthProvider } from "@/common/sdk/auth/AuthClient";
 import { OAUTH_CONFIG } from "@/config/oauth";
 import { Typography } from "@stories/typography/Typography";
 import { Link } from "@/common/components";
+import { ErrorType, useNotification } from "@/common/hooks/useNotification";
 
 interface LoginForm {
   email: string;
@@ -36,6 +36,8 @@ const LoginPage = () => {
   const router = useRouter();
   const { authentication } = useFonosterClient();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const { notifyError, NotificationComponent } = useNotification();
+
   const methods = useForm<LoginForm>({
     defaultValues: {
       email: "",
@@ -48,7 +50,7 @@ const LoginPage = () => {
   const {
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting, isValid }
+    formState: { isSubmitting, isValid }
   } = methods;
 
   const handleGitHubSignIn = () => {
@@ -73,6 +75,7 @@ const LoginPage = () => {
       });
       await router.replace("/workspace/");
     } catch (error) {
+      notifyError(error as ErrorType);
       setError("root", {
         type: "manual",
         message:
@@ -81,10 +84,6 @@ const LoginPage = () => {
     } finally {
       setIsRedirecting(false);
     }
-  };
-
-  const handleSignUpClick = () => {
-    router.push("/signup");
   };
 
   return (
@@ -112,11 +111,6 @@ const LoginPage = () => {
             <Box sx={{ textAlign: "right", mb: 2 }}>
               <Link href="/forgot-password" label="Forgot password?" />
             </Box>
-            {errors.root && errors.root.message && (
-              <Typography variant="body-small" color="error">
-                {errors.root.message}
-              </Typography>
-            )}
             <Button
               onClick={handleSubmit(onSubmit)}
               fullWidth
@@ -135,7 +129,6 @@ const LoginPage = () => {
               fullWidth
               variant="outlined"
               size="large"
-              startIcon={<GitHubIcon />}
               onClick={handleGitHubSignIn}
               disabled={isRedirecting}
             >
@@ -151,15 +144,12 @@ const LoginPage = () => {
                 <Typography variant="body-small" color="text.secondary">
                   Don't have an account?
                 </Typography>
-                <Typography variant="body-small" onClick={handleSignUpClick}>
-                  Sign up
-                </Typography>
-
-                <Link href="/signup" label="here" />
+                <Link href="/signup" label="Sign up" />
               </Stack>
             </Box>
           </Content>
         </Card>
+        <NotificationComponent />
       </PageContainer>
     </Layout>
   );

@@ -56,6 +56,7 @@ const getActorInput = () => ({
       stop: sandbox.stub().resolves(),
       onData: sandbox.stub()
     }),
+    playDtmf: sandbox.stub().resolves(),
     stopSpeech: sandbox.stub().resolves(),
     say: sandbox.stub().resolves(),
     hangup: sandbox.stub().resolves()
@@ -212,7 +213,7 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
-  it("should timeout three times and then hangup", async function () {
+  it("should idletimeout and then hangup", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
 

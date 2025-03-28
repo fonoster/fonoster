@@ -38,6 +38,7 @@ type Voice = {
   answer: () => Promise<void>;
   hangup: () => Promise<void>;
   say: (text: string) => Promise<void>;
+  playDtmf: (dtmf: string) => Promise<void>;
   sgather: () => Promise<GatherStream>;
   transfer: (destination: string, options?: TransferOptions) => Promise<void>;
   stream: () => Promise<Stream>;

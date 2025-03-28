@@ -19,8 +19,8 @@
 import { BaseModelParams } from "../types";
 
 enum GroqModel {
-  LLAMA3_1_8B_INSTANT = "llama-3.1-8b-instant",
-  LLAMA3_3_3_70B_SPECDEC = "llama-3.3-70b-specdec"
+  LLAMA3_3_3_70B_SPECDEC = "llama-3.3-70b-specdec",
+  LLAMA3_3_3_70B_VERSATILE = "llama-3.3-70b-versatile"
 }
 
 type GroqParams = BaseModelParams & {

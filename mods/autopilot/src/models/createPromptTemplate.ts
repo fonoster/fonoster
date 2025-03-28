@@ -32,16 +32,23 @@ export function createPromptTemplate(params: {
   const { firstMessage, systemPrompt, telephonyContext } = params;
 
   return ChatPromptTemplate.fromMessages([
-    new MessagesPlaceholder("history"),
-    SystemMessagePromptTemplate.fromTemplate(`firstMessage: ${firstMessage}`),
-    SystemMessagePromptTemplate.fromTemplate(systemPrompt),
-    SystemMessagePromptTemplate.fromTemplate("{context}"),
     SystemMessagePromptTemplate.fromTemplate(
-      `callReceivedAt:${new Date().toISOString()}
-       ingressNumber:${telephonyContext.ingressNumber}
-       callerNumber:${telephonyContext.callerNumber}
-       callDirection:${telephonyContext.callDirection}`
+      `${systemPrompt}
+
+       [First Message from System]
+       ${firstMessage}
+
+       [Context]
+       {context}
+
+       [Call Information]
+       callReceivedAt: ${new Date().toISOString()}
+       ingressNumber: ${telephonyContext.ingressNumber}
+       callerNumber: ${telephonyContext.callerNumber}
+       callDirection: ${telephonyContext.callDirection}
+       `
     ),
+    new MessagesPlaceholder("history"),
     HumanMessagePromptTemplate.fromTemplate("{input}")
   ]);
 }

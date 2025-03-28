@@ -4,7 +4,7 @@ import { FormProvider, UseFormReturn } from "react-hook-form";
 import { Typography } from "@stories/typography/Typography";
 import { TypographyVariant } from "@stories/typography/types";
 
-const HEADER_HEIGHT = 80;
+const HEADER_HEIGHT = 75;
 const HEADER_TO_CONTENT_SPACING = 44;
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -40,8 +40,9 @@ export const PageContainer = styled(Container)(({ theme }) => ({
   flex: 1,
   display: "flex",
   flexDirection: "column",
+  justifyContent: "center",
   alignItems: "center",
-  maxWidth: "100%!important",
+  maxWidth: "100% !important",
   marginTop: HEADER_HEIGHT + HEADER_TO_CONTENT_SPACING,
   padding: theme.spacing(3)
 }));
@@ -75,26 +76,28 @@ export const Content = ({
 }: AuthContentProps) => {
   return (
     <>
-      <Typography
-        variant="heading-large"
-        sx={{
-          marginBottom: description ? 10 : 6,
-          color: "text.primary",
-          textAlign: "center"
-        }}
-      >
-        {title}
-      </Typography>
-      {typeof description === "string" ? (
+      <Stack spacing={2} sx={{ width: "100%" }} marginBottom={4}>
         <Typography
-          variant={descriptionFontSize}
-          sx={{ color: "text.secondary", textAlign: "center" }}
+          variant="heading-large"
+          sx={{
+            marginBottom: description ? 10 : 6,
+            color: "text.primary",
+            textAlign: "center"
+          }}
         >
-          {description}
+          {title}
         </Typography>
-      ) : (
-        description
-      )}
+        {typeof description === "string" ? (
+          <Typography
+            variant={descriptionFontSize}
+            sx={{ color: "text.secondary", textAlign: "center" }}
+          >
+            {description}
+          </Typography>
+        ) : (
+          description
+        )}
+      </Stack>
       <Stack spacing={3} sx={{ width: "100%" }}>
         {children}
       </Stack>
@@ -113,8 +116,10 @@ export const Layout = ({ children, methods }: LayoutProps) => {
       sx={{
         backgroundColor: "background.default",
         minHeight: "100vh",
+        height: "100%",
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        justifyContent: "center"
       }}
     >
       <Header />

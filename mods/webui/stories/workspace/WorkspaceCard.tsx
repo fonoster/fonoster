@@ -79,7 +79,7 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
       workspaceVariant={variant}
     >
       <StyledCardContentContainer>
-        <CardContent sx={{ flexGrow: 1, alignContent: "end" }}>
+        <CardContent sx={{ flexGrow: 1, alignContent: "end", padding: 0, paddingBottom: "0 !important" }}>
           {region && <RegionLabel children={region} type="landing-page" />}
           {description && <StyledDescription>{description}</StyledDescription>}
           <StyledBottomContainer>

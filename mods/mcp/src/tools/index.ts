@@ -18,12 +18,14 @@
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
+  CreateCallBatchSchema,
   CreateCallSchema,
   ListApplicationsSchema,
   ListNumbersSchema
 } from "../schemas";
 import { createClient } from "../utils/createClient";
 import { createCreateCall } from "./createCreateCall";
+import { createCreateCallBatch } from "./createCreateCallBatch";
 import { createListApplications } from "./createListApplications";
 import { createListNumbers } from "./createListNumbers";
 
@@ -35,7 +37,6 @@ import { createListNumbers } from "./createListNumbers";
 export async function registerTools(server: McpServer) {
   const client = await createClient();
 
-  // Register the listNumbers tool
   server.tool(
     "list_numbers",
     "Returns a list of numbers from Fonoster in a table format (using markdown)",
@@ -43,7 +44,6 @@ export async function registerTools(server: McpServer) {
     createListNumbers(client)
   );
 
-  // Register the listApplications tool
   server.tool(
     "list_applications",
     "Lists applications from Fonoster in a table format (using markdown)",
@@ -51,11 +51,17 @@ export async function registerTools(server: McpServer) {
     createListApplications(client)
   );
 
-  // Register the createCall tool
   server.tool(
     "create_call",
     "Creates a call from Fonoster",
     CreateCallSchema.shape,
     createCreateCall(client)
+  );
+
+  server.tool(
+    "create_call_batch",
+    "Creates a batch of calls from Fonoster",
+    CreateCallBatchSchema.shape,
+    createCreateCallBatch(client)
   );
 }

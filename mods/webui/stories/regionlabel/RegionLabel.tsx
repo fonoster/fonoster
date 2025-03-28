@@ -39,7 +39,7 @@ export const RegionLabel = ({
           display: "flex",
           height: "16px",
           flexDirection: "column",
-          justifyContent: "center"
+          justifyContent: "center",
         }}
       >
         {children}

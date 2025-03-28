@@ -45,7 +45,7 @@ export const NavButton = (props: NavButtonProps) => {
           <StyledNotificationsIcon
             sx={{
               color: isOpen
-                ? theme.palette.warning[50]
+                ? theme.palette.primary[200]
                 : theme.palette.primary[800]
             }}
           />

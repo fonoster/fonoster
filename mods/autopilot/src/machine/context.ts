@@ -46,7 +46,8 @@ const context = ({
   maxSpeechWaitTimeout: input.conversationSettings.maxSpeechWaitTimeout,
   isSpeaking: false,
   sessionStartTime: Date.now(),
-  maxSessionDuration: input.conversationSettings.maxSessionDuration
+  maxSessionDuration: input.conversationSettings.maxSessionDuration,
+  initialDtmf: input.conversationSettings.initialDtmf
 });
 
 export { context };

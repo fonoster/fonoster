@@ -49,5 +49,37 @@
     "credentials": {
       "apiKey": "REDACTED"
     }
+  },
+  {
+    "name": "Groq Large Language Models",
+    "productRef": "llm.groq",
+    "type": "llm",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
+  },
+  {
+    "name": "Open AI Large Language Models",
+    "productRef": "llm.openai",
+    "type": "llm",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
+  },
+  {
+    "name": "Anthropic Large Language Models",
+    "productRef": "llm.anthropic",
+    "type": "llm",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
+  },
+  {
+    "name": "Google Large Language Models",
+    "productRef": "llm.google",
+    "type": "llm",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
   }
 ]

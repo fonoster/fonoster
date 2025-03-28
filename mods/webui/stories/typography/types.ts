@@ -33,7 +33,7 @@ type TypographyVariant =
 
 type TypographyProps = {
   variant?: TypographyVariant;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   color?: string;
   [key: string]: any;
 };
