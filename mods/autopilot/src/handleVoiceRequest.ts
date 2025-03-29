@@ -57,7 +57,8 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     ingressNumber,
     sessionRef,
     appRef,
-    callDirection
+    callDirection,
+    metadata
   } = req;
 
   logger.verbose("voice request", {
@@ -65,7 +66,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     ingressNumber,
     sessionRef,
     appRef,
-    metadata: req.metadata
+    metadata
   });
 
   const assistantConfig =
@@ -111,7 +112,8 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     telephonyContext: {
       callDirection,
       ingressNumber,
-      callerNumber
+      callerNumber,
+      metadata
     }
   });
 

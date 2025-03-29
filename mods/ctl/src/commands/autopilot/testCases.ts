@@ -28,9 +28,7 @@ import { Flags } from "@oclif/core";
 import * as yaml from "js-yaml";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
-export default class AutopilotTestsCases extends AuthenticatedCommand<
-  typeof AutopilotTestsCases
-> {
+export default class TestCases extends AuthenticatedCommand<typeof TestCases> {
   static override readonly description =
     "experimental command to test an Autopilot's behavior";
 
@@ -48,7 +46,7 @@ export default class AutopilotTestsCases extends AuthenticatedCommand<
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(AutopilotTestsCases);
+    const { flags } = await this.parse(TestCases);
 
     const fileContent = fs.readFileSync(flags.file, "utf8");
     const extension = path.extname(flags.file).toLowerCase();

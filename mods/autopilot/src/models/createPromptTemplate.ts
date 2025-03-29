@@ -22,6 +22,7 @@ import {
   MessagesPlaceholder,
   SystemMessagePromptTemplate
 } from "@langchain/core/prompts";
+import { createSystemPrompt } from "./createSystemPrompt";
 import { TelephonyContext } from "./types";
 
 export function createPromptTemplate(params: {
@@ -33,20 +34,11 @@ export function createPromptTemplate(params: {
 
   return ChatPromptTemplate.fromMessages([
     SystemMessagePromptTemplate.fromTemplate(
-      `${systemPrompt}
-
-       [First Message from System]
-       ${firstMessage}
-
-       [Context]
-       {context}
-
-       [Call Information]
-       callReceivedAt: ${new Date().toISOString()}
-       ingressNumber: ${telephonyContext.ingressNumber}
-       callerNumber: ${telephonyContext.callerNumber}
-       callDirection: ${telephonyContext.callDirection}
-       `
+      createSystemPrompt({
+        firstMessage,
+        systemPrompt,
+        telephonyContext
+      })
     ),
     new MessagesPlaceholder("history"),
     HumanMessagePromptTemplate.fromTemplate("{input}")

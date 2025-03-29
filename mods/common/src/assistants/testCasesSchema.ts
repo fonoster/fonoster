@@ -36,7 +36,8 @@ const testCasesSchema = z.object({
       telephonyContext: z.object({
         callDirection: z.nativeEnum(CallDirection),
         ingressNumber: z.string(),
-        callerNumber: z.string()
+        callerNumber: z.string(),
+        metadata: z.record(z.string(), z.string())
       }),
       conversation: z.array(
         z.object({
