@@ -82,7 +82,12 @@ async function makeCall() {
       to: "+17853178070",
       // Replace with your application reference
       appRef: "4b01c9b1-8cb1-48fb-bd49-f3daf13463a9",
-      timeout: 30
+      timeout: 30,
+      // This will be available in the initial request sent to your application.
+      metadata: {
+        name: "John Doe",
+        preferredLanguage: "en-US"
+      }
     });
 
     console.log(`Call created with reference: ${ref}`);
@@ -121,6 +126,7 @@ fonoster sipnet:calls:create \
   --app-ref 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 \ # Replace with your application reference
   --from +18287854037 \
   --to +17853178070
+  --metadata '{"name": "John Doe", "preferredLanguage": "en-US"}'
 ```
 
 ## Call status monitoring
