@@ -50,7 +50,7 @@ type TelephonyContext = {
   callDirection: CallDirection;
   ingressNumber: string;
   callerNumber: string;
-  metadata: Record<string, string>;
+  metadata?: Record<string, string>;
 };
 
 export {
