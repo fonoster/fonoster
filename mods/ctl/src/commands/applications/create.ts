@@ -20,15 +20,37 @@ import { WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
 import { CreateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
+import { Flags } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import errorHandler from "../../errorHandler";
+import { createOrUpdateApplication } from "../../utils/createOrUpdateApplication";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description =
     "add a new Application to the active Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
+  static override readonly flags = {
+    "from-file": Flags.string({
+      char: "f",
+      description: "create Application from YAML or JSON file"
+    })
+  };
 
   public async run(): Promise<void> {
+    const { flags } = await this.parse(Create);
+    const client = await this.createSdkClient();
+
+    if (flags["from-file"]) {
+      try {
+        await createOrUpdateApplication(client, flags["from-file"] as string);
+        this.log("Done!");
+        return;
+      } catch (e) {
+        errorHandler(e, this.error.bind(this));
+        return;
+      }
+    }
+
     this.log("This utility will help you create an Application.");
     this.log("Press ^C at any time to quit.");
 
@@ -134,12 +156,9 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     };
 
     try {
-      const client = await this.createSdkClient();
       const applications = new SDK.Applications(client);
 
-      await applications.createApplication(
-        answers as unknown as CreateApplicationRequest
-      );
+      await applications.createApplication(answers as CreateApplicationRequest);
 
       this.log("Done!");
     } catch (e) {

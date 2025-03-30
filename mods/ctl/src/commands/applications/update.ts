@@ -19,9 +19,10 @@
 import * as SDK from "@fonoster/sdk";
 import { UpdateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
-import { Args } from "@oclif/core";
+import { Args, Flags } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import errorHandler from "../../errorHandler";
+import { createOrUpdateApplication } from "../../utils/createOrUpdateApplication";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description =
@@ -34,9 +35,33 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     })
   };
 
+  static override readonly flags = {
+    "from-file": Flags.string({
+      char: "f",
+      description: "update Application from YAML or JSON file"
+    })
+  };
+
   public async run(): Promise<void> {
-    const { args } = await this.parse(Update);
+    const { args, flags } = await this.parse(Update);
     const { ref } = args;
+
+    if (flags["from-file"]) {
+      try {
+        const client = await this.createSdkClient();
+        await createOrUpdateApplication(
+          client,
+          flags["from-file"] as string,
+          ref
+        );
+        this.log("Done!");
+        return;
+      } catch (e) {
+        errorHandler(e, this.error.bind(this));
+        return;
+      }
+    }
+
     const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
     const applicationFromDB = await applications.getApplication(args.ref);

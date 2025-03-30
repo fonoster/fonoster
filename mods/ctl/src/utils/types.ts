@@ -31,4 +31,15 @@ type TwilioTrunkParams = {
   aclEntries: string[];
 };
 
-export { LinkTwilioNumberToApplicationParams, TwilioTrunkParams };
+type AppConfig = {
+  testCases?: unknown;
+  intelligence: {
+    config: {
+      languageModel: {
+        apiKey?: string;
+      };
+    };
+  };
+};
+
+export { LinkTwilioNumberToApplicationParams, TwilioTrunkParams, AppConfig };
