@@ -38,7 +38,8 @@ const WorkspaceGrid = styled(Box)(({ theme }) => ({
 
 const ListWorkspacePage = () => {
   const router = useRouter();
-  const { workspaces, refreshWorkspaces } = useWorkspaceContext();
+  const { workspaces, refreshWorkspaces, handleSetSelectedWorkspace } =
+    useWorkspaceContext();
   const { setAccessKeyId } = useFonosterClient();
   const { loggedUser } = useUser();
   const [user, setUser] = useState<User | null>(null);
@@ -66,6 +67,7 @@ const ListWorkspacePage = () => {
 
   const handleWorkspaceClick = (workspaceId: string) => {
     setAccessKeyId(workspaceId);
+    handleSetSelectedWorkspace(workspaceId);
     router.push(`/workspace/${workspaceId}/overview`);
   };
 

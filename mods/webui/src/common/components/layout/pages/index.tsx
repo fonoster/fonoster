@@ -1,12 +1,12 @@
 import { ReactNode } from "react";
 import { Box, Stack } from "@mui/material";
 import { ColumnDef } from "@tanstack/react-table";
-import ReactTable from "@/common/contexts/table/ReactTable";
+import ReactTable from "@stories/table/ReactTable";
 import { FormProvider, UseFormReturn } from "react-hook-form";
 import { LinkBackTo } from "@stories/linkbackto/LinkBackTo";
 import { Typography } from "@stories/typography/Typography";
 import React from "react";
-import { TableOptions } from "@/common/contexts/table/TableComponent";
+import { TableOptions } from "@stories/table/TableComponent";
 
 interface PageContainerProps {
   children: ReactNode;
@@ -33,6 +33,7 @@ interface ContentProps<T extends object> {
   showSearch?: boolean;
   showPagination?: boolean;
   showSelectAll?: boolean;
+  onRowSelection?: (row: T) => void;
   options?: TableOptions;
 }
 
@@ -83,28 +84,25 @@ function ContentTable<T extends object>({
   showFilters = true,
   showSearch = true,
   showPagination = true,
-  showSelectAll = true,
+  showSelectAll = false,
+  onRowSelection,
   options
 }: ContentProps<T>) {
   return (
-    <ReactTable<T>
-      columns={columns}
-      enableRowSelection={options?.enableRowSelection}
-    >
+    <ReactTable<T> columns={columns} enableRowSelection={showSelectAll}>
       <ReactTable.Header>
         {showSelectAll && <ReactTable.Header.SelectAll />}
         {showFilters && <ReactTable.Header.Filter />}
-        {showSearch && (
-          <ReactTable.Header.Search
-            value={""}
-            onChange={() => {}}
-            placeholder="Search..."
-          />
-        )}
+        {showSearch && <ReactTable.Header.Search />}
         {showPagination && <ReactTable.Header.Pagination />}
       </ReactTable.Header>
       <Box sx={{ mb: 0, mt: 1 }} />
-      <ReactTable.Content id={tableId} options={options} />
+      <ReactTable.Content
+        id={tableId}
+        options={options}
+        enableRowSelection={showSelectAll}
+        onRowSelection={onRowSelection}
+      />
       {children}
     </ReactTable>
   );

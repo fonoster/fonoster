@@ -1,26 +1,32 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { Credentials } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
+import { useCredential } from "@/common/sdk/hooks/useCredential";
+import { QueryData } from "@stories/table/QueryData";
+import { Icon } from "@stories/icon/Icon";
+import { Button } from "@stories/button/Button";
 
 const columns: ColumnDef<Credentials>[] = [
   {
-    accessorKey: "name",
+    id: "name",
     header: "Name",
-    cell: (info: any) => info.getValue()
+    cell: (info: { row: { original: Credentials } }) => info.row.original.name
   },
   {
-    accessorKey: "username",
+    id: "username",
     header: "Username",
-    cell: (info: any) => info.getValue()
+    cell: (info: { row: { original: Credentials } }) =>
+      info.row.original.username
   }
 ];
 
 export default function CredentialsPage() {
   const router = useRouter();
   const { selectedWorkspace } = useWorkspaceContext();
+
+  const { listCredentials } = useCredential();
 
   const handleNew = () => {
     router.push(
@@ -33,7 +39,11 @@ export default function CredentialsPage() {
       <PageContainer.Header
         title="Credentials"
         actions={
-          <Button variant="contained" onClick={handleNew}>
+          <Button
+            variant="outlined"
+            onClick={handleNew}
+            endIcon={<Icon fontSize="small" name="Add" />}
+          >
             Create New Credential
           </Button>
         }
@@ -45,7 +55,10 @@ export default function CredentialsPage() {
       <PageContainer.ContentTable<Credentials>
         columns={columns}
         tableId="credential-table"
-      />
+        showSelectAll={true}
+      >
+        <QueryData<Credentials> fetchFunction={listCredentials} pageSize={10} />
+      </PageContainer.ContentTable>
     </PageContainer>
   );
 }

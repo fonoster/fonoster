@@ -5,10 +5,9 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { Layout as LayoutAuth } from "@/common/components/layout/auth/Layout";
 import { FonosterProvider } from "@/common/sdk/provider/FonosterContext";
 import { WorkspaceProvider } from "@/common/sdk/provider/WorkspaceContext";
-import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import type { AppProps } from "next/app";
-import { fnLight } from "@theme/theme";
+import { ThemeProviderWrapper } from "@theme/ThemeProvider";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -24,7 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <AppRouterCacheProvider>
-      <ThemeProvider theme={fnLight}>
+      <ThemeProviderWrapper>
         <CssBaseline />
         <Head>
           <meta
@@ -43,7 +42,7 @@ export default function App({ Component, pageProps }: AppProps) {
             </WorkspaceProvider>
           )}
         </FonosterProvider>
-      </ThemeProvider>
+      </ThemeProviderWrapper>
     </AppRouterCacheProvider>
   );
 }

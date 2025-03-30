@@ -136,6 +136,9 @@ export function TableProvider<TData>({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [localColumnFilters, setLocalColumnFilters] =
     useState<ColumnFiltersState>([]);
+  const [localSorting, setLocalSorting] = useState<SortingState>(
+    initialState.sorting || []
+  );
 
   const table = useReactTable<TData>({
     columns,
@@ -148,14 +151,20 @@ export function TableProvider<TData>({
         pageSize: perPage
       },
       columnFilters: localColumnFilters,
-      sorting: initialState.sorting || [],
+      sorting: localSorting,
       rowSelection
     },
     onColumnFiltersChange: setLocalColumnFilters,
+    onSortingChange: (updater) => {
+      console.log("onSortingChange called with:", updater);
+      const newValue = typeof updater === 'function' ? updater(localSorting) : updater;
+      console.log("New sorting value:", newValue);
+      setLocalSorting(newValue);
+    },
     onRowSelectionChange: setRowSelection,
     autoResetPageIndex: false,
     manualFiltering,
-    manualSorting,
+    manualSorting: false, // Change to false to allow internal sorting state updates
     manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -293,7 +302,7 @@ export function TableProvider<TData>({
         totalPages: table.getPageCount(),
         pageIndex: table.getState().pagination.pageIndex,
         pageSize: table.getState().pagination.pageSize,
-        sortBy: table.getState().sorting,
+        sortBy: localSorting,
         reset: table.reset,
         getState: table.getState,
         setState: table.setState,

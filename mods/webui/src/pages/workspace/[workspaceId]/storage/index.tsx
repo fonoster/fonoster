@@ -1,55 +1,89 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { Agent } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@stories/button/Button";
+import { Icon } from "@stories/icon/Icon";
+import { QueryData } from "@stories/table/QueryData";
+import { usePaginatedData } from "@/common/hooks/usePaginatedData";
 
 const columns: ColumnDef<Agent>[] = [
   {
-    accessorKey: "name",
+    id: "name",
     header: "Name",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: any } }) => props.row.original.name
   },
   {
-    accessorKey: "size",
+    id: "size",
     header: "Size",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: any } }) => props.row.original.size
   },
   {
-    accessorKey: "fileType",
+    id: "fileType",
     header: "File Type",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: any } }) => props.row.original.fileType
   },
   {
-    accessorKey: "lastModified",
+    id: "lastModified",
     header: "Last Modified",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: any } }) => props.row.original.lastModified
   },
   {
-    accessorKey: "info",
+    id: "info",
     header: "Info",
-    cell: (info: any) => info.getValue()
+    cell: (props: { row: { original: any } }) => (
+      <Icon fontSize="small" name="Info" />
+    )
   }
 ];
 
 export default function StoragePage() {
+  // Handle Fake data - make sure all required Domain properties are non-optional
+  const { listItems } = usePaginatedData<any>({
+    generateFakeData: (index: number) => ({
+      ref: `domain-${index}`,
+      name: `Domain ${index + 1}`, // This is required to be non-optional
+      size: `123-${index}MB`,
+      fileType: `Audio/WAV`,
+      lastModified: new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      }).format(new Date(Date.now() - index * 86400000)),
+      createdAt: new Date(Date.now() - index * 86400000),
+      updatedAt: new Date(Date.now() - index * 43200000)
+    }),
+    totalItems: 30,
+    defaultPageSize: 10
+  });
+
   return (
     <PageContainer>
       <PageContainer.Header
         title="Storage"
         actions={
-          <Button variant="contained" onClick={() => {}}>
+          <Button
+            variant="contained"
+            onClick={() => {}}
+            endIcon={<Icon fontSize="small" name="Upload" />}
+          >
             Upload New File
           </Button>
         }
       />
       <PageContainer.Subheader>
-        Manage your storage resources and configurations.
+        Here is where your recordings and play files live.
       </PageContainer.Subheader>
 
-      <PageContainer.ContentTable<Agent>
+      <PageContainer.ContentTable<any>
         columns={columns}
         tableId="storage-table"
-      />
+        showSelectAll={true}
+        options={{
+          enableRowSelection: true
+        }}
+      >
+        <QueryData<any> fetchFunction={listItems} pageSize={10} />
+      </PageContainer.ContentTable>
     </PageContainer>
   );
 }
