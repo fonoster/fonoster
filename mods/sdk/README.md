@@ -1007,6 +1007,7 @@ Creates a new Call in the Workspace.
 | request.to | <code>string</code> | The number that received the call |
 | request.appRef | <code>string</code> | The reference of the App that will handle the call |
 | request.timeout | <code>number</code> | The time in seconds to wait for the call to be answered. Default is 60 seconds |
+| request.metadata | <code>Record.&lt;string, string&gt;</code> | Optional metadata to be sent to the App. For Autopilot applications, this is added to the context of the conversation. |
 
 **Example**  
 ```js
@@ -1016,7 +1017,11 @@ const request = {
   from: "+18287854037",
   to: "+17853178070",
   appRef: "00000000-0000-0000-0000-000000000000",
-  timeout: 30
+  timeout: 30,
+  metadata: {
+    "name": "John Doe",
+    "preferredLanguage": "en-US"
+  }
 };
 
 const response = await calls.createCall(request);
