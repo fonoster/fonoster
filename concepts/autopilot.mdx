@@ -5,7 +5,7 @@ description: "Voice applications powered by LLMs."
 
 <Note>
   The Autopilot is currently in overview mode and the KnowledgeBase features have been disabled.
-</Note> 
+</Note>
 
 Fonoster's Autopilot is a component within the platform that allows you to create powerful conversational experiences. It is built on top of Fonoster [Programmable Voice](./programmable-voice) and uses the latest advances in Large Language Models (LLMs) to provide a natural and engaging experience.
 
@@ -73,26 +73,26 @@ The _conversationSettings_ object allows you to define the Autopilot's conversat
 
 The following is a list of the supported settings:
 
-| Setting                     | Description                                                                                                     | Default Value        |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------- |
-| firstMessage                | The first message the Autopilot will say when the conversation starts                                           |                      |
-| systemPrompt                | A prompt that describes the behavior of the Autopilot and sets the context of the conversation                  |                      |
-| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                         |                      |
-| maxSessionDuration          |                                                                                                                 | 1800000 (30 minutes) |
-| maxSpeechWaitTimeout        |                                                                                                                 | 0                    |
-| initialDtmf                 | A DTMF to play prior to starting the conversation                                                               |                      | 
-| transferOptions             | The options to transfer the call to a live agent                                                                |                      |
-| transferOptions.phoneNumber | The phone number to transfer the call to                                                                        |                      |
-| transferOptions.message     | The message to play before transferring the call                                                                |                      |
-| transferOptions.timeout     |                                                                                                                 | 30000                |
-| idleOptions                 | The options to handle idle time during the conversation                                                         |                      |
-| idleOptions.message         | The message to play after the idle time is reached                                                              |                      |
-| idleOptions.timeout         |                                                                                                                 | 10000                |
-| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                          | 2                    |
-| vad                         | The voice activity detection settings                                                                           |                      |
-| vad.activationThreshold     |                                                                                                                 | 0.4                  |
-| vad.deactivationThreshold   |                                                                                                                 | 0.25                 |
-| vad.debounceFrames          |                                                                                                                 | 4                    |
+| Setting                     | Description                                                                                    | Default Value        |
+| --------------------------- | ---------------------------------------------------------------------------------------------- | -------------------- |
+| firstMessage                | The first message the Autopilot will say when the conversation starts                          |                      |
+| systemPrompt                | A prompt that describes the behavior of the Autopilot and sets the context of the conversation |                      |
+| systemErrorMessage          | The message the Autopilot will say when an error occurs                                        |                      |
+| maxSessionDuration          |                                                                                                | 1800000 (30 minutes) |
+| maxSpeechWaitTimeout        |                                                                                                | 0                    |
+| initialDtmf                 | A DTMF to play prior to starting the conversation                                              |                      |
+| transferOptions             | The options to transfer the call to a live agent                                               |                      |
+| transferOptions.phoneNumber | The phone number to transfer the call to                                                       |                      |
+| transferOptions.message     | The message to play before transferring the call                                               |                      |
+| transferOptions.timeout     |                                                                                                | 30000                |
+| idleOptions                 | The options to handle idle time during the conversation                                        |                      |
+| idleOptions.message         | The message to play after the idle time is reached                                             |                      |
+| idleOptions.timeout         |                                                                                                | 10000                |
+| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call         | 2                    |
+| vad                         | The voice activity detection settings                                                          |                      |
+| vad.activationThreshold     |                                                                                                | 0.4                  |
+| vad.deactivationThreshold   |                                                                                                | 0.25                 |
+| vad.debounceFrames          |                                                                                                | 4                    |
 
 A few noteworthy settings include the _maxSpeechWaitTimeout_, _initialDtmf_, _idleOptions_, and _vad_.
 
@@ -139,15 +139,15 @@ The following is a list of the supported settings:
 
 The Autopilot supports multiple language model providers. The following is a list of the supported providers:
 
-| Provider  | Description                                                | Supported models                                                          |
-| --------- | ---------------------------------------------------------- | ------------------------------------------------------------------------- |
-| OpenAI    | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo`                   |
-| Groq      | Groq offers high-performance AI models optimized for speed | `llama-3.3-70b-specdec`, `llama-3.3-70b-versatile`                        |
-| Google    | Google offers various LLM models for conversational AI     | `gemini-2.0-flash`, `gemini-2.0-flash-lite`, `gemini-2.0-pro-exp-02-05`   |
-| Anthropic | Anthropic offers various LLM models for conversational AI  | `claude-3-5-haiku-latest`, `claude-3-7-sonnet-latest`                     |
+| Provider  | Description                                                | Supported models                                                        |
+| --------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- |
+| OpenAI    | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`, `gpt-4-turbo`                 |
+| Groq      | Groq offers high-performance AI models optimized for speed | `llama-3.3-70b-specdec`, `llama-3.3-70b-versatile`                      |
+| Google    | Google offers various LLM models for conversational AI     | `gemini-2.0-flash`, `gemini-2.0-flash-lite`, `gemini-2.0-pro-exp-02-05` |
+| Anthropic | Anthropic offers various LLM models for conversational AI  | `claude-3-5-haiku-latest`, `claude-3-7-sonnet-latest`                   |
 
 <Info>
-  We have noticed that Groq models, particularly `llama-3.3-70b-versatile`, often require greater prompting specificity for effective tool usage. We will share best practices to ensure more consistent behavior as we gain more insights
+  We have noticed that Groq models, particularly `llama-3.3-70b-versatile`, often require greater prompting specificity for effective tool usage. Also, Google's `gemini-2.0-flash-lite` does not support tool calling. We will share best practices to ensure more consistent behavior as we gain more insights
 </Info>
 
 ### Knowledge bases
@@ -196,7 +196,7 @@ operation:
 ```
 
 <Warning>
-The response from your endpoint must be a JSON object containing a `result` property. For example: `{ "result": "We have open slots for Thursday and Friday." }`
+  The response from your endpoint must be a JSON object containing a `result` property. For example: `{ "result": "We have open slots for Thursday and Friday." }`
 </Warning>
 
 ### Key Components of a Tool Definition:
@@ -266,11 +266,11 @@ testCases:
 
 The `evalsLanguageModel` section defines the model used to evaluate test cases:
 
-| Setting  | Description                                          |
-| -------- | ---------------------------------------------------- |
-| provider | Evaluation provider                                  |
-| model    | The OpenAI model to use for evaluations              |
-| apiKey   | The API key for the evaluation model                 |
+| Setting  | Description                             |
+| -------- | --------------------------------------- |
+| provider | Evaluation provider                     |
+| model    | The OpenAI model to use for evaluations |
+| apiKey   | The API key for the evaluation model    |
 
 <Note>
   The evaluation model is separate from the model used in actual conversations. This separation allows for consistent evaluation results regardless of the production model being used.
@@ -293,16 +293,16 @@ This information is available to the AI model to help it understand the context 
 
 Each scenario contains a series of conversation turns. A turn represents a single interaction between the user and the Autopilot, consisting of:
 
-| Component                 | Description                                                                                                                                                     |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| userInput                 | The text representing what the user says                                                                                                                        |
-| expected                  | The expected response from the Autopilot                                                                                                                        |
-| expected.text             | The expected text response from the Autopilot                                                                                                                   |
-| expected.text.type        |                                                                                                                                                                 |
-| expected.text.response    | The actual text response from the Autopilot                                                                                                                     |
-| expected.tools            | The expected tools to be used in the response                                                                                                                   |
-| expected.tools.tool       | The name of the tool to be used                                                                                                                                 |
-| expected.tools.parameters |                                                                                                                                                                 |
+| Component                 | Description                                   |
+| ------------------------- | --------------------------------------------- |
+| userInput                 | The text representing what the user says      |
+| expected                  | The expected response from the Autopilot      |
+| expected.text             | The expected text response from the Autopilot |
+| expected.text.type        |                                               |
+| expected.text.response    | The actual text response from the Autopilot   |
+| expected.tools            | The expected tools to be used in the response |
+| expected.tools.tool       | The name of the tool to be used               |
+| expected.tools.parameters |                                               |
 
 <Tip>
   Use `type: "similar"` for text responses to allow for natural language variations in the Autopilot's responses while maintaining the same semantic meaning.
