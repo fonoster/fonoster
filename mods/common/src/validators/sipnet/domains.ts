@@ -28,7 +28,7 @@ const domainSchema = z
       return domainRegex.test(domain);
     },
     {
-      message: "Invalid domain format"
+      message: `Invalid domain format. Should be like: "acme.${ROOT_DOMAIN}"`
     }
   )
   .refine(

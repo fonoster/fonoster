@@ -25,4 +25,4 @@ if (process.env.NODE_ENV === "dev") {
 
 const e = process.env;
 
-export const ROOT_DOMAIN = e.ROOT_DOMAIN || "fonoster.local";
+export const ROOT_DOMAIN = e.APISERVER_ROOT_DOMAIN || e.ROOT_DOMAIN || "fonoster.local";
