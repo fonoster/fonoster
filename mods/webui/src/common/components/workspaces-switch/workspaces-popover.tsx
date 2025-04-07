@@ -31,9 +31,9 @@ export function WorkspacesPopover({
   const router = useRouter();
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
-  const secondaryColor = theme.palette.secondary.main;
-  const secondaryColor900 = theme.palette.secondary.dark;
-  const hoverColor = theme.palette.secondary.light;
+  const secondaryColor = theme.palette.secondary["500"];
+  const secondaryColor900 = theme.palette.secondary["900"];
+  const hoverColor = theme.palette.secondary["50"];
   const textColor = theme.palette.text.secondary;
 
   const handleWorkspaceChange = (workspace: Workspace) => {
@@ -62,47 +62,60 @@ export function WorkspacesPopover({
   return (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "left"
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "left"
+      }}
       onClose={onClose}
       open={open}
       sx={{
         "& .MuiPaper-root": {
-          left: "6% !important",
-          transform: "translateX(-47%) !important",
-          [theme.breakpoints.up("xs")]: { top: "120px !important" },
-          [theme.breakpoints.up("sm")]: { top: "136px !important" },
-          [theme.breakpoints.up("md")]: { top: "153px !important" }
+          transform: "translateX(-6.1%) !important"
         }
       }}
       slotProps={{
         paper: {
           sx: {
-            width: "200px",
-            mt: 0,
-            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            boxShadow: "0px 8px 20px -4px rgba(0, 0, 0, 0.10)",
             borderRadius: 0,
             overflow: "hidden",
             padding: 0,
             backgroundColor: "#FFFFFF",
-            borderTop: "none",
-            [theme.breakpoints.up("xs")]: { top: "120px !important" },
-            [theme.breakpoints.up("sm")]: { top: "136px !important" },
-            [theme.breakpoints.up("md")]: { top: "153px !important" }
+            borderTop: "solid 1px #E8E8E8",
+            borderRight: "solid 1px #E8E8E8",
+            margin: "0",
+            marginTop: "0px",
+            width:
+              anchorEl instanceof HTMLElement ? anchorEl.offsetWidth : undefined
+          }
+        },
+        list: {
+          sx: {
+            padding: "0",
+            "& li": {
+              borderBottom: "solid 1px #E8E8E8",
+
+              "&:last-child": {
+                borderBottom: "none"
+              }
+            }
           }
         }
       }}
-      transformOrigin={{ horizontal: "left", vertical: "top" }}
     >
-      {workspaces.flatMap((workspace, index) => {
+      {workspaces.flatMap((workspace) => {
         const isSelected = selectedWorkspace?.ref === workspace.ref;
 
-        const menuItems = [
+        return (
           <MenuItem
             key={`workspace-${workspace.name}`}
             onClick={() => handleWorkspaceChange(workspace)}
             sx={{
-              py: 2,
-              px: 3,
+              padding: "0px 16px 0px 40px",
               display: "flex",
               height: "36px",
               "&:hover": {
@@ -112,10 +125,15 @@ export function WorkspacesPopover({
           >
             <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
               <Typography
-                variant="body-medium"
+                variant="drawer-label"
                 sx={{
-                  color: textColor,
-                  fontWeight: 400
+                  color: textColor
+                }}
+                style={{
+                  display: "-webkit-box",
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  WebkitLineClamp: 1
                 }}
               >
                 {workspace.name}
@@ -123,34 +141,25 @@ export function WorkspacesPopover({
               {isSelected && (
                 <Box
                   sx={{
-                    width: "8px",
-                    height: "8px",
+                    width: "6px",
+                    height: "6px",
                     borderRadius: "50%",
                     backgroundColor: primaryColor,
-                    ml: 1
+                    marginLeft: "4px"
                   }}
                 />
               )}
             </Box>
           </MenuItem>
-        ];
-
-        if (index < workspaces.length - 1) {
-          menuItems.push(
-            <Divider key={`divider-${workspace.name}`} sx={{ margin: "0" }} />
-          );
-        }
-
-        return menuItems;
+        );
       })}
-      <Divider sx={{ margin: "0" }} />
+
       <MenuItem
         onClick={handleNewWorkspace}
         sx={{
-          py: 2,
-          px: 3,
-          color: secondaryColor,
+          padding: "0px 16px 0px 40px",
           height: "36px",
+          color: secondaryColor,
           "&:hover": {
             backgroundColor: hoverColor
           }
@@ -161,17 +170,18 @@ export function WorkspacesPopover({
             display: "flex",
             alignItems: "center",
             width: "100%",
-            justifyContent: "space-between",
+            transition: "color 0.2s",
             "&:hover": {
               color: secondaryColor900
             }
           }}
         >
-          <Typography variant="body-medium">New Workspace</Typography>
+          <Typography variant="drawer-label">New Workspace</Typography>
           <AddOutlinedIcon
             fontSize="small"
             sx={{
-              fontSize: "18px"
+              fontSize: "12px",
+              marginLeft: "4px"
             }}
           />
         </Box>
