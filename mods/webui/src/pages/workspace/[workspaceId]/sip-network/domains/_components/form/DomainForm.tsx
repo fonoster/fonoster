@@ -215,7 +215,7 @@ export default function DomainForm({
   }
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <NotificationComponent />
       <PageContainer.Header
         title={!isEditMode ? "Create New Domain" : "Edit Domain"}

@@ -328,7 +328,7 @@ export default function AgentForm({
   }
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <PageContainer.Header
         title={!isEditMode ? "Create New Agent" : "Edit Agent"}
         backTo={{

@@ -134,7 +134,7 @@ export default function CredentialForm({
   }
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <PageContainer.Header
         title={!isEditMode ? "Create New Credential" : "Edit Credential"}
         backTo={{

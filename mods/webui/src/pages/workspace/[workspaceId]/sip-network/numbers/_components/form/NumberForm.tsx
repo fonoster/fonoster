@@ -281,7 +281,7 @@ export default function NumberForm({
   }
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <PageContainer.Header
         title={!isEditMode ? "Create New Number" : "Edit Number"}
         backTo={{

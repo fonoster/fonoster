@@ -30,7 +30,8 @@ export const Button = (props: ButtonProps) => {
     startIcon,
     endIcon,
     children,
-    onClick
+    onClick,
+    type
   } = props;
   const actualSize = size || "large";
 
@@ -45,6 +46,7 @@ export const Button = (props: ButtonProps) => {
       onClick={onClick}
       size={actualSize}
       disableElevation
+      type={type}
     >
       {children}
     </StyledMuiButton>

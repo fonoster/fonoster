@@ -129,7 +129,7 @@ export default function ApplicationForm({
   }
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <NotificationComponent />
       <PageContainer.Header
         title={isUpdate ? "Edit Application" : "Create New Application"}

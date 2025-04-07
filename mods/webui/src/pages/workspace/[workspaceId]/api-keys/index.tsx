@@ -1,11 +1,11 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button } from "@mui/material";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/router";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { QueryData } from "@stories/table/QueryData";
 import { Icon } from "@stories/icon/Icon";
 import { useAPIKey } from "@/common/sdk/hooks/useAPIKey";
+import { Button } from "@stories/button/Button";
 
 const columns: ColumnDef<any>[] = [
   {

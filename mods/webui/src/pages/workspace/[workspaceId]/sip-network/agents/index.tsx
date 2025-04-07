@@ -1,13 +1,12 @@
 import PageContainer from "@/common/components/layout/pages";
-import { Button, CircularProgress, Box } from "@mui/material";
 import { useRouter } from "next/router";
 import { Agent } from "@fonoster/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
 import { useAgents } from "@/common/sdk/hooks/useAgents";
-import { useEffect, useState } from "react";
 import { QueryData } from "@stories/table/QueryData";
 import { Icon } from "@stories/icon/Icon";
+import { Button } from "@stories/button/Button";
 
 const columns: ColumnDef<Agent>[] = [
   {

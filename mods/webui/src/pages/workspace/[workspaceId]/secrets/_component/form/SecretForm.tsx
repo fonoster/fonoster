@@ -5,9 +5,10 @@ import { InputContext } from "@/common/hooksForm/InputContext";
 import { useState } from "react";
 import { useSecret } from "@/common/sdk/hooks/useSecret";
 import { useRouter } from "next/router";
-import { Alert, Snackbar, Button } from "@mui/material";
+import { Alert, Snackbar } from "@mui/material";
 import PageContainer from "@/common/components/layout/pages";
 import { useWorkspaceContext } from "@/common/sdk/provider/WorkspaceContext";
+import { Button } from "@stories/button/Button";
 
 const secretSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -91,7 +92,7 @@ export default function SecretForm({
   });
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <PageContainer.Header
         title={!isEditMode ? "Create New Secret" : "Edit Secret"}
         backTo={{

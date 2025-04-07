@@ -138,7 +138,7 @@ export default function ACLsForm({
   }
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <PageContainer.Header
         title={!isEditMode ? "Create New ACL" : "Edit ACL"}
         backTo={{

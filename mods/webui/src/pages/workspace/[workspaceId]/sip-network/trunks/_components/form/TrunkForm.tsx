@@ -459,7 +459,7 @@ export default function TrunkForm({
   }
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <NotificationComponent />
       <PageContainer.Header
         title={!isEditMode ? "Create New Trunk" : "Edit Trunk"}

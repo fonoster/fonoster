@@ -42,7 +42,8 @@ type ButtonProps = {
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
 };
 
 export type { ButtonProps, ButtonVariant, OriginalButtonVariant };
