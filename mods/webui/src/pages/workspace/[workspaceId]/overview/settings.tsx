@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Typography, Skeleton } from "@mui/material";
+import { Typography, Skeleton, Stack } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import PageContainer from "@/common/components/layout/pages";
@@ -7,6 +7,7 @@ import { InputContext } from "@/common/hooksForm/InputContext";
 import { SelectContext } from "@/common/hooksForm/SelectContext";
 import { useWorkspaces } from "@/common/sdk/hooks/useWorkspaces";
 import { Workspace } from "@fonoster/types";
+import { Button } from "@stories/button/Button";
 
 const { ContentForm } = PageContainer;
 
@@ -98,7 +99,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <PageContainer>
+    <PageContainer variant="form">
       <PageContainer.Header
         title="Workspace Settings"
         backTo={{
@@ -106,23 +107,22 @@ export default function SettingsPage() {
           onClick: () => router.push(`/workspace/${workspaceId}/overview`)
         }}
         actions={
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={isLoading}
-          >
-            Save Settings
+          <Button type="submit" variant="contained" disabled={isLoading}>
+            Save Workspace Settings
           </Button>
         }
       />
-      <div style={{ transition: "opacity 0.3s ease" }}>
+      <div style={{ transition: "opacity 0.3s ease", marginTop: "42px" }}>
         {isLoading ? (
           <FormSkeleton />
         ) : (
           <ContentForm methods={methods} formId="settings-form">
-            <Typography variant="caption">NYC01</Typography>
-            <Typography variant="h6">{name}</Typography>
+            <Stack sx={{ mb: 1 }}>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                NYC01
+              </Typography>
+              <Typography variant="h6">{name}</Typography>
+            </Stack>
 
             <InputContext
               name="name"

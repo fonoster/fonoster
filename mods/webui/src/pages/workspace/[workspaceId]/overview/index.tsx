@@ -19,11 +19,12 @@ const SectionContainer = styled(Box)(({ theme }) => ({
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
-  fontSize: "0.75rem",
+  fontSize: "11px !important",
   fontWeight: 500,
+  fontFamily: "Roboto Mono !important",
   textTransform: "uppercase",
   letterSpacing: "0.1em",
-  marginBottom: theme.spacing(2)
+  marginBottom: "8px"
 }));
 
 const CardsContainer = styled(Box)(({ theme }) => ({

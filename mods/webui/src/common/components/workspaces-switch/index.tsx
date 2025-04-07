@@ -74,10 +74,12 @@ export function WorkspacesSwitch(): React.JSX.Element {
         ref={popover.anchorRef}
         spacing={2}
         sx={{
+          width: "100%",
           alignItems: "center",
           cursor: "pointer",
-          padding: "0px 2px 0px 28px",
-          minHeight: "42px"
+          padding: "12px 12px 12px 40px",
+          minHeight: "42px",
+          margin: "0"
         }}
       >
         <Box sx={{ flex: "1 1 auto" }}>
@@ -90,6 +92,12 @@ export function WorkspacesSwitch(): React.JSX.Element {
           <Typography
             color="var(--Workspaces-name-color)"
             variant="body-medium"
+            style={{
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              WebkitLineClamp: 1
+            }}
           >
             {selectedWorkspace?.name}
           </Typography>
