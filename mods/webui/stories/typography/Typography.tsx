@@ -26,7 +26,13 @@ import { TypographyProps } from "./types";
 import { variantMapping } from "./variantMapping";
 
 function Typography(props: TypographyProps) {
-  const { variant = "body-medium", children, sx, ...rest } = props;
+  const {
+    variant = "body-medium",
+    children,
+    sx,
+    style: inlineStyles,
+    ...rest
+  } = props;
 
   const { muiVariant, style } = variantMapping[variant];
 
@@ -41,7 +47,8 @@ function Typography(props: TypographyProps) {
         >
       }
       style={{
-        ...style
+        ...style,
+        ...inlineStyles
       }}
     >
       {children}
