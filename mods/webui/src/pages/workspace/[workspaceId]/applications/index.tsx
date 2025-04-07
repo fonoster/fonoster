@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import PageContainer from "@/common/components/layout/pages";
 import { Button } from "@stories/button/Button";
 import { useApplications } from "@/common/sdk/hooks/useApplications";
-import { Application } from "@fonster/types";
+import { Application } from "@fonoster/types";
 import { Icon } from "@stories/icon/Icon";
 import { QueryData } from "@stories/table/QueryData";
 
@@ -29,6 +29,11 @@ const columns: ColumnDef<Application>[] = [
     header: "STT",
     cell: (props: { row: { original: Application } }) =>
       props.row.original.speechToText?.productRef
+  },
+  {
+    id: "appType",
+    header: "Application Type",
+    cell: (props: { row: { original: Application } }) => props.row.original.type
   }
 ];
 
