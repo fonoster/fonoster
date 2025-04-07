@@ -39,7 +39,7 @@ export function SecuredLayout({
             "--NavItem-color": theme.palette.secondary["700"],
             "--NavItem-hover-background": "rgba(255, 255, 255, 0.04)",
             "--NavItem-active-background": "var(--mui-palette-primary-main)",
-            "--NavItem-active-color": "var(--mui-palette-primary-contrastText)",
+            "--NavItem-active-color": theme.palette.secondary["900"],
             "--NavItem-disabled-color": "var(--mui-palette-neutral-500)",
             "--NavItem-icon-color": "var(--mui-palette-neutral-400)",
             "--NavItem-icon-active-color":
@@ -159,19 +159,6 @@ export function SecuredLayout({
                   flex: 1,
                   display: "flex",
                   flexDirection: "column",
-                  marginTop: { xs: "24px", sm: "44px", md: "64px" },
-                  marginLeft: {
-                    xs: "24px",
-                    sm: "44px",
-                    md: "64px",
-                    lg: "150px"
-                  },
-                  marginRight: {
-                    xs: "24px",
-                    sm: "44px",
-                    md: "64px",
-                    lg: "150px"
-                  },
                   width: "100%"
                 }}
               >

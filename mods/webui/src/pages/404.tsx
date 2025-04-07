@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { Hub, Router } from "@mui/icons-material";
 import { useRouter } from "next/router";
-import { Button } from "@mui/material";
+import { Button } from "@stories/button/Button";
 
 const NotFound = () => {
   const router = useRouter();
