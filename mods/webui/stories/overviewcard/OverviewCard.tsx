@@ -32,10 +32,17 @@ export const OverviewCard = (props: OverviewCardProps) => {
       <StyledIconBox>{icon}</StyledIconBox>
 
       <StyledLabelBox>
-        <Typography variant="body-medium">{label}</Typography>
+        <Typography
+          variant="body-medium"
+          sx={{
+            color: "secondary.700",
+          }}
+        >
+          {label}
+        </Typography>
       </StyledLabelBox>
 
-      <Icon name="ChevronRight" />
+      <Icon name="ChevronRight" sx={{ color: "secondary.700" }} />
     </StyledMuiBox>
   );
 };

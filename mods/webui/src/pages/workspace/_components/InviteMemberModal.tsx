@@ -1,10 +1,11 @@
-import { Dialog, DialogTitle, DialogContent, Box, Button } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, Box } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { SelectContext } from "@/common/hooksForm/SelectContext";
 import { InputContext } from "@/common/hooksForm/InputContext";
 import { Role } from "@fonoster/types";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@stories/button/Button";
 
 const inviteMemberSchema = z.object({
   role: z.string().min(1, "Please select a role"),
@@ -85,11 +86,11 @@ export const InviteMemberModal = ({ open, onClose, onSubmit }: Props) => {
               type="submit"
               variant="contained"
               fullWidth
-              sx={{
-                mt: 2,
-                textTransform: "uppercase",
-                py: 1.5
-              }}
+              // sx={{
+              //   mt: 2,
+              //   textTransform: "uppercase",
+              //   py: 1.5
+              // }}
             >
               Invite Member
             </Button>
