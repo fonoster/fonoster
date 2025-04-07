@@ -2,14 +2,20 @@ import { styled } from "@mui/material/styles";
 import { Select } from "@mui/material";
 
 export const StyledSelect = styled(Select)(({ theme }) => ({
+  "&.MuiInputBase-root, &.MuiOutlinedInput-root, &.MuiSelect-root": {
+    backgroundColor: "transparent"
+  },
   "& .MuiInputBase-root": {
     minHeight: "42px",
     height: "auto",
+    backgroundColor: "transparent"
   },
   "& .MuiOutlinedInput-input": {
+    backgroundColor: "transparent",
     padding: "16.5px 14px",
   },
   "& .MuiSelect-select": {
+    backgroundColor: "transparent",
     minHeight: "auto",
     fontSize: "12px",
     fontFamily: "'Poppins', sans-serif",
@@ -28,18 +34,18 @@ export const StyledSelect = styled(Select)(({ theme }) => ({
         pointerEvents: "auto",
         cursor: "pointer",
         "&:hover": {
-          color: theme.palette.error.main,
-        },
-      },
-    },
+          color: theme.palette.error.main
+        }
+      }
+    }
   },
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: theme.palette.grey[300],
     borderWidth: "1px",
-    borderRadius: "4px",
+    borderRadius: "4px"
   },
   "&:hover .MuiOutlinedInput-notchedOutline": {
-    borderColor: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main
   },
   "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
     borderColor: theme.palette.primary.main,
