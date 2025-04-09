@@ -1,4 +1,6 @@
-# Fonoster WebUI
+# Fonoster WebUI (Deprecated)
+
+> **Warning**: This project is deprecated. Please refer to the new dashboard at [/mods/dashboard](/mods/dashboard) for the latest version.
 
 Fonoster WebUI is a modern and powerful user interface for the Fonoster platform, built with Next.js and Material UI. This application provides an intuitive user experience for managing Fonoster resources, with a robust authentication system and a scalable architecture.
 
