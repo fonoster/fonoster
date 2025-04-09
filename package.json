@@ -20,8 +20,7 @@
     "mods/streams",
     "mods/types",
     "mods/voice",
-    "mods/mcp",
-    "mods/dashboard"
+    "mods/mcp"
   ],
   "scripts": {
     "start:dashboard": "NODE_ENV=development cd mods/dashboard && npm run dev",
