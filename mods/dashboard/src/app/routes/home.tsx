@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Welcome } from "../welcome/welcome";
+import { Home } from "../../pages/workspaces/home";
 
 export function meta() {
   return [
@@ -25,6 +25,6 @@ export function meta() {
   ];
 }
 
-export default function Home() {
-  return <Welcome />;
+export default function Page() {
+  return <Home />;
 }
