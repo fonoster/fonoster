@@ -127,6 +127,7 @@ import headerPlugin from 'eslint-plugin-header'; export default [
     ignores: [
       '**/dist/**',
       '**/node_modules/**',
+      '**/.react-router/**',
       '**/*.d.ts',
       '**/bin/**',
       ".scripts/**",
