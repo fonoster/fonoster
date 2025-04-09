@@ -17,6 +17,7 @@
     "paths": {
       "~/*": ["src/*"],
       "@fonoster/*": ["./src/*"],
+      "@design-system/*": ["./src/core/components/design-system/*"],
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,

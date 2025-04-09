@@ -18,4 +18,6 @@
  */
 import { index, type RouteConfig } from "@react-router/dev/routes";
 
-export default [index("workspaces/pages/workspaces/index.tsx")] satisfies RouteConfig;
+export default [
+  index("workspaces/pages/workspaces/index.tsx")
+] satisfies RouteConfig;

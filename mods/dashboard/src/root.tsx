@@ -27,6 +27,7 @@ import {
 import stylesheet from "./app.css?url";
 import type { Route } from "./+types/root";
 import type React from "react";
+import { Providers } from "./core/providers/providers";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -53,7 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <Providers>{children}</Providers>
         <ScrollRestoration />
         <Scripts />
       </body>
