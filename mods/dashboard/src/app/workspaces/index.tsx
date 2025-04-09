@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { Route } from "./+types";
 
-export function Home() {
-  return (
-    <main className="flex items-center justify-center pt-16 pb-4">
-      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-        <h1>Fonoster</h1>
-      </div>
-    </main>
-  );
+export { Workspaces as default } from "@fonoster/modules/workspaces/pages/workspaces";
+
+export function meta(_: Route.MetaArgs) {
+  return [
+    { title: "New React Router App" },
+    { name: "description", content: "Welcome to React Router!" }
+  ];
 }

@@ -16,15 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Home } from "../../pages/workspaces/home";
 
-export function meta() {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" }
-  ];
-}
-
-export default function Page() {
-  return <Home />;
+export function Workspaces() {
+  return (
+    <main className="flex items-center justify-center pt-16 pb-4">
+      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
+        <h1>Fonoster</h1>
+      </div>
+    </main>
+  );
 }
