@@ -15,7 +15,7 @@
     "rootDirs": [".", "./.react-router/types"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/app/*"],
+      "~/*": ["src/*"],
       "@fonoster/*": ["./src/*"],
     },
     "esModuleInterop": true,
