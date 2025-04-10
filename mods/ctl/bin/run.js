@@ -1,7 +1,9 @@
-#!/usr/bin/env node --no-warnings
+#!/usr/bin/env node
 
-// WARNING: We added the `--no-warnings` flag to suppress the warning about the punycode deprecated module.
+// The following code suppresses the warning about the punycode deprecated module.
 // This is a temporary workaround until this get's fixed upstream.
+process.removeAllListeners("warning");
+process.on("warning", () => {});
 
 // eslint-disable-next-line unicorn/prefer-top-level-await
 (async () => {
