@@ -73,26 +73,27 @@ The _conversationSettings_ object allows you to define the Autopilot's conversat
 
 The following is a list of the supported settings:
 
-| Setting                     | Description                                                                                    | Default Value        |
-| --------------------------- | ---------------------------------------------------------------------------------------------- | -------------------- |
-| firstMessage                | The first message the Autopilot will say when the conversation starts                          |                      |
-| systemPrompt                | A prompt that describes the behavior of the Autopilot and sets the context of the conversation |                      |
-| systemErrorMessage          | The message the Autopilot will say when an error occurs                                        |                      |
-| maxSessionDuration          |                                                                                                | 1800000 (30 minutes) |
-| maxSpeechWaitTimeout        |                                                                                                | 0                    |
-| initialDtmf                 | A DTMF to play prior to starting the conversation                                              |                      |
-| transferOptions             | The options to transfer the call to a live agent                                               |                      |
-| transferOptions.phoneNumber | The phone number to transfer the call to                                                       |                      |
-| transferOptions.message     | The message to play before transferring the call                                               |                      |
-| transferOptions.timeout     |                                                                                                | 30000                |
-| idleOptions                 | The options to handle idle time during the conversation                                        |                      |
-| idleOptions.message         | The message to play after the idle time is reached                                             |                      |
-| idleOptions.timeout         |                                                                                                | 10000                |
-| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call         | 2                    |
-| vad                         | The voice activity detection settings                                                          |                      |
-| vad.activationThreshold     |                                                                                                | 0.4                  |
-| vad.deactivationThreshold   |                                                                                                | 0.25                 |
-| vad.debounceFrames          |                                                                                                | 4                    |
+| Setting                     | Description                                                                                                                                    | Default Value        |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| firstMessage                | The first message the Autopilot will say when the conversation starts                                                                          |                      |
+| systemPrompt                | A prompt that describes the behavior of the Autopilot and sets the context of the conversation                                                 |                      |
+| systemErrorMessage          | The message the Autopilot will say when an error occurs                                                                                        |                      |
+| maxSessionDuration          | Maximum length of the session (in milliseconds) before it is automatically terminated, regardless of activity                                  | 1800000 (30 minutes) |
+| maxSpeechWaitTimeout        | Specifies the maximum amount of time (in milliseconds) to wait for the user to begin speaking before sending the captured audio for processing | 0                    |
+| initialDtmf                 | A DTMF to play prior to starting the conversation                                                                                              |                      |
+| allowUserBargeIn            | Determines whether the user can interrupt the voice agent while it is speaking                                                                 | `true`               |
+| transferOptions             | The options to transfer the call to a live agent                                                                                               |                      |
+| transferOptions.phoneNumber | The phone number to transfer the call to                                                                                                       |                      |
+| transferOptions.message     | The message to play before transferring the call                                                                                               |                      |
+| transferOptions.timeout     | Time to wait for a transfer answer before the transfer attempt is considered failed                                                            | 30000                |
+| idleOptions                 | The options to handle idle time during the conversation                                                                                        |                      |
+| idleOptions.message         | The message to play after the idle time is reached                                                                                             |                      |
+| idleOptions.timeout         | Duration of user inactivity (in milliseconds) before the system triggers an idle event                                                         | 30000                |
+| idleOptions.maxTimeoutCount | The maximum number of times the idle message will be played before hanging up the call                                                         | 2                    |
+| vad                         | The voice activity detection settings                                                                                                          |                      |
+| vad.activationThreshold     | See VAD section                                                                                                                                | 0.4                  |
+| vad.deactivationThreshold   | See VAD section                                                                                                                                | 0.25                 |
+| vad.debounceFrames          | See VAD section                                                                                                                                | 4                    |
 
 A few noteworthy settings include the _maxSpeechWaitTimeout_, _initialDtmf_, _idleOptions_, and _vad_.
 
