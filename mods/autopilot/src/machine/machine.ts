@@ -21,7 +21,7 @@ import { context } from "./context";
 import { machineSetup } from "./setup";
 
 const machine = machineSetup.createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgBMAZgCcZWwEYAbAA4A7AFZXAFgd7F08AGhAAT0Rrbz8yFT8PFW8vPxVrV1dbAF8ssMVMMihqMDAjVChsVQ0kEF0DIxMzCwRnd2cnT3tXT1trdxUMttcwyIQg7zJ7Twzo+2drO29PHLyMAv0IABswbDYABQ4OAGEACXZJdDFJKrM6w2NTGub7FU8yd287Tz6-Hu7QiKITzuayTAa2TyeFStTp+awrED5MgbbZ4QgkciUGi0TBCAAyHBY0noHF4Ikk8iRKLANxqdwaj1AzRiKkmyWc9nc9heKlsrm8I0Qzhc7Xmc289msqXi3myuURa2RWx2+GIpAoVDAdFxBKJmBJZIpCkV1KUzmq2j090aT0QDjIHimwL8zjSSUygparUc-k+Cy6IL8fm8CKRBGoRFQ9Qe+nKkh0mGVlXUtytDKadvcsS6vX5WfctgC8U9zldjihwMlpc6nVDis2+kIYFQsag8ZEsC1uwOxzOYi4Ijx1xTdLTDwzCH87nemXsCUCrimfk9fNZ3J8cJ5LtSctWWDIDabLbjOg7XdVGI12J1hOJpPJlPrjdIx7bp871FplujNqZQocsTRCypauK0ELWCWKjuNOKhJNC1hzouoGuHW+4AO5EPc5QAGI6NQbBaCUADGAAWkj6AAtmAOgAK4EN2hynOclzDhatRjr+5hCp4sQ9Euth8pyaT2J63ifGQSxpEGwayrYySoQUGFYVAuH4YRYCkeRVG0fRF7qliWoMMw7A9kxADqWCSHqBoPsa6GYWUKl4QRxFkZR1F0V+7E-oyXEIH4WZOP4879HCQaetE7SfAJmTzK0HzAgpZBaNQOhEXABjlGe1BiGAACONFwPREAmOQsYAG46AA1uQSIpWlGWttluUFUVCAVWlJAPFUXn0uOtpegMcQQrYUELNBBbDICYyuKCkqSgE9i+FMzghvKdWpelsCZVAzX5YVhAMb2zFXL1HG+c0pZcsNXSfKtkp2FNozAu0LyzVKAYSihCKoDoEBwGY+Spj5E42F4ThuF4viLUEzgAqMbixGkAlydECEZJkSVFCUjnA9aF1WN0ZDpFM1i8pKUGDJ6kquGQvydGTO4+HJSXUnj6YDUsoKgW46POEGUK2NT6R05CFNM7Ka17gU4aRj5rbxom2zs-1f5jKyX3xDKCRSm0JautOZPAvynIBd48xJYeL4K++Woq5xzReKybRBEkLiZGJy7Tb47TQbBk1BB87hJUpjmqS5GludpdH2wTLRE6B7izUnaT+P4K7cmQ3wuiTEKut0UsKvuJGRlANFaLHoNkxMs0uHMaQ8d8JYCe0clc2b-KLn4SX1VtO17a1hCVwNq2ykF1ZJ94yNC974N+1BAT8g41jLDkWRAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgBMAZgCcZWwEYAbAA4A7AFZXAFgd7F08AGhAAT0Rrbz8yFT8PFW8vPxVrV1dbAF8ssMVMMihqMDAjVChsVQ0kEF0DIxMzCwRnd2cnT3tXT1trdxUMttcwyIQg7zJ7Twzo+2drO29PHLyMAv0IABswbDYABQ4OAGEACXZJdDFJKrM6w2NTGub7FU8yd287Tz6-Hu7QiKITzuayTAa2TyeFStTp+awrED5MgbbZ4QgkciUGi0TBCAAyHBY0noHF4Ikk8iRKLANxqdwaj1AzRiKkmyWc9nc9heKlsrm8I0Qzhc7Xmc289msqXi3myuURa2RWx2+GIpAoVDAdFxBKJmBJZIpCkV1KUzmq2j090aT0QDjIHimwL8zjSSUygparUc-k+Cy6IL8fm8CKRBGoRFQ9Qe+nKkh0mGVlXUtytDKadvcsS6vX5WfctgC8U9zldjihwMlpc6nVDis2+kIYFQsag8ZEsC1uwOxzOYi4Ijx1xTdLTDwzCH87nemXsCUCrimfk9fNZ3J8cJ5LtSctWWDIDabLbjOg7XdVGI12J1hOJpPJlPrjdIx7bp871FplujNqZQtL06QrYyRSi80Q+CWKggmQniuhKvLeMK3y7gq+4AO5EPc5QAGI6NQbBaCUADGAAWkj6AAtmAOgAK4EN2hynOclzDhatRjr+5hCp4sQ9Euth8pyaT2J63ifGQSxpEGwaysB7h1uhmFlFAuH4YRYCkeRVG0fRF7qliWoMMw7A9kxADqWCSHqBoPsailYSpeEEcRZGUdRdFfuxP6MlxCB+FmTj+PO-RwkGnrRO0nwCZk8ytB8wIKQUWjUDoRFwAY5RntQYhgAAjjRcD0RAJjkLGABuOgANbkEiyWpelrZZTl+WFQg5WpSQDxVJ59LjraLTWAMTh9L4squiokqiXMMGdCBAzWEByzyrVKVpbAGVQE1eUFYQDG9sxVw9RxPnNMKfJkGd7gxUstjxCJgIIJWEluEGrjQtCi5+Dk8qoDoEBwGY+Spt5E42F4ThuF4vgBNywQlv4cR2HyYl+Dy3whstipFCUynA9aJ1WN0ZDpFMg0OINV0eJ6kquGQvydINO4+MBiVKtsePpv1Sygq4pauNYXTOEGUK2NT6R05CkrxLyzMY3uBThpG3mtvGibs6OIP9S8EldNLwYJFKbQlq606DcC-Kcv5iHwpj+6Hi+KvvlqHN9X+CBeKybRBEkLiZCjom8+8-RQYJtgfPJtsFBhDmqc5GmudpdEu5xp1E7zV19G96QJMuD2BDBUrzIuEKut0cuoQUJGRlANFaMnBMIDYSQOnYHKugtvzWCWAntMB3NW-yn2s3Va0bVtLWEPXE7OGJtiBdWV3eGkAmieD7jB1myPk0tORAA */
   context,
   id: "fnAI",
   initial: "greeting",
@@ -104,7 +104,8 @@ const machine = machineSetup.createMachine({
       on: {
         SPEECH_START: {
           target: "listeningToUser",
-          description: "User started speaking again."
+          description: "User started speaking again.",
+          guard: ({ context }) => context.allowUserBargeIn
         }
       },
       after: {
@@ -135,7 +136,9 @@ const machine = machineSetup.createMachine({
         description: "Process the user request",
         input: ({ context }) => ({ context }),
         onDone: {
-          target: "idle"
+          target: "listeningToUser",
+          reenter: true,
+          actions: [{ type: "cleanSpeech" }]
         }
       }
     }
