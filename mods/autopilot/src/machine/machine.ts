@@ -128,7 +128,7 @@ const machine = machineSetup.createMachine({
           target: "listeningToUser",
           description: "Event from VAD or similar system.",
           actions: [{ type: "cleanSpeech" }],
-          guard: ({ context }) => context.enableUserBargeIn
+          guard: ({ context }) => context.allowUserBargeIn
         }
       },
       invoke: {

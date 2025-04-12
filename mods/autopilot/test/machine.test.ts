@@ -69,6 +69,7 @@ const getActorInput = () => ({
     maxSpeechWaitTimeout: 500,
     maxSessionDuration: 30 * 60 * 1000,
     initialDtmf: "1",
+    allowUserBargeIn: true,
     idleOptions: {
       message: IDLE_MESSAGE,
       timeout: 3000,
@@ -125,6 +126,7 @@ describe("@autopilot/machine", function () {
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.speechBuffer).to.equal("");
     expect(context.isSpeaking).to.equal(false);
+    expect(context.allowUserBargeIn).to.equal(true);
 
     // Cleanup
     actor.stop();
