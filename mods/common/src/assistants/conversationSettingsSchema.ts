@@ -22,7 +22,7 @@ import * as Messages from "../messages";
 const ZERO_OR_GREATER_THAN_ZERO = "Must be a number greater than or equal to 0";
 const NUMBER_BETWEEN_0_AND_1 = "Must be a number between 0 and 1";
 const MAX_SPEECH_WAIT_TIMEOUT = 0;
-const IDLE_OPTIONS_TIMEOUT = 10000;
+const IDLE_OPTIONS_TIMEOUT = 30000;
 const IDLE_OPTIONS_MAX_TIMEOUT_COUNT = 2;
 const VAD_ACTIVATION_THRESHOLD = 0.4;
 const VAD_DEACTIVATION_THRESHOLD = 0.25;
@@ -71,6 +71,7 @@ const conversationSettingsSchema = z.object({
       .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
       .default(IDLE_OPTIONS_MAX_TIMEOUT_COUNT)
   }),
+  allowUserBargeIn: z.boolean().optional().default(true),
   vad: z
     .object({
       pathToModel: z.string().optional(),

@@ -68,7 +68,7 @@ describe("@apiserver[common/assistants/assistantSchema]", function () {
     expect(result.conversationSettings.vad.debounceFrames).to.be.equal(4);
     expect(result.conversationSettings.transferOptions.timeout).to.be.equal(30000);
     expect(result.conversationSettings.maxSpeechWaitTimeout).to.be.equal(0);
-    expect(result.conversationSettings.idleOptions.timeout).to.be.equal(10000);
+    expect(result.conversationSettings.idleOptions.timeout).to.be.equal(30000);
     expect(result.conversationSettings.idleOptions.maxTimeoutCount).to.be.equal(2);
   });
 });

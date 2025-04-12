@@ -44,6 +44,7 @@ const context = ({
   maxIdleTimeoutCount: input.conversationSettings.idleOptions.maxTimeoutCount,
   idleTimeoutCount: 0,
   maxSpeechWaitTimeout: input.conversationSettings.maxSpeechWaitTimeout,
+  allowUserBargeIn: input.conversationSettings.allowUserBargeIn,
   isSpeaking: false,
   sessionStartTime: Date.now(),
   maxSessionDuration: input.conversationSettings.maxSessionDuration,
