@@ -29,7 +29,11 @@ const config: StorybookConfig = {
   ],
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),
-    options: {}
+    options: {
+      builder: {
+        viteConfigPath: "storybook.vite.config.ts"
+      }
+    }
   },
   core: {
     disableTelemetry: true
