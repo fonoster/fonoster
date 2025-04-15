@@ -14,7 +14,9 @@
 
 html,
 body {
-  font-feature-settings: "rlig" 1, "calt" 1;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
   -webkit-tap-highlight-color: transparent;
   text-rendering: optimizeLegibility;
   font-family: var(--font-sans);
