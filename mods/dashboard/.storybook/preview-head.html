@@ -10,14 +10,36 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
-  href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap"
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+  rel="stylesheet"
+/>
+<link
+  href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
   rel="stylesheet"
 />
 <style>
-  html {
-    font-family:
-      "Poppins", Helvetica, Arial, system-ui, sans-serif, "Segoe UI", Roboto,
-      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  :root {
+    --font-sans:
+      "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  }
+
+  * {
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(226 232 240);
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+  }
+
+  html,
+  body {
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+    font-family: var(--font-sans);
   }
 
   #storybook-root {
