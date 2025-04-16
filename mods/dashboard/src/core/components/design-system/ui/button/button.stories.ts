@@ -10,7 +10,12 @@ const meta = {
   args: {
     onClick: action("onClick"),
     type: "button",
-    className: ""
+    className: "",
+    variant: "contained",
+    size: "large",
+    disabled: false,
+    fullWidth: false,
+    children: "Button Copy"
   },
   argTypes: {
     onClick: {
@@ -30,20 +35,20 @@ const meta = {
       control: { type: "select" },
       table: {
         defaultValue: {
-          summary: "primary"
+          summary: "contained"
         }
       },
-      options: ["primary", "outline"]
+      options: ["contained", "outlined"]
     },
     size: {
       name: "Size",
       description:
         "The size prop determines the height and padding of the button.",
       control: { type: "select" },
-      options: ["default", "sm", "lg"],
+      options: ["large", "small"],
       table: {
         defaultValue: {
-          summary: "default"
+          summary: "large"
         }
       }
     },
@@ -57,7 +62,7 @@ const meta = {
         }
       }
     },
-    isFull: {
+    fullWidth: {
       name: "Full Width",
       description:
         "When true, the button will take up the full width of its container.",
@@ -116,7 +121,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const PrimaryVariantButton: Story = {
   args: {
-    variant: "primary",
+    variant: "contained",
     children: "Button Copy",
     onClick: action("onClick")
   }
@@ -127,7 +132,7 @@ export const PrimaryVariantButton: Story = {
  */
 export const OutlineVariantButton: Story = {
   args: {
-    variant: "outline",
+    variant: "outlined",
     children: "Button Copy",
     onClick: action("onClick")
   }
@@ -138,7 +143,7 @@ export const OutlineVariantButton: Story = {
  */
 export const WithIconButton: Story = {
   args: {
-    variant: "primary",
+    variant: "contained",
     onClick: action("onClick"),
     children: [
       "Button Copy",
@@ -161,7 +166,7 @@ export const WithIconButton: Story = {
  */
 export const SizeLargeButton: Story = {
   args: {
-    size: "lg",
+    size: "large",
     onClick: action("onClick"),
     children: "Button Copy"
   }
@@ -172,7 +177,7 @@ export const SizeLargeButton: Story = {
  */
 export const SizeSmallButton: Story = {
   args: {
-    size: "sm",
+    size: "small",
     onClick: action("onClick"),
     children: "Button Copy"
   }
@@ -183,7 +188,7 @@ export const SizeSmallButton: Story = {
  */
 export const DisabledButton: Story = {
   args: {
-    variant: "primary",
+    variant: "contained",
     isDisabled: true,
     onClick: action("onClick"),
     children: "Button Copy"
@@ -195,7 +200,7 @@ export const DisabledButton: Story = {
  */
 export const FullWidthButton: Story = {
   args: {
-    isFull: true,
+    fullWidth: true,
     onClick: action("onClick"),
     children: "Button Copy"
   }
@@ -206,8 +211,8 @@ export const FullWidthButton: Story = {
  */
 export const FullWidthDisabledButton: Story = {
   args: {
-    isFull: true,
-    isDisabled: true,
+    fullWidth: true,
+    disabled: true,
     onClick: action("onClick"),
     children: "Button Copy"
   }

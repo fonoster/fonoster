@@ -12,7 +12,7 @@ declare module "@mui/material/styles" {
       "07": string;
       "08": string;
       main: string;
-    }
+    };
     brand: {
       "01": string;
       "02": string;
@@ -35,7 +35,7 @@ declare module "@mui/material/styles" {
       "07": string;
       "08": string;
       main: string;
-    }
+    };
     brand: {
       "01": string;
       "02": string;
