@@ -22,6 +22,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [reactRouter(), tsconfigPaths()],
+  ssr: {
+    noExternal: ["@mui/*", "@emotion/*"]
+  },
+  optimizeDeps: {
+    include: ["@mui/*", "@emotion/*"],
+    force: true
+  },
   server: {
     port: 8080
   }
