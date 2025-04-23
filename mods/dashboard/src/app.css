@@ -21,3 +21,7 @@ body {
   text-rendering: optimizeLegibility;
   font-family: var(--font-sans);
 }
+
+[data-sonner-toast][data-styled="true"] [data-content] {
+  width: 100%;
+}
