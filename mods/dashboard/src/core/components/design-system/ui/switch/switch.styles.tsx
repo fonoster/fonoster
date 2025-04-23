@@ -43,7 +43,7 @@ export const SwitchRoot = styled(Switch)(({ theme }) => ({
       color: theme.palette.brand.main,
       "& + .MuiSwitch-track": {
         opacity: 1,
-        backgroundColor: theme.palette.brand["02"],
+        backgroundColor: theme.palette.brand["02"]
       }
     }
   },
