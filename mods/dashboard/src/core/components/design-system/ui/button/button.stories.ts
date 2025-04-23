@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 import { Button } from "./button";
@@ -8,7 +26,6 @@ const meta = {
   component: Button,
   tags: ["autodocs"],
   args: {
-    onClick: action("onClick"),
     type: "button",
     className: "",
     variant: "contained",
@@ -18,16 +35,6 @@ const meta = {
     children: "Button Copy"
   },
   argTypes: {
-    onClick: {
-      name: "onClick",
-      description: "The function to call when the button is clicked.",
-      action: "onClick",
-      table: {
-        type: {
-          summary: "function"
-        }
-      }
-    },
     variant: {
       name: "Variant",
       description:
@@ -145,19 +152,17 @@ export const WithIconButton: Story = {
   args: {
     variant: "contained",
     onClick: action("onClick"),
-    children: [
-      "Button Copy",
-      React.createElement(
-        "svg",
-        { viewBox: "0 0 24 24", width: 14, height: 14 },
-        React.createElement("path", {
-          d: "M12 5v14M5 12h14",
-          fill: "none",
-          stroke: "currentColor",
-          strokeWidth: 2
-        })
-      )
-    ]
+    children: "Button Copy",
+    endIcon: React.createElement(
+      "svg",
+      { viewBox: "0 0 24 24", width: 14, height: 14 },
+      React.createElement("path", {
+        d: "M12 5v14M5 12h14",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: 2
+      })
+    )
   }
 };
 
@@ -189,7 +194,7 @@ export const SizeSmallButton: Story = {
 export const DisabledButton: Story = {
   args: {
     variant: "contained",
-    isDisabled: true,
+    disabled: true,
     onClick: action("onClick"),
     children: "Button Copy"
   }
@@ -203,6 +208,28 @@ export const FullWidthButton: Story = {
     fullWidth: true,
     onClick: action("onClick"),
     children: "Button Copy"
+  }
+};
+
+/**
+ * Full Width Outline Button used for actions that require more attention or are more important
+ */
+export const FullWidthButtonWithIcon: Story = {
+  args: {
+    fullWidth: true,
+    variant: "contained",
+    onClick: action("onClick"),
+    children: "Button Copy",
+    endIcon: React.createElement(
+      "svg",
+      { viewBox: "0 0 24 24", width: 16, height: 16 },
+      React.createElement("path", {
+        d: "M12 5v14M5 12h14",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: 2
+      })
+    )
   }
 };
 

@@ -21,5 +21,7 @@ import { StyledButton, type ButtonAttributes } from "./button.styles";
 export const Button = (props: ButtonAttributes) => {
   const { size = "large", variant = "contained", ...rest } = props;
 
-  return <StyledButton variant={variant} disableElevation {...rest} />;
+  return (
+    <StyledButton variant={variant} size={size} disableElevation {...rest} />
+  );
 };

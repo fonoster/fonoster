@@ -1,8 +1,30 @@
+/*
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import Button from "@mui/material/Button";
-import type { ButtonProps, ButtonPropsVariantOverrides } from "@mui/material";
+import type {
+  ButtonProps,
+  ButtonPropsVariantOverrides,
+  Theme
+} from "@mui/material";
 import type { OverridableStringUnion } from "@mui/types";
 import { styled } from "@mui/material/styles";
-import type { CSSObject } from "@mui/system";
+import { type CSSObject } from "@mui/system";
 
 type ButtonVariant = Omit<
   OverridableStringUnion<
@@ -12,91 +34,86 @@ type ButtonVariant = Omit<
   "text"
 >;
 
-export interface ButtonAttributes extends ButtonProps, ButtonVariant {}
+export interface ButtonAttributes
+  extends Partial<ButtonProps>,
+    Partial<ButtonVariant> {
+  children?: React.ReactNode;
+}
 
 const sizeStyles = (size: ButtonProps["size"]): CSSObject => {
-  switch (size) {
-    case "large":
-      return {
-        fontSize: "11px",
-        letterSpacing: "1.32px",
-        padding: "8px 20px"
-      };
-    case "small":
-      return {
-        fontSize: "9px",
-        letterSpacing: "0.4px",
-        padding: "4px 16px"
-      };
-    case "medium":
-    default:
-      return {
-        fontSize: "10px",
-        letterSpacing: "0.5px",
-        padding: "6px 20px"
-      };
+  if (size === "large") {
+    return {
+      fontSize: "11px",
+      letterSpacing: "1.32px",
+      padding: "8px 24px",
+      minHeight: "37px",
+      maxHeight: "37px"
+    };
   }
-};
-
-const variantStyles = (
-  variant: ButtonVariant | undefined,
-  theme: any
-): CSSObject => {
-  const isOutlined = variant === "outlined";
 
   return {
-    backgroundColor: isOutlined ? "transparent" : theme.palette.brand.main,
-    color: isOutlined ? theme.palette.brand["07"] : theme.palette.base["03"],
-    border: isOutlined ? `1px solid ${theme.palette.brand["07"]}` : "none",
-    "&:hover": {
-      backgroundColor: isOutlined
-        ? theme.palette.grey[300]
-        : theme.palette.primary.light
-    }
+    fontSize: "10px",
+    letterSpacing: "0.5px",
+    padding: "6px 20px",
+    minHeight: "33px",
+    maxHeight: "33px"
   };
 };
 
-const darkModeStyles = (
+const outlinedStyles = (theme: Theme): CSSObject[] => [
+  {
+    backgroundColor: "transparent",
+    color: theme.palette.base["03"],
+    borderColor: `${theme.palette.base["03"]}`,
+    border: `1px solid ${theme.palette.base["03"]}`
+  }
+];
+
+const containedStyles = (theme: Theme): CSSObject[] => [
+  {
+    backgroundColor: theme.palette.brand.main,
+    color: theme.palette.brand["07"],
+    borderColor: theme.palette.brand.main
+  },
+  theme.applyStyles("dark", { color: "white" })
+];
+
+const variantStyles = (
   variant: ButtonVariant | undefined,
-  theme: any
-): CSSObject =>
-  theme.applyStyles("dark", {
-    backgroundColor: variant === "outlined" ? theme.palette.grey[700] : "#000",
-    color: variant === "outlined" ? theme.palette.grey[300] : "#fff",
-    "&:hover": {
-      backgroundColor:
-        variant === "outlined"
-          ? theme.palette.grey[600]
-          : theme.palette.primary.dark
-    }
-  });
+  theme: Theme
+): CSSObject[] => {
+  if (variant === "outlined") {
+    return outlinedStyles(theme);
+  }
+
+  return containedStyles(theme);
+};
 
 export const StyledButton = styled(Button)<ButtonAttributes>(
-  ({ theme, variant, size = "large", disabled }) => ({
-    /**
-     * Generics, overrides and custom styles
-     * @see https://mui.com/material-ui/react-button/#customization
-     */
-    boxShadow: "none",
-    display: "inline-flex",
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-    appearance: "none",
-    cursor: disabled ? "not-allowed" : "pointer",
-    borderRadius: "100px",
-    whiteSpace: "nowrap",
-    fontFamily: "'Roboto Mono', sans-serif",
-    fontFeatureSettings: "'liga' off, 'clig' off",
-    fontStyle: "normal",
-    fontWeight: 500,
-    textTransform: "uppercase",
-    userSelect: "none",
-    transition: "all 0.2s ease-in-out",
-    lineHeight: "21px",
-
-    ...sizeStyles(size),
-    ...variantStyles(variant, theme),
-    ...darkModeStyles(variant, theme)
-  })
+  ({ theme, variant, size, disabled }) => [
+    {
+      boxShadow: "none",
+      display: "inline-flex",
+      justifyContent: "center",
+      alignItems: "center",
+      position: "relative",
+      appearance: "none",
+      cursor: disabled ? "not-allowed" : "pointer",
+      borderRadius: "100px",
+      whiteSpace: "nowrap",
+      fontFamily: "'Roboto Mono', sans-serif",
+      fontFeatureSettings: "'liga' off, 'clig' off",
+      fontStyle: "normal",
+      fontWeight: 500,
+      textTransform: "uppercase",
+      userSelect: "none",
+      transition: "all 0.2s ease-in-out",
+      lineHeight: "normal",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      textDecoration: "none",
+      ...sizeStyles(size)
+    },
+    ...variantStyles(variant, theme)
+  ]
 );
