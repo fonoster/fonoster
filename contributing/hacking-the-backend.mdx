@@ -7,17 +7,13 @@ This guide contains the development environment setup for Fonoster. It includes 
 
 ### Prerequisites
 
-[](https://github.com/truecaller/web-callhero-dev-env/tree/1f26e774d9b32d699262b6aa52265af04ef24af1#prerequisites)
-
-* Docker and Docker Compose
-
-* NodeJS >= v20
-
-* Git (Optional)
+- Docker and Docker Compose
+- NodeJS \>= v20
+- Git (Optional)
 
 ### Hacking the Backend
 
-To start hacking the backend, start by cloning the project, and copying the *.env.example.dev* and *./config/integrations.example.json*
+To start hacking the backend, start by cloning the project, and copying the _.env.example.dev_ and _./config/integrations.example.json_
 
 Here is an example:
 
@@ -28,15 +24,15 @@ cp .env.example.dev .env
 cp config/integrations.example.json config/integrations.json
 ```
 
-In the *.env* file you will need to find and update the following variables. All variables will need to be updated to a routable IP within your local environment.
+In the _.env_ file you will need to find and update the following variables. All variables will need to be updated to a routable IP within your local environment.
 
-| Variable                        | Description                                                          |
-| ------------------------------- | -------------------------------------------------------------------- |
-| ROUTR\_EXTERNAL\_ADDRS          | The IP used by Routr to advertise it's address to othe SIP endpoints |
-| ROUTR\_RTPENGINE\_HOST          | The address of RTPEngine                                             |
-| ASTERISK\_SIPPROXY\_HOST        | Address pointing to Routr SIP Server                                 |
-| APISERVER\_ROUTR\_API\_ENDPOINT | The entrypoint to Routr's API                                        |
-| DOCKER\_HOST\_ADDRESS           | The address of the host machine                                      |
+| Variable                     | Description                                                          |
+| ---------------------------- | -------------------------------------------------------------------- |
+| ROUTR_EXTERNAL_ADDRS         | The IP used by Routr to advertise it's address to othe SIP endpoints |
+| ROUTR_RTPENGINE_HOST         | The address of RTPEngine                                             |
+| ASTERISK_SIPPROXY_HOST       | Address pointing to Routr SIP Server                                 |
+| APISERVER_ROUTR_API_ENDPOINT | The entrypoint to Routr's API                                        |
+| DOCKER_HOST_ADDRESS          | The address of the host machine                                      |
 
 <Tip>
   With `ifconfig | grep "en0" -A 5` on Linux or Mac you will see a good candidate to use as the IP.
@@ -55,6 +51,7 @@ Then, you need to start the infrastructure and initialize the database using the
 ```bash
 npm run start:services
 npm run db:migrate
+npm run db:seed
 ```
 
 The previous command will start all the services including `envoy`, `mailhog`, `adminer`, `influxdb`, `postgres`, and `asterisk`.
