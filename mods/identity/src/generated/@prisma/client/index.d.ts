@@ -314,8 +314,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.5.0
-   * Query Engine version: 173f8d54f8d52e692c7e27e72a88314ec7aeff60
+   * Prisma Client JS version: 6.6.0
+   * Query Engine version: f676762280b54cd07c770017ed3711ddde35f37a
    */
   export type PrismaVersion = {
     client: string
@@ -2075,7 +2075,7 @@ export namespace Prisma {
 
   /**
    * Fields of the User model
-   */ 
+   */
   interface UserFieldRefs {
     readonly ref: FieldRef<"User", 'String'>
     readonly accessKeyId: FieldRef<"User", 'String'>
@@ -3202,7 +3202,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Workspace model
-   */ 
+   */
   interface WorkspaceFieldRefs {
     readonly ref: FieldRef<"Workspace", 'String'>
     readonly accessKeyId: FieldRef<"Workspace", 'String'>
@@ -4341,7 +4341,7 @@ export namespace Prisma {
 
   /**
    * Fields of the WorkspaceMember model
-   */ 
+   */
   interface WorkspaceMemberFieldRefs {
     readonly ref: FieldRef<"WorkspaceMember", 'String'>
     readonly status: FieldRef<"WorkspaceMember", 'WorkspaceMemberStatus'>
@@ -5440,7 +5440,7 @@ export namespace Prisma {
 
   /**
    * Fields of the ApiKey model
-   */ 
+   */
   interface ApiKeyFieldRefs {
     readonly ref: FieldRef<"ApiKey", 'String'>
     readonly accessKeyId: FieldRef<"ApiKey", 'String'>
@@ -6498,7 +6498,7 @@ export namespace Prisma {
 
   /**
    * Fields of the VerificationCode model
-   */ 
+   */
   interface VerificationCodeFieldRefs {
     readonly ref: FieldRef<"VerificationCode", 'String'>
     readonly type: FieldRef<"VerificationCode", 'VerificationType'>
@@ -6997,7 +6997,7 @@ export namespace Prisma {
 
 
   /**
-   * Field references 
+   * Field references
    */
 
 
@@ -7899,7 +7899,7 @@ export namespace Prisma {
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
-  export type JsonNullableFilter<$PrismaModel = never> = 
+  export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
         Required<JsonNullableFilterBase<$PrismaModel>>
@@ -8048,7 +8048,7 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
         Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
@@ -8670,7 +8670,7 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
-  export type NestedJsonNullableFilter<$PrismaModel = never> = 
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
         Required<NestedJsonNullableFilterBase<$PrismaModel>>

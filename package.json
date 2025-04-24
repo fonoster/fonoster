@@ -102,7 +102,7 @@
     "next": "^14.1.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.0",
-    "prisma": "^6.5.0",
+    "prisma": "^6.6.0",
     "protoc-gen-grpc-web": "^1.5.0",
     "protoc-gen-js": "^3.21.4-4",
     "rimraf": "^6.0.1",
@@ -136,7 +136,7 @@
     "node": ">=20.11.1"
   },
   "dependencies": {
-    "@prisma/client": "^6.5.0"
+    "@prisma/client": "^6.6.0"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-arm64-gnu": "^4.29.1",

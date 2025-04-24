@@ -41,7 +41,7 @@ COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/schema.prisma .
 COPY --from=builder --chown=appuser:appuser /work/mods/identity/migrations ./identity/migrations
 COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma ./identity/schema.prisma
 
-RUN npm install -g prisma@6.5.0 npm@latest 
+RUN npm install -g prisma@6.6.0 npm@latest 
 
 USER appuser
 
