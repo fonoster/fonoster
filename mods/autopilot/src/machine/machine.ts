@@ -137,10 +137,7 @@ const machine = machineSetup.createMachine({
         SPEECH_RESULT: {
           target: "processingUserRequest",
           description: "Append speech and go back to listening.",
-          actions: [
-            { type: "interruptPlayback" },
-            { type: "appendSpeech" }
-          ]
+          actions: [{ type: "interruptPlayback" }, { type: "appendSpeech" }]
         }
       },
       invoke: {
