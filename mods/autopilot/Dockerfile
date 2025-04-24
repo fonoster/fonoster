@@ -1,7 +1,7 @@
 ##
 # Build stage
 ##
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /work
@@ -12,7 +12,7 @@ RUN npm install && npm run build
 ##
 # Run stage
 ##
-FROM node:20-slim
+FROM node:22-slim
 
 ENV ASSISTANT=/opt/fonoster/assistant.json
 

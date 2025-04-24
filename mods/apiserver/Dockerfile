@@ -1,7 +1,7 @@
 ##
 # Build stage
 ##
-FROM node:20-alpine3.19 AS builder 
+FROM node:22-alpine3.21 AS builder 
 LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /work
@@ -28,7 +28,7 @@ RUN apk add --no-cache --update git \
 ##
 # Run stage
 ##
-FROM node:20-alpine3.19
+FROM node:20-alpine3.21
 
 RUN addgroup -g 1001 appuser && adduser -u 1001 -G appuser -D appuser 
 

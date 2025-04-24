@@ -1,5 +1,5 @@
-FROM alpine:3.19
-LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
+FROM alpine:3.21
+LABEL team="Fonoster Team <team@fonoster.com>"
 
 COPY asterisk/config /etc/asterisk/
 COPY asterisk/run.sh /
