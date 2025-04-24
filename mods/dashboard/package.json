@@ -32,7 +32,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.55.0",
-    "react-router": "^7.5.0",
+    "react-router": "^7.5.2",
     "sonner": "^2.0.3",
     "zod": "^3.24.2",
     "zustand": "^5.0.3"
