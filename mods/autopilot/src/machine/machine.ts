@@ -21,7 +21,7 @@ import { context } from "./context";
 import { machineSetup } from "./setup";
 
 const machine = machineSetup.createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgBMAZgCcZWwEYAbAA4A7AFZXAFgd7F08AGhAAT0Rrbz8yFT8PFW8vPxVrV1dbAF8ssMVMMihqMDAjVChsVQ0kEF0DIxMzCwRnd2cnT3tXT1trdxUMttcwyIQg7zJ7Twzo+2drO29PHLyMAv0IABswbDYABQ4OAGEACXZJdDFJKrM6w2NTGub7FU8yd287Tz6-Hu7QiKITzuayTAa2TyeFStTp+awrED5MgbbZ4QgkciUGi0TBCAAyHBY0noHF4Ikk8iRKLANxqdwaj1AzRiKkmyWc9nc9heKlsrm8I0Qzhc7Xmc289msqXi3myuURa2RWx2+GIpAoVDAdFxBKJmBJZIpCkV1KUzmq2j090aT0QDjIHimwL8zjSSUygparUc-k+Cy6IL8fm8CKRBGoRFQ9Qe+nKkh0mGVlXUtytDKadvcsS6vX5WfctgC8U9zldjihwMlpc6nVDis2+kIYFQsag8ZEsC1uwOxzOYi4Ijx1xTdLTDwzCH87nemXsCUCrimfk9fNZ3J8cJ5LtSctWWDIDabLbjOg7XdVGI12J1hOJpPJlPrjdIx7bp871FplujNqZQtL06QrYyRSi80Q+CWKggmQniuhKvLeMK3y7gq+4AO5EPc5QAGI6NQbBaCUADGAAWkj6AAtmAOgAK4EN2hynOclzDhatRjr+5hCp4sQ9Euth8pyaT2J63ifGQSxpEGwaysB7h1uhmFlFAuH4YRYCkeRVG0fRF7qliWoMMw7A9kxADqWCSHqBoPsailYSpeEEcRZGUdRdFfuxP6MlxCB+FmTj+PO-RwkGnrRO0nwCZk8ytB8wIKQUWjUDoRFwAY5RntQYhgAAjjRcD0RAJjkLGABuOgANbkEiyWpelrZZTl+WFQg5WpSQDxVJ59LjraLTWAMTh9L4squiokqiXMMGdCBAzWEByzyrVKVpbAGVQE1eUFYQDG9sxVw9RxPnNMKfJkGd7gxUstjxCJgIIJWEluEGrjQtCi5+Dk8qoDoEBwGY+Spt5E42F4ThuF4vgBNywQlv4cR2HyYl+Dy3whstipFCUynA9aJ1WN0ZDpFMg0OINV0eJ6kquGQvydINO4+MBiVKtsePpv1Sygq4pauNYXTOEGUK2NT6R05CkrxLyzMY3uBThpG3mtvGibs6OIP9S8EldNLwYJFKbQlq606DcC-Kcv5iHwpj+6Hi+KvvlqHN9X+CBeKybRBEkLiZCjom8+8-RQYJtgfPJtsFBhDmqc5GmudpdEu5xp1E7zV19G96QJMuD2BDBUrzIuEKut0cuoQUJGRlANFaMnBMIDYSQOnYHKugtvzWCWAntMB3NW-yn2s3Va0bVtLWEPXE7OGJtiBdWV3eGkAmieD7jB1myPk0tORAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgDMAJgCcZAGwOAjAA4V9pyusB2e3cAGhAAT0RbAFYAFjIHJwDrJ2jXWxU06IBfTJDFTDIoajAwI1QobFUNJBBdAyMTMwsED1cyf28-O08nJ3dXJxDwhHtrSLJ7Px6o+1TbUb9s3Ix8-QgAGzBsNgAFDg4AYQAJdkl0MUlKs1rDY1NqpvsVPzJ3SLm-W3dozoS-QcQ-O5bOMVE5-H4VB4AtFbIsQHkyKsNnhCCRyJQaLRMEIADIcFjSegcXgiSTyBFIsCXarXep3UBNGIqcaRPqBeyPXxOSL-ZrWVytVIzSL2WzRFQqaKRaxwinrTb4YikChUMB0bF4gmYIkkskKZaI+VKVxVbR6G4Ne6IayOXoTQEpdIqSJg3kC9y2qW2b3eIHRKWyg0EahEVB1W76MqSHSYeUVdRXc10xrWr7jMG2blfdzWaLWSVu1xeMgQwGigUBAKBrBkNb6QhgVCRqDRkSwNVbXYHY5iLgiHEXBM0pO3FMIZLuF5g+zRafeCbRXlJZkcvwxBwSlLimU5eEGusNptRnRtjuKtEqzEa-GE4mk8n7+ukI8tk-t6jUs3hy0MxACjwlp0rJio8URrm6KhAiWRYir4kSuP4czVvkADuRA3GUABiOjUGwWjFAAxgAFpI+gALZgDoACuBCdnsRwnGcg6mjUI4-uYf4Qm0kquGWop2AEAxhIgIpjO4fgwukQJ+BJyFkGhGFQNhuH4WAxGkRR1G0Ts9E9n2A6fqx370hxCCWFK4zWF8Mk+MkkKuDywkIO8ZCShJrLRCMkR+LxkRyQppRKTheGESR5GUTRKJKuiqp0IwrA6d2LAAOpYJIWo6ve+o1gFzbKSFalhZpNGGbSo5Wgg0Rpkk-pgp4ML+ryUStG81hJPytgeK8gJyVo1A6ARcAGGUp7UGIYAAI5UXAtEQCY5CRgAbjoADW5AIn1A1Dc2o3jVNM0IEtA0kLclSlWxJlNKkoJtJ8LrSkWXi2LyIqtDJ9jAaCtgyf4vX9YNsDDVAu2TdNhB0UlbCnOc53GWOCFJGQCPuGCDmdJK9i8mWZDwcks6QpCTgzn9W2Azt757WD2ldgxvZsP2zGJnDFW8WmMmgh64p2cETm5o4vFzP47SeJz2S7qgOgQHAZh5EzFqXVY4LOG4njeL4AQ80MrieSWYrwR94rXVku4IoUxSBXLyYVZYCRxETHy+KKkE9JriCik4ZDfAEGTq9KfkmwalKW+Vv4IN5wJOAKLjeNr3y+Ly7ue+9Pv+H7cnBqGxnNtGsYbMH7EPMyIo+OKUqzmKfSFpBcRPCjIrZvBsIBzWB7Ptnb5qvnCsIOJzJsvmD1gpEMQvZHLyeJBSQjK87j+ehgX5ap6nhVpXfw7bkco58PiZrOi68xyuspJmIw+aCa5yURoZQFRWhr9baRjC4-IzOkEkfG6bWtKM4dVfdRPGyWDWTaAMgYg32oQe+ocHLSjaJHVm3J0htReuJceEovhJGlKKBYYsgA */
   context,
   id: "fnAI",
   initial: "greeting",
@@ -106,6 +106,11 @@ const machine = machineSetup.createMachine({
           target: "listeningToUser",
           description: "User started speaking again.",
           guard: ({ context }) => context.allowUserBargeIn
+        },
+        SPEECH_RESULT: {
+          target: "waitingForSpeechTimeout",
+          description: "Append speech and go back to listening.",
+          actions: [{ type: "appendSpeech" }]
         }
       },
       after: {
@@ -127,8 +132,15 @@ const machine = machineSetup.createMachine({
         SPEECH_START: {
           target: "listeningToUser",
           description: "Event from VAD or similar system.",
-          actions: [{ type: "cleanSpeech" }],
           guard: ({ context }) => context.allowUserBargeIn
+        },
+        SPEECH_RESULT: {
+          target: "processingUserRequest",
+          description: "Append speech and go back to listening.",
+          actions: [
+            { type: "interruptPlayback" },
+            { type: "appendSpeech" }
+          ]
         }
       },
       invoke: {

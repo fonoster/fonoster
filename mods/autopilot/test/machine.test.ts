@@ -56,9 +56,17 @@ const getActorInput = () => ({
       stop: sandbox.stub().resolves(),
       onData: sandbox.stub()
     }),
-    playDtmf: sandbox.stub().resolves(),
+    playDtmf: sandbox.stub().resolves().callsFake(() => {
+      // Add a delay to emulate the dtmf tone
+      return new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), 500);
+      });
+    }),
     stopSpeech: sandbox.stub().resolves(),
-    say: sandbox.stub().resolves(),
+    // Add a delay to emulate the voice response
+    say: sandbox.stub().resolves().callsFake((content: string) => {
+      return new Promise<void>((resolve) => setTimeout(() => resolve(), 4000));
+    }),
     hangup: sandbox.stub().resolves()
   } as unknown as Voice,
   conversationSettings: {
@@ -72,7 +80,7 @@ const getActorInput = () => ({
     allowUserBargeIn: true,
     idleOptions: {
       message: IDLE_MESSAGE,
-      timeout: 3000,
+      timeout: 30000,
       maxTimeoutCount: 3
     },
     transferOptions: {
@@ -104,7 +112,8 @@ describe("@autopilot/machine", function () {
     // Act
     actor.start();
 
-    await waitFor(500);
+    // Wait just enough time to say the first message
+    await waitFor(4100);
 
     // Assert
     const { context, value: state } = actor.getSnapshot();
@@ -116,13 +125,11 @@ describe("@autopilot/machine", function () {
     expect(context.goodbyeMessage).to.equal(GOODBYE_MESSAGE);
     expect(context.systemErrorMessage).to.equal(SYSTEM_ERROR_MESSAGE);
     expect(context.idleMessage).to.equal(IDLE_MESSAGE);
-    expect(context.idleTimeout).to.equal(3000);
+    expect(context.idleTimeout).to.equal(30000);
     expect(context.maxSpeechWaitTimeout).to.equal(500);
     expect(context.transferMessage).to.equal("Transferring call");
     expect(context.transferPhoneNumber).to.equal("+1234567890");
     expect(context.maxIdleTimeoutCount).to.equal(3);
-    expect(context.idleMessage).to.equal(IDLE_MESSAGE);
-    expect(context.idleTimeout).to.equal(3000);
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.speechBuffer).to.equal("");
     expect(context.isSpeaking).to.equal(false);
@@ -176,9 +183,12 @@ describe("@autopilot/machine", function () {
 
     await waitFor(50);
 
+    // Goes to "waitingForSpeechTimeout"
+    actor.send({ type: "SPEECH_RESULT", speech: "thats all", responseTime: 1000 });
+
     const { context, value: state } = actor.getSnapshot();
     expect(state).to.equal("waitingForSpeechTimeout");
-    expect(context.speechBuffer).to.equal("Well, I personally think that the best way to learn is by doing and yeah");
+    expect(context.speechBuffer).to.equal("Well, I personally think that the best way to learn is by doing and yeah thats all");
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.isSpeaking).to.equal(true);
 
@@ -186,7 +196,7 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
-  it("from 'listeningToUser' call SPEECH_RESULT and wait to move to 'idle'", async function () {
+  it("from 'listeningToUser' call SPEECH_RESULT process the request and goes back to 'listeningToUser'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
 
@@ -199,16 +209,55 @@ describe("@autopilot/machine", function () {
     actor.start();
     actor.send({ type: "SPEECH_START" });
     actor.send({ type: "SPEECH_RESULT", speech: "Hello", responseTime: 1000 });
-    actor.send({ type: "SPEECH_END" });
 
-    // Goes to "processingUserRequest" then to "idle" because of MAX_SPEECH_WAIT_TIMEOUT
-    await waitFor(6000);
+    // Wait just enough to get a MAX_SPEECH_WAIT_TIMEOUT and process the request
+    await waitFor(5500);
 
-    // // Assert
+    // Assert
     const { context, value: state } = actor.getSnapshot();
-    expect(state).to.equal("idle");
+    expect(state).to.equal("listeningToUser");
     expect(context.speechBuffer).to.equal("");
-    expect(context.isSpeaking).to.equal(false);
+    expect(context.isSpeaking).to.equal(true);
+    expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
+
+    // Cleanup
+    actor.stop();
+  }).timeout(20000);
+
+  it("goes from 'processingUserRequest' back to 'processingUserRequest' when SPEECH_RESULT is received", async function () {
+    // Arrange
+    const { machine } = await import("../src/machine");
+
+    const input = getActorInput();
+    const actor = createActor(machine, {
+      input
+    });
+
+    // Act
+    actor.start();
+    actor.send({ type: "SPEECH_START" });
+
+    await waitFor(50);
+    let { value: state0 } = actor.getSnapshot();
+    expect(state0).to.equal("listeningToUser");
+
+    actor.send({ type: "SPEECH_RESULT", speech: "Hello?", responseTime: 1000 });
+
+    // Wait just enough to get a MAX_SPEECH_WAIT_TIMEOUT
+    await waitFor(600);
+    let { value: state1 } = actor.getSnapshot();
+    expect(state1).to.equal("processingUserRequest");
+
+    actor.send({ type: "SPEECH_RESULT", speech: "Hello!", responseTime: 1000 });
+
+    // Just enough to be in the middle of processing the request
+    await waitFor(2000);
+
+    // Assert
+    const { context, value: state } = actor.getSnapshot();
+    expect(state).to.equal("processingUserRequest");
+    expect(context.speechBuffer).to.equal("Hello? Hello!");
+    expect(context.isSpeaking).to.equal(true);
     expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
 
     // Cleanup
@@ -220,6 +269,10 @@ describe("@autopilot/machine", function () {
     const { machine } = await import("../src/machine");
 
     const input = getActorInput();
+
+    // 500ms is not a realistic timeout, but kept low for testing purposes
+    input.conversationSettings.idleOptions.timeout = 500;
+
     const actor = createActor(machine, {
       input
     });
