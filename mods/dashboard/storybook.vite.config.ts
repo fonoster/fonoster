@@ -16,20 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [reactRouter(), tsconfigPaths()],
-  ssr: {
-    noExternal: ["@mui/*", "@emotion/*"]
-  },
-  optimizeDeps: {
-    include: ["@mui/*", "@emotion/*"],
-    force: true
-  },
-  server: {
-    port: 8080
-  }
+  plugins: [tsconfigPaths()],
 });

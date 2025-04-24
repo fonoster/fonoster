@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,20 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { reactRouter } from "@react-router/dev/vite";
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { Icon } from "../../icons/icons";
+import {
+  type CheckboxProps,
+  CheckboxLabel,
+  CheckboxRoot
+} from "./checkbox.styles";
 
-export default defineConfig({
-  plugins: [reactRouter(), tsconfigPaths()],
-  ssr: {
-    noExternal: ["@mui/*", "@emotion/*"]
-  },
-  optimizeDeps: {
-    include: ["@mui/*", "@emotion/*"],
-    force: true
-  },
-  server: {
-    port: 8080
-  }
-});
+export const Checkbox = (props: CheckboxProps) => {
+  const { children, ...checkboxProps } = props;
+
+  return (
+    <CheckboxLabel
+      control={
+        <CheckboxRoot
+          icon={<Icon name="CheckboxEmpty" fontSize="small" />}
+          checkedIcon={<Icon name="CheckboxSelected" fontSize="small" />}
+          indeterminateIcon={
+            <Icon name="CheckboxIntermediate" fontSize="small" />
+          }
+          disableRipple
+          {...checkboxProps}
+        />
+      }
+      label={children}
+    />
+  );
+};

@@ -24,12 +24,15 @@ const config: StorybookConfig = {
     getAbsolutePath("@storybook/addon-onboarding"),
     getAbsolutePath("@storybook/addon-essentials"),
     getAbsolutePath("@storybook/addon-interactions"),
-    getAbsolutePath("@storybook/addon-themes"),
     getAbsolutePath("@storybook/addon-designs")
   ],
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),
-    options: {}
+    options: {
+      builder: {
+        viteConfigPath: "storybook.vite.config.ts"
+      }
+    }
   },
   core: {
     disableTelemetry: true

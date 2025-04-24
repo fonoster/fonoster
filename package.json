@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "start:dashboard": "NODE_ENV=development cd mods/dashboard && npm run dev",
-    "start:storybook": "NODE_ENV=dev cd mods/dashboard && npm run storybook",
+    "start:storybook": "NODE_ENV=development cd mods/dashboard && npm run storybook",
     "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver mods/apiserver/src/index.ts",
     "start:authz": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/authz mods/authz/src/server/server.ts",
     "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice mods/voice/src/demo.ts",

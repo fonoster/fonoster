@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,20 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { reactRouter } from "@react-router/dev/vite";
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { StyledButton, type ButtonAttributes } from "./button.styles";
 
-export default defineConfig({
-  plugins: [reactRouter(), tsconfigPaths()],
-  ssr: {
-    noExternal: ["@mui/*", "@emotion/*"]
-  },
-  optimizeDeps: {
-    include: ["@mui/*", "@emotion/*"],
-    force: true
-  },
-  server: {
-    port: 8080
-  }
-});
+export const Button = (props: ButtonAttributes) => {
+  const { size = "large", variant = "contained", ...rest } = props;
+
+  return (
+    <StyledButton variant={variant} size={size} disableElevation {...rest} />
+  );
+};

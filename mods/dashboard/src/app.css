@@ -1,12 +1,27 @@
 :root {
   --font-sans:
-    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(226 232 240);
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
 html,
 body {
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+  font-family: var(--font-sans);
+}
+
+[data-sonner-toast][data-styled="true"] [data-content] {
+  width: 100%;
 }
