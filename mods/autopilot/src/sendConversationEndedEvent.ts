@@ -35,10 +35,10 @@ export type EventsHook = {
 export async function sendConversationEndedEvent(
   eventsHook: EventsHook,
   data: {
-    chatHistory: Record<string, string>[],
-    phone: string,
-    appRef: string,
-    sessionRef: string
+    chatHistory: Record<string, string>[];
+    phone: string;
+    appRef: string;
+    sessionRef: string;
   }
 ) {
   const { chatHistory, phone, appRef, sessionRef } = data;
