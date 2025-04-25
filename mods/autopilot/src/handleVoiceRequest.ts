@@ -146,8 +146,12 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
       if (assistantConfig.eventsHook?.url) {
         await sendConversationEndedEvent(
           assistantConfig.eventsHook as EventsHook,
-          chatHistory as Record<string, string>[],
-          callerNumber
+          {
+            chatHistory: chatHistory as Record<string, string>[],
+            phone: ingressNumber,
+            appRef,
+            sessionRef
+          }
         );
       }
     });

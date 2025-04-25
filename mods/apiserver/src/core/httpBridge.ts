@@ -24,6 +24,8 @@ import {
 import { getLogger } from "@fonoster/logger";
 import express, { Request, Response } from "express";
 import { APP_URL } from "../envs";
+import fs from "fs";
+import path from "path";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -79,6 +81,13 @@ function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
       }
     }
   );
+
+  app.get("/api/recordings/:id", (req: Request, res: Response) => {
+    const RECORDINGS_PATH = path.join("/opt/fonoster/recordings", req.params.id);
+    const wave = fs.readFileSync(RECORDINGS_PATH);
+    res.setHeader("content-type", "audio/wav");
+    res.send(wave);
+  });
 
   app.listen(port, () => {
     logger.info(`HTTP bridge is running on port ${port}`);
