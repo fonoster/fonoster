@@ -34,7 +34,8 @@ export type EventsHook = {
 
 export async function sendConversationEndedEvent(
   eventsHook: EventsHook,
-  chatHistory: Record<string, string>[]
+  chatHistory: Record<string, string>[],
+  phone: string
 ) {
   if (
     !eventsHook?.events.includes(EventsHookAllowedEvents.CONVERSATION_ENDED) &&
@@ -46,6 +47,7 @@ export async function sendConversationEndedEvent(
   const parsedEventsHook = eventsHookSchema.parse(eventsHook);
   const body = {
     eventType: EventsHookAllowedEvents.CONVERSATION_ENDED,
+    phone,
     chatHistory
   };
 
