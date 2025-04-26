@@ -127,10 +127,20 @@ const machine = machineSetup.createMachine({
           actions: [{ type: "cleanSpeech" }]
         },
         SPEECH_RESULT: {
-          // This makes sure result that
           target: "processingUserRequest",
           description: "Append speech and go back to listening.",
-          actions: [{ type: "interruptPlayback" }, { type: "appendSpeech" }],
+          actions: [
+            { type: "interruptPlayback" },
+            { type: "appendSpeech" },
+            assign(({ context, self }) => {
+              const isReentry =
+                self.getSnapshot().value === context.previousState;
+              return {
+                previousState: self.getSnapshot().value,
+                isReentry
+              };
+            })
+          ],
           reenter: true
         }
       },
@@ -150,17 +160,6 @@ const machine = machineSetup.createMachine({
     MAX_SESSION_DURATION: {
       target: ".hangup",
       actions: { type: "goodbye" }
-    }
-  },
-  on: {
-    "*": {
-      actions: assign(({ context, self }) => {
-        const isReentry = self.getSnapshot().value === context.previousState;
-        return {
-          previousState: self.getSnapshot().value,
-          isReentry
-        };
-      })
     }
   }
 });
