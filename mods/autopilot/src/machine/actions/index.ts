@@ -25,6 +25,4 @@ export { increaseIdleTimeoutCount } from "./increaseIdleTimeoutCount";
 export { cleanSpeech } from "./cleanSpeech";
 export { appendSpeech } from "./appendSpeech";
 export { resetIdleTimeoutCount } from "./resetIdleTimeoutCount";
-export { setSpeaking } from "./setSpeaking";
-export { setSpeakingDone } from "./setSpeakingDone";
 export { resetState } from "./resetState";

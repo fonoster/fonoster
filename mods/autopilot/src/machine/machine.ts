@@ -21,7 +21,7 @@ import { context } from "./context";
 import { machineSetup } from "./setup";
 
 const machine = machineSetup.createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgDMAJgCcZAGwOAjAA4V9pyusB2e3cAGhAAT0RbAFYAFjIHJwDrJ2jXWxU06IBfTJDFTDIoajAwI1QobFUNJBBdAyMTMwsED1cyf28-O08nJ3dXJxDwhHtrSLJ7Px6o+1TbUb9s3Ix8-QgAGzBsNgAFDg4AYQAJdkl0MUlKs1rDY1NqpvsVPzJ3SLm-W3dozoS-QcQ-O5bOMVE5-H4VB4AtFbIsQHkyKsNnhCCRyJQaLRMEIADIcFjSegcXgiSTyBFIsCXarXep3UBNGIqcaRPqBeyPXxOSL-ZrWVytVIzSL2WzRFQqaKRaxwinrTb4YikChUMB0bF4gmYIkkskKZaI+VKVxVbR6G4Ne6IayOXoTQEpdIqSJg3kC9y2qW2b3eIHRKWyg0EahEVB1W76MqSHSYeUVdRXc10xrWr7jMG2blfdzWaLWSVu1xeMgQwGigUBAKBrBkNb6QhgVCRqDRkSwNVbXYHY5iLgiHEXBM0pO3FMIZLuF5g+zRafeCbRXlJZkcvwxBwSlLimU5eEGusNptRnRtjuKtEqzEa-GE4mk8n7+ukI8tk-t6jUs3hy0MxACjwlp0rJio8URrm6KhAiWRYir4kSuP4czVvkADuRA3GUABiOjUGwWjFAAxgAFpI+gALZgDoACuBCdnsRwnGcg6mjUI4-uYf4Qm0kquGWop2AEAxhIgIpjO4fgwukQJ+BJyFkGhGFQNhuH4WAxGkRR1G0Ts9E9n2A6fqx370hxCCWFK4zWF8Mk+MkkKuDywkIO8ZCShJrLRCMkR+LxkRyQppRKTheGESR5GUTRKJKuiqp0IwrA6d2LAAOpYJIWo6ve+o1gFzbKSFalhZpNGGbSo5Wgg0Rpkk-pgp4ML+ryUStG81hJPytgeK8gJyVo1A6ARcAGGUp7UGIYAAI5UXAtEQCY5CRgAbjoADW5AIn1A1Dc2o3jVNM0IEtA0kLclSlWxJlNKkoJtJ8LrSkWXi2LyIqtDJ9jAaCtgyf4vX9YNsDDVAu2TdNhB0UlbCnOc53GWOCFJGQCPuGCDmdJK9i8mWZDwcks6QpCTgzn9W2Azt757WD2ldgxvZsP2zGJnDFW8WmMmgh64p2cETm5o4vFzP47SeJz2S7qgOgQHAZh5EzFqXVY4LOG4njeL4AQ80MrieSWYrwR94rXVku4IoUxSBXLyYVZYCRxETHy+KKkE9JriCik4ZDfAEGTq9KfkmwalKW+Vv4IN5wJOAKLjeNr3y+Ly7ue+9Pv+H7cnBqGxnNtGsYbMH7EPMyIo+OKUqzmKfSFpBcRPCjIrZvBsIBzWB7Ptnb5qvnCsIOJzJsvmD1gpEMQvZHLyeJBSQjK87j+ehgX5ap6nhVpXfw7bkco58PiZrOi68xyuspJmIw+aCa5yURoZQFRWhr9baRjC4-IzOkEkfG6bWtKM4dVfdRPGyWDWTaAMgYg32oQe+ocHLSjaJHVm3J0htReuJceEovhJGlKKBYYsgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgDMADgDsZFQDYATAFYAnLevuAjPYALIF+ADQgAJ6IHoFkrp5B9s6ezn6pzu7uAL5Z4YqYZFDUYGBGqFDYqhpIILoGRiZmFgh+tn5k1vYp9tauti7Obc7hUQievmQJzm5efq6uvvY5eRgF+hAANmDYbAAKHBwAwgAS7JLoYpJVZnWGxqY1zZ4qjrbuC-Z9gT3O9vYjiHstlckxcnXsKlaXUCrmWIHyZHWWzwhBI5EoNFomCEABkOCxpPQOLwRJJ5AikWBrjVbg0HqBmu5AipJu42t5PM8VNYMgCWtY-O05p4-F5XMyVIF3NY4RTNtt8MRSBQqGA6Ni8QTMESSWSFKtEfKlH5qto9HdGo9ENZArYyAF-P5fra+q4+YKFmQgv13EF-DypbKDRt9IQwKh9OVJDoRLA1Tt9kdTmIuCIcVd1DdzXSmohnLayLZnNZPIFi5zkkE+TyWZz7Ez4ipJX5mTLcvDg6HSBGozG49QUUr0ar1bj8YTiaTyZ2wz2oNHY2rqWb6vdcy1BXa-r5gYFnh56+6VMCvX4VF5uf7Pm2VlgyAB3Ih3coAMR01DYWhKAGMABaSfQAFswB0ABXAgEwOE4zguDNTVqbM1ytFoIQ6ZsgU5BZXC6YZIkQLx3ELIJXBUV0-kCIM70fZ8oDfD8vzAP8AOAsCIL2KDk1TdNlwQ1dLQZKwpUmOxviSFxmUFdw+Q+JxvilWw90WB1KIKaiylo99Px-f8gJA8DBzRFVMUYVh2KTFgAHUsEkLUdSnfUqKfdS6K0xidJY8CeNpJCBI3Wwtw+NJxl+YE3TwhBxRBbxbG8dxpji7xWhUsgtGoHRvzgAxykXagxDAABHUC4AgiATHISMADcdAAa3IBFUvSzLIygHK8sK4qEEq9KSHuKovMQ-jzEQOZ3g6QY-HGc9xjaPkLzIZk+m3ToQiCZKGoy2Aspa-s2qKwhIPMthzkufq+PpIb+R5e1rDsYtRR6SVPD5DCyCdYJnEhSFkgo9t6rSjattagq9rYxNoJTNg0zgrMzvXAIFK9CFBlLcTj2rPd7WvTpOm8Y9SxydtUB0CA4DMfIYYtc7mksQIJhcDxvF8AJgjCcKW08V65Old4eWdG8OzvIoSnUimc2QyxfjiSsSJLEii0GPlPFcZx5r+JXJW5etfGSylRZ8i7fRBVI0niVJgghaxFeV1WuhI1steyX6Z27ZqF37PXBuaBwWXZaxzwFYtMkCWbUkLfpjx5aa2WStTmpchimN01iPap4bJdSIs+g+5Wy2D8KSw5z4QmV8Z7DPX5HdvApfyIcpQK0FP10sEjCLcAURVIxIwtGPwbvaXxDdtOKEp+quUv+prsp24Hisb5DRWlMbBSBDJSJu2aHDDpsFJ5aUlaWAmgA */
   context,
   id: "fnAI",
   initial: "greeting",
@@ -37,7 +37,7 @@ const machine = machineSetup.createMachine({
     },
 
     idle: {
-      entry: [{ type: "cleanSpeech" }, { type: "setSpeakingDone" }],
+      entry: [{ type: "cleanSpeech" }],
       on: {
         SPEECH_START: {
           target: "listeningToUser",
@@ -52,31 +52,19 @@ const machine = machineSetup.createMachine({
             guard: and(["idleTimeoutCountExceedsMax"])
           },
           {
-            target: "transitioningToIdle",
+            target: "idle",
             actions: [
               { type: "increaseIdleTimeoutCount" },
               { type: "announceIdleTimeout" }
-            ]
+            ],
+            reenter: true
           }
         ]
       }
     },
 
-    transitioningToIdle: {
-      // This intermediate state is necessary to ensure the IDLE_TIMEOUT
-      // event is properly reset and retriggered when returning to idle.
-      // Without it, the timer would not restart correctly.
-      always: {
-        target: "idle"
-      }
-    },
-
     listeningToUser: {
-      entry: [
-        { type: "interruptPlayback" },
-        { type: "resetIdleTimeoutCount" },
-        { type: "setSpeaking" }
-      ],
+      entry: [{ type: "interruptPlayback" }, { type: "resetIdleTimeoutCount" }],
       on: {
         SPEECH_RESULT: {
           target: "waitingForSpeechTimeout",
@@ -90,7 +78,7 @@ const machine = machineSetup.createMachine({
       after: {
         IDLE_TIMEOUT: [
           {
-            target: "transitioningToIdle",
+            target: "idle",
             actions: [
               { type: "increaseIdleTimeoutCount" },
               { type: "announceIdleTimeout" }
@@ -132,12 +120,17 @@ const machine = machineSetup.createMachine({
         SPEECH_START: {
           target: "listeningToUser",
           description: "Event from VAD or similar system.",
-          guard: ({ context }) => context.allowUserBargeIn
+          guard: ({ context }) => context.allowUserBargeIn,
+          // We assume that the user wants to steer the conversation
+          // back to the agent so we clean the speech buffer
+          actions: [{ type: "cleanSpeech" }]
         },
         SPEECH_RESULT: {
+          // This makes sure result that
           target: "processingUserRequest",
           description: "Append speech and go back to listening.",
-          actions: [{ type: "interruptPlayback" }, { type: "appendSpeech" }]
+          actions: [{ type: "interruptPlayback" }, { type: "appendSpeech" }],
+          reenter: true
         }
       },
       invoke: {
