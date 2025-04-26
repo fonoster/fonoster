@@ -199,6 +199,12 @@ class VoiceClientImpl implements VoiceClient {
 
     channel.once(AriEvent.STASIS_START, async (_, channel) => {
       bridge.addChannel({ channel: [snoopChannel.id, channel.id] });
+
+      this.ari.bridges.record({
+        bridgeId: bridge.id,
+        name: `${this.config.appRef}_${this.config.sessionRef}_b`,
+        format: "wav"
+      });
     });
 
     channel.once("ChannelLeftBridge", async () => {
