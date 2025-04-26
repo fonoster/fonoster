@@ -47,7 +47,9 @@ const context = ({
   allowUserBargeIn: input.conversationSettings.allowUserBargeIn,
   sessionStartTime: Date.now(),
   maxSessionDuration: input.conversationSettings.maxSessionDuration,
-  initialDtmf: input.conversationSettings.initialDtmf
+  initialDtmf: input.conversationSettings.initialDtmf,
+  previousState: null,
+  isReentry: false
 });
 
 export { context };

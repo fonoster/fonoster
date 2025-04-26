@@ -38,6 +38,8 @@ type AutopilotContext = {
   speechResponseTime: number;
   knowledgeBaseSourceUrl?: string;
   initialDtmf?: string;
+  previousState: string | null;
+  isReentry: boolean;
 };
 
 type AutopilotEvents =

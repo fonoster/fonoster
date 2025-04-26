@@ -74,7 +74,7 @@ abstract class AbstractLanguageModel implements LanguageModel {
     );
   }
 
-  async invoke(text: string): Promise<InvocationResult> {
+  async invoke(text: string, isReentry: boolean): Promise<InvocationResult> {
     const { chain, chatHistory, toolsCatalog } = this;
     const response = (await chain.invoke({ text })) as AIMessage;
     let isFirstTool = true;
@@ -85,6 +85,14 @@ abstract class AbstractLanguageModel implements LanguageModel {
       hasTools: (response.tool_calls?.length ?? 0) > 0,
       tools: response.tool_calls?.map((tool) => tool.name)
     });
+
+    // This handles late speech recognition
+    if (isReentry) {
+      logger.verbose("xxx reentry detected, discarding last conversation turn");
+      const messages = await chatHistory.getMessages();
+      messages.pop(); // Last AI message
+      messages.pop(); // Last user message
+    }
 
     // Begin the conversation with the first message
     if ((await chatHistory.getMessages()).length === 0 && this.firstMessage) {

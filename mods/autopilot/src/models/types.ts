@@ -23,7 +23,7 @@ import { KnowledgeBase } from "../knowledge";
 import { Tool } from "../tools/types";
 
 type LanguageModel = {
-  invoke: (text: string) => Promise<InvocationResult>;
+  invoke: (text: string, isReentry?: boolean) => Promise<InvocationResult>;
 };
 
 type BaseModelParams = {
