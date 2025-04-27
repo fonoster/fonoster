@@ -117,6 +117,7 @@ const machine = machineSetup.createMachine({
     },
 
     processingUserRequest: {
+      entry: [assign({ isReentry: false })],
       on: {
         SPEECH_START: {
           target: "listeningToUser",
@@ -124,20 +125,19 @@ const machine = machineSetup.createMachine({
           guard: ({ context }) => context.allowUserBargeIn,
           // We assume that the user wants to steer the conversation
           // back to the agent so we clean the speech buffer
-          actions: [{ type: "cleanSpeech" }]
+          actions: [{ type: "cleanSpeech" }, assign({ isReentry: false })]
         },
         SPEECH_RESULT: {
           target: "processingUserRequest",
-          description: "Capture any late speech and go back to processing.",
+          description: "Capture only a single late speech and go back to processing.",
+          guard: ({ context }) => !context.isReentry,
           actions: [
             { type: "interruptPlayback" },
             { type: "appendSpeech" },
             assign(({ context, self }) => {
-              const isReentry =
-                self.getSnapshot().value === context.previousState;
               return {
                 previousState: self.getSnapshot().value,
-                isReentry
+                isReentry: true
               };
             })
           ],
@@ -151,7 +151,13 @@ const machine = machineSetup.createMachine({
         onDone: {
           target: "listeningToUser",
           reenter: true,
-          actions: [{ type: "cleanSpeech" }, assign({ isFirstTurn: false })]
+          actions: [
+            { type: "cleanSpeech" }, 
+            assign({ 
+              isFirstTurn: false,
+              isReentry: false 
+            })
+          ]
         }
       }
     }
