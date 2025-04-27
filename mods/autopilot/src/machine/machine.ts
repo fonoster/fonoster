@@ -22,7 +22,7 @@ import { context } from "./context";
 import { machineSetup } from "./setup";
 
 const machine = machineSetup.createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgFQG0AGAXUVAAcB7WASwBcbLUyQAPRAWgFYBmARgB0ADi58A7CMIA2HgBYuATj4AaEAE9EPAEwDZYsQqljZQnoT18pUgL7XVaLNlaw6AQzpgBr5B4BOACgBZdAANAH0AZQBRCIjMAHkAOTCAEQBVACV0ABUExIBKbAdMIlIkECpaBiYWdgQOHiExAWktRVNRY1kVdUQ22QEtBWMxKUNLSy4uW3sMTAEoXzAwBlQobFKWSvpGZnK6viFBHgMjbSFpKSOpVQ0EBR4uAWGrNqUtLUexGZBigRoIAAbMDYCIABSiUQAwgAJSLZdAZbKbcrbap7UB1BSEZoiT5iLRCPQ8IxiW6ICQ6bEyfSEQ4GWRaH5-AHApwudyebx+fyYFIAGSiYVygSi8TS2UKLKBYBRFGoOxq+0QXFkhGeXCOCiECmxhBJXHJCD4-EEfCGfEUWjV5l4zLm-xl7LcHi8PjAAT5guFmFF4slRQdrNlfDK8qqu1qmhMAnEolERhMhK0Rr45p4AmMFy4xlEJPk9qwAkBNBcYFQNDW2UoaVgHtBEOhcIyMTS-ORJC2CvRUYQUhjQhkClkQ8Mw1kRpJ6t1YlVQ0I5j4ap4hfmJbLFarNbrvmdnLdPK9QpFYolUod648m6g1drHrlFW7keVxrTQkzYkeQmt2Las9ThDfpmfCEIo+p5gSK52L8DoAO6uDsawAGKUL4ETkMsADGAAW2Q0AAtmAlAAK50A2kKwvCiIdmGj4RkqmKIOI6pmN0Ei6p8WinEaihPE0jKEMm+iyKuAjwYhUAoWhGFgDheGESRZHghRzatu2D5os+jH1PIzyNHoozSGqaaGr0CD4i0ejyESDw5nGoniaskmoehWG4QRRGkXurrch6QShJEjaUQA6lg2Q+n6Z6BkWjmVs50lufJnl0BpT4MWwTGHO+kFiJYDxGN+KZmdaVJCDqIhWFwYxHEIonkL4lCYXAtBrHevgZGAACOxFwGREBMJ4lYAG6UAA1p4fz1Y1zVxW1HXdb1CDDY17i7KUqX0RiGXGm0OgklqZiKI0PR3GBuiCU0n4nGxInQZNDVNbALVQHNXU9S45FNlRSIbYqW0HDwJKxoDg78DmrEKEa7ECAmsgjnSdJjLdsxFlNj3Pa9C0fcpX0thEbY0V2m29uIRIftIOpqv2gGTrICixpBJwnNqgHDrY0GoJQEBwCwxRE39vYcLIjwtFIbwdOIcMnUxdMw1ZVxDDqXD6qJizLE5-M9i+HBGIMYwEvqChaIBVhCEaRtSLo+hG+Y+qzo8onBprWnbTmOhSGmYvjHDYj6ubWiWwZNvLvb0x3RepZXnFt47s76V1E06oHaB-AyFME5mVVghlQuphjI0moOQhTlSa5snuQppFx-9TG6x7g6ElIgn9v2k66pm1rmvnuXSLOonYa4azEeQ1eC8bTxi-wSiCSMRV3Ca-ACI8bsmFVVVs+HqMPTNrU7vN710KPL6WrwS8e6TUjK58PA8U0wgXIBwuXzwRvfOzQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgDMADgDsZFQDYATAFYAnLevuAjPYALIF+ADQgAJ6IHoFkrp5B9s6ezn6pzu7uAL5Z4YqYZFDUYGBGqFDYqhpIILoGRiZmFgh+tn5k1vYp9tauti7Obc7hUQievmQJzm5efq6uvvY5eRgF+hAANmDYbAAKHBwAwgAS7JLoYpJVZnWGxqY1zZ4qjrbuC-Z9gT3O9vYjiHstlckxcnXsKlaXUCrmWIHyZHWWzwhBI5EoNFomCEABkOCxpPQOLwRJJ5AikWBrjVbg0HqBmu5AipJu42t5PM8VNYMgCWtY-O05p4-F5XMyVIF3NY4RTNtt8MRSBQqGA6Ni8QTMESSWSFKtEfKlH5qto9HdGo9ENZArYyAF-P5fra+q4+YKFmQgv13EF-DypbKDRt9IQwKh9OVJDoRLA1Tt9kdTmIuCIcVd1DdzXSmohnLayLZnNZPIFi5zkkE+TyWZz7Ez4ipJX5mTLcvDg6HSBGozG49QUUr0ar1bj8YTiaTyZ2wz2oNHY2rqWb6vdcy1BXa-r5gYFnh56+6VMCvX4VF5uf7Pm2VlgyAB3Ih3coAMR01DYWhKAGMABaSfQAFswB0ABXAgEwOE4zguDNTVqbM1ytFoIQ6ZsgU5BZXC6YZIkQLx3ELIJXBUV0-kCIM70fZ8oDfD8vzAP8AOAsCIL2KDk1TdNlwQ1dLQZKwpUmOxviSFxmUFdw+Q+JxvilWw90WB1KIKaiylo99Px-f8gJA8DBzRFVMUYVh2KTFgAHUsEkLUdSnfUqKfdS6K0xidJY8CeNpJCBI3Wwtw+NJxl+YE3TwhBxRBbxbG8dxpji7xWhUsgtGoHRvzgAxykXagxDAABHUC4AgiATHISMADcdAAa3IBFUvSzLIygHK8sK4qEEq9KSHuKovMQ-jzEQOZ3g6QY-HGc9xjaPkLzIZk+m3ToQiCZKGoy2Aspa-s2qKwhIPMthzkufq+PpIb+R5e1rDsYtRR6SVPD5DCyCdYJnEhSFkgo9t6rSjattagq9rYxNoJTNg0zgrMzvXAIFK9CFBlLcTj2rPd7WvTpOm8Y9SxydtUB0CA4DMfIYYtc7mksQIJhcDxvF8AJgjCcKW08V65Liss5h6bxkqKEp1IpnNkMsX44krEiSxIotBj5TxXGcea-kVyVuXrXxkspEWfIu30QVSNJ4lSYIIWsBWlZVroSNbTXsl+mdu2ahd+11wbmgcFl2Wsc8BWLTJAlm1JC36Y8eWmtlkrU5qXIYpjdNY92qeGiXUiLPoPqVssg-CksOc+EIlfGewz1+B3bwKX8iHKUCtGT9dLBIwi3AFEVSMSMLRj8G72l8A3bTihKfsrlL-qa7KduB4qG+Q0VpTGwUgQyUibtmhxQ6bBSeWlRWlgJoA */
   context,
   id: "fnAI",
   initial: "greeting",
@@ -98,7 +98,7 @@ const machine = machineSetup.createMachine({
         },
         SPEECH_RESULT: {
           target: "waitingForSpeechTimeout",
-          description: "Append speech and go back to listening.",
+          description: "Capture any late speech.",
           actions: [{ type: "appendSpeech" }]
         }
       },
@@ -128,7 +128,7 @@ const machine = machineSetup.createMachine({
         },
         SPEECH_RESULT: {
           target: "processingUserRequest",
-          description: "Append speech and go back to listening.",
+          description: "Capture any late speech and go back to processing.",
           actions: [
             { type: "interruptPlayback" },
             { type: "appendSpeech" },
@@ -151,7 +151,7 @@ const machine = machineSetup.createMachine({
         onDone: {
           target: "listeningToUser",
           reenter: true,
-          actions: [{ type: "cleanSpeech" }]
+          actions: [{ type: "cleanSpeech" }, assign({ isFirstTurn: false })]
         }
       }
     }

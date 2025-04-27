@@ -49,7 +49,8 @@ const context = ({
   maxSessionDuration: input.conversationSettings.maxSessionDuration,
   initialDtmf: input.conversationSettings.initialDtmf,
   previousState: null,
-  isReentry: false
+  isReentry: false,
+  isFirstTurn: true
 });
 
 export { context };

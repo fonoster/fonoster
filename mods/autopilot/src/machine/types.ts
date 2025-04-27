@@ -40,6 +40,7 @@ type AutopilotContext = {
   initialDtmf?: string;
   previousState: string | null;
   isReentry: boolean;
+  isFirstTurn: boolean;
 };
 
 type AutopilotEvents =
