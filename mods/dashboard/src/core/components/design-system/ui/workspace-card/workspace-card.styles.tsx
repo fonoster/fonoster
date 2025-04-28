@@ -36,12 +36,12 @@ export const StyledCard = styled(Card)<{
   "&:hover": {
     border: disabled
       ? `1px solid ${theme.palette.secondary.light}`
-      : `1px solid ${theme.palette.primary.main}`,
+      : `1px solid ${theme.palette.brand.main}`,
     "& .workspace-icon": {
-      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.primary.main
+      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.brand.main
     },
     "& .workspace-text": {
-      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.primary.main
+      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.brand.main
     }
   }
 }));
@@ -125,7 +125,7 @@ export const StyledIcon = styled("div")<{ clickable?: boolean }>(
     cursor: clickable ? "pointer" : "default",
     transition: "color 0.2s ease",
     "&:hover": {
-      color: clickable ? theme.palette.primary.main : "rgba(51, 51, 51, 1)"
+      color: clickable ? theme.palette.brand.main : "rgba(51, 51, 51, 1)"
     },
     "& svg": {
       width: "16px",

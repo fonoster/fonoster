@@ -98,10 +98,10 @@ export const Select: React.FC<SelectProps> = ({
             borderColor: (theme) => theme.palette.inputBorder
           },
           "&:hover fieldset": {
-            borderColor: (theme) => theme.palette.primary.main
+            borderColor: (theme) => theme.palette.brand.main
           },
           "&.Mui-focused fieldset": {
-            borderColor: (theme) => theme.palette.primary.main,
+            borderColor: (theme) => theme.palette.brand.main,
             borderWidth: "2px"
           }
         }

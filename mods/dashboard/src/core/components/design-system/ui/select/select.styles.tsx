@@ -45,22 +45,23 @@ export const StyledSelect = styled(Select)(({ theme }) => ({
     borderRadius: "4px"
   },
   "&:hover .MuiOutlinedInput-notchedOutline": {
-    borderColor: theme.palette.primary.main
+    borderColor: theme.palette.brand.main
   },
-  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-    borderColor: theme.palette.primary.main,
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: theme.palette.brand.main,
     borderWidth: "2px"
   },
   "& .MuiInputLabel-root": {
     transform: "translate(14px, 16px) scale(1)",
     fontFamily: "'Poppins', sans-serif",
     fontWeight: 500,
+    color: theme.palette.text.primary,
     "&.MuiInputLabel-shrink": {
       transform: "translate(14px, -9px) scale(0.75)"
-    },
-    "&.Mui-focused": {
-      color: theme.palette.primary.main
     }
+  },
+  "&.Mui-focused .MuiInputLabel-root": {
+    color: theme.palette.brand.main
   },
   "& + .MuiMenu-paper": {
     marginTop: "4px",
