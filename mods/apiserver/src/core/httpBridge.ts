@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import fs from "fs";
+import path from "path";
 import { Readable } from "stream";
 import {
   createUpdateMembershipStatus,
@@ -79,6 +81,16 @@ function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
       }
     }
   );
+
+  app.get("/api/recordings/:id", (req: Request, res: Response) => {
+    const RECORDINGS_PATH = path.join(
+      "/opt/fonoster/recordings",
+      req.params.id
+    );
+    const wave = fs.readFileSync(RECORDINGS_PATH);
+    res.setHeader("content-type", "audio/wav");
+    res.send(wave);
+  });
 
   app.listen(port, () => {
     logger.info(`HTTP bridge is running on port ${port}`);

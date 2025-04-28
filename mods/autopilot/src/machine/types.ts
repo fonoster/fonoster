@@ -36,9 +36,10 @@ type AutopilotContext = {
   maxSpeechWaitTimeout: number;
   speechBuffer: string;
   speechResponseTime: number;
-  isSpeaking: boolean;
   knowledgeBaseSourceUrl?: string;
   initialDtmf?: string;
+  previousState: string | null;
+  isReentry: boolean;
 };
 
 type AutopilotEvents =

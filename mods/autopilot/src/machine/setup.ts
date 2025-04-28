@@ -83,21 +83,8 @@ const machineSetup = setup({
       return {
         ...context,
         speechBuffer: "",
-        idleTimeoutCount: 0,
-        isSpeaking: false
+        idleTimeoutCount: 0
       };
-    }),
-    setSpeaking: assign(({ context }) => {
-      logger.verbose("called the setSpeaking action", { isSpeaking: true });
-      context.isSpeaking = true;
-      return context;
-    }),
-    setSpeakingDone: assign(({ context }) => {
-      logger.verbose("called the setSpeakingDone action", {
-        isSpeaking: false
-      });
-      context.isSpeaking = false;
-      return context;
     })
   },
   guards,

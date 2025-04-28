@@ -26,7 +26,6 @@ export const resetState = assign(({ context }) => {
   return {
     ...context,
     speechBuffer: "",
-    idleTimeoutCount: 0,
-    isSpeaking: false
+    idleTimeoutCount: 0
   };
 });

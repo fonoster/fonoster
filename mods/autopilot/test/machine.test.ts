@@ -132,7 +132,6 @@ describe("@autopilot/machine", function () {
     expect(context.maxIdleTimeoutCount).to.equal(3);
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.speechBuffer).to.equal("");
-    expect(context.isSpeaking).to.equal(false);
     expect(context.allowUserBargeIn).to.equal(true);
 
     // Cleanup
@@ -157,7 +156,6 @@ describe("@autopilot/machine", function () {
     expect(state).to.equal("listeningToUser");
     expect(context.speechBuffer).to.equal("");
     expect(context.idleTimeoutCount).to.equal(0);
-    expect(context.isSpeaking).to.equal(true);
     expect(input.voice.stopSpeech).to.have.been.calledOnce;
 
     // Cleanup
@@ -190,7 +188,6 @@ describe("@autopilot/machine", function () {
     expect(state).to.equal("waitingForSpeechTimeout");
     expect(context.speechBuffer).to.equal("Well, I personally think that the best way to learn is by doing and yeah thats all");
     expect(context.idleTimeoutCount).to.equal(0);
-    expect(context.isSpeaking).to.equal(true);
 
     // Cleanup
     actor.stop();
@@ -217,7 +214,6 @@ describe("@autopilot/machine", function () {
     const { context, value: state } = actor.getSnapshot();
     expect(state).to.equal("listeningToUser");
     expect(context.speechBuffer).to.equal("");
-    expect(context.isSpeaking).to.equal(true);
     expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
 
     // Cleanup
@@ -257,7 +253,6 @@ describe("@autopilot/machine", function () {
     const { context, value: state } = actor.getSnapshot();
     expect(state).to.equal("processingUserRequest");
     expect(context.speechBuffer).to.equal("Hello? Hello!");
-    expect(context.isSpeaking).to.equal(true);
     expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
 
     // Cleanup

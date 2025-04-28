@@ -18,4 +18,3 @@
  */
 export { idleTimeoutCountExceedsMax } from "./idleTimeoutCountExceedsMax";
 export { hasSpeechResult } from "./hasSpeechResult";
-export { isSpeaking } from "./isSpeaking";

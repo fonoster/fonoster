@@ -17,11 +17,12 @@
  * limitations under the License.
  */
 import { and } from "xstate";
+import { assign } from "xstate";
 import { context } from "./context";
 import { machineSetup } from "./setup";
 
 const machine = machineSetup.createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgDMAJgCcZAGwOAjAA4V9pyusB2e3cAGhAAT0RbAFYAFjIHJwDrJ2jXWxU06IBfTJDFTDIoajAwI1QobFUNJBBdAyMTMwsED1cyf28-O08nJ3dXJxDwhHtrSLJ7Px6o+1TbUb9s3Ix8-QgAGzBsNgAFDg4AYQAJdkl0MUlKs1rDY1NqpvsVPzJ3SLm-W3dozoS-QcQ-O5bOMVE5-H4VB4AtFbIsQHkyKsNnhCCRyJQaLRMEIADIcFjSegcXgiSTyBFIsCXarXep3UBNGIqcaRPqBeyPXxOSL-ZrWVytVIzSL2WzRFQqaKRaxwinrTb4YikChUMB0bF4gmYIkkskKZaI+VKVxVbR6G4Ne6IayOXoTQEpdIqSJg3kC9y2qW2b3eIHRKWyg0EahEVB1W76MqSHSYeUVdRXc10xrWr7jMG2blfdzWaLWSVu1xeMgQwGigUBAKBrBkNb6QhgVCRqDRkSwNVbXYHY5iLgiHEXBM0pO3FMIZLuF5g+zRafeCbRXlJZkcvwxBwSlLimU5eEGusNptRnRtjuKtEqzEa-GE4mk8n7+ukI8tk-t6jUs3hy0MxACjwlp0rJio8URrm6KhAiWRYir4kSuP4czVvkADuRA3GUABiOjUGwWjFAAxgAFpI+gALZgDoACuBCdnsRwnGcg6mjUI4-uYf4Qm0kquGWop2AEAxhIgIpjO4fgwukQJ+BJyFkGhGFQNhuH4WAxGkRR1G0Ts9E9n2A6fqx370hxCCWFK4zWF8Mk+MkkKuDywkIO8ZCShJrLRCMkR+LxkRyQppRKTheGESR5GUTRKJKuiqp0IwrA6d2LAAOpYJIWo6ve+o1gFzbKSFalhZpNGGbSo5Wgg0Rpkk-pgp4ML+ryUStG81hJPytgeK8gJyVo1A6ARcAGGUp7UGIYAAI5UXAtEQCY5CRgAbjoADW5AIn1A1Dc2o3jVNM0IEtA0kLclSlWxJlNKkoJtJ8LrSkWXi2LyIqtDJ9jAaCtgyf4vX9YNsDDVAu2TdNhB0UlbCnOc53GWOCFJGQCPuGCDmdJK9i8mWZDwcks6QpCTgzn9W2Azt757WD2ldgxvZsP2zGJnDFW8WmMmgh64p2cETm5o4vFzP47SeJz2S7qgOgQHAZh5EzFqXVY4LOG4njeL4AQ80MrieSWYrwR94rXVku4IoUxSBXLyYVZYCRxETHy+KKkE9JriCik4ZDfAEGTq9KfkmwalKW+Vv4IN5wJOAKLjeNr3y+Ly7ue+9Pv+H7cnBqGxnNtGsYbMH7EPMyIo+OKUqzmKfSFpBcRPCjIrZvBsIBzWB7Ptnb5qvnCsIOJzJsvmD1gpEMQvZHLyeJBSQjK87j+ehgX5ap6nhVpXfw7bkco58PiZrOi68xyuspJmIw+aCa5yURoZQFRWhr9baRjC4-IzOkEkfG6bWtKM4dVfdRPGyWDWTaAMgYg32oQe+ocHLSjaJHVm3J0htReuJceEovhJGlKKBYYsgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgFQG0AGAXUVAAcB7WASwBcbLUyQAPRAWgFYBmARgB0ADi58A7CMIA2HgBYuATj4AaEAE9EPAEwDZYsQqljZQnoT18pUgL7XVaLNlaw6AQzpgBr5B4BOACgBZdAANAH0AZQBRCIjMAHkAOTCAEQBVACV0ABUExIBKbAdMIlIkECpaBiYWdgQOHiExAWktRVNRY1kVdUQ22QEtBWMxKUNLSy4uW3sMTAEoXzAwBlQobFKWSvpGZnK6viFBHgMjbSFpKSOpVQ0EBR4uAWGrNqUtLUexGZBigRoIAAbMDYCIABSiUQAwgAJSLZdAZbKbcrbap7UB1BSEZoiT5iLRCPQ8IxiW6ICQ6bEyfSEQ4GWRaH5-AHApwudyebx+fyYFIAGSiYVygSi8TS2UKLKBYBRFGoOxq+0QXFkhGeXCOCiECmxhBJXHJCD4-EEfCGfEUWjV5l4zLm-xl7LcHi8PjAAT5guFmFF4slRQdrNlfDK8qqu1qmhMAnEolERhMhK0Rr45p4AmMFy4xlEJPk9qwAkBNBcYFQNDW2UoaVgHtBEOhcIyMTS-ORJC2CvRUYQUhjQhkClkQ8Mw1kRpJ6t1YlVQ0I5j4ap4hfmJbLFarNbrvmdnLdPK9QpFYolUod648m6g1drHrlFW7keVxrTQkzYkeQmt2Las9ThDfpmfCEIo+p5gSK52L8DoAO6uDsawAGKUL4ETkMsADGAAW2Q0AAtmAlAAK50A2kKwvCiIdmGj4RkqmKIOI6pmN0Ei6p8WinEaihPE0jKEMm+iyKuAjwYhUAoWhGFgDheGESRZHghRzatu2D5os+jH1PIzyNHoozSGqaaGr0CD4i0ejyESDw5nGoniaskmoehWG4QRRGkXurrch6QShJEjaUQA6lg2Q+n6Z6BkWjmVs50lufJnl0BpT4MWwTGHO+kFiJYDxGN+KZmdaVJCDqIhWFwYxHEIonkL4lCYXAtBrHevgZGAACOxFwGREBMJ4lYAG6UAA1p4fz1Y1zVxW1HXdb1CDDY17i7KUqX0RiGXGm0OgklqZiKI0PR3GBuiCU0n4nGxInQZNDVNbALVQHNXU9S45FNlRSIbYqW0HDwJKxoDg78DmrEKEa7ECAmsgjnSdJjLdsxFlNj3Pa9C0fcpX0thEbY0V2m29uIRIftIOpqv2gGTrICixpBJwnNqgHDrY0GoJQEBwCwxRE39vYcLIjwtFIbwdOIcMnUxdMw1ZVxDDqXD6qJizLE5-M9i+HBGIMYwEvqChaIBVhCEaRtSLo+hG+Y+qzo8onBprWnbTmOhSGmYvjHDYj6ubWiWwZNvLvb0x3RepZXnFt47s76V1E06oHaB-AyFME5mVVghlQuphjI0moOQhTlSa5snuQppFx-9TG6x7g6ElIgn9v2k66pm1rmvnuXSLOonYa4azEeQ1eC8bTxi-wSiCSMRV3Ca-ACI8bsmFVVVs+HqMPTNrU7vN710KPL6WrwS8e6TUjK58PA8U0wgXIBwuXzwRvfOzQA */
   context,
   id: "fnAI",
   initial: "greeting",
@@ -37,7 +38,7 @@ const machine = machineSetup.createMachine({
     },
 
     idle: {
-      entry: [{ type: "cleanSpeech" }, { type: "setSpeakingDone" }],
+      entry: [{ type: "cleanSpeech" }],
       on: {
         SPEECH_START: {
           target: "listeningToUser",
@@ -52,31 +53,19 @@ const machine = machineSetup.createMachine({
             guard: and(["idleTimeoutCountExceedsMax"])
           },
           {
-            target: "transitioningToIdle",
+            target: "idle",
             actions: [
               { type: "increaseIdleTimeoutCount" },
               { type: "announceIdleTimeout" }
-            ]
+            ],
+            reenter: true
           }
         ]
       }
     },
 
-    transitioningToIdle: {
-      // This intermediate state is necessary to ensure the IDLE_TIMEOUT
-      // event is properly reset and retriggered when returning to idle.
-      // Without it, the timer would not restart correctly.
-      always: {
-        target: "idle"
-      }
-    },
-
     listeningToUser: {
-      entry: [
-        { type: "interruptPlayback" },
-        { type: "resetIdleTimeoutCount" },
-        { type: "setSpeaking" }
-      ],
+      entry: [{ type: "interruptPlayback" }, { type: "resetIdleTimeoutCount" }],
       on: {
         SPEECH_RESULT: {
           target: "waitingForSpeechTimeout",
@@ -90,7 +79,7 @@ const machine = machineSetup.createMachine({
       after: {
         IDLE_TIMEOUT: [
           {
-            target: "transitioningToIdle",
+            target: "idle",
             actions: [
               { type: "increaseIdleTimeoutCount" },
               { type: "announceIdleTimeout" }
@@ -132,12 +121,27 @@ const machine = machineSetup.createMachine({
         SPEECH_START: {
           target: "listeningToUser",
           description: "Event from VAD or similar system.",
-          guard: ({ context }) => context.allowUserBargeIn
+          guard: ({ context }) => context.allowUserBargeIn,
+          // We assume that the user wants to steer the conversation
+          // back to the agent so we clean the speech buffer
+          actions: [{ type: "cleanSpeech" }]
         },
         SPEECH_RESULT: {
           target: "processingUserRequest",
           description: "Append speech and go back to listening.",
-          actions: [{ type: "interruptPlayback" }, { type: "appendSpeech" }]
+          actions: [
+            { type: "interruptPlayback" },
+            { type: "appendSpeech" },
+            assign(({ context, self }) => {
+              const isReentry =
+                self.getSnapshot().value === context.previousState;
+              return {
+                previousState: self.getSnapshot().value,
+                isReentry
+              };
+            })
+          ],
+          reenter: true
         }
       },
       invoke: {
