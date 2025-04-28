@@ -65,7 +65,11 @@ const machine = machineSetup.createMachine({
     },
 
     listeningToUser: {
-      entry: [{ type: "interruptPlayback" }, { type: "resetIdleTimeoutCount" }],
+      entry: [
+        { type: "interruptPlayback" },
+        { type: "resetIdleTimeoutCount" },
+        assign({ hasLateSpeech: false })
+      ],
       on: {
         SPEECH_RESULT: {
           target: "waitingForSpeechTimeout",
@@ -98,8 +102,9 @@ const machine = machineSetup.createMachine({
         },
         SPEECH_RESULT: {
           target: "waitingForSpeechTimeout",
-          description: "Capture any late speech.",
-          actions: [{ type: "appendSpeech" }]
+          description: "Capture late speech, but only once.",
+          guard: ({ context }) => !context.hasLateSpeech,
+          actions: [{ type: "appendSpeech" }, assign({ hasLateSpeech: true })]
         }
       },
       after: {
@@ -117,7 +122,6 @@ const machine = machineSetup.createMachine({
     },
 
     processingUserRequest: {
-      entry: [assign({ isReentry: false })],
       on: {
         SPEECH_START: {
           target: "listeningToUser",
@@ -125,19 +129,20 @@ const machine = machineSetup.createMachine({
           guard: ({ context }) => context.allowUserBargeIn,
           // We assume that the user wants to steer the conversation
           // back to the agent so we clean the speech buffer
-          actions: [{ type: "cleanSpeech" }, assign({ isReentry: false })]
+          actions: [{ type: "cleanSpeech" }]
         },
         SPEECH_RESULT: {
           target: "processingUserRequest",
-          description: "Capture only a single late speech and go back to processing.",
-          guard: ({ context }) => !context.isReentry,
+          description:
+            "Capture only a single late speech across the entire request processing.",
+          guard: ({ context }) => !context.hasLateSpeech,
           actions: [
             { type: "interruptPlayback" },
             { type: "appendSpeech" },
-            assign(({ context, self }) => {
+            assign(({ self }) => {
               return {
                 previousState: self.getSnapshot().value,
-                isReentry: true
+                hasLateSpeech: true
               };
             })
           ],
@@ -152,10 +157,9 @@ const machine = machineSetup.createMachine({
           target: "listeningToUser",
           reenter: true,
           actions: [
-            { type: "cleanSpeech" }, 
-            assign({ 
-              isFirstTurn: false,
-              isReentry: false 
+            { type: "cleanSpeech" },
+            assign({
+              isFirstTurn: false
             })
           ]
         }

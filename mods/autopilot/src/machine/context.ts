@@ -49,7 +49,7 @@ const context = ({
   maxSessionDuration: input.conversationSettings.maxSessionDuration,
   initialDtmf: input.conversationSettings.initialDtmf,
   previousState: null,
-  isReentry: false,
+  hasLateSpeech: false,
   isFirstTurn: true
 });
 

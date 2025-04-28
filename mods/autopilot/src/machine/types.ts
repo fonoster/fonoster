@@ -39,7 +39,7 @@ type AutopilotContext = {
   knowledgeBaseSourceUrl?: string;
   initialDtmf?: string;
   previousState: string | null;
-  isReentry: boolean;
+  hasLateSpeech: boolean;
   isFirstTurn: boolean;
 };
 

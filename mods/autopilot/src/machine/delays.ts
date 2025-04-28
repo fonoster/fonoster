@@ -23,6 +23,8 @@ const delays = {
     // use 0 timeout to avoid unnecessary delay during the intro. (Outbound calls)
     if (context.isFirstTurn && !context.firstMessage) {
       return 0;
+    } else if (context.hasLateSpeech) {
+      return 0;
     }
     return context.maxSpeechWaitTimeout;
   },
