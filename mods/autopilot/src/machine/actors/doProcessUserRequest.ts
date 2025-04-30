@@ -27,7 +27,7 @@ export const doProcessUserRequest = fromPromise(
     const { context } = input;
     logger.verbose("called processUserRequest actor", {
       speechBuffer: context.speechBuffer,
-      isReentry: context.isReentry
+      hasLateSpeech: context.hasLateSpeech
     });
 
     // Stop any speech that might be playing
@@ -35,7 +35,7 @@ export const doProcessUserRequest = fromPromise(
 
     const languageModel = context.languageModel;
     const speech = context.speechBuffer.trim();
-    const response = await languageModel.invoke(speech, context.isReentry);
+    const response = await languageModel.invoke(speech, context.hasLateSpeech);
 
     try {
       if (response.type === "say" && !response.content) {
