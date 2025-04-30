@@ -47,7 +47,8 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
       load: () => Promise<Document[]>;
     }[];
 
-    if (loaders.length !== 0) {
+    if (loaders.length === 0) {
+      logger.verbose("no loaders to load");
       // No loaders to load
       return;
     }

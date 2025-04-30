@@ -80,11 +80,18 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   let knowledgeBase;
 
   if (KNOWLEDGE_BASE_ENABLED) {
+    const documents = assistantConfig.languageModel?.knowledgeBase?.map(
+      (doc) => doc.document
+    ) as string[];
+
+    logger.verbose("loading knowledge base", {
+      documents,
+      bucket: req.accessKeyId.toLowerCase()
+    });
+
     knowledgeBase = new S3KnowledgeBase({
       bucket: req.accessKeyId.toLowerCase(),
-      documents: assistantConfig.languageModel?.knowledgeBase?.map(
-        (doc) => doc.document
-      ) as string[],
+      documents,
       s3Config: {
         endpoint: AWS_S3_ENDPOINT,
         region: AWS_S3_REGION,

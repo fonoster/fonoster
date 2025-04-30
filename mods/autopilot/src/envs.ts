@@ -20,6 +20,7 @@ import { join } from "path";
 import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
 import dotenv from "dotenv";
 import { ConversationProvider } from "./types";
+import logger from "@fonoster/logger";
 
 if (process.env.NODE_ENV === "dev") {
   dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
@@ -28,7 +29,7 @@ if (process.env.NODE_ENV === "dev") {
 const e = process.env;
 
 export const AWS_S3_ACCESS_KEY_ID = e.AUTOPILOT_AWS_S3_ACCESS_KEY_ID ?? "";
-export const AWS_S3_ENDPOINT = e.AUTOPILOT_AWS_S3_ENDPOINT ?? "";
+export const AWS_S3_ENDPOINT = e.AUTOPILOT_AWS_S3_ENDPOINT || undefined;
 export const AWS_S3_REGION = e.AUTOPILOT_AWS_S3_REGION ?? "us-east-1";
 export const AWS_S3_SECRET_ACCESS_KEY =
   e.AUTOPILOT_AWS_S3_SECRET_ACCESS_KEY ?? "";
@@ -72,4 +73,11 @@ if (KNOWLEDGE_BASE_ENABLED) {
     "AUTOPILOT_AWS_S3_SECRET_ACCESS_KEY",
     "AUTOPILOT_UNSTRUCTURED_API_KEY"
   ]);
+
+  if (!AWS_S3_ENDPOINT && !AWS_S3_REGION) {
+    logger.error(
+      "Knowledge base configuration error: Either AUTOPILOT_AWS_S3_ENDPOINT or AUTOPILOT_AWS_S3_REGION must be set when using AWS S3"
+    );
+    process.exit(1);
+  }
 }
