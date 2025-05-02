@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { SxProps, TypographyTypeMap } from "@mui/material";
-import type { OverridableComponent } from "@mui/material/OverridableComponent";
+import type { SxProps } from "@mui/material";
 
 export type TypographyVariant =
   | "heading-large"
@@ -34,9 +33,7 @@ export type TypographyVariant =
   | "drawer-title"
   | "drawer-label";
 
-export interface TypographyProps
-  extends React.HTMLAttributes<HTMLElement>,
-    OverridableComponent<TypographyTypeMap<{}, "span">> {
+export interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   variant?: TypographyVariant;
   children?: React.ReactNode;
   color?: string;
