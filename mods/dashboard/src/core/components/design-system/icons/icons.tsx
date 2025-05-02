@@ -57,6 +57,8 @@ import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { type SvgIconProps } from "@mui/material";
 
 type IconName =
@@ -73,6 +75,8 @@ type IconName =
   | "CheckboxIntermediate"
   | "MinusOutline"
   | "UnfoldLess"
+  | "KeyboardArrowDownIcon"
+  | "KeyboardArrowUpIcon"
   | "UnfoldMore"
   | "KeyboardArrowUp"
   | "KeyboardArrowDown"
@@ -104,7 +108,7 @@ type IconName =
 
 type IconProps = SvgIconProps & {
   name: IconName;
-  fontSize?: "small" | "medium" | "large";
+  fontSize?: "small" | "medium" | "large" | "inherit";
 };
 
 export function Icon(props: IconProps) {
@@ -144,6 +148,10 @@ export function Icon(props: IconProps) {
       return <KeyboardArrowUp {...props} fontSize={actualFontSize} />;
     case "KeyboardArrowDown":
       return <KeyboardArrowDown {...props} fontSize={actualFontSize} />;
+    case "KeyboardArrowDownIcon": 
+      return <KeyboardArrowDownIcon {...props} fontSize={actualFontSize} />;
+    case "KeyboardArrowUpIcon":
+      return <KeyboardArrowUpIcon {...props} fontSize={actualFontSize} />;
     case "ArrowDropUp":
       return <ArrowDropUp {...props} fontSize={actualFontSize} />;
     case "ArrowDropDown":
