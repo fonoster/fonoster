@@ -18,8 +18,7 @@
  */
 import React from "react";
 import {
-  StyledCard,
-  StyledCardContentContainer,
+  WorkspaceCardRoot,
   StyledDescription,
   StyledDateContainer,
   StyledBottomContainer,
@@ -29,7 +28,7 @@ import {
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import { RegionBadge } from "../region-badge/region-badge";
-import { CardContent } from "@mui/material";
+import { Box, CardContent, Grid } from "@mui/material";
 
 export interface WorkspaceCardProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -51,23 +50,25 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
   onSettingsClick
 }) => {
   return (
-    <StyledCard
+    <WorkspaceCardRoot
       onClick={!disabled ? onClick : undefined}
       disabled={disabled}
       workspaceVariant="regular"
       ref={workspaceRef}
     >
-      <StyledCardContentContainer>
-        <CardContent
-          sx={{
-            flexGrow: 1,
-            alignContent: "end",
-            padding: 0,
-            paddingBottom: "0 !important"
-          }}
-        >
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+          alignItems: "center",
+          justifyContent: "end"
+        }}
+      >
+        <Box>
           {region && <RegionBadge type="landing-page">{region}</RegionBadge>}
           {description && <StyledDescription>{description}</StyledDescription>}
+          <Box sx={{ flexGrow: 1 }} />
           <StyledBottomContainer>
             <StyledDateContainer>
               <StyledIcon>
@@ -82,8 +83,8 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
               <SettingsOutlinedIcon />
             </StyledIcon>
           </StyledBottomContainer>
-        </CardContent>
-      </StyledCardContentContainer>
-    </StyledCard>
+        </Box>
+      </Box>
+    </WorkspaceCardRoot>
   );
 };

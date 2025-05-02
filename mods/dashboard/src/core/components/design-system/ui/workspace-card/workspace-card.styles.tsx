@@ -17,31 +17,38 @@
  * limitations under the License.
  */
 import { styled } from "@mui/material/styles";
-import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
+import { Box } from "@mui/material";
 
-export const StyledCard = styled(Card)<{
+export const WorkspaceCardRoot = styled(Box)<{
   disabled: boolean;
   workspaceVariant?: string;
 }>(({ disabled, workspaceVariant, theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
   minHeight: "325px",
-  backgroundColor: workspaceVariant === "regular" ? "#F4F4F4" : "#ffffff",
+  height: "100%",
+  backgroundColor:
+    workspaceVariant === "regular"
+      ? theme.palette.base["07"]
+      : theme.palette.background.paper,
   cursor: disabled ? "not-allowed" : "pointer",
   borderRadius: "10px",
-  border: disabled
-    ? `1px solid ${theme.palette.secondary.light}`
-    : `1px solid ${theme.palette.divider}`,
+  border: workspaceVariant === "regular"
+    ? `solid 1px ${theme.palette.base["06"]}`
+    : `solid 1px ${theme.palette.base["04"]}`,
   padding: "30px 30px 16px 30px",
-  transition: "border-color 0.3s ease",
+  transition: "all 0.3s ease-in-out",
+  boxShadow: "none",
   "&:hover": {
-    border: disabled
-      ? `1px solid ${theme.palette.secondary.light}`
-      : `1px solid ${theme.palette.brand.main}`,
+    border: `1px solid ${theme.palette.brand.main}`,
     "& .workspace-icon": {
-      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.brand.main
+      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.brand["05"]
     },
     "& .workspace-text": {
-      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.brand.main
+      color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.brand["05"]
     }
   }
 }));
@@ -49,12 +56,14 @@ export const StyledCard = styled(Card)<{
 export const StyledCardContentContainer = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
-  height: "100%"
+  height: "100%",
+  width: "100%",
 }));
 
 export const StyledNewWorkSpaceDescription = styled(Typography)<{
   disabled: boolean;
 }>(({ disabled, theme }) => ({
+  transition: "all 0.3s ease-in-out",
   fontFamily: "Poppins",
   fontSize: "21px",
   fontWeight: 600,
@@ -63,13 +72,14 @@ export const StyledNewWorkSpaceDescription = styled(Typography)<{
   textAlign: "center",
   textUnderlinePosition: "from-font",
   textDecorationSkipInk: "none",
-  color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.secondary.main
+  color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.base["05"]
 }));
 
 export const StyledAddIconContainer = styled("div")<{
   disabled: boolean;
 }>(({ disabled, theme }) => ({
-  color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.secondary.main,
+  transition: "all 0.3s ease-in-out",
+  color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.base["05"],
   display: "flex",
   justifyContent: "center",
   marginBottom: "16px",

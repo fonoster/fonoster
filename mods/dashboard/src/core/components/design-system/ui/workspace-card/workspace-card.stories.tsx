@@ -93,7 +93,12 @@ export const RegularCard: Story = {
     disabled: false,
     onSettingsClick: fn(),
     onClick: fn()
-  }
+  },
+  render: (args) => (
+    <div style={{ maxWidth: "325px", width: "100%", margin: "0 auto" }}>
+      <WorkspaceCard {...args} />
+    </div>
+  )
 };
 
 /**
@@ -105,5 +110,10 @@ export const DisabledCard: Story = {
     description: "Demo Workspace With Wrapping Title.",
     date: "4/14/24",
     disabled: true
-  }
+  },
+  render: (args) => (
+    <div style={{ maxWidth: "325px", width: "100%", margin: "0 auto" }}>
+      <WorkspaceCard {...args} />
+    </div>
+  )
 };

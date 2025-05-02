@@ -55,7 +55,7 @@ export const StyledSelect = styled(Select)(({ theme }) => ({
     transform: "translate(14px, 16px) scale(1)",
     fontFamily: "'Poppins', sans-serif",
     fontWeight: 500,
-    color: theme.palette.text.primary,
+    color: theme.palette.brand.main,
     "&.MuiInputLabel-shrink": {
       transform: "translate(14px, -9px) scale(0.75)"
     }
@@ -80,10 +80,10 @@ export const StyledSelect = styled(Select)(({ theme }) => ({
     letterSpacing: "0.12px",
     marginTop: "4px",
     marginLeft: "3px",
-    color: theme.palette.text.primary
+    color: theme.palette.brand.main
   },
   "& .MuiInputAdornment-root": {
-    color: theme.palette.text.primary,
+    color: theme.palette.brand.main,
     marginRight: "8px",
     "& .MuiSvgIcon-root": {
       fontSize: "20px"

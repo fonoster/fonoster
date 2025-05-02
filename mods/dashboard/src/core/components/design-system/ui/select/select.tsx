@@ -95,7 +95,7 @@ export const Select: React.FC<SelectProps> = ({
             letterSpacing: "0.12px"
           },
           "& fieldset": {
-            borderColor: (theme) => theme.palette.inputBorder
+            borderColor: (theme) => theme.palette.base["06"]
           },
           "&:hover fieldset": {
             borderColor: (theme) => theme.palette.brand.main

@@ -19,6 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { AddWorkspaceCard } from "./workspace-card-empty";
 import { fn } from "@storybook/test";
+import { Box } from "@mui/material";
 
 /**
  * This story is for the WorkspaceCard component based on Material UI.
@@ -48,15 +49,10 @@ export const RegularCard: Story = {
   args: {
     disabled: false,
     onClick: fn()
-  }
-};
-
-/**
- * Example of a regular WorkspaceCard that is disabled
- */
-export const DisabledCard: Story = {
-  args: {
-    disabled: true,
-    onClick: fn()
-  }
+  },
+  render: (args) => (
+    <Box sx={{ maxWidth: "325px", width: "100%", margin: "0 auto" }}>
+      <AddWorkspaceCard {...args} />
+    </Box>
+  )
 };

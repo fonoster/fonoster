@@ -18,7 +18,7 @@
  */
 import React from "react";
 import {
-  StyledCard,
+  WorkspaceCardRoot,
   StyledCardContentContainer,
   StyledNewWorkSpaceDescription,
   StyledAddIconContainer
@@ -38,7 +38,7 @@ export const AddWorkspaceCard: React.FC<WorkspaceCardProps> = ({
   disabled = false
 }) => {
   return (
-    <StyledCard
+    <WorkspaceCardRoot
       onClick={!disabled ? onClick : undefined}
       disabled={disabled}
       ref={workspaceRef}
@@ -48,7 +48,10 @@ export const AddWorkspaceCard: React.FC<WorkspaceCardProps> = ({
           sx={{
             height: "100%",
             alignContent: "center",
-            justifyItems: "center"
+            justifyItems: "center",
+            alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <StyledAddIconContainer
@@ -65,6 +68,6 @@ export const AddWorkspaceCard: React.FC<WorkspaceCardProps> = ({
           </StyledNewWorkSpaceDescription>
         </CardContent>
       </StyledCardContentContainer>
-    </StyledCard>
+    </WorkspaceCardRoot>
   );
 };
