@@ -1,0 +1,116 @@
+import { Box, styled, TableContainer, Table, TableCell } from "@mui/material";
+
+export const DataTableToolbarElement = styled(Box)(() => ({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  flexWrap: "wrap",
+  gap: 16
+}));
+
+export const DataTableRootElement = styled(Box)(() => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: 12
+}));
+
+export const TableRoot = styled(Table)(() => ({
+  borderCollapse: "collapse",
+  width: "100%",
+  tableLayout: "fixed"
+}));
+
+export const TableCellRoot = styled(TableCell)(({ theme }) => ({
+  height: "31px",
+  padding: "0px",
+  fontSize: "10px",
+  fontWeight: 500,
+  color: theme.palette.base["03"],
+  borderBottom: `solid 1px ${theme.palette.base["07"]}`,
+  textAlign: "left",
+  fontFeatureSettings: "'liga' off, 'clig' off",
+  fontFamily: "Poppins",
+  lineHeight: "normal",
+  fontStyle: "normal",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+
+  "&:first-of-type": {
+    paddingLeft: "8px"
+  },
+  "&:last-of-type": {
+    paddingRight: "8px"
+  },
+  "&[data-selection-cell='true']": {
+    padding: "0px",
+    width: "48px",
+    maxWidth: "48pxpx",
+    minWidth: "48pxpx",
+    display: "flex",
+    alignItems: "center",
+    boxSizing: "border-box"
+  }
+}));
+
+export const DataTableContainerElement = styled(TableContainer)(
+  ({ theme }) => ({
+    border: `solid 1px ${theme.palette.base["06"]}`,
+    borderTopLeftRadius: "4px",
+    borderTopRightRadius: "4px",
+    overflowX: "auto",
+
+    "& table": {
+      borderCollapse: "collapse",
+      width: "100%",
+      tableLayout: "fixed",
+
+      "& thead": {
+        backgroundColor: theme.palette.base["07"]
+      },
+
+      "& tbody": {
+        "& td": {
+          padding: "0px",
+          minHeight: "36px",
+          height: "36px",
+          fontSize: "10px",
+          color: theme.palette.base["03"],
+          borderBottom: `solid 1px ${theme.palette.base["07"]}`,
+          fontFeatureSettings: "'liga' off, 'clig' off",
+          fontFamily: "Poppins",
+          lineHeight: "normal",
+          fontStyle: "normal",
+          fontWeight: 500,
+          textAlign: "left",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+
+          "&:first-of-type": {
+            paddingLeft: "8px"
+          },
+          "&:last-of-type": {
+            paddingRight: "8px"
+          },
+          "&[data-selection-cell='true']": {
+            padding: "0px",
+            width: "48px",
+            maxWidth: "48px",
+            minWidth: "48px",
+            display: "flex",
+            alignItems: "center",
+            boxSizing: "border-box"
+          }
+        },
+
+        "& tr.Mui-selected": {
+          backgroundColor: "transparent",
+          "&:hover": {
+            backgroundColor: "transparent"
+          }
+        }
+      }
+    }
+  })
+);
