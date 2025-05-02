@@ -57,8 +57,8 @@ import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { type SvgIconProps } from "@mui/material";
 
 type IconName =
@@ -148,7 +148,7 @@ export function Icon(props: IconProps) {
       return <KeyboardArrowUp {...props} fontSize={actualFontSize} />;
     case "KeyboardArrowDown":
       return <KeyboardArrowDown {...props} fontSize={actualFontSize} />;
-    case "KeyboardArrowDownIcon": 
+    case "KeyboardArrowDownIcon":
       return <KeyboardArrowDownIcon {...props} fontSize={actualFontSize} />;
     case "KeyboardArrowUpIcon":
       return <KeyboardArrowUpIcon {...props} fontSize={actualFontSize} />;
