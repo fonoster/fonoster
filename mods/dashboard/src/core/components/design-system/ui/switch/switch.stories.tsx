@@ -25,7 +25,7 @@ import { Switch } from "./switch";
  * It takes a defaultValue, value, disabled and onChange.
  */
 const meta = {
-  title: "Components/Switch",
+  title: "Components/Forms/Switch",
   component: Switch,
   parameters: {
     layout: "centered",

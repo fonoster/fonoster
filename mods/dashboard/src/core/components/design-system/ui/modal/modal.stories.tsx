@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 import { Button } from "../button/button";
 
 const meta: Meta<typeof ModalStory> = {
-  title: "Components/Modal",
+  title: "Components/Modals & Popups/Modal",
   component: Modal,
   tags: ["autodocs"],
   args: {

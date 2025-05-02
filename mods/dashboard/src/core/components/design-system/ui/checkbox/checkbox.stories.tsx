@@ -26,7 +26,7 @@ import { useState } from "react";
  * It has a checkbox with optional label and can be in a checked or disabled state.
  */
 const meta = {
-  title: "Components/Checkbox",
+  title: "Components/Forms/Checkbox",
   component: Checkbox,
   parameters: {
     layout: "padded",

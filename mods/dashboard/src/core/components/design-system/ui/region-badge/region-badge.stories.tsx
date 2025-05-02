@@ -24,7 +24,7 @@ import { RegionBadge } from "./region-badge";
  * It has a contained variant and full width with optional start and end icons.
  */
 const meta = {
-  title: "Components/Region Badge",
+  title: "Components/Icons, Badges, & Labels/Region Badge",
   component: RegionBadge,
   parameters: {
     layout: "centered",

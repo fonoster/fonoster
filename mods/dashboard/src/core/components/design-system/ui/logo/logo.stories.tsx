@@ -23,7 +23,7 @@ import { Logo } from "./logo";
  * This story is for the Logo component which is used for branding in the app.
  */
 const meta = {
-  title: "Components/Logo",
+  title: "Components/Icons, Badges, & Labels/Logo",
   component: Logo,
   parameters: {
     layout: "centered",

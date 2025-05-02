@@ -33,7 +33,7 @@ const ToastStory = ({ message, duration }: ToastStoryProps) => (
 );
 
 const meta: Meta<typeof ToastStory> = {
-  title: "Components/Toast",
+  title: "Components/Modals & Popups/Toast",
   component: ToastStory,
   tags: ["autodocs"],
   args: {

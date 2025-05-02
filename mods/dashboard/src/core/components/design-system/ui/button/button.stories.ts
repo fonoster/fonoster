@@ -22,7 +22,7 @@ import { Button } from "./button";
 import React from "react";
 
 const meta = {
-  title: "Components/Button",
+  title: "Components/Buttons, & Links/Button",
   component: Button,
   tags: ["autodocs"],
   args: {

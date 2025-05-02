@@ -23,7 +23,7 @@ import React, { useState } from "react";
 import { Icon } from "../../icons/icons";
 
 const meta = {
-  title: "Components/Input",
+  title: "Components/Forms/Input",
   component: Input,
   parameters: {
     layout: "centered",

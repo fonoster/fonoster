@@ -21,7 +21,7 @@ import { Tooltip } from "./tooltip";
 import { Button } from "../button/button";
 
 const meta = {
-  title: "Components/Tooltip",
+  title: "Components/Modals & Popups/Tooltip",
   component: Tooltip,
   tags: ["autodocs"],
   args: {

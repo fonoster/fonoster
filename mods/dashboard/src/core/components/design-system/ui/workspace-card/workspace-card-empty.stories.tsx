@@ -25,7 +25,7 @@ import { fn } from "@storybook/test";
  * It supports both regular and empty variants and can be disabled.
  */
 const meta = {
-  title: "Components/Add Workspace Card",
+  title: "Components/Workspaces/Add Workspace Card",
   component: AddWorkspaceCard,
   parameters: {
     layout: "centered",
