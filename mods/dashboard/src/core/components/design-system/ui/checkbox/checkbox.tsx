@@ -26,6 +26,20 @@ import {
 export const Checkbox = (props: CheckboxProps) => {
   const { children, ...checkboxProps } = props;
 
+  if (children === undefined) {
+    return (
+      <CheckboxRoot
+        icon={<Icon name="CheckboxEmpty" fontSize="small" />}
+        checkedIcon={<Icon name="CheckboxSelected" fontSize="small" />}
+        indeterminateIcon={
+          <Icon name="CheckboxIntermediate" fontSize="small" />
+        }
+        disableRipple
+        {...checkboxProps}
+      />
+    );
+  }
+
   return (
     <CheckboxLabel
       control={
