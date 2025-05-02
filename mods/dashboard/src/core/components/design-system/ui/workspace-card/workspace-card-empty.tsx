@@ -51,7 +51,7 @@ export const AddWorkspaceCard: React.FC<WorkspaceCardProps> = ({
             justifyItems: "center",
             alignItems: "center",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "column"
           }}
         >
           <StyledAddIconContainer

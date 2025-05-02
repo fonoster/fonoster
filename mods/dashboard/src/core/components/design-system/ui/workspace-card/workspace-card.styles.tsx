@@ -36,9 +36,10 @@ export const WorkspaceCardRoot = styled(Box)<{
       : theme.palette.background.paper,
   cursor: disabled ? "not-allowed" : "pointer",
   borderRadius: "10px",
-  border: workspaceVariant === "regular"
-    ? `solid 1px ${theme.palette.base["06"]}`
-    : `solid 1px ${theme.palette.base["04"]}`,
+  border:
+    workspaceVariant === "regular"
+      ? `solid 1px ${theme.palette.base["06"]}`
+      : `solid 1px ${theme.palette.base["04"]}`,
   padding: "30px 30px 16px 30px",
   transition: "all 0.3s ease-in-out",
   boxShadow: "none",
@@ -57,7 +58,7 @@ export const StyledCardContentContainer = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
   height: "100%",
-  width: "100%",
+  width: "100%"
 }));
 
 export const StyledNewWorkSpaceDescription = styled(Typography)<{
