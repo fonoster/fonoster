@@ -97,12 +97,12 @@
     "grpc-tools": "^1.12.4",
     "husky": "^9.0.11",
     "jsdoc-to-markdown": "^8.0.1",
-    "lerna": "^8.1.9",
+    "lerna": "^8.2.2",
     "mocha": "^11.0.2",
     "next": "^14.1.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.0",
-    "prisma": "^6.6.0",
+    "prisma": "^6.7.0",
     "protoc-gen-grpc-web": "^1.5.0",
     "protoc-gen-js": "^3.21.4-4",
     "rimraf": "^6.0.1",
@@ -136,7 +136,7 @@
     "node": ">=20.11.1"
   },
   "dependencies": {
-    "@prisma/client": "^6.6.0"
+    "@prisma/client": "^6.7.0"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-arm64-gnu": "^4.29.1",

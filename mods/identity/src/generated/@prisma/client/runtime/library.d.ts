@@ -47,7 +47,7 @@ export declare type AllModelsToStringIndex<TypeMap extends TypeMapDef, Args exte
 } : {};
 
 declare class AnyNull extends NullTypesEnumValue {
-    private readonly _brand_AnyNull;
+    #private;
 }
 
 export declare type ApplyOmit<T, OmitConfig> = Compute<{
@@ -210,7 +210,7 @@ declare const ColumnTypeEnum: {
 declare type CompactedBatchResponse = {
     type: 'compacted';
     plan: object;
-    arguments: Map<string, {}>[];
+    arguments: Record<string, {}>[];
     nestedSelection: string[];
     keys: string[];
     expectNonEmpty: boolean;
@@ -384,7 +384,7 @@ declare type Datasources = {
 };
 
 declare class DbNull extends NullTypesEnumValue {
-    private readonly _brand_DbNull;
+    #private;
 }
 
 export declare const Debug: typeof debugCreate & {
@@ -1148,6 +1148,49 @@ declare type Error_2 = {
 } | {
     kind: 'InvalidIsolationLevel';
     level: string;
+} | {
+    kind: 'LengthMismatch';
+    column?: string;
+} | {
+    kind: 'UniqueConstraintViolation';
+    fields: string[];
+} | {
+    kind: 'NullConstraintViolation';
+    fields: string[];
+} | {
+    kind: 'ForeignKeyConstraintViolation';
+    constraint?: {
+        fields: string[];
+    } | {
+        index: string;
+    } | {
+        foreignKey: {};
+    };
+} | {
+    kind: 'DatabaseDoesNotExist';
+    db?: string;
+} | {
+    kind: 'DatabaseAlreadyExists';
+    db?: string;
+} | {
+    kind: 'DatabaseAccessDenied';
+    db?: string;
+} | {
+    kind: 'AuthenticationFailed';
+    user?: string;
+} | {
+    kind: 'TransactionWriteConflict';
+} | {
+    kind: 'TableDoesNotExist';
+    table?: string;
+} | {
+    kind: 'ColumnNotFound';
+    column?: string;
+} | {
+    kind: 'TooManyConnections';
+    cause: string;
+} | {
+    kind: 'SocketTimeout';
 } | {
     kind: 'postgres';
     code: string;
@@ -1978,7 +2021,7 @@ declare type JsonFieldSelection = {
 };
 
 declare class JsonNull extends NullTypesEnumValue {
-    private readonly _brand_JsonNull;
+    #private;
 }
 
 /**
@@ -2645,8 +2688,8 @@ declare interface Queryable<Query, Result> extends AdapterInfo {
 }
 
 declare type QueryCompiler = {
-    compile(request: string): Promise<string>;
-    compileBatch(batchRequest: string): Promise<BatchResponse>;
+    compile(request: string): string;
+    compileBatch(batchRequest: string): BatchResponse;
 };
 
 declare interface QueryCompilerConstructor {

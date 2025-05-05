@@ -18,9 +18,9 @@
  */
 import { join } from "path";
 import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
+import logger from "@fonoster/logger";
 import dotenv from "dotenv";
 import { ConversationProvider } from "./types";
-import logger from "@fonoster/logger";
 
 if (process.env.NODE_ENV === "dev") {
   dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
