@@ -214,6 +214,8 @@ operation:
   - `url`: The endpoint to send the request to
   - `headers`: Any necessary headers, such as authentication keys
 
+An important consideration when implementing your endpoints is that, when using the `post` method, the parameters will arrive in the body of the request, while with `get`, the parameters will arrive as query parameters.
+
 For additional details, refer to the [tool schema documentation](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
 
 <Tip>
