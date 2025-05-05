@@ -38,7 +38,21 @@ const toolSchema = z.object({
       .default(AllowedHttpMethod.GET),
     url: z.string().url({ message: Messages.VALID_URL }),
     waitForResponse: z.boolean().default(true),
-    headers: z.record(z.string(), z.string()).optional()
+    headers: z
+      .record(z.string(), z.string())
+      .refine(
+        (headers) =>
+          !Object.keys(headers || {}).some(
+            (key) =>
+              key.toLowerCase() === "accept" ||
+              key.toLowerCase() === "content-type"
+          ),
+        {
+          message:
+            "Headers cannot include 'accept' or 'content-type' as they are set internally"
+        }
+      )
+      .optional()
   })
 });
 

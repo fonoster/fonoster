@@ -51,9 +51,9 @@ class ToolsCatalog {
     return await sendHttpRequest({
       method: parsedTool.operation?.method ?? AllowedHttpMethod.GET,
       url: parsedTool.operation?.url ?? "",
-      waitForResponse: parsedTool.operation?.waitForResponse ?? true,
+      waitForResponse: parsedTool.operation?.waitForResponse,
       headers: parsedTool.operation?.headers ?? {},
-      body: args
+      params: args
     });
   }
 

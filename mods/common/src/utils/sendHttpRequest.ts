@@ -30,35 +30,48 @@ enum AllowedHttpMethod {
   POST = "post"
 }
 
-async function sendHttpRequest(params: {
+async function sendHttpRequest(request: {
   method: AllowedHttpMethod;
   url: string;
   waitForResponse: boolean;
   headers?: Record<string, string>;
-  body?: Record<string, unknown>;
+  params?: Record<string, unknown>;
 }): Promise<{ result: string }> {
-  const { url, method, body, headers, waitForResponse } = params;
-  const effectiveMethod = method.toLowerCase() as "get" | "post";
+  const { url, method, params, headers, waitForResponse } = request;
+  const effectiveMethod = method.toLowerCase() as AllowedHttpMethod;
+
+  let effectiveUrl = url;
+  if (effectiveMethod === AllowedHttpMethod.GET && params) {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      queryParams.append(key, String(value));
+    });
+    effectiveUrl = `${url}${url.includes("?") ? "&" : "?"}${queryParams.toString()}`;
+  }
 
   const options = {
-    method,
+    method: effectiveMethod,
     headers: {
-      "Content-Type": "application/json",
-      ...headers
+      ...headers,
+      accept: "application/json",
+      "content-type": "application/json"
     },
-    body: effectiveMethod === "post" ? JSON.stringify(body) : undefined
+    body:
+      effectiveMethod === AllowedHttpMethod.POST
+        ? JSON.stringify(params)
+        : undefined
   };
 
-  logger.silly(`sending request to ${url}`, {
-    body,
+  logger.silly(`sending request to ${effectiveUrl}`, {
+    params,
     method: effectiveMethod
   });
 
-  if (waitForResponse && effectiveMethod === "post") {
-    setTimeout(() => fetch(url, options), 0);
-    return { result: "request sent" };
+  if (!waitForResponse && effectiveMethod === AllowedHttpMethod.POST) {
+    setTimeout(() => fetch(effectiveUrl, options), 0);
+    return { result: "success" };
   } else {
-    const response = await fetch(url, options);
+    const response = await fetch(effectiveUrl, options);
     const data = await response.json();
 
     try {
