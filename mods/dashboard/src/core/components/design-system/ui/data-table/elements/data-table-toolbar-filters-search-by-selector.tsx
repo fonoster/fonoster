@@ -18,7 +18,7 @@
  */
 
 import type React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -107,6 +107,7 @@ export const FilterSearchBySelector: React.FC<FilterSearchBySelectorProps> = ({
   placeholder = "Filter By"
 }) => {
   const [open, setOpen] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const selectedFilterLabel =
@@ -132,7 +133,18 @@ export const FilterSearchBySelector: React.FC<FilterSearchBySelectorProps> = ({
     setOpen(false);
   };
 
+  useEffect(() => {
+    if (open) {
+      setShouldRender(true);
+    } else {
+      const timer = setTimeout(() => setShouldRender(false), animationDuration);
+      return () => clearTimeout(timer);
+    }
+  }, [open, animationDuration]);
+
   const renderAnimatedDropdown = () => {
+    if (!shouldRender) return null;
+
     const dropdown = (
       <UnifiedDropdown>
         <DropdownHeader>
@@ -158,7 +170,7 @@ export const FilterSearchBySelector: React.FC<FilterSearchBySelectorProps> = ({
 
     if (animationType === "fade") {
       return (
-        <Fade in={open} timeout={animationDuration}>
+        <Fade in={open} timeout={animationDuration} unmountOnExit={false}>
           {dropdown}
         </Fade>
       );
@@ -169,6 +181,7 @@ export const FilterSearchBySelector: React.FC<FilterSearchBySelectorProps> = ({
         in={open}
         timeout={animationDuration}
         style={{ transformOrigin: "0 0 0" }}
+        unmountOnExit={false}
       >
         {dropdown}
       </Grow>
@@ -192,7 +205,7 @@ export const FilterSearchBySelector: React.FC<FilterSearchBySelectorProps> = ({
           <Icon name={"ArrowDropDown"} fontSize="small" />
         </Trigger>
 
-        {open && renderAnimatedDropdown()}
+        {renderAnimatedDropdown()}
       </Box>
     </ClickAwayListener>
   );
