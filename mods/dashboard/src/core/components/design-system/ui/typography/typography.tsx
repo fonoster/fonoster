@@ -32,6 +32,7 @@ export function Typography(props: TypographyProps) {
     children,
     sx,
     style: inlineStyles,
+    color = "inherit",
     ...rest
   } = props;
 
@@ -48,6 +49,7 @@ export function Typography(props: TypographyProps) {
         >
       }
       style={{ ...style, ...inlineStyles }}
+      color={color}
     >
       {children}
     </PrimitiveTypography>
