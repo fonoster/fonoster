@@ -16,43 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Icon } from "../../icons/icons";
-import {
-  type CheckboxProps,
-  CheckboxLabel,
-  CheckboxRoot
-} from "./checkbox.styles";
+import { CheckboxRoot } from "./checkbox-root";
+import { type CheckboxProps, CheckboxLabel } from "./checkbox.styles";
 
 export const Checkbox = (props: CheckboxProps) => {
   const { children, ...checkboxProps } = props;
 
   if (children === undefined) {
-    return (
-      <CheckboxRoot
-        icon={<Icon name="CheckboxEmpty" fontSize="small" />}
-        checkedIcon={<Icon name="CheckboxSelected" fontSize="small" />}
-        indeterminateIcon={
-          <Icon name="CheckboxIntermediate" fontSize="small" />
-        }
-        disableRipple
-        {...checkboxProps}
-      />
-    );
+    return <CheckboxRoot {...checkboxProps} />;
   }
 
   return (
     <CheckboxLabel
-      control={
-        <CheckboxRoot
-          icon={<Icon name="CheckboxEmpty" fontSize="small" />}
-          checkedIcon={<Icon name="CheckboxSelected" fontSize="small" />}
-          indeterminateIcon={
-            <Icon name="CheckboxIntermediate" fontSize="small" />
-          }
-          disableRipple
-          {...checkboxProps}
-        />
-      }
+      control={<CheckboxRoot {...checkboxProps} />}
       label={children}
     />
   );

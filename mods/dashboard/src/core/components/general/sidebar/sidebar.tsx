@@ -31,6 +31,8 @@ import {
   SidebarWrapper
 } from "./sidebar.styles";
 
+const VERSION = "v0.3.4";
+
 export interface SidebarProps {
   workspaces: Workspace[];
   selectedWorkspaceId: string;
@@ -47,7 +49,6 @@ const Sidebar = ({
   pathname
 }: SidebarProps) => {
   const { current: year } = useRef(new Date().getFullYear());
-  const { current: version } = useRef("v0.3.4");
 
   return (
     <SidebarProvider {...{ navigate, pathname }}>
@@ -67,7 +68,7 @@ const Sidebar = ({
           </SidebarContent>
           <SidebarFooter>
             <Typography variant="mono-small">
-              &copy; {year}, FONOSTER. {version}
+              &copy; {year}, FONOSTER. {VERSION}
             </Typography>
           </SidebarFooter>
         </SidebarWrapper>

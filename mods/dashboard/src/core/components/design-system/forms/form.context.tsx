@@ -51,7 +51,7 @@ export const useFormField = () => {
 
   const fieldState = getFieldState(name, formState);
 
-  if (!name) throw new Error("useFormField should be used within <FormField>");
+  if (!name) throw new Error("useFormField() should be used within <FormField />");
 
   return {
     id,

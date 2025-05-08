@@ -16,13 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QueryClient } from "./query-client/query-client.provider";
-import { ThemeProvider } from "./styling/mui.provider";
+import { memo } from "react";
+import { Icon } from "../../icons/icons";
+import {
+  type CheckboxProps,
+  CheckboxRoot as Primitive
+} from "./checkbox.styles";
 
-export const Providers = ({ children }: { children: React.ReactNode }) => {
+export const CheckboxRoot = memo((props: CheckboxProps) => {
   return (
-    <ThemeProvider>
-      <QueryClient>{children}</QueryClient>
-    </ThemeProvider>
+    <Primitive
+      icon={<Icon name="CheckboxEmpty" fontSize="small" />}
+      checkedIcon={<Icon name="CheckboxSelected" fontSize="small" />}
+      indeterminateIcon={<Icon name="CheckboxIntermediate" fontSize="small" />}
+      disableRipple
+      {...props}
+    />
   );
-};
+});
+
+CheckboxRoot.displayName = "CheckboxRoot";

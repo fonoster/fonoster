@@ -28,7 +28,7 @@ import {
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import { RegionBadge } from "../region-badge/region-badge";
-import { Box, CardContent, Grid } from "@mui/material";
+import { Box } from "@mui/material";
 
 export interface WorkspaceCardProps
   extends React.HTMLAttributes<HTMLDivElement> {

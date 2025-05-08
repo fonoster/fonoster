@@ -16,36 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Tooltip as MuiTooltip, tooltipClasses, styled } from "@mui/material";
 import type { TooltipProps as MuiTooltipProps } from "@mui/material/Tooltip";
+import { TooltipRoot } from "./tooltip.styles";
+import { memo } from "react";
 
 export type TooltipProps = MuiTooltipProps;
 
-export const Tooltip = styled(({ className, ...props }: TooltipProps) => (
-  <MuiTooltip
+export const Tooltip = memo((props: TooltipProps) => (
+  <TooltipRoot
     arrow
     {...props}
-    classes={{ popper: className }}
+    classes={{ popper: props.className }}
     placement={props.placement || "top"}
   />
-))(({ theme }) => [
-  {
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.base["03"],
-      color: theme.palette.base["08"],
-      fontSize: 10,
-      padding: "10px",
-      borderRadius: 4,
-      boxShadow: "none",
-      maxWidth: 300,
-      fontStyle: "normal",
-      fontWeight: 500,
-      lineHeight: "normal"
-    },
-    [`& .${tooltipClasses.arrow}`]: {
-      color: theme.palette.base["03"]
-    }
-  }
-]);
+));
 
 Tooltip.displayName = "Tooltip";

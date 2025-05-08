@@ -19,7 +19,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Input } from "./input";
 import { fn } from "@storybook/test";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Icon } from "../../icons/icons";
 
 const meta = {

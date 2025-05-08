@@ -34,10 +34,6 @@
  *      name="username"
  *      render={({ field }) => (
  *        <FormItem>
- *         <FormLabel>Username</FormLabel>
- *          <FormHelp>
- *            Opt-in to a preferred time threshold minutes before closing...
- *          </FormHelp>
  *          <FormControl>
  *            <Input placeholder="Your username here..." {...field} />
  *          </FormControl>

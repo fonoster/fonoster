@@ -16,13 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QueryClient } from "./query-client/query-client.provider";
-import { ThemeProvider } from "./styling/mui.provider";
+import { Tooltip as MuiTooltip, tooltipClasses, styled } from "@mui/material";
 
-export const Providers = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <ThemeProvider>
-      <QueryClient>{children}</QueryClient>
-    </ThemeProvider>
-  );
-};
+export const TooltipRoot = styled(MuiTooltip)(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.base["03"],
+    color: theme.palette.base["08"],
+    fontSize: 10,
+    padding: "10px",
+    borderRadius: 4,
+    boxShadow: "none",
+    maxWidth: 300,
+    fontStyle: "normal",
+    fontWeight: 500,
+    lineHeight: "normal"
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: theme.palette.base["03"]
+  }
+}));
