@@ -27,11 +27,10 @@ const meta = {
   tags: ["autodocs"],
   args: {
     type: "button",
-    className: "",
     variant: "contained",
     size: "large",
     disabled: false,
-    fullWidth: false,
+    isFullWidth: false,
     children: "Button Copy"
   },
   argTypes: {
@@ -69,7 +68,7 @@ const meta = {
         }
       }
     },
-    fullWidth: {
+    isFullWidth: {
       name: "Full Width",
       description:
         "When true, the button will take up the full width of its container.",
@@ -89,12 +88,6 @@ const meta = {
           summary: "Button Copy"
         }
       },
-      type: "string"
-    },
-    className: {
-      name: "CSS Class",
-      description: "Additional CSS classes to apply to the button.",
-      control: { type: "text" },
       type: "string"
     },
     type: {
@@ -205,7 +198,7 @@ export const DisabledButton: Story = {
  */
 export const FullWidthButton: Story = {
   args: {
-    fullWidth: true,
+    isFullWidth: true,
     onClick: action("onClick"),
     children: "Button Copy"
   }
@@ -216,7 +209,7 @@ export const FullWidthButton: Story = {
  */
 export const FullWidthButtonWithIcon: Story = {
   args: {
-    fullWidth: true,
+    isFullWidth: true,
     variant: "contained",
     onClick: action("onClick"),
     children: "Button Copy",
@@ -238,7 +231,7 @@ export const FullWidthButtonWithIcon: Story = {
  */
 export const FullWidthDisabledButton: Story = {
   args: {
-    fullWidth: true,
+    isFullWidth: true,
     disabled: true,
     onClick: action("onClick"),
     children: "Button Copy"
