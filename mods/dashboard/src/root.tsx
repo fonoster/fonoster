@@ -60,6 +60,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="google" content="notranslate" />
+        <meta
+          name="format-detection"
+          content="telephone=no, date=no, email=no, address=no"
+        />
         <Meta />
         <Links />
       </head>
@@ -71,6 +75,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
+
+/**
+ * This function is used to prevent the app from revalidating data
+ * on every navigation. This is useful for performance reasons
+ * and to avoid unnecessary network requests.
+ *
+ * @see https://reactrouter.com/start/framework/route-module#shouldrevalidate
+ */
+export const shouldRevalidate = () => false;
 
 export default function App() {
   return <Outlet />;
