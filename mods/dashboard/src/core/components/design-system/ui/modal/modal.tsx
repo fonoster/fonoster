@@ -57,7 +57,7 @@ export const Modal = ({
           )}
         </ModalTitle>
       )}
-      <ModalContent>{children}</ModalContent>
+      <ModalContent sx={{ overflowY: "auto" }}>{children}</ModalContent>
     </ModalRoot>
   );
 };
