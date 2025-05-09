@@ -12,6 +12,13 @@
   text-size-adjust: none;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-y: scroll;
+}
+
 html,
 body {
   font-feature-settings:
