@@ -19,6 +19,7 @@
 import { forwardRef, type ReactNode } from "react";
 import { InputAdornment, type TextFieldProps } from "@mui/material";
 import { InputRoot } from "./input.styles";
+import { useFormField } from "../../forms";
 
 export interface InputTextProps extends Omit<TextFieldProps, "size"> {
   leadingIcon?: ReactNode;
@@ -33,21 +34,22 @@ export const Input = forwardRef<HTMLInputElement, InputTextProps>(
       leadingIcon,
       trailingIcon,
       supportingText,
-      error,
-      size = "small",
+      size = "medium",
       slotProps,
       ...rest
     },
     ref
   ) => {
+    const { error } = useFormField();
+
     return (
       <InputRoot
         {...rest}
-        error={error}
+        error={Boolean(error)}
         ref={ref}
         variant="outlined"
         fullWidth
-        helperText={supportingText}
+        helperText={error ? error.message : supportingText}
         size={size}
         slotProps={{
           input: {
@@ -57,6 +59,9 @@ export const Input = forwardRef<HTMLInputElement, InputTextProps>(
             endAdornment: trailingIcon ? (
               <InputAdornment position="end">{trailingIcon}</InputAdornment>
             ) : undefined
+          },
+          inputLabel: {
+            shrink: true
           },
           ...slotProps
         }}

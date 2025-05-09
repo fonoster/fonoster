@@ -22,7 +22,7 @@ import TextField from "@mui/material/TextField";
 export const InputRoot = styled(TextField)(({ theme, size }) => ({
   "& .MuiInputBase-input": {
     padding: size === "small" ? "4px 14px" : "6px 16px",
-    height: size === "small" ? "24px" : "30px",
+    height: size === "small" ? "24px" : "28px",
     fontSize: size === "small" ? "11px" : "12px",
     fontFamily: "'Poppins', sans-serif",
     fontWeight: 400,
@@ -31,18 +31,19 @@ export const InputRoot = styled(TextField)(({ theme, size }) => ({
     backgroundColor: "transparent"
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.Mui-focused": {
-    color: theme.palette.brand.main,
+    color: theme.palette.base["02"],
     fontFamily: "'Poppins', sans-serif",
     fontWeight: 500,
     lineHeight: "normal",
-    transform: "translate(16px, -11px) scale(0.66)"
+    transform: "translate(16px, -10px) scale(0.66)",
+    size: "10px"
   },
   "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
     fontFamily: "'Poppins', sans-serif",
     fontWeight: 500,
     lineHeight: "normal",
-    transform: "translate(16px, -11px) scale(0.66)",
-    color: theme.palette.text.primary
+    transform: "translate(16px, -10px) scale(0.66)",
+    color: theme.palette.base["02"]
   },
   "& .MuiInputBase-inputAdornedStart": {
     paddingLeft: "0"
@@ -57,7 +58,7 @@ export const InputRoot = styled(TextField)(({ theme, size }) => ({
     }
   },
   "& .MuiInputAdornment-root": {
-    color: theme.palette.text.primary
+    color: theme.palette.base["02"]
   },
   "& .MuiOutlinedInput-root": {
     "& .MuiOutlinedInput-notchedOutline": {
@@ -67,8 +68,7 @@ export const InputRoot = styled(TextField)(({ theme, size }) => ({
       borderColor: theme.palette.brand.main
     },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderColor: theme.palette.brand.main,
-      borderWidth: "2px"
+      borderColor: theme.palette.brand.main
     }
   },
   "& .MuiFormHelperText-root": {
@@ -78,7 +78,7 @@ export const InputRoot = styled(TextField)(({ theme, size }) => ({
     lineHeight: "normal",
     letterSpacing: "0.12px",
     marginTop: "8px",
-    color: theme.palette.text.secondary
+    color: theme.palette.base["03"]
   },
   "& .MuiFormLabel-root.MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
     fontFamily: "'Poppins', sans-serif",
@@ -87,6 +87,6 @@ export const InputRoot = styled(TextField)(({ theme, size }) => ({
     lineHeight: "normal",
     letterSpacing: "0.12px",
     marginTop: "-2px",
-    color: theme.palette.text.primary
+    color: theme.palette.base["02"]
   }
 }));
