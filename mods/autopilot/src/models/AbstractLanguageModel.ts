@@ -88,7 +88,7 @@ abstract class AbstractLanguageModel implements LanguageModel {
 
     // This handles late speech recognition
     if (isReentry) {
-      logger.verbose("xxx reentry detected, discarding last conversation turn");
+      logger.verbose("reentry detected, discarding last conversation turn");
       const messages = await chatHistory.getMessages();
       messages.pop(); // Last AI message
       messages.pop(); // Last user message
