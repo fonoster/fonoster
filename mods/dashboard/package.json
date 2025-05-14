@@ -18,6 +18,7 @@
   "dependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
+    "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.14.0",
     "@fonoster/sdk": "^0.12.16",
     "@hookform/resolvers": "^5.0.1",
@@ -29,6 +30,7 @@
     "@tanstack/react-query-devtools": "^5.72.2",
     "@tanstack/react-table": "^8.21.2",
     "isbot": "^5",
+    "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.55.0",
