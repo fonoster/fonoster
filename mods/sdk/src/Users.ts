@@ -219,15 +219,20 @@ class Users {
   /**
    * Sends a reset password code to the User.
    *
-   * @param {string} username - The username of the User
-   * @return {Promise<void>} - The response object that contains the reference to the User
+   * @param {SendResetPasswordCodeRequest} request - The request object that contains the necessary information to send a reset password code to a User
+   * @param {string} request.username - The username of the User
+   * @param {string} request.resetPasswordUrl - The URL to reset the password
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the User
    * @example
    * const users = new SDK.Users(client); // Existing client object
    *
-   * const username = "john.doe@example.com";
+   * const request = {
+   *   username: "john.doe@example.com",
+   *   resetPasswordUrl: "https://example.com/reset-password"
+   * };
    *
    * users
-   *   .sendResetPasswordCode(username)
+   *   .sendResetPasswordCode(request)
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
