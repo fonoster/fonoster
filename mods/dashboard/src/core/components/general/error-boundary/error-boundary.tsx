@@ -34,7 +34,9 @@ export const ErrorLayout = ({ errorCode }: { errorCode: number }) => {
         <ErrorCode>{errorCode}</ErrorCode>
         <ErrorDescription>{errorMessage}</ErrorDescription>
       </ErrorMessage>
-      <Button onClick={() => navigate("/")}>Go to Home</Button>
+      <Button onClick={() => navigate("/", { viewTransition: true })}>
+        Go to Home
+      </Button>
     </ErrorRoot>
   );
 };

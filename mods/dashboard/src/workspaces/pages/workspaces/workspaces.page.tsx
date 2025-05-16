@@ -55,14 +55,16 @@ export default function Workspaces() {
 
   const onWorkspaceClick = useCallback(
     (workspaceRef: string) => {
-      navigate(`/workspaces/${workspaceRef}`);
+      navigate(`/workspaces/${workspaceRef}`, { viewTransition: true });
     },
     [navigate]
   );
 
   const onSettingsClick = useCallback(
     (workspaceRef: string) => {
-      navigate(`/workspaces/${workspaceRef}/settings`);
+      navigate(`/workspaces/${workspaceRef}/settings`, {
+        viewTransition: true
+      });
     },
     [navigate]
   );

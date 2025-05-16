@@ -55,7 +55,8 @@ export default function ForgotPasswordPage() {
       toast("Ahoy! We have sent you an email to reset your password");
 
       navigate("/auth/reset-password?token=" + btoa(data.email), {
-        replace: true
+        replace: true,
+        viewTransition: true
       });
     },
     [form]
