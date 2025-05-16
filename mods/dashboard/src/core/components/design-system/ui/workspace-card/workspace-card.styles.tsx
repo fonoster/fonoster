@@ -20,7 +20,11 @@ import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/material";
 
-export const WorkspaceCardRoot = styled(Box)<{
+export const WorkspaceCardRoot = styled(Box, {
+  shouldForwardProp(propName) {
+    return propName !== "disabled" && propName !== "workspaceVariant";
+  }
+})<{
   disabled: boolean;
   workspaceVariant?: string;
 }>(({ disabled, workspaceVariant, theme }) => ({
@@ -39,7 +43,7 @@ export const WorkspaceCardRoot = styled(Box)<{
   border:
     workspaceVariant === "regular"
       ? `solid 1px ${theme.palette.base["06"]}`
-      : `solid 1px ${theme.palette.base["04"]}`,
+      : `solid 1px ${theme.palette.base["05"]}`,
   padding: "30px 30px 16px 30px",
   transition: "all 0.3s ease-in-out",
   boxShadow: "none",

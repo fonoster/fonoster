@@ -35,7 +35,7 @@ export interface WorkspaceCardProps
   region?: string;
   description?: string;
   date?: string;
-  disabled: boolean;
+  disabled?: boolean;
   workspaceRef?: React.RefObject<HTMLDivElement>;
   onSettingsClick?: () => void;
 }
@@ -58,6 +58,8 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
     >
       <Box
         sx={{
+          height: "100%",
+          width: "100%",
           display: "flex",
           flexDirection: "column",
           flexGrow: 1,
@@ -65,7 +67,7 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
           justifyContent: "end"
         }}
       >
-        <Box>
+        <Box sx={{ width: "100%" }}>
           {region && <RegionBadge type="landing-page">{region}</RegionBadge>}
           {description && <StyledDescription>{description}</StyledDescription>}
           <Box sx={{ flexGrow: 1 }} />
