@@ -231,7 +231,9 @@ class Users {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async sendResetPasswordCode(username: string): Promise<BaseApiObject> {
+  async sendResetPasswordCode(
+    request: SendResetPasswordCodeRequest
+  ): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
       SendResetPasswordCodeRequestPB,
@@ -242,7 +244,7 @@ class Users {
       method: client.sendResetPasswordCode.bind(client),
       requestPBObjectConstructor: SendResetPasswordCodeRequestPB,
       metadata: this.client.getMetadata(),
-      request: { username }
+      request
     });
   }
 

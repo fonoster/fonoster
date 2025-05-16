@@ -55,14 +55,20 @@ function createSendResetPasswordCode(
       return callback(null);
     }
 
-    const verificationCode = await generateVerificationCode({
+    const code = await generateVerificationCode({
       type: ContactType.EMAIL,
       value: username
     });
 
+    const payload = { username, code };
+
+    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
+      "base64"
+    );
+
     await sendResetPasswordEmail(createSendEmail(identityConfig), {
       recipient: username,
-      resetPasswordUrl: `${identityConfig.resetPasswordUrl}?code=${verificationCode}`
+      resetPasswordUrl: `${request.resetPasswordUrl}?token=${encodedPayload}`
     });
 
     callback(null);

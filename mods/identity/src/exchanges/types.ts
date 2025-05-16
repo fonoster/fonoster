@@ -34,7 +34,6 @@ type IdentityConfig = {
   workspaceInviteFailUrl: string;
   contactVerificationRequired: boolean;
   twoFactorAuthenticationRequired: boolean;
-  resetPasswordUrl: string;
   smtpConfig: {
     sender: string;
     host: string;

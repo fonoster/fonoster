@@ -687,6 +687,9 @@ export class SendResetPasswordCodeRequest extends jspb.Message {
   getUsername(): string;
   setUsername(value: string): SendResetPasswordCodeRequest;
 
+  getResetPasswordUrl(): string;
+  setResetPasswordUrl(value: string): SendResetPasswordCodeRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SendResetPasswordCodeRequest.AsObject;
   static toObject(includeInstance: boolean, msg: SendResetPasswordCodeRequest): SendResetPasswordCodeRequest.AsObject;
@@ -698,6 +701,7 @@ export class SendResetPasswordCodeRequest extends jspb.Message {
 export namespace SendResetPasswordCodeRequest {
   export type AsObject = {
     username: string,
+    resetPasswordUrl: string,
   }
 }
 

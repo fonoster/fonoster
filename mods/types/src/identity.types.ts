@@ -85,6 +85,7 @@ type ApiKey = {
 
 type SendResetPasswordCodeRequest = {
   username: string;
+  resetPasswordUrl: string;
 };
 
 type ResetPasswordRequest = {
