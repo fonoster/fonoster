@@ -141,99 +141,126 @@ export default [
        *
        * Placeholder for additional workspace-related routes under "/workspaces".
        */
-      ...prefix("workspaces", []),
-
-      /**
-       * Applications Routes
-       *
-       * Placeholder for application-related routes under "/applications".
-       */
-      ...prefix("applications", []),
-
-      /**
-       * SIP Network Routes
-       *
-       * Groups SIP network-related routes under the "/sip-network" path.
-       *
-       * Example URLs:
-       * - /sip-network/trunks
-       * - /sip-network/numbers
-       * - /sip-network/domains
-       * - /sip-network/agents
-       * - /sip-network/acls
-       * - /sip-network/credentials
-       */
-      ...prefix("sip-network", [
+      ...prefix("workspaces/:workspaceId", [
         /**
-         * Trunks Routes
+         * Workspaces Index Route
          *
-         * Placeholder for trunk-related routes under "/sip-network/trunks".
+         * Renders the workspaces index page at "/workspaces/:workspaceId".
          */
-        ...prefix("trunks", []),
+        index("workspaces/pages/[workspace]/overview/overview.page.tsx"),
 
         /**
-         * Numbers Routes
+         * Workspaces Members Route
          *
-         * Placeholder for number-related routes under "/sip-network/numbers".
+         * Renders the members page at "/workspaces/:workspaceId/members".
          */
-        ...prefix("numbers", []),
+        route(
+          "members",
+          "workspaces/pages/[workspace]/members/members.page.tsx"
+        ),
 
         /**
-         * Domains Routes
+         * Workspaces Settings Route
          *
-         * Placeholder for domain-related routes under "/sip-network/domains".
+         * Renders the settings page at "/workspaces/:workspaceId/settings".
          */
-        ...prefix("domains", []),
+        route(
+          "settings",
+          "workspaces/pages/[workspace]/settings/settings.page.tsx"
+        ),
 
         /**
-         * Agents Routes
+         * Applications Routes
          *
-         * Placeholder for agent-related routes under "/sip-network/agents".
+         * Placeholder for application-related routes under "/applications".
          */
-        ...prefix("agents", []),
+        ...prefix("applications", []),
 
         /**
-         * ACLs Routes
+         * SIP Network Routes
          *
-         * Placeholder for access control list-related routes under "/sip-network/acls".
+         * Groups SIP network-related routes under the "/sip-network" path.
+         *
+         * Example URLs:
+         * - /sip-network/trunks
+         * - /sip-network/numbers
+         * - /sip-network/domains
+         * - /sip-network/agents
+         * - /sip-network/acls
+         * - /sip-network/credentials
          */
-        ...prefix("acls", []),
+        ...prefix("sip-network", [
+          /**
+           * Trunks Routes
+           *
+           * Placeholder for trunk-related routes under "/sip-network/trunks".
+           */
+          ...prefix("trunks", []),
+
+          /**
+           * Numbers Routes
+           *
+           * Placeholder for number-related routes under "/sip-network/numbers".
+           */
+          ...prefix("numbers", []),
+
+          /**
+           * Domains Routes
+           *
+           * Placeholder for domain-related routes under "/sip-network/domains".
+           */
+          ...prefix("domains", []),
+
+          /**
+           * Agents Routes
+           *
+           * Placeholder for agent-related routes under "/sip-network/agents".
+           */
+          ...prefix("agents", []),
+
+          /**
+           * ACLs Routes
+           *
+           * Placeholder for access control list-related routes under "/sip-network/acls".
+           */
+          ...prefix("acls", []),
+
+          /**
+           * Credentials Routes
+           *
+           * Placeholder for credential-related routes under "/sip-network/credentials".
+           */
+          ...prefix("credentials", [])
+        ]),
 
         /**
-         * Credentials Routes
+         * Storage Routes
          *
-         * Placeholder for credential-related routes under "/sip-network/credentials".
+         * Placeholder for storage-related routes under "/storage".
          */
-        ...prefix("credentials", [])
-      ]),
+        ...prefix("storage", []),
 
-      /**
-       * Storage Routes
-       *
-       * Placeholder for storage-related routes under "/storage".
-       */
-      ...prefix("storage", []),
+        /**
+         * Secrets Routes
+         *
+         * Placeholder for secret management routes under "/secrets".
+         */
+        ...prefix("secrets", []),
 
-      /**
-       * Secrets Routes
-       *
-       * Placeholder for secret management routes under "/secrets".
-       */
-      ...prefix("secrets", []),
+        /**
+         * API Keys Routes
+         *
+         * Placeholder for API key management routes under "/api-keys".
+         */
+        ...prefix("api-keys", []),
 
-      /**
-       * API Keys Routes
-       *
-       * Placeholder for API key management routes under "/api-keys".
-       */
-      ...prefix("api-keys", []),
-
-      /**
-       * Monitoring Routes
-       *
-       * Placeholder for monitoring-related routes under "/monitoring".
-       */
-      ...prefix("monitoring", [])
+        /**
+         * Monitoring Routes
+         *
+         * Placeholder for monitoring-related routes under "/monitoring".
+         */
+        ...prefix("monitoring", [])
+      ])
     ])
   ])
 ] satisfies RouteConfig;
