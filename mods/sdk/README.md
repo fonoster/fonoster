@@ -2138,7 +2138,7 @@ Note that an active Fonoster deployment is required.
     * [.createUserWithOauth2Code(request)](#Users+createUserWithOauth2Code) ⇒ <code>Promise.&lt;ExchangeCredentialsResponse&gt;</code>
     * [.getUser(ref)](#Users+getUser) ⇒ <code>Promise.&lt;Acl&gt;</code>
     * [.updateUser(request)](#Users+updateUser) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
-    * [.sendResetPasswordCode(username)](#Users+sendResetPasswordCode) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.sendResetPasswordCode(request)](#Users+sendResetPasswordCode) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.resetPassword(request)](#Users+resetPassword) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.deleteUser(ref)](#Users+deleteUser) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
 
@@ -2284,24 +2284,29 @@ users
 ```
 <a name="Users+sendResetPasswordCode"></a>
 
-### users.sendResetPasswordCode(username) ⇒ <code>Promise.&lt;void&gt;</code>
+### users.sendResetPasswordCode(request) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
 Sends a reset password code to the User.
 
 **Kind**: instance method of [<code>Users</code>](#Users)  
-**Returns**: <code>Promise.&lt;void&gt;</code> - - The response object that contains the reference to the User  
+**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the User  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| username | <code>string</code> | The username of the User |
+| request | <code>SendResetPasswordCodeRequest</code> | The request object that contains the necessary information to send a reset password code to a User |
+| request.username | <code>string</code> | The username of the User |
+| request.resetPasswordUrl | <code>string</code> | The URL to reset the password |
 
 **Example**  
 ```js
 const users = new SDK.Users(client); // Existing client object
 
-const username = "john.doe@example.com";
+const request = {
+  username: "john.doe@example.com",
+  resetPasswordUrl: "https://example.com/reset-password"
+};
 
 users
-  .sendResetPasswordCode(username)
+  .sendResetPasswordCode(request)
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```

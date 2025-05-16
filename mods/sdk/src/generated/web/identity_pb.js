@@ -6181,7 +6181,8 @@ proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest.prototype.toObject 
  */
 proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-username: jspb.Message.getFieldWithDefault(msg, 1, "")
+username: jspb.Message.getFieldWithDefault(msg, 1, ""),
+resetPasswordUrl: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -6222,6 +6223,10 @@ proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest.deserializeBinaryFr
       var value = /** @type {string} */ (reader.readString());
       msg.setUsername(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setResetPasswordUrl(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -6258,6 +6263,13 @@ proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest.serializeBinaryToWr
       f
     );
   }
+  f = message.getResetPasswordUrl();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
 };
 
 
@@ -6276,6 +6288,24 @@ proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest.prototype.getUserna
  */
 proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest.prototype.setUsername = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string reset_password_url = 2;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest.prototype.getResetPasswordUrl = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest} returns this
+ */
+proto.fonoster.identity.v1beta2.SendResetPasswordCodeRequest.prototype.setResetPasswordUrl = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 

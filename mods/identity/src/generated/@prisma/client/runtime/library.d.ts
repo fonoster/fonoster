@@ -73,7 +73,7 @@ export declare type Args_3<T, F extends Operation> = Args<T, F>;
  * Query arguments marked with this type are sanitized before being sent to the database.
  * Notice while a query argument may be `null`, `ArgType` is guaranteed to be defined.
  */
-declare type ArgType = 'Int32' | 'Int64' | 'Float' | 'Double' | 'Text' | 'Enum' | 'EnumArray' | 'Bytes' | 'Boolean' | 'Char' | 'Array' | 'Numeric' | 'Json' | 'Xml' | 'Uuid' | 'DateTime' | 'Date' | 'Time';
+declare type ArgType = 'Int32' | 'Int64' | 'Float' | 'Double' | 'Text' | 'Enum' | 'EnumArray' | 'Bytes' | 'Boolean' | 'Char' | 'Array' | 'Numeric' | 'Json' | 'Xml' | 'Uuid' | 'DateTime' | 'Date' | 'Time' | 'Unknown';
 
 /**
  * Attributes is a map from string to attribute values.

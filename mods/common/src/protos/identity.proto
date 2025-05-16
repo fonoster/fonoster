@@ -226,6 +226,7 @@ message VerifyCodeRequest {
 
 message SendResetPasswordCodeRequest {
   string username = 1;
+  string reset_password_url = 2;
 }
 
 message ResetPasswordRequest {

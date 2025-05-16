@@ -132,7 +132,8 @@ const verifyCodeRequestSchema = z.object({
 const sendResetPasswordCodeRequestSchema = z.object({
   username: z
     .string()
-    .email({ message: "Invalid username. Must be an email address" })
+    .email({ message: "Invalid username. Must be an email address" }),
+  resetPasswordUrl: z.string()
 });
 
 const resetPasswordRequestSchema = z.object({
