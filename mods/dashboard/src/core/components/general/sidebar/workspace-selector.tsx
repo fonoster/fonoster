@@ -29,6 +29,8 @@ import {
 import { Typography } from "../../design-system/ui/typography/typography";
 import { ellipsis } from "~/core/helpers/ellipsis";
 
+const DEFAULT_WORKSPACE = [{ id: "ADD", name: "New Workspace +" }];
+
 export interface FilterSearchBySelectorProps {
   selectedWorkspaceId: string;
   workspaces: Workspace[];
@@ -101,7 +103,7 @@ export const WorkspaceSelector: React.FC<FilterSearchBySelectorProps> = ({
           <Icon name={"UnfoldLess"} />
         </WorkspaceTrigger>
 
-        {workspaces.map((option) => (
+        {[...workspaces, ...DEFAULT_WORKSPACE].map((option) => (
           <WorkspaceOption
             key={option.id}
             onClick={() => handleFilterSelect(option.id)}

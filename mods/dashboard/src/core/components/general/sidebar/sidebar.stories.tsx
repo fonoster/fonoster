@@ -33,8 +33,7 @@ type Story = StoryObj<typeof Sidebar>;
 const workspaces: Workspace[] = [
   { id: "1", name: "Demo Workspace" },
   { id: "2", name: "Default Workspace" },
-  { id: "3", name: "Bank Account" },
-  { id: "ADD", name: "New Workspace +" }
+  { id: "3", name: "Bank Account" }
 ];
 
 export const Default: Story = {
