@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { Route } from ".react-router/types/src/+types/root";
 import { data } from "react-router";
 import { commitSession, getSession, getSessionCookie } from "./session.server";
+import type { Route } from "../../+types/root";
 
 export const rootAuthLoader = async ({ request }: Route.LoaderArgs) => {
   const headers = request.headers.get("Cookie");

@@ -22,10 +22,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { SignupForm } from "./sign-up.form";
 import { useCallback } from "react";
-import type { Route } from "./+types";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
+import type { Route } from "./+types/sign-up.page";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Sign Up | Fonoster" }];

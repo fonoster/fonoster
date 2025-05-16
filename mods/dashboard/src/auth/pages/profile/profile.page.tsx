@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { Route } from "./+types";
+
+import type { Route } from "./+types/profile.page";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Profile | Fonoster" }];
