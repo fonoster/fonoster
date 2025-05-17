@@ -24,6 +24,13 @@ enum ExpectedTextType {
   SIMILAR = "similar"
 }
 
+type EvaluateStepParams = {
+  step: any;
+  languageModel: LanguageModel;
+  testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
+  assistantConfig: AssistantConfig;
+};
+
 type ScenarioEvaluationReport = {
   scenarioRef: string;
   overallPassed: boolean;
@@ -40,13 +47,6 @@ type StepEvaluationReport = {
   toolEvaluations?: ToolEvaluationReport[];
 };
 
-type EvaluateStepParams = {
-  step: any;
-  languageModel: LanguageModel;
-  testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
-  assistantConfig: AssistantConfig;
-};
-
 type ToolEvaluationReport = {
   expectedTool: string;
   actualTool: string;
@@ -56,7 +56,7 @@ type ToolEvaluationReport = {
   errorMessage?: string;
 };
 
-type ScenarioEvaluationConfig = {
+type ScenarioEvaluationRequest = {
   assistantConfig: AssistantConfig;
   scenario: any;
   languageModel: LanguageModel;
@@ -68,6 +68,6 @@ export {
   ScenarioEvaluationReport,
   StepEvaluationReport,
   ToolEvaluationReport,
-  ScenarioEvaluationConfig,
+  ScenarioEvaluationRequest,
   EvaluateStepParams
 };

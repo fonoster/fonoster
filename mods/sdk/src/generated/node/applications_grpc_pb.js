@@ -78,6 +78,28 @@ function deserialize_fonoster_applications_v1beta2_DeleteApplicationResponse(buf
   return applications_pb.DeleteApplicationResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest(arg) {
+  if (!(arg instanceof applications_pb.EvaluateIntelligenceRequest)) {
+    throw new Error('Expected argument of type fonoster.applications.v1beta2.EvaluateIntelligenceRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest(buffer_arg) {
+  return applications_pb.EvaluateIntelligenceRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse(arg) {
+  if (!(arg instanceof applications_pb.EvaluateIntelligenceResponse)) {
+    throw new Error('Expected argument of type fonoster.applications.v1beta2.EvaluateIntelligenceResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse(buffer_arg) {
+  return applications_pb.EvaluateIntelligenceResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_applications_v1beta2_GetApplicationRequest(arg) {
   if (!(arg instanceof applications_pb.GetApplicationRequest)) {
     throw new Error('Expected argument of type fonoster.applications.v1beta2.GetApplicationRequest');
@@ -195,6 +217,18 @@ deleteApplication: {
     requestDeserialize: deserialize_fonoster_applications_v1beta2_DeleteApplicationRequest,
     responseSerialize: serialize_fonoster_applications_v1beta2_DeleteApplicationResponse,
     responseDeserialize: deserialize_fonoster_applications_v1beta2_DeleteApplicationResponse,
+  },
+  // Evaluate the intellgence for an Autopilot application
+evaluateIntelligence: {
+    path: '/fonoster.applications.v1beta2.Applications/EvaluateIntelligence',
+    requestStream: false,
+    responseStream: false,
+    requestType: applications_pb.EvaluateIntelligenceRequest,
+    responseType: applications_pb.EvaluateIntelligenceResponse,
+    requestSerialize: serialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest,
+    requestDeserialize: deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest,
+    responseSerialize: serialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse,
+    responseDeserialize: deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse,
   },
 };
 

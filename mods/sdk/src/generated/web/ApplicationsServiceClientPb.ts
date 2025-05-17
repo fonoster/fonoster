@@ -254,5 +254,48 @@ export class ApplicationsClient {
     this.methodDescriptorDeleteApplication);
   }
 
+  methodDescriptorEvaluateIntelligence = new grpcWeb.MethodDescriptor(
+    '/fonoster.applications.v1beta2.Applications/EvaluateIntelligence',
+    grpcWeb.MethodType.UNARY,
+    applications_pb.EvaluateIntelligenceRequest,
+    applications_pb.EvaluateIntelligenceResponse,
+    (request: applications_pb.EvaluateIntelligenceRequest) => {
+      return request.serializeBinary();
+    },
+    applications_pb.EvaluateIntelligenceResponse.deserializeBinary
+  );
+
+  evaluateIntelligence(
+    request: applications_pb.EvaluateIntelligenceRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<applications_pb.EvaluateIntelligenceResponse>;
+
+  evaluateIntelligence(
+    request: applications_pb.EvaluateIntelligenceRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: applications_pb.EvaluateIntelligenceResponse) => void): grpcWeb.ClientReadableStream<applications_pb.EvaluateIntelligenceResponse>;
+
+  evaluateIntelligence(
+    request: applications_pb.EvaluateIntelligenceRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: applications_pb.EvaluateIntelligenceResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.applications.v1beta2.Applications/EvaluateIntelligence',
+        request,
+        metadata || {},
+        this.methodDescriptorEvaluateIntelligence,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.applications.v1beta2.Applications/EvaluateIntelligence',
+    request,
+    metadata || {},
+    this.methodDescriptorEvaluateIntelligence);
+  }
+
 }
 

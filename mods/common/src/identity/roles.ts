@@ -27,6 +27,7 @@ const workspaceResourceAccess = [
   "/fonoster.applications.v1beta2.Applications/GetApplication",
   "/fonoster.applications.v1beta2.Applications/DeleteApplication",
   "/fonoster.applications.v1beta2.Applications/ListApplications",
+  "/fonoster.applications.v1beta2.Applications/EvaluateIntelligence",
   "/fonoster.agents.v1beta2.Agents/CreateAgent",
   "/fonoster.agents.v1beta2.Agents/UpdateAgent",
   "/fonoster.agents.v1beta2.Agents/GetAgent",

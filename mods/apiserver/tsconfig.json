@@ -19,6 +19,9 @@
     },
     {
       "path": "../types",
+    },
+    {
+      "path": "../autopilot",
     }
   ],
   "exclude": ["node_modules", "dist", "test"]

@@ -18,13 +18,13 @@
  */
 import { evaluateStep } from "./evaluateStep";
 import {
-  ScenarioEvaluationConfig,
   ScenarioEvaluationReport,
+  ScenarioEvaluationRequest,
   StepEvaluationReport
 } from "./types";
 
 export async function evaluateScenario(
-  config: ScenarioEvaluationConfig
+  config: ScenarioEvaluationRequest
 ): Promise<ScenarioEvaluationReport> {
   const { scenario, languageModel, testTextSimilarity, assistantConfig } =
     config;

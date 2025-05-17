@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createEvaluateIntelligence } from "@fonoster/autopilot";
 import { Prisma } from "../core/db";
 import { createCreateApplication } from "./createCreateApplication";
 import { createDeleteApplication } from "./createDeleteApplication";
@@ -36,7 +37,8 @@ function buildService(prisma: Prisma) {
       getApplication: createGetApplication(prisma),
       listApplications: createListApplications(prisma),
       deleteApplication: createDeleteApplication(prisma),
-      updateApplication: createUpdateApplication(prisma)
+      updateApplication: createUpdateApplication(prisma),
+      evaluateIntelligence: createEvaluateIntelligence()
     }
   };
 }

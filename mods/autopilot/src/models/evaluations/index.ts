@@ -19,3 +19,4 @@
 export * from "./evalTestCases";
 export * from "./printEval";
 export * from "./types";
+export * from "./createEvaluateIntelligence";

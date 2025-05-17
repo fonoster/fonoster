@@ -34,6 +34,8 @@ service Applications {
   rpc UpdateApplication(UpdateApplicationRequest) returns (UpdateApplicationResponse) {}
   // Delete an application
   rpc DeleteApplication(DeleteApplicationRequest) returns (DeleteApplicationResponse) {}
+  // Evaluate the intellgence for an Autopilot application
+  rpc EvaluateIntelligence(EvaluateIntelligenceRequest) returns (EvaluateIntelligenceResponse);
 }
 
 // The type of application
@@ -153,4 +155,45 @@ message DeleteApplicationRequest {
 message DeleteApplicationResponse {
   // Echo the reference of the application
   string ref = 1;
+}
+
+// Request to perform an eval for a given Autopilot application
+message EvaluateIntelligenceRequest {
+  // The intelligence to evaluate
+  ProductContainer intelligence = 1;
+}
+
+// Response with the evaluation results
+message EvaluateIntelligenceResponse {
+  enum ExpectedTextType {
+    EXACT = 0;
+    SIMILAR = 1;
+  }
+
+  message ToolEvaluationReport {
+    string expected_tool = 1;
+    string actual_tool = 2;
+    bool passed = 3;
+    google.protobuf.Struct expected_parameters = 4;
+    google.protobuf.Struct actual_parameters = 5;
+    string error_message = 6;
+  }
+
+  message StepEvaluationReport {
+    string human_input = 1;
+    string expected_response = 2;
+    string ai_response = 3;
+    ExpectedTextType evaluation_type = 4;
+    bool passed = 5;
+    string error_message = 6;
+    repeated ToolEvaluationReport tool_evaluations = 7;
+  }
+
+  message ScenarioEvaluationReport {
+    string scenario_ref = 1;
+    bool overall_passed = 2;
+    repeated StepEvaluationReport steps = 3;
+  }
+
+  repeated ScenarioEvaluationReport results = 1;
 }
