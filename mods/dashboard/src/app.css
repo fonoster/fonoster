@@ -16,7 +16,6 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-y: scroll;
 }
 
 html,
@@ -27,6 +26,8 @@ body {
   -webkit-tap-highlight-color: transparent;
   text-rendering: optimizeLegibility;
   font-family: var(--font-sans);
+  overflow: hidden;
+  height: 100%;
 }
 
 [data-sonner-toast][data-styled="true"] [data-content] {

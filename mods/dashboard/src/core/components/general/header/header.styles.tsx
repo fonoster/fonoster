@@ -16,17 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Stack, styled } from "@mui/material";
 
-import type { Route } from "./+types/profile.page";
+export const HeaderRoot = styled("header")(({ theme }) => ({
+  position: "relative",
+  minHeight: "75px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  padding: "24px 40px",
+  width: "100%",
+  borderBottom: `1px solid ${theme.palette.base["06"]}`
+}));
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Profile | Fonoster" }];
-}
-
-export default function Profile() {
-  return (
-    <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-      <h1>Fonoster Profile</h1>
-    </div>
-  );
-}
+export const HeaderContent = styled(Stack)(() => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  width: "100%",
+  height: "100%"
+}));

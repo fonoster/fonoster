@@ -19,7 +19,6 @@
 import { useRef } from "react";
 import { WorkspaceSelector } from "./workspace-selector";
 import NavItem from "./sidebar-nav-item";
-import { SIDEBAR_ITEMS } from "./sidebar-navigation.const";
 import type { Workspace } from "./sidebar.interfaces";
 import { Typography } from "../../design-system/ui/typography/typography";
 import { SidebarProvider } from "./sidebar.context";
@@ -30,6 +29,7 @@ import {
   SidebarNavigation,
   SidebarWrapper
 } from "./sidebar.styles";
+import { useSidebarItems } from "./sidebar-navigation.const";
 
 const VERSION = "v0.3.4";
 
@@ -50,9 +50,11 @@ const Sidebar = ({
 }: SidebarProps) => {
   const { current: year } = useRef(new Date().getFullYear());
 
+  const items = useSidebarItems();
+
   return (
     <SidebarProvider {...{ navigate, pathname }}>
-      <SidebarContainer variant="permanent">
+      <SidebarContainer>
         <SidebarWrapper>
           <SidebarContent>
             <WorkspaceSelector
@@ -61,7 +63,7 @@ const Sidebar = ({
               onSelect={onSelectWorkspace}
             />
             <SidebarNavigation>
-              {SIDEBAR_ITEMS.map((item) => (
+              {items.map((item) => (
                 <NavItem key={item.label} item={item} />
               ))}
             </SidebarNavigation>

@@ -22,11 +22,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ForgotPasswordForm } from "./forgot-password.form";
 import { useCallback } from "react";
-import type { Route } from "./+types";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useNavigate } from "react-router";
+import type { Route } from "./+types/forgot-password.page";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Forgot Password | Fonoster" }];
@@ -55,7 +55,8 @@ export default function ForgotPasswordPage() {
       toast("Ahoy! We have sent you an email to reset your password");
 
       navigate("/auth/reset-password?token=" + btoa(data.email), {
-        replace: true
+        replace: true,
+        viewTransition: true
       });
     },
     [form]

@@ -36,7 +36,7 @@ export const useRequiredSession = () => {
 
   useLayoutEffect(() => {
     if (!session) {
-      navigate("/auth/login", { replace: true });
+      navigate("/auth/login", { replace: true, viewTransition: true });
     }
   }, [session, navigate]);
 

@@ -16,17 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Modal } from "~/core/components/design-system/ui/modal/modal";
+import { CreateWorkspaceForm } from "./create-workspace.form";
 
-import type { Route } from "./+types/profile.page";
-
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Profile | Fonoster" }];
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export default function Profile() {
+export const CreateWorkspaceModal = ({ isOpen, onClose }: ModalProps) => {
   return (
-    <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-      <h1>Fonoster Profile</h1>
-    </div>
+    <Modal open={isOpen} onClose={onClose} title="Create workspace">
+      <CreateWorkspaceForm />
+    </Modal>
   );
-}
+};

@@ -23,6 +23,7 @@ import {
   SidebarNavItemRoot,
   SidebarNavItemText
 } from "./sidebar.styles";
+import { useCallback } from "react";
 
 export interface SubNavItemProps {
   item: SidebarItem;
@@ -31,9 +32,14 @@ export interface SubNavItemProps {
 const SubNavItem = ({ item }: SubNavItemProps) => {
   const { navigate, isItemActive } = useSidebar();
 
+  const onNavigate = useCallback(
+    () => navigate(item.href),
+    [item.href, navigate]
+  );
+
   return (
     <SidebarNavItemRoot
-      onClick={() => navigate(item.href)}
+      onClick={onNavigate}
       data-selected={isItemActive(item)}
       sx={{ pl: "16px" }}
     >

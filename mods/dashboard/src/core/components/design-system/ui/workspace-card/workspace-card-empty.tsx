@@ -24,11 +24,11 @@ import {
   StyledAddIconContainer
 } from "./workspace-card.styles";
 import AddIcon from "@mui/icons-material/Add";
-import { CardContent } from "@mui/material";
+import { Box } from "@mui/material";
 
 export interface WorkspaceCardProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  disabled: boolean;
+  disabled?: boolean;
   workspaceRef?: React.RefObject<HTMLDivElement>;
 }
 
@@ -44,14 +44,15 @@ export const AddWorkspaceCard: React.FC<WorkspaceCardProps> = ({
       ref={workspaceRef}
     >
       <StyledCardContentContainer>
-        <CardContent
+        <Box
           sx={{
             height: "100%",
             alignContent: "center",
-            justifyItems: "center",
+            justifyContent: "center",
             alignItems: "center",
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
+            flexGrow: 1
           }}
         >
           <StyledAddIconContainer
@@ -66,7 +67,7 @@ export const AddWorkspaceCard: React.FC<WorkspaceCardProps> = ({
           >
             New Workspace
           </StyledNewWorkSpaceDescription>
-        </CardContent>
+        </Box>
       </StyledCardContentContainer>
     </WorkspaceCardRoot>
   );

@@ -19,6 +19,8 @@
 import { Outlet } from "react-router";
 import type { Route } from "./+types/authenticated.layout";
 import { getRequiredSession } from "~/auth/services/session.server";
+import { Box, styled } from "@mui/material";
+import { Header } from "../general/header/header";
 
 /**
  * This hook determines whether the route should revalidate.
@@ -46,23 +48,28 @@ export async function loader({ request }: Route.LoaderArgs) {
  * and will eventually include a header with user information and logout functionality.
  */
 export default function AuthenticatedLayout() {
-  /**
-   * TODO: Add authentication-aware UI
-   *
-   * This layout is already protected at the loader level. To complete the UX:
-   * - Add a Header component that:
-   *    - Displays the user's name and avatar (from session data)
-   *    - Provides a logout button that clears the session
-   */
   return (
-    <main className="flex items-center justify-center pt-16 pb-4">
-      {/* Placeholder title – replace with app shell and header */}
-      <h1>Ahoy! Authenticated Layout</h1>
-
-      {/* Main content area for nested protected routes */}
-      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
+    <MainRoot>
+      <Header />
+      <MainContent>
         <Outlet />
-      </div>
-    </main>
+      </MainContent>
+    </MainRoot>
   );
 }
+
+export const MainRoot = styled(Box)(() => ({
+  display: "flex",
+  flexDirection: "column",
+  flexGrow: 1,
+  height: "100%",
+  overflow: "hidden"
+}));
+
+export const MainContent = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+  backgroundColor: theme.palette.background.default,
+  overflow: "hidden"
+}));

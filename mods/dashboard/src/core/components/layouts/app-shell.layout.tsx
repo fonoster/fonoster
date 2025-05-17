@@ -17,20 +17,44 @@
  * limitations under the License.
  */
 import { Outlet } from "react-router";
+import { styled } from "@mui/material";
+import { AppShellSidebar } from "./app-shell.sidebar";
 
 export default function AppShellLayout() {
-  /**
-   * TODO: Add authenticated layout here (this layout includes the app header)
-   * - Sidebar
-   * - Footer
-   * - etc.
-   */
-
   return (
-    <main className="flex items-center justify-center pt-16 pb-4">
-      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-        <Outlet />
-      </div>
-    </main>
+    <AppShellContainer>
+      <AppShellSidebar />
+      <AppShellMain>
+        <AppShellMainContent>
+          <Outlet />
+        </AppShellMainContent>
+      </AppShellMain>
+    </AppShellContainer>
   );
 }
+
+export const AppShellContainer = styled("div")(() => ({
+  display: "grid",
+  gridTemplateColumns: "250px 1fr",
+  gridTemplateRows: "1fr",
+  width: "100%",
+  height: "100%",
+  flexGrow: 1,
+  overflow: "hidden"
+}));
+
+export const AppShellMain = styled("main")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  height: "100%",
+  overflow: "auto"
+}));
+
+export const AppShellMainContent = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  backgroundColor: theme.palette.background.paper,
+  height: "100%"
+}));

@@ -16,15 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Box, Drawer, styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { Typography } from "../../design-system/ui/typography/typography";
 
-export const SidebarContainer = styled(Drawer)(({ theme }) => ({
+export const SidebarContainer = styled(Box)(({ theme }) => ({
+  height: "100%",
+
   "& .MuiDrawer-paper": {
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.base["03"],
     borderRight: `solid 1px ${theme.palette.base["06"]}`,
-    width: 250,
+    width: "250px",
+    height: "100%",
     boxSizing: "border-box"
   }
 }));
@@ -32,9 +35,11 @@ export const SidebarContainer = styled(Drawer)(({ theme }) => ({
 export const SidebarWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
+  justifyContent: "space-between",
   height: "100%",
   backgroundColor: theme.palette.background.paper,
-  gap: "16px"
+  gap: "16px",
+  flexGrow: 1
 }));
 
 export const SidebarContent = styled("nav")(() => ({

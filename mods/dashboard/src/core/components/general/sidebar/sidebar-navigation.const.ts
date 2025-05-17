@@ -16,10 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import type { SidebarItem } from "./sidebar.interfaces";
+import { useMemo } from "react";
 
 export const SIDEBAR_ITEMS = Object.freeze<SidebarItem[]>([
-  { label: "Overview", href: "/workspaces/[workspaceId]/overview" },
+  { label: "Overview", href: "/workspaces/[workspaceId]" },
   { label: "Applications", href: "/workspaces/[workspaceId]/applications" },
   {
     label: "SIP Network",
@@ -56,3 +58,29 @@ export const SIDEBAR_ITEMS = Object.freeze<SidebarItem[]>([
   { label: "API Keys", href: "/workspaces/[workspaceId]/api-keys" },
   { label: "Monitoring", href: "/workspaces/[workspaceId]/monitoring" }
 ]);
+
+export const withWorkspaceId = (url: string, workspaceId: string) => {
+  return url.replace(/\[workspaceId\]/g, workspaceId);
+};
+
+export const useSidebarItems = () => {
+  const workspaceId = useWorkspaceId();
+
+  return useMemo(
+    () =>
+      SIDEBAR_ITEMS.map((item) => {
+        if (item.items) {
+          return {
+            ...item,
+            items: item.items.map((subItem) => ({
+              ...subItem,
+              href: withWorkspaceId(subItem.href, workspaceId)
+            }))
+          };
+        }
+
+        return { ...item, href: withWorkspaceId(item.href, workspaceId) };
+      }),
+    [workspaceId]
+  );
+};
