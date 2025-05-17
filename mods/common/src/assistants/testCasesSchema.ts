@@ -26,7 +26,7 @@ const testCasesSchema = z.object({
         "Invalid language model provider. Only OpenAI is supported for evals."
     }),
     model: z.string(),
-    apiKey: z.string()
+    apiKey: z.string().optional()
   }),
   evalsSystemPrompt: z.string().optional(),
   scenarios: z.array(
@@ -44,7 +44,7 @@ const testCasesSchema = z.object({
           userInput: z.string(),
           expected: z.object({
             text: z.object({
-              type: z.enum(["exact", "similar"]),
+              type: z.enum(["EXACT", "SIMILAR"]),
               response: z.string()
             }),
             tools: z

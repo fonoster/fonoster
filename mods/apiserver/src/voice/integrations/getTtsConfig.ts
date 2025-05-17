@@ -16,9 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { findIntegrationsCredentials } from "@fonoster/common";
+import {
+  findIntegrationsCredentials,
+  IntegrationConfig
+} from "@fonoster/common";
 import { Application } from "@fonoster/types";
-import { IntegrationConfig } from "./types";
 
 function getTtsConfig(integrations: IntegrationConfig[], app: Application) {
   const config = app.textToSpeech.config;

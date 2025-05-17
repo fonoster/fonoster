@@ -23,8 +23,12 @@ import { createDeleteApplication } from "./createDeleteApplication";
 import { createGetApplication } from "./createGetApplication";
 import { createListApplications } from "./createListApplications";
 import { createUpdateApplication } from "./createUpdateApplication";
+import { getIntegrationsFromFile } from "../utils/getIntegrationsFromFile";
+import { INTEGRATIONS_FILE } from "../envs";
 
 function buildService(prisma: Prisma) {
+  const integrations = getIntegrationsFromFile(INTEGRATIONS_FILE);
+
   return {
     definition: {
       serviceName: "Applications",
@@ -38,7 +42,7 @@ function buildService(prisma: Prisma) {
       listApplications: createListApplications(prisma),
       deleteApplication: createDeleteApplication(prisma),
       updateApplication: createUpdateApplication(prisma),
-      evaluateIntelligence: createEvaluateIntelligence()
+      evaluateIntelligence: createEvaluateIntelligence(integrations)
     }
   };
 }

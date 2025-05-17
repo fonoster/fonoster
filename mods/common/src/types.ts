@@ -21,4 +21,9 @@ type NumberPreconditionsCheck = (request: {
   agentAor?: string;
 }) => Promise<void>;
 
-export { NumberPreconditionsCheck };
+type IntegrationConfig = {
+  productRef: string;
+  credentials: Record<string, unknown>;
+};
+
+export { NumberPreconditionsCheck, IntegrationConfig };

@@ -16,9 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { findIntegrationsCredentials, VoiceLanguage } from "@fonoster/common";
+import {
+  findIntegrationsCredentials,
+  VoiceLanguage,
+  IntegrationConfig
+} from "@fonoster/common";
 import { Application } from "@fonoster/types";
-import { IntegrationConfig } from "./types";
 
 function getSttConfig(integrations: IntegrationConfig[], app: Application) {
   const config = app.speechToText.config as { languageCode: VoiceLanguage };

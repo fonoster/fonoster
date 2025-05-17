@@ -19,11 +19,6 @@
 import { AbstractSpeechToText } from "../stt/AbstractSpeechToText";
 import { AbstractTextToSpeech } from "../tts/AbstractTextToSpeech";
 
-type IntegrationConfig = {
-  productRef: string;
-  credentials: Record<string, unknown>;
-};
-
 type IntegrationsContainer = {
   ref: string;
   accessKeyId: string;
@@ -34,4 +29,4 @@ type IntegrationsContainer = {
 
 type CreateContainer = (appRef: string) => Promise<IntegrationsContainer>;
 
-export { CreateContainer, IntegrationConfig, IntegrationsContainer };
+export { CreateContainer, IntegrationsContainer };
