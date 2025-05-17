@@ -26,9 +26,7 @@ jobs:
           echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
 
       - name: Install dependencies and build the project
-        # FIXME: This is a workaround to prevent this issue:
-        # https://github.com/microsoft/onnxruntime/issues/24770
-        run: ONNXRUNTIME_NODE_INSTALL=skip npm install && npm run build
+        run: npm install && npm run build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

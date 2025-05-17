@@ -26,9 +26,7 @@ jobs:
 
       - name: Install and build the SDK with npm
         run: |
-          # FIXME: This is a workaround to prevent this issue:
-          # https://github.com/microsoft/onnxruntime/issues/24770
-          ONNXRUNTIME_NODE_INSTALL=skip npm install
+          npm install
           npm run build
 
       - name: Pack the SDK
@@ -60,9 +58,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Yarn
-        # FIXME: This is a workaround to prevent this issue:
-        # https://github.com/microsoft/onnxruntime/issues/24770
-        run: ONNXRUNTIME_NODE_INSTALL=skip npm install -g yarn
+        run: npm install -g yarn
 
       - name: Download SDK tarball
         uses: actions/download-artifact@v4

@@ -22,9 +22,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        # FIXME: This is a workaround to prevent this issue:
-        # https://github.com/microsoft/onnxruntime/issues/24770
-        run: ONNXRUNTIME_NODE_INSTALL=skip npm install
+        run: npm install
 
       - name: Run lint (includes format checking)
         run: npm run lint 

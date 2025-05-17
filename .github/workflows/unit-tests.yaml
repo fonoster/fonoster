@@ -25,9 +25,7 @@ jobs:
 
     - name: Install dependencies and build
       run: |
-        # FIXME: This is a workaround to prevent this issue:
-        # https://github.com/microsoft/onnxruntime/issues/24770
-        ONNXRUNTIME_NODE_INSTALL=skip npm install
+        npm install
         npm run build
 
     - name: Run unit tests
