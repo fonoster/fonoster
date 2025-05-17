@@ -33,7 +33,7 @@
     "@google-cloud/text-to-speech": "^5.3.0",
     "@grpc/grpc-js": "~1.10.6",
     "@influxdata/influxdb-client": "^1.33.2",
-    "@prisma/client": "^6.4.1",
+    "@prisma/client": "^6.8.2",
     "@routr/common": "^2.10.0",
     "@routr/sdk": "^2.13.1",
     "ari-client": "^2.2.0",

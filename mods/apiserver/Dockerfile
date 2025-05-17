@@ -1,7 +1,7 @@
 ##
 # Build stage
 ##
-FROM node:22-alpine3.21 AS builder 
+FROM node:22-slim AS builder 
 LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /work
@@ -9,7 +9,7 @@ COPY . .
 
 ENV DOCKERIZE_VERSION=v0.7.0
 
-RUN apk add --no-cache --update git \
+RUN apt-get update && apt-get install -y git wget \ 
   && npm install \
   && npm run build \
   && cd mods/apiserver \
@@ -21,16 +21,18 @@ RUN apk add --no-cache --update git \
   && npx prisma generate --schema mods/identity/schema.prisma \
   && rm -rf /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist/generated \
   && mv mods/identity/src/generated /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist \
-  && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz $(ls *.tgz)
+  && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
+  && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
+  && rm -rf dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz $(ls *.tgz) \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 ##
 # Run stage
 ##
-FROM node:20-alpine3.21
+FROM node:22-slim
 
-RUN addgroup -g 1001 appuser && adduser -u 1001 -G appuser -D appuser 
+RUN groupadd -g 1001 appuser && useradd -u 1001 -g appuser -m appuser
 
 WORKDIR /service
 
@@ -41,7 +43,10 @@ COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/schema.prisma .
 COPY --from=builder --chown=appuser:appuser /work/mods/identity/migrations ./identity/migrations
 COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma ./identity/schema.prisma
 
-RUN npm install -g prisma@6.6.0 npm@latest 
+RUN apt-get update && apt-get install -y ca-certificates \
+  && npm install -g prisma@6.8.2 npm@latest \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 USER appuser
 
