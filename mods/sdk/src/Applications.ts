@@ -20,10 +20,14 @@ import {
   Application,
   BaseApiObject,
   CreateApplicationRequest,
+  EvaluateIntelligenceRequest,
+  EvaluateIntelligenceResponse,
+  ExpectedTextType,
   ListApplicationsRequest,
   ListApplicationsResponse,
   UpdateApplicationRequest
 } from "@fonoster/types";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
@@ -33,10 +37,14 @@ import {
   CreateApplicationResponse as CreateApplicationResponsePB,
   DeleteApplicationRequest as DeleteApplicationRequestPB,
   DeleteApplicationResponse as DeleteApplicationResponsePB,
+  EvaluateIntelligenceRequest as EvaluateIntelligenceRequestPB,
+  EvaluateIntelligenceResponse as EvaluateIntelligenceResponsePB,
   GetApplicationRequest as GetApplicationRequestPB,
   ListApplicationsRequest as ListApplicationsRequestPB,
   ListApplicationsResponse as ListApplicationsResponsePB,
   ProductContainer as ProductContainerPB,
+  ScenarioEvaluationReport as ScenarioEvaluationReportPB,
+  StepEvaluationReport as StepEvaluationReportPB,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
 } from "./generated/node/applications_pb";
@@ -339,6 +347,98 @@ class Applications {
       metadata: this.client.getMetadata(),
       request: { ref }
     });
+  }
+
+  /**
+   * Evaluates the intelligence of an application.
+   *
+   * @param {EvaluateIntelligenceRequest} request - The request object that contains the necessary information to evaluate the intelligence of an application
+   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
+   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
+   * @return {Promise<ScenarioEvaluationReport>} - The response object that contains the evaluation report
+   * @example
+   * const apps = new SDK.Applications(client); // Existing client object
+   *
+   * const request = {
+   *   intelligence: {
+   *     productRef: "llm.groq",
+   *     config: {
+   *       conversationSettings: {
+   *         firstMessage: "Hello, how can I help you today?",
+   *         systemPrompt: "You are a helpful assistant.",
+   *         systemErrorMessage: "I'm sorry, I didn't catch that. Can you say that again?",
+   *         goodbyeMessage: "Thank you for calling. Have a great day!",
+   *         languageModel: {
+   *           provider: "openai",
+   *           model: "gpt-4o"
+   *         },
+   *         testCases: {
+   *           evalsLanguageModel: {
+   *             provider: "openai",
+   *             model: "gpt-4o"
+   *           },
+   *           scenarios: [
+   *             {
+   *               ref: "Scenario 1",
+   *               description: "Scenario 1 description",
+   *               telephonyContext: {
+   *                 callDirection: "FROM_PSTN",
+   *                 ingressNumber: "1234567890",
+   *                 callerNumber: "1234567890"
+   *               },
+   *               conversation: [
+   *                 {
+   *                   userInput: "Hello, how can I help you today?",
+   *                   expected: {
+   *                     text: {
+   *                       type: "EXACT",
+   *                       response: "Hello, how can I help you today?"
+   *                     }
+   *                   }
+   *                 }
+   *               ]
+   *             }
+   *           ]
+   *         }
+   *       }
+   *     }
+   *   }
+   * };
+   *
+   * apps
+   *   .evaluateIntelligence(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
+   */
+  async evaluateIntelligence(
+    request: EvaluateIntelligenceRequest
+  ): Promise<EvaluateIntelligenceResponse> {
+    const applicationsClient = this.client.getApplicationsClient();
+
+    const response = await makeRpcRequest<
+      EvaluateIntelligenceRequestPB,
+      EvaluateIntelligenceResponsePB,
+      EvaluateIntelligenceRequest,
+      EvaluateIntelligenceResponse
+    >({
+      method: applicationsClient.evaluateIntelligence.bind(applicationsClient),
+      requestPBObjectConstructor: EvaluateIntelligenceRequestPB,
+      metadata: this.client.getMetadata(),
+      request: {
+        intelligence: {
+          productRef: request.intelligence.productRef,
+          config: Struct.fromJavaScript(request.intelligence.config) as any
+        }
+      },
+      enumMapping: [["ExpectedTextType", ExpectedTextType]],
+      objectMapping: [["intelligence", ProductContainerPB]],
+      repeatableObjectMapping: [
+        ["resultsList", ScenarioEvaluationReportPB],
+        ["stepsList", StepEvaluationReportPB]
+      ]
+    });
+
+    return response;
   }
 }
 

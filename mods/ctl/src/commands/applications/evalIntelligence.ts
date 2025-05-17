@@ -18,17 +18,17 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import {
-  AutopilotApplication,
-  evalTestCases,
-  printEval
-} from "@fonoster/autopilot";
 import { assistantSchema } from "@fonoster/common";
+import * as SDK from "@fonoster/sdk";
+import { ExpectedTextType } from "@fonoster/types";
 import { Flags } from "@oclif/core";
 import * as yaml from "js-yaml";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
+import { printEval } from "../../utils/printEval";
 
-export default class TestCases extends AuthenticatedCommand<typeof TestCases> {
+export default class EvalIntelligence extends AuthenticatedCommand<
+  typeof EvalIntelligence
+> {
   static override readonly description =
     "experimental command to test an Autopilot's behavior";
 
@@ -46,12 +46,15 @@ export default class TestCases extends AuthenticatedCommand<typeof TestCases> {
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(TestCases);
+    const { flags } = await this.parse(EvalIntelligence);
+
+    const client = await this.createSdkClient();
+    const applications = new SDK.Applications(client);
 
     const fileContent = fs.readFileSync(flags.file, "utf8");
     const extension = path.extname(flags.file).toLowerCase();
 
-    let rawAutopilotApplication: AutopilotApplication;
+    let rawAutopilotApplication;
 
     switch (extension) {
       case ".yaml":
@@ -67,18 +70,39 @@ export default class TestCases extends AuthenticatedCommand<typeof TestCases> {
         );
     }
 
+    // Transform so that all the expected text types are uppercase strings
+    const mappedScenarios =
+      rawAutopilotApplication.intelligence.config.testCases.scenarios.map(
+        (scenario) => {
+          scenario.conversation.map((step) => {
+            if (step.expected?.text?.type) {
+              const type = step.expected.text.type.toLowerCase();
+              step.expected.text.type =
+                type === "similar" ? ExpectedTextType.SIMILAR : "EXACT";
+            }
+          });
+          return scenario;
+        }
+      );
+
+    rawAutopilotApplication.intelligence.config.testCases.scenarios =
+      mappedScenarios;
+
     const parsedAutopilotApplication = assistantSchema.parse(
       rawAutopilotApplication.intelligence.config
     );
 
-    // We only need the config from the autopilot application
+    // We only need the intelligence portion of the application
     const autopilotApplication = {
       intelligence: {
+        productRef: rawAutopilotApplication.intelligence.productRef,
         config: parsedAutopilotApplication
       }
     };
 
-    const result = await evalTestCases(autopilotApplication);
-    printEval(result);
+    const response =
+      await applications.evaluateIntelligence(autopilotApplication);
+
+    printEval(response.results);
   }
 }

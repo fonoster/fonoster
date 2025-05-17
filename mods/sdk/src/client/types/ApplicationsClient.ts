@@ -22,6 +22,8 @@ import {
   CreateApplicationResponse,
   DeleteApplicationRequest,
   DeleteApplicationResponse,
+  EvaluateIntelligenceRequest,
+  EvaluateIntelligenceResponse,
   GetApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
@@ -47,6 +49,10 @@ type ApplicationsClient = {
   deleteApplication: ClientFunction<
     DeleteApplicationRequest,
     DeleteApplicationResponse
+  >;
+  evaluateIntelligence: ClientFunction<
+    EvaluateIntelligenceRequest,
+    EvaluateIntelligenceResponse
   >;
 };
 

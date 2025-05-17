@@ -19,41 +19,18 @@
 import { AssistantConfig } from "../../assistants";
 import { LanguageModel } from "../types";
 
-enum ExpectedTextType {
-  EXACT = "exact",
-  SIMILAR = "similar"
-}
+type EvaluateIntelligenceRequest = {
+  intelligence: {
+    productRef: string;
+    config: AssistantConfig;
+  };
+};
 
 type EvaluateStepParams = {
   step: any;
   languageModel: LanguageModel;
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
   assistantConfig: AssistantConfig;
-};
-
-type ScenarioEvaluationReport = {
-  scenarioRef: string;
-  overallPassed: boolean;
-  steps: StepEvaluationReport[];
-};
-
-type StepEvaluationReport = {
-  humanInput: string;
-  expectedResponse: string;
-  aiResponse: string;
-  evaluationType: ExpectedTextType;
-  passed: boolean;
-  errorMessage?: string;
-  toolEvaluations?: ToolEvaluationReport[];
-};
-
-type ToolEvaluationReport = {
-  expectedTool: string;
-  actualTool: string;
-  passed: boolean;
-  expectedParameters?: Record<string, unknown>;
-  actualParameters?: Record<string, unknown>;
-  errorMessage?: string;
 };
 
 type ScenarioEvaluationRequest = {
@@ -64,10 +41,7 @@ type ScenarioEvaluationRequest = {
 };
 
 export {
-  ExpectedTextType,
-  ScenarioEvaluationReport,
-  StepEvaluationReport,
-  ToolEvaluationReport,
+  EvaluateIntelligenceRequest,
   ScenarioEvaluationRequest,
   EvaluateStepParams
 };

@@ -24,6 +24,11 @@ enum ApplicationType {
   AUTOPILOT = "AUTOPILOT"
 }
 
+enum ExpectedTextType {
+  EXACT = "EXACT",
+  SIMILAR = "SIMILAR"
+}
+
 type Application = {
   ref: string;
   name: string;
@@ -72,11 +77,53 @@ type ListApplicationsRequest = ListRequest;
 
 type ListApplicationsResponse = ListResponse<Application>;
 
+type EvaluateIntelligenceRequest = {
+  intelligence: {
+    productRef: string;
+    config: Record<string, unknown>;
+  };
+};
+
+type EvaluateIntelligenceResponse = {
+  results: ScenarioEvaluationReport[];
+};
+
+type ScenarioEvaluationReport = {
+  scenarioRef: string;
+  overallPassed: boolean;
+  steps: StepEvaluationReport[];
+};
+
+type StepEvaluationReport = {
+  humanInput: string;
+  expectedResponse: string;
+  aiResponse: string;
+  evaluationType: ExpectedTextType;
+  passed: boolean;
+  errorMessage?: string;
+  toolEvaluations?: ToolEvaluationReport[];
+};
+
+type ToolEvaluationReport = {
+  expectedTool: string;
+  actualTool: string;
+  passed: boolean;
+  expectedParameters?: Record<string, unknown>;
+  actualParameters?: Record<string, unknown>;
+  errorMessage?: string;
+};
+
 export {
   Application,
   ApplicationType,
   CreateApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
-  UpdateApplicationRequest
+  UpdateApplicationRequest,
+  EvaluateIntelligenceRequest,
+  EvaluateIntelligenceResponse,
+  ScenarioEvaluationReport,
+  StepEvaluationReport,
+  ToolEvaluationReport,
+  ExpectedTextType
 };

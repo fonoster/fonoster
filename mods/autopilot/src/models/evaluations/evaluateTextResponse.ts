@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ExpectedTextType } from "./types";
+import { ExpectedTextType } from "@fonoster/types";
 
 export async function evaluateTextResponse(
   expected: { type: ExpectedTextType; response: string },

@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { evaluateStep } from "./evaluateStep";
 import {
   ScenarioEvaluationReport,
-  ScenarioEvaluationRequest,
   StepEvaluationReport
-} from "./types";
+} from "@fonoster/types";
+import { evaluateStep } from "./evaluateStep";
+import { ScenarioEvaluationRequest } from "./types";
 
 export async function evaluateScenario(
   config: ScenarioEvaluationRequest

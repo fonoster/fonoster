@@ -16,9 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { StepEvaluationReport } from "@fonoster/types";
 import { evaluateTextResponse } from "./evaluateTextResponse";
 import { evaluateToolCalls } from "./evaluateToolCalls";
-import { EvaluateStepParams, StepEvaluationReport } from "./types";
+import { EvaluateStepParams } from "./types";
 
 export async function evaluateStep({
   step,

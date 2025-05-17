@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ScenarioEvaluationReport } from "@fonoster/types";
 import { AssistantConfig } from "../../assistants";
 import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
@@ -23,7 +24,6 @@ import { TelephonyContext } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";
-import { ScenarioEvaluationReport } from "./types";
 
 export async function evalTestCases(autopilotApplication: {
   intelligence: {

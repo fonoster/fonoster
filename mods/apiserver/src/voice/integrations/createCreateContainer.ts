@@ -25,13 +25,13 @@ import { getLogger } from "@fonoster/logger";
 import { Application } from "@fonoster/types";
 import { Prisma } from "../../core/db";
 import { APISERVER_HOST } from "../../envs";
+import { getIntegrationsFromFile } from "../../utils/getIntegrationsFromFile";
 import { SpeechToTextFactory } from "../stt/SpeechToTextFactory";
 import { TextToSpeechFactory } from "../tts/TextToSpeechFactory";
 import { ApplicationNotFoundError } from "./ApplicationNotFoundError";
 import { getSttConfig } from "./getSttConfig";
 import { getTtsConfig } from "./getTtsConfig";
 import { IntegrationsContainer } from "./types";
-import { getIntegrationsFromFile } from "../../utils/getIntegrationsFromFile";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

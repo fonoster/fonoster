@@ -53,11 +53,12 @@
     }
   },
   "dependencies": {
-    "@fonoster/autopilot": "^0.13.4",
     "@fonoster/sdk": "^0.13.4",
     "@inquirer/prompts": "^7.1.0",
     "@oclif/core": "^4.0.34",
     "@oclif/plugin-warn-if-update-available": "^3.1.28",
+    "ansis": "^4.0.0",
+    "cli-table3": "^0.6.5",
     "cliui": "^8.0.1",
     "figlet": "^1.8.0",
     "moment": "^2.30.1",

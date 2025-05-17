@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ToolEvaluationReport } from "@fonoster/types";
 import moment from "moment";
-import { ToolEvaluationReport } from "./types";
 
 export function evaluateToolCalls(
   expectedTools: any[],

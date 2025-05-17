@@ -18,8 +18,8 @@
  */
 import {
   findIntegrationsCredentials,
-  VoiceLanguage,
-  IntegrationConfig
+  IntegrationConfig,
+  VoiceLanguage
 } from "@fonoster/common";
 import { Application } from "@fonoster/types";
 

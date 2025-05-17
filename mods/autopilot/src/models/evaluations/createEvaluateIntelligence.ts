@@ -17,24 +17,36 @@
  * limitations under the License.
  */
 import {
+  assistantSchema,
+  findIntegrationsCredentials,
   getAccessKeyIdFromCall,
   GrpcErrorMessage,
+  IntegrationConfig,
   withErrorHandling
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { ScenarioEvaluationReport } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { Struct, struct } from "pb-util";
+import { z } from "zod";
+import { createEvalEffectiveConfig } from "./createEvalEffectiveConfig";
 import { evalTestCases } from "./evalTestCases";
-import { ScenarioEvaluationRequest } from "./types";
+import { EvaluateIntelligenceRequest } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createEvaluateIntelligence() {
+function createEvaluateIntelligence(integrations: IntegrationConfig[]) {
   const evaluateIntelligence = async (
-    call: { request: ScenarioEvaluationRequest },
-    callback: (error: GrpcErrorMessage, response?: any) => void
+    call: {
+      request: EvaluateIntelligenceRequest;
+    },
+    callback: (
+      error: GrpcErrorMessage,
+      response?: { results: ScenarioEvaluationReport[] }
+    ) => void
   ) => {
     const { request } = call;
-    const { assistantConfig, scenario, languageModel } = request;
+    const { intelligence } = request;
 
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
@@ -42,19 +54,45 @@ function createEvaluateIntelligence() {
 
     logger.verbose("call to evaluateIntelligence", {
       accessKeyId,
-      request
+      llmProductRef: intelligence.productRef,
+      evalLlmProductRef: "llm.openai"
     });
 
-    const result = await evalTestCases({
+    const config = struct.decode(intelligence.config as unknown as Struct);
+
+    const parsedIntelligence = z
+      .object({
+        productRef: z.string(),
+        config: assistantSchema
+      })
+      .parse({
+        productRef: intelligence.productRef,
+        config: config
+      });
+
+    const credentials = findIntegrationsCredentials(
+      integrations,
+      intelligence.productRef
+    ) as { apiKey: string };
+
+    const evaluationApiKey = findIntegrationsCredentials(
+      integrations,
+      "llm.openai"
+    ) as { apiKey: string };
+
+    const effectiveConfig = createEvalEffectiveConfig(
+      parsedIntelligence.config,
+      credentials,
+      evaluationApiKey
+    );
+
+    const results = await evalTestCases({
       intelligence: {
-        config: assistantConfig
+        config: effectiveConfig
       }
     });
 
-    console.log(result);
-
-    // Return empty results array for now
-    callback(null, { results: [] });
+    callback(null, { results });
   };
 
   return withErrorHandling(evaluateIntelligence);

@@ -18,13 +18,13 @@
  */
 import { createEvaluateIntelligence } from "@fonoster/autopilot";
 import { Prisma } from "../core/db";
+import { INTEGRATIONS_FILE } from "../envs";
+import { getIntegrationsFromFile } from "../utils/getIntegrationsFromFile";
 import { createCreateApplication } from "./createCreateApplication";
 import { createDeleteApplication } from "./createDeleteApplication";
 import { createGetApplication } from "./createGetApplication";
 import { createListApplications } from "./createListApplications";
 import { createUpdateApplication } from "./createUpdateApplication";
-import { getIntegrationsFromFile } from "../utils/getIntegrationsFromFile";
-import { INTEGRATIONS_FILE } from "../envs";
 
 function buildService(prisma: Prisma) {
   const integrations = getIntegrationsFromFile(INTEGRATIONS_FILE);
