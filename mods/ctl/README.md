@@ -38,6 +38,7 @@ USAGE
 * [`fonoster apikeys:regenerate REF`](#fonoster-apikeysregenerate-ref)
 * [`fonoster applications:create`](#fonoster-applicationscreate)
 * [`fonoster applications:delete REF`](#fonoster-applicationsdelete-ref)
+* [`fonoster applications:eval`](#fonoster-applicationseval)
 * [`fonoster applications:get REF`](#fonoster-applicationsget-ref)
 * [`fonoster applications:list`](#fonoster-applicationslist)
 * [`fonoster applications:update REF`](#fonoster-applicationsupdate-ref)
@@ -221,6 +222,29 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/applications/delete.js](https://github.com/fonoster/fonoster/blob/v0.13.9/dist/commands/applications/delete.js)_
+
+## `fonoster applications:eval`
+
+experimental command to test an Autopilot application
+
+```
+USAGE
+  $ fonoster applications:eval -f <value> [-i]
+
+FLAGS
+  -f, --file=<value>  (required) path to test cases file (json, yaml, or yml)
+  -i, --insecure      allow connections to a server with no TLS
+
+DESCRIPTION
+  experimental command to test an Autopilot application
+
+EXAMPLES
+  $ fonoster applications:eval -f assistant.json
+
+  $ fonoster applications:eval -f assistant.yaml
+```
+
+_See code: [dist/commands/applications/eval.js](https://github.com/fonoster/fonoster/blob/v0.13.9/dist/commands/applications/eval.js)_
 
 ## `fonoster applications:get REF`
 
