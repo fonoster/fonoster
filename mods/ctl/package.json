@@ -15,8 +15,6 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "postpack": "rimraf oclif.manifest.json",
-    "prepack": "oclif manifest && oclif readme && git add README.md && git commit -m 'chore: update CLI readme' --no-verify",
     "generate:readme": "oclif readme"
   },
   "files": [
@@ -61,6 +59,7 @@
     "cli-table3": "^0.6.5",
     "cliui": "^8.0.1",
     "figlet": "^1.8.0",
+    "js-yaml": "^4.1.0",
     "moment": "^2.30.1",
     "oclif": "^4.17.46",
     "phone": "^3.1.55",
@@ -71,6 +70,7 @@
   "devDependencies": {
     "@oclif/test": "^4.1.3",
     "@types/figlet": "^1.7.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "22.10.1"
   }
 }
