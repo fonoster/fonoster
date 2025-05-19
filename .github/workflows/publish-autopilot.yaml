@@ -1,8 +1,20 @@
 name: publish autopilot
 
 on:
-  workflow_call:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'mods/autopilot/**'
+      - 'mods/common/**'
+      - 'mods/types/**'
+      # Consider if other specific mods are direct dependencies for autopilot
+      # For now, common and types are good starting points.
+      - 'lerna.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/publish-autopilot.yaml'
+  workflow_dispatch: {} # Keep manual dispatch
 
 jobs:
   publish:

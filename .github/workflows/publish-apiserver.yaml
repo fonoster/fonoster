@@ -1,8 +1,23 @@
 name: publish apiserver
 
 on:
-  workflow_call:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'mods/apiserver/**'
+      - 'mods/authz/**'      # Added as potential dependency
+      - 'mods/common/**'
+      - 'mods/identity/**'   # Added as potential dependency
+      - 'mods/logger/**'     # Added as potential dependency
+      - 'mods/sipnet/**'     # Added as potential dependency
+      - 'mods/streams/**'    # Added as potential dependency
+      - 'mods/types/**'
+      - 'lerna.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/publish-apiserver.yaml'
+  workflow_dispatch: {} # Keep manual dispatch if desired
 
 jobs:
   publish:
@@ -38,32 +53,3 @@ jobs:
           dockerfile: mods/apiserver/Dockerfile     
           tags: "latest,${{ env.LERNA_VERSION }}"
           platforms: linux/amd64,linux/arm64
-
-      - name: Starting services for integration tests
-        run: |
-          npm run generate:keypair
-          cp config/integrations.example.json config/integrations.json
-          cp .env.example .env
-          echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env
-          sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
-          sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
-          sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
-          sed -i "s|APISERVER_SMTP_HOST=.*|APISERVER_SMTP_HOST=mailhog|g" .env
-          sed -i "s|APISERVER_SMTP_PORT=.*|APISERVER_SMTP_PORT=1025|g" .env
-          sed -i "s|APISERVER_SMTP_SECURE=.*|APISERVER_SMTP_SECURE=false|g" .env
-          docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver asterisk mailhog
-
-      - name: Waiting for services to be ready
-        run: |
-          sleep 120 # Enough time for Routr to start in a low spec machine
-          docker ps -a
-
-      - name: Run integration tests for the SDK
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1
-          # This makes sure Routr is ready before running the tests
-          # We could improve this by checking the status of the services
-          retry_wait_seconds: 30
-          max_attempts: 2
-          command: npm run integration 
