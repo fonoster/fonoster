@@ -52,7 +52,7 @@
     "generate:prisma-clients": "npx prisma generate --schema mods/apiserver/schema.prisma && npx prisma generate --schema mods/identity/schema.prisma",
     "copy:prisma-clients": "sh ./.scripts/copy-prisma-clients.sh",
     "check:updates": "lerna exec -- npx npm-check-updates",
-    "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --timeout 30000 'mods/!(webui)/**/*.test.ts'",
+    "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev dotenv -e .env.test -- mocha --timeout 30000 'mods/!(webui)/**/*.test.ts'",
     "pretest": ".scripts/check-preconditions.sh && npm run generate:keypair",
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --slow 50000 --timeout 10000 mods/**/node.integration.ts",
     "preintegration:web": "npx playwright install && npx playwright install-deps",
@@ -62,8 +62,8 @@
     "release:frompackages": "lerna publish from-package",
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
     "postinstall": "npm run generate:prisma-clients",
-    "lint": "echo \"Skipping lint\""  ,
-    "lint:fix": "echo \"Skipping lint fix\""
+    "lint": "eslint . --cache",
+    "lint:fix": "eslint . --cache --fix"
   },
   "prisma": {
     "seed": "tsx mods/apiserver/src/core/seed.ts"
@@ -109,7 +109,8 @@
     "rimraf": "^6.0.1",
     "sinon": "^19.0.2",
     "sinon-chai": "^4.0.0",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "dotenv-cli": "^8.0.0"
   },
   "repository": {
     "type": "git",

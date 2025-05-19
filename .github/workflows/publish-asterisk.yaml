@@ -22,14 +22,40 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Build image with temporary tag
+        run: docker build -t temp-asterisk:latest -f asterisk/Dockerfile .
+
+      - name: Extract Asterisk version
+        id: asterisk_version
+        run: |
+          version_output=$(docker run --rm temp-asterisk:latest asterisk -rx "core show version")
+          echo "Raw version output: $version_output" # For debugging
+          # Example output: Asterisk 20.5.0 built by ...
+          # We want to extract "20.5.0"
+          version=$(echo "$version_output" | grep -oP 'Asterisk \K[0-9]+\.[0-9]+(\.[0-9]+)?')
+          echo "Extracted version: $version" # For debugging
+          if [ -z "$version" ]; then
+            echo "Could not extract Asterisk version."
+            # Attempt to get version from apk info as a fallback
+            apk_version_output=$(docker run --rm temp-asterisk:latest apk info asterisk)
+            echo "Raw apk info output: $apk_version_output" # For debugging
+            version=$(echo "$apk_version_output" | grep -oP '^asterisk-\K[0-9]+\.[0-9]+(\.[0-9]+)?')
+            echo "Extracted version from apk: $version" # For debugging
+            if [ -z "$version" ]; then
+              echo "Fallback to apk info also failed. Using 'unknown' as version."
+              version="unknown"
+            fi
+          fi
+          echo "ASTERISK_VERSION=$version" >> $GITHUB_ENV
+          echo "version=$version" >> $GITHUB_OUTPUT
+
       - name: Publish Asterisk to Docker Hub
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: enesgul23/asterisk   
+          name: enesgul23/asterisk
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           context: .
           dockerfile: asterisk/Dockerfile
-          # TODO: We should get the actual version of Asterisk
-          tags: "latest, 20"
+          tags: "latest,${{ steps.asterisk_version.outputs.version }}"
           platforms: linux/amd64,linux/arm64

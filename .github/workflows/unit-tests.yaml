@@ -30,8 +30,4 @@ jobs:
 
     - name: Run unit tests
       run: |
-        # FIXME: This is a workaround to prevent the unit tests from failing
-        cp .env.example.dev .env
-        sed -i "s|AUTOPILOT_INTEGRATIONS_FILE=.*|AUTOPILOT_INTEGRATIONS_FILE=./config/integrations.example.json|g" .env 
-
         npm run test 
