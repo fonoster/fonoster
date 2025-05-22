@@ -41,8 +41,8 @@ export default function Workspaces() {
   const workspaces = [
     {
       ref: "workspace1",
-      name: "Workspace 1",
-      createdAt: new Date("2023-01-01")
+      name: "Demo Workspace",
+      createdAt: new Date("2024-02-04")
     },
     {
       ref: "ref_dKsl2-3",

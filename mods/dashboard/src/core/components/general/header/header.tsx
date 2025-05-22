@@ -26,7 +26,7 @@ export const Header = memo(() => {
   return (
     <HeaderRoot>
       <HeaderContent>
-        <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <Link to="/" style={{ lineHeight: "0" }}>
             <Logo />
           </Link>
