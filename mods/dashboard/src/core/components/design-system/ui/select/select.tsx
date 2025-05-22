@@ -17,12 +17,11 @@
  * limitations under the License.
  */
 import React, { type ReactNode } from "react";
-import { StyledSelect } from "./select.styles";
-import { MenuItem, InputAdornment, Box } from "@mui/material";
+import { SelectRoot } from "./select.styles";
+import { MenuItem, InputAdornment, useTheme } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
-// import { Chip } from "@stories/chip/Chip";
 import { type SelectChangeEvent } from "@mui/material/Select";
 
 export interface SelectOption {
@@ -70,10 +69,12 @@ export const Select: React.FC<SelectProps> = ({
   multiple = false,
   ...rest
 }) => {
+  const theme = useTheme();
+
   const hasLeadingIcon = !!leadingIcon;
   const hasTrailingIcon = !!trailingIcon;
 
-  const { InputLabelProps, slotProps, ...validRestProps } = rest;
+  const { ...validRestProps } = rest;
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
     if (onChange) {
@@ -81,52 +82,75 @@ export const Select: React.FC<SelectProps> = ({
     }
   };
 
-  const handleChipRemove = (valueToDelete: string | number) => () => {
-    if (Array.isArray(value) && onChange) {
-      const newValue = value.filter((val) => val !== valueToDelete);
-      onChange({ target: { value: newValue } });
-    }
-  };
-
   return (
     <FormControl
-      fullWidth={fullWidth}
+      fullWidth
       error={error}
       size={size}
       sx={{
-        "& .MuiInputLabel-root": {
+        "& .MuiFormLabel-root.MuiInputLabel-root.Mui-focused": {
+          color: theme.palette.base["02"],
           fontFamily: "'Poppins', sans-serif",
           fontWeight: 500,
           lineHeight: "normal",
-          transform: "translate(16px, -11px) scale(0.66)"
+          transform: "translate(16px, -10px) scale(0.66)",
+          size: "10px"
+        },
+        "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
+          fontFamily: "'Poppins', sans-serif",
+          fontWeight: 500,
+          lineHeight: "normal",
+          transform: "translate(16px, -10px) scale(0.66)",
+          color: theme.palette.base["02"]
+        },
+        "& .MuiInputBase-inputAdornedStart": {
+          paddingLeft: "0"
+        },
+        "& .MuiInputBase-root.MuiOutlinedInput-root": {
+          backgroundColor: "transparent",
+          "& .MuiInputAdornment-root": {
+            marginRight: 4,
+            "&.MuiInputAdornment-positionEnd": {
+              marginRight: -8
+            }
+          }
+        },
+        "& .MuiInputAdornment-root": {
+          color: theme.palette.base["02"]
         },
         "& .MuiOutlinedInput-root": {
-          minHeight: size === "small" ? "32px" : "42px",
-          height: "auto",
-          borderRadius: "4px",
-          "& .MuiSelect-select": {
-            padding: size === "small" ? "4px 14px" : "6px 16px",
-            fontSize: size === "small" ? "11px" : "12px",
-            fontFamily: "'Poppins'",
-            fontWeight: 400,
-            lineHeight: "normal",
-            letterSpacing: "0.12px"
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.base["05"]
           },
-          "& fieldset": {
-            borderColor: (theme) => theme.palette.base["06"]
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.brand.main
           },
-          "&:hover fieldset": {
-            borderColor: (theme) => theme.palette.brand.main
-          },
-          "&.Mui-focused fieldset": {
-            borderColor: (theme) => theme.palette.brand.main,
-            borderWidth: "2px"
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.brand.main
           }
+        },
+        "& .MuiFormHelperText-root": {
+          fontFamily: "'Poppins', sans-serif",
+          fontSize: "10px",
+          fontWeight: 500,
+          lineHeight: "normal",
+          letterSpacing: "0.12px",
+          marginTop: "8px",
+          color: theme.palette.base["03"]
+        },
+        "& .MuiFormLabel-root.MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
+          fontFamily: "'Poppins', sans-serif",
+          fontSize: "12px",
+          fontWeight: 500,
+          lineHeight: "normal",
+          letterSpacing: "0.12px",
+          marginTop: "-2px",
+          color: theme.palette.base["02"]
         }
       }}
     >
       <InputLabel shrink>{label}</InputLabel>
-      <StyledSelect
+      <SelectRoot
         {...validRestProps}
         name={name}
         inputRef={inputRef}
@@ -147,35 +171,6 @@ export const Select: React.FC<SelectProps> = ({
             }
           }
         }}
-        renderValue={(selected) => {
-          if (selected === "" || selected === undefined) {
-            return <span style={{ opacity: 0 }}></span>;
-          }
-
-          if (multiple && Array.isArray(selected)) {
-            return (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.map((value) => {
-                  const option = options.find((opt) => opt.value === value);
-                  return option ? (
-                    <Chip
-                      key={value}
-                      label={option.label}
-                      enabled={true}
-                      onRemove={handleChipRemove(value)}
-                      size="small"
-                    />
-                  ) : null;
-                })}
-              </Box>
-            );
-          }
-
-          const selectedOption = options.find(
-            (option) => option.value === selected
-          );
-          return selectedOption ? selectedOption.label : "";
-        }}
         startAdornment={
           hasLeadingIcon && (
             <InputAdornment position="start">{leadingIcon}</InputAdornment>
@@ -195,13 +190,29 @@ export const Select: React.FC<SelectProps> = ({
               fontSize: size === "small" ? "11px" : "12px",
               fontFamily: "'Poppins', sans-serif",
               fontWeight: 400,
-              lineHeight: "normal"
+              lineHeight: "normal",
+              transition: "all 0.2s ease",
+
+              "&:hover": {
+                backgroundColor: theme.palette.brand["03"],
+                color: theme.palette.brand["07"]
+              },
+
+              "&.Mui-selected": {
+                backgroundColor: theme.palette.brand.main,
+                color: theme.palette.brand["07"]
+              },
+
+              "&.Mui-selected:hover": {
+                backgroundColor: theme.palette.brand.main,
+                color: theme.palette.brand["07"]
+              }
             }}
           >
             {option.label}
           </MenuItem>
         ))}
-      </StyledSelect>
+      </SelectRoot>
       {supportingText && <FormHelperText>{supportingText}</FormHelperText>}
     </FormControl>
   );

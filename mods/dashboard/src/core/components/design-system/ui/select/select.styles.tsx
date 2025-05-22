@@ -19,7 +19,7 @@
 import { styled } from "@mui/material/styles";
 import { Select } from "@mui/material";
 
-export const StyledSelect = styled(Select)(({ theme }) => ({
+export const SelectRoot = styled(Select)(({ theme }) => ({
   "&.MuiInputBase-root, &.MuiOutlinedInput-root, &.MuiSelect-root": {
     backgroundColor: "transparent"
   },
@@ -34,7 +34,7 @@ export const StyledSelect = styled(Select)(({ theme }) => ({
   },
   "& .MuiSelect-select": {
     backgroundColor: "transparent",
-    minHeight: "auto",
+    minHeight: "24px !important",
     fontSize: "12px",
     fontFamily: "'Poppins', sans-serif",
     fontWeight: 400,
