@@ -27,12 +27,13 @@ import {
 import { useDataTable } from "../data-table.context";
 
 export function DataTableRoot() {
-  const { table, features } = useDataTable();
+  const { table, features, variant = "default" } = useDataTable();
+
   return (
     <DataTableRootElement>
       <DataTableToolbar />
 
-      <DataTableContainerElement>
+      <DataTableContainerElement data-variant={variant}>
         <TableRoot>
           <colgroup>
             {features.includes("selection") && (

@@ -16,33 +16,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { flexRender } from "@tanstack/react-table";
+import { flexRender, type Row } from "@tanstack/react-table";
 import { TableBody, TableCell, TableRow } from "@mui/material";
 import { useDataTable } from "../data-table.context";
 import { Checkbox } from "../../checkbox/checkbox";
 
+export interface DataTableBodyRowProps {
+  row: Row<any>;
+  showSelection: boolean;
+}
+
+const DataRow = ({ row, showSelection }: DataTableBodyRowProps) => (
+  <TableRow key={row.id} selected={row.getIsSelected()}>
+    {showSelection && (
+      <TableCell data-selection-cell="true">
+        <Checkbox
+          checked={row.getIsSelected()}
+          onChange={row.getToggleSelectedHandler()}
+        />
+      </TableCell>
+    )}
+    {row.getVisibleCells().map((cell: any) => (
+      <TableCell key={cell.id}>
+        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+      </TableCell>
+    ))}
+  </TableRow>
+);
+
+const EmptyStateRow = ({ colSpan }: { colSpan: number }) => (
+  <TableRow sx={{ height: 72 }}>
+    <TableCell colSpan={colSpan} sx={{ textAlign: "center !important" }}>
+      Oops! You don't have any data yet.
+    </TableCell>
+  </TableRow>
+);
+
 export function DataTableBody() {
   const { table, features } = useDataTable();
+  const rows = table.getRowModel().rows;
+  const showSelection = features.includes("selection");
+
+  const colspan = showSelection
+    ? table.getAllColumns().length + 1
+    : table.getAllColumns().length;
 
   return (
     <TableBody>
-      {table.getRowModel().rows.map((row) => (
-        <TableRow key={row.id} selected={row.getIsSelected()}>
-          {features.includes("selection") && (
-            <TableCell data-selection-cell="true">
-              <Checkbox
-                checked={row.getIsSelected()}
-                onChange={row.getToggleSelectedHandler()}
-              />
-            </TableCell>
-          )}
-          {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id}>
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
+      {rows.length > 0 ? (
+        rows.map((row) => (
+          <DataRow key={row.id} row={row} showSelection={showSelection} />
+        ))
+      ) : (
+        <EmptyStateRow colSpan={colspan} />
+      )}
     </TableBody>
   );
 }

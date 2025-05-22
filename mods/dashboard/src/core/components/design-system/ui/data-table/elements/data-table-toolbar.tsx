@@ -21,8 +21,15 @@ import { DataTableToolbarPagination } from "./data-table-toolbar-pagination";
 import { DataTableToolbarSelection } from "./data-table-toolbar-selection";
 import { DataTableToolbarFilters } from "./data-table-toolbar-filters";
 import { DataTableToolbarElement } from "./data-table.styles";
+import { useDataTable } from "../data-table.context";
 
 export const DataTableToolbar = () => {
+  const { features } = useDataTable();
+
+  if (!features.includes("filters") && !features.includes("selection")) {
+    return null;
+  }
+
   return (
     <DataTableToolbarElement>
       <Box display="flex" gap="12px" alignItems="center">

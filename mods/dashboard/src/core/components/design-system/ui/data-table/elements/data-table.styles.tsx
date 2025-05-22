@@ -77,6 +77,7 @@ export const DataTableContainerElement = styled(TableContainer)(
     borderTopLeftRadius: "4px",
     borderTopRightRadius: "4px",
     overflowX: "auto",
+    backgroundColor: theme.palette.background.paper,
 
     "& table": {
       borderCollapse: "collapse",
@@ -128,6 +129,12 @@ export const DataTableContainerElement = styled(TableContainer)(
             backgroundColor: "transparent"
           }
         }
+      }
+    },
+
+    "&[data-variant='compact']": {
+      "& table thead": {
+        backgroundColor: theme.palette.base["06"]
       }
     }
   })

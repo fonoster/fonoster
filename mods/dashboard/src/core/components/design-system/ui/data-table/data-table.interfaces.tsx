@@ -58,11 +58,13 @@ export interface DataTableProps<T> extends BaseDataTable<T> {
   pageSize: number;
   onNextPage: VoidFunction;
   onPrevPage: VoidFunction;
+  variant?: "default" | "compact";
 }
 
 export interface DataTableContextProps<T> extends BaseDataTable<T> {
   table: Table<T>;
   features: FeatureOption[];
+  variant?: "default" | "compact";
   selectedRows: T[];
   pageSize: number;
   onNextPage: VoidFunction;
