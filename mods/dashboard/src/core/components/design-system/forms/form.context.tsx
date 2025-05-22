@@ -20,14 +20,14 @@ import { createContext, useContext } from "react";
 import type { FieldPath, FieldValues } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 
-interface FormFieldContextValue<
+export interface FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > {
   name: TName;
 }
 
-interface FormItemContextValue {
+export interface FormItemContextValue {
   id: string;
 }
 
@@ -51,8 +51,9 @@ export const useFormField = () => {
 
   const fieldState = getFieldState(name, formState);
 
-  if (!name)
+  if (!name) {
     throw new Error("useFormField() should be used within <FormField />");
+  }
 
   return {
     id,

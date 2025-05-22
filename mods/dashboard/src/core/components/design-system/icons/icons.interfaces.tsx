@@ -16,27 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Controller,
-  type ControllerProps,
-  type FieldPath,
-  type FieldValues
-} from "react-hook-form";
-import { FormFieldContext } from "./form.context";
+import type { SvgIconProps } from "@mui/material";
+import type { ICON } from "./icons.const";
 
-/**
- * Form Field
- *
- * @description A form field is a form element controller that provides the necessary
- * context for the form element to be accessible.
- */
-export function FormField<
-  Values extends FieldValues = FieldValues,
-  Name extends FieldPath<Values> = FieldPath<Values>
->({ ...props }: ControllerProps<Values, Name>) {
-  return (
-    <FormFieldContext.Provider value={{ name: props.name }}>
-      <Controller {...props} />
-    </FormFieldContext.Provider>
-  );
+export interface IconProps extends SvgIconProps {
+  name: keyof typeof ICON;
+  fontSize?: "small" | "medium" | "large" | "inherit";
 }

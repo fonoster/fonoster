@@ -16,11 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { ResetPasswordForm } from "./reset-password.form";
+import { ResetPasswordForm, type Schema } from "./reset-password.form";
 import { useCallback } from "react";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
@@ -31,38 +27,11 @@ export function meta(_: Route.MetaArgs) {
   return [{ title: "Reset Password | Fonoster" }];
 }
 
-export const schema = z.object({
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)"
-    ),
-  confirmPassword: z.string()
-});
-
-export const resolver = zodResolver(schema);
-
-export type Schema = z.infer<typeof schema>;
-
 export default function ResetPasswordPage() {
-  const form = useForm<Schema>({
-    resolver,
-    defaultValues: {
-      password: "",
-      confirmPassword: ""
-    },
-    mode: "onChange"
-  });
-
-  const onSubmit = useCallback(
-    async (data: Schema) => {
-      console.log("Form submitted", data);
-      toast("Ahoy! Your password has been reset successfully");
-    },
-    [form]
-  );
+  const onSubmit = useCallback(async (data: Schema) => {
+    console.log("Form submitted", data);
+    toast("Ahoy! Your password has been reset successfully");
+  }, []);
 
   return (
     <Box
@@ -81,7 +50,7 @@ export default function ResetPasswordPage() {
           number, and symbol.
         </Typography>
       </Box>
-      <ResetPasswordForm {...{ form, onSubmit }} />
+      <ResetPasswordForm onSubmit={onSubmit} />
     </Box>
   );
 }

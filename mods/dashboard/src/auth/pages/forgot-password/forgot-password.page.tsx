@@ -16,11 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { ForgotPasswordForm } from "./forgot-password.form";
+import { ForgotPasswordForm, type Schema } from "./forgot-password.form";
 import { useCallback } from "react";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
@@ -32,35 +28,18 @@ export function meta(_: Route.MetaArgs) {
   return [{ title: "Forgot Password | Fonoster" }];
 }
 
-export const schema = z.object({ email: z.string().email() });
-
-export const resolver = zodResolver(schema);
-
-export type Schema = z.infer<typeof schema>;
-
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
 
-  const form = useForm<Schema>({
-    resolver,
-    defaultValues: {
-      email: ""
-    },
-    mode: "onChange"
-  });
+  const onSubmit = useCallback(async (data: Schema) => {
+    console.log("Form submitted", data);
+    toast("Ahoy! We have sent you an email to reset your password");
 
-  const onSubmit = useCallback(
-    async (data: Schema) => {
-      console.log("Form submitted", data);
-      toast("Ahoy! We have sent you an email to reset your password");
-
-      navigate("/auth/reset-password?token=" + btoa(data.email), {
-        replace: true,
-        viewTransition: true
-      });
-    },
-    [form]
-  );
+    navigate("/auth/reset-password?token=" + btoa(data.email), {
+      replace: true,
+      viewTransition: true
+    });
+  }, []);
 
   return (
     <Box
@@ -79,7 +58,7 @@ export default function ForgotPasswordPage() {
           to reset your password.
         </Typography>
       </Box>
-      <ForgotPasswordForm {...{ form, onSubmit }} />
+      <ForgotPasswordForm onSubmit={onSubmit} />
     </Box>
   );
 }

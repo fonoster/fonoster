@@ -16,11 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { LoginForm } from "./login.form";
+import { LoginForm, type Schema } from "./login.form";
 import { useCallback } from "react";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
@@ -31,32 +27,11 @@ export function meta(_: Route.MetaArgs) {
   return [{ title: "Log In | Fonoster" }];
 }
 
-export const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8)
-});
-
-export const resolver = zodResolver(schema);
-
-export type Schema = z.infer<typeof schema>;
-
 export default function LoginPage() {
-  const form = useForm<Schema>({
-    resolver,
-    defaultValues: {
-      email: "",
-      password: ""
-    },
-    mode: "onChange"
-  });
-
-  const onSubmit = useCallback(
-    async (data: Schema) => {
-      console.log("Form submitted", data);
-      toast("Login not implemented yet");
-    },
-    [form]
-  );
+  const onSubmit = useCallback(async (data: Schema) => {
+    console.log("Form submitted", data);
+    toast("Login not implemented yet");
+  }, []);
 
   const onGithubAuth = useCallback(async () => {
     console.log("Github auth");
@@ -78,7 +53,7 @@ export default function LoginPage() {
       >
         Sign In
       </Typography>
-      <LoginForm {...{ form, onSubmit, onGithubAuth }} />
+      <LoginForm {...{ onSubmit, onGithubAuth }} />
     </Box>
   );
 }

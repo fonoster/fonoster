@@ -1,7 +1,3 @@
-import { styled } from "@mui/material";
-import { Button } from "../../design-system/ui/button/button";
-import { useNavigate } from "react-router";
-
 /*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -20,6 +16,10 @@ import { useNavigate } from "react-router";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { styled } from "@mui/material";
+import { Button } from "../../design-system/ui/button/button";
+import { useNavigate } from "react-router";
+
 export const ErrorLayout = ({ errorCode }: { errorCode: number }) => {
   const navigate = useNavigate();
 

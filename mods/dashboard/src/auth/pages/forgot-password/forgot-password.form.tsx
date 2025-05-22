@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type UseFormReturn } from "react-hook-form";
-import type { Schema } from "./forgot-password.page";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -30,22 +29,40 @@ import { Box, styled } from "@mui/material";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { Link } from "~/core/components/general/link/link";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback } from "react";
+
+export const schema = z.object({ email: z.string().email() });
+
+export const resolver = zodResolver(schema);
+export type Schema = z.infer<typeof schema>;
+export type Form = UseFormReturn<Schema>;
 
 export interface ForgotPasswordFormProps extends React.PropsWithChildren {
-  form: UseFormReturn<Schema>;
-  onSubmit: (data: Schema) => Promise<void>;
+  onSubmit: (data: Schema, form: Form) => Promise<void>;
 }
 
-export function ForgotPasswordForm({
-  form,
-  onSubmit
-}: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
+  const form = useForm<Schema>({
+    resolver,
+    defaultValues: {
+      email: ""
+    },
+    mode: "onChange"
+  });
+
+  const onSubmitForm = useCallback(
+    async (data: Schema) => onSubmit(data, form),
+    [onSubmit, form]
+  );
+
   const { isValid, isSubmitting } = form.formState;
   const isSubmitDisabled = !isValid || isSubmitting;
 
   return (
     <Form {...form}>
-      <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+      <FormRoot onSubmit={form.handleSubmit(onSubmitForm)}>
         <FormField
           control={form.control}
           name="email"
@@ -65,7 +82,7 @@ export function ForgotPasswordForm({
 
         <ActionsRoot>
           <Button type="submit" isFullWidth disabled={isSubmitDisabled}>
-            {isSubmitting ? "Loading..." : "Send me a reset link"}
+            {isSubmitting ? "Sending..." : "Send me a reset link"}
           </Button>
 
           <Link to="/auth/login">

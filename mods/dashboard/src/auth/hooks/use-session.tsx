@@ -18,7 +18,7 @@
  */
 import { useContext, useLayoutEffect } from "react";
 import { useNavigate } from "react-router";
-import { SessionContext } from "./session.store";
+import { SessionContext } from "../stores/session.store";
 
 export const useSession = () => {
   const context = useContext(SessionContext);

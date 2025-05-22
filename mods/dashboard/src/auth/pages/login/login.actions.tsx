@@ -16,16 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type UseFormReturn } from "react-hook-form";
-import type { Schema } from "./login.page";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Box, styled } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { Divider } from "~/core/components/design-system/ui/divider/divider";
 import { Link } from "~/core/components/general/link/link";
+import type { Form } from "./login.form";
 
 export interface LoginFormActionsProps extends React.PropsWithChildren {
-  form: UseFormReturn<Schema>;
+  form: Form;
   onGithubAuth: () => Promise<void>;
 }
 

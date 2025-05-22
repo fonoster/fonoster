@@ -16,8 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type UseFormReturn } from "react-hook-form";
-import type { Schema } from "./login.page";
+import { useForm, type UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback } from "react";
 import {
   Form,
   FormControl,
@@ -28,16 +30,38 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { LoginFormActions } from "./login.actions";
 
+export const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8)
+});
+
+export const resolver = zodResolver(schema);
+export type Schema = z.infer<typeof schema>;
+export type Form = UseFormReturn<Schema>;
+
 export interface LoginFormProps extends React.PropsWithChildren {
-  form: UseFormReturn<Schema>;
-  onSubmit: (data: Schema) => Promise<void>;
+  onSubmit: (data: Schema, form: Form) => Promise<void>;
   onGithubAuth: () => Promise<void>;
 }
 
-export function LoginForm({ form, onSubmit, onGithubAuth }: LoginFormProps) {
+export function LoginForm({ onSubmit, onGithubAuth }: LoginFormProps) {
+  const form = useForm<Schema>({
+    resolver,
+    defaultValues: {
+      email: "",
+      password: ""
+    },
+    mode: "onChange"
+  });
+
+  const onSubmitForm = useCallback(
+    async (data: Schema) => onSubmit(data, form),
+    [onSubmit, form]
+  );
+
   return (
     <Form {...form}>
-      <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+      <FormRoot onSubmit={form.handleSubmit(onSubmitForm)}>
         <FormField
           control={form.control}
           name="email"

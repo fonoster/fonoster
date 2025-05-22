@@ -18,7 +18,7 @@
  */
 import { forwardRef, useId } from "react";
 import { FormItemContext } from "./form.context";
-import { Box } from "@mui/material";
+import { styled } from "@mui/material";
 
 /**
  * Form Item
@@ -26,7 +26,7 @@ import { Box } from "@mui/material";
  * @description A form item is a component that provides the necessary context
  * for the form elements within it to be accessible.
  */
-const FormItem = forwardRef<
+export const FormItem = forwardRef<
   HTMLFieldSetElement,
   React.HTMLAttributes<HTMLFieldSetElement>
 >((props, ref) => {
@@ -34,24 +34,17 @@ const FormItem = forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <Box
-        component="fieldset"
-        ref={ref}
-        id={id}
-        role="group"
-        {...props}
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          padding: 0,
-          margin: 0,
-          border: "none"
-        }}
-      />
+      <FormItemRoot role="group" {...{ ...props, ref, id }} />
     </FormItemContext.Provider>
   );
 });
 
 FormItem.displayName = "FormItem";
 
-export { FormItem };
+export const FormItemRoot = styled("fieldset")(() => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: 0,
+  margin: 0,
+  border: "none"
+}));

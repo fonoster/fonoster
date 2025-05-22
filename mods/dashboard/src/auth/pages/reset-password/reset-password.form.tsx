@@ -16,8 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type UseFormReturn } from "react-hook-form";
-import type { Schema } from "./reset-password.page";
+import { useForm, type UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback } from "react";
 import {
   Form,
   FormControl,
@@ -31,18 +33,46 @@ import { Button } from "~/core/components/design-system/ui/button/button";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { Link } from "~/core/components/general/link/link";
 
+export const schema = z.object({
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)"
+    ),
+  confirmPassword: z.string()
+});
+
+export const resolver = zodResolver(schema);
+export type Schema = z.infer<typeof schema>;
+export type Form = UseFormReturn<Schema>;
+
 export interface ResetPasswordFormProps extends React.PropsWithChildren {
-  form: UseFormReturn<Schema>;
-  onSubmit: (data: Schema) => Promise<void>;
+  onSubmit: (data: Schema, form: Form) => Promise<void>;
 }
 
-export function ResetPasswordForm({ form, onSubmit }: ResetPasswordFormProps) {
+export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
+  const form = useForm<Schema>({
+    resolver,
+    defaultValues: {
+      password: "",
+      confirmPassword: ""
+    },
+    mode: "onChange"
+  });
+
+  const onSubmitForm = useCallback(
+    async (data: Schema) => onSubmit(data, form),
+    [onSubmit, form]
+  );
+
   const { isValid, isSubmitting } = form.formState;
   const isSubmitDisabled = !isValid || isSubmitting;
 
   return (
     <Form {...form}>
-      <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+      <FormRoot onSubmit={form.handleSubmit(onSubmitForm)}>
         <FormField
           control={form.control}
           name="password"

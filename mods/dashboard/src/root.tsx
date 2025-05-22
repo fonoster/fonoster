@@ -31,7 +31,7 @@ import { Providers } from "./core/providers/providers";
 import { metadata } from "./core/helpers/metadata";
 import { ErrorLayout } from "./core/components/general/error-boundary/error-boundary";
 import { Splash } from "./core/components/general/splash/splash";
-import { rootAuthLoader } from "./auth/services/auth.loader.server";
+
 import { SessionProvider } from "./auth/stores/session.store";
 
 /**
@@ -86,9 +86,7 @@ export const shouldRevalidate = () => false;
  * In this case, we are using the rootAuthLoader function
  * from the auth module to initialize the authentication.
  */
-export async function loader(args: Route.LoaderArgs) {
-  return await rootAuthLoader(args);
-}
+export { rootAuthLoader as loader } from "./auth/services/auth.loader.server";
 
 /**
  * Hydrate Fallback
