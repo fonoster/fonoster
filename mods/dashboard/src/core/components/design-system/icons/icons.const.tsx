@@ -103,5 +103,5 @@ export const ICON = Object.freeze({
   ScreenShareOn,
   ScreenShareOff,
   ChevronLeft,
-  ChevronRight,
+  ChevronRight
 });

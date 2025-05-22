@@ -33,7 +33,7 @@ export const FormRoot = memo(function FormRoot({
 FormRoot.displayName = "FormRoot";
 
 export const FormRootElement = styled("form")(() => ({
-  gap: 3,
+  gap: "24px",
   display: "flex",
   flexDirection: "column"
 }));
