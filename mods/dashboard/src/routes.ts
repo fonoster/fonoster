@@ -174,7 +174,25 @@ export default [
          *
          * Placeholder for application-related routes under "/applications".
          */
-        ...prefix("applications", []),
+        ...prefix("applications", [
+          /**
+           * Applications Index Route
+           *
+           * Renders the applications index page at "/applications".
+           */
+          index("applications/pages/apps/apps.page.tsx"),
+
+          /**
+           * Applications Create Route
+           *
+           * Renders the create application page at "/applications/create".
+           * This route is used to create new applications.
+           */
+          route(
+            "create",
+            "applications/pages/create-application/create-application.page.tsx"
+          )
+        ]),
 
         /**
          * SIP Network Routes
