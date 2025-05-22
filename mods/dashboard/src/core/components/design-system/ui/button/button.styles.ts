@@ -42,6 +42,8 @@ export interface ButtonAttributes {
   type?: ButtonProps["type"];
   isFullWidth?: boolean;
   onClick?: ButtonProps["onClick"];
+  endIcon?: ButtonProps["endIcon"];
+  startIcon?: ButtonProps["startIcon"];
 }
 
 const sizeStyles = (size: ButtonProps["size"]): CSSObject => {
@@ -116,6 +118,7 @@ export const StyledButton = styled(Button)<ButtonAttributes>(
       overflow: "hidden",
       textOverflow: "ellipsis",
       textDecoration: "none",
+      minWidth: "fit-content",
       ...sizeStyles(size)
     },
     ...variantStyles(variant, theme)
