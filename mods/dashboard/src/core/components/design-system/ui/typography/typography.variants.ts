@@ -22,6 +22,7 @@ export type TypographyVariant =
   | "heading-large"
   | "heading-medium"
   | "heading-small"
+  | "heading-micro"
   | "body-large"
   | "body-medium"
   | "body-small"
@@ -64,7 +65,7 @@ export const VARIANT_MAPPING: Record<
       fontSize: "21px",
       fontFeatureSettings: "'liga' off, 'clig' off",
       letterSpacing: "0.5px",
-      lineHeight: "21px"
+      lineHeight: "normal"
     }
   },
   "heading-small": {
@@ -76,6 +77,18 @@ export const VARIANT_MAPPING: Record<
       fontSize: "18px",
       fontFeatureSettings: "'liga' off, 'clig' off",
       letterSpacing: "0.5px"
+    }
+  },
+  "heading-micro": {
+    variant: "h5",
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 600,
+      fontStyle: "normal",
+      fontSize: "16px",
+      fontFeatureSettings: "'liga' off, 'clig' off",
+      letterSpacing: "0.5px",
+      lineHeight: "normal"
     }
   },
   "body-large": {
@@ -128,7 +141,7 @@ export const VARIANT_MAPPING: Record<
     }
   },
   "body-micro": {
-    variant: "caption",
+    variant: "body2",
     style: {
       fontFamily: "Poppins",
       fontWeight: 500,
