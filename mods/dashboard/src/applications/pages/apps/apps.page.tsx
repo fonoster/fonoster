@@ -30,7 +30,8 @@ export function meta(_: Route.MetaArgs) {
     { title: "Voice Applications | Fonoster" },
     {
       name: "description",
-      content: "Use this section to connect your Dialogflow, IBM Watson, and OpenAI Assistants with your numbers."
+      content:
+        "Use this section to connect your Dialogflow, IBM Watson, and OpenAI Assistants with your numbers."
     }
   ];
 }
@@ -52,17 +53,17 @@ export default function Applications() {
       textToSpeech: {
         productRef: "ref_4g2tj128",
         config: {
-          name: "Google TTS",
-        },
+          name: "Google TTS"
+        }
       },
       speechToText: {
         productRef: "ref_4g2tj128",
         config: {
-          name: "Google STT",
-        },
+          name: "Google STT"
+        }
       },
       createdAt: new Date("2023-01-01T00:00:00Z"),
-      updatedAt: new Date("2025-01-01T00:00:00Z"),
+      updatedAt: new Date("2025-01-01T00:00:00Z")
     },
     {
       ref: "ref_appp_4g2tsdfsdfj128",
@@ -71,17 +72,17 @@ export default function Applications() {
       textToSpeech: {
         productRef: "ref_4g2tj128",
         config: {
-          name: "Google TTS",
-        },
+          name: "Google TTS"
+        }
       },
       speechToText: {
         productRef: "ref_4g2tj128",
         config: {
-          name: "Google STT",
-        },
+          name: "Google STT"
+        }
       },
       createdAt: new Date("2023-01-01T00:00:00Z"),
-      updatedAt: new Date("2025-01-01T00:00:00Z"),
+      updatedAt: new Date("2025-01-01T00:00:00Z")
     }
   ];
 

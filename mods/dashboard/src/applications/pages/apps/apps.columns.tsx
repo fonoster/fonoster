@@ -23,26 +23,26 @@ export const columns: ColumnDef<Application>[] = [
   {
     id: "ref",
     header: "Ref",
-    accessorKey: "ref",
+    accessorKey: "ref"
   },
   {
     id: "name",
     header: "Name",
-    accessorKey: "name",
+    accessorKey: "name"
   },
   {
     id: "textToSpeech",
     header: "TTS",
-    accessorKey: "textToSpeech.productRef",
+    accessorKey: "textToSpeech.productRef"
   },
   {
     id: "speechToText",
     header: "STT",
-    accessorKey: "speechToText.productRef",
+    accessorKey: "speechToText.productRef"
   },
   {
     id: "appType",
     header: "Application Type",
-    accessorKey: "type",
+    accessorKey: "type"
   }
 ];
