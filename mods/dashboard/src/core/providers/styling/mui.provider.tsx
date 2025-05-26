@@ -25,7 +25,10 @@ import { CssBaseline, useColorScheme, type Theme } from "@mui/material";
 
 const MODE_STORAGE_KEY = "fonoster:theme";
 const DEFAULT_MODE = "light";
-const cache = createEmotionCache({ key: "fonoster-mui-cache", prepend: true });
+const cache = createEmotionCache({
+  key: "fonoster-styles-cache",
+  prepend: true
+});
 
 export interface ThemeProviderProps {
   children: React.ReactNode;
