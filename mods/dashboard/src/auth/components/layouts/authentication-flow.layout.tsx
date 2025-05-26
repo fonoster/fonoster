@@ -20,7 +20,7 @@ import { Box, styled } from "@mui/material";
 import { Outlet, redirect } from "react-router";
 import { AuthenticationFlowHeader as LayoutHeader } from "./authentication-flow.header";
 import type { Route } from "./+types/authentication-flow.layout";
-import { getSession } from "~/auth/services/session.server";
+import { getSession } from "~/auth/services/sessions/session.server";
 
 /**
  * Prevents route revalidation on navigation.
@@ -29,7 +29,7 @@ import { getSession } from "~/auth/services/session.server";
  * unless a form is submitted or a redirect occurs, we disable automatic
  * revalidation for performance.
  */
-export const shouldRevalidate = () => false;
+export const shouldRevalidate = () => true;
 
 /**
  * Route loader for authentication flow (e.g., login, register, etc).

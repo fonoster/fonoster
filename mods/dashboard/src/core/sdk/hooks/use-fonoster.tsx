@@ -16,33 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useContext, useLayoutEffect } from "react";
-import { useNavigate } from "react-router";
-import { SessionContext } from "../stores/session.store";
+import { useContext } from "react";
+import { FonosterContext } from "../stores/fonoster.store";
 
-export const useSession = () => {
-  const context = useContext(SessionContext);
+const useFonosterContext = () => {
+  const context = useContext(FonosterContext);
 
   if (!context) {
-    throw new Error("useSession() must be used within a <SessionProvider />");
+    throw new Error(
+      "Oops! You need to be inside a <FonosterProvider /> to use this hook."
+    );
   }
 
   return context;
 };
 
-export const useRequiredSession = () => {
-  const { session, user, ...rest } = useSession();
-  const navigate = useNavigate();
+export const useFonoster = () => {
+  const { client, ...rest } = useFonosterContext();
 
-  useLayoutEffect(() => {
-    if (!session) {
-      navigate("/auth/login", { replace: true, viewTransition: true });
-    }
-  }, [session, navigate]);
-
-  if (!session || !user) {
-    throw new Error("Oops! You need to be authenticated to access this page.");
+  if (!client) {
+    throw new Error(
+      "Oops! The Fonoster client is not available. Please check your configuration."
+    );
   }
 
-  return { session, ...rest };
+  return { client, ...rest };
 };

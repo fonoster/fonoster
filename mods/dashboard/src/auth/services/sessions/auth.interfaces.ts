@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface IDToken {
+export interface IDTokenPayload {
   iss: string;
   sub: string;
   aud: string;
@@ -36,30 +36,4 @@ export interface ExchangeCredentialsResponse {
     accessToken: string;
     refreshToken: string;
   };
-}
-
-export interface Session {
-  idToken: string;
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface SessionFlashData {
-  error: string;
-}
-
-export interface SessionUser {
-  id: string;
-  name: string;
-  email: string;
-}
-
-export interface SessionRequest {
-  session: Session | null;
-  isAuthenticated: boolean;
-}
-
-export interface RequiredSessionRequest {
-  session: Session;
-  isAuthenticated: boolean;
 }

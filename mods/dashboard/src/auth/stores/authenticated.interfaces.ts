@@ -16,22 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { Workspace } from "@fonoster/types";
+import React from "react";
 
-/**
- * Fonoster Client (Browser)
- *
- * @description This file exports the Fonoster Client for the browser. It is used to
- * create a new instance of the Fonoster Client for the browser.
- *
- * @TODO: This file should be removed when the Fonoster Client is moved to the fonoster/sdk package.
- */
-import { WebClient as Client } from "@fonoster/sdk/dist/web/index.esm.js";
-import { FONOSTER_CLIENT_CONFIG } from "../stores/fonoster.config";
+export interface AuthenticatedUser {
+  id: string;
+  name: string;
+  email: string;
+}
 
-export const getClient = () => {
-  const fonosterClient = new Client(FONOSTER_CLIENT_CONFIG);
+export interface AuthenticatedProviderProps {
+  children: React.ReactNode;
+  initialUser: AuthenticatedUser | null;
+  initialWorkspaces: Workspace[];
+}
 
-  return fonosterClient;
-};
-
-export { Client };
+export interface AuthenticatedContextValue {
+  user: AuthenticatedUser;
+  setUser: (user: AuthenticatedUser) => void;
+  workspaces: Workspace[];
+  currentWorkspace: Workspace | null;
+  setCurrentWorkspace: (workspace: Workspace) => void;
+  setWorkspaces: (workspaces: Workspace[]) => void;
+}

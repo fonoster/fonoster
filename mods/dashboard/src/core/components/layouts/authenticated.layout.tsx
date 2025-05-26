@@ -18,7 +18,7 @@
  */
 import { Outlet } from "react-router";
 import type { Route } from "./+types/authenticated.layout";
-import { getRequiredSession } from "~/auth/services/session.server";
+import { getRequiredSession } from "~/auth/services/sessions/session.server";
 import { Box, styled } from "@mui/material";
 import { Header } from "../general/header/header";
 
@@ -27,7 +27,7 @@ import { Header } from "../general/header/header";
  * Since authenticated routes don't need to revalidate on navigation,
  * we return false to improve performance.
  */
-export const shouldRevalidate = () => false;
+export const shouldRevalidate = () => true;
 
 /**
  * Route loader function that ensures the user is authenticated before rendering the layout.

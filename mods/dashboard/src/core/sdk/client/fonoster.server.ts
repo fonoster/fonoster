@@ -19,10 +19,20 @@
 
 /**
  * Fonoster Client (Server)
- * 
+ *
  * @description This file exports the Fonoster Client for the server. It is used to
  * create a new instance of the Fonoster Client for the server.
- * 
+ *
  * @TODO: This file should be removed when the Fonoster Client is moved to the fonoster/sdk package.
  */
-export { Client } from "@fonoster/sdk/dist/node/node.js";
+import { Client } from "@fonoster/sdk/dist/node/node.js";
+import { FONOSTER_SERVER_CONFIG } from "../stores/fonoster.config";
+import { cache } from "react";
+
+export const getClient = cache(() => {
+  const fonosterClient = new Client(FONOSTER_SERVER_CONFIG);
+
+  return fonosterClient;
+});
+
+export { Client };

@@ -45,6 +45,13 @@ export default [
    */
   ...prefix("auth", [
     /**
+     * Logout Route
+     *
+     * Renders the logout page at "/auth/logout".
+     */
+    route("logout", "auth/pages/logout/logout.page.tsx"),
+
+    /**
      * Authentication Layout
      *
      * Applies a layout component to all child authentication routes.

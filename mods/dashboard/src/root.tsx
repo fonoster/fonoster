@@ -31,8 +31,7 @@ import { Providers } from "./core/providers/providers";
 import { metadata } from "./core/helpers/metadata";
 import { ErrorLayout } from "./core/components/general/error-boundary/error-boundary";
 import { Splash } from "./core/components/general/splash/splash";
-
-import { SessionProvider } from "./auth/stores/session.store";
+import { FonosterProvider } from "./core/sdk/stores/fonoster.store";
 
 /**
  * Links
@@ -76,7 +75,7 @@ export function meta() {
  *
  * @see https://reactrouter.com/start/framework/route-module#shouldrevalidate
  */
-export const shouldRevalidate = () => false;
+export const shouldRevalidate = () => true;
 
 /**
  * Initialize Auth
@@ -86,7 +85,7 @@ export const shouldRevalidate = () => false;
  * In this case, we are using the rootAuthLoader function
  * from the auth module to initialize the authentication.
  */
-export { rootAuthLoader as loader } from "./auth/services/auth.loader.server";
+export { rootAuthLoader as loader } from "./auth/services/sessions/auth.loader.server";
 
 /**
  * Hydrate Fallback
@@ -143,9 +142,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
  */
 export default function App({ loaderData: { session } }: Route.ComponentProps) {
   return (
-    <SessionProvider initialSession={session}>
+    <FonosterProvider initialSession={session}>
       <Outlet />
-    </SessionProvider>
+    </FonosterProvider>
   );
 }
 

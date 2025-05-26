@@ -16,18 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { data } from "react-router";
-import { commitSession, getSession, getSessionCookie } from "./session.server";
-import type { Route } from "../../+types/root";
 
-export const rootAuthLoader = async ({ request }: Route.LoaderArgs) => {
-  const headers = request.headers.get("Cookie");
-  const session = await getSession(headers);
-  const sessionCookie = await getSessionCookie(headers);
+const { origin, hostname } = new URL(import.meta.env.VITE_APP_API_URL);
 
-  return data(session, {
-    headers: {
-      "Set-Cookie": await commitSession(sessionCookie)
-    }
-  });
-};
+export const FONOSTER_CLIENT_CONFIG = Object.freeze({
+  endpoint: origin,
+  accessKeyId: "",
+  allowInsecure: Boolean(import.meta.env.VITE_APP_ALLOW_INSECURE === "true")
+});
+
+export const FONOSTER_SERVER_CONFIG = Object.freeze({
+  endpoint: hostname,
+  accessKeyId: "",
+  allowInsecure: Boolean(import.meta.env.VITE_APP_ALLOW_INSECURE === "true"),
+  accessToken: ""
+});

@@ -17,17 +17,18 @@
  * limitations under the License.
  */
 import React from "react";
-import type { Session, SessionUser } from "../services/auth.interfaces";
+import type { Session } from "~/auth/services/sessions/session.interfaces";
+import type { Client } from "../client/fonoster.client";
 
-export interface SessionProviderProps {
+export interface FonosterProviderProps {
   children: React.ReactNode;
   initialSession: Session | null;
 }
 
-export interface SessionContextValue {
+export interface FonosterContextValue {
+  client: Client | null;
   isAuthenticated: boolean;
   session: Session | null;
-  user: SessionUser | null;
-  setUser: (user: SessionUser | null) => void;
   setSession: (session: Session | null) => void;
+  logout: () => void;
 }
