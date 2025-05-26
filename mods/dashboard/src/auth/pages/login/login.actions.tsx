@@ -22,6 +22,8 @@ import { Typography } from "~/core/components/design-system/ui/typography/typogr
 import { Divider } from "~/core/components/design-system/ui/divider/divider";
 import { Link } from "~/core/components/general/link/link";
 import type { Form } from "./login.form";
+import { useSearchParams } from "react-router";
+import { useEffect } from "react";
 
 export interface LoginFormActionsProps extends React.PropsWithChildren {
   form: Form;
@@ -32,8 +34,17 @@ export function LoginFormActions({
   form,
   onGithubAuth
 }: LoginFormActionsProps) {
+  const [searchParams] = useSearchParams();
+  const error = searchParams.get("error");
+
   const { isValid, isSubmitting } = form.formState;
   const isSubmitDisabled = !isValid || isSubmitting;
+
+  useEffect(() => {
+    if (error) {
+      form.setError("email", { type: "manual", message: error });
+    }
+  }, [error, form]);
 
   return (
     <LoginFormRoot>

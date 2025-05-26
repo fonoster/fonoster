@@ -22,21 +22,25 @@ import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/login.page";
+import { useSubmit } from "react-router";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Log In | Fonoster" }];
 }
 
-export default function LoginPage() {
-  const onSubmit = useCallback(async (data: Schema) => {
-    console.log("Form submitted", data);
-    toast("Login not implemented yet");
-  }, []);
+export { action } from "./login.action";
 
-  const onGithubAuth = useCallback(async () => {
-    console.log("Github auth");
-    toast("Github auth not implemented yet");
-  }, []);
+export default function LoginPage() {
+  const submit = useSubmit();
+  const onSubmit = useCallback(
+    (data: Schema) => submit(data, { method: "post" }),
+    []
+  );
+
+  const onGithubAuth = useCallback(
+    async () => toast("Github auth not implemented yet"),
+    []
+  );
 
   return (
     <Box

@@ -33,12 +33,16 @@ export async function refreshSession(session: Session, client: Client) {
   const { refreshToken, accessToken } = session;
 
   if (isTokenExpired(refreshToken)) {
-    console.warn("[Fonoster Refresh Session] Refresh token expired. Refreshing...");
+    console.warn(
+      "[Fonoster Refresh Session] Refresh token expired. Refreshing..."
+    );
     throw new Error("Oops! Your session has expired.");
   }
 
   if (isTokenExpired(accessToken)) {
-    console.info("[Fonoster Refresh Session] Access token expired. Refreshing...");
+    console.info(
+      "[Fonoster Refresh Session] Access token expired. Refreshing..."
+    );
     await client.loginWithRefreshToken(refreshToken);
 
     return {
@@ -58,7 +62,9 @@ export async function refreshClientSession(
   const { refreshToken } = session;
 
   if (isTokenExpired(refreshToken)) {
-    console.warn("[Fonoster Refresh Client Session] Refresh token expired. Refreshing...");
+    console.warn(
+      "[Fonoster Refresh Client Session] Refresh token expired. Refreshing..."
+    );
     throw new Error("Oops! Your session has expired.");
   }
 
