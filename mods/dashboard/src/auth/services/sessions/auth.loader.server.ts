@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { data } from "react-router";
-import { commitSession, getSession, getSessionCookie } from "./session.server";
+import {
+  commitSession,
+  destroySession,
+  getSession,
+  getSessionCookie
+} from "./session.server";
 import type { Route } from "../../../+types/root";
 import { refreshSession } from "~/core/helpers/token-validators";
 import { getClient } from "~/core/sdk/client/fonoster.server";
@@ -27,13 +32,28 @@ export const rootAuthLoader = async ({ request }: Route.LoaderArgs) => {
   const { session, ...rest } = await getSession(headers);
   const sessionCookie = await getSessionCookie(headers);
 
-  if (session) {
-    const client = getClient();
-    const tokens = await refreshSession(session, client);
+  try {
+    if (session) {
+      const client = getClient();
+      const tokens = await refreshSession(session, client);
 
-    sessionCookie.set("accessToken", tokens.accessToken);
-    sessionCookie.set("refreshToken", tokens.refreshToken);
-    sessionCookie.set("idToken", tokens.idToken);
+      sessionCookie.set("accessToken", tokens.accessToken);
+      sessionCookie.set("refreshToken", tokens.refreshToken);
+      sessionCookie.set("idToken", tokens.idToken);
+    }
+  } catch (error) {
+    sessionCookie.unset("accessToken");
+    sessionCookie.unset("refreshToken");
+    sessionCookie.unset("idToken");
+
+    return data(
+      { session: null, ...rest },
+      {
+        headers: {
+          "Set-Cookie": await destroySession(sessionCookie)
+        }
+      }
+    );
   }
 
   return data(
