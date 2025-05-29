@@ -49,7 +49,7 @@ export function LoginFormActions({
   return (
     <LoginFormRoot>
       <Button type="submit" isFullWidth disabled={isSubmitDisabled}>
-        {isSubmitting ? "Loading..." : "Sign In"}
+        {isSubmitting ? "Signing In..." : "Sign In"}
       </Button>
 
       <Divider />

@@ -83,23 +83,21 @@ export default function AuthenticationFlowLayout() {
 export const LayoutRoot = styled(Box)(() => ({
   display: "flex",
   flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
+  flexGrow: 1,
   height: "100%",
-  minHeight: "100dvh"
+  overflow: "auto"
 }));
 
 /**
  * Inner layout content area for the authentication form and related UI.
  * Uses padding for spacing, and fills available vertical space.
  */
-export const LayoutContent = styled("div")(() => ({
+export const LayoutContent = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
   padding: "80px 40px",
-  width: "100%",
-  height: "100%",
+  backgroundColor: theme.palette.background.default,
   flexGrow: 1
 }));

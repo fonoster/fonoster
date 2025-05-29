@@ -42,26 +42,14 @@ export const rootAuthLoader = async ({ request }: Route.LoaderArgs) => {
       sessionCookie.set("idToken", tokens.idToken);
     }
   } catch (error) {
-    sessionCookie.unset("accessToken");
-    sessionCookie.unset("refreshToken");
-    sessionCookie.unset("idToken");
-
     return data(
       { session: null, ...rest },
-      {
-        headers: {
-          "Set-Cookie": await destroySession(sessionCookie)
-        }
-      }
+      { headers: { "Set-Cookie": await destroySession(sessionCookie) } }
     );
   }
 
   return data(
     { session, ...rest },
-    {
-      headers: {
-        "Set-Cookie": await commitSession(sessionCookie)
-      }
-    }
+    { headers: { "Set-Cookie": await commitSession(sessionCookie) } }
   );
 };
