@@ -78,7 +78,8 @@ export function useOptimisticDeleteResource<TRef extends string = string>(
       await queryClient.cancelQueries({ queryKey: collectionKey });
 
       // Store current cache state to support rollback
-      const previousList = queryClient.getQueryData<ListResponse<BaseApiObject>>(collectionKey);
+      const previousList =
+        queryClient.getQueryData<ListResponse<BaseApiObject>>(collectionKey);
       const previousItem = queryClient.getQueryData<BaseApiObject>([
         ...resourceKey,
         refToDelete
