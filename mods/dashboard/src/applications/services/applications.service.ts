@@ -16,17 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type {
-  Application as Resource,
-  CreateApplicationRequest as ResourceCreateRequest,
-  ListApplicationsRequest as ResourceListRequest,
-  UpdateApplicationRequest as ResourceUpdateRequest
+import {
+  type Application as Resource,
+  type CreateApplicationRequest as ResourceCreateRequest,
+  type ListApplicationsRequest as ResourceListRequest,
+  type UpdateApplicationRequest as ResourceUpdateRequest
 } from "@fonoster/types";
 import { useQuery } from "@tanstack/react-query";
-import { useOptimisticCreateResource } from "~/core/providers/query-client/use-optimistic-create-resource";
-import { useOptimisticDeleteResource } from "~/core/providers/query-client/use-optimistic-delete-resource";
-import { useOptimisticUpdateResource } from "~/core/providers/query-client/use-optimistic-update-resource";
+import { useOptimisticCreateResource } from "~/core/hooks/use-optimistic-create-resource";
+import { useOptimisticDeleteResource } from "~/core/hooks/use-optimistic-delete-resource";
+import { useOptimisticUpdateResource } from "~/core/hooks/use-optimistic-update-resource";
 import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
+import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 
 /**
  * Constant query key used to cache and track the list of applications.
@@ -53,11 +54,18 @@ export const RESOURCE_QUERY_KEY = ["resource:application"];
  */
 export const useApplications = (params?: ResourceListRequest) => {
   const { sdk } = useFonoster();
+  const workspaceId = useWorkspaceId();
 
-  return useQuery({
-    queryKey: [...COLLECTION_QUERY_KEY, params],
-    queryFn: async () => sdk.applications.listApplications({ ...params })
+  const { data, ...rest } = useQuery({
+    queryKey: [...COLLECTION_QUERY_KEY, workspaceId, params],
+    queryFn: async () => await sdk.applications.listApplications({ ...params })
   });
+
+  return {
+    data: data?.items || [],
+    nextPageToken: data?.nextPageToken,
+    ...rest
+  };
 };
 
 /**
@@ -75,12 +83,15 @@ export const useApplications = (params?: ResourceListRequest) => {
  */
 export const useApplication = (ref: string) => {
   const { sdk } = useFonoster();
+  const workspaceId = useWorkspaceId();
 
-  return useQuery({
-    queryKey: [...RESOURCE_QUERY_KEY, ref],
+  const { data = null, ...rest } = useQuery({
+    queryKey: [...RESOURCE_QUERY_KEY, workspaceId, ref],
     queryFn: async () => sdk.applications.getApplication(ref),
     enabled: !!ref
   });
+
+  return { data, ...rest };
 };
 
 /**
@@ -96,11 +107,15 @@ export const useApplication = (ref: string) => {
  */
 export const useCreateApplication = () => {
   const { sdk } = useFonoster();
+  const workspaceId = useWorkspaceId();
+
+  const COLLECTION_KEY = [...COLLECTION_QUERY_KEY, workspaceId];
+  const RESOURCE_KEY = [...RESOURCE_QUERY_KEY, workspaceId];
 
   return useOptimisticCreateResource<Resource, ResourceCreateRequest>(
     (req) => sdk.applications.createApplication(req),
-    COLLECTION_QUERY_KEY,
-    RESOURCE_QUERY_KEY
+    COLLECTION_KEY,
+    RESOURCE_KEY
   );
 };
 
@@ -117,11 +132,15 @@ export const useCreateApplication = () => {
  */
 export const useUpdateApplication = () => {
   const { sdk } = useFonoster();
+  const workspaceId = useWorkspaceId();
+
+  const COLLECTION_KEY = [...COLLECTION_QUERY_KEY, workspaceId];
+  const RESOURCE_KEY = [...RESOURCE_QUERY_KEY, workspaceId];
 
   return useOptimisticUpdateResource<Resource, ResourceUpdateRequest>(
     (req) => sdk.applications.updateApplication(req),
-    COLLECTION_QUERY_KEY,
-    RESOURCE_QUERY_KEY
+    COLLECTION_KEY,
+    RESOURCE_KEY
   );
 };
 
@@ -137,10 +156,14 @@ export const useUpdateApplication = () => {
  */
 export const useDeleteApplication = () => {
   const { sdk } = useFonoster();
+  const workspaceId = useWorkspaceId();
+
+  const COLLECTION_KEY = [...COLLECTION_QUERY_KEY, workspaceId];
+  const RESOURCE_KEY = [...RESOURCE_QUERY_KEY, workspaceId];
 
   return useOptimisticDeleteResource(
     (ref) => sdk.applications.deleteApplication(ref),
-    COLLECTION_QUERY_KEY,
-    RESOURCE_QUERY_KEY
+    COLLECTION_KEY,
+    RESOURCE_KEY
   );
 };
