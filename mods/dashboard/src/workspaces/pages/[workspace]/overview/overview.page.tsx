@@ -26,7 +26,7 @@ import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import { useNavigate } from "react-router";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { OverviewCard } from "~/workspaces/components/overview-card/overview-card";
 import {
   CardsContainer,
@@ -34,28 +34,75 @@ import {
   SectionContainer,
   SectionTitle
 } from "./overview.styles";
+import { useAuth } from "~/auth/hooks/use-auth";
 
+/**
+ * Page metadata function
+ *
+ * Sets the page title for SEO and browser tab.
+ *
+ * @param {Route.MetaArgs} _ - Meta args provided by the route loader.
+ * @returns {Array} An array containing the page title.
+ */
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Workspace Overview | Fonoster" }];
 }
 
+/**
+ * Overview component
+ *
+ * Renders the workspace overview page with sections for settings and API keys.
+ * Displays cards that navigate to different workspace features.
+ *
+ * @returns {JSX.Element} The rendered overview page.
+ */
 export default function Overview() {
+  /** Retrieves the current workspace ID from the URL params. */
   const workspaceId = useWorkspaceId();
+
+  /** Retrieves the current workspace from the authentication context. */
+  const { currentWorkspace } = useAuth();
+
+  /** React Router hook to handle programmatic navigation. */
   const navigate = useNavigate();
+
+  /** Example hardcoded data for API key count. */
   const apiKeysCount = 3;
+
+  /** Example hardcoded data for expiring keys count. */
   const expiringKeysCount = 2;
 
+  /**
+   * Handles clicking on an overview card.
+   * Navigates the user to the corresponding workspace subpage.
+   *
+   * @param {string} card - The selected card route suffix.
+   */
   const handleCardClick = useCallback(
     (card: string) =>
       navigate(`/workspaces/${workspaceId}/${card}`, { viewTransition: true }),
     [navigate, workspaceId]
   );
 
+  /**
+   * Generates the page title dynamically based on the current workspace.
+   */
+  const title = useMemo(() => {
+    if (currentWorkspace) {
+      return `${currentWorkspace.name} Overview`;
+    }
+    return "Workspace Overview";
+  }, [currentWorkspace]);
+
+  /**
+   * Renders the overview page layout.
+   */
   return (
     <Page>
-      <PageHeader title="[Workspace Name] Overview" />
+      <PageHeader title={title} />
       <ContentContainer>
         <Grid container spacing={2} columnSpacing={2}>
+          {/* SETTINGS SECTION */}
           <Grid size={{ xs: 12, md: 6, lg: 6 }}>
             <SectionContainer>
               <SectionTitle>SETTINGS</SectionTitle>
@@ -74,6 +121,7 @@ export default function Overview() {
             </SectionContainer>
           </Grid>
 
+          {/* API KEYS SECTION */}
           <Grid size={{ xs: 12, md: 6, lg: 6 }}>
             <SectionContainer>
               <SectionTitle>API KEYS</SectionTitle>
