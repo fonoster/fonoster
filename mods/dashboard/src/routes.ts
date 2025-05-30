@@ -198,6 +198,17 @@ export default [
           route(
             "create",
             "applications/pages/create-application/create-application.page.tsx"
+          ),
+
+          /**
+           * Applications Edit Route
+           *
+           * Renders the edit application page at "/applications/:ref/edit".
+           * This route is used to edit existing applications.
+           */
+          route(
+            "/:ref/edit",
+            "applications/pages/edit-application/edit-application.page.tsx"
           )
         ]),
 
@@ -227,7 +238,37 @@ export default [
            *
            * Placeholder for number-related routes under "/sip-network/numbers".
            */
-          ...prefix("numbers", []),
+          ...prefix("numbers", [
+            /**
+             * Numbers Index Route
+             *
+             * Renders the numbers index page at "/sip-network/numbers".
+             * This route is used to manage phone numbers.
+             */
+            index("numbers/pages/numbers/numbers.page.tsx"),
+
+            /**
+             * Create Number Route
+             *
+             * Renders the create number page at "/sip-network/numbers/create".
+             * This route is used to create new phone numbers.
+             */
+            route(
+              "create",
+              "numbers/pages/create-number/create-number.page.tsx"
+            ),
+
+            /**
+             * Edit Number Route
+             *
+             * Renders the edit number page at "/sip-network/numbers/:ref/edit".
+             * This route is used to edit existing phone numbers.
+             */
+            route(
+              "/:ref/edit",
+              "numbers/pages/edit-number/edit-number.page.tsx"
+            )
+          ]),
 
           /**
            * Domains Routes
