@@ -22,39 +22,39 @@ import type { FonosterModules } from "../stores/fonoster.interfaces";
 import { getClient, SDK } from "../client/fonoster.client";
 
 /**
- * Custom hook that initializes and manages the Fonoster client, SDK modules,
- * authentication state, and session tokens.
+ * Custom React hook to initialize and manage the Fonoster client, session state,
+ * SDK modules, and related authentication logic.
  *
- * This hook provides a reusable and centralized way to access the Fonoster client
- * and its modules, and helps ensure that session changes are tracked and
- * modules are correctly updated when the client instance changes.
+ * This hook ensures that the client is initialized properly on mount, and
+ * allows updates to the session or client in a centralized and controlled way.
  *
- * @param initialSession - The initial session object containing access and refresh tokens.
- * @returns An object containing the client, SDK modules, session data,
- *          authentication state, and utility functions to manage the session and client.
+ * @param initialSession - The initial session object (with access/refresh tokens) used to configure the client.
+ * @returns An object with the client instance, session data, SDK modules, and helper functions.
  */
 export const useClient = (initialSession: Session | null) => {
   /**
-   * State that holds the current session, including authentication tokens.
+   * State holding the current user session.
+   * Includes authentication tokens and user-related metadata.
    */
   const [session, setSession] = useState<Session | null>(initialSession);
 
   /**
-   * State that holds the current Fonoster client instance.
+   * State holding the current Fonoster WebClient instance.
+   * This client is used to authenticate and interact with the Fonoster API.
    */
   const [client, setClient] = useState<SDK.WebClient | null>(null);
 
   /**
-   * State that holds the initialized SDK modules (e.g., Applications).
+   * State holding the initialized SDK modules that wrap the Fonoster API.
+   * Each module is scoped to the current client and allows domain-specific operations.
    */
   const [sdk, setSdk] = useState<FonosterModules | null>(null);
 
   /**
-   * Updates the session tokens and merges them with the existing session.
+   * Updates the session with new tokens while preserving other session properties.
+   * Avoids unnecessary updates if the session hasn't changed.
    *
-   * If the new session is identical to the previous one, no state update occurs.
-   *
-   * @param tokens - A session object containing new access or refresh tokens.
+   * @param tokens - The new session tokens (e.g. after token refresh).
    */
   const updateSessionTokens = useCallback(
     (tokens: Session) => {
@@ -69,25 +69,34 @@ export const useClient = (initialSession: Session | null) => {
   );
 
   /**
-   * Replaces the current client instance and reinitializes all SDK modules
-   * using the new client. This is useful when a new authenticated client
-   * is issued, for example after login or token refresh.
+   * Replaces the current client instance and reinitializes all SDK modules.
+   * This is useful when re-authenticating or refreshing the client with new credentials.
    *
-   * @param newClient - A new Fonoster client instance to replace the current one.
+   * @param newClient - A new instance of the Fonoster WebClient.
    */
   const updateClient = useCallback((newClient: SDK.WebClient) => {
     setClient(newClient);
 
-    // Recreate SDK modules with the new client
+    // Recreate all SDK modules with the new client
     setSdk({
-      applications: new SDK.Applications(newClient)
-      // Additional modules can be added here
+      applications: new SDK.Applications(newClient),
+      agents: new SDK.Agents(newClient),
+      acls: new SDK.Acls(newClient),
+      apiKeys: new SDK.ApiKeys(newClient),
+      calls: new SDK.Calls(newClient),
+      credentials: new SDK.Credentials(newClient),
+      domains: new SDK.Domains(newClient),
+      numbers: new SDK.Numbers(newClient),
+      secrets: new SDK.Secrets(newClient),
+      trunks: new SDK.Trunks(newClient),
+      users: new SDK.Users(newClient),
+      workspaces: new SDK.Workspaces(newClient)
     });
   }, []);
 
   /**
-   * Derived boolean flag indicating whether the user is authenticated,
-   * based on the presence of a refresh token in the session object.
+   * Determines if the current session is authenticated.
+   * Returns true if the session contains a `refreshToken`, which is required for maintaining authentication.
    */
   const isAuthenticated = useMemo(
     () => Boolean(session && "refreshToken" in session),
@@ -95,8 +104,9 @@ export const useClient = (initialSession: Session | null) => {
   );
 
   /**
-   * Logs the user out by calling the client's logout method
-   * and clearing the session from state.
+   * Logs the user out by:
+   * - Calling the client's `logout()` method (if available).
+   * - Clearing the current session state.
    */
   const logout = useCallback(() => {
     client?.logout();
@@ -104,18 +114,17 @@ export const useClient = (initialSession: Session | null) => {
   }, [client]);
 
   /**
-   * Initializes the Fonoster client and SDK modules on component mount.
-   * This ensures that the application always has a working client and
-   * SDK interfaces as soon as possible.
+   * Initializes the Fonoster client when the component mounts.
+   * Ensures that `client` and `sdk` states are populated early in the app lifecycle.
    */
   useLayoutEffect(() => {
-    const instance = getClient(); // Function that returns a configured Fonoster client
-    updateClient(instance); // Replace the current client and initialize modules
+    const instance = getClient(); // Factory function to get a configured WebClient instance
+    updateClient(instance);
   }, [updateClient]);
 
   /**
-   * Return all state and utility functions needed to interact with
-   * the Fonoster client and SDK in consuming components or contexts.
+   * Exposes the current client, SDK modules, session state, and utility functions
+   * for use in application components or providers.
    */
   return {
     client,
