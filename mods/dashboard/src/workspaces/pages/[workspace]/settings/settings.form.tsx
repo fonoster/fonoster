@@ -27,52 +27,144 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCallback } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { Select } from "~/core/components/design-system/ui/select/select";
+import { useUpdateWorkspace } from "~/workspaces/services/workspaces.service";
+import { useAuth } from "~/auth/hooks/use-auth";
+import { useNavigate } from "react-router";
+import { TIMEZONES } from "./settings.const";
 
-const timezones = [
-  { value: "UTC", label: "UTC" },
-  { value: "PST: UTC-8:00", label: "PST: UTC-8:00" },
-  { value: "EST: UTC-5:00", label: "EST: UTC-5:00" }
-];
-
+/**
+ * Zod schema for workspace settings form validation.
+ * Defines the expected fields and their types.
+ */
 export const schema = z.object({
   name: z.string(),
-  timezone: z.string(),
-  worspaceId: z.string()
+  timezone: z.string()
 });
 
+/** React Hook Form resolver for Zod validation. */
 export const resolver = zodResolver(schema);
 
+/** Type inferred from the Zod schema. */
 export type Schema = z.infer<typeof schema>;
 
-export interface InviteMemberFormProps extends React.PropsWithChildren {}
+/**
+ * Imperative handle interface for the workspace settings form.
+ * Allows the parent component to trigger form submission and check if the form is valid.
+ */
+export interface WorkspaceSettingsFormHandle {
+  submit: () => void;
+  isSubmitDisabled?: boolean;
+}
 
-export function WorkspaceSettingsForm() {
+/**
+ * Props for the WorkspaceSettingsForm component.
+ *
+ * @property {function} [onFormSubmit] - Optional callback executed after successful form submission.
+ */
+export interface WorkspaceSettingsProps extends React.PropsWithChildren {
+  onFormSubmit?: (data: Schema) => void;
+}
+
+/**
+ * WorkspaceSettingsForm component
+ *
+ * Renders the workspace settings form, including inputs for the workspace name and timezone.
+ * Handles form submission, validation, and toast notifications.
+ *
+ * @param {WorkspaceSettingsProps} props - Props including an optional onFormSubmit callback.
+ * @param {React.Ref<WorkspaceSettingsFormHandle>} ref - Ref to expose submit functionality to parent.
+ * @returns {JSX.Element} The rendered workspace settings form.
+ */
+export const WorkspaceSettingsForm = forwardRef<
+  WorkspaceSettingsFormHandle,
+  WorkspaceSettingsProps
+>(({ onFormSubmit }, ref) => {
+  /** Retrieves the current workspace from the auth context. */
+  const { currentWorkspace } = useAuth();
+
+  /** Mutation hook to update the workspace on the server. */
+  const { mutate, isPending } = useUpdateWorkspace();
+
+  /** Initializes react-hook-form with validation and default values. */
   const form = useForm<Schema>({
     resolver,
-    defaultValues: {
+    defaultValues: currentWorkspace || {
       name: "",
-      timezone: "UTC",
-      worspaceId: ""
+      timezone: "UTC"
     },
     mode: "onChange"
   });
 
+  /**
+   * Handles form submission:
+   * - Validates workspace existence
+   * - Calls mutate to update the workspace
+   * - Displays success or error toasts
+   * - Calls onFormSubmit if provided
+   */
   const onSubmit = useCallback(
     async (data: Schema) => {
-      console.log("Form submitted", data);
-      toast("Ahoy! Invite sent successfully");
+      try {
+        if (!currentWorkspace) {
+          toast(
+            "Oops! We are unable to find your workspace :( Please try again later."
+          );
+          return;
+        }
+
+        const { ref } = currentWorkspace;
+
+        mutate({ ref, ...data });
+        toast("Ahoy! Your workspace has been updated successfully");
+
+        if (onFormSubmit) {
+          onFormSubmit(data);
+        }
+      } catch (error) {
+        toast("Oops! Something went wrong while updating your workspace.");
+      }
     },
-    [form]
+    [currentWorkspace, mutate, onFormSubmit]
   );
 
-  const { isValid, isSubmitting } = form.formState;
+  /** Hook to navigate to another page if workspace is not found. */
+  const navigate = useNavigate();
 
+  /**
+   * Exposes imperative methods to parent component:
+   * - submit: triggers form submission
+   * - isSubmitDisabled: indicates if the submit button should be disabled
+   */
+  useImperativeHandle(ref, () => ({
+    submit: () => {
+      form.handleSubmit(onSubmit)();
+    },
+    isSubmitDisabled:
+      form.formState.isSubmitting || !form.formState.isValid || isPending
+  }));
+
+  /**
+   * Effect that redirects the user if currentWorkspace is undefined.
+   */
+  useEffect(() => {
+    if (!currentWorkspace) {
+      toast(
+        "Oops! We are unable to find your workspace :( Please try again later."
+      );
+      navigate("/");
+    }
+  }, [currentWorkspace, navigate]);
+
+  /**
+   * Renders the workspace settings form with inputs for name and timezone.
+   */
   return (
     <Form {...form}>
       <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+        {/* Workspace Name Input */}
         <FormField
           control={form.control}
           name="name"
@@ -89,13 +181,15 @@ export function WorkspaceSettingsForm() {
             </FormItem>
           )}
         />
+
+        {/* Timezone Select Input */}
         <FormField
           control={form.control}
           name="timezone"
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Select label="Timezone" options={timezones} {...field} />
+                <Select label="Timezone" options={TIMEZONES} {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -103,4 +197,4 @@ export function WorkspaceSettingsForm() {
       </FormRoot>
     </Form>
   );
-}
+});
