@@ -21,7 +21,7 @@ import {
   updateResourceInCache,
   updateSingleResourceInCache,
   type BaseApiObject
-} from "./manage-resource-cache.helper";
+} from "../providers/query-client/manage-resource-cache.helper";
 import type { ListResponse } from "@fonoster/types";
 
 /**

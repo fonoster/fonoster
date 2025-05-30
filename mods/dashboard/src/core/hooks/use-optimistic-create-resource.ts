@@ -23,7 +23,7 @@ import {
   updateResourceInCache,
   updateSingleResourceInCache,
   type BaseApiObject
-} from "./manage-resource-cache.helper";
+} from "../providers/query-client/manage-resource-cache.helper";
 
 /**
  * A custom React hook that provides an optimistic mutation handler for creating new resources.

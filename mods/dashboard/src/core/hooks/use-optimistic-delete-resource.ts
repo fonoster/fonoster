@@ -19,8 +19,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   deleteResourceFromCache,
-  type BaseApiObject
-} from "./manage-resource-cache.helper";
+  type BaseApiObject,
+  type ListResponse
+} from "../providers/query-client/manage-resource-cache.helper";
 
 /**
  * A custom React hook that provides optimistic deletion of a resource using React Query.
@@ -37,7 +38,7 @@ import {
  * @returns A `useMutation` instance configured for optimistic deletion.
  */
 export function useOptimisticDeleteResource<TRef extends string = string>(
-  deleteFn: (ref: TRef) => Promise<void | BaseApiObject>,
+  deleteFn: (ref: TRef) => Promise<BaseApiObject>,
   collectionKey: unknown[],
   resourceKey: unknown[]
 ) {
@@ -47,7 +48,10 @@ export function useOptimisticDeleteResource<TRef extends string = string>(
     TRef, // Return type of the mutation function (ref of deleted item)
     unknown, // Error type (unknown here)
     TRef, // Variables passed to mutationFn (ref of item to delete)
-    { previousList: unknown; previousItem: unknown } // Context type for rollback
+    {
+      previousList: ListResponse<BaseApiObject> | undefined; // Previous state of the collection cache
+      previousItem: BaseApiObject | undefined; // Previous state of the individual item cache
+    }
   >({
     /**
      * The function that actually performs the deletion request.
@@ -74,8 +78,8 @@ export function useOptimisticDeleteResource<TRef extends string = string>(
       await queryClient.cancelQueries({ queryKey: collectionKey });
 
       // Store current cache state to support rollback
-      const previousList = queryClient.getQueryData(collectionKey);
-      const previousItem = queryClient.getQueryData([
+      const previousList = queryClient.getQueryData<ListResponse<BaseApiObject>>(collectionKey);
+      const previousItem = queryClient.getQueryData<BaseApiObject>([
         ...resourceKey,
         refToDelete
       ]);
