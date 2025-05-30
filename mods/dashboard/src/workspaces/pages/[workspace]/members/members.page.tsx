@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role, WorkspaceMemberStatus } from "@fonoster/types";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import type { Route } from "./+types/members.page";
 import { Page } from "~/core/components/general/page/page";
@@ -26,7 +25,17 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { WorkspaceMemberDTO } from "./members.interfaces";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { MembersPageHeader } from "./members.page-header";
+import { useUsers } from "~/auth/services/auth.service";
+import { useResourceTable } from "~/core/hooks/use-resource-table";
 
+/**
+ * Page metadata function.
+ *
+ * Sets the page title and description for SEO and browser tab.
+ *
+ * @param {Route.MetaArgs} _ - Meta args provided by the route loader.
+ * @returns {Array} An array containing the page metadata.
+ */
 export function meta(_: Route.MetaArgs) {
   return [
     { title: "Workspace Members | Fonoster" },
@@ -37,78 +46,135 @@ export function meta(_: Route.MetaArgs) {
   ];
 }
 
+/**
+ * Members page component
+ *
+ * Renders a list of workspace members in a table with actions
+ * to delete or email members. Supports search, pagination, and
+ * selection of rows for batch operations.
+ *
+ * @returns {JSX.Element} The rendered members page.
+ */
 export default function Members() {
-  const [searchBy, onSearchByFieldChange] = useState("name");
+  /** Retrieves the current workspace ID from the URL params. */
   const workspaceId = useWorkspaceId();
-  const members: WorkspaceMemberDTO[] = [
-    {
-      ref: "ref_4g2tj128",
-      userRef: "user_4g2tj128",
-      name: "Efrain Peralta",
-      email: "e@fonoster.com",
-      role: Role.USER,
-      status: WorkspaceMemberStatus.ACTIVE,
-      createdAt: new Date("2023-01-01T00:00:00Z"),
-      updatedAt: new Date("2025-01-01T00:00:00Z")
-    },
-    {
-      ref: "ref_4g2tj12s8",
-      userRef: "user_4g2dtj128",
-      name: "Pedro Sanders",
-      email: "epedro@fonoster.com",
-      role: Role.WORKSPACE_OWNER,
-      status: WorkspaceMemberStatus.ACTIVE,
-      createdAt: new Date("2024-04-08T00:00:00Z"),
-      updatedAt: new Date("2025-01-01T00:00:00Z")
-    }
-  ];
 
+  /** State to hold the current pagination token used to fetch a specific page of data. */
+  const [pageToken, setPageToken] = useState<string | undefined>(undefined);
+
+  /** Reference to the page size constant for controlling number of rows per page. */
+  const { current: pageSize } = useRef(24);
+
+  /** Fetches workspace members using the page size and token for pagination. */
+  const { data, nextPageToken, isLoading } = useUsers({
+    pageSize,
+    pageToken
+  });
+
+  /**
+   * Handler for deleting a member (placeholder).
+   * Currently shows a toast indicating the feature is not implemented yet.
+   *
+   * @param {WorkspaceMemberDTO} member - The member to delete.
+   */
   const onDelete = useCallback(
     (member: WorkspaceMemberDTO) => {
-      console.log("Form submitted", member);
+      console.log("Delete member:", member);
       toast("Delete member not implemented yet");
     },
     [workspaceId]
   );
 
+  /**
+   * Handler for sending an email to a member (placeholder).
+   * Currently shows a toast indicating the feature is not implemented yet.
+   *
+   * @param {WorkspaceMemberDTO} member - The member to email.
+   */
   const onSendEmail = useCallback(
     (member: WorkspaceMemberDTO) => {
-      console.log("Form submitted", member);
+      console.log("Send email:", member);
       toast("Send email not implemented yet");
     },
     [workspaceId]
   );
 
+  /** Memoized column definitions to avoid unnecessary re-renders. */
   const columns = useMemo(
     () => getColumns(onDelete, onSendEmail),
     [onDelete, onSendEmail]
   );
 
-  const { current: pageSize } = useRef(10);
+  /**
+   * Custom hook for table management:
+   * - Handles search functionality
+   * - Handles filtering
+   * - Handles pagination (next/prev pages)
+   * - Handles deletion of selected rows
+   */
+  const {
+    searchBy,
+    setSearchBy,
+    handleNextPage,
+    handlePrevPage,
+    handleSearch,
+    handleDelete,
+    prevTokens
+  } = useResourceTable({
+    data,
+    pageSize,
+    pageToken,
+    setPageToken,
+    deleteResource: () => {
+      // Placeholder delete implementation
+      return Promise.resolve({ ref: "" });
+    },
+    searchableFields: [], // Specify searchable fields if needed
+    defaultSearchBy: "name"
+  });
 
+  /**
+   * Renders the members page with a header and a data table.
+   */
   return (
     <Page variant="form">
       <MembersPageHeader />
+
       <DataTable
         variant="compact"
-        data={members}
+        /** Displays loading state when data is being fetched. */
+        isLoading={isLoading}
+        /** Data to be displayed in the table (filtered based on search). */
+        data={data}
+        /** Column definitions for the table. */
         columns={columns}
-        searchBy={searchBy}
-        searchableFields={[]}
+        /** Function to get a unique row ID for each record. */
         getRowId={(row) => row.ref}
+        /** Current field selected for searching. */
+        searchBy={searchBy}
+        /** List of searchable fields displayed in the UI. */
+        searchableFields={[]} // Define as needed
+        /** Number of rows per page. */
         pageSize={pageSize}
+        /** Pagination controls for next/prev pages. */
         pagination={{
-          total: members.length,
-          nextToken: null,
-          prevToken: null
+          total: data.length,
+          nextToken: nextPageToken,
+          prevToken: prevTokens.length
+            ? prevTokens[prevTokens.length - 1]
+            : null
         }}
-        onNextPage={() => null}
-        onPrevPage={() => null}
-        onSearch={(term) => console.log(term)}
-        onSearchByFieldChange={onSearchByFieldChange}
-        onDeleteSelected={(rows) =>
-          toast(`Delete: ${rows.map((r) => r.name).join(", ")}`)
-        }
+        /** Handler for navigating to the next page. */
+        onNextPage={() => handleNextPage(nextPageToken)}
+        /** Handler for navigating to the previous page. */
+        onPrevPage={handlePrevPage}
+        /** Handler for updating the search term. */
+        onSearch={handleSearch}
+        /** Handler for changing the search field. */
+        onSearchByFieldChange={setSearchBy}
+        /** Handler for deleting selected rows. */
+        onDeleteSelected={handleDelete}
+        /** Handler for editing selected rows (currently shows a toast). */
         onEditSelected={(row) => toast(`Edit: ${row.name}`)}
         features={["pagination"]}
       />

@@ -24,16 +24,40 @@ import { PageHeader } from "~/core/components/general/page/page-header";
 import { InviteMemberModal } from "~/workspaces/components/containers/invite-member/invite-member.modal";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 
+/**
+ * MembersPageHeader component
+ *
+ * Renders the header section of the workspace members page,
+ * including a button to invite new members and a back navigation link.
+ */
 export function MembersPageHeader() {
+  /**
+   * Local state to control the visibility of the InviteMemberModal.
+   */
   const [isInviteMemberModalOpen, setInviteMemberModalOpen] = useState(false);
 
+  /**
+   * React Router hook to programmatically navigate between routes.
+   */
   const navigate = useNavigate();
+
+  /**
+   * Retrieves the current workspace ID from the URL params.
+   */
   const workspaceId = useWorkspaceId();
 
+  /**
+   * Handler for the back button click.
+   * Navigates the user back to the workspace overview page.
+   */
   const onClick = useCallback(() => {
     navigate(`/workspaces/${workspaceId}`, { viewTransition: true });
   }, [navigate, workspaceId]);
 
+  /**
+   * Renders the PageHeader component with an "Invite New Member" button,
+   * along with the InviteMemberModal for adding new members.
+   */
   return (
     <>
       <PageHeader
@@ -58,6 +82,8 @@ export function MembersPageHeader() {
         }
         onBack={{ label: "Back to overview", onClick }}
       />
+
+      {/* Modal for inviting new workspace members */}
       <InviteMemberModal
         isOpen={isInviteMemberModalOpen}
         onClose={() => setInviteMemberModalOpen(false)}

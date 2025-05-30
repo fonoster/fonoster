@@ -23,25 +23,49 @@ import { Icon } from "~/core/components/design-system/icons/icons";
 import { Tooltip } from "~/core/components/design-system/ui/tooltip/tooltip";
 import { useCallback } from "react";
 
+/**
+ * Props for the ActionsCell component.
+ *
+ * @property {WorkspaceMemberDTO} member - The workspace member represented by the row.
+ * @property {(member: WorkspaceMemberDTO) => void} onSendEmail - Handler for resending the invitation email.
+ * @property {(member: WorkspaceMemberDTO) => void} onDelete - Handler for deleting the member.
+ */
 export interface ActionsCellProps {
   member: WorkspaceMemberDTO;
   onSendEmail: (member: WorkspaceMemberDTO) => void;
   onDelete: (member: WorkspaceMemberDTO) => void;
 }
 
+/**
+ * ActionsCell component
+ *
+ * Renders the action buttons (Resend Email and Delete) for each row in the table.
+ *
+ * @param {ActionsCellProps} props - Props containing the member and event handlers.
+ * @returns {JSX.Element} The rendered action cell.
+ */
 export const ActionsCell = ({
   member,
   onSendEmail,
   onDelete
 }: ActionsCellProps) => {
+  /** Check if the member's status is pending, allowing email to be resent. */
   const isPending = member.status === "PENDING";
 
+  /**
+   * Handles clicking the resend email icon.
+   * Only triggers if the member is pending.
+   */
   const handleSendEmail = useCallback(() => {
     if (isPending) {
       onSendEmail(member);
     }
   }, [isPending, member, onSendEmail]);
 
+  /**
+   * Renders the icons with tooltips.
+   * The email icon is enabled only if the member is pending.
+   */
   return (
     <Stack direction="row" gap="4px" alignItems="center" width="100%">
       <Tooltip title="Resend invitation" placement="bottom">
@@ -78,6 +102,16 @@ export const ActionsCell = ({
   );
 };
 
+/**
+ * getColumns function
+ *
+ * Generates the columns definition for the workspace members table.
+ * Includes name, email, role, date added, status, and actions.
+ *
+ * @param {(member: WorkspaceMemberDTO) => void} onDelete - Handler for deleting a member.
+ * @param {(member: WorkspaceMemberDTO) => void} onSendEmail - Handler for resending the invitation email.
+ * @returns {ColumnDef<WorkspaceMemberDTO>[]} The columns configuration.
+ */
 export const getColumns = (
   onDelete: (member: WorkspaceMemberDTO) => void,
   onSendEmail: (member: WorkspaceMemberDTO) => void
