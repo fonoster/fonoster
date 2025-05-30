@@ -50,16 +50,6 @@ export interface AuthenticatedProviderProps {
    * React children to render within the provider.
    */
   children: React.ReactNode;
-
-  /**
-   * The authenticated user data, or null if not available initially.
-   */
-  initialUser: AuthenticatedUser | null;
-
-  /**
-   * A list of workspaces associated with the authenticated user.
-   */
-  initialWorkspaces: Workspace[];
 }
 
 /**
@@ -70,7 +60,7 @@ export interface AuthenticatedContextValue {
   /**
    * The currently authenticated user.
    */
-  user: AuthenticatedUser;
+  user: AuthenticatedUser | null;
 
   /**
    * Function to update the authenticated user in the context.
@@ -97,9 +87,12 @@ export interface AuthenticatedContextValue {
   setCurrentWorkspace: (workspace: Workspace) => void;
 
   /**
-   * Function to update the entire list of available workspaces.
+   * Callback function to handle changes in the current workspace.
    *
-   * @param workspaces - The new list of workspaces.
+   * This is typically used to trigger side effects or updates when the
+   * workspace changes, such as re-fetching data or updating UI components.
+   *
+   * @param workspaceId - The ID of the workspace that has changed.
    */
-  setWorkspaces: (workspaces: Workspace[]) => void;
+  onWorkspaceChange: (workspaceId: string) => void;
 }
