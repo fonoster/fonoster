@@ -21,6 +21,7 @@ import type { Route } from "./+types/authenticated.layout";
 import { getRequiredSession } from "~/auth/services/sessions/session.server";
 import { Box, styled } from "@mui/material";
 import { Header } from "../general/header/header";
+import { AuthenticatedProvider } from "~/auth/stores/authenticated.store";
 
 /**
  * This hook determines whether the route should revalidate.
@@ -49,12 +50,14 @@ export async function loader({ request }: Route.LoaderArgs) {
  */
 export default function AuthenticatedLayout() {
   return (
-    <MainRoot>
-      <Header />
-      <MainContent>
-        <Outlet />
-      </MainContent>
-    </MainRoot>
+    <AuthenticatedProvider>
+      <MainRoot>
+        <Header />
+        <MainContent>
+          <Outlet />
+        </MainContent>
+      </MainRoot>
+    </AuthenticatedProvider>
   );
 }
 
