@@ -18,14 +18,22 @@
  */
 import { flexRender, type Row } from "@tanstack/react-table";
 import { TableBody, TableCell, TableRow } from "@mui/material";
+
 import { useDataTable } from "../data-table.context";
 import { Checkbox } from "../../checkbox/checkbox";
 
+/**
+ * Props definition for a single row in the DataTableBody.
+ */
 export interface DataTableBodyRowProps {
   row: Row<any>;
   showSelection: boolean;
 }
 
+/**
+ * Renders a single data row.
+ * Optionally includes a selection checkbox if the "selection" feature is enabled.
+ */
 const DataRow = ({ row, showSelection }: DataTableBodyRowProps) => (
   <TableRow key={row.id} selected={row.getIsSelected()}>
     {showSelection && (
@@ -36,6 +44,7 @@ const DataRow = ({ row, showSelection }: DataTableBodyRowProps) => (
         />
       </TableCell>
     )}
+
     {row.getVisibleCells().map((cell: any) => (
       <TableCell key={cell.id}>
         {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -44,22 +53,40 @@ const DataRow = ({ row, showSelection }: DataTableBodyRowProps) => (
   </TableRow>
 );
 
-const EmptyStateRow = ({ colSpan }: { colSpan: number }) => (
+/**
+ * Displays a placeholder row when the table is empty or loading.
+ * @param colSpan - Number of columns to span across.
+ * @param message - Text message to show in the empty row.
+ */
+const EmptyStateRow = ({
+  colSpan,
+  message
+}: {
+  colSpan: number;
+  message: string;
+}) => (
   <TableRow sx={{ height: 72 }}>
     <TableCell colSpan={colSpan} sx={{ textAlign: "center !important" }}>
-      Oops! You don't have any data yet.
+      {message}
     </TableCell>
   </TableRow>
 );
 
+/**
+ * Main component responsible for rendering the body of the data table.
+ * Displays rows of data, a loading message, or an empty state depending on the table's state.
+ */
 export function DataTableBody() {
-  const { table, features } = useDataTable();
+  const { table, features, isLoading } = useDataTable();
+
+  /** All table rows based on current state and filters. */
   const rows = table.getRowModel().rows;
+
+  /** Determines if selection checkboxes should be shown. */
   const showSelection = features.includes("selection");
 
-  const colspan = showSelection
-    ? table.getAllColumns().length + 1
-    : table.getAllColumns().length;
+  /** Calculates the number of columns to span for empty/loading rows. */
+  const colSpan = table.getAllColumns().length + (showSelection ? 1 : 0);
 
   return (
     <TableBody>
@@ -67,8 +94,16 @@ export function DataTableBody() {
         rows.map((row) => (
           <DataRow key={row.id} row={row} showSelection={showSelection} />
         ))
+      ) : isLoading ? (
+        <EmptyStateRow
+          colSpan={colSpan}
+          message="Hey! We're loading your data..."
+        />
       ) : (
-        <EmptyStateRow colSpan={colspan} />
+        <EmptyStateRow
+          colSpan={colSpan}
+          message="Oops! You don't have any data yet."
+        />
       )}
     </TableBody>
   );

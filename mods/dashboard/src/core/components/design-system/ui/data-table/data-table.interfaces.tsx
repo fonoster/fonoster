@@ -28,8 +28,8 @@ export interface FilterField {
 
 export interface CursorPagination {
   total: number;
-  nextToken: string | null;
-  prevToken: string | null;
+  nextToken: string | null | undefined;
+  prevToken: string | null | undefined;
 }
 
 export interface DataTable<T> {
@@ -59,12 +59,14 @@ export interface DataTableProps<T> extends BaseDataTable<T> {
   onNextPage: VoidFunction;
   onPrevPage: VoidFunction;
   variant?: "default" | "compact";
+  isLoading?: boolean;
 }
 
 export interface DataTableContextProps<T> extends BaseDataTable<T> {
   table: Table<T>;
   features: FeatureOption[];
   variant?: "default" | "compact";
+  isLoading?: boolean;
   selectedRows: T[];
   pageSize: number;
   onNextPage: VoidFunction;
