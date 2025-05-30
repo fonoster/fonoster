@@ -21,6 +21,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from "react";
 import type {
@@ -53,6 +54,13 @@ export const FonosterProvider = ({
   children,
   initialSession
 }: FonosterProviderProps) => {
+  /**
+   * Tracks whether the provider has already attempted to authenticate
+   * the session. This prevents multiple authentication attempts
+   * on initial load.
+   */
+  const hasAuthenticated = useRef(false);
+
   /**
    * Tracks whether the provider has completed initialization
    * (e.g. validating the session or setting up the client).
@@ -101,7 +109,9 @@ export const FonosterProvider = ({
    * and refresh the session. If session is missing or invalid, redirects to logout.
    */
   useEffect(() => {
-    if (!client) return;
+    if (!client || hasAuthenticated.current) return;
+
+    hasAuthenticated.current = true;
 
     if (!session) {
       setIsInitialized(true);
