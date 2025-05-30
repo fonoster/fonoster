@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useState, useCallback, useMemo, useLayoutEffect } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import type { Session } from "~/auth/services/sessions/session.interfaces";
 import type { FonosterModules } from "../stores/fonoster.interfaces";
 import { getClient, SDK } from "../client/fonoster.client";
@@ -56,17 +56,12 @@ export const useClient = (initialSession: Session | null) => {
    *
    * @param tokens - The new session tokens (e.g. after token refresh).
    */
-  const updateSessionTokens = useCallback(
-    (tokens: Session) => {
-      if (!client) return;
-
-      setSession((prev) => {
-        const next = { ...prev, ...tokens };
-        return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
-      });
-    },
-    [client]
-  );
+  const updateSessionTokens = useCallback((tokens: Session) => {
+    setSession((prev) => {
+      const next = { ...prev, ...tokens };
+      return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
+    });
+  }, []);
 
   /**
    * Replaces the current client instance and reinitializes all SDK modules.
@@ -117,7 +112,7 @@ export const useClient = (initialSession: Session | null) => {
    * Initializes the Fonoster client when the component mounts.
    * Ensures that `client` and `sdk` states are populated early in the app lifecycle.
    */
-  useLayoutEffect(() => {
+  useEffect(() => {
     const instance = getClient(); // Factory function to get a configured WebClient instance
     updateClient(instance);
   }, [updateClient]);
