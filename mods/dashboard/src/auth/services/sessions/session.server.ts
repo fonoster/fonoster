@@ -128,6 +128,32 @@ export const getRequiredSession = async (
 };
 
 /**
+ * Retrieves the session for unauthenticated users.
+ *
+ * This function checks if the user is authenticated and redirects them
+ * to the home page if they are. It is typically used on login or registration pages
+ * to ensure that authenticated users do not access these pages.
+ *
+ * @param headers - Cookie header from the HTTP request
+ * @returns null if the user is unauthenticated
+ * @throws Redirects to the home page if the user is authenticated
+ */
+export const getUnauthenticatedSession = async (
+  headers: string | null
+): Promise<null> => {
+  const { isAuthenticated } = await getSession(headers);
+
+  /**
+   * Redirect authenticated users away from login/registration pages.
+   */
+  if (isAuthenticated) {
+    throw redirect("/");
+  }
+
+  return null;
+};
+
+/**
  * Exports the session management functions for use in other parts of the application.
  *
  * - getSession: Retrieves the session and authentication status.

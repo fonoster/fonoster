@@ -18,17 +18,78 @@
  */
 import React from "react";
 import type { Session } from "~/auth/services/sessions/session.interfaces";
-import type { Client } from "../client/fonoster.client";
+import type { SDK } from "../client/fonoster.client";
 
+/**
+ * Props for the `FonosterProvider` component.
+ *
+ * This provider is used to wrap your application with Fonoster context,
+ * initializing the client and session state for use throughout the app.
+ */
 export interface FonosterProviderProps {
+  /**
+   * React children elements that will be wrapped by the provider.
+   */
   children: React.ReactNode;
+
+  /**
+   * The initial session data, typically passed in during app initialization.
+   * Contains authentication tokens such as access and refresh tokens.
+   */
   initialSession: Session | null;
 }
 
+/**
+ * Interface describing the available Fonoster SDK modules that
+ * are initialized and provided via context.
+ */
+export interface FonosterModules {
+  /**
+   * The Applications module from the Fonoster SDK.
+   * Used to manage voice applications.
+   */
+  applications: SDK.Applications;
+
+  // Add other modules as needed, e.g.:
+  // agents: SDK.Agents;
+  // voice: SDK.VoiceServer;
+}
+
+/**
+ * Interface for the shape of the Fonoster context value.
+ *
+ * This context provides everything needed to interact with the Fonoster platform,
+ * including the client instance, authentication state, session data, and SDK modules.
+ */
 export interface FonosterContextValue {
-  client: Client | null;
-  isAuthenticated: boolean;
+  /**
+   * The current Fonoster client instance used to interact with the API.
+   */
+  client: SDK.WebClient | null;
+
+  /**
+   * The current user session containing authentication tokens.
+   */
   session: Session | null;
+
+  /**
+   * Function to update the current session. Useful for handling login, logout,
+   * or token refresh logic.
+   */
   setSession: (session: Session | null) => void;
+
+  /**
+   * Function to log the user out and clear session data.
+   */
   logout: () => void;
+
+  /**
+   * Boolean flag indicating whether the user is currently authenticated.
+   */
+  isAuthenticated: boolean;
+
+  /**
+   * The initialized SDK modules (e.g. Applications) tied to the current client.
+   */
+  sdk: FonosterModules | null;
 }

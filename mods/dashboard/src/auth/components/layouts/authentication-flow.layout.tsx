@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import { Box, styled } from "@mui/material";
-import { Outlet, redirect } from "react-router";
+import { Outlet } from "react-router";
 import { AuthenticationFlowHeader as LayoutHeader } from "./authentication-flow.header";
 import type { Route } from "./+types/authentication-flow.layout";
-import { getSession } from "~/auth/services/sessions/session.server";
+import { getUnauthenticatedSession } from "~/auth/services/sessions/session.server";
 
 /**
  * Prevents route revalidation on navigation.
@@ -42,16 +42,7 @@ export const shouldRevalidate = () => true;
  * @returns null if user is not authenticated; otherwise redirects
  */
 export async function loader({ request }: Route.LoaderArgs) {
-  const { isAuthenticated } = await getSession(request.headers.get("Cookie"));
-
-  /**
-   * Redirect authenticated users away from login/registration pages.
-   */
-  if (isAuthenticated) {
-    throw redirect("/");
-  }
-
-  return null;
+  return await getUnauthenticatedSession(request.headers.get("Cookie"));
 }
 
 /**

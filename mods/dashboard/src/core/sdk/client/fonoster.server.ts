@@ -20,19 +20,36 @@
 /**
  * Fonoster Client (Server)
  *
- * @description This file exports the Fonoster Client for the server. It is used to
- * create a new instance of the Fonoster Client for the server.
+ * @description This file exports a function to create a new instance of the
+ * Fonoster Client for server-side environments. It uses the Node-specific build
+ * of the Fonoster SDK and is configured via a predefined server config object.
  *
- * @TODO: This file should be removed when the Fonoster Client is moved to the fonoster/sdk package.
+ * @note This wrapper allows centralized client configuration and caching,
+ * which helps ensure consistent behavior and performance in server contexts.
+ *
+ * @TODO Remove this file when the Fonoster Client is officially exposed
+ * by the main fonoster/sdk package in a platform-agnostic way.
  */
-import { Client } from "@fonoster/sdk/dist/node/node.js";
+
+import * as SDK from "@fonoster/sdk/dist/node/node.js";
 import { FONOSTER_SERVER_CONFIG } from "../stores/fonoster.config";
 import { cache } from "react";
 
+/**
+ * Creates and returns a memoized (cached) instance of the Fonoster Client
+ * for server-side use, using a predefined server configuration.
+ *
+ * The `cache()` utility ensures that the same instance is reused across
+ * multiple calls within the same request lifecycle (as used in server-rendered apps).
+ *
+ * @returns {Client} A configured instance of the Fonoster SDK Client for Node.js.
+ */
 export const getClient = cache(() => {
-  const fonosterClient = new Client(FONOSTER_SERVER_CONFIG);
-
+  const fonosterClient = new SDK.Client(FONOSTER_SERVER_CONFIG);
   return fonosterClient;
 });
 
-export { Client };
+/**
+ * Re-export the Client class for type usage or advanced instantiation.
+ */
+export { SDK };

@@ -26,9 +26,10 @@
  * @TODO: Remove this file when the Fonoster Client is available in the browser.
  */
 declare module "@fonoster/sdk/dist/web/index.esm.js" {
-  import type { Client as Fonoster } from "@fonoster/sdk";
+  import * as SDK from "@fonoster/sdk";
 
-  export class WebClient extends Fonoster {}
+  export class WebClient extends SDK.Client {}
+  export * from "@fonoster/sdk";
 }
 
 /**
@@ -38,7 +39,8 @@ declare module "@fonoster/sdk/dist/web/index.esm.js" {
  * create a new instance of the Fonoster Client for Node.
  */
 declare module "@fonoster/sdk/dist/node/node.js" {
-  import type { Client as Fonoster } from "@fonoster/sdk";
+  import * as SDK from "@fonoster/sdk";
 
-  export class Client extends Fonoster {}
+  export class Client extends SDK.Client {}
+  export * from "@fonoster/sdk";
 }

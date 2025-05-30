@@ -20,7 +20,6 @@ import {
   createContext,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useState
 } from "react";
@@ -30,54 +29,77 @@ import type {
 } from "./fonoster.interfaces";
 import type { Session } from "~/auth/services/sessions/session.interfaces";
 import { Splash } from "~/core/components/general/splash/splash";
-import { getClient, type Client } from "../client/fonoster.client";
 import { useNavigate } from "react-router";
 import { refreshClientSession } from "~/core/helpers/token-validators";
+import { useClient } from "../hooks/use-fonoster-client";
 
+/**
+ * React context used to provide access to the Fonoster client, session,
+ * authentication state, and SDK modules throughout the application.
+ */
 export const FonosterContext = createContext<FonosterContextValue | null>(null);
 
+/**
+ * Provider component that initializes the Fonoster client, handles
+ * authentication state, and exposes SDK functionality to children components.
+ *
+ * This component should wrap your application (or parts of it) that require
+ * access to Fonoster services.
+ *
+ * @param children - React children to render inside the context provider.
+ * @param initialSession - Initial session passed in from persistent state or server.
+ */
 export const FonosterProvider = ({
   children,
   initialSession
 }: FonosterProviderProps) => {
-  const navigate = useNavigate();
-  const [client, setClient] = useState<Client | null>(null);
-  const [session, setSession] = useState<Session | null>(initialSession);
+  /**
+   * Tracks whether the provider has completed initialization
+   * (e.g. validating the session or setting up the client).
+   */
   const [isInitialized, setIsInitialized] = useState(false);
 
-  useLayoutEffect(() => {
-    setClient(getClient());
-  }, []);
+  /**
+   * Hook that encapsulates all Fonoster-related logic, such as client setup,
+   * SDK initialization, session management, and authentication helpers.
+   */
+  const {
+    sdk,
+    client,
+    session,
+    setSession,
+    isAuthenticated,
+    logout,
+    updateSessionTokens
+  } = useClient(initialSession);
 
-  const isAuthenticated = useMemo(
-    () => Boolean(session?.refreshToken),
-    [session]
-  );
+  /**
+   * React Router hook used for programmatic navigation (e.g. on session expiry).
+   */
+  const navigate = useNavigate();
 
-  const logout = useCallback(() => {
-    client?.logout();
-    setSession(null);
-  }, [client]);
-
-  const value = useMemo(
-    () => ({ logout, client, session, setSession, isAuthenticated }),
-    [logout, client, session, isAuthenticated]
-  );
-
+  /**
+   * Authenticates the current session by refreshing the access token.
+   * If the refresh is successful, updates the internal session state.
+   *
+   * @param sessionToAuth - The session object to authenticate.
+   */
   const authenticate = useCallback(
     async (sessionToAuth: Session) => {
       if (!client) return;
 
+      console.info("[FonosterProvider] Authenticating session...");
       const updatedSession = await refreshClientSession(sessionToAuth, client);
-      const merged = { ...sessionToAuth, ...updatedSession };
-
-      setSession((prev) =>
-        JSON.stringify(prev) === JSON.stringify(merged) ? prev : merged
-      );
+      console.info("[FonosterProvider] Session authenticated successfully.");
+      updateSessionTokens(updatedSession);
     },
-    [client]
+    [client, updateSessionTokens]
   );
 
+  /**
+   * On initial load or when client/session changes, attempts to validate
+   * and refresh the session. If session is missing or invalid, redirects to logout.
+   */
   useEffect(() => {
     if (!client) return;
 
@@ -91,8 +113,29 @@ export const FonosterProvider = ({
       .finally(() => setIsInitialized(true));
   }, [client, session, authenticate]);
 
+  /**
+   * Memoized context value to avoid unnecessary re-renders in consuming components.
+   */
+  const value = useMemo(
+    () => ({
+      client,
+      session,
+      setSession,
+      logout,
+      isAuthenticated,
+      sdk
+    }),
+    [client, session, logout, isAuthenticated, sdk]
+  );
+
+  /**
+   * Displays a splash screen while the provider is initializing.
+   */
   if (!isInitialized) return <Splash />;
 
+  /**
+   * Renders the provider and makes Fonoster services available to descendants.
+   */
   return (
     <FonosterContext.Provider value={value}>
       {children}

@@ -19,6 +19,13 @@
 import { useContext } from "react";
 import { FonosterContext } from "../stores/fonoster.store";
 
+/**
+ * Internal hook used to access the FonosterContext.
+ *
+ * Throws a descriptive error if used outside of the FonosterProvider.
+ *
+ * @returns The current value of the Fonoster context.
+ */
 const useFonosterContext = () => {
   const context = useContext(FonosterContext);
 
@@ -31,14 +38,24 @@ const useFonosterContext = () => {
   return context;
 };
 
+/**
+ * Hook that provides access to the Fonoster client and related context.
+ *
+ * Ensures that the client is available before returning the context,
+ * making it safe to use SDK modules or perform client operations.
+ *
+ * @throws Error if the client is not initialized.
+ * @returns An object containing the Fonoster client, session state,
+ *          authentication helpers, and SDK modules.
+ */
 export const useFonoster = () => {
-  const { client, ...rest } = useFonosterContext();
+  const { client, sdk, ...rest } = useFonosterContext();
 
-  if (!client) {
+  if (!client || !sdk) {
     throw new Error(
       "Oops! The Fonoster client is not available. Please check your configuration."
     );
   }
 
-  return { client, ...rest };
+  return { client, sdk, ...rest };
 };

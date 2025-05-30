@@ -19,23 +19,87 @@
 import type { Workspace } from "@fonoster/types";
 import React from "react";
 
+/**
+ * Represents an authenticated user in the application.
+ */
 export interface AuthenticatedUser {
+  /**
+   * Unique identifier for the user.
+   */
   id: string;
+
+  /**
+   * Full name of the user.
+   */
   name: string;
+
+  /**
+   * Email address of the user.
+   */
   email: string;
 }
 
+/**
+ * Props for the `AuthenticatedProvider` component.
+ *
+ * This component is responsible for providing user and workspace context
+ * throughout the application after authentication has occurred.
+ */
 export interface AuthenticatedProviderProps {
+  /**
+   * React children to render within the provider.
+   */
   children: React.ReactNode;
+
+  /**
+   * The authenticated user data, or null if not available initially.
+   */
   initialUser: AuthenticatedUser | null;
+
+  /**
+   * A list of workspaces associated with the authenticated user.
+   */
   initialWorkspaces: Workspace[];
 }
 
+/**
+ * Value exposed by the `AuthenticatedContext`, giving access to user and
+ * workspace-related state and utilities.
+ */
 export interface AuthenticatedContextValue {
+  /**
+   * The currently authenticated user.
+   */
   user: AuthenticatedUser;
+
+  /**
+   * Function to update the authenticated user in the context.
+   *
+   * @param user - The new user object to set.
+   */
   setUser: (user: AuthenticatedUser) => void;
+
+  /**
+   * List of workspaces available to the user.
+   */
   workspaces: Workspace[];
+
+  /**
+   * The currently selected workspace in the application context.
+   */
   currentWorkspace: Workspace | null;
+
+  /**
+   * Function to change the currently selected workspace.
+   *
+   * @param workspace - The workspace to set as current.
+   */
   setCurrentWorkspace: (workspace: Workspace) => void;
+
+  /**
+   * Function to update the entire list of available workspaces.
+   *
+   * @param workspaces - The new list of workspaces.
+   */
   setWorkspaces: (workspaces: Workspace[]) => void;
 }

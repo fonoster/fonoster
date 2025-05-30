@@ -20,18 +20,29 @@
 /**
  * Fonoster Client (Browser)
  *
- * @description This file exports the Fonoster Client for the browser. It is used to
- * create a new instance of the Fonoster Client for the browser.
+ * @description This file exports a function to create a new instance of the
+ * Fonoster WebClient, configured specifically for browser environments.
  *
- * @TODO: This file should be removed when the Fonoster Client is moved to the fonoster/sdk package.
+ * @note This wrapper exists to isolate browser-specific client creation logic.
+ * Once the Fonoster SDK exposes proper browser support directly, this file can be safely removed.
+ *
+ * @TODO Remove this file when the Fonoster Client is fully supported from the main SDK entry point.
  */
-import { WebClient as Client } from "@fonoster/sdk/dist/web/index.esm.js";
+
+import * as SDK from "@fonoster/sdk/dist/web/index.esm.js";
 import { FONOSTER_CLIENT_CONFIG } from "../stores/fonoster.config";
 
+/**
+ * Creates a new instance of the Fonoster WebClient using predefined configuration.
+ *
+ * @returns {Client} An instance of the Fonoster WebClient, ready for use in browser-based applications.
+ */
 export const getClient = () => {
-  const fonosterClient = new Client(FONOSTER_CLIENT_CONFIG);
-
+  const fonosterClient = new SDK.WebClient(FONOSTER_CLIENT_CONFIG);
   return fonosterClient;
 };
 
-export { Client };
+/**
+ * Export the WebClient type or constructor for external type annotations or manual instantiation if needed.
+ */
+export { SDK };
