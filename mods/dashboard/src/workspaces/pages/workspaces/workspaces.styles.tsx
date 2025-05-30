@@ -36,7 +36,10 @@ export const WorkspaceContainer = styled(Container)(() => ({
 export const ContentWrapper = styled(Box)(() => ({
   display: "flex",
   flexDirection: "column",
-  alignItems: "center"
+  alignItems: "center",
+  maxWidth: "1000px",
+  width: "100%",
+  margin: "0 auto"
 }));
 
 export const Title = styled(Typography)(({ theme }) => ({
