@@ -23,13 +23,24 @@ import { Button } from "~/core/components/design-system/ui/button/button";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 
+/**
+ * Header component for the Voice Applications page.
+ * Displays the page title, description, and a button to create a new application.
+ */
 export function ApplicationsPageHeader() {
+  /** Provides navigation functionality from react-router. */
   const navigate = useNavigate();
+
+  /** Retrieves the current workspace ID from context or hook. */
   const workspaceId = useWorkspaceId();
 
+  /**
+   * Navigates to the application creation page for the current workspace.
+   * Wrapped in useCallback for memoization and performance optimization.
+   */
   const onCreateNewApplication = useCallback(() => {
     navigate(`/workspaces/${workspaceId}/applications/create`, {
-      viewTransition: true
+      viewTransition: true // Enables smooth page transition animations
     });
   }, [navigate, workspaceId]);
 
