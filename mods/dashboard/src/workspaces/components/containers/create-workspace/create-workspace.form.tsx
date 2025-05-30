@@ -31,18 +31,47 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCallback } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
+import { useCreateWorkspace } from "~/workspaces/services/workspaces.service";
 
+/**
+ * Zod schema for form validation.
+ * Defines the expected shape of the workspace form data.
+ */
 export const schema = z.object({
   name: z.string()
 });
 
+/** Resolver for react-hook-form using zod */
 export const resolver = zodResolver(schema);
 
+/** Type inferred from the zod schema */
 export type Schema = z.infer<typeof schema>;
 
-export interface CreateWorkspaceFormProps extends React.PropsWithChildren {}
+/**
+ * Props for the CreateWorkspaceForm component.
+ *
+ * @property {function} [onFormSubmit] - Optional callback executed after successful form submission.
+ */
+export interface CreateWorkspaceFormProps extends React.PropsWithChildren {
+  onFormSubmit?: (data: Schema) => void;
+}
 
-export function CreateWorkspaceForm() {
+/**
+ * CreateWorkspaceForm component
+ *
+ * Renders a form to create a new workspace, including validation,
+ * submission, and feedback via toasts.
+ *
+ * @param {CreateWorkspaceFormProps} props - Props including optional onFormSubmit handler.
+ * @returns {JSX.Element} The rendered form.
+ */
+export function CreateWorkspaceForm({
+  onFormSubmit
+}: CreateWorkspaceFormProps) {
+  /** Hook to create a new workspace via API */
+  const { mutate, isPending } = useCreateWorkspace();
+
+  /** Initializes the react-hook-form instance with validation resolver and default values */
   const form = useForm<Schema>({
     resolver,
     defaultValues: {
@@ -51,17 +80,38 @@ export function CreateWorkspaceForm() {
     mode: "onChange"
   });
 
+  /**
+   * Form submission handler.
+   * Calls the mutate function, shows a toast, resets the form,
+   * and optionally invokes the onFormSubmit callback.
+   *
+   * @param {Schema} data - The validated form data.
+   */
   const onSubmit = useCallback(
     async (data: Schema) => {
-      console.log("Form submitted", data);
-      toast("Ahoy! You have successfully created a workspace");
+      try {
+        mutate(data);
+        toast("Ahoy! Workspace created successfully");
+        form.reset();
+
+        if (onFormSubmit) {
+          onFormSubmit(data);
+        }
+      } catch (error) {
+        toast("Oops! Something went wrong while creating the workspace");
+      }
     },
-    [form]
+    [form, mutate, onFormSubmit]
   );
 
+  /** Extracts form state for disabling the submit button when needed */
   const { isValid, isSubmitting } = form.formState;
-  const isSubmitDisabled = !isValid || isSubmitting;
+  const isSubmitDisabled = !isValid || isSubmitting || isPending;
 
+  /**
+   * Renders the form, including an input field for the workspace name
+   * and a submit button that is disabled while submitting or when the form is invalid.
+   */
   return (
     <Form {...form}>
       <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
@@ -92,6 +142,10 @@ export function CreateWorkspaceForm() {
   );
 }
 
+/**
+ * Styled component for the container of the form actions.
+ * Centers the submit button horizontally and vertically.
+ */
 export const ActionsRoot = styled(Box)(() => ({
   display: "flex",
   justifyContent: "center",
