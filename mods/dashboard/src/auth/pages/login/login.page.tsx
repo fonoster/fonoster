@@ -24,23 +24,51 @@ import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/login.page";
 import { useSubmit } from "react-router";
 
+/**
+ * Sets the metadata for the login page.
+ * Used by the router to set the document title and other meta tags.
+ *
+ * @param _ - Meta arguments (unused in this case).
+ * @returns Array of meta objects for the page.
+ */
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Log In | Fonoster" }];
 }
 
+/** Re-exports the action function for form submission handling. */
 export { action } from "./login.action";
 
+/**
+ * LoginPage component.
+ * Renders the main layout for the login page including:
+ *  - Page title
+ *  - Login form with email/password
+ *  - GitHub login button (currently a placeholder)
+ *
+ * Integrates React Hook Form for validation and react-router submit for form handling.
+ */
 export default function LoginPage() {
+  /** react-router hook to submit form data using the `post` method. */
   const submit = useSubmit();
+
+  /**
+   * Memoized submit handler for the login form.
+   * Uses react-router's `submit` to trigger the action defined for the route.
+   *
+   * @param data - The validated form data.
+   */
   const onSubmit = useCallback(
     (data: Schema) => submit(data, { method: "post" }),
-    []
+    [submit]
   );
 
-  const onGithubAuth = useCallback(
-    async () => toast("Github auth not implemented yet"),
-    []
-  );
+  /**
+   * Handler for GitHub authentication (currently not implemented).
+   * Displays a toast message as a placeholder.
+   */
+  const onGithubAuth = useCallback(async () => {
+    toast("Github auth not implemented yet");
+  }, []);
 
   return (
     <Box
@@ -50,6 +78,7 @@ export default function LoginPage() {
       display="flex"
       flexDirection="column"
     >
+      {/* Page title */}
       <Typography
         variant="heading-large"
         color="base.03"
@@ -57,6 +86,8 @@ export default function LoginPage() {
       >
         Sign In
       </Typography>
+
+      {/* Login form */}
       <LoginForm {...{ onSubmit, onGithubAuth }} />
     </Box>
   );
