@@ -75,7 +75,7 @@ export function meta() {
  *
  * @see https://reactrouter.com/start/framework/route-module#shouldrevalidate
  */
-export const shouldRevalidate = () => true;
+export const shouldRevalidate = () => false;
 
 /**
  * Initialize Auth
@@ -97,7 +97,7 @@ export { rootAuthLoader as loader } from "./auth/services/sessions/auth.loader.s
  * while the app is hydrating.
  */
 export function HydrateFallback() {
-  return <Splash />;
+  return <Splash message="Loading Fonoster Dashboard..." />;
 }
 
 /**
