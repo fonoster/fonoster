@@ -33,9 +33,10 @@ import { z } from "zod";
 import { useCallback } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { Select } from "~/core/components/design-system/ui/select/select";
+import { Logger } from "~/core/logger";
 
 export const schema = z.object({
-  role: z.string(),
+  role: z.string().nonempty(),
   name: z
     .string()
     .min(1, { message: "Name is required" })
@@ -62,7 +63,7 @@ export function InviteMemberForm() {
 
   const onSubmit = useCallback(
     async (data: Schema) => {
-      console.log("Form submitted", data);
+      Logger.debug("Form submitted", data);
       toast("Ahoy! Invite sent successfully");
     },
     [form]

@@ -41,7 +41,7 @@ export const schema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
       "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)"
     ),
-  confirmPassword: z.string()
+  confirmPassword: z.string().nonempty()
 });
 
 export const resolver = zodResolver(schema);

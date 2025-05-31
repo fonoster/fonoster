@@ -26,13 +26,14 @@ import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/sign-up.page";
+import { Logger } from "~/core/logger";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Sign Up | Fonoster" }];
 }
 
 export const schema = z.object({
-  name: z.string(),
+  name: z.string().nonempty(),
   email: z.string().email(),
   password: z
     .string()
@@ -66,14 +67,14 @@ export default function SignupPage() {
 
   const onSubmit = useCallback(
     async (data: Schema) => {
-      console.log("Form submitted", data);
+      Logger.debug("[SignupPage] onSubmit data...", data);
       toast("Signup not implemented yet");
     },
     [form]
   );
 
   const onGithubAuth = useCallback(async () => {
-    console.log("Github auth");
+    Logger.debug("[SignupPage] onGithubAuth called");
     toast("Github auth not implemented yet");
   }, []);
 

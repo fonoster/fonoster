@@ -23,6 +23,7 @@ import { Typography } from "~/core/components/design-system/ui/typography/typogr
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useNavigate } from "react-router";
 import type { Route } from "./+types/forgot-password.page";
+import { Logger } from "~/core/logger";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Forgot Password | Fonoster" }];
@@ -32,7 +33,10 @@ export default function ForgotPasswordPage() {
   const navigate = useNavigate();
 
   const onSubmit = useCallback(async (data: Schema) => {
-    console.log("Form submitted", data);
+    Logger.debug(
+      "[<ForgotPasswordPage />]: Submitting forgot password form with data:",
+      data
+    );
     toast("Ahoy! We have sent you an email to reset your password");
 
     navigate("/auth/reset-password?token=" + btoa(data.email), {

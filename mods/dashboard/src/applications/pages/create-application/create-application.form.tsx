@@ -48,17 +48,17 @@ import { ApplicationType } from "@fonoster/types";
  */
 export const schema = z.object({
   ref: z.string().nullish(),
-  name: z.string(),
+  name: z.string().nonempty(),
   type: z.nativeEnum(ApplicationType),
   endpoint: z.string().optional(),
   textToSpeech: z.object({
-    vendor: z.string(),
-    voice: z.string()
+    vendor: z.string().nonempty(),
+    voice: z.string().nonempty()
   }),
   speechToText: z.object({
-    vendor: z.string(),
-    model: z.string(),
-    language: z.string()
+    vendor: z.string().nonempty(),
+    model: z.string().nonempty(),
+    language: z.string().nonempty()
   })
 });
 

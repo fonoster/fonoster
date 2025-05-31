@@ -45,15 +45,15 @@ export const schema = z.object({
   /** Reference ID of the number (nullable) */
   ref: z.string().nullish(),
   /** Human-readable name of the number */
-  name: z.string(),
+  name: z.string().nonempty(),
   /** Reference to the associated trunk (optional) */
   trunkRef: z.string().optional(),
   /** Country name */
-  country: z.string(),
+  country: z.string().nonempty(),
   /** ISO country code */
-  countryIsoCode: z.string(),
+  countryIsoCode: z.string().nonempty(),
   /** City name */
-  city: z.string(),
+  city: z.string().nonempty(),
   /** Telephone URL (validated as URL) */
   telUrl: z.string().url(),
   /** Reference to the application (optional) */

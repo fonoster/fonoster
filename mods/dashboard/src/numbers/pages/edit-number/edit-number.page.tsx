@@ -136,7 +136,7 @@ export default function EditNumber() {
    * Shows a loading indicator while fetching the number data.
    */
   if (isLoading || !data) {
-    return <Splash />;
+    return <Splash message="Loading number details..." />;
   }
 
   /**

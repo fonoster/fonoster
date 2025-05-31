@@ -40,8 +40,8 @@ import { TIMEZONES } from "./settings.const";
  * Defines the expected fields and their types.
  */
 export const schema = z.object({
-  name: z.string(),
-  timezone: z.string()
+  name: z.string().nonempty(),
+  timezone: z.string().nonempty()
 });
 
 /** React Hook Form resolver for Zod validation. */

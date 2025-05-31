@@ -22,6 +22,7 @@ import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/reset-password.page";
+import { Logger } from "~/core/logger";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Reset Password | Fonoster" }];
@@ -29,7 +30,7 @@ export function meta(_: Route.MetaArgs) {
 
 export default function ResetPasswordPage() {
   const onSubmit = useCallback(async (data: Schema) => {
-    console.log("Form submitted", data);
+    Logger.debug("[ResetPasswordPage] onSubmit data...", data);
     toast("Ahoy! Your password has been reset successfully");
   }, []);
 

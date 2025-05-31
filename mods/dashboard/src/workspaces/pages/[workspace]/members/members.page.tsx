@@ -27,6 +27,7 @@ import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { MembersPageHeader } from "./members.page-header";
 import { useUsers } from "~/auth/services/auth.service";
 import { useResourceTable } from "~/core/hooks/use-resource-table";
+import { Logger } from "~/core/logger";
 
 /**
  * Page metadata function.
@@ -79,7 +80,7 @@ export default function Members() {
    */
   const onDelete = useCallback(
     (member: WorkspaceMemberDTO) => {
-      console.log("Delete member:", member);
+      Logger.debug("Delete member:", member);
       toast("Delete member not implemented yet");
     },
     [workspaceId]
@@ -93,7 +94,7 @@ export default function Members() {
    */
   const onSendEmail = useCallback(
     (member: WorkspaceMemberDTO) => {
-      console.log("Send email:", member);
+      Logger.debug("Send email:", member);
       toast("Send email not implemented yet");
     },
     [workspaceId]

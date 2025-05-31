@@ -38,7 +38,7 @@ import { useCreateWorkspace } from "~/workspaces/services/workspaces.service";
  * Defines the expected shape of the workspace form data.
  */
 export const schema = z.object({
-  name: z.string()
+  name: z.string().nonempty()
 });
 
 /** Resolver for react-hook-form using zod */

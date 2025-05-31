@@ -130,7 +130,7 @@ export default function EditApplication() {
   }, [isLoading, data, onGoBack]);
 
   if (isLoading || !data) {
-    return <Splash />;
+    return <Splash message="Loading application details..." />;
   }
 
   return (
