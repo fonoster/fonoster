@@ -22,6 +22,7 @@ import type { IDTokenPayload } from "../services/sessions/auth.interfaces";
 import { useEffect, useState, useMemo } from "react";
 import type { AuthenticatedUser } from "../stores/authenticated.interfaces";
 import { useUser } from "../services/auth.service";
+import { Logger } from "~/core/logger";
 
 /**
  * Custom hook to fetch and manage the current authenticated user data.
@@ -49,7 +50,7 @@ export const useCurrentUser = () => {
   /**
    * Get the Fonoster client to retrieve the ID token.
    */
-  const { client } = useFonoster();
+  const { client, session } = useFonoster();
 
   /**
    * Fetch user data using the userId from the decoded token.
@@ -62,20 +63,26 @@ export const useCurrentUser = () => {
    * It decodes the token to get the 'sub' claim, representing the user ID.
    */
   useEffect(() => {
-    const token = client.getIdToken();
+    const token = session?.idToken || client.getIdToken();
 
     if (!token) {
-      console.error("No token found");
+      Logger.debug(
+        "[useCurrentUser()]: Oops! No ID token found. User ID cannot be set."
+      );
       return;
     }
 
     try {
       const { sub } = jwtDecode<IDTokenPayload>(token);
       setUserId(sub);
+      Logger.debug("[useCurrentUser()]: User ID extracted from ID token:", sub);
     } catch (error) {
-      console.error("Failed to decode token:", error);
+      Logger.error(
+        "[useCurrentUser()]: Oops! Failed to decode ID token.",
+        error
+      );
     }
-  }, [client]);
+  }, [client, session]);
 
   /**
    * Update the local user state whenever 'data' changes.
@@ -83,6 +90,7 @@ export const useCurrentUser = () => {
    */
   useEffect(() => {
     if (data) {
+      Logger.debug("[useCurrentUser()]: User data fetched successfully:", data);
       setUser({
         id: data.ref,
         name: data.name,
