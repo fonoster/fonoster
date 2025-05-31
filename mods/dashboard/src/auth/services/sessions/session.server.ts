@@ -18,8 +18,8 @@
  */
 import { createCookieSessionStorage, redirect } from "react-router";
 import type {
+  CookieSession,
   RequiredSessionRequest,
-  Session,
   SessionFlashData,
   SessionRequest
 } from "./session.interfaces";
@@ -39,7 +39,7 @@ const {
   getSession: getSessionCookie,
   commitSession,
   destroySession
-} = createCookieSessionStorage<Session, SessionFlashData>({
+} = createCookieSessionStorage<CookieSession, SessionFlashData>({
   cookie: {
     name: SESSION_IS_SECURE ? "__Secure-Session" : "__Session",
     /**
@@ -84,9 +84,7 @@ export const getSession = async (
     return { session: null, isAuthenticated };
   }
 
-  const sessionData: Session = {
-    idToken: String(session.get("idToken")),
-    accessToken: String(session.get("accessToken")),
+  const sessionData: CookieSession = {
     refreshToken: String(session.get("refreshToken"))
   };
 

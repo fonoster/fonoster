@@ -17,7 +17,10 @@
  * limitations under the License.
  */
 import React from "react";
-import type { Session } from "~/auth/services/sessions/session.interfaces";
+import type {
+  CookieSession,
+  Session
+} from "~/auth/services/sessions/session.interfaces";
 import type { SDK } from "../client/fonoster.client";
 
 /**
@@ -40,7 +43,7 @@ export interface FonosterProviderProps {
    * This session may include an access token, refresh token, and other
    * user-related authentication data.
    */
-  initialSession: Session | null;
+  initialSession: CookieSession | null;
 }
 
 /**
@@ -190,4 +193,12 @@ export interface FonosterContextValue {
    * This will be null if the client has not been initialized.
    */
   sdk: FonosterModules | null;
+
+  /**
+   * Function to authenticate the user based on a provided session.
+   * This is typically called after a successful login or token refresh.
+   *
+   * @param session - The session object containing authentication tokens.
+   */
+  authenticate: (session: CookieSession) => Promise<void>;
 }

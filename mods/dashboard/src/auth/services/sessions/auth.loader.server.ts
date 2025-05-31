@@ -35,11 +35,9 @@ export const rootAuthLoader = async ({ request }: Route.LoaderArgs) => {
   try {
     if (session) {
       const client = getClient();
-      const tokens = await refreshSession(session, client);
+      const refreshToken = await refreshSession(session, client);
 
-      sessionCookie.set("accessToken", tokens.accessToken);
-      sessionCookie.set("refreshToken", tokens.refreshToken);
-      sessionCookie.set("idToken", tokens.idToken);
+      sessionCookie.set("refreshToken", refreshToken);
     }
   } catch (error) {
     return data(

@@ -17,8 +17,12 @@
  * limitations under the License.
  */
 import { jwtDecode } from "jwt-decode";
-import type { Session } from "~/auth/services/sessions/session.interfaces";
+import type {
+  CookieSession,
+  Session
+} from "~/auth/services/sessions/session.interfaces";
 import type { SDK } from "../sdk/client/fonoster.client";
+import { Logger } from "../logger";
 
 /**
  * Checks whether a given JWT token has expired.
@@ -31,6 +35,12 @@ export function isTokenExpired(token: string): boolean {
 
   const decodedToken = jwtDecode(token) as { exp: number };
   const currentTime = Date.now() / 1000;
+
+  Logger.debug("[Fonoster Token Validator] Checking token expiration", {
+    token: token.substring(0, 20) + "...",
+    exp: decodedToken.exp,
+    currentTime
+  });
 
   return decodedToken.exp < currentTime;
 }
@@ -48,31 +58,25 @@ export function isTokenExpired(token: string): boolean {
  *          Otherwise, returns the original session.
  * @throws An error if the refresh token is expired.
  */
-export async function refreshSession(session: Session, client: SDK.Client) {
-  const { refreshToken, accessToken } = session;
+export async function refreshSession(
+  session: CookieSession,
+  client: SDK.Client
+) {
+  const { refreshToken } = session;
 
   if (isTokenExpired(refreshToken)) {
-    console.warn(
+    Logger.debug(
       "[Fonoster Refresh Session] Refresh token expired. Refreshing..."
     );
     throw new Error("Oops! Your session has expired.");
   }
 
-  if (isTokenExpired(accessToken)) {
-    console.info(
-      "[Fonoster Refresh Session] Access token expired. Refreshing..."
-    );
+  Logger.debug(
+    "[Fonoster Refresh Session] Refreshing session with existing refresh token"
+  );
+  await client.loginWithRefreshToken(refreshToken);
 
-    await client.loginWithRefreshToken(refreshToken);
-
-    return {
-      accessToken: client.getAccessToken(),
-      refreshToken: client.getRefreshToken(),
-      idToken: client.getIdToken()
-    };
-  }
-
-  return session;
+  return client.getRefreshToken();
 }
 
 /**
@@ -87,18 +91,21 @@ export async function refreshSession(session: Session, client: SDK.Client) {
  * @throws An error if the refresh token is expired.
  */
 export async function refreshClientSession(
-  session: Session,
+  session: CookieSession,
   client: SDK.WebClient
 ): Promise<Session> {
   const { refreshToken } = session;
 
   if (isTokenExpired(refreshToken)) {
-    console.warn(
+    Logger.debug(
       "[Fonoster Refresh Client Session] Refresh token expired. Refreshing..."
     );
     throw new Error("Oops! Your session has expired.");
   }
 
+  Logger.debug(
+    "[Fonoster Refresh Client Session] Refreshing client session with existing refresh token"
+  );
   await client.loginWithRefreshToken(refreshToken);
 
   return {

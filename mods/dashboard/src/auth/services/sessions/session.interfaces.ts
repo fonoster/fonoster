@@ -17,18 +17,22 @@
  * limitations under the License.
  */
 export interface Session {
-  idToken: string;
+  refreshToken: string;
   accessToken: string;
+  idToken: string;
+}
+
+export interface CookieSession {
   refreshToken: string;
 }
 
 export interface SessionRequest {
-  session: Session | null;
+  session: CookieSession | null;
   isAuthenticated: boolean;
 }
 
 export interface RequiredSessionRequest {
-  session: Session;
+  session: CookieSession;
   isAuthenticated: boolean;
 }
 
