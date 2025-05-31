@@ -59,9 +59,7 @@ export async function action({ request }: Route.ActionArgs) {
     await client.login(email.toString(), password.toString());
 
     /** Store tokens in the session cookie for future authenticated requests. */
-    cookie.set("accessToken", client.getAccessToken());
     cookie.set("refreshToken", client.getRefreshToken());
-    cookie.set("idToken", client.getIdToken());
 
     /** Redirect to the home page after successful login, with updated cookies. */
     return redirect("/", {
