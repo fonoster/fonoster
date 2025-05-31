@@ -31,6 +31,7 @@
 
 import * as SDK from "@fonoster/sdk/dist/web/index.esm.js";
 import { FONOSTER_CLIENT_CONFIG } from "../stores/fonoster.config";
+import { Logger } from "~/core/logger";
 
 /**
  * Creates a new instance of the Fonoster WebClient using predefined configuration.
@@ -38,6 +39,8 @@ import { FONOSTER_CLIENT_CONFIG } from "../stores/fonoster.config";
  * @returns {Client} An instance of the Fonoster WebClient, ready for use in browser-based applications.
  */
 export const getClient = () => {
+  Logger.debug("[fonoster.client] Creating Fonoster WebClient instance");
+
   const fonosterClient = new SDK.WebClient(FONOSTER_CLIENT_CONFIG);
   return fonosterClient;
 };

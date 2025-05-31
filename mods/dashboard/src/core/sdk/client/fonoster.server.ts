@@ -34,6 +34,7 @@
 import * as SDK from "@fonoster/sdk/dist/node/node.js";
 import { FONOSTER_SERVER_CONFIG } from "../stores/fonoster.config";
 import { cache } from "react";
+import { Logger } from "~/core/logger";
 
 /**
  * Creates and returns a memoized (cached) instance of the Fonoster Client
@@ -45,6 +46,8 @@ import { cache } from "react";
  * @returns {Client} A configured instance of the Fonoster SDK Client for Node.js.
  */
 export const getClient = cache(() => {
+  Logger.debug("[fonoster.server] Creating Fonoster Client instance");
+
   const fonosterClient = new SDK.Client(FONOSTER_SERVER_CONFIG);
   return fonosterClient;
 });
