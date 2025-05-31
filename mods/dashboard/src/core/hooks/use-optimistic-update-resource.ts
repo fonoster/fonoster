@@ -23,6 +23,7 @@ import {
   type BaseApiObject
 } from "../providers/query-client/manage-resource-cache.helper";
 import type { ListResponse } from "@fonoster/types";
+import { Logger } from "../logger";
 
 /**
  * A custom React hook that provides optimistic update functionality for resources.
@@ -85,6 +86,11 @@ export function useOptimisticUpdateResource<
     onMutate: async (resource: TVariables) => {
       await queryClient.cancelQueries({ queryKey: collectionKey });
 
+      Logger.debug(
+        "[useOptimisticUpdateResource] Updating optimistic resource: ",
+        collectionKey
+      );
+
       const previousList =
         queryClient.getQueryData<ListResponse<TData>>(collectionKey);
       const previousItem = queryClient.getQueryData<TData>([
@@ -107,13 +113,18 @@ export function useOptimisticUpdateResource<
      * @param context - The rollback context returned from `onMutate`.
      */
     onError: (_err, _vars, context) => {
+      Logger.debug("[useOptimisticUpdateResource] Rollback on error");
+
       if (context?.previousList) {
+        Logger.debug("[useOptimisticUpdateResource] Restoring previous list");
         queryClient.setQueryData<ListResponse<TData>>(
           collectionKey,
           context.previousList
         );
       }
+
       if (context?.previousItem) {
+        Logger.debug("[useOptimisticUpdateResource] Restoring previous item");
         queryClient.setQueryData<TData>(
           [...resourceKey, context.previousItem.ref],
           context.previousItem
@@ -128,6 +139,7 @@ export function useOptimisticUpdateResource<
      * @param resource - The updated resource returned by the server.
      */
     onSuccess: (resource) => {
+      Logger.debug("[useOptimisticUpdateResource] Update successful");
       updateResourceInCache(queryClient, collectionKey, resource);
       updateSingleResourceInCache(queryClient, resourceKey, resource);
     },
@@ -141,6 +153,7 @@ export function useOptimisticUpdateResource<
      * @param variables - The variables originally passed to the mutation.
      */
     onSettled: (_data, _error, variables) => {
+      Logger.debug("[useOptimisticUpdateResource] Mutation settled");
       queryClient.invalidateQueries({ queryKey: collectionKey });
       queryClient.invalidateQueries({
         queryKey: [...resourceKey, variables.ref]

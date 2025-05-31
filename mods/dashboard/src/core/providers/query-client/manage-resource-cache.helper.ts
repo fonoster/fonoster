@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { QueryClient } from "@tanstack/react-query";
+import { Logger } from "~/core/logger";
 
 /**
  * Base interface for API objects that includes a `ref` property.
@@ -45,6 +46,8 @@ export function appendResourceToCache<T extends BaseApiObject>(
   key: unknown[],
   item: T
 ) {
+  Logger.debug("[appendResourceToCache] Appending to cache:", { key });
+
   queryClient.setQueryData<ListResponse<T>>(key, (old) => {
     if (!old?.items) return { items: [item] };
 
@@ -67,6 +70,8 @@ export function updateResourceInCache<T extends BaseApiObject>(
   key: unknown[],
   item: T
 ) {
+  Logger.debug("[updateResourceInCache] Updating cache:", { key });
+
   queryClient.setQueryData<ListResponse<T>>(key, (old) => {
     if (!old?.items) return old;
 
@@ -89,6 +94,8 @@ export function deleteResourceFromCache<T extends BaseApiObject>(
   key: unknown[],
   ref: string
 ) {
+  Logger.debug("[deleteResourceFromCache] Deleting from cache:", { key, ref });
+
   queryClient.setQueryData<ListResponse<T>>(key, (old) => {
     if (!old?.items) return old;
 

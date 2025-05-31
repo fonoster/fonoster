@@ -24,6 +24,7 @@ import {
   updateSingleResourceInCache,
   type BaseApiObject
 } from "../providers/query-client/manage-resource-cache.helper";
+import { Logger } from "../logger";
 
 /**
  * A custom React hook that provides an optimistic mutation handler for creating new resources.
@@ -88,6 +89,11 @@ export function useOptimisticCreateResource<
       // Cancel any outgoing fetches for the resource collection to avoid overwriting optimistic changes
       await queryClient.cancelQueries({ queryKey: collectionKey });
 
+      Logger.debug(
+        "[useOptimisticCreateResource]: Adding optimistic resource to cache for collection:",
+        collectionKey
+      );
+
       const tempId = `ref_temp_${Date.now()}`;
       const optimistic = {
         ...newResource,
@@ -107,6 +113,9 @@ export function useOptimisticCreateResource<
      * Here we invalidate the collection query to refetch the data and revert any optimistic changes.
      */
     onError: () => {
+      Logger.debug(
+        "[useOptimisticCreateResource]: Mutation failed, invalidating collection cache"
+      );
       queryClient.invalidateQueries({ queryKey: collectionKey });
     },
 
@@ -121,9 +130,16 @@ export function useOptimisticCreateResource<
      */
     onSuccess: (resource, _vars, context) => {
       if (context?.tempId) {
+        Logger.debug(
+          "[useOptimisticCreateResource]: Mutation succeeded, removing temporary resource from cache"
+        );
         deleteResourceFromCache(queryClient, collectionKey, context.tempId);
       }
 
+      Logger.debug(
+        "[useOptimisticCreateResource]: Updating cache with new resource",
+        resource
+      );
       updateResourceInCache(queryClient, collectionKey, resource);
       updateSingleResourceInCache(queryClient, resourceKey, resource);
     },
@@ -133,6 +149,9 @@ export function useOptimisticCreateResource<
      * Used to revalidate the collection to ensure data is fresh and consistent with the backend.
      */
     onSettled: () => {
+      Logger.debug(
+        "[useOptimisticCreateResource]: Mutation settled, invalidating collection cache"
+      );
       queryClient.invalidateQueries({ queryKey: collectionKey });
     }
   });

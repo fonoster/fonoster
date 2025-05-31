@@ -22,6 +22,7 @@ import {
   type BaseApiObject,
   type ListResponse
 } from "../providers/query-client/manage-resource-cache.helper";
+import { Logger } from "../logger";
 
 /**
  * A custom React hook that provides optimistic deletion of a resource using React Query.
@@ -77,6 +78,11 @@ export function useOptimisticDeleteResource<TRef extends string = string>(
       // Cancel ongoing queries for the collection to prevent cache races
       await queryClient.cancelQueries({ queryKey: collectionKey });
 
+      Logger.debug(
+        "[useOptimisticDeleteResource] Deleting optimistically for: ",
+        refToDelete
+      );
+
       // Store current cache state to support rollback
       const previousList =
         queryClient.getQueryData<ListResponse<BaseApiObject>>(collectionKey);
@@ -101,10 +107,25 @@ export function useOptimisticDeleteResource<TRef extends string = string>(
      * @param context - Contains the previous state of the cache.
      */
     onError: (_err, ref, context) => {
+      Logger.error(
+        "[useOptimisticDeleteResource] Error deleting resource: ",
+        ref,
+        _err
+      );
+
       if (context?.previousList) {
+        Logger.debug(
+          "[useOptimisticDeleteResource] Restoring previous list state for: ",
+          ref
+        );
         queryClient.setQueryData(collectionKey, context.previousList);
       }
+
       if (context?.previousItem) {
+        Logger.debug(
+          "[useOptimisticDeleteResource] Restoring previous item state for: ",
+          ref
+        );
         queryClient.setQueryData([...resourceKey, ref], context.previousItem);
       }
     },
@@ -119,6 +140,7 @@ export function useOptimisticDeleteResource<TRef extends string = string>(
      * @param ref - The identifier of the affected resource.
      */
     onSettled: (_, _error, ref) => {
+      Logger.debug("[useOptimisticDeleteResource] Mutation settled for: ", ref);
       queryClient.invalidateQueries({ queryKey: collectionKey });
       queryClient.invalidateQueries({ queryKey: [...resourceKey, ref] });
     }
