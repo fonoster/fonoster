@@ -28,11 +28,12 @@ import type {
   FonosterContextValue,
   FonosterProviderProps
 } from "./fonoster.interfaces";
-import type { Session } from "~/auth/services/sessions/session.interfaces";
+import type { CookieSession } from "~/auth/services/sessions/session.interfaces";
 import { Splash } from "~/core/components/general/splash/splash";
 import { useNavigate } from "react-router";
 import { refreshClientSession } from "~/core/helpers/token-validators";
 import { useClient } from "../hooks/use-fonoster-client";
+import { Logger } from "~/core/logger";
 
 /**
  * React context used to provide access to the Fonoster client, session,
@@ -79,7 +80,7 @@ export const FonosterProvider = ({
     isAuthenticated,
     logout,
     updateSessionTokens
-  } = useClient(initialSession);
+  } = useClient();
 
   /**
    * React Router hook used for programmatic navigation (e.g. on session expiry).
@@ -93,12 +94,14 @@ export const FonosterProvider = ({
    * @param sessionToAuth - The session object to authenticate.
    */
   const authenticate = useCallback(
-    async (sessionToAuth: Session) => {
+    async (sessionToAuth: CookieSession) => {
       if (!client) return;
 
-      console.info("[FonosterProvider] Authenticating session...");
+      Logger.debug("[<FonosterProvider />] Authenticating session...");
       const updatedSession = await refreshClientSession(sessionToAuth, client);
-      console.info("[FonosterProvider] Session authenticated successfully.");
+      Logger.debug(
+        "[<FonosterProvider />] Session authenticated successfully."
+      );
       updateSessionTokens(updatedSession);
     },
     [client, updateSessionTokens]
@@ -111,15 +114,20 @@ export const FonosterProvider = ({
   useEffect(() => {
     if (!client || hasAuthenticated.current) return;
 
+    Logger.debug("[<FonosterProvider />] Initializing Fonoster client...");
+
     hasAuthenticated.current = true;
 
-    if (!session) {
+    if (!initialSession) {
+      Logger.debug(
+        "[<FonosterProvider />] No initial session found, initializing without session."
+      );
       setIsInitialized(true);
       return;
     }
 
-    authenticate(session)
-      .catch(() => navigate("/auth/logout"))
+    authenticate(initialSession)
+      .catch(() => navigate("/auth/logout?auto_logout=true"))
       .finally(() => setIsInitialized(true));
   }, [client, session, authenticate]);
 
@@ -133,7 +141,8 @@ export const FonosterProvider = ({
       setSession,
       logout,
       isAuthenticated,
-      sdk
+      sdk,
+      authenticate
     }),
     [client, session, logout, isAuthenticated, sdk]
   );
@@ -141,7 +150,9 @@ export const FonosterProvider = ({
   /**
    * Displays a splash screen while the provider is initializing.
    */
-  if (!isInitialized) return <Splash />;
+  if (!isInitialized) {
+    return <Splash message="Initializing Fonoster services..." />;
+  }
 
   /**
    * Renders the provider and makes Fonoster services available to descendants.

@@ -20,6 +20,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import type { Session } from "~/auth/services/sessions/session.interfaces";
 import type { FonosterModules } from "../stores/fonoster.interfaces";
 import { getClient, SDK } from "../client/fonoster.client";
+import { Logger } from "~/core/logger";
 
 /**
  * Custom React hook to initialize and manage the Fonoster client, session state,
@@ -28,15 +29,14 @@ import { getClient, SDK } from "../client/fonoster.client";
  * This hook ensures that the client is initialized properly on mount, and
  * allows updates to the session or client in a centralized and controlled way.
  *
- * @param initialSession - The initial session object (with access/refresh tokens) used to configure the client.
  * @returns An object with the client instance, session data, SDK modules, and helper functions.
  */
-export const useClient = (initialSession: Session | null) => {
+export const useClient = () => {
   /**
    * State holding the current user session.
    * Includes authentication tokens and user-related metadata.
    */
-  const [session, setSession] = useState<Session | null>(initialSession);
+  const [session, setSession] = useState<Session | null>(null);
 
   /**
    * State holding the current Fonoster WebClient instance.
@@ -57,6 +57,8 @@ export const useClient = (initialSession: Session | null) => {
    * @param tokens - The new session tokens (e.g. after token refresh).
    */
   const updateSessionTokens = useCallback((tokens: Session) => {
+    Logger.debug("[useClient] Updating session tokens...");
+
     setSession((prev) => {
       const next = { ...prev, ...tokens };
       return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
@@ -70,6 +72,8 @@ export const useClient = (initialSession: Session | null) => {
    * @param newClient - A new instance of the Fonoster WebClient.
    */
   const updateClient = useCallback((newClient: SDK.WebClient) => {
+    Logger.debug("[useClient] Updating Fonoster client instance...");
+
     setClient(newClient);
 
     // Recreate all SDK modules with the new client
@@ -104,6 +108,8 @@ export const useClient = (initialSession: Session | null) => {
    * - Clearing the current session state.
    */
   const logout = useCallback(() => {
+    Logger.debug("[useClient] Logging out user...");
+
     client?.logout();
     setSession(null);
   }, [client]);
@@ -113,6 +119,7 @@ export const useClient = (initialSession: Session | null) => {
    * Ensures that `client` and `sdk` states are populated early in the app lifecycle.
    */
   useEffect(() => {
+    Logger.debug("[useClient] Initializing Fonoster client on mount...");
     const instance = getClient(); // Factory function to get a configured WebClient instance
     updateClient(instance);
   }, [updateClient]);

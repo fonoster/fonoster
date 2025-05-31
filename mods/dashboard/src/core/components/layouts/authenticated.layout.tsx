@@ -28,7 +28,7 @@ import { AuthenticatedProvider } from "~/auth/stores/authenticated.store";
  * Since authenticated routes don't need to revalidate on navigation,
  * we return false to improve performance.
  */
-export const shouldRevalidate = () => true;
+export const shouldRevalidate = () => false;
 
 /**
  * Route loader function that ensures the user is authenticated before rendering the layout.
@@ -48,9 +48,11 @@ export async function loader({ request }: Route.LoaderArgs) {
  * This is the layout for authenticated users. It wraps protected routes
  * and will eventually include a header with user information and logout functionality.
  */
-export default function AuthenticatedLayout() {
+export default function AuthenticatedLayout({
+  loaderData: { session }
+}: Route.ComponentProps) {
   return (
-    <AuthenticatedProvider>
+    <AuthenticatedProvider initialSession={session}>
       <MainRoot>
         <Header />
         <MainContent>

@@ -28,11 +28,12 @@ import type {
   AuthenticatedProviderProps
 } from "./authenticated.interfaces";
 import type { Workspace } from "@fonoster/types";
-import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
 import { useParams } from "react-router";
 import { useCurrentUser } from "../hooks/use-current-user";
 import { Splash } from "~/core/components/general/splash/splash";
 import { useWorkspaces } from "~/workspaces/services/workspaces.service";
+import { Logger } from "~/core/logger";
+import { useAuthenticatedClient } from "../hooks/use-authenticated-client";
 
 /**
  * Context to provide authenticated user and workspace data
@@ -49,10 +50,11 @@ export const AuthenticatedContext =
  * @returns {JSX.Element} The provider wrapping its children.
  */
 export const AuthenticatedProvider = ({
-  children
+  children,
+  initialSession
 }: AuthenticatedProviderProps) => {
   /** Retrieve the Fonoster client instance */
-  const { client } = useFonoster();
+  const client = useAuthenticatedClient(initialSession);
 
   /** Extract the workspaceId from the URL parameters */
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -86,7 +88,9 @@ export const AuthenticatedProvider = ({
           client.setAccessKeyId(workspace.accessKeyId);
         }
       } else {
-        console.warn(`Workspace with ID ${workspaceId} not found.`);
+        Logger.debug(
+          `[<AuthenticatedProvider />] Workspace with ID ${workspaceId} not found.`
+        );
       }
     },
     [workspaces, client]
@@ -96,7 +100,7 @@ export const AuthenticatedProvider = ({
    * Memoized object representing the authenticated session state.
    * This prevents unnecessary re-renders of consumers when values haven't changed.
    */
-  const initialSession = useMemo<AuthenticatedContextValue>(
+  const session = useMemo<AuthenticatedContextValue>(
     () => ({
       user,
       setUser,
@@ -130,14 +134,14 @@ export const AuthenticatedProvider = ({
    * or if the user is not yet authenticated.
    */
   if (isUserLoading || isWorkspacesLoading || !user) {
-    return <Splash />;
+    return <Splash message="Who are you? Please wait..." />;
   }
 
   /**
    * Provide the authenticated session context to children components.
    */
   return (
-    <AuthenticatedContext.Provider value={initialSession}>
+    <AuthenticatedContext.Provider value={session}>
       {children}
     </AuthenticatedContext.Provider>
   );

@@ -18,6 +18,7 @@
  */
 import type { Workspace } from "@fonoster/types";
 import React from "react";
+import type { CookieSession } from "../services/sessions/session.interfaces";
 
 /**
  * Represents an authenticated user in the application.
@@ -50,6 +51,22 @@ export interface AuthenticatedProviderProps {
    * React children to render within the provider.
    */
   children: React.ReactNode;
+
+  /**
+   * If the user is first logging in, this prop can be used to set the initial
+   * cookie session. This is useful for initializing the session state before
+   * the user is fully authenticated.
+   *
+   * @defaultValue undefined
+   *
+   * @example
+   * ```tsx
+   * <AuthenticatedProvider initialSession={{ refreshToken: "abc123" }}>
+   *   <App />
+   * </AuthenticatedProvider>
+   * ```
+   */
+  initialSession?: CookieSession;
 }
 
 /**
