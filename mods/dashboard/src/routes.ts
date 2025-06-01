@@ -355,7 +355,15 @@ export default [
          *
          * Placeholder for monitoring-related routes under "/monitoring".
          */
-        ...prefix("monitoring", [])
+        ...prefix("monitoring", [
+          /**
+           * Monitoring Index Route
+           *
+           * Renders the monitoring index page at "/monitoring".
+           * This route is used to view monitoring data.
+           */
+          index("monitoring/pages/calls/calls.page.tsx")
+        ])
       ])
     ])
   ])
