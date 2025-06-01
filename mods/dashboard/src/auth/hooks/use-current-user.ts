@@ -22,7 +22,7 @@ import type { IDTokenPayload } from "../services/sessions/auth.interfaces";
 import { useEffect, useState, useMemo } from "react";
 import type { AuthenticatedUser } from "../stores/authenticated.interfaces";
 import { useUser } from "../services/auth.service";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 
 /**
  * Custom hook to fetch and manage the current authenticated user data.

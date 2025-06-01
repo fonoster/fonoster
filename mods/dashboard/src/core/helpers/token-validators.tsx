@@ -22,7 +22,7 @@ import type {
   Session
 } from "~/auth/services/sessions/session.interfaces";
 import type { SDK } from "../sdk/client/fonoster.client";
-import { Logger } from "../logger";
+import { Logger } from "../shared/logger";
 
 /**
  * Checks whether a given JWT token has expired.

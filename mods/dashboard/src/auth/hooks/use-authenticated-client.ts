@@ -20,7 +20,7 @@
 import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
 import type { CookieSession } from "../services/sessions/session.interfaces";
 import { useEffect } from "react";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 
 /**
  * Custom hook to authenticate the Fonoster client using a provided session.

@@ -33,7 +33,7 @@ import { z } from "zod";
 import { useCallback } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { Select } from "~/core/components/design-system/ui/select/select";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 
 export const schema = z.object({
   role: z.string().nonempty(),

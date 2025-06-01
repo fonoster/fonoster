@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { QueryClient } from "@tanstack/react-query";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 
 /**
  * Base interface for API objects that includes a `ref` property.

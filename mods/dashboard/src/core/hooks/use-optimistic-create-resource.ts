@@ -24,7 +24,7 @@ import {
   updateSingleResourceInCache,
   type BaseApiObject
 } from "../providers/query-client/manage-resource-cache.helper";
-import { Logger } from "../logger";
+import { Logger } from "../shared/logger";
 
 /**
  * A custom React hook that provides an optimistic mutation handler for creating new resources.

@@ -20,7 +20,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import type { Session } from "~/auth/services/sessions/session.interfaces";
 import type { FonosterModules } from "../stores/fonoster.interfaces";
 import { getClient, SDK } from "../client/fonoster.client";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 
 /**
  * Custom React hook to initialize and manage the Fonoster client, session state,

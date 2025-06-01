@@ -22,7 +22,7 @@ import {
   type BaseApiObject,
   type ListResponse
 } from "../providers/query-client/manage-resource-cache.helper";
-import { Logger } from "../logger";
+import { Logger } from "../shared/logger";
 
 /**
  * A custom React hook that provides optimistic deletion of a resource using React Query.

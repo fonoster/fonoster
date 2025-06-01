@@ -31,7 +31,7 @@
 
 import * as SDK from "@fonoster/sdk/dist/web/index.esm.js";
 import { FONOSTER_CLIENT_CONFIG } from "../stores/fonoster.config";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 
 /**
  * Creates a new instance of the Fonoster WebClient using predefined configuration.

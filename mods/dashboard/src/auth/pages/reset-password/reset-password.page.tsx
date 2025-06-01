@@ -22,7 +22,7 @@ import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/reset-password.page";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Reset Password | Fonoster" }];

@@ -32,7 +32,7 @@ import { useParams } from "react-router";
 import { useCurrentUser } from "../hooks/use-current-user";
 import { Splash } from "~/core/components/general/splash/splash";
 import { useWorkspaces } from "~/workspaces/services/workspaces.service";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 import { useAuthenticatedClient } from "../hooks/use-authenticated-client";
 
 /**

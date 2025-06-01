@@ -23,7 +23,7 @@ import {
   type BaseApiObject
 } from "../providers/query-client/manage-resource-cache.helper";
 import type { ListResponse } from "@fonoster/types";
-import { Logger } from "../logger";
+import { Logger } from "../shared/logger";
 
 /**
  * A custom React hook that provides optimistic update functionality for resources.

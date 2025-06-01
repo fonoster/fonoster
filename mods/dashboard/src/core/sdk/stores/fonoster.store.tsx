@@ -33,7 +33,7 @@ import { Splash } from "~/core/components/general/splash/splash";
 import { useNavigate } from "react-router";
 import { refreshClientSession } from "~/core/helpers/token-validators";
 import { useClient } from "../hooks/use-fonoster-client";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
 
 /**
  * React context used to provide access to the Fonoster client, session,
