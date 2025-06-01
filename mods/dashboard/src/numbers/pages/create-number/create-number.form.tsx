@@ -50,8 +50,6 @@ export const schema = z.object({
   trunkRef: z.string().optional(),
   /** Country name */
   country: z.string().nonempty(),
-  /** ISO country code */
-  countryIsoCode: z.string().nonempty(),
   /** City name */
   city: z.string().nonempty(),
   /** Telephone URL (validated as URL) */
@@ -112,10 +110,6 @@ export const CreateNumberForm = forwardRef<
   CreateNumberFormHandle,
   CreateNumberFormProps
 >(({ onSubmit, initialValues }, ref) => {
-  /**
-   * TODO: Fetch trunks from the API and populate the `trunks` array.
-   * For now, we provide a static placeholder option.
-   */
   const trunks = [{ value: "", label: "Select a Trunk" }];
 
   /** Fetches applications to populate the Inbound Application dropdown. */
@@ -202,7 +196,12 @@ export const CreateNumberForm = forwardRef<
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input type="text" label="Tel URL" {...field} />
+                <Input
+                  type="text"
+                  label="Tel URL"
+                  placeholder="tel:+1234567890"
+                  {...field}
+                />
               </FormControl>
             </FormItem>
           )}

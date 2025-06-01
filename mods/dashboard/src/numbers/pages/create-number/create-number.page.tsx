@@ -31,6 +31,7 @@ import {
 } from "./create-number.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateNumber } from "~/numbers/services/numbers.service";
+import { COUNTRIES } from "./create-number.const";
 
 /**
  * Page metadata for the "Create Number" page.
@@ -92,9 +93,16 @@ export default function CreateNumber() {
    * @param {Schema} data - The validated form data from the form component.
    */
   const onSave = useCallback(
-    async (data: Schema) => {
+    async ({ country: countryIsoCode, ...data }: Schema) => {
       try {
-        mutate(data);
+        const country = COUNTRIES.find(({ value }) => value === countryIsoCode);
+
+        if (!country) {
+          toast("Oops! Invalid country selected.");
+          return;
+        }
+
+        mutate({ ...data, country: country.label, countryIsoCode });
         toast("Number created successfully!");
         onGoBack();
       } catch (error) {

@@ -28,22 +28,22 @@ export const COUNTRIES = [
   /**
    * United States (USA)
    */
-  { value: "United States", label: "United States" },
+  { value: "USA", label: "United States" },
 
   /**
    * Canada (CAN)
    */
-  { value: "Canada", label: "Canada" },
+  { value: "CAN", label: "Canada" },
 
   /**
    * Mexico (MEX)
    */
-  { value: "Mexico", label: "Mexico" },
+  { value: "MEX", label: "Mexico" },
 
   /**
    * Brazil (BRA)
    */
-  { value: "Brazil", label: "Brazil" }
+  { value: "BRA", label: "Brazil" }
 ];
 
 /**

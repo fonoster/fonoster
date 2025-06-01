@@ -32,6 +32,7 @@ import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useNumber, useUpdateNumber } from "~/numbers/services/numbers.service";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
+import { COUNTRIES } from "../create-number/create-number.const";
 
 /**
  * Sets the metadata for the "Edit Number" page.
@@ -109,8 +110,15 @@ export default function EditNumber() {
    * @param {Schema} data - The validated form data.
    */
   const onSave = useCallback(
-    async (data: Schema) => {
+    async ({ country: countryIsoCode, ...data }: Schema) => {
       try {
+        const country = COUNTRIES.find(({ value }) => value === countryIsoCode);
+
+        if (!country) {
+          toast("Oops! Invalid country selected.");
+          return;
+        }
+
         mutate({ ...data, ref });
         toast("Number updated successfully!");
         onGoBack();

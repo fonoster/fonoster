@@ -34,6 +34,7 @@ import {
 import type { INumber } from "@fonoster/types";
 import { useNavigate } from "react-router";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
+import { PAGE_SIZE } from "~/core/shared/page-sizes.const";
 
 /**
  * Page metadata function for the Numbers page.
@@ -72,12 +73,9 @@ export default function Numbers() {
   /** State to hold the current pagination token used to fetch a specific page of data. */
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
 
-  /** Reference to the page size constant for controlling number of rows per page. */
-  const { current: pageSize } = useRef(24);
-
   /** Fetch numbers data using the current page token and page size. */
   const { data, nextPageToken, isLoading } = useNumbers({
-    pageSize,
+    pageSize: PAGE_SIZE,
     pageToken
   });
 
@@ -102,7 +100,7 @@ export default function Numbers() {
     prevTokens
   } = useResourceTable({
     data,
-    pageSize,
+    pageSize: PAGE_SIZE,
     pageToken,
     setPageToken,
     deleteResource: deleteNumber,
@@ -146,7 +144,7 @@ export default function Numbers() {
         /** List of available searchable fields presented to the user. */
         searchableFields={APPS_SEARCHABLE_FIELDS}
         /** Number of rows displayed per page. */
-        pageSize={pageSize}
+        pageSize={PAGE_SIZE}
         /** Pagination configuration: total rows, next and previous tokens. */
         pagination={{
           total: filteredData.length,
