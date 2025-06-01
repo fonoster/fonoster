@@ -19,6 +19,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+/**
+ * Zod validation schema for the password field.
+ *
+ * This schema:
+ * - Allows the password to be optional (e.g., when updating credentials).
+ * - Enforces complexity rules only when a value is provided.
+ * - Validates:
+ *   - Minimum length of 8 characters
+ *   - At least one lowercase letter
+ *   - At least one uppercase letter
+ *   - At least one digit
+ *   - At least one symbol
+ */
 export const PASSWORD_SCHEMA = z
   .string()
   .optional()
@@ -48,7 +61,7 @@ export const PASSWORD_SCHEMA = z
       if (!/[0-9]/.test(value)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Password must contain a credential"
+          message: "Password must contain a digit"
         });
       }
       if (!/[^a-zA-Z0-9]/.test(value)) {
@@ -64,16 +77,36 @@ export const PASSWORD_SCHEMA = z
  * Zod validation schema for the Create Credential form.
  *
  * Defines the expected structure and validation rules for the credential creation fields.
+ * Fields include:
+ * - ref: Optional string reference ID.
+ * - name: Required string, cannot be empty (friendly name).
+ * - username: Required string, cannot be empty (username).
+ * - password: Optional password field validated by PASSWORD_SCHEMA.
  */
 export const schema = z.object({
+  /** Unique identifier for the credential (optional). */
   ref: z.string().nullish(),
+
+  /** Human-friendly name for the credential (required). */
   name: z.string().nonempty("Friendly Name is required"),
+
+  /** Username associated with the credential (required). */
   username: z.string().nonempty("Username is required"),
+
+  /** Password field validated by PASSWORD_SCHEMA (optional). */
   password: PASSWORD_SCHEMA
 });
 
-/** Resolver to integrate Zod schema validation with React Hook Form. */
+/**
+ * Resolver to integrate the Zod schema validation with React Hook Form.
+ *
+ * This ensures form validation is handled consistently and declaratively.
+ */
 export const resolver = zodResolver(schema);
 
-/** Type representing the validated data structure. */
+/**
+ * Type representing the validated data structure returned by the schema.
+ *
+ * This type is useful for typing the form state, handlers, and submissions.
+ */
 export type Schema = z.infer<typeof schema>;
