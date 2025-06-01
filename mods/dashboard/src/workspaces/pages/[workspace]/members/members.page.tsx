@@ -21,13 +21,14 @@ import type { Route } from "./+types/members.page";
 import { Page } from "~/core/components/general/page/page";
 import { DataTable } from "~/core/components/design-system/ui/data-table/data-table";
 import { getColumns } from "./members.columns";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { WorkspaceMemberDTO } from "./members.interfaces";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { MembersPageHeader } from "./members.page-header";
 import { useUsers } from "~/auth/services/auth.service";
 import { useResourceTable } from "~/core/hooks/use-resource-table";
-import { Logger } from "~/core/logger";
+import { Logger } from "~/core/shared/logger";
+import { PAGE_SIZE } from "~/core/shared/page-sizes.const";
 
 /**
  * Page metadata function.
@@ -63,12 +64,9 @@ export default function Members() {
   /** State to hold the current pagination token used to fetch a specific page of data. */
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
 
-  /** Reference to the page size constant for controlling number of rows per page. */
-  const { current: pageSize } = useRef(24);
-
   /** Fetches workspace members using the page size and token for pagination. */
   const { data, nextPageToken, isLoading } = useUsers({
-    pageSize,
+    pageSize: PAGE_SIZE,
     pageToken
   });
 
@@ -123,7 +121,7 @@ export default function Members() {
     prevTokens
   } = useResourceTable({
     data,
-    pageSize,
+    pageSize: PAGE_SIZE,
     pageToken,
     setPageToken,
     deleteResource: () => {
@@ -156,7 +154,7 @@ export default function Members() {
         /** List of searchable fields displayed in the UI. */
         searchableFields={[]} // Define as needed
         /** Number of rows per page. */
-        pageSize={pageSize}
+        pageSize={PAGE_SIZE}
         /** Pagination controls for next/prev pages. */
         pagination={{
           total: data.length,
