@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import type { Route } from "./+types/apps.page";
-import { useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Page } from "~/core/components/general/page/page";
 import { DataTable } from "~/core/components/design-system/ui/data-table/data-table";
@@ -32,6 +32,10 @@ import {
   useDeleteApplication
 } from "~/applications/services/applications.service";
 import { useResourceTable } from "~/core/hooks/use-resource-table";
+import { PAGE_SIZE } from "~/core/shared/page-sizes.const";
+import type { Application } from "@fonoster/types";
+import { useNavigate } from "react-router";
+import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 
 /**
  * Returns metadata for the applications page.
@@ -56,15 +60,18 @@ export function meta(_: Route.MetaArgs) {
  * Integrates search, pagination, delete, and edit functionalities via a reusable DataTable component.
  */
 export default function Applications() {
+  /** Hook to navigate programmatically within the application. */
+  const navigate = useNavigate();
+
+  /** Retrieves the current workspace ID for API calls and navigation. */
+  const workspaceId = useWorkspaceId();
+
   /** State to hold the current pagination token used to fetch a specific page of data. */
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
 
-  /** Reference to the page size constant for controlling number of rows per page. */
-  const { current: pageSize } = useRef(24);
-
   /** Fetch applications data using the current page token and page size. */
   const { data, nextPageToken, isLoading } = useApplications({
-    pageSize,
+    pageSize: PAGE_SIZE,
     pageToken
   });
 
@@ -89,13 +96,28 @@ export default function Applications() {
     prevTokens
   } = useResourceTable({
     data,
-    pageSize,
+    pageSize: PAGE_SIZE,
     pageToken,
     setPageToken,
     deleteResource: deleteApplication,
     searchableFields: APPS_SEARCHABLE_FIELDS,
     defaultSearchBy: "ref"
   });
+
+  /**
+   * Callback function to handle editing a selected application.
+   *
+   * Navigates to the edit page for the selected application.
+   * Uses view transitions for a smoother user experience.
+   * @param ref - The reference of the application to edit.
+   * @param {ICredential} ref - The application object containing the reference.
+   * @returns {void}
+   */
+  const onEditSelected = useCallback(({ ref }: Application) => {
+    navigate(`/workspaces/${workspaceId}/applications/${ref}/edit`, {
+      viewTransition: true
+    });
+  }, []);
 
   return (
     <Page>
@@ -115,7 +137,7 @@ export default function Applications() {
         /** List of searchable fields displayed in the UI. */
         searchableFields={APPS_SEARCHABLE_FIELDS}
         /** Number of rows per page. */
-        pageSize={pageSize}
+        pageSize={PAGE_SIZE}
         /** Pagination controls for next/prev pages. */
         pagination={{
           total: filteredData.length,
@@ -135,7 +157,7 @@ export default function Applications() {
         /** Handler for deleting selected rows. */
         onDeleteSelected={handleDelete}
         /** Handler for editing selected rows (currently shows a toast). */
-        onEditSelected={(row) => toast(`Edit: ${row.name}`)}
+        onEditSelected={onEditSelected}
       />
     </Page>
   );

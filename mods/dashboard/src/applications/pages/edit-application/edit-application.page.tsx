@@ -173,7 +173,11 @@ export default function EditApplication() {
 
       {/* Form container with a max width for readability */}
       <Box sx={{ maxWidth: "440px" }}>
-        <CreateApplicationForm ref={formRef} onSubmit={onSave} />
+        <CreateApplicationForm
+          ref={formRef}
+          onSubmit={onSave}
+          initialValues={data}
+        />
       </Box>
     </Page>
   );
