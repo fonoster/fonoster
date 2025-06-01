@@ -19,18 +19,14 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-credential.page";
-import { useCallback, useRef } from "react";
-import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
-import { useNavigate } from "react-router";
+import { useRef } from "react";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Box } from "@mui/material";
 import {
   CreateCredentialForm,
   type CreateCredentialFormHandle
 } from "./create-credential.form";
-import { toast } from "~/core/components/design-system/ui/toaster/toaster";
-import { useCreateCredential } from "~/credentials/services/credentials.service";
-import type { Schema } from "./create-credential.schema";
+import { useCreateCredential } from "./create-credential.hook";
 
 /**
  * Page metadata for the "Create Credential" page.
@@ -63,51 +59,11 @@ export function meta(_: Route.MetaArgs) {
  * @returns {JSX.Element} The rendered Create Credential page.
  */
 export default function CreateCredential() {
-  /** Retrieves the current workspace ID for building navigation paths. */
-  const workspaceId = useWorkspaceId();
-
-  /** Hook to programmatically navigate between pages. */
-  const navigate = useNavigate();
-
   /** Ref to access the CreateCredentialForm's imperative handle (submit method). */
   const formRef = useRef<CreateCredentialFormHandle>(null);
 
-  /**
-   * Handler for navigating back to the workspace credentials page.
-   * Uses view transitions for smoother page transitions (if supported).
-   */
-  const onGoBack = useCallback(() => {
-    navigate(`/workspaces/${workspaceId}/sip-network/credentials`, {
-      viewTransition: true
-    });
-  }, [navigate, workspaceId]);
-
   /** Custom hook to create a credential via API with optimistic updates. */
-  const { mutate, isPending } = useCreateCredential();
-
-  /**
-   * Handler called after form submission.
-   * Submits the data, shows a toast, and navigates back to the credentials page.
-   *
-   * @param {Schema} data - The validated form data from the form component.
-   */
-  const onSave = useCallback(
-    async (data: Schema) => {
-      try {
-        if (!data?.password) {
-          toast("Please provide a password for the credentials.");
-          return;
-        }
-
-        mutate({ password: "", ...data });
-        toast("Credential created successfully!");
-        onGoBack();
-      } catch (error) {
-        toast("Oops! Something went wrong while creating the credential.");
-      }
-    },
-    [mutate, onGoBack]
-  );
+  const { onGoBack, onSave, isPending } = useCreateCredential();
 
   /**
    * Renders the Create Credential page layout.
