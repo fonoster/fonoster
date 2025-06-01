@@ -296,7 +296,37 @@ export default [
            *
            * Placeholder for credential-related routes under "/sip-network/credentials".
            */
-          ...prefix("credentials", [])
+          ...prefix("credentials", [
+            /**
+             * Credentials Index Route
+             *
+             * Renders the credentials index page at "/sip-network/credentials".
+             * This route is used to manage credentials.
+             */
+            index("credentials/pages/credentials/credentials.page.tsx"),
+
+            /**
+             * Create Credential Route
+             *
+             * Renders the create credential page at "/sip-network/credentials/create".
+             * This route is used to create new credentials.
+             */
+            route(
+              "create",
+              "credentials/pages/create-credential/create-credential.page.tsx"
+            ),
+
+            /**
+             * Edit Credential Route
+             *
+             * Renders the edit credential page at "/sip-network/credentials/:ref/edit".
+             * This route is used to edit existing credentials.
+             */
+            route(
+              "/:ref/edit",
+              "credentials/pages/edit-credential/edit-credential.page.tsx"
+            )
+          ])
         ]),
 
         /**
