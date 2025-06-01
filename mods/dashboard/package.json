@@ -29,6 +29,7 @@
     "@tanstack/react-query": "^5.72.2",
     "@tanstack/react-query-devtools": "^5.72.2",
     "@tanstack/react-table": "^8.21.2",
+    "export-to-csv": "^1.4.0",
     "isbot": "^5",
     "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
