@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 import { useState, useCallback, useMemo } from "react";
-import { toast } from "sonner";
 import { getNestedValue } from "../helpers/get-nested-value";
 import type { BaseApiObject } from "../providers/query-client/manage-resource-cache.helper";
+import { toast } from "../components/design-system/ui/toaster/toaster";
 
 /**
  * Interface representing the options passed to the useResourceTable hook.
