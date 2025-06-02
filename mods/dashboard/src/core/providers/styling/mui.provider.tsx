@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useCallback, useMemo } from "react";
+import React from "react";
 import { CacheProvider } from "@emotion/react";
 import createEmotionCache from "@emotion/cache";
 import { ThemeProvider as MaterialThemeProvider } from "@mui/material/styles";
 import { theme as DEFAULT_THEME } from "./mui.theme";
-import { CssBaseline, useColorScheme, type Theme } from "@mui/material";
+import { CssBaseline, type Theme } from "@mui/material";
 
 const MODE_STORAGE_KEY = "fonoster:theme";
 const DEFAULT_MODE = "light";
@@ -48,19 +48,4 @@ export const ThemeProvider = ({ children, theme }: ThemeProviderProps) => {
       </MaterialThemeProvider>
     </CacheProvider>
   );
-};
-
-export const useThemeMode = () => {
-  const { mode, setMode } = useColorScheme();
-
-  const isDarkMode = useMemo(() => mode === "dark", [mode]);
-
-  const changeTheme = useCallback(
-    (newMode: "light" | "dark") => {
-      setMode(newMode);
-    },
-    [setMode]
-  );
-
-  return { isDarkMode, changeTheme, mode: mode || DEFAULT_MODE };
 };
