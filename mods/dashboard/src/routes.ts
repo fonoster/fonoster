@@ -341,7 +341,31 @@ export default [
          *
          * Placeholder for secret management routes under "/secrets".
          */
-        ...prefix("secrets", []),
+        ...prefix("secrets", [
+          /**
+           * Secrets Index Route
+           *
+           * Renders the secrets index page at "/secrets".
+           * This route is used to manage secrets.
+           */
+          index("secrets/pages/secrets/secrets.page.tsx"),
+
+          /**
+           * Create Secret Route
+           *
+           * Renders the create secret page at "/secrets/create".
+           * This route is used to create new secrets.
+           */
+          route("create", "secrets/pages/create-secret/create-secret.page.tsx"),
+
+          /**
+           * Edit Secret Route
+           *
+           * Renders the edit secret page at "/secrets/:ref/edit".
+           * This route is used to edit existing secrets.
+           */
+          route("/:ref/edit", "secrets/pages/edit-secret/edit-secret.page.tsx")
+        ]),
 
         /**
          * API Keys Routes
