@@ -43,7 +43,7 @@ export const ThemeProvider = ({ children, theme }: ThemeProviderProps) => {
         defaultMode={DEFAULT_MODE}
         modeStorageKey={MODE_STORAGE_KEY}
       >
-        <CssBaseline enableColorScheme />
+        <CssBaseline />
         {children}
       </MaterialThemeProvider>
     </CacheProvider>

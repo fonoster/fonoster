@@ -22,94 +22,31 @@ export const theme = createTheme({
   cssVariables: {
     cssVarPrefix: "fonoster"
   },
-  colorSchemes: {
-    light: {
-      palette: {
-        base: {
-          "08": "#FFFFFF",
-          "07": "#F4F4F4",
-          "06": "#E8E8E8",
-          "05": "#C2C2C2",
-          "04": "#8D8D8D",
-          "03": "#555555",
-          "02": "#333333",
-          "01": "#252525",
-          main: "#8D8D8D"
-        },
-        brand: {
-          "01": "#FFFFFF",
-          "02": "#E6FFF5",
-          "03": "#CCEFE1",
-          "04": "#39E19E",
-          "05": "#008751",
-          "06": "#053204",
-          "07": "#011900",
-          main: "#39E19E"
-        },
-        background: {
-          default: "#FFFFFF",
-          paper: "#FFFFFF"
-        }
-      }
+  palette: {
+    base: {
+      "08": "#FFFFFF",
+      "07": "#F4F4F4",
+      "06": "#E8E8E8",
+      "05": "#C2C2C2",
+      "04": "#8D8D8D",
+      "03": "#555555",
+      "02": "#333333",
+      "01": "#252525",
+      main: "#8D8D8D"
     },
-    dark: {
-      /**
-       * TODO: Uncomment the palette below to use a dark theme
-       */
-      // palette: {
-      //   base: {
-      //     "01": "#FFFFFF",
-      //     "02": "#F4F4F4",
-      //     "03": "#E8E8E8",
-      //     "04": "#C2C2C2",
-      //     "05": "#8D8D8D",
-      //     "06": "#555555",
-      //     "07": "#333333",
-      //     "08": "#252525",
-      //     main: "#C2C2C2"
-      //   },
-      //   brand: {
-      //     "07": "#FFFFFF",
-      //     "06": "#E6FFF5",
-      //     "05": "#CCEFE1",
-      //     "04": "#39E19E",
-      //     "03": "#008751",
-      //     "02": "#053204",
-      //     "01": "#011900",
-      //     main: "#39E19E"
-      //   },
-      //   background: {
-      //     default: "#181818",
-      //     paper: "#181818"
-      //   }
-      // }
-      palette: {
-        base: {
-          "08": "#FFFFFF",
-          "07": "#F4F4F4",
-          "06": "#E8E8E8",
-          "05": "#C2C2C2",
-          "04": "#8D8D8D",
-          "03": "#555555",
-          "02": "#333333",
-          "01": "#252525",
-          main: "#8D8D8D"
-        },
-        brand: {
-          "01": "#FFFFFF",
-          "02": "#E6FFF5",
-          "03": "#CCEFE1",
-          "04": "#39E19E",
-          "05": "#008751",
-          "06": "#053204",
-          "07": "#011900",
-          main: "#39E19E"
-        },
-        background: {
-          default: "#FFFFFF",
-          paper: "#FFFFFF"
-        }
-      }
+    brand: {
+      "01": "#FFFFFF",
+      "02": "#E6FFF5",
+      "03": "#CCEFE1",
+      "04": "#39E19E",
+      "05": "#008751",
+      "06": "#053204",
+      "07": "#011900",
+      main: "#39E19E"
+    },
+    background: {
+      default: "#FFFFFF",
+      paper: "#FFFFFF"
     }
   }
 });
