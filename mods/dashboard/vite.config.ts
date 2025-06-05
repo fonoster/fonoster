@@ -30,6 +30,8 @@ export default defineConfig({
     force: true
   },
   server: {
-    port: 8080
-  }
+    port: 3030,
+    strictPort: true,
+  },
+  envPrefix: "DASHBOARD_",
 });
