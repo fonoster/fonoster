@@ -49,7 +49,7 @@ export class Logger {
 
     console.info(
       `%cDEBUG: ${new Date().toLocaleString()}, ${message}`,
-      "color:rgb(12, 104, 15); font-weight: bold;",
+      "color:rgb(57, 225, 158); font-weight: bold;",
       JSON.stringify(args, null, 2)
     );
   }
