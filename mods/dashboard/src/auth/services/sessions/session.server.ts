@@ -27,7 +27,7 @@ import type {
 /**
  * Environment variable for securing the session, required for cookie signing.
  */
-const SESSION_SECRET = process.env.APP_SESSION_SECRET as string;
+const SESSION_SECRET = process.env.SERVER_DASHBOARD_SESSION_SECRET as string;
 
 /**
  * Environment variable to determine if the session is secure.

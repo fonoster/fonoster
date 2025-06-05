@@ -17,17 +17,17 @@
  * limitations under the License.
  */
 
-const { origin, hostname } = new URL(import.meta.env.VITE_APP_API_URL);
+const { origin, hostname } = new URL(import.meta.env.DASHBOARD_API_URL);
 
 export const FONOSTER_CLIENT_CONFIG = Object.freeze({
   endpoint: origin,
   accessKeyId: "",
-  allowInsecure: Boolean(import.meta.env.VITE_APP_ALLOW_INSECURE === "true")
+  allowInsecure: Boolean(import.meta.env.DASHBOARD_ALLOW_INSECURE === "true")
 });
 
 export const FONOSTER_SERVER_CONFIG = Object.freeze({
   endpoint: hostname,
   accessKeyId: "",
-  allowInsecure: Boolean(import.meta.env.VITE_APP_ALLOW_INSECURE === "true"),
+  allowInsecure: Boolean(import.meta.env.DASHBOARD_ALLOW_INSECURE === "true"),
   accessToken: ""
 });
