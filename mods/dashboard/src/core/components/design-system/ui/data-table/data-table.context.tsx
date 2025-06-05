@@ -59,8 +59,8 @@ export const DataTableProvider = <T,>({
     <DataTableContext.Provider
       value={{
         ...rest,
-        onDeleteSelected: onDeleteChanged,
-        onEditSelected: onEditChanged,
+        onDeleteSelected: onDeleteSelected ? onDeleteChanged : undefined,
+        onEditSelected: onEditSelected ? onEditChanged : undefined,
         table,
         columns,
         features,

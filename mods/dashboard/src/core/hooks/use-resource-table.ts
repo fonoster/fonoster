@@ -123,7 +123,7 @@ export function useResourceTable<TResource extends { ref: string }>(
    * @param rows - Array of rows (each containing `ref` and `name`) to delete.
    */
   const handleDelete = useCallback(
-    async (rows: { ref: string; name: string }[]) => {
+    async (rows: { ref: string }[]) => {
       if (!deleteResource) return;
 
       if (
