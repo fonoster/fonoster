@@ -53,7 +53,7 @@ export const InputRoot = styled(TextField)(({ theme, size }) => ({
     "& .MuiInputAdornment-root": {
       marginRight: 4,
       "&.MuiInputAdornment-positionEnd": {
-        marginRight: -8
+        marginRight: 0
       }
     }
   },
