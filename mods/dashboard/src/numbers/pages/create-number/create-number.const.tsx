@@ -28,7 +28,7 @@ export const COUNTRIES = [
   /**
    * United States (USA)
    */
-  { value: "USA", label: "United States" },
+  { value: "US", label: "United States" },
 
   /**
    * Canada (CAN)

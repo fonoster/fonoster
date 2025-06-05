@@ -32,6 +32,7 @@ import {
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateNumber } from "~/numbers/services/numbers.service";
 import { COUNTRIES } from "./create-number.const";
+import { nonEmptyValues } from "~/core/helpers/remove-empty-values";
 
 /**
  * Page metadata for the "Create Number" page.
@@ -84,7 +85,7 @@ export default function CreateNumber() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to create a number via API with optimistic updates. */
-  const { mutate, isPending } = useCreateNumber();
+  const { mutateAsync, isPending } = useCreateNumber();
 
   /**
    * Handler called after form submission.
@@ -102,14 +103,18 @@ export default function CreateNumber() {
           return;
         }
 
-        mutate({ ...data, country: country.label, countryIsoCode });
+        await mutateAsync({
+          ...nonEmptyValues(data),
+          country: country.label,
+          countryIsoCode
+        });
         toast("Number created successfully!");
         onGoBack();
       } catch (error) {
         toast("Oops! Something went wrong while creating the number.");
       }
     },
-    [mutate, onGoBack]
+    [mutateAsync, onGoBack]
   );
 
   /**
