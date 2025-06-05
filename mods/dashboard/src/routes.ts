@@ -372,7 +372,26 @@ export default [
          *
          * Placeholder for API key management routes under "/api-keys".
          */
-        ...prefix("api-keys", []),
+        ...prefix("api-keys", [
+          /**
+           * API Keys Index Route
+           *
+           * Renders the API keys index page at "/api-keys".
+           * This route is used to manage API keys.
+           */
+          index("api-keys/pages/api-keys/api-keys.page.tsx"),
+
+          /**
+           * Create API Key Route
+           *
+           * Renders the create API key page at "/api-keys/create".
+           * This route is used to create new API keys.
+           */
+          route(
+            "create",
+            "api-keys/pages/create-api-key/create-api-key.page.tsx"
+          )
+        ]),
 
         /**
          * Monitoring Routes
