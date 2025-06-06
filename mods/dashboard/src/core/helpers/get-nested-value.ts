@@ -24,6 +24,15 @@
  * @param key - A dot-separated key string, e.g. "speechToText.productRef".
  * @returns The value at the specified path, or undefined if not found.
  */
-export function getNestedValue(obj: Record<string, any>, key: string): any {
-  return key.split(".").reduce((acc, part) => acc?.[part], obj);
+export function getNestedValue(
+  obj: Record<string, any>,
+  key: string
+): string | undefined {
+  const data = key.split(".").reduce((acc, part) => acc?.[part], obj);
+
+  return data !== undefined
+    ? Array.isArray(data)
+      ? data.join(", ")
+      : String(data)
+    : undefined;
 }
