@@ -36,6 +36,7 @@ export type SelectProps = MUISelectProps & {
   onChange?: (event: {
     target: { value: string | number | Array<string | number> };
   }) => void;
+  placeholder?: string;
 };
 
 export type SelectContainerProps = FormControlProps & {

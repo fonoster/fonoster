@@ -90,10 +90,16 @@ export const Select: React.FC<SelectProps> = ({
    * @returns {ReactNode} The rendered value(s).
    */
   const renderValue = useCallback(
-    (selected: any) => {
+    (selected: any, placeholder: string) => {
       if (!multiple || !Array.isArray(selected)) {
         const selectedOption = options.find((o) => o.value === selected);
         return selectedOption ? selectedOption.label : "";
+      }
+
+      if (selected.length === 0 && placeholder) {
+        return (
+          <span style={{ color: theme.palette.base["03"] }}>{placeholder}</span>
+        );
       }
 
       return (
@@ -263,7 +269,9 @@ export const Select: React.FC<SelectProps> = ({
         displayEmpty
         size={size}
         multiple={multiple}
-        renderValue={renderValue}
+        renderValue={(selected) =>
+          renderValue(selected, rest.placeholder || "")
+        }
         MenuProps={{
           PaperProps: {
             sx: {
