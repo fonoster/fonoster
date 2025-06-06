@@ -35,6 +35,7 @@ import {
   useUpdateCredential
 } from "~/credentials/services/credentials.service";
 import type { Schema } from "../create-credential/create-credential.schema";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 /**
  * Sets the metadata for the "Edit Credential" page.
@@ -117,7 +118,7 @@ export default function EditCredential() {
         toast("Credential updated successfully!");
         onGoBack();
       } catch (error) {
-        toast("Oops! Something went wrong while updating the credential.");
+        toast(getErrorMessage(error));
       }
     },
     [mutate, ref, onGoBack]

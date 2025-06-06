@@ -22,6 +22,7 @@ import { useNavigate } from "react-router";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateCredential as useCreate } from "~/credentials/services/credentials.service";
 import type { Schema } from "./create-credential.schema";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 export const useCreateCredential = () => {
   /** Retrieves the current workspace ID for building navigation paths. */
@@ -41,7 +42,7 @@ export const useCreateCredential = () => {
   }, [navigate, workspaceId]);
 
   /** Custom hook to create a credential via API with optimistic updates. */
-  const { mutate, isPending } = useCreate();
+  const { mutateAsync, isPending } = useCreate();
 
   /**
    * Handler called after form submission.
@@ -50,21 +51,26 @@ export const useCreateCredential = () => {
    * @param {Schema} data - The validated form data from the form component.
    */
   const onSave = useCallback(
-    async (data: Schema) => {
+    async (data: Schema, disableNavigation?: boolean) => {
       try {
         if (!data?.password) {
           toast("Please provide a password for the credentials.");
-          return;
+          return null;
         }
 
-        mutate({ password: "", ...data });
+        const credentials = await mutateAsync({ password: "", ...data });
         toast("Credential created successfully!");
+
+        if (disableNavigation) return credentials;
+
         onGoBack();
+
+        return credentials;
       } catch (error) {
-        toast("Oops! Something went wrong while creating the credential.");
+        toast(getErrorMessage(error));
       }
     },
-    [mutate, onGoBack]
+    [mutateAsync, onGoBack]
   );
 
   /**

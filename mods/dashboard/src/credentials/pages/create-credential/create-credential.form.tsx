@@ -28,6 +28,7 @@ import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { forwardRef, useImperativeHandle } from "react";
 import { schema, type Schema } from "./create-credential.schema";
+import type { Credentials } from "@fonoster/types";
 
 /**
  * Imperative handle interface exposing a submit method and validation state.
@@ -36,6 +37,8 @@ import { schema, type Schema } from "./create-credential.schema";
  */
 export interface CreateCredentialFormHandle {
   submit: () => void;
+  reset: () => void;
+  /** Indicates if the submit button should be disabled based on form state */
   isSubmitDisabled?: boolean;
 }
 
@@ -46,7 +49,7 @@ export interface CreateCredentialFormProps extends React.PropsWithChildren {
   /** Optional initial values to populate the form fields with. */
   initialValues?: Schema;
   /** Callback triggered on successful form submission. */
-  onSubmit: (data: Schema) => Promise<void>;
+  onSubmit: (data: Schema) => Promise<Credentials | void | null>;
 }
 
 /**
@@ -89,6 +92,9 @@ export const CreateCredentialForm = forwardRef<
   useImperativeHandle(ref, () => ({
     submit: () => {
       form.handleSubmit(onSubmit)();
+    },
+    reset: () => {
+      form.reset();
     },
     isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
   }));
