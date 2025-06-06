@@ -32,6 +32,7 @@ import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
 import { useSecret, useUpdateSecret } from "~/secrets/services/secrets.service";
 import type { Schema } from "../create-secret/create-secret.schema";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 /**
  * Sets the metadata for the "Edit Secret" page.
@@ -114,7 +115,7 @@ export default function EditSecret() {
         toast("Secret updated successfully!");
         onGoBack();
       } catch (error) {
-        toast("Oops! Something went wrong while updating the secret.");
+        toast(getErrorMessage(error));
       }
     },
     [mutate, ref, onGoBack]

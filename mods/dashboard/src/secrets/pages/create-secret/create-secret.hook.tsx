@@ -22,6 +22,7 @@ import { useNavigate } from "react-router";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateSecret as useCreate } from "~/secrets/services/secrets.service";
 import type { Schema } from "./create-secret.schema";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 export const useCreateSecret = () => {
   /** Retrieves the current workspace ID for building navigation paths. */
@@ -56,7 +57,7 @@ export const useCreateSecret = () => {
         toast("Secret created successfully!");
         onGoBack();
       } catch (error) {
-        toast("Oops! Something went wrong while creating the secret.");
+        toast(getErrorMessage(error));
       }
     },
     [mutate, onGoBack]
