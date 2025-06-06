@@ -93,12 +93,16 @@ export const Select: React.FC<SelectProps> = ({
     (selected: any, placeholder: string) => {
       if (!multiple || !Array.isArray(selected)) {
         const selectedOption = options.find((o) => o.value === selected);
-        return selectedOption ? selectedOption.label : "";
+        return selectedOption ? (
+          selectedOption.label
+        ) : (
+          <span style={{ color: theme.palette.base["04"] }}>{placeholder}</span>
+        );
       }
 
       if (selected.length === 0 && placeholder) {
         return (
-          <span style={{ color: theme.palette.base["03"] }}>{placeholder}</span>
+          <span style={{ color: theme.palette.base["04"] }}>{placeholder}</span>
         );
       }
 

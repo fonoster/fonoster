@@ -21,6 +21,7 @@ import { InputAdornment, IconButton, type TextFieldProps } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { InputRoot } from "./input.styles";
 import { Tooltip } from "../tooltip/tooltip";
+import { toast } from "../toaster/toaster";
 
 export interface InputTextProps extends Omit<TextFieldProps, "size"> {
   leadingIcon?: ReactNode;
@@ -50,7 +51,7 @@ export const Input = forwardRef<HTMLInputElement, InputTextProps>(
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {
-        console.error("Error copying to clipboard:", error);
+        toast("Failed to copy to clipboard", { variant: "error" });
       }
     }, [value]);
 

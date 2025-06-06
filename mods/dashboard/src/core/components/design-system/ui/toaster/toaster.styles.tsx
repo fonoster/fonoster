@@ -23,9 +23,10 @@ import CloseIcon from "@mui/icons-material/Close";
 export interface ToastProps {
   id: number | string;
   message: string;
+  variant?: "error" | "default";
 }
 
-export const Toast = ({ id, message }: ToastProps) => {
+export const Toast = ({ id, message, variant }: ToastProps) => {
   const theme = useTheme();
 
   return (

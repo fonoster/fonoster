@@ -22,7 +22,7 @@ import { useNavigate } from "react-router";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateApiKey as useCreate } from "~/api-keys/services/api-keys.service";
 import type { Schema } from "./create-api-key.schema";
-import { Logger } from "~/core/shared/logger";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 export const useCreateApiKey = () => {
   /** Retrieves the current workspace ID for building navigation paths. */
@@ -56,8 +56,7 @@ export const useCreateApiKey = () => {
         await mutateAsync(data);
         toast("API Key created successfully!");
       } catch (error) {
-        Logger.debug("Error creating API Key:", error);
-        toast("Oops! Something went wrong while creating the API Key.");
+        toast(getErrorMessage(error));
       }
     },
     [mutateAsync]

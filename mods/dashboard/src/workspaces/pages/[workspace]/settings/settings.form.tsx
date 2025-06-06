@@ -34,6 +34,7 @@ import { useUpdateWorkspace } from "~/workspaces/services/workspaces.service";
 import { useAuth } from "~/auth/hooks/use-auth";
 import { useNavigate } from "react-router";
 import { TIMEZONES } from "./settings.const";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 /**
  * Zod schema for workspace settings form validation.
@@ -124,7 +125,7 @@ export const WorkspaceSettingsForm = forwardRef<
           onFormSubmit(data);
         }
       } catch (error) {
-        toast("Oops! Something went wrong while updating your workspace.");
+        toast(getErrorMessage(error));
       }
     },
     [currentWorkspace, mutate, onFormSubmit]

@@ -24,6 +24,7 @@ import { useTheme } from "@mui/material";
 
 export interface ToastOptions {
   duration?: number;
+  variant?: "error" | "default";
 }
 
 export const Toaster = memo(() => {
@@ -51,11 +52,11 @@ export const Toaster = memo(() => {
 
 export const toast = (
   message: string,
-  { duration = 3000 }: ToastOptions = {}
+  { duration = 3000, variant = "default" }: ToastOptions = {}
 ) => {
   const id = `toast__${Date.now().toString()}-${Math.random().toString()}`;
 
-  sonner(<Toast {...{ message, id }} />, { id, duration });
+  sonner(<Toast {...{ message, id, variant }} />, { id, duration });
 };
 
 Toaster.displayName = "Toaster";

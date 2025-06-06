@@ -32,6 +32,7 @@ import { z } from "zod";
 import { useCallback } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateWorkspace } from "~/workspaces/services/workspaces.service";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 /**
  * Zod schema for form validation.
@@ -98,7 +99,7 @@ export function CreateWorkspaceForm({
           onFormSubmit(data);
         }
       } catch (error) {
-        toast("Oops! Something went wrong while creating the workspace");
+        toast(getErrorMessage(error));
       }
     },
     [form, mutate, onFormSubmit]

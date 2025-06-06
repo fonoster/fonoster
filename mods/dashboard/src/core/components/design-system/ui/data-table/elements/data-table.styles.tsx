@@ -40,7 +40,7 @@ export const TableRoot = styled(Table)(() => ({
 
 export const TableCellRoot = styled(TableCell)(({ theme }) => ({
   height: "31px",
-  padding: "0px",
+  padding: "0px 4px",
   fontSize: "10px",
   fontWeight: 500,
   color: theme.palette.base["03"],
@@ -61,7 +61,7 @@ export const TableCellRoot = styled(TableCell)(({ theme }) => ({
     paddingRight: "8px"
   },
   "&[data-selection-cell='true']": {
-    padding: "0px",
+    padding: "0px 4px",
     width: "48px",
     maxWidth: "48pxpx",
     minWidth: "48pxpx",
@@ -90,7 +90,7 @@ export const DataTableContainerElement = styled(TableContainer)(
 
       "& tbody": {
         "& td": {
-          padding: "0px",
+          padding: "0px 4px",
           minHeight: "36px",
           height: "36px",
           fontSize: "10px",
