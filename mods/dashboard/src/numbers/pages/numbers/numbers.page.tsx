@@ -17,11 +17,10 @@
  * limitations under the License.
  */
 import type { Route } from "./+types/numbers.page";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Page } from "~/core/components/general/page/page";
 import { DataTable } from "~/core/components/design-system/ui/data-table/data-table";
-import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 
 import { columns } from "./numbers.columns";
 import { NumbersPageHeader } from "./numbers.page-header";
