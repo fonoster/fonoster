@@ -33,6 +33,7 @@ import { useNumber, useUpdateNumber } from "~/numbers/services/numbers.service";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
 import { COUNTRIES } from "../create-number/create-number.const";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 /**
  * Sets the metadata for the "Edit Number" page.
@@ -123,7 +124,7 @@ export default function EditNumber() {
         toast("Number updated successfully!");
         onGoBack();
       } catch (error) {
-        toast("Oops! Something went wrong while updating the number.");
+        toast(getErrorMessage(error));
       }
     },
     [mutate, ref, onGoBack]

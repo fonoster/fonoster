@@ -34,7 +34,7 @@ import {
 } from "./create-number.const";
 import { forwardRef, useImperativeHandle } from "react";
 import { useApplications } from "~/applications/services/applications.service";
-import { Typography } from "~/core/components/design-system/ui/typography/typography";
+import { useTrunks } from "~/trunks/services/trunks.service";
 
 /**
  * Zod validation schema for the Create Number form.
@@ -110,7 +110,8 @@ export const CreateNumberForm = forwardRef<
   CreateNumberFormHandle,
   CreateNumberFormProps
 >(({ onSubmit, initialValues }, ref) => {
-  const trunks = [{ value: "", label: "Select a Trunk" }];
+  /** Fetches trunks to populate the Trunk dropdown. */
+  const { data: trunks, isLoading: isTrunkLoading } = useTrunks({});
 
   /** Fetches applications to populate the Inbound Application dropdown. */
   const { data: applications, isLoading: isApplicationLoading } =
@@ -157,7 +158,22 @@ export const CreateNumberForm = forwardRef<
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Select label="Trunk" options={trunks} {...field} />
+                <Select
+                  label="Trunk"
+                  options={trunks.map(({ ref, name }) => ({
+                    value: ref,
+                    label: name
+                  }))}
+                  disabled={isTrunkLoading || trunks.length === 0}
+                  placeholder={
+                    isTrunkLoading
+                      ? "Loading trunks..."
+                      : trunks.length === 0
+                        ? "No trunks found. Please create a Trunk first."
+                        : ""
+                  }
+                  {...field}
+                />
               </FormControl>
             </FormItem>
           )}
@@ -221,21 +237,15 @@ export const CreateNumberForm = forwardRef<
                     label: name
                   }))}
                   disabled={isApplicationLoading || applications.length === 0}
+                  placeholder={
+                    isApplicationLoading
+                      ? "Loading applications..."
+                      : applications.length === 0
+                        ? "No applications found. Please create an application first."
+                        : ""
+                  }
                   {...field}
                 />
-
-                {/* Helper text for empty applications or loading state */}
-                {applications.length === 0 && (
-                  <Typography
-                    variant="body-micro"
-                    color="base.03"
-                    sx={{ mt: 1 }}
-                  >
-                    {isApplicationLoading
-                      ? "Loading applications..."
-                      : "No applications found. Please create an application first."}
-                  </Typography>
-                )}
               </FormControl>
             </FormItem>
           )}

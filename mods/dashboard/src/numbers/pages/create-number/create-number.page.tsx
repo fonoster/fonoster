@@ -33,6 +33,7 @@ import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateNumber } from "~/numbers/services/numbers.service";
 import { COUNTRIES } from "./create-number.const";
 import { nonEmptyValues } from "~/core/helpers/remove-empty-values";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 /**
  * Page metadata for the "Create Number" page.
@@ -111,7 +112,7 @@ export default function CreateNumber() {
         toast("Number created successfully!");
         onGoBack();
       } catch (error) {
-        toast("Oops! Something went wrong while creating the number.");
+        toast(getErrorMessage(error));
       }
     },
     [mutateAsync, onGoBack]
