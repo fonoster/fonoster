@@ -57,7 +57,7 @@ const PageContent = styled(Container)<{ variant: PageVariants }>(
   ({ theme, variant }) => ({
     width: "100%",
     minHeight: "100%",
-    maxWidth: "924px !important",
+    maxWidth: "1180px !important",
     padding: variant === "form" ? theme.spacing(5, 3) : theme.spacing(9, 3)
   })
 );
