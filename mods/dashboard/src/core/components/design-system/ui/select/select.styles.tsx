@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { styled } from "@mui/material/styles";
-import { Select } from "@mui/material";
+import { FormControl, Select } from "@mui/material";
 
 export const SelectRoot = styled(Select)(({ theme }) => ({
   "&.MuiInputBase-root, &.MuiOutlinedInput-root, &.MuiSelect-root": {
@@ -106,5 +106,14 @@ export const SelectRoot = styled(Select)(({ theme }) => ({
     "& .MuiSvgIcon-root": {
       fontSize: "20px"
     }
+  }
+}));
+
+export const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  "& .MuiInputLabel-root": {
+    color: theme.palette.text.primary
+  },
+  "& .MuiFormHelperText-root": {
+    color: theme.palette.text.secondary
   }
 }));
