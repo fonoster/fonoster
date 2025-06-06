@@ -231,7 +231,31 @@ export default [
            *
            * Placeholder for trunk-related routes under "/sip-network/trunks".
            */
-          ...prefix("trunks", []),
+          ...prefix("trunks", [
+            /**
+             * Trunks Index Route
+             *
+             * Renders the trunks index page at "/sip-network/trunks".
+             * This route is used to manage SIP trunks.
+             */
+            index("trunks/pages/trunks/trunks.page.tsx"),
+
+            /**
+             * Create Trunk Route
+             *
+             * Renders the create trunk page at "/sip-network/trunks/create".
+             * This route is used to create new SIP trunks.
+             */
+            route("create", "trunks/pages/create-trunk/create-trunk.page.tsx"),
+
+            /**
+             * Edit Trunk Route
+             *
+             * Renders the edit trunk page at "/sip-network/trunks/:ref/edit".
+             * This route is used to edit existing SIP trunks.
+             */
+            route("/:ref/edit", "trunks/pages/edit-trunk/edit-trunk.page.tsx")
+          ]),
 
           /**
            * Numbers Routes
@@ -275,21 +299,99 @@ export default [
            *
            * Placeholder for domain-related routes under "/sip-network/domains".
            */
-          ...prefix("domains", []),
+          ...prefix("domains", [
+            /**
+             * Domains Index Route
+             *
+             * Renders the domains index page at "/sip-network/domains".
+             * This route is used to manage SIP domains.
+             */
+            index("domains/pages/domains/domains.page.tsx"),
+
+            /**
+             * Create Domain Route
+             *
+             * Renders the create domain page at "/sip-network/domains/create".
+             * This route is used to create new SIP domains.
+             */
+            route(
+              "create",
+              "domains/pages/create-domain/create-domain.page.tsx"
+            ),
+
+            /**
+             * Edit Domain Route
+             *
+             * Renders the edit domain page at "/sip-network/domains/:ref/edit".
+             * This route is used to edit existing SIP domains.
+             */
+            route(
+              "/:ref/edit",
+              "domains/pages/edit-domain/edit-domain.page.tsx"
+            )
+          ]),
 
           /**
            * Agents Routes
            *
            * Placeholder for agent-related routes under "/sip-network/agents".
            */
-          ...prefix("agents", []),
+          ...prefix("agents", [
+            /**
+             * Agents Index Route
+             *
+             * Renders the agents index page at "/sip-network/agents".
+             * This route is used to manage SIP agents.
+             */
+            index("agents/pages/agents/agents.page.tsx"),
+
+            /**
+             * Create Agent Route
+             *
+             * Renders the create agent page at "/sip-network/agents/create".
+             * This route is used to create new SIP agents.
+             */
+            route("create", "agents/pages/create-agent/create-agent.page.tsx"),
+
+            /**
+             * Edit Agent Route
+             *
+             * Renders the edit agent page at "/sip-network/agents/:ref/edit".
+             * This route is used to edit existing SIP agents.
+             */
+            route("/:ref/edit", "agents/pages/edit-agent/edit-agent.page.tsx")
+          ]),
 
           /**
            * ACLs Routes
            *
            * Placeholder for access control list-related routes under "/sip-network/acls".
            */
-          ...prefix("acls", []),
+          ...prefix("acls", [
+            /**
+             * ACLs Index Route
+             *
+             * Renders the ACLs index page at "/sip-network/acls".
+             * This route is used to manage access control lists.
+             */
+            index("acls/pages/acls/acls.page.tsx"),
+
+            /**
+             * Create ACL Route
+             *
+             * Renders the create ACL page at "/sip-network/acls/create".
+             * This route is used to create new access control lists.
+             */
+            route("create", "acls/pages/create-acl/create-acl.page.tsx"),
+
+            /**
+             * Edit ACL Route
+             *
+             * Renders the edit ACL page at "/sip-network/acls/:ref/edit".
+             * This route is used to edit existing access control lists.
+             */
+            route("/:ref/edit", "acls/pages/edit-acl/edit-acl.page.tsx")
+          ]),
 
           /**
            * Credentials Routes
