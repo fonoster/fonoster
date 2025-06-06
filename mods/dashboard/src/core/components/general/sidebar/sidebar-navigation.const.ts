@@ -53,7 +53,7 @@ export const SIDEBAR_ITEMS = Object.freeze<SidebarItem[]>([
       }
     ]
   },
-  { label: "Storage", href: "/workspaces/[workspaceId]/storage" },
+  // { label: "Storage", href: "/workspaces/[workspaceId]/storage" },
   { label: "Secrets", href: "/workspaces/[workspaceId]/secrets" },
   { label: "API Keys", href: "/workspaces/[workspaceId]/api-keys" },
   { label: "Monitoring", href: "/workspaces/[workspaceId]/monitoring" }
