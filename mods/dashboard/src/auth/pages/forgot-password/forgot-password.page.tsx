@@ -16,14 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ForgotPasswordForm, type Schema } from "./forgot-password.form";
+import {
+  ForgotPasswordForm,
+  type Form,
+  type Schema
+} from "./forgot-password.form";
 import { useCallback } from "react";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
-import { toast } from "~/core/components/design-system/ui/toaster/toaster";
-import { useNavigate } from "react-router";
 import type { Route } from "./+types/forgot-password.page";
 import { Logger } from "~/core/shared/logger";
+import { useForgotPassword } from "~/auth/services/auth.service";
+import { toast } from "~/core/components/design-system/ui/toaster/toaster";
+import { useNavigate } from "react-router";
+import { FONOSTER_RESET_PASSWORD_URL } from "~/core/sdk/stores/fonoster.config";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Forgot Password | Fonoster" }];
@@ -31,19 +37,29 @@ export function meta(_: Route.MetaArgs) {
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
+  const { mutateAsync } = useForgotPassword();
 
-  const onSubmit = useCallback(async (data: Schema) => {
-    Logger.debug(
-      "[<ForgotPasswordPage />]: Submitting forgot password form with data:",
-      data
-    );
-    toast("Ahoy! We have sent you an email to reset your password");
+  const onSubmit = useCallback(
+    async ({ email: username }: Schema, form: Form) => {
+      Logger.debug(
+        "[<ForgotPasswordPage />]: Submitting forgot password form with data:",
+        { username }
+      );
+      await mutateAsync({
+        username,
+        resetPasswordUrl: FONOSTER_RESET_PASSWORD_URL
+      });
 
-    navigate("/auth/reset-password?token=" + btoa(data.email), {
-      replace: true,
-      viewTransition: true
-    });
-  }, []);
+      toast(
+        "Ahoy! If that email is registered, we sent you a link to reset your password. Now check your inbox!"
+      );
+
+      form.reset();
+
+      navigate("/auth/login", { replace: true });
+    },
+    []
+  );
 
   return (
     <Box
