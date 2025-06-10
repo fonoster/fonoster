@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { countryIsoCodes } from "~/core/shared/countries";
 
 /**
  * List of supported countries.
@@ -24,27 +25,19 @@
  * when creating or configuring numbers. This list can be
  * used to populate dropdowns or select inputs in the UI.
  */
-export const COUNTRIES = [
+export const COUNTRIES = countryIsoCodes.map(({ name, value }) => ({
   /**
-   * United States (USA)
+   * Human-readable name of the country.
+   * This is what users will see in dropdowns or selection lists.
    */
-  { value: "US", label: "United States" },
+  label: name,
 
   /**
-   * Canada (CAN)
+   * ISO code of the country.
+   * Used for backend processing and validation.
    */
-  { value: "CAN", label: "Canada" },
-
-  /**
-   * Mexico (MEX)
-   */
-  { value: "MEX", label: "Mexico" },
-
-  /**
-   * Brazil (BRA)
-   */
-  { value: "BRA", label: "Brazil" }
-];
+  value
+}));
 
 /**
  * Default initial values for the number creation/editing form.
