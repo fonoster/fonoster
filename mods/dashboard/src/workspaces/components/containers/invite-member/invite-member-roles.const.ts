@@ -16,22 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Modal } from "~/core/components/design-system/ui/modal/modal";
-import { InviteMemberForm } from "./invite-member.form";
+import { Role } from "@fonoster/types";
 
-export interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const InviteMemberModal = ({ isOpen, onClose }: ModalProps) => {
-  return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      title="Invite a new member to your workspace"
-    >
-      <InviteMemberForm onClose={onClose} />
-    </Modal>
-  );
-};
+export const ROLE_OPTIONS = [
+  {
+    label: "Workspace Admin",
+    value: Role.WORKSPACE_ADMIN
+  },
+  {
+    label: "Workspace Member",
+    value: Role.WORKSPACE_MEMBER
+  }
+];

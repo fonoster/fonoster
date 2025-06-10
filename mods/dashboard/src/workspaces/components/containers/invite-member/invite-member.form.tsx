@@ -34,9 +34,11 @@ import { useCallback } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import { Logger } from "~/core/shared/logger";
+import { ROLE_OPTIONS } from "./invite-member-roles.const";
+import { useInviteWorkspace } from "~/workspaces/services/workspaces.service";
 
 export const schema = z.object({
-  role: z.string().nonempty(),
+  role: z.nativeEnum(Role),
   name: z
     .string()
     .min(1, { message: "Name is required" })
@@ -48,34 +50,45 @@ export const resolver = zodResolver(schema);
 
 export type Schema = z.infer<typeof schema>;
 
-export interface InviteMemberFormProps extends React.PropsWithChildren {}
+export interface InviteMemberFormProps extends React.PropsWithChildren {
+  onClose?: () => void;
+}
 
-export function InviteMemberForm() {
+export function InviteMemberForm({ onClose }: InviteMemberFormProps) {
   const form = useForm<Schema>({
     resolver,
     defaultValues: {
       name: "",
       email: "",
-      role: "USER"
+      role: Role.WORKSPACE_MEMBER
     },
     mode: "onChange"
   });
 
+  const { mutateAsync } = useInviteWorkspace();
+
   const onSubmit = useCallback(
     async (data: Schema) => {
-      Logger.debug("Form submitted", data);
-      toast("Ahoy! Invite sent successfully");
+      try {
+        await mutateAsync(data);
+        toast(
+          "Member invited successfully. Ask them to check their email for the invitation link."
+        );
+        form.reset();
+
+        if (onClose) {
+          onClose();
+        }
+      } catch (error) {
+        Logger.error("Failed to invite member", error);
+        toast("Failed to invite member. Please try again.");
+      }
     },
     [form]
   );
 
   const { isValid, isSubmitting } = form.formState;
   const isSubmitDisabled = !isValid || isSubmitting;
-
-  const ROLE_OPTIONS = Object.entries(Role).map(([key, value]) => ({
-    value: value,
-    label: key
-  }));
 
   return (
     <Form {...form}>
