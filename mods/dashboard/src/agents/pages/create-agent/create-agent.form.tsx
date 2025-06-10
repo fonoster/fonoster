@@ -213,11 +213,7 @@ export const CreateAgentForm = forwardRef<
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input
-                    type="number"
-                    label="Max Contacts"
-                    {...field}
-                  />
+                  <Input type="number" label="Max Contacts" {...field} />
                 </FormControl>
               </FormItem>
             )}
@@ -230,11 +226,7 @@ export const CreateAgentForm = forwardRef<
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input
-                    type="number"
-                    label="Expires (seconds)"
-                    {...field}
-                  />
+                  <Input type="number" label="Expires (seconds)" {...field} />
                 </FormControl>
               </FormItem>
             )}
