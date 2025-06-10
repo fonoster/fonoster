@@ -37,8 +37,8 @@ import { LoginFormActions } from "./login.actions";
  *  - password has at least 8 characters.
  */
 export const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8)
+  email: z.string().nonempty(),
+  password: z.string().nonempty()
 });
 
 /**
