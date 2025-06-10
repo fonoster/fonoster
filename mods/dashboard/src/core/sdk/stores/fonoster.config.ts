@@ -31,3 +31,7 @@ export const FONOSTER_SERVER_CONFIG = Object.freeze({
   allowInsecure: Boolean(import.meta.env.DASHBOARD_ALLOW_INSECURE === "true"),
   accessToken: ""
 });
+
+export const FONOSTER_RESET_PASSWORD_URL: string =
+  import.meta.env.DASHBOARD_RESET_PASSWORD_URL ||
+  "https://app.fonoster.com/auth/reset-password";
