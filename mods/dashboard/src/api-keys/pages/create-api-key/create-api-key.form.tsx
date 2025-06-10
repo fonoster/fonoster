@@ -109,10 +109,9 @@ export const CreateApiKeyForm = forwardRef<
               <FormControl>
                 <Select
                   label="Application Type"
-                  options={Object.values(Role).map((role) => ({
-                    value: role,
-                    label: role.charAt(0).toUpperCase() + role.slice(1)
-                  }))}
+                  options={[
+                    { value: Role.WORKSPACE_ADMIN, label: "Workspace Admin" }
+                  ]}
                   {...field}
                 />
               </FormControl>
