@@ -20,60 +20,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 /**
- * Zod validation schema for the password field.
- *
- * This schema:
- * - Allows the password to be optional (e.g., when updating credentials).
- * - Enforces complexity rules only when a value is provided.
- * - Validates:
- *   - Minimum length of 8 characters
- *   - At least one lowercase letter
- *   - At least one uppercase letter
- *   - At least one digit
- *   - At least one symbol
- */
-export const PASSWORD_SCHEMA = z
-  .string()
-  .optional()
-  .superRefine((value, ctx) => {
-    if (value !== undefined && value !== null && value !== "") {
-      if (value.length < 8) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.too_small,
-          minimum: 8,
-          type: "string",
-          inclusive: true,
-          message: "Password must be at least 8 characters"
-        });
-      }
-      if (!/[a-z]/.test(value)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Password must contain a lowercase letter"
-        });
-      }
-      if (!/[A-Z]/.test(value)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Password must contain an uppercase letter"
-        });
-      }
-      if (!/[0-9]/.test(value)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Password must contain a digit"
-        });
-      }
-      if (!/[^a-zA-Z0-9]/.test(value)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Password must contain a symbol"
-        });
-      }
-    }
-  });
-
-/**
  * Zod validation schema for the Create Credential form.
  *
  * Defines the expected structure and validation rules for the credential creation fields.
@@ -94,7 +40,7 @@ export const schema = z.object({
   username: z.string().nonempty("Username is required"),
 
   /** Password field validated by PASSWORD_SCHEMA (optional). */
-  password: PASSWORD_SCHEMA
+  password: z.string().nonempty()
 });
 
 /**

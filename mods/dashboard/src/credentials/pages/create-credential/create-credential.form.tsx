@@ -141,7 +141,6 @@ export const CreateCredentialForm = forwardRef<
                 <Input
                   type="password"
                   label="Password"
-                  supportingText="8+ characters with upper, lower, credential, and symbol."
                   {...field}
                 />
               </FormControl>
