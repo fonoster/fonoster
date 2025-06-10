@@ -77,6 +77,7 @@ export const CreateAgentForm = forwardRef<
       enabled: true,
       privacy: Privacy.PRIVATE,
       maxContacts: 10,
+      expires: 3600,
       ...initialValues
     },
     mode: "onChange"
@@ -201,6 +202,40 @@ export const CreateAgentForm = forwardRef<
             render={({ field }) => (
               <FormItem>
                 <FormControl>{renderCredentialsSelect(field)}</FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Max Contacts */}
+          <FormField
+            control={form.control}
+            name="maxContacts"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="number"
+                    label="Max Contacts"
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Expires */}
+          <FormField
+            control={form.control}
+            name="expires"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="number"
+                    label="Expires (seconds)"
+                    {...field}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />

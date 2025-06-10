@@ -92,11 +92,23 @@ export const schema = z.object({
    * - Must be an integer between 1 and 100.
    * - Ensures load and resource constraints are respected.
    */
-  maxContacts: z
+  maxContacts: z.coerce
     .number()
     .int()
     .min(1, "Max Contacts must be at least 1")
-    .max(100, "Max Contacts cannot exceed 100")
+    .max(100, "Max Contacts cannot exceed 100"),
+
+  /**
+   * Expiration time for the agent's registration.
+   *
+   * - Specifies how long the agent's registration is valid before needing renewal.
+   * - Must be an integer representing seconds, with a minimum of 60 seconds.
+   * - Helps manage resource usage and ensures stale registrations are cleaned up.
+   */
+  expires: z.coerce
+    .number()
+    .int()
+    .min(60, "Expires must be at least 60 seconds")
 });
 
 /**
