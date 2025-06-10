@@ -138,11 +138,7 @@ export const CreateCredentialForm = forwardRef<
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input
-                  type="password"
-                  label="Password"
-                  {...field}
-                />
+                <Input type="password" label="Password" {...field} />
               </FormControl>
             </FormItem>
           )}

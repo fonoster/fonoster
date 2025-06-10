@@ -55,7 +55,7 @@ export const useCreateTrunk = () => {
     async (data: Schema, disableNavigation?: boolean) => {
       try {
         Logger.debug("Creating trunk with data:", data);
-        const trunks = await mutateAsync({ ...data });
+        const trunks = await mutateAsync({ sendRegister: true, ...data });
         toast("Trunk created successfully!");
 
         if (disableNavigation) return trunks;

@@ -49,7 +49,7 @@ export const schema = z.object({
    * Boolean flag to control SIP REGISTER behavior.
    * Indicates if the trunk should send SIP REGISTER requests.
    */
-  sendRegister: z.boolean(),
+  sendRegister: z.boolean().optional(),
 
   /**
    * URI to handle inbound SIP traffic (required).

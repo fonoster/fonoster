@@ -39,6 +39,7 @@ import { CreateTrunkCredentialsModal } from "./create-trunk-credentials-modal.mo
 import { CreateTrunkAclsModal } from "./create-trunk-acls-modal.modal";
 import { Checkbox } from "~/core/components/design-system/ui/checkbox/checkbox";
 import { CreateTrunkUrisModal } from "./create-trunk-uris-modal.modal";
+import { Tooltip } from "~/core/components/design-system/ui/tooltip/tooltip";
 
 /**
  * Imperative handle interface exposing a submit method and validation state.
@@ -103,7 +104,7 @@ export const CreateTrunkForm = forwardRef<
     defaultValues: {
       ref: null,
       name: "",
-      sendRegister: false,
+      sendRegister: true,
       inboundUri: "",
       accessControlListRef: "",
       inboundCredentialsRef: "",
@@ -397,8 +398,11 @@ export const CreateTrunkForm = forwardRef<
                     <Checkbox
                       checked={field.value}
                       onChange={(e) => field.onChange(e.target.checked)}
+                      disabled
                     >
-                      Send SIP Register requests for this trunk
+                      <Tooltip title="This feature is not yet available. (Coming soon!)">
+                        <span>Send SIP Register requests for this trunk</span>
+                      </Tooltip>
                     </Checkbox>
                   </FormControl>
                 </FormItem>
