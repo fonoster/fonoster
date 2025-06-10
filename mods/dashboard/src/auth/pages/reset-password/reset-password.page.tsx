@@ -16,22 +16,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ResetPasswordForm, type Schema } from "./reset-password.form";
-import { useCallback } from "react";
+import {
+  ResetPasswordForm,
+  type Form,
+  type Schema
+} from "./reset-password.form";
+import { useCallback, useEffect } from "react";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/reset-password.page";
 import { Logger } from "~/core/shared/logger";
+import { useNavigate, useSearchParams } from "react-router";
+import { useResetPassword } from "~/auth/services/auth.service";
+
+export interface ResetPasswordTokenPayload {
+  username: string;
+  code: string;
+}
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Reset Password | Fonoster" }];
 }
 
 export default function ResetPasswordPage() {
-  const onSubmit = useCallback(async (data: Schema) => {
-    Logger.debug("[ResetPasswordPage] onSubmit data...", data);
-    toast("Ahoy! Your password has been reset successfully");
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const token = searchParams.get("token");
+
+  const { mutateAsync } = useResetPassword();
+
+  useEffect(() => {
+    if (!token) {
+      toast("Token is missing. Please check the link you clicked.");
+      navigate("/auth/login", { replace: true });
+    }
+  }, [token, setSearchParams]);
+
+  const onSubmit = useCallback(async ({ password }: Schema, form: Form) => {
+    if (!token) {
+      toast("Token is missing. Please check the link you clicked.");
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(atob(token)) as ResetPasswordTokenPayload;
+
+      if (
+        Object.keys(payload).length !== 2 ||
+        !payload.username ||
+        !payload.code
+      ) {
+        toast("Invalid token format. Please check the link you clicked.");
+        return;
+      }
+
+      const { username, code: verificationCode } = payload;
+
+      await mutateAsync({ username, verificationCode, password });
+      toast("Password reset successfully! You can now log in.");
+      navigate("/auth/login", { replace: true });
+    } catch (error) {
+      Logger.error("[ResetPasswordPage] Error resetting password", error);
+      toast("Failed to reset password. Please try again.");
+
+      form.reset();
+    }
   }, []);
 
   return (

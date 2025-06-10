@@ -63,7 +63,17 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
   });
 
   const onSubmitForm = useCallback(
-    async (data: Schema) => onSubmit(data, form),
+    async (data: Schema) => {
+      if (data.password !== data.confirmPassword) {
+        form.setError("confirmPassword", {
+          type: "manual",
+          message: "Passwords do not match"
+        });
+        return;
+      }
+
+      return await onSubmit(data, form);
+    },
     [onSubmit, form]
   );
 
