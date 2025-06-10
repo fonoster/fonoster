@@ -17,15 +17,17 @@
  * limitations under the License.
  */
 import {
+  type InviteUserToWorkspaceRequest,
   type Workspace as Resource,
   type CreateWorkspaceRequest as ResourceCreateRequest,
   type UpdateWorkspaceRequest as ResourceUpdateRequest
 } from "@fonoster/types";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOptimisticCreateResource } from "~/core/hooks/use-optimistic-create-resource";
 import { useOptimisticDeleteResource } from "~/core/hooks/use-optimistic-delete-resource";
 import { useOptimisticUpdateResource } from "~/core/hooks/use-optimistic-update-resource";
 import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
+import { COLLECTION_QUERY_KEY as USER_COLLECTION_QUERY_KEY } from "~/auth/services/auth.service";
 
 /**
  * Constant query key used to cache and track the list of workspaces.
@@ -151,4 +153,26 @@ export const useDeleteWorkspace = () => {
     COLLECTION_QUERY_KEY,
     RESOURCE_QUERY_KEY
   );
+};
+
+/**
+ * Hook to invite a user to a workspace using the Fonoster SDK.
+ *
+ * This mutation allows sending an invitation request to a user for joining a specific workspace.
+ * It uses React Query's `useMutation` to handle the API call and manage loading/error states.
+ *
+ * @returns A mutation object that can be used to trigger the invitation process.
+ */
+export const useInviteWorkspace = () => {
+  const { sdk } = useFonoster();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (req: Omit<InviteUserToWorkspaceRequest, "password">) =>
+      sdk.workspaces.inviteUserToWorkspace({ ...req, password: "" }),
+    onSuccess: () => {
+      // Invalidate the workspaces list to ensure the cache is fresh
+      queryClient.invalidateQueries({ queryKey: USER_COLLECTION_QUERY_KEY });
+    }
+  });
 };
