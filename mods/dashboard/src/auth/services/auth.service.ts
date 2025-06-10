@@ -20,9 +20,12 @@ import {
   type User as Resource,
   type CreateUserRequest as ResourceCreateRequest,
   type UpdateUserRequest as ResourceUpdateRequest,
-  type ListWorkspaceMembersRequest as ResourceListRequest
+  type ListWorkspaceMembersRequest as ResourceListRequest,
+  type SendResetPasswordCodeRequest,
+  type ResetPasswordRequest
 } from "@fonoster/types";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useOptimisticCreateResource } from "~/core/hooks/use-optimistic-create-resource";
 import { useOptimisticDeleteResource } from "~/core/hooks/use-optimistic-delete-resource";
 import { useOptimisticUpdateResource } from "~/core/hooks/use-optimistic-update-resource";
@@ -154,4 +157,46 @@ export const useDeleteUser = () => {
     COLLECTION_QUERY_KEY,
     RESOURCE_QUERY_KEY
   );
+};
+
+/**
+ * Hook to send a password reset code to a user using the Fonoster SDK.
+ *
+ * This hook uses React Query's `useMutation` to:
+ * - Send a reset password code request to the backend.
+ * - Handle errors by displaying a toast notification.
+ * @param request - The request object containing user details for password reset.
+ * @returns A mutation object that can be used to trigger the password reset code request.
+ */
+export const useForgotPassword = () => {
+  const { sdk } = useFonoster();
+
+  return useMutation({
+    mutationFn: (request: SendResetPasswordCodeRequest) =>
+      sdk.users.sendResetPasswordCode(request),
+    onError: () => {
+      toast("Oops! Something went wrong while trying to reset your password.");
+    }
+  });
+};
+
+/**
+ * Hook to reset a user's password using the Fonoster SDK.
+ *
+ * This hook uses React Query's `useMutation` to:
+ * - Send a reset password request to the backend.
+ * - Handle errors by displaying a toast notification.
+ * @param request - The request object containing user details for resetting the password.
+ * @returns A mutation object that can be used to trigger the password reset.
+ */
+export const useResetPassword = () => {
+  const { sdk } = useFonoster();
+
+  return useMutation({
+    mutationFn: (request: ResetPasswordRequest) =>
+      sdk.users.resetPassword(request),
+    onError: () => {
+      toast("Oops! Something went wrong while trying to reset your password.");
+    }
+  });
 };
