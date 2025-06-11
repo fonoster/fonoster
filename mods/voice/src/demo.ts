@@ -21,7 +21,7 @@ import VoiceServer, { GatherSource, VoiceRequest, VoiceResponse } from ".";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-const skipIdentity = process.env.NODE_ENV === "dev";
+const skipIdentity = process.env.NODE_ENV === "development";
 
 // Only skip identity for local development
 new VoiceServer({ skipIdentity }).listen(

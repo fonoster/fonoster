@@ -22,7 +22,7 @@ import logger from "@fonoster/logger";
 import dotenv from "dotenv";
 import { ConversationProvider } from "./types";
 
-if (process.env.NODE_ENV === "dev") {
+if (process.env.NODE_ENV === "development") {
   dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
 }
 
