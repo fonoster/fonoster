@@ -40,6 +40,6 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           context: ./mods/dashboard
-          dockerfile: Dockerfile
+          dockerfile: ./mods/dashboard/Dockerfile
           tags: "latest,${{ env.LERNA_VERSION }}"
           platforms: linux/amd64,linux/arm64
