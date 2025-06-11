@@ -47,7 +47,7 @@ export function ApplicationsPageHeader() {
   return (
     <PageHeader
       title="Voice Applications"
-      description="Use this section to connect your Dialogflow, IBM Watson, and OpenAI Assistants with your numbers."
+      description="Manage your External and Autopilot applications here. Autopilot uses LLMs; External lets you run custom logic."
       actions={
         <Button
           variant="outlined"
