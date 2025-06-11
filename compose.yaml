@@ -1,4 +1,17 @@
 services:
+  dashboard:
+    image: fonoster/dashboard:latest
+    restart: unless-stopped
+    expose:
+      - 3030:3030
+    environment:
+      - DASHBOARD_EDITION
+      - DASHBOARD_API_URL
+      - DASHBOARD_AUTH_GITHUB_ENABLED
+      - DASHBOARD_AUTH_GITHUB_CLIENT_ID
+      - DASHBOARD_AUTH_GITHUB_URL
+      - SERVER_DASHBOARD_SESSION_SECRET
+
   apiserver:
     image: fonoster/apiserver:latest
     restart: unless-stopped

@@ -11,7 +11,7 @@
     "build": "react-router build",
     "build:storybook": "storybook build",
     "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "PORT=3030 react-router-serve ./build/server/index.js",
     "storybook": "storybook dev -p 6006",
     "typecheck": "react-router typegen && tsc"
   },

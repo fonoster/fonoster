@@ -18,16 +18,26 @@ static_resources:
                   - name: local_service
                     domains: ["*"]
                     routes:
-                      - match: { prefix: "/api" }
+                      - match:
+                          prefix: "/api"
                         route:
                           cluster: apiserver-cluster-http
-                          timeout: 0s                    
-                      - match: { prefix: "/" }
+                          timeout: 0s
+                      - match:
+                          prefix: "/"
+                          headers:
+                            - name: "content-type"
+                              exact_match: "application/grpc"
                         route:
                           cluster: apiserver-cluster
                           timeout: 0s
                           max_stream_duration:
                             grpc_timeout_header_max: 0s
+                      - match:
+                          prefix: "/"
+                        route:
+                          cluster: dashboard-cluster
+                          timeout: 0s
                     cors:
                       allow_origin_string_match:
                         - prefix: "*"
@@ -74,3 +84,16 @@ static_resources:
                     socket_address:
                       address: apiserver
                       port_value: 9876
+    - name: dashboard-cluster
+      type: logical_dns
+      connect_timeout: 20s
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: dashboard-cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: dashboard
+                      port_value: 3030

@@ -1,4 +1,13 @@
 services:
+  dashboard:
+    build:
+      context: mods/dashboard
+      dockerfile: ./Dockerfile
+    ports:
+      - 3030:3030
+    environment:
+      - NODE_ENV
+
   apiserver:
     build:
       context: .
@@ -34,8 +43,8 @@ services:
 
   asterisk:
     build:
-      context: .
-      dockerfile: ./asterisk/Dockerfile
+      context: asterisk
+      dockerfile: ./Dockerfile
     ports:
       - 6060:6060
       - 8088:8088
