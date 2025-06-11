@@ -27,7 +27,9 @@ static_resources:
                           prefix: "/"
                           headers:
                             - name: "content-type"
-                              exact_match: "application/grpc"
+                              safe_regex_match:
+                                google_re2: {}
+                                regex: "^(application/grpc|application/grpc-web-text)$"
                         route:
                           cluster: apiserver-cluster
                           timeout: 0s
