@@ -29,6 +29,7 @@ import type { Route } from "./+types/reset-password.page";
 import { Logger } from "~/core/shared/logger";
 import { useNavigate, useSearchParams } from "react-router";
 import { useResetPassword } from "~/auth/services/auth.service";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 export interface ResetPasswordTokenPayload {
   username: string;
@@ -78,7 +79,7 @@ export default function ResetPasswordPage() {
       navigate("/auth/login", { replace: true });
     } catch (error) {
       Logger.error("[ResetPasswordPage] Error resetting password", error);
-      toast("Failed to reset password. Please try again.");
+      toast(getErrorMessage(error));
 
       form.reset();
     }
