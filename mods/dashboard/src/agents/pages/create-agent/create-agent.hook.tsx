@@ -53,10 +53,7 @@ export const useCreateAgent = () => {
   const onSave = useCallback(
     async (data: Schema) => {
       try {
-        /**
-         * TODO: Remove the expires property once the backend supports it. (@psanders)
-         */
-        await mutateAsync({ expires: new Date(2028).getTime(), ...data });
+        await mutateAsync(data);
         toast("Agent created successfully!");
         onGoBack();
       } catch (error) {

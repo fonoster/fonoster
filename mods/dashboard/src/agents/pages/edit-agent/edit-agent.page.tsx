@@ -165,7 +165,7 @@ export default function EditAgent() {
         <CreateAgentForm
           ref={formRef}
           onSubmit={onSave}
-          initialValues={{ maxContacts: 10, ...data }}
+          initialValues={{ maxContacts: 10, expires: 3600, ...data }}
         />
       </Box>
     </Page>
