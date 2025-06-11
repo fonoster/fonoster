@@ -35,8 +35,6 @@ jobs:
 
       - name: Publish Dashboard to Docker Hub
         uses: elgohr/Publish-Docker-Github-Action@v5
-        env:
-          DASHBOARD_API_URL: "https://api.fonoster.com"
         with:
           name: fonoster/dashboard
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -45,4 +43,3 @@ jobs:
           dockerfile: ./mods/dashboard/Dockerfile
           tags: "latest,${{ env.LERNA_VERSION }}"
           platforms: linux/amd64,linux/arm64
-          buildargs: DASHBOARD_API_URL

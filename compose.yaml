@@ -5,11 +5,11 @@ services:
     expose:
       - 3030:3030
     environment:
-      - DASHBOARD_EDITION
       - DASHBOARD_API_URL
       - DASHBOARD_AUTH_GITHUB_ENABLED
       - DASHBOARD_AUTH_GITHUB_CLIENT_ID
       - DASHBOARD_AUTH_GITHUB_URL
+      - DASHBOARD_EDITION
       - SERVER_DASHBOARD_SESSION_SECRET
 
   apiserver:
