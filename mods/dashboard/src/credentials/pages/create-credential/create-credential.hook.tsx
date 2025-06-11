@@ -58,7 +58,7 @@ export const useCreateCredential = () => {
           return null;
         }
 
-        const credentials = await mutateAsync({ password: "", ...data });
+        const credentials = await mutateAsync(data);
         toast("Credential created successfully!");
 
         if (disableNavigation) return credentials;

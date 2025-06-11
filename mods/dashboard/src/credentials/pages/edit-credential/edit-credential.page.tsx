@@ -167,7 +167,7 @@ export default function EditCredential() {
         <CreateCredentialForm
           ref={formRef}
           onSubmit={onSave}
-          initialValues={data}
+          initialValues={{ password: "", ...data }}
         />
       </Box>
     </Page>
