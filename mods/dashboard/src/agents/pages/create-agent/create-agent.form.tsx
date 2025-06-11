@@ -107,7 +107,7 @@ export const CreateAgentForm = forwardRef<
   const renderDomainsSelect = useCallback(
     (field: ControllerRenderProps<Schema, "domainRef">) => (
       <Select
-        label="Domain Ref"
+        label="Domain"
         options={domains.map(({ ref, name }) => ({
           value: ref,
           label: name
