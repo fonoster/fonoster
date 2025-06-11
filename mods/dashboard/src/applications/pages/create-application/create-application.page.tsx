@@ -46,7 +46,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Use this section to connect your Dialogflow, IBM Watson, and OpenAI Assistants with your numbers."
+        "Manage your External and Autopilot applications here. Autopilot uses LLMs; External lets you run custom logic."
     }
   ];
 }

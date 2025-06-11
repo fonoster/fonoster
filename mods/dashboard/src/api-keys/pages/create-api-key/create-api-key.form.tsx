@@ -108,7 +108,7 @@ export const CreateApiKeyForm = forwardRef<
             <FormItem>
               <FormControl>
                 <Select
-                  label="Application Type"
+                  label="Access Role"
                   options={[
                     { value: Role.WORKSPACE_ADMIN, label: "Workspace Admin" }
                   ]}

@@ -146,7 +146,7 @@ export default function EditSecret() {
     <Page variant="form">
       <PageHeader
         title="Edit Secret"
-        description="This secret will be available for use within your Programmable Voice Applications vi a the Secrets API."
+        description="This secret will be available for use within your Programmable Voice Applications via the Secrets API."
         onBack={{ label: "Back to secrets", onClick: onGoBack }}
         actions={
           <Button

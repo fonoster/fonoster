@@ -31,7 +31,7 @@ import {
 } from "./sidebar.styles";
 import { useSidebarItems } from "./sidebar-navigation.const";
 
-const VERSION = "v0.3.4";
+const VERSION = "v0.14";
 
 export interface SidebarProps {
   workspaces: Workspace[];
