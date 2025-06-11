@@ -28,7 +28,7 @@ jobs:
           name: fonoster/asterisk   
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          context: asterisk
+          context: ./asterisk
           dockerfile: Dockerfile
           # TODO: We should get the actual version of Asterisk
           tags: "latest, 20"
