@@ -111,8 +111,11 @@ export const useUser = (ref: string) => {
 export const useCreateUser = () => {
   const { sdk } = useFonoster();
 
-  return useOptimisticCreateResource<Resource, ResourceCreateRequest>(
-    (req) => sdk.users.createUser(req),
+  return useOptimisticCreateResource<
+    Resource,
+    Omit<ResourceCreateRequest, "avatar">
+  >(
+    (req) => sdk.users.createUser({ avatar: "", ...req }),
     COLLECTION_QUERY_KEY,
     RESOURCE_QUERY_KEY
   );

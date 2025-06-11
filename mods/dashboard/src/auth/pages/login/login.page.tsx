@@ -58,7 +58,7 @@ export default function LoginPage() {
    * @param data - The validated form data.
    */
   const onSubmit = useCallback(
-    (data: Schema) => submit(data, { method: "post" }),
+    (data: Schema) => submit(data, { method: "post", viewTransition: true }),
     [submit]
   );
 

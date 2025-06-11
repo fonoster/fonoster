@@ -28,18 +28,20 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { SignupFormActions } from "./sign-up.actions";
 import { AgreeTermsModal } from "~/auth/components/agree-terms-modal";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Checkbox } from "~/core/components/design-system/ui/checkbox/checkbox";
 import { Box } from "@mui/material";
 
 export interface SignupFormProps extends React.PropsWithChildren {
   form: UseFormReturn<Schema>;
-  onSubmit: (data: Schema) => Promise<void>;
+  onSubmit: (data: Schema, form: UseFormReturn<Schema>) => Promise<void>;
   onGithubAuth: () => Promise<void>;
 }
 
 export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
   const [isAgreeTermsModalOpen, setIsAgreeTermsModalOpen] = useState(false);
+
+  const onFormSubmit = useCallback((data: Schema) => onSubmit(data, form), []);
 
   const watchAgreeToTerms = form.watch("agreeToTerms");
 
@@ -52,7 +54,7 @@ export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
   return (
     <>
       <Form {...form}>
-        <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+        <FormRoot onSubmit={form.handleSubmit(onFormSubmit)}>
           <FormField
             control={form.control}
             name="name"

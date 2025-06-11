@@ -19,7 +19,7 @@
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import { SignupForm } from "./sign-up.form";
 import { useCallback } from "react";
 import { Box } from "@mui/material";
@@ -27,6 +27,11 @@ import { Typography } from "~/core/components/design-system/ui/typography/typogr
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/sign-up.page";
 import { Logger } from "~/core/shared/logger";
+import { useCreateUser } from "~/auth/services/auth.service";
+import { useSubmit } from "react-router";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
+
+export { action } from "../login/login.action";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Sign Up | Fonoster" }];
@@ -51,6 +56,7 @@ export const schema = z.object({
 export const resolver = zodResolver(schema);
 
 export type Schema = z.infer<typeof schema>;
+export type Form = UseFormReturn<Schema>;
 
 export default function SignupPage() {
   const form = useForm<Schema>({
@@ -65,10 +71,36 @@ export default function SignupPage() {
     mode: "onChange"
   });
 
+  const submit = useSubmit();
+  const { mutateAsync: createUser } = useCreateUser();
+
   const onSubmit = useCallback(
-    async (data: Schema) => {
-      Logger.debug("[SignupPage] onSubmit data...", data);
-      toast("Signup not implemented yet");
+    async ({ confirmPassword, password, ...data }: Schema, form: Form) => {
+      Logger.debug("[SignupPage] onSubmit called with data:", data);
+      try {
+        if (password !== confirmPassword) {
+          Logger.debug("[SignupPage] Passwords do not match");
+          form.setError("confirmPassword", {
+            type: "manual",
+            message: "Passwords do not match"
+          });
+          return;
+        }
+
+        await createUser({ ...data, password });
+        toast("User created successfully");
+
+        Logger.debug("[SignupPage] User created successfully, redirecting");
+
+        await submit(
+          { ...data, password },
+          { method: "post", viewTransition: true }
+        );
+      } catch (error) {
+        Logger.error("[SignupPage] Error creating user:", error);
+        toast(getErrorMessage(error));
+      }
+      Logger.debug("[SignupPage] Form submitted successfully");
     },
     [form]
   );
