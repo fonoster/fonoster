@@ -61,7 +61,7 @@ export function MobileNav({
       </Box>
       <Stack spacing={2} sx={{ p: 2 }}>
         <Typography variant="mono-small">
-          &copy; {new Date().getFullYear()}, FONOSTER. V0.3.4
+          &copy; {new Date().getFullYear()}, FONOSTER. V0.14
         </Typography>
       </Stack>
     </Drawer>

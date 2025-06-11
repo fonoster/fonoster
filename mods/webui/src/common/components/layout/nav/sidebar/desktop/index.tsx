@@ -54,7 +54,7 @@ export function Sidebar(): React.JSX.Element {
       </Box>
       <Stack spacing={2} sx={{ padding: "10px", paddingLeft: "40px" }}>
         <Typography variant="mono-small" color="var(--SideNav-footer-color)">
-          &copy; {new Date().getFullYear()}, FONOSTER. V0.3.4
+          &copy; {new Date().getFullYear()}, FONOSTER. v0.14
         </Typography>
       </Stack>
     </Box>
