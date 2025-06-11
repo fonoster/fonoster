@@ -1,0 +1,45 @@
+name: publish dashboard
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'mods/dashboard/**'
+      - 'package.json'
+      - 'lerna.json'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
+      - name: Get version
+        run: |
+          lerna_version=$(node -p "require('./lerna.json').version")
+          echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Publish Dashboard to Docker Hub
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: fonoster/dashboard
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          context: .
+          dockerfile: mods/dashboard/Dockerfile
+          tags: "latest,${{ env.LERNA_VERSION }}"
+          platforms: linux/amd64,linux/arm64
