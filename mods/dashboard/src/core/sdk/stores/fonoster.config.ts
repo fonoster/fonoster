@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 
-const { origin, hostname, port } = new URL(import.meta.env.DASHBOARD_API_URL || "https://api.fonoster.com");
+const { origin, hostname, port } = new URL(
+  import.meta.env.DASHBOARD_API_URL || "https://api.fonoster.com"
+);
 
 export const FONOSTER_CLIENT_CONFIG = Object.freeze({
   endpoint: origin,
