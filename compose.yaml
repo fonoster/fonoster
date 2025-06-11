@@ -176,7 +176,7 @@ services:
       - 4222
 
   envoy:
-    image: envoyproxy/envoy:v1.31.0
+    image: envoyproxy/envoy:v1.34.1
     restart: unless-stopped
     volumes:
       - ./config/envoy.yaml:/etc/envoy/envoy.yaml:ro
