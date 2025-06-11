@@ -28,7 +28,7 @@ export const FONOSTER_CLIENT_CONFIG = Object.freeze({
 });
 
 export const FONOSTER_SERVER_CONFIG = Object.freeze({
-  endpoint: `${hostname}:${port}`,
+  endpoint: `${hostname}${port ? `:${port}` : ""}`,
   accessKeyId: "",
   allowInsecure: Boolean(import.meta.env.DASHBOARD_ALLOW_INSECURE === "true"),
   accessToken: ""
