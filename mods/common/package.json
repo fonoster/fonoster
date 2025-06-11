@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/common",
-  "version": "0.13.7",
+  "version": "0.14.0",
   "description": "Common library for Fonoster projects",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -18,7 +18,7 @@
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.13.7",
+    "@fonoster/logger": "^0.14.0",
     "@grpc/grpc-js": "~1.10.6",
     "@grpc/proto-loader": "^0.7.12",
     "@influxdata/influxdb-client": "^1.35.0",
