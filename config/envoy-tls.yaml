@@ -36,7 +36,7 @@ static_resources:
                             - name: "content-type"
                               exact_match: "application/grpc"
                         route:
-                          cluster: api-gateway-proxy
+                          cluster: apiserver-cluster
                           timeout: 0s
                           max_stream_duration:
                             grpc_timeout_header_max: 0s
@@ -74,13 +74,13 @@ static_resources:
                         filename: "/etc/letsencrypt/privkey.pem"
 
   clusters:
-    - name: api-gateway-proxy
+    - name: apiserver-cluster
       type: logical_dns
       connect_timeout: 20s
       http2_protocol_options: {}
       lb_policy: round_robin
       load_assignment:
-        cluster_name: api-gateway-proxy
+        cluster_name: apiserver-cluster
         endpoints:
           - lb_endpoints:
               - endpoint:
