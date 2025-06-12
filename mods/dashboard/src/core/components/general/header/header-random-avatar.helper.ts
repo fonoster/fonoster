@@ -33,4 +33,3 @@ export const getInitials = (name: string): string => {
 
   return `${firstLetter}${secondLetter}`;
 };
-
