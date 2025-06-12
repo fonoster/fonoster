@@ -1,79 +1,80 @@
+/**
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import React, { useCallback, useState } from "react";
-import {
-  Avatar,
-  IconButton,
-  Menu,
-  MenuItem,
-  Box,
-  ListItemText
-} from "@mui/material";
+import { Menu, MenuItem, Box, ListItemText } from "@mui/material";
 import { useNavigate } from "react-router";
 import { useAuth } from "~/auth/hooks/use-auth";
-import { getAvatar } from "./header-random-avatar.helper";
 import { Typography } from "../../design-system/ui/typography/typography";
+import { HeaderIconButton } from "./header-icon-button";
+import { getInitials } from "./header-random-avatar.helper";
 
 export const UserAccountPopover: React.FC = () => {
-  /** Get the current user and their workspaces from the auth context. */
   const { user } = useAuth();
-
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const handleClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
+  const handleOpen = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget),
+    []
+  );
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
 
+  const handleNavigate = (path: string) => {
+    handleClose();
+    navigate(path);
+  };
+
   return (
     <Box display="flex" alignItems="center" gap={2}>
-      {/* Avatar */}
-      <IconButton
-        onClick={handleClick}
-        sx={{ backgroundColor: "brand.03", width: 32, height: 32 }}
-      >
-        <Avatar
-          sx={{
-            width: 32,
-            height: 32,
-            fontSize: 13,
-            bgcolor: "brand.03",
-            color: "brand.07"
-          }}
-        >
-          {getAvatar(user.name)}
-        </Avatar>
-      </IconButton>
+      <HeaderIconButton
+        initials={getInitials(user.name)}
+        onClick={handleOpen}
+      />
 
-      {/* Popover */}
       <Menu
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
         slotProps={{
           paper: {
             sx: {
-              width: 240,
+              padding: 0,
+              minWidth: 232,
               mt: 1.5,
-              borderRadius: 2,
+              borderRadius: 0,
               boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)"
             }
           }
         }}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Box px={2} py={1}>
+        <Box sx={{ p: "10px", display: "flex", alignItems: "center" }}>
           <Typography variant="body-medium">Account</Typography>
         </Box>
 
         <MenuItem
-          onClick={() => {
-            handleClose();
-            navigate("/accounts/profile");
-          }}
+          sx={{ padding: "10px !important" }}
+          onClick={() => handleNavigate("/accounts/profile")}
         >
           <ListItemText
             primary={
@@ -83,10 +84,8 @@ export const UserAccountPopover: React.FC = () => {
         </MenuItem>
 
         <MenuItem
-          onClick={() => {
-            handleClose();
-            navigate("/auth/logout?auto_logout=true");
-          }}
+          sx={{ padding: "10px !important" }}
+          onClick={() => handleNavigate("/auth/logout?auto_logout=true")}
         >
           <ListItemText
             primary={

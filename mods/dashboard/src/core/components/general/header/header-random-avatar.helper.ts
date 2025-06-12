@@ -16,27 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const getAvatar = (name: string): string => {
-  if (!name) return "UN"; // Default to "UN" if name is empty
+export const getInitials = (name: string): string => {
+  if (!name?.trim()) return "UN";
 
-  const cleanName = name
+  const sanitized = name
     .replace(/[^a-zA-Z\s]/g, "")
     .trim()
     .replace(/\s+/g, " ");
 
-  const words = cleanName.split(" ");
+  const [firstWord = "", secondWord = ""] = sanitized.split(" ");
 
-  let firstLetter = "";
-  let secondLetter = "";
+  const firstLetter = firstWord.charAt(0).toUpperCase();
+  const secondLetter = secondWord
+    ? secondWord.charAt(0).toUpperCase()
+    : firstWord.charAt(1)?.toUpperCase() || "N";
 
-  if (words.length >= 2) {
-    firstLetter = words[0].charAt(0).toUpperCase();
-    secondLetter = words[1].charAt(0).toUpperCase();
-  } else if (words.length === 1) {
-    const word = words[0];
-    firstLetter = word.charAt(0).toUpperCase();
-    secondLetter = word.charAt(1)?.toUpperCase() || "N";
-  }
-
-  return `${firstLetter}${secondLetter || "N"}`;
+  return `${firstLetter}${secondLetter}`;
 };
+
