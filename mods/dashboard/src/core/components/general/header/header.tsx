@@ -21,6 +21,8 @@ import { Link } from "../link/link";
 import { Logo } from "../../design-system/ui/logo/logo";
 import { HeaderRoot, HeaderContent } from "./header.styles";
 import { memo } from "react";
+import { UserAccountPopover } from "./user-account-options";
+import { HeaderNotificationsButton } from "./notifications";
 
 export const Header = memo(() => {
   return (
@@ -40,8 +42,8 @@ export const Header = memo(() => {
             justifyContent: "flex-end"
           }}
         >
-          {/* <NotificationsButton user={user} />
-            <UserButton user={user} /> */}
+          <HeaderNotificationsButton />
+          <UserAccountPopover />
         </Stack>
       </HeaderContent>
     </HeaderRoot>

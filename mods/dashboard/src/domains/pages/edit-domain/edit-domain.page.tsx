@@ -32,6 +32,7 @@ import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
 import { useDomain, useUpdateDomain } from "~/domains/services/domains.service";
 import type { Schema } from "../create-domain/create-domain.schema";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 /**
  * Sets the metadata for the "Edit Domain" page.
@@ -114,7 +115,7 @@ export default function EditDomain() {
         toast("Domain updated successfully!");
         onGoBack();
       } catch (error) {
-        toast("Oops! Something went wrong while updating the domain.");
+        toast(getErrorMessage(error));
       }
     },
     [mutateAsync, ref, onGoBack]

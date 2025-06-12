@@ -36,6 +36,7 @@ import { Select } from "~/core/components/design-system/ui/select/select";
 import { Logger } from "~/core/shared/logger";
 import { ROLE_OPTIONS } from "./invite-member-roles.const";
 import { useInviteWorkspace } from "~/workspaces/services/workspaces.service";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 export const schema = z.object({
   role: z.nativeEnum(Role),
@@ -81,7 +82,7 @@ export function InviteMemberForm({ onClose }: InviteMemberFormProps) {
         }
       } catch (error) {
         Logger.error("Failed to invite member", error);
-        toast("Failed to invite member. Please try again.");
+        toast(getErrorMessage(error));
       }
     },
     [form]
