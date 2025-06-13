@@ -50,9 +50,5 @@ export const PageHeaderTitleText = styled(Typography)({
 });
 
 export const PageHeaderDescriptionText = styled(Typography)({
-  maxWidth: 400,
-  overflow: "hidden",
-  display: "-webkit-box",
-  WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 2
+  maxWidth: 400
 });
