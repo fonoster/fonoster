@@ -31,7 +31,7 @@ import {
 } from "./sidebar.styles";
 import { useSidebarItems } from "./sidebar-navigation.const";
 
-const VERSION = import.meta.env.DASHBOARD_VERSION || "v0.14";
+const VERSION = import.meta.env.DASHBOARD_VERSION || "unset";
 
 export interface SidebarProps {
   workspaces: Workspace[];

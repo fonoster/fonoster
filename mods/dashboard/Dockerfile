@@ -9,9 +9,11 @@ WORKDIR /app
 RUN npm install --omit=dev
 
 FROM node:20-alpine AS build
+ARG DASHBOARD_VERSION
 COPY . /app/
 COPY --from=dev-deps /app/node_modules /app/node_modules
 WORKDIR /app
+ENV DASHBOARD_VERSION=$DASHBOARD_VERSION
 RUN npm run build
 
 FROM node:20-alpine
