@@ -1,6 +1,6 @@
 ---
-title: 'Securing the API'
-description: 'Securing the API with TLS.'
+title: "Securing the API"
+description: "Securing the API with TLS."
 ---
 
 import WipDocsWarning from '/snippets/wip-docs-warning.mdx';
@@ -21,7 +21,6 @@ Here are the steps to accomplish this task:
     mkdir -p letsencrypt/certbot/conf
     ```
   </Step>
-
   <Step title="Configure Nginx">
     Next, create Nginx's configuration file with the following content:
 
@@ -29,17 +28,17 @@ Here are the steps to accomplish this task:
     events {
       worker_connections 1024;
     }
-
+    
     http {
       server {
         listen 80;
         listen [::]:80;
-        server_name api.example.com;
-
+        server_name app.example.com api.example.com;
+    
         location /.well-known/acme-challenge/ {
           root /var/www/html;
         }
-
+    
         location / {
           return 404;
         }
@@ -48,10 +47,9 @@ Here are the steps to accomplish this task:
     ```
 
     <Note>
-      Replace `api.example.com` with your domain name, and remember to point the domain to the server's IP address.
+      Replace `api.example.com` and `app.example.com` with your domain name, and remember to point the domain to the server's IP address.
     </Note>
   </Step>
-
   <Step title="Start the container">
     Then, start the Nginx container to handle the ACME challenge:
 
@@ -63,7 +61,6 @@ Here are the steps to accomplish this task:
       nginx:latest
     ```
   </Step>
-
   <Step title="Retrieve the certificates">
     Now, run Certbot to obtain the Let's Encrypt certificate:
 
@@ -74,18 +71,16 @@ Here are the steps to accomplish this task:
       certbot/certbot certonly --webroot \
       --webroot-path /var/www/html \
       --email your@email.com --agree-tos --no-eff-email \
-      -d api.example.com
+      -d app.example.com -d api.example.com
     ```
 
     <Note>
       Replace the email and domain name with your information.
     </Note>
-
     <Tip>
       You should see a message indicating that the certificate was successfully obtained.
     </Tip>
   </Step>
-
   <Step title="Remove the container">
     After obtaining the certificate, stop and remove the temporary Nginx container:
 
@@ -94,13 +89,12 @@ Here are the steps to accomplish this task:
     docker rm nginx
     ```
   </Step>
-
   <Step title="Set the auto-renewal">
     Next, set up auto-renewal by creating a script named `renew_cert.sh`:
 
     ```bash renew_cert.sh
     #!/bin/bash
-
+    
     docker run --rm \
      -v /path/to/letsencrypt/certbot/conf:/etc/letsencrypt \
       -v /path/to/letsencrypt/certbot/www:/var/www/html \
@@ -110,7 +104,6 @@ Here are the steps to accomplish this task:
     <Note>
       Please replace `/path/to` with the actual path to the directories.
     </Note>
-
     Make the script executable and add a cron job to run it twice daily:
 
     ```bash
@@ -122,7 +115,6 @@ Here are the steps to accomplish this task:
       Replace `/path/to` with the actual path to the script.
     </Note>
   </Step>
-
   <Step title="Finalize settings and run the process">
     Finally, find the Envoy container in your compose file, mount the Let's Encrypt certificates, and open port `443`.
   </Step>
