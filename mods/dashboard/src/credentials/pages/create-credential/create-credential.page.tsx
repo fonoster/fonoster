@@ -42,7 +42,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Add a new credential to handle incoming and outgoing calls. Use this section to manage your credentials and control their settings."
+        "Credentials are used to authenticate SIP Agents and Trunks within your network."
     }
   ];
 }
@@ -72,7 +72,7 @@ export default function CreateCredential() {
     <Page variant="form">
       <PageHeader
         title="Create New Credentials"
-        description="Create a new credential to protect your Agent or Trunk."
+        description="Credentials are used to authenticate SIP Agents and Trunks within your network."
         onBack={{ label: "Back to credentials", onClick: onGoBack }}
         actions={
           <Button

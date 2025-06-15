@@ -125,7 +125,7 @@ export function CreateWorkspaceForm({
                 <Input
                   type="text"
                   label="Name"
-                  supportingText="Please enter your full name"
+                  supportingText="Enter a name for your workspace"
                   {...field}
                 />
               </FormControl>

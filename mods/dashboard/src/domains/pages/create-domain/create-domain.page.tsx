@@ -42,7 +42,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Create a new domain to manage your internal communications. A SIP Domain will group several SIP Agents (e.g. office, home, etc.)"
+        "A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
     }
   ];
 }
@@ -72,7 +72,7 @@ export default function CreateDomain() {
     <Page variant="form">
       <PageHeader
         title="Create New Domain"
-        description="Create a new domain to manage your internal communications. A SIP Domain will group several SIP Agents (e.g. office, home, etc.)"
+        description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
         onBack={{ label: "Back to domains", onClick: onGoBack }}
         actions={
           <Button

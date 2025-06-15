@@ -47,7 +47,7 @@ export function AgentsPageHeader() {
   return (
     <PageHeader
       title="Agents"
-      description="SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)"
+      description="SIP Agents in the same domain can call each other over VoIP using a softphone like Zoiper."
       actions={
         <Button
           variant="outlined"

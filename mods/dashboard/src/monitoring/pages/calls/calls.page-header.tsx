@@ -97,7 +97,7 @@ export function CallsPageHeader({
   return (
     <PageHeader
       title="Monitoring / Call Logs"
-      description="View and inspect call logs generated within your workspace."
+      description="View and inspect call logs generated in this workspace."
       actions={
         <Button
           variant="outlined"

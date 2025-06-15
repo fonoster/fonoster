@@ -43,7 +43,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Key management here. API keys are encrypted values that you can use to make calls to Fonoster’s APIs. Your API Keys are only available for use within this Workspace."
+        "An API Key is an encrypted token that grants secure access to Fonoster's APIs."
     }
   ];
 }
@@ -73,7 +73,7 @@ export default function CreateApiKey() {
     <Page variant="form">
       <PageHeader
         title="Create New API Key"
-        description="Your API Keys are only available for use within this Workspace."
+        description="An API Key is an encrypted token that grants secure access to Fonoster's APIs."
         onBack={{ label: "Back to API Keys", onClick: onGoBack }}
         actions={
           <Button

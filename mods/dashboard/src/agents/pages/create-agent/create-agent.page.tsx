@@ -42,7 +42,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)"
+        "A SIP Agent represents a user or device that connects to your SIP Domain using VoIP."
     }
   ];
 }
@@ -72,7 +72,7 @@ export default function CreateAgent() {
     <Page variant="form">
       <PageHeader
         title="Create New Agent"
-        description="SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)"
+        description="A SIP Agent represents a user or device that connects to your SIP Domain using VoIP."
         onBack={{ label: "Back to agents", onClick: onGoBack }}
         actions={
           <Button

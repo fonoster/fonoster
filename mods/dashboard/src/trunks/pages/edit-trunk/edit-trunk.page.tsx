@@ -49,7 +49,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Edit your SIP Provider to make and receive calls from regular phones. "
+        "A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity. "
     }
   ];
 }
@@ -147,7 +147,7 @@ export default function EditTrunk() {
     <Page variant="form">
       <PageHeader
         title="Edit SIP Trunk"
-        description="Edit your SIP Provider to make and receive calls from regular phones. "
+        description="A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity. "
         onBack={{ label: "Back to trunks", onClick: onGoBack }}
         actions={
           <Button

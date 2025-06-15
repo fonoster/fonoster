@@ -47,7 +47,7 @@ export function ApiKeysPageHeader() {
   return (
     <PageHeader
       title="API keys"
-      description="Key management here. API keys are encrypted values that you can use to make calls to Fonoster’s APIs. Your API Keys are only available for use within this Workspace."
+      description="Use API Keys to access Fonoster's APIs securely. Keys are encrypted and limited to this workspace."
       actions={
         <Button
           variant="outlined"

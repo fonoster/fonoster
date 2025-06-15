@@ -47,7 +47,7 @@ export function DomainsPageHeader() {
   return (
     <PageHeader
       title="Domains"
-      description="A SIP Domain will group several SIP Agents. (e.g office, home, etc)"
+      description="Group SIP Agents under a domain (e.g., office, home) to simplify internal VoIP routing."
       actions={
         <Button
           variant="outlined"

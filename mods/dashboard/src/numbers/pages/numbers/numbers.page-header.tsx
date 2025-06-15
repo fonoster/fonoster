@@ -47,7 +47,7 @@ export function NumbersPageHeader() {
   return (
     <PageHeader
       title="Numbers"
-      description="You will need a Number to make and receive calls from the PSTN (traditional phones)."
+      description="Link a phone number to send and receive calls via the PSTN."
       actions={
         <Button
           variant="outlined"

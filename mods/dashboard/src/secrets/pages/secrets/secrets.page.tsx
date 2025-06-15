@@ -46,7 +46,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Store your credentials in the Secrets Vault. These encrypted variables are usable in your Voice Apps and APIs and are only accessible within the project."
+        "Manage encrypted variables used in your apps and APIs. Only available within this workspace."
     }
   ];
 }

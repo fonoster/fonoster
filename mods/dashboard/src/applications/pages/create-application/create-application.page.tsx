@@ -46,7 +46,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Manage your External and Autopilot applications here. Autopilot uses LLMs; External lets you run custom logic."
+        "An Application defines how your Voice AI behaves. Use Autopilot for LLM-based agents or External for custom logic."
     }
   ];
 }
@@ -106,7 +106,7 @@ export default function CreateApplication() {
     <Page variant="form">
       <PageHeader
         title="Create New Application"
-        description="Create a programmable voice application to connect your Telephony infrastructure with your Dialogflow Agents"
+        description="An Application defines how your Voice AI behaves. Use Autopilot for LLM-based agents or External for custom logic."
         onBack={{ label: "Back to voice applications", onClick: onGoBack }}
         actions={
           <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>

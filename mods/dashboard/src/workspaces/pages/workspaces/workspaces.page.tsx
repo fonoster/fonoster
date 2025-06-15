@@ -98,8 +98,7 @@ export default function Workspaces() {
           </Title>
 
           <Subtitle variant="body-large">
-            Create a new workspace to begin managing your SIP Network and
-            Programmable Voice Applications.
+            Create a workspace to power your Voice AI and manage your SIP network—all in one place.
           </Subtitle>
 
           <WorkspaceGrid>

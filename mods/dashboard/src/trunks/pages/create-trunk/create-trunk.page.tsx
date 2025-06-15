@@ -42,7 +42,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Add to your Project a SIP Provider to make and receive calls from regular phones. Complete the following form with the information given to you by your service provider."
+        "A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity."
     }
   ];
 }
@@ -72,7 +72,7 @@ export default function CreateTrunk() {
     <Page variant="form">
       <PageHeader
         title="Create New SIP Trunk"
-        description="Add to your Project a SIP Provider to make and receive calls from regular phones. Complete the following form with the information given to you by your service provider."
+        description="A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity."
         onBack={{ label: "Back to trunks", onClick: onGoBack }}
         actions={
           <Button

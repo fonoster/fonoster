@@ -46,7 +46,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "A SIP Domain will group several SIP Agents. (e.g office, home, etc)"
+        "Group SIP Agents under a domain (e.g., office, home) to simplify internal VoIP routing."
     }
   ];
 }

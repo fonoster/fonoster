@@ -49,7 +49,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)"
+        "A SIP Agent represents a user or device that connects to your SIP Domain using VoIP."
     }
   ];
 }

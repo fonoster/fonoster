@@ -42,7 +42,7 @@ export function meta(_: Route.MetaArgs) {
     { title: "Monitoring / Call Logs" },
     {
       name: "description",
-      content: "View and inspect call logs generated within your workspace."
+      content: "View and inspect call logs generated in this workspace."
     }
   ];
 }

@@ -46,7 +46,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)"
+        "SIP Agents in the same domain can call each other over VoIP using a softphone like Zoiper.."
     }
   ];
 }

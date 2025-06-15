@@ -46,7 +46,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Create an Access Control List (ACL) to allow or deny access from external networks to your infrastructure."
+        "Control access from external networks by creating allow or deny rules."
     }
   ];
 }

@@ -50,7 +50,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Manage your External and Autopilot applications here. Autopilot uses LLMs; External lets you run custom logic."
+        "Manage your External and Autopilot applications here. Autopilot uses LLMs to handle conversations; External lets you run custom business logic."
     }
   ];
 }

@@ -47,7 +47,7 @@ export function TrunksPageHeader() {
   return (
     <PageHeader
       title="Trunks"
-      description="Use this section to configure your VoIP Providers for inbound and outbound calls to the PSTN."
+      description="Configure your VoIP providers to enable inbound and outbound PSTN calls."
       actions={
         <Button
           variant="outlined"

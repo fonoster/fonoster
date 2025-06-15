@@ -47,7 +47,7 @@ export function SecretsPageHeader() {
   return (
     <PageHeader
       title="Secrets"
-      description="Store credentials in the Secrets Vault—encrypted, project-only variables for your Voice Apps and APIs."
+      description="Manage encrypted variables used in your apps and APIs. Only available within this workspace."
       actions={
         <Button
           variant="outlined"

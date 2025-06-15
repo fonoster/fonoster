@@ -49,7 +49,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "You will need a Number to make and receive calls from the PSTN (traditional phones)."
+        "Link a phone number to send and receive calls via the PSTN."
     }
   ];
 }

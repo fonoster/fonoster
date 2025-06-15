@@ -46,7 +46,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Use this section to configure your VoIP Providers for inbound and outbound calls to the PSTN."
+        "Configure your VoIP providers to enable inbound and outbound PSTN calls."
     }
   ];
 }

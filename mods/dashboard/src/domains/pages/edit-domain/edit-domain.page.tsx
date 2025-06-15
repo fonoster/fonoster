@@ -48,7 +48,7 @@ export function meta(_: Route.MetaArgs) {
     { title: "Domains | Fonoster" },
     {
       name: "description",
-      content: "Edit a domain to protect your domains, peers, and trunks."
+      content: "A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
     }
   ];
 }
@@ -146,7 +146,7 @@ export default function EditDomain() {
     <Page variant="form">
       <PageHeader
         title="Edit Domain"
-        description="Edit domain to manage your internal communications. A SIP Domain will group several SIP Agents (e.g. office, home, etc.)"
+        description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
         onBack={{ label: "Back to domains", onClick: onGoBack }}
         actions={
           <Button

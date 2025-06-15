@@ -47,7 +47,7 @@ export function CredentialsPageHeader() {
   return (
     <PageHeader
       title="Credentials"
-      description="Create a set of credentials to protect your Agent or a Trunk."
+      description="Manage the credentials used to authenticate your Agents and Trunks."
       actions={
         <Button
           variant="outlined"

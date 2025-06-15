@@ -29,7 +29,7 @@ export const InviteMemberModal = ({ isOpen, onClose }: ModalProps) => {
     <Modal
       open={isOpen}
       onClose={onClose}
-      title="Invite a new member to your workspace"
+      title="Invite a new member to your workspace."
     >
       <InviteMemberForm onClose={onClose} />
     </Modal>

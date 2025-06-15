@@ -38,7 +38,7 @@ export function meta(_: Route.MetaArgs) {
     { title: "Create New ACL | Fonoster" },
     {
       name: "description",
-      content: "Create a new ACL to protect your domains, peers, and trunks."
+      content: "An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
     }
   ];
 }
@@ -68,7 +68,7 @@ export default function CreateAcl() {
     <Page variant="form">
       <PageHeader
         title="Create New ACL"
-        description="Create a new ACL to protect your domains, peers, and trunks."
+        description="An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
         onBack={{ label: "Back to ACLs", onClick: onGoBack }}
         actions={
           <Button

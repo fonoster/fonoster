@@ -49,7 +49,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Add a new number to handle incoming and outgoing calls. Use this section to manage your numbers and control their settings."
+        "A Number is a PSTN phone number that can be used to make or receive calls."
     }
   ];
 }
@@ -125,7 +125,7 @@ export default function CreateNumber() {
     <Page variant="form">
       <PageHeader
         title="Create New Number"
-        description="Add a new number to handle incoming and outgoing calls. Use this section to manage your numbers and control their settings."
+        description="A Number is a PSTN phone number that can be used to make or receive calls."
         onBack={{ label: "Back to numbers", onClick: onGoBack }}
         actions={
           <Button

@@ -51,7 +51,7 @@ export function meta(_: Route.MetaArgs) {
     { title: "Credentials | Fonoster" },
     {
       name: "description",
-      content: "Edit a credential to protect your domains, peers, and trunks."
+      content: "Credentials are used to authenticate SIP Agents and Trunks within your network."
     }
   ];
 }
@@ -149,7 +149,7 @@ export default function EditCredential() {
     <Page variant="form">
       <PageHeader
         title="Edit Credentials"
-        description="Edit a credential to protect your domains, peers, and trunks."
+        description="Credentials are used to authenticate SIP Agents and Trunks within your network."
         onBack={{ label: "Back to credentials", onClick: onGoBack }}
         actions={
           <Button

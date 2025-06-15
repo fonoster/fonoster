@@ -47,7 +47,7 @@ export function ApplicationsPageHeader() {
   return (
     <PageHeader
       title="Voice Applications"
-      description="Manage your External and Autopilot applications here. Autopilot uses LLMs; External lets you run custom logic."
+      description="Manage your External and Autopilot applications here. Autopilot uses LLMs to handle conversations; External lets you run custom business logic."
       actions={
         <Button
           variant="outlined"

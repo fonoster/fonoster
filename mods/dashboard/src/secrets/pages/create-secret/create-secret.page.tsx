@@ -42,7 +42,7 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Add a new secret to handle incoming and outgoing calls. Use this section to manage your secrets and control their settings."
+        "Secrets are encrypted variables available to your apps and APIs within the current workspace."
     }
   ];
 }
@@ -72,7 +72,7 @@ export default function CreateSecret() {
     <Page variant="form">
       <PageHeader
         title="Create New Secret"
-        description="This secret will be available for use within your Programmable Voice Applications via the Secrets API."
+        description="Secrets are encrypted variables available to your apps and APIs within the current workspace."
         onBack={{ label: "Back to secrets", onClick: onGoBack }}
         actions={
           <Button

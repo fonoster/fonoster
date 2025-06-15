@@ -47,7 +47,7 @@ export function AclsPageHeader() {
   return (
     <PageHeader
       title="IP/CIDR Access Control List (ACL)"
-      description="Create an Access Control List (ACL) to allow or deny access from external networks to your infrastructure."
+      description="Control access from external networks by creating allow or deny rules."
       actions={
         <Button
           variant="outlined"
