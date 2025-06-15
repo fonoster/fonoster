@@ -48,7 +48,8 @@ export function meta(_: Route.MetaArgs) {
     { title: "Credentials | Fonoster" },
     {
       name: "description",
-      content: "Manage the credentials used to authenticate your Agents and Trunks."
+      content:
+        "Manage the credentials used to authenticate your Agents and Trunks."
     }
   ];
 }

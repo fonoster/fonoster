@@ -48,8 +48,7 @@ export function meta(_: Route.MetaArgs) {
     { title: "Numbers | Fonoster" },
     {
       name: "description",
-      content:
-        "Link a phone number to send and receive calls via the PSTN."
+      content: "Link a phone number to send and receive calls via the PSTN."
     }
   ];
 }

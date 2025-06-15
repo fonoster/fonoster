@@ -48,7 +48,8 @@ export function meta(_: Route.MetaArgs) {
     { title: "Domains | Fonoster" },
     {
       name: "description",
-      content: "A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
+      content:
+        "A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
     }
   ];
 }

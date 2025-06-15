@@ -51,7 +51,8 @@ export function meta(_: Route.MetaArgs) {
     { title: "Credentials | Fonoster" },
     {
       name: "description",
-      content: "Credentials are used to authenticate SIP Agents and Trunks within your network."
+      content:
+        "Credentials are used to authenticate SIP Agents and Trunks within your network."
     }
   ];
 }

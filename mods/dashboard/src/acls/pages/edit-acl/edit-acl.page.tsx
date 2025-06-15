@@ -48,7 +48,8 @@ export function meta(_: Route.MetaArgs) {
     { title: "Edit ACL | Fonoster" },
     {
       name: "description",
-      content: "An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
+      content:
+        "An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
     }
   ];
 }

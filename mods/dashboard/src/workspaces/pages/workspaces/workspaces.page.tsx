@@ -98,7 +98,8 @@ export default function Workspaces() {
           </Title>
 
           <Subtitle variant="body-large">
-            Create a workspace to power your Voice AI and manage your SIP network—all in one place.
+            Create a workspace to power your Voice AI and manage your SIP
+            network—all in one place.
           </Subtitle>
 
           <WorkspaceGrid>
