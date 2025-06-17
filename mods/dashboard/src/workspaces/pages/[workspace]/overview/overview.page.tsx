@@ -35,6 +35,7 @@ import {
   SectionTitle
 } from "./overview.styles";
 import { useAuth } from "~/auth/hooks/use-auth";
+import { useApiKeys } from "~/api-keys/services/api-keys.service";
 
 /**
  * Page metadata function
@@ -66,11 +67,7 @@ export default function Overview() {
   /** React Router hook to handle programmatic navigation. */
   const navigate = useNavigate();
 
-  /** Example hardcoded data for API key count. */
-  const apiKeysCount = 3;
-
-  /** Example hardcoded data for expiring keys count. */
-  const expiringKeysCount = 2;
+  const { data, isLoading } = useApiKeys();
 
   /**
    * Handles clicking on an overview card.
@@ -93,6 +90,39 @@ export default function Overview() {
     }
     return "Workspace Overview";
   }, [currentWorkspace]);
+
+  const apiKeysMessage = useMemo(() => {
+    if (isLoading) {
+      return "Loading API keys...";
+    }
+
+    if (data.length === 0) {
+      return "You currently have no API Keys";
+    }
+
+    return `You currently have [${data.length}] API Keys`;
+  }, [data, isLoading]);
+
+  const apiKeysExpiresSoonMessage = useMemo(() => {
+    if (isLoading) {
+      return "Loading API keys...";
+    }
+
+    if (data.length === 0) {
+      return "You currently have no API Keys that are about to expire";
+    }
+
+    const expiringKeysCount = data.filter(
+      (key) =>
+        new Date(key.expiresAt).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
+    ).length;
+
+    if (expiringKeysCount === 0) {
+      return "You have no API Keys that are about to expire";
+    }
+
+    return `You have ${expiringKeysCount} API Key(s) that are about to expire`;
+  }, [data, isLoading]);
 
   /**
    * Renders the overview page layout.
@@ -127,17 +157,16 @@ export default function Overview() {
               <SectionTitle>API KEYS</SectionTitle>
               <CardsContainer>
                 <OverviewCard
-                  label={`You currently have [${apiKeysCount}] API Keys`}
+                  label={apiKeysMessage}
                   icon={<VpnKeyOutlinedIcon />}
                   onClick={() => handleCardClick("api-keys")}
                 />
-                {expiringKeysCount > 0 && (
-                  <OverviewCard
-                    label={`You have ${expiringKeysCount} API Key that is almost expired`}
-                    icon={<NotificationsOutlinedIcon />}
-                    onClick={() => handleCardClick("api-keys")}
-                  />
-                )}
+
+                <OverviewCard
+                  label={apiKeysExpiresSoonMessage}
+                  icon={<NotificationsOutlinedIcon />}
+                  onClick={() => handleCardClick("api-keys")}
+                />
               </CardsContainer>
             </SectionContainer>
           </Grid>
