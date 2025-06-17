@@ -176,3 +176,29 @@ export const useInviteWorkspace = () => {
     }
   });
 };
+
+export const useWorkspaceResendInvite = () => {
+  const { sdk } = useFonoster();
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (userRef: string) => sdk.workspaces.resendWorkspaceMembershipInvitation(userRef),
+    onSuccess: () => {
+      // Invalidate the workspaces list to ensure the cache is fresh
+      queryClient.invalidateQueries({ queryKey: USER_COLLECTION_QUERY_KEY });
+    }
+  });
+}
+
+export const useWorkspaceRemoveMember = () => {
+  const { sdk } = useFonoster();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userRef: string) => sdk.workspaces.removeUserFromWorkspace(userRef),
+    onSuccess: () => {
+      // Invalidate the workspaces list to ensure the cache is fresh
+      queryClient.invalidateQueries({ queryKey: USER_COLLECTION_QUERY_KEY });
+    }
+  });
+}
