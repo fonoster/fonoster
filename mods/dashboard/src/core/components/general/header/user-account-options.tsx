@@ -47,6 +47,7 @@ export const UserAccountPopover: React.FC = () => {
     <Box display="flex" alignItems="center" gap={2}>
       <HeaderIconButton
         initials={getInitials(user.name)}
+        avatar={user.avatar}
         onClick={handleOpen}
       />
 

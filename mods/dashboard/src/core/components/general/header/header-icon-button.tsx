@@ -21,11 +21,13 @@ import { Avatar, IconButton } from "@mui/material";
 
 export interface UserAvatarButtonProps {
   initials: string;
+  avatar?: string;
   onClick: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
 export const HeaderIconButton: React.FC<UserAvatarButtonProps> = ({
   initials,
+  avatar,
   onClick
 }) => (
   <IconButton
@@ -53,6 +55,7 @@ export const HeaderIconButton: React.FC<UserAvatarButtonProps> = ({
         color: "brand.07",
         transition: "all 0.2s ease-in-out"
       }}
+      src={avatar ? avatar : undefined}
     >
       {initials}
     </Avatar>
