@@ -29,6 +29,11 @@ import { useUsers } from "~/auth/services/auth.service";
 import { useResourceTable } from "~/core/hooks/use-resource-table";
 import { Logger } from "~/core/shared/logger";
 import { PAGE_SIZE } from "~/core/shared/page-sizes.const";
+import {
+  useWorkspaceRemoveMember,
+  useWorkspaceResendInvite
+} from "~/workspaces/services/workspaces.service";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 
 /**
  * Page metadata function.
@@ -70,6 +75,9 @@ export default function Members() {
     pageToken
   });
 
+  const { mutate: resend } = useWorkspaceResendInvite();
+  const { mutate: removeUser } = useWorkspaceRemoveMember();
+
   /**
    * Handler for deleting a member (placeholder).
    * Currently shows a toast indicating the feature is not implemented yet.
@@ -77,9 +85,16 @@ export default function Members() {
    * @param {WorkspaceMemberDTO} member - The member to delete.
    */
   const onDelete = useCallback(
-    (member: WorkspaceMemberDTO) => {
-      Logger.debug("Delete member:", member);
-      toast("Delete member not implemented yet");
+    ({ userRef }: WorkspaceMemberDTO) => {
+      try {
+        if (window.confirm("Are you sure you want to remove this member?")) {
+          removeUser(userRef);
+          toast("The member has been removed successfully");
+        }
+      } catch (error) {
+        Logger.error("Failed to remove member", error);
+        toast(getErrorMessage(error));
+      }
     },
     [workspaceId]
   );
@@ -91,9 +106,13 @@ export default function Members() {
    * @param {WorkspaceMemberDTO} member - The member to email.
    */
   const onSendEmail = useCallback(
-    (member: WorkspaceMemberDTO) => {
-      Logger.debug("Send email:", member);
-      toast("Send email not implemented yet");
+    async ({ userRef }: WorkspaceMemberDTO) => {
+      try {
+        resend(userRef);
+        toast("The invitation has been resent successfully");
+      } catch (error) {
+        toast(getErrorMessage(error));
+      }
     },
     [workspaceId]
   );
