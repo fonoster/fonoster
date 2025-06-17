@@ -38,6 +38,12 @@ export interface AuthenticatedUser {
    * Email address of the user.
    */
   email: string;
+
+  /**
+   * Optional avatar URL for the user.
+   * This can be used to display a profile picture in the UI.
+   */
+  avatar?: string;
 }
 
 /**

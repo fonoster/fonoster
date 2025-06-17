@@ -94,7 +94,8 @@ export const useCurrentUser = () => {
       setUser({
         id: data.ref,
         name: data.name,
-        email: data.email
+        email: data.email,
+        avatar: data.avatar || ""
       });
     }
   }, [data]);
