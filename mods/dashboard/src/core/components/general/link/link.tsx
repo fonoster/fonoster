@@ -24,7 +24,7 @@ export const Link = forwardRef(function Link(
   ref: React.ForwardedRef<HTMLAnchorElement>
 ) {
   return (
-    <Root ref={ref} {...props} style={{ color: "inherit" }} viewTransition>
+    <Root ref={ref} style={{ color: "inherit" }} viewTransition {...props}>
       {children}
     </Root>
   );
