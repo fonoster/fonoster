@@ -30,6 +30,7 @@ import { Logger } from "~/core/shared/logger";
 import { useCreateUser } from "~/auth/services/auth.service";
 import { useSubmit } from "react-router";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { getGithubSignupUrl } from "~/auth/config/oauth";
 
 export { action } from "../login/login.action";
 
@@ -106,8 +107,7 @@ export default function SignupPage() {
   );
 
   const onGithubAuth = useCallback(async () => {
-    Logger.debug("[SignupPage] onGithubAuth called");
-    toast("Github auth not implemented yet");
+    window.location.href = getGithubSignupUrl();
   }, []);
 
   return (

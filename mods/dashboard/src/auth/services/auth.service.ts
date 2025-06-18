@@ -203,3 +203,37 @@ export const useResetPassword = () => {
     }
   });
 };
+
+export const useCreateUserWithOauth2Code = () => {
+  const { sdk } = useFonoster();
+
+  return useMutation({
+    mutationFn: (code: string) => sdk.users.createUserWithOauth2Code({ code }),
+    onError: () => {
+      toast(
+        "Oops! Something went wrong while trying to authenticate with OAuth providers."
+      );
+    }
+  });
+};
+
+export const useLoginWithOauth2Code = () => {
+  const { client } = useFonoster();
+
+  return useMutation({
+    mutationFn: async (code: string) => {
+      await client.loginWithOauth2Code("GITHUB", code);
+
+      return {
+        accessToken: client.getAccessToken(),
+        refreshToken: client.getRefreshToken(),
+        idToken: client.getIdToken()
+      };
+    },
+    onError: () => {
+      toast(
+        "Oops! Something went wrong while trying to authenticate with OAuth providers."
+      );
+    }
+  });
+};

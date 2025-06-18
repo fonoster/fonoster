@@ -31,9 +31,7 @@ export interface IDTokenPayload {
 }
 
 export interface ExchangeCredentialsResponse {
-  tokens: {
-    idToken: string;
-    accessToken: string;
-    refreshToken: string;
-  };
+  idToken: string;
+  accessToken: string;
+  refreshToken: string;
 }

@@ -20,9 +20,9 @@ import { LoginForm, type Schema } from "./login.form";
 import { useCallback } from "react";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
-import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/login.page";
 import { useSubmit } from "react-router";
+import { getGithubSigninUrl } from "~/auth/config/oauth";
 
 /**
  * Sets the metadata for the login page.
@@ -67,7 +67,7 @@ export default function LoginPage() {
    * Displays a toast message as a placeholder.
    */
   const onGithubAuth = useCallback(async () => {
-    toast("Github auth not implemented yet");
+    window.location.href = getGithubSigninUrl();
   }, []);
 
   return (

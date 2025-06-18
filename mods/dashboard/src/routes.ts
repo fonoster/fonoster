@@ -96,6 +96,26 @@ export default [
   ]),
 
   /**
+   * OAuth Routes
+   *
+   * Groups all OAuth-related routes under the "/oauth" path.
+   * These routes are used for handling OAuth authentication flows,
+   * such as signing in or signing up with third-party providers like GitHub.
+   *
+   * Example URL:
+   * - /oauth/github/callback
+   */
+  ...prefix("oauth", [
+    /**
+     * OAuth Authentication Route
+     *
+     * Renders the OAuth authentication page at "/oauth/github/callback".
+     * This route is used to handle OAuth sign-in and sign-up flows.
+     */
+    route("github/callback", "auth/pages/oauth/github-oauth.page.tsx")
+  ]),
+
+  /**
    * Main Application Routes
    *
    * Applies a global authenticated layout to all main application routes.

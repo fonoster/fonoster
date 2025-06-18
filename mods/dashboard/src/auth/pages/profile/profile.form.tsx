@@ -169,7 +169,7 @@ export const PersonalSettingsForm = forwardRef<
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input type="email" label="Email Address" {...field} />
+                <Input type="email" label="Email Address" disabled {...field} />
               </FormControl>
             </FormItem>
           )}
