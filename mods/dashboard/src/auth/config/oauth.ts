@@ -25,12 +25,12 @@ const createOAuthConfig = (scope: string): OAuthConfig => ({
   redirectUri: "/",
   redirectUriCallback: import.meta.env.DASHBOARD_AUTH_GITHUB_CALLBACK_URL,
   authUrl: import.meta.env.DASHBOARD_AUTH_GITHUB_URL!,
-  scope,
+  scope
 });
 
 export const OAUTH_CONFIG = Object.freeze({
   signin: createOAuthConfig("read:user"),
-  signup: createOAuthConfig("user:email"),
+  signup: createOAuthConfig("user:email")
 });
 
 const createOAuthUrl = (action: OAuthAction): string => {
@@ -38,14 +38,14 @@ const createOAuthUrl = (action: OAuthAction): string => {
   const state: OAuthState = {
     provider: "github",
     nonce: Math.random().toString(36).slice(2),
-    action,
+    action
   };
 
   const queryParams = new URLSearchParams({
     client_id: config.clientId,
     redirect_uri: config.redirectUriCallback,
     scope: config.scope,
-    state: encodeURIComponent(JSON.stringify(state)),
+    state: encodeURIComponent(JSON.stringify(state))
   });
 
   return `${config.authUrl}?${queryParams.toString()}`;
