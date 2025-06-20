@@ -208,7 +208,8 @@ export const useCreateUserWithOauth2Code = () => {
   const { sdk } = useFonoster();
 
   return useMutation({
-    mutationFn: (code: string) => sdk.users.createUserWithOauth2Code({ code })
+    mutationFn: async (code: string) =>
+      sdk.users.createUserWithOauth2Code({ code })
   });
 };
 

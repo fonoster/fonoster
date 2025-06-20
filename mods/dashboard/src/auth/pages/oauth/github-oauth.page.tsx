@@ -56,6 +56,10 @@ export default function GithubOAuth() {
 
       const response: ExchangeCredentialsResponse = await actionMap[action]();
 
+      if (!response) {
+        throw new Error("No response received from OAuth action");
+      }
+
       await submit({ ...response }, { method: "post", viewTransition: true });
     } catch (error) {
       Logger.error("[GithubOAuth] Error handling OAuth response", error);
@@ -71,8 +75,10 @@ export default function GithubOAuth() {
       return;
     }
 
+    Logger.debug("[GithubOAuth] Handling OAuth response", { code, state });
+
     handleOAuthResponse();
-  }, [code, state, handleOAuthResponse, navigate]);
+  }, []);
 
   return <Splash message="Authenticating with OAuth providers..." />;
 }
