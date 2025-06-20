@@ -36,7 +36,14 @@ jobs:
       - name: Publish Dashboard to Docker Hub
         uses: elgohr/Publish-Docker-Github-Action@v5
         env:
+          DASHBOARD_EDITION: community
           DASHBOARD_VERSION: ${{ env.LERNA_VERSION }}
+          DASHBOARD_API_URL: https://api.fonoster.com
+          DASHBOARD_AUTH_GITHUB_ENABLED: true
+          DASHBOARD_AUTH_GITHUB_CLIENT_ID: 176eada057a4bbd96736
+          DASHBOARD_AUTH_GITHUB_URL=https://github.com/login/oauth/authorize
+          DASHBOARD_AUTH_GITHUB_CALLBACK_URL: https://api.fonoster.com/auth/github/callback
+          DASHBOARD_RESET_PASSWORD_URL: https://app.fonoster.com/auth/reset-password
         with:
           name: fonoster/dashboard
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -45,4 +52,4 @@ jobs:
           dockerfile: ./mods/dashboard/Dockerfile
           tags: "latest,${{ env.LERNA_VERSION }}"
           platforms: linux/amd64,linux/arm64
-          buildargs: DASHBOARD_VERSION
+          buildargs: DASHBOARD_EDITION, DASHBOARD_VERSION, DASHBOARD_API_URL, DASHBOARD_AUTH_GITHUB_ENABLED, DASHBOARD_AUTH_GITHUB_CLIENT_ID, DASHBOARD_AUTH_GITHUB_URL, DASHBOARD_AUTH_GITHUB_CALLBACK_URL, DASHBOARD_RESET_PASSWORD_URL
