@@ -208,12 +208,7 @@ export const useCreateUserWithOauth2Code = () => {
   const { sdk } = useFonoster();
 
   return useMutation({
-    mutationFn: (code: string) => sdk.users.createUserWithOauth2Code({ code }),
-    onError: () => {
-      toast(
-        "Oops! Something went wrong while trying to authenticate with OAuth providers."
-      );
-    }
+    mutationFn: (code: string) => sdk.users.createUserWithOauth2Code({ code })
   });
 };
 
@@ -229,11 +224,6 @@ export const useLoginWithOauth2Code = () => {
         refreshToken: client.getRefreshToken(),
         idToken: client.getIdToken()
       };
-    },
-    onError: () => {
-      toast(
-        "Oops! Something went wrong while trying to authenticate with OAuth providers."
-      );
     }
   });
 };

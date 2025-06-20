@@ -12,6 +12,7 @@ import {
 import type { ExchangeCredentialsResponse } from "~/auth/services/sessions/auth.interfaces";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { Splash } from "~/core/components/general/splash/splash";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { Logger } from "~/core/shared/logger";
 
 // Re-export form action
@@ -43,21 +44,24 @@ export default function GithubOAuth() {
   }, [code, state]);
 
   const handleOAuthResponse = useCallback(async () => {
-    const oauth = getOAuthResponse();
-    if (!oauth) throw new Error("Missing code or state");
+    try {
+      const oauth = getOAuthResponse();
+      if (!oauth) throw new Error("Missing code or state");
 
-    const { code, action } = oauth;
-    const actionMap: Record<OAuthAction, () => Promise<any>> = {
-      signin: () => loginUser(code),
-      signup: () => createUser(code)
-    };
+      const { code, action } = oauth;
+      const actionMap: Record<OAuthAction, () => Promise<any>> = {
+        signin: () => loginUser(code),
+        signup: () => createUser(code)
+      };
 
-    const response: ExchangeCredentialsResponse = await actionMap[action]();
+      const response: ExchangeCredentialsResponse = await actionMap[action]();
 
-    toast("Authentication successful! Redirecting...");
-    Logger.debug(`[GithubOAuth] User ${action} successful, redirecting`);
-
-    await submit({ ...response }, { method: "post", viewTransition: true });
+      await submit({ ...response }, { method: "post", viewTransition: true });
+    } catch (error) {
+      Logger.error("[GithubOAuth] Error handling OAuth response", error);
+      toast(getErrorMessage(error));
+      navigate("/auth/login");
+    }
   }, [getOAuthResponse, loginUser, createUser, submit]);
 
   useEffect(() => {
@@ -67,13 +71,7 @@ export default function GithubOAuth() {
       return;
     }
 
-    handleOAuthResponse()
-      .then(() => navigate("/"))
-      .catch((error) => {
-        Logger.error("[GithubOAuth] Error handling OAuth response", error);
-        toast("Authentication failed. Please try again.");
-        navigate("/auth/login");
-      });
+    handleOAuthResponse();
   }, [code, state, handleOAuthResponse, navigate]);
 
   return <Splash message="Authenticating with OAuth providers..." />;
