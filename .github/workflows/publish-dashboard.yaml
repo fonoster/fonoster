@@ -42,7 +42,7 @@ jobs:
           DASHBOARD_AUTH_GITHUB_ENABLED: true
           DASHBOARD_AUTH_GITHUB_CLIENT_ID: 176eada057a4bbd96736
           DASHBOARD_AUTH_GITHUB_URL: https://github.com/login/oauth/authorize
-          DASHBOARD_AUTH_GITHUB_CALLBACK_URL: https://app.fonoster.com/auth/github/callback
+          DASHBOARD_AUTH_GITHUB_CALLBACK_URL: https://app.fonoster.com/oauth/github/callback
           DASHBOARD_RESET_PASSWORD_URL: https://app.fonoster.com/auth/reset-password
         with:
           name: fonoster/dashboard
