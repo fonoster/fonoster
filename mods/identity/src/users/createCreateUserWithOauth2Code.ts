@@ -59,7 +59,7 @@ function createCreateUserWithOauth2Code(
     if (!userData.email) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
-        message: "Failed to get user data from GitHub"
+        message: "Failed to get user data from GitHub. This typically happens when your GitHub account doesn't have a public email address"
       });
     }
 
