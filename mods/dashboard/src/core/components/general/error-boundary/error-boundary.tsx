@@ -16,59 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { styled } from "@mui/material";
-import { Button } from "../../design-system/ui/button/button";
 import { useNavigate } from "react-router";
+import { Logger } from "~/core/shared/logger";
+import { Splash } from "../splash/splash";
+import { useEffect } from "react";
 
 export const ErrorLayout = ({ errorCode }: { errorCode: number }) => {
   const navigate = useNavigate();
 
-  const errorMessage =
-    errorCode === 404
-      ? "Oops! Page not found"
-      : "Oops! You've encountered an error. Please try again later.";
+  useEffect(() => {
+    Logger.error(`[ErrorBoundary]: An error occurred with code ${errorCode}`);
 
-  return (
-    <ErrorRoot>
-      <ErrorMessage>
-        <ErrorCode>{errorCode}</ErrorCode>
-        <ErrorDescription>{errorMessage}</ErrorDescription>
-      </ErrorMessage>
-      <Button onClick={() => navigate("/", { viewTransition: true })}>
-        Go to Home
-      </Button>
-    </ErrorRoot>
-  );
+    const time = setTimeout(() => {
+      Logger.debug("[ErrorBoundary]: Redirecting to home page");
+      navigate("/");
+    }, 10_000);
+
+    return () => {
+      clearTimeout(time);
+    };
+  }, []);
+
+  return <Splash message="Loading Fonoster Services... Please wait." />;
 };
-
-export const ErrorRoot = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  height: "100vh",
-  backgroundColor: theme.palette.background.default,
-  color: theme.palette.text.primary,
-  gap: theme.spacing(2)
-}));
-
-export const ErrorMessage = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  textAlign: "center",
-  fontSize: theme.typography.h4.fontSize,
-  color: theme.palette.error.main
-}));
-
-export const ErrorCode = styled("div")(({ theme }) => ({
-  fontSize: theme.typography.h1.fontSize,
-  fontWeight: "bold",
-  color: theme.palette.base["03"]
-}));
-
-export const ErrorDescription = styled("div")(({ theme }) => ({
-  fontSize: theme.typography.body1.fontSize,
-  color: theme.palette.base["04"]
-}));
