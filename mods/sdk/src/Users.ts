@@ -137,7 +137,6 @@ class Users {
   async createUserWithOauth2Code(
     request: CreateUserWithOauth2CodeRequest
   ): Promise<ExchangeCredentialsResponse> {
-    console.log("request", request);
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
       CreateUserWithOauth2CodeRequestPB,
