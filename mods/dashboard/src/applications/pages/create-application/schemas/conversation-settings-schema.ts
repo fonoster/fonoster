@@ -26,8 +26,8 @@ export const conversationSettingsSchema = z.object({
   transferOptions: z
     .object({
       phoneNumber: z.string(),
-      message: z.string(),
+      message: z.string()
     })
     .optional(),
-  idleOptions: z.object({ message: z.string() }),
+  idleOptions: z.object({ message: z.string() })
 });

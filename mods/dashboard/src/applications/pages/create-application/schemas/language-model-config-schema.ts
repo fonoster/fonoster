@@ -34,7 +34,7 @@ const languageModelConfigSchema = z.object({
   maxTokens: z
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
+    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
 });
 
 export { languageModelConfigSchema };

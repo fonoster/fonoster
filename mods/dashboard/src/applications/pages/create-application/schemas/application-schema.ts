@@ -15,8 +15,8 @@ export const schema = z
       .object({
         productRef: z.string().optional(),
         config: z.object({
-          voice: z.string().optional(),
-        }),
+          voice: z.string().optional()
+        })
       })
       .optional(),
     speechToText: z
@@ -24,8 +24,8 @@ export const schema = z
         productRef: z.string().optional(),
         config: z.object({
           model: z.string().optional(),
-          languageCode: z.string().optional(),
-        }),
+          languageCode: z.string().optional()
+        })
       })
       .optional(),
     intelligence: z
@@ -34,30 +34,30 @@ export const schema = z
         config: z.object({
           conversationSettings: conversationSettingsSchema,
           languageModel: languageModelConfigSchema,
-          eventsHook: eventsHookSchema,
-        }),
+          eventsHook: eventsHookSchema
+        })
       })
-      .optional(),
+      .optional()
   })
   .refine(
     (data) => !(data.type === ApplicationType.EXTERNAL && data.textToSpeech),
     {
       message: "TTS is not allowed for EXTERNAL applications",
-      path: ["textToSpeech"],
+      path: ["textToSpeech"]
     }
   )
   .refine(
     (data) => !(data.type === ApplicationType.EXTERNAL && data.speechToText),
     {
       message: "STT is not allowed for EXTERNAL applications",
-      path: ["speechToText"],
+      path: ["speechToText"]
     }
   )
   .refine(
     (data) => !(data.type === ApplicationType.EXTERNAL && data.intelligence),
     {
       message: "Intelligence is not allowed for EXTERNAL applications",
-      path: ["intelligence"],
+      path: ["intelligence"]
     }
   );
 
