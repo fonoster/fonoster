@@ -27,11 +27,11 @@ import { Icon } from "~/core/components/design-system/icons/icons";
 import { Box } from "@mui/material";
 import {
   CreateApplicationForm,
-  type CreateApplicationFormHandle,
-  type Schema
+  type CreateApplicationFormHandle
 } from "./create-application.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateApplication } from "~/applications/services/applications.service";
+import type { Schema } from "./schemas/application-schema";
 
 /**
  * Sets the metadata for the "Create Application" page.

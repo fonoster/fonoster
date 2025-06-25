@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { ApplicationType } from "@fonoster/types";
+import type { Schema } from "./schemas/application-schema";
 
 /**
  * List of available application types.
@@ -64,18 +65,22 @@ export const LANGUAGES = [{ value: "en-US", label: "en-US" }];
  * This object provides a starting point for the form fields,
  * ensuring all necessary fields are initialized.
  */
-export const APPLICATIONS_DEFAULT_INITIAL_VALUES = {
+export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
   ref: null,
   name: "",
   type: ApplicationType.EXTERNAL,
   endpoint: "",
   textToSpeech: {
-    vendor: "deepgram",
-    voice: "aura_asteria_en"
+    productRef: "",
+    config: {
+      voice: "aura_asteria_en"
+    }
   },
   speechToText: {
-    vendor: "deepgram",
-    model: "nova-2",
-    language: "en-US"
+    productRef: "",
+    config: {
+      model: "nova-2",
+      languageCode: "en-US"
+    }
   }
 };
