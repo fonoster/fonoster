@@ -41,7 +41,7 @@ export const EVENTS = [
 ];
 
 export const eventsHookSchema = z.object({
-  url: z.string().url({ message: Messages.VALID_URL }),
+  url: z.string(),
   headers: z.record(z.string(), z.string()).optional(),
   events: z.array(z.nativeEnum(EventsHookAllowedEvents)).min(1)
 });

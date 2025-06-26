@@ -31,7 +31,8 @@ import {
 } from "./create-application.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateApplication } from "~/applications/services/applications.service";
-import type { Schema } from "./schemas/application-schema";
+import type { Form, Schema } from "./schemas/application-schema";
+import { Logger } from "~/core/shared/logger";
 
 /**
  * Sets the metadata for the "Create Application" page.
@@ -87,11 +88,13 @@ export default function CreateApplication() {
    *
    * @param data - The validated form data.
    */
-  const onSave = useCallback(async (data: Schema) => {
+  const onSave = useCallback(async (data: Schema, form: Form) => {
     try {
-      mutate(data);
+      Logger.debug("[Application]: Creating application with data:", data);
+
+      // mutate(data);
       toast("Application created successfully!");
-      onGoBack();
+      // onGoBack();
     } catch (error) {
       toast("Oops! Something went wrong while creating the application.");
     }
@@ -114,7 +117,7 @@ export default function CreateApplication() {
             <Button
               size="small"
               onClick={() => formRef.current?.submit()}
-              disabled={formRef.current?.isSubmitDisabled || isPending}
+              disabled={isPending}
             >
               {isPending ? "Saving..." : "Save Voice Application"}
             </Button>

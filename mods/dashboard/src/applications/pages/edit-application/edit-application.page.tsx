@@ -26,8 +26,7 @@ import { Icon } from "~/core/components/design-system/icons/icons";
 import { Box } from "@mui/material";
 import {
   CreateApplicationForm,
-  type CreateApplicationFormHandle,
-  type Schema
+  type CreateApplicationFormHandle
 } from "../create-application/create-application.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import {
@@ -36,6 +35,7 @@ import {
 } from "~/applications/services/applications.service";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
+import type { Schema } from "../create-application/schemas/application-schema";
 
 /**
  * Sets the metadata for the "Create Application" page.
@@ -108,7 +108,7 @@ export default function EditApplication() {
    */
   const onSave = useCallback(async (data: Schema) => {
     try {
-      mutate(data);
+      // mutate(data);
       toast("Application updated successfully!");
       onGoBack();
     } catch (error) {
@@ -145,7 +145,7 @@ export default function EditApplication() {
             <Button
               size="small"
               onClick={() => formRef.current?.submit()}
-              disabled={formRef.current?.isSubmitDisabled || isPending}
+              disabled={isPending}
             >
               {isPending ? "Saving..." : "Save Voice Application"}
             </Button>
@@ -177,6 +177,7 @@ export default function EditApplication() {
           ref={formRef}
           onSubmit={onSave}
           initialValues={data}
+          isEdit={true}
         />
       </Box>
     </Page>

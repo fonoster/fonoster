@@ -13,10 +13,12 @@ import { Box } from "@mui/material";
 
 export const GeneralSection = ({
   control,
-  isAutopilot
+  isAutopilot,
+  isEdit
 }: {
   control: Control<Schema>;
   isAutopilot: boolean;
+  isEdit?: boolean;
 }) => (
   <>
     <FormField
@@ -43,21 +45,23 @@ export const GeneralSection = ({
       </Typography>
     </Box>
 
-    <FormField
-      control={control}
-      name="type"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <Select
-              label="Application Type"
-              options={APPLICATION_TYPES}
-              {...field}
-            />
-          </FormControl>
-        </FormItem>
-      )}
-    />
+    {!isEdit && (
+      <FormField
+        control={control}
+        name="type"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Select
+                label="Application Type"
+                options={APPLICATION_TYPES}
+                {...field}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    )}
 
     <FormField
       control={control}

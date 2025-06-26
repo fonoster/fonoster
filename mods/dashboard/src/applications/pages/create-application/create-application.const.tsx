@@ -164,7 +164,7 @@ export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
   textToSpeech: {
     productRef: "tts.elevenlabs",
     config: {
-      voice: "aura_asteria_en"
+      voice: "Sarah"
     }
   },
   speechToText: {
