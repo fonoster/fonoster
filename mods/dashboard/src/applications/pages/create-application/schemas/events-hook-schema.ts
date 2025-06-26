@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import * as Messages from "./messages";
 
 export enum EventsHookAllowedEvents {
   ALL = "all",
@@ -41,7 +40,7 @@ export const EVENTS = [
 ];
 
 export const eventsHookSchema = z.object({
-  url: z.string(),
+  url: z.string().optional(),
   headers: z.record(z.string(), z.string()).optional(),
   events: z.array(z.nativeEnum(EventsHookAllowedEvents)).min(1)
 });

@@ -31,8 +31,9 @@ import {
 } from "./create-application.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateApplication } from "~/applications/services/applications.service";
-import type { Form, Schema } from "./schemas/application-schema";
-import { Logger } from "~/core/shared/logger";
+import type { Schema } from "./schemas/application-schema";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { formatApplicationData } from "~/applications/services/format-application-data";
 
 /**
  * Sets the metadata for the "Create Application" page.
@@ -80,7 +81,7 @@ export default function CreateApplication() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to handle application creation with optimistic updates. */
-  const { mutate, isPending } = useCreateApplication();
+  const { mutateAsync, isPending } = useCreateApplication();
 
   /**
    * Handler called after form submission.
@@ -88,17 +89,20 @@ export default function CreateApplication() {
    *
    * @param data - The validated form data.
    */
-  const onSave = useCallback(async (data: Schema, form: Form) => {
-    try {
-      Logger.debug("[Application]: Creating application with data:", data);
+  const onSave = useCallback(
+    async ({ intelligence, ...data }: Schema) => {
+      try {
+        const formattedData = formatApplicationData({ intelligence, ...data });
+        await mutateAsync(formattedData);
 
-      // mutate(data);
-      toast("Application created successfully!");
-      // onGoBack();
-    } catch (error) {
-      toast("Oops! Something went wrong while creating the application.");
-    }
-  }, []);
+        toast("Application created successfully!");
+        onGoBack();
+      } catch (error) {
+        toast(getErrorMessage(error));
+      }
+    },
+    []
+  );
 
   const onTestCall = useCallback(() => {
     // Placeholder for future functionality to test the application with a call

@@ -36,6 +36,8 @@ import {
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
 import type { Schema } from "../create-application/schemas/application-schema";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { formatApplicationData } from "~/applications/services/format-application-data";
 
 /**
  * Sets the metadata for the "Create Application" page.
@@ -98,7 +100,7 @@ export default function EditApplication() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to handle application creation with optimistic updates. */
-  const { mutate, isPending } = useUpdateApplication();
+  const { mutateAsync, isPending } = useUpdateApplication();
 
   /**
    * Handler called after form submission.
@@ -106,13 +108,15 @@ export default function EditApplication() {
    *
    * @param data - The validated form data.
    */
-  const onSave = useCallback(async (data: Schema) => {
+  const onSave = useCallback(async ({ intelligence, ...data }: Schema) => {
     try {
-      // mutate(data);
+      const formattedData = formatApplicationData({ intelligence, ...data });
+      await mutateAsync({ ...formattedData, ref });
+
       toast("Application updated successfully!");
       onGoBack();
     } catch (error) {
-      toast("Oops! Something went wrong while updating the application.");
+      toast(getErrorMessage(error));
     }
   }, []);
 
@@ -176,7 +180,7 @@ export default function EditApplication() {
         <CreateApplicationForm
           ref={formRef}
           onSubmit={onSave}
-          initialValues={data}
+          initialValues={data as Schema}
           isEdit={true}
         />
       </Box>

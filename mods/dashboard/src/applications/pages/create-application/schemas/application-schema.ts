@@ -24,8 +24,8 @@ export const schema = z
       .object({
         productRef: z.string(),
         config: z.object({
-          model: z.string().optional(),
-          languageCode: z.string().optional()
+          model: z.string(),
+          languageCode: z.string()
         })
       })
       .optional(),
@@ -35,7 +35,7 @@ export const schema = z
         config: z.object({
           conversationSettings: conversationSettingsSchema,
           languageModel: languageModelConfigSchema,
-          eventsHook: eventsHookSchema
+          eventsHook: eventsHookSchema.optional()
         })
       })
       .optional()

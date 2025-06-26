@@ -159,7 +159,7 @@ export const getLanguageModelModels = (provider: LanguageModelProvider) => {
 export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
   ref: null,
   name: "",
-  type: ApplicationType.EXTERNAL,
+  type: ApplicationType.AUTOPILOT,
   endpoint: "",
   textToSpeech: {
     productRef: "tts.elevenlabs",
@@ -175,7 +175,7 @@ export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
     }
   },
   intelligence: {
-    productRef: LanguageModelProvider.GOOGLE,
+    productRef: "llm.google",
     config: {
       conversationSettings: {
         firstMessage: "Hello, how can I help you?",
