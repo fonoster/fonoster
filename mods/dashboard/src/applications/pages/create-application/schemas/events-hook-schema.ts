@@ -25,11 +25,25 @@ export enum EventsHookAllowedEvents {
   CONVERSATION_ENDED = "conversation.ended"
 }
 
+export const EVENTS = [
+  {
+    value: EventsHookAllowedEvents.ALL,
+    label: "All"
+  },
+  {
+    value: EventsHookAllowedEvents.CONVERSATION_STARTED,
+    label: "Conversation Started"
+  },
+  {
+    value: EventsHookAllowedEvents.CONVERSATION_ENDED,
+    label: "Conversation Ended"
+  }
+];
+
 export const eventsHookSchema = z.object({
   url: z.string().url({ message: Messages.VALID_URL }),
   headers: z.record(z.string(), z.string()).optional(),
   events: z
     .array(z.nativeEnum(EventsHookAllowedEvents))
     .min(1)
-    .default([EventsHookAllowedEvents.ALL])
 });

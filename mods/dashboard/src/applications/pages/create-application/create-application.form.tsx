@@ -5,9 +5,9 @@ import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { APPLICATIONS_DEFAULT_INITIAL_VALUES } from "./create-application.const";
 import { type Schema, resolver } from "./schemas/application-schema";
 import { GeneralSection } from "./sections/general-section";
-import { TTSSection } from "./sections/tts-section";
-import { STTSection } from "./sections/stt-section";
-import { IntelligenceSection } from "./sections/intelligence-section";
+import { SpeechSection } from "./sections/speech-section";
+import { AdvancedSettingsSection } from "./sections/advanced-settings-section";
+import { ConversationSettingsSection } from "./sections/conversation-settings-section";
 
 export interface CreateApplicationFormHandle {
   submit: () => void;
@@ -35,15 +35,33 @@ export const CreateApplicationForm = forwardRef<
   }));
 
   const type = form.watch("type");
+  const ttsVendor = form.watch("textToSpeech.productRef");
+  const languageModelProvider = form.watch(
+    "intelligence.config.languageModel.provider"
+  );
   const isAutopilot = type === "AUTOPILOT";
 
   return (
     <Form {...form}>
       <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
         <GeneralSection control={form.control} isAutopilot={isAutopilot} />
-        <TTSSection control={form.control} isAutopilot={isAutopilot} />
-        <STTSection control={form.control} isAutopilot={isAutopilot} />
-        {isAutopilot && <IntelligenceSection control={form.control} />}
+        {isAutopilot && (
+          <ConversationSettingsSection
+            control={form.control}
+            isAutopilot={isAutopilot}
+          />
+        )}
+        <SpeechSection
+          control={form.control}
+          isAutopilot={isAutopilot}
+          ttsVendor={ttsVendor}
+        />
+        {isAutopilot && (
+          <AdvancedSettingsSection
+            control={form.control}
+            languageModelProvider={languageModelProvider}
+          />
+        )}
       </FormRoot>
     </Form>
   );

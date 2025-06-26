@@ -69,6 +69,7 @@ export const GeneralSection = ({
             <Input
               type="text"
               label="Application Endpoint"
+              placeholder="https://your-app.com"
               supportingText="For External applications, this is the URL of your application. For Autopilot, this is the URL of the Autopilot service."
               {...field}
             />
