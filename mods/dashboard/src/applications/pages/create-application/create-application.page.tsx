@@ -89,20 +89,17 @@ export default function CreateApplication() {
    *
    * @param data - The validated form data.
    */
-  const onSave = useCallback(
-    async ({ intelligence, ...data }: Schema) => {
-      try {
-        const formattedData = formatApplicationData({ intelligence, ...data });
-        await mutateAsync(formattedData);
+  const onSave = useCallback(async ({ intelligence, ...data }: Schema) => {
+    try {
+      const formattedData = formatApplicationData({ intelligence, ...data });
+      await mutateAsync(formattedData);
 
-        toast("Application created successfully!");
-        onGoBack();
-      } catch (error) {
-        toast(getErrorMessage(error));
-      }
-    },
-    []
-  );
+      toast("Application created successfully!");
+      onGoBack();
+    } catch (error) {
+      toast(getErrorMessage(error));
+    }
+  }, []);
 
   const onTestCall = useCallback(() => {
     // Placeholder for future functionality to test the application with a call
