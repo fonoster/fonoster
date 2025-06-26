@@ -38,10 +38,9 @@ export const GeneralSection = ({
         GENERAL
       </Typography>
       <Typography variant="body-micro" color="base.03">
-        Outgoing traffic from your communications infrastructure to the PSTN. In
-        order to use a Trunk for termination it must have a Termination SIP URI
-        and at least one authentication scheme (IP Access Control Lists and/or
-        Credential Lists).
+        Set the Application Type to External if you need custom programmable
+        voice applications, or to Autopilot if you want to use Fonoster's
+        built-in Autopilot service.
       </Typography>
     </Box>
 
@@ -73,8 +72,8 @@ export const GeneralSection = ({
             <Input
               type="text"
               label="Application Endpoint"
-              placeholder="https://your-app.com"
-              supportingText="For External applications, this is the URL of your application. For Autopilot, this is the URL of the Autopilot service."
+              placeholder="your-app.com:50051"
+              supportingText="This is your application's endpoint. You only need to specify it for External applications or when running your own instance of the Autopilot service."
               {...field}
             />
           </FormControl>

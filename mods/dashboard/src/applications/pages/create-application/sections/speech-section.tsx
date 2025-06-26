@@ -33,10 +33,9 @@ export const SpeechSection = ({
           SPEECH TO TEXT
         </Typography>
         <Typography variant="body-micro" color="base.03">
-          Outgoing traffic from your communications infrastructure to the PSTN.
-          In order to use a Trunk for termination it must have a Termination SIP
-          URI and at least one authentication scheme (IP Access Control Lists
-          and/or Credential Lists).
+          Select the Speech-to-Text vendor and model that best fit your use
+          case. Check the vendor's documentation for the languages supported by
+          each model.
         </Typography>
       </Box>
 
@@ -83,10 +82,9 @@ export const SpeechSection = ({
           TEXT TO SPEECH
         </Typography>
         <Typography variant="body-micro" color="base.03">
-          Outgoing traffic from your communications infrastructure to the PSTN.
-          In order to use a Trunk for termination it must have a Termination SIP
-          URI and at least one authentication scheme (IP Access Control Lists
-          and/or Credential Lists).
+          Select the Text-to-Speech vendor and voice that best fit your use
+          case. Check the vendor's documentation for the languages supported by
+          each voice.
         </Typography>
       </Box>
 

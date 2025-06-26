@@ -22,10 +22,8 @@ export const ConversationSettingsSection = ({
         Conversation Settings
       </Typography>
       <Typography variant="body-micro" color="base.03">
-        Outgoing traffic from your communications infrastructure to the PSTN. In
-        order to use a Trunk for termination it must have a Termination SIP URI
-        and at least one authentication scheme (IP Access Control Lists and/or
-        Credential Lists).
+        Use these settings to configure the conversation with your customers.
+        All the parameters will be available to the context of the conversation.
       </Typography>
     </Box>
 

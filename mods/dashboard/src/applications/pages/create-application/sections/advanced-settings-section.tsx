@@ -59,10 +59,9 @@ export const AdvancedSettingsSection = ({
             Transfer Options
           </Typography>
           <Typography variant="body-micro" color="base.03">
-            Outgoing traffic from your communications infrastructure to the
-            PSTN. In order to use a Trunk for termination it must have a
-            Termination SIP URI and at least one authentication scheme (IP
-            Access Control Lists and/or Credential Lists).
+            For call transfer, please provide a phone number.
+            Also, optionally, you can set a message to be used when the call is
+            transferred.
           </Typography>
         </Box>
         <FormField
@@ -98,10 +97,9 @@ export const AdvancedSettingsSection = ({
             Idle Options
           </Typography>
           <Typography variant="body-micro" color="base.03">
-            Outgoing traffic from your communications infrastructure to the
-            PSTN. In order to use a Trunk for termination it must have a
-            Termination SIP URI and at least one authentication scheme (IP
-            Access Control Lists and/or Credential Lists).
+            This is the message that will be played when there is no activity
+            in the call. This is useful to remind the user that call is still
+            ongoing.
           </Typography>
         </Box>
         <FormField
@@ -121,10 +119,9 @@ export const AdvancedSettingsSection = ({
             Language Model
           </Typography>
           <Typography variant="body-micro" color="base.03">
-            Outgoing traffic from your communications infrastructure to the
-            PSTN. In order to use a Trunk for termination it must have a
-            Termination SIP URI and at least one authentication scheme (IP
-            Access Control Lists and/or Credential Lists).
+            Select the language model provider and model that best fit your
+            use case. If there is an additional model you would like us to
+            support, please let us know.
           </Typography>
         </Box>
         <FormField
@@ -185,10 +182,9 @@ export const AdvancedSettingsSection = ({
             Events Hook
           </Typography>
           <Typography variant="body-micro" color="base.03">
-            Outgoing traffic from your communications infrastructure to the
-            PSTN. In order to use a Trunk for termination it must have a
-            Termination SIP URI and at least one authentication scheme (IP
-            Access Control Lists and/or Credential Lists).
+            Use this to receive events from Fonoster. You can select the events
+            you want to receive. You will need to provide a URL to receive the
+            events.
           </Typography>
         </Box>
         <FormField
