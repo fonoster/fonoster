@@ -49,7 +49,7 @@ export function formatApplicationData({ intelligence, ...data }: Schema) {
     }
   }
 
-  Logger.debug("Formatted application data for submission", application);
+  Logger.debug("[Applications]: Formatted application data for submission", application);
 
   return application;
 }
