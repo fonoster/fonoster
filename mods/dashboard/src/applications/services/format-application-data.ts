@@ -45,6 +45,12 @@ export function formatApplicationData({ intelligence, ...data }: Schema) {
     }
 
     if (!intelligence.config.eventsHook?.url) {
+      if ((intelligence.config.eventsHook?.events?.length || 0) > 0) {
+        throw new Error(
+          "Events hook URL is required when events are specified"
+        );
+      }
+
       delete application.intelligence.config.eventsHook;
     }
   }

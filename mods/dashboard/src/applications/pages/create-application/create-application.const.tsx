@@ -201,7 +201,7 @@ export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
         headers: {
           "Content-Type": "application/json"
         },
-        events: [EventsHookAllowedEvents.ALL]
+        events: []
       }
     }
   }

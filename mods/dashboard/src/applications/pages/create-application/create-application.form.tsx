@@ -1,5 +1,5 @@
 import { useForm, type Resolver } from "react-hook-form";
-import { forwardRef, useCallback, useImperativeHandle } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 import { Form } from "~/core/components/design-system/forms";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { APPLICATIONS_DEFAULT_INITIAL_VALUES } from "./create-application.const";
@@ -12,6 +12,7 @@ import { GeneralSection } from "./sections/general-section";
 import { SpeechSection } from "./sections/speech-section";
 import { AdvancedSettingsSection } from "./sections/advanced-settings-section";
 import { ConversationSettingsSection } from "./sections/conversation-settings-section";
+import { Logger } from "~/core/shared/logger";
 
 export interface CreateApplicationFormHandle {
   submit: () => void;
@@ -50,6 +51,15 @@ export const CreateApplicationForm = forwardRef<
   useImperativeHandle(ref, () => ({
     submit: () => form.handleSubmit(onFormSubmit)()
   }));
+
+  useEffect(() => {
+    Logger.debug("[CreateApplicationForm] Form initialized", {
+      defaultValues: {
+        ...APPLICATIONS_DEFAULT_INITIAL_VALUES,
+        ...initialValues
+      }
+    });
+  }, [initialValues]);
 
   return (
     <Form {...form}>

@@ -222,7 +222,7 @@ export const AdvancedSettingsSection = ({
                   multiple
                   label="Events"
                   options={EVENTS}
-                  value={field.value}
+                  value={Array.isArray(field.value) ? field.value : []}
                   onChange={field.onChange}
                 />
               </FormControl>
