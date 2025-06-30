@@ -18,6 +18,7 @@
  */
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Application } from "@fonoster/types";
+import { toTitleCase } from "../../../core/helpers/to-title-case";
 
 /**
  * Column definitions for rendering a table of Fonoster Applications using TanStack Table.
@@ -74,6 +75,7 @@ export const columns: ColumnDef<Application>[] = [
      */
     id: "appType",
     header: "Application Type",
-    accessorKey: "type"
+    accessorKey: "type",
+    cell: ({ row }) => toTitleCase(row.getValue("appType"))
   }
 ];
