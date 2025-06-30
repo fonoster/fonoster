@@ -19,6 +19,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Application } from "@fonoster/types";
 import { toTitleCase } from "../../../core/helpers/to-title-case";
+import { formatEngineName } from "../../../core/helpers/format-engine-name";
 
 /**
  * Column definitions for rendering a table of Fonoster Applications using TanStack Table.
@@ -54,8 +55,10 @@ export const columns: ColumnDef<Application>[] = [
      * Displays the product reference for the TTS engine configured.
      */
     id: "textToSpeech",
-    header: "TTS",
-    accessorKey: "textToSpeech.productRef"
+    header: "Text to Speech",
+    accessorKey: "textToSpeech.productRef",
+    cell: ({ row }) =>
+      formatEngineName(row.original.textToSpeech?.productRef, "tts.")
   },
   {
     /**
@@ -64,8 +67,17 @@ export const columns: ColumnDef<Application>[] = [
      * Displays the product reference for the STT engine configured.
      */
     id: "speechToText",
-    header: "STT",
-    accessorKey: "speechToText.productRef"
+    header: "Speech to Text",
+    accessorKey: "speechToText.productRef",
+    cell: ({ row }) =>
+      formatEngineName(row.original.speechToText?.productRef, "stt.")
+  },
+  {
+    id: "intelligence",
+    header: "Intelligence",
+    accessorKey: "intelligence.productRef",
+    cell: ({ row }) =>
+      formatEngineName(row.original.intelligence?.productRef, "llm.")
   },
   {
     /**
