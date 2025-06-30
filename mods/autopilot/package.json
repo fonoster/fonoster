@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/autopilot",
-  "version": "0.14.3",
+  "version": "0.14.4",
   "description": "Voice AI for the Fonoster platform",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -36,7 +36,7 @@
     "@dmitryrechkin/json-schema-to-zod": "^1.0.1",
     "@fonoster/common": "^0.14.0",
     "@fonoster/logger": "^0.14.0",
-    "@fonoster/sdk": "^0.14.3",
+    "@fonoster/sdk": "^0.14.4",
     "@fonoster/types": "^0.14.0",
     "@fonoster/voice": "^0.14.3",
     "@langchain/anthropic": "^0.3.15",
