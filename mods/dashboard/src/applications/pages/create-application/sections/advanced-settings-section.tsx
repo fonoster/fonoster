@@ -59,9 +59,8 @@ export const AdvancedSettingsSection = ({
             Transfer Options
           </Typography>
           <Typography variant="body-micro" color="base.03">
-            For call transfer, please provide a phone number.
-            Also, optionally, you can set a message to be used when the call is
-            transferred.
+            For call transfer, please provide a phone number. Also, optionally,
+            you can set a message to be used when the call is transferred.
           </Typography>
         </Box>
         <FormField
@@ -97,8 +96,8 @@ export const AdvancedSettingsSection = ({
             Idle Options
           </Typography>
           <Typography variant="body-micro" color="base.03">
-            This is the message that will be played when there is no activity
-            in the call. This is useful to remind the user that call is still
+            This is the message that will be played when there is no activity in
+            the call. This is useful to remind the user that call is still
             ongoing.
           </Typography>
         </Box>
@@ -119,9 +118,9 @@ export const AdvancedSettingsSection = ({
             Language Model
           </Typography>
           <Typography variant="body-micro" color="base.03">
-            Select the language model provider and model that best fit your
-            use case. If there is an additional model you would like us to
-            support, please let us know.
+            Select the language model provider and model that best fit your use
+            case. If there is an additional model you would like us to support,
+            please let us know.
           </Typography>
         </Box>
         <FormField
