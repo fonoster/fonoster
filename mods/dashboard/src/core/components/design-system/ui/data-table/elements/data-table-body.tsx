@@ -21,6 +21,7 @@ import { TableBody, TableCell, TableRow } from "@mui/material";
 
 import { useDataTable } from "../data-table.context";
 import { Checkbox } from "../../checkbox/checkbox";
+import { lastUuidSegment } from "../../../../../../core/helpers/last-uuid-segment";
 
 /**
  * Props definition for a single row in the DataTableBody.
@@ -47,7 +48,9 @@ const DataRow = ({ row, showSelection }: DataTableBodyRowProps) => (
 
     {row.getVisibleCells().map((cell: any) => (
       <TableCell key={cell.id}>
-        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        {cell.column.id === "ref"
+          ? lastUuidSegment(cell.getValue() as string)
+          : flexRender(cell.column.columnDef.cell, cell.getContext())}
       </TableCell>
     ))}
   </TableRow>
