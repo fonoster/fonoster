@@ -33,7 +33,7 @@ Here are the steps to accomplish this task:
       server {
         listen 80;
         listen [::]:80;
-        server_name app.example.com api.example.com;
+        server_name app.example.com api.example.com sip.example.com;
     
         location /.well-known/acme-challenge/ {
           root /var/www/html;
@@ -71,7 +71,7 @@ Here are the steps to accomplish this task:
       certbot/certbot certonly --webroot \
       --webroot-path /var/www/html \
       --email your@email.com --agree-tos --no-eff-email \
-      -d app.example.com -d api.example.com
+      -d app.example.com -d api.example.com -d sip.example.com
     ```
 
     <Note>
