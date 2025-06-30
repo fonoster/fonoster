@@ -37,3 +37,15 @@ export const FONOSTER_SERVER_CONFIG = Object.freeze({
 export const FONOSTER_RESET_PASSWORD_URL: string =
   import.meta.env.DASHBOARD_RESET_PASSWORD_URL ||
   "https://app.fonoster.com/auth/reset-password";
+
+export const TEST_PHONE_CONFIG = Object.freeze({
+  displayName: "Test User (Application)",
+  username: String(import.meta.env.DASHBOARD_TEST_PHONE_USERNAME),
+  authorizationUser: String(
+    import.meta.env.DASHBOARD_TEST_PHONE_AUTHORIZATION_USER
+  ),
+  password: String(import.meta.env.DASHBOARD_TEST_PHONE_PASSWORD),
+  domain: String(import.meta.env.DASHBOARD_TEST_PHONE_DOMAIN),
+  server: String(import.meta.env.DASHBOARD_TEST_PHONE_SERVER),
+  targetAOR: String(import.meta.env.DASHBOARD_TEST_PHONE_TARGET_AOR)
+});

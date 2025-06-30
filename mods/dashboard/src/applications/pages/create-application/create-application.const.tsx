@@ -18,7 +18,6 @@
  */
 import { ApplicationType } from "@fonoster/types";
 import type { Schema } from "./schemas/application-schema";
-import { EventsHookAllowedEvents } from "./schemas/events-hook-schema";
 import { LanguageModelProvider } from "./schemas/language-model-provider";
 
 /**

@@ -22,8 +22,7 @@ import {
   type ListApplicationsRequest as ResourceListRequest,
   type UpdateApplicationRequest as ResourceUpdateRequest
 } from "@fonoster/types";
-import { useQuery } from "@tanstack/react-query";
-import { useOptimisticCreateResource } from "~/core/hooks/use-optimistic-create-resource";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOptimisticDeleteResource } from "~/core/hooks/use-optimistic-delete-resource";
 import { useOptimisticUpdateResource } from "~/core/hooks/use-optimistic-update-resource";
 import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
@@ -108,15 +107,18 @@ export const useApplication = (ref: string) => {
 export const useCreateApplication = () => {
   const { sdk } = useFonoster();
   const workspaceId = useWorkspaceId();
+  const queryClient = useQueryClient();
 
   const COLLECTION_KEY = [...COLLECTION_QUERY_KEY, workspaceId];
-  const RESOURCE_KEY = [...RESOURCE_QUERY_KEY, workspaceId];
 
-  return useOptimisticCreateResource<Resource, ResourceCreateRequest>(
-    (req) => sdk.applications.createApplication(req),
-    COLLECTION_KEY,
-    RESOURCE_KEY
-  );
+  return useMutation({
+    mutationFn: (req: ResourceCreateRequest) =>
+      sdk.applications.createApplication(req),
+    onSuccess: () => {
+      // Invalidate the collection query to refresh the list
+      queryClient.invalidateQueries({ queryKey: COLLECTION_KEY });
+    }
+  });
 };
 
 /**
