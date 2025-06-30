@@ -63,8 +63,8 @@ export const TableCellRoot = styled(TableCell)(({ theme }) => ({
   "&[data-selection-cell='true']": {
     padding: "0px 4px",
     width: "48px",
-    maxWidth: "48pxpx",
-    minWidth: "48pxpx",
+    maxWidth: "48px",
+    minWidth: "48px",
     display: "flex",
     alignItems: "center",
     boxSizing: "border-box"
@@ -88,7 +88,17 @@ export const DataTableContainerElement = styled(TableContainer)(
         backgroundColor: theme.palette.base["07"]
       },
 
+      "& th": {
+        borderBottom: "none"
+      },
+
       "& tbody": {
+        "& tr:last-of-type": {
+          "& td": {
+            borderBottom: "none"
+          }
+        },
+
         "& td": {
           padding: "0px 4px",
           minHeight: "36px",
@@ -112,6 +122,7 @@ export const DataTableContainerElement = styled(TableContainer)(
           "&:last-of-type": {
             paddingRight: "8px"
           },
+
           "&[data-selection-cell='true']": {
             padding: "0px",
             width: "48px",
