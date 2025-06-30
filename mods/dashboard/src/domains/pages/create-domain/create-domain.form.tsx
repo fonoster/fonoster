@@ -26,7 +26,7 @@ import {
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useState, useEffect } from "react";
 import { schema, type Schema } from "./create-domain.schema";
 import { useAcls } from "~/acls/services/acls.service";
 import { Select } from "~/core/components/design-system/ui/select/select";
@@ -34,6 +34,8 @@ import { ModalTrigger } from "~/core/components/general/modal-trigger";
 import { Box } from "@mui/material";
 import { useNumbers } from "~/numbers/services/numbers.service";
 import { CreateRuleModal } from "./create-domain-rules-modal.modal";
+import { CreateDomainAclsModal } from "./create-domain-acls-modal.modal";
+import type { Acl } from "@fonoster/types";
 
 /**
  * Imperative handle interface exposing a submit method and validation state.
@@ -80,8 +82,11 @@ export const CreateDomainForm = forwardRef<
   CreateDomainFormProps
 >(({ onSubmit, initialValues }, ref) => {
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
+  const [isDomainAclsModalOpen, setIsDomainAclsModalOpen] = useState(false);
 
-  const { data: acls, isLoading: isAclsLoading } = useAcls();
+  const { data: aclsData, isLoading: isAclsLoading, refetch: refetchAcls } = useAcls();
+  const [acls, setAcls] = useState<Acl[]>([]);
+
   const { data: numbers, isLoading: isNumbersLoading } = useNumbers();
 
   /** Initializes the React Hook Form with Zod validation and initial values. */
@@ -139,6 +144,11 @@ export const CreateDomainForm = forwardRef<
     label: `${getNumberName(numberRef)} (${rule})`
   }));
 
+  // Keep local ACLs in sync with remote data
+  useEffect(() => {
+    setAcls(aclsData);
+  }, [aclsData]);
+
   /**
    * Renders the form with individual fields wrapped in FormField and FormItem components.
    */
@@ -177,22 +187,34 @@ export const CreateDomainForm = forwardRef<
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Select
-                    label="Access Control List (ACL)"
-                    options={acls.map(({ ref, name }) => ({
-                      value: ref,
-                      label: name
-                    }))}
-                    disabled={isAclsLoading || acls.length === 0}
-                    placeholder={
-                      isAclsLoading
-                        ? "Loading ACLs..."
-                        : acls.length === 0
-                          ? "No ACLs found. Create one first."
-                          : ""
-                    }
-                    {...field}
-                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "12px"
+                    }}
+                  >
+                    <Select
+                      label="Access Control List (ACL)"
+                      options={acls.map(({ ref, name }) => ({
+                        value: ref,
+                        label: name
+                      }))}
+                      disabled={isAclsLoading || acls.length === 0}
+                      placeholder={
+                        isAclsLoading
+                          ? "Loading ACLs..."
+                          : acls.length === 0
+                            ? "No ACLs found. Create one first."
+                            : ""
+                      }
+                      {...field}
+                    />
+                    <ModalTrigger
+                      onClick={() => setIsDomainAclsModalOpen(true)}
+                      label="Create New Access Control List"
+                    />
+                  </Box>
                 </FormControl>
               </FormItem>
             )}
@@ -252,6 +274,16 @@ export const CreateDomainForm = forwardRef<
         onFormSubmit={(rule) => {
           appendEgressPolicy(rule);
           setIsRulesModalOpen(false);
+        }}
+      />
+
+      <CreateDomainAclsModal
+        isOpen={isDomainAclsModalOpen}
+        onClose={() => setIsDomainAclsModalOpen(false)}
+        onFormSubmit={(newAcl) => {
+          // Add the new ACL to the local list and select it
+          setAcls((prev) => [...prev, newAcl]);
+          form.setValue("accessControlListRef", newAcl.ref);
         }}
       />
     </>
