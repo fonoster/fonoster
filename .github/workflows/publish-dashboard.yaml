@@ -48,7 +48,7 @@ jobs:
           DASHBOARD_TEST_PHONE_AUTHORIZATION_USER: voice-test
           DASHBOARD_TEST_PHONE_PASSWORD: ${{ secrets.DASHBOARD_TEST_PHONE_PASSWORD }}
           DASHBOARD_TEST_PHONE_DOMAIN: tests.sip.fonoster.com
-          DASHBOARD_TEST_PHONE_SERVER: ws://sip.fonoster.com:5062
+          DASHBOARD_TEST_PHONE_SERVER: wss://sip.fonoster.com:5063
           DASHBOARD_TEST_PHONE_TARGET_AOR: sip:voice@sip.fonoster.local
         with:
           name: fonoster/dashboard
