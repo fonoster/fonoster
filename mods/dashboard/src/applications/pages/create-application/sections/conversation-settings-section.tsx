@@ -47,7 +47,7 @@ export const ConversationSettingsSection = ({
             <Textarea
               label="System Prompt"
               minRows={20}
-              placeholder="Add markdown formatted system prompt here"
+              placeholder="Add your system prompt here"
               {...field}
             />
           </FormControl>
