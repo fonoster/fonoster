@@ -309,6 +309,11 @@ class Applications {
       metadata: this.client.getMetadata(),
       request,
       enumMapping: [["type", ApplicationType]],
+      objectMapping: [
+        ["speechToText", ProductContainerPB],
+        ["textToSpeech", ProductContainerPB],
+        ["intelligence", ProductContainerPB]
+      ],
       repeatableObjectMapping: [["itemsList", ApplicationPB]]
     });
 
