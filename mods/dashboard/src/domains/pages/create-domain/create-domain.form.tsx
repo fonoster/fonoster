@@ -26,7 +26,13 @@ import {
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useCallback, useImperativeHandle, useState, useEffect } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useState,
+  useEffect
+} from "react";
 import { schema, type Schema } from "./create-domain.schema";
 import { useAcls } from "~/acls/services/acls.service";
 import { Select } from "~/core/components/design-system/ui/select/select";
@@ -84,7 +90,11 @@ export const CreateDomainForm = forwardRef<
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isDomainAclsModalOpen, setIsDomainAclsModalOpen] = useState(false);
 
-  const { data: aclsData, isLoading: isAclsLoading, refetch: refetchAcls } = useAcls();
+  const {
+    data: aclsData,
+    isLoading: isAclsLoading,
+    refetch: refetchAcls
+  } = useAcls();
   const [acls, setAcls] = useState<Acl[]>([]);
 
   const { data: numbers, isLoading: isNumbersLoading } = useNumbers();

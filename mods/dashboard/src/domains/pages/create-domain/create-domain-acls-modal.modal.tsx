@@ -55,7 +55,11 @@ export interface DomainAclsModalProps {
  * @param {DomainAclsModalProps} props - The component props controlling visibility and form behavior.
  * @returns {JSX.Element} The rendered modal containing the ACL creation form.
  */
-export const CreateDomainAclsModal = ({ isOpen, onClose, onFormSubmit }: DomainAclsModalProps) => {
+export const CreateDomainAclsModal = ({
+  isOpen,
+  onClose,
+  onFormSubmit
+}: DomainAclsModalProps) => {
   const formRef = useRef<CreateAclFormHandle>(null);
   const { onSave, isPending } = useCreateAcl();
 
@@ -112,4 +116,4 @@ export const CreateDomainAclsModal = ({ isOpen, onClose, onFormSubmit }: DomainA
       </Box>
     </Modal>
   );
-}; 
+};
