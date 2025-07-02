@@ -17,14 +17,13 @@
  * limitations under the License.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Box } from "@mui/material";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import { Button } from "~/core/components/design-system/ui/button/button";
-import { Tooltip } from "~/core/components/design-system/ui/tooltip/tooltip";
 import { Icon } from "~/core/components/design-system/icons/icons";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 
@@ -32,34 +31,49 @@ import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import {
   CreateApplicationForm,
   type CreateApplicationFormHandle
-} from "./create-application.form";
-import { useCreateApplication } from "~/applications/services/applications.service";
+} from "../create-application/create-application.form";
+import {
+  useApplication,
+  useUpdateApplication
+} from "~/applications/services/applications.service";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { formatApplicationData } from "~/applications/services/format-application-data";
-import { useApplicationContext } from "~/applications/stores/application.store";
-import type { Schema } from "./schemas/application-schema";
+import type { Schema } from "../create-application/schemas/application-schema";
+import { Splash } from "~/core/components/general/splash/splash";
 import { useApplicationTestCall } from "~/applications/hooks/use-test-call";
+import { useApplicationContext } from "~/applications/stores/application.store";
 
-export function CreateApplicationContainer() {
-  /** The current workspace ID from route or context */
+export function EditApplicationContainer() {
+  /** Workspace context for routing. */
   const workspaceId = useWorkspaceId();
 
-  /** Navigation handler */
+  /** Extract application reference from route. */
+  const { ref } = useParams();
+
+  /** Ref is required for fetch and update. Fail early if missing. */
+  if (!ref) {
+    throw new Error("Application reference is required");
+  }
+
+  /** Fetch the application by ref. */
+  const { data, isLoading } = useApplication(ref);
+
+  /** Mutation hook for submitting updates. */
+  const { mutateAsync, isPending } = useUpdateApplication();
+
+  /** Programmatic navigation hook. */
   const navigate = useNavigate();
 
-  /** Ref for imperatively triggering form submission */
+  /** Form submit ref to trigger programmatically. */
   const formRef = useRef<CreateApplicationFormHandle>(null);
 
-  /** Submit button state to prevent double submission */
+  /** UI state to avoid double submits. */
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
 
-  /** API hook to create a new application */
-  const { mutateAsync, isPending } = useCreateApplication();
+  /** Application context setter. */
+  const { setApplication } = useApplicationContext();
 
-  /** Access application context state */
-  const { application, setApplication } = useApplicationContext();
-
-  /** Handles navigation back to the list of applications */
+  /** Navigates back to applications list. */
   const onGoBack = useCallback(() => {
     navigate(`/workspaces/${workspaceId}/applications`, {
       viewTransition: true
@@ -67,42 +81,58 @@ export function CreateApplicationContainer() {
   }, [navigate, workspaceId]);
 
   /**
-   * Handle successful form submission.
-   * Formats and sends data to backend, updates context and UI state.
+   * Form submission handler for updating application.
    *
-   * @param data - Validated application schema
+   * @param data - Validated schema input from form
    */
   const onSave = useCallback(
     async ({ intelligence, ...data }: Schema) => {
       try {
         const formattedData = formatApplicationData({ intelligence, ...data });
-        const { ref } = await mutateAsync(formattedData);
+        await mutateAsync({ ...formattedData, ref });
 
-        setApplication({ ref });
-        toast("Application created successfully!");
+        toast("Application updated successfully!");
         setIsSubmitDisabled(true);
       } catch (error) {
         toast(getErrorMessage(error));
         setIsSubmitDisabled(false);
       }
     },
-    [mutateAsync, setApplication]
+    [mutateAsync, ref]
   );
 
-  /** Hook for managing test call state and SIP stream */
+  /** Set current application context on load. */
+  useEffect(() => {
+    setApplication({ ref });
+  }, [ref]);
+
+  /** Initialize SIP test call logic. */
   const { onTestCall, audioRef, isCalling, isTestCallDisabled } =
     useApplicationTestCall();
+
+  /** Show error and redirect if application was not found. */
+  useEffect(() => {
+    if (!isLoading && !data) {
+      toast("Oops! You are trying to edit an application that does not exist.");
+      onGoBack();
+    }
+  }, [isLoading, data, onGoBack]);
+
+  /** Show splash screen during loading. */
+  if (isLoading || !data) {
+    return <Splash message="Loading application details..." />;
+  }
 
   return (
     <>
       <Page variant="form">
         <PageHeader
-          title="Create New Application"
+          title="Edit Application"
           description="An Application defines how your Voice AI behaves. Use Autopilot for LLM-based agents or External for custom logic."
           onBack={{ label: "Back to voice applications", onClick: onGoBack }}
           actions={
             <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
-              {/* Submit application form */}
+              {/* Submit button */}
               <Button
                 size="small"
                 onClick={() => formRef.current?.submit()}
@@ -111,45 +141,37 @@ export function CreateApplicationContainer() {
                 {isPending ? "Saving..." : "Save Voice Application"}
               </Button>
 
-              {/* Run SIP test call */}
-              <Tooltip
-                title={
-                  application?.ref
-                    ? "Test the application with a call"
-                    : "Save the application first to enable test calls"
+              {/* Test Call button */}
+              <Button
+                onClick={onTestCall}
+                variant="outlined"
+                size="small"
+                disabled={isCalling || isTestCallDisabled}
+                startIcon={
+                  <Icon
+                    name="Phone"
+                    sx={{ fontSize: "16px !important", color: "inherit" }}
+                  />
                 }
-                placement="left"
               >
-                <Button
-                  onClick={onTestCall}
-                  variant="outlined"
-                  size="small"
-                  disabled={isCalling || isTestCallDisabled}
-                  startIcon={
-                    <Icon
-                      name="Phone"
-                      sx={{ fontSize: "16px !important", color: "inherit" }}
-                    />
-                  }
-                >
-                  {application?.ref
-                    ? isCalling || isTestCallDisabled
-                      ? "Calling..."
-                      : "Test Call"
-                    : "Save to Test Call"}
-                </Button>
-              </Tooltip>
+                {isCalling || isTestCallDisabled ? "Calling..." : "Test Call"}
+              </Button>
             </Box>
           }
         />
 
-        {/* Application creation form */}
+        {/* Application form with initial values */}
         <Box sx={{ maxWidth: "440px" }}>
-          <CreateApplicationForm ref={formRef} onSubmit={onSave} />
+          <CreateApplicationForm
+            ref={formRef}
+            onSubmit={onSave}
+            initialValues={data as Schema}
+            isEdit={true}
+          />
         </Box>
       </Page>
 
-      {/* Audio element to output test call audio via SIP */}
+      {/* Audio element for SIP test call playback */}
       <audio ref={audioRef} autoPlay />
     </>
   );
