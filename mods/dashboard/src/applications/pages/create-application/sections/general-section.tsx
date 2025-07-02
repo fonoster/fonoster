@@ -52,17 +52,6 @@ export const GeneralSection = ({
       )}
     />
 
-    <Box sx={{ mt: "8px" }}>
-      <Typography variant="mono-medium" color="base.03">
-        GENERAL
-      </Typography>
-      <Typography variant="body-micro" color="base.03">
-        Set the Application Type to External if you need custom programmable
-        voice applications, or to Autopilot if you want to use Fonoster's
-        built-in Autopilot service.
-      </Typography>
-    </Box>
-
     {!isEdit && (
       <FormField
         control={control}
