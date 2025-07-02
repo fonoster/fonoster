@@ -38,6 +38,7 @@ import {
   useApplicationContext
 } from "~/applications/stores/application.store";
 import type { Schema } from "./schemas/application-schema";
+import { Logger } from "~/core/shared/logger";
 
 export function CreateApplicationContainer() {
   /** Extract workspace ID for routing context. */
@@ -132,6 +133,17 @@ export function CreateApplicationContainer() {
       close(); // Hangs up any ongoing call
     };
   }, []);
+
+  /**
+   * Pre-connect the test phone when the application is created and available
+   */
+  useEffect(() => {
+    if (application?.ref && !isConnected) {
+      connect(application.ref).catch((error) => {
+        Logger.debug("[CreateApplicationContainer] Failed to pre-connect test phone", error);
+      });
+    }
+  }, [application?.ref, isConnected, connect]);
 
   return (
     <ApplicationProvider>
