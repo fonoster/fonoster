@@ -140,7 +140,10 @@ export function CreateApplicationContainer() {
   useEffect(() => {
     if (application?.ref && !isConnected) {
       connect(application.ref).catch((error) => {
-        Logger.debug("[CreateApplicationContainer] Failed to pre-connect test phone", error);
+        Logger.debug(
+          "[CreateApplicationContainer] Failed to pre-connect test phone",
+          error
+        );
       });
     }
   }, [application?.ref, isConnected, connect]);
