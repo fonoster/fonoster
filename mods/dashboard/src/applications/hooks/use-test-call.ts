@@ -21,7 +21,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useSipTestCall } from "./use-sip";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
-import { Logger } from "~/core/shared/logger";
 import { useApplicationContext } from "../stores/application.store";
 
 /**
@@ -34,13 +33,13 @@ import { useApplicationContext } from "../stores/application.store";
  *
  * @returns
  * - `audioRef`: Reference to audio element for media playback.
- * - `isTestCallDisabled`: Flag to disable the test call button.
+ * - `isLoadingCall`: Flag to disable the test call button.
  * - `isCalling`: Boolean representing an active test call.
  * - `onTestCall()`: Function to initiate the test call (with auto-connect if needed).
  */
 export const useApplicationTestCall = () => {
   /** Disable the test button temporarily to prevent double clicks. */
-  const [isTestCallDisabled, setIsTestCallDisabled] = useState(false);
+  const [isLoadingCall, setIsLoadingCall] = useState(false);
 
   /** Get current application reference from context. */
   const {
@@ -70,7 +69,7 @@ export const useApplicationTestCall = () => {
     }
 
     try {
-      setIsTestCallDisabled(true);
+      setIsLoadingCall(true);
       toast("Initiating test call...");
 
       // Ensure connection to SIP server before making a call
@@ -80,27 +79,9 @@ export const useApplicationTestCall = () => {
     } catch (err) {
       toast(getErrorMessage(err));
     } finally {
-      setIsTestCallDisabled(false);
+      setIsLoadingCall(false);
     }
   }, [appRef, connect, call, isConnected]);
-
-  /**
-   * Automatically connect the test call agent when a valid application is present.
-   * This enables test call buttons and avoids delay on first interaction.
-   * 
-   * TODO: This code is commented out because it causes issues with the test call
-   *       agent not being able to connect properly. We need to investigate further.
-   */
-  // useEffect(() => {
-  //   if (appRef && !isConnected) {
-  //     connect().catch((error) => {
-  //       Logger.debug(
-  //         "[useApplicationTestCall] Failed to pre-connect test phone",
-  //         error
-  //       );
-  //     });
-  //   }
-  // }, [appRef, isConnected, connect]);
 
   /**
    * Cleanup SIP session and disconnect audio stream when unmounting.
@@ -113,8 +94,9 @@ export const useApplicationTestCall = () => {
 
   return {
     audioRef,
-    isTestCallDisabled,
+    isLoadingCall,
     isCalling,
-    onTestCall
+    onTestCall,
+    hangup: close
   };
 };

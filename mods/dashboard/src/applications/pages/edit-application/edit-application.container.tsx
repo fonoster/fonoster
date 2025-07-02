@@ -107,7 +107,7 @@ export function EditApplicationContainer() {
   }, [ref]);
 
   /** Initialize SIP test call logic. */
-  const { onTestCall, audioRef, isCalling, isTestCallDisabled } =
+  const { onTestCall, audioRef, isCalling, isLoadingCall, hangup } =
     useApplicationTestCall();
 
   /** Show error and redirect if application was not found. */
@@ -143,10 +143,9 @@ export function EditApplicationContainer() {
 
               {/* Test Call button */}
               <Button
-                onClick={onTestCall}
+                onClick={isCalling || isLoadingCall ? hangup : onTestCall}
                 variant="outlined"
                 size="small"
-                disabled={isCalling || isTestCallDisabled}
                 startIcon={
                   <Icon
                     name="Phone"
@@ -154,7 +153,7 @@ export function EditApplicationContainer() {
                   />
                 }
               >
-                {isCalling || isTestCallDisabled ? "Calling..." : "Test Call"}
+                {isCalling || isLoadingCall ? "Hangup" : "Test Call"}
               </Button>
             </Box>
           }

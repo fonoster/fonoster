@@ -90,7 +90,7 @@ export function CreateApplicationContainer() {
   );
 
   /** Hook for managing test call state and SIP stream */
-  const { onTestCall, audioRef, isCalling, isTestCallDisabled } =
+  const { onTestCall, audioRef, isCalling, isLoadingCall, hangup } =
     useApplicationTestCall();
 
   return (
@@ -121,10 +121,11 @@ export function CreateApplicationContainer() {
                 placement="left"
               >
                 <Button
-                  onClick={onTestCall}
+                  onClick={
+                    isCalling || isLoadingCall ? hangup : onTestCall
+                  }
                   variant="outlined"
                   size="small"
-                  disabled={isCalling || isTestCallDisabled}
                   startIcon={
                     <Icon
                       name="Phone"
@@ -133,8 +134,8 @@ export function CreateApplicationContainer() {
                   }
                 >
                   {application?.ref
-                    ? isCalling || isTestCallDisabled
-                      ? "Calling..."
+                    ? isCalling || isLoadingCall
+                      ? "Hangup"
                       : "Test Call"
                     : "Save to Test Call"}
                 </Button>

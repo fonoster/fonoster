@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { Web } from "sip.js";
 import { TEST_PHONE_CONFIG } from "~/core/sdk/stores/fonoster.config";
 import { Logger } from "~/core/shared/logger";
@@ -60,6 +60,14 @@ export function useSipTestCall() {
   /** Holds the active SIP session */
   const [simpleUser, setSimpleUser] = useState<Web.SimpleUser | null>(null);
 
+  /** Ref to track current simpleUser for cleanup */
+  const simpleUserRef = useRef<Web.SimpleUser | null>(null);
+
+  /** Keep ref in sync with state */
+  useEffect(() => {
+    simpleUserRef.current = simpleUser;
+  }, [simpleUser]);
+
   /**
    * connect
    *
@@ -70,9 +78,11 @@ export function useSipTestCall() {
   const connect = useCallback(async () => {
     Logger.debug("[useTestCall] Connecting to SIP server...");
 
-    if (simpleUser) {
-      await simpleUser.disconnect();
+    const currentUser = simpleUserRef.current;
+    if (currentUser) {
+      await currentUser.disconnect();
       setSimpleUser(null);
+      simpleUserRef.current = null;
     }
 
     const delegate: Web.SimpleUserDelegate = {
@@ -83,10 +93,6 @@ export function useSipTestCall() {
         Logger.debug("[useTestCall] Disconnected from SIP server");
         setIsConnected(false);
         setIsCalling(false);
-      },
-      onCallReceived: async () => {
-        await simpleUser?.answer();
-        setIsCalling(true);
       }
     };
 
@@ -114,12 +120,13 @@ export function useSipTestCall() {
     try {
       await user.connect();
       setSimpleUser(user);
+      simpleUserRef.current = user;
     } catch (error) {
       Logger.error("[useTestCall] Failed to connect to SIP server", error);
       setIsConnected(false);
       setIsCalling(false);
     }
-  }, [simpleUser]);
+  }, []);
 
   /**
    * call
@@ -132,22 +139,23 @@ export function useSipTestCall() {
    */
   const call = useCallback(
     async (appRef: string) => {
-      if (!simpleUser) return;
+      const user = simpleUserRef.current;
+      if (!user) return;
 
       try {
         if (!isCalling) {
-          await simpleUser.call(TEST_PHONE_CONFIG.targetAOR, {
+          await user.call(TEST_PHONE_CONFIG.targetAOR, {
             extraHeaders: [`X-App-Ref: ${appRef}`]
           });
         } else {
-          await simpleUser.hangup();
+          await user.hangup();
         }
       } catch (error) {
         Logger.error("[useTestCall] Call error", error);
         setIsCalling(false);
       }
     },
-    [simpleUser, isCalling]
+    [isCalling]
   );
 
   /**
@@ -162,10 +170,12 @@ export function useSipTestCall() {
 
     const shutdown = async () => {
       try {
-        if (simpleUser) {
-          await simpleUser.hangup().catch(() => {});
-          await simpleUser.disconnect().catch(() => {});
+        const user = simpleUserRef.current;
+        if (user) {
+          await user.hangup().catch(() => {});
+          await user.disconnect().catch(() => {});
           setSimpleUser(null);
+          simpleUserRef.current = null;
         }
       } finally {
         setIsConnected(false);
@@ -181,7 +191,7 @@ export function useSipTestCall() {
     };
 
     shutdown();
-  }, [simpleUser]);
+  }, []);
 
   return {
     audioRef,
