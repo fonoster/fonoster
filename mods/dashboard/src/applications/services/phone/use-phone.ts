@@ -8,15 +8,14 @@ import { Logger } from "~/core/shared/logger";
  *
  * @description
  * Hook to manage a SIP-based test call using SIP.js.
- * Encapsulates connection lifecycle, registration, and audio call controls.
+ * Encapsulates connection lifecycle and audio call controls.
  *
  * Usage:
  * ```ts
  * const {
  *   audioRef,
- *   state: { isConnected, isRegistered, isCalling },
+ *   state: { isConnected, isCalling },
  *   connect,
- *   register,
  *   call,
  *   close
  * } = useTestCall()
@@ -28,7 +27,6 @@ export function useTestCall() {
 
   /** SIP call connection state. */
   const [isConnected, setIsConnected] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
   const [isCalling, setIsCalling] = useState(false);
 
   /** Internal reference to the active SIP user agent. */
@@ -49,7 +47,6 @@ export function useTestCall() {
 
       // Cleanup any previous user session
       if (simpleUser) {
-        await simpleUser.unregister();
         await simpleUser.disconnect();
         setSimpleUser(null);
       }
@@ -57,12 +54,9 @@ export function useTestCall() {
       const delegate: Web.SimpleUserDelegate = {
         onCallAnswered: () => setIsCalling(true),
         onCallHangup: () => setIsCalling(false),
-        onRegistered: () => setIsRegistered(true),
-        onUnregistered: () => setIsRegistered(false),
         onServerConnect: () => setIsConnected(true),
         onServerDisconnect: () => {
           setIsConnected(false);
-          setIsRegistered(false);
           Logger.debug("[useTestCall] Disconnected from SIP server");
         },
         onCallReceived: async () => {
@@ -87,11 +81,6 @@ export function useTestCall() {
             server: TEST_PHONE_CONFIG.server,
             keepAliveInterval: 15
           }
-        },
-        registererOptions: {
-          expires: 120,
-          refreshFrequency: 70,
-          extraHeaders: [`X-App-Ref: ${appRef}`]
         }
       };
 
@@ -104,36 +93,11 @@ export function useTestCall() {
         Logger.error("[useTestCall] Failed to connect to SIP server", error);
         setSimpleUser(null);
         setIsConnected(false);
-        setIsRegistered(false);
         setIsCalling(false);
       }
     },
     [simpleUser]
   );
-
-  /**
-   * register
-   *
-   * @description
-   * Toggles SIP registration status.
-   * Registers the user if not already registered, or unregisters otherwise.
-   */
-  const register = useCallback(async () => {
-    if (!simpleUser) return;
-
-    try {
-      if (!isRegistered) {
-        await simpleUser.register();
-        setIsRegistered(true);
-      } else {
-        await simpleUser.unregister();
-        setIsRegistered(false);
-      }
-    } catch (error) {
-      Logger.error("[useTestCall] Registration error", error);
-      setIsRegistered(false);
-    }
-  }, [simpleUser, isRegistered]);
 
   /**
    * call
@@ -177,13 +141,11 @@ export function useTestCall() {
       try {
         if (simpleUser) {
           await simpleUser.hangup().catch(() => {});
-          await simpleUser.unregister().catch(() => {});
           await simpleUser.disconnect().catch(() => {});
           setSimpleUser(null);
         }
       } finally {
         setIsConnected(false);
-        setIsRegistered(false);
         setIsCalling(false);
 
         if (audioRef.current) {
@@ -203,11 +165,9 @@ export function useTestCall() {
     audioRef,
     state: {
       isConnected,
-      isRegistered,
       isCalling
     },
     connect,
-    register,
     call,
     close
   };

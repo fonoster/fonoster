@@ -63,9 +63,8 @@ export function CreateApplicationContainer() {
   /** SIP calling logic and connection state from hook. */
   const {
     audioRef,
-    state: { isConnected, isRegistered, isCalling },
+    state: { isConnected, isCalling },
     connect,
-    register,
     call,
     close
   } = useTestCall();
@@ -101,7 +100,7 @@ export function CreateApplicationContainer() {
 
   /**
    * Triggers a test call using the SIP client once the app has been saved.
-   * Calls connect, register, and call in sequence.
+   * Calls connect and call in sequence.
    */
   const onTestCall = useCallback(async () => {
     if (!application.ref) {
@@ -117,15 +116,13 @@ export function CreateApplicationContainer() {
 
       if (!isConnected) await connect(appRef);
 
-      if (!isRegistered) await register();
-
       await call(appRef);
     } catch (err) {
       toast(getErrorMessage(err));
     } finally {
       setIsTestCallDisabled(false);
     }
-  }, [application, connect, register, call, isConnected, isRegistered]);
+  }, [application, connect, call, isConnected]);
 
   /**
    * Cleanup SIP session on component unmount.
