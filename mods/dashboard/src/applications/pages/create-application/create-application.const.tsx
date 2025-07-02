@@ -106,7 +106,6 @@ export const LANGUAGES = [
 export const LANGUAGE_MODEL_PROVIDERS = [
   { value: LanguageModelProvider.OPENAI, label: "OpenAI" },
   { value: LanguageModelProvider.GROQ, label: "Groq" },
-  { value: LanguageModelProvider.OLLAMA, label: "Ollama" },
   { value: LanguageModelProvider.GOOGLE, label: "Google" },
   { value: LanguageModelProvider.ANTHROPIC, label: "Anthropic" }
 ];
@@ -121,10 +120,6 @@ export const LANGUAGE_MODEL_OPENAI_MODELS = [
 export const LANGUAGE_MODEL_GROQ_MODELS = [
   { value: "llama-3.3-70b-specdec", label: "Llama 3.3 70B SpecDec" },
   { value: "llama-3.3-70b-versatile", label: "Llama 3.3 70B Versatile" }
-];
-
-export const LANGUAGE_MODEL_OLLAMA_MODELS = [
-  { value: "llama3-groq-tool-use", label: "Llama 3 Groq Tool Use" }
 ];
 
 export const LANGUAGE_MODEL_GOOGLE_MODELS = [
@@ -142,7 +137,6 @@ export const getLanguageModelModels = (provider: LanguageModelProvider) => {
   const modelsMap = {
     [LanguageModelProvider.OPENAI]: LANGUAGE_MODEL_OPENAI_MODELS,
     [LanguageModelProvider.GROQ]: LANGUAGE_MODEL_GROQ_MODELS,
-    [LanguageModelProvider.OLLAMA]: LANGUAGE_MODEL_OLLAMA_MODELS,
     [LanguageModelProvider.GOOGLE]: LANGUAGE_MODEL_GOOGLE_MODELS,
     [LanguageModelProvider.ANTHROPIC]: LANGUAGE_MODEL_ANTHROPIC_MODELS
   };
@@ -183,10 +177,13 @@ export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
         systemErrorMessage: "An error occurred. Please try again later.",
         transferOptions: {
           phoneNumber: "",
-          message: "Please call this number for further assistance."
+          message: "Please call this number for further assistance.",
+          timeout: 30000
         },
         idleOptions: {
-          message: "I haven't heard from you in a while. Are you still there?"
+          message: "I haven't heard from you in a while. Are you still there?",
+          timeout: 30000,
+          maxTimeoutCount: 2
         }
       },
       languageModel: {

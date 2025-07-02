@@ -26,8 +26,13 @@ export const conversationSettingsSchema = z.object({
   transferOptions: z
     .object({
       phoneNumber: z.string(),
-      message: z.string()
+      message: z.string(),
+      timeout: z.number().int().positive().default(30000)
     })
     .optional(),
-  idleOptions: z.object({ message: z.string() })
+  idleOptions: z.object({
+    message: z.string(),
+    timeout: z.number().int().positive().default(30000),
+    maxTimeoutCount: z.number().int().positive().default(2)
+  })
 });

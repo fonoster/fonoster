@@ -79,7 +79,8 @@ export const AdvancedSettingsSection = ({
           </Typography>
           <Typography variant="body-micro" color="base.03">
             For call transfer, please provide a phone number. Also, optionally,
-            you can set a message to be used when the call is transferred.
+            you can set a message to be used when the call is transferred and a
+            timeout for the transfer operation (in milliseconds).
           </Typography>
         </Box>
         <FormField
@@ -109,6 +110,26 @@ export const AdvancedSettingsSection = ({
             </FormItem>
           )}
         />
+        <FormField
+          control={control}
+          name="intelligence.config.conversationSettings.transferOptions.timeout"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  type="number"
+                  label="Timeout (ms)"
+                  placeholder="30000"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === "" ? undefined : Number(value));
+                  }}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         {/* idleOptions (objeto requerido) */}
         <Box sx={{ mt: "8px" }}>
           <Typography variant="mono-medium" color="base.03">
@@ -116,8 +137,8 @@ export const AdvancedSettingsSection = ({
           </Typography>
           <Typography variant="body-micro" color="base.03">
             This is the message that will be played when there is no activity in
-            the call. This is useful to remind the user that call is still
-            ongoing.
+            the call. You can also set a timeout (in milliseconds) and maximum
+            timeout count for idle handling.
           </Typography>
         </Box>
         <FormField
@@ -127,6 +148,46 @@ export const AdvancedSettingsSection = ({
             <FormItem>
               <FormControl>
                 <Input type="text" label="Idle Message" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="intelligence.config.conversationSettings.idleOptions.timeout"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  type="number"
+                  label="Idle Timeout (ms)"
+                  placeholder="30000"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === "" ? undefined : Number(value));
+                  }}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="intelligence.config.conversationSettings.idleOptions.maxTimeoutCount"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  type="number"
+                  label="Max Timeout Count"
+                  placeholder="2"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === "" ? undefined : Number(value));
+                  }}
+                />
               </FormControl>
             </FormItem>
           )}
@@ -178,7 +239,15 @@ export const AdvancedSettingsSection = ({
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input type="number" label="Temperature" {...field} />
+                <Input
+                  type="number"
+                  label="Temperature"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === "" ? undefined : Number(value));
+                  }}
+                />
               </FormControl>
             </FormItem>
           )}
@@ -189,7 +258,15 @@ export const AdvancedSettingsSection = ({
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input type="number" label="Max Tokens" {...field} />
+                <Input
+                  type="number"
+                  label="Max Tokens"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === "" ? undefined : Number(value));
+                  }}
+                />
               </FormControl>
             </FormItem>
           )}
