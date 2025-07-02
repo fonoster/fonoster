@@ -57,6 +57,9 @@ export function useSipTestCall() {
   /** Tracks whether there is an active call */
   const [isCalling, setIsCalling] = useState(false);
 
+  /** Tracks whether the call has been answered */
+  const [isAnswered, setIsAnswered] = useState(false);
+
   /** Holds the active SIP session */
   const [simpleUser, setSimpleUser] = useState<Web.SimpleUser | null>(null);
 
@@ -86,13 +89,20 @@ export function useSipTestCall() {
     }
 
     const delegate: Web.SimpleUserDelegate = {
-      onCallAnswered: () => setIsCalling(true),
-      onCallHangup: () => setIsCalling(false),
+      onCallAnswered: () => {
+        setIsCalling(false);
+        setIsAnswered(true);
+      },
+      onCallHangup: () => {
+        setIsCalling(false);
+        setIsAnswered(false);
+      },
       onServerConnect: () => setIsConnected(true),
       onServerDisconnect: () => {
         Logger.debug("[useTestCall] Disconnected from SIP server");
         setIsConnected(false);
         setIsCalling(false);
+        setIsAnswered(false);
       }
     };
 
@@ -144,6 +154,8 @@ export function useSipTestCall() {
 
       try {
         if (!isCalling) {
+          setIsCalling(true);
+          setIsAnswered(false);
           await user.call(TEST_PHONE_CONFIG.targetAOR, {
             extraHeaders: [`X-App-Ref: ${appRef}`]
           });
@@ -153,6 +165,7 @@ export function useSipTestCall() {
       } catch (error) {
         Logger.error("[useTestCall] Call error", error);
         setIsCalling(false);
+        setIsAnswered(false);
       }
     },
     [isCalling]
@@ -180,6 +193,7 @@ export function useSipTestCall() {
       } finally {
         setIsConnected(false);
         setIsCalling(false);
+        setIsAnswered(false);
 
         if (audioRef.current) {
           const stream = audioRef.current.srcObject as MediaStream | null;
@@ -197,7 +211,8 @@ export function useSipTestCall() {
     audioRef,
     state: {
       isConnected,
-      isCalling
+      isCalling,
+      isAnswered
     },
     connect,
     call,

@@ -49,7 +49,7 @@ export const useApplicationTestCall = () => {
   /** SIP call control and state from internal hook. */
   const {
     audioRef,
-    state: { isConnected, isCalling },
+    state: { isConnected, isCalling, isAnswered },
     connect,
     call,
     close
@@ -96,6 +96,7 @@ export const useApplicationTestCall = () => {
     audioRef,
     isLoadingCall,
     isCalling,
+    isAnswered,
     onTestCall,
     hangup: close
   };
