@@ -27,7 +27,7 @@ import { Typography } from "~/core/components/design-system/ui/typography/typogr
 import {
   FormField,
   FormControl,
-  FormItem,
+  FormItem
 } from "~/core/components/design-system/forms";
 import { Input } from "~/core/components/design-system/ui/input/input";
 import type { Control } from "react-hook-form";

@@ -35,6 +35,7 @@ import { Logger } from "~/core/shared/logger";
 
 export interface CreateApplicationFormHandle {
   submit: () => void;
+  isSubmitDisabled?: boolean;
 }
 
 export interface CreateApplicationFormProps extends React.PropsWithChildren {
@@ -68,7 +69,8 @@ export const CreateApplicationForm = forwardRef<
   const isAutopilot = type === "AUTOPILOT";
 
   useImperativeHandle(ref, () => ({
-    submit: () => form.handleSubmit(onFormSubmit)()
+    submit: () => form.handleSubmit(onFormSubmit)(),
+    isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
   }));
 
   useEffect(() => {

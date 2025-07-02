@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { Box } from "@mui/material";
 import { useNavigate } from "react-router";
 
@@ -50,9 +50,6 @@ export function CreateApplicationContainer() {
   /** Ref for imperatively triggering form submission */
   const formRef = useRef<CreateApplicationFormHandle>(null);
 
-  /** Submit button state to prevent double submission */
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
-
   /** API hook to create a new application */
   const { mutateAsync, isPending } = useCreateApplication();
 
@@ -80,13 +77,16 @@ export function CreateApplicationContainer() {
 
         setApplication({ ref });
         toast("Application created successfully!");
-        setIsSubmitDisabled(true);
+
+        // Navigate to edit page to prevent accidental duplicates and allow further configuration
+        navigate(`/workspaces/${workspaceId}/applications/${ref}/edit`, {
+          viewTransition: true
+        });
       } catch (error) {
         toast(getErrorMessage(error));
-        setIsSubmitDisabled(false);
       }
     },
-    [mutateAsync, setApplication]
+    [mutateAsync, setApplication, navigate, workspaceId]
   );
 
   /** Hook for managing test call state and SIP stream */
@@ -106,7 +106,7 @@ export function CreateApplicationContainer() {
               <Button
                 size="small"
                 onClick={() => formRef.current?.submit()}
-                disabled={isSubmitDisabled || isPending}
+                disabled={formRef.current?.isSubmitDisabled || isPending}
               >
                 {isPending ? "Saving..." : "Save Voice Application"}
               </Button>

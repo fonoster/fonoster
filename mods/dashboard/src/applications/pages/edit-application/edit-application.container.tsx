@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Box } from "@mui/material";
 import { useNavigate, useParams } from "react-router";
 
@@ -67,9 +67,6 @@ export function EditApplicationContainer() {
   /** Form submit ref to trigger programmatically. */
   const formRef = useRef<CreateApplicationFormHandle>(null);
 
-  /** UI state to avoid double submits. */
-  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
-
   /** Application context setter. */
   const { setApplication } = useApplicationContext();
 
@@ -92,10 +89,8 @@ export function EditApplicationContainer() {
         await mutateAsync({ ...formattedData, ref });
 
         toast("Application updated successfully!");
-        setIsSubmitDisabled(true);
       } catch (error) {
         toast(getErrorMessage(error));
-        setIsSubmitDisabled(false);
       }
     },
     [mutateAsync, ref]
@@ -136,7 +131,7 @@ export function EditApplicationContainer() {
               <Button
                 size="small"
                 onClick={() => formRef.current?.submit()}
-                disabled={isSubmitDisabled || isPending}
+                disabled={formRef.current?.isSubmitDisabled || isPending}
               >
                 {isPending ? "Saving..." : "Save Voice Application"}
               </Button>
