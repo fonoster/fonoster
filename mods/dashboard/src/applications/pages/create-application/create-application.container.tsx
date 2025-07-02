@@ -121,9 +121,11 @@ export function CreateApplicationContainer() {
                 placement="left"
               >
                 <Button
-                  onClick={
-                    isCalling || isLoadingCall ? hangup : onTestCall
-                  }
+                  onClick={() => {
+                    if (!application?.ref) return;
+
+                    return isCalling || isLoadingCall ? hangup() : onTestCall();
+                  }}
                   variant="outlined"
                   size="small"
                   startIcon={
