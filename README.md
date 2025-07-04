@@ -57,7 +57,7 @@ new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
 
   await voice.say("Hi there! What's your name?");
 
-  const { speech: name } = await res.gather({
+  const { speech: name } = await voice.gather({
     source: GatherSource.SPEECH
   });
 
