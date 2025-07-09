@@ -74,6 +74,11 @@
           "anchor": "Community",
           "href": "https://discord.gg/4QWgSz4hTC",
           "icon": "discord"
+        },
+        {
+          "anchor": "Changelog",
+          "href": "https://docs.fonoster.com/changelog",
+          "icon": "discord"
         }
       ]
     }
