@@ -315,6 +315,7 @@ export const AdvancedSettingsSection = ({
             <FormItem>
               <FormControl>
                 <Select
+                  {...field}
                   multiple
                   label="Events"
                   options={EVENTS}

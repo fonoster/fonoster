@@ -37,7 +37,7 @@ import { useCreateApplication } from "~/applications/services/applications.servi
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { formatApplicationData } from "~/applications/services/format-application-data";
 import { useApplicationContext } from "~/applications/stores/application.store";
-import type { Schema } from "./schemas/application-schema";
+import type { Form, Schema } from "./schemas/application-schema";
 import { useApplicationTestCall } from "~/applications/hooks/use-test-call";
 
 export function CreateApplicationContainer() {
@@ -70,9 +70,14 @@ export function CreateApplicationContainer() {
    * @param data - Validated application schema
    */
   const onSave = useCallback(
-    async ({ intelligence, ...data }: Schema) => {
+    async ({ intelligence, ...data }: Schema, form: Form) => {
       try {
-        const formattedData = formatApplicationData({ intelligence, ...data });
+        const formattedData = formatApplicationData({ intelligence, ...data }, form);
+        if (!formattedData) {
+          // If formatApplicationData sets an error, it will return undefined
+          return;
+        }
+
         const { ref } = await mutateAsync(formattedData);
 
         setApplication({ ref });

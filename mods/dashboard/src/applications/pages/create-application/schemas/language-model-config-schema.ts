@@ -27,11 +27,11 @@ const languageModelConfigSchema = z.object({
     message: "Invalid language model provider."
   }),
   model: z.string(),
-  temperature: z
+  temperature: z.coerce
     .number()
     .max(2, { message: NUMBER_BETWEEN_0_AND_2 })
     .min(0, { message: NUMBER_BETWEEN_0_AND_2 }),
-  maxTokens: z
+  maxTokens: z.coerce
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
     .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })

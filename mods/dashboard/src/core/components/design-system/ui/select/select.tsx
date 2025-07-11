@@ -25,6 +25,7 @@ import InputLabel from "@mui/material/InputLabel";
 import { type SelectChangeEvent } from "@mui/material/Select";
 import type { SelectProps } from "./select.interfaces";
 import { Icon } from "../../icons/icons";
+import { useFormField } from "../../forms";
 
 /**
  * Interface defining the shape of options for the Select component.
@@ -55,7 +56,6 @@ export const Select: React.FC<SelectProps> = ({
   supportingText,
   value,
   onChange,
-  error,
   options = [],
   inputRef,
   name,
@@ -63,10 +63,13 @@ export const Select: React.FC<SelectProps> = ({
   multiple = false,
   ...rest
 }) => {
+  const { error } = useFormField();
   const theme = useTheme();
 
   const hasLeadingIcon = !!leadingIcon;
   const hasTrailingIcon = !!trailingIcon;
+
+  const message = error ? error.message : supportingText;
 
   /**
    * Handles changes to the select value.
@@ -196,7 +199,7 @@ export const Select: React.FC<SelectProps> = ({
   return (
     <FormControl
       fullWidth
-      error={error}
+      error={Boolean(error)}
       size={size}
       sx={{
         "& .MuiFormLabel-root.MuiInputLabel-root.Mui-focused": {
@@ -230,7 +233,9 @@ export const Select: React.FC<SelectProps> = ({
         },
         "& .MuiOutlinedInput-root": {
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.base["05"]
+            borderColor: Boolean(error)
+              ? theme.palette.error.main
+              : theme.palette.base["05"]
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
             borderColor: theme.palette.brand.main
@@ -246,7 +251,9 @@ export const Select: React.FC<SelectProps> = ({
           lineHeight: "normal",
           letterSpacing: "0.12px",
           marginTop: "8px",
-          color: theme.palette.base["03"]
+          color: Boolean(error)
+            ? theme.palette.error.main
+            : theme.palette.base["03"]
         },
         "& .MuiFormLabel-root.MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
           fontFamily: "'Poppins', sans-serif",
@@ -323,7 +330,9 @@ export const Select: React.FC<SelectProps> = ({
           </MenuItem>
         ))}
       </SelectRoot>
-      {supportingText && <FormHelperText>{supportingText}</FormHelperText>}
+      {message && (
+        <FormHelperText error={Boolean(error)}>{message}</FormHelperText>
+      )}
     </FormControl>
   );
 };

@@ -21,7 +21,11 @@ import { useForm, type Resolver } from "react-hook-form";
 import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 import { Form } from "~/core/components/design-system/forms";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
-import { APPLICATIONS_DEFAULT_INITIAL_VALUES } from "./create-application.const";
+import {
+  APPLICATIONS_DEFAULT_INITIAL_VALUES,
+  TTS_DEEPGRAM_VOICES,
+  TTS_ELEVENLABS_VOICES
+} from "./create-application.const";
 import {
   type Form as FormType,
   type Schema,
@@ -31,7 +35,6 @@ import { GeneralSection } from "./sections/general-section";
 import { SpeechSection } from "./sections/speech-section";
 import { AdvancedSettingsSection } from "./sections/advanced-settings-section";
 import { ConversationSettingsSection } from "./sections/conversation-settings-section";
-import { Logger } from "~/core/shared/logger";
 
 export interface CreateApplicationFormHandle {
   submit: () => void;
@@ -63,6 +66,7 @@ export const CreateApplicationForm = forwardRef<
 
   const type = form.watch("type");
   const ttsVendor = form.watch("textToSpeech.productRef");
+  const ttsVoice = form.watch("textToSpeech.config.voice");
   const languageModelProvider = form.watch(
     "intelligence.config.languageModel.provider"
   );
@@ -74,13 +78,18 @@ export const CreateApplicationForm = forwardRef<
   }));
 
   useEffect(() => {
-    Logger.debug("[CreateApplicationForm] Form initialized", {
-      defaultValues: {
-        ...APPLICATIONS_DEFAULT_INITIAL_VALUES,
-        ...initialValues
+    if (ttsVendor && ttsVoice) {
+      if (ttsVendor === "tts.deepgram") {
+        const { value: firstVoice } = TTS_DEEPGRAM_VOICES[0];
+        form.setValue("textToSpeech.config.voice", firstVoice);
       }
-    });
-  }, [initialValues]);
+
+      if (ttsVendor === "tts.elevenlabs") {
+        const { value: firstVoice } = TTS_ELEVENLABS_VOICES[0];
+        form.setValue("textToSpeech.config.voice", firstVoice);
+      }
+    }
+  }, [ttsVendor, ttsVoice]);
 
   return (
     <Form {...form}>

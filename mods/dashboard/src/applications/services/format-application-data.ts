@@ -8,18 +8,33 @@ import type {
 } from "../pages/create-application/schemas/application-schema";
 import { Logger } from "~/core/shared/logger";
 
-export function formatApplicationData({ intelligence, ...data }: Schema) {
+export function formatApplicationData(
+  { intelligence, ...data }: Schema,
+  form: Form
+) {
   if (data.type === ApplicationType.EXTERNAL && !data.endpoint) {
-    throw new Error("Endpoint is required for EXTERNAL applications");
+    form.setError("endpoint", {
+      type: "required",
+      message: "Endpoint is required for EXTERNAL applications"
+    });
+    return;
   }
 
   if (data.type === ApplicationType.AUTOPILOT) {
     if (!data.textToSpeech) {
-      throw new Error("Text-to-Speech is required for AUTOPILOT applications");
+      form.setError("textToSpeech.productRef", {
+        type: "required",
+        message: "Text-to-Speech is required for AUTOPILOT applications"
+      });
+      return;
     }
 
     if (!data.speechToText) {
-      throw new Error("Speech-to-Text is required for AUTOPILOT applications");
+      form.setError("speechToText.productRef", {
+        type: "required",
+        message: "Speech-to-Text is required for AUTOPILOT applications"
+      });
+      return;
     }
   }
 
@@ -35,23 +50,35 @@ export function formatApplicationData({ intelligence, ...data }: Schema) {
     };
 
     if (!application.intelligence.productRef) {
-      throw new Error(
-        "Product reference is required for AUTOPILOT applications"
-      );
-    }
-
-    if (!application.intelligence.config) {
-      throw new Error("Configuration is required for AUTOPILOT applications");
+      form.setError("intelligence.config.languageModel.provider", {
+        type: "required",
+        message:
+          "Language model provider is required for AUTOPILOT applications"
+      });
+      return;
     }
 
     if (!intelligence.config.eventsHook?.url) {
       if ((intelligence.config.eventsHook?.events?.length || 0) > 0) {
-        throw new Error(
-          "Events hook URL is required when events are specified"
-        );
+        form.setError("intelligence.config.eventsHook.url", {
+          type: "required",
+          message: "Events hook URL is required when events are specified"
+        });
+        return;
       }
 
       delete application.intelligence.config.eventsHook;
+    } else {
+      if (
+        !intelligence.config.eventsHook.events ||
+        intelligence.config.eventsHook.events.length === 0
+      ) {
+        form.setError("intelligence.config.eventsHook.events", {
+          type: "required",
+          message: "Events are required when URL is provided"
+        });
+        return;
+      }
     }
   }
 
