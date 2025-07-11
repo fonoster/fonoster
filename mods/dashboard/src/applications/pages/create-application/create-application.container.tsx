@@ -72,7 +72,10 @@ export function CreateApplicationContainer() {
   const onSave = useCallback(
     async ({ intelligence, ...data }: Schema, form: Form) => {
       try {
-        const formattedData = formatApplicationData({ intelligence, ...data }, form);
+        const formattedData = formatApplicationData(
+          { intelligence, ...data },
+          form
+        );
         if (!formattedData) {
           // If formatApplicationData sets an error, it will return undefined
           return;

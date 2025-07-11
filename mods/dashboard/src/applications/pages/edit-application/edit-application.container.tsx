@@ -38,7 +38,10 @@ import {
 } from "~/applications/services/applications.service";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { formatApplicationData } from "~/applications/services/format-application-data";
-import type { Form, Schema } from "../create-application/schemas/application-schema";
+import type {
+  Form,
+  Schema
+} from "../create-application/schemas/application-schema";
 import { Splash } from "~/core/components/general/splash/splash";
 import { useApplicationTestCall } from "~/applications/hooks/use-test-call";
 import { useApplicationContext } from "~/applications/stores/application.store";
@@ -85,13 +88,16 @@ export function EditApplicationContainer() {
   const onSave = useCallback(
     async ({ intelligence, ...data }: Schema, form: Form) => {
       try {
-        const formattedData = formatApplicationData({ intelligence, ...data }, form);
-        
+        const formattedData = formatApplicationData(
+          { intelligence, ...data },
+          form
+        );
+
         if (!formattedData) {
           // If formatApplicationData sets an error, it will return undefined
           return;
         }
-        
+
         await mutateAsync({ ...formattedData, ref });
 
         toast("Application updated successfully!");
