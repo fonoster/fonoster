@@ -114,8 +114,8 @@ export default function Overview() {
 
     const expiringKeysCount = data.filter(
       (key) =>
-        key.expiresAt && 
-        new Date(key.expiresAt).getTime() > 0 && 
+        key.expiresAt &&
+        new Date(key.expiresAt).getTime() > 0 &&
         new Date(key.expiresAt).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
     ).length;
 
