@@ -22,7 +22,8 @@ import {
   GrpcErrorMessage,
   TokenUseEnum,
   Validators as V,
-  withErrorHandlingAndValidation
+  withErrorHandlingAndValidation,
+  datesMapper
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ListWorkspacesResponse } from "@fonoster/types";
@@ -73,7 +74,7 @@ function createListWorkspaces(prisma: Prisma) {
     });
 
     callback(null, {
-      items,
+      items: items.map(datesMapper),
       nextPageToken: items[items.length - 1]?.ref
     });
   };
