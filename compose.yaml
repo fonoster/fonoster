@@ -101,6 +101,7 @@ services:
     ports:
       - 5060:5060/udp
       - 5060-5063:5060-5063
+    volumes:
       - ./config/keys/public.pem:/etc/routr/keys/public.pem
 
   # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
