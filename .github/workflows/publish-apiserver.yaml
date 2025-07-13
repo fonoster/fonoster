@@ -47,6 +47,7 @@ jobs:
           npm run generate:keypair
           cp config/integrations.example.json config/integrations.json
           cp .env.example .env
+          echo "" >> .env
           echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env
           sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
           sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
