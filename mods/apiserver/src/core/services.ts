@@ -33,8 +33,8 @@ import { createCheckNumberPreconditions } from "../utils";
 import { buildWelcomeDemoService } from "./buildWelcomeDemoService";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
-import { testTokenConfig } from "./testTokenConfig";
 import { routrConfig } from "./routrConfig";
+import { testTokenConfig } from "./testTokenConfig";
 
 const applicationsService = buildApplicationsService(prisma, testTokenConfig);
 const secretsService = buildSecretsService(prisma);

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   Application,
   CreateApplicationRequest,
@@ -27,6 +28,7 @@ import {
   GetApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
+  TestTokenResponse,
   UpdateApplicationRequest,
   UpdateApplicationResponse
 } from "../../generated/web/applications_pb";
@@ -54,6 +56,7 @@ type ApplicationsClient = {
     EvaluateIntelligenceRequest,
     EvaluateIntelligenceResponse
   >;
+  createTestToken: ClientFunction<Empty, TestTokenResponse>;
 };
 
 export { ApplicationsClient };

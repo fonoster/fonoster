@@ -24,11 +24,11 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { CreateTestTokenResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { TestTokenConfiguration } from "./types";
+import { status } from "@grpc/grpc-js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { IDENTITY_PRIVATE_KEY } from "../envs";
-import { status } from "@grpc/grpc-js";
+import { TestTokenConfiguration } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
