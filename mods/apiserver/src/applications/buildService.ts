@@ -21,11 +21,11 @@ import { Prisma } from "../core/db";
 import { INTEGRATIONS_FILE } from "../envs";
 import { getIntegrationsFromFile } from "../utils/getIntegrationsFromFile";
 import { createCreateApplication } from "./createCreateApplication";
+import { createCreateTestToken } from "./createCreateTestToken";
 import { createDeleteApplication } from "./createDeleteApplication";
 import { createGetApplication } from "./createGetApplication";
 import { createListApplications } from "./createListApplications";
 import { createUpdateApplication } from "./createUpdateApplication";
-import { createCreateTestToken } from "./createCreateTestToken";
 import { TestTokenConfiguration } from "./types";
 
 function buildService(prisma: Prisma, testTokenConfig: TestTokenConfiguration) {

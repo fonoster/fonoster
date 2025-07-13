@@ -27,6 +27,7 @@ import {
   ListApplicationsResponse,
   UpdateApplicationRequest
 } from "@fonoster/types";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
@@ -45,11 +46,10 @@ import {
   ProductContainer as ProductContainerPB,
   ScenarioEvaluationReport as ScenarioEvaluationReportPB,
   StepEvaluationReport as StepEvaluationReportPB,
+  TestTokenResponse,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
-  UpdateApplicationResponse as UpdateApplicationResponsePB,
-  TestTokenResponse
+  UpdateApplicationResponse as UpdateApplicationResponsePB
 } from "./generated/node/applications_pb";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { buildStructOverride, buildStructOverrideReverse } from "./utils";
 
 /**
@@ -462,13 +462,13 @@ class Applications {
     const response = await makeRpcRequest<
       Empty,
       TestTokenResponse,
-      {},
+      Record<string, never>,
       TestTokenResponse.AsObject
     >({
       method: applicationsClient.createTestToken.bind(applicationsClient),
       requestPBObjectConstructor: Empty,
       metadata: this.client.getMetadata(),
-      request: {},
+      request: {}
     });
     return response;
   }
