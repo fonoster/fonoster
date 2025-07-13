@@ -28,9 +28,11 @@ import {
   ListApplicationsRequest,
   ListApplicationsResponse,
   UpdateApplicationRequest,
-  UpdateApplicationResponse
+  UpdateApplicationResponse,
+  TestTokenResponse
 } from "../../generated/web/applications_pb";
 import { ClientFunction } from "./common";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 type ApplicationsClient = {
   createApplication: ClientFunction<
@@ -54,6 +56,7 @@ type ApplicationsClient = {
     EvaluateIntelligenceRequest,
     EvaluateIntelligenceResponse
   >;
+  createTestToken: ClientFunction<Empty, TestTokenResponse>;
 };
 
 export { ApplicationsClient };

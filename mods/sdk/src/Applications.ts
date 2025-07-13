@@ -46,8 +46,10 @@ import {
   ScenarioEvaluationReport as ScenarioEvaluationReportPB,
   StepEvaluationReport as StepEvaluationReportPB,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
-  UpdateApplicationResponse as UpdateApplicationResponsePB
+  UpdateApplicationResponse as UpdateApplicationResponsePB,
+  TestTokenResponse
 } from "./generated/node/applications_pb";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { buildStructOverride, buildStructOverrideReverse } from "./utils";
 
 /**
@@ -443,6 +445,31 @@ class Applications {
       ]
     });
 
+    return response;
+  }
+
+  /**
+   * Creates an Ephemeral Agent token for test calls.
+   *
+   * @return {Promise<TestTokenResponse>} - The response object containing the ephemeral agent token and related info
+   * @example
+   * const apps = new SDK.Applications(client);
+   * const response = await apps.createTestToken();
+   * console.log(response.token); // JWT token for test call
+   */
+  async createTestToken(): Promise<TestTokenResponse.AsObject> {
+    const applicationsClient = this.client.getApplicationsClient();
+    const response = await makeRpcRequest<
+      Empty,
+      TestTokenResponse,
+      {},
+      TestTokenResponse.AsObject
+    >({
+      method: applicationsClient.createTestToken.bind(applicationsClient),
+      requestPBObjectConstructor: Empty,
+      metadata: this.client.getMetadata(),
+      request: {},
+    });
     return response;
   }
 }
