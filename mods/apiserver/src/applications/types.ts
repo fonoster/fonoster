@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { ApplicationType } from "@prisma/client";
+import { CreateTestTokenResponse } from "@fonoster/types";
 
 // For Prisma schema
 type ApplicationData = {
@@ -45,4 +46,6 @@ type ApplicationData = {
   };
 };
 
-export { ApplicationData };
+type TestTokenConfiguration = Omit<CreateTestTokenResponse, "token">;
+
+export { ApplicationData, TestTokenConfiguration };

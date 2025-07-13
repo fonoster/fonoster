@@ -1,6 +1,7 @@
 import * as jspb from 'google-protobuf'
 
 import * as google_protobuf_struct_pb from 'google-protobuf/google/protobuf/struct_pb'; // proto import: "google/protobuf/struct.proto"
+import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb'; // proto import: "google/protobuf/empty.proto"
 
 
 export class ProductContainer extends jspb.Message {
@@ -476,6 +477,44 @@ export namespace EvaluateIntelligenceResponse {
   export enum ExpectedTextType { 
     EXACT = 0,
     SIMILAR = 1,
+  }
+}
+
+export class TestTokenResponse extends jspb.Message {
+  getToken(): string;
+  setToken(value: string): TestTokenResponse;
+
+  getDomain(): string;
+  setDomain(value: string): TestTokenResponse;
+
+  getDisplayName(): string;
+  setDisplayName(value: string): TestTokenResponse;
+
+  getSignalingServer(): string;
+  setSignalingServer(value: string): TestTokenResponse;
+
+  getTargetAor(): string;
+  setTargetAor(value: string): TestTokenResponse;
+
+  getUsername(): string;
+  setUsername(value: string): TestTokenResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): TestTokenResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: TestTokenResponse): TestTokenResponse.AsObject;
+  static serializeBinaryToWriter(message: TestTokenResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TestTokenResponse;
+  static deserializeBinaryFromReader(message: TestTokenResponse, reader: jspb.BinaryReader): TestTokenResponse;
+}
+
+export namespace TestTokenResponse {
+  export type AsObject = {
+    token: string,
+    domain: string,
+    displayName: string,
+    signalingServer: string,
+    targetAor: string,
+    username: string,
   }
 }
 

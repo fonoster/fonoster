@@ -22,6 +22,7 @@
 var grpc = require('@grpc/grpc-js');
 var applications_pb = require('./applications_pb.js');
 var google_protobuf_struct_pb = require('google-protobuf/google/protobuf/struct_pb.js');
+var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 
 function serialize_fonoster_applications_v1beta2_Application(arg) {
   if (!(arg instanceof applications_pb.Application)) {
@@ -133,6 +134,17 @@ function deserialize_fonoster_applications_v1beta2_ListApplicationsResponse(buff
   return applications_pb.ListApplicationsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_applications_v1beta2_TestTokenResponse(arg) {
+  if (!(arg instanceof applications_pb.TestTokenResponse)) {
+    throw new Error('Expected argument of type fonoster.applications.v1beta2.TestTokenResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_applications_v1beta2_TestTokenResponse(buffer_arg) {
+  return applications_pb.TestTokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_applications_v1beta2_UpdateApplicationRequest(arg) {
   if (!(arg instanceof applications_pb.UpdateApplicationRequest)) {
     throw new Error('Expected argument of type fonoster.applications.v1beta2.UpdateApplicationRequest');
@@ -153,6 +165,17 @@ function serialize_fonoster_applications_v1beta2_UpdateApplicationResponse(arg) 
 
 function deserialize_fonoster_applications_v1beta2_UpdateApplicationResponse(buffer_arg) {
   return applications_pb.UpdateApplicationResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_google_protobuf_Empty(arg) {
+  if (!(arg instanceof google_protobuf_empty_pb.Empty)) {
+    throw new Error('Expected argument of type google.protobuf.Empty');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_google_protobuf_Empty(buffer_arg) {
+  return google_protobuf_empty_pb.Empty.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
@@ -229,6 +252,18 @@ evaluateIntelligence: {
     requestDeserialize: deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest,
     responseSerialize: serialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse,
     responseDeserialize: deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse,
+  },
+  // Create an Ephemeral Agent to perform test calls to an application
+createTestToken: {
+    path: '/fonoster.applications.v1beta2.Applications/CreateTestToken',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: applications_pb.TestTokenResponse,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_fonoster_applications_v1beta2_TestTokenResponse,
+    responseDeserialize: deserialize_fonoster_applications_v1beta2_TestTokenResponse,
   },
 };
 

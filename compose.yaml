@@ -50,6 +50,7 @@ services:
       - APISERVER_SMTP_PORT
       - APISERVER_SMTP_SECURE
       - APISERVER_SMTP_SENDER
+      - APISERVER_SIGNALING_SERVER
       - APISERVER_TWILIO_ACCOUNT_SID
       - APISERVER_TWILIO_AUTH_TOKEN
       - APISERVER_TWILIO_PHONE_NUMBER
@@ -93,12 +94,14 @@ services:
       NATS_PUBLISHER_URL: ${ROUTR_NATS_PUBLISHER_URL}
       RTPENGINE_HOST: ${ROUTR_RTPENGINE_HOST}
       START_INTERNAL_DB: "false"
+      CONNECT_VERIFIER_PUBLIC_KEY_PATH: /etc/routr/keys/public.pem
     expose:
       - 51907
       - 51908
     ports:
       - 5060:5060/udp
       - 5060-5063:5060-5063
+      - ./config/keys/public.pem:/etc/routr/keys/public.pem
 
   # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
   # is not possible in Docker, we need to use network_mode: host.

@@ -46,6 +46,7 @@ services:
       CONSOLE_PUBLISHER_ENABLED: "true"
     volumes:
       - ./etc/log4j2.yaml:/etc/routr/log4j2.yaml
+      - ./.keys:/etc/routr/keys
 
   asterisk:
     build:
