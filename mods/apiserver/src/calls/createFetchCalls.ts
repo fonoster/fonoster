@@ -50,7 +50,9 @@ function createFetchCalls(influxdb: InfluxDBClient) {
       ? flux`|> filter(fn: (r) => r.startedAtParsed < int(v: ${pageToken}))`
       : flux``;
     const limit = flux`|> limit(n: ${pageSize || 50})`;
-    const parsedAfter = after ? new Date(after).getTime() / 1000 : flux`-30d`;
+    const parsedAfter = after
+      ? Math.trunc(new Date(after).getTime() / 1000)
+      : flux`-30d`;
     const parsedBefore = before
       ? new Date(before).getTime() / 1000
       : new Date().getTime() / 1000;
@@ -76,7 +78,12 @@ function createFetchCalls(influxdb: InfluxDBClient) {
       ${pageTokenFilter}
       ${limit}`;
 
-    logger.verbose("list calls request", { accessKeyId, after, before });
+    logger.verbose("list calls request", {
+      accessKeyId,
+      after,
+      before,
+      query: query.toString()
+    });
 
     const items = (await influxdb.collectRows(query)) as CallDetailRecord[];
 

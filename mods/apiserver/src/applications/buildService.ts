@@ -21,12 +21,14 @@ import { Prisma } from "../core/db";
 import { INTEGRATIONS_FILE } from "../envs";
 import { getIntegrationsFromFile } from "../utils/getIntegrationsFromFile";
 import { createCreateApplication } from "./createCreateApplication";
+import { createCreateTestToken } from "./createCreateTestToken";
 import { createDeleteApplication } from "./createDeleteApplication";
 import { createGetApplication } from "./createGetApplication";
 import { createListApplications } from "./createListApplications";
 import { createUpdateApplication } from "./createUpdateApplication";
+import { TestTokenConfiguration } from "./types";
 
-function buildService(prisma: Prisma) {
+function buildService(prisma: Prisma, testTokenConfig: TestTokenConfiguration) {
   const integrations = getIntegrationsFromFile(INTEGRATIONS_FILE);
 
   return {
@@ -42,7 +44,8 @@ function buildService(prisma: Prisma) {
       listApplications: createListApplications(prisma),
       deleteApplication: createDeleteApplication(prisma),
       updateApplication: createUpdateApplication(prisma),
-      evaluateIntelligence: createEvaluateIntelligence(integrations)
+      evaluateIntelligence: createEvaluateIntelligence(integrations),
+      createTestToken: createCreateTestToken(testTokenConfig)
     }
   };
 }

@@ -34,8 +34,9 @@ import { buildWelcomeDemoService } from "./buildWelcomeDemoService";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
 import { routrConfig } from "./routrConfig";
+import { testTokenConfig } from "./testTokenConfig";
 
-const applicationsService = buildApplicationsService(prisma);
+const applicationsService = buildApplicationsService(prisma, testTokenConfig);
 const secretsService = buildSecretsService(prisma);
 const callsService = buildCallsService(influxdb);
 const identityService = buildIdentityService(identityConfig);

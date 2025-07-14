@@ -113,10 +113,20 @@ type ToolEvaluationReport = {
   errorMessage?: string;
 };
 
+type CreateTestTokenResponse = {
+  domain: string;
+  displayName: string;
+  signalingServer: string;
+  targetAor: string;
+  username: string;
+  token: string;
+};
+
 export {
   Application,
   ApplicationType,
   CreateApplicationRequest,
+  CreateTestTokenResponse,
   ListApplicationsRequest,
   ListApplicationsResponse,
   UpdateApplicationRequest,

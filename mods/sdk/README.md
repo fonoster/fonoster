@@ -711,6 +711,7 @@ Note that an active Fonoster deployment is required.
     * [.updateApplication(request)](#Applications+updateApplication) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.listApplications(request)](#Applications+listApplications) ⇒ <code>Promise.&lt;ListApplicationsResponse&gt;</code>
     * [.deleteApplication(ref)](#Applications+deleteApplication) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.evaluateIntelligence(request)](#Applications+evaluateIntelligence) ⇒ <code>Promise.&lt;ScenarioEvaluationReport&gt;</code>
 
 <a name="new_Applications_new"></a>
 
@@ -927,6 +928,75 @@ const ref = "00000000-0000-0000-0000-000000000000";
 
 apps
   .deleteApplication(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Applications+evaluateIntelligence"></a>
+
+### applications.evaluateIntelligence(request) ⇒ <code>Promise.&lt;ScenarioEvaluationReport&gt;</code>
+Evaluates the intelligence of an application.
+
+**Kind**: instance method of [<code>Applications</code>](#Applications)  
+**Returns**: <code>Promise.&lt;ScenarioEvaluationReport&gt;</code> - - The response object that contains the evaluation report  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>EvaluateIntelligenceRequest</code> | The request object that contains the necessary information to evaluate the intelligence of an application |
+| request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., llm.groq) |
+| request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine |
+
+**Example**  
+```js
+const apps = new SDK.Applications(client); // Existing client object
+
+const request = {
+  intelligence: {
+    productRef: "llm.groq",
+    config: {
+      conversationSettings: {
+        firstMessage: "Hello, how can I help you today?",
+        systemPrompt: "You are a helpful assistant.",
+        systemErrorMessage: "I'm sorry, I didn't catch that. Can you say that again?",
+        goodbyeMessage: "Thank you for calling. Have a great day!",
+        languageModel: {
+          provider: "openai",
+          model: "gpt-4o"
+        },
+        testCases: {
+          evalsLanguageModel: {
+            provider: "openai",
+            model: "gpt-4o"
+          },
+          scenarios: [
+            {
+              ref: "Scenario 1",
+              description: "Scenario 1 description",
+              telephonyContext: {
+                callDirection: "FROM_PSTN",
+                ingressNumber: "1234567890",
+                callerNumber: "1234567890"
+              },
+              conversation: [
+                {
+                  userInput: "Hello, how can I help you today?",
+                  expected: {
+                    text: {
+                      type: "EXACT",
+                      response: "Hello, how can I help you today?"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+};
+
+apps
+  .evaluateIntelligence(request)
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```

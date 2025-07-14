@@ -27,6 +27,7 @@ import {
   ListApplicationsResponse,
   UpdateApplicationRequest
 } from "@fonoster/types";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
@@ -45,6 +46,7 @@ import {
   ProductContainer as ProductContainerPB,
   ScenarioEvaluationReport as ScenarioEvaluationReportPB,
   StepEvaluationReport as StepEvaluationReportPB,
+  TestTokenResponse,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
 } from "./generated/node/applications_pb";
@@ -443,6 +445,31 @@ class Applications {
       ]
     });
 
+    return response;
+  }
+
+  /**
+   * Creates an Ephemeral Agent token for test calls.
+   *
+   * @return {Promise<TestTokenResponse>} - The response object containing the ephemeral agent token and related info
+   * @example
+   * const apps = new SDK.Applications(client);
+   * const response = await apps.createTestToken();
+   * console.log(response.token); // JWT token for test call
+   */
+  async createTestToken(): Promise<TestTokenResponse.AsObject> {
+    const applicationsClient = this.client.getApplicationsClient();
+    const response = await makeRpcRequest<
+      Empty,
+      TestTokenResponse,
+      Record<string, never>,
+      TestTokenResponse.AsObject
+    >({
+      method: applicationsClient.createTestToken.bind(applicationsClient),
+      requestPBObjectConstructor: Empty,
+      metadata: this.client.getMetadata(),
+      request: {}
+    });
     return response;
   }
 }

@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  datesMapper,
   decodeToken,
   getTokenFromCall,
   GrpcErrorMessage,
@@ -73,7 +74,7 @@ function createListWorkspaces(prisma: Prisma) {
     });
 
     callback(null, {
-      items,
+      items: items.map(datesMapper),
       nextPageToken: items[items.length - 1]?.ref
     });
   };

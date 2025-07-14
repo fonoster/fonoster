@@ -21,6 +21,7 @@ syntax = "proto3";
 package fonoster.applications.v1beta2;
 
 import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
 
 // Applications service definition
 service Applications {
@@ -36,6 +37,8 @@ service Applications {
   rpc DeleteApplication(DeleteApplicationRequest) returns (DeleteApplicationResponse) {}
   // Evaluate the intellgence for an Autopilot application
   rpc EvaluateIntelligence(EvaluateIntelligenceRequest) returns (EvaluateIntelligenceResponse);
+  // Create an Ephemeral Agent to perform test calls to an application
+  rpc CreateTestToken(google.protobuf.Empty) returns (TestTokenResponse) {}
 }
 
 // The type of application
@@ -196,4 +199,13 @@ message EvaluateIntelligenceResponse {
   }
 
   repeated ScenarioEvaluationReport results = 1;
+}
+
+message TestTokenResponse {
+  string token = 1;
+  string domain = 2;
+  string display_name = 3;
+  string signaling_server = 4;
+  string target_aor = 5;
+  string username = 6;
 }

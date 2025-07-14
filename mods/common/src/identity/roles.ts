@@ -23,6 +23,7 @@ const VOICE_SERVICE_ROLE = "VOICE_SERVICE";
 
 const workspaceResourceAccess = [
   "/fonoster.applications.v1beta2.Applications/CreateApplication",
+  "/fonoster.applications.v1beta2.Applications/CreateTestToken",
   "/fonoster.applications.v1beta2.Applications/UpdateApplication",
   "/fonoster.applications.v1beta2.Applications/GetApplication",
   "/fonoster.applications.v1beta2.Applications/DeleteApplication",
