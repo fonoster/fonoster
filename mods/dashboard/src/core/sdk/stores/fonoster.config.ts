@@ -22,9 +22,8 @@ const { origin, hostname, port } = new URL(
 );
 
 export const FONOSTER_CLIENT_CONFIG = Object.freeze({
-  endpoint: origin,
+  url: origin,
   accessKeyId: "",
-  allowInsecure: Boolean(import.meta.env.DASHBOARD_ALLOW_INSECURE === "true")
 });
 
 export const FONOSTER_SERVER_CONFIG = Object.freeze({
