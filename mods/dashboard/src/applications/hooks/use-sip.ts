@@ -19,8 +19,9 @@
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import { Web } from "sip.js";
-import { TEST_PHONE_CONFIG } from "~/core/sdk/stores/fonoster.config";
 import { Logger } from "~/core/shared/logger";
+import { useApplicationTestToken } from "../services/applications.service";
+import { useAuth } from "~/auth/hooks/use-auth";
 
 /**
  * useSipTestCall
@@ -48,6 +49,9 @@ import { Logger } from "~/core/shared/logger";
  * ```
  */
 export function useSipTestCall() {
+  const { data, isLoading } = useApplicationTestToken();
+  const { currentWorkspace } = useAuth();
+
   /** Ref to the audio element for remote media playback */
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -81,6 +85,18 @@ export function useSipTestCall() {
   const connect = useCallback(async () => {
     Logger.debug("[useTestCall] Connecting to SIP server...");
 
+    // Ensure the data is available before proceeding
+    if (isLoading || !data) {
+      await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (!isLoading && data) {
+            clearInterval(interval);
+            resolve(true);
+          }
+        }, 50);
+      });
+    }
+
     const currentUser = simpleUserRef.current;
     if (currentUser) {
       await currentUser.disconnect();
@@ -106,26 +122,31 @@ export function useSipTestCall() {
       }
     };
 
+    if (!data) {
+      Logger.error("[useTestCall] No application test token data available");
+      return;
+    }
+
+    const { username, domain, displayName, signalingServer } = data;
+
     const options: Web.SimpleUserOptions = {
-      aor: `sip:${TEST_PHONE_CONFIG.username}@${TEST_PHONE_CONFIG.domain}`,
+      aor: `sip:${username}@${domain}`,
       delegate,
       media: {
         constraints: { audio: true, video: false },
         remote: { audio: audioRef.current! }
       },
       userAgentOptions: {
-        displayName: TEST_PHONE_CONFIG.displayName,
-        authorizationUsername: TEST_PHONE_CONFIG.authorizationUser,
-        authorizationPassword: TEST_PHONE_CONFIG.password,
+        displayName,
         allowLegacyNotifications: false,
         transportOptions: {
-          server: TEST_PHONE_CONFIG.server,
+          server: signalingServer,
           keepAliveInterval: 15
         }
       }
     };
 
-    const user = new Web.SimpleUser(TEST_PHONE_CONFIG.server, options);
+    const user = new Web.SimpleUser(signalingServer, options);
 
     try {
       await user.connect();
@@ -136,7 +157,7 @@ export function useSipTestCall() {
       setIsConnected(false);
       setIsCalling(false);
     }
-  }, []);
+  }, [isLoading, data]);
 
   /**
    * call
@@ -153,11 +174,22 @@ export function useSipTestCall() {
       if (!user) return;
 
       try {
+        if (!data || !currentWorkspace) {
+          throw new Error("No application test token data available");
+        }
+
+        const { targetAor, token } = data;
+        const { accessKeyId } = currentWorkspace;
+
         if (!isCalling) {
           setIsCalling(true);
           setIsAnswered(false);
-          await user.call(TEST_PHONE_CONFIG.targetAOR, {
-            extraHeaders: [`X-App-Ref: ${appRef}`]
+          await user.call(targetAor, {
+            extraHeaders: [
+              `X-App-Ref: ${appRef}`,
+              `X-Connect-Token: ${token}`,
+              `X-Access-Key-Id: ${accessKeyId}`
+            ]
           });
         } else {
           await user.hangup();
@@ -168,7 +200,7 @@ export function useSipTestCall() {
         setIsAnswered(false);
       }
     },
-    [isCalling]
+    [isCalling, data, currentWorkspace]
   );
 
   /**
