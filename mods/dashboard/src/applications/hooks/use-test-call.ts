@@ -22,7 +22,6 @@ import { useSipTestCall } from "./use-sip";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { useApplicationContext } from "../stores/application.store";
-import { useSessionCleanup } from "./use-session-cleanup";
 
 /**
  * useApplicationTestCall
@@ -55,9 +54,6 @@ export const useApplicationTestCall = () => {
     call,
     close
   } = useSipTestCall();
-
-  // Ensure SIP session is closed on tab/browser close
-  useSessionCleanup(close);
 
   /**
    * onTestCall
