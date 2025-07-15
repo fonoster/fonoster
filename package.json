@@ -51,7 +51,7 @@
     "generate:prisma-clients": "npx prisma generate --schema mods/apiserver/schema.prisma && npx prisma generate --schema mods/identity/schema.prisma",
     "copy:prisma-clients": "sh ./.scripts/copy-prisma-clients.sh",
     "check:updates": "lerna exec -- npx npm-check-updates",
-    "test": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --timeout 30000 'mods/!(webui|dashboard)/**/*.test.ts'",
+    "test": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --timeout 30000 'mods/!(dashboard)/**/*.test.ts'",
     "pretest": ".scripts/check-preconditions.sh && npm run generate:keypair",
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --slow 50000 --timeout 10000 mods/**/node.integration.ts",
     "preintegration:web": "npx playwright install && npx playwright install-deps",
