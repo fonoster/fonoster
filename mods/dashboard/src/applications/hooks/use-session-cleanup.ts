@@ -39,4 +39,4 @@ export function useSessionCleanup(cleanupFn: () => void) {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [cleanupFn]);
-} 
+}
