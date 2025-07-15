@@ -132,7 +132,6 @@ import headerPlugin from 'eslint-plugin-header'; export default [
       '**/bin/**',
       ".scripts/**",
       'site/**',
-      'mods/webui/**',
       'mods/dashboard/**',
       'mods/**/*.test.ts',
       'mods/**/*.proto',
