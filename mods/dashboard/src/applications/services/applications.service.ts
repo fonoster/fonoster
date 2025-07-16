@@ -28,6 +28,15 @@ import { useOptimisticUpdateResource } from "~/core/hooks/use-optimistic-update-
 import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 
+export interface IApplicationTokenResponse {
+  token: string;
+  domain: string;
+  displayName: string;
+  signalingServer: string;
+  targetAor: string;
+  username: string;
+}
+
 /**
  * Constant query key used to cache and track the list of applications.
  * Should be used consistently to avoid query duplication and cache mismatch.
@@ -65,6 +74,33 @@ export const useApplications = (params?: ResourceListRequest) => {
     nextPageToken: data?.nextPageToken,
     ...rest
   };
+};
+
+/**
+ * Hook to fetch a test token for an application.
+ * This token is used to initiate a SIP test call.
+ * 
+ * It uses React Query to:
+ * - Fetch the test token from the backend.
+ * - Cache the result for 30 minutes to avoid frequent requests.
+ * - Handle loading and error states.
+ *
+ * @returns A React Query object containing the test token data and metadata.
+ */
+export const useApplicationTestToken = () => {
+  const { sdk } = useFonoster();
+  const workspaceId = useWorkspaceId();
+
+  return useQuery({
+    queryKey: ["application-test-tokens", workspaceId],
+    queryFn: async () => {
+      const data = await sdk.applications.createTestToken();
+
+      return data as IApplicationTokenResponse;
+    },
+    // 30 minutes
+    staleTime: 30 * 60 * 1000
+  });
 };
 
 /**

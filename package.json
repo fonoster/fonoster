@@ -51,7 +51,7 @@
     "generate:prisma-clients": "npx prisma generate --schema mods/apiserver/schema.prisma && npx prisma generate --schema mods/identity/schema.prisma",
     "copy:prisma-clients": "sh ./.scripts/copy-prisma-clients.sh",
     "check:updates": "lerna exec -- npx npm-check-updates",
-    "test": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --timeout 30000 'mods/!(webui|dashboard)/**/*.test.ts'",
+    "test": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --timeout 30000 'mods/!(dashboard)/**/*.test.ts'",
     "pretest": ".scripts/check-preconditions.sh && npm run generate:keypair",
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --slow 50000 --timeout 10000 mods/**/node.integration.ts",
     "preintegration:web": "npx playwright install && npx playwright install-deps",
@@ -101,7 +101,7 @@
     "next": "^14.1.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.0",
-    "prisma": "^6.8.2",
+    "prisma": "^6.12.0",
     "protoc-gen-grpc-web": "^1.5.0",
     "protoc-gen-js": "^3.21.4-4",
     "rimraf": "^6.0.1",
@@ -135,7 +135,7 @@
     "node": ">=20.11.1"
   },
   "dependencies": {
-    "@prisma/client": "^6.7.0"
+    "@prisma/client": "^6.12.0"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-arm64-gnu": "^4.29.1",
