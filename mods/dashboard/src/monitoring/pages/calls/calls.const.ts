@@ -75,3 +75,27 @@ export const CALLS_SEARCHABLE_FIELDS = [
    */
   { label: "Duration", value: "duration" }
 ];
+
+// User-friendly mappings for display
+export const STATUS_LABELS: Record<string, string> = Object.freeze({
+  UNKNOWN: "Unknown",
+  NORMAL_CLEARING: "Normal Clearing",
+  CALL_REJECTED: "Call Rejected",
+  UNALLOCATED: "Unallocated",
+  NO_USER_RESPONSE: "No Response",
+  NO_ROUTE_DESTINATION: "No Destination",
+  NO_ANSWER: "No Answer",
+  USER_BUSY: "User Busy",
+  NOT_ACCEPTABLE_HERE: "Not Acceptable",
+  SERVICE_UNAVAILABLE: "Service Unavailable",
+  INVALID_NUMBER_FORMAT: "Invalid Number Format"
+});
+export const DIRECTION_LABELS: Record<string, string> = Object.freeze({
+  INTRA_NETWORK: "Intra Network",
+  FROM_PSTN: "From PSTN",
+  TO_PSTN: "To PSTN"
+});
+export const TYPE_LABELS: Record<string, string> = Object.freeze({
+  SIP_ORIGINATED: "SIP Originated",
+  API_ORIGINATED: "API Originated"
+});

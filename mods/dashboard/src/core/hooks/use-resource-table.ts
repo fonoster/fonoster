@@ -20,6 +20,7 @@ import { useState, useCallback, useMemo } from "react";
 import { getNestedValue } from "../helpers/get-nested-value";
 import type { BaseApiObject } from "../providers/query-client/manage-resource-cache.helper";
 import { toast } from "../components/design-system/ui/toaster/toaster";
+import { STATUS_LABELS, DIRECTION_LABELS, TYPE_LABELS } from "../../monitoring/pages/calls/calls.const";
 
 /**
  * Interface representing the options passed to the useResourceTable hook.
@@ -131,7 +132,7 @@ export function useResourceTable<TResource extends { ref: string }>(
           `Are you sure you want to delete ${rows.length} resources?`
         )
       ) {
-        rows.map((r) => deleteResource(r.ref));
+        rows.forEach((r) => deleteResource(r.ref));
 
         toast("Resources deleted successfully!");
       }
@@ -148,11 +149,37 @@ export function useResourceTable<TResource extends { ref: string }>(
 
     if (!searchTerm) return data;
 
+    // Custom filtering for user-friendly fields
     return data.filter((resource) => {
       const rawValue = getNestedValue(resource, searchBy);
       const value = rawValue?.toString().toLowerCase();
+      const term = searchTerm.toLowerCase();
+      const rawKey = typeof rawValue === "string" ? rawValue : "";
 
-      return value?.includes(searchTerm.toLowerCase());
+      // For user-friendly fields, match both raw and label
+      if (searchBy === "status") {
+        const label = STATUS_LABELS[rawKey] || rawKey;
+        return (
+          value?.includes(term) ||
+          label?.toString().toLowerCase().includes(term)
+        );
+      }
+      if (searchBy === "direction") {
+        const label = DIRECTION_LABELS[rawKey] || rawKey;
+        return (
+          value?.includes(term) ||
+          label?.toString().toLowerCase().includes(term)
+        );
+      }
+      if (searchBy === "type") {
+        const label = TYPE_LABELS[rawKey] || rawKey;
+        return (
+          value?.includes(term) ||
+          label?.toString().toLowerCase().includes(term)
+        );
+      }
+      // Default: match raw value only
+      return value?.includes(term);
     });
   }, [data, searchTerm, searchBy]);
 
