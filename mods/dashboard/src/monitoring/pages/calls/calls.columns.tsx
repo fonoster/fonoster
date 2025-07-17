@@ -18,6 +18,7 @@
  */
 import type { ColumnDef } from "@tanstack/react-table";
 import type { CallDetailRecord } from "@fonoster/types";
+import { STATUS_LABELS, DIRECTION_LABELS, TYPE_LABELS } from "./calls.const";
 
 /**
  * Column definitions for rendering a table of Fonoster Call Detail Records
@@ -26,6 +27,16 @@ import type { CallDetailRecord } from "@fonoster/types";
  * Each column maps a property of the `CallDetailRecord` object to a table header
  * and cell. This configuration enables sorting, filtering, and custom rendering in table UIs.
  */
+function formatDuration(duration: number): string {
+  if (duration < 60) {
+    return `${duration}s`;
+  } else if (duration < 3600) {
+    return `${Math.floor(duration / 60)}m`;
+  } else {
+    return `60m>`;
+  }
+}
+
 export const columns: ColumnDef<CallDetailRecord>[] = [
   {
     /**
@@ -46,7 +57,8 @@ export const columns: ColumnDef<CallDetailRecord>[] = [
      */
     id: "status",
     header: "Status",
-    accessorKey: "status"
+    accessorKey: "status",
+    cell: ({ getValue }) => STATUS_LABELS[getValue() as string] || getValue()
   },
   {
     /**
@@ -56,7 +68,8 @@ export const columns: ColumnDef<CallDetailRecord>[] = [
      */
     id: "direction",
     header: "Direction",
-    accessorKey: "direction"
+    accessorKey: "direction",
+    cell: ({ getValue }) => DIRECTION_LABELS[getValue() as string] || getValue()
   },
   {
     /**
@@ -86,7 +99,8 @@ export const columns: ColumnDef<CallDetailRecord>[] = [
      */
     id: "type",
     header: "Call Type",
-    accessorKey: "type"
+    accessorKey: "type",
+    cell: ({ getValue }) => TYPE_LABELS[getValue() as string] || getValue()
   },
   {
     /**
@@ -96,6 +110,7 @@ export const columns: ColumnDef<CallDetailRecord>[] = [
      */
     id: "duration",
     header: "Duration",
-    accessorKey: "duration"
+    accessorKey: "duration",
+    cell: ({ getValue }) => formatDuration(Number(getValue()))
   }
 ];
