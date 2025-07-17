@@ -20,7 +20,11 @@ import { useState, useCallback, useMemo } from "react";
 import { getNestedValue } from "../helpers/get-nested-value";
 import type { BaseApiObject } from "../providers/query-client/manage-resource-cache.helper";
 import { toast } from "../components/design-system/ui/toaster/toaster";
-import { STATUS_LABELS, DIRECTION_LABELS, TYPE_LABELS } from "../../monitoring/pages/calls/calls.const";
+import {
+  STATUS_LABELS,
+  DIRECTION_LABELS,
+  TYPE_LABELS
+} from "../../monitoring/pages/calls/calls.const";
 
 /**
  * Interface representing the options passed to the useResourceTable hook.

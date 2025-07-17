@@ -79,7 +79,7 @@ export const useApplications = (params?: ResourceListRequest) => {
 /**
  * Hook to fetch a test token for an application.
  * This token is used to initiate a SIP test call.
- * 
+ *
  * It uses React Query to:
  * - Fetch the test token from the backend.
  * - Cache the result for 30 minutes to avoid frequent requests.
