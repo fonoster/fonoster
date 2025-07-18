@@ -16,9 +16,6 @@
     "build": "tsc -b tsconfig.json",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
-  "bin": {
-    "authz": "./dist/server.js"
-  },
   "files": [
     "dist"
   ],
