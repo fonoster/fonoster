@@ -24,6 +24,7 @@ import { Link } from "~/core/components/general/link/link";
 import type { Form } from "./login.form";
 import { useSearchParams } from "react-router";
 import { useEffect } from "react";
+import { IS_CLOUD } from "~/core/sdk/stores/fonoster.config";
 
 /**
  * Props interface for LoginFormActions component.
@@ -77,17 +78,19 @@ export function LoginFormActions({
       </Button>
 
       {/* Divider between the primary sign in and the alternative login */}
-      <Divider />
-
-      {/* GitHub Sign In button */}
-      <Button
-        isFullWidth
-        variant="outlined"
-        disabled={isSubmitting}
-        onClick={onGithubAuth}
-      >
-        Sign In with GitHub
-      </Button>
+      {IS_CLOUD && (
+        <>
+          <Divider />
+          <Button
+            isFullWidth
+            variant="outlined"
+            disabled={isSubmitting}
+            onClick={onGithubAuth}
+          >
+            Sign In with GitHub
+          </Button>
+        </>
+      )}
 
       {/* Forgot Password link */}
       <Link to="/auth/forgot-password">

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,18 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Outlet } from "react-router";
+
+import { Outlet, useLocation, useNavigate } from "react-router";
 import type { Route } from "./+types/authenticated.layout";
 import { getRequiredSession } from "~/auth/services/sessions/session.server";
 import { Box, styled } from "@mui/material";
 import { Header } from "../general/header/header";
 import { AuthenticatedProvider } from "~/auth/stores/authenticated.store";
+import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
+import { useEffect } from "react";
+import { Logger } from "~/core/shared/logger";
+import { jwtDecode } from "jwt-decode";
+import type { IDTokenPayload } from "~/auth/services/sessions/auth.interfaces";
+import { IS_CLOUD } from "~/core/sdk/stores/fonoster.config";
 
-/**
- * This hook determines whether the route should revalidate.
- * Since authenticated routes don't need to revalidate on navigation,
- * we return false to improve performance.
- */
 export const shouldRevalidate = () => false;
 
 /**
@@ -51,6 +53,38 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function AuthenticatedLayout({
   loaderData: { session }
 }: Route.ComponentProps) {
+  const { client } = useFonoster();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (!IS_CLOUD) return;
+
+    const idToken = client.getIdToken();
+    if (!idToken) return;
+
+    const { emailVerified, phoneNumberVerified } =
+      jwtDecode<IDTokenPayload>(idToken);
+
+    Logger.debug("[ID Token] Decoded", {
+      emailVerified,
+      phoneNumberVerified,
+      currentPath: pathname
+    });
+
+    const isVerified = emailVerified && phoneNumberVerified;
+
+    if (!isVerified && pathname !== "/accounts/verify") {
+      Logger.debug("[Redirect] Not verified, redirecting to /accounts/verify");
+      navigate("/accounts/verify", { replace: true });
+    }
+
+    if (isVerified && pathname === "/accounts/verify") {
+      Logger.debug("[Redirect] Already verified, redirecting to home");
+      navigate("/", { replace: true });
+    }
+  }, [client, pathname, navigate]);
+
   return (
     <AuthenticatedProvider initialSession={session}>
       <MainRoot>
