@@ -33,7 +33,7 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { ContactType } from "@fonoster/types";
-import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { Input as InputReadOnly } from "~/core/components/design-system/ui/input/input-read-only";
 
 /**
  * Zod validation schema for the login form.
@@ -42,8 +42,7 @@ import { getErrorMessage } from "~/core/helpers/extract-error-message";
  *  - password has at least 8 characters.
  */
 export const schema = z.object({
-  code: z.string().nonempty("Verification code is required"),
-  email: z.string().email("Invalid email address").nonempty("Email is required")
+  code: z.string().nonempty("Verification code is required")
 });
 
 /**
@@ -87,8 +86,7 @@ export function VerificationFlowEmail({
   const form = useForm<Schema>({
     resolver,
     defaultValues: {
-      code: "",
-      email: ""
+      code: ""
     },
     mode: "onChange"
   });
@@ -134,23 +132,15 @@ export function VerificationFlowEmail({
       <FormRoot onSubmit={form.handleSubmit(onSubmitForm)}>
         {!codeSent ? (
           <>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      label="Email Address"
-                      supportingText="This is the email address you used to sign up"
-                      value={user?.email || ""}
-                      disabled
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+            <InputReadOnly
+              type="email"
+              label="Email Address"
+              supportingText="This is the email address you used to sign up"
+              value={user?.email || ""}
+              disabled
+              showCopyIcon={false}
             />
+
             <Button type="button" onClick={handleSendCode} isFullWidth>
               Send Code
             </Button>
@@ -165,7 +155,7 @@ export function VerificationFlowEmail({
                 <FormItem>
                   <FormControl>
                     <Input
-                      type="text"
+                      type="password"
                       label="Verification Code"
                       supportingText="Please enter your verification code"
                       {...field}
