@@ -27,9 +27,6 @@
       border: none;
       cursor: pointer;
     }
-    .fonoster-green {
-      color: #053204;
-    }
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #181818;
@@ -38,15 +35,12 @@
       .container {
         background: #181818;
       }
-      .fonoster-green {
-        color: #f4f4f4;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <p>Invitation to join the workspace <b class="fonoster-green">{{workspaceName}}</b> on Fonoster extended.</p>
+    <p>You have been invited to join the workspace <b>{{workspaceName}}</b> on Fonoster.</p>
     <p>To accept the invitation, please use the button below:</p>
     <a href="{{inviteUrl}}" class="button">Join Workspace</a>
   </div>
