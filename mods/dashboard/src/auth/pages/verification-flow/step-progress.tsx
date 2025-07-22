@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, LinearProgress } from '@mui/material';
-import { Typography } from '~/core/components/design-system/ui/typography/typography';
+import React from "react";
+import { Box, LinearProgress } from "@mui/material";
+import { Typography } from "~/core/components/design-system/ui/typography/typography";
 
 type StepProgressProps = {
   steps: string[];
@@ -19,10 +19,10 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, activeStep }) => {
         sx={{
           height: 5,
           borderRadius: 0,
-          backgroundColor: '#E0F2F1',
-          '& .MuiLinearProgress-bar': {
-            backgroundColor: '#1DE9B6',
-          },
+          backgroundColor: "#E0F2F1",
+          "& .MuiLinearProgress-bar": {
+            backgroundColor: "#1DE9B6"
+          }
         }}
       />
 
@@ -32,7 +32,7 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, activeStep }) => {
           <Typography
             key={index}
             variant="body-small"
-            color={activeStep === index ? 'base.01' : 'base.04'}
+            color={activeStep === index ? "base.01" : "base.04"}
           >
             {label}
           </Typography>

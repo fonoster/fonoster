@@ -183,7 +183,9 @@ export function VerificationFlowEmail({
               Verify Email Address
             </Button>
             {/* Resend/timer slot */}
-            {codeSent && resendSlot && <div style={{ marginTop: 16 }}>{resendSlot}</div>}
+            {codeSent && resendSlot && (
+              <div style={{ marginTop: 16 }}>{resendSlot}</div>
+            )}
           </>
         )}
       </FormRoot>
