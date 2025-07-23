@@ -74,7 +74,7 @@ describe("@identity[invites/createInviteBody]", function () {
 
     // Assert
     expect(result).to.be.a("string");
-    expect(result).to.contain("Invitation to join the workspace");
+    expect(result).to.contain("You have been invited to join the workspace");
     expect(result).to.contain(WORKSPACE_NAME);
     expect(result).to.contain("http://example.com?token&#x3D;jwt");
     expect(result).to.not.contain("123456");
