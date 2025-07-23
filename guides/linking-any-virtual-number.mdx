@@ -1,18 +1,18 @@
 ---
-title: 'Linking any virtual number'
-description: 'Connecting any SIP provider with Fonoster.'
+title: "Linking any virtual number"
+description: "Connecting any SIP provider with Fonoster."
 ---
 
 This guide will walk you through connecting your SIP provider to Fonoster by setting up authentication, configuring a SIP trunk, and creating your virtual number. Follow the steps below to link any virtual number to your application.
 
 <Note>
-  For Twilio numbers, consider using the dedicated command 
+  For Twilio numbers, consider using the dedicated command
   `fonoster sipnet:numbers:linkTwilioNumber` for a simplified process.
 </Note>
 
 <Steps>
   <Step title="Request early access">
-    To get started, you need to request early access to Fonoster. You can do this by visiting the <a href="https://github.com/orgs/fonoster/discussions/695">GitHub Discussions</a> and following the instructions.
+    To get started, you’ll need a Fonoster account. Sign up at [**https://app.fonoster.com/auth/signup**](https://app.fonoster.com/auth/signup)
   </Step>
   <Step title="Set Up Authentication (If required)">
     If your VoIP provider requires SIP authentication, run the following command and follow the interactive prompts:
@@ -29,7 +29,6 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
 
     Your provider will use it to verify the origin of the signaling.
   </Step>
-
   <Step title="Configure Your SIP Trunk">
     Before creating your trunk, verify with your provider the preferred transport protocol (e.g., _TCP_ or _UDP_). Use the same protocol when specifying your _Outbound URI_. Use the following command to create your trunk:
 
@@ -43,7 +42,6 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
       _Inbound URIs_ are globally unique. If you receive an error, please try using a different value.
     </Note>
   </Step>
-
   <Step title="Create and Verify Your Virtual Number">
     With your trunk in place, create a virtual number to route incoming SIP traffic. Execute the command below:
 
@@ -69,7 +67,6 @@ This guide will walk you through connecting your SIP provider to Fonoster by set
   <Card title="Programmable Voice" icon="rocket-launch" href="https://discord.com/invite/4QWgSz4hTC">
     Learn more about the Programmable Voice API and how to build advanced voice applications.
   </Card>
-
   <Card title="SDKs" icon="code" href="https://discord.com/invite/4QWgSz4hTC">
     Learn how to use the Node.js and Web SDKs to interact with Fonoster programmatically.
   </Card>
