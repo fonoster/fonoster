@@ -27,6 +27,7 @@ import { BaseApiObject, UpdateUserRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromToken } from "../utils";
+import { UserUpdateInput } from "./types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -36,24 +37,31 @@ function createUpdateUser(prisma: Prisma) {
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
-    const { ref, name, avatar, password } = request;
+    const { ref, name, avatar, password, phone } = request;
 
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const accessKeyId = getAccessKeyIdFromToken(token);
 
     logger.verbose("call to updateUser", { ref, password });
 
+    const updateData = {
+      name,
+      avatar,
+      password: password || undefined,
+      updatedAt: new Date()
+    } as UserUpdateInput;
+
+    if (phone && phone !== "") {
+      updateData.phoneNumber = phone;
+      updateData.phoneNumberVerified = false;
+    }
+
     await prisma.user.update({
       where: {
         ref,
         accessKeyId
       },
-      data: {
-        name,
-        avatar,
-        password: password || undefined,
-        updatedAt: new Date()
-      }
+      data: updateData
     });
 
     const response: BaseApiObject = {

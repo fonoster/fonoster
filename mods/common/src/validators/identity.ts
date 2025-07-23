@@ -68,6 +68,7 @@ const exchangeRefreshTokenRequestSchema = z.object({
 const createUserRequestSchema = z.object({
   name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
   email: z.string().email({ message: EMAIL_MESSAGE }),
+  phone: z.string().max(20).optional(),
   password: z.string().min(8, { message: PASSWORD_MESSAGE }).max(100),
   avatar: z
     .string()
@@ -86,6 +87,7 @@ const updateUserRequestSchema = z.object({
     .string()
     .max(50, { message: MAX_NAME_MESSAGE })
     .or(z.string().optional()),
+  phone: z.string().max(20).optional(),
   password: z
     .string()
     .min(8, { message: PASSWORD_MESSAGE })

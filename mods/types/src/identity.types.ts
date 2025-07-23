@@ -44,6 +44,7 @@ type CreateUserRequest = {
   email: string;
   password: string;
   avatar: string;
+  phone?: string;
 };
 
 type CreateUserWithOauth2CodeRequest = {
@@ -61,6 +62,7 @@ type UpdateUserRequest = {
   name?: string;
   password?: string;
   avatar?: string;
+  phone?: string;
 };
 
 type CreateApiKeyRequest = {

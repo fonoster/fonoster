@@ -86,6 +86,7 @@ class Users {
    * @param {string} request.email - The email of the User
    * @param {string} request.password - The password of the User
    * @param {string} request.avatar - The avatar of the User
+   * @param {string} [request.phone] - The phone number of the User (optional)
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created User
    * @example
    * const users = new SDK.Users(client); // Existing client object
@@ -94,7 +95,8 @@ class Users {
    *   name: "John Doe",
    *   email: "john.doe@example.com",
    *   password: "password",
-   *   avatar: "https://example.com/avatar.jpg"
+   *   avatar: "https://example.com/avatar.jpg",
+   *   phone: "+1234567890"
    * };
    *
    * users
@@ -181,9 +183,10 @@ class Users {
    *
    * @param {UpdateUserRequest} request - The request object that contains the necessary information to update a User
    * @param {string} request.ref - The reference of the User to update
-   * @param {string} request.name - The name of the User
-   * @param {string} request.password - The password of the User
-   * @param {string} request.avatar - The avatar of the User
+   * @param {string} [request.name] - The name of the User
+   * @param {string} [request.password] - The password of the User
+   * @param {string} [request.avatar] - The avatar of the User
+   * @param {string} [request.phone] - The phone number of the User (optional)
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated User
    * @example
    * const users = new SDK.Users(client); // Existing client object
@@ -192,7 +195,8 @@ class Users {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "John Doe",
    *   password: "password",
-   *   avatar: "https://example.com/avatar.jpg"
+   *   avatar: "https://example.com/avatar.jpg",
+   *   phone: "+1234567890"
    * };
    *
    * users
