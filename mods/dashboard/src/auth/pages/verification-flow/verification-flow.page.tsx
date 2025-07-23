@@ -31,6 +31,7 @@ import { useNavigate } from "react-router";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { ContactType } from "@fonoster/types";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { useUpdateUser } from "~/auth/services/auth.service";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Verify Account | Fonoster" }];
@@ -46,8 +47,8 @@ export default function VerificationFlow() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isComplete, setIsComplete] = useState(false);
   const { client } = useFonoster();
-  const { user } = useCurrentUser();
-  const navigate = useNavigate();
+  const { user, userId } = useCurrentUser();
+  const { mutateAsync: updateUser } = useUpdateUser();
 
   const [emailTimer, setEmailTimer] = useState(0);
   const [phoneTimer, setPhoneTimer] = useState(0);
@@ -85,6 +86,7 @@ export default function VerificationFlow() {
 
   const handlePhoneSubmit = async (data: { phoneNumber: string }) => {
     try {
+      await updateUser({ ref: userId, phone: data.phoneNumber });
       await client.sendVerificationCode(ContactType.PHONE, data.phoneNumber);
       setPhoneNumber(data.phoneNumber);
       toast("Code sent to your phone");
@@ -108,9 +110,12 @@ export default function VerificationFlow() {
       });
       setIsComplete(true);
       toast("Phone verified! Redirecting...");
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => {
+        // Redirect to home after verification
+        window.location.href = "/";
+      }, 400);
     } catch (e) {
-      toast("Invalid code or error verifying phone");
+      toast(getErrorMessage(e));
     }
   };
 
