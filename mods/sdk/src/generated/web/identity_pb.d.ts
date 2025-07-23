@@ -429,6 +429,9 @@ export class CreateUserRequest extends jspb.Message {
   getEmail(): string;
   setEmail(value: string): CreateUserRequest;
 
+  getPhone(): string;
+  setPhone(value: string): CreateUserRequest;
+
   getPassword(): string;
   setPassword(value: string): CreateUserRequest;
 
@@ -449,6 +452,7 @@ export class CreateUserRequest extends jspb.Message {
 export namespace CreateUserRequest {
   export type AsObject = {
     email: string,
+    phone: string,
     password: string,
     name: string,
     avatar: string,
@@ -516,6 +520,9 @@ export class User extends jspb.Message {
   getEmail(): string;
   setEmail(value: string): User;
 
+  getPhone(): string;
+  setPhone(value: string): User;
+
   getName(): string;
   setName(value: string): User;
 
@@ -540,6 +547,7 @@ export namespace User {
   export type AsObject = {
     ref: string,
     email: string,
+    phone: string,
     name: string,
     avatar: string,
     createdAt: number,
@@ -560,6 +568,9 @@ export class UpdateUserRequest extends jspb.Message {
   getAvatar(): string;
   setAvatar(value: string): UpdateUserRequest;
 
+  getPhone(): string;
+  setPhone(value: string): UpdateUserRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserRequest.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateUserRequest): UpdateUserRequest.AsObject;
@@ -574,6 +585,7 @@ export namespace UpdateUserRequest {
     password: string,
     name: string,
     avatar: string,
+    phone: string,
   }
 }
 

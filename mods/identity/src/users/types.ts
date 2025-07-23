@@ -22,4 +22,12 @@ type SendResetPasswordEmailRequest = {
   resetPasswordUrl: string;
 };
 
-export { SendResetPasswordEmailRequest };
+type UserUpdateInput = {
+  name?: string;
+  avatar?: string;
+  password?: string;
+  phoneNumber?: string;
+  phoneNumberVerified?: boolean;
+};
+
+export { SendResetPasswordEmailRequest, UserUpdateInput };

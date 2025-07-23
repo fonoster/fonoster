@@ -167,6 +167,7 @@ enum ContactType {
 
 message CreateUserRequest {
   string email = 1;
+  string phone = 5;
   string password = 2;
   string name = 3;
   string avatar = 4;
@@ -187,6 +188,7 @@ message GetUserRequest {
 message User {
   string ref = 1;
   string email = 2;
+  string phone = 7;
   string name = 3;
   string avatar = 4;
   int32 created_at = 5;
@@ -198,6 +200,7 @@ message UpdateUserRequest {
   string password = 2;
   string name = 3;
   string avatar = 4;
+  string phone = 5;
 }
 
 message UpdateUserResponse {

@@ -4302,6 +4302,7 @@ proto.fonoster.identity.v1beta2.CreateUserRequest.prototype.toObject = function(
 proto.fonoster.identity.v1beta2.CreateUserRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
 email: jspb.Message.getFieldWithDefault(msg, 1, ""),
+phone: jspb.Message.getFieldWithDefault(msg, 5, ""),
 password: jspb.Message.getFieldWithDefault(msg, 2, ""),
 name: jspb.Message.getFieldWithDefault(msg, 3, ""),
 avatar: jspb.Message.getFieldWithDefault(msg, 4, "")
@@ -4344,6 +4345,10 @@ proto.fonoster.identity.v1beta2.CreateUserRequest.deserializeBinaryFromReader = 
     case 1:
       var value = /** @type {string} */ (reader.readString());
       msg.setEmail(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPhone(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -4393,6 +4398,13 @@ proto.fonoster.identity.v1beta2.CreateUserRequest.serializeBinaryToWriter = func
       f
     );
   }
+  f = message.getPhone();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
   f = message.getPassword();
   if (f.length > 0) {
     writer.writeString(
@@ -4432,6 +4444,24 @@ proto.fonoster.identity.v1beta2.CreateUserRequest.prototype.getEmail = function(
  */
 proto.fonoster.identity.v1beta2.CreateUserRequest.prototype.setEmail = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string phone = 5;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.CreateUserRequest.prototype.getPhone = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.CreateUserRequest} returns this
+ */
+proto.fonoster.identity.v1beta2.CreateUserRequest.prototype.setPhone = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -4913,6 +4943,7 @@ proto.fonoster.identity.v1beta2.User.toObject = function(includeInstance, msg) {
   var f, obj = {
 ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 email: jspb.Message.getFieldWithDefault(msg, 2, ""),
+phone: jspb.Message.getFieldWithDefault(msg, 7, ""),
 name: jspb.Message.getFieldWithDefault(msg, 3, ""),
 avatar: jspb.Message.getFieldWithDefault(msg, 4, ""),
 createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
@@ -4960,6 +4991,10 @@ proto.fonoster.identity.v1beta2.User.deserializeBinaryFromReader = function(msg,
     case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setEmail(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPhone(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
@@ -5017,6 +5052,13 @@ proto.fonoster.identity.v1beta2.User.serializeBinaryToWriter = function(message,
   if (f.length > 0) {
     writer.writeString(
       2,
+      f
+    );
+  }
+  f = message.getPhone();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
       f
     );
   }
@@ -5084,6 +5126,24 @@ proto.fonoster.identity.v1beta2.User.prototype.getEmail = function() {
  */
 proto.fonoster.identity.v1beta2.User.prototype.setEmail = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string phone = 7;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.User.prototype.getPhone = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.User} returns this
+ */
+proto.fonoster.identity.v1beta2.User.prototype.setPhone = function(value) {
+  return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
@@ -5194,7 +5254,8 @@ proto.fonoster.identity.v1beta2.UpdateUserRequest.toObject = function(includeIns
 ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 password: jspb.Message.getFieldWithDefault(msg, 2, ""),
 name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-avatar: jspb.Message.getFieldWithDefault(msg, 4, "")
+avatar: jspb.Message.getFieldWithDefault(msg, 4, ""),
+phone: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -5246,6 +5307,10 @@ proto.fonoster.identity.v1beta2.UpdateUserRequest.deserializeBinaryFromReader = 
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setAvatar(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPhone(value);
       break;
     default:
       reader.skipField();
@@ -5301,6 +5366,13 @@ proto.fonoster.identity.v1beta2.UpdateUserRequest.serializeBinaryToWriter = func
   if (f.length > 0) {
     writer.writeString(
       4,
+      f
+    );
+  }
+  f = message.getPhone();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -5376,6 +5448,24 @@ proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.getAvatar = function
  */
 proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.setAvatar = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string phone = 5;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.getPhone = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.UpdateUserRequest} returns this
+ */
+proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.setPhone = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 

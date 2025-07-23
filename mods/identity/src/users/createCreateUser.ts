@@ -37,7 +37,7 @@ function createCreateUser(prisma: Prisma) {
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
-    const { name, email, password, avatar } = request;
+    const { name, email, password, avatar, phone } = request;
 
     logger.verbose("call to createUser", { email });
 
@@ -47,7 +47,8 @@ function createCreateUser(prisma: Prisma) {
         email,
         accessKeyId: generateAccessKeyId(AccessKeyIdType.USER),
         password,
-        avatar
+        avatar,
+        phoneNumber: phone || undefined
       }
     });
 
