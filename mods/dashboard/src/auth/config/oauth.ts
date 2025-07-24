@@ -1,3 +1,5 @@
+import { BUILD_TIME_CONFIG } from "~/core/config/fonoster.buildtime-config";
+
 export interface OAuthConfig {
   clientId: string;
   redirectUri: string;
@@ -21,10 +23,10 @@ export interface OAuthState {
 }
 
 const createOAuthConfig = (scope: string): OAuthConfig => ({
-  clientId: import.meta.env.DASHBOARD_AUTH_GITHUB_CLIENT_ID!,
+  clientId: BUILD_TIME_CONFIG.GITHUB_OAUTH.clientId,
   redirectUri: "/",
-  redirectUriCallback: import.meta.env.DASHBOARD_AUTH_GITHUB_CALLBACK_URL,
-  authUrl: import.meta.env.DASHBOARD_AUTH_GITHUB_URL!,
+  redirectUriCallback: BUILD_TIME_CONFIG.GITHUB_OAUTH.callbackUrl,
+  authUrl: BUILD_TIME_CONFIG.GITHUB_OAUTH.authUrl,
   scope
 });
 

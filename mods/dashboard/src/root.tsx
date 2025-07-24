@@ -32,6 +32,7 @@ import { metadata } from "./core/helpers/metadata";
 import { ErrorLayout } from "./core/components/general/error-boundary/error-boundary";
 import { Splash } from "./core/components/general/splash/splash";
 import { FonosterProvider } from "./core/sdk/stores/fonoster.store";
+import { RUNTIME_CONFIG } from "./core/config/fonoster.runtime-config";
 
 /**
  * Links
@@ -122,6 +123,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
         <Meta />
         <Links />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__FONOSTER_RUNTIME_CONFIG__ = ${JSON.stringify(RUNTIME_CONFIG)};`
+          }}
+        />
       </head>
       <body>
         <Providers>{children}</Providers>

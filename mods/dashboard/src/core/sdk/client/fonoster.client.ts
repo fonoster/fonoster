@@ -30,19 +30,33 @@
  */
 
 import * as SDK from "@fonoster/sdk/dist/web/index.esm.js";
-import { FONOSTER_CLIENT_CONFIG } from "../stores/fonoster.config";
+import { RUNTIME_CONFIG } from "../../config/fonoster.runtime-config";
 import { Logger } from "~/core/shared/logger";
 
 /**
- * Creates a new instance of the Fonoster WebClient using predefined configuration.
+ * Creates client configuration object using ApiServerConnectionConfig.
+ * Used for browser-based WebClient instances.
+ */
+const createClientConfig = () => {
+  return Object.freeze({
+    url: RUNTIME_CONFIG.APISERVER_CONNECTION.http_address,
+    accessKeyId: "",
+    allowInsecure: RUNTIME_CONFIG.APISERVER_CONNECTION.allowInsecure
+  });
+};
+
+/**
+ * Creates a new instance of the Fonoster WebClient using ApiServerConnectionConfig.
  *
  * @returns {Client} An instance of the Fonoster WebClient, ready for use in browser-based applications.
  */
-export const getClient = () => {
-  Logger.debug("[fonoster.client] Creating Fonoster WebClient instance");
-
-  const fonosterClient = new SDK.WebClient(FONOSTER_CLIENT_CONFIG);
-  return fonosterClient;
+export const getClient = (): SDK.Client => {
+  const clientConfig = createClientConfig();
+  Logger.debug(
+    "[fonoster.client] Creating Fonoster WebClient instance with client config",
+    clientConfig
+  );
+  return new SDK.WebClient(clientConfig);
 };
 
 /**

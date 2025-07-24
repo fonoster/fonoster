@@ -30,8 +30,9 @@ import {
   SidebarWrapper
 } from "./sidebar.styles";
 import { useSidebarItems } from "./sidebar-navigation.const";
+import { BUILD_TIME_CONFIG } from "~/core/config/fonoster.buildtime-config";
 
-const VERSION = import.meta.env.DASHBOARD_VERSION || "unset";
+const VERSION = BUILD_TIME_CONFIG.VERSION;
 
 export interface SidebarProps {
   workspaces: Workspace[];

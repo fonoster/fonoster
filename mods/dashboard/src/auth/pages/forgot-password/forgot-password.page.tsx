@@ -29,7 +29,7 @@ import { Logger } from "~/core/shared/logger";
 import { useForgotPassword } from "~/auth/services/auth.service";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useNavigate } from "react-router";
-import { FONOSTER_RESET_PASSWORD_URL } from "~/core/sdk/stores/fonoster.config";
+import { BUILD_TIME_CONFIG } from "~/core/config/fonoster.buildtime-config";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Forgot Password | Fonoster" }];
@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
       );
       await mutateAsync({
         username,
-        resetPasswordUrl: FONOSTER_RESET_PASSWORD_URL
+        resetPasswordUrl: BUILD_TIME_CONFIG.RESET_PASSWORD_URL
       });
 
       toast(
