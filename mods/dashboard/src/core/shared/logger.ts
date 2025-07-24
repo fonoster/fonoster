@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+import { RUNTIME_CONFIG } from "~/core/config/fonoster.runtime-config";
+
 /**
  * Logger utility class.
  *
@@ -32,7 +34,7 @@ export class Logger {
    * Determines if the application is running in development mode.
    * Controls whether debug logs are displayed.
    */
-  private static readonly __IS_DEVELOPMENT__ = import.meta.env.DEV;
+  private static readonly __IS_DEVELOPMENT__ = RUNTIME_CONFIG.DEVELOPMENT;
 
   /**
    * Logs a debug message to the console.

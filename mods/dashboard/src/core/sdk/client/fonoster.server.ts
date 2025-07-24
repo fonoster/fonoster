@@ -32,13 +32,26 @@
  */
 
 import * as SDK from "@fonoster/sdk/dist/node/node.js";
-import { FONOSTER_SERVER_CONFIG } from "../stores/fonoster.config";
 import { cache } from "react";
 import { Logger } from "~/core/shared/logger";
+import { RUNTIME_CONFIG } from "~/core/config/fonoster.runtime-config";
+
+/**
+ * Creates server configuration object from runtime config.
+ * Used for server-side Client instances.
+ */
+const createServerConfig = () => {
+  return Object.freeze({
+    endpoint: RUNTIME_CONFIG.APISERVER_CONNECTION.grpc_address,
+    accessKeyId: "",
+    allowInsecure: RUNTIME_CONFIG.APISERVER_CONNECTION.allowInsecure,
+    accessToken: ""
+  });
+};
 
 /**
  * Creates and returns a memoized (cached) instance of the Fonoster Client
- * for server-side use, using a predefined server configuration.
+ * for server-side use, using runtime configuration.
  *
  * The `cache()` utility ensures that the same instance is reused across
  * multiple calls within the same request lifecycle (as used in server-rendered apps).
@@ -46,10 +59,12 @@ import { Logger } from "~/core/shared/logger";
  * @returns {Client} A configured instance of the Fonoster SDK Client for Node.js.
  */
 export const getClient = cache(() => {
-  Logger.debug("[fonoster.server] Creating Fonoster Client instance");
-
-  const fonosterClient = new SDK.Client(FONOSTER_SERVER_CONFIG);
-  return fonosterClient;
+  const serverConfig = createServerConfig();
+  Logger.debug(
+    "[fonoster.server] Creating Fonoster Client instance with server config",
+    serverConfig
+  );
+  return new SDK.Client(serverConfig);
 });
 
 /**

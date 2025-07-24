@@ -17,23 +17,24 @@
  * limitations under the License.
  */
 
-const { origin, hostname, port } = new URL(
-  import.meta.env.DASHBOARD_API_URL || "https://api.fonoster.com"
-);
+export interface BuildTimeConfig {
+  VERSION: string;
+  RESET_PASSWORD_URL: string;
+  GITHUB_OAUTH: {
+    clientId: string;
+    callbackUrl: string;
+    authUrl: string;
+  };
+}
 
-export const FONOSTER_CLIENT_CONFIG = Object.freeze({
-  url: origin,
-  accessKeyId: "",
-  allowInsecure: Boolean(import.meta.env.DASHBOARD_ALLOW_INSECURE === "true")
-});
-
-export const FONOSTER_SERVER_CONFIG = Object.freeze({
-  endpoint: `${hostname}${port ? `:${port}` : ""}`,
-  accessKeyId: "",
-  allowInsecure: Boolean(import.meta.env.DASHBOARD_ALLOW_INSECURE === "true"),
-  accessToken: ""
-});
-
-export const FONOSTER_RESET_PASSWORD_URL: string =
-  import.meta.env.DASHBOARD_RESET_PASSWORD_URL ||
-  "https://app.fonoster.com/auth/reset-password";
+export const BUILD_TIME_CONFIG: BuildTimeConfig = {
+  VERSION: import.meta.env.DASHBOARD_VERSION || "unset",
+  RESET_PASSWORD_URL:
+    import.meta.env.DASHBOARD_RESET_PASSWORD_URL ||
+    "https://app.fonoster.com/auth/reset-password",
+  GITHUB_OAUTH: {
+    clientId: import.meta.env.DASHBOARD_AUTH_GITHUB_CLIENT_ID || "",
+    callbackUrl: import.meta.env.DASHBOARD_AUTH_GITHUB_CALLBACK_URL || "",
+    authUrl: import.meta.env.DASHBOARD_AUTH_GITHUB_URL || ""
+  }
+};
