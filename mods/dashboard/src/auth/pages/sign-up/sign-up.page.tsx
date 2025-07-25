@@ -21,16 +21,17 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { SignupForm } from "./sign-up.form";
-import { useCallback } from "react";
+import { useCallback, useLayoutEffect } from "react";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Route } from "./+types/sign-up.page";
 import { Logger } from "~/core/shared/logger";
 import { useCreateUser } from "~/auth/services/auth.service";
-import { useSubmit } from "react-router";
+import { useNavigate, useSubmit } from "react-router";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { getGithubSignupUrl } from "~/auth/config/oauth";
+import { IS_CLOUD } from "~/core/sdk/stores/fonoster.config";
 
 export { action } from "../login/login.action";
 
@@ -60,6 +61,8 @@ export type Schema = z.infer<typeof schema>;
 export type Form = UseFormReturn<Schema>;
 
 export default function SignupPage() {
+  const navigate = useNavigate();
+
   const form = useForm<Schema>({
     resolver,
     defaultValues: {
@@ -108,6 +111,12 @@ export default function SignupPage() {
 
   const onGithubAuth = useCallback(async () => {
     window.location.href = getGithubSignupUrl();
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!IS_CLOUD) {
+      navigate("/auth/login", { replace: true });
+    }
   }, []);
 
   return (

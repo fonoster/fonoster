@@ -97,6 +97,7 @@ export const useCurrentUser = () => {
         email: data.email,
         avatar: data.avatar || ""
       });
+      setUserId(data.ref);
     }
   }, [data]);
 
@@ -106,6 +107,7 @@ export const useCurrentUser = () => {
    */
   return useMemo(
     () => ({
+      userId,
       user,
       setUser,
       isLoading

@@ -28,6 +28,7 @@ export interface InputTextProps extends Omit<TextFieldProps, "size"> {
   trailingIcon?: ReactNode;
   supportingText?: string;
   size?: "small" | "medium";
+  showCopyIcon?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputTextProps>(
@@ -37,6 +38,7 @@ export const Input = forwardRef<HTMLInputElement, InputTextProps>(
       trailingIcon,
       supportingText,
       size = "medium",
+      showCopyIcon = true,
       slotProps,
       value,
       ...rest
@@ -73,15 +75,17 @@ export const Input = forwardRef<HTMLInputElement, InputTextProps>(
           endAdornment: (
             <InputAdornment position="end" sx={{ right: "16px" }}>
               {trailingIcon}
-              <Tooltip title={copied ? "¡Copied!" : "Copy to clipboard"}>
-                <IconButton
-                  aria-label="Copy to clipboard"
-                  onClick={handleCopy}
-                  edge="end"
-                >
-                  <ContentCopyIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
+              {showCopyIcon && (
+                <Tooltip title={copied ? "¡Copied!" : "Copy to clipboard"}>
+                  <IconButton
+                    aria-label="Copy to clipboard"
+                    onClick={handleCopy}
+                    edge="end"
+                  >
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
             </InputAdornment>
           )
         }}
