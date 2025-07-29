@@ -49,6 +49,7 @@ export const UserAccountPopover: React.FC = () => {
         initials={getInitials(user.name)}
         avatar={user.avatar}
         onClick={handleOpen}
+        isMenuOpen={open}
       />
 
       <Menu
