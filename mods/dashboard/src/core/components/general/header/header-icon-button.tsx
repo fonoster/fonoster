@@ -71,7 +71,7 @@ export const HeaderIconButton: React.FC<UserAvatarButtonProps> = ({
       >
         {initials}
       </Avatar>
-      
+
       {/* Overlay when menu is open */}
       <Box
         sx={{
