@@ -17,11 +17,7 @@
  * limitations under the License.
  */
 import { forwardRef, type ReactNode } from "react";
-import {
-  InputAdornment,
-  FormHelperText,
-  InputLabel
-} from "@mui/material";
+import { InputAdornment, FormHelperText, InputLabel } from "@mui/material";
 import { useFormField } from "../../forms";
 import {
   TextareaInput,
