@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { styled, TextareaAutosize } from "@mui/material";
+import { styled, TextareaAutosize, FormControl } from "@mui/material";
 
 export const TextareaRoot = styled("div")<{ size: "small" | "medium" }>(
   ({ theme, size }) => ({
@@ -47,7 +47,39 @@ export const TextareaInput = styled(TextareaAutosize)(({ theme }) => ({
   lineHeight: "normal",
   letterSpacing: "0.12px",
   padding: 0,
+  paddingTop: "8px",
   "&::placeholder": {
+    color: theme.palette.base["03"]
+  }
+}));
+
+export const TextareaFormControl = styled(FormControl)(({ theme }) => ({
+  "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink": {
+    fontFamily: "'Poppins', sans-serif",
+    fontWeight: 500,
+    lineHeight: "normal",
+    transform: "translate(16px, -10px) scale(0.66)",
+    color: theme.palette.base["02"],
+    backgroundColor: theme.palette.base["07"],
+    padding: "0 8px"
+  },
+  "& .MuiFormLabel-root.MuiInputLabel-root.Mui-focused": {
+    color: theme.palette.base["02"],
+    fontFamily: "'Poppins', sans-serif",
+    fontWeight: 500,
+    lineHeight: "normal",
+    transform: "translate(16px, -10px) scale(0.66)",
+    size: "10px",
+    backgroundColor: theme.palette.base["07"],
+    padding: "0 8px"
+  },
+  "& .MuiFormHelperText-root": {
+    fontFamily: "'Poppins', sans-serif",
+    fontSize: "10px",
+    fontWeight: 500,
+    lineHeight: "normal",
+    letterSpacing: "0.12px",
+    marginTop: "8px",
     color: theme.palette.base["03"]
   }
 }));

@@ -20,11 +20,14 @@ import { forwardRef, type ReactNode } from "react";
 import {
   InputAdornment,
   FormHelperText,
-  FormControl,
   InputLabel
 } from "@mui/material";
 import { useFormField } from "../../forms";
-import { TextareaInput, TextareaRoot } from "./textarea.styles";
+import {
+  TextareaInput,
+  TextareaRoot,
+  TextareaFormControl
+} from "./textarea.styles";
 
 export interface TextareaProps {
   label?: string;
@@ -56,18 +59,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const { error } = useFormField();
 
     return (
-      <FormControl fullWidth error={Boolean(error)}>
+      <TextareaFormControl fullWidth error={Boolean(error)}>
         {label && (
           <InputLabel
             shrink
-            sx={{
-              fontFamily: "'Poppins', sans-serif",
-              fontWeight: 500,
-              fontSize: "12px",
-              lineHeight: "normal",
-              transform: "translate(16px, -10px) scale(0.66)",
-              color: (theme) => theme.palette.base["02"]
-            }}
+            className="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-shrink"
           >
             {label}
           </InputLabel>
@@ -88,10 +84,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           )}
         </TextareaRoot>
 
-        <FormHelperText>
+        <FormHelperText className="MuiFormHelperText-root">
           {error ? error.message : supportingText}
         </FormHelperText>
-      </FormControl>
+      </TextareaFormControl>
     );
   }
 );
