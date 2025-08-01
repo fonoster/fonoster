@@ -34,7 +34,7 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   protected readonly OUTPUT_FORMAT = "sln16";
   protected readonly CACHING_FIELDS = ["voice"];
   protected readonly AUDIO_ENCODING = "LINEAR16" as const;
-  protected readonly SAMPLE_RATE_HERTZ = 16000;
+  protected readonly SAMPLE_RATE_HERTZ = 8000;
 
   constructor(config: GoogleTtsConfig) {
     super();

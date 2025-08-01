@@ -16,19 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
 import * as net from "net";
-import { setTimeout } from "node:timers/promises";
 import { Readable } from "stream";
+import { AudioPlayer } from "./AudioPlayer";
 import { Message } from "./Message";
 import { EventType } from "./types";
-
-const MAX_CHUNK_SIZE = 320;
 
 /**
  * @classdesc Object representing a stream of bidirectional audio data and control messages.
  */
 class AudioStream {
+  private player: AudioPlayer;
   private stream: Readable;
   private socket: net.Socket;
 
@@ -41,6 +39,7 @@ class AudioStream {
   constructor(stream: Readable, socket: net.Socket) {
     this.stream = stream;
     this.socket = socket;
+    this.player = new AudioPlayer(socket);
   }
 
   /**
@@ -69,22 +68,26 @@ class AudioStream {
    * @param {string} filePath - The path to the audio file
    * @return {Promise<void>}
    */
-  async play(filePath: string) {
-    const fileStream = fs.readFileSync(filePath);
+  async play(filePath: string): Promise<void> {
+    return this.player.play(filePath);
+  }
 
-    let offset = 0;
+  /**
+   * Plays audio from an input stream and returns an output stream.
+   * The playback can be stopped using stopPlayStream().
+   *
+   * @param {Readable} inputStream - The input stream to read audio from
+   * @return {Promise<void>}
+   */
+  async playStream(inputStream: Readable): Promise<void> {
+    return this.player.playStream(inputStream);
+  }
 
-    // eslint-disable-next-line no-loops/no-loops
-    while (offset < fileStream.length) {
-      const sliceSize = Math.min(fileStream.length - offset, MAX_CHUNK_SIZE);
-      const slicedChunk = fileStream.subarray(offset, offset + sliceSize);
-      const buffer = Message.createSlinMessage(slicedChunk);
-      this.socket.write(buffer);
-      offset += sliceSize;
-
-      // Wait for 20ms to match the sample rate
-      await setTimeout(20);
-    }
+  /**
+   * Stops the current stream playback.
+   */
+  stop() {
+    this.player.stop();
   }
 
   /**

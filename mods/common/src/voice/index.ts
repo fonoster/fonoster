@@ -17,25 +17,15 @@
  * limitations under the License.
  */
 export * from "./Dial";
-
 export * from "./Gather";
-
 export * from "./Mute";
-
 export * from "./Play";
-
 export * from "./PlayDtmf";
-
 export * from "./PlaybackControl";
-
 export * from "./Record";
-
 export * from "./Say";
-
 export * from "./Stream";
-
 export * from "./StreamGather";
-
+export * from "./StopSay";
 export * from "./Verb";
-
 export * from "./voice";

@@ -53,7 +53,7 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     );
     speechConfig.speechSynthesisVoiceName = voice;
     speechConfig.speechSynthesisOutputFormat =
-      sdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm;
+      sdk.SpeechSynthesisOutputFormat.Raw8Khz16BitMonoPcm;
 
     const stream = createChunkedSynthesisStream(text, async (chunkText) => {
       const synthesizer = new sdk.SpeechSynthesizer(speechConfig);

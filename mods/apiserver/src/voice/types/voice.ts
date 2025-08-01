@@ -52,6 +52,7 @@ type VoiceClient = {
     onDigitReceived: () => void;
   }) => Promise<{ digits: string }>;
   getTranscriptionsStream: () => Stream;
+  stopSynthesis: () => Promise<void>;
 };
 
 type TextToSpeech = {

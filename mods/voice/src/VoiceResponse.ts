@@ -29,7 +29,6 @@ import {
   RecordOptions,
   RecordResponse,
   SayOptions,
-  SayResponse,
   StreamEvent,
   StreamGatherOptions,
   StreamOptions,
@@ -239,15 +238,14 @@ class VoiceResponse {
    *   await response.playbackControl(playbackRef, PlaybackControlAction.STOP);
    * }
    */
-  async say(text: string, options?: SayOptions): Promise<SayResponse> {
-    const response = await new Say(this.request, this.voice).run({
-      playbackRef: options?.playbackRef,
+  async say(text: string, options?: SayOptions): Promise<VerbResponse> {
+    await new Say(this.request, this.voice).run({
       options: options ? struct.encode(options) : undefined,
       sessionRef: this.request.sessionRef,
       text
     });
 
-    return { playbackRef: response.sayResponse.playbackRef };
+    return { sessionRef: this.request.sessionRef };
   }
 
   /**

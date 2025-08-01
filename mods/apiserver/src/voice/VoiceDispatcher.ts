@@ -31,6 +31,7 @@ import {
   createPlayDtmfHandler,
   createPlayHandler,
   createSayHandler,
+  createStopSayHandler,
   createStreamGatherHandler,
   createStreamHandler,
   createUnmuteHandler
@@ -105,6 +106,7 @@ class VoiceDispatcher {
       vc.on(SC.SAY_REQUEST, createSayHandler(ari, vc).bind(this));
       vc.on(SC.GATHER_REQUEST, createGatherHandler(vc).bind(this));
       vc.on(SC.DIAL_REQUEST, createDialHandler(ari, vc).bind(this));
+      vc.on(SC.STOP_SAY_REQUEST, createStopSayHandler(vc).bind(this));
       vc.on(
         SC.PLAYBACK_CONTROL_REQUEST,
         createPlaybackControlHandler(ari, vc).bind(this)

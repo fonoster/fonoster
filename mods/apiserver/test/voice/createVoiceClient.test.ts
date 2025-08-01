@@ -25,7 +25,7 @@ import sinonChai from "sinon-chai";
 import { CreateContainer } from "../../src/voice/integrations/types";
 import { AbstractTextToSpeech } from "../../src/voice/tts/AbstractTextToSpeech";
 import { ChannelVar } from "../../src/voice/types";
-import { VoiceClientImpl } from "../../src/voice/VoiceClientImpl";
+import { VoiceClientImpl } from "../../src/voice/client/VoiceClientImpl";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

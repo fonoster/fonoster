@@ -70,7 +70,7 @@ async function connectToAri(filesServer) {
     const dispatcher = new VoiceDispatcher(
       ari,
       nats,
-      createCreateVoiceClient(createContainer, filesServer)
+      createCreateVoiceClient(createContainer)
     );
 
     dispatcher.start();

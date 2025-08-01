@@ -16,17 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createAnswerHandler";
-export * from "./createHangupHandler";
-export * from "./createMuteHandler";
-export * from "./createStreamHandler";
-export * from "./createPlayHandler";
-export * from "./createPlayDtmfHandler";
-export * from "./createPlaybackControlHandler";
-export * from "./createRecordHandler";
-export * from "./createSayHandler";
-export * from "./createStreamGatherHandler";
-export * from "./createUnmuteHandler";
-export * from "./dial/createDialHandler";
-export * from "./gather/createGatherHandler";
-export * from "./createStopSayHandler";
+export * from "./createChunkedSynthesisStream";
+export * from "./createErrorStream";
+export * from "./isSsml";
+export * from "./streamToBuffer";
+export * from "./convertUlawToPCM16";

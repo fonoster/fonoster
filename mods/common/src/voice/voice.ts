@@ -24,7 +24,8 @@ import { MuteRequest } from "./Mute";
 import { PlayRequest, PlayResponse } from "./Play";
 import { PlayDtmfRequest } from "./PlayDtmf";
 import { RecordRequest, RecordResponse } from "./Record";
-import { SayRequest, SayResponse } from "./Say";
+import { SayRequest } from "./Say";
+import { StopSayRequest } from "./StopSay";
 import {
   StartStreamRequest,
   StartStreamResponse,
@@ -71,6 +72,8 @@ enum StreamContent {
   START_STREAM_RESPONSE = "startStreamResponse",
   STOP_STREAM_REQUEST = "stopStreamRequest",
   STOP_STREAM_RESPONSE = "stopStreamResponse",
+  STOP_SAY_REQUEST = "stopSayRequest",
+  STOP_SAY_RESPONSE = "stopSayResponse",
   STREAM_PAYLOAD = "streamPayload",
   START_STREAM_GATHER_REQUEST = "startStreamGatherRequest",
   START_STREAM_GATHER_RESPONSE = "startStreamGatherResponse",
@@ -103,7 +106,7 @@ type VoiceIn = {
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
   gatherResponse?: GatherResponse;
-  sayResponse?: SayResponse;
+  sayResponse?: VerbResponse;
   recordResponse?: RecordResponse;
   dialResponse?: { status: DialStatus };
   startStreamResponse?: StartStreamResponse;
@@ -111,6 +114,7 @@ type VoiceIn = {
   streamGatherPayload?: StreamGatherPayload;
   startStreamGatherResponse?: VerbResponse;
   stopStreamGatherResponse?: VerbResponse;
+  stopSayResponse?: VerbResponse;
 };
 
 type VoiceOut = {
@@ -130,6 +134,7 @@ type VoiceOut = {
   streamPayload?: StreamPayload;
   startStreamGatherRequest?: StartStreamGatherRequest;
   stopStreamGatherRequest?: VerbRequest;
+  stopSayRequest?: StopSayRequest;
 };
 
 type BaseVoiceStream<T, W> = {

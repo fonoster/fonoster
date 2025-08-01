@@ -16,17 +16,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createAnswerHandler";
-export * from "./createHangupHandler";
-export * from "./createMuteHandler";
-export * from "./createStreamHandler";
-export * from "./createPlayHandler";
-export * from "./createPlayDtmfHandler";
-export * from "./createPlaybackControlHandler";
-export * from "./createRecordHandler";
-export * from "./createSayHandler";
-export * from "./createStreamGatherHandler";
-export * from "./createUnmuteHandler";
-export * from "./dial/createDialHandler";
-export * from "./gather/createGatherHandler";
-export * from "./createStopSayHandler";
+import { StopSayRequest } from "@fonoster/common";
+import { z } from "zod";
+import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
+
+const requestSchema = z.object({
+  sessionRef: z.string()
+});
+
+function createStopSayHandler(voiceClient: VoiceClient) {
+  return withErrorHandling(async (stopSayReq: StopSayRequest) => {
+    requestSchema.parse(stopSayReq);
+
+    const { sessionRef } = stopSayReq;
+
+    try {
+      voiceClient.stopSynthesis();
+    } catch (err) {
+      // We can only try
+    }
+
+    voiceClient.sendResponse({
+      stopSayResponse: {
+        sessionRef
+      }
+    });
+  });
+}
+
+export { createStopSayHandler };

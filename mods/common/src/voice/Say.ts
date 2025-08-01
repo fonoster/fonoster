@@ -21,18 +21,12 @@ import { VerbRequest } from "./Verb";
 
 type SayRequest = VerbRequest & {
   text: string;
-  playbackRef?: string;
   options?: Struct;
 };
 
-type SayResponse = {
-  playbackRef: string;
-};
-
 type SayOptions = {
-  playbackRef?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };
 
-export { SayOptions, SayRequest, SayResponse };
+export { SayOptions, SayRequest };

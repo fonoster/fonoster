@@ -16,17 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createAnswerHandler";
-export * from "./createHangupHandler";
-export * from "./createMuteHandler";
-export * from "./createStreamHandler";
-export * from "./createPlayHandler";
-export * from "./createPlayDtmfHandler";
-export * from "./createPlaybackControlHandler";
-export * from "./createRecordHandler";
-export * from "./createSayHandler";
-export * from "./createStreamGatherHandler";
-export * from "./createUnmuteHandler";
-export * from "./dial/createDialHandler";
-export * from "./gather/createGatherHandler";
-export * from "./createStopSayHandler";
+import { StopSayRequest } from "@fonoster/common";
+import { z } from "zod";
+import { Verb } from "./Verb";
+
+class StopSay extends Verb<StopSayRequest> {
+  getValidationSchema(): z.Schema {
+    return z.object({});
+  }
+}
+
+export { StopSay };

@@ -18,48 +18,29 @@
  */
 import { SayRequest } from "@fonoster/common";
 import { Client } from "ari-client";
-import { nanoid } from "nanoid";
 import { struct } from "pb-util";
 import { z } from "zod";
-import { APISERVER_HOST, HTTP_BRIDGE_PORT } from "../../envs";
 import { VoiceClient } from "../types";
-import { awaitForPlaybackFinished } from "./utils/awaitForPlaybackFinished";
 import { withErrorHandling } from "./utils/withErrorHandling";
 
 const sayRequestSchema = z.object({
   text: z.string(),
   sessionRef: z.string(),
-  playbackRef: z.string().optional(),
   options: z.record(z.unknown()).optional()
 });
 
-const getMediaUrl = (filename: string) =>
-  `sound:http://${APISERVER_HOST}:${HTTP_BRIDGE_PORT}/api/sounds/${filename}.sln16`;
-
 function createSayHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: SayRequest) => {
-    const { sessionRef: channelId } = request;
-
     sayRequestSchema.parse(request);
 
-    const playbackRef = request.playbackRef || nanoid(10);
-
-    const mediaId = await voiceClient.synthesize(
+    await voiceClient.synthesize(
       request.text,
       request.options ? struct.decode(request.options) : {}
     );
 
-    await ari.channels.play({
-      channelId,
-      media: getMediaUrl(mediaId),
-      playbackId: playbackRef
-    });
-
-    await awaitForPlaybackFinished(ari, playbackRef);
-
     voiceClient.sendResponse({
       sayResponse: {
-        playbackRef
+        sessionRef: request.sessionRef
       }
     });
   });
