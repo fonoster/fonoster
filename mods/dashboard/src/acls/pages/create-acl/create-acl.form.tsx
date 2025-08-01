@@ -26,35 +26,25 @@ import {
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useImperativeHandle, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { schema, type Schema } from "./create-acl.schema";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import { Box } from "@mui/material";
 import { CreateRuleModal } from "./create-acl-rules-modal.modal";
 import { ModalTrigger } from "~/core/components/general/modal-trigger";
-
-/**
- * Imperative handle interface.
- *
- * Exposes:
- * - submit(): triggers form submission programmatically.
- * - isSubmitDisabled: determines if the submit button should be disabled.
- */
-export interface CreateAclFormHandle {
-  submit: () => void;
-  reset: () => void;
-  isSubmitDisabled?: boolean;
-}
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Props interface for the CreateAclForm component.
  *
  * @property {Schema} [initialValues] - Optional initial values for editing.
  * @property {(data: Schema) => Promise<void>} onSubmit - Callback triggered on form submission.
+ * @property {boolean} [isEdit] - Whether this form is for editing an existing ACL.
  */
 export interface CreateAclFormProps extends React.PropsWithChildren {
   initialValues?: Schema;
   onSubmit: (data: Schema) => Promise<void>;
+  isEdit?: boolean;
 }
 
 /**
@@ -72,12 +62,8 @@ export interface CreateAclFormProps extends React.PropsWithChildren {
  * - Modal integration for rule creation.
  *
  * @param {CreateAclFormProps} props - Props including the onSubmit handler and optional initial values.
- * @param {React.Ref<CreateAclFormHandle>} ref - Exposes imperative form submission.
  */
-export const CreateAclForm = forwardRef<
-  CreateAclFormHandle,
-  CreateAclFormProps
->(({ onSubmit, initialValues }, ref) => {
+export function CreateAclForm({ onSubmit, initialValues, isEdit }: CreateAclFormProps) {
   /** Local state controlling the visibility of the rules modal. */
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
 
@@ -99,12 +85,8 @@ export const CreateAclForm = forwardRef<
     name: "rules"
   });
 
-  /** Exposes imperative submission and disables submit when invalid or submitting. */
-  useImperativeHandle(ref, () => ({
-    submit: () => form.handleSubmit(onSubmit)(),
-    reset: () => form.reset(),
-    isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
-  }));
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit, isEdit);
 
   /**
    * Handles deletions from the Select component.
@@ -209,4 +191,4 @@ export const CreateAclForm = forwardRef<
       />
     </>
   );
-});
+}

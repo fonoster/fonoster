@@ -19,14 +19,14 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-number.page";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { useNavigate } from "react-router";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
 import {
   CreateNumberForm,
-  type CreateNumberFormHandle,
   type Schema
 } from "./create-number.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
@@ -72,9 +72,6 @@ export default function CreateNumber() {
   /** Hook to programmatically navigate between pages. */
   const navigate = useNavigate();
 
-  /** Ref to access the CreateNumberForm's imperative handle (submit method). */
-  const formRef = useRef<CreateNumberFormHandle>(null);
-
   /**
    * Handler for navigating back to the workspace numbers page.
    * Uses view transitions for smoother page transitions (if supported).
@@ -86,7 +83,7 @@ export default function CreateNumber() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to create a number via API with optimistic updates. */
-  const { mutateAsync, isPending } = useCreateNumber();
+  const { mutateAsync } = useCreateNumber();
 
   /**
    * Handler called after form submission.
@@ -122,26 +119,27 @@ export default function CreateNumber() {
    * Renders the Create Number page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New Number"
-        description="A Number is a PSTN phone number that can be used to make or receive calls."
-        onBack={{ label: "Back to numbers", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save Number"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New Number"
+          description="A Number is a PSTN phone number that can be used to make or receive calls."
+          onBack={{ label: "Back to numbers", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save Number
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateNumberForm ref={formRef} onSubmit={onSave} />
-      </Box>
-    </Page>
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateNumberForm onSubmit={onSave} />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

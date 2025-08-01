@@ -19,13 +19,10 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-secret.page";
-import { useRef } from "react";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateSecretForm,
-  type CreateSecretFormHandle
-} from "./create-secret.form";
+import { CreateSecretForm } from "./create-secret.form";
 import { useCreateSecret } from "./create-secret.hook";
 
 /**
@@ -59,36 +56,34 @@ export function meta(_: Route.MetaArgs) {
  * @returns {JSX.Element} The rendered Create Secret page.
  */
 export default function CreateSecret() {
-  /** Ref to access the CreateSecretForm's imperative handle (submit method). */
-  const formRef = useRef<CreateSecretFormHandle>(null);
-
   /** Custom hook to create a secret via API with optimistic updates. */
-  const { onGoBack, onSave, isPending } = useCreateSecret();
+  const { onGoBack, onSave } = useCreateSecret();
 
   /**
    * Renders the Create Secret page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New Secret"
-        description="Secrets are encrypted variables available to your apps and APIs within the current workspace."
-        onBack={{ label: "Back to secrets", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save Secret"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New Secret"
+          description="Secrets are encrypted variables available to your apps and APIs within the current workspace."
+          onBack={{ label: "Back to secrets", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save Secret
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateSecretForm ref={formRef} onSubmit={onSave} />
-      </Box>
-    </Page>
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateSecretForm onSubmit={onSave} />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

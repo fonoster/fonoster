@@ -19,14 +19,12 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/edit-secret.page";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateSecretForm,
-  type CreateSecretFormHandle
-} from "../create-secret/create-secret.form";
+import { CreateSecretForm } from "../create-secret/create-secret.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
@@ -86,9 +84,6 @@ export default function EditSecret() {
   /** Hook to programmatically navigate between pages. */
   const navigate = useNavigate();
 
-  /** Ref to access the form's imperative handle (submit method). */
-  const formRef = useRef<CreateSecretFormHandle>(null);
-
   /**
    * Handler for navigating back to the secrets page.
    * Uses `viewTransition` for smoother transitions.
@@ -100,7 +95,7 @@ export default function EditSecret() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to handle secret updates via the API. */
-  const { mutate, isPending } = useUpdateSecret();
+  const { mutate } = useUpdateSecret();
 
   /**
    * Handler called after form submission.
@@ -143,30 +138,31 @@ export default function EditSecret() {
    * Renders the Edit Secret page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Edit Secret"
-        description="Secrets are encrypted variables available to your apps and APIs within the current workspace."
-        onBack={{ label: "Back to secrets", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save Secret"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Edit Secret"
+          description="Secrets are encrypted variables available to your apps and APIs within the current workspace."
+          onBack={{ label: "Back to secrets", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save Secret
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateSecretForm
-          ref={formRef}
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+                  <CreateSecretForm
           onSubmit={onSave}
           initialValues={{ ...data, type: "text" }}
+          isEdit={true}
         />
-      </Box>
-    </Page>
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

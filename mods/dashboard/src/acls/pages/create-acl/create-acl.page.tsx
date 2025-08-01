@@ -19,10 +19,10 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-acl.page";
-import { useRef } from "react";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import { CreateAclForm, type CreateAclFormHandle } from "./create-acl.form";
+import { CreateAclForm } from "./create-acl.form";
 import { useCreateAcl } from "./create-acl.hook";
 
 /**
@@ -56,36 +56,34 @@ export function meta(_: Route.MetaArgs) {
  * @returns {JSX.Element} The rendered Create Acl page.
  */
 export default function CreateAcl() {
-  /** Ref to access the CreateAclForm's imperative handle (submit method). */
-  const formRef = useRef<CreateAclFormHandle>(null);
-
   /** Custom hook to create a acl via API with optimistic updates. */
-  const { onGoBack, onSave, isPending } = useCreateAcl();
+  const { onGoBack, onSave } = useCreateAcl();
 
   /**
    * Renders the Create Acl page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New ACL"
-        description="An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
-        onBack={{ label: "Back to ACLs", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={isPending}
-          >
-            {isPending ? "Saving..." : "Save Acl"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New ACL"
+          description="An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
+          onBack={{ label: "Back to ACLs", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save Acl
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateAclForm ref={formRef} onSubmit={onSave} />
-      </Box>
-    </Page>
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateAclForm onSubmit={onSave} />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

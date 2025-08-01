@@ -17,22 +17,20 @@
  * limitations under the License.
  */
 
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { Box } from "@mui/material";
 import { useNavigate } from "react-router";
 
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Tooltip } from "~/core/components/design-system/ui/tooltip/tooltip";
 import { Icon } from "~/core/components/design-system/icons/icons";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
-import {
-  CreateApplicationForm,
-  type CreateApplicationFormHandle
-} from "./create-application.form";
+import { CreateApplicationForm } from "./create-application.form";
 import { useCreateApplication } from "~/applications/services/applications.service";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { formatApplicationData } from "~/applications/services/format-application-data";
@@ -47,11 +45,8 @@ export function CreateApplicationContainer() {
   /** Navigation handler */
   const navigate = useNavigate();
 
-  /** Ref for imperatively triggering form submission */
-  const formRef = useRef<CreateApplicationFormHandle>(null);
-
   /** API hook to create a new application */
-  const { mutateAsync, isPending } = useCreateApplication();
+  const { mutateAsync } = useCreateApplication();
 
   /** Access application context state */
   const { application, setApplication } = useApplicationContext();
@@ -111,13 +106,12 @@ export function CreateApplicationContainer() {
           actions={
             <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
               {/* Submit application form */}
-              <Button
+              <FormSubmitButton
                 size="small"
-                onClick={() => formRef.current?.submit()}
-                disabled={formRef.current?.isSubmitDisabled || isPending}
+                loadingText="Saving..."
               >
-                {isPending ? "Saving..." : "Save Voice Application"}
-              </Button>
+                Save Voice Application
+              </FormSubmitButton>
 
               {/* Run SIP test call */}
               <Tooltip
@@ -159,7 +153,7 @@ export function CreateApplicationContainer() {
 
         {/* Application creation form */}
         <Box sx={{ maxWidth: "440px" }}>
-          <CreateApplicationForm ref={formRef} onSubmit={onSave} />
+          <CreateApplicationForm onSubmit={onSave} />
         </Box>
       </Page>
 

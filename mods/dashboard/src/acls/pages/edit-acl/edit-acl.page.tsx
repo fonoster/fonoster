@@ -19,14 +19,12 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/edit-acl.page";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateAclForm,
-  type CreateAclFormHandle
-} from "../create-acl/create-acl.form";
+import { CreateAclForm } from "../create-acl/create-acl.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
@@ -87,9 +85,6 @@ export default function EditAcl() {
   /** Hook to navigate between pages in the application. */
   const navigate = useNavigate();
 
-  /** Ref to hold the form's imperative handle (submit and validation). */
-  const formRef = useRef<CreateAclFormHandle>(null);
-
   /**
    * Navigates back to the ACLs overview page.
    *
@@ -102,7 +97,7 @@ export default function EditAcl() {
   }, [navigate, workspaceId]);
 
   /** Initializes the mutation hook to update the ACL. */
-  const { mutateAsync, isPending } = useUpdateAcl();
+  const { mutateAsync } = useUpdateAcl();
 
   /**
    * Handles the form submission event.
@@ -178,30 +173,31 @@ export default function EditAcl() {
    * Renders the Edit ACL page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Edit ACL"
-        description="An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
-        onBack={{ label: "Back to ACLs", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save ACL"}
-          </Button>
-        }
-      />
-
-      {/* Form container with a max width for consistent layout and readability */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateAclForm
-          ref={formRef}
-          onSubmit={onSave}
-          initialValues={formatAclToFormValues(data)}
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Edit ACL"
+          description="An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
+          onBack={{ label: "Back to ACLs", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save ACL
+            </FormSubmitButton>
+          }
         />
-      </Box>
-    </Page>
+
+        {/* Form container with a max width for consistent layout and readability */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateAclForm
+            onSubmit={onSave}
+            initialValues={formatAclToFormValues(data)}
+            isEdit={true}
+          />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

@@ -19,13 +19,10 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-api-key.page";
-import { useRef } from "react";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateApiKeyForm,
-  type CreateApiKeyFormHandle
-} from "./create-api-key.form";
+import { CreateApiKeyForm } from "./create-api-key.form";
 import { useCreateApiKey } from "./create-api-key.hook";
 import { Input } from "~/core/components/design-system/ui/input/input-read-only";
 
@@ -60,55 +57,53 @@ export function meta(_: Route.MetaArgs) {
  * @returns {JSX.Element} The rendered Create ApiKey page.
  */
 export default function CreateApiKey() {
-  /** Ref to access the CreateApiKeyForm's imperative handle (submit method). */
-  const formRef = useRef<CreateApiKeyFormHandle>(null);
-
   /** Custom hook to create a apiKey via API with optimistic updates. */
-  const { onGoBack, onSave, isPending, data } = useCreateApiKey();
+  const { onGoBack, onSave, data } = useCreateApiKey();
 
   /**
    * Renders the Create ApiKey page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New API Key"
-        description="An API Key is an encrypted token that grants secure access to Fonoster's APIs."
-        onBack={{ label: "Back to API Keys", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={isPending}
-          >
-            {isPending ? "Saving..." : "Save API Key"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New API Key"
+          description="An API Key is an encrypted token that grants secure access to Fonoster's APIs."
+          onBack={{ label: "Back to API Keys", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save API Key
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box
-        sx={{
-          maxWidth: "440px",
-          gap: "24px",
-          display: "flex",
-          flexDirection: "column"
-        }}
-      >
-        <CreateApiKeyForm ref={formRef} onSubmit={onSave} />
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box
+          sx={{
+            maxWidth: "440px",
+            gap: "24px",
+            display: "flex",
+            flexDirection: "column"
+          }}
+        >
+          <CreateApiKeyForm onSubmit={onSave} />
 
-        {/* Display success message if API Key was created successfully */}
-        {data && (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <Input label="Access Key ID" value={data.accessKeyId} disabled />
-            <Input
-              label="Secret Access Key"
-              value={data.accessKeySecret}
-              disabled
-            />
-          </Box>
-        )}
-      </Box>
-    </Page>
+          {/* Display success message if API Key was created successfully */}
+          {data && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              <Input label="Access Key ID" value={data.accessKeyId} disabled />
+              <Input
+                label="Secret Access Key"
+                value={data.accessKeySecret}
+                disabled
+              />
+            </Box>
+          )}
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

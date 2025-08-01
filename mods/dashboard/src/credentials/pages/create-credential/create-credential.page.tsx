@@ -19,13 +19,10 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-credential.page";
-import { useRef } from "react";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateCredentialForm,
-  type CreateCredentialFormHandle
-} from "./create-credential.form";
+import { CreateCredentialForm } from "./create-credential.form";
 import { useCreateCredential } from "./create-credential.hook";
 
 /**
@@ -59,36 +56,34 @@ export function meta(_: Route.MetaArgs) {
  * @returns {JSX.Element} The rendered Create Credential page.
  */
 export default function CreateCredential() {
-  /** Ref to access the CreateCredentialForm's imperative handle (submit method). */
-  const formRef = useRef<CreateCredentialFormHandle>(null);
-
   /** Custom hook to create a credential via API with optimistic updates. */
-  const { onGoBack, onSave, isPending } = useCreateCredential();
+  const { onGoBack, onSave } = useCreateCredential();
 
   /**
    * Renders the Create Credential page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New Credentials"
-        description="Credentials are used to authenticate SIP Agents and Trunks within your network."
-        onBack={{ label: "Back to credentials", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save Credential"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New Credentials"
+          description="Credentials are used to authenticate SIP Agents and Trunks within your network."
+          onBack={{ label: "Back to credentials", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save Credential
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateCredentialForm ref={formRef} onSubmit={onSave} />
-      </Box>
-    </Page>
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateCredentialForm onSubmit={onSave} />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

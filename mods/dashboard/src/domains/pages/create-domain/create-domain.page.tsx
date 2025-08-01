@@ -19,13 +19,10 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-domain.page";
-import { useRef } from "react";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateDomainForm,
-  type CreateDomainFormHandle
-} from "./create-domain.form";
+import { CreateDomainForm } from "./create-domain.form";
 import { useCreateDomain } from "./create-domain.hook";
 
 /**
@@ -59,36 +56,34 @@ export function meta(_: Route.MetaArgs) {
  * @returns {JSX.Element} The rendered Create Domain page.
  */
 export default function CreateDomain() {
-  /** Ref to access the CreateDomainForm's imperative handle (submit method). */
-  const formRef = useRef<CreateDomainFormHandle>(null);
-
   /** Custom hook to create a domain via API with optimistic updates. */
-  const { onGoBack, onSave, isPending } = useCreateDomain();
+  const { onGoBack, onSave } = useCreateDomain();
 
   /**
    * Renders the Create Domain page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New Domain"
-        description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
-        onBack={{ label: "Back to domains", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={isPending}
-          >
-            {isPending ? "Saving..." : "Save Domain"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New Domain"
+          description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
+          onBack={{ label: "Back to domains", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save Domain
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateDomainForm ref={formRef} onSubmit={onSave} />
-      </Box>
-    </Page>
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateDomainForm onSubmit={onSave} />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }
