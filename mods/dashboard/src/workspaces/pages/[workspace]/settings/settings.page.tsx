@@ -87,10 +87,7 @@ export default function Overview() {
           title="Workspace Settings"
           onBack={{ label: "Back to overview", onClick }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Workspace Settings
             </FormSubmitButton>
           }

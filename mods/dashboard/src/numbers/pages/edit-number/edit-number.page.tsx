@@ -156,10 +156,7 @@ export default function EditNumber() {
           description="A Number is a PSTN phone number that can be used to make or receive calls."
           onBack={{ label: "Back to voice numbers", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Number
             </FormSubmitButton>
           }

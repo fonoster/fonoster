@@ -149,10 +149,7 @@ export default function EditCredential() {
           description="Credentials are used to authenticate SIP Agents and Trunks within your network."
           onBack={{ label: "Back to credentials", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Credential
             </FormSubmitButton>
           }

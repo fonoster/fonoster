@@ -58,7 +58,11 @@ export interface CreateCredentialFormProps extends React.PropsWithChildren {
  * @param {CreateCredentialFormProps} props - Props including onSubmit handler and optional initial values.
  * @returns {JSX.Element} The rendered Create Credential form.
  */
-export function CreateCredentialForm({ onSubmit, initialValues, isEdit }: CreateCredentialFormProps) {
+export function CreateCredentialForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateCredentialFormProps) {
   /** Initializes the React Hook Form with Zod validation and initial values. */
   const form = useForm<Schema>({
     resolver: zodResolver(schema),

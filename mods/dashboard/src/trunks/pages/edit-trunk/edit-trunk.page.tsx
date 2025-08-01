@@ -146,10 +146,7 @@ export default function EditTrunk() {
           description="A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity. "
           onBack={{ label: "Back to trunks", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Trunk
             </FormSubmitButton>
           }

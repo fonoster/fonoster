@@ -100,11 +100,7 @@ export const CreateTrunkCredentialsModal = ({
             justifyContent: "center"
           }}
         >
-          <FormSubmitButton
-            isFullWidth
-            size="small"
-            loadingText="Saving..."
-          >
+          <FormSubmitButton isFullWidth size="small" loadingText="Saving...">
             Save Credential
           </FormSubmitButton>
         </Box>

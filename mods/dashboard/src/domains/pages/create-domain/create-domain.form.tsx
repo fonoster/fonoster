@@ -26,11 +26,7 @@ import {
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  useCallback,
-  useState,
-  useEffect
-} from "react";
+import { useCallback, useState, useEffect } from "react";
 import { schema, type Schema } from "./create-domain.schema";
 import { useAcls } from "~/acls/services/acls.service";
 import { Select } from "~/core/components/design-system/ui/select/select";
@@ -71,7 +67,11 @@ export interface CreateDomainFormProps extends React.PropsWithChildren {
  * @param {CreateDomainFormProps} props - Props including onSubmit handler and optional initial values.
  * @returns {JSX.Element} The rendered Create Domain form.
  */
-export function CreateDomainForm({ onSubmit, initialValues, isEdit }: CreateDomainFormProps) {
+export function CreateDomainForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateDomainFormProps) {
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isDomainAclsModalOpen, setIsDomainAclsModalOpen] = useState(false);
 

@@ -97,7 +97,11 @@ export interface CreateNumberFormProps extends React.PropsWithChildren {
  * @param {CreateNumberFormProps} props - Props including onSubmit handler and optional initial values.
  * @returns {JSX.Element} The rendered Create Number form.
  */
-export function CreateNumberForm({ onSubmit, initialValues, isEdit }: CreateNumberFormProps) {
+export function CreateNumberForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateNumberFormProps) {
   /** Fetches trunks to populate the Trunk dropdown. */
   const { data: trunks, isLoading: isTrunkLoading } = useTrunks({});
 

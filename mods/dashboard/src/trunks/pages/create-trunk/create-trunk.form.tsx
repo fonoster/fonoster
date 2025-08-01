@@ -72,7 +72,11 @@ export interface CreateTrunkFormProps extends React.PropsWithChildren {
  * @param {CreateTrunkFormProps} props - Props including onSubmit handler and optional initial values.
  * @returns {JSX.Element} The rendered Create Trunk form.
  */
-export function CreateTrunkForm({ onSubmit, initialValues, isEdit }: CreateTrunkFormProps) {
+export function CreateTrunkForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateTrunkFormProps) {
   const [isTrunkCredentialsModalOpen, setIsTrunkCredentialsModalOpen] =
     useState(false);
 

@@ -104,11 +104,7 @@ export const CreateTrunkAclsModal = ({
             justifyContent: "center"
           }}
         >
-          <FormSubmitButton
-            isFullWidth
-            size="small"
-            loadingText="Saving..."
-          >
+          <FormSubmitButton isFullWidth size="small" loadingText="Saving...">
             Save ACL
           </FormSubmitButton>
         </Box>
