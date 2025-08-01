@@ -36,7 +36,7 @@ jobs:
       - name: Publish Dashboard to Docker Hub
         uses: elgohr/Publish-Docker-Github-Action@v5
         env:
-          DASHBOARD_EDITION: community
+          DASHBOARD_EDITION: cloud
           DASHBOARD_VERSION: ${{ env.LERNA_VERSION }}
           DASHBOARD_API_URL: https://api.fonoster.com
           DASHBOARD_AUTH_GITHUB_ENABLED: true
