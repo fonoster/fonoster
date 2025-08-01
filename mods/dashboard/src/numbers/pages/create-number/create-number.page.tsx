@@ -25,10 +25,7 @@ import { useNavigate } from "react-router";
 import { FormProvider } from "~/core/contexts/form-context";
 import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateNumberForm,
-  type Schema
-} from "./create-number.form";
+import { CreateNumberForm, type Schema } from "./create-number.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateNumber } from "~/numbers/services/numbers.service";
 import { COUNTRIES } from "./create-number.const";
@@ -126,10 +123,7 @@ export default function CreateNumber() {
           description="A Number is a PSTN phone number that can be used to make or receive calls."
           onBack={{ label: "Back to numbers", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Number
             </FormSubmitButton>
           }

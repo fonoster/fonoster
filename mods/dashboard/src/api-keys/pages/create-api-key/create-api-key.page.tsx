@@ -71,10 +71,7 @@ export default function CreateApiKey() {
           description="An API Key is an encrypted token that grants secure access to Fonoster's APIs."
           onBack={{ label: "Back to API Keys", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save API Key
             </FormSubmitButton>
           }

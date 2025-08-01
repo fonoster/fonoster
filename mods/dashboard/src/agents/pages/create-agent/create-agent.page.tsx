@@ -70,10 +70,7 @@ export default function CreateAgent() {
           description="A SIP Agent represents a user or device that connects to your SIP Domain using VoIP."
           onBack={{ label: "Back to agents", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Agent
             </FormSubmitButton>
           }

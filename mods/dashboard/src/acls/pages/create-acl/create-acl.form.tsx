@@ -63,7 +63,11 @@ export interface CreateAclFormProps extends React.PropsWithChildren {
  *
  * @param {CreateAclFormProps} props - Props including the onSubmit handler and optional initial values.
  */
-export function CreateAclForm({ onSubmit, initialValues, isEdit }: CreateAclFormProps) {
+export function CreateAclForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateAclFormProps) {
   /** Local state controlling the visibility of the rules modal. */
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
 

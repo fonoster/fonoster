@@ -17,7 +17,13 @@
  * limitations under the License.
  */
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  type ReactNode
+} from "react";
 
 export interface FormState {
   isValid: boolean;
@@ -40,7 +46,7 @@ const initialFormState: FormState = {
   isValid: false,
   isSubmitting: false,
   isDirty: false,
-  hasErrors: false,
+  hasErrors: false
 };
 
 interface FormProviderProps {
@@ -49,10 +55,12 @@ interface FormProviderProps {
 
 export function FormProvider({ children }: FormProviderProps) {
   const [formState, setFormStateState] = useState<FormState>(initialFormState);
-  const [submitHandler, setSubmitHandlerState] = useState<(() => void) | null>(null);
+  const [submitHandler, setSubmitHandlerState] = useState<(() => void) | null>(
+    null
+  );
 
   const setFormState = useCallback((newState: Partial<FormState>) => {
-    setFormStateState(prev => ({ ...prev, ...newState }));
+    setFormStateState((prev) => ({ ...prev, ...newState }));
   }, []);
 
   const resetFormState = useCallback(() => {
@@ -75,14 +83,10 @@ export function FormProvider({ children }: FormProviderProps) {
     setFormState,
     resetFormState,
     submitForm,
-    setSubmitHandler,
+    setSubmitHandler
   };
 
-  return (
-    <FormContext.Provider value={value}>
-      {children}
-    </FormContext.Provider>
-  );
+  return <FormContext.Provider value={value}>{children}</FormContext.Provider>;
 }
 
 export function useFormContext() {
@@ -91,4 +95,4 @@ export function useFormContext() {
     throw new Error("useFormContext must be used within a FormProvider");
   }
   return context;
-} 
+}

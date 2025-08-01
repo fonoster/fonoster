@@ -70,10 +70,7 @@ export default function CreateAcl() {
           description="An ACL defines IP-based rules to allow or deny access to your voice infrastructure."
           onBack={{ label: "Back to ACLs", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Acl
             </FormSubmitButton>
           }

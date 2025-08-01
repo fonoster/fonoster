@@ -65,8 +65,6 @@ export function EditApplicationContainer() {
   /** Programmatic navigation hook. */
   const navigate = useNavigate();
 
-
-
   /** Application context setter. */
   const { setApplication } = useApplicationContext();
 
@@ -137,10 +135,7 @@ export function EditApplicationContainer() {
           actions={
             <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
               {/* Submit button */}
-              <FormSubmitButton
-                size="small"
-                loadingText="Saving..."
-              >
+              <FormSubmitButton size="small" loadingText="Saving...">
                 Save Voice Application
               </FormSubmitButton>
 

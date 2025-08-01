@@ -146,10 +146,7 @@ export default function EditAgent() {
           description="SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)"
           onBack={{ label: "Back to agents", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Agent
             </FormSubmitButton>
           }

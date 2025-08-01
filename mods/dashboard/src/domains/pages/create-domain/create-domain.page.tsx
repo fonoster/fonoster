@@ -70,10 +70,7 @@ export default function CreateDomain() {
           description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
           onBack={{ label: "Back to domains", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Domain
             </FormSubmitButton>
           }

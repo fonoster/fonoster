@@ -38,9 +38,15 @@ export function useFormContextSync<T extends Record<string, any>>(
       isValid: form.formState.isValid,
       isSubmitting: form.formState.isSubmitting,
       isDirty: form.formState.isDirty,
-      hasErrors: Object.keys(form.formState.errors).length > 0,
+      hasErrors: Object.keys(form.formState.errors).length > 0
     });
-  }, [form.formState.isValid, form.formState.isSubmitting, form.formState.isDirty, form.formState.errors, setFormState]);
+  }, [
+    form.formState.isValid,
+    form.formState.isSubmitting,
+    form.formState.isDirty,
+    form.formState.errors,
+    setFormState
+  ]);
 
   // Track if this is the initial render
   const [isInitialized, setIsInitialized] = useState(false);
@@ -54,7 +60,7 @@ export function useFormContextSync<T extends Record<string, any>>(
         isValid: form.formState.isValid,
         isSubmitting: form.formState.isSubmitting,
         isDirty: false,
-        hasErrors: Object.keys(form.formState.errors).length > 0,
+        hasErrors: Object.keys(form.formState.errors).length > 0
       });
       setIsInitialized(true);
     }
@@ -87,6 +93,6 @@ export function useFormContextSync<T extends Record<string, any>>(
   }, [setSubmitHandler, submitForm]);
 
   return {
-    submitForm,
+    submitForm
   };
-} 
+}

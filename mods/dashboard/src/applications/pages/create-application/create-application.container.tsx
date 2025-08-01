@@ -106,10 +106,7 @@ export function CreateApplicationContainer() {
           actions={
             <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
               {/* Submit application form */}
-              <FormSubmitButton
-                size="small"
-                loadingText="Saving..."
-              >
+              <FormSubmitButton size="small" loadingText="Saving...">
                 Save Voice Application
               </FormSubmitButton>
 

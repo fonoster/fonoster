@@ -49,7 +49,11 @@ export interface CreateAgentFormProps extends React.PropsWithChildren {
 /**
  * CreateAgentForm component.
  */
-export function CreateAgentForm({ onSubmit, initialValues, isEdit }: CreateAgentFormProps) {
+export function CreateAgentForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateAgentFormProps) {
   const [isAgentCredentialsModalOpen, setIsAgentCredentialsModalOpen] =
     useState(false);
 

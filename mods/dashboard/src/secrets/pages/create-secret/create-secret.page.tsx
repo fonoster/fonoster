@@ -70,10 +70,7 @@ export default function CreateSecret() {
           description="Secrets are encrypted variables available to your apps and APIs within the current workspace."
           onBack={{ label: "Back to secrets", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Secret
             </FormSubmitButton>
           }

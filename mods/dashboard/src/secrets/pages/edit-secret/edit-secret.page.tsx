@@ -145,10 +145,7 @@ export default function EditSecret() {
           description="Secrets are encrypted variables available to your apps and APIs within the current workspace."
           onBack={{ label: "Back to secrets", onClick: onGoBack }}
           actions={
-            <FormSubmitButton
-              size="small"
-              loadingText="Saving..."
-            >
+            <FormSubmitButton size="small" loadingText="Saving...">
               Save Secret
             </FormSubmitButton>
           }
@@ -156,11 +153,11 @@ export default function EditSecret() {
 
         {/* Form container with a max width for readability and consistent layout */}
         <Box sx={{ maxWidth: "440px" }}>
-                  <CreateSecretForm
-          onSubmit={onSave}
-          initialValues={{ ...data, type: "text" }}
-          isEdit={true}
-        />
+          <CreateSecretForm
+            onSubmit={onSave}
+            initialValues={{ ...data, type: "text" }}
+            isEdit={true}
+          />
         </Box>
       </Page>
     </FormProvider>

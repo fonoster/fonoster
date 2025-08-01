@@ -21,7 +21,8 @@ import { Button } from "../button/button";
 import { useFormContext } from "~/core/contexts/form-context";
 import type { ButtonAttributes } from "../button/button.styles";
 
-export interface FormSubmitButtonProps extends Omit<ButtonAttributes, "onClick" | "disabled"> {
+export interface FormSubmitButtonProps
+  extends Omit<ButtonAttributes, "onClick" | "disabled"> {
   children?: React.ReactNode;
   loadingText?: string;
   disabledText?: string;
@@ -36,24 +37,21 @@ export function FormSubmitButton({
   const { formState, submitForm } = useFormContext();
 
   // Disable if form is invalid, submitting, has errors, or has no changes
-  const isDisabled = !formState.isValid || 
-                    formState.isSubmitting || 
-                    formState.hasErrors || 
-                    !formState.isDirty;
-  
-  const buttonText = formState.isSubmitting 
-    ? loadingText 
-    : isDisabled && disabledText 
-      ? disabledText 
+  const isDisabled =
+    !formState.isValid ||
+    formState.isSubmitting ||
+    formState.hasErrors ||
+    !formState.isDirty;
+
+  const buttonText = formState.isSubmitting
+    ? loadingText
+    : isDisabled && disabledText
+      ? disabledText
       : children;
 
   return (
-    <Button
-      {...buttonProps}
-      onClick={submitForm}
-      disabled={isDisabled}
-    >
+    <Button {...buttonProps} onClick={submitForm} disabled={isDisabled}>
       {buttonText}
     </Button>
   );
-} 
+}
