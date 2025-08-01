@@ -19,13 +19,13 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/edit-number.page";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
 import {
   CreateNumberForm,
-  type CreateNumberFormHandle,
   type Schema
 } from "../create-number/create-number.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
@@ -88,9 +88,6 @@ export default function EditNumber() {
   /** Hook to programmatically navigate between pages. */
   const navigate = useNavigate();
 
-  /** Ref to access the form's imperative handle (submit method). */
-  const formRef = useRef<CreateNumberFormHandle>(null);
-
   /**
    * Handler for navigating back to the numbers page.
    * Uses `viewTransition` for smoother transitions.
@@ -102,7 +99,7 @@ export default function EditNumber() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to handle number updates via the API. */
-  const { mutate, isPending } = useUpdateNumber();
+  const { mutate } = useUpdateNumber();
 
   /**
    * Handler called after form submission.
@@ -152,30 +149,28 @@ export default function EditNumber() {
    * Renders the Edit Number page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Edit Number"
-        description="A Number is a PSTN phone number that can be used to make or receive calls."
-        onBack={{ label: "Back to voice numbers", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save Number"}
-          </Button>
-        }
-      />
-
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateNumberForm
-          ref={formRef}
-          onSubmit={onSave}
-          initialValues={data}
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Edit Number"
+          description="A Number is a PSTN phone number that can be used to make or receive calls."
+          onBack={{ label: "Back to voice numbers", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save Number
+            </FormSubmitButton>
+          }
         />
-      </Box>
-    </Page>
+
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateNumberForm
+            onSubmit={onSave}
+            initialValues={data}
+            isEdit={true}
+          />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

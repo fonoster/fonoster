@@ -19,14 +19,12 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/edit-trunk.page";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateTrunkForm,
-  type CreateTrunkFormHandle
-} from "../create-trunk/create-trunk.form";
+import { CreateTrunkForm } from "../create-trunk/create-trunk.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
@@ -87,9 +85,6 @@ export default function EditTrunk() {
   /** Hook to programmatically navigate between pages. */
   const navigate = useNavigate();
 
-  /** Ref to access the form's imperative handle (submit method). */
-  const formRef = useRef<CreateTrunkFormHandle>(null);
-
   /**
    * Handler for navigating back to the trunks page.
    * Uses `viewTransition` for smoother transitions.
@@ -101,7 +96,7 @@ export default function EditTrunk() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to handle trunk updates via the API. */
-  const { mutate, isPending } = useUpdateTrunk();
+  const { mutate } = useUpdateTrunk();
 
   /**
    * Handler called after form submission.
@@ -144,30 +139,28 @@ export default function EditTrunk() {
    * Renders the Edit Trunk page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Edit SIP Trunk"
-        description="A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity. "
-        onBack={{ label: "Back to trunks", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={isPending}
-          >
-            {isPending ? "Saving..." : "Save Trunk"}
-          </Button>
-        }
-      />
-
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateTrunkForm
-          ref={formRef}
-          onSubmit={onSave}
-          initialValues={{ inboundUri: "", ...data }}
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Edit SIP Trunk"
+          description="A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity. "
+          onBack={{ label: "Back to trunks", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save Trunk
+            </FormSubmitButton>
+          }
         />
-      </Box>
-    </Page>
+
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateTrunkForm
+            onSubmit={onSave}
+            initialValues={{ inboundUri: "", ...data }}
+            isEdit={true}
+          />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

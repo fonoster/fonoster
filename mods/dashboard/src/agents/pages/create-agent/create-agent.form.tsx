@@ -26,7 +26,7 @@ import {
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useImperativeHandle, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { schema, type Schema } from "./create-agent.schema";
 import { Privacy } from "@fonoster/types";
 import { useDomains } from "~/domains/services/domains.service";
@@ -35,14 +35,7 @@ import { Select } from "~/core/components/design-system/ui/select/select";
 import { Box } from "@mui/material";
 import { ModalTrigger } from "~/core/components/general/modal-trigger";
 import { CreateAgentCredentialsModal } from "./create-agent-credentials-modal.modal";
-
-/**
- * Imperative handle interface for CreateAgentForm.
- */
-export interface CreateAgentFormHandle {
-  submit: () => void;
-  isSubmitDisabled?: boolean;
-}
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Props interface for CreateAgentForm.
@@ -50,15 +43,17 @@ export interface CreateAgentFormHandle {
 export interface CreateAgentFormProps extends React.PropsWithChildren {
   initialValues?: Schema;
   onSubmit: (data: Schema) => Promise<void>;
+  isEdit?: boolean;
 }
 
 /**
  * CreateAgentForm component.
  */
-export const CreateAgentForm = forwardRef<
-  CreateAgentFormHandle,
-  CreateAgentFormProps
->(({ onSubmit, initialValues }, ref) => {
+export function CreateAgentForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateAgentFormProps) {
   const [isAgentCredentialsModalOpen, setIsAgentCredentialsModalOpen] =
     useState(false);
 
@@ -83,10 +78,8 @@ export const CreateAgentForm = forwardRef<
     mode: "onChange"
   });
 
-  useImperativeHandle(ref, () => ({
-    submit: () => form.handleSubmit(onSubmit)(),
-    isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
-  }));
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit, isEdit);
 
   const handleOpenCredentialsModal = useCallback(() => {
     setIsAgentCredentialsModalOpen(true);
@@ -242,4 +235,4 @@ export const CreateAgentForm = forwardRef<
       />
     </>
   );
-});
+}

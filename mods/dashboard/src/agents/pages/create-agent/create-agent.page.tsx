@@ -19,13 +19,10 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-agent.page";
-import { useRef } from "react";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateAgentForm,
-  type CreateAgentFormHandle
-} from "./create-agent.form";
+import { CreateAgentForm } from "./create-agent.form";
 import { useCreateAgent } from "./create-agent.hook";
 
 /**
@@ -59,36 +56,31 @@ export function meta(_: Route.MetaArgs) {
  * @returns {JSX.Element} The rendered Create Agent page.
  */
 export default function CreateAgent() {
-  /** Ref to access the CreateAgentForm's imperative handle (submit method). */
-  const formRef = useRef<CreateAgentFormHandle>(null);
-
   /** Custom hook to create a agent via API with optimistic updates. */
-  const { onGoBack, onSave, isPending } = useCreateAgent();
+  const { onGoBack, onSave } = useCreateAgent();
 
   /**
    * Renders the Create Agent page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New Agent"
-        description="A SIP Agent represents a user or device that connects to your SIP Domain using VoIP."
-        onBack={{ label: "Back to agents", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={isPending}
-          >
-            {isPending ? "Saving..." : "Save Agent"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New Agent"
+          description="A SIP Agent represents a user or device that connects to your SIP Domain using VoIP."
+          onBack={{ label: "Back to agents", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save Agent
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateAgentForm ref={formRef} onSubmit={onSave} />
-      </Box>
-    </Page>
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateAgentForm onSubmit={onSave} />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }
