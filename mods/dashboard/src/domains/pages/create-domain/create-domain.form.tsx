@@ -27,9 +27,7 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  forwardRef,
   useCallback,
-  useImperativeHandle,
   useState,
   useEffect
 } from "react";
@@ -42,16 +40,7 @@ import { useNumbers } from "~/numbers/services/numbers.service";
 import { CreateRuleModal } from "./create-domain-rules-modal.modal";
 import { CreateDomainAclsModal } from "./create-domain-acls-modal.modal";
 import type { Acl } from "@fonoster/types";
-
-/**
- * Imperative handle interface exposing a submit method and validation state.
- *
- * Allows parent components to trigger form submission and to check if the submit button should be disabled.
- */
-export interface CreateDomainFormHandle {
-  submit: () => void;
-  isSubmitDisabled?: boolean;
-}
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Props interface for the CreateDomainForm component.
@@ -61,6 +50,8 @@ export interface CreateDomainFormProps extends React.PropsWithChildren {
   initialValues?: Schema;
   /** Callback triggered on successful form submission. */
   onSubmit: (data: Schema) => Promise<void>;
+  /** Whether this form is for editing an existing domain. */
+  isEdit?: boolean;
 }
 
 /**
@@ -68,25 +59,19 @@ export interface CreateDomainFormProps extends React.PropsWithChildren {
  *
  * Renders a form for creating a domain, including fields for:
  * - Friendly Name
- * - Trunk
- * - Country
- * - City
- * - Tel URL
- * - Inbound Application
+ * - Domain URI
+ * - Access Control List
+ * - Egress Policies
  *
  * Integrates:
  * - React Hook Form for state management
  * - Zod for schema validation
- * - Imperative handle for exposing a submit method to parent components
+ * - FormContext for state synchronization
  *
  * @param {CreateDomainFormProps} props - Props including onSubmit handler and optional initial values.
- * @param {React.Ref<CreateDomainFormHandle>} ref - Ref exposing submit functionality.
  * @returns {JSX.Element} The rendered Create Domain form.
  */
-export const CreateDomainForm = forwardRef<
-  CreateDomainFormHandle,
-  CreateDomainFormProps
->(({ onSubmit, initialValues }, ref) => {
+export function CreateDomainForm({ onSubmit, initialValues, isEdit }: CreateDomainFormProps) {
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isDomainAclsModalOpen, setIsDomainAclsModalOpen] = useState(false);
 
@@ -119,13 +104,8 @@ export const CreateDomainForm = forwardRef<
     control: form.control
   });
 
-  /** Exposes the submit method and submit state via the imperative handle. */
-  useImperativeHandle(ref, () => ({
-    submit: () => {
-      form.handleSubmit(onSubmit)();
-    },
-    isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
-  }));
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit, isEdit);
 
   const getNumberName = useCallback(
     (numberRef: string) => {
@@ -298,4 +278,4 @@ export const CreateDomainForm = forwardRef<
       />
     </>
   );
-});
+}

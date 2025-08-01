@@ -17,13 +17,11 @@
  * limitations under the License.
  */
 import { Modal } from "~/core/components/design-system/ui/modal/modal";
-import { useCallback, useRef } from "react";
-import {
-  CreateAclForm,
-  type CreateAclFormHandle
-} from "~/acls/pages/create-acl/create-acl.form";
+import { useCallback } from "react";
+import { CreateAclForm } from "~/acls/pages/create-acl/create-acl.form";
 import { useCreateAcl } from "~/acls/pages/create-acl/create-acl.hook";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
 import type { Schema } from "~/acls/pages/create-acl/create-acl.schema";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
@@ -60,8 +58,7 @@ export const CreateDomainAclsModal = ({
   onClose,
   onFormSubmit
 }: DomainAclsModalProps) => {
-  const formRef = useRef<CreateAclFormHandle>(null);
-  const { onSave, isPending } = useCreateAcl();
+  const { onSave } = useCreateAcl();
 
   /**
    * Handles the form submission.
@@ -82,38 +79,36 @@ export const CreateDomainAclsModal = ({
         onFormSubmit(acls);
       }
       onClose();
-      setTimeout(() => {
-        formRef.current?.reset();
-      }, 100);
     },
     [onSave, onClose, onFormSubmit]
   );
 
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      title="Create New Access Control List (ACL)"
-    >
-      <CreateAclForm ref={formRef} onSubmit={onSubmit} />
-      <Box
-        sx={{
-          width: "100%",
-          mt: "24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
+    <FormProvider>
+      <Modal
+        open={isOpen}
+        onClose={onClose}
+        title="Create New Access Control List (ACL)"
       >
-        <Button
-          isFullWidth
-          size="small"
-          onClick={() => formRef.current?.submit()}
-          disabled={isPending}
+        <CreateAclForm onSubmit={onSubmit} />
+        <Box
+          sx={{
+            width: "100%",
+            mt: "24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
         >
-          {isPending ? "Saving..." : "Save ACL"}
-        </Button>
-      </Box>
-    </Modal>
+          <FormSubmitButton
+            isFullWidth
+            size="small"
+            loadingText="Saving..."
+          >
+            Save ACL
+          </FormSubmitButton>
+        </Box>
+      </Modal>
+    </FormProvider>
   );
 };

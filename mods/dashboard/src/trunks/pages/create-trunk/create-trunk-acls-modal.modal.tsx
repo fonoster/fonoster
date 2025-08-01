@@ -17,13 +17,11 @@
  * limitations under the License.
  */
 import { Modal } from "~/core/components/design-system/ui/modal/modal";
-import { useCallback, useRef } from "react";
-import {
-  CreateAclForm,
-  type CreateAclFormHandle
-} from "~/acls/pages/create-acl/create-acl.form";
+import { useCallback } from "react";
+import { CreateAclForm } from "~/acls/pages/create-acl/create-acl.form";
 import { useCreateAcl } from "~/acls/pages/create-acl/create-acl.hook";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
 import type { Schema } from "~/acls/pages/create-acl/create-acl.schema";
 import type { Acl } from "@fonoster/types";
@@ -60,11 +58,8 @@ export const CreateTrunkAclsModal = ({
   onClose,
   onFormSubmit
 }: ModalProps) => {
-  /** Ref to access the CreateAclForm's imperative handle (submit method). */
-  const formRef = useRef<CreateAclFormHandle>(null);
-
   /** Custom hook to create a acl via API with optimistic updates. */
-  const { onSave, isPending } = useCreateAcl();
+  const { onSave } = useCreateAcl();
 
   /**
    * Handles the form submission.
@@ -88,38 +83,36 @@ export const CreateTrunkAclsModal = ({
       }
 
       onClose(); // Close the modal
-      setTimeout(() => {
-        formRef.current?.reset(); // Reset the form state after closing the modal
-      }, 100); // Slight delay to ensure the modal is closed before resetting
     },
-    [onFormSubmit, onClose, formRef]
+    [onFormSubmit, onClose]
   );
 
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      title="Create New Access Control List (ACL)"
-    >
-      <CreateAclForm ref={formRef} onSubmit={onSubmit} />
-      <Box
-        sx={{
-          width: "100%",
-          mt: "24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
+    <FormProvider>
+      <Modal
+        open={isOpen}
+        onClose={onClose}
+        title="Create New Access Control List (ACL)"
       >
-        <Button
-          isFullWidth
-          size="small"
-          onClick={() => formRef.current?.submit()}
-          disabled={isPending}
+        <CreateAclForm onSubmit={onSubmit} />
+        <Box
+          sx={{
+            width: "100%",
+            mt: "24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
         >
-          {isPending ? "Saving..." : "Save ACL"}
-        </Button>
-      </Box>
-    </Modal>
+          <FormSubmitButton
+            isFullWidth
+            size="small"
+            loadingText="Saving..."
+          >
+            Save ACL
+          </FormSubmitButton>
+        </Box>
+      </Modal>
+    </FormProvider>
   );
 };

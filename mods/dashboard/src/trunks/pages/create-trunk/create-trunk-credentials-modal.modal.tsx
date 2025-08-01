@@ -17,13 +17,11 @@
  * limitations under the License.
  */
 import { Modal } from "~/core/components/design-system/ui/modal/modal";
-import { useCallback, useRef } from "react";
-import {
-  CreateCredentialForm,
-  type CreateCredentialFormHandle
-} from "~/credentials/pages/create-credential/create-credential.form";
+import { useCallback } from "react";
+import { CreateCredentialForm } from "~/credentials/pages/create-credential/create-credential.form";
 import { useCreateCredential } from "~/credentials/pages/create-credential/create-credential.hook";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
 import type { Schema } from "~/credentials/pages/create-credential/create-credential.schema";
 import type { Credentials } from "@fonoster/types";
@@ -60,11 +58,8 @@ export const CreateTrunkCredentialsModal = ({
   onClose,
   onFormSubmit
 }: ModalProps) => {
-  /** Ref to access the CreateCredentialForm's imperative handle (submit method). */
-  const formRef = useRef<CreateCredentialFormHandle>(null);
-
   /** Custom hook to create a credential via API with optimistic updates. */
-  const { onSave, isPending } = useCreateCredential();
+  const { onSave } = useCreateCredential();
 
   /**
    * Handles the form submission.
@@ -88,34 +83,32 @@ export const CreateTrunkCredentialsModal = ({
       }
 
       onClose(); // Close the modal
-      setTimeout(() => {
-        formRef.current?.reset(); // Reset the form state after closing the modal
-      }, 100); // Slight delay to ensure the modal is closed before resetting
     },
-    [onFormSubmit, onClose, formRef]
+    [onFormSubmit, onClose]
   );
 
   return (
-    <Modal open={isOpen} onClose={onClose} title="Create New Credential">
-      <CreateCredentialForm ref={formRef} onSubmit={onSubmit} />
-      <Box
-        sx={{
-          width: "100%",
-          mt: "24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
-        <Button
-          isFullWidth
-          size="small"
-          onClick={() => formRef.current?.submit()}
-          disabled={isPending}
+    <FormProvider>
+      <Modal open={isOpen} onClose={onClose} title="Create New Credential">
+        <CreateCredentialForm onSubmit={onSubmit} />
+        <Box
+          sx={{
+            width: "100%",
+            mt: "24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
         >
-          {isPending ? "Saving..." : "Save Credential"}
-        </Button>
-      </Box>
-    </Modal>
+          <FormSubmitButton
+            isFullWidth
+            size="small"
+            loadingText="Saving..."
+          >
+            Save Credential
+          </FormSubmitButton>
+        </Box>
+      </Modal>
+    </FormProvider>
   );
 };

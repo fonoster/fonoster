@@ -29,7 +29,9 @@ import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import { z } from "zod";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Zod validation schema for the Create/Edit ACL Rule form.
@@ -120,57 +122,59 @@ export const CreateRuleModal = ({
   const onSubmit = (data: Schema) => {
     onFormSubmit(data);
     onClose(); // Close the modal
-    setTimeout(() => {
-      form.reset(); // Reset the form state after closing the modal
-    }, 100); // Slight delay to ensure the modal is closed before resetting
   };
 
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit);
+
   return (
-    <Modal open={isOpen} onClose={onClose} title="Create New Rule">
-      <Form {...form}>
-        <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
-          {/* IP or CIDR Field */}
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="text"
-                    label="IP or CIDR"
-                    placeholder="0.0.0.0/0"
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+    <FormProvider>
+      <Modal open={isOpen} onClose={onClose} title="Create New Rule">
+        <Form {...form}>
+          <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+            {/* IP or CIDR Field */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      label="IP or CIDR"
+                      placeholder="0.0.0.0/0"
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-          {/* Rule Type Field */}
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Select
-                    label="Category"
-                    options={[
-                      { value: "allow", label: "Allow" },
-                      { value: "deny", label: "Deny" }
-                    ]}
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+            {/* Rule Type Field */}
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Select
+                      label="Category"
+                      options={[
+                        { value: "allow", label: "Allow" },
+                        { value: "deny", label: "Deny" }
+                      ]}
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-          {/* Submit Button */}
-          <Button type="submit">Save</Button>
-        </FormRoot>
-      </Form>
-    </Modal>
+            {/* Submit Button */}
+            <FormSubmitButton>Save</FormSubmitButton>
+          </FormRoot>
+        </Form>
+      </Modal>
+    </FormProvider>
   );
 };

@@ -21,14 +21,12 @@ import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/settings.page";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { useNavigate } from "react-router";
-import { useCallback, useMemo, useRef } from "react";
-import {
-  WorkspaceSettingsForm,
-  type WorkspaceSettingsFormHandle
-} from "./settings.form";
+import { useCallback, useMemo } from "react";
+import { WorkspaceSettingsForm } from "./settings.form";
 import { Box, Stack } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { useAuth } from "~/auth/hooks/use-auth";
 
 /**
@@ -62,9 +60,6 @@ export default function Overview() {
   /** Retrieves the current workspace from the authentication context. */
   const { currentWorkspace } = useAuth();
 
-  /** Ref to access the form's imperative handle (e.g., submit method, isSubmitDisabled). */
-  const formRef = useRef<WorkspaceSettingsFormHandle>(null);
-
   /**
    * Handler for the "Back to overview" button.
    * Navigates the user to the workspace overview page.
@@ -86,42 +81,43 @@ export default function Overview() {
    * Renders the workspace settings page with a header, workspace info, and settings form.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Workspace Settings"
-        onBack={{ label: "Back to overview", onClick }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled}
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Workspace Settings"
+          onBack={{ label: "Back to overview", onClick }}
+          actions={
+            <FormSubmitButton
+              size="small"
+              loadingText="Saving..."
+            >
+              Save Workspace Settings
+            </FormSubmitButton>
+          }
+        />
+
+        <Box sx={{ maxWidth: "440px" }}>
+          <Stack
+            sx={{
+              marginBottom: "24px",
+              display: "flex",
+              gap: "10px",
+              flexDirection: "column"
+            }}
           >
-            Save Workspace Settings
-          </Button>
-        }
-      />
+            {/* Displays the workspace region (hardcoded as NYC01) */}
+            <Typography variant="body-micro" sx={{ color: "base.04" }}>
+              NYC01
+            </Typography>
 
-      <Box sx={{ maxWidth: "440px" }}>
-        <Stack
-          sx={{
-            marginBottom: "24px",
-            display: "flex",
-            gap: "10px",
-            flexDirection: "column"
-          }}
-        >
-          {/* Displays the workspace region (hardcoded as NYC01) */}
-          <Typography variant="body-micro" sx={{ color: "base.04" }}>
-            NYC01
-          </Typography>
+            {/* Displays the workspace title */}
+            <Typography variant="heading-micro">{title}</Typography>
+          </Stack>
 
-          {/* Displays the workspace title */}
-          <Typography variant="heading-micro">{title}</Typography>
-        </Stack>
-
-        {/* Workspace Settings Form */}
-        <WorkspaceSettingsForm ref={formRef} />
-      </Box>
-    </Page>
+          {/* Workspace Settings Form */}
+          <WorkspaceSettingsForm />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

@@ -26,7 +26,7 @@ import {
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
+import { useCallback, useState } from "react";
 import { schema, type Schema } from "./create-trunk.schema";
 import type { Trunk } from "@fonoster/types";
 import { Box } from "@mui/material";
@@ -40,18 +40,7 @@ import { CreateTrunkAclsModal } from "./create-trunk-acls-modal.modal";
 import { Checkbox } from "~/core/components/design-system/ui/checkbox/checkbox";
 import { CreateTrunkUrisModal } from "./create-trunk-uris-modal.modal";
 import { Tooltip } from "~/core/components/design-system/ui/tooltip/tooltip";
-
-/**
- * Imperative handle interface exposing a submit method and validation state.
- *
- * Allows parent components to trigger form submission and to check if the submit button should be disabled.
- */
-export interface CreateTrunkFormHandle {
-  submit: () => void;
-  reset: () => void;
-  /** Indicates if the submit button should be disabled based on form state */
-  isSubmitDisabled?: boolean;
-}
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Props interface for the CreateTrunkForm component.
@@ -61,6 +50,8 @@ export interface CreateTrunkFormProps extends React.PropsWithChildren {
   initialValues?: Schema;
   /** Callback triggered on successful form submission. */
   onSubmit: (data: Schema) => Promise<Trunk | void | null>;
+  /** Whether this form is for editing an existing trunk. */
+  isEdit?: boolean;
 }
 
 /**
@@ -68,25 +59,20 @@ export interface CreateTrunkFormProps extends React.PropsWithChildren {
  *
  * Renders a form for creating a trunk, including fields for:
  * - Friendly Name
- * - Trunk
- * - Country
- * - City
- * - Tel URL
- * - Inbound Application
+ * - Inbound URI
+ * - Access Control List
+ * - Credentials
+ * - URIs
  *
  * Integrates:
  * - React Hook Form for state management
  * - Zod for schema validation
- * - Imperative handle for exposing a submit method to parent components
+ * - FormContext for state synchronization
  *
  * @param {CreateTrunkFormProps} props - Props including onSubmit handler and optional initial values.
- * @param {React.Ref<CreateTrunkFormHandle>} ref - Ref exposing submit functionality.
  * @returns {JSX.Element} The rendered Create Trunk form.
  */
-export const CreateTrunkForm = forwardRef<
-  CreateTrunkFormHandle,
-  CreateTrunkFormProps
->(({ onSubmit, initialValues }, ref) => {
+export function CreateTrunkForm({ onSubmit, initialValues, isEdit }: CreateTrunkFormProps) {
   const [isTrunkCredentialsModalOpen, setIsTrunkCredentialsModalOpen] =
     useState(false);
 
@@ -124,16 +110,8 @@ export const CreateTrunkForm = forwardRef<
     control: form.control
   });
 
-  /** Exposes the submit method and submit state via the imperative handle. */
-  useImperativeHandle(ref, () => ({
-    submit: () => {
-      form.handleSubmit(onSubmit)();
-    },
-    reset: () => {
-      form.reset();
-    },
-    isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
-  }));
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit, isEdit);
 
   /**
    * Builds the displayed values for the Select, each formatted as "type:name".
@@ -432,4 +410,4 @@ export const CreateTrunkForm = forwardRef<
       />
     </>
   );
-});
+}
