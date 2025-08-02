@@ -18,7 +18,6 @@
  */
 import {
   DialRecordDirection,
-  PlaybackControlAction,
   StreamGatherSource,
   StreamPayload
 } from "@fonoster/common";
@@ -121,10 +120,7 @@ class VoiceImpl implements Voice {
   }
 
   async stopSpeech() {
-    await this.voice.playbackControl(
-      this.playbackRef,
-      PlaybackControlAction.STOP
-    );
+    await this.voice.stopSay();
   }
 
   async stopStreams() {
