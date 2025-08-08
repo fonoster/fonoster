@@ -19,14 +19,12 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/edit-credential.page";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateCredentialForm,
-  type CreateCredentialFormHandle
-} from "../create-credential/create-credential.form";
+import { CreateCredentialForm } from "../create-credential/create-credential.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
@@ -90,9 +88,6 @@ export default function EditCredential() {
   /** Hook to programmatically navigate between pages. */
   const navigate = useNavigate();
 
-  /** Ref to access the form's imperative handle (submit method). */
-  const formRef = useRef<CreateCredentialFormHandle>(null);
-
   /**
    * Handler for navigating back to the credentials page.
    * Uses `viewTransition` for smoother transitions.
@@ -104,7 +99,7 @@ export default function EditCredential() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to handle credential updates via the API. */
-  const { mutate, isPending } = useUpdateCredential();
+  const { mutate } = useUpdateCredential();
 
   /**
    * Handler called after form submission.
@@ -147,30 +142,28 @@ export default function EditCredential() {
    * Renders the Edit Credential page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Edit Credentials"
-        description="Credentials are used to authenticate SIP Agents and Trunks within your network."
-        onBack={{ label: "Back to credentials", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save Credential"}
-          </Button>
-        }
-      />
-
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateCredentialForm
-          ref={formRef}
-          onSubmit={onSave}
-          initialValues={{ password: "", ...data }}
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Edit Credentials"
+          description="Credentials are used to authenticate SIP Agents and Trunks within your network."
+          onBack={{ label: "Back to credentials", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save Credential
+            </FormSubmitButton>
+          }
         />
-      </Box>
-    </Page>
+
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateCredentialForm
+            onSubmit={onSave}
+            initialValues={{ password: "", ...data }}
+            isEdit={true}
+          />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

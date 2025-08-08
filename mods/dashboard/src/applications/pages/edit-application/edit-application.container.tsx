@@ -17,21 +17,19 @@
  * limitations under the License.
  */
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { Box } from "@mui/material";
 import { useNavigate, useParams } from "react-router";
 
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Icon } from "~/core/components/design-system/icons/icons";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
-import {
-  CreateApplicationForm,
-  type CreateApplicationFormHandle
-} from "../create-application/create-application.form";
+import { CreateApplicationForm } from "../create-application/create-application.form";
 import {
   useApplication,
   useUpdateApplication
@@ -62,13 +60,10 @@ export function EditApplicationContainer() {
   const { data, isLoading } = useApplication(ref);
 
   /** Mutation hook for submitting updates. */
-  const { mutateAsync, isPending } = useUpdateApplication();
+  const { mutateAsync } = useUpdateApplication();
 
   /** Programmatic navigation hook. */
   const navigate = useNavigate();
-
-  /** Form submit ref to trigger programmatically. */
-  const formRef = useRef<CreateApplicationFormHandle>(null);
 
   /** Application context setter. */
   const { setApplication } = useApplicationContext();
@@ -140,13 +135,9 @@ export function EditApplicationContainer() {
           actions={
             <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
               {/* Submit button */}
-              <Button
-                size="small"
-                onClick={() => formRef.current?.submit()}
-                disabled={formRef.current?.isSubmitDisabled || isPending}
-              >
-                {isPending ? "Saving..." : "Save Voice Application"}
-              </Button>
+              <FormSubmitButton size="small" loadingText="Saving...">
+                Save Voice Application
+              </FormSubmitButton>
 
               {/* Test Call button */}
               <Button
@@ -174,7 +165,6 @@ export function EditApplicationContainer() {
         {/* Application form with initial values */}
         <Box sx={{ maxWidth: "440px" }}>
           <CreateApplicationForm
-            ref={formRef}
             onSubmit={onSave}
             initialValues={data as Schema}
             isEdit={true}

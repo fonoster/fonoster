@@ -26,13 +26,7 @@ import {
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useState,
-  useEffect
-} from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { schema, type Schema } from "./create-domain.schema";
 import { useAcls } from "~/acls/services/acls.service";
 import { Select } from "~/core/components/design-system/ui/select/select";
@@ -44,16 +38,6 @@ import { CreateDomainAclsModal } from "./create-domain-acls-modal.modal";
 import type { Acl } from "@fonoster/types";
 
 /**
- * Imperative handle interface exposing a submit method and validation state.
- *
- * Allows parent components to trigger form submission and to check if the submit button should be disabled.
- */
-export interface CreateDomainFormHandle {
-  submit: () => void;
-  isSubmitDisabled?: boolean;
-}
-
-/**
  * Props interface for the CreateDomainForm component.
  */
 export interface CreateDomainFormProps extends React.PropsWithChildren {
@@ -61,6 +45,10 @@ export interface CreateDomainFormProps extends React.PropsWithChildren {
   initialValues?: Schema;
   /** Callback triggered on successful form submission. */
   onSubmit: (data: Schema) => Promise<void>;
+  /** Whether this form is for editing an existing domain. */
+  isEdit?: boolean;
+  /** Ref to the form element */
+  formRef?: React.RefObject<HTMLFormElement>;
 }
 
 /**
@@ -68,25 +56,24 @@ export interface CreateDomainFormProps extends React.PropsWithChildren {
  *
  * Renders a form for creating a domain, including fields for:
  * - Friendly Name
- * - Trunk
- * - Country
- * - City
- * - Tel URL
- * - Inbound Application
+ * - Domain URI
+ * - Access Control List
+ * - Egress Policies
  *
  * Integrates:
  * - React Hook Form for state management
  * - Zod for schema validation
- * - Imperative handle for exposing a submit method to parent components
+ * - FormContext for state synchronization
  *
  * @param {CreateDomainFormProps} props - Props including onSubmit handler and optional initial values.
- * @param {React.Ref<CreateDomainFormHandle>} ref - Ref exposing submit functionality.
  * @returns {JSX.Element} The rendered Create Domain form.
  */
-export const CreateDomainForm = forwardRef<
-  CreateDomainFormHandle,
-  CreateDomainFormProps
->(({ onSubmit, initialValues }, ref) => {
+export function CreateDomainForm({
+  onSubmit,
+  initialValues,
+  isEdit,
+  formRef
+}: CreateDomainFormProps) {
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isDomainAclsModalOpen, setIsDomainAclsModalOpen] = useState(false);
 
@@ -119,14 +106,6 @@ export const CreateDomainForm = forwardRef<
     control: form.control
   });
 
-  /** Exposes the submit method and submit state via the imperative handle. */
-  useImperativeHandle(ref, () => ({
-    submit: () => {
-      form.handleSubmit(onSubmit)();
-    },
-    isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
-  }));
-
   const getNumberName = useCallback(
     (numberRef: string) => {
       if (!numbers || isNumbersLoading) {
@@ -142,21 +121,54 @@ export const CreateDomainForm = forwardRef<
   /**
    * Builds the displayed values for the Select, each formatted as "type:name".
    */
-  const selectValues = policies.map(
-    (item) => `${getNumberName(item.numberRef)} (${item.rule})`
-  );
+  const selectValues = useMemo(() => {
+    return policies.map(
+      (item) => `${getNumberName(item.numberRef)} (${item.rule})`
+    );
+  }, [policies, getNumberName]);
 
   /**
    * Builds the Select options, matching the Select values.
    */
-  const selectOptions = policies.map(({ rule, numberRef }) => ({
-    value: `${rule}:${numberRef}`,
-    label: `${getNumberName(numberRef)} (${rule})`
-  }));
+  const selectOptions = useMemo(() => {
+    return policies.map(({ rule, numberRef }) => ({
+      value: `${rule}:${numberRef}`,
+      label: `${getNumberName(numberRef)} (${rule})`
+    }));
+  }, [policies, getNumberName]);
+
+  // Stable callbacks for modals
+  const handleCloseRulesModal = useCallback(
+    () => setIsRulesModalOpen(false),
+    []
+  );
+  const handleCloseAclsModal = useCallback(
+    () => setIsDomainAclsModalOpen(false),
+    []
+  );
+
+  const handleRuleFormSubmit = useCallback(
+    (rule: any) => {
+      appendEgressPolicy(rule);
+      setIsRulesModalOpen(false);
+    },
+    [appendEgressPolicy]
+  );
+
+  const handleAclFormSubmit = useCallback(
+    (newAcl: Acl) => {
+      // Add the new ACL to the local list and select it
+      setAcls((prev) => [...(prev || []), newAcl]);
+      form.setValue("accessControlListRef", newAcl.ref);
+    },
+    [form]
+  );
 
   // Keep local ACLs in sync with remote data
   useEffect(() => {
-    setAcls(aclsData);
+    if (aclsData) {
+      setAcls(aclsData);
+    }
   }, [aclsData]);
 
   /**
@@ -165,7 +177,7 @@ export const CreateDomainForm = forwardRef<
   return (
     <>
       <Form {...form}>
-        <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+        <FormRoot ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
           {/* Friendly Name Field */}
           <FormField
             control={form.control}
@@ -206,15 +218,15 @@ export const CreateDomainForm = forwardRef<
                   >
                     <Select
                       label="Access Control List (ACL)"
-                      options={acls.map(({ ref, name }) => ({
+                      options={(acls || []).map(({ ref, name }) => ({
                         value: ref,
                         label: name
                       }))}
-                      disabled={isAclsLoading || acls.length === 0}
+                      disabled={isAclsLoading || !acls || acls.length === 0}
                       placeholder={
                         isAclsLoading
                           ? "Loading ACLs..."
-                          : acls.length === 0
+                          : !acls || acls.length === 0
                             ? "No ACLs found. Create one first."
                             : ""
                       }
@@ -245,7 +257,7 @@ export const CreateDomainForm = forwardRef<
                   >
                     {/* Read-only Select showing current rules */}
                     <Select
-                      label="Egree Rules"
+                      label="Egress Rules"
                       placeholder="Click below to add rules (e.g., .*)."
                       multiple
                       value={selectValues}
@@ -280,22 +292,15 @@ export const CreateDomainForm = forwardRef<
       {/* Modal for creating new ACL rules */}
       <CreateRuleModal
         isOpen={isRulesModalOpen}
-        onClose={() => setIsRulesModalOpen(false)}
-        onFormSubmit={(rule) => {
-          appendEgressPolicy(rule);
-          setIsRulesModalOpen(false);
-        }}
+        onClose={handleCloseRulesModal}
+        onFormSubmit={handleRuleFormSubmit}
       />
 
       <CreateDomainAclsModal
         isOpen={isDomainAclsModalOpen}
-        onClose={() => setIsDomainAclsModalOpen(false)}
-        onFormSubmit={(newAcl) => {
-          // Add the new ACL to the local list and select it
-          setAcls((prev) => [...prev, newAcl]);
-          form.setValue("accessControlListRef", newAcl.ref);
-        }}
+        onClose={handleCloseAclsModal}
+        onFormSubmit={handleAclFormSubmit}
       />
     </>
   );
-});
+}

@@ -19,14 +19,12 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/edit-domain.page";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateDomainForm,
-  type CreateDomainFormHandle
-} from "../create-domain/create-domain.form";
+import { CreateDomainForm } from "../create-domain/create-domain.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
@@ -87,9 +85,6 @@ export default function EditDomain() {
   /** Hook to programmatically navigate between pages. */
   const navigate = useNavigate();
 
-  /** Ref to access the form's imperative handle (submit method). */
-  const formRef = useRef<CreateDomainFormHandle>(null);
-
   /**
    * Handler for navigating back to the domains page.
    * Uses `viewTransition` for smoother transitions.
@@ -101,7 +96,7 @@ export default function EditDomain() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to handle domain updates via the API. */
-  const { mutateAsync, isPending } = useUpdateDomain();
+  const { mutateAsync } = useUpdateDomain();
 
   /**
    * Handler called after form submission.
@@ -144,30 +139,28 @@ export default function EditDomain() {
    * Renders the Edit Domain page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Edit Domain"
-        description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
-        onBack={{ label: "Back to domains", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save Domain"}
-          </Button>
-        }
-      />
-
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateDomainForm
-          ref={formRef}
-          onSubmit={onSave}
-          initialValues={data}
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Edit Domain"
+          description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
+          onBack={{ label: "Back to domains", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save Domain
+            </FormSubmitButton>
+          }
         />
-      </Box>
-    </Page>
+
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateDomainForm
+            onSubmit={onSave}
+            initialValues={data}
+            isEdit={true}
+          />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

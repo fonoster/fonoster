@@ -60,13 +60,6 @@ export const schema = z.object({
 });
 
 /**
- * Zod resolver to integrate the validation schema with React Hook Form.
- *
- * Provides seamless validation for forms using this schema.
- */
-export const resolver = zodResolver(schema);
-
-/**
  * Type representing the validated data structure returned by the schema.
  *
  * Useful for typing form state, submission handlers, and data processing.

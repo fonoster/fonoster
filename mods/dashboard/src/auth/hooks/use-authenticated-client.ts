@@ -21,6 +21,7 @@ import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
 import type { CookieSession } from "../services/sessions/session.interfaces";
 import { useEffect } from "react";
 import { Logger } from "~/core/shared/logger";
+import { useNavigate } from "react-router";
 
 /**
  * Custom hook to authenticate the Fonoster client using a provided session.
@@ -34,6 +35,9 @@ import { Logger } from "~/core/shared/logger";
 export const useAuthenticatedClient = (initialSession?: CookieSession) => {
   /** Retrieves the Fonoster client and the authenticate method from the hook. */
   const { client, authenticate } = useFonoster();
+
+  /** Navigation hook to redirect the user if authentication fails. */
+  const navigate = useNavigate();
 
   /**
    * Attempts to authenticate the client using the initial session if no ID token is present.
@@ -54,6 +58,8 @@ export const useAuthenticatedClient = (initialSession?: CookieSession) => {
             "[useAuthenticatedClient()] Failed to authenticate client with initial session:",
             error
           );
+
+          navigate("/auth/logout?auto_logout=true");
         });
     }
   }, [client, initialSession, authenticate]);

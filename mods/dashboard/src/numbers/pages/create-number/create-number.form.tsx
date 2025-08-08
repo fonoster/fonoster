@@ -27,14 +27,15 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect } from "react";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import {
   NUMBERS_DEFAULT_INITIAL_VALUES,
   COUNTRIES
 } from "./create-number.const";
-import { forwardRef, useImperativeHandle } from "react";
 import { useApplications } from "~/applications/services/applications.service";
 import { useTrunks } from "~/trunks/services/trunks.service";
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Zod validation schema for the Create Number form.
@@ -60,21 +61,8 @@ export const schema = z.object({
   agentAor: z.string().optional()
 });
 
-/** Resolver to integrate Zod schema validation with React Hook Form. */
-export const resolver = zodResolver(schema);
-
 /** Type representing the validated data structure. */
 export type Schema = z.infer<typeof schema>;
-
-/**
- * Imperative handle interface exposing a submit method and validation state.
- *
- * Allows parent components to trigger form submission and to check if the submit button should be disabled.
- */
-export interface CreateNumberFormHandle {
-  submit: () => void;
-  isSubmitDisabled?: boolean;
-}
 
 /**
  * Props interface for the CreateNumberForm component.
@@ -84,6 +72,8 @@ export interface CreateNumberFormProps extends React.PropsWithChildren {
   initialValues?: Schema;
   /** Callback triggered on successful form submission. */
   onSubmit: (data: Schema) => Promise<void>;
+  /** Whether this form is for editing an existing number. */
+  isEdit?: boolean;
 }
 
 /**
@@ -100,16 +90,16 @@ export interface CreateNumberFormProps extends React.PropsWithChildren {
  * Integrates:
  * - React Hook Form for state management
  * - Zod for schema validation
- * - Imperative handle for exposing a submit method to parent components
+ * - FormContext for state synchronization
  *
  * @param {CreateNumberFormProps} props - Props including onSubmit handler and optional initial values.
- * @param {React.Ref<CreateNumberFormHandle>} ref - Ref exposing submit functionality.
  * @returns {JSX.Element} The rendered Create Number form.
  */
-export const CreateNumberForm = forwardRef<
-  CreateNumberFormHandle,
-  CreateNumberFormProps
->(({ onSubmit, initialValues }, ref) => {
+export function CreateNumberForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateNumberFormProps) {
   /** Fetches trunks to populate the Trunk dropdown. */
   const { data: trunks, isLoading: isTrunkLoading } = useTrunks({});
 
@@ -124,13 +114,15 @@ export const CreateNumberForm = forwardRef<
     mode: "onChange"
   });
 
-  /** Exposes the submit method and submit state via the imperative handle. */
-  useImperativeHandle(ref, () => ({
-    submit: () => {
-      form.handleSubmit(onSubmit)();
-    },
-    isSubmitDisabled: form.formState.isSubmitting || !form.formState.isValid
-  }));
+  // Ensure pristine state on mount/update with provided initial values
+  useEffect(() => {
+    if (initialValues) {
+      form.reset(initialValues);
+    }
+  }, [initialValues, form]);
+
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit);
 
   /**
    * Renders the form with individual fields wrapped in FormField and FormItem components.
@@ -253,4 +245,4 @@ export const CreateNumberForm = forwardRef<
       </FormRoot>
     </Form>
   );
-});
+}

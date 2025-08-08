@@ -19,13 +19,10 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-trunk.page";
-import { useRef } from "react";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateTrunkForm,
-  type CreateTrunkFormHandle
-} from "./create-trunk.form";
+import { CreateTrunkForm } from "./create-trunk.form";
 import { useCreateTrunk } from "./create-trunk.hook";
 
 /**
@@ -59,36 +56,31 @@ export function meta(_: Route.MetaArgs) {
  * @returns {JSX.Element} The rendered Create Trunk page.
  */
 export default function CreateTrunk() {
-  /** Ref to access the CreateTrunkForm's imperative handle (submit method). */
-  const formRef = useRef<CreateTrunkFormHandle>(null);
-
   /** Custom hook to create a trunk via API with optimistic updates. */
-  const { onGoBack, onSave, isPending } = useCreateTrunk();
+  const { onGoBack, onSave } = useCreateTrunk();
 
   /**
    * Renders the Create Trunk page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New SIP Trunk"
-        description="A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity."
-        onBack={{ label: "Back to trunks", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={isPending}
-          >
-            {isPending ? "Saving..." : "Save SIP Trunk"}
-          </Button>
-        }
-      />
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New SIP Trunk"
+          description="A VoIP Provider is a resource within the Fonoster network that handles PSTN connectivity."
+          onBack={{ label: "Back to trunks", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save SIP Trunk
+            </FormSubmitButton>
+          }
+        />
 
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateTrunkForm ref={formRef} onSubmit={onSave} />
-      </Box>
-    </Page>
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateTrunkForm onSubmit={onSave} />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

@@ -27,7 +27,7 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
+import { useCallback, useEffect } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import { useUpdateWorkspace } from "~/workspaces/services/workspaces.service";
@@ -35,6 +35,7 @@ import { useAuth } from "~/auth/hooks/use-auth";
 import { useNavigate } from "react-router";
 import { TIMEZONES } from "./settings.const";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Zod schema for workspace settings form validation.
@@ -45,20 +46,8 @@ export const schema = z.object({
   timezone: z.string().nonempty()
 });
 
-/** React Hook Form resolver for Zod validation. */
-export const resolver = zodResolver(schema);
-
 /** Type inferred from the Zod schema. */
 export type Schema = z.infer<typeof schema>;
-
-/**
- * Imperative handle interface for the workspace settings form.
- * Allows the parent component to trigger form submission and check if the form is valid.
- */
-export interface WorkspaceSettingsFormHandle {
-  submit: () => void;
-  isSubmitDisabled?: boolean;
-}
 
 /**
  * Props for the WorkspaceSettingsForm component.
@@ -76,13 +65,11 @@ export interface WorkspaceSettingsProps extends React.PropsWithChildren {
  * Handles form submission, validation, and toast notifications.
  *
  * @param {WorkspaceSettingsProps} props - Props including an optional onFormSubmit callback.
- * @param {React.Ref<WorkspaceSettingsFormHandle>} ref - Ref to expose submit functionality to parent.
  * @returns {JSX.Element} The rendered workspace settings form.
  */
-export const WorkspaceSettingsForm = forwardRef<
-  WorkspaceSettingsFormHandle,
-  WorkspaceSettingsProps
->(({ onFormSubmit }, ref) => {
+export function WorkspaceSettingsForm({
+  onFormSubmit
+}: WorkspaceSettingsProps) {
   /** Retrieves the current workspace from the auth context. */
   const { currentWorkspace } = useAuth();
 
@@ -91,7 +78,7 @@ export const WorkspaceSettingsForm = forwardRef<
 
   /** Initializes react-hook-form with validation and default values. */
   const form = useForm<Schema>({
-    resolver,
+    resolver: zodResolver(schema),
     defaultValues: currentWorkspace || {
       name: "",
       timezone: "UTC"
@@ -134,18 +121,8 @@ export const WorkspaceSettingsForm = forwardRef<
   /** Hook to navigate to another page if workspace is not found. */
   const navigate = useNavigate();
 
-  /**
-   * Exposes imperative methods to parent component:
-   * - submit: triggers form submission
-   * - isSubmitDisabled: indicates if the submit button should be disabled
-   */
-  useImperativeHandle(ref, () => ({
-    submit: () => {
-      form.handleSubmit(onSubmit)();
-    },
-    isSubmitDisabled:
-      form.formState.isSubmitting || !form.formState.isValid || isPending
-  }));
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit);
 
   /**
    * Effect that redirects the user if currentWorkspace is undefined.
@@ -198,4 +175,4 @@ export const WorkspaceSettingsForm = forwardRef<
       </FormRoot>
     </Form>
   );
-});
+}
