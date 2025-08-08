@@ -145,6 +145,12 @@ export default function EditNumber() {
     return <Splash message="Loading number details..." />;
   }
 
+  // Transform the data to match the form schema
+  const transformedData = {
+    ...data,
+    trunkRef: data.trunk?.ref
+  };
+
   /**
    * Renders the Edit Number page layout.
    */
@@ -166,7 +172,7 @@ export default function EditNumber() {
         <Box sx={{ maxWidth: "440px" }}>
           <CreateNumberForm
             onSubmit={onSave}
-            initialValues={data}
+            initialValues={transformedData}
             isEdit={true}
           />
         </Box>
