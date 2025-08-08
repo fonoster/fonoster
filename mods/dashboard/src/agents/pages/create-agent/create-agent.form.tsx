@@ -26,7 +26,7 @@ import {
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { schema, type Schema } from "./create-agent.schema";
 import { Privacy } from "@fonoster/types";
 import { useDomains } from "~/domains/services/domains.service";
@@ -79,7 +79,13 @@ export function CreateAgentForm({
   });
 
   /** Sync form state with FormContext */
-  useFormContextSync(form, onSubmit, isEdit);
+  useFormContextSync(form, onSubmit);
+
+  useEffect(() => {
+    if (initialValues) {
+      form.reset(initialValues);
+    }
+  }, [initialValues, form]);
 
   const handleOpenCredentialsModal = useCallback(() => {
     setIsAgentCredentialsModalOpen(true);

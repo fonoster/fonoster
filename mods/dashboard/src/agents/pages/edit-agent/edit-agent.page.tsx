@@ -135,6 +135,13 @@ export default function EditAgent() {
     return <Splash message="Loading agent details..." />;
   }
 
+  // Transform the data to match the form schema
+  const transformedData = {
+    ...data,
+    domainRef: data.domain?.ref,
+    credentialsRef: data.credentials?.ref
+  };
+
   /**
    * Renders the Edit Agent page layout.
    */
@@ -156,7 +163,7 @@ export default function EditAgent() {
         <Box sx={{ maxWidth: "440px" }}>
           <CreateAgentForm
             onSubmit={onSave}
-            initialValues={{ maxContacts: 10, expires: 3600, ...data }}
+            initialValues={{ maxContacts: 10, expires: 3600, ...transformedData }}
             isEdit={true}
           />
         </Box>
