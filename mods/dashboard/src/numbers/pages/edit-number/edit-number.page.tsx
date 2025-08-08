@@ -148,7 +148,8 @@ export default function EditNumber() {
   // Transform the data to match the form schema
   const transformedData = {
     ...data,
-    trunkRef: data.trunk?.ref
+    trunkRef: data.trunk?.ref,
+    country: data.countryIsoCode
   };
 
   /**
