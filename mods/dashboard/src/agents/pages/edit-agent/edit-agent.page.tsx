@@ -163,7 +163,11 @@ export default function EditAgent() {
         <Box sx={{ maxWidth: "440px" }}>
           <CreateAgentForm
             onSubmit={onSave}
-            initialValues={{ maxContacts: 10, expires: 3600, ...transformedData }}
+            initialValues={{
+              maxContacts: 10,
+              expires: 3600,
+              ...transformedData
+            }}
             isEdit={true}
           />
         </Box>
