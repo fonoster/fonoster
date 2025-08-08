@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { useFormContext } from "../contexts/form-context";
 
@@ -28,12 +28,28 @@ import { useFormContext } from "../contexts/form-context";
 export function useFormContextSync<T extends Record<string, any>>(
   form: UseFormReturn<T>,
   onSubmit?: (data: T) => void,
-  isEdit?: boolean
+  _isEdit?: boolean
 ) {
   const { setFormState, setSubmitHandler } = useFormContext();
 
-  // Function to update form state
-  const updateFormState = useCallback(() => {
+  // Use refs to stabilize the callbacks
+  const onSubmitRef = useRef(onSubmit);
+  onSubmitRef.current = onSubmit;
+
+  // Set submit handler
+  const submitForm = useCallback(() => {
+    if (onSubmitRef.current) {
+      form.handleSubmit(onSubmitRef.current)();
+    }
+  }, [form]);
+
+  // Initialize submit handler on mount
+  useEffect(() => {
+    setSubmitHandler(submitForm);
+  }, [submitForm, setSubmitHandler]);
+
+  // Update form state whenever form state changes
+  useEffect(() => {
     setFormState({
       isValid: form.formState.isValid,
       isSubmitting: form.formState.isSubmitting,
@@ -47,50 +63,6 @@ export function useFormContextSync<T extends Record<string, any>>(
     form.formState.errors,
     setFormState
   ]);
-
-  // Track if this is the initial render
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Handle initial dirty state for edit forms
-  useEffect(() => {
-    if (isEdit && !isInitialized && form.formState.isDirty) {
-      // For edit forms, if form is dirty on first render, it's because of initialValues
-      // We'll treat it as not dirty for the context
-      setFormState({
-        isValid: form.formState.isValid,
-        isSubmitting: form.formState.isSubmitting,
-        isDirty: false,
-        hasErrors: Object.keys(form.formState.errors).length > 0
-      });
-      setIsInitialized(true);
-    }
-  }, [form.formState.isDirty, isInitialized, setFormState, isEdit]);
-
-  // Sync form state with context
-  useEffect(() => {
-    // Subscribe to form value changes
-    const valueSubscription = form.watch(updateFormState);
-
-    return () => {
-      valueSubscription.unsubscribe();
-    };
-  }, [form, updateFormState]);
-
-  // Sync form state changes (isSubmitting, isValid, etc.)
-  useEffect(() => {
-    updateFormState();
-  }, [updateFormState]);
-
-  // Set submit handler
-  const submitForm = useCallback(() => {
-    if (onSubmit) {
-      form.handleSubmit(onSubmit)();
-    }
-  }, [form, onSubmit]);
-
-  useEffect(() => {
-    setSubmitHandler(submitForm);
-  }, [setSubmitHandler, submitForm]);
 
   return {
     submitForm

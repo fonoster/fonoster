@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 /**
@@ -105,13 +104,6 @@ export const schema = z.object({
     )
     .optional()
 });
-
-/**
- * Resolver to integrate the Zod schema with React Hook Form.
- *
- * This ensures consistent, declarative form validation using Zod.
- */
-export const resolver = zodResolver(schema);
 
 /**
  * Type representing the validated data structure returned by the schema.

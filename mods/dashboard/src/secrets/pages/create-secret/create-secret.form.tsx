@@ -83,8 +83,8 @@ export const CreateSecretForm = ({
     mode: "onChange"
   });
 
-  // Sync form state with context
-  useFormContextSync(form, onSubmit, isEdit);
+  // Sync form state with context (do not override isDirty in edit mode)
+  useFormContextSync(form, onSubmit);
 
   /** Utility function from custom hook to detect if a value is JSON. */
   const isJsonValue = useJsonDetection();

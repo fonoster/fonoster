@@ -17,24 +17,26 @@
  * limitations under the License.
  */
 import { Modal } from "~/core/components/design-system/ui/modal/modal";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { CreateCredentialForm } from "~/credentials/pages/create-credential/create-credential.form";
-import { useCreateCredential } from "~/credentials/pages/create-credential/create-credential.hook";
 import { FormProvider } from "~/core/contexts/form-context";
 import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
+import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
+import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { COLLECTION_QUERY_KEY } from "~/credentials/services/credentials.service";
+import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import type { Schema } from "~/credentials/pages/create-credential/create-credential.schema";
 import type { Credentials } from "@fonoster/types";
-import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 
 /**
  * Props interface for the CreateAgentCredentialsModal component.
  *
  * @property {boolean} isOpen - Controls the visibility of the modal.
  * @property {() => void} onClose - Function to close the modal.
- * @property {(data: Schema) => void} onFormSubmit - Function triggered when the form is successfully submitted.
+ * @property {(data: Credentials) => void} onFormSubmit - Function triggered when the form is successfully submitted.
  */
 export interface ModalProps {
   isOpen: boolean;
@@ -45,7 +47,7 @@ export interface ModalProps {
 /**
  * CreateAgentCredentialsModal component.
  *
- * Renders a modal dialog containing a form to create a new Domain rule.
+ * Renders a modal dialog containing a form to create a new credential.
  * Uses React Hook Form for form state management and Zod for validation.
  *
  * When the form is submitted:
@@ -53,37 +55,60 @@ export interface ModalProps {
  * - Closes the modal and resets the form state.
  *
  * @param {ModalProps} props - The component props controlling visibility and form behavior.
- * @returns {JSX.Element} The rendered modal containing the rule creation form.
+ * @returns {JSX.Element} The rendered modal containing the credential creation form.
  */
 export const CreateAgentCredentialsModal = ({
   isOpen,
   onClose,
   onFormSubmit
 }: ModalProps) => {
-  /** Custom hook to create a credential via API with optimistic updates. */
-  const { onSave } = useCreateCredential();
+  const { sdk } = useFonoster();
+  const workspaceId = useWorkspaceId();
+  const queryClient = useQueryClient();
+
+  // Use refs to stabilize the callbacks and prevent infinite loops
+  const onFormSubmitRef = useRef(onFormSubmit);
+  const onCloseRef = useRef(onClose);
+
+  // Update refs when props change
+  onFormSubmitRef.current = onFormSubmit;
+  onCloseRef.current = onClose;
+
+  // Use regular mutation instead of optimistic mutation to get the real ref
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: async (data: Schema) => {
+      return await sdk.credentials.createCredentials(data);
+    },
+    onSuccess: (credentials: any) => {
+      // Invalidate the credentials list to refresh it
+      queryClient.invalidateQueries({
+        queryKey: [...COLLECTION_QUERY_KEY, workspaceId]
+      });
+      toast("Credentials created successfully!");
+    },
+    onError: (error) => {
+      toast("Failed to create credentials. Please try again.");
+    }
+  });
 
   /**
    * Handles the form submission.
    *
-   * Calls the parent-provided onFormSubmit function with the validated data,
-   * closes the modal, and resets the form after a short delay to avoid visual flicker.
+   * Calls the mutation function and waits for it to complete
+   * to get the real ref before calling the callback.
    *
    * @param {Schema} data - The validated form data.
    */
   const onSubmit = useCallback(
     async (data: Schema) => {
-      const credentials = await onSave(data, true); // Call the save function with the data and disable navigation
-
-      if (!credentials) {
-        toast("Failed to create credentials. Please try again.");
-        return; // If no credentials were created, do not proceed
+      const credentials = await mutateAsync(data);
+      // The credentials returned from mutateAsync has the real ref
+      if (typeof onFormSubmitRef.current === "function") {
+        onFormSubmitRef.current(credentials as Credentials);
       }
-
-      onFormSubmit(credentials);
-      onClose(); // Close the modal
+      onCloseRef.current();
     },
-    [onFormSubmit, onClose]
+    [mutateAsync] // Only depend on mutateAsync, use refs for callbacks
   );
 
   return (

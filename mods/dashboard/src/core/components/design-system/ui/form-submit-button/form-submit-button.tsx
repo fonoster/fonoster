@@ -26,12 +26,18 @@ export interface FormSubmitButtonProps
   children?: React.ReactNode;
   loadingText?: string;
   disabledText?: string;
+  /**
+   * When false, the button will not require the form to be dirty to enable submission.
+   * Defaults to true to preserve current behavior.
+   */
+  requireDirty?: boolean;
 }
 
 export function FormSubmitButton({
   children = "Save",
   loadingText = "Saving...",
   disabledText,
+  requireDirty = true,
   ...buttonProps
 }: FormSubmitButtonProps) {
   const { formState, submitForm } = useFormContext();
@@ -41,7 +47,7 @@ export function FormSubmitButton({
     !formState.isValid ||
     formState.isSubmitting ||
     formState.hasErrors ||
-    !formState.isDirty;
+    (requireDirty && !formState.isDirty);
 
   const buttonText = formState.isSubmitting
     ? loadingText

@@ -58,11 +58,6 @@ export const schema = z.object({
 });
 
 /**
- * Resolver to integrate Zod schema validation with React Hook Form.
- */
-export const resolver = zodResolver(schema);
-
-/**
  * Type representing the validated data structure for the form.
  *
  * This type helps with strong typing in the form state, handlers, and submissions.
@@ -237,7 +232,14 @@ export const CreateTrunkUrisModal = ({
           />
 
           {/* Submit Button */}
-          <Button type="submit">Save</Button>
+          <Button
+            type="submit"
+            disabled={!form.formState.isValid}
+            isFullWidth
+            size="small"
+          >
+            Save Rule
+          </Button>
         </FormRoot>
       </Form>
     </Modal>

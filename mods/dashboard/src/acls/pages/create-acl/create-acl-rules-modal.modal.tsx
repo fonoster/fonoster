@@ -29,9 +29,7 @@ import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import { z } from "zod";
-import { FormProvider } from "~/core/contexts/form-context";
-import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
-import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
+import { Button } from "~/core/components/design-system/ui/button/button";
 
 /**
  * Zod validation schema for the Create/Edit ACL Rule form.
@@ -55,11 +53,6 @@ export const schema = z.object({
    */
   type: z.enum(["allow", "deny"])
 });
-
-/**
- * Resolver to integrate Zod schema validation with React Hook Form.
- */
-export const resolver = zodResolver(schema);
 
 /**
  * Type representing the validated data structure for the form.
@@ -124,57 +117,59 @@ export const CreateRuleModal = ({
     onClose(); // Close the modal
   };
 
-  /** Sync form state with FormContext */
-  useFormContextSync(form, onSubmit);
-
   return (
-    <FormProvider>
-      <Modal open={isOpen} onClose={onClose} title="Create New Rule">
-        <Form {...form}>
-          <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
-            {/* IP or CIDR Field */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      label="IP or CIDR"
-                      placeholder="0.0.0.0/0"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+    <Modal open={isOpen} onClose={onClose} title="Create New Rule">
+      <Form {...form}>
+        <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+          {/* IP or CIDR Field */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="text"
+                    label="IP or CIDR"
+                    placeholder="0.0.0.0/0"
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-            {/* Rule Type Field */}
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Select
-                      label="Category"
-                      options={[
-                        { value: "allow", label: "Allow" },
-                        { value: "deny", label: "Deny" }
-                      ]}
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+          {/* Rule Type Field */}
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Select
+                    label="Category"
+                    options={[
+                      { value: "allow", label: "Allow" },
+                      { value: "deny", label: "Deny" }
+                    ]}
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-            {/* Submit Button */}
-            <FormSubmitButton>Save</FormSubmitButton>
-          </FormRoot>
-        </Form>
-      </Modal>
-    </FormProvider>
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={!form.formState.isValid}
+            isFullWidth
+            size="small"
+          >
+            Save Rule
+          </Button>
+        </FormRoot>
+      </Form>
+    </Modal>
   );
 };

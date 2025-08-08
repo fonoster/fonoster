@@ -27,6 +27,7 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect } from "react";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import {
   NUMBERS_DEFAULT_INITIAL_VALUES,
@@ -59,9 +60,6 @@ export const schema = z.object({
   /** Agent Address of Record (optional) */
   agentAor: z.string().optional()
 });
-
-/** Resolver to integrate Zod schema validation with React Hook Form. */
-export const resolver = zodResolver(schema);
 
 /** Type representing the validated data structure. */
 export type Schema = z.infer<typeof schema>;
@@ -116,8 +114,15 @@ export function CreateNumberForm({
     mode: "onChange"
   });
 
+  // Ensure pristine state on mount/update with provided initial values
+  useEffect(() => {
+    if (initialValues) {
+      form.reset(initialValues);
+    }
+  }, [initialValues, form]);
+
   /** Sync form state with FormContext */
-  useFormContextSync(form, onSubmit, isEdit);
+  useFormContextSync(form, onSubmit);
 
   /**
    * Renders the form with individual fields wrapped in FormField and FormItem components.

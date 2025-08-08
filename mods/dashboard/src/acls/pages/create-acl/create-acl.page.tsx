@@ -78,7 +78,11 @@ export default function CreateAcl() {
 
         {/* Form container with a max width for readability and consistent layout */}
         <Box sx={{ maxWidth: "440px" }}>
-          <CreateAclForm onSubmit={onSave} />
+          <CreateAclForm
+            onSubmit={async (data) => {
+              onSave(data);
+            }}
+          />
         </Box>
       </Page>
     </FormProvider>

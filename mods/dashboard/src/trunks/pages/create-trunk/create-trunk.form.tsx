@@ -41,6 +41,8 @@ import { Checkbox } from "~/core/components/design-system/ui/checkbox/checkbox";
 import { CreateTrunkUrisModal } from "./create-trunk-uris-modal.modal";
 import { Tooltip } from "~/core/components/design-system/ui/tooltip/tooltip";
 import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
+import type { Acl } from "@fonoster/types";
+import type { Credentials } from "@fonoster/types";
 
 /**
  * Props interface for the CreateTrunkForm component.
@@ -68,6 +70,12 @@ export interface CreateTrunkFormProps extends React.PropsWithChildren {
  * - React Hook Form for state management
  * - Zod for schema validation
  * - FormContext for state synchronization
+ * - Nested modals for creating related resources (ACLs, Credentials)
+ *
+ * Note: For nested modals that create resources, we use the onFormSubmit callback
+ * to update the select fields with the real ref after the resource is created.
+ * This ensures that the select shows the newly created resource instead of
+ * the temporary ref from optimistic updates.
  *
  * @param {CreateTrunkFormProps} props - Props including onSubmit handler and optional initial values.
  * @returns {JSX.Element} The rendered Create Trunk form.
@@ -84,8 +92,9 @@ export function CreateTrunkForm({
 
   const [isTrunkUrisModalOpen, setIsTrunkUrisModalOpen] = useState(false);
 
-  const { data: acls, isLoading: isAclsLoading } = useAcls();
-  const { data: credentials, isLoading: isLoadingCredentials } =
+  // Restore data hooks with stable query keys
+  const { data: acls = [], isLoading: isAclsLoading } = useAcls();
+  const { data: credentials = [], isLoading: isLoadingCredentials } =
     useCredentials();
 
   /** Initializes the React Hook Form with Zod validation and initial values. */
@@ -116,6 +125,63 @@ export function CreateTrunkForm({
 
   /** Sync form state with FormContext */
   useFormContextSync(form, onSubmit, isEdit);
+
+  // Simple callbacks for updating selects with real refs
+  const handleAclFormSubmit = useCallback(
+    (acl: Acl) => {
+      form.setValue("accessControlListRef", acl.ref);
+    },
+    [form]
+  );
+
+  const handleCredentialsFormSubmit = useCallback(
+    (credentials: Credentials, fieldName?: string) => {
+      // Update the correct field based on which one triggered the modal
+      if (fieldName === "outboundCredentialsRef") {
+        form.setValue("outboundCredentialsRef", credentials.ref);
+      } else {
+        // Default to inbound credentials
+        form.setValue("inboundCredentialsRef", credentials.ref);
+      }
+    },
+    [form]
+  );
+
+  const handleUrisFormSubmit = useCallback(
+    (uri: any) => {
+      appendURI(uri);
+    },
+    [appendURI]
+  );
+
+  // Simple close callbacks
+  const handleCloseCredentialsModal = useCallback(() => {
+    setIsTrunkCredentialsModalOpen(false);
+  }, []);
+
+  const handleCloseAclsModal = useCallback(() => {
+    setIsTrunkAclsModalOpen(false);
+  }, []);
+
+  const handleCloseUrisModal = useCallback(() => {
+    setIsTrunkUrisModalOpen(false);
+  }, []);
+
+  // State to track which field triggered the credentials modal
+  const [credentialsModalField, setCredentialsModalField] = useState<string>(
+    "inboundCredentialsRef"
+  );
+
+  // Handlers to open credentials modal with field context
+  const handleOpenInboundCredentialsModal = useCallback(() => {
+    setCredentialsModalField("inboundCredentialsRef");
+    setIsTrunkCredentialsModalOpen(true);
+  }, []);
+
+  const handleOpenOutboundCredentialsModal = useCallback(() => {
+    setCredentialsModalField("outboundCredentialsRef");
+    setIsTrunkCredentialsModalOpen(true);
+  }, []);
 
   /**
    * Builds the displayed values for the Select, each formatted as "type:name".
@@ -269,7 +335,7 @@ export function CreateTrunkForm({
                       }
                     />
                     <ModalTrigger
-                      onClick={() => setIsTrunkCredentialsModalOpen(true)}
+                      onClick={handleOpenInboundCredentialsModal}
                       label="Create New Inbound Credentials"
                     />
                   </Box>
@@ -323,7 +389,7 @@ export function CreateTrunkForm({
                       }
                     />
                     <ModalTrigger
-                      onClick={() => setIsTrunkCredentialsModalOpen(true)}
+                      onClick={handleOpenOutboundCredentialsModal}
                       label="Create New Outbound Credentials"
                     />
                   </Box>
@@ -397,20 +463,21 @@ export function CreateTrunkForm({
       {/* Credentials Modal */}
       <CreateTrunkCredentialsModal
         isOpen={isTrunkCredentialsModalOpen}
-        onClose={() => setIsTrunkCredentialsModalOpen(false)}
+        onClose={handleCloseCredentialsModal}
+        onFormSubmit={handleCredentialsFormSubmit}
+        fieldName={credentialsModalField}
       />
 
       <CreateTrunkAclsModal
         isOpen={isTrunkAclsModalOpen}
-        onClose={() => setIsTrunkAclsModalOpen(false)}
+        onClose={handleCloseAclsModal}
+        onFormSubmit={handleAclFormSubmit}
       />
 
       <CreateTrunkUrisModal
         isOpen={isTrunkUrisModalOpen}
-        onClose={() => setIsTrunkUrisModalOpen(false)}
-        onFormSubmit={(uri) => {
-          appendURI(uri);
-        }}
+        onClose={handleCloseUrisModal}
+        onFormSubmit={handleUrisFormSubmit}
       />
     </>
   );

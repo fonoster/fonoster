@@ -17,15 +17,13 @@
  * limitations under the License.
  */
 import { Page } from "~/core/components/general/page/page";
+import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/profile.page";
-import { useRef } from "react";
-import {
-  PersonalSettingsForm,
-  type PersonalSettingsFormHandle
-} from "./profile.form";
+import { PersonalSettingsForm } from "./profile.form";
 import { Box } from "@mui/material";
-import { Typography } from "~/core/components/design-system/ui/typography/typography";
-import { Link } from "~/core/components/general/link/link";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
+import { useNavigate } from "react-router";
 
 /**
  * Page metadata function.
@@ -40,37 +38,42 @@ export function meta(_: Route.MetaArgs) {
 }
 
 /**
- * Overview component (Workspace Settings Page).
+ * Profile component (Personal Settings Page).
  *
- * Renders the workspace profile form, allowing users to modify
- * workspace configuration and save changes. Includes a back navigation
- * button and a dynamic title based on the current workspace.
+ * Renders the personal settings form, allowing users to modify
+ * their profile information and save changes. Includes a back navigation
+ * button and a submit button in the header.
  *
- * @returns {JSX.Element} The rendered workspace profile page.
+ * @returns {JSX.Element} The rendered personal settings page.
  */
 export default function Profile() {
-  /** Ref to access the form's imperative handle (e.g., submit method, isSubmitDisabled). */
-  const formRef = useRef<PersonalSettingsFormHandle>(null);
+  const navigate = useNavigate();
+
+  const onGoBack = () => {
+    navigate("/");
+  };
 
   /**
-   * Renders the workspace profile page with a header, workspace info, and profile form.
+   * Renders the personal settings page with a header and profile form.
    */
   return (
-    <Page>
-      <Box sx={{ maxWidth: "440px" }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <Link to="/">
-            <Typography variant="body-small-underline">
-              Back to dashboard
-            </Typography>
-          </Link>
-          <Typography sx={{ marginBottom: "24px" }} variant="heading-small">
-            Personal Settings
-          </Typography>
-        </Box>
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Personal Settings"
+          description="Update your personal information and account settings."
+          onBack={{ label: "Back to dashboard", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save Changes
+            </FormSubmitButton>
+          }
+        />
 
-        <PersonalSettingsForm ref={formRef} />
-      </Box>
-    </Page>
+        <Box sx={{ maxWidth: "440px" }}>
+          <PersonalSettingsForm />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }
