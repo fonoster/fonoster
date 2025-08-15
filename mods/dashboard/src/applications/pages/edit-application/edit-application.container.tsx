@@ -97,6 +97,7 @@ export function EditApplicationContainer() {
 
         toast("Application updated successfully!");
       } catch (error) {
+        console.error(error);
         toast(getErrorMessage(error));
       }
     },

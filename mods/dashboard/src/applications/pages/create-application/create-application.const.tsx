@@ -190,7 +190,8 @@ export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
         provider: LanguageModelProvider.GOOGLE,
         model: "gemini-2.0-flash",
         temperature: 0.2,
-        maxTokens: 240
+        maxTokens: 240,
+        tools: []
       },
       eventsHook: {
         url: "",

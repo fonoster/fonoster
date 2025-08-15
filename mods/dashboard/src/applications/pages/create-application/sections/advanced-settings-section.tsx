@@ -40,6 +40,7 @@ import {
   LANGUAGE_MODEL_PROVIDERS
 } from "../create-application.const";
 import type { LanguageModelProvider } from "../schemas/language-model-provider";
+import { ToolsSection } from "./tools-section";
 
 export const AdvancedSettingsSection = ({
   control,
@@ -271,6 +272,9 @@ export const AdvancedSettingsSection = ({
             </FormItem>
           )}
         />
+
+        {/* Tools editor */}
+        <ToolsSection control={control} />
         {/* Configuración de eventsHook */}
         <Box sx={{ mt: "8px" }}>
           <Typography variant="mono-medium" color="base.03">
