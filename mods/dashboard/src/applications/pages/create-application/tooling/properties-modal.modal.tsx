@@ -22,7 +22,12 @@ import { useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem } from "~/core/components/design-system/forms";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem
+} from "~/core/components/design-system/forms";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { Select } from "~/core/components/design-system/ui/select/select";
@@ -65,11 +70,11 @@ const DEFAULT_VALUES: Schema = {
   pattern: undefined
 };
 
-export const PropertiesModal = ({ 
-  isOpen, 
-  onClose, 
-  onFormSubmit, 
-  initialValues 
+export const PropertiesModal = ({
+  isOpen,
+  onClose,
+  onFormSubmit,
+  initialValues
 }: PropertiesModalProps) => {
   const form = useForm<Schema>({
     resolver: zodResolver(schema) as any,
@@ -101,107 +106,124 @@ export const PropertiesModal = ({
     }
   }, [isOpen, resetFormWithInitialValues]);
 
-  const handleSubmit = useCallback((data: Schema) => {
-    onFormSubmit(data);
-    resetForm();
-  }, [onFormSubmit, resetForm]);
+  const handleSubmit = useCallback(
+    (data: Schema) => {
+      onFormSubmit(data);
+      resetForm();
+    },
+    [onFormSubmit, resetForm]
+  );
 
-  const onInnerSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    form.handleSubmit(handleSubmit as any)();
-  }, [form, handleSubmit]);
+  const onInnerSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      form.handleSubmit(handleSubmit as any)();
+    },
+    [form, handleSubmit]
+  );
 
   const handleFormatChange = useCallback((value: string) => {
     return value === "" ? undefined : value;
   }, []);
 
-  const renderKeyField = useCallback(() => (
-    <FormField
-      control={form.control}
-      name="key"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <Input type="text" label="Key" {...field} />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  ), [form.control]);
+  const renderKeyField = useCallback(
+    () => (
+      <FormField
+        control={form.control}
+        name="key"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Input type="text" label="Key" {...field} />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    ),
+    [form.control]
+  );
 
-  const renderTypeField = useCallback(() => (
-    <FormField
-      control={form.control}
-      name="type"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <Select
-              label="Type"
-              options={TYPE_OPTIONS}
-              {...field}
-            />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  ), [form.control]);
+  const renderTypeField = useCallback(
+    () => (
+      <FormField
+        control={form.control}
+        name="type"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Select label="Type" options={TYPE_OPTIONS} {...field} />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    ),
+    [form.control]
+  );
 
-  const renderFormatField = useCallback(() => (
-    <FormField
-      control={form.control}
-      name="format"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <Select
-              label="Format (optional)"
-              options={FORMAT_OPTIONS}
-              value={(field.value as any) ?? ""}
-              onChange={(e) => {
-                const v = (e.target as HTMLInputElement).value;
-                field.onChange(handleFormatChange(v));
-              }}
-            />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  ), [form.control, handleFormatChange]);
+  const renderFormatField = useCallback(
+    () => (
+      <FormField
+        control={form.control}
+        name="format"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Select
+                label="Format (optional)"
+                options={FORMAT_OPTIONS}
+                value={(field.value as any) ?? ""}
+                onChange={(e) => {
+                  const v = (e.target as HTMLInputElement).value;
+                  field.onChange(handleFormatChange(v));
+                }}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    ),
+    [form.control, handleFormatChange]
+  );
 
-  const renderPatternField = useCallback(() => (
-    <FormField
-      control={form.control}
-      name="pattern"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <Input type="text" label="Pattern (regex)" {...field} />
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  ), [form.control]);
+  const renderPatternField = useCallback(
+    () => (
+      <FormField
+        control={form.control}
+        name="pattern"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Input type="text" label="Pattern (regex)" {...field} />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    ),
+    [form.control]
+  );
 
-  const renderRequiredField = useCallback(() => (
-    <FormField
-      control={form.control}
-      name="required"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <Checkbox
-              checked={!!field.value}
-              onChange={(e) => field.onChange(e.target.checked)}
-            >
-              Required
-            </Checkbox>
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  ), [form.control]);
+  const renderRequiredField = useCallback(
+    () => (
+      <FormField
+        control={form.control}
+        name="required"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Checkbox
+                checked={!!field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+              >
+                Required
+              </Checkbox>
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    ),
+    [form.control]
+  );
 
   return (
     <Modal open={isOpen} onClose={onClose} title="Add Parameter">
@@ -212,11 +234,11 @@ export const PropertiesModal = ({
           {renderFormatField()}
           {renderPatternField()}
           {renderRequiredField()}
-          
-          <Button 
-            type="submit" 
-            isFullWidth 
-            size="small" 
+
+          <Button
+            type="submit"
+            isFullWidth
+            size="small"
             disabled={!form.formState.isValid}
           >
             Save Parameter
@@ -226,5 +248,3 @@ export const PropertiesModal = ({
     </Modal>
   );
 };
-
-
