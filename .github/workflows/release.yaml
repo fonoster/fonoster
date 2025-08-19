@@ -134,6 +134,12 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add compose.yaml
-          git commit -m "chore: update compose.yaml with version ${{ env.LERNA_VERSION }} [skip ci]"
-          git push origin main
+          
+          # Check if there are any changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit - compose.yaml already up to date"
+          else
+            git commit -m "chore: update compose.yaml with version ${{ env.LERNA_VERSION }} [skip ci]"
+            git push origin main
+          fi
 
