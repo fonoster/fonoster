@@ -80,7 +80,7 @@ services:
       - 4222:4222
 
   adminer:
-    image: adminer
+    image: adminer:standalone
     restart: always
     environment:
       ADMINER_DEFAULT_SERVER: postgres
@@ -88,12 +88,7 @@ services:
       - 8282:8080
 
   mailhog:
-    image: mailhog/mailhog
+    image: mailhog/mailhog:v1.0.1
     ports:
       - 8025:8025
       - 1025:1025
-
-  simplephone:
-    image: psanders/simplephone:latest
-    ports:
-      - 8181:8080

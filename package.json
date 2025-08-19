@@ -29,7 +29,7 @@
     "start:authz": "cross-env NODE_ENV=development LOGS_LEVEL=verbose nodemon --watch mods/authz mods/authz/src/server/server.ts",
     "start:voice": "cross-env NODE_ENV=development LOGS_LEVEL=verbose nodemon --watch mods/voice mods/voice/src/demo.ts",
     "start:autopilot": "cross-env NODE_ENV=development ASSISTANT=$(pwd)/config/assistant.json LOGS_LEVEL=verbose nodemon --watch mods/autopilot mods/autopilot/src/server.ts",
-    "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk simplephone -d --remove-orphans",
+    "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk -d --remove-orphans",
     "start:sdk-demo": "npx serve -s mods/sdk/public -l 9000",
     "start:oauth2-demo": "npx serve mods/sdk/public -l 9000",
     "start:audiosocket": "cross-env NODE_ENV=development LOGS_LEVEL=verbose nodemon --watch mods/streams mods/streams/src/example.ts",
