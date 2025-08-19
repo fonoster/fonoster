@@ -98,3 +98,42 @@ jobs:
     uses: ./.github/workflows/publish-autopilot.yaml
     secrets: inherit
 
+  publish-dashboard:
+    name: Publish Dashboard to Docker Hub
+    needs: [build]
+    if: needs.build.outputs.RELEASE != 'none'
+    uses: ./.github/workflows/publish-dashboard.yaml
+    secrets: inherit
+
+  update-compose:
+    name: Update compose.yaml with new version tags
+    needs: [build, publish-apiserver, publish-autopilot, publish-dashboard]
+    if: needs.build.outputs.RELEASE != 'none'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Get version from Lerna
+        run: |
+          lerna_version=$(node -p "require('./lerna.json').version")
+          echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
+
+      - name: Update compose.yaml with new version tags
+        run: |
+          # Update custom service images from any version to :${LERNA_VERSION}
+          sed -i "s|fonoster/dashboard:[^[:space:]]*|fonoster/dashboard:${{ env.LERNA_VERSION }}|g" compose.yaml
+          sed -i "s|fonoster/apiserver:[^[:space:]]*|fonoster/apiserver:${{ env.LERNA_VERSION }}|g" compose.yaml
+          sed -i "s|fonoster/autopilot:[^[:space:]]*|fonoster/autopilot:${{ env.LERNA_VERSION }}|g" compose.yaml
+
+      - name: Commit and push updated compose.yaml
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add compose.yaml
+          git commit -m "chore: update compose.yaml with version ${{ env.LERNA_VERSION }} [skip ci]"
+          git push origin main
+

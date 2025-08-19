@@ -1,12 +1,7 @@
 name: publish dashboard
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'mods/dashboard/**'
-      - 'package.json'
-      - 'lerna.json'
+  workflow_call:
   workflow_dispatch:
 
 jobs:
