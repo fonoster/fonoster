@@ -42,9 +42,7 @@ export function meta(_: Route.MetaArgs) {
 export const schema = z.object({
   name: z.string().nonempty(),
   email: z.string().email(),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string(),
   agreeToTerms: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms and conditions"

@@ -32,7 +32,10 @@ import { SignupFormActions } from "./sign-up.actions";
 import { AgreeTermsModal } from "~/auth/components/agree-terms-modal";
 import { Checkbox } from "~/core/components/design-system/ui/checkbox/checkbox";
 import { Box } from "@mui/material";
-import { assessPasswordStrength, getPasswordStrengthMessage } from "../../../../../common/src/utils/passwordStrength";
+import {
+  assessPasswordStrength,
+  getPasswordStrengthMessage
+} from "../../../../../common/src/utils/passwordStrength";
 import type { Schema } from "./sign-up.page";
 
 export interface SignupFormProps extends React.PropsWithChildren {
@@ -43,7 +46,9 @@ export interface SignupFormProps extends React.PropsWithChildren {
 
 export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
   const [isAgreeTermsModalOpen, setIsAgreeTermsModalOpen] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'fair' | 'strong'>('weak');
+  const [passwordStrength, setPasswordStrength] = useState<
+    "weak" | "fair" | "strong"
+  >("weak");
 
   const onFormSubmit = useCallback((data: Schema) => onSubmit(data, form), []);
 
@@ -60,7 +65,7 @@ export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
     if (watchPassword) {
       setPasswordStrength(assessPasswordStrength(watchPassword));
     } else {
-      setPasswordStrength('weak');
+      setPasswordStrength("weak");
     }
   }, [watchPassword]);
 

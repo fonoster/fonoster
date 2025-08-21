@@ -76,8 +76,8 @@ export const AgreeTermsModal = ({
         </Typography>
         <Typography variant="body-small" color="base.03">
           • Pro Plan: $25 per month, billed automatically in U.S. dollars <br />
-          • Advanced Plan: Pricing as agreed under separate agreements <br />
-          • Subscription fees are non-refundable except where required by law{" "}
+          • Advanced Plan: Pricing as agreed under separate agreements <br />•
+          Subscription fees are non-refundable except where required by law{" "}
           <br />
           • You may cancel at any time via your account settings <br />
           • We may suspend or terminate your account for non-payment <br />

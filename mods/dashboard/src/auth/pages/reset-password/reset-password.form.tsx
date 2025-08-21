@@ -32,12 +32,13 @@ import { Box, styled } from "@mui/material";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { Link } from "~/core/components/general/link/link";
-import { assessPasswordStrength, getPasswordStrengthMessage } from "../../../../../common/src/utils/passwordStrength";
+import {
+  assessPasswordStrength,
+  getPasswordStrengthMessage
+} from "../../../../../common/src/utils/passwordStrength";
 
 export const schema = z.object({
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().nonempty()
 });
 
@@ -50,8 +51,10 @@ export interface ResetPasswordFormProps extends React.PropsWithChildren {
 }
 
 export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
-  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'fair' | 'strong'>('weak');
-  
+  const [passwordStrength, setPasswordStrength] = useState<
+    "weak" | "fair" | "strong"
+  >("weak");
+
   const form = useForm<Schema>({
     resolver,
     defaultValues: {
@@ -67,7 +70,7 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
     if (watchPassword) {
       setPasswordStrength(assessPasswordStrength(watchPassword));
     } else {
-      setPasswordStrength('weak');
+      setPasswordStrength("weak");
     }
   }, [watchPassword]);
 
