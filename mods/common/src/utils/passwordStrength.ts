@@ -48,23 +48,47 @@ export function assessPasswordStrength(password: string): PasswordStrength {
 }
 
 /**
- * Gets a user-friendly message describing the password strength.
+ * Gets a numerical score (0-100) for the password strength.
+ *
+ * @param password - The password to assess
+ * @returns A number between 0 and 100 representing password strength
+ */
+export function getPasswordStrengthScore(password: string): number {
+  if (!password || password.length < 8) {
+    return 0;
+  }
+
+  let score = 0;
+
+  // Length contribution (max 30 points)
+  if (password.length >= 16) score += 30;
+  else if (password.length >= 12) score += 25;
+  else if (password.length >= 8) score += 20;
+
+  // Character variety contribution (max 70 points)
+  if (/[a-z]/.test(password)) score += 15; // lowercase
+  if (/[A-Z]/.test(password)) score += 15; // uppercase
+  if (/\d/.test(password)) score += 15; // numbers
+  if (/[^a-zA-Z0-9]/.test(password)) score += 25; // special characters (weighted higher)
+
+  return Math.min(score, 100);
+}
+
+/**
+ * Gets a color value for displaying password strength in the progress bar.
  *
  * @param strength - The password strength level
- * @returns A human-readable message about the password strength
+ * @returns A hex color value
  */
-export function getPasswordStrengthMessage(strength: PasswordStrength): string {
-  if (strength === "strong") {
-    return "Ahoy! Your password is strong!";
+export function getPasswordStrengthColor(strength: PasswordStrength): string {
+  switch (strength) {
+    case "strong":
+      return "#10b981"; // green-500
+    case "fair":
+      return "#f59e0b"; // amber-500
+    case "weak":
+      return "#ef4444"; // red-500
+    default:
+      return "#6b7280"; // gray-500
   }
-
-  if (strength === "fair") {
-    return "Fair password - consider adding more variety";
-  }
-
-  if (strength === "weak") {
-    return "Weak password - try a longer password with more variety";
-  }
-
-  return "Please enter your new password";
 }

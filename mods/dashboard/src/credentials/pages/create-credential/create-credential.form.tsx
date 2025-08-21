@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -25,7 +26,7 @@ import {
 } from "~/core/components/design-system/forms";
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { PasswordStrengthBar } from "~/core/components/design-system/ui/password-strength-bar";
 import { schema, type Schema } from "./create-credential.schema";
 import type { Credentials } from "@fonoster/types";
 import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
@@ -75,6 +76,8 @@ export function CreateCredentialForm({
     mode: "onChange"
   });
 
+  const watchPassword = form.watch("password");
+
   /** Sync form state with FormContext */
   useFormContextSync(form, onSubmit, isEdit);
 
@@ -118,6 +121,7 @@ export function CreateCredentialForm({
             <FormItem>
               <FormControl>
                 <Input type="password" label="Password" {...field} />
+                <PasswordStrengthBar password={watchPassword || ""} />
               </FormControl>
             </FormItem>
           )}

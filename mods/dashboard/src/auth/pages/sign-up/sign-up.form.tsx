@@ -32,10 +32,7 @@ import { SignupFormActions } from "./sign-up.actions";
 import { AgreeTermsModal } from "~/auth/components/agree-terms-modal";
 import { Checkbox } from "~/core/components/design-system/ui/checkbox/checkbox";
 import { Box } from "@mui/material";
-import {
-  assessPasswordStrength,
-  getPasswordStrengthMessage
-} from "../../../../../common/src/utils/passwordStrength";
+import { PasswordStrengthBar } from "~/core/components/design-system/ui/password-strength-bar";
 import type { Schema } from "./sign-up.page";
 
 export interface SignupFormProps extends React.PropsWithChildren {
@@ -46,9 +43,6 @@ export interface SignupFormProps extends React.PropsWithChildren {
 
 export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
   const [isAgreeTermsModalOpen, setIsAgreeTermsModalOpen] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState<
-    "weak" | "fair" | "strong"
-  >("weak");
 
   const onFormSubmit = useCallback((data: Schema) => onSubmit(data, form), []);
 
@@ -60,14 +54,6 @@ export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
       setIsAgreeTermsModalOpen(true);
     }
   }, [watchAgreeToTerms]);
-
-  useEffect(() => {
-    if (watchPassword) {
-      setPasswordStrength(assessPasswordStrength(watchPassword));
-    } else {
-      setPasswordStrength("weak");
-    }
-  }, [watchPassword]);
 
   return (
     <>
@@ -113,12 +99,8 @@ export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input
-                    type="password"
-                    label="Password"
-                    supportingText={`${getPasswordStrengthMessage(passwordStrength)}`}
-                    {...field}
-                  />
+                  <Input type="password" label="Password" {...field} />
+                  <PasswordStrengthBar password={watchPassword} />
                 </FormControl>
               </FormItem>
             )}

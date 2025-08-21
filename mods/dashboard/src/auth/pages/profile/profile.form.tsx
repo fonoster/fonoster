@@ -34,6 +34,7 @@ import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { useUpdateUser } from "~/auth/services/auth.service";
 import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
+import { PasswordStrengthBar } from "~/core/components/design-system/ui/password-strength-bar";
 
 /**
  * Zod schema for workspace profile form validation.
@@ -85,6 +86,8 @@ export function PersonalSettingsForm({ onFormSubmit }: PersonalSettingsProps) {
     },
     mode: "onChange"
   });
+
+  const watchPassword = form.watch("password");
 
   /**
    * Handles form submission:
@@ -169,6 +172,7 @@ export function PersonalSettingsForm({ onFormSubmit }: PersonalSettingsProps) {
                   placeholder="Enter new password"
                   {...field}
                 />
+                <PasswordStrengthBar password={watchPassword || ""} />
               </FormControl>
             </FormItem>
           )}

@@ -19,7 +19,7 @@
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback } from "react";
 import {
   Form,
   FormControl,
@@ -32,10 +32,7 @@ import { Box, styled } from "@mui/material";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { Link } from "~/core/components/general/link/link";
-import {
-  assessPasswordStrength,
-  getPasswordStrengthMessage
-} from "../../../../../common/src/utils/passwordStrength";
+import { PasswordStrengthBar } from "~/core/components/design-system/ui/password-strength-bar";
 
 export const schema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -51,10 +48,6 @@ export interface ResetPasswordFormProps extends React.PropsWithChildren {
 }
 
 export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
-  const [passwordStrength, setPasswordStrength] = useState<
-    "weak" | "fair" | "strong"
-  >("weak");
-
   const form = useForm<Schema>({
     resolver,
     defaultValues: {
@@ -65,14 +58,6 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
   });
 
   const watchPassword = form.watch("password");
-
-  useEffect(() => {
-    if (watchPassword) {
-      setPasswordStrength(assessPasswordStrength(watchPassword));
-    } else {
-      setPasswordStrength("weak");
-    }
-  }, [watchPassword]);
 
   const onSubmitForm = useCallback(
     async (data: Schema) => {
@@ -101,12 +86,8 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input
-                  type="password"
-                  label="Password"
-                  supportingText={`${getPasswordStrengthMessage(passwordStrength)}`}
-                  {...field}
-                />
+                <Input type="password" label="Password" {...field} />
+                <PasswordStrengthBar password={watchPassword} />
               </FormControl>
             </FormItem>
           )}
