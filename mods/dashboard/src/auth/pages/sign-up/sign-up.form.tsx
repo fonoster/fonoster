@@ -16,8 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type UseFormReturn } from "react-hook-form";
-import type { Schema } from "./sign-up.page";
+import { useForm, type UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useState, useEffect } from "react";
 import {
   Form,
   FormControl,
@@ -28,9 +30,10 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { SignupFormActions } from "./sign-up.actions";
 import { AgreeTermsModal } from "~/auth/components/agree-terms-modal";
-import { useCallback, useEffect, useState } from "react";
 import { Checkbox } from "~/core/components/design-system/ui/checkbox/checkbox";
 import { Box } from "@mui/material";
+import { assessPasswordStrength, getPasswordStrengthMessage } from "../../../../../common/src/utils/passwordStrength";
+import type { Schema } from "./sign-up.page";
 
 export interface SignupFormProps extends React.PropsWithChildren {
   form: UseFormReturn<Schema>;
@@ -40,16 +43,26 @@ export interface SignupFormProps extends React.PropsWithChildren {
 
 export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
   const [isAgreeTermsModalOpen, setIsAgreeTermsModalOpen] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'fair' | 'strong'>('weak');
 
   const onFormSubmit = useCallback((data: Schema) => onSubmit(data, form), []);
 
   const watchAgreeToTerms = form.watch("agreeToTerms");
+  const watchPassword = form.watch("password");
 
   useEffect(() => {
     if (watchAgreeToTerms) {
       setIsAgreeTermsModalOpen(true);
     }
   }, [watchAgreeToTerms]);
+
+  useEffect(() => {
+    if (watchPassword) {
+      setPasswordStrength(assessPasswordStrength(watchPassword));
+    } else {
+      setPasswordStrength('weak');
+    }
+  }, [watchPassword]);
 
   return (
     <>
@@ -98,7 +111,7 @@ export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
                   <Input
                     type="password"
                     label="Password"
-                    supportingText="8+ characters with upper, lower, number, and symbol."
+                    supportingText={`${getPasswordStrengthMessage(passwordStrength)}`}
                     {...field}
                   />
                 </FormControl>
@@ -115,7 +128,7 @@ export function SignupForm({ form, onSubmit, onGithubAuth }: SignupFormProps) {
                   <Input
                     type="password"
                     label="Confirm Password"
-                    supportingText="8+ characters with upper, lower, number, and symbol."
+                    supportingText="Please confirm your password"
                     {...field}
                   />
                 </FormControl>

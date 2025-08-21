@@ -19,7 +19,7 @@
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   Form,
   FormControl,
@@ -32,15 +32,12 @@ import { Box, styled } from "@mui/material";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { Link } from "~/core/components/general/link/link";
+import { assessPasswordStrength, getPasswordStrengthMessage } from "../../../../../common/src/utils/passwordStrength";
 
 export const schema = z.object({
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)"
-    ),
+    .min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().nonempty()
 });
 
@@ -53,6 +50,8 @@ export interface ResetPasswordFormProps extends React.PropsWithChildren {
 }
 
 export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'fair' | 'strong'>('weak');
+  
   const form = useForm<Schema>({
     resolver,
     defaultValues: {
@@ -61,6 +60,16 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
     },
     mode: "onChange"
   });
+
+  const watchPassword = form.watch("password");
+
+  useEffect(() => {
+    if (watchPassword) {
+      setPasswordStrength(assessPasswordStrength(watchPassword));
+    } else {
+      setPasswordStrength('weak');
+    }
+  }, [watchPassword]);
 
   const onSubmitForm = useCallback(
     async (data: Schema) => {
@@ -92,7 +101,7 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
                 <Input
                   type="password"
                   label="Password"
-                  supportingText="Please enter your new password"
+                  supportingText={`${getPasswordStrengthMessage(passwordStrength)}`}
                   {...field}
                 />
               </FormControl>
