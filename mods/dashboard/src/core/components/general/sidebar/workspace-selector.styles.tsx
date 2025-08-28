@@ -78,7 +78,10 @@ export const WorkspaceUnifiedDropdown = styled(Paper)(({ theme }) => ({
   borderRadius: "0px",
   borderBottom: `1px solid ${theme.palette.base["06"]}`,
   boxShadow: "0px 5px 10px 0px rgba(0, 0, 0, 0.10)",
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.bg.surface,
   overflow: "hidden",
-  width: "100%"
+  width: "100%",
+  ...theme.applyStyles("dark", {
+    backgroundColor: theme.palette.bg.surface
+  })
 }));

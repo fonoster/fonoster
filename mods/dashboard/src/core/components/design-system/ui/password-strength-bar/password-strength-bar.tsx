@@ -33,10 +33,11 @@ export interface PasswordStrengthBarProps {
 
 const ProgressBarContainer = styled(Box)(({ theme }) => ({
   width: "100%",
-  backgroundColor: theme.palette.grey[200],
+  backgroundColor: theme.palette.base["07"],
   borderRadius: theme.spacing(0.5),
   overflow: "hidden",
-  position: "relative"
+  position: "relative",
+  border: `1px solid ${theme.palette.base["06"]}`
 }));
 
 const ProgressBarFill = styled(Box)<{ $score: number; $color: string }>(

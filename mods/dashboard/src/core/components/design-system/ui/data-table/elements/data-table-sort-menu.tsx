@@ -76,7 +76,7 @@ export const SortMenu: React.FC<SortMenuProps<any, any>> = ({
               boxShadow: "0px 5px 10px 0px rgba(0, 0, 0, 0.10)",
               borderRight: "1px solid var(--fonoster-palette-base-06)",
               borderBottom: "1px solid var(--fonoster-palette-base-06)",
-              backgroundColor: "var(--fonoster-palette-background-paper)"
+              backgroundColor: "var(--fonoster-palette-bg-surface)"
             }
           }
         }}

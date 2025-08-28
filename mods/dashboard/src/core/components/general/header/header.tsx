@@ -22,6 +22,7 @@ import { Logo } from "../../design-system/ui/logo/logo";
 import { HeaderRoot, HeaderContent } from "./header.styles";
 import { memo } from "react";
 import { UserAccountPopover } from "./user-account-options";
+import { ThemeToggle } from "./theme-toggle";
 import { HeaderNotificationsButton } from "./notifications";
 
 export const Header = memo(() => {
@@ -42,6 +43,7 @@ export const Header = memo(() => {
             justifyContent: "flex-end"
           }}
         >
+          <ThemeToggle />
           <HeaderNotificationsButton />
           <UserAccountPopover />
         </Stack>

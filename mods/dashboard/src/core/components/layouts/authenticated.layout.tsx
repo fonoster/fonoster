@@ -97,18 +97,25 @@ export default function AuthenticatedLayout({
   );
 }
 
-export const MainRoot = styled(Box)(() => ({
+export const MainRoot = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
   height: "100%",
-  overflow: "hidden"
+  overflow: "hidden",
+  backgroundColor: theme.palette.bg.app,
+  ...theme.applyStyles("dark", {
+    backgroundColor: theme.palette.bg.app
+  })
 }));
 
 export const MainContent = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   height: "100%",
-  backgroundColor: theme.palette.background.default,
-  overflow: "hidden"
+  backgroundColor: theme.palette.bg.app,
+  overflow: "hidden",
+  ...theme.applyStyles("dark", {
+    backgroundColor: theme.palette.bg.app
+  })
 }));

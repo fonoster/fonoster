@@ -47,9 +47,11 @@ const PageRoot = styled("div")<{ variant: PageVariants }>(
     overflowY: "auto",
     overflowX: "hidden",
     backgroundColor:
-      variant === "form"
-        ? theme.palette.base["07"]
-        : theme.palette.background.default
+      variant === "form" ? theme.palette.bg.muted : theme.palette.bg.app,
+    ...theme.applyStyles("dark", {
+      backgroundColor:
+        variant === "form" ? theme.palette.bg.muted : theme.palette.bg.app
+    })
   })
 );
 

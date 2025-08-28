@@ -36,8 +36,8 @@ export const WorkspaceCardRoot = styled(Box, {
   height: "100%",
   backgroundColor:
     workspaceVariant === "regular"
-      ? theme.palette.base["07"]
-      : theme.palette.background.paper,
+      ? theme.palette.bg.muted
+      : theme.palette.bg.surface,
   cursor: disabled ? "not-allowed" : "pointer",
   borderRadius: "10px",
   border:
@@ -103,7 +103,7 @@ export const StyledDescription = styled(Typography)(() => ({
   textAlign: "left",
   textUnderlinePosition: "from-font",
   textDecorationSkipInk: "none",
-  color: "#053204",
+  color: "inherit",
   marginTop: "12px"
 }));
 
@@ -134,13 +134,13 @@ export const StyledDate = styled(Typography)(() => ({
 
 export const StyledIcon = styled("div")<{ clickable?: boolean }>(
   ({ clickable = false, theme }) => ({
-    color: "rgba(51, 51, 51, 1)",
+    color: theme.palette.base["03"],
     display: "flex",
     alignItems: "center",
     cursor: clickable ? "pointer" : "default",
     transition: "color 0.2s ease",
     "&:hover": {
-      color: clickable ? theme.palette.brand.main : "rgba(51, 51, 51, 1)"
+      color: clickable ? theme.palette.brand.main : theme.palette.base["03"]
     },
     "& svg": {
       width: "16px",

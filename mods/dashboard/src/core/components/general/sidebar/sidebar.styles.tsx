@@ -23,12 +23,16 @@ export const SidebarContainer = styled(Box)(({ theme }) => ({
   height: "100%",
 
   "& .MuiDrawer-paper": {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.bg.surface,
     color: theme.palette.base["03"],
     borderRight: `solid 1px ${theme.palette.base["06"]}`,
     width: "250px",
     height: "100%",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
+    ...theme.applyStyles("dark", {
+      backgroundColor: theme.palette.bg.surface,
+      borderRight: `solid 1px ${theme.palette.base["06"]}`
+    })
   }
 }));
 
@@ -37,9 +41,12 @@ export const SidebarWrapper = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   justifyContent: "space-between",
   height: "100%",
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.bg.surface,
   gap: "16px",
-  flexGrow: 1
+  flexGrow: 1,
+  ...theme.applyStyles("dark", {
+    backgroundColor: theme.palette.bg.surface
+  })
 }));
 
 export const SidebarContent = styled("nav")(() => ({

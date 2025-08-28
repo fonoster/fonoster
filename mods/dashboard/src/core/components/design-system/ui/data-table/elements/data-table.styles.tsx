@@ -77,7 +77,10 @@ export const DataTableContainerElement = styled(TableContainer)(
     borderTopLeftRadius: "4px",
     borderTopRightRadius: "4px",
     overflowX: "auto",
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.bg.surface,
+    ...theme.applyStyles("dark", {
+      backgroundColor: theme.palette.bg.surface
+    }),
 
     "& table": {
       borderCollapse: "collapse",
