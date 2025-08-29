@@ -22,7 +22,7 @@ import {
   assessPasswordStrength,
   getPasswordStrengthScore,
   getPasswordStrengthColor
-} from "../../../../../../../common/src/utils/passwordStrength";
+} from "./password-strength.helper";
 
 export interface PasswordStrengthBarProps {
   password: string;
