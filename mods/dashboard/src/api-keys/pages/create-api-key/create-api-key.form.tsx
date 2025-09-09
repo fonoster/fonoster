@@ -24,6 +24,7 @@ import {
   FormItem
 } from "~/core/components/design-system/forms";
 import { Role } from "@fonoster/types";
+import { ROLE_LABELS } from "~/workspaces/pages/[workspace]/members/members.constants";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -88,7 +89,7 @@ export function CreateApiKeyForm({
                 <Select
                   label="Access Role"
                   options={[
-                    { value: Role.WORKSPACE_ADMIN, label: "Workspace Admin" }
+                    { value: Role.WORKSPACE_ADMIN, label: ROLE_LABELS[Role.WORKSPACE_ADMIN] }
                   ]}
                   {...field}
                 />

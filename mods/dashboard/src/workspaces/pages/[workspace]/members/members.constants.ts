@@ -16,16 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from "@fonoster/types";
-import { ROLE_LABELS } from "~/workspaces/pages/[workspace]/members/members.constants";
+import { Role, WorkspaceMemberStatus } from "@fonoster/types";
 
-export const ROLE_OPTIONS = [
-  {
-    label: ROLE_LABELS[Role.WORKSPACE_ADMIN],
-    value: Role.WORKSPACE_ADMIN
-  },
-  {
-    label: ROLE_LABELS[Role.WORKSPACE_MEMBER],
-    value: Role.WORKSPACE_MEMBER
-  }
-];
+/**
+ * Human-readable labels for Role enum values.
+ */
+export const ROLE_LABELS: Record<Role, string> = {
+  [Role.USER]: "User",
+  [Role.WORKSPACE_OWNER]: "Workspace Owner",
+  [Role.WORKSPACE_ADMIN]: "Workspace Admin",
+  [Role.WORKSPACE_MEMBER]: "Workspace Member"
+};
+
+/**
+ * Human-readable labels for WorkspaceMemberStatus enum values.
+ */
+export const STATUS_LABELS: Record<WorkspaceMemberStatus, string> = {
+  [WorkspaceMemberStatus.PENDING]: "Pending",
+  [WorkspaceMemberStatus.ACTIVE]: "Active"
+};
