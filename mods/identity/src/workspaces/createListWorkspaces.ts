@@ -26,7 +26,7 @@ import {
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { ListWorkspacesResponse } from "@fonoster/types";
+import { ListWorkspacesResponse, WorkspaceMemberStatus } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
@@ -62,7 +62,8 @@ function createListWorkspaces(prisma: Prisma) {
           {
             members: {
               some: {
-                userRef
+                userRef,
+                status: WorkspaceMemberStatus.ACTIVE
               }
             }
           },
