@@ -22,6 +22,7 @@ import {
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
+import { datesMapper } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   ListWorkspaceMembersRequest,
@@ -68,13 +69,15 @@ function createListWorkspaceMembers(prisma: Prisma) {
     });
 
     callback(null, {
-      items: items.map((item) => ({
-        ...item,
-        name: item.user.name,
-        email: item.user.email,
-        role: item.role as Role,
-        status: item.status as WorkspaceMemberStatus
-      })),
+      items: items
+        .map((item) => ({
+          ...item,
+          name: item.user.name,
+          email: item.user.email,
+          role: item.role as Role,
+          status: item.status as WorkspaceMemberStatus
+        }))
+        .map(datesMapper),
       nextPageToken: items[items.length - 1]?.ref
     });
   };
