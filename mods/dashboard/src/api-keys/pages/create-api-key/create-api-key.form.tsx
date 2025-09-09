@@ -89,7 +89,10 @@ export function CreateApiKeyForm({
                 <Select
                   label="Access Role"
                   options={[
-                    { value: Role.WORKSPACE_ADMIN, label: ROLE_LABELS[Role.WORKSPACE_ADMIN] }
+                    {
+                      value: Role.WORKSPACE_ADMIN,
+                      label: ROLE_LABELS[Role.WORKSPACE_ADMIN]
+                    }
                   ]}
                   {...field}
                 />
