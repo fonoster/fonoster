@@ -39,7 +39,9 @@ function createIsAdminMember(prisma: Prisma) {
     }
 
     const role = workspace?.members.find(
-      (member) => member.userRef === adminRef && member.status === WorkspaceMemberStatus.ACTIVE
+      (member) =>
+        member.userRef === adminRef &&
+        member.status === WorkspaceMemberStatus.ACTIVE
     )?.role;
 
     return role === Role.WORKSPACE_ADMIN || role === Role.WORKSPACE_OWNER;

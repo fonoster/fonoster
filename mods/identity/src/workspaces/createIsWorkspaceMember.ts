@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma } from "../db";
 import { WorkspaceMemberStatus } from "@fonoster/types";
+import { Prisma } from "../db";
 
 function createIsWorkspaceMember(prisma: Prisma) {
   return async function isWorkspaceMember(
