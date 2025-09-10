@@ -24,7 +24,7 @@ const meta = {
   title: "Components/Navigation/Go Back",
   component: GoBackButton,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
   tags: ["autodocs"],
   argTypes: {
@@ -74,4 +74,3 @@ export const BackToList: Story = {
     onClick: action("onClick")
   }
 };
-

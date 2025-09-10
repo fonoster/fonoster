@@ -23,7 +23,7 @@ const meta = {
   title: "Components/Layout/Divider",
   component: Divider,
   parameters: {
-    layout: "padded",
+    layout: "padded"
   },
   tags: ["autodocs"],
   argTypes: {
@@ -107,5 +107,3 @@ export const Middle: Story = {
     </div>
   )
 };
-
-

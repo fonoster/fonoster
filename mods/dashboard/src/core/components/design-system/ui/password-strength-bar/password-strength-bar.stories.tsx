@@ -23,7 +23,7 @@ const meta = {
   title: "Components/Forms/Password Strength Bar",
   component: PasswordStrengthBar,
   parameters: {
-    layout: "padded",
+    layout: "padded"
   },
   tags: ["autodocs"],
   argTypes: {
@@ -88,5 +88,3 @@ export const Strong: Story = {
     password: "MyStr0ng!P@ssw0rd"
   }
 };
-
-

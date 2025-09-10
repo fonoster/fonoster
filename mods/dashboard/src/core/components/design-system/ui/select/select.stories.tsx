@@ -24,39 +24,39 @@ const meta = {
   title: "Components/Forms/Select",
   component: Select,
   parameters: {
-    layout: "padded",
+    layout: "padded"
   },
   tags: ["autodocs"],
   argTypes: {
     label: {
       name: "Label",
       description: "The label for the select field",
-      control: { type: "text" },
+      control: { type: "text" }
     },
     placeholder: {
       name: "Placeholder",
       description: "The placeholder text",
-      control: { type: "text" },
+      control: { type: "text" }
     },
     disabled: {
       name: "Disabled",
       description: "Whether the select is disabled",
-      control: { type: "boolean" },
+      control: { type: "boolean" }
     },
     error: {
       name: "Error",
       description: "Whether the select has an error state",
-      control: { type: "boolean" },
+      control: { type: "boolean" }
     },
     helperText: {
       name: "Helper Text",
       description: "Helper text to display below the select",
-      control: { type: "text" },
+      control: { type: "text" }
     },
     required: {
       name: "Required",
       description: "Whether the select is required",
-      control: { type: "boolean" },
+      control: { type: "boolean" }
     }
   }
 } satisfies Meta<typeof Select>;
@@ -149,5 +149,3 @@ export const Disabled: Story = {
     onChange: action("onChange")
   }
 };
-
-

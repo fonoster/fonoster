@@ -24,7 +24,7 @@ const meta = {
   title: "Components/Forms/Form Submit Button",
   component: FormSubmitButton,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
   tags: ["autodocs"],
   argTypes: {
@@ -96,5 +96,3 @@ export const Disabled: Story = {
     onClick: action("onClick")
   }
 };
-
-

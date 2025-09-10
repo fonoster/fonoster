@@ -24,49 +24,49 @@ const meta = {
   title: "Components/Forms/Textarea",
   component: Textarea,
   parameters: {
-    layout: "padded",
+    layout: "padded"
   },
   tags: ["autodocs"],
   argTypes: {
     label: {
       name: "Label",
       description: "The label for the textarea",
-      control: { type: "text" },
+      control: { type: "text" }
     },
     placeholder: {
       name: "Placeholder",
       description: "The placeholder text",
-      control: { type: "text" },
+      control: { type: "text" }
     },
     disabled: {
       name: "Disabled",
       description: "Whether the textarea is disabled",
-      control: { type: "boolean" },
+      control: { type: "boolean" }
     },
     error: {
       name: "Error",
       description: "Whether the textarea has an error state",
-      control: { type: "boolean" },
+      control: { type: "boolean" }
     },
     helperText: {
       name: "Helper Text",
       description: "Helper text to display below the textarea",
-      control: { type: "text" },
+      control: { type: "text" }
     },
     required: {
       name: "Required",
       description: "Whether the textarea is required",
-      control: { type: "boolean" },
+      control: { type: "boolean" }
     },
     rows: {
       name: "Rows",
       description: "Number of rows to display",
-      control: { type: "number" },
+      control: { type: "number" }
     },
     maxLength: {
       name: "Max Length",
       description: "Maximum number of characters allowed",
-      control: { type: "number" },
+      control: { type: "number" }
     }
   }
 } satisfies Meta<typeof Textarea>;
@@ -172,5 +172,3 @@ export const WithCharacterLimit: Story = {
     onChange: action("onChange")
   }
 };
-
-
