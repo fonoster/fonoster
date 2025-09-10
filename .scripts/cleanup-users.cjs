@@ -58,7 +58,6 @@ async function cleanupUsers() {
     const usersToCleanup = await prisma.user.findMany({
       where: {
         phoneNumberVerified: false,
-        emailVerified: false,
         createdAt: {
           lt: cutoffTime
         }

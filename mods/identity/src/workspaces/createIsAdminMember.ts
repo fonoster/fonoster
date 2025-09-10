@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from "@fonoster/types";
+import { Role, WorkspaceMemberStatus } from "@fonoster/types";
 import { Prisma } from "../db";
 
 function createIsAdminMember(prisma: Prisma) {
@@ -39,7 +39,9 @@ function createIsAdminMember(prisma: Prisma) {
     }
 
     const role = workspace?.members.find(
-      (member) => member.ref === adminRef
+      (member) =>
+        member.userRef === adminRef &&
+        member.status === WorkspaceMemberStatus.ACTIVE
     )?.role;
 
     return role === Role.WORKSPACE_ADMIN || role === Role.WORKSPACE_OWNER;

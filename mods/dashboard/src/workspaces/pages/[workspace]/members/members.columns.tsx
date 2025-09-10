@@ -22,6 +22,7 @@ import { Stack } from "@mui/material";
 import { Icon } from "~/core/components/design-system/icons/icons";
 import { Tooltip } from "~/core/components/design-system/ui/tooltip/tooltip";
 import { useCallback } from "react";
+import { ROLE_LABELS, STATUS_LABELS } from "./members.constants";
 
 /**
  * Props for the ActionsCell component.
@@ -134,7 +135,7 @@ export const getColumns = (
     id: "role",
     header: "ROLE",
     enableSorting: false,
-    cell: ({ row: { original: member } }) => member.role
+    cell: ({ row: { original: member } }) => ROLE_LABELS[member.role]
   },
   {
     id: "dateAdded",
@@ -151,7 +152,7 @@ export const getColumns = (
     id: "status",
     header: "STATUS",
     enableSorting: false,
-    cell: ({ row: { original: member } }) => member.status
+    cell: ({ row: { original: member } }) => STATUS_LABELS[member.status]
   },
   {
     id: "actions",
