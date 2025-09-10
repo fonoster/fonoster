@@ -16,22 +16,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+// Storybook-specific Vite config without React Router
 export default defineConfig({
-  plugins: [reactRouter(), tsconfigPaths()],
-  ssr: {
-    noExternal: ["@mui/*", "@emotion/*"]
+  plugins: [
+    tsconfigPaths({
+      projects: ["./tsconfig.json"]
+    })
+  ],
+  resolve: {
+    alias: {
+      "react-router": "react-router/dist/react-router.production.min.js",
+    },
   },
   optimizeDeps: {
-    include: ["@mui/*", "@emotion/*"],
-    force: true
+    include: [
+      "@emotion/react", 
+      "@emotion/styled", 
+      "@mui/material",
+      "@mui/icons-material",
+      "@tanstack/react-query",
+      "react",
+      "react-dom"
+    ],
+    exclude: [
+      "@react-router/dev",
+      "@react-router/node", 
+      "@react-router/serve",
+      "react-router-devtools"
+    ],
   },
-  server: {
-    port: 3030,
-    strictPort: true,
+  define: {
+    "process.env.NODE_ENV": JSON.stringify("development"),
   },
-  envPrefix: "DASHBOARD_",
 });
+
+
