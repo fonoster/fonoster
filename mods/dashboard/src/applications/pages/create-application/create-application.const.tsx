@@ -43,38 +43,94 @@ export const TTS_VENDORS = [
  * Each voice is identified by a vendor-specific ID and a human-friendly label.
  */
 export const TTS_ELEVENLABS_VOICES = [
-  { value: "Sarah", label: "Sarah (en)" },
-  { value: "Laura", label: "Laura (en)" },
-  { value: "Charlie", label: "Charlie (en)" },
-  { value: "George", label: "George (en)" },
-  { value: "Callum", label: "Callum (en)" },
-  { value: "Liam", label: "Liam (en)" },
-  { value: "Charlotte", label: "Charlotte (en)" },
-  { value: "Alice", label: "Alice (en)" },
-  { value: "Matilda", label: "Matilda (en)" },
-  { value: "Will", label: "Will (en)" },
-  { value: "Jessica", label: "Jessica (en)" },
-  { value: "Eric", label: "Eric (en)" },
-  { value: "Chris", label: "Chris (en)" },
-  { value: "Brian", label: "Brian (en)" },
-  { value: "Daniel", label: "Daniel (en)" },
-  { value: "Lily", label: "Lily (en)" },
-  { value: "Bill", label: "Bill (en)" }
+  { value: "Sarah", label: "Sarah (en-us)" },
+  { value: "Laura", label: "Laura (en-us)" },
+  { value: "Charlie", label: "Charlie (en-au)" },
+  { value: "George", label: "George (en-gb)" },
+  { value: "Callum", label: "Callum (en-gb)" },
+  { value: "Liam", label: "Liam (en-us)" },
+  { value: "Charlotte", label: "Charlotte (sv-se)" },
+  { value: "Alice", label: "Alice (en-gb)" },
+  { value: "Matilda", label: "Matilda (en-us)" },
+  { value: "Will", label: "Will (en-us)" },
+  { value: "Jessica", label: "Jessica (en-us)" },
+  { value: "Eric", label: "Eric (en-us)" },
+  { value: "Chris", label: "Chris (en-us)" },
+  { value: "Brian", label: "Brian (en-us)" },
+  { value: "Daniel", label: "Daniel (en-gb)" },
+  { value: "Lily", label: "Lily (en-gb)" },
+  { value: "Bill", label: "Bill (en-us)" }
 ];
 
+/**
+ * List of available TTS voices for Deepgram.
+ * Each voice is identified by a vendor-specific ID and a human-friendly label.
+ */
 export const TTS_DEEPGRAM_VOICES = [
-  { value: "aura-asteria-en", label: "Aura Asteria (en)" },
-  { value: "aura-luna-en", label: "Aura Luna (en)" },
-  { value: "aura-stella-en", label: "Aura Stella (en)" },
-  { value: "aura-athena-en", label: "Aura Athena (en)" },
-  { value: "aura-hera-en", label: "Aura Hera (en)" },
-  { value: "aura-orion-en", label: "Aura Orion (en)" },
-  { value: "aura-arcas-en", label: "Aura Arcas (en)" },
-  { value: "aura-perseus-en", label: "Aura Perseus (en)" },
-  { value: "aura-angus-en", label: "Aura Angus (en)" },
-  { value: "aura-orpheus-en", label: "Aura Orpheus (en)" },
-  { value: "aura-helios-en", label: "Aura Helios (en)" },
-  { value: "aura-zeus-en", label: "Aura Zeus (en)" }
+  // Aura 2 English Voices - Featured
+  { value: "aura-2-thalia-en", label: "Aura 2 Thalia (en-us)" },
+  { value: "aura-2-andromeda-en", label: "Aura 2 Andromeda (en-us)" },
+  { value: "aura-2-helena-en", label: "Aura 2 Helena (en-us)" },
+  { value: "aura-2-apollo-en", label: "Aura 2 Apollo (en-us)" },
+  { value: "aura-2-arcas-en", label: "Aura 2 Arcas (en-us)" },
+  { value: "aura-2-aries-en", label: "Aura 2 Aries (en-us)" },
+  
+  // Aura 2 English Voices - All Available
+  { value: "aura-2-amalthea-en", label: "Aura 2 Amalthea (en-ph)" },
+  { value: "aura-2-asteria-en", label: "Aura 2 Asteria (en-us)" },
+  { value: "aura-2-athena-en", label: "Aura 2 Athena (en-us)" },
+  { value: "aura-2-atlas-en", label: "Aura 2 Atlas (en-us)" },
+  { value: "aura-2-aurora-en", label: "Aura 2 Aurora (en-us)" },
+  { value: "aura-2-callista-en", label: "Aura 2 Callista (en-us)" },
+  { value: "aura-2-cora-en", label: "Aura 2 Cora (en-us)" },
+  { value: "aura-2-cordelia-en", label: "Aura 2 Cordelia (en-us)" },
+  { value: "aura-2-delia-en", label: "Aura 2 Delia (en-us)" },
+  { value: "aura-2-draco-en", label: "Aura 2 Draco (en-gb)" },
+  { value: "aura-2-electra-en", label: "Aura 2 Electra (en-us)" },
+  { value: "aura-2-harmonia-en", label: "Aura 2 Harmonia (en-us)" },
+  { value: "aura-2-hera-en", label: "Aura 2 Hera (en-us)" },
+  { value: "aura-2-iris-en", label: "Aura 2 Iris (en-us)" },
+  { value: "aura-2-juno-en", label: "Aura 2 Juno (en-us)" },
+  { value: "aura-2-luna-en", label: "Aura 2 Luna (en-us)" },
+  { value: "aura-2-maia-en", label: "Aura 2 Maia (en-us)" },
+  { value: "aura-2-nova-en", label: "Aura 2 Nova (en-us)" },
+  { value: "aura-2-orion-en", label: "Aura 2 Orion (en-us)" },
+  { value: "aura-2-pandora-en", label: "Aura 2 Pandora (en-gb)" },
+  { value: "aura-2-phoebe-en", label: "Aura 2 Phoebe (en-us)" },
+  { value: "aura-2-pluto-en", label: "Aura 2 Pluto (en-us)" },
+  { value: "aura-2-saturn-en", label: "Aura 2 Saturn (en-us)" },
+  { value: "aura-2-selene-en", label: "Aura 2 Selene (en-us)" },
+  { value: "aura-2-theia-en", label: "Aura 2 Theia (en-au)" },
+  { value: "aura-2-vesta-en", label: "Aura 2 Vesta (en-us)" },
+  { value: "aura-2-zeus-en", label: "Aura 2 Zeus (en-us)" },
+  
+  // Aura 2 Spanish Voices - Featured
+  { value: "aura-2-celeste-es", label: "Aura 2 Celeste (es-co)" },
+  { value: "aura-2-estrella-es", label: "Aura 2 Estrella (es-mx)" },
+  { value: "aura-2-nestor-es", label: "Aura 2 Nestor (es-es)" },
+  
+  // Aura 2 Spanish Voices - All Available
+  { value: "aura-2-sirio-es", label: "Aura 2 Sirio (es-mx)" },
+  { value: "aura-2-carina-es", label: "Aura 2 Carina (es-es)" },
+  { value: "aura-2-alvaro-es", label: "Aura 2 Alvaro (es-es)" },
+  { value: "aura-2-diana-es", label: "Aura 2 Diana (es-es)" },
+  { value: "aura-2-aquila-es", label: "Aura 2 Aquila (es-419)" },
+  { value: "aura-2-selena-es", label: "Aura 2 Selena (es-419)" },
+  { value: "aura-2-javier-es", label: "Aura 2 Javier (es-mx)" },
+  
+  // Aura 1 English Voices
+  { value: "aura-asteria-en", label: "Aura Asteria (en-us)" },
+  { value: "aura-luna-en", label: "Aura Luna (en-us)" },
+  { value: "aura-stella-en", label: "Aura Stella (en-us)" },
+  { value: "aura-athena-en", label: "Aura Athena (en-gb)" },
+  { value: "aura-hera-en", label: "Aura Hera (en-us)" },
+  { value: "aura-orion-en", label: "Aura Orion (en-us)" },
+  { value: "aura-arcas-en", label: "Aura Arcas (en-us)" },
+  { value: "aura-perseus-en", label: "Aura Perseus (en-us)" },
+  { value: "aura-angus-en", label: "Aura Angus (en-ie)" },
+  { value: "aura-orpheus-en", label: "Aura Orpheus (en-us)" },
+  { value: "aura-helios-en", label: "Aura Helios (en-gb)" },
+  { value: "aura-zeus-en", label: "Aura Zeus (en-us)" }
 ];
 
 /**
