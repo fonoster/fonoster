@@ -30,7 +30,11 @@ const config: StorybookConfig = {
   ],
   framework: {
     name: "@storybook/react-vite",
-    options: {},
+    options: {
+      builder: {
+        viteConfigPath: "./.storybook/vite.config.ts",
+      },
+    },
   },
   viteFinal: async (config, { configType }) => {
     const { mergeConfig } = await import("vite");
