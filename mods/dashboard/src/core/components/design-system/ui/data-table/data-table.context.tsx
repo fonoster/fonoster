@@ -33,6 +33,7 @@ export const DataTableProvider = <T,>({
   getRowId,
   onDeleteSelected,
   onEditSelected,
+  onRowClick,
   children,
   ...rest
 }: DataTableContextProviderProps<T>) => {
@@ -61,6 +62,7 @@ export const DataTableProvider = <T,>({
         ...rest,
         onDeleteSelected: onDeleteSelected ? onDeleteChanged : undefined,
         onEditSelected: onEditSelected ? onEditChanged : undefined,
+        onRowClick,
         table,
         columns,
         features,

@@ -17,57 +17,116 @@
  * limitations under the License.
  */
 import type { Preview } from "@storybook/react";
-import React from "react";
-import { ThemeProvider } from "../src/core/providers/styling/mui.provider";
+import React, { useEffect } from "react";
+import {
+  ThemeProvider,
+  useThemeMode
+} from "../src/core/providers/styling/mui.provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import fonosterTheme from "./fonoster-theme";
+import { create } from "@storybook/theming/create";
 import "../src/app.css";
+
+// Create dynamic Storybook themes
+const createStorybookTheme = (mode: "light" | "dark") => {
+  return create({
+    base: mode,
+    brandTitle: "Fonoster Design System",
+    brandUrl: "https://fonoster.com",
+    brandTarget: "_self",
+
+    colorPrimary: "#39E19E",
+    colorSecondary: mode === "dark" ? "#CCEFE1" : "#053204",
+
+    // UI
+    appBg: mode === "dark" ? "#181818" : "#ffffff",
+    appContentBg: mode === "dark" ? "#181818" : "#ffffff",
+    appBorderColor: mode === "dark" ? "#555555" : "#E5E5E5",
+    appBorderRadius: 8,
+
+    // Typography
+    fontBase: '"Inter", sans-serif',
+    fontCode: "monospace",
+
+    // Text colors
+    textColor: mode === "dark" ? "#FFFFFF" : "#1A1A1A",
+    textInverseColor: mode === "dark" ? "#1A1A1A" : "#ffffff",
+
+    // Toolbar colors
+    barTextColor: mode === "dark" ? "#FFFFFF" : "#1A1A1A",
+    barSelectedColor: "#39E19E",
+    barBg: mode === "dark" ? "#252525" : "#ffffff",
+
+    // Form colors
+    inputBg: mode === "dark" ? "#252525" : "#ffffff",
+    inputBorder: mode === "dark" ? "#555555" : "#E5E5E5",
+    inputTextColor: mode === "dark" ? "#FFFFFF" : "#1A1A1A",
+    inputBorderRadius: 8
+  });
+};
+
+// Component to sync Storybook theme with MUI theme
+const ThemeSync = ({
+  theme,
+  children
+}: {
+  theme: string;
+  children: React.ReactNode;
+}) => {
+  const { changeTheme } = useThemeMode();
+
+  useEffect(() => {
+    changeTheme(theme as "light" | "dark");
+  }, [theme, changeTheme]);
+
+  return <>{children}</>;
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
-    },
-  },
+      retry: false
+    }
+  }
 });
 
 const preview: Preview = {
   parameters: {
     docs: {
-      theme: fonosterTheme,
+      theme: fonosterTheme // Default theme, will be overridden dynamically
     },
     actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
       matchers: {
         color: /(background|color)$/i,
-        date: /Date$/i,
-      },
+        date: /Date$/i
+      }
     },
     backgrounds: {
-      default: "dark",
-      values: [
-        {
-          name: "light",
-          value: "#ffffff",
-        },
-        {
-          name: "dark",
-          value: "#181818",
-        },
-      ],
+      disable: true
     },
-    layout: "centered",
+    layout: "centered"
   },
   decorators: [
-    (Story) => (
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <div style={{ fontFamily: "Inter, sans-serif" }}>
-            <Story />
-          </div>
-        </ThemeProvider>
-      </QueryClientProvider>
-    ),
+    (Story, context) => {
+      const theme = context.globals.theme || "light";
+
+      // Update docs theme dynamically
+      context.parameters.docs = {
+        ...context.parameters.docs,
+        theme: createStorybookTheme(theme as "light" | "dark")
+      };
+
+      return (
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <ThemeSync theme={theme}>
+              <Story />
+            </ThemeSync>
+          </ThemeProvider>
+        </QueryClientProvider>
+      );
+    }
   ],
   globalTypes: {
     theme: {
@@ -78,12 +137,12 @@ const preview: Preview = {
         icon: "paintbrush",
         items: [
           { value: "light", title: "Light" },
-          { value: "dark", title: "Dark" },
+          { value: "dark", title: "Dark" }
         ],
-        dynamicTitle: true,
-      },
-    },
-  },
+        dynamicTitle: true
+      }
+    }
+  }
 };
 
 export default preview;
