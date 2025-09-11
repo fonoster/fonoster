@@ -26,7 +26,7 @@ enum DeepgramVoice {
   AURA_2_APOLLO_EN = "aura-2-apollo-en",
   AURA_2_ARCAS_EN = "aura-2-arcas-en",
   AURA_2_ARIES_EN = "aura-2-aries-en",
-  
+
   // Aura 2 English Voices - All Available
   AURA_2_AMALTHEA_EN = "aura-2-amalthea-en",
   AURA_2_ASTERIA_EN = "aura-2-asteria-en",
@@ -55,12 +55,12 @@ enum DeepgramVoice {
   AURA_2_THEIA_EN = "aura-2-theia-en",
   AURA_2_VESTA_EN = "aura-2-vesta-en",
   AURA_2_ZEUS_EN = "aura-2-zeus-en",
-  
+
   // Aura 2 Spanish Voices - Featured
   AURA_2_CELESTE_ES = "aura-2-celeste-es",
   AURA_2_ESTRELLA_ES = "aura-2-estrella-es",
   AURA_2_NESTOR_ES = "aura-2-nestor-es",
-  
+
   // Aura 2 Spanish Voices - All Available
   AURA_2_SIRIO_ES = "aura-2-sirio-es",
   AURA_2_CARINA_ES = "aura-2-carina-es",
@@ -69,7 +69,7 @@ enum DeepgramVoice {
   AURA_2_AQUILA_ES = "aura-2-aquila-es",
   AURA_2_SELENA_ES = "aura-2-selena-es",
   AURA_2_JAVIER_ES = "aura-2-javier-es",
-  
+
   // Aura 1 English Voices
   AURA_ASTERIA_EN = "aura-asteria-en",
   AURA_LUNA_EN = "aura-luna-en",
@@ -123,7 +123,7 @@ const DeepgramVoiceDetails = [
     languageCode: VoiceLanguage.EN_US,
     gender: VoiceGender.MALE
   },
-  
+
   // Aura 2 English Voices - All Available
   {
     name: DeepgramVoice.AURA_2_AMALTHEA_EN,
@@ -287,7 +287,7 @@ const DeepgramVoiceDetails = [
     languageCode: VoiceLanguage.EN_US,
     gender: VoiceGender.MALE
   },
-  
+
   // Aura 2 Spanish Voices - Featured
   {
     name: DeepgramVoice.AURA_2_CELESTE_ES,
@@ -307,7 +307,7 @@ const DeepgramVoiceDetails = [
     languageCode: VoiceLanguage.ES_ES,
     gender: VoiceGender.MALE
   },
-  
+
   // Aura 2 Spanish Voices - All Available
   {
     name: DeepgramVoice.AURA_2_SIRIO_ES,
@@ -351,7 +351,7 @@ const DeepgramVoiceDetails = [
     languageCode: VoiceLanguage.ES_MX,
     gender: VoiceGender.MALE
   },
-  
+
   // Aura 1 English Voices
   {
     name: DeepgramVoice.AURA_ASTERIA_EN,

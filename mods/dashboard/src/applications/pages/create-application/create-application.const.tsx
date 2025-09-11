@@ -74,7 +74,7 @@ export const TTS_DEEPGRAM_VOICES = [
   { value: "aura-2-apollo-en", label: "Aura 2 Apollo (en-us)" },
   { value: "aura-2-arcas-en", label: "Aura 2 Arcas (en-us)" },
   { value: "aura-2-aries-en", label: "Aura 2 Aries (en-us)" },
-  
+
   // Aura 2 English Voices - All Available
   { value: "aura-2-amalthea-en", label: "Aura 2 Amalthea (en-ph)" },
   { value: "aura-2-asteria-en", label: "Aura 2 Asteria (en-us)" },
@@ -103,12 +103,12 @@ export const TTS_DEEPGRAM_VOICES = [
   { value: "aura-2-theia-en", label: "Aura 2 Theia (en-au)" },
   { value: "aura-2-vesta-en", label: "Aura 2 Vesta (en-us)" },
   { value: "aura-2-zeus-en", label: "Aura 2 Zeus (en-us)" },
-  
+
   // Aura 2 Spanish Voices - Featured
   { value: "aura-2-celeste-es", label: "Aura 2 Celeste (es-co)" },
   { value: "aura-2-estrella-es", label: "Aura 2 Estrella (es-mx)" },
   { value: "aura-2-nestor-es", label: "Aura 2 Nestor (es-es)" },
-  
+
   // Aura 2 Spanish Voices - All Available
   { value: "aura-2-sirio-es", label: "Aura 2 Sirio (es-mx)" },
   { value: "aura-2-carina-es", label: "Aura 2 Carina (es-es)" },
@@ -117,7 +117,7 @@ export const TTS_DEEPGRAM_VOICES = [
   { value: "aura-2-aquila-es", label: "Aura 2 Aquila (es-419)" },
   { value: "aura-2-selena-es", label: "Aura 2 Selena (es-419)" },
   { value: "aura-2-javier-es", label: "Aura 2 Javier (es-mx)" },
-  
+
   // Aura 1 English Voices
   { value: "aura-asteria-en", label: "Aura Asteria (en-us)" },
   { value: "aura-luna-en", label: "Aura Luna (en-us)" },
