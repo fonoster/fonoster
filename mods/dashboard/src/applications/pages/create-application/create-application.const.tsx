@@ -230,10 +230,10 @@ export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
         firstMessage: "Hello, how can I help you?",
         systemPrompt: "",
         goodbyeMessage: "Goodbye! Have a great day!",
-        systemErrorMessage: "An error occurred. Please try again later.",
+        systemErrorMessage: "An error occurred. Please try again.",
         transferOptions: {
           phoneNumber: "",
-          message: "Please call this number for further assistance.",
+          message: "Please wait while I transfer you to a live agent.",
           timeout: 30000
         },
         idleOptions: {
