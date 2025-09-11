@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { flexRender, type Row } from "@tanstack/react-table";
-import { TableBody, TableCell, TableRow } from "@mui/material";
+import { TableBody, TableCell, TableRow, useTheme } from "@mui/material";
 
 import { useDataTable } from "../data-table.context";
 import { Checkbox } from "../../checkbox/checkbox";
@@ -38,6 +38,8 @@ export interface DataTableBodyRowProps {
  * Supports row click navigation while preserving selection functionality.
  */
 const DataRow = ({ row, showSelection, onRowClick }: DataTableBodyRowProps) => {
+  const theme = useTheme();
+
   const handleRowClick = (event: React.MouseEvent) => {
     // Don't trigger row click if clicking on the selection checkbox
     if ((event.target as HTMLElement).closest('[data-selection-cell="true"]')) {
@@ -58,7 +60,7 @@ const DataRow = ({ row, showSelection, onRowClick }: DataTableBodyRowProps) => {
         cursor: onRowClick ? "pointer" : "default",
         "&:hover": onRowClick
           ? {
-              backgroundColor: "rgba(0, 0, 0, 0.04)"
+              backgroundColor: theme.palette.base["08"]
             }
           : {},
         transition: "background-color 0.2s ease"
