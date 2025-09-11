@@ -43,23 +43,25 @@ const DataRow = ({ row, showSelection, onRowClick }: DataTableBodyRowProps) => {
     if ((event.target as HTMLElement).closest('[data-selection-cell="true"]')) {
       return;
     }
-    
+
     if (onRowClick) {
       onRowClick(row.original);
     }
   };
 
   return (
-    <TableRow 
-      key={row.id} 
+    <TableRow
+      key={row.id}
       selected={row.getIsSelected()}
       onClick={handleRowClick}
       sx={{
-        cursor: onRowClick ? 'pointer' : 'default',
-        '&:hover': onRowClick ? {
-          backgroundColor: 'rgba(0, 0, 0, 0.04)',
-        } : {},
-        transition: 'background-color 0.2s ease'
+        cursor: onRowClick ? "pointer" : "default",
+        "&:hover": onRowClick
+          ? {
+              backgroundColor: "rgba(0, 0, 0, 0.04)"
+            }
+          : {},
+        transition: "background-color 0.2s ease"
       }}
     >
       {showSelection && (
@@ -121,7 +123,12 @@ export function DataTableBody() {
     <TableBody>
       {rows.length > 0 ? (
         rows.map((row) => (
-          <DataRow key={row.id} row={row} showSelection={showSelection} onRowClick={onRowClick} />
+          <DataRow
+            key={row.id}
+            row={row}
+            showSelection={showSelection}
+            onRowClick={onRowClick}
+          />
         ))
       ) : isLoading ? (
         <EmptyStateRow

@@ -23,6 +23,12 @@ import {
   useThemeMode
 } from "../src/core/providers/styling/mui.provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider as FonosterFormProvider } from "../src/core/contexts/form-context";
+import {
+  FormFieldContext,
+  FormItemContext
+} from "../src/core/components/design-system/forms/form.context";
 import fonosterTheme from "./fonoster-theme";
 import { create } from "@storybook/theming/create";
 import "../src/app.css";
@@ -63,6 +69,52 @@ const createStorybookTheme = (mode: "light" | "dark") => {
     inputTextColor: mode === "dark" ? "#FFFFFF" : "#1A1A1A",
     inputBorderRadius: 8
   });
+};
+
+// Component to provide form context for Storybook
+const FormProviderWrapper = ({ children }: { children: React.ReactNode }) => {
+  const methods = useForm({
+    defaultValues: {
+      // Default values for common form fields
+      name: "",
+      email: "",
+      description: "",
+      value: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+      phone: "",
+      address: ""
+      // Add more default values as needed
+    }
+  });
+
+  return (
+    <FormProvider {...methods}>
+      <FonosterFormProvider>{children}</FonosterFormProvider>
+    </FormProvider>
+  );
+};
+
+// Component to auto-wrap form components with necessary contexts
+const FormFieldWrapper = ({ children }: { children: React.ReactNode }) => {
+  const methods = useForm({
+    defaultValues: {
+      storybook_field: ""
+    }
+  });
+
+  return (
+    <FormProvider {...methods}>
+      <FonosterFormProvider>
+        <FormFieldContext.Provider value={{ name: "storybook_field" }}>
+          <FormItemContext.Provider value={{ id: "storybook-field-id" }}>
+            {children}
+          </FormItemContext.Provider>
+        </FormFieldContext.Provider>
+      </FonosterFormProvider>
+    </FormProvider>
+  );
 };
 
 // Component to sync Storybook theme with MUI theme
@@ -117,11 +169,31 @@ const preview: Preview = {
         theme: createStorybookTheme(theme as "light" | "dark")
       };
 
+      // Check if this is a form component that needs FormField wrapper
+      const storyTitle = context.title.toLowerCase();
+      const storyName = context.name.toLowerCase();
+      const isFormComponent =
+        storyTitle.includes("forms/input") ||
+        storyTitle.includes("forms/select") ||
+        storyTitle.includes("forms/textarea") ||
+        storyName.includes("input") ||
+        storyName.includes("select") ||
+        storyName.includes("textarea") ||
+        context.parameters.formField === true;
+
       return (
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <ThemeSync theme={theme}>
-              <Story />
+              {isFormComponent ? (
+                <FormFieldWrapper>
+                  <Story />
+                </FormFieldWrapper>
+              ) : (
+                <FormProviderWrapper>
+                  <Story />
+                </FormProviderWrapper>
+              )}
             </ThemeSync>
           </ThemeProvider>
         </QueryClientProvider>
