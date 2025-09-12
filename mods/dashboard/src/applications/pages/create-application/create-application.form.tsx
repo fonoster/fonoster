@@ -73,7 +73,7 @@ export const CreateApplicationForm = ({
   const isAutopilot = type === "AUTOPILOT";
 
   useEffect(() => {
-    if (ttsVendor && ttsVoice) {
+    if (ttsVendor) {
       if (ttsVendor === "tts.deepgram") {
         const { value: firstVoice } = TTS_DEEPGRAM_VOICES[0];
         form.setValue("textToSpeech.config.voice", firstVoice);
@@ -84,7 +84,7 @@ export const CreateApplicationForm = ({
         form.setValue("textToSpeech.config.voice", firstVoice);
       }
     }
-  }, [ttsVendor, ttsVoice, form]);
+  }, [ttsVendor, form]);
 
   return (
     <Form {...form}>
