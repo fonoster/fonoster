@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import { datesMapper } from "@fonoster/common";
+import { AUTOPILOT_SPECIAL_LOCAL_ADDRESS } from "@fonoster/common";
 import { Application } from "@fonoster/types";
+import { ApplicationType } from "@prisma/client";
 import { struct } from "pb-util";
 
 function applicationWithEncodedStruct(application): Application {
@@ -26,6 +28,14 @@ function applicationWithEncodedStruct(application): Application {
   };
 
   const result = { ...application };
+
+  // Hide the default endpoint value for AUTOPILOT applications
+  if (
+    application.type === ApplicationType.AUTOPILOT &&
+    application.endpoint === AUTOPILOT_SPECIAL_LOCAL_ADDRESS
+  ) {
+    result.endpoint = "";
+  }
 
   if (application.textToSpeech) {
     delete application.textToSpeech.credentials;
