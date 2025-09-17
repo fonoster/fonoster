@@ -1,6 +1,6 @@
 services:
   dashboard:
-    image: fonoster/dashboard:0.15.14
+    image: fonoster/dashboard:0.15.15
     restart: unless-stopped
     expose:
       - 3030:3030
@@ -8,7 +8,7 @@ services:
       - SERVER_DASHBOARD_SESSION_SECRET
 
   apiserver:
-    image: fonoster/apiserver:0.15.14
+    image: fonoster/apiserver:0.15.15
     restart: unless-stopped
     environment:
       - APISERVER_APP_URL
@@ -61,7 +61,7 @@ services:
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   autopilot:
-    image: fonoster/autopilot:0.15.14
+    image: fonoster/autopilot:0.15.15
     restart: unless-stopped
     expose:
       - 50061
