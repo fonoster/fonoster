@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: release-approval
     steps:
-      - name: Wait for manual approval
+      - name: Display release information
         run: |
           echo "✅ All Docker images have been built and published successfully!"
           echo "📦 Version: ${{ needs.build.outputs.LERNA_VERSION }}"
@@ -130,6 +130,31 @@ jobs:
           echo ""
           echo "Please review the draft release and Docker images."
           echo "If everything looks good, approve this step to finalize the release."
+      
+      - name: Wait for manual approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: ${{ github.actor }}
+          minimum-approvals: 1
+          issue-title: "Release Approval Required - v${{ needs.build.outputs.LERNA_VERSION }}"
+          issue-body: |
+            ## 🚀 Release Approval Required
+            
+            **Version:** ${{ needs.build.outputs.LERNA_VERSION }}
+            
+            ### Docker Images Published:
+            - fonoster/apiserver:${{ needs.build.outputs.LERNA_VERSION }}
+            - fonoster/autopilot:${{ needs.build.outputs.LERNA_VERSION }}
+            - fonoster/dashboard:${{ needs.build.outputs.LERNA_VERSION }}
+            
+            ### Next Steps:
+            1. Review the draft release on GitHub
+            2. Verify Docker images are available
+            3. Approve this workflow to finalize the release
+            
+            **Note:** This approval will publish the release and update the compose.yaml file.
+          exclude-workflow-initiator-as-approver: false
 
   finalize-release:
     name: Finalize Release and Update Compose
