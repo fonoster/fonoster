@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      SHOULD_RELEASE: ${{ env.SHOULD_RELEASE }}
+      RELEASE: ${{ env.RELEASE }}
       LERNA_VERSION: ${{ env.LERNA_VERSION }}
 
     steps:
@@ -40,10 +40,10 @@ jobs:
         run: |
           release=$(.scripts/next-release.sh)
           echo "Next release: $release"
-          echo "SHOULD_RELEASE=$release" >> $GITHUB_ENV
+          echo "RELEASE=$release" >> $GITHUB_ENV
 
       - name: Publish packages to NPM
-        if: env.SHOULD_RELEASE != 'none'
+        if: env.RELEASE != 'none'
         run: |
           echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
           echo "GITHUB_TOKEN=${{ secrets.GH_PAT }}" >> $GITHUB_ENV
@@ -66,7 +66,7 @@ jobs:
           echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
 
       - name: Create release note
-        if: env.SHOULD_RELEASE != 'none'
+        if: env.RELEASE != 'none'
         id: changelog
         uses: loopwerk/tag-changelog@v1
         with:
@@ -75,7 +75,7 @@ jobs:
           config_file: ./.scripts/tag-changelog-config.cjs
 
       - name: Create draft release
-        if: env.SHOULD_RELEASE != 'none'
+        if: env.RELEASE != 'none'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +88,7 @@ jobs:
   publish-apiserver:
     name: Publish APIServer to Docker Hub
     needs: [build]
-    if: needs.build.outputs.SHOULD_RELEASE != 'none'
+    if: needs.build.outputs.RELEASE != 'none'
     uses: ./.github/workflows/publish-apiserver.yaml
     with:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
@@ -97,7 +97,7 @@ jobs:
   publish-autopilot:
     name: Publish Autopilot to Docker Hub
     needs: [build]
-    if: needs.build.outputs.SHOULD_RELEASE != 'none'
+    if: needs.build.outputs.RELEASE != 'none'
     uses: ./.github/workflows/publish-autopilot.yaml
     with:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
@@ -106,7 +106,7 @@ jobs:
   publish-dashboard:
     name: Publish Dashboard to Docker Hub
     needs: [build]
-    if: needs.build.outputs.SHOULD_RELEASE != 'none'
+    if: needs.build.outputs.RELEASE != 'none'
     uses: ./.github/workflows/publish-dashboard.yaml
     with:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
@@ -115,7 +115,7 @@ jobs:
   manual-approval:
     name: Manual Approval for Release Finalization
     needs: [build, publish-apiserver, publish-autopilot, publish-dashboard]
-    if: needs.build.outputs.SHOULD_RELEASE != 'none'
+    if: needs.build.outputs.RELEASE != 'none'
     runs-on: ubuntu-latest
     environment: release-approval
     steps:
@@ -134,7 +134,7 @@ jobs:
   finalize-release:
     name: Finalize Release and Update Compose
     needs: [build, manual-approval]
-    if: needs.build.outputs.SHOULD_RELEASE != 'none'
+    if: needs.build.outputs.RELEASE != 'none'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
