@@ -91,7 +91,7 @@ jobs:
     if: needs.build.outputs.SHOULD_RELEASE != 'none'
     uses: ./.github/workflows/publish-apiserver.yaml
     with:
-      version: ${{ env.LERNA_VERSION }}
+      version: ${{ needs.build.outputs.LERNA_VERSION }}
     secrets: inherit
 
   publish-autopilot:
@@ -100,7 +100,7 @@ jobs:
     if: needs.build.outputs.SHOULD_RELEASE != 'none'
     uses: ./.github/workflows/publish-autopilot.yaml
     with:
-      version: ${{ env.LERNA_VERSION }}
+      version: ${{ needs.build.outputs.LERNA_VERSION }}
     secrets: inherit
 
   publish-dashboard:
@@ -109,7 +109,7 @@ jobs:
     if: needs.build.outputs.SHOULD_RELEASE != 'none'
     uses: ./.github/workflows/publish-dashboard.yaml
     with:
-      version: ${{ env.LERNA_VERSION }}
+      version: ${{ needs.build.outputs.LERNA_VERSION }}
     secrets: inherit
 
   manual-approval:
