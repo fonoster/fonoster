@@ -73,7 +73,9 @@ export const CreateApplicationForm = ({
   const isAutopilot = type === "AUTOPILOT";
 
   // Keep track of previous vendor to detect vendor changes
-  const [prevTtsVendor, setPrevTtsVendor] = useState<string | undefined>(ttsVendor);
+  const [prevTtsVendor, setPrevTtsVendor] = useState<string | undefined>(
+    ttsVendor
+  );
 
   useEffect(() => {
     // Only reset voice when vendor changes, not when voice changes
@@ -81,12 +83,12 @@ export const CreateApplicationForm = ({
       // Check if current voice is a custom voice (not in predefined lists)
       const isCustomVoice = (voiceValue: string): boolean => {
         if (!voiceValue) return false;
-        
+
         const allPredefinedVoices = [
-          ...TTS_DEEPGRAM_VOICES.map(v => v.value),
-          ...TTS_ELEVENLABS_VOICES.map(v => v.value)
+          ...TTS_DEEPGRAM_VOICES.map((v) => v.value),
+          ...TTS_ELEVENLABS_VOICES.map((v) => v.value)
         ];
-        
+
         return !allPredefinedVoices.includes(voiceValue);
       };
 

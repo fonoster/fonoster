@@ -125,11 +125,7 @@ export const SpeechSection = ({
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <VoiceSelector
-                {...field}
-                ttsVendor={ttsVendor}
-                label="Voice"
-              />
+              <VoiceSelector {...field} ttsVendor={ttsVendor} label="Voice" />
             </FormControl>
           </FormItem>
         )}
