@@ -32,6 +32,7 @@ import { Privacy } from "@fonoster/types";
 import { useDomains } from "~/domains/services/domains.service";
 import { useCredentials } from "~/credentials/services/credentials.service";
 import { Select } from "~/core/components/design-system/ui/select/select";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import { Box } from "@mui/material";
 import { ModalTrigger } from "~/core/components/general/modal-trigger";
 import { CreateAgentCredentialsModal } from "./create-agent-credentials-modal.modal";
@@ -157,6 +158,11 @@ export function CreateAgentForm({
     <>
       <Form {...form}>
         <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+          {/* Agent ID - Only show in edit mode */}
+          {isEdit && initialValues?.ref && (
+            <ResourceIdField value={initialValues.ref} label="Agent Ref" />
+          )}
+
           {/* Friendly Name */}
           <FormField
             control={form.control}

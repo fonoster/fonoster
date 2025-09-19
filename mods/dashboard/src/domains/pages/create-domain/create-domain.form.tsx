@@ -30,6 +30,7 @@ import { useCallback, useState, useEffect, useMemo } from "react";
 import { schema, type Schema } from "./create-domain.schema";
 import { useAcls } from "~/acls/services/acls.service";
 import { Select } from "~/core/components/design-system/ui/select/select";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import { ModalTrigger } from "~/core/components/general/modal-trigger";
 import { Box } from "@mui/material";
 import { useNumbers } from "~/numbers/services/numbers.service";
@@ -178,6 +179,11 @@ export function CreateDomainForm({
     <>
       <Form {...form}>
         <FormRoot ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
+          {/* Domain ID - Only show in edit mode */}
+          {isEdit && initialValues?.ref && (
+            <ResourceIdField value={initialValues.ref} label="Domain Ref" />
+          )}
+
           {/* Friendly Name Field */}
           <FormField
             control={form.control}

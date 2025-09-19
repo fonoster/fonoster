@@ -45,10 +45,7 @@ export const ThemeSwitch = () => {
           Switch between light and dark theme
         </Typography>
       </Box>
-      <Switch
-        value={isDarkMode}
-        onChange={handleThemeChange}
-      />
+      <Switch value={isDarkMode} onChange={handleThemeChange} />
     </Box>
   );
 };

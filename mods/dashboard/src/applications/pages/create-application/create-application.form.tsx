@@ -18,7 +18,7 @@
  */
 
 import { useForm, type Resolver } from "react-hook-form";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Form } from "~/core/components/design-system/forms";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
@@ -72,14 +72,12 @@ export const CreateApplicationForm = ({
   );
   const isAutopilot = type === "AUTOPILOT";
 
-  // Keep track of previous vendor to detect vendor changes
-  const [prevTtsVendor, setPrevTtsVendor] = useState<string | undefined>(
-    ttsVendor
-  );
+  // Use useRef to track previous vendor without causing re-renders
+  const prevTtsVendorRef = useRef<string | undefined>(ttsVendor);
 
   useEffect(() => {
-    // Only reset voice when vendor changes, not when voice changes
-    if (ttsVendor && ttsVendor !== prevTtsVendor) {
+    // Only reset voice when vendor actually changes
+    if (ttsVendor && ttsVendor !== prevTtsVendorRef.current) {
       // Check if current voice is a custom voice (not in predefined lists)
       const isCustomVoice = (voiceValue: string): boolean => {
         if (!voiceValue) return false;
@@ -105,10 +103,10 @@ export const CreateApplicationForm = ({
         }
       }
 
-      // Update the previous vendor
-      setPrevTtsVendor(ttsVendor);
+      // Update the previous vendor ref
+      prevTtsVendorRef.current = ttsVendor;
     }
-  }, [ttsVendor, ttsVoice, form, prevTtsVendor]);
+  }, [ttsVendor, ttsVoice, form]);
 
   return (
     <Form {...form}>
@@ -117,6 +115,7 @@ export const CreateApplicationForm = ({
           control={form.control}
           isAutopilot={isAutopilot}
           isEdit={isEdit}
+          initialValues={initialValues}
         />
         {isAutopilot && (
           <ConversationSettingsSection

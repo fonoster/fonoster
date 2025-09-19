@@ -29,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
 import { Select } from "~/core/components/design-system/ui/select/select";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import {
   NUMBERS_DEFAULT_INITIAL_VALUES,
   COUNTRIES
@@ -130,6 +131,11 @@ export function CreateNumberForm({
   return (
     <Form {...form}>
       <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+        {/* Number ID - Only show in edit mode */}
+        {isEdit && initialValues?.ref && (
+          <ResourceIdField value={initialValues.ref} label="Number Ref" />
+        )}
+
         {/* Friendly Name Field */}
         <FormField
           control={form.control}

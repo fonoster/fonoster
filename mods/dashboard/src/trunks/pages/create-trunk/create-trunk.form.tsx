@@ -32,6 +32,7 @@ import type { Trunk } from "@fonoster/types";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { Select } from "~/core/components/design-system/ui/select/select";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import { useAcls } from "~/acls/services/acls.service";
 import { ModalTrigger } from "~/core/components/general/modal-trigger";
 import { useCredentials } from "~/credentials/services/credentials.service";
@@ -223,6 +224,11 @@ export function CreateTrunkForm({
     <>
       <Form {...form}>
         <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+          {/* Trunk ID - Only show in edit mode */}
+          {isEdit && initialValues?.ref && (
+            <ResourceIdField value={initialValues.ref} label="Trunk Ref" />
+          )}
+
           {/* Friendly Name Field */}
           <FormField
             control={form.control}

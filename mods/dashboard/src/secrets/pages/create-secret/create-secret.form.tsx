@@ -24,6 +24,7 @@ import {
   FormItem
 } from "~/core/components/design-system/forms";
 import { Input } from "~/core/components/design-system/ui/input/input";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -111,6 +112,11 @@ export const CreateSecretForm = ({
   return (
     <Form {...form}>
       <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+        {/* Secret ID - Only show in edit mode */}
+        {isEdit && initialValues?.ref && (
+          <ResourceIdField value={initialValues.ref} label="Secret Ref" />
+        )}
+
         {/* Secret Name Field */}
         <FormField
           control={form.control}

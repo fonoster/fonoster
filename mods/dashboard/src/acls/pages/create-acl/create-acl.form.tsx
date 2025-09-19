@@ -24,6 +24,7 @@ import {
   FormItem
 } from "~/core/components/design-system/forms";
 import { Input } from "~/core/components/design-system/ui/input/input";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useState } from "react";
@@ -130,6 +131,11 @@ export function CreateAclForm({
     <>
       <Form {...form}>
         <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+          {/* ACL ID - Only show in edit mode */}
+          {isEdit && initialValues?.ref && (
+            <ResourceIdField value={initialValues.ref} label="ACL Ref" />
+          )}
+
           {/* Friendly Name Field */}
           <FormField
             control={form.control}
