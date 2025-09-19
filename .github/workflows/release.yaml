@@ -16,6 +16,7 @@ jobs:
 
     outputs:
       RELEASE: ${{ env.RELEASE }}
+      LERNA_VERSION: ${{ env.LERNA_VERSION }}
 
     steps:
       - name: Checkout
@@ -89,6 +90,8 @@ jobs:
     needs: [build]
     if: needs.build.outputs.RELEASE != 'none'
     uses: ./.github/workflows/publish-apiserver.yaml
+    with:
+      version: ${{ needs.build.outputs.LERNA_VERSION }}
     secrets: inherit
 
   publish-autopilot:
@@ -96,6 +99,8 @@ jobs:
     needs: [build]
     if: needs.build.outputs.RELEASE != 'none'
     uses: ./.github/workflows/publish-autopilot.yaml
+    with:
+      version: ${{ needs.build.outputs.LERNA_VERSION }}
     secrets: inherit
 
   publish-dashboard:
@@ -103,11 +108,57 @@ jobs:
     needs: [build]
     if: needs.build.outputs.RELEASE != 'none'
     uses: ./.github/workflows/publish-dashboard.yaml
+    with:
+      version: ${{ needs.build.outputs.LERNA_VERSION }}
     secrets: inherit
 
-  update-compose:
-    name: Update compose.yaml with new version tags
+  manual-approval:
+    name: Manual Approval for Release Finalization
     needs: [build, publish-apiserver, publish-autopilot, publish-dashboard]
+    if: needs.build.outputs.RELEASE != 'none'
+    runs-on: ubuntu-latest
+    environment: release-approval
+    steps:
+      - name: Display release information
+        run: |
+          echo "✅ All Docker images have been built and published successfully!"
+          echo "📦 Version: ${{ needs.build.outputs.LERNA_VERSION }}"
+          echo "🐳 Docker images published:"
+          echo "  - fonoster/apiserver:${{ needs.build.outputs.LERNA_VERSION }}"
+          echo "  - fonoster/autopilot:${{ needs.build.outputs.LERNA_VERSION }}"
+          echo "  - fonoster/dashboard:${{ needs.build.outputs.LERNA_VERSION }}"
+          echo ""
+          echo "Please review the draft release and Docker images."
+          echo "If everything looks good, approve this step to finalize the release."
+      
+      - name: Wait for manual approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: ${{ github.actor }}
+          minimum-approvals: 1
+          issue-title: "Release Approval Required - v${{ needs.build.outputs.LERNA_VERSION }}"
+          issue-body: |
+            ## 🚀 Release Approval Required
+            
+            **Version:** ${{ needs.build.outputs.LERNA_VERSION }}
+            
+            ### Docker Images Published:
+            - fonoster/apiserver:${{ needs.build.outputs.LERNA_VERSION }}
+            - fonoster/autopilot:${{ needs.build.outputs.LERNA_VERSION }}
+            - fonoster/dashboard:${{ needs.build.outputs.LERNA_VERSION }}
+            
+            ### Next Steps:
+            1. Review the draft release on GitHub
+            2. Verify Docker images are available
+            3. Approve this workflow to finalize the release
+            
+            **Note:** This approval will publish the release and update the compose.yaml file.
+          exclude-workflow-initiator-as-approver: false
+
+  finalize-release:
+    name: Finalize Release and Update Compose
+    needs: [build, manual-approval]
     if: needs.build.outputs.RELEASE != 'none'
     runs-on: ubuntu-latest
     steps:
@@ -117,10 +168,39 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
       - name: Get version from Lerna
         run: |
           lerna_version=$(node -p "require('./lerna.json').version")
           echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
+
+      - name: Find and publish release
+        run: |
+          # Get the release by tag
+          release_response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ env.LERNA_VERSION }}")
+          
+          release_id=$(echo "$release_response" | jq -r '.id')
+          
+          if [ "$release_id" = "null" ] || [ -z "$release_id" ]; then
+            echo "Error: Could not find release with tag v${{ env.LERNA_VERSION }}"
+            exit 1
+          fi
+          
+          echo "Found release ID: $release_id"
+          
+          # Publish the release (remove draft status)
+          curl -X PATCH \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/$release_id" \
+            -d '{"draft": false}'
+          
+          echo "✅ Release v${{ env.LERNA_VERSION }} has been published"
 
       - name: Update compose.yaml with new version tags
         run: |
@@ -141,5 +221,16 @@ jobs:
           else
             git commit -m "chore: update compose.yaml with version ${{ env.LERNA_VERSION }} [skip ci]"
             git push origin main
+            echo "✅ Updated compose.yaml with version ${{ env.LERNA_VERSION }}"
           fi
 
+      - name: Release Summary
+        run: |
+          echo "## 🎉 Release Finalization Complete!"
+          echo ""
+          echo "**Version:** ${{ env.LERNA_VERSION }}"
+          echo "**Status:** ✅ Published to GitHub"
+          echo "**Docker Images:** ✅ Available with tag ${{ env.LERNA_VERSION }}"
+          echo "**Compose File:** ✅ Updated with new version tags"
+          echo ""
+          echo "The release is now live and ready for use! 🚀"

@@ -74,14 +74,15 @@ export const VoiceSelector = ({
     return !allPredefinedVoices.includes(voiceValue);
   };
 
-  // Determine if we should show custom input based on current value
+  // Determine if current value is a custom voice
   const isCustomVoice = value ? isValueCustom(value) : false;
 
   // State for manual toggle (independent of value detection)
   const [manualCustomMode, setManualCustomMode] = useState(false);
 
-  // Final decision: show custom input if value is custom OR user manually toggled
-  const showCustomInput = isCustomVoice || manualCustomMode;
+  // Final decision: show custom input if user manually toggled OR value is custom
+  // Note: manualCustomMode persists even when field is empty
+  const showCustomInput = manualCustomMode || isCustomVoice;
 
   // Initialize manual mode based on current value only once
   useEffect(() => {
@@ -89,6 +90,20 @@ export const VoiceSelector = ({
       setManualCustomMode(true);
     }
   }, []); // Only run once on mount
+
+  // Set manual mode when we detect a custom voice value (but don't unset it when field is empty)
+  useEffect(() => {
+    if (value && isValueCustom(value)) {
+      setManualCustomMode(true);
+    }
+    // Note: We don't set manualCustomMode to false when value is empty
+    // This allows manual mode to persist when user clears the field
+  }, [value]);
+
+  // Reset manual mode when provider changes
+  useEffect(() => {
+    setManualCustomMode(false);
+  }, [ttsVendor]);
 
   // Handle checkbox toggle
   const handleCustomVoiceToggle = (checked: boolean) => {
