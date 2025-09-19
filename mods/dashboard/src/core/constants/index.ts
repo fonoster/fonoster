@@ -21,4 +21,3 @@
  * Application form constants
  */
 export const SYSTEM_PROMPT_MIN_ROWS = 20;
-export const SYSTEM_PROMPT_MAX_LENGTH = 3500;

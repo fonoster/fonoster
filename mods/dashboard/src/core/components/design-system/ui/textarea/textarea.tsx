@@ -76,6 +76,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             minRows={minRows}
             maxRows={maxRows}
             maxLength={maxLength}
+            style={{
+              maxHeight: maxRows ? `${maxRows * 1.5}em` : undefined
+            }}
             {...rest}
           />
           {trailingIcon && (

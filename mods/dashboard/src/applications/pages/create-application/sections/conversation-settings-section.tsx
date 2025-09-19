@@ -29,8 +29,7 @@ import type { Control } from "react-hook-form";
 import type { Schema } from "../schemas/application-schema";
 import { Textarea } from "~/core/components/design-system/ui/textarea/textarea";
 import {
-  SYSTEM_PROMPT_MIN_ROWS,
-  SYSTEM_PROMPT_MAX_LENGTH
+  SYSTEM_PROMPT_MIN_ROWS
 } from "~/core/constants";
 
 export const ConversationSettingsSection = ({
@@ -70,7 +69,7 @@ export const ConversationSettingsSection = ({
             <Textarea
               label="System Prompt"
               minRows={SYSTEM_PROMPT_MIN_ROWS}
-              maxLength={SYSTEM_PROMPT_MAX_LENGTH}
+              maxRows={SYSTEM_PROMPT_MIN_ROWS}
               placeholder="Add your system prompt here"
               {...field}
             />

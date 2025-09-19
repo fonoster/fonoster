@@ -48,6 +48,7 @@ export const TextareaInput = styled(TextareaAutosize)(({ theme }) => ({
   letterSpacing: "0.12px",
   padding: 0,
   paddingTop: "8px",
+  overflowY: "auto",
   "&::placeholder": {
     color: theme.palette.base["03"]
   }
