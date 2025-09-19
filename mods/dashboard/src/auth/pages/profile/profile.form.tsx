@@ -35,6 +35,7 @@ import { Typography } from "~/core/components/design-system/ui/typography/typogr
 import { useUpdateUser } from "~/auth/services/auth.service";
 import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 import { PasswordStrengthBar } from "~/core/components/design-system/ui/password-strength-bar";
+import { ThemeSwitch } from "~/core/components/general/theme-switch";
 
 /**
  * Zod schema for workspace profile form validation.
@@ -216,6 +217,12 @@ export function PersonalSettingsForm({ onFormSubmit }: PersonalSettingsProps) {
             </FormItem>
           )}
         />
+
+        <Typography variant="body-large" sx={{ mt: 2 }}>
+          Appearance
+        </Typography>
+
+        <ThemeSwitch />
       </FormRoot>
     </Form>
   );

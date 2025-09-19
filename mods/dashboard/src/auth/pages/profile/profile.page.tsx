@@ -58,7 +58,7 @@ export default function Profile() {
    */
   return (
     <FormProvider>
-      <Page variant="form">
+      <Page>
         <PageHeader
           title="Personal Settings"
           description="Update your personal information and account settings."
