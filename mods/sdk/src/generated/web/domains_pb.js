@@ -43,7 +43,7 @@ goog.exportSymbol('proto.fonoster.domains.v1beta2.UpdateDomainResponse', null, g
  * @constructor
  */
 proto.fonoster.domains.v1beta2.Domain = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.fonoster.domains.v1beta2.Domain.repeatedFields_, null);
 };
 goog.inherits(proto.fonoster.domains.v1beta2.Domain, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -264,6 +264,13 @@ if (goog.DEBUG && !COMPILED) {
   proto.fonoster.domains.v1beta2.ListDomainsResponse.displayName = 'proto.fonoster.domains.v1beta2.ListDomainsResponse';
 }
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.fonoster.domains.v1beta2.Domain.repeatedFields_ = [7];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -299,7 +306,10 @@ ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 name: jspb.Message.getFieldWithDefault(msg, 2, ""),
 domainUri: jspb.Message.getFieldWithDefault(msg, 3, ""),
 createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
-updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
+updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
+accessControlListRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
+egressPoliciesList: jspb.Message.toObjectList(msg.getEgressPoliciesList(),
+    proto.fonoster.domains.v1beta2.EgressPolicy.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -355,6 +365,15 @@ proto.fonoster.domains.v1beta2.Domain.deserializeBinaryFromReader = function(msg
     case 5:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAccessControlListRef(value);
+      break;
+    case 7:
+      var value = new proto.fonoster.domains.v1beta2.EgressPolicy;
+      reader.readMessage(value,proto.fonoster.domains.v1beta2.EgressPolicy.deserializeBinaryFromReader);
+      msg.addEgressPolicies(value);
       break;
     default:
       reader.skipField();
@@ -418,6 +437,21 @@ proto.fonoster.domains.v1beta2.Domain.serializeBinaryToWriter = function(message
     writer.writeInt32(
       5,
       f
+    );
+  }
+  f = message.getAccessControlListRef();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
+  f = message.getEgressPoliciesList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      7,
+      f,
+      proto.fonoster.domains.v1beta2.EgressPolicy.serializeBinaryToWriter
     );
   }
 };
@@ -510,6 +544,62 @@ proto.fonoster.domains.v1beta2.Domain.prototype.getUpdatedAt = function() {
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.setUpdatedAt = function(value) {
   return jspb.Message.setProto3IntField(this, 5, value);
+};
+
+
+/**
+ * optional string access_control_list_ref = 6;
+ * @return {string}
+ */
+proto.fonoster.domains.v1beta2.Domain.prototype.getAccessControlListRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.domains.v1beta2.Domain} returns this
+ */
+proto.fonoster.domains.v1beta2.Domain.prototype.setAccessControlListRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * repeated EgressPolicy egress_policies = 7;
+ * @return {!Array<!proto.fonoster.domains.v1beta2.EgressPolicy>}
+ */
+proto.fonoster.domains.v1beta2.Domain.prototype.getEgressPoliciesList = function() {
+  return /** @type{!Array<!proto.fonoster.domains.v1beta2.EgressPolicy>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.fonoster.domains.v1beta2.EgressPolicy, 7));
+};
+
+
+/**
+ * @param {!Array<!proto.fonoster.domains.v1beta2.EgressPolicy>} value
+ * @return {!proto.fonoster.domains.v1beta2.Domain} returns this
+*/
+proto.fonoster.domains.v1beta2.Domain.prototype.setEgressPoliciesList = function(value) {
+  return jspb.Message.setRepeatedWrapperField(this, 7, value);
+};
+
+
+/**
+ * @param {!proto.fonoster.domains.v1beta2.EgressPolicy=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.fonoster.domains.v1beta2.EgressPolicy}
+ */
+proto.fonoster.domains.v1beta2.Domain.prototype.addEgressPolicies = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 7, opt_value, proto.fonoster.domains.v1beta2.EgressPolicy, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonoster.domains.v1beta2.Domain} returns this
+ */
+proto.fonoster.domains.v1beta2.Domain.prototype.clearEgressPoliciesList = function() {
+  return this.setEgressPoliciesList([]);
 };
 
 

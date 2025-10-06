@@ -50,7 +50,22 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
         `REF: \t${response.ref}\n` +
         `DOMAIN URI: \t${response.domainUri}\n` +
         `CREATED: \t${moment(response.createdAt).format("YYYY-MM-DD HH:mm:ss")}\n` +
-        `UPDATED: \t${moment(response.updatedAt).format("YYYY-MM-DD HH:mm:ss")}`
+        `UPDATED: \t${moment(response.updatedAt).format("YYYY-MM-DD HH:mm:ss")}\n` +
+        (response.accessControlList ? 
+          `\nACCESS CONTROL LIST:\n` +
+          `  NAME: \t${response.accessControlList.name}\n` +
+          `  REF: \t${response.accessControlList.ref}\n` +
+          `  ALLOW: \t${response.accessControlList.allow.join(", ") || "None"}\n` +
+          `  DENY: \t${response.accessControlList.deny.join(", ") || "None"}` :
+          `\nACCESS CONTROL LIST: \tNone`
+        ) +
+        (response.egressPolicies && response.egressPolicies.length > 0 ?
+          `\n\nEGRESS POLICIES:\n` +
+          response.egressPolicies.map((policy, index) => 
+            `  ${index + 1}. Rule: ${policy.rule}, Number: ${policy.numberRef}`
+          ).join("\n") :
+          `\n\nEGRESS POLICIES: \tNone`
+        )
     );
 
     this.log(ui.toString());

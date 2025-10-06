@@ -34,15 +34,15 @@ import { updateResource } from "../resources/updateResource";
 const RESOURCE = "Domain";
 
 function createDomain(domains: DomainsApi) {
-  return createResource<
-    DomainExtended,
-    CreateDomainRequestExtended,
-    DomainsApi
-  >(domains, RESOURCE, V.createDomainRequestSchema);
+  return createResource<CreateDomainRequestExtended, BaseApiObject, DomainsApi>(
+    domains,
+    RESOURCE,
+    V.createDomainRequestSchema
+  );
 }
 
 function updateDomain(domains: DomainsApi) {
-  return updateResource<DomainExtended, UpdateDomainRequest, DomainsApi>(
+  return updateResource<UpdateDomainRequest, BaseApiObject, DomainsApi>(
     domains,
     RESOURCE,
     V.updateDomainRequestSchema

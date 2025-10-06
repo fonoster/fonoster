@@ -18,6 +18,14 @@ export class Domain extends jspb.Message {
   getUpdatedAt(): number;
   setUpdatedAt(value: number): Domain;
 
+  getAccessControlListRef(): string;
+  setAccessControlListRef(value: string): Domain;
+
+  getEgressPoliciesList(): Array<EgressPolicy>;
+  setEgressPoliciesList(value: Array<EgressPolicy>): Domain;
+  clearEgressPoliciesList(): Domain;
+  addEgressPolicies(value?: EgressPolicy, index?: number): EgressPolicy;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Domain.AsObject;
   static toObject(includeInstance: boolean, msg: Domain): Domain.AsObject;
@@ -33,6 +41,8 @@ export namespace Domain {
     domainUri: string,
     createdAt: number,
     updatedAt: number,
+    accessControlListRef: string,
+    egressPoliciesList: Array<EgressPolicy.AsObject>,
   }
 }
 

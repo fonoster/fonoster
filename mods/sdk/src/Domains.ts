@@ -92,17 +92,24 @@ class Domains {
    * @param {CreateDomainRequest} request - The request object that contains the necessary information to create a new Domain
    * @param {string} request.name - The name of the Domain
    * @param {string} request.domainUri - The URI of the Domain
-   * @param {AccessControlListRef} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain
-   * @param {EgressPolicy[]} request.egressPolicy - The egress policy of the Domain
-   * @param {string} request.egressPolicy[].rule - A regular expression that defines which calls to send to the PSTN
-   * @param {string} request.egressPolicy[].numberRef - The Number that will be used to send the call to the PSTN
+   * @param {string} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain
+   * @param {EgressPolicy[]} request.egressPolicies - The egress policy of the Domain
+   * @param {string} request.egressPolicies[].rule - A regular expression that defines which calls to send to the PSTN
+   * @param {string} request.egressPolicies[].numberRef - The Number that will be used to send the call to the PSTN
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Domain
    * @example
    * const domains = new SDK.Domains(client); // Existing client object
    *
    * const request = {
    *   name: "My Domain",
-   *   domainUri: "sip.project.fonoster.io"
+   *   domainUri: "sip.project.fonoster.io",
+   *   accessControlListRef: "00000000-0000-0000-0000-000000000001",
+   *   egressPolicies: [
+   *     {
+   *       rule: ".*",
+   *       numberRef: "00000000-0000-0000-0000-000000000002"
+   *     }
+   *   ]
    * };
    *
    * domains
@@ -129,7 +136,7 @@ class Domains {
    * Retrieves an existing Domain in the Workspace.
    *
    * @param {string} ref - The reference of the Domain to retrieve
-   * @return {Promise<Acl>} - The response object that contains the Domain
+   * @return {Promise<Domain>} - The response object that contains the Domain with full ACL object
    * @example
    * const domains = new SDK.Domains(client); // Existing client object
    *
@@ -137,7 +144,12 @@ class Domains {
    *
    * domains
    *   .getDomain(ref)
-   *   .then(console.log) // successful response
+   *   .then((domain) => {
+   *     console.log("Domain:", domain.name);
+   *     console.log("ACL:", domain.accessControlList?.name);
+   *     console.log("Allowed IPs:", domain.accessControlList?.allow);
+   *     console.log("Denied IPs:", domain.accessControlList?.deny);
+   *   })
    *   .catch(console.error); // an error occurred
    */
   async getDomain(ref: string): Promise<Domain> {
@@ -162,17 +174,23 @@ class Domains {
    * @param {string} request.ref - The reference of the Domain to update
    * @param {string} request.name - The name of the Domain
    * @param {string} request.domainUri - The URI of the Domain
-   * @param {AccessControlListRef} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain
-   * @param {EgressPolicy[]} request.egressPolicy - The egress policy of the Domain
-   * @param {string} request.egressPolicy[].rule - A regular expression that defines which calls to send to the PSTN
-   * @param {string} request.egressPolicy[].numberRef - The Number that will be used to send the call to the PSTN
+   * @param {string} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain
+   * @param {EgressPolicy[]} request.egressPolicies - The egress policy of the Domain
+   * @param {string} request.egressPolicies[].rule - A regular expression that defines which calls to send to the PSTN
+   * @param {string} request.egressPolicies[].numberRef - The Number that will be used to send the call to the PSTN
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Domain
    * @example
    * const domains = new SDK.Domains(client); // Existing client object
    *
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
-   *   accessControlListRef: "00000000-0000-0000-0000-000000000001"
+   *   accessControlListRef: "00000000-0000-0000-0000-000000000001",
+   *   egressPolicies: [
+   *     {
+   *       rule: ".*",
+   *       numberRef: "00000000-0000-0000-0000-000000000002"
+   *     }
+   *   ]
    * };
    *
    * domains

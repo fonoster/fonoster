@@ -36,6 +36,16 @@ service Domains {
 
 // The message for the Domain resource
 message Domain {
+  message Acl {
+    // The reference of the AccessControlList
+    string ref = 1;
+    // The name of the AccessControlList
+    string name = 2;
+    // The list of IP addresses that are allowed to access the Domain
+    repeated string allow = 3;
+    // The list of IP addresses that are denied to access the Domain
+    repeated string deny = 4;
+  }
   // The unique identifier of the Domain
   string ref = 1;
   // The name of the Domain
@@ -46,6 +56,10 @@ message Domain {
   int32 created_at = 4;
   // The date of the last update
   int32 updated_at = 5;
+  // The Access Control List object
+  Acl access_control_list = 6;
+  // Optional list of egress policies
+  repeated EgressPolicy egress_policies = 7;
 }
 
 // EgressPolicy defines the policy for egress traffic

@@ -23,7 +23,12 @@ type Domain = {
   ref: string;
   name: string;
   domainUri: string;
-  accessControlListRef?: string;
+  accessControlList?: {
+    ref: string;
+    name: string;
+    allow: string[];
+    deny: string[];
+  };
   egressPolicies?: { rule: string; numberRef: string }[];
   createdAt: Date;
   updatedAt: Date;

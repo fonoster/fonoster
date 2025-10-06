@@ -65,15 +65,5 @@ export const columns: ColumnDef<Trunk>[] = [
     id: "inboundUri",
     header: "Inbound SIP",
     accessorKey: "inboundUri"
-  },
-  {
-    /**
-     * Reference to the credentials object used for outbound SIP authentication.
-     *
-     * Typically a UUID or name of the credentials resource.
-     */
-    id: "outboundCredentialsRef",
-    header: "Outbound Credentials",
-    accessorKey: "outboundCredentialsRef"
   }
 ];
