@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/mcp",
-  "version": "0.15.18",
+  "version": "0.15.19",
   "description": "Model Context Protocol for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@fonoster/common": "^0.15.18",
     "@fonoster/logger": "^0.15.17",
-    "@fonoster/sdk": "^0.15.18",
+    "@fonoster/sdk": "^0.15.19",
     "@modelcontextprotocol/sdk": "^1.4.0"
   },
   "files": [
