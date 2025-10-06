@@ -259,7 +259,7 @@ class Agents {
    */
   async listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse> {
     const client = this.client.getAgentsClient();
-    return await makeRpcRequest<
+    const response = await makeRpcRequest<
       ListAgentsRequestPB,
       ListAgentsResponsePB,
       ListAgentsRequest,
@@ -272,6 +272,40 @@ class Agents {
       enumMapping: [["privacy", PrivacyPB]],
       repeatableObjectMapping: [["itemsList", AgentPB]]
     });
+
+    // Manually extract nested objects for each agent
+    const processedItems = response.items?.map((agent: any) => {
+      const credentials = (
+        agent?.credentials as unknown as {
+          toObject: () => {
+            ref: string;
+            name: string;
+            username: string;
+          };
+        }
+      )?.toObject();
+
+      const domain = (
+        agent?.domain as unknown as {
+          toObject: () => {
+            ref: string;
+            name: string;
+            domainUri: string;
+          };
+        }
+      )?.toObject();
+
+      return {
+        ...agent,
+        credentials,
+        domain
+      };
+    });
+
+    return {
+      ...response,
+      items: processedItems || []
+    };
   }
 
   /**

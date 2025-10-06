@@ -63,15 +63,19 @@ export const columns: ColumnDef<Agent>[] = [
   },
   {
     /**
-     * Domain to which the agent belongs.
+     * Domain URI to which the agent belongs.
      *
-     * - Renders the name of the associated domain.
+     * - Renders the domain URI of the associated domain.
      * - Useful for distinguishing agents across different SIP domains or tenants.
      * - Enhances context for administrators managing multiple domains.
      */
-    id: "domain.name",
-    header: "Domain",
-    accessorKey: "domain.name"
+    id: "domain",
+    header: "Domain URI",
+    accessorKey: "domain",
+    cell: ({ row }) => {
+      const domain = (row.original as any).domain;
+      return domain?.domainUri || "";
+    }
   },
   {
     /**

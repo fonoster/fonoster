@@ -63,7 +63,7 @@ export const columns: ColumnDef<Trunk>[] = [
      * This field helps configure SIP endpoints and routing.
      */
     id: "inboundUri",
-    header: "Inbound SIP",
+    header: "Inbound SIP URI",
     accessorKey: "inboundUri"
   }
 ];
