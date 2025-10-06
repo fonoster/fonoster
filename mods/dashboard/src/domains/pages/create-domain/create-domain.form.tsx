@@ -36,6 +36,7 @@ import { Box } from "@mui/material";
 import { useNumbers } from "~/numbers/services/numbers.service";
 import { CreateRuleModal } from "./create-domain-rules-modal.modal";
 import { CreateDomainAclsModal } from "./create-domain-acls-modal.modal";
+import { useFormContextSync } from "~/core/hooks";
 import type { Acl } from "@fonoster/types";
 
 /**
@@ -177,6 +178,9 @@ export function CreateDomainForm({
       setAcls(aclsData);
     }
   }, [aclsData]);
+
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit, isEdit);
 
   /**
    * Renders the form with individual fields wrapped in FormField and FormItem components.
