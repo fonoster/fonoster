@@ -70,7 +70,9 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       const request: CreateDomainRequest = {
         name: answers.name,
         domainUri: answers.domainUri,
-        ...(answers.accessControlListRef && { accessControlListRef: answers.accessControlListRef })
+        ...(answers.accessControlListRef && {
+          accessControlListRef: answers.accessControlListRef
+        })
       };
 
       await domains.createDomain(request);

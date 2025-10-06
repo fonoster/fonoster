@@ -98,9 +98,11 @@ export function CreateDomainForm({
       egressPolicies: [],
       ...initialValues,
       // Extract ACL reference from the full ACL object if in edit mode
-      ...(initialValues && 'accessControlList' in initialValues && (initialValues as any).accessControlList && {
-        accessControlListRef: (initialValues as any).accessControlList.ref
-      })
+      ...(initialValues &&
+        "accessControlList" in initialValues &&
+        (initialValues as any).accessControlList && {
+          accessControlListRef: (initialValues as any).accessControlList.ref
+        })
     },
     mode: "onChange"
   });

@@ -82,7 +82,9 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       const request: UpdateDomainRequest = {
         ref: answers.ref,
         name: answers.name,
-        ...(answers.accessControlListRef && { accessControlListRef: answers.accessControlListRef })
+        ...(answers.accessControlListRef && {
+          accessControlListRef: answers.accessControlListRef
+        })
       };
 
       await domains.updateDomain(request);
