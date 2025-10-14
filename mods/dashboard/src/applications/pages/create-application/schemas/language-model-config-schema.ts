@@ -36,7 +36,7 @@ const languageModelConfigSchema = z.object({
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
     .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
-  tools: z.array(toolSchema)
+  tools: z.array(toolSchema).optional()
 });
 
 export { languageModelConfigSchema };
