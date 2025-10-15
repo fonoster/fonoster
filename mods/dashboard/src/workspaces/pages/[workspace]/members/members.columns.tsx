@@ -23,6 +23,7 @@ import { Icon } from "~/core/components/design-system/icons/icons";
 import { Tooltip } from "~/core/components/design-system/ui/tooltip/tooltip";
 import { useCallback } from "react";
 import { ROLE_LABELS, STATUS_LABELS } from "./members.constants";
+import { Role } from "@fonoster/types";
 
 /**
  * Props for the ActionsCell component.
@@ -30,11 +31,13 @@ import { ROLE_LABELS, STATUS_LABELS } from "./members.constants";
  * @property {WorkspaceMemberDTO} member - The workspace member represented by the row.
  * @property {(member: WorkspaceMemberDTO) => void} onSendEmail - Handler for resending the invitation email.
  * @property {(member: WorkspaceMemberDTO) => void} onDelete - Handler for deleting the member.
+ * @property {boolean} canDelete - Whether the current user can delete members (admin only).
  */
 export interface ActionsCellProps {
   member: WorkspaceMemberDTO;
   onSendEmail: (member: WorkspaceMemberDTO) => void;
   onDelete: (member: WorkspaceMemberDTO) => void;
+  canDelete: boolean;
 }
 
 /**
@@ -48,7 +51,8 @@ export interface ActionsCellProps {
 export const ActionsCell = ({
   member,
   onSendEmail,
-  onDelete
+  onDelete,
+  canDelete
 }: ActionsCellProps) => {
   /** Check if the member's status is pending, allowing email to be resent. */
   const isPending = member.status === "PENDING";
@@ -85,20 +89,22 @@ export const ActionsCell = ({
         </span>
       </Tooltip>
 
-      <Tooltip title="Delete member" placement="bottom">
-        <span>
-          <Icon
-            name="Delete"
-            fontSize="small"
-            onClick={() => onDelete(member)}
-            sx={{
-              fontSize: "16px",
-              color: "base.04",
-              cursor: "pointer"
-            }}
-          />
-        </span>
-      </Tooltip>
+      {canDelete && (
+        <Tooltip title="Delete member" placement="bottom">
+          <span>
+            <Icon
+              name="Delete"
+              fontSize="small"
+              onClick={() => onDelete(member)}
+              sx={{
+                fontSize: "16px",
+                color: "base.04",
+                cursor: "pointer"
+              }}
+            />
+          </span>
+        </Tooltip>
+      )}
     </Stack>
   );
 };
@@ -111,11 +117,13 @@ export const ActionsCell = ({
  *
  * @param {(member: WorkspaceMemberDTO) => void} onDelete - Handler for deleting a member.
  * @param {(member: WorkspaceMemberDTO) => void} onSendEmail - Handler for resending the invitation email.
+ * @param {boolean} canDelete - Whether the current user can delete members (admin only).
  * @returns {ColumnDef<WorkspaceMemberDTO>[]} The columns configuration.
  */
 export const getColumns = (
   onDelete: (member: WorkspaceMemberDTO) => void,
-  onSendEmail: (member: WorkspaceMemberDTO) => void
+  onSendEmail: (member: WorkspaceMemberDTO) => void,
+  canDelete: boolean
 ): ColumnDef<WorkspaceMemberDTO>[] => [
   {
     id: "name",
@@ -163,6 +171,7 @@ export const getColumns = (
         member={member}
         onSendEmail={onSendEmail}
         onDelete={onDelete}
+        canDelete={canDelete}
       />
     )
   }
