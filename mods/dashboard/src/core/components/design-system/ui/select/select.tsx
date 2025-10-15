@@ -61,6 +61,7 @@ export const Select: React.FC<SelectProps> = ({
   name,
   size = "medium",
   multiple = false,
+  allowClear = false,
   ...rest
 }) => {
   const { error } = useFormField();
@@ -87,6 +88,21 @@ export const Select: React.FC<SelectProps> = ({
   );
 
   /**
+   * Handles clearing the selected value.
+   */
+  const handleClear = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      event.preventDefault();
+
+      if (onChange) {
+        onChange({ target: { value: multiple ? [] : "" } });
+      }
+    },
+    [onChange, multiple]
+  );
+
+  /**
    * Handles rendering the selected value in the input field.
    *
    * @param selected - The selected value(s).
@@ -96,10 +112,52 @@ export const Select: React.FC<SelectProps> = ({
     (selected: any, placeholder: string) => {
       if (!multiple || !Array.isArray(selected)) {
         const selectedOption = options.find((o) => o.value === selected);
-        return selectedOption ? (
-          selectedOption.label
-        ) : (
-          <span style={{ color: theme.palette.base["04"] }}>{placeholder}</span>
+        const hasValue = selected && selected !== "";
+
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%"
+            }}
+          >
+            <span
+              style={{
+                color: hasValue
+                  ? theme.palette.base["02"]
+                  : theme.palette.base["04"]
+              }}
+            >
+              {hasValue ? selectedOption?.label : placeholder}
+            </span>
+            {allowClear && hasValue && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "16px",
+                  height: "16px",
+                  color: theme.palette.base["04"],
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  marginLeft: "8px",
+                  "&:hover": {
+                    color: theme.palette.base["02"]
+                  }
+                }}
+                onClick={handleClear}
+                onMouseDown={(event) => {
+                  event.stopPropagation();
+                  event.preventDefault();
+                }}
+              >
+                <Icon name="Close" fontSize="inherit" />
+              </Box>
+            )}
+          </Box>
         );
       }
 
@@ -174,7 +232,15 @@ export const Select: React.FC<SelectProps> = ({
         </Box>
       );
     },
-    [multiple, options, theme.palette.brand, value, onChange]
+    [
+      multiple,
+      options,
+      theme.palette.brand,
+      value,
+      onChange,
+      allowClear,
+      handleClear
+    ]
   );
 
   /**
@@ -302,6 +368,34 @@ export const Select: React.FC<SelectProps> = ({
           )
         }
       >
+        {allowClear && !multiple && (
+          <MenuItem
+            value=""
+            sx={{
+              fontSize: size === "small" ? "11px" : "12px",
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: 400,
+              lineHeight: "normal",
+              transition: "all 0.2s ease",
+              fontStyle: "italic",
+              color: theme.palette.base["04"],
+              "&:hover": {
+                backgroundColor: theme.palette.brand["03"],
+                color: theme.palette.brand["07"]
+              },
+              "&.Mui-selected": {
+                backgroundColor: theme.palette.brand.main,
+                color: theme.palette.brand["07"]
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: theme.palette.brand.main,
+                color: theme.palette.brand["07"]
+              }
+            }}
+          >
+            None
+          </MenuItem>
+        )}
         {options.map((option) => (
           <MenuItem
             key={option.value}

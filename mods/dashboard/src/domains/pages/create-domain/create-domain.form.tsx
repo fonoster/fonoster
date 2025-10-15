@@ -244,8 +244,9 @@ export function CreateDomainForm({
                           ? "Loading ACLs..."
                           : !acls || acls.length === 0
                             ? "No ACLs found. Create one first."
-                            : ""
+                            : "Select ACL (optional)"
                       }
+                      allowClear={true}
                       {...field}
                     />
                     <ModalTrigger

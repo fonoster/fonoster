@@ -177,6 +177,7 @@ export const PropertiesModal = ({
                   const v = (e.target as HTMLInputElement).value;
                   field.onChange(handleFormatChange(v));
                 }}
+                allowClear={true}
               />
             </FormControl>
           </FormItem>

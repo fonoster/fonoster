@@ -168,8 +168,9 @@ export function CreateNumberForm({
                       ? "Loading trunks..."
                       : trunks.length === 0
                         ? "No trunks found. Please create a Trunk first."
-                        : ""
+                        : "Select trunk (optional)"
                   }
+                  allowClear={true}
                   {...field}
                 />
               </FormControl>
@@ -240,8 +241,9 @@ export function CreateNumberForm({
                       ? "Loading applications..."
                       : applications.length === 0
                         ? "No applications found. Please create an application first."
-                        : ""
+                        : "Select application (optional)"
                   }
+                  allowClear={true}
                   {...field}
                 />
               </FormControl>

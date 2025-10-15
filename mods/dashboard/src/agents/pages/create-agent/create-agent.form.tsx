@@ -118,8 +118,9 @@ export function CreateAgentForm({
             ? "Loading domains..."
             : domains.length === 0
               ? "No domains found. Create one first."
-              : ""
+              : "Select a domain (optional)"
         }
+        allowClear={true}
         {...field}
       />
     ),
@@ -142,8 +143,9 @@ export function CreateAgentForm({
               ? "Loading credentials..."
               : credentials.length === 0
                 ? "No credentials found. Create one first."
-                : ""
+                : "Select credentials (optional)"
           }
+          allowClear={true}
         />
         <ModalTrigger
           onClick={handleOpenCredentialsModal}
