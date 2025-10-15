@@ -170,7 +170,7 @@ export const PropertiesModal = ({
           <FormItem>
             <FormControl>
               <Select
-                label="Format (optional)"
+                label="Format"
                 options={FORMAT_OPTIONS}
                 value={(field.value as any) ?? ""}
                 onChange={(e) => {

@@ -293,7 +293,7 @@ export function CreateTrunkForm({
                           ? "Loading ACLs..."
                           : acls.length === 0
                             ? "No ACLs found. Create one first."
-                            : "Select ACL (optional)"
+                            : ""
                       }
                       allowClear={true}
                       {...field}
@@ -338,7 +338,7 @@ export function CreateTrunkForm({
                           ? "Loading credentials..."
                           : credentials.length === 0
                             ? "No credentials found. Create one first."
-                            : "Select credentials (optional)"
+                            : "Select credentials"
                       }
                       allowClear={true}
                     />
@@ -393,7 +393,7 @@ export function CreateTrunkForm({
                           ? "Loading credentials..."
                           : credentials.length === 0
                             ? "No credentials found. Create one first."
-                            : "Select credentials (optional)"
+                            : "Select credentials"
                       }
                       allowClear={true}
                     />
