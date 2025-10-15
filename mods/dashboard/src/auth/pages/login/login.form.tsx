@@ -115,6 +115,13 @@ export function LoginForm({ onSubmit, onGithubAuth }: LoginFormProps) {
                   label="Email Address"
                   supportingText="Please enter your email address"
                   {...field}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    // Clear any manual errors when user starts typing
+                    if (form.formState.errors.email?.type === "manual") {
+                      form.clearErrors("email");
+                    }
+                  }}
                 />
               </FormControl>
             </FormItem>
@@ -133,6 +140,13 @@ export function LoginForm({ onSubmit, onGithubAuth }: LoginFormProps) {
                   label="Password"
                   supportingText="Please enter your password"
                   {...field}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    // Clear any manual errors when user starts typing
+                    if (form.formState.errors.email?.type === "manual") {
+                      form.clearErrors("email");
+                    }
+                  }}
                 />
               </FormControl>
             </FormItem>
