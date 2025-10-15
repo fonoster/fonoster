@@ -104,7 +104,7 @@ export function CreateTrunkForm({
     defaultValues: {
       ref: null,
       name: "",
-      sendRegister: true,
+      sendRegister: false,
       inboundUri: "",
       accessControlListRef: "",
       inboundCredentialsRef: "",
@@ -293,8 +293,9 @@ export function CreateTrunkForm({
                           ? "Loading ACLs..."
                           : acls.length === 0
                             ? "No ACLs found. Create one first."
-                            : ""
+                            : "Select ACL (optional)"
                       }
+                      allowClear={true}
                       {...field}
                     />
 
@@ -337,8 +338,9 @@ export function CreateTrunkForm({
                           ? "Loading credentials..."
                           : credentials.length === 0
                             ? "No credentials found. Create one first."
-                            : ""
+                            : "Select credentials (optional)"
                       }
+                      allowClear={true}
                     />
                     <ModalTrigger
                       onClick={handleOpenInboundCredentialsModal}
@@ -391,8 +393,9 @@ export function CreateTrunkForm({
                           ? "Loading credentials..."
                           : credentials.length === 0
                             ? "No credentials found. Create one first."
-                            : ""
+                            : "Select credentials (optional)"
                       }
+                      allowClear={true}
                     />
                     <ModalTrigger
                       onClick={handleOpenOutboundCredentialsModal}
