@@ -125,13 +125,8 @@ export const CreateApplicationForm = ({
       // Get available models for the new provider
       const availableModels = getLanguageModelModels(languageModelProvider);
 
-      // Check if current model is available for the new provider
-      const isCurrentModelAvailable = availableModels.some(
-        (model) => model.value === languageModelModel
-      );
-
-      // Only reset model if current model is not available for the new provider
-      if (!isCurrentModelAvailable && availableModels.length > 0) {
+      // Always reset to the first available model when provider changes
+      if (availableModels.length > 0) {
         const { value: firstModel } = availableModels[0];
         form.setValue("intelligence.config.languageModel.model", firstModel);
       }
@@ -139,7 +134,7 @@ export const CreateApplicationForm = ({
       // Update the previous provider ref
       prevLanguageModelProviderRef.current = languageModelProvider;
     }
-  }, [languageModelProvider, languageModelModel, form]);
+  }, [languageModelProvider, form]);
 
   return (
     <Form {...form}>
