@@ -25,7 +25,8 @@ import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 import {
   APPLICATIONS_DEFAULT_INITIAL_VALUES,
   TTS_DEEPGRAM_VOICES,
-  TTS_ELEVENLABS_VOICES
+  TTS_ELEVENLABS_VOICES,
+  getLanguageModelModels
 } from "./create-application.const";
 import {
   type Form as FormType,
@@ -70,10 +71,16 @@ export const CreateApplicationForm = ({
   const languageModelProvider = form.watch(
     "intelligence.config.languageModel.provider"
   );
+  const languageModelModel = form.watch(
+    "intelligence.config.languageModel.model"
+  );
   const isAutopilot = type === "AUTOPILOT";
 
   // Use useRef to track previous vendor without causing re-renders
   const prevTtsVendorRef = useRef<string | undefined>(ttsVendor);
+  const prevLanguageModelProviderRef = useRef<string | undefined>(
+    languageModelProvider
+  );
 
   useEffect(() => {
     // Only reset voice when vendor actually changes
@@ -107,6 +114,32 @@ export const CreateApplicationForm = ({
       prevTtsVendorRef.current = ttsVendor;
     }
   }, [ttsVendor, ttsVoice, form]);
+
+  // Handle language model provider changes
+  useEffect(() => {
+    // Only reset model when provider actually changes
+    if (
+      languageModelProvider &&
+      languageModelProvider !== prevLanguageModelProviderRef.current
+    ) {
+      // Get available models for the new provider
+      const availableModels = getLanguageModelModels(languageModelProvider);
+
+      // Check if current model is available for the new provider
+      const isCurrentModelAvailable = availableModels.some(
+        (model) => model.value === languageModelModel
+      );
+
+      // Only reset model if current model is not available for the new provider
+      if (!isCurrentModelAvailable && availableModels.length > 0) {
+        const { value: firstModel } = availableModels[0];
+        form.setValue("intelligence.config.languageModel.model", firstModel);
+      }
+
+      // Update the previous provider ref
+      prevLanguageModelProviderRef.current = languageModelProvider;
+    }
+  }, [languageModelProvider, languageModelModel, form]);
 
   return (
     <Form {...form}>
