@@ -64,7 +64,7 @@
     "react-router-devtools": "^1.1.0",
     "storybook": "^8.6.12",
     "typescript": "^5.7.2",
-    "vite": "^5.4.11",
+    "vite": "^5.4.21",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }
