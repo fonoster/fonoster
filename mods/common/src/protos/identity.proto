@@ -71,6 +71,13 @@ message Workspace {
   string access_key_id = 4;
   int32 created_at = 5;
   int32 updated_at = 6;
+  Owner owner = 7;
+}
+
+message Owner {
+  string ref = 1;
+  string name = 2;
+  string email = 3;
 }
 
 message CreateWorkspaceRequest {

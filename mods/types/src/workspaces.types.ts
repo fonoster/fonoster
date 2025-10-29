@@ -37,6 +37,11 @@ type Workspace = {
   accessKeyId: string;
   createdAt: Date;
   updatedAt: Date;
+  owner?: {
+    ref: string;
+    name: string;
+    email: string;
+  };
 };
 
 type CreateWorkspaceRequest = {
