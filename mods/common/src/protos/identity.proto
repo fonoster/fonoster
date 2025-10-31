@@ -65,6 +65,12 @@ service Identity {
 // Workspace Resources
 
 message Workspace {
+  message Owner {
+    string ref = 1;
+    string name = 2;
+    string email = 3;
+  }
+
   string ref = 1;
   string name = 2;
   string owner_ref = 3;
@@ -72,12 +78,6 @@ message Workspace {
   int32 created_at = 5;
   int32 updated_at = 6;
   Owner owner = 7;
-}
-
-message Owner {
-  string ref = 1;
-  string name = 2;
-  string email = 3;
 }
 
 message CreateWorkspaceRequest {
