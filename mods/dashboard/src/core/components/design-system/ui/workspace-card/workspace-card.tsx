@@ -85,7 +85,7 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
               <StyledOwnerIcon>
                 <PersonOutlinedIcon />
               </StyledOwnerIcon>
-              <StyledOwnerText>{owner.name}'s Workspace</StyledOwnerText>
+              <StyledOwnerText>Owner: {owner.name}</StyledOwnerText>
             </StyledOwnerContainer>
           )}
           <Box sx={{ flexGrow: 1 }} />
