@@ -71,6 +71,15 @@ function createListWorkspaces(prisma: Prisma) {
             ownerRef: userRef
           }
         ]
+      },
+      include: {
+        owner: {
+          select: {
+            ref: true,
+            name: true,
+            email: true
+          }
+        }
       }
     });
 

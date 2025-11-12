@@ -16,17 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from "react";
+import React, { useMemo } from "react";
 import {
   WorkspaceCardRoot,
   StyledDescription,
   StyledDateContainer,
   StyledBottomContainer,
   StyledDate,
-  StyledIcon
+  StyledIcon,
+  StyledOwnerContainer,
+  StyledOwnerIcon,
+  StyledOwnerText
 } from "./workspace-card.styles";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import { RegionBadge } from "../region-badge/region-badge";
 import { Box } from "@mui/material";
 
@@ -35,6 +39,11 @@ export interface WorkspaceCardProps
   region?: string;
   description?: string;
   date?: string;
+  owner?: {
+    ref: string;
+    name: string;
+    email: string;
+  };
   disabled?: boolean;
   workspaceRef?: React.RefObject<HTMLDivElement>;
   onSettingsClick?: () => void;
@@ -45,6 +54,7 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
   region,
   description,
   date,
+  owner,
   disabled = false,
   workspaceRef,
   onSettingsClick
@@ -70,6 +80,14 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
         <Box sx={{ width: "100%" }}>
           {region && <RegionBadge type="landing-page">{region}</RegionBadge>}
           {description && <StyledDescription>{description}</StyledDescription>}
+          {owner && (
+            <StyledOwnerContainer>
+              <StyledOwnerIcon>
+                <PersonOutlinedIcon />
+              </StyledOwnerIcon>
+              <StyledOwnerText>Owner: {owner.name}</StyledOwnerText>
+            </StyledOwnerContainer>
+          )}
           <Box sx={{ flexGrow: 1 }} />
           <StyledBottomContainer>
             <StyledDateContainer>

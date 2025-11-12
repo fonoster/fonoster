@@ -148,3 +148,43 @@ export const StyledIcon = styled("div")<{ clickable?: boolean }>(
     }
   })
 );
+
+export const StyledOwnerContainer = styled("div")(({ theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  marginTop: "10px",
+  backgroundColor: theme.palette.base["07"],
+  padding: "6px 12px",
+  borderRadius: "20px",
+  border: `1px solid ${theme.palette.base["07"]}`,
+  transition: "all 0.2s ease-in-out"
+}));
+
+export const StyledOwnerIcon = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "20px",
+  height: "20px",
+  borderRadius: "50%",
+  backgroundColor: theme.palette.brand["02"],
+  color: theme.palette.brand["04"],
+  "& svg": {
+    width: "14px",
+    height: "14px"
+  }
+}));
+
+export const StyledOwnerText = styled(Typography)(({ theme }) => ({
+  fontFamily:
+    "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  color: theme.palette.base["04"],
+  fontSize: "11px",
+  fontWeight: 500,
+  lineHeight: "16px",
+  letterSpacing: "0.01em",
+  textAlign: "left",
+  textUnderlinePosition: "from-font",
+  textDecorationSkipInk: "none"
+}));

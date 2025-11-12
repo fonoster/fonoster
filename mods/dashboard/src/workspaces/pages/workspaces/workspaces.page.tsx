@@ -108,6 +108,7 @@ export default function Workspaces() {
                 key={workspace.ref}
                 region={"NYC01"} // TODO: Replace with actual region data if available.
                 description={workspace.name}
+                owner={workspace.owner}
                 onClick={() => onWorkspaceClick(workspace.ref)}
                 onSettingsClick={() => onSettingsClick(workspace.ref)}
                 date={
