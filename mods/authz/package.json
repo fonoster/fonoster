@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/authz",
-  "version": "0.15.20",
+  "version": "0.15.21",
   "description": "Authorization module for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -23,8 +23,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@fonoster/common": "^0.15.20",
-    "@fonoster/identity": "^0.15.20",
+    "@fonoster/common": "^0.15.21",
+    "@fonoster/identity": "^0.15.21",
     "@fonoster/logger": "^0.15.20",
     "@grpc/grpc-js": "~1.10.6",
     "deepmerge": "^4.3.1",
