@@ -29,10 +29,9 @@ import {
   STT_MODELS,
   LANGUAGES,
   STT_VENDORS,
-  TTS_DEEPGRAM_VOICES,
-  TTS_ELEVENLABS_VOICES,
   TTS_VENDORS
 } from "../create-application.const";
+import { VoiceSelector } from "../components";
 import type { Control } from "react-hook-form";
 import type { Schema } from "../schemas/application-schema";
 
@@ -126,15 +125,7 @@ export const SpeechSection = ({
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <Select
-                label="Voice"
-                options={
-                  ttsVendor === "tts.deepgram"
-                    ? TTS_DEEPGRAM_VOICES
-                    : TTS_ELEVENLABS_VOICES
-                }
-                {...field}
-              />
+              <VoiceSelector {...field} ttsVendor={ttsVendor} label="Voice" />
             </FormControl>
           </FormItem>
         )}

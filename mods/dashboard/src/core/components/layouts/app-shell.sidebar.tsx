@@ -144,8 +144,12 @@ export const AppShellAside = styled("aside")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   width: "250px",
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.bg.surface,
   borderRight: `1px solid ${theme.palette.base["06"]}`,
   height: "100%",
-  overflow: "auto"
+  overflow: "auto",
+  ...theme.applyStyles("dark", {
+    backgroundColor: theme.palette.bg.surface,
+    borderRight: `1px solid ${theme.palette.base["06"]}`
+  })
 }));

@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -24,23 +25,12 @@ import {
   FormItem
 } from "~/core/components/design-system/forms";
 import { Input } from "~/core/components/design-system/ui/input/input";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useImperativeHandle } from "react";
+import { PasswordStrengthBar } from "~/core/components/design-system/ui/password-strength-bar";
 import { schema, type Schema } from "./create-credential.schema";
 import type { Credentials } from "@fonoster/types";
-
-/**
- * Imperative handle interface exposing a submit method and validation state.
- *
- * Allows parent components to trigger form submission and to check if the submit button should be disabled.
- */
-export interface CreateCredentialFormHandle {
-  submit: () => void;
-  reset: () => void;
-  /** Indicates if the submit button should be disabled based on form state */
-  isSubmitDisabled?: boolean;
-}
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Props interface for the CreateCredentialForm component.
@@ -50,6 +40,8 @@ export interface CreateCredentialFormProps extends React.PropsWithChildren {
   initialValues?: Schema;
   /** Callback triggered on successful form submission. */
   onSubmit: (data: Schema) => Promise<Credentials | void | null>;
+  /** Whether this form is for editing an existing credential. */
+  isEdit?: boolean;
 }
 
 /**
@@ -57,25 +49,22 @@ export interface CreateCredentialFormProps extends React.PropsWithChildren {
  *
  * Renders a form for creating a credential, including fields for:
  * - Friendly Name
- * - Trunk
- * - Country
- * - City
- * - Tel URL
- * - Inbound Application
+ * - Username
+ * - Password
  *
  * Integrates:
  * - React Hook Form for state management
  * - Zod for schema validation
- * - Imperative handle for exposing a submit method to parent components
+ * - FormContext for state synchronization
  *
  * @param {CreateCredentialFormProps} props - Props including onSubmit handler and optional initial values.
- * @param {React.Ref<CreateCredentialFormHandle>} ref - Ref exposing submit functionality.
  * @returns {JSX.Element} The rendered Create Credential form.
  */
-export const CreateCredentialForm = forwardRef<
-  CreateCredentialFormHandle,
-  CreateCredentialFormProps
->(({ onSubmit, initialValues }, ref) => {
+export function CreateCredentialForm({
+  onSubmit,
+  initialValues,
+  isEdit
+}: CreateCredentialFormProps) {
   /** Initializes the React Hook Form with Zod validation and initial values. */
   const form = useForm<Schema>({
     resolver: zodResolver(schema),
@@ -88,16 +77,10 @@ export const CreateCredentialForm = forwardRef<
     mode: "onChange"
   });
 
-  /** Exposes the submit method and submit state via the imperative handle. */
-  useImperativeHandle(ref, () => ({
-    submit: () => {
-      form.handleSubmit(onSubmit)();
-    },
-    reset: () => {
-      form.reset();
-    },
-    isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
-  }));
+  const watchPassword = form.watch("password");
+
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit, isEdit);
 
   /**
    * Renders the form with individual fields wrapped in FormField and FormItem components.
@@ -105,6 +88,11 @@ export const CreateCredentialForm = forwardRef<
   return (
     <Form {...form}>
       <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+        {/* Credential ID - Only show in edit mode */}
+        {isEdit && initialValues?.ref && (
+          <ResourceIdField value={initialValues.ref} label="Credential Ref" />
+        )}
+
         {/* Friendly Name Field */}
         <FormField
           control={form.control}
@@ -139,6 +127,7 @@ export const CreateCredentialForm = forwardRef<
             <FormItem>
               <FormControl>
                 <Input type="password" label="Password" {...field} />
+                <PasswordStrengthBar password={watchPassword || ""} />
               </FormControl>
             </FormItem>
           )}
@@ -146,4 +135,4 @@ export const CreateCredentialForm = forwardRef<
       </FormRoot>
     </Form>
   );
-});
+}

@@ -16,19 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { CacheProvider } from "@emotion/react";
 import createEmotionCache from "@emotion/cache";
 import { ThemeProvider as MaterialThemeProvider } from "@mui/material/styles";
 import { theme as DEFAULT_THEME } from "./mui.theme";
-import { CssBaseline, type Theme } from "@mui/material";
+import { CssBaseline, useColorScheme, type Theme } from "@mui/material";
 
 const MODE_STORAGE_KEY = "fonoster:theme";
-const DEFAULT_MODE = "light";
-const cache = createEmotionCache({
-  key: "fonoster-styles-cache",
-  prepend: true
-});
+const DEFAULT_MODE = "dark";
+const cache = createEmotionCache({ key: "fonoster-mui-cache", prepend: true });
 
 export interface ThemeProviderProps {
   children: React.ReactNode;
@@ -43,9 +40,24 @@ export const ThemeProvider = ({ children, theme }: ThemeProviderProps) => {
         defaultMode={DEFAULT_MODE}
         modeStorageKey={MODE_STORAGE_KEY}
       >
-        <CssBaseline />
+        <CssBaseline enableColorScheme />
         {children}
       </MaterialThemeProvider>
     </CacheProvider>
   );
+};
+
+export const useThemeMode = () => {
+  const { mode, setMode } = useColorScheme();
+
+  const isDarkMode = useMemo(() => mode === "dark", [mode]);
+
+  const changeTheme = useCallback(
+    (newMode: "light" | "dark") => {
+      setMode(newMode);
+    },
+    [setMode]
+  );
+
+  return { isDarkMode, changeTheme, mode: mode || DEFAULT_MODE };
 };

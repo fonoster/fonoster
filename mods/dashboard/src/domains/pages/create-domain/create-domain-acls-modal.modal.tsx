@@ -18,15 +18,17 @@
  */
 import { Modal } from "~/core/components/design-system/ui/modal/modal";
 import { useCallback, useRef } from "react";
-import {
-  CreateAclForm,
-  type CreateAclFormHandle
-} from "~/acls/pages/create-acl/create-acl.form";
-import { useCreateAcl } from "~/acls/pages/create-acl/create-acl.hook";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { CreateAclForm } from "~/acls/pages/create-acl/create-acl.form";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import type { Schema } from "~/acls/pages/create-acl/create-acl.schema";
+import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
+import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { COLLECTION_QUERY_KEY } from "~/acls/services/acls.service";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
+import type { Schema } from "~/acls/pages/create-acl/create-acl.schema";
 import type { Acl } from "@fonoster/types";
 
 /**
@@ -60,60 +62,85 @@ export const CreateDomainAclsModal = ({
   onClose,
   onFormSubmit
 }: DomainAclsModalProps) => {
-  const formRef = useRef<CreateAclFormHandle>(null);
-  const { onSave, isPending } = useCreateAcl();
+  const { sdk } = useFonoster();
+  const workspaceId = useWorkspaceId();
+  const queryClient = useQueryClient();
+
+  // Use refs to stabilize the callbacks and prevent infinite loops
+  const onFormSubmitRef = useRef(onFormSubmit);
+  const onCloseRef = useRef(onClose);
+
+  // Update refs when props change
+  onFormSubmitRef.current = onFormSubmit;
+  onCloseRef.current = onClose;
+
+  // Use regular mutation instead of optimistic mutation to get the real ref
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: async (data: Schema) => {
+      const deny = data.rules
+        .filter((rule) => rule.type === "deny")
+        .map(({ name }) => name);
+
+      const allow = data.rules
+        .filter((rule) => rule.type === "allow")
+        .map(({ name }) => name);
+
+      return await sdk.acls.createAcl({ ...data, deny, allow } as any);
+    },
+    onSuccess: (acl: any) => {
+      // Invalidate the ACLs list to refresh it
+      queryClient.invalidateQueries({
+        queryKey: [...COLLECTION_QUERY_KEY, workspaceId]
+      });
+      toast("ACL created successfully!");
+    },
+    onError: (error) => {
+      toast("Failed to create ACL. Please try again.");
+    }
+  });
 
   /**
    * Handles the form submission.
    *
-   * Calls the parent-provided onFormSubmit function with the validated data,
-   * closes the modal, and resets the form after a short delay to avoid visual flicker.
+   * Calls the mutation function and waits for it to complete
+   * to get the real ref before calling the callback.
    *
    * @param {Schema} data - The validated form data.
    */
   const onSubmit = useCallback(
     async (data: Schema) => {
-      const acls = await onSave(data, true);
-      if (!acls) {
-        toast("Failed to create ACL. Please try again.");
-        return;
+      const acl = await mutateAsync(data);
+      // The acl returned from mutateAsync has the real ref
+      if (typeof onFormSubmitRef.current === "function") {
+        onFormSubmitRef.current(acl as Acl);
       }
-      if (typeof onFormSubmit === "function") {
-        onFormSubmit(acls);
-      }
-      onClose();
-      setTimeout(() => {
-        formRef.current?.reset();
-      }, 100);
+      onCloseRef.current();
     },
-    [onSave, onClose, onFormSubmit]
+    [mutateAsync] // Only depend on mutateAsync, use refs for callbacks
   );
 
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      title="Create New Access Control List (ACL)"
-    >
-      <CreateAclForm ref={formRef} onSubmit={onSubmit} />
-      <Box
-        sx={{
-          width: "100%",
-          mt: "24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
+    <FormProvider>
+      <Modal
+        open={isOpen}
+        onClose={onClose}
+        title="Create New Access Control List (ACL)"
       >
-        <Button
-          isFullWidth
-          size="small"
-          onClick={() => formRef.current?.submit()}
-          disabled={isPending}
+        <CreateAclForm onSubmit={onSubmit} />
+        <Box
+          sx={{
+            width: "100%",
+            mt: "24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
         >
-          {isPending ? "Saving..." : "Save ACL"}
-        </Button>
-      </Box>
-    </Modal>
+          <FormSubmitButton isFullWidth size="small" loadingText="Saving...">
+            Save ACL
+          </FormSubmitButton>
+        </Box>
+      </Modal>
+    </FormProvider>
   );
 };

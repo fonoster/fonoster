@@ -27,14 +27,15 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { forwardRef, useCallback, useImperativeHandle } from "react";
+import { useCallback } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useAuth } from "~/auth/hooks/use-auth";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
-import { Button } from "~/core/components/design-system/ui/button/button";
-import { Box } from "@mui/material";
 import { useUpdateUser } from "~/auth/services/auth.service";
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
+import { PasswordStrengthBar } from "~/core/components/design-system/ui/password-strength-bar";
+import { ThemeSwitch } from "~/core/components/general/theme-switch";
 
 /**
  * Zod schema for workspace profile form validation.
@@ -48,19 +49,8 @@ export const schema = z.object({
   avatar: z.string().optional()
 });
 
-/** React Hook Form resolver for Zod validation. */
-export const resolver = zodResolver(schema);
-
 /** Type inferred from the Zod schema. */
 export type Schema = z.infer<typeof schema>;
-
-/**
- * Imperative handle interface for the workspace profile form.
- * Allows the parent component to trigger form submission and check if the form is valid.
- */
-export interface PersonalSettingsFormHandle {
-  submit: () => void;
-}
 
 /**
  * Props for the PersonalSettingsForm component.
@@ -74,17 +64,13 @@ export interface PersonalSettingsProps extends React.PropsWithChildren {
 /**
  * PersonalSettingsForm component
  *
- * Renders the workspace profile form, including inputs for the workspace name and timezone.
+ * Renders the personal settings form, including inputs for name, email, password, and avatar.
  * Handles form submission, validation, and toast notifications.
  *
  * @param {PersonalSettingsProps} props - Props including an optional onFormSubmit callback.
- * @param {React.Ref<PersonalSettingsFormHandle>} ref - Ref to expose submit functionality to parent.
- * @returns {JSX.Element} The rendered workspace profile form.
+ * @returns {JSX.Element} The rendered personal settings form.
  */
-export const PersonalSettingsForm = forwardRef<
-  PersonalSettingsFormHandle,
-  PersonalSettingsProps
->(({ onFormSubmit }, ref) => {
+export function PersonalSettingsForm({ onFormSubmit }: PersonalSettingsProps) {
   const { user, setUser } = useAuth();
 
   /** Mutation hook to update the workspace on the server. */
@@ -92,7 +78,7 @@ export const PersonalSettingsForm = forwardRef<
 
   /** Initializes react-hook-form with validation and default values. */
   const form = useForm<Schema>({
-    resolver,
+    resolver: zodResolver(schema),
     defaultValues: {
       password: "",
       confirmPassword: "",
@@ -101,6 +87,8 @@ export const PersonalSettingsForm = forwardRef<
     },
     mode: "onChange"
   });
+
+  const watchPassword = form.watch("password");
 
   /**
    * Handles form submission:
@@ -134,17 +122,11 @@ export const PersonalSettingsForm = forwardRef<
         toast(getErrorMessage(error));
       }
     },
-    [mutate, onFormSubmit]
+    [mutate, onFormSubmit, user, form, setUser]
   );
 
-  /**
-   * Exposes imperative methods to parent component:
-   * - submit: triggers form submission
-   * - isSubmitDisabled: indicates if the submit button should be disabled
-   */
-  useImperativeHandle(ref, () => ({
-    submit: () => form.handleSubmit(onSubmit)()
-  }));
+  /** Sync form state with FormContext */
+  useFormContextSync(form, onSubmit);
 
   /**
    * Renders the workspace profile form with inputs for name and timezone.
@@ -191,6 +173,7 @@ export const PersonalSettingsForm = forwardRef<
                   placeholder="Enter new password"
                   {...field}
                 />
+                <PasswordStrengthBar password={watchPassword || ""} />
               </FormControl>
             </FormItem>
           )}
@@ -235,20 +218,12 @@ export const PersonalSettingsForm = forwardRef<
           )}
         />
 
-        <Box sx={{ display: "flex", mt: 2 }}>
-          <Button
-            type="submit"
-            disabled={
-              form.formState.isSubmitting ||
-              !form.formState.isValid ||
-              isPending ||
-              !form.formState.isDirty
-            }
-          >
-            {form.formState.isSubmitting ? "Updating..." : "Save Changes"}
-          </Button>
-        </Box>
+        <Typography variant="body-large" sx={{ mt: 2 }}>
+          Appearance
+        </Typography>
+
+        <ThemeSwitch />
       </FormRoot>
     </Form>
   );
-});
+}

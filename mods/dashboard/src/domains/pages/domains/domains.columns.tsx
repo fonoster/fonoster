@@ -64,13 +64,17 @@ export const columns: ColumnDef<Domain>[] = [
   },
   {
     /**
-     * Reference to the associated Access Control List.
+     * Name of the associated Access Control List.
      *
      * This allows the user to quickly see the ACL linked to this domain.
      */
-    id: "accessControlListRef",
-    header: "Access Control List Ref",
-    accessorKey: "accessControlListRef"
+    id: "accessControlList",
+    header: "Access Control List",
+    accessorKey: "accessControlList",
+    cell: ({ row }) => {
+      const acl = (row.original as any).accessControlList;
+      return acl?.name || "";
+    }
   },
   {
     /**
@@ -96,7 +100,7 @@ export const columns: ColumnDef<Domain>[] = [
 
       // Handle the case where there are no policies assigned.
       if (policies.length === 0) {
-        return "None";
+        return "";
       }
 
       // Display the label in a tooltip for better readability.

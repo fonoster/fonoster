@@ -32,15 +32,10 @@ import { Box, styled } from "@mui/material";
 import { Button } from "~/core/components/design-system/ui/button/button";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { Link } from "~/core/components/general/link/link";
+import { PasswordStrengthBar } from "~/core/components/design-system/ui/password-strength-bar";
 
 export const schema = z.object({
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)"
-    ),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().nonempty()
 });
 
@@ -61,6 +56,8 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
     },
     mode: "onChange"
   });
+
+  const watchPassword = form.watch("password");
 
   const onSubmitForm = useCallback(
     async (data: Schema) => {
@@ -89,12 +86,8 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input
-                  type="password"
-                  label="Password"
-                  supportingText="Please enter your new password"
-                  {...field}
-                />
+                <Input type="password" label="Password" {...field} />
+                <PasswordStrengthBar password={watchPassword} />
               </FormControl>
             </FormItem>
           )}

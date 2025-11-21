@@ -30,6 +30,6 @@ export function formatEngineName(
   productRef: string | undefined,
   prefix: string
 ): string {
-  if (!productRef) return "-";
+  if (!productRef) return "";
   return toTitleCase(productRef.replace(prefix, ""));
 }

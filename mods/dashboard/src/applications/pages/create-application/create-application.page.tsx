@@ -18,6 +18,7 @@
  */
 import type { Route } from "./+types/create-application.page";
 import { ApplicationProvider } from "~/applications/stores/application.store";
+import { FormProvider } from "~/core/contexts/form-context";
 import { CreateApplicationContainer } from "./create-application.container";
 
 /**
@@ -48,7 +49,9 @@ export function meta(_: Route.MetaArgs) {
 export default function CreateApplication() {
   return (
     <ApplicationProvider>
-      <CreateApplicationContainer />
+      <FormProvider>
+        <CreateApplicationContainer />
+      </FormProvider>
     </ApplicationProvider>
   );
 }

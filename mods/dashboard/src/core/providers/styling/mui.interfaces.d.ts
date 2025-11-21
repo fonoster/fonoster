@@ -20,6 +20,11 @@ import "@mui/material/styles";
 
 declare module "@mui/material/styles" {
   interface PaletteOptions {
+    bg?: {
+      app?: string;
+      surface?: string;
+      muted?: string;
+    };
     base: {
       "01": string;
       "02": string;
@@ -43,6 +48,11 @@ declare module "@mui/material/styles" {
     };
   }
   interface Palette {
+    bg: {
+      app: string;
+      surface: string;
+      muted: string;
+    };
     base: {
       "01": string;
       "02": string;

@@ -161,6 +161,8 @@ export default function SecretsList() {
         onDeleteSelected={handleDelete}
         /** Handler for editing selected rows (currently shows a toast). */
         onEditSelected={onEditSelected}
+        /** Handler for clicking on a row to navigate to edit page. */
+        onRowClick={onEditSelected}
         /** Indicates if the table supports row selection. */
         features={["selection", "pagination"]}
       />

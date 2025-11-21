@@ -24,27 +24,17 @@ import {
   FormItem
 } from "~/core/components/design-system/forms";
 import { Input } from "~/core/components/design-system/ui/input/input";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { useEffect, useState } from "react";
 import { schema, type Schema } from "./create-secret.schema";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import { JsonViewer } from "~/core/components/general/json-viewer";
 import { Textarea } from "~/core/components/design-system/ui/textarea/textarea";
 import { useJsonDetection } from "~/core/hooks/use-json-detection";
 import { JsonPreviewToggle } from "./json-preview-toggle.form";
-
-/**
- * Interface defining the imperative handle for CreateSecretForm.
- *
- * Exposes:
- * - submit(): Triggers form submission programmatically.
- * - isSubmitDisabled: Boolean flag to disable the submit button if validation fails or is pending.
- */
-export interface CreateSecretFormHandle {
-  submit: () => void;
-  isSubmitDisabled?: boolean;
-}
+import { useFormContextSync } from "~/core/hooks/use-form-context-sync";
 
 /**
  * Props interface for the CreateSecretForm component.
@@ -54,6 +44,8 @@ export interface CreateSecretFormProps extends React.PropsWithChildren {
   initialValues?: Schema;
   /** Callback triggered on successful form submission. */
   onSubmit: (data: Schema) => Promise<void>;
+  /** Whether this is an edit form */
+  isEdit?: boolean;
 }
 
 /**
@@ -67,16 +59,16 @@ export interface CreateSecretFormProps extends React.PropsWithChildren {
  * Integrates:
  * - React Hook Form for state management and validation.
  * - Zod for schema validation.
- * - Imperative handle to expose submit functionality to parent components.
+ * - Form context for state synchronization.
  *
  * @param {CreateSecretFormProps} props - Props including onSubmit handler and optional initial values.
- * @param {React.Ref<CreateSecretFormHandle>} ref - Ref exposing submit functionality.
  * @returns {JSX.Element} The rendered Create Secret form.
  */
-export const CreateSecretForm = forwardRef<
-  CreateSecretFormHandle,
-  CreateSecretFormProps
->(({ onSubmit, initialValues }, ref) => {
+export const CreateSecretForm = ({
+  onSubmit,
+  initialValues,
+  isEdit = false
+}: CreateSecretFormProps) => {
   /** State to toggle JSON preview visibility. */
   const [isPreview, setIsPreview] = useState(false);
 
@@ -92,15 +84,8 @@ export const CreateSecretForm = forwardRef<
     mode: "onChange"
   });
 
-  /**
-   * Exposes imperative methods to parent components:
-   * - submit(): triggers form submission.
-   * - isSubmitDisabled: disables submit when invalid or submitting.
-   */
-  useImperativeHandle(ref, () => ({
-    submit: () => form.handleSubmit(onSubmit)(),
-    isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting
-  }));
+  // Sync form state with context (do not override isDirty in edit mode)
+  useFormContextSync(form, onSubmit);
 
   /** Utility function from custom hook to detect if a value is JSON. */
   const isJsonValue = useJsonDetection();
@@ -127,6 +112,11 @@ export const CreateSecretForm = forwardRef<
   return (
     <Form {...form}>
       <FormRoot onSubmit={form.handleSubmit(onSubmit)}>
+        {/* Secret ID - Only show in edit mode */}
+        {isEdit && initialValues?.ref && (
+          <ResourceIdField value={initialValues.ref} label="Secret Ref" />
+        )}
+
         {/* Secret Name Field */}
         <FormField
           control={form.control}
@@ -201,4 +191,4 @@ export const CreateSecretForm = forwardRef<
       </FormRoot>
     </Form>
   );
-});
+};

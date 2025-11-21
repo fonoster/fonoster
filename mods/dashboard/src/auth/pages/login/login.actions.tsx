@@ -51,7 +51,7 @@ export function LoginFormActions({
   onGithubAuth
 }: LoginFormActionsProps) {
   /** Extracts query parameters from the URL to check for error messages. */
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const error = searchParams.get("error");
 
   /** Destructure form state for validation and submission status. */
@@ -63,12 +63,17 @@ export function LoginFormActions({
   /**
    * Effect hook to set error messages in the form state
    * if an error is detected in the URL query parameters.
+   * Also clears the error from the URL to prevent persistence.
    */
   useEffect(() => {
     if (error) {
       form.setError("email", { type: "manual", message: error });
+      // Clear the error parameter from the URL to prevent it from persisting
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("error");
+      setSearchParams(newSearchParams, { replace: true });
     }
-  }, [error, form]);
+  }, [error, form, searchParams, setSearchParams]);
 
   return (
     <LoginFormRoot>

@@ -70,44 +70,44 @@ export const SortMenu: React.FC<SortMenuProps<any, any>> = ({
         onClose={handleClose}
         slotProps={{
           paper: {
-            sx: {
+            sx: (theme) => ({
               padding: "0px",
               borderRadius: "4px",
               boxShadow: "0px 5px 10px 0px rgba(0, 0, 0, 0.10)",
-              borderRight: "1px solid var(--fonoster-palette-base-06)",
-              borderBottom: "1px solid var(--fonoster-palette-base-06)",
-              backgroundColor: "var(--fonoster-palette-background-paper)"
-            }
+              borderRight: `1px solid ${theme.palette.base["06"]}`,
+              borderBottom: `1px solid ${theme.palette.base["06"]}`,
+              backgroundColor: theme.palette.bg.surface
+            })
           }
         }}
       >
         {SORT_OPTIONS.map((option) => (
           <MenuItem
             key={option.value}
-            sx={{
+            sx={(theme) => ({
               padding: "4px 8px",
-              borderBottom: "1px solid var(--fonoster-palette-base-06)",
+              borderBottom: `1px solid ${theme.palette.base["06"]}`,
               "&:last-child": {
                 borderBottom: "none"
               },
               "&:hover": {
-                backgroundColor: "transparent"
+                backgroundColor: theme.palette.base["07"]
               }
-            }}
+            })}
             onClick={() => handleSelect(option.value as SortOrder)}
           >
             <ListItemText
               slotProps={{
                 primary: {
-                  sx: {
+                  sx: (theme) => ({
                     fontSize: "10px",
                     fontWeight: 500,
-                    color: "var(--fonoster-palette-base-03)",
+                    color: theme.palette.base["03"],
                     fontFeatureSettings: "'liga' off, 'clig' off",
                     fontFamily: "Poppins",
                     lineHeight: "normal",
                     fontStyle: "normal"
-                  }
+                  })
                 }
               }}
             >

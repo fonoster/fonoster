@@ -7,7 +7,8 @@
 * {
   box-sizing: border-box;
   scrollbar-width: thin;
-  scrollbar-color: rgb(226 232 240);
+  /* Use theme CSS variables for scrollbar to match light/dark */
+  scrollbar-color: var(--fonoster-palette-base-05) transparent;
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
 }

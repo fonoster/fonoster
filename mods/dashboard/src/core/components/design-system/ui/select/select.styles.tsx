@@ -58,7 +58,7 @@ export const SelectRoot = styled(Select)(({ theme }) => ({
     }
   },
   "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: theme.palette.grey[300],
+    borderColor: theme.palette.base["05"],
     borderWidth: "1px",
     borderRadius: "4px"
   },

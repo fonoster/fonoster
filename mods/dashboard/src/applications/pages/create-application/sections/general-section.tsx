@@ -24,22 +24,28 @@ import {
 } from "~/core/components/design-system/forms";
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { Select } from "~/core/components/design-system/ui/select/select";
-import { Typography } from "~/core/components/design-system/ui/typography/typography";
+import { ResourceIdField } from "~/core/components/design-system/ui/resource-id-field/resource-id-field";
 import { APPLICATION_TYPES } from "../create-application.const";
 import type { Control } from "react-hook-form";
 import type { Schema } from "../schemas/application-schema";
-import { Box } from "@mui/material";
 
 export const GeneralSection = ({
   control,
   isAutopilot,
-  isEdit
+  isEdit,
+  initialValues
 }: {
   control: Control<Schema>;
   isAutopilot: boolean;
   isEdit?: boolean;
+  initialValues?: Schema;
 }) => (
   <>
+    {/* Application ID - Only show in edit mode */}
+    {isEdit && initialValues?.ref && (
+      <ResourceIdField value={initialValues.ref} label="Application Ref" />
+    )}
+
     <FormField
       control={control}
       name="name"

@@ -36,8 +36,8 @@ export const WorkspaceCardRoot = styled(Box, {
   height: "100%",
   backgroundColor:
     workspaceVariant === "regular"
-      ? theme.palette.base["07"]
-      : theme.palette.background.paper,
+      ? theme.palette.bg.muted
+      : theme.palette.bg.surface,
   cursor: disabled ? "not-allowed" : "pointer",
   borderRadius: "10px",
   border:
@@ -103,7 +103,7 @@ export const StyledDescription = styled(Typography)(() => ({
   textAlign: "left",
   textUnderlinePosition: "from-font",
   textDecorationSkipInk: "none",
-  color: "#053204",
+  color: "inherit",
   marginTop: "12px"
 }));
 
@@ -134,13 +134,13 @@ export const StyledDate = styled(Typography)(() => ({
 
 export const StyledIcon = styled("div")<{ clickable?: boolean }>(
   ({ clickable = false, theme }) => ({
-    color: "rgba(51, 51, 51, 1)",
+    color: theme.palette.base["03"],
     display: "flex",
     alignItems: "center",
     cursor: clickable ? "pointer" : "default",
     transition: "color 0.2s ease",
     "&:hover": {
-      color: clickable ? theme.palette.brand.main : "rgba(51, 51, 51, 1)"
+      color: clickable ? theme.palette.brand.main : theme.palette.base["03"]
     },
     "& svg": {
       width: "16px",
@@ -148,3 +148,43 @@ export const StyledIcon = styled("div")<{ clickable?: boolean }>(
     }
   })
 );
+
+export const StyledOwnerContainer = styled("div")(({ theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  marginTop: "10px",
+  backgroundColor: theme.palette.base["07"],
+  padding: "6px 12px",
+  borderRadius: "20px",
+  border: `1px solid ${theme.palette.base["07"]}`,
+  transition: "all 0.2s ease-in-out"
+}));
+
+export const StyledOwnerIcon = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "20px",
+  height: "20px",
+  borderRadius: "50%",
+  backgroundColor: theme.palette.brand["02"],
+  color: theme.palette.brand["04"],
+  "& svg": {
+    width: "14px",
+    height: "14px"
+  }
+}));
+
+export const StyledOwnerText = styled(Typography)(({ theme }) => ({
+  fontFamily:
+    "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  color: theme.palette.base["04"],
+  fontSize: "11px",
+  fontWeight: 500,
+  lineHeight: "16px",
+  letterSpacing: "0.01em",
+  textAlign: "left",
+  textUnderlinePosition: "from-font",
+  textDecorationSkipInk: "none"
+}));

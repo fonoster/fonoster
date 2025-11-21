@@ -163,6 +163,8 @@ export default function Numbers() {
         onDeleteSelected={handleDelete}
         /** Handler for editing selected rows (currently shows a toast). */
         onEditSelected={onEditSelected}
+        /** Handler for clicking on a row to navigate to edit page. */
+        onRowClick={onEditSelected}
       />
     </Page>
   );

@@ -19,14 +19,12 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/edit-agent.page";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
-import {
-  CreateAgentForm,
-  type CreateAgentFormHandle
-} from "../create-agent/create-agent.form";
+import { CreateAgentForm } from "../create-agent/create-agent.form";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { Splash } from "~/core/components/general/splash/splash";
@@ -87,9 +85,6 @@ export default function EditAgent() {
   /** Hook to programmatically navigate between pages. */
   const navigate = useNavigate();
 
-  /** Ref to access the form's imperative handle (submit method). */
-  const formRef = useRef<CreateAgentFormHandle>(null);
-
   /**
    * Handler for navigating back to the agents page.
    * Uses `viewTransition` for smoother transitions.
@@ -101,7 +96,7 @@ export default function EditAgent() {
   }, [navigate, workspaceId]);
 
   /** Custom hook to handle agent updates via the API. */
-  const { mutateAsync, isPending } = useUpdateAgent();
+  const { mutateAsync } = useUpdateAgent();
 
   /**
    * Handler called after form submission.
@@ -140,34 +135,43 @@ export default function EditAgent() {
     return <Splash message="Loading agent details..." />;
   }
 
+  // Transform the data to match the form schema
+  const transformedData = {
+    ...data,
+    domainRef: data.domain?.ref,
+    credentialsRef: data.credentials?.ref
+  };
+
   /**
    * Renders the Edit Agent page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Edit Agent"
-        description="SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)"
-        onBack={{ label: "Back to agents", onClick: onGoBack }}
-        actions={
-          <Button
-            size="small"
-            onClick={() => formRef.current?.submit()}
-            disabled={formRef.current?.isSubmitDisabled || isPending}
-          >
-            {isPending ? "Saving..." : "Save Agent"}
-          </Button>
-        }
-      />
-
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateAgentForm
-          ref={formRef}
-          onSubmit={onSave}
-          initialValues={{ maxContacts: 10, expires: 3600, ...data }}
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Edit Agent"
+          description="SIP Agents in the same Domain can call each other with Voice Over IP using a Software Phone (e.g Zoiper)"
+          onBack={{ label: "Back to agents", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save Agent
+            </FormSubmitButton>
+          }
         />
-      </Box>
-    </Page>
+
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateAgentForm
+            onSubmit={onSave}
+            initialValues={{
+              maxContacts: 10,
+              expires: 3600,
+              ...transformedData
+            }}
+            isEdit={true}
+          />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }

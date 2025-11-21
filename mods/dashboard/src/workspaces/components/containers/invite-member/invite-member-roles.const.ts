@@ -17,14 +17,15 @@
  * limitations under the License.
  */
 import { Role } from "@fonoster/types";
+import { ROLE_LABELS } from "~/workspaces/pages/[workspace]/members/members.constants";
 
 export const ROLE_OPTIONS = [
   {
-    label: "Workspace Admin",
+    label: ROLE_LABELS[Role.WORKSPACE_ADMIN],
     value: Role.WORKSPACE_ADMIN
   },
   {
-    label: "Workspace Member",
+    label: ROLE_LABELS[Role.WORKSPACE_MEMBER],
     value: Role.WORKSPACE_MEMBER
   }
 ];

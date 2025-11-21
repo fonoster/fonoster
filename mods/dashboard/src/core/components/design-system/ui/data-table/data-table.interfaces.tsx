@@ -51,6 +51,7 @@ export interface BaseDataTable<T> extends DataTable<T> {
   onSortChange?: (columnId: string, order: SortOrder) => void;
   onDeleteSelected?: (selected: T[]) => void;
   onEditSelected?: (row: T) => void;
+  onRowClick?: (row: T) => void;
 }
 
 export interface DataTableProps<T> extends BaseDataTable<T> {

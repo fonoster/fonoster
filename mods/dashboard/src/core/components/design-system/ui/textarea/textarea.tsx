@@ -33,6 +33,7 @@ export interface TextareaProps {
   size?: "small" | "medium";
   minRows?: number;
   maxRows?: number;
+  maxLength?: number;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
@@ -48,6 +49,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       size = "medium",
       minRows = 3,
       maxRows,
+      maxLength,
       ...rest
     },
     ref
@@ -73,6 +75,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             ref={ref}
             minRows={minRows}
             maxRows={maxRows}
+            maxLength={maxLength}
+            style={{
+              maxHeight: maxRows ? `${maxRows * 1.5}em` : undefined
+            }}
             {...rest}
           />
           {trailingIcon && (

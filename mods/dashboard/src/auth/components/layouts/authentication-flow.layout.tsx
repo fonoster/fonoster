@@ -89,6 +89,6 @@ export const LayoutContent = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
   padding: "80px 40px",
-  backgroundColor: theme.palette.background.default,
+  backgroundColor: theme.palette.bg.app,
   flexGrow: 1
 }));

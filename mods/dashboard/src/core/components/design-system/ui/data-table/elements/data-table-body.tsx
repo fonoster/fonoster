@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { flexRender, type Row } from "@tanstack/react-table";
-import { TableBody, TableCell, TableRow } from "@mui/material";
+import { TableBody, TableCell, TableRow, useTheme } from "@mui/material";
 
 import { useDataTable } from "../data-table.context";
 import { Checkbox } from "../../checkbox/checkbox";
@@ -29,32 +29,62 @@ import { lastUuidSegment } from "../../../../../../core/helpers/last-uuid-segmen
 export interface DataTableBodyRowProps {
   row: Row<any>;
   showSelection: boolean;
+  onRowClick?: (row: any) => void;
 }
 
 /**
  * Renders a single data row.
  * Optionally includes a selection checkbox if the "selection" feature is enabled.
+ * Supports row click navigation while preserving selection functionality.
  */
-const DataRow = ({ row, showSelection }: DataTableBodyRowProps) => (
-  <TableRow key={row.id} selected={row.getIsSelected()}>
-    {showSelection && (
-      <TableCell data-selection-cell="true">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onChange={row.getToggleSelectedHandler()}
-        />
-      </TableCell>
-    )}
+const DataRow = ({ row, showSelection, onRowClick }: DataTableBodyRowProps) => {
+  const theme = useTheme();
 
-    {row.getVisibleCells().map((cell: any) => (
-      <TableCell key={cell.id}>
-        {cell.column.id === "ref"
-          ? lastUuidSegment(cell.getValue() as string)
-          : flexRender(cell.column.columnDef.cell, cell.getContext())}
-      </TableCell>
-    ))}
-  </TableRow>
-);
+  const handleRowClick = (event: React.MouseEvent) => {
+    // Don't trigger row click if clicking on the selection checkbox
+    if ((event.target as HTMLElement).closest('[data-selection-cell="true"]')) {
+      return;
+    }
+
+    if (onRowClick) {
+      onRowClick(row.original);
+    }
+  };
+
+  return (
+    <TableRow
+      key={row.id}
+      selected={row.getIsSelected()}
+      onClick={handleRowClick}
+      sx={{
+        cursor: onRowClick ? "pointer" : "default",
+        "&:hover": onRowClick
+          ? {
+              backgroundColor: theme.palette.base["08"]
+            }
+          : {},
+        transition: "background-color 0.2s ease"
+      }}
+    >
+      {showSelection && (
+        <TableCell data-selection-cell="true">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onChange={row.getToggleSelectedHandler()}
+          />
+        </TableCell>
+      )}
+
+      {row.getVisibleCells().map((cell: any) => (
+        <TableCell key={cell.id}>
+          {cell.column.id === "ref"
+            ? lastUuidSegment(cell.getValue() as string)
+            : flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+};
 
 /**
  * Displays a placeholder row when the table is empty or loading.
@@ -80,7 +110,7 @@ const EmptyStateRow = ({
  * Displays rows of data, a loading message, or an empty state depending on the table's state.
  */
 export function DataTableBody() {
-  const { table, features, isLoading } = useDataTable();
+  const { table, features, isLoading, onRowClick } = useDataTable();
 
   /** All table rows based on current state and filters. */
   const rows = table.getRowModel().rows;
@@ -95,7 +125,12 @@ export function DataTableBody() {
     <TableBody>
       {rows.length > 0 ? (
         rows.map((row) => (
-          <DataRow key={row.id} row={row} showSelection={showSelection} />
+          <DataRow
+            key={row.id}
+            row={row}
+            showSelection={showSelection}
+            onRowClick={onRowClick}
+          />
         ))
       ) : isLoading ? (
         <EmptyStateRow

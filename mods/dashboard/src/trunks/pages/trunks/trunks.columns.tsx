@@ -63,17 +63,7 @@ export const columns: ColumnDef<Trunk>[] = [
      * This field helps configure SIP endpoints and routing.
      */
     id: "inboundUri",
-    header: "Inbound SIP",
+    header: "Inbound SIP URI",
     accessorKey: "inboundUri"
-  },
-  {
-    /**
-     * Reference to the credentials object used for outbound SIP authentication.
-     *
-     * Typically a UUID or name of the credentials resource.
-     */
-    id: "outboundCredentialsRef",
-    header: "Outbound Credentials",
-    accessorKey: "outboundCredentialsRef"
   }
 ];

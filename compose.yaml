@@ -1,6 +1,6 @@
 services:
   dashboard:
-    image: fonoster/dashboard:latest
+    image: fonoster/dashboard:0.15.15
     restart: unless-stopped
     expose:
       - 3030:3030
@@ -8,7 +8,7 @@ services:
       - SERVER_DASHBOARD_SESSION_SECRET
 
   apiserver:
-    image: fonoster/apiserver:latest
+    image: fonoster/apiserver:0.15.15
     restart: unless-stopped
     environment:
       - APISERVER_APP_URL
@@ -61,7 +61,7 @@ services:
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   autopilot:
-    image: fonoster/autopilot:latest
+    image: fonoster/autopilot:0.15.15
     restart: unless-stopped
     expose:
       - 50061
@@ -82,7 +82,7 @@ services:
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   routr:
-    image: fonoster/routr-one:latest
+    image: fonoster/routr-one:2.13.13
     restart: unless-stopped
     environment:
       DATABASE_URL: ${ROUTR_DATABASE_URL}
@@ -115,7 +115,7 @@ services:
   #
   # We recommend that when using Linux you use network_mode: host and remove the ports section.
   rtpengine:
-    image: fonoster/rtpengine:latest
+    image: fonoster/rtpengine:0.3.17
     restart: unless-stopped
     platform: linux/x86_64
     ports: 
@@ -127,7 +127,7 @@ services:
       PUBLIC_IP: ${RTPENGINE_PUBLIC_IP}
 
   asterisk:
-    image: fonoster/asterisk:latest
+    image: fonoster/asterisk:20
     restart: unless-stopped
     environment:
       ARI_PROXY_URL: ${ASTERISK_ARI_PROXY_URL}
@@ -145,7 +145,7 @@ services:
       - 6060
 
   postgres:
-    image: postgres:16.2-alpine
+    image: postgres:16.10-alpine3.22
     restart: unless-stopped
     environment:
       PGTZ: UTC
@@ -158,7 +158,7 @@ services:
       - db:/var/lib/postgresql/data
 
   influxdb:
-    image: influxdb:2
+    image: influxdb:2.7
     restart: unless-stopped
     expose:
       - 8086
@@ -173,13 +173,13 @@ services:
       - influxdb:/var/lib/influxdb2
 
   nats:
-    image: nats:latest
+    image: nats:2.11.8
     restart: unless-stopped
     expose:
       - 4222
 
   envoy:
-    image: envoyproxy/envoy:v1.34.1
+    image: envoyproxy/envoy:v1.35.0
     restart: unless-stopped
     volumes:
       - ./config/envoy.yaml:/etc/envoy/envoy.yaml:ro

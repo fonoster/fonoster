@@ -38,8 +38,8 @@ const commonStyles: CSSProperties = {
 export const DrawerRegionBadge = styled(Box)(({ theme }) => ({
   ...commonStyles,
   padding: "0px 4px",
-  backgroundColor: theme.palette.grey[300],
-  color: theme.palette.grey[700],
+  backgroundColor: theme.palette.base["06"],
+  color: theme.palette.base["03"],
   borderRadius: "20px"
 }));
 

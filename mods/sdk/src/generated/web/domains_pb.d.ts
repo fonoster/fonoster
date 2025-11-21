@@ -18,6 +18,16 @@ export class Domain extends jspb.Message {
   getUpdatedAt(): number;
   setUpdatedAt(value: number): Domain;
 
+  getAccessControlList(): Domain.Acl | undefined;
+  setAccessControlList(value?: Domain.Acl): Domain;
+  hasAccessControlList(): boolean;
+  clearAccessControlList(): Domain;
+
+  getEgressPoliciesList(): Array<EgressPolicy>;
+  setEgressPoliciesList(value: Array<EgressPolicy>): Domain;
+  clearEgressPoliciesList(): Domain;
+  addEgressPolicies(value?: EgressPolicy, index?: number): EgressPolicy;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Domain.AsObject;
   static toObject(includeInstance: boolean, msg: Domain): Domain.AsObject;
@@ -33,7 +43,44 @@ export namespace Domain {
     domainUri: string,
     createdAt: number,
     updatedAt: number,
+    accessControlList?: Domain.Acl.AsObject,
+    egressPoliciesList: Array<EgressPolicy.AsObject>,
   }
+
+  export class Acl extends jspb.Message {
+    getRef(): string;
+    setRef(value: string): Acl;
+
+    getName(): string;
+    setName(value: string): Acl;
+
+    getAllowList(): Array<string>;
+    setAllowList(value: Array<string>): Acl;
+    clearAllowList(): Acl;
+    addAllow(value: string, index?: number): Acl;
+
+    getDenyList(): Array<string>;
+    setDenyList(value: Array<string>): Acl;
+    clearDenyList(): Acl;
+    addDeny(value: string, index?: number): Acl;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Acl.AsObject;
+    static toObject(includeInstance: boolean, msg: Acl): Acl.AsObject;
+    static serializeBinaryToWriter(message: Acl, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Acl;
+    static deserializeBinaryFromReader(message: Acl, reader: jspb.BinaryReader): Acl;
+  }
+
+  export namespace Acl {
+    export type AsObject = {
+      ref: string,
+      name: string,
+      allowList: Array<string>,
+      denyList: Array<string>,
+    }
+  }
+
 }
 
 export class EgressPolicy extends jspb.Message {

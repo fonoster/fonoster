@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { UpdateAclRequest } from "@fonoster/types";
-import { confirm, input } from "@inquirer/prompts";
+import { UpdateDomainRequest } from "@fonoster/types";
+import { confirm, input, select } from "@inquirer/prompts";
 import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
@@ -38,6 +38,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     const { ref } = args;
     const client = await this.createSdkClient();
     const domains = new SDK.Domains(client);
+    const acls = new SDK.Acls(client);
     const domainFromDb = await domains.getDomain(ref);
 
     if (!domainFromDb) {
@@ -47,12 +48,24 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     this.log("This utility will help you update an Domain.");
     this.log("Press ^C at any time to quit.");
 
+    const aclsList = (await acls.listAcls({ pageSize: 1000 })).items.map(
+      (item) => ({
+        name: item.name,
+        value: item.ref
+      })
+    );
+
     const answers = {
       ref,
       name: await input({
         message: "Name",
         required: true,
         default: domainFromDb.name
+      }),
+      accessControlListRef: await select({
+        message: "Access Control List",
+        choices: [{ name: "None", value: null }].concat(aclsList),
+        default: domainFromDb.accessControlList?.ref
       }),
       confirm: await confirm({
         message: "Ready?"
@@ -65,7 +78,16 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     }
 
     try {
-      await domains.updateDomain(answers as unknown as UpdateAclRequest);
+      // Filter out null ACL reference
+      const request: UpdateDomainRequest = {
+        ref: answers.ref,
+        name: answers.name,
+        ...(answers.accessControlListRef && {
+          accessControlListRef: answers.accessControlListRef
+        })
+      };
+
+      await domains.updateDomain(request);
       this.log("Done!");
     } catch (e) {
       errorHandler(e, this.error.bind(this));

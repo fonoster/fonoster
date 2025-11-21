@@ -32,17 +32,17 @@ export const DataTableToolbarSelection = () => {
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        backgroundColor: "base.07",
+        backgroundColor: theme.palette.base["07"],
         borderRadius: "4px",
-        border: "1px solid var(--fonoster-palette-base-06)",
-        background: "base.07",
+        border: `1px solid ${theme.palette.base["06"]}`,
+        background: theme.palette.base["07"],
         minHeight: "32px",
         minWidth: "32px"
-      }}
+      })}
     >
       <Checkbox
         indeterminate={

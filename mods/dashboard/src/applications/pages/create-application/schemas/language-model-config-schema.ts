@@ -19,6 +19,7 @@
 import { z } from "zod";
 import * as Messages from "./messages";
 import { LanguageModelProvider } from "./language-model-provider";
+import { toolSchema } from "./tool-schema";
 
 const NUMBER_BETWEEN_0_AND_2 = "Must be a number between 0 and 2";
 
@@ -34,7 +35,8 @@ const languageModelConfigSchema = z.object({
   maxTokens: z.coerce
     .number()
     .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
-    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
+  tools: z.array(toolSchema).optional()
 });
 
 export { languageModelConfigSchema };

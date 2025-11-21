@@ -22,6 +22,11 @@ export class Workspace extends jspb.Message {
   getUpdatedAt(): number;
   setUpdatedAt(value: number): Workspace;
 
+  getOwner(): Workspace.Owner | undefined;
+  setOwner(value?: Workspace.Owner): Workspace;
+  hasOwner(): boolean;
+  clearOwner(): Workspace;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Workspace.AsObject;
   static toObject(includeInstance: boolean, msg: Workspace): Workspace.AsObject;
@@ -38,7 +43,35 @@ export namespace Workspace {
     accessKeyId: string,
     createdAt: number,
     updatedAt: number,
+    owner?: Workspace.Owner.AsObject,
   }
+
+  export class Owner extends jspb.Message {
+    getRef(): string;
+    setRef(value: string): Owner;
+
+    getName(): string;
+    setName(value: string): Owner;
+
+    getEmail(): string;
+    setEmail(value: string): Owner;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Owner.AsObject;
+    static toObject(includeInstance: boolean, msg: Owner): Owner.AsObject;
+    static serializeBinaryToWriter(message: Owner, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Owner;
+    static deserializeBinaryFromReader(message: Owner, reader: jspb.BinaryReader): Owner;
+  }
+
+  export namespace Owner {
+    export type AsObject = {
+      ref: string,
+      name: string,
+      email: string,
+    }
+  }
+
 }
 
 export class CreateWorkspaceRequest extends jspb.Message {

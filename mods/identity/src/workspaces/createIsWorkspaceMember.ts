@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { WorkspaceMemberStatus } from "@fonoster/types";
 import { Prisma } from "../db";
 
 function createIsWorkspaceMember(prisma: Prisma) {
@@ -34,7 +35,8 @@ function createIsWorkspaceMember(prisma: Prisma) {
         // Force userId to be an empty string to ensure that the query is not
         // filter by workspaceRef only
         userRef: userRef || "",
-        workspaceRef
+        workspaceRef,
+        status: WorkspaceMemberStatus.ACTIVE
       }
     });
 

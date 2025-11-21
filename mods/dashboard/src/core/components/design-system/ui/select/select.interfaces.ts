@@ -37,6 +37,7 @@ export type SelectProps = MUISelectProps & {
     target: { value: string | number | Array<string | number> };
   }) => void;
   placeholder?: string;
+  allowClear?: boolean;
 };
 
 export type SelectContainerProps = FormControlProps & {

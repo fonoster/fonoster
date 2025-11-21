@@ -19,6 +19,7 @@
 
 import type { Route } from "./+types/edit-application.page";
 import { ApplicationProvider } from "~/applications/stores/application.store";
+import { FormProvider } from "~/core/contexts/form-context";
 import { EditApplicationContainer } from "./edit-application.container";
 
 /**
@@ -49,7 +50,9 @@ export function meta(_: Route.MetaArgs) {
 export default function EditApplication() {
   return (
     <ApplicationProvider>
-      <EditApplicationContainer />
+      <FormProvider>
+        <EditApplicationContainer />
+      </FormProvider>
     </ApplicationProvider>
   );
 }

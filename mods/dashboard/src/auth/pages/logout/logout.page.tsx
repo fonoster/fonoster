@@ -99,7 +99,7 @@ export default function Logout() {
         flexDirection: "column",
         gap: 2,
         padding: 2,
-        backgroundColor: "background.default",
+        backgroundColor: "bg.app",
         textAlign: "center"
       }}
     >

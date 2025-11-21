@@ -59,7 +59,7 @@ const Trigger = styled(Box)<{ $active?: boolean }>(({ $active, theme }) => ({
 
 const FilterOption = styled(Box)(({ theme }) => ({
   padding: "4px 0px",
-  borderBottom: `0.5px solid ${theme.palette.base["05"]}`,
+  borderBottom: `0.5px solid ${theme.palette.base["06"]}`,
   color: theme.palette.base["03"],
   fontSize: "10px",
   fontWeight: 500,
@@ -68,7 +68,7 @@ const FilterOption = styled(Box)(({ theme }) => ({
     borderBottom: "none"
   },
   "&:hover": {
-    backgroundColor: "#f0f0f0"
+    backgroundColor: theme.palette.base["07"]
   }
 }));
 
@@ -79,9 +79,9 @@ const UnifiedDropdown = styled(Paper)(({ theme }) => ({
   right: "0",
   zIndex: 1300,
   borderRadius: "4px",
-  border: `1px solid ${theme.palette.brand["04"] || "#4ade80"}`,
-  boxShadow: "none",
-  backgroundColor: theme.palette.base["07"] || "#f5f5f5",
+  border: `1px solid ${theme.palette.base["06"]}`,
+  boxShadow: "0px 5px 10px 0px rgba(0, 0, 0, 0.10)",
+  backgroundColor: theme.palette.bg.surface,
   overflow: "hidden",
   width: "100%",
   padding: "8px"

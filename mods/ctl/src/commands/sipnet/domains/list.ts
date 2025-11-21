@@ -46,15 +46,21 @@ export default class List extends AuthenticatedCommand<typeof List> {
 
     ui.div(
       { text: "REF", padding: [0, 0, 0, 0], width: 40 },
-      { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
-      { text: "DOMAIN URI", padding: [0, 0, 0, 0] }
+      { text: "NAME", padding: [0, 0, 0, 0], width: 25 },
+      { text: "DOMAIN URI", padding: [0, 0, 0, 0], width: 30 },
+      { text: "ACL", padding: [0, 0, 0, 0], width: 20 }
     );
 
     response.items.forEach((domain) => {
       ui.div(
         { text: domain.ref, padding: [0, 0, 0, 0], width: 40 },
-        { text: domain.name, padding: [0, 0, 0, 0], width: 30 },
-        { text: domain.domainUri, padding: [0, 0, 0, 0] }
+        { text: domain.name, padding: [0, 0, 0, 0], width: 25 },
+        { text: domain.domainUri, padding: [0, 0, 0, 0], width: 30 },
+        {
+          text: domain.accessControlList?.name || "None",
+          padding: [0, 0, 0, 0],
+          width: 20
+        }
       );
     });
 

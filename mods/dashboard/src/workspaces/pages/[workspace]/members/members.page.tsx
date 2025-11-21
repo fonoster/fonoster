@@ -34,6 +34,8 @@ import {
   useWorkspaceResendInvite
 } from "~/workspaces/services/workspaces.service";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { Role } from "@fonoster/types";
+import { useAuth } from "~/auth/hooks/use-auth";
 
 /**
  * Page metadata function.
@@ -66,6 +68,9 @@ export default function Members() {
   /** Retrieves the current workspace ID from the URL params. */
   const workspaceId = useWorkspaceId();
 
+  /** Get the authenticated user context */
+  const { user } = useAuth();
+
   /** State to hold the current pagination token used to fetch a specific page of data. */
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
 
@@ -77,6 +82,22 @@ export default function Members() {
 
   const { mutate: resend } = useWorkspaceResendInvite();
   const { mutate: removeUser } = useWorkspaceRemoveMember();
+
+  /** Determine if the current user can delete members (admin or owner only) */
+  const canDeleteMembers = useMemo(() => {
+    if (!user || !data) return false;
+
+    // Find the current user in the members list
+    const currentUserMember = data.find((member) => member.userRef === user.id);
+
+    if (!currentUserMember) return false;
+
+    // Only workspace admins and owners can delete members
+    return (
+      currentUserMember.role === Role.WORKSPACE_ADMIN ||
+      currentUserMember.role === Role.WORKSPACE_OWNER
+    );
+  }, [user, data]);
 
   /**
    * Handler for deleting a member (placeholder).
@@ -119,8 +140,8 @@ export default function Members() {
 
   /** Memoized column definitions to avoid unnecessary re-renders. */
   const columns = useMemo(
-    () => getColumns(onDelete, onSendEmail),
-    [onDelete, onSendEmail]
+    () => getColumns(onDelete, onSendEmail, canDeleteMembers),
+    [onDelete, onSendEmail, canDeleteMembers]
   );
 
   /**

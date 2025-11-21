@@ -122,6 +122,7 @@ const roles = [
     name: Role.WORKSPACE_MEMBER,
     description: "Access to User and Workspace endpoints",
     access: [
+      "/fonoster.identity.v1beta2.Identity/GetUser",
       "/fonoster.identity.v1beta2.Identity/GetWorkspace",
       "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
       ...workspaceResourceAccess

@@ -35,7 +35,7 @@ service Applications {
   rpc UpdateApplication(UpdateApplicationRequest) returns (UpdateApplicationResponse) {}
   // Delete an application
   rpc DeleteApplication(DeleteApplicationRequest) returns (DeleteApplicationResponse) {}
-  // Evaluate the intellgence for an Autopilot application
+  // Evaluate the intelligence for an Autopilot application
   rpc EvaluateIntelligence(EvaluateIntelligenceRequest) returns (EvaluateIntelligenceResponse);
   // Create an Ephemeral Agent to perform test calls to an application
   rpc CreateTestToken(google.protobuf.Empty) returns (TestTokenResponse) {}

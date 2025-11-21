@@ -241,7 +241,7 @@ deleteApplication: {
     responseSerialize: serialize_fonoster_applications_v1beta2_DeleteApplicationResponse,
     responseDeserialize: deserialize_fonoster_applications_v1beta2_DeleteApplicationResponse,
   },
-  // Evaluate the intellgence for an Autopilot application
+  // Evaluate the intelligence for an Autopilot application
 evaluateIntelligence: {
     path: '/fonoster.applications.v1beta2.Applications/EvaluateIntelligence',
     requestStream: false,
