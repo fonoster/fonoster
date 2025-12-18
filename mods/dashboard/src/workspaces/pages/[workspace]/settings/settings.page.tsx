@@ -21,13 +21,18 @@ import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/settings.page";
 import { useWorkspaceId } from "~/workspaces/hooks/use-workspace-id";
 import { useNavigate } from "react-router";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { WorkspaceSettingsForm } from "./settings.form";
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, Divider as MuiDivider } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import { FormProvider } from "~/core/contexts/form-context";
 import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { useAuth } from "~/auth/hooks/use-auth";
+import { DeleteWorkspaceDialog } from "./delete-workspace-dialog";
+import { useDeleteWorkspace } from "~/workspaces/services/workspaces.service";
+import { toast } from "~/core/components/design-system/ui/toaster/toaster";
+import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { Button } from "~/core/components/design-system/ui/button/button";
 
 /**
  * Page metadata function.
@@ -57,8 +62,15 @@ export default function Overview() {
   /** React Router hook to navigate programmatically. */
   const navigate = useNavigate();
 
-  /** Retrieves the current workspace from the authentication context. */
-  const { currentWorkspace } = useAuth();
+  /** Retrieves the current workspace and user from the authentication context. */
+  const { currentWorkspace, user } = useAuth();
+
+  /** State to control the delete workspace dialog visibility. */
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  /** Hook to delete the workspace. */
+  const { mutate: deleteWorkspace, isPending: isDeleting } =
+    useDeleteWorkspace();
 
   /**
    * Handler for the "Back to overview" button.
@@ -76,6 +88,55 @@ export default function Overview() {
     if (!currentWorkspace) return "Loading...";
     return currentWorkspace.name || "Workspace Settings";
   }, [currentWorkspace]);
+
+  /**
+   * Determines if the current user is the owner of the workspace.
+   * Only the owner can delete the workspace.
+   */
+  const isOwner = useMemo(() => {
+    if (!user || !currentWorkspace) return false;
+    return currentWorkspace.ownerRef === user.id;
+  }, [user, currentWorkspace]);
+
+  /**
+   * Handler for opening the delete workspace dialog.
+   */
+  const handleOpenDeleteDialog = useCallback(() => {
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  /**
+   * Handler for closing the delete workspace dialog.
+   */
+  const handleCloseDeleteDialog = useCallback(() => {
+    if (!isDeleting) {
+      setIsDeleteDialogOpen(false);
+    }
+  }, [isDeleting]);
+
+  /**
+   * Handler for confirming workspace deletion.
+   * Deletes the workspace and redirects to home.
+   */
+  const handleConfirmDelete = useCallback(() => {
+    if (!currentWorkspace) {
+      toast(
+        "Oops! We are unable to find your workspace :( Please try again later."
+      );
+      return;
+    }
+
+    deleteWorkspace(currentWorkspace.ref, {
+      onSuccess: () => {
+        toast("Workspace deleted successfully");
+        // Redirect to home after successful deletion
+        navigate("/", { replace: true });
+      },
+      onError: (error) => {
+        toast(getErrorMessage(error));
+      }
+    });
+  }, [currentWorkspace, deleteWorkspace, navigate]);
 
   /**
    * Renders the workspace settings page with a header, workspace info, and settings form.
@@ -113,7 +174,49 @@ export default function Overview() {
 
           {/* Workspace Settings Form */}
           <WorkspaceSettingsForm />
+
+          {/* Danger Zone Section - Only visible to workspace owner */}
+          {isOwner && (
+            <Box sx={{ mt: 6 }}>
+              <MuiDivider sx={{ mb: 3 }} />
+
+              <Stack spacing={2}>
+                <Typography variant="heading-micro">Danger Zone</Typography>
+
+                <Typography variant="body-small" color="base.03">
+                  Once you delete a workspace, there is no going back. Please be
+                  certain.
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    paddingTop: "12px",
+                    alignItems: "center"
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={handleOpenDeleteDialog}
+                    danger
+                  >
+                    Delete Workspace
+                  </Button>
+                </Box>
+              </Stack>
+            </Box>
+          )}
         </Box>
+
+        {/* Delete Workspace Confirmation Dialog */}
+        <DeleteWorkspaceDialog
+          open={isDeleteDialogOpen}
+          onClose={handleCloseDeleteDialog}
+          onConfirm={handleConfirmDelete}
+          workspaceName={currentWorkspace?.name}
+          isDeleting={isDeleting}
+        />
       </Page>
     </FormProvider>
   );
