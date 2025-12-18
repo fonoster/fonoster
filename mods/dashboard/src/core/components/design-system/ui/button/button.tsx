@@ -18,7 +18,7 @@
  */
 import { StyledButton, type ButtonAttributes } from "./button.styles";
 
-export const Button = ({ isFullWidth, ...props }: ButtonAttributes) => {
+export const Button = ({ isFullWidth, danger, ...props }: ButtonAttributes) => {
   const { size = "large", variant = "contained", ...rest } = props;
 
   return (
@@ -27,6 +27,7 @@ export const Button = ({ isFullWidth, ...props }: ButtonAttributes) => {
       size={size}
       disableElevation
       fullWidth={isFullWidth}
+      danger={danger}
       {...rest}
     />
   );

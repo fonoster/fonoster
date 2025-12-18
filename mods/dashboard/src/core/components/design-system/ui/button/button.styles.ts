@@ -69,10 +69,7 @@ const sizeStyles = (size: ButtonProps["size"]): CSSObject => {
   };
 };
 
-const outlinedStyles = (
-  theme: Theme,
-  danger?: boolean
-): CSSObject[] => {
+const outlinedStyles = (theme: Theme, danger?: boolean): CSSObject[] => {
   if (danger) {
     return [
       {
@@ -99,10 +96,7 @@ const outlinedStyles = (
   ];
 };
 
-const containedStyles = (
-  theme: Theme,
-  danger?: boolean
-): CSSObject[] => {
+const containedStyles = (theme: Theme, danger?: boolean): CSSObject[] => {
   if (danger) {
     return [
       {
