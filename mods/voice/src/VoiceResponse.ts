@@ -260,7 +260,7 @@ class VoiceResponse {
    *   setTimeout(() => {
    *     // Will stop the current TTS operation
    *     response.stopSay();
-   *   }, 1000);
+   *   }, 10000);
    *
    *   await response.say("Long text to say...");
    * }
