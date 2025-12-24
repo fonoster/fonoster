@@ -69,7 +69,7 @@ export default function Members() {
   const workspaceId = useWorkspaceId();
 
   /** Get the authenticated user context */
-  const { user } = useAuth();
+  const { user, currentWorkspace } = useAuth();
 
   /** State to hold the current pagination token used to fetch a specific page of data. */
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
@@ -90,14 +90,23 @@ export default function Members() {
     // Find the current user in the members list
     const currentUserMember = data.find((member) => member.userRef === user.id);
 
-    if (!currentUserMember) return false;
+    // If the user is found in the members list, check their role
+    if (currentUserMember) {
+      // Only workspace admins and owners can delete members
+      return (
+        currentUserMember.role === Role.WORKSPACE_ADMIN ||
+        currentUserMember.role === Role.WORKSPACE_OWNER
+      );
+    }
 
-    // Only workspace admins and owners can delete members
-    return (
-      currentUserMember.role === Role.WORKSPACE_ADMIN ||
-      currentUserMember.role === Role.WORKSPACE_OWNER
-    );
-  }, [user, data]);
+    // If the user is not in the members list, check if they are the workspace owner
+    // The API doesn't return the owner as part of the members list
+    if (currentWorkspace && currentWorkspace.ownerRef === user.id) {
+      return true;
+    }
+
+    return false;
+  }, [user, data, currentWorkspace]);
 
   /**
    * Handler for deleting a member (placeholder).
@@ -117,7 +126,7 @@ export default function Members() {
         toast(getErrorMessage(error));
       }
     },
-    [workspaceId]
+    [removeUser]
   );
 
   /**
@@ -135,7 +144,7 @@ export default function Members() {
         toast(getErrorMessage(error));
       }
     },
-    [workspaceId]
+    [resend]
   );
 
   /** Memoized column definitions to avoid unnecessary re-renders. */
