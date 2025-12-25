@@ -82,7 +82,7 @@ services:
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   routr:
-    image: fonoster/routr-one:2.13.13
+    image: fonoster/routr-one:2.13.21
     restart: unless-stopped
     environment:
       DATABASE_URL: ${ROUTR_DATABASE_URL}

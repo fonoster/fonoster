@@ -41,6 +41,7 @@ type AutopilotContext = {
   previousState: string | null;
   hasLateSpeech: boolean;
   isFirstTurn: boolean;
+  allowUserBargeIn: boolean;
 };
 
 type AutopilotEvents =
