@@ -1,0 +1,80 @@
+# Git files
+.git
+.gitignore
+.github
+
+# Documentation
+*.md
+README.md
+CONTRIBUTING.md
+LICENSE
+
+# Node modules (will be installed in container)
+node_modules
+**/node_modules
+
+# Build artifacts (will be built in container)
+**/dist
+**/.nyc_output
+**/coverage
+**/build
+**/tsconfig.tsbuildinfo
+
+# Test files
+**/test
+**/tests
+**/__tests__
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Development files
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+**/!.env.example
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# CI/CD
+.github
+
+# Docker files (except the one we need)
+**/Dockerfile
+!mods/apiserver/Dockerfile
+**/.dockerignore
+
+# Other unnecessary files
+site
+assets
+*.log
+*.tgz
+*.tar.gz
+
+# Config files that aren't needed in build
+config/keys
+config/*.json
+!config/integrations.example.json
+
+# Compose files
+compose*.yaml
+docker-compose*.yml
+
+# Scripts (needed for build)
+# .scripts - keep this, needed for postbuild
+scripts
+
+# Misc
+.nyc_output
+coverage
+*.map
+.eslintcache
+
