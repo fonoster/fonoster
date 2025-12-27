@@ -43,23 +43,22 @@ export const TTS_VENDORS = [
  * Each voice is identified by a vendor-specific ID and a human-friendly label.
  */
 export const TTS_ELEVENLABS_VOICES = [
-  { value: "Sarah", label: "Sarah (en-us)" },
-  { value: "Laura", label: "Laura (en-us)" },
-  { value: "Charlie", label: "Charlie (en-au)" },
-  { value: "George", label: "George (en-gb)" },
-  { value: "Callum", label: "Callum (en-gb)" },
-  { value: "Liam", label: "Liam (en-us)" },
-  { value: "Charlotte", label: "Charlotte (sv-se)" },
-  { value: "Alice", label: "Alice (en-gb)" },
-  { value: "Matilda", label: "Matilda (en-us)" },
-  { value: "Will", label: "Will (en-us)" },
-  { value: "Jessica", label: "Jessica (en-us)" },
-  { value: "Eric", label: "Eric (en-us)" },
-  { value: "Chris", label: "Chris (en-us)" },
-  { value: "Brian", label: "Brian (en-us)" },
-  { value: "Daniel", label: "Daniel (en-gb)" },
-  { value: "Lily", label: "Lily (en-gb)" },
-  { value: "Bill", label: "Bill (en-us)" }
+  { value: "EXAVITQu4vr4xnSDxMaL", label: "Sarah (en-us)" },
+  { value: "FGY2WhTYpPnrIDTdsKH5", label: "Laura (en-us)" },
+  { value: "IKne3meq5aSn9XLyUdCD", label: "Charlie (en-au)" },
+  { value: "JBFqnCBsd6RMkjVDRZzb", label: "George (en-gb)" },
+  { value: "N2lVS1w4EtoT3dr4eOWO", label: "Callum (en-gb)" },
+  { value: "TX3LPaxmHKxFdv7VOQHJ", label: "Liam (en-us)" },
+  { value: "Xb7hH8MSUJpSbSDYk0k2", label: "Alice (en-gb)" },
+  { value: "XrExE9yKIg1WjnnlVkGX", label: "Matilda (en-us)" },
+  { value: "bIHbv24MWmeRgasZH58o", label: "Will (en-us)" },
+  { value: "cgSgspJ2msm6clMCkdW9", label: "Jessica (en-us)" },
+  { value: "cjVigY5qzO86Huf0OWal", label: "Eric (en-us)" },
+  { value: "iP95p4xoKVk53GoZ742B", label: "Chris (en-us)" },
+  { value: "nPczCjzI2devNBz1zQrb", label: "Brian (en-us)" },
+  { value: "onwK4e9ZLuTAKqWW03F9", label: "Daniel (en-gb)" },
+  { value: "pFZP5JQG7iQjIQuC4Bku", label: "Lily (en-gb)" },
+  { value: "pqHfZKP75CvOlQylNhV4", label: "Bill (en-us)" }
 ];
 
 /**
