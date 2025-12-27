@@ -54,7 +54,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Install dependencies for integration tests
-        run: npm ci --prefer-offline --no-audit
+        run: |
+          npm ci --prefer-offline --no-audit
+          npm run build
 
       - name: Starting services for integration tests
         run: |
