@@ -34,6 +34,7 @@ export class AudioPlayer {
   private activeStream: Readable | null = null;
   private socket: net.Socket;
   private isPlaying: boolean = false;
+  private currentSessionId: number = 0;
 
   /**
    * Creates a new AudioPlayer.
@@ -51,19 +52,9 @@ export class AudioPlayer {
    * @return {Promise<void>}
    */
   async play(filePath: string): Promise<void> {
-    const fileStream = fs.readFileSync(filePath);
-
     logger.verbose("playing audio file", { filePath });
-
-    let offset = 0;
-
-    // eslint-disable-next-line no-loops/no-loops
-    while (offset < fileStream.length) {
-      const sliceSize = Math.min(fileStream.length - offset, MAX_CHUNK_SIZE);
-      const slicedChunk = fileStream.subarray(offset, offset + sliceSize);
-      await this._processAudioChunk(slicedChunk);
-      offset += sliceSize;
-    }
+    const fileData = fs.readFileSync(filePath);
+    return this.playStream(Readable.from(fileData));
   }
 
   /**
@@ -74,19 +65,35 @@ export class AudioPlayer {
    * @return {Promise<void>}
    */
   async playStream(inputStream: Readable): Promise<void> {
+    // Stop any currently playing stream before starting a new one
+    this.stop();
     this.isPlaying = true;
+
+    // Increment session ID to invalidate any in-flight processing from previous streams
+    const sessionId = ++this.currentSessionId;
     this.activeStream = inputStream;
 
     const buffer: Buffer[] = [];
     let isProcessing = false;
 
     const processBuffer = async () => {
-      if (!this.isPlaying || isProcessing || buffer.length === 0) return;
+      // Check both isPlaying AND that this session is still current
+      if (
+        !this.isPlaying ||
+        sessionId !== this.currentSessionId ||
+        isProcessing ||
+        buffer.length === 0
+      )
+        return;
 
       isProcessing = true;
 
       try {
-        while (buffer.length > 0 && this.isPlaying) {
+        while (
+          buffer.length > 0 &&
+          this.isPlaying &&
+          sessionId === this.currentSessionId
+        ) {
           const chunk = buffer.shift()!;
           await this._processAudioChunk(chunk);
         }
@@ -97,7 +104,8 @@ export class AudioPlayer {
 
     return new Promise((resolve, reject) => {
       inputStream.on("data", async (chunk: Buffer) => {
-        if (!this.isPlaying || this.activeStream !== inputStream) return;
+        // Check session ID to ensure this stream is still active
+        if (!this.isPlaying || sessionId !== this.currentSessionId) return;
 
         for (let offset = 0; offset < chunk.length; offset += MAX_CHUNK_SIZE) {
           const sliceSize = Math.min(chunk.length - offset, MAX_CHUNK_SIZE);
@@ -142,9 +150,7 @@ export class AudioPlayer {
       this.activeStream.removeAllListeners("data");
       this.activeStream.removeAllListeners("error");
       this.activeStream.removeAllListeners("end");
-      if (typeof this.activeStream.pause === "function") {
-        this.activeStream.pause();
-      }
+      this.activeStream.pause();
       this.activeStream = null;
     }
   }
