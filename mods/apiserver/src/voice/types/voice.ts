@@ -31,7 +31,7 @@ type VoiceClient = {
   config: VoiceClientConfig;
   sendResponse: (command: VoiceIn) => void;
   on: (type: StreamContent, callback: (data: VoiceIn) => void) => void;
-  connect: () => void;
+  connect: () => Promise<void>;
   close: () => void;
   synthesize: (text: string, options: SayOptions) => Promise<string>;
   transcribe: () => Promise<SpeechResult>;

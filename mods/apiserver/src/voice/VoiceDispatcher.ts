@@ -92,8 +92,8 @@ class VoiceDispatcher {
     try {
       const vc = await createVoiceClient({ ari, event, channel });
 
-      // Connect to voice server
-      vc.connect();
+      // Connect to voice server (must await to ensure speechHandler is initialized)
+      await vc.connect();
 
       voiceClients.set(channel.id, vc);
 
