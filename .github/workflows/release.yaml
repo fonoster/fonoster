@@ -180,18 +180,19 @@ jobs:
 
       - name: Find and publish release
         run: |
-          # Get the release by tag
-          release_response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ env.LERNA_VERSION }}")
+          # List releases and find the draft with matching tag
+          # Note: /releases/tags/{tag} doesn't return draft releases
+          release_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases" \
+            | jq -r '.[] | select(.tag_name == "v${{ env.LERNA_VERSION }}" and .draft == true) | .id' \
+            | head -1)
           
-          release_id=$(echo "$release_response" | jq -r '.id')
-          
-          if [ "$release_id" = "null" ] || [ -z "$release_id" ]; then
-            echo "Error: Could not find release with tag v${{ env.LERNA_VERSION }}"
+          if [ -z "$release_id" ]; then
+            echo "Error: Could not find draft release with tag v${{ env.LERNA_VERSION }}"
             exit 1
           fi
           
-          echo "Found release ID: $release_id"
+          echo "Found draft release ID: $release_id"
           
           # Publish the release (remove draft status)
           curl -X PATCH \
@@ -213,6 +214,10 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Pull latest changes to avoid non-fast-forward errors
+          git pull --rebase origin main
+          
           git add compose.yaml
           
           # Check if there are any changes to commit
