@@ -15,7 +15,8 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:readme": "node ../../.scripts/gen-readme.cjs"
+    "generate:readme": "node ../../.scripts/gen-readme.cjs",
+    "start:dev": "nodemon --exec tsx --watch src src/server.ts"
   },
   "files": [
     "dist",
