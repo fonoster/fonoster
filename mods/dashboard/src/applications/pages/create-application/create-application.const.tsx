@@ -184,12 +184,13 @@ export const LANGUAGE_MODEL_GOOGLE_MODELS = [
   { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite" },
   { value: "gemini-3-pro-preview", label: "Gemini 3 Pro Preview" },
   { value: "gemini-3-flash-preview", label: "Gemini 3 Flash Preview" }
-
 ];
 
+// Models temporarily unavailable by LangChain
 export const LANGUAGE_MODEL_ANTHROPIC_MODELS = [
-  { value: "claude-3-5-sonnet-latest", label: "Claude 3.5 Sonnet Latest" },
-  { value: "claude-3-5-haiku-latest", label: "Claude 3.5 Haiku Latest" }
+  { value: "claude-sonnet-4-5", label: "Claude Sonnet 4.5" },
+  { value: "claude-haiku-4-5", label: "Claude Haiku 4.5" },
+  { value: "claude-opus-4-5", label: "Claude Opus 4.5" }
 ];
 
 export const getLanguageModelModels = (provider: LanguageModelProvider) => {
