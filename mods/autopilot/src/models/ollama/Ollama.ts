@@ -34,9 +34,9 @@ class Ollama extends AbstractLanguageModel {
   ) {
     const model = new ChatOllama({
       ...params
-    }).bind({
-      tools: params.tools.map(convertToolToOpenAITool)
-    }) as unknown as BaseChatModel;
+    }).bindTools(
+      params.tools.map(convertToolToOpenAITool)
+    ) as unknown as BaseChatModel;
 
     super(
       {

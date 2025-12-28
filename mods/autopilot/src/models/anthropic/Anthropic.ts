@@ -34,9 +34,9 @@ class Anthropic extends AbstractLanguageModel {
   ) {
     const model = new ChatAnthropic({
       ...params
-    }).bind({
-      tools: params.tools.map(convertToolToOpenAITool)
-    }) as unknown as BaseChatModel;
+    }).bindTools(
+      params.tools.map(convertToolToOpenAITool)
+    ) as unknown as BaseChatModel;
 
     super(
       {

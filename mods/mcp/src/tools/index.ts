@@ -40,28 +40,28 @@ export async function registerTools(server: McpServer) {
   server.tool(
     "list_numbers",
     "Returns a list of numbers from Fonoster in a table format (using markdown)",
-    ListNumbersSchema.shape,
+    ListNumbersSchema.shape as Record<string, unknown>,
     createListNumbers(client)
   );
 
   server.tool(
     "list_applications",
     "Lists applications from Fonoster in a table format (using markdown)",
-    ListApplicationsSchema.shape,
+    ListApplicationsSchema.shape as Record<string, unknown>,
     createListApplications(client)
   );
 
   server.tool(
     "create_call",
     "Creates a call from Fonoster",
-    CreateCallSchema.shape,
+    CreateCallSchema.shape as Record<string, unknown>,
     createCreateCall(client)
   );
 
   server.tool(
     "create_call_batch",
     "Creates a batch of calls from Fonoster",
-    CreateCallBatchSchema.shape,
+    CreateCallBatchSchema.shape as Record<string, unknown>,
     createCreateCallBatch(client)
   );
 }

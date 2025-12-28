@@ -34,9 +34,9 @@ class OpenAI extends AbstractLanguageModel {
   ) {
     const model = new ChatOpenAI({
       ...params
-    }).bind({
-      tools: params.tools.map(convertToolToOpenAITool)
-    }) as unknown as BaseChatModel;
+    }).bindTools(
+      params.tools.map(convertToolToOpenAITool)
+    ) as unknown as BaseChatModel;
 
     super(
       {

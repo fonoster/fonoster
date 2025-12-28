@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
-import { ChatMessageHistory } from "langchain/stores/message/in_memory";
+import { InMemoryChatMessageHistory } from "@langchain/core/chat_history";
 
 export function createChatHistory() {
-  const chatHistory = new ChatMessageHistory();
+  const chatHistory = new InMemoryChatMessageHistory();
 
   return {
     getMessages: () => chatHistory.getMessages(),

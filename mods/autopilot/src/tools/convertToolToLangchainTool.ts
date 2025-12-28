@@ -17,16 +17,21 @@
  * limitations under the License.
  */
 import { JSONSchemaToZod } from "@dmitryrechkin/json-schema-to-zod";
-import { StructuredToolParams } from "@langchain/core/tools";
 import { z } from "zod";
 import { Tool } from "./types";
 
-function convertToolToLangchainTool(customTool: Tool): StructuredToolParams {
+type LangchainToolParams = {
+  name: string;
+  description: string;
+  schema: z.ZodObject<z.ZodRawShape>;
+};
+
+function convertToolToLangchainTool(customTool: Tool): LangchainToolParams {
   return {
     name: customTool.name,
     description: customTool.description,
     schema: customTool.parameters?.properties
-      ? (JSONSchemaToZod.convert(customTool.parameters) as z.ZodObject<any>)
+      ? (JSONSchemaToZod.convert(customTool.parameters) as z.ZodObject<z.ZodRawShape>)
       : z.object({})
   };
 }
