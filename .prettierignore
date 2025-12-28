@@ -6,3 +6,4 @@
 public
 *.hbs
 **/.react-router
+/.nx/workspace-data
