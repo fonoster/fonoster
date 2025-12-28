@@ -1,5 +1,8 @@
 {
   "node-option": [
     "import=tsx"
+  ],
+  "ignore": [
+    "**/node_modules/**"
   ]
 }
