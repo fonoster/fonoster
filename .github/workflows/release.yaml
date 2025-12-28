@@ -203,20 +203,18 @@ jobs:
           
           echo "✅ Release v${{ env.LERNA_VERSION }} has been published"
 
-      - name: Update compose.yaml with new version tags
-        run: |
-          # Update custom service images from any version to :${LERNA_VERSION}
-          sed -i "s|fonoster/dashboard:[^[:space:]]*|fonoster/dashboard:${{ env.LERNA_VERSION }}|g" compose.yaml
-          sed -i "s|fonoster/apiserver:[^[:space:]]*|fonoster/apiserver:${{ env.LERNA_VERSION }}|g" compose.yaml
-          sed -i "s|fonoster/autopilot:[^[:space:]]*|fonoster/autopilot:${{ env.LERNA_VERSION }}|g" compose.yaml
-
       - name: Commit and push updated compose.yaml
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Pull latest changes to avoid non-fast-forward errors
+          # Pull latest changes first (before making modifications)
           git pull --rebase origin main
+          
+          # Update custom service images from any version to :${LERNA_VERSION}
+          sed -i "s|fonoster/dashboard:[^[:space:]]*|fonoster/dashboard:${{ env.LERNA_VERSION }}|g" compose.yaml
+          sed -i "s|fonoster/apiserver:[^[:space:]]*|fonoster/apiserver:${{ env.LERNA_VERSION }}|g" compose.yaml
+          sed -i "s|fonoster/autopilot:[^[:space:]]*|fonoster/autopilot:${{ env.LERNA_VERSION }}|g" compose.yaml
           
           git add compose.yaml
           
