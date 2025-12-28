@@ -31,7 +31,9 @@ function convertToolToLangchainTool(customTool: Tool): LangchainToolParams {
     name: customTool.name,
     description: customTool.description,
     schema: customTool.parameters?.properties
-      ? (JSONSchemaToZod.convert(customTool.parameters) as z.ZodObject<z.ZodRawShape>)
+      ? (JSONSchemaToZod.convert(
+          customTool.parameters
+        ) as z.ZodObject<z.ZodRawShape>)
       : z.object({})
   };
 }
