@@ -34,8 +34,7 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import { RegionBadge } from "../region-badge/region-badge";
 import { Box } from "@mui/material";
 
-export interface WorkspaceCardProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface WorkspaceCardProps extends React.HTMLAttributes<HTMLDivElement> {
   region?: string;
   description?: string;
   date?: string;

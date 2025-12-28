@@ -26,8 +26,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { Box } from "@mui/material";
 
-export interface WorkspaceCardProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface WorkspaceCardProps extends React.HTMLAttributes<HTMLDivElement> {
   disabled?: boolean;
   workspaceRef?: React.RefObject<HTMLDivElement>;
 }

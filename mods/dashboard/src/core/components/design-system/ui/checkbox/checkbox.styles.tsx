@@ -22,8 +22,10 @@ import { styled } from "@mui/material/styles";
 import type { CheckboxProps as MuiCheckboxProps } from "@mui/material/Checkbox";
 import React from "react";
 
-export interface CheckboxProps
-  extends Omit<MuiCheckboxProps, "color" | "disableRipple"> {
+export interface CheckboxProps extends Omit<
+  MuiCheckboxProps,
+  "color" | "disableRipple"
+> {
   children?: React.ReactNode;
 }
 

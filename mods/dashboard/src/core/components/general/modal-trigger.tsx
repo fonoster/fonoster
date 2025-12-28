@@ -25,8 +25,7 @@ import { Typography } from "../design-system/ui/typography/typography";
  *
  * This component accepts all standard HTML div attributes plus a required label.
  */
-export interface ModalTriggerProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface ModalTriggerProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Text label displayed next to the icon inside the trigger. */
   label: string;
 }

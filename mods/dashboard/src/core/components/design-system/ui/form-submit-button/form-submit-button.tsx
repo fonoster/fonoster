@@ -21,8 +21,10 @@ import { Button } from "../button/button";
 import { useFormContext } from "~/core/contexts/form-context";
 import type { ButtonAttributes } from "../button/button.styles";
 
-export interface FormSubmitButtonProps
-  extends Omit<ButtonAttributes, "onClick" | "disabled"> {
+export interface FormSubmitButtonProps extends Omit<
+  ButtonAttributes,
+  "onClick" | "disabled"
+> {
   children?: React.ReactNode;
   loadingText?: string;
   disabledText?: string;

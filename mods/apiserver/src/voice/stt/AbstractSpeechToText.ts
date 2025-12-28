@@ -22,9 +22,10 @@ import { MethodNotImplementedError } from "../errors/MethodNotImplementedError";
 import { SpeechToText } from "../types";
 import { SpeechResult, StreamSpeech, SttConfig } from "./types";
 
-abstract class AbstractSpeechToText<E, T extends SttConfig = SttConfig>
-  implements SpeechToText
-{
+abstract class AbstractSpeechToText<
+  E,
+  T extends SttConfig = SttConfig
+> implements SpeechToText {
   abstract readonly engineName: E;
   config: T;
 

@@ -75,7 +75,6 @@ export interface DataTableContextProps<T> extends BaseDataTable<T> {
 }
 
 export interface DataTableContextProviderProps<T>
-  extends DataTableProps<T>,
-    React.PropsWithChildren {
+  extends DataTableProps<T>, React.PropsWithChildren {
   features: FeatureOption[];
 }
