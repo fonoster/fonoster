@@ -41,7 +41,7 @@
     "@fonoster/voice": "^0.16.5",
     "@langchain/anthropic": "^1.3.3",
     "@langchain/community": "^1.1.1",
-    "@langchain/core": "^1.1.8",
+    "@langchain/core": "^0.3.80",
     "@langchain/google-genai": "^2.1.3",
     "@langchain/groq": "^1.0.2",
     "@langchain/ollama": "^1.1.0",
