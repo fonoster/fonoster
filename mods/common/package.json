@@ -19,19 +19,19 @@
   },
   "dependencies": {
     "@fonoster/logger": "^0.16.7",
-    "@grpc/grpc-js": "~1.10.6",
-    "@grpc/proto-loader": "^0.7.12",
+    "@grpc/grpc-js": "~1.10.11",
+    "@grpc/proto-loader": "^0.7.15",
     "@influxdata/influxdb-client": "^1.35.0",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.6.1",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
-    "nodemailer": "^6.9.13",
+    "nodemailer": "^6.10.1",
     "pb-util": "^1.0.3",
-    "twilio": "^5.3.4",
+    "twilio": "^5.11.1",
     "validator": "^13.12.0",
-    "zod-validation-error": "^3.3.0"
+    "zod-validation-error": "^3.5.4"
   },
   "files": [
     "dist"
@@ -47,7 +47,7 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "devDependencies": {
-    "@types/nodemailer": "^6.4.14"
+    "@types/nodemailer": "^6.4.21"
   },
   "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579"
 }
