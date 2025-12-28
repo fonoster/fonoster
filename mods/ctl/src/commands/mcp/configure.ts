@@ -87,9 +87,9 @@ export default class Configure extends Command {
       command: "npx",
       args: ["-y", "@fonoster/mcp@latest"],
       env: {
-        WORKSPACE_ACCESS_KEY_ID: workspace.workspaceAccessKeyId,
-        APIKEY_ACCESS_KEY_ID: workspace.accessKeyId,
-        APIKEY_ACCESS_KEY_SECRET: workspace.accessKeySecret
+        MCP_WORKSPACE_ACCESS_KEY_ID: workspace.workspaceAccessKeyId,
+        MCP_APIKEY_ACCESS_KEY_ID: workspace.accessKeyId,
+        MCP_APIKEY_ACCESS_KEY_SECRET: workspace.accessKeySecret
       }
     };
 

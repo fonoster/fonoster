@@ -7,9 +7,9 @@
         "@fonoster/mcp"
       ],
       "env": {
-        "WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
-        "APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
-        "APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
+        "MCP_WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
+        "MCP_APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
+        "MCP_APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
       }
     }
   }

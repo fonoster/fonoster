@@ -68,9 +68,9 @@ Add the following to your `claude_desktop_config.json`:
         "@fonoster/mcp"
       ],
       "env": {
-        "WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
-        "APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
-        "APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
+        "MCP_WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
+        "MCP_APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
+        "MCP_APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
       }
     }
   }
@@ -89,29 +89,39 @@ Add the following to your `claude_desktop_config.json`:
         "-i",
         "--rm",
         "-e",
-        "WORKSPACE_ACCESS_KEY_ID",
+        "MCP_WORKSPACE_ACCESS_KEY_ID",
         "-e",
-        "APIKEY_ACCESS_KEY_ID",
+        "MCP_APIKEY_ACCESS_KEY_ID",
         "-e",
-        "APIKEY_ACCESS_KEY_SECRET",
+        "MCP_APIKEY_ACCESS_KEY_SECRET",
         "fonoster/mcp"
       ],
       "env": {
-        "WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
-        "APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
-        "APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
+        "MCP_WORKSPACE_ACCESS_KEY_ID": "your-workspace-access-key-id",
+        "MCP_APIKEY_ACCESS_KEY_ID": "your-apikey-access-key-id",
+        "MCP_APIKEY_ACCESS_KEY_SECRET": "your-apikey-access-key-secret"
       }
     }
   }
 }
 ```
 
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `MCP_WORKSPACE_ACCESS_KEY_ID` | Your workspace access key ID | Yes |
+| `MCP_APIKEY_ACCESS_KEY_ID` | Your API key access key ID | Yes |
+| `MCP_APIKEY_ACCESS_KEY_SECRET` | Your API key secret | Yes |
+| `MCP_ENDPOINT` | Custom API endpoint (e.g., `localhost:50051`) | No |
+| `MCP_ALLOW_INSECURE` | Allow insecure connections (`true`/`false`) | No |
+
 ### Testing with the MCP Inspector
 
 ```bash
-WORKSPACE_ACCESS_KEY_ID="your-workspace-access-key-id" \
-APIKEY_ACCESS_KEY_ID="your-apikey-access-key-id" \
-APIKEY_ACCESS_KEY_SECRET="your-apikey-access-key_secret" \
+MCP_WORKSPACE_ACCESS_KEY_ID="your-workspace-access-key-id" \
+MCP_APIKEY_ACCESS_KEY_ID="your-apikey-access-key-id" \
+MCP_APIKEY_ACCESS_KEY_SECRET="your-apikey-access-key-secret" \
 npx @modelcontextprotocol/inspector \
 node /path/to/fonoster/mods/mcp/dist/index.js
 ```
