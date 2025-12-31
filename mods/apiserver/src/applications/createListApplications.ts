@@ -71,7 +71,7 @@ function createListApplications(prisma: Prisma) {
 
     callback(null, {
       items,
-      nextPageToken: result[result.length - 1]?.ref
+      nextPageToken: items.length < pageSize ? undefined : result[result.length - 1]?.ref
     });
   };
 

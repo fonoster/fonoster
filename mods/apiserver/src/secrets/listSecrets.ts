@@ -61,7 +61,7 @@ function listSecrets(prisma: Prisma) {
 
     callback(null, {
       items: result,
-      nextPageToken: result[result.length - 1]?.ref
+      nextPageToken: result.length < pageSize ? undefined : result[result.length - 1]?.ref
     });
   };
 

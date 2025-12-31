@@ -64,7 +64,7 @@ function createListApiKeys(prisma: Prisma) {
 
     const response: ListApiKeysResponse = {
       items,
-      nextPageToken: items[items.length - 1]?.ref
+      nextPageToken: items.length < pageSize ? undefined : items[items.length - 1]?.ref
     };
 
     callback(null, response);

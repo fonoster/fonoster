@@ -24,11 +24,17 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
+  INumber,
+  INumberExtended,
   ListNumbersRequest,
   ListNumbersResponse,
   NumbersApi
 } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import {
+  filterByAccessKeyId,
+  paginateWithFiltering
+} from "../resources/paginationUtils";
 import { convertToFonosterNumber } from "./convertToFonosterNumber";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
@@ -42,20 +48,34 @@ function listNumbers(api: NumbersApi) {
 
     logger.verbose("call to listNumbers", { ...request });
 
-    const response = await api.listNumbers(request);
-
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
 
-    const items = response.items
-      .filter((item) => item.extended.accessKeyId === accessKeyId)
-      .map(convertToFonosterNumber);
+    const requestWithPageToken = request as {
+      pageToken?: string;
+      pageSize?: number;
+    };
+    const pageSize = requestWithPageToken.pageSize || 20;
 
-    callback(null, {
-      items: items,
-      nextPageToken: response.nextPageToken
+    const response = await paginateWithFiltering<INumberExtended, INumber>({
+      pageSize,
+      pageToken: requestWithPageToken.pageToken,
+      fetchPage: async (pageToken, fetchPageSize) => {
+        const normalizedRequest = {
+          ...request,
+          pageToken,
+          pageSize: fetchPageSize
+        };
+        return await api.listNumbers(normalizedRequest);
+      },
+      filterItems: (items: INumberExtended[]): INumber[] => {
+        // Filter by accessKeyId and convert to Fonoster number format
+        return filterByAccessKeyId(items, accessKeyId).map(convertToFonosterNumber);
+      }
     });
+
+    callback(null, response);
   };
 
   return withErrorHandlingAndValidation(fn, V.listRequestSchema);

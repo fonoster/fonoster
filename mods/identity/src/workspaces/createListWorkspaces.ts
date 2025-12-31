@@ -85,7 +85,7 @@ function createListWorkspaces(prisma: Prisma) {
 
     callback(null, {
       items: items.map(datesMapper),
-      nextPageToken: items[items.length - 1]?.ref
+      nextPageToken: undefined
     });
   };
 

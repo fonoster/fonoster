@@ -24,6 +24,10 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import {
+  filterByAccessKeyId,
+  paginateWithFiltering
+} from "./paginationUtils";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
@@ -50,17 +54,27 @@ function listResources<T, R, U>(api: U, resource: string) {
       call as unknown as ServerInterceptingCall
     );
 
-    const response = await api[`list${res}s`](request);
+    const requestWithPageToken = request as {
+      pageToken?: string;
+      pageSize?: number;
+    };
+    const pageSize = requestWithPageToken.pageSize || 20;
 
-    const items = response.items.filter(
-      (item: { extended: { accessKeyId: string } }) =>
-        item.extended?.accessKeyId === accessKeyId
-    );
-
-    callback(null, {
-      items,
-      nextPageToken: response.nextPageToken
+    const response = await paginateWithFiltering<T>({
+      pageSize,
+      pageToken: requestWithPageToken.pageToken,
+      fetchPage: async (pageToken, fetchPageSize) => {
+        const normalizedRequest = {
+          ...request,
+          pageToken,
+          pageSize: fetchPageSize
+        };
+        return await api[`list${res}s`](normalizedRequest);
+      },
+      filterItems: (items) => filterByAccessKeyId(items, accessKeyId)
     });
+
+    callback(null, response);
   };
 
   return withErrorHandlingAndValidation(fn, V.listRequestSchema);
