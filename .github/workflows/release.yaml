@@ -26,7 +26,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22.x"
 
@@ -76,14 +76,13 @@ jobs:
 
       - name: Create draft release
         if: env.RELEASE != 'none'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.LERNA_VERSION }}
-          release_name: Release v${{ env.LERNA_VERSION }}
+          name: Release v${{ env.LERNA_VERSION }}
           body: ${{ steps.changelog.outputs.changelog }}
           draft: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   publish-apiserver:
     name: Publish APIServer to Docker Hub
@@ -169,7 +168,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22.x"
 
