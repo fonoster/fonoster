@@ -71,7 +71,9 @@ function listNumbers(api: NumbersApi) {
       },
       filterItems: (items: INumberExtended[]): INumber[] => {
         // Filter by accessKeyId and convert to Fonoster number format
-        return filterByAccessKeyId(items, accessKeyId).map(convertToFonosterNumber);
+        return filterByAccessKeyId(items, accessKeyId).map(
+          convertToFonosterNumber
+        );
       }
     });
 

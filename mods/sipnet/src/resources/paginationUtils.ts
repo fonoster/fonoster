@@ -24,7 +24,10 @@ type ListResponse<T> = {
 type PaginatedListOptions<TInput, TOutput = TInput> = {
   pageSize: number;
   pageToken?: string;
-  fetchPage: (pageToken: string | undefined, pageSize: number) => Promise<ListResponse<TInput>>;
+  fetchPage: (
+    pageToken: string | undefined,
+    pageSize: number
+  ) => Promise<ListResponse<TInput>>;
   filterItems: (items: TInput[]) => TOutput[];
   maxIterations?: number;
 };
@@ -40,20 +43,19 @@ export function normalizePageToken(pageToken?: string): string | undefined {
 /**
  * Normalizes empty string nextPageToken from response to undefined.
  */
-export function normalizeNextPageToken(nextPageToken?: string): string | undefined {
+export function normalizeNextPageToken(
+  nextPageToken?: string
+): string | undefined {
   return nextPageToken && nextPageToken !== "" ? nextPageToken : undefined;
 }
 
 /**
  * Filters items by accessKeyId from extended field.
  */
-export function filterByAccessKeyId<T extends { extended?: { accessKeyId?: string } }>(
-  items: T[],
-  accessKeyId: string
-): T[] {
-  return items.filter(
-    (item) => item.extended?.accessKeyId === accessKeyId
-  );
+export function filterByAccessKeyId<
+  T extends { extended?: { accessKeyId?: string } }
+>(items: T[], accessKeyId: string): T[] {
+  return items.filter((item) => item.extended?.accessKeyId === accessKeyId);
 }
 
 /**
@@ -85,7 +87,11 @@ export async function paginateWithFiltering<TInput, TOutput = TInput>(
   let hasMorePages = true;
   let iterations = 0;
 
-  while (items.length < pageSize && hasMorePages && iterations < maxIterations) {
+  while (
+    items.length < pageSize &&
+    hasMorePages &&
+    iterations < maxIterations
+  ) {
     iterations++;
 
     // Request more items to account for filtering

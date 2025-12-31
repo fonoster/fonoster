@@ -24,10 +24,7 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import {
-  filterByAccessKeyId,
-  paginateWithFiltering
-} from "./paginationUtils";
+import { filterByAccessKeyId, paginateWithFiltering } from "./paginationUtils";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
