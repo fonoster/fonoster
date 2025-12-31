@@ -37,9 +37,9 @@ export function createTestTextSimilarity(
     text2: string
   ): Promise<boolean> {
     const llm = new ChatOpenAI({
-      modelName: evalsLanguageModel.model,
+      model: evalsLanguageModel.model,
+      apiKey: evalsLanguageModel.apiKey,
       temperature: 0,
-      openAIApiKey: evalsLanguageModel.apiKey,
       maxTokens: 10
     });
 
