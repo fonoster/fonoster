@@ -103,7 +103,7 @@ class Deepgram
         if (hasTranscript) {
           lastAnyTranscript = transcript;
           lastAnyTranscriptTime = Date.now();
-          
+
           // Store finalized transcripts separately (preferred for UtteranceEnd)
           if (isFinal || speechFinal) {
             lastFinalizedTranscript = transcript;
@@ -152,8 +152,7 @@ class Deepgram
       // UtteranceEnd fires after finalized words, so prefer lastFinalizedTranscript
       connection.on(LiveTranscriptionEvents.UtteranceEnd, (data) => {
         // Prefer finalized transcript, fall back to any transcript
-        const transcriptToUse =
-          lastFinalizedTranscript || lastAnyTranscript;
+        const transcriptToUse = lastFinalizedTranscript || lastAnyTranscript;
         const transcriptTime = lastFinalizedTranscript
           ? lastFinalizedTranscriptTime
           : lastAnyTranscriptTime;
@@ -165,8 +164,8 @@ class Deepgram
           const responseTime = lastWordEnd
             ? lastWordEnd * 1000 // Convert seconds to milliseconds
             : transcriptTime
-            ? Date.now() - transcriptTime
-            : 0;
+              ? Date.now() - transcriptTime
+              : 0;
 
           logger.info("Deepgram UtteranceEnd - processing last transcript", {
             speech: transcriptToUse,
@@ -184,7 +183,9 @@ class Deepgram
           lastFinalizedTranscript = null;
           lastAnyTranscript = null;
         } else {
-          logger.warn("Deepgram UtteranceEnd received but no last transcript available");
+          logger.warn(
+            "Deepgram UtteranceEnd received but no last transcript available"
+          );
         }
       });
     });
@@ -308,7 +309,7 @@ function buildTranscribeConfig(config: {
   // UtteranceEnd requires interim_results to be enabled
   // Default to true to enable UtteranceEnd fallback mechanism
   const interimResults = config.interimResults !== false;
-  
+
   // Default utterance_end_ms to 1000ms (minimum required value)
   // This enables UtteranceEnd events as a fallback when speech_final never becomes true
   const utteranceEndMs = config.utteranceEndMs || 1000;
