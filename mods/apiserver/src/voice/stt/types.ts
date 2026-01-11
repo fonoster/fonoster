@@ -58,6 +58,8 @@ type DeepgramSttConfig = {
     model: DeepgramModel;
     smartFormat: boolean;
     noDelay: boolean;
+    interimResults?: boolean;
+    utteranceEndMs?: number;
   };
   credentials: {
     apiKey: string;

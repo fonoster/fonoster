@@ -60,6 +60,17 @@ class Deepgram
 
     const out = new Stream();
 
+    // Track last transcript for UtteranceEnd fallback
+    // According to Deepgram docs: "If you receive an UtteranceEnd event without a
+    // preceding speech_final: true, it's advisable to process the last-received
+    // transcript as a complete utterance."
+    // UtteranceEnd fires after finalized words, so we store the last finalized transcript
+    // but also keep any transcript as a fallback
+    let lastFinalizedTranscript: string | null = null;
+    let lastFinalizedTranscriptTime: number = 0;
+    let lastAnyTranscript: string | null = null;
+    let lastAnyTranscriptTime: number = 0;
+
     // Add error handler immediately to catch any connection errors
     connection.on(LiveTranscriptionEvents.Error, (err) => {
       logger.error("error on Deepgram connection", { err });
@@ -83,10 +94,26 @@ class Deepgram
       });
 
       connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-        if (
-          !data.channel?.alternatives?.[0]?.transcript ||
-          !data.speech_final
-        ) {
+        const transcript = data.channel?.alternatives?.[0]?.transcript;
+        const hasTranscript = !!transcript;
+        const isFinal = data.is_final === true;
+        const speechFinal = data.speech_final === true;
+
+        // Store any transcript for UtteranceEnd fallback
+        if (hasTranscript) {
+          lastAnyTranscript = transcript;
+          lastAnyTranscriptTime = Date.now();
+          
+          // Store finalized transcripts separately (preferred for UtteranceEnd)
+          if (isFinal || speechFinal) {
+            lastFinalizedTranscript = transcript;
+            lastFinalizedTranscriptTime = Date.now();
+          }
+        }
+
+        // Process transcript if it has content and is final
+        // Check both speech_final (primary) and is_final (backup)
+        if (!hasTranscript || (!speechFinal && !isFinal)) {
           return;
         }
 
@@ -103,14 +130,62 @@ class Deepgram
             : 0;
 
         logger.verbose("transcribe result", {
-          speech: data.channel.alternatives[0].transcript,
-          responseTime
+          speech: transcript,
+          responseTime,
+          isFinal,
+          speechFinal
         });
 
         out.emit("data", {
-          speech: data.channel.alternatives[0].transcript,
+          speech: transcript,
           responseTime
         });
+
+        // Clear transcripts after processing (they've been emitted)
+        lastFinalizedTranscript = null;
+        lastAnyTranscript = null;
+      });
+
+      // CRITICAL: Handle UtteranceEnd events (fallback when speech_final never becomes true)
+      // This is Deepgram's recommended fallback mechanism for noisy environments
+      // UtteranceEnd requires: interim_results=true and utterance_end_ms parameter
+      // UtteranceEnd fires after finalized words, so prefer lastFinalizedTranscript
+      connection.on(LiveTranscriptionEvents.UtteranceEnd, (data) => {
+        // Prefer finalized transcript, fall back to any transcript
+        const transcriptToUse =
+          lastFinalizedTranscript || lastAnyTranscript;
+        const transcriptTime = lastFinalizedTranscript
+          ? lastFinalizedTranscriptTime
+          : lastAnyTranscriptTime;
+
+        if (transcriptToUse) {
+          // Use last_word_end from UtteranceEnd event if available for more accurate timing
+          // Otherwise fall back to time since last transcript
+          const lastWordEnd = data?.last_word_end;
+          const responseTime = lastWordEnd
+            ? lastWordEnd * 1000 // Convert seconds to milliseconds
+            : transcriptTime
+            ? Date.now() - transcriptTime
+            : 0;
+
+          logger.info("Deepgram UtteranceEnd - processing last transcript", {
+            speech: transcriptToUse,
+            responseTime,
+            lastWordEnd: lastWordEnd,
+            wasFinalized: !!lastFinalizedTranscript
+          });
+
+          out.emit("data", {
+            speech: transcriptToUse,
+            responseTime
+          });
+
+          // Clear transcripts after processing
+          lastFinalizedTranscript = null;
+          lastAnyTranscript = null;
+        } else {
+          logger.warn("Deepgram UtteranceEnd received but no last transcript available");
+        }
       });
     });
 
@@ -209,7 +284,9 @@ class Deepgram
         .optional(),
       model: z
         .nativeEnum(DeepgramModel, { message: "Invalid Deepgram model" })
-        .optional()
+        .optional(),
+      interimResults: z.boolean().optional(),
+      utteranceEndMs: z.number().int().min(1000).max(5000).optional()
     });
   }
 
@@ -225,7 +302,17 @@ function buildTranscribeConfig(config: {
   languageCode: VoiceLanguage;
   smartFormat?: boolean;
   noDelay?: boolean;
+  interimResults?: boolean;
+  utteranceEndMs?: number;
 }) {
+  // UtteranceEnd requires interim_results to be enabled
+  // Default to true to enable UtteranceEnd fallback mechanism
+  const interimResults = config.interimResults !== false;
+  
+  // Default utterance_end_ms to 1000ms (minimum required value)
+  // This enables UtteranceEnd events as a fallback when speech_final never becomes true
+  const utteranceEndMs = config.utteranceEndMs || 1000;
+
   return {
     ...config,
     model: config.model || DeepgramModel.NOVA_2_PHONECALL,
@@ -233,9 +320,13 @@ function buildTranscribeConfig(config: {
     encoding: "linear16",
     sample_rate: 16000,
     channels: 1,
-    smart_format: config.smartFormat || true,
+    smart_format: config.smartFormat !== false,
     // This needs to be set to true to avoid delays while using smart_format
-    no_delay: config.noDelay || true
+    no_delay: config.noDelay !== false,
+    // REQUIRED for UtteranceEnd: interim_results must be true
+    interim_results: interimResults,
+    // REQUIRED for UtteranceEnd: utterance_end_ms parameter
+    utterance_end_ms: utteranceEndMs
   };
 }
 
