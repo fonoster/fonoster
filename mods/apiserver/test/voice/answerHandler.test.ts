@@ -42,7 +42,7 @@ describe("@voice/handler/Answer", function () {
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const verbRequest = {
-      sessionRef: channelId
+      mediaSessionRef: channelId
     };
 
     // Act
@@ -53,7 +53,7 @@ describe("@voice/handler/Answer", function () {
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledWith({
       answerResponse: {
-        sessionRef: verbRequest.sessionRef
+        mediaSessionRef: verbRequest.mediaSessionRef
       }
     });
   });

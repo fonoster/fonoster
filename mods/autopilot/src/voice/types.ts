@@ -34,7 +34,7 @@ type TransferOptions = {
 };
 
 type Voice = {
-  sessionRef: string;
+  mediaSessionRef: string;
   answer: () => Promise<void>;
   hangup: () => Promise<void>;
   say: (text: string) => Promise<void>;

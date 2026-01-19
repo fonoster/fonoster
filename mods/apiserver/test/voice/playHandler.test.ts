@@ -50,7 +50,7 @@ describe("@voice/handler/Play", function () {
 
     const playRequest = {
       playbackRef: "playbackRef",
-      sessionRef: channelId,
+      mediaSessionRef: channelId,
       url: "url"
     };
 
@@ -63,7 +63,7 @@ describe("@voice/handler/Play", function () {
     expect(createVoiceClient().sendResponse).to.have.been.calledWith({
       playResponse: {
         playbackRef: playRequest.playbackRef,
-        sessionRef: playRequest.sessionRef
+        mediaSessionRef: playRequest.mediaSessionRef
       }
     });
     expect(ari.channels.play).to.have.been.calledWith({

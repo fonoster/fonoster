@@ -25,7 +25,7 @@ import { withErrorHandling } from "./utils/withErrorHandling";
 
 const sayRequestSchema = z.object({
   text: z.string(),
-  sessionRef: z.string(),
+  mediaSessionRef: z.string(),
   options: z.record(z.unknown()).optional()
 });
 
@@ -40,7 +40,7 @@ function createSayHandler(ari: Client, voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       sayResponse: {
-        sessionRef: request.sessionRef
+        mediaSessionRef: request.mediaSessionRef
       }
     });
   });

@@ -23,13 +23,13 @@ import { withErrorHandling } from "./utils/withErrorHandling";
 
 function createAnswerHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: VerbRequest) => {
-    const { sessionRef } = request;
+    const { mediaSessionRef } = request;
 
-    await ari.channels.answer({ channelId: sessionRef });
+    await ari.channels.answer({ channelId: mediaSessionRef });
 
     voiceClient.sendResponse({
       answerResponse: {
-        sessionRef
+        mediaSessionRef
       }
     });
   });

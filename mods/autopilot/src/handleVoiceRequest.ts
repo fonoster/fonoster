@@ -30,6 +30,7 @@ import {
   CONVERSATION_PROVIDER_FILE,
   INTEGRATIONS_FILE,
   KNOWLEDGE_BASE_ENABLED,
+  RECORDING_BASE_URL,
   UNSTRUCTURED_API_KEY,
   UNSTRUCTURED_API_URL
 } from "./envs";
@@ -55,8 +56,9 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     accessKeyId,
     callerNumber,
     ingressNumber,
-    sessionRef,
+    mediaSessionRef,
     appRef,
+    callRef,
     callDirection,
     metadata
   } = req;
@@ -64,8 +66,9 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   logger.verbose("voice request", {
     accessKeyId,
     ingressNumber,
-    sessionRef,
+    mediaSessionRef,
     appRef,
+    callRef,
     metadata
   });
 
@@ -110,7 +113,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     logger.verbose("knowledge base loaded");
   });
 
-  const voice = new VoiceImpl(sessionRef, res);
+  const voice = new VoiceImpl(mediaSessionRef, res);
 
   const languageModel = createLanguageModel({
     voice,
@@ -151,13 +154,17 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
         .filter(Boolean);
 
       if (assistantConfig.eventsHook?.url) {
+        // Construct recording URL: baseUrl + appRef + mediaSessionRef
+        const recordingUrl = `${RECORDING_BASE_URL}/${appRef}_${mediaSessionRef}.wav`;
+
         await sendConversationEndedEvent(
           assistantConfig.eventsHook as EventsHook,
           {
-            chatHistory: chatHistory as Record<string, string>[],
-            phone: ingressNumber,
             appRef,
-            sessionRef
+            callRef,
+            phone: ingressNumber,
+            chatHistory: chatHistory as Record<string, string>[],
+            recordingUrl
           }
         );
       }

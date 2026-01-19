@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import { struct } from "pb-util";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { getVoiceObject, mediaSessionRef, voiceRequest } from "./helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -43,7 +43,7 @@ describe("@voice/verbs/play", function () {
     const say = new Say(voiceRequest, voice);
 
     const sayRequest: SayRequest = {
-      sessionRef,
+      mediaSessionRef,
       text: "Hello World",
       playbackRef: "848b8803-7106-48b7-b820-515b05c40d6b",
       options: struct.encode({

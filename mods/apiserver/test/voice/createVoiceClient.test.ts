@@ -93,7 +93,7 @@ describe("@voice/createVoiceClient", function () {
 
     // Assert
     expect(voiceClient).to.be.an.instanceOf(VoiceClientImpl);
-    expect(channel.getChannelVar).to.have.callCount(4);
+    expect(channel.getChannelVar).to.have.callCount(5);
     expect(channel.getChannelVar).to.have.been.calledWith({
       variable: ChannelVar.APP_REF
     });
@@ -105,6 +105,9 @@ describe("@voice/createVoiceClient", function () {
     });
     expect(channel.getChannelVar).to.have.been.calledWith({
       variable: ChannelVar.CALL_DIRECTION
+    });
+    expect(channel.getChannelVar).to.have.been.calledWith({
+      variable: ChannelVar.CALL_REF
     });
   });
 });

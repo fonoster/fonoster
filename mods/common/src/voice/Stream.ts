@@ -50,7 +50,7 @@ type StopStreamRequest = VerbRequest & {
 };
 
 type StreamPayload = {
-  sessionRef: string;
+  mediaSessionRef: string;
   streamRef: string;
   format: StreamAudioFormat;
   type: StreamMessageType;

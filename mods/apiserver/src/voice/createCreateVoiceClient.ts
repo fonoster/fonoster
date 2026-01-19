@@ -19,6 +19,7 @@
 import { createGenerateCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { Channel, Client, StasisStart } from "ari-client";
+import { v4 as uuidv4 } from "uuid";
 import { identityConfig } from "../core/identityConfig";
 import { mapCallDirectionToEnum } from "../events/mapCallDirectionToEnum";
 import { VoiceClientImpl } from "./client";
@@ -38,7 +39,7 @@ function createCreateVoiceClient(createContainer: CreateContainer) {
     channel: Channel;
   }): Promise<VoiceClient> {
     const { ari, event, channel } = params;
-    const { id: sessionRef, caller } = event.channel;
+    const { id: mediaSessionRef, caller } = event.channel;
     const { name: callerName, number: callerNumber } = caller;
 
     const getChannelVar = createGetChannelVarWithoutThrow(channel);
@@ -50,6 +51,12 @@ function createCreateVoiceClient(createContainer: CreateContainer) {
     const ingressNumber =
       (await getChannelVar(ChannelVar.INGRESS_NUMBER))?.value || "";
 
+    // Try to get callRef from channel variable (set by dialplan from X-Call-Ref header for API-originated calls)
+    // If not found, generate a new UUID (for PSTN-terminated calls)
+    const callRefFromChannel = (await getChannelVar(ChannelVar.CALL_REF))
+      ?.value;
+    const callRef = callRefFromChannel || uuidv4();
+
     const { accessKeyId, endpoint, tts, stt } = await createContainer(appRef);
 
     const sessionToken = await generateCallAccessToken({ accessKeyId, appRef });
@@ -59,7 +66,8 @@ function createCreateVoiceClient(createContainer: CreateContainer) {
 
     const config = {
       appRef,
-      sessionRef,
+      mediaSessionRef,
+      callRef,
       accessKeyId,
       endpoint,
       callerName,

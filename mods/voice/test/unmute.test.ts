@@ -22,7 +22,7 @@ import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { getVoiceObject, mediaSessionRef, voiceRequest } from "./helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -43,7 +43,7 @@ describe("@voice/verbs/unmute", function () {
     const unmute = new Unmute(voiceRequest, voice);
 
     // Act
-    await unmute.run({ sessionRef, direction: MuteDirection.IN });
+    await unmute.run({ mediaSessionRef, direction: MuteDirection.IN });
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -51,7 +51,7 @@ describe("@voice/verbs/unmute", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      unmuteRequest: { sessionRef, direction: MuteDirection.IN }
+      unmuteRequest: { mediaSessionRef, direction: MuteDirection.IN }
     });
   });
 });

@@ -27,7 +27,7 @@ import { Voice } from "./types";
 
 class VoiceImpl implements Voice {
   private readonly playbackRef: string;
-  sessionRef: string;
+  mediaSessionRef: string;
   sgatherStream: {
     stop: () => Promise<void>;
     onData: (
@@ -40,10 +40,10 @@ class VoiceImpl implements Voice {
   };
 
   constructor(
-    sessionRef: string,
+    mediaSessionRef: string,
     private readonly voice: VoiceResponse
   ) {
-    this.sessionRef = sessionRef;
+    this.mediaSessionRef = mediaSessionRef;
     this.playbackRef = uuidv4();
   }
 

@@ -25,11 +25,12 @@ import { withErrorHandling } from "./utils/withErrorHandling";
 
 function createRecordHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: RecordRequest) => {
-    const { sessionRef, maxDuration, maxSilence, beep, finishOnKey } = request;
+    const { mediaSessionRef, maxDuration, maxSilence, beep, finishOnKey } =
+      request;
     const name = nanoid(10);
 
     await ari.channels.record({
-      channelId: sessionRef,
+      channelId: mediaSessionRef,
       format: RecordFormat.WAV,
       name,
       beep,
@@ -42,7 +43,7 @@ function createRecordHandler(ari: Client, voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       recordResponse: {
-        sessionRef,
+        mediaSessionRef,
         name,
         format: RecordFormat.WAV,
         duration

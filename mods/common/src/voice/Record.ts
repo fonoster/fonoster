@@ -32,7 +32,7 @@ type RecordOptions = {
 type RecordRequest = VerbRequest & RecordOptions;
 
 type RecordResponse = {
-  sessionRef: string;
+  mediaSessionRef: string;
   name: string;
   duration: number;
   format: RecordFormat;

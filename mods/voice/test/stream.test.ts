@@ -27,7 +27,7 @@ import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { getVoiceObject, mediaSessionRef, voiceRequest } from "./helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -47,7 +47,7 @@ describe("@voice/verbs/stream", function () {
     const startStream = new StartStream(voiceRequest, voice);
 
     const startStreamRequest: StartStreamRequest = {
-      sessionRef,
+      mediaSessionRef,
       direction: StreamDirection.IN,
       format: StreamAudioFormat.WAV
     };
@@ -98,7 +98,7 @@ describe("@voice/verbs/stream", function () {
 
     // First chunk in
     stream.write({
-      sessionRef,
+      mediaSessionRef,
       streamRef: "streamRef",
       format: StreamAudioFormat.WAV,
       type: StreamMessageType.AUDIO_IN,
@@ -115,7 +115,7 @@ describe("@voice/verbs/stream", function () {
 
     // Second chunk in
     stream.write({
-      sessionRef,
+      mediaSessionRef,
       streamRef: "streamRef",
       format: StreamAudioFormat.WAV,
       type: StreamMessageType.AUDIO_IN,
@@ -142,7 +142,7 @@ describe("@voice/verbs/stream", function () {
 
     expect(voice.write).to.have.been.calledWith({
       startStreamRequest: {
-        sessionRef,
+        mediaSessionRef,
         direction: StreamDirection.BOTH,
         format: StreamAudioFormat.WAV
       }
@@ -150,7 +150,7 @@ describe("@voice/verbs/stream", function () {
 
     expect(voice.write).to.have.been.calledWith({
       streamPayload: {
-        sessionRef,
+        mediaSessionRef,
         streamRef: "streamRef",
         format: StreamAudioFormat.WAV,
         type: StreamMessageType.AUDIO_IN,

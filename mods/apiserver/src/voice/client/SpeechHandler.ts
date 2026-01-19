@@ -32,7 +32,7 @@ class SpeechHandler {
   private ari: Client;
   private transcriptionsStream: Stream;
   private audioStream: AudioStream;
-  private sessionRef: string;
+  private mediaSessionRef: string;
 
   constructor(params: {
     tts: TextToSpeech;
@@ -40,14 +40,14 @@ class SpeechHandler {
     ari: Client;
     transcriptionsStream: Stream;
     audioStream: AudioStream;
-    sessionRef: string;
+    mediaSessionRef: string;
   }) {
     this.tts = params.tts;
     this.stt = params.stt;
     this.ari = params.ari;
     this.transcriptionsStream = params.transcriptionsStream;
     this.audioStream = params.audioStream;
-    this.sessionRef = params.sessionRef;
+    this.mediaSessionRef = params.mediaSessionRef;
   }
 
   async synthesize(text: string, options: SayOptions): Promise<string> {
@@ -90,14 +90,16 @@ class SpeechHandler {
 
     out.on("error", async (error) => {
       logger.error("speech recognition error", { error });
-      await this.ari.channels.hangup({ channelId: this.sessionRef });
+      await this.ari.channels.hangup({ channelId: this.mediaSessionRef });
     });
   }
 
   async startDtmfGather(
     callback: (event: { digit: string }) => void
   ): Promise<void> {
-    const channel = await this.ari.channels.get({ channelId: this.sessionRef });
+    const channel = await this.ari.channels.get({
+      channelId: this.mediaSessionRef
+    });
 
     channel.on(AriEvent.CHANNEL_DTMF_RECEIVED, (event) => {
       const { digit } = event;
@@ -117,7 +119,9 @@ class SpeechHandler {
     let result = "";
     let timeoutId = null;
 
-    const channel = await this.ari.channels.get({ channelId: this.sessionRef });
+    const channel = await this.ari.channels.get({
+      channelId: this.mediaSessionRef
+    });
 
     return new Promise((resolve) => {
       const resetTimer = () => {

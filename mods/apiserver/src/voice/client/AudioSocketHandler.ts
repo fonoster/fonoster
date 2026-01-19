@@ -46,21 +46,21 @@ class AudioSocketHandler {
       this.audioSocket.onConnection(async (req, res) => {
         logger.verbose("audio socket connection received", {
           ref: req.ref,
-          sessionRef: this.config.sessionRef
+          mediaSessionRef: this.config.mediaSessionRef
         });
 
         transcribeOnConnection(this.transcriptionsStream)(req, res);
 
         res.onClose(() => {
           logger.verbose("session audio stream closed", {
-            sessionRef: this.config.sessionRef
+            mediaSessionRef: this.config.mediaSessionRef
           });
         });
 
         res.onError((err) => {
           logger.error("session audio stream error", {
             error: err,
-            sessionRef: this.config.sessionRef
+            mediaSessionRef: this.config.mediaSessionRef
           });
         });
 

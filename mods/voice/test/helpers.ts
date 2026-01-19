@@ -20,11 +20,13 @@ import { CallDirection } from "@fonoster/types";
 import { SinonSandbox } from "sinon";
 import { VoiceRequest } from "../src";
 
-const sessionRef = "848b8803-7106-48b7-b820-515b05c40d6b";
+const mediaSessionRef = "848b8803-7106-48b7-b820-515b05c40d6b";
+const callRef = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
 
 const voiceRequest: VoiceRequest = {
   appRef: "3861b08b-1602-45e4-b523-dc3036ba85e7",
-  sessionRef,
+  mediaSessionRef,
+  callRef,
   accessKeyId: "WO00000000000000000000000000000000",
   endpoint: "localhost:50061",
   ingressNumber: "+1234567890",
@@ -49,4 +51,4 @@ function getVoiceObject(sandbox: SinonSandbox, resultContent: string) {
   };
 }
 
-export { getVoiceObject, sessionRef, voiceRequest };
+export { getVoiceObject, mediaSessionRef, callRef, voiceRequest };

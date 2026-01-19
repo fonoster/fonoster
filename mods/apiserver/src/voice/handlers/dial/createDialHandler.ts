@@ -30,7 +30,7 @@ import { handleStasisStart } from "./handleStasisStart";
 // TODO: Needs request validation
 function createDialHandler(ari: Client, voiceClient: VoiceClient) {
   return async function dial(request: DialRequest) {
-    const { sessionRef: channelId, destination, timeout } = request;
+    const { mediaSessionRef: channelId, destination, timeout } = request;
 
     const bridge = await ari.bridges.create({
       type: "mixing"

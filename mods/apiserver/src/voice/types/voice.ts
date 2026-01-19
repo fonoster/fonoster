@@ -39,13 +39,13 @@ type VoiceClient = {
     callback: (stream: { speech: string; responseTime: number }) => void
   ) => void;
   startDtmfGather: (
-    sessionRef: string,
+    mediaSessionRef: string,
     callback: (event: { digit: string }) => void
   ) => void;
   // Stops both speech and dtmf gather
   stopStreamGather: () => void;
   waitForDtmf: (params: {
-    sessionRef: string;
+    mediaSessionRef: string;
     finishOnKey: string;
     maxDigits: number;
     timeout: number;

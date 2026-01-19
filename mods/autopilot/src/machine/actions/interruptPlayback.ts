@@ -27,7 +27,7 @@ export const interruptPlayback = async ({
   context: AutopilotContext;
 }) => {
   logger.verbose("called the interruptPlayback action", {
-    sessionRef: context.sessionRef
+    mediaSessionRef: context.mediaSessionRef
   });
   await context.voice.stopSpeech();
 };

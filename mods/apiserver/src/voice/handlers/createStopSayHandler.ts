@@ -22,14 +22,14 @@ import { VoiceClient } from "../types";
 import { withErrorHandling } from "./utils/withErrorHandling";
 
 const requestSchema = z.object({
-  sessionRef: z.string()
+  mediaSessionRef: z.string()
 });
 
 function createStopSayHandler(voiceClient: VoiceClient) {
   return withErrorHandling(async (stopSayReq: StopSayRequest) => {
     requestSchema.parse(stopSayReq);
 
-    const { sessionRef } = stopSayReq;
+    const { mediaSessionRef } = stopSayReq;
 
     try {
       voiceClient.stopSynthesis();
@@ -39,7 +39,7 @@ function createStopSayHandler(voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       stopSayResponse: {
-        sessionRef
+        mediaSessionRef
       }
     });
   });

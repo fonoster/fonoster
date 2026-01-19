@@ -44,7 +44,7 @@ describe("@voice/handler/PlaybackControl", function () {
 
     const playbackControlRequest = {
       playbackRef: "playback-id",
-      sessionRef: channelId,
+      mediaSessionRef: channelId,
       action: PlaybackControlAction.FORWARD
     };
 
@@ -59,7 +59,7 @@ describe("@voice/handler/PlaybackControl", function () {
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledWith({
       playbackControlResponse: {
-        sessionRef: playbackControlRequest.sessionRef
+        mediaSessionRef: playbackControlRequest.mediaSessionRef
       }
     });
     expect(ari.playbacks.control).to.have.been.calledWith({
@@ -76,7 +76,7 @@ describe("@voice/handler/PlaybackControl", function () {
 
     const playbackControlRequest = {
       playbackRef: "playback-id",
-      sessionRef: channelId,
+      mediaSessionRef: channelId,
       action: PlaybackControlAction.STOP
     };
 
@@ -91,7 +91,7 @@ describe("@voice/handler/PlaybackControl", function () {
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledWith({
       playbackControlResponse: {
-        sessionRef: playbackControlRequest.sessionRef
+        mediaSessionRef: playbackControlRequest.mediaSessionRef
       }
     });
     expect(ari.playbacks.stop).to.have.been.calledWith({

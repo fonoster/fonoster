@@ -22,7 +22,7 @@ import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { getVoiceObject, mediaSessionRef, voiceRequest } from "./helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -42,7 +42,7 @@ describe("@voice/verbs/dial", function () {
     const dial = new Dial(voiceRequest, voice);
 
     const dialRequest: DialRequest = {
-      sessionRef,
+      mediaSessionRef,
       destination: "+1234567890",
       recordDirection: DialRecordDirection.BOTH
     };

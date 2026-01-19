@@ -37,7 +37,7 @@ const streamRequestSchema = z.object({
 
 function createStreamHandler(voiceClient: VoiceClient) {
   return withErrorHandling(async (request: StartStreamRequest) => {
-    const { sessionRef, direction, format } = request;
+    const { mediaSessionRef, direction, format } = request;
 
     streamRequestSchema.parse(request);
 
@@ -52,7 +52,7 @@ function createStreamHandler(voiceClient: VoiceClient) {
       voiceClient.getTranscriptionsStream().on("data", (data) => {
         voiceClient.sendResponse({
           streamPayload: {
-            sessionRef,
+            mediaSessionRef,
             type: StreamMessageType.AUDIO_OUT,
             data,
             streamRef: "fixme",
@@ -64,7 +64,7 @@ function createStreamHandler(voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       startStreamResponse: {
-        sessionRef,
+        mediaSessionRef,
         streamRef: "fixme"
       }
     });

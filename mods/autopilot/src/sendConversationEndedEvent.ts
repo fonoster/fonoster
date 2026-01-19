@@ -35,13 +35,15 @@ export type EventsHook = {
 export async function sendConversationEndedEvent(
   eventsHook: EventsHook,
   data: {
-    chatHistory: Record<string, string>[];
-    phone: string;
     appRef: string;
-    sessionRef: string;
+    callRef: string;
+    phone: string;
+    chatHistory: Record<string, string>[];
+    recordingUrl: string;
   }
 ) {
-  const { chatHistory, phone, appRef, sessionRef } = data;
+  const { chatHistory, phone, appRef, callRef, recordingUrl } = data;
+
   if (
     !eventsHook?.events.includes(EventsHookAllowedEvents.CONVERSATION_ENDED) &&
     !eventsHook?.events.includes(EventsHookAllowedEvents.ALL)
@@ -53,9 +55,10 @@ export async function sendConversationEndedEvent(
   const params = {
     eventType: EventsHookAllowedEvents.CONVERSATION_ENDED,
     appRef,
-    sessionRef,
+    callRef,
     phone,
-    chatHistory
+    chatHistory,
+    ...(recordingUrl && { recordingUrl })
   };
 
   try {

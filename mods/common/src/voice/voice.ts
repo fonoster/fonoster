@@ -89,7 +89,8 @@ type VoiceClientConfig = {
   ingressNumber: string;
   callerName: string;
   callerNumber: string;
-  sessionRef: string;
+  mediaSessionRef: string;
+  callRef: string;
   sessionToken: string;
   callDirection: CallDirection;
   metadata?: Record<string, string>;

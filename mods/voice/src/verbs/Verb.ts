@@ -40,18 +40,18 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
   }
 
   async run(params?: T): Promise<VoiceIn> {
-    const { sessionRef } = this.request;
+    const { mediaSessionRef } = this.request;
     const { voice } = this;
 
     logger.verbose(`sending a request with the ${this.constructor.name} verb`, {
-      sessionRef
+      mediaSessionRef
     });
 
     return new Promise((resolve, reject) => {
       try {
         const fullRequest = {
           ...params,
-          sessionRef
+          mediaSessionRef
         };
 
         validateRequest<T>(this.getValidationSchema(), fullRequest);
@@ -68,7 +68,7 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
           }
 
           logger.verbose(`received ${this.constructor.name} response`, {
-            sessionRef
+            mediaSessionRef
           });
           resolve(result);
           voice.removeListener(StreamEvent.DATA, dataListener);

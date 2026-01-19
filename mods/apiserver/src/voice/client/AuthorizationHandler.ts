@@ -42,7 +42,7 @@ class AuthorizationHandler {
       return true;
     }
 
-    const { sessionRef: channelId, accessKeyId } = this.config;
+    const { mediaSessionRef: channelId, accessKeyId } = this.config;
 
     try {
       const authz = new AuthzClient(
@@ -66,7 +66,7 @@ class AuthorizationHandler {
   }
 
   private async handleUnauthorizedSession(): Promise<void> {
-    const { sessionRef: channelId } = this.config;
+    const { mediaSessionRef: channelId } = this.config;
 
     try {
       await this.ari.channels.answer({ channelId });

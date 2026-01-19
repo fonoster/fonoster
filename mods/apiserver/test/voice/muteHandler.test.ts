@@ -43,7 +43,7 @@ describe("@voice/handler/Mute", function () {
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const muteRequest = {
-      sessionRef: channelId,
+      mediaSessionRef: channelId,
       direction: MuteDirection.BOTH
     };
 

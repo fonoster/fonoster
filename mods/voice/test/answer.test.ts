@@ -21,7 +21,7 @@ import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { getVoiceObject, mediaSessionRef, voiceRequest } from "./helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -48,7 +48,7 @@ describe("@voice/verbs/answer", function () {
     expect(voice.on).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      answerRequest: { sessionRef }
+      answerRequest: { mediaSessionRef }
     });
   });
 });

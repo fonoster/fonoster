@@ -42,23 +42,23 @@ class ExternalMediaHandler {
 
     logger.verbose("creating external media config", {
       port,
-      sessionRef: this.config.sessionRef,
+      mediaSessionRef: this.config.mediaSessionRef,
       bridgeId: bridge.id
     });
 
     channel.externalMedia(createExternalMediaConfig(port));
 
     channel.once(AriEvent.STASIS_START, async (_, channel) => {
-      bridge.addChannel({ channel: [this.config.sessionRef, channel.id] });
+      bridge.addChannel({ channel: [this.config.mediaSessionRef, channel.id] });
       logger.verbose("added channel to bridge", {
-        sessionRef: this.config.sessionRef,
+        mediaSessionRef: this.config.mediaSessionRef,
         channelId: channel.id
       });
     });
 
     channel.once("ChannelLeftBridge", async () => {
       logger.verbose("channel left bridge", {
-        sessionRef: this.config.sessionRef,
+        mediaSessionRef: this.config.mediaSessionRef,
         bridgeId: bridge.id
       });
 

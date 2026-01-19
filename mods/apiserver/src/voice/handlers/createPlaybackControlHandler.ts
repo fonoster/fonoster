@@ -26,7 +26,7 @@ import { VoiceClient } from "../types";
 import { withErrorHandling } from "./utils/withErrorHandling";
 
 const requestSchema = z.object({
-  sessionRef: z.string(),
+  mediaSessionRef: z.string(),
   playbackRef: z.string().optional(),
   action: z.nativeEnum(PlaybackControlAction, {
     message: "Invalid playback control action."
@@ -39,7 +39,7 @@ function createPlaybackControlHandler(ari: Client, voiceClient: VoiceClient) {
       requestSchema.parse(playbackControlReq);
 
       const {
-        sessionRef,
+        mediaSessionRef,
         playbackRef: playbackId,
         action
       } = playbackControlReq;
@@ -56,7 +56,7 @@ function createPlaybackControlHandler(ari: Client, voiceClient: VoiceClient) {
 
       voiceClient.sendResponse({
         playbackControlResponse: {
-          sessionRef
+          mediaSessionRef
         }
       });
     }

@@ -31,18 +31,18 @@ const gatherRequestSchema = z.object({
 
 function createStreamGatherHandler(voiceClient: VoiceClient) {
   return withErrorHandling(async (request: StartStreamGatherRequest) => {
-    const { sessionRef, source } = request;
+    const { mediaSessionRef, source } = request;
 
     gatherRequestSchema.parse(request);
 
     const effectiveSource = source || StreamGatherSource.SPEECH_AND_DTMF;
 
     if (effectiveSource.includes(StreamGatherSource.DTMF)) {
-      voiceClient.startDtmfGather(sessionRef, (event) => {
+      voiceClient.startDtmfGather(mediaSessionRef, (event) => {
         const { digit } = event;
         voiceClient.sendResponse({
           streamGatherPayload: {
-            sessionRef,
+            mediaSessionRef,
             digit,
             responseTime: 0
           }
@@ -55,7 +55,7 @@ function createStreamGatherHandler(voiceClient: VoiceClient) {
         const { speech, responseTime } = event;
         voiceClient.sendResponse({
           streamGatherPayload: {
-            sessionRef,
+            mediaSessionRef,
             speech,
             responseTime
           }
@@ -65,7 +65,7 @@ function createStreamGatherHandler(voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       startStreamGatherResponse: {
-        sessionRef
+        mediaSessionRef
       }
     });
   });

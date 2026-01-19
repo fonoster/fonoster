@@ -18,12 +18,10 @@
  */
 import { VerbRequest } from "./Verb";
 
-type StopSayRequest = VerbRequest & {
-  sessionRef: string;
-};
+type StopSayRequest = VerbRequest;
 
 type StopSayResponse = {
-  sessionRef: string;
+  mediaSessionRef: string;
 };
 
 export { StopSayRequest, StopSayResponse };

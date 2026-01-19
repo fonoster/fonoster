@@ -26,20 +26,20 @@ import { Client } from "ari-client";
 async function recordChannel(
   ari: Client,
   direction: DialRecordDirection.IN | DialRecordDirection.OUT,
-  sessionRef: string
+  mediaSessionRef: string
 ) {
   const spy = direction.toLowerCase();
 
   const channel = await ari.channels.snoopChannel({
     app: STASIS_APP_NAME,
-    channelId: sessionRef,
+    channelId: mediaSessionRef,
     spy
   });
 
   return ari.channels.record({
     channelId: channel.id,
     format: RecordFormat.WAV,
-    name: `${sessionRef}_${spy}`
+    name: `${mediaSessionRef}_${spy}`
   });
 }
 

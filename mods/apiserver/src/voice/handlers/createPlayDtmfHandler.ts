@@ -23,16 +23,16 @@ import { withErrorHandling } from "./utils/withErrorHandling";
 
 function createPlayDtmfHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: PlayDtmfRequest) => {
-    const { sessionRef, digits } = request;
+    const { mediaSessionRef, digits } = request;
 
     await ari.channels.sendDTMF({
-      channelId: sessionRef,
+      channelId: mediaSessionRef,
       dtmf: digits
     });
 
     voiceClient.sendResponse({
       playDtmfResponse: {
-        sessionRef
+        mediaSessionRef
       }
     });
   });

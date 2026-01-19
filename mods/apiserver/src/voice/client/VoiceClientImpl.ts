@@ -116,7 +116,7 @@ class VoiceClientImpl implements VoiceClient {
       ari: this.ari,
       transcriptionsStream: this.transcriptionsStream,
       audioStream: this.audioSocketHandler.getAudioStream(),
-      sessionRef: this.config.sessionRef
+      mediaSessionRef: this.config.mediaSessionRef
     });
 
     logger.verbose("voice client setup completed");
@@ -153,14 +153,14 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async startDtmfGather(
-    sessionRef: string,
+    mediaSessionRef: string,
     callback: (event: { digit: string }) => void
   ): Promise<void> {
     return this.speechHandler.startDtmfGather(callback);
   }
 
   async waitForDtmf(params: {
-    sessionRef: string;
+    mediaSessionRef: string;
     finishOnKey: string;
     maxDigits: number;
     timeout: number;

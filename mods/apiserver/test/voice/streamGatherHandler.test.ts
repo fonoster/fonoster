@@ -39,7 +39,7 @@ describe("@voice/handler/StreamHeader", function () {
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const streamGatherRequest = {
-      sessionRef: "sessionRef",
+      mediaSessionRef: "mediaSessionRef",
       source: "speech"
     };
 
@@ -59,7 +59,7 @@ describe("@voice/handler/StreamHeader", function () {
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const streamGatherRequest = {
-      sessionRef: "sessionRef",
+      mediaSessionRef: "mediaSessionRef",
       source: StreamGatherSource.SPEECH_AND_DTMF
     };
 
@@ -71,7 +71,7 @@ describe("@voice/handler/StreamHeader", function () {
     // Assert
     expect(voiceClient.startDtmfGather).to.have.been.calledOnce;
     expect(voiceClient.startDtmfGather).to.have.been.calledWith(
-      "sessionRef",
+      "mediaSessionRef",
       match.func
     );
     expect(voiceClient.startSpeechGather).to.have.been.calledOnce;

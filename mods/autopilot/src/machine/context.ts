@@ -29,7 +29,7 @@ const context = ({
     conversationSettings: ConversationSettings;
   };
 }) => ({
-  sessionRef: input.voice.sessionRef,
+  mediaSessionRef: input.voice.mediaSessionRef,
   voice: input.voice,
   languageModel: input.languageModel,
   speechBuffer: "",

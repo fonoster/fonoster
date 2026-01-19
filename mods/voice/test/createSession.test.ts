@@ -22,7 +22,7 @@ import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { sessionRef, voiceRequest } from "./helpers";
+import { mediaSessionRef, voiceRequest } from "./helpers";
 import { VoiceRequest } from "../src/types";
 import { VoiceResponse } from "../src/VoiceResponse";
 
@@ -37,12 +37,12 @@ describe("@voice/createSession", function () {
 
   it("should create a session", async function () {
     const callbackResponses = [
-      { answerResponse: { sessionRef }, content: "answerResponse" },
+      { answerResponse: { mediaSessionRef }, content: "answerResponse" },
       {
-        playResponse: { sessionRef, playbackRef: "123" },
+        playResponse: { mediaSessionRef, playbackRef: "123" },
         content: "playResponse"
       },
-      { hangupResponse: { sessionRef }, content: "hangupResponse" }
+      { hangupResponse: { mediaSessionRef }, content: "hangupResponse" }
     ];
     let cnt = 0;
 
@@ -88,13 +88,13 @@ describe("@voice/createSession", function () {
     expect(voice.on).to.have.been.calledThrice;
     expect(voice.write).to.have.been.calledThrice;
     expect(voice.write).to.have.been.calledWith({
-      answerRequest: { sessionRef }
+      answerRequest: { mediaSessionRef }
     });
     expect(voice.write).to.have.been.calledWith({
-      playRequest: { sessionRef, url: "http://example.com/audio.mp3" }
+      playRequest: { mediaSessionRef, url: "http://example.com/audio.mp3" }
     });
     expect(voice.write).to.have.been.calledWith({
-      hangupRequest: { sessionRef }
+      hangupRequest: { mediaSessionRef }
     });
   });
 });

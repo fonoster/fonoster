@@ -25,12 +25,12 @@ import { withErrorHandling } from "./utils/withErrorHandling";
 
 function createPlayHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: PlayRequest) => {
-    const { sessionRef } = request;
+    const { mediaSessionRef } = request;
 
     const playbackRef = request.playbackRef || nanoid(10);
 
     await ari.channels.play({
-      channelId: sessionRef,
+      channelId: mediaSessionRef,
       media: `sound:${request.url}`,
       playbackId: playbackRef
     });
@@ -39,7 +39,7 @@ function createPlayHandler(ari: Client, voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       playResponse: {
-        sessionRef,
+        mediaSessionRef,
         playbackRef
       }
     });

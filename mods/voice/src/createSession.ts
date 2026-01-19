@@ -26,12 +26,12 @@ const logger = getLogger({ service: "voice", filePath: __filename });
 function createSession(handler: VoiceHandler) {
   return (voice: VoiceSessionStreamServer): Promise<void> =>
     new Promise((resolve) => {
-      let sessionRef: string;
+      let mediaSessionRef: string;
       voice.once(StreamEvent.DATA, async (params) => {
         const { request } = params;
 
         if (request) {
-          sessionRef = request.sessionRef;
+          mediaSessionRef = request.mediaSessionRef;
           const response = new VoiceResponse(request, voice);
           await handler(request, response);
           resolve();
@@ -39,7 +39,7 @@ function createSession(handler: VoiceHandler) {
       });
 
       voice.once(StreamEvent.END, () => {
-        logger.verbose("session ended", { sessionRef });
+        logger.verbose("session ended", { mediaSessionRef });
         voice.end();
         resolve();
       });

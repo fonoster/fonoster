@@ -42,7 +42,7 @@ describe("@voice/handler/Hangup", function () {
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const hangupRequest = {
-      sessionRef: channelId
+      mediaSessionRef: channelId
     };
 
     // Act

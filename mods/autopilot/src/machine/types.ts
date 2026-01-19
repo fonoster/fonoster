@@ -20,7 +20,7 @@ import { LanguageModel } from "../models";
 import { Voice } from "../voice";
 
 type AutopilotContext = {
-  sessionRef: string;
+  mediaSessionRef: string;
   languageModel: LanguageModel;
   voice: Voice;
   firstMessage?: string;

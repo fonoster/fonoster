@@ -33,12 +33,12 @@ function buildWelcomeDemoService() {
     definition: SERVICE_DEFINITION,
     handlers: {
       createSession: (voice: VoiceSessionStreamServer) => {
-        let sessionRef: string | undefined;
+        let mediaSessionRef: string | undefined;
 
         voice.on(
           StreamEvent.DATA,
           (params: {
-            request?: { sessionRef: string; callerNumber: string };
+            request?: { mediaSessionRef: string; callerNumber: string };
             sayResponse?: unknown;
           }) => {
             try {
@@ -46,45 +46,45 @@ function buildWelcomeDemoService() {
 
               if (request) {
                 const { callerNumber } = request;
-                sessionRef = request.sessionRef;
+                mediaSessionRef = request.mediaSessionRef;
 
                 logger.verbose("welcome demo session started", {
-                  sessionRef,
+                  mediaSessionRef,
                   callerNumber
                 });
 
                 voice.write({
                   answerRequest: {
-                    sessionRef: request.sessionRef
+                    mediaSessionRef: request.mediaSessionRef
                   }
                 });
 
                 voice.write({
                   sayRequest: {
                     text: "Welcome to Fonoster! Your system is configured correctly and ready for voice application development. Goodbye!",
-                    sessionRef: request.sessionRef
+                    mediaSessionRef: request.mediaSessionRef
                   }
                 });
               }
 
-              if (sayResponse && sessionRef) {
+              if (sayResponse && mediaSessionRef) {
                 logger.verbose("hanging up welcome demo session", {
-                  sessionRef
+                  mediaSessionRef
                 });
                 voice.write({
                   hangupRequest: {
-                    sessionRef
+                    mediaSessionRef
                   }
                 });
               }
             } catch (error) {
               logger.error("error in welcome demo session", {
-                sessionRef,
+                mediaSessionRef,
                 error
               });
-              if (sessionRef) {
+              if (mediaSessionRef) {
                 voice.write({
-                  hangupRequest: { sessionRef }
+                  hangupRequest: { mediaSessionRef }
                 });
               }
               voice.end();
@@ -94,12 +94,12 @@ function buildWelcomeDemoService() {
 
         voice.once(StreamEvent.END, () => {
           voice.end();
-          logger.verbose("welcome demo session ended", { sessionRef });
+          logger.verbose("welcome demo session ended", { mediaSessionRef });
         });
 
         voice.on(StreamEvent.ERROR, (error) => {
           logger.error("stream error in welcome demo session", {
-            sessionRef,
+            mediaSessionRef,
             error
           });
           voice.end();

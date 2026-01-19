@@ -50,7 +50,8 @@ const gatherRequestSchema = z.object({
 
 function createGatherHandler(voiceClient: VoiceClient) {
   return withErrorHandling(async (request: GatherRequest) => {
-    const { sessionRef, source, timeout, finishOnKey, maxDigits } = request;
+    const { mediaSessionRef, source, timeout, finishOnKey, maxDigits } =
+      request;
 
     gatherRequestSchema.parse(request);
 
@@ -68,7 +69,7 @@ function createGatherHandler(voiceClient: VoiceClient) {
       promises.push(
         voiceClient
           .waitForDtmf({
-            sessionRef,
+            mediaSessionRef,
             finishOnKey,
             maxDigits,
             timeout: effectiveTimeout,
@@ -86,7 +87,7 @@ function createGatherHandler(voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       gatherResponse: {
-        sessionRef,
+        mediaSessionRef,
         responseTime: result.responseTime,
         speech: isDtmf(result.digits) ? undefined : result.speech,
         digits: isDtmf(result.digits) ? result.digits : undefined

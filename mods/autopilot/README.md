@@ -183,13 +183,19 @@ For example:
 
 Please use the following environment variables to configure the Autopilot:
 
-- `ASSISTANTS`: The path to the configuration file.
-- `OPEN_API_KEY`: The OpenAI API key for embeddings support.
-- `KNOWLEDGE_BASE_ENABLED`: Enable knowledge base powered by AWS S3 and Unstructured API.
-- `AWS_S3_ACCESS_KEY_ID`: The AWS S3 access key.
-- `AWS_S3_SECRET_ACCESS_KEY`: The AWS S3 secret access key.
-- `UNSTRUCTURED_API_KEY`: The Unstructured API key.
-- `UNSTRUCTURED_API_URL`: The Unstructured API URL. Default is `https://api.unstructured.com`.
+- `AUTOPILOT_AWS_S3_ACCESS_KEY_ID`: The AWS S3 access key.
+- `AUTOPILOT_AWS_S3_ENDPOINT`: The AWS S3 endpoint.
+- `AUTOPILOT_AWS_S3_REGION`: The AWS S3 region.
+- `AUTOPILOT_AWS_S3_SECRET_ACCESS_KEY`: The AWS S3 secret access key.
+- `AUTOPILOT_CONVERSATION_PROVIDER`: The conversation provider.
+- `AUTOPILOT_KNOWLEDGE_BASE_ENABLED`: Enable knowledge base powered by AWS S3 and Unstructured API.
+- `AUTOPILOT_LOGS_FORMAT`: The logs format.
+- `AUTOPILOT_LOGS_LEVEL`: The logs level.
+- `AUTOPILOT_LOGS_TRANSPORT`: The logs transport.
+- `AUTOPILOT_OPENAI_API_KEY`: The OpenAI API key needed for embeddings support.
+- `AUTOPILOT_UNSTRUCTURED_API_KEY`: The Unstructured API key.
+- `AUTOPILOT_UNSTRUCTURED_API_URL`: The Unstructured API URL. Default is `https://api.unstructured.com`.
+- `AUTOPILOT_RECORDING_BASE_URL`: The recording base URL. Default is `http://localhost:9876/api/recordings`.
 
 ## What's Next
 

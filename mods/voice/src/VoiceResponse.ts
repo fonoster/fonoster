@@ -103,7 +103,7 @@ class VoiceResponse {
   async answer(): Promise<VerbResponse> {
     await new Answer(this.request, this.voice).run();
 
-    return { sessionRef: this.request.sessionRef };
+    return { mediaSessionRef: this.request.mediaSessionRef };
   }
 
   /**
@@ -117,7 +117,7 @@ class VoiceResponse {
   async hangup(): Promise<VerbResponse> {
     await new Hangup(this.request, this.voice).run();
 
-    return { sessionRef: this.request.sessionRef };
+    return { mediaSessionRef: this.request.mediaSessionRef };
   }
 
   /**
@@ -137,7 +137,7 @@ class VoiceResponse {
   async play(url: string, options?: PlayOptions): Promise<PlayResponse> {
     const response = await new Play(this.request, this.voice).run({
       ...options,
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       url
     });
 
@@ -157,7 +157,7 @@ class VoiceResponse {
    */
   async playDtmf(digits: string): Promise<void> {
     await new PlayDtmf(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       digits
     });
   }
@@ -183,12 +183,12 @@ class VoiceResponse {
     action: PlaybackControlAction
   ): Promise<VerbResponse> {
     await new PlaybackControl(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       playbackRef,
       action
     });
 
-    return { sessionRef: this.request.sessionRef };
+    return { mediaSessionRef: this.request.mediaSessionRef };
   }
 
   /**
@@ -214,7 +214,7 @@ class VoiceResponse {
     options: GatherOptions = { source: GatherSource.SPEECH_AND_DTMF }
   ): Promise<GatherResponse> {
     const response = await new Gather(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       ...options
     });
 
@@ -242,11 +242,11 @@ class VoiceResponse {
   async say(text: string, options?: SayOptions): Promise<VerbResponse> {
     await new Say(this.request, this.voice).run({
       options: options ? struct.encode(options) : undefined,
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       text
     });
 
-    return { sessionRef: this.request.sessionRef };
+    return { mediaSessionRef: this.request.mediaSessionRef };
   }
 
   /**
@@ -266,11 +266,9 @@ class VoiceResponse {
    * }
    */
   async stopSay(): Promise<VerbResponse> {
-    await new StopSay(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef
-    });
+    await new StopSay(this.request, this.voice).run();
 
-    return { sessionRef: this.request.sessionRef };
+    return { mediaSessionRef: this.request.mediaSessionRef };
   }
 
   /**
@@ -292,7 +290,7 @@ class VoiceResponse {
    */
   async record(options?: RecordOptions): Promise<RecordResponse> {
     const response = await new Record(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       ...options
     });
 
@@ -315,7 +313,7 @@ class VoiceResponse {
     const stream = new DialStatusStream();
 
     await new Dial(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       destination,
       ...options
     });
@@ -360,7 +358,7 @@ class VoiceResponse {
     const stopStream = new StopStream(this.request, this.voice);
 
     const { startStreamResponse } = await startStream.run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       ...options
     });
 
@@ -378,7 +376,7 @@ class VoiceResponse {
 
     stream.cleanup(() => {
       stopStream.run({
-        sessionRef: this.request.sessionRef,
+        mediaSessionRef: this.request.mediaSessionRef,
         streamRef: startStreamResponse?.streamRef
       });
     });
@@ -410,7 +408,7 @@ class VoiceResponse {
     const stopStreamGather = new StopStreamGather(this.request, this.voice);
 
     await startStreamGather.run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       ...options
     });
 
@@ -421,9 +419,7 @@ class VoiceResponse {
     });
 
     stream.cleanup(() => {
-      stopStreamGather.run({
-        sessionRef: this.request.sessionRef
-      });
+      stopStreamGather.run();
     });
 
     return stream;
@@ -448,7 +444,7 @@ class VoiceResponse {
     const { direction } = options;
 
     await new Mute(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       direction
     });
   }
@@ -472,7 +468,7 @@ class VoiceResponse {
     const { direction } = options;
 
     await new Unmute(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef,
+      mediaSessionRef: this.request.mediaSessionRef,
       direction
     });
   }

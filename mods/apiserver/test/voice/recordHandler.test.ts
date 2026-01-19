@@ -39,7 +39,7 @@ describe("@voice/handler/Record", function () {
     const ari = getAriStub(sandbox);
 
     const recordingName = "recordingName";
-    const sessionRef = "sessionRef";
+    const mediaSessionRef = "mediaSessionRef";
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const nanoid = require("nanoid");
@@ -58,7 +58,7 @@ describe("@voice/handler/Record", function () {
       finishOnKey: "#",
       maxDuration: 10,
       maxSilence: 5,
-      sessionRef
+      mediaSessionRef
     };
 
     // Act
@@ -73,7 +73,7 @@ describe("@voice/handler/Record", function () {
     const ari = getAriStub(sandbox);
 
     const recordingName = "recordingName";
-    const sessionRef = "sessionRef";
+    const mediaSessionRef = "mediaSessionRef";
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const nanoid = require("nanoid");
@@ -92,7 +92,7 @@ describe("@voice/handler/Record", function () {
       finishOnKey: "#",
       maxDuration: 10,
       maxSilence: 5,
-      sessionRef
+      mediaSessionRef
     };
 
     // Act

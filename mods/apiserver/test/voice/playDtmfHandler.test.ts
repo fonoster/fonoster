@@ -42,7 +42,7 @@ describe("@voice/handler/PlayDtmf", function () {
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const playDtmfRequest = {
-      sessionRef: channelId,
+      mediaSessionRef: channelId,
       digits: "123"
     };
 
@@ -54,7 +54,7 @@ describe("@voice/handler/PlayDtmf", function () {
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledWith({
       playDtmfResponse: {
-        sessionRef: channelId
+        mediaSessionRef: channelId
       }
     });
     expect(ari.channels.sendDTMF).to.have.been.calledWith({

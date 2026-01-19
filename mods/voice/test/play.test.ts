@@ -22,7 +22,7 @@ import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { getVoiceObject, mediaSessionRef, voiceRequest } from "./helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -42,7 +42,7 @@ describe("@voice/verbs/play", function () {
     const play = new Play(voiceRequest, voice);
 
     const playRequest: PlayRequest = {
-      sessionRef,
+      mediaSessionRef,
       url: "http://example.com/audio.mp3"
     };
 

@@ -54,6 +54,9 @@ export const INTEGRATIONS_FILE = e.AUTOPILOT_INTEGRATIONS_FILE
   : "/opt/fonoster/integrations.json";
 export const OPENAI_API_KEY = e.AUTOPILOT_OPENAI_API_KEY;
 export const SKIP_IDENTITY = e.AUTOPILOT_SKIP_IDENTITY === "true";
+export const RECORDING_BASE_URL = e.AUTOPILOT_RECORDING_BASE_URL
+  ? e.AUTOPILOT_RECORDING_BASE_URL
+  : "http://localhost:9876/api/recordings";
 
 if (
   CONVERSATION_PROVIDER!.toLocaleLowerCase() !== ConversationProvider.API &&
