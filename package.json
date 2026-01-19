@@ -133,5 +133,9 @@
     "@rollup/rollup-linux-x64-gnu": "^4.29.1",
     "@rollup/rollup-linux-x64-musl": "^4.29.1"
   },
+  "overrides": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "type": "module"
 }
