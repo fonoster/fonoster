@@ -116,8 +116,7 @@ function createApplicationsTestCases(expect) {
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
-          expect(response.items[0])
-            .to.have.property("type")
+          expect(response.items[0]).to.have.property("type");
           expect(response.items[0]).to.have.property("endpoint").to.not.be.null;
           expect(response.items[0])
             .to.have.property("createdAt")
