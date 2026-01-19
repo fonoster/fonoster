@@ -36,7 +36,7 @@ type ListCallsRequest = {
 };
 
 type ListCallsResponse = {
-  nextPageToken?: string;
+  nextPageToken: string;
   items: CallDetailRecord[];
 };
 

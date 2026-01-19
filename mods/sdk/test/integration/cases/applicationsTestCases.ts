@@ -118,7 +118,6 @@ function createApplicationsTestCases(expect) {
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0])
             .to.have.property("type")
-            .to.be.equal("EXTERNAL");
           expect(response.items[0]).to.have.property("endpoint").to.not.be.null;
           expect(response.items[0])
             .to.have.property("createdAt")

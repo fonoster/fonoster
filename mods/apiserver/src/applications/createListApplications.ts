@@ -72,7 +72,7 @@ function createListApplications(prisma: Prisma) {
     callback(null, {
       items,
       nextPageToken:
-        items.length < pageSize ? undefined : result[result.length - 1]?.ref
+        items.length < pageSize ? "" : result[result.length - 1]?.ref
     });
   };
 

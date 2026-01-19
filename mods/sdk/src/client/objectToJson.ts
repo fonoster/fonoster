@@ -26,6 +26,7 @@ function objectToJson<J extends Record<string, unknown>>(
   repeatableObjectMapping?: MappingTuple<unknown>
 ): J {
   const json: Record<string, unknown> = {};
+  const includeEmptyStringProps = new Set(["nextPageToken"]);
 
   Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach((key) => {
     if (
@@ -37,7 +38,11 @@ function objectToJson<J extends Record<string, unknown>>(
       try {
         const value = obj[key]();
 
-        if (value === null || value === undefined || value === "") {
+        if (value === null || value === undefined) {
+          return;
+        }
+
+        if (value === "" && !includeEmptyStringProps.has(propName)) {
           return;
         }
 
