@@ -29,7 +29,7 @@ import chaiAsPromised from "chai-as-promised";
 import sinon, { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
-import { sessionRef } from "@fonoster/voice/test/helpers";
+import { mediaSessionRef } from "@fonoster/voice/test/helpers";
 import { ASTERISK_SYSTEM_DOMAIN, ASTERISK_TRUNK } from "../../src/envs";
 import { createHandleDialEventsWithVoiceClient } from "../../src/utils";
 import { createDialHandler } from "../../src/voice/handlers/dial/createDialHandler";
@@ -52,7 +52,7 @@ describe("@voice/handler/Dial", function () {
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const request = {
-      sessionRef: "sessionRef",
+      mediaSessionRef: "mediaSessionRef",
       destination: "destination",
       timeout: 30
     };
@@ -184,7 +184,7 @@ describe("@voice/handler/Dial", function () {
     const ari = getAriStub(sandbox) as unknown as Client;
 
     const request = {
-      sessionRef,
+      mediaSessionRef,
       recordDirection: DialRecordDirection.IN,
       destination: "destination"
     };
