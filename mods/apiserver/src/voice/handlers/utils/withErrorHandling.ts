@@ -39,7 +39,7 @@ function withErrorHandling(fn: VerbHandler) {
         });
       } else if (
         err.message !== "Channel not found" &&
-        !err.message.includes("Channel not found")
+        !err.message?.includes("Channel not found")
       ) {
         throw err;
       }
