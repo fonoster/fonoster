@@ -85,6 +85,8 @@ services:
   routr:
     image: fonoster/routr-one:2.13.21
     restart: unless-stopped
+    labels:
+      - "autoheal=true"
     environment:
       DATABASE_URL: ${ROUTR_DATABASE_URL}
       EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS}
@@ -102,6 +104,18 @@ services:
     ports:
       - 5060:5060/udp
       - 5060-5063:5060-5063
+    # Add this healthcheck along with the autoheal container as we are having issues with Routr crashing out.
+    # We will need a proper fix for this before we can remove this healthcheck.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'printf "PUBLISH sip:localhost SIP/2.0\r\nVia: SIP/2.0/UDP 127.0.0.1:5061;branch=z9hG4bKhealth\r\nFrom: <sip:health@localhost>;tag=1234\r\nTo: <sip:health@localhost>\r\nCall-ID: health-$$@localhost\r\nCSeq: 1 BADSEQUENCE\r\nMax-Forwards: 70\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nping" | nc -u -w 1 127.0.0.1 5060 | grep -q "^SIP/2.0"'
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
     volumes:
       - ./config/keys/public.pem:/etc/routr/keys/public.pem
 
@@ -194,6 +208,15 @@ services:
       - 8449:8449
       # If using letsencrypt, you need to expose port 443 and remove the default HTTP port (8449)
       # - 443:443
+
+  autoheal:
+    image: willfarrell/autoheal:latest
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=10
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   db:
