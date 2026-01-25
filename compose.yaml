@@ -110,7 +110,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          'printf "PUBLISH sip:localhost SIP/2.0\r\nVia: SIP/2.0/UDP 127.0.0.1:5061;branch=z9hG4bKhealth\r\nFrom: <sip:health@localhost>;tag=1234\r\nTo: <sip:health@localhost>\r\nCall-ID: health-$$@localhost\r\nCSeq: 1 BADSEQUENCE\r\nMax-Forwards: 70\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nping" | nc -u -w 1 127.0.0.1 5060 | grep -q "^SIP/2.0"'
+          'printf "PUBLISH sip:localhost SIP/2.0\r\nVia: SIP/2.0/UDP 127.0.0.1:5061;branch=z9hG4bKhealth\r\nFrom: <sip:health@localhost>;tag=1234\r\nTo: <sip:health@localhost>\r\nCall-ID: health-$$@localhost\r\nCSeq: 1 BADSEQUENCE\r\nMax-Forwards: 70\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nping" | nc -u -w 1 127.0.0.1 5060 | grep -Eq "^SIP/2.0"'
         ]
       interval: 10s
       timeout: 5s
