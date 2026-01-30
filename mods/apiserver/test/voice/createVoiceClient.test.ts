@@ -77,6 +77,8 @@ describe("@voice/createVoiceClient", function () {
         .resolves({ value: "app-ref" })
         .onThirdCall()
         .resolves({ value: "ingress-number" })
+        .onCall(3)
+        .resolves({ value: "call-ref-from-api" })
         .onCall(4)
         .resolves({ value: "{}" })
     } as unknown as Channel;
