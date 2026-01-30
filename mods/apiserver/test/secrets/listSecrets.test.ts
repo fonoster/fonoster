@@ -79,8 +79,8 @@ describe("@secrets/listSecrets", function () {
       .has.property("items")
       .to.be.an("array")
       .to.have.lengthOf(1);
-    // When items.length < pageSize, we're on the last page, so nextPageToken should be undefined
-    expect(response).has.property("nextPageToken").to.be.undefined;
+    // When items.length < pageSize, we're on the last page, so nextPageToken should be empty string
+    expect(response).has.property("nextPageToken").to.equal("");
   });
 
   it("should return nextPageToken when page is full", async function () {
@@ -178,6 +178,6 @@ describe("@secrets/listSecrets", function () {
       .has.property("items")
       .to.be.an("array")
       .to.have.lengthOf(0);
-    expect(response).has.property("nextPageToken").to.be.undefined;
+    expect(response).has.property("nextPageToken").to.equal("");
   });
 });

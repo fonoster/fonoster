@@ -41,12 +41,10 @@ export function normalizePageToken(pageToken?: string): string | undefined {
 }
 
 /**
- * Normalizes empty string nextPageToken from response to undefined.
+ * Normalizes nextPageToken from response; returns empty string when there are no more pages.
  */
-export function normalizeNextPageToken(
-  nextPageToken?: string
-): string | undefined {
-  return nextPageToken && nextPageToken !== "" ? nextPageToken : undefined;
+export function normalizeNextPageToken(nextPageToken?: string): string {
+  return nextPageToken && nextPageToken !== "" ? nextPageToken : "";
 }
 
 /**
@@ -82,7 +80,7 @@ export async function paginateWithFiltering<TInput, TOutput = TInput>(
 
   const normalizedPageToken = normalizePageToken(pageToken);
   const items: TOutput[] = [];
-  let nextPageToken: string | undefined;
+  let nextPageToken: string = "";
   let currentPageToken: string | undefined = normalizedPageToken;
   let hasMorePages = true;
   let iterations = 0;
@@ -100,7 +98,7 @@ export async function paginateWithFiltering<TInput, TOutput = TInput>(
 
     if (!response || !response.items) {
       hasMorePages = false;
-      nextPageToken = undefined;
+      nextPageToken = "";
       break;
     }
 
@@ -112,7 +110,7 @@ export async function paginateWithFiltering<TInput, TOutput = TInput>(
     // If we got no items from backend or no nextPageToken, we're done
     if (response.items.length === 0 || !backendNextPageToken) {
       hasMorePages = false;
-      nextPageToken = undefined;
+      nextPageToken = "";
       break;
     }
 
@@ -124,7 +122,7 @@ export async function paginateWithFiltering<TInput, TOutput = TInput>(
     if (items.length >= pageSize) {
       // We filled the page, so there might be more items
       // Only return nextPageToken if backend indicates there are more items
-      nextPageToken = backendHasMoreItems ? backendNextPageToken : undefined;
+      nextPageToken = backendHasMoreItems ? backendNextPageToken : "";
       break;
     }
 
@@ -135,7 +133,7 @@ export async function paginateWithFiltering<TInput, TOutput = TInput>(
       currentPageToken = backendNextPageToken;
       nextPageToken = backendNextPageToken;
     } else {
-      nextPageToken = backendHasMoreItems ? backendNextPageToken : undefined;
+      nextPageToken = backendHasMoreItems ? backendNextPageToken : "";
       break;
     }
   }

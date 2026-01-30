@@ -87,8 +87,8 @@ describe("@sipnet[resources/listResources]", function () {
           const typedResponse = response as { items: DomainExtended[]; nextPageToken?: string };
           expect(typedResponse.items).to.have.length(1);
           expect(typedResponse.items[0].ref).to.equal("123");
-          // When items.length < pageSize, nextPageToken should be undefined
-          expect(typedResponse.nextPageToken).to.be.undefined;
+          // When items.length < pageSize, nextPageToken should be empty string
+          expect(typedResponse.nextPageToken).to.equal("");
           resolve();
         } catch (e) {
           reject(e);
@@ -212,7 +212,7 @@ describe("@sipnet[resources/listResources]", function () {
             currentAccessKeyId
           );
           // Backend returned fewer items than requested (2 < 40), so this is the last page
-          expect(typedResponse.nextPageToken).to.be.undefined;
+          expect(typedResponse.nextPageToken).to.equal("");
 
           // Verify pagination occurred
           expect(listDomainsStub).to.have.been.calledTwice;
@@ -309,8 +309,8 @@ describe("@sipnet[resources/listResources]", function () {
           expect(typedResponse.items).to.have.length(3);
 
           // CRITICAL: Since backend returned fewer items than requested (3 < 20),
-          // this is the last page and nextPageToken should be undefined
-          expect(typedResponse.nextPageToken).to.be.undefined;
+          // this is the last page and nextPageToken should be empty string
+          expect(typedResponse.nextPageToken).to.equal("");
 
           resolve();
         } catch (e) {

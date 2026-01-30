@@ -78,8 +78,7 @@ function createListWorkspaceMembers(prisma: Prisma) {
           status: item.status as WorkspaceMemberStatus
         }))
         .map(datesMapper),
-      nextPageToken:
-        items.length < pageSize ? undefined : items[items.length - 1]?.ref
+      nextPageToken: items.length < pageSize ? "" : items[items.length - 1]?.ref
     });
   };
 
