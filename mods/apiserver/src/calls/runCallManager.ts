@@ -89,7 +89,8 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           CALL_DIRECTION: "peer-to-pstn",
           INGRESS_NUMBER: from,
           APP_REF: appRef,
-          METADATA: JSON.stringify(metadata)
+          METADATA: JSON.stringify(metadata),
+          CALL_REF: ref
         }
       });
     };
