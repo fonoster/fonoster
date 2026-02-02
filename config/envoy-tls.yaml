@@ -31,6 +31,39 @@ static_resources:
                           cluster: apiserver-cluster-http
                           timeout: 0s
                       - match:
+                          prefix: "/fonoster.identity.v1beta2.Identity/SendVerificationCode"
+                          headers:
+                            - name: "content-type"
+                              safe_regex_match:
+                                google_re2: {}
+                                regex: "^(application/grpc|application/grpc-web-text)$"
+                        route:
+                          cluster: apiserver-cluster
+                          timeout: 0s
+                          max_stream_duration:
+                            grpc_timeout_header_max: 0s
+                        typed_per_filter_config:
+                          envoy.filters.http.local_ratelimit:
+                            "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+                            stat_prefix: sms_verification_rate_limit
+                            token_bucket:
+                              max_tokens: 1
+                              tokens_per_fill: 1
+                              fill_interval: 60s
+                            filter_enabled:
+                              default_value:
+                                numerator: 100
+                                denominator: HUNDRED
+                            filter_enforced:
+                              default_value:
+                                numerator: 100
+                                denominator: HUNDRED
+                            response_headers_to_add:
+                              - append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                                header:
+                                  key: x-ratelimit-limit
+                                  value: "1 per 60s"
+                      - match:
                           prefix: "/"
                           headers:
                             - name: "content-type"
@@ -61,6 +94,31 @@ static_resources:
                 - name: envoy.filters.http.cors
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.Cors
+                - name: envoy.filters.http.local_ratelimit
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+                    stat_prefix: general_api_rate_limit
+                    token_bucket:
+                      max_tokens: 100
+                      tokens_per_fill: 100
+                      fill_interval: 60s
+                    filter_enabled:
+                      default_value:
+                        numerator: 100
+                        denominator: HUNDRED
+                    filter_enforced:
+                      default_value:
+                        numerator: 100
+                        denominator: HUNDRED
+                    response_headers_to_add:
+                      - append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        header:
+                          key: x-ratelimit-limit
+                          value: "100"
+                      - append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                        header:
+                          key: x-ratelimit-remaining
+                          value: "%DYNAMIC_METADATA(envoy.filters.http.local_ratelimit:tokens_remaining)%"
                 - name: envoy.filters.http.router
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
