@@ -35,8 +35,8 @@ service Applications {
   rpc UpdateApplication(UpdateApplicationRequest) returns (UpdateApplicationResponse) {}
   // Delete an application
   rpc DeleteApplication(DeleteApplicationRequest) returns (DeleteApplicationResponse) {}
-  // Evaluate the intelligence for an Autopilot application
-  rpc EvaluateIntelligence(EvaluateIntelligenceRequest) returns (EvaluateIntelligenceResponse);
+  // Evaluate the intelligence for an Autopilot application (server streaming)
+  rpc EvaluateIntelligence(EvaluateIntelligenceRequest) returns (stream EvaluateIntelligenceEvent);
   // Create an Ephemeral Agent to perform test calls to an application
   rpc CreateTestToken(google.protobuf.Empty) returns (TestTokenResponse) {}
 }
@@ -166,39 +166,64 @@ message EvaluateIntelligenceRequest {
   ProductContainer intelligence = 1;
 }
 
-// Response with the evaluation results
-message EvaluateIntelligenceResponse {
-  enum ExpectedTextType {
-    EXACT = 0;
-    SIMILAR = 1;
-  }
+// Expected text comparison type for eval steps
+enum ExpectedTextType {
+  EXACT = 0;
+  SIMILAR = 1;
+}
 
-  message ToolEvaluationReport {
-    string expected_tool = 1;
-    string actual_tool = 2;
-    bool passed = 3;
-    google.protobuf.Struct expected_parameters = 4;
-    google.protobuf.Struct actual_parameters = 5;
-    string error_message = 6;
-  }
+// Tool evaluation report for a single tool call
+message ToolEvaluationReport {
+  string expected_tool = 1;
+  string actual_tool = 2;
+  bool passed = 3;
+  google.protobuf.Struct expected_parameters = 4;
+  google.protobuf.Struct actual_parameters = 5;
+  string error_message = 6;
+}
 
-  message StepEvaluationReport {
-    string human_input = 1;
-    string expected_response = 2;
-    string ai_response = 3;
-    ExpectedTextType evaluation_type = 4;
-    bool passed = 5;
-    string error_message = 6;
-    repeated ToolEvaluationReport tool_evaluations = 7;
-  }
+// Step evaluation report for a single conversation step
+message StepEvaluationReport {
+  string human_input = 1;
+  string expected_response = 2;
+  string ai_response = 3;
+  ExpectedTextType evaluation_type = 4;
+  bool passed = 5;
+  string error_message = 6;
+  repeated ToolEvaluationReport tool_evaluations = 7;
+}
 
-  message ScenarioEvaluationReport {
-    string scenario_ref = 1;
-    bool overall_passed = 2;
-    repeated StepEvaluationReport steps = 3;
-  }
+// Scenario evaluation report (full scenario with all steps)
+message ScenarioEvaluationReport {
+  string scenario_ref = 1;
+  bool overall_passed = 2;
+  repeated StepEvaluationReport steps = 3;
+}
 
-  repeated ScenarioEvaluationReport results = 1;
+// Streaming event: one step result for a scenario
+message StepEvaluationResult {
+  string scenario_ref = 1;
+  StepEvaluationReport report = 2;
+}
+
+// Streaming event: scenario completed summary
+message ScenarioSummary {
+  string scenario_ref = 1;
+  bool overall_passed = 2;
+}
+
+// Streaming event: eval error
+message EvalError {
+  string message = 1;
+}
+
+// Single event in the EvaluateIntelligence server stream
+message EvaluateIntelligenceEvent {
+  oneof event {
+    StepEvaluationResult step_result = 1;
+    ScenarioSummary scenario_summary = 2;
+    EvalError eval_error = 3;
+  }
 }
 
 message TestTokenResponse {

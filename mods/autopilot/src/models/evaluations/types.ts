@@ -16,8 +16,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { StepEvaluationReport } from "@fonoster/types";
 import { AssistantConfig } from "../../assistants";
 import { LanguageModel } from "../types";
+
+type EvalExpectedTool = {
+  tool: string;
+  parameters?: Record<string, unknown>;
+};
+
+type EvalConversationStep = {
+  userInput: string;
+  expected: {
+    text: { type: "EXACT" | "SIMILAR"; response: string };
+    tools?: EvalExpectedTool[];
+  };
+};
+
+type EvalScenario = {
+  ref: string;
+  description: string;
+  telephonyContext: {
+    callDirection: string;
+    ingressNumber: string;
+    callerNumber: string;
+    metadata?: Record<string, string>;
+  };
+  conversation: EvalConversationStep[];
+};
 
 type EvaluateIntelligenceRequest = {
   intelligence: {
@@ -27,7 +53,7 @@ type EvaluateIntelligenceRequest = {
 };
 
 type EvaluateStepParams = {
-  step: any;
+  step: EvalConversationStep;
   languageModel: LanguageModel;
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
   assistantConfig: AssistantConfig;
@@ -35,13 +61,22 @@ type EvaluateStepParams = {
 
 type ScenarioEvaluationRequest = {
   assistantConfig: AssistantConfig;
-  scenario: any;
+  scenario: EvalScenario;
   languageModel: LanguageModel;
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
 };
 
+type RunEvalCallbacks = {
+  onStepResult: (scenarioRef: string, report: StepEvaluationReport) => void | Promise<void>;
+  onScenarioComplete: (scenarioRef: string, overallPassed: boolean) => void | Promise<void>;
+};
+
 export {
+  EvalConversationStep,
+  EvalExpectedTool,
+  EvalScenario,
   EvaluateIntelligenceRequest,
-  ScenarioEvaluationRequest,
-  EvaluateStepParams
+  EvaluateStepParams,
+  RunEvalCallbacks,
+  ScenarioEvaluationRequest
 };

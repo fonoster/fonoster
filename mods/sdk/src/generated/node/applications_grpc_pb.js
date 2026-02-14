@@ -79,6 +79,17 @@ function deserialize_fonoster_applications_v1beta2_DeleteApplicationResponse(buf
   return applications_pb.DeleteApplicationResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_applications_v1beta2_EvaluateIntelligenceEvent(arg) {
+  if (!(arg instanceof applications_pb.EvaluateIntelligenceEvent)) {
+    throw new Error('Expected argument of type fonoster.applications.v1beta2.EvaluateIntelligenceEvent');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceEvent(buffer_arg) {
+  return applications_pb.EvaluateIntelligenceEvent.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest(arg) {
   if (!(arg instanceof applications_pb.EvaluateIntelligenceRequest)) {
     throw new Error('Expected argument of type fonoster.applications.v1beta2.EvaluateIntelligenceRequest');
@@ -88,17 +99,6 @@ function serialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest(arg
 
 function deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest(buffer_arg) {
   return applications_pb.EvaluateIntelligenceRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse(arg) {
-  if (!(arg instanceof applications_pb.EvaluateIntelligenceResponse)) {
-    throw new Error('Expected argument of type fonoster.applications.v1beta2.EvaluateIntelligenceResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse(buffer_arg) {
-  return applications_pb.EvaluateIntelligenceResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonoster_applications_v1beta2_GetApplicationRequest(arg) {
@@ -241,17 +241,17 @@ deleteApplication: {
     responseSerialize: serialize_fonoster_applications_v1beta2_DeleteApplicationResponse,
     responseDeserialize: deserialize_fonoster_applications_v1beta2_DeleteApplicationResponse,
   },
-  // Evaluate the intelligence for an Autopilot application
+  // Evaluate the intelligence for an Autopilot application (server streaming)
 evaluateIntelligence: {
     path: '/fonoster.applications.v1beta2.Applications/EvaluateIntelligence',
     requestStream: false,
-    responseStream: false,
+    responseStream: true,
     requestType: applications_pb.EvaluateIntelligenceRequest,
-    responseType: applications_pb.EvaluateIntelligenceResponse,
+    responseType: applications_pb.EvaluateIntelligenceEvent,
     requestSerialize: serialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest,
     requestDeserialize: deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceRequest,
-    responseSerialize: serialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse,
-    responseDeserialize: deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceResponse,
+    responseSerialize: serialize_fonoster_applications_v1beta2_EvaluateIntelligenceEvent,
+    responseDeserialize: deserialize_fonoster_applications_v1beta2_EvaluateIntelligenceEvent,
   },
   // Create an Ephemeral Agent to perform test calls to an application
 createTestToken: {

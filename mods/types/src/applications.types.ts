@@ -84,9 +84,31 @@ type EvaluateIntelligenceRequest = {
   };
 };
 
-type EvaluateIntelligenceResponse = {
-  results: ScenarioEvaluationReport[];
+/** Streaming event: one step result for a scenario */
+type StepEvaluationResultEvent = {
+  type: "stepResult";
+  scenarioRef: string;
+  stepResult: StepEvaluationReport;
 };
+
+/** Streaming event: scenario completed summary */
+type ScenarioSummaryEvent = {
+  type: "scenarioSummary";
+  scenarioRef: string;
+  overallPassed: boolean;
+};
+
+/** Streaming event: eval error */
+type EvalErrorEvent = {
+  type: "evalError";
+  message: string;
+};
+
+/** Single event in the EvaluateIntelligence server stream */
+type EvaluateIntelligenceEvent =
+  | StepEvaluationResultEvent
+  | ScenarioSummaryEvent
+  | EvalErrorEvent;
 
 type ScenarioEvaluationReport = {
   scenarioRef: string;
@@ -131,7 +153,7 @@ export {
   ListApplicationsResponse,
   UpdateApplicationRequest,
   EvaluateIntelligenceRequest,
-  EvaluateIntelligenceResponse,
+  EvaluateIntelligenceEvent,
   ScenarioEvaluationReport,
   StepEvaluationReport,
   ToolEvaluationReport,

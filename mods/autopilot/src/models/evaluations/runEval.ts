@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ScenarioEvaluationReport } from "@fonoster/types";
 import { AssistantConfig } from "../../assistants";
 import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
@@ -24,25 +23,30 @@ import { TelephonyContext } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";
-import { EvalScenario } from "./types";
+import { EvalScenario, RunEvalCallbacks } from "./types";
 
-export async function evalTestCases(autopilotApplication: {
+export type RunEvalConfig = {
   intelligence: {
     config: AssistantConfig;
   };
-}): Promise<ScenarioEvaluationReport[]> {
+};
+
+export async function runEval(
+  autopilotApplication: RunEvalConfig,
+  callbacks: RunEvalCallbacks
+): Promise<void> {
   const { testCases } = autopilotApplication.intelligence.config;
-  const { config: assistantConfig } = autopilotApplication.intelligence;
+  const assistantConfig = autopilotApplication.intelligence.config;
   const voice = {
     say: async (_: string) => {}
   } as Voice;
 
-  const evaluationReports: ScenarioEvaluationReport[] = [];
+  const scenarios = testCases?.scenarios ?? [];
 
-  for (const scenario of (testCases?.scenarios ?? []) as EvalScenario[]) {
+  for (const scenario of scenarios as EvalScenario[]) {
     const languageModel = createLanguageModel({
       voice,
-      assistantConfig: autopilotApplication.intelligence.config,
+      assistantConfig,
       knowledgeBase: {
         load: async () => {},
         queryKnowledgeBase: async (query: string) => query
@@ -56,19 +60,19 @@ export async function evalTestCases(autopilotApplication: {
         model: assistantConfig.testCases?.evalsLanguageModel?.model ?? "",
         apiKey: assistantConfig.testCases?.evalsLanguageModel?.apiKey
       },
-      assistantConfig.testCases?.evalsSystemPrompt || textSimilaryPrompt
+      assistantConfig.testCases?.evalsSystemPrompt ?? textSimilaryPrompt
     );
 
-    const evaluationReport = await evaluateScenario(
+    const report = await evaluateScenario(
       {
         assistantConfig,
         scenario,
         languageModel,
         testTextSimilarity
-      }
+      },
+      (scenarioRef, stepReport) => callbacks.onStepResult(scenarioRef, stepReport)
     );
-    evaluationReports.push(evaluationReport);
-  }
 
-  return evaluationReports;
+    await callbacks.onScenarioComplete(report.scenarioRef, report.overallPassed);
+  }
 }

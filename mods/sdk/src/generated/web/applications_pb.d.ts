@@ -338,145 +338,222 @@ export namespace EvaluateIntelligenceRequest {
   }
 }
 
-export class EvaluateIntelligenceResponse extends jspb.Message {
-  getResultsList(): Array<EvaluateIntelligenceResponse.ScenarioEvaluationReport>;
-  setResultsList(value: Array<EvaluateIntelligenceResponse.ScenarioEvaluationReport>): EvaluateIntelligenceResponse;
-  clearResultsList(): EvaluateIntelligenceResponse;
-  addResults(value?: EvaluateIntelligenceResponse.ScenarioEvaluationReport, index?: number): EvaluateIntelligenceResponse.ScenarioEvaluationReport;
+export class ToolEvaluationReport extends jspb.Message {
+  getExpectedTool(): string;
+  setExpectedTool(value: string): ToolEvaluationReport;
+
+  getActualTool(): string;
+  setActualTool(value: string): ToolEvaluationReport;
+
+  getPassed(): boolean;
+  setPassed(value: boolean): ToolEvaluationReport;
+
+  getExpectedParameters(): google_protobuf_struct_pb.Struct | undefined;
+  setExpectedParameters(value?: google_protobuf_struct_pb.Struct): ToolEvaluationReport;
+  hasExpectedParameters(): boolean;
+  clearExpectedParameters(): ToolEvaluationReport;
+
+  getActualParameters(): google_protobuf_struct_pb.Struct | undefined;
+  setActualParameters(value?: google_protobuf_struct_pb.Struct): ToolEvaluationReport;
+  hasActualParameters(): boolean;
+  clearActualParameters(): ToolEvaluationReport;
+
+  getErrorMessage(): string;
+  setErrorMessage(value: string): ToolEvaluationReport;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): EvaluateIntelligenceResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: EvaluateIntelligenceResponse): EvaluateIntelligenceResponse.AsObject;
-  static serializeBinaryToWriter(message: EvaluateIntelligenceResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): EvaluateIntelligenceResponse;
-  static deserializeBinaryFromReader(message: EvaluateIntelligenceResponse, reader: jspb.BinaryReader): EvaluateIntelligenceResponse;
+  toObject(includeInstance?: boolean): ToolEvaluationReport.AsObject;
+  static toObject(includeInstance: boolean, msg: ToolEvaluationReport): ToolEvaluationReport.AsObject;
+  static serializeBinaryToWriter(message: ToolEvaluationReport, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ToolEvaluationReport;
+  static deserializeBinaryFromReader(message: ToolEvaluationReport, reader: jspb.BinaryReader): ToolEvaluationReport;
 }
 
-export namespace EvaluateIntelligenceResponse {
+export namespace ToolEvaluationReport {
   export type AsObject = {
-    resultsList: Array<EvaluateIntelligenceResponse.ScenarioEvaluationReport.AsObject>,
+    expectedTool: string,
+    actualTool: string,
+    passed: boolean,
+    expectedParameters?: google_protobuf_struct_pb.Struct.AsObject,
+    actualParameters?: google_protobuf_struct_pb.Struct.AsObject,
+    errorMessage: string,
+  }
+}
+
+export class StepEvaluationReport extends jspb.Message {
+  getHumanInput(): string;
+  setHumanInput(value: string): StepEvaluationReport;
+
+  getExpectedResponse(): string;
+  setExpectedResponse(value: string): StepEvaluationReport;
+
+  getAiResponse(): string;
+  setAiResponse(value: string): StepEvaluationReport;
+
+  getEvaluationType(): ExpectedTextType;
+  setEvaluationType(value: ExpectedTextType): StepEvaluationReport;
+
+  getPassed(): boolean;
+  setPassed(value: boolean): StepEvaluationReport;
+
+  getErrorMessage(): string;
+  setErrorMessage(value: string): StepEvaluationReport;
+
+  getToolEvaluationsList(): Array<ToolEvaluationReport>;
+  setToolEvaluationsList(value: Array<ToolEvaluationReport>): StepEvaluationReport;
+  clearToolEvaluationsList(): StepEvaluationReport;
+  addToolEvaluations(value?: ToolEvaluationReport, index?: number): ToolEvaluationReport;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StepEvaluationReport.AsObject;
+  static toObject(includeInstance: boolean, msg: StepEvaluationReport): StepEvaluationReport.AsObject;
+  static serializeBinaryToWriter(message: StepEvaluationReport, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StepEvaluationReport;
+  static deserializeBinaryFromReader(message: StepEvaluationReport, reader: jspb.BinaryReader): StepEvaluationReport;
+}
+
+export namespace StepEvaluationReport {
+  export type AsObject = {
+    humanInput: string,
+    expectedResponse: string,
+    aiResponse: string,
+    evaluationType: ExpectedTextType,
+    passed: boolean,
+    errorMessage: string,
+    toolEvaluationsList: Array<ToolEvaluationReport.AsObject>,
+  }
+}
+
+export class ScenarioEvaluationReport extends jspb.Message {
+  getScenarioRef(): string;
+  setScenarioRef(value: string): ScenarioEvaluationReport;
+
+  getOverallPassed(): boolean;
+  setOverallPassed(value: boolean): ScenarioEvaluationReport;
+
+  getStepsList(): Array<StepEvaluationReport>;
+  setStepsList(value: Array<StepEvaluationReport>): ScenarioEvaluationReport;
+  clearStepsList(): ScenarioEvaluationReport;
+  addSteps(value?: StepEvaluationReport, index?: number): StepEvaluationReport;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ScenarioEvaluationReport.AsObject;
+  static toObject(includeInstance: boolean, msg: ScenarioEvaluationReport): ScenarioEvaluationReport.AsObject;
+  static serializeBinaryToWriter(message: ScenarioEvaluationReport, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ScenarioEvaluationReport;
+  static deserializeBinaryFromReader(message: ScenarioEvaluationReport, reader: jspb.BinaryReader): ScenarioEvaluationReport;
+}
+
+export namespace ScenarioEvaluationReport {
+  export type AsObject = {
+    scenarioRef: string,
+    overallPassed: boolean,
+    stepsList: Array<StepEvaluationReport.AsObject>,
+  }
+}
+
+export class StepEvaluationResult extends jspb.Message {
+  getScenarioRef(): string;
+  setScenarioRef(value: string): StepEvaluationResult;
+
+  getReport(): StepEvaluationReport | undefined;
+  setReport(value?: StepEvaluationReport): StepEvaluationResult;
+  hasReport(): boolean;
+  clearReport(): StepEvaluationResult;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StepEvaluationResult.AsObject;
+  static toObject(includeInstance: boolean, msg: StepEvaluationResult): StepEvaluationResult.AsObject;
+  static serializeBinaryToWriter(message: StepEvaluationResult, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StepEvaluationResult;
+  static deserializeBinaryFromReader(message: StepEvaluationResult, reader: jspb.BinaryReader): StepEvaluationResult;
+}
+
+export namespace StepEvaluationResult {
+  export type AsObject = {
+    scenarioRef: string,
+    report?: StepEvaluationReport.AsObject,
+  }
+}
+
+export class ScenarioSummary extends jspb.Message {
+  getScenarioRef(): string;
+  setScenarioRef(value: string): ScenarioSummary;
+
+  getOverallPassed(): boolean;
+  setOverallPassed(value: boolean): ScenarioSummary;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ScenarioSummary.AsObject;
+  static toObject(includeInstance: boolean, msg: ScenarioSummary): ScenarioSummary.AsObject;
+  static serializeBinaryToWriter(message: ScenarioSummary, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ScenarioSummary;
+  static deserializeBinaryFromReader(message: ScenarioSummary, reader: jspb.BinaryReader): ScenarioSummary;
+}
+
+export namespace ScenarioSummary {
+  export type AsObject = {
+    scenarioRef: string,
+    overallPassed: boolean,
+  }
+}
+
+export class EvalError extends jspb.Message {
+  getMessage(): string;
+  setMessage(value: string): EvalError;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): EvalError.AsObject;
+  static toObject(includeInstance: boolean, msg: EvalError): EvalError.AsObject;
+  static serializeBinaryToWriter(message: EvalError, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EvalError;
+  static deserializeBinaryFromReader(message: EvalError, reader: jspb.BinaryReader): EvalError;
+}
+
+export namespace EvalError {
+  export type AsObject = {
+    message: string,
+  }
+}
+
+export class EvaluateIntelligenceEvent extends jspb.Message {
+  getStepResult(): StepEvaluationResult | undefined;
+  setStepResult(value?: StepEvaluationResult): EvaluateIntelligenceEvent;
+  hasStepResult(): boolean;
+  clearStepResult(): EvaluateIntelligenceEvent;
+
+  getScenarioSummary(): ScenarioSummary | undefined;
+  setScenarioSummary(value?: ScenarioSummary): EvaluateIntelligenceEvent;
+  hasScenarioSummary(): boolean;
+  clearScenarioSummary(): EvaluateIntelligenceEvent;
+
+  getEvalError(): EvalError | undefined;
+  setEvalError(value?: EvalError): EvaluateIntelligenceEvent;
+  hasEvalError(): boolean;
+  clearEvalError(): EvaluateIntelligenceEvent;
+
+  getEventCase(): EvaluateIntelligenceEvent.EventCase;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): EvaluateIntelligenceEvent.AsObject;
+  static toObject(includeInstance: boolean, msg: EvaluateIntelligenceEvent): EvaluateIntelligenceEvent.AsObject;
+  static serializeBinaryToWriter(message: EvaluateIntelligenceEvent, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EvaluateIntelligenceEvent;
+  static deserializeBinaryFromReader(message: EvaluateIntelligenceEvent, reader: jspb.BinaryReader): EvaluateIntelligenceEvent;
+}
+
+export namespace EvaluateIntelligenceEvent {
+  export type AsObject = {
+    stepResult?: StepEvaluationResult.AsObject,
+    scenarioSummary?: ScenarioSummary.AsObject,
+    evalError?: EvalError.AsObject,
   }
 
-  export class ToolEvaluationReport extends jspb.Message {
-    getExpectedTool(): string;
-    setExpectedTool(value: string): ToolEvaluationReport;
-
-    getActualTool(): string;
-    setActualTool(value: string): ToolEvaluationReport;
-
-    getPassed(): boolean;
-    setPassed(value: boolean): ToolEvaluationReport;
-
-    getExpectedParameters(): google_protobuf_struct_pb.Struct | undefined;
-    setExpectedParameters(value?: google_protobuf_struct_pb.Struct): ToolEvaluationReport;
-    hasExpectedParameters(): boolean;
-    clearExpectedParameters(): ToolEvaluationReport;
-
-    getActualParameters(): google_protobuf_struct_pb.Struct | undefined;
-    setActualParameters(value?: google_protobuf_struct_pb.Struct): ToolEvaluationReport;
-    hasActualParameters(): boolean;
-    clearActualParameters(): ToolEvaluationReport;
-
-    getErrorMessage(): string;
-    setErrorMessage(value: string): ToolEvaluationReport;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): ToolEvaluationReport.AsObject;
-    static toObject(includeInstance: boolean, msg: ToolEvaluationReport): ToolEvaluationReport.AsObject;
-    static serializeBinaryToWriter(message: ToolEvaluationReport, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): ToolEvaluationReport;
-    static deserializeBinaryFromReader(message: ToolEvaluationReport, reader: jspb.BinaryReader): ToolEvaluationReport;
-  }
-
-  export namespace ToolEvaluationReport {
-    export type AsObject = {
-      expectedTool: string,
-      actualTool: string,
-      passed: boolean,
-      expectedParameters?: google_protobuf_struct_pb.Struct.AsObject,
-      actualParameters?: google_protobuf_struct_pb.Struct.AsObject,
-      errorMessage: string,
-    }
-  }
-
-
-  export class StepEvaluationReport extends jspb.Message {
-    getHumanInput(): string;
-    setHumanInput(value: string): StepEvaluationReport;
-
-    getExpectedResponse(): string;
-    setExpectedResponse(value: string): StepEvaluationReport;
-
-    getAiResponse(): string;
-    setAiResponse(value: string): StepEvaluationReport;
-
-    getEvaluationType(): EvaluateIntelligenceResponse.ExpectedTextType;
-    setEvaluationType(value: EvaluateIntelligenceResponse.ExpectedTextType): StepEvaluationReport;
-
-    getPassed(): boolean;
-    setPassed(value: boolean): StepEvaluationReport;
-
-    getErrorMessage(): string;
-    setErrorMessage(value: string): StepEvaluationReport;
-
-    getToolEvaluationsList(): Array<EvaluateIntelligenceResponse.ToolEvaluationReport>;
-    setToolEvaluationsList(value: Array<EvaluateIntelligenceResponse.ToolEvaluationReport>): StepEvaluationReport;
-    clearToolEvaluationsList(): StepEvaluationReport;
-    addToolEvaluations(value?: EvaluateIntelligenceResponse.ToolEvaluationReport, index?: number): EvaluateIntelligenceResponse.ToolEvaluationReport;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): StepEvaluationReport.AsObject;
-    static toObject(includeInstance: boolean, msg: StepEvaluationReport): StepEvaluationReport.AsObject;
-    static serializeBinaryToWriter(message: StepEvaluationReport, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): StepEvaluationReport;
-    static deserializeBinaryFromReader(message: StepEvaluationReport, reader: jspb.BinaryReader): StepEvaluationReport;
-  }
-
-  export namespace StepEvaluationReport {
-    export type AsObject = {
-      humanInput: string,
-      expectedResponse: string,
-      aiResponse: string,
-      evaluationType: EvaluateIntelligenceResponse.ExpectedTextType,
-      passed: boolean,
-      errorMessage: string,
-      toolEvaluationsList: Array<EvaluateIntelligenceResponse.ToolEvaluationReport.AsObject>,
-    }
-  }
-
-
-  export class ScenarioEvaluationReport extends jspb.Message {
-    getScenarioRef(): string;
-    setScenarioRef(value: string): ScenarioEvaluationReport;
-
-    getOverallPassed(): boolean;
-    setOverallPassed(value: boolean): ScenarioEvaluationReport;
-
-    getStepsList(): Array<EvaluateIntelligenceResponse.StepEvaluationReport>;
-    setStepsList(value: Array<EvaluateIntelligenceResponse.StepEvaluationReport>): ScenarioEvaluationReport;
-    clearStepsList(): ScenarioEvaluationReport;
-    addSteps(value?: EvaluateIntelligenceResponse.StepEvaluationReport, index?: number): EvaluateIntelligenceResponse.StepEvaluationReport;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): ScenarioEvaluationReport.AsObject;
-    static toObject(includeInstance: boolean, msg: ScenarioEvaluationReport): ScenarioEvaluationReport.AsObject;
-    static serializeBinaryToWriter(message: ScenarioEvaluationReport, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): ScenarioEvaluationReport;
-    static deserializeBinaryFromReader(message: ScenarioEvaluationReport, reader: jspb.BinaryReader): ScenarioEvaluationReport;
-  }
-
-  export namespace ScenarioEvaluationReport {
-    export type AsObject = {
-      scenarioRef: string,
-      overallPassed: boolean,
-      stepsList: Array<EvaluateIntelligenceResponse.StepEvaluationReport.AsObject>,
-    }
-  }
-
-
-  export enum ExpectedTextType { 
-    EXACT = 0,
-    SIMILAR = 1,
+  export enum EventCase { 
+    EVENT_NOT_SET = 0,
+    STEP_RESULT = 1,
+    SCENARIO_SUMMARY = 2,
+    EVAL_ERROR = 3,
   }
 }
 
@@ -521,4 +598,8 @@ export namespace TestTokenResponse {
 export enum ApplicationType { 
   EXTERNAL = 0,
   AUTOPILOT = 1,
+}
+export enum ExpectedTextType { 
+  EXACT = 0,
+  SIMILAR = 1,
 }

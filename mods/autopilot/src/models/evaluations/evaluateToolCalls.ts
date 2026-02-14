@@ -17,21 +17,22 @@
  * limitations under the License.
  */
 import { ToolEvaluationReport } from "@fonoster/types";
-import moment from "moment";
+import { EvalExpectedTool } from "./types";
+import { evaluateSingleTool } from "./evaluateSingleTool";
+
+type ToolCallLike = { name: string; args?: Record<string, unknown> };
 
 export function evaluateToolCalls(
-  expectedTools: any[],
-  toolCalls: any[] | undefined
+  expectedTools: EvalExpectedTool[],
+  toolCalls: ToolCallLike[] | undefined
 ): {
   evaluations: ToolEvaluationReport[];
   passed: boolean;
   errorMessage?: string;
 } {
   const evaluations: ToolEvaluationReport[] = [];
-  let overallPassed = true;
 
   if (!toolCalls || toolCalls.length !== expectedTools.length) {
-    overallPassed = false;
     evaluations.push({
       expectedTool: "",
       actualTool: "",
@@ -42,60 +43,18 @@ export function evaluateToolCalls(
     });
     return {
       evaluations,
-      passed: overallPassed,
-      errorMessage: `Tool invocation count mismatch.`
+      passed: false,
+      errorMessage: "Tool invocation count mismatch."
     };
   }
 
   for (let i = 0; i < expectedTools.length; i++) {
-    const expectedTool = expectedTools[i];
-    const actualCall = toolCalls[i];
-    let toolPassed = true;
-    let errorMessage = "";
-
-    if (actualCall.name !== expectedTool.tool) {
-      toolPassed = false;
-      errorMessage = `Expected tool "${expectedTool.tool}" but got "${actualCall.name}".`;
-    }
-
-    const expectedParams = expectedTool.parameters || {};
-    const actualParams = actualCall.args || {};
-
-    for (const key of Object.keys(expectedParams)) {
-      // Check for the special case of a valid-date
-      if (expectedParams[key].trim() === "valid-date") {
-        actualParams[key] = moment(actualParams[key], moment.ISO_8601, true);
-
-        if (!actualParams[key].isValid()) {
-          toolPassed = false;
-          const paramMsg = `Expected parameter "${key}" to be a valid date, but got ${JSON.stringify(actualParams[key])}.`;
-          errorMessage = errorMessage
-            ? errorMessage + " " + paramMsg
-            : paramMsg;
-        }
-        continue;
-      }
-
-      if (actualParams[key] !== expectedParams[key]) {
-        toolPassed = false;
-        const paramMsg = `Expected parameter "${key}" to have value ${JSON.stringify(expectedParams[key])}, but got ${JSON.stringify(actualParams[key])}.`;
-        errorMessage = errorMessage ? errorMessage + " " + paramMsg : paramMsg;
-      }
-    }
-
-    if (!toolPassed) {
-      overallPassed = false;
-    }
-
-    evaluations.push({
-      expectedTool: expectedTool.tool,
-      actualTool: actualCall.name,
-      passed: toolPassed,
-      expectedParameters: expectedTool.parameters,
-      actualParameters: actualCall.args,
-      errorMessage: errorMessage || undefined
-    });
+    evaluations.push(
+      evaluateSingleTool(expectedTools[i], toolCalls[i] as ToolCallLike)
+    );
   }
+
+  const overallPassed = evaluations.every((e) => e.passed);
   return {
     evaluations,
     passed: overallPassed,

@@ -20,8 +20,8 @@ import {
   Application,
   BaseApiObject,
   CreateApplicationRequest,
+  EvaluateIntelligenceEvent,
   EvaluateIntelligenceRequest,
-  EvaluateIntelligenceResponse,
   ExpectedTextType,
   ListApplicationsRequest,
   ListApplicationsResponse,
@@ -39,13 +39,10 @@ import {
   DeleteApplicationRequest as DeleteApplicationRequestPB,
   DeleteApplicationResponse as DeleteApplicationResponsePB,
   EvaluateIntelligenceRequest as EvaluateIntelligenceRequestPB,
-  EvaluateIntelligenceResponse as EvaluateIntelligenceResponsePB,
   GetApplicationRequest as GetApplicationRequestPB,
   ListApplicationsRequest as ListApplicationsRequestPB,
   ListApplicationsResponse as ListApplicationsResponsePB,
   ProductContainer as ProductContainerPB,
-  ScenarioEvaluationReport as ScenarioEvaluationReportPB,
-  StepEvaluationReport as StepEvaluationReportPB,
   TestTokenResponse,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
@@ -362,90 +359,126 @@ class Applications {
    * @param {EvaluateIntelligenceRequest} request - The request object that contains the necessary information to evaluate the intelligence of an application
    * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
    * @param {object} request.intelligence.config - The configuration object for the intelligence engine
-   * @return {Promise<ScenarioEvaluationReport>} - The response object that contains the evaluation report
+   * @return {AsyncGenerator<EvaluateIntelligenceEvent>} - Stream of evaluation events (step results, scenario summaries, or errors)
    * @example
-   * const apps = new SDK.Applications(client); // Existing client object
-   *
-   * const request = {
-   *   intelligence: {
-   *     productRef: "llm.groq",
-   *     config: {
-   *       conversationSettings: {
-   *         firstMessage: "Hello, how can I help you today?",
-   *         systemPrompt: "You are a helpful assistant.",
-   *         systemErrorMessage: "I'm sorry, I didn't catch that. Can you say that again?",
-   *         goodbyeMessage: "Thank you for calling. Have a great day!",
-   *         languageModel: {
-   *           provider: "openai",
-   *           model: "gpt-4o"
-   *         },
-   *         testCases: {
-   *           evalsLanguageModel: {
-   *             provider: "openai",
-   *             model: "gpt-4o"
-   *           },
-   *           scenarios: [
-   *             {
-   *               ref: "Scenario 1",
-   *               description: "Scenario 1 description",
-   *               telephonyContext: {
-   *                 callDirection: "FROM_PSTN",
-   *                 ingressNumber: "1234567890",
-   *                 callerNumber: "1234567890"
-   *               },
-   *               conversation: [
-   *                 {
-   *                   userInput: "Hello, how can I help you today?",
-   *                   expected: {
-   *                     text: {
-   *                       type: "EXACT",
-   *                       response: "Hello, how can I help you today?"
-   *                     }
-   *                   }
-   *                 }
-   *               ]
-   *             }
-   *           ]
-   *         }
-   *       }
-   *     }
-   *   }
-   * };
-   *
-   * apps
-   *   .evaluateIntelligence(request)
-   *   .then(console.log) // successful response
-   *   .catch(console.error); // an error occurred
+   * const apps = new SDK.Applications(client);
+   * for await (const event of apps.evaluateIntelligence(request)) {
+   *   if (event.type === "stepResult") console.log(event.stepResult);
+   *   if (event.type === "scenarioSummary") console.log(event.scenarioRef, event.overallPassed);
+   *   if (event.type === "evalError") console.error(event.message);
+   * }
    */
-  async evaluateIntelligence(
+  evaluateIntelligence(
     request: EvaluateIntelligenceRequest
-  ): Promise<EvaluateIntelligenceResponse> {
+  ): AsyncGenerator<EvaluateIntelligenceEvent> {
     const applicationsClient = this.client.getApplicationsClient();
+    const requestPB = new EvaluateIntelligenceRequestPB();
+    const productContainer = new ProductContainerPB();
+    productContainer.setProductRef(request.intelligence.productRef);
+    productContainer.setConfig(
+      Struct.fromJavaScript(request.intelligence.config as Record<string, unknown>) as any
+    );
+    requestPB.setIntelligence(productContainer);
 
-    const response = await makeRpcRequest<
-      EvaluateIntelligenceRequestPB,
-      EvaluateIntelligenceResponsePB,
-      EvaluateIntelligenceRequest,
-      EvaluateIntelligenceResponse
-    >({
-      method: applicationsClient.evaluateIntelligence.bind(applicationsClient),
-      requestPBObjectConstructor: EvaluateIntelligenceRequestPB,
-      metadata: this.client.getMetadata(),
-      request: {
-        intelligence: {
-          productRef: request.intelligence.productRef,
-          config: Struct.fromJavaScript(request.intelligence.config) as any
-        }
-      },
-      enumMapping: [["ExpectedTextType", ExpectedTextType]],
-      objectMapping: [["intelligence", ProductContainerPB]],
-      repeatableObjectMapping: [
-        ["resultsList", ScenarioEvaluationReportPB],
-        ["stepsList", StepEvaluationReportPB]
-      ]
+    const metadata = this.client.getMetadata() as Record<string, string> | null | undefined;
+    const call = applicationsClient.evaluateIntelligence(requestPB, metadata);
+
+    return this.evaluateIntelligenceStreamGenerator(call as { on: (event: string, fn: (...args: unknown[]) => void) => void });
+  }
+
+  private async *evaluateIntelligenceStreamGenerator(
+    call: { on: (event: string, fn: (...args: unknown[]) => void) => void }
+  ): AsyncGenerator<EvaluateIntelligenceEvent> {
+    const queue: EvaluateIntelligenceEvent[] = [];
+    let done = false;
+    let streamError: Error | null = null;
+
+    call.on("data", (chunk: unknown) => {
+      const event = this.mapEvalEventFromPb(chunk as never);
+      if (event) queue.push(event);
+    });
+    call.on("end", () => {
+      done = true;
+    });
+    call.on("error", (err: unknown) => {
+      streamError = err instanceof Error ? err : new Error(String(err));
+      done = true;
     });
 
-    return response;
+    while (!done || queue.length > 0) {
+      if (streamError) throw streamError;
+      if (queue.length > 0) {
+        const next = queue.shift()!;
+        yield next;
+      } else {
+        await new Promise<void>((r) => setTimeout(r, 50));
+      }
+    }
+  }
+
+  private mapEvalEventFromPb(
+    msg: {
+      getStepResult?: () => {
+        getScenarioRef: () => string;
+        getReport: () => {
+          getHumanInput: () => string;
+          getExpectedResponse: () => string;
+          getAiResponse: () => string;
+          getEvaluationType: () => number;
+          getPassed: () => boolean;
+          getErrorMessage: () => string;
+          getToolEvaluationsList: () => Array<{
+            getExpectedTool: () => string;
+            getActualTool: () => string;
+            getPassed: () => boolean;
+            getExpectedParameters: () => unknown;
+            getActualParameters: () => unknown;
+            getErrorMessage: () => string;
+          }>;
+        };
+      };
+      getScenarioSummary?: () => { getScenarioRef: () => string; getOverallPassed: () => boolean };
+      getEvalError?: () => { getMessage: () => string };
+    }
+  ): EvaluateIntelligenceEvent | null {
+    if (msg.getStepResult?.()) {
+      const sr = msg.getStepResult()!;
+      const report = sr.getReport();
+      const toolList = report.getToolEvaluationsList?.() ?? [];
+      return {
+        type: "stepResult",
+        scenarioRef: sr.getScenarioRef(),
+        stepResult: {
+          humanInput: report.getHumanInput(),
+          expectedResponse: report.getExpectedResponse(),
+          aiResponse: report.getAiResponse(),
+          evaluationType: report.getEvaluationType() === 0 ? ExpectedTextType.EXACT : ExpectedTextType.SIMILAR,
+          passed: report.getPassed(),
+          errorMessage: report.getErrorMessage() || undefined,
+          toolEvaluations: toolList.map((t) => ({
+            expectedTool: t.getExpectedTool(),
+            actualTool: t.getActualTool(),
+            passed: t.getPassed(),
+            expectedParameters: t.getExpectedParameters?.() as Record<string, unknown> | undefined,
+            actualParameters: t.getActualParameters?.() as Record<string, unknown> | undefined,
+            errorMessage: t.getErrorMessage?.() || undefined
+          }))
+        }
+      };
+    }
+    if (msg.getScenarioSummary?.()) {
+      const ss = msg.getScenarioSummary()!;
+      return {
+        type: "scenarioSummary",
+        scenarioRef: ss.getScenarioRef(),
+        overallPassed: ss.getOverallPassed()
+      };
+    }
+    if (msg.getEvalError?.()) {
+      const e = msg.getEvalError()!;
+      return { type: "evalError", message: e.getMessage() };
+    }
+    return null;
   }
 
   /**
