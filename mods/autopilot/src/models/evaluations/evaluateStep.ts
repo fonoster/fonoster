@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ExpectedTextType } from "@fonoster/types";
 import { StepEvaluationReport } from "@fonoster/types";
-import { extractAiResponse } from "./extractAiResponse";
 import { evaluateTextResponse } from "./evaluateTextResponse";
 import { evaluateToolCalls } from "./evaluateToolCalls";
+import { extractAiResponse } from "./extractAiResponse";
 import { EvaluateStepParams } from "./types";
+import type { ExpectedTextType } from "@fonoster/types";
 
 export async function evaluateStep({
   step,

@@ -27,12 +27,12 @@ import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Struct, struct } from "pb-util";
 import { z } from "zod";
 import { createEvalEffectiveConfig } from "./createEvalEffectiveConfig";
+import { runEval } from "./runEval";
 import {
   evalErrorToEventPayload,
   scenarioSummaryToEventPayload,
   stepReportToEventPayload
 } from "./stepReportToEventPayload";
-import { runEval } from "./runEval";
 import { EvaluateIntelligenceRequest } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -44,7 +44,9 @@ type ServerStreamCall = {
 };
 
 function createEvaluateIntelligence(integrations: IntegrationConfig[]) {
-  const evaluateIntelligence = async (call: ServerStreamCall): Promise<void> => {
+  const evaluateIntelligence = async (
+    call: ServerStreamCall
+  ): Promise<void> => {
     const { request } = call;
     const { intelligence } = request;
 
@@ -87,39 +89,26 @@ function createEvaluateIntelligence(integrations: IntegrationConfig[]) {
         evaluationApiKey
       );
 
-      let writeCount = 0;
       await runEval(
         { intelligence: { config: effectiveConfig } },
         {
           onStepResult: (scenarioRef, stepReport) => {
             const payload = stepReportToEventPayload(scenarioRef, stepReport);
-            // #region agent log
-            const sr = payload.stepResult as Record<string, unknown> | undefined;
-            const report = sr?.report as Record<string, unknown> | undefined;
-            const toolEvals = report?.toolEvaluations as unknown[] | undefined;
-            fetch('http://127.0.0.1:7246/ingest/a5f4c8ad-0ea5-4182-b89a-285e4ec740dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'createEvaluateIntelligence.ts:onStepResult',message:'before call.write stepResult',data:{writeCount,payloadKeys:Object.keys(payload),hasStepResult:!!sr,reportKeys:report?Object.keys(report):[],toolEvalsCount:toolEvals?.length??0,firstToolHasExpectedParams:toolEvals?.[0]?(Object.keys((toolEvals[0] as Record<string,unknown>).expectedParameters||{}).length>0):false},hypothesisId:'H2_H3',timestamp:Date.now()})}).catch(()=>{});
-            // #endregion
             call.write(payload);
-            writeCount++;
           },
           onScenarioComplete: (scenarioRef, overallPassed) => {
-            const payload = scenarioSummaryToEventPayload(scenarioRef, overallPassed);
-            // #region agent log
-            fetch('http://127.0.0.1:7246/ingest/a5f4c8ad-0ea5-4182-b89a-285e4ec740dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'createEvaluateIntelligence.ts:onScenarioComplete',message:'before call.write scenarioSummary',data:{writeCount,payloadKeys:Object.keys(payload)},hypothesisId:'H2_H5',timestamp:Date.now()})}).catch(()=>{});
-            // #endregion
+            const payload = scenarioSummaryToEventPayload(
+              scenarioRef,
+              overallPassed
+            );
             call.write(payload);
-            writeCount++;
           }
         }
       );
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? error.message : String(error);
       call.write(evalErrorToEventPayload(message));
     } finally {
-      // #region agent log
-      fetch('http://127.0.0.1:7246/ingest/a5f4c8ad-0ea5-4182-b89a-285e4ec740dc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'createEvaluateIntelligence.ts:finally',message:'before call.end()',data:{},hypothesisId:'H5',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       call.end();
     }
   };

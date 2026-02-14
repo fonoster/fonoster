@@ -70,9 +70,13 @@ export async function runEval(
         languageModel,
         testTextSimilarity
       },
-      (scenarioRef, stepReport) => callbacks.onStepResult(scenarioRef, stepReport)
+      (scenarioRef, stepReport) =>
+        callbacks.onStepResult(scenarioRef, stepReport)
     );
 
-    await callbacks.onScenarioComplete(report.scenarioRef, report.overallPassed);
+    await callbacks.onScenarioComplete(
+      report.scenarioRef,
+      report.overallPassed
+    );
   }
 }

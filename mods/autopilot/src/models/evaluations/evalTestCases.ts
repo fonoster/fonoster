@@ -59,14 +59,12 @@ export async function evalTestCases(autopilotApplication: {
       assistantConfig.testCases?.evalsSystemPrompt || textSimilaryPrompt
     );
 
-    const evaluationReport = await evaluateScenario(
-      {
-        assistantConfig,
-        scenario,
-        languageModel,
-        testTextSimilarity
-      }
-    );
+    const evaluationReport = await evaluateScenario({
+      assistantConfig,
+      scenario,
+      languageModel,
+      testTextSimilarity
+    });
     evaluationReports.push(evaluationReport);
   }
 

@@ -53,8 +53,7 @@ export function stepReportToEventPayload(
         humanInput: report.humanInput,
         expectedResponse: report.expectedResponse,
         aiResponse: report.aiResponse,
-        evaluationType:
-          EVALUATION_TYPE_TO_NUM[report.evaluationType] ?? 0,
+        evaluationType: EVALUATION_TYPE_TO_NUM[report.evaluationType] ?? 0,
         passed: report.passed,
         errorMessage: report.errorMessage ?? "",
         toolEvaluations: (report.toolEvaluations ?? []).map(toolReportToPayload)
@@ -75,7 +74,9 @@ export function scenarioSummaryToEventPayload(
   };
 }
 
-export function evalErrorToEventPayload(message: string): Record<string, unknown> {
+export function evalErrorToEventPayload(
+  message: string
+): Record<string, unknown> {
   return {
     evalError: {
       message

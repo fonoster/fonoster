@@ -33,7 +33,9 @@ export function extractAiResponse(
       return assistantConfig.conversationSettings?.goodbyeMessage ?? "";
     }
     if (topTool.name === "transfer") {
-      return assistantConfig.conversationSettings?.transferOptions?.message ?? "";
+      return (
+        assistantConfig.conversationSettings?.transferOptions?.message ?? ""
+      );
     }
   }
   return response.content ?? "";

@@ -23,8 +23,8 @@ import {
   CreateApplicationResponse,
   DeleteApplicationRequest,
   DeleteApplicationResponse,
-  EvaluateIntelligenceRequest,
   EvaluateIntelligenceEvent,
+  EvaluateIntelligenceRequest,
   GetApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
@@ -32,8 +32,8 @@ import {
   UpdateApplicationRequest,
   UpdateApplicationResponse
 } from "../../generated/web/applications_pb";
-import type { ClientReadableStream } from "grpc-web";
 import { ClientFunction } from "./common";
+import type { ClientReadableStream } from "grpc-web";
 
 type ApplicationsClient = {
   createApplication: ClientFunction<

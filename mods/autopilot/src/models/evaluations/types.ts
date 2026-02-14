@@ -67,8 +67,14 @@ type ScenarioEvaluationRequest = {
 };
 
 type RunEvalCallbacks = {
-  onStepResult: (scenarioRef: string, report: StepEvaluationReport) => void | Promise<void>;
-  onScenarioComplete: (scenarioRef: string, overallPassed: boolean) => void | Promise<void>;
+  onStepResult: (
+    scenarioRef: string,
+    report: StepEvaluationReport
+  ) => void | Promise<void>;
+  onScenarioComplete: (
+    scenarioRef: string,
+    overallPassed: boolean
+  ) => void | Promise<void>;
 };
 
 export {

@@ -376,19 +376,26 @@ class Applications {
     const productContainer = new ProductContainerPB();
     productContainer.setProductRef(request.intelligence.productRef);
     productContainer.setConfig(
-      Struct.fromJavaScript(request.intelligence.config as Record<string, unknown>) as any
+      Struct.fromJavaScript(
+        request.intelligence.config as Record<string, unknown>
+      ) as any
     );
     requestPB.setIntelligence(productContainer);
 
-    const metadata = this.client.getMetadata() as Record<string, string> | null | undefined;
+    const metadata = this.client.getMetadata() as
+      | Record<string, string>
+      | null
+      | undefined;
     const call = applicationsClient.evaluateIntelligence(requestPB, metadata);
 
-    return this.evaluateIntelligenceStreamGenerator(call as { on: (event: string, fn: (...args: unknown[]) => void) => void });
+    return this.evaluateIntelligenceStreamGenerator(
+      call as { on: (event: string, fn: (...args: unknown[]) => void) => void }
+    );
   }
 
-  private async *evaluateIntelligenceStreamGenerator(
-    call: { on: (event: string, fn: (...args: unknown[]) => void) => void }
-  ): AsyncGenerator<EvaluateIntelligenceEvent> {
+  private async *evaluateIntelligenceStreamGenerator(call: {
+    on: (event: string, fn: (...args: unknown[]) => void) => void;
+  }): AsyncGenerator<EvaluateIntelligenceEvent> {
     const queue: EvaluateIntelligenceEvent[] = [];
     let done = false;
     let streamError: Error | null = null;
@@ -416,31 +423,32 @@ class Applications {
     }
   }
 
-  private mapEvalEventFromPb(
-    msg: {
-      getStepResult?: () => {
-        getScenarioRef: () => string;
-        getReport: () => {
-          getHumanInput: () => string;
-          getExpectedResponse: () => string;
-          getAiResponse: () => string;
-          getEvaluationType: () => number;
+  private mapEvalEventFromPb(msg: {
+    getStepResult?: () => {
+      getScenarioRef: () => string;
+      getReport: () => {
+        getHumanInput: () => string;
+        getExpectedResponse: () => string;
+        getAiResponse: () => string;
+        getEvaluationType: () => number;
+        getPassed: () => boolean;
+        getErrorMessage: () => string;
+        getToolEvaluationsList: () => Array<{
+          getExpectedTool: () => string;
+          getActualTool: () => string;
           getPassed: () => boolean;
+          getExpectedParameters: () => unknown;
+          getActualParameters: () => unknown;
           getErrorMessage: () => string;
-          getToolEvaluationsList: () => Array<{
-            getExpectedTool: () => string;
-            getActualTool: () => string;
-            getPassed: () => boolean;
-            getExpectedParameters: () => unknown;
-            getActualParameters: () => unknown;
-            getErrorMessage: () => string;
-          }>;
-        };
+        }>;
       };
-      getScenarioSummary?: () => { getScenarioRef: () => string; getOverallPassed: () => boolean };
-      getEvalError?: () => { getMessage: () => string };
-    }
-  ): EvaluateIntelligenceEvent | null {
+    };
+    getScenarioSummary?: () => {
+      getScenarioRef: () => string;
+      getOverallPassed: () => boolean;
+    };
+    getEvalError?: () => { getMessage: () => string };
+  }): EvaluateIntelligenceEvent | null {
     if (msg.getStepResult?.()) {
       const sr = msg.getStepResult()!;
       const report = sr.getReport();
@@ -452,15 +460,22 @@ class Applications {
           humanInput: report.getHumanInput(),
           expectedResponse: report.getExpectedResponse(),
           aiResponse: report.getAiResponse(),
-          evaluationType: report.getEvaluationType() === 0 ? ExpectedTextType.EXACT : ExpectedTextType.SIMILAR,
+          evaluationType:
+            report.getEvaluationType() === 0
+              ? ExpectedTextType.EXACT
+              : ExpectedTextType.SIMILAR,
           passed: report.getPassed(),
           errorMessage: report.getErrorMessage() || undefined,
           toolEvaluations: toolList.map((t) => ({
             expectedTool: t.getExpectedTool(),
             actualTool: t.getActualTool(),
             passed: t.getPassed(),
-            expectedParameters: t.getExpectedParameters?.() as Record<string, unknown> | undefined,
-            actualParameters: t.getActualParameters?.() as Record<string, unknown> | undefined,
+            expectedParameters: t.getExpectedParameters?.() as
+              | Record<string, unknown>
+              | undefined,
+            actualParameters: t.getActualParameters?.() as
+              | Record<string, unknown>
+              | undefined,
             errorMessage: t.getErrorMessage?.() || undefined
           }))
         }

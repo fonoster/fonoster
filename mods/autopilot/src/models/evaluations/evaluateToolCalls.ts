@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { ToolEvaluationReport } from "@fonoster/types";
-import { EvalExpectedTool } from "./types";
 import { evaluateSingleTool } from "./evaluateSingleTool";
+import { EvalExpectedTool } from "./types";
 
 type ToolCallLike = { name: string; args?: Record<string, unknown> };
 

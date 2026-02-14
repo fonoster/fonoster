@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { ToolEvaluationReport } from "@fonoster/types";
-import { EvalExpectedTool } from "./types";
 import { isValidIso8601Date } from "./isValidIso8601Date";
+import { EvalExpectedTool } from "./types";
 
 type ToolCallLike = { name: string; args?: Record<string, unknown> };
 
@@ -39,7 +39,10 @@ export function evaluateSingleTool(
 
   for (const key of Object.keys(expectedParams)) {
     const expectedVal = expectedParams[key];
-    const expectedStr = typeof expectedVal === "string" ? expectedVal.trim() : String(expectedVal).trim();
+    const expectedStr =
+      typeof expectedVal === "string"
+        ? expectedVal.trim()
+        : String(expectedVal).trim();
     if (expectedStr === "valid-date") {
       if (!isValidIso8601Date(actualParams[key])) {
         passed = false;
