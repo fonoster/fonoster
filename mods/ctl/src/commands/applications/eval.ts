@@ -20,7 +20,6 @@ import * as fs from "fs";
 import * as path from "path";
 import { assistantSchema } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
-import type { EvaluateIntelligenceEvent } from "@fonoster/types";
 import { ExpectedTextType } from "@fonoster/types";
 import { Flags } from "@oclif/core";
 import * as yaml from "js-yaml";
@@ -32,6 +31,7 @@ import {
   printScenarioSummary,
   printStepResult
 } from "../../utils/printEval";
+import type { EvaluateIntelligenceEvent } from "@fonoster/types";
 
 export default class EvalIntelligence extends AuthenticatedCommand<
   typeof EvalIntelligence
@@ -89,10 +89,14 @@ export default class EvalIntelligence extends AuthenticatedCommand<
     switch (extension) {
       case ".yaml":
       case ".yml":
-        rawAutopilotApplication = yaml.load(fileContent) as typeof rawAutopilotApplication;
+        rawAutopilotApplication = yaml.load(
+          fileContent
+        ) as typeof rawAutopilotApplication;
         break;
       case ".json":
-        rawAutopilotApplication = JSON.parse(fileContent) as typeof rawAutopilotApplication;
+        rawAutopilotApplication = JSON.parse(
+          fileContent
+        ) as typeof rawAutopilotApplication;
         break;
       default:
         throw new Error(
@@ -101,18 +105,19 @@ export default class EvalIntelligence extends AuthenticatedCommand<
     }
 
     // Transform so that all the expected text types are uppercase strings
-    const mappedScenarios = rawAutopilotApplication.intelligence.config.testCases.scenarios.map(
-      (scenario) => {
-        scenario.conversation.map((step) => {
-          if (step.expected?.text?.type) {
-            const type = step.expected.text.type.toLowerCase();
-            step.expected.text.type =
-              type === "similar" ? ExpectedTextType.SIMILAR : "EXACT";
-          }
-        });
-        return scenario;
-      }
-    );
+    const mappedScenarios =
+      rawAutopilotApplication.intelligence.config.testCases.scenarios.map(
+        (scenario) => {
+          scenario.conversation.map((step) => {
+            if (step.expected?.text?.type) {
+              const type = step.expected.text.type.toLowerCase();
+              step.expected.text.type =
+                type === "similar" ? ExpectedTextType.SIMILAR : "EXACT";
+            }
+          });
+          return scenario;
+        }
+      );
 
     rawAutopilotApplication.intelligence.config.testCases.scenarios =
       mappedScenarios;

@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import ansis from "ansis";
 import type {
   EvaluateIntelligenceEvent,
   ScenarioEvaluationReport,
   StepEvaluationReport
 } from "@fonoster/types";
-import ansis from "ansis";
 
 export type EvalSummary = {
   scenarios: ScenarioEvaluationReport[];
@@ -31,7 +31,9 @@ export type EvalSummary = {
 /**
  * Builds a single JSON summary from streamed eval events.
  */
-export function buildEvalSummary(events: EvaluateIntelligenceEvent[]): EvalSummary {
+export function buildEvalSummary(
+  events: EvaluateIntelligenceEvent[]
+): EvalSummary {
   const scenariosByRef = new Map<string, ScenarioEvaluationReport>();
   const errors: string[] = [];
 
@@ -126,7 +128,9 @@ export function printStepResult(
 export function printScenarioHeader(scenarioRef: string): void {
   console.log("");
   console.log(ansis.bold.blue(`Scenario: ${scenarioRef}`));
-  console.log(ansis.dim("—".repeat(Math.min(60, process.stdout.columns || 60))));
+  console.log(
+    ansis.dim("—".repeat(Math.min(60, process.stdout.columns || 60)))
+  );
 }
 
 /**
