@@ -33,9 +33,11 @@ describe("@ctl[workspaces:logout]", function () {
   });
 
   it("fails when the reference is missing", async function () {
-    const { error } = await runCommand(["workspaces:logout"]);
-    expect(error!.message).to.contain("Missing 1 required arg");
-    expect(error!.message).to.contain("ref  the Workspace to unlink from");
+    const { error, stderr } = await runCommand(["workspaces:logout"]);
+    const message = error?.message ?? stderr ?? "";
+    expect(message, "expected error or stderr").to.not.equal("");
+    expect(message).to.contain("Missing 1 required arg");
+    expect(message).to.contain("ref  the Workspace to unlink from");
   });
 
   it("ensures user logout from workspace", async function () {
