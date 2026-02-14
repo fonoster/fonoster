@@ -34,5 +34,6 @@ export const conversationSettingsSchema = z.object({
     message: z.string(),
     timeout: z.number().int().positive().optional(),
     maxTimeoutCount: z.number().int().positive().optional()
-  })
+  }),
+  allowUserBargeIn: z.boolean().optional().default(true)
 });

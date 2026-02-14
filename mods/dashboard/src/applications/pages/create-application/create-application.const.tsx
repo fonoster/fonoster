@@ -244,7 +244,8 @@ export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
           message: "I haven't heard from you in a while. Are you still there?",
           timeout: 30000,
           maxTimeoutCount: 2
-        }
+        },
+        allowUserBargeIn: true
       },
       languageModel: {
         provider: LanguageModelProvider.GOOGLE,

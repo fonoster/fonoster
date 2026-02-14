@@ -33,6 +33,7 @@ import { Input } from "~/core/components/design-system/ui/input/input";
 import type { Control } from "react-hook-form";
 import type { Schema } from "../schemas/application-schema";
 import { Icon } from "~/core/components/design-system/icons/icons";
+import { Checkbox } from "~/core/components/design-system/ui/checkbox/checkbox";
 import { Select } from "~/core/components/design-system/ui/select/select";
 import { EVENTS } from "../schemas/events-hook-schema";
 import {
@@ -193,8 +194,34 @@ export const AdvancedSettingsSection = ({
             </FormItem>
           )}
         />
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <Typography variant="mono-medium" color="base.03">
+            Allow user barge-in
+          </Typography>
+          <Typography variant="body-micro" color="base.03">
+            When enabled, the user can interrupt the agent by speaking. When
+            disabled, background noise is less likely to interrupt the agent,
+            but the user cannot interrupt while the agent is speaking.
+          </Typography>
+          <FormField
+            control={control}
+            name="intelligence.config.conversationSettings.allowUserBargeIn"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Checkbox
+                    checked={!!field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                  >
+                    Allow user barge-in
+                  </Checkbox>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </Box>
         {/* Configuración de languageModel */}
-        <Box sx={{ mt: "8px" }}>
+        <Box>
           <Typography variant="mono-medium" color="base.03">
             Language Model
           </Typography>

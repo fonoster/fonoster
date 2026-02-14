@@ -16,7 +16,7 @@
     "start:apiserver": "cross-env NODE_ENV=development LOGS_LEVEL=verbose npm run start:dev -w @fonoster/apiserver",
     "start:authz": "cross-env NODE_ENV=development LOGS_LEVEL=verbose npm run start:dev -w @fonoster/authz",
     "start:voice": "cross-env NODE_ENV=development LOGS_LEVEL=verbose npm run start:dev -w @fonoster/voice",
-    "start:autopilot": "cross-env NODE_ENV=development ASSISTANT=$(pwd)/config/assistant.json LOGS_LEVEL=verbose npm run start:dev -w @fonoster/autopilot",
+    "start:autopilot": "cross-env NODE_ENV=development AUTOPILOT_CONVERSATION_PROVIDER=file AUTOPILOT_CONVERSATION_PROVIDER_FILE=$(pwd)/config/assistant.json LOGS_LEVEL=verbose npm run start:dev -w @fonoster/autopilot",
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk -d --remove-orphans",
     "start:sdk-demo": "npm run start:demo -w @fonoster/sdk",
     "start:oauth2-demo": "npm run start:oauth2-demo -w @fonoster/sdk",

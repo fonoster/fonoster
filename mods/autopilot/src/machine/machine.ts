@@ -135,7 +135,8 @@ const machine = machineSetup.createMachine({
           target: "processingUserRequest",
           description:
             "Capture only a single late speech across the entire request processing.",
-          guard: ({ context }) => !context.hasLateSpeech,
+          guard: ({ context }) =>
+            context.allowUserBargeIn && !context.hasLateSpeech,
           actions: [
             { type: "interruptPlayback" },
             { type: "appendSpeech" },

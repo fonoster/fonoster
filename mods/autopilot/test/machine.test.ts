@@ -259,6 +259,76 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
+  it("with barge-in off, SPEECH_START during processingUserRequest is ignored and AI completes via onDone", async function () {
+    // Arrange: barge-in disabled
+    const { machine } = await import("../src/machine");
+    const input = getActorInput();
+    input.conversationSettings.allowUserBargeIn = false;
+
+    const actor = createActor(machine, { input });
+
+    // Act: get to processingUserRequest
+    actor.start();
+    actor.send({ type: "SPEECH_START" });
+    await waitFor(50);
+    actor.send({ type: "SPEECH_RESULT", speech: "Hello", responseTime: 1000 });
+    await waitFor(600);
+    expect(actor.getSnapshot().value).to.equal("processingUserRequest");
+
+    // Send SPEECH_START while AI is "speaking" (barge-in would interrupt if enabled)
+    actor.send({ type: "SPEECH_START" });
+
+    // Assert: still in processingUserRequest (guard blocked transition)
+    expect(actor.getSnapshot().value).to.equal("processingUserRequest");
+
+    // Wait for AI to finish; should transition via onDone only
+    await waitFor(5500);
+
+    const { context, value: state } = actor.getSnapshot();
+    expect(state).to.equal("listeningToUser");
+    expect(context.speechBuffer).to.equal("");
+    expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
+    expect(input.languageModel.invoke).to.have.been.calledOnce;
+
+    actor.stop();
+  }).timeout(20000);
+
+  it("with barge-in off, SPEECH_RESULT during processingUserRequest is ignored and AI completes via onDone", async function () {
+    // Arrange: barge-in disabled
+    const { machine } = await import("../src/machine");
+    const input = getActorInput();
+    input.conversationSettings.allowUserBargeIn = false;
+
+    const actor = createActor(machine, { input });
+
+    // Act: get to processingUserRequest
+    actor.start();
+    actor.send({ type: "SPEECH_START" });
+    await waitFor(50);
+    actor.send({ type: "SPEECH_RESULT", speech: "Hello?", responseTime: 1000 });
+    await waitFor(600);
+    expect(actor.getSnapshot().value).to.equal("processingUserRequest");
+
+    // Send late SPEECH_RESULT (would interrupt and reenter if barge-in were enabled)
+    actor.send({ type: "SPEECH_RESULT", speech: "Hello!", responseTime: 1000 });
+    await waitFor(2000);
+
+    // Assert: still in processingUserRequest, buffer unchanged, no reenter (invoke only once)
+    let snapshot = actor.getSnapshot();
+    expect(snapshot.value).to.equal("processingUserRequest");
+    expect(snapshot.context.speechBuffer).to.equal("Hello?");
+    expect(input.languageModel.invoke).to.have.been.calledOnce;
+
+    // Wait for AI to finish via onDone
+    await waitFor(5500);
+    snapshot = actor.getSnapshot();
+    expect(snapshot.value).to.equal("listeningToUser");
+    expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
+    expect(input.languageModel.invoke).to.have.been.calledOnce;
+
+    actor.stop();
+  }).timeout(20000);
+
   it("should idletimeout and then hangup", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
