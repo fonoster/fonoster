@@ -38,8 +38,10 @@ export async function evalTestCases(autopilotApplication: {
   } as Voice;
 
   const evaluationReports: ScenarioEvaluationReport[] = [];
+  const scenarios = (testCases?.scenarios ?? []) as EvalScenario[];
 
-  for (const scenario of (testCases?.scenarios ?? []) as EvalScenario[]) {
+  for (let i = 0; i < scenarios.length; i++) {
+    const scenario = scenarios[i];
     const languageModel = createLanguageModel({
       voice,
       assistantConfig: autopilotApplication.intelligence.config,

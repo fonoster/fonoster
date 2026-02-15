@@ -30,8 +30,9 @@ function createChain(
 ) {
   return RunnableSequence.from([
     {
-      input: (input) => input.text,
-      context: async (input) => knowledgeBase?.queryKnowledgeBase(input.text),
+      input: (input: { text: string }) => input.text,
+      context: async (input: { text: string }) =>
+        knowledgeBase?.queryKnowledgeBase(input.text),
       history: async () => chatHistory.getMessages()
     },
     promptTemplate,

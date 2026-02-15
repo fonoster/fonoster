@@ -35,8 +35,10 @@ export async function evaluateScenario(
   const { scenario, languageModel, testTextSimilarity, assistantConfig } =
     config;
   const results: StepEvaluationReport[] = [];
+  const steps = scenario.conversation;
 
-  for (const step of scenario.conversation) {
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
     const stepResult = await evaluateStep({
       step,
       languageModel,

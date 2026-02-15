@@ -56,14 +56,8 @@ export async function evaluateStep({
     }
 
     if (step.expected.tools && step.expected.tools.length > 0) {
-      const toolCallsLike = response.toolCalls?.map((tc) => ({
-        name: tc.name,
-        args: tc.args as Record<string, unknown> | undefined
-      }));
-      const toolsEvaluation = evaluateToolCalls(
-        step.expected.tools,
-        toolCallsLike
-      );
+      const toolCalls = response.toolCalls?.filter((tc) => tc?.name) ?? [];
+      const toolsEvaluation = evaluateToolCalls(step.expected.tools, toolCalls);
       stepResult.toolEvaluations = toolsEvaluation.evaluations;
       if (!toolsEvaluation.passed) {
         stepResult.passed = false;

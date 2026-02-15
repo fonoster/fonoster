@@ -437,8 +437,12 @@ class Applications {
           getExpectedTool: () => string;
           getActualTool: () => string;
           getPassed: () => boolean;
-          getExpectedParameters: () => unknown;
-          getActualParameters: () => unknown;
+          getExpectedParameters: () =>
+            | { toJavaScript: () => Record<string, unknown> }
+            | undefined;
+          getActualParameters: () =>
+            | { toJavaScript: () => Record<string, unknown> }
+            | undefined;
           getErrorMessage: () => string;
         }>;
       };
@@ -470,12 +474,10 @@ class Applications {
             expectedTool: t.getExpectedTool(),
             actualTool: t.getActualTool(),
             passed: t.getPassed(),
-            expectedParameters: t.getExpectedParameters?.() as
-              | Record<string, unknown>
-              | undefined,
-            actualParameters: t.getActualParameters?.() as
-              | Record<string, unknown>
-              | undefined,
+            expectedParameters:
+              t.getExpectedParameters?.()?.toJavaScript() ?? undefined,
+            actualParameters:
+              t.getActualParameters?.()?.toJavaScript() ?? undefined,
             errorMessage: t.getErrorMessage?.() || undefined
           }))
         }
