@@ -55,7 +55,7 @@ services:
       - APISERVER_TWILIO_AUTH_TOKEN
       - APISERVER_TWILIO_PHONE_NUMBER
     expose:
-      - 50051:50051
+      - 50051
     volumes:
       - ./config/keys:/opt/fonoster/keys:ro
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
