@@ -83,7 +83,7 @@ services:
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   routr:
-    image: fonoster/routr-one:2.13.21
+    image: fonoster/routr-one:2.13.22
     restart: unless-stopped
     labels:
       - "autoheal=true"
