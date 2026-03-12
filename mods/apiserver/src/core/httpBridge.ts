@@ -52,7 +52,7 @@ function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
   app.get("/api/recordings/:id", (req: Request, res: Response) => {
     const RECORDINGS_PATH = path.join(
       "/opt/fonoster/recordings",
-      req.params.id
+      req.params.id as string
     );
     const wave = fs.readFileSync(RECORDINGS_PATH);
     res.setHeader("content-type", "audio/wav");
