@@ -9,16 +9,17 @@ on:
 jobs:
   add-contributors:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
-      - uses: BobAnkh/add-contributors@master
+      - uses: akhilmhdh/contributors-readme-action@v2.3.11
         with:
-          CONTRIBUTOR: "<!--contributors-->"
-          COLUMN_PER_ROW: "6"
-          ACCESS_TOKEN: ${{ secrets.GH_PAT }}
-          IMG_WIDTH: "100"
-          FONT_SIZE: "14"
-          PATH: "/README.md"
-          COMMIT_MESSAGE: "docs(README): update contributors"
-          AVATAR_SHAPE: "round"
+          image_size: 100
+          columns_per_row: 6
+          readme_path: README.md
+          commit_message: "docs(README): update contributors"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}

@@ -139,8 +139,7 @@ For contributing, please see the following links:
  - [Contribution Documents](https://github.com/fonoster/fonoster/blob/main/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonoster/contributors)
 
-<!--contributors-->
-
+<!-- readme: contributors -start -->
 <table>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -511,6 +510,7 @@ For contributing, please see the following links:
     </td>
 </tr>
 </table>
+<!-- readme: contributors -end -->
 
 ## Sponsors
 
