@@ -39,3 +39,7 @@ export const FONOSTER_RESET_PASSWORD_URL: string =
   "https://app.fonoster.com/auth/reset-password";
 
 export const IS_CLOUD = Boolean(import.meta.env.DASHBOARD_EDITION === "cloud");
+export const IS_PRIVATE_BETA = Boolean(
+  import.meta.env.DASHBOARD_PRIVATE_BETA_ENABLED === "true"
+);
+export const IS_SIGNUP_ENABLED = IS_CLOUD && !IS_PRIVATE_BETA;

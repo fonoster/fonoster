@@ -16,11 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Box } from "@mui/material";
 import { useRef } from "react";
 import { WorkspaceSelector } from "./workspace-selector";
 import NavItem from "./sidebar-nav-item";
 import type { Workspace } from "./sidebar.interfaces";
 import { Typography } from "../../design-system/ui/typography/typography";
+import { RegionBadge } from "../../design-system/ui/region-badge/region-badge";
 import { SidebarProvider } from "./sidebar.context";
 import {
   SidebarContainer,
@@ -30,6 +32,7 @@ import {
   SidebarWrapper
 } from "./sidebar.styles";
 import { useSidebarItems } from "./sidebar-navigation.const";
+import { IS_PRIVATE_BETA } from "~/core/sdk/stores/fonoster.config";
 
 const VERSION = import.meta.env.DASHBOARD_VERSION || "unset";
 
@@ -69,6 +72,11 @@ const Sidebar = ({
             </SidebarNavigation>
           </SidebarContent>
           <SidebarFooter>
+            {IS_PRIVATE_BETA && (
+              <Box display="flex" justifyContent="center" mb={1}>
+                <RegionBadge type="drawer">Private Beta</RegionBadge>
+              </Box>
+            )}
             <Typography variant="mono-small">
               &copy; {year}, FONOSTER. {VERSION}
             </Typography>

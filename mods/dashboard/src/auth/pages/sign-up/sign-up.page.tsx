@@ -31,7 +31,10 @@ import { useCreateUser } from "~/auth/services/auth.service";
 import { useNavigate, useSubmit } from "react-router";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { getGithubSignupUrl } from "~/auth/config/oauth";
-import { IS_CLOUD } from "~/core/sdk/stores/fonoster.config";
+import {
+  IS_CLOUD,
+  IS_SIGNUP_ENABLED
+} from "~/core/sdk/stores/fonoster.config";
 
 export { action } from "../login/login.action";
 
@@ -53,6 +56,8 @@ export const resolver = zodResolver(schema);
 
 export type Schema = z.infer<typeof schema>;
 export type Form = UseFormReturn<Schema>;
+const SIGNUP_DISABLED_MESSAGE =
+  "Signup is currently limited to private beta invites.";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -76,6 +81,12 @@ export default function SignupPage() {
     async ({ confirmPassword, password, ...data }: Schema, form: Form) => {
       Logger.debug("[SignupPage] onSubmit called with data:", data);
       try {
+        if (!IS_SIGNUP_ENABLED) {
+          toast(SIGNUP_DISABLED_MESSAGE);
+          navigate("/auth/login", { replace: true });
+          return;
+        }
+
         if (password !== confirmPassword) {
           Logger.debug("[SignupPage] Passwords do not match");
           form.setError("confirmPassword", {
@@ -100,18 +111,30 @@ export default function SignupPage() {
       }
       Logger.debug("[SignupPage] Form submitted successfully");
     },
-    [form]
+    [createUser, navigate, submit]
   );
 
   const onGithubAuth = useCallback(async () => {
+    if (!IS_SIGNUP_ENABLED) {
+      toast(SIGNUP_DISABLED_MESSAGE);
+      navigate("/auth/login", { replace: true });
+      return;
+    }
+
     window.location.href = getGithubSignupUrl();
-  }, []);
+  }, [navigate]);
 
   useLayoutEffect(() => {
     if (!IS_CLOUD) {
       navigate("/auth/login", { replace: true });
+      return;
     }
-  }, []);
+
+    if (!IS_SIGNUP_ENABLED) {
+      toast(SIGNUP_DISABLED_MESSAGE);
+      navigate("/auth/login", { replace: true });
+    }
+  }, [navigate]);
 
   return (
     <Box

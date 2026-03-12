@@ -24,7 +24,11 @@ import { Link } from "~/core/components/general/link/link";
 import type { Form } from "./login.form";
 import { useSearchParams } from "react-router";
 import { useEffect } from "react";
-import { IS_CLOUD } from "~/core/sdk/stores/fonoster.config";
+import {
+  IS_CLOUD,
+  IS_PRIVATE_BETA,
+  IS_SIGNUP_ENABLED
+} from "~/core/sdk/stores/fonoster.config";
 
 /**
  * Props interface for LoginFormActions component.
@@ -104,10 +108,17 @@ export function LoginFormActions({
         </Typography>
       </Link>
 
-      {/* Sign Up link */}
-      <Typography variant="body-small" color="base.03">
-        Don't have an account? <Link to="/auth/signup">Sign Up</Link>
-      </Typography>
+      {IS_SIGNUP_ENABLED && (
+        <Typography variant="body-small" color="base.03">
+          Don't have an account? <Link to="/auth/signup">Sign Up</Link>
+        </Typography>
+      )}
+
+      {IS_PRIVATE_BETA && (
+        <Typography variant="body-small" color="base.03">
+          Private beta access is currently invite-only.
+        </Typography>
+      )}
     </LoginFormRoot>
   );
 }

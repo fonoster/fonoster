@@ -14,6 +14,10 @@ import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { Splash } from "~/core/components/general/splash/splash";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { Logger } from "~/core/shared/logger";
+import { IS_SIGNUP_ENABLED } from "~/core/sdk/stores/fonoster.config";
+
+const SIGNUP_DISABLED_MESSAGE =
+  "Signup is currently limited to private beta invites.";
 
 // Re-export form action
 export { action } from "./github-oauth.action";
@@ -49,6 +53,11 @@ export default function GithubOAuth() {
       if (!oauth) throw new Error("Missing code or state");
 
       const { code, action } = oauth;
+
+      if (action === "signup" && !IS_SIGNUP_ENABLED) {
+        throw new Error(SIGNUP_DISABLED_MESSAGE);
+      }
+
       const actionMap: Record<OAuthAction, () => Promise<any>> = {
         signin: () => loginUser(code),
         signup: () => createUser(code)
@@ -66,7 +75,13 @@ export default function GithubOAuth() {
       toast(getErrorMessage(error));
       navigate("/auth/login");
     }
-  }, [getOAuthResponse, loginUser, createUser, submit]);
+  }, [
+    getOAuthResponse,
+    loginUser,
+    createUser,
+    navigate,
+    submit
+  ]);
 
   useEffect(() => {
     if (!code || !state) {
