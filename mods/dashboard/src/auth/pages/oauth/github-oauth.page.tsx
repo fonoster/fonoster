@@ -75,13 +75,7 @@ export default function GithubOAuth() {
       toast(getErrorMessage(error));
       navigate("/auth/login");
     }
-  }, [
-    getOAuthResponse,
-    loginUser,
-    createUser,
-    navigate,
-    submit
-  ]);
+  }, [getOAuthResponse, loginUser, createUser, navigate, submit]);
 
   useEffect(() => {
     if (!code || !state) {

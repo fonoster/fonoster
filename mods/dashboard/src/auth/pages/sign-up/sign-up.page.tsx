@@ -31,10 +31,7 @@ import { useCreateUser } from "~/auth/services/auth.service";
 import { useNavigate, useSubmit } from "react-router";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { getGithubSignupUrl } from "~/auth/config/oauth";
-import {
-  IS_CLOUD,
-  IS_SIGNUP_ENABLED
-} from "~/core/sdk/stores/fonoster.config";
+import { IS_CLOUD, IS_SIGNUP_ENABLED } from "~/core/sdk/stores/fonoster.config";
 
 export { action } from "../login/login.action";
 
