@@ -55,7 +55,7 @@ jobs:
 
       - name: Install dependencies for integration tests
         run: |
-          npm ci --prefer-offline --no-audit
+          npm install --prefer-offline --no-audit
           npm run build
 
       - name: Starting services for integration tests
@@ -78,12 +78,27 @@ jobs:
           sleep 120 # Enough time for Routr to start in a low spec machine
           docker ps -a
 
+      - name: Wait for apiserver gRPC port
+        run: |
+          echo "Waiting for apiserver on port 50051..."
+          for i in $(seq 1 45); do
+            if node -e "require('net').createConnection(50051,'127.0.0.1',()=>process.exit(0)).on('error',()=>process.exit(1))" 2>/dev/null; then
+              echo "Apiserver is ready."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Timeout: apiserver did not become ready on port 50051."
+          exit 1
+
       - name: Run integration tests for the SDK
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 1
-          # This makes sure Routr is ready before running the tests
-          # We could improve this by checking the status of the services
+          timeout_minutes: 5
           retry_wait_seconds: 30
           max_attempts: 2
-          command: npm run integration 
+          command: npm run integration
+
+      - name: Apiserver logs (on failure)
+        if: failure()
+        run: docker compose -f compose.yaml -f compose.dev.yaml logs apiserver

@@ -14,7 +14,7 @@ COPY .scripts ./.scripts
 
 RUN --mount=type=cache,target=/root/.npm \
     apt-get update && apt-get install -y git wget \
-    && npm ci --prefer-offline --no-audit \
+    && npm install --prefer-offline --no-audit \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
