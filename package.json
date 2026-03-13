@@ -83,7 +83,7 @@
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
     "@eslint/eslintrc": "^3.3.3",
-    "@tony.ganchev/eslint-plugin-header": "^3.1.1",
+    "@tony.ganchev/eslint-plugin-header": "^3.3.0",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.1",
     "@types/mocha": "^10.0.6",
