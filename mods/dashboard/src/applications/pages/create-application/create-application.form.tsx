@@ -44,14 +44,51 @@ export interface CreateApplicationFormProps extends React.PropsWithChildren {
   isEdit?: boolean;
 }
 
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+};
+
+const mergeWithDefaults = <T extends Record<string, unknown>>(
+  defaults: T,
+  values?: Partial<T>
+): T => {
+  if (!values) return defaults;
+
+  const result: Record<string, unknown> = { ...defaults };
+
+  for (const key of Object.keys(values)) {
+    const defaultValue = defaults[key];
+    const value = values[key];
+
+    if (value === undefined) continue;
+
+    if (isPlainObject(defaultValue) && isPlainObject(value)) {
+      result[key] = mergeWithDefaults(
+        defaultValue as Record<string, unknown>,
+        value as Record<string, unknown>
+      );
+      continue;
+    }
+
+    result[key] = value;
+  }
+
+  return result as T;
+};
+
 export const CreateApplicationForm = ({
   onSubmit,
   initialValues,
   isEdit
 }: CreateApplicationFormProps) => {
+  const defaultValues = mergeWithDefaults(
+    APPLICATIONS_DEFAULT_INITIAL_VALUES as Record<string, unknown>,
+    initialValues as Partial<Record<string, unknown>> | undefined
+  ) as Schema;
+
   const form = useForm<Schema>({
     resolver: resolver as Resolver<Schema>,
-    defaultValues: { ...APPLICATIONS_DEFAULT_INITIAL_VALUES, ...initialValues },
+    defaultValues,
     mode: "onChange"
   });
 
@@ -70,9 +107,6 @@ export const CreateApplicationForm = ({
   const ttsVoice = form.watch("textToSpeech.config.voice");
   const languageModelProvider = form.watch(
     "intelligence.config.languageModel.provider"
-  );
-  const languageModelModel = form.watch(
-    "intelligence.config.languageModel.model"
   );
   const isAutopilot = type === "AUTOPILOT";
 

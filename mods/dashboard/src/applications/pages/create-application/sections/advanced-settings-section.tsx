@@ -40,7 +40,7 @@ import {
   getLanguageModelModels,
   LANGUAGE_MODEL_PROVIDERS
 } from "../create-application.const";
-import type { LanguageModelProvider } from "../schemas/language-model-provider";
+import { LanguageModelProvider } from "../schemas/language-model-provider";
 import { ToolsSection } from "./tools-section";
 
 export const AdvancedSettingsSection = ({
@@ -48,7 +48,7 @@ export const AdvancedSettingsSection = ({
   languageModelProvider
 }: {
   control: Control<Schema>;
-  languageModelProvider: LanguageModelProvider;
+  languageModelProvider: LanguageModelProvider | undefined;
 }) => (
   <>
     <Accordion
@@ -254,7 +254,9 @@ export const AdvancedSettingsSection = ({
               <FormControl>
                 <Select
                   label="Model"
-                  options={getLanguageModelModels(languageModelProvider)}
+                  options={getLanguageModelModels(
+                    languageModelProvider ?? LanguageModelProvider.GOOGLE
+                  )}
                   {...field}
                 />
               </FormControl>
