@@ -254,7 +254,9 @@ export const AdvancedSettingsSection = ({
               <FormControl>
                 <Select
                   label="Model"
-                  options={getLanguageModelModels(languageModelProvider ?? LanguageModelProvider.GOOGLE)}
+                  options={getLanguageModelModels(
+                    languageModelProvider ?? LanguageModelProvider.GOOGLE
+                  )}
                   {...field}
                 />
               </FormControl>
