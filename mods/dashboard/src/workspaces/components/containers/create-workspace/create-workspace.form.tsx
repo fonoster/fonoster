@@ -33,6 +33,7 @@ import { useCallback } from "react";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { useCreateWorkspace } from "~/workspaces/services/workspaces.service";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
+import { useFonoster } from "~/core/sdk/hooks/use-fonoster";
 
 /**
  * Zod schema for form validation.
@@ -69,8 +70,10 @@ export interface CreateWorkspaceFormProps extends React.PropsWithChildren {
 export function CreateWorkspaceForm({
   onFormSubmit
 }: CreateWorkspaceFormProps) {
+  const { client } = useFonoster();
+
   /** Hook to create a new workspace via API */
-  const { mutate, isPending } = useCreateWorkspace();
+  const { mutateAsync, isPending } = useCreateWorkspace();
 
   /** Initializes the react-hook-form instance with validation resolver and default values */
   const form = useForm<Schema>({
@@ -91,7 +94,11 @@ export function CreateWorkspaceForm({
   const onSubmit = useCallback(
     async (data: Schema) => {
       try {
-        mutate(data);
+        await mutateAsync(data);
+
+        // Refresh JWT claims so newly created workspace permissions are available immediately.
+        await client.loginWithRefreshToken(client.getRefreshToken());
+
         toast("Ahoy! Workspace created successfully");
         form.reset();
 
@@ -102,7 +109,7 @@ export function CreateWorkspaceForm({
         toast(getErrorMessage(error));
       }
     },
-    [form, mutate, onFormSubmit]
+    [client, form, mutateAsync, onFormSubmit]
   );
 
   /** Extracts form state for disabling the submit button when needed */

@@ -67,8 +67,8 @@ export function LeaveWorkspaceDialog({
             ) : (
               "this workspace"
             )}
-            ? You will lose access to its resources until a workspace owner invites
-            you again.
+            ? You will lose access to its resources until a workspace owner
+            invites you again.
           </Typography>
         </Box>
 
