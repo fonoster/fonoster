@@ -199,8 +199,9 @@ export const useWorkspaceRemoveMember = () => {
     mutationFn: (userRef: string) =>
       sdk.workspaces.removeUserFromWorkspace(userRef),
     onSuccess: () => {
-      // Invalidate the workspaces list to ensure the cache is fresh
+      // Refresh workspace members and workspace list after removing a member.
       queryClient.invalidateQueries({ queryKey: USER_COLLECTION_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: COLLECTION_QUERY_KEY });
     }
   });
 };

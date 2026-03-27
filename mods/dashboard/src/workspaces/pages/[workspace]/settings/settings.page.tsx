@@ -29,10 +29,18 @@ import { FormProvider } from "~/core/contexts/form-context";
 import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { useAuth } from "~/auth/hooks/use-auth";
 import { DeleteWorkspaceDialog } from "./delete-workspace-dialog";
-import { useDeleteWorkspace } from "~/workspaces/services/workspaces.service";
+import { LeaveWorkspaceDialog } from "./leave-workspace-dialog";
+import {
+  COLLECTION_QUERY_KEY,
+  useDeleteWorkspace,
+  useWorkspaceRemoveMember
+} from "~/workspaces/services/workspaces.service";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "~/core/components/design-system/ui/toaster/toaster";
 import { getErrorMessage } from "~/core/helpers/extract-error-message";
 import { Button } from "~/core/components/design-system/ui/button/button";
+import type { ListResponse } from "~/core/providers/query-client/manage-resource-cache.helper";
+import type { Workspace } from "@fonoster/types";
 
 /**
  * Page metadata function.
@@ -62,15 +70,25 @@ export default function Overview() {
   /** React Router hook to navigate programmatically. */
   const navigate = useNavigate();
 
+  /** React Query client for cache invalidation after leaving a workspace. */
+  const queryClient = useQueryClient();
+
   /** Retrieves the current workspace and user from the authentication context. */
   const { currentWorkspace, user } = useAuth();
 
   /** State to control the delete workspace dialog visibility. */
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  /** State to control the leave workspace dialog visibility. */
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+
   /** Hook to delete the workspace. */
   const { mutate: deleteWorkspace, isPending: isDeleting } =
     useDeleteWorkspace();
+
+  /** Hook to remove the current user from the workspace (leave). */
+  const { mutate: removeMember, isPending: isLeaving } =
+    useWorkspaceRemoveMember();
 
   /**
    * Handler for the "Back to overview" button.
@@ -137,6 +155,59 @@ export default function Overview() {
       }
     });
   }, [currentWorkspace, deleteWorkspace, navigate]);
+
+  /**
+   * Handler for opening the leave workspace dialog.
+   */
+  const handleOpenLeaveDialog = useCallback(() => {
+    setIsLeaveDialogOpen(true);
+  }, []);
+
+  /**
+   * Handler for closing the leave workspace dialog.
+   */
+  const handleCloseLeaveDialog = useCallback(() => {
+    if (!isLeaving) {
+      setIsLeaveDialogOpen(false);
+    }
+  }, [isLeaving]);
+
+  /**
+   * Handler for confirming leave workspace.
+   * Removes the current user from the workspace and redirects to the workspace list.
+   */
+  const handleConfirmLeave = useCallback(() => {
+    if (!user || !currentWorkspace) {
+      toast(
+        "Oops! We are unable to complete this action. Please try again later."
+      );
+      return;
+    }
+
+    removeMember(user.id, {
+      onSuccess: () => {
+        queryClient.setQueryData<ListResponse<Workspace> | undefined>(
+          COLLECTION_QUERY_KEY,
+          (previous) => {
+            if (!previous) return previous;
+
+            return {
+              ...previous,
+              items: previous.items.filter(
+                (workspace) => workspace.ref !== currentWorkspace.ref
+              )
+            };
+          }
+        );
+        queryClient.invalidateQueries({ queryKey: COLLECTION_QUERY_KEY });
+        toast("You have left the workspace");
+        navigate("/", { replace: true });
+      },
+      onError: (error) => {
+        toast(getErrorMessage(error));
+      }
+    });
+  }, [user, currentWorkspace, removeMember, queryClient, navigate]);
 
   /**
    * Renders the workspace settings page with a header, workspace info, and settings form.
@@ -207,6 +278,38 @@ export default function Overview() {
               </Stack>
             </Box>
           )}
+
+          {!isOwner && currentWorkspace && (
+            <Box sx={{ mt: 6 }}>
+              <MuiDivider sx={{ mb: 3 }} />
+
+              <Stack spacing={2}>
+                <Typography variant="heading-micro">Danger Zone</Typography>
+
+                <Typography variant="body-small" color="base.03">
+                  Leave this workspace if you no longer need access. You can be
+                  invited again by a workspace owner.
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    paddingTop: "12px",
+                    alignItems: "center"
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={handleOpenLeaveDialog}
+                    danger
+                  >
+                    Leave Workspace
+                  </Button>
+                </Box>
+              </Stack>
+            </Box>
+          )}
         </Box>
 
         {/* Delete Workspace Confirmation Dialog */}
@@ -216,6 +319,14 @@ export default function Overview() {
           onConfirm={handleConfirmDelete}
           workspaceName={currentWorkspace?.name}
           isDeleting={isDeleting}
+        />
+
+        <LeaveWorkspaceDialog
+          open={isLeaveDialogOpen}
+          onClose={handleCloseLeaveDialog}
+          onConfirm={handleConfirmLeave}
+          workspaceName={currentWorkspace?.name}
+          isLeaving={isLeaving}
         />
       </Page>
     </FormProvider>
