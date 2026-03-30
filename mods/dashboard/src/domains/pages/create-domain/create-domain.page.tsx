@@ -19,11 +19,11 @@
 import { Page } from "~/core/components/general/page/page";
 import { PageHeader } from "~/core/components/general/page/page-header";
 import type { Route } from "./+types/create-domain.page";
-import { Button } from "~/core/components/design-system/ui/button/button";
+import { FormProvider } from "~/core/contexts/form-context";
+import { FormSubmitButton } from "~/core/components/design-system/ui/form-submit-button/form-submit-button";
 import { Box } from "@mui/material";
 import { CreateDomainForm } from "./create-domain.form";
 import { useCreateDomain } from "./create-domain.hook";
-import { useRef } from "react";
 
 /**
  * Page metadata for the "Create Domain" page.
@@ -57,42 +57,30 @@ export function meta(_: Route.MetaArgs) {
  */
 export default function CreateDomain() {
   /** Custom hook to create a domain via API with optimistic updates. */
-  const { onGoBack, onSave, isPending } = useCreateDomain();
-  const formRef = useRef<HTMLFormElement | null>(null);
-
-  const handleSave = () => {
-    if (formRef.current) {
-      const submitEvent = new Event("submit", {
-        bubbles: true,
-        cancelable: true
-      });
-      formRef.current.dispatchEvent(submitEvent);
-    }
-  };
+  const { onGoBack, onSave } = useCreateDomain();
 
   /**
    * Renders the Create Domain page layout.
    */
   return (
-    <Page variant="form">
-      <PageHeader
-        title="Create New Domain"
-        description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
-        onBack={{ label: "Back to domains", onClick: onGoBack }}
-        actions={
-          <Button size="small" disabled={isPending} onClick={handleSave}>
-            {isPending ? "Saving..." : "Save Domain"}
-          </Button>
-        }
-      />
-
-      {/* Form container with a max width for readability and consistent layout */}
-      <Box sx={{ maxWidth: "440px" }}>
-        <CreateDomainForm
-          onSubmit={onSave}
-          formRef={formRef as React.RefObject<HTMLFormElement>}
+    <FormProvider>
+      <Page variant="form">
+        <PageHeader
+          title="Create New Domain"
+          description="A SIP Domain is used to group multiple SIP Agents for internal calling and organization."
+          onBack={{ label: "Back to domains", onClick: onGoBack }}
+          actions={
+            <FormSubmitButton size="small" loadingText="Saving...">
+              Save Domain
+            </FormSubmitButton>
+          }
         />
-      </Box>
-    </Page>
+
+        {/* Form container with a max width for readability and consistent layout */}
+        <Box sx={{ maxWidth: "440px" }}>
+          <CreateDomainForm onSubmit={onSave} />
+        </Box>
+      </Page>
+    </FormProvider>
   );
 }
