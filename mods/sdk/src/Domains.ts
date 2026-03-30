@@ -39,6 +39,39 @@ import {
   UpdateDomainResponse as UpdateDomainResponsePB
 } from "./generated/node/domains_pb";
 
+type DomainAcl = NonNullable<Domain["accessControlList"]>;
+
+/**
+ * Normalizes a protobuf Domain message into the public {@link Domain} shape.
+ *
+ * We intentionally use `message.toObject()` here instead of the generic
+ * `makeRpcRequest` JSON helper because the helper:
+ * - does not recurse into nested protobuf messages (returns `jspb.Message` instances)
+ * - leaves repeated fields as `*List` (e.g. `egressPoliciesList`)
+ */
+function domainMessageToDomain(message: DomainPB): Domain {
+  const obj = message.toObject();
+
+  const accessControlList: DomainAcl | undefined = obj.accessControlList
+    ? {
+        ref: obj.accessControlList.ref,
+        name: obj.accessControlList.name,
+        allow: obj.accessControlList.allowList,
+        deny: obj.accessControlList.denyList
+      }
+    : undefined;
+
+  return {
+    ref: obj.ref,
+    name: obj.name,
+    domainUri: obj.domainUri,
+    ...(accessControlList ? { accessControlList } : {}),
+    egressPolicies: obj.egressPoliciesList,
+    createdAt: new Date(obj.createdAt * 1000),
+    updatedAt: new Date(obj.updatedAt * 1000)
+  };
+}
+
 /**
  * @classdesc Fonoster Domains, part of the Fonoster SIP Proxy subsystem,
  * allows you to create, update, retrieve, and delete SIP Domain for your deployment.
@@ -154,16 +187,21 @@ class Domains {
    */
   async getDomain(ref: string): Promise<Domain> {
     const client = this.client.getDomainsClient();
-    return await makeRpcRequest<
-      GetDomainRequestPB,
-      DomainPB,
-      BaseApiObject,
-      Domain
-    >({
-      method: client.getDomain.bind(client),
-      requestPBObjectConstructor: GetDomainRequestPB,
-      metadata: this.client.getMetadata(),
-      request: { ref }
+    const getDomainRequest = new GetDomainRequestPB();
+    getDomainRequest.setRef(ref);
+
+    return new Promise((resolve, reject) => {
+      client.getDomain(
+        getDomainRequest,
+        this.client.getMetadata(),
+        (err: Error | null, response: DomainPB) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(domainMessageToDomain(response));
+        }
+      );
     });
   }
 
@@ -235,17 +273,28 @@ class Domains {
    */
   async listDomains(request: ListDomainsRequest): Promise<ListDomainsResponse> {
     const client = this.client.getDomainsClient();
-    return await makeRpcRequest<
-      ListDomainsRequestPB,
-      ListDomainsResponsePB,
-      ListDomainsRequest,
-      ListDomainsResponse
-    >({
-      method: client.listDomains.bind(client),
-      requestPBObjectConstructor: ListDomainsRequestPB,
-      metadata: this.client.getMetadata(),
-      request,
-      repeatableObjectMapping: [["itemsList", DomainPB]]
+    const listDomainsRequest = new ListDomainsRequestPB();
+    listDomainsRequest.setPageSize(request.pageSize);
+    listDomainsRequest.setPageToken(request.pageToken);
+
+    return new Promise((resolve, reject) => {
+      client.listDomains(
+        listDomainsRequest,
+        this.client.getMetadata(),
+        (err: Error | null, response: ListDomainsResponsePB) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          resolve({
+            items: response
+              .getItemsList()
+              .map((item) => domainMessageToDomain(item)),
+            nextPageToken: response.getNextPageToken()
+          });
+        }
+      );
     });
   }
 
