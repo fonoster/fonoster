@@ -1,0 +1,359 @@
+/*
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.identity.v1beta2;
+
+import "google/protobuf/empty.proto";
+
+service Identity {
+  // Workspace actions
+  rpc CreateWorkspace (CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {}
+  rpc DeleteWorkspace (DeleteWorkspaceRequest) returns (DeleteWorkspaceResponse) {}
+  rpc GetWorkspace (GetWorkspaceRequest) returns (Workspace) {}
+  rpc ListWorkspaces (ListWorkspacesRequest) returns (ListWorkspacesResponse) {}
+  rpc UpdateWorkspace (UpdateWorkspaceRequest) returns (UpdateWorkspaceResponse) {}
+  rpc InviteUserToWorkspace (InviteUserToWorkspaceRequest) returns (InviteUserToWorkspaceResponse) {}
+  rpc RemoveUserFromWorkspace (RemoveUserFromWorkspaceRequest) returns (RemoveUserFromWorkspaceResponse) {}
+  rpc ResendWorkspaceMembershipInvitation (ResendWorkspaceMembershipInvitationRequest) returns (ResendWorkspaceMembershipInvitationResponse) {}
+  rpc ListWorkspaceMembers (ListWorkspaceMembersRequest) returns (ListWorkspaceMembersResponse) {}
+
+  // User specific actions
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+  rpc CreateUserWithOauth2Code (CreateUserWithOauth2CodeRequest) returns (ExchangeCredentialsResponse) {}
+  rpc GetUser (GetUserRequest) returns (User) {}
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
+  rpc SendVerificationCode (SendVerificationCodeRequest) returns (google.protobuf.Empty) {}
+  rpc VerifyCode (VerifyCodeRequest) returns (google.protobuf.Empty) {}
+  rpc SendResetPasswordCode (SendResetPasswordCodeRequest) returns (google.protobuf.Empty) {}
+  rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty) {}
+
+  // ApiKey actions
+  rpc CreateApiKey (CreateApiKeyRequest) returns (CreateApiKeyResponse) {}
+  rpc DeleteApiKey (DeleteApiKeyRequest) returns (DeleteApiKeyResponse) {}
+  rpc ListApiKeys (ListApiKeysRequest) returns (ListApiKeysResponse) {}
+  rpc RegenerateApiKey (RegenerateApiKeyRequest) returns (RegenerateApiKeyResponse) {}
+
+  // Token exchange actions
+  rpc ExchangeCredentials (ExchangeCredentialsRequest) returns (ExchangeCredentialsResponse) {}
+  rpc ExchangeApiKey (ExchangeApiKeyRequest) returns (ExchangeApiKeyResponse) {}
+  rpc ExchangeOauth2Code (ExchangeOauth2CodeRequest) returns (ExchangeOauth2CodeResponse) {}
+  rpc ExchangeRefreshToken (ExchangeRefreshTokenRequest) returns (ExchangeRefreshTokenResponse) {}
+  rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
+
+  // Get the public key for verifying JWTs
+  rpc GetPublicKey (google.protobuf.Empty) returns (GetPublicKeyResponse) {}
+}
+
+// Workspace Resources
+
+message Workspace {
+  message Owner {
+    string ref = 1;
+    string name = 2;
+    string email = 3;
+  }
+
+  string ref = 1;
+  string name = 2;
+  string owner_ref = 3;
+  string access_key_id = 4;
+  int32 created_at = 5;
+  int32 updated_at = 6;
+  Owner owner = 7;
+}
+
+message CreateWorkspaceRequest {
+  string name = 1;
+}
+
+message CreateWorkspaceResponse {
+  string ref = 1;
+}
+
+message DeleteWorkspaceRequest {
+  string ref = 1;
+}
+
+message DeleteWorkspaceResponse {
+  string ref = 1;
+}
+
+message GetWorkspaceRequest {
+  string ref = 1;
+}
+
+message ListWorkspacesRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListWorkspacesResponse {
+  repeated Workspace items = 1;
+  string next_page_token = 2;
+}
+
+message UpdateWorkspaceRequest {
+  string ref = 1;
+  string name = 2;
+}
+
+message UpdateWorkspaceResponse {
+  string ref = 1;
+}
+
+message InviteUserToWorkspaceRequest {
+  string email = 1;
+  string role = 2;
+  string name = 3;
+}
+
+message InviteUserToWorkspaceResponse {
+  string user_ref = 1;
+}
+
+message RemoveUserFromWorkspaceRequest {
+  string user_ref = 1;
+}
+
+message RemoveUserFromWorkspaceResponse {
+  string user_ref = 1;
+}
+
+message ResendWorkspaceMembershipInvitationRequest {
+  string user_ref = 1;
+}
+
+message ResendWorkspaceMembershipInvitationResponse {
+  string user_ref = 1;
+}
+
+message WorkspaceMember {
+  string ref = 1;
+  string user_ref = 2;
+  string name = 3;
+  string email = 4;
+  string role = 5;
+  string status = 6;
+  int32 created_at = 7;
+  int32 updated_at = 8;
+}
+
+message ListWorkspaceMembersRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListWorkspaceMembersResponse {
+  repeated WorkspaceMember items = 1;
+  string next_page_token = 2;
+}
+
+// User Resources
+enum ContactType {
+  EMAIL = 0;
+  PHONE = 1;
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string phone = 5;
+  string password = 2;
+  string name = 3;
+  string avatar = 4;
+}
+
+message CreateUserResponse {
+  string ref = 1;
+}
+
+message CreateUserWithOauth2CodeRequest {
+  string code = 1;
+}
+
+message GetUserRequest {
+  string ref = 1;
+}
+
+message User {
+  string ref = 1;
+  string email = 2;
+  string phone = 7;
+  string name = 3;
+  string avatar = 4;
+  int32 created_at = 5;
+  int32 updated_at = 6;
+}
+
+message UpdateUserRequest {
+  string ref = 1;
+  string password = 2;
+  string name = 3;
+  string avatar = 4;
+  string phone = 5;
+}
+
+message UpdateUserResponse {
+  string ref = 1;
+}
+
+message DeleteUserRequest {
+  string ref = 1;
+}
+
+message DeleteUserResponse {
+  string ref = 1;
+}
+
+message SendVerificationCodeRequest {
+  ContactType contact_type = 1;
+  string value = 2;
+}
+
+message VerifyCodeRequest {
+  string username = 1;
+  ContactType contact_type = 2;
+  string value = 3;
+  string verification_code = 4;
+}
+
+message SendResetPasswordCodeRequest {
+  string username = 1;
+  string reset_password_url = 2;
+}
+
+message ResetPasswordRequest {
+  string username = 1;
+  string password = 2;
+  string verification_code = 3;
+}
+
+// ApiKey Resources
+
+message CreateApiKeyRequest {
+  string role = 1;
+  int32 expires_at = 2;
+}
+
+message CreateApiKeyResponse {
+  string ref = 1;
+  string access_key_id = 2;
+  string access_key_secret = 3;
+}
+
+message DeleteApiKeyRequest {
+  string ref = 1;
+}
+
+message DeleteApiKeyResponse {
+  string ref = 1;
+}
+
+message ListApiKeysRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListApiKeysResponse {
+  repeated ApiKey items = 1;
+  string next_page_token = 2;
+}
+
+message RegenerateApiKeyRequest {
+  string ref = 1;
+}
+
+message RegenerateApiKeyResponse {
+  string ref = 1;
+  string access_key_id = 2;
+  string access_key_secret = 3;
+}
+
+message ApiKey {
+  string ref = 1;
+  string access_key_id = 2;
+  string role = 3;
+  int32 expires_at = 4;
+  int32 created_at = 5;
+  int32 updated_at = 6;
+}
+
+// Token Exchange Resources
+
+message ExchangeCredentialsRequest {
+  string username = 1;
+  string password = 2;
+  // Required only if the 2FA feature flag is enabled 
+  string two_factor_code = 3;
+}
+
+message ExchangeCredentialsResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message ExchangeApiKeyRequest {
+  string access_key_id = 1;
+  string access_key_secret = 2;
+}
+
+message ExchangeApiKeyResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message ExchangeOauth2CodeRequest {
+  enum Oauth2Provider {
+    GITHUB = 0;
+  }
+  Oauth2Provider provider = 1;
+  string code = 2;
+}
+
+message ExchangeOauth2CodeResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message ExchangeRefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message ExchangeRefreshTokenResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message RevokeTokenRequest {
+  string token = 1;
+}
+
+message RevokeTokenResponse {
+  string token = 1;
+}
+
+// Message with response with the public key
+message GetPublicKeyResponse {
+  string public_key = 1;
+}
