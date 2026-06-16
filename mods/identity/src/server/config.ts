@@ -37,16 +37,22 @@ const keysSchema = z
     privateKeyPath: z.string().optional(),
     publicKeyPath: z.string().optional()
   })
-  .refine((k) => (k.privateKey || k.privateKeyPath) && (k.publicKey || k.publicKeyPath), {
-    message: "keys must provide a private and public key, inline or by path"
-  });
+  .refine(
+    (k) =>
+      (k.privateKey || k.privateKeyPath) && (k.publicKey || k.publicKeyPath),
+    {
+      message: "keys must provide a private and public key, inline or by path"
+    }
+  );
 
 const smtpSchema = z.object({
   host: z.string(),
   port: z.number(),
   secure: z.boolean().default(false),
   sender: z.string(),
-  auth: z.object({ user: z.string().default(""), pass: z.string().default("") }).default({})
+  auth: z
+    .object({ user: z.string().default(""), pass: z.string().default("") })
+    .default({})
 });
 
 const identityServiceConfigSchema = z.object({
@@ -83,9 +89,17 @@ const identityServiceConfigSchema = z.object({
     .default({}),
   appUrl: z.string().default(""),
   smtp: smtpSchema.optional(),
-  oauth2: z.object({ github: z.object({ clientId: z.string(), clientSecret: z.string() }) }).optional(),
+  oauth2: z
+    .object({
+      github: z.object({ clientId: z.string(), clientSecret: z.string() })
+    })
+    .optional(),
   defaultUser: z
-    .object({ name: z.string(), email: z.string().email(), password: z.string() })
+    .object({
+      name: z.string(),
+      email: z.string().email(),
+      password: z.string()
+    })
     .optional()
 });
 
@@ -131,12 +145,16 @@ function loadConfig(argv: string[] = process.argv) {
   try {
     raw = JSON.parse(readFileSync(path, "utf8"));
   } catch (e) {
-    throw new Error(`unable to read Identity config at ${path}: ${(e as Error).message}`);
+    throw new Error(
+      `unable to read Identity config at ${path}: ${(e as Error).message}`
+    );
   }
 
   const result = identityServiceConfigSchema.safeParse(raw);
   if (!result.success) {
-    throw new Error(`invalid Identity config at ${path}: ${fromError(result.error).toString()}`);
+    throw new Error(
+      `invalid Identity config at ${path}: ${fromError(result.error).toString()}`
+    );
   }
 
   const config = result.data;

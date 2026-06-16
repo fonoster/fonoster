@@ -34,15 +34,20 @@ function startHttpBridge(
   const { port, appUrl } = params;
   const app = express();
 
-  app.get("/api/identity/accept-invite", async (req: Request, res: Response) => {
-    try {
-      await createUpdateMembershipStatus(identityConfig)(req.query.token as string);
-      res.redirect(appUrl);
-    } catch (error) {
-      logger.verbose("error updating membership status", error);
-      res.redirect(identityConfig.workspaceInviteFailUrl);
+  app.get(
+    "/api/identity/accept-invite",
+    async (req: Request, res: Response) => {
+      try {
+        await createUpdateMembershipStatus(identityConfig)(
+          req.query.token as string
+        );
+        res.redirect(appUrl);
+      } catch (error) {
+        logger.verbose("error updating membership status", error);
+        res.redirect(identityConfig.workspaceInviteFailUrl);
+      }
     }
-  });
+  );
 
   app.listen(port, () => {
     logger.info(`Identity HTTP bridge running on port ${port}`);

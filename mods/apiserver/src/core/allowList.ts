@@ -21,6 +21,9 @@ import { identityAllowList } from "@fonoster/identity";
 // The Identity public methods come from a single source in @fonoster/identity
 // (shared with the standalone Identity service); the apiserver adds its own
 // non-identity public methods.
-const allowList = [...identityAllowList, "/fonoster.voice.v1beta2.Voice/CreateSession"];
+const allowList = [
+  ...identityAllowList,
+  "/fonoster.voice.v1beta2.Voice/CreateSession"
+];
 
 export { allowList };

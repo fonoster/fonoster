@@ -39,11 +39,15 @@ const logger = getLogger({ service: "identity", filePath: __filename });
  * file (see `./config`); no environment variables.
  */
 async function main() {
-  const { bindAddr, httpBridgePort, appUrl, defaultUser, identityConfig } = loadConfig();
+  const { bindAddr, httpBridgePort, appUrl, defaultUser, identityConfig } =
+    loadConfig();
 
   const { definition, handlers } = buildIdentityService(identityConfig);
 
-  const authorization = createAuthInterceptor(identityConfig.publicKey, identityAllowList);
+  const authorization = createAuthInterceptor(
+    identityConfig.publicKey,
+    identityAllowList
+  );
   const credentials = await getServerCredentials({});
   const healthImpl = new HealthImplementation(statusMap);
 

@@ -124,6 +124,23 @@ import headerPlugin from 'eslint-plugin-header'; export default [
     }
   },
   {
+    files: ['mods/**/*.mjs', 'mods/**/*.cjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        require: 'readonly',
+        module: 'writable',
+        exports: 'writable'
+      }
+    }
+  },
+  {
     ignores: [
       '**/dist/**',
       '**/node_modules/**',
