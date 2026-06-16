@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "@grpc/grpc-js": "~1.10.6",
-    "@grpc/proto-loader": "^0.7.15"
+    "@grpc/proto-loader": "^0.7.15",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.0.0",
     "rimraf": "^5.0.0",
     "typescript": "^5.9.0"

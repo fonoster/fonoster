@@ -19,6 +19,7 @@
 import { join } from "node:path";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
+import jwt from "jsonwebtoken";
 
 const PROTO_PATH = join(__dirname, "..", "proto", "identity.proto");
 
@@ -32,7 +33,9 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 });
 
 const proto = grpc.loadPackageDefinition(packageDefinition) as unknown as {
-  fonoster: { identity: { v1beta2: { Identity: grpc.ServiceClientConstructor } } };
+  fonoster: {
+    identity: { v1beta2: { Identity: grpc.ServiceClientConstructor } };
+  };
 };
 
 const IdentityService = proto.fonoster.identity.v1beta2.Identity;
@@ -83,6 +86,21 @@ export interface InviteMemberRequest {
   name?: string;
 }
 
+export interface WorkspaceAccess {
+  accessKeyId: string;
+  role: string;
+}
+
+/** Claims carried by an Identity-issued access token. */
+export interface AccessClaims {
+  /** User ref (JWT subject). */
+  sub: string;
+  /** The user's own access key id (US…). */
+  accessKeyId: string;
+  /** Workspaces the user can act in, with their role. */
+  access: WorkspaceAccess[];
+}
+
 /**
  * Lightweight, stateless client for the Fonoster Identity gRPC service. Targets
  * any Identity endpoint and wraps the callback-based stubs in promises.
@@ -93,6 +111,7 @@ export interface InviteMemberRequest {
  */
 export class IdentityClient {
   private readonly client: grpc.Client;
+  private cachedPublicKey: string | null = null;
 
   constructor(
     endpoint: string,
@@ -120,7 +139,9 @@ export class IdentityClient {
     >;
 
     return new Promise<TRes>((resolve, reject) => {
-      client[method](request, metadata, (err, res) => (err ? reject(err) : resolve(res)));
+      client[method](request, metadata, (err, res) =>
+        err ? reject(err) : resolve(res)
+      );
     });
   }
 
@@ -128,11 +149,43 @@ export class IdentityClient {
     return this.unary("getPublicKey", {});
   }
 
+  /**
+   * Verifies an Identity-issued RS256 access token using Identity's public key
+   * (fetched once via `getPublicKey` and cached). Returns the claims, or `null`
+   * when the token is missing, malformed, expired, or otherwise invalid.
+   */
+  async verifyToken(token: string): Promise<AccessClaims | null> {
+    try {
+      if (!this.cachedPublicKey) {
+        const { publicKey } = await this.getPublicKey();
+        this.cachedPublicKey = publicKey;
+      }
+      const decoded = jwt.verify(token, this.cachedPublicKey, {
+        algorithms: ["RS256"]
+      });
+      if (typeof decoded === "string") return null;
+      const claims = decoded as jwt.JwtPayload & {
+        accessKeyId?: string;
+        access?: WorkspaceAccess[];
+      };
+      if (!claims.sub || !claims.accessKeyId) return null;
+      return {
+        sub: claims.sub,
+        accessKeyId: claims.accessKeyId,
+        access: claims.access ?? []
+      };
+    } catch {
+      return null;
+    }
+  }
+
   createUser(request: CreateUserRequest): Promise<{ ref: string }> {
     return this.unary("createUser", request);
   }
 
-  exchangeCredentials(request: ExchangeCredentialsRequest): Promise<ExchangeResponse> {
+  exchangeCredentials(
+    request: ExchangeCredentialsRequest
+  ): Promise<ExchangeResponse> {
     return this.unary("exchangeCredentials", request);
   }
 
@@ -144,7 +197,9 @@ export class IdentityClient {
     return this.unary("createWorkspace", { name }, { token });
   }
 
-  listWorkspaces(token: string): Promise<{ items: Workspace[]; nextPageToken?: string }> {
+  listWorkspaces(
+    token: string
+  ): Promise<{ items: Workspace[]; nextPageToken?: string }> {
     return this.unary("listWorkspaces", {}, { token });
   }
 
@@ -152,7 +207,11 @@ export class IdentityClient {
     return this.unary("getWorkspace", { ref }, { token });
   }
 
-  updateWorkspace(ref: string, name: string, token: string): Promise<{ ref: string }> {
+  updateWorkspace(
+    ref: string,
+    name: string,
+    token: string
+  ): Promise<{ ref: string }> {
     return this.unary("updateWorkspace", { ref, name }, { token });
   }
 
@@ -176,7 +235,11 @@ export class IdentityClient {
     accessKeyId: string,
     token: string
   ): Promise<{ userRef: string }> {
-    return this.unary("removeUserFromWorkspace", { userRef }, { token, accessKeyId });
+    return this.unary(
+      "removeUserFromWorkspace",
+      { userRef },
+      { token, accessKeyId }
+    );
   }
 
   resendWorkspaceMembershipInvitation(
@@ -184,15 +247,30 @@ export class IdentityClient {
     accessKeyId: string,
     token: string
   ): Promise<{ userRef: string }> {
-    return this.unary("resendWorkspaceMembershipInvitation", { userRef }, { token, accessKeyId });
+    return this.unary(
+      "resendWorkspaceMembershipInvitation",
+      { userRef },
+      { token, accessKeyId }
+    );
   }
 
-  sendResetPasswordCode(username: string, resetPasswordUrl: string): Promise<void> {
+  sendResetPasswordCode(
+    username: string,
+    resetPasswordUrl: string
+  ): Promise<void> {
     return this.unary("sendResetPasswordCode", { username, resetPasswordUrl });
   }
 
-  resetPassword(username: string, password: string, verificationCode: string): Promise<void> {
-    return this.unary("resetPassword", { username, password, verificationCode });
+  resetPassword(
+    username: string,
+    password: string,
+    verificationCode: string
+  ): Promise<void> {
+    return this.unary("resetPassword", {
+      username,
+      password,
+      verificationCode
+    });
   }
 
   close() {
