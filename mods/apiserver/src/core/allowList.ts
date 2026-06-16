@@ -16,21 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const allowList = [
-  "/grpc.health.v1.Health/Check",
-  "/fonoster.identity.v1beta2.Identity/CreateUser",
-  "/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code",
-  "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
-  "/fonoster.identity.v1beta2.Identity/ExchangeApiKey",
-  "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",
-  "/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code",
-  "/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken",
-  "/fonoster.identity.v1beta2.Identity/SendVerificationCode",
-  "/fonoster.identity.v1beta2.Identity/VerifyCode",
-  "/fonoster.identity.v1beta2.Identity/GetPublicKey",
-  "/fonoster.identity.v1beta2.Identity/SendResetPasswordCode",
-  "/fonoster.identity.v1beta2.Identity/ResetPassword",
-  "/fonoster.voice.v1beta2.Voice/CreateSession"
-];
+import { identityAllowList } from "@fonoster/identity";
+
+// The Identity public methods come from a single source in @fonoster/identity
+// (shared with the standalone Identity service); the apiserver adds its own
+// non-identity public methods.
+const allowList = [...identityAllowList, "/fonoster.voice.v1beta2.Voice/CreateSession"];
 
 export { allowList };
