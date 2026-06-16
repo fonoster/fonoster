@@ -10,7 +10,7 @@ commit_messages=$(git log --pretty=format:"%s" $latest_tag..HEAD)
 release_type="none"
 
 while IFS= read -r line; do
-  if echo "$line" | grep -q "^BREAKING CHANGE:" || echo "$line" | grep -q "!"; then
+  if echo "$line" | grep -q "^BREAKING CHANGE:" || echo "$line" | grep -qE "^[a-z]+(\([^)]*\))?!:"; then
     release_type="major"
     break
   elif echo "$line" | grep -Eq "^feat\(?"; then
