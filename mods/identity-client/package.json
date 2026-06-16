@@ -1,0 +1,29 @@
+{
+  "name": "@fonoster/identity-client",
+  "version": "0.18.2",
+  "description": "Lightweight client for the Fonoster Identity gRPC service",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo && node scripts/sync-proto.mjs",
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo proto"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "~1.10.6",
+    "@grpc/proto-loader": "^0.7.15"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.9.0"
+  },
+  "files": [
+    "dist",
+    "proto"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

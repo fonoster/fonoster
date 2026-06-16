@@ -16,11 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { identityAllowList } from "@fonoster/identity";
+import { copyFileSync, mkdirSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-// The Identity public methods come from a single source in @fonoster/identity
-// (shared with the standalone Identity service); the apiserver adds its own
-// non-identity public methods.
-const allowList = [...identityAllowList, "/fonoster.voice.v1beta2.Voice/CreateSession"];
+// The canonical Identity proto lives in @fonoster/common. We copy it at build
+// time rather than vendoring a committed copy, so there is a single source.
+const here = dirname(fileURLToPath(import.meta.url));
+const src = resolve(here, "../../common/src/protos/identity.proto");
+const destDir = resolve(here, "../proto");
 
-export { allowList };
+mkdirSync(destDir, { recursive: true });
+copyFileSync(src, resolve(destDir, "identity.proto"));
+console.log("synced identity.proto from @fonoster/common");
