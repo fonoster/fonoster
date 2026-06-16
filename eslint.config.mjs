@@ -17,13 +17,15 @@
  * limitations under the License.
  */
 import eslint from '@eslint/js';
+import headerPlugin from '@tony.ganchev/eslint-plugin-header';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
 import noLoopsPlugin from 'eslint-plugin-no-loops';
 import importPlugin from 'eslint-plugin-import';
-import headerPlugin from 'eslint-plugin-header'; export default [
+
+export default [
   eslint.configs.recommended,
   {
     files: ['mods/**/*.ts', 'mods/**/*.tsx'],
