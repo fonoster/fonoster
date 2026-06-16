@@ -86,6 +86,9 @@ export interface InviteMemberRequest {
   name?: string;
 }
 
+/** Channel a verification code is sent over. */
+export type ContactType = "EMAIL" | "PHONE";
+
 export interface WorkspaceAccess {
   accessKeyId: string;
   role: string;
@@ -215,6 +218,10 @@ export class IdentityClient {
     return this.unary("updateWorkspace", { ref, name }, { token });
   }
 
+  deleteWorkspace(ref: string, token: string): Promise<{ ref: string }> {
+    return this.unary("deleteWorkspace", { ref }, { token });
+  }
+
   listWorkspaceMembers(
     accessKeyId: string,
     token: string
@@ -252,6 +259,24 @@ export class IdentityClient {
       { userRef },
       { token, accessKeyId }
     );
+  }
+
+  sendVerificationCode(contactType: ContactType, value: string): Promise<void> {
+    return this.unary("sendVerificationCode", { contactType, value });
+  }
+
+  verifyCode(
+    username: string,
+    contactType: ContactType,
+    value: string,
+    verificationCode: string
+  ): Promise<void> {
+    return this.unary("verifyCode", {
+      username,
+      contactType,
+      value,
+      verificationCode
+    });
   }
 
   sendResetPasswordCode(
