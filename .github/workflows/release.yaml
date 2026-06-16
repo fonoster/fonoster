@@ -111,9 +111,18 @@ jobs:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
     secrets: inherit
 
+  publish-identity:
+    name: Publish Identity to Docker Hub
+    needs: [build]
+    if: needs.build.outputs.RELEASE != 'none'
+    uses: ./.github/workflows/publish-identity.yaml
+    with:
+      version: ${{ needs.build.outputs.LERNA_VERSION }}
+    secrets: inherit
+
   manual-approval:
     name: Manual Approval for Release Finalization
-    needs: [build, publish-apiserver, publish-autopilot, publish-dashboard]
+    needs: [build, publish-apiserver, publish-autopilot, publish-dashboard, publish-identity]
     if: needs.build.outputs.RELEASE != 'none'
     runs-on: ubuntu-latest
     environment: release-approval
