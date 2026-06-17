@@ -54,6 +54,24 @@ export interface ExchangeCredentialsRequest {
   twoFactorCode?: string;
 }
 
+export interface User {
+  ref: string;
+  email: string;
+  phone?: string;
+  name: string;
+  avatar?: string;
+  createdAt?: number;
+  updatedAt?: number;
+}
+
+export interface UpdateUserRequest {
+  ref: string;
+  name?: string;
+  password?: string;
+  phone?: string;
+  avatar?: string;
+}
+
 export interface ExchangeResponse {
   idToken?: string;
   accessToken: string;
@@ -88,6 +106,9 @@ export interface InviteMemberRequest {
 
 /** Channel a verification code is sent over. */
 export type ContactType = "EMAIL" | "PHONE";
+
+/** OAuth2 providers Identity can exchange an authorization code for. */
+export type Oauth2Provider = "GITHUB";
 
 export interface WorkspaceAccess {
   accessKeyId: string;
@@ -196,6 +217,19 @@ export class IdentityClient {
     return this.unary("exchangeRefreshToken", { refreshToken });
   }
 
+  /** Exchange an OAuth2 authorization code for tokens (sign in). */
+  exchangeOauth2Code(
+    provider: Oauth2Provider,
+    code: string
+  ): Promise<ExchangeResponse> {
+    return this.unary("exchangeOauth2Code", { provider, code });
+  }
+
+  /** Create an account from an OAuth2 authorization code, returning tokens (sign up). */
+  createUserWithOauth2Code(code: string): Promise<ExchangeResponse> {
+    return this.unary("createUserWithOauth2Code", { code });
+  }
+
   createWorkspace(name: string, token: string): Promise<{ ref: string }> {
     return this.unary("createWorkspace", { name }, { token });
   }
@@ -259,6 +293,18 @@ export class IdentityClient {
       { userRef },
       { token, accessKeyId }
     );
+  }
+
+  getUser(ref: string, token: string): Promise<User> {
+    return this.unary("getUser", { ref }, { token });
+  }
+
+  updateUser(request: UpdateUserRequest, token: string): Promise<{ ref: string }> {
+    return this.unary("updateUser", request, { token });
+  }
+
+  deleteUser(ref: string, token: string): Promise<{ ref: string }> {
+    return this.unary("deleteUser", { ref }, { token });
   }
 
   sendVerificationCode(contactType: ContactType, value: string): Promise<void> {

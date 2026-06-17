@@ -22,7 +22,15 @@ import { SmsParams, TwilioSmsSenderConfig } from "./types";
 
 const logger = getLogger({ service: "common", filePath: __filename });
 
-function createSendSmsTwilioImpl(config: TwilioSmsSenderConfig) {
+function createSendSmsTwilioImpl(
+  config: TwilioSmsSenderConfig | undefined
+): (params: SmsParams) => Promise<void> {
+  if (!config) {
+    return async function sendSms(_params: SmsParams): Promise<void> {
+      logger.verbose("SMS sender not configured, skipping");
+    };
+  }
+
   const { sender: from, accountSid, authToken } = config;
   const client = twilio(accountSid, authToken);
 
