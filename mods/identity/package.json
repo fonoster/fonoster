@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/identity",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "description": "Identity service for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -23,9 +23,9 @@
     "fonoster-identity": "./dist/server/index.js"
   },
   "dependencies": {
-    "@fonoster/common": "^0.20.1",
-    "@fonoster/logger": "^0.20.0",
-    "@fonoster/types": "^0.20.0",
+    "@fonoster/common": "^0.21.0",
+    "@fonoster/logger": "^0.21.0",
+    "@fonoster/types": "^0.21.0",
     "@grpc/grpc-js": "~1.10.6",
     "@prisma/client": "^6.8.2",
     "express": "^5.0.1",
