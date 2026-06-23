@@ -217,6 +217,18 @@ export class IdentityClient {
     return this.unary("exchangeRefreshToken", { refreshToken });
   }
 
+  /**
+   * Exchange a workspace API key (accessKeyId + accessKeySecret) for tokens.
+   * Intended for unattended, server-to-server integrations that cannot perform
+   * an interactive credentials login.
+   */
+  exchangeApiKey(
+    accessKeyId: string,
+    accessKeySecret: string
+  ): Promise<ExchangeResponse> {
+    return this.unary("exchangeApiKey", { accessKeyId, accessKeySecret });
+  }
+
   /** Exchange an OAuth2 authorization code for tokens (sign in). */
   exchangeOauth2Code(
     provider: Oauth2Provider,
