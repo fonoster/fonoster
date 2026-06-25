@@ -104,6 +104,29 @@ export interface InviteMemberRequest {
   name?: string;
 }
 
+/** A workspace API key as returned by list (never carries the secret). */
+export interface ApiKey {
+  ref: string;
+  accessKeyId: string;
+  role: string;
+  expiresAt?: number;
+  createdAt?: number;
+  updatedAt?: number;
+}
+
+export interface CreateApiKeyRequest {
+  role: string;
+  /** Optional expiry as epoch milliseconds; omit for a non-expiring key. */
+  expiresAt?: number;
+}
+
+/** Create/regenerate response — the only time the secret is returned. */
+export interface ApiKeyCredentials {
+  ref: string;
+  accessKeyId: string;
+  accessKeySecret: string;
+}
+
 /** Channel a verification code is sent over. */
 export type ContactType = "EMAIL" | "PHONE";
 
@@ -307,11 +330,53 @@ export class IdentityClient {
     );
   }
 
+  // --- Workspace API keys ---
+  // Workspace-scoped credentials for unattended, server-to-server integrations.
+  // The active workspace is taken from the accessKeyId metadata, as with members.
+
+  /** List the active workspace's API keys (secrets are never returned). */
+  listApiKeys(
+    accessKeyId: string,
+    token: string
+  ): Promise<{ items: ApiKey[]; nextPageToken?: string }> {
+    return this.unary("listApiKeys", {}, { token, accessKeyId });
+  }
+
+  /** Create an API key; the response carries the secret (shown once). */
+  createApiKey(
+    request: CreateApiKeyRequest,
+    accessKeyId: string,
+    token: string
+  ): Promise<ApiKeyCredentials> {
+    return this.unary("createApiKey", request, { token, accessKeyId });
+  }
+
+  /** Rotate a key's secret in place; the new secret is returned (shown once). */
+  regenerateApiKey(
+    ref: string,
+    accessKeyId: string,
+    token: string
+  ): Promise<ApiKeyCredentials> {
+    return this.unary("regenerateApiKey", { ref }, { token, accessKeyId });
+  }
+
+  /** Permanently delete a key (this is the revocation mechanism). */
+  deleteApiKey(
+    ref: string,
+    accessKeyId: string,
+    token: string
+  ): Promise<{ ref: string }> {
+    return this.unary("deleteApiKey", { ref }, { token, accessKeyId });
+  }
+
   getUser(ref: string, token: string): Promise<User> {
     return this.unary("getUser", { ref }, { token });
   }
 
-  updateUser(request: UpdateUserRequest, token: string): Promise<{ ref: string }> {
+  updateUser(
+    request: UpdateUserRequest,
+    token: string
+  ): Promise<{ ref: string }> {
     return this.unary("updateUser", request, { token });
   }
 
