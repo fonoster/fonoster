@@ -30,8 +30,8 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
-      description: "the Application to update",
-      required: true
+      description:
+        "the Application to update (optional when `ref` is set in --from-file)"
     })
   };
 
@@ -52,7 +52,8 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
         await createOrUpdateApplication(
           client,
           flags["from-file"] as string,
-          ref
+          ref,
+          true
         );
         this.log("Done!");
         return;
@@ -62,9 +63,15 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       }
     }
 
+    if (!ref) {
+      this.error(
+        "An Application ref is required. Pass it as the positional argument or use --from-file with a `ref` field."
+      );
+    }
+
     const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
-    const applicationFromDB = await applications.getApplication(args.ref);
+    const applicationFromDB = await applications.getApplication(ref);
 
     if (!applicationFromDB) {
       this.error("Application not found.");
