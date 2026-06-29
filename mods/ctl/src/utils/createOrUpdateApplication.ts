@@ -29,16 +29,18 @@ import { AppConfig } from "./types";
 export async function createOrUpdateApplication(
   client: SDK.Client,
   filePath: string,
-  appRef?: string
+  appRef?: string,
+  isUpdate = false
 ) {
   const fileContent = readFileSync(filePath, "utf8");
   const fileExt = path.extname(filePath).toLowerCase();
-  let config: CreateApplicationRequest & AppConfig;
+  type Config = CreateApplicationRequest & AppConfig & { ref?: string };
+  let config: Config;
 
   if (fileExt === ".yaml" || fileExt === ".yml") {
-    config = load(fileContent) as CreateApplicationRequest & AppConfig;
+    config = load(fileContent) as Config;
   } else if (fileExt === ".json") {
-    config = JSON.parse(fileContent) as CreateApplicationRequest & AppConfig;
+    config = JSON.parse(fileContent) as Config;
   } else {
     throw new Error("Unsupported file format. Please use YAML or JSON files.");
   }
@@ -48,13 +50,24 @@ export async function createOrUpdateApplication(
   delete config.testCases;
   delete config.intelligence?.config?.languageModel?.apiKey;
 
-  if (appRef) {
+  if (isUpdate) {
+    // The positional appRef takes precedence over any `ref` in the file; fall
+    // back to the file's `ref` when the positional is omitted.
+    const ref = appRef ?? config.ref;
+
+    if (!ref) {
+      throw new Error(
+        "An Application ref is required to update. Provide it as the positional argument or include `ref` in the file."
+      );
+    }
+
+    delete config.ref;
     const updateConfig: UpdateApplicationRequest = {
-      ref: appRef,
-      ...config
+      ...config,
+      ref
     };
     return applications.updateApplication(updateConfig);
-  } else {
-    return applications.createApplication(config);
   }
+
+  return applications.createApplication(config);
 }
