@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apiserver",
-  "version": "0.22.0",
+  "version": "0.22.2",
   "description": "APIServer for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -23,7 +23,7 @@
   "dependencies": {
     "@deepgram/sdk": "^3.5.1",
     "@fonoster/authz": "^0.22.0",
-    "@fonoster/autopilot": "^0.22.0",
+    "@fonoster/autopilot": "^0.22.2",
     "@fonoster/common": "^0.22.0",
     "@fonoster/identity": "^0.22.0",
     "@fonoster/logger": "^0.22.0",
