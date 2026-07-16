@@ -61,6 +61,13 @@ export async function sendConversationEndedEvent(
     ...(recordingUrl && { recordingUrl })
   };
 
+  logger.verbose("dispatching conversation.ended webhook", {
+    url: parsedEventsHook.url,
+    eventType: params.eventType,
+    appRef,
+    callRef
+  });
+
   try {
     await sendHttpRequest({
       url: parsedEventsHook.url!,
@@ -70,11 +77,13 @@ export async function sendConversationEndedEvent(
       params
     });
   } catch (e) {
-    logger.warn("sending event", {
+    logger.error("failed to send conversation.ended webhook", {
       url: parsedEventsHook.url,
       method: AllowedHttpMethod.POST,
       waitForResponse: false,
-      params
+      appRef,
+      callRef,
+      error: e instanceof Error ? e.message : e
     });
   }
 }
