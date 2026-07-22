@@ -18,4 +18,6 @@
  */
 export * from "./Google";
 
+export * from "./resolveGoogleModel";
+
 export * from "./types";
