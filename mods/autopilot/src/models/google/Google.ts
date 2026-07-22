@@ -22,6 +22,7 @@ import { convertToolToLangchainTool } from "../../tools/convertToolToLangchainTo
 import { Voice } from "../../voice";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 import { TelephonyContext } from "../types";
+import { resolveGoogleModel } from "./resolveGoogleModel";
 import { GoogleParams } from "./types";
 
 const LANGUAGE_MODEL_NAME = "llm.google";
@@ -33,7 +34,8 @@ class Google extends AbstractLanguageModel {
     telephonyContext: TelephonyContext
   ) {
     const model = new ChatGoogleGenerativeAI({
-      ...params
+      ...params,
+      model: resolveGoogleModel(params.model)
     }).bindTools(
       params.tools.map(convertToolToLangchainTool)
     ) as unknown as BaseChatModel;

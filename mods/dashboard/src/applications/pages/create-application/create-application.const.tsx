@@ -177,8 +177,6 @@ export const LANGUAGE_MODEL_GROQ_MODELS = [
 ];
 
 export const LANGUAGE_MODEL_GOOGLE_MODELS = [
-  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
-  { value: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash Lite" },
   { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
   { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
   { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite" },
@@ -249,7 +247,7 @@ export const APPLICATIONS_DEFAULT_INITIAL_VALUES: Schema = {
       },
       languageModel: {
         provider: LanguageModelProvider.GOOGLE,
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         temperature: 0.2,
         maxTokens: 240,
         tools: []
