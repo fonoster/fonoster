@@ -55,7 +55,16 @@ export const useCreateTrunk = () => {
     async (data: Schema, disableNavigation?: boolean) => {
       try {
         Logger.debug("Creating trunk with data:", data);
-        const trunks = await mutateAsync({ sendRegister: true, ...data });
+        // `sendRegister` must always reach the backend as `true` -- its
+        // schema requires the field present (no default), and gRPC omits
+        // `false` (the zero value) from the wire entirely, so the
+        // apiserver sees it as missing and rejects the request with
+        // "Required at sendRegister". The form's checkbox for this is
+        // disabled ("coming soon"), pinned to `false` in defaultValues,
+        // so spreading `...data` after the `true` default clobbered it on
+        // every submission. `true` here must win, matching how the CLI
+        // (mods/ctl/src/commands/sipnet/trunks/create.ts) always sends it.
+        const trunks = await mutateAsync({ ...data, sendRegister: true });
         toast("Trunk created successfully!");
 
         if (disableNavigation) return trunks;
