@@ -21,12 +21,13 @@ import {
   Form,
   FormControl,
   FormField,
+  FormFieldContext,
   FormItem
 } from "~/core/components/design-system/forms";
 import { Input } from "~/core/components/design-system/ui/input/input";
 import { FormRoot } from "~/core/components/design-system/forms/form-root";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useState, useEffect, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { schema, type Schema } from "./create-domain.schema";
 import { useAcls } from "~/acls/services/acls.service";
 import { Select } from "~/core/components/design-system/ui/select/select";
@@ -79,12 +80,7 @@ export function CreateDomainForm({
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isDomainAclsModalOpen, setIsDomainAclsModalOpen] = useState(false);
 
-  const {
-    data: aclsData,
-    isLoading: isAclsLoading,
-    refetch: refetchAcls
-  } = useAcls();
-  const [acls, setAcls] = useState<Acl[]>([]);
+  const { data: acls, isLoading: isAclsLoading } = useAcls();
 
   const { data: numbers, isLoading: isNumbersLoading } = useNumbers();
 
@@ -165,19 +161,10 @@ export function CreateDomainForm({
 
   const handleAclFormSubmit = useCallback(
     (newAcl: Acl) => {
-      // Add the new ACL to the local list and select it
-      setAcls((prev) => [...(prev || []), newAcl]);
       form.setValue("accessControlListRef", newAcl.ref);
     },
     [form]
   );
-
-  // Keep local ACLs in sync with remote data
-  useEffect(() => {
-    if (aclsData) {
-      setAcls(aclsData);
-    }
-  }, [aclsData]);
 
   /** Sync form state with FormContext */
   useFormContextSync(form, onSubmit, isEdit);
@@ -259,50 +246,60 @@ export function CreateDomainForm({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="egressPolicies"
-            render={() => (
-              <FormItem>
-                <FormControl>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "12px"
+          {/*
+            Provides FormFieldContext directly instead of using <FormField
+            name="egressPolicies">. FormField wraps RHF's <Controller>, and
+            useFieldArray (above) already subscribes to this same field
+            path -- a parallel Controller subscription for a field whose
+            render prop doesn't even consume the `field` argument caused
+            "Maximum update depth exceeded" (React error #185) on mount, a
+            known react-hook-form footgun (useFieldArray + a separate
+            Controller on the same array path). Select still needs
+            FormFieldContext internally (via useFormField(), used by
+            FormControl too), so we supply just that context, without the
+            Controller that caused the loop. FormItem/FormControl are
+            otherwise unchanged from the original markup.
+          */}
+          <FormFieldContext.Provider value={{ name: "egressPolicies" }}>
+            <FormItem>
+              <FormControl>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px"
+                  }}
+                >
+                  {/* Read-only Select showing current rules */}
+                  <Select
+                    label="Egress Rules"
+                    placeholder="Click below to add rules (e.g., .*)."
+                    multiple
+                    value={selectValues}
+                    options={selectOptions}
+                    disabled
+                    onChange={(event) => {
+                      const selectedValues = event.target.value as string[];
+                      // Update the form state with selected values
+                      form.setValue(
+                        "egressPolicies",
+                        selectedValues.map((value) => {
+                          const [rule, numberRef] = value.split(":");
+                          return { rule, numberRef };
+                        })
+                      );
                     }}
-                  >
-                    {/* Read-only Select showing current rules */}
-                    <Select
-                      label="Egress Rules"
-                      placeholder="Click below to add rules (e.g., .*)."
-                      multiple
-                      value={selectValues}
-                      options={selectOptions}
-                      disabled
-                      onChange={(event) => {
-                        const selectedValues = event.target.value as string[];
-                        // Update the form state with selected values
-                        form.setValue(
-                          "egressPolicies",
-                          selectedValues.map((value) => {
-                            const [rule, numberRef] = value.split(":");
-                            return { rule, numberRef };
-                          })
-                        );
-                      }}
-                    />
+                  />
 
-                    {/* Modal trigger to open rule creation */}
-                    <ModalTrigger
-                      onClick={() => setIsRulesModalOpen(true)}
-                      label="Create New Egress Rule"
-                    />
-                  </Box>
-                </FormControl>
-              </FormItem>
-            )}
-          />
+                  {/* Modal trigger to open rule creation */}
+                  <ModalTrigger
+                    onClick={() => setIsRulesModalOpen(true)}
+                    label="Create New Egress Rule"
+                  />
+                </Box>
+              </FormControl>
+            </FormItem>
+          </FormFieldContext.Provider>
         </FormRoot>
       </Form>
 
