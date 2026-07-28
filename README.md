@@ -1,6 +1,8 @@
 
 # Fonoster: The open-source alternative to Twilio
 
+[![MCP Toplist](https://mcptoplist.com/badge/glama%2Ffonoster.svg)](https://mcptoplist.com/server/glama%2Ffonoster)
+
 [Fonoster](https://fonoster.com) is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.
 
 <a href="https://discord.gg/mpWSRUhG7e"><img alt="Fonoster community banner" src="https://raw.githubusercontent.com/fonoster/.github/main/profile/community.png"></img></a>
