@@ -527,3 +527,19 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
 ## License
 
 Copyright (C) 2026 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
+
+<!-- graphify-code-memory:begin -->
+## Code memory (Graphify) — use this before grepping
+
+This repo is registered for Graphify AST code-memory (tier **p1**).
+There is no dedicated HTTP MCP yet — use the report / S3 graph first.
+
+| | |
+|---|---|
+| **S3 graph** | `s3://ivx-graphify-graphs/graphs/fonoster/graph.json` |
+| **S3 report** | `s3://ivx-graphify-graphs/graphs/fonoster/GRAPH_REPORT.md` |
+| **Future MCP** | `https://graphify-fonoster.intelli-verse-x.ai/mcp` |
+
+Procedure: read `GRAPH_REPORT.md` → structural navigation → then edit.
+Org playbook: `intelli-verse-kube-infra/.agents/skills/graphify-code-memory/SKILL.md`
+<!-- graphify-code-memory:end -->
