@@ -91,6 +91,17 @@ async function main() {
   });
 
   await prisma.product.upsert({
+    where: { ref: "tts.cambai" },
+    update: {},
+    create: {
+      ref: "tts.cambai",
+      name: "CAMB AI Text-to-Speech",
+      vendor: "CAMB_AI",
+      type: "TTS"
+    }
+  });
+
+  await prisma.product.upsert({
     where: { ref: "llm.openai" },
     update: {},
     create: {

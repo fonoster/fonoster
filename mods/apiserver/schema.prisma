@@ -134,6 +134,7 @@ enum ProductVendor {
   GROQ
   ANTHROPIC
   ELEVEN_LABS
+  CAMB_AI
   GENERIC
 
   // Maps
