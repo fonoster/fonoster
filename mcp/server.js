@@ -85,9 +85,14 @@ const TOOLS = [
         to: { type: 'string', description: 'E.164 destination.' },
         appRef: { type: 'string', description: 'Voice application ref that handles the call.' },
         timeout: { type: 'number' },
+        metadata: {
+          type: 'object',
+          description: 'Key/value context forwarded to the voice application (interpolated into the autopilot prompt).',
+        },
       },
     },
-    run: (c, a) => new SDK.Calls(c).createCall({ from: a.from, to: a.to, appRef: a.appRef, timeout: a.timeout }),
+    run: (c, a) =>
+      new SDK.Calls(c).createCall({ from: a.from, to: a.to, appRef: a.appRef, timeout: a.timeout, metadata: a.metadata }),
   },
 ];
 
