@@ -16,16 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LoginForm, type Form, type Schema } from "./login.form";
+import { LoginForm, type Schema } from "./login.form";
 import { useCallback } from "react";
 import { Box } from "@mui/material";
 import { Typography } from "~/core/components/design-system/ui/typography/typography";
 import type { Route } from "./+types/login.page";
 import { useSubmit } from "react-router";
 import { getGithubSigninUrl } from "~/auth/config/oauth";
-import { getClient } from "~/core/sdk/client/fonoster.client";
-import { parseLoginError } from "~/auth/helpers/parse-login-error";
-import { USE_NATIVE_GRPC } from "~/core/sdk/stores/fonoster.config";
 
 /**
  * Sets the metadata for the login page.
@@ -61,26 +58,7 @@ export default function LoginPage() {
    * @param data - The validated form data.
    */
   const onSubmit = useCallback(
-    async (data: Schema, form: Form) => {
-      if (USE_NATIVE_GRPC) {
-        submit(data, { method: "post", viewTransition: true });
-        return;
-      }
-
-      try {
-        const client = getClient();
-        await client.login(data.email, data.password);
-        submit(
-          { refreshToken: client.getRefreshToken() },
-          { method: "post", viewTransition: true }
-        );
-      } catch (error: unknown) {
-        form.setError("email", {
-          type: "manual",
-          message: parseLoginError(error)
-        });
-      }
-    },
+    (data: Schema) => submit(data, { method: "post", viewTransition: true }),
     [submit]
   );
 

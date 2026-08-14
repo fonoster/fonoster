@@ -26,7 +26,6 @@ import {
 import type { Route } from "../../../+types/root";
 import { refreshSession } from "~/core/helpers/token-validators";
 import { getClient } from "~/core/sdk/client/fonoster.server";
-import { USE_NATIVE_GRPC } from "~/core/sdk/stores/fonoster.config";
 
 export const rootAuthLoader = async ({ request }: Route.LoaderArgs) => {
   const headers = request.headers.get("Cookie");
@@ -34,7 +33,7 @@ export const rootAuthLoader = async ({ request }: Route.LoaderArgs) => {
   const sessionCookie = await getSessionCookie(headers);
 
   try {
-    if (session && USE_NATIVE_GRPC) {
+    if (session) {
       const client = getClient();
       const refreshToken = await refreshSession(session, client);
 

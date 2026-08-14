@@ -41,15 +41,7 @@ import { Logger } from "~/core/shared/logger";
 export const getClient = () => {
   Logger.debug("[fonoster.client] Creating Fonoster WebClient instance");
 
-  const localHost =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1");
-
-  const fonosterClient = new SDK.WebClient({
-    ...FONOSTER_CLIENT_CONFIG,
-    url: localHost ? window.location.origin : FONOSTER_CLIENT_CONFIG.url
-  });
+  const fonosterClient = new SDK.WebClient(FONOSTER_CLIENT_CONFIG);
   return fonosterClient;
 };
 

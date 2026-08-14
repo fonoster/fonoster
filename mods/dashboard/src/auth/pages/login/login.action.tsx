@@ -45,22 +45,21 @@ export async function action({ request }: Route.ActionArgs) {
   try {
     /** Parse the submitted form data. */
     const form = await request.formData();
-    const refreshTokenFromClient = form.get("refreshToken");
     const email = form.get("email");
     const password = form.get("password");
 
-    if (refreshTokenFromClient) {
-      cookie.set("refreshToken", refreshTokenFromClient.toString());
-    } else {
-      if (!email || !password) {
-        throw new Error(
-          "Oops! Missing email or password for login. Please try again."
-        );
-      }
-
-      await client.login(email.toString(), password.toString());
-      cookie.set("refreshToken", client.getRefreshToken());
+    /** Basic validation: ensure both email and password are provided. */
+    if (!email || !password) {
+      throw new Error(
+        "Oops! Missing email or password for login. Please try again."
+      );
     }
+
+    /** Attempt to authenticate using the Fonoster client. */
+    await client.login(email.toString(), password.toString());
+
+    /** Store tokens in the session cookie for future authenticated requests. */
+    cookie.set("refreshToken", client.getRefreshToken());
 
     /** Redirect to the home page after successful login, with updated cookies. */
     return redirect("/", {
