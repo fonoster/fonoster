@@ -17,19 +17,25 @@
  * limitations under the License.
  */
 import type { Route } from "./+types/workspaces.page";
-import { WorkspaceCard } from "~/core/components/design-system/ui/workspace-card/workspace-card";
-import { AddWorkspaceCard } from "~/core/components/design-system/ui/workspace-card/workspace-card-empty";
 import { CreateWorkspaceModal } from "~/workspaces/components/containers/create-workspace/create-workspace.modal";
+import {
+  CompactWorkspace,
+  CreateWorkspaceRow,
+  FeaturedWorkspace
+} from "~/workspaces/components/studio-picker/studio-picker";
 import { useCallback, useState } from "react";
 import {
   ContentWrapper,
+  SideStack,
+  StudioBento,
   Subtitle,
   Title,
-  WorkspaceContainer,
-  WorkspaceGrid
+  WorkspaceContainer
 } from "./workspaces.styles";
 import { useNavigate } from "react-router";
 import { useAuth } from "~/auth/hooks/use-auth";
+import { PRODUCT_NAME, PRODUCT_TAGLINE } from "~/core/brand/product";
+import { workspaceCreatorName } from "~/workspaces/helpers/workspace-creator";
 
 /**
  * Metadata function for this route.
@@ -39,7 +45,7 @@ import { useAuth } from "~/auth/hooks/use-auth";
  * @returns {Array} An array containing the page title.
  */
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Workspaces | Fonoster" }];
+  return [{ title: `Workspaces | ${PRODUCT_NAME}` }];
 }
 
 /**
@@ -89,39 +95,44 @@ export default function Workspaces() {
   /**
    * Renders the workspace cards grid, the Add Workspace button, and the modal.
    */
+  const [featured, ...rest] = workspaces;
+  const formatDate = (createdAt?: Date) =>
+    createdAt ? createdAt.toLocaleDateString() : "N/A";
+
   return (
     <>
       <WorkspaceContainer>
         <ContentWrapper>
-          <Title variant="heading-large">
-            {`Hey ${user.name}, welcome to Fonoster! 👋`}
-          </Title>
+          <Title variant="heading-large">{`Hey ${user.name}`}</Title>
+          <Subtitle variant="body-large">{PRODUCT_TAGLINE}</Subtitle>
 
-          <Subtitle variant="body-large">
-            Create a workspace to power your Voice AI and manage your SIP
-            network—all in one place.
-          </Subtitle>
-
-          <WorkspaceGrid>
-            {workspaces.map((workspace) => (
-              <WorkspaceCard
-                key={workspace.ref}
-                region={"NYC01"} // TODO: Replace with actual region data if available.
-                description={workspace.name}
-                owner={workspace.owner}
-                onClick={() => onWorkspaceClick(workspace.ref)}
-                onSettingsClick={() => onSettingsClick(workspace.ref)}
-                date={
-                  workspace.createdAt
-                    ? workspace.createdAt.toLocaleDateString()
-                    : "N/A"
-                }
+          <StudioBento>
+            {featured ? (
+              <FeaturedWorkspace
+                name={featured.name}
+                date={formatDate(featured.createdAt)}
+                ownerLabel={workspaceCreatorName(featured, user)}
+                onOpen={() => onWorkspaceClick(featured.ref)}
+                onSettings={() => onSettingsClick(featured.ref)}
               />
-            ))}
+            ) : (
+              <CreateWorkspaceRow onClick={() => setIsCreateModalOpen(true)} />
+            )}
 
-            {/* Card to trigger the creation of a new workspace */}
-            <AddWorkspaceCard onClick={() => setIsCreateModalOpen(true)} />
-          </WorkspaceGrid>
+            <SideStack>
+              {rest.map((workspace) => (
+                <CompactWorkspace
+                  key={workspace.ref}
+                  name={workspace.name}
+                  date={formatDate(workspace.createdAt)}
+                  ownerLabel={workspaceCreatorName(workspace, user)}
+                  onOpen={() => onWorkspaceClick(workspace.ref)}
+                  onSettings={() => onSettingsClick(workspace.ref)}
+                />
+              ))}
+              <CreateWorkspaceRow onClick={() => setIsCreateModalOpen(true)} />
+            </SideStack>
+          </StudioBento>
         </ContentWrapper>
       </WorkspaceContainer>
 

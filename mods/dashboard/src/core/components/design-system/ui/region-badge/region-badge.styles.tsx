@@ -47,6 +47,6 @@ export const LandingPageRegionBadge = styled(Box)(({ theme }) => ({
   ...commonStyles,
   padding: "2px 8px",
   backgroundColor: theme.palette.brand.main,
-  color: theme.palette.brand["06"],
+  color: theme.palette.common.white,
   borderRadius: "40px"
 }));

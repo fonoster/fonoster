@@ -1,22 +1,4 @@
-/*
- * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonoster
- *
- * This file is part of Fonoster
- *
- * Licensed under the MIT License (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    https://opensource.org/licenses/MIT
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-import React, { useMemo } from "react";
+import React from "react";
 import {
   WorkspaceCardRoot,
   StyledDescription,
@@ -31,8 +13,10 @@ import {
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { RegionBadge } from "../region-badge/region-badge";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { LogoMark } from "../logo/logo-mark";
 
 export interface WorkspaceCardProps extends React.HTMLAttributes<HTMLDivElement> {
   region?: string;
@@ -71,38 +55,65 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
           width: "100%",
           display: "flex",
           flexDirection: "column",
-          flexGrow: 1,
-          alignItems: "center",
-          justifyContent: "end"
+          alignItems: "flex-start",
+          textAlign: "left"
         }}
       >
-        <Box sx={{ width: "100%" }}>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 1
+          }}
+        >
+          <LogoMark size={32} />
           {region && <RegionBadge type="landing-page">{region}</RegionBadge>}
-          {description && <StyledDescription>{description}</StyledDescription>}
-          {owner && (
-            <StyledOwnerContainer>
-              <StyledOwnerIcon>
-                <PersonOutlinedIcon />
-              </StyledOwnerIcon>
-              <StyledOwnerText>Owner: {owner.name}</StyledOwnerText>
-            </StyledOwnerContainer>
-          )}
-          <Box sx={{ flexGrow: 1 }} />
-          <StyledBottomContainer>
-            <StyledDateContainer>
-              <StyledIcon>
-                <CalendarTodayOutlinedIcon />
-              </StyledIcon>
-              {date && <StyledDate>{date}</StyledDate>}
-            </StyledDateContainer>
+        </Box>
+        {description && <StyledDescription>{description}</StyledDescription>}
+        {owner && (
+          <StyledOwnerContainer>
+            <StyledOwnerIcon>
+              <PersonOutlinedIcon />
+            </StyledOwnerIcon>
+            <StyledOwnerText>
+              {owner.name || owner.email || "Owner"}
+            </StyledOwnerText>
+          </StyledOwnerContainer>
+        )}
+        <StyledBottomContainer>
+          <StyledDateContainer>
+            <StyledIcon>
+              <CalendarTodayOutlinedIcon />
+            </StyledIcon>
+            {date && <StyledDate>{date}</StyledDate>}
+          </StyledDateContainer>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography
+              sx={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "brand.main",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px"
+              }}
+            >
+              Open
+              <ArrowForwardIcon sx={{ fontSize: 14 }} />
+            </Typography>
             <StyledIcon
-              onClick={onSettingsClick}
+              onClick={(event) => {
+                event.stopPropagation();
+                onSettingsClick?.();
+              }}
               clickable={!disabled && !!onSettingsClick}
             >
               <SettingsOutlinedIcon />
             </StyledIcon>
-          </StyledBottomContainer>
-        </Box>
+          </Box>
+        </StyledBottomContainer>
       </Box>
     </WorkspaceCardRoot>
   );

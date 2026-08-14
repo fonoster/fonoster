@@ -24,10 +24,10 @@ export const WorkspaceContainer = styled(Container)(() => ({
   gridTemplateColumns: "1fr",
   gridTemplateRows: "1fr",
   justifyContent: "center",
-  alignItems: "center",
+  alignItems: "flex-start",
   width: "100%",
   height: "100%",
-  padding: "80px 24px",
+  padding: "48px 24px 80px",
   margin: "0 auto",
   overflow: "auto",
   maxWidth: "100% !important"
@@ -36,36 +36,41 @@ export const WorkspaceContainer = styled(Container)(() => ({
 export const ContentWrapper = styled(Box)(() => ({
   display: "flex",
   flexDirection: "column",
-  alignItems: "center",
-  maxWidth: "1442px",
+  alignItems: "stretch",
+  maxWidth: "1080px",
   width: "100%",
   margin: "0 auto"
 }));
 
 export const Title = styled(Typography)(({ theme }) => ({
-  color: theme.palette.base["03"],
-  textAlign: "center"
+  color: theme.palette.base["02"],
+  textAlign: "left"
 }));
 
 export const Subtitle = styled(Typography)(({ theme }) => ({
-  color: theme.palette.base["03"],
-  textAlign: "center",
-  marginTop: theme.spacing(2),
-  marginBottom: "64px",
-  maxWidth: 500
+  color: theme.palette.base["05"],
+  textAlign: "left",
+  marginTop: theme.spacing(1),
+  marginBottom: "32px",
+  maxWidth: 640
 }));
 
-export const WorkspaceGrid = styled(Box)(({ theme }) => ({
+export const StudioBento = styled(Box)(() => ({
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, 344px)",
-  justifyContent: "center",
-  gridAutoFlow: "row dense",
-  gap: theme.spacing(3),
+  gridTemplateColumns: "minmax(0, 1.15fr) minmax(280px, 0.85fr)",
+  gap: "20px",
   width: "100%",
-  margin: "0 auto",
+  alignItems: "stretch",
+  minHeight: 420,
 
-  "@media (max-width: 767px)": {
-    gridTemplateColumns: "minmax(300px, 344px)",
-    justifyContent: "center"
+  "@media (max-width: 899px)": {
+    gridTemplateColumns: "1fr"
   }
+}));
+
+export const SideStack = styled(Box)(() => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+  minHeight: 420
 }));

@@ -17,24 +17,62 @@
  * limitations under the License.
  */
 import { reactRouter } from "@react-router/dev/vite";
+import type { Plugin } from "vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+/** Leave CJS react-dom unbundled so __DOM_INTERNALS.d exists during SSR. */
+function ssrNativeReact(): Plugin {
+  const native = new Set([
+    "react",
+    "react-dom",
+    "react-dom/client",
+    "react-dom/server",
+    "react/jsx-runtime",
+    "react/jsx-dev-runtime"
+  ]);
+  return {
+    name: "ssr-native-react",
+    enforce: "pre",
+    resolveId(id, _importer, options) {
+      if (options?.ssr && native.has(id)) {
+        return { id, external: true };
+      }
+      return undefined;
+    }
+  };
+}
+
 export default defineConfig({
-  plugins: [reactRouter(), tsconfigPaths()],
+  plugins: [ssrNativeReact(), reactRouter(), tsconfigPaths()],
   resolve: {
-    dedupe: ["react", "react-dom", "react/jsx-runtime"]
+    dedupe: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime"
+    ]
   },
-  ssr: {
-    noExternal: ["@mui/*", "@emotion/*"]
-  },
+  // Do not ssr.noExternal MUI/Emotion: Vite then ESM-interops react-dom and
+  // ReactDOM.__DOM_INTERNALS is missing → "Cannot read properties of undefined (reading 'd')".
   optimizeDeps: {
-    include: ["@mui/*", "@emotion/*"],
-    force: true
+    include: ["@emotion/react", "@emotion/styled", "@emotion/cache", "@mui/material"]
   },
   server: {
+    host: "127.0.0.1",
     port: 3030,
-    strictPort: true
+    strictPort: true,
+    preTransformRequests: false,
+    watch: {
+      ignored: ["**/node_modules/**", "**/.git/**"]
+    },
+    proxy: {
+      "^/fonoster\\.": {
+        target: "https://fonoster.intelli-verse-x.ai",
+        changeOrigin: true,
+        secure: true
+      }
+    }
   },
   envPrefix: "DASHBOARD_"
 });

@@ -18,7 +18,8 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { Collapse } from "@mui/material";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import type { SidebarItem } from "./sidebar.interfaces";
 import SubNavItem from "./sidebar-subnav-item";
 import { useSidebar } from "./sidebar.context";

@@ -40,13 +40,13 @@ export const theme = createTheme({
         },
         brand: {
           "01": "#FFFFFF",
-          "02": "#E6FFF5",
-          "03": "#CCEFE1",
-          "04": "#39E19E",
-          "05": "#008751",
-          "06": "#053204",
-          "07": "#011900",
-          main: "#39E19E"
+          "02": "#E8EEFF",
+          "03": "#C5D2FF",
+          "04": "#4C6FFF",
+          "05": "#2F4FD6",
+          "06": "#1A2A6B",
+          "07": "#0C1018",
+          main: "#4C6FFF"
         },
         background: {
           default: "#FFFFFF",
@@ -57,9 +57,9 @@ export const theme = createTheme({
     dark: {
       palette: {
         bg: {
-          app: "#181818",
-          surface: "#181818",
-          muted: "#252525"
+          app: "#0C1018",
+          surface: "#141A24",
+          muted: "#1B2330"
         },
         base: {
           "01": "#FFFFFF",
@@ -74,17 +74,17 @@ export const theme = createTheme({
         },
         brand: {
           "07": "#FFFFFF",
-          "06": "#E6FFF5",
-          "05": "#CCEFE1",
-          "04": "#39E19E",
-          "03": "#008751",
-          "02": "#053204",
-          "01": "#011900",
-          main: "#39E19E"
+          "06": "#E8EEFF",
+          "05": "#C5D2FF",
+          "04": "#4C6FFF",
+          "03": "#2F4FD6",
+          "02": "#1A2A6B",
+          "01": "#0C1018",
+          main: "#6EA8FF"
         },
         background: {
-          default: "#181818",
-          paper: "#181818"
+          default: "#0C1018",
+          paper: "#141A24"
         }
       }
     }

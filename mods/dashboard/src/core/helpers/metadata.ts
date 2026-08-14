@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { PRODUCT_NAME } from "~/core/brand/product";
+
 export interface Metadata {
   title: string | null;
   description?: string;
@@ -27,11 +29,11 @@ export const metadata = (
   }
 ) => {
   const defaultDescription =
-    "Fonoster is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.";
+    "Voice Studio is the IntelliVerseX console for Voice AI, numbers, and SIP.";
 
   return [
     {
-      title: title ? `${title} | Fonoster` : "Fonoster"
+      title: title ? `${title} | ${PRODUCT_NAME}` : PRODUCT_NAME
     },
     {
       name: "description",
@@ -39,11 +41,11 @@ export const metadata = (
     },
     {
       name: "keywords",
-      content: "Fonoster, open-source"
+      content: "Voice Studio, IntelliVerseX, voice, SIP"
     },
     {
       name: "author",
-      content: "Fonoster, Inc."
+      content: "IntelliVerseX"
     },
     {
       name: "robots",
@@ -51,7 +53,7 @@ export const metadata = (
     },
     {
       property: "og:title",
-      content: "Fonoster - The open-source alternative to Twilio."
+      content: `${PRODUCT_NAME} — IntelliVerseX voice console`
     },
     {
       property: "og:description",

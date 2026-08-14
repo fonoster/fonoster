@@ -24,9 +24,9 @@ export const HeaderRoot = styled("header")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  padding: "24px 40px",
+  padding: "16px 32px",
   width: "100%",
-  borderBottom: `1px solid ${theme.palette.base["06"]}`,
+  borderBottom: `1px solid ${theme.palette.base["07"]}`,
   backgroundColor: theme.palette.bg.app,
   ...theme.applyStyles("dark", {
     backgroundColor: theme.palette.bg.app

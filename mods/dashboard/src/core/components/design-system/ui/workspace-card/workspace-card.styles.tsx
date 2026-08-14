@@ -30,25 +30,29 @@ export const WorkspaceCardRoot = styled(Box, {
 }>(({ disabled, workspaceVariant, theme }) => ({
   display: "flex",
   flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  minHeight: "325px",
+  justifyContent: "stretch",
+  alignItems: "stretch",
+  minHeight: "188px",
   height: "100%",
   backgroundColor:
     workspaceVariant === "regular"
       ? theme.palette.bg.muted
-      : theme.palette.bg.surface,
+      : "transparent",
   cursor: disabled ? "not-allowed" : "pointer",
-  borderRadius: "10px",
+  borderRadius: "16px",
   border:
     workspaceVariant === "regular"
-      ? `solid 1px ${theme.palette.base["06"]}`
-      : `solid 1px ${theme.palette.base["05"]}`,
-  padding: "30px 30px 16px 30px",
-  transition: "all 0.3s ease-in-out",
+      ? `solid 1px ${theme.palette.base["07"]}`
+      : `1px dashed ${theme.palette.base["06"]}`,
+  padding: "20px 20px 16px",
+  transition:
+    "border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease",
   boxShadow: "none",
   "&:hover": {
     border: `1px solid ${theme.palette.brand.main}`,
+    transform: "translateY(-2px)",
+    backgroundColor: theme.palette.bg.muted,
+    boxShadow: "0 12px 32px rgba(76, 111, 255, 0.12)",
     "& .workspace-icon": {
       color: disabled ? "rgba(194, 194, 194, 1)" : theme.palette.brand["05"]
     },
@@ -70,9 +74,9 @@ export const StyledNewWorkSpaceDescription = styled(Typography)<{
 }>(({ disabled, theme }) => ({
   transition: "all 0.3s ease-in-out",
   fontFamily: "Poppins",
-  fontSize: "21px",
+  fontSize: "16px",
   fontWeight: 600,
-  lineHeight: "31.5px",
+  lineHeight: "24px",
   letterSpacing: "0.5px",
   textAlign: "center",
   textUnderlinePosition: "from-font",
@@ -89,29 +93,28 @@ export const StyledAddIconContainer = styled("div")<{
   justifyContent: "center",
   marginBottom: "16px",
   "& svg": {
-    width: "40px",
-    height: "40px"
+    width: "28px",
+    height: "28px"
   }
 }));
 
-export const StyledDescription = styled(Typography)(() => ({
+export const StyledDescription = styled(Typography)(({ theme }) => ({
   fontFamily: "Poppins",
-  fontSize: "21px",
+  fontSize: "18px",
   fontWeight: 600,
-  lineHeight: "31.5px",
-  letterSpacing: "0.5px",
+  lineHeight: "26px",
+  letterSpacing: "-0.02em",
   textAlign: "left",
-  textUnderlinePosition: "from-font",
-  textDecorationSkipInk: "none",
-  color: "inherit",
-  marginTop: "12px"
+  color: theme.palette.base["02"],
+  marginTop: "14px"
 }));
 
 export const StyledBottomContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  marginTop: "24px"
+  marginTop: "auto",
+  paddingTop: "20px"
 }));
 
 export const StyledDateContainer = styled("div")(() => ({
@@ -120,16 +123,14 @@ export const StyledDateContainer = styled("div")(() => ({
   gap: "7.5px"
 }));
 
-export const StyledDate = styled(Typography)(() => ({
+export const StyledDate = styled(Typography)(({ theme }) => ({
   fontFamily: "Roboto Mono",
-  color: "rgba(85, 85, 85, 1)",
-  fontSize: "10px",
-  fontWeight: 700,
-  lineHeight: "21px",
-  letterSpacing: "0.5px",
-  textAlign: "left",
-  textUnderlinePosition: "from-font",
-  textDecorationSkipInk: "none"
+  color: theme.palette.base["05"],
+  fontSize: "11px",
+  fontWeight: 500,
+  lineHeight: "16px",
+  letterSpacing: "0.02em",
+  textAlign: "left"
 }));
 
 export const StyledIcon = styled("div")<{ clickable?: boolean }>(

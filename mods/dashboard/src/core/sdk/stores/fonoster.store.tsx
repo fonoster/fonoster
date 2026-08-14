@@ -151,7 +151,7 @@ export const FonosterProvider = ({
    * Displays a splash screen while the provider is initializing.
    */
   if (!isInitialized) {
-    return <Splash message="Initializing Fonoster services..." />;
+    return <Splash message="Starting Voice Studio..." />;
   }
 
   /**

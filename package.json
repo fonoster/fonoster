@@ -133,6 +133,10 @@
   "engines": {
     "node": ">=20.11.1"
   },
+  "overrides": {
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
   "prisma": {
     "seed": "tsx mods/apiserver/src/core/seed.ts"
   }

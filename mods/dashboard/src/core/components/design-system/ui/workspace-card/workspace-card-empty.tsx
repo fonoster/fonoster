@@ -64,7 +64,7 @@ export const AddWorkspaceCard: React.FC<WorkspaceCardProps> = ({
             disabled={disabled}
             className="workspace-text"
           >
-            New Workspace
+            Create workspace
           </StyledNewWorkSpaceDescription>
         </Box>
       </StyledCardContentContainer>
