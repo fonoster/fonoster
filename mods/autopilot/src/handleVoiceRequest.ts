@@ -41,6 +41,7 @@ import {
   EventsHook,
   sendConversationEndedEvent
 } from "./sendConversationEndedEvent";
+import { sendConversationStartedEvent } from "./sendConversationStartedEvent";
 import Autopilot, {
   ConversationProvider,
   ConversationSettings,
@@ -137,6 +138,17 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     });
 
     await autopilot.start();
+
+    if (assistantConfig.eventsHook?.url) {
+      await sendConversationStartedEvent(
+        assistantConfig.eventsHook as EventsHook,
+        {
+          appRef,
+          callRef,
+          phone: ingressNumber
+        }
+      );
+    }
 
     res.on(StreamEvent.END, async () => {
       autopilot.stop();
