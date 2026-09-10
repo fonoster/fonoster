@@ -35,6 +35,7 @@ export class AudioPlayer {
   private socket: net.Socket;
   private isPlaying: boolean = false;
   private currentSessionId: number = 0;
+  private settleActivePlayback: (() => void) | null = null;
 
   /**
    * Creates a new AudioPlayer.
@@ -59,7 +60,13 @@ export class AudioPlayer {
 
   /**
    * Plays audio from an input stream and returns an output stream.
-   * The playback can be stopped using stopPlayStream().
+   * The playback can be stopped using stop().
+   *
+   * The returned promise settles only when playback is actually over: the
+   * input stream has ended AND every buffered chunk has been written to the
+   * socket, or the playback was stopped (by stop() or by a newer play call),
+   * or the input stream errored. Callers such as the "say" verb rely on this
+   * to know when the caller has finished hearing the audio.
    *
    * @param {Readable} inputStream - The input stream to read audio from
    * @return {Promise<void>}
@@ -75,37 +82,54 @@ export class AudioPlayer {
 
     const buffer: Buffer[] = [];
     let isProcessing = false;
-
-    const processBuffer = async () => {
-      // Check both isPlaying AND that this session is still current
-      if (
-        !this.isPlaying ||
-        sessionId !== this.currentSessionId ||
-        isProcessing ||
-        buffer.length === 0
-      )
-        return;
-
-      isProcessing = true;
-
-      try {
-        while (
-          buffer.length > 0 &&
-          this.isPlaying &&
-          sessionId === this.currentSessionId
-        ) {
-          const chunk = buffer.shift()!;
-          await this._processAudioChunk(chunk);
-        }
-      } finally {
-        isProcessing = false;
-      }
-    };
+    let sourceEnded = false;
+    let settled = false;
 
     return new Promise((resolve, reject) => {
-      inputStream.on("data", async (chunk: Buffer) => {
+      const isCurrent = () =>
+        this.isPlaying && sessionId === this.currentSessionId;
+
+      const settle = () => {
+        if (settled) return;
+        settled = true;
+        if (this.settleActivePlayback === settle) {
+          this.settleActivePlayback = null;
+        }
+        resolve();
+      };
+
+      // Lets stop() (and a newer play call) settle this playback promptly,
+      // even if no data has arrived yet.
+      this.settleActivePlayback = settle;
+
+      const finishIfDone = () => {
+        if (!isCurrent()) {
+          settle();
+        } else if (sourceEnded && buffer.length === 0 && !isProcessing) {
+          settle();
+        }
+      };
+
+      const processBuffer = async () => {
+        if (!isCurrent() || isProcessing) return;
+
+        isProcessing = true;
+
+        try {
+          while (buffer.length > 0 && isCurrent()) {
+            const chunk = buffer.shift()!;
+            await this._processAudioChunk(chunk);
+          }
+        } finally {
+          isProcessing = false;
+        }
+
+        finishIfDone();
+      };
+
+      inputStream.on("data", (chunk: Buffer) => {
         // Check session ID to ensure this stream is still active
-        if (!this.isPlaying || sessionId !== this.currentSessionId) return;
+        if (!isCurrent()) return;
 
         for (let offset = 0; offset < chunk.length; offset += MAX_CHUNK_SIZE) {
           const sliceSize = Math.min(chunk.length - offset, MAX_CHUNK_SIZE);
@@ -113,20 +137,23 @@ export class AudioPlayer {
           buffer.push(slicedChunk);
         }
 
-        if (!isProcessing) {
-          await processBuffer();
-          resolve();
-        }
+        void processBuffer();
       });
 
       inputStream.on("error", (err) => {
         logger.error("error playing stream", err);
         this._cleanupActiveStream();
+        if (settled) return;
+        settled = true;
+        if (this.settleActivePlayback === settle) {
+          this.settleActivePlayback = null;
+        }
         reject(err);
       });
 
       inputStream.on("end", () => {
-        this._cleanupActiveStream();
+        sourceEnded = true;
+        finishIfDone();
       });
     });
   }
@@ -137,6 +164,11 @@ export class AudioPlayer {
   stop() {
     this.isPlaying = false;
     this._cleanupActiveStream();
+
+    // Settle the interrupted playback so awaiting callers are not stranded
+    const settle = this.settleActivePlayback;
+    this.settleActivePlayback = null;
+    settle?.();
   }
 
   private async _processAudioChunk(chunk: Buffer) {

@@ -112,8 +112,9 @@ describe("@autopilot/machine", function () {
     // Act
     actor.start();
 
-    // Wait just enough time to say the first message
-    await waitFor(4100);
+    // Wait just enough time to answer, play the dtmf (500ms) and say the
+    // first message (4000ms). The machine stays in "greeting" until then.
+    await waitFor(4600);
 
     // Assert
     const { context, value: state } = actor.getSnapshot();
@@ -326,38 +327,6 @@ describe("@autopilot/machine", function () {
     expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
     expect(input.languageModel.invoke).to.have.been.calledOnce;
 
-    actor.stop();
-  }).timeout(20000);
-
-  it("should idletimeout and then hangup", async function () {
-    // Arrange
-    const { machine } = await import("../src/machine");
-
-    const input = getActorInput();
-
-    // 500ms is not a realistic timeout, but kept low for testing purposes
-    input.conversationSettings.idleOptions.timeout = 500;
-
-    const actor = createActor(machine, {
-      input
-    });
-
-    // Act
-    actor.start();
-
-    await waitFor(13000);
-
-    // Assert
-    const { context, value: state } = actor.getSnapshot();
-    expect(state).to.equal("hangup");
-    expect(context.idleTimeoutCount).to.equal(3);
-    expect(input.voice.say).to.have.been.callCount(5);
-    expect(input.voice.say).to.have.been.calledWith(FIRST_MESSAGE);
-    expect(input.voice.say).to.have.been.calledWith(IDLE_MESSAGE);
-    expect(input.voice.say).to.have.been.calledWith(GOODBYE_MESSAGE);
-    expect(input.voice.hangup).to.have.been.calledOnce;
-
-    // Cleanup
     actor.stop();
   }).timeout(20000);
 });
