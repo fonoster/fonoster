@@ -20,7 +20,8 @@ import {
   InterceptingCall,
   Interceptor,
   InterceptorOptions,
-  NextCall
+  NextCall,
+  status
 } from "@grpc/grpc-js";
 import { AbstractClient } from "./AbstractClient";
 import { isJwtExpired } from "./isJwtExpired";
@@ -37,17 +38,34 @@ class TokenRefresherNode {
       options: InterceptorOptions,
       nextCall: NextCall
     ): InterceptingCall => {
-      return new InterceptingCall(nextCall(options), {
-        sendMessage: async (message, next) => {
-          const token = this.client.getAccessToken();
-
-          if (isJwtExpired(token)) {
-            await this.client.refreshToken();
+      // `InterceptingCall` invokes `sendMessage` synchronously and discards its
+      // return value, so this requester must not be `async`. An `async`
+      // requester whose awaited `refreshToken()` rejects leaves that rejection
+      // with no caller, which crashes the host process through Node's
+      // unhandled-rejection handler. Instead, gate the outgoing message on the
+      // refresh explicitly and turn a refresh failure into a gRPC status on
+      // this call, so the caller can handle it. See fonoster/fonoster#887.
+      const interceptingCall = new InterceptingCall(nextCall(options), {
+        sendMessage: (message, next) => {
+          if (!isJwtExpired(this.client.getAccessToken())) {
+            next(message);
+            return;
           }
 
-          next(message);
+          this.client.refreshToken().then(
+            () => next(message),
+            (err: unknown) => {
+              const reason = err instanceof Error ? err.message : String(err);
+              interceptingCall.cancelWithStatus(
+                status.UNAVAILABLE,
+                `Failed to refresh the access token: ${reason}`
+              );
+            }
+          );
         }
       });
+
+      return interceptingCall;
     };
   }
 }

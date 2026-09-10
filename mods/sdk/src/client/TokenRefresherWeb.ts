@@ -46,7 +46,11 @@ class TokenRefresherWeb {
         const token = this.refresher.client.getAccessToken();
 
         if (isJwtExpired(token)) {
-          this.refresher.client.refreshToken().then(() => {});
+          // Swallow refresh failures rather than let them become an unhandled
+          // rejection: this interceptor does not gate the stream on the
+          // refresh, so a failure just means the next call is rejected by the
+          // server. See fonoster/fonoster#887.
+          this.refresher.client.refreshToken().catch(() => {});
         }
 
         if (eventType == "data") {
