@@ -18,6 +18,7 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
+import { amdResultCache } from "./amdResultCache";
 import { createPerCallCache } from "./createPerCallCache";
 
 type InfluxDbPub = {
@@ -61,6 +62,22 @@ function createInfluxDbPub(config) {
     if (ref) {
       point.tag("ref", ref);
       refByCallId.set(event.tag, ref);
+
+      // Fold in the Answering Machine Detection verdict (if the voice path ran a
+      // probe for this call), but only on the terminal event — the one carrying
+      // the hangup cause as `status`. By then the probe has long finished, and
+      // writing it once keeps every earlier point (and raw, non-pivoted queries)
+      // clean.
+      if (event.data.status) {
+        const amd = amdResultCache.get(ref);
+        if (amd) {
+          point
+            .stringField("amdStatus", amd.status)
+            .floatField("amdConfidence", amd.confidence)
+            .stringField("amdDetector", amd.detector)
+            .intField("amdLatencyMs", amd.latencyMs);
+        }
+      }
     }
 
     Object.entries(event.data).forEach(([key, value]) => {

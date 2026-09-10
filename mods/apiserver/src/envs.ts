@@ -80,6 +80,40 @@ export const CALLS_CREATE_SUBJECT = "calls.create";
 
 export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
 
+// Answering Machine Detection (AMD) configurations
+//
+// When enabled, outbound calls run a short classification probe on the first
+// seconds of call audio before the voice application is dispatched, and the
+// verdict is attached to the session request as `amd`. Inference runs in-process
+// with a small ONNX model bundled in the package. The probe is always fail-open:
+// any error or timeout yields an UNKNOWN verdict and the call proceeds unchanged.
+export const AMD_ENABLED = e.APISERVER_AMD_ENABLED === "true";
+
+// Override the model directory (model.onnx / mel_filters.bin / meta.json).
+// Empty string -> the copy bundled with @fonoster/apiserver.
+export const AMD_MODEL_PATH = e.APISERVER_AMD_MODEL_PATH || "";
+
+// A malformed AMD_* number must not silently break the probe (NaN thresholds
+// disable the deadline / confidence gate), so fall back to the default.
+const amdPositiveInt = (raw: string | undefined, fallback: number): number => {
+  const n = parseInt(raw ?? "", 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+};
+
+const amdUnitFloat = (raw: string | undefined, fallback: number): number => {
+  const n = parseFloat(raw ?? "");
+  return Number.isFinite(n) && n >= 0 && n <= 1 ? n : fallback;
+};
+
+export const AMD_PROBE_MS = amdPositiveInt(e.APISERVER_AMD_PROBE_MS, 3000);
+
+export const AMD_TIMEOUT_MS = amdPositiveInt(e.APISERVER_AMD_TIMEOUT_MS, 4000);
+
+export const AMD_MIN_CONFIDENCE = amdUnitFloat(
+  e.APISERVER_AMD_MIN_CONFIDENCE,
+  0.8
+);
+
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = e.APISERVER_CLOAK_ENCRYPTION_KEY;
 

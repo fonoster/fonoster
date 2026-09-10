@@ -53,6 +53,13 @@ const {
 new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
   const { ingressNumber, sessionRef, appRef } = req;
 
+  // When Answering Machine Detection is enabled, `req.amd` carries an early
+  // verdict for outbound calls: { status: "HUMAN" | "VOICEMAIL" | "MACHINE"
+  // | "IVR" | "UNKNOWN", confidence, detector, latencyMs }.
+  if (req.amd?.status === "VOICEMAIL") {
+    return voice.hangup();
+  }
+
   await voice.answer();
 
   await voice.say("Hi there! What's your name?");

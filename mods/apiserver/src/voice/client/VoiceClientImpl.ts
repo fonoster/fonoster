@@ -19,8 +19,18 @@
 import { Stream } from "stream";
 import { SayOptions, VoiceClientConfig, VoiceIn } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { CallDirection } from "@fonoster/types";
 import { Bridge, Client } from "ari-client";
 import { pickPort } from "pick-port";
+import {
+  AMD_ENABLED,
+  AMD_MIN_CONFIDENCE,
+  AMD_MODEL_PATH,
+  AMD_PROBE_MS,
+  AMD_TIMEOUT_MS
+} from "../../envs";
+import { amdResultCache } from "../../events/amdResultCache";
+import { runAmdProbe } from "../amd/runAmdProbe";
 import { SpeechResult } from "../stt/types";
 import { SpeechToText, TextToSpeech, VoiceClient } from "../types";
 import { AudioSocketHandler } from "./AudioSocketHandler";
@@ -115,6 +125,41 @@ class VoiceClientImpl implements VoiceClient {
       audioStream: this.audioSocketHandler.getAudioStream(),
       mediaSessionRef: this.config.mediaSessionRef
     });
+
+    // Run Answering Machine Detection on the leading audio before the session is
+    // dispatched, so the voice application already has the verdict on its
+    // request. PSTN-terminated outbound calls only: the far end has answered by
+    // this point (200 OK preceded the dialplan), whereas inbound channels are
+    // not yet answered here and on-net (INTRA_NETWORK) legs do not reach a
+    // carrier voicemail/IVR. Always fail-open: runAmdProbe never throws and a
+    // failure/timeout yields an UNKNOWN verdict.
+    if (AMD_ENABLED && this.config.callDirection === CallDirection.TO_PSTN) {
+      const amd = await runAmdProbe({
+        audio: this.transcriptionsStream,
+        probeMs: AMD_PROBE_MS,
+        timeoutMs: AMD_TIMEOUT_MS,
+        minConfidence: AMD_MIN_CONFIDENCE,
+        modelDir: AMD_MODEL_PATH || undefined
+      });
+
+      this.config.amd = amd;
+
+      // Persist the verdict onto the call's CDR for later analysis. Keyed by
+      // callRef, which equals the CDR `ref` tag for outbound calls.
+      amdResultCache.set(this.config.callRef, {
+        status: amd.status,
+        confidence: amd.confidence,
+        detector: amd.detector,
+        latencyMs: amd.latencyMs
+      });
+
+      logger.verbose("amd verdict attached to session", {
+        callRef: this.config.callRef,
+        status: amd.status,
+        confidence: amd.confidence,
+        latencyMs: amd.latencyMs
+      });
+    }
 
     // Set up the GRPC client LAST. Opening the session immediately writes the request
     // that starts the voice application, so nothing it may depend on can still be
