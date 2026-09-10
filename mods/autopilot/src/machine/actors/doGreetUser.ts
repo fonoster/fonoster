@@ -17,26 +17,34 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
+import { fromPromise } from "xstate";
 import { AutopilotContext } from "../types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-export const greetUser = async ({
-  context
-}: {
-  context: AutopilotContext;
-}): Promise<void> => {
-  logger.verbose("called the greetUser action", {
-    firstMessage: context.firstMessage
-  });
+// Invoked (not fired-and-forgotten) so the machine stays in "greeting" until
+// the first message has been fully played. Otherwise the idle clock would start
+// while the assistant is still talking.
+export const doGreetUser = fromPromise(
+  async ({ input }: { input: { context: AutopilotContext } }) => {
+    const { context } = input;
 
-  await context.voice.answer();
+    logger.verbose("called the doGreetUser actor", {
+      firstMessage: context.firstMessage
+    });
 
-  if (context.initialDtmf) {
-    await context.voice.playDtmf(context.initialDtmf);
+    try {
+      await context.voice.answer();
+
+      if (context.initialDtmf) {
+        await context.voice.playDtmf(context.initialDtmf);
+      }
+
+      if (context.firstMessage) {
+        await context.voice.say(context.firstMessage);
+      }
+    } catch (error) {
+      logger.error("error while greeting the user", { error });
+    }
   }
-
-  if (context.firstMessage) {
-    await context.voice.say(context.firstMessage);
-  }
-};
+);

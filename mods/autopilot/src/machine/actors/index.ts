@@ -17,3 +17,5 @@
  * limitations under the License.
  */
 export * from "./doProcessUserRequest";
+export * from "./doGreetUser";
+export * from "./doAnnounceIdleTimeout";
