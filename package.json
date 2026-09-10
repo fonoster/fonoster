@@ -55,7 +55,7 @@
     "start:apiserver": "cross-env NODE_ENV=development LOGS_LEVEL=verbose npm run start:dev -w @fonoster/apiserver",
     "start:audiosocket": "cross-env NODE_ENV=development LOGS_LEVEL=verbose npm run start:dev -w @fonoster/streams",
     "start:authz": "cross-env NODE_ENV=development LOGS_LEVEL=verbose npm run start:dev -w @fonoster/authz",
-    "start:autopilot": "cross-env NODE_ENV=development AUTOPILOT_CONVERSATION_PROVIDER=file AUTOPILOT_CONVERSATION_PROVIDER_FILE=$(pwd)/config/assistant.json LOGS_LEVEL=verbose npm run start:dev -w @fonoster/autopilot",
+    "start:autopilot": "cross-env NODE_ENV=development FONOSTER_CONFIG=$(pwd)/config/autopilot.yaml LOGS_LEVEL=verbose npm run start:dev -w @fonoster/autopilot",
     "start:dashboard": "cross-env NODE_ENV=development npm run dev -w @fonoster/dashboard",
     "start:mcp": "cross-env NODE_ENV=development LOGS_LEVEL=verbose npm run start:dev -w @fonoster/mcp",
     "start:oauth2-demo": "npm run start:oauth2-demo -w @fonoster/sdk",

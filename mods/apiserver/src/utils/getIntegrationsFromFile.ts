@@ -16,34 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from "fs";
-import { getLogger } from "@fonoster/logger";
-import { z } from "zod";
-import { fromError } from "zod-validation-error";
-
-const logger = getLogger({ service: "apiserver", filePath: __filename });
-
-const integrationsConfigSchema = z.array(
-  z.object({
-    name: z.string(),
-    productRef: z.string(),
-    type: z.enum(["tts", "stt", "llm"]),
-    credentials: z.record(z.unknown())
-  })
-);
-
-function getIntegrationsFromFile(pathToIntegrations: string) {
-  const integrationsFile = fs.readFileSync(pathToIntegrations, "utf8");
-  const integrations = JSON.parse(integrationsFile);
-  try {
-    integrationsConfigSchema.parse(integrations);
-  } catch (e) {
-    // fatal error
-    const message = fromError(e, { prefix: null }).toString();
-    logger.error("integrations config is invalid", { message });
-    process.exit(1);
-  }
-  return integrations;
-}
-
-export { getIntegrationsFromFile };
+// The integrations schema and loader now live in @fonoster/common so apiserver
+// and autopilot share one definition. Re-exported here to keep existing imports
+// stable.
+export {
+  getIntegrationsFromFile,
+  integrationsConfigSchema
+} from "@fonoster/common";

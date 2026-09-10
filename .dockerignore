@@ -63,6 +63,8 @@ assets
 config/keys
 config/*.json
 !config/integrations.example.json
+config/*.yaml
+!config/*.example.yaml
 
 # Compose files
 compose*.yaml

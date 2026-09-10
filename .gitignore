@@ -14,6 +14,8 @@ tsconfig.tsbuildinfo
 integrations.json
 config/assistant*
 !assistant.example.json
+config/autopilot.yaml
+config/mediaservice.yaml
 .next
 next-env.d.ts
 .npmrc

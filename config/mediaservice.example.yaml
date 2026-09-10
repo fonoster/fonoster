@@ -1,0 +1,20 @@
+# Media service configuration.
+#
+# RESERVED / not consumed yet — the apiserver still reads ASTERISK_* env vars.
+# Committed now so the shape is settled: the media layer is provider-abstract.
+# "asterisk" is one implementation detail; nothing outside the media adapter
+# should reference it. A future "fonoster-media" provider slots in here without
+# changing the outer shape.
+
+provider: asterisk # asterisk | fonoster-media (future)
+
+# Address the media backend should reach back to for external media. Explicit,
+# so it does not depend on an implicit service hostname.
+advertisedHost: apiserver
+
+asterisk: # provider-specific; read only when provider == asterisk
+  ari:
+    url: http://asterisk:8088
+    username: ari
+    secret: ${ARI_SECRET} # secret
+  # A pool of instances can be added here later without touching the outer shape.
