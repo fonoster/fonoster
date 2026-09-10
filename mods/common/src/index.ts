@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 export * from "./assistants";
+export * from "./config";
 export * from "./GrpcError";
 export * from "./constants";
 export * from "./errors";

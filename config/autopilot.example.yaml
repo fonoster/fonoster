@@ -1,0 +1,35 @@
+# Autopilot service configuration.
+#
+# Copy this file to config/autopilot.yaml and adjust. Values are plain literals;
+# only secrets use ${VAR} so they can stay out of the file. With the defaults
+# below, Autopilot runs with no environment variables at all.
+
+conversation:
+  # "file" reads the assistant from `file` below.
+  # "api" loads it from the apiserver (what the full docker-compose stack uses).
+  provider: file
+  file: ./config/assistant.json
+
+apiserverEndpoint: apiserver:50051
+
+# Read only when conversation.provider is "api".
+integrationsFile: /opt/fonoster/integrations.json
+
+recording:
+  baseUrl: http://apiserver:9876/api/recordings
+
+skipIdentity: false
+
+# Only used for knowledge-base embeddings. `:-` means "optional".
+openaiApiKey: ${OPENAI_API_KEY:-}
+
+knowledgeBase:
+  enabled: false
+  s3:
+    region: us-east-1
+    endpoint: ""
+    accessKeyId: ${AWS_S3_ACCESS_KEY_ID:-} # required when enabled
+    secretAccessKey: ${AWS_S3_SECRET_ACCESS_KEY:-} # required when enabled
+  unstructured:
+    apiUrl: https://api.unstructuredapp.io/general/v0/general
+    apiKey: ${UNSTRUCTURED_API_KEY:-} # required when enabled

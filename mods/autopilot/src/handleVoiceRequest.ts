@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from "fs";
-import { StreamEvent } from "@fonoster/common";
+import { getIntegrationsFromFile, StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { BaseMessage } from "@langchain/core/messages";
@@ -78,7 +77,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
       ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE)
       : await loadAssistantFromAPI(
           req,
-          JSON.parse(fs.readFileSync(INTEGRATIONS_FILE, "utf8"))
+          getIntegrationsFromFile(INTEGRATIONS_FILE)
         );
 
   let knowledgeBase;

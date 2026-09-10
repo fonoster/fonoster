@@ -16,10 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The integrations schema and loader now live in @fonoster/common so apiserver
-// and autopilot share one definition. Re-exported here to keep existing imports
-// stable.
-export {
-  getIntegrationsFromFile,
-  integrationsConfigSchema
-} from "@fonoster/common";
+export * from "./interpolateEnv";
+export * from "./loadServiceConfig";
+export * from "./integrationsSchema";

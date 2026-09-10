@@ -34,6 +34,9 @@ services:
     build:
       context: .
       dockerfile: ./mods/autopilot/Dockerfile
+    volumes:
+      - ./config/autopilot.yaml:/opt/fonoster/autopilot.yaml:ro
+      - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   routr:
     ports:
