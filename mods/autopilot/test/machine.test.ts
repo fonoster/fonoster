@@ -307,8 +307,10 @@ describe("@autopilot/machine", function () {
 
     const actor = createActor(machine, { input });
 
-    // Act: get to processingUserRequest
+    // Act: get to processingUserRequest. With barge-in off the greeting cannot
+    // be cut short, so wait for it to finish before speaking.
     actor.start();
+    await waitFor(4600);
     actor.send({ type: "SPEECH_START" });
     await waitFor(50);
     actor.send({ type: "SPEECH_RESULT", speech: "Hello", responseTime: 1000 });
@@ -341,8 +343,10 @@ describe("@autopilot/machine", function () {
 
     const actor = createActor(machine, { input });
 
-    // Act: get to processingUserRequest
+    // Act: get to processingUserRequest. With barge-in off the greeting cannot
+    // be cut short, so wait for it to finish before speaking.
     actor.start();
+    await waitFor(4600);
     actor.send({ type: "SPEECH_START" });
     await waitFor(50);
     actor.send({ type: "SPEECH_RESULT", speech: "Hello?", responseTime: 1000 });
