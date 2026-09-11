@@ -80,6 +80,15 @@ export const CALLS_CREATE_SUBJECT = "calls.create";
 
 export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
 
+// Answering Machine Detection (AMD) configuration
+//
+// When enabled, outbound calls run Asterisk's AMD() application in the dialplan
+// before entering Stasis, and its verdict is attached to the session request as
+// `amd`. Thresholds live in the media server's amd.conf, not here. Disabled by
+// default: when on, the caller hears silence for up to amd.conf's
+// total_analysis_time before the voice application is dispatched.
+export const AMD_ENABLED = e.APISERVER_AMD_ENABLED === "true";
+
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = e.APISERVER_CLOAK_ENCRYPTION_KEY;
 
