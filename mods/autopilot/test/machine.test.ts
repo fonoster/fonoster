@@ -163,6 +163,45 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
+  it("does not crash when stopSpeech rejects because the call already hung up", async function () {
+    // Arrange: this reproduces the scenario where the caller hangs up right
+    // as the assistant is speaking. interruptPlayback (a fire-and-forget
+    // entry action) calls voice.stopSpeech(), whose underlying verb rejects
+    // because the session ended before it got a response. Since XState does
+    // not await/track an action's returned promise, an uncaught rejection
+    // here previously crashed the whole process.
+    const { machine } = await import("../src/machine");
+
+    const input = getActorInput();
+    input.voice.stopSpeech = sandbox
+      .stub()
+      .rejects(new Error("voice session ended before the StopSay verb completed"));
+
+    const unhandledRejections: unknown[] = [];
+    const onUnhandledRejection = (reason: unknown) => unhandledRejections.push(reason);
+    process.on("unhandledRejection", onUnhandledRejection);
+
+    const actor = createActor(machine, { input });
+
+    try {
+      // Act
+      actor.start();
+      actor.send({ type: "SPEECH_START" });
+
+      // Give the rejected stopSpeech() promise a chance to settle.
+      await waitFor(50);
+
+      // Assert
+      const { value: state } = actor.getSnapshot();
+      expect(state).to.equal("listeningToUser");
+      expect(input.voice.stopSpeech).to.have.been.calledOnce;
+      expect(unhandledRejections).to.have.lengthOf(0);
+    } finally {
+      process.removeListener("unhandledRejection", onUnhandledRejection);
+      actor.stop();
+    }
+  }).timeout(20000);
+
   it("should append the speech to the buffer and set the state to 'listeningToUser'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
