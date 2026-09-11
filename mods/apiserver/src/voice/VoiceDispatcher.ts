@@ -143,7 +143,20 @@ class VoiceDispatcher {
   }
 
   async handleDial(event: Dial, channel: Channel) {
-    createHandleDialEventsWithNats(this.nc)(channel.id, event);
+    // TrackCall registers the stream under the ref CreateCall handed back to
+    // the client, so the event has to carry that ref and not the channel id.
+    const callRef = (
+      await createGetChannelVarWithoutThrow(channel)(ChannelVar.CALL_REF)
+    )?.value;
+
+    if (!callRef) {
+      logger.silly("no callRef found, ignoring handleDial event", {
+        channelId: channel?.id
+      });
+      return;
+    }
+
+    createHandleDialEventsWithNats(this.nc)(callRef, event);
   }
 
   async isHandledElsewhere(channel: Channel) {
