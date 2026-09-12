@@ -11,6 +11,7 @@ services:
     image: fonoster/apiserver:0.17.1
     restart: unless-stopped
     environment:
+      - APISERVER_AMD_ENABLED
       - APISERVER_APP_URL
       - APISERVER_ASTERISK_ARI_PROXY_URL
       - APISERVER_ASTERISK_ARI_SECRET

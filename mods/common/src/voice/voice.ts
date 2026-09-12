@@ -82,6 +82,24 @@ enum StreamContent {
   STREAM_GATHER_PAYLOAD = "streamGatherPayload"
 }
 
+// Answering Machine Detection verdict. String values match the proto enum value
+// names so the object round-trips through @grpc/proto-loader (enums: String).
+enum AmdStatus {
+  UNSPECIFIED = "AMD_STATUS_UNSPECIFIED",
+  HUMAN = "HUMAN",
+  MACHINE = "MACHINE",
+  VOICEMAIL = "VOICEMAIL",
+  IVR = "IVR",
+  UNKNOWN = "UNKNOWN"
+}
+
+type Amd = {
+  status: AmdStatus;
+  confidence: number;
+  detector: string;
+  latencyMs: number;
+};
+
 type VoiceClientConfig = {
   appRef: string;
   accessKeyId: string;
@@ -94,6 +112,9 @@ type VoiceClientConfig = {
   sessionToken: string;
   callDirection: CallDirection;
   metadata?: Record<string, string>;
+  // Answering Machine Detection result, set before the session is dispatched to
+  // the voice application. Absent when the probe is disabled or did not run.
+  amd?: Amd;
 };
 
 type VoiceIn = {
@@ -154,6 +175,8 @@ type VoiceSessionStreamClient = BaseVoiceStream<
 >;
 
 export {
+  Amd,
+  AmdStatus,
   DATA,
   END,
   ERROR,

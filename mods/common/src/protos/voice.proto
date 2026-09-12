@@ -67,6 +67,40 @@ message CreateSessionRequest {
 
   // Metadata associated with the session
   map<string, string> metadata = 10;
+
+  // Answering Machine Detection result, computed on early call audio before
+  // this session is dispatched. Absent/UNSPECIFIED when the probe is disabled.
+  Amd amd = 12;
+}
+
+// Answering Machine Detection verdict for the answered call
+message Amd {
+  enum Status {
+    // The probe was disabled or did not run
+    AMD_STATUS_UNSPECIFIED = 0;
+    // A live person answered
+    HUMAN = 1;
+    // A generic answering machine answered
+    MACHINE = 2;
+    // A personal or carrier voicemail greeting answered
+    VOICEMAIL = 3;
+    // An auto-attendant / IVR menu answered
+    IVR = 4;
+    // The probe ran but was inconclusive (low confidence, silence, or timeout)
+    UNKNOWN = 5;
+  }
+
+  // The detected class of answerer
+  Status status = 1;
+
+  // Model confidence for the reported status, 0..1
+  float confidence = 2;
+
+  // Identifier of the detector that produced the verdict (e.g. "asterisk-amd@1")
+  string detector = 3;
+
+  // Wall-clock time spent producing the verdict, in milliseconds
+  int32 latency_ms = 4;
 }
 
 // Common request for verbs
