@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallType, CallStatus } from "@fonoster/types";
+import { AmdStatus, CallType, CallStatus } from "@fonoster/types";
 import * as chai from "chai"; import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
@@ -48,7 +48,12 @@ describe("@calls/fetchCalls", function () {
         to: "+1234567891",
         status: CallStatus.NORMAL_CLEARING,
         type: CallType.API_ORIGINATED,
-        accessKeyId
+        accessKeyId,
+        amdStatus: AmdStatus.MACHINE,
+        amdConfidence: 1,
+        amdDetector: "asterisk-amd@1",
+        amdLatencyMs: 0,
+        amdCause: "INITIALSILENCE-2500-2500"
       }
     ];
 
@@ -61,7 +66,8 @@ describe("@calls/fetchCalls", function () {
     // Act
     const result = await fetchCalls(accessKeyId, {});
 
-    // Assert
+    // Assert: AMD fields already written to InfluxDB by createInfluxDbPub
+    // must pass through untouched, same as every other CDR column.
     expect(result).to.deep.equal({
       nextPageToken: "1715869342759",
       items

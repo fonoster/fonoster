@@ -28,6 +28,7 @@ import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { DataResponse, FonosterClient } from "./client/types";
 import {
+  CallDetailRecord as CallDetailRecordPB,
   CallDirection,
   Call as CallPB,
   CallStatus,
@@ -233,7 +234,8 @@ class Calls {
       enumMapping: [
         ["type", CallType],
         ["status", CallStatus],
-        ["direction", CallDirection]
+        ["direction", CallDirection],
+        ["amdStatus", CallDetailRecordPB.AmdStatus]
       ]
     });
   }
@@ -273,7 +275,8 @@ class Calls {
       enumMapping: [
         ["type", CallType],
         ["status", CallStatus],
-        ["direction", CallDirection]
+        ["direction", CallDirection],
+        ["amdStatus", CallDetailRecordPB.AmdStatus]
       ],
       repeatableObjectMapping: [["itemsList", CallPB]]
     });

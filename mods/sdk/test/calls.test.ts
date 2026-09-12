@@ -128,4 +128,50 @@ describe("@sdk[Calls]", function () {
     // Assert
     expect(statuses).to.deep.equal([{ status: "ANSWER" }]);
   });
+
+  it("should map the numeric amdStatus enum to its string name on getCall", async function () {
+    // Arrange
+    const { Calls } = await import("../src/Calls");
+
+    class CallDetailRecordResponse {
+      getRef(): string {
+        return "00000000-0000-0000-0000-000000000000";
+      }
+      getAmdStatus(): number {
+        return 2; // CallDetailRecord.AmdStatus.MACHINE
+      }
+      getAmdConfidence(): number {
+        return 1;
+      }
+      getAmdDetector(): string {
+        return "asterisk-amd@1";
+      }
+    }
+    const response = new CallDetailRecordResponse();
+
+    const client = {
+      getCall: (
+        _req: unknown,
+        _metadata: unknown,
+        callback: (err: Error | null, res: unknown) => void
+      ) => callback(null, response)
+    };
+
+    const fonosterClient = {
+      getCallsClient: () => client,
+      getMetadata: () => ({})
+    };
+
+    // Act
+    const calls = new Calls(fonosterClient as never);
+    const result = await calls.getCall("00000000-0000-0000-0000-000000000000");
+
+    // Assert
+    expect(result).to.deep.equal({
+      ref: "00000000-0000-0000-0000-000000000000",
+      amdStatus: "MACHINE",
+      amdConfidence: 1,
+      amdDetector: "asterisk-amd@1"
+    });
+  });
 });
