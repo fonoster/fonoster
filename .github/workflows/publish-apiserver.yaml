@@ -112,12 +112,26 @@ jobs:
           exit 1
 
       - name: Run integration tests for the SDK
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 5
-          retry_wait_seconds: 30
-          max_attempts: 2
-          command: npm run integration
+        # Was nick-fields/retry@v2 (2 attempts, 5 min timeout each). That
+        # action has a documented history of swallowing the wrapped
+        # command's output (see nick-fields/retry#76) — this step has been
+        # failing silently (no stdout/stderr at all) on every release since
+        # 2026-06-16, which is exactly what that bug looks like. A plain
+        # loop inherits stdio directly, so a real failure is actually
+        # visible in the log instead of just "exited with error code 1".
+        run: |
+          for attempt in 1 2; do
+            echo "Integration test attempt $attempt of 2..."
+            if timeout 300 npm run integration; then
+              exit 0
+            fi
+            status=$?
+            echo "Attempt $attempt failed with exit code $status."
+            if [ "$attempt" -lt 2 ]; then
+              sleep 30
+            fi
+          done
+          exit 1
 
       - name: Apiserver logs (on failure)
         if: failure()
