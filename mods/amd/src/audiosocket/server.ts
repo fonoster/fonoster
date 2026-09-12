@@ -28,7 +28,7 @@ import {
 } from "../envs";
 import { runProbe } from "../probe/runProbe";
 
-const logger = getLogger({ service: "amdanalyser", filePath: __filename });
+const logger = getLogger({ service: "amd", filePath: __filename });
 
 /**
  * Starts the AudioSocket listener that receives the audio leg of each AGI

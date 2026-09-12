@@ -34,7 +34,7 @@ import {
   FRAME_BYTES,
   PROBE_MS,
   TIMEOUT_MS
-} from "./setAmdanalyserTestEnv";
+} from "./setAmdTestEnv";
 
 /* eslint-disable import/order */
 import { startAgiServer } from "../src/agi/server";
@@ -43,14 +43,14 @@ import { classifyPcm } from "../src/amd/AmdModel";
 import { buildAmdVariables } from "../src/amd/buildAmdVariables";
 /* eslint-enable import/order */
 
-const MIN_CONFIDENCE = 0; // matches setAmdanalyserTestEnv's AMDANALYSER_MIN_CONFIDENCE
+const MIN_CONFIDENCE = 0; // matches setAmdTestEnv's AMD_MIN_CONFIDENCE
 
 const FIXTURE_PCM = readFileSync(
   join(__dirname, "amd", "fixtures", "fixture.pcm")
 );
 
 // The probe stops as soon as it has collected exactly this many bytes (see
-// PROBE_MS above), so this is the exact prefix amdanalyser will classify.
+// PROBE_MS above), so this is the exact prefix amd will classify.
 const BYTES_NEEDED = Math.ceil((PROBE_MS / 1000) * 16000 * 2);
 
 // --- Minimal AudioSocket protocol bytes, hand-rolled to avoid depending on
@@ -77,7 +77,7 @@ function slinMessage(payload: Buffer): Buffer {
  * "data" event on the receiving end — a single multi-KB write can otherwise
  * be split across reads and mis-parsed as more than one AudioSocket message,
  * which is a real fragility of the protocol handling this test works around
- * rather than exercises. Resolves once amdanalyser hangs up. */
+ * rather than exercises. Resolves once amd hangs up. */
 function playAudioSocketLeg(host: string, port: number, uuid: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const socket = net.createConnection({ port, host });
@@ -105,7 +105,7 @@ function playAudioSocketLeg(host: string, port: number, uuid: string): Promise<v
       reject(err);
     });
     // A socket with no "data" listener stays in paused mode, which can defer
-    // "end"/"close" indefinitely once amdanalyser sends its HANGUP message
+    // "end"/"close" indefinitely once amd sends its HANGUP message
     // and half-closes — draining reads (even without using the payload) is
     // what lets the close sequence complete.
     socket.on("data", () => undefined);
@@ -116,7 +116,7 @@ function playAudioSocketLeg(host: string, port: number, uuid: string): Promise<v
  * (embedding `mode` as `agi_arg_1`, exactly like `AGI(agi://...,${AMD_MODE})`
  * in the dialplan would), then answers whatever EXEC/SET VARIABLE commands
  * the server issues, recording every AMD variable it's told to set. Resolves
- * once amdanalyser closes the connection (see AgiChannel.close()) — the same
+ * once amd closes the connection (see AgiChannel.close()) — the same
  * signal that tells a real Asterisk AGI() app to resume the dialplan.
  *
  * `stuckExec: true` simulates an unreachable/stalled AudioSocket leg: the
@@ -165,7 +165,7 @@ function connectFakeAgiClient(
 
     socket.on("close", () => resolve(seen));
     socket.on("error", reject);
-    // Drain reads so "close" fires once amdanalyser ends the connection —
+    // Drain reads so "close" fires once amd ends the connection —
     // same paused-socket gotcha as playAudioSocketLeg above.
     socket.on("data", () => undefined);
 
@@ -195,7 +195,7 @@ function connectFakeAgiClient(
   });
 }
 
-describe("@amdanalyser/agi+audiosocket integration", function () {
+describe("@amd/agi+audiosocket integration", function () {
   let audioSocket: ReturnType<typeof startAudioSocketServer>;
   let agiServer: ReturnType<typeof startAgiServer>;
 

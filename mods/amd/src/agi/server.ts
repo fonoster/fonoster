@@ -34,7 +34,7 @@ import {
   unregisterPendingClassification
 } from "./sessionRegistry";
 
-const logger = getLogger({ service: "amdanalyser", filePath: __filename });
+const logger = getLogger({ service: "amd", filePath: __filename });
 
 const TIMED_OUT_RESULT = (): ProbeResult => ({
   kind: "unknown",
@@ -43,7 +43,7 @@ const TIMED_OUT_RESULT = (): ProbeResult => ({
 });
 
 /**
- * Starts the FastAGI listener. Asterisk's `AGI(agi://amdanalyser:4573,${AMD_MODE})`
+ * Starts the FastAGI listener. Asterisk's `AGI(agi://amd:4573,${AMD_MODE})`
  * blocks the channel here. Per session: read the requested mode from the
  * dialplan's first AGI argument (`compact`, the default, or `full`), mint a
  * UUID, EXEC AudioSocket to pull the leading audio (blocks until the

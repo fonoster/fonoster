@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 /**
- * Sets AMDANALYSER_* env vars for the AGI/AudioSocket integration test,
+ * Sets AMD_* env vars for the AGI/AudioSocket integration test,
  * isolated in its own module and imported first: esbuild (via tsx) hoists
  * `import` statements above other top-level code within a file, so setting
  * `process.env` directly in the test file — after its own imports, in source
@@ -34,10 +34,10 @@ export const PROBE_MS = 500; // -> exactly 16000 bytes -> exactly 25 frames
 // the suite into a 20s+ wait.
 export const TIMEOUT_MS = 3000;
 
-process.env.AMDANALYSER_AGI_PORT = String(AGI_PORT);
-process.env.AMDANALYSER_AUDIOSOCKET_PORT = String(AUDIOSOCKET_PORT);
-process.env.AMDANALYSER_AUDIOSOCKET_ADVERTISE_HOST = "127.0.0.1";
-process.env.AMDANALYSER_AUDIOSOCKET_BIND_ADDR = "127.0.0.1";
-process.env.AMDANALYSER_PROBE_MS = String(PROBE_MS);
-process.env.AMDANALYSER_TIMEOUT_MS = String(TIMEOUT_MS);
-process.env.AMDANALYSER_MIN_CONFIDENCE = "0";
+process.env.AMD_AGI_PORT = String(AGI_PORT);
+process.env.AMD_AUDIOSOCKET_PORT = String(AUDIOSOCKET_PORT);
+process.env.AMD_AUDIOSOCKET_ADVERTISE_HOST = "127.0.0.1";
+process.env.AMD_AUDIOSOCKET_BIND_ADDR = "127.0.0.1";
+process.env.AMD_PROBE_MS = String(PROBE_MS);
+process.env.AMD_TIMEOUT_MS = String(TIMEOUT_MS);
+process.env.AMD_MIN_CONFIDENCE = "0";

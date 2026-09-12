@@ -20,9 +20,9 @@ import { getLogger } from "@fonoster/logger";
 import { startAgiServer } from "./agi/server";
 import { startAudioSocketServer } from "./audiosocket/server";
 
-const logger = getLogger({ service: "amdanalyser", filePath: __filename });
+const logger = getLogger({ service: "amd", filePath: __filename });
 
-logger.info("starting amdanalyser");
+logger.info("starting amd");
 
 startAudioSocketServer();
 startAgiServer();

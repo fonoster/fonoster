@@ -25,7 +25,7 @@ type AmdVariables = Record<string, string>;
 
 /**
  * Parses the mode passed as the AGI session's first dialplan argument (e.g.
- * `AGI(agi://amdanalyser:4573,${AMD_MODE})` -> `agi_arg_1` -> here).
+ * `AGI(agi://amd:4573,${AMD_MODE})` -> `agi_arg_1` -> here).
  * Anything but the literal "full" is treated as "compact" — the safe,
  * native-AMD-compatible default when the argument is absent, empty, or
  * misspelled.

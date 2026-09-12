@@ -37,10 +37,10 @@ services:
       context: .
       dockerfile: ./mods/autopilot/Dockerfile
 
-  amdanalyser:
+  amd:
     build:
       context: .
-      dockerfile: ./mods/amdanalyser/Dockerfile
+      dockerfile: ./mods/amd/Dockerfile
 
   routr:
     ports:

@@ -98,7 +98,7 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           // inbound call and a media server without the AMD dialplan simply
           // ignores it. Thresholds live in the media server's amd.conf.
           ...(AMD_ENABLED ? { AMD_ENABLED: "true" } : {}),
-          // Routes AMD to the amdanalyser sidecar instead of native AMD(),
+          // Routes AMD to the amd sidecar instead of native AMD(),
           // only when AMD is enabled at all.
           ...(AMD_ENABLED && AMD_ENGINE === "ml" ? { AMD_ENGINE: "ml" } : {}),
           // Feature flag for the sidecar only: "full" asks it to report the

@@ -1,4 +1,4 @@
-amdanalyser
+amd
 =================
 
 Standalone Answering Machine Detection sidecar for Fonoster. Runs an ONNX
@@ -15,7 +15,7 @@ Asterisk box with no other part of the Fonoster stack running.
 ## How it works
 
 1. The dialplan (see `asterisk/config/extensions.conf`'s `AMD_ENGINE` gate)
-   calls `AGI(agi://amdanalyser:4573,${AMD_MODE})`, which blocks the channel.
+   calls `AGI(agi://amd:4573,${AMD_MODE})`, which blocks the channel.
    The argument is the mode feature flag — see below.
 2. Inside that AGI session, this service mints a UUID and runs
    `EXEC AudioSocket <uuid>,<host>:<port>`, which blocks until the AudioSocket
@@ -48,7 +48,7 @@ as a channel variable.
   classifier's five-way status onto the same four-value `AMDSTATUS`
   vocabulary Asterisk's native `AMD()` uses (`HUMAN`/`MACHINE`/`NOTSURE`),
   with `VOICEMAIL`/`IVR` folded into `MACHINE` and a descriptive `AMDCAUSE`
-  (e.g. `MACHINE-VOICEMAIL`). Confidence below `AMDANALYSER_MIN_CONFIDENCE`
+  (e.g. `MACHINE-VOICEMAIL`). Confidence below `AMD_MIN_CONFIDENCE`
   is downgraded to `NOTSURE`/`ML-LOW-CONFIDENCE`. Only ever sets
   `AMDSTATUS`/`AMDCAUSE` — a consumer built against native AMD() sees no
   difference switching engines.
@@ -65,14 +65,14 @@ call — apiserver already does this for API-originated calls via
 
 | env | default | meaning |
 |---|---|---|
-| `AMDANALYSER_AGI_PORT` | `4573` | FastAGI listener port |
-| `AMDANALYSER_AUDIOSOCKET_PORT` | `9092` | AudioSocket listener port |
-| `AMDANALYSER_AUDIOSOCKET_BIND_ADDR` | `0.0.0.0` | AudioSocket listener bind address |
-| `AMDANALYSER_AUDIOSOCKET_ADVERTISE_HOST` | `amdanalyser` | host Asterisk is told to connect to for the AudioSocket leg — must be reachable *from* Asterisk |
-| `AMDANALYSER_PROBE_MS` | `3000` | leading audio to gather before classifying |
-| `AMDANALYSER_TIMEOUT_MS` | `4000` | hard deadline for the whole AGI session |
-| `AMDANALYSER_MIN_CONFIDENCE` | `0.8` | compact mode only: verdicts below this are reported as `NOTSURE` |
-| `AMDANALYSER_MODEL_PATH` | *(bundled)* | override the model directory |
+| `AMD_AGI_PORT` | `4573` | FastAGI listener port |
+| `AMD_AUDIOSOCKET_PORT` | `9092` | AudioSocket listener port |
+| `AMD_AUDIOSOCKET_BIND_ADDR` | `0.0.0.0` | AudioSocket listener bind address |
+| `AMD_AUDIOSOCKET_ADVERTISE_HOST` | `amd` | host Asterisk is told to connect to for the AudioSocket leg — must be reachable *from* Asterisk |
+| `AMD_PROBE_MS` | `3000` | leading audio to gather before classifying |
+| `AMD_TIMEOUT_MS` | `4000` | hard deadline for the whole AGI session |
+| `AMD_MIN_CONFIDENCE` | `0.8` | compact mode only: verdicts below this are reported as `NOTSURE` |
+| `AMD_MODEL_PATH` | *(bundled)* | override the model directory |
 
 ## Enabling it end-to-end
 
@@ -127,17 +127,17 @@ box in this repo's CI; treat it as a documented starting point to validate by
 hand:
 
 ```sh
-docker compose -f mods/amdanalyser/docker-compose.smoke.yaml up --build
+docker compose -f mods/amd/docker-compose.smoke.yaml up --build
 ```
 
-That starts `amdanalyser` alongside a `fonoster/asterisk` container using
-`mods/amdanalyser/smoke/extensions.conf`, a minimal dialplan with one test
+That starts `amd` alongside a `fonoster/asterisk` container using
+`mods/amd/smoke/extensions.conf`, a minimal dialplan with one test
 extension:
 
 ```
 exten => 7000,1,Answer()
  same => n,Wait(1)
- same => n,AGI(agi://amdanalyser:4573)
+ same => n,AGI(agi://amd:4573)
  same => n,Verbose(1,AMDSTATUS=${AMDSTATUS} AMDCAUSE=${AMDCAUSE})
  same => n,Hangup()
 ```
@@ -147,12 +147,12 @@ human greeting vs. a voicemail greeting) and check the Asterisk console log
 for the `AMDSTATUS`/`AMDCAUSE` line the `Verbose()` step prints, e.g.:
 
 ```sh
-docker compose -f mods/amdanalyser/docker-compose.smoke.yaml exec asterisk \
+docker compose -f mods/amd/docker-compose.smoke.yaml exec asterisk \
   asterisk -rx "channel originate Local/7000@smoke-test application Playback /path/to/sample"
 ```
 
 ## Development
 
 ```sh
-npm run start:dev -w @fonoster/amdanalyser
+npm run start:dev -w @fonoster/amd
 ```

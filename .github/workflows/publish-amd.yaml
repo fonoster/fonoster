@@ -1,4 +1,4 @@
-name: publish amdanalyser
+name: publish amd
 
 on:
   workflow_call:
@@ -62,13 +62,13 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Publish AMD Analyser to Docker Hub
+      - name: Publish AMD to Docker Hub
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: mods/amdanalyser/Dockerfile
+          file: mods/amd/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            fonoster/amdanalyser:latest
-            fonoster/amdanalyser:${{ env.LERNA_VERSION }}
+            fonoster/amd:latest
+            fonoster/amd:${{ env.LERNA_VERSION }}

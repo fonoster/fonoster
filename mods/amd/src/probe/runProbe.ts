@@ -25,7 +25,7 @@ import {
 } from "../amd/AmdModel";
 import { collectPcm } from "./collectPcm";
 
-const logger = getLogger({ service: "amdanalyser", filePath: __filename });
+const logger = getLogger({ service: "amd", filePath: __filename });
 
 type Classify = (pcm: Buffer) => Promise<AmdClassification>;
 

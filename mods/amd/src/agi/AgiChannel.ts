@@ -81,7 +81,7 @@ class AgiChannel extends EventEmitter {
 
   /**
    * Dialplan arguments passed after the AGI URI, e.g.
-   * `AGI(agi://amdanalyser:4573,${AMD_MODE})` arrives as `agi_arg_1`, read
+   * `AGI(agi://amd:4573,${AMD_MODE})` arrives as `agi_arg_1`, read
    * here as `args[0]`. Standard AGI behavior, same for FastAGI as for a
    * local script.
    */

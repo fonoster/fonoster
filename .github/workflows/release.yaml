@@ -117,11 +117,11 @@ jobs:
       ref: ${{ needs.build.outputs.RELEASE_SHA }}
     secrets: inherit
 
-  publish-amdanalyser:
-    name: Publish AMD Analyser to Docker Hub
+  publish-amd:
+    name: Publish AMD to Docker Hub
     needs: [build]
     if: needs.build.outputs.RELEASE != 'none'
-    uses: ./.github/workflows/publish-amdanalyser.yaml
+    uses: ./.github/workflows/publish-amd.yaml
     with:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
       ref: ${{ needs.build.outputs.RELEASE_SHA }}
@@ -149,7 +149,7 @@ jobs:
 
   manual-approval:
     name: Manual Approval for Release Finalization
-    needs: [build, publish-apiserver, publish-autopilot, publish-amdanalyser, publish-dashboard, publish-identity]
+    needs: [build, publish-apiserver, publish-autopilot, publish-amd, publish-dashboard, publish-identity]
     if: needs.build.outputs.RELEASE != 'none'
     runs-on: ubuntu-latest
     environment: release-approval
@@ -161,7 +161,7 @@ jobs:
           echo "🐳 Docker images published:"
           echo "  - fonoster/apiserver:${{ needs.build.outputs.LERNA_VERSION }}"
           echo "  - fonoster/autopilot:${{ needs.build.outputs.LERNA_VERSION }}"
-          echo "  - fonoster/amdanalyser:${{ needs.build.outputs.LERNA_VERSION }}"
+          echo "  - fonoster/amd:${{ needs.build.outputs.LERNA_VERSION }}"
           echo "  - fonoster/dashboard:${{ needs.build.outputs.LERNA_VERSION }}"
           echo ""
           echo "Please review the draft release and Docker images."
@@ -227,7 +227,7 @@ jobs:
           sed -i "s|fonoster/dashboard:[^[:space:]]*|fonoster/dashboard:${{ env.LERNA_VERSION }}|g" compose.yaml
           sed -i "s|fonoster/apiserver:[^[:space:]]*|fonoster/apiserver:${{ env.LERNA_VERSION }}|g" compose.yaml
           sed -i "s|fonoster/autopilot:[^[:space:]]*|fonoster/autopilot:${{ env.LERNA_VERSION }}|g" compose.yaml
-          sed -i "s|fonoster/amdanalyser:[^[:space:]]*|fonoster/amdanalyser:${{ env.LERNA_VERSION }}|g" compose.yaml
+          sed -i "s|fonoster/amd:[^[:space:]]*|fonoster/amd:${{ env.LERNA_VERSION }}|g" compose.yaml
 
           git add compose.yaml
           

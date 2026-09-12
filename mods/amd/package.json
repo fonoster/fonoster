@@ -1,5 +1,5 @@
 {
-  "name": "@fonoster/amdanalyser",
+  "name": "@fonoster/amd",
   "version": "0.24.0",
   "description": "Standalone answering-machine-detection sidecar for the Fonoster platform",
   "author": "Pedro Sanders <psanders@fonoster.com>",
