@@ -17,6 +17,7 @@ jobs:
     outputs:
       RELEASE: ${{ env.RELEASE }}
       LERNA_VERSION: ${{ env.LERNA_VERSION }}
+      RELEASE_SHA: ${{ env.RELEASE_SHA }}
 
     steps:
       - name: Checkout
@@ -65,6 +66,18 @@ jobs:
           lerna_version=$(node -p "require('./lerna.json').version")
           echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
 
+      # "npm run release" (lerna publish) commits and pushes the version bump
+      # to main. The publish-*.yaml jobs below each do their own fresh
+      # checkout with no explicit ref, which defaults to the commit that
+      # triggered this workflow run — one commit BEHIND this bump. Passing
+      # this SHA explicitly is what makes their checkout build the actual
+      # released code (with matching package.json versions) instead of the
+      # pre-bump commit.
+      - name: Capture release commit SHA
+        run: |
+          release_sha=$(git rev-parse HEAD)
+          echo "RELEASE_SHA=$release_sha" >> $GITHUB_ENV
+
       - name: Create release note
         if: env.RELEASE != 'none'
         id: changelog
@@ -91,6 +104,7 @@ jobs:
     uses: ./.github/workflows/publish-apiserver.yaml
     with:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
+      ref: ${{ needs.build.outputs.RELEASE_SHA }}
     secrets: inherit
 
   publish-autopilot:
@@ -100,6 +114,7 @@ jobs:
     uses: ./.github/workflows/publish-autopilot.yaml
     with:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
+      ref: ${{ needs.build.outputs.RELEASE_SHA }}
     secrets: inherit
 
   publish-dashboard:
@@ -109,6 +124,7 @@ jobs:
     uses: ./.github/workflows/publish-dashboard.yaml
     with:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
+      ref: ${{ needs.build.outputs.RELEASE_SHA }}
     secrets: inherit
 
   publish-identity:
@@ -118,6 +134,7 @@ jobs:
     uses: ./.github/workflows/publish-identity.yaml
     with:
       version: ${{ needs.build.outputs.LERNA_VERSION }}
+      ref: ${{ needs.build.outputs.RELEASE_SHA }}
     secrets: inherit
 
   manual-approval:
