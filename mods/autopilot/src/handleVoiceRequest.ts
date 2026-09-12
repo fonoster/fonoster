@@ -61,7 +61,8 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     appRef,
     callRef,
     callDirection,
-    metadata
+    metadata,
+    amd
   } = req;
 
   logger.verbose("voice request", {
@@ -176,7 +177,8 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
             callRef,
             phone: ingressNumber,
             chatHistory: chatHistory as Record<string, string>[],
-            recordingUrl
+            recordingUrl,
+            amd
           }
         );
       }

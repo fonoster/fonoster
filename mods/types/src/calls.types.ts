@@ -42,6 +42,15 @@ enum CallDirection {
   INTRA_NETWORK = "INTRA_NETWORK"
 }
 
+enum AmdStatus {
+  UNSPECIFIED = "AMD_STATUS_UNSPECIFIED",
+  HUMAN = "HUMAN",
+  MACHINE = "MACHINE",
+  VOICEMAIL = "VOICEMAIL",
+  IVR = "IVR",
+  UNKNOWN = "UNKNOWN"
+}
+
 type CallDetailRecord = {
   ref: string;
   accessKeyId: string;
@@ -53,6 +62,12 @@ type CallDetailRecord = {
   direction: CallDirection;
   startedAt: Date;
   endedAt: Date;
+  // Answering Machine Detection verdict, absent when AMD did not run
+  amdStatus?: AmdStatus;
+  amdConfidence?: number;
+  amdDetector?: string;
+  amdLatencyMs?: number;
+  amdCause?: string;
 };
 
 type ListCallsRequest = {
@@ -94,6 +109,7 @@ type TrackCallSubscriber = {
 };
 
 export {
+  AmdStatus,
   CallDetailRecord,
   CallDirection,
   CallPublisher,

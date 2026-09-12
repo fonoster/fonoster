@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallType, CallStatus } from "@fonoster/types";
+import { AmdStatus, CallType, CallStatus } from "@fonoster/types";
 import * as chai from "chai"; import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
@@ -48,7 +48,12 @@ describe("@calls/fetchSingleCall", function () {
       to: "+1234567891",
       status: CallStatus.NORMAL_CLEARING,
       type: CallType.API_ORIGINATED,
-      accessKeyId
+      accessKeyId,
+      amdStatus: AmdStatus.HUMAN,
+      amdConfidence: 1,
+      amdDetector: "asterisk-amd@1",
+      amdLatencyMs: 0,
+      amdCause: ""
     };
 
     const collectRows = sandbox.stub().resolves([item]);
