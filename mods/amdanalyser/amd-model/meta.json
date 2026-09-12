@@ -1,0 +1,19 @@
+{
+  "id2label": {
+    "0": "human",
+    "1": "voicemail",
+    "2": "ivr",
+    "3": "answering_machine"
+  },
+  "num_mel_bins": 80,
+  "n_fft": 400,
+  "hop_length": 160,
+  "sampling_rate": 16000,
+  "n_samples": 480000,
+  "nb_max_frames": 3000,
+  "mel_filters_shape": [
+    201,
+    80
+  ],
+  "source_model": "AbijahKaj/whisper-telephony-amd"
+}

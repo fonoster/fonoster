@@ -12,6 +12,8 @@ services:
     restart: unless-stopped
     environment:
       - APISERVER_AMD_ENABLED
+      - APISERVER_AMD_ENGINE
+      - APISERVER_AMD_MODE
       - APISERVER_APP_URL
       - APISERVER_ASTERISK_ARI_PROXY_URL
       - APISERVER_ASTERISK_ARI_SECRET
@@ -141,6 +143,20 @@ services:
       PORT_MAX: ${RTPENGINE_PORT_MAX}
       PORT_MIN: ${RTPENGINE_PORT_MIN}
       PUBLIC_IP: ${RTPENGINE_PUBLIC_IP}
+
+  amdanalyser:
+    image: fonoster/amdanalyser:0.17.1
+    restart: unless-stopped
+    environment:
+      - AMDANALYSER_AGI_PORT
+      - AMDANALYSER_AUDIOSOCKET_PORT
+      - AMDANALYSER_AUDIOSOCKET_ADVERTISE_HOST
+      - AMDANALYSER_PROBE_MS
+      - AMDANALYSER_TIMEOUT_MS
+      - AMDANALYSER_MIN_CONFIDENCE
+    expose:
+      - 4573
+      - 9092
 
   asterisk:
     image: fonoster/asterisk:20

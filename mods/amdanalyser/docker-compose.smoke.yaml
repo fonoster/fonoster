@@ -1,0 +1,40 @@
+### Isolated smoke test for amdanalyser: run it against a bare Asterisk
+### instance, with no apiserver, autopilot, NATS, or Postgres involved.
+###
+### Usage: docker compose -f mods/amdanalyser/docker-compose.smoke.yaml up --build
+###
+### Then originate a call into extension 7000 (see this module's README) and
+### watch the asterisk container's console log for the AMDSTATUS/AMDCAUSE
+### line the dialplan's Verbose() step prints.
+services:
+  amdanalyser:
+    build:
+      context: ../..
+      dockerfile: ./mods/amdanalyser/Dockerfile
+    environment:
+      AMDANALYSER_AUDIOSOCKET_ADVERTISE_HOST: amdanalyser
+    ports:
+      - 4573:4573
+      - 9092:9092
+
+  asterisk:
+    build:
+      context: ../../asterisk
+      dockerfile: ./Dockerfile
+    depends_on:
+      - amdanalyser
+    environment:
+      # asterisk/run.sh requires these to be set to start at all; this smoke
+      # test uses neither ARI nor a real SIP trunk, so the values are unused
+      # placeholders, not real credentials.
+      ARI_USERNAME: smoke
+      ARI_SECRET: smoke
+      RTP_PORT_START: "10000"
+      RTP_PORT_END: "10100"
+      SIPPROXY_HOST: none
+      SIPPROXY_USERNAME: smoke
+      SIPPROXY_SECRET: smoke
+    volumes:
+      - ./smoke/extensions.conf:/etc/asterisk/extensions.conf:ro
+    ports:
+      - 6060:6060

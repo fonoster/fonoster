@@ -1,0 +1,45 @@
+{
+  "name": "@fonoster/amdanalyser",
+  "version": "0.24.0",
+  "description": "Standalone answering-machine-detection sidecar for the Fonoster platform",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
+    "generate:readme": "node ../../.scripts/gen-readme.cjs",
+    "start:dev": "nodemon --exec tsx --watch src src/server.ts"
+  },
+  "dependencies": {
+    "@fonoster/common": "^0.24.0",
+    "@fonoster/logger": "^0.24.0",
+    "@fonoster/streams": "^0.24.0",
+    "onnxruntime-node": "1.21.1",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/uuid": "^10.0.0"
+  },
+  "files": [
+    "dist",
+    "amd-model"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  }
+}

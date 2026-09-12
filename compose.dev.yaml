@@ -26,6 +26,8 @@ services:
     ports:
       - 50051:50051
     environment:
+      - APISERVER_AMD_ENGINE
+      - APISERVER_AMD_MODE
       - APISERVER_ROUTR_API_ENDPOINT
       - APISERVER_SMTP_PORT
       - APISERVER_SMTP_SECURE
@@ -34,6 +36,11 @@ services:
     build:
       context: .
       dockerfile: ./mods/autopilot/Dockerfile
+
+  amdanalyser:
+    build:
+      context: .
+      dockerfile: ./mods/amdanalyser/Dockerfile
 
   routr:
     ports:

@@ -22,6 +22,8 @@ import ariClient from "ari-client";
 import { connect } from "nats";
 import {
   AMD_ENABLED,
+  AMD_ENGINE,
+  AMD_MODE,
   ASTERISK_SYSTEM_DOMAIN,
   ASTERISK_TRUNK,
   CALLS_CREATE_SUBJECT,
@@ -95,7 +97,15 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           // Gates AMD() in the dialplan. Only set here, so AMD never runs on an
           // inbound call and a media server without the AMD dialplan simply
           // ignores it. Thresholds live in the media server's amd.conf.
-          ...(AMD_ENABLED ? { AMD_ENABLED: "true" } : {})
+          ...(AMD_ENABLED ? { AMD_ENABLED: "true" } : {}),
+          // Routes AMD to the amdanalyser sidecar instead of native AMD(),
+          // only when AMD is enabled at all.
+          ...(AMD_ENABLED && AMD_ENGINE === "ml" ? { AMD_ENGINE: "ml" } : {}),
+          // Feature flag for the sidecar only: "full" asks it to report the
+          // richer variable set instead of staying native-AMD-compatible.
+          ...(AMD_ENABLED && AMD_ENGINE === "ml" && AMD_MODE === "full"
+            ? { AMD_MODE: "full" }
+            : {})
         }
       });
     };
