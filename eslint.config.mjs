@@ -79,7 +79,9 @@ import headerPlugin from 'eslint-plugin-header'; export default [
         setImmediate: 'readonly',
         clearInterval: 'readonly',
         fetch: 'readonly',
-        performance: 'readonly'
+        performance: 'readonly',
+        AbortController: 'readonly',
+        AbortSignal: 'readonly'
       },
     },
     plugins: {

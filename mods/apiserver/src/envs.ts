@@ -89,6 +89,21 @@ export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
 // total_analysis_time before the voice application is dispatched.
 export const AMD_ENABLED = e.APISERVER_AMD_ENABLED === "true";
 
+// Which detector runs behind AMD_ENABLED: Asterisk's native AMD() heuristic
+// ("native", the default) or the amd sidecar's ONNX classifier ("ml"),
+// selected by asterisk/config/extensions.conf's AMD_ENGINE gate. Either way
+// the verdict lands in the same AMDSTATUS/AMDCAUSE channel variables, so
+// nothing downstream of runCallManager.ts needs to know which one ran.
+export const AMD_ENGINE = e.APISERVER_AMD_ENGINE === "ml" ? "ml" : "native";
+
+// Feature flag for the "ml" engine only: "compact" (the default) makes
+// amd report the same native-AMD-compatible AMDSTATUS/AMDCAUSE pair
+// as the "native" engine above, so switching engines never changes what
+// apiserver reads. "full" additionally reports AMDCONFIDENCE/AMDDETECTOR/
+// AMDLATENCYMS and the classifier's own five-way status (HUMAN/MACHINE/
+// VOICEMAIL/IVR/UNKNOWN) — a consumer must opt into "full" to see those.
+export const AMD_MODE = e.APISERVER_AMD_MODE === "full" ? "full" : "compact";
+
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = e.APISERVER_CLOAK_ENCRYPTION_KEY;
 
