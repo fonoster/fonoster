@@ -114,9 +114,22 @@ jobs:
       - name: Run integration tests for the SDK
         run: |
           set +e
-          npm run integration
+          echo "--- environment ---"
+          node -v
+          free -h || true
+          ulimit -a
+          echo "--- running mocha directly (bypassing npm's own exit-code translation) ---"
+          cross-env LOGS_LEVEL=none NODE_ENV=development \
+            node --unhandled-rejections=strict node_modules/.bin/mocha \
+            --slow 50000 --timeout 10000 \
+            'mods/**/node.integration.ts' 'mods/**/*.integration.test.ts'
           status=$?
-          echo "npm run integration exited with code: $status"
+          echo "mocha exited with raw status: $status"
+          if [ "$status" -gt 128 ]; then
+            sig=$((status - 128))
+            echo "That's signal $sig (kill -l $sig): $(kill -l "$sig" 2>/dev/null || echo unknown)"
+          fi
+          dmesg 2>/dev/null | tail -50 | grep -i "killed process\|out of memory" || true
           exit $status
 
       - name: Apiserver logs (on failure)
