@@ -1,6 +1,6 @@
 services:
   dashboard:
-    image: fonoster/dashboard:0.17.1
+    image: fonoster/dashboard:0.25.0
     restart: unless-stopped
     expose:
       - 3030:3030
@@ -8,7 +8,7 @@ services:
       - SERVER_DASHBOARD_SESSION_SECRET
 
   apiserver:
-    image: fonoster/apiserver:0.17.1
+    image: fonoster/apiserver:0.25.0
     restart: unless-stopped
     environment:
       - APISERVER_AMD_ENABLED
@@ -64,7 +64,7 @@ services:
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   autopilot:
-    image: fonoster/autopilot:0.17.1
+    image: fonoster/autopilot:0.25.0
     restart: unless-stopped
     expose:
       - 50061
@@ -86,7 +86,7 @@ services:
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   routr:
-    image: fonoster/routr-one:2.13.22
+    image: fonoster/routr-one:2.15.1
     restart: unless-stopped
     labels:
       - "autoheal=true"
@@ -145,7 +145,7 @@ services:
       PUBLIC_IP: ${RTPENGINE_PUBLIC_IP}
 
   amd:
-    image: fonoster/amd:0.17.1
+    image: fonoster/amd:0.25.0
     restart: unless-stopped
     environment:
       - AMD_AGI_PORT

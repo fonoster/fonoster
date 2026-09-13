@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@fonoster/logger": "^0.25.0",
+    "@fonoster/types": "^0.25.0",
     "@grpc/grpc-js": "~1.10.11",
     "@grpc/proto-loader": "^0.7.15",
     "@influxdata/influxdb-client": "^1.35.0",

@@ -22,6 +22,7 @@
     "@fonoster/common": "^0.25.0",
     "@fonoster/logger": "^0.25.0",
     "@fonoster/streams": "^0.25.0",
+    "@fonoster/types": "^0.25.0",
     "onnxruntime-node": "1.21.1",
     "uuid": "^11.0.3"
   },
