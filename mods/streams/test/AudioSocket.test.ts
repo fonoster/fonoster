@@ -83,6 +83,48 @@ describe("@streams/AudioSocket", function () {
     expect(listenStub).to.have.been.calledWith(8080, "127.0.0.1", match.func);
   });
 
+  it("should survive malformed frames and keep serving other connections", function (done) {
+    // Arrange
+    const sessionId = "4f049b85-8d02-424d-8107-aebc665f47f1";
+    const port = 19094;
+    const audioSocket = new AudioSocket();
+    let finished = false;
+
+    audioSocket.onConnection((req, stream) => {
+      stream.onData((data) => {
+        if (finished) return;
+        finished = true;
+        // Assert
+        expect(req.ref).to.equal(sessionId);
+        expect(data[0]).to.equal(7);
+        bad.destroy();
+        good.destroy();
+        audioSocket.close();
+        done();
+      });
+      stream.onError(() => undefined);
+    });
+
+    // Act: an ERROR frame before any ID, then an ID with no payload
+    let bad: net.Socket;
+    let good: net.Socket;
+    audioSocket.listen(port, "127.0.0.1", () => {
+      bad = net.createConnection(port, "127.0.0.1", () => {
+        bad.write(Buffer.from([0xff, 0x00, 0x01, 0x01]));
+        bad.write(Buffer.from([0x01, 0x00, 0x00]));
+        setTimeout(() => {
+          good = net.createConnection(port, "127.0.0.1", () => {
+            const id = Buffer.from(sessionId.replace(/-/g, ""), "hex");
+            good.write(Buffer.concat([Buffer.from([0x01, 0x00, id.length]), id]));
+            good.write(Buffer.concat([Buffer.from([0x10, 0x01, 0x40]), Buffer.alloc(320, 7)]));
+          });
+          good.on("error", () => undefined);
+        }, 50);
+      });
+      bad.on("error", () => undefined);
+    });
+  });
+
   it("should parse messages that are coalesced or split across TCP reads", function (done) {
     // Arrange
     const sessionId = "4f049b85-8d02-424d-8107-aebc665f47f1";

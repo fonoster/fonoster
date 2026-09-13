@@ -130,8 +130,15 @@ class AudioSocket {
       if (buffer.length - offset < messageLen) break; // wait for more data
 
       const message = new Message(buffer.subarray(offset, offset + messageLen));
-      this.dispatchMessage(message, asStream, audioStream);
       offset += messageLen;
+      // This runs inside the socket's "data" handler: anything thrown here
+      // (a malformed ID, an "error" emitted before the consumer listens, a
+      // consumer listener throwing) would otherwise crash the process.
+      try {
+        this.dispatchMessage(message, asStream, audioStream);
+      } catch (err) {
+        logger.error("error processing message:", err);
+      }
     }
 
     return offset > 0 ? buffer.subarray(offset) : buffer;
