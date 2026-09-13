@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/amd",
-  "version": "0.25.1",
+  "version": "0.25.2",
   "description": "Standalone answering-machine-detection sidecar for the Fonoster platform",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -21,7 +21,7 @@
   "dependencies": {
     "@fonoster/common": "^0.25.1",
     "@fonoster/logger": "^0.25.0",
-    "@fonoster/streams": "^0.25.0",
+    "@fonoster/streams": "^0.25.2",
     "@fonoster/types": "^0.25.0",
     "onnxruntime-node": "1.21.1",
     "uuid": "^11.0.3"
