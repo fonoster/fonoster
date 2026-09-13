@@ -18,7 +18,9 @@
  */
 import { AudioStream } from "@fonoster/streams";
 
-const SAMPLE_RATE = 16000;
+// Asterisk's AudioSocket() app always streams slin (8 kHz), whatever the
+// channel's native rate.
+const SAMPLE_RATE = 8000;
 const BYTES_PER_SAMPLE = 2; // mono, 16-bit little-endian
 
 type CollectPcmParams = {

@@ -42,6 +42,14 @@ const TIMED_OUT_RESULT = (): ProbeResult => ({
   latencyMs: 0
 });
 
+// How long to wait, once the verdict is in, for AudioSocket() to return and
+// free the AGI socket. The audio leg hangs up right after classifying and
+// runProbe shares TIMEOUT_MS, so this only runs out on a genuinely stuck leg.
+const AUDIOSOCKET_RELEASE_MS = 2000;
+
+const delay = <T>(ms: number, value: T): Promise<T> =>
+  new Promise((resolve) => setTimeout(() => resolve(value), ms));
+
 /**
  * Starts the FastAGI listener. Asterisk's `AGI(agi://amd:4573,${AMD_MODE})`
  * blocks the channel here. Per session: read the requested mode from the
@@ -51,10 +59,9 @@ const TIMED_OUT_RESULT = (): ProbeResult => ({
  * however many channel variables that mode produces, SET each, then return
  * so the dialplan resumes at Stasis(mediacontroller).
  *
- * Always fail-open: a `setTimeout` bounds the whole session even if the
- * AudioSocket side never resolves, and a top-level try/catch guarantees the
- * SET VARIABLE commands are still attempted before the handler returns — an
- * exception must never leave the AGI connection hanging.
+ * Always fail-open: deadlines bound both the wait for a verdict and the wait
+ * for AudioSocket() to return, and the AGI connection is always closed so the
+ * dialplan resumes even when no variables could be set.
  */
 function startAgiServer(): AgiServer {
   const agi = new AgiServer({ port: AGI_PORT });
@@ -78,41 +85,67 @@ function startAgiServer(): AgiServer {
 
     logger.verbose("agi call", { sessionId, mode, channel: call.channel });
 
-    const timeout = new Promise<ProbeResult>((resolve) => {
-      setTimeout(() => resolve(TIMED_OUT_RESULT()), TIMEOUT_MS);
-    });
+    const classification = registerPendingClassification(sessionId);
 
-    // Wrapped as one promise so the deadline bounds the EXEC itself, not just
-    // the wait that follows it — otherwise a stuck/unreachable AudioSocket
-    // connection would hang here forever before the race below is ever
-    // reached, despite the fail-open guarantee described above.
-    const work = (async (): Promise<ProbeResult> => {
-      const pending = registerPendingClassification(sessionId);
-      await call.exec(
+    // AudioSocket()'s result says nothing about whether AMD worked: Asterisk
+    // before 20.14 returns -1 ("200 result=-1") whenever the remote ends the
+    // stream, including the HANGUP this server sends after every
+    // classification. It only tells us when the leg is over and the AGI
+    // socket is free again.
+    const legEnded = call
+      .exec(
         "AudioSocket",
         `${sessionId},${AUDIOSOCKET_ADVERTISE_HOST}:${AUDIOSOCKET_PORT}`
-      );
-      return pending;
-    })();
-    work.catch(() => undefined); // no unhandled rejection if the deadline wins
-
-    let result: ProbeResult;
-    try {
-      result = await Promise.race([work, timeout]);
-    } catch (err) {
-      logger.warn("agi session failed; reporting unknown", {
-        sessionId,
-        error: (err as Error).message
+      )
+      .catch((err: Error) => {
+        logger.verbose("AudioSocket() returned", {
+          sessionId,
+          result: err.message
+        });
       });
-      result = { kind: "unknown", cause: "ML-ERROR", latencyMs: 0 };
-    } finally {
-      unregisterPendingClassification(sessionId);
+
+    // The verdict is resolved in-process before the audio leg hangs up, so a
+    // leg that ends first (e.g. Asterisk couldn't connect) has no verdict.
+    const noVerdict: ProbeResult = {
+      kind: "unknown",
+      cause: "ML-ERROR",
+      latencyMs: 0
+    };
+    const result = await Promise.race([
+      classification,
+      legEnded.then(() => noVerdict),
+      delay(TIMEOUT_MS, TIMED_OUT_RESULT())
+    ]);
+    unregisterPendingClassification(sessionId);
+
+    if (result === noVerdict) {
+      logger.warn(
+        "audiosocket leg ended without a verdict; reporting unknown",
+        {
+          sessionId
+        }
+      );
     }
+
+    // FastAGI is one command at a time: SET VARIABLE can only be sent once
+    // AudioSocket() has returned.
+    const released = await Promise.race([
+      legEnded.then(() => true),
+      delay(AUDIOSOCKET_RELEASE_MS, false)
+    ]);
 
     if (hungUp || call.hungup) {
       logger.verbose("agi call hung up mid-analysis; skipping SET VARIABLE", {
         sessionId
       });
+      return;
+    }
+
+    if (!released) {
+      logger.warn("audiosocket leg still open; skipping SET VARIABLE", {
+        sessionId
+      });
+      call.close();
       return;
     }
 

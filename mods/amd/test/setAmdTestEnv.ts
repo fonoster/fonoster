@@ -27,8 +27,8 @@
  */
 export const AGI_PORT = 14573;
 export const AUDIOSOCKET_PORT = 19092;
-export const FRAME_BYTES = 640; // 20 ms of slin16 @ 16 kHz mono
-export const PROBE_MS = 500; // -> exactly 16000 bytes -> exactly 25 frames
+export const FRAME_BYTES = 320; // 20 ms of slin @ 8 kHz mono, as AudioSocket() sends
+export const PROBE_MS = 500; // -> exactly 8000 bytes -> exactly 25 frames
 // Kept short (rather than a more production-like value) so the test that
 // exercises this deadline directly (a stuck EXEC AudioSocket) doesn't turn
 // the suite into a 20s+ wait.
