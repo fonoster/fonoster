@@ -22,8 +22,13 @@ import { Readable } from "stream";
 import { getLogger } from "@fonoster/logger";
 import { AudioSocketError } from "./AudioSocketError";
 import { AudioStream } from "./AudioStream";
-import { nextMessage } from "./nextMessage";
-import { EventType, MessageType, StreamRequest } from "./types";
+import { Message } from "./Message";
+import {
+  EventType,
+  MessageType,
+  MINIMUM_MESSAGE_LENGTH,
+  StreamRequest
+} from "./types";
 
 const logger = getLogger({ service: "streams", filePath: __filename });
 
@@ -85,9 +90,17 @@ class AudioSocket {
 
     this.audioStream = audioStream;
 
-    socket.on(EventType.DATA, (data) =>
-      this.handleData(data, asStream, audioStream)
-    );
+    // TCP delivers a byte stream, not message frames: one `data` event can
+    // contain several AudioSocket messages back to back, or only part of
+    // one (the rest arriving in the next event). This buffer carries
+    // whatever's left over between events so messages are always parsed
+    // from a stable, growing byte range rather than one chunk in isolation.
+    let recvBuffer: Buffer = Buffer.alloc(0);
+
+    socket.on(EventType.DATA, (data: Buffer) => {
+      recvBuffer = recvBuffer.length ? Buffer.concat([recvBuffer, data]) : data;
+      recvBuffer = this.drainMessages(recvBuffer, asStream, audioStream);
+    });
     socket.on(EventType.END, () => asStream.emit(EventType.END));
     socket.on(EventType.ERROR, (err) => {
       if ("code" in err && err.code === "ERR_STREAM_WRITE_AFTER_END") {
@@ -98,45 +111,61 @@ class AudioSocket {
     });
   }
 
-  private async handleData(
-    data: Buffer,
+  /**
+   * Extracts as many complete `[header][payload]` messages as `buffer`
+   * currently holds, dispatching each one, and returns whatever incomplete
+   * trailing bytes remain (to be prefixed onto the next `data` event).
+   */
+  private drainMessages(
+    buffer: Buffer,
+    asStream: Readable,
+    audioStream: AudioStream
+  ): Buffer {
+    let offset = 0;
+
+    while (buffer.length - offset >= MINIMUM_MESSAGE_LENGTH) {
+      const payloadLen = buffer.readUInt16BE(offset + 1);
+      const messageLen = MINIMUM_MESSAGE_LENGTH + payloadLen;
+
+      if (buffer.length - offset < messageLen) break; // wait for more data
+
+      const message = new Message(buffer.subarray(offset, offset + messageLen));
+      this.dispatchMessage(message, asStream, audioStream);
+      offset += messageLen;
+    }
+
+    return offset > 0 ? buffer.subarray(offset) : buffer;
+  }
+
+  private dispatchMessage(
+    message: Message,
     asStream: Readable,
     audioStream: AudioStream
   ) {
-    const stream = new Readable({ read() {} });
-    stream.push(data);
-    stream.push(null); // End of the stream
-
-    try {
-      const message = await nextMessage(stream);
-
-      switch (message.getKind()) {
-        case MessageType.ID:
-          if (this.connectionHandler) {
-            this.connectionHandler({ ref: message.getId() }, audioStream);
-          } else {
-            logger.warn("no connection handler set");
-          }
-          break;
-        case MessageType.SLIN:
-        case MessageType.SILENCE:
-          asStream.emit(EventType.DATA, message.getPayload());
-          break;
-        case MessageType.HANGUP:
-          asStream.emit(EventType.END);
-          break;
-        case MessageType.ERROR:
-          asStream.emit(
-            EventType.ERROR,
-            new AudioSocketError(message.getErrorCode())
-          );
-          break;
-        default:
-          logger.warn("unknown message type");
-          break;
-      }
-    } catch (err) {
-      logger.error("error processing message:", err);
+    switch (message.getKind()) {
+      case MessageType.ID:
+        if (this.connectionHandler) {
+          this.connectionHandler({ ref: message.getId() }, audioStream);
+        } else {
+          logger.warn("no connection handler set");
+        }
+        break;
+      case MessageType.SLIN:
+      case MessageType.SILENCE:
+        asStream.emit(EventType.DATA, message.getPayload());
+        break;
+      case MessageType.HANGUP:
+        asStream.emit(EventType.END);
+        break;
+      case MessageType.ERROR:
+        asStream.emit(
+          EventType.ERROR,
+          new AudioSocketError(message.getErrorCode())
+        );
+        break;
+      default:
+        logger.warn("unknown message type");
+        break;
     }
   }
 
