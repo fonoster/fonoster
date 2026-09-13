@@ -41,17 +41,28 @@ import { startAgiServer } from "../src/agi/server";
 import { startAudioSocketServer } from "../src/audiosocket/server";
 import { classifyPcm } from "../src/amd/AmdModel";
 import { buildAmdVariables } from "../src/amd/buildAmdVariables";
+import { upsample8kTo16k } from "../src/probe/upsample";
 /* eslint-enable import/order */
 
 const MIN_CONFIDENCE = 0; // matches setAmdTestEnv's AMD_MIN_CONFIDENCE
 
-const FIXTURE_PCM = readFileSync(
-  join(__dirname, "amd", "fixtures", "fixture.pcm")
-);
+// fixture.pcm is 16 kHz; AudioSocket() streams 8 kHz, so average sample pairs
+// down to what Asterisk would actually send.
+const FIXTURE_PCM = (() => {
+  const pcm16k = readFileSync(join(__dirname, "amd", "fixtures", "fixture.pcm"));
+  const pcm8k = Buffer.alloc(Math.floor(pcm16k.length / 4) * 2);
+  for (let i = 0; i < pcm8k.length / 2; i++) {
+    const a = pcm16k.readInt16LE(i * 4);
+    const b = pcm16k.readInt16LE(i * 4 + 2);
+    pcm8k.writeInt16LE(Math.round((a + b) / 2), i * 2);
+  }
+  return pcm8k;
+})();
 
 // The probe stops as soon as it has collected exactly this many bytes (see
 // PROBE_MS above), so this is the exact prefix amd will classify.
-const BYTES_NEEDED = Math.ceil((PROBE_MS / 1000) * 16000 * 2);
+const BYTES_NEEDED = Math.ceil((PROBE_MS / 1000) * 8000 * 2);
+const PROBED_PCM = upsample8kTo16k(FIXTURE_PCM.subarray(0, BYTES_NEEDED));
 
 // --- Minimal AudioSocket protocol bytes, hand-rolled to avoid depending on
 // @fonoster/streams' internal (unexported) Message class. Mirrors the wire
@@ -73,11 +84,8 @@ function slinMessage(payload: Buffer): Buffer {
 
 /** Plays the Asterisk side of the AudioSocket leg: connects, sends the ID
  * message, then streams the fixture PCM frame-by-frame (one `write()` per
- * 20 ms frame, spaced out) so each frame reliably lands as its own TCP
- * "data" event on the receiving end — a single multi-KB write can otherwise
- * be split across reads and mis-parsed as more than one AudioSocket message,
- * which is a real fragility of the protocol handling this test works around
- * rather than exercises. Resolves once amd hangs up. */
+ * 20 ms frame, spaced out) at roughly real-time pacing. Resolves once amd
+ * hangs up. */
 function playAudioSocketLeg(host: string, port: number, uuid: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const socket = net.createConnection({ port, host });
@@ -182,8 +190,11 @@ function connectFakeAgiClient(
         const args = line.replace("EXEC AudioSocket ", "");
         const [uuid, hostPort] = args.split(",");
         const [host, portStr] = hostPort.split(":");
+        // Asterisk before 20.14 returns -1 from AudioSocket() whenever the
+        // remote ends the stream — including amd's own HANGUP after
+        // classifying.
         void playAudioSocketLeg(host, Number(portStr), uuid).finally(() => {
-          socket.write("200 result=1\n");
+          socket.write("200 result=-1\n");
         });
         return;
       }
@@ -219,7 +230,7 @@ describe("@amd/agi+audiosocket integration", function () {
     const seen = await connectFakeAgiClient(undefined);
 
     const direct = buildAmdVariables(
-      { kind: "classified", ...(await classifyPcm(FIXTURE_PCM.subarray(0, BYTES_NEEDED))), latencyMs: 0 },
+      { kind: "classified", ...(await classifyPcm(PROBED_PCM)), latencyMs: 0 },
       "compact",
       MIN_CONFIDENCE
     );
@@ -234,7 +245,7 @@ describe("@amd/agi+audiosocket integration", function () {
 
     const seen = await connectFakeAgiClient("full");
 
-    const classification = await classifyPcm(FIXTURE_PCM.subarray(0, BYTES_NEEDED));
+    const classification = await classifyPcm(PROBED_PCM);
     const direct = buildAmdVariables(
       { kind: "classified", ...classification, latencyMs: 0 },
       "full",

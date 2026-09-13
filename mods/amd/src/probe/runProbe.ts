@@ -24,6 +24,7 @@ import {
   DEFAULT_MODEL_DIR
 } from "../amd/AmdModel";
 import { collectPcm } from "./collectPcm";
+import { upsample8kTo16k } from "./upsample";
 
 const logger = getLogger({ service: "amd", filePath: __filename });
 
@@ -117,7 +118,8 @@ async function runProbe(params: RunProbeParams): Promise<ProbeResult> {
     // The deadline must also bound classification: a cold model load or a hung
     // inference cannot be allowed to stall the AGI session. ONNX Runtime has no
     // cancellation, so the losing promise is left to settle on its own.
-    const classification = classify(pcm);
+    // The model was trained on 16 kHz input; AudioSocket delivers 8 kHz.
+    const classification = classify(upsample8kTo16k(pcm));
     classification.catch(() => undefined); // no unhandled rejection if the deadline wins
 
     const outcome = await Promise.race([classification, onDeadline]);
