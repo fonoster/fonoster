@@ -24,6 +24,7 @@ import {
   AUDIOSOCKET_PORT,
   MODEL_PATH,
   PROBE_MS,
+  SPEECH_THRESHOLD,
   TIMEOUT_MS
 } from "../envs";
 import { runProbe } from "../probe/runProbe";
@@ -46,6 +47,7 @@ function startAudioSocketServer(): AudioSocket {
     const result = await runProbe({
       stream,
       probeMs: PROBE_MS,
+      speechThreshold: SPEECH_THRESHOLD,
       timeoutMs: TIMEOUT_MS,
       modelDir: MODEL_PATH || undefined
     });

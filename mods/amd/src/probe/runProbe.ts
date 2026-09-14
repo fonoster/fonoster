@@ -32,8 +32,10 @@ type Classify = (pcm: Buffer) => Promise<AmdClassification>;
 
 type RunProbeParams = {
   stream: AudioStream;
-  // How much leading audio to gather before classifying, in milliseconds.
+  // How much audio to gather from speech onset before classifying, in ms.
   probeMs: number;
+  // Mean absolute sample value (0-32767) a frame must reach to count as speech.
+  speechThreshold: number;
   // Hard deadline for the whole probe. On expiry the result is "unknown".
   timeoutMs: number;
   // Directory holding model.onnx / mel_filters.bin / meta.json. Defaults to
@@ -57,12 +59,16 @@ type ProbeResult =
       confidence: number;
       detector: string;
       latencyMs: number;
+      // Audio received before the far end started speaking, in ms.
+      speechOnsetMs: number;
     }
   | {
       kind: "unknown";
-      // Machine-readable reason: ML-TIMEOUT, ML-NO-AUDIO, or ML-ERROR.
+      // Machine-readable reason: ML-TIMEOUT, ML-NO-AUDIO, ML-NO-SPEECH, or
+      // ML-ERROR.
       cause: string;
       latencyMs: number;
+      speechOnsetMs?: number;
     };
 
 /**
@@ -73,17 +79,18 @@ type ProbeResult =
  * applied here — see `buildAmdVariables`.
  */
 async function runProbe(params: RunProbeParams): Promise<ProbeResult> {
-  const { stream, probeMs, timeoutMs, modelDir } = params;
+  const { stream, probeMs, speechThreshold, timeoutMs, modelDir } = params;
   const classify: Classify =
     params.classify ??
     ((pcm) => classifyPcm(pcm, modelDir ?? DEFAULT_MODEL_DIR));
 
   const startedAt = Date.now();
   const latencyMs = () => Date.now() - startedAt;
-  const unknown = (cause: string): ProbeResult => ({
+  const unknown = (cause: string, speechOnsetMs?: number): ProbeResult => ({
     kind: "unknown",
     cause,
-    latencyMs: latencyMs()
+    latencyMs: latencyMs(),
+    ...(speechOnsetMs !== undefined ? { speechOnsetMs } : {})
   });
 
   const controller = new AbortController();
@@ -99,20 +106,26 @@ async function runProbe(params: RunProbeParams): Promise<ProbeResult> {
   });
 
   try {
-    const pcm = await collectPcm({
+    const { pcm, speechOnsetMs, receivedBytes } = await collectPcm({
       stream,
       probeMs,
+      speechThreshold,
       signal: controller.signal
     });
 
-    if (controller.signal.aborted) {
-      logger.warn("amd probe: deadline hit while collecting audio");
-      return unknown("ML-TIMEOUT");
+    if (speechOnsetMs === undefined) {
+      const cause = receivedBytes === 0 ? "ML-NO-AUDIO" : "ML-NO-SPEECH";
+      logger.verbose("amd probe: no speech", { cause, receivedBytes });
+      return unknown(cause);
     }
 
-    if (pcm.length === 0) {
-      logger.verbose("amd probe: no usable audio before deadline");
-      return unknown("ML-NO-AUDIO");
+    logger.verbose("amd probe: speech onset", { speechOnsetMs });
+
+    if (controller.signal.aborted) {
+      logger.warn("amd probe: deadline hit while collecting speech", {
+        speechOnsetMs
+      });
+      return unknown("ML-TIMEOUT", speechOnsetMs);
     }
 
     // The deadline must also bound classification: a cold model load or a hung
@@ -127,7 +140,7 @@ async function runProbe(params: RunProbeParams): Promise<ProbeResult> {
       logger.warn(
         "amd probe: classification did not finish before the deadline"
       );
-      return unknown("ML-TIMEOUT");
+      return unknown("ML-TIMEOUT", speechOnsetMs);
     }
 
     logger.verbose("amd probe: verdict", outcome);
@@ -136,7 +149,8 @@ async function runProbe(params: RunProbeParams): Promise<ProbeResult> {
       status: outcome.status,
       confidence: outcome.confidence,
       detector: outcome.detector,
-      latencyMs: latencyMs()
+      latencyMs: latencyMs(),
+      speechOnsetMs
     };
   } catch (err) {
     logger.warn("amd probe failed; reporting unknown", {

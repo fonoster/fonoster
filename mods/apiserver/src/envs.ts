@@ -100,7 +100,7 @@ export const AMD_ENGINE = e.APISERVER_AMD_ENGINE === "ml" ? "ml" : "native";
 // amd report the same native-AMD-compatible AMDSTATUS/AMDCAUSE pair
 // as the "native" engine above, so switching engines never changes what
 // apiserver reads. "full" additionally reports AMDCONFIDENCE/AMDDETECTOR/
-// AMDLATENCYMS and the classifier's own five-way status (HUMAN/MACHINE/
+// AMDLATENCYMS/AMDSPEECHONSETMS and the classifier's own five-way status (HUMAN/MACHINE/
 // VOICEMAIL/IVR/UNKNOWN) — a consumer must opt into "full" to see those.
 export const AMD_MODE = e.APISERVER_AMD_MODE === "full" ? "full" : "compact";
 

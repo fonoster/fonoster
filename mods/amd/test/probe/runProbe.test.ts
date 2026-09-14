@@ -29,8 +29,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-// 100 ms of slin16 @ 16 kHz mono = 0.1 * 16000 * 2 = 3200 bytes
-const pcmChunk = (bytes: number) => Buffer.alloc(bytes, 1);
+// slin @ 8 kHz mono: 16 bytes per ms, 320 bytes per 20 ms frame.
+const BYTES_PER_MS = 16;
+const SPEECH_THRESHOLD = 256;
+// Every sample 0x0404 = 1028, well above the threshold.
+const speech = (ms: number) => Buffer.alloc(ms * BYTES_PER_MS, 4);
+const silence = (ms: number) => Buffer.alloc(ms * BYTES_PER_MS);
 
 /**
  * AudioStream exposes no way to inspect or remove a specific listener (see
@@ -62,6 +66,16 @@ function fakeAudioStream() {
   };
 }
 
+const probeWith = (
+  stream: ReturnType<typeof fakeAudioStream>,
+  options: { probeMs: number; timeoutMs: number; classify: sinon.SinonStub }
+) =>
+  runProbe({
+    stream: stream as unknown as AudioStream,
+    speechThreshold: SPEECH_THRESHOLD,
+    ...options
+  });
+
 describe("@probe/runProbe", function () {
   afterEach(function () {
     return sandbox.restore();
@@ -75,13 +89,8 @@ describe("@probe/runProbe", function () {
     });
     const stream = fakeAudioStream();
 
-    const probe = runProbe({
-      stream: stream as unknown as AudioStream,
-      probeMs: 100,
-      timeoutMs: 1000,
-      classify
-    });
-    stream.emitData(pcmChunk(4000));
+    const probe = probeWith(stream, { probeMs: 100, timeoutMs: 1000, classify });
+    stream.emitData(speech(250));
     const result = await probe;
 
     expect(result.kind).to.equal("classified");
@@ -90,20 +99,90 @@ describe("@probe/runProbe", function () {
     expect(result.confidence).to.equal(0.12);
     expect(result.detector).to.equal("test-detector");
     expect(result.latencyMs).to.be.a("number");
+    expect(result.speechOnsetMs).to.equal(0);
     expect(classify).to.have.been.calledOnce;
+  });
+
+  it("starts the window at speech onset and reports the silence before it", async function () {
+    const classify = sandbox
+      .stub()
+      .resolves({ status: AmdStatus.VOICEMAIL, confidence: 0.9, detector: "d" });
+    const stream = fakeAudioStream();
+
+    const probe = probeWith(stream, { probeMs: 100, timeoutMs: 2000, classify });
+    // Arrives in 20 ms frames, like AudioSocket.
+    const audio = Buffer.concat([silence(1000), speech(200)]);
+    for (let i = 0; i < audio.length; i += 320) {
+      stream.emitData(audio.subarray(i, i + 320));
+    }
+    const result = await probe;
+
+    expect(result).to.include({ kind: "classified", speechOnsetMs: 1000 });
+    // 100 ms of 8 kHz speech, upsampled to 16 kHz: none of the silence.
+    const classified = classify.firstCall.args[0] as Buffer;
+    expect(classified.length).to.equal(100 * BYTES_PER_MS * 2);
+    expect(classified.every((b) => b === 4)).to.equal(true); // no silent samples
+  });
+
+  it("does not start the window on a single loud frame", async function () {
+    const classify = sandbox
+      .stub()
+      .resolves({ status: AmdStatus.HUMAN, confidence: 0.9, detector: "d" });
+    const stream = fakeAudioStream();
+
+    const probe = probeWith(stream, { probeMs: 100, timeoutMs: 2000, classify });
+    stream.emitData(Buffer.concat([silence(200), speech(20), silence(200), speech(200)]));
+    const result = await probe;
+
+    expect(result).to.include({ kind: "classified", speechOnsetMs: 420 });
+  });
+
+  it("returns unknown/ML-NO-SPEECH when only silence arrives before the stream ends", async function () {
+    const classify = sandbox.stub();
+    const stream = fakeAudioStream();
+
+    const probe = probeWith(stream, { probeMs: 100, timeoutMs: 2000, classify });
+    stream.emitData(silence(3000));
+    stream.emitClose();
+    const result = await probe;
+
+    expect(result).to.include({ kind: "unknown", cause: "ML-NO-SPEECH" });
+    expect(result).to.not.have.property("speechOnsetMs");
+    expect(classify).to.not.have.been.called;
+  });
+
+  it("returns unknown/ML-NO-SPEECH at the deadline when silence never turns into speech", async function () {
+    const classify = sandbox.stub();
+    const stream = fakeAudioStream();
+    const startedAt = Date.now();
+
+    const probe = probeWith(stream, { probeMs: 100, timeoutMs: 120, classify });
+    stream.emitData(silence(60));
+    const result = await probe;
+
+    expect(result).to.include({ kind: "unknown", cause: "ML-NO-SPEECH" });
+    expect(Date.now() - startedAt).to.be.lessThan(1000);
+    expect(classify).to.not.have.been.called;
+  });
+
+  it("returns unknown/ML-TIMEOUT with the onset when speech starts but the deadline hits mid-window", async function () {
+    const classify = sandbox.stub();
+    const stream = fakeAudioStream();
+
+    const probe = probeWith(stream, { probeMs: 5000, timeoutMs: 120, classify });
+    stream.emitData(Buffer.concat([silence(40), speech(60)]));
+    const result = await probe;
+
+    expect(result).to.include({ kind: "unknown", cause: "ML-TIMEOUT", speechOnsetMs: 40 });
+    expect(classify).to.not.have.been.called;
   });
 
   it("fails open to unknown/ML-ERROR when the classifier throws", async function () {
     const classify = sandbox.stub().rejects(new Error("model load failed"));
     const stream = fakeAudioStream();
 
-    const probe = runProbe({
-      stream: stream as unknown as AudioStream,
-      probeMs: 100,
-      timeoutMs: 1000,
-      classify
-    });
-    stream.emitData(pcmChunk(4000));
+    const probe = probeWith(stream, { probeMs: 100, timeoutMs: 1000, classify });
+    stream.emitData(speech(250));
     const result = await probe;
 
     expect(result).to.include({ kind: "unknown", cause: "ML-ERROR" });
@@ -118,13 +197,8 @@ describe("@probe/runProbe", function () {
     const stream = fakeAudioStream();
     const startedAt = Date.now();
 
-    const probe = runProbe({
-      stream: stream as unknown as AudioStream,
-      probeMs: 40,
-      timeoutMs: 150,
-      classify
-    });
-    stream.emitData(pcmChunk(4000));
+    const probe = probeWith(stream, { probeMs: 100, timeoutMs: 150, classify });
+    stream.emitData(speech(250));
     const result = await probe;
 
     expect(result).to.include({ kind: "unknown", cause: "ML-TIMEOUT" });
@@ -132,40 +206,11 @@ describe("@probe/runProbe", function () {
     expect(Date.now() - startedAt).to.be.lessThan(1000);
   });
 
-  it("returns unknown/ML-TIMEOUT within the deadline when no audio arrives", async function () {
-    // The 120 ms deadline fires well before the 5 s probe window would, so
-    // this is a timeout, not a "probe window closed with nothing" case (see
-    // the ML-NO-AUDIO test below for that one).
-    const classify = sandbox
-      .stub()
-      .resolves({ status: AmdStatus.HUMAN, confidence: 1, detector: "d" });
-    const stream = fakeAudioStream();
-    const startedAt = Date.now();
-
-    const result = await runProbe({
-      stream: stream as unknown as AudioStream,
-      probeMs: 5000,
-      timeoutMs: 120,
-      classify
-    });
-
-    expect(result).to.include({ kind: "unknown", cause: "ML-TIMEOUT" });
-    expect(Date.now() - startedAt).to.be.lessThan(1000);
-    expect(classify).to.not.have.been.called;
-  });
-
-  it("returns unknown/ML-NO-AUDIO when the stream closes empty before the deadline", async function () {
-    const classify = sandbox
-      .stub()
-      .resolves({ status: AmdStatus.HUMAN, confidence: 1, detector: "d" });
+  it("returns unknown/ML-NO-AUDIO when no audio arrives at all", async function () {
+    const classify = sandbox.stub();
     const stream = fakeAudioStream();
 
-    const probe = runProbe({
-      stream: stream as unknown as AudioStream,
-      probeMs: 5000,
-      timeoutMs: 2000,
-      classify
-    });
+    const probe = probeWith(stream, { probeMs: 5000, timeoutMs: 2000, classify });
     stream.emitClose();
     const result = await probe;
 
@@ -179,13 +224,8 @@ describe("@probe/runProbe", function () {
       .resolves({ status: AmdStatus.HUMAN, confidence: 0.9, detector: "d" });
     const stream = fakeAudioStream();
 
-    const probe = runProbe({
-      stream: stream as unknown as AudioStream,
-      probeMs: 60,
-      timeoutMs: 1000,
-      classify
-    });
-    stream.emitData(pcmChunk(640)); // 20 ms, less than a full probe window
+    const probe = probeWith(stream, { probeMs: 200, timeoutMs: 1000, classify });
+    stream.emitData(speech(60)); // less than a full probe window
     const result = await probe;
 
     expect(classify).to.have.been.calledOnce;
@@ -198,13 +238,8 @@ describe("@probe/runProbe", function () {
       .resolves({ status: AmdStatus.HUMAN, confidence: 1, detector: "d" });
     const stream = fakeAudioStream();
 
-    const probe = runProbe({
-      stream: stream as unknown as AudioStream,
-      probeMs: 5000,
-      timeoutMs: 2000,
-      classify
-    });
-    stream.emitData(pcmChunk(640));
+    const probe = probeWith(stream, { probeMs: 5000, timeoutMs: 2000, classify });
+    stream.emitData(speech(60));
     stream.emitClose();
     const result = await probe;
 

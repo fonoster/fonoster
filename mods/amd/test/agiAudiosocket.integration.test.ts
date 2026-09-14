@@ -86,7 +86,13 @@ function slinMessage(payload: Buffer): Buffer {
  * message, then streams the fixture PCM frame-by-frame (one `write()` per
  * 20 ms frame, spaced out) at roughly real-time pacing. Resolves once amd
  * hangs up. */
-function playAudioSocketLeg(host: string, port: number, uuid: string): Promise<void> {
+function playAudioSocketLeg(
+  host: string,
+  port: number,
+  uuid: string,
+  leadingSilenceMs = 0
+): Promise<void> {
+  const audio = Buffer.concat([Buffer.alloc(leadingSilenceMs * 16), FIXTURE_PCM]);
   return new Promise((resolve, reject) => {
     const socket = net.createConnection({ port, host });
     let offset = 0;
@@ -95,11 +101,11 @@ function playAudioSocketLeg(host: string, port: number, uuid: string): Promise<v
     socket.on("connect", () => {
       socket.write(idMessage(uuid));
       sendTimer = setInterval(() => {
-        if (socket.destroyed || offset >= FIXTURE_PCM.length) {
+        if (socket.destroyed || offset >= audio.length) {
           clearInterval(sendTimer);
           return;
         }
-        socket.write(slinMessage(FIXTURE_PCM.subarray(offset, offset + FRAME_BYTES)));
+        socket.write(slinMessage(audio.subarray(offset, offset + FRAME_BYTES)));
         offset += FRAME_BYTES;
       }, 5);
     });
@@ -134,7 +140,7 @@ function playAudioSocketLeg(host: string, port: number, uuid: string): Promise<v
  * src/agi/server.ts's `work`/`timeout` race). */
 function connectFakeAgiClient(
   mode?: string,
-  options: { stuckExec?: boolean } = {}
+  options: { stuckExec?: boolean; leadingSilenceMs?: number } = {}
 ): Promise<Record<string, string>> {
   return new Promise((resolve, reject) => {
     const socket = net.createConnection({ port: AGI_PORT, host: "127.0.0.1" });
@@ -193,7 +199,7 @@ function connectFakeAgiClient(
         // Asterisk before 20.14 returns -1 from AudioSocket() whenever the
         // remote ends the stream — including amd's own HANGUP after
         // classifying.
-        void playAudioSocketLeg(host, Number(portStr), uuid).finally(() => {
+        void playAudioSocketLeg(host, Number(portStr), uuid, options.leadingSilenceMs).finally(() => {
           socket.write("200 result=-1\n");
         });
         return;
@@ -257,12 +263,22 @@ describe("@amd/agi+audiosocket integration", function () {
     expect(seen.AMDCONFIDENCE).to.equal(direct.AMDCONFIDENCE);
     expect(seen.AMDDETECTOR).to.equal(direct.AMDDETECTOR);
     expect(Object.keys(seen).sort()).to.deep.equal(
-      ["AMDCAUSE", "AMDCONFIDENCE", "AMDDETECTOR", "AMDLATENCYMS", "AMDSTATUS"]
+      ["AMDCAUSE", "AMDCONFIDENCE", "AMDDETECTOR", "AMDLATENCYMS", "AMDSPEECHONSETMS", "AMDSTATUS"]
     );
     expect(Number(seen.AMDLATENCYMS)).to.be.a("number").and.be.at.least(0);
     expect(["HUMAN", "MACHINE", "VOICEMAIL", "IVR", "UNKNOWN"]).to.include(
       seen.AMDSTATUS
     );
+  });
+
+  it("skips leading silence and reports how long it lasted", async function () {
+    this.timeout(30000);
+
+    const seen = await connectFakeAgiClient("full", { leadingSilenceMs: 1000 });
+
+    const classification = await classifyPcm(PROBED_PCM);
+    expect(seen.AMDSTATUS).to.equal(classification.status);
+    expect(seen.AMDSPEECHONSETMS).to.equal("1000");
   });
 
   it('anything other than the literal "full" falls back to compact (e.g. a typo)', async function () {

@@ -52,12 +52,17 @@ export const AUDIOSOCKET_BIND_ADDR = e.AMD_AUDIOSOCKET_BIND_ADDR || "0.0.0.0";
 export const AUDIOSOCKET_ADVERTISE_HOST =
   e.AMD_AUDIOSOCKET_ADVERTISE_HOST || "amd";
 
-// Leading audio to gather before classifying, in milliseconds.
+// Audio to gather from speech onset before classifying, in milliseconds.
 export const PROBE_MS = positiveInt(e.AMD_PROBE_MS, 3000);
 
-// Hard deadline for one whole AGI session (buffering + classify + SET
-// VARIABLE). On expiry the verdict is NOTSURE/ML-TIMEOUT.
-export const TIMEOUT_MS = positiveInt(e.AMD_TIMEOUT_MS, 4000);
+// Mean absolute sample value (0-32767) a 20 ms frame must reach to count as
+// speech. The probe window starts at the first run of such frames.
+export const SPEECH_THRESHOLD = positiveInt(e.AMD_SPEECH_THRESHOLD, 256);
+
+// Hard deadline for one whole AGI session: waiting for speech + buffering +
+// classify. No speech by then is NOTSURE/ML-NO-SPEECH; speech that started
+// but couldn't be classified in time is NOTSURE/ML-TIMEOUT.
+export const TIMEOUT_MS = positiveInt(e.AMD_TIMEOUT_MS, 8000);
 
 // Verdicts below this confidence are downgraded to NOTSURE.
 export const MIN_CONFIDENCE = unitFloat(e.AMD_MIN_CONFIDENCE, 0.8);

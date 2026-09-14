@@ -47,6 +47,11 @@ const TIMED_OUT_RESULT = (): ProbeResult => ({
 // runProbe shares TIMEOUT_MS, so this only runs out on a genuinely stuck leg.
 const AUDIOSOCKET_RELEASE_MS = 2000;
 
+// The probe enforces TIMEOUT_MS itself from AudioSocket connect, which comes
+// after this handler starts. This backstop only covers a leg that never
+// connects, so it must not beat the probe's own, more specific verdict.
+const BACKSTOP_MARGIN_MS = 1000;
+
 const delay = <T>(ms: number, value: T): Promise<T> =>
   new Promise((resolve) => setTimeout(() => resolve(value), ms));
 
@@ -114,7 +119,7 @@ function startAgiServer(): AgiServer {
     const result = await Promise.race([
       classification,
       legEnded.then(() => noVerdict),
-      delay(TIMEOUT_MS, TIMED_OUT_RESULT())
+      delay(TIMEOUT_MS + BACKSTOP_MARGIN_MS, TIMED_OUT_RESULT())
     ]);
     unregisterPendingClassification(sessionId);
 
