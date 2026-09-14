@@ -51,6 +51,14 @@
     }
   },
   {
+    "name": "CAMB AI TTS",
+    "productRef": "tts.cambai",
+    "type": "tts",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
+  },
+  {
     "name": "Groq Large Language Models",
     "productRef": "llm.groq",
     "type": "llm",
