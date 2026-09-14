@@ -87,7 +87,9 @@ function buildFullVariables(result: ProbeResult): AmdVariables {
       AMDCAUSE: result.cause,
       AMDCONFIDENCE: "0",
       AMDDETECTOR: "",
-      AMDLATENCYMS: String(result.latencyMs)
+      AMDLATENCYMS: String(result.latencyMs),
+      AMDSPEECHONSETMS:
+        result.speechOnsetMs !== undefined ? String(result.speechOnsetMs) : ""
     };
   }
   return {
@@ -95,7 +97,8 @@ function buildFullVariables(result: ProbeResult): AmdVariables {
     AMDCAUSE: result.status,
     AMDCONFIDENCE: result.confidence.toFixed(4),
     AMDDETECTOR: result.detector,
-    AMDLATENCYMS: String(result.latencyMs)
+    AMDLATENCYMS: String(result.latencyMs),
+    AMDSPEECHONSETMS: String(result.speechOnsetMs)
   };
 }
 

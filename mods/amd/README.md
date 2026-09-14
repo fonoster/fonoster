@@ -20,8 +20,12 @@ Asterisk box with no other part of the Fonoster stack running.
 2. Inside that AGI session, this service mints a UUID and runs
    `EXEC AudioSocket <uuid>,<host>:<port>`, which blocks until the AudioSocket
    side (a second listener in this same process) closes the connection.
-3. The AudioSocket side buffers a few seconds of PCM and classifies it with
-   the bundled ONNX model — always the classifier's own five-way status
+3. The AudioSocket side receives the call's audio from answer (8 kHz slin),
+   waits for the far end to start speaking, buffers `AMD_PROBE_MS` of audio
+   from that point, and classifies it with the bundled ONNX model. Carriers
+   often send seconds of digital silence after answer before a voicemail
+   greeting starts; that time is measured and reported, never classified.
+   The result is always the classifier's own five-way status
    (HUMAN/MACHINE/VOICEMAIL/IVR/UNKNOWN) plus confidence, detector, and
    latency; nothing is thrown away yet — then hangs up, which unblocks the
    AGI session.
@@ -33,8 +37,15 @@ Asterisk box with no other part of the Fonoster stack running.
 
 Every step is fail-open: a missing/corrupt model, a hung inference, a
 timeout, or empty audio all resolve to an "unknown" result with a diagnostic
-cause (`ML-TIMEOUT`, `ML-ERROR`, `ML-NO-AUDIO`) rather than stalling or
-dropping the call.
+cause rather than stalling or dropping the call:
+
+- `ML-NO-AUDIO`: no audio arrived at all
+- `ML-NO-SPEECH`: audio arrived, but the far end never spoke before the
+  deadline or the end of the stream
+- `ML-TIMEOUT`: speech started, but the window or the classification didn't
+  finish before the deadline
+- `ML-ERROR`: the model failed, or the AudioSocket leg ended without a
+  verdict
 
 ## Modes: compact vs. full
 
@@ -55,7 +66,9 @@ as a channel variable.
 - **`full`**: sets `AMDSTATUS` to the classifier's own status
   (`HUMAN`/`MACHINE`/`VOICEMAIL`/`IVR`/`UNKNOWN`, untouched by any
   confidence threshold — the consumer applies its own policy), plus
-  `AMDCONFIDENCE` (0–1), `AMDDETECTOR` (model name), and `AMDLATENCYMS`.
+  `AMDCONFIDENCE` (0–1), `AMDDETECTOR` (model name), `AMDLATENCYMS`, and
+  `AMDSPEECHONSETMS` (ms from answer until the far end started speaking;
+  empty if it never did).
 
 Set it from the dialplan by giving `AMD_MODE` a value before the `AGI()`
 call — apiserver already does this for API-originated calls via
@@ -69,8 +82,9 @@ call — apiserver already does this for API-originated calls via
 | `AMD_AUDIOSOCKET_PORT` | `9092` | AudioSocket listener port |
 | `AMD_AUDIOSOCKET_BIND_ADDR` | `0.0.0.0` | AudioSocket listener bind address |
 | `AMD_AUDIOSOCKET_ADVERTISE_HOST` | `amd` | host Asterisk is told to connect to for the AudioSocket leg — must be reachable *from* Asterisk |
-| `AMD_PROBE_MS` | `3000` | leading audio to gather before classifying |
-| `AMD_TIMEOUT_MS` | `4000` | hard deadline for the whole AGI session |
+| `AMD_PROBE_MS` | `3000` | audio to gather from speech onset before classifying |
+| `AMD_SPEECH_THRESHOLD` | `256` | mean absolute sample value (0–32767) a 20 ms frame needs to count as speech; 3 such frames in a row mark the onset |
+| `AMD_TIMEOUT_MS` | `8000` | deadline from answer covering the wait for speech, the probe window, and classification; calls where nobody speaks wait this long |
 | `AMD_MIN_CONFIDENCE` | `0.8` | compact mode only: verdicts below this are reported as `NOTSURE` |
 | `AMD_MODEL_PATH` | *(bundled)* | override the model directory |
 

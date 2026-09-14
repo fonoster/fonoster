@@ -29,7 +29,8 @@ const classified = (
   status,
   confidence,
   detector: "whisper-telephony-amd",
-  latencyMs: 42
+  latencyMs: 42,
+  speechOnsetMs: 1300
 });
 
 const unknown = (cause: string): ProbeResult => ({
@@ -120,7 +121,8 @@ describe("@amd/buildAmdVariables", function () {
         AMDCAUSE: "VOICEMAIL",
         AMDCONFIDENCE: "0.1000",
         AMDDETECTOR: "whisper-telephony-amd",
-        AMDLATENCYMS: "42"
+        AMDLATENCYMS: "42",
+        AMDSPEECHONSETMS: "1300"
       });
     });
 
@@ -136,8 +138,18 @@ describe("@amd/buildAmdVariables", function () {
         AMDCAUSE: "ML-NO-AUDIO",
         AMDCONFIDENCE: "0",
         AMDDETECTOR: "",
-        AMDLATENCYMS: "42"
+        AMDLATENCYMS: "42",
+        AMDSPEECHONSETMS: ""
       });
+    });
+
+    it("reports the speech onset on an unknown result when speech had started", function () {
+      const result = buildAmdVariables(
+        { kind: "unknown", cause: "ML-TIMEOUT", latencyMs: 42, speechOnsetMs: 3440 },
+        "full",
+        0.8
+      );
+      expect(result).to.include({ AMDCAUSE: "ML-TIMEOUT", AMDSPEECHONSETMS: "3440" });
     });
   });
 });
