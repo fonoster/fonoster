@@ -47,7 +47,7 @@ function createUpdateWorkspace(prisma: Prisma) {
     const isMember = await createIsWorkspaceMember(prisma)(ref, userRef);
 
     if (!isMember) {
-      callback({
+      return callback({
         code: GRPCStatus.PERMISSION_DENIED,
         message: "User is not a member of the workspace"
       });
