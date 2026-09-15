@@ -52,6 +52,15 @@ enum DeepgramModel {
   NOVA_2_CONVERSATIONALAI = "nova-2-conversationalai"
 }
 
+enum DiarizeMode {
+  // Request diarization and log speakers, but emit the transcript unchanged
+  LOG = "log",
+  // Lock onto the first speaker heard and drop other speakers' words
+  FIRST = "first",
+  // Keep the speaker with the most finalized words so far
+  DOMINANT = "dominant"
+}
+
 type DeepgramSttConfig = {
   config: {
     languageCode: VoiceLanguage;
@@ -60,6 +69,8 @@ type DeepgramSttConfig = {
     noDelay: boolean;
     interimResults?: boolean;
     utteranceEndMs?: number;
+    diarize?: boolean;
+    diarizeMode?: DiarizeMode;
   };
   credentials: {
     apiKey: string;
@@ -69,6 +80,7 @@ type DeepgramSttConfig = {
 export {
   DeepgramModel,
   DeepgramSttConfig,
+  DiarizeMode,
   GoogleSttConfig,
   SpeechResult,
   StreamSpeech,

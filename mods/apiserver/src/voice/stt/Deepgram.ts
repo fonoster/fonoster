@@ -22,9 +22,11 @@ import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
 import { SpeechToText } from "../types";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
+import { createSpeakerFilter } from "./createSpeakerFilter";
 import {
   DeepgramModel,
   DeepgramSttConfig,
+  DiarizeMode,
   SpeechResult,
   StreamSpeech
 } from "./types";
@@ -60,6 +62,13 @@ class Deepgram
 
     const out = new Stream();
 
+    // Only created when diarization is on; otherwise transcripts pass as-is
+    const { diarize, diarizeMode } = this.engineConfig.config;
+    const speakerFilter =
+      diarize === true
+        ? createSpeakerFilter(diarizeMode ?? DiarizeMode.LOG)
+        : undefined;
+
     // Track last transcript for UtteranceEnd fallback
     // According to Deepgram docs: "If you receive an UtteranceEnd event without a
     // preceding speech_final: true, it's advisable to process the last-received
@@ -94,10 +103,25 @@ class Deepgram
       });
 
       connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-        const transcript = data.channel?.alternatives?.[0]?.transcript;
-        const hasTranscript = !!transcript;
         const isFinal = data.is_final === true;
         const speechFinal = data.speech_final === true;
+        const rawTranscript = data.channel?.alternatives?.[0]?.transcript;
+        const transcript =
+          rawTranscript && speakerFilter
+            ? speakerFilter.apply({
+                transcript: rawTranscript,
+                words: data.channel.alternatives[0].words || [],
+                isFinal: isFinal || speechFinal
+              })
+            : rawTranscript;
+        const hasTranscript = !!transcript;
+
+        // A finalized result that was all another speaker supersedes the
+        // interim guesses for the same audio, whose speaker labels are less
+        // reliable, so drop them instead of emitting them on UtteranceEnd
+        if (rawTranscript && !hasTranscript && (isFinal || speechFinal)) {
+          lastAnyTranscript = null;
+        }
 
         // Store any transcript for UtteranceEnd fallback
         if (hasTranscript) {
@@ -287,7 +311,11 @@ class Deepgram
         .nativeEnum(DeepgramModel, { message: "Invalid Deepgram model" })
         .optional(),
       interimResults: z.boolean().optional(),
-      utteranceEndMs: z.number().int().min(1000).max(5000).optional()
+      utteranceEndMs: z.number().int().min(1000).max(5000).optional(),
+      diarize: z.boolean().optional(),
+      diarizeMode: z
+        .nativeEnum(DiarizeMode, { message: "Invalid diarize mode" })
+        .optional()
     });
   }
 
@@ -305,7 +333,13 @@ function buildTranscribeConfig(config: {
   noDelay?: boolean;
   interimResults?: boolean;
   utteranceEndMs?: number;
+  diarize?: boolean;
+  diarizeMode?: DiarizeMode;
 }) {
+  const { diarize, ...rest } = config;
+  // diarizeMode is ours, not a Deepgram option, so it is never sent
+  delete rest.diarizeMode;
+
   // UtteranceEnd requires interim_results to be enabled
   // Default to true to enable UtteranceEnd fallback mechanism
   const interimResults = config.interimResults !== false;
@@ -315,7 +349,9 @@ function buildTranscribeConfig(config: {
   const utteranceEndMs = config.utteranceEndMs || 1000;
 
   return {
-    ...config,
+    ...rest,
+    // Only sent when on, so the request is unchanged when the flag is off
+    ...(diarize === true ? { diarize: true } : {}),
     model: config.model || DeepgramModel.NOVA_2_PHONECALL,
     language: config.languageCode || VoiceLanguage.EN_US,
     encoding: "linear16",
@@ -331,4 +367,4 @@ function buildTranscribeConfig(config: {
   };
 }
 
-export { Deepgram, ENGINE_NAME };
+export { buildTranscribeConfig, Deepgram, ENGINE_NAME };
