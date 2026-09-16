@@ -31,6 +31,7 @@ import {
   createPlayDtmfHandler,
   createPlayHandler,
   createSayHandler,
+  createSetAudioFiltersHandler,
   createStopSayHandler,
   createStreamGatherHandler,
   createStreamHandler,
@@ -121,6 +122,10 @@ class VoiceDispatcher {
         vc.stopStreamGather();
       });
       vc.on(SC.START_STREAM_REQUEST, createStreamHandler(vc).bind(this));
+      vc.on(
+        SC.SET_AUDIO_FILTERS_REQUEST,
+        createSetAudioFiltersHandler(vc).bind(this)
+      );
 
       // Connect to voice server (must await to ensure speechHandler is initialized)
       await vc.connect();

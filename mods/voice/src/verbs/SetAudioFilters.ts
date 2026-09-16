@@ -16,18 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createAnswerHandler";
-export * from "./createHangupHandler";
-export * from "./createMuteHandler";
-export * from "./createStreamHandler";
-export * from "./createPlayHandler";
-export * from "./createPlayDtmfHandler";
-export * from "./createPlaybackControlHandler";
-export * from "./createRecordHandler";
-export * from "./createSayHandler";
-export * from "./createSetAudioFiltersHandler";
-export * from "./createStreamGatherHandler";
-export * from "./createUnmuteHandler";
-export * from "./dial/createDialHandler";
-export * from "./gather/createGatherHandler";
-export * from "./createStopSayHandler";
+import { SetAudioFiltersRequest } from "@fonoster/common";
+import { z } from "zod";
+import { Verb } from "./Verb";
+
+class SetAudioFilters extends Verb<SetAudioFiltersRequest> {
+  getValidationSchema(): z.Schema {
+    return z.object({
+      filters: z.array(
+        z.object({
+          name: z.string().min(1, { message: "A filter name is required" }),
+          options: z.record(z.unknown()).optional()
+        })
+      )
+    });
+  }
+}
+
+export { SetAudioFilters };

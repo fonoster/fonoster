@@ -28,6 +28,7 @@ import VoiceServer from "./VoiceServer";
 
 export default VoiceServer;
 export * from "./VoiceResponse";
+export * from "./filters";
 export * from "./types";
 export {
   AzureVoice,

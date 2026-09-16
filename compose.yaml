@@ -11,6 +11,9 @@ services:
     image: fonoster/apiserver:0.25.0
     restart: unless-stopped
     environment:
+      # ai-coustics SDK license, for the aiCoustics audio filter. Without it
+      # applications that ask for that filter keep running, unfiltered.
+      - AIC_SDK_LICENSE
       - APISERVER_AMD_ENABLED
       - APISERVER_AMD_ENGINE
       - APISERVER_AMD_MODE
