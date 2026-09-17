@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import fs from "fs";
-import { StreamEvent } from "@fonoster/common";
+import { AudioFilterConfig, StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { BaseMessage } from "@langchain/core/messages";
@@ -133,6 +133,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
 
   try {
     const autopilot = new Autopilot({
+      audioFilters: assistantConfig.audioFilters as AudioFilterConfig[],
       conversationSettings: conversationSettings as ConversationSettings,
       voice: voice as VoiceImpl,
       languageModel: languageModel as LanguageModel

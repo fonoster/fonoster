@@ -79,8 +79,29 @@ enum StreamContent {
   START_STREAM_GATHER_RESPONSE = "startStreamGatherResponse",
   STOP_STREAM_GATHER_REQUEST = "stopStreamGatherRequest",
   STOP_STREAM_GATHER_RESPONSE = "stopStreamGatherResponse",
-  STREAM_GATHER_PAYLOAD = "streamGatherPayload"
+  STREAM_GATHER_PAYLOAD = "streamGatherPayload",
+  SET_AUDIO_FILTERS_REQUEST = "setAudioFiltersRequest",
+  SET_AUDIO_FILTERS_RESPONSE = "setAudioFiltersResponse"
 }
+
+// An audio filter to run on the caller's audio, as declared by the voice
+// application. Options carry tuning values only, never credentials.
+type AudioFilterConfig = {
+  name: string;
+  options?: Record<string, unknown>;
+};
+
+type SetAudioFiltersRequest = {
+  mediaSessionRef: string;
+  filters: AudioFilterConfig[];
+};
+
+type SetAudioFiltersResponse = {
+  mediaSessionRef: string;
+  // Set when the filters could not be applied. The call continues with
+  // unfiltered audio.
+  error?: string;
+};
 
 // Answering Machine Detection verdict. String values match the proto enum value
 // names so the object round-trips through @grpc/proto-loader (enums: String).
@@ -137,6 +158,7 @@ type VoiceIn = {
   startStreamGatherResponse?: VerbResponse;
   stopStreamGatherResponse?: VerbResponse;
   stopSayResponse?: VerbResponse;
+  setAudioFiltersResponse?: SetAudioFiltersResponse;
 };
 
 type VoiceOut = {
@@ -157,6 +179,7 @@ type VoiceOut = {
   startStreamGatherRequest?: StartStreamGatherRequest;
   stopStreamGatherRequest?: VerbRequest;
   stopSayRequest?: StopSayRequest;
+  setAudioFiltersRequest?: SetAudioFiltersRequest;
 };
 
 type BaseVoiceStream<T, W> = {
@@ -177,9 +200,12 @@ type VoiceSessionStreamClient = BaseVoiceStream<
 export {
   Amd,
   AmdStatus,
+  AudioFilterConfig,
   DATA,
   END,
   ERROR,
+  SetAudioFiltersRequest,
+  SetAudioFiltersResponse,
   StreamContent,
   StreamEvent,
   VoiceClientConfig,

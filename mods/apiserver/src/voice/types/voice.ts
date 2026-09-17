@@ -25,6 +25,7 @@ import {
   VoiceSessionStreamClient
 } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
+import { AudioFilterConfig } from "../filters";
 import { SpeechResult, StreamSpeech } from "../stt/types";
 
 type VoiceClient = {
@@ -52,6 +53,8 @@ type VoiceClient = {
     onDigitReceived: () => void;
   }) => Promise<{ digits: string }>;
   getTranscriptionsStream: () => Stream;
+  // Replaces the session's audio filters. An empty list removes them.
+  setAudioFilters: (filters: AudioFilterConfig[]) => Promise<void>;
   stopSynthesis: () => Promise<void>;
 };
 

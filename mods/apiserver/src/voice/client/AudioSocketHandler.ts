@@ -20,6 +20,7 @@ import { Stream } from "stream";
 import { VoiceClientConfig } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { AudioSocket, AudioStream } from "@fonoster/streams";
+import { AudioFilterChain } from "../filters";
 import { transcribeOnConnection } from "../transcribeOnConnection";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -30,12 +31,16 @@ class AudioSocketHandler {
   private transcriptionsStream: Stream;
   private config: VoiceClientConfig;
 
+  private getFilterChain: () => AudioFilterChain | null;
+
   constructor(params: {
     transcriptionsStream: Stream;
     config: VoiceClientConfig;
+    getFilterChain?: () => AudioFilterChain | null;
   }) {
     this.transcriptionsStream = params.transcriptionsStream;
     this.config = params.config;
+    this.getFilterChain = params.getFilterChain ?? (() => null);
   }
 
   async setupAudioSocket(port: number): Promise<void> {
@@ -49,7 +54,10 @@ class AudioSocketHandler {
           mediaSessionRef: this.config.mediaSessionRef
         });
 
-        transcribeOnConnection(this.transcriptionsStream)(req, res);
+        transcribeOnConnection(this.transcriptionsStream, this.getFilterChain)(
+          req,
+          res
+        );
 
         res.onClose(() => {
           logger.verbose("session audio stream closed", {

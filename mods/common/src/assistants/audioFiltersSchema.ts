@@ -16,18 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createAnswerHandler";
-export * from "./createHangupHandler";
-export * from "./createMuteHandler";
-export * from "./createStreamHandler";
-export * from "./createPlayHandler";
-export * from "./createPlayDtmfHandler";
-export * from "./createPlaybackControlHandler";
-export * from "./createRecordHandler";
-export * from "./createSayHandler";
-export * from "./createSetAudioFiltersHandler";
-export * from "./createStreamGatherHandler";
-export * from "./createUnmuteHandler";
-export * from "./dial/createDialHandler";
-export * from "./gather/createGatherHandler";
-export * from "./createStopSayHandler";
+import { z } from "zod";
+
+// Audio filters run in the Media Server. Options carry tuning values only;
+// credentials live in the Media Server's environment, never in this config,
+// so assistant files stay safe to commit and share.
+const audioFiltersSchema = z
+  .array(
+    z.object({
+      name: z.string().min(1, { message: "An audio filter name is required" }),
+      options: z.record(z.unknown()).optional()
+    })
+  )
+  .default([]);
+
+export { audioFiltersSchema };

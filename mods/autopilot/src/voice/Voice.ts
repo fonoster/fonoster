@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  AudioFilterConfig,
   DialRecordDirection,
   StreamGatherSource,
   StreamPayload
@@ -49,6 +50,10 @@ class VoiceImpl implements Voice {
 
   async answer() {
     await this.voice.answer();
+  }
+
+  async setAudioFilters(filters: AudioFilterConfig[]) {
+    await this.voice.setAudioFilters(filters);
   }
 
   async hangup() {

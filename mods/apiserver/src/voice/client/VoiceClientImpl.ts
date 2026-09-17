@@ -21,6 +21,12 @@ import { SayOptions, VoiceClientConfig, VoiceIn } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Bridge, Client } from "ari-client";
 import { pickPort } from "pick-port";
+import {
+  AudioFilterConfig,
+  AudioFilterSession,
+  ChainStats,
+  createAudioFilterSession
+} from "../filters";
 import { SpeechResult } from "../stt/types";
 import { SpeechToText, TextToSpeech, VoiceClient } from "../types";
 import { AudioSocketHandler } from "./AudioSocketHandler";
@@ -44,6 +50,9 @@ class VoiceClientImpl implements VoiceClient {
   private externalMediaHandler: ExternalMediaHandler;
   private grpcHandler: GrpcClientHandler;
   private speechHandler: SpeechHandler;
+  // Owns the call's filter chain: building, replacing and retiring it
+  private readonly audioFilters: AudioFilterSession =
+    createAudioFilterSession();
 
   // Store the speech services for initialization
   private _tts: TextToSpeech;
@@ -72,7 +81,8 @@ class VoiceClientImpl implements VoiceClient {
 
     this.audioSocketHandler = new AudioSocketHandler({
       transcriptionsStream: this.transcriptionsStream,
-      config: this.config
+      config: this.config,
+      getFilterChain: () => this.audioFilters.current()
     });
 
     this.externalMediaHandler = new ExternalMediaHandler({
@@ -188,9 +198,42 @@ class VoiceClientImpl implements VoiceClient {
     return this.transcriptionsStream;
   }
 
+  /**
+   * Replaces the session's audio filters. Rejects when they cannot be
+   * applied, leaving the call on whatever it had before.
+   */
+  async setAudioFilters(filters: AudioFilterConfig[]): Promise<void> {
+    await this.audioFilters.set(filters);
+
+    logger.verbose("audio filters set", {
+      mediaSessionRef: this.config.mediaSessionRef,
+      filters: filters.map((filter) => filter.name)
+    });
+  }
+
   close(): void {
+    this.logFilterStats(this.audioFilters.close());
     this.grpcHandler.close();
     this.audioSocketHandler.close();
+  }
+
+  // One line per filtered call, so filter cost and any filter that gave up are
+  // visible in production without turning on verbose logging
+  private logFilterStats(stats: ChainStats | null): void {
+    if (!stats) {
+      return;
+    }
+
+    logger.info("audio filter stats for session", {
+      mediaSessionRef: this.config.mediaSessionRef,
+      frames: stats.total.frames,
+      p50Ms: stats.total.p50Ms,
+      p95Ms: stats.total.p95Ms,
+      delayMs: stats.total.delayMs,
+      disabled: stats.filters
+        .filter((filter) => filter.disabled)
+        .map((filter) => `${filter.name}: ${filter.error}`)
+    });
   }
 
   get tts(): TextToSpeech {

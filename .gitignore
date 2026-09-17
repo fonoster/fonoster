@@ -17,3 +17,5 @@ config/assistant*
 .next
 next-env.d.ts
 .npmrc
+# ai-coustics models downloaded by the filter bench
+/models/

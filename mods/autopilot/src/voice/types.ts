@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AudioFilterConfig } from "@fonoster/common";
+
 type GatherStream = {
   stop: () => Promise<void>;
   onData: (
@@ -36,6 +38,7 @@ type TransferOptions = {
 type Voice = {
   mediaSessionRef: string;
   answer: () => Promise<void>;
+  setAudioFilters: (filters: AudioFilterConfig[]) => Promise<void>;
   hangup: () => Promise<void>;
   say: (text: string) => Promise<void>;
   playDtmf: (dtmf: string) => Promise<void>;
