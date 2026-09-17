@@ -1,6 +1,6 @@
 services:
   dashboard:
-    image: fonoster/dashboard:0.25.0
+    image: fonoster/dashboard:0.26.0
     restart: unless-stopped
     expose:
       - 3030:3030
@@ -8,7 +8,7 @@ services:
       - SERVER_DASHBOARD_SESSION_SECRET
 
   apiserver:
-    image: fonoster/apiserver:0.25.0
+    image: fonoster/apiserver:0.26.0
     restart: unless-stopped
     environment:
       # ai-coustics SDK license, for the aiCoustics audio filter. Without it
@@ -67,7 +67,7 @@ services:
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   autopilot:
-    image: fonoster/autopilot:0.25.0
+    image: fonoster/autopilot:0.26.0
     restart: unless-stopped
     expose:
       - 50061
@@ -148,7 +148,7 @@ services:
       PUBLIC_IP: ${RTPENGINE_PUBLIC_IP}
 
   amd:
-    image: fonoster/amd:0.25.0
+    image: fonoster/amd:0.26.0
     restart: unless-stopped
     environment:
       - AMD_AGI_PORT
