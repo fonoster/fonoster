@@ -31,7 +31,8 @@ type StreamSpeech = {
 
 type SttConfig = {
   config: {
-    languageCode: VoiceLanguage;
+    // Each engine narrows this to the codes it accepts (e.g. Deepgram's "multi")
+    languageCode: string;
   };
 };
 
@@ -52,9 +53,15 @@ enum DeepgramModel {
   NOVA_2_CONVERSATIONALAI = "nova-2-conversationalai"
 }
 
+// Deepgram's code-switching mode: transcribes speech that mixes languages
+// (e.g. a caller who answers "Hello" on a Spanish call). Nova-3 and Nova-2.
+const DEEPGRAM_MULTILINGUAL = "multi";
+
+type DeepgramLanguage = VoiceLanguage | typeof DEEPGRAM_MULTILINGUAL;
+
 type DeepgramSttConfig = {
   config: {
-    languageCode: VoiceLanguage;
+    languageCode: DeepgramLanguage;
     model: DeepgramModel;
     smartFormat: boolean;
     noDelay: boolean;
@@ -67,6 +74,8 @@ type DeepgramSttConfig = {
 };
 
 export {
+  DEEPGRAM_MULTILINGUAL,
+  DeepgramLanguage,
   DeepgramModel,
   DeepgramSttConfig,
   GoogleSttConfig,

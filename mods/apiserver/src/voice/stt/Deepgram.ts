@@ -23,6 +23,8 @@ import * as z from "zod";
 import { SpeechToText } from "../types";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
 import {
+  DEEPGRAM_MULTILINGUAL,
+  DeepgramLanguage,
   DeepgramModel,
   DeepgramSttConfig,
   SpeechResult,
@@ -36,6 +38,13 @@ const {
 } = require("@deepgram/sdk"); // Why Deepgram :(
 
 const ENGINE_NAME = "stt.deepgram";
+
+// Nova-3 detects English, Spanish and eight other languages; Nova-2 only
+// English + Spanish. The phonecall/conversationalai variants are English-only.
+const MULTILINGUAL_MODELS = [DeepgramModel.NOVA_3, DeepgramModel.NOVA_2];
+
+// Deepgram's recommended endpointing for code-switching (its default is 10ms)
+const MULTILINGUAL_ENDPOINTING_MS = 100;
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -275,20 +284,32 @@ class Deepgram
   }
 
   static getConfigValidationSchema(): z.Schema {
-    return z.object({
-      smartFormat: z.boolean().optional(),
-      noDelay: z.boolean().optional(),
-      languageCode: z
-        .nativeEnum(VoiceLanguage, {
-          message: Messages.VALID_LANGUAGE_CODE
-        })
-        .optional(),
-      model: z
-        .nativeEnum(DeepgramModel, { message: "Invalid Deepgram model" })
-        .optional(),
-      interimResults: z.boolean().optional(),
-      utteranceEndMs: z.number().int().min(1000).max(5000).optional()
-    });
+    return z
+      .object({
+        smartFormat: z.boolean().optional(),
+        noDelay: z.boolean().optional(),
+        languageCode: z
+          .union(
+            [z.nativeEnum(VoiceLanguage), z.literal(DEEPGRAM_MULTILINGUAL)],
+            { errorMap: () => ({ message: Messages.VALID_LANGUAGE_CODE }) }
+          )
+          .optional(),
+        model: z
+          .nativeEnum(DeepgramModel, { message: "Invalid Deepgram model" })
+          .optional(),
+        interimResults: z.boolean().optional(),
+        utteranceEndMs: z.number().int().min(1000).max(5000).optional()
+      })
+      .refine(
+        (config) =>
+          config.languageCode !== DEEPGRAM_MULTILINGUAL ||
+          !config.model ||
+          MULTILINGUAL_MODELS.includes(config.model),
+        {
+          message: `Language "${DEEPGRAM_MULTILINGUAL}" requires one of these models: ${MULTILINGUAL_MODELS.join(", ")}`,
+          path: ["model"]
+        }
+      );
   }
 
   static getCredentialsValidationSchema(): z.Schema {
@@ -300,7 +321,7 @@ class Deepgram
 
 function buildTranscribeConfig(config: {
   model: DeepgramModel;
-  languageCode: VoiceLanguage;
+  languageCode: DeepgramLanguage;
   smartFormat?: boolean;
   noDelay?: boolean;
   interimResults?: boolean;
@@ -314,9 +335,14 @@ function buildTranscribeConfig(config: {
   // This enables UtteranceEnd events as a fallback when speech_final never becomes true
   const utteranceEndMs = config.utteranceEndMs || 1000;
 
+  const isMultilingual = config.languageCode === DEEPGRAM_MULTILINGUAL;
+
   return {
     ...config,
-    model: config.model || DeepgramModel.NOVA_2_PHONECALL,
+    // The phonecall default is English-only, so multilingual needs its own
+    model:
+      config.model ||
+      (isMultilingual ? DeepgramModel.NOVA_3 : DeepgramModel.NOVA_2_PHONECALL),
     language: config.languageCode || VoiceLanguage.EN_US,
     encoding: "linear16",
     sample_rate: 16000,
@@ -327,8 +353,9 @@ function buildTranscribeConfig(config: {
     // REQUIRED for UtteranceEnd: interim_results must be true
     interim_results: interimResults,
     // REQUIRED for UtteranceEnd: utterance_end_ms parameter
-    utterance_end_ms: utteranceEndMs
+    utterance_end_ms: utteranceEndMs,
+    ...(isMultilingual && { endpointing: MULTILINGUAL_ENDPOINTING_MS })
   };
 }
 
-export { Deepgram, ENGINE_NAME };
+export { buildTranscribeConfig, Deepgram, ENGINE_NAME };
