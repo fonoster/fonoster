@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/amd",
-  "version": "0.26.0",
+  "version": "0.27.0",
   "description": "Standalone answering-machine-detection sidecar for the Fonoster platform",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -19,10 +19,10 @@
     "start:dev": "nodemon --exec tsx --watch src src/server.ts"
   },
   "dependencies": {
-    "@fonoster/common": "^0.26.0",
-    "@fonoster/logger": "^0.26.0",
-    "@fonoster/streams": "^0.26.0",
-    "@fonoster/types": "^0.26.0",
+    "@fonoster/common": "^0.27.0",
+    "@fonoster/logger": "^0.27.0",
+    "@fonoster/streams": "^0.27.0",
+    "@fonoster/types": "^0.27.0",
     "onnxruntime-node": "1.21.1",
     "uuid": "^11.0.3"
   },
