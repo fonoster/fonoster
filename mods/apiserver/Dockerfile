@@ -7,6 +7,11 @@ LABEL team="Fonoster Team <team@fonoster.com>"
 WORKDIR /work
 
 ENV DOCKERIZE_VERSION=v0.7.0
+# Set by buildx to the architecture being built for (amd64, arm64). dockerize
+# publishes a tarball per architecture under those same names, so the download
+# below has to follow it -- hardcoding amd64 puts an x86-64 binary in the arm64
+# image and the entrypoint dies with "dockerize: Exec format error".
+ARG TARGETARCH
 COPY package.json package-lock.json lerna.json ./
 COPY mods ./mods
 COPY tsconfig.json ./
@@ -29,9 +34,9 @@ RUN cd mods/apiserver \
   && npx prisma generate --schema mods/identity/schema.prisma \
   && rm -rf /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist/generated \
   && mv mods/identity/src/generated /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist \
-  && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && rm -rf dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz mods/apiserver/*.tgz
+  && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-linux-"$TARGETARCH"-"$DOCKERIZE_VERSION".tar.gz \
+  && tar -C /usr/local/bin -xzvf dockerize-linux-"$TARGETARCH"-"$DOCKERIZE_VERSION".tar.gz \
+  && rm -rf dockerize-linux-"$TARGETARCH"-"$DOCKERIZE_VERSION".tar.gz mods/apiserver/*.tgz
 
 # Clean up unnecessary files from node_modules to reduce size
 RUN cd /usr/local/lib/node_modules/@fonoster/apiserver/node_modules && \
