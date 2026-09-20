@@ -26,18 +26,40 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 // the first message has been fully played. Otherwise the idle clock would start
 // while the assistant is still talking.
 export const doGreetUser = fromPromise(
-  async ({ input }: { input: { context: AutopilotContext } }) => {
+  async ({
+    input,
+    signal
+  }: {
+    input: { context: AutopilotContext };
+    signal: AbortSignal;
+  }) => {
     const { context } = input;
 
     logger.verbose("called the doGreetUser actor", {
       firstMessage: context.firstMessage
     });
 
+    // The caller can barge in while this is still awaiting answer() or
+    // playDtmf(). The machine then leaves "greeting" for "listeningToUser",
+    // but it cannot cancel this promise -- so without these checks the
+    // greeting would start playing on top of a caller who already has the
+    // floor. xstate aborts the signal when it stops the invoked actor, which
+    // is exactly that transition.
     try {
       await context.voice.answer();
 
+      if (signal.aborted) {
+        logger.verbose("user barged in during answer; skipping the greeting");
+        return;
+      }
+
       if (context.initialDtmf) {
         await context.voice.playDtmf(context.initialDtmf);
+
+        if (signal.aborted) {
+          logger.verbose("user barged in during dtmf; skipping the greeting");
+          return;
+        }
       }
 
       if (context.firstMessage) {
