@@ -56,7 +56,10 @@ describe("@calls/fetchSingleCall", function () {
       amdCause: ""
     };
 
-    const collectRows = sandbox.stub().resolves([item]);
+    const callId = "DGoldhnEZ6enSoxJ2JmzNZBoGiDytSAI";
+    const collectRows = sandbox.stub();
+    collectRows.onFirstCall().resolves([{ callId }]);
+    collectRows.onSecondCall().resolves([item]);
     const influxdb = { collectRows } as InfluxDBClient;
 
     const fetchSingleCall = createFetchSingleCall(influxdb);
@@ -67,17 +70,78 @@ describe("@calls/fetchSingleCall", function () {
     // Assert
     expect(result).to.deep.equal(item);
 
-    const queryStr = collectRows.getCall(0).args[0].toString();
+    // The ref only resolves the callId; it is not what the record is
+    // filtered on. See #885.
+    const refQuery = collectRows.getCall(0).args[0].toString();
+    expect(refQuery).to.include(`r.ref == "${ref}"`);
+    expect(refQuery).to.include("distinct(column: \"callId\")");
+
+    const queryStr = collectRows.getCall(1).args[0].toString();
     expect(queryStr).to.include("from(bucket: \"calls\")");
     expect(queryStr).to.include("range(start: -30d)");
-    // The ref filter must run before pivot so it can be pushed down.
-    const refFilterIndex = queryStr.indexOf(`r.ref == "${ref}"`);
+    // The callId filter must run before pivot so it can be pushed down.
+    const callIdFilterIndex = queryStr.indexOf(`r.callId == "${callId}"`);
     const pivotIndex = queryStr.indexOf("pivot(");
-    expect(refFilterIndex).to.be.greaterThan(-1);
+    expect(callIdFilterIndex).to.be.greaterThan(-1);
     expect(pivotIndex).to.be.greaterThan(-1);
-    expect(refFilterIndex).to.be.lessThan(pivotIndex);
+    expect(callIdFilterIndex).to.be.lessThan(pivotIndex);
     expect(queryStr).to.include(`r.accessKeyId == "${accessKeyId}"`);
     expect(queryStr).to.include("limit(n: 1)");
+  });
+
+  it("should return the call when only the start event carried the ref", async function () {
+    // Regression test for #885: the apiserver restarted between the call's
+    // start and end events, so the end point was written with a callId but
+    // no ref tag. Filtering the record on ref hid it and the CDR was stuck
+    // with no status and a zero duration.
+    const { createFetchSingleCall } = await import(
+      "../../src/calls/createFetchSingleCall"
+    );
+    const accessKeyId = "accessKeyId";
+    const ref = "222c6f81-d69a-432e-bb41-551d407ce70f";
+    const callId = "DGoldhnEZ6enSoxJ2JmzNZBoGiDytSAI";
+
+    // Only the start point is tagged with the ref, but pivoting on callId
+    // merges the untagged end point's status and endedAt into the record.
+    const merged = {
+      ref,
+      callId,
+      accessKeyId,
+      startedAt: 1788113333674,
+      endedAt: 1788113403488,
+      status: CallStatus.NO_ANSWER,
+      type: CallType.API_ORIGINATED
+    };
+
+    const collectRows = sandbox.stub();
+    collectRows.onFirstCall().resolves([{ callId }]);
+    collectRows.onSecondCall().resolves([merged]);
+    const influxdb = { collectRows } as InfluxDBClient;
+
+    const result = await createFetchSingleCall(influxdb)(accessKeyId, ref);
+
+    expect(result).to.deep.equal(merged);
+
+    const queryStr = collectRows.getCall(1).args[0].toString();
+    expect(queryStr).to.include(`r.callId == "${callId}"`);
+    expect(queryStr).to.not.include(`r.ref == "${ref}"`);
+  });
+
+  it("should accept a distinct() row that reports the callId as _value", async function () {
+    const { createFetchSingleCall } = await import(
+      "../../src/calls/createFetchSingleCall"
+    );
+    const callId = "DGoldhnEZ6enSoxJ2JmzNZBoGiDytSAI";
+    const collectRows = sandbox.stub();
+    collectRows.onFirstCall().resolves([{ _value: callId }]);
+    collectRows.onSecondCall().resolves([{ callId }]);
+    const influxdb = { collectRows } as InfluxDBClient;
+
+    await createFetchSingleCall(influxdb)("accessKeyId", "01");
+
+    expect(collectRows.getCall(1).args[0].toString()).to.include(
+      `r.callId == "${callId}"`
+    );
   });
 
   it("should return null when no call matches", async function () {
@@ -94,6 +158,22 @@ describe("@calls/fetchSingleCall", function () {
     const result = await fetchSingleCall("accessKeyId", "missing-ref");
 
     // Assert
+    expect(result).to.equal(null);
+    // The record query is never issued when the ref resolves to nothing.
+    expect(collectRows).to.have.been.calledOnce;
+  });
+
+  it("should return null when the record query finds nothing", async function () {
+    const { createFetchSingleCall } = await import(
+      "../../src/calls/createFetchSingleCall"
+    );
+    const collectRows = sandbox.stub();
+    collectRows.onFirstCall().resolves([{ callId: "abc" }]);
+    collectRows.onSecondCall().resolves([]);
+    const influxdb = { collectRows } as InfluxDBClient;
+
+    const result = await createFetchSingleCall(influxdb)("accessKeyId", "01");
+
     expect(result).to.equal(null);
   });
 });

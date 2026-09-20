@@ -32,11 +32,43 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
     accessKeyId: string,
     ref: string
   ): Promise<CallDetailRecord> => {
-    // "ref" is a tag, so this filters before pivot runs and only ever
-    // touches the one matching series instead of every call in the range.
-    const query = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
+    logger.verbose("fetch single call request", { accessKeyId, ref });
+
+    // Resolve the call's callId from the points that do carry the "ref" tag,
+    // then collect the record by callId.
+    //
+    // Filtering the record query on "ref" directly would drop any point
+    // written without that tag, and the call-end event from Routr carries no
+    // ref of its own: it is only tagged because createInfluxDbPub remembers
+    // the ref from the start event, in memory. An apiserver restart between
+    // the two events loses that, so the end point is written untagged and a
+    // ref filter hides it -- the CDR keeps its start and never gains a status
+    // or a duration. Pivoting on callId merges both points either way, and
+    // repairs records already written that way. (#885)
+    const callIdQuery = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
       |> range(start: -30d)
       |> filter(fn: (r) => r._measurement == "${CALL_DETAIL_RECORD_MEASUREMENT}" and r.ref == "${ref}")
+      |> keep(columns: ["callId"])
+      |> distinct(column: "callId")`;
+
+    const callIdRows = (await influxdb.collectRows(callIdQuery)) as {
+      callId?: string;
+      _value?: string;
+    }[];
+
+    const callId = callIdRows
+      .map((row) => row.callId ?? row._value)
+      .find((value) => Boolean(value));
+
+    if (!callId) {
+      return null;
+    }
+
+    // "callId" is a tag too, so this still filters before pivot runs and only
+    // touches the one call's series.
+    const query = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
+      |> range(start: -30d)
+      |> filter(fn: (r) => r._measurement == "${CALL_DETAIL_RECORD_MEASUREMENT}" and r.callId == "${callId}")
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with
@@ -45,8 +77,6 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
       |> filter(fn: (r) => r.accessKeyId == "${accessKeyId}")
       |> sort(columns: ["_time"], desc: true)
       |> limit(n: 1)`;
-
-    logger.verbose("fetch single call request", { accessKeyId, ref });
 
     const items = (await influxdb.collectRows(query)) as CallDetailRecord[];
 
