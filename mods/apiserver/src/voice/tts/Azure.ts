@@ -46,7 +46,7 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const ref = this.createMediaReference();
     const { subscriptionKey, serviceRegion } = this.config.credentials;
-    const voice = options.voice || this.config.config.voice;
+    const voice = this.resolveVoice(options, this.config.config.voice);
     const speechConfig = sdk.SpeechConfig.fromSubscription(
       subscriptionKey,
       serviceRegion

@@ -49,7 +49,11 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.logSynthesisRequest(text, options);
 
     const ref = this.createMediaReference();
-    const { voice } = this.engineConfig.config;
+    const voice = this.resolveVoice(
+      options,
+      this.engineConfig.config.voice,
+      GoogleVoice
+    );
     const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
 
     const stream = createChunkedSynthesisStream(text, async (chunkText) => {

@@ -229,6 +229,7 @@ class VoiceResponse {
    * @param {string} text - The text to convert to speech
    * @param {SayOptions} options - Options to control the TTS engine
    * @param {string} options.playbackRef - Playback identifier to use in Playback operations
+   * @param {string} options.voice - Voice to use for this request instead of the application's configured voice. Google and Deepgram ignore voices they do not support and fall back to the configured one
    * @param {TTSOptions} options.ttsOptions - Options to control the TTS engine (specific to the TTS engine)
    * @see Say
    * @example
@@ -239,6 +240,9 @@ class VoiceResponse {
    *
    *   // Like the play verb, you can control the playback
    *   await response.playbackControl(playbackRef, PlaybackControlAction.STOP);
+   *
+   *   // Use a different voice for a single request
+   *   await response.say("Hola", { voice: "es-ES-Standard-A" });
    * }
    */
   async say(text: string, options?: SayOptions): Promise<VerbResponse> {

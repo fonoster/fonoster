@@ -53,6 +53,38 @@ abstract class AbstractTextToSpeech<E, S extends SynthOptions = SynthOptions> {
     return this.engineName;
   }
 
+  /**
+   * Resolves the voice for a single synthesis request. A voice passed in the
+   * say options takes precedence over the voice configured for the application.
+   * When `knownVoices` is given, an override that is not one of them is ignored
+   * (with a warning) so a bad value never breaks the call.
+   *
+   * @param {Partial<SynthOptions>} options - The options passed to the say verb
+   * @param {string} configuredVoice - The voice configured for the application
+   * @param {Record<string, string>} knownVoices - The voices the engine supports
+   * @return {string} The voice to use for this request
+   */
+  protected resolveVoice(
+    options: Partial<SynthOptions> | undefined,
+    configuredVoice: string,
+    knownVoices?: Record<string, string>
+  ): string {
+    const requested = options?.voice;
+
+    if (typeof requested !== "string" || requested.trim() === "") {
+      return configuredVoice;
+    }
+
+    if (knownVoices && !Object.values(knownVoices).includes(requested)) {
+      logger.warn(
+        `ignoring unknown ${this.engineName} voice "${requested}"; using the configured voice`
+      );
+      return configuredVoice;
+    }
+
+    return requested;
+  }
+
   protected logSynthesisRequest(text: string, options: S): void {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
