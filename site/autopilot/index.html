@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-49RD5H9MR3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-49RD5H9MR3');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autopilot · Fonoster</title>
+    <meta name="description" content="Describe the agent in one YAML file — prompt, voice, model, and tools. Autopilot takes the call." />
+    <meta name="theme-color" content="#181818" />
+    <link rel="canonical" href="https://fonoster.com/autopilot/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fonoster" />
+    <meta property="og:title" content="Autopilot · Fonoster" />
+    <meta property="og:description" content="Describe the agent in one YAML file — prompt, voice, model, and tools. Autopilot takes the call." />
+    <meta property="og:url" content="https://fonoster.com/autopilot/" />
+    <meta property="og:image" content="https://fonoster.com/assets/img/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AI that answers the phone — Fonoster" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@fonoster" />
+    <link rel="icon" href="../assets/img/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/v1.css" />
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("fonoster.theme") === "light" ? "light" : "dark";
+      } catch (e) {}
+    </script>
+  </head>
+  <body data-page="autopilot" data-icons="../assets/img/icons.svg">
+    <header class="nav" data-nav>
+      <div class="container nav__in">
+        <a class="logo" href="../" aria-label="Fonoster">
+          <img class="logo--dark" src="../assets/img/logo-dark.svg" alt="Fonoster" width="124" height="32" />
+          <img class="logo--light" src="../assets/img/logo.svg" alt="Fonoster" width="124" height="32" />
+        </a>
+        <nav class="nav__links" aria-label="Main">
+          <a href="./" aria-current="page" data-i18n="nav.autopilot">Autopilot</a>
+          <a href="../#use-cases" data-i18n="nav.useCases">Use cases</a>
+          <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+          <a href="../pricing/" data-i18n="nav.pricing">Pricing</a>
+        </nav>
+        <div class="nav__actions">
+          <a class="gh-chip" href="https://github.com/fonoster/fonoster" aria-label="Fonoster on GitHub, 8.1K stars">
+            <svg class="icon i-github" aria-hidden="true"><use href="../assets/img/icons.svg#i-github"></use></svg>
+            <svg class="icon i-star" aria-hidden="true"><use href="../assets/img/icons.svg#i-star"></use></svg>
+            <span>8.1K</span>
+          </a>
+          <a class="btn btn--primary btn--sm" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+          <button class="nav__menu" type="button" aria-expanded="false" aria-controls="sheet" aria-label="Menu" data-menu data-i18n-attr="aria-label:nav.menu">
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-menu"></use></svg>
+          </button>
+        </div>
+      </div>
+      <div class="sheet" id="sheet" hidden>
+        <a href="./" data-i18n="nav.autopilot">Autopilot</a>
+        <a href="../#use-cases" data-i18n="nav.useCases">Use cases</a>
+        <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+        <a href="../pricing/" data-i18n="nav.pricing">Pricing</a>
+        <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero + live call console -->
+      <section class="aphero" data-loop>
+        <div class="atmos atmos--center" aria-hidden="true">
+          <div class="dots"><i class="dots__wave"></i></div>
+        </div>
+        <div class="container aphero__copy">
+          <span class="pill" data-reveal>
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-bot"></use></svg>
+            <span data-i18n="ap.eyebrow">Autopilot</span>
+          </span>
+          <h1 class="t-h1" data-i18n="aph.title" data-reveal style="--i: 1">Describe the agent.<br />Autopilot takes<br class="br-m" /> the call.</h1>
+          <p class="t-lead" data-i18n="aph.sub" data-reveal style="--i: 2">Prompt, voice, model, and tools in one file — live on a real phone number.</p>
+          <div class="ctas" data-reveal style="--i: 3">
+            <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+            <a class="btn btn--secondary" href="https://docs.fonoster.com/concepts/autopilot" data-i18n="cta.docs">Read the docs</a>
+          </div>
+        </div>
+
+        <div class="console" data-console>
+          <div class="console__call">
+            <div class="console__head">
+              <div class="console__title"><b data-i18n="con.live">Live call</b><span data-i18n="con.meta">Inbound · Dental clinic</span></div>
+              <span class="console__timer" data-console-timer>02:08</span>
+            </div>
+            <div class="transcript seq" data-console-transcript>
+              <div class="msg msg--c"><div class="bubble bubble--c"><span>Is a cleaning covered by my plan?</span></div></div>
+              <div class="msg msg--e"><span class="chip"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-book-open"></use></svg><span class="chip__label">Knowledge</span><span>plans.pdf</span></span></div>
+              <div class="msg msg--a"><div class="bubble bubble--a"><span>Yes — twice a year. Want to book one?</span></div></div>
+              <div class="msg msg--c"><div class="bubble bubble--c"><span>Thursday morning?</span></div></div>
+              <div class="msg msg--e"><span class="chip"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-wrench"></use></svg><span class="chip__label">Tool</span><span>getAvailableTimes<span class="hide-m">("thu")</span> → 9:00, 10:30</span></span></div>
+              <div class="msg msg--a"><div class="bubble bubble--a"><span>I have 9:00 or 10:30, and —</span></div></div>
+              <div class="msg msg--e"><span class="chip"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-hand"></use></svg><span class="chip__label">Barge-in</span><span>caller interrupted</span></span></div>
+              <div class="msg msg--c"><div class="bubble bubble--c"><span>10:30. Can I talk to billing?</span></div></div>
+              <div class="msg msg--e"><span class="chip"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-phone-forwarded"></use></svg><span class="chip__label">Transfer</span><span>Billing team</span></span></div>
+            </div>
+          </div>
+          <aside class="console__agent" aria-label="Agent configuration">
+            <div class="console__head">
+              <div class="agent-name">front-desk <span>agent.yaml</span></div>
+              <span class="status" data-i18n="con.running">Running</span>
+            </div>
+            <div class="agent-body">
+              <div class="group">
+                <div class="group__label" data-i18n="con.models">Models</div>
+                <div class="row"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-sparkles"></use></svg><span class="row__key" data-i18n="con.llm">LLM</span><span class="row__val">gpt-4o</span></div>
+                <div class="row"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-ear"></use></svg><span class="row__key" data-i18n="con.stt">Speech-to-text</span><span class="row__val">nova-3 · multi</span></div>
+                <div class="row"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-audio-lines"></use></svg><span class="row__key" data-i18n="con.voice">Voice</span><span class="row__val">aura-asteria</span></div>
+              </div>
+              <div class="group">
+                <div class="group__label" data-i18n="con.tools">Tools</div>
+                <div class="row tool" data-tool-row="getAvailableTimes">
+                  <svg class="icon i-off" aria-hidden="true"><use href="../assets/img/icons.svg#i-circle"></use></svg>
+                  <svg class="icon i-on" aria-hidden="true"><use href="../assets/img/icons.svg#i-circle-check"></use></svg>
+                  <span class="row__key">getAvailableTimes</span><span class="row__val" data-i18n="con.used">used</span>
+                </div>
+                <div class="row tool">
+                  <svg class="icon i-off" aria-hidden="true"><use href="../assets/img/icons.svg#i-circle"></use></svg>
+                  <span class="row__key">bookAppointment</span>
+                </div>
+                <div class="row tool" data-tool-row="transfer">
+                  <svg class="icon i-off" aria-hidden="true"><use href="../assets/img/icons.svg#i-circle"></use></svg>
+                  <svg class="icon i-on" aria-hidden="true"><use href="../assets/img/icons.svg#i-circle-check"></use></svg>
+                  <span class="row__key">transfer</span><span class="row__val" data-i18n="con.used">used</span>
+                </div>
+                <div class="row tool">
+                  <svg class="icon i-off" aria-hidden="true"><use href="../assets/img/icons.svg#i-circle"></use></svg>
+                  <span class="row__key">hangup</span>
+                </div>
+              </div>
+              <div class="group">
+                <div class="group__label" data-i18n="con.knowledge">Knowledge</div>
+                <div class="row"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-file-text"></use></svg><span class="row__key">plans.pdf</span></div>
+                <div class="row"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-file-text"></use></svg><span class="row__key">hours.md</span></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Works with -->
+      <section class="works">
+        <div class="container">
+          <p class="works__label" data-i18n="works.label" data-reveal>Works with your stack</p>
+          <ul class="works__list" data-reveal style="--i: 1">
+            <li>OpenAI</li>
+            <li>Anthropic</li>
+            <li>Google</li>
+            <li>Groq</li>
+            <li>Ollama</li>
+            <li>Deepgram</li>
+            <li>ElevenLabs</li>
+            <li>Azure</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Everything is configuration -->
+      <section class="section features" id="features">
+        <div class="container">
+          <h2 class="t-h2" data-i18n="feat.title" data-reveal>Everything is configuration.</h2>
+          <p class="t-sub" data-i18n="feat.sub" data-reveal style="--i: 1">No glue code. Change a line, redeploy.</p>
+          <div class="bento">
+            <article class="tile" data-reveal>
+              <div class="tile__vis" aria-hidden="true">
+                <div class="vis-col">
+                  <span class="mchip">GET /appointment-times?day=thu</span>
+                  <svg class="icon"><use href="../assets/img/icons.svg#i-arrow-down"></use></svg>
+                  <span class="mchip mchip--res">{ "result": "9:00, 10:30" }</span>
+                </div>
+              </div>
+              <div class="tile__text">
+                <h3 class="tile__title" data-i18n="feat.tools">Tools</h3>
+                <p class="tile__line" data-i18n="feat.toolsLine">Call your APIs mid-conversation.</p>
+              </div>
+            </article>
+            <article class="tile" data-reveal style="--i: 1">
+              <div class="tile__vis" aria-hidden="true">
+                <span class="doc"><svg class="icon"><use href="../assets/img/icons.svg#i-file-text"></use></svg>plans.pdf</span>
+                <span class="doc"><svg class="icon"><use href="../assets/img/icons.svg#i-file-text"></use></svg>hours.md</span>
+                <span class="doc"><svg class="icon"><use href="../assets/img/icons.svg#i-file-text"></use></svg>faq.txt</span>
+              </div>
+              <div class="tile__text">
+                <h3 class="tile__title" data-i18n="feat.kb">Knowledge base</h3>
+                <p class="tile__line" data-i18n="feat.kbLine">Answer from your own documents.</p>
+              </div>
+            </article>
+            <article class="tile" data-reveal style="--i: 2">
+              <div class="tile__vis" aria-hidden="true">
+                <div class="talk">
+                  <div class="talk__row"><span class="talk__who" data-i18n="feat.agent">Agent</span><span class="bars bars--agent"><i style="--h: 8px; --n: 0"></i><i style="--h: 14px; --n: 1"></i><i style="--h: 22px; --n: 2"></i><i style="--h: 12px; --n: 3"></i><i style="--h: 26px; --n: 4"></i><i style="--h: 18px; --n: 5"></i><i style="--h: 10px; --n: 6"></i><i style="--h: 20px; --n: 7"></i><i style="--h: 24px; --n: 8"></i><i style="--h: 14px; --n: 9"></i><i style="--h: 8px; --n: 10"></i><i class="flat" style="--n: 11"></i><i class="flat" style="--n: 12"></i><i class="flat" style="--n: 13"></i><i class="flat" style="--n: 14"></i><i class="flat" style="--n: 15"></i><i class="flat" style="--n: 16"></i><i class="flat" style="--n: 17"></i><i class="flat" style="--n: 18"></i><i class="flat" style="--n: 19"></i><i class="flat" style="--n: 20"></i><i class="flat" style="--n: 21"></i><i class="flat" style="--n: 22"></i><i class="flat" style="--n: 23"></i></span></div>
+                  <div class="talk__row"><span class="talk__who" data-i18n="feat.caller">Caller</span><span class="bars bars--caller"><i class="flat" style="--n: 0"></i><i class="flat" style="--n: 1"></i><i class="flat" style="--n: 2"></i><i class="flat" style="--n: 3"></i><i class="flat" style="--n: 4"></i><i class="flat" style="--n: 5"></i><i class="flat" style="--n: 6"></i><i class="flat" style="--n: 7"></i><i class="flat" style="--n: 8"></i><i class="flat" style="--n: 9"></i><i style="--h: 12px; --n: 10"></i><i style="--h: 20px; --n: 11"></i><i style="--h: 28px; --n: 12"></i><i style="--h: 16px; --n: 13"></i><i style="--h: 22px; --n: 14"></i><i style="--h: 10px; --n: 15"></i><i style="--h: 18px; --n: 16"></i><i style="--h: 26px; --n: 17"></i><i style="--h: 14px; --n: 18"></i><i style="--h: 8px; --n: 19"></i><i style="--h: 16px; --n: 20"></i><i style="--h: 10px; --n: 21"></i><i style="--h: 6px; --n: 22"></i><i style="--h: 4px; --n: 23"></i></span></div>
+                </div>
+              </div>
+              <div class="tile__text">
+                <h3 class="tile__title" data-i18n="feat.barge">Barge-in</h3>
+                <p class="tile__line" data-i18n="feat.bargeLine">Let callers interrupt, naturally.</p>
+              </div>
+            </article>
+            <article class="tile" data-reveal>
+              <div class="tile__vis" aria-hidden="true">
+                <div class="handoff">
+                  <span class="node"><span class="node__orb"><svg class="icon"><use href="../assets/img/icons.svg#i-audio-lines"></use></svg></span><span data-i18n="feat.agent">Agent</span></span>
+                  <span class="dashes"><i style="--n: 0"></i><i style="--n: 1"></i><i style="--n: 2"></i><i style="--n: 3"></i><i style="--n: 4"></i><svg class="icon"><use href="../assets/img/icons.svg#i-chevron-right"></use></svg></span>
+                  <span class="node"><span class="node__orb"><svg class="icon"><use href="../assets/img/icons.svg#i-user-round"></use></svg></span><span data-i18n="feat.billing">Billing team</span></span>
+                </div>
+              </div>
+              <div class="tile__text">
+                <h3 class="tile__title" data-i18n="feat.handoff">Human handoff</h3>
+                <p class="tile__line" data-i18n="feat.handoffLine">Transfer to a person when it matters.</p>
+              </div>
+            </article>
+            <article class="tile" data-reveal style="--i: 1">
+              <div class="tile__vis" aria-hidden="true">
+                <div class="langs seq" data-langs>
+                  <span class="lb"><b>EN</b>Hi! Do you have Friday —</span>
+                  <span class="lb"><b>ES</b>— o mejor el sábado?</span>
+                  <span class="lb lb--a"><b>ES</b>¡Claro! Sábado a las 10.</span>
+                </div>
+              </div>
+              <div class="tile__text">
+                <h3 class="tile__title" data-i18n="feat.multi">Multilingual</h3>
+                <p class="tile__line" data-i18n="feat.multiLine">Switch languages mid-sentence.</p>
+              </div>
+            </article>
+            <article class="tile" data-reveal style="--i: 2">
+              <div class="tile__vis" aria-hidden="true">
+                <div class="noise">
+                  <span class="bars bars--noisy"><i style="--h: 18px; --n: 0"></i><i style="--h: 30px; --n: 1"></i><i style="--h: 10px; --n: 2"></i><i style="--h: 36px; --n: 3"></i><i style="--h: 22px; --n: 4"></i><i style="--h: 40px; --n: 5"></i><i style="--h: 14px; --n: 6"></i><i style="--h: 28px; --n: 7"></i><i style="--h: 38px; --n: 8"></i><i style="--h: 12px; --n: 9"></i><i style="--h: 26px; --n: 10"></i><i style="--h: 34px; --n: 11"></i><i style="--h: 16px; --n: 12"></i><i style="--h: 30px; --n: 13"></i><i style="--h: 20px; --n: 14"></i></span>
+                  <svg class="icon"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg>
+                  <span class="bars bars--clean"><i class="flat" style="--n: 0"></i><i class="flat" style="--n: 1"></i><i style="--h: 6px; --n: 2"></i><i style="--h: 14px; --n: 3"></i><i style="--h: 22px; --n: 4"></i><i style="--h: 16px; --n: 5"></i><i style="--h: 8px; --n: 6"></i><i class="flat" style="--n: 7"></i><i class="flat" style="--n: 8"></i><i style="--h: 10px; --n: 9"></i><i style="--h: 18px; --n: 10"></i><i style="--h: 12px; --n: 11"></i><i style="--h: 4px; --n: 12"></i><i class="flat" style="--n: 13"></i><i class="flat" style="--n: 14"></i></span>
+                </div>
+              </div>
+              <div class="tile__text">
+                <h3 class="tile__title" data-i18n="feat.noise">Noise filtering</h3>
+                <p class="tile__line" data-i18n="feat.noiseLine">Hear callers in noisy places.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Evals -->
+      <section class="band evals">
+        <div class="container section split">
+          <div class="split__copy" data-reveal>
+            <span class="eyebrow">
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-flask-conical"></use></svg>
+              <span data-i18n="evals.eyebrow">Evals</span>
+              <span class="tag">Beta</span>
+            </span>
+            <h2 class="t-h2" data-i18n="evals.title">Test it before<br class="br-m" /> it takes a call.</h2>
+            <p class="t-sub" data-i18n="evals.sub">Write scenarios. Check replies and tool calls. Get a JSON report.</p>
+          </div>
+          <div class="window" data-reveal style="--i: 1">
+            <div class="window__bar"><i></i><i></i><i></i>Terminal</div>
+            <div class="evalterm" data-evals>
+              <div><span class="g">$ </span>fonoster applications:eval -f agent.yaml</div>
+              <div> </div>
+              <div class="s">Scenario: book-cleaning</div>
+              <div class="b">  Step: 1</div>
+              <div><span class="g">    Human        </span>Can I book a cleaning on Thursday?</div>
+              <div><span class="g">    AI Expected  </span>Offers the available times</div>
+              <div><span class="g">    AI Actual    </span>I have 9:00 or 10:30. Which works?</div>
+              <div><span class="g">    Tool         </span>getAvailableTimes</div>
+              <div class="pass"><span class="g">    Passed       </span><span class="b">✔ Passed</span></div>
+              <div> </div>
+              <div class="b">  Step: 2</div>
+              <div><span class="g">    Human        </span>10:30, please.</div>
+              <div><span class="g">    Tool         </span>bookAppointment</div>
+              <div class="pass"><span class="g">    Passed       </span><span class="b">✔ Passed</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Runs where you need it -->
+      <section class="section">
+        <div class="container">
+          <h2 class="t-h3" data-i18n="run.title" data-reveal>Runs where you need it.</h2>
+          <div class="run__grid">
+            <div class="run__item" data-reveal>
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-cloud"></use></svg>
+              <span class="run__name" data-i18n="run.cloud">Fonoster Cloud</span>
+              <span class="run__line" data-i18n="run.cloudLine">Managed and scaled for you.</span>
+            </div>
+            <div class="run__item" data-reveal style="--i: 1">
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-server"></use></svg>
+              <span class="run__name" data-i18n="run.self">Self-hosted</span>
+              <span class="run__line" data-i18n="run.selfLine">Your servers. Same YAML.</span>
+            </div>
+            <div class="run__item" data-reveal style="--i: 2">
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-key-round"></use></svg>
+              <span class="run__name" data-i18n="run.keys">Your own keys</span>
+              <span class="run__line" data-i18n="run.keysLine">Bring your model and voice accounts.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="final final--rule" data-loop>
+        <div class="atmos atmos--bottom" aria-hidden="true">
+          <div class="dots"><i class="dots__wave"></i></div>
+        </div>
+        <div class="container final__in">
+          <h2 class="t-h1" data-i18n="apfinal.title" data-reveal>Put your agent<br />on the phone.</h2>
+          <div class="ctas" data-reveal style="--i: 1">
+            <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+            <a class="btn btn--secondary" href="https://docs.fonoster.com/concepts/autopilot" data-i18n="cta.docs">Read the docs</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__in">
+        <span class="footer__copy" data-i18n="footer.rights">© 2026 Fonoster Inc.</span>
+        <nav class="footer__links" aria-label="Footer">
+          <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+          <a href="https://github.com/fonoster/fonoster">GitHub</a>
+          <a href="https://discord.gg/4QWgSz4hTC">Discord</a>
+          <a href="https://x.com/fonoster">X</a>
+        </nav>
+        <div class="prefs">
+          <label class="prefs__item">
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-globe"></use></svg>
+            <span class="sr-only" data-i18n="prefs.language">Language</span>
+            <select data-pref="lang">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+            <svg class="icon chev" aria-hidden="true"><use href="../assets/img/icons.svg#i-chevron-down"></use></svg>
+          </label>
+          <span class="prefs__div" aria-hidden="true"></span>
+          <label class="prefs__item">
+            <svg class="icon" aria-hidden="true" data-theme-icon><use href="../assets/img/icons.svg#i-moon"></use></svg>
+            <span class="sr-only" data-i18n="prefs.theme">Theme</span>
+            <select data-pref="theme">
+              <option value="dark" data-i18n="prefs.dark">Dark</option>
+              <option value="light" data-i18n="prefs.light">Light</option>
+            </select>
+            <svg class="icon chev" aria-hidden="true"><use href="../assets/img/icons.svg#i-chevron-down"></use></svg>
+          </label>
+        </div>
+      </div>
+    </footer>
+
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/v1.js"></script>
+  </body>
+</html>
