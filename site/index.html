@@ -1,6 +1,7 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en" data-theme="dark">
   <head>
+    <meta charset="utf-8" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-49RD5H9MR3"></script>
     <script>
@@ -10,964 +11,423 @@
 
       gtag('config', 'G-49RD5H9MR3');
     </script>
-    <!-- Basic Page Info -->
-    <meta charset="UTF-8" />
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#FFF" />
-    <!-- Title -->
-    <title>Fonoster</title>
-    <!-- Site favicon -->
-    <link rel="shortcut icon" href="./site-assets/images/favicon.ico" />
-    <!-- Mobile Specific Metas -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1"
-    />
-
-    <!-- Google Font -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fonoster · AI that answers the phone</title>
+    <meta name="description" content="Build, test, and run voice agents on real phone lines. On Fonoster Cloud or your own servers." />
+    <meta name="theme-color" content="#181818" />
+    <link rel="canonical" href="https://fonoster.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fonoster" />
+    <meta property="og:title" content="Fonoster · AI that answers the phone" />
+    <meta property="og:description" content="Build, test, and run voice agents on real phone lines. On Fonoster Cloud or your own servers." />
+    <meta property="og:url" content="https://fonoster.com/" />
+    <meta property="og:image" content="https://fonoster.com/assets/img/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AI that answers the phone — Fonoster" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@fonoster" />
+    <link rel="icon" href="assets/img/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-
-    <!-- CSS -->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="site-assets/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="site-assets/css/swiper-bundle.min.css"
-    />
-
-    <link rel="stylesheet" type="text/css" href="site-assets/css/prism.css" />
-    <link rel="stylesheet" type="text/css" href="site-assets/css/style.css" />
-    <link rel="stylesheet" type="text/css" href="site-assets/css/media.css" />
+    <link rel="stylesheet" href="assets/css/v1.css" />
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("fonoster.theme") === "light" ? "light" : "dark";
+      } catch (e) {}
+    </script>
   </head>
+  <body data-page="home" data-icons="assets/img/icons.svg">
+    <header class="nav" data-nav>
+      <div class="container nav__in">
+        <a class="logo" href="./" aria-label="Fonoster">
+          <img class="logo--dark" src="assets/img/logo-dark.svg" alt="Fonoster" width="124" height="32" />
+          <img class="logo--light" src="assets/img/logo.svg" alt="Fonoster" width="124" height="32" />
+        </a>
+        <nav class="nav__links" aria-label="Main">
+          <a href="autopilot/" data-i18n="nav.autopilot">Autopilot</a>
+          <a href="#use-cases" data-i18n="nav.useCases">Use cases</a>
+          <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+          <a href="pricing/" data-i18n="nav.pricing">Pricing</a>
+        </nav>
+        <div class="nav__actions">
+          <a class="gh-chip" href="https://github.com/fonoster/fonoster" aria-label="Fonoster on GitHub, 8.1K stars">
+            <svg class="icon i-github" aria-hidden="true"><use href="assets/img/icons.svg#i-github"></use></svg>
+            <svg class="icon i-star" aria-hidden="true"><use href="assets/img/icons.svg#i-star"></use></svg>
+            <span>8.1K</span>
+          </a>
+          <a class="btn btn--primary btn--sm" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+          <button class="nav__menu" type="button" aria-expanded="false" aria-controls="sheet" aria-label="Menu" data-menu data-i18n-attr="aria-label:nav.menu">
+            <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-menu"></use></svg>
+          </button>
+        </div>
+      </div>
+      <div class="sheet" id="sheet" hidden>
+        <a href="autopilot/" data-i18n="nav.autopilot">Autopilot</a>
+        <a href="#use-cases" data-i18n="nav.useCases">Use cases</a>
+        <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+        <a href="pricing/" data-i18n="nav.pricing">Pricing</a>
+        <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+      </div>
+    </header>
 
-  <body>
-    <!-- header-starts -->
-    <div class="header-wrap">
-      <header>
-        <div class="container">
-          <div class="content">
-            <div class="left">
-              <div class="logo">
-                <a
-                  href="https://fonoster.com/"
-                  class="focus-outline"
-                  target="_blank"
-                >
-                  <img
-                    src="site-assets/images/icons/logo.svg"
-                    alt="logo"
-                    class="svg"
-                  />
-                </a>
-              </div>
-            </div>
-
-            <div class="right">
-              <div class="nav-links">
-                <ul class="links">
-                  <li>
-                    <a
-                      href="https://docs.fonoster.com/"
-                      target="_blank"
-                      class="focus-outline"
-                    >
-                      <div class="icon">
-                        <img
-                          src="site-assets/images/icons/new-tab.svg"
-                          class="svg"
-                        />
-                      </div>
-                      Documentation</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://discord.gg/4QWgSz4hTC"
-                      target="_blank"
-                      class="focus-outline"
-                    >
-                      <div class="icon">
-                        <img
-                          src="site-assets/images/icons/new-tab.svg"
-                          class="svg"
-                        />
-                      </div>
-                      community</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      href="https://discord.gg/4QWgSz4hTC"
-                      target="_blank"
-                      class="focus-outline"
-                    >
-                      <div class="icon">
-                        <img
-                          src="site-assets/images/icons/new-tab.svg"
-                          class="svg"
-                        />
-                      </div>
-                      Support</a
-                    >
-                  </li>
-                </ul>
-              </div>
-              <div class="btn-wrap header-btn">
-                <a
-                  href="https://form.typeform.com/to/sDv75mFr"
-                  target="_blank"
-                  class="btn-link"
-                  >Log in</a
-                >
-                <a
-                  href="https://form.typeform.com/to/sDv75mFr"
-                  target="_blank"
-                  class="btn btn-primary"
-                  >Get Started</a
-                >
-              </div>
-            </div>
-
-            <div class="menu-btn">
-              <button
-                class="menu focus-outline"
-                onclick="this.classList.toggle('opened');this.setAttribute('aria-expanded', this.classList.contains('opened'))"
-                aria-label="Main Menu"
-              >
-                <svg width="25" height="25" viewBox="0 0 100 100">
-                  <path
-                    class="line line1"
-                    d="M 20,29.000046 H 80.000231 C 80.000231,29.000046 94.498839,28.817352 94.532987,66.711331 94.543142,77.980673 90.966081,81.670246 85.259173,81.668997 79.552261,81.667751 75.000211,74.999942 75.000211,74.999942 L 25.000021,25.000058"
-                  />
-                  <path class="line line2" d="M 20,50 H 80" />
-                  <path
-                    class="line line3"
-                    d="M 20,70.999954 H 80.000231 C 80.000231,70.999954 94.498839,71.182648 94.532987,33.288669 94.543142,22.019327 90.966081,18.329754 85.259173,18.331003 79.552261,18.332249 75.000211,25.000058 75.000211,25.000058 L 25.000021,74.999942"
-                  />
-                </svg>
-              </button>
+    <main>
+      <!-- Hero -->
+      <section class="hero" data-loop>
+        <div class="atmos" aria-hidden="true">
+          <div class="dots"><i class="dots__wave"></i></div>
+        </div>
+        <div class="container hero__in">
+          <div class="hero__copy">
+            <a class="badge" href="autopilot/#features" data-reveal>
+              <span class="badge__dot"></span>
+              <span data-i18n="hero.badge">New · Multilingual code-switching</span>
+              <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-arrow-right"></use></svg>
+            </a>
+            <h1 class="t-display" data-i18n="hero.title" data-reveal style="--i: 1">AI that answers<br />the phone.</h1>
+            <p class="t-lead" data-i18n="hero.sub" data-reveal style="--i: 2">Build, test, and run voice agents on real phone lines.</p>
+            <div class="ctas" data-reveal style="--i: 3">
+              <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+              <a class="btn btn--secondary" href="https://form.typeform.com/to/DVAwugzh" data-i18n="cta.sales">Contact sales</a>
             </div>
           </div>
-        </div>
-      </header>
-    </div>
-    <!-- header-ends -->
 
-    <!-- banner-starts -->
-    <div class="banner-wrap">
-      <div class="img-wrap-mobile d-md-none d-block">
-        <img
-          src="site-assets/images/banner-bg-mobile.png"
-          alt="banner-bg"
-          width="393"
-          height="325"
-        />
-      </div>
-      <div class="container">
-        <div class="content">
-          <div class="box">
-            <div class="upper">
-              <h1 class="h1 title">The open source alternative to Twilio</h1>
-              <p class="desc">
-                Engage with your customers with voice or messaging with a
-                single, easy-to-use platform.
-              </p>
-            </div>
-            <div class="btn-wrap">
-              <a href="https://form.typeform.com/to/sDv75mFr" class="btn btn-primary">Get Started</a>
-              <a href="https://docs.fonoster.com/" class="btn-arrow">
-                Documentation
-                <div class="icon">
-                  <img
-                    src="site-assets/images/icons/btn-arrow.svg"
-                    alt="btn-arrow"
-                    class="svg"
-                  />
+          <div class="call-demo" data-reveal style="--i: 2">
+            <div class="call-demo__glow" aria-hidden="true"></div>
+            <div class="phone" data-phone data-speaking="idle" aria-hidden="true">
+              <div class="phone__screen">
+                <div class="phone__island"></div>
+                <div class="phone__status">
+                  9:41
+                  <span>
+                    <svg class="icon"><use href="assets/img/icons.svg#i-signal"></use></svg>
+                    <svg class="icon"><use href="assets/img/icons.svg#i-wifi"></use></svg>
+                    <svg class="icon"><use href="assets/img/icons.svg#i-battery-full"></use></svg>
+                  </span>
                 </div>
+                <div class="phone__avatar">
+                  <div class="phone__core"><svg class="icon"><use href="assets/img/icons.svg#i-audio-lines"></use></svg></div>
+                </div>
+                <div class="phone__name" data-i18n="phone.name">Fonoster Agent</div>
+                <div class="phone__timer" data-phone-timer>00:42</div>
+                <div class="phone__caption">
+                  <div class="phone__who" data-phone-who>Agent</div>
+                  <div class="phone__text" data-phone-text>I can move you to Friday at 10. Does that work?</div>
+                  <div class="wave">
+                    <i style="--h: 4px; --n: 0"></i><i style="--h: 8px; --n: 1"></i><i style="--h: 12px; --n: 2"></i><i style="--h: 6px; --n: 3"></i><i style="--h: 14px; --n: 4"></i><i style="--h: 10px; --n: 5"></i><i style="--h: 16px; --n: 6"></i><i style="--h: 8px; --n: 7"></i><i style="--h: 12px; --n: 8"></i><i style="--h: 18px; --n: 9"></i><i style="--h: 10px; --n: 10"></i><i style="--h: 6px; --n: 11"></i><i style="--h: 12px; --n: 12"></i><i style="--h: 8px; --n: 13"></i><i style="--h: 4px; --n: 14"></i><i style="--h: 10px; --n: 15"></i><i style="--h: 6px; --n: 16"></i><i style="--h: 3px; --n: 17"></i>
+                  </div>
+                </div>
+                <div class="phone__controls">
+                  <span class="ctrl"><svg class="icon"><use href="assets/img/icons.svg#i-mic-off"></use></svg></span>
+                  <span class="ctrl ctrl--end"><svg class="icon"><use href="assets/img/icons.svg#i-phone-off"></use></svg></span>
+                  <span class="ctrl"><svg class="icon"><use href="assets/img/icons.svg#i-volume-2"></use></svg></span>
+                </div>
+              </div>
+            </div>
+            <form class="dock" data-callme aria-label="Get a call from our AI agent" data-i18n-attr="aria-label:demo.label">
+              <label class="dock__cc">
+                <span class="sr-only" data-i18n="demo.country">Country code</span>
+                <select name="country">
+                  <option>+1</option>
+                  <option>+52</option>
+                  <option>+57</option>
+                  <option>+34</option>
+                  <option>+44</option>
+                </select>
+                <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-chevron-down"></use></svg>
+              </label>
+              <span class="dock__div" aria-hidden="true"></span>
+              <input
+                type="tel"
+                name="phone"
+                inputmode="tel"
+                autocomplete="tel-national"
+                placeholder="Phone number"
+                aria-label="Phone number"
+                data-i18n-attr="placeholder:demo.placeholder;aria-label:demo.placeholder"
+              />
+              <button class="dock__btn" type="submit">
+                <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-phone"></use></svg>
+                <span data-i18n="demo.call">Call me</span>
+              </button>
+              <p class="dock__note" role="status" data-i18n="demo.soon">Live demo calls are coming soon. Talk to sales for a demo.</p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Numbers -->
+      <section class="numbers" aria-label="Fonoster in numbers">
+        <div class="container numbers__grid">
+          <div class="num" data-reveal>
+            <span class="num__value" data-odo>10K+</span>
+            <p class="num__label" data-i18n="numbers.stars">GitHub stars across projects</p>
+          </div>
+          <div class="num" data-reveal style="--i: 1">
+            <span class="num__value" data-odo>1M+</span>
+            <p class="num__label" data-i18n="numbers.pulls">Docker pulls</p>
+          </div>
+          <div class="num" data-reveal style="--i: 2">
+            <span class="num__value" data-odo>275</span>
+            <p class="num__label" data-i18n="numbers.releases">releases shipped</p>
+          </div>
+          <div class="num" data-reveal style="--i: 3">
+            <span class="num__value" data-odo>2018</span>
+            <p class="num__label" data-i18n="numbers.since">building since</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Use cases -->
+      <section class="section" id="use-cases" data-cases>
+        <div class="container">
+          <div class="uc__head">
+            <h2 class="t-h2" data-i18n="uc.title" data-reveal>Built for real calls.</h2>
+            <div class="tabs" role="tablist" aria-label="Use cases" data-reveal style="--i: 1">
+              <button class="tab" role="tab" id="tab-support" aria-selected="false" aria-controls="case-panel" tabindex="-1" data-case="support">Support</button>
+              <button class="tab" role="tab" id="tab-scheduling" aria-selected="true" aria-controls="case-panel" data-case="scheduling">Scheduling</button>
+              <button class="tab" role="tab" id="tab-collections" aria-selected="false" aria-controls="case-panel" tabindex="-1" data-case="collections">Collections</button>
+              <button class="tab" role="tab" id="tab-sales" aria-selected="false" aria-controls="case-panel" tabindex="-1" data-case="sales">Sales</button>
+            </div>
+          </div>
+          <div class="uc__body" id="case-panel" role="tabpanel" aria-labelledby="tab-scheduling">
+            <div class="callcard" data-reveal>
+              <div class="callcard__head">
+                <div class="who">
+                  <span class="who__avatar" data-case-icon><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-phone-outgoing"></use></svg></span>
+                  <div>
+                    <div class="who__name" data-case-name>Ana R.</div>
+                    <div class="who__meta" data-case-meta>Outbound · Spanish / English</div>
+                  </div>
+                </div>
+                <span class="live">01:12</span>
+              </div>
+              <div class="transcript seq" data-case-transcript>
+                <div class="msg msg--a"><div class="bubble bubble--a"><span class="bubble__who">Agent</span><span>Hi Ana — calling to confirm Thursday at 3 PM.</span></div></div>
+                <div class="msg msg--c"><div class="bubble bubble--c"><span class="bubble__who">Ana</span><span>¿Podemos pasarlo al viernes en la mañana?</span></div></div>
+                <div class="msg msg--e"><span class="chip"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-wrench"></use></svg><span class="chip__label">Tool</span><span>calendar.reschedule("fri 10:00")</span></span></div>
+                <div class="msg msg--a"><div class="bubble bubble--a"><span class="bubble__who">Agent</span><span>¡Listo! Viernes a las 10 AM. Nos vemos.</span></div></div>
+              </div>
+            </div>
+            <div class="uc__side" data-reveal style="--i: 1">
+              <p class="uc__lead" data-case-lead>Confirms, reschedules, and books — in the caller's language.</p>
+              <ul class="uses" data-case-uses>
+                <li><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-phone-outgoing"></use></svg>Outbound calls</li>
+                <li><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-wrench"></use></svg>Custom tools</li>
+                <li><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-languages"></use></svg>Code-switching</li>
+              </ul>
+              <a class="arrow-link" href="autopilot/">
+                <span data-i18n="uc.see">See the example</span>
+                <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-arrow-right"></use></svg>
               </a>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <!-- banner-ends -->
+      </section>
 
-    <!-- about-us-starts -->
-    <div class="about-us-wrap">
-      <div class="container">
-        <div class="content">
-          <div class="left">
-            <p class="accent">about us 👋️</p>
-            <h2 class="h1 title">
-              Build voice applications for your business, today.
-            </h2>
-            <div class="btn-wrap">
-              <a href="https://form.typeform.com/to/sDv75mFr" class="btn btn-primary">Get Started</a>
-            </div>
-          </div>
-
-          <div class="right">
-            <ul class="feature-list">
-              <li>
-                <div class="feature-icon">
-                  <img
-                    src="site-assets/images/icons/feature-icon-one.svg"
-                    alt="feature-icon"
-                    class="svg"
-                  />
-                </div>
-                <div class="inner">
-                  <h3 class="h3 title">Applications</h3>
-                  <p class="desc">
-                    Voice Applications are first-class citizens with supports
-                    for verbs like Play, Say, Gather, etc.
-                  </p>
-                  <div class="btn-wrap">
-                    <a href="https://docs.fonoster.com/" class="btn-arrow btn-alt"
-                      >Learn More
-                      <div class="icon">
-                        <img
-                          src="site-assets/images/icons/btn-arrow.svg"
-                          alt="btn-arrow"
-                          class="svg"
-                        /></div
-                    ></a>
-                  </div>
-                </div>
-              </li>
-
-              <li>
-                <div class="feature-icon">
-                  <img
-                    src="site-assets/images/icons/feature-icon-two.svg"
-                    alt="feature-icon"
-                    class="svg"
-                  />
-                </div>
-                <div class="inner">
-                  <h3 class="h3 title">Authentication</h3>
-                  <p class="desc">
-                    Keep your business safe with project-level authentication
-                    based in OAuth2 and JWT tokens.
-                  </p>
-                  <div class="btn-wrap">
-                    <a href="https://docs.fonoster.com/concepts/identity-and-tokens" class="btn-arrow btn-alt"
-                      >Learn More
-                      <div class="icon">
-                        <img
-                          src="site-assets/images/icons/btn-arrow.svg"
-                          alt="btn-arrow"
-                          class="svg"
-                        /></div
-                    ></a>
-                  </div>
-                </div>
-              </li>
-
-              <li>
-                <div class="feature-icon">
-                  <img
-                    src="site-assets/images/icons/feature-icon-one.svg"
-                    alt="feature-icon"
-                    class="svg"
-                  />
-                </div>
-                <div class="inner">
-                  <h3 class="h3 title">Storage</h3>
-                  <p class="desc">
-                    Store, organize, and serve your sounds on S3 buckets and
-                    user them later for analysis.
-                  </p>
-                  <div class="btn-wrap">
-                    <a href="https://docs.fonoster.com/" class="btn-arrow btn-alt"
-                      >Learn More
-                      <div class="icon">
-                        <img
-                          src="site-assets/images/icons/btn-arrow.svg"
-                          alt="btn-arrow"
-                          class="svg"
-                        /></div
-                    ></a>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="install-slider-wrap">
-          <div class="install-slider swiper-slider">
-            <div class="swiper-wrapper">
-              <div class="swiper-slide">
-                <div class="card">
-                  <div class="inner">
-                    <p class="title">Install from NPM or CDN</p>
-                    <p class="desc">
-                      Use the SDKs in the Browser or NodeJS application
-                    </p>
-                    <div class="btn-wrap">
-                      <a href="https://docs.fonoster.com/concepts/sdks" class="btn-arrow"
-                        >Learn More
-                        <div class="icon">
-                          <img
-                            src="site-assets/images/icons/btn-arrow.svg"
-                            alt="btn-arrow"
-                          /></div
-                      ></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="swiper-slide">
-                <div class="card">
-                  <div class="inner">
-                    <p class="title">CLI</p>
-                    <p class="desc">
-                      User the command-line tool to rapidly create and deploy
-                      your applications.
-                    </p>
-                    <div class="btn-wrap">
-                      <a href="https://docs.fonoster.com/" class="btn-arrow"
-                        >Learn More
-                        <div class="icon">
-                          <img
-                            src="site-assets/images/icons/btn-arrow.svg"
-                            alt="btn-arrow"
-                          /></div
-                      ></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="swiper-slide">
-                <div class="card">
-                  <div class="inner">
-                    <p class="title">Speech APIs</p>
-                    <p class="desc">
-                      Unlock Text-to-Speech and Automatic Speech Recognition 
-                      potential in your apps.
-                    </p>
-                    <div class="btn-wrap">
-                      <a href="https://docs.fonoster.com/" class="btn-arrow"
-                        >Learn More
-                        <div class="icon">
-                          <img
-                            src="site-assets/images/icons/btn-arrow.svg"
-                            alt="btn-arrow"
-                          /></div
-                      ></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- about-us-ends -->
-
-    <!-- capabilities-sec-starts -->
-    <div id="capabilities" class="capabilities-sec-wrap">
-      <div class="container">
-        <div class="content">
-          <div class="left">
-            <p class="accent">capabilities 🛠️</p>
-            <h2 class="h2 title">
-              The SDKs and tooling to help build your apps, faster.
-            </h2>
-            <p class="desc large">
-              Create smart voice applications that meets your business needs
-              without the clutter of unneeded features or historically
-              burdensome customixations.
-            </p>
-          </div>
-          <div class="right">
-            <div class="code-block-wrap">
-              <input
-                id="code-block-check"
-                type="checkbox"
-                class="code-block-check"
-              />
-              <label for="code-block-check" class="code-block-label">
-                <span class="label-1">Voice App</span>
-                <span class="label-2">CallManager</span>
-              </label>
-              <div class="code-block">
-                <div class="code-block-area">
-                  <div class="code-block-item">
-                    <pre><code class="language-js line-numbers">const VoiceServer = require("@fonoster/voice").default;
-
-new VoiceServer().listen(async (req, voice) => {
-  const { ingressNumber, appRef } = req;
-
-  console.log(`Ingress Number: ${ingressNumber}`);
-  console.log(`App Reference: ${appRef}`);
-
-  await voice.answer();
-  await voice.say("Hello and goodbye!");
-  await voice.hangup();
-});
-
-// Your app will live at tcp://127.0.0.1:50061 
-// and you can easily publish it to the Internet with:
-// ngrok tcp 50061
-  </code>
-  
-                    </pre>
-                  </div>
-                  <div class="code-block-item">
-                    <pre><code class="language-js line-numbers">const { Client, Calls } = require("@fonoster/sdk");
-
-const client = Client({ 
-  accessKeyId: "WO00000000000000000000000000000000" 
-});
-
-client.loginWithApiKey("your-api-key", "your-api-secret")
-  .then(async () => {
-    const response = await new Calls(client).createCall({
-      from: "+18287854037",
-      to: "+17853178070",
-      appRef: "3e61ecb7-a1b6-4a93-84c3-4f1979165bca"
-    });
-    console.log(response); // successful response
-  }).catch(console.error);
-                      
-                        </code>
-                                          </pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- capabilities-sec-ends -->
-
-    <!-- community-sec-starts -->
-    <div class="community-sec-wrap">
-      <div class="content">
-        <div class="left">
-          <div class="img-box">
-            <div class="inner">
-              <img
-                src="site-assets/images/community-sec-img.png"
-                alt="community-sec-img"
-              />
-            </div>
-
-            <div class="tweet-img">
-              <!-- <img src="site-assets/images/twitter-feed.png" alt="twitter-feed" /> -->
-              <blockquote class="twitter-tweet">
-                <p lang="en" dir="ltr">
-                  Thank you!! <br /><br />We now have over 300 members in our
-                  Discord community! <br /><br />From Open Source enthusiasts to
-                  telephony experts, we thank you for making this possible
-                  🎉👏💚
-                  <a href="https://t.co/XjyOWgSncE"
-                    >pic.twitter.com/XjyOWgSncE</a
-                  >
-                </p>
-                &mdash; Fonoster (@fonoster)
-                <a
-                  href="https://twitter.com/fonoster/status/1653460175078973440?ref_src=twsrc%5Etfw"
-                  >May 2, 2023</a
-                >
-              </blockquote>
-              <script
-                async
-                src="https://platform.twitter.com/widgets.js"
-                charset="utf-8"
-              ></script>
-            </div>
-          </div>
-        </div>
-        <div class="right">
-          <div class="title-section">
-            <p class="accent">community 🥳</p>
-            <h2 class="h2 title">
-              Join our amazing community of contributors.
-            </h2>
-            <p class="large desc">
-              Supported by a growing community of advocates, contributors, and
-              heroes.
-            </p>
-
-            <ul class="inner-social-icons">
-              <li>
-                <a href="https://twitter.com/fonoster" class="btn btn-primary">
-                  <img
-                    src="site-assets/images/icons/x-twitter.svg"
-                    alt="twitter"
-                    class="svg"
-                  />
-                </a>
-              </li>
-
-              <li>
-                <a href="https://discord.gg/4QWgSz4hTC" class="btn btn-primary">
-                  <img
-                    src="site-assets/images/icons/discord.svg"
-                    alt="discord"
-                    class="svg"
-                  />
-                </a>
-              </li>
-
-              <li>
-                <a href="https://www.reddit.com/search/?q=fonoster" class="btn btn-primary">
-                  <img
-                    src="site-assets/images/icons/reddit.svg"
-                    alt="reddit"
-                    class="svg"
-                  />
-                </a>
-              </li>
-
-              <li>
-                <a href="https://github.com/fonoster/fonoster" class="btn btn-primary">
-                  <img
-                    src="site-assets/images/icons/github-stars.svg"
-                    alt="github"
-                    class="svg"
-                  />
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- community-sec-ends -->
-
-    <!-- pattern-bg-starts -->
-    <div id="pricing" class="pattern-bg-wrap">
-      <!-- pricing-sec-starts -->
-      <div class="pricing-sec-wrap">
+      <!-- Capabilities -->
+      <section class="section" style="padding-top: 0">
         <div class="container">
-          <div class="content">
-            <div class="title-section">
-              <p class="accent">pricing 💸</p>
-              <h2 class="h2 title">Simple, straight-forward pricing.</h2>
-            </div>
-
-            <div class="pricing-slider-wrap">
-              <div class="pricing-slider swiper-slider">
-                <div class="swiper-wrapper">
-                  <div class="swiper-slide">
-                    <div class="card">
-                      <p class="plan-name accent">Free</p>
-                      <div class="plan-price">
-                        <img
-                          src="site-assets/images/plan-price-one.svg"
-                          alt="plan-price-one"
-                          class="svg"
-                        />
-                      </div>
-                      <p class="desc">
-                        Rate-limited plan for quickly and easily learning and
-                        standing up a prototype app.
-                      </p>
-                      <ul class="listing">
-                        <li>1 Workspace</li>
-                        <li>1 Domain</li>
-                        <li>30 mins/mo</li>
-                        <li>1GB Storage</li>
-                        <li>1-week log retention</li>
-                        <li>Community support</li>
-                      </ul>
-
-                      <div class="btn-wrap">
-                        <a href="https://form.typeform.com/to/sDv75mFr" class="btn btn-primary btn-alt">Sign up</a>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="swiper-slide">
-                    <div class="card">
-                      <p class="plan-name accent">Pro</p>
-                      <div class="plan-price">
-                        <img
-                          src="site-assets/images/plan-price-two.svg"
-                          alt="plan-price-one"
-                          class="svg"
-                        />
-                      </div>
-                      <p class="desc">
-                        Perfect for small and medium businesses with
-                        applications going into production.
-                      </p>
-                      <ul class="listing">
-                        <li>10GB Storage</li>
-                        <li>Unlimited Workspaces</li>
-                        <li>Unlimited Domains</li>
-                        <li>520 mins/mo free then pay-as-you-go</li>
-                        <li>30-day log retention</li>
-                        <li>Email support</li>
-                      </ul>
-
-                      <div class="btn-wrap">
-                        <a href="https://form.typeform.com/to/sDv75mFr" class="btn btn-primary btn-alt">Sign up</a>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="swiper-slide">
-                    <div class="card">
-                      <p class="plan-name accent">advanced</p>
-                      <div class="plan-price">
-                        <img
-                          src="site-assets/images/plan-price-three.svg"
-                          alt="plan-price-one"
-                          class="svg"
-                        />
-                      </div>
-                      <p class="desc">
-                        The highest level of security, regulatory compliance,
-                        performance, and scalability.
-                      </p>
-                      <ul class="listing">
-                        <li>Technical support with SLAs</li>
-                        <li>Volume commitment pricing</li>
-                        <li>Technical onboarding</li>
-                        <li>Single Sign-On (Coming Soon)</li>
-                        <li>Customer Success Manager</li>
-                      </ul>
-
-                      <div class="btn-wrap">
-                        <a href="https://form.typeform.com/to/DVAwugzh" class="btn btn-primary btn-alt"
-                          >Contact Us</a
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <h2 class="t-h3" data-i18n="caps.title" data-reveal>Everything a phone call needs.</h2>
+          <div class="caps-grid" data-reveal>
+            <div class="cap"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-hash"></use></svg><span data-i18n="caps.numbers">Phone numbers</span></div>
+            <div class="cap" style="--i: 1"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-network"></use></svg><span data-i18n="caps.sip">SIP trunking</span></div>
+            <div class="cap" style="--i: 2"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-phone-forwarded"></use></svg><span data-i18n="caps.transfer">Call transfer</span></div>
+            <div class="cap" style="--i: 3"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-voicemail"></use></svg><span data-i18n="caps.voicemail">Voicemail detection</span></div>
+            <div class="cap" style="--i: 4"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-mic"></use></svg><span data-i18n="caps.barge">Barge-in</span></div>
+            <div class="cap" style="--i: 5"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-languages"></use></svg><span data-i18n="caps.multi">Multilingual</span></div>
+            <div class="cap" style="--i: 6"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-book-open"></use></svg><span data-i18n="caps.kb">Knowledge base</span></div>
+            <div class="cap" style="--i: 7"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-wrench"></use></svg><span data-i18n="caps.tools">Custom tools</span></div>
+            <div class="cap" style="--i: 8"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-plug"></use></svg><span data-i18n="caps.mcp">MCP server</span></div>
+            <div class="cap" style="--i: 9"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-circle-dot"></use></svg><span data-i18n="caps.recording">Call recording</span></div>
+            <div class="cap" style="--i: 10"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-audio-waveform"></use></svg><span data-i18n="caps.noise">Noise filtering</span></div>
+            <div class="cap" style="--i: 11"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-webhook"></use></svg><span data-i18n="caps.events">Events &amp; webhooks</span></div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- pricing-sec-ends -->
-
-      <!-- testimonials-sec-starts -->
-      <div class="testimonials-sec-wrap">
+      <!-- Any model, any carrier -->
+      <section class="section pipe" data-loop>
         <div class="container">
-          <div class="content">
-            <div class="title-section">
-              <p class="accent">testimonials 🥰</p>
-              <h2 class="h2 title">What our people are saying about us.</h2>
+          <h2 class="t-h2" data-i18n="pipe.title" data-reveal>Any model.<br class="br-m" /> Any carrier.</h2>
+          <p class="t-sub" style="margin-top: 12px; --i: 1" data-i18n="pipe.sub" data-reveal>Swap providers with one line. No lock&#8209;in.</p>
+          <div class="pipe__flow" data-reveal style="--i: 2">
+            <div class="step" style="--i: 0">
+              <div class="step__icon"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-phone-call"></use></svg></div>
+              <div>
+                <div class="step__name" data-i18n="pipe.call">Call</div>
+                <div class="step__vendors">PSTN · SIP · WebRTC</div>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div class="testimonials-slider-wrap">
-          <div class="testimonials-slider swiper-slider">
-            <div class="swiper-wrapper">
-              <div class="swiper-slide">
-                <div class="card">
-                  <h3 class="h3 title">“The one and only cloud-first SIP server!”</h3>
-                  <div class="inner">
-                    <div class="icon">
-                      <img src="site-assets/images/icons/quote.svg" alt="quote" />
-                    </div>
-                    <div class="content">
-                      <p class="text">
-                        I came across Routr,
-                        which seems to be the one and only cloud-first Kubernetes-ready SIP server 
-                        on the planet!
-                      </p>
-                      <p class="accent author">Jessie Wadman, Camanio AB</p>
-                    </div>
-                  </div>
-                </div>
+            <div class="plink" style="--i: 1" aria-hidden="true"><i></i></div>
+            <div class="step" style="--i: 1">
+              <div class="step__icon"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-ear"></use></svg></div>
+              <div>
+                <div class="step__name" data-i18n="pipe.hear">Hear</div>
+                <div class="step__vendors">Deepgram · Google</div>
               </div>
-              <div class="swiper-slide">
-                <div class="card">
-                  <h3 class="h3 title">“Awesome community!”</h3>
-                  <div class="inner">
-                    <div class="icon">
-                      <img src="site-assets/images/icons/quote.svg" alt="quote" />
-                    </div>
-                    <div class="content">
-                      <p class="text">
-                        I really love this community and I will like to be a contributor.
-                        I am currently working on some use cases with Fonoster.
-                      </p>
-                      <p class="accent author">AlijiEmmanuel-dev, GitHub Discussions</p>
-                    </div>
-                  </div>
-                </div>
+            </div>
+            <div class="plink" style="--i: 2" aria-hidden="true"><i></i></div>
+            <div class="step" style="--i: 2">
+              <div class="step__icon"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-sparkles"></use></svg></div>
+              <div>
+                <div class="step__name" data-i18n="pipe.think">Think</div>
+                <div class="step__vendors">OpenAI · Anthropic<br />Gemini · Groq · Ollama</div>
               </div>
-
-              <div class="swiper-slide">
-                <div class="card">
-                  <h3 class="h3 title">“Rock on!”</h3>
-                  <div class="inner">
-                    <div class="icon">
-                      <img src="site-assets/images/icons/quote.svg" alt="quote" />
-                    </div>
-                    <div class="content">
-                      <p class="text">
-                        Heya pedro! just came across this project in the last hour
-                        but love everything about it on first pass
-                      </p>
-                      <p class="accent author">beckerchase, GitHub Discussions</p>
-                    </div>
-                  </div>
-                </div>
+            </div>
+            <div class="plink" style="--i: 3" aria-hidden="true"><i></i></div>
+            <div class="step" style="--i: 3">
+              <div class="step__icon"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-audio-lines"></use></svg></div>
+              <div>
+                <div class="step__name" data-i18n="pipe.speak">Speak</div>
+                <div class="step__vendors">ElevenLabs · Azure<br />Deepgram · Google</div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <!-- testimonials-sec-ends -->
-    </div>
-    <!-- pattern-bg-ends -->
+      </section>
 
-    <!-- cta-sec-starts -->
-    <div class="cta-sec-wrap">
-      <div class="img-wrap">
-        <img
-          src="site-assets/images/cta-img-tab.png"
-          alt="cta-img-tab"
-          width="1024"
-          height="530"
-        />
-      </div>
-
-      <div class="img-wrap-mobile">
-        <img src="site-assets/images/cta-img-mobile.png" alt="cta-img-tab" />
-      </div>
-      <div class="container">
-        <div class="content">
-          <h2 class="h2 title">
-            Ready to engage your clients better and faster?
-          </h2>
-          <p class="large desc">Try us out and start building for free.</p>
-          <div class="btn-wrap">
-            <a href="https://form.typeform.com/to/sDv75mFr" class="btn btn-primary">Get Started</a>
+      <!-- Autopilot block -->
+      <section class="band">
+        <div class="container section split">
+          <div class="split__copy" data-reveal>
+            <span class="eyebrow"><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-bot"></use></svg><span data-i18n="ap.eyebrow">Autopilot</span></span>
+            <h2 class="t-h2" data-i18n="ap.blockTitle">Your agent is a YAML file.</h2>
+            <p class="t-sub" data-i18n="ap.blockSub">Pick the voice, the model, and the prompt. Deploy with one command.</p>
+            <a class="arrow-link" href="autopilot/">
+              <span data-i18n="ap.learn">Learn more about Autopilot</span>
+              <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-arrow-right"></use></svg>
+            </a>
+          </div>
+          <div class="window" data-reveal style="--i: 1">
+            <div class="window__bar"><i></i><i></i><i></i>agent.yaml</div>
+            <pre class="code show-d"><code><span class="l"><span class="k">name</span>: <span class="v">front-desk</span></span><span
+class="l"><span class="k">type</span>: <span class="v">AUTOPILOT</span></span><span
+class="l"><span class="k">speechToText</span>:</span><span
+class="l">  <span class="k">productRef</span>: <span class="v">stt.deepgram</span></span><span
+class="l">  <span class="k">config</span>: { <span class="k">model</span>: <span class="v">nova-3</span>, <span class="k">languageCode</span>: <span class="v">multi</span> }</span><span
+class="l"><span class="k">textToSpeech</span>:</span><span
+class="l">  <span class="k">productRef</span>: <span class="v">tts.deepgram</span></span><span
+class="l">  <span class="k">config</span>: { <span class="k">voice</span>: <span class="v">aura-asteria-en</span> }</span><span
+class="l"><span class="k">intelligence</span>:</span><span
+class="l">  <span class="k">productRef</span>: <span class="v">llm.openai</span></span><span
+class="l">  <span class="k">config</span>:</span><span
+class="l">    <span class="k">languageModel</span>: { <span class="k">provider</span>: <span class="v">openai</span>, <span class="k">model</span>: <span class="v">gpt-4o</span> }</span><span
+class="l">    <span class="k">conversationSettings</span>:</span><span
+class="l">      <span class="k">firstMessage</span>: <span class="v">"Hi! How can I help?"</span></span><span
+class="l">      <span class="k">systemPrompt</span>: <span class="v">"You book appointments."</span></span><span
+class="l"><span class="c">    # + tools, knowledge base, transfer…</span></span></code></pre>
+            <pre class="code show-m"><code><span class="l"><span class="k">name</span>: <span class="v">front-desk</span></span><span
+class="l"><span class="k">type</span>: <span class="v">AUTOPILOT</span></span><span
+class="l"><span class="k">speechToText</span>:</span><span
+class="l">  <span class="k">productRef</span>: <span class="v">stt.deepgram</span></span><span
+class="l">  <span class="k">config</span>:</span><span
+class="l">    <span class="k">model</span>: <span class="v">nova-3</span></span><span
+class="l">    <span class="k">languageCode</span>: <span class="v">multi</span></span><span
+class="l"><span class="k">textToSpeech</span>:</span><span
+class="l">  <span class="k">productRef</span>: <span class="v">tts.deepgram</span></span><span
+class="l">  <span class="k">config</span>: { <span class="k">voice</span>: <span class="v">aura-asteria-en</span> }</span><span
+class="l"><span class="k">intelligence</span>:</span><span
+class="l">  <span class="k">productRef</span>: <span class="v">llm.openai</span></span><span
+class="l">  <span class="k">config</span>:</span><span
+class="l">    <span class="k">languageModel</span>:</span><span
+class="l">      <span class="k">provider</span>: <span class="v">openai</span></span><span
+class="l">      <span class="k">model</span>: <span class="v">gpt-4o</span></span><span
+class="l">    <span class="k">conversationSettings</span>:</span><span
+class="l">      <span class="k">firstMessage</span>: <span class="v">"Hi! How can I help?"</span></span><span
+class="l">      <span class="k">systemPrompt</span>: <span class="v">"You book appointments."</span></span><span
+class="l"><span class="c">    # + tools, knowledge base, transfer…</span></span></code></pre>
+            <div class="term">
+              <div class="term__line">
+                <span class="term__prompt">$</span>
+                <span><span data-type="npx @fonoster/ctl applications:create -f agent.yaml" data-type-m="npx @fonoster/ctl \\n  applications:create -f agent.yaml">npx @fonoster/ctl applications:create -f agent.yaml</span><span class="caret" aria-hidden="true"></span></span>
+              </div>
+              <div class="term__out" data-type-out>Done!</div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <!-- cta-sec-ends -->
+      </section>
 
-    <!-- faq-sec-starts -->
-    <div class="faq-sec-wrap">
-      <div class="container">
-        <div class="content">
-          <p class="accent">FAQs 🤔</p>
-          <h2 class="h2 title">Questions? We’ve got answers.</h2>
-        </div>
-
-        <ul class="listing">
-          <li>
-            <div class="left">Is the self-hosted version free?</div>
-            <div class="right">
-              Yes, you can self-host it and use your
-              <span
-                ><a href="https://docs.fonoster.com/self-hosting" class="btn-link btn-alt"
-                  >Community Edition</a
-                ></span
-              >
-              for free.
-            </div>
-          </li>
-
-          <li>
-            <div class="left">How long will the free plan remain free?</div>
-            <div class="right">We're exploring ways to keep the free plan forever. The open-source version will always be available for self-hosting.</div>
-          </li>
-
-          <li>
-            <div class="left">
-              Do you offer special programs for government and public sector
-              customers?
-            </div>
-            <div class="right">
-              Yes we do. Please
-              <span><a href="https://form.typeform.com/to/DVAwugzh" class="btn-link btn-alt">get in touch</a></span>
-              with us to learn more.
-            </div>
-          </li>
-
-          <li>
-            <div class="left">
-              Do you offer special programs for non-profit organizations, open
-              source projects, or educational institutions?
-            </div>
-            <div class="right">
-              Yes, we offer special rates to organizations that do good things
-              worldwide. If you’d like to apply for a concession, please
-              <span><a href="https://form.typeform.com/to/DVAwugzh" class="btn-link btn-alt">contact us</a></span
-              >, and we’ll be glad to get to know your work.
-            </div>
-          </li>
-
-          <li>
-            <div class="left">How do I report issues and get support?</div>
-            <div class="right">
-              Users in the free plan can raise issues in the
-              <span
-                ><a href="https://github.com/fonoster/fonoster/issues" class="btn-link btn-alt">issue tracker</a></span
-              >
-              or ask questions among
-              <span><a href="https://github.com/fonoster" class="btn-link btn-alt">GitHub</a></span>
-              discussions. You can also check our
-              <span><a href="https://discord.gg/4QWgSz4hTC" class="btn-link btn-alt">support page</a></span>
-              for additional support options.
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <!-- faq-sec-ends -->
-
-    <!-- footer-starts -->
-    <footer class="footer-wrap">
-      <div class="container">
-        <div class="content">
-          <ul class="listing">
-            <li>
-              <p class="footer-title accent">product</p>
-              <ul class="footer-links">
-                <!-- <li>
-                  <a href="#" class="btn-link btn-alt">Marketplace</a>
-                </li> -->
-
-                <li>
-                  <a href="#capabilities" class="btn-link btn-alt">VOIP Net</a>
-                </li>
-
-                <li>
-                  <a href="#capabilities" class="btn-link btn-alt">Voice Applications</a>
-                </li>
-
-                <li>
-                  <a href="#pricing" class="btn-link btn-alt">Pricing</a>
-                </li>
-              </ul>
-            </li>
-
-            <li>
-              <p class="footer-title accent">company</p>
-              <ul class="footer-links">
-                <li>
-                  <a href="https://dev.to/psanders" class="btn-link btn-alt">Blog</a>
-                </li>
-
-                <li>
-                  <a href="https://dev.to/search?q=fonoster" class="btn-link btn-alt">DEV</a>
-                </li>
-              </ul>
-            </li>
-
-            <li>
-              <p class="footer-title accent">developers</p>
-              <ul class="footer-links">
-                <li>
-                  <a href="https://docs.fonoster.com/" class="btn-link btn-alt">Documentation</a>
-                </li>
-
-                <li>
-                  <a href="https://docs.fonoster.com/" class="btn-link btn-alt">API Reference</a>
-                </li>
-
-                <li>
-                  <a href="https://docs.fonoster.com/guides" class="btn-link btn-alt">Guides</a>
-                </li>
-              </ul>
-            </li>
-
-            <li>
-              <p class="footer-title accent">resources</p>
-              <ul class="footer-links">
-                <li>
-                  <a href="https://discord.gg/4QWgSz4hTC" class="btn-link btn-alt">Support</a>
-                </li>
-
-                <li>
-                  <a href="#" class="btn-link btn-alt">System Status</a>
-                </li>
-              </ul>
-            </li>
-
-            <li>
-              <p class="footer-title accent">community</p>
-              <ul class="social-icons">
-                <li>
-                  <a href="https://twitter.com/fonoster">
-                    <img
-                      src="site-assets/images/icons/x-twitter.svg"
-                      alt="twitter"
-                      class="svg"
-                    />
-                  </a>
-                </li>
-                <li>
-                  <a href="https://discord.gg/4QWgSz4hTC">
-                    <img
-                      src="site-assets/images/icons/discord.svg"
-                      alt="discord"
-                      class="svg"
-                    />
-                  </a>
-                </li>
-                <li>
-                  <a href="https://github.com/fonoster">
-                    <img
-                      src="site-assets/images/icons/github.svg"
-                      alt="github"
-                      class="svg"
-                    />
-                  </a>
-                </li>
-                <li>
-                  <a href="https://www.reddit.com/search/?q=fonoster">
-                    <img
-                      src="site-assets/images/icons/reddit.svg"
-                      alt="reddit"
-                      class="svg"
-                    />
-                  </a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-
-          <div class="copyright text-center">
-            <div class="inner">
-              <p class="accent">© 2025, Fonoster. All Rights Reserved.</p>
-              <p class="small desc">Veteran Owned and Operated</p>
-            </div>
+      <!-- Deploy -->
+      <section class="section">
+        <div class="container">
+          <h2 class="t-h2" data-i18n="deploy.title" data-reveal>Deploy anywhere.</h2>
+          <div class="deploy__grid">
+            <a class="dcard dcard--hi" href="https://app.fonoster.com/auth/login" data-reveal>
+              <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-cloud"></use></svg>
+              <span class="dcard__name" data-i18n="deploy.cloud">Cloud</span>
+              <span class="dcard__line" data-i18n="deploy.cloudLine">Managed. Scales with you.</span>
+              <span class="arrow-link"><span data-i18n="cta.start">Start building</span><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-arrow-right"></use></svg></span>
+            </a>
+            <a class="dcard" href="https://docs.fonoster.com/self-hosting" data-reveal style="--i: 1">
+              <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-server"></use></svg>
+              <span class="dcard__name" data-i18n="deploy.self">Self-hosted</span>
+              <span class="dcard__line" data-i18n="deploy.selfLine">Open-source core, MIT.</span>
+              <span class="arrow-link mono">docker compose up<svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-arrow-right"></use></svg></span>
+            </a>
+            <a class="dcard" href="https://form.typeform.com/to/DVAwugzh" data-reveal style="--i: 2">
+              <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-building-2"></use></svg>
+              <span class="dcard__name" data-i18n="deploy.ent">Enterprise</span>
+              <span class="dcard__line" data-i18n="deploy.entLine">SLAs, support, on-prem.</span>
+              <span class="arrow-link"><span data-i18n="deploy.talk">Talk to us</span><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-arrow-right"></use></svg></span>
+            </a>
           </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="final" data-loop>
+        <div class="atmos atmos--bottom" aria-hidden="true">
+          <div class="dots"><i class="dots__wave"></i></div>
+        </div>
+        <div class="container final__in">
+          <h2 class="t-h1" data-i18n="final.title" data-reveal>Your first agent<br />on the phone today.</h2>
+          <div class="ctas" data-reveal style="--i: 1">
+            <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+            <a class="btn btn--secondary" href="https://form.typeform.com/to/DVAwugzh" data-i18n="cta.sales">Contact sales</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__in">
+        <span class="footer__copy" data-i18n="footer.rights">© 2026 Fonoster Inc.</span>
+        <nav class="footer__links" aria-label="Footer">
+          <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+          <a href="https://github.com/fonoster/fonoster">GitHub</a>
+          <a href="https://discord.gg/4QWgSz4hTC">Discord</a>
+          <a href="https://x.com/fonoster">X</a>
+        </nav>
+        <div class="prefs">
+          <label class="prefs__item">
+            <svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-globe"></use></svg>
+            <span class="sr-only" data-i18n="prefs.language">Language</span>
+            <select data-pref="lang">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+            <svg class="icon chev" aria-hidden="true"><use href="assets/img/icons.svg#i-chevron-down"></use></svg>
+          </label>
+          <span class="prefs__div" aria-hidden="true"></span>
+          <label class="prefs__item">
+            <svg class="icon" aria-hidden="true" data-theme-icon><use href="assets/img/icons.svg#i-moon"></use></svg>
+            <span class="sr-only" data-i18n="prefs.theme">Theme</span>
+            <select data-pref="theme">
+              <option value="dark" data-i18n="prefs.dark">Dark</option>
+              <option value="light" data-i18n="prefs.light">Light</option>
+            </select>
+            <svg class="icon chev" aria-hidden="true"><use href="assets/img/icons.svg#i-chevron-down"></use></svg>
+          </label>
         </div>
       </div>
     </footer>
-    <!-- footer-ends -->
 
-    <script src="site-assets/js/jquery.min.js"></script>
-    <script src="site-assets/js/popper.min.js"></script>
-    <script src="site-assets/js/bootstrap.min.js"></script>
-    <script src="site-assets/js/prism.js"></script>
-    <script src="site-assets/js/swiper-bundle.min.js"></script>
-
-    <!-- Custom JS File -->
-    <script src="site-assets/js/setting.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/v1.js"></script>
   </body>
 </html>
