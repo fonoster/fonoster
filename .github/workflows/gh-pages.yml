@@ -21,12 +21,10 @@ jobs:
           node-version: "22.x"
       - name: Populate out directory
         run: |
-          # Create out directory
-          mkdir -p out/site-assets
-
-          # Copy site assets
-          cp -a site/site-assets/* out/site-assets
-          cp site/index.html out/index.html
+          # Publish everything under site/ (the deploy replaces the whole gh-pages branch)
+          mkdir -p out
+          cp -a site/. out/
+          rm -f out/README.md
           echo > out/.nojekyll
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
