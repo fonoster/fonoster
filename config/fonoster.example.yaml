@@ -1,0 +1,138 @@
+# yaml-language-server: $schema=https://fonoster.com/schemas/fonoster.json
+#
+# fonoster.yaml — configuration for the API server and its embedded Identity.
+# Copy to config/fonoster.yaml (compose mounts it at /opt/fonoster/fonoster.yaml).
+# Ships with Community values.
+#
+#   - Everything the API server needs is here, secrets included; it reads no
+#     environment variables of its own. Treat this file as a secret: chmod 600,
+#     never commit it, mount it from a Secret on Kubernetes.
+#   - ${VAR} only appears where a value is shared with a container configured
+#     through .env (Postgres, InfluxDB, Asterisk), so each value is written once.
+#   - Unknown or misspelled keys stop the API server at boot, naming the key.
+#   - JSON with comments works too (fonoster.jsonc). Keep only one of the two.
+
+# Required. Public hostname; sets the defaults for appUrl, signalingServer,
+# the token issuer and the SIP root domain.
+domain: fonoster.local
+# appUrl: https://fonoster.local                 # links in emails
+# signalingServer: wss://fonoster.local:5062     # browser test calls (WebRTC)
+
+server:
+  bindAddr: 0.0.0.0:50051
+  httpBridgePort: 9876                           # HTTP bridge, also serves recordings
+  host: apiserver                                # how other services reach this one
+
+logs:
+  level: info                                    # error | warn | info | verbose | debug
+  format: json                                   # json | text
+  transport: console                             # console | fluent
+  # fluent: { host: fluentd, port: 24224, tagPrefix: fonoster-logs }
+
+database:
+  url: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fonoster
+
+encryption:
+  key: change-me-to-a-long-random-string         # encrypts stored credentials
+
+# Outgoing email (invites, verification codes, password resets). Leave out to
+# run without email; anything that needs it then fails with a clear error.
+# smtp:
+#   host: smtp.example.com
+#   port: 587
+#   secure: false
+#   sender: "Fonoster <no-reply@example.com>"
+#   user: ops@example.com
+#   password: smtp-password
+
+# Pluggable authorization service (usage limits, billing). Off in Community.
+authz:
+  enabled: false
+  # host: authz
+  # port: 50071
+  # methods: [/fonoster.calls.v1beta2.Calls/CreateCall]
+
+# Product features. The code checks these, never an edition.
+features:
+  auth:
+    methods: [password]                          # password | email_code | github
+    signup: invite                               # invite | open
+  billing:
+    enabled: false                               # needs authz
+  costs:
+    display: usage                               # none | usage | prices
+  calls:
+    transcripts: { store: true, retentionDays: 30 }
+    recordings: { store: false }
+
+mediaService:
+  provider: asterisk
+  asterisk:
+    ariUrl: http://asterisk:8088
+    ariUsername: ${ASTERISK_ARI_USERNAME}
+    ariPassword: ${ASTERISK_ARI_SECRET}
+    systemDomain: sip.invalid
+
+# Answering machine detection on outbound calls (thresholds live in amd.conf).
+amd:
+  enabled: false
+  engine: native                                 # native | ml
+  mode: compact                                  # compact | full
+
+routr:
+  apiEndpoint: routr:51907
+  defaultPeer:
+    aor: sip:voice@default
+    name: Voice Server
+    username: ${ASTERISK_SIPPROXY_USERNAME}      # Asterisk registers with Routr as this peer
+    password: ${ASTERISK_SIPPROXY_SECRET}
+
+nats:
+  url: nats://nats:4222
+
+influxdb:                                        # call records
+  url: http://influxdb:8086
+  org: ${INFLUXDB_INIT_ORG}
+  username: ${INFLUXDB_INIT_USERNAME}
+  password: ${INFLUXDB_INIT_PASSWORD}
+  token: ${INFLUXDB_INIT_TOKEN}
+
+# Speech provider credentials, shared with Autopilot (JSON or YAML).
+integrationsFile: /opt/fonoster/integrations.json
+
+# Caller-audio filters. Only needed when applications use them.
+# audioFilters:
+#   aiCoustics:
+#     license: aic-license-key
+
+# SMS for phone verification (needed when identity.security asks for it).
+# twilio:
+#   phoneNumber: "+15555550100"
+#   accountSid: ACxxxxxxxxxxxxxxxx
+#   authToken: twilio-token
+
+identity:
+  database:
+    url: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fnidentity
+  # issuer: https://fonoster.local               # defaults to the app URL
+  audience: api
+  keys:
+    privateKeyPath: /opt/fonoster/keys/private.pem
+    publicKeyPath: /opt/fonoster/keys/public.pem
+  tokens:
+    accessTokenExpiresIn: 15m
+    idTokenExpiresIn: 15m
+    refreshTokenExpiresIn: 24h
+  security:
+    contactVerificationRequired: false
+    twoFactorAuthenticationRequired: false
+  invites:
+    expiration: 1d
+  # oauth2:                                      # needed when features.auth.methods has github
+  #   github:
+  #     clientId: Iv1.xxxxxxxxxxxxxxxx
+  #     clientSecret: github-oauth-secret
+  owner:                                         # first admin, created on first boot
+    name: Admin
+    email: admin@fonoster.local
+    password: changeme

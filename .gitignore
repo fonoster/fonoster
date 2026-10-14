@@ -14,8 +14,18 @@ tsconfig.tsbuildinfo
 integrations.json
 config/assistant*
 !assistant.example.json
+# Service config files hold secrets; only the *.example.* versions are committed
+config/fonoster.yaml
+config/fonoster.yml
+config/fonoster.json
+config/fonoster.jsonc
 config/autopilot.yaml
-config/mediaservice.yaml
+config/autopilot.yml
+config/autopilot.json
+config/autopilot.jsonc
+config/identity.yaml
+config/identity.yml
+config/identity.jsonc
 .next
 next-env.d.ts
 .npmrc

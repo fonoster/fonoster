@@ -1,0 +1,32 @@
+// fonoster.jsonc — the same configuration as fonoster.example.yaml, written as
+// JSON with comments. Use one or the other: two files for the API server stop
+// it at boot. Trimmed to the required keys; every key from the YAML works here.
+{
+  "$schema": "https://fonoster.com/schemas/fonoster.json",
+  "domain": "fonoster.local",
+  "database": {
+    "url": "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fonoster",
+  },
+  "encryption": { "key": "change-me-to-a-long-random-string" },
+  "mediaService": {
+    "asterisk": {
+      "ariUrl": "http://asterisk:8088",
+      "ariUsername": "${ASTERISK_ARI_USERNAME}",
+      "ariPassword": "${ASTERISK_ARI_SECRET}",
+    },
+  },
+  "nats": { "url": "nats://nats:4222" },
+  "influxdb": {
+    "url": "http://influxdb:8086",
+    "org": "${INFLUXDB_INIT_ORG}",
+    "username": "${INFLUXDB_INIT_USERNAME}",
+    "password": "${INFLUXDB_INIT_PASSWORD}",
+    "token": "${INFLUXDB_INIT_TOKEN}",
+  },
+  "identity": {
+    "database": {
+      "url": "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fnidentity",
+    },
+    "owner": { "name": "Admin", "email": "admin@fonoster.local", "password": "changeme" },
+  },
+}

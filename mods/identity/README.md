@@ -22,6 +22,29 @@ This module offers comprehensive identity management functionality, including cr
 - **Authorization** via Role-Based Access Control (RBAC) with predefined and custom roles.
 - **Resource ownership** keyed by `accessKeyId` (`US…` for users, `WO…` for workspaces).
 
+## Running standalone
+
+`fonoster-identity` (or the `fonoster/identity` image) serves Identity without the
+telephony stack. It reads `identity.yaml` (or `.jsonc`/`.json`), found via
+`--config <path>`, `/opt/fonoster/identity.yaml` or `./config/identity.yaml`, and
+reads no environment variables:
+
+```yaml
+domain: id.acme.com              # issuer and invite links default from it
+database: { url: postgresql://postgres:postgres@postgres:5432/fnidentity }
+encryption: { key: change-me }
+smtp: { host: smtp.acme.com, sender: no-reply@acme.com, user: ops, password: secret }
+features:
+  auth: { methods: [password], signup: invite }
+identity:                        # same section as fonoster.yaml's
+  keys: { privateKeyPath: /opt/fonoster/keys/private.pem, publicKeyPath: /opt/fonoster/keys/public.pem }
+  owner: { name: Admin, email: admin@acme.com, password: changeme }
+```
+
+`npm run db:deploy -- --config <path>` applies the migrations using the same file.
+The original `identity.json` layout still loads, with a deprecation warning. Every
+key is described in [docs/configuration.md](../../docs/configuration.md).
+
 ## Specification
 
 The normative specification for this module — entities and resource ownership, the RBAC model, the

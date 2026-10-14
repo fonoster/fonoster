@@ -56,13 +56,15 @@
 
 ## 6. Deploy and docs
 
-- [ ] 6.1 `config/fonoster.example.yaml`, `config/fonoster.example.jsonc`,
-      `config/autopilot.example.yaml`, `config/integrations.example.yaml`
-- [ ] 6.2 `compose.yaml`, `compose.dev.yaml`: apiserver `env_file: .env` + file mount; Autopilot
-      file mount only; integrations mounted in both; dashboard `DASHBOARD_API_URL`
-- [ ] 6.3 `.env.example`, `.env.example.dev`: third-party variables only, plus `DASHBOARD_API_URL`
-- [ ] 6.4 CI workflows and root scripts use config files instead of `APISERVER_*` / `AUTOPILOT_*`
-- [ ] 6.5 Migration guide with the full old-variable → key table; Identity config reference
+- [x] 6.1 `config/fonoster.example.yaml`, `config/fonoster.example.jsonc`,
+      `config/autopilot.example.yaml` (integrations stay `integrations.example.json`; YAML
+      also loads), validated by a test
+- [x] 6.2 `compose.yaml`, `compose.dev.yaml`: apiserver `env_file: .env` + file mount; Autopilot
+      file mount only; integrations mounted in both (dashboard runtime URL lands with
+      `dashboard-tailwind-migration`)
+- [x] 6.3 `.env.example`, `.env.example.dev`: third-party variables only (84 → 35)
+- [x] 6.4 CI workflows and root scripts use config files instead of `APISERVER_*` / `AUTOPILOT_*`
+- [x] 6.5 Migration guide with the full old-variable → key table; Identity config reference
       (covers `identity-standalone-service` 3.2) and compose example (covers its 5.2)
 - [ ] 6.6 Remove `config-proposal/`; delete the `next` branch (with confirmation)
 

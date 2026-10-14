@@ -120,6 +120,14 @@ describe("@common[config/loadServiceConfig]", function () {
       );
     });
 
+    it("ignores the editor-only $schema key", function () {
+      const path = write(
+        "svc.jsonc",
+        '{ "$schema": "https://fonoster.com/schemas/svc.json", "host": "db" }'
+      );
+      expect(load(["--config", path]).host).to.equal("db");
+    });
+
     it("reports line and column for malformed JSON", function () {
       const path = write("bad.json", '{\n  "host": "db"\n  "port": 1\n}');
       expect(() => load(["--config", path])).to.throw(

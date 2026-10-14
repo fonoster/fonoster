@@ -64,7 +64,10 @@ config/keys
 config/*.json
 !config/integrations.example.json
 config/*.yaml
+config/*.yml
+config/*.jsonc
 !config/*.example.yaml
+!config/*.example.jsonc
 
 # Compose files
 compose*.yaml

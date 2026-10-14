@@ -179,23 +179,25 @@ For example:
 { "result": "The available appointment times are 9:00 AM, 10:00 AM, and 11:00 AM." }
 ```
 
-## Environment Variables
+## Configuration
 
-Please use the following environment variables to configure the Autopilot:
+Autopilot reads `autopilot.yaml` (or `.jsonc`), found via `--config <path>`,
+`/opt/fonoster/autopilot.yaml` or `./config/autopilot.yaml`. It reads no
+environment variables of its own. See `config/autopilot.example.yaml` for every
+key and [docs/configuration.md](../../docs/configuration.md) for the mapping from
+the old `AUTOPILOT_*` variables.
 
-- `AUTOPILOT_AWS_S3_ACCESS_KEY_ID`: The AWS S3 access key.
-- `AUTOPILOT_AWS_S3_ENDPOINT`: The AWS S3 endpoint.
-- `AUTOPILOT_AWS_S3_REGION`: The AWS S3 region.
-- `AUTOPILOT_AWS_S3_SECRET_ACCESS_KEY`: The AWS S3 secret access key.
-- `AUTOPILOT_CONVERSATION_PROVIDER`: The conversation provider.
-- `AUTOPILOT_KNOWLEDGE_BASE_ENABLED`: Enable knowledge base powered by AWS S3 and Unstructured API.
-- `AUTOPILOT_LOGS_FORMAT`: The logs format.
-- `AUTOPILOT_LOGS_LEVEL`: The logs level.
-- `AUTOPILOT_LOGS_TRANSPORT`: The logs transport.
-- `AUTOPILOT_OPENAI_API_KEY`: The OpenAI API key needed for embeddings support.
-- `AUTOPILOT_UNSTRUCTURED_API_KEY`: The Unstructured API key.
-- `AUTOPILOT_UNSTRUCTURED_API_URL`: The Unstructured API URL. Default is `https://api.unstructured.com`.
-- `AUTOPILOT_RECORDING_BASE_URL`: The recording base URL. Default is `http://localhost:9876/api/recordings`.
+```yaml
+apiserver:
+  endpoint: apiserver:50051
+conversation:
+  provider: api
+knowledgeBase:
+  enabled: true
+  s3: { region: us-east-1, accessKeyId: AKIA..., secretAccessKey: ... }
+  unstructured: { apiKey: ... }
+  embeddings: { openaiApiKey: sk-... }
+```
 
 ## What's Next
 

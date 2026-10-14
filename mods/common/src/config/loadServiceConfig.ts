@@ -129,6 +129,13 @@ function loadServiceConfig<S extends ZodTypeAny>(
     }
   }
 
+  // "$schema" points editors at the JSON Schema for autocomplete; it isn't config.
+  if (raw !== null && typeof raw === "object" && "$schema" in raw) {
+    const rest = { ...(raw as Record<string, unknown>) };
+    delete rest.$schema;
+    raw = rest;
+  }
+
   if (options.migrate) {
     raw = options.migrate(raw);
   }

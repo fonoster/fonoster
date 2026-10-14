@@ -1,35 +1,50 @@
-# Autopilot service configuration.
+# yaml-language-server: $schema=https://fonoster.com/schemas/autopilot.json
 #
-# Copy this file to config/autopilot.yaml and adjust. Values are plain literals;
-# only secrets use ${VAR} so they can stay out of the file. With the defaults
-# below, Autopilot runs with no environment variables at all.
+# autopilot.yaml — one file for every Autopilot replica. Copy to
+# config/autopilot.yaml (compose mounts it at /opt/fonoster/autopilot.yaml).
+#
+#   - Everything Autopilot needs is here, secrets included; it reads no
+#     environment variables of its own. Treat the file as a secret.
+#   - Replicas hold no product policy (storage, retention and billing belong to
+#     the API server), so they scale freely.
+#   - Unknown or misspelled keys stop Autopilot at boot, naming the key.
+
+server:
+  bindAddr: 0.0.0.0:50061
+  identityAddress: api.fonoster.com              # where call tokens' public key is fetched (TLS)
+
+apiserver:
+  endpoint: apiserver:50051                      # loads assistants, reports conversations
+
+logs:
+  level: info
+  format: json
+  transport: console                             # console | fluent
 
 conversation:
-  # "file" reads the assistant from `file` below.
-  # "api" loads it from the apiserver (what the full docker-compose stack uses).
-  provider: file
-  file: ./config/assistant.json
+  provider: api                                  # api: assistants from the API server
+                                                 # file: one local assistant (development)
+  # file: ./config/assistant.json
 
-apiserverEndpoint: apiserver:50051
-
-# Read only when conversation.provider is "api".
+# Speech provider credentials; the same file the API server mounts.
 integrationsFile: /opt/fonoster/integrations.json
-
-recording:
-  baseUrl: http://apiserver:9876/api/recordings
-
-skipIdentity: false
-
-# Only used for knowledge-base embeddings. `:-` means "optional".
-openaiApiKey: ${OPENAI_API_KEY:-}
 
 knowledgeBase:
   enabled: false
   s3:
+    # endpoint: https://minio.example.com        # leave out for AWS
     region: us-east-1
-    endpoint: ""
-    accessKeyId: ${AWS_S3_ACCESS_KEY_ID:-} # required when enabled
-    secretAccessKey: ${AWS_S3_SECRET_ACCESS_KEY:-} # required when enabled
+    accessKeyId: ""
+    secretAccessKey: ""
   unstructured:
-    apiUrl: https://api.unstructuredapp.io/general/v0/general
-    apiKey: ${UNSTRUCTURED_API_KEY:-} # required when enabled
+    url: https://api.unstructuredapp.io/general/v0/general
+    apiKey: ""
+  embeddings: {}
+    # openaiApiKey: sk-xxxxxxxxxxxxxxxx           # required when knowledgeBase is enabled
+
+recordings:
+  baseUrl: http://apiserver:9876/api/recordings  # the API server's HTTP bridge
+
+# Development only.
+# dev:
+#   skipIdentity: false

@@ -88,9 +88,9 @@ jobs:
           sed -i "s|ROUTR_EXTERNAL_ADDRS=.*|ROUTR_EXTERNAL_ADDRS=127.0.0.1|g" .env 
           sed -i "s|RTPENGINE_PUBLIC_IP=.*|RTPENGINE_PUBLIC_IP=127.0.0.1|g" .env 
           sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
-          sed -i "s|APISERVER_SMTP_HOST=.*|APISERVER_SMTP_HOST=mailhog|g" .env 
-          sed -i "s|APISERVER_SMTP_PORT=.*|APISERVER_SMTP_PORT=1025|g" .env
-          sed -i "s|APISERVER_SMTP_SECURE=.*|APISERVER_SMTP_SECURE=false|g" .env
+          cp config/fonoster.example.yaml config/fonoster.yaml
+          cp config/autopilot.example.yaml config/autopilot.yaml
+          yq -i '.smtp = {"host": "mailhog", "port": 1025, "secure": false, "sender": "Fonoster <no-reply@fonoster.local>"}' config/fonoster.yaml
           docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver asterisk mailhog
 
       - name: Waiting for services to be ready

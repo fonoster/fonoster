@@ -10,59 +10,14 @@ services:
   apiserver:
     image: fonoster/apiserver:0.26.0
     restart: unless-stopped
-    environment:
-      # ai-coustics SDK license, for the aiCoustics audio filter. Without it
-      # applications that ask for that filter keep running, unfiltered.
-      - AIC_SDK_LICENSE
-      - APISERVER_AMD_ENABLED
-      - APISERVER_AMD_ENGINE
-      - APISERVER_AMD_MODE
-      - APISERVER_APP_URL
-      - APISERVER_ASTERISK_ARI_PROXY_URL
-      - APISERVER_ASTERISK_ARI_SECRET
-      - APISERVER_ASTERISK_ARI_USERNAME
-      - APISERVER_AUTHZ_SERVICE_ENABLED
-      - APISERVER_AUTHZ_SERVICE_HOST
-      - APISERVER_AUTHZ_SERVICE_METHODS
-      - APISERVER_AUTHZ_SERVICE_PORT
-      - APISERVER_CLOAK_ENCRYPTION_KEY
-      - APISERVER_DATABASE_URL
-      - APISERVER_IDENTITY_DATABASE_URL
-      - APISERVER_IDENTITY_ISSUER
-      - APISERVER_IDENTITY_CONTACT_VERIFICATION_REQUIRED
-      - APISERVER_IDENTITY_TWO_FACTOR_AUTHENTICATION_REQUIRED
-      - APISERVER_IDENTITY_WORKSPACE_INVITE_EXPIRATION
-      - APISERVER_IDENTITY_WORKSPACE_INVITE_FAIL_URL
-      - APISERVER_IDENTITY_WORKSPACE_INVITE_URL
-      - APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_ID
-      - APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET
-      - APISERVER_IDENTITY_OAUTH2_GITHUB_ENABLED
-      - APISERVER_INFLUXDB_INIT_ORG
-      - APISERVER_INFLUXDB_INIT_PASSWORD
-      - APISERVER_INFLUXDB_INIT_TOKEN
-      - APISERVER_INFLUXDB_INIT_USERNAME
-      - APISERVER_INFLUXDB_URL
-      - APISERVER_LOGS_FORMAT
-      - APISERVER_LOGS_LEVEL
-      - APISERVER_LOGS_TRANSPORT
-      - APISERVER_NATS_URL
-      - APISERVER_OWNER_EMAIL
-      - APISERVER_OWNER_NAME
-      - APISERVER_OWNER_PASSWORD
-      - APISERVER_ROOT_DOMAIN
-      - APISERVER_SMTP_AUTH_PASS
-      - APISERVER_SMTP_AUTH_USER
-      - APISERVER_SMTP_HOST
-      - APISERVER_SMTP_PORT
-      - APISERVER_SMTP_SECURE
-      - APISERVER_SMTP_SENDER
-      - APISERVER_SIGNALING_SERVER
-      - APISERVER_TWILIO_ACCOUNT_SID
-      - APISERVER_TWILIO_AUTH_TOKEN
-      - APISERVER_TWILIO_PHONE_NUMBER
+    # The API server reads config/fonoster.yaml, not environment variables.
+    # .env is passed only so ${VAR} references in that file resolve values it
+    # shares with Postgres, InfluxDB and Asterisk.
+    env_file: .env
     expose:
       - 50051
     volumes:
+      - ./config/fonoster.yaml:/opt/fonoster/fonoster.yaml:ro
       - ./config/keys:/opt/fonoster/keys:ro
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
@@ -71,17 +26,7 @@ services:
     restart: unless-stopped
     expose:
       - 50061
-    environment:
-      - FONOSTER_CONFIG=/opt/fonoster/autopilot.yaml
-      # Secrets referenced as ${VAR} in config/autopilot.yaml
-      - OPENAI_API_KEY
-      - AWS_S3_ACCESS_KEY_ID
-      - AWS_S3_SECRET_ACCESS_KEY
-      - UNSTRUCTURED_API_KEY
-      # Consumed by @fonoster/logger (not yet migrated to the config file)
-      - AUTOPILOT_LOGS_FORMAT
-      - AUTOPILOT_LOGS_LEVEL
-      - AUTOPILOT_LOGS_TRANSPORT
+    # Autopilot reads config/autopilot.yaml only; scale replicas freely.
     volumes:
       - ./config/autopilot.yaml:/opt/fonoster/autopilot.yaml:ro
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
