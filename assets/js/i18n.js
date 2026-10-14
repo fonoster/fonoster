@@ -17,10 +17,6 @@ window.FONOSTER_I18N = {
     "cta.sales": "Contact sales",
     "cta.docs": "Read the docs",
 
-    "notice.lead": "Major upgrades underway.",
-    "notice.text": "Things may be unstable for a while.[ We're pausing contributions for now, but bug reports are welcome.]",
-    "notice.cta": "Report a bug",
-
     "hero.badge": "New · Multilingual code-switching",
     "hero.title": "AI that answers\nthe phone.",
     "hero.sub": "Build, test, and run voice agents on real phone lines.",
@@ -241,10 +237,6 @@ window.FONOSTER_I18N = {
     "cta.start": "Comienza a construir",
     "cta.sales": "Hablar con ventas",
     "cta.docs": "Ver la documentación",
-
-    "notice.lead": "Grandes mejoras en curso.",
-    "notice.text": "Puede haber inestabilidad temporal.[ Por ahora no aceptamos contribuciones, pero los reportes de errores son bienvenidos.]",
-    "notice.cta": "Reportar un error",
 
     "hero.badge": "Nuevo · Cambio de idioma en plena llamada",
     "hero.title": "IA que contesta\nel teléfono.",
