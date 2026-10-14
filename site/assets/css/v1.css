@@ -371,11 +371,11 @@ section[id] {
   }
 }
 
-/* ---------- Notice bar (temporary) ----------
-   A thin strip above the nav while the refresh is in progress. It scrolls away and the nav stays sticky.
+/* ---------- Notice bar ----------
+   A thin strip above the nav for announcements. It scrolls away and the nav stays sticky.
    It's the one blue element on the site (a transparent sky tint) so it reads apart from the green CTAs.
    The icon sits inline so it stays attached to the text when the line wraps.
-   To remove it, delete this block, the .notice markup on each page, and the notice.* strings. */
+   assets/js/notice.js draws the markup on every page and holds the message, link, icon, and on/off switch. */
 .notice {
   --notice-bg: rgba(14, 165, 233, 0.14);
   --notice-line: rgba(14, 165, 233, 0.32);
