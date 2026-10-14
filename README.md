@@ -1,9 +1,11 @@
+<a href="https://fonoster.com"><img src="./assets/banner.svg" alt="Fonoster: AI that answers the phone. Build, test, and run voice agents on real phone lines." width="100%"></a>
 
-# Fonoster: The open-source alternative to Twilio
+> [!WARNING]
+> **Major upgrades underway.** We're moving fast, so expect breaking changes and some instability for a while. We're pausing contributions for now, but bug reports are welcome: [report a bug](https://github.com/fonoster/fonoster/issues/new?template=bug_report.yaml).
 
-[Fonoster](https://fonoster.com) is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.
+# The AI that answers the phone.
 
-<a href="https://discord.gg/mpWSRUhG7e"><img alt="Fonoster community banner" src="https://raw.githubusercontent.com/fonoster/.github/main/profile/community.png"></img></a>
+[Fonoster](https://fonoster.com) is an open-source platform for building, testing, and running voice agents on real phone lines. Use Fonoster Cloud, or run it on your own servers.
 
 ![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yaml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yaml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
@@ -25,7 +27,55 @@ The most notable features of Fonoster are:
 
 ## Code Examples
 
-A Voice Application is a server that controls a call's flow. A Voice Application can use any combination of the following verbs:
+### Autopilot
+
+With Autopilot, your agent is a YAML file. Pick the speech-to-text, the voice, and the language model, then write the prompt:
+
+```yaml
+# agent.yaml
+name: front-desk
+type: AUTOPILOT
+speechToText:
+  productRef: stt.deepgram
+  config:
+    model: nova-3
+    languageCode: multi
+textToSpeech:
+  productRef: tts.deepgram
+  config:
+    voice: aura-asteria-en
+intelligence:
+  productRef: llm.openai
+  config:
+    conversationSettings:
+      firstMessage: Hi! Thanks for calling. How can I help?
+      systemPrompt: You book appointments for a dental clinic. Keep your answers short.
+      goodbyeMessage: Thanks for calling. Goodbye!
+      systemErrorMessage: Sorry, I'm having trouble right now. Please call again later.
+      idleOptions:
+        message: Are you still there?
+    languageModel:
+      provider: openai
+      model: gpt-4o
+      temperature: 0.7
+      maxTokens: 250
+```
+
+Deploy it with the command-line tool:
+
+```sh
+# Log in once with an API key from your workspace
+npx @fonoster/ctl workspaces:login
+
+# Create the agent
+npx @fonoster/ctl applications:create -f agent.yaml
+```
+
+Then point a phone number at the new application (in the dashboard, or with `npx @fonoster/ctl sipnet:numbers:create`) and give it a call. Autopilot also supports tools, a knowledge base, and call transfers. See the [Autopilot docs](https://docs.fonoster.com/concepts/autopilot).
+
+### Voice Applications
+
+For full control over the call, write a Voice Application instead. A Voice Application is a server that controls a call's flow. A Voice Application can use any combination of the following verbs:
 
 - `Answer` - Accepts an incoming call
 - `Hangup` - Closes the call
@@ -86,6 +136,8 @@ new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
 // and you can easily publish it to the Internet with:
 // ngrok tcp 50061
 ```
+
+### Making calls
 
 Everything in Fonoster is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
 
