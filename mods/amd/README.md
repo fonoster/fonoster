@@ -59,7 +59,7 @@ as a channel variable.
 
 Set it from the dialplan by giving `AMD_MODE` a value before the `AGI()`
 call — apiserver already does this for API-originated calls via
-`APISERVER_AMD_MODE` (see below).
+`amd.mode` in `fonoster.yaml` (see below).
 
 ## Configuration
 
@@ -76,11 +76,11 @@ call — apiserver already does this for API-originated calls via
 
 ## Enabling it end-to-end
 
-Set `APISERVER_AMD_ENABLED=true` and `APISERVER_AMD_ENGINE=ml` on `apiserver`
-(next to the existing native-AMD env vars). With `AMD_ENGINE` unset or set to
-anything but `ml`, behavior is unchanged from Asterisk's native `AMD()`.
-Additionally set `APISERVER_AMD_MODE=full` to opt into the richer variable
-set — omit it (or leave it `compact`) to stay native-AMD-compatible.
+Set `amd.enabled: true` and `amd.engine: ml` in the API server's
+`config/fonoster.yaml`. With the engine unset or set to anything but `ml`,
+behavior is unchanged from Asterisk's native `AMD()`. Additionally set
+`amd.mode: full` to opt into the richer variable set — omit it (or leave it
+`compact`) to stay native-AMD-compatible.
 
 ## Regression corpus
 

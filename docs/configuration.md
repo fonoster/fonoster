@@ -165,6 +165,39 @@ Variables not listed here (`ROUTR_*`, `ASTERISK_*`, `RTPENGINE_*`, `AMD_*`,
 | `AUTOPILOT_SKIP_IDENTITY` | `dev.skipIdentity` |
 | `(new)` | `server.bindAddr, server.identityAddress (were fixed in code)` |
 
+### Easy to get wrong
+
+- **Take a database snapshot first.** The first start turns stored passwords into
+  one-way digests. After that, 0.27 can't sign password users in, so going back
+  means restoring the `fnidentity` snapshot, not just the old image.
+- **Copy `encryption.key` exactly.** It decrypts stored secrets and the old
+  passwords during that first start. A wrong key stops the API server at boot.
+- **Keep the same identity keys** (`identity.keys.*`) so existing tokens and API
+  keys stay valid, and pin `identity.issuer` to its old value if anything outside
+  Fonoster verifies tokens (it now defaults to `appUrl`).
+- **Set `identity.database.url`.** It defaults to `database.url`, not to the
+  `fnidentity` database the old `.env` pointed at.
+- **Set `smtp.secure` explicitly.** It defaults to `false`; the old `.env.example`
+  had `true`.
+- **`none` is no longer a log format or transport.** Use `format: json|pretty`
+  and `transport: console|fluent`. The old `.env.example` values stop boot.
+- **Don't copy the old invite URLs.** Leave `identity.invites.url` and `failUrl`
+  unset so they follow `appUrl` (`<appUrl>/invites`), and make `appUrl` the
+  dashboard's public URL.
+- **The owner password needs 8+ characters** (`identity.owner.password`).
+- **Autopilot's defaults are for development.** Copy `autopilot.example.yaml`
+  rather than relying on them: without a file, `conversation.provider` is `file`
+  and `recordings.baseUrl` points at localhost. Self-hosted installs set
+  `server.identityAddress` to their own API's address; it defaults to
+  `api.fonoster.com`, as it did before.
+- **The dashboard needs `DASHBOARD_API_URL`** at run time (the API's public URL,
+  as the browser reaches it). Its old build arguments are gone. Users sign in
+  again after the upgrade.
+- **Envoy's rate limits are per Envoy, not per user.** `config/envoy.yaml` allows
+  20 `SendVerificationCode` calls and 600 API calls a minute in total; the API
+  server also limits codes per email and per IP. Raise them to fit your traffic,
+  especially with email-code sign-in.
+
 ### Behaviour changes worth knowing
 
 - **SMTP is optional.** Without an `smtp` section the API server starts; anything
