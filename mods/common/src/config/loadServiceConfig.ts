@@ -29,13 +29,13 @@ const logger = getLogger({ service: "common", filePath: __filename });
 
 type Env = Record<string, string | undefined>;
 
-type LoadServiceConfigOptions<T> = {
+type LoadServiceConfigOptions<S extends ZodTypeAny> = {
   /** Service name, used in messages. */
   service: string;
   /** File name without extension. Defaults to `service`. */
   fileBase?: string;
   /** Zod schema that validates (and applies defaults to) the config. */
-  schema: z.ZodType<T>;
+  schema: S;
   /** Defaults to `process.argv`; `--config <path>` picks the file. */
   argv?: string[];
   /** Only used to resolve `${VAR}` at `interpolatePaths`. Defaults to `process.env`. */
@@ -51,6 +51,12 @@ type LoadServiceConfigOptions<T> = {
   movedKeys?: MovedKeys;
   /** Env var prefixes of the old env-based config, reported as a warning. */
   legacyEnvPrefixes?: string[];
+  /**
+   * Translates an older file layout into the current one before validation
+   * (e.g. standalone Identity's original identity.json). Runs on the parsed
+   * file; return it unchanged when it is already current.
+   */
+  migrate?: (raw: unknown) => unknown;
 };
 
 /**
@@ -85,7 +91,9 @@ function formatIssues(error: ZodError): string {
  * Loads, interpolates and strictly validates a service's config file.
  * Throws with the file path and the offending key path on any problem.
  */
-function loadServiceConfig<T>(options: LoadServiceConfigOptions<T>): T {
+function loadServiceConfig<S extends ZodTypeAny>(
+  options: LoadServiceConfigOptions<S>
+): z.output<S> {
   const { service, schema } = options;
   const fileBase = options.fileBase ?? service;
   const argv = options.argv ?? process.argv;
@@ -121,6 +129,10 @@ function loadServiceConfig<T>(options: LoadServiceConfigOptions<T>): T {
     }
   }
 
+  if (options.migrate) {
+    raw = options.migrate(raw);
+  }
+
   const moved = findMovedKeys(raw, options.movedKeys ?? {});
   if (moved.length > 0) {
     throw new Error(
@@ -139,7 +151,7 @@ function loadServiceConfig<T>(options: LoadServiceConfigOptions<T>): T {
     );
   }
 
-  const strictSchema = strictDeep(schema as unknown as ZodTypeAny);
+  const strictSchema = strictDeep(schema);
   const result = strictSchema.safeParse(interpolated);
   if (!result.success) {
     throw new Error(
@@ -151,7 +163,7 @@ function loadServiceConfig<T>(options: LoadServiceConfigOptions<T>): T {
     logger.verbose(`loaded ${service} config`, { path: resolved.path });
   }
 
-  return result.data as T;
+  return result.data as z.output<S>;
 }
 
 export { loadServiceConfig, LoadServiceConfigOptions };

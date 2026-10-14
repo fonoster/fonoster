@@ -34,7 +34,8 @@ type IdentityConfig = {
   workspaceInviteFailUrl: string;
   contactVerificationRequired: boolean;
   twoFactorAuthenticationRequired: boolean;
-  smtpConfig: {
+  /** Absent when outgoing email isn't configured; sending email then fails clearly. */
+  smtpConfig?: {
     sender: string;
     host: string;
     port: number;
@@ -52,6 +53,11 @@ type IdentityConfig = {
   githubOauth2Config?: {
     clientId: string;
     clientSecret: string;
+  };
+  /** Sign-in methods and sign-up policy, from features.auth. */
+  auth: {
+    methods: Array<"password" | "email_code" | "github">;
+    signup: "invite" | "open";
   };
 };
 

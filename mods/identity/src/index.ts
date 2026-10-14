@@ -18,6 +18,7 @@
  */
 export * from "./allowList";
 export * from "./apikeys";
+export * from "./config";
 export * from "./exchanges";
 export * from "./invites";
 export * from "./service";

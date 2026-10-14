@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import {
-  createSendEmail,
   createSendSmsTwilioImpl,
   GrpcErrorMessage,
   Validators as V,
@@ -27,6 +26,7 @@ import { getLogger } from "@fonoster/logger";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
+import { createSendEmail } from "../utils/createSendEmail";
 import { sendVerificationEmail } from "./sendVerificationEmail";
 import { sendVerificationMessage } from "./sendVerificationMessage";
 import { ContactType, SendVerificationCodeRequest } from "./types";
@@ -38,7 +38,7 @@ function createSendVerificationCode(
   identityConfig: IdentityConfig
 ) {
   const sendSms = createSendSmsTwilioImpl(identityConfig.twilioSmsConfig);
-  const sendEmail = createSendEmail(identityConfig.smtpConfig);
+  const sendEmail = createSendEmail(identityConfig);
   const generateVerificationCode = createGenerateVerificationCode(prisma);
 
   const fn = async (

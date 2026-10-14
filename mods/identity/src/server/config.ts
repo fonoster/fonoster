@@ -16,155 +16,107 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { loadServiceConfig, logsSchema } from "@fonoster/common";
 import { z } from "zod";
-import { fromError } from "zod-validation-error";
-import { IdentityConfig } from "../exchanges/types";
+import {
+  authFeaturesSchema,
+  fromLegacyIdentityJson,
+  identitySectionSchema,
+  smtpSchema,
+  toIdentityConfig,
+  twilioSchema
+} from "../config";
 
 /**
- * Configuration for the standalone Identity service.
- *
- * The service is configured exclusively from a JSON configuration file — no
- * environment variables. The file path is taken from a `--config <path>` CLI
- * flag, defaulting to `./config/identity.json` relative to the working
- * directory.
+ * Configuration for the standalone Identity service: identity.yaml (or
+ * .jsonc/.json), found via --config, /opt/fonoster or ./config. Same layout as
+ * fonoster.yaml: shared settings at the root, Identity's own under
+ * `identity:`. No environment variables, except ${VAR} in database URLs
+ * shared with the Postgres container. The original identity.json layout is
+ * still accepted (translated, with a warning).
  */
-const keysSchema = z
+const identityServiceConfigSchema = z
   .object({
-    privateKey: z.string().optional(),
-    publicKey: z.string().optional(),
-    privateKeyPath: z.string().optional(),
-    publicKeyPath: z.string().optional()
+    domain: z.string().min(1).optional(),
+    /** Defaults to https://<domain>. */
+    appUrl: z.string().min(1).optional(),
+    server: z
+      .object({
+        bindAddr: z.string().default("0.0.0.0:50051"),
+        httpBridgePort: z.number().int().positive().default(9000)
+      })
+      .default({}),
+    logs: logsSchema,
+    database: z.object({ url: z.string().min(1) }),
+    encryption: z.object({ key: z.string().min(1) }),
+    smtp: smtpSchema.optional(),
+    twilio: twilioSchema.optional(),
+    features: z.object({ auth: authFeaturesSchema }).default({}),
+    identity: identitySectionSchema
   })
-  .refine(
-    (k) =>
-      (k.privateKey || k.privateKeyPath) && (k.publicKey || k.publicKeyPath),
-    {
-      message: "keys must provide a private and public key, inline or by path"
+  .superRefine((config, ctx) => {
+    if (!config.appUrl && !config.domain && !config.identity.issuer) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["domain"],
+        message: "set domain (or appUrl, or identity.issuer)"
+      });
     }
-  );
-
-const smtpSchema = z.object({
-  host: z.string(),
-  port: z.number(),
-  secure: z.boolean().default(false),
-  sender: z.string(),
-  auth: z
-    .object({ user: z.string().default(""), pass: z.string().default("") })
-    .default({})
-});
-
-const identityServiceConfigSchema = z.object({
-  server: z
-    .object({
-      bindAddr: z.string().default("0.0.0.0:50051"),
-      httpBridgePort: z.number().default(9000)
-    })
-    .default({}),
-  database: z.object({ url: z.string().min(1) }),
-  encryptionKey: z.string().min(1),
-  issuer: z.string().min(1),
-  audience: z.string().min(1),
-  keys: keysSchema,
-  tokens: z
-    .object({
-      accessTokenExpiresIn: z.string().default("15m"),
-      refreshTokenExpiresIn: z.string().default("30d"),
-      idTokenExpiresIn: z.string().default("15m")
-    })
-    .default({}),
-  security: z
-    .object({
-      contactVerificationRequired: z.boolean().default(false),
-      twoFactorAuthenticationRequired: z.boolean().default(false)
-    })
-    .default({}),
-  invite: z
-    .object({
-      url: z.string().default(""),
-      failUrl: z.string().default(""),
-      expiration: z.string().default("2d")
-    })
-    .default({}),
-  appUrl: z.string().default(""),
-  smtp: smtpSchema.optional(),
-  oauth2: z
-    .object({
-      github: z.object({ clientId: z.string(), clientSecret: z.string() })
-    })
-    .optional(),
-  defaultUser: z
-    .object({
-      name: z.string(),
-      email: z.string().email(),
-      password: z.string()
-    })
-    .optional()
-});
+  });
 
 type IdentityServiceConfig = z.infer<typeof identityServiceConfigSchema>;
 
-function configPathFromArgv(argv: string[]): string {
-  const i = argv.indexOf("--config");
-  const fromFlag = i >= 0 ? argv[i + 1] : undefined;
-  return resolve(process.cwd(), fromFlag ?? "./config/identity.json");
-}
+const appUrlOf = (config: IdentityServiceConfig) =>
+  config.appUrl ??
+  (config.domain ? `https://${config.domain}` : (config.identity.issuer ?? ""));
 
-function readKey(inline: string | undefined, path: string | undefined): string {
-  return inline ?? readFileSync(resolve(process.cwd(), path as string), "utf8");
-}
+/** Reads and validates the file only (no keys read), e.g. for provisioning. */
+function loadConfigFile(argv: string[] = process.argv) {
+  const config = loadServiceConfig({
+    service: "identity",
+    schema: identityServiceConfigSchema,
+    argv,
+    interpolatePaths: ["database.url", "identity.database.url"],
+    migrate: fromLegacyIdentityJson,
+    legacyEnvPrefixes: ["APISERVER_IDENTITY_"]
+  });
 
-/** Maps the file config into the `IdentityConfig` shape `buildIdentityService` expects. */
-function toIdentityConfig(c: IdentityServiceConfig): IdentityConfig {
   return {
-    dbUrl: c.database.url,
-    issuer: c.issuer,
-    audience: c.audience,
-    privateKey: readKey(c.keys.privateKey, c.keys.privateKeyPath),
-    publicKey: readKey(c.keys.publicKey, c.keys.publicKeyPath),
-    encryptionKey: c.encryptionKey,
-    accessTokenExpiresIn: c.tokens.accessTokenExpiresIn,
-    refreshTokenExpiresIn: c.tokens.refreshTokenExpiresIn,
-    idTokenExpiresIn: c.tokens.idTokenExpiresIn,
-    workspaceInviteExpiration: c.invite.expiration,
-    workspaceInviteUrl: c.invite.url,
-    workspaceInviteFailUrl: c.invite.failUrl,
-    contactVerificationRequired: c.security.contactVerificationRequired,
-    twoFactorAuthenticationRequired: c.security.twoFactorAuthenticationRequired,
-    smtpConfig: c.smtp,
-    githubOauth2Config: c.oauth2?.github
-  } as IdentityConfig;
+    config,
+    databaseUrl: config.identity.database?.url ?? config.database.url
+  };
 }
 
 /** Loads and validates the service configuration from the file, failing fast. */
 function loadConfig(argv: string[] = process.argv) {
-  const path = configPathFromArgv(argv);
+  const { config, databaseUrl } = loadConfigFile(argv);
+  const appUrl = appUrlOf(config);
+  const owner = config.identity.owner;
 
-  let raw: unknown;
-  try {
-    raw = JSON.parse(readFileSync(path, "utf8"));
-  } catch (e) {
-    throw new Error(
-      `unable to read Identity config at ${path}: ${(e as Error).message}`
-    );
-  }
-
-  const result = identityServiceConfigSchema.safeParse(raw);
-  if (!result.success) {
-    throw new Error(
-      `invalid Identity config at ${path}: ${fromError(result.error).toString()}`
-    );
-  }
-
-  const config = result.data;
   return {
     bindAddr: config.server.bindAddr,
     httpBridgePort: config.server.httpBridgePort,
-    appUrl: config.appUrl,
-    defaultUser: config.defaultUser,
-    identityConfig: toIdentityConfig(config)
+    appUrl,
+    logs: config.logs,
+    databaseUrl,
+    defaultUser: owner
+      ? { name: owner.name, email: owner.email, password: owner.password }
+      : undefined,
+    identityConfig: toIdentityConfig({
+      identity: config.identity,
+      appUrl,
+      databaseUrl: config.database.url,
+      encryptionKey: config.encryption.key,
+      smtp: config.smtp,
+      twilio: config.twilio,
+      auth: config.features.auth
+    })
   };
 }
 
-export { identityServiceConfigSchema, IdentityServiceConfig, loadConfig };
+export {
+  identityServiceConfigSchema,
+  IdentityServiceConfig,
+  loadConfig,
+  loadConfigFile
+};

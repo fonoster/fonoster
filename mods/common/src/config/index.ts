@@ -20,6 +20,7 @@ export * from "./configHints";
 export * from "./integrationsSchema";
 export * from "./interpolateEnv";
 export * from "./loadServiceConfig";
+export * from "./logsSchema";
 export * from "./parseConfigFile";
 export * from "./resolveConfigFile";
 export * from "./strictDeep";

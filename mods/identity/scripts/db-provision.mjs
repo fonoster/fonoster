@@ -17,25 +17,22 @@
  * limitations under the License.
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { createRequire } from "node:module";
 
 // Provision the Identity database from the service configuration file — no
 // environment variables. Prisma reads its datasource URL from
-// APISERVER_IDENTITY_DATABASE_URL, so we set it for the subprocess from the
-// config's database.url; the config file remains the single source of truth.
-const i = process.argv.indexOf("--config");
-const configPath = resolve(
-  process.cwd(),
-  i >= 0 ? process.argv[i + 1] : "./config/identity.json"
-);
-const { database } = JSON.parse(readFileSync(configPath, "utf8"));
+// APISERVER_IDENTITY_DATABASE_URL, so we set it for the subprocess only, from
+// the same loader the service uses (identity.yaml or the original
+// identity.json; --config <path> to pick one).
+const require = createRequire(import.meta.url);
+const { loadConfigFile } = require("../dist/server/config");
+const { databaseUrl } = loadConfigFile(process.argv);
 
 execFileSync(
   "npx",
   ["--no-install", "prisma", "migrate", "deploy", "--schema", "schema.prisma"],
   {
     stdio: "inherit",
-    env: { ...process.env, APISERVER_IDENTITY_DATABASE_URL: database.url }
+    env: { ...process.env, APISERVER_IDENTITY_DATABASE_URL: databaseUrl }
   }
 );
