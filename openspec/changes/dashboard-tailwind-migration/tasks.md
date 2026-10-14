@@ -49,21 +49,21 @@ Every screen from section 3 on is done when it has:
 
 ## 3. App shell (review checkpoint)
 
-- [ ] 3.1 `AppShell`: sidebar of 240 px, or 64 px collapsed (remembered), with a top bar and user menu
-- [ ] 3.2 Workspace switcher at the top of the sidebar, a compact avatar when collapsed, and "Create workspace"
-- [ ] 3.3 Navigation follows `sidebar-navigation` from the designs; the active item uses `sidebar-accent`; Billing follows `billing.enabled`
-- [ ] 3.4 Profile and sign-out
+- [x] 3.1 `AppShell`: sidebar of 240 px, or 64 px collapsed (remembered), with a top bar and user menu
+- [x] 3.2 Workspace switcher at the top of the sidebar, a compact avatar when collapsed, and "Create workspace"
+- [x] 3.3 Navigation follows `sidebar-navigation` from the designs; the active item uses `sidebar-accent`; Billing follows `billing.enabled`
+- [x] 3.4 Profile and sign-out
 
 ## 4. Screens backed by existing APIs
 
-- [ ] 4.1 Agents: list, create dialog with templates, Configure / Tools / Advanced tabs
-- [ ] 4.2 Talk to agent drawer (`use-sip.ts` + `createTestToken`)
-- [ ] 4.3 Voice apps
-- [ ] 4.4 Numbers, with the routing drawer (agent, voice app, SIP user)
-- [ ] 4.5 Trunks
-- [ ] 4.6 Domains, SIP users (agents), ACLs, credentials
-- [ ] 4.7 Secrets and API keys (each secret is shown once)
-- [ ] 4.8 Settings: General, Members (invite, resend, remove), Billing when `billing.enabled`
+- [x] 4.1 Agents: list, create dialog with templates, Configure / Tools / Advanced tabs
+- [x] 4.2 Talk to agent drawer (`use-sip.ts` + `createTestToken`)
+- [x] 4.3 Voice apps
+- [x] 4.4 Numbers, with the routing drawer (agent, voice app, SIP user)
+- [x] 4.5 Trunks
+- [x] 4.6 Domains, SIP users (agents), ACLs, credentials
+- [x] 4.7 Secrets and API keys (each secret is shown once)
+- [x] 4.8 Settings: General, Members (invite, resend, remove), Billing when `billing.enabled`
 - [ ] 4.9 Calls list and detail (CDR fields; cost only when `costs.display`)
 - [ ] 4.10 Overview
 
@@ -78,6 +78,13 @@ Every screen from section 3 on is done when it has:
 - [ ] 5.7 Agent evals and knowledge upload
 - [ ] 5.8 Cost model
 - [ ] 5.9 Two-step sign-in (2FA)
+- [ ] 5.10 Found while building section 4 (each needs a small backend or SDK change):
+  - un-routing a number, and clearing a trunk/ACL/credentials link (empty strings can't clear proto3 refs)
+  - IPv6 in ACLs (validator is IPv4-only)
+  - `UpdateCredentialsRequest` type lacks username/password; `Privacy` enum in @fonoster/types says `ID` for PRIVATE
+  - API keys can only be WORKSPACE_ADMIN; no member role update RPC
+  - no counts or reverse lookups (numbers per trunk/app, what uses an ACL/credential)
+  - no import-from-YAML, webhook "send test", endpoint health, or phone/chat test calls
 
 ## 6. Cleanup and verification
 
