@@ -38,7 +38,7 @@ export function AuthLayout({
     <main className="flex min-h-full items-center justify-center bg-background bg-[url(/pattern-center.png)] bg-cover bg-center px-4 py-12">
       <div className="flex w-full max-w-[440px] flex-col items-center gap-7">
         <Logo />
-        <section className="flex w-full flex-col gap-7 rounded-m border border-border bg-card p-6 sm:p-8 dark:border-[#262626] dark:bg-[#0f0f0f]">
+        <section className="flex w-full flex-col gap-7 rounded-m border border-border bg-card p-6 sm:p-8 dark:border-[#262626] dark:bg-[#0f0f0f] [&_[data-slot=label]]:text-[13px]">
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="text-[26px] font-semibold leading-tight">{title}</h1>
             {description && (
@@ -60,5 +60,5 @@ export function AuthLayout({
 }
 
 /** Inputs and buttons on these screens are a little taller than in the app. */
-export const authInput = "h-[46px] bg-card px-3.5";
+export const authInput = "h-[46px] bg-card px-3.5 text-[15px]";
 export const authButton = "h-[46px] w-full font-display text-[15px]";

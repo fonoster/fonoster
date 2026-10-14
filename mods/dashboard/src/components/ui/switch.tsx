@@ -20,6 +20,7 @@ import * as SwitchPrimitive from "@radix-ui/react-switch";
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
 
+/** 32×18 track with a 14px knob, as in the designs (dark knob on mint when on). */
 export function Switch({
   className,
   ...props
@@ -27,12 +28,12 @@ export function Switch({
   return (
     <SwitchPrimitive.Root
       className={cn(
-        "inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-transparent bg-input transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary",
+        "inline-flex h-[18px] w-8 shrink-0 cursor-pointer items-center rounded-full border border-border bg-background p-px transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-transparent data-[state=checked]:bg-primary",
         className
       )}
       {...props}
     >
-      <SwitchPrimitive.Thumb className="block size-5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[22px]" />
+      <SwitchPrimitive.Thumb className="block size-3.5 rounded-full bg-foreground transition-transform data-[state=checked]:translate-x-[14px] data-[state=checked]:bg-on-brand" />
     </SwitchPrimitive.Root>
   );
 }

@@ -170,6 +170,29 @@ describe("Agent detail", () => {
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
   });
 
+  it("renames the agent inline: Enter saves, Esc cancels", async () => {
+    const { user, applications } = setup({ route });
+    await user.click(
+      await screen.findByRole("button", { name: "Rename agent" })
+    );
+    const field = screen.getByLabelText("Agent name");
+    await user.clear(field);
+    await user.type(field, "Collections{Escape}");
+    expect(
+      screen.getByRole("heading", { name: billingAgent.name })
+    ).toBeInTheDocument();
+    expect(applications.updateApplication).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Rename agent" }));
+    await user.clear(screen.getByLabelText("Agent name"));
+    await user.type(screen.getByLabelText("Agent name"), "Collections{Enter}");
+    expect(applications.updateApplication).toHaveBeenCalledTimes(1);
+    expect(applications.updateApplication.mock.calls[0][0]).toMatchObject({
+      ref: billingAgent.ref,
+      name: "Collections"
+    });
+  });
+
   it("saves edits from several tabs in one update", async () => {
     const { user, applications } = setup({ route });
     const prompt = await screen.findByLabelText("System prompt");
@@ -178,7 +201,7 @@ describe("Agent detail", () => {
     expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
 
     await user.click(screen.getByRole("link", { name: "Advanced" }));
-    const url = await screen.findByLabelText("URL");
+    const url = await screen.findByLabelText("Webhook URL");
     await user.clear(url);
     await user.click(screen.getByRole("button", { name: "Save" }));
 
@@ -197,10 +220,10 @@ describe("Agent detail", () => {
       route: `/w/ws-1/agents/${billingAgent.ref}/advanced`
     });
     await user.click(
-      await screen.findByRole("checkbox", { name: "conversation.started" })
+      await screen.findByRole("button", { name: "conversation.started" })
     );
     await user.click(
-      screen.getByRole("checkbox", { name: "conversation.ended" })
+      screen.getByRole("button", { name: "conversation.ended" })
     );
     await user.click(screen.getByRole("button", { name: "Save" }));
     expect(
@@ -217,18 +240,18 @@ describe("Agent detail", () => {
       route: `/w/ws-1/agents/${billingAgent.ref}/tools`
     });
     expect(await screen.findByText("Always on")).toBeInTheDocument();
-    expect(screen.getByText("On · +18095550100")).toBeInTheDocument();
+    expect(screen.getByText("On · +1 809 555 0100")).toBeInTheDocument();
     const list = screen.getByRole("list", { name: "Your tools" });
     expect(within(list).getAllByRole("button")).toHaveLength(2);
 
-    await user.click(screen.getAllByRole("button", { name: "Add tool" })[0]);
-    await user.type(screen.getByLabelText("Name"), "check_balance");
+    await user.click(screen.getAllByRole("button", { name: /Add tool/ })[0]);
+    await user.type(screen.getByLabelText("Tool name"), "check_balance");
     await user.type(screen.getByLabelText("Description"), "Gets the balance.");
     await user.type(
       screen.getByLabelText("URL"),
       "https://api.acme.com/balance"
     );
-    await user.click(screen.getByRole("button", { name: "Add parameter" }));
+    await user.click(screen.getByRole("button", { name: /Add parameter/ }));
     await user.type(screen.getByLabelText("Parameter 1 name"), "customerId");
     await user.click(screen.getByRole("button", { name: "Save" }));
 

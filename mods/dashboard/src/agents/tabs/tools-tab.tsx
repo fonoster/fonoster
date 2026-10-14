@@ -24,9 +24,7 @@ import {
   useFormContext,
   useWatch
 } from "react-hook-form";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
@@ -37,7 +35,8 @@ import {
   TextField,
   useFieldError
 } from "../fields";
-import { Panel } from "../parts";
+import { formatNumber } from "../agents.service";
+import { Panel, PanelAction } from "../parts";
 
 const PARAMETER_TYPES = [
   "string",
@@ -88,7 +87,7 @@ export function ToolsTab() {
               description="Sends the caller to a human."
               status={
                 transfer?.trim()
-                  ? `On · ${transfer.trim()}`
+                  ? `On · ${formatNumber(transfer.trim())}`
                   : "Off · set a number in Configure"
               }
             />
@@ -97,9 +96,9 @@ export function ToolsTab() {
         <Panel
           title="Your tools"
           action={
-            <Button variant="link" size="sm" onClick={add}>
-              <Plus className="size-3.5" aria-hidden /> Add tool
-            </Button>
+            <PanelAction accent onClick={add}>
+              + Add tool
+            </PanelAction>
           }
         >
           {tools.fields.length === 0 ? (
@@ -121,7 +120,7 @@ export function ToolsTab() {
                       className={cn(
                         "flex w-full cursor-pointer flex-col gap-1 rounded-control border px-3.5 py-3 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
                         i === index
-                          ? "border-primary bg-brand-subtle"
+                          ? "border-foreground"
                           : "border-border hover:bg-accent",
                         invalid && "border-destructive"
                       )}
@@ -130,9 +129,11 @@ export function ToolsTab() {
                         <span className="truncate font-mono text-[13px]">
                           {tool.name || "untitled_tool"}
                         </span>
-                        <Badge>{tool.method.toUpperCase()}</Badge>
+                        <span className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                          {tool.method.toUpperCase()}
+                        </span>
                       </span>
-                      <span className="truncate font-display text-xs text-muted-foreground">
+                      <span className="truncate font-mono text-[11px] text-muted-foreground">
                         {tool.url || "No URL yet"}
                       </span>
                     </button>
@@ -202,40 +203,52 @@ function ToolEditor({
   index: number;
   onDelete: () => void;
 }) {
-  const name = useWatch<AgentValues, `tools.${number}.name`>({
-    name: `tools.${index}.name`
-  });
+  const { register } = useFormContext<AgentValues>();
+  const nameError = useFieldError(`tools.${index}.name`);
   return (
     <Panel
-      title={name || "New tool"}
-      className="[&>div:first-child_h2]:font-mono"
+      title={
+        <input
+          aria-label="Tool name"
+          aria-invalid={Boolean(nameError)}
+          placeholder="tool_name"
+          autoComplete="off"
+          spellCheck={false}
+          className={cn(
+            "-mx-1.5 w-full rounded-[6px] border border-transparent bg-transparent px-1.5 py-0.5 font-mono text-[15px] font-medium outline-none hover:border-input focus-visible:border-ring",
+            nameError && "border-destructive"
+          )}
+          {...register(`tools.${index}.name`)}
+        />
+      }
       action={
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
+        <button
+          type="button"
           onClick={onDelete}
+          className="shrink-0 cursor-pointer font-display text-[13px] text-destructive outline-none hover:underline focus-visible:underline"
         >
-          <Trash2 className="size-3.5" aria-hidden /> Delete tool
-        </Button>
+          Delete
+        </button>
       }
     >
-      <TextField
-        name={`tools.${index}.name`}
-        label="Name"
-        placeholder="get_invoice"
-        autoComplete="off"
-        spellCheck={false}
-        className="[&_input]:font-mono"
-      />
+      {nameError && (
+        <p
+          role="alert"
+          className="-mt-2 font-display text-[11px] text-destructive"
+        >
+          {nameError}
+        </p>
+      )}
       <TextField
         name={`tools.${index}.description`}
         label="Description"
-        hint="The model reads this to decide when to call the tool"
-        multiline
-        rows={2}
+        action={
+          <span className="font-display text-[11px] text-muted-foreground">
+            The model reads this to decide when to call the tool
+          </span>
+        }
       />
-      <div className="grid gap-4 sm:grid-cols-[120px_minmax(0,1fr)]">
+      <div className="grid gap-3 sm:grid-cols-[110px_minmax(0,1fr)]">
         <SelectField
           name={`tools.${index}.method`}
           label="Method"
@@ -247,18 +260,23 @@ function ToolEditor({
           placeholder="https://api.example.com/invoices"
           inputMode="url"
           spellCheck={false}
+          className="[&_input]:font-mono"
         />
       </div>
       <Parameters toolIndex={index} />
       <Headers toolIndex={index} />
-      <div className="grid items-end gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+      <div className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
         <TextField
           name={`tools.${index}.requestStartMessage`}
           label="Say while it runs"
           placeholder="One moment while I check that…"
-          hint="Optional"
+          action={
+            <span className="font-display text-[11px] text-muted-foreground">
+              optional
+            </span>
+          }
         />
-        <label className="flex h-10 items-center gap-2.5 font-display text-[13px]">
+        <label className="flex h-[38px] items-center gap-2.5 font-display text-[13px] text-muted-foreground">
           <SwitchControl
             name={`tools.${index}.waitForResponse`}
             label="Wait for response"
@@ -283,10 +301,11 @@ function Parameters({ toolIndex }: { toolIndex: number }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="font-display text-[13px] font-medium">Parameters</span>
-        <Button
-          variant="link"
-          size="sm"
+        <span className="font-display text-xs text-muted-foreground">
+          Parameters
+        </span>
+        <PanelAction
+          className="text-xs"
           onClick={() =>
             parameters.append({
               name: "",
@@ -297,8 +316,8 @@ function Parameters({ toolIndex }: { toolIndex: number }) {
             })
           }
         >
-          <Plus className="size-3.5" aria-hidden /> Add parameter
-        </Button>
+          + Add parameter
+        </PanelAction>
       </div>
       {parameters.fields.length === 0 ? (
         <p className="font-display text-xs text-muted-foreground">
@@ -307,11 +326,11 @@ function Parameters({ toolIndex }: { toolIndex: number }) {
       ) : (
         <div className="overflow-x-auto rounded-control border border-border">
           <table
-            className="w-full min-w-[480px] text-left text-[13px]"
+            className="w-full min-w-[480px] text-left font-mono text-xs"
             aria-label="Parameters"
           >
             <thead>
-              <tr className="h-8 bg-muted text-[11px] uppercase text-muted-foreground">
+              <tr className="h-8 font-display text-[11px] uppercase text-muted-foreground">
                 <th scope="col" className="px-3 font-normal">
                   Name
                 </th>
@@ -336,13 +355,13 @@ function Parameters({ toolIndex }: { toolIndex: number }) {
                 return (
                   <tr
                     key={field.id}
-                    className="border-t border-border align-top"
+                    className="group h-10 border-t border-border align-middle"
                   >
-                    <td className="px-3 py-2">
+                    <td className="px-1.5 py-1">
                       <Input
                         aria-label={`Parameter ${i + 1} name`}
                         aria-invalid={Boolean(error)}
-                        className="h-8 px-2 font-mono text-[13px]"
+                        className="h-7 border-transparent bg-transparent px-1.5 font-mono text-xs hover:border-input"
                         spellCheck={false}
                         {...register(`${path}.name`)}
                       />
@@ -355,28 +374,28 @@ function Parameters({ toolIndex }: { toolIndex: number }) {
                         </p>
                       )}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-1.5 py-1">
                       <InlineSelect
                         name={`${path}.type`}
                         label={`Parameter ${i + 1} type`}
                         options={PARAMETER_TYPES}
                       />
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-1.5 py-1">
                       <InlineSelect
                         name={`${path}.format`}
                         label={`Parameter ${i + 1} format`}
                         options={FORMATS}
                       />
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-1.5 py-1">
                       <RequiredCheckbox path={`${path}.required`} index={i} />
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-1.5 py-1">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-8"
+                        className="size-7 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                         aria-label={`Remove parameter ${i + 1}`}
                         onClick={() => parameters.remove(i)}
                       >
@@ -410,7 +429,7 @@ function InlineSelect({
   return (
     <Select
       aria-label={label}
-      className="h-8 px-2 text-[13px]"
+      className="h-7 border-transparent bg-transparent px-1.5 font-mono text-xs hover:border-input"
       value={value}
       options={
         options.some((o) => o.value === value)
@@ -432,11 +451,15 @@ function RequiredCheckbox({
   const { control } = useFormContext<AgentValues>();
   const { field } = useController({ control, name: path });
   return (
-    <Checkbox
+    <Select
       aria-label={`Parameter ${index + 1} required`}
-      className="mt-2"
-      checked={Boolean(field.value)}
-      onCheckedChange={(checked) => field.onChange(checked === true)}
+      className="h-7 border-transparent bg-transparent px-1.5 font-mono text-xs hover:border-input"
+      value={field.value ? "yes" : "no"}
+      options={[
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]}
+      onValueChange={(next) => field.onChange(next === "yes")}
     />
   );
 }
@@ -454,14 +477,15 @@ function Headers({ toolIndex }: { toolIndex: number }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="font-display text-[13px] font-medium">Headers</span>
-        <Button
-          variant="link"
-          size="sm"
+        <span className="font-display text-xs text-muted-foreground">
+          Headers
+        </span>
+        <PanelAction
+          className="text-xs"
           onClick={() => headers.append({ key: "", value: "" })}
         >
-          <Plus className="size-3.5" aria-hidden /> Add header
-        </Button>
+          + Add header
+        </PanelAction>
       </div>
       {headers.fields.length === 0 && (
         <p className="font-display text-xs text-muted-foreground">
@@ -472,31 +496,39 @@ function Headers({ toolIndex }: { toolIndex: number }) {
         const error = errors?.[i]?.key?.message;
         return (
           <div key={field.id} className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <Input
+            <div
+              className={cn(
+                "group flex h-[38px] items-center rounded-control border border-input bg-background px-3 font-mono text-xs focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30",
+                error && "border-destructive"
+              )}
+            >
+              <input
                 aria-label={`Header ${i + 1} name`}
                 aria-invalid={Boolean(error)}
                 placeholder="x-api-key"
-                className="h-9 w-48 font-mono text-[13px]"
+                className="min-w-[4ch] max-w-[40%] bg-transparent outline-none placeholder:text-text-muted [field-sizing:content]"
                 spellCheck={false}
                 {...register(`tools.${toolIndex}.headers.${i}.key`)}
               />
-              <Input
+              <span aria-hidden className="mr-1.5">
+                :
+              </span>
+              <input
+                type="password"
                 aria-label={`Header ${i + 1} value`}
-                className="h-9 flex-1 font-mono text-[13px]"
+                className="min-w-0 flex-1 bg-transparent outline-none"
                 spellCheck={false}
                 autoComplete="off"
                 {...register(`tools.${toolIndex}.headers.${i}.value`)}
               />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-9"
+              <button
+                type="button"
+                className="cursor-pointer rounded-[4px] p-1 text-muted-foreground opacity-0 outline-none group-hover:opacity-100 hover:text-foreground focus-visible:opacity-100"
                 aria-label={`Remove header ${i + 1}`}
                 onClick={() => headers.remove(i)}
               >
                 <Trash2 className="size-3.5" aria-hidden />
-              </Button>
+              </button>
             </div>
             {error && (
               <p role="alert" className="text-xs text-destructive">

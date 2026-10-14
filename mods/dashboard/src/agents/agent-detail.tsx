@@ -18,9 +18,15 @@
  */
 import type { Application, INumber } from "@fonoster/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Bot, Headphones } from "lucide-react";
-import { useEffect, useState } from "react";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { ArrowLeft, Check, Copy, Pencil } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  FormProvider,
+  useForm,
+  useFormContext,
+  useWatch
+} from "react-hook-form";
+import { SmartToy } from "~/components/icons/material";
 import {
   Link,
   Navigate,
@@ -51,6 +57,7 @@ import {
   useDeleteAgent,
   useUpdateAgent
 } from "./agents.service";
+import { useFieldError } from "./fields";
 import { TalkDrawer } from "./talk/talk-drawer";
 import { AdvancedTab } from "./tabs/advanced-tab";
 import { CallsTab, KnowledgeTab, TestsTab } from "./tabs/coming-soon-tabs";
@@ -174,11 +181,10 @@ function AgentEditor({
     Object.keys(errors).length > 0 ? tabsWithErrors(errors) : [];
   const toolCount =
     useWatch({ control: form.control, name: "tools" })?.length ?? 0;
-  const name = useWatch({ control: form.control, name: "name" });
 
   return (
     <FormProvider {...form}>
-      <div className="flex flex-col gap-5 px-4 pb-10 pt-2 sm:px-8">
+      <div className="flex flex-col gap-5 px-4 pb-10 pt-6 sm:px-8">
         <nav aria-label="Breadcrumb" className="font-display text-[13px]">
           <ol className="flex items-center gap-2 text-muted-foreground">
             <li>
@@ -195,34 +201,47 @@ function AgentEditor({
 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3.5">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-subtle">
-              <Bot className="size-5 text-brand-text" aria-hidden />
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary">
+              <SmartToy className="size-6 text-foreground" />
             </span>
             <div className="flex min-w-0 flex-col gap-1">
-              <h1 className="truncate text-2xl font-semibold">
-                {name?.trim() || app.name}
-              </h1>
-              <p className="font-display text-[13px] text-muted-foreground">
-                Reachable at{" "}
-                <span className="text-foreground">
-                  {numbers.length} {numbers.length === 1 ? "number" : "numbers"}
-                </span>{" "}
-                · <span className="font-mono text-xs">{app.ref}</span>
-              </p>
+              <AgentName saved={app.name} onCommit={() => void save()} />
+              <div className="flex flex-wrap items-center gap-2.5 font-display text-xs">
+                <span className="flex items-center gap-1.5">
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "size-1.5 rounded-full",
+                      numbers.length > 0
+                        ? "bg-(--fn-success)"
+                        : "bg-muted-foreground"
+                    )}
+                  />
+                  <span className="text-muted-foreground">Reachable at</span>
+                  <span>
+                    {numbers.length}{" "}
+                    {numbers.length === 1 ? "number" : "numbers"}
+                  </span>
+                </span>
+                <span aria-hidden className="text-muted-foreground">
+                  ·
+                </span>
+                <RefChip value={app.ref} />
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {isDirty && (
-              <span className="flex items-center gap-2 font-display text-[13px] text-muted-foreground">
+              <span className="flex items-center gap-1.5 font-display text-xs text-muted-foreground">
                 <span
                   aria-hidden
-                  className="size-1.5 rounded-full bg-warning-foreground"
+                  className="size-1.5 rounded-full bg-(--fn-warning)"
                 />
                 Unsaved changes
               </span>
             )}
             <Button variant="outline" onClick={() => setTalking(true)}>
-              <Headphones aria-hidden /> Talk to agent
+              Talk to agent
             </Button>
             <Button
               onClick={() => void save()}
@@ -249,7 +268,7 @@ function AgentEditor({
 
         <nav
           aria-label="Agent sections"
-          className="flex gap-1 overflow-x-auto border-b border-border"
+          className="flex gap-6 overflow-x-auto border-b border-border"
         >
           {TABS.map((tab) => (
             <TabLink
@@ -333,15 +352,15 @@ function TabLink({
       to={to}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "-mb-px flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 font-display text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+        "-mb-px flex shrink-0 items-center gap-2 border-b-2 pb-3 pt-1 font-display text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
         active
-          ? "border-primary text-foreground"
+          ? "border-foreground font-medium text-foreground"
           : "border-transparent text-muted-foreground hover:text-foreground"
       )}
     >
       {label}
       {count !== undefined && count > 0 && (
-        <span className="rounded-full bg-muted px-1.5 text-[11px] text-muted-foreground">
+        <span className="rounded-[4px] bg-muted px-1.5 font-mono text-[11px] font-normal text-muted-foreground">
           {count}
         </span>
       )}
@@ -352,5 +371,106 @@ function TabLink({
         />
       )}
     </Link>
+  );
+}
+
+/**
+ * The agent's name as the page title. The pencil turns it into an inline
+ * field (designs: "Agent / Detail / Rename"): Enter saves, Esc cancels.
+ */
+function AgentName({
+  saved,
+  onCommit
+}: {
+  saved: string;
+  onCommit: () => void;
+}) {
+  const { register, setValue, getValues } = useFormContext<AgentValues>();
+  const name = useWatch<AgentValues, "name">({ name: "name" });
+  const [editing, setEditing] = useState(false);
+  const before = useRef(saved);
+  const nameError = useFieldError("name");
+
+  if (!editing) {
+    return (
+      <div className="flex min-w-0 items-center gap-1.5">
+        <h1 className="truncate text-[22px] font-semibold leading-tight">
+          {name?.trim() || saved}
+        </h1>
+        <button
+          type="button"
+          aria-label="Rename agent"
+          onClick={() => {
+            before.current = getValues("name");
+            setEditing(true);
+          }}
+          className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Pencil className="size-[15px]" aria-hidden />
+        </button>
+      </div>
+    );
+  }
+
+  const { ref, ...field } = register("name");
+  return (
+    <div className="flex min-w-0 items-center gap-2.5">
+      <input
+        {...field}
+        ref={(el) => {
+          ref(el);
+          el?.focus();
+        }}
+        aria-label="Agent name"
+        aria-invalid={Boolean(nameError)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            setValue("name", before.current, { shouldDirty: true });
+            setEditing(false);
+          }
+          if (event.key === "Enter") {
+            event.preventDefault();
+            if (!getValues("name").trim()) return;
+            setEditing(false);
+            onCommit();
+          }
+        }}
+        className={cn(
+          "-ml-2 h-[34px] min-w-0 max-w-full rounded-control border-[1.5px] border-ring bg-background px-2 font-display text-[22px] font-semibold outline-none",
+          nameError && "border-destructive"
+        )}
+        size={Math.max(12, (name ?? "").length + 1)}
+      />
+      <span className="shrink-0 font-display text-[11px] text-muted-foreground">
+        {nameError ?? "Enter to save · Esc to cancel"}
+      </span>
+    </div>
+  );
+}
+
+/** The agent's ref in a muted chip with a copy button. */
+function RefChip({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <span className="flex items-center gap-1.5 rounded-[6px] bg-muted px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
+      {value}
+      <button
+        type="button"
+        aria-label="Copy agent ref"
+        className="cursor-pointer outline-none hover:text-foreground focus-visible:text-foreground"
+        onClick={() => {
+          void navigator.clipboard?.writeText(value).then(() => {
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1500);
+          });
+        }}
+      >
+        {copied ? (
+          <Check className="size-[11px]" />
+        ) : (
+          <Copy className="size-[11px]" />
+        )}
+      </button>
+    </span>
   );
 }

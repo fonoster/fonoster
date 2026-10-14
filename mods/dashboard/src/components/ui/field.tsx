@@ -48,7 +48,7 @@ export function Field({
   const message = error ?? hint;
 
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-center justify-between">
         <Label htmlFor={id}>{label}</Label>
         {action}
@@ -63,7 +63,7 @@ export function Field({
           id={messageId}
           role={error ? "alert" : undefined}
           className={cn(
-            "text-xs",
+            "font-display text-[11px]",
             error ? "text-destructive" : "text-text-secondary"
           )}
         >

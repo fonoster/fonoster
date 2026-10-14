@@ -55,7 +55,7 @@ export function Select({
     >
       <SelectPrimitive.Trigger
         className={cn(
-          "flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-control border border-input bg-background px-3 text-left text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-[placeholder]:text-text-muted",
+          "flex h-[38px] w-full cursor-pointer items-center justify-between gap-2 rounded-control border border-input bg-background px-3 text-left font-display text-[13px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-[placeholder]:text-text-muted",
           className
         )}
         {...trigger}
