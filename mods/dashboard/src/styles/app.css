@@ -80,6 +80,42 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+  /* Thin, quiet scrollbars in the theme's colors, on every scroll area. They
+     stay visible (not hidden) so pages still show they scroll. */
+  :root {
+    --scrollbar-thumb: color-mix(
+      in oklab,
+      var(--muted-foreground) 35%,
+      transparent
+    );
+    --scrollbar-thumb-hover: color-mix(
+      in oklab,
+      var(--muted-foreground) 55%,
+      transparent
+    );
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  /* Older Safari, which lacks scrollbar-color. */
+  @supports not (scrollbar-color: auto) {
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 9999px;
+      background: var(--scrollbar-thumb) padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--scrollbar-thumb-hover) padding-box;
+    }
+  }
   h1,
   h2,
   h3,
