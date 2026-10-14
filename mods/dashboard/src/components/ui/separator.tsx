@@ -43,7 +43,7 @@ export function Separator({
 /** A divider with a centered label, e.g. "or". */
 export function LabeledSeparator({ children }: { children: string }) {
   return (
-    <div className="flex items-center gap-3 text-xs uppercase text-text-muted">
+    <div className="flex items-center gap-3 text-xs uppercase text-muted-foreground">
       <Separator className="flex-1" />
       <span>{children}</span>
       <Separator className="flex-1" />

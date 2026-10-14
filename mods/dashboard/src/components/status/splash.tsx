@@ -24,7 +24,7 @@ export function Splash({ label = "Loading…" }: { label?: string }) {
       className="flex min-h-full flex-col items-center justify-center gap-4 bg-background"
       role="status"
     >
-      <LogoMark className="h-5 w-12 animate-pulse" />
+      <LogoMark className="size-8 animate-pulse" />
       <span className="sr-only">{label}</span>
       <p aria-hidden className="text-xs text-text-muted">
         {label}

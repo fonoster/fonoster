@@ -69,16 +69,23 @@ export function Logo({ className }: { className?: string }) {
   );
 }
 
-/** The bubble alone, for the collapsed sidebar and small spaces. */
+/**
+ * The compact mark (Figma "Icon/Logo — Micro" without the F): a mint speech
+ * bubble, square at the bottom-left corner. For the collapsed sidebar, the
+ * favicon and small spaces.
+ */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 105 41"
+      viewBox="0 0 16 16"
       role="img"
       aria-label="Fonoster"
-      className={cn("h-3 w-8", className)}
+      className={cn("size-6", className)}
     >
-      <path d={BUBBLE} fill="#39E19E" />
+      <path
+        d="M0 8A8 8 0 0 1 8 0A8 8 0 0 1 16 8A8 8 0 0 1 8 16H0Z"
+        fill="#39E19E"
+      />
     </svg>
   );
 }
