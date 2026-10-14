@@ -46,12 +46,13 @@
 
 ## 5. Autopilot (`mods/autopilot`)
 
-- [ ] 5.1 Schema: `server.bindAddr`, `apiserver.endpoint`, `logs`, `conversation`,
+- [x] 5.1 Schema: `server.bindAddr`, `apiserver.endpoint`, `logs`, `conversation`,
       `integrationsFile`, `knowledgeBase`, `recordings`, `dev.skipIdentity`
-- [ ] 5.2 Use the shared loader (`autopilot` base name), no env of its own
-- [ ] 5.3 `VoiceServer` identity address from `apiserver.endpoint`
-- [ ] 5.4 Load integrations once at boot
-- [ ] 5.5 Tests
+- [x] 5.2 Use the shared loader (`autopilot` base name), no env of its own
+- [x] 5.3 `VoiceServer` bind/port and identity address from config (`server.identityAddress`,
+      kept separate from `apiserver.endpoint`: the key fetch uses TLS)
+- [x] 5.4 Load integrations once at boot
+- [x] 5.5 Tests
 
 ## 6. Deploy and docs
 

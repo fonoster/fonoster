@@ -16,11 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  AudioFilterConfig,
-  getIntegrationsFromFile,
-  StreamEvent
-} from "@fonoster/common";
+import { AudioFilterConfig, StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { BaseMessage } from "@langchain/core/messages";
@@ -31,12 +27,12 @@ import {
   AWS_S3_SECRET_ACCESS_KEY,
   CONVERSATION_PROVIDER,
   CONVERSATION_PROVIDER_FILE,
-  INTEGRATIONS_FILE,
   KNOWLEDGE_BASE_ENABLED,
   RECORDING_BASE_URL,
   UNSTRUCTURED_API_KEY,
   UNSTRUCTURED_API_URL
 } from "./envs";
+import { loadIntegrations } from "./integrations";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
 import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
 import { createLanguageModel } from "./models/createLanguageModel";
@@ -80,10 +76,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const assistantConfig =
     CONVERSATION_PROVIDER === ConversationProvider.FILE
       ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE)
-      : await loadAssistantFromAPI(
-          req,
-          getIntegrationsFromFile(INTEGRATIONS_FILE)
-        );
+      : await loadAssistantFromAPI(req, loadIntegrations());
 
   let knowledgeBase;
 
