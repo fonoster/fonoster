@@ -154,25 +154,28 @@ function VolumeChart({ volume }: { volume: Bucket[] }) {
           <span className={cn("size-2 rounded-[2px]", OUTBOUND)} /> Outbound
         </span>
       </div>
-      <table className="sr-only">
-        <caption>Calls per period</caption>
-        <thead>
-          <tr>
-            <th scope="col">Period</th>
-            <th scope="col">Inbound</th>
-            <th scope="col">Outbound</th>
-          </tr>
-        </thead>
-        <tbody>
-          {volume.map((bucket) => (
-            <tr key={bucket.label}>
-              <th scope="row">{bucket.label}</th>
-              <td>{bucket.inbound}</td>
-              <td>{bucket.outbound}</td>
+      {/* sr-only on a wrapper: a table ignores height: 1px and would stretch the page. */}
+      <div className="sr-only">
+        <table>
+          <caption>Calls per period</caption>
+          <thead>
+            <tr>
+              <th scope="col">Period</th>
+              <th scope="col">Inbound</th>
+              <th scope="col">Outbound</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {volume.map((bucket) => (
+              <tr key={bucket.label}>
+                <th scope="row">{bucket.label}</th>
+                <td>{bucket.inbound}</td>
+                <td>{bucket.outbound}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
