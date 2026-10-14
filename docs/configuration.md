@@ -20,10 +20,13 @@ the image, so one image serves Community and Cloud.
 ## Quick start
 
 ```bash
-cp .env.example .env                                   # third-party containers
+cp .env.example .env                                   # third-party containers; set the host IP and DASHBOARD_API_URL
 cp config/fonoster.example.yaml config/fonoster.yaml   # API server
 cp config/autopilot.example.yaml config/autopilot.yaml # Autopilot
 cp config/integrations.example.json config/integrations.json
+mkdir -p config/keys                                   # signing keys for tokens
+openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:2048 -out config/keys/private.pem
+openssl rsa -in config/keys/private.pem -pubout -out config/keys/public.pem
 chmod 600 config/fonoster.yaml config/autopilot.yaml config/integrations.json
 docker compose up -d
 ```
