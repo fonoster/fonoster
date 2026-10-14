@@ -25,7 +25,9 @@ type SendResetPasswordEmailRequest = {
 type UserUpdateInput = {
   name?: string;
   avatar?: string;
-  password?: string;
+  password?: string | null;
+  passwordDigest?: string;
+  mustChangePassword?: boolean;
   phoneNumber?: string;
   phoneNumberVerified?: boolean;
 };

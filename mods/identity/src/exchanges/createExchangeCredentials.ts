@@ -24,8 +24,10 @@ import {
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { isMethodEnabled, methodDisabledError } from "../utils/authMethods";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
+import { createVerifyUserPassword } from "../utils/userPasswords";
 import { ContactType } from "../verification";
 import { exchangeTokens } from "./exchangeTokens";
 import {
@@ -41,6 +43,7 @@ function createExchangeCredentials(
   identityConfig: IdentityConfig
 ) {
   const isValidVerificationCode = createIsValidVerificationCode(prisma);
+  const verifyUserPassword = createVerifyUserPassword(prisma);
 
   const exchangeCredentials = async (
     call: { request: ExchangeCredentialsRequest },
@@ -51,9 +54,13 @@ function createExchangeCredentials(
 
     logger.verbose("call to exchangeCredentials", { username: email });
 
+    if (!isMethodEnabled(identityConfig, "password")) {
+      return callback(methodDisabledError("password"));
+    }
+
     const user = await createGetUserByEmail(prisma)(email);
 
-    if (!user || user.password !== password?.trim()) {
+    if (!user || !(await verifyUserPassword(user, password?.trim()))) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"

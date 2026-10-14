@@ -26,7 +26,12 @@ import {
 import { configureLogger, getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
-import { buildIdentityService, identityAllowList, upsertDefaultUser } from "..";
+import {
+  buildIdentityService,
+  identityAllowList,
+  migratePasswordStorage,
+  upsertDefaultUser
+} from "..";
 import { loadConfig } from "./config";
 import { startHttpBridge } from "./httpBridge";
 
@@ -65,6 +70,8 @@ async function main() {
     createServiceDefinition(definition),
     handlers as unknown as grpc.UntypedServiceImplementation
   );
+
+  await migratePasswordStorage(identityConfig);
 
   if (defaultUser) {
     await upsertDefaultUser(identityConfig, defaultUser);

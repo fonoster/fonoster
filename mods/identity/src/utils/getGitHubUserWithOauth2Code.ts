@@ -18,12 +18,28 @@
  */
 const GITHUB_API_URL = "https://github.com/login/oauth/access_token";
 const GITHUB_USER_API_URL = "https://api.github.com/user";
+const GITHUB_EMAILS_API_URL = "https://api.github.com/user/emails";
 
+type GitHubEmail = { email: string; primary: boolean; verified: boolean };
+
+type GitHubUser = {
+  name?: string;
+  login?: string;
+  avatar_url?: string;
+  /** The primary verified address, or undefined when there is none. */
+  email?: string;
+};
+
+/**
+ * Trades an OAuth code for the GitHub user. The email is the account's
+ * primary *verified* address from /user/emails, never the public profile
+ * email, which the user can set to anything.
+ */
 async function getGitHubUserWithOauth2Code(params: {
   clientId: string;
   clientSecret: string;
   code: string;
-}) {
+}): Promise<GitHubUser> {
   const { clientId, clientSecret, code } = params;
   const tokenResponse = await fetch(GITHUB_API_URL, {
     method: "POST",
@@ -41,13 +57,34 @@ async function getGitHubUserWithOauth2Code(params: {
   const tokenData = await tokenResponse.json();
   const accessToken = tokenData?.access_token;
 
-  const userResponse = await fetch(GITHUB_USER_API_URL, {
-    headers: {
-      Authorization: `token ${accessToken}`
-    }
-  });
+  if (!accessToken) {
+    return {};
+  }
 
-  return userResponse.json();
+  const headers = {
+    Authorization: `token ${accessToken}`,
+    Accept: "application/vnd.github+json"
+  };
+
+  const [userResponse, emailsResponse] = await Promise.all([
+    fetch(GITHUB_USER_API_URL, { headers }),
+    fetch(GITHUB_EMAILS_API_URL, { headers })
+  ]);
+
+  const user = await userResponse.json();
+  const emails: GitHubEmail[] = emailsResponse.ok
+    ? await emailsResponse.json()
+    : [];
+  const primary = Array.isArray(emails)
+    ? emails.find((e) => e.primary && e.verified)
+    : undefined;
+
+  return {
+    name: user?.name || user?.login,
+    login: user?.login,
+    avatar_url: user?.avatar_url,
+    email: primary?.email
+  };
 }
 
-export { getGitHubUserWithOauth2Code };
+export { getGitHubUserWithOauth2Code, GitHubUser };

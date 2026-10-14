@@ -39,8 +39,8 @@ It is on the public allow-list. Identity stays product-agnostic: it doesn't know
 - `password` (the old encrypted column) becomes nullable. Verification checks the digest first; if
   there is none, it compares the decrypted legacy value in constant time, then writes the digest and
   clears the legacy value in one update.
-- `backfillPasswordDigests` runs from the apiserver seed and the standalone `db-provision`; it is
-  batched and idempotent.
+- `migratePasswordStorage` runs `backfillPasswordDigests` at boot in the apiserver and standalone
+  Identity, before the owner is upserted; it is batched and idempotent.
 - Every write path (create, update, reset, invite, owner upsert) writes only the digest.
 - Invites: new users get a one-time password (password sign-in) or a sign-in link (no password
   method). "Resend invite" issues a new one-time password instead of reading the stored one.
@@ -52,6 +52,12 @@ It is on the public allow-list. Identity stays product-agnostic: it doesn't know
 - GitHub: read `/user/emails`, use the primary verified address; sign-in creates the user only when
   sign-up is open or an invite is pending (so `CreateUserWithOauth2Code` stays for compatibility).
 - Unset `auth` keeps today's behaviour: password on, GitHub available when configured, invite-only.
+
+### Forced password change
+`User.mustChangePassword` (default false) is set when an invite creates a user with a one-time
+password, and on "resend invite". It is cleared by `UpdateUser` / `ResetPassword` when a new password
+is written. The id token carries `mustChangePassword` so the dashboard can route to "Set password"
+before anything else. Identity does not block other RPCs; enforcement is in the client.
 
 ## Risks
 

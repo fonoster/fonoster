@@ -61,6 +61,11 @@ const exchangeOauth2RequestSchema = z.object({
   code: z.string()
 });
 
+const exchangeVerificationCodeRequestSchema = z.object({
+  email: z.string().email({ message: EMAIL_MESSAGE }),
+  code: z.string().regex(/^\d{6}$/, { message: "Must be a 6-digit code" })
+});
+
 const exchangeRefreshTokenRequestSchema = z.object({
   refreshToken: z.string()
 });
@@ -152,6 +157,7 @@ export {
   exchangeCredentialsRequestSchema,
   exchangeOauth2RequestSchema,
   exchangeRefreshTokenRequestSchema,
+  exchangeVerificationCodeRequestSchema,
   inviteUserToWorkspaceRequestSchema,
   removeUserFromWorkspaceRequestSchema,
   resendWorkspaceMembershipInvitationRequestSchema,

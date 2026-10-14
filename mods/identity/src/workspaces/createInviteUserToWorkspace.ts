@@ -30,7 +30,6 @@ import {
   WorkspaceMemberStatus
 } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
-import { customAlphabet } from "nanoid";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites";
@@ -39,8 +38,11 @@ import {
   createSendEmail,
   generateAccessKeyId
 } from "../utils";
+import { isMethodEnabled } from "../utils/authMethods";
 import { createGenerateWorkspaceInviteToken } from "../utils/createGenerateWorkspaceInviteToken";
+import { generateOneTimePassword } from "../utils/generateOneTimePassword";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
+import { passwordColumns } from "../utils/userPasswords";
 import { createIsAdminMember } from "./createIsAdminMember";
 import { createIsWorkspaceMember } from "./createIsWorkspaceMember";
 
@@ -64,16 +66,29 @@ const findUserByEmail = async (prisma: Prisma, email: string) => {
   });
 };
 
+/**
+ * Creates the invitee. With password sign-in they get a one-time password
+ * they must replace after signing in; otherwise they sign in by email code or
+ * GitHub and have no password.
+ */
 const createCreateUser = (prisma: Prisma) => {
-  return async function createUser(request: InviteUserToWorkspaceRequest) {
-    const { name, email, password } = request;
+  return async function createUser(
+    request: Pick<InviteUserToWorkspaceRequest, "name" | "email">,
+    oneTimePassword?: string
+  ) {
+    const { name, email } = request;
 
     return await prisma.user.create({
       data: {
         name,
         email,
         accessKeyId: generateAccessKeyId(AccessKeyIdType.USER),
-        password
+        ...(oneTimePassword
+          ? {
+              ...(await passwordColumns(oneTimePassword)),
+              mustChangePassword: true
+            }
+          : {})
       }
     });
   };
@@ -130,19 +145,16 @@ function createInviteUserToWorkspace(
       return callback(userIsMemberError);
     }
 
-    const oneTimePassword = customAlphabet("1234567890abcdef", 10)();
+    const oneTimePassword = isMethodEnabled(identityConfig, "password")
+      ? generateOneTimePassword()
+      : undefined;
 
     let isExistingUser = true;
 
     if (!user) {
       isExistingUser = false;
 
-      user = await createCreateUser(prisma)({
-        name,
-        email,
-        password: oneTimePassword,
-        role
-      });
+      user = await createCreateUser(prisma)({ name, email }, oneTimePassword);
     }
 
     const newMember = await prisma.workspaceMember.create({
@@ -170,7 +182,8 @@ function createInviteUserToWorkspace(
       recipient: email,
       oneTimePassword,
       workspaceName: newMember.workspace.name,
-      isExistingUser,
+      // Without a one-time password the "existing user" email (a link) fits.
+      isExistingUser: isExistingUser || !oneTimePassword,
       inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`
     });
 

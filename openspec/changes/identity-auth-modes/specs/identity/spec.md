@@ -76,6 +76,11 @@ passwords.
 - WHEN a user created before this change signs in with their password
 - THEN sign-in succeeds, the digest is stored and the encrypted password is cleared
 
+#### Scenario: Invitee must set a password
+
+- WHEN a user created by an invite signs in with the one-time password
+- THEN the id token has `mustChangePassword: true` until they set their own password
+
 #### Scenario: Resending an invite
 
 - WHEN an admin resends an invite to a user who hasn't signed in

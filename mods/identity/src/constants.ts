@@ -18,3 +18,11 @@
  */
 export const SIGN_ALGORITHM = "RS256";
 export const VERIFICATION_CODE_EXPIRATION = 5 * 60 * 1000;
+/** Wrong guesses allowed before a code stops working. */
+export const VERIFICATION_CODE_MAX_ATTEMPTS = 5;
+/** Codes sent per email, and per client IP, within the window. */
+export const VERIFICATION_CODE_SEND_LIMITS = {
+  perEmail: 3,
+  perIp: 20,
+  windowMs: 10 * 60 * 1000
+};

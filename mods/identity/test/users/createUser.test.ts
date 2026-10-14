@@ -20,15 +20,21 @@ import { status } from "@grpc/grpc-js";
 import * as chai from "chai";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import * as sinon from "sinon";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
+import { IdentityConfig } from "../../src/exchanges/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
 const AVATAR_URL = "https://example.com/avatar.jpg";
+
+const openSignup = {
+  auth: { methods: ["password"], signup: "open" }
+} as unknown as IdentityConfig;
 
 describe("@identity[users/createUser]", function () {
   afterEach(function () {
@@ -55,10 +61,45 @@ describe("@identity[users/createUser]", function () {
     const { createCreateUser } = await import("../../src/users/createCreateUser");
 
     // Act
-    await createCreateUser(prisma)(call, (error, response) => {
+    await createCreateUser(prisma, openSignup)(call, (error, response) => {
       // Assert
       expect(response).to.deep.equal({ ref: "123" });
     });
+
+    const { data } = (prisma.user.create as sinon.SinonStub).firstCall.args[0];
+    expect(data.password).to.be.null;
+    expect(data.passwordDigest).to.match(/^scrypt\$/);
+  });
+
+  it("refuses sign-up when it is invite-only", async function () {
+    const create = sandbox.stub();
+    const prisma = { user: { create } } as unknown as Prisma;
+    const inviteOnly = {
+      auth: { methods: ["password"], signup: "invite" }
+    } as unknown as IdentityConfig;
+
+    const { createCreateUser } = await import("../../src/users/createCreateUser");
+
+    let error: unknown;
+    await createCreateUser(prisma, inviteOnly)(
+      {
+        request: {
+          name: "John Doe",
+          email: "john@example.com",
+          password: "12345678",
+          avatar: AVATAR_URL
+        }
+      },
+      (e) => {
+        error = e;
+      }
+    );
+
+    expect(error).to.deep.equal({
+      code: status.PERMISSION_DENIED,
+      message: "Sign-up is by invitation only"
+    });
+    expect(create).not.to.have.been.called;
   });
 
   it("should throw an error if user already exists", async function () {
@@ -81,7 +122,7 @@ describe("@identity[users/createUser]", function () {
     const { createCreateUser } = await import("../../src/users/createCreateUser");
 
     // Act
-    await createCreateUser(prisma)(call, (error) => {
+    await createCreateUser(prisma, openSignup)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: status.ALREADY_EXISTS,
@@ -107,7 +148,7 @@ describe("@identity[users/createUser]", function () {
     const { createCreateUser } = await import("../../src/users/createCreateUser");
 
     // Act
-    await createCreateUser(prisma)(call, (error) => {
+    await createCreateUser(prisma, openSignup)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: status.INVALID_ARGUMENT,

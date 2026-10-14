@@ -47,6 +47,36 @@ docker compose up -d
 - **Editor autocomplete.** The examples point at a JSON Schema (`$schema` in JSONC,
   a `yaml-language-server` comment in YAML).
 
+## Sign-in methods (`features.auth`)
+
+```yaml
+features:
+  auth:
+    methods: [password]        # any of: password, email_code, github
+    signup: invite             # invite | open
+```
+
+- **`password`**: email and password. Passwords are stored as salted scrypt
+  digests; invitees get a one-time password and must set their own after
+  signing in.
+- **`email_code`**: passwordless. `SendVerificationCode` emails a 6-digit code
+  (5 minutes, single use, 5 wrong guesses at most) that
+  `ExchangeVerificationCode` trades for tokens. Needs `smtp`.
+- **`github`**: needs `identity.oauth2.github`. Uses the account's primary
+  verified email.
+- **`signup: open`** lets people create their own account (password sign-up,
+  or on first email-code/GitHub sign-in). With `invite`, only invited users and
+  existing accounts can sign in.
+
+Community ships with `[password]` and `invite`; Fonoster Cloud uses
+`[github, email_code]` and `open`. Clients read the active settings from the
+public `GetCapabilities` RPC (`client.getCapabilities()` in the SDK), which
+never returns secrets.
+
+Code sends are limited to 3 per email and 20 per client IP every 10 minutes.
+The limits are kept in each process's memory, so with several replicas each
+one enforces its own.
+
 ## Standalone Identity
 
 Standalone Identity reads `identity.json` (or `.jsonc`/`.yaml`) with its fields at
@@ -124,5 +154,11 @@ Variables not listed here (`ROUTR_*`, `ASTERISK_*`, `RTPENGINE_*`, `AMD_*`,
   keys fail) and the defaults match the API server: refresh tokens last 24h (was 30d),
   invites 1d (was 2d), invite URLs default to `<appUrl>/invites`, and a default user
   needs an 8-character password. Set them explicitly to keep the old values.
+- **Passwords become one-way digests.** On first start, existing passwords are
+  re-stored as scrypt digests and the reversible copies are cleared. Take a
+  database snapshot before upgrading. Self-service sign-up (`CreateUser`) now
+  requires `features.auth.signup: open`.
+- **Verification codes are single use**, expire after 5 minutes, and stop
+  working after 5 wrong guesses or when a newer code is sent.
 - **The apiserver image** starts through `dist/bin/entrypoint.js`, which waits for
   Postgres, migrates, seeds and starts, reading the database URL from the file.

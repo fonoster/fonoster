@@ -56,10 +56,15 @@ service Identity {
   rpc ExchangeApiKey (ExchangeApiKeyRequest) returns (ExchangeApiKeyResponse) {}
   rpc ExchangeOauth2Code (ExchangeOauth2CodeRequest) returns (ExchangeOauth2CodeResponse) {}
   rpc ExchangeRefreshToken (ExchangeRefreshTokenRequest) returns (ExchangeRefreshTokenResponse) {}
+  // Trade an emailed sign-in code for tokens (passwordless sign-in)
+  rpc ExchangeVerificationCode (ExchangeVerificationCodeRequest) returns (ExchangeVerificationCodeResponse) {}
   rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
 
   // Get the public key for verifying JWTs
   rpc GetPublicKey (google.protobuf.Empty) returns (GetPublicKeyResponse) {}
+
+  // What this deployment supports (sign-in methods, sign-up policy, product flags); no secrets
+  rpc GetCapabilities (google.protobuf.Empty) returns (GetCapabilitiesResponse) {}
 }
 
 // Workspace Resources
@@ -356,4 +361,35 @@ message RevokeTokenResponse {
 // Message with response with the public key
 message GetPublicKeyResponse {
   string public_key = 1;
+}
+
+message ExchangeVerificationCodeRequest {
+  string email = 1;
+  string code = 2;
+}
+
+message ExchangeVerificationCodeResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message GitHubCapability {
+  string client_id = 1;
+  string authorize_url = 2;
+}
+
+message AuthCapabilities {
+  // password | email_code | github
+  repeated string methods = 1;
+  // invite | open
+  string signup = 2;
+  // Set when github is among the methods
+  GitHubCapability github = 3;
+}
+
+message GetCapabilitiesResponse {
+  AuthCapabilities auth = 1;
+  // Flags the hosting product passes through (e.g. billing.enabled, costs.display, domain)
+  map<string, string> product = 2;
 }

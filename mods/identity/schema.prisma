@@ -14,7 +14,12 @@ model User {
   name                String   @db.VarChar(60)
   email               String   @unique @db.VarChar(255)
   emailVerified       Boolean  @default(false) @map("email_verified")
-  password            String   @map("password_hash") /// @encrypted
+  /// Legacy reversible storage, cleared once password_digest is written.
+  password            String?  @map("password_hash") /// @encrypted
+  /// scrypt digest: scrypt$N$r$p$salt$hash
+  passwordDigest      String?  @map("password_digest") @db.VarChar(255)
+  /// Set for invitees holding a one-time password; cleared when they set their own.
+  mustChangePassword  Boolean  @default(false) @map("must_change_password")
   phoneNumber         String?  @map("phone_number") @db.VarChar(20)
   phoneNumberVerified Boolean  @default(false) @map("phone_number_verified")
   avatar              String?  @db.VarChar(255)
@@ -92,11 +97,14 @@ model VerificationCode {
   type      VerificationType
   code      String           @db.VarChar(6)
   value     String           @db.VarChar(255)
-  expiresAt DateTime         @map("expires_at") @db.Timestamptz(3)
-  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt  DateTime         @map("expires_at") @db.Timestamptz(3)
+  attempts   Int              @default(0)
+  consumedAt DateTime?        @map("consumed_at") @db.Timestamptz(3)
+  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
 
   // Indexes and maps
   @@index([code], type: Hash)
+  @@index([type, value])
   @@map("verification_codes")
 }
 

@@ -3,7 +3,7 @@ import {
   INFLUXDB_CALLS_BUCKET,
   setRootDomain
 } from "@fonoster/common";
-import { upsertDefaultUser } from "@fonoster/identity";
+import { migratePasswordStorage, upsertDefaultUser } from "@fonoster/identity";
 import { configureLogger, getLogger } from "@fonoster/logger";
 import { getConfig } from "./config";
 import { identityConfig } from "./core/identityConfig";
@@ -33,6 +33,8 @@ setAiCousticsLicense(config.audioFilters.aiCoustics.license);
 import("./core/removeSwaggerNotice");
 
 async function main() {
+  await migratePasswordStorage(identityConfig);
+
   if (OWNER_EMAIL) {
     const user = {
       name: OWNER_NAME,

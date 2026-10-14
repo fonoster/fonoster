@@ -27,6 +27,8 @@ variables. Identity also has weaknesses that passwordless sign-in would make wor
 - **Password hashing:** `scrypt` digests in a new `password_digest` column; the encrypted column
   becomes nullable and is cleared as users sign in (lazy rehash) or by an idempotent backfill. Invites
   no longer re-send stored passwords. No password is logged.
+- **Forced password change for invitees:** users created by an invite get `mustChangePassword`; it is
+  returned in the id token and cleared when they set a password, so the dashboard can require it.
 - **SDK:** `client.loginWithVerificationCode()` and `client.getCapabilities()`.
 
 All RPC changes are additive. The only file-shape promise for standalone Identity (fields at the

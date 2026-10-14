@@ -24,3 +24,4 @@ export * from "./createUpdateUser";
 export * from "./upsertDefaultUser";
 export * from "./createSendResetPasswordCode";
 export * from "./createResetPassword";
+export * from "./migratePasswordStorage";

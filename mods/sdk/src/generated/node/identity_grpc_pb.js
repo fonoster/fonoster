@@ -254,6 +254,39 @@ function deserialize_fonoster_identity_v1beta2_ExchangeRefreshTokenResponse(buff
   return identity_pb.ExchangeRefreshTokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_ExchangeVerificationCodeRequest(arg) {
+  if (!(arg instanceof identity_pb.ExchangeVerificationCodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ExchangeVerificationCodeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeRequest(buffer_arg) {
+  return identity_pb.ExchangeVerificationCodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse(arg) {
+  if (!(arg instanceof identity_pb.ExchangeVerificationCodeResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ExchangeVerificationCodeResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse(buffer_arg) {
+  return identity_pb.ExchangeVerificationCodeResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_GetCapabilitiesResponse(arg) {
+  if (!(arg instanceof identity_pb.GetCapabilitiesResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.GetCapabilitiesResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_GetCapabilitiesResponse(buffer_arg) {
+  return identity_pb.GetCapabilitiesResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_GetPublicKeyResponse(arg) {
   if (!(arg instanceof identity_pb.GetPublicKeyResponse)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.GetPublicKeyResponse');
@@ -876,6 +909,18 @@ exchangeCredentials: {
     responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeRefreshTokenResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeRefreshTokenResponse,
   },
+  // Trade an emailed sign-in code for tokens (passwordless sign-in)
+exchangeVerificationCode: {
+    path: '/fonoster.identity.v1beta2.Identity/ExchangeVerificationCode',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.ExchangeVerificationCodeRequest,
+    responseType: identity_pb.ExchangeVerificationCodeResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_ExchangeVerificationCodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse,
+  },
   revokeToken: {
     path: '/fonoster.identity.v1beta2.Identity/RevokeToken',
     requestStream: false,
@@ -898,6 +943,18 @@ getPublicKey: {
     requestDeserialize: deserialize_google_protobuf_Empty,
     responseSerialize: serialize_fonoster_identity_v1beta2_GetPublicKeyResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_GetPublicKeyResponse,
+  },
+  // What this deployment supports (sign-in methods, sign-up policy, product flags); no secrets
+getCapabilities: {
+    path: '/fonoster.identity.v1beta2.Identity/GetCapabilities',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: identity_pb.GetCapabilitiesResponse,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_fonoster_identity_v1beta2_GetCapabilitiesResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_GetCapabilitiesResponse,
   },
 };
 

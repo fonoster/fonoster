@@ -40,4 +40,5 @@ export * from "./Users";
 
 export * from "./Workspaces";
 
+export type { AuthMethod, Capabilities } from "./client/AbstractClient";
 export * from "./client/Client";

@@ -27,6 +27,7 @@ import { BaseApiObject, UpdateUserRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromToken } from "../utils";
+import { passwordColumns } from "../utils/userPasswords";
 import { UserUpdateInput } from "./types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
@@ -42,12 +43,15 @@ function createUpdateUser(prisma: Prisma) {
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const accessKeyId = getAccessKeyIdFromToken(token);
 
-    logger.verbose("call to updateUser", { ref, password });
+    logger.verbose("call to updateUser", { ref });
 
     const updateData = {
       name,
       avatar,
-      password: password || undefined,
+      // A new password replaces any one-time password from an invite.
+      ...(password
+        ? { ...(await passwordColumns(password)), mustChangePassword: false }
+        : {}),
       updatedAt: new Date()
     } as UserUpdateInput;
 

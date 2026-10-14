@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { ContactType } from "@fonoster/types";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   ContactType as ContactTypePB,
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
@@ -25,6 +26,9 @@ import {
   ExchangeOauth2CodeRequest as ExchangeOauth2CodeRequestPB,
   ExchangeOauth2CodeResponse as ExchangeOauth2CodeResponsePB,
   ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
+  ExchangeVerificationCodeRequest as ExchangeVerificationCodeRequestPB,
+  ExchangeVerificationCodeResponse as ExchangeVerificationCodeResponsePB,
+  GetCapabilitiesResponse as GetCapabilitiesResponsePB,
   SendVerificationCodeRequest as SendVerificationCodeRequestPB,
   VerifyCodeRequest as VerifyCodeRequestPB
 } from "../generated/node/identity_pb";
@@ -42,6 +46,18 @@ import { CredentialsClient } from "./types/CredentialsClient";
 import { DomainsClient } from "./types/DomainsClient";
 import { NumbersClient } from "./types/NumbersClient";
 import { TrunksClient } from "./types/TrunksClient";
+
+type AuthMethod = "password" | "email_code" | "github";
+
+/** The deployment's capabilities, from GetCapabilities. */
+type Capabilities = {
+  auth: {
+    methods: AuthMethod[];
+    signup: "invite" | "open";
+    github?: { clientId: string; authorizeUrl: string };
+  };
+  product: Record<string, string>;
+};
 
 abstract class AbstractClient implements FonosterClient {
   protected accessKeyId: string;
@@ -161,6 +177,71 @@ abstract class AbstractClient implements FonosterClient {
     this._idToken = idToken;
   }
 
+  /**
+   * Passwordless sign-in: trades the 6-digit code emailed by
+   * `sendVerificationCode(ContactType.EMAIL, email)` for tokens.
+   */
+  async loginWithVerificationCode(email: string, code: string): Promise<void> {
+    const { refreshToken, accessToken, idToken } = await makeRpcRequest<
+      ExchangeVerificationCodeRequestPB,
+      ExchangeVerificationCodeResponsePB,
+      { email: string; code: string },
+      { refreshToken: string; accessToken: string; idToken: string }
+    >({
+      method: this.identityClient.exchangeVerificationCode.bind(
+        this.identityClient
+      ),
+      requestPBObjectConstructor: ExchangeVerificationCodeRequestPB,
+      metadata: {},
+      request: { email, code }
+    });
+
+    this._refreshToken = refreshToken;
+    this._accessToken = accessToken;
+    this._idToken = idToken;
+  }
+
+  /**
+   * What the server supports: sign-in methods, sign-up policy, the GitHub
+   * client id (when enabled) and product flags. Needs no credentials.
+   */
+  async getCapabilities(): Promise<Capabilities> {
+    return new Promise((resolve, reject) => {
+      this.identityClient.getCapabilities(
+        new Empty(),
+        {},
+        (error: Error | null, response: GetCapabilitiesResponsePB) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          const auth = response.getAuth();
+          const github = auth?.getGithub();
+          const product: Record<string, string> = {};
+          response.getProductMap().forEach((value, key) => {
+            product[key] = value;
+          });
+
+          resolve({
+            auth: {
+              methods: (auth?.getMethodsList() ?? []) as AuthMethod[],
+              signup: (auth?.getSignup() ||
+                "invite") as Capabilities["auth"]["signup"],
+              github: github
+                ? {
+                    clientId: github.getClientId(),
+                    authorizeUrl: github.getAuthorizeUrl()
+                  }
+                : undefined
+            },
+            product
+          });
+        }
+      );
+    });
+  }
+
   setAccessToken(accessToken: string) {
     this._accessToken = accessToken;
   }
@@ -250,4 +331,4 @@ abstract class AbstractClient implements FonosterClient {
   abstract getCallsClient(): CallsClient;
 }
 
-export { AbstractClient };
+export { AbstractClient, AuthMethod, Capabilities };

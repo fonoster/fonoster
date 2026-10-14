@@ -16,10 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createGetCapabilities } from "./capabilities/createGetCapabilities";
 import { createPrismaClient } from "./db";
 import { createExchangeOauth2Code } from "./exchanges/createExchangeOauth2Code";
 import { IdentityConfig } from "./exchanges/types";
 import { createGetPublicKey } from "./getPublicKey";
+import { isMethodEnabled } from "./utils/authMethods";
 import { createSendVerificationCode, createVerifyCode } from "./verification";
 import {
   createCreateApiKey,
@@ -32,6 +34,7 @@ import {
   createExchangeApiKey,
   createExchangeCredentials,
   createExchangeRefreshToken,
+  createExchangeVerificationCode,
   createGetUser,
   createGetWorkspace,
   createInviteUserToWorkspace,
@@ -84,7 +87,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
         ),
       removeUserFromWorkspace: createRemoveUserFromWorkspace(prisma),
       // User operations
-      createUser: createCreateUser(prisma),
+      createUser: createCreateUser(prisma, identityConfig),
       createUserWithOauth2Code: createCreateUserWithOauth2Code(
         prisma,
         identityConfig
@@ -107,7 +110,12 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       exchangeCredentials: createExchangeCredentials(prisma, identityConfig),
       exchangeOauth2Code: createExchangeOauth2Code(prisma, identityConfig),
       exchangeRefreshToken: createExchangeRefreshToken(prisma, identityConfig),
+      exchangeVerificationCode: createExchangeVerificationCode(
+        prisma,
+        identityConfig
+      ),
       getPublicKey: createGetPublicKey(identityConfig.publicKey),
+      getCapabilities: createGetCapabilities(identityConfig),
       // Placeholders for conditional handlers
       sendVerificationCode: undefined as unknown as ReturnType<
         typeof createSendVerificationCode
@@ -118,7 +126,8 @@ function buildIdentityService(identityConfig: IdentityConfig) {
 
   if (
     identityConfig.contactVerificationRequired ||
-    identityConfig.twoFactorAuthenticationRequired
+    identityConfig.twoFactorAuthenticationRequired ||
+    isMethodEnabled(identityConfig, "email_code")
   ) {
     service.handlers.sendVerificationCode = createSendVerificationCode(
       prisma,

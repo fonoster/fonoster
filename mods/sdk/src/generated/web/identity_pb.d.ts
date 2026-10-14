@@ -1238,6 +1238,130 @@ export namespace GetPublicKeyResponse {
   }
 }
 
+export class ExchangeVerificationCodeRequest extends jspb.Message {
+  getEmail(): string;
+  setEmail(value: string): ExchangeVerificationCodeRequest;
+
+  getCode(): string;
+  setCode(value: string): ExchangeVerificationCodeRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ExchangeVerificationCodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ExchangeVerificationCodeRequest): ExchangeVerificationCodeRequest.AsObject;
+  static serializeBinaryToWriter(message: ExchangeVerificationCodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ExchangeVerificationCodeRequest;
+  static deserializeBinaryFromReader(message: ExchangeVerificationCodeRequest, reader: jspb.BinaryReader): ExchangeVerificationCodeRequest;
+}
+
+export namespace ExchangeVerificationCodeRequest {
+  export type AsObject = {
+    email: string,
+    code: string,
+  }
+}
+
+export class ExchangeVerificationCodeResponse extends jspb.Message {
+  getIdToken(): string;
+  setIdToken(value: string): ExchangeVerificationCodeResponse;
+
+  getAccessToken(): string;
+  setAccessToken(value: string): ExchangeVerificationCodeResponse;
+
+  getRefreshToken(): string;
+  setRefreshToken(value: string): ExchangeVerificationCodeResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ExchangeVerificationCodeResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ExchangeVerificationCodeResponse): ExchangeVerificationCodeResponse.AsObject;
+  static serializeBinaryToWriter(message: ExchangeVerificationCodeResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ExchangeVerificationCodeResponse;
+  static deserializeBinaryFromReader(message: ExchangeVerificationCodeResponse, reader: jspb.BinaryReader): ExchangeVerificationCodeResponse;
+}
+
+export namespace ExchangeVerificationCodeResponse {
+  export type AsObject = {
+    idToken: string,
+    accessToken: string,
+    refreshToken: string,
+  }
+}
+
+export class GitHubCapability extends jspb.Message {
+  getClientId(): string;
+  setClientId(value: string): GitHubCapability;
+
+  getAuthorizeUrl(): string;
+  setAuthorizeUrl(value: string): GitHubCapability;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GitHubCapability.AsObject;
+  static toObject(includeInstance: boolean, msg: GitHubCapability): GitHubCapability.AsObject;
+  static serializeBinaryToWriter(message: GitHubCapability, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GitHubCapability;
+  static deserializeBinaryFromReader(message: GitHubCapability, reader: jspb.BinaryReader): GitHubCapability;
+}
+
+export namespace GitHubCapability {
+  export type AsObject = {
+    clientId: string,
+    authorizeUrl: string,
+  }
+}
+
+export class AuthCapabilities extends jspb.Message {
+  getMethodsList(): Array<string>;
+  setMethodsList(value: Array<string>): AuthCapabilities;
+  clearMethodsList(): AuthCapabilities;
+  addMethods(value: string, index?: number): AuthCapabilities;
+
+  getSignup(): string;
+  setSignup(value: string): AuthCapabilities;
+
+  getGithub(): GitHubCapability | undefined;
+  setGithub(value?: GitHubCapability): AuthCapabilities;
+  hasGithub(): boolean;
+  clearGithub(): AuthCapabilities;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AuthCapabilities.AsObject;
+  static toObject(includeInstance: boolean, msg: AuthCapabilities): AuthCapabilities.AsObject;
+  static serializeBinaryToWriter(message: AuthCapabilities, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AuthCapabilities;
+  static deserializeBinaryFromReader(message: AuthCapabilities, reader: jspb.BinaryReader): AuthCapabilities;
+}
+
+export namespace AuthCapabilities {
+  export type AsObject = {
+    methodsList: Array<string>,
+    signup: string,
+    github?: GitHubCapability.AsObject,
+  }
+}
+
+export class GetCapabilitiesResponse extends jspb.Message {
+  getAuth(): AuthCapabilities | undefined;
+  setAuth(value?: AuthCapabilities): GetCapabilitiesResponse;
+  hasAuth(): boolean;
+  clearAuth(): GetCapabilitiesResponse;
+
+  getProductMap(): jspb.Map<string, string>;
+  clearProductMap(): GetCapabilitiesResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetCapabilitiesResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetCapabilitiesResponse): GetCapabilitiesResponse.AsObject;
+  static serializeBinaryToWriter(message: GetCapabilitiesResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetCapabilitiesResponse;
+  static deserializeBinaryFromReader(message: GetCapabilitiesResponse, reader: jspb.BinaryReader): GetCapabilitiesResponse;
+}
+
+export namespace GetCapabilitiesResponse {
+  export type AsObject = {
+    auth?: AuthCapabilities.AsObject,
+    productMap: Array<[string, string]>,
+  }
+}
+
 export enum ContactType { 
   EMAIL = 0,
   PHONE = 1,
