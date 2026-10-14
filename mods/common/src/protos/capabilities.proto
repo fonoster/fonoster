@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.capabilities.v1beta2;
+
+import "google/protobuf/empty.proto";
+
+// What this deployment supports, from fonoster.yaml. Public (no credentials
+// needed) so sign-in screens can render from it; it never returns secrets.
+service Capabilities {
+  // Gets the deployment's capabilities
+  rpc GetCapabilities (google.protobuf.Empty) returns (GetCapabilitiesResponse) {}
+}
+
+message GitHubCapability {
+  string client_id = 1;
+  string authorize_url = 2;
+}
+
+message AuthCapabilities {
+  // Enabled sign-in methods: password | email_code | github
+  repeated string methods = 1;
+  // Who may create an account: invite | open
+  string signup = 2;
+  // Set when github is among the methods
+  GitHubCapability github = 3;
+}
+
+message BillingCapabilities {
+  bool enabled = 1;
+}
+
+message CostsCapabilities {
+  // none | usage | prices
+  string display = 1;
+}
+
+message GetCapabilitiesResponse {
+  AuthCapabilities auth = 1;
+  BillingCapabilities billing = 2;
+  CostsCapabilities costs = 3;
+  string domain = 4;
+  string app_url = 5;
+}

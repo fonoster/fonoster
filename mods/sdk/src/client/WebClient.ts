@@ -20,6 +20,7 @@ import { AclsClient } from "../generated/web/AclsServiceClientPb";
 import { AgentsClient } from "../generated/web/AgentsServiceClientPb";
 import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
 import { CallsClient } from "../generated/web/CallsServiceClientPb";
+import { CapabilitiesClient } from "../generated/web/CapabilitiesServiceClientPb";
 import { CredentialsServiceClient } from "../generated/web/CredentialsServiceClientPb";
 import { DomainsClient } from "../generated/web/DomainsServiceClientPb";
 import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
@@ -71,6 +72,10 @@ export class WebClient extends AbstractClient {
 
   getIdentityClient() {
     return new IdentityClient(this.url, null, null);
+  }
+
+  getCapabilitiesClient() {
+    return new CapabilitiesClient(this.url, null, null);
   }
 
   getSecretsClient() {

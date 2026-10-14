@@ -1,21 +1,5 @@
 ## ADDED Requirements
 
-### Requirement: Deployments advertise their capabilities
-
-Identity SHALL expose a public `GetCapabilities` RPC that returns the enabled sign-in methods, the
-sign-up policy, the GitHub client id and authorize URL when GitHub is enabled, and the product flags
-the host passes in, and it SHALL NOT return any secret.
-
-#### Scenario: Community defaults
-
-- WHEN `features.auth` is not configured
-- THEN `GetCapabilities` returns methods `[password]` and signup `invite`, with no GitHub block
-
-#### Scenario: Cloud configuration
-
-- WHEN `features.auth.methods` is `[github, email_code]` and GitHub OAuth is configured
-- THEN `GetCapabilities` returns both methods and the GitHub client id, and no client secret
-
 ### Requirement: Only enabled sign-in methods work
 
 Each exchange SHALL refuse with `PERMISSION_DENIED` when its method is not in `features.auth.methods`:

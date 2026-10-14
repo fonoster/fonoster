@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createGetCapabilities } from "./capabilities/createGetCapabilities";
 import { createPrismaClient } from "./db";
 import { createExchangeOauth2Code } from "./exchanges/createExchangeOauth2Code";
 import { IdentityConfig } from "./exchanges/types";
@@ -115,7 +114,6 @@ function buildIdentityService(identityConfig: IdentityConfig) {
         identityConfig
       ),
       getPublicKey: createGetPublicKey(identityConfig.publicKey),
-      getCapabilities: createGetCapabilities(identityConfig),
       // Placeholders for conditional handlers
       sendVerificationCode: undefined as unknown as ReturnType<
         typeof createSendVerificationCode

@@ -32,7 +32,6 @@ const identityAllowList = [
   "/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code",
   "/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken",
   "/fonoster.identity.v1beta2.Identity/ExchangeVerificationCode",
-  "/fonoster.identity.v1beta2.Identity/GetCapabilities",
   "/fonoster.identity.v1beta2.Identity/SendVerificationCode",
   "/fonoster.identity.v1beta2.Identity/VerifyCode",
   "/fonoster.identity.v1beta2.Identity/GetPublicKey",

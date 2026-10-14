@@ -20,6 +20,8 @@ export * from "./ApplicationsClient";
 
 export * from "./CallsClient";
 
+export * from "./CapabilitiesClient";
+
 export * from "./FonosterClient";
 
 export * from "./IdentityClient";

@@ -1287,48 +1287,5 @@ export class IdentityClient {
     this.methodDescriptorGetPublicKey);
   }
 
-  methodDescriptorGetCapabilities = new grpcWeb.MethodDescriptor(
-    '/fonoster.identity.v1beta2.Identity/GetCapabilities',
-    grpcWeb.MethodType.UNARY,
-    google_protobuf_empty_pb.Empty,
-    identity_pb.GetCapabilitiesResponse,
-    (request: google_protobuf_empty_pb.Empty) => {
-      return request.serializeBinary();
-    },
-    identity_pb.GetCapabilitiesResponse.deserializeBinary
-  );
-
-  getCapabilities(
-    request: google_protobuf_empty_pb.Empty,
-    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.GetCapabilitiesResponse>;
-
-  getCapabilities(
-    request: google_protobuf_empty_pb.Empty,
-    metadata: grpcWeb.Metadata | null,
-    callback: (err: grpcWeb.RpcError,
-               response: identity_pb.GetCapabilitiesResponse) => void): grpcWeb.ClientReadableStream<identity_pb.GetCapabilitiesResponse>;
-
-  getCapabilities(
-    request: google_protobuf_empty_pb.Empty,
-    metadata?: grpcWeb.Metadata | null,
-    callback?: (err: grpcWeb.RpcError,
-               response: identity_pb.GetCapabilitiesResponse) => void) {
-    if (callback !== undefined) {
-      return this.client_.rpcCall(
-        this.hostname_ +
-          '/fonoster.identity.v1beta2.Identity/GetCapabilities',
-        request,
-        metadata || {},
-        this.methodDescriptorGetCapabilities,
-        callback);
-    }
-    return this.client_.unaryCall(
-    this.hostname_ +
-      '/fonoster.identity.v1beta2.Identity/GetCapabilities',
-    request,
-    metadata || {},
-    this.methodDescriptorGetCapabilities);
-  }
-
 }
 

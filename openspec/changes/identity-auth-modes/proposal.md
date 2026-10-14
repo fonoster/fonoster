@@ -13,9 +13,11 @@ variables. Identity also has weaknesses that passwordless sign-in would make wor
 
 ## What Changes
 
-- **`GetCapabilities`** (public RPC): what this deployment supports, without secrets: sign-in
-  methods, sign-up policy, GitHub client id and authorize URL, and product flags the host passes in
-  (billing, cost display). The dashboard renders from it instead of build-time variables.
+- **`Capabilities/GetCapabilities`** (public apiserver RPC): what this deployment supports, read
+  from `fonoster.yaml`, without secrets: sign-in methods, sign-up policy, GitHub client id and
+  authorize URL, billing, cost display, domain and app URL. The dashboard renders from it instead of
+  build-time variables. It lives in the apiserver, which owns `fonoster.yaml`; Identity only
+  enforces the sign-in settings it is given.
 - **`ExchangeVerificationCode`** (public RPC): trades an emailed 6-digit code for tokens. Creates
   the user on first sign-in when sign-up is open or an invite is pending. Requires `email_code`.
 - **Method enforcement:** credentials exchange requires `password`; GitHub exchanges require
@@ -38,7 +40,11 @@ root of `identity.json`) is unchanged.
 
 ### Modified Capabilities
 
-- `identity`: sign-in methods, capabilities, verification codes, password storage.
+- `identity`: sign-in methods, verification codes, password storage.
+
+### New Capabilities
+
+- `capabilities`: the apiserver's public description of the deployment.
 
 ## Impact
 

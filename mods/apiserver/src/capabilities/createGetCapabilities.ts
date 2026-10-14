@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IdentityConfig } from "../exchanges/types";
-import { isMethodEnabled } from "../utils/authMethods";
+import { FonosterConfig, getAppUrl } from "../config";
 
 const GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize";
 
@@ -27,32 +26,35 @@ type GetCapabilitiesResponse = {
     signup: string;
     github?: { clientId: string; authorizeUrl: string };
   };
-  product: Record<string, string>;
+  billing: { enabled: boolean };
+  costs: { display: string };
+  domain: string;
+  appUrl: string;
 };
 
 /**
- * What this deployment supports, for clients that render sign-in and
- * product features from it. Public, so it must never include a secret: only
- * the GitHub client id is exposed, never the client secret.
+ * What this deployment supports, from fonoster.yaml, for clients that render
+ * sign-in and product features from it. Public, so it must never include a
+ * secret: only the GitHub client id is exposed, never the client secret.
  */
-function createGetCapabilities(identityConfig: IdentityConfig) {
-  const { auth, githubOauth2Config, capabilities } = identityConfig;
+function createGetCapabilities(config: FonosterConfig) {
+  const { auth, billing, costs } = config.features;
+  const githubOAuth = config.identity.oauth2?.github;
   const github =
-    isMethodEnabled(identityConfig, "github") && githubOauth2Config
-      ? {
-          clientId: githubOauth2Config.clientId,
-          authorizeUrl: GITHUB_AUTHORIZE_URL
-        }
+    auth.methods.includes("github") && githubOAuth
+      ? { clientId: githubOAuth.clientId, authorizeUrl: GITHUB_AUTHORIZE_URL }
       : undefined;
 
   const response: GetCapabilitiesResponse = {
     auth: {
-      // github is listed only when it can actually be used.
-      methods: auth.methods.filter((m) => m !== "github" || github),
+      methods: [...auth.methods],
       signup: auth.signup,
       github
     },
-    product: { ...(capabilities ?? {}) }
+    billing: { enabled: billing.enabled },
+    costs: { display: costs.display },
+    domain: config.domain,
+    appUrl: getAppUrl(config)
   };
 
   return async (

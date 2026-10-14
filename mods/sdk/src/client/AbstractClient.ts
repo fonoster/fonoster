@@ -18,6 +18,7 @@
  */
 import { ContactType } from "@fonoster/types";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { GetCapabilitiesResponse as GetCapabilitiesResponsePB } from "../generated/node/capabilities_pb";
 import {
   ContactType as ContactTypePB,
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
@@ -28,7 +29,6 @@ import {
   ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
   ExchangeVerificationCodeRequest as ExchangeVerificationCodeRequestPB,
   ExchangeVerificationCodeResponse as ExchangeVerificationCodeResponsePB,
-  GetCapabilitiesResponse as GetCapabilitiesResponsePB,
   SendVerificationCodeRequest as SendVerificationCodeRequestPB,
   VerifyCodeRequest as VerifyCodeRequestPB
 } from "../generated/node/identity_pb";
@@ -36,6 +36,7 @@ import { makeRpcRequest } from "./makeRpcRequest";
 import {
   ApplicationsClient,
   CallsClient,
+  CapabilitiesClient,
   FonosterClient,
   IdentityClient,
   SecretsClient
@@ -49,14 +50,17 @@ import { TrunksClient } from "./types/TrunksClient";
 
 type AuthMethod = "password" | "email_code" | "github";
 
-/** The deployment's capabilities, from GetCapabilities. */
+/** The deployment's capabilities, from the Capabilities service. */
 type Capabilities = {
   auth: {
     methods: AuthMethod[];
     signup: "invite" | "open";
     github?: { clientId: string; authorizeUrl: string };
   };
-  product: Record<string, string>;
+  billing: { enabled: boolean };
+  costs: { display: "none" | "usage" | "prices" };
+  domain: string;
+  appUrl: string;
 };
 
 abstract class AbstractClient implements FonosterClient {
@@ -202,12 +206,13 @@ abstract class AbstractClient implements FonosterClient {
   }
 
   /**
-   * What the server supports: sign-in methods, sign-up policy, the GitHub
-   * client id (when enabled) and product flags. Needs no credentials.
+   * What the deployment supports (from the server's fonoster.yaml): sign-in
+   * methods, sign-up policy, the GitHub client id when enabled, billing, cost
+   * display, domain and app URL. Needs no credentials.
    */
   async getCapabilities(): Promise<Capabilities> {
     return new Promise((resolve, reject) => {
-      this.identityClient.getCapabilities(
+      this.getCapabilitiesClient().getCapabilities(
         new Empty(),
         {},
         (error: Error | null, response: GetCapabilitiesResponsePB) => {
@@ -218,10 +223,6 @@ abstract class AbstractClient implements FonosterClient {
 
           const auth = response.getAuth();
           const github = auth?.getGithub();
-          const product: Record<string, string> = {};
-          response.getProductMap().forEach((value, key) => {
-            product[key] = value;
-          });
 
           resolve({
             auth: {
@@ -235,7 +236,13 @@ abstract class AbstractClient implements FonosterClient {
                   }
                 : undefined
             },
-            product
+            billing: { enabled: response.getBilling()?.getEnabled() ?? false },
+            costs: {
+              display: (response.getCosts()?.getDisplay() ||
+                "none") as Capabilities["costs"]["display"]
+            },
+            domain: response.getDomain(),
+            appUrl: response.getAppUrl()
           });
         }
       );
@@ -321,6 +328,7 @@ abstract class AbstractClient implements FonosterClient {
   abstract getMetadata(): unknown;
   abstract getApplicationsClient(): ApplicationsClient;
   abstract getIdentityClient(): IdentityClient;
+  abstract getCapabilitiesClient(): CapabilitiesClient;
   abstract getSecretsClient(): SecretsClient;
   abstract getAgentsClient(): AgentsClient;
   abstract getNumbersClient(): NumbersClient;

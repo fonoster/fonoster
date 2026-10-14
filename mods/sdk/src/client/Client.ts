@@ -26,6 +26,7 @@ import { AclsClient } from "../generated/node/acls_grpc_pb";
 import { AgentsClient } from "../generated/node/agents_grpc_pb";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
 import { CallsClient } from "../generated/node/calls_grpc_pb";
+import { CapabilitiesClient } from "../generated/node/capabilities_grpc_pb";
 import { CredentialsServiceClient } from "../generated/node/credentials_grpc_pb";
 import { DomainsClient } from "../generated/node/domains_grpc_pb";
 import { IdentityClient } from "../generated/node/identity_grpc_pb";
@@ -96,6 +97,10 @@ export class Client extends AbstractClient {
 
   getIdentityClient() {
     return new IdentityClient(this.endpoint, this.channelCredentials);
+  }
+
+  getCapabilitiesClient() {
+    return new CapabilitiesClient(this.endpoint, this.channelCredentials);
   }
 
   getSecretsClient() {

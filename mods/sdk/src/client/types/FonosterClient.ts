@@ -20,6 +20,7 @@ import { AclsClient } from "./AclsClient";
 import { AgentsClient } from "./AgentsClient";
 import { ApplicationsClient } from "./ApplicationsClient";
 import { CallsClient } from "./CallsClient";
+import { CapabilitiesClient } from "./CapabilitiesClient";
 import { CredentialsClient } from "./CredentialsClient";
 import { DomainsClient } from "./DomainsClient";
 import { IdentityClient } from "./IdentityClient";
@@ -33,6 +34,7 @@ interface FonosterClient {
   getApplicationsClient(): ApplicationsClient;
   getCallsClient(): CallsClient;
   getIdentityClient(): IdentityClient;
+  getCapabilitiesClient(): CapabilitiesClient;
   getSecretsClient(): SecretsClient;
   getAgentsClient(): AgentsClient;
   getNumbersClient(): NumbersClient;

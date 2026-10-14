@@ -36,8 +36,6 @@ type IdentityConfigInputs = {
   smtp?: SmtpConfigSection;
   twilio?: TwilioConfigSection;
   auth?: AuthFeatures;
-  /** Product flags exposed by GetCapabilities. */
-  capabilities?: Record<string, string>;
 };
 
 function readKey(inline: string | undefined, path: string | undefined): string {
@@ -101,7 +99,6 @@ function toIdentityConfig(inputs: IdentityConfigInputs): IdentityConfig {
     // package's non-strict tsconfig.
     githubOauth2Config: identity.oauth2
       ?.github as IdentityConfig["githubOauth2Config"],
-    capabilities: inputs.capabilities,
     auth: (inputs.auth ?? {
       methods: ["password"],
       signup: "invite"

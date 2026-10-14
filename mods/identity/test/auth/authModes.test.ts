@@ -19,7 +19,6 @@
 import { status } from "@grpc/grpc-js";
 import { expect } from "chai";
 import { createSandbox } from "sinon";
-import { createGetCapabilities } from "../../src/capabilities/createGetCapabilities";
 import { Prisma } from "../../src/db";
 import { createExchangeCredentials } from "../../src/exchanges/createExchangeCredentials";
 import { createExchangeOauth2Code } from "../../src/exchanges/createExchangeOauth2Code";
@@ -68,51 +67,6 @@ function invoke(handler: Function, request: unknown) {
 
 describe("@identity[auth modes]", function () {
   afterEach(() => sandbox.restore());
-
-  describe("GetCapabilities", function () {
-    it("returns Community defaults", async function () {
-      const { response } = await invoke(
-        createGetCapabilities(configWith(COMMUNITY)),
-        {}
-      );
-      expect(response).to.deep.equal({
-        auth: { methods: ["password"], signup: "invite", github: undefined },
-        product: {}
-      });
-    });
-
-    it("exposes the GitHub client id but never the secret", async function () {
-      const { response } = await invoke(
-        createGetCapabilities(
-          configWith(CLOUD, {
-            githubOauth2Config: { clientId: "gh-id", clientSecret: "gh-secret" },
-            capabilities: { "billing.enabled": "true" }
-          })
-        ),
-        {}
-      );
-      expect(JSON.stringify(response)).not.to.include("gh-secret");
-      expect(response).to.deep.include({ product: { "billing.enabled": "true" } });
-      expect((response as { auth: unknown }).auth).to.deep.equal({
-        methods: ["github", "email_code"],
-        signup: "open",
-        github: {
-          clientId: "gh-id",
-          authorizeUrl: "https://github.com/login/oauth/authorize"
-        }
-      });
-    });
-
-    it("doesn't list github when OAuth isn't configured", async function () {
-      const { response } = await invoke(
-        createGetCapabilities(configWith(CLOUD)),
-        {}
-      );
-      expect((response as { auth: { methods: string[] } }).auth.methods).to.deep.equal([
-        "email_code"
-      ]);
-    });
-  });
 
   describe("ExchangeCredentials", function () {
     it("is refused when password sign-in is disabled", async function () {

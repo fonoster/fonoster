@@ -78,13 +78,7 @@ function getIdentityConfig(): IdentityConfig {
       encryptionKey: config.encryption.key,
       smtp: config.smtp,
       twilio: config.twilio,
-      auth: config.features.auth,
-      capabilities: {
-        domain: config.domain,
-        appUrl: getAppUrl(config),
-        "billing.enabled": String(config.features.billing.enabled),
-        "costs.display": config.features.costs.display
-      }
+      auth: config.features.auth
     });
   }
   return identityConfig;

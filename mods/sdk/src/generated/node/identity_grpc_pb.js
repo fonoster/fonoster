@@ -276,17 +276,6 @@ function deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse(
   return identity_pb.ExchangeVerificationCodeResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_identity_v1beta2_GetCapabilitiesResponse(arg) {
-  if (!(arg instanceof identity_pb.GetCapabilitiesResponse)) {
-    throw new Error('Expected argument of type fonoster.identity.v1beta2.GetCapabilitiesResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonoster_identity_v1beta2_GetCapabilitiesResponse(buffer_arg) {
-  return identity_pb.GetCapabilitiesResponse.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_fonoster_identity_v1beta2_GetPublicKeyResponse(arg) {
   if (!(arg instanceof identity_pb.GetPublicKeyResponse)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.GetPublicKeyResponse');
@@ -943,18 +932,6 @@ getPublicKey: {
     requestDeserialize: deserialize_google_protobuf_Empty,
     responseSerialize: serialize_fonoster_identity_v1beta2_GetPublicKeyResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_GetPublicKeyResponse,
-  },
-  // What this deployment supports (sign-in methods, sign-up policy, product flags); no secrets
-getCapabilities: {
-    path: '/fonoster.identity.v1beta2.Identity/GetCapabilities',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: identity_pb.GetCapabilitiesResponse,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_fonoster_identity_v1beta2_GetCapabilitiesResponse,
-    responseDeserialize: deserialize_fonoster_identity_v1beta2_GetCapabilitiesResponse,
   },
 };
 

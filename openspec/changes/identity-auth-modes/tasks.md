@@ -2,8 +2,9 @@
 
 ## 1. Protocol and SDK
 - [x] 1.1 `identity.proto`: `ExchangeVerificationCode{email, code}` → `ExchangeVerificationCodeResponse`
-      (tokens), `GetCapabilities(Empty)` → `GetCapabilitiesResponse`; validators in `mods/common`
-- [x] 1.2 Both on `identityAllowList`
+      (tokens); validators in `mods/common`. `capabilities.proto`: `Capabilities/GetCapabilities`
+      (apiserver service, typed response)
+- [x] 1.2 `ExchangeVerificationCode` on `identityAllowList`
 - [x] 1.3 SDK: `client.loginWithVerificationCode(email, code)`, `client.getCapabilities()` (exercised
       live; SDK has no unit-test harness for identity calls)
 
@@ -27,8 +28,8 @@
 - [x] 4.1 Enforce methods in each exchange
 - [x] 4.2 `ExchangeVerificationCode` with sign-up policy and pending invites
 - [x] 4.3 GitHub: primary verified email via `/user/emails`; sign-up policy on first sign-in
-- [x] 4.4 `GetCapabilities` with host-provided product flags; apiserver passes billing/costs/domain/appUrl
-- [x] 4.5 Tests per factory: methods on/off, signup invite vs open, capabilities expose no secrets
+- [x] 4.4 `GetCapabilities` in the apiserver (`src/capabilities`), from `fonoster.yaml`; on its allow-list
+- [x] 4.5 Tests: methods on/off, signup invite vs open (identity); capabilities expose no secrets (apiserver)
 
 ## 5. Verification
 - [x] 5.1 Unit tests pass across modules (485)

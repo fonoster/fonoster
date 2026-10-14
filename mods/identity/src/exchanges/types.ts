@@ -59,11 +59,6 @@ type IdentityConfig = {
     methods: Array<"password" | "email_code" | "github">;
     signup: "invite" | "open";
   };
-  /**
-   * Product flags the host passes through GetCapabilities (e.g. billing.enabled,
-   * costs.display, domain). Identity doesn't interpret them.
-   */
-  capabilities?: Record<string, string>;
 };
 
 type ExchangeApiKeysRequest = z.infer<typeof V.exchangeApiKeysRequestSchema>;

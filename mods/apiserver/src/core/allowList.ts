@@ -23,7 +23,8 @@ import { identityAllowList } from "@fonoster/identity";
 // non-identity public methods.
 const allowList = [
   ...identityAllowList,
-  "/fonoster.voice.v1beta2.Voice/CreateSession"
+  "/fonoster.voice.v1beta2.Voice/CreateSession",
+  "/fonoster.capabilities.v1beta2.Capabilities/GetCapabilities"
 ];
 
 export { allowList };

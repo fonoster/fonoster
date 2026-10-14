@@ -70,8 +70,9 @@ features:
 
 Community ships with `[password]` and `invite`; Fonoster Cloud uses
 `[github, email_code]` and `open`. Clients read the active settings from the
-public `GetCapabilities` RPC (`client.getCapabilities()` in the SDK), which
-never returns secrets.
+API server's public `Capabilities/GetCapabilities` RPC (`client.getCapabilities()`
+in the SDK), which also reports billing, cost display, domain and app URL, and
+never returns secrets. Identity enforces `features.auth` but doesn't report it.
 
 Code sends are limited to 3 per email and 20 per client IP every 10 minutes.
 The limits are kept in each process's memory, so with several replicas each

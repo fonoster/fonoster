@@ -62,9 +62,6 @@ service Identity {
 
   // Get the public key for verifying JWTs
   rpc GetPublicKey (google.protobuf.Empty) returns (GetPublicKeyResponse) {}
-
-  // What this deployment supports (sign-in methods, sign-up policy, product flags); no secrets
-  rpc GetCapabilities (google.protobuf.Empty) returns (GetCapabilitiesResponse) {}
 }
 
 // Workspace Resources
@@ -372,24 +369,4 @@ message ExchangeVerificationCodeResponse {
   string id_token = 1;
   string access_token = 2;
   string refresh_token = 3;
-}
-
-message GitHubCapability {
-  string client_id = 1;
-  string authorize_url = 2;
-}
-
-message AuthCapabilities {
-  // password | email_code | github
-  repeated string methods = 1;
-  // invite | open
-  string signup = 2;
-  // Set when github is among the methods
-  GitHubCapability github = 3;
-}
-
-message GetCapabilitiesResponse {
-  AuthCapabilities auth = 1;
-  // Flags the hosting product passes through (e.g. billing.enabled, costs.display, domain)
-  map<string, string> product = 2;
 }

@@ -28,6 +28,8 @@ import {
 import { buildApplicationsService } from "../applications";
 import { buildCallsService } from "../calls";
 import { influxdb } from "../calls/influxdb";
+import { buildCapabilitiesService } from "../capabilities";
+import { getConfig } from "../config";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";
 import { buildWelcomeDemoService } from "./buildWelcomeDemoService";
@@ -50,6 +52,7 @@ const numbersService = buildNumbersService(
 );
 const aclsService = buildAclsService(routrConfig);
 const welcomeDemoService = buildWelcomeDemoService();
+const capabilitiesService = buildCapabilitiesService(getConfig());
 
 const services = Promise.all([
   applicationsService,
@@ -62,7 +65,8 @@ const services = Promise.all([
   numbersService,
   trunksService,
   domainsService,
-  welcomeDemoService
+  welcomeDemoService,
+  capabilitiesService
 ]);
 
 export default services;

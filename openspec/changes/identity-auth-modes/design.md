@@ -8,13 +8,18 @@ but nothing reads it.
 ## Decisions
 
 ### Capabilities
-`GetCapabilities(Empty)` returns:
-- `auth.methods` (`password` | `email_code` | `github`) and `auth.signup` (`invite` | `open`)
-- `auth.github.clientId` and `authorizeUrl` when GitHub is enabled (never the secret)
-- `product`: free-form flags the host passes through `IdentityConfig.capabilities` (the apiserver
-  passes `billing.enabled`, `costs.display`, `domain` and `appUrl`; standalone passes nothing).
+`fonoster.capabilities.v1beta2.Capabilities/GetCapabilities(Empty)` is an apiserver service, built
+from `fonoster.yaml`:
+- `auth.methods` (`password` | `email_code` | `github`) and `auth.signup` (`invite` | `open`) from
+  `features.auth`
+- `auth.github.clientId` and `authorizeUrl` when GitHub is enabled and `identity.oauth2.github` is
+  set (never the secret)
+- `billing.enabled`, `costs.display`, `domain`, `appUrl`
 
-It is on the public allow-list. Identity stays product-agnostic: it doesn't know what "billing" means.
+It is on the apiserver's public allow-list. Identity has no such RPC: it receives `features.auth`
+through `IdentityConfig.auth` and enforces it (see Enforcement), but describing the deployment is the
+apiserver's job because it owns the file. Standalone Identity's consumers configure it themselves,
+so they already know its settings.
 
 ### Email codes
 - `SendVerificationCode` keeps its request shape. For sign-in, the dashboard sends it for an email
