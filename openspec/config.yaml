@@ -21,7 +21,7 @@ context: |
     config loader (`src/config/`).
   - `mods/autopilot` — the AI voice agent runtime, deployed and scaled separately from the
     apiserver.
-  - `mods/dashboard` — React Router 7 (SSR) web app; the browser SDK talks to the apiserver.
+  - `mods/dashboard` — web app (being rebuilt as a plain Vite SPA in `dashboard-tailwind-migration`); the browser SDK talks gRPC-web to the apiserver through Envoy.
   - `mods/logger` — shared winston logger used by every service.
 
   Fonoster ships as three deployables — **apiserver** (with Identity embedded), **autopilot**,

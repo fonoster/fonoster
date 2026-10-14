@@ -1,0 +1,87 @@
+# Tasks
+
+Every screen from section 3 on is done when it has:
+- stories for each state × {community, cloud} × {dark, light}
+- Vitest tests with the SDK mocked
+- one Playwright path per variant
+- a clean axe check and a clean typecheck
+- its old MUI page deleted
+
+## 1. Foundation
+
+- [ ] 1.1 Replace the framework app with plain Vite:
+  - `index.html`, `src/main.tsx`, `vite.config.ts` (`@vitejs/plugin-react`, `@tailwindcss/vite`, alias `~/`)
+  - remove `react-router.config.ts`, `root.tsx` and the `*.server.ts` / `*.action.tsx` files
+  - drop the MUI, Emotion and `@react-router/*` dependencies
+- [ ] 1.2 Runtime config:
+  - `public/config.js` (dev), and `src/lib/runtime.ts` validating it with zod
+  - a configuration error page
+  - remove `envPrefix` and `core/sdk/stores/fonoster.config.ts`
+- [ ] 1.3 Tokens:
+  - export the `fonoster.lib.pen` variables to `designs/tokens.json` using the Pencil tools
+  - `scripts/gen-tokens.ts` → `src/styles/tokens.css` (dark default, light), mapped with `@theme inline`
+  - a test fails when the CSS is out of date
+  - fonts through `@fontsource`; `/theme.js` sets the theme before the first paint
+- [ ] 1.4 shadcn base in `src/components/ui`: Button, Input, Label, Card, Separator, InputOTP, Form (react-hook-form + zod), Dialog, DropdownMenu, Tooltip, Tabs, Avatar, Skeleton, Sonner
+- [ ] 1.5 `CapabilitiesProvider` + `useCapabilities()`: a splash screen while loading, the error page with retry, typed from the SDK `Capabilities`
+- [ ] 1.6 `src/lib/auth.tsx`:
+  - `AuthProvider`, `useAuth`, `RequireAuth`
+  - `localStorage["fonoster.session"]` with the SDK token refresh written back, `next` redirect
+  - sign-out clears the session, the remembered workspace and the query cache
+- [ ] 1.7 Test tooling:
+  - Vitest with jsdom and Testing Library
+  - Storybook 8 react-vite with theme and capabilities decorators, test-runner with axe
+  - Playwright `community` and `cloud` projects with gRPC-web fixtures through `page.route`
+- [ ] 1.8 Image:
+  - multi-stage build into `nginx:alpine` on :3030
+  - `default.conf` with the SPA fallback, cache headers and CSP; `40-fonoster-config.sh` writes `config.js` and the CSP include
+  - update compose, `.env.example*` and CI (remove the dashboard build args and `SERVER_DASHBOARD_SESSION_SECRET`)
+
+## 2. Sign-in (review checkpoint)
+
+- [ ] 2.1 Sign in, Community (email + password, error state) and Cloud (GitHub + email code), chosen from `auth.methods`
+- [ ] 2.2 Check email: 6-digit InputOTP, 30 s resend cooldown, invalid and too-many-attempts states
+- [ ] 2.3 GitHub redirect and `/auth/github/callback` with the `sessionStorage` nonce check
+- [ ] 2.4 Forgot password and Reset password
+- [ ] 2.5 Sign up (only when `signup: open` with `password`)
+- [ ] 2.6 Accept invite sign-in, and a Set password screen that can't be skipped, enforced by `mustChangePassword`
+- [ ] 2.7 Workspace landing: Select, Empty → Create workspace, remembered workspace
+
+## 3. App shell (review checkpoint)
+
+- [ ] 3.1 `AppShell`: sidebar of 240 px, or 64 px collapsed (remembered), with a top bar and user menu
+- [ ] 3.2 Workspace switcher at the top of the sidebar, a compact avatar when collapsed, and "Create workspace"
+- [ ] 3.3 Navigation follows `sidebar-navigation` from the designs; the active item uses `sidebar-accent`; Billing follows `billing.enabled`
+- [ ] 3.4 Profile and sign-out
+
+## 4. Screens backed by existing APIs
+
+- [ ] 4.1 Agents: list, create dialog with templates, Configure / Tools / Advanced tabs
+- [ ] 4.2 Talk to agent drawer (`use-sip.ts` + `createTestToken`)
+- [ ] 4.3 Voice apps
+- [ ] 4.4 Numbers, with the routing drawer (agent, voice app, SIP user)
+- [ ] 4.5 Trunks
+- [ ] 4.6 Domains, SIP users (agents), ACLs, credentials
+- [ ] 4.7 Secrets and API keys (each secret is shown once)
+- [ ] 4.8 Settings: General, Members (invite, resend, remove), Billing when `billing.enabled`
+- [ ] 4.9 Calls list and detail (CDR fields; cost only when `costs.display`)
+- [ ] 4.10 Overview
+
+## 5. Backend gaps (each gets its own OpenSpec change first)
+
+- [ ] 5.1 `appRef` on CDRs, and the calls filters by agent or app
+- [ ] 5.2 Workspace member count and last activity on the Select cards
+- [ ] 5.3 The user's pending invites on the landing screen
+- [ ] 5.4 Member role update
+- [ ] 5.5 Endpoint health, and call stats for Overview
+- [ ] 5.6 Transcripts and latency (conversation event store)
+- [ ] 5.7 Agent evals and knowledge upload
+- [ ] 5.8 Cost model
+- [ ] 5.9 Two-step sign-in (2FA)
+
+## 6. Cleanup and verification
+
+- [ ] 6.1 `grep -r "@mui\|@emotion\|react-router\"" mods/dashboard/src` is empty, and the old design-system folder is gone
+- [ ] 6.2 `npm run typecheck`, `vitest run`, `test-storybook` and `playwright test` pass for both projects
+- [ ] 6.3 Live check against the local stack, for Community (password) and Cloud (email code; GitHub with a real OAuth app when credentials are available)
+- [ ] 6.4 The image runs with only `DASHBOARD_API_URL`; the CSP header is present and inline scripts are blocked
