@@ -12,7 +12,7 @@ Today:
 - **Logger:** `mods/logger` reads `*_LOGS_*` env at import time, and `getEnv` returns the first variable ending in the key.
 - **Branch `next`:** commit `31f6c6021` added `mods/common/src/config/` (a YAML loader, `${VAR}` interpolation and the integrations schema, with 20 tests) and moved Autopilot onto it.
 
-The target files are drafted in `config-proposal/` (fonoster.yaml, fonoster.jsonc, autopilot.yaml, integrations.example.yaml, .env.example, compose.example.yaml). Its README maps every variable to its new key.
+The example files are `config/fonoster.example.yaml`, `config/fonoster.example.jsonc` and `config/autopilot.example.yaml`. `docs/configuration.md` maps every old variable to its new key.
 
 ## Goals / Non-Goals
 
