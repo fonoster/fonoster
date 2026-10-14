@@ -64,7 +64,9 @@ Every screen from section 3 on is done when it has:
 - [x] 4.6 Domains, SIP users (agents), ACLs, credentials
 - [x] 4.7 Secrets and API keys (each secret is shown once)
 - [x] 4.8 Settings: General, Members (invite, resend, remove), Billing when `billing.enabled`
-- [ ] 4.9 Calls list and detail (CDR fields; cost only when `costs.display`)
+- [x] 4.9 Calls list and detail (CDR fields; cost only when `costs.display`)
+  - date range and status filters run on the server, kept in the URL; Export CSV of the loaded rows; Export JSON of one record
+  - not built, waiting on the API: "Handled by" and the agent/app filter (5.1), a direction filter and a total count (`ListCalls` has neither), recording/transcript/response time (5.6) and the cost split (5.8), shown as coming soon
 - [ ] 4.10 Overview
 
 ## 5. Backend gaps (each gets its own OpenSpec change first)

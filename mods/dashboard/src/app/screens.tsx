@@ -34,5 +34,6 @@ export const SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
   domains: lazy(() => import("~/domains")),
   "sip-users": lazy(() => import("~/sip-users")),
   acls: lazy(() => import("~/acls")),
-  credentials: lazy(() => import("~/credentials"))
+  credentials: lazy(() => import("~/credentials")),
+  calls: lazy(() => import("~/calls"))
 };

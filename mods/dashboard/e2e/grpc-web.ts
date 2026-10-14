@@ -34,6 +34,7 @@ export const identity: any = pb("identity");
 export const capabilities: any = pb("capabilities");
 export const applications: any = pb("applications");
 export const numbers: any = pb("numbers");
+export const calls: any = pb("calls");
 export const struct: any = require(join(dirname(require.resolve("google-protobuf/package.json", { paths: [sdkDir] })), "google/protobuf/struct_pb.js"));
 const empty: any = require(join(dirname(require.resolve("google-protobuf/package.json", { paths: [sdkDir] })), "google/protobuf/empty_pb.js"));
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -119,4 +120,34 @@ export const emptyReply = () => new empty.Empty();
 
 export function grpcError(code: number, message: string) {
   return { error: { code, message } };
+}
+
+/** A call record as the API sends it: epoch seconds and enum numbers. */
+export function callRecord(fields: {
+  ref: string;
+  from: string;
+  to: string;
+  startedAt: number;
+  duration: number;
+  direction: "FROM_PSTN" | "TO_PSTN";
+  status: keyof typeof calls.CallStatus;
+  amdStatus?: "HUMAN" | "MACHINE";
+}) {
+  const record = new calls.CallDetailRecord();
+  record.setRef(fields.ref);
+  record.setCallId(`call-${fields.ref}`);
+  record.setType(fields.direction === "TO_PSTN" ? calls.CallType.API_ORIGINATED : calls.CallType.SIP_ORIGINATED);
+  record.setStatus(calls.CallStatus[fields.status]);
+  record.setStartedAt(fields.startedAt);
+  record.setEndedAt(fields.startedAt + fields.duration);
+  record.setFrom(fields.from);
+  record.setTo(fields.to);
+  record.setDuration(fields.duration);
+  record.setDirection(calls.CallDirection[fields.direction]);
+  if (fields.amdStatus) {
+    record.setAmdStatus(calls.CallDetailRecord.AmdStatus[fields.amdStatus]);
+    record.setAmdConfidence(0.9);
+    record.setAmdLatencyMs(640);
+  }
+  return record;
 }

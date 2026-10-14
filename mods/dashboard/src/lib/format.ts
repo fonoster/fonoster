@@ -50,3 +50,10 @@ export function formatDate(
     ? SHORT.format(date)
     : LONG.format(date);
 }
+
+/** "tel:+18295550110" or "+18295550110" → "+1 829 555 0110"; other numbers stay as they are. */
+export function formatNumber(telUrl: string): string {
+  const raw = telUrl.replace(/^tel:/, "");
+  const nanp = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(raw);
+  return nanp ? `+1 ${nanp[1]} ${nanp[2]} ${nanp[3]}` : raw;
+}

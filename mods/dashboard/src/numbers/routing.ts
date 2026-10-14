@@ -76,12 +76,7 @@ export function routeLabel(
   return { kind: route.kind, label: app?.name ?? route.to };
 }
 
-/** "tel:+18295550199" → "+1 829 555 0199"; other numbers keep their digits. */
-export function formatNumber(telUrl: string): string {
-  const raw = telUrl.replace(/^tel:/, "");
-  const nanp = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(raw);
-  return nanp ? `+1 ${nanp[1]} ${nanp[2]} ${nanp[3]}` : raw;
-}
+export { formatNumber } from "~/lib/format";
 
 /** "+1 (809) 555-0177" → "tel:+18095550177". */
 export function toTelUrl(input: string): string {

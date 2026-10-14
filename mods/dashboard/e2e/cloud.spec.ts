@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { ada, expect, identity, test, tokens } from "./fixtures";
+import { callRecord } from "./grpc-web";
 
 test.use({ variant: "cloud" });
 
@@ -62,4 +63,32 @@ test("refuses a GitHub callback it didn't start", async ({ page, api }) => {
   await page.goto("/oauth/github/callback?code=stolen&state=forged");
   await expect(page.getByRole("heading", { name: "Couldn't sign in with GitHub" })).toBeVisible();
   expect(api.callsTo("Identity/ExchangeOauth2Code")).toHaveLength(0);
+});
+
+test("shows a call with the cost panel Cloud has", async ({ page, api }) => {
+  api
+    .on("Identity/ExchangeVerificationCode", () => tokens(ada, identity.ExchangeVerificationCodeResponse))
+    .on("Calls/GetCall", () =>
+      callRecord({
+        ref: "cl-e7f1c2",
+        from: "+18095550142",
+        to: "+18295550199",
+        startedAt: Math.floor(Date.now() / 1000) - 300,
+        duration: 125,
+        direction: "FROM_PSTN",
+        status: "NORMAL_CLEARING"
+      })
+    );
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Work email").fill(ada.email);
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
+  await page.getByLabel("Sign-in code").fill("482913");
+  await expect(page.getByRole("heading", { name: "Choose a workspace" })).toBeVisible();
+
+  await page.goto("/w/ws-1/calls/cl-e7f1c2");
+  await expect(page.getByRole("heading", { name: /\+1 809 555 0142/ })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Summary" }).getByText("2:05")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Answering machine detection" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Cost" })).toBeVisible();
 });

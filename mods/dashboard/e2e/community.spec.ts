@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { ada, expect, identity, test, tokens, workspace } from "./fixtures";
-import { applications, grpcError, numbers, struct } from "./grpc-web";
+import { applications, callRecord, calls, grpcError, numbers, struct } from "./grpc-web";
 
 test.use({ variant: "community" });
 
@@ -146,4 +146,61 @@ test("lists and opens an agent with its saved configuration", async ({ page, api
   await page.getByText("Front desk").click();
   await expect(page.getByLabel("System prompt")).toHaveValue("You are a receptionist.");
   await expect(page.getByLabel("First message")).toHaveValue("Hi, how can I help?");
+});
+
+// Runs the real SDK decoding on call records: epoch seconds, enum numbers.
+test("lists calls, filters by status on the server and opens one", async ({ page, api }) => {
+  const now = Math.floor(Date.now() / 1000);
+  const answered = callRecord({
+    ref: "cl-9b21e7",
+    from: "+18295550199",
+    to: "+18295550110",
+    startedAt: now - 600,
+    duration: 24,
+    direction: "TO_PSTN",
+    status: "NORMAL_CLEARING",
+    amdStatus: "HUMAN"
+  });
+  const busy = callRecord({
+    ref: "cl-4c8e2a",
+    from: "+18095550142",
+    to: "+18295550199",
+    startedAt: now - 1200,
+    duration: 0,
+    direction: "FROM_PSTN",
+    status: "USER_BUSY"
+  });
+  api
+    .on("Identity/ExchangeCredentials", () => tokens(ada))
+    .on("Calls/ListCalls", (request) => {
+      const { status } = calls.ListCallsRequest.deserializeBinary(request).toObject();
+      const list = new calls.ListCallsResponse();
+      list.setItemsList(status === calls.CallStatus.USER_BUSY ? [busy] : [answered, busy]);
+      return list;
+    })
+    .on("Calls/GetCall", () => answered);
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password").fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("link", { name: /Acme Support/ }).click();
+  await page.getByRole("link", { name: "Calls" }).click();
+
+  const table = page.getByRole("table", { name: "Calls" });
+  await expect(table.getByText("+1 829 555 0110")).toBeVisible();
+  await expect(table.getByText("0:24")).toBeVisible();
+  await expect(table.getByText("Human")).toBeVisible();
+  await expect(table.getByText("Busy")).toBeVisible();
+
+  await page.getByRole("combobox", { name: "Status" }).click();
+  await page.getByRole("option", { name: "Busy" }).click();
+  await expect(page).toHaveURL(/status=USER_BUSY/);
+  await expect(table.getByText("+1 829 555 0110")).toHaveCount(0);
+  await expect(table.getByText("+1 809 555 0142")).toBeVisible();
+
+  await page.goto("/w/ws-1/calls/cl-9b21e7");
+  await expect(page.getByRole("heading", { name: /\+1 829 555 0110/ })).toBeVisible();
+  await expect(page.getByText("Answered by human")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Cost" })).toHaveCount(0);
 });

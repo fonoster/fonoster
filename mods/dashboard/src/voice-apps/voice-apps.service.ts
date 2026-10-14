@@ -132,9 +132,4 @@ export function numbersFor(numbers: INumber[] | undefined, appRef: string) {
   return (numbers ?? []).filter((n) => n.appRef === appRef);
 }
 
-/** "tel:+18095550123" / "+18095550123" → "+1 809 555 0123". */
-export function formatNumber(telUrl: string): string {
-  const raw = telUrl.replace(/^tel:/, "");
-  const nanp = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(raw);
-  return nanp ? `+1 ${nanp[1]} ${nanp[2]} ${nanp[3]}` : raw;
-}
+export { formatNumber } from "~/lib/format";
