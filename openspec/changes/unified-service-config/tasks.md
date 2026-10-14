@@ -20,9 +20,9 @@
 
 ## 2. Logger (`mods/logger`)
 
-- [ ] 2.1 `configureLogger({ level, format, transport, fluent })`; existing loggers adopt it
-- [ ] 2.2 Env remains the fallback until `configureLogger` is called
-- [ ] 2.3 Tests: logger created before configuration picks up the new level
+- [x] 2.1 `configureLogger({ level, format, transport, fluent })`; existing loggers adopt it
+- [x] 2.2 Env remains the fallback until `configureLogger` is called
+- [x] 2.3 Tests: logger created before configuration picks up the new level
 
 ## 3. Identity schema (`mods/identity`)
 

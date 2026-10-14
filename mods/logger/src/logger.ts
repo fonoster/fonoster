@@ -17,18 +17,19 @@
  * limitations under the License.
  */
 import winston from "winston";
-import { fluent, format, level, transports } from "./envs";
+import { buildFormat, endFluent, getSettings, getTransports } from "./envs";
+import { register } from "./registry";
 
-const logger = winston.createLogger({
-  levels: winston.config.npm.levels,
-  format,
-  transports,
-  level
-});
+const logger = register(
+  winston.createLogger({
+    levels: winston.config.npm.levels,
+    format: buildFormat(),
+    transports: getTransports(),
+    level: getSettings().level
+  })
+);
 
-logger.on("finish", () => {
-  fluent.sender.end("end", {}, () => {});
-});
+logger.on("finish", endFluent);
 
 const mute = () => logger.transports.forEach((t) => (t.silent = true));
 

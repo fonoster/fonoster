@@ -16,9 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { configureLogger, LoggerOptions } from "./configureLogger";
 import { getLogger } from "./getLogger";
 import logger, { mute, unmute } from "./logger";
 import { ULogType } from "./types";
 import ulogger from "./userLogger";
 
-export { ULogType, logger as default, getLogger, mute, ulogger, unmute };
+export {
+  ULogType,
+  logger as default,
+  configureLogger,
+  getLogger,
+  LoggerOptions,
+  mute,
+  ulogger,
+  unmute
+};
