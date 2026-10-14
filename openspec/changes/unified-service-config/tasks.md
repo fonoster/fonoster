@@ -70,7 +70,10 @@
 
 ## 7. Verification
 
-- [ ] 7.1 Unit tests pass for common, logger, identity, apiserver, autopilot
-- [ ] 7.2 A bad config fails with path and hint; JSONC and YAML load identically
+- [x] 7.1 Unit tests pass for common, logger, identity, apiserver, autopilot (459 passing)
+- [x] 7.2 A bad config fails with path and hint; JSONC and YAML load identically (checked
+      against the built entrypoint: unknown key, moved key, `${VAR}` outside the allow-list,
+      legacy-env warning)
 - [ ] 7.3 `docker compose up` with the example files: apiserver and Autopilot start with no
-      `APISERVER_*` / `AUTOPILOT_*` variables
+      `APISERVER_*` / `AUTOPILOT_*` variables (deferred: run together with
+      `identity-auth-modes` verification; Docker wasn't running)
