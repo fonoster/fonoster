@@ -3,7 +3,9 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --no-audit --no-fund
 COPY . .
-RUN npx vite build
+RUN npx vite build \
+  # The SDK comes from npm; fail if it predates the API calls this build makes.
+  && grep -qr getCapabilities dist/assets
 
 FROM nginx:1.27-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
