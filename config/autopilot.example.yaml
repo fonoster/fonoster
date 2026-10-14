@@ -11,7 +11,9 @@
 
 server:
   bindAddr: 0.0.0.0:50061
-  identityAddress: api.fonoster.com              # where call tokens' public key is fetched (TLS)
+  # Where the public key that verifies call tokens is fetched, over TLS. Use
+  # your own API's public TLS address when you run your own API server.
+  identityAddress: api.fonoster.com
 
 apiserver:
   endpoint: apiserver:50051                      # loads assistants, reports conversations
