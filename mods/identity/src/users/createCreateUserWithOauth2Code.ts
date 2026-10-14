@@ -32,7 +32,7 @@ import {
   isOpenSignup,
   methodDisabledError
 } from "../utils/authMethods";
-import { createGetUserByEmail } from "../utils/createGetUserByEmail";
+import { createGetUserByGitHubEmails } from "../utils/createGetUserByGitHubEmails";
 import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
 import { createUserFromGitHub } from "./createUserFromGitHub";
 
@@ -80,7 +80,9 @@ function createCreateUserWithOauth2Code(
       });
     }
 
-    const userFromDB = await createGetUserByEmail(prisma)(userData.email);
+    const userFromDB = await createGetUserByGitHubEmails(prisma)(
+      userData.verifiedEmails ?? [userData.email]
+    );
 
     if (userFromDB) {
       return callback({

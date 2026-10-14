@@ -30,7 +30,7 @@ import {
   isOpenSignup,
   methodDisabledError
 } from "../utils/authMethods";
-import { createGetUserByEmail } from "../utils/createGetUserByEmail";
+import { createGetUserByGitHubEmails } from "../utils/createGetUserByGitHubEmails";
 import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
 import { exchangeTokens } from "./exchangeTokens";
 import {
@@ -79,7 +79,9 @@ function createExchangeOauth2Code(
     // First GitHub sign-in creates the account when sign-up is open; invited
     // users already exist (the invite created them).
     const user =
-      (await createGetUserByEmail(prisma)(userData.email)) ??
+      (await createGetUserByGitHubEmails(prisma)(
+        userData.verifiedEmails ?? [userData.email]
+      )) ??
       (isOpenSignup(identityConfig)
         ? await createUserFromGitHub(prisma)({
             ...userData,

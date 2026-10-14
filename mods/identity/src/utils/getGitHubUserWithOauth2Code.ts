@@ -27,6 +27,8 @@ type GitHubUser = {
   avatar_url?: string;
   /** The primary verified address, or undefined when there is none. */
   email?: string;
+  /** Every verified address, primary first; used to find an existing user. */
+  verifiedEmails?: string[];
 };
 
 /**
@@ -84,11 +86,18 @@ async function getGitHubUserWithOauth2Code(params: {
     ? emails.find((e) => e.primary && e.verified)
     : undefined;
 
+  const verified = Array.isArray(emails)
+    ? emails.filter((e) => e.verified).map((e) => e.email)
+    : [];
+
   return {
     name: user?.name || user?.login,
     login: user?.login,
     avatar_url: user?.avatar_url,
-    email: primary?.email
+    email: primary?.email,
+    verifiedEmails: primary
+      ? [primary.email, ...verified.filter((e) => e !== primary.email)]
+      : verified
   };
 }
 
