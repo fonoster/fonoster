@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import { STORAGE_KEYS, storage } from "~/lib/storage";
 import { useMediaQuery } from "~/lib/use-media-query";
 import { useWorkspace } from "~/lib/workspace";
@@ -32,6 +32,13 @@ export function AppShell() {
     () => storage.get(STORAGE_KEYS.nav) === "collapsed"
   );
   const collapsed = collapsedByUser || !wide;
+  const content = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
+
+  // The content column is the scroller, so start each page at its top.
+  useEffect(() => {
+    if (content.current) content.current.scrollTop = 0;
+  }, [pathname]);
 
   const toggle = () => {
     const next = !collapsedByUser;
@@ -40,14 +47,19 @@ export function AppShell() {
   };
 
   return (
-    <div className="flex min-h-full bg-background">
+    // The shell is exactly the viewport and only the content column scrolls,
+    // so the sidebar never moves, not even with elastic overscroll.
+    <div className="flex h-dvh overflow-hidden bg-background">
       <Sidebar
         workspace={workspace}
         collapsed={collapsed}
         canExpand={wide}
         onToggle={toggle}
       />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div
+        ref={content}
+        className="relative flex min-w-0 flex-1 flex-col overflow-y-auto overscroll-none"
+      >
         <header className="flex h-14 shrink-0 items-center justify-end gap-4 border-b border-border px-4 font-display text-[13px] text-muted-foreground sm:px-8">
           <a
             href={DOCS_URL}

@@ -72,6 +72,11 @@
   #root {
     @apply h-full;
   }
+  html,
+  body {
+    /* No rubber-band bounce: the app shell scrolls inside, not the page. */
+    overscroll-behavior: none;
+  }
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
