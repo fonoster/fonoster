@@ -42,6 +42,16 @@
     </script>
   </head>
   <body data-page="home" data-icons="assets/img/icons.svg">
+    <!-- Notice bar (temporary): remove with the .notice CSS block and the notice.* strings. -->
+    <div class="notice" role="note">
+      <div class="container notice__in">
+        <p>
+          <svg class="icon notice__icon" aria-hidden="true"><use href="assets/img/icons.svg#i-triangle-alert"></use></svg><strong data-i18n="notice.lead">Major upgrades underway.</strong>
+          <span data-i18n="notice.text">Things may be unstable for a while.<span class="hide-m"> We're pausing contributions for now, but bug reports are welcome.</span></span>
+          <a class="notice__link" href="https://github.com/fonoster/fonoster/issues/new?template=bug_report.yaml"><span data-i18n="notice.cta">Report a bug</span><svg class="icon" aria-hidden="true"><use href="assets/img/icons.svg#i-arrow-right"></use></svg></a>
+        </p>
+      </div>
+    </div>
     <header class="nav" data-nav>
       <div class="container nav__in">
         <a class="logo" href="./" aria-label="Fonoster">
