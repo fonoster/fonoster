@@ -73,7 +73,7 @@ All screens are under `/auth/*` and render from `auth.methods` and `auth.signup`
 |---|---|---|
 | Sign in: email + password | `password` | `client.login(email, password)` |
 | Sign in: email → Check email (6 digits, 30 s resend cooldown) | `email_code` | `sendVerificationCode`, `loginWithVerificationCode` |
-| Continue with GitHub | `github` | redirect to `authorizeUrl`, callback `/auth/github/callback` → `loginWithOauth2Code` |
+| Continue with GitHub | `github` | redirect to `authorizeUrl`, callback `/oauth/github/callback` → `loginWithOauth2Code` |
 | Sign up | `signup: open` and `password` | `createUser`, then sign in |
 | Forgot password / Reset password | `password` | `sendResetPasswordCode`, `resetPassword` |
 | Accept invite | link from the invite email | existing accept-invite HTTP bridge → sign in |
@@ -82,6 +82,22 @@ All screens are under `/auth/*` and render from `auth.methods` and `auth.signup`
 - **GitHub state:** a random nonce goes into `sessionStorage` before the redirect, and the callback checks it before exchanging the code. A mismatch shows an error and does not exchange.
 - **Errors:** "invalid credentials" and "invalid code" read the same, so the screens don't reveal whether an account exists. `RESOURCE_EXHAUSTED` shows "Too many attempts, try again in a few minutes".
 - **2FA:** the design (`F3F82S`) needs a two-step exchange that Identity lacks. It is in the gaps.
+
+### Invites
+Invite emails link to `<appUrl>/invites?token=…` (the Identity default). The
+dashboard forwards the token to the API's accept-invite bridge
+(`<apiUrl>/api/identity/accept-invite`, routed by Envoy), which accepts the
+membership and redirects to `appUrl`, or to `/invites/failed`. A
+`sessionStorage` flag set before the redirect shows sign-in's "You're invited"
+variant on the way back; a signed-in user lands on the workspace list, refreshed.
+
+### GitHub in tests
+`identity.oauth2.github.url` / `apiUrl` (defaults `https://github.com` /
+`https://api.github.com`) let Identity and the capabilities' `authorizeUrl` point
+at `.scripts/fake-github.mjs`, a dependency-free stand-in for the authorize page,
+token exchange, `/user` and `/user/emails`. Playwright doesn't need it: it fulfils
+GitHub's authorize URL itself. The callback stays at `/oauth/github/callback`,
+the URL registered on Fonoster Cloud's OAuth app.
 
 ### Workspace landing
 After sign-in, and after Set password when required:

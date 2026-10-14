@@ -9,43 +9,43 @@ Every screen from section 3 on is done when it has:
 
 ## 1. Foundation
 
-- [ ] 1.1 Replace the framework app with plain Vite:
+- [x] 1.1 Replace the framework app with plain Vite:
   - `index.html`, `src/main.tsx`, `vite.config.ts` (`@vitejs/plugin-react`, `@tailwindcss/vite`, alias `~/`)
   - remove `react-router.config.ts`, `root.tsx` and the `*.server.ts` / `*.action.tsx` files
   - drop the MUI, Emotion and `@react-router/*` dependencies
-- [ ] 1.2 Runtime config:
+- [x] 1.2 Runtime config:
   - `public/config.js` (dev), and `src/lib/runtime.ts` validating it with zod
   - a configuration error page
   - remove `envPrefix` and `core/sdk/stores/fonoster.config.ts`
-- [ ] 1.3 Tokens:
+- [x] 1.3 Tokens:
   - export the `fonoster.lib.pen` variables to `designs/tokens.json` using the Pencil tools
   - `scripts/gen-tokens.ts` → `src/styles/tokens.css` (dark default, light), mapped with `@theme inline`
   - a test fails when the CSS is out of date
   - fonts through `@fontsource`; `/theme.js` sets the theme before the first paint
-- [ ] 1.4 shadcn base in `src/components/ui`: Button, Input, Label, Card, Separator, InputOTP, Form (react-hook-form + zod), Dialog, DropdownMenu, Tooltip, Tabs, Avatar, Skeleton, Sonner
-- [ ] 1.5 `CapabilitiesProvider` + `useCapabilities()`: a splash screen while loading, the error page with retry, typed from the SDK `Capabilities`
-- [ ] 1.6 `src/lib/auth.tsx`:
+- [x] 1.4 shadcn base in `src/components/ui`: Button, Input, Label, Card, Separator, InputOTP, Form (react-hook-form + zod), Dialog, DropdownMenu, Tooltip, Tabs, Avatar, Skeleton, Sonner
+- [x] 1.5 `CapabilitiesProvider` + `useCapabilities()`: a splash screen while loading, the error page with retry, typed from the SDK `Capabilities`
+- [x] 1.6 `src/lib/auth.tsx`:
   - `AuthProvider`, `useAuth`, `RequireAuth`
   - `localStorage["fonoster.session"]` with the SDK token refresh written back, `next` redirect
   - sign-out clears the session, the remembered workspace and the query cache
-- [ ] 1.7 Test tooling:
+- [x] 1.7 Test tooling:
   - Vitest with jsdom and Testing Library
   - Storybook 8 react-vite with theme and capabilities decorators, test-runner with axe
   - Playwright `community` and `cloud` projects with gRPC-web fixtures through `page.route`
-- [ ] 1.8 Image:
+- [x] 1.8 Image:
   - multi-stage build into `nginx:alpine` on :3030
   - `default.conf` with the SPA fallback, cache headers and CSP; `40-fonoster-config.sh` writes `config.js` and the CSP include
   - update compose, `.env.example*` and CI (remove the dashboard build args and `SERVER_DASHBOARD_SESSION_SECRET`)
 
 ## 2. Sign-in (review checkpoint)
 
-- [ ] 2.1 Sign in, Community (email + password, error state) and Cloud (GitHub + email code), chosen from `auth.methods`
-- [ ] 2.2 Check email: 6-digit InputOTP, 30 s resend cooldown, invalid and too-many-attempts states
-- [ ] 2.3 GitHub redirect and `/auth/github/callback` with the `sessionStorage` nonce check
-- [ ] 2.4 Forgot password and Reset password
-- [ ] 2.5 Sign up (only when `signup: open` with `password`)
-- [ ] 2.6 Accept invite sign-in, and a Set password screen that can't be skipped, enforced by `mustChangePassword`
-- [ ] 2.7 Workspace landing: Select, Empty → Create workspace, remembered workspace
+- [x] 2.1 Sign in, Community (email + password, error state) and Cloud (GitHub + email code), chosen from `auth.methods`
+- [x] 2.2 Check email: 6-digit InputOTP, 30 s resend cooldown, invalid and too-many-attempts states
+- [x] 2.3 GitHub redirect and `/oauth/github/callback` with the `sessionStorage` nonce check
+- [x] 2.4 Forgot password and Reset password
+- [x] 2.5 Sign up (only when `signup: open` with `password`)
+- [x] 2.6 Accept invite sign-in, and a Set password screen that can't be skipped, enforced by `mustChangePassword`
+- [x] 2.7 Workspace landing: Select, Empty → Create workspace, remembered workspace
 
 ## 3. App shell (review checkpoint)
 

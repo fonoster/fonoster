@@ -1,5 +1,7 @@
-.react-router
-build
 node_modules
-package-lock.json
+dist
+storybook-static
+test-results
+playwright-report
+legacy
 README.md

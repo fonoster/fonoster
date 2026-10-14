@@ -11,6 +11,12 @@ Fonoster is three deployables, each configured on its own:
 Third-party containers (Routr, Asterisk, RTPEngine, AMD, Postgres, InfluxDB,
 NATS, Envoy) keep their environment variables in `.env`.
 
+The dashboard is a static app behind nginx. At start-up it writes `/config.js`
+and its Content-Security-Policy from `DASHBOARD_API_URL` (the API's public URL as
+the browser reaches it, i.e. Envoy); sign-in methods, sign-up, billing and cost
+display come from `features.*` through `GetCapabilities`. Nothing is baked into
+the image, so one image serves Community and Cloud.
+
 ## Quick start
 
 ```bash
@@ -63,7 +69,11 @@ features:
   (5 minutes, single use, 5 wrong guesses at most) that
   `ExchangeVerificationCode` trades for tokens. Needs `smtp`.
 - **`github`**: needs `identity.oauth2.github`. Uses the account's primary
-  verified email.
+  verified email. Register `<appUrl>/oauth/github/callback` as the OAuth app's
+  callback URL. For local and end-to-end testing without a real OAuth app, run
+  the fake GitHub (`node .scripts/fake-github.mjs`, or
+  `docker compose --profile fake-github up fake-github`) and point
+  `identity.oauth2.github.url` and `apiUrl` at `http://localhost:3999`.
 - **`signup: open`** lets people create their own account (password sign-up,
   or on first email-code/GitHub sign-in). With `invite`, only invited users and
   existing accounts can sign in.

@@ -1,40 +1,15 @@
-FROM node:20-alpine AS dev-deps
-COPY . /app
-WORKDIR /app
-RUN npm install
-
-FROM node:20-alpine AS prod-deps
-COPY ./package.json /app/
-WORKDIR /app
-RUN npm install --omit=dev
-
 FROM node:20-alpine AS build
-COPY . /app/
-COPY --from=dev-deps /app/node_modules /app/node_modules
 WORKDIR /app
-ARG DASHBOARD_VERSION
-ARG DASHBOARD_EDITION
-ARG DASHBOARD_API_URL
-ARG DASHBOARD_ALLOW_INSECURE
-ARG DASHBOARD_AUTH_GITHUB_ENABLED
-ARG DASHBOARD_AUTH_GITHUB_CLIENT_ID
-ARG DASHBOARD_AUTH_GITHUB_URL
-ARG DASHBOARD_AUTH_GITHUB_CALLBACK_URL
-ARG DASHBOARD_RESET_PASSWORD_URL
-ENV DASHBOARD_VERSION=${DASHBOARD_VERSION} \
-    DASHBOARD_EDITION=${DASHBOARD_EDITION} \
-    DASHBOARD_API_URL=${DASHBOARD_API_URL} \
-    DASHBOARD_ALLOW_INSECURE=${DASHBOARD_ALLOW_INSECURE} \
-    DASHBOARD_AUTH_GITHUB_ENABLED=${DASHBOARD_AUTH_GITHUB_ENABLED} \
-    DASHBOARD_AUTH_GITHUB_CLIENT_ID=${DASHBOARD_AUTH_GITHUB_CLIENT_ID} \
-    DASHBOARD_AUTH_GITHUB_URL=${DASHBOARD_AUTH_GITHUB_URL} \
-    DASHBOARD_AUTH_GITHUB_CALLBACK_URL=${DASHBOARD_AUTH_GITHUB_CALLBACK_URL} \
-    DASHBOARD_RESET_PASSWORD_URL=${DASHBOARD_RESET_PASSWORD_URL}
-RUN npm run build
+COPY package.json ./
+RUN npm install --no-audit --no-fund
+COPY . .
+RUN npx vite build
 
-FROM node:20-alpine
-COPY ./package.json /app/
-COPY --from=prod-deps /app/node_modules /app/node_modules
-COPY --from=build /app/build /app/build
-WORKDIR /app
-CMD ["npm", "start"]
+FROM nginx:1.27-alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY nginx/40-fonoster-config.sh /docker-entrypoint.d/40-fonoster-config.sh
+# Settings are written at start-up from DASHBOARD_API_URL; none are baked in.
+RUN rm -f /usr/share/nginx/html/config.js \
+  && chmod +x /docker-entrypoint.d/40-fonoster-config.sh
+EXPOSE 3030

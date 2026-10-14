@@ -3,19 +3,23 @@ services:
     build:
       context: mods/dashboard
       dockerfile: ./Dockerfile
-      args:
-        - DASHBOARD_EDITION
-        - DASHBOARD_API_URL
-        - DASHBOARD_ALLOW_INSECURE
-        - DASHBOARD_AUTH_GITHUB_ENABLED
-        - DASHBOARD_AUTH_GITHUB_CLIENT_ID
-        - DASHBOARD_AUTH_GITHUB_URL
-        - DASHBOARD_AUTH_GITHUB_CALLBACK_URL
     ports:
       - 3030:3030
+    # The only setting; sign-in methods and the rest come from the API.
     environment:
-      - NODE_ENV
-      - SERVER_DASHBOARD_SESSION_SECRET
+      - DASHBOARD_API_URL
+
+  # Stand-in for GitHub sign-in (see .scripts/fake-github.mjs). Opt in with
+  # `docker compose --profile fake-github ...` and point identity.oauth2.github
+  # url/apiUrl at http://localhost:3999.
+  fake-github:
+    image: node:20-alpine
+    profiles: [fake-github]
+    command: node /opt/fake-github.mjs
+    volumes:
+      - ./.scripts/fake-github.mjs:/opt/fake-github.mjs:ro
+    ports:
+      - 3999:3999
 
   apiserver:
     build:

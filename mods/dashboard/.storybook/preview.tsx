@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,205 +16,97 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { Preview } from "@storybook/react";
-import React, { useEffect } from "react";
-import {
-  ThemeProvider,
-  useThemeMode
-} from "../src/core/providers/styling/mui.provider";
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/500.css";
+import "@fontsource/poppins/600.css";
+import "@fontsource/roboto-mono/400.css";
+import "@fontsource/roboto-mono/500.css";
+import "../src/styles/app.css";
+import { withThemeByDataAttribute } from "@storybook/addon-themes";
+import type { Decorator, Preview } from "@storybook/react";
+import { fn } from "@storybook/test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { FormProvider, useForm } from "react-hook-form";
-import { FormProvider as FonosterFormProvider } from "../src/core/contexts/form-context";
-import {
-  FormFieldContext,
-  FormItemContext
-} from "../src/core/components/design-system/forms/form.context";
-import fonosterTheme from "./fonoster-theme";
-import { create } from "@storybook/theming/create";
-import "../src/app.css";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { Toaster } from "../src/components/ui/sonner";
+import { TooltipProvider } from "../src/components/ui/tooltip";
+import { AuthOverride, type AuthContextValue } from "../src/lib/auth";
+import { CapabilitiesOverride } from "../src/lib/capabilities";
+import type { Capabilities } from "../src/lib/client";
+import { cloudCapabilities, communityCapabilities } from "../src/lib/fixtures";
+import { RuntimeProvider } from "../src/lib/runtime-context";
+import { createFakeAuth } from "../src/test/fake-auth";
 
-// Create dynamic Storybook themes
-const createStorybookTheme = (mode: "light" | "dark") => {
-  return create({
-    base: mode,
-    brandTitle: "Fonoster Design System",
-    brandUrl: "https://fonoster.com",
-    brandTarget: "_self",
-
-    colorPrimary: "#39E19E",
-    colorSecondary: mode === "dark" ? "#CCEFE1" : "#053204",
-
-    // UI
-    appBg: mode === "dark" ? "#181818" : "#ffffff",
-    appContentBg: mode === "dark" ? "#181818" : "#ffffff",
-    appBorderColor: mode === "dark" ? "#555555" : "#E5E5E5",
-    appBorderRadius: 8,
-
-    // Typography
-    fontBase: '"Inter", sans-serif',
-    fontCode: "monospace",
-
-    // Text colors
-    textColor: mode === "dark" ? "#FFFFFF" : "#1A1A1A",
-    textInverseColor: mode === "dark" ? "#1A1A1A" : "#ffffff",
-
-    // Toolbar colors
-    barTextColor: mode === "dark" ? "#FFFFFF" : "#1A1A1A",
-    barSelectedColor: "#39E19E",
-    barBg: mode === "dark" ? "#252525" : "#ffffff",
-
-    // Form colors
-    inputBg: mode === "dark" ? "#252525" : "#ffffff",
-    inputBorder: mode === "dark" ? "#555555" : "#E5E5E5",
-    inputTextColor: mode === "dark" ? "#FFFFFF" : "#1A1A1A",
-    inputBorderRadius: 8
-  });
+export type ScreenParameters = {
+  /** Route pattern the story's component is mounted at, and the URL to open. */
+  route?: { path?: string; url?: string; state?: unknown };
+  /** Overrides the capabilities chosen in the toolbar. */
+  capabilities?: Capabilities;
+  /** Adjusts the fake session (signed out, with mocked SDK calls, by default). */
+  auth?: (auth: AuthContextValue) => Partial<AuthContextValue> | void;
 };
 
-// Component to provide form context for Storybook
-const FormProviderWrapper = ({ children }: { children: React.ReactNode }) => {
-  const methods = useForm({
-    defaultValues: {
-      // Default values for common form fields
-      name: "",
-      email: "",
-      description: "",
-      value: "",
-      username: "",
-      password: "",
-      confirmPassword: "",
-      phone: "",
-      address: ""
-      // Add more default values as needed
-    }
-  });
+/** Providers every screen needs: runtime, query cache, capabilities, session, router. */
+const withScreen: Decorator = (Story, context) => {
+  const params = (context.parameters.screen ?? {}) as ScreenParameters;
+  const capabilities =
+    params.capabilities ?? (context.globals.variant === "cloud" ? cloudCapabilities : communityCapabilities);
+  const base = createFakeAuth(fn as never);
+  const auth = { ...base, ...(params.auth?.(base) ?? {}) };
+  const path = params.route?.path ?? "/";
+  const url = params.route?.url ?? path;
+  const [pathname, search = ""] = url.split("?");
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
   return (
-    <FormProvider {...methods}>
-      <FonosterFormProvider>{children}</FonosterFormProvider>
-    </FormProvider>
+    <RuntimeProvider value={{ apiUrl: "http://localhost:8449" }}>
+      <QueryClientProvider client={queryClient}>
+        <CapabilitiesOverride value={capabilities}>
+          <AuthOverride value={auth}>
+            <TooltipProvider>
+              <MemoryRouter initialEntries={[{ pathname, search: search && `?${search}`, state: params.route?.state }]}>
+                <Routes>
+                  <Route path={path} element={<Story />} />
+                  <Route path="*" element={<p className="p-6 text-sm">Navigated away from the story.</p>} />
+                </Routes>
+              </MemoryRouter>
+              <Toaster />
+            </TooltipProvider>
+          </AuthOverride>
+        </CapabilitiesOverride>
+      </QueryClientProvider>
+    </RuntimeProvider>
   );
 };
-
-// Component to auto-wrap form components with necessary contexts
-const FormFieldWrapper = ({ children }: { children: React.ReactNode }) => {
-  const methods = useForm({
-    defaultValues: {
-      storybook_field: ""
-    }
-  });
-
-  return (
-    <FormProvider {...methods}>
-      <FonosterFormProvider>
-        <FormFieldContext.Provider value={{ name: "storybook_field" }}>
-          <FormItemContext.Provider value={{ id: "storybook-field-id" }}>
-            {children}
-          </FormItemContext.Provider>
-        </FormFieldContext.Provider>
-      </FonosterFormProvider>
-    </FormProvider>
-  );
-};
-
-// Component to sync Storybook theme with MUI theme
-const ThemeSync = ({
-  theme,
-  children
-}: {
-  theme: string;
-  children: React.ReactNode;
-}) => {
-  const { changeTheme } = useThemeMode();
-
-  useEffect(() => {
-    changeTheme(theme as "light" | "dark");
-  }, [theme, changeTheme]);
-
-  return <>{children}</>;
-};
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false
-    }
-  }
-});
 
 const preview: Preview = {
   parameters: {
-    docs: {
-      theme: fonosterTheme // Default theme, will be overridden dynamically
-    },
-    actions: { argTypesRegex: "^on[A-Z].*" },
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i
-      }
-    },
-    backgrounds: {
-      disable: true
-    },
-    layout: "centered"
+    layout: "fullscreen",
+    backgrounds: { disable: true },
+    a11y: { test: "error" }
   },
-  decorators: [
-    (Story, context) => {
-      const theme = context.globals.theme || "light";
-
-      // Update docs theme dynamically
-      context.parameters.docs = {
-        ...context.parameters.docs,
-        theme: createStorybookTheme(theme as "light" | "dark")
-      };
-
-      // Check if this is a form component that needs FormField wrapper
-      const storyTitle = context.title.toLowerCase();
-      const storyName = context.name.toLowerCase();
-      const isFormComponent =
-        storyTitle.includes("forms/input") ||
-        storyTitle.includes("forms/select") ||
-        storyTitle.includes("forms/textarea") ||
-        storyName.includes("input") ||
-        storyName.includes("select") ||
-        storyName.includes("textarea") ||
-        context.parameters.formField === true;
-
-      return (
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <ThemeSync theme={theme}>
-              {isFormComponent ? (
-                <FormFieldWrapper>
-                  <Story />
-                </FormFieldWrapper>
-              ) : (
-                <FormProviderWrapper>
-                  <Story />
-                </FormProviderWrapper>
-              )}
-            </ThemeSync>
-          </ThemeProvider>
-        </QueryClientProvider>
-      );
-    }
-  ],
   globalTypes: {
-    theme: {
-      description: "Global theme for components",
-      defaultValue: "light",
+    variant: {
+      description: "Deployment capabilities",
       toolbar: {
-        title: "Theme",
-        icon: "paintbrush",
+        title: "Deployment",
+        icon: "globe",
         items: [
-          { value: "light", title: "Light" },
-          { value: "dark", title: "Dark" }
+          { value: "community", title: "Community" },
+          { value: "cloud", title: "Cloud" }
         ],
         dynamicTitle: true
       }
     }
-  }
+  },
+  initialGlobals: { variant: "community" },
+  decorators: [
+    withScreen,
+    withThemeByDataAttribute({
+      themes: { dark: "dark", light: "light" },
+      defaultTheme: "dark",
+      attributeName: "data-theme"
+    })
+  ]
 };
 
 export default preview;

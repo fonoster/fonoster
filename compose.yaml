@@ -4,8 +4,9 @@ services:
     restart: unless-stopped
     expose:
       - 3030:3030
+    # The only setting; sign-in methods and the rest come from the API.
     environment:
-      - SERVER_DASHBOARD_SESSION_SECRET
+      - DASHBOARD_API_URL
 
   apiserver:
     image: fonoster/apiserver:0.26.0
