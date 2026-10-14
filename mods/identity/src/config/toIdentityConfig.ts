@@ -56,7 +56,7 @@ const trimSlash = (url: string) => url.replace(/\/+$/, "");
 
 /**
  * Builds the runtime IdentityConfig from validated config sections. Shared by
- * the apiserver (fonoster.yaml) and standalone Identity (identity.yaml).
+ * the apiserver (fonoster.yaml) and standalone Identity (identity.json).
  */
 function toIdentityConfig(inputs: IdentityConfigInputs): IdentityConfig {
   const { identity, smtp, twilio } = inputs;

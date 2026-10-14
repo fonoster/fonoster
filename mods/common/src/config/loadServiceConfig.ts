@@ -51,12 +51,6 @@ type LoadServiceConfigOptions<S extends ZodTypeAny> = {
   movedKeys?: MovedKeys;
   /** Env var prefixes of the old env-based config, reported as a warning. */
   legacyEnvPrefixes?: string[];
-  /**
-   * Translates an older file layout into the current one before validation
-   * (e.g. standalone Identity's original identity.json). Runs on the parsed
-   * file; return it unchanged when it is already current.
-   */
-  migrate?: (raw: unknown) => unknown;
 };
 
 /**
@@ -134,10 +128,6 @@ function loadServiceConfig<S extends ZodTypeAny>(
     const rest = { ...(raw as Record<string, unknown>) };
     delete rest.$schema;
     raw = rest;
-  }
-
-  if (options.migrate) {
-    raw = options.migrate(raw);
   }
 
   const moved = findMovedKeys(raw, options.movedKeys ?? {});

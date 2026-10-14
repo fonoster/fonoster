@@ -71,9 +71,52 @@ const authFeaturesSchema = z
   })
   .default({});
 
+const tokensSchema = z
+  .object({
+    accessTokenExpiresIn: z.string().default("15m"),
+    idTokenExpiresIn: z.string().default("15m"),
+    refreshTokenExpiresIn: z.string().default("24h")
+  })
+  .default({});
+
+const securitySchema = z
+  .object({
+    contactVerificationRequired: z.boolean().default(false),
+    twoFactorAuthenticationRequired: z.boolean().default(false)
+  })
+  .default({});
+
+const invitesSchema = z
+  .object({
+    /** Defaults to <appUrl>/invites. */
+    url: z.string().optional(),
+    /** Defaults to <appUrl>/invites/failed. */
+    failUrl: z.string().optional(),
+    expiration: z.string().default("1d")
+  })
+  .default({});
+
+const oauth2Schema = z
+  .object({
+    github: z.object({
+      clientId: z.string().min(1),
+      clientSecret: z.string().min(1)
+    })
+  })
+  .optional();
+
+/** First admin, created on first boot. */
+const ownerSchema = z
+  .object({
+    name: z.string().default("Admin"),
+    email: z.string().email(),
+    password: z.string().min(8)
+  })
+  .optional();
+
 /**
- * The `identity:` section, identical in fonoster.yaml and standalone
- * identity.yaml so it can be copied between them.
+ * fonoster.yaml's `identity:` section. Standalone Identity's identity.json has
+ * the same fields at its root (see server/config.ts).
  */
 const identitySectionSchema = z
   .object({
@@ -83,44 +126,11 @@ const identitySectionSchema = z
     issuer: z.string().min(1).optional(),
     audience: z.string().min(1).default("api"),
     keys: keysSchema,
-    tokens: z
-      .object({
-        accessTokenExpiresIn: z.string().default("15m"),
-        idTokenExpiresIn: z.string().default("15m"),
-        refreshTokenExpiresIn: z.string().default("24h")
-      })
-      .default({}),
-    security: z
-      .object({
-        contactVerificationRequired: z.boolean().default(false),
-        twoFactorAuthenticationRequired: z.boolean().default(false)
-      })
-      .default({}),
-    invites: z
-      .object({
-        /** Defaults to <appUrl>/invites. */
-        url: z.string().optional(),
-        /** Defaults to <appUrl>/invites/failed. */
-        failUrl: z.string().optional(),
-        expiration: z.string().default("1d")
-      })
-      .default({}),
-    oauth2: z
-      .object({
-        github: z.object({
-          clientId: z.string().min(1),
-          clientSecret: z.string().min(1)
-        })
-      })
-      .optional(),
-    /** First admin, created on first boot. */
-    owner: z
-      .object({
-        name: z.string().default("Admin"),
-        email: z.string().email(),
-        password: z.string().min(8)
-      })
-      .optional()
+    tokens: tokensSchema,
+    security: securitySchema,
+    invites: invitesSchema,
+    oauth2: oauth2Schema,
+    owner: ownerSchema
   })
   .default({});
 
@@ -131,6 +141,11 @@ type AuthFeatures = z.infer<typeof authFeaturesSchema>;
 
 export {
   authFeaturesSchema,
+  invitesSchema,
+  oauth2Schema,
+  ownerSchema,
+  securitySchema,
+  tokensSchema,
   AuthFeatures,
   identitySectionSchema,
   IdentitySection,

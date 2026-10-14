@@ -67,9 +67,9 @@ Later commits may replace constants with direct `getConfig()` reads where it sim
 ### One Identity schema
 `mods/identity/src/server/config.ts` is split into:
 - **`identitySectionSchema`**: issuer, audience, keys, tokens, security, invites, oauth2, owner and an optional database. It is reused verbatim as `fonoster.yaml`'s `identity:` section.
-- **A standalone wrapper**: adds server, database, encryption, smtp, appUrl, twilio and `features.auth`.
+- **The standalone schema**: `identity.json` keeps its shape, with the same settings at the root of the file (`encryptionKey`, `issuer`, `keys`, `tokens`, `invite`, `smtp.auth`, `defaultUser`, ...) plus optional `logs`, `twilio` and `features.auth`. Standalone Identity is used by services outside Fonoster, so the shape stays stable; nothing else is carried over (validation is strict and defaults are the current ones; dependents adjust).
 
-Standalone keeps accepting today's `identity.json`. Defaults are reconciled to the apiserver's current behaviour:
+Defaults are reconciled to the apiserver's current behaviour:
 - refresh token 24h
 - invite expiration 1d
 - HTTP bridge port per wrapper: 9876 for the apiserver, 9000 standalone

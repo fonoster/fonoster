@@ -36,33 +36,32 @@ describe("@identity[server/config]", function () {
     rmSync(dir, { recursive: true, force: true });
   });
 
-  const load = (name: string, body: string) => {
+  const base = {
+    database: { url: "postgresql://u:p@db/identity" },
+    encryptionKey: "k",
+    issuer: "https://id.acme.com",
+    keys: { privateKey: "test-private", publicKey: "test-public" }
+  };
+
+  const load = (body: Record<string, unknown>, name = "identity.json") => {
     const path = join(dir, name);
-    writeFileSync(path, body);
+    writeFileSync(path, JSON.stringify(body));
     return loadConfig(["node", "identity", "--config", path]);
   };
 
-  it("loads the identity: section with the reconciled defaults", function () {
-    const { identityConfig, httpBridgePort, appUrl } = load(
-      "identity.yaml",
-      [
-        "domain: voice.acme.com",
-        "database:",
-        "  url: postgresql://u:p@db/identity",
-        "encryption:",
-        "  key: k",
-        "identity:",
-        KEYS
-      ].join("\n")
-    );
+  it("reads the fields at the root of identity.json, with current defaults", function () {
+    const { identityConfig, httpBridgePort, appUrl, logs } = load(base);
 
-    expect(appUrl).to.equal("https://voice.acme.com");
+    expect(appUrl).to.equal("https://id.acme.com");
     expect(httpBridgePort).to.equal(9000);
-    expect(identityConfig.issuer).to.equal("https://voice.acme.com");
+    expect(logs.level).to.equal("info");
+    expect(identityConfig.issuer).to.equal("https://id.acme.com");
+    expect(identityConfig.audience).to.equal("api");
+    expect(identityConfig.encryptionKey).to.equal("k");
     expect(identityConfig.refreshTokenExpiresIn).to.equal("24h");
     expect(identityConfig.workspaceInviteExpiration).to.equal("1d");
     expect(identityConfig.workspaceInviteUrl).to.equal(
-      "https://voice.acme.com/invites"
+      "https://id.acme.com/invites"
     );
     expect(identityConfig.smtpConfig).to.be.undefined;
     expect(identityConfig.auth).to.deep.equal({
@@ -71,73 +70,61 @@ describe("@identity[server/config]", function () {
     });
   });
 
-  it("maps smtp.user/password to the runtime shape", function () {
-    const { identityConfig } = load(
-      "identity.yaml",
-      [
-        "domain: voice.acme.com",
-        "database: { url: postgresql://db/identity }",
-        "encryption: { key: k }",
-        "smtp: { host: smtp.acme.com, sender: no-reply@acme.com, user: ops, password: pw }",
-        "identity:",
-        KEYS
-      ].join("\n")
-    );
-
-    expect(identityConfig.smtpConfig).to.deep.equal({
-      host: "smtp.acme.com",
-      port: 587,
-      secure: false,
-      sender: "no-reply@acme.com",
-      auth: { user: "ops", pass: "pw" }
+  it("maps invite, smtp.auth, defaultUser and appUrl", function () {
+    const { identityConfig, defaultUser, appUrl } = load({
+      ...base,
+      appUrl: "https://app.acme.com",
+      invite: { url: "https://acme.com/i", failUrl: "https://acme.com/f", expiration: "2d" },
+      smtp: { host: "smtp", port: 25, sender: "s", auth: { user: "u", pass: "p" } },
+      defaultUser: { name: "Admin", email: "admin@acme.com", password: "changeme1" }
     });
-  });
 
-  it("still accepts the original identity.json layout", function () {
-    const { identityConfig, defaultUser } = load(
-      "identity.json",
-      JSON.stringify({
-        database: { url: "postgresql://db/identity" },
-        encryptionKey: "k",
-        issuer: "https://id.acme.com",
-        audience: "api",
-        keys: { privateKey: "test-private", publicKey: "test-public" },
-        invite: { url: "https://acme.com/i", failUrl: "https://acme.com/f", expiration: "2d" },
-        smtp: { host: "smtp", port: 25, sender: "s", auth: { user: "u", pass: "p" } },
-        defaultUser: { name: "Admin", email: "admin@acme.com", password: "changeme1" }
-      })
-    );
-
-    expect(identityConfig.issuer).to.equal("https://id.acme.com");
-    expect(identityConfig.encryptionKey).to.equal("k");
+    expect(appUrl).to.equal("https://app.acme.com");
+    expect(identityConfig.workspaceInviteUrl).to.equal("https://acme.com/i");
     expect(identityConfig.workspaceInviteExpiration).to.equal("2d");
-    expect(identityConfig.smtpConfig?.auth).to.deep.equal({ user: "u", pass: "p" });
+    expect(identityConfig.smtpConfig).to.deep.equal({
+      host: "smtp",
+      port: 25,
+      secure: false,
+      sender: "s",
+      auth: { user: "u", pass: "p" }
+    });
     expect(defaultUser?.email).to.equal("admin@acme.com");
   });
 
-  it("requires a domain, appUrl or issuer", function () {
-    expect(() =>
-      load(
-        "identity.yaml",
-        ["database: { url: x }", "encryption: { key: k }", "identity:", KEYS].join("\n")
-      )
-    ).to.throw(/domain: set domain/);
+  it("loads YAML with the same fields", function () {
+    const path = join(dir, "identity.yaml");
+    writeFileSync(
+      path,
+      [
+        "database: { url: postgresql://db/identity }",
+        "encryptionKey: k",
+        "issuer: https://id.acme.com",
+        "keys: { privateKey: a, publicKey: b }"
+      ].join("\n")
+    );
+    const { identityConfig } = loadConfig(["node", "identity", "--config", path]);
+    expect(identityConfig.issuer).to.equal("https://id.acme.com");
   });
 
-  it("rejects unknown keys inside the identity section", function () {
+  it("requires an issuer", function () {
+    const { issuer: _issuer, ...rest } = base;
+    expect(() => load(rest)).to.throw(/issuer: Required/);
+  });
+
+  it("rejects unknown keys", function () {
+    expect(() => load({ ...base, isuer: "typo" })).to.throw(
+      /unknown key "isuer"/
+    );
     expect(() =>
-      load(
-        "identity.yaml",
-        [
-          "domain: voice.acme.com",
-          "database: { url: x }",
-          "encryption: { key: k }",
-          "identity:",
-          KEYS,
-          "  isuer: typo"
-        ].join("\n")
-      )
-    ).to.throw(/identity: unknown key "isuer"/);
+      load({ ...base, tokens: { refreshTokenExpiresIn: "7d", extra: 1 } })
+    ).to.throw(/tokens: unknown key "extra"/);
+  });
+
+  it("rejects the nested identity: section (that's fonoster.yaml's layout)", function () {
+    expect(() => load({ ...base, identity: {} })).to.throw(
+      /unknown key "identity"/
+    );
   });
 });
 

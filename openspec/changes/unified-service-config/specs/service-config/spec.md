@@ -118,8 +118,15 @@ loggers created earlier SHALL adopt that configuration.
 
 ### Requirement: Embedded and standalone Identity share one schema
 
-The `identity:` section of `fonoster.yaml` SHALL use the same schema as standalone Identity, and
-both SHALL produce the same defaults.
+The `identity:` section of `fonoster.yaml` SHALL use the same field schemas as standalone Identity,
+and both SHALL produce the same defaults. Standalone Identity SHALL keep `identity.json`'s shape,
+with its fields at the root of the file, since services outside Fonoster depend on it.
+
+#### Scenario: Standalone file shape
+
+- WHEN standalone Identity starts with `identity.json` holding `issuer`, `keys`, `encryptionKey`,
+  `invite` and `defaultUser` at the root
+- THEN it starts, and unknown keys fail validation like any other config file
 
 #### Scenario: Same defaults
 

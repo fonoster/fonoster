@@ -43,7 +43,7 @@ services and replaces `next`.
   - `mods/common` (loader)
   - `mods/logger` (programmatic config)
   - `mods/apiserver` (`envs.ts` backed by config, entrypoint, Prisma)
-  - `mods/identity` (schema split, standalone accepts the section)
+  - `mods/identity` (schema split, standalone keeps its file shape)
   - `mods/autopilot` (config file, VoiceServer identity address)
 - **Deploy:**
   - `compose.yaml`, `compose.dev.yaml`

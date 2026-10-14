@@ -29,7 +29,8 @@
 - [x] 3.1 Split `server/config.ts` into `identitySectionSchema` and the standalone wrapper
 - [x] 3.2 Reconcile defaults (refresh 24h, invites 1d, smtp required only when needed, twilio
       mapped standalone)
-- [x] 3.3 Standalone accepts the section shape and today's `identity.json`, via the shared loader
+- [x] 3.3 Standalone keeps `identity.json`'s shape (fields at the root), via the shared loader;
+      strict, current defaults
 - [x] 3.4 Tests for both shapes and the defaults
 
 ## 4. apiserver (`mods/apiserver`)

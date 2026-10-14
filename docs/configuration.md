@@ -49,11 +49,12 @@ docker compose up -d
 
 ## Standalone Identity
 
-`identity.yaml` uses the same layout as `fonoster.yaml`: `domain`, `server`,
-`logs`, `database`, `encryption`, `smtp`, `twilio` and `features.auth` at the root,
-and the same `identity:` section. The original `identity.json` layout (top-level
-`issuer`, `keys`, `encryptionKey`, `invite`, `defaultUser`) still loads, with a
-deprecation warning.
+Standalone Identity reads `identity.json` (or `.jsonc`/`.yaml`) with its fields at
+the root, as before: `server`, `database`, `encryptionKey`, `issuer`, `audience`,
+`appUrl`, `keys`, `tokens`, `security`, `invite`, `smtp` (with `auth.user`/`auth.pass`),
+`oauth2` and `defaultUser`. New, optional: `logs`, `twilio` and `features.auth`.
+The same settings sit under `identity:` in `fonoster.yaml`. Validation is strict
+(unknown keys fail), and the defaults match the API server's.
 
 ## Upgrading from environment variables
 
@@ -119,7 +120,9 @@ Variables not listed here (`ROUTR_*`, `ASTERISK_*`, `RTPENGINE_*`, `AMD_*`,
 
 - **SMTP is optional.** Without an `smtp` section the API server starts; anything
   that sends email fails with "smtp is not configured".
-- **Standalone Identity defaults** now match the API server: refresh tokens last
-  24h (was 30d) and invites 1d (was 2d). Set them explicitly to keep the old values.
+- **Standalone Identity** keeps its file shape, but validation is now strict (unknown
+  keys fail) and the defaults match the API server: refresh tokens last 24h (was 30d),
+  invites 1d (was 2d), invite URLs default to `<appUrl>/invites`, and a default user
+  needs an 8-character password. Set them explicitly to keep the old values.
 - **The apiserver image** starts through `dist/bin/entrypoint.js`, which waits for
   Postgres, migrates, seeds and starts, reading the database URL from the file.

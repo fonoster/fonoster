@@ -25,25 +25,27 @@ This module offers comprehensive identity management functionality, including cr
 ## Running standalone
 
 `fonoster-identity` (or the `fonoster/identity` image) serves Identity without the
-telephony stack. It reads `identity.yaml` (or `.jsonc`/`.json`), found via
-`--config <path>`, `/opt/fonoster/identity.yaml` or `./config/identity.yaml`, and
-reads no environment variables:
+telephony stack. It reads `identity.json` (or `.jsonc`/`.yaml`), found via
+`--config <path>`, `/opt/fonoster/identity.json` or `./config/identity.json`, and
+reads no environment variables. Fields sit at the root of the file:
 
-```yaml
-domain: id.acme.com              # issuer and invite links default from it
-database: { url: postgresql://postgres:postgres@postgres:5432/fnidentity }
-encryption: { key: change-me }
-smtp: { host: smtp.acme.com, sender: no-reply@acme.com, user: ops, password: secret }
-features:
-  auth: { methods: [password], signup: invite }
-identity:                        # same section as fonoster.yaml's
-  keys: { privateKeyPath: /opt/fonoster/keys/private.pem, publicKeyPath: /opt/fonoster/keys/public.pem }
-  owner: { name: Admin, email: admin@acme.com, password: changeme }
+```json
+{
+  "database": { "url": "postgresql://postgres:postgres@postgres:5432/fnidentity" },
+  "encryptionKey": "change-me",
+  "issuer": "https://id.acme.com",
+  "keys": {
+    "privateKeyPath": "/opt/fonoster/keys/private.pem",
+    "publicKeyPath": "/opt/fonoster/keys/public.pem"
+  },
+  "smtp": { "host": "smtp.acme.com", "port": 587, "sender": "no-reply@acme.com", "auth": { "user": "ops", "pass": "secret" } },
+  "features": { "auth": { "methods": ["password"], "signup": "invite" } },
+  "defaultUser": { "name": "Admin", "email": "admin@acme.com", "password": "changeme" }
+}
 ```
 
 `npm run db:deploy -- --config <path>` applies the migrations using the same file.
-The original `identity.json` layout still loads, with a deprecation warning. Every
-key is described in [docs/configuration.md](../../docs/configuration.md).
+Every key is described in [docs/configuration.md](../../docs/configuration.md).
 
 ## Specification
 

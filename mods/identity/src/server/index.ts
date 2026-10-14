@@ -36,7 +36,7 @@ const logger = getLogger({ service: "identity", filePath: __filename });
  * Standalone Identity gRPC service. Wraps `buildIdentityService` with the auth
  * interceptor, the identity allow-list, a health service, and the accept-invite
  * HTTP bridge — without any telephony subsystem. Configured entirely from a
- * file (see `./config`): identity.yaml, or the original identity.json.
+ * file (see `./config`): identity.json, fields at the root.
  */
 async function main() {
   const {
