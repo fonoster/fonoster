@@ -38,7 +38,7 @@ describe("@identity[server/config]", function () {
 
   const base = {
     database: { url: "postgresql://u:p@db/identity" },
-    encryptionKey: "k",
+    encryptionKey: "k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=",
     issuer: "https://id.acme.com",
     keys: { privateKey: "test-private", publicKey: "test-public" }
   };
@@ -57,7 +57,7 @@ describe("@identity[server/config]", function () {
     expect(logs.level).to.equal("info");
     expect(identityConfig.issuer).to.equal("https://id.acme.com");
     expect(identityConfig.audience).to.equal("api");
-    expect(identityConfig.encryptionKey).to.equal("k");
+    expect(identityConfig.encryptionKey).to.equal("k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=");
     expect(identityConfig.refreshTokenExpiresIn).to.equal("24h");
     expect(identityConfig.workspaceInviteExpiration).to.equal("1d");
     expect(identityConfig.workspaceInviteUrl).to.equal(
@@ -98,7 +98,7 @@ describe("@identity[server/config]", function () {
       path,
       [
         "database: { url: postgresql://db/identity }",
-        "encryptionKey: k",
+        "encryptionKey: k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=",
         "issuer: https://id.acme.com",
         "keys: { privateKey: a, publicKey: b }"
       ].join("\n")
@@ -110,6 +110,12 @@ describe("@identity[server/config]", function () {
   it("requires an issuer", function () {
     const { issuer: _issuer, ...rest } = base;
     expect(() => load(rest)).to.throw(/issuer: Required/);
+  });
+
+  it("rejects an encryption key cloak can't use", function () {
+    expect(() =>
+      load({ ...base, encryptionKey: "change-me-to-a-long-random-string" })
+    ).to.throw(/encryptionKey: must look like "k1.aesgcm256/);
   });
 
   it("rejects unknown keys", function () {

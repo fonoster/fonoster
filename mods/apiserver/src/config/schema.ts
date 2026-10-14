@@ -19,6 +19,7 @@
 import { logsSchema } from "@fonoster/common";
 import {
   authFeaturesSchema,
+  encryptionKeySchema,
   identitySectionSchema,
   smtpSchema,
   twilioSchema
@@ -66,7 +67,7 @@ const fonosterConfigSchema = z
       .default({}),
     logs: logsSchema,
     database: z.object({ url: z.string().min(1) }),
-    encryption: z.object({ key: z.string().min(1) }),
+    encryption: z.object({ key: encryptionKeySchema }),
     smtp: smtpSchema.optional(),
     authz: z
       .object({

@@ -43,6 +43,18 @@ const keysSchema = z
         : undefined
   }));
 
+/**
+ * Key for the encrypted database fields (prisma-field-encryption / cloak):
+ * `k1.aesgcm256.<base64 of 32 bytes>`. Generate one with
+ * `npx @47ng/cloak generate`.
+ */
+const encryptionKeySchema = z
+  .string()
+  .regex(/^k1\.aesgcm256\.[A-Za-z0-9+/]{43}=$/, {
+    message:
+      'must look like "k1.aesgcm256.<base64>"; generate one with `npx @47ng/cloak generate`'
+  });
+
 /** Outgoing email. Optional: without it, anything that sends email fails clearly. */
 const smtpSchema = z.object({
   host: z.string().min(1),
@@ -141,6 +153,7 @@ type AuthFeatures = z.infer<typeof authFeaturesSchema>;
 
 export {
   authFeaturesSchema,
+  encryptionKeySchema,
   invitesSchema,
   oauth2Schema,
   ownerSchema,

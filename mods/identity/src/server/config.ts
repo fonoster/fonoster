@@ -20,6 +20,7 @@ import { loadServiceConfig, logsSchema } from "@fonoster/common";
 import { z } from "zod";
 import {
   authFeaturesSchema,
+  encryptionKeySchema,
   invitesSchema,
   keysSchema,
   oauth2Schema,
@@ -48,7 +49,7 @@ const identityServiceConfigSchema = z.object({
     .default({}),
   logs: logsSchema,
   database: z.object({ url: z.string().min(1) }),
-  encryptionKey: z.string().min(1),
+  encryptionKey: encryptionKeySchema,
   issuer: z.string().min(1),
   audience: z.string().min(1).default("api"),
   /** Where the accept-invite bridge redirects. Defaults to the issuer. */

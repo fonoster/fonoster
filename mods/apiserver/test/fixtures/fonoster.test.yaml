@@ -3,7 +3,7 @@ domain: fonoster.local
 database:
   url: postgresql://postgres:postgres@localhost:5432/fonoster
 encryption:
-  key: test-encryption-key
+  key: k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=
 mediaService:
   asterisk:
     ariUrl: http://localhost:8088
