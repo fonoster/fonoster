@@ -50,13 +50,7 @@ export default function GitHubCallbackPage() {
     }
     signInWithGitHub(code)
       .then(() => navigate("/", { replace: true }))
-      .catch((error: unknown) =>
-        setFailure(
-          grpcCode(error) === GrpcCode.PERMISSION_DENIED
-            ? "This GitHub account can't sign in here. Ask your workspace admin for an invite."
-            : errorMessage(error)
-        )
-      );
+      .catch((error: unknown) => setFailure(gitHubFailure(error)));
   }, [params, signInWithGitHub, navigate]);
 
   if (!failure) return <Splash label="Signing you in with GitHub…" />;
@@ -73,4 +67,19 @@ export default function GitHubCallbackPage() {
       <Alert variant="error">{failure}</Alert>
     </AuthLayout>
   );
+}
+
+/** Says why GitHub sign-in was refused; "no account" is the only vague case. */
+function gitHubFailure(error: unknown): string {
+  const message = errorMessage(error);
+  if (/verified primary email/i.test(message)) {
+    return "Your GitHub account has no verified primary email. Verify an email on GitHub, make it your primary, then try again.";
+  }
+  if (
+    grpcCode(error) === GrpcCode.PERMISSION_DENIED &&
+    /invalid credentials/i.test(message)
+  ) {
+    return "This GitHub account can't sign in here. Ask your workspace admin for an invite.";
+  }
+  return message;
 }
