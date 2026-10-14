@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 import { getIntegrationsFromFile, IntegrationsConfig } from "@fonoster/common";
-import { INTEGRATIONS_FILE } from "./envs";
+import { getConfig } from "./envs";
 
 let integrations: IntegrationsConfig | undefined;
 
 /** Speech provider credentials, read and validated once. */
 function loadIntegrations(): IntegrationsConfig {
   if (!integrations) {
-    integrations = getIntegrationsFromFile(INTEGRATIONS_FILE);
+    integrations = getIntegrationsFromFile(getConfig().integrationsFile);
   }
   return integrations;
 }

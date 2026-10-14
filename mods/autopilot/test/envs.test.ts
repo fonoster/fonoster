@@ -107,3 +107,16 @@ describe("@autopilot[envs/autopilotConfigSchema]", function () {
     }
   });
 });
+
+describe("@autopilot[envs/getConfig]", function () {
+  it("doesn't read autopilot.yaml when the package is imported as a library", function () {
+    const argv = process.argv;
+    // The API server imports this package with its own --config flag.
+    process.argv = ["node", "apiserver", "--config", "/nonexistent/fonoster.yaml"];
+    try {
+      expect(() => require("../src")).not.to.throw();
+    } finally {
+      process.argv = argv;
+    }
+  });
+});

@@ -21,7 +21,7 @@ import { assistantSchema } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as SDK from "@fonoster/sdk";
 import { AssistantConfig } from "./assistants";
-import { APISERVER_ENDPOINT } from "./envs";
+import { getConfig } from "./envs";
 import { AutopilotApplication } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -37,7 +37,7 @@ function loadAssistantFromAPI(
   return new Promise((resolve, reject) => {
     const clientConfig = {
       accessKeyId: req.accessKeyId,
-      endpoint: APISERVER_ENDPOINT,
+      endpoint: getConfig().apiserver.endpoint,
       allowInsecure: true,
       withoutInterceptors: true
     };
@@ -47,7 +47,7 @@ function loadAssistantFromAPI(
     const applications = new SDK.Applications(client);
 
     logger.verbose(`loading assistant config from api`, {
-      apiserver: APISERVER_ENDPOINT,
+      apiserver: getConfig().apiserver.endpoint,
       appRef: req.appRef
     });
 

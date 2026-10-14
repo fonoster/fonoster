@@ -17,14 +17,13 @@
  * limitations under the License.
  */
 import VoiceServer from "@fonoster/voice";
-import { IDENTITY_ADDRESS, VOICE_SERVER_BIND, VOICE_SERVER_PORT } from "./envs";
+import { getConfig, getVoiceServerAddress } from "./envs";
 import { handleVoiceRequest } from "./handleVoiceRequest";
 
 function startVoiceServer(skipIdentity: boolean) {
   new VoiceServer({
-    bind: VOICE_SERVER_BIND,
-    port: VOICE_SERVER_PORT,
-    identityAddress: IDENTITY_ADDRESS,
+    ...getVoiceServerAddress(),
+    identityAddress: getConfig().server.identityAddress,
     skipIdentity
   }).listen(handleVoiceRequest);
 }

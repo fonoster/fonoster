@@ -116,34 +116,36 @@ const MOVED_KEYS = {
   "knowledgeBase.unstructured.apiUrl": "knowledgeBase.unstructured.url"
 };
 
-const config: AutopilotConfig = loadServiceConfig({
-  service: "autopilot",
-  schema: autopilotConfigSchema,
-  movedKeys: MOVED_KEYS,
-  legacyEnvPrefixes: ["AUTOPILOT_"]
-});
+let config: AutopilotConfig | undefined;
 
-const [bind, port] = config.server.bindAddr.split(":");
+/**
+ * Autopilot's config (autopilot.yaml), loaded and validated on first use.
+ * Loading is deferred so other services can import this package as a library
+ * (the API server does) without reading Autopilot's config file.
+ */
+function getConfig(): AutopilotConfig {
+  config ??= loadServiceConfig({
+    service: "autopilot",
+    schema: autopilotConfigSchema,
+    movedKeys: MOVED_KEYS,
+    legacyEnvPrefixes: ["AUTOPILOT_"]
+  });
+  return config;
+}
 
-export { autopilotConfigSchema, MOVED_KEYS };
+/** host and port of `server.bindAddr`. */
+function getVoiceServerAddress() {
+  const [bind, port] = getConfig().server.bindAddr.split(":");
+  return { bind: bind || "0.0.0.0", port: Number(port || 50061) };
+}
+
+const NODE_ENV = process.env.NODE_ENV || "production";
+
+export {
+  autopilotConfigSchema,
+  getConfig,
+  getVoiceServerAddress,
+  MOVED_KEYS,
+  NODE_ENV
+};
 export type { AutopilotConfig };
-
-export const LOGS = config.logs;
-export const NODE_ENV = process.env.NODE_ENV || "production";
-export const VOICE_SERVER_BIND = bind || "0.0.0.0";
-export const VOICE_SERVER_PORT = Number(port || 50061);
-export const IDENTITY_ADDRESS = config.server.identityAddress;
-export const CONVERSATION_PROVIDER = config.conversation.provider;
-export const CONVERSATION_PROVIDER_FILE = config.conversation.file;
-export const APISERVER_ENDPOINT = config.apiserver.endpoint;
-export const INTEGRATIONS_FILE = config.integrationsFile;
-export const OPENAI_API_KEY = config.knowledgeBase.embeddings.openaiApiKey;
-export const RECORDING_BASE_URL = config.recordings.baseUrl;
-export const SKIP_IDENTITY = config.dev.skipIdentity;
-export const KNOWLEDGE_BASE_ENABLED = config.knowledgeBase.enabled;
-export const AWS_S3_ACCESS_KEY_ID = config.knowledgeBase.s3.accessKeyId;
-export const AWS_S3_SECRET_ACCESS_KEY = config.knowledgeBase.s3.secretAccessKey;
-export const AWS_S3_REGION = config.knowledgeBase.s3.region;
-export const AWS_S3_ENDPOINT = config.knowledgeBase.s3.endpoint;
-export const UNSTRUCTURED_API_KEY = config.knowledgeBase.unstructured.apiKey;
-export const UNSTRUCTURED_API_URL = config.knowledgeBase.unstructured.url;

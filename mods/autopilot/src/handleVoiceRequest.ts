@@ -20,18 +20,7 @@ import { AudioFilterConfig, StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { BaseMessage } from "@langchain/core/messages";
-import {
-  AWS_S3_ACCESS_KEY_ID,
-  AWS_S3_ENDPOINT,
-  AWS_S3_REGION,
-  AWS_S3_SECRET_ACCESS_KEY,
-  CONVERSATION_PROVIDER,
-  CONVERSATION_PROVIDER_FILE,
-  KNOWLEDGE_BASE_ENABLED,
-  RECORDING_BASE_URL,
-  UNSTRUCTURED_API_KEY,
-  UNSTRUCTURED_API_URL
-} from "./envs";
+import { getConfig } from "./envs";
 import { loadIntegrations } from "./integrations";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
 import { loadAssistantFromAPI } from "./loadAssistantFromAPI";
@@ -52,6 +41,7 @@ import Autopilot, {
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
+  const { conversation, knowledgeBase: kbConfig, recordings } = getConfig();
   const {
     accessKeyId,
     callerNumber,
@@ -74,13 +64,13 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   });
 
   const assistantConfig =
-    CONVERSATION_PROVIDER === ConversationProvider.FILE
-      ? loadAssistantConfigFromFile(CONVERSATION_PROVIDER_FILE)
+    conversation.provider === ConversationProvider.FILE
+      ? loadAssistantConfigFromFile(conversation.file)
       : await loadAssistantFromAPI(req, loadIntegrations());
 
   let knowledgeBase;
 
-  if (KNOWLEDGE_BASE_ENABLED) {
+  if (kbConfig.enabled) {
     const documents = assistantConfig.languageModel?.knowledgeBase?.map(
       (doc) => doc.document
     ) as string[];
@@ -94,16 +84,16 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
       bucket: req.accessKeyId.toLowerCase(),
       documents,
       s3Config: {
-        endpoint: AWS_S3_ENDPOINT,
-        region: AWS_S3_REGION,
+        endpoint: kbConfig.s3.endpoint,
+        region: kbConfig.s3.region,
         credentials: {
-          accessKeyId: AWS_S3_ACCESS_KEY_ID,
-          secretAccessKey: AWS_S3_SECRET_ACCESS_KEY
+          accessKeyId: kbConfig.s3.accessKeyId,
+          secretAccessKey: kbConfig.s3.secretAccessKey
         },
         forcePathStyle: true
       },
-      unstructuredAPIURL: UNSTRUCTURED_API_URL,
-      unstructuredAPIKey: UNSTRUCTURED_API_KEY
+      unstructuredAPIURL: kbConfig.unstructured.url,
+      unstructuredAPIKey: kbConfig.unstructured.apiKey
     });
   }
 
@@ -165,7 +155,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
 
       if (assistantConfig.eventsHook?.url) {
         // Construct recording URL: baseUrl + appRef + mediaSessionRef
-        const recordingUrl = `${RECORDING_BASE_URL}/${appRef}_${mediaSessionRef}.wav`;
+        const recordingUrl = `${recordings.baseUrl}/${appRef}_${mediaSessionRef}.wav`;
 
         await sendConversationEndedEvent(
           assistantConfig.eventsHook as EventsHook,

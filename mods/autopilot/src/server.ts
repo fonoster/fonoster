@@ -19,21 +19,23 @@
  * limitations under the License.
  */
 import { configureLogger } from "@fonoster/logger";
-import { CONVERSATION_PROVIDER, LOGS, NODE_ENV, SKIP_IDENTITY } from "./envs";
+import { getConfig, NODE_ENV } from "./envs";
 import { loadIntegrations } from "./integrations";
 import { ConversationProvider } from "./types";
 import { startVoiceServer } from "./voiceServerSetup";
 
 // Loggers created while the imports above ran switch to autopilot.yaml's
 // settings here.
-configureLogger(LOGS);
+const config = getConfig();
+
+configureLogger(config.logs);
 
 // Fail at boot, not on the first call, if the integrations file is unusable.
 // Only assistants loaded from the API server need it.
-if (CONVERSATION_PROVIDER === ConversationProvider.API) {
+if (config.conversation.provider === ConversationProvider.API) {
   loadIntegrations();
 }
 
-const skipIdentity = NODE_ENV === "development" || SKIP_IDENTITY;
+const skipIdentity = NODE_ENV === "development" || config.dev.skipIdentity;
 
 startVoiceServer(skipIdentity);

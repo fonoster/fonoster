@@ -23,7 +23,7 @@ import { Embeddings } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { OPENAI_API_KEY } from "../envs";
+import { getConfig } from "../envs";
 import { KnowledgeBase } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -36,7 +36,7 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
     this.embeddings =
       params?.embeddings ||
       new OpenAIEmbeddings({
-        apiKey: OPENAI_API_KEY
+        apiKey: getConfig().knowledgeBase.embeddings.openaiApiKey
       });
   }
 
