@@ -53,7 +53,6 @@
     "@storybook/addon-onboarding": "^8.6.18",
     "@storybook/blocks": "^8.6.18",
     "@storybook/manager-api": "^8.6.18",
-    "@storybook/nextjs": "^8.6.18",
     "@storybook/react": "^8.6.18",
     "@storybook/react-vite": "^8.6.18",
     "@storybook/theming": "^8.6.18",
