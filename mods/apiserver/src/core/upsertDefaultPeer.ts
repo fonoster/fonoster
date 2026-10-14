@@ -42,7 +42,14 @@ function createCredentialsForDefaultPeer() {
   return credentials.createCredentials(request);
 }
 
-async function upsertDefaultPeer() {
+/** Routr can take minutes to start, so a refused connection is retried. */
+const RETRY_DELAY_MS = 5_000;
+const MAX_ATTEMPTS = 60;
+
+async function upsertDefaultPeer(
+  attempt = 1,
+  delayMs = RETRY_DELAY_MS
+): Promise<void> {
   const peers = new SDK.Peers(routrConfig);
 
   logger.info("creating default peer");
@@ -82,6 +89,14 @@ async function upsertDefaultPeer() {
     if (error.message.includes("already exist")) {
       logger.info("default peer already exist");
       return;
+    }
+
+    if (error.message.includes("Cannot connect") && attempt < MAX_ATTEMPTS) {
+      logger.warn("routr not reachable yet; retrying the default peer", {
+        attempt
+      });
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      return upsertDefaultPeer(attempt + 1, delayMs);
     }
 
     logger.error(`error creating default peer: ${error.message}`, {

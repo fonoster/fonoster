@@ -44,8 +44,9 @@ async function main() {
     await upsertDefaultUser(identityConfig, user);
   }
 
-  // Upsert a Peer for the default region, if it doesn't already exist
-  await upsertDefaultPeer();
+  // Upsert a Peer for the default region, if it doesn't already exist. Runs in
+  // the background: it waits for Routr, which may start after the API server.
+  upsertDefaultPeer().catch(logger.error);
 
   // Start the gRPC server
   runServices().catch(logger.error);
