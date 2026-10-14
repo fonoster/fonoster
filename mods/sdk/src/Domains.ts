@@ -32,6 +32,7 @@ import {
   DeleteDomainRequest as DeleteDomainRequestPB,
   DeleteDomainResponse as DeleteDomainResponsePB,
   Domain as DomainPB,
+  EgressPolicy as EgressPolicyPB,
   GetDomainRequest as GetDomainRequestPB,
   ListDomainsRequest as ListDomainsRequestPB,
   ListDomainsResponse as ListDomainsResponsePB,
@@ -128,7 +129,8 @@ class Domains {
       method: client.createDomain.bind(client),
       requestPBObjectConstructor: CreateDomainRequestPB,
       metadata: this.client.getMetadata(),
-      request
+      request,
+      objectMapping: [["egressPolicies", EgressPolicyPB]]
     });
   }
 
@@ -209,7 +211,8 @@ class Domains {
       method: client.updateDomain.bind(client),
       requestPBObjectConstructor: UpdateDomainRequestPB,
       metadata: this.client.getMetadata(),
-      request
+      request,
+      objectMapping: [["egressPolicies", EgressPolicyPB]]
     });
   }
 
