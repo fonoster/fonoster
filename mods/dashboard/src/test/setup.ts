@@ -36,4 +36,8 @@ if (typeof document !== "undefined") {
   globalThis.ResizeObserver ??=
     ResizeObserverStub as unknown as typeof ResizeObserver;
   document.elementFromPoint ??= () => null;
+  // Radix Select calls these, which jsdom doesn't implement.
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.scrollIntoView ??= () => {};
 }

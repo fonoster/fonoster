@@ -99,7 +99,7 @@ export function DataTable<T>({
                     column.className
                   )}
                 >
-                  {column.header}
+                  {column.header || <span className="sr-only">Actions</span>}
                 </th>
               ))}
             </tr>

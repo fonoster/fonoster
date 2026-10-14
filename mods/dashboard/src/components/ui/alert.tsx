@@ -29,7 +29,9 @@ const alertVariants = cva(
         info: "bg-info text-info-foreground",
         success: "bg-success text-success-foreground",
         warning: "bg-warning text-warning-foreground",
-        error: "bg-error text-error-foreground"
+        error: "bg-error text-error-foreground",
+        /** A muted hint, e.g. the notes under forms in the designs. */
+        note: "bg-muted font-display text-xs text-muted-foreground"
       }
     },
     defaultVariants: { variant: "info" }
@@ -40,7 +42,8 @@ const ICONS = {
   info: Info,
   success: CheckCircle2,
   warning: TriangleAlert,
-  error: AlertCircle
+  error: AlertCircle,
+  note: Info
 };
 
 export function Alert({

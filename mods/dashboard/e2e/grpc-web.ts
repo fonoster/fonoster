@@ -32,6 +32,9 @@ const pb = (name: string) => require(join(sdkDir, "src/generated/web", `${name}_
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const identity: any = pb("identity");
 export const capabilities: any = pb("capabilities");
+export const applications: any = pb("applications");
+export const numbers: any = pb("numbers");
+export const struct: any = require(join(dirname(require.resolve("google-protobuf/package.json", { paths: [sdkDir] })), "google/protobuf/struct_pb.js"));
 const empty: any = require(join(dirname(require.resolve("google-protobuf/package.json", { paths: [sdkDir] })), "google/protobuf/empty_pb.js"));
 /* eslint-enable @typescript-eslint/no-explicit-any */
 

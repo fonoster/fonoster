@@ -1,0 +1,568 @@
+/**
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * The agent editor's form values, their validation, and the mapping to and
+ * from the API's Application. Validation copies the rules of
+ * @fonoster/common's assistantSchema (common/src/assistants), which can't be
+ * imported into the browser bundle.
+ */
+import type {
+  Application,
+  CreateApplicationRequest,
+  UpdateApplicationRequest
+} from "@fonoster/types";
+import { z } from "zod";
+import { MULTILINGUAL_MODELS, type LlmProvider } from "./catalog";
+
+const POSITIVE = "Must be a positive number";
+const NUMBER = "Enter a number";
+const VALID_URL = "Must be a valid URL";
+const BETWEEN_0_AND_1 = "Must be a number between 0 and 1";
+const BETWEEN_0_AND_2 = "Must be a number between 0 and 2";
+
+const num = () => z.number({ invalid_type_error: NUMBER });
+const positiveInt = () => num().int(POSITIVE).positive(POSITIVE);
+const positive = () => num().positive(POSITIVE);
+const ratio = () => num().gt(0, BETWEEN_0_AND_1).max(1, BETWEEN_0_AND_1);
+
+export const EVENTS = ["conversation.started", "conversation.ended"] as const;
+
+/** Function names the language model providers accept. */
+const TOOL_NAME = /^[a-zA-Z0-9_-]{1,64}$/;
+const RESERVED_HEADERS = ["accept", "content-type"];
+const BUILT_IN_TOOLS = ["hangup", "transfer"];
+
+const parameterSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name the parameter")
+    .regex(/^[a-zA-Z0-9_]+$/, "Letters, numbers and underscores only"),
+  type: z.string().min(1),
+  format: z.enum(["", "enum", "date-time"]),
+  required: z.boolean(),
+  /** Keys the editor doesn't show (enum values, description…), kept as-is. */
+  extra: z.record(z.unknown())
+});
+
+const headerSchema = z.object({
+  key: z.string().trim(),
+  value: z.string()
+});
+
+export const toolSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .regex(TOOL_NAME, "Letters, numbers, underscores and hyphens only")
+      .refine((name) => !BUILT_IN_TOOLS.includes(name), {
+        message: "That name is taken by a built-in tool"
+      }),
+    description: z.string().trim().min(1, "Describe when to use the tool"),
+    method: z.enum(["get", "post"]),
+    url: z.string().trim().url(VALID_URL),
+    parametersType: z.enum(["object", "array"]),
+    parameters: z.array(parameterSchema),
+    headers: z.array(headerSchema),
+    requestStartMessage: z.string(),
+    waitForResponse: z.boolean()
+  })
+  .superRefine((tool, ctx) => {
+    const seen = new Set<string>();
+    tool.parameters.forEach((parameter, index) => {
+      if (seen.has(parameter.name))
+        ctx.addIssue({
+          code: "custom",
+          message: "Already used",
+          path: ["parameters", index, "name"]
+        });
+      seen.add(parameter.name);
+    });
+    tool.headers.forEach((header, index) => {
+      if (!header.key && !header.value) return;
+      if (!header.key)
+        ctx.addIssue({
+          code: "custom",
+          message: "Name the header",
+          path: ["headers", index, "key"]
+        });
+      if (RESERVED_HEADERS.includes(header.key.toLowerCase()))
+        ctx.addIssue({
+          code: "custom",
+          message: "Accept and Content-Type are set for you",
+          path: ["headers", index, "key"]
+        });
+    });
+  });
+
+export const agentSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Name the agent")
+      .max(255, "Use at most 255 characters"),
+    tts: z.object({
+      productRef: z.enum(["tts.deepgram", "tts.elevenlabs"]),
+      voice: z.string().min(1, "Pick a voice")
+    }),
+    stt: z.object({
+      model: z.string().min(1, "Pick a model"),
+      languageCode: z.string().min(1, "Pick a language")
+    }),
+    conversation: z.object({
+      firstMessage: z.string(),
+      systemPrompt: z.string().trim().min(1, "Write the system prompt"),
+      goodbyeMessage: z.string().trim().min(1, "Write a goodbye message"),
+      systemErrorMessage: z.string().trim().min(1, "Write an error message"),
+      initialDtmf: z
+        .string()
+        .trim()
+        .regex(/^[0-9*#]*$/, "Must be a valid DTMF"),
+      maxSessionMinutes: positive(),
+      maxSpeechWaitTimeout: num()
+        .int(POSITIVE)
+        .gte(0, "Must be a number greater than or equal to 0"),
+      allowUserBargeIn: z.boolean(),
+      idleMessage: z.string(),
+      idleTimeoutSeconds: positive(),
+      idleMaxTimeoutCount: positiveInt(),
+      transferPhoneNumber: z
+        .string()
+        .trim()
+        .regex(/^\+?[0-9 ()-]*$/, "Use a phone number like +18095550100"),
+      transferMessage: z.string(),
+      vad: z.object({
+        activationThreshold: ratio(),
+        deactivationThreshold: ratio(),
+        debounceFrames: positiveInt()
+      })
+    }),
+    model: z.object({
+      provider: z.enum(["openai", "groq", "google", "anthropic", "ollama"]),
+      model: z.string().trim().min(1, "Pick a model"),
+      temperature: num().min(0, BETWEEN_0_AND_2).max(2, BETWEEN_0_AND_2),
+      maxTokens: positiveInt(),
+      baseUrl: z.union([z.literal(""), z.string().trim().url(VALID_URL)])
+    }),
+    tools: z.array(toolSchema),
+    audioFilters: z.array(
+      z.object({
+        name: z.string().min(1, "An audio filter name is required"),
+        options: z.record(z.unknown())
+      })
+    ),
+    eventsHook: z.object({
+      url: z.union([z.literal(""), z.string().trim().url(VALID_URL)]),
+      events: z.array(z.enum(EVENTS))
+    })
+  })
+  .superRefine((values, ctx) => {
+    if (values.eventsHook.url && values.eventsHook.events.length === 0)
+      ctx.addIssue({
+        code: "custom",
+        message: "Pick at least one event",
+        path: ["eventsHook", "events"]
+      });
+    if (
+      values.stt.languageCode === "multi" &&
+      !MULTILINGUAL_MODELS.includes(values.stt.model)
+    )
+      ctx.addIssue({
+        code: "custom",
+        message: "Multilingual needs Nova 3 or Nova 2",
+        path: ["stt", "model"]
+      });
+    const names = new Set<string>();
+    values.tools.forEach((tool, index) => {
+      if (names.has(tool.name))
+        ctx.addIssue({
+          code: "custom",
+          message: "Another tool has this name",
+          path: ["tools", index, "name"]
+        });
+      names.add(tool.name);
+    });
+  });
+
+export type AgentValues = z.infer<typeof agentSchema>;
+export type ToolValues = AgentValues["tools"][number];
+export type ParameterValues = ToolValues["parameters"][number];
+
+// Defaults of common/src/assistants/conversationSettingsSchema.ts.
+export const DEFAULTS = {
+  maxSessionDuration: 30 * 60 * 1000,
+  maxSpeechWaitTimeout: 0,
+  idleTimeout: 30000,
+  idleMaxTimeoutCount: 2,
+  transferTimeout: 30000,
+  vad: {
+    activationThreshold: 0.4,
+    deactivationThreshold: 0.25,
+    debounceFrames: 4
+  },
+  temperature: 0.4,
+  maxTokens: 300
+};
+
+export const EMPTY_TOOL: ToolValues = {
+  name: "",
+  description: "",
+  method: "get",
+  url: "",
+  parametersType: "object",
+  parameters: [],
+  headers: [],
+  requestStartMessage: "",
+  waitForResponse: true
+};
+
+type Json = Record<string, unknown>;
+
+const obj = (value: unknown): Json =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Json)
+    : {};
+const str = (value: unknown, fallback = "") =>
+  typeof value === "string" ? value : fallback;
+const numOr = (value: unknown, fallback: number) =>
+  typeof value === "number" && Number.isFinite(value) ? value : fallback;
+
+function toolToValues(raw: unknown): ToolValues {
+  const tool = obj(raw);
+  const parameters = obj(tool.parameters);
+  const properties = obj(parameters.properties);
+  const required = Array.isArray(parameters.required)
+    ? (parameters.required as string[])
+    : [];
+  const operation = obj(tool.operation);
+  return {
+    name: str(tool.name),
+    description: str(tool.description),
+    method: str(operation.method).toLowerCase() === "post" ? "post" : "get",
+    url: str(operation.url),
+    parametersType: parameters.type === "array" ? "array" : "object",
+    parameters: Object.entries(properties).map(([name, value]) => {
+      const { type, format, ...extra } = obj(value);
+      return {
+        name,
+        type: str(type, "string"),
+        format: format === "enum" || format === "date-time" ? format : "",
+        required: required.includes(name),
+        extra
+      };
+    }),
+    headers: Object.entries(obj(operation.headers)).map(([key, value]) => ({
+      key,
+      value: str(value)
+    })),
+    requestStartMessage: str(tool.requestStartMessage),
+    waitForResponse: operation.waitForResponse !== false
+  };
+}
+
+/** The editor's values for a saved agent; missing settings get defaults. */
+export function toValues(app: Application): AgentValues {
+  const tts = app.textToSpeech;
+  const stt = obj(app.speechToText?.config);
+  const config = obj(app.intelligence?.config);
+  const conversation = obj(config.conversationSettings);
+  const idle = obj(conversation.idleOptions);
+  const transfer = obj(conversation.transferOptions);
+  const vad = obj(conversation.vad);
+  const languageModel = obj(config.languageModel);
+  const eventsHook = obj(config.eventsHook);
+  const events = Array.isArray(eventsHook.events)
+    ? (eventsHook.events as string[])
+    : [];
+  const provider = str(languageModel.provider, "openai") as LlmProvider;
+
+  return {
+    name: app.name ?? "",
+    tts: {
+      productRef:
+        tts?.productRef === "tts.elevenlabs"
+          ? "tts.elevenlabs"
+          : "tts.deepgram",
+      voice: str(obj(tts?.config).voice)
+    },
+    stt: {
+      model: str(stt.model, "nova-3"),
+      languageCode: str(stt.languageCode, "en-US")
+    },
+    conversation: {
+      firstMessage: str(conversation.firstMessage),
+      systemPrompt: str(conversation.systemPrompt),
+      goodbyeMessage: str(conversation.goodbyeMessage),
+      systemErrorMessage: str(conversation.systemErrorMessage),
+      initialDtmf: str(conversation.initialDtmf),
+      maxSessionMinutes:
+        numOr(conversation.maxSessionDuration, DEFAULTS.maxSessionDuration) /
+        60000,
+      maxSpeechWaitTimeout: numOr(
+        conversation.maxSpeechWaitTimeout,
+        DEFAULTS.maxSpeechWaitTimeout
+      ),
+      allowUserBargeIn: conversation.allowUserBargeIn !== false,
+      idleMessage: str(idle.message),
+      idleTimeoutSeconds: numOr(idle.timeout, DEFAULTS.idleTimeout) / 1000,
+      idleMaxTimeoutCount: numOr(
+        idle.maxTimeoutCount,
+        DEFAULTS.idleMaxTimeoutCount
+      ),
+      transferPhoneNumber: str(transfer.phoneNumber),
+      transferMessage: str(transfer.message),
+      vad: {
+        activationThreshold: numOr(
+          vad.activationThreshold,
+          DEFAULTS.vad.activationThreshold
+        ),
+        deactivationThreshold: numOr(
+          vad.deactivationThreshold,
+          DEFAULTS.vad.deactivationThreshold
+        ),
+        debounceFrames: numOr(vad.debounceFrames, DEFAULTS.vad.debounceFrames)
+      }
+    },
+    model: {
+      provider,
+      model: str(languageModel.model),
+      temperature: numOr(languageModel.temperature, DEFAULTS.temperature),
+      maxTokens: numOr(languageModel.maxTokens, DEFAULTS.maxTokens),
+      baseUrl: str(languageModel.baseUrl)
+    },
+    tools: Array.isArray(languageModel.tools)
+      ? languageModel.tools.map(toolToValues)
+      : [],
+    audioFilters: Array.isArray(config.audioFilters)
+      ? config.audioFilters.map((filter) => ({
+          name: str(obj(filter).name),
+          options: obj(obj(filter).options)
+        }))
+      : [],
+    eventsHook: {
+      url: str(eventsHook.url),
+      events: events.includes("all")
+        ? [...EVENTS]
+        : EVENTS.filter((event) => events.includes(event))
+    }
+  };
+}
+
+function toolToConfig(tool: ToolValues) {
+  const headers = Object.fromEntries(
+    tool.headers
+      .filter((header) => header.key.trim())
+      .map((header) => [header.key.trim(), header.value])
+  );
+  const required = tool.parameters
+    .filter((parameter) => parameter.required)
+    .map((parameter) => parameter.name);
+  return {
+    name: tool.name.trim(),
+    description: tool.description.trim(),
+    parameters: {
+      type: tool.parametersType,
+      properties: Object.fromEntries(
+        tool.parameters.map((parameter) => {
+          // The API rejects a property with both a format and a pattern.
+          const { pattern, ...extra } = parameter.extra;
+          return [
+            parameter.name,
+            {
+              ...extra,
+              type: parameter.type,
+              ...(parameter.format
+                ? { format: parameter.format }
+                : pattern !== undefined
+                  ? { pattern }
+                  : {})
+            }
+          ];
+        })
+      ),
+      ...(required.length > 0 ? { required } : {})
+    },
+    ...(tool.requestStartMessage.trim()
+      ? { requestStartMessage: tool.requestStartMessage.trim() }
+      : {}),
+    operation: {
+      method: tool.method,
+      url: tool.url.trim(),
+      waitForResponse: tool.waitForResponse,
+      ...(Object.keys(headers).length > 0 ? { headers } : {})
+    }
+  };
+}
+
+/**
+ * The create/update payload. Settings the editor doesn't show (test cases,
+ * knowledge base, webhook headers, VAD model path…) are carried over from
+ * `base`, the agent as last saved.
+ */
+export function toRequest(
+  values: AgentValues,
+  base?: Application
+): CreateApplicationRequest {
+  const previous = obj(base?.intelligence?.config);
+  const previousConversation = obj(previous.conversationSettings);
+  const previousModel = obj(previous.languageModel);
+  const previousHook = obj(previous.eventsHook);
+  const previousTransfer = obj(previousConversation.transferOptions);
+  const c = values.conversation;
+  const m = values.model;
+
+  const {
+    initialDtmf: _dtmf,
+    transferOptions: _transfer,
+    firstMessage: _first,
+    ...keptConversation
+  } = previousConversation;
+  const { baseUrl: _baseUrl, apiKey: _apiKey, ...keptModel } = previousModel;
+  const { eventsHook: _hook, ...keptConfig } = previous;
+
+  const conversationSettings = {
+    ...keptConversation,
+    ...(c.firstMessage.trim() ? { firstMessage: c.firstMessage.trim() } : {}),
+    systemPrompt: c.systemPrompt,
+    goodbyeMessage: c.goodbyeMessage.trim(),
+    systemErrorMessage: c.systemErrorMessage.trim(),
+    ...(c.initialDtmf.trim() ? { initialDtmf: c.initialDtmf.trim() } : {}),
+    maxSessionDuration: Math.round(c.maxSessionMinutes * 60000),
+    maxSpeechWaitTimeout: c.maxSpeechWaitTimeout,
+    allowUserBargeIn: c.allowUserBargeIn,
+    idleOptions: {
+      message: c.idleMessage.trim(),
+      timeout: Math.round(c.idleTimeoutSeconds * 1000),
+      maxTimeoutCount: c.idleMaxTimeoutCount
+    },
+    ...(c.transferPhoneNumber.trim()
+      ? {
+          transferOptions: {
+            phoneNumber: c.transferPhoneNumber.replace(/[ ()-]/g, ""),
+            message: c.transferMessage.trim(),
+            timeout: numOr(previousTransfer.timeout, DEFAULTS.transferTimeout)
+          }
+        }
+      : {}),
+    vad: { ...obj(previousConversation.vad), ...c.vad }
+  };
+
+  const languageModel = {
+    knowledgeBase: [],
+    ...keptModel,
+    provider: m.provider,
+    model: m.model.trim(),
+    temperature: m.temperature,
+    maxTokens: m.maxTokens,
+    ...(m.baseUrl.trim() ? { baseUrl: m.baseUrl.trim() } : {}),
+    tools: values.tools.map(toolToConfig)
+  };
+
+  // An empty URL drops the webhook; a URL needs events (checked by the schema).
+  const eventsHook = values.eventsHook.url.trim()
+    ? {
+        ...previousHook,
+        url: values.eventsHook.url.trim(),
+        events: values.eventsHook.events
+      }
+    : undefined;
+
+  return {
+    name: values.name.trim(),
+    // @fonoster/types is CommonJS: no runtime enum imports in the browser.
+    type: "AUTOPILOT" as CreateApplicationRequest["type"],
+    textToSpeech: {
+      productRef: values.tts.productRef,
+      config: { ...obj(base?.textToSpeech?.config), voice: values.tts.voice }
+    },
+    speechToText: {
+      productRef: "stt.deepgram",
+      config: {
+        ...obj(base?.speechToText?.config),
+        model: values.stt.model,
+        languageCode: values.stt.languageCode
+      }
+    },
+    intelligence: {
+      productRef: `llm.${m.provider}`,
+      credentials: {},
+      config: {
+        ...keptConfig,
+        audioFilters: values.audioFilters,
+        conversationSettings,
+        languageModel,
+        ...(eventsHook ? { eventsHook } : {})
+      }
+    }
+  };
+}
+
+export function toUpdateRequest(
+  ref: string,
+  values: AgentValues,
+  base?: Application
+): UpdateApplicationRequest {
+  // `type` must be sent: the API validates `intelligence` only for AUTOPILOT.
+  return { ref, ...toRequest(values, base) };
+}
+
+/** A rough token count (≈4 characters per token), for the prompt's size hint. */
+export function approximateTokens(text: string): number {
+  return Math.ceil(text.trim().length / 4);
+}
+
+/** Which tab holds each top-level field, to point at errors after Save. */
+export function tabsWithErrors(errors: object): string[] {
+  const tabs = new Set<string>();
+  const e = errors as Record<string, Record<string, unknown> | undefined>;
+  const conversation = e.conversation ?? {};
+  if (e.name || e.tts || e.stt) tabs.add("configure");
+  if (e.model) {
+    const keys = Object.keys(e.model);
+    if (keys.some((k) => k === "provider" || k === "model"))
+      tabs.add("configure");
+    if (keys.some((k) => !["provider", "model"].includes(k)))
+      tabs.add("advanced");
+  }
+  const onConfigure = [
+    "firstMessage",
+    "systemPrompt",
+    "goodbyeMessage",
+    "systemErrorMessage",
+    "allowUserBargeIn",
+    "transferPhoneNumber",
+    "transferMessage"
+  ];
+  // Call limits show in Configure's Behavior panel and in Advanced.
+  const onBoth = [
+    "maxSessionMinutes",
+    "idleTimeoutSeconds",
+    "idleMaxTimeoutCount"
+  ];
+  for (const key of Object.keys(conversation)) {
+    if (onConfigure.includes(key) || onBoth.includes(key))
+      tabs.add("configure");
+    if (!onConfigure.includes(key)) tabs.add("advanced");
+  }
+  if (e.tools) tabs.add("tools");
+  if (e.audioFilters || e.eventsHook) tabs.add("advanced");
+  return [...tabs];
+}

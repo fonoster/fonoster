@@ -1,0 +1,201 @@
+/**
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { screen, within } from "@testing-library/react";
+import { WorkspaceProvider } from "~/lib/workspace";
+import { fakeAuth, renderScreen } from "~/test/render";
+import { testWorkspace } from "~/test/workspace";
+import SipUsersScreen from ".";
+import { toSipUserRow } from "./sip-users.service";
+
+// jsdom lacks these; Radix Select uses them.
+beforeAll(() => {
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.scrollIntoView ??= () => {};
+});
+
+const maria = {
+  ref: "ag-1",
+  name: "María Rodríguez",
+  username: "maria",
+  privacy: "PRIVATE",
+  enabled: true,
+  maxContacts: 3,
+  expires: 3600,
+  domain: { ref: "dm-1", name: "Acme HQ", domainUri: "acme.fonoster.local" },
+  credentials: { ref: "cr-1", name: "Maria's phone", username: "maria" }
+};
+
+function setup(items: object[] = []) {
+  const agents = {
+    listAgents: vi.fn().mockResolvedValue({ items }),
+    createAgent: vi.fn().mockResolvedValue({ ref: "ag-new" }),
+    updateAgent: vi.fn().mockResolvedValue({ ref: "ag-1" }),
+    deleteAgent: vi.fn().mockResolvedValue({ ref: "ag-1" })
+  };
+  const domains = {
+    listDomains: vi.fn().mockResolvedValue({
+      items: [
+        { ref: "dm-1", name: "Acme HQ", domainUri: "acme.fonoster.local" },
+        { ref: "dm-2", name: "Madrid", domainUri: "madrid.fonoster.local" }
+      ]
+    })
+  };
+  const credentials = {
+    listCredentials: vi.fn().mockResolvedValue({
+      items: [{ ref: "cr-1", name: "Maria's phone", username: "maria" }]
+    })
+  };
+  const auth = fakeAuth({
+    status: "signedIn",
+    sdk: { agents, domains, credentials } as never
+  });
+  const view = renderScreen(
+    <WorkspaceProvider value={testWorkspace}>
+      <SipUsersScreen />
+    </WorkspaceProvider>,
+    { auth }
+  );
+  return { ...view, agents };
+}
+
+describe("SIP users", () => {
+  it("lists SIP users with their SIP address", async () => {
+    setup([maria]);
+    const table = await screen.findByRole("table", { name: "SIP users" });
+    expect(
+      await within(table).findByText("María Rodríguez")
+    ).toBeInTheDocument();
+    expect(
+      within(table).getByText("sip:maria@acme.fonoster.local")
+    ).toBeInTheDocument();
+    expect(within(table).getByText("Private")).toBeInTheDocument();
+    expect(within(table).getByText("3")).toBeInTheDocument();
+    expect(
+      within(table).getByRole("switch", { name: "Enable María Rodríguez" })
+    ).toBeChecked();
+    expect(screen.getByText(/Numbers can route straight/)).toBeInTheDocument();
+  });
+
+  it("reads nested protobuf messages and the ID privacy alias", () => {
+    const row = toSipUserRow({
+      ...maria,
+      privacy: "ID",
+      domain: {
+        toObject: () => ({ ref: "d", name: "D", domainUri: "d.local" })
+      }
+    } as never);
+    expect(row.privacy).toBe("PRIVATE");
+    expect(row.domain?.domainUri).toBe("d.local");
+  });
+
+  it("shows the empty state with an add action", async () => {
+    setup([]);
+    expect(await screen.findByText("No SIP users yet")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add SIP user" })
+    ).toBeInTheDocument();
+  });
+
+  it("validates and creates a SIP user", async () => {
+    const { user, agents } = setup([]);
+    await user.click(
+      await screen.findByRole("button", { name: "Add SIP user" })
+    );
+    await user.type(screen.getByLabelText("Name"), "Front desk");
+    await user.type(screen.getByLabelText("Username"), "Front Desk");
+    await user.clear(screen.getByLabelText("Max contacts"));
+    await user.type(screen.getByLabelText("Max contacts"), "500");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(
+      await screen.findByText(
+        "Lowercase letters, numbers, dots, underscores and hyphens only"
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("Pick a domain")).toBeInTheDocument();
+    expect(screen.getByText("Between 1 and 100")).toBeInTheDocument();
+    expect(agents.createAgent).not.toHaveBeenCalled();
+
+    await user.clear(screen.getByLabelText("Username"));
+    await user.type(screen.getByLabelText("Username"), "desk");
+    await user.clear(screen.getByLabelText("Max contacts"));
+    await user.type(screen.getByLabelText("Max contacts"), "2");
+    await user.click(screen.getByLabelText("Domain"));
+    await user.click(
+      await screen.findByRole("option", { name: /madrid\.fonoster\.local/ })
+    );
+    await user.click(screen.getByLabelText("Credentials"));
+    await user.click(
+      await screen.findByRole("option", { name: /Maria's phone/ })
+    );
+    await user.click(screen.getByLabelText("Privacy"));
+    await user.click(await screen.findByRole("option", { name: /Private/ }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(agents.createAgent).toHaveBeenCalledWith({
+      name: "Front desk",
+      username: "desk",
+      domainRef: "dm-2",
+      credentialsRef: "cr-1",
+      privacy: "PRIVATE",
+      maxContacts: 2,
+      enabled: true,
+      expires: 3600
+    });
+  });
+
+  it("edits a SIP user without changing the username", async () => {
+    const { user, agents } = setup([maria]);
+    await user.click(await screen.findByText("María Rodríguez"));
+    expect(screen.getByLabelText("Username")).toBeDisabled();
+    await user.click(screen.getByLabelText("Enabled"));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(agents.updateAgent).toHaveBeenCalledWith({
+      ref: "ag-1",
+      name: "María Rodríguez",
+      domainRef: "dm-1",
+      credentialsRef: "cr-1",
+      privacy: "PRIVATE",
+      maxContacts: 3,
+      enabled: false
+    });
+  });
+
+  it("toggles a SIP user from the list", async () => {
+    const { user, agents } = setup([maria]);
+    await user.click(
+      await screen.findByRole("switch", { name: "Enable María Rodríguez" })
+    );
+    expect(agents.updateAgent).toHaveBeenCalledWith({
+      ref: "ag-1",
+      enabled: false
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("asks before deleting", async () => {
+    const { user, agents } = setup([maria]);
+    await user.click(
+      await screen.findByRole("button", { name: "Actions for María Rodríguez" })
+    );
+    await user.click(await screen.findByRole("menuitem", { name: "Delete" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    expect(agents.deleteAgent).toHaveBeenCalledWith("ag-1");
+  });
+});

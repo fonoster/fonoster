@@ -16,8 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PendingScreen } from "~/app/shell/page";
+import { Route, Routes } from "react-router-dom";
+import { TrunkPage } from "./trunk-page";
+import { TrunksList } from "./trunks-list";
 
-export default function Screen() {
-  return <PendingScreen title="Trunks" />;
+/** Mounted at /w/:workspaceRef/trunks/*. */
+export default function TrunksScreen() {
+  return (
+    <Routes>
+      <Route index element={<TrunksList />} />
+      <Route path="new" element={<TrunkPage />} />
+      <Route path=":ref" element={<TrunkPage />} />
+    </Routes>
+  );
 }

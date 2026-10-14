@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { ada, expect, identity, test, tokens, workspace } from "./fixtures";
-import { grpcError } from "./grpc-web";
+import { applications, grpcError, numbers, struct } from "./grpc-web";
 
 test.use({ variant: "community" });
 
@@ -95,4 +95,55 @@ test("signs out to a clean sign-in page", async ({ page, api }) => {
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
   expect(await page.evaluate(() => localStorage.getItem("fonoster.session"))).toBeNull();
+});
+
+// Runs the real SDK decoding on an application, Struct configs included
+// (regression: "textToSpeech.config.toJavaScript is not a function").
+test("lists and opens an agent with its saved configuration", async ({ page, api }) => {
+  const product = (productRef: string, config: object) => {
+    const container = new applications.ProductContainer();
+    container.setProductRef(productRef);
+    container.setConfig(struct.Struct.fromJavaScript(config));
+    return container;
+  };
+  const agent = new applications.Application();
+  agent.setRef("ap-1");
+  agent.setName("Front desk");
+  agent.setType(applications.ApplicationType.AUTOPILOT);
+  agent.setTextToSpeech(product("tts.deepgram", { voice: "aura-2-thalia-en" }));
+  agent.setSpeechToText(product("stt.deepgram", { model: "nova-3", languageCode: "en-US" }));
+  agent.setIntelligence(
+    product("llm.openai", {
+      conversationSettings: {
+        firstMessage: "Hi, how can I help?",
+        systemPrompt: "You are a receptionist.",
+        goodbyeMessage: "Bye",
+        systemErrorMessage: "Sorry",
+        idleOptions: { message: "Still there?", timeout: 10000, maxTimeoutCount: 2 }
+      },
+      languageModel: { provider: "openai", model: "gpt-4o-mini", temperature: 0.4, maxTokens: 240, tools: [] }
+    })
+  );
+  api
+    .on("Identity/ExchangeCredentials", () => tokens(ada))
+    .on("Applications/ListApplications", () => {
+      const list = new applications.ListApplicationsResponse();
+      list.setItemsList([agent]);
+      return list;
+    })
+    .on("Applications/GetApplication", () => agent)
+    .on("Numbers/ListNumbers", () => new numbers.ListNumbersResponse());
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password").fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("link", { name: /Acme Support/ }).click();
+  await page.getByRole("link", { name: "Agents" }).click();
+
+  await expect(page.getByText("Front desk")).toBeVisible();
+  await expect(page.getByText(/gpt-4o-mini/)).toBeVisible();
+  await page.getByText("Front desk").click();
+  await expect(page.getByLabel("System prompt")).toHaveValue("You are a receptionist.");
+  await expect(page.getByLabel("First message")).toHaveValue("Hi, how can I help?");
 });

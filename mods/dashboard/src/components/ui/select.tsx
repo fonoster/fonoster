@@ -49,7 +49,7 @@ export function Select({
 >) {
   return (
     <SelectPrimitive.Root
-      value={value || undefined}
+      value={value ?? ""}
       onValueChange={onValueChange}
       disabled={disabled}
     >

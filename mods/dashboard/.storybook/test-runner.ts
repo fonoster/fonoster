@@ -17,15 +17,24 @@
  * limitations under the License.
  */
 import type { TestRunnerConfig } from "@storybook/test-runner";
-import { checkA11y, injectAxe } from "axe-playwright";
+import { checkA11y, configureAxe, injectAxe } from "axe-playwright";
 
-/** Every story must render without axe violations (after its play function). */
+/**
+ * Every story must render without axe violations (after its play function).
+ * The whole page is checked so dialogs and drawers (portals) are included;
+ * content an open dialog hides with aria-hidden is skipped.
+ */
 const config: TestRunnerConfig = {
   async preVisit(page) {
     await injectAxe(page);
+    // Stories render one screen without the app's landmarks (main, nav).
+    await configureAxe(page, { rules: [{ id: "region", enabled: false }] });
   },
   async postVisit(page) {
-    await checkA11y(page, "#storybook-root", {
+    // The theme decorator switches colors as the story mounts and controls
+    // animate color changes (150ms); measure contrast once they've settled.
+    await page.waitForTimeout(400);
+    await checkA11y(page, { include: [["body"]], exclude: [['[aria-hidden="true"]']] } as never, {
       detailedReport: true,
       detailedReportOptions: { html: true }
     });
