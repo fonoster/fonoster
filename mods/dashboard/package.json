@@ -9,7 +9,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -p tsconfig.json && vite build",
+    "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview --port 3030",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
