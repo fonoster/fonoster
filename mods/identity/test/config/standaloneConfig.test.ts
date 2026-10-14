@@ -127,6 +127,21 @@ describe("@identity[server/config]", function () {
     ).to.throw(/tokens: unknown key "extra"/);
   });
 
+  it("reads sign-in settings from a root auth block", function () {
+    const { identityConfig } = load({
+      ...base,
+      auth: { methods: ["email_code", "password"], signup: "open" }
+    });
+
+    expect(identityConfig.auth).to.deep.equal({
+      methods: ["email_code", "password"],
+      signup: "open"
+    });
+    expect(() =>
+      load({ ...base, features: { auth: { methods: ["password"] } } })
+    ).to.throw(/unknown key "features"/);
+  });
+
   it("rejects the nested identity: section (that's fonoster.yaml's layout)", function () {
     expect(() => load({ ...base, identity: {} })).to.throw(
       /unknown key "identity"/

@@ -39,7 +39,7 @@ reads no environment variables. Fields sit at the root of the file:
     "publicKeyPath": "/opt/fonoster/keys/public.pem"
   },
   "smtp": { "host": "smtp.acme.com", "port": 587, "sender": "no-reply@acme.com", "auth": { "user": "ops", "pass": "secret" } },
-  "features": { "auth": { "methods": ["password"], "signup": "invite" } },
+  "auth": { "methods": ["password"], "signup": "invite" },
   "defaultUser": { "name": "Admin", "email": "admin@acme.com", "password": "changeme" }
 }
 ```

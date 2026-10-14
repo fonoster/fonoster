@@ -74,6 +74,13 @@ API server's public `Capabilities/GetCapabilities` RPC (`client.getCapabilities(
 in the SDK), which also reports billing, cost display, domain and app URL, and
 never returns secrets. Identity enforces `features.auth` but doesn't report it.
 
+Standalone Identity takes the same block at the root of `identity.json`, without
+the `features` wrapper:
+
+```json
+"auth": { "methods": ["password"], "signup": "invite" }
+```
+
 Code sends are limited to 3 per email and 20 per client IP every 10 minutes.
 The limits are kept in each process's memory, so with several replicas each
 one enforces its own.
@@ -83,7 +90,8 @@ one enforces its own.
 Standalone Identity reads `identity.json` (or `.jsonc`/`.yaml`) with its fields at
 the root, as before: `server`, `database`, `encryptionKey`, `issuer`, `audience`,
 `appUrl`, `keys`, `tokens`, `security`, `invite`, `smtp` (with `auth.user`/`auth.pass`),
-`oauth2` and `defaultUser`. New, optional: `logs`, `twilio` and `features.auth`.
+`oauth2` and `defaultUser`. New, optional: `logs`, `twilio` and `auth` (the same
+block as `features.auth` in `fonoster.yaml`).
 The same settings sit under `identity:` in `fonoster.yaml`. Validation is strict
 (unknown keys fail), and the defaults match the API server's.
 

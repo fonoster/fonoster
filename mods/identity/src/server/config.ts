@@ -68,7 +68,8 @@ const identityServiceConfigSchema = z.object({
     .optional(),
   twilio: twilioSchema.optional(),
   oauth2: oauth2Schema,
-  features: z.object({ auth: authFeaturesSchema }).default({}),
+  /** Sign-in methods and sign-up policy (`features.auth` in fonoster.yaml). */
+  auth: authFeaturesSchema,
   defaultUser: ownerSchema
 });
 
@@ -125,7 +126,7 @@ function loadConfig(argv: string[] = process.argv) {
           }
         : undefined,
       twilio: config.twilio,
-      auth: config.features.auth
+      auth: config.auth
     })
   };
 }
