@@ -53,6 +53,7 @@ Tokens: `--ease-out: cubic-bezier(.22,1,.36,1)`, `--ease-in-out: cubic-bezier(.6
 
 ## Open items
 
+- **Notice bar (temporary).** A strip above the nav on every page says major upgrades are underway and contributions are paused, with a link to the bug report form. Remove it once the refresh settles: the `.notice` markup on each page, the "Notice bar" block in `v1.css`, the `notice.*` strings in `i18n.js`, and `i-triangle-alert` in the sprite if nothing else uses it.
 - "Start building" goes to the console login (app.fonoster.com/auth/login). "Contact sales" still uses the contact Typeform.
 - "Call me" in the hero needs a backend that places the demo call (with rate limits and country restrictions). Until then the form shows a "coming soon" note; wire the real call in `initCallMe` in `v1.js`.
 - The light theme and Spanish strings work but haven't been reviewed by design or a native speaker.

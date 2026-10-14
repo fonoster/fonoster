@@ -371,6 +371,83 @@ section[id] {
   }
 }
 
+/* ---------- Notice bar (temporary) ----------
+   A thin strip above the nav while the refresh is in progress. It scrolls away and the nav stays sticky.
+   It's the one blue element on the site (a transparent sky tint) so it reads apart from the green CTAs.
+   The icon sits inline so it stays attached to the text when the line wraps.
+   To remove it, delete this block, the .notice markup on each page, and the notice.* strings. */
+.notice {
+  --notice-bg: rgba(14, 165, 233, 0.14);
+  --notice-line: rgba(14, 165, 233, 0.32);
+  --notice-text: #7dd3fc;
+  --notice-strong: #e0f2fe;
+  --notice-icon: #38bdf8;
+  background: var(--notice-bg);
+  border-bottom: 1px solid var(--notice-line);
+  color: var(--notice-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+:root[data-theme="light"] .notice {
+  --notice-bg: rgba(14, 165, 233, 0.08);
+  --notice-line: rgba(14, 165, 233, 0.26);
+  --notice-text: #075985;
+  --notice-strong: #0c4a6e;
+  --notice-icon: #0284c7;
+}
+.notice__in {
+  padding-block: 10px;
+  text-align: center;
+  text-wrap: balance;
+}
+.notice__icon {
+  margin-right: 8px;
+  vertical-align: -3px;
+  color: var(--notice-icon);
+}
+.notice strong {
+  color: var(--notice-strong);
+  font-weight: 500;
+}
+.notice__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  color: var(--notice-strong);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.notice__link span {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--dur-1) var(--ease-out);
+}
+.notice__link:hover span {
+  text-decoration-color: currentColor;
+}
+.notice__link .icon {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--dur-1) var(--ease-out);
+}
+.notice__link:hover .icon {
+  transform: translateX(2px);
+}
+@media (max-width: 640px) {
+  /* Left-aligned with a hanging indent: wrapped lines start under the text, not the icon. */
+  .notice__in {
+    padding-left: calc(var(--pad) + 24px);
+    text-indent: -24px;
+    text-align: left;
+    text-wrap: pretty;
+  }
+  .notice__link {
+    text-indent: 0;
+  }
+}
+
 /* ---------- Atmosphere: dot grid + light wave ----------
    The grid matches the design at rest. A single soft line of light sweeps across it
    once shortly after load, then every 10s (the sweep itself takes ~2.2s). */
