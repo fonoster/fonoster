@@ -23,7 +23,10 @@ import { InviteFailedPage, InvitesPage } from "~/auth/invites.page";
 import { PublicOnly, RequireAuth } from "./guards";
 import { LandingRedirect } from "./landing-redirect";
 import { WorkspaceGate } from "./workspace-gate";
-import { WorkspaceHome } from "./workspace-home";
+import { AppShell } from "./shell/app-shell";
+import { NAVIGATION } from "./shell/nav";
+import { PendingScreen } from "./shell/page";
+import { SCREENS } from "./screens";
 
 const SignIn = lazy(() => import("~/auth/sign-in.page"));
 const CheckEmail = lazy(() => import("~/auth/check-email.page"));
@@ -36,6 +39,11 @@ const Workspaces = lazy(() => import("~/workspaces/landing.page"));
 const CreateWorkspace = lazy(
   () => import("~/workspaces/create-workspace.page")
 );
+
+function screen(path: string, title: string) {
+  const Screen = SCREENS[path];
+  return Screen ? <Screen /> : <PendingScreen title={title} />;
+}
 
 export function AppRoutes() {
   return (
@@ -58,8 +66,24 @@ export function AppRoutes() {
           <Route path="/workspaces" element={<Workspaces />} />
           <Route path="/workspaces/new" element={<CreateWorkspace />} />
           <Route path="/w/:workspaceRef" element={<WorkspaceGate />}>
-            <Route index element={<WorkspaceHome />} />
-            <Route path="*" element={<WorkspaceHome />} />
+            <Route element={<AppShell />}>
+              {NAVIGATION.flatMap((section) => section.items).map((item) =>
+                item.path ? (
+                  <Route
+                    key={item.path}
+                    path={`${item.path}/*`}
+                    element={screen(item.path, item.label)}
+                  />
+                ) : (
+                  <Route
+                    key="overview"
+                    index
+                    element={<PendingScreen title={item.label} />}
+                  />
+                )
+              )}
+              <Route path="*" element={<Navigate to="." replace />} />
+            </Route>
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -28,7 +28,7 @@ export function Toaster(props: ToasterProps) {
       toastOptions={{
         classNames: {
           toast:
-            "!rounded-control !border-border !bg-popover !text-popover-foreground !font-sans"
+            "!rounded-control !border-border !bg-popover !text-popover-foreground !font-display"
         }
       }}
       {...props}

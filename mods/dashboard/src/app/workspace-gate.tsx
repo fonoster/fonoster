@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { Navigate, Outlet, useParams } from "react-router-dom";
 import { Splash } from "~/components/status/splash";
 import { useAuth } from "~/lib/auth";
+import { WorkspaceProvider } from "~/lib/workspace";
 import { rememberWorkspace } from "~/workspaces/workspace-session";
 import { useWorkspaces } from "~/workspaces/workspaces.service";
 
@@ -43,5 +44,9 @@ export function WorkspaceGate() {
   if (!workspace) return <Navigate to="/workspaces" replace />;
   if (client.getAccessKeyId() !== workspace.accessKeyId)
     client.setAccessKeyId(workspace.accessKeyId);
-  return <Outlet context={workspace} />;
+  return (
+    <WorkspaceProvider value={workspace}>
+      <Outlet />
+    </WorkspaceProvider>
+  );
 }
