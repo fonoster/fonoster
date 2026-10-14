@@ -20,6 +20,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { expect } from "chai";
+import { IdentityConfig } from "../../src/exchanges/types";
 import { loadConfig } from "../../src/server/config";
 import { createSendEmail } from "../../src/utils/createSendEmail";
 
@@ -113,6 +114,93 @@ describe("@identity[server/config]", function () {
     expect(identityConfig.workspaceInviteExpiration).to.equal("2d");
     expect(identityConfig.smtpConfig?.auth).to.deep.equal({ user: "u", pass: "p" });
     expect(defaultUser?.email).to.equal("admin@acme.com");
+  });
+
+  describe("backwards compatibility (original identity.json)", function () {
+    const minimal = {
+      database: { url: "postgresql://db/identity" },
+      encryptionKey: "k",
+      issuer: "https://id.acme.com",
+      audience: "api",
+      keys: { privateKey: "test-private", publicKey: "test-public" }
+    };
+
+    it("keeps the original defaults where the current ones differ", function () {
+      const { identityConfig, appUrl, logs } = load(
+        "identity.json",
+        JSON.stringify(minimal)
+      );
+
+      expect(appUrl).to.equal("");
+      expect(identityConfig.refreshTokenExpiresIn).to.equal("30d");
+      expect(identityConfig.accessTokenExpiresIn).to.equal("15m");
+      expect(identityConfig.workspaceInviteExpiration).to.equal("2d");
+      expect(identityConfig.workspaceInviteUrl).to.equal("");
+      expect(identityConfig.workspaceInviteFailUrl).to.equal("");
+      expect(identityConfig.auth).to.deep.equal({
+        methods: ["password"],
+        signup: "invite"
+      });
+      // Logging stays on the environment, as before.
+      expect(logs).to.be.undefined;
+    });
+
+    it("ignores unknown keys instead of rejecting them", function () {
+      const { identityConfig } = load(
+        "identity.json",
+        JSON.stringify({
+          ...minimal,
+          comment: "left over from an older release",
+          tokens: { refreshTokenExpiresIn: "7d", extra: true }
+        })
+      );
+
+      expect(identityConfig.refreshTokenExpiresIn).to.equal("7d");
+    });
+
+    it("accepts any default user password, as before", function () {
+      const { defaultUser } = load(
+        "identity.json",
+        JSON.stringify({
+          ...minimal,
+          defaultUser: { name: "Admin", email: "a@acme.com", password: "pw" }
+        })
+      );
+
+      expect(defaultUser?.password).to.equal("pw");
+    });
+
+    it("applies a logs section when the file has one", function () {
+      const { logs } = load(
+        "identity.json",
+        JSON.stringify({ ...minimal, logs: { level: "debug" } })
+      );
+
+      expect(logs?.level).to.equal("debug");
+    });
+
+    it("accepts an IdentityConfig built without the newer fields", function () {
+      // Compile-time check: external callers of buildIdentityService build
+      // this object themselves; auth and smtpConfig must stay optional.
+      const config: IdentityConfig = {
+        dbUrl: "postgresql://db/identity",
+        issuer: "https://id.acme.com",
+        audience: "api",
+        privateKey: "k",
+        publicKey: "k",
+        encryptionKey: "k",
+        accessTokenExpiresIn: "15m",
+        refreshTokenExpiresIn: "30d",
+        idTokenExpiresIn: "15m",
+        workspaceInviteExpiration: "2d",
+        workspaceInviteUrl: "",
+        workspaceInviteFailUrl: "",
+        contactVerificationRequired: false,
+        twoFactorAuthenticationRequired: false
+      };
+
+      expect(config.auth).to.be.undefined;
+    });
   });
 
   it("requires a domain, appUrl or issuer", function () {

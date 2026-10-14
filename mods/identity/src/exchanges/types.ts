@@ -54,11 +54,20 @@ type IdentityConfig = {
     clientId: string;
     clientSecret: string;
   };
-  /** Sign-in methods and sign-up policy, from features.auth. */
-  auth: {
+  /**
+   * Sign-in methods and sign-up policy, from features.auth. Optional so
+   * existing callers of buildIdentityService keep working; when unset, it
+   * means password sign-in with invite-only sign-up (DEFAULT_AUTH).
+   */
+  auth?: {
     methods: Array<"password" | "email_code" | "github">;
     signup: "invite" | "open";
   };
+};
+
+const DEFAULT_AUTH: NonNullable<IdentityConfig["auth"]> = {
+  methods: ["password"],
+  signup: "invite"
 };
 
 type ExchangeApiKeysRequest = z.infer<typeof V.exchangeApiKeysRequestSchema>;
@@ -80,6 +89,7 @@ type ExchangeRefreshTokenRequest = z.infer<
 >;
 
 export {
+  DEFAULT_AUTH,
   ExchangeApiKeysRequest,
   ExchangeCredentialsRequest,
   ExchangeOauth2CodeRequest,

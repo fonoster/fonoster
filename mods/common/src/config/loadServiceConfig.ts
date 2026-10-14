@@ -57,6 +57,12 @@ type LoadServiceConfigOptions<S extends ZodTypeAny> = {
    * file; return it unchanged when it is already current.
    */
   migrate?: (raw: unknown) => unknown;
+  /**
+   * Return true to validate this file without rejecting unknown keys (they are
+   * dropped instead), e.g. for a legacy layout that never rejected them.
+   * Called on the parsed file before `migrate`.
+   */
+  lenient?: (raw: unknown) => boolean;
 };
 
 /**
@@ -136,6 +142,8 @@ function loadServiceConfig<S extends ZodTypeAny>(
     raw = rest;
   }
 
+  const lenient = options.lenient?.(raw) ?? false;
+
   if (options.migrate) {
     raw = options.migrate(raw);
   }
@@ -158,8 +166,8 @@ function loadServiceConfig<S extends ZodTypeAny>(
     );
   }
 
-  const strictSchema = strictDeep(schema);
-  const result = strictSchema.safeParse(interpolated);
+  const effectiveSchema = lenient ? schema : strictDeep(schema);
+  const result = effectiveSchema.safeParse(interpolated);
   if (!result.success) {
     throw new Error(
       `invalid ${service} config at ${where}: ${formatIssues(result.error)}`

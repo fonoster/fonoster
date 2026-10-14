@@ -30,21 +30,31 @@ const LEGACY_MARKERS = [
   "keys"
 ];
 
+/** True for the original identity.json layout (no `identity:` section). */
+function isLegacyIdentityJson(input: unknown): boolean {
+  if (input === null || typeof input !== "object" || "identity" in input) {
+    return false;
+  }
+  return LEGACY_MARKERS.some((key) => key in (input as Raw));
+}
+
+const asRaw = (value: unknown): Raw =>
+  value !== null && typeof value === "object" ? (value as Raw) : {};
+
 /**
  * Translates the original standalone identity.json layout (top-level issuer,
  * keys, encryptionKey, invite, defaultUser, smtp.auth) into the current one
  * (an `identity:` section, `encryption.key`, `smtp.user/password`), so
- * existing deployments keep starting. Logs a deprecation warning when it does.
+ * existing deployments keep starting with the same behavior: the original
+ * defaults are kept where the current ones differ (refresh tokens 30d, invites
+ * 2d, empty invite URLs and appUrl). Logs a deprecation warning when it does.
  */
 function fromLegacyIdentityJson(input: unknown): unknown {
-  if (input === null || typeof input !== "object" || "identity" in input) {
+  if (!isLegacyIdentityJson(input)) {
     return input;
   }
 
   const raw = input as Raw;
-  if (!LEGACY_MARKERS.some((key) => key in raw)) {
-    return input;
-  }
 
   logger.warn(
     "identity config uses the original identity.json layout; it still works, but move to the identity: section (see the config migration guide)"
@@ -69,8 +79,12 @@ function fromLegacyIdentityJson(input: unknown): unknown {
     | undefined;
   const { auth, ...smtpRest } = legacySmtp ?? {};
 
+  const legacyTokens = asRaw(tokens);
+  const legacyInvite = asRaw(invite);
+
   return {
     ...rest,
+    appUrl: rest.appUrl ?? "",
     ...(encryptionKey !== undefined
       ? { encryption: { key: encryptionKey } }
       : {}),
@@ -81,13 +95,20 @@ function fromLegacyIdentityJson(input: unknown): unknown {
       issuer,
       audience,
       keys,
-      tokens,
+      tokens: {
+        ...legacyTokens,
+        refreshTokenExpiresIn: legacyTokens.refreshTokenExpiresIn ?? "30d"
+      },
       security,
       oauth2,
-      invites: invite,
+      invites: {
+        url: legacyInvite.url ?? "",
+        failUrl: legacyInvite.failUrl ?? "",
+        expiration: legacyInvite.expiration ?? "2d"
+      },
       owner: defaultUser
     }
   };
 }
 
-export { fromLegacyIdentityJson };
+export { fromLegacyIdentityJson, isLegacyIdentityJson };

@@ -69,11 +69,18 @@ Later commits may replace constants with direct `getConfig()` reads where it sim
 - **`identitySectionSchema`**: issuer, audience, keys, tokens, security, invites, oauth2, owner and an optional database. It is reused verbatim as `fonoster.yaml`'s `identity:` section.
 - **A standalone wrapper**: adds server, database, encryption, smtp, appUrl, twilio and `features.auth`.
 
-Standalone keeps accepting today's `identity.json`. Defaults are reconciled to the apiserver's current behaviour:
+Defaults for the new layout are reconciled to the apiserver's current behaviour:
 - refresh token 24h
 - invite expiration 1d
 - HTTP bridge port per wrapper: 9876 for the apiserver, 9000 standalone
 - SMTP required only when a feature needs it, enforced with `superRefine`
+
+### Identity stays backwards compatible
+Identity is also deployed standalone, and `@fonoster/identity` is used as a library, by products other than Fonoster. Those deployments must keep working unchanged:
+- **Original `identity.json`.** Detected by its layout (no `identity:` section), translated, and validated as before: unknown keys are dropped rather than rejected (the loader's `lenient` option), the original defaults are kept where the new ones differ (refresh tokens 30d, invites 2d, empty invite URLs and `appUrl`, any default-user password), and logging stays on the environment unless the file has a `logs` section. A deprecation warning points at the new layout.
+- **`IdentityConfig`.** Fields added for Fonoster (`auth`, the optional `smtpConfig`) are optional; an unset `auth` means password sign-in with invite-only sign-up (`DEFAULT_AUTH`), which is today's behaviour.
+- **Exports.** `buildIdentityService`, `loadConfig` (its result only gains fields) and the deep `server/config` module keep their names.
+- **Later changes** (`identity-auth-modes`) add RPCs and optional fields only; with no `auth` configured, existing password sign-in keeps working.
 
 ### Logger
 `mods/logger` gains `configureLogger({ level, format, transport, fluent })`. Loggers keep their identity, but their level and transports come from a shared container that `configureLogger` reconfigures. That means loggers created at import time, before boot, pick up the file's settings.

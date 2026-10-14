@@ -48,7 +48,9 @@ async function main() {
     identityConfig
   } = loadConfig();
 
-  configureLogger(logs);
+  if (logs) {
+    configureLogger(logs);
+  }
 
   const { definition, handlers } = buildIdentityService(identityConfig);
 
