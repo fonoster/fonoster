@@ -17,51 +17,51 @@
  * limitations under the License.
  */
 import {
-  Bot,
-  Braces,
-  Grid3x3,
-  Headset,
-  IdCard,
-  KeyRound,
-  LayoutDashboard,
+  Badge,
+  CallLog,
+  CodeBlocks,
+  Dialpad,
+  Dns,
+  HeadsetMic,
+  Lan,
   Lock,
-  Network,
-  PhoneCall,
-  Server,
   Settings,
   Shield,
-  type LucideIcon
-} from "lucide-react";
+  SmartToy,
+  SpaceDashboard,
+  Key,
+  type MaterialIcon
+} from "~/components/icons/material";
 
-export type NavItem = { label: string; path: string; icon: LucideIcon };
+export type NavItem = { label: string; path: string; icon: MaterialIcon };
 export type NavSection = { title?: string; items: NavItem[] };
 
 /** The sidebar, as in designs/dashboard.pen (Dashboard/App shell). Paths are relative to /w/:workspaceRef. */
 export const NAVIGATION: NavSection[] = [
   {
     items: [
-      { label: "Overview", path: "", icon: LayoutDashboard },
-      { label: "Agents", path: "agents", icon: Bot },
-      { label: "Voice apps", path: "voice-apps", icon: Braces },
-      { label: "Calls", path: "calls", icon: PhoneCall }
+      { label: "Overview", path: "", icon: SpaceDashboard },
+      { label: "Agents", path: "agents", icon: SmartToy },
+      { label: "Voice apps", path: "voice-apps", icon: CodeBlocks },
+      { label: "Calls", path: "calls", icon: CallLog }
     ]
   },
   {
     title: "SIP network",
     items: [
-      { label: "Numbers", path: "numbers", icon: Grid3x3 },
-      { label: "Trunks", path: "trunks", icon: Network },
-      { label: "Domains", path: "domains", icon: Server },
-      { label: "SIP users", path: "sip-users", icon: Headset },
+      { label: "Numbers", path: "numbers", icon: Dialpad },
+      { label: "Trunks", path: "trunks", icon: Lan },
+      { label: "Domains", path: "domains", icon: Dns },
+      { label: "SIP users", path: "sip-users", icon: HeadsetMic },
       { label: "ACLs", path: "acls", icon: Shield },
-      { label: "Credentials", path: "credentials", icon: IdCard }
+      { label: "Credentials", path: "credentials", icon: Badge }
     ]
   },
   {
     title: "Workspace",
     items: [
       { label: "Secrets", path: "secrets", icon: Lock },
-      { label: "API keys", path: "api-keys", icon: KeyRound },
+      { label: "API keys", path: "api-keys", icon: Key },
       { label: "Settings", path: "settings", icon: Settings }
     ]
   }

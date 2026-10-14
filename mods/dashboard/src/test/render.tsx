@@ -26,6 +26,7 @@ import { AuthOverride, type AuthContextValue } from "~/lib/auth";
 import { CapabilitiesOverride } from "~/lib/capabilities";
 import type { Capabilities } from "~/lib/client";
 import { communityCapabilities } from "~/lib/fixtures";
+import { TooltipProvider } from "~/components/ui/tooltip";
 import { RuntimeProvider } from "~/lib/runtime-context";
 import { createFakeAuth } from "./fake-auth";
 
@@ -67,20 +68,24 @@ export function renderScreen(
       <QueryClientProvider client={queryClient}>
         <CapabilitiesOverride value={capabilities}>
           <AuthOverride value={auth}>
-            <MemoryRouter
-              initialEntries={[
-                {
-                  pathname: route.split("?")[0],
-                  search: route.includes("?") ? `?${route.split("?")[1]}` : "",
-                  state
-                }
-              ]}
-            >
-              <Routes>
-                <Route path={path} element={element} />
-                <Route path="*" element={<LocationMarker />} />
-              </Routes>
-            </MemoryRouter>
+            <TooltipProvider>
+              <MemoryRouter
+                initialEntries={[
+                  {
+                    pathname: route.split("?")[0],
+                    search: route.includes("?")
+                      ? `?${route.split("?")[1]}`
+                      : "",
+                    state
+                  }
+                ]}
+              >
+                <Routes>
+                  <Route path={path} element={element} />
+                  <Route path="*" element={<LocationMarker />} />
+                </Routes>
+              </MemoryRouter>
+            </TooltipProvider>
           </AuthOverride>
         </CapabilitiesOverride>
       </QueryClientProvider>

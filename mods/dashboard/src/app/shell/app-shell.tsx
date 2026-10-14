@@ -48,7 +48,7 @@ export function AppShell() {
         onToggle={toggle}
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-end gap-4 px-4 font-display text-[13px] text-muted-foreground sm:px-8">
+        <header className="flex h-14 shrink-0 items-center justify-end gap-4 border-b border-border px-4 font-display text-[13px] text-muted-foreground sm:px-8">
           <a
             href={DOCS_URL}
             target="_blank"

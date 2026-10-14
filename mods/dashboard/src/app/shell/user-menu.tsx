@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ChevronDown, LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { KeyboardArrowDown } from "~/components/icons/material";
 import { Avatar, AvatarFallback, initials } from "~/components/ui/avatar";
 import {
   DropdownMenu,
@@ -55,7 +56,7 @@ export function UserMenu({ collapsed }: { collapsed: boolean }) {
         )}
       >
         {collapsed ? (
-          <Avatar>
+          <Avatar className="size-8">
             <AvatarFallback className="bg-sidebar-accent text-xs text-sidebar-accent-foreground">
               {initials(name)}
             </AvatarFallback>
@@ -70,10 +71,7 @@ export function UserMenu({ collapsed }: { collapsed: boolean }) {
                 {user?.email}
               </span>
             </span>
-            <ChevronDown
-              className="size-5 text-sidebar-foreground"
-              aria-hidden
-            />
+            <KeyboardArrowDown className="size-6 shrink-0 text-sidebar-foreground" />
           </>
         )}
       </DropdownMenuTrigger>

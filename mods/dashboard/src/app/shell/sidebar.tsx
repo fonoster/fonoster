@@ -19,7 +19,7 @@
 import type { Workspace } from "@fonoster/types";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Fragment } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, useMatch, useResolvedPath } from "react-router-dom";
 import { Logo, LogoMark } from "~/components/brand/logo";
 import {
   Tooltip,
@@ -32,6 +32,9 @@ import { NAVIGATION, type NavItem } from "./nav";
 import { UserMenu } from "./user-menu";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
+// Measurements from designs/fonoster.lib.pen: "Dashboard/App shell" (248px) and
+// "Sidebar/Collapsed" (64px).
+
 function NavEntry({
   item,
   base,
@@ -42,22 +45,26 @@ function NavEntry({
   collapsed: boolean;
 }) {
   const Icon = item.icon;
+  const to = item.path ? `${base}/${item.path}` : base;
+  // Computed here rather than with NavLink's className function: the tooltip
+  // trigger (Radix Slot) merges class names as strings.
+  const active = Boolean(
+    useMatch({ path: useResolvedPath(to).pathname, end: !item.path })
+  );
   const link = (
-    <NavLink
-      to={item.path ? `${base}/${item.path}` : base}
-      end={!item.path}
+    <Link
+      to={to}
+      aria-current={active ? "page" : undefined}
       aria-label={collapsed ? item.label : undefined}
-      className={({ isActive }) =>
-        cn(
-          "flex items-center rounded-control font-display text-sm text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring",
-          collapsed ? "size-10 justify-center" : "gap-3 px-3 py-[7px]",
-          isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
-        )
-      }
+      className={cn(
+        "flex shrink-0 items-center rounded-control font-display text-sm text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+        collapsed ? "size-10 justify-center" : "h-[35px] gap-3 px-3",
+        active && "bg-sidebar-accent text-sidebar-accent-foreground"
+      )}
     >
-      <Icon className="size-5 shrink-0" aria-hidden />
+      <Icon className="size-5 shrink-0" />
       {!collapsed && <span className="truncate">{item.label}</span>}
-    </NavLink>
+    </Link>
   );
 
   if (!collapsed) return link;
@@ -89,9 +96,9 @@ export function Sidebar({
       onClick={onToggle}
       aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       aria-expanded={!collapsed}
-      className="flex size-8 cursor-pointer items-center justify-center rounded-[8px] text-sidebar-foreground outline-none hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+      className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-sidebar-foreground outline-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring"
     >
-      <ToggleIcon className="size-[18px]" aria-hidden />
+      <ToggleIcon className="size-[18px]" strokeWidth={1.5} aria-hidden />
     </button>
   );
 
@@ -100,26 +107,30 @@ export function Sidebar({
       aria-label="Main"
       className={cn(
         "sticky top-0 flex h-dvh shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200",
-        collapsed ? "w-16" : "w-60"
+        collapsed ? "w-16" : "w-[248px]"
       )}
     >
       <div
         className={cn(
-          "flex flex-col",
-          collapsed ? "items-center gap-3 px-3 py-4" : "gap-4 px-5 pb-5 pt-6"
+          "flex shrink-0 flex-col border-b border-sidebar-border",
+          collapsed ? "items-center gap-3 py-4" : "gap-4 px-5 pb-5 pt-6"
         )}
       >
         {collapsed ? (
           <>
             {toggle}
-            <Link to="/workspaces" aria-label="All workspaces" className="py-1">
-              <LogoMark />
+            <Link
+              to="/workspaces"
+              aria-label="All workspaces"
+              className="rounded-[6px]"
+            >
+              <LogoMark className="size-6" />
             </Link>
           </>
         ) : (
-          <div className="flex items-center justify-between">
+          <div className="flex h-8 items-center justify-between">
             <Link to="/workspaces" aria-label="All workspaces">
-              <Logo className="h-7" />
+              <Logo className="h-8" />
             </Link>
             {toggle}
           </div>
@@ -130,16 +141,21 @@ export function Sidebar({
       <nav
         className={cn(
           "flex flex-1 flex-col gap-0.5 overflow-y-auto",
-          collapsed ? "items-center px-3 py-3" : "px-3 py-1"
+          collapsed ? "items-center py-3" : "mt-6 px-3 py-1"
         )}
       >
         {NAVIGATION.map((section, index) => (
           <Fragment key={section.title ?? index}>
             {section.title &&
               (collapsed ? (
-                <span className="my-2 h-px w-6 bg-sidebar-border" aria-hidden />
+                <span
+                  className="flex h-[17px] w-10 shrink-0 items-center justify-center"
+                  aria-hidden
+                >
+                  <span className="h-px w-6 bg-sidebar-border" />
+                </span>
               ) : (
-                <span className="px-3 pb-1.5 pt-[18px] text-[11px] uppercase text-sidebar-foreground">
+                <span className="px-3 pb-1.5 pt-[18px] font-mono text-[11px] uppercase tracking-[0.12em] text-sidebar-foreground">
                   {section.title}
                 </span>
               ))}
@@ -156,7 +172,12 @@ export function Sidebar({
       </nav>
 
       <div
-        className={cn("flex", collapsed ? "justify-center py-3" : "px-3 py-3")}
+        className={cn(
+          "flex shrink-0",
+          collapsed
+            ? "justify-center border-t border-sidebar-border py-4"
+            : "px-3 py-4"
+        )}
       >
         <UserMenu collapsed={collapsed} />
       </div>

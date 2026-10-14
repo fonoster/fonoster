@@ -59,7 +59,7 @@ export function WorkspaceSwitcher({
           "flex cursor-pointer items-center rounded-control text-sidebar-accent-foreground outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring",
           collapsed
             ? "size-10 justify-center bg-sidebar-accent"
-            : "h-10 w-full gap-2.5 px-2.5"
+            : "h-10 w-full gap-2.5 border border-sidebar-border px-2.5"
         )}
       >
         <span

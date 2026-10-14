@@ -30,11 +30,11 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4 px-4 pb-6 pt-2 sm:px-8">
-      <div className="flex min-w-0 flex-col gap-1.5">
-        <h1 className="text-2xl font-semibold">{title}</h1>
+    <div className="flex flex-wrap items-start justify-between gap-4 px-4 pb-5 pt-7 sm:px-8">
+      <div className="flex min-w-0 flex-col gap-1">
+        <h1 className="text-[22px] font-semibold leading-tight">{title}</h1>
         {description && (
-          <p className="font-display text-sm text-muted-foreground">
+          <p className="font-display text-[13px] text-muted-foreground">
             {description}
           </p>
         )}
@@ -53,7 +53,7 @@ export function PendingScreen({ title }: { title: string }) {
       <PageHeader title={title} />
       <div className="mx-4 flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border p-10 text-center sm:mx-8 mb-8">
         <Construction className="size-6 text-muted-foreground" aria-hidden />
-        <p className="font-display text-sm text-muted-foreground">
+        <p className="font-display text-[13px] text-muted-foreground">
           This screen is being rebuilt.
         </p>
       </div>
