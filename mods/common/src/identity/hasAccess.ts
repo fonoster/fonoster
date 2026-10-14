@@ -29,11 +29,13 @@ function hasAccess(
   method: string
 ) {
   const { access, accessKeyId } = decodedToken;
-  const roleList =
-    accessKeyId.startsWith("US") && // US is for user; user tokens only have USER role
-    access.length === 0 // If it is a user token, and has no access, we still allow it in case it is a user method
-      ? [Role.USER]
-      : access.map((a: Access) => a.role);
+  const workspaceRoles = access.map((a: Access) => a.role);
+  // User tokens (accessKeyId "US…") always carry the USER role, so methods
+  // about the user themselves (e.g. UpdateUser, CreateWorkspace) keep working
+  // once they belong to a workspace. Their workspace roles add to it.
+  const roleList = accessKeyId.startsWith("US")
+    ? [Role.USER, ...workspaceRoles]
+    : workspaceRoles;
 
   return roleList.some((r: string) =>
     roles.find(
