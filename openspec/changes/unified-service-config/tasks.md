@@ -67,7 +67,7 @@
 - [x] 6.4 CI workflows and root scripts use config files instead of `APISERVER_*` / `AUTOPILOT_*`
 - [x] 6.5 Migration guide with the full old-variable → key table; Identity config reference
       (covers `identity-standalone-service` 3.2) and compose example (covers its 5.2)
-- [ ] 6.6 Remove `config-proposal/`; delete the `next` branch (with confirmation)
+- [x] 6.6 Remove `config-proposal/`; delete the `next` branch (with confirmation)
 
 ## 7. Verification
 
