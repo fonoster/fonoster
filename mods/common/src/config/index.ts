@@ -16,6 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./configHints";
+export * from "./integrationsSchema";
 export * from "./interpolateEnv";
 export * from "./loadServiceConfig";
-export * from "./integrationsSchema";
+export * from "./parseConfigFile";
+export * from "./resolveConfigFile";
+export * from "./strictDeep";

@@ -8,15 +8,15 @@
 
 ## 1. Loader (`mods/common/src/config/`)
 
-- [ ] 1.1 Path resolution: `--config`, then `/opt/fonoster/<base>.*`, then `./config/<base>.*`;
+- [x] 1.1 Path resolution: `--config`, then `/opt/fonoster/<base>.*`, then `./config/<base>.*`;
       drop `FONOSTER_CONFIG`; error when two extensions exist in one directory
-- [ ] 1.2 JSON/JSONC parsing with `jsonc-parser` (comments, trailing commas, line/col errors)
-- [ ] 1.3 Interpolation limited to declared paths; `${…}` elsewhere is a validation error
-- [ ] 1.4 Recursive strict schemas; full-path errors
-- [ ] 1.5 Moved-keys table with "did you mean" hints
-- [ ] 1.6 `warnLegacyEnv(prefixes)` (names only)
-- [ ] 1.7 `getIntegrationsFromFile` reads YAML or JSON and throws instead of exiting
-- [ ] 1.8 Tests for each of the above
+- [x] 1.2 JSON/JSONC parsing with `jsonc-parser` (comments, trailing commas, line/col errors)
+- [x] 1.3 Interpolation limited to declared paths; `${…}` elsewhere is a validation error
+- [x] 1.4 Recursive strict schemas; full-path errors
+- [x] 1.5 Moved-keys table with "did you mean" hints
+- [x] 1.6 `warnLegacyEnv(prefixes)` (names only)
+- [x] 1.7 `getIntegrationsFromFile` reads YAML or JSON and throws instead of exiting
+- [x] 1.8 Tests for each of the above
 
 ## 2. Logger (`mods/logger`)
 

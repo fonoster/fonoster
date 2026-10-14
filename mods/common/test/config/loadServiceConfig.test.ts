@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { mkdtempSync, rmSync, writeFileSync } from "fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { expect } from "chai";
@@ -26,7 +26,10 @@ import { loadServiceConfig } from "../../src";
 const schema = z.object({
   host: z.string().default("localhost"),
   port: z.number().default(5432),
-  apiKey: z.string().optional()
+  apiKey: z.string().optional(),
+  database: z
+    .object({ url: z.string().default("postgresql://localhost/db") })
+    .default({})
 });
 
 describe("@common[config/loadServiceConfig]", function () {
@@ -46,105 +49,155 @@ describe("@common[config/loadServiceConfig]", function () {
     return path;
   };
 
-  it("loads and validates a file given via --config", function () {
-    const path = write("svc.yaml", "host: db\nport: 6000\n");
-    const cfg = loadServiceConfig({
+  const load = (argv: string[], extra: Record<string, unknown> = {}) =>
+    loadServiceConfig({
       service: "svc",
       schema,
-      argv: ["node", "svc", "--config", path],
-      env: {}
+      argv: ["node", "svc", ...argv],
+      env: {},
+      searchDirs: [dir],
+      ...extra
     });
-    expect(cfg).to.deep.equal({ host: "db", port: 6000 });
-  });
 
-  it("honours FONOSTER_CONFIG and applies schema defaults", function () {
-    const path = write("svc.yaml", "host: db\n");
-    const cfg = loadServiceConfig({
-      service: "svc",
-      schema,
-      argv: ["node", "svc"],
-      env: { FONOSTER_CONFIG: path }
+  describe("finding the file", function () {
+    it("loads the file given with --config", function () {
+      const path = write("other.yaml", "host: db\nport: 6000\n");
+      expect(load(["--config", path])).to.deep.equal({
+        host: "db",
+        port: 6000,
+        database: { url: "postgresql://localhost/db" }
+      });
     });
-    expect(cfg).to.deep.equal({ host: "db", port: 5432 });
-  });
 
-  it("lets --config win over FONOSTER_CONFIG", function () {
-    const flagPath = write("flag.yaml", "host: from-flag\n");
-    const envPath = write("env.yaml", "host: from-env\n");
-    const cfg = loadServiceConfig({
-      service: "svc",
-      schema,
-      argv: ["node", "svc", "--config", flagPath],
-      env: { FONOSTER_CONFIG: envPath }
+    it("finds <base>.yaml in a search directory", function () {
+      write("svc.yaml", "host: from-dir\n");
+      expect(load([]).host).to.equal("from-dir");
     });
-    expect(cfg.host).to.equal("from-flag");
-  });
 
-  it("interpolates ${VAR} secrets before validating", function () {
-    const path = write("svc.yaml", "host: db\napiKey: ${MY_SECRET}\n");
-    const cfg = loadServiceConfig({
-      service: "svc",
-      schema,
-      argv: ["node", "svc", "--config", path],
-      env: { MY_SECRET: "s3cr3t" }
+    it("tries search directories in order", function () {
+      const first = join(dir, "first");
+      const second = join(dir, "second");
+      mkdirSync(first);
+      mkdirSync(second);
+      writeFileSync(join(second, "svc.yaml"), "host: second\n");
+      writeFileSync(join(first, "svc.yaml"), "host: first\n");
+      expect(load([], { searchDirs: [first, second] }).host).to.equal("first");
     });
-    expect(cfg.apiKey).to.equal("s3cr3t");
-  });
 
-  it("falls back to defaults when the default file is absent", function () {
-    const cfg = loadServiceConfig({
-      service: "does-not-exist-anywhere",
-      schema,
-      argv: ["node", "svc"],
-      env: {}
+    it("refuses two files for the same service in one directory", function () {
+      write("svc.yaml", "host: a\n");
+      write("svc.jsonc", '{ "host": "b" }');
+      expect(() => load([])).to.throw(/more than one svc config file/);
     });
-    expect(cfg).to.deep.equal({ host: "localhost", port: 5432 });
+
+    it("falls back to defaults when no file is found", function () {
+      expect(load([]).host).to.equal("localhost");
+    });
+
+    it("ignores FONOSTER_CONFIG (services read no env of their own)", function () {
+      const path = write("elsewhere.yaml", "host: from-env\n");
+      expect(load([], { env: { FONOSTER_CONFIG: path } }).host).to.equal(
+        "localhost"
+      );
+    });
+
+    it("throws when the --config file is missing", function () {
+      expect(() => load(["--config", join(dir, "nope.yaml")])).to.throw(
+        /unable to read svc config at .*nope\.yaml: file not found/
+      );
+    });
   });
 
-  it("throws when an explicitly requested file is missing", function () {
-    expect(() =>
-      loadServiceConfig({
-        service: "svc",
-        schema,
-        argv: ["node", "svc", "--config", join(dir, "nope.yaml")],
-        env: {}
-      })
-    ).to.throw(/unable to read svc config at .*nope\.yaml/);
+  describe("formats", function () {
+    it("loads JSON with comments and trailing commas like YAML", function () {
+      const yaml = write("a.yaml", "host: db\nport: 6000\n");
+      const jsonc = write(
+        "a.jsonc",
+        '{\n  // the database host\n  "host": "db",\n  "port": 6000,\n}\n'
+      );
+      expect(load(["--config", jsonc])).to.deep.equal(
+        load(["--config", yaml])
+      );
+    });
+
+    it("reports line and column for malformed JSON", function () {
+      const path = write("bad.json", '{\n  "host": "db"\n  "port": 1\n}');
+      expect(() => load(["--config", path])).to.throw(
+        /unable to read svc config at .*bad\.json: .*line 3/
+      );
+    });
+
+    it("reports malformed YAML", function () {
+      const path = write("bad.yaml", "host: db\n\tbad: indent\n");
+      expect(() => load(["--config", path])).to.throw(
+        /unable to read svc config at/
+      );
+    });
   });
 
-  it("throws a readable error on malformed YAML", function () {
-    const path = write("bad.yaml", "host: db\n\tbad: indent\n");
-    expect(() =>
-      loadServiceConfig({
-        service: "svc",
-        schema,
-        argv: ["node", "svc", "--config", path],
-        env: {}
-      })
-    ).to.throw(/unable to read svc config at/);
+  describe("validation", function () {
+    it("rejects unknown keys with their path", function () {
+      const path = write("svc.yaml", "database:\n  uri: x\n");
+      expect(() => load(["--config", path])).to.throw(/database: unknown key "uri"/);
+    });
+
+    it("prefixes schema failures with the file path and key path", function () {
+      const path = write("svc.yaml", "port: not-a-number\n");
+      expect(() => load(["--config", path])).to.throw(
+        /invalid svc config at .*svc\.yaml: port: Expected number/
+      );
+    });
+
+    it("rejects unknown top-level keys", function () {
+      const path = write("svc.yaml", "hots: db\n");
+      expect(() => load(["--config", path])).to.throw(
+        /\(root\): unknown key "hots"/
+      );
+    });
+
+    it("points moved keys to their new location", function () {
+      const path = write("svc.yaml", "dbUrl: postgres://x\n");
+      expect(() =>
+        load(["--config", path], { movedKeys: { dbUrl: "database.url" } })
+      ).to.throw(/"dbUrl" moved to "database.url"/);
+    });
   });
 
-  it("throws with an 'invalid <service> config' prefix on schema failure", function () {
-    const path = write("svc.yaml", "port: not-a-number\n");
-    expect(() =>
-      loadServiceConfig({
-        service: "svc",
-        schema,
-        argv: ["node", "svc", "--config", path],
-        env: {}
-      })
-    ).to.throw(/invalid svc config at/);
-  });
+  describe("interpolation", function () {
+    it("resolves ${VAR} at allowed paths", function () {
+      const path = write(
+        "svc.yaml",
+        "database:\n  url: postgresql://${PGUSER}:${PGPASS}@db/x\n"
+      );
+      const cfg = load(["--config", path], {
+        env: { PGUSER: "u", PGPASS: "p" },
+        interpolatePaths: ["database.url"]
+      });
+      expect(cfg.database.url).to.equal("postgresql://u:p@db/x");
+    });
 
-  it("throws for an undefined secret with no default", function () {
-    const path = write("svc.yaml", "host: db\napiKey: ${UNSET_SECRET}\n");
-    expect(() =>
-      loadServiceConfig({
-        service: "svc",
-        schema,
-        argv: ["node", "svc", "--config", path],
-        env: {}
-      })
-    ).to.throw(/invalid svc config at .*UNSET_SECRET/);
+    it("rejects ${VAR} outside the allowed paths", function () {
+      const path = write("svc.yaml", "apiKey: ${SECRET}\n");
+      expect(() =>
+        load(["--config", path], {
+          env: { SECRET: "s" },
+          interpolatePaths: ["database.url"]
+        })
+      ).to.throw(/apiKey: \$\{\.\.\.\} is only allowed for values shared/);
+    });
+
+    it("rejects ${VAR} when no paths are allowed", function () {
+      const path = write("svc.yaml", "apiKey: ${SECRET}\n");
+      expect(() =>
+        load(["--config", path], { env: { SECRET: "s" } })
+      ).to.throw(/only allowed for values shared/);
+    });
+
+    it("names the variable and path when a shared value is unset", function () {
+      const path = write("svc.yaml", "database:\n  url: ${UNSET_URL}\n");
+      expect(() =>
+        load(["--config", path], { interpolatePaths: ["database.*"] })
+      ).to.throw(/database\.url: .*UNSET_URL/);
+    });
   });
 });

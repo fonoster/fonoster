@@ -17,11 +17,9 @@
  * limitations under the License.
  */
 import fs from "fs";
-import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
-
-const logger = getLogger({ service: "common", filePath: __filename });
+import { parseConfigFile } from "./parseConfigFile";
 
 const integrationsConfigSchema = z.array(
   z.object({
@@ -36,20 +34,32 @@ type IntegrationsConfig = z.infer<typeof integrationsConfigSchema>;
 
 /**
  * Reads and validates the integrations file (shared by apiserver and autopilot).
- * A malformed file is fatal.
+ * YAML (`.yaml`/`.yml`) or JSON with comments (`.json`/`.jsonc`). Throws with the
+ * file path when the file can't be read or doesn't validate.
  */
-function getIntegrationsFromFile(pathToIntegrations: string) {
-  const integrationsFile = fs.readFileSync(pathToIntegrations, "utf8");
-  const integrations = JSON.parse(integrationsFile);
+function getIntegrationsFromFile(
+  pathToIntegrations: string
+): IntegrationsConfig {
+  let raw: unknown;
   try {
-    integrationsConfigSchema.parse(integrations);
+    raw = parseConfigFile(
+      pathToIntegrations,
+      fs.readFileSync(pathToIntegrations, "utf8")
+    );
   } catch (e) {
-    // fatal error
-    const message = fromError(e, { prefix: null }).toString();
-    logger.error("integrations config is invalid", { message });
-    process.exit(1);
+    throw new Error(
+      `unable to read integrations at ${pathToIntegrations}: ${(e as Error).message}`
+    );
   }
-  return integrations;
+
+  const result = integrationsConfigSchema.safeParse(raw);
+  if (!result.success) {
+    throw new Error(
+      `invalid integrations at ${pathToIntegrations}: ${fromError(result.error, { prefix: null }).toString()}`
+    );
+  }
+
+  return result.data;
 }
 
 export {
