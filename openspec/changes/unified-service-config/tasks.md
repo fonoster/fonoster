@@ -31,8 +31,6 @@
       mapped standalone)
 - [x] 3.3 Standalone accepts the section shape and today's `identity.json`, via the shared loader
 - [x] 3.4 Tests for both shapes and the defaults
-- [x] 3.5 Backwards compatibility for external users: original `identity.json` keeps its defaults
-      and lenient validation; `IdentityConfig.auth` optional (`DEFAULT_AUTH`); tests
 
 ## 4. apiserver (`mods/apiserver`)
 
@@ -72,7 +70,7 @@
 
 ## 7. Verification
 
-- [x] 7.1 Unit tests pass for common, logger, identity, apiserver, autopilot (464 passing)
+- [x] 7.1 Unit tests pass for common, logger, identity, apiserver, autopilot (459 passing)
 - [x] 7.2 A bad config fails with path and hint; JSONC and YAML load identically (checked
       against the built entrypoint: unknown key, moved key, `${VAR}` outside the allow-list,
       legacy-env warning)

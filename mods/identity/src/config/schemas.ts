@@ -118,8 +118,7 @@ const identitySectionSchema = z
       .object({
         name: z.string().default("Admin"),
         email: z.string().email(),
-        // No minimum: the original identity.json accepted any string.
-        password: z.string()
+        password: z.string().min(8)
       })
       .optional()
   })

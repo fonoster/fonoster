@@ -53,9 +53,7 @@ docker compose up -d
 `logs`, `database`, `encryption`, `smtp`, `twilio` and `features.auth` at the root,
 and the same `identity:` section. The original `identity.json` layout (top-level
 `issuer`, `keys`, `encryptionKey`, `invite`, `defaultUser`) still loads, with a
-deprecation warning, and behaves exactly as before: unknown keys are ignored, the
-original defaults apply (refresh tokens 30d, invites 2d, empty invite URLs), and
-logging stays on the environment unless the file has a `logs` section.
+deprecation warning.
 
 ## Upgrading from environment variables
 
@@ -121,8 +119,7 @@ Variables not listed here (`ROUTR_*`, `ASTERISK_*`, `RTPENGINE_*`, `AMD_*`,
 
 - **SMTP is optional.** Without an `smtp` section the API server starts; anything
   that sends email fails with "smtp is not configured".
-- **Standalone Identity defaults** in the new `identity.yaml` layout match the API
-  server: refresh tokens last 24h and invites 1d. An original `identity.json` keeps
-  30d and 2d. Set them explicitly when you move to the new layout to keep the old values.
+- **Standalone Identity defaults** now match the API server: refresh tokens last
+  24h (was 30d) and invites 1d (was 2d). Set them explicitly to keep the old values.
 - **The apiserver image** starts through `dist/bin/entrypoint.js`, which waits for
   Postgres, migrates, seeds and starts, reading the database URL from the file.

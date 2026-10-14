@@ -22,7 +22,6 @@ import {
   authFeaturesSchema,
   fromLegacyIdentityJson,
   identitySectionSchema,
-  isLegacyIdentityJson,
   smtpSchema,
   toIdentityConfig,
   twilioSchema
@@ -34,15 +33,13 @@ import {
  * fonoster.yaml: shared settings at the root, Identity's own under
  * `identity:`. No environment variables, except ${VAR} in database URLs
  * shared with the Postgres container. The original identity.json layout is
- * still accepted (translated, with a warning) and validated as before:
- * unknown keys are ignored rather than rejected, and logging stays on the
- * environment unless the file has a `logs` section.
+ * still accepted (translated, with a warning).
  */
 const identityServiceConfigSchema = z
   .object({
     domain: z.string().min(1).optional(),
-    /** Defaults to https://<domain>. Empty is allowed (original identity.json default). */
-    appUrl: z.string().optional(),
+    /** Defaults to https://<domain>. */
+    appUrl: z.string().min(1).optional(),
     server: z
       .object({
         bindAddr: z.string().default("0.0.0.0:50051"),
@@ -75,35 +72,24 @@ const appUrlOf = (config: IdentityServiceConfig) =>
 
 /** Reads and validates the file only (no keys read), e.g. for provisioning. */
 function loadConfigFile(argv: string[] = process.argv) {
-  let legacy = false;
-  let legacyHasLogs = false;
-
   const config = loadServiceConfig({
     service: "identity",
     schema: identityServiceConfigSchema,
     argv,
     interpolatePaths: ["database.url", "identity.database.url"],
-    lenient: (raw) => {
-      legacy = isLegacyIdentityJson(raw);
-      legacyHasLogs = legacy && "logs" in (raw as object);
-      return legacy;
-    },
     migrate: fromLegacyIdentityJson,
     legacyEnvPrefixes: ["APISERVER_IDENTITY_"]
   });
 
   return {
     config,
-    legacy,
-    /** False when an original identity.json leaves logging to the environment. */
-    applyLogs: !legacy || legacyHasLogs,
     databaseUrl: config.identity.database?.url ?? config.database.url
   };
 }
 
 /** Loads and validates the service configuration from the file, failing fast. */
 function loadConfig(argv: string[] = process.argv) {
-  const { config, applyLogs, databaseUrl } = loadConfigFile(argv);
+  const { config, databaseUrl } = loadConfigFile(argv);
   const appUrl = appUrlOf(config);
   const owner = config.identity.owner;
 
@@ -111,8 +97,7 @@ function loadConfig(argv: string[] = process.argv) {
     bindAddr: config.server.bindAddr,
     httpBridgePort: config.server.httpBridgePort,
     appUrl,
-    /** Undefined when logging stays on the environment (original identity.json). */
-    logs: applyLogs ? config.logs : undefined,
+    logs: config.logs,
     databaseUrl,
     defaultUser: owner
       ? { name: owner.name, email: owner.email, password: owner.password }

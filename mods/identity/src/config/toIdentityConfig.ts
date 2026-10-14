@@ -18,7 +18,7 @@
  */
 import { readFileSync } from "fs";
 import { resolve } from "path";
-import { DEFAULT_AUTH, IdentityConfig } from "../exchanges/types";
+import { IdentityConfig } from "../exchanges/types";
 import {
   AuthFeatures,
   IdentitySection,
@@ -99,7 +99,10 @@ function toIdentityConfig(inputs: IdentityConfigInputs): IdentityConfig {
     // package's non-strict tsconfig.
     githubOauth2Config: identity.oauth2
       ?.github as IdentityConfig["githubOauth2Config"],
-    auth: (inputs.auth ?? DEFAULT_AUTH) as IdentityConfig["auth"]
+    auth: (inputs.auth ?? {
+      methods: ["password"],
+      signup: "invite"
+    }) as IdentityConfig["auth"]
   };
 }
 

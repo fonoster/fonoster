@@ -42,10 +42,7 @@ identity:                        # same section as fonoster.yaml's
 ```
 
 `npm run db:deploy -- --config <path>` applies the migrations using the same file.
-The original `identity.json` layout still loads, with a deprecation warning, and keeps
-its original defaults and lenient validation, so existing deployments behave as
-before. `IdentityConfig` fields added since (`auth`, `smtpConfig`) are optional for
-library callers of `buildIdentityService`. Every
+The original `identity.json` layout still loads, with a deprecation warning. Every
 key is described in [docs/configuration.md](../../docs/configuration.md).
 
 ## Specification
