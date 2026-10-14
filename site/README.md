@@ -66,7 +66,7 @@ Tokens: `--ease-out: cubic-bezier(.22,1,.36,1)`, `--ease-in-out: cubic-bezier(.6
 ## Open items
 
 - **Notice bar.** The current message (major upgrades underway, contributions paused) is temporary. Set `show: false` in `assets/js/notice.js` once the refresh settles.
-- "Start building" goes to the console login (app.fonoster.com/auth/login). "Contact sales" still uses the contact Typeform.
+- "Start building" goes to the console login (app.fonoster.com/auth/login). "Contact sales" opens an email to sales@fonoster.com.
 - "Call me" in the hero needs a backend that places the demo call (with rate limits and country restrictions). Until then the form shows a "coming soon" note; wire the real call in `initCallMe` in `v1.js`.
 - The light theme and Spanish strings work but haven't been reviewed by design or a native speaker.
 - **Legal pages.** There is no Privacy Policy or Terms yet (launched without them by decision). Needed before "Call me" collects phone numbers (consent for automated AI calls).
