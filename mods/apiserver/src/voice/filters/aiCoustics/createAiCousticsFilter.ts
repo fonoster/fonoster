@@ -109,6 +109,17 @@ function toInt16(samples: Float32Array, length: number): Int16Array {
   });
 }
 
+let configuredLicense: string | undefined;
+
+/**
+ * Sets the license from fonoster.yaml (audioFilters.aiCoustics.license) at
+ * boot. When unset, the filter falls back to the `licenseEnv` variable, which
+ * keeps library use and tests working.
+ */
+function setAiCousticsLicense(license: string | undefined) {
+  configuredLicense = license;
+}
+
 /**
  * ai-coustics speech enhancement (Quail Voice Focus by default), which keeps
  * the primary speaker and suppresses noise and competing voices.
@@ -125,11 +136,11 @@ function createAiCousticsFilter(
   deps: { loadSdk: () => AiCousticsSdk } = { loadSdk }
 ): AudioFilter {
   const options = aiCousticsOptionsSchema.parse(input);
-  const license = process.env[options.licenseEnv];
+  const license = configuredLicense ?? process.env[options.licenseEnv];
 
   if (!license) {
     throw new Error(
-      `The ${AI_COUSTICS_NAME} filter needs a license key in ${options.licenseEnv}. Get one at https://developers.ai-coustics.com`
+      `The ${AI_COUSTICS_NAME} filter needs a license key: set audioFilters.aiCoustics.license in fonoster.yaml (or ${options.licenseEnv}). Get one at https://developers.ai-coustics.com`
     );
   }
 
@@ -303,5 +314,6 @@ export {
   aiCousticsOptionsSchema,
   AiCousticsOptions,
   aiCousticsPublicOptionsSchema,
-  createAiCousticsFilter
+  createAiCousticsFilter,
+  setAiCousticsLicense
 };

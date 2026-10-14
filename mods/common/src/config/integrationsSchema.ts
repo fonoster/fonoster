@@ -30,7 +30,13 @@ const integrationsConfigSchema = z.array(
   })
 );
 
-type IntegrationsConfig = z.infer<typeof integrationsConfigSchema>;
+/** Spelled out so callers get required fields regardless of tsconfig strictness. */
+type IntegrationsConfig = Array<{
+  name: string;
+  productRef: string;
+  type: "tts" | "stt" | "llm";
+  credentials: Record<string, unknown>;
+}>;
 
 /**
  * Reads and validates the integrations file (shared by apiserver and autopilot).
@@ -59,7 +65,7 @@ function getIntegrationsFromFile(
     );
   }
 
-  return result.data;
+  return result.data as IntegrationsConfig;
 }
 
 export {

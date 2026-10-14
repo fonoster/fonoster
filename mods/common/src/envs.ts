@@ -25,5 +25,17 @@ if (process.env.NODE_ENV === "development") {
 
 const e = process.env;
 
-export const ROOT_DOMAIN =
-  e.APISERVER_ROOT_DOMAIN || e.ROOT_DOMAIN || "fonoster.local";
+let rootDomain = e.APISERVER_ROOT_DOMAIN || e.ROOT_DOMAIN || "fonoster.local";
+
+/**
+ * Root SIP domain that workspace domains must end with. The API server sets it
+ * from fonoster.yaml's `domain` at boot; other consumers keep the env default.
+ */
+export const setRootDomain = (domain: string) => {
+  rootDomain = domain;
+};
+
+export const getRootDomain = () => rootDomain;
+
+/** @deprecated read getRootDomain() so a value set at boot is honoured. */
+export const ROOT_DOMAIN = rootDomain;

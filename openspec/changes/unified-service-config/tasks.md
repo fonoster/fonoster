@@ -34,15 +34,15 @@
 
 ## 4. apiserver (`mods/apiserver`)
 
-- [ ] 4.1 `src/config/schema.ts` matching `config/fonoster.example.yaml`, with `features`
-- [ ] 4.2 `src/config/index.ts`: memoized `getConfig()`, `setConfigForTests()`
-- [ ] 4.3 `envs.ts` keeps its exports, backed by `getConfig()`; no dotenv, no `assertEnvsAreSet`
-- [ ] 4.4 `ROOT_DOMAIN` via `setRootDomain()`; ai-coustics license from config
-- [ ] 4.5 `configureLogger` first in the entrypoint; legacy-env warning at boot
-- [ ] 4.6 `PrismaClient` with `datasourceUrl` (apiserver and identity)
-- [ ] 4.7 `src/bin/entrypoint.ts`: wait for DB, migrate (URL only in child env), seed, start;
+- [x] 4.1 `src/config/schema.ts` matching `config/fonoster.example.yaml`, with `features`
+- [x] 4.2 `src/config/index.ts`: memoized `getConfig()`, `setConfigForTests()`
+- [x] 4.3 `envs.ts` keeps its exports, backed by `getConfig()`; no dotenv, no `assertEnvsAreSet`
+- [x] 4.4 `ROOT_DOMAIN` via `setRootDomain()`; ai-coustics license from config
+- [x] 4.5 `configureLogger` first in the entrypoint; legacy-env warning at boot
+- [x] 4.6 `PrismaClient` with `datasourceUrl` (apiserver and identity)
+- [x] 4.7 `src/bin/entrypoint.ts`: wait for DB, migrate (URL only in child env), seed, start;
       Dockerfile CMD uses it
-- [ ] 4.8 Test fixture + mocha `--require` hook; existing apiserver tests pass
+- [x] 4.8 Test fixture + mocha `--require` hook; existing apiserver tests pass
 
 ## 5. Autopilot (`mods/autopilot`)
 

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { ROOT_DOMAIN } from "../../envs";
+import { getRootDomain } from "../../envs";
 import { nameSchema } from "../common";
 
 const domainSchema = z
@@ -27,17 +27,17 @@ const domainSchema = z
       const domainRegex = /^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+$/;
       return domainRegex.test(domain);
     },
-    {
-      message: `Invalid domain format. Should be like: "acme.${ROOT_DOMAIN}"`
-    }
+    () => ({
+      message: `Invalid domain format. Should be like: "acme.${getRootDomain()}"`
+    })
   )
   .refine(
     (domain) => {
-      return domain.endsWith(ROOT_DOMAIN);
+      return domain.endsWith(getRootDomain());
     },
-    {
-      message: `Domain must end with "${ROOT_DOMAIN}"`
-    }
+    () => ({
+      message: `Domain must end with "${getRootDomain()}"`
+    })
   );
 
 const createDomainRequestSchema = z.object({

@@ -33,3 +33,4 @@ export * from "./validators";
 export * from "./voice";
 export * from "./countryIsoCodes";
 export * from "./identity";
+export { getRootDomain, setRootDomain } from "./envs";

@@ -6,7 +6,6 @@ LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /work
 
-ENV DOCKERIZE_VERSION=v0.7.0
 COPY package.json package-lock.json lerna.json ./
 COPY mods ./mods
 COPY tsconfig.json ./
@@ -29,9 +28,7 @@ RUN cd mods/apiserver \
   && npx prisma generate --schema mods/identity/schema.prisma \
   && rm -rf /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist/generated \
   && mv mods/identity/src/generated /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/dist \
-  && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && rm -rf dockerize-linux-amd64-"$DOCKERIZE_VERSION".tar.gz mods/apiserver/*.tgz
+  && rm -rf mods/apiserver/*.tgz
 
 # Clean up unnecessary files from node_modules to reduce size
 RUN cd /usr/local/lib/node_modules/@fonoster/apiserver/node_modules && \
@@ -53,7 +50,6 @@ RUN groupadd -g 1001 appuser && useradd -u 1001 -g appuser -m appuser
 WORKDIR /service
 
 COPY --from=builder --chown=appuser:appuser /usr/local/lib/node_modules/@fonoster/apiserver /usr/local/lib/node_modules/@fonoster/apiserver
-COPY --from=builder --chown=appuser:appuser /usr/local/bin/dockerize /usr/local/bin/dockerize
 COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/migrations ./core/migrations
 COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/schema.prisma ./core/schema.prisma
 COPY --from=builder --chown=appuser:appuser /work/mods/identity/migrations ./identity/migrations
@@ -66,5 +62,6 @@ RUN apt-get update && apt-get install -y ca-certificates \
 
 USER appuser
 
-# Extract database host and port from APISERVER_DATABASE_URL environment variable
-CMD ["sh", "-c", "DB_HOST=$(echo $APISERVER_DATABASE_URL | sed -n 's/.*@\\([^:/]*\\)[:/].*/\\1/p') && DB_PORT=$(echo $APISERVER_DATABASE_URL | sed -n 's/.*:\\([0-9]*\\)\\/.*/\\1/p') && if [ -z \"$DB_PORT\" ]; then DB_PORT=5432; fi && dockerize -wait tcp://${DB_HOST}:${DB_PORT} -timeout 30s && cd /service/core && npx prisma migrate deploy && cd /service/identity && npx prisma migrate deploy && node /usr/local/lib/node_modules/@fonoster/apiserver/dist/core/seed.js && node /usr/local/lib/node_modules/@fonoster/apiserver/dist/index.js"]
+# The entrypoint reads /opt/fonoster/fonoster.yaml (or --config <path>), waits
+# for Postgres, applies the core and identity migrations, seeds, then starts.
+CMD ["node", "/usr/local/lib/node_modules/@fonoster/apiserver/dist/bin/entrypoint.js", "--migrations-root", "/service"]

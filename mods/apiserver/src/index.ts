@@ -1,9 +1,11 @@
 import {
   CALL_DETAIL_RECORD_MEASUREMENT,
-  INFLUXDB_CALLS_BUCKET
+  INFLUXDB_CALLS_BUCKET,
+  setRootDomain
 } from "@fonoster/common";
 import { upsertDefaultUser } from "@fonoster/identity";
-import { getLogger } from "@fonoster/logger";
+import { configureLogger, getLogger } from "@fonoster/logger";
+import { getConfig } from "./config";
 import { identityConfig } from "./core/identityConfig";
 import runServices from "./core/runServices";
 import { upsertDefaultPeer } from "./core/upsertDefaultPeer";
@@ -19,6 +21,14 @@ import {
 import { createInfluxDbPub } from "./events/createInfluxDbPub";
 import { watchNats } from "./events/nats";
 import { transformEvent } from "./events/transformEvent";
+import { setAiCousticsLicense } from "./voice/filters";
+
+// Apply fonoster.yaml to the shared modules before serving. Loggers created
+// while the imports above ran switch to the file's settings here.
+const config = getConfig();
+configureLogger(config.logs);
+setRootDomain(config.domain);
+setAiCousticsLicense(config.audioFilters.aiCoustics.license);
 
 import("./core/removeSwaggerNotice");
 
