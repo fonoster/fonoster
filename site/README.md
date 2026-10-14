@@ -22,7 +22,19 @@ python3 -m http.server 8080 -d site
 | `assets/css/v1.css` | Tokens (dark default, light via `data-theme`), layout, components, motion |
 | `assets/js/v1.js` | Preferences, nav, reveals, and the animations listed below |
 | `assets/js/i18n.js` | EN / ES strings (`data-i18n` keys) |
+| `assets/js/notice.js` | The notice bar above the nav: on/off, EN / ES message, icon, link |
 | `assets/img/icons.svg` | Lucide icon sprite (ISC) |
+
+## Notice bar
+
+The strip above the nav comes from `assets/js/notice.js`. To change it, edit `NOTICE` at the top of that file and merge to main; the Pages workflow redeploys on any change under `site/`.
+
+- `show: false` hides it on every page.
+- `en` / `es` hold the `lead`, `text`, and `cta`. In `text`, `[...]` is hidden on phones.
+- `icon` is any `i-*` symbol in `assets/img/icons.svg`. Leave `link` empty for a bar without a call to action.
+- Keep it to about one line on desktop.
+
+Every page loads the file as the first thing in `<body>`, so the bar is drawn before the nav and nothing below it moves. Keep it that way when adding a page.
 
 ## Motion
 
@@ -53,8 +65,8 @@ Tokens: `--ease-out: cubic-bezier(.22,1,.36,1)`, `--ease-in-out: cubic-bezier(.6
 
 ## Open items
 
-- **Notice bar (temporary).** A strip above the nav on every page says major upgrades are underway and contributions are paused, with a link to the bug report form. Remove it once the refresh settles: the `.notice` markup on each page, the "Notice bar" block in `v1.css`, the `notice.*` strings in `i18n.js`, and `i-triangle-alert` in the sprite if nothing else uses it.
-- "Start building" goes to the console login (app.fonoster.com/auth/login). "Contact sales" still uses the contact Typeform.
+- **Notice bar.** The current message (major upgrades underway, contributions paused) is temporary. Set `show: false` in `assets/js/notice.js` once the refresh settles.
+- "Start building" goes to the console login (app.fonoster.com/auth/login). "Contact sales" opens an email to sales@fonoster.com.
 - "Call me" in the hero needs a backend that places the demo call (with rate limits and country restrictions). Until then the form shows a "coming soon" note; wire the real call in `initCallMe` in `v1.js`.
 - The light theme and Spanish strings work but haven't been reviewed by design or a native speaker.
 - **Legal pages.** There is no Privacy Policy or Terms yet (launched without them by decision). Needed before "Call me" collects phone numbers (consent for automated AI calls).
