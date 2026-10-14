@@ -91,6 +91,8 @@ jobs:
           cp config/fonoster.example.yaml config/fonoster.yaml
           cp config/autopilot.example.yaml config/autopilot.yaml
           yq -i '.smtp = {"host": "mailhog", "port": 1025, "secure": false, "sender": "Fonoster <no-reply@fonoster.local>"}' config/fonoster.yaml
+          # The SDK tests create users, which needs open sign-up.
+          yq -i '.features.auth.signup = "open"' config/fonoster.yaml
           docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver asterisk mailhog
 
       - name: Waiting for services to be ready
