@@ -21,6 +21,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useSdk } from "~/lib/auth";
 import { PAGE_SIZE } from "~/lib/resource";
 import { useWorkspace } from "~/lib/workspace";
+import { toDate } from "~/lib/format";
 import { rangeStart } from "./format";
 
 const RESOURCE = "calls";
@@ -69,5 +70,47 @@ export function useCall(ref: string) {
   return useQuery<CallDetailRecord>({
     queryKey: [RESOURCE, workspace.ref, "get", ref],
     queryFn: () => sdk.calls.getCall(ref)
+  });
+}
+
+const RECENT_DAYS = "30";
+const RECENT_LIMIT = 20;
+
+/**
+ * Recent calls to or from some of the workspace's numbers, newest first. Call
+ * records don't say which app answered, so an app's calls are the calls on the
+ * numbers routed to it now.
+ */
+export function useCallsForNumbers(telUrls: string[]) {
+  const sdk = useSdk();
+  const workspace = useWorkspace();
+  const numbers = telUrls.map((telUrl) => telUrl.replace(/^tel:/, "")).sort();
+  return useQuery({
+    queryKey: [RESOURCE, workspace.ref, "numbers", numbers],
+    enabled: numbers.length > 0,
+    queryFn: async () => {
+      const after = rangeStart(RECENT_DAYS);
+      const pages = await Promise.all(
+        numbers.flatMap((number) =>
+          (["to", "from"] as const).map((side) =>
+            sdk.calls.listCalls({
+              after,
+              [side]: number,
+              pageSize: RECENT_LIMIT
+            })
+          )
+        )
+      );
+      const byRef = new Map<string, CallDetailRecord>();
+      for (const call of pages.flatMap((page) => page.items))
+        byRef.set(call.ref, call);
+      return [...byRef.values()]
+        .sort(
+          (a, b) =>
+            (toDate(b.startedAt)?.getTime() ?? 0) -
+            (toDate(a.startedAt)?.getTime() ?? 0)
+        )
+        .slice(0, RECENT_LIMIT);
+    }
   });
 }

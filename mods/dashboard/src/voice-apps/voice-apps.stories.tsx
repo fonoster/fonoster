@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from "@storybook/react";
+import { sampleCalls } from "~/calls/fixtures";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import type { AuthContextValue } from "~/lib/auth";
 import { WorkspaceProvider } from "~/lib/workspace";
@@ -101,7 +102,13 @@ const withApps = (items: object[]) => (auth: AuthContextValue) => ({
       updateApplication: fn().mockResolvedValue({ ref: "ap-5a20c7" }),
       deleteApplication: fn().mockResolvedValue({ ref: "ap-5a20c7" })
     },
-    numbers: { listNumbers: fn().mockResolvedValue({ items: numbers }) }
+    numbers: { listNumbers: fn().mockResolvedValue({ items: numbers }) },
+    calls: {
+      listCalls: async () => ({
+        items: sampleCalls.slice(3),
+        nextPageToken: ""
+      })
+    }
   } as never
 });
 

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpen, Bell, FileText, Headset } from "lucide-react";
+import { Bell, FileText, Headset } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -46,12 +46,11 @@ import { TEMPLATES, templateValues, type TemplateId } from "./templates";
 const ICONS: Record<TemplateId, typeof Headset> = {
   receptionist: Headset,
   reminders: Bell,
-  knowledge: BookOpen,
   blank: FileText
 };
 
 const schema = z.object({
-  template: z.enum(["receptionist", "reminders", "knowledge", "blank"]),
+  template: z.enum(["receptionist", "reminders", "blank"]),
   name: z
     .string()
     .trim()
@@ -135,19 +134,15 @@ export function CreateAgentDialog({
                   {TEMPLATES.map((template) => {
                     const Icon = ICONS[template.id];
                     const selected = field.value === template.id;
-                    const disabled = Boolean(template.comingSoon);
                     return (
                       <button
                         key={template.id}
                         type="button"
                         role="radio"
                         aria-checked={selected}
-                        aria-disabled={disabled || undefined}
-                        disabled={disabled}
-                        title={template.comingSoon}
                         onClick={() => field.onChange(template.id)}
                         className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-control border p-3.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+                          "flex cursor-pointer items-start gap-3 rounded-control border p-3.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
                           selected
                             ? "border-primary bg-brand-subtle"
                             : "border-border hover:bg-accent"
@@ -160,11 +155,6 @@ export function CreateAgentDialog({
                         <span className="flex flex-col gap-0.5">
                           <span className="font-display text-sm font-medium">
                             {template.label}
-                            {disabled && (
-                              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                                Coming soon
-                              </span>
-                            )}
                           </span>
                           <span className="font-display text-xs text-muted-foreground">
                             {template.description}

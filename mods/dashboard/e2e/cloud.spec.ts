@@ -65,7 +65,7 @@ test("refuses a GitHub callback it didn't start", async ({ page, api }) => {
   expect(api.callsTo("Identity/ExchangeOauth2Code")).toHaveLength(0);
 });
 
-test("shows a call with the cost panel Cloud has", async ({ page, api }) => {
+test("shows a call record on Cloud", async ({ page, api }) => {
   api
     .on("Identity/ExchangeVerificationCode", () => tokens(ada, identity.ExchangeVerificationCodeResponse))
     .on("Calls/GetCall", () =>
@@ -90,5 +90,5 @@ test("shows a call with the cost panel Cloud has", async ({ page, api }) => {
   await expect(page.getByRole("heading", { name: /\+1 809 555 0142/ })).toBeVisible();
   await expect(page.getByRole("list", { name: "Summary" }).getByText("2:05")).toBeVisible();
   await expect(page.getByRole("region", { name: "Answering machine detection" })).toHaveCount(0);
-  await expect(page.getByRole("region", { name: "Cost" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Call record" }).getByText("NORMAL_CLEARING")).toBeVisible();
 });

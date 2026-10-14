@@ -67,7 +67,10 @@ Every screen from section 3 on is done when it has:
 - [x] 4.9 Calls list and detail (CDR fields; cost only when `costs.display`)
   - date range and status filters run on the server, kept in the URL; Export CSV of the loaded rows; Export JSON of one record
   - not built, waiting on the API: "Handled by" and the agent/app filter (5.1), a direction filter and a total count (`ListCalls` has neither), recording/transcript/response time (5.6) and the cost split (5.8), shown as coming soon
-- [ ] 4.10 Overview
+- [x] 4.10 Overview, computed in the browser from `ListCalls` (up to 1,000 calls per range): calls, minutes, completed %, average length, volume by hour/day, ended reasons, recent calls. Spend, cost split and response time wait on 5.5/5.6/5.8
+- [x] 4.11 Deploy-first scope (2026-10-14): no "coming soon" UI ships. Each gap either uses what the API has or is hidden, and the gap notes live in `designs/dashboard.pen` ("Not in v1" notes)
+  - agent Calls tab and voice app Recent calls: calls to/from the app's numbers (`ListCalls` to/from)
+  - hidden: Knowledge and Tests tabs, the knowledge template, webhook Send test, Talk drawer phone/chat modes, Place test call, endpoint Check, Import YAML, Billing tab, transcript and cost on the call detail
 
 ## 5. Backend gaps (each gets its own OpenSpec change first)
 

@@ -244,10 +244,11 @@ describe("Settings · Billing", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows the tab and a placeholder with billing", async () => {
-    const { user } = setup({ capabilities: cloudCapabilities });
-    await user.click(screen.getByRole("link", { name: "Billing" }));
-    expect(screen.getByText("Billing moves here soon")).toBeInTheDocument();
+  it("hides the tab even with billing in this release", () => {
+    setup({ capabilities: cloudCapabilities });
+    expect(
+      screen.queryByRole("link", { name: "Billing" })
+    ).not.toBeInTheDocument();
   });
 
   it("sends unknown tabs back to General", async () => {

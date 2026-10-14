@@ -24,6 +24,7 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
  * PendingScreen until they're rebuilt.
  */
 export const SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
+  "": lazy(() => import("~/overview")),
   agents: lazy(() => import("~/agents")),
   "voice-apps": lazy(() => import("~/voice-apps")),
   secrets: lazy(() => import("~/secrets")),

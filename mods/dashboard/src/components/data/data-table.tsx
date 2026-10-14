@@ -83,7 +83,11 @@ export function DataTable<T>({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="overflow-x-auto rounded-xl border border-border bg-card">
+      {/* Focusable so keyboard users can scroll a table wider than its column. */}
+      <div
+        tabIndex={0}
+        className="overflow-x-auto rounded-xl border border-border bg-card outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
         <table
           className="w-full min-w-[640px] border-collapse text-left"
           aria-label={label}

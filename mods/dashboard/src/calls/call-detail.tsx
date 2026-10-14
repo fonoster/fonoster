@@ -19,12 +19,11 @@
 import type { CallDetailRecord } from "@fonoster/types";
 import type { ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ComingSoon, Panel } from "~/agents/parts";
+import { Panel } from "~/agents/parts";
 import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
-import { useCapabilities } from "~/lib/capabilities";
 import { GrpcCode, errorMessage, grpcCode } from "~/lib/errors";
 import { toDate } from "~/lib/format";
 import { cn } from "~/lib/utils";
@@ -98,7 +97,6 @@ const Mono = ({ children }: { children: ReactNode }) => (
 export function CallDetail() {
   const { ref = "" } = useParams();
   const call = useCall(ref);
-  const { costs } = useCapabilities();
   const short = ref.slice(0, 8);
 
   if (call.isPending) {
@@ -185,68 +183,54 @@ export function CallDetail() {
           Export JSON
         </Button>
       </div>
-      <div className="grid gap-5 px-4 pb-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <ComingSoon
-          title="Recording and transcript"
-          description="Play the call back and read it turn by turn, with tool calls, knowledge searches, interruptions and response times."
-          missing="Calls don't store their conversation events yet, so there's nothing to replay. The call record on the right is all the API keeps today."
-        />
-        <div className="flex flex-col gap-5">
-          <Panel title="Call record">
+      <div className="grid items-start gap-5 px-4 pb-8 sm:px-8 lg:grid-cols-2">
+        <Panel title="Call record">
+          <Facts
+            rows={[
+              ["Ref", <Mono key="ref">{record.ref}</Mono>],
+              ["Started", fullDate(record.startedAt)],
+              ["Ended", fullDate(record.endedAt)],
+              ["From", <Mono key="from">{record.from}</Mono>],
+              ["To", <Mono key="to">{record.to}</Mono>],
+              ["Placed by", record.type === "API_ORIGINATED" ? "API" : "SIP"],
+              ["Hangup cause", <Mono key="cause">{record.status}</Mono>]
+            ]}
+          />
+        </Panel>
+        {amd && (
+          <Panel
+            title="Answering machine detection"
+            description="Who picked up, as the detector saw it."
+          >
             <Facts
               rows={[
-                ["Ref", <Mono key="ref">{record.ref}</Mono>],
-                ["Started", fullDate(record.startedAt)],
-                ["Ended", fullDate(record.endedAt)],
-                ["From", <Mono key="from">{record.from}</Mono>],
-                ["To", <Mono key="to">{record.to}</Mono>],
-                ["Placed by", record.type === "API_ORIGINATED" ? "API" : "SIP"],
-                ["Hangup cause", <Mono key="cause">{record.status}</Mono>]
+                ["Result", amd],
+                ...(record.amdConfidence
+                  ? [
+                      [
+                        "Confidence",
+                        `${Math.round(record.amdConfidence * 100)}%`
+                      ] as [string, ReactNode]
+                    ]
+                  : []),
+                ...(record.amdLatencyMs
+                  ? [
+                      [
+                        "Decided in",
+                        <Mono key="ms">{record.amdLatencyMs} ms</Mono>
+                      ] as [string, ReactNode]
+                    ]
+                  : []),
+                ...(record.amdDetector
+                  ? [["Detector", record.amdDetector] as [string, ReactNode]]
+                  : []),
+                ...(record.amdCause
+                  ? [["Reason", record.amdCause] as [string, ReactNode]]
+                  : [])
               ]}
             />
           </Panel>
-          {amd && (
-            <Panel
-              title="Answering machine detection"
-              description="Who picked up, as the detector saw it."
-            >
-              <Facts
-                rows={[
-                  ["Result", amd],
-                  ...(record.amdConfidence
-                    ? [
-                        [
-                          "Confidence",
-                          `${Math.round(record.amdConfidence * 100)}%`
-                        ] as [string, ReactNode]
-                      ]
-                    : []),
-                  ...(record.amdLatencyMs
-                    ? [
-                        [
-                          "Decided in",
-                          <Mono key="ms">{record.amdLatencyMs} ms</Mono>
-                        ] as [string, ReactNode]
-                      ]
-                    : []),
-                  ...(record.amdDetector
-                    ? [["Detector", record.amdDetector] as [string, ReactNode]]
-                    : []),
-                  ...(record.amdCause
-                    ? [["Reason", record.amdCause] as [string, ReactNode]]
-                    : [])
-                ]}
-              />
-            </Panel>
-          )}
-          {costs.display !== "none" && (
-            <Panel title="Cost">
-              <p className="font-display text-xs text-muted-foreground">
-                The split by telephony, speech and model usage is coming soon.
-              </p>
-            </Panel>
-          )}
-        </div>
+        )}
       </div>
     </>
   );

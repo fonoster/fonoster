@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CreditCard } from "lucide-react";
 import {
   Navigate,
   NavLink,
@@ -26,18 +25,18 @@ import {
   useLocation,
   useParams
 } from "react-router-dom";
-import { EmptyState } from "~/components/data/empty-state";
 import { PageHeader } from "~/app/shell/page";
-import { useCapabilities } from "~/lib/capabilities";
 import { cn } from "~/lib/utils";
 import { useWorkspace } from "~/lib/workspace";
 import { GeneralSettings } from "./general";
 import { MembersSettings } from "./members";
 
-/** Workspace settings, one tab per sub-route: General, Members, Billing. */
+/**
+ * Workspace settings, one tab per sub-route: General and Members. Billing
+ * isn't in this release; it comes back as a tab when `billing.enabled`.
+ */
 export default function SettingsScreen() {
   const workspace = useWorkspace();
-  const billing = useCapabilities().billing.enabled;
   // Links are built from the screen's own path: relative ones would resolve
   // against the splat ("settings/*") and point below the current tab.
   const { pathname } = useLocation();
@@ -53,13 +52,9 @@ export default function SettingsScreen() {
         description={`${workspace.name} workspace`}
       />
       <Routes>
-        <Route element={<SettingsTabs base={base} billing={billing} />}>
+        <Route element={<SettingsTabs base={base} />}>
           <Route index element={<GeneralSettings />} />
           <Route path="members" element={<MembersSettings />} />
-          <Route
-            path="billing"
-            element={billing ? <BillingSoon /> : <Navigate to={base} replace />}
-          />
           <Route path="*" element={<Navigate to={base} replace />} />
         </Route>
       </Routes>
@@ -67,11 +62,10 @@ export default function SettingsScreen() {
   );
 }
 
-function SettingsTabs({ base, billing }: { base: string; billing: boolean }) {
+function SettingsTabs({ base }: { base: string }) {
   const tabs = [
     { to: base, label: "General", end: true },
-    { to: `${base}/members`, label: "Members" },
-    ...(billing ? [{ to: `${base}/billing`, label: "Billing" }] : [])
+    { to: `${base}/members`, label: "Members" }
   ];
 
   return (
@@ -98,15 +92,5 @@ function SettingsTabs({ base, billing }: { base: string; billing: boolean }) {
       </nav>
       <Outlet />
     </div>
-  );
-}
-
-function BillingSoon() {
-  return (
-    <EmptyState
-      icon={CreditCard}
-      title="Billing moves here soon"
-      description="Plans, usage and invoices for this workspace will live in this tab."
-    />
   );
 }

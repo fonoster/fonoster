@@ -78,7 +78,7 @@ export function AppRoutes() {
                   <Route
                     key="overview"
                     index
-                    element={<PendingScreen title={item.label} />}
+                    element={screen("", item.label)}
                   />
                 )
               )}

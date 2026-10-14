@@ -23,7 +23,7 @@
 import { languageOf } from "./catalog";
 import { DEFAULTS, type AgentValues } from "./agent-form";
 
-export type TemplateId = "receptionist" | "reminders" | "knowledge" | "blank";
+export type TemplateId = "receptionist" | "reminders" | "blank";
 
 type Copy = {
   firstMessage: string;
@@ -38,8 +38,6 @@ export const TEMPLATES: {
   id: TemplateId;
   label: string;
   description: string;
-  /** Not available yet; shown disabled. */
-  comingSoon?: string;
 }[] = [
   {
     id: "receptionist",
@@ -50,12 +48,6 @@ export const TEMPLATES: {
     id: "reminders",
     label: "Reminders",
     description: "Calls customers about payments or appointments"
-  },
-  {
-    id: "knowledge",
-    label: "Knowledge FAQ",
-    description: "Answers questions from your PDFs",
-    comingSoon: "Coming soon: document upload isn't available yet."
   },
   {
     id: "blank",
@@ -85,7 +77,7 @@ const COMMON: Record<
 };
 
 const PROMPTS: Record<
-  Exclude<TemplateId, "knowledge">,
+  TemplateId,
   Record<"en" | "es", Pick<Copy, "firstMessage" | "systemPrompt">>
 > = {
   receptionist: {
@@ -172,7 +164,7 @@ export function templateValues(
 ): AgentValues {
   const language = languageOf(languageCode);
   const locale = language?.locale ?? "en";
-  const prompt = PROMPTS[template === "knowledge" ? "blank" : template][locale];
+  const prompt = PROMPTS[template][locale];
   const copy = { ...COMMON[locale], ...prompt };
 
   return {

@@ -39,7 +39,7 @@ import {
 } from "./agents.service";
 import { voiceName } from "./catalog";
 import { CreateAgentDialog } from "./create-agent-dialog";
-import { CLI_COMMAND, CliHint, ImportYamlButton } from "./parts";
+import { CLI_COMMAND, CliHint } from "./parts";
 
 type Config = Record<string, unknown> | undefined;
 const field = (config: Config, key: string) => {
@@ -143,15 +143,7 @@ export function AgentsList() {
       <PageHeader
         title="Agents"
         description="AI agents that answer and place calls, powered by Autopilot."
-        actions={
-          !list.isPending &&
-          !empty && (
-            <>
-              <ImportYamlButton />
-              {add}
-            </>
-          )
-        }
+        actions={!list.isPending && !empty && <>{add}</>}
       />
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
         {empty ? (
@@ -167,7 +159,6 @@ export function AgentsList() {
               a first call working in minutes.
             </p>
             <div className="flex flex-wrap justify-center gap-2 pt-2">
-              <ImportYamlButton />
               {add}
             </div>
             <code className="mt-2 rounded-control bg-muted px-3 py-1 font-mono text-[12px] text-muted-foreground">

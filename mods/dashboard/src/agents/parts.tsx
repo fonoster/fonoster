@@ -20,14 +20,8 @@
  * Small building blocks the agent screens share. Candidates for
  * src/components once another screen needs them.
  */
-import { Construction, FileUp, Terminal } from "lucide-react";
+import { Terminal } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
-import { Button } from "~/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 
 export const CLI_COMMAND =
@@ -177,21 +171,6 @@ export function ValueInput({ className, ...props }: ComponentProps<"input">) {
 }
 
 /** "Import YAML" isn't possible from the browser yet: point at the CLI. */
-export function ImportYamlButton() {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span tabIndex={0} className="rounded-control">
-          <Button variant="outline" disabled aria-label="Import YAML">
-            <FileUp aria-hidden /> Import YAML
-          </Button>
-        </span>
-      </TooltipTrigger>
-      <TooltipContent>Use the ctl CLI: {CLI_COMMAND}</TooltipContent>
-    </Tooltip>
-  );
-}
-
 export function CliHint() {
   return (
     <p className="flex flex-wrap items-center gap-2 font-display text-xs text-muted-foreground">
@@ -201,39 +180,5 @@ export function CliHint() {
         {CLI_COMMAND}
       </code>
     </p>
-  );
-}
-
-/** A tab whose backend isn't there yet. Says what's missing; no fake data. */
-export function ComingSoon({
-  title,
-  description,
-  missing,
-  children
-}: {
-  title: string;
-  description: string;
-  missing: string;
-  children?: ReactNode;
-}) {
-  return (
-    <section
-      aria-label={title}
-      className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-14 text-center"
-    >
-      <span className="flex size-11 items-center justify-center rounded-full bg-muted">
-        <Construction className="size-5 text-muted-foreground" aria-hidden />
-      </span>
-      <h2 className="font-display text-base font-medium">
-        {title} <span className="text-muted-foreground">· coming soon</span>
-      </h2>
-      <p className="max-w-lg font-display text-sm text-muted-foreground">
-        {description}
-      </p>
-      <p className="max-w-lg font-display text-xs text-text-secondary">
-        {missing}
-      </p>
-      {children}
-    </section>
   );
 }

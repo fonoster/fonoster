@@ -18,7 +18,7 @@
  */
 import type { Application } from "@fonoster/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Braces, Phone } from "lucide-react";
+import { Braces } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -28,13 +28,9 @@ import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Skeleton } from "~/components/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from "~/components/ui/tooltip";
 import { GrpcCode, errorMessage, grpcCode } from "~/lib/errors";
 import { cn } from "~/lib/utils";
+import { RecentCalls } from "~/calls/recent-calls";
 import { CodeBlock } from "./code-block";
 import { DeleteVoiceAppDialog } from "./delete-voice-app-dialog";
 import { voiceAppSchema, type VoiceAppValues } from "./schema";
@@ -85,20 +81,6 @@ function Panel({
       </div>
       {children}
     </section>
-  );
-}
-
-/** A control the API can't back yet. */
-function ComingSoon({ children }: { children: ReactNode }) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span tabIndex={0} className="inline-flex rounded-control">
-          {children}
-        </span>
-      </TooltipTrigger>
-      <TooltipContent>Coming soon</TooltipContent>
-    </Tooltip>
   );
 }
 
@@ -229,11 +211,6 @@ function VoiceAppEditor({ app }: { app: Application }) {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <ComingSoon>
-            <Button variant="outline" disabled>
-              <Phone aria-hidden className="size-4" /> Place test call
-            </Button>
-          </ComingSoon>
           <Button
             type="submit"
             form="voice-app-detail-form"
@@ -281,11 +258,6 @@ function VoiceAppEditor({ app }: { app: Application }) {
                     spellCheck={false}
                     className="font-mono"
                   />
-                  <ComingSoon>
-                    <Button variant="outline" disabled>
-                      Check
-                    </Button>
-                  </ComingSoon>
                 </div>
               )}
             </Field>
@@ -365,9 +337,12 @@ function VoiceAppEditor({ app }: { app: Application }) {
             )}
           </Panel>
           <Panel title="Recent calls">
-            <p className="font-display text-xs text-muted-foreground">
-              Coming soon: calls handled by this app will show here.
-            </p>
+            <RecentCalls
+              numbers={routed}
+              loadingNumbers={numbers.isPending}
+              label="Recent calls"
+              noNumbers="No number is routed to this app yet."
+            />
           </Panel>
           <Panel
             title="Delete voice app"

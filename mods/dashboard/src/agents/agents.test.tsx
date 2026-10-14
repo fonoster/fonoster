@@ -20,6 +20,7 @@ import { screen, within } from "@testing-library/react";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
+import { sampleCalls } from "~/calls/fixtures";
 import AgentsScreen from ".";
 import { agentRow } from "./agents-list";
 import {
@@ -28,6 +29,8 @@ import {
   sampleNumbers,
   voiceApp
 } from "./fixtures";
+
+const inboundCall = sampleCalls[2];
 
 function setup({
   route = "/w/ws-1/agents",
@@ -46,9 +49,14 @@ function setup({
     deleteApplication: vi.fn().mockResolvedValue({ ref: billingAgent.ref }),
     createTestToken: vi.fn()
   };
+  const listCalls = vi.fn().mockImplementation(async (request) => ({
+    items: request.to === "+18295550199" ? [inboundCall] : [],
+    nextPageToken: ""
+  }));
   const sdk = {
     applications,
-    numbers: { listNumbers: vi.fn().mockResolvedValue({ items: numbers }) }
+    numbers: { listNumbers: vi.fn().mockResolvedValue({ items: numbers }) },
+    calls: { listCalls }
   };
   const auth = fakeAuth({ status: "signedIn", sdk: sdk as never });
   const view = renderScreen(
@@ -57,7 +65,7 @@ function setup({
     </WorkspaceProvider>,
     { auth, path: "/w/:workspaceRef/agents/*", route }
   );
-  return { ...view, applications };
+  return { ...view, applications, listCalls };
 }
 
 describe("Agents list", () => {
@@ -113,8 +121,8 @@ describe("Agents list", () => {
     await user.click(await screen.findByRole("button", { name: "New agent" }));
     const dialog = await screen.findByRole("dialog");
     expect(
-      within(dialog).getByRole("radio", { name: /Knowledge FAQ/ })
-    ).toBeDisabled();
+      within(dialog).queryByRole("radio", { name: /Knowledge FAQ/ })
+    ).not.toBeInTheDocument();
     await user.click(within(dialog).getByRole("radio", { name: /Reminders/ }));
     await user.type(within(dialog).getByLabelText("Name"), "Billing reminders");
     await user.click(
@@ -276,15 +284,37 @@ describe("Agent detail", () => {
     });
   });
 
-  it.each([
-    ["knowledge", "Knowledge", /Document upload isn't available/],
-    ["tests", "Tests", /can't store or run test scenarios/],
-    ["calls", "Calls", /Call records don't say which agent/]
-  ])("shows %s as coming soon", async (path, title, missing) => {
-    setup({ route: `/w/ws-1/agents/${billingAgent.ref}/${path}` });
-    const panel = await screen.findByRole("region", { name: title });
-    expect(within(panel).getByText("· coming soon")).toBeInTheDocument();
-    expect(within(panel).getByText(missing)).toBeInTheDocument();
+  it("has no Knowledge or Tests tab in this release", async () => {
+    setup({ route: `/w/ws-1/agents/${billingAgent.ref}/configure` });
+    const tabs = await screen.findByRole("navigation", {
+      name: "Agent sections"
+    });
+    expect(
+      within(tabs).getByRole("link", { name: "Calls" })
+    ).toBeInTheDocument();
+    expect(
+      within(tabs).queryByRole("link", { name: "Knowledge" })
+    ).not.toBeInTheDocument();
+    expect(
+      within(tabs).queryByRole("link", { name: "Tests" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("lists the calls on the agent's numbers", async () => {
+    const { listCalls } = setup({
+      route: `/w/ws-1/agents/${billingAgent.ref}/calls`
+    });
+    expect(await screen.findByText("+1 809 555 0142")).toBeInTheDocument();
+    // Both of its numbers, as caller and as callee.
+    const filters = listCalls.mock.calls.map(([request]) =>
+      request.to ? `to ${request.to}` : `from ${request.from}`
+    );
+    expect(filters.sort()).toEqual([
+      "from +18095550177",
+      "from +18295550199",
+      "to +18095550177",
+      "to +18295550199"
+    ]);
   });
 
   it("deletes the agent from Advanced and returns to the list", async () => {

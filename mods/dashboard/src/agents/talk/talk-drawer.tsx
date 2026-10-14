@@ -16,15 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Check,
-  Info,
-  MessageSquare,
-  Mic,
-  Phone,
-  PhoneOff,
-  Smartphone
-} from "lucide-react";
+import { Check, Info, Mic, Phone, PhoneOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
@@ -96,16 +88,6 @@ function TalkBody({ appRef, dirty }: { appRef: string; dirty: boolean }) {
 
   return (
     <>
-      <div
-        role="tablist"
-        aria-label="How to talk"
-        className="grid grid-cols-3 gap-1 rounded-control bg-muted p-1"
-      >
-        <ModeTab icon={Mic} label="In browser" selected />
-        <ModeTab icon={Smartphone} label="Call my phone" />
-        <ModeTab icon={MessageSquare} label="Chat" />
-      </div>
-
       {dirty && (
         <Alert variant="warning">
           You have unsaved changes. Save first to test them.
@@ -184,39 +166,10 @@ function TalkBody({ appRef, dirty }: { appRef: string; dirty: boolean }) {
 
       <p className="flex gap-2 font-display text-xs text-muted-foreground">
         <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-        Uses the saved version. Calling a real phone and chatting with the agent
-        are coming soon.
+        Uses the saved version.
       </p>
       {/* Remote audio: the agent's voice. */}
       <audio ref={call.audioRef} autoPlay className="hidden" />
     </>
-  );
-}
-
-function ModeTab({
-  icon: Icon,
-  label,
-  selected
-}: {
-  icon: typeof Mic;
-  label: string;
-  selected?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={Boolean(selected)}
-      disabled={!selected}
-      title={selected ? undefined : "Coming soon"}
-      className={cn(
-        "flex items-center justify-center gap-1.5 rounded-[6px] px-2 py-2 font-display text-xs disabled:cursor-not-allowed disabled:opacity-50",
-        selected ? "bg-background text-foreground" : "text-muted-foreground"
-      )}
-    >
-      <Icon className="size-3.5" aria-hidden />
-      {label}
-      {!selected && <span className="sr-only"> (coming soon)</span>}
-    </button>
   );
 }

@@ -31,11 +31,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 import { EVENTS, type AgentValues } from "../agent-form";
 import { AUDIO_FILTERS } from "../catalog";
@@ -364,21 +359,7 @@ function EventsWebhook() {
   const eventsError = useFieldError("eventsHook.events");
   const events = (field.value ?? []) as string[];
   return (
-    <Panel
-      title="Events webhook"
-      action={
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span tabIndex={0} className="inline-flex">
-              <PanelAction disabled>Send test</PanelAction>
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            Coming soon: the API can't send a test event yet.
-          </TooltipContent>
-        </Tooltip>
-      }
-    >
+    <Panel title="Events webhook">
       <input
         aria-label="Webhook URL"
         aria-invalid={Boolean(urlError)}

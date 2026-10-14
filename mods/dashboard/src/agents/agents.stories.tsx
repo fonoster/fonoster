@@ -22,6 +22,7 @@ import type { AuthContextValue } from "~/lib/auth";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { testWorkspace } from "~/test/workspace";
 import AgentsScreen from ".";
+import { sampleCalls } from "~/calls/fixtures";
 import {
   billingAgent,
   sampleAgents,
@@ -46,7 +47,13 @@ const withAgents = (items: object[]) => (auth: AuthContextValue) => ({
         new Error("Test calls aren't available in Storybook.")
       )
     },
-    numbers: { listNumbers: fn().mockResolvedValue({ items: sampleNumbers }) }
+    numbers: { listNumbers: fn().mockResolvedValue({ items: sampleNumbers }) },
+    calls: {
+      listCalls: async (request: { to?: string }) => ({
+        items: request.to === "+18295550199" ? sampleCalls.slice(0, 3) : [],
+        nextPageToken: ""
+      })
+    }
   } as never
 });
 
@@ -117,8 +124,6 @@ export const ToolsLight: Story = {
   globals: { theme: "light" }
 };
 export const Advanced: Story = detail("advanced");
-export const Knowledge: Story = detail("knowledge");
-export const Tests: Story = detail("tests");
 export const Calls: Story = detail("calls");
 
 export const TalkToAgent: Story = {

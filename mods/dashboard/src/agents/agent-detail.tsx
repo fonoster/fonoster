@@ -60,15 +60,13 @@ import {
 import { useFieldError } from "./fields";
 import { TalkDrawer } from "./talk/talk-drawer";
 import { AdvancedTab } from "./tabs/advanced-tab";
-import { CallsTab, KnowledgeTab, TestsTab } from "./tabs/coming-soon-tabs";
+import { CallsTab } from "./tabs/calls-tab";
 import { ConfigureTab } from "./tabs/configure-tab";
 import { ToolsTab } from "./tabs/tools-tab";
 
 export const TABS = [
   { path: "configure", label: "Configure" },
   { path: "tools", label: "Tools" },
-  { path: "knowledge", label: "Knowledge" },
-  { path: "tests", label: "Tests" },
   { path: "calls", label: "Calls" },
   { path: "advanced", label: "Advanced" }
 ] as const;
@@ -291,9 +289,7 @@ function AgentEditor({
             element={<ConfigureTab numbers={numbers} />}
           />
           <Route path="tools" element={<ToolsTab />} />
-          <Route path="knowledge" element={<KnowledgeTab />} />
-          <Route path="tests" element={<TestsTab />} />
-          <Route path="calls" element={<CallsTab />} />
+          <Route path="calls" element={<CallsTab numbers={numbers} />} />
           <Route
             path="advanced"
             element={<AdvancedTab onDelete={() => setDeleting(true)} />}

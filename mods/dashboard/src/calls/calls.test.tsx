@@ -121,7 +121,7 @@ describe("Calls", () => {
     expect(calls.getCall).toHaveBeenCalledWith(sampleCalls[0].ref);
   });
 
-  it("shows the call record, the AMD verdict and what's coming", async () => {
+  it("shows the call record and the AMD verdict", async () => {
     setup({ route: `/w/ws-1/calls/${sampleCalls[0].ref}` });
     const summary = await screen.findByRole("list", { name: "Summary" });
     expect(within(summary).getByText("Answered by human")).toBeInTheDocument();
@@ -135,16 +135,9 @@ describe("Calls", () => {
     });
     expect(within(amd).getByText("94%")).toBeInTheDocument();
     expect(within(amd).getByText("820 ms")).toBeInTheDocument();
-    expect(
-      screen.getByRole("region", { name: "Recording and transcript" })
-    ).toBeInTheDocument();
-    // Community doesn't show costs.
-    expect(
-      screen.queryByRole("region", { name: "Cost" })
-    ).not.toBeInTheDocument();
   });
 
-  it("hides AMD when it didn't run and shows cost on Cloud", async () => {
+  it("hides AMD when it didn't run, and has no cost panel even on Cloud", async () => {
     setup({
       route: `/w/ws-1/calls/${sampleCalls[2].ref}`,
       getCall: vi.fn().mockResolvedValue(sampleCalls[2]),
@@ -156,7 +149,9 @@ describe("Calls", () => {
     expect(
       screen.queryByRole("region", { name: "Answering machine detection" })
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Cost" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", { name: "Cost" })
+    ).not.toBeInTheDocument();
   });
 
   it("says when a call doesn't exist", async () => {
