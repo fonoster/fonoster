@@ -2,7 +2,7 @@
   "name": "root",
   "version": "independent",
   "private": true,
-  "description": "Then open-source alternative to Twilio",
+  "description": "The AI that answers the phone.",
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
