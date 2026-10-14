@@ -71,14 +71,16 @@ function setup({
   route = "/settings",
   workspace = testWorkspace,
   user = me,
+  access = [],
   capabilities
 }: {
   route?: string;
   workspace?: Workspace;
   user?: IdTokenClaims;
+  access?: AuthContextValue["access"];
   capabilities?: typeof cloudCapabilities;
 } = {}) {
-  const base = fakeAuth({ status: "signedIn", user });
+  const base = fakeAuth({ status: "signedIn", user, access });
   const workspaces = {
     ...base.sdk.workspaces,
     updateWorkspace: vi.fn().mockResolvedValue({ ref: workspace.ref }),
@@ -118,6 +120,35 @@ describe("Settings · General", () => {
       ref: "ws-1",
       name: "Acme Care"
     });
+  });
+
+  it("lets an admin rename it", () => {
+    setup({
+      workspace: { ...testWorkspace, ownerRef: "someone-else" },
+      access: [
+        { accessKeyId: testWorkspace.accessKeyId, role: "WORKSPACE_ADMIN" }
+      ]
+    });
+    expect(screen.getByLabelText("Workspace name")).not.toHaveAttribute(
+      "readonly"
+    );
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+  });
+
+  it("shows members the name without letting them rename it", () => {
+    setup({
+      workspace: { ...testWorkspace, ownerRef: "someone-else" },
+      access: [
+        { accessKeyId: testWorkspace.accessKeyId, role: "WORKSPACE_MEMBER" }
+      ]
+    });
+    expect(screen.getByLabelText("Workspace name")).toHaveAttribute("readonly");
+    expect(
+      screen.queryByRole("button", { name: "Save" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Only the owner or an admin can rename the workspace.")
+    ).toBeInTheDocument();
   });
 
   it("shows the access key ID", () => {

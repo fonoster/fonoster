@@ -88,8 +88,16 @@ function SettingRow({
 
 export function GeneralSettings() {
   const workspace = useWorkspace();
-  const { user } = useAuth();
+  const { user, access } = useAuth();
   const isOwner = Boolean(user?.sub) && workspace.ownerRef === user?.sub;
+  // The API lets the owner and admins rename; members see the name only.
+  const canRename =
+    isOwner ||
+    access.some(
+      (a) =>
+        a.accessKeyId === workspace.accessKeyId &&
+        (a.role === "WORKSPACE_ADMIN" || a.role === "WORKSPACE_OWNER")
+    );
 
   return (
     <div className="flex max-w-4xl flex-col gap-6">
@@ -97,7 +105,7 @@ export function GeneralSettings() {
         aria-label="Workspace"
         className="rounded-xl border border-border bg-card"
       >
-        <NameForm />
+        <NameForm canRename={canRename} />
         <SettingRow
           title="Access key ID"
           description="Your workspace ID. The SDK and ctl need it together with an API key."
@@ -117,7 +125,7 @@ export function GeneralSettings() {
   );
 }
 
-function NameForm() {
+function NameForm({ canRename }: { canRename: boolean }) {
   const workspace = useWorkspace();
   const update = useUpdateWorkspace();
   const form = useForm<Values>({
@@ -141,7 +149,11 @@ function NameForm() {
     <SettingRow
       title="Workspace name"
       htmlFor="workspace-name"
-      description="Shown in the workspace switcher and emails."
+      description={
+        canRename
+          ? "Shown in the workspace switcher and emails."
+          : "Only the owner or an admin can rename the workspace."
+      }
     >
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-2">
         <div className="flex gap-2.5">
@@ -150,16 +162,19 @@ function NameForm() {
             aria-invalid={Boolean(errors.name)}
             aria-describedby={errors.name ? "workspace-name-error" : undefined}
             autoComplete="off"
+            readOnly={!canRename}
             {...form.register("name")}
           />
-          <Button
-            type="submit"
-            variant="outline"
-            loading={update.isPending}
-            disabled={current.trim() === workspace.name}
-          >
-            Save
-          </Button>
+          {canRename && (
+            <Button
+              type="submit"
+              variant="outline"
+              loading={update.isPending}
+              disabled={current.trim() === workspace.name}
+            >
+              Save
+            </Button>
+          )}
         </div>
         {errors.name && (
           <p

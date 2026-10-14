@@ -72,6 +72,7 @@ export function createFakeAuth(
       resolved() as unknown as AuthContextValue["signInWithGitHub"],
     refreshSession: resolved() as unknown as AuthContextValue["refreshSession"],
     signOut: mock() as unknown as AuthContextValue["signOut"],
-    ...overrides
+    ...overrides,
+    access: overrides.access ?? []
   };
 }

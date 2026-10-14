@@ -31,7 +31,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { clearInvite } from "~/auth/invite";
 import { createSdk, type FonosterSdk, type WebClient } from "./client";
 import { GrpcCode, grpcCode } from "./errors";
-import { decodeJwt, msUntilExpiry, type IdTokenClaims } from "./jwt";
+import {
+  decodeJwt,
+  msUntilExpiry,
+  type AccessTokenClaims,
+  type IdTokenClaims
+} from "./jwt";
 import { STORAGE_KEYS, storage } from "./storage";
 
 export type Session = {
@@ -49,6 +54,8 @@ type AuthContextValue = {
   client: WebClient;
   sdk: FonosterSdk;
   user: IdTokenClaims | null;
+  /** The user's role per workspace, as of sign-in or the last refresh. */
+  access: NonNullable<AccessTokenClaims["access"]>;
   signInWithPassword: (email: string, password: string) => Promise<void>;
   signInWithCode: (email: string, code: string) => Promise<void>;
   signInWithGitHub: (code: string) => Promise<void>;
@@ -182,6 +189,10 @@ export function AuthProvider({
         status === "signedIn"
           ? decodeJwt<IdTokenClaims>(session?.idToken)
           : null,
+      access:
+        status === "signedIn"
+          ? (decodeJwt<AccessTokenClaims>(session?.accessToken)?.access ?? [])
+          : [],
       signInWithPassword: async (email, password) => {
         await client.login(email, password);
         adopt();

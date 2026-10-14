@@ -45,6 +45,11 @@ export type IdTokenClaims = {
   exp: number;
 };
 
+/** The access token lists the user's role in each workspace they belong to. */
+export type AccessTokenClaims = {
+  access?: { accessKeyId: string; role: string }[];
+};
+
 /** Milliseconds until the token expires (negative when it already has). */
 export function msUntilExpiry(token: string, now = Date.now()): number {
   const claims = decodeJwt<{ exp?: number }>(token);
