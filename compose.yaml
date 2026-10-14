@@ -3,7 +3,7 @@ services:
     image: fonoster/dashboard:0.26.0
     restart: unless-stopped
     expose:
-      - 3030:3030
+      - 3030
     # The only setting; sign-in methods and the rest come from the API.
     environment:
       - DASHBOARD_API_URL
