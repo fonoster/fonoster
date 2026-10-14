@@ -6,6 +6,7 @@
   * [Ask for Help](#ask-for-help)
   * [Pull Request Lifecycle](#pull-request-lifecycle)
   * [Development Environment Setup](#development-environment-setup)
+    * [Dev Container](#dev-container)
   * [Sign your Commits](#sign-your-commits)
   * [Pull Request Checklist](#pull-request-checklist)
 
@@ -80,6 +81,31 @@ Depending on the project's roadmap and priorities, you might also be asked to:
 ## Development Environment Setup
 
 See our [Development environment setup](https://github.com/fonoster/fonoster/tree/main/docs/self-hosting) guide to get started locally.
+
+### Dev Container
+
+The repo ships a [dev container](https://containers.dev) (`.devcontainer/`) with Node 20, git, the GitHub CLI, `protoc`, the OpenSpec CLI, and Playwright Chromium. Open the repo in VS Code and choose **Reopen in Container**, start a GitHub Codespace, or use the CLI:
+
+```bash
+npx @devcontainers/cli up --workspace-folder .
+npx @devcontainers/cli exec --workspace-folder . bash
+```
+
+On first start it runs `npm ci`, copies `.env.example.dev` to `.env` and `config/*.example.yaml` to `config/*.yaml` (only if they're missing), generates `.keys/`, and installs Chromium for Playwright.
+
+The container holds the Node workspace and tooling only. Postgres, NATS, InfluxDB, Routr, Asterisk, RTPEngine, envoy and mailhog keep running on your host's Docker engine. The container talks to that engine through the mounted Docker socket, so from inside it you can run:
+
+```bash
+npm run start:services   # docker compose -f compose.yaml -f compose.dev.yaml up ...
+```
+
+The repo is mounted at the same path as on your host, so the bind mounts in the compose files (`./.keys`, `./etc`, `./config`) resolve correctly on the host's Docker engine. Those services publish their ports on the host. Inside the container, `postgres`, `nats`, `influxdb`, `routr`, `asterisk`, `envoy` and `mailhog` resolve to the host, so the example configs work as they are. The apiserver's port 50051 is published on the host, which lets envoy and Asterisk reach it at `DOCKER_HOST_ADDRESS`. Ports 3030 (dashboard), 6006 (Storybook), 50061 (autopilot), 8449 (envoy) and 8025 (mailhog) are forwarded.
+
+Notes:
+
+- `node_modules` at the root lives in a Docker volume, so the Linux build never overwrites your host's install. Per-package `mods/*/node_modules` folders are still shared with the host checkout.
+- Run the dev container from a regular clone, not a `git worktree`. In a worktree, `.git` points to a host path that doesn't exist inside the container, so git and the husky hooks fail.
+- Running `npm ci` or `npm install` inside the container regenerates the committed Prisma client in `mods/identity/src/generated` for Linux. That adds a `libquery_engine-linux-*.so.node` file and rewrites paths in `index.js`, `edge.js` and `wasm.js`. Don't commit that diff. The same thing already happens on any host other than the one that last generated the client.
 
 ## Sign your Commits
 

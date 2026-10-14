@@ -1,0 +1,60 @@
+// Fonoster dev container. See CONTRIBUTING.md#dev-container.
+// Holds the Node workspace and tooling only; Postgres, NATS, InfluxDB, Routr,
+// Asterisk, RTPEngine, envoy and mailhog run on the host Docker engine from
+// compose.yaml + compose.dev.yaml (docker-outside-of-docker).
+{
+  "name": "Fonoster",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": false
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  // Mount the repo at the same path as on the host. With docker-outside-of-docker
+  // the host daemon resolves compose bind mounts (./.keys, ./etc, ./config, ...),
+  // so container paths must match host paths.
+  "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
+  "workspaceFolder": "${localWorkspaceFolder}",
+  "runArgs": [
+    // The compose services publish their ports on the host. Alias the service
+    // names to the host so config/*.example.yaml (postgres, nats, influxdb, ...)
+    // works unchanged from inside this container.
+    "--add-host=host.docker.internal:host-gateway",
+    "--add-host=postgres:host-gateway",
+    "--add-host=nats:host-gateway",
+    "--add-host=influxdb:host-gateway",
+    "--add-host=routr:host-gateway",
+    "--add-host=asterisk:host-gateway",
+    "--add-host=envoy:host-gateway",
+    "--add-host=mailhog:host-gateway"
+  ],
+  // Keep Linux node_modules out of the host checkout (native binaries differ).
+  "mounts": [
+    "source=fonoster-node_modules-${devcontainerId},target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ],
+  // apiserver is published on the host (not just forwarded) so envoy and
+  // Asterisk, which reach it at DOCKER_HOST_ADDRESS, can call it.
+  "appPort": ["50051:50051"],
+  "forwardPorts": [3030, 6006, 50061, 8449, 8025],
+  "portsAttributes": {
+    "3030": { "label": "dashboard (Vite)" },
+    "6006": { "label": "storybook" },
+    "50051": { "label": "apiserver (gRPC)" },
+    "50061": { "label": "autopilot" },
+    "8449": { "label": "envoy (gRPC-web)" },
+    "8025": { "label": "mailhog" }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "remoteUser": "node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma",
+        "ms-playwright.playwright"
+      ]
+    }
+  }
+}
