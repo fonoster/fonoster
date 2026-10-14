@@ -68,6 +68,8 @@ function createCreateUserWithOauth2Code(
     const userData = await getGitHubUserWithOauth2Code({
       clientId: identityConfig.githubOauth2Config.clientId,
       clientSecret: identityConfig.githubOauth2Config.clientSecret,
+      url: identityConfig.githubOauth2Config.url,
+      apiUrl: identityConfig.githubOauth2Config.apiUrl,
       code
     });
 

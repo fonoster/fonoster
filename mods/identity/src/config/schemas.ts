@@ -112,7 +112,19 @@ const oauth2Schema = z
   .object({
     github: z.object({
       clientId: z.string().min(1),
-      clientSecret: z.string().min(1)
+      clientSecret: z.string().min(1),
+      /** Where users authorize and codes are exchanged. Change only for tests (a fake GitHub). */
+      url: z
+        .string()
+        .url()
+        .default("https://github.com")
+        .transform((v) => v.replace(/\/+$/, "")),
+      /** GitHub's REST API, for the user and their emails. */
+      apiUrl: z
+        .string()
+        .url()
+        .default("https://api.github.com")
+        .transform((v) => v.replace(/\/+$/, ""))
     })
   })
   .optional();

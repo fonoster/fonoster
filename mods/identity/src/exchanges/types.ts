@@ -53,6 +53,10 @@ type IdentityConfig = {
   githubOauth2Config?: {
     clientId: string;
     clientSecret: string;
+    /** Defaults to https://github.com. */
+    url?: string;
+    /** Defaults to https://api.github.com. */
+    apiUrl?: string;
   };
   /** Sign-in methods and sign-up policy, from features.auth. */
   auth: {

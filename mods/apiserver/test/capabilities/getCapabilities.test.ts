@@ -80,4 +80,32 @@ describe("@apiserver[capabilities/getCapabilities]", function () {
       }
     });
   });
+
+  it("points the authorize URL at a configured GitHub (a fake one in tests)", async function () {
+    const raw = configWith({});
+    const config = configWith({
+      features: {
+        ...raw.features,
+        auth: { methods: ["github"], signup: "invite" }
+      },
+      identity: {
+        ...parseConfigFile(fixture, readFileSync(fixture, "utf8")).identity,
+        oauth2: {
+          github: {
+            clientId: "gh-id",
+            clientSecret: "gh-secret",
+            url: "http://localhost:3999/"
+          }
+        }
+      },
+      twilio: undefined
+    });
+
+    const response = await getCapabilities(config);
+
+    expect(response.auth).to.have.nested.property(
+      "github.authorizeUrl",
+      "http://localhost:3999/login/oauth/authorize"
+    );
+  });
 });

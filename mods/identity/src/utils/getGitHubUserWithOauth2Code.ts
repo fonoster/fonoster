@@ -16,9 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const GITHUB_API_URL = "https://github.com/login/oauth/access_token";
-const GITHUB_USER_API_URL = "https://api.github.com/user";
-const GITHUB_EMAILS_API_URL = "https://api.github.com/user/emails";
+const GITHUB_URL = "https://github.com";
+const GITHUB_API_URL = "https://api.github.com";
 
 type GitHubEmail = { email: string; primary: boolean; verified: boolean };
 
@@ -39,9 +38,15 @@ async function getGitHubUserWithOauth2Code(params: {
   clientId: string;
   clientSecret: string;
   code: string;
+  /** Defaults to https://github.com; a fake GitHub in tests. */
+  url?: string;
+  /** Defaults to https://api.github.com. */
+  apiUrl?: string;
 }): Promise<GitHubUser> {
   const { clientId, clientSecret, code } = params;
-  const tokenResponse = await fetch(GITHUB_API_URL, {
+  const url = params.url ?? GITHUB_URL;
+  const apiUrl = params.apiUrl ?? GITHUB_API_URL;
+  const tokenResponse = await fetch(`${url}/login/oauth/access_token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -67,8 +72,8 @@ async function getGitHubUserWithOauth2Code(params: {
   };
 
   const [userResponse, emailsResponse] = await Promise.all([
-    fetch(GITHUB_USER_API_URL, { headers }),
-    fetch(GITHUB_EMAILS_API_URL, { headers })
+    fetch(`${apiUrl}/user`, { headers }),
+    fetch(`${apiUrl}/user/emails`, { headers })
   ]);
 
   const user = await userResponse.json();

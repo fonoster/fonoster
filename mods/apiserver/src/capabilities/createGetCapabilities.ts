@@ -18,8 +18,6 @@
  */
 import { FonosterConfig, getAppUrl } from "../config";
 
-const GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize";
-
 type GetCapabilitiesResponse = {
   auth: {
     methods: string[];
@@ -42,7 +40,10 @@ function createGetCapabilities(config: FonosterConfig) {
   const githubOAuth = config.identity.oauth2?.github;
   const github =
     auth.methods.includes("github") && githubOAuth
-      ? { clientId: githubOAuth.clientId, authorizeUrl: GITHUB_AUTHORIZE_URL }
+      ? {
+          clientId: githubOAuth.clientId,
+          authorizeUrl: `${githubOAuth.url}/login/oauth/authorize`
+        }
       : undefined;
 
   const response: GetCapabilitiesResponse = {
