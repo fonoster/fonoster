@@ -21,11 +21,16 @@ import { getEnumKey, isMapping } from "./utils";
 
 type Message = { toObject(): Record<string, unknown> };
 
+/**
+ * A protobuf message to flatten. google.protobuf.Struct values (they have
+ * toJavaScript) are left as they are: callers convert them with toJavaScript().
+ */
 function isMessage(value: unknown): value is Message {
   return (
     value !== null &&
     typeof value === "object" &&
-    typeof (value as Message).toObject === "function"
+    typeof (value as Message).toObject === "function" &&
+    typeof (value as { toJavaScript?: unknown }).toJavaScript !== "function"
   );
 }
 

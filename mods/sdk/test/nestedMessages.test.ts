@@ -24,6 +24,7 @@ import {
   Domain,
   EgressPolicy
 } from "../src/generated/node/domains_pb";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { Acl } from "../src/generated/node/acls_pb";
 
 describe("@sdk[client/nested messages]", function () {
@@ -70,5 +71,20 @@ describe("@sdk[client/nested messages]", function () {
     expect(json.egressPolicies).to.deep.equal([
       { rule: "^\\+34", numberRef: "nb-2" }
     ]);
+  });
+
+  it("leaves google.protobuf.Struct values for toJavaScript()", function () {
+    // Regression: application configs are Structs; flattening them broke
+    // "textToSpeech.config.toJavaScript is not a function".
+    const holder = {
+      getConfig: () => Struct.fromJavaScript({ voice: "aura-2-thalia-en" })
+    };
+    const json = objectToJson<{ config: { toJavaScript(): unknown } }>(
+      Object.assign(Object.create(holder), {}) as unknown as new () => unknown
+    );
+
+    expect(json.config.toJavaScript()).to.deep.equal({
+      voice: "aura-2-thalia-en"
+    });
   });
 });
