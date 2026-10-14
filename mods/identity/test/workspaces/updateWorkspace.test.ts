@@ -73,6 +73,51 @@ describe("@identity[workspace/updateWorkspace]", function () {
     expect(response).to.deep.equal({ ref: TEST_UUID });
   });
 
+  it("should refuse a member who is not an admin", async function () {
+    // Arrange
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const call = {
+      metadata,
+      request: {
+        ref: TEST_UUID,
+        name: "My Workspacex"
+      }
+    };
+
+    const update = sandbox.stub().resolves({ ref: TEST_UUID });
+    const prisma = {
+      workspace: {
+        update,
+        findUnique: sandbox.stub().resolves({
+          ownerRef: "someone-else",
+          members: [
+            { userRef: TEST_UUID, status: "ACTIVE", role: "WORKSPACE_MEMBER" }
+          ]
+        })
+      }
+    } as unknown as Prisma;
+
+    const { createUpdateWorkspace } = await import(
+      "../../src/workspaces/createUpdateWorkspace"
+    );
+
+    // Act
+    const response = new Promise((resolve, reject) => {
+      createUpdateWorkspace(prisma)(call, (error, response) => {
+        if (error) return reject(error);
+        resolve(response);
+      });
+    });
+
+    // Assert
+    await expect(response).to.be.rejectedWith(
+      "Only the workspace owner or an admin can update it"
+    );
+    expect(update).to.not.have.been.called;
+  });
+
   it("should throw an error if the user does not exist", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
