@@ -214,7 +214,7 @@ gateway SHALL take the app from `appRef` and SHALL fall back to a number lookup 
 
 ### Requirement: Calls can carry a lower maximum duration
 
-`answer` and `room.create` MAY carry `maxDurationSec`, lowering the node's maximum call duration
+`answer` and `room.create` MAY carry `maxDurationSec`, which SHALL lower the node's maximum call duration
 (media-node "Call and room limits") for that room; a value above the node's limit SHALL be
 ignored. When it is reached the room ends with `reason: "max_duration"`.
 

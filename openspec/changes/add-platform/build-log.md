@@ -424,3 +424,15 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   - root `package.json`: scripts only.
 - Refresh: `rm -rf node_modules && npm install` on a clean checkout, commit `package-lock.json`.
   Go: no new modules (`otel/propagation` and `sdk/trace/tracetest` are in modules already required).
+
+## 2026-10-15 (audit stream)
+
+### AU-B1. Task lists checked against the code
+
+- Ticked with evidence (noted on each line): conformance 2.5, 3.5, 3.7, 3.8, 3.9; rework-autopilot 5.3;
+  add-turn-taking 3.1; add-call-record 7.2; add-platform 2.1, 2.2, 2.4.
+- Partial notes added: conformance 3.4, 3.6, 3.10; voice-session-gateway 1.2, 2.6; turn-taking 1.5, 2.2;
+  provider-registry 3.1; call-record 7.3; webhooks 3.3; platform 1.1, 1.2, 1.5, 2.3; private-regions 1.3.
+- Left open on purpose (needs real calls, dedicated runners, the owner or unbuilt work): conformance
+  3.11, 4.2; rework-autopilot 1.4, 8.2, 8.3; provider-registry 4.2, 5.1 to 5.5; call-record 7.4;
+  media-node 3.2, 4.3; platform 1.3, 1.4, 2.6, 2.7, 4.1, 4.2; private-regions 4.3, 4.5, 5.9.

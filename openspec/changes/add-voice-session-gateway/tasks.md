@@ -3,7 +3,7 @@
 ## 1. Conformance assets
 
 - [x] 1.1 Write JSON Schemas for every `native` message (lifecycle, speech, audio, control, subscribe, error) and generate TypeScript and Python types from them
-- [ ] 1.2 Write language-neutral scenario files for every scenario in `voice-session` and `twilio-media-streams-flavor`
+- [ ] 1.2 Write language-neutral scenario files for every scenario in `voice-session` and `twilio-media-streams-flavor` (partial: mods/conformance/scenarios has 39 voice-session and 7 twilio files for 55 + 13 spec scenarios; the rest are covered only by mods/gateway/test/integration.test.ts)
 - [x] 1.3 Build a scripted fake app (drives the gateway) and a fake media node (supplies recorded caller audio, records control commands)
 - [x] 1.4 Build fake STT/TTS providers with deterministic output and injectable delay and failure
       (1.3 and 1.4 live in `mods/conformance`, built under `add-conformance-framework`)
@@ -18,7 +18,7 @@
 - [x] 2.3 Envelope handling: id echo, ignore unknown types and fields, `error` events
 - [x] 2.4 Speech layer: streamed `speak`, `play`, per-item voice and language, `listen.update`, `subscribe`
 - [x] 2.5 Output queue: agent audio, speak and play in one queue; `preempt`, `clear`, `mark`, `output.*` events with `heardText` and `heardMs`
-- [ ] 2.6 Audio layer: format conversion for the format menu, 20 ms caller frames, real-time playout
+- [ ] 2.6 Audio layer: format conversion for the format menu, 20 ms caller frames, real-time playout (partial: mods/gateway/src/audio/pcm.ts converts pcm16/l16/pcmu at any rate, 20 ms frames, OutputQueue playout; Opus open, design OQ8)
 - [x] 2.7 Control: `dtmf`, `dtmf.send`, `transfer` (cold, warm, refer), `transfer.complete`, `hold`, `resume` through the `media-control` contract
 - [x] 2.8 Handoff and listen-only sockets (tracks, side byte, `read_only`)
 - [x] 2.9 App-configured audio filters before STT and turn detection

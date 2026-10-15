@@ -12,7 +12,7 @@
       in isolation
 - [x] 1.4 Build a fake Pacing policy that records the estimate it receives, to test Detectors in
       isolation
-- [ ] 1.5 Assemble the first replay corpus: consented internal calls plus synthetic calls (TTS
+- [ ] 1.5 Assemble the first replay corpus: consented internal calls plus synthetic calls (TTS (partial: 60 synthetic calls in mods/conformance/turn-corpus/synthetic-v1.json; consented internal calls missing)
       callers with scripted pauses, backchannels and interruptions), with expected outcomes
 - [x] 1.6 Build the replay harness and its report: false cut-off rate, delay after true end
       (median, p95), missed barge-in rate, backchannel misfire rate, versus baseline
@@ -20,7 +20,7 @@
 ## 2. Gateway implementation (voice worker)
 
 - [x] 2.1 Detector host in the Speech layer, fed by caller audio, STT segments and output state
-- [ ] 2.2 Baseline Detector reproducing today's VAD + silence timeout behavior; verify against
+- [ ] 2.2 Baseline Detector reproducing today's VAD + silence timeout behavior; verify against (partial: BaselineDetector in mods/gateway/src/turn/Detector.ts; not yet verified against recorded calls)
       recorded calls that decisions match today's Autopilot
 - [x] 2.3 Default Pacing policy: prepare and commit thresholds, `turn.resumed`, backchannel and
       interruption handling, per-app patience, within-call adaptation
@@ -34,7 +34,7 @@
 
 ## 3. Migration and docs
 
-- [ ] 3.1 Remove Silero VAD, `maxSpeechWaitTimeout`, late-speech and barge-in handling from
+- [x] 3.1 Remove Silero VAD, `maxSpeechWaitTimeout`, late-speech and barge-in handling from (done: Silero VAD, vad/ and late-speech handling deleted from mods/autopilot, CB-B5; only legacy-config conversion mentions maxSpeechWaitTimeout; AU-B1)
       `mods/autopilot` (coordinated with `rework-autopilot`)
 - [x] 3.2 Map existing assistant settings (`maxSpeechWaitTimeout`, `allowUserBargeIn`, `vad.*`) to
       the new patience setting and interruptible defaults; document the mapping

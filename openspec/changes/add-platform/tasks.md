@@ -2,20 +2,20 @@
 
 ## 1. Conformance assets
 
-- [ ] 1.1 Control-plane suite: stateless replicas, cross-replica call control, replica loss, least-loaded placement, no-capacity error
-- [ ] 1.2 Bus suite: queue-group single processing, registry survival, no audio on NATS
+- [ ] 1.1 Control-plane suite: stateless replicas, cross-replica call control, replica loss, least-loaded placement, no-capacity error (partial: media-control scenarios one-replica-claims, node-killed, no-gateway-answers and apiserver placeOutboundCall.test.ts; no dedicated control-plane suite)
+- [ ] 1.2 Bus suite: queue-group single processing, registry survival, no audio on NATS (partial: queue-group single claim covered by media-control scenarios; registry survival and no-audio-on-NATS checks missing)
 - [ ] 1.3 Observability suite: OTLP from every service, `fonoster.call_ref` on every call signal, default profile end to end
   - Default profile checked end to end by hand on Compose (HE-B9); no automated suite yet.
 - [ ] 1.4 Deployment suite: nightly e2e on Compose and Helm, release gate, `.env` ignored, `secret://` resolution
   - `mods/conformance/test/deployment.test.ts`: Helm lint/template and rendered configs loaded with `secret://` resolved (HE-B6). Missing: nightly e2e, release gate, `.env` check.
-- [ ] 1.5 Regions suite: cell registration with token, outbound-only leaf link with TLS, data and keys stay in the cell, control-plane outage behavior
+- [ ] 1.5 Regions suite: cell registration with token, outbound-only leaf link with TLS, data and keys stay in the cell, control-plane outage behavior (partial: unit tests in mods/region-agent/test and mods/apiserver/test/regions; no suite for TLS leaf link or outage behavior)
 
 ## 2. Implementation
 
-- [ ] 2.1 New gateway package; move `mods/apiserver/src/voice/{stt,tts,filters}` into it
-- [ ] 2.2 Strip ARI, AudioSocket and speech from the apiserver; keep management gRPC, Identity, `GetCapabilities`, call creation and webhooks
-- [ ] 2.3 Session registry (JetStream KV) keys for calls, rooms, nodes and gateways; least-loaded placement
-- [ ] 2.4 NATS subjects and queue groups for `media-control`, events and webhook dispatch
+- [x] 2.1 New gateway package; move `mods/apiserver/src/voice/{stt,tts,filters}` into it (done: mods/gateway/src/{speech,filters}; apiserver keeps only voice/{stt,tts} config schemas for app validation, B2/AU-B1)
+- [x] 2.2 Strip ARI, AudioSocket and speech from the apiserver; keep management gRPC, Identity, `GetCapabilities`, call creation and webhooks (done: ARI, AudioSocket and speech removed from mods/apiserver, CB-B3/CB-B4/CB-B6; AU-B1)
+- [ ] 2.3 Session registry (JetStream KV) keys for calls, rooms, nodes and gateways; least-loaded placement (partial: least-loaded placement from heartbeats in mods/apiserver/src/outbound/createNodeDirectory.ts; JetStream KV registry not built)
+- [x] 2.4 NATS subjects and queue groups for `media-control`, events and webhook dispatch (done: media-control subjects and gateway-incoming queue group, calls.create queue, apiserver-webhooks, apiserver-call-records queues; AU-B1)
 - [x] 2.5 OTel SDK in every service with `fonoster.call_ref` propagation; OTLP config in each YAML
   - Gateway, media node, Autopilot (PL-B3..B5); apiserver, region agent and the registry utility (HE-B8); traceparent over NATS (HE-B9). OTLP settings are the standard `OTEL_*` environment, not a YAML key (PL-B3).
 - [ ] 2.6 Default observability profile (Grafana, Tempo, Loki, Prometheus) for Compose and Helm

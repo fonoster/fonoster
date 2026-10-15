@@ -44,7 +44,7 @@
 
 - [x] 5.1 `languageModel` uses one catalog id; remove `provider` enum and `apiKey`
 - [x] 5.2 Move `vad` and `maxSpeechWaitTimeout` to the turn-taking configuration
-- [ ] 5.3 Migration of stored assistant configs (see design Open Question 1)
+- [x] 5.3 Migration of stored assistant configs (see design Open Question 1) (done: conversion and job in mods/apiserver/src/applications/migration, test migrateApplications.test.ts, docs/operators/cutover.md; running it is 8.3; AU-B1)
 - [x] 5.4 Remove `eventsHook` from the assistant schema and `sendConversation*Event`; add the
       optional filler setting (deleting `sendConversation*Event` with the current engine moved to 8.2)
 
