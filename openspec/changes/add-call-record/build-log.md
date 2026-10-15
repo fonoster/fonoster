@@ -221,3 +221,13 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   the API needs the bearer token. Session messages are not shown (the redacted copy has no
   messages part and the API has no route for it). Browsers need same-origin `/api` (Envoy) or
   CORS on the HTTP bridge, which the records router does not set.
+
+### RV-B10. Retention and erasure find the record by its stored location
+- Maintenance requests carry the index's `location`; `CallRecordWriter.storeAt(location,
+  workspaceRef)` picks the store at that location (the region store or the workspace's bucket)
+  for `deleteParts`, `erase` and `addVersion`, and fails ("no record store at ...") rather than
+  touching another store. Before, the writer used the workspace's current store, so a record
+  that fell back to the region store at seal (O7), or predates a workspace bucket, could not be
+  deleted or erased.
+- Tests: callrecord "puts records of a workspace with its own bucket there ..." (maintenance
+  after a fallback).

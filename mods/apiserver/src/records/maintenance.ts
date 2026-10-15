@@ -100,6 +100,7 @@ export function createRecordMaintenance(
       op: request.op,
       callRef: request.callRef,
       workspaceRef: request.accessKeyId,
+      location: row.location,
       parts,
       reason: request.reason,
       actor: request.actor

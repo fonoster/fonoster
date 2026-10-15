@@ -131,6 +131,23 @@ export class CallRecordWriter {
     );
   }
 
+  /**
+   * The store that holds an existing record. With its indexed location (RV-B10) that is the
+   * store at that location: a record whose workspace bucket failed at seal stays in the region
+   * store, and a workspace that configured a bucket later keeps its older records where they
+   * are. Without a location, the workspace's current store.
+   */
+  storeAt(location: string | undefined, workspaceRef?: string | null) {
+    if (!location) return this.storeFor(workspaceRef);
+    const candidates = [
+      workspaceRef ? this.options.workspaceStore?.(workspaceRef) : undefined,
+      this.options.store
+    ];
+    const found = candidates.find((s) => s && s.location === location);
+    if (!found) throw new Error(`no record store at ${location}`);
+    return found;
+  }
+
   /** Seals a working record as version 1 and returns it; idempotent while in progress. */
   seal(callRef: string): Promise<SealedVersion> {
     const inProgress = this.sealing.get(callRef);
@@ -228,10 +245,11 @@ export class CallRecordWriter {
     callRef: string,
     workspaceRef: string | null | undefined,
     change: (vcon: Vcon, redacted: boolean) => Vcon,
-    checkWorkspace = false
+    checkWorkspace = false,
+    location?: string
   ): Promise<{ sealed: SealedVersion; previous: SealedVersion }> {
     const { key } = this.options;
-    const store = this.storeFor(workspaceRef);
+    const store = this.storeAt(location, workspaceRef);
     const current = await store.getSealed(callRef);
     if (!current) throw new Error(`no sealed record for ${callRef}`);
     if (checkWorkspace)
@@ -267,12 +285,19 @@ export class CallRecordWriter {
   async addVersion(
     callRef: string,
     additions: { analysis?: Record<string, unknown>[] },
-    workspaceRef?: string
+    workspaceRef?: string,
+    location?: string
   ): Promise<SealedVersion> {
-    const { sealed } = await this.newVersion(callRef, workspaceRef, (v) => ({
-      ...v,
-      analysis: [...v.analysis, ...(additions.analysis ?? [])]
-    }));
+    const { sealed } = await this.newVersion(
+      callRef,
+      workspaceRef,
+      (v) => ({
+        ...v,
+        analysis: [...v.analysis, ...(additions.analysis ?? [])]
+      }),
+      false,
+      location
+    );
     return sealed;
   }
 
@@ -285,9 +310,14 @@ export class CallRecordWriter {
   async deleteParts(
     callRef: string,
     parts: RecordPart[],
-    by: { reason: string; actor: string; workspaceRef?: string | null }
+    by: {
+      reason: string;
+      actor: string;
+      workspaceRef?: string | null;
+      location?: string;
+    }
   ): Promise<{ sealed: SealedVersion; audit: AuditEntry[] }> {
-    const store = this.storeFor(by.workspaceRef);
+    const store = this.storeAt(by.location, by.workspaceRef);
     const at = new Date().toISOString();
     const deletion = (part: RecordPart) => ({
       part,
@@ -339,7 +369,8 @@ export class CallRecordWriter {
           }
         };
       },
-      true
+      true,
+      by.location
     );
     for (const part of parts) {
       const file = fileOf[part];
@@ -376,9 +407,14 @@ export class CallRecordWriter {
    */
   async erase(
     callRef: string,
-    by: { reason: string; actor: string; workspaceRef?: string | null }
+    by: {
+      reason: string;
+      actor: string;
+      workspaceRef?: string | null;
+      location?: string;
+    }
   ): Promise<{ audit: AuditEntry[]; version: number }> {
-    const store = this.storeFor(by.workspaceRef);
+    const store = this.storeAt(by.location, by.workspaceRef);
     const current = await store.getVersion(callRef);
     if (!current) throw new Error(`no sealed record for ${callRef}`);
     const at = new Date().toISOString();

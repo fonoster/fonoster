@@ -435,6 +435,30 @@ describe("@callrecord recording, retention and erasure", function () {
     await w.flush();
     expect(await store.getVersion("own-2")).to.not.equal(undefined);
     expect(index[1].location).to.equal(store.location);
+    // RV-B10: maintenance finds the record where the index says it is, not where the workspace's
+    // records go now.
+    target = own;
+    const by = { reason: "r", actor: "a", workspaceRef: "ws-1" };
+    const lost = await w.deleteParts("own-2", ["messages"], by).then(
+      () => undefined,
+      (e: Error) => e
+    );
+    expect(lost?.message).to.match(/no sealed record/);
+    const { sealed } = await w.deleteParts("own-2", ["messages"], {
+      ...by,
+      location: index[1].location
+    });
+    expect(sealed.version).to.equal(2);
+    expect((await store.getSealed("own-2"))!.version).to.equal(2);
+    const erased = await w.erase("own-2", { ...by, location: store.location });
+    expect(erased.version).to.equal(3);
+    const unknown = await w
+      .erase("own-1", { ...by, location: "s3://elsewhere/" })
+      .then(
+        () => undefined,
+        (e: Error) => e
+      );
+    expect(unknown?.message).to.match(/no record store/);
   });
 
   it("rebuilds the analytics store from sealed records with the same values", async function () {

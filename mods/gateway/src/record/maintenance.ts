@@ -39,6 +39,8 @@ export type MaintenanceRequest = {
   op: "delete_parts" | "erase";
   callRef: string;
   workspaceRef?: string | null;
+  /** Where the record is stored (RV-B10); the writer resolves the store by it. */
+  location?: string;
   parts?: RecordPart[];
   reason: string;
   actor: string;
