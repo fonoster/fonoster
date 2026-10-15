@@ -43,8 +43,8 @@ COPY --from=builder --chown=appuser:appuser /work/mods/common/package.json /work
 COPY --from=builder --chown=appuser:appuser /work/mods/common/dist /work/mods/common/dist
 COPY --from=builder --chown=appuser:appuser /work/mods/callrecord/package.json /work/mods/callrecord/
 COPY --from=builder --chown=appuser:appuser /work/mods/callrecord/dist /work/mods/callrecord/dist
-COPY --from=builder --chown=appuser:appuser /work/mods/identity-client/package.json /work/mods/identity-client/
-COPY --from=builder --chown=appuser:appuser /work/mods/identity-client/dist /work/mods/identity-client/dist
+# identity-client loads its .proto at runtime, so the package is copied whole.
+COPY --from=builder --chown=appuser:appuser /work/mods/identity-client /work/mods/identity-client
 COPY --from=builder --chown=appuser:appuser /work/mods/gateway/package.json /work/mods/gateway/
 COPY --from=builder --chown=appuser:appuser /work/mods/gateway/dist /work/mods/gateway/dist
 
