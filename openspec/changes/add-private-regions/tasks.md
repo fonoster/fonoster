@@ -14,6 +14,7 @@
 - [x] 2.4 Config sync publisher per region; pause on unsupported versions
 - [x] 2.5 Content relay (streamed, access-checked, size/rate limited)
 - [x] 2.6 Heartbeat consumer and region status
+- [ ] 2.7 Region endpoints: store `region.endpoints` from cells, configured endpoints for public regions, expose in GetRegion
 
 ## 3. Cell
 
