@@ -1,4 +1,4 @@
-> Build deferred: do not start until the owner approves the build.
+> Build approved 2026-10-15.
 
 ## 1. Conformance assets
 

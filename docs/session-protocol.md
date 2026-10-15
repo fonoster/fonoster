@@ -33,6 +33,9 @@ Each connection request carries two headers:
 `<url>` is your app's URL exactly as configured, query string included. Reject a request whose
 signature does not match or whose timestamp is more than 300 seconds from your clock.
 
+Rotating the signing secret takes effect immediately; there is no overlap window, so deploy the new
+secret to your app at the same time.
+
 If the app's URL refuses connections, the gateway retries for about 2.5 seconds while the caller
 hears ringing, then applies the fallback.
 
@@ -100,7 +103,7 @@ Closing the socket yourself hangs up the call.
 | `id` | no | Echoed by `output.*` events; the gateway assigns one if you leave it out |
 | `last` | no | Default `true`. Send several `speak` with one `id` and `last: false` to stream text (for example LLM tokens) into one continuous utterance; the piece with `last: true` ends it |
 | `voice`, `language` | no | Catalog ids overriding the app's defaults for this item |
-| `interruptible` | no | Default `true`: caller speech stops it |
+| `interruptible` | no | Default `true`. A hint for your app: the gateway never stops output on caller speech (see "Interruptions"); the SDKs send `clear` when the caller starts talking over an interruptible item |
 | `preempt` | no | Stop what is playing and play this first |
 
 ### `play` (app → gateway)
@@ -114,11 +117,19 @@ Closing the socket yourself hangs up the call.
 | Event | Meaning |
 | --- | --- |
 | `output.started { id }` | The item began to be heard |
-| `output.done { id }` | It was heard completely |
+| `output.done { id, heardMs }` | It was heard completely |
 | `output.interrupted { id, heardText, heardMs }` | It was cut off (caller barge-in, `clear` or `preempt`); `heardText` holds only the words already spoken. Items dropped before they started report `heardMs: 0` |
 
 `speak`, `play` and your own audio frames share **one output queue** played in real time: new items
 queue behind earlier ones.
+
+### Interruptions
+
+Your app decides when the agent stops talking. When the caller starts talking over the agent, the
+gateway sends `turn.user_started` and keeps playing; send `clear` (or a `preempt` item) to stop.
+Short acknowledgments ("uh-huh") arrive as `turn.backchannel` instead and do not produce
+`turn.user_started`. The SDKs do this for you: `say` and `play` with `interruptible: true` (the
+default) are cleared when the caller starts talking.
 
 ### Turn events (gateway → app)
 
@@ -129,7 +140,7 @@ The gateway's turn detector decides when the caller starts and stops talking:
 | `turn.user_started` | | The caller started talking |
 | `turn.likely_ended` | `text` | The caller probably finished; a good moment to start preparing a reply |
 | `turn.resumed` | | They kept talking after `turn.likely_ended` |
-| `turn.ended` | `text`, `language`, `confidence`, `durationMs` | The turn is over; reply now |
+| `turn.ended` | `text`, `language`, `confidence`, `durationMs`, `abandoned` | The turn is over; reply now. `abandoned: true` (with empty `text`) means 10 s passed with no speech after `turn.user_started` |
 | `turn.backchannel` | `text` | A short acknowledgment ("uh-huh") that is not a turn |
 
 Each turn arrives as `turn.user_started`, zero or more (`turn.likely_ended`, `turn.resumed`) pairs,
@@ -146,7 +157,9 @@ events:
 
 ### `listen.update` (app → gateway)
 
-Changes recognition from now on: `{ "type": "listen.update", "language": "es", "hints": ["Fonoster"] }`.
+Changes recognition from now on: `{ "type": "listen.update", "language": "es", "hints": ["Fonoster"], "patience": "high" }`.
+`patience` (`low`, `normal` or `high`) sets how long the turn detector waits for more speech before
+`turn.ended`.
 
 ## Audio
 
@@ -164,9 +177,9 @@ Changes recognition from now on: `{ "type": "listen.update", "language": "es", "
 | --- | --- | --- |
 | `hangup` | | `session.end` with `app_hangup` |
 | `dtmf.send` | `digits` | Sends keypresses on the call |
-| `transfer` | `to`, `mode` (`cold` default, `warm`, `refer`), `headers` | Cold: the new party joins and your session ends with `transfer`. Warm: you stay until `transfer.complete`. Refer: SIP REFER, your session ends. A failure produces `error` `transfer_failed` |
+| `transfer` | `to`, `mode` (`cold` default, `warm`, `refer`), `headers`, `music` | Cold: the new party joins and your session ends with `transfer`. Warm: the caller waits on hold while you talk to the new party; `transfer.complete` connects them and ends your session (no answer in 30 s: `error` `transfer_failed` and the caller is back). Refer: SIP REFER, your session ends. A failure produces `error` `transfer_failed` |
 | `transfer.complete` | `id` (of the warm transfer) | Leaves a warm transfer |
-| `hold` | `music` | Puts the caller on hold |
+| `hold` | `music` | Puts the caller on hold: they hear `music` (looped) or silence; you get no caller audio and no turn events (keypresses still arrive), and every command except `resume`, `hangup`, `transfer` and `handoff` gets `error` `on_hold` |
 | `resume` | | Takes the caller off hold |
 | `handoff` | `app`, `payload` (JSON, 16 KB max) | Hands the call to another app: you get `session.end` with `handoff`, the other app gets `session.start` with your payload. At most 5 handoffs per call |
 
@@ -186,6 +199,7 @@ version no error is fatal on its own; a session that cannot continue ends with `
 | `invalid_catalog_id` | A voice or language id is not in the catalog |
 | `feature_not_supported` | The provider cannot do what was asked |
 | `transfer_failed` | The transfer target could not be reached |
+| `on_hold` | The command is not allowed while the caller is on hold |
 | `queue_full` | More than 120 s of output is queued |
 | `play_fetch_failed` | The media could not be fetched |
 | `internal` | Anything else |

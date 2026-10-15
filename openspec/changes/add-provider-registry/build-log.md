@@ -71,3 +71,13 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   Finaster. This is a live check of the new speech adapters."), but returned no transcript in both
   runs where it followed the ElevenLabs synthesis in the same process. Cause not found yet; to
   investigate before relying on it. "Fonoster" is misheard without a `keyterm` hint.
+
+## 2026-10-15 (spec review rulings, with the owner)
+
+A separate reviewer read every rebuild spec; the owner ruled on each finding one by one.
+
+### PR6. Credentials are resolved per layer
+
+- The gateway resolves speech credentials, Autopilot resolves its LLM credential through the same
+  registry API (matches AP2). Credentials never travel in the session protocol. Two scenarios that
+  named nonexistent `listen.update` / `speak` model fields were rewritten.

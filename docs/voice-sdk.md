@@ -73,6 +73,10 @@ Session fields: `callRef`, `sessionRef`, `appRef`, `direction`, `from` (`from_` 
 Keypresses and speech that arrive before you call `gather` are kept (up to 32) and count toward the
 next `gather`, so callers can type ahead.
 
+When the caller starts talking over a `say` or `play` with `interruptible` true (the default), the
+SDK stops it with `clear` and the call resolves with `interrupted: true`. Pass
+`interruptible: false` to keep talking; the gateway itself never cuts the agent off.
+
 ## Errors
 
 - A command the gateway rejects (an `error` with `relatesTo` naming it) rejects its promise with

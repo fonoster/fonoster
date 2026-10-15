@@ -48,3 +48,14 @@ or 100 ms) but is not made the default: a synthetic corpus is not enough evidenc
   calls in the corpus, 2.2 checking the baseline against recorded calls, 2.3 per-app patience
   beyond `silenceTimeoutMs` and within-call adaptation, 2.6 turn-aware STT, 2.7 out-of-process
   Detectors, 3.x migration and docs.
+
+## 2026-10-15 (spec review rulings, with the owner)
+
+A separate reviewer read every rebuild spec; the owner ruled on each finding one by one.
+
+### TT-B5. App authority, abandoned turns, patience knob, label version
+
+- Interruption authority (OQ5): the app decides; the gateway only reports (gateway B22).
+- `missed-barge-in` and `backchannel-misfire` are redefined against the app's `clear`, so the live
+  labeler can produce them; every label carries `labelVersion`.
+- Patience (OQ3) is one knob, `low` / `normal` / `high`; abandoned turns end after 10 s.

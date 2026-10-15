@@ -74,6 +74,21 @@ and MUST resolve with `{ interrupted, heardText, heardMs }` when the gateway rep
 `output.done` or `output.interrupted` for that `id`. Options `voice`, `language`, `interruptible`
 and `preempt` MUST be passed through on the `speak` message.
 
+The app owns interruption (gateway B22): the gateway never stops output when the caller speaks.
+The SDK SHALL send `clear` when it receives `turn.user_started` while an item it sent with
+`interruptible` true (the default) is playing, and SHALL NOT send it while a non-interruptible item
+is playing. `say` and `play` behave the same in TypeScript and Python.
+
+#### Scenario: SDK clears on barge-in
+
+- **WHEN** the app calls `say("Your balance is ten dollars")` and the gateway sends `output.started` and then `turn.user_started`
+- **THEN** the SDK sends `clear` without any app code
+
+#### Scenario: Non-interruptible say is kept
+
+- **WHEN** the app calls `say("Please hold.", { interruptible: false })` and the gateway sends `turn.user_started` while it plays
+- **THEN** the SDK sends no `clear`
+
 #### Scenario: Fully heard
 
 - **WHEN** the app calls `say("Your balance is ten dollars")`

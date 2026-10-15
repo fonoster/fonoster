@@ -81,25 +81,37 @@ emit `turn.backchannel` with the recognized `text` and MUST NOT stop the output.
 - **THEN** the app receives `turn.backchannel` with `text` "uh-huh"
 - **AND** the `speak` item continues and later produces `output.done`
 
-### Requirement: Real interruptions stop interruptible output
+### Requirement: The app decides whether an interruption stops output
 
-The gateway SHALL stop interruptible output when caller speech of kind `interruption` occurs
-while it plays, report what was heard through `output.interrupted`, and emit
-`turn.user_started`. Output marked non-interruptible MUST continue.
+The app owns interruption (owner decision 2026-10-15). While agent output plays, the gateway SHALL
+emit `turn.user_started` as soon as the Detector classifies caller speech as `interruption`, and
+SHALL NOT emit it for speech classified as `backchannel`. The gateway MUST NOT stop output on its
+own; output stops only when the app sends `clear` or a `preempt` item, and the gateway then reports
+what was heard through `output.interrupted`. The SDKs SHALL send `clear` on `turn.user_started`
+when the item playing was sent with `interruptible: true` (the default), so apps built on an SDK
+keep today's behavior.
 
-#### Scenario: The caller cuts in
+#### Scenario: The caller cuts in and the app clears
 
-- **WHEN** the agent is speaking an item with `interruptible: true`
+- **WHEN** the agent is speaking an item the app sent with `interruptible: true`
 - **AND** the caller starts speaking and the Detector classifies it as `interruption`
-- **THEN** the output stops
-- **AND** the app receives `output.interrupted` with `heardText` and `heardMs`
-- **AND** the app receives `turn.user_started`
+- **THEN** the app receives `turn.user_started` and the output keeps playing
+- **AND** when the app sends `clear`, the output stops and the app receives `output.interrupted` with `heardText` and `heardMs`
 
-#### Scenario: Non-interruptible output plays through
+#### Scenario: The app keeps talking
 
-- **WHEN** the agent is speaking an item with `interruptible: false`
-- **AND** the caller speaks over it
-- **THEN** the item plays to the end and produces `output.done`
+- **WHEN** the agent is speaking an item with `interruptible: false` and the caller speaks over it
+- **THEN** the app receives `turn.user_started`, the SDK sends no `clear`, and the item plays to the end with `output.done`
+
+### Requirement: Turns that never end are abandoned
+
+A turn SHALL end with `turn.ended` `{text: "", abandoned: true}` when no speech is detected for
+10 seconds after `turn.user_started` and no transcript has arrived.
+
+#### Scenario: Noise then silence
+
+- **WHEN** a noise burst produces `turn.user_started` and the line stays silent for 10 seconds
+- **THEN** the app receives `turn.ended` with `abandoned: true`
 
 ### Requirement: The estimate is available on request
 
@@ -120,8 +132,9 @@ MUST NOT receive `turn.estimate`.
 
 ### Requirement: Patience is configurable per app and adapts only within a call
 
-Each app (or assistant) SHALL be able to set the patience of the gateway's default Pacing policy.
-The policy MAY adapt within a call to the caller's observed pauses, and MUST NOT carry any
+Each app (or assistant) SHALL be able to set the patience of the gateway's default Pacing policy
+as one knob, `low`, `normal` (the default) or `high`, in its configuration or at any time with
+`listen.update` `{patience}`. The policy MAY adapt within a call to the caller's observed pauses, and MUST NOT carry any
 adaptation or caller data to another call.
 
 #### Scenario: A patient app waits longer
@@ -174,7 +187,11 @@ timeout before the turn ends.
 The gateway SHALL append to the call record every turn event it emits, with the estimate and facts
 that caused it and the Detector and policy versions. It MUST then label each `turn.ended` and each
 output stop with its observed outcome: `cut-off`, `slow`, `missed-barge-in`,
-`backchannel-misfire` or `ok`.
+`backchannel-misfire` or `ok`, and every label SHALL carry `labelVersion` so replays compare only
+labels made by the same rules. Because the app owns interruption, `missed-barge-in` means caller
+speech of kind `interruption` lasting longer than the barge-in window while output kept playing
+(no `clear` arrived), and `backchannel-misfire` means output stopped by `clear` or `preempt`
+within the barge-in window after caller speech that the labeler judges a backchannel.
 
 #### Scenario: A cut-off is labeled
 

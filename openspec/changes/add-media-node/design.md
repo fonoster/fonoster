@@ -117,11 +117,10 @@ not an SFU; and Routr, which already balances peers by session count, stays the 
   receives `session.end` with `reason: "error"`.
 - Rejected: migrating live calls on crash, which is very hard to make reliable and to test.
 
-**MN10. SIP traces are captured at the Routr edge only.**
-- The trace that matters for carrier troubleshooting is the carrier-facing one. The media node
-  does not capture SIP.
-- Rejected: capturing at both and merging (more moving parts), and at the node only (it never sees
-  what the carrier actually sent).
+**MN10. No SIP trace capture in the first release.** (Revised 2026-10-15 after the spec review.)
+- The earlier plan captured pcap per call at the Routr edge, but nobody has confirmed Routr can do
+  that. Owner decision: drop SIP traces for now; HEP to a capture service (Homer) can come later.
+- The media node does not capture SIP either.
 
 **MN11. Limits: 4 hours per call, 10 participants per room.**
 - Both are configurable per deployment; apps can lower the duration.
@@ -149,6 +148,29 @@ not an SFU; and Routr, which already balances peers by session count, stays the 
     50 messages per second per direction per call),
   - SIP from the gateway (heavy machinery and slower setup for an internal hop).
 
+**MN14. Routr's headers decide the app.** (Spec review S1, 2026-10-15.)
+- `X-App-Ref` from Routr is the source of truth; the gateway's number lookup (gateway B5) is a
+  development-only fallback used when the header is missing and a routing file is configured.
+- Rejected: the gateway owning number routing (moves routing data out of Routr) and accepting both
+  in production (two paths to keep consistent).
+
+**MN15. `call.incoming` is claimed with NATS request and reply.** (S7)
+- Gateway replicas serve `gateway.incoming` as one queue group; the replica that replies
+  `claimed` within 500 ms owns the call. One retry, then `503`. Outbound calls are owned by the
+  replica that answered `gateway.outbound`. This replaces JetStream for call delivery (PL3): a call
+  that waited seconds for a durable redelivery is useless anyway.
+
+**MN16. Ringing is a command; endings carry reasons; nodes heartbeat.** (S2)
+- `ring` sends 180 without early media. `participant.left` and `room.ended` carry a fixed `reason`
+  plus `sipStatus`. `node.heartbeat` every 2 s, down after 3 missed; `node.down` on clean exit.
+- RTP blocks carry `payloadType`, `ptime`, `ssrc` and optional `srtp`; listeners get one RTP
+  destination per track. Unknown commands get `unknown_command`; unknown fields are ignored.
+
+**MN17. Hold is mixing, not a re-INVITE; warm transfer holds the caller.** (S9, resolves open question 1)
+- Hold stops both directions between caller and session participant, loops node-fetched music (or
+  silence), and keeps the leg `sendrecv`. Warm transfer holds the caller while the app talks to the
+  new party; 30 s without answer fails the transfer and resumes the caller.
+
 ## Risks / Trade-offs
 
 | Risk | Mitigation |
@@ -162,9 +184,7 @@ not an SFU; and Routr, which already balances peers by session count, stays the 
 
 ## Open Questions
 
-1. **Hold details.** Hold as a `sendonly` re-INVITE on the caller's leg, or as mixing hold audio
-   into the room while the leg stays `sendrecv`; and where hold audio comes from (gateway `play`,
-   or a node-local file).
+1. **Hold details.** Resolved (MN17): mixing, leg stays `sendrecv`, music fetched by the node.
 2. **Registration interval.** The exact value (proposed: 15 s) and the threshold for
    re-registering after a change in load.
 3. **How Routr learns a node is draining.** A very high `X-Session-Count`, a dedicated header, or
@@ -175,4 +195,4 @@ not an SFU; and Routr, which already balances peers by session count, stays the 
 5. **Dial-in conference affinity.** Deferred (MN4): redirect to the owning node, Routr affinity by
    room, or cascading.
 6. **Opus capacity target.** A bar for Opus-heavy load once the first numbers exist.
-7. **Edge capture format.** HEP to a capture service, or pcap written per call at Routr.
+7. **Edge capture format.** Deferred with SIP traces (MN10).

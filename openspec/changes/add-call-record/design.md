@@ -51,7 +51,7 @@ It supports signing (JWS) and redacted or appended versions natively.
 | `parties` | Caller and callee: number or SIP URI, and role (caller, agent app, transfer target) |
 | `dialog` | Start, answer and end times; direction; recording reference (URL plus content hash) when recording is on |
 | `analysis` | Transcript (per turn, per side, with timings); turn decisions and their outcomes; provider substitutions and deprecation warnings |
-| `attachments` | Every session message in both directions, in order with timestamps (audio frames excluded); SIP trace (pcap, captured at the Routr edge only, MN10); app and handoff chain |
+| `attachments` | Every session message in both directions, in order with timestamps (audio frames excluded); app and handoff chain (SIP traces dropped for the first release, MN10) |
 
 **Excluded:** full logs (noisy and large), LLM exchanges (they carry the customer's system prompt,
 which is their IP), and per-turn clips (they duplicate the recording).

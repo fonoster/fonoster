@@ -63,3 +63,22 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   the current key's public half plus every key in `callRecord.keyHistory`, so records signed before
   a rotation keep verifying. `keyHistoryFromSet()` turns a fetched set into the verifier's input.
 - This replaces the draft's x5c/x5u certificate chain with a plain published key list; no CA.
+
+## 2026-10-15 (spec review rulings, with the owner)
+
+A separate reviewer read every rebuild spec; the owner ruled on each finding one by one.
+
+### CR5. SIP traces dropped for now
+
+- Routr per-call pcap was never confirmed. The record carries no SIP trace; failed calls carry
+  `reason` and `sipStatus` from media-control instead. HEP/Homer may come later.
+
+### CR6. `jku` kept as is (accepted risk)
+
+- The reviewer noted that a key list at a URL we control is weak evidence in a dispute. The owner
+  kept CR4 unchanged; no append-only log or external timestamping for now.
+
+### CR7. Minimal records come from the gateway
+
+- The gateway that owns a call writes the minimal record for calls that never reach an app
+  (voice-session "The gateway produces call lifecycle events").

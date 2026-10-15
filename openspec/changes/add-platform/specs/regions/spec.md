@@ -12,8 +12,8 @@ happened.
 
 #### Scenario: Call data stays in its cell
 - **WHEN** a call runs in cell `eu-1` and its record is sealed
-- **THEN** the recording, transcript, SIP trace and vCon are stored in `eu-1` object storage
-- **AND** the control plane stores only the index entry (call ref, time, size, location)
+- **THEN** the recording, transcript and vCon are stored in `eu-1` object storage
+- **AND** the control plane stores only the index entry (call ref, app, time, duration, status, cost, size, location)
 
 #### Scenario: Control plane outage
 - **WHEN** the control plane is unreachable for 10 minutes
@@ -53,11 +53,13 @@ TLS. No inbound port on the cell's network SHALL be required for the control pla
 - **WHEN** a cell attempts a leaf-node connection without TLS
 - **THEN** the control plane refuses it
 
-### Requirement: Call data and provider keys never leave the cell
+### Requirement: Call content and provider keys never leave the cell
 
-Recordings, transcripts, SIP traces, call records and provider keys of a private cell MUST NOT be
-sent to the control plane or to any other cell. Only the call-record index, synced config and
-health information SHALL cross the link.
+Recordings, transcripts, SIP traces, call records and provider keys of a cell MUST NOT be sent to
+the control plane or to any other cell. Only call metadata (the call-record index: call ref, app,
+time, duration, status, cost, size and location), synced config and health information SHALL
+cross the link. The dashboard SHALL read call content from the cell directly. A private cell SHALL
+answer capability queries (`GetCapabilities`) for its own catalog and keys locally.
 
 #### Scenario: Keys stay local
 - **WHEN** a private cell uses its own Deepgram key stored in the cell's secret store
@@ -65,4 +67,9 @@ health information SHALL cross the link.
 
 #### Scenario: Dashboard access to a private record
 - **WHEN** a user opens a private-cell call in the dashboard
-- **THEN** the record's contents are fetched from the cell, and the control plane relays or links them without storing them
+- **THEN** the browser fetches the record's contents from the cell with a short-lived link the control plane issues
+- **AND** the content never passes through the control plane
+
+#### Scenario: Usage reaches billing
+- **WHEN** a private-cell call ends after 95 seconds
+- **THEN** the control plane receives its index entry with duration 95 s and status, and nothing else about the call

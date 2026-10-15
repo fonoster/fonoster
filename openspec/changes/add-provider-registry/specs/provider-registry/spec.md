@@ -87,11 +87,13 @@ operator's config or secret store.
 - **WHEN** the utility's database role attempts to write any table other than the registry and audit tables
 - **THEN** the database refuses the write
 
-### Requirement: Credentials are resolved only by the gateway at session start
+### Requirement: Each layer resolves the credentials of the providers it calls
 
-The VoiceSessionGateway SHALL resolve the credential for each provider a session uses once, at
-session start: the workspace's own key for that provider if one is stored, otherwise the platform
-key named by `credentialRef`. Workspace keys SHALL be stored as encrypted workspace Secrets and
+Each consumer SHALL resolve credentials only for the provider kinds it calls itself, once, at
+session start: the VoiceSessionGateway for speech providers (STT and TTS), and Autopilot for its
+LLM provider, through the same registry API scoped to the session's workspace. The credential is
+the workspace's own key for that provider if one is stored, otherwise the platform key named by
+`credentialRef`. Credentials MUST NOT travel in the session protocol. Workspace keys SHALL be stored as encrypted workspace Secrets and
 MUST be write-only.
 
 #### Scenario: A workspace brings its own key
@@ -103,6 +105,12 @@ MUST be write-only.
 
 - **WHEN** workspace W stored no Deepgram key and the platform credential `deepgram-default` is configured
 - **THEN** the gateway calls Deepgram with the platform key
+
+#### Scenario: Autopilot resolves its LLM key
+
+- **WHEN** an Autopilot session in workspace W uses `openai/gpt-4o-mini` and W stored its own OpenAI key
+- **THEN** Autopilot resolves W's OpenAI key from the registry and calls OpenAI with it
+- **AND** the gateway never resolves or sees an LLM credential
 
 #### Scenario: A workspace key is never returned
 
@@ -173,7 +181,7 @@ Nothing SHALL happen automatically when the retire date arrives.
 
 #### Scenario: Runtime use is caught
 
-- **WHEN** an app in workspace W sends `listen.update` naming `deepgram/nova-2` during a session, and no saved config of W references it
+- **WHEN** an app in workspace W sends `listen.update` with `language` resolving to `deepgram/nova-2` for the app's STT settings during a session, and no saved config of W references it
 - **THEN** the gateway emits `provider.deprecated_used` with the session, the id and the replacement
 - **AND** W's dashboard shows the warning
 
@@ -203,7 +211,7 @@ workspace.
 
 #### Scenario: A retired id sent at runtime resolves to its replacement
 
-- **WHEN** an app sends `speak` with `voice: elevenlabs/rachel` and model `elevenlabs/turbo-v2` after `turbo-v2` was retired
+- **WHEN** an app whose TTS settings name model `elevenlabs/turbo-v2` sends `speak` with `voice: elevenlabs/rachel` after `turbo-v2` was retired
 - **THEN** the gateway uses `elevenlabs/flash-v2.5`
 - **AND** emits `provider.retired_used`, and the call continues
 

@@ -21,9 +21,11 @@ endpoint.
 ### Requirement: v1 event types and payloads
 
 The platform SHALL emit the event types `call.started`, `call.ended`, `call.failed`,
-`call_record.sealed` and `provider.deprecated`. Every payload MUST use the envelope `id`, `type`,
+`call_record.sealed` and `provider.deprecated`. The VoiceSessionGateway that owns a call SHALL
+produce `call.started`, `call.ended` and `call.failed` (voice-session); call ending reasons come
+from media-control's `reason`. Every payload MUST use the envelope `id`, `type`,
 `createdAt`, `workspaceRef` and `data`. `call_record.sealed` MUST carry the `callRef` and a link to
-fetch the record and MUST NOT include the transcript, recording or SIP trace.
+fetch the record and MUST NOT include the transcript or recording.
 
 #### Scenario: A call that ends normally
 

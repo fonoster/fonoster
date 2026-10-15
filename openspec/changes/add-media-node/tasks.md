@@ -1,8 +1,9 @@
-> Build deferred: do not start until the owner approves the build.
+> Build approved 2026-10-15 (media-control amended after the spec review; see build-log.md).
 
 ## 1. Conformance assets
 
 - [ ] 1.1 SIP test caller and callee (SIPp or a `sipgo` harness) that can offer each codec, send DTMF three ways and play known tones
+- [x] 1.0 `media-control` scenario files (`kind: media-control`) for every command and event, run against the fake node now and the Go node later
 - [ ] 1.2 Fake gateway and fake control plane that speak `media-control` and assert commands, events and echoed ids
 - [ ] 1.3 Fake Routr registrar that records `X-Session-Count` per REGISTER
 - [ ] 1.4 Mix-minus checker: injects tones per participant and verifies what each participant hears
@@ -13,17 +14,18 @@
 
 - [ ] 2.1 Module skeleton with `sipgo` and `livekit/media-sdk` behind our own interfaces
 - [ ] 2.2 Routr registration with `X-Session-Count`, short interval and re-register on load change
-- [ ] 2.3 Inbound INVITE handling, header extraction, `call.incoming`, answer on command
+- [ ] 2.3 Inbound INVITE handling, header extraction, `call.incoming` claimed by request and reply (500 ms, one retry, then 503), `ring`, answer on command
 - [ ] 2.4 Codecs PCMU, PCMA, G.722, Opus and transcoding to the room format
 - [ ] 2.5 Rooms: mix-minus mixer, track-based participants, `unsupported_track_kind`, 10-participant limit
 - [ ] 2.6 Session participant audio path to and from the gateway
 - [ ] 2.7 `participant.dial` through Routr with progress events
 - [ ] 2.8 Transfer modes `cold`, `warm` and `refer`
-- [ ] 2.9 Hold and resume (pending the open question on hold behavior)
+- [ ] 2.9 Hold and resume by mixing (MN17), node-fetched hold music; warm transfer holds the caller, 30 s no-answer
 - [ ] 2.10 DTMF: RFC 4733, SIP INFO, in-band fallback, de-duplication
 - [ ] 2.11 Listeners: per-track forks, no audio from listeners
 - [ ] 2.12 Optional TLS and SRTP toward the edge, with refusal of plain traffic when required
 - [ ] 2.13 Maximum call duration, drain on SIGTERM, maximum wait, crash behavior with sealed records
+- [ ] 2.14 `node.heartbeat` every 2 s and `node.down` on clean exit; `reason` and `sipStatus` on `participant.left` and `room.ended`; media timeout
 
 ## 3. Control plane
 

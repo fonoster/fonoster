@@ -20,7 +20,7 @@ session. The record SHALL be identified by the call's `callRef`.
 - **THEN** the call still has exactly one record
 - **AND** the record lists both apps in order, with the handoff payload
 
-### Requirement: The record contains the call's parties, timing, transcript, messages, turns and SIP trace
+### Requirement: The record contains the call's parties, timing, transcript, messages and turns
 
 A sealed call record SHALL contain:
 
@@ -31,8 +31,8 @@ A sealed call record SHALL contain:
 - every session message in both directions, in order, with timestamps (audio frames excluded)
 - the turn decisions with their outcomes
 - any provider substitution or deprecation warning
-- the SIP trace as an attachment, captured at the Routr edge (the carrier-facing signaling); the
-  media node does not capture SIP
+
+SIP traces are out of scope for the first release (media-node MN10, owner decision 2026-10-15).
 
 It SHALL NOT contain full log output, LLM prompts or responses, or per-turn audio clips.
 
@@ -52,12 +52,6 @@ It SHALL NOT contain full log output, LLM prompts or responses, or per-turn audi
 
 - **WHEN** a call uses a catalog id that is deprecated
 - **THEN** the record contains a deprecation warning naming that catalog id
-
-#### Scenario: The SIP trace is attached
-
-- **WHEN** a call completes
-- **THEN** the record has a pcap attachment containing the call's SIP signaling as seen at the Routr edge
-- **AND** the attachment's content hash matches the stored file
 
 #### Scenario: LLM exchanges are excluded
 
@@ -112,7 +106,7 @@ location and current version.
 #### Scenario: Private region keeps its data
 
 - **WHEN** a call happens in a private region
-- **THEN** the record, recording and SIP trace are stored only in that region's storage
+- **THEN** the record and recording are stored only in that region's storage
 - **AND** the control plane holds only the index entry
 
 #### Scenario: Customer bucket
@@ -124,7 +118,7 @@ location and current version.
 ### Requirement: Retention follows workspace policy and deletions are audited
 
 Records SHALL be kept indefinitely unless the workspace sets a retention policy. Policies SHALL be
-settable per part (recording, SIP trace, transcript, messages). Erasure of a single call SHALL be
+settable per part (recording, transcript, messages). Erasure of a single call SHALL be
 supported. Every deletion SHALL be explicit and SHALL produce an audit entry stating what was
 deleted, when, why and by whom.
 
@@ -213,7 +207,7 @@ kept separate. Apps SHALL NOT be able to override the policy.
 
 The API SHALL fetch a record by `callRef` (latest or a given version) and search records by time
 range, number, app and status, within the caller's workspace. The dashboard SHALL display a record
-and offer download of its recording and SIP trace. When a record is sealed, the platform SHALL
+and offer download of its recording. When a record is sealed, the platform SHALL
 emit the `call_record.sealed` workspace webhook with the call ref and a link to fetch the record,
 and MUST NOT include record contents in the webhook. Continuous export is not part of this version.
 
@@ -227,25 +221,22 @@ and MUST NOT include record contents in the webhook. Continuous export is not pa
 
 - **WHEN** a record is sealed for a workspace subscribed to `call_record.sealed`
 - **THEN** the workspace receives one `call_record.sealed` webhook with the `callRef` and a fetch link
-- **AND** the webhook body contains no transcript, recording or SIP trace
-
-#### Scenario: Download the SIP trace
-
-- **WHEN** a user opens a call in the dashboard and downloads its SIP trace
-- **THEN** they receive the pcap whose hash matches the record
+- **AND** the webhook body contains no transcript or recording
 
 ### Requirement: Calls that never reach an app get a minimal record
 
 The platform SHALL seal a minimal record for every call that never reaches an app: rejected,
 busy, unanswered, app unreachable after retry and fallback, or lost to a media node crash before a
-session opens. The record holds the parties, timing, failure reason and edge SIP trace. It MUST NOT contain a recording or transcript,
+session opens. The gateway that owns the call writes it (voice-session). The record holds the
+parties, timing and failure reason (from media-control's `reason` and `sipStatus`, or
+`app_unreachable`, `no_app` or `node_error`). It MUST NOT contain a recording or transcript,
 and it SHALL use the same storage, retention, signing and index as any record. The platform SHALL
 emit the `call.failed` workspace webhook for it.
 
 #### Scenario: Busy outbound call
 
 - **WHEN** an outbound call gets `486 Busy Here` and no session opens
-- **THEN** a sealed record exists with both parties, timing, failure reason `busy` and the edge SIP trace
+- **THEN** a sealed record exists with both parties, timing, failure reason `busy` and `sipStatus: 486`
 - **AND** the record has no recording and no transcript
 - **AND** its signature verifies with the region key
 - **AND** a `call.failed` webhook is delivered with the same `callRef`
@@ -253,7 +244,7 @@ emit the `call.failed` workspace webhook for it.
 #### Scenario: App unreachable
 
 - **WHEN** an inbound call's app URL fails every connection attempt and the fallback is a spoken message and hangup
-- **THEN** the sealed record has failure reason `app_unreachable` and the edge SIP trace
+- **THEN** the sealed record has failure reason `app_unreachable`
 
 ### Requirement: The analytics store is derived from records
 

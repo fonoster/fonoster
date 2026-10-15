@@ -28,13 +28,15 @@ change the room.
 
 When an INVITE arrives from Routr, the node SHALL create a room, add the caller as a SIP-leg
 participant, read `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` and the `To` user (the ingress
-number), and report the new call through `media-control` so the gateway can open the app's
-session. The node SHALL NOT answer the call until the gateway asks it to.
+number), and send `call.incoming` so that one gateway replica claims the call and opens the app's
+session (media-control). Routr's headers are the source of truth for which app gets the call. The
+node SHALL NOT answer the call until the gateway asks it to, and SHALL refuse it with `503` when no
+gateway claims it.
 
 #### Scenario: Inbound call reported with its headers
 - **WHEN** Routr sends an INVITE with `X-App-Ref: app-1`, `X-Call-Ref: call-9` and `To: sip:+15550001@...`
 - **THEN** the node creates one room with the caller as its only SIP-leg participant
-- **AND** reports a `call.incoming` event with `appRef: "app-1"`, `callRef: "call-9"` and `ingressNumber: "+15550001"`
+- **AND** sends a `call.incoming` request with `appRef: "app-1"`, `callRef: "call-9"` and `to: "+15550001"`
 - **AND** sends no 200 OK before an `answer` command
 
 ### Requirement: Supported codecs
@@ -108,8 +110,9 @@ passed.
 ### Requirement: A crashed node's calls end cleanly
 
 When a node stops without draining, every call it carried SHALL end, each affected call record
-SHALL be sealed with the failure noted, and each affected app SHALL receive `session.end` with
-`reason: "error"`. Calls MUST NOT be migrated to another node.
+SHALL be sealed with the failure `node_error`, and each affected app SHALL receive `session.end`
+with `reason: "error"`. Gateways detect the loss from missed `node.heartbeat` messages
+(media-control). Calls MUST NOT be migrated to another node.
 
 #### Scenario: Node killed mid-call
 - **WHEN** a node carrying a call is killed
@@ -146,8 +149,8 @@ configurable per deployment.
 ### Requirement: The node does not capture SIP, record or run speech
 
 The node SHALL NOT write recordings, capture SIP traces, run speech recognition or synthesis, or
-run turn detection. Recording and AMD SHALL reach audio only as listeners; SIP traces SHALL be
-captured at the Routr edge.
+run turn detection. Recording and AMD SHALL reach audio only as listeners. SIP trace capture is
+out of scope for the first release (MN10).
 
 #### Scenario: Recording is a listener
 - **WHEN** a call's app has recording on

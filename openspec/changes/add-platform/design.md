@@ -52,8 +52,11 @@ boundary), MN13 (gateway audio is RTP).
   deployables to run and version with no scaling need yet.
 
 **PL3. NATS carries everything internal except audio.**
-- `media-control` commands use NATS request and reply. Events use JetStream with queue groups, so
-  replicas share work instead of duplicating it. The session registry is a JetStream KV bucket.
+- `media-control` commands use NATS request and reply. New calls (`call.incoming`,
+  `gateway.outbound`) are claimed by one gateway replica with request and reply on a queue group:
+  no claim in 500 ms, one retry, then `503` (MN15; revised 2026-10-15, JetStream redelivery is too
+  slow for a ringing call). Other events use JetStream with queue groups, so replicas share work
+  instead of duplicating it. The session registry is a JetStream KV bucket.
   Webhook dispatch is a JetStream consumer.
 - Audio between the gateway and the media node is RTP (MN13), never NATS.
 - One dependency we already run; NATS leaf nodes also give private cells their link (PL6).

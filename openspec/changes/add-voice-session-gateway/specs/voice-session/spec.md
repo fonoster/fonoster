@@ -23,10 +23,13 @@ accept `voice.proto` gRPC sessions.
 
 The platform SHALL model every app as a WebSocket URL, a flavor, a signing secret, speech
 defaults (voice and language as catalog ids), optional audio filters and an optional fallback. A
-number MUST point to an app. Outbound calls MUST name an app the same way.
+number MUST point to an app. Routr resolves the number and passes the app in `X-App-Ref`; the
+gateway SHALL take the app from the `appRef` of `call.incoming` (media-control) and SHALL use a
+number lookup only as a development fallback when `appRef` is missing and a routing file is
+configured. Outbound calls MUST name an app.
 
 #### Scenario: Inbound routing
-- **WHEN** a call arrives for a number that points to app `A` with URL `wss://bot.example.com/agent`
+- **WHEN** Routr sends a call with `X-App-Ref` naming app `A`, whose URL is `wss://bot.example.com/agent`
 - **THEN** the gateway connects to `wss://bot.example.com/agent`
 
 #### Scenario: Autopilot is an ordinary app
@@ -55,6 +58,7 @@ away from their own clock.
 #### Scenario: Signature reflects the secret
 - **WHEN** an app's signing secret is rotated
 - **THEN** connections after the rotation are signed with the new secret only
+- **AND** there is no overlap window: an app still checking the old secret refuses them until it is redeployed (accepted risk, owner decision 2026-10-15)
 
 ### Requirement: session.start opens every native session
 
@@ -116,7 +120,10 @@ followed by hangup. Each failure SHALL be recorded as an event in the call recor
 A session SHALL end when the caller hangs up, when the app sends `hangup`, when the app closes its
 socket, on transfer, on handoff, on fatal error or on timeout. The gateway SHALL send `session.end`
 with a `reason` (`caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`) as its
-last message when the socket is still open.
+last message when the socket is still open. The reason SHALL come from the media node's
+`participant.left` / `room.ended` `reason` (media-control): `caller_hangup` and `callee_hangup`
+map to `caller_hangup`, `max_duration` to `timeout`, `media_timeout` and `node_error` to `error`,
+and a missed node heartbeat to `error`.
 
 #### Scenario: App hangs up
 - **WHEN** the app sends `{ "type": "hangup" }`
@@ -216,16 +223,23 @@ stop the current item and play first. `clear` SHALL empty the entire queue.
 ### Requirement: Output lifecycle and interruption report
 
 For every `speak` and `play` item the gateway SHALL send `output.started` when it begins to be
-heard, and then either `output.done` when it has been fully heard or `output.interrupted` carrying
-`heardText` and `heardMs` when it was cut off.
+heard, and then either `output.done` (with `heardMs`) when it has been fully heard or
+`output.interrupted` carrying `heardText` and `heardMs` when it was cut off. An item dropped before
+it started SHALL get `output.interrupted` with `heardMs: 0` and no `output.started`.
+
+The app owns interruption: the gateway SHALL NOT stop output because the caller speaks. It SHALL
+report `turn.user_started` (also while output is playing) and stop output only on `clear` or
+`preempt`. `interruptible` SHALL be accepted on `speak` and `play` and passed through unchanged;
+the SDKs use it to decide whether to send `clear` when the caller starts talking.
 
 #### Scenario: Caller barges in
-- **WHEN** the caller interrupts item `r1` after 1.8 s of a 4 s utterance and the item is `interruptible`
-- **THEN** the app receives `output.interrupted` with `id: "r1"`, `heardMs` near 1800 and `heardText` containing only the words already spoken
+- **WHEN** the caller starts talking 1.8 s into item `r1` (4 s long)
+- **THEN** the app receives `turn.user_started` and `r1` keeps playing
+- **AND** when the app sends `clear`, it receives `output.interrupted` with `id: "r1"`, `heardMs` near 1800 and `heardText` containing only the words already spoken
 
-#### Scenario: Non-interruptible item
-- **WHEN** the caller speaks over item `r1` with `interruptible: false`
-- **THEN** `r1` keeps playing to the end and the app receives `output.done`
+#### Scenario: Caller talks over an item the app keeps
+- **WHEN** the caller speaks over item `r1` and the app does not send `clear`
+- **THEN** `r1` plays to the end and the app receives `output.done`
 
 ### Requirement: Turn events reach every client
 
@@ -236,6 +250,14 @@ The gateway SHALL deliver turn events produced by its Turn Detector (`turn.user_
 detection SHALL start with the app's first `speak`, `play`, `subscribe` or `listen.update` (an
 empty `listen.update` only starts listening), so sessions that use only the Audio layer never run
 them.
+
+A turn whose caller stops producing speech for 10 seconds after `turn.user_started` without a
+transcript (noise, a dropped line) SHALL end with `turn.ended` `{text: "", abandoned: true}`, so an
+app never waits forever.
+
+#### Scenario: Abandoned turn
+- **WHEN** a noise burst produces `turn.user_started` and no speech follows for 10 seconds
+- **THEN** the app receives `turn.ended` with `text: ""` and `abandoned: true`
 
 #### Scenario: Default events
 - **WHEN** the caller says "I want to pay my bill" and stops
@@ -248,8 +270,9 @@ them.
 
 ### Requirement: Changing how the caller is heard
 
-The gateway SHALL accept `listen.update` with optional `language` (a catalog id or language code)
-and optional `hints`, and apply them to speech recognition from that point on.
+The gateway SHALL accept `listen.update` with optional `language` (a catalog id or language code),
+optional `hints` and optional `patience` (`low`, `normal` or `high`, how long the Turn Detector
+waits for more speech before `turn.ended`; see `turn-taking`), and apply them from that point on.
 
 #### Scenario: Switch language mid-call
 - **WHEN** the app sends `listen.update` with `language: "en"` during a Spanish call
@@ -295,9 +318,12 @@ and pass them to the media node.
 - `cold`: the media node dials `to` into the caller's room. When the new party answers, the app's
   session leaves the room and ends with `reason: "transfer"`; the caller and the new party stay in
   the room, and recording continues.
-- `warm`: the media node dials `to` into the room and the app's session stays, so the agent can
-  brief the new party. The session ends with `reason: "transfer"` when the app sends
-  `transfer.complete` with the transfer's `id`.
+- `warm`: the caller is put on hold (hold music from the transfer's optional `music`, or
+  silence), the media node dials `to`, and the app and the new party hear each other so the agent
+  can brief them. The session ends with `reason: "transfer"` when the app sends
+  `transfer.complete` with the transfer's `id`, which connects the caller and the new party. If
+  the new party does not answer within 30 seconds, the app receives `error` `transfer_failed` and
+  the caller comes back to the app.
 - `refer`: the media node sends a SIP REFER on the caller's leg and leaves the call once the REFER
   is accepted. The session ends with `reason: "transfer"`, and recording ends at that point.
 
@@ -313,7 +339,7 @@ and pass them to the media node.
 
 #### Scenario: Warm transfer
 - **WHEN** the app sends `transfer` `{id: "t2", to: "+15551234567", mode: "warm"}` and the new party answers
-- **THEN** the app's session stays open and the app, the caller and the new party hear each other
+- **THEN** the app's session stays open, the app and the new party hear each other, and the caller hears hold audio
 - **AND** when the app sends `transfer.complete` `{id: "t2"}` the app receives `session.end` with `reason: "transfer"`
 - **AND** the caller and the new party remain connected
 
@@ -328,9 +354,22 @@ and pass them to the media node.
 - **THEN** the app receives `error` with `code: "transfer_failed"` and `relatesTo: "t1"`
 - **AND** the session continues
 
+While the caller is on hold the app SHALL receive no caller audio and no turn events (keypresses
+still arrive), and every command except `resume`, `hangup`, `transfer`, `handoff` and `record.note`
+SHALL be answered with `error` `on_hold`.
+
 #### Scenario: Hold and resume
 - **WHEN** the app sends `hold` `{id: "h1"}` and later `resume` `{id: "h2"}`
 - **THEN** the caller hears hold audio (or silence) between the two commands and the conversation afterwards
+- **AND** the app receives no caller audio frames and no turn events between the two
+
+#### Scenario: Speaking while on hold
+- **WHEN** the app sends `speak` while the caller is on hold
+- **THEN** it receives `error` with `code: "on_hold"` and `relatesTo` set to the item's `id`
+
+#### Scenario: Warm transfer not answered
+- **WHEN** the app sends a warm `transfer` and the new party does not answer within 30 seconds
+- **THEN** the app receives `error` `transfer_failed` and the caller hears the app again
 
 ### Requirement: Handoff between apps
 
@@ -373,7 +412,7 @@ reported in the call record.
 
 #### Scenario: Filter configured
 - **WHEN** an app's config lists an audio filter
-- **THEN** STT and the Turn Detector receive filtered caller audio from the first frame
+- **THEN** STT and the Turn Detector receive filtered caller audio from the moment speech starts (B18), including the 500 ms kept before it
 
 #### Scenario: Filter unavailable
 - **WHEN** the configured filter cannot be created
@@ -411,3 +450,19 @@ turn detection, format conversion and the output queue MUST stay in the gateway.
 #### Scenario: Speech never reaches the media node
 - **WHEN** an app sends `speak`
 - **THEN** the media node receives only audio frames for playout, never text or a speech command
+
+### Requirement: The gateway produces call lifecycle events
+
+The gateway that owns a call SHALL produce `call.started`, `call.ended` and `call.failed` for it,
+SHALL hand them to the workspace webhook dispatcher (`add-workspace-webhooks`), and SHALL write the
+minimal call record for a call that never reached an app (unreachable app with no fallback, missing
+app, busy or unanswered outbound). For a cold transfer, the call's `durationSeconds` SHALL run
+until the room ends; the app's session duration SHALL be recorded separately.
+
+#### Scenario: Normal call
+- **WHEN** a call is answered by an app and later the caller hangs up
+- **THEN** the workspace's webhook endpoints receive `call.started` and then `call.ended` with `reason: "caller_hangup"`
+
+#### Scenario: App never reached
+- **WHEN** the app is unreachable and has no fallback
+- **THEN** the workspace receives `call.failed` with `reason: "app_unreachable"` and a minimal record is sealed

@@ -194,3 +194,46 @@ dedicated runner are still to do (conformance 3.10, 4.2).
   same as for an ended call).
 - Seen once: the Pipecat golden test failed in a combined run and passed on three reruns; watch
   for flakiness in the nightly job.
+
+## 2026-10-15 (spec review rulings, with the owner)
+
+A separate reviewer read every rebuild spec; the owner ruled on each finding one by one.
+
+### B21. Routing from Routr headers (partly reverses B5)
+
+- `call.incoming.appRef` (from `X-App-Ref`) picks the app. The YAML number table stays only as a
+  development fallback when `appRef` is missing.
+
+### B22. The app owns interruption (owner ruling; differs from the reviewer's recommendation)
+
+- The gateway no longer stops output when the caller speaks: it emits `turn.user_started` (for
+  interruptions, not backchannels) and stops output only on `clear` or `preempt`. `interruptible`
+  is passed through; both SDKs send `clear` on `turn.user_started` when the playing item is
+  interruptible, so SDK apps keep today's behavior. Twilio-flavor apps (Pipecat) already clear
+  themselves. Autopilot's `clear`, previously redundant, is now required.
+- Cost: barge-in latency gains one round trip to the app.
+
+### B23. Abandoned turns and patience
+
+- `turn.ended {text: "", abandoned: true}` after 10 s with no speech following `turn.user_started`.
+- `listen.update.patience`: `low` / `normal` / `high`.
+
+### B24. Hold and warm transfer rules
+
+- On hold the app gets no caller audio and no turn events (DTMF still arrives); commands other than
+  `resume`, `hangup`, `transfer`, `handoff`, `record.note` get `error` `on_hold`.
+- Warm transfer holds the caller; 30 s without answer → `transfer_failed`, caller back to the app.
+
+### B25. App signing secret rotation has no overlap (owner ruling, accepted risk)
+
+- Unlike webhooks, a rotated app secret takes effect at once. Apps must redeploy in step.
+
+### B26. The gateway produces call lifecycle events and minimal records
+
+- `call.started`, `call.ended`, `call.failed` go to the webhook dispatcher; the owner writes the
+  minimal record for calls that never reach an app. Endings use the media node's `reason`.
+
+### B27. B20 kept (owner ruling)
+
+- The hang-up endpoint still needs Identity; during an Identity outage it errors and apps can
+  close the socket instead.

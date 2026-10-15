@@ -70,8 +70,9 @@ The Detector therefore publishes a **continuous estimate** `eot` in [0, 1] plus 
     `turn.resumed` (discard the prepared answer)
   - caller speech of kind `backchannel` while agent output plays → `turn.backchannel`
     (output continues)
-  - caller speech of kind `interruption` while interruptible output plays → the gateway stops
-    output (the `output.interrupted` event from `voice-session`) and emits `turn.user_started`
+  - caller speech of kind `interruption` while output plays → `turn.user_started`; the app
+    decides whether to stop output with `clear` (owner decision 2026-10-15, the gateway never
+    stops output on caller speech)
 
   Tuning the policy changes behavior. Patience is a per-app (or per-assistant) setting; within a
   call, the policy may adapt (for example, a caller who pauses often gets a longer commit delay).
@@ -136,9 +137,11 @@ baseline. Better detectors are adopted from vendors or open models when the repl
 - **Gateway CPU.** Running a model per call in the gateway costs CPU. Mitigation: the baseline is
   cheap; heavier detectors can run out of process (TT5.4) or come from the STT vendor (TT5.3).
   The scale bar (T2, 100 calls per replica) applies with the default detector.
-- **Two policies at once.** Autopilot may disagree with the gateway's events. Mitigation: the
-  gateway's events stay advisory for apps that subscribe to the estimate; output is only stopped
-  by the gateway on a real interruption of interruptible output.
+- **Two policies at once.** Autopilot may disagree with the gateway's events. Resolved by giving
+  the app the authority: the gateway only reports, the app stops output with `clear`.
+- **Slower barge-in.** With the app deciding, a barge-in costs one extra round trip to the app
+  (gateway → app → `clear`). Accepted by the owner; T1 measures it (`turn.user_started` to
+  silence).
 - **Label noise.** Outcome labels are heuristics (a caller can resume speaking for other
   reasons). Mitigation: they are used to compare detectors on the same corpus, not as ground
   truth; the corpus can be hand-reviewed.
@@ -151,11 +154,11 @@ baseline. Better detectors are adopted from vendors or open models when the repl
    at a fixed rate (for example every 100 ms), or both with a cap.
 2. **Default thresholds.** The prepare and commit thresholds, the cut-off window, the slow
    threshold and the barge-in window for the default policy, and their per-app ranges.
-3. **Patience setting shape.** One knob (patient ↔ snappy) or several (thresholds, minimum
-   silence, maximum wait).
+3. **Patience setting shape.** Resolved: one knob, `low` / `normal` / `high`, in app config and
+   `listen.update`.
 4. **Out-of-process transport.** How an external detector connects to the gateway (local gRPC,
    WebSocket, or a shared-memory/sidecar protocol) and its latency budget inside T1.
-5. **Interruption authority.** Whether an app that subscribes to the estimate can turn off the
-   gateway's automatic stop on interruption and decide itself.
+5. **Interruption authority.** Resolved 2026-10-15: the app always decides; the gateway never
+   stops output on caller speech. The SDKs implement `interruptible`.
 6. **Within-call adaptation rules.** Which adaptations the default policy may make, and their
    limits, so behavior stays predictable.

@@ -1,8 +1,9 @@
 # Fonoster rebuild: architecture specs
 
-Status: **architecture in progress, build deferred.** A domain is "architecture done" when its
-OpenSpec change is approved and its conformance suite is specified. Building starts only when the
-owner says so.
+Status: **build approved 2026-10-15.** The gateway, both SDKs, the Autopilot engine, call records,
+the registry core and the conformance framework are built side by side on `next`; the Go media node
+is next, after the media-control amendments from the 2026-10-15 spec review. Decisions made while
+building live in each change's `build-log.md`.
 
 Goal: world-class quality next to VAPI, LiveKit and Daily, with the depth spent **below the model**
 (telephony, media, recording, data). Parts above the model (turn-taking, LLMs, vendors) stay

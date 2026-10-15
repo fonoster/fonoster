@@ -30,7 +30,7 @@
 
 - [ ] 3.1 Recording policy setting per workspace and app (`off`, `on`, `on after consent prompt`)
 - [ ] 3.2 Internal recording listener (`tracks: both`, separate sides) uploading to record storage
-- [ ] 3.3 SIP trace capture per call at the Routr edge (carrier-facing), attached as pcap with its hash
+- [ ] ~~3.3 SIP trace capture~~ dropped for the first release (MN10, 2026-10-15)
 
 ## 4. Privacy
 
@@ -42,7 +42,7 @@
 
 - [ ] 5.1 API: fetch by `callRef` and version, search by time range, number, app and status
 - [ ] 5.2 SDK and CTL support for fetching records and downloading files
-- [ ] 5.3 Dashboard call detail backed by the record, with recording and SIP trace download
+- [ ] 5.3 Dashboard call detail backed by the record, with recording download
 - [ ] 5.4 Emit `call_record.sealed` (link only) through workspace webhooks
 - [ ] 5.5 Minimal records for calls that never reach an app, emitting `call.failed`
 
