@@ -24,8 +24,8 @@ import {
   loadScenarios,
   runScenario
 } from "@fonoster/conformance";
-import { Registry as RegistryNs } from "@fonoster/common";
 import { Gateway, GatewayConfig, MemoryCallRecordSink } from "../src";
+import { catalogFor } from "./scenarioCatalog";
 
 // The conformance suites for voice-session and twilio-media-streams-flavor, run against this
 // gateway with the fakes. Needs NATS: set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
@@ -64,32 +64,6 @@ function configFor(scenario: Scenario, harness: FakesHarness): GatewayConfig {
       }
     }
   };
-}
-
-/**
- * The scenario's `setup.catalog` as a registry (add-provider-registry 1.6): the fake provider, a
- * TTS model, fake/default, and each listed voice in its state.
- */
-function catalogFor(scenario: Scenario) {
-  const c = scenario.setup?.catalog;
-  if (!c) return undefined;
-  const store = new RegistryNs.MemoryRegistryStore();
-  const r = new RegistryNs.Registry({ store, testMode: true });
-  r.addProvider({
-    id: "fake",
-    adapter: "fake",
-    capabilities: ["tts", "stt"],
-    credentialRef: "fake-default"
-  });
-  r.addModel({ id: "fake/tts", type: "tts", features: ["streaming"] });
-  const voices = [{ id: "fake/default" }, ...(c.voices ?? [])];
-  for (const v of voices) r.addVoice({ id: v.id, models: ["fake/tts"] });
-  for (const v of voices) {
-    if (!v.state || v.state === "active") continue;
-    r.deprecate("voice", v.id, v.replacement!, "2099-01-01");
-    if (v.state === "retired") r.retire("voice", v.id);
-  }
-  return store;
 }
 
 for (const contract of [
