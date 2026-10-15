@@ -98,6 +98,18 @@ const sessionAppsSchema = z
   .default({});
 
 /**
+ * Workspace webhooks fan-out (add-workspace-webhooks 2.2): events producers publish on the bus
+ * (`webhooks.events`) are delivered from here.
+ */
+const webhooksSchema = z
+  .object({
+    fanout: z.boolean().default(true),
+    intervalMs: z.number().int().positive().default(1000),
+    refreshMs: z.number().int().positive().default(10000)
+  })
+  .default({});
+
+/**
  * Regions (add-private-regions). Public regions come from data (PR-10); private regions need the
  * region-signing key (ES256 PEM) and the region hub (NATS in operator mode, RG-B2), both generated
  * by `fonoster-region-hub-setup`. Without them, workspaces can only pick a public region.
@@ -238,6 +250,7 @@ const fonosterConfigSchema = z
     identity: identitySectionSchema,
     callRecords: callRecordsSchema,
     apps: sessionAppsSchema,
+    webhooks: webhooksSchema,
     regions: regionsSchema
   })
   .superRefine((config, ctx) => {

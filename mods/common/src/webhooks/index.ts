@@ -20,3 +20,4 @@ export * from "./Dispatcher";
 export * from "./events";
 export * from "./signing";
 export * from "./prisma";
+export * from "./bus";

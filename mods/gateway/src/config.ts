@@ -143,9 +143,14 @@ export type GatewayConfig = {
   cellSecrets?: { file?: string; dir?: string; keyEnv?: string };
   /** Where apps come from: `yaml` (the `apps` list, default) or `database` (applications rows). */
   appStore?: { source: "yaml" | "database"; cacheMs?: number };
-  /** Workspace webhooks (add-workspace-webhooks) from the database's endpoints. */
+  /**
+   * Workspace webhooks (add-workspace-webhooks). `transport: database` (default) delivers from
+   * here using the database's endpoints; `transport: bus` only publishes events on NATS
+   * (`webhooks.events`) for the control plane's fan-out and needs no database (LO-B1).
+   */
   webhooks?: {
     enabled: boolean;
+    transport?: "database" | "bus";
     /** How often due deliveries are attempted (default 1 s). */
     intervalMs?: number;
     /** How often endpoints are reloaded and orphaned deliveries adopted (default 30 s). */
@@ -253,7 +258,9 @@ export function validateConfig(config: GatewayConfig): string[] {
   const needsDb = [
     config.appStore?.source === "database" && "appStore.source: database",
     config.registry?.source === "database" && "registry.source: database",
-    config.webhooks?.enabled && "webhooks",
+    config.webhooks?.enabled &&
+      config.webhooks.transport !== "bus" &&
+      "webhooks",
     config.workspaceKeys?.enabled && "workspaceKeys"
   ].filter(Boolean);
   if (needsDb.length && !databaseUrl(config))

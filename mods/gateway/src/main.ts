@@ -166,7 +166,7 @@ async function openDatabase(config: GatewayConfig): Promise<{
     );
     out.registryStore = store;
   }
-  if (config.webhooks?.enabled) {
+  if (config.webhooks?.enabled && config.webhooks.transport !== "bus") {
     const w = config.webhooks;
     const store = await Webhooks.PrismaWebhookStore.open(prisma, {
       adoptOverdue: true

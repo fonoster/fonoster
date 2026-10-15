@@ -86,6 +86,8 @@ export class Gateway {
   private server?: http.Server;
   private heartbeats = new Map<string, number>();
   readonly apps: AppStore;
+  /** Where call.* and call_record.sealed events go (the dispatcher, or the bus in bus mode). */
+  private webhooks?: (event: Webhooks.WebhookEvent) => void;
 
   constructor(private readonly options: GatewayOptions) {
     const problems = validateConfig(options.config);
@@ -100,6 +102,7 @@ export class Gateway {
       options.workspaceKeys
     );
     this.apps = options.apps ?? new YamlAppStore(options.config.apps ?? []);
+    this.webhooks = options.webhooks;
   }
 
   get config() {
@@ -115,6 +118,12 @@ export class Gateway {
       this.options.nats ?? (await connect({ servers: this.config.nats.url }));
     this.ownsNats = !this.options.nats;
     this.media = new NatsMediaControl(this.nc);
+    if (
+      !this.webhooks &&
+      this.config.webhooks?.enabled &&
+      this.config.webhooks.transport === "bus"
+    )
+      this.webhooks = Webhooks.busWebhookPublisher(this.nc);
 
     this.stops.push(
       this.media.onIncoming(
@@ -203,7 +212,7 @@ export class Gateway {
       /\/$/,
       ""
     );
-    this.options.webhooks?.(
+    this.webhooks?.(
       Webhooks.callRecordSealed(entry.workspaceRef ?? "default", {
         callRef: entry.callRef,
         version: entry.version,
@@ -228,7 +237,7 @@ export class Gateway {
       catalog: this.catalog,
       record: this.record,
       findApp: this.findApp,
-      webhooks: this.options.webhooks,
+      webhooks: this.webhooks,
       onEnded: (c) => {
         this.calls.delete(c.callRef);
         sub?.unsubscribe();
@@ -305,7 +314,7 @@ export class Gateway {
       });
       call.record("event", { type: "call.unrouted", appRef, to });
       call.record("event", { type: "call.failed", reason: "no_app" });
-      this.options.webhooks?.(
+      this.webhooks?.(
         Webhooks.callFailed("default", {
           callRef: info.callRef,
           appRef,
@@ -427,7 +436,7 @@ export class Gateway {
             }
           });
           this.record.close(callRef);
-          this.options.webhooks?.(
+          this.webhooks?.(
             Webhooks.callFailed(app.workspaceRef ?? "default", {
               callRef,
               appRef: app.ref,
