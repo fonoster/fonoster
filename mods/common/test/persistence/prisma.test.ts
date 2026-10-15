@@ -515,9 +515,10 @@ describe("@common/persistence (Prisma stores)", function () {
         expect(lines).to.include("model\tdeepgram/nova-2\tdeprecated");
         lines.length = 0;
         await cli("history", "deepgram/nova-2");
+        // newest first
         expect(lines.map((l) => l.split("\t").slice(1, 3))).to.deep.equal([
-          ["ops@fonoster", "add-model"],
-          ["ops@fonoster", "deprecate-model"]
+          ["ops@fonoster", "deprecate-model"],
+          ["ops@fonoster", "add-model"]
         ]);
       } finally {
         if (allowed === undefined)
