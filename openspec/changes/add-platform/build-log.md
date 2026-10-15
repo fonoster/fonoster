@@ -179,6 +179,9 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   direction is UNKNOWN (connect `access.js`). For PEER_TO_PSTN, From must be the Peer
   (`sip:medianode@default`) with the number in `X-Dod-Number`, and the node must answer Routr's
   digest challenge on INVITE. Left for the media-node and outbound owners.
+  **Fixed** by add-media-node OB-B1: the node dials as the Peer with `X-DOD-Number` and answers
+  the challenge; an SDK CreateCall through the stack is answered, the app talks and the record
+  is `completed`.
 - Test environment: sipnet's tests resolved `@fonoster/common` to the shared platform-refresh copy
   (old default peer AOR) and failed 3 tests. Fixed with the uncommitted worktree link
   `mods/sipnet/node_modules/@fonoster/common -> ../../../common`.
