@@ -205,11 +205,12 @@ export function CallRecordView() {
         }
       />
       <div className="flex flex-col gap-5 px-4 pb-10 sm:px-8">
-        {isPrivate && <Badge variant="info">Stored in your region</Badge>}
+        {isPrivate && !offline && (
+          <Badge variant="info">Stored in your region</Badge>
+        )}
         {offline && (
           <Alert variant="error">
-            Your region is offline, so the transcript, turns and recording can't
-            be opened. Only the call's metadata is shown.
+            Your region is offline. Only call details are shown.
           </Alert>
         )}
         {download.error && <Alert variant="error">{download.error}</Alert>}

@@ -20,7 +20,7 @@ import type { FonosterSdk } from "~/lib/client";
 import {
   DEFAULT_REGION,
   PRIVATE_REGION,
-  type EnrollmentToken,
+  type RegionToken,
   type Region,
   type RegionsApi
 } from "./types";
@@ -34,7 +34,7 @@ type Loose = Record<
 const part = (sdk: FonosterSdk, name: string): Loose =>
   ((sdk as unknown as Record<string, Loose | undefined>)[name] ?? {}) as Loose;
 
-function token(res: unknown): EnrollmentToken {
+function token(res: unknown): RegionToken {
   const r = (res ?? {}) as Record<string, unknown>;
   return {
     token: String(r.enrollmentToken ?? r.token ?? ""),

@@ -55,12 +55,12 @@ export type Region = {
   secrets: RegionSecret[];
 };
 
-export type EnrollmentToken = { token: string; expiresAt: string };
+export type RegionToken = { token: string; expiresAt: string };
 
 export type CreatedWorkspace = {
   ref: string;
   /** Present when the workspace was created with a private region. */
-  enrollment?: EnrollmentToken;
+  enrollment?: RegionToken;
 };
 
 /** What the dashboard needs from the control plane for regions (RU-B1). */
@@ -74,7 +74,7 @@ export type RegionsApi = {
   /** The region of the current workspace. */
   getRegion(): Promise<Region>;
   /** Issues a new token; the old cell identity is revoked when it enrolls. */
-  reissueRegionToken(): Promise<EnrollmentToken>;
+  reissueRegionToken(): Promise<RegionToken>;
   /** Revokes the cell's credentials; the region goes back to `waiting`. */
   disconnectRegion(): Promise<void>;
 };

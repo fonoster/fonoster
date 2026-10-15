@@ -20,7 +20,6 @@ import type { Workspace } from "@fonoster/types";
 import { screen, waitFor } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
-import { cloudCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
 import CreateWorkspacePage from "~/workspaces/create-workspace.page";
 import { CallsScreen } from "~/session";
@@ -65,22 +64,22 @@ describe("create workspace with a region", () => {
       route: "/workspaces/new"
     });
 
-  it("offers us-east-1 and a private region, with the permanent note", async () => {
+  it("offers us-east-1 and a private region, with one permanence line", async () => {
     create();
-    expect(await screen.findByRole("radio", { name: /US East/ })).toBeChecked();
+    const select = await screen.findByLabelText("Region");
+    expect(select).toHaveValue("us-east-1");
     expect(
-      screen.getByRole("radio", { name: /Private region/ })
+      screen.getByRole("option", { name: "Private region" })
     ).toBeInTheDocument();
-    expect(screen.getByText(/The region is permanent/)).toBeInTheDocument();
+    expect(
+      screen.getByText("You can't change the region later.")
+    ).toBeInTheDocument();
   });
 
   it("creates a public workspace without a confirm step", async () => {
     const { user, api } = create();
-    await user.type(
-      await screen.findByLabelText("Workspace name"),
-      "Acme Support"
-    );
-    await user.click(screen.getByRole("button", { name: "Create workspace" }));
+    await user.type(await screen.findByLabelText("Name"), "Acme Support");
+    await user.click(screen.getByRole("button", { name: "Create" }));
     await waitFor(() =>
       expect(api.state.created).toEqual([
         { name: "Acme Support", region: "us-east-1" }
@@ -93,17 +92,15 @@ describe("create workspace with a region", () => {
 
   it("confirms a private region before creating and opens the setup", async () => {
     const { user, api } = create();
-    await user.type(
-      await screen.findByLabelText("Workspace name"),
-      "Acme Private"
+    await user.type(await screen.findByLabelText("Name"), "Acme Private");
+    await user.selectOptions(
+      await screen.findByLabelText("Region"),
+      "Private region"
     );
-    await user.click(screen.getByRole("radio", { name: /Private region/ }));
-    await user.click(screen.getByRole("button", { name: "Create workspace" }));
-    expect(screen.getByText(/can't be changed afterwards/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Create" }));
+    expect(screen.getByText(/runs on your own servers/)).toBeInTheDocument();
     expect(api.state.created).toEqual([]);
-    await user.click(
-      screen.getByRole("button", { name: "Create private workspace" })
-    );
+    await user.click(screen.getByRole("button", { name: "Create" }));
     await waitFor(() => expect(api.state.created).toHaveLength(1));
     expect(await screen.findByTestId("location")).toHaveTextContent(
       "/w/ws-new/region-setup"
@@ -122,28 +119,30 @@ describe("region setup", () => {
       state: { enrollment }
     });
 
-  it("shows the token, install commands, countdown and the keys to set", async () => {
-    setup();
-    expect(await screen.findByLabelText("Enrollment token")).toHaveTextContent(
+  it("shows one install command with Compose or Helm, expiry and the missing keys", async () => {
+    const { user } = setup();
+    expect(await screen.findByLabelText("Docker Compose")).toHaveTextContent(
       "tok.en.123"
     );
-    expect(screen.getByLabelText("Docker Compose")).toHaveTextContent(
-      "docker compose"
-    );
+    expect(screen.queryByLabelText("Helm")).toBeNull();
+    await user.click(screen.getByRole("tab", { name: "Helm" }));
     expect(screen.getByLabelText("Helm")).toHaveTextContent("helm install");
     expect(screen.getByText(/Expires in 5h/)).toBeInTheDocument();
     expect(
-      await screen.findByText("fonoster-region secrets set deepgram")
+      await screen.findByText("fonoster-region secrets set elevenlabs")
     ).toBeInTheDocument();
-    expect(screen.getByText(/first heartbeat/)).toBeInTheDocument();
+    expect(
+      screen.queryByText("fonoster-region secrets set deepgram")
+    ).toBeNull();
+    expect(screen.getByText("Waiting")).toBeInTheDocument();
   });
 
-  it("moves to connected when the status polling sees the heartbeat", async () => {
+  it("moves to connected when the status polling sees the region", async () => {
     const { api } = setup();
-    await screen.findByText(/first heartbeat/);
+    await screen.findByText("Waiting");
     api.state.region = privateRegion({ status: "connected" });
     expect(
-      await screen.findByText(/Your region is connected/, {}, { timeout: 6000 })
+      await screen.findByText("Connected", {}, { timeout: 6000 })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Go to the dashboard" })
@@ -155,7 +154,7 @@ describe("region setup", () => {
     await user.click(
       await screen.findByRole("button", { name: "Re-issue token" })
     );
-    expect(await screen.findByLabelText("Enrollment token")).toHaveTextContent(
+    expect(await screen.findByLabelText("Docker Compose")).toHaveTextContent(
       "reissued"
     );
   });
@@ -171,13 +170,15 @@ describe("region setup", () => {
 describe("Settings → Region", () => {
   it("shows a connected private region", async () => {
     render(<RegionSettings />);
-    expect(await screen.findByText("Connected")).toBeInTheDocument();
+    expect((await screen.findByText("Status")).nextSibling).toHaveTextContent(
+      "Connected"
+    );
     expect(screen.getByText("0.28.1")).toBeInTheDocument();
-    expect(screen.getByText("Media nodes").nextSibling).toHaveTextContent("2");
+    expect(screen.getByText("Nodes").nextSibling).toHaveTextContent("2");
     expect(screen.getByText("Active calls").nextSibling).toHaveTextContent("3");
   });
 
-  it("explains offline, unsupported and degraded", async () => {
+  it("says offline in one line", async () => {
     render(
       <RegionSettings />,
       createMockRegionsApi(
@@ -185,13 +186,14 @@ describe("Settings → Region", () => {
       )
     );
     expect(
-      await screen.findByText(
-        /Your region is offline. Last heartbeat 10 min ago/
-      )
+      await screen.findByText("Your region is offline.")
     ).toBeInTheDocument();
+    expect(screen.getByText("Last seen").nextSibling).toHaveTextContent(
+      "10 min ago"
+    );
   });
 
-  it("shows the unsupported reason", async () => {
+  it("says unsupported in one line", async () => {
     render(
       <RegionSettings />,
       createMockRegionsApi(
@@ -202,7 +204,7 @@ describe("Settings → Region", () => {
       )
     );
     expect(
-      await screen.findByText("Version 0.20.0 is too old.")
+      await screen.findByText("Your region needs an upgrade.")
     ).toBeInTheDocument();
   });
 
@@ -212,7 +214,7 @@ describe("Settings → Region", () => {
       createMockRegionsApi(privateRegion({ status: "degraded", gateways: 0 }))
     );
     expect(
-      await screen.findByText(/component of your region is unhealthy/)
+      await screen.findByText("Part of your region is unhealthy.")
     ).toBeInTheDocument();
   });
 
@@ -221,7 +223,7 @@ describe("Settings → Region", () => {
     await user.click(
       await screen.findByRole("button", { name: "Re-issue token" })
     );
-    expect(await screen.findByLabelText("Enrollment token")).toHaveTextContent(
+    expect(await screen.findByLabelText("Docker Compose")).toHaveTextContent(
       "reissued"
     );
   });
@@ -229,14 +231,14 @@ describe("Settings → Region", () => {
   it("disconnects behind a confirmation", async () => {
     const { user, api } = render(<RegionSettings />);
     await user.click(await screen.findByRole("button", { name: "Disconnect" }));
-    expect(screen.getByText(/credentials are revoked/)).toBeInTheDocument();
+    expect(screen.getByText(/stops taking calls/)).toBeInTheDocument();
     await user.click(
       screen.getAllByRole("button", { name: "Disconnect" }).at(-1)!
     );
     await waitFor(() => expect(api.state.region.status).toBe("waiting"));
-    expect(
-      await screen.findByText("Waiting for your region")
-    ).toBeInTheDocument();
+    expect((await screen.findByText("Status")).nextSibling).toHaveTextContent(
+      "Waiting"
+    );
   });
 
   it("is read-only for a public region", async () => {
@@ -244,27 +246,15 @@ describe("Settings → Region", () => {
     expect(await screen.findByText("us-east-1")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Disconnect" })).toBeNull();
   });
-
-  it("mentions the flat fee only when billing is enabled", async () => {
-    const { unmount } = render(<RegionSettings />, createMockRegionsApi(), {
-      capabilities: cloudCapabilities
-    });
-    expect(await screen.findByText(/flat monthly fee/)).toBeInTheDocument();
-    unmount();
-    render(<RegionSettings />);
-    await screen.findByText("Connected");
-    expect(screen.queryByText(/flat monthly fee/)).toBeNull();
-  });
 });
 
 describe("Secrets for a private workspace", () => {
-  it("lists names, used by, and set or missing", async () => {
+  it("lists names with set or missing, and one line", async () => {
     render(<SecretsScreen />);
     expect(await screen.findByText("deepgram")).toBeInTheDocument();
-    expect(screen.getByText("Support line, Sales bot")).toBeInTheDocument();
-    expect(screen.getByText("Set in your region")).toBeInTheDocument();
+    expect(screen.getByText("Set")).toBeInTheDocument();
     expect(screen.getByText("Missing")).toBeInTheDocument();
-    expect(screen.getByText(/1 key is missing/)).toBeInTheDocument();
+    expect(screen.getByText(/1 missing/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Add secret" })).toBeNull();
   });
 });
@@ -294,7 +284,9 @@ describe("call detail", () => {
   it("shows metadata only while the region is offline", async () => {
     call(privateRegion({ status: "offline", lastHeartbeatAt: ago(5) }));
     expect(
-      await screen.findByText(/can't be opened. Only/)
+      await screen.findByText(
+        "Your region is offline. Only call details are shown."
+      )
     ).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Turns" })).toBeNull();
     expect(
@@ -312,7 +304,7 @@ describe("offline banner", () => {
       )
     );
     expect(
-      await screen.findByText(/Your region is offline/)
+      await screen.findByText(/Your region is offline. Last seen 3 min ago/)
     ).toBeInTheDocument();
     unmount();
     render(<RegionBanner />);

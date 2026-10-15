@@ -16,9 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Cloud, Server } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "~/lib/utils";
 import { useRegionsApi } from "./api";
 import { DEFAULT_REGION, PRIVATE_REGION, type PublicRegion } from "./types";
 
@@ -39,7 +37,7 @@ export function usePublicRegions(): PublicRegion[] {
   return regions;
 }
 
-/** Radio cards for the workspace's region; the choice is permanent (PR-1). */
+/** Region select for a new workspace; the choice is permanent (PR-1). */
 export function RegionPicker({
   value,
   onChange
@@ -48,46 +46,29 @@ export function RegionPicker({
   onChange: (region: string) => void;
 }) {
   const regions = usePublicRegions();
-  const options = [
-    ...regions.map((r) => ({
-      id: r.id,
-      title: r.name,
-      detail: `${r.id} · Fonoster runs it for you`,
-      icon: Cloud
-    })),
-    {
-      id: PRIVATE_REGION,
-      title: "Private region",
-      detail:
-        "Runs on your servers. Call content and provider keys stay with you.",
-      icon: Server
-    }
-  ];
   return (
-    <div role="radiogroup" aria-label="Region" className="flex flex-col gap-2">
-      {options.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          role="radio"
-          aria-checked={value === o.id}
-          onClick={() => onChange(o.id)}
-          className={cn(
-            "flex cursor-pointer items-start gap-3 rounded-control border border-input p-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            value === o.id && "border-foreground bg-muted"
-          )}
-        >
-          <o.icon className="mt-0.5 size-4 shrink-0" aria-hidden />
-          <span className="flex flex-col">
-            <span className="font-display text-sm font-medium">{o.title}</span>
-            <span className="font-display text-xs text-muted-foreground">
-              {o.detail}
-            </span>
-          </span>
-        </button>
-      ))}
+    <div className="flex flex-col gap-2">
+      <label
+        htmlFor="workspace-region"
+        className="font-display text-sm font-medium"
+      >
+        Region
+      </label>
+      <select
+        id="workspace-region"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 rounded-control border border-input bg-background px-3 font-display text-sm"
+      >
+        {regions.map((r) => (
+          <option key={r.id} value={r.id}>
+            {r.name}
+          </option>
+        ))}
+        <option value={PRIVATE_REGION}>Private region</option>
+      </select>
       <p className="font-display text-xs text-muted-foreground">
-        The region is permanent. To use another one, create a new workspace.
+        You can't change the region later.
       </p>
     </div>
   );
