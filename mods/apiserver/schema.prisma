@@ -228,9 +228,11 @@ model RegistryVoice {
 /// Which models a voice works on. No foreign key to the model: `apply` may write a voice before its
 /// models, and the registry checks the reference itself.
 model RegistryVoiceModel {
-  voiceId String        @map("voice_id") @db.VarChar(255)
-  modelId String        @map("model_id") @db.VarChar(255)
-  voice   RegistryVoice @relation(fields: [voiceId], references: [id], onDelete: Cascade)
+  voiceId  String        @map("voice_id") @db.VarChar(255)
+  modelId  String        @map("model_id") @db.VarChar(255)
+  /// Keeps the order the operator gave.
+  position Int           @default(0)
+  voice    RegistryVoice @relation(fields: [voiceId], references: [id], onDelete: Cascade)
 
   @@id([voiceId, modelId])
   @@map("registry_voice_models")

@@ -69,6 +69,7 @@ CREATE TABLE "registry_voices" (
 CREATE TABLE "registry_voice_models" (
     "voice_id" VARCHAR(255) NOT NULL,
     "model_id" VARCHAR(255) NOT NULL,
+    "position" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "registry_voice_models_pkey" PRIMARY KEY ("voice_id","model_id")
 );
