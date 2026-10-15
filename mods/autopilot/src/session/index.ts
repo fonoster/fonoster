@@ -19,6 +19,7 @@
 export * from "./Agent";
 export * from "./config";
 export * from "./createAutopilot";
+export * from "./knowledge";
 export * from "./machine";
 export * from "./sentences";
 export * from "./think";

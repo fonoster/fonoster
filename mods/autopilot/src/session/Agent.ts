@@ -20,6 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import { SessionEndedError } from "@fonoster/voice/session";
 import { AsyncQueue } from "./AsyncQueue";
 import { SessionAssistant } from "./config";
+import { KNOWLEDGE_TIMEOUT_MS, KnowledgePort } from "./knowledge";
 import { sentences } from "./sentences";
 import { ChatMessage, Think, ThinkChunk, ToolCall, ToolSpec } from "./think";
 import { ToolPort } from "./tools";
@@ -77,7 +78,8 @@ export interface Recorder {
 
 /** Writes turn traces and notes to the call record through the session (record.note). */
 export function sessionRecorder(session: Session): Recorder {
-  const write = (data: Record<string, unknown>) => void session.note(data).catch(() => undefined);
+  const write = (data: Record<string, unknown>) =>
+    void session.note(data).catch(() => undefined);
   return {
     turn: (trace) => write({ kind: "autopilot.turn", ...trace }),
     note: (event) => write({ kind: "autopilot.note", ...event })
@@ -93,6 +95,8 @@ type Prepared = {
   text: string;
   abort: AbortController;
   chunks: AsyncQueue<ThinkChunk>;
+  /** Knowledge found for the prepared text, reused by every round of the reply. */
+  context: ChatMessage[];
 };
 
 /** The side effects of Autopilot: everything the state machine asks it to do on the session. */
@@ -114,7 +118,8 @@ export class Agent {
     private readonly assistant: SessionAssistant,
     private readonly think: Think,
     private readonly tools: ToolPort,
-    private readonly recorder: Recorder = logRecorder
+    private readonly recorder: Recorder = logRecorder,
+    private readonly knowledge?: KnowledgePort
   ) {
     this.patience = assistant.conversationSettings.patience;
   }
@@ -195,15 +200,20 @@ export class Agent {
     this.discardPrepared();
     const abort = new AbortController();
     const chunks = new AsyncQueue<ThinkChunk>();
-    const messages = [
-      ...this.messages(),
-      { role: "user" as const, content: text }
-    ];
-    this.prepared = { text, abort, chunks };
-    void this.pump(
-      this.think.stream(messages, this.toolSpecs(), abort.signal),
-      chunks
-    );
+    const prepared: Prepared = { text, abort, chunks, context: [] };
+    this.prepared = prepared;
+    void (async () => {
+      prepared.context = await this.contextFor(text, abort.signal);
+      if (abort.signal.aborted) return chunks.end();
+      const messages = [
+        ...this.messages(prepared.context),
+        { role: "user" as const, content: text }
+      ];
+      await this.pump(
+        this.think.stream(messages, this.toolSpecs(), abort.signal),
+        chunks
+      );
+    })();
   }
 
   /** turn.resumed: the caller kept talking; the prepared reply is dropped. */
@@ -272,7 +282,11 @@ export class Agent {
     }
 
     try {
-      let source = this.takePrepared(text) ?? this.startStream(abort.signal);
+      const prepared = this.takePrepared(text);
+      const context = prepared
+        ? prepared.context
+        : await this.contextFor(text, abort.signal);
+      let source = prepared?.chunks ?? this.startStream(abort.signal, context);
       for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
         const outcome = await this.speakRound(
           source,
@@ -322,7 +336,7 @@ export class Agent {
         }
         await this.runTools(outcome.toolCalls, abort, trace);
         if (abort.signal.aborted) return;
-        source = this.startStream(abort.signal);
+        source = this.startStream(abort.signal, context);
       }
       this.recorder.turn(trace);
       if (this.reply === abort) this.send({ type: "SPOKEN", source: "reply" });
@@ -474,11 +488,39 @@ export class Agent {
 
   // ---- internals --------------------------------------------------------------------
 
-  private messages(): ChatMessage[] {
+  private messages(context: ChatMessage[] = []): ChatMessage[] {
     return [
       { role: "system", content: this.settings.systemPrompt },
+      ...context,
       ...this.history
     ];
+  }
+
+  /** Knowledge for this turn, as a system message for the request only (never in history). */
+  private async contextFor(
+    question: string,
+    signal: AbortSignal
+  ): Promise<ChatMessage[]> {
+    if (!this.knowledge) return [];
+    const timeout = new Promise<string>((resolve) =>
+      setTimeout(() => resolve(""), KNOWLEDGE_TIMEOUT_MS)
+    );
+    try {
+      const found = await Promise.race([
+        this.knowledge.find(question, signal),
+        timeout
+      ]);
+      return found?.trim()
+        ? [
+            {
+              role: "system",
+              content: `Relevant information:\n${found.trim()}`
+            }
+          ]
+        : [];
+    } catch {
+      return [];
+    }
   }
 
   private toolSpecs(): ToolSpec[] {
@@ -493,16 +535,19 @@ export class Agent {
     return [...own, ...builtIn];
   }
 
-  private startStream(signal: AbortSignal): AsyncQueue<ThinkChunk> {
+  private startStream(
+    signal: AbortSignal,
+    context: ChatMessage[] = []
+  ): AsyncQueue<ThinkChunk> {
     const chunks = new AsyncQueue<ThinkChunk>();
     void this.pump(
-      this.think.stream(this.messages(), this.toolSpecs(), signal),
+      this.think.stream(this.messages(context), this.toolSpecs(), signal),
       chunks
     );
     return chunks;
   }
 
-  private takePrepared(text: string): AsyncQueue<ThinkChunk> | undefined {
+  private takePrepared(text: string): Prepared | undefined {
     const p = this.prepared;
     this.prepared = undefined;
     if (!p) return undefined;
@@ -511,7 +556,7 @@ export class Agent {
       this.reply?.signal.addEventListener("abort", () => p.abort.abort(), {
         once: true
       });
-      return p.chunks;
+      return p;
     }
     p.abort.abort();
     return undefined;

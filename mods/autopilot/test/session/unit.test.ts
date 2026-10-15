@@ -30,7 +30,8 @@ import {
   createAutopilotHandler,
   resolveThink,
   sentences,
-  sessionAssistantSchema
+  sessionAssistantSchema,
+  KnowledgePort
 } from "../../src/session";
 
 const base = {
@@ -179,5 +180,98 @@ steps:
       await server.close();
       await harness.stop();
     }
+  });
+});
+
+describe("@autopilot/session knowledge port", function () {
+  this.timeout(10000);
+
+  async function run(knowledge: KnowledgePort, turns: string[]) {
+    const harness = await new FakesHarness().start();
+    harness.llm.configure({
+      script: turns.map((_, i) => ({ content: `Reply ${i + 1}.` }))
+    });
+    const server = await new VoiceServer({
+      port: 0,
+      host: "127.0.0.1",
+      signingSecret: "s"
+    }).listen(
+      createAutopilotHandler({
+        assistant: { ...base, languageModel: { model: "fake/llm" } },
+        providers: { fake: { baseUrl: harness.llm.url } },
+        knowledge
+      })
+    );
+    const steps = turns
+      .map(
+        (t, i) => `
+  - send: { type: turn.ended, text: "${t}", language: en, confidence: 1, durationMs: 1 }
+    label: t${i}
+  - expect: { type: speak, last: true }
+    capture: { r${i}: id }
+  - send: { type: output.done, id: "\${r${i}}" }`
+      )
+      .join("");
+    const scenario: Scenario = parse(`
+format: fonoster.scenario.v1
+name: knowledge
+contract: autopilot
+role: gateway
+steps:
+  - send: { type: session.start, protocol: fonoster.session.v1, sessionRef: s, callRef: c, appRef: a, direction: inbound, from: "1", to: "2", metadata: {}, handoff: null, audio: { codec: pcm16, rate: 16000 }, tracks: [], speech: { voice: v, language: en } }${steps}
+  - wait: { ms: 50 }
+`);
+    try {
+      const started = Date.now();
+      const result = await runScenario(scenario, {
+        connect: () =>
+          new FakeGateway({ signingSecret: "s" }).dial(
+            `ws://127.0.0.1:${server.port}/`
+          )
+      });
+      return {
+        result,
+        conversations: harness.llm.conversations,
+        ms: Date.now() - started
+      };
+    } finally {
+      await server.close();
+      await harness.stop();
+    }
+  }
+
+  it("gives the LLM what the knowledge port finds, for that request only", async function () {
+    const { result, conversations } = await run(
+      {
+        find: async (q) =>
+          q.includes("hours") ? "Open 9 to 5, Monday to Friday." : ""
+      },
+      ["What are your hours?", "Thanks"]
+    );
+    expect(result.status, result.reason).to.equal("passed");
+    expect(conversations[0].messages[1]).to.deep.equal({
+      role: "system",
+      content: "Relevant information:\nOpen 9 to 5, Monday to Friday."
+    });
+    // The second request has no knowledge (nothing found) and the first one's is not in history.
+    expect(
+      conversations[1].messages.filter((m) =>
+        String(m.content).startsWith("Relevant information")
+      )
+    ).to.have.length(0);
+  });
+
+  it("does not wait for a slow knowledge lookup", async function () {
+    const slow: KnowledgePort = {
+      find: () => new Promise((r) => setTimeout(() => r("late"), 3000))
+    };
+    const { result, conversations, ms } = await run(slow, ["Hello?"]);
+    expect(result.status, result.reason).to.equal("passed");
+    expect(ms).to.be.lessThan(2500);
+    expect(
+      conversations[0].messages.some(
+        (m) => m.content === "Relevant information:\nlate"
+      )
+    ).to.equal(false);
   });
 });

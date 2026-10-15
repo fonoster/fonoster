@@ -70,6 +70,14 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - Scenario format additions: `autopilot` contract, `setup.assistant`, `$excludes`, fake LLM
   `chunkDelayMs`, assertions `providers.llm.last_messages` and `tools.calls`.
 
+### AP7. Knowledge port
+
+- `KnowledgePort.find(question)` is asked once per reply (or when a reply is prepared) with an
+  800 ms limit; what it finds goes to the LLM as a system message for that request and its tool
+  rounds only, never into the history. `fromKnowledgeBase()` adapts the current S3 + Unstructured
+  knowledge bases. Moving their keys out of Autopilot's environment (operator wiring) is still to
+  do, so task 4.1 stays open.
+
 ### Not done
 
 - 1.3 latency stopwatch as a repeated measurement (traces carry the timings), 1.4 evals, 3.1 the

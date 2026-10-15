@@ -20,6 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import { createActor } from "xstate";
 import { Agent, Recorder, sessionRecorder } from "./Agent";
 import { SessionAssistant, sessionAssistantSchema } from "./config";
+import { KnowledgePort } from "./knowledge";
 import { autopilotMachine } from "./machine";
 import { resolveThink, Think, ThinkProvider } from "./think";
 import { HttpToolPort, ToolPort } from "./tools";
@@ -34,6 +35,8 @@ export type AutopilotOptions = {
   providers?: Record<string, ThinkProvider>;
   think?: Think;
   tools?: ToolPort;
+  /** Finds what is relevant to the caller's question (the knowledge port). */
+  knowledge?: KnowledgePort;
   recorder?: Recorder;
   /** Called with each session's Agent, for tests and observability. */
   onAgent?: (agent: Agent) => void;
@@ -61,7 +64,8 @@ export function createAutopilotHandler(options: AutopilotOptions) {
       assistant,
       think,
       options.tools ?? new HttpToolPort(assistant.languageModel.tools),
-      options.recorder ?? sessionRecorder(session)
+      options.recorder ?? sessionRecorder(session),
+      options.knowledge
     );
     options.onAgent?.(agent);
 
