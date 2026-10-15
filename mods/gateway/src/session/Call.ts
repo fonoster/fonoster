@@ -98,6 +98,7 @@ export class Call {
   private unsubscribeRoom?: () => void;
   private session?: AppSession;
   private ended = false;
+  private hangingUp?: SessionEndReason;
   private seq = 0;
   private handoffs = 0;
 
@@ -309,7 +310,9 @@ export class Call {
 
   /** Hangs up the room and ends the session with a reason. */
   async hangup(reason: SessionEndReason) {
-    if (this.ended) return;
+    if (this.ended || this.hangingUp) return;
+    // Room events caused by our own hangup can arrive before its ack; they end with this reason.
+    this.hangingUp = reason;
     try {
       await this.mediaCommand({ type: "hangup" });
     } catch (e) {
@@ -345,13 +348,14 @@ export class Call {
         break;
       case "participant.left":
         if (event.participantRef === this.info.callerRef)
-          this.finish("caller_hangup");
+          this.finish(this.hangingUp ?? "caller_hangup");
         else if (event.participantRef === this.sessionParticipantRef)
           this.session?.leftRoom();
         break;
       case "room.ended":
         this.finish(
-          this.session?.pendingTransferEnd ? "transfer" : "caller_hangup"
+          this.hangingUp ??
+            (this.session?.pendingTransferEnd ? "transfer" : "caller_hangup")
         );
         break;
       case "transfer.result":
