@@ -14,11 +14,11 @@
 
 - [x] 2.1 New gateway package; move `mods/apiserver/src/voice/{stt,tts,filters}` into it (done: mods/gateway/src/{speech,filters}; apiserver keeps only voice/{stt,tts} config schemas for app validation, B2/AU-B1)
 - [x] 2.2 Strip ARI, AudioSocket and speech from the apiserver; keep management gRPC, Identity, `GetCapabilities`, call creation and webhooks (done: ARI, AudioSocket and speech removed from mods/apiserver, CB-B3/CB-B4/CB-B6; AU-B1)
-- [ ] 2.3 Session registry (JetStream KV) keys for calls, rooms, nodes and gateways; least-loaded placement (partial: least-loaded placement from heartbeats in mods/apiserver/src/outbound/createNodeDirectory.ts; JetStream KV registry not built)
+- [x] 2.3 Session registry (JetStream KV) keys for calls, rooms, nodes and gateways; least-loaded placement (HD-B3: bucket `fonoster_sessions`; placement watches `nodes.`)
 - [x] 2.4 NATS subjects and queue groups for `media-control`, events and webhook dispatch (done: media-control subjects and gateway-incoming queue group, calls.create queue, apiserver-webhooks, apiserver-call-records queues; AU-B1)
 - [x] 2.5 OTel SDK in every service with `fonoster.call_ref` propagation; OTLP config in each YAML
   - Gateway, media node, Autopilot (PL-B3..B5); apiserver, region agent and the registry utility (HE-B8); traceparent over NATS (HE-B9). OTLP settings are the standard `OTEL_*` environment, not a YAML key (PL-B3).
-- [ ] 2.6 Default observability profile (Grafana, Tempo, Loki, Prometheus) for Compose and Helm
+- [x] 2.6 Default observability profile (Grafana, Tempo, Loki, Prometheus) for Compose and Helm (Compose profile `observability`; Helm `values-observability.yaml`)
   - Compose profile `observability` is written and validated with `docker compose config`; not brought up end to end, and no Helm equivalent yet (PL-B6).
   - Compose profile brought up and verified end to end (Tempo, Loki, Prometheus; HE-B9). Helm `observability.enabled` / `values-observability.yaml` written and render-tested, not installed on a cluster (HE-B7).
 - [x] 2.7 Helm chart for all deployables; Compose updated (Asterisk and InfluxDB removed, NATS JetStream and leaf nodes, optional ClickHouse)
