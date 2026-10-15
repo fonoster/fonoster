@@ -133,7 +133,8 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   `trimmed`, not as a drop).
 - Decoding moved from the receive goroutine to the room clock (stateful codecs decode in order).
   The clock replays up to 5 late ticks and counts anything beyond as missed (dropped) frames.
-- The playout delay is fixed; an adaptive delay is a follow-up (numbers in MN-B16).
+- The playout delay adapts: each late packet raises it one frame (up to 100 ms) by holding
+  playout back one tick (counted as `stretched`); 10 s without late packets lowers it again.
 
 ### MN-B12. DTMF three ways
 
@@ -199,15 +200,20 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - 200 G.711 rooms, 2 min: 0 dropped frames (node: 0 missed ticks, 0 late/lost/overflow; gateway
   side 1,204,489 frames, 0 sequence gaps), 4600/4600 keypresses reported once, node CPU 47% of
   one core on average (60% peak).
-- 200 G.711 rooms, 30 min: see MN-B18.
+- 200 G.711 rooms, 30 min (the bar's duration), keypress every 10 s: 0 dropped frames (0 missed
+  ticks, 0 late/lost/overflow; gateway side 18,005,978 frames, 0 sequence gaps; callers heard
+  360,134 s of 360,119 s expected), 35,800/35,800 keypresses reported exactly once (200 of 200
+  rooms exact), node CPU 41% of one core on average (64% peak).
 - 200 Opus rooms, 1 min: 0 dropped, 2200/2200 keypresses, node CPU 125% (complexity 5; 203%
   with complexity 10). Opus-heavy load costs about 2.7x G.711.
-- Impairment on the caller → node direction, 200 G.711 rooms, 1 min each, 0 drops on the
-  node → gateway side in every run, keypresses 2200/2200:
-  - 2% loss: 11,508 frames concealed (the injected loss), nothing late.
-  - jitter up to 30 ms: 2 late + 2 concealed of 1.2 M.
-  - 5% of packets held 40 ms: 1,869 late + 1,868 concealed (0.3%); the 40 ms delay absorbs the
-    rest. An adaptive playout delay would remove these.
-  - 1% loss + 20 ms jitter + 2% reorder: 8,157 concealed, 2,121 late.
+- Impairment on the caller → node direction (keypresses impaired too), 200 G.711 rooms, 1 min
+  each, with the adaptive delay; every run had 0 gaps on the node → gateway side and 2200/2200
+  keypresses:
+  - 2% loss: 12,034 frames concealed (the injected loss), nothing late.
+  - 5% of packets held back 40 ms: 10 late + 9 concealed of 1.2 M (1,869 + 1,868 with the earlier
+    fixed 40 ms delay).
+  - 1% loss + up to 20 ms jitter + 2% reorder: 6,265 concealed (mostly the injected loss), 109
+    late (2,121 with the fixed delay).
+  - Up to 30 ms jitter alone (fixed delay): 2 late + 2 concealed.
 - Caveat: a laptop core is faster than a cloud vCPU and the harness shares the machine; the bar
   should be re-run on a 2 vCPU VM before release.
