@@ -102,4 +102,8 @@ export class BackchannelDetector implements Detector {
   reset() {
     this.base.reset();
   }
+
+  setPatience(factor: number) {
+    this.base.setPatience(factor);
+  }
 }

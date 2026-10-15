@@ -38,11 +38,27 @@ export type TurnEvent =
     }
   | { type: "turn.backchannel"; text: string };
 
+/** The one patience knob (turn-taking): factors applied to the Detector's timing. */
+export const PATIENCE = { low: 0.6, normal: 1, high: 1.6 } as const;
+export type Patience = keyof typeof PATIENCE;
+
+/**
+ * Within-call adaptation (add-turn-taking OQ6, TT-B6): every false alarm (`turn.resumed`) makes
+ * the policy this much more patient, up to MAX_ADAPTATION times the app's patience. It never
+ * becomes less patient than the app asked for, and a new call starts from the app's setting.
+ */
+export const ADAPTATION_STEP = 0.15;
+export const MAX_ADAPTATION = 1.6;
+
 export type PacingOptions = {
   prepareThreshold?: number;
   commitThreshold?: number;
   /** Language reported when the recognizer gives none. */
   language: string;
+  /** The app's patience (default normal). */
+  patience?: Patience;
+  /** Adapt patience to the caller's pauses within the call (default true). */
+  adapt?: boolean;
 };
 
 export type PacingHandlers = {
@@ -51,6 +67,12 @@ export type PacingHandlers = {
   estimate(estimate: Estimate): void;
   /** Caller speech of kind interruption while agent output plays. */
   interruption(): void;
+  /** Patience changed (app setting or within-call adaptation); for the call record. */
+  patience?(change: {
+    patience: Patience;
+    factor: number;
+    reason: "app" | "adapted";
+  }): void;
 };
 
 /**
@@ -70,6 +92,9 @@ export class Pacing {
   private language: string;
   private readonly prepare: number;
   private readonly commit: number;
+  private patienceLevel: Patience;
+  private adaptation = 1;
+  private readonly adapt: boolean;
 
   constructor(
     private readonly detector: Detector,
@@ -79,6 +104,51 @@ export class Pacing {
     this.language = options.language;
     this.prepare = options.prepareThreshold ?? 0.5;
     this.commit = options.commitThreshold ?? 1;
+    this.patienceLevel = options.patience ?? "normal";
+    this.adapt = options.adapt ?? true;
+    if (this.patienceLevel !== "normal") this.applyPatience();
+  }
+
+  /** The factor applied to the Detector's timing right now. */
+  get patienceFactor() {
+    return +(PATIENCE[this.patienceLevel] * this.adaptation).toFixed(3);
+  }
+
+  /** `listen.update {patience}`: the app's knob; within-call adaptation is kept on top of it. */
+  setPatience(patience: Patience) {
+    if (!(patience in PATIENCE)) return;
+    this.patienceLevel = patience;
+    this.applyPatience();
+    this.handlers.patience?.({
+      patience,
+      factor: this.patienceFactor,
+      reason: "app"
+    });
+  }
+
+  private applyPatience() {
+    this.detector.setPatience?.(this.patienceFactor);
+  }
+
+  /** A false alarm: the caller paused mid-thought. Become a little more patient for this call. */
+  private adaptToPause() {
+    if (!this.adapt || this.adaptation >= MAX_ADAPTATION) return;
+    this.adaptation = Math.min(
+      MAX_ADAPTATION,
+      +(this.adaptation + ADAPTATION_STEP).toFixed(3)
+    );
+    this.applyPatience();
+    this.handlers.patience?.({
+      patience: this.patienceLevel,
+      factor: this.patienceFactor,
+      reason: "adapted"
+    });
+  }
+
+  private resumed() {
+    this.likelyEnded = false;
+    this.handlers.turn({ type: "turn.resumed" });
+    this.adaptToPause();
   }
 
   setLanguage(language: string) {
@@ -148,10 +218,8 @@ export class Pacing {
       at - this.lastSpeechAt >= ABANDON_AFTER_MS
     )
       return this.endTurn(at, true);
-    if (this.likelyEnded && estimate.eot < this.prepare && !estimate.speaking) {
-      this.likelyEnded = false;
-      this.handlers.turn({ type: "turn.resumed" });
-    }
+    if (this.likelyEnded && estimate.eot < this.prepare && !estimate.speaking)
+      this.resumed();
     if (
       !this.likelyEnded &&
       estimate.eot >= this.prepare &&
@@ -167,10 +235,7 @@ export class Pacing {
     this.backchannelUntil = undefined;
     if (estimate.kind === "interruption") this.handlers.interruption();
     if (!this.inTurn) this.startTurn(at);
-    else if (this.likelyEnded) {
-      this.likelyEnded = false;
-      this.handlers.turn({ type: "turn.resumed" });
-    }
+    else if (this.likelyEnded) this.resumed();
   }
 
   private startTurn(at: number) {

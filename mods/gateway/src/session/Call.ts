@@ -48,8 +48,9 @@ import { RtpLink } from "../media/RtpLink";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
 import { SpeechError, SttStream } from "../speech/types";
-import { BaselineDetector, Estimate } from "../turn/Detector";
-import { Pacing } from "../turn/Pacing";
+import { createDetector } from "../turn/createDetector";
+import { Detector, Estimate } from "../turn/Detector";
+import { Pacing, Patience } from "../turn/Pacing";
 import { TurnLabeler } from "../turn/TurnLabeler";
 import { BufferedSocket, connectApp } from "./connectApp";
 import { Listener } from "./Listener";
@@ -76,14 +77,11 @@ const SPEECH_COMMANDS = new Set([
 ]);
 
 /** Recorded with every turn decision (turn-taking 2.8). */
-const DETECTOR_VERSION = "baseline@1";
-const POLICY_VERSION = "default@1";
+const POLICY_VERSION = "default@2";
 
 /** How often turn.estimate is sent to subscribers. */
 const ESTIMATE_EVERY_MS = 100;
 
-/** Silence-timeout multipliers for `listen.update.patience` (turn-taking, one knob). */
-export const PATIENCE = { low: 0.6, normal: 1, high: 1.6 } as const;
 
 /** Commands an app may send while the caller is on hold (gateway B24). */
 const ALLOWED_ON_HOLD = new Set([
@@ -493,7 +491,8 @@ export class AppSession {
   private queue: OutputQueue;
   private stt?: SttStream;
   private pacing?: Pacing;
-  private detector?: BaselineDetector;
+  private detector?: Detector;
+  private detectorVersion = "baseline@1";
   private subscriptions = new Set<string>();
   private lastEstimateAt = 0;
   private closed = false;
@@ -688,10 +687,19 @@ export class AppSession {
 
   private startSpeech() {
     const language = this.app.speech.language;
-    this.detector = new BaselineDetector({
-      silenceTimeoutMs:
-        this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs
-    });
+    const chosen = createDetector(
+      {
+        silenceTimeoutMs:
+          this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs,
+        detector: this.app.speech.detector
+      },
+      {
+        onSource: (source, reason) =>
+          this.call.record("event", { type: "detector.source", source, reason })
+      }
+    );
+    this.detector = chosen.detector;
+    this.detectorVersion = chosen.version;
     this.pacing = new Pacing(
       this.detector,
       {
@@ -701,7 +709,7 @@ export class AppSession {
             type: "turn.decision",
             event: e.type,
             ...this.lastEstimate,
-            detector: DETECTOR_VERSION,
+            detector: this.detectorVersion,
             policy: POLICY_VERSION
           });
           if (e.type === "turn.ended") this.labeler.turnEnded(Date.now());
@@ -728,9 +736,11 @@ export class AppSession {
           });
         },
         // The app owns interruption (B22): the gateway only reports turn.user_started.
-        interruption: () => this.labeler.interruption(Date.now())
+        interruption: () => this.labeler.interruption(Date.now()),
+        patience: (change) =>
+          this.call.record("event", { type: "turn.patience", ...change })
       },
-      { language }
+      { language, patience: this.app.speech.patience }
     );
     this.queue.onPlaying((playing) => this.pacing?.onOutput(playing));
 
@@ -824,6 +834,7 @@ export class AppSession {
     this.closeFilters();
     this.queue.stop();
     this.stt?.close();
+    this.detector?.close?.();
     const end = { type: "session.end", reason };
     for (const l of this.listeners) {
       l.json(end);
@@ -861,6 +872,7 @@ export class AppSession {
     this.closeFilters();
     this.queue.stop();
     this.stt?.close();
+    this.detector?.close?.();
     this.call.sessionDetached(this);
     void this.call.hangup("app_hangup");
   }
@@ -1002,13 +1014,7 @@ export class AppSession {
         return;
       case "listen.update":
         // An empty listen.update only starts listening (ensureSpeech above).
-        if (cmd.patience) {
-          const base =
-            this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs;
-          this.detector?.setSilenceTimeout(
-            base * PATIENCE[cmd.patience as keyof typeof PATIENCE]
-          );
-        }
+        if (cmd.patience) this.pacing?.setPatience(cmd.patience as Patience);
         if (!cmd.language && !cmd.hints) return;
         if (cmd.language) this.pacing?.setLanguage(cmd.language as string);
         this.stt?.update({

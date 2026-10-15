@@ -28,6 +28,12 @@ export type SttScriptEntry = {
   text: string;
   final?: boolean;
   language?: string;
+  /**
+   * Turn signals, as a turn-aware recognizer (catalog feature `turn-detection`) sends them with
+   * the transcript: its end-of-thought estimate and whether the turn ended.
+   */
+  eot?: number;
+  endOfTurn?: boolean;
 };
 
 /**
@@ -35,7 +41,8 @@ export type SttScriptEntry = {
  *
  *   WS /v1/listen?language=en-US&codec=pcm16&rate=16000
  *   client → binary audio frames; {type: "config", language?, hints?}; {type: "finalize"}
- *   server → {type: "transcript", text, final, language, confidence, startMs, endMs}
+ *   server → {type: "transcript", text, final, language, confidence, startMs, endMs,
+ *             turn?: {eot?, endOfTurn?}}   (turn only for scripted turn signals)
  *
  * Transcripts are scripted against caller-audio time: an entry fires once the stream has carried
  * atMs of audio, after the configured delay. Injected failures close the socket with code 1011
@@ -113,7 +120,10 @@ export class FakeStt extends FakeProvider {
           language: entry.language ?? stream.language,
           confidence: 0.9,
           startMs: lastEnd,
-          endMs: entry.atMs
+          endMs: entry.atMs,
+          ...(entry.eot !== undefined || entry.endOfTurn !== undefined
+            ? { turn: { eot: entry.eot, endOfTurn: entry.endOfTurn } }
+            : {})
         };
         lastEnd = entry.atMs;
         void this.delay().then(
