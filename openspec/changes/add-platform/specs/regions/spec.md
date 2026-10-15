@@ -58,7 +58,7 @@ TLS. No inbound port on the cell's network SHALL be required for the control pla
 Recordings, transcripts, SIP traces, call records and provider keys of a cell MUST NOT be sent to
 the control plane or to any other cell. Only call metadata (the call-record index: call ref, app,
 time, duration, status, cost, size and location), synced config and health information SHALL
-cross the link. The dashboard SHALL read call content from the cell directly. A private cell SHALL
+cross the link. The dashboard SHALL read a private cell's call content through the control plane's relay, never stored centrally (add-private-regions). A private cell SHALL
 answer capability queries (`GetCapabilities`) for its own catalog and keys locally.
 
 #### Scenario: Keys stay local
@@ -67,8 +67,8 @@ answer capability queries (`GetCapabilities`) for its own catalog and keys local
 
 #### Scenario: Dashboard access to a private record
 - **WHEN** a user opens a private-cell call in the dashboard
-- **THEN** the browser fetches the record's contents from the cell with a short-lived link the control plane issues
-- **AND** the content never passes through the control plane
+- **THEN** the control plane fetches the contents from the cell over the outbound link and streams them to the browser (add-private-regions, PR-5)
+- **AND** the content is never stored outside the cell
 
 #### Scenario: Usage reaches billing
 - **WHEN** a private-cell call ends after 95 seconds
