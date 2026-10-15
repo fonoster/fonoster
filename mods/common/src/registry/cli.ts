@@ -18,8 +18,8 @@
  * limitations under the License.
  */
 import * as fs from "fs";
-import { providerDeprecated } from "../webhooks/events";
 import { WebhookDispatcher } from "../webhooks/Dispatcher";
+import { providerDeprecated } from "../webhooks/events";
 import { PrismaWebhookStore } from "../webhooks/prisma";
 import {
   openPrismaClient,
@@ -313,6 +313,7 @@ function execute(
 }
 
 // Run when executed as the fonoster-registry binary.
+// eslint-disable-next-line no-undef
 if (require.main === module) {
   const argv = process.argv.slice(2);
   if (usesDatabase(argv))
