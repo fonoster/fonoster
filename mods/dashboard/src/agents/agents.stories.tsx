@@ -42,10 +42,7 @@ const withAgents = (items: object[]) => (auth: AuthContextValue) => ({
       ),
       createApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
       updateApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
-      deleteApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
-      createTestToken: fn().mockRejectedValue(
-        new Error("Test calls aren't available in Storybook.")
-      )
+      deleteApplication: fn().mockResolvedValue({ ref: billingAgent.ref })
     },
     numbers: { listNumbers: fn().mockResolvedValue({ items: sampleNumbers }) },
     calls: {
