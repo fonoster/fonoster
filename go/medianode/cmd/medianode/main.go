@@ -61,6 +61,7 @@ func main() {
 	outbound := flag.String("outbound-proxy", env("MEDIANODE_OUTBOUND_PROXY", ""), "host:port outbound INVITEs go to (Routr); empty disables dial and transfers")
 	transport := flag.String("transport", env("MEDIANODE_TRANSPORT", "udp"), "REGISTER transport (udp or tcp)")
 	heartbeat := flag.Duration("heartbeat", 2*time.Second, "node.heartbeat period")
+	registerEvery := flag.Duration("register-every", envDuration("MEDIANODE_REGISTER_EVERY", 15*time.Second), "REGISTER interval (Expires is twice this); load changes of 5+ rooms re-register at once")
 	debugAddr := flag.String("debug", env("MEDIANODE_DEBUG_ADDR", ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
 	drainWait := flag.Duration("drain-wait", envDuration("MEDIANODE_DRAIN_WAIT", 10*time.Minute), "longest wait for rooms to end on SIGTERM")
 	maxDuration := flag.Duration("max-duration", envDuration("MEDIANODE_MAX_DURATION", 4*time.Hour), "longest call (ended with reason timeout)")
@@ -96,7 +97,7 @@ func main() {
 	_, portText, _ := net.SplitHostPort(*sipListen)
 	port, _ := strconv.Atoi(portText)
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
-		Registrar: *registrar, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
+		Registrar: *registrar, RegisterEvery: *registerEvery, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
 		Logger: logger})
 	if err != nil {
 		logger.Error("sip", "err", err)
@@ -136,6 +137,7 @@ func main() {
 	// Drain: report full, keep existing rooms, exit when they end or the wait runs out (MN9).
 	logger.Info("draining", "rooms", n.ActiveRooms())
 	n.Drain()
+	ua.Kick() // Routr learns "full" now, not at the next REGISTER
 	deadline := time.Now().Add(*drainWait)
 	for n.ActiveRooms() > 0 && time.Now().Before(deadline) {
 		select {
@@ -144,5 +146,11 @@ func main() {
 		case <-time.After(500 * time.Millisecond):
 		}
 	}
+	cancel() // stops the REGISTER timer; the UDP socket still serves the reply
+	uctx, ucancel := context.WithTimeout(context.Background(), 2*time.Second)
+	if err := ua.Unregister(uctx); err != nil {
+		logger.Warn("unregister failed", "err", err)
+	}
+	ucancel()
 	n.Shutdown()
 }

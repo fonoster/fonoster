@@ -1,0 +1,34 @@
+# EdgePort config for the throwaway Routr rig: SIP on 15560 (UDP and TCP) so the port Routr puts in
+# Via and Record-Route is the same port the host reaches through Docker's port mapping.
+kind: EdgePort
+apiVersion: v2beta1
+ref: default
+metadata:
+  region: default
+spec:
+  unknownMethodAction: Discard
+  processor:
+    addr: localhost:51901
+  securityContext:
+    client:
+      protocols:
+        - SSLv3
+        - TLSv1.2
+      authType: DisabledAll
+    keyStorePassword: changeme
+    trustStorePassword: changeme
+    keyStore: "/etc/routr/certs/signaling.p12"
+    trustStore: "/etc/routr/certs/signaling.p12"
+    keyStoreType: pkcs12
+  methods:
+    - REGISTER
+    - MESSAGE
+    - INVITE
+    - ACK
+    - BYE
+    - CANCEL
+  transport:
+    - protocol: tcp
+      port: 15560
+    - protocol: udp
+      port: 15560

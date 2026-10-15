@@ -264,3 +264,31 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Numbers stay in Routr (`X-App-Ref`, B21); the database store has no number fallback.
 - The gateway reads the apiserver's database directly (read-only for apps and the catalog) rather
   than through a control-plane API; the read-only role is still to do (provider-registry 2.7).
+## 2026-10-15 (cutover stream)
+
+### CO-B7. Application migration (legacy rows → app model)
+
+- `mods/apiserver/src/applications/migration` defines the target as a plain TS type with the
+  same shape as the gateway's `AppConfig`: `url`, `flavor`, `signingSecret`, `speech`,
+  `fallback`, `workspaceRef`. It works through an `ApplicationMigrationStore` interface: in memory
+  for tests and JSON exports, and a thin structural Prisma adapter. The adapter writes the new
+  columns once the persistence change adds them; until then it fails with a clear message.
+- Mapping: EXTERNAL `host:port` (gRPC) becomes `ws://host:port`, or a per-app URL override.
+  AUTOPILOT becomes the hosted Autopilot URL. Both use the native flavor. The voice is
+  `<vendor>/<config.voice>` from `tts.<vendor>`. The language comes from STT (then TTS)
+  `languageCode`, else the default (`en-US`). The default voice is `deepgram/aura-2-thalia-en`.
+- Signing secrets are generated once (32 random bytes, base64url). Re-runs keep them, because
+  rotating would break running apps (B25). The CLI report never prints secrets. The gateway apps
+  file (`--gateway-apps`, JSON, which is valid YAML) holds them and is written with mode 0600.
+- Notices instead of silent changes: EXTERNAL apps must serve the session protocol at their URL;
+  per-app vendor credentials move to workspace secrets; the per-app STT vendor and model leave the
+  app model. Autopilot assistant configs stay on the app (Autopilot reads them by `appRef`); their
+  schema migration is rework-autopilot 5.x.
+- Task 2.12 (the Application model in the database, synced to cells) is still open. This
+  migration fills it once the columns exist.
+
+### CO-B8. Cutover runbook
+
+- `docs/operators/cutover.md`: prerequisites, app migration, side-by-side routing with
+  `routr.engines` and `repointNumbersCli`, rollback (the same switch, Asterisk kept warm), media
+  node operations, and the Asterisk retirement list (add-media-node 4.1–4.5).

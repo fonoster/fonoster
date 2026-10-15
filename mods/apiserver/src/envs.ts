@@ -165,6 +165,11 @@ export const ROUTR_DEFAULT_PEER_PASSWORD = config.routr.defaultPeer.password;
 
 export const ROUTR_DEFAULT_PEER_USERNAME = config.routr.defaultPeer.username;
 
+// The media-node peer and which numbers go to it during the cutover (add-media-node 4.1)
+export const ROUTR_MEDIA_NODE_PEER = config.routr.mediaNodePeer;
+
+export const ROUTR_ENGINES = config.routr.engines;
+
 // SMTP configurations (optional; email features fail clearly without it)
 export const SMTP_AUTH_PASS = config.smtp?.password;
 

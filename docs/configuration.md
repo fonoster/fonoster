@@ -135,6 +135,8 @@ Variables not listed here (`ROUTR_*`, `ASTERISK_*`, `RTPENGINE_*`, `AMD_*`,
 | `APISERVER_ROUTR_API_ENDPOINT` | `routr.apiEndpoint` |
 | `APISERVER_ROUTR_DEFAULT_PEER_AOR / _NAME` | `routr.defaultPeer.aor / name` |
 | `APISERVER_ROUTR_DEFAULT_PEER_USERNAME / _PASSWORD` | `routr.defaultPeer.username / password (reference ${ASTERISK_SIPPROXY_USERNAME}, ${ASTERISK_SIPPROXY_SECRET})` |
+| (new) | `routr.mediaNodePeer.aor / name / username / password` (the media-node peer; created only with a password) |
+| (new) | `routr.engines.default / rebuildApps / asteriskApps / numbers` (Asterisk or media nodes per app or number; see docs/operators/cutover.md) |
 | `APISERVER_NATS_URL` | `nats.url` |
 | `APISERVER_INFLUXDB_URL` | `influxdb.url` |
 | `APISERVER_INFLUXDB_INIT_ORG / _USERNAME / _PASSWORD / _TOKEN` | `influxdb.org / username / password / token (reference ${INFLUXDB_INIT_*})` |

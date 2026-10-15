@@ -102,7 +102,24 @@ type Status struct {
 }
 
 // New starts a bot listening for in-dialog requests (BYE) on host:0.
-func New(host string) (*Bot, error) {
+func New(host string) (*Bot, error) { return NewWithOptions(Options{Host: host}) }
+
+// Options configure a bot.
+type Options struct {
+	// Host is where the bot binds SIP and RTP, and the address in its SDP.
+	Host string
+	// SIPAdvertise is the host in the bot's Via and Contact (default Host), for a proxy that can
+	// only reach the bot by another name (Routr in Docker reaching the host as
+	// host.docker.internal). Setting it also asks for rport (RFC 3581).
+	SIPAdvertise string
+}
+
+// NewWithOptions starts a bot listening for in-dialog requests (BYE) on Host:0.
+func NewWithOptions(o Options) (*Bot, error) {
+	host, sipHost := o.Host, o.SIPAdvertise
+	if sipHost == "" {
+		sipHost = host
+	}
 	ua, err := sipgo.NewUA(sipgo.WithUserAgent("fonoster-caller-bot"))
 	if err != nil {
 		return nil, err
@@ -116,13 +133,17 @@ func New(host string) (*Bot, error) {
 		return nil, err
 	}
 	port := l.LocalAddr().(*net.UDPAddr).Port
-	client, err := sipgo.NewClient(ua, sipgo.WithClientHostname(host), sipgo.WithClientConnectionAddr(net.JoinHostPort(host, strconv.Itoa(port))))
+	clientOpts := []sipgo.ClientOption{sipgo.WithClientHostname(sipHost), sipgo.WithClientConnectionAddr(net.JoinHostPort(host, strconv.Itoa(port)))}
+	if o.SIPAdvertise != "" {
+		clientOpts = append(clientOpts, sipgo.WithClientNAT())
+	}
+	client, err := sipgo.NewClient(ua, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
 	b := &Bot{host: host, ua: ua, srv: srv, client: client, port: port, calls: map[string]*Call{}}
-	b.dialogs = sipgo.NewDialogClientCache(client, sip.ContactHeader{Address: sip.Uri{User: "caller", Host: host, Port: port}})
-	contact := sip.ContactHeader{Address: sip.Uri{User: "callee", Host: host, Port: port}}
+	b.dialogs = sipgo.NewDialogClientCache(client, sip.ContactHeader{Address: sip.Uri{User: "caller", Host: sipHost, Port: port}})
+	contact := sip.ContactHeader{Address: sip.Uri{User: "callee", Host: sipHost, Port: port}}
 	b.inbound = sipgo.NewDialogServerCache(client, contact)
 	srv.OnBye(func(req *sip.Request, tx sip.ServerTransaction) {
 		if err := b.dialogs.ReadBye(req, tx); err == nil {
@@ -163,6 +184,13 @@ func (b *Bot) Get(id string) *Call {
 
 // Dial calls target (host:port) for number `to`, with extra headers (e.g. X-App-Ref).
 func (b *Bot) Dial(target, to, from string, headers map[string]string) (*Call, error) {
+	return b.DialVia(target, "", to, from, headers)
+}
+
+// DialVia sends the INVITE to target (host:port) with requestHost as the Request-URI host, the
+// way a carrier calls Routr: Routr finds the Trunk by that host (its inboundUri), not by where the
+// INVITE was sent. An empty requestHost means target's host and port.
+func (b *Bot) DialVia(target, requestHost, to, from string, headers map[string]string) (*Call, error) {
 	ep, err := rtpio.Listen(b.host)
 	if err != nil {
 		return nil, err
@@ -185,7 +213,17 @@ func (b *Bot) Dial(target, to, from string, headers map[string]string) (*Call, e
 		hdrs = append(hdrs, sip.NewHeader(k, v))
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	session, err := b.dialogs.Invite(ctx, sip.Uri{User: to, Host: host, Port: port}, offer, hdrs...)
+	ruri := sip.Uri{User: to, Host: host, Port: port}
+	if requestHost != "" {
+		ruri = sip.Uri{User: to, Host: requestHost}
+	}
+	req := sip.NewRequest(sip.INVITE, ruri)
+	req.SetBody(offer)
+	for _, h := range hdrs {
+		req.AppendHeader(h)
+	}
+	req.SetDestination(target)
+	session, err := b.dialogs.WriteInvite(ctx, req)
 	if err != nil {
 		cancel()
 		ep.Close()

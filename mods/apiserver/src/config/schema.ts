@@ -106,6 +106,32 @@ const fonosterConfigSchema = z
             username: z.string().default("voice"),
             password: z.string().default("changeme")
           })
+          .default({}),
+        /**
+         * The peer Go media nodes register under (least-sessions, add-media-node 4.1). Without a
+         * password the apiserver does not create it.
+         */
+        mediaNodePeer: z
+          .object({
+            aor: z.string().default("sip:medianode@default"),
+            name: z.string().default("Media Nodes"),
+            username: z.string().default("medianode"),
+            password: z.string().optional()
+          })
+          .default({}),
+        /**
+         * Which voice stack answers app-linked numbers during the cutover: `asterisk` (the default
+         * peer) or `rebuild` (the media-node peer). Per-number pins win over app lists.
+         */
+        engines: z
+          .object({
+            default: z.enum(["asterisk", "rebuild"]).default("asterisk"),
+            rebuildApps: z.array(z.string()).default([]),
+            asteriskApps: z.array(z.string()).default([]),
+            numbers: z
+              .record(z.string(), z.enum(["asterisk", "rebuild"]))
+              .default({})
+          })
           .default({})
       })
       .default({}),
@@ -182,7 +208,9 @@ const SHARED_VALUE_PATHS = [
   "mediaService.asterisk.ariUsername",
   "mediaService.asterisk.ariPassword",
   "routr.defaultPeer.username",
-  "routr.defaultPeer.password"
+  "routr.defaultPeer.password",
+  "routr.mediaNodePeer.username",
+  "routr.mediaNodePeer.password"
 ];
 
 /** Keys people may carry over from identity.json or older drafts. */

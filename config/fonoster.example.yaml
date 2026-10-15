@@ -88,6 +88,16 @@ routr:
     name: Voice Server
     username: ${ASTERISK_SIPPROXY_USERNAME}      # Asterisk registers with Routr as this peer
     password: ${ASTERISK_SIPPROXY_SECRET}
+  # Cutover to the Go media nodes (docs/operators/cutover.md). Off by default: every app on Asterisk.
+  # mediaNodePeer:
+  #   aor: sip:medianode@default
+  #   username: medianode
+  #   password: ${MEDIANODE_PASSWORD}             # set it to have the apiserver create the peer
+  # engines:
+  #   default: asterisk                           # or rebuild
+  #   rebuildApps: [app-ref-1]                    # these apps' numbers go to the media nodes
+  #   asteriskApps: []                            # kept on Asterisk even when default is rebuild
+  #   numbers: { "+17853178070": rebuild }        # per-number pins win over apps
 
 nats:
   url: nats://nats:4222
