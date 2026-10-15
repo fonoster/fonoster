@@ -133,3 +133,34 @@ its secrets. Webhooks SHALL be delivered from the cell.
 #### Scenario: App change reaches the cell
 - **WHEN** a member edits an app of a private workspace
 - **THEN** the cell receives the change within 10 seconds while connected, or on reconnect otherwise
+
+### Requirement: Private cells run their own Autopilot
+
+A private cell SHALL run the hosted Autopilot service itself. Autopilot apps of a private workspace
+SHALL point to the cell's Autopilot; their assistants SHALL sync to the cell and their LLM keys
+SHALL stay in the cell. No conversation data of a private workspace SHALL reach Fonoster's hosted
+Autopilot.
+
+#### Scenario: Autopilot call in a private region
+- **WHEN** a caller reaches an Autopilot app of a private workspace
+- **THEN** the cell's gateway dials the cell's Autopilot, which uses the cell's LLM key
+- **AND** no transcript or LLM request leaves the cell
+
+### Requirement: Public regions come from data; one at launch
+
+The region picker SHALL list the public regions the platform offers plus "Private region". At
+launch the only public region SHALL be `us-east-1`, which is the default. Adding a public region
+SHALL need no dashboard change.
+
+#### Scenario: Default region
+- **WHEN** a user creates a workspace without changing the picker
+- **THEN** the workspace is bound to `us-east-1`
+
+### Requirement: Private regions are billed per region
+
+A private region SHALL be billed as a flat monthly fee per region. Minutes of a private workspace
+SHALL be reported for visibility and SHALL NOT be billed per minute.
+
+#### Scenario: Usage shown, not billed
+- **WHEN** a private workspace makes 1,000 minutes of calls in a month
+- **THEN** its usage page shows 1,000 minutes and its bill is the region's flat fee

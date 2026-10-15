@@ -23,6 +23,9 @@ decisions of 2026-10-15, keeping the model small: one workspace, one region, for
   never stored centrally. This replaces the earlier "browser reads from the cell directly".
 - **Region status** (waiting, connected, degraded, offline, unsupported version) with version,
   nodes and active calls, shown in the dashboard; disconnecting revokes the cell.
+- **Private cells run their own Autopilot**; conversations and LLM keys stay in the cell.
+- **One public region at launch** (`us-east-1`, the default); regions come from data.
+- **Flat monthly fee per private region**; usage is reported, not billed.
 - Dashboard designs for all of the above.
 
 ## Capabilities

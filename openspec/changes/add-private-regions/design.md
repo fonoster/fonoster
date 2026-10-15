@@ -76,9 +76,22 @@ an organization/account level; Fonoster operating or upgrading customer cells (P
 | Relay load on the control plane | Streamed, not buffered; size and rate limits per workspace |
 | Immutable region frustrates a customer who chose wrong | Clear choice at creation with a confirm step; a new workspace is the way out |
 
+**PR-9. Autopilot runs in the cell.** (Owner, 2026-10-15)
+- A private cell runs its own hosted Autopilot (part of the Compose/Helm install). Assistants sync
+  like apps (PR-7); LLM keys stay in the cell like other provider keys (PR-4). Conversations never
+  leave the customer network.
+- Rejected: the cell calling out to Fonoster's hosted Autopilot (conversation data and LLM keys
+  would leave the region), and a per-app choice.
+
+**PR-10. One public region at launch.** (Owner)
+- `us-east-1` is the only public region and the default; the picker lists regions from data, so
+  adding `eu-west-1` later needs no UI change. "Private region" is always offered.
+
+**PR-11. Private regions are billed as a flat fee per region.** (Owner)
+- A fixed monthly price per private region; the customer pays its own carriers and vendors. Usage
+  (minutes from the call-record index) is still reported for visibility, not billed.
+- Rejected: per-minute billing of customer-run infrastructure, fee plus minute allowance.
+
 ## Open Questions
 
-1. Public region names and the default (e.g. `us-east-1`, `eu-west-1`).
-2. Whether a workspace on a private region can still use Fonoster-hosted Autopilot (the agent runs
-   in the cell vs calls out to us), and how its LLM keys follow PR-4.
-3. Billing for private regions (per minute from the index, flat fee, or both).
+None. PR-6, PR-7 and PR-8 are proposed defaults the owner may revisit.
