@@ -87,8 +87,6 @@ it touches are named.
 ### B10. Not implemented yet
 
 - 2.6: Opus (design OQ8 still open). μ-law 8 kHz and PCM16 at any rate work.
-- 2.9: audio filters (the aiCoustics filter lives in the apiserver; to be ported with the vendor
-  adapters).
 - Real vendor STT/TTS adapters (B2).
 
 ### B11. Scenario format grew a `caller` step and `setup.media`
@@ -120,3 +118,16 @@ it touches are named.
 - Not measured yet: caller audio → STT (the other half of T1). Needs the fake STT to timestamp
   frames against the fake media node's send times.
 - `assert` steps accept `from: <label>` so time-based measurements can start at a named step.
+
+### B14. Audio filters copied into the gateway
+
+- `mods/apiserver/src/voice/filters` (chain, factory, aiCoustics) and its tests are copied to
+  `mods/gateway/src/filters`, not moved: the apiserver still serves production calls until the
+  cutover (task 3.1 removes its copy).
+- `apps[].filters` (same `{name, options}` shape as today) build a chain per session. Filtered
+  audio feeds STT and turn detection; the app and listeners get the unfiltered caller audio.
+  A filter that cannot be created or started is recorded as `filter.failed` and the call goes on
+  unfiltered.
+- The chain starts asynchronously, so the first frames of a call can pass unfiltered while a
+  model loads (the spec says "from the first frame"; buffering until ready is a possible
+  follow-up).

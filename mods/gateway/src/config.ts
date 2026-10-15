@@ -34,6 +34,8 @@ export type AppConfig = {
   /** Numbers routed to this app (inbound). */
   numbers?: string[];
   fallback?: { app?: string; message?: string };
+  /** Audio filters applied to caller audio before STT and turn detection (VS18). */
+  filters?: { name: string; options?: Record<string, unknown> }[];
   /** Listen-only sockets dialed for every session of this app (signed with its secret). */
   listeners?: { url: string; tracks?: "inbound" | "outbound" | "both" }[];
 };

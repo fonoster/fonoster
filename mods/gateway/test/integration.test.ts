@@ -26,6 +26,8 @@ import {
   MemoryCallRecordSink,
   OUTBOUND_SUBJECT
 } from "../src";
+import { AudioFilterFactory } from "../src/filters";
+import { z } from "zod";
 
 // Gateway behaviour that needs more than one app or no app at all, so it is not expressed as a
 // single-peer scenario: signatures, fallback, handoff, outbound calls and the call record.
@@ -364,6 +366,64 @@ describe("@gateway integration", function () {
     await sleep(200);
     expect(json(peer).some((m) => m.type === "session.end")).to.equal(false);
     expect(other.attempts).to.have.length(0);
+  });
+
+  it("feeds STT and turn detection filtered caller audio", async function () {
+    let frames = 0;
+    AudioFilterFactory.registerFilter("test-mute", {
+      description: "silences everything (test only)",
+      optionsSchema: z.object({}),
+      publicOptionsSchema: z.object({}),
+      create: () => ({
+        name: "test-mute",
+        delayMs: 0,
+        process: (frame: Int16Array) => {
+          frames++;
+          return new Int16Array(frame.length);
+        }
+      })
+    });
+    await start([
+      app("a", harness.app.url, { filters: [{ name: "test-mute" }] })
+    ]);
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({
+      type: "speak",
+      id: "r1",
+      text: "The caller cannot interrupt this.",
+      last: true
+    });
+    await waitFor(() => json(peer).find((m) => m.type === "output.started"));
+    harness.mediaNode.callerSpeaks({ kind: "tone", ms: 600 });
+    await waitFor(
+      () =>
+        json(peer).find(
+          (m) => m.type === "output.done" || m.type === "output.interrupted"
+        ),
+      4000
+    );
+    // The tone was muted before turn detection, so it was not a barge-in.
+    expect(json(peer).find((m) => m.type === "output.done")).to.include({
+      id: "r1"
+    });
+    expect(frames).to.be.greaterThan(10);
+  });
+
+  it("continues unfiltered and records the failure when a filter cannot be created", async function () {
+    await start([
+      app("a", harness.app.url, { filters: [{ name: "does-not-exist" }] })
+    ]);
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({ type: "speak", id: "r1", text: "Still here.", last: true });
+    await waitFor(() => json(peer).find((m) => m.type === "output.done"));
+    const failure = [...record.records.values()][0].find(
+      (e) => e.message.type === "filter.failed"
+    );
+    expect(String(failure?.message.reason)).to.contain("does-not-exist");
   });
 
   it("hangs up when the app drops mid-call", async function () {

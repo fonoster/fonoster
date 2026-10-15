@@ -29,6 +29,12 @@ import { getLogger } from "@fonoster/logger";
 import Ajv, { ValidateFunction } from "ajv";
 import WebSocket from "ws";
 import { AppConfig, DEFAULTS, GatewayConfig } from "../config";
+import {
+  AudioFilterChain,
+  AudioFilterFactory,
+  bufferToInt16,
+  int16ToBuffer
+} from "../filters";
 import { NativeCodec } from "../flavors/native";
 import { TwilioCodec } from "../flavors/twilio";
 import { FlavorCodec } from "../flavors/types";
@@ -370,6 +376,8 @@ export class AppSession {
   private transfer?: PendingTransfer;
   private listeners: Listener[] = [];
   private keepalive?: ReturnType<typeof setInterval>;
+  private filters?: AudioFilterChain;
+  private filtering: Promise<void> = Promise.resolve();
   pendingTransferEnd = false;
 
   constructor(
@@ -436,7 +444,10 @@ export class AppSession {
     this.call.record("gateway", start as unknown as Record<string, unknown>);
     void this.attachListeners(start);
     this.queue.start();
-    if (this.codec.speechLayer) this.startSpeech();
+    if (this.codec.speechLayer) {
+      void this.startFilters();
+      this.startSpeech();
+    }
   }
 
   /** Pings the app; a socket that answers nothing for the idle timeout counts as dropped. */
@@ -503,6 +514,34 @@ export class AppSession {
     }
   }
 
+  /**
+   * Builds the app's filter chain. A filter that cannot be created or started degrades to
+   * unfiltered audio and is recorded (voice-session, "Audio filters come from app configuration").
+   */
+  private async startFilters() {
+    const configs = this.app.filters ?? [];
+    if (!configs.length) return;
+    try {
+      const chain = AudioFilterFactory.createChainFromConfig(configs);
+      await chain.ready();
+      const failed = chain.getStats().filters.filter((f) => f.disabled);
+      for (const f of failed) {
+        this.call.record("event", {
+          type: "filter.failed",
+          name: f.name,
+          reason: f.error
+        });
+      }
+      if (this.closed) return chain.close();
+      this.filters = chain;
+    } catch (e) {
+      this.call.record("event", {
+        type: "filter.failed",
+        reason: (e as Error).message
+      });
+    }
+  }
+
   private startSpeech() {
     const language = this.app.speech.language;
     this.pacing = new Pacing(
@@ -554,8 +593,27 @@ export class AppSession {
     if (this.closed) return;
     this.codec.callerAudio(frame);
     for (const l of this.listeners) l.callerAudio(frame);
+    const chain = this.filters;
+    if (!chain) return this.hear(frame, Date.now());
+    // Filters are asynchronous; a promise chain keeps frames in order.
+    const at = Date.now();
+    this.filtering = this.filtering
+      .then(() => chain.process(bufferToInt16(frame)))
+      .then((out) => this.hear(int16ToBuffer(out), at))
+      .catch(() => this.hear(frame, at));
+  }
+
+  private closeFilters() {
+    const chain = this.filters;
+    this.filters = undefined;
+    if (chain) void chain.drain().finally(() => chain.close());
+  }
+
+  /** Caller audio after filtering: what speech recognition and turn detection get. */
+  private hear(frame: Buffer, at: number) {
+    if (this.closed) return;
     this.stt?.write(frame);
-    this.pacing?.onAudio(frame, Date.now());
+    this.pacing?.onAudio(frame, at);
   }
 
   callerDtmf(digit: string) {
@@ -594,6 +652,7 @@ export class AppSession {
     if (this.closed) return;
     this.closed = true;
     clearInterval(this.keepalive);
+    this.closeFilters();
     this.queue.stop();
     this.stt?.close();
     const end = { type: "session.end", reason };
@@ -629,6 +688,7 @@ export class AppSession {
     this.listeners = [];
     this.closed = true;
     clearInterval(this.keepalive);
+    this.closeFilters();
     this.queue.stop();
     this.stt?.close();
     this.call.sessionDetached(this);

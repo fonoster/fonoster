@@ -21,7 +21,7 @@
 - [ ] 2.6 Audio layer: format conversion for the format menu, 20 ms caller frames, real-time playout
 - [x] 2.7 Control: `dtmf`, `dtmf.send`, `transfer` (cold, warm, refer), `transfer.complete`, `hold`, `resume` through the `media-control` contract
 - [x] 2.8 Handoff and listen-only sockets (tracks, side byte, `read_only`)
-- [ ] 2.9 App-configured audio filters before STT and turn detection
+- [x] 2.9 App-configured audio filters before STT and turn detection
 - [x] 2.10 Append every message to the call record
 - [x] 2.11 `twilio` flavor: message mapping, base64 μ-law, mark/clear semantics, compatible Calls hang-up endpoint
 - [ ] 2.12 Application model: WebSocket URL, flavor, signing secret, speech defaults, filters, fallback
