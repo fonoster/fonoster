@@ -126,18 +126,8 @@ export function convertLegacyApplication(
       `STT model ${sttModel} is not part of the app model; it moves to the provider configuration`
     );
   }
-  for (const [kind, product] of [
-    ["TTS", legacy.textToSpeech],
-    ["STT", legacy.speechToText],
-    ["LLM", legacy.intelligence]
-  ] as const) {
-    if (product?.credentials) {
-      note(
-        "action",
-        `${kind} has its own credentials: move them to a workspace secret (bring-your-own-key) before the cutover`
-      );
-    }
-  }
+  // Per-app vendor credentials are moved by the job's credentials step (fonoster-migrate-legacy,
+  // add-provider-registry 5.2), before apps are converted.
 
   const app: MigratedApplication = {
     ref: legacy.ref,

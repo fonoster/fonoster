@@ -28,11 +28,9 @@ function createGetFnUtil(prisma: Prisma) {
 
     const response = await prisma.application.findUnique({
       where: { ref },
-      include: {
-        textToSpeech: true,
-        speechToText: true,
-        intelligence: true
-      }
+      // The legacy TextToSpeech/SpeechToText rows (and their credentials) are not read any more
+      // (add-provider-registry 5.2): speech defaults are columns on the app.
+      include: { intelligence: true }
     });
 
     if (!response) {

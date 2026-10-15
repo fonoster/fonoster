@@ -37,7 +37,20 @@ export function optionsFromArgv(
 ): LegacyMigrationOptions {
   const secretEnv = arg(argv, "--autopilot-secret-env");
   const refs = args(argv, "--app");
+  const integrations = arg(argv, "--integrations");
+  const out = arg(argv, "--credentials-out");
+  if (integrations && !out)
+    throw new Error("--integrations needs --credentials-out <file>");
   return {
+    ...(integrations && out
+      ? {
+          integrations: {
+            file: integrations,
+            out,
+            secretsDir: arg(argv, "--secrets-dir")
+          }
+        }
+      : {}),
     dryRun: !argv.includes("--apply"),
     allowInsecureWebhooks: argv.includes("--allow-insecure-webhooks"),
     apps: {

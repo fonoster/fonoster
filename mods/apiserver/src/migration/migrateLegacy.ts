@@ -26,6 +26,12 @@ import {
   AssistantMigrationOptions,
   migrateAssistants
 } from "./migrateAssistants";
+import { migrateCredentials } from "./migrateCredentials";
+import {
+  IntegrationsMigrationOptions,
+  migrateIntegrations
+} from "./migrateIntegrations";
+import { seedCatalog } from "./seedCatalog";
 import { MigrationDb, newStepReport, StepReport } from "./types";
 
 // The steps of `fonoster-migrate-legacy`, in order. Each is idempotent on its own.
@@ -36,6 +42,8 @@ export type LegacyMigrationOptions = AssistantMigrationOptions & {
     defaults?: MigrationOptions["defaults"];
     refs?: string[];
   };
+  /** integrations.json → operator config (add-provider-registry 5.3); skipped when absent. */
+  integrations?: Omit<IntegrationsMigrationOptions, "dryRun">;
 };
 
 export type LegacyMigrationReport = {
@@ -55,7 +63,11 @@ export async function migrateLegacy(
 ): Promise<LegacyMigrationReport> {
   const steps: StepReport[] = [];
 
-  // Assistants first: an Autopilot app is only re-pointed once its assistant runs on the hosted
+  // The catalog first: keys bind to its providers, and apps and assistants name its ids.
+  steps.push(await seedCatalog(db, options));
+  steps.push(await migrateCredentials(db, options));
+
+  // Assistants before apps: an Autopilot app is only re-pointed once its assistant runs on the hosted
   // engine.
   steps.push(await migrateAssistants(db, options));
 
@@ -69,6 +81,15 @@ export async function migrateLegacy(
   appStep.skipped.push(...apps.skipped);
   appStep.notices.push(...apps.notices);
   steps.push(appStep);
+
+  if (options.integrations) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { fragment, ...step } = migrateIntegrations({
+      ...options.integrations,
+      dryRun: options.dryRun
+    });
+    steps.push(step);
+  }
 
   return { steps, apps: apps.migrated };
 }

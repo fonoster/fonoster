@@ -102,7 +102,39 @@ describe("@migration: fonoster-migrate-legacy (database)", function () {
         }
       }
     });
-    await app(db, "ext-1", "EXTERNAL");
+    await db.prisma.product.createMany({
+      data: [
+        {
+          ref: "tts.elevenlabs",
+          name: "ElevenLabs",
+          vendor: "ELEVEN_LABS",
+          type: "TTS"
+        },
+        {
+          ref: "stt.deepgram",
+          name: "Deepgram",
+          vendor: "DEEPGRAM",
+          type: "STT"
+        },
+        { ref: "tts.polly", name: "Polly", vendor: "AMAZON", type: "TTS" }
+      ]
+    });
+    await app(db, "ext-1", "EXTERNAL", {
+      textToSpeech: {
+        create: {
+          productRef: "tts.elevenlabs",
+          config: { voice: "21m00Tcm4TlvDq8ikWAM", languageCode: "es-419" },
+          credentials: JSON.stringify({ apiKey: "el-app-key" })
+        }
+      },
+      speechToText: {
+        create: {
+          productRef: "stt.deepgram",
+          config: { model: "nova-2", languageCode: "es-419" },
+          credentials: JSON.stringify({ apiKey: "dg-app-key" })
+        }
+      }
+    });
   });
 
   after(async function () {
@@ -207,6 +239,62 @@ describe("@migration: fonoster-migrate-legacy (database)", function () {
     ).to.equal(true);
   });
 
+  it("seeds the catalog from products and raw names, and moves app credentials to vendor keys", async function () {
+    const providers = await db.prisma.registryProvider.findMany({
+      orderBy: { id: "asc" }
+    });
+    expect(
+      providers.map((p: { id: string; credentialRef: string }) => [
+        p.id,
+        p.credentialRef
+      ])
+    ).to.deep.equal([
+      ["deepgram", "deepgram-default"],
+      ["elevenlabs", "elevenlabs-default"],
+      ["openai", "openai-default"]
+    ]);
+    const models = await db.prisma.registryModel.findMany({
+      orderBy: { id: "asc" }
+    });
+    expect(
+      models.map((m: { id: string; type: string }) => [m.id, m.type])
+    ).to.deep.equal([
+      ["deepgram/nova-2", "stt"],
+      ["elevenlabs/eleven_flash_v2_5", "tts"],
+      ["openai/gpt-4o-mini", "llm"]
+    ]);
+    const voice = await db.prisma.registryVoice.findUnique({
+      where: { id: "elevenlabs/21m00Tcm4TlvDq8ikWAM" },
+      include: { models: true }
+    });
+    expect(
+      voice.models.map((m: { modelId: string }) => m.modelId)
+    ).to.deep.equal(["elevenlabs/eleven_flash_v2_5"]);
+
+    const ext = await db.prisma.application.findUnique({
+      where: { ref: "ext-1" },
+      include: { textToSpeech: true, speechToText: true }
+    });
+    expect(ext.speechVoice).to.equal("elevenlabs/21m00Tcm4TlvDq8ikWAM");
+    expect(ext.textToSpeech.credentials).to.equal(null);
+    expect(ext.speechToText.credentials).to.equal(null);
+    const keys = await db.prisma.workspaceProviderKey.findMany({
+      where: { accessKeyId: WS },
+      include: { secret: true },
+      orderBy: { providerId: "asc" }
+    });
+    expect(
+      keys.map((k: { providerId: string; secret: { secret: string } }) => [
+        k.providerId,
+        k.secret.secret
+      ])
+    ).to.deep.equal([
+      ["deepgram", "dg-app-key"],
+      ["elevenlabs", "el-app-key"],
+      ["openai", "sk-test-inline-key"]
+    ]);
+  });
+
   it("is idempotent: a second run changes nothing", async function () {
     const before = {
       secrets: await db.prisma.secret.count(),
@@ -218,6 +306,10 @@ describe("@migration: fonoster-migrate-legacy (database)", function () {
     const assistants = report.steps.find((s) => s.step === "assistants")!;
     expect(assistants.changed).to.deep.equal([]);
     expect(assistants.unchanged).to.deep.equal(["ap-legacy"]);
+    for (const step of ["catalog", "credentials"])
+      expect(report.steps.find((s) => s.step === step)!.changed).to.deep.equal(
+        []
+      );
     expect(await db.prisma.secret.count()).to.equal(before.secrets);
     expect(await db.prisma.webhookEndpoint.count()).to.equal(before.hooks);
     expect(await db.prisma.registryNotice.count()).to.equal(before.notices);
@@ -254,7 +346,7 @@ describe("@migration: fonoster-migrate-legacy (database)", function () {
       )
     ).to.be.true;
     const secrets = await db.prisma.secret.findMany({
-      where: { accessKeyId: WS }
+      where: { accessKeyId: WS, name: "provider-key/openai" }
     });
     expect(secrets.map((s: { secret: string }) => s.secret)).to.deep.equal([
       "sk-test-inline-key"

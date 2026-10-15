@@ -17,35 +17,7 @@
  * limitations under the License.
  */
 import { CreateTestTokenResponse } from "@fonoster/types";
-import { ApplicationType } from "@prisma/client";
-
-// For Prisma schema
-type ApplicationData = {
-  ref?: string;
-  name: string;
-  type: ApplicationType;
-  endpoint: string;
-  textToSpeech?: {
-    create: {
-      productRef: string;
-      config: Record<string, unknown>;
-    };
-  };
-  speechToText?: {
-    create: {
-      productRef: string;
-      config: Record<string, unknown>;
-    };
-  };
-  intelligence?: {
-    create: {
-      productRef: string;
-      credentials: string;
-      config: Record<string, unknown>;
-    };
-  };
-};
 
 type TestTokenConfiguration = Omit<CreateTestTokenResponse, "token">;
 
-export { ApplicationData, TestTokenConfiguration };
+export { TestTokenConfiguration };

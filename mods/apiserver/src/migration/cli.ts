@@ -27,7 +27,8 @@ import { migrateLegacy } from "./migrateLegacy";
 
 const USAGE = `usage: fonoster-migrate-legacy [--apply] --autopilot-url <wss://...>
   [--autopilot-secret-env <ENV>] [--app <ref>]... [--default-voice <id>] [--default-language <tag>]
-  [--fallback-message <text>] [--gateway-apps <file>] [--allow-insecure-webhooks]`;
+  [--fallback-message <text>] [--gateway-apps <file>] [--allow-insecure-webhooks]
+  [--integrations <integrations.json> --credentials-out <file> [--secrets-dir <dir>]]`;
 
 async function main(argv: string[]) {
   if (argv.includes("--help") || argv.includes("-h")) {

@@ -34,8 +34,8 @@
 
 ## 5. Migration and docs
 
-- [ ] 5.1 Map `Product` rows (`ProductVendor`, `ProductType`) and today's raw model names to catalog ids; seed the registry
-- [ ] 5.2 Move per-application `credentials` columns (`TextToSpeech`, `SpeechToText`, `Intelligence`) into workspace Secrets
-- [ ] 5.3 Move `integrations.json` platform credentials into the operator config or secret store with `credentialRef` names
+- [x] 5.1 Map `Product` rows (`ProductVendor`, `ProductType`) and today's raw model names to catalog ids; seed the registry (LG-B3)
+- [x] 5.2 Move per-application `credentials` columns (`TextToSpeech`, `SpeechToText`, `Intelligence`) into workspace Secrets (LG-B3)
+- [x] 5.3 Move `integrations.json` platform credentials into the operator config or secret store with `credentialRef` names (LG-B3)
 - [ ] 5.4 Operator guide for `fonoster-registry`, including the deprecate-then-retire runbook and multi-region sync
 - [ ] 5.5 User docs: catalog ids, bringing your own key, what deprecation warnings mean

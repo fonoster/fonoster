@@ -17,7 +17,11 @@
  * limitations under the License.
  */
 export * from "./argv";
+export * from "./catalogMapping";
 export * from "./migrateAssistants";
+export * from "./migrateCredentials";
+export * from "./migrateIntegrations";
+export * from "./seedCatalog";
 export * from "./migrateLegacy";
 export * from "./providerKeys";
 export * from "./types";
