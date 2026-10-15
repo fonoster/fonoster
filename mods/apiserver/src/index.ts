@@ -8,7 +8,6 @@ import { configureLogger, getLogger } from "@fonoster/logger";
 import { getConfig } from "./config";
 import { identityConfig } from "./core/identityConfig";
 import runServices from "./core/runServices";
-import { upsertDefaultPeer } from "./core/upsertDefaultPeer";
 import { upsertMediaNodePeer } from "./core/upsertMediaNodePeer";
 import {
   INFLUXDB_ORG,
@@ -22,14 +21,12 @@ import {
 import { createInfluxDbPub } from "./events/createInfluxDbPub";
 import { watchNats } from "./events/nats";
 import { transformEvent } from "./events/transformEvent";
-import { setAiCousticsLicense } from "./voice/filters";
 
 // Apply fonoster.yaml to the shared modules before serving. Loggers created
 // while the imports above ran switch to the file's settings here.
 const config = getConfig();
 configureLogger(config.logs);
 setRootDomain(config.domain);
-setAiCousticsLicense(config.audioFilters.aiCoustics.license);
 
 import("./core/removeSwaggerNotice");
 
@@ -45,10 +42,8 @@ async function main() {
     await upsertDefaultUser(identityConfig, user);
   }
 
-  // Upsert a Peer for the default region, if it doesn't already exist. Runs in
-  // the background: it waits for Routr, which may start after the API server.
-  upsertDefaultPeer().catch(logger.error);
-  // The media-node peer, when configured (add-media-node 4.1).
+  // The media-node peer every app-linked number points at (add-media-node 4.1). Runs in the
+  // background: it waits for Routr, which may start after the API server.
   upsertMediaNodePeer().catch(logger.error);
 
   // Start the gRPC server

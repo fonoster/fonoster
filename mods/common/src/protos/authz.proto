@@ -23,19 +23,38 @@ package fonoster.authz.v1beta2;
 import "google/protobuf/struct.proto";
 import "google/protobuf/empty.proto";
 
-import "voice.proto";
-
 // Authentication service definition
 service Authz {
   // Check if a user has permission to perform an action
-  rpc CheckSessionAuthorized (fonoster.voice.v1beta2.CreateSessionRequest) returns (CheckSessionAuthorizedResponse) {}
+  rpc CheckSessionAuthorized (CheckSessionAuthorizedRequest) returns (CheckSessionAuthorizedResponse) {}
   // Check if a given accessKeyId has permission to access a method
   rpc CheckMethodAuthorized (CheckMethodAuthorizedRequest) returns (CheckMethodAuthorizedResponse) {}
   // Add billing meter event to an account
   rpc AddBillingMeterEvent (AddBillingMeterEventRequest) returns (google.protobuf.Empty) {}
 }
 
-// Response message for the CheckVoiceRequestAuthorized method
+// The call a session would serve. Field numbers match the retired
+// fonoster.voice.v1beta2.CreateSessionRequest, so existing authorization servers keep decoding it.
+message CheckSessionAuthorizedRequest {
+  string access_key_id = 1;
+  string app_ref = 2;
+  string endpoint = 3;
+  string ingress_number = 4;
+  string caller_name = 5;
+  string caller_number = 6;
+  string media_session_ref = 7;
+  string session_token = 8;
+  enum CallDirection {
+    FROM_PSTN = 0;
+    TO_PSTN = 1;
+    INTRA_NETWORK = 2;
+  }
+  CallDirection call_direction = 9;
+  map<string, string> metadata = 10;
+  string call_ref = 11;
+}
+
+// Response message for the CheckSessionAuthorized method
 message CheckSessionAuthorizedResponse {
   // The authorization server will look for one or more parameters in the request
   // to determine if the request is authorized. If the request is authorized, the

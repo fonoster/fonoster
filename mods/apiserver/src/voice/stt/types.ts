@@ -16,36 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceLanguage } from "@fonoster/common";
-
-type SpeechResult = {
-  speech: string;
-  isFinal: boolean;
-  responseTime: number;
-};
-
-type StreamSpeech = {
-  on(events: string, callback: (result: SpeechResult) => void): void;
-  // close: () => void;
-};
-
-type SttConfig = {
-  config: {
-    // Each engine narrows this to the codes it accepts (e.g. Deepgram's "multi")
-    languageCode: string;
-  };
-};
-
-type GoogleSttConfig = {
-  config: {
-    languageCode: VoiceLanguage;
-  };
-  credentials: {
-    client_email: string;
-    private_key: string;
-  };
-};
-
+// What is left of the apiserver's speech engines after the rebuild (cleanbreak CB-B4): the
+// config and credential schemas that application validation still checks. Speech runs in the
+// gateway now (add-provider-registry).
 enum DeepgramModel {
   NOVA_3 = "nova-3",
   NOVA_2 = "nova-2",
@@ -53,33 +26,9 @@ enum DeepgramModel {
   NOVA_2_CONVERSATIONALAI = "nova-2-conversationalai"
 }
 
-// Deepgram's code-switching mode: transcribes speech that mixes languages
-// (e.g. a caller who answers "Hello" on a Spanish call). Nova-3 and Nova-2.
+// Deepgram's code-switching mode: transcribes speech that mixes languages. Nova-3 and Nova-2.
 const DEEPGRAM_MULTILINGUAL = "multi";
 
-type DeepgramLanguage = VoiceLanguage | typeof DEEPGRAM_MULTILINGUAL;
+const MULTILINGUAL_MODELS = [DeepgramModel.NOVA_3, DeepgramModel.NOVA_2];
 
-type DeepgramSttConfig = {
-  config: {
-    languageCode: DeepgramLanguage;
-    model: DeepgramModel;
-    smartFormat: boolean;
-    noDelay: boolean;
-    interimResults?: boolean;
-    utteranceEndMs?: number;
-  };
-  credentials: {
-    apiKey: string;
-  };
-};
-
-export {
-  DEEPGRAM_MULTILINGUAL,
-  DeepgramLanguage,
-  DeepgramModel,
-  DeepgramSttConfig,
-  GoogleSttConfig,
-  SpeechResult,
-  StreamSpeech,
-  SttConfig
-};
+export { DEEPGRAM_MULTILINGUAL, DeepgramModel, MULTILINGUAL_MODELS };

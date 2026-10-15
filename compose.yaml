@@ -1,3 +1,6 @@
+# Control plane, SIP edge and data stores. Calls are answered by the Go media nodes and the
+# VoiceSessionGateway, which run from ops/rebuild/compose.yaml (docs/operators/rebuild.md);
+# Asterisk is retired.
 services:
   dashboard:
     image: fonoster/dashboard:0.26.0
@@ -13,7 +16,7 @@ services:
     restart: unless-stopped
     # The API server reads config/fonoster.yaml, not environment variables.
     # .env is passed only so ${VAR} references in that file resolve values it
-    # shares with Postgres, InfluxDB and Asterisk.
+    # shares with Postgres, InfluxDB and the media nodes.
     env_file: .env
     expose:
       - 50051
@@ -22,15 +25,15 @@ services:
       - ./config/keys:/opt/fonoster/keys:ro
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
+  # The hosted Autopilot session engine: a session app the gateway dials. It reads
+  # config/autopilot-session.yaml only; scale replicas freely.
   autopilot:
     image: fonoster/autopilot:0.26.0
     restart: unless-stopped
     expose:
       - 50061
-    # Autopilot reads config/autopilot.yaml only; scale replicas freely.
     volumes:
-      - ./config/autopilot.yaml:/opt/fonoster/autopilot.yaml:ro
-      - ./config/integrations.json:/opt/fonoster/integrations.json:ro
+      - ./config/autopilot-session.yaml:/etc/fonoster/autopilot-session.yaml:ro
 
   routr:
     image: fonoster/routr-one:2.15.1
@@ -90,38 +93,6 @@ services:
       PORT_MAX: ${RTPENGINE_PORT_MAX}
       PORT_MIN: ${RTPENGINE_PORT_MIN}
       PUBLIC_IP: ${RTPENGINE_PUBLIC_IP}
-
-  amd:
-    image: fonoster/amd:0.26.0
-    restart: unless-stopped
-    environment:
-      - AMD_AGI_PORT
-      - AMD_AUDIOSOCKET_PORT
-      - AMD_AUDIOSOCKET_ADVERTISE_HOST
-      - AMD_PROBE_MS
-      - AMD_TIMEOUT_MS
-      - AMD_MIN_CONFIDENCE
-    expose:
-      - 4573
-      - 9092
-
-  asterisk:
-    image: fonoster/asterisk:20
-    restart: unless-stopped
-    environment:
-      ARI_PROXY_URL: ${ASTERISK_ARI_PROXY_URL}
-      ARI_SECRET: ${ASTERISK_ARI_SECRET}
-      ARI_USERNAME: ${ASTERISK_ARI_USERNAME}
-      CODECS: ${ASTERISK_CODECS}
-      DTMF_MODE: ${ASTERISK_DTMF_MODE}
-      RTP_PORT_END: ${ASTERISK_RTP_PORT_END}
-      RTP_PORT_START: ${ASTERISK_RTP_PORT_START}
-      SIPPROXY_HOST: ${ASTERISK_SIPPROXY_HOST}
-      SIPPROXY_PORT: ${ASTERISK_SIPPROXY_PORT}
-      SIPPROXY_SECRET: ${ASTERISK_SIPPROXY_SECRET}
-      SIPPROXY_USERNAME: ${ASTERISK_SIPPROXY_USERNAME}
-    expose:
-      - 6060
 
   postgres:
     image: postgres:16.10-alpine3.22

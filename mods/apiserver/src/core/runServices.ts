@@ -26,12 +26,8 @@ import {
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
-import { createCreateCallSubscriber as runCallManager } from "../calls/runCallManager";
 import {
   APISERVER_BIND_ADDR,
-  ASTERISK_ARI_PROXY_URL,
-  ASTERISK_ARI_SECRET,
-  ASTERISK_ARI_USERNAME,
   AUTHZ_SERVICE_ENABLED,
   AUTHZ_SERVICE_HOST,
   AUTHZ_SERVICE_METHODS,
@@ -42,7 +38,7 @@ import {
   NATS_URL
 } from "../envs";
 import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
-import { connectToAri } from "../voice/connectToAri";
+import { runOutboundCalls } from "../outbound";
 import { allowList } from "./allowList";
 import { prisma } from "./db";
 import { httpBridge } from "./httpBridge";
@@ -80,21 +76,13 @@ async function runServices() {
     db: prisma as unknown as RecordsDb
   });
 
-  // Connecting to Asterisk ARI
-  await connectToAri(
-    httpBridge(identityConfig, {
-      port: HTTP_BRIDGE_PORT,
-      routers: records.routers
-    })
-  );
-
-  // Additional Call Managers subscriber may be added here to handle call events
-  await runCallManager({
-    natsUrl: NATS_URL,
-    ariProxyUrl: ASTERISK_ARI_PROXY_URL,
-    ariUsername: ASTERISK_ARI_USERNAME,
-    ariPassword: ASTERISK_ARI_SECRET
+  httpBridge(identityConfig, {
+    port: HTTP_BRIDGE_PORT,
+    routers: records.routers
   });
+
+  // CreateCall: places API-originated calls on the media nodes (cleanbreak CB-B2)
+  await runOutboundCalls({ natsUrl: NATS_URL });
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);

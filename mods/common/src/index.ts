@@ -30,7 +30,7 @@ export * from "./types";
 export * from "./utils";
 export * as Validators from "./validators";
 export * from "./validators";
-export * from "./voice";
+export * from "./calls";
 export * from "./countryIsoCodes";
 export * from "./identity";
 export { getRootDomain, setRootDomain } from "./envs";

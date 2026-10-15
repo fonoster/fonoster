@@ -1,5 +1,5 @@
 # Fonoster dev container: Node workspace + tooling only.
-# Telephony infra (Asterisk, RTPEngine, Routr, ...) runs on the host via compose.
+# Telephony infra (RTPEngine, Routr, ...) runs on the host via compose.
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # protoc + well-known types (google/protobuf/*.proto) for `npm run generate:protos` (plugins come from node_modules/.bin)
