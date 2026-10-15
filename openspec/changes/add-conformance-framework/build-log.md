@@ -20,3 +20,15 @@
   are in the gateway build log (B17). Ten replicas and a dedicated runner are still to do.
 - Not started: 2.5 caller bot, 3.5 turn-taking corpus, 3.6 Autopilot, 3.7 provider
   adapters, 3.8 registry, 3.9 call record, 3.10 scale, 3.11 e2e, 4.x CI wiring.
+
+## CI (2026-10-15)
+
+- `.github/workflows/conformance.yaml`: on pull requests to `main` or `next` that touch the rebuild
+  packages, the NATS-backed suites (gateway conformance, integration, crash, Autopilot full stack)
+  run with a NATS service container, and the Python SDK and runner tests run. Everything else is
+  already covered by `unit-tests.yaml`, whose glob picks up the new test files (899 tests pass
+  locally with it).
+- Nightly (and on demand): T1 timing (200 runs), a 100-call load run, the turn-taking replay and
+  the Pipecat golden test, with reports uploaded as the `conformance-reports` artifact (task 4.4).
+  They run on shared runners, so they are trends, not pass bars; task 4.2 (dedicated runners) stays
+  open. Live provider tests (4.3) wait for real adapters.
