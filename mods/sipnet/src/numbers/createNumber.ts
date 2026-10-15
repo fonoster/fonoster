@@ -46,12 +46,12 @@ function createNumber(
   ) => {
     const { request } = call;
 
-    // Validates that the appRef or agentAor exists in the system
-    await checkNumberPreconditions(request);
-
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
+
+    // Validates that the appRef exists in the caller's workspace (RV-B4)
+    await checkNumberPreconditions({ ...request, accessKeyId });
 
     logger.verbose("call to createNumber", { ...request, accessKeyId });
 

@@ -185,3 +185,10 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Test environment: sipnet's tests resolved `@fonoster/common` to the shared platform-refresh copy
   (old default peer AOR) and failed 3 tests. Fixed with the uncommitted worktree link
   `mods/sipnet/node_modules/@fonoster/common -> ../../../common`.
+
+### RV-B4. A number links only applications of the caller's workspace
+- `createNumber` and `updateNumber` pass the caller's access key id (`getAccessKeyIdFromCall`)
+  to `checkNumberPreconditions`; the check looks the app up with `{ ref, accessKeyId }` and
+  refuses (PERMISSION_DENIED) when the caller's workspace is unknown, since Prisma drops an
+  undefined filter and would match any workspace's app.
+- Tests: `mods/apiserver/test/utils/checkNumberPreconditions.test.ts`, sipnet createNumber.

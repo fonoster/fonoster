@@ -19,6 +19,8 @@
 type NumberPreconditionsCheck = (request: {
   appRef?: string;
   agentAor?: string;
+  /** The caller's workspace: an appRef must belong to it (RV-B4). */
+  accessKeyId?: string;
 }) => Promise<void>;
 
 type IntegrationConfig = {
