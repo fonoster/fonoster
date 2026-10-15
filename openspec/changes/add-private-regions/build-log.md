@@ -294,3 +294,15 @@
 - RM-B5. Settings > Region ("Manage region"), Secrets and the region links now point at the drawer. Create workspace's region select is unchanged.
 - RM-B6. `regions/sdk-api.ts` uses the typed `sdk.regions.*` calls and `@fonoster/types` (`listRegions` returns `{items}`); a public region without a `ref` gets `rg_<id>`.
 - RM-B7. Per the final designs, Settings > Region is one line (name, status dot, "View region →" opening the drawer); no details table.
+
+## AD-B (adapters stream)
+
+- AD-B1. App warnings for missing keys (task 4.3 rest): an app needs a key for each provider its
+  saved settings name (voice, STT model, Autopilot language model; "platform default" names
+  none). Private region: missing = needed − the keys set in the region (region `secrets`). Public:
+  missing when the workspace has no key and the catalog does not list the provider (ListCatalog
+  lists only providers with a platform or workspace key, registry 4.1; without
+  `registry.platformCredentials` nothing is missing). The apps list shows one line ("Missing
+  keys: Support line (elevenlabs).") and an app page "This app needs a key for openai.", each with
+  an "Add key" link: the region drawer (private) or Vendor keys (public). Unknown state (catalog
+  or region not loaded) shows nothing.
