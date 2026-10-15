@@ -113,12 +113,13 @@ class FakeSttStream extends EventEmitter implements SttStream {
   private pending: (Buffer | string)[] = [];
   private open = false;
 
-  constructor(url: string, language: string, hints?: string[]) {
+  constructor(url: string, language: string, hints?: string[], model?: string) {
     super();
     const query = new URLSearchParams({
       language,
       codec: "pcm16",
-      rate: "16000"
+      rate: "16000",
+      ...(model ? { model } : {})
     });
     this.socket = new WebSocket(`${url}/v1/listen?${query}`);
     this.socket.on("open", () => {
@@ -186,7 +187,16 @@ class FakeSttStream extends EventEmitter implements SttStream {
 export class FakeSttAdapter implements SttAdapter {
   constructor(private readonly options: { url: string }) {}
 
-  open(options: { language: string; hints?: string[] }): SttStream {
-    return new FakeSttStream(this.options.url, options.language, options.hints);
+  open(options: {
+    language: string;
+    hints?: string[];
+    model?: string;
+  }): SttStream {
+    return new FakeSttStream(
+      this.options.url,
+      options.language,
+      options.hints,
+      options.model
+    );
   }
 }

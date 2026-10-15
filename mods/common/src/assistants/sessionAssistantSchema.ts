@@ -102,6 +102,8 @@ export const sessionConversationSettingsSchema = z
      * turn.likely_ended at low and normal, and only on turn.ended at high.
      */
     patience: z.enum(["low", "normal", "high"]).default("normal"),
+    /** Words to bias speech recognition toward (names, brands), sent with listen.update. */
+    hints: z.array(z.string().min(1)).max(100).optional(),
     /** Played with play() while thinking; the reply preempts it (A9). */
     filler: z.object({ url: z.string().url() }).optional(),
     /** Catalog ids overriding the app's speech defaults on every speak. */

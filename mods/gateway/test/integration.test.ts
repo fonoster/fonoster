@@ -556,6 +556,97 @@ describe("@gateway integration", function () {
     });
   });
 
+  it("opens STT with the app's catalog STT model and hints, adding listen.update hints", async function () {
+    const file = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), "registry-")),
+      "registry.json"
+    );
+    const registry = new RegistryNs.Registry({
+      store: new RegistryNs.FileRegistryStore(file),
+      testMode: true
+    });
+    registry.addProvider({
+      id: "fake",
+      adapter: "fake",
+      capabilities: ["tts", "stt"],
+      credentialRef: "none"
+    });
+    registry.addModel({ id: "fake/tts", type: "tts", features: ["streaming"] });
+    registry.addModel({
+      id: "fake/stt-2",
+      type: "stt",
+      features: ["streaming"]
+    });
+    registry.addVoice({ id: "fake/default", models: ["fake/tts"] });
+    await start(
+      [
+        app("a", harness.app.url, {
+          speech: {
+            voice: "fake/default",
+            language: "en-US",
+            sttModel: "fake/stt-2",
+            hints: ["Fonoster", "Routr"]
+          }
+        })
+      ],
+      { registry: { file } }
+    );
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    peer.sendJson({ type: "listen.update" });
+    const first = await waitFor(
+      () => harness.stt.streams[0]?.hints && harness.stt.streams[0]
+    );
+    expect(first.model).to.equal("stt-2");
+    expect(first.hints).to.deep.equal(["Fonoster", "Routr"]);
+    peer.sendJson({ type: "listen.update", hints: ["routr", "Acme"] });
+    await waitFor(() => harness.stt.streams[0].hints?.includes("Acme"));
+    expect(harness.stt.streams[0].hints).to.deep.equal([
+      "Fonoster",
+      "Routr",
+      "Acme"
+    ]);
+  });
+
+  it("reports an app STT model that is not in the catalog", async function () {
+    const file = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), "registry-")),
+      "registry.json"
+    );
+    const registry = new RegistryNs.Registry({
+      store: new RegistryNs.FileRegistryStore(file),
+      testMode: true
+    });
+    registry.addProvider({
+      id: "fake",
+      adapter: "fake",
+      capabilities: ["tts", "stt"],
+      credentialRef: "none"
+    });
+    registry.addModel({ id: "fake/tts", type: "tts", features: ["streaming"] });
+    registry.addVoice({ id: "fake/default", models: ["fake/tts"] });
+    await start(
+      [
+        app("a", harness.app.url, {
+          speech: {
+            voice: "fake/default",
+            language: "en-US",
+            sttModel: "fake/missing"
+          }
+        })
+      ],
+      { registry: { file } }
+    );
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    peer.sendJson({ type: "listen.update" });
+    const error = await waitFor(() =>
+      json(peer).find((m) => m.type === "error")
+    );
+    expect(error).to.include({ code: "invalid_catalog_id", fatal: false });
+    expect(harness.stt.streams).to.have.length(0);
+  });
+
   it("hangs up when the app drops mid-call", async function () {
     await start([app("a", harness.app.url)]);
     harness.mediaNode.offerCall();

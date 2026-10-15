@@ -2,11 +2,13 @@
 // language can drive real calls into a media node:
 //
 //	POST /calls               {"target":"127.0.0.1:5060","to":"+1555","from":"+1444","headers":{"X-App-Ref":"app-1"},
+//	                           "requestHost":"<Request-URI host, e.g. a Routr Trunk's inboundUri>",
 //	                           "codecs":["PCMA/8000"],"noTelephoneEvent":false,"transport":"udp","srtp":false}
 //	GET  /calls/{id}          {"sip":[100,180,200],"state":"answered","heardMs":..,"audibleMs":..,"codec":"PCMA/8000"}
 //	POST /calls/{id}/dtmf     {"digits":"12#","mode":"rfc4733|info|inband"}
-//	POST /calls/{id}/audio    {"kind":"tone","ms":800}   (kind: tone, tone:<hz>, silence)
-//	                          (optional "requestHost": the Request-URI host, e.g. a Routr Trunk's inboundUri)
+//	POST /calls/{id}/audio    {"kind":"tone","ms":800} or {"kind":"pcm","pcm":"<base64 16 kHz s16le>"}
+//	                          (kind: tone, tone:<hz>, silence, pcm)
+//	GET  /calls/{id}/heard    what the caller heard, raw 16 kHz s16le
 //	POST /calls/{id}/hangup
 package main
 
@@ -88,10 +90,19 @@ func main() {
 		var req struct {
 			Kind string
 			Ms   int
+			PCM  []byte `json:"pcm"`
 		}
 		_ = json.NewDecoder(r.Body).Decode(&req)
-		c.Speak(req.Kind, req.Ms)
+		if req.Kind == "pcm" {
+			c.SpeakPCM(req.PCM)
+		} else {
+			c.Speak(req.Kind, req.Ms)
+		}
 		writeJSON(w, c.Status())
+	}))
+	mux.HandleFunc("GET /calls/{id}/heard", withCall(func(c *caller.Call, w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/octet-stream")
+		_, _ = w.Write(c.Heard())
 	}))
 	mux.HandleFunc("POST /calls/{id}/hangup", withCall(func(c *caller.Call, w http.ResponseWriter, _ *http.Request) {
 		_ = c.Hangup()

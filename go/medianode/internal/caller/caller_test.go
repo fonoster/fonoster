@@ -1,6 +1,7 @@
 package caller
 
 import (
+	"github.com/fonoster/fonoster/go/medianode/internal/audio"
 	"net"
 	"strings"
 	"testing"
@@ -77,5 +78,33 @@ func TestDialKeepsTargetAsRequestURI(t *testing.T) {
 	want := "INVITE sip:+1555@" + l.LocalAddr().String() + " SIP/2.0"
 	if first := strings.SplitN(string(buf[:n]), "\r\n", 2)[0]; first != want {
 		t.Fatalf("request line = %q, want %q", first, want)
+	}
+}
+
+func TestSpeakPCMFramesRecordedSpeechAndHeardRoundTrips(t *testing.T) {
+	c := &Call{}
+	// 1.5 frames of a ramp: the second frame is padded with silence.
+	samples := audio.FrameSamples * 3 / 2
+	pcm := make([]byte, samples*2)
+	for i := 0; i < samples; i++ {
+		v := int16(i - 100)
+		pcm[i*2], pcm[i*2+1] = byte(v), byte(uint16(v)>>8)
+	}
+	c.SpeakPCM(pcm)
+	if len(c.pending) != 2 {
+		t.Fatalf("frames = %d, want 2", len(c.pending))
+	}
+	if c.pending[0][0] != -100 || c.pending[1][audio.FrameSamples/2-1] != int16(samples-1-100) || c.pending[1][audio.FrameSamples-1] != 0 {
+		t.Fatalf("unexpected samples")
+	}
+	for _, f := range c.pending {
+		c.heard(f)
+	}
+	got := c.Heard()
+	if len(got) != 2*audio.FrameSamples*2 || string(got[:len(pcm)]) != string(pcm) {
+		t.Fatalf("heard audio does not round-trip (%d bytes)", len(got))
+	}
+	if s := c.Status(); s.FirstAudibleAfter != -1 || s.SpokeUntil != 0 {
+		t.Fatalf("status = %+v", s)
 	}
 }
