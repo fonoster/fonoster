@@ -70,7 +70,9 @@ time; a manual resend. Kept for a bounded period.
 1. ~~Signature header name and format.~~ Resolved: `X-Fonoster-Timestamp` (Unix seconds) and
    `X-Fonoster-Signature` (hex HMAC-SHA256 of `<timestamp>.<raw body>`, comma-separated during
    rotation), ±300 s, the same scheme as the session connection signature.
-2. Retry schedule and maximum retry period (proposed: exponential from 10 s, up to 24 h).
-3. Delivery timeout per attempt (proposed: 10 s) and the delivery log retention (proposed: 30 days).
+2. ~~Retry schedule and maximum retry period.~~ Decided (build): exponential from 10 s, doubling,
+   capped at 1 h per gap, for up to 24 h after the first attempt; then failed and resendable.
+3. Delivery timeout per attempt: 10 s (decided, build). Delivery log retention (proposed: 30 days)
+   is still open.
 4. Maximum endpoints per workspace, and whether endpoints can filter by app in v1.
 5. Whether the signing secret is per workspace or per endpoint.

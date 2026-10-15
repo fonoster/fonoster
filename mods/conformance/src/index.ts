@@ -34,3 +34,4 @@ export * from "./scenario/loadScenario";
 export * from "./scenario/match";
 export * from "./scenario/types";
 export * from "./runner/repeat";
+export * from "./fakes/FakeWebhookReceiver";
