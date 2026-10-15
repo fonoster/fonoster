@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://fonoster.com/schemas/detector.v1.schema.json",
+  "title": "fonoster.detector.v1",
+  "description": "The Turn Detector interface (add-turn-taking, \"Detectors are pluggable behind one interface\") as a language-neutral contract, and the wire protocol for out-of-process Detectors over a local WebSocket. Inputs: caller audio frames, transcript segments with timings, agent output state. Outputs: a continuous end-of-thought estimate `eot` (0-1) with the facts `speaking` and `kind`. A Detector never emits turn events; the gateway's Pacing policy does. Text frames are JSON messages below; binary frames from the gateway are caller audio: exactly one 20 ms frame of PCM16LE mono 16 kHz (640 bytes), already through the app's audio filters. The Detector's clock is the frame count: frame n ends at n × 20 ms. The Detector answers every audio frame with one `estimate` carrying that frame number. The gateway uses an estimate while it is at most 200 ms (10 frames) behind the audio it sent; otherwise it answers with its local baseline and records `detector.source` in the call record, so a slow or broken Detector never stalls a call. Budget: the estimate for a frame should arrive within 20 ms of the frame, so a remote Detector adds at most one frame to turn decisions and stays inside the gateway's 50 ms (T1).",
+  "definitions": {
+    "hello": {
+      "type": "object",
+      "description": "gateway → detector, first message on a new connection (one connection per session).",
+      "required": ["type", "protocol", "rate", "frameMs"],
+      "properties": {
+        "type": { "const": "hello" },
+        "protocol": { "const": "fonoster.detector.v1" },
+        "rate": { "const": 16000 },
+        "frameMs": { "const": 20 }
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "description": "gateway → detector: a transcript segment from the session's recognizer, at the current frame. `turn` carries a turn-aware recognizer's own signals (catalog feature turn-detection).",
+      "required": ["type", "text", "final", "language", "confidence"],
+      "properties": {
+        "type": { "const": "transcript" },
+        "text": { "type": "string" },
+        "final": { "type": "boolean" },
+        "language": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "startMs": { "type": "number", "description": "Segment start on the recognizer's audio clock" },
+        "endMs": { "type": "number", "description": "Segment end on the recognizer's audio clock" },
+        "turn": {
+          "type": "object",
+          "properties": {
+            "eot": { "type": "number", "minimum": 0, "maximum": 1 },
+            "endOfTurn": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "description": "gateway → detector: whether agent output is audible to the caller right now. Caller speech while it is true may be an interruption or a backchannel.",
+      "required": ["type", "playing"],
+      "properties": {
+        "type": { "const": "output" },
+        "playing": { "type": "boolean" }
+      }
+    },
+    "patience": {
+      "type": "object",
+      "description": "gateway → detector: a factor on the Detector's own timing (1 = as configured; 0.6 low, 1.6 high, raised further by within-call adaptation up to 1.6 times the app's level). Detectors without tunable timing may ignore it.",
+      "required": ["type", "factor"],
+      "properties": {
+        "type": { "const": "patience" },
+        "factor": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "reset": {
+      "type": "object",
+      "description": "gateway → detector: the turn ended; forget it and start the next one from eot 0.",
+      "required": ["type"],
+      "properties": { "type": { "const": "reset" } }
+    },
+    "estimate": {
+      "type": "object",
+      "description": "detector → gateway: the estimate after audio frame `frame`. eot rises toward 1 as the caller completes a thought and falls when they resume; speaking says whether the caller is producing speech; kind classifies current caller speech: interruption only while output plays and the speech should take the floor, backchannel for acknowledgements (\"uh-huh\") that must not, none when silent.",
+      "required": ["type", "frame", "eot", "speaking", "kind"],
+      "properties": {
+        "type": { "const": "estimate" },
+        "frame": { "type": "integer", "minimum": 1 },
+        "eot": { "type": "number", "minimum": 0, "maximum": 1 },
+        "speaking": { "type": "boolean" },
+        "kind": { "enum": ["speech", "backchannel", "interruption", "none"] }
+      }
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/definitions/hello" },
+    { "$ref": "#/definitions/transcript" },
+    { "$ref": "#/definitions/output" },
+    { "$ref": "#/definitions/patience" },
+    { "$ref": "#/definitions/reset" },
+    { "$ref": "#/definitions/estimate" }
+  ]
+}
