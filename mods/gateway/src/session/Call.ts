@@ -130,13 +130,14 @@ export class Call {
       appRef: app.ref
     });
 
-    const socket = await this.dial(app);
+    const reached = await this.dial(app);
+    const socket = reached?.socket;
     if (this.ended) return socket?.terminate();
 
     try {
       await this.joinRoom();
       // Auto-answer once the app's socket is open and session.start is sent (VS12).
-      if (socket) this.attach(app, socket, null);
+      if (reached) this.attach(reached.app, reached.socket, null);
       if (this.info.direction === "inbound")
         await this.mediaCommand({ type: "answer" });
     } catch (e) {
@@ -151,7 +152,7 @@ export class Call {
   }
 
   /** Dials the app, then its fallback app; returns undefined when only a message is left. */
-  private async dial(app: AppConfig): Promise<WebSocket | undefined> {
+  private async dial(app: AppConfig): Promise<{ app: AppConfig; socket: WebSocket } | undefined> {
     const retry = this.deps.config.retry ?? {};
     const options = {
       windowMs: retry.windowMs ?? DEFAULTS.retryWindowMs,
@@ -164,8 +165,8 @@ export class Call {
         })
     };
     try {
-      return await connectApp(app, options);
-    } catch (e) {
+      return { app, socket: await connectApp(app, options) };
+    } catch {
       this.record("event", {
         type: "app.unreachable",
         appRef: app.ref,
@@ -176,7 +177,7 @@ export class Call {
         : undefined;
       if (fallback) {
         try {
-          return await connectApp(fallback, options);
+          return { app: fallback, socket: await connectApp(fallback, options) };
         } catch {
           this.record("event", {
             type: "app.unreachable",
@@ -274,10 +275,10 @@ export class Call {
   async handoff(appRef: string, payload: Record<string, unknown>) {
     const target = this.deps.findApp(appRef);
     if (!target) return false;
-    const socket = await this.dial(target);
-    if (!socket) return false;
-    this.record("event", { type: "handoff", to: appRef });
-    this.attach(target, socket, payload);
+    const reached = await this.dial(target);
+    if (!reached) return false;
+    this.record("event", { type: "handoff", to: reached.app.ref });
+    this.attach(reached.app, reached.socket, payload);
     return true;
   }
 
