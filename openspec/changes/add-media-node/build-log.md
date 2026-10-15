@@ -298,3 +298,17 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   `-max-duration`, `-max-participants` and `-drain-wait` take the platform stream's env vars.
 - Caller bot: one `Options` (`Host`, `SIPAdvertise`, `TLS`, `ClientTLS`); `DialVia` is
   `DialWith` with `RequestHost`.
+
+### MN-B19. Gateway leg SRTP (closes the gap in MN-B13)
+
+- `mods/gateway/src/media/srtp.ts`: AES_CM_128_HMAC_SHA1_80 (RFC 3711, key derivation rate 0,
+  rollover counter per SSRC) on Node's `crypto`; no new dependency.
+- `RtpLink.enableSrtp()` offers `srtp {suite, key}` in `participant.add`, requires the node's
+  key in the acknowledgement, encrypts what it sends and drops anything that does not
+  authenticate. Switched on by the gateway config `rtp.srtp: true` (set it when nodes run with
+  `-require-encryption`).
+- Tests: round trip across a sequence wrap, plain/tampered/wrong-key packets dropped, and two
+  SRTP legs against the Go node in encryption-required mode (pion/srtp interop; a plain leg gets
+  `encryption_required`).
+- Still open: recording listeners under encryption. The node requires `srtp` on listener blocks
+  too, and `@fonoster/callrecord`'s Recorder does not send or decrypt it yet.

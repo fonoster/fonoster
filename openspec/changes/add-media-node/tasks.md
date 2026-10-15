@@ -23,7 +23,7 @@
 - [x] 2.9 Hold and resume by mixing (MN17), node-fetched hold music (the warm-transfer hold comes with 2.8)
 - [x] 2.10 DTMF: RFC 4733, SIP INFO, in-band fallback, de-duplication
 - [x] 2.11 Listeners: per-track forks, no audio from listeners
-- [x] 2.12 Optional TLS and SRTP toward the edge, with refusal of plain traffic when required (the gateway still has to send `rtp.srtp`, MN-B13)
+- [x] 2.12 Optional TLS and SRTP toward the edge, with refusal of plain traffic when required (gateway leg SRTP in MN-B19; recording listeners under encryption still open)
 - [x] 2.13 Maximum call duration, drain on SIGTERM, maximum wait, crash behavior with sealed records
 - [x] 2.14 `node.heartbeat` every 2 s and `node.down` on clean exit; `reason` and `sipStatus` on `participant.left` and `room.ended`; media timeout
 

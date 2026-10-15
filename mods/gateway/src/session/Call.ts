@@ -375,6 +375,7 @@ export class Call {
   }
 
   private async joinRoom() {
+    if (this.deps.config.rtp?.srtp) this.rtp.enableSrtp();
     const offer = await this.rtp.bind(
       this.deps.config.rtp?.host ?? "127.0.0.1",
       this.deps.config.rtp?.advertiseHost
@@ -384,7 +385,11 @@ export class Call {
       kind: "session",
       rtp: offer
     });
-    const rtp = ack.rtp as { host: string; port: number };
+    const rtp = ack.rtp as {
+      host: string;
+      port: number;
+      srtp?: { suite: string; key: string };
+    };
     this.sessionParticipantRef = ack.participantRef as string;
     this.rtp.connect(rtp);
     this.rtp.on("frame", (frame: Buffer) => this.session?.callerAudio(frame));
