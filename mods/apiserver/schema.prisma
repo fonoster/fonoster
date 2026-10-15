@@ -16,6 +16,23 @@ model Application {
   createdAt   DateTime        @default(now()) @map("created_at")
   updatedAt   DateTime        @default(now()) @map("updated_at")
 
+  // rebuild: persistence. The session app model (voice-session G2); legacy columns above stay.
+  // The workspace is accessKeyId (the AppConfig's workspaceRef).
+  url              String? @db.VarChar(1024)
+  flavor           String? @db.VarChar(16)
+  signingSecret    String? @map("signing_secret_hash") /// @encrypted
+  speechVoice      String? @map("speech_voice") @db.VarChar(255)
+  speechLanguage   String? @map("speech_language") @db.VarChar(64)
+  speechSttModel   String? @map("speech_stt_model") @db.VarChar(255)
+  speechTtsModel   String? @map("speech_tts_model") @db.VarChar(255)
+  speechSettings   Json?   @map("speech_settings")
+  silenceTimeoutMs Int?    @map("silence_timeout_ms")
+  audio            Json?
+  filters          Json?
+  listeners        Json?
+  fallbackAppRef   String? @map("fallback_app_ref")
+  fallbackMessage  String? @map("fallback_message")
+
   // Relations
   textToSpeech TextToSpeech?
   speechToText SpeechToText?
@@ -23,6 +40,9 @@ model Application {
 
   // Indexes and maps
   @@index([accessKeyId], type: Hash)
+  @@index([speechVoice])
+  @@index([speechSttModel])
+  @@index([speechTtsModel])
   @@map("applications")
 }
 
@@ -100,6 +120,9 @@ model Secret {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @map("updated_at")
 
+  // Relations (rebuild: persistence)
+  providerKeys WorkspaceProviderKey[]
+
   // Indexes and maps
   @@index([accessKeyId], type: Hash)
   @@index([name], type: Hash)
@@ -139,3 +162,158 @@ enum ProductVendor {
   // Maps
   @@map("product_vendors")
 }
+
+// rebuild: persistence ------------------------------------------------------------------------
+// Provider registry (add-provider-registry), workspace webhooks (add-workspace-webhooks). No
+// column here can hold a vendor key (P8): providers name a credentialRef, workspace keys point at
+// an encrypted, write-only Secret.
+
+enum RegistryState {
+  ACTIVE
+  DEPRECATED
+  RETIRED
+
+  @@map("registry_states")
+}
+
+model RegistryProvider {
+  id            String        @id @db.VarChar(64)
+  adapter       String        @db.VarChar(64)
+  capabilities  String[]
+  credentialRef String        @map("credential_ref") @db.VarChar(128)
+  state         RegistryState @default(ACTIVE)
+  replacement   String?       @db.VarChar(255)
+  retireOn      String?       @map("retire_on") @db.VarChar(10)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  @@map("registry_providers")
+}
+
+model RegistryModel {
+  id          String        @id @db.VarChar(255)
+  providerId  String        @map("provider_id") @db.VarChar(64)
+  type        String        @db.VarChar(8)
+  features    String[]
+  languages   String[]
+  settings    String[]
+  state       RegistryState @default(ACTIVE)
+  replacement String?       @db.VarChar(255)
+  retireOn    String?       @map("retire_on") @db.VarChar(10)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  @@index([providerId])
+  @@map("registry_models")
+}
+
+model RegistryVoice {
+  id             String        @id @db.VarChar(255)
+  providerId     String        @map("provider_id") @db.VarChar(64)
+  language       String?       @db.VarChar(64)
+  gender         String?       @db.VarChar(32)
+  ownerWorkspace String?       @map("owner_workspace")
+  state          RegistryState @default(ACTIVE)
+  replacement    String?       @db.VarChar(255)
+  retireOn       String?       @map("retire_on") @db.VarChar(10)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  models RegistryVoiceModel[]
+
+  @@index([providerId])
+  @@map("registry_voices")
+}
+
+/// Which models a voice works on. No foreign key to the model: `apply` may write a voice before its
+/// models, and the registry checks the reference itself.
+model RegistryVoiceModel {
+  voiceId  String        @map("voice_id") @db.VarChar(255)
+  modelId  String        @map("model_id") @db.VarChar(255)
+  /// Keeps the order the operator gave.
+  position Int           @default(0)
+  voice    RegistryVoice @relation(fields: [voiceId], references: [id], onDelete: Cascade)
+
+  @@id([voiceId, modelId])
+  @@map("registry_voice_models")
+}
+
+/// Append-only: one row per registry write and per rewritten config (P8.6).
+model RegistryAudit {
+  seq     BigInt   @id @default(autoincrement())
+  at      DateTime
+  actor   String   @db.VarChar(255)
+  action  String   @db.VarChar(64)
+  target  String   @db.VarChar(255)
+  details Json?
+
+  @@index([target])
+  @@map("registry_audit")
+}
+
+/// Dashboard notices about catalog changes (deprecations and retirements), per workspace.
+model RegistryNotice {
+  ref         String   @id @default(uuid())
+  accessKeyId String   @map("access_key_id")
+  type        String   @db.VarChar(64)
+  data        Json
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([accessKeyId])
+  @@map("registry_notices")
+}
+
+/// A workspace's own vendor key (P1): a binding from a catalog provider to a Secret. The key itself
+/// is only in the encrypted, write-only Secret.
+model WorkspaceProviderKey {
+  ref         String   @id @default(uuid())
+  accessKeyId String   @map("access_key_id")
+  providerId  String   @map("provider_id") @db.VarChar(64)
+  secretRef   String   @map("secret_ref")
+  secret      Secret   @relation(fields: [secretRef], references: [ref], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([accessKeyId, providerId])
+  @@map("workspace_provider_keys")
+}
+
+model WebhookEndpoint {
+  ref            String    @id @db.VarChar(64)
+  accessKeyId    String    @map("access_key_id")
+  url            String    @db.VarChar(2048)
+  events         String[]
+  secret         String    @map("secret_hash") /// @encrypted
+  /// The previous secret keeps verifying until previousUntil (rotation window, W4).
+  previousSecret String?   @map("previous_secret_hash") /// @encrypted
+  previousUntil  DateTime? @map("previous_until")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@index([accessKeyId])
+  @@map("webhook_endpoints")
+}
+
+/// The delivery log (W6). No foreign key: deliveries outlive a deleted endpoint and fail.
+model WebhookDelivery {
+  ref            String    @id @db.VarChar(64)
+  endpointRef    String    @map("endpoint_ref") @db.VarChar(64)
+  accessKeyId    String    @map("access_key_id")
+  eventId        String    @map("event_id") @db.VarChar(64)
+  eventType      String    @map("event_type") @db.VarChar(64)
+  event          Json
+  status         String    @db.VarChar(16)
+  attempts       Int       @default(0)
+  firstAttemptAt DateTime? @map("first_attempt_at")
+  lastAttemptAt  DateTime? @map("last_attempt_at")
+  lastStatus     Int?      @map("last_status")
+  nextAttemptAt  DateTime  @map("next_attempt_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@index([endpointRef, createdAt])
+  @@index([status, nextAttemptAt])
+  @@map("webhook_deliveries")
+}
+
+// end rebuild: persistence --------------------------------------------------------------------

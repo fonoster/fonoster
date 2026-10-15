@@ -18,10 +18,11 @@
  */
 import * as http from "http";
 import { AddressInfo } from "net";
-import { Webhooks } from "@fonoster/common";
+import { Registry as RegistryNs, Webhooks } from "@fonoster/common";
 import { IdentityClient } from "@fonoster/identity-client";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec, Subscription } from "nats";
+import { AppStore, YamlAppStore } from "./apps/AppStore";
 import { AppConfig, GatewayConfig, validateConfig } from "./config";
 import {
   configPairAuthenticator,
@@ -53,6 +54,10 @@ export type GatewayOptions = {
   nats?: NatsConnection;
   /** Receives call.started, call.ended and call.failed (a WebhookDispatcher's publish). */
   webhooks?: (event: Webhooks.WebhookEvent) => void;
+  /** Where apps come from (default: the config's `apps` list). */
+  apps?: AppStore;
+  /** The provider registry's store (default: `registry.file` from the config). */
+  registryStore?: RegistryNs.RegistryStore;
 };
 
 /** A node is down after this long without a heartbeat (3 missed beats of 2 s). */
@@ -68,6 +73,7 @@ export class Gateway {
   private stops: (() => void)[] = [];
   private server?: http.Server;
   private heartbeats = new Map<string, number>();
+  readonly apps: AppStore;
 
   constructor(private readonly options: GatewayOptions) {
     const problems = validateConfig(options.config);
@@ -76,7 +82,8 @@ export class Gateway {
         `invalid gateway config:\n  - ${problems.join("\n  - ")}`
       );
     this.record = options.record ?? new MemoryCallRecordSink();
-    this.catalog = new Catalog(options.config);
+    this.catalog = new Catalog(options.config, options.registryStore);
+    this.apps = options.apps ?? new YamlAppStore(options.config.apps ?? []);
   }
 
   get config() {
@@ -136,12 +143,13 @@ export class Gateway {
         )
       );
     }
-    logger.info(`gateway started with ${this.config.apps.length} apps`);
+    logger.info(`gateway started with ${this.apps.count()} apps`);
     return this;
   }
 
   async stop() {
     for (const stop of this.stops) stop();
+    this.apps.stop?.();
     for (const call of [...this.calls.values()]) call.finish("error");
     await new Promise<void>((r) =>
       this.server ? this.server.close(() => r()) : r()
@@ -149,18 +157,14 @@ export class Gateway {
     if (this.ownsNats) await this.nc?.drain();
   }
 
-  findApp = (ref: string): AppConfig | undefined =>
-    this.config.apps.find((a) => a.ref === ref);
+  findApp = (ref: string): AppConfig | undefined => this.apps.find(ref);
 
   /**
    * Development fallback when Routr sent no `X-App-Ref` (build log B21): the app a dialed number
    * routes to; apps without numbers catch everything else.
    */
   appForNumber(to: string): AppConfig | undefined {
-    return (
-      this.config.apps.find((a) => a.numbers?.includes(to)) ??
-      this.config.apps.find((a) => !a.numbers?.length)
-    );
+    return this.apps.forNumber(to);
   }
 
   private newCall(info: CallInfo): Call {

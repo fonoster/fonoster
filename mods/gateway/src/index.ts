@@ -29,3 +29,4 @@ export * from "./speech/Catalog";
 export * from "./speech/types";
 export * from "./turn/Detector";
 export * from "./turn/Pacing";
+export * from "./apps/AppStore";
