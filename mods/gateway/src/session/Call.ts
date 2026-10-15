@@ -48,6 +48,7 @@ import { RtpLink } from "../media/RtpLink";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
 import { SpeechError, SttStream } from "../speech/types";
+import { telemetry } from "../telemetry";
 import { BaselineDetector, Estimate } from "../turn/Detector";
 import { Pacing } from "../turn/Pacing";
 import { TurnLabeler } from "../turn/TurnLabeler";
@@ -148,10 +149,16 @@ export class Call {
   private routedTo?: AppConfig;
   onHold = false;
 
+  private readonly span: ReturnType<typeof telemetry.startCall>;
+
   constructor(
     readonly info: CallInfo,
     private readonly deps: CallDeps
-  ) {}
+  ) {
+    this.span = telemetry.startCall(info.callRef, "gateway.call");
+    telemetry.count("fonoster.gateway.calls.total");
+    telemetry.log("info", "call started", { callRef: info.callRef });
+  }
 
   get callRef() {
     return this.info.callRef;
@@ -444,6 +451,10 @@ export class Call {
         })
       );
     this.deps.record.close(this.info.callRef);
+    telemetry.log("info", `call ended: ${reason}`, {
+      callRef: this.info.callRef
+    });
+    this.span.end({ "fonoster.end_reason": String(reason) });
     this.deps.onEnded(this);
   }
 

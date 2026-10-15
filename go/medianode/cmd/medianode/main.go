@@ -18,6 +18,7 @@ import (
 
 	"github.com/fonoster/fonoster/go/medianode/internal/node"
 	"github.com/fonoster/fonoster/go/medianode/internal/sipua"
+	"github.com/fonoster/fonoster/go/medianode/internal/telemetry"
 	"github.com/nats-io/nats.go"
 )
 
@@ -47,7 +48,14 @@ func main() {
 	drainWait := flag.Duration("drain-wait", 10*time.Minute, "longest wait for rooms to end on SIGTERM")
 	flag.Parse()
 
-	logger := slog.New(slog.NewJSONHandler(os.Stderr, nil)).With("nodeId", *nodeID)
+	// OTLP is configured with the standard OTEL_* variables; unset means no-op (add-platform).
+	shutdownOtel, otelLogs, err := telemetry.Setup(context.Background(), "fonoster-medianode", *nodeID)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "telemetry:", err)
+		os.Exit(1)
+	}
+	defer func() { _ = shutdownOtel(context.Background()) }()
+	logger := slog.New(telemetry.Tee(slog.NewJSONHandler(os.Stderr, nil), otelLogs)).With("nodeId", *nodeID)
 	nc, err := nats.Connect(*natsURL, nats.Name("medianode-"+*nodeID))
 	if err != nil {
 		logger.Error("nats", "err", err)
@@ -67,6 +75,9 @@ func main() {
 		os.Exit(1)
 	}
 	defer ua.Close()
+	if m, err := telemetry.RegisterNode(*nodeID, n.ActiveRooms, n.Draining); err == nil {
+		telemetry.SetMeters(m)
+	}
 	if err := n.Start(); err != nil {
 		logger.Error("media-control", "err", err)
 		os.Exit(1)

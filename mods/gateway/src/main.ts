@@ -23,6 +23,7 @@ import { getLogger } from "@fonoster/logger";
 import { loadConfig } from "./config";
 import { Gateway } from "./Gateway";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
+import { telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 
@@ -53,11 +54,13 @@ async function main() {
     record = new JsonlCallRecordSink(process.env.GATEWAY_RECORD_DIR);
   }
   const gateway = await new Gateway({ config, record }).start();
+  telemetry.gauge("fonoster.gateway.calls.active", () => gateway.calls.size);
 
   const shutdown = async () => {
     logger.info("shutting down");
     if (sweeper) clearInterval(sweeper);
     await gateway.stop();
+    await telemetry.shutdown();
     process.exit(0);
   };
   process.on("SIGTERM", shutdown);
