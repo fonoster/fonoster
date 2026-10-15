@@ -461,7 +461,11 @@ class Run {
     this.checkTiming(index, step, anchor, closed.at);
   }
 
-  private async assert(index: number, assertions: Record<string, unknown>, since: number) {
+  private async assert(
+    index: number,
+    assertions: Record<string, unknown>,
+    since: number
+  ) {
     const harness = this.options.harness;
     for (const [name, expected] of Object.entries(assertions)) {
       const measured = harness?.measure
