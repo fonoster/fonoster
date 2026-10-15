@@ -24,7 +24,11 @@ entries:
   - { kind: model, id: deepgram/aura-2, type: tts, features: [streaming], languages: [en, es], settings: [], state: active }
   - { kind: model, id: elevenlabs/eleven_flash_v2_5, type: tts, features: [streaming], languages: [en, es, multi], settings: [stability, similarity_boost, style, speed], state: active }
   - { kind: model, id: openai/gpt-4o-mini, type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
-  - { kind: model, id: groq/llama-3.3-70b-versatile, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
+  # Groq serves OpenAI's open-weight models (catalog id = groq/<Groq model name>). Groq retired
+  # Llama 3.3 70B; assistants that still name it run on gpt-oss-120b (FN-B5).
+  - { kind: model, id: groq/openai/gpt-oss-120b, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
+  - { kind: model, id: groq/openai/gpt-oss-20b, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
+  - { kind: model, id: groq/llama-3.3-70b-versatile, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: retired, replacement: groq/openai/gpt-oss-120b, retireOn: "2026-10-15" }
   - { kind: model, id: openai/gpt-4.1-mini, type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
   # ---- voices: Deepgram Aura-2 (catalog id = deepgram/<Deepgram model name>) ---------------
   - { kind: voice, id: deepgram/aura-2-thalia-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }

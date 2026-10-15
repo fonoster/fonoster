@@ -4,7 +4,7 @@
 #
 #   Data plane:    NATS, Postgres, Routr, RTPEngine, the media node, the VoiceSessionGateway, MinIO,
 #                  and (profile `autopilot`) the hosted Autopilot session engine.
-#   Control plane: the apiserver (with its embedded Identity), Envoy, the dashboard, and appsync.
+#   Control plane: the apiserver (with its embedded Identity), Envoy and the dashboard.
 #   Profiles:      `autopilot`, `fakes` (fake TTS/STT/LLM, no vendor keys), `tools` (the SIP caller
 #                  bot), `observability` (OTel collector, Prometheus, Loki, Tempo, Grafana).
 #
@@ -177,7 +177,8 @@ services:
         ipv4_address: ${RB_NET:-10.216.16}.43
 
   # The hosted Autopilot session engine: the session app Autopilot-type apps point to
-  # (ws://autopilot:3000). Assistants come from appsync's file.
+  # (ws://autopilot:3000). Assistants, the catalog and workspace vendor keys come from the
+  # apiserver's database (autopilot-session.yaml, `source: database`).
   autopilot:
     profiles: ["autopilot"]
     build:
@@ -185,14 +186,19 @@ services:
       dockerfile: mods/autopilot/Dockerfile
     image: ${RB_REGISTRY:-fonoster}/autopilot-session:${RB_TAG:-dev}
     restart: unless-stopped
+    depends_on:
+      apiserver: { condition: service_started }
     environment:
       <<: *otel
       AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:-change-me}
+      # The control-plane database and the key that decrypts workspace vendor keys.
+      APISERVER_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/fonoster
+      APISERVER_ENCRYPTION_KEY: ${RB_ENCRYPTION_KEY:-}
+      # Platform LLM keys, read only when autopilot-session.yaml names them (credentials).
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
     volumes:
       - ${RB_CONFIG_DIR:-./config}/autopilot-session.yaml:/etc/fonoster/autopilot-session.yaml:ro
-      - ${RB_CONFIG_DIR:-./config}/registry.json:/etc/fonoster/registry.json:ro
-      - assistants:/var/lib/fonoster/assistants:ro
     expose:
       - 3000
 
@@ -238,30 +244,6 @@ services:
     expose:
       - 50051
       - 9876
-
-  # Writes the session-app columns of Autopilot apps (url, flavor, signing secret, speech) and the
-  # hosted Autopilot's assistants file, every few seconds. Interim: until the apiserver writes
-  # them on create (ST-B4).
-  appsync:
-    build:
-      context: ../..
-      dockerfile: ops/rebuild/docker/apiserver.Dockerfile
-    image: ${RB_REGISTRY:-fonoster}/apiserver:${RB_TAG:-dev}
-    restart: unless-stopped
-    user: "0"
-    depends_on:
-      apiserver: { condition: service_started }
-    command: ["node", "/opt/rebuild/appsync.cjs", "--watch"]
-    environment:
-      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:-change-me}
-      RB_AUTOPILOT_URL: ${RB_AUTOPILOT_URL:-ws://autopilot:3000}
-      RB_DEFAULT_VOICE: ${RB_DEFAULT_VOICE:-deepgram/aura-2-thalia-en}
-      RB_ASSISTANTS_FILE: /var/lib/fonoster/assistants/assistants.json
-    volumes:
-      - ./appsync.cjs:/opt/rebuild/appsync.cjs:ro
-      - ${RB_CONFIG_DIR:-./config}/fonoster.yaml:/opt/fonoster/fonoster.yaml:ro
-      - ${RB_CONFIG_DIR:-./config}/keys:/opt/fonoster/keys:ro
-      - assistants:/var/lib/fonoster/assistants
 
   # gRPC, gRPC-Web, /api and the dashboard on one port (the root config/envoy.yaml).
   envoy:
@@ -367,4 +349,3 @@ volumes:
   db:
   nats:
   minio:
-  assistants:

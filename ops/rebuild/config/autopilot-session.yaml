@@ -1,10 +1,15 @@
 # autopilot-session.yaml: the hosted Autopilot (profile `autopilot`), an ordinary session app the
 # gateway dials at ws://autopilot:3000. Format: config/autopilot-session.example.yaml.
 port: 3000
-# The secret the gateway signs Autopilot sessions with: every Autopilot app's signing secret.
+# The secret the gateway signs Autopilot sessions with: every Autopilot app's signing secret
+# (the apiserver's apps.autopilotSigningSecret).
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
-# Written by the appsync service from the apps' stored assistants.
-assistants: { file: /var/lib/fonoster/assistants/assistants.json }
-registry: { file: /etc/fonoster/registry.json }
+# Assistants (the Autopilot apps' Intelligence rows), the catalog (registry tables) and workspace
+# vendor keys come from the apiserver's database.
+assistants: { source: database }
+registry: { source: database }
+workspaceSecrets: { source: database }
+database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
 credentials:
   openai-default: { env: OPENAI_API_KEY }
+  groq-default: { env: GROQ_API_KEY }

@@ -280,6 +280,46 @@ describe("@gateway integration", function () {
     expect(commands()).not.to.include("answer");
   });
 
+  it("records callee_hangup when the dialed party hangs up (the app sees caller_hangup)", async function () {
+    await start([app("a", harness.app.url)]);
+    const room = await harness.mediaNode.handle({
+      type: "room.create",
+      id: "c1"
+    });
+    await nc.request(
+      OUTBOUND_SUBJECT,
+      sc.encode(
+        JSON.stringify({
+          nodeId: harness.mediaNode.nodeId,
+          roomRef: room.roomRef,
+          appRef: "a",
+          callRef: "out-2",
+          to: "+15551234567"
+        })
+      )
+    );
+    await harness.mediaNode.handle({
+      type: "participant.dial",
+      id: "d1",
+      roomRef: room.roomRef as string,
+      to: "+15551234567"
+    });
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    harness.mediaNode.calleeHangup(room.roomRef as string);
+    const end = await waitFor(() =>
+      json(peer).find((m) => m.type === "session.end")
+    );
+    expect(end.reason).to.equal("caller_hangup");
+    const ended = await waitFor(() =>
+      record.records
+        .get("out-2")
+        ?.map((e) => e.message)
+        .find((m) => m.type === "call.ended")
+    );
+    expect(ended).to.include({ reason: "callee_hangup" });
+  });
+
   it("never dials the app when the callee is busy", async function () {
     harness.mediaNode.configure({ dialOutcome: "busy" });
     await start([app("a", harness.app.url)]);

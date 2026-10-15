@@ -128,6 +128,57 @@ describe("@gateway vendor adapters", function () {
     expect(error.code).to.equal("provider_timeout");
   });
 
+  it("TTS timeouts bound each wait, not a body read at playback pace", async function () {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    // 6 chunks 80 ms apart: 480 ms in all, longer than the 150 ms timeout, no gap longer.
+    const steady = await vendor(async (_req, res) => {
+      res.writeHead(200);
+      for (let i = 0; i < 6; i++) {
+        res.write(Buffer.alloc(320, 1));
+        await sleep(80);
+      }
+      res.end();
+    });
+    const tts = new DeepgramTtsAdapter({
+      apiKey: "k",
+      baseUrl: steady.url,
+      timeoutMs: 150
+    });
+    const chunks = await drain(
+      (
+        await tts.synthesize(
+          { text: "A long reply", voice: "v", language: "en" },
+          new AbortController().signal
+        )
+      ).audio
+    );
+    steady.server.close();
+    expect(Buffer.concat(chunks).length).to.equal(6 * 320);
+
+    // A body that stops sending for longer than the timeout is a stall.
+    const stuck = await vendor((_req, res) => {
+      res.writeHead(200);
+      res.write(Buffer.alloc(320, 1));
+    });
+    const stalled = new DeepgramTtsAdapter({
+      apiKey: "k",
+      baseUrl: stuck.url,
+      timeoutMs: 150
+    });
+    const error = await drain(
+      (
+        await stalled.synthesize(
+          { text: "Hi", voice: "v", language: "en" },
+          new AbortController().signal
+        )
+      ).audio
+    ).catch((e) => e);
+    stuck.server.closeAllConnections();
+    stuck.server.close();
+    expect(error).to.be.instanceOf(SpeechError);
+    expect(error.code).to.equal("provider_timeout");
+  });
+
   it("ElevenLabs streams raw 16 kHz PCM for the voice id", async function () {
     const v = await vendor((_req, res) =>
       res.writeHead(200).end(Buffer.alloc(640))

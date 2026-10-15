@@ -60,7 +60,11 @@ export class PlacementError extends Error {
 export async function placeOutboundCall(
   request: Requester,
   nodes: NodeDirectory,
-  call: OutboundCallRequest
+  call: OutboundCallRequest,
+  hooks: {
+    /** Called once the room exists, before anything is dialed (e.g. to watch its events). */
+    onRoom?: (nodeId: string, roomRef: string) => void;
+  } = {}
 ): Promise<{ nodeId: string; roomRef: string }> {
   const nodeId = nodes.pick();
   if (!nodeId) {
@@ -84,6 +88,7 @@ export async function placeOutboundCall(
   const room = await command({ type: "room.create", id: `${call.ref}:room` });
   const roomRef = String(room.roomRef ?? "");
   nodes.placed(nodeId);
+  hooks.onRoom?.(nodeId, roomRef);
   const endRoom = () =>
     command({ type: "room.end", id: `${call.ref}:end`, roomRef }).catch(
       () => undefined

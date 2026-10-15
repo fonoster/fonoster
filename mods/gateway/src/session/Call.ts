@@ -106,6 +106,11 @@ export function sessionEndReason(reason: unknown): SessionEndReason {
   }
 }
 
+/** The call record's end reason: the session reason, except that the callee hanging up stays so. */
+export function recordEndReason(reason: unknown): string {
+  return reason === "callee_hangup" ? reason : sessionEndReason(reason);
+}
+
 export type CallInfo = {
   nodeId: string;
   roomRef: string;
@@ -524,8 +529,12 @@ export class Call {
     this.finish(reason);
   }
 
-  /** Ends everything locally: session, speech, RTP, subscriptions. */
-  finish(reason: SessionEndReason) {
+  /**
+   * Ends everything locally: session, speech, RTP, subscriptions. `recordReason` is what the call
+   * record keeps when it says more than the session reason (e.g. `callee_hangup`: the dialed
+   * party of an outbound call hung up; the app still gets `caller_hangup`).
+   */
+  finish(reason: SessionEndReason, recordReason: string = reason) {
     if (this.ended) return;
     this.ended = true;
     this.session?.end(reason);
@@ -534,7 +543,7 @@ export class Call {
     this.unsubscribeRoom?.();
     // The recording is flushed before the record is closed, so sealing finds all of it.
     this.recording.stop();
-    this.record("event", { type: "call.ended", reason });
+    this.record("event", { type: "call.ended", reason: recordReason });
     if (this.answeredBy)
       this.deps.webhooks?.(
         Webhooks.callEnded(this.answeredBy.workspaceRef ?? "default", {
@@ -567,19 +576,29 @@ export class Call {
         break;
       case "participant.left":
         if (event.participantRef === this.info.callerRef)
-          this.finish(this.hangingUp ?? sessionEndReason(event.reason));
+          this.finish(
+            this.hangingUp ?? sessionEndReason(event.reason),
+            this.hangingUp ?? recordEndReason(event.reason)
+          );
         else if (event.participantRef === this.sessionParticipantRef)
           this.session?.leftRoom();
         break;
       case "room.ended":
         if (!this.answeredBy && event.reason && event.reason !== "removed")
           this.failed(String(event.reason), event.sipStatus as number);
-        this.finish(
-          this.hangingUp ??
+        {
+          const reason =
+            this.hangingUp ??
             (this.session?.pendingTransferEnd
               ? "transfer"
-              : sessionEndReason(event.reason))
-        );
+              : sessionEndReason(event.reason));
+          this.finish(
+            reason,
+            reason === sessionEndReason(event.reason) && !this.hangingUp
+              ? recordEndReason(event.reason)
+              : reason
+          );
+        }
         break;
       case "transfer.result":
         this.session?.transferResult(event);

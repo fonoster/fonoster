@@ -143,6 +143,23 @@ describe("@common/registry", function () {
     });
   });
 
+  it("takes model names with slashes, as hosted models have, and refuses malformed ids", function () {
+    const r = new Registry({ store: new MemoryRegistryStore(), actor: "ops" });
+    r.addProvider({
+      id: "groq",
+      adapter: "groq",
+      capabilities: ["llm"],
+      credentialRef: "groq-default"
+    });
+    r.addModel({ id: "groq/openai/gpt-oss-120b", type: "llm" });
+    expect(r.show("groq/openai/gpt-oss-120b")).to.include({ type: "llm" });
+    for (const id of ["groq/", "groq//x", "Groq/x", "groq/a b"])
+      expect(() => r.addModel({ id, type: "llm" })).to.throw(
+        RegistryError,
+        `invalid catalog id ${id}`
+      );
+  });
+
   it("offers a voice only with the models it works on", function () {
     const { r } = elevenlabs();
     expect(r.voicesFor("elevenlabs/flash-v2.5").map((v) => v.id))
