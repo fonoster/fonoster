@@ -1,0 +1,3 @@
+pipecat-ai[websocket]==1.12.0
+fastapi
+uvicorn

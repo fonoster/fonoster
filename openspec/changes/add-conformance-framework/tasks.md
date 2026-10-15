@@ -19,7 +19,7 @@
 
 - [x] 3.1 Session protocol suite (every `voice-session` scenario)
 - [x] 3.2 SDK suites (TypeScript and Python, shared scenarios, old handler signature)
-- [ ] 3.3 Twilio flavor suite with an unmodified Pipecat bot
+- [x] 3.3 Twilio flavor suite with an unmodified Pipecat bot
 - [ ] 3.4 Gateway timing suite (T1)
 - [ ] 3.5 Turn-taking replay suite, baseline detector and initial corpus (T3)
 - [ ] 3.6 Autopilot suite (fake session, extended conversation evals, stopwatch)

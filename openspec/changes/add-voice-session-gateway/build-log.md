@@ -131,3 +131,11 @@ it touches are named.
 - The chain starts asynchronously, so the first frames of a call can pass unfiltered while a
   model loads (the spec says "from the first frame"; buffering until ready is a possible
   follow-up).
+
+### B15. Pipecat golden test passes
+
+- `python/pipecat-golden/golden_bot.py` is a plain Pipecat 1.12.0 bot; nothing Fonoster-specific.
+  Against the gateway it hears the caller, is heard, stops on `clear`, gets DTMF, and hangs up via
+  `auto_hang_up` + `base_url` (Calls endpoint, 200) and via socket close. Runs only with
+  `PIPECAT_PYTHON` set (it needs a Python with pipecat-ai).
+- Pipecat detected our `start` message as Twilio with its own `parse_telephony_websocket`.
