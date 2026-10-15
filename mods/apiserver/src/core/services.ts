@@ -23,13 +23,19 @@ import {
   buildCredentialsService,
   buildDomainsService,
   buildNumbersService,
-  buildTrunksService
+  buildTrunksService,
+  createNumberRouting
 } from "@fonoster/sipnet";
 import { buildApplicationsService } from "../applications";
 import { buildCallsService } from "../calls";
 import { influxdb } from "../calls/influxdb";
 import { buildCapabilitiesService } from "../capabilities";
 import { getConfig } from "../config";
+import {
+  ROUTR_DEFAULT_PEER_AOR,
+  ROUTR_ENGINES,
+  ROUTR_MEDIA_NODE_PEER
+} from "../envs";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";
 import { buildWelcomeDemoService } from "./buildWelcomeDemoService";
@@ -46,9 +52,19 @@ const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);
 const trunksService = buildTrunksService(routrConfig);
+// App-linked numbers go to Asterisk or the media nodes (routr.engines; all Asterisk by default).
+const numberRouting = createNumberRouting({
+  defaultEngine: ROUTR_ENGINES.default,
+  asteriskAor: ROUTR_DEFAULT_PEER_AOR,
+  mediaNodeAor: ROUTR_MEDIA_NODE_PEER.aor,
+  rebuildApps: ROUTR_ENGINES.rebuildApps,
+  asteriskApps: ROUTR_ENGINES.asteriskApps,
+  numbers: ROUTR_ENGINES.numbers
+});
 const numbersService = buildNumbersService(
   routrConfig,
-  createCheckNumberPreconditions(prisma)
+  createCheckNumberPreconditions(prisma),
+  numberRouting
 );
 const aclsService = buildAclsService(routrConfig);
 const welcomeDemoService = buildWelcomeDemoService();

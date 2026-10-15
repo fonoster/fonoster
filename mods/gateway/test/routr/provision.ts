@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APP_REF_HEADER } from "@fonoster/common";
 import { CommonTypes as CT } from "@routr/common";
 import SDK from "@routr/sdk";
 
@@ -119,7 +120,8 @@ export async function provisionMediaNodeRouting(
   const existing = (await listAll((q) => numbers.listNumbers(q) as never)).find(
     (n) => (n as unknown as { telUrl: string }).telUrl === telUrl
   );
-  const extraHeaders = [{ name: "X-App-Ref", value: r.appRef }];
+  // The header exactly as sipnet writes it (x-app-ref).
+  const extraHeaders = [{ name: APP_REF_HEADER, value: r.appRef }];
   const number = existing
     ? await numbers.updateNumber({
         ref: existing.ref,
