@@ -50,11 +50,12 @@ export abstract class FakeProvider {
     return `http://127.0.0.1:${address.port}`;
   }
 
-  async start(port = 0): Promise<this> {
+  /** `host` 0.0.0.0 serves other containers (the rebuild stack's fakes service). */
+  async start(port = 0, host = "127.0.0.1"): Promise<this> {
     this.server = http.createServer((req, res) => this.onRequest(req, res));
     this.onServer(this.server);
     await new Promise<void>((resolve) =>
-      this.server!.listen(port, "127.0.0.1", resolve)
+      this.server!.listen(port, host, resolve)
     );
     return this;
   }
