@@ -264,3 +264,16 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   audio in total), about 0.05 USD. ElevenLabs: 7 short syntheses (under 600 characters), about
   0.05 USD. OpenAI: 3 requests refused for lack of credit (no charge). Model and voice lists:
   free. Total well under 0.25 USD of the 3 USD cap.
+
+### CP-B12. The gateway uses workspace vendor keys (3.2)
+
+- `PrismaWorkspaceKeys` (common): workspace + provider → the bound Secret's value, cached 30 s.
+- Gateway config `workspaceKeys: {enabled, cacheMs}` (needs `database` with the encryption key).
+  `Catalog.prepare(workspaceRef)` looks up the workspace's key for each configured provider at
+  session start and on handoff (1 s budget; a failed or slow lookup uses the platform keys).
+  Resolutions for that workspace then use adapters built with its key; a provider without a
+  platform key works for a workspace that brought one. Providers are matched by the gateway's
+  provider name (= the catalog provider id).
+- Adapters built with workspace keys are cached by provider and key for the process's life, not
+  only the session; good enough for now.
+- The hosted Autopilot resolves LLM keys the same way (CP-B11).

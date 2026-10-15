@@ -134,15 +134,13 @@ describe("Agents list", () => {
     expect(request).toMatchObject({
       name: "Billing reminders",
       type: "AUTOPILOT",
-      textToSpeech: {
-        productRef: "tts.deepgram",
-        config: { voice: "aura-2-thalia-en" }
+      speech: {
+        voice: "deepgram/aura-2-thalia-en",
+        language: "en-US"
       },
-      speechToText: {
-        productRef: "stt.deepgram",
-        config: { languageCode: "en-US" }
-      },
-      intelligence: { productRef: "llm.openai", credentials: {} }
+      intelligence: {
+        config: { languageModel: { model: expect.stringMatching(/^openai\//) } }
+      }
     });
     expect(
       request.intelligence.config.conversationSettings.systemPrompt
@@ -209,8 +207,9 @@ describe("Agent detail", () => {
     expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
 
     await user.click(screen.getByRole("link", { name: "Advanced" }));
-    const url = await screen.findByLabelText("Webhook URL");
-    await user.clear(url);
+    const temperature = await screen.findByLabelText("Temperature");
+    await user.clear(temperature);
+    await user.type(temperature, "0.2");
     await user.click(screen.getByRole("button", { name: "Save" }));
 
     expect(applications.updateApplication).toHaveBeenCalledTimes(1);
@@ -219,28 +218,9 @@ describe("Agent detail", () => {
     expect(request.intelligence.config.conversationSettings.systemPrompt).toBe(
       "Be brief."
     );
+    expect(request.intelligence.config.languageModel.temperature).toBe(0.2);
     expect(request.intelligence.config).not.toHaveProperty("eventsHook");
     expect(await screen.findByRole("button", { name: "Save" })).toBeDisabled();
-  });
-
-  it("blocks saving a webhook without events and points at the tab", async () => {
-    const { user, applications } = setup({
-      route: `/w/ws-1/agents/${billingAgent.ref}/advanced`
-    });
-    await user.click(
-      await screen.findByRole("button", { name: "conversation.started" })
-    );
-    await user.click(
-      screen.getByRole("button", { name: "conversation.ended" })
-    );
-    await user.click(screen.getByRole("button", { name: "Save" }));
-    expect(
-      await screen.findByText("Pick at least one event")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Fix the highlighted fields in Advanced/)
-    ).toBeInTheDocument();
-    expect(applications.updateApplication).not.toHaveBeenCalled();
   });
 
   it("adds a tool in the tools editor", async () => {

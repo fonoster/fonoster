@@ -175,12 +175,6 @@ export const agentSchema = z
     })
   })
   .superRefine((values, ctx) => {
-    if (values.eventsHook.url && values.eventsHook.events.length === 0)
-      ctx.addIssue({
-        code: "custom",
-        message: "Pick at least one event",
-        path: ["eventsHook", "events"]
-      });
     if (
       values.stt.languageCode === "multi" &&
       !MULTILINGUAL_MODELS.includes(values.stt.model)
@@ -283,6 +277,10 @@ export function toValues(app: Application): AgentValues {
   const tts = app.textToSpeech;
   const stt = obj(app.speechToText?.config);
   const config = obj(app.intelligence?.config);
+  // The session app model (CP-B13): catalog ids on the app's speech defaults.
+  const speech = obj(app.speech);
+  const [voiceVendor, ...voiceRest] = str(speech.voice).split("/");
+  const sttModel = str(speech.sttModel).split("/").slice(1).join("/");
   const conversation = obj(config.conversationSettings);
   const idle = obj(conversation.idleOptions);
   const transfer = obj(conversation.transferOptions);
@@ -292,20 +290,30 @@ export function toValues(app: Application): AgentValues {
   const events = Array.isArray(eventsHook.events)
     ? (eventsHook.events as string[])
     : [];
-  const provider = str(languageModel.provider, "openai") as LlmProvider;
+  const [modelVendor, ...modelRest] = str(languageModel.model).split("/");
+  const catalogModel = modelRest.length > 0;
+  const provider = (
+    catalogModel ? modelVendor : str(languageModel.provider, "openai")
+  ) as LlmProvider;
 
   return {
     name: app.name ?? "",
-    tts: {
-      productRef:
-        tts?.productRef === "tts.elevenlabs"
-          ? "tts.elevenlabs"
-          : "tts.deepgram",
-      voice: str(obj(tts?.config).voice)
-    },
+    tts: voiceRest.length
+      ? {
+          productRef:
+            voiceVendor === "elevenlabs" ? "tts.elevenlabs" : "tts.deepgram",
+          voice: voiceRest.join("/")
+        }
+      : {
+          productRef:
+            tts?.productRef === "tts.elevenlabs"
+              ? "tts.elevenlabs"
+              : "tts.deepgram",
+          voice: str(obj(tts?.config).voice)
+        },
     stt: {
-      model: str(stt.model, "nova-3"),
-      languageCode: str(stt.languageCode, "en-US")
+      model: sttModel || str(stt.model, "nova-3"),
+      languageCode: str(speech.language) || str(stt.languageCode, "en-US")
     },
     conversation: {
       firstMessage: str(conversation.firstMessage),
@@ -343,7 +351,7 @@ export function toValues(app: Application): AgentValues {
     },
     model: {
       provider,
-      model: str(languageModel.model),
+      model: catalogModel ? modelRest.join("/") : str(languageModel.model),
       temperature: numOr(languageModel.temperature, DEFAULTS.temperature),
       maxTokens: numOr(languageModel.maxTokens, DEFAULTS.maxTokens),
       baseUrl: str(languageModel.baseUrl)
@@ -421,95 +429,67 @@ export function toRequest(
   values: AgentValues,
   base?: Application
 ): CreateApplicationRequest {
+  // The session assistant (sessionAssistantSchema, CP-B13): strict, so only its keys are sent.
+  // VAD, the speech wait timeout, audio filters, the events webhook and per-agent base URLs
+  // moved out of the assistant (turn-taking, app filters, workspace webhooks, the registry).
   const previous = obj(base?.intelligence?.config);
-  const previousConversation = obj(previous.conversationSettings);
   const previousModel = obj(previous.languageModel);
-  const previousHook = obj(previous.eventsHook);
-  const previousTransfer = obj(previousConversation.transferOptions);
   const c = values.conversation;
   const m = values.model;
 
-  const {
-    initialDtmf: _dtmf,
-    transferOptions: _transfer,
-    firstMessage: _first,
-    ...keptConversation
-  } = previousConversation;
-  const { baseUrl: _baseUrl, apiKey: _apiKey, ...keptModel } = previousModel;
-  const { eventsHook: _hook, ...keptConfig } = previous;
-
   const conversationSettings = {
-    ...keptConversation,
     ...(c.firstMessage.trim() ? { firstMessage: c.firstMessage.trim() } : {}),
     systemPrompt: c.systemPrompt,
     goodbyeMessage: c.goodbyeMessage.trim(),
     systemErrorMessage: c.systemErrorMessage.trim(),
     ...(c.initialDtmf.trim() ? { initialDtmf: c.initialDtmf.trim() } : {}),
     maxSessionDuration: Math.round(c.maxSessionMinutes * 60000),
-    maxSpeechWaitTimeout: c.maxSpeechWaitTimeout,
     allowUserBargeIn: c.allowUserBargeIn,
-    idleOptions: {
-      message: c.idleMessage.trim(),
-      timeout: Math.round(c.idleTimeoutSeconds * 1000),
-      maxTimeoutCount: c.idleMaxTimeoutCount
-    },
+    ...(c.idleMessage.trim()
+      ? {
+          idleOptions: {
+            message: c.idleMessage.trim(),
+            timeout: Math.round(c.idleTimeoutSeconds * 1000),
+            maxTimeoutCount: c.idleMaxTimeoutCount
+          }
+        }
+      : {}),
     ...(c.transferPhoneNumber.trim()
       ? {
           transferOptions: {
             phoneNumber: c.transferPhoneNumber.replace(/[ ()-]/g, ""),
-            message: c.transferMessage.trim(),
-            timeout: numOr(previousTransfer.timeout, DEFAULTS.transferTimeout)
+            message: c.transferMessage.trim()
           }
         }
-      : {}),
-    vad: { ...obj(previousConversation.vad), ...c.vad }
+      : {})
   };
 
   const languageModel = {
-    knowledgeBase: [],
-    ...keptModel,
-    provider: m.provider,
-    model: m.model.trim(),
+    model: `${m.provider}/${m.model.trim()}`,
     temperature: m.temperature,
     maxTokens: m.maxTokens,
-    ...(m.baseUrl.trim() ? { baseUrl: m.baseUrl.trim() } : {}),
-    tools: values.tools.map(toolToConfig)
+    tools: values.tools.map(toolToConfig),
+    knowledgeBase: Array.isArray(previousModel.knowledgeBase)
+      ? previousModel.knowledgeBase
+      : []
   };
-
-  // An empty URL drops the webhook; a URL needs events (checked by the schema).
-  const eventsHook = values.eventsHook.url.trim()
-    ? {
-        ...previousHook,
-        url: values.eventsHook.url.trim(),
-        events: values.eventsHook.events
-      }
-    : undefined;
 
   return {
     name: values.name.trim(),
     // @fonoster/types is CommonJS: no runtime enum imports in the browser.
     type: "AUTOPILOT" as CreateApplicationRequest["type"],
-    textToSpeech: {
-      productRef: values.tts.productRef,
-      config: { ...obj(base?.textToSpeech?.config), voice: values.tts.voice }
-    },
-    speechToText: {
-      productRef: "stt.deepgram",
-      config: {
-        ...obj(base?.speechToText?.config),
-        model: values.stt.model,
-        languageCode: values.stt.languageCode
-      }
+    speech: {
+      voice: `${values.tts.productRef.replace(/^tts\./, "")}/${values.tts.voice}`,
+      language: values.stt.languageCode,
+      sttModel: `deepgram/${values.stt.model}`
     },
     intelligence: {
-      productRef: `llm.${m.provider}`,
-      credentials: {},
       config: {
-        ...keptConfig,
-        audioFilters: values.audioFilters,
         conversationSettings,
         languageModel,
-        ...(eventsHook ? { eventsHook } : {})
+        ...(previous.testCases !== undefined
+          ? { testCases: previous.testCases }
+          : {})
       }
     }
   };

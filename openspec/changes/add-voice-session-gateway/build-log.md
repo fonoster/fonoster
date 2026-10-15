@@ -346,8 +346,7 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   Autopilot with an assistant JSON editor), Calls (replaces the InfluxDB calls screen; turns,
   turn decisions, recording download through the authenticated API), Webhooks, Vendor keys.
   `SessionApi` has an SDK adapter (`sdk-api.ts`) and the mock stays for tests. The Agents screen
-  still writes the legacy assistant shape and will be refused by the new validation; it needs
-  porting to `sessionAssistantSchema` (or removal in favour of Apps → Autopilot).
+  was ported afterwards (CP-B13).
 - Two Playwright flows on the old calls screen are skipped (they mock gRPC ListCalls).
 
 ### CP-B10. Local links (not committed)
@@ -367,3 +366,26 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   release; `docs/release-notes-sessions.md` lists the five breaking changes.
 - `gateway.outbound` (B8) now has a caller: the apiserver's outbound placement (add-media-node
   CB-B2).
+
+### CP-B13. The Agents screen writes the session assistant (kept, not folded into Apps)
+
+- Agents stays as the friendly editor for Autopilot apps; Apps → Autopilot remains the raw JSON
+  path. Its mapping now sends `speech` catalog ids (`deepgram/<voice>`, `deepgram/<stt model>`,
+  language) and an assistant with only `sessionAssistantSchema` keys: `languageModel.model` is
+  `<provider>/<model>`, and VAD, the speech wait timeout, audio filters, the events webhook and
+  base URLs are no longer sent. Their controls left the Advanced tab (a note says where they
+  went). It reads both the new and the legacy shapes. No URL is sent, so agents run on the hosted
+  Autopilot. The in-browser test call ("talk") still uses the old test-token path.
+
+### CP-B14. Records API in the browser: same origin through Envoy
+
+- The dashboard reaches the apiserver through Envoy, which already routes `/api` to the HTTP
+  bridge, so `/api/records` is same-origin. Envoy's CORS now also allows `authorization` and
+  `x-accesskey-id` and exposes `content-disposition` and `x-content-hash` (for a dashboard served
+  from another origin, e.g. Vite in development). No CORS on the bridge itself.
+
+### CP-B15. appsync is no longer needed
+
+- With the Applications API writing the app model, the hosted Autopilot reading assistants from
+  the database (CP-B11) and the gateway reading apps from `applications` (P-B9), rb-stack's
+  interim `appsync` (copies app fields and assistants every 3 s) can be removed once both land.
