@@ -64,4 +64,4 @@
       in favor of the record's recording reference
 - [ ] 7.3 Point users of Autopilot's retired `conversation.ended` webhook (`rework-autopilot`) to (partial: docs/autopilot.md points to call.ended and call_record.sealed; release note missing)
       `call.ended` and `call_record.sealed` (release note)
-- [ ] 7.4 Docs: what a call record contains, retention and erasure, redaction, verifying a record
+- [x] 7.4 Docs: what a call record contains, retention and erasure, redaction, verifying a record

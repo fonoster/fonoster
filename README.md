@@ -163,6 +163,15 @@ To get started with Fonoster, use the following resources:
 - [Getting started with Fonoster](https://docs.fonoster.com/quickstart)
 - [How we created an open-source alternative to Twilio and why it matters](https://dev.to/fonoster/how-we-created-an-open-source-alternative-to-twilio-and-why-it-matters-434g)
 
+### Guides in this repository
+
+- [Try the new platform on your machine](docs/try-the-new-platform.md)
+- [Session protocol](docs/session-protocol.md) and [What changed](docs/migrating-to-sessions.md)
+- [Workspace webhooks](docs/webhooks.md): events, signatures, retries, migrating from `eventsHook`
+- [Call records](docs/call-records.md): contents, retention and erasure, redaction, verification
+- [Providers](docs/providers.md): catalog ids, your own keys, deprecation warnings
+- Operators: [deployment](docs/operators/rebuild.md), [regions](docs/operators/regions.md), [provider registry](docs/operators/registry.md)
+
 ## Give a Star! ⭐
 
 Please give it a star if you like this project or plan to use it. Thanks 🙏

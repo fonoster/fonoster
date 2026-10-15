@@ -52,7 +52,7 @@ connections that are not signed by the gateway. Rotation is immediate, with no o
   official target.
 - **Private regions** are customer-operated cells (decision D9, softened): the customer runs the
   data plane and upgrades it; the cell links to the control plane only through an outbound NATS
-  leaf node ([Running a private region](./operators/private-region.md)).
+  leaf node ([Running a region](./operators/regions.md)).
 - **Telemetry**: every service exports OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; a call's trace
   runs from the media node through the gateway (a `traceparent` NATS header).
 

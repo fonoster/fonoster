@@ -19,4 +19,4 @@
 
 - [x] 3.1 SDK and CTL subscription management
 - [x] 3.2 Dashboard: endpoints, event selection, delivery log, resend
-- [ ] 3.3 Docs: payload reference, verifying signatures, migrating from Autopilot's `eventsHook` (partial: docs/autopilot.md covers the eventsHook migration; payload reference and signature verification page missing)
+- [x] 3.3 Docs: payload reference, verifying signatures, migrating from Autopilot's `eventsHook` (done: docs/webhooks.md)

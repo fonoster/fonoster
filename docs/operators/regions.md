@@ -11,9 +11,41 @@ the dashboard.
 **Public regions** run the very same install and enroll the same way; Fonoster operators create
 them with the operator key (see "Public regions" below).
 
+Two tools, two places:
+
+- **Dashboard** (users): create and manage private regions from the start screen.
+- **`fonoster-regions`** (operators): `create`, `list`, `token`, `publish` and `revoke` run
+  anywhere with the operator key; `enroll`, `secrets`, `status` and `run` run on the region's
+  machine.
+
 The cell runs NATS, Postgres, Routr, RTPEngine, a media node, the VoiceSessionGateway, the hosted
 Autopilot, MinIO and the **region agent**. Region operations use one utility, `fonoster-regions`
 (`fonoster-region` still works as a deprecated alias); it is not part of the `fonoster` CLI.
+
+## Private regions from the dashboard
+
+Private regions belong to you, not to a workspace. Sign in and open the start screen (the page
+that lists your workspaces); **Your regions** is on it.
+
+1. **New region**: enter an ID (3 to 32 lowercase letters, digits or hyphens, starting with a
+   letter; `default` and the prefixes `us-`, `eu-`, `sa-`, `ap-`, `af-`, `me-` are reserved; it
+   cannot change later), a display name and your SIP domain (a fully qualified name such as
+   `sip.acme.com`; required).
+2. The new region shows **Waiting** with its install command and enrollment token. The token works
+   once and expires after 24 hours; if it expires, open the row's **More** menu and use
+   **Re-issue token**.
+3. Install the region on your machine (below). The status turns **Connected** after the first
+   heartbeat. Other states are **Offline** (no heartbeat) and **Needs upgrade** (the version is
+   outside the supported window).
+4. The details drawer shows the version, last seen, SIP domain, **Connection details** (SIP host,
+   port and transport, addresses to allowlist, RTP ports), the workspaces using the region, and
+   which provider keys are **Set** or **Missing**. **Disconnect** revokes the region.
+5. Create a workspace: its region select offers the public `default` region and your private
+   regions. A workspace never changes region afterwards; Settings shows it read-only. Any of your
+   workspaces can use the same private region.
+
+The install command in the dashboard is a shortcut. This guide's steps (the `ops/rebuild/cell`
+Compose files and the Helm chart) are the source of truth for the options.
 
 ## SIP domain, DNS and TLS
 
@@ -142,8 +174,14 @@ Enrollment, credentials and secrets survive upgrades (they live in the `region` 
 
 ## Operations
 
-- **Status**: `fonoster-regions status` shows the region, control plane and the applied config
-  version. It never prints credentials.
+- **Status**: `fonoster-regions status` prints the cell's region and control plane, then the
+  applied config version, workspaces, secret names still needed and whether it was revoked. It
+  never prints credentials. Read the store with the same `--data-dir` or `--k8s-secret` you
+  enrolled with.
+- **Secrets**: `fonoster-regions secrets set|list|delete <name>`. `set` reads stdin or
+  `--from-env <VAR>`. The store is a Kubernetes Secret (`--k8s-secret`), a directory
+  (`--dir`) or an encrypted file (`--file`, default `<data-dir>/secrets.enc`, key in
+  `FONOSTER_REGION_SECRETS_KEY`).
 - **Lost the cell or its credentials**: re-issue a token on the region's page and enroll
   again. Enrolling revokes the previous credentials; the agent applies the next snapshot in full.
 - **Disconnect**: the region page's Disconnect revokes the cell. Calls keep running on the last
@@ -152,7 +190,7 @@ Enrollment, credentials and secrets survive upgrades (they live in the `region` 
 - **Errors at enrollment**: `token_used` (each token enrolls once; re-issue), `token_expired`
   (tokens last 24 hours; re-issue), `token_invalid` (copy the token again).
 - **Versions**: keep the cell within the current or previous minor release. Outside that window the
-  region shows **Unsupported** and config sync pauses; calls keep running.
+  region shows **Needs upgrade** and config sync pauses; calls keep running.
 
 ## Public regions (operators)
 
@@ -167,7 +205,7 @@ fonoster-regions enroll <token>
 fonoster-regions secrets set deepgram < deepgram.key   # Fonoster's own provider keys
 # set `cellSecrets.workspaceKeysFromCloud: true` in the gateway config (workspaces' own keys per call)
 fonoster-regions publish us-east-2     # offered in pickers while it is connected
-fonoster-regions list                  # every region with status
+fonoster-regions list [--json]         # every region (public and private) with status
 fonoster-regions token us-east-2       # a new token (enrolling with it revokes the current cell)
 fonoster-regions revoke us-east-2      # withdraw it and revoke its cell
 ```
