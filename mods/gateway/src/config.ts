@@ -34,6 +34,8 @@ export type AppConfig = {
   /** Numbers routed to this app (inbound). */
   numbers?: string[];
   fallback?: { app?: string; message?: string };
+  /** Listen-only sockets dialed for every session of this app (signed with its secret). */
+  listeners?: { url: string; tracks?: "inbound" | "outbound" | "both" }[];
 };
 
 export type ProviderConfig = {
@@ -84,6 +86,9 @@ export function validateConfig(config: GatewayConfig): string[] {
       problems.push(`app ${app.ref}: unknown flavor ${app.flavor}`);
     if (!app.signingSecret)
       problems.push(`app ${app.ref}: signingSecret is required`);
+    if ((app.listeners?.length ?? 0) > 4) {
+      problems.push(`app ${app.ref}: at most 4 listeners`);
+    }
     if (
       app.fallback?.app &&
       !(config.apps ?? []).some((a) => a.ref === app.fallback!.app)

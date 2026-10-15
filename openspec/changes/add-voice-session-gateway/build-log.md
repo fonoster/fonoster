@@ -87,7 +87,6 @@ it touches are named.
 ### B10. Not implemented yet
 
 - 2.6: Opus (design OQ8 still open). μ-law 8 kHz and PCM16 at any rate work.
-- 2.8: handoff is implemented; listen-only sockets are not (how listeners attach is OQ7).
 - 2.9: audio filters (the aiCoustics filter lives in the apiserver; to be ported with the vendor
   adapters).
 - Real vendor STT/TTS adapters (B2).
@@ -99,3 +98,13 @@ it touches are named.
   media (`${media}/tone-<ms>.wav`). Additive to `fonoster.scenario.v1`.
 - 36 scenarios (29 voice-session, 7 Twilio flavor) now pass against the gateway; breaking `clear`
   or barge-in makes the matching scenarios fail.
+
+### B12. Listen-only sockets attach through app config (design OQ7)
+
+- `apps[].listeners: [{url, tracks: inbound | outbound | both}]`, at most 4 per app. The gateway
+  dials each one when the app's session starts, signed with the app's secret, one attempt (2 s);
+  a failure is recorded (`listener.failed`) and the call continues.
+- Listeners get `session.start`, every event the controlling app gets (except `turn.estimate`),
+  and the chosen tracks as binary frames tagged with track id 1 (caller) or 2 (agent). Commands
+  get `error` `read_only`; audio from a listener is dropped.
+- Not done: attaching a listener to a running call through the API (needs the control plane).

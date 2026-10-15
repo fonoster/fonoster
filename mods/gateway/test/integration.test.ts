@@ -271,6 +271,61 @@ describe("@gateway integration", function () {
     expect(entries.every((e) => typeof e.at === "number")).to.equal(true);
   });
 
+  it("feeds listen-only sockets both tracks as separate tagged frames", async function () {
+    await start([
+      app("a", harness.app.url, {
+        listeners: [{ url: other.url, tracks: "both" }]
+      })
+    ]);
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    const listener = (await other.nextConnection()).peer;
+    await waitFor(() => json(listener).find((m) => m.type === "session.start"));
+    peer.sendJson({
+      type: "speak",
+      id: "r1",
+      text: "Hello listener.",
+      last: true
+    });
+    await waitFor(() => json(listener).find((m) => m.type === "output.done"));
+
+    const tracks = new Set(
+      listener.frames.items
+        .filter((f) => f.kind === "binary")
+        .map((f) => (f.data as Buffer)[0])
+    );
+    expect([...tracks].sort()).to.deep.equal([1, 2]);
+    expect(json(listener).map((m) => m.type)).to.include.members([
+      "output.started",
+      "output.done"
+    ]);
+  });
+
+  it("answers listener commands with read_only and keeps the call", async function () {
+    await start([
+      app("a", harness.app.url, { listeners: [{ url: other.url }] })
+    ]);
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    const listener = (await other.nextConnection()).peer;
+    await waitFor(() => json(listener).find((m) => m.type === "session.start"));
+    listener.sendJson({ type: "hangup", id: "x1" });
+    const error = await waitFor(() =>
+      json(listener).find((m) => m.type === "error")
+    );
+    expect(error).to.include({ code: "read_only", relatesTo: "x1" });
+    await sleep(200);
+    expect(commands()).not.to.include("hangup");
+    expect(json(peer).some((m) => m.type === "session.end")).to.equal(false);
+    // Inbound only by default: no agent track.
+    const tracks = new Set(
+      listener.frames.items
+        .filter((f) => f.kind === "binary")
+        .map((f) => (f.data as Buffer)[0])
+    );
+    expect([...tracks]).to.deep.equal([1]);
+  });
+
   it("hangs up when the app drops mid-call", async function () {
     await start([app("a", harness.app.url)]);
     harness.mediaNode.offerCall();

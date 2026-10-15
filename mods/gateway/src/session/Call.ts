@@ -44,6 +44,7 @@ import { SpeechError, SttStream } from "../speech/types";
 import { BaselineDetector } from "../turn/Detector";
 import { Pacing } from "../turn/Pacing";
 import { connectApp } from "./connectApp";
+import { Listener } from "./Listener";
 import { OutputEvent, OutputQueue } from "./OutputQueue";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
@@ -351,6 +352,7 @@ export class AppSession {
   private lastEstimateAt = 0;
   private closed = false;
   private transfer?: PendingTransfer;
+  private listeners: Listener[] = [];
   pendingTransferEnd = false;
 
   constructor(
@@ -372,7 +374,10 @@ export class AppSession {
           )
         : new NativeCodec(send, app.audio ?? { codec: "pcm16", rate: 16000 });
     this.queue = new OutputQueue({
-      sink,
+      sink: (frame) => {
+        sink(frame);
+        for (const l of this.listeners) l.agentAudio(frame);
+      },
       emit: (e) => this.onOutput(e),
       maxQueuedMs: deps.config.outputQueueMaxMs ?? DEFAULTS.outputQueueMaxMs
     });
@@ -411,8 +416,51 @@ export class AppSession {
 
     this.codec.start(start);
     this.call.record("gateway", start as unknown as Record<string, unknown>);
+    void this.attachListeners(start);
     this.queue.start();
     if (this.codec.speechLayer) this.startSpeech();
+  }
+
+  private async attachListeners(start: SessionStart) {
+    const audio = this.app.audio ?? { codec: "pcm16", rate: 16000 };
+    for (const config of (this.app.listeners ?? []).slice(0, 4)) {
+      try {
+        const socket = await Listener.connect(
+          config.url,
+          this.app.signingSecret
+        );
+        if (this.closed) {
+          socket.close();
+          return;
+        }
+        const listener = new Listener(
+          socket,
+          config.tracks ?? "inbound",
+          audio,
+          (cmd) =>
+            listener.json({
+              type: "error",
+              code: "read_only",
+              message: "listen-only sockets cannot send commands",
+              fatal: false,
+              ...(typeof cmd.id === "string" ? { relatesTo: cmd.id } : {})
+            })
+        );
+        listener.start(start);
+        this.listeners.push(listener);
+        this.call.record("event", {
+          type: "listener.attached",
+          url: config.url,
+          tracks: config.tracks ?? "inbound"
+        });
+      } catch (e) {
+        this.call.record("event", {
+          type: "listener.failed",
+          url: config.url,
+          reason: (e as Error).message
+        });
+      }
+    }
   }
 
   private startSpeech() {
@@ -465,6 +513,7 @@ export class AppSession {
   callerAudio(frame: Buffer) {
     if (this.closed) return;
     this.codec.callerAudio(frame);
+    for (const l of this.listeners) l.callerAudio(frame);
     this.stt?.write(frame);
     this.pacing?.onAudio(frame, Date.now());
   }
@@ -507,6 +556,11 @@ export class AppSession {
     this.queue.stop();
     this.stt?.close();
     const end = { type: "session.end", reason };
+    for (const l of this.listeners) {
+      l.json(end);
+      l.close();
+    }
+    this.listeners = [];
     if (this.socket.readyState === WebSocket.OPEN) {
       this.codec.end(end);
       this.call.record("gateway", end);
@@ -530,6 +584,8 @@ export class AppSession {
       type: "app.dropped",
       sessionRef: this.sessionRef
     });
+    for (const l of this.listeners) l.close();
+    this.listeners = [];
     this.closed = true;
     this.queue.stop();
     this.stt?.close();
@@ -758,6 +814,9 @@ export class AppSession {
     )
       return;
     this.codec.event(message);
+    // Listeners get the same events as the controlling app (the native view, whatever the flavor).
+    if (message.type !== "turn.estimate")
+      for (const l of this.listeners) l.json(message);
     if (message.type !== "turn.estimate") this.call.record("gateway", message);
   }
 }
