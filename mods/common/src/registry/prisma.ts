@@ -451,3 +451,34 @@ export class PrismaUsageSource implements UsageSource {
     return this.writes.flush();
   }
 }
+
+export type PrismaClientOptions = {
+  url: string;
+  /** Encrypts `/// @encrypted` columns (the apiserver's CLOAK key); needed to read app secrets. */
+  encryptionKey?: string;
+  /** Module of a client generated from the apiserver schema (default `@prisma/client`). */
+  clientModule?: string;
+};
+
+/**
+ * Opens a Prisma client generated from the apiserver's schema, with field encryption when a key
+ * is given. Loaded at run time so `@fonoster/common` does not depend on a generated client.
+ */
+export function openPrismaClient(options: PrismaClientOptions): PrismaLike {
+  /* eslint-disable @typescript-eslint/no-var-requires */
+  const { PrismaClient, Prisma } = require(
+    options.clientModule ??
+      process.env.FONOSTER_PRISMA_CLIENT ??
+      "@prisma/client"
+  );
+  const client = new PrismaClient({ datasourceUrl: options.url });
+  if (!options.encryptionKey) return client;
+  const { fieldEncryptionExtension } = require("prisma-field-encryption");
+  /* eslint-enable @typescript-eslint/no-var-requires */
+  return client.$extends(
+    fieldEncryptionExtension({
+      encryptionKey: options.encryptionKey,
+      dmmf: Prisma?.dmmf
+    })
+  );
+}

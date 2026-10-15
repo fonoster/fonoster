@@ -18,13 +18,28 @@
  * limitations under the License.
  */
 import * as fs from "fs";
+import { providerDeprecated } from "../webhooks/events";
+import { WebhookDispatcher } from "../webhooks/Dispatcher";
+import { PrismaWebhookStore } from "../webhooks/prisma";
+import {
+  openPrismaClient,
+  PrismaLike,
+  PrismaRegistryStore,
+  PrismaUsageSource
+} from "./prisma";
 import { Registry, RegistryError } from "./Registry";
 import { FileRegistryStore } from "./stores";
 import { Capability, ItemKind } from "./types";
 
 // fonoster-registry: the operator utility for the provider registry (add-provider-registry P9).
-// Until the registry tables exist, the catalog lives in the JSON file named by
-// FONOSTER_REGISTRY_FILE (default ./registry.json) and no usages are known.
+// Two stores (build log P-B3):
+// - file (default): the JSON file named by FONOSTER_REGISTRY_FILE (default ./registry.json); no
+//   usages are known.
+// - database (`--store database` or FONOSTER_REGISTRY_STORE=database): the registry tables of the
+//   control-plane database at FONOSTER_REGISTRY_DATABASE_URL (or --database-url). Usages come
+//   from apps and assistants; deprecations store workspace notices and, with
+//   FONOSTER_REGISTRY_ENCRYPTION_KEY (the apiserver's encryption key, to sign with endpoint
+//   secrets), send `provider.deprecated` workspace webhooks.
 
 type Flags = Record<string, string | true>;
 
@@ -71,19 +86,117 @@ const HELP = `fonoster-registry <command>
   deprecate-provider|deprecate-model|deprecate-voice <id> --replacement <id> --retire-on YYYY-MM-DD
   retire-provider|retire-model|retire-voice <id> [--voice-map old=new,...] --yes
   usage <id> | list [provider|model|voice] | show <id> | history [<id>]
-  export | plan -f <file> | apply -f <file>`;
+  export | plan -f <file> | apply -f <file>
 
+  --store file|database   where the catalog lives (default: FONOSTER_REGISTRY_STORE or file)
+  --database-url <url>    with --store database (default: FONOSTER_REGISTRY_DATABASE_URL)`;
+
+const DB_FLAGS = ["store", "database-url"];
+
+/** Runs one command against the JSON file store (synchronous; the default store). */
 export function run(
   argv: string[],
   out: (s: string) => void = console.log
 ): number {
   const { command, positional, flags } = parseArgs(argv);
+  for (const f of DB_FLAGS) delete flags[f];
   const registry = new Registry({
     store: new FileRegistryStore(
       process.env.FONOSTER_REGISTRY_FILE ?? "registry.json"
     ),
     testMode: process.env.FONOSTER_TEST_MODE === "true"
   });
+  return execute(registry, command, positional, flags, out);
+}
+
+export const usesDatabase = (argv: string[]) => {
+  const { flags } = parseArgs(argv);
+  return (
+    (flags.store ?? process.env.FONOSTER_REGISTRY_STORE ?? "file") ===
+    "database"
+  );
+};
+
+/**
+ * Runs one command against the control-plane database: loads the catalog and usages, runs the
+ * command, then waits for every write, records skipped rewrites in the audit log and sends due
+ * `provider.deprecated` webhooks once (retries are adopted by a running dispatcher).
+ */
+export async function runWithDatabase(
+  argv: string[],
+  out: (s: string) => void = console.log,
+  deps: { prisma?: PrismaLike; actor?: string } = {}
+): Promise<number> {
+  const { command, positional, flags } = parseArgs(argv);
+  for (const f of DB_FLAGS) delete flags[f];
+  const url =
+    (parseArgs(argv).flags["database-url"] as string | undefined) ??
+    process.env.FONOSTER_REGISTRY_DATABASE_URL;
+  if (!deps.prisma && !url) {
+    out("error: --database-url or FONOSTER_REGISTRY_DATABASE_URL is required");
+    return 1;
+  }
+  const encryptionKey = process.env.FONOSTER_REGISTRY_ENCRYPTION_KEY;
+  const prisma = deps.prisma ?? openPrismaClient({ url: url!, encryptionKey });
+  try {
+    const store = await PrismaRegistryStore.open(prisma);
+    const hooks =
+      deps.prisma || encryptionKey
+        ? await PrismaWebhookStore.open(prisma)
+        : undefined;
+    const dispatcher = hooks && new WebhookDispatcher({ store: hooks });
+    const usages = await PrismaUsageSource.open(prisma, {
+      onNotice: (workspace, n) => {
+        if (n.type === "provider.deprecated")
+          dispatcher?.publish(
+            providerDeprecated(workspace, {
+              id: String(n.id),
+              replacement: String(n.replacement),
+              retireOn: String(n.retireOn)
+            })
+          );
+      }
+    });
+    const registry = new Registry({
+      store,
+      usages,
+      actor: deps.actor,
+      testMode: process.env.FONOSTER_TEST_MODE === "true"
+    });
+    const code = execute(registry, command, positional, flags, out);
+    await usages.flush();
+    for (const c of usages.conflicts) {
+      out(`skipped ${c.usage.config.kind} ${c.usage.config.name}: ${c.reason}`);
+      store.audit({
+        at: new Date().toISOString(),
+        actor: deps.actor ?? process.env.USER ?? "operator",
+        action: "rewrite-skipped",
+        target: positional[0],
+        details: { workspace: c.usage.workspace, config: c.usage.config }
+      });
+    }
+    await store.flush();
+    if (dispatcher && hooks) {
+      await dispatcher.runDue();
+      await hooks.flush();
+    } else if (command.startsWith("deprecate-")) {
+      out(
+        "note: no webhooks sent (set FONOSTER_REGISTRY_ENCRYPTION_KEY); notices were stored"
+      );
+    }
+    return code;
+  } finally {
+    if (!deps.prisma) await prisma.$disconnect();
+  }
+}
+
+function execute(
+  registry: Registry,
+  command: string,
+  positional: string[],
+  flags: Flags,
+  out: (s: string) => void
+): number {
   const id = positional[0];
   const printImpact = (
     lines: { mark: string; text: string; count: number }[]
@@ -200,5 +313,15 @@ export function run(
 }
 
 // Run when executed as the fonoster-registry binary.
-if (/(cli|fonoster-registry)(\.[jt]s)?$/.test(process.argv[1] ?? ""))
-  process.exit(run(process.argv.slice(2)));
+if (require.main === module) {
+  const argv = process.argv.slice(2);
+  if (usesDatabase(argv))
+    runWithDatabase(argv).then(
+      (code) => process.exit(code),
+      (e) => {
+        console.error(`error: ${e.message}`);
+        process.exit(1);
+      }
+    );
+  else process.exit(run(argv));
+}

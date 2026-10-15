@@ -18,6 +18,7 @@
  */
 import { expect } from "chai";
 import { FakeWebhookReceiver } from "@fonoster/conformance";
+import { runWithDatabase } from "../../src/registry/cli";
 import {
   MemoryRegistryStore,
   PrismaRegistryStore,
@@ -409,6 +410,107 @@ describe("@common/persistence (Prisma stores)", function () {
       }).runDue();
       expect(sent).to.equal(1);
       expect(receiver.received).to.have.length(1);
+    });
+  });
+
+  describe("fonoster-registry --store database", function () {
+    it("adds, deprecates with a provider.deprecated webhook, and lists", async function () {
+      const receiver = await new FakeWebhookReceiver().start();
+      try {
+        const hooks = await PrismaWebhookStore.open(db.prisma);
+        new WebhookDispatcher({
+          store: hooks,
+          allowInsecureUrls: true
+        }).createEndpoint({
+          workspaceRef: "WO4",
+          url: receiver.url,
+          events: ["provider.deprecated"]
+        });
+        await hooks.flush();
+        await db.prisma.application.create({
+          data: {
+            ref: "stt-app",
+            accessKeyId: "WO4",
+            name: "stt app",
+            type: "EXTERNAL",
+            endpoint: "",
+            speechSttModel: "deepgram/nova-2"
+          }
+        });
+        const lines: string[] = [];
+        const cli = (...argv: string[]) =>
+          runWithDatabase(argv, (l) => lines.push(l), {
+            prisma: db.prisma,
+            actor: "ops@fonoster"
+          });
+        expect(
+          await cli(
+            "add-provider",
+            "deepgram",
+            "--adapter",
+            "deepgram",
+            "--capabilities",
+            "stt",
+            "--credential-ref",
+            "deepgram-default",
+            "--store",
+            "database"
+          )
+        ).to.equal(0);
+        expect(
+          await cli(
+            "add-model",
+            "deepgram/nova-2",
+            "--type",
+            "stt",
+            "--features",
+            "streaming"
+          )
+        ).to.equal(0);
+        expect(
+          await cli(
+            "add-model",
+            "deepgram/nova-3",
+            "--type",
+            "stt",
+            "--features",
+            "streaming"
+          )
+        ).to.equal(0);
+        expect(await cli("usage", "deepgram/nova-2")).to.equal(0);
+        expect(lines.pop()).to.equal("WO4\tapp\tstt app");
+        expect(
+          await cli(
+            "deprecate-model",
+            "deepgram/nova-2",
+            "--replacement",
+            "deepgram/nova-3",
+            "--retire-on",
+            "2027-03-01"
+          )
+        ).to.equal(0);
+        expect(receiver.received).to.have.length(1);
+        expect(receiver.received[0].json).to.include({
+          type: "provider.deprecated",
+          workspaceRef: "WO4"
+        });
+        expect(receiver.received[0].json.data).to.deep.equal({
+          id: "deepgram/nova-2",
+          replacement: "deepgram/nova-3",
+          retireOn: "2027-03-01"
+        });
+        lines.length = 0;
+        expect(await cli("list", "model")).to.equal(0);
+        expect(lines).to.include("model\tdeepgram/nova-2\tdeprecated");
+        lines.length = 0;
+        await cli("history", "deepgram/nova-2");
+        expect(lines.map((l) => l.split("\t").slice(1, 3))).to.deep.equal([
+          ["ops@fonoster", "add-model"],
+          ["ops@fonoster", "deprecate-model"]
+        ]);
+      } finally {
+        await receiver.stop();
+      }
     });
   });
 });
