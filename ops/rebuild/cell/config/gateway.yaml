@@ -1,0 +1,30 @@
+# gateway.yaml for a private cell: apps, the catalog and webhook endpoints come from the cell's
+# database (written by the region agent from the control plane's snapshots); provider keys come
+# from the cell's secret store (`fonoster-region secrets set <provider>`), never from Fonoster.
+nats:
+  url: nats://nats:4222
+rtp:
+  host: 0.0.0.0
+  advertiseHost: gateway
+database:
+  urlEnv: APISERVER_DATABASE_URL
+  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
+appStore: { source: database, cacheMs: 5000 }
+registry: { source: database, refreshMs: 30000 }
+webhooks: { enabled: true }
+cellSecrets:
+  file: /var/lib/fonoster-secrets/secrets.enc
+  keyEnv: FONOSTER_REGION_SECRETS_KEY
+providers:
+  deepgram: { adapter: deepgram, capabilities: [stt, tts] }
+  elevenlabs: { adapter: elevenlabs, capabilities: [tts] }
+callRecord:
+  dir: /var/lib/fonoster/records
+  region: private
+  recording: off
+  store:
+    s3:
+      bucket: records
+      endpoint: http://minio:9000
+      forcePathStyle: true
+  signingKey: { kid: cell-records-1, privateKeyFile: /etc/fonoster/keys/records.pem }

@@ -140,7 +140,11 @@ export async function main(argv: string[], out = process.stdout) {
       store,
       version: packageVersion(),
       controlPlane: flag(a, "control-plane"),
-      allowInsecure: Boolean(a.flags["allow-insecure"]),
+      allowInsecure:
+        Boolean(a.flags["allow-insecure"]) ||
+        /^(1|true|yes)$/i.test(
+          process.env.FONOSTER_REGION_ALLOW_INSECURE ?? ""
+        ),
       natsCredsPath: flag(a, "nats-creds-path")
     });
     print(

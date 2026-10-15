@@ -1,0 +1,11 @@
+# The cell's hosted Autopilot (PR-9): assistants come from the cell's database (synced from the
+# control plane); LLM keys from the cell's secret store. Conversations never leave the cell.
+port: 3000
+signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
+assistants: { source: database }
+registry: { source: database }
+workspaceSecrets:
+  cellSecrets:
+    file: /var/lib/fonoster-secrets/secrets.enc
+    keyEnv: FONOSTER_REGION_SECRETS_KEY
+database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }

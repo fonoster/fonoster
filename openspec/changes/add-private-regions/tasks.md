@@ -17,11 +17,11 @@
 
 ## 3. Cell
 
-- [ ] 3.1 `fonoster-region enroll <token>` and credential storage (file or Kubernetes Secret); Compose and Helm wiring
-- [ ] 3.2 Local secret store and `fonoster-region secrets set/list`; report set names in heartbeats
-- [ ] 3.3 Config sync consumer; relay responder with audit; heartbeat publisher
-- [ ] 3.4 Webhook delivery from the cell
-- [ ] 3.5 Hosted Autopilot in the cell's Compose/Helm; assistant sync; LLM keys from the cell's secrets
+- [x] 3.1 `fonoster-region enroll <token>` and credential storage (file or Kubernetes Secret); Compose and Helm wiring
+- [x] 3.2 Local secret store and `fonoster-region secrets set/list`; report set names in heartbeats
+- [x] 3.3 Config sync consumer; relay responder with audit; heartbeat publisher
+- [x] 3.4 Webhook delivery from the cell
+- [x] 3.5 Hosted Autopilot in the cell's Compose/Helm; assistant sync; LLM keys from the cell's secrets
 
 ## 4. Dashboard and billing
 

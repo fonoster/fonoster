@@ -1,0 +1,77 @@
+{{- if .Values.autopilot.enabled }}
+{{- $a := .Values.autopilot }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-autopilot
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  autopilot-session.yaml: |
+    {{- toYaml $a.config | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-autopilot
+  labels:
+    app.kubernetes.io/name: autopilot
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  replicas: {{ $a.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: autopilot
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: autopilot
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ toYaml $a.config | sha256sum }}
+    spec:
+      containers:
+        - name: autopilot
+          image: "{{ $a.image.repository }}:{{ $a.image.tag }}"
+          imagePullPolicy: {{ $a.image.pullPolicy }}
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.otel.endpoint | quote }}
+            - name: AUTOPILOT_SIGNING_SECRET
+              valueFrom: { secretKeyRef: { name: {{ $a.secret | quote }}, key: secret } }
+            - name: APISERVER_DATABASE_URL
+              valueFrom: { secretKeyRef: { name: {{ $a.databaseSecret | quote }}, key: url, optional: true } }
+            - name: APISERVER_ENCRYPTION_KEY
+              valueFrom: { secretKeyRef: { name: {{ $a.databaseSecret | quote }}, key: key, optional: true } }
+          ports:
+            - { name: session, containerPort: {{ $a.config.port | default 3000 }} }
+          volumeMounts:
+            - { name: config, mountPath: /etc/fonoster/autopilot-session.yaml, subPath: autopilot-session.yaml, readOnly: true }
+            {{- if .Values.regionAgent.enabled }}
+            - { name: cell-secrets, mountPath: /var/lib/fonoster-secrets, readOnly: true }
+            {{- end }}
+          resources:
+            {{- toYaml $a.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-autopilot
+        {{- if .Values.regionAgent.enabled }}
+        - name: cell-secrets
+          secret: { secretName: {{ .Values.regionAgent.secretsSecret | quote }}, optional: true }
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-autopilot
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: autopilot
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+    - { name: session, port: {{ $a.config.port | default 3000 }}, targetPort: session }
+{{- end }}

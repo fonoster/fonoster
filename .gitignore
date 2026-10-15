@@ -39,3 +39,6 @@ mods/common/test/.prisma-work
 
 # The rebuild stack generates configs, keys and secrets here (ops/rebuild/stack)
 ops/rebuild/.local/
+
+# A private cell's local keys (docs/operators/private-region.md)
+ops/rebuild/cell/.local/

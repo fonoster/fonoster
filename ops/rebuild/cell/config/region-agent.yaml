@@ -1,0 +1,28 @@
+# The region agent (add-private-regions task 3): heartbeats, config sync, relay, index forwarding.
+dataDir: /var/lib/fonoster-region
+nats: { url: nats://nats:4222 }
+database:
+  urlEnv: APISERVER_DATABASE_URL
+  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
+routr:
+  endpoint: routr:51907
+  mediaNodePeer:
+    name: Media nodes
+    username: medianode
+    aor: sip:medianode@default
+    passwordEnv: RB_NODE_PASSWORD
+records:
+  store:
+    s3:
+      bucket: records
+      endpoint: http://minio:9000
+      forcePathStyle: true
+      accessKeyIdEnv: MINIO_ROOT_USER
+      secretAccessKeyEnv: MINIO_ROOT_PASSWORD
+cellSecrets:
+  file: /var/lib/fonoster-secrets/secrets.enc
+  keyEnv: FONOSTER_REGION_SECRETS_KEY
+autopilot:
+  url: ws://autopilot:3000
+  signingSecretEnv: AUTOPILOT_SIGNING_SECRET
+heartbeatMs: 30000

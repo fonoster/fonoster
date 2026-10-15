@@ -47,3 +47,55 @@ medianode:
     passwordSecret: medianode-peer
     outboundProxy: routr:5060
   resources: {}
+
+# The hosted Autopilot session engine (Autopilot apps point to ws://<release>-autopilot:3000). A
+# private cell runs its own (PR-9) with assistants from the cell database and LLM keys from the
+# cell's secrets. Off by default.
+autopilot:
+  enabled: false
+  image: { repository: fonoster/autopilot-session, tag: dev, pullPolicy: IfNotPresent }
+  replicas: 1
+  # Existing Secret with the signing secret (key `secret`) and, for `source: database`, the
+  # database URL and encryption key (keys `url`, `key`).
+  secret: fonoster-cell-autopilot
+  databaseSecret: fonoster-cell-db
+  # Rendered as autopilot-session.yaml.
+  config:
+    port: 3000
+    signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
+    assistants: { source: database }
+    registry: { source: database }
+    workspaceSecrets: { cellSecrets: { dir: /var/lib/fonoster-secrets } }
+    database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
+  resources: {}
+
+# A private region's cell (add-private-regions; docs/operators/private-region.md). Off by default.
+# Steps: set regionAgent.enabled and regionAgent.enroll.token, install; the enroll Job writes the
+# cell's credentials into the `identitySecret` Secret (never into values); then remove the token.
+regionAgent:
+  enabled: false
+  image: { repository: fonoster/region-agent, tag: dev, pullPolicy: IfNotPresent }
+  enroll:
+    # The one-time token from the dashboard. Single use, 24 h; clear it after the Job succeeded.
+    token: ""
+    # Only for a control plane on plain http:// and nats:// (testing).
+    allowInsecure: false
+  # Secret written by `enroll` (region.json, leaf.creds, leaf.conf, cell.key). Mount it into your
+  # NATS server at /etc/nats/region and include leaf.conf (see the operator guide).
+  identitySecret: fonoster-region
+  # Provider keys of the cell (`fonoster-region secrets set <name> --k8s-secret <this>`, or create
+  # it yourself with one key per provider: deepgram, openai, groq, …). Mounted as a directory.
+  secretsSecret: fonoster-region-secrets
+  # Existing Secret with the cell database URL (key `url`) and its encryption key (key `key`).
+  databaseSecret: fonoster-cell-db
+  # Existing Secret with the Autopilot signing secret (key `secret`) for the cell's Autopilot apps.
+  autopilotSecret: fonoster-cell-autopilot
+  # Rendered into region-agent.yaml next to dataDir, stateDir, nats, database and cellSecrets.
+  config:
+    routr:
+      endpoint: routr:51907
+    records:
+      store: { s3: { bucket: records, endpoint: "http://minio:9000", forcePathStyle: true } }
+    autopilot:
+      url: ws://autopilot:3000
+  resources: {}
