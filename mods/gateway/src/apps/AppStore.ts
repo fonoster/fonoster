@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
+import { isAppAudioFormat } from "../audio/pcm";
 import {
   AppConfig,
   Flavor,
@@ -101,7 +102,9 @@ export function appFromRow(row: Row): AppConfig | undefined {
   if (row.amd === true)
     app.amd =
       row.amdWindowMs != null ? { windowMs: row.amdWindowMs as number } : true;
-  if (row.audio) app.audio = row.audio as AppConfig["audio"];
+  // Off-menu formats (never written by the API) fall back to the default pcm16 16 kHz.
+  if (row.audio && isAppAudioFormat(row.audio as Record<string, unknown>))
+    app.audio = row.audio as AppConfig["audio"];
   if (row.filters) app.filters = row.filters as AppConfig["filters"];
   if (row.listeners)
     app.listeners = (row.listeners as AppConfig["listeners"])!.slice(0, 4);

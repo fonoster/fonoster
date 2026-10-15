@@ -73,12 +73,15 @@
             "codec": {
               "enum": [
                 "pcm16",
-                "pcmu",
-                "opus"
+                "pcmu"
               ]
             },
             "rate": {
-              "type": "integer"
+              "enum": [
+                8000,
+                16000,
+                24000
+              ]
             }
           }
         },

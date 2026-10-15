@@ -64,8 +64,9 @@ export const sessionStartSchema = {
       type: "object",
       required: ["codec", "rate"],
       properties: {
-        codec: { enum: ["pcm16", "pcmu", "opus"] },
-        rate: { type: "integer" }
+        // The native format menu (voice-session OQ8, AO-B4); Opus is not offered over WebSocket.
+        codec: { enum: ["pcm16", "pcmu"] },
+        rate: { enum: [8000, 16000, 24000] }
       }
     },
     tracks: {

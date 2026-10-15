@@ -142,7 +142,7 @@ cleanly.
 | Balancing | Routr picks the route with the lowest `X-Session-Count` (Peer `LEAST_SESSIONS`). A room stays on its node. |
 | RTP ports | One UDP port per participant, chosen by the OS from the ephemeral range on `-rtp`. Open that range (or use host networking) between nodes, carriers and gateways. A configurable port range is not built yet. |
 | Encryption | Plain RTP only. TLS and SRTP toward the edge (media-node 2.12) are not built. Keep nodes, Routr and gateways on a private network. |
-| Codecs | PCMU on SIP legs; L16/16000 toward the gateway. PCMA, G.722 and Opus are next (media-node 2.4). Carriers must offer PCMU. |
+| Codecs | PCMU, PCMA, G.722 and Opus on SIP legs (Opus only in images built with libopus); L16/16000 toward the gateway, which converts to each app's format (pcm16 at 8, 16 or 24 kHz, or pcmu at 8 kHz). |
 | Drain | On SIGTERM a node re-registers at once as full (Routr stops choosing it) and keeps its rooms. It exits when they end or after `-drain-wait` (10 min): first it unregisters (REGISTER with Expires 0), then it sends `node.down`. Use a pod termination grace of at least `-drain-wait`. |
 | Crash | Gateways see heartbeats stop (2 s period) and end the sessions. Routr keeps the dead route until it expires (2 × the REGISTER interval). |
 | Limits | 10 participants per room. Calls end after 4 h. 30 s without RTP ends a leg (media timeout). A warm transfer gives up after 30 s without an answer. |

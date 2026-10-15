@@ -459,3 +459,28 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Found and fixed: webhook refs (`whe_` + uuid) ran into the next column; a record's detail lists
   manifest entries (`{name, size, ...}`) while `CallRecordSummary.parts` in `@fonoster/types` says
   `string[]` (the CLI shows both; the type is not changed here).
+
+## 2026-10-15 (amdopus stream)
+
+### AO-B4. The format menu (task 2.6, design OQ8 resolved)
+- The menu an app may pick (`apps[].audio`, API `audio`): `pcm16` at 8000, 16000 or 24000 Hz and
+  `pcmu` at 8000 Hz; default `pcm16` 16 kHz. One constant (`APP_AUDIO_FORMATS`, gateway
+  `audio/pcm.ts`) backs the YAML check (`validateConfig`), the database app store (an off-menu row
+  falls back to the default) and the tests; the API, CLI and dashboard already offered exactly
+  these.
+- The gateway leg to the media node stays L16/16000 for every call. The Go node negotiates PCMU,
+  PCMA, G.722 and Opus with the caller and transcodes (libopus via cgo), so the gateway needs no
+  codec library and the SIP codec never reaches the app.
+- Opus over WebSocket is not offered in v1. It would need an Opus encoder and decoder in the
+  gateway (a native or WASM dependency; this stream adds none). Routing Opus through the node
+  instead (an Opus listener fork for caller audio plus a second Opus participant for agent audio)
+  was rejected: the node mixes the second participant into what the gateway's own leg hears, so
+  the agent's audio would reach STT and turn detection. `opus` was removed from the
+  `session.start` `audio.codec` enum and `rate` is now the menu's three rates (`session.v1.json`
+  regenerated), so the protocol schema says only what the gateway sends.
+- Tests: `test/formats.test.ts` (every menu format: `session.start.audio`, 20 ms caller frames of
+  that format with the track byte, agent audio in that format heard at real time),
+  `test/config.test.ts` (off-menu formats refused), and in `test/gonode.test.ts` a caller offering
+  only PCMU, PCMA, G.722 or Opus through the real node: negotiated codec as offered, gateway leg
+  `L16/16000`, the caller's tone reaches a pcm16 app and the app's speech reaches the caller.
+- `docs/operators/cutover.md` codec row updated.
