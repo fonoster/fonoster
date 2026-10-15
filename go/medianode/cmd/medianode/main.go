@@ -19,6 +19,7 @@ import (
 
 	"github.com/fonoster/fonoster/go/medianode/internal/edgetls"
 	"github.com/fonoster/fonoster/go/medianode/internal/node"
+	"github.com/fonoster/fonoster/go/medianode/internal/registry"
 	"github.com/fonoster/fonoster/go/medianode/internal/rtpio"
 	"github.com/fonoster/fonoster/go/medianode/internal/secretref"
 	"github.com/fonoster/fonoster/go/medianode/internal/sipua"
@@ -75,6 +76,7 @@ func main() {
 	tlsKey := flag.String("tls-key", env("MEDIANODE_TLS_KEY", ""), "PEM key for the TLS listener")
 	tlsCA := flag.String("tls-ca", env("MEDIANODE_TLS_CA", ""), "PEM CA that signs the edge's certificate (dialing and registering over TLS)")
 	tlsClientCA := flag.String("tls-client-ca", env("MEDIANODE_TLS_CLIENT_CA", ""), "PEM CA for mutual TLS: the TLS listener requires a client certificate it signed (the edge's); empty: no client certificates")
+	sessionRegistry := flag.Bool("session-registry", env("MEDIANODE_SESSION_REGISTRY", "true") != "false", "write nodes.<id> and rooms.<ref> to the session registry (JetStream KV); off or unavailable keeps heartbeats only")
 	natsUser := flag.String("nats-user", env("MEDIANODE_NATS_USER", ""), "NATS user (per-service users, add-platform 4.1); empty connects without one")
 	natsPassword := flag.String("nats-password", env("MEDIANODE_NATS_PASSWORD", ""), "NATS password (or a secret:// reference)")
 	requireEnc := flag.Bool("require-encryption", env("MEDIANODE_REQUIRE_ENCRYPTION", "") == "true", "SIP over TLS only and SRTP on every leg (MN6)")
@@ -119,7 +121,18 @@ func main() {
 	}
 	defer nc.Close()
 
-	n := node.New(nc, node.Config{NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
+	var reg node.Registry
+	if *sessionRegistry {
+		rctx, rcancel := context.WithTimeout(context.Background(), 5*time.Second)
+		kv, err := registry.Open(rctx, nc, logger)
+		rcancel()
+		if err != nil {
+			logger.Warn("session registry unavailable (is JetStream on?); heartbeats only", "err", err)
+		} else {
+			reg = kv
+		}
+	}
+	n := node.New(nc, node.Config{Registry: reg, NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
 		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants,
 		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger,
 		AllowedDestinations: strings.Split(os.Getenv("FONOSTER_ALLOWED_DESTINATIONS"), ",")})
