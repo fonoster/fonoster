@@ -2,7 +2,7 @@
 
 ## 1. Conformance assets
 
-- [ ] 1.1 Write JSON Schemas for every `native` message (lifecycle, speech, audio, control, subscribe, error) and generate TypeScript and Python types from them
+- [x] 1.1 Write JSON Schemas for every `native` message (lifecycle, speech, audio, control, subscribe, error) and generate TypeScript and Python types from them
 - [ ] 1.2 Write language-neutral scenario files for every scenario in `voice-session` and `twilio-media-streams-flavor`
 - [x] 1.3 Build a scripted fake app (drives the gateway) and a fake media node (supplies recorded caller audio, records control commands)
 - [x] 1.4 Build fake STT/TTS providers with deterministic output and injectable delay and failure

@@ -15,8 +15,8 @@ it touches are named.
 - Why `common`: the SDK (`mods/voice`) and Autopilot already depend on it. Rejected: a new
   protocol package (one more package to release for ~400 lines); the gateway package (the SDK
   must not depend on the gateway).
-- Python types are not generated yet; that comes with the Python SDK (`datamodel-codegen` over the
-  exported file is the plan).
+- Python types are generated as TypedDicts into `python/fonoster-voice/src/fonoster/voice/messages.py`
+  by `python/generate_messages.py` (no extra tool); a test fails while they are stale.
 
 ### B2. The gateway is a new package, `mods/gateway` (`@fonoster/gateway`)
 

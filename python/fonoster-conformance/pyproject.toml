@@ -3,7 +3,7 @@ name = "fonoster-conformance"
 version = "0.27.0"
 description = "Python runner for the Fonoster conformance scenarios (fonoster.scenario.v1)"
 license = "MIT"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = ["websockets>=13", "pyyaml>=6", "jsonschema>=4"]
 
 [build-system]

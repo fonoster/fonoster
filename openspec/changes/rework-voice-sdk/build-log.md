@@ -55,7 +55,7 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 ### SDK5. The Python SDK
 
 - Package `fonoster-voice` (open question 1), import `fonoster.voice`, in `python/fonoster-voice`
-  (outside the npm workspaces). Python 3.10+, depends only on `websockets`.
+  (outside the npm workspaces). Python 3.11+ (for `typing.NotRequired`), depends only on `websockets`.
 - Same session model, ids and messages as TypeScript, Pythonic names: `stop_say`, `play_dtmf`,
   `complete_transfer`, `from_` (since `from` is a keyword), `heard_text`, `handoff_payload`;
   `gather(timeout=...)` is in seconds; results are dataclasses.

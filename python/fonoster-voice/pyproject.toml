@@ -4,7 +4,7 @@ version = "0.27.0"
 description = "Fonoster Voice SDK for Python: answer calls over the Fonoster session protocol (asyncio)"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = ["websockets>=13"]
 
 [project.optional-dependencies]
