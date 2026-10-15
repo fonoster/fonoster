@@ -157,3 +157,28 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Not in the stack: the standalone Identity service (`mods/identity/Dockerfile`; the apiserver's
   embedded Identity with its own `fnidentity` database is used), outbound calls (CreateCall still
   goes through the ARI call manager, which is off), Helm for the control plane.
+
+### ST-B11. After merging next (clean break, voices, SRTP node)
+
+- `mediaService.provider: none` dropped: next removed `mediaService` and the ARI path altogether.
+  The stack's `fonoster.yaml` no longer sets `mediaService` or `routr.engines` (numbers route to
+  `sip:medianode@default` by default). Kept: the InfluxDB flush catch, the VoiceServer bare-URL
+  fix (now in `mods/voice/src/VoiceServer.ts`), the migration fixes, the images.
+- Images: after the clean break neither autopilot nor the apiserver depends on `@fonoster/sdk`, so
+  the SDK build steps are gone from `mods/autopilot/Dockerfile` (renamed from `Dockerfile.session`)
+  and the apiserver image. Autopilot's workspace closure no longer pulls `typescript`; its image
+  installs with `--include-workspace-root`. Both stop on the first package that fails.
+- The hosted Autopilot's registry is now rendered from `config/catalog-seed.yaml` (Deepgram,
+  ElevenLabs, OpenAI, Groq). Without `OPENAI_API_KEY` the LLM providers get the fake adapter under
+  the same ids. The gateway still runs without a registry (its providers config picks adapters).
+- Smoke after the merge: passed (caller heard 6060 ms; record `completed`, `s3://records/`).
+- Outbound CreateCall through the stack: the apiserver places it (room on the node, the gateway
+  claims it, `participant.dial` through Routr) and a failed outbound record is indexed, but Routr
+  answers 403 Forbidden. The node's INVITE has `From: <sip:+17853178070@<node IP>>` (the DOD
+  number), so Routr resolves the caller to the Number, not the media-node Peer, and the routing
+  direction is UNKNOWN (connect `access.js`). For PEER_TO_PSTN, From must be the Peer
+  (`sip:medianode@default`) with the number in `X-Dod-Number`, and the node must answer Routr's
+  digest challenge on INVITE. Left for the media-node and outbound owners.
+- Test environment: sipnet's tests resolved `@fonoster/common` to the shared platform-refresh copy
+  (old default peer AOR) and failed 3 tests. Fixed with the uncommitted worktree link
+  `mods/sipnet/node_modules/@fonoster/common -> ../../../common`.

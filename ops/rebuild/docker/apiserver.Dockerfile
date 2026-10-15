@@ -21,13 +21,9 @@ RUN --mount=type=cache,target=/root/.npm \
 RUN npx prisma generate --schema mods/apiserver/schema.prisma \
   && npx prisma generate --schema mods/identity/schema.prisma
 
-# The SDK's own postbuild moves dist/node/src up; autopilot compiles against that layout.
-RUN for p in types logger common identity authz streams sipnet callrecord; do \
+RUN for p in types logger common identity authz streams sipnet callrecord voice autopilot apiserver; do \
       (cd mods/$p && npx tsc -b) || exit 1; \
     done \
-  && (cd mods/sdk && npx tsc -b && mv dist/node/src/* dist/node/ && rm -rf dist/node/src \
-      dist/node/generated && cp -a src/generated dist/node/generated/) \
-  && for p in voice autopilot apiserver; do (cd mods/$p && npx tsc -b) || exit 1; done \
   && cp -a mods/common/src/protos mods/common/dist/ \
   && node .scripts/copy-hbs.cjs \
   && sh .scripts/copy-prisma-clients.sh
