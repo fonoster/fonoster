@@ -30,8 +30,12 @@
   server carries `region.<ref>.>` to the hub. `enroll` writes `leaf.conf` (one `leafnodes.remotes`
   entry: `leaf` URL + `credentials` path) next to `leaf.creds`; the cell's `nats.conf` includes it.
   The creds path is how NATS sees it (`--nats-creds-path`, default `/etc/nats/region/leaf.creds`).
-- Not tested against a real hub in operator (JWT) mode: the tests drive the agent over a single
-  NATS server with a fake control plane on the same subjects.
+- Checked against a real operator-mode hub (nats 2.11.8, the control plane's `natsJwt` material,
+  a user scoped to `region.<ref>.>`): the cell's NATS links as a leaf, the agent's config request
+  (with the inbox prefix) gets its reply, heartbeats arrive, a relay with the control plane's
+  `region.<ref>._INBOX.<id>` reply subject round-trips, and local subjects (`media.*`, `gateway.*`,
+  others) do not leak to the hub. NATS resolves `include` relative to the including file, so the
+  cell's `nats.conf` uses `include ./region/leaf.conf`.
 
 ### RC-B4. Credentials and secrets in Kubernetes without a client library
 

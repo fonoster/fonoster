@@ -87,7 +87,7 @@ gateway:
 ```
 
 The enroll Job writes the credentials into the `fonoster-region` Secret. Mount that Secret into your
-NATS server at `/etc/nats/region` and add `include /etc/nats/region/leaf.conf` to its config. Set
+NATS server at `/etc/nats/region` and add `include ./region/leaf.conf` to its config (NATS resolves includes relative to the including file, so the config must sit in `/etc/nats`). Set
 provider keys with `kubectl exec deploy/<release>-region-agent -- fonoster-region secrets set
 deepgram --k8s-secret fonoster-region-secrets` (value on stdin), or manage the
 `fonoster-region-secrets` Secret yourself (one key per provider).
