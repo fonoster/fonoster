@@ -1,0 +1,228 @@
+# A private region's cell (add-private-regions; operator guide: docs/operators/private-region.md).
+# Everything that touches calls runs here; the only link to Fonoster is the NATS leaf connection,
+# outbound only, carrying `region.<ref>.>`. Provider keys and call content never leave the cell.
+#
+#   1. cp ops/rebuild/cell/cell.env.example ops/rebuild/cell/.env   (fill in the secrets)
+#   2. docker compose -f ops/rebuild/cell/compose.yaml run --rm --no-deps region-agent enroll <token>
+#   3. docker compose -f ops/rebuild/cell/compose.yaml run --rm --no-deps region-agent secrets set deepgram
+#   4. docker compose -f ops/rebuild/cell/compose.yaml up -d
+#
+# The ${VAR} values come from ops/rebuild/cell/.env (Compose reads it next to this file).
+name: ${COMPOSE_PROJECT_NAME:-fonoster-cell}
+
+x-otel: &otel
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+
+# The cell's database (the apiserver schema; the agent migrates it) and the secret-store key.
+x-cell-db: &cell-db
+  APISERVER_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/fonoster
+  APISERVER_ENCRYPTION_KEY: ${CELL_ENCRYPTION_KEY:?set CELL_ENCRYPTION_KEY}
+  FONOSTER_REGION_SECRETS_KEY: ${FONOSTER_REGION_SECRETS_KEY:?set FONOSTER_REGION_SECRETS_KEY}
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${RB_NET:-10.216.17}.0/24
+          ip_range: ${RB_NET:-10.216.17}.128/25
+
+services:
+  # The cell's NATS: local subjects plus the leaf remote `enroll` wrote (region volume).
+  nats:
+    image: nats:2.11.8-alpine
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats.conf"]
+    volumes:
+      - ./config/nats.conf:/etc/nats/nats.conf:ro
+      - region:/etc/nats/region:ro
+      - nats:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres:
+    image: postgres:16.10-alpine3.22
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: routr
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ../config/postgres-init.sql:/docker-entrypoint-initdb.d/10-fonoster.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d routr"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  routr:
+    image: fonoster/routr-one:2.15.1
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      nats: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/routr
+      EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}
+      LOCALNETS: ${ROUTR_LOCALNETS:-}
+      NATS_PUBLISHER_ENABLED: "true"
+      NATS_PUBLISHER_URL: nats://nats:4222
+      RTPENGINE_HOST: ${RB_RTPENGINE_HOST-rtpengine}
+      START_INTERNAL_DB: "false"
+      CONFIG_PATH: /etc/routr/stack/edgeport.yaml
+    volumes:
+      - ../config/routr-edgeport.yaml:/etc/routr/stack/edgeport.yaml:ro
+    ports:
+      - "${RB_SIP_PORT:-5060}:5060/udp"
+      - "${RB_SIP_PORT:-5060}:5060/tcp"
+    networks:
+      default:
+        ipv4_address: ${RB_NET:-10.216.17}.40
+
+  rtpengine:
+    image: fonoster/rtpengine:0.3.17
+    restart: unless-stopped
+    platform: linux/x86_64
+    environment:
+      PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
+      PORT_MAX: ${RTPENGINE_PORT_MAX:-10100}
+      PUBLIC_IP: ${RTPENGINE_PUBLIC_IP:-${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}}
+    ports:
+      - "${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10100}:${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10100}/udp"
+    networks:
+      default:
+        ipv4_address: ${RB_NET:-10.216.17}.41
+
+  medianode:
+    build:
+      context: ../../../go/medianode
+    image: ${RB_REGISTRY:-fonoster}/medianode:${RB_TAG:-dev}
+    restart: unless-stopped
+    stop_grace_period: ${RB_DRAIN_GRACE:-10m}
+    depends_on:
+      nats: { condition: service_healthy }
+    environment:
+      <<: *otel
+      MEDIANODE_ID: ${RB_NODE_ID:-node-a}
+      MEDIANODE_NATS_URL: nats://nats:4222
+      MEDIANODE_SIP_LISTEN: 0.0.0.0:5060
+      MEDIANODE_SIP_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.17}.42}
+      MEDIANODE_RTP_HOST: 0.0.0.0
+      MEDIANODE_RTP_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.17}.42}
+      MEDIANODE_RTP_PORT_MIN: ${RB_NODE_RTP_MIN:-30000}
+      MEDIANODE_RTP_PORT_MAX: ${RB_NODE_RTP_MAX:-30199}
+      # The peer the region agent creates in this cell's Routr.
+      MEDIANODE_REGISTRAR: routr:5060
+      MEDIANODE_DOMAIN: default
+      MEDIANODE_USERNAME: medianode
+      MEDIANODE_PASSWORD: ${RB_NODE_PASSWORD:?set RB_NODE_PASSWORD}
+      MEDIANODE_TRANSPORT: udp
+      MEDIANODE_REGISTER_EVERY: 15s
+      MEDIANODE_OUTBOUND_PROXY: routr:5060
+      MEDIANODE_TRUSTED_SOURCES: ${RB_NET:-10.216.17}.40
+    ports:
+      - "${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}:${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}/udp"
+    networks:
+      default:
+        ipv4_address: ${RB_NET:-10.216.17}.42
+
+  gateway:
+    build:
+      context: ../../..
+      dockerfile: mods/gateway/Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/gateway:${RB_TAG:-dev}
+    restart: unless-stopped
+    depends_on:
+      nats: { condition: service_healthy }
+      region-agent: { condition: service_started }
+    environment:
+      <<: [*otel, *cell-db]
+      # The call-record store (MinIO), through the AWS SDK's default credential chain.
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minio}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+    volumes:
+      - ./config/gateway.yaml:/etc/fonoster/gateway.yaml:ro
+      - ${CELL_KEYS_DIR:-./.local/keys}:/etc/fonoster/keys:ro
+      - secrets:/var/lib/fonoster-secrets:ro
+    networks:
+      default:
+        ipv4_address: ${RB_NET:-10.216.17}.43
+
+  # The cell's own hosted Autopilot (PR-9): Autopilot apps synced to this cell point here.
+  autopilot:
+    build:
+      context: ../../..
+      dockerfile: mods/autopilot/Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/autopilot-session:${RB_TAG:-dev}
+    restart: unless-stopped
+    depends_on:
+      region-agent: { condition: service_started }
+    environment:
+      <<: [*otel, *cell-db]
+      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?set AUTOPILOT_SIGNING_SECRET}
+    volumes:
+      - ./config/autopilot-session.yaml:/etc/fonoster/autopilot-session.yaml:ro
+      - secrets:/var/lib/fonoster-secrets:ro
+    expose:
+      - 3000
+
+  minio:
+    image: bitnamilegacy/minio:2025.4.22
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+      MINIO_DEFAULT_BUCKETS: records
+    volumes:
+      - minio:/bitnami/minio/data
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # The region agent: `run` (default) migrates the cell database and syncs; `enroll <token>` and
+  # `secrets …` are one-off commands (docker compose run --rm --no-deps region-agent …).
+  region-agent:
+    build:
+      context: ../../..
+      dockerfile: ops/rebuild/docker/region-agent.Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/region-agent:${RB_TAG:-dev}
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      nats: { condition: service_healthy }
+      routr: { condition: service_started }
+      minio: { condition: service_healthy }
+    environment:
+      <<: *cell-db
+      FONOSTER_REGION_SECRETS_FILE: /var/lib/fonoster-secrets/secrets.enc
+      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?set AUTOPILOT_SIGNING_SECRET}
+      RB_NODE_PASSWORD: ${RB_NODE_PASSWORD:?set RB_NODE_PASSWORD}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+      # The cell's public connection details (region.endpoints), from the same settings Routr and
+      # RTPEngine use; override them in region-agent.yaml `endpoints`.
+      EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}
+      RB_SIP_PORT: ${RB_SIP_PORT:-5060}
+      RTPENGINE_PUBLIC_IP: ${RTPENGINE_PUBLIC_IP:-${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}}
+      RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
+      RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10100}
+      # For a local control plane on plain nats:// and http:// (testing only).
+      FONOSTER_REGION_ALLOW_INSECURE: ${FONOSTER_REGION_ALLOW_INSECURE:-}
+    volumes:
+      - ./config/region-agent.yaml:/etc/fonoster/region-agent.yaml:ro
+      - region:/var/lib/fonoster-region
+      - secrets:/var/lib/fonoster-secrets
+
+volumes:
+  db:
+  nats:
+  minio:
+  # Written by `enroll`: region.json, leaf.creds, leaf.conf, cell.key, state.json (0600).
+  region:
+  # The cell's encrypted secret store.
+  secrets:

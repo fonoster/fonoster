@@ -135,6 +135,12 @@ export type GatewayConfig = {
    * encryption key. Keys are reused for `cacheMs` (default 30 s).
    */
   workspaceKeys?: { enabled: boolean; cacheMs?: number };
+  /**
+   * A private region's cell secrets (add-private-regions PR-4): provider keys set on the cell with
+   * `fonoster-region secrets set <provider>`, by provider name. They come before the database's
+   * workspace keys, and providers need no platform credential when this is set.
+   */
+  cellSecrets?: { file?: string; dir?: string; keyEnv?: string };
   /** Where apps come from: `yaml` (the `apps` list, default) or `database` (applications rows). */
   appStore?: { source: "yaml" | "database"; cacheMs?: number };
   /** Workspace webhooks (add-workspace-webhooks) from the database's endpoints. */
@@ -277,7 +283,7 @@ export function validateConfig(config: GatewayConfig): string[] {
         `provider ${name}: the fake adapter is only available in test mode`
       );
     }
-    if (p.adapter !== "fake" && !providerKey(p)) {
+    if (p.adapter !== "fake" && !providerKey(p) && !config.cellSecrets) {
       problems.push(
         `provider ${name}: no credential (set credential.env or credential.value)`
       );

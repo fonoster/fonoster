@@ -19,6 +19,7 @@
  */
 import { CallRecordWriter } from "@fonoster/callrecord";
 import {
+  CellSecrets,
   logUnhandledRejections,
   Registry as RegistryNs,
   Webhooks
@@ -29,6 +30,7 @@ import { databaseUrl, GatewayConfig, loadConfig } from "./config";
 import { Gateway } from "./Gateway";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
 import { createRecordWriter } from "./record/createRecordWriter";
+import { WorkspaceKeySource } from "./speech/Catalog";
 import { telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
@@ -59,7 +61,7 @@ async function main() {
     record,
     apps: db.apps,
     registryStore: db.registryStore,
-    workspaceKeys: db.workspaceKeys,
+    workspaceKeys: keySource(config, db.workspaceKeys),
     webhooks: db.webhooks
   }).start();
   const running = gateway;
@@ -85,6 +87,28 @@ async function main() {
   };
   process.on("SIGTERM", shutdown);
   process.on("SIGINT", shutdown);
+}
+
+/**
+ * Cell secrets (a private region, PR-4) before the database's workspace keys; either alone; or
+ * none (platform keys only).
+ */
+function keySource(
+  config: GatewayConfig,
+  db?: WorkspaceKeySource
+): WorkspaceKeySource | undefined {
+  if (!config.cellSecrets) return db;
+  const cell = new CellSecrets.CellSecretKeys(
+    CellSecrets.openCellSecrets(config.cellSecrets)
+  );
+  return {
+    async get(workspaceRef, providerId) {
+      return (
+        (await cell.get(workspaceRef, providerId)) ??
+        (await db?.get(workspaceRef, providerId))
+      );
+    }
+  };
 }
 
 /**

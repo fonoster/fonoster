@@ -37,5 +37,6 @@ export { getRootDomain, setRootDomain } from "./envs";
 export * from "./session";
 export * as Registry from "./registry";
 export * as Webhooks from "./webhooks";
+export * as CellSecrets from "./cellsecrets";
 export * from "./telemetry";
 export * from "./net";
