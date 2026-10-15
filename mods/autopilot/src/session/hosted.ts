@@ -52,6 +52,11 @@ export const hostedConfigSchema = z
   .object({
     host: z.string().default("0.0.0.0"),
     port: z.number().int().nonnegative().default(50061),
+    /**
+     * Private destinations HTTP tools may call (host names, IPs, CIDRs; RV-B2); defaults to
+     * FONOSTER_ALLOWED_DESTINATIONS.
+     */
+    allowedDestinations: z.array(z.string()).optional(),
     /** The secret the gateway signs Autopilot sessions with (one for every Autopilot app). */
     signingSecret: secretRef,
     /**
@@ -387,23 +392,43 @@ export function hostedOptions(
     : undefined;
   return {
     load: (session) => assistants.get(session.appRef),
+    allowedDestinations: config.allowedDestinations,
     llm: new RegistryLlmResolver({
       registry,
       credentials,
       endpoints: config.endpoints
     }),
-    knowledgeFor: knowledge
-      ? (assistant, scope) => {
-          // One port per call; a lookup waits for it (and gives up after 800 ms like any).
-          const port = knowledge(assistant, scope);
-          return {
-            find: async (question, signal) => {
-              const p = await port;
-              return p ? p.find(question, signal) : "";
-            }
-          };
-        }
-      : undefined
+    knowledgeFor: knowledge ? eagerKnowledge(knowledge) : undefined
+  };
+}
+
+/**
+ * One knowledge port per call, built eagerly; a lookup waits for it (and gives up after 800 ms
+ * like any). A port that fails to build is logged and answers nothing: the eager promise always
+ * has a handler, so a failure never becomes an unhandled rejection (RV-B5).
+ */
+export function eagerKnowledge(
+  build: (
+    assistant: SessionAssistant,
+    scope: { workspaceRef?: string }
+  ) => Promise<KnowledgePort | undefined>
+) {
+  return (
+    assistant: SessionAssistant,
+    scope: { workspaceRef?: string }
+  ): KnowledgePort => {
+    const port = Promise.resolve()
+      .then(() => build(assistant, scope))
+      .catch((e: Error) => {
+        logger.warn(`knowledge port unavailable: ${e?.message ?? e}`);
+        return undefined;
+      });
+    return {
+      find: async (question, signal) => {
+        const p = await port;
+        return p ? p.find(question, signal) : "";
+      }
+    };
   };
 }
 

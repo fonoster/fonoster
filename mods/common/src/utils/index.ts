@@ -31,3 +31,4 @@ export * from "./types";
 export * from "./createFetchSingleCallByCallId";
 export * from "./findIntegrationsCredentials";
 export * from "./sendHttpRequest";
+export * from "./logUnhandledRejections";

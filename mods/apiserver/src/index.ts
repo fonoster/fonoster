@@ -1,6 +1,7 @@
 import {
   CALL_DETAIL_RECORD_MEASUREMENT,
   INFLUXDB_CALLS_BUCKET,
+  logUnhandledRejections,
   setRootDomain
 } from "@fonoster/common";
 import { migratePasswordStorage, upsertDefaultUser } from "@fonoster/identity";
@@ -69,5 +70,6 @@ async function main() {
 }
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
+logUnhandledRejections(logger);
 
 main().catch(logger.error);
