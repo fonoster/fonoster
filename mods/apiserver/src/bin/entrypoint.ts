@@ -27,7 +27,8 @@
  *                               [--migrate-only | --skip-migrations]
  *
  * --migrate-only applies the migrations and the seed, then exits (the Helm migrations Job);
- * --skip-migrations serves right away (replicas behind that Job).
+ * --skip-migrations waits until `prisma migrate status` reports both schemas up to date (the
+ * Job applies them), then serves (replicas behind that Job).
  */
 import { spawnSync } from "child_process";
 import { createConnection } from "net";
@@ -44,6 +45,7 @@ const migrationsRoot = flag("--migrations-root", "/service");
 const migrateOnly = argv.includes("--migrate-only");
 const skipMigrations = argv.includes("--skip-migrations");
 const WAIT_TIMEOUT_MS = 30_000;
+const MIGRATIONS_WAIT_MS = 15 * 60_000;
 
 function waitForTcp(host: string, port: number, timeoutMs: number) {
   const deadline = Date.now() + timeoutMs;
@@ -90,12 +92,38 @@ function run(
   }
 }
 
+/** Polls `prisma migrate status` (exit 0 = up to date) for both schemas. */
+async function waitForMigrations(coreUrl: string, identityUrl: string) {
+  const deadline = Date.now() + MIGRATIONS_WAIT_MS;
+  const upToDate = () =>
+    [
+      ["core", { APISERVER_DATABASE_URL: coreUrl }],
+      ["identity", { APISERVER_IDENTITY_DATABASE_URL: identityUrl }]
+    ].every(
+      ([dir, env]) =>
+        spawnSync("npx", ["prisma", "migrate", "status"], {
+          cwd: join(migrationsRoot, dir as string),
+          stdio: "ignore",
+          env: { ...process.env, ...(env as Record<string, string>) }
+        }).status === 0
+    );
+  while (!upToDate()) {
+    if (Date.now() > deadline)
+      throw new Error(
+        `migrations not applied after ${MIGRATIONS_WAIT_MS / 1000}s (is the migrations Job running?)`
+      );
+    console.log("waiting for the migrations Job");
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+}
+
 async function main() {
   // Validates fonoster.yaml (and reads the keys) before touching the database.
   const config = getConfig();
   const identity = getIdentityConfig();
 
   if (skipMigrations) {
+    await waitForMigrations(config.database.url, identity.dbUrl);
     await import("../index");
     return;
   }

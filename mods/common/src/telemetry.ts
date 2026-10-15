@@ -39,10 +39,34 @@ export interface CallSpan {
   end(attrs?: Attrs, error?: string): void;
 }
 
+/** A span not tied to a call (a gRPC request, a registry command), optionally continuing a trace. */
+export interface Span extends CallSpan {
+  /** The W3C `traceparent` of this span, to send with outgoing messages ("" when disabled). */
+  traceparent: string;
+}
+
+/** NATS/gRPC header carrying the W3C trace context between services. */
+export const TRACEPARENT_HEADER = "traceparent";
+
 export interface Telemetry {
   enabled: boolean;
-  /** Starts the span of one call; the returned handle is a no-op when disabled. */
-  startCall(callRef: string, name: string, attrs?: Attrs): CallSpan;
+  /**
+   * Starts the span of one call; the returned handle is a no-op when disabled. `parent` (a W3C
+   * traceparent from another service, e.g. the media node) makes it a child in that trace.
+   */
+  startCall(
+    callRef: string,
+    name: string,
+    attrs?: Attrs,
+    parent?: string
+  ): CallSpan;
+  /**
+   * Starts a span; with `parent` (a W3C traceparent received from another service) it joins that
+   * trace. A no-op handle when disabled.
+   */
+  startSpan(name: string, attrs?: Attrs, parent?: string): Span;
+  /** The W3C traceparent of a call's span (to propagate over NATS), when one is active. */
+  traceparent(callRef: string): string | undefined;
   /** An OTLP log record correlated by call ref (and the active trace, when any). */
   log(
     level: "debug" | "info" | "warn" | "error",
@@ -57,10 +81,16 @@ export interface Telemetry {
   shutdown(): Promise<void>;
 }
 
-const NOOP_SPAN: CallSpan = { event: () => undefined, end: () => undefined };
+const NOOP_SPAN: Span = {
+  event: () => undefined,
+  end: () => undefined,
+  traceparent: ""
+};
 const NOOP: Telemetry = {
   enabled: false,
   startCall: () => NOOP_SPAN,
+  startSpan: () => NOOP_SPAN,
+  traceparent: () => undefined,
   log: () => undefined,
   count: () => undefined,
   gauge: () => undefined,
@@ -197,7 +227,8 @@ export function initTelemetry(
     spanProcessors: [new base.BatchSpanProcessor(exporter)]
   });
   provider.register();
-  const tracer = api.trace.getTracer("fonoster");
+  // The provider's own tracer: the global one stays the first registered (tests init twice).
+  const tracer = provider.getTracer("fonoster");
 
   // Logs
   const logsUrl = signalUrl(env, "logs");
@@ -276,12 +307,48 @@ export function initTelemetry(
   timer.unref();
 
   const spanOf = new Map<string, any>();
+  const contextOf = (parent?: string) =>
+    parent
+      ? api.propagation.extract(api.context.active(), {
+          [TRACEPARENT_HEADER]: parent
+        })
+      : api.context.active();
+  const traceparentOf = (span: any): string => {
+    const carrier: Record<string, string> = {};
+    api.propagation.inject(
+      api.trace.setSpan(api.context.active(), span),
+      carrier
+    );
+    return carrier[TRACEPARENT_HEADER] ?? "";
+  };
   return {
     enabled: true,
-    startCall(callRef, name, attrs) {
-      const span = tracer.startSpan(name, {
-        attributes: { [CALL_REF_ATTR]: callRef, ...attrs }
-      });
+    startSpan(name, attrs, parent) {
+      const span = tracer.startSpan(
+        name,
+        { attributes: attrs },
+        contextOf(parent)
+      );
+      return {
+        traceparent: traceparentOf(span),
+        event: (n, a) => span.addEvent(n, a),
+        end: (a, error) => {
+          if (a) span.setAttributes(a);
+          if (error) span.setStatus({ code: 2, message: error });
+          span.end();
+        }
+      };
+    },
+    traceparent(callRef) {
+      const span = spanOf.get(callRef);
+      return span ? traceparentOf(span) : undefined;
+    },
+    startCall(callRef, name, attrs, parent) {
+      const span = tracer.startSpan(
+        name,
+        { attributes: { [CALL_REF_ATTR]: callRef, ...attrs } },
+        contextOf(parent)
+      );
       spanOf.set(callRef, span);
       return {
         event: (n, a) => span.addEvent(n, { [CALL_REF_ATTR]: callRef, ...a }),

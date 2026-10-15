@@ -4,7 +4,12 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"strings"
 	"testing"
+
+	"go.opentelemetry.io/otel"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 func TestDisabledIsNoop(t *testing.T) {
@@ -49,4 +54,31 @@ func TestEnabledWithEndpointAndSetup(t *testing.T) {
 	end()
 	_ = shutdown(context.Background())
 	SetMeters(nil)
+}
+
+func TestTraceparentPropagation(t *testing.T) {
+	rec := tracetest.NewSpanRecorder()
+	tp := sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(rec))
+	prev := otel.GetTracerProvider()
+	otel.SetTracerProvider(tp)
+	defer otel.SetTracerProvider(prev)
+
+	if got := Traceparent(context.Background()); got != "" {
+		t.Fatalf("traceparent without a span: %q", got)
+	}
+	const parent = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+	ctx := Extract(context.Background(), parent)
+	ctx, end := StartSpan(ctx, "medianode.command")
+	out := Traceparent(ctx)
+	end()
+	if !strings.HasPrefix(out, "00-0af7651916cd43dd8448eb211c80319c-") || out == parent {
+		t.Fatalf("child traceparent %q does not continue %q", out, parent)
+	}
+	spans := rec.Ended()
+	if len(spans) != 1 || spans[0].Parent().SpanID().String() != "b7ad6b7169203331" {
+		t.Fatalf("span parent not taken from traceparent: %+v", spans)
+	}
+	if Extract(context.Background(), "garbage") == nil {
+		t.Fatal("nil context")
+	}
 }

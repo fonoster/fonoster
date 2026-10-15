@@ -39,12 +39,14 @@ import { KEY_SET_PATH, keySetHandler } from "./http/keySetRoute";
 import {
   MediaControl,
   MediaEvent,
-  NatsMediaControl
+  NatsMediaControl,
+  traceHeaders
 } from "./media/MediaControl";
 import { CallRecordSink, MemoryCallRecordSink } from "./record/CallRecordSink";
 import { serveRecordMaintenance } from "./record/maintenance";
 import { Call, CallInfo } from "./session/Call";
 import { Catalog, WorkspaceKeySource } from "./speech/Catalog";
+import { telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 const sc = StringCodec();
@@ -118,7 +120,8 @@ export class Gateway {
 
     this.stops.push(
       this.media.onIncoming(
-        (nodeId, event) => void this.onIncoming(nodeId, event)
+        (nodeId, event, traceparent) =>
+          void this.onIncoming(nodeId, event, traceparent)
       ),
       this.media.onNodeStatus((event) => this.onNodeStatus(event))
     );
@@ -197,7 +200,13 @@ export class Gateway {
    * plane over NATS and the workspace gets `call_record.sealed` with a link, never contents.
    */
   onRecordSealed(entry: RecordIndexEntry) {
-    this.nc?.publish(RECORD_SEALED_SUBJECT, sc.encode(JSON.stringify(entry)));
+    // The call's trace continues in the apiserver's indexing span when the call span is open.
+    const traceparent = telemetry.traceparent(entry.callRef);
+    this.nc?.publish(
+      RECORD_SEALED_SUBJECT,
+      sc.encode(JSON.stringify(entry)),
+      traceparent ? { headers: traceHeaders(traceparent) } : undefined
+    );
     if (entry.status === "erased") return;
     const base = (this.config.callRecord?.recordUrl ?? "/api/records").replace(
       /\/$/,
@@ -263,7 +272,11 @@ export class Gateway {
   }
 
   /** A claimed `call.incoming`: Routr's X-App-Ref picks the app (B21). */
-  private async onIncoming(nodeId: string, event: MediaEvent) {
+  private async onIncoming(
+    nodeId: string,
+    event: MediaEvent,
+    traceparent?: string
+  ) {
     const participant = event.participant as
       | { participantRef: string; tracks?: unknown[] }
       | undefined;
@@ -289,7 +302,8 @@ export class Gateway {
       from: String(event.from ?? ""),
       to,
       metadata: (event.metadata as Record<string, unknown>) ?? {},
-      callerTracks: participant?.tracks
+      callerTracks: participant?.tracks,
+      traceparent
     };
     const app = appRef ? this.findApp(appRef) : this.appForNumber(to);
     const call = this.newCall(info);

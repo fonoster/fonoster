@@ -16,6 +16,7 @@ import (
 
 	"github.com/fonoster/fonoster/go/medianode/internal/netguard"
 	"github.com/nats-io/nats.go"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 // IncomingSubject is where calls are offered to the gateway replicas (media-control, "Incoming
@@ -146,7 +147,12 @@ func (n *Node) ID() string { return n.cfg.NodeID }
 // Start serves commands and publishes heartbeats.
 func (n *Node) Start() error {
 	sub, err := n.nc.Subscribe(fmt.Sprintf("media.%s.commands", n.cfg.NodeID), func(m *nats.Msg) {
-		reply := n.handleRaw(m.Data)
+		// The gateway's traceparent header: this command's span joins the call's trace.
+		ctx := context.Background()
+		if m.Header != nil {
+			ctx = telemetry.Extract(ctx, m.Header.Get(telemetry.TraceparentHeader))
+		}
+		reply := n.handleRaw(ctx, m.Data)
 		data, _ := json.Marshal(reply)
 		_ = m.Respond(data)
 	})
@@ -401,8 +407,13 @@ func (n *Node) Incoming(call IncomingCall) {
 		ev["callRef"] = call.CallRef
 	}
 	data, _ := json.Marshal(ev)
+	// The call's trace continues in the gateway that claims it (traceparent header).
+	req := &nats.Msg{Subject: IncomingSubject, Data: data, Header: nats.Header{}}
+	if tp := telemetry.Traceparent(ctx); tp != "" {
+		req.Header.Set(telemetry.TraceparentHeader, tp)
+	}
 	for attempt := 0; attempt < 2; attempt++ {
-		msg, err := n.nc.Request(IncomingSubject, data, n.cfg.ClaimTimeout)
+		msg, err := n.nc.RequestMsg(req, n.cfg.ClaimTimeout)
 		if err != nil {
 			continue
 		}
@@ -434,12 +445,17 @@ func orDefault(s, d string) string {
 
 // ---- media-control -------------------------------------------------------------------------
 
-func (n *Node) handleRaw(data []byte) Command {
+func (n *Node) handleRaw(ctx context.Context, data []byte) Command {
 	var cmd Command
 	if err := json.Unmarshal(data, &cmd); err != nil {
 		return Command{"type": "error", "id": "", "code": "bad_message"}
 	}
-	return n.Handle(context.Background(), cmd)
+	typ, _ := cmd["type"].(string)
+	room, _ := cmd["roomRef"].(string)
+	ctx, end := telemetry.StartSpan(ctx, "medianode.command",
+		attribute.String("fonoster.command", typ), attribute.String("fonoster.room_ref", room))
+	defer end()
+	return n.Handle(ctx, cmd)
 }
 
 var knownCommands = map[string]bool{

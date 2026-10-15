@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 import * as fs from "fs";
+import { initTelemetry } from "../telemetry";
 import { WebhookDispatcher } from "../webhooks/Dispatcher";
 import { providerDeprecated } from "../webhooks/events";
 import { PrismaWebhookStore } from "../webhooks/prisma";
@@ -312,17 +313,48 @@ function execute(
   }
 }
 
+/**
+ * Runs one command with telemetry (add-platform 2.5): a `registry.command` span and a
+ * `fonoster.registry.commands` count by command and outcome, flushed before returning. Off unless
+ * an OTLP endpoint is set.
+ */
+export async function runTraced(
+  argv: string[],
+  env: Record<string, string | undefined> = process.env
+): Promise<number> {
+  const telemetry = initTelemetry("fonoster-registry", undefined, env);
+  const command = argv[0] ?? "help";
+  const store = usesDatabase(argv) ? "database" : "file";
+  const span = telemetry.startSpan("registry.command", {
+    "fonoster.registry.command": command,
+    "fonoster.registry.store": store
+  });
+  let code = 1;
+  let error: string | undefined;
+  try {
+    code = usesDatabase(argv) ? await runWithDatabase(argv) : run(argv);
+    return code;
+  } catch (e) {
+    error = (e as Error).message;
+    throw e;
+  } finally {
+    telemetry.count("fonoster.registry.commands", 1, {
+      command,
+      outcome: code === 0 ? "ok" : "error"
+    });
+    span.end(undefined, error);
+    await telemetry.shutdown();
+  }
+}
+
 // Run when executed as the fonoster-registry binary.
 // eslint-disable-next-line no-undef
 if (require.main === module) {
-  const argv = process.argv.slice(2);
-  if (usesDatabase(argv))
-    runWithDatabase(argv).then(
-      (code) => process.exit(code),
-      (e) => {
-        console.error(`error: ${e.message}`);
-        process.exit(1);
-      }
-    );
-  else process.exit(run(argv));
+  runTraced(process.argv.slice(2)).then(
+    (code) => process.exit(code),
+    (e) => {
+      console.error(`error: ${e.message}`);
+      process.exit(1);
+    }
+  );
 }

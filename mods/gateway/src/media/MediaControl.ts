@@ -16,7 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NatsConnection, StringCodec, Subscription } from "nats";
+import { TRACEPARENT_HEADER } from "@fonoster/common";
+import {
+  headers,
+  MsgHdrs,
+  NatsConnection,
+  StringCodec,
+  Subscription
+} from "nats";
 
 // media-control, "media-control runs over NATS request and reply".
 
@@ -47,8 +54,15 @@ export class MediaCommandError extends Error {
 }
 
 export interface MediaControl {
-  /** Sends a command and resolves with the ack; rejects with MediaCommandError otherwise. */
-  command(nodeId: string, command: MediaCommand): Promise<MediaReply>;
+  /**
+   * Sends a command and resolves with the ack; rejects with MediaCommandError otherwise.
+   * `traceparent` (W3C) travels as a NATS header so the node's span joins the call's trace.
+   */
+  command(
+    nodeId: string,
+    command: MediaCommand,
+    traceparent?: string
+  ): Promise<MediaReply>;
   /** Receives every event of one room until the returned function is called. */
   subscribeRoom(
     nodeId: string,
@@ -59,7 +73,9 @@ export interface MediaControl {
    * Claims `call.incoming` requests (media-control, "Incoming calls are claimed by exactly one
    * gateway replica"). Replicas share one queue group, so each call reaches one of them.
    */
-  onIncoming(handler: (nodeId: string, event: MediaEvent) => void): () => void;
+  onIncoming(
+    handler: (nodeId: string, event: MediaEvent, traceparent?: string) => void
+  ): () => void;
   /** Receives every node's `node.heartbeat` and `node.down` (every replica, no queue group). */
   onNodeStatus(handler: (event: MediaEvent) => void): () => void;
 }
@@ -71,6 +87,18 @@ export const heartbeatSubject = (nodeId: string) => `media.${nodeId}.heartbeat`;
 
 const sc = StringCodec();
 
+/** NATS headers carrying a W3C traceparent (trace propagation between services). */
+export function traceHeaders(traceparent: string): MsgHdrs {
+  const h = headers();
+  h.set(TRACEPARENT_HEADER, traceparent);
+  return h;
+}
+
+/** The traceparent of a received message, if any (exact or canonical key). */
+export function readTraceparent(h?: MsgHdrs): string | undefined {
+  return h?.get(TRACEPARENT_HEADER) || h?.get("Traceparent") || undefined;
+}
+
 export class NatsMediaControl implements MediaControl {
   constructor(
     private readonly nc: NatsConnection,
@@ -81,14 +109,19 @@ export class NatsMediaControl implements MediaControl {
     } = {}
   ) {}
 
-  async command(nodeId: string, command: MediaCommand): Promise<MediaReply> {
+  async command(
+    nodeId: string,
+    command: MediaCommand,
+    traceparent?: string
+  ): Promise<MediaReply> {
     let reply: MediaReply;
     try {
       const msg = await this.nc.request(
         `media.${nodeId}.commands`,
         sc.encode(JSON.stringify(command)),
         {
-          timeout: this.options.timeoutMs ?? REPLY_TIMEOUT_MS
+          timeout: this.options.timeoutMs ?? REPLY_TIMEOUT_MS,
+          ...(traceparent ? { headers: traceHeaders(traceparent) } : {})
         }
       );
       reply = JSON.parse(sc.decode(msg.data));
@@ -120,7 +153,9 @@ export class NatsMediaControl implements MediaControl {
     return () => sub.unsubscribe();
   }
 
-  onIncoming(handler: (nodeId: string, event: MediaEvent) => void): () => void {
+  onIncoming(
+    handler: (nodeId: string, event: MediaEvent, traceparent?: string) => void
+  ): () => void {
     const gatewayRef = this.options.gatewayRef ?? "gateway";
     const sub: Subscription = this.nc.subscribe(INCOMING_SUBJECT, {
       queue: this.options.queue ?? "gateway-incoming",
@@ -139,7 +174,11 @@ export class NatsMediaControl implements MediaControl {
             JSON.stringify({ type: "claimed", id: event.id, gatewayRef })
           )
         );
-        handler(String(event.nodeId ?? ""), event);
+        handler(
+          String(event.nodeId ?? ""),
+          event,
+          readTraceparent(msg.headers)
+        );
       }
     });
     return () => sub.unsubscribe();
