@@ -40,5 +40,5 @@
 - [ ] 4.1 Retire `voice.proto` and the verb types in `mods/common`
 - [ ] 4.2 Upgrade guide: version bump, removed methods and their replacements, `dial` to
       `transfer`, signing secret setup
-- [ ] 4.3 Docs pages for TypeScript and Python with matching examples
+- [x] 4.3 Docs pages for TypeScript and Python with matching examples
 - [ ] 4.4 Release notes flagging both breaking changes

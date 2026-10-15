@@ -30,5 +30,5 @@
 
 - [ ] 3.1 Remove `voice.proto`, its generated stubs and `mods/apiserver/src/voice/**`
 - [ ] 3.2 Migration guide: raw gRPC voice apps, removed verbs (`record`, `setAudioFilters`, `mute`, `unmute`)
-- [ ] 3.3 Docs: session protocol reference (both flavors), Pipecat guide (`base_url`, socket close)
+- [x] 3.3 Docs: session protocol reference (both flavors), Pipecat guide (`base_url`, socket close)
 - [ ] 3.4 Release notes marking the BREAKING changes
