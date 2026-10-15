@@ -20,6 +20,7 @@ import { execFileSync } from "child_process";
 import { createHash, randomBytes } from "crypto";
 import * as fs from "fs";
 import * as path from "path";
+import { URL } from "url";
 
 // A throwaway database for the persistence tests: a fresh database on the server named by
 // PERSISTENCE_TEST_DATABASE_URL, migrated with the apiserver's migrations, and a Prisma client
@@ -82,7 +83,7 @@ export async function createTestDb(): Promise<TestDb | undefined> {
   const dir = fs.mkdtempSync(path.join(WORK_DIR, "db-"));
   const schemaFile = schemaWithOutput(dir);
   generate(schemaFile, base);
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { PrismaClient } = require(CLIENT_DIR);
   const name = `rb_test_${randomBytes(6).toString("hex")}`;
   const admin = new PrismaClient({ datasourceUrl: base });
