@@ -271,7 +271,12 @@ describe("@gateway apps", function () {
 
         const apps = await PrismaAppStore.open(encrypted, { cacheMs: 0 });
         const store = await Webhooks.PrismaWebhookStore.open(encrypted);
-        const dispatcher = new Webhooks.WebhookDispatcher({ store });
+        // The fake receiver is local; private destinations are refused unless allowed (RV-B2).
+        const dispatcher = new Webhooks.WebhookDispatcher({
+          store,
+          allowInsecureUrls: true,
+          allowedDestinations: ["127.0.0.1"]
+        });
         const urls = harness.providerUrls;
         gateway = await new Gateway({
           config: {

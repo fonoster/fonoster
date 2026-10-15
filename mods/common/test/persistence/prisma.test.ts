@@ -422,6 +422,10 @@ describe("@common/persistence (Prisma stores)", function () {
   describe("fonoster-registry --store database", function () {
     it("adds, deprecates with a provider.deprecated webhook, and lists", async function () {
       const receiver = await new FakeWebhookReceiver().start();
+      // The CLI's dispatcher delivers to the local receiver only if private destinations are
+      // allowed (RV-B2); operators set the same variable when their endpoints are internal.
+      const allowed = process.env.FONOSTER_ALLOWED_DESTINATIONS;
+      process.env.FONOSTER_ALLOWED_DESTINATIONS = "127.0.0.1";
       try {
         const hooks = await PrismaWebhookStore.open(db.prisma);
         new WebhookDispatcher({
@@ -516,6 +520,9 @@ describe("@common/persistence (Prisma stores)", function () {
           ["ops@fonoster", "deprecate-model"]
         ]);
       } finally {
+        if (allowed === undefined)
+          delete process.env.FONOSTER_ALLOWED_DESTINATIONS;
+        else process.env.FONOSTER_ALLOWED_DESTINATIONS = allowed;
         await receiver.stop();
       }
     });
