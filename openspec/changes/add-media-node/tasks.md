@@ -32,12 +32,12 @@
 - [x] 3.1 `media-control` contract definition over NATS request and reply (PL3) with additive-only rules
 - [x] 3.4 Gateway RTP leg: `rtp` offer and answer in `participant.add`, RTP send and receive, SRTP when encryption is on (MN13)
 - [ ] 3.2 Session registry entries per node and per room in NATS JetStream KV
-- [ ] 3.3 Outbound placement: least-loaded non-draining node, room-to-node mapping
+- [x] 3.3 Outbound placement: least-loaded non-draining node, room-to-node mapping (from heartbeats until 3.2, CB-B2)
 
 ## 4. Migration and docs
 
 - [x] 4.1 Routr peer configuration for media nodes with `least-sessions` (plus per-app and per-number routing, CO-B4)
-- [ ] 4.2 Remove the Asterisk image, dialplan and ARI handling from the apiserver after cutover
+- [x] 4.2 Remove the Asterisk image, dialplan and ARI handling from the apiserver after cutover (CB-B3, CB-B4, CB-B6)
 - [ ] 4.3 Move recording to the policy listener and AMD to a voice-worker listener
 - [x] 4.4 Operator guide: RTP ports, encryption switch, drain behavior, limits (`docs/operators/cutover.md` section 5)
 - [x] 4.5 Asterisk retirement notes, including the end of `{appRef}_{id}.wav` recordings and GSM (`docs/operators/cutover.md` section 6)

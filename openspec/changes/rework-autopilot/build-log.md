@@ -175,3 +175,21 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 ### Not done
 
 - 1.4 streaming evals, 5.3 the migration job, 8.x cutover.
+
+## Clean-break stream (2026-10-15, wave 2)
+
+### CB-B5. The previous engine is deleted (8.1)
+
+- Owner decision 2026-10-15: no backward compatibility. Deleted: `Autopilot.ts`, the xstate
+  `machine/`, `vad/` and `vadWorker.ts` (Silero and its ONNX files), `handleVoiceRequest.ts`,
+  `server.ts`, `voiceServerSetup.ts`, `voice/Voice.ts` (the gRPC `VoiceResponse` wrapper),
+  `sendConversation*Event`, the assistant loaders and their tests. `onnxruntime-node`,
+  `@fonoster/sdk`, `moment` and `uuid` left the dependencies.
+- Kept: `models/`, `tools/`, `assistants/`, `knowledge/` and `envs.ts`, because the apiserver's
+  `createEvaluateIntelligence` (assistant evals) still runs the LangChain models. The `Voice` type
+  they take is now just the five call controls their built-in tools use. Deleting them waits for
+  1.4 (evals on the hosted engine).
+- 8.2 stays open: the legacy assistant schema is still what application validation and the evals
+  read. `sendConversation*Event` is gone.
+- `mods/autopilot/Dockerfile` is now the hosted engine (was `Dockerfile.session`); the compose
+  files mount `config/autopilot-session.yaml`, and `npm run start:autopilot` uses it.
