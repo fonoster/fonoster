@@ -147,7 +147,7 @@ records, provider keys) stays in the cell; only the call-record index, config an
 link. If the control plane is unreachable, the cell keeps taking calls with its last synced config.
 
 Region tokens, cell registration and config sync are described in
-[Running a private region](./private-region.md); the control plane's region hub is the Compose
+[Running a region](./regions.md); the control plane's region hub is the Compose
 profile `regions` or the chart's `natsRegions`. Upgrades in a private cell are yours; nothing
 changes until you roll the images.
 
