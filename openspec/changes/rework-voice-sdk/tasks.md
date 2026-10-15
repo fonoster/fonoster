@@ -29,11 +29,11 @@
 
 ## 3. Python SDK (new package)
 
-- [ ] 3.1 Create the package (name per Open Question 2) with the same session model on
+- [x] 3.1 Create the package (name per Open Question 2) with the same session model on
       `asyncio`
-- [ ] 3.2 Standalone server and ASGI mount with signature verification
-- [ ] 3.3 Implement the same methods, events, errors and `gather` rules as TypeScript
-- [ ] 3.4 Pass every SDK scenario against the fake gateway
+- [x] 3.2 Standalone server and ASGI mount with signature verification
+- [x] 3.3 Implement the same methods, events, errors and `gather` rules as TypeScript
+- [x] 3.4 Pass every SDK scenario against the fake gateway
 
 ## 4. Migration and docs
 

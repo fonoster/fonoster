@@ -52,7 +52,19 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   tests.
 - The scenario format gained `next: true` on `expect` (no skipping).
 
-### Not done
+### SDK5. The Python SDK
 
-- Python SDK (tasks 3.x) and the Python scenario runner (conformance 1.4).
+- Package `fonoster-voice` (open question 1), import `fonoster.voice`, in `python/fonoster-voice`
+  (outside the npm workspaces). Python 3.10+, depends only on `websockets`.
+- Same session model, ids and messages as TypeScript, Pythonic names: `stop_say`, `play_dtmf`,
+  `complete_transfer`, `from_` (since `from` is a keyword), `heard_text`, `handoff_payload`;
+  `gather(timeout=...)` is in seconds; results are dataclasses.
+- `VoiceServer(...).listen(handler)` / `@server.handler` + `server.run()`; `voice_asgi_app(handler,
+  signing_secret=...)` mounts into FastAPI/Starlette. Sync handlers raise `TypeError`.
+- `(req, res)` handlers are supported by arity too, for fixture parity with TypeScript.
+- Passes all 24 voice-sdk scenarios with the Python runner (`python/fonoster-conformance`), plus
+  unit tests for signatures, ASGI mount, sync handlers, removed methods, session end and crashes.
+- Python message types are not generated from `session.v1.json` yet (gateway task 1.1).
+
+### Not done
 - Migration docs and release notes (4.x).
