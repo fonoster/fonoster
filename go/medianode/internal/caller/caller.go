@@ -750,3 +750,11 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		_ = dlg.Close()
 	}()
 }
+
+// SIPCallID is the Call-ID of the call's INVITE (tests craft out-of-dialog requests with it).
+func (c *Call) SIPCallID() string {
+	if c.inbound != nil {
+		return c.inbound.InviteRequest.CallID().Value()
+	}
+	return c.session.InviteRequest.CallID().Value()
+}

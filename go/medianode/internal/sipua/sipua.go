@@ -9,9 +9,11 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/emiago/sipgo"
@@ -52,7 +54,11 @@ type Config struct {
 	// OutboundTransport is "udp" (default), "tcp" or "tls" for INVITEs to OutboundProxy; it is
 	// "tls" whenever encryption is required.
 	OutboundTransport string
-	Logger            *slog.Logger
+	// TrustedSources lists the addresses (IP, CIDR or host name) allowed to send INVITEs: the
+	// node trusts X-App-Ref, X-Call-Ref and X-Call-Direction only from the edge (Routr). Empty
+	// accepts INVITEs from anywhere (development); New logs a warning then (RV-B7).
+	TrustedSources []string
+	Logger         *slog.Logger
 }
 
 // UA serves SIP for one node.
@@ -67,8 +73,11 @@ type UA struct {
 	kick    chan struct{}
 	lastReg int
 	mu      sync.Mutex
-	// legs by Call-ID, for SIP INFO keypresses.
+	// legs by dialog ID (Call-ID plus both tags), for SIP INFO keypresses.
 	legs sync.Map
+	// openDialogs counts INVITE dialogs in the server dialog cache (leak check, RV-B9).
+	openDialogs atomic.Int64
+	trust       *sourceFilter
 	// udp is the UDP listening socket, bound in New so requests can go out from it.
 	udp net.PacketConn
 }
@@ -133,23 +142,30 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 		params.Add("transport", "tls")
 		contact.Address.Port, contact.Address.UriParams = port, params
 	}
-	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp,
+	trust, err := newSourceFilter(cfg.TrustedSources)
+	if err != nil {
+		return nil, err
+	}
+	if trust == nil {
+		cfg.Logger.Warn("no trusted SIP sources configured: INVITEs are accepted from any address")
+	}
+	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp, trust: trust,
 		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact),
 		kick: make(chan struct{}, 1), lastReg: -1}
-	srv.OnInvite(u.onInvite)
-	srv.OnAck(func(req *sip.Request, tx sip.ServerTransaction) { _ = u.dialogs.ReadAck(req, tx) })
-	srv.OnBye(func(req *sip.Request, tx sip.ServerTransaction) {
+	srv.OnInvite(u.guard(u.onInvite))
+	srv.OnAck(u.guard(func(req *sip.Request, tx sip.ServerTransaction) { _ = u.dialogs.ReadAck(req, tx) }))
+	srv.OnBye(u.guard(func(req *sip.Request, tx sip.ServerTransaction) {
 		if err := u.dialogs.ReadBye(req, tx); err == nil {
 			return
 		}
 		if err := u.out.ReadBye(req, tx); err != nil {
 			_ = tx.Respond(sip.NewResponseFromRequest(req, 481, "Call/Transaction Does Not Exist", nil))
 		}
-	})
-	srv.OnInfo(u.onInfo)
-	srv.OnOptions(func(req *sip.Request, tx sip.ServerTransaction) {
+	}))
+	srv.OnInfo(u.guard(u.onInfo))
+	srv.OnOptions(u.guard(func(req *sip.Request, tx sip.ServerTransaction) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
-	})
+	}))
 	n.OnRoomCount = func(count int) { u.loadChanged(count) }
 	n.OnDrain = func() { u.Kick() }
 	if cfg.OutboundProxy != "" {
@@ -194,7 +210,49 @@ func header(req *sip.Request, name string) string {
 	return ""
 }
 
+// OpenDialogs is the number of INVITE dialogs the node still holds (tests: no leaks).
+func (u *UA) OpenDialogs() int { return int(u.openDialogs.Load()) }
+
+// wellFormed reports whether a request carries the headers every handler relies on.
+func wellFormed(req *sip.Request) bool {
+	return req.CallID() != nil && req.From() != nil && req.To() != nil && req.CSeq() != nil && req.Via() != nil
+}
+
+// guard wraps a request handler: a request without Call-ID, From, To, CSeq or Via gets 400, and
+// a panic in one handler is logged instead of killing the node (RV-B1).
+func (u *UA) guard(h sipgo.RequestHandler) sipgo.RequestHandler {
+	return func(req *sip.Request, tx sip.ServerTransaction) {
+		defer func() {
+			if r := recover(); r != nil {
+				u.cfg.Logger.Error("sip request handler panicked", "method", string(req.Method), "panic", r,
+					"stack", string(debug.Stack()))
+				respondSafely(req, tx, 500, "Server Error")
+			}
+		}()
+		if !wellFormed(req) {
+			u.cfg.Logger.Warn("malformed sip request", "method", string(req.Method), "source", req.Source())
+			respondSafely(req, tx, 400, "Bad Request")
+			return
+		}
+		h(req, tx)
+	}
+}
+
+// respondSafely answers a request that may be malformed; ACK gets no response.
+func respondSafely(req *sip.Request, tx sip.ServerTransaction, status int, reason string) {
+	if tx == nil || req.IsAck() {
+		return
+	}
+	defer func() { _ = recover() }()
+	_ = tx.Respond(sip.NewResponseFromRequest(req, status, reason, nil))
+}
+
 func (u *UA) onInvite(req *sip.Request, tx sip.ServerTransaction) {
+	if !u.trust.allows(req.Source()) {
+		u.cfg.Logger.Warn("INVITE from an untrusted source refused", "source", req.Source())
+		_ = tx.Respond(sip.NewResponseFromRequest(req, 403, "Forbidden", nil))
+		return
+	}
 	if u.cfg.RequireEncryption && !strings.EqualFold(req.Transport(), "TLS") {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 403, "TLS Required", nil))
 		return
@@ -213,14 +271,26 @@ func (u *UA) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 500, "Server Error", nil))
 		return
 	}
+	// Every exit that does not answer closes the dialog, so the cache does not keep it (RV-B9).
+	u.openDialogs.Add(1)
+	closeDialog := sync.OnceFunc(func() {
+		_ = dlg.Close()
+		u.openDialogs.Add(-1)
+	})
+	answered := false
+	defer func() {
+		if !answered {
+			closeDialog()
+		}
+	}()
 	_ = dlg.Respond(100, "Trying", nil)
 
 	leg := &inviteLeg{dlg: dlg, final: make(chan int, 1)}
-	callID := req.CallID().Value()
-	u.legs.Store(callID, leg)
+	legID := dlg.ID
+	u.legs.Store(legID, leg)
 	go func() {
 		<-dlg.Context().Done()
-		u.legs.Delete(callID)
+		u.legs.Delete(legID)
 	}()
 	headers := map[string]string{}
 	for _, h := range req.Headers() {
@@ -267,10 +337,11 @@ func (u *UA) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		return
 	}
 	// Answered: the dialog ends on BYE (either side).
+	answered = true
 	go func() {
 		<-dlg.Context().Done()
 		u.node.CallerGone(ref)
-		_ = dlg.Close()
+		closeDialog()
 	}()
 }
 
@@ -316,9 +387,25 @@ func (d *dtmf) deliver(digit string) bool {
 
 type dtmfLeg interface{ deliver(string) bool }
 
+// legFor finds the leg an in-dialog request belongs to by its dialog ID (Call-ID and both
+// tags): a dialog the node answered (UAS) or one it dialed (UAC). Call-ID alone is not enough.
+func (u *UA) legFor(req *sip.Request) (any, bool) {
+	if id, err := sip.DialogIDFromRequestUAS(req); err == nil {
+		if v, ok := u.legs.Load(id); ok {
+			return v, true
+		}
+	}
+	if id, err := sip.DialogIDFromRequestUAC(req); err == nil {
+		if v, ok := u.legs.Load(id); ok {
+			return v, true
+		}
+	}
+	return nil, false
+}
+
 // onInfo reads SIP INFO keypresses: application/dtmf-relay ("Signal=7") or application/dtmf ("7").
 func (u *UA) onInfo(req *sip.Request, tx sip.ServerTransaction) {
-	v, ok := u.legs.Load(req.CallID().Value())
+	v, ok := u.legFor(req)
 	if !ok {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 481, "Call/Transaction Does Not Exist", nil))
 		return
@@ -612,11 +699,11 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 		return nil, nil, err
 	}
 	leg := &outLeg{session: session}
-	callID := session.InviteRequest.CallID().Value()
-	u.legs.Store(callID, leg)
+	legID := session.ID
+	u.legs.Store(legID, leg)
 	go func() {
 		<-session.Context().Done()
-		u.legs.Delete(callID)
+		u.legs.Delete(legID)
 	}()
 	return leg, session.InviteResponse.Body(), nil
 }
