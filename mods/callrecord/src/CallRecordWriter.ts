@@ -18,7 +18,7 @@
  */
 import { randomUUID } from "crypto";
 import { getLogger } from "@fonoster/logger";
-import { decodeVcon, SigningKey, signVcon } from "./sign";
+import { contentHash, decodeVcon, SigningKey, signVcon } from "./sign";
 import { RecordStorage } from "./storage";
 import { RecordEntry, SealedVersion, Vcon } from "./types";
 import { buildVcon } from "./vcon";
@@ -107,9 +107,12 @@ export class CallRecordWriter {
     const next = (base: Vcon, prev: Vcon): Vcon => ({
       ...base,
       uuid: randomUUID(),
-      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       analysis: [...base.analysis, ...(additions.analysis ?? [])],
-      appended: { uuid: prev.uuid, version: current.version }
+      amended: {
+        uuid: prev.uuid,
+        content_hash: contentHash(Buffer.from(JSON.stringify(prev)))
+      }
     });
     const sealed: SealedVersion = {
       version: current.version + 1,

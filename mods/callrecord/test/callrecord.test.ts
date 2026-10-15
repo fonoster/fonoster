@@ -259,10 +259,9 @@ describe("@callrecord", function () {
     });
     expect(v2.version).to.equal(2);
     const vcon2 = decodeVcon(v2.signed);
-    expect(vcon2.appended).to.deep.equal({
-      uuid: decodeVcon(v1.signed).uuid,
-      version: 1
-    });
+    expect(vcon2.amended).to.deep.include({ uuid: decodeVcon(v1.signed).uuid });
+    expect(String(vcon2.amended!.content_hash)).to.match(/^sha512-/);
+    expect(vcon2.vcon).to.equal("0.4.0");
     expect(vcon2.analysis.map((a) => a.type)).to.include("summary");
     expect(storage.getSealed("call-5", 1)!.signed).to.deep.equal(v1.signed);
     expect(storage.getSealed("call-5")!.version).to.equal(2);

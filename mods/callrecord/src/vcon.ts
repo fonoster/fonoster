@@ -22,10 +22,10 @@ import { contentHash } from "./sign";
 import { Part, RecordEntry, Vcon } from "./types";
 
 /**
- * The vCon version emitted. Pinning the IETF draft (call-record open question O4) is still to do;
- * see build-log.md.
+ * Pinned to draft-ietf-vcon-vcon-core-04 (September 2026), which requires "0.4.0" (call-record
+ * open question O4).
  */
-export const VCON_VERSION = "0.0.1";
+export const VCON_VERSION = "0.4.0";
 
 type Built = { vcon: Vcon; redacted: Vcon; parts: Part[]; missing: string[] };
 
@@ -154,6 +154,7 @@ export function buildVcon(
   const base = {
     vcon: VCON_VERSION,
     created_at: iso(endedAt ?? Date.now()),
+    updated_at: iso(endedAt ?? Date.now()),
     subject: `call ${callRef}`,
     parties,
     analysis: [
@@ -217,7 +218,12 @@ export function buildVcon(
     dialog: redactedDialog,
     // The redacted copy does not carry the raw messages, which contain the unredacted text.
     attachments: [],
-    redacted: { uuid: vcon.uuid, type: "pii", fonoster: { redactions } }
+    redacted: {
+      uuid: vcon.uuid,
+      type: "pii",
+      content_hash: contentHash(Buffer.from(JSON.stringify(vcon)))
+    },
+    fonoster: { ...base.fonoster, redactions }
   };
   return { vcon, redacted, parts, missing };
 }

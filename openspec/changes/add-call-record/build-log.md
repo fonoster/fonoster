@@ -28,9 +28,16 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - O1: seal deadline 30 s; a sweep (on gateway start and every 10 s) seals records of dead calls.
 - O2: PEM keys per region, verification by key history. Custody and publishing still open.
 - O3: rule-based redaction (card numbers, digits and spoken digits, EN/ES, Luhn), text only.
-- O4: vCon version emitted as `0.0.1`. **Not verified against the current IETF vCon draft** (I
-  could not check the draft tonight); pinning the draft and validating against its schema is task
-  1.1, still open.
+- O4: pinned to **draft-ietf-vcon-vcon-core-04** (7 September 2026): `vcon: "0.4.0"`,
+  `updated_at`, `amended {uuid, content_hash}` on new versions, `redacted {uuid, type,
+  content_hash}` on the redacted copy, `sha512-<base64url>` content hashes, JWS general JSON
+  serialization with `uuid` in the unprotected header. Two deviations to review:
+  - draft-04 5.2.2 requires `x5c` or `x5u` (a certificate chain) in the JWS header; we sign with a
+    bare region key (`kid`) because there is no PKI yet.
+  - the draft says `alg` SHOULD be RS256; we use ES256 (smaller, faster; allowed by SHOULD).
+  - Fonoster-specific fields sit in a top-level `fonoster` object; the draft's `extensions` /
+    `critical` mechanism should declare it.
+  Validating against the draft's own JSON Schema (task 1.1) is still to do.
 
 ### CR3. Gateway wiring
 

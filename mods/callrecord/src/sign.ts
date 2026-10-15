@@ -54,7 +54,8 @@ export function signVcon(vcon: Vcon, key: SigningKey): SignedVcon {
       {
         protected: header,
         signature: b64url(signature),
-        header: { kid: key.kid }
+        // draft-04 5.2.2 also asks for x5c or x5u (a certificate chain); see build-log.md.
+        header: { kid: key.kid, uuid: vcon.uuid }
       }
     ]
   };

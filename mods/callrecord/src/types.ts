@@ -40,7 +40,7 @@ export type SignedVcon = {
   signatures: {
     protected: string;
     signature: string;
-    header: { kid: string };
+    header: { kid: string; uuid?: string };
   }[];
 };
 
@@ -48,13 +48,14 @@ export type Vcon = {
   vcon: string;
   uuid: string;
   created_at: string;
+  updated_at?: string;
   subject?: string;
   parties: Record<string, unknown>[];
   dialog: Record<string, unknown>[];
   analysis: Record<string, unknown>[];
   attachments: Record<string, unknown>[];
   redacted?: Record<string, unknown>;
-  appended?: Record<string, unknown>;
+  amended?: Record<string, unknown>;
   /** Fonoster extension: why the record is incomplete, if it is. */
   fonoster?: Record<string, unknown>;
 };

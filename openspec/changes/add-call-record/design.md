@@ -191,7 +191,9 @@ dispute. Rejected: only an index entry and the event, which would lose that trac
 3. **O3. Redaction engine.** Interim (build): rules for payment card numbers (digits or spoken
    digit words in English and Spanish, Luhn-checked), transcript text only. Which detector (rules, a model or a vendor) and which languages.
    How are beeps aligned with audio when transcript timings are coarse?
-4. **O4. vCon version.** Which IETF draft we pin, and how we handle a later standard version.
+4. **O4. vCon version.** Pinned for now to draft-ietf-vcon-vcon-core-04 (`vcon: "0.4.0"`); see
+   build-log.md for deviations. Still open: how we handle the RFC (the draft deprecates the
+   `vcon` field in favour of extensions).
 5. **O6. Consent prompt.** Who supplies the wording and language, and what happens if the caller
    refuses (end the call, or continue without recording)?
 6. **O7. Customer bucket failures.** If a workspace bucket is unreachable at seal, do we buffer in
