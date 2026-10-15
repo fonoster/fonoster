@@ -43,7 +43,8 @@ export const BUILT_IN_ADAPTERS = [
   "fake"
 ];
 
-const CATALOG_ID = /^[a-z0-9-]+\/[A-Za-z0-9._-]+$/;
+// provider/name; the name may have its own slashes, as hosted models do (groq/openai/gpt-oss-120b).
+const CATALOG_ID = /^[a-z0-9-]+(\/[A-Za-z0-9._-]+)+$/;
 const REF = /^[a-z0-9][a-z0-9-]*$/;
 const SECRET_KEY = /(api[-_]?key|secret|token|password|private[-_]?key)/i;
 const SECRET_VALUE = /^(sk-|sk_|xox[abp]-|AKIA|AIza|-----BEGIN)/;
