@@ -36,6 +36,7 @@ export function createSdk(client: SDK.WebClient) {
     credentials: new SDK.Credentials(client),
     domains: new SDK.Domains(client),
     numbers: new SDK.Numbers(client),
+    regions: new SDK.Regions(client),
     providers: new SDK.Providers(client),
     secrets: new SDK.Secrets(client),
     trunks: new SDK.Trunks(client),

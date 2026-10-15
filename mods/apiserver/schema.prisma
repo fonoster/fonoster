@@ -401,6 +401,10 @@ model Region {
   configVersion       Int       @default(0) @map("config_version")
   lastHeartbeatAt     DateTime? @map("last_heartbeat_at")
   enrolledAt          DateTime? @map("enrolled_at")
+  /// Connection details the cell reported (region.R.endpoints), cleaned.
+  endpoints           Json?
+  endpointsHash       String?   @map("endpoints_hash") @db.VarChar(64)
+  endpointsAt         DateTime? @map("endpoints_at")
   deletedAt           DateTime? @map("deleted_at")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at")

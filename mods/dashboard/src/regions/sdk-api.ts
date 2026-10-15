@@ -16,60 +16,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { Region as SdkRegion } from "@fonoster/types";
 import type { FonosterSdk } from "~/lib/client";
 import {
   DEFAULT_REGION,
-  PRIVATE_REGION,
-  type RegionToken,
   type Region,
+  type RegionToken,
   type RegionsApi
 } from "./types";
 
-// The RegionsApi over the SDK. The control-plane side is built in parallel, so the method names
-// and shapes below are ASSUMED from the spec (RU-B1) and reached through a loose view of the SDK.
-type Loose = Record<
-  string,
-  ((...args: unknown[]) => Promise<unknown>) | undefined
->;
-const part = (sdk: FonosterSdk, name: string): Loose =>
-  ((sdk as unknown as Record<string, Loose | undefined>)[name] ?? {}) as Loose;
-
-function token(res: unknown): RegionToken {
-  const r = (res ?? {}) as Record<string, unknown>;
+/** The SDK's region view, narrowed to what the dashboard shows. */
+export function toRegion(r: SdkRegion): Region {
   return {
-    token: String(r.enrollmentToken ?? r.token ?? ""),
-    expiresAt: String(r.expiresAt ?? r.enrollmentExpiresAt ?? "")
+    ref: r.ref,
+    kind: r.kind,
+    name: r.name,
+    status: r.status,
+    version: r.version,
+    lastHeartbeatAt: r.lastHeartbeatAt,
+    mediaNodes: r.mediaNodes ?? r.components?.mediaNodes,
+    gateways: r.gateways ?? r.components?.gateways,
+    activeCalls: r.activeCalls,
+    enrolledAt: r.enrolledAt,
+    unsupportedReason: r.unsupportedReason,
+    secrets: r.secrets ?? [],
+    endpoints: r.endpoints
   };
 }
 
+/** The RegionsApi over the SDK (`SDK.Regions` and `SDK.Workspaces`, RG-B9). */
 export function createSdkRegionsApi(sdk: FonosterSdk): RegionsApi {
   return {
     async listRegions() {
       try {
-        const res = (await part(sdk, "regions").listRegions?.()) as
-          | { items?: { id: string; name: string }[] }
-          | undefined;
-        return res?.items?.length ? res.items : [DEFAULT_REGION];
+        const { items } = await sdk.regions.listRegions();
+        return items?.length
+          ? items.map(({ id, name }) => ({ id, name }))
+          : [DEFAULT_REGION];
       } catch {
         return [DEFAULT_REGION];
       }
     },
     async createWorkspace({ name, region }) {
-      const res = (await sdk.workspaces.createWorkspace({
-        name,
-        region: region === PRIVATE_REGION ? "private" : region
-      } as never)) as unknown as Record<string, unknown>;
-      const enrollment = res.enrollmentToken ? token(res) : undefined;
-      return { ref: String(res.ref), enrollment };
+      const res = await sdk.workspaces.createWorkspace({ name, region });
+      return {
+        ref: res.ref,
+        enrollment: res.enrollmentToken
+          ? { token: res.enrollmentToken, expiresAt: res.expiresAt ?? "" }
+          : undefined
+      };
     },
     async getRegion() {
-      return (await part(sdk, "workspaces").getRegion?.()) as Region;
+      return toRegion(await sdk.regions.getRegion());
     },
-    async reissueRegionToken() {
-      return token(await part(sdk, "workspaces").reissueRegionToken?.());
+    async reissueRegionToken(): Promise<RegionToken> {
+      const res = await sdk.regions.reissueRegionToken();
+      return { token: res.enrollmentToken, expiresAt: res.expiresAt };
     },
     async disconnectRegion() {
-      await part(sdk, "workspaces").disconnectRegion?.();
+      await sdk.regions.disconnectRegion();
     }
   };
 }

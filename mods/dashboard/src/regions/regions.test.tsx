@@ -30,7 +30,7 @@ import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
 import { RegionsApiProvider } from "./api";
 import { RegionBanner } from "./banner";
-import { createMockRegionsApi, privateRegion } from "./mock-api";
+import { createMockRegionsApi, privateRegion, publicRegion } from "./mock-api";
 import { RegionSettings } from "./region-settings";
 import RegionSetup from "./setup";
 import { remaining } from "./status";
@@ -239,6 +239,62 @@ describe("Settings → Region", () => {
     expect((await screen.findByText("Status")).nextSibling).toHaveTextContent(
       "Waiting"
     );
+  });
+
+  it("shows a private region's connection details with copy buttons", async () => {
+    render(
+      <RegionSettings />,
+      createMockRegionsApi(
+        privateRegion({
+          endpoints: {
+            sip: [{ host: "sip.acme.example", port: 5061, transport: "tls" }],
+            signalingAddresses: ["203.0.113.10"],
+            mediaAddresses: ["203.0.113.10", "203.0.113.11"],
+            rtpPorts: { min: 20000, max: 20999 }
+          }
+        })
+      )
+    );
+    const details = await screen.findByRole("region", {
+      name: "Connection details"
+    });
+    expect(screen.getByLabelText("SIP (TLS)")).toHaveTextContent(
+      "sip.acme.example:5061"
+    );
+    expect(screen.getByLabelText("Addresses to allowlist")).toHaveTextContent(
+      "203.0.113.10, 203.0.113.11"
+    );
+    expect(screen.getByLabelText("RTP ports")).toHaveTextContent("20000-20999");
+    expect(details.querySelectorAll("button[aria-label^='Copy']")).toHaveLength(
+      3
+    );
+  });
+
+  it("says when a private region has not reported its details yet", async () => {
+    render(<RegionSettings />);
+    expect(
+      await screen.findByText("Shown once your region connects.")
+    ).toBeInTheDocument();
+  });
+
+  it("shows a public region's configured details", async () => {
+    render(
+      <RegionSettings />,
+      createMockRegionsApi({
+        ...publicRegion(),
+        endpoints: {
+          sip: [{ host: "203.0.113.5", port: 5060, transport: "udp" }],
+          signalingAddresses: ["203.0.113.5"],
+          mediaAddresses: []
+        }
+      }),
+      {},
+      testWorkspace
+    );
+    expect(await screen.findByLabelText("SIP (UDP)")).toHaveTextContent(
+      "203.0.113.5:5060"
+    );
+    expect(screen.queryByLabelText("RTP ports")).toBeNull();
   });
 
   it("is read-only for a public region", async () => {

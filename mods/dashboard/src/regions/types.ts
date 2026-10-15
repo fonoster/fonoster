@@ -53,6 +53,18 @@ export type Region = {
   unsupportedReason?: string;
   /** The names the region's config needs, and whether the cell has them. */
   secrets: RegionSecret[];
+  /** Where carriers and softphones connect; absent until a private region reports them. */
+  endpoints?: RegionEndpoints;
+};
+
+export type SipTransport = "udp" | "tcp" | "tls" | "ws" | "wss";
+
+export type RegionEndpoints = {
+  sip: { host: string; port: number; transport: SipTransport }[];
+  signalingAddresses: string[];
+  mediaAddresses: string[];
+  rtpPorts?: { min: number; max: number };
+  updatedAt?: string;
 };
 
 export type RegionToken = { token: string; expiresAt: string };

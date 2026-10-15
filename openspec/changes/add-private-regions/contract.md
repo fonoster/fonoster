@@ -75,6 +75,18 @@ Additions from the control-plane build (RG-B4, additive):
 - A heartbeat whose `configVersion` is behind makes the control plane resend the current snapshot
   (same version). Heartbeats, index and usage from a region that is not enrolled are ignored.
 
+Additions from the endpoints build (RE-B2, additive):
+
+- `endpointsHash` (heartbeat) is the lowercase sha256 hex of the canonical JSON
+  `{"sip":[{"host","port","transport"}…],"signalingAddresses":[…],"mediaAddresses":[…],"rtpPorts":{"min","max"}|null}`
+  (keys in that order, `sip` sorted by `"<transport>:<host>:<port>"`, address lists sorted,
+  `updatedAt` left out). A cell that hashes differently only causes an extra request per heartbeat.
+- `region.R.endpoints.request` (cp → cell, plain publish): `{type:"region.endpoints.request"}`.
+  Sent after a heartbeat whose `endpointsHash` differs from the stored one, or that has no hash
+  while nothing is stored. The cell answers by publishing `region.R.endpoints`.
+- The control plane cleans what it stores: bad hosts, ports and transports are dropped, at most 16
+  SIP entries and 32 addresses per list; a report with nothing usable is ignored.
+
 ## 3a. Endpoints of public regions
 
 Public regions (e.g. `us-east-1`) carry the same `endpoints` shape in the control plane's region

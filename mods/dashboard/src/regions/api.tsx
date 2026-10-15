@@ -43,8 +43,8 @@ export const regionKey = (workspaceRef: string) =>
   ["region", workspaceRef] as const;
 
 /**
- * The current workspace's region, polled. Only private workspaces load it;
- * public ones have nothing to show beyond their region name.
+ * The current workspace's region. Private regions are polled (status, connection
+ * details); a public region's details are configuration, loaded once.
  */
 export function useRegion(refetchMs = 30_000) {
   const api = useRegionsApi();
@@ -53,8 +53,10 @@ export function useRegion(refetchMs = 30_000) {
   const query = useQuery<Region>({
     queryKey: regionKey(workspace?.ref ?? ""),
     queryFn: () => api.getRegion(),
-    enabled: priv,
-    refetchInterval: refetchMs
+    enabled: !!workspace,
+    refetchInterval: priv ? refetchMs : false,
+    staleTime: priv ? 0 : 5 * 60_000,
+    retry: priv ? 3 : 1
   });
   return { ...query, isPrivate: priv };
 }
