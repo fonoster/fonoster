@@ -20,6 +20,7 @@ import { expect } from "chai";
 import { NatsConnection, StringCodec, connect } from "nats";
 import { FakeApp, FakesHarness, Peer } from "@fonoster/conformance";
 import {
+  callSubject,
   AppConfig,
   Gateway,
   GatewayConfig,
@@ -167,8 +168,8 @@ describe("@gateway integration", function () {
 
   it("hands the call to another app with its payload and keeps the caller connected", async function () {
     await start([
-      app("ivr", harness.app.url),
-      app("billing", other.url, { numbers: ["+0"] })
+      app("ivr", harness.app.url, { workspaceRef: "W1" }),
+      app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
     ]);
     harness.mediaNode.offerCall();
     const first = (await harness.app.nextConnection()).peer;
@@ -189,6 +190,60 @@ describe("@gateway integration", function () {
     );
     expect(start2.handoff).to.deep.equal({ accountId: "42" });
     expect(commands()).not.to.include("hangup");
+  });
+
+  it("never merges a call into a live call with the same callRef (RV-B7)", async function () {
+    await start([app("a", harness.app.url)]);
+    harness.mediaNode.offerCall({ callRef: "dup" });
+    const first = (await harness.app.nextConnection()).peer;
+    const start1 = await waitFor(() =>
+      json(first).find((m) => m.type === "session.start")
+    );
+    const second = harness.mediaNode.offerCall({ callRef: "dup" });
+    const peer2 = (await harness.app.nextConnection()).peer;
+    const start2 = await waitFor(() =>
+      json(peer2).find((m) => m.type === "session.start")
+    );
+    expect(start1.callRef).to.equal("dup");
+    expect(start2.callRef).to.equal(second.roomRef);
+  });
+
+  it("hangs up over the call subject only for the call's own workspace (RV-B12)", async function () {
+    await start([
+      app("none", harness.app.url, { numbers: ["+1000"] }),
+      app("mine", other.url, { numbers: ["+2000"], workspaceRef: "W1" })
+    ]);
+    const hangup = async (callRef: string, accountSid?: string) =>
+      JSON.parse(
+        sc.decode(
+          (
+            await nc.request(
+              callSubject(callRef),
+              sc.encode(JSON.stringify({ type: "hangup", accountSid })),
+              { timeout: 2000 }
+            )
+          ).data
+        )
+      );
+    harness.mediaNode.offerCall({
+      to: "+1000",
+      appRef: "none",
+      callRef: "c-none"
+    });
+    const p1 = (await harness.app.nextConnection()).peer;
+    await waitFor(() => json(p1).find((m) => m.type === "session.start"));
+    expect(await hangup("c-none", "W1")).to.include({ code: "not_found" });
+
+    harness.mediaNode.offerCall({
+      to: "+2000",
+      appRef: "mine",
+      callRef: "c-mine"
+    });
+    const p2 = (await other.nextConnection()).peer;
+    await waitFor(() => json(p2).find((m) => m.type === "session.start"));
+    expect(await hangup("c-mine")).to.include({ code: "not_found" });
+    expect(await hangup("c-mine", "W2")).to.include({ code: "not_found" });
+    expect(await hangup("c-mine", "W1")).to.include({ type: "ack" });
   });
 
   it("opens outbound sessions only when the callee answers", async function () {
@@ -389,10 +444,33 @@ describe("@gateway integration", function () {
     expect(types).to.include("app.idle_timeout");
   });
 
+  for (const [name, target] of [
+    ["another workspace", "W2"],
+    ["no workspace", undefined]
+  ] as const) {
+    it(`refuses a handoff to an app in ${name} (RV-B3)`, async function () {
+      await start([
+        app("ivr", harness.app.url, { workspaceRef: "W1" }),
+        app("theirs", other.url, { numbers: ["+0"], workspaceRef: target })
+      ]);
+      harness.mediaNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      peer.sendJson({ type: "handoff", id: "h1", app: "theirs", payload: {} });
+      const error = await waitFor(() =>
+        json(peer).find((m) => m.type === "error")
+      );
+      expect(error).to.include({ code: "bad_message", relatesTo: "h1" });
+      await sleep(200);
+      expect(json(peer).some((m) => m.type === "session.end")).to.equal(false);
+      expect(other.attempts).to.have.length(0);
+    });
+  }
+
   it("refuses oversized handoff payloads and keeps the session", async function () {
     await start([
-      app("ivr", harness.app.url),
-      app("billing", other.url, { numbers: ["+0"] })
+      app("ivr", harness.app.url, { workspaceRef: "W1" }),
+      app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
     ]);
     harness.mediaNode.offerCall();
     const { peer } = await harness.app.nextConnection();

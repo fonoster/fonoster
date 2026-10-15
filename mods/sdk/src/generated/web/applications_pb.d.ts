@@ -520,6 +520,12 @@ export class UpdateApplicationResponse extends jspb.Message {
   getRef(): string;
   setRef(value: string): UpdateApplicationResponse;
 
+  getSigningSecret(): string;
+  setSigningSecret(value: string): UpdateApplicationResponse;
+
+  getSigningSecretHint(): string;
+  setSigningSecretHint(value: string): UpdateApplicationResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateApplicationResponse.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateApplicationResponse): UpdateApplicationResponse.AsObject;
@@ -531,6 +537,8 @@ export class UpdateApplicationResponse extends jspb.Message {
 export namespace UpdateApplicationResponse {
   export type AsObject = {
     ref: string,
+    signingSecret: string,
+    signingSecretHint: string,
   }
 }
 

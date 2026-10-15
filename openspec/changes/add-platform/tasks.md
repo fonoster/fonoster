@@ -32,3 +32,8 @@
 - [x] 3.3 Observability guide: OTLP endpoints, default profile, following a call by `fonoster.call_ref`
 - [ ] 3.4 Upgrade notes: apiserver loses voice code; new gateway and media node deployables; D9 softened to customer-operated cells
 - [x] 3.5 Try-it guide: `docs/try-the-new-platform.md` (one-command local stack, seed, softphone, call records, vendor keys)
+
+## 4. Hardening (from the review, RV-B6/RV-B7)
+
+- [ ] 4.1 NATS users and subject ACLs per service (gateway, media node, apiserver, autopilot, Routr): today any client on the NATS network can publish index entries, maintenance requests and media-control commands
+- [ ] 4.2 mTLS between Routr and the media nodes (the trusted-source allowlist, RV-B7, is the interim check)

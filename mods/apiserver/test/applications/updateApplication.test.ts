@@ -21,7 +21,7 @@ import * as grpc from "@grpc/grpc-js";
 import * as chai from "chai";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
+import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/core/db";
 import { TEST_TOKEN, TEST_UUID } from "../utils";
@@ -83,8 +83,18 @@ describe("@applications/updateApplication", function () {
       );
     });
 
-    // Assert
-    expect(response).to.deep.equal({ ref: TEST_UUID });
+    // Assert: the app had no secret, so the update generated one and shows it once
+    const r = response as {
+      ref: string;
+      signingSecret: string;
+      signingSecretHint: string;
+    };
+    expect(r.ref).to.equal(TEST_UUID);
+    expect(r.signingSecret).to.be.a("string").and.not.equal("");
+    expect(r.signingSecretHint).to.equal(`…${r.signingSecret.slice(-4)}`);
+    const written = (prisma.application.update as sinon.SinonStub).firstCall
+      .args[0].data.signingSecret;
+    expect(written).to.equal(r.signingSecret);
   });
 
   it("should throw an error if the application does not exist", async function () {

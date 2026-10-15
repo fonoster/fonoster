@@ -78,11 +78,11 @@ const autopilotConfigSchema = z
           .default({})
       })
       .default({}),
-    recordings: z
-      .object({
-        baseUrl: z.string().default("http://localhost:9876/api/recordings")
-      })
-      .default({}),
+    /**
+     * Unused: the API server's /api/recordings bridge was removed (recordings are part of the
+     * call record). Accepted so older files still load; it has no default.
+     */
+    recordings: z.object({ baseUrl: z.string().optional() }).optional(),
     dev: z.object({ skipIdentity: z.boolean().default(false) }).default({})
   })
   .superRefine((cfg, ctx) => {

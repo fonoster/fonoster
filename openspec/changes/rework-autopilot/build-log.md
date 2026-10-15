@@ -224,3 +224,14 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   workspace vendor keys (CP-B6) through the providers that use the asked credentialRef.
 - A `database` section (`url` or `urlEnv`, `encryptionKeyEnv`, `clientModule`) is required for
   any database source; the file sources stay for tests and self-hosting.
+
+### RV-B5. A knowledge port that fails to build cannot crash Autopilot
+- The hosted Autopilot builds each call's knowledge port eagerly; that promise now always has a
+  handler (`eagerKnowledge`): a failure (missing keys, S3 down) is logged and lookups answer
+  nothing, instead of an unhandled rejection that ended the process.
+- `logUnhandledRejections(logger)` (`@fonoster/common`) is installed in the autopilot, gateway
+  and apiserver mains: any other unhandled rejection is logged with its stack and the service
+  keeps serving.
+- The hosted config takes `allowedDestinations` (RV-B2) for HTTP tools; the hosted tests use it
+  for their local tool server.
+- Tests: hosted.test "logs a knowledge port that fails to build instead of an unhandled rejection".

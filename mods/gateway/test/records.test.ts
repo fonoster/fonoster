@@ -323,9 +323,30 @@ describe("@gateway call records", function () {
           ).data
         )
       );
+    // RV-B6: the workspace is required and must be the record's.
+    expect(
+      await request({
+        op: "delete_parts",
+        callRef: roomRef,
+        parts: ["recording"],
+        reason: "x",
+        actor: "y"
+      })
+    ).to.deep.include({ type: "error", code: "bad_request" });
+    expect(
+      await request({
+        op: "erase",
+        callRef: roomRef,
+        workspaceRef: "ws-2",
+        reason: "x",
+        actor: "y"
+      })
+    ).to.deep.include({ type: "error", code: "forbidden" });
+
     const deleted = await request({
       op: "delete_parts",
       callRef: roomRef,
+      workspaceRef: "ws-1",
       parts: ["recording"],
       reason: "retention policy: recording after 90 days",
       actor: "system:retention"
@@ -340,6 +361,7 @@ describe("@gateway call records", function () {
     const erased = await request({
       op: "erase",
       callRef: roomRef,
+      workspaceRef: "ws-1",
       reason: "erasure request",
       actor: "user-1"
     });
@@ -354,7 +376,13 @@ describe("@gateway call records", function () {
     ).to.equal(2);
 
     expect(
-      await request({ op: "erase", callRef: "nope", reason: "x", actor: "y" })
+      await request({
+        op: "erase",
+        callRef: "nope",
+        workspaceRef: "ws-1",
+        reason: "x",
+        actor: "y"
+      })
     ).to.deep.include({ type: "error", code: "not_found" });
   });
 });

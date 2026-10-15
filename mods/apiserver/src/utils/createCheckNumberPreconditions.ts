@@ -27,6 +27,14 @@ function createCheckNumberPreconditions(prisma: Prisma) {
       return;
     }
 
+    // Without the caller's workspace the lookup would match any workspace's app (RV-B4).
+    if (!accessKeyId) {
+      throw new GrpcError(
+        status.PERMISSION_DENIED,
+        "the caller's workspace is required to link an application"
+      );
+    }
+
     const app = await prisma.application.findUnique({
       where: { ref: appRef, accessKeyId }
     });

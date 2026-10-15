@@ -323,7 +323,8 @@ describe("@common/persistence (Prisma stores)", function () {
       const store = await PrismaWebhookStore.open(db.prisma);
       const dispatcher = new WebhookDispatcher({
         store,
-        allowInsecureUrls: true
+        allowInsecureUrls: true,
+        allowedDestinations: ["127.0.0.1"]
       });
       const endpoint = dispatcher.createEndpoint({
         workspaceRef: "WO1",
@@ -362,7 +363,8 @@ describe("@common/persistence (Prisma stores)", function () {
       // Resend from another process, with the same event id.
       const resent = await new WebhookDispatcher({
         store: again,
-        allowInsecureUrls: true
+        allowInsecureUrls: true,
+        allowedDestinations: ["127.0.0.1"]
       }).resend(d.id);
       expect(resent.status).to.equal("succeeded");
       expect(receiver.received[1].json.id).to.equal(got.json.id);
@@ -374,6 +376,7 @@ describe("@common/persistence (Prisma stores)", function () {
       const dispatcher = new WebhookDispatcher({
         store: a,
         allowInsecureUrls: true,
+        allowedDestinations: ["127.0.0.1"],
         now: () => clock
       });
       dispatcher.createEndpoint({
@@ -408,6 +411,7 @@ describe("@common/persistence (Prisma stores)", function () {
       const sent = await new WebhookDispatcher({
         store: b,
         allowInsecureUrls: true,
+        allowedDestinations: ["127.0.0.1"],
         now: () => clock
       }).runDue();
       expect(sent).to.equal(1);
@@ -422,7 +426,8 @@ describe("@common/persistence (Prisma stores)", function () {
         const hooks = await PrismaWebhookStore.open(db.prisma);
         new WebhookDispatcher({
           store: hooks,
-          allowInsecureUrls: true
+          allowInsecureUrls: true,
+          allowedDestinations: ["127.0.0.1"]
         }).createEndpoint({
           workspaceRef: "WO4",
           url: receiver.url,

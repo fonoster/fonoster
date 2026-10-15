@@ -277,6 +277,24 @@ describe("@apiserver call records", function () {
     ).to.equal(false);
   });
 
+  it("never moves an indexed record to another workspace (RV-B6)", async function () {
+    const row = mem.records.get("call-card")!;
+    const index = createIndexRecord(mem.db);
+    expect(
+      await index({
+        ...(row as never),
+        callRef: "call-card",
+        workspaceRef: "ws-attacker",
+        version: row.version + 1,
+        status: "completed"
+      } as RecordIndexEntry)
+    ).to.equal(false);
+    expect(mem.records.get("call-card")).to.deep.include({
+      accessKeyId: "ws-1",
+      version: row.version
+    });
+  });
+
   it("refuses requests without a valid token or for another workspace", async function () {
     expect((await fetch(base)).status).to.equal(401);
     const res = await fetch(base, {

@@ -50,7 +50,8 @@ describe("@autopilot/session conformance (autopilot scenarios)", function () {
       }).listen(
         createAutopilotHandler({
           assistant,
-          providers: { fake: { baseUrl: harness.llm.url } }
+          providers: { fake: { baseUrl: harness.llm.url } },
+          allowedDestinations: ["127.0.0.1"]
         })
       );
       try {

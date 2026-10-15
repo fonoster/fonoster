@@ -36,6 +36,8 @@ export type WebhooksDb = any;
 export type WebhooksConfig = {
   /** Plain http:// endpoints (local testing only). */
   allowInsecureUrls?: boolean;
+  /** Private destinations endpoints may use (default FONOSTER_ALLOWED_DESTINATIONS, RV-B2). */
+  allowedDestinations?: string[];
   /** How long the previous secret keeps verifying after a rotation (W4: 24 h). */
   rotationWindowMs?: number;
   now?: () => number;
@@ -92,7 +94,8 @@ function validated(
   try {
     const dispatcher = new Webhooks.WebhookDispatcher({
       store: new Webhooks.MemoryWebhookStore(),
-      allowInsecureUrls: config.allowInsecureUrls
+      allowInsecureUrls: config.allowInsecureUrls,
+      allowedDestinations: config.allowedDestinations
     });
     return dispatcher.createEndpoint({
       workspaceRef: "check",
@@ -255,6 +258,7 @@ export function createWebhooksHandlers(
     const dispatcher = new Webhooks.WebhookDispatcher({
       store,
       allowInsecureUrls: config.allowInsecureUrls,
+      allowedDestinations: config.allowedDestinations,
       now
     });
     await dispatcher.resend(ref);

@@ -33,9 +33,8 @@ describe("@autopilot[envs/autopilotConfigSchema]", function () {
     expect(cfg.server.identityAddress).to.equal("api.fonoster.com");
     expect(cfg.apiserver.endpoint).to.equal("apiserver:50051");
     expect(cfg.conversation.provider).to.equal(ConversationProvider.FILE);
-    expect(cfg.recordings.baseUrl).to.equal(
-      "http://localhost:9876/api/recordings"
-    );
+    // The /api/recordings bridge is gone: no default points at it.
+    expect(cfg.recordings).to.equal(undefined);
     expect(cfg.dev.skipIdentity).to.equal(false);
     expect(cfg.knowledgeBase.enabled).to.equal(false);
     expect(cfg.logs.level).to.equal("info");
@@ -112,7 +111,12 @@ describe("@autopilot[envs/getConfig]", function () {
   it("doesn't read autopilot.yaml when the package is imported as a library", function () {
     const argv = process.argv;
     // The API server imports this package with its own --config flag.
-    process.argv = ["node", "apiserver", "--config", "/nonexistent/fonoster.yaml"];
+    process.argv = [
+      "node",
+      "apiserver",
+      "--config",
+      "/nonexistent/fonoster.yaml"
+    ];
     try {
       expect(() => require("../src")).not.to.throw();
     } finally {

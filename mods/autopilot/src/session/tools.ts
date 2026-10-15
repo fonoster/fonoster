@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { URL } from "url";
+import { DestinationPolicy, safeFetch } from "@fonoster/common";
 import { ToolDefinition } from "./config";
 
 export type ToolOutcome = { ok: boolean; result?: unknown; error?: string };
@@ -30,9 +31,16 @@ export interface ToolPort {
   ): Promise<ToolOutcome>;
 }
 
-/** HTTP tools from the assistant config (`operation.method`, `url`, `headers`). */
+/**
+ * HTTP tools from the assistant config (`operation.method`, `url`, `headers`). Tool URLs are
+ * tenant input: they go through safeFetch (public destinations only, redirects re-checked,
+ * 10 s timeout; RV-B2).
+ */
 export class HttpToolPort implements ToolPort {
-  constructor(private readonly tools: ToolDefinition[]) {}
+  constructor(
+    private readonly tools: ToolDefinition[],
+    private readonly policy?: DestinationPolicy
+  ) {}
 
   async run(
     name: string,
@@ -51,7 +59,7 @@ export class HttpToolPort implements ToolPort {
       body = JSON.stringify(args);
     }
     try {
-      const request = fetch(url, {
+      const request = safeFetch(url, {
         method,
         headers: {
           accept: "application/json",
@@ -59,7 +67,8 @@ export class HttpToolPort implements ToolPort {
           ...(tool.operation.headers ?? {})
         },
         body,
-        signal
+        signal,
+        policy: this.policy?.allow ? this.policy : undefined
       });
       if (tool.operation.waitForResponse === false) {
         request.catch(() => undefined);

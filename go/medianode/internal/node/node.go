@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/fonoster/fonoster/go/medianode/internal/jitter"
 	"github.com/fonoster/fonoster/go/medianode/internal/telemetry"
 
+	"github.com/fonoster/fonoster/go/medianode/internal/netguard"
 	"github.com/nats-io/nats.go"
 )
 
@@ -39,7 +41,10 @@ type Config struct {
 	// RequireEncryption refuses plain RTP on every leg (MN6): SIP legs must offer RTP/SAVP with
 	// an SDES key, and the gateway's rtp blocks must carry srtp.
 	RequireEncryption bool
-	Logger            *slog.Logger
+	// AllowedDestinations are private hosts, IPs or CIDRs hold music may come from
+	// (FONOSTER_ALLOWED_DESTINATIONS); everything else must be public (RV-B2).
+	AllowedDestinations []string
+	Logger              *slog.Logger
 }
 
 func (c *Config) defaults() {
@@ -72,6 +77,8 @@ func (c *Config) defaults() {
 // Node owns rooms and serves media-control over NATS.
 type Node struct {
 	cfg      Config
+	guard    *netguard.Guard
+	music    *http.Client
 	nc       *nats.Conn
 	mu       sync.Mutex
 	rooms    map[string]*Room
@@ -93,7 +100,9 @@ type Node struct {
 // New creates a node; Start connects it to media-control.
 func New(nc *nats.Conn, cfg Config) *Node {
 	cfg.defaults()
-	return &Node{cfg: cfg, nc: nc, rooms: map[string]*Room{}, stop: make(chan struct{})}
+	guard := netguard.New(cfg.AllowedDestinations)
+	return &Node{cfg: cfg, nc: nc, rooms: map[string]*Room{}, stop: make(chan struct{}),
+		guard: guard, music: guard.Client(10 * time.Second)}
 }
 
 // SetDialer gives the node a way to place outbound legs (participant.dial, transfers).

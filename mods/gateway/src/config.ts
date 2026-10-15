@@ -146,6 +146,8 @@ export type GatewayConfig = {
     refreshMs?: number;
     /** Plain http:// endpoints (tests only). */
     allowInsecureUrls?: boolean;
+    /** Private destinations endpoints may use (default FONOSTER_ALLOWED_DESTINATIONS, RV-B2). */
+    allowedDestinations?: string[];
   };
   /** Keepalive overrides (mainly for tests). */
   keepalive?: { pingIntervalMs?: number; idleTimeoutMs?: number };

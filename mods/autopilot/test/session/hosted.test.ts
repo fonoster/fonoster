@@ -35,6 +35,7 @@ import {
   PrismaAssistantSource,
   loadHostedConfig,
   RegistryLlmResolver,
+  eagerKnowledge,
   s3Knowledge,
   sessionAssistantSchema,
   startHostedAutopilot
@@ -107,6 +108,7 @@ function writeConfig(
       registry: { file: "registry.json" },
       credentials: { "fake-llm": { value: "unused" } },
       endpoints: { fake: llmUrl },
+      allowedDestinations: ["127.0.0.1"],
       testMode: true,
       ...extra
     })
@@ -306,6 +308,25 @@ describe("@autopilot/session language models through the registry", function () 
 });
 
 describe("@autopilot/session knowledge port wiring", function () {
+  it("logs a knowledge port that fails to build instead of an unhandled rejection (RV-B5)", async function () {
+    const unhandled: unknown[] = [];
+    const onUnhandled = (e: unknown) => unhandled.push(e);
+    process.on("unhandledRejection", onUnhandled);
+    try {
+      const knowledgeFor = eagerKnowledge(async () => {
+        throw new Error("no credentials");
+      });
+      const port = knowledgeFor({} as never, { workspaceRef: "WS-1" });
+      await new Promise((r) => setTimeout(r, 20));
+      expect(unhandled).to.deep.equal([]);
+      expect(await port.find("hours", new AbortController().signal)).to.equal(
+        ""
+      );
+    } finally {
+      process.off("unhandledRejection", onUnhandled);
+    }
+  });
+
   it("builds the workspace's knowledge base with keys from credential refs", async function () {
     const made: Record<string, unknown>[] = [];
     const factory = s3Knowledge(

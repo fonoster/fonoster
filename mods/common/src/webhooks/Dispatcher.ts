@@ -18,6 +18,7 @@
  */
 import { randomBytes, randomUUID } from "crypto";
 import { URL } from "url";
+import { assertPublicUrlShape, safeFetch } from "../net";
 import { WEBHOOK_EVENT_TYPES, WebhookEvent, WebhookEventType } from "./events";
 import { webhookHeaders } from "./signing";
 
@@ -93,11 +94,22 @@ export type DispatcherOptions = {
   retryPeriodMs?: number;
   /** Lets tests use plain http:// receivers. Never in production. */
   allowInsecureUrls?: boolean;
+  /**
+   * Private destinations (host names, IPs, CIDRs) endpoints may use; defaults to
+   * FONOSTER_ALLOWED_DESTINATIONS. Everything else must be public (RV-B2).
+   */
+  allowedDestinations?: string[];
   now?: () => number;
 };
 
 export class WebhookDispatcher {
   constructor(private readonly options: DispatcherOptions) {}
+
+  private policy() {
+    return this.options.allowedDestinations
+      ? { allow: this.options.allowedDestinations }
+      : undefined;
+  }
 
   private now() {
     return this.options.now?.() ?? Date.now();
@@ -109,12 +121,24 @@ export class WebhookDispatcher {
     url: string;
     events: WebhookEventType[];
   }): WebhookEndpoint {
-    const url = new URL(input.url);
+    let url: URL;
+    try {
+      url = new URL(input.url);
+    } catch {
+      throw new WebhookError("invalid webhook URL");
+    }
     if (
       url.protocol !== "https:" &&
       !(this.options.allowInsecureUrls && url.protocol === "http:")
     ) {
       throw new WebhookError("webhook URLs must use HTTPS");
+    }
+    try {
+      assertPublicUrlShape(url, this.policy());
+    } catch (e) {
+      throw new WebhookError(
+        `webhook URL not allowed: ${(e as Error).message}`
+      );
     }
     const unknown = input.events.filter(
       (e) => !(WEBHOOK_EVENT_TYPES as readonly string[]).includes(e)
@@ -204,14 +228,17 @@ export class WebhookDispatcher {
     const body = JSON.stringify(d.event);
     let status = 0;
     try {
-      const res = await fetch(endpoint.url, {
+      // Checked again at delivery: DNS may have changed since the endpoint was created.
+      const res = await safeFetch(endpoint.url, {
         method: "POST",
         headers: {
           "content-type": "application/json",
           ...webhookHeaders(body, secrets, Math.floor(now / 1000))
         },
         body,
-        signal: AbortSignal.timeout(this.options.attemptTimeoutMs ?? 10_000)
+        timeoutMs: this.options.attemptTimeoutMs ?? 10_000,
+        maxRedirects: 0,
+        policy: this.policy()
       });
       status = res.status;
       await res.arrayBuffer().catch(() => undefined);

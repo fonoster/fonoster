@@ -26,6 +26,7 @@ import {
   AppsDb,
   assistantRow,
   newSigningSecret,
+  secretHint,
   SessionAppsConfig,
   toAppColumns
 } from "./session/appModel";
@@ -91,7 +92,17 @@ function createUpdateApplication(prisma: AppsDb, config: SessionAppsConfig) {
       })
     ]);
 
-    return { ref };
+    // A secret generated here is returned once, like on create; the shared Autopilot secret
+    // never is (CP review).
+    const generated =
+      signingSecret && signingSecret !== config.autopilotSigningSecret
+        ? signingSecret
+        : undefined;
+    return {
+      ref,
+      signingSecret: generated ?? "",
+      signingSecretHint: generated ? secretHint(generated) : ""
+    };
   };
 
   return withErrorHandling(

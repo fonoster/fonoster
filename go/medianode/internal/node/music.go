@@ -4,14 +4,14 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"net/http"
 
 	"github.com/fonoster/fonoster/go/medianode/internal/audio"
 )
 
-// fetchWav reads a PCM16 WAV (8 or 16 kHz, mono) into internal frames.
-func fetchWav(url string) ([]audio.Frame, error) {
-	res, err := http.Get(url)
+// fetchWav reads a PCM16 WAV (8 or 16 kHz, mono) into internal frames. The URL is tenant
+// input: it goes through the node's guarded client (public destinations only, 10 s timeout).
+func (n *Node) fetchWav(url string) ([]audio.Frame, error) {
+	res, err := n.guard.Get(n.music, url)
 	if err != nil {
 		return nil, err
 	}

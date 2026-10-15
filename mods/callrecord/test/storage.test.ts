@@ -285,6 +285,27 @@ describe("@callrecord recording, retention and erasure", function () {
     });
   });
 
+  it("deleting the transcript also deletes the raw messages, which hold the words (RV-B11)", async function () {
+    await recordedCall("ret-3");
+    expect(await store.getPart("ret-3", "messages.ndjson")).to.not.equal(
+      undefined
+    );
+    const { sealed, audit } = await writer.deleteParts(
+      "ret-3",
+      ["transcript"],
+      {
+        reason: "request",
+        actor: "user-1"
+      }
+    );
+    expect(await store.getPart("ret-3", "messages.ndjson")).to.equal(undefined);
+    expect(audit.map((a) => a.part)).to.deep.equal(["transcript", "messages"]);
+    expect(sealed.parts.map((p) => p.name)).to.not.include("messages.ndjson");
+    const v2 = decodeVcon((await store.getSealed("ret-3"))!.signed);
+    expect(JSON.stringify(v2)).to.not.include("I want my balance");
+    expect(index[index.length - 1].parts).to.not.include("messages");
+  });
+
   it("deleting the transcript removes it from earlier versions too", async function () {
     await recordedCall("ret-2");
     await writer.deleteParts("ret-2", ["transcript", "messages"], {
@@ -323,6 +344,34 @@ describe("@callrecord recording, retention and erasure", function () {
     expect(vcon.parties).to.deep.equal([]);
     expect(vcon.fonoster).to.deep.include({ status: "erased" });
     expect(verifyRecord(tomb, KEYS)).to.deep.include({ ok: true });
+  });
+
+  it("refuses maintenance that names another workspace (RV-B6)", async function () {
+    await recordedCall("ws-check");
+    for (const op of [
+      () =>
+        writer.deleteParts("ws-check", ["recording"], {
+          reason: "r",
+          actor: "a",
+          workspaceRef: "ws-2"
+        }),
+      () =>
+        writer.erase("ws-check", {
+          reason: "r",
+          actor: "a",
+          workspaceRef: "ws-2"
+        })
+    ]) {
+      const e = await op().then(
+        () => undefined,
+        (err: Error) => err
+      );
+      expect(e?.name).to.equal("WorkspaceMismatchError");
+    }
+    expect((await store.getSealed("ws-check"))!.version).to.equal(1);
+    expect(await store.getPart("ws-check", "recording.wav")).to.not.equal(
+      undefined
+    );
   });
 
   it("seals a minimal record for a call that never reached an app", async function () {
@@ -407,6 +456,30 @@ describe("@callrecord recording, retention and erasure", function () {
     await w.flush();
     expect(await store.getVersion("own-2")).to.not.equal(undefined);
     expect(index[1].location).to.equal(store.location);
+    // RV-B10: maintenance finds the record where the index says it is, not where the workspace's
+    // records go now.
+    target = own;
+    const by = { reason: "r", actor: "a", workspaceRef: "ws-1" };
+    const lost = await w.deleteParts("own-2", ["messages"], by).then(
+      () => undefined,
+      (e: Error) => e
+    );
+    expect(lost?.message).to.match(/no sealed record/);
+    const { sealed } = await w.deleteParts("own-2", ["messages"], {
+      ...by,
+      location: index[1].location
+    });
+    expect(sealed.version).to.equal(2);
+    expect((await store.getSealed("own-2"))!.version).to.equal(2);
+    const erased = await w.erase("own-2", { ...by, location: store.location });
+    expect(erased.version).to.equal(3);
+    const unknown = await w
+      .erase("own-1", { ...by, location: "s3://elsewhere/" })
+      .then(
+        () => undefined,
+        (e: Error) => e
+      );
+    expect(unknown?.message).to.match(/no record store/);
   });
 
   it("rebuilds the analytics store from sealed records with the same values", async function () {

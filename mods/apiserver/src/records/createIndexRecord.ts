@@ -34,9 +34,21 @@ export function createIndexRecord(db: RecordsDb) {
       where: { callRef: entry.callRef }
     });
     if (existing && existing.version > entry.version) return false;
+    // A record's workspace never changes: anyone can publish on NATS today, so an entry that
+    // names another workspace for a known record is dropped, not applied (RV-B6).
+    if (
+      existing?.accessKeyId &&
+      entry.workspaceRef &&
+      entry.workspaceRef !== existing.accessKeyId
+    ) {
+      logger.warn(
+        `index entry for ${entry.callRef} names another workspace; ignored`
+      );
+      return false;
+    }
     const erased = entry.status === "erased";
     const data = {
-      accessKeyId: entry.workspaceRef ?? existing?.accessKeyId ?? null,
+      accessKeyId: existing?.accessKeyId ?? entry.workspaceRef ?? null,
       appRef: erased ? (existing?.appRef ?? null) : entry.appRef,
       fromNumber: erased ? null : entry.from,
       toNumber: erased ? null : entry.to,

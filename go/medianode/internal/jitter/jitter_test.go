@@ -156,3 +156,15 @@ func TestDelayGrowsAfterLatePackets(t *testing.T) {
 		t.Fatalf("delay did not grow: %+v delay %d", s, b.delay)
 	}
 }
+
+// RV-B8: a flood of non-audio sequence numbers does not grow the buffer without bound.
+func TestSkipsAreCapped(t *testing.T) {
+	b := New()
+	for i := 0; i < 20000; i++ {
+		b.Skip(uint16(i * 7919))
+	}
+	b.Push(pkt(1))
+	if n := len(b.skips); n > maxSkips {
+		t.Fatalf("%d skips held, cap is %d", n, maxSkips)
+	}
+}

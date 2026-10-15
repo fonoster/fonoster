@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
   NumberPreconditionsCheck,
   Validators as V,
@@ -28,6 +29,7 @@ import {
   NumbersApi,
   UpdateNumberRequest
 } from "@fonoster/types";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { convertToRoutrNumberUpdate } from "./convertToRoutrNumber";
 import { NumberRouting } from "./engineRouting";
 
@@ -44,8 +46,11 @@ function updateNumber(
   ) => {
     const { request } = call;
 
-    // Validates that the appRef or agentAor exists in the system
-    await checkNumberPreconditions(request);
+    // Validates that the appRef exists in the caller's workspace (RV-B4)
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
+    await checkNumberPreconditions({ ...request, accessKeyId });
 
     logger.verbose("call to updateNumber", { ...request });
 

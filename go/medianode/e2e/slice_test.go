@@ -29,6 +29,7 @@ type rig struct {
 	t      *testing.T
 	nc     *nats.Conn
 	node   *node.Node
+	ua     *sipua.UA
 	sip    string
 	bot    *caller.Bot
 	mu     sync.Mutex
@@ -107,7 +108,7 @@ func startWith(t *testing.T, o rigOptions) *rig {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r := &rig{t: t, nc: nc, node: n, sip: addr, bot: bot, callee: callee, claim: true}
+	r := &rig{t: t, nc: nc, node: n, ua: ua, sip: addr, bot: bot, callee: callee, claim: true}
 	record := func(m *nats.Msg) {
 		var ev map[string]any
 		_ = json.Unmarshal(m.Data, &ev)

@@ -18,7 +18,11 @@
  * limitations under the License.
  */
 import { CallRecordWriter } from "@fonoster/callrecord";
-import { Registry as RegistryNs, Webhooks } from "@fonoster/common";
+import {
+  logUnhandledRejections,
+  Registry as RegistryNs,
+  Webhooks
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { AppStore, PrismaAppStore } from "./apps/AppStore";
 import { databaseUrl, GatewayConfig, loadConfig } from "./config";
@@ -28,6 +32,7 @@ import { createRecordWriter } from "./record/createRecordWriter";
 import { telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
+logUnhandledRejections(logger);
 
 async function main() {
   const file =
@@ -145,7 +150,8 @@ async function openDatabase(config: GatewayConfig): Promise<{
     hooks = store;
     const dispatcher = new Webhooks.WebhookDispatcher({
       store,
-      allowInsecureUrls: w.allowInsecureUrls
+      allowInsecureUrls: w.allowInsecureUrls,
+      allowedDestinations: w.allowedDestinations
     });
     let running = false;
     timers.push(

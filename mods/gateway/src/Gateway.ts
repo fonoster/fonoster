@@ -222,10 +222,11 @@ export class Gateway {
         if (err) return;
         const request = JSON.parse(sc.decode(msg.data));
         if (request.type === "hangup") {
-          // Only the call's own workspace may hang it up (the endpoint answers 404 otherwise).
+          // Only the call's own workspace may hang it up (the endpoint answers 404 otherwise);
+          // a call without a workspace cannot be hung up this way (RV-B12).
           if (
-            request.accountSid &&
-            call.workspaceRef &&
+            !request.accountSid ||
+            !call.workspaceRef ||
             request.accountSid !== call.workspaceRef
           ) {
             msg.respond(
@@ -249,10 +250,19 @@ export class Gateway {
     const roomRef = event.roomRef as string;
     const to = String(event.to ?? "");
     const appRef = event.appRef as string | undefined;
+    // A callRef (X-Call-Ref) that names a live call never joins it: the new call gets its own
+    // ref, its room's (RV-B7).
+    let callRef = (event.callRef as string) ?? roomRef;
+    if (this.calls.has(callRef)) {
+      logger.warn(
+        `call.incoming with the callRef of a live call (${callRef}); using room ${roomRef}`
+      );
+      callRef = this.calls.has(roomRef) ? `${roomRef}-${Date.now()}` : roomRef;
+    }
     const info: CallInfo = {
       nodeId,
       roomRef,
-      callRef: (event.callRef as string) ?? roomRef,
+      callRef,
       callerRef:
         (event.participantRef as string) ?? participant?.participantRef ?? "",
       direction: "inbound",

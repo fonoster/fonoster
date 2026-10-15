@@ -139,6 +139,12 @@ export type CallDeps = {
  * most one app session (handoff replaces it). Speech, turn-taking and the output queue live
  * here, never in the media node.
  */
+
+/** Both apps belong to the same, known workspace (handoff never crosses workspaces, RV-B3). */
+function sameWorkspace(a?: string, b?: string): boolean {
+  return a !== undefined && b !== undefined && a === b;
+}
+
 export class Call {
   readonly startedAt = Date.now();
   private rtp = new RtpLink();
@@ -491,9 +497,14 @@ export class Call {
     return undefined;
   }
 
-  async handoff(appRef: string, payload: Record<string, unknown>) {
+  async handoff(
+    appRef: string,
+    payload: Record<string, unknown>,
+    fromWorkspaceRef: string | undefined
+  ) {
     const target = this.deps.findApp(appRef);
-    if (!target) return false;
+    if (!target || !sameWorkspace(fromWorkspaceRef, target.workspaceRef))
+      return false;
     this.handoffs++;
     await this.deps.catalog.prepare(target.workspaceRef);
     const reached = await this.dial(target);
@@ -1258,7 +1269,13 @@ export class AppSession {
         return;
       case "handoff": {
         const target = cmd.app as string;
-        if (!this.deps.findApp(target)) {
+        const targetApp = this.deps.findApp(target);
+        // Handoff stays inside the app's workspace (RV-B3); another workspace's app is reported
+        // like an unknown one, so refs of other workspaces are not confirmed.
+        if (
+          !targetApp ||
+          !sameWorkspace(this.app.workspaceRef, targetApp.workspaceRef)
+        ) {
           this.emit({
             type: "error",
             code: "bad_message",
@@ -1281,7 +1298,11 @@ export class AppSession {
           return;
         }
         this.end("handoff");
-        const ok = await this.call.handoff(target, payload);
+        const ok = await this.call.handoff(
+          target,
+          payload,
+          this.app.workspaceRef
+        );
         if (!ok) await this.call.hangup("error");
         return;
       }

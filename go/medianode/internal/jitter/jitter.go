@@ -147,6 +147,10 @@ func (b *Buffer) Push(p *rtp.Packet) {
 	}
 }
 
+// maxSkips caps the sequence numbers held for non-audio packets: a sender that floods events
+// or odd payload types cannot grow the buffer without bound (RV-B8).
+const maxSkips = 64
+
 // Skip marks a sequence number taken by a non-audio packet (an RFC 4733 event).
 func (b *Buffer) Skip(seq uint16) {
 	b.mu.Lock()
@@ -157,6 +161,12 @@ func (b *Buffer) Skip(seq uint16) {
 	}
 	if b.skips == nil {
 		b.skips = map[uint64]bool{}
+	}
+	if len(b.skips) >= maxSkips {
+		b.pruneSkips()
+		if len(b.skips) >= maxSkips {
+			return // a lost skip only costs one concealed frame
+		}
 	}
 	b.skips[ext] = true
 	if ext > b.highest {
@@ -251,9 +261,10 @@ func (b *Buffer) trim() {
 	}
 }
 
+// pruneSkips forgets skips already played past, and ones too far ahead of playout to matter.
 func (b *Buffer) pruneSkips() {
 	for k := range b.skips {
-		if k < b.next {
+		if (b.anchored && k < b.next) || k > b.highest || (b.anchored && k > b.next+uint64(4*b.Max+maxSkips)) {
 			delete(b.skips, k)
 		}
 	}

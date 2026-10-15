@@ -35,8 +35,9 @@ services:
     image: nats:2.11.8-alpine
     restart: unless-stopped
     command: ["-c", "/etc/nats/nats.conf"]
+    # Host-only by default: NATS has no per-service users yet (RV-B6); RB_NATS_BIND=0.0.0.0 opts in.
     ports:
-      - "${RB_NATS_PORT:-4222}:4222"
+      - "${RB_NATS_BIND:-127.0.0.1}:${RB_NATS_PORT:-4222}:4222"
     volumes:
       - ./config/nats.conf:/etc/nats/nats.conf:ro
       - nats:/data
@@ -142,6 +143,8 @@ services:
       MEDIANODE_REGISTER_EVERY: ${RB_NODE_REGISTER_EVERY:-15s}
       MEDIANODE_OUTBOUND_PROXY: routr:${RB_SIP_INTERNAL_PORT:-5060}
       MEDIANODE_DEBUG_ADDR: 0.0.0.0:8099
+      # INVITEs (and their X-App-Ref/X-Call-Ref headers) only from Routr (RV-B7).
+      MEDIANODE_TRUSTED_SOURCES: ${RB_NODE_TRUSTED_SOURCES:-${RB_NET:-10.216.16}.40}
     ports:
       - "${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}:${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}/udp"
     networks:
@@ -206,11 +209,13 @@ services:
     restart: unless-stopped
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-please}
+      # Generated into .local/stack.env by ops/rebuild/stack; no default password (RV-B6).
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD (ops/rebuild/stack generates it)}
       MINIO_DEFAULT_BUCKETS: ${RB_RECORDS_BUCKET:-records}
+    # Host-only by default (RV-B6); RB_MINIO_BIND=0.0.0.0 opts in.
     ports:
-      - "${RB_MINIO_PORT:-9000}:9000"
-      - "${RB_MINIO_CONSOLE_PORT:-9001}:9001"
+      - "${RB_MINIO_BIND:-127.0.0.1}:${RB_MINIO_PORT:-9000}:9000"
+      - "${RB_MINIO_BIND:-127.0.0.1}:${RB_MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
       - minio:/bitnami/minio/data
     healthcheck:

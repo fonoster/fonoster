@@ -4547,7 +4547,9 @@ proto.fonoster.applications.v1beta2.UpdateApplicationResponse.prototype.toObject
  */
 proto.fonoster.applications.v1beta2.UpdateApplicationResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+signingSecret: jspb.Message.getFieldWithDefault(msg, 2, ""),
+signingSecretHint: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -4588,6 +4590,14 @@ proto.fonoster.applications.v1beta2.UpdateApplicationResponse.deserializeBinaryF
       var value = /** @type {string} */ (reader.readString());
       msg.setRef(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSigningSecret(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSigningSecretHint(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -4624,6 +4634,20 @@ proto.fonoster.applications.v1beta2.UpdateApplicationResponse.serializeBinaryToW
       f
     );
   }
+  f = message.getSigningSecret();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getSigningSecretHint();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -4642,6 +4666,42 @@ proto.fonoster.applications.v1beta2.UpdateApplicationResponse.prototype.getRef =
  */
 proto.fonoster.applications.v1beta2.UpdateApplicationResponse.prototype.setRef = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string signing_secret = 2;
+ * @return {string}
+ */
+proto.fonoster.applications.v1beta2.UpdateApplicationResponse.prototype.getSigningSecret = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.applications.v1beta2.UpdateApplicationResponse} returns this
+ */
+proto.fonoster.applications.v1beta2.UpdateApplicationResponse.prototype.setSigningSecret = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string signing_secret_hint = 3;
+ * @return {string}
+ */
+proto.fonoster.applications.v1beta2.UpdateApplicationResponse.prototype.getSigningSecretHint = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.applications.v1beta2.UpdateApplicationResponse} returns this
+ */
+proto.fonoster.applications.v1beta2.UpdateApplicationResponse.prototype.setSigningSecretHint = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 

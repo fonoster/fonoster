@@ -389,3 +389,25 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - With the Applications API writing the app model, the hosted Autopilot reading assistants from
   the database (CP-B11) and the gateway reading apps from `applications` (P-B9), rb-stack's
   interim `appsync` (copies app fields and assistants every 3 s) can be removed once both land.
+
+### RV-B3. Handoff never crosses workspaces
+- `handoff` is refused unless the target app and the current app both have a `workspaceRef` and
+  they are equal; checked in the command and again in `Call.handoff` (which now takes the
+  current app's workspace, since the session is ended before the dial). The refusal is the
+  same `bad_message` "unknown app" as for a missing ref, so other workspaces' refs are not
+  confirmed. Config-file apps without a workspace cannot hand off any more.
+- Tests: `@gateway integration` "refuses a handoff to an app in another workspace / no workspace".
+
+### RV-B7. A colliding callRef never joins a live call
+- `call.incoming` whose callRef (from X-Call-Ref) names a call this gateway is still running gets
+  its room's ref instead (logged); before, the new call replaced the live one in the call map and
+  shared its control subject. The media node now accepts INVITEs only from trusted sources
+  (add-media-node RV-B7), so X-Call-Ref comes from Routr.
+- Tests: `@gateway integration` "never merges a call into a live call with the same callRef".
+
+### RV-B12. The Twilio hang-up endpoint needs the call's workspace
+- A hang-up request over `gateway.calls.<callRef>` is honoured only when it carries an
+  `accountSid` and the call has a workspace equal to it; before, a call without a workspace (or a
+  request without an accountSid) could be hung up by any authenticated account. Calls of
+  config-file apps without a workspace can no longer be hung up through the endpoint.
+- Tests: `@gateway integration` "hangs up over the call subject only for the call's own workspace".

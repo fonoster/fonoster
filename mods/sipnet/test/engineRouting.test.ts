@@ -32,6 +32,13 @@ import {
 import { RoutrNumber, repointNumbers } from "../src/numbers/repointNumbers";
 import { TEST_TOKEN } from "./testToken";
 
+function callerMetadata() {
+  const metadata = new grpc.Metadata();
+  metadata.set("token", TEST_TOKEN);
+  metadata.set("accesskeyid", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
+  return metadata;
+}
+
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
@@ -99,7 +106,13 @@ describe("@sipnet[numbers/engineRouting]", function () {
       numbers,
       sandbox.stub(),
       createNumberRouting()
-    )({ request: { ref: "n1", appRef: "app-2" } } as never, sandbox.stub());
+    )(
+      {
+        metadata: callerMetadata(),
+        request: { ref: "n1", appRef: "app-2" }
+      } as never,
+      sandbox.stub()
+    );
 
     expect(numbers.updateNumber).to.have.been.calledWithMatch({
       ref: "n1",
@@ -114,7 +127,10 @@ describe("@sipnet[numbers/engineRouting]", function () {
       updateNumber: sandbox.stub().resolves({ ref: "n1" })
     } as unknown as NumbersApi;
     await updateNumber(numbers, sandbox.stub())(
-      { request: { ref: "n1", appRef: "app-2" } } as never,
+      {
+        metadata: callerMetadata(),
+        request: { ref: "n1", appRef: "app-2" }
+      } as never,
       sandbox.stub()
     );
     expect(numbers.getNumber).to.not.have.been.called;

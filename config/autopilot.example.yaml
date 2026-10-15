@@ -44,9 +44,6 @@ knowledgeBase:
   embeddings: {}
     # openaiApiKey: sk-xxxxxxxxxxxxxxxx           # required when knowledgeBase is enabled
 
-recordings:
-  baseUrl: http://apiserver:9876/api/recordings  # the API server's HTTP bridge
-
 # Development only.
 # dev:
 #   skipIdentity: false

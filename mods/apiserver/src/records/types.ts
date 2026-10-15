@@ -92,6 +92,8 @@ export type MaintenanceClient = (
     op: "delete_parts" | "erase";
     callRef: string;
     workspaceRef?: string | null;
+    /** Where the record is stored (the index's location): the region store or a workspace bucket. */
+    location?: string;
     parts?: string[];
     reason: string;
     actor: string;

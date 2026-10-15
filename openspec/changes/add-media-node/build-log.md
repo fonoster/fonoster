@@ -401,3 +401,39 @@ cutover.
   updating a trunk's URIs needs `name` and `inboundUri` in the request or Routr's update fails
   with "Expected a string but received a undefined" (500 from the apiserver).
 
+
+### RV-B1. Malformed SIP requests cannot crash the node; INFO matches its dialog
+- Every request handler is wrapped (`guard`): a request without Call-ID, From, To, CSeq or Via
+  gets 400 before any handler reads it, and a panic in a handler is logged with its stack and
+  answered 500 instead of killing the process (sipgo runs handlers without a recover).
+- SIP INFO keypresses find their leg by dialog ID (Call-ID plus both tags, UAS or UAC side),
+  not by Call-ID alone; an INFO with a known Call-ID but foreign tags gets 481 and no `dtmf`.
+- Tests: e2e `TestMalformedInfoDoesNotKillTheNode`.
+
+### RV-B7. INVITEs only from trusted sources
+- `MEDIANODE_TRUSTED_SOURCES` (`sipua.Config.TrustedSources`): comma-separated IPs, CIDRs or
+  host names (resolved per INVITE, so a container address that changes still matches). INVITEs
+  from anywhere else get 403: X-App-Ref, X-Call-Ref and X-Call-Direction are trusted only from
+  the edge. Empty keeps the old behaviour (any source) and logs a warning at start; the local
+  stack sets it to `routr`.
+- Hardening task (not done): mTLS between Routr and the nodes, so the allowlist is not the only
+  check on a shared network.
+- Tests: e2e `TestUntrustedSourceInviteRefused`, `TestTrustedSourceInviteAccepted`.
+
+### RV-B9. Unanswered INVITE dialogs are closed
+- `onInvite` closes the server dialog on every exit that does not answer (reject, 503 unclaimed,
+  CANCEL, errors), so sipgo's dialog cache no longer keeps one entry per failed call. Answered
+  dialogs still close when they end. `UA.OpenDialogs()` exposes the count for tests.
+- Tests: e2e `TestUnansweredDialogsAreClosed`.
+
+### RV-B8. RTP latches to one source; skips are capped
+- Each RTP endpoint accepts packets from one source: the configured remote (from SDP or the
+  gateway's rtp block) once it sends, otherwise the first source whose packet decrypts and
+  parses (symmetric RTP behind NAT). The configured remote takes over a first-source latch and
+  is never replaced; a new remote (Configure) resets the latch. Other senders are dropped and
+  counted (`Stats.Foreign`).
+- The jitter buffer holds at most 64 skipped sequence numbers (RFC 4733 events and other
+  payload types); past and far-ahead ones are pruned, and beyond the cap a skip is dropped
+  (one concealed frame at worst).
+- Tests: rtpio `TestLatchesToRemoteAndDropsOtherSenders`, `TestLatchesToFirstSourceWithoutRemote`;
+  jitter `TestSkipsAreCapped`.

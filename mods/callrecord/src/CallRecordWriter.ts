@@ -34,6 +34,29 @@ export const SEAL_DEADLINE_MS = 30_000;
 export const RECORD_PARTS = ["recording", "transcript", "messages"] as const;
 export type RecordPart = (typeof RECORD_PARTS)[number];
 
+/** A maintenance request named another workspace than the stored record's (RV-B6). */
+export class WorkspaceMismatchError extends Error {
+  constructor(callRef: string) {
+    super(`record ${callRef} belongs to another workspace`);
+    this.name = "WorkspaceMismatchError";
+  }
+}
+
+/**
+ * Refuses a change when the caller named a workspace that is not the stored record's. Callers
+ * that do not name one (in-region jobs) are not checked; maintenance requests always name one.
+ */
+function assertSameWorkspace(
+  callRef: string,
+  stored: Vcon | undefined,
+  expected: string | null | undefined
+) {
+  if (expected === undefined) return;
+  const actual = stored ? workspaceOfVcon(stored) : null;
+  if ((actual ?? null) !== (expected ?? null))
+    throw new WorkspaceMismatchError(callRef);
+}
+
 /** One audited deletion (call-record "every deletion ... produces an audit entry"). */
 export type AuditEntry = {
   callRef: string;
@@ -106,6 +129,23 @@ export class CallRecordWriter {
       (workspaceRef && this.options.workspaceStore?.(workspaceRef)) ||
       this.options.store
     );
+  }
+
+  /**
+   * The store that holds an existing record. With its indexed location (RV-B10) that is the
+   * store at that location: a record whose workspace bucket failed at seal stays in the region
+   * store, and a workspace that configured a bucket later keeps its older records where they
+   * are. Without a location, the workspace's current store.
+   */
+  storeAt(location: string | undefined, workspaceRef?: string | null) {
+    if (!location) return this.storeFor(workspaceRef);
+    const candidates = [
+      workspaceRef ? this.options.workspaceStore?.(workspaceRef) : undefined,
+      this.options.store
+    ];
+    const found = candidates.find((s) => s && s.location === location);
+    if (!found) throw new Error(`no record store at ${location}`);
+    return found;
   }
 
   /** Seals a working record as version 1 and returns it; idempotent while in progress. */
@@ -204,12 +244,16 @@ export class CallRecordWriter {
   private async newVersion(
     callRef: string,
     workspaceRef: string | null | undefined,
-    change: (vcon: Vcon, redacted: boolean) => Vcon
+    change: (vcon: Vcon, redacted: boolean) => Vcon,
+    checkWorkspace = false,
+    location?: string
   ): Promise<{ sealed: SealedVersion; previous: SealedVersion }> {
     const { key } = this.options;
-    const store = this.storeFor(workspaceRef);
+    const store = this.storeAt(location, workspaceRef);
     const current = await store.getSealed(callRef);
     if (!current) throw new Error(`no sealed record for ${callRef}`);
+    if (checkWorkspace)
+      assertSameWorkspace(callRef, decodeVcon(current.signed), workspaceRef);
     const next = (signed: SealedVersion["signed"], redacted: boolean): Vcon => {
       const prev = decodeVcon(signed);
       return {
@@ -241,12 +285,19 @@ export class CallRecordWriter {
   async addVersion(
     callRef: string,
     additions: { analysis?: Record<string, unknown>[] },
-    workspaceRef?: string
+    workspaceRef?: string,
+    location?: string
   ): Promise<SealedVersion> {
-    const { sealed } = await this.newVersion(callRef, workspaceRef, (v) => ({
-      ...v,
-      analysis: [...v.analysis, ...(additions.analysis ?? [])]
-    }));
+    const { sealed } = await this.newVersion(
+      callRef,
+      workspaceRef,
+      (v) => ({
+        ...v,
+        analysis: [...v.analysis, ...(additions.analysis ?? [])]
+      }),
+      false,
+      location
+    );
     return sealed;
   }
 
@@ -258,10 +309,21 @@ export class CallRecordWriter {
    */
   async deleteParts(
     callRef: string,
-    parts: RecordPart[],
-    by: { reason: string; actor: string; workspaceRef?: string | null }
+    requested: RecordPart[],
+    by: {
+      reason: string;
+      actor: string;
+      workspaceRef?: string | null;
+      location?: string;
+    }
   ): Promise<{ sealed: SealedVersion; audit: AuditEntry[] }> {
-    const store = this.storeFor(by.workspaceRef);
+    // messages.ndjson holds every session message, the caller's and the agent's words included:
+    // deleting the transcript deletes it too (RV-B11), and the audit says so.
+    const parts: RecordPart[] =
+      requested.includes("transcript") && !requested.includes("messages")
+        ? [...requested, "messages"]
+        : requested;
+    const store = this.storeAt(by.location, by.workspaceRef);
     const at = new Date().toISOString();
     const deletion = (part: RecordPart) => ({
       part,
@@ -312,7 +374,9 @@ export class CallRecordWriter {
             ]
           }
         };
-      }
+      },
+      true,
+      by.location
     );
     for (const part of parts) {
       const file = fileOf[part];
@@ -349,13 +413,19 @@ export class CallRecordWriter {
    */
   async erase(
     callRef: string,
-    by: { reason: string; actor: string; workspaceRef?: string | null }
+    by: {
+      reason: string;
+      actor: string;
+      workspaceRef?: string | null;
+      location?: string;
+    }
   ): Promise<{ audit: AuditEntry[]; version: number }> {
-    const store = this.storeFor(by.workspaceRef);
+    const store = this.storeAt(by.location, by.workspaceRef);
     const current = await store.getVersion(callRef);
     if (!current) throw new Error(`no sealed record for ${callRef}`);
     const at = new Date().toISOString();
     const previous = current.signed ? decodeVcon(current.signed) : undefined;
+    assertSameWorkspace(callRef, previous, by.workspaceRef);
     const workspaceRef =
       by.workspaceRef ?? (previous ? workspaceOfVcon(previous) : null);
     await store.deleteAll(callRef);

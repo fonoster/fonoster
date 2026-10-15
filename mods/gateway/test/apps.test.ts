@@ -260,7 +260,8 @@ describe("@gateway apps", function () {
         const hooks = await Webhooks.PrismaWebhookStore.open(encrypted);
         new Webhooks.WebhookDispatcher({
           store: hooks,
-          allowInsecureUrls: true
+          allowInsecureUrls: true,
+          allowedDestinations: ["127.0.0.1"]
         }).createEndpoint({
           workspaceRef: "WO1",
           url: receiver.url,
