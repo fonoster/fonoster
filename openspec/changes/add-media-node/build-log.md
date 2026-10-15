@@ -81,3 +81,9 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   can come back later as HEP to Homer (MN10).
 - Peer auth: Credentials + Peer (`aor`, `username`, `credentialsRef`) + Number (`aorLink`,
   `trunkRef`) + Trunk. Not yet tried live; that needs a throwaway Routr with its own database.
+
+### MN-B7. Listeners
+
+- `listener.attach` takes one RTP destination per track and sends that participant's audio
+  unmixed (silence while it is silent); listeners have no inbound path, so they cannot speak.
+  `listener.detach` closes the forks. All 20 media-control scenarios now pass on the Go node.

@@ -469,3 +469,61 @@ func TestReferTransfer(t *testing.T) {
 		t.Fatalf("refers %v", refers)
 	}
 }
+
+func TestListenerGetsTracksUnmixed(t *testing.T) {
+	r := start(t)
+	call, room, gw := r.answeredCall()
+	// Listen to the caller's track (1) only.
+	tap, err := rtpio.Listen("127.0.0.1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tap.Close()
+	_ = tap.Configure(audio.L16{}, 96, -1, "127.0.0.1", 9)
+	var mu sync.Mutex
+	audible := 0
+	go tap.Serve(rtpio.Handlers{Audio: func(f audio.Frame) {
+		var sum float64
+		for _, s := range f {
+			sum += float64(s) * float64(s)
+		}
+		if math.Sqrt(sum/float64(len(f))) > 300 {
+			mu.Lock()
+			audible++
+			mu.Unlock()
+		}
+	}})
+	rep := r.command(map[string]any{"type": "listener.attach", "id": "l1", "roomRef": room,
+		"tracks": []any{map[string]any{"trackId": 1, "rtp": map[string]any{"host": "127.0.0.1", "port": tap.Port(), "codec": "L16/16000"}}}})
+	if rep["type"] != "ack" || rep["listenerRef"] == nil {
+		t.Fatalf("listener.attach: %v", rep)
+	}
+	// Agent audio (track 2) must not reach a listener of track 1.
+	tone := audio.Silence()
+	for i := range tone {
+		tone[i] = int16(8000 * math.Sin(2*math.Pi*440*float64(i)/audio.Rate))
+	}
+	for i := 0; i < 20; i++ {
+		gw.Send(tone)
+		time.Sleep(20 * time.Millisecond)
+	}
+	time.Sleep(100 * time.Millisecond)
+	mu.Lock()
+	fromAgent := audible
+	audible = 0
+	mu.Unlock()
+	if fromAgent > 0 {
+		t.Fatalf("listener of the caller's track heard %d frames of agent audio", fromAgent)
+	}
+	call.Speak("tone", 400)
+	time.Sleep(700 * time.Millisecond)
+	mu.Lock()
+	fromCaller := audible
+	mu.Unlock()
+	if fromCaller < 10 {
+		t.Fatalf("listener heard %d frames of the caller", fromCaller)
+	}
+	if rep := r.command(map[string]any{"type": "listener.detach", "id": "l2", "roomRef": room, "listenerRef": rep["listenerRef"]}); rep["type"] != "ack" {
+		t.Fatalf("listener.detach: %v", rep)
+	}
+}

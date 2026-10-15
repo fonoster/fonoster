@@ -30,11 +30,6 @@ import {
 // RTP from the caller bot. Needs NATS (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
-// Features this node version does not have yet (add-media-node task 2.11).
-const NOT_YET: Record<string, string> = {
-  "listener-destination": "listeners (task 2.11)"
-};
-
 describe("@conformance media-control scenarios (Go media node)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
@@ -53,7 +48,6 @@ describe("@conformance media-control scenarios (Go media node)", function () {
 
   for (const scenario of loadScenarios("media-control")) {
     it(scenario.name, async function () {
-      if (NOT_YET[scenario.name]) return this.skip();
       const harness = new ProcessMediaNodeHarness(nc, bins!);
       try {
         const result = await runScenario(scenario, {

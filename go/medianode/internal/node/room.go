@@ -78,6 +78,73 @@ type Room struct {
 	musicPos     int
 	ended        bool
 	done         chan struct{}
+	listeners    map[string][]fork
+}
+
+// fork sends one participant's track, unmixed, to a listener's RTP destination.
+type fork struct {
+	trackID  int
+	endpoint *rtpio.Endpoint
+}
+
+// attachListener is listener.attach: one RTP stream per selected track, never mixed, receive-only.
+func (r *Room) attachListener(cmd Command, ack replyFn, fail failFn) Command {
+	tracks, _ := cmd["tracks"].([]any)
+	if len(tracks) == 0 {
+		return fail("bad_message", "listener.attach needs tracks")
+	}
+	forks := []fork{}
+	closeAll := func() {
+		for _, f := range forks {
+			f.endpoint.Close()
+		}
+	}
+	for _, t := range tracks {
+		track, _ := t.(map[string]any)
+		id, _ := track["trackId"].(float64)
+		block, _ := track["rtp"].(map[string]any)
+		host, _ := block["host"].(string)
+		port, _ := block["port"].(float64)
+		codecName, _ := block["codec"].(string)
+		if codecName == "" {
+			codecName = "L16/16000"
+		}
+		codec, ok := audio.CodecFor(codecName)
+		if host == "" || port == 0 || !ok {
+			closeAll()
+			return fail("bad_message", "each track needs rtp {host, port} and a supported codec")
+		}
+		ep, err := rtpio.Listen(r.node.cfg.RTPHost)
+		if err != nil {
+			closeAll()
+			return fail("internal", err.Error())
+		}
+		pt := 96
+		if codecName == "PCMU/8000" {
+			pt = 0
+		}
+		_ = ep.Configure(codec, pt, -1, host, int(port))
+		forks = append(forks, fork{trackID: int(id), endpoint: ep})
+	}
+	ref := r.node.nextRef("listener")
+	r.mu.Lock()
+	if r.listeners == nil {
+		r.listeners = map[string][]fork{}
+	}
+	r.listeners[ref] = forks
+	r.mu.Unlock()
+	return ack(Command{"listenerRef": ref, "participantRef": ref})
+}
+
+func (r *Room) detachListener(ref string) bool {
+	r.mu.Lock()
+	forks, ok := r.listeners[ref]
+	delete(r.listeners, ref)
+	r.mu.Unlock()
+	for _, f := range forks {
+		f.endpoint.Close()
+	}
+	return ok
 }
 
 func newRoom(n *Node, ref string) *Room {
@@ -317,10 +384,17 @@ func (r *Room) end(reason string, status int, id string) {
 	}
 	r.participants = map[string]*Participant{}
 	r.order = nil
+	listeners := r.listeners
+	r.listeners = nil
 	r.mu.Unlock()
 	close(r.done)
 	for _, p := range parts {
 		p.endpoint.Close()
+	}
+	for _, fs := range listeners {
+		for _, f := range fs {
+			f.endpoint.Close()
+		}
 	}
 	ev := Event{"type": "room.ended", "reason": reason}
 	if status != 0 {
@@ -402,8 +476,23 @@ func (r *Room) tick() {
 	r.mu.Unlock()
 
 	frames := make([]audio.Frame, len(parts))
+	byTrack := map[int]audio.Frame{}
 	for i, p := range parts {
 		frames[i] = p.pull()
+		byTrack[p.TrackID] = frames[i]
+	}
+	r.mu.Lock()
+	var forks []fork
+	for _, fs := range r.listeners {
+		forks = append(forks, fs...)
+	}
+	r.mu.Unlock()
+	for _, f := range forks {
+		frame := byTrack[f.trackID]
+		if frame == nil {
+			frame = audio.Silence()
+		}
+		f.endpoint.Send(frame)
 	}
 	for i, p := range parts {
 		if p.Ref == heldRef {

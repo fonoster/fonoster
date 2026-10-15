@@ -18,7 +18,8 @@ participants (mix-minus), driven by the VoiceSessionGateway over **media-control
 | REGISTER to Routr with `X-Session-Count` (re-registers on load changes) | done, not yet tried against Routr |
 | `participant.dial` and cold, warm and refer transfers through an outbound proxy (`-outbound-proxy`, Routr in production) | done |
 | Debug endpoint (`-debug host:port`, `GET /rooms`) for tests and operators | done |
-| Listeners, PCMA/G.722/Opus, SIP INFO and in-band DTMF, SRTP, jitter buffer | next slices |
+| `listener.attach` / `listener.detach`: one unmixed RTP stream per selected track | done |
+| PCMA/G.722/Opus, SIP INFO and in-band DTMF, SRTP, jitter buffer | next slices |
 
 ## Run
 

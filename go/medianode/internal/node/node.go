@@ -429,8 +429,15 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 	case "transfer.complete":
 		go r.completeTransfer(id)
 		return ack(nil)
+	case "listener.attach":
+		return r.attachListener(cmd, ack, fail)
+	case "listener.detach":
+		ref, _ := cmd["listenerRef"].(string)
+		if !r.detachListener(ref) {
+			return fail("listener_not_found", ref)
+		}
+		return ack(nil)
 	default:
-		// listener.attach and listener.detach: a later slice.
-		return fail("not_implemented", typ+" is not implemented in this node version")
+		return fail("unknown_command", typ)
 	}
 }
