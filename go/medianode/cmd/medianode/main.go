@@ -4,10 +4,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log/slog"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
@@ -38,8 +40,10 @@ func main() {
 	domain := flag.String("domain", env("MEDIANODE_DOMAIN", ""), "registration domain")
 	username := flag.String("username", env("MEDIANODE_USERNAME", "medianode"), "peer username at Routr")
 	password := flag.String("password", env("MEDIANODE_PASSWORD", ""), "peer password at Routr")
+	outbound := flag.String("outbound-proxy", env("MEDIANODE_OUTBOUND_PROXY", ""), "host:port outbound INVITEs go to (Routr); empty disables dial and transfers")
 	transport := flag.String("transport", env("MEDIANODE_TRANSPORT", "udp"), "REGISTER transport (udp or tcp)")
 	heartbeat := flag.Duration("heartbeat", 2*time.Second, "node.heartbeat period")
+	debugAddr := flag.String("debug", env("MEDIANODE_DEBUG_ADDR", ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
 	drainWait := flag.Duration("drain-wait", 10*time.Minute, "longest wait for rooms to end on SIGTERM")
 	flag.Parse()
 
@@ -56,7 +60,7 @@ func main() {
 	_, portText, _ := net.SplitHostPort(*sipListen)
 	port, _ := strconv.Atoi(portText)
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
-		Registrar: *registrar, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
+		Registrar: *registrar, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
 		Logger: logger})
 	if err != nil {
 		logger.Error("sip", "err", err)
@@ -76,6 +80,15 @@ func main() {
 			os.Exit(1)
 		}
 	}()
+	if *debugAddr != "" {
+		// Diagnostics for tests and operators; never part of media-control.
+		mux := http.NewServeMux()
+		mux.HandleFunc("GET /rooms", func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(n.Rooms())
+		})
+		go func() { _ = http.ListenAndServe(*debugAddr, mux) }()
+	}
 	fmt.Printf("medianode %s ready sip=%s\n", *nodeID, *sipListen)
 
 	signals := make(chan os.Signal, 1)

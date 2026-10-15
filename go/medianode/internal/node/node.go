@@ -71,6 +71,7 @@ type Node struct {
 	draining bool
 	subs     []*nats.Subscription
 	stop     chan struct{}
+	dialer   Dialer
 	// OnRoomCount is told the number of active rooms whenever it changes (Routr registration).
 	OnRoomCount func(n int)
 }
@@ -79,6 +80,41 @@ type Node struct {
 func New(nc *nats.Conn, cfg Config) *Node {
 	cfg.defaults()
 	return &Node{cfg: cfg, nc: nc, rooms: map[string]*Room{}, stop: make(chan struct{})}
+}
+
+// SetDialer gives the node a way to place outbound legs (participant.dial, transfers).
+func (n *Node) SetDialer(d Dialer) { n.dialer = d }
+
+// Held reports whether a room has a participant on hold (tests and debugging).
+func (n *Node) Held(roomRef string) bool {
+	if r := n.room(roomRef); r != nil {
+		return r.isHeld()
+	}
+	return false
+}
+
+// RoomState is a debug view of one room.
+type RoomState struct {
+	RoomRef      string   `json:"roomRef"`
+	Held         bool     `json:"held"`
+	Participants []string `json:"participants"`
+}
+
+// Rooms lists active rooms (the debug endpoint; not part of media-control).
+func (n *Node) Rooms() []RoomState {
+	n.mu.Lock()
+	rooms := make([]*Room, 0, len(n.rooms))
+	for _, r := range n.rooms {
+		rooms = append(rooms, r)
+	}
+	n.mu.Unlock()
+	out := make([]RoomState, 0, len(rooms))
+	for _, r := range rooms {
+		r.mu.Lock()
+		out = append(out, RoomState{RoomRef: r.Ref, Held: r.heldRef != "", Participants: append([]string(nil), r.order...)})
+		r.mu.Unlock()
+	}
+	return out
 }
 
 // ID is the node id used in every subject.
@@ -376,8 +412,25 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 		}
 		go r.hangupAll(reason, status, id)
 		return ack(nil)
+	case "participant.dial":
+		if n.dialer == nil {
+			return fail("not_supported", "no outbound proxy configured")
+		}
+		go r.dial(cmd)
+		return ack(nil)
+	case "transfer":
+		if n.dialer == nil {
+			if mode, _ := cmd["mode"].(string); mode != "refer" {
+				return fail("not_supported", "no outbound proxy configured")
+			}
+		}
+		go r.transfer(cmd)
+		return ack(nil)
+	case "transfer.complete":
+		go r.completeTransfer(id)
+		return ack(nil)
 	default:
-		// participant.dial, transfer, transfer.complete, listener.*: later slices.
+		// listener.attach and listener.detach: a later slice.
 		return fail("not_implemented", typ+" is not implemented in this node version")
 	}
 }

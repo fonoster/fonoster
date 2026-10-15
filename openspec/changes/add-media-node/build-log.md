@@ -49,3 +49,35 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - voice-session through gateway → Go node → caller bot: 29 of 36 pass (7 need transfers or
   fake-only measurements). This is the first real-SIP, real-RTP run of the whole stack.
 - Not yet tried against a real Routr (registration and `least-sessions` routing).
+
+### MN-B5. Second slice: dial and transfers
+
+- `participant.dial`, cold, warm and refer transfers go through `-outbound-proxy` (Routr in
+  production, the caller bot in tests). Failed dials map 486/600 → `busy`, 408/480/487 →
+  `no_answer`, anything else → `failed`, with `sipStatus`.
+- Room rule: when a phone party leaves and no phone party remains, or one phone party is left
+  alone, the room ends and the one left gets a BYE (a cold-transferred caller hanging up ends the
+  call for the new party).
+- Hold is per participant now (the caller), so a warm transfer's session and new party talk while
+  the caller hears music.
+- A debug endpoint (`-debug`, `GET /rooms`) shows rooms and hold state; tests read `media.held`
+  from it. It is not part of media-control.
+- Results: Go end-to-end tests 10/10 (race-clean). media-control scenarios on the Go node 19/20
+  (listeners missing). voice-session through gateway → Go node → caller bot 35/36 (the remaining
+  one drops media with a fake-only action; the real media timeout is 30 s).
+
+### MN-B6. What Routr actually does (read from ~/Projects/routr)
+
+- `least-sessions` reads `X-Session-Count` only from the peer's authenticated REGISTER
+  (`mods/location/src/helper.ts`, `handlers/register.ts`); the count changes only on re-register.
+  That matches MN3: the node re-registers on a timer and after load changes.
+- A Number routes to the Peer whose `aor` equals the Number's `aorLink`, so different Numbers can
+  go to different peers (media nodes next to Asterisk during cutover). But Fonoster's sipnet
+  points every app-linked Number at `sip:voice@default` (`mods/sipnet/src/numbers/
+  convertToRoutrNumber.ts`), so side-by-side routing needs a sipnet change (per-app or per-number
+  aorLink).
+- `X-App-Ref` reaches the INVITE through `Number.extraHeaders` set by sipnet; MN14 holds.
+- Routr has no per-call pcap but can export HEP through `heplify` (`HEPLIFY_OPTIONS`); SIP traces
+  can come back later as HEP to Homer (MN10).
+- Peer auth: Credentials + Peer (`aor`, `username`, `credentialsRef`) + Number (`aorLink`,
+  `trunkRef`) + Trunk. Not yet tried live; that needs a throwaway Routr with its own database.

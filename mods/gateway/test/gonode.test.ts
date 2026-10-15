@@ -37,12 +37,6 @@ const SECRET = "conformance-secret";
 
 // Node features not built yet, and assertions only the fake node can make.
 const NOT_YET: Record<string, string> = {
-  "cold-transfer": "transfers (media node task 2.8)",
-  "warm-transfer": "transfers (media node task 2.8)",
-  "refer-transfer": "transfers (media node task 2.8)",
-  "failed-transfer": "transfers (media node task 2.8)",
-  "warm-transfer-not-answered": "transfers (media node task 2.8)",
-  "hold-and-resume": "media.held is measured inside the fake node",
   "media-timeout-ends-session":
     "drop is a fake-node action (the real timeout is 30 s)"
 };

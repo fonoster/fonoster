@@ -24,6 +24,7 @@ import (
 )
 
 type rig struct {
+	callee *caller.Bot
 	t      *testing.T
 	nc     *nats.Conn
 	node   *node.Node
@@ -56,7 +57,13 @@ func start(t *testing.T) *rig {
 	n := node.New(nc, node.Config{NodeID: id, Heartbeat: 200 * time.Millisecond, ClaimTimeout: 200 * time.Millisecond})
 	port := freePort(t)
 	addr := "127.0.0.1:" + strconv.Itoa(port)
-	ua, err := sipua.New(n, sipua.Config{Listen: addr, AdvertiseHost: "127.0.0.1", AdvertisePort: port})
+	// A second bot answers what the node dials (Routr's place in production).
+	callee, err := caller.New("127.0.0.1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ua, err := sipua.New(n, sipua.Config{Listen: addr, AdvertiseHost: "127.0.0.1", AdvertisePort: port,
+		OutboundProxy: callee.Address()})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,7 +76,7 @@ func start(t *testing.T) *rig {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r := &rig{t: t, nc: nc, node: n, sip: addr, bot: bot, claim: true}
+	r := &rig{t: t, nc: nc, node: n, sip: addr, bot: bot, callee: callee, claim: true}
 	record := func(m *nats.Msg) {
 		var ev map[string]any
 		_ = json.Unmarshal(m.Data, &ev)
@@ -98,6 +105,7 @@ func start(t *testing.T) *rig {
 		_ = s1.Unsubscribe()
 		_ = s2.Unsubscribe()
 		bot.Close()
+		callee.Close()
 		n.Shutdown()
 		cancel()
 		ua.Close()
@@ -338,5 +346,126 @@ func TestHeartbeats(t *testing.T) {
 	_ = json.Unmarshal(msg.Data, &hb)
 	if hb["type"] != "node.heartbeat" || hb["draining"] != false {
 		t.Fatalf("heartbeat %v", hb)
+	}
+}
+
+// answeredCall places an answered call with a session participant and returns its room.
+func (r *rig) answeredCall() (*caller.Call, string, *rtpio.Endpoint) {
+	to := fmt.Sprintf("+1%d", time.Now().UnixNano()%1e9)
+	call, err := r.bot.Dial(r.sip, to, "", map[string]string{"X-App-Ref": "app-1"})
+	if err != nil {
+		r.t.Fatal(err)
+	}
+	in := r.waitEvent(typed("call.incoming", "to", to), 2*time.Second)
+	room := in["roomRef"].(string)
+	gw, err := rtpio.Listen("127.0.0.1")
+	if err != nil {
+		r.t.Fatal(err)
+	}
+	go gw.Serve(rtpio.Handlers{})
+	rep := r.command(map[string]any{"type": "participant.add", "id": "s-" + room, "roomRef": room, "kind": "session",
+		"rtp": map[string]any{"host": "127.0.0.1", "port": gw.Port(), "codec": "L16/16000"}})
+	block := rep["rtp"].(map[string]any)
+	_ = gw.Configure(audio.L16{}, 96, -1, "127.0.0.1", int(block["port"].(float64)))
+	r.command(map[string]any{"type": "answer", "id": "a-" + room, "roomRef": room})
+	waitStatus(r.t, call, func(s caller.Status) bool { return s.State == "answered" }, 2*time.Second)
+	r.t.Cleanup(gw.Close)
+	return call, room, gw
+}
+
+func TestDialIntoRoom(t *testing.T) {
+	r := start(t)
+	reply := r.command(map[string]any{"type": "room.create", "id": "c1"})
+	room := reply["roomRef"].(string)
+	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+15551234567"})
+	r.waitEvent(typed("call.progress", "id", "d1", "status", "ringing"), 2*time.Second)
+	r.waitEvent(typed("call.answered", "id", "d1"), 3*time.Second)
+	joined := r.waitEvent(typed("participant.joined", "id", "d1"), 2*time.Second)
+
+	// The dialed party hangs up: callee_hangup, and the room ends with it.
+	time.Sleep(100 * time.Millisecond)
+	calls := r.callee.Calls()
+	if len(calls) != 1 {
+		t.Fatalf("callee saw %d calls", len(calls))
+	}
+	if err := r.callee.Get(calls[0].ID).Hangup(); err != nil {
+		t.Fatal(err)
+	}
+	r.waitEvent(typed("participant.left", "participantRef", joined["participantRef"], "reason", "callee_hangup"), 2*time.Second)
+	r.waitEvent(typed("room.ended", "roomRef", room, "reason", "callee_hangup"), 2*time.Second)
+}
+
+func TestDialBusy(t *testing.T) {
+	r := start(t)
+	r.callee.Callee("busy", 0)
+	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
+	r.command(map[string]any{"type": "participant.dial", "id": "d2", "roomRef": room, "to": "+1"})
+	r.waitEvent(typed("call.progress", "id", "d2", "status", "busy", "sipStatus", 486), 3*time.Second)
+}
+
+func TestColdTransfer(t *testing.T) {
+	r := start(t)
+	call, room, _ := r.answeredCall()
+	r.command(map[string]any{"type": "transfer", "id": "t1", "roomRef": room, "to": "+15551234567", "mode": "cold"})
+	joined := r.waitEvent(typed("participant.joined", "id", "t1"), 3*time.Second)
+	r.waitEvent(typed("participant.left", "id", "t1", "reason", "removed"), 2*time.Second)
+	r.waitEvent(typed("transfer.result", "id", "t1", "status", "completed"), 2*time.Second)
+
+	// The caller and the new party hear each other through the room.
+	time.Sleep(100 * time.Millisecond)
+	callee := r.callee.Get(r.callee.Calls()[0].ID)
+	before := callee.Status().AudibleMs
+	call.Speak("tone", 400)
+	time.Sleep(700 * time.Millisecond)
+	if got := callee.Status().AudibleMs - before; got < 200 {
+		t.Fatalf("new party heard %d ms of the caller", got)
+	}
+	_ = joined
+	// The caller hangs up: the new party gets BYE and the room ends.
+	_ = call.Hangup()
+	r.waitEvent(typed("room.ended", "roomRef", room), 2*time.Second)
+	waitStatus(t, callee, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
+}
+
+func TestWarmTransfer(t *testing.T) {
+	r := start(t)
+	_, room, _ := r.answeredCall()
+	r.command(map[string]any{"type": "transfer", "id": "t2", "roomRef": room, "to": "+1", "mode": "warm"})
+	if !r.node.Held(room) {
+		time.Sleep(50 * time.Millisecond)
+		if !r.node.Held(room) {
+			t.Fatal("caller not on hold during a warm transfer")
+		}
+	}
+	r.waitEvent(typed("participant.joined", "id", "t2"), 3*time.Second)
+	r.command(map[string]any{"type": "transfer.complete", "id": "t2", "roomRef": room})
+	r.waitEvent(typed("participant.left", "reason", "removed", "roomRef", room), 2*time.Second)
+	r.waitEvent(typed("transfer.result", "id", "t2", "status", "completed"), 2*time.Second)
+	if r.node.Held(room) {
+		t.Fatal("caller still on hold after transfer.complete")
+	}
+}
+
+func TestWarmTransferNotAnswered(t *testing.T) {
+	r := start(t)
+	node.WarmTransferTimeout = 500 * time.Millisecond
+	defer func() { node.WarmTransferTimeout = 30 * time.Second }()
+	r.callee.Callee("no_answer", 0)
+	_, room, _ := r.answeredCall()
+	r.command(map[string]any{"type": "transfer", "id": "t3", "roomRef": room, "to": "+1", "mode": "warm"})
+	r.waitEvent(typed("transfer.result", "id", "t3", "status", "failed"), 3*time.Second)
+	if r.node.Held(room) {
+		t.Fatal("caller still on hold after a failed warm transfer")
+	}
+}
+
+func TestReferTransfer(t *testing.T) {
+	r := start(t)
+	_, room, _ := r.answeredCall()
+	r.command(map[string]any{"type": "transfer", "id": "t4", "roomRef": room, "to": "+15551234567", "mode": "refer"})
+	r.waitEvent(typed("transfer.result", "id", "t4", "status", "referred"), 3*time.Second)
+	r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
+	if refers := r.bot.Refers(); len(refers) != 1 || refers[0] != "<tel:+15551234567>" {
+		t.Fatalf("refers %v", refers)
 	}
 }

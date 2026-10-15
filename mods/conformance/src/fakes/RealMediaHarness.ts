@@ -30,6 +30,7 @@ import { MediaNodeBinaries, MediaNodeProcess } from "./MediaNodeProcess";
  * fake media node: voice-session scenarios then cross real SIP, RTP and media-control.
  */
 export class RealMediaHarness extends FakesHarness {
+  private dialOutcome?: "answered" | "busy" | "no_answer" | "failed";
   readonly media: MediaNodeProcess;
   private callerAudio?: AudioSource;
   private commands: Record<string, unknown>[] = [];
@@ -62,10 +63,7 @@ export class RealMediaHarness extends FakesHarness {
   }
 
   async setup(setup: Setup) {
-    if (setup.media?.dialOutcome)
-      throw new Error(
-        "dialOutcome needs participant.dial, not in this node version"
-      );
+    this.dialOutcome = setup.media?.dialOutcome;
     this.callerAudio = setup.callerAudio;
     if (setup.media?.heartbeatMs !== undefined)
       this.media.heartbeatMs = setup.media.heartbeatMs;
@@ -78,6 +76,7 @@ export class RealMediaHarness extends FakesHarness {
    */
   async offerCallAndAccept(timeoutMs = 5000): Promise<Peer> {
     await this.media.start();
+    if (this.dialOutcome) await this.media.callee(this.dialOutcome);
     await this.media.call({
       appRef: "app-1",
       to: this.call?.to,
@@ -128,7 +127,7 @@ export class RealMediaHarness extends FakesHarness {
       case "media.sip":
         return this.media.sip();
       case "media.held":
-        return undefined;
+        return this.media.held();
       default:
         return super.measure(name, since);
     }

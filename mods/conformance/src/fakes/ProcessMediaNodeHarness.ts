@@ -27,6 +27,7 @@ import { MediaNodeBinaries, MediaNodeProcess } from "./MediaNodeProcess";
  * drive the SIP caller bot, so calls arrive as real INVITEs with RTP.
  */
 export class ProcessMediaNodeHarness implements Harness {
+  private dialOutcome?: "answered" | "busy" | "no_answer" | "failed";
   readonly media: MediaNodeProcess;
   private claimCalls = true;
 
@@ -41,10 +42,7 @@ export class ProcessMediaNodeHarness implements Harness {
     if (setup.media?.heartbeatMs !== undefined)
       this.media.heartbeatMs = setup.media.heartbeatMs;
     this.claimCalls = setup.media?.claimCalls !== false;
-    if (setup.media?.dialOutcome)
-      throw new Error(
-        "dialOutcome needs participant.dial, not in this node version"
-      );
+    this.dialOutcome = setup.media?.dialOutcome;
   }
 
   async connect(): Promise<NatsMediaControlPeer> {
@@ -54,6 +52,7 @@ export class ProcessMediaNodeHarness implements Harness {
       claimCalls: this.claimCalls
     }).open();
     await this.media.start();
+    if (this.dialOutcome) await this.media.callee(this.dialOutcome);
     return peer;
   }
 
@@ -76,6 +75,7 @@ export class ProcessMediaNodeHarness implements Harness {
 
   async measure(name: string): Promise<unknown> {
     if (name === "media.sip") return this.media.sip();
+    if (name === "media.held") return this.media.held();
     return undefined;
   }
 }

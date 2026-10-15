@@ -29,7 +29,8 @@ type Participant struct {
 	TrackID  int
 	Codec    string
 	endpoint *rtpio.Endpoint
-	leg      CallLeg
+	leg      CallLeg // inbound caller
+	out      OutLeg  // dialed party
 	media    sdp.Media
 	pt       int
 	answered bool
@@ -72,7 +73,7 @@ type Room struct {
 	participants map[string]*Participant
 	order        []string
 	nextTrack    int
-	held         bool
+	heldRef      string // the participant on hold, if any
 	music        []audio.Frame
 	musicPos     int
 	ended        bool
@@ -99,6 +100,15 @@ func (r *Room) add(p *Participant) error {
 	return nil
 }
 
+// IsHeld reports whether a participant is on hold.
+func (r *Room) isHeld() bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.heldRef != ""
+}
+
+// caller is the first phone participant: the inbound caller, or the dialed party of an outbound
+// call.
 func (r *Room) caller() *Participant {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -230,8 +240,14 @@ func (r *Room) remove(ref, id, reason string) bool {
 		}
 	}
 	r.mu.Unlock()
-	if p.Kind == KindPhone && reason != ReasonCallerHangup {
-		_ = p.leg.Bye()
+	remoteLeft := reason == ReasonCallerHangup || reason == ReasonCalleeHangup
+	if p.Kind == KindPhone && !remoteLeft {
+		if p.leg != nil {
+			_ = p.leg.Bye()
+		}
+		if p.out != nil {
+			_ = p.out.Bye()
+		}
 	}
 	p.endpoint.Close()
 	ev := Event{"type": "participant.left", "participantRef": p.Ref, "reason": reason}
@@ -239,8 +255,12 @@ func (r *Room) remove(ref, id, reason string) bool {
 		ev["id"] = id
 	}
 	r.node.emit(r.Ref, ev)
-	if p.Kind == KindPhone {
-		r.end(reason, 0, id)
+	r.mu.Lock()
+	remaining := len(r.participants)
+	r.mu.Unlock()
+	if p.Kind == KindPhone && (r.caller() == nil || remaining == 1) {
+		// No phone party left, or one left alone: the call is over (BYE to whoever remains).
+		r.hangupAll(reason, 0, id)
 	}
 	return true
 }
@@ -255,7 +275,19 @@ func (r *Room) callerHungUp() {
 
 // hangupAll ends the call: an unanswered caller gets the status (or 480), an answered one a BYE.
 func (r *Room) hangupAll(reason string, status int, id string) {
-	if c := r.caller(); c != nil {
+	r.mu.Lock()
+	phones := []*Participant{}
+	for _, ref := range r.order {
+		if p := r.participants[ref]; p != nil && p.Kind == KindPhone {
+			phones = append(phones, p)
+		}
+	}
+	r.mu.Unlock()
+	for _, c := range phones {
+		if c.out != nil {
+			_ = c.out.Bye()
+			continue
+		}
 		c.mu.Lock()
 		answered := c.answered
 		c.mu.Unlock()
@@ -303,8 +335,12 @@ func (r *Room) end(reason string, status int, id string) {
 
 // setHold cuts the caller off from the others and plays music (or silence) to them (MN17).
 func (r *Room) setHold(held bool, musicURL string) {
+	ref := ""
+	if c := r.caller(); held && c != nil {
+		ref = c.Ref
+	}
 	r.mu.Lock()
-	r.held = held
+	r.heldRef = ref
 	r.music, r.musicPos = nil, 0
 	r.mu.Unlock()
 	if held && musicURL != "" {
@@ -315,7 +351,7 @@ func (r *Room) setHold(held bool, musicURL string) {
 				return
 			}
 			r.mu.Lock()
-			if r.held {
+			if r.heldRef != "" {
 				r.music = frames
 			}
 			r.mu.Unlock()
@@ -357,9 +393,9 @@ func (r *Room) tick() {
 	for _, ref := range r.order {
 		parts = append(parts, r.participants[ref])
 	}
-	held := r.held
+	heldRef := r.heldRef
 	var musicFrame audio.Frame
-	if held && len(r.music) > 0 {
+	if heldRef != "" && len(r.music) > 0 {
 		musicFrame = r.music[r.musicPos%len(r.music)]
 		r.musicPos++
 	}
@@ -370,7 +406,7 @@ func (r *Room) tick() {
 		frames[i] = p.pull()
 	}
 	for i, p := range parts {
-		if p.Kind == KindPhone && held {
+		if p.Ref == heldRef {
 			out := musicFrame
 			if out == nil {
 				out = audio.Silence()
@@ -380,7 +416,7 @@ func (r *Room) tick() {
 		}
 		others := make([]audio.Frame, 0, len(parts))
 		for j, q := range parts {
-			if i == j || (held && q.Kind == KindPhone) {
+			if i == j || q.Ref == heldRef {
 				continue
 			}
 			others = append(others, frames[j])

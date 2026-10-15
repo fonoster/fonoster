@@ -16,7 +16,9 @@ participants (mix-minus), driven by the VoiceSessionGateway over **media-control
 | `participant.left` / `room.ended` reasons, media timeout (30 s), maximum duration (4 h) | done |
 | `node.heartbeat` every 2 s, drain on SIGTERM, `node.down` | done |
 | REGISTER to Routr with `X-Session-Count` (re-registers on load changes) | done, not yet tried against Routr |
-| `participant.dial`, transfers, listeners, PCMA/G.722/Opus, SIP INFO and in-band DTMF, SRTP | next slices |
+| `participant.dial` and cold, warm and refer transfers through an outbound proxy (`-outbound-proxy`, Routr in production) | done |
+| Debug endpoint (`-debug host:port`, `GET /rooms`) for tests and operators | done |
+| Listeners, PCMA/G.722/Opus, SIP INFO and in-band DTMF, SRTP, jitter buffer | next slices |
 
 ## Run
 

@@ -18,8 +18,8 @@
 - [ ] 2.4 Codecs PCMU, PCMA, G.722, Opus and transcoding to the room format
 - [ ] 2.5 Rooms: mix-minus mixer, track-based participants, `unsupported_track_kind`, 10-participant limit
 - [x] 2.6 Session participant audio path to and from the gateway
-- [ ] 2.7 `participant.dial` through Routr with progress events
-- [ ] 2.8 Transfer modes `cold`, `warm` and `refer`
+- [x] 2.7 `participant.dial` through Routr with progress events
+- [x] 2.8 Transfer modes `cold`, `warm` and `refer`
 - [x] 2.9 Hold and resume by mixing (MN17), node-fetched hold music (the warm-transfer hold comes with 2.8)
 - [ ] 2.10 DTMF (RFC 4733 done; SIP INFO and in-band next): RFC 4733, SIP INFO, in-band fallback, de-duplication
 - [ ] 2.11 Listeners: per-track forks, no audio from listeners

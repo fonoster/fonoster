@@ -4,8 +4,10 @@ package sipua
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"strconv"
 	"strings"
 	"sync"
@@ -30,6 +32,9 @@ type Config struct {
 	Domain, Username, Password string
 	// Transport for REGISTER: "udp" or "tcp".
 	Transport string
+	// OutboundProxy is where outbound INVITEs go (Routr, which picks the carrier trunk); empty
+	// disables participant.dial and transfers.
+	OutboundProxy string
 	// RegisterEvery is the re-register interval; re-registers also follow load changes.
 	RegisterEvery time.Duration
 	Logger        *slog.Logger
@@ -43,6 +48,7 @@ type UA struct {
 	srv     *sipgo.Server
 	client  *sipgo.Client
 	dialogs *sipgo.DialogServerCache
+	out     *sipgo.DialogClientCache
 	kick    chan struct{}
 	lastReg int
 	mu      sync.Mutex
@@ -73,11 +79,15 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	}
 	contact := sip.ContactHeader{Address: sip.Uri{User: "medianode", Host: cfg.AdvertiseHost, Port: cfg.AdvertisePort}}
 	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client,
-		dialogs: sipgo.NewDialogServerCache(client, contact), kick: make(chan struct{}, 1), lastReg: -1}
+		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact),
+		kick: make(chan struct{}, 1), lastReg: -1}
 	srv.OnInvite(u.onInvite)
 	srv.OnAck(func(req *sip.Request, tx sip.ServerTransaction) { _ = u.dialogs.ReadAck(req, tx) })
 	srv.OnBye(func(req *sip.Request, tx sip.ServerTransaction) {
-		if err := u.dialogs.ReadBye(req, tx); err != nil {
+		if err := u.dialogs.ReadBye(req, tx); err == nil {
+			return
+		}
+		if err := u.out.ReadBye(req, tx); err != nil {
 			_ = tx.Respond(sip.NewResponseFromRequest(req, 481, "Call/Transaction Does Not Exist", nil))
 		}
 	})
@@ -85,6 +95,9 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
 	})
 	n.OnRoomCount = func(count int) { u.loadChanged(count) }
+	if cfg.OutboundProxy != "" {
+		n.SetDialer(u)
+	}
 	return u, nil
 }
 
@@ -219,6 +232,29 @@ func (l *inviteLeg) Reject(status int) error {
 	return err
 }
 
+// Refer sends a SIP REFER on the caller's leg (transfer mode refer) and waits for 202.
+func (l *inviteLeg) Refer(target string) error {
+	req := sip.NewRequest(sip.REFER, l.dlg.InviteRequest.Contact().Address)
+	req.AppendHeader(sip.NewHeader("Refer-To", "<"+referURI(target)+">"))
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	res, err := l.dlg.Do(ctx, req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 202 && res.StatusCode != 200 {
+		return fmt.Errorf("REFER answered %d", res.StatusCode)
+	}
+	return nil
+}
+
+func referURI(target string) string {
+	if strings.HasPrefix(target, "sip:") || strings.HasPrefix(target, "tel:") {
+		return target
+	}
+	return "tel:" + target
+}
+
 func (l *inviteLeg) Bye() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -326,3 +362,56 @@ func (u *UA) register(ctx context.Context) error {
 	u.mu.Unlock()
 	return nil
 }
+
+// ---- outbound legs --------------------------------------------------------------------------
+
+// Dial sends an INVITE through the outbound proxy (node.Dialer).
+func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]string, offer []byte,
+	onProgress func(status int)) (node.OutLeg, []byte, error) {
+	host, portText, err := net.SplitHostPort(u.cfg.OutboundProxy)
+	if err != nil {
+		return nil, nil, err
+	}
+	port, _ := strconv.Atoi(portText)
+	if from == "" {
+		from = "medianode"
+	}
+	fromHdr := &sip.FromHeader{Address: sip.Uri{User: from, Host: u.cfg.AdvertiseHost}, Params: sip.NewParams()}
+	fromHdr.Params.Add("tag", sip.GenerateTagN(10))
+	hdrs := []sip.Header{fromHdr, sip.NewHeader("Content-Type", "application/sdp")}
+	for k, v := range headers {
+		hdrs = append(hdrs, sip.NewHeader(k, v))
+	}
+	session, err := u.out.Invite(ctx, sip.Uri{User: to, Host: host, Port: port}, offer, hdrs...)
+	if err != nil {
+		return nil, nil, err
+	}
+	err = session.WaitAnswer(ctx, sipgo.AnswerOptions{OnResponse: func(res *sip.Response) error {
+		onProgress(int(res.StatusCode))
+		return nil
+	}})
+	if err != nil {
+		var final *sipgo.ErrDialogResponse
+		if errors.As(err, &final) {
+			return nil, nil, &node.DialError{Status: int(final.Res.StatusCode)}
+		}
+		if ctx.Err() != nil {
+			return nil, nil, &node.DialError{Status: 408}
+		}
+		return nil, nil, err
+	}
+	if err := session.Ack(context.Background()); err != nil {
+		return nil, nil, err
+	}
+	return &outLeg{session: session}, session.InviteResponse.Body(), nil
+}
+
+type outLeg struct{ session *sipgo.DialogClientSession }
+
+func (l *outLeg) Bye() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	return l.session.Bye(ctx)
+}
+
+func (l *outLeg) Gone() <-chan struct{} { return l.session.Context().Done() }

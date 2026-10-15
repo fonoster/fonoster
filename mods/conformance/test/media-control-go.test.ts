@@ -30,18 +30,9 @@ import {
 // RTP from the caller bot. Needs NATS (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
-// Features this node version does not have yet (add-media-node tasks 2.7, 2.8, 2.11) and
-// assertions only a fake node can measure.
+// Features this node version does not have yet (add-media-node task 2.11).
 const NOT_YET: Record<string, string> = {
-  "dial-into-room": "participant.dial (task 2.7)",
-  "dialed-party-busy": "participant.dial (task 2.7)",
-  "cold-transfer": "transfers (task 2.8)",
-  "refer-transfer": "transfers (task 2.8)",
-  "warm-transfer-completed": "transfers (task 2.8)",
-  "warm-transfer-not-answered": "transfers (task 2.8)",
-  "listener-destination": "listeners (task 2.11)",
-  "hold-with-music": "media.held is measured inside the fake node",
-  "unknown-field-ignored": "media.held is measured inside the fake node"
+  "listener-destination": "listeners (task 2.11)"
 };
 
 describe("@conformance media-control scenarios (Go media node)", function () {

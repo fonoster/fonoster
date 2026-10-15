@@ -28,10 +28,45 @@ type Bot struct {
 	srv     *sipgo.Server
 	client  *sipgo.Client
 	dialogs *sipgo.DialogClientCache
+	inbound *sipgo.DialogServerCache
 	port    int
 	mu      sync.Mutex
 	calls   map[string]*Call
 	seq     int
+	// How the bot answers INVITEs it receives (as the callee of a dial or transfer).
+	answerMode  string // answer (default), busy, no_answer, decline
+	answerAfter time.Duration
+	refers      []string
+}
+
+// Callee sets how the bot answers INVITEs: "answer", "busy", "no_answer" (rings forever),
+// "unavailable" (480) or "decline" (603).
+func (b *Bot) Callee(mode string, after time.Duration) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.answerMode, b.answerAfter = mode, after
+}
+
+// Refers lists the Refer-To targets the bot accepted.
+func (b *Bot) Refers() []string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return append([]string(nil), b.refers...)
+}
+
+// Calls lists every call, placed or received.
+func (b *Bot) Calls() []Status {
+	b.mu.Lock()
+	calls := make([]*Call, 0, len(b.calls))
+	for _, c := range b.calls {
+		calls = append(calls, c)
+	}
+	b.mu.Unlock()
+	out := make([]Status, 0, len(calls))
+	for _, c := range calls {
+		out = append(out, c.Status())
+	}
+	return out
 }
 
 // Call is one call the bot placed.
@@ -39,6 +74,7 @@ type Call struct {
 	ID       string
 	bot      *Bot
 	session  *sipgo.DialogClientSession
+	inbound  *sipgo.DialogServerSession
 	endpoint *rtpio.Endpoint
 
 	mu        sync.Mutex
@@ -86,14 +122,34 @@ func New(host string) (*Bot, error) {
 	}
 	b := &Bot{host: host, ua: ua, srv: srv, client: client, port: port, calls: map[string]*Call{}}
 	b.dialogs = sipgo.NewDialogClientCache(client, sip.ContactHeader{Address: sip.Uri{User: "caller", Host: host, Port: port}})
+	contact := sip.ContactHeader{Address: sip.Uri{User: "callee", Host: host, Port: port}}
+	b.inbound = sipgo.NewDialogServerCache(client, contact)
 	srv.OnBye(func(req *sip.Request, tx sip.ServerTransaction) {
-		if err := b.dialogs.ReadBye(req, tx); err != nil {
+		if err := b.dialogs.ReadBye(req, tx); err == nil {
+			return
+		}
+		if err := b.inbound.ReadBye(req, tx); err != nil {
 			_ = tx.Respond(sip.NewResponseFromRequest(req, 481, "No dialog", nil))
 		}
+	})
+	srv.OnAck(func(req *sip.Request, tx sip.ServerTransaction) { _ = b.inbound.ReadAck(req, tx) })
+	srv.OnInvite(b.onInvite)
+	srv.OnRefer(func(req *sip.Request, tx sip.ServerTransaction) {
+		target := ""
+		if h := req.GetHeader("Refer-To"); h != nil {
+			target = h.Value()
+		}
+		b.mu.Lock()
+		b.refers = append(b.refers, target)
+		b.mu.Unlock()
+		_ = tx.Respond(sip.NewResponseFromRequest(req, 202, "Accepted", nil))
 	})
 	go func() { _ = srv.ServeUDP(l) }()
 	return b, nil
 }
+
+// Address is the bot's SIP host:port (where it receives INVITEs as a callee).
+func (b *Bot) Address() string { return net.JoinHostPort(b.host, strconv.Itoa(b.port)) }
 
 // Close stops the bot.
 func (b *Bot) Close() { _ = b.ua.Close() }
@@ -271,6 +327,9 @@ func (c *Call) Hangup() error {
 	case "answered":
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
+		if c.inbound != nil {
+			return c.inbound.Bye(ctx)
+		}
 		return c.session.Bye(ctx)
 	case "calling":
 		c.cancel()
@@ -293,4 +352,74 @@ func (c *Call) StatusSince(since time.Time) Status {
 		}
 	}
 	return s
+}
+
+// onInvite answers an INVITE as the configured callee.
+func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
+	b.mu.Lock()
+	mode, after := b.answerMode, b.answerAfter
+	b.seq++
+	id := fmt.Sprintf("in-%d", b.seq)
+	b.mu.Unlock()
+	offer, err := sdp.Parse(req.Body())
+	if err != nil {
+		_ = tx.Respond(sip.NewResponseFromRequest(req, 488, "Not Acceptable Here", nil))
+		return
+	}
+	dlg, err := b.inbound.ReadInvite(req, tx)
+	if err != nil {
+		return
+	}
+	_ = dlg.Respond(180, "Ringing", nil)
+	select {
+	case <-time.After(after):
+	case <-dlg.Context().Done():
+		return
+	}
+	switch mode {
+	case "busy":
+		_ = dlg.Respond(486, "Busy Here", nil)
+		return
+	case "decline":
+		_ = dlg.Respond(603, "Decline", nil)
+		return
+	case "unavailable":
+		_ = dlg.Respond(480, "Temporarily Unavailable", nil)
+		return
+	case "no_answer":
+		<-dlg.Context().Done() // ring until the caller gives up
+		return
+	}
+	ep, err := rtpio.Listen(b.host)
+	if err != nil {
+		_ = dlg.Respond(500, "Server Error", nil)
+		return
+	}
+	pt, codecName, ok := offer.Choose("PCMU/8000")
+	if !ok {
+		ep.Close()
+		_ = dlg.Respond(488, "Not Acceptable Here", nil)
+		return
+	}
+	codec, _ := audio.CodecFor(codecName)
+	_ = ep.Configure(codec, pt, offer.DTMF, offer.Host, offer.Port)
+	c := &Call{ID: id, bot: b, endpoint: ep, inbound: dlg, state: "answered", stop: make(chan struct{}), statuses: []int{200}}
+	b.mu.Lock()
+	b.calls[id] = c
+	b.mu.Unlock()
+	if err := dlg.RespondSDP(sdp.Write(b.host, ep.Port(), pt, codecName, offer.DTMF)); err != nil {
+		ep.Close()
+		return
+	}
+	go ep.Serve(rtpio.Handlers{Audio: c.heard})
+	go c.talk()
+	go func() {
+		<-dlg.Context().Done()
+		c.mu.Lock()
+		c.state = "ended"
+		c.mu.Unlock()
+		close(c.stop)
+		ep.Close()
+		_ = dlg.Close()
+	}()
 }

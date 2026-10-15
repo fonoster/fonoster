@@ -123,6 +123,7 @@ export class MediaNodeProcess {
   private bot?: ChildProcess;
   private botUrl = "";
   private sipPort = 0;
+  private debugPort = 0;
   /** The bot's current call. */
   callId?: string;
 
@@ -130,6 +131,12 @@ export class MediaNodeProcess {
 
   async start() {
     this.sipPort = await freeUdpPort();
+    // The bot first: it is also the callee the node dials (Routr's place in production).
+    const bot = await startProcess(this.bins.sipcaller, [], /^listening /);
+    this.bot = bot.child;
+    this.botUrl = `http://${bot.line.split(" ")[1]}`;
+    const { address } = await this.api<{ address: string }>("/sip");
+    this.debugPort = await freeUdpPort();
     this.node = (
       await startProcess(
         this.bins.medianode,
@@ -147,14 +154,30 @@ export class MediaNodeProcess {
           "-rtp-advertise",
           "127.0.0.1",
           "-heartbeat",
-          `${this.heartbeatMs}ms`
+          `${this.heartbeatMs}ms`,
+          "-outbound-proxy",
+          address,
+          "-debug",
+          `127.0.0.1:${this.debugPort}`
         ],
         /ready/
       )
     ).child;
-    const bot = await startProcess(this.bins.sipcaller, [], /^listening /);
-    this.bot = bot.child;
-    this.botUrl = `http://${bot.line.split(" ")[1]}`;
+  }
+
+  /** How the bot answers what the node dials (media-control dialOutcome). */
+  async callee(outcome: "answered" | "busy" | "no_answer" | "failed") {
+    const mode = {
+      answered: "answer",
+      busy: "busy",
+      no_answer: "unavailable",
+      failed: "decline"
+    }[outcome];
+    const res = await fetch(`${this.botUrl}/callee`, {
+      method: "POST",
+      body: JSON.stringify({ mode, afterMs: 20 })
+    });
+    if (!res.ok) throw new Error(`caller bot /callee: ${res.status}`);
   }
 
   async stop() {
@@ -213,6 +236,13 @@ export class MediaNodeProcess {
 
   hangup() {
     return this.api(`/calls/${this.callId}/hangup`, {});
+  }
+
+  /** Whether any room on the node has a participant on hold (from the node's debug endpoint). */
+  async held(): Promise<boolean> {
+    const res = await fetch(`http://127.0.0.1:${this.debugPort}/rooms`);
+    const rooms = (await res.json()) as { held: boolean }[];
+    return rooms.some((r) => r.held);
   }
 
   /** SIP statuses the caller received, without the 100 Trying transport detail. */

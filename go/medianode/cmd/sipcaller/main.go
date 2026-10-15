@@ -88,6 +88,23 @@ func main() {
 		writeJSON(w, c.Status())
 	}))
 
+	mux.HandleFunc("GET /calls", func(w http.ResponseWriter, _ *http.Request) {
+		writeJSON(w, map[string]any{"calls": bot.Calls(), "refers": bot.Refers()})
+	})
+	mux.HandleFunc("POST /callee", func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			Mode    string
+			AfterMs int
+		}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		bot.Callee(req.Mode, time.Duration(req.AfterMs)*time.Millisecond)
+		w.WriteHeader(204)
+	})
+	// The bot's own SIP address, for the node's outbound proxy in tests.
+	mux.HandleFunc("GET /sip", func(w http.ResponseWriter, _ *http.Request) {
+		writeJSON(w, map[string]string{"address": bot.Address()})
+	})
+
 	l, err := net.Listen("tcp", *listen)
 	if err != nil {
 		log.Fatal(err)
