@@ -185,3 +185,95 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Test environment: sipnet's tests resolved `@fonoster/common` to the shared platform-refresh copy
   (old default peer AOR) and failed 3 tests. Fixed with the uncommitted worktree link
   `mods/sipnet/node_modules/@fonoster/common -> ../../../common`.
+
+## 2026-10-15 (finish stream: the stack with real voices)
+
+### FN-B1. appsync removed: everything reads the control plane
+
+- The stack's apiserver sets `apps.autopilotUrl: ws://autopilot:3000` and
+  `apps.autopilotSigningSecret`, so Autopilot apps point at the hosted Autopilot on create. The
+  hosted Autopilot reads assistants, the catalog and workspace vendor keys from the apiserver's
+  database (`source: database`, refresh 5 s); the gateway reads apps, the catalog
+  (`registry.source: database`) and workspace keys (`workspaceKeys.enabled`) from it too.
+  `ops/rebuild/appsync.cjs`, its service, volume and test are gone, as is the rendered
+  `registry.json`.
+- `up` loads `ops/rebuild/config/catalog-seed.yaml` into the registry tables with
+  `fonoster-registry apply --store database`, run in the apiserver container (idempotent).
+- The autopilot image now generates a Prisma client from the apiserver schema with
+  `prisma-field-encryption` (installed aside in `/opt/db` and merged into `node_modules`, so the
+  workspace install is untouched).
+- Without a platform LLM key, the catalog stays real and the hosted Autopilot points that
+  provider's endpoint at the fake LLM with a dummy credential (instead of rewriting adapters to
+  `fake`). A workspace key for a keyless provider would still reach the fake; fine locally.
+- The seed writes the assistant in the session schema (catalog model id, `hints: [Fonoster]`),
+  sets `speech.sttModel: deepgram/nova-3`, and updates the app on every run so its model and voice
+  follow the keys present. The smoke test waits 4 s after seeding: the gateway and the hosted
+  Autopilot cache apps for 3 s, and one run failed silent when the seed had just switched the
+  voice from ElevenLabs (no key any more) back to Deepgram. Smoke passed 3 times with the fakes.
+- Local only: in this worktree the root `@fonoster/sdk` link points at the shared checkout's SDK
+  (which drops `speech.sttModel`), so a git-ignored `ops/rebuild/node_modules/@fonoster/sdk` link
+  to this checkout's SDK was used. A normal checkout resolves its own SDK.
+
+### FN-B2. createCall status stream from the media node's room events
+
+- TrackCall listened on `calls.track`, which nothing published since ARI left. The outbound
+  placement (`runOutboundCalls`) now publishes TRYING, subscribes to
+  `media.<node>.events.<room>` once the room exists and maps `call.progress` (ringing → PROGRESS,
+  busy → BUSY, no_answer → NOANSWER, failed → FAILED), `call.answered` → ANSWER, and `room.ended`
+  → a final message that closes the stream; a failed placement publishes FAILED.
+- The SDK subscribes after CreateCall returns, so TrackCall keeps statuses of untracked calls for
+  2 minutes and replays them. Live: TRYING, PROGRESS (+51 ms), ANSWER (+620 ms), stream closed
+  when the callee hung up.
+
+### FN-B3. callee_hangup in the record
+
+- The gateway mapped every media `reason` to the session's `caller_hangup`. The app still gets
+  `caller_hangup` (spec), but the record's `call.ended` keeps `callee_hangup`
+  (`recordEndReason`). Live: outbound record `completed / callee_hangup`.
+
+### FN-B4. Partial trunk updates
+
+- UpdateTrunk passed the request straight to Routr, which needs name and inbound URI (proto3
+  sends ""). sipnet now fills blank name, inbound URI, URIs and credential/ACL refs from the
+  current trunk. Clearing URIs or refs through an update is therefore not possible (recreate);
+  `sendRegister` is not merged (false is a real value). Live: rename without inboundUri works.
+
+### FN-B5. Groq retired Llama 3.3 70B; default model is gpt-oss-120b
+
+- `groq/llama-3.3-70b-versatile` answered HTTP 404 (Groq's model list no longer has it). The
+  catalog adds `groq/openai/gpt-oss-120b` and `groq/openai/gpt-oss-20b` and marks Llama retired
+  with gpt-oss-120b as replacement. With `GROQ_API_KEY` the demo app uses gpt-oss-120b; else
+  `openai/gpt-4o-mini` (fake without a key; the OpenAI key has no credit, so OpenAI is untested).
+- Catalog ids allowed one slash (`provider/name`); hosted model names have their own
+  (`openai/gpt-oss-120b`), so the registry now accepts `provider/a/b` (the provider is the first
+  segment, as the gateway and Autopilot already split it). `apply` had let the seed through; the
+  add checks (catalog-seed test) caught it.
+
+### FN-B6. TTS "stalled" on long replies
+
+- `streamingPost` used one 3 s timeout for the whole body, which is read at playback pace, so
+  replies longer than ~3 s were cut with "Deepgram TTS stalled". The timeout now bounds the wait
+  for the response and for each next chunk (test added).
+
+### FN-B7. Real voices on the stack, turn latency
+
+- `ops/rebuild/stack ask` (new, `ops/rebuild/ask.cjs`): the caller bot dials through Routr, waits
+  for the greeting, says `mods/gateway/scripts/fixtures/question-fonoster.wav` ("What is
+  Fonoster?"), measures end of question → first audible answer, saves `heard.wav` and, with
+  `RB_TRANSCRIBE=1`, transcribes it with Deepgram.
+- Groq gpt-oss-120b + Deepgram nova-3 (hint Fonoster) + Aura-2 thalia, PCMU: turn latency
+  1515 ms and 1536 ms; heard: "...Fonoster provides cloud based telephony services, like voice,
+  SMS, and call center tools..." twice (sensible). ElevenLabs Sarah: 1334 ms, same quality. The
+  agent's own pronunciation of "Fonoster" comes back from transcription as
+  "Fodestar"/"Phonoster" (TTS, not recognition).
+- Keys go in `ops/rebuild/.local/vendor.env` (`DEEPGRAM_API_KEY`, `ELEVENLABS_API_KEY`,
+  `GROQ_API_KEY`, `OPENAI_API_KEY`); `RB_DEFAULT_VOICE` / `RB_DEFAULT_MODEL` override the demo
+  app's catalog ids. Documented in docs/try-the-new-platform.md.
+
+### FN-B8. Agents "Talk": call this number (no WebRTC)
+
+- The media node speaks plain SIP/RTP (no DTLS or ICE), and Routr would send a browser agent's
+  call to a trunk, not to the app, so the drawer no longer places a WebRTC test call (old
+  test-token path). It lists the numbers linked to the agent's app with copy buttons, links to
+  Numbers when there is none, and points to a softphone on the local stack. In-browser calls wait
+  for WebRTC on the media path.

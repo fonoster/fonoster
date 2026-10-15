@@ -19,7 +19,6 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `apiserver` | `ops/rebuild/docker/apiserver.Dockerfile` | Control plane API with embedded Identity; applies migrations at start. |
 | `envoy` | `envoyproxy/envoy` | gRPC, gRPC-Web, `/api` and the dashboard on one port (root `config/envoy.yaml`). |
 | `dashboard` | `ops/rebuild/docker/dashboard.Dockerfile` | The dashboard, built with this checkout's SDK. |
-| `appsync` | apiserver image | Interim: points Autopilot apps at the hosted Autopilot and writes its assistants file. |
 | `fakes` (profile) | `ops/rebuild/docker/fakes.Dockerfile` | Fake TTS/STT/LLM for test deployments. |
 | `sipcaller` (profile `tools`) | media node image | The SIP caller bot (smoke tests). |
 | observability (profile) | otel-collector, prometheus, loki, tempo, grafana | See below. |
@@ -31,9 +30,11 @@ configured with flags or `MEDIANODE_*` environment variables (a Go binary with n
 
 To try everything on one machine (generated configs and secrets, seed, smoke test), use
 `ops/rebuild/stack up` instead: see `docs/try-the-new-platform.md`. For your own deployment, fill
-`ops/rebuild/config/` (`fonoster.yaml`, `gateway.yaml`, `autopilot-session.yaml`, `registry.json`,
+`ops/rebuild/config/` (`fonoster.yaml`, `gateway.yaml`, `autopilot-session.yaml`,
 `routr-edgeport.yaml`, `integrations.json`, and `keys/` with Identity's RSA pair and the
-call-record ES256 key) or point `RB_CONFIG_DIR` at another directory.
+call-record ES256 key) or point `RB_CONFIG_DIR` at another directory. Load the provider catalog
+into the registry tables once the apiserver has migrated:
+`fonoster-registry apply -f ops/rebuild/config/catalog-seed.yaml --store database`.
 
 ```sh
 docker compose -f ops/rebuild/compose.yaml up -d --build            # core
