@@ -1,0 +1,17 @@
+- apiVersion: v2beta1
+  kind: Number
+  ref: number-01
+  metadata:
+    name: "(555)000-1000"
+    geoInfo:
+      city: Test
+      country: USA
+      countryIsoCode: US
+  spec:
+    trunkRef: trunk-01
+    location:
+      telUrl: tel:+15550001000
+      aorLink: sip:medianode@sip.local
+      extraHeaders:
+        - name: X-App-Ref
+          value: app-live

@@ -30,7 +30,7 @@ export const TEMPLATES: {
   {
     id: "ivr",
     title: "IVR menu",
-    description: "Answer, speak, collect digits or speech",
+    description: "Speak, collect digits or speech",
     speech: true
   },
   {
@@ -42,7 +42,7 @@ export const TEMPLATES: {
   {
     id: "blank",
     title: "Blank",
-    description: "Just answer the call",
+    description: "An empty session handler",
     speech: false
   }
 ];
@@ -50,35 +50,28 @@ export const TEMPLATES: {
 const CODE: Record<TemplateId, string> = {
   ivr: `const { VoiceServer } = require("@fonoster/voice");
 
-new VoiceServer().listen(async (req, voice) => {
-  await voice.answer();
-  await voice.say("1 for sales, 2 for support.");
+new VoiceServer().listen(async (session) => {
+  await session.say("1 for sales, 2 for support.");
 
-  const { digits } = await voice.gather({
+  const { digits } = await session.gather({
     maxDigits: 1
   });
 
   const team = digits === "1" ? "sales" : "support";
-  await voice.say(\`Connecting you to \${team}.\`);
-  await voice.hangup();
+  await session.say(\`Connecting you to \${team}.\`);
+  await session.hangup();
 });`,
-  stream: `const { VoiceServer, StreamDirection } = require("@fonoster/voice");
+  stream: `const { VoiceServer } = require("@fonoster/voice");
 
-new VoiceServer().listen(async (req, voice) => {
-  await voice.answer();
-
-  const stream = await voice.stream({
-    direction: StreamDirection.BOTH
-  });
-
-  stream.onPayload((payload) => {
-    // Send the caller's audio to your own AI
+new VoiceServer().listen(async (session) => {
+  session.audio.onFrame((frame) => {
+    // Send the caller's audio to your own AI;
+    // play its answer with session.audio.send(bytes)
   });
 });`,
   blank: `const { VoiceServer } = require("@fonoster/voice");
 
-new VoiceServer().listen(async (req, voice) => {
-  await voice.answer();
+new VoiceServer().listen(async (session) => {
   // Your call logic here
 });`
 };
@@ -89,13 +82,12 @@ export function templateCode(id: TemplateId) {
 
 /** The short handler shown on a voice app's page. */
 export function handlerSnippet(appRef: string) {
-  return `new VoiceServer().listen(async (req, voice) => {
-  // req.ingressNumber · req.sessionRef · req.appRef = "${appRef}"
-  await voice.answer();
+  return `new VoiceServer().listen(async (session) => {
+  // session.to · session.callRef · session.appRef = "${appRef}"
   …
 });`;
 }
 
-export const RUN_LOCALLY = "node index.js && ngrok tcp 50061";
+export const RUN_LOCALLY = "node index.js && ngrok http 3000";
 
 export const SDK_DOCS_URL = "https://docs.fonoster.com/reference/sdk/voice";

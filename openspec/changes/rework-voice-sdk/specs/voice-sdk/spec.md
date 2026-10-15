@@ -49,23 +49,22 @@ host, the SDK SHALL verify against the app's public URL when one is configured.
 - **THEN** connections are accepted without a signature
 - **AND** every accepted connection logs a warning that verification is off
 
-### Requirement: Session and legacy handler signatures
+### Requirement: Session handler signature
 
-`listen()` SHALL accept a handler of the form `(session)` and a handler of the form `(req, res)`.
-The legacy form MUST be a thin wrapper over the same session, so both forms produce identical
-session messages for the same calls.
+`listen()` SHALL accept only a handler of the form `(session)`. The SDKs MUST NOT ship the
+gRPC-era `(req, res)` wrapper (cleanbreak CB-B1: the rebuild is an incompatible release). The
+Python SDK MUST refuse a handler that takes any other number of parameters with a `TypeError`.
 
-#### Scenario: A legacy handler keeps working
+#### Scenario: A session handler
 
-- **WHEN** an app registers `async (req, res) => { await res.say("Hello"); await res.hangup(); }`
+- **WHEN** an app registers `async (session) => { await session.say("Hello"); await session.hangup(); }`
 - **THEN** the SDK sends `speak` with `text: "Hello"` and `last: true`, waits for its
   `output.done`, then sends `hangup`
 
-#### Scenario: Both forms are equivalent
+#### Scenario: A gRPC-era handler in Python
 
-- **WHEN** the same call script is written once as a `(session)` handler and once as a
-  `(req, res)` handler
-- **THEN** both produce the same sequence of session messages against the same scenario
+- **WHEN** a Python app registers `async def on_call(req, res)`
+- **THEN** registration raises `TypeError` naming the one-argument form
 
 ### Requirement: say speaks text and reports what was heard
 
@@ -196,8 +195,7 @@ The session SHALL expose `on(event, callback)` for `turn.user_started`, `turn.li
 `play`, `playDtmf`, `transfer`, `completeTransfer`, `hold`, `resume`, `handoff` and `hangup` SHALL
 each send exactly one corresponding session message (`play`, `dtmf.send`, `transfer`,
 `transfer.complete`, `hold`, `resume`, `handoff`, `hangup`). `transfer` SHALL accept an optional
-`mode` (`cold` by default, `warm` or `refer`) and pass it through unchanged. The legacy `dial` MUST
-remain on the `(req, res)` wrapper as an alias of a cold `transfer`.
+`mode` (`cold` by default, `warm` or `refer`) and pass it through unchanged.
 
 #### Scenario: Transfer
 
@@ -216,11 +214,6 @@ remain on the `(req, res)` wrapper as an alias of a cold `transfer`.
 - **WHEN** the app calls `handoff("app-escalation", { reason: "angry caller" })`
 - **THEN** the SDK sends `handoff` with that app and payload
 - **AND** the session ends with `reason: handoff`
-
-#### Scenario: Legacy dial
-
-- **WHEN** a legacy handler calls `res.dial("+15551234567")`
-- **THEN** the SDK sends `transfer` with `to: "+15551234567"`
 
 ### Requirement: Raw audio access
 
@@ -246,20 +239,21 @@ the call once the app's connection is verified.
 
 #### Scenario: Old apps that answer first
 
-- **WHEN** a legacy handler calls `await res.answer()` before `res.say("Hi")`
+- **WHEN** a handler calls `await session.answer()` before `session.say("Hi")`
 - **THEN** no message is sent for `answer`
 - **AND** the `speak` for "Hi" is the first command on the socket
 
-### Requirement: Removed methods fail clearly
+### Requirement: Removed methods do not exist
 
-`record`, `setAudioFilters`, `mute` and `unmute` SHALL NOT exist in the TypeScript types. Calling
-them from JavaScript or Python MUST raise an error that names the replacement (recording policy,
-app audio filter configuration, or `hold`).
+`record`, `setAudioFilters`, `mute`, `unmute`, `dial`, `stream` and `sgather` SHALL NOT exist on
+the session, in the TypeScript types or at runtime, in either SDK. Their replacements (recording
+policy, app audio filter configuration, `hold` / `resume`, `transfer`, `audio`, events) are in the
+upgrade guide.
 
-#### Scenario: A JavaScript app still calls record
+#### Scenario: An app looks for record
 
-- **WHEN** an untyped app calls `res.record()`
-- **THEN** the call throws an error stating that recording is now an app policy
+- **WHEN** an untyped app reads `session.record`
+- **THEN** it is `undefined` (TypeScript) or absent (Python `hasattr` is false)
 
 ### Requirement: Errors and session end never leave promises hanging
 

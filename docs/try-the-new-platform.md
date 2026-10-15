@@ -46,8 +46,7 @@ runs reuse them. `up` prints the dashboard URL and the login when the API server
 The stack runs: NATS, Postgres (Routr, the API server and Identity each have a database), Routr,
 RTPEngine, the media node, the gateway, the hosted Autopilot, MinIO, the API server (it applies
 every migration, including `rebuild_persistence` and `add_call_records`, then Identity's), Envoy,
-the dashboard, `appsync`, the fake providers and the caller bot. No Asterisk: the API server runs
-with `mediaService.provider: none`.
+the dashboard, `appsync`, the fake providers and the caller bot. No Asterisk.
 
 ## Seed the demo
 
@@ -150,8 +149,7 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
   carry the port you reach) and `EXTERNAL_ADDRS` set to your LAN address. RTPEngine anchors the
   media at the same address, which both your softphone and the containers can reach.
 - **Media node**: registers to Routr (UDP, inside the Docker network) as the Peer `sip:medianode@default` that the API
-  server creates (`routr.mediaNodePeer`). Numbers of apps go to that Peer
-  (`routr.engines.default: rebuild`).
+  server creates (`routr.mediaNodePeer`). Numbers of apps go to that Peer.
 - **Gateway**: reads apps from the API server's database (`appStore.source: database`), delivers
   workspace webhooks, writes call records to MinIO and announces them to the index on NATS.
 - **Hosted Autopilot** (`mods/autopilot/src/session/main.ts`): the URL every Autopilot app points

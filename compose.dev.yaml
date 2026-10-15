@@ -35,13 +35,7 @@ services:
       context: .
       dockerfile: ./mods/autopilot/Dockerfile
     volumes:
-      - ./config/autopilot.yaml:/opt/fonoster/autopilot.yaml:ro
-      - ./config/integrations.json:/opt/fonoster/integrations.json:ro
-
-  amd:
-    build:
-      context: .
-      dockerfile: ./mods/amd/Dockerfile
+      - ./config/autopilot-session.yaml:/etc/fonoster/autopilot-session.yaml:ro
 
   routr:
     ports:
@@ -58,16 +52,6 @@ services:
     volumes:
       - ./etc/log4j2.yaml:/etc/routr/log4j2.yaml
       - ./.keys/public.pem:/etc/routr/keys/public.pem
-
-  asterisk:
-    build:
-      context: asterisk
-      dockerfile: ./Dockerfile
-    ports:
-      - 6060:6060
-      - 8088:8088
-    extra_hosts:
-      apiserver: ${DOCKER_HOST_ADDRESS}
 
   postgres:
     ports:

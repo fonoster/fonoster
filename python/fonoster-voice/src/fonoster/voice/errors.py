@@ -18,9 +18,3 @@ class SessionEndedError(Exception):
         super().__init__(f"the session ended ({reason})")
         self.reason = reason
 
-
-class RemovedMethodError(Exception):
-    """A method that has no session-protocol equivalent was called."""
-
-    def __init__(self, method: str, replacement: str):
-        super().__init__(f"{method}() was removed: {replacement}")

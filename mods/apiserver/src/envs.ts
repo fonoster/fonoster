@@ -40,46 +40,9 @@ export const APISERVER_SIGNALING_SERVER = getSignalingServer(config);
 // Frontend configurations
 export const APP_URL = getAppUrl(config);
 
-/** `none`: no Asterisk; ARI and the ARI call manager are not started. */
-export const MEDIA_SERVICE_PROVIDER = config.mediaService.provider;
-
-export const ASTERISK_ARI_PROXY_URL = config.mediaService.asterisk.ariUrl;
-
-export const ASTERISK_ARI_SECRET = config.mediaService.asterisk.ariPassword;
-
-export const ASTERISK_ARI_USERNAME = config.mediaService.asterisk.ariUsername;
-
-export const ASTERISK_SYSTEM_DOMAIN = config.mediaService.asterisk.systemDomain;
-
-export const ASTERISK_TRUNK = "routr";
-
 export const CALLS_CREATE_SUBJECT = "calls.create";
 
 export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
-
-// Answering Machine Detection (AMD) configuration
-//
-// When enabled, outbound calls run Asterisk's AMD() application in the dialplan
-// before entering Stasis, and its verdict is attached to the session request as
-// `amd`. Thresholds live in the media server's amd.conf, not here. Disabled by
-// default: when on, the caller hears silence for up to amd.conf's
-// total_analysis_time before the voice application is dispatched.
-export const AMD_ENABLED = config.amd.enabled;
-
-// Which detector runs behind AMD_ENABLED: Asterisk's native AMD() heuristic
-// ("native", the default) or the amd sidecar's ONNX classifier ("ml"),
-// selected by asterisk/config/extensions.conf's AMD_ENGINE gate. Either way
-// the verdict lands in the same AMDSTATUS/AMDCAUSE channel variables, so
-// nothing downstream of runCallManager.ts needs to know which one ran.
-export const AMD_ENGINE = config.amd.engine;
-
-// Feature flag for the "ml" engine only: "compact" (the default) makes
-// amd report the same native-AMD-compatible AMDSTATUS/AMDCAUSE pair
-// as the "native" engine above, so switching engines never changes what
-// apiserver reads. "full" additionally reports AMDCONFIDENCE/AMDDETECTOR/
-// AMDLATENCYMS and the classifier's own five-way status (HUMAN/MACHINE/
-// VOICEMAIL/IVR/UNKNOWN) — a consumer must opt into "full" to see those.
-export const AMD_MODE = config.amd.mode;
 
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = config.encryption.key;
@@ -160,18 +123,8 @@ export const OWNER_PASSWORD = config.identity.owner?.password;
 
 export const ROUTR_API_ENDPOINT = config.routr.apiEndpoint;
 
-export const ROUTR_DEFAULT_PEER_AOR = config.routr.defaultPeer.aor;
-
-export const ROUTR_DEFAULT_PEER_NAME = config.routr.defaultPeer.name;
-
-export const ROUTR_DEFAULT_PEER_PASSWORD = config.routr.defaultPeer.password;
-
-export const ROUTR_DEFAULT_PEER_USERNAME = config.routr.defaultPeer.username;
-
-// The media-node peer and which numbers go to it during the cutover (add-media-node 4.1)
+// The media-node peer every app-linked number points at (add-media-node 4.1)
 export const ROUTR_MEDIA_NODE_PEER = config.routr.mediaNodePeer;
-
-export const ROUTR_ENGINES = config.routr.engines;
 
 // SMTP configurations (optional; email features fail clearly without it)
 export const SMTP_AUTH_PASS = config.smtp?.password;
@@ -195,9 +148,6 @@ export const TWILIO_ACCOUNT_SID = config.twilio?.accountSid;
 export const TWILIO_AUTH_TOKEN = config.twilio?.authToken;
 
 export const TWILIO_PHONE_NUMBER = config.twilio?.phoneNumber;
-
-// Caller-audio filters
-export const AI_COUSTICS_LICENSE = config.audioFilters.aiCoustics.license;
 
 // Call records (add-call-record): index, records API, retention, ListCalls from the index.
 export const CALL_RECORDS = config.callRecords;

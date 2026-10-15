@@ -56,6 +56,7 @@ export class FakeStt extends FakeProvider {
     language: string;
     audioMs: number;
     hints?: string[];
+    model?: string;
   }[] = [];
   private wss?: WebSocket.Server;
 
@@ -95,7 +96,8 @@ export class FakeStt extends FakeProvider {
       at: Date.now(),
       language: params.get("language") ?? "en-US",
       audioMs: 0,
-      hints: undefined as string[] | undefined
+      hints: undefined as string[] | undefined,
+      model: params.get("model") ?? undefined
     };
     this.streams.push(stream);
 

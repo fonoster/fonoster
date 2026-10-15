@@ -14,9 +14,9 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `rtpengine` | `fonoster/rtpengine` | Carrier-side media relay. |
 | `medianode` | `go/medianode/Dockerfile` | Rooms, mixing, RTP. Distroless static binary. |
 | `gateway` | `mods/gateway/Dockerfile` | VoiceSessionGateway: speech, turn-taking, app sessions. |
-| `autopilot` (profile) | `mods/autopilot/Dockerfile.session` | Hosted Autopilot session engine. |
+| `autopilot` (profile) | `mods/autopilot/Dockerfile` | Hosted Autopilot session engine. |
 | `minio` | `minio/minio` | Object storage for recordings and records. |
-| `apiserver` | `ops/rebuild/docker/apiserver.Dockerfile` | Control plane API with embedded Identity; applies migrations at start. `mediaService.provider: none` (no Asterisk). |
+| `apiserver` | `ops/rebuild/docker/apiserver.Dockerfile` | Control plane API with embedded Identity; applies migrations at start. |
 | `envoy` | `envoyproxy/envoy` | gRPC, gRPC-Web, `/api` and the dashboard on one port (root `config/envoy.yaml`). |
 | `dashboard` | `ops/rebuild/docker/dashboard.Dockerfile` | The dashboard, built with this checkout's SDK. |
 | `appsync` | apiserver image | Interim: points Autopilot apps at the hosted Autopilot and writes its assistants file. |

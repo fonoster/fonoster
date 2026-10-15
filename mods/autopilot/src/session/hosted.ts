@@ -20,7 +20,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { Registry } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { VoiceServer } from "@fonoster/voice/session";
+import { VoiceServer } from "@fonoster/voice";
 import * as yaml from "js-yaml";
 import { z } from "zod";
 import { SessionAssistant } from "./config";

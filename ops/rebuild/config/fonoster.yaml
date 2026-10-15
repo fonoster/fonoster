@@ -8,15 +8,10 @@ database: { url: "postgresql://postgres:change-me@postgres:5432/fonoster" }
 encryption: { key: "k1.aesgcm256.change-me-generate-with-npx-47ng-cloak-generate=" }
 features:
   auth: { methods: [password], signup: invite }
-# No Asterisk: the media nodes and the gateway carry calls.
-mediaService:
-  provider: none
-  asterisk: { ariUrl: "http://asterisk:8088", ariUsername: unused, ariPassword: unused }
 routr:
   apiEndpoint: routr:51907
   # Created at start; the media nodes register with it (MEDIANODE_PASSWORD).
   mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: change-me }
-  engines: { default: rebuild }
 nats: { url: "nats://nats:4222" }
 influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
 callRecords:

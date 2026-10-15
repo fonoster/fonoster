@@ -22,19 +22,20 @@ import { createNumberRouting, EngineRoutingConfig } from "./engineRouting";
 import { repointNumbers, RoutrNumbersClient } from "./repointNumbers";
 
 /**
- * Rewrites app-linked Numbers in Routr to the engine `routr.engines` says (cutover and rollback):
+ * Moves app-linked Numbers created before the rebuild (pointing at Asterisk's sip:voice@default)
+ * to the media-node peer:
  *
- *   node dist/numbers/repointNumbersCli.js <engines.json> [--apply] [--app <ref>]...
+ *   node dist/numbers/repointNumbersCli.js <routing.json> [--apply] [--app <ref>]...
  *
- * engines.json holds an EngineRoutingConfig ({ defaultEngine, rebuildApps, asteriskApps, numbers,
- * asteriskAor, mediaNodeAor }). Without --apply it only prints what would change.
- * ROUTR_API_ENDPOINT (default routr:51907) points at Routr's API.
+ * routing.json holds an EngineRoutingConfig ({ mediaNodeAor }); `{}` uses sip:medianode@default.
+ * Without --apply it only prints what would change. ROUTR_API_ENDPOINT (default routr:51907)
+ * points at Routr's API.
  */
 async function main(argv: string[]) {
   const file = argv[0];
   if (!file) {
     console.error(
-      "usage: repointNumbersCli <engines.json> [--apply] [--app <ref>]..."
+      "usage: repointNumbersCli <routing.json> [--apply] [--app <ref>]..."
     );
     process.exit(2);
   }

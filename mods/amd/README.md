@@ -118,38 +118,11 @@ AGI+AudioSocket mechanism and the mode flag work end-to-end; run it with:
 npm run integration
 ```
 
-## Isolated smoke test (manual, against real Asterisk)
+## Status after the rebuild
 
-This service can also be exercised without `apiserver`, `autopilot`, NATS, or
-Postgres — just this container and a bare Asterisk instance. Unlike the
-integration test above, this path has not been run against a real Asterisk
-box in this repo's CI; treat it as a documented starting point to validate by
-hand:
-
-```sh
-docker compose -f mods/amd/docker-compose.smoke.yaml up --build
-```
-
-That starts `amd` alongside a `fonoster/asterisk` container using
-`mods/amd/smoke/extensions.conf`, a minimal dialplan with one test
-extension:
-
-```
-exten => 7000,1,Answer()
- same => n,Wait(1)
- same => n,AGI(agi://amd:4573)
- same => n,Verbose(1,AMDSTATUS=${AMDSTATUS} AMDCAUSE=${AMDCAUSE})
- same => n,Hangup()
-```
-
-Originate a call into extension `7000` playing a known recorded sample (a
-human greeting vs. a voicemail greeting) and check the Asterisk console log
-for the `AMDSTATUS`/`AMDCAUSE` line the `Verbose()` step prints, e.g.:
-
-```sh
-docker compose -f mods/amd/docker-compose.smoke.yaml exec asterisk \
-  asterisk -rx "channel originate Local/7000@smoke-test application Playback /path/to/sample"
-```
+Asterisk is retired (cleanbreak CB-B6), so the AGI and AudioSocket front end has no caller and its
+Asterisk smoke test is gone. The classifier stays: it moves behind a voice-worker listener in
+`add-media-node` task 4.3.
 
 ## Development
 

@@ -1,2 +1,2 @@
-// The session protocol SDK (rework-voice-sdk), available before it replaces the default export.
-module.exports = require("./dist/session");
+// Alias of the package root, kept for one release (rework-voice-sdk CB-B1).
+module.exports = require("./dist");

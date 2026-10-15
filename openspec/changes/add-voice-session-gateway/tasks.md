@@ -28,9 +28,9 @@
 
 ## 3. Migration and docs
 
-- [ ] 3.1 Remove `voice.proto`, its generated stubs and `mods/apiserver/src/voice/**`
-- [ ] 3.2 Migration guide: raw gRPC voice apps, removed verbs (`record`, `setAudioFilters`, `mute`, `unmute`)
+- [x] 3.1 Remove `voice.proto`, its generated stubs and `mods/apiserver/src/voice/**` (CB-B1, CB-B4; the speech config schemas stay at their paths for app validation)
+- [x] 3.2 Migration guide: raw gRPC voice apps, removed verbs (`record`, `setAudioFilters`, `mute`, `unmute`) (`docs/migrating-to-sessions.md`, now a "what changed" note)
 - [x] 3.3 Docs: session protocol reference (both flavors), Pipecat guide (`base_url`, socket close)
-- [ ] 3.4 Release notes marking the BREAKING changes
+- [x] 3.4 Release notes marking the BREAKING changes (`docs/release-notes-sessions.md`)
 - [x] 3.5 Application migration: legacy Application rows to the app model (URL, flavor, signing secret, speech, fallback); Autopilot apps to the hosted Autopilot (CO-B7)
-- [x] 3.6 Cutover runbook: side-by-side routing per app and per number, rollback, Asterisk retirement (`docs/operators/cutover.md`, CO-B8)
+- [x] 3.6 Cutover runbook: side-by-side routing per app and per number, rollback, Asterisk retirement (`docs/operators/cutover.md`, CO-B8; rewritten as a one-window upgrade after the clean break, CB-B3)

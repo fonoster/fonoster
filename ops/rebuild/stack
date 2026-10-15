@@ -178,14 +178,10 @@ features:
   auth: { methods: [password], signup: invite }
   billing: { enabled: false }
   costs: { display: usage }
-# No Asterisk: Go media nodes and the gateway carry calls (ST-B3).
-mediaService:
-  provider: none
-  asterisk: { ariUrl: "http://asterisk:8088", ariUsername: unused, ariPassword: unused }
+# Numbers of apps route to the media nodes' Peer, created at start with this password.
 routr:
   apiEndpoint: routr:51907
   mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: "$RB_NODE_PASSWORD" }
-  engines: { default: rebuild }
 nats: { url: "nats://nats:4222" }
 # Required by the schema; unused with callRecords.listCallsFromIndex.
 influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
@@ -253,17 +249,19 @@ endpoints:
   fake: "http://fakes:7003"
 testMode: $test_mode
 EOF
-  cat > "$CONF/registry.json" <<EOF
-{
-  "entries": [
-    { "kind": "provider", "id": "openai", "adapter": "$llm_adapter", "capabilities": ["llm"], "credentialRef": "openai-default", "state": "active" },
-    { "kind": "model", "id": "openai/gpt-4o-mini", "type": "llm", "features": [], "languages": [], "settings": [], "state": "active" },
-    { "kind": "model", "id": "openai/gpt-4o", "type": "llm", "features": [], "languages": [], "settings": [], "state": "active" },
-    { "kind": "model", "id": "openai/gpt-4.1-mini", "type": "llm", "features": [], "languages": [], "settings": [], "state": "active" }
-  ],
-  "audit": []
-}
-EOF
+  # The catalog seed (config/catalog-seed.yaml) as the hosted Autopilot's file store; without a
+  # vendor key, its LLM providers use the fake adapter under the same ids.
+  (cd "$ROOT" && LLM_ADAPTER="$llm_adapter" node -e '
+    const fs = require("fs");
+    const yaml = require("yaml");
+    const seed = yaml.parse(fs.readFileSync(process.argv[1], "utf8"));
+    const entries = seed.entries.map((e) =>
+      e.kind === "provider" && e.capabilities.includes("llm") && process.env.LLM_ADAPTER === "fake"
+        ? { ...e, adapter: "fake" }
+        : e
+    );
+    fs.writeFileSync(process.argv[2], JSON.stringify({ entries, audit: [] }, null, 2) + "\n");
+  ' "$HERE/config/catalog-seed.yaml" "$CONF/registry.json")
   chmod 600 "$CONF/fonoster.yaml" "$CONF/gateway.yaml"
   # Containers read these as another user (local only).
   chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot-session.yaml" \

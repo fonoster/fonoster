@@ -24,7 +24,7 @@ import {
   loadScenarios,
   repeatScenario
 } from "@fonoster/conformance";
-import { VoiceServer } from "@fonoster/voice/session";
+import { VoiceServer } from "@fonoster/voice";
 import { createAutopilotHandler } from "../../src/session";
 
 // The latency stopwatch (rework-autopilot task 1.3): turn.ended to the first speak, minus the

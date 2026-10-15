@@ -1,6 +1,6 @@
 // Barge-in. The gateway never cuts the agent off by itself; the SDK sends `clear` when the caller
 // talks over a say() or play() that is interruptible (the default).
-import { Session, VoiceServer } from "@fonoster/voice/session";
+import { Session, VoiceServer } from "@fonoster/voice";
 
 new VoiceServer({ port: 3000, signingSecret: process.env.APP_SIGNING_SECRET }).listen(
   async (session: Session) => {

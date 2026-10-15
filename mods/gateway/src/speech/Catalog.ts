@@ -37,6 +37,15 @@ export type VoiceResolution = {
   replacement?: string;
 };
 
+export type SttResolution = {
+  adapter: SttAdapter;
+  /** The provider's own model name; undefined uses the provider's configured model. */
+  model?: string;
+  id?: string;
+  event?: VoiceResolution["event"];
+  replacement?: string;
+};
+
 export class Catalog {
   private registry?: {
     store: RegistryNs.RegistryStore;
@@ -124,6 +133,41 @@ export class Catalog {
     const voices = this.config.providers[provider]?.voices;
     if (!adapter || (voices && !voices.includes(voice))) return undefined;
     return { adapter, voice, id: resolved, event, replacement };
+  }
+
+  /**
+   * The STT adapter and provider model for an app's STT catalog id (`deepgram/nova-3`). Without an
+   * id, the deployment's default STT provider with its configured model. With a registry the id
+   * must be an STT model in the catalog; a retired one resolves to its replacement (VO-B4).
+   */
+  resolveStt(id?: string): SttResolution | undefined {
+    if (!id) {
+      const adapter = this.defaultStt();
+      return adapter && { adapter };
+    }
+    let resolved = id;
+    let event: VoiceResolution["event"];
+    let replacement: string | undefined;
+    if (this.registry) {
+      const entry = this.registry.store.get(id);
+      if (!entry || entry.kind !== "model" || entry.type !== "stt")
+        return undefined;
+      const r = this.registry.registry.resolve(id);
+      resolved = r.id;
+      event = r.event;
+      replacement = r.replacement;
+    }
+    const slash = resolved.indexOf("/");
+    if (slash <= 0) return undefined;
+    const adapter = this.stt.get(resolved.slice(0, slash));
+    if (!adapter) return undefined;
+    return {
+      adapter,
+      model: resolved.slice(slash + 1),
+      id: resolved,
+      event,
+      replacement
+    };
   }
 
   /** The STT adapter for the gateway (one STT provider per deployment for now). */
