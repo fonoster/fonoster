@@ -16,9 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Mute } from "./Mute";
+/** A command failed: the gateway sent `error` with `relatesTo` set to the command's id. */
+export class SessionError extends Error {
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly fatal = false
+  ) {
+    super(message);
+    this.name = "SessionError";
+  }
+}
 
-// Shares everything with Mute except the class name
-class Unmute extends Mute {}
-
-export { Unmute };
+/** The session ended (or a fatal error arrived) while the command was pending. */
+export class SessionEndedError extends Error {
+  constructor(readonly reason: string) {
+    super(`the session ended (${reason})`);
+    this.name = "SessionEndedError";
+  }
+}

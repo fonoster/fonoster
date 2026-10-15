@@ -1,6 +1,6 @@
 // Serve sessions from an existing Express app. The gateway dials ws(s)://<host>/voice.
 import express from "express";
-import { Session, VoiceServer } from "@fonoster/voice/session";
+import { Session, VoiceServer } from "@fonoster/voice";
 
 const app = express();
 app.get("/health", (_req, res) => res.send("ok"));

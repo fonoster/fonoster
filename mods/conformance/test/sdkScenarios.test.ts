@@ -119,11 +119,10 @@ const FIXTURES: Record<
     await s.say("Hello from the SDK.");
     s.hangup();
   },
-  "say-hello-legacy": async (s) => {
-    // A (req, res) handler is a wrapper over the same session; on the wire it must be identical.
-    const res = { say: s.say, hangup: s.hangup };
-    await res.say("Hello from the SDK.");
-    res.hangup();
+  "answer-then-say": async (s) => {
+    // answer() sends nothing: the gateway answered on connect.
+    await s.say("Hello from the SDK.");
+    s.hangup();
   },
   "say-reports-interruption": async (s) => {
     const r = await s.say("Your balance is forty two dollars.");

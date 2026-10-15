@@ -343,7 +343,7 @@ export class Session {
     this.command({ type: "record.note", data });
   }
 
-  /** The gateway answers on connect (voice-sdk S2); kept so old apps keep working. */
+  /** Resolves at once: the gateway answers the call on connect (voice-sdk S2). */
   async answer(): Promise<void> {}
 
   // ---- incoming ---------------------------------------------------------------------

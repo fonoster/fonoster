@@ -20,17 +20,7 @@ import * as http from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
 import { FakeGateway, Peer } from "@fonoster/conformance";
-import {
-  RemovedMethodError,
-  Session,
-  SessionEndedError,
-  VoiceServer
-} from "../../src/session";
-import {
-  LegacyRequest,
-  LegacyResponse,
-  createLegacyResponse
-} from "../../src/session/legacy";
+import { Session, SessionEndedError, VoiceServer } from "../src";
 
 const SECRET = "unit-secret";
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -66,7 +56,7 @@ async function waitFor<T>(fn: () => T | undefined, ms = 2000): Promise<T> {
   }
 }
 
-describe("@voice/session VoiceServer", function () {
+describe("@voice VoiceServer", function () {
   let server: VoiceServer | undefined;
   afterEach(async () => server?.close());
 
@@ -166,109 +156,16 @@ describe("@voice/session VoiceServer", function () {
     peer.sendJson(START);
     await waitFor(() => json(peer).find((m) => m.type === "hangup"));
   });
-
-  it("dispatches legacy (req, res) handlers by arity with request fields", async function () {
-    let req: LegacyRequest | undefined;
-    server = await new VoiceServer({
-      port: 0,
-      host: "127.0.0.1",
-      signingSecret: SECRET
-    }).listen(async (r: LegacyRequest, _res: LegacyResponse) => {
-      req = r;
-    });
-    const peer = await new FakeGateway({ signingSecret: SECRET }).dial(url());
-    peer.sendJson(START);
-    await waitFor(() => req);
-    expect(req).to.include({
-      callRef: "c1",
-      callerNumber: "+1",
-      ingressNumber: "+2",
-      callDirection: "FROM_PSTN"
-    });
-  });
 });
 
-describe("@voice/session removed methods", function () {
-  it("throw errors naming the replacement", function () {
+describe("@voice removed methods", function () {
+  it("are not on the session", function () {
     const session = new Session(START as never, {
       sendJson: () => undefined,
       sendBinary: () => undefined,
       close: () => undefined
-    });
-    const res = createLegacyResponse(session) as unknown as Record<
-      string,
-      () => void
-    >;
-    expect(() => res.record()).to.throw(
-      RemovedMethodError,
-      "recording is now an app policy"
-    );
-    expect(() => res.setAudioFilters()).to.throw("app's configuration");
-    expect(() => res.mute()).to.throw("hold()");
-    expect(() => res.unmute()).to.throw("resume()");
-  });
-});
-
-describe("@voice/session deprecated legacy shims", function () {
-  function setup() {
-    const sent: { json?: Record<string, unknown>; binary?: Buffer }[] = [];
-    const session = new Session(START as never, {
-      sendJson: (m) => sent.push({ json: m }),
-      sendBinary: (b) => sent.push({ binary: b }),
-      close: () => undefined
-    });
-    return { session, sent, res: createLegacyResponse(session) };
-  }
-
-  it("res.stream() delivers caller audio and sends agent audio", function () {
-    const { session, sent, res } = setup();
-    const stream = res.stream();
-    const payloads: unknown[] = [];
-    stream.onPayload((p) => payloads.push(p));
-    session.receive(Buffer.from([1, 9, 9]), true);
-    expect(payloads[0]).to.deep.include({
-      type: "AUDIO_IN",
-      format: "WAV",
-      mediaSessionRef: "s1"
-    });
-    stream.write({ data: new Uint8Array([7, 7]) });
-    expect(sent.at(-1)?.binary).to.deep.equal(Buffer.from([7, 7]));
-    stream.close();
-    session.receive(Buffer.from([1, 1, 1]), true);
-    expect(payloads).to.have.length(1);
-  });
-
-  it("res.sgather() reports speech and digits and starts listening", function () {
-    const { session, sent, res } = setup();
-    const gather = res.sgather({ source: "speech,dtmf" });
-    const payloads: { speech?: string; digit?: string }[] = [];
-    gather.onPayload((p) => payloads.push(p));
-    expect(sent[0].json).to.deep.include({ type: "subscribe", events: [] });
-    session.receive(
-      Buffer.from(
-        JSON.stringify({
-          type: "turn.ended",
-          text: "billing",
-          language: "en",
-          confidence: 1,
-          durationMs: 1
-        })
-      ),
-      false
-    );
-    session.receive(
-      Buffer.from(JSON.stringify({ type: "dtmf", digit: "5" })),
-      false
-    );
-    expect(payloads.map((p) => p.speech ?? p.digit)).to.deep.equal([
-      "billing",
-      "5"
-    ]);
-    gather.close();
-    session.receive(
-      Buffer.from(JSON.stringify({ type: "dtmf", digit: "6" })),
-      false
-    );
-    expect(payloads).to.have.length(2);
+    }) as unknown as Record<string, unknown>;
+    for (const name of ["record", "setAudioFilters", "mute", "unmute", "dial"])
+      expect(session[name], name).to.equal(undefined);
   });
 });

@@ -7,7 +7,7 @@ same scenario. Keep fixtures tiny; they exercise the SDK, not app logic.
 | Fixture | Handler signature | Behaviour |
 | --- | --- | --- |
 | `say-hello` | `(session)` | `await say("Hello from the SDK.")`, then `hangup()`. |
-| `say-hello-legacy` | `(req, res)` | `await res.say("Hello from the SDK.")`, then `res.hangup()`. Must produce the same frames as `say-hello`. |
+| `answer-then-say` | `(session)` | `await answer()`, `await say("Hello from the SDK.")`, then `hangup()`. `answer()` sends nothing. |
 | `say-reports-interruption` | `(session)` | `r = await say("Your balance is forty two dollars.")`; if `r.interrupted`, `await say("You heard: " + r.heardText)`. |
 | `say-kept` | `(session)` | `await say("Please hold.", { interruptible: false })`. |
 | `gather-echo` | `(session)` | `r = await gather({ finishOnKey: "#" })`; with speech, `say("You said: " + r.speech)`; with digits, `say("You pressed: " + r.digits)`. |
@@ -23,7 +23,6 @@ same scenario. Keep fixtures tiny; they exercise the SDK, not app logic.
 | `transfer-cold` | `(session)` | `await transfer("+15551234567")`. |
 | `transfer-warm` | `(session)` | `t = transfer("+15551234567", { mode: "warm" })`; `await say("Connecting you now.")`; `await completeTransfer()`; `await t`. |
 | `handoff` | `(session)` | `await handoff("app-escalation", { reason: "angry caller" })`. |
-| `legacy-dial` | `(req, res)` | `await res.dial("+15551234567")`. |
 | `audio-mark` | `(session)` | Registers `on("dtmf", () => audio.clear())`; sends three 20 ms frames of silence with `audio.send`; `m = await audio.mark("r1")`; `say(m.cleared ? "Cleared." : "Heard.")`. |
 | `say-error` | `(session)` | `say("Hi")`; if it rejects with a session error, `say("Error: " + code)`. |
 | `say-then-gather` | `(session)` | `r = await say("Please enter your PIN.")`; `g = await gather({ maxDigits: 4 })`; `say("PIN " + digits + " (heard: " + r.heardText + ")")`. Digits pressed during the say count (type-ahead). |

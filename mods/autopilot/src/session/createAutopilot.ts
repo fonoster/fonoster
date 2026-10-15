@@ -25,7 +25,7 @@ import { LlmResolver } from "./llm";
 import { autopilotMachine } from "./machine";
 import { resolveThink, Think, ThinkProvider } from "./think";
 import { HttpToolPort, ToolPort } from "./tools";
-import type { Session } from "@fonoster/voice/session";
+import type { Session } from "@fonoster/voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

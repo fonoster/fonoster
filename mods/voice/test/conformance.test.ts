@@ -18,8 +18,7 @@
  */
 import { expect } from "chai";
 import { FakeGateway, loadScenarios, runScenario } from "@fonoster/conformance";
-import { Handler, Session, SessionError, VoiceServer } from "../../src/session";
-import { LegacyRequest, LegacyResponse } from "../../src/session/legacy";
+import { Handler, Session, SessionError, VoiceServer } from "../src";
 
 // The voice-sdk conformance scenarios, run against this SDK. Each fixture is the app described
 // in mods/conformance/scenarios/voice-sdk/FIXTURES.md, written with the SDK.
@@ -39,10 +38,10 @@ const FIXTURES: Record<string, Handler> = {
     await session.say("Hello from the SDK.");
     await session.hangup();
   },
-  "say-hello-legacy": async (_req: LegacyRequest, res: LegacyResponse) => {
-    await res.answer();
-    await res.say("Hello from the SDK.");
-    await res.hangup();
+  "answer-then-say": async (session: Session) => {
+    await session.answer();
+    await session.say("Hello from the SDK.");
+    await session.hangup();
   },
   "say-reports-interruption": async (session: Session) => {
     const r = await session.say("Your balance is forty two dollars.");
@@ -110,9 +109,6 @@ const FIXTURES: Record<string, Handler> = {
   handoff: async (s: Session) => {
     await s.handoff("app-escalation", { reason: "angry caller" });
   },
-  "legacy-dial": async (_req: LegacyRequest, res: LegacyResponse) => {
-    await res.dial("+15551234567");
-  },
   "audio-mark": async (s: Session) => {
     s.on("dtmf", () => s.audio.clear());
     for (let i = 0; i < 3; i++) s.audio.send(Buffer.alloc(640));
@@ -141,7 +137,7 @@ const FIXTURES: Record<string, Handler> = {
   }
 };
 
-describe("@voice/session conformance (voice-sdk scenarios)", function () {
+describe("@voice conformance (voice-sdk scenarios)", function () {
   for (const scenario of loadScenarios("voice-sdk")) {
     it(scenario.name, async function () {
       const fixture = FIXTURES[scenario.fixture!];
