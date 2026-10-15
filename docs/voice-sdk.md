@@ -93,5 +93,10 @@ Removed, with an error that names the replacement:
 | `record()` | Recording is an app policy |
 | `setAudioFilters()` | Audio filters are part of the app's configuration |
 | `mute()` / `unmute()` | `hold()` / `resume()` |
+
+Deprecated but still working (each logs a warning once):
+
+| Method | Replacement |
+| --- | --- |
 | `stream()` | `session.audio` |
 | `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf")` |

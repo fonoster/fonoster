@@ -68,3 +68,14 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 
 ### Not done
 - Migration docs and release notes (4.x).
+
+## 2026-10-15 (morning, with the owner)
+
+### SDK6. `res.stream()` and `res.sgather()` keep working, deprecated (owner decision)
+
+- Rebuilt on the session: `stream()` gives `onPayload` (AUDIO_IN payloads with raw frames in the
+  session's format), `write`, `close`; `sgather()` gives `onPayload` with `{speech | digit,
+  responseTime}` from `turn.ended` and `dtmf`, and starts listening with an empty `subscribe`.
+  Both log a deprecation warning once and are marked `@deprecated`.
+- Difference to note in the upgrade guide: `stream()` payloads carry raw frames in the session's
+  audio format (PCM16 16 kHz by default), not the old "WAV" stream.

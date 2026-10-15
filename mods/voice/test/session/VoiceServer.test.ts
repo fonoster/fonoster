@@ -208,3 +208,67 @@ describe("@voice/session removed methods", function () {
     expect(() => res.unmute()).to.throw("resume()");
   });
 });
+
+describe("@voice/session deprecated legacy shims", function () {
+  function setup() {
+    const sent: { json?: Record<string, unknown>; binary?: Buffer }[] = [];
+    const session = new Session(START as never, {
+      sendJson: (m) => sent.push({ json: m }),
+      sendBinary: (b) => sent.push({ binary: b }),
+      close: () => undefined
+    });
+    return { session, sent, res: createLegacyResponse(session) };
+  }
+
+  it("res.stream() delivers caller audio and sends agent audio", function () {
+    const { session, sent, res } = setup();
+    const stream = res.stream();
+    const payloads: unknown[] = [];
+    stream.onPayload((p) => payloads.push(p));
+    session.receive(Buffer.from([1, 9, 9]), true);
+    expect(payloads[0]).to.deep.include({
+      type: "AUDIO_IN",
+      format: "WAV",
+      mediaSessionRef: "s1"
+    });
+    stream.write({ data: new Uint8Array([7, 7]) });
+    expect(sent.at(-1)?.binary).to.deep.equal(Buffer.from([7, 7]));
+    stream.close();
+    session.receive(Buffer.from([1, 1, 1]), true);
+    expect(payloads).to.have.length(1);
+  });
+
+  it("res.sgather() reports speech and digits and starts listening", function () {
+    const { session, sent, res } = setup();
+    const gather = res.sgather({ source: "speech,dtmf" });
+    const payloads: { speech?: string; digit?: string }[] = [];
+    gather.onPayload((p) => payloads.push(p));
+    expect(sent[0].json).to.deep.include({ type: "subscribe", events: [] });
+    session.receive(
+      Buffer.from(
+        JSON.stringify({
+          type: "turn.ended",
+          text: "billing",
+          language: "en",
+          confidence: 1,
+          durationMs: 1
+        })
+      ),
+      false
+    );
+    session.receive(
+      Buffer.from(JSON.stringify({ type: "dtmf", digit: "5" })),
+      false
+    );
+    expect(payloads.map((p) => p.speech ?? p.digit)).to.deep.equal([
+      "billing",
+      "5"
+    ]);
+    gather.close();
+    session.receive(
+      Buffer.from(JSON.stringify({ type: "dtmf", digit: "6" })),
+      false
+    );
+    expect(payloads).to.have.length(2);
+  });
+});
