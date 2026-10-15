@@ -133,6 +133,22 @@ not an SFU; and Routr, which already balances peers by session count, stays the 
   intact. Opus-heavy load is measured and reported separately.
 - Rejected: matching the gateway's 100 (leaves capacity unused) and measuring first (no bar).
 
+**MN13. Gateway audio travels as plain RTP; ports are set up inside `media-control`.**
+- Agents never connect to the media node. The path is: agent, WebSocket session, gateway, RTP,
+  room. The agent speaks only the session protocol; it never speaks SIP.
+- The gateway's `participant.add` for its session participant offers a host, a port and a codec
+  (for example PCM 16-bit at 16 kHz). The node answers with its own host and port. Audio then
+  flows as ordinary RTP over UDP in both directions; SRTP is used when MN6 encryption is enabled.
+- There is no SIP, no NATS and no WebSocket on this hop. Commands still travel over NATS
+  request and reply (platform decision PL3); only the audio is RTP.
+- Why: lowest latency, no head-of-line blocking on packet loss, and testable with standard RTP
+  tools. It is the same idea as Asterisk's external media today.
+- Rejected:
+  - a WebSocket per call (TCP stalls audio on packet loss),
+  - audio through NATS (every frame crosses the broker: an extra hop, broker load and jitter at
+    50 messages per second per direction per call),
+  - SIP from the gateway (heavy machinery and slower setup for an internal hop).
+
 ## Risks / Trade-offs
 
 | Risk | Mitigation |
@@ -153,8 +169,8 @@ not an SFU; and Routr, which already balances peers by session count, stays the 
    re-registering after a change in load.
 3. **How Routr learns a node is draining.** A very high `X-Session-Count`, a dedicated header, or
    unregistering.
-4. **`media-control` transport.** gRPC from the gateway to the node, or request and reply over
-   NATS.
+4. **`media-control` transport.** Resolved: commands travel over NATS request and reply (PL3);
+   gateway audio travels as RTP (MN13).
 5. **Dial-in conference affinity.** Deferred (MN4): redirect to the owning node, Routr affinity by
    room, or cascading.
 6. **Opus capacity target.** A bar for Opus-heavy load once the first numbers exist.

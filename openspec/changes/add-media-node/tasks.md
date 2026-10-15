@@ -27,7 +27,8 @@
 
 ## 3. Control plane
 
-- [ ] 3.1 `media-control` contract definition (transport per the open question) with additive-only rules
+- [ ] 3.1 `media-control` contract definition over NATS request and reply (PL3) with additive-only rules
+- [ ] 3.4 Gateway RTP leg: `rtp` offer and answer in `participant.add`, RTP send and receive, SRTP when encryption is on (MN13)
 - [ ] 3.2 Session registry entries per node and per room in NATS JetStream KV
 - [ ] 3.3 Outbound placement: least-loaded non-draining node, room-to-node mapping
 

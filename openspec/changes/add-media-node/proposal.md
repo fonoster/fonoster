@@ -13,6 +13,10 @@ plane use to drive it.
 
 ## What Changes
 
+- **Agents never connect to the media node.** An agent speaks only the WebSocket session to the
+  VoiceSessionGateway. The gateway joins the room as a session participant and exchanges audio
+  with the node as plain RTP (SRTP when encrypted), with ports and codec set up inside
+  `participant.add`; commands travel over NATS.
 - **A Go media node replaces Asterisk.** It sits behind Routr and registers to it as today. It
   terminates SIP legs and RTP, decodes and encodes PCMU, PCMA, G.722 and Opus, detects DTMF three
   ways, and mixes audio in rooms. It has no dialplan, no speech, no IVR and no recording logic of

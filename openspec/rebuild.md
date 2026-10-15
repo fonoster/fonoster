@@ -35,6 +35,7 @@ conformance framework.
 | `rework-autopilot` | `autopilot` | `voice-session`, `turn-taking`, `voice-sdk`, `provider-registry` |
 | `add-media-node` | `media-node`, `media-control` | `voice-session`, `call-record` |
 | `add-workspace-webhooks` | `workspace-webhooks` | `call-record`, `provider-registry` |
+| `add-platform` | `control-plane`, `observability`, `deployment`, `regions` | all of the above except `conformance` |
 | `add-conformance-framework` | `conformance` | all of the above |
 
 Media node in one line: rooms are audio mixers with a track-based (video-ready) contract; "add a
@@ -42,7 +43,10 @@ participant to a room" serves inbound, outbound and transfer (cold/warm in the r
 REFER); Routr balances nodes with least-sessions from `X-Session-Count`; rooms stay on one node;
 optional TLS + SRTP to the edge; sipgo and livekit/media-sdk are reused as libraries.
 
-Not yet specified: the control plane, deployment and regions, observability.
+Platform in one line: the gateway is its own TypeScript deployable; the apiserver is a stateless
+control plane; NATS carries everything internal except audio (gateway audio is RTP); OpenTelemetry
+everywhere; Compose and Helm both official; one global control plane with many cells; private
+regions ship in v1 and are customer-operated (we only sync config).
 
 ## Vocabulary (use these names exactly)
 

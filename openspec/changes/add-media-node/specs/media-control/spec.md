@@ -45,6 +45,31 @@ Playout queueing, `clear` and `mark` SHALL remain in the gateway.
 - **WHEN** the caller speaks
 - **THEN** the session participant receives the caller's audio as its mix
 
+### Requirement: Gateway audio is RTP negotiated in participant.add
+
+The gateway's session participant SHALL exchange audio with the node as RTP over UDP, using SRTP
+when edge-to-node encryption (MN6) is enabled. The host, port and codec SHALL be negotiated inside
+`participant.add`: the gateway offers its own `rtp` block (`host`, `port`, `codec`) and the node's
+acknowledgement SHALL return the node's `rtp` block (`host`, `port`). This audio MUST NOT travel
+over SIP, NATS or WebSocket, and agents MUST NOT connect to the media node directly.
+
+#### Scenario: Ports are exchanged in participant.add
+- **WHEN** the gateway sends `participant.add` `{id: "c3", roomRef: "r1", kind: "session", rtp: {host: "10.0.0.5", port: 40010, codec: "L16/16000"}}`
+- **THEN** the node's acknowledgement carries `id: "c3"` and `rtp: {host, port}` for the node's side
+- **AND** within 100 ms of the acknowledgement, RTP packets carrying the room's mix arrive at 10.0.0.5:40010
+
+#### Scenario: Agent audio travels as RTP
+- **WHEN** the gateway sends RTP packets to the node's returned host and port
+- **THEN** the caller hears that audio, and no SIP, NATS or WebSocket traffic carries it
+
+#### Scenario: Encrypted deployment uses SRTP
+- **WHEN** edge-to-node encryption is enabled and the gateway adds its session participant
+- **THEN** the negotiated `rtp` block carries SRTP keying and plain RTP from the gateway is dropped
+
+#### Scenario: Agents never reach the node
+- **WHEN** an app's session is running
+- **THEN** the app's only connection is its WebSocket session to the gateway, and the node sees only the gateway's RTP and NATS commands
+
 ### Requirement: Add a participant is the one primitive
 
 Inbound calls, outbound calls and transfers SHALL all be expressed as adding a participant to a
