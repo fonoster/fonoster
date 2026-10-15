@@ -48,7 +48,11 @@ export function useRegions(refetchMs = 30_000) {
     queryKey: REGIONS_KEY,
     queryFn: () => api.listRegions(),
     refetchInterval: (q) =>
-      q.state.data?.some((r) => r.kind === "private") ? refetchMs : false
+      q.state.data?.some((r) => r.status === "waiting")
+        ? Math.min(refetchMs, 5_000)
+        : q.state.data?.some((r) => r.kind === "private")
+          ? refetchMs
+          : false
   });
 }
 

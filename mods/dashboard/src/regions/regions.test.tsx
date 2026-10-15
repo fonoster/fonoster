@@ -32,16 +32,11 @@ import { testWorkspace } from "~/test/workspace";
 import { RegionsApiProvider } from "./api";
 import { RegionBanner } from "./banner";
 import { createMockRegionsApi, privateRegion } from "./mock-api";
-import NewRegionPage from "./new-region.page";
-import RegionDetailPage from "./region-detail.page";
 import { RegionSettings } from "./region-settings";
-import RegionSetup from "./setup";
 import { remaining } from "./status";
 import { validateRegionId, validateSipDomain } from "./validation";
 
 const privateWs = { ...testWorkspace, region: "acme-dallas" } as Workspace;
-const hoursFromNow = (h: number) =>
-  new Date(Date.now() + h * 3600_000 + 30_000).toISOString();
 const ago = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
 const me = { sub: "u1", email: "ada@acme.com", accessKeyId: "US1", exp: 0 };
 
@@ -98,38 +93,62 @@ describe("region id and SIP domain rules", () => {
 });
 
 describe("start screen", () => {
-  const landing = (api = createMockRegionsApi()) => {
+  const landing = (api = createMockRegionsApi(), route = "/workspaces") => {
     const { auth } = withWorkspaces(api);
     vi.mocked(auth.sdk.workspaces.listWorkspaces).mockResolvedValue({
       items: [testWorkspace]
     } as never);
-    return render(<WorkspacesPage />, api, { path: "/workspaces", auth });
+    return render(<WorkspacesPage />, api, {
+      path: "/workspaces",
+      route,
+      auth
+    });
   };
+  const section = () => screen.findByRole("region", { name: "Your regions" });
 
-  it("lists your regions next to the workspaces, with New region", async () => {
+  it("shows each region as a name and a status dot, without details", async () => {
     landing();
-    const section = await screen.findByRole("region", { name: "Your regions" });
-    expect(await within(section).findByText("Acme Dallas")).toBeInTheDocument();
-    expect(within(section).getByText("Connected")).toBeInTheDocument();
+    const s = await section();
+    expect(await within(s).findByText("Acme Dallas")).toBeInTheDocument();
+    expect(within(s).getByText("Connected")).toBeInTheDocument();
+    expect(within(s).queryByLabelText("Docker Compose")).toBeNull();
+    expect(within(s).queryByText("acme-dallas")).toBeNull();
     expect(
-      within(section).getByRole("link", { name: /New region/ })
-    ).toHaveAttribute("href", "/regions/new");
-    expect(
-      within(section).getByRole("link", { name: /Acme Dallas/ })
-    ).toHaveAttribute("href", "/regions/rg_7K2QF");
+      within(s).getByRole("button", { name: "More for Acme Dallas" })
+    ).toBeInTheDocument();
     expect(await screen.findByText("Acme Support")).toBeInTheDocument();
   });
-});
 
-describe("new region", () => {
-  const create = () =>
-    render(<NewRegionPage />, createMockRegionsApi(), {
-      path: "/regions/new",
-      route: "/regions/new"
-    });
+  it("shows the install command of a waiting region until it connects", async () => {
+    const api = createMockRegionsApi([
+      privateRegion({ status: "waiting", version: undefined })
+    ]);
+    const { user } = landing(api);
+    const s = await section();
+    expect(await within(s).findByText("Waiting")).toBeInTheDocument();
+    await user.click(
+      await within(s).findByRole("button", { name: "Re-issue token" })
+    );
+    expect(await within(s).findByLabelText("Docker Compose")).toHaveTextContent(
+      "reissued"
+    );
+    expect(within(s).queryByLabelText("Helm")).toBeNull();
+    await user.click(within(s).getByRole("tab", { name: "Helm" }));
+    expect(within(s).getByLabelText("Helm")).toHaveTextContent("helm install");
+    expect(within(s).getByText(/Expires in (23|24)h/)).toBeInTheDocument();
+    api.state.regions = api.state.regions.map((r) =>
+      r.kind === "private" ? privateRegion({ status: "connected" }) : r
+    );
+    expect(
+      await within(s).findByText("Connected", {}, { timeout: 7000 })
+    ).toBeInTheDocument();
+    expect(within(s).queryByLabelText("Helm")).toBeNull();
+  }, 12000);
 
-  it("validates the id and the SIP domain before calling the API", async () => {
-    const { user, api } = create();
+  it("creates a region in a dialog and shows its command", async () => {
+    const { user, api } = landing();
+    const s = await section();
+    await user.click(within(s).getByRole("button", { name: /New region/ }));
     await user.type(await screen.findByLabelText("ID"), "us-east-9");
     await user.type(screen.getByLabelText("Display name"), "Acme");
     await user.type(screen.getByLabelText("SIP domain"), "acme");
@@ -139,12 +158,11 @@ describe("new region", () => {
       screen.getByText("Enter a domain like sip.acme.com")
     ).toBeInTheDocument();
     expect(api.state.createdRegions).toEqual([]);
-  });
-
-  it("creates the region and opens its setup", async () => {
-    const { user, api } = create();
-    await user.type(await screen.findByLabelText("ID"), "acme-houston");
+    await user.clear(screen.getByLabelText("ID"));
+    await user.type(screen.getByLabelText("ID"), "acme-houston");
+    await user.clear(screen.getByLabelText("Display name"));
     await user.type(screen.getByLabelText("Display name"), "Acme Houston");
+    await user.clear(screen.getByLabelText("SIP domain"));
     await user.type(screen.getByLabelText("SIP domain"), "sip.acme.com");
     await user.click(screen.getByRole("button", { name: "Create region" }));
     await waitFor(() =>
@@ -156,9 +174,131 @@ describe("new region", () => {
         }
       ])
     );
-    expect(await screen.findByTestId("location")).toHaveTextContent(
-      "/regions/rg_NEW01/setup"
+    expect(await within(s).findByText("Acme Houston")).toBeInTheDocument();
+    expect(await within(s).findByLabelText("Docker Compose")).toHaveTextContent(
+      "mock.token"
     );
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("opens the drawer from More and from a link", async () => {
+    const { user } = landing();
+    await user.click(
+      await screen.findByRole("button", { name: "More for Acme Dallas" })
+    );
+    const drawer = await screen.findByRole("dialog");
+    expect(await within(drawer).findByText("Version")).toBeInTheDocument();
+  });
+
+  it("opens the drawer for ?region=", async () => {
+    landing(createMockRegionsApi(), "/workspaces?region=rg_7K2QF");
+    const drawer = await screen.findByRole("dialog");
+    expect(await within(drawer).findByText("Version")).toBeInTheDocument();
+  });
+});
+
+describe("region drawer", () => {
+  const drawer = async (region = privateRegion()) => {
+    const api = createMockRegionsApi([region]);
+    const { auth } = withWorkspaces(api);
+    vi.mocked(auth.sdk.workspaces.listWorkspaces).mockResolvedValue({
+      items: [testWorkspace]
+    } as never);
+    const view = render(<WorkspacesPage />, api, {
+      path: "/workspaces",
+      route: "/workspaces?region=rg_7K2QF",
+      auth
+    });
+    const d = await screen.findByRole("dialog");
+    await within(d).findByText("Version");
+    return { ...view, d };
+  };
+
+  it("shows status, version, last seen, workspaces and keys", async () => {
+    const { d } = await drawer();
+    expect(within(d).getByText("Connected")).toBeInTheDocument();
+    expect(within(d).getByText("Version").nextSibling).toHaveTextContent(
+      "0.28.1"
+    );
+    expect(within(d).getByText("Last seen").nextSibling).toHaveTextContent(
+      "just now"
+    );
+    expect(
+      within(d).getByRole("link", { name: "Acme Support" })
+    ).toHaveAttribute("href", "/w/ws-1");
+    expect(within(d).getByText("Set")).toBeInTheDocument();
+    expect(within(d).getByText("Missing")).toBeInTheDocument();
+    expect(
+      within(d).getByText("fonoster-regions secrets set elevenlabs")
+    ).toBeInTheDocument();
+  });
+
+  it("says offline and unsupported in one line", async () => {
+    const { d, unmount } = await drawer(
+      privateRegion({ status: "offline", lastSeenAt: ago(10) })
+    );
+    expect(within(d).getByText("Your region is offline.")).toBeInTheDocument();
+    expect(within(d).getByText("Last seen").nextSibling).toHaveTextContent(
+      "10 min ago"
+    );
+    unmount();
+    const next = await drawer(privateRegion({ status: "unsupported" }));
+    expect(
+      within(next.d).getByText("Your region needs an upgrade.")
+    ).toBeInTheDocument();
+  });
+
+  it("shows connection details with copy buttons, or says they are pending", async () => {
+    const { d, unmount } = await drawer(
+      privateRegion({
+        endpoints: {
+          sip: [{ host: "sip.acme.example", port: 5061, transport: "tls" }],
+          signalingAddresses: ["203.0.113.10"],
+          mediaAddresses: ["203.0.113.10", "203.0.113.11"],
+          rtpPorts: { min: 20000, max: 20999 }
+        }
+      })
+    );
+    const details = within(d).getByRole("region", {
+      name: "Connection details"
+    });
+    expect(within(d).getByLabelText("SIP (TLS)")).toHaveTextContent(
+      "sip.acme.example:5061"
+    );
+    expect(details.querySelectorAll("button[aria-label^='Copy']")).toHaveLength(
+      3
+    );
+    unmount();
+    const next = await drawer();
+    expect(
+      within(next.d).getByText("Shown once your region connects.")
+    ).toBeInTheDocument();
+  });
+
+  it("re-issues a token and shows it on the start screen", async () => {
+    const { user, api, d } = await drawer(
+      privateRegion({ status: "waiting", version: undefined })
+    );
+    await user.click(within(d).getByRole("button", { name: "Re-issue token" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(await screen.findByLabelText("Docker Compose")).toHaveTextContent(
+      "reissued"
+    );
+    expect(api.state.calls).toEqual(["reissue:rg_7K2QF"]);
+  });
+
+  it("disconnects after an inline confirmation", async () => {
+    const { user, api, d } = await drawer();
+    await user.click(within(d).getByRole("button", { name: "Disconnect" }));
+    expect(within(d).getByText(/Stops taking calls/)).toBeInTheDocument();
+    expect(api.state.regions.at(-1)!.status).toBe("connected");
+    await user.click(
+      within(d).getByRole("button", { name: "Confirm disconnect" })
+    );
+    await waitFor(() =>
+      expect(api.state.regions.at(-1)!.status).toBe("waiting")
+    );
+    expect(await within(d).findByText("Waiting")).toBeInTheDocument();
   });
 });
 
@@ -218,172 +358,12 @@ describe("create workspace with a region", () => {
   });
 });
 
-describe("region setup", () => {
-  const enrollment = { token: "tok.en.123", expiresAt: hoursFromNow(5) };
-  const setup = (
-    region = privateRegion({ status: "waiting", version: undefined })
-  ) =>
-    render(<RegionSetup />, createMockRegionsApi([region]), {
-      path: "/regions/:ref/setup",
-      route: "/regions/rg_7K2QF/setup",
-      state: { enrollment }
-    });
-
-  it("shows one install command with Compose or Helm, expiry and the missing keys", async () => {
-    const { user } = setup();
-    expect(await screen.findByLabelText("Docker Compose")).toHaveTextContent(
-      "tok.en.123"
-    );
-    expect(screen.queryByLabelText("Helm")).toBeNull();
-    await user.click(screen.getByRole("tab", { name: "Helm" }));
-    expect(screen.getByLabelText("Helm")).toHaveTextContent("helm install");
-    expect(screen.getByText(/Expires in 5h/)).toBeInTheDocument();
-    expect(
-      await screen.findByText("fonoster-regions secrets set elevenlabs")
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText("fonoster-regions secrets set deepgram")
-    ).toBeNull();
-    expect(screen.getByText("Waiting")).toBeInTheDocument();
-  });
-
-  it("moves to connected when the status polling sees the region", async () => {
-    const { api } = setup();
-    await screen.findByText("Waiting");
-    api.state.regions = api.state.regions.map((r) =>
-      r.kind === "private" ? privateRegion({ status: "connected" }) : r
-    );
-    expect(
-      await screen.findByText("Connected", {}, { timeout: 6000 })
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View region" })).toHaveAttribute(
-      "href",
-      "/regions/rg_7K2QF"
-    );
-  }, 10000);
-
-  it("re-issues a token", async () => {
-    const { user } = setup();
-    await user.click(
-      await screen.findByRole("button", { name: "Re-issue token" })
-    );
-    expect(await screen.findByLabelText("Docker Compose")).toHaveTextContent(
-      "reissued"
-    );
-  });
-
+describe("token countdown", () => {
   it("formats the countdown", () => {
     expect(
       remaining(new Date(Date.now() + 90 * 60_000 + 5000).toISOString())
     ).toBe("1h 30m");
     expect(remaining(new Date(Date.now() - 1).toISOString())).toBeUndefined();
-  });
-});
-
-describe("region detail", () => {
-  const detail = (region = privateRegion()) =>
-    render(<RegionDetailPage />, createMockRegionsApi([region]), {
-      path: "/regions/:ref",
-      route: "/regions/rg_7K2QF"
-    });
-
-  it("shows status, version, nodes, calls, SIP domain, workspaces and keys", async () => {
-    detail();
-    expect((await screen.findByText("Version")).nextSibling).toHaveTextContent(
-      "0.28.1"
-    );
-    expect(screen.getByText("Nodes").nextSibling).toHaveTextContent("2");
-    expect(screen.getByText("Active calls").nextSibling).toHaveTextContent("3");
-    expect(screen.getByText("SIP domain").nextSibling).toHaveTextContent(
-      "sip.acme.com"
-    );
-    expect(screen.getByRole("link", { name: "Acme Support" })).toHaveAttribute(
-      "href",
-      "/w/ws-1"
-    );
-    expect(screen.getByText("Set")).toBeInTheDocument();
-    expect(screen.getByText("Missing")).toBeInTheDocument();
-    expect(screen.queryByText("Monthly fee")).toBeNull();
-  });
-
-  it("shows the monthly fee only when the cloud reports one", async () => {
-    detail(privateRegion({ monthlyFeeCents: 4900 }));
-    expect(
-      (await screen.findByText("Monthly fee")).nextSibling
-    ).toHaveTextContent("$49 / month");
-  });
-
-  it("says offline and unsupported in one line", async () => {
-    const { unmount } = detail(
-      privateRegion({ status: "offline", lastSeenAt: ago(10) })
-    );
-    expect(
-      await screen.findByText("Your region is offline.")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Last seen").nextSibling).toHaveTextContent(
-      "10 min ago"
-    );
-    unmount();
-    detail(privateRegion({ status: "unsupported" }));
-    expect(
-      await screen.findByText("Your region needs an upgrade.")
-    ).toBeInTheDocument();
-  });
-
-  it("re-issues a token", async () => {
-    const { user, api } = detail();
-    await user.click(
-      await screen.findByRole("button", { name: "Re-issue token" })
-    );
-    expect(await screen.findByLabelText("Docker Compose")).toHaveTextContent(
-      "reissued"
-    );
-    expect(api.state.calls).toEqual(["reissue:rg_7K2QF"]);
-  });
-
-  it("disconnects behind a confirmation", async () => {
-    const { user, api } = detail();
-    await user.click(await screen.findByRole("button", { name: "Disconnect" }));
-    expect(screen.getByText(/stops taking calls/)).toBeInTheDocument();
-    await user.click(
-      screen.getAllByRole("button", { name: "Disconnect" }).at(-1)!
-    );
-    await waitFor(() =>
-      expect(api.state.regions.at(-1)!.status).toBe("waiting")
-    );
-    expect(await screen.findByText("Waiting")).toBeInTheDocument();
-  });
-
-  it("shows connection details with copy buttons", async () => {
-    detail(
-      privateRegion({
-        endpoints: {
-          sip: [{ host: "sip.acme.example", port: 5061, transport: "tls" }],
-          signalingAddresses: ["203.0.113.10"],
-          mediaAddresses: ["203.0.113.10", "203.0.113.11"],
-          rtpPorts: { min: 20000, max: 20999 }
-        }
-      })
-    );
-    const details = await screen.findByRole("region", {
-      name: "Connection details"
-    });
-    expect(screen.getByLabelText("SIP (TLS)")).toHaveTextContent(
-      "sip.acme.example:5061"
-    );
-    expect(screen.getByLabelText("Addresses to allowlist")).toHaveTextContent(
-      "203.0.113.10, 203.0.113.11"
-    );
-    expect(details.querySelectorAll("button[aria-label^='Copy']")).toHaveLength(
-      3
-    );
-  });
-
-  it("says when the region has not reported its details yet", async () => {
-    detail();
-    expect(
-      await screen.findByText("Shown once your region connects.")
-    ).toBeInTheDocument();
   });
 });
 
@@ -396,7 +376,7 @@ describe("Settings → Region", () => {
     expect(screen.getByText("Type").nextSibling).toHaveTextContent("Private");
     expect(screen.getByRole("link", { name: "Manage region" })).toHaveAttribute(
       "href",
-      "/regions/rg_7K2QF"
+      "/workspaces?region=rg_7K2QF"
     );
     expect(screen.queryByRole("button", { name: "Disconnect" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Re-issue token" })).toBeNull();
@@ -419,7 +399,7 @@ describe("Secrets for a private workspace", () => {
     expect(screen.getByText(/1 missing/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Acme Dallas" })).toHaveAttribute(
       "href",
-      "/regions/rg_7K2QF"
+      "/workspaces?region=rg_7K2QF"
     );
     expect(screen.queryByRole("button", { name: "Add secret" })).toBeNull();
   });

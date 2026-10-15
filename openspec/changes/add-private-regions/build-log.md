@@ -284,3 +284,12 @@
   private region shows Set/Missing and links to the region. `RegionBanner` unchanged in behaviour.
 - RD-B6. No UI yet for rename (`updateRegion`) or delete (`deleteRegion`); both are in the API
   adapter. Key command is `fonoster-regions secrets set <name>` (PR-21).
+
+## RM-B (rgmin: regions simplified to the start screen)
+
+- RM-B1. Owner direction: regions were too many screens. `/workspaces` now shows each private region as a compact row (display name, status dot and short label, a More button). The pages `/regions/new`, `/regions/:ref` and `/regions/:ref/setup` are removed.
+- RM-B2. A waiting region shows its install command inline (Compose | Helm, Copy, small expiry line). It hides once the region connects. The token lives in memory only (from `createRegion` or Re-issue); without one (after a reload) the row shows a "Re-issue token" link, also shown when the token has expired. The list polls every 5 s while any region is waiting.
+- RM-B3. More opens a right-side drawer, deep-linkable as `/workspaces?region=<ref>`: status, version, last seen, SIP domain, connection details (copy), workspaces using it, keys Set/Missing with the `fonoster-regions secrets set <name>` hint, Re-issue token (closes the drawer; the command appears in the row) and Disconnect (inline confirm in the drawer footer). Nodes, active calls and monthly fee are no longer shown.
+- RM-B4. New region is a small dialog (ID, display name, SIP domain, same validation); after create the region appears as waiting with its command block.
+- RM-B5. Settings > Region ("Manage region"), Secrets and the region links now point at the drawer. Create workspace's region select is unchanged.
+- RM-B6. `regions/sdk-api.ts` uses the typed `sdk.regions.*` calls and `@fonoster/types` (`listRegions` returns `{items}`); a public region without a `ref` gets `rg_<id>`.

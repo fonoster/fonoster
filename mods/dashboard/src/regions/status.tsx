@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { Badge } from "~/components/ui/badge";
+import { cn } from "~/lib/utils";
 import type { RegionStatus } from "./types";
 
 const PILL: Record<
@@ -59,3 +60,48 @@ export function remaining(iso: string, now = Date.now()): string | undefined {
   const m = Math.floor(ms / 60_000);
   return m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;
 }
+
+const DOT: Record<RegionStatus, string> = {
+  connected: "bg-emerald-500",
+  waiting: "bg-sky-500",
+  degraded: "bg-amber-500",
+  offline: "bg-red-500",
+  unsupported: "bg-amber-500"
+};
+
+/** A colored dot and a short label. */
+export function StatusDot({ status }: { status: RegionStatus }) {
+  return (
+    <span className="inline-flex items-center gap-2 font-display text-[13px] text-muted-foreground">
+      <span
+        aria-hidden
+        data-status={status}
+        className={cn("size-2 rounded-full", DOT[status])}
+      />
+      {PILL[status].label}
+    </span>
+  );
+}
+
+export function Row({
+  label,
+  value
+}: {
+  label: string;
+  value: string | number | undefined;
+}) {
+  return (
+    <div className="flex justify-between gap-4 border-b border-border py-2 font-display text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd>{value ?? "-"}</dd>
+    </div>
+  );
+}
+
+export const STATUS_NOTE: Partial<
+  Record<RegionStatus, { variant: "warning" | "error"; text: string }>
+> = {
+  offline: { variant: "error", text: "Your region is offline." },
+  unsupported: { variant: "warning", text: "Your region needs an upgrade." },
+  degraded: { variant: "warning", text: "Part of your region is unhealthy." }
+};

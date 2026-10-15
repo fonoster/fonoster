@@ -39,22 +39,24 @@ function fake() {
         token: "tok",
         expiresAt: "2026-10-16T00:00:00.000Z"
       }),
-      listRegions: vi.fn().mockResolvedValue([
-        {
-          ref: "rg_d",
-          id: "default",
-          displayName: "Default",
-          kind: "public",
-          state: "connected"
-        },
-        {
-          ref: "rg_abc",
-          id: "acme-dallas",
-          displayName: "Acme Dallas",
-          kind: "private",
-          state: "waiting"
-        }
-      ]),
+      listRegions: vi.fn().mockResolvedValue({
+        items: [
+          {
+            ref: "rg_d",
+            id: "default",
+            displayName: "Default",
+            kind: "public",
+            state: "connected"
+          },
+          {
+            ref: "rg_abc",
+            id: "acme-dallas",
+            displayName: "Acme Dallas",
+            kind: "private",
+            state: "waiting"
+          }
+        ]
+      }),
       getRegion: vi.fn().mockResolvedValue({
         ref: "rg_abc",
         id: "acme-dallas",
