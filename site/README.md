@@ -2,8 +2,8 @@
 
 The marketing site. Plain HTML + CSS + JS, deployed as-is to GitHub Pages by `.github/workflows/gh-pages.yml` (everything in `site/` except this README).
 
-- Designs: `designs/website.pen` (frames: Home, Autopilot, Pricing — each Desktop + Mobile — plus 404 / Desktop, Share Image, Components)
-- Pages: `index.html` (home), `autopilot/`, `pricing/`, `404.html` (absolute paths, since GitHub Pages serves it at any missing URL)
+- Designs: `designs/website.pen` (frames: Home, Autopilot, Streams, Private Regions, Pricing — each Desktop + Mobile — plus Nav / Products menu, 404 / Desktop, Share Image, Components)
+- Pages: `index.html` (home), `streams/` (Bidirectional Streams), `autopilot/`, `private-regions/`, `pricing/`, `404.html` (absolute paths, since GitHub Pages serves it at any missing URL)
 - Redirects: `v1/` → `/` (old preview links), `docs/` → docs.fonoster.com
 - SEO: `sitemap.xml`, `robots.txt`, canonical + Open Graph tags (`assets/img/og.png`, from the "Share Image" frame in Pencil)
 - Analytics: Google Analytics `G-49RD5H9MR3` in every page head (same property as the previous site)
@@ -23,7 +23,8 @@ python3 -m http.server 8080 -d site
 | `assets/js/v1.js` | Preferences, nav, reveals, and the animations listed below |
 | `assets/js/i18n.js` | EN / ES strings (`data-i18n` keys) |
 | `assets/js/notice.js` | The notice bar above the nav: on/off, EN / ES message, icon, link |
-| `assets/img/icons.svg` | Lucide icon sprite (ISC) |
+| `assets/img/icons.svg` | Lucide icon sprite (ISC), from `lucide-static@0.453.0` |
+| `assets/img/pipecat-*.png` | Pipecat wordmark for the dark and light themes (from github.com/pipecat-ai/pipecat) |
 
 ## Notice bar
 
@@ -44,7 +45,7 @@ Motion should make the product feel alive, never compete with the content. Rules
 2. **Only `transform`, `opacity`, and the light wave's mask position.**
 3. **Pause what you can't see.** Loops stop offscreen and in background tabs.
 4. **`prefers-reduced-motion: reduce`** turns off loops and reveals and shows the final state.
-5. **Green stays reserved for CTAs.** Animated accents use white or a very faint tint.
+5. **Green stays reserved for CTAs.** Animated accents use white or a very faint tint. Two exceptions come from the designs: the green ✔ in the Streams terminal and the "Connected" dot on Private Regions (live status).
 
 Tokens: `--ease-out: cubic-bezier(.22,1,.36,1)`, `--ease-in-out: cubic-bezier(.65,0,.35,1)`, `--dur-1: 150ms` (hover), `--dur-2: 240ms` (UI), `--dur-3: 600ms` (reveals).
 
@@ -62,6 +63,9 @@ Tokens: `--ease-out: cubic-bezier(.22,1,.36,1)`, `--ease-in-out: cubic-bezier(.6
 | 10 | Section content | Fade up 12px, staggered | Once, on enter | 600ms, 60ms stagger |
 | 11 | Buttons, cards, tabs, links | Lift 1–2px, brighten, arrow nudge | Hover / focus | 150ms |
 | 12 | Nav | Background blur and divider fade in after scrolling | Scroll | 240ms |
+| 13 | Streams: Pipecat stage | One call plays out: messages slide in from the side that sends them, a dot runs along the lane for audio, `clear` strikes out the bot's queued audio (barge-in), the mark echoes back; after `stop` it dims and restarts | Loop, paused offscreen | 650ms per message, 3s rest |
+| 14 | Streams quickstart terminal | Prints line by line | Once, on enter | 90ms/line |
+| 15 | Private Regions boundary | The "Connected" dot breathes | Loop, paused offscreen | 2.4s |
 
 ## Open items
 
@@ -70,3 +74,7 @@ Tokens: `--ease-out: cubic-bezier(.22,1,.36,1)`, `--ease-in-out: cubic-bezier(.6
 - "Call me" in the hero needs a backend that places the demo call (with rate limits and country restrictions). Until then the form shows a "coming soon" note; wire the real call in `initCallMe` in `v1.js`.
 - The light theme and Spanish strings work but haven't been reviewed by design or a native speaker.
 - **Legal pages.** There is no Privacy Policy or Terms yet (launched without them by decision). Needed before "Call me" collects phone numbers (consent for automated AI calls).
+
+## Nav
+
+The Products menu and the phone menu sheet are plain HTML in every page (no build step). To change the product list, edit all pages the same way: `index.html`, `streams/`, `autopilot/`, `private-regions/`, `pricing/` and `404.html` (which uses absolute paths). Mark the current page with `aria-current="page"` in both the menu and the sheet.

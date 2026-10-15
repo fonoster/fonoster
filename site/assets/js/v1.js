@@ -145,6 +145,8 @@
       home: "meta.homeTitle",
       autopilot: "meta.autopilotTitle",
       pricing: "meta.pricingTitle",
+      streams: "meta.streamsTitle",
+      regions: "meta.regionsTitle",
       notfound: "meta.notFoundTitle"
     };
     const titleKey = titles[body.dataset.page];
@@ -217,6 +219,51 @@
     $$("a", sheet).forEach((a) => a.addEventListener("click", close));
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && !sheet.hidden) close();
+    });
+  };
+
+  /* ---------- Nav: Products menu (click, hover with a fine pointer, Escape) ---------- */
+  const initProducts = () => {
+    const menu = $("[data-products]");
+    if (!menu) return;
+    const button = $("[data-products-btn]", menu);
+    const panel = $(".menu__panel", menu);
+    let leave = null;
+    let hovering = false;
+    let hoverOpenedAt = 0;
+    const set = (open) => {
+      window.clearTimeout(leave);
+      panel.hidden = !open;
+      button.setAttribute("aria-expanded", String(open));
+    };
+    // A click right after hover opened the menu is the same intent: keep it open. Otherwise toggle.
+    button.addEventListener("click", () => {
+      const justHovered = !panel.hidden && Date.now() - hoverOpenedAt < 400;
+      set(justHovered || panel.hidden);
+    });
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      menu.addEventListener("mouseenter", () => {
+        hovering = true;
+        if (panel.hidden) hoverOpenedAt = Date.now();
+        set(true);
+      });
+      menu.addEventListener("mouseleave", () => {
+        hovering = false;
+        leave = window.setTimeout(() => set(false), 160);
+      });
+    }
+    document.addEventListener("click", (e) => {
+      if (!menu.contains(e.target)) set(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !panel.hidden) {
+        set(false);
+        button.focus();
+      }
+    });
+    // Keyboard users tabbing out close it; a click on the panel's padding (focus goes to body) doesn't.
+    menu.addEventListener("focusout", (e) => {
+      if (!hovering && !menu.contains(e.relatedTarget)) set(false);
     });
   };
 
@@ -516,6 +563,19 @@
     });
   };
 
+  /* ---------- Terminals print line by line, once, as they scroll in ---------- */
+  const printLines = (term) => {
+    if (reduceMotion) return;
+    term.classList.add("is-armed");
+    once(term, () => {
+      // Lines hidden at this breakpoint (.hide-m / .show-m) don't get a pause of their own.
+      $$(":scope > div", term)
+        .filter((line) => line.offsetParent !== null)
+        .forEach((line, i) => window.setTimeout(() => line.classList.add("is-shown"), 200 + i * 90));
+      $$(":scope > div", term).forEach((line) => line.offsetParent === null && line.classList.add("is-shown"));
+    }, 0.4);
+  };
+
   /* ---------- Autopilot: evals terminal prints line by line ---------- */
   const initEvals = () => {
     const term = $("[data-evals]");
@@ -541,11 +601,7 @@
       ].join("");
     };
     render();
-    if (reduceMotion) return;
-    term.classList.add("is-armed");
-    once(term, () => {
-      $$(":scope > div", term).forEach((line, i) => window.setTimeout(() => line.classList.add("is-shown"), 200 + i * 90));
-    }, 0.4);
+    printLines(term);
     onLangChange(() => {
       render();
       $$(":scope > div", term).forEach((line) => line.classList.add("is-shown"));
@@ -568,6 +624,79 @@
     );
   };
 
+  /* ---------- Streams: Pipecat stage plays one call, then loops ----------
+     Messages arrive one by one from the side that sends them. On `clear` the bot's queued
+     audio is struck out (barge-in), then the mark echoes back. After `stop` the lane dims
+     and restarts. Paused offscreen and in background tabs; reduced motion shows it static. */
+  const initLane = () => {
+    const lane = $("[data-lane]");
+    if (!lane) return;
+    const rows = $$(".lm", lane);
+    if (reduceMotion) {
+      // Final state: the barge-in has happened, so the bot's queued audio shows as cleared.
+      rows.filter((r) => r.hasAttribute("data-queued")).forEach((r) => r.classList.add("is-cleared"));
+      return;
+    }
+    const pulse = $(".lane__pulse", lane);
+    const timer = timers();
+    let step = 0;
+    let running = false;
+
+    const reset = () => {
+      rows.forEach((r) => r.classList.remove("is-shown", "is-cleared"));
+      lane.classList.remove("is-done");
+      step = 0;
+    };
+    const visibleRows = () => rows.filter((r) => r.offsetParent !== null);
+    const tick = () => {
+      const list = visibleRows();
+      if (step >= list.length) {
+        lane.classList.add("is-done");
+        timer.later(() => {
+          reset();
+          tick();
+        }, 3000);
+        return;
+      }
+      const row = list[step++];
+      row.classList.add("is-shown");
+      if (row.hasAttribute("data-clear")) {
+        rows.filter((r) => r.hasAttribute("data-queued")).forEach((r) => r.classList.add("is-cleared"));
+      }
+      if (row.hasAttribute("data-media") && pulse) {
+        pulse.className = "lane__pulse";
+        void pulse.offsetWidth;
+        pulse.classList.add(row.classList.contains("lm--bot") ? "to-phone" : "to-bot");
+      }
+      timer.later(tick, row.hasAttribute("data-clear") ? 1100 : 650);
+    };
+    const start = () => {
+      if (running) return;
+      running = true;
+      tick();
+    };
+    const stop = () => {
+      running = false;
+      timer.clear();
+    };
+
+    lane.classList.add("is-armed");
+    let inView = false;
+    let tabVisible = !document.hidden;
+    const sync = () => (inView && tabVisible ? start() : stop());
+    watch(lane, (visible) => {
+      inView = visible;
+      sync();
+    }, 0.3);
+    loopHandlers.push((active) => {
+      tabVisible = active;
+      sync();
+    });
+  };
+
+  /* ---------- Streams: quickstart terminal prints line by line ---------- */
+  const initPrint = () => $$("[data-print]").forEach(printLines);
+
   /* ---------- Home: "Call me" (no backend yet) ---------- */
   const initCallMe = () => {
     const form = $("[data-callme]");
@@ -584,6 +713,7 @@
   /* ---------- Boot ---------- */
   initPrefs();
   initNav();
+  initProducts();
   initReveal();
   initLoops();
   initOdometers();
@@ -593,6 +723,8 @@
   initConsole();
   initEvals();
   initTiles();
+  initLane();
+  initPrint();
   initCallMe();
   setLang(lang, true);
 })();

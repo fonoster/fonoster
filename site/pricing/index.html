@@ -50,10 +50,18 @@
           <img class="logo--light" src="../assets/img/logo.svg" alt="Fonoster" width="124" height="32" />
         </a>
         <nav class="nav__links" aria-label="Main">
-          <a href="../autopilot/" data-i18n="nav.autopilot">Autopilot</a>
-          <a href="../#use-cases" data-i18n="nav.useCases">Use cases</a>
+          <div class="menu" data-products>
+            <button class="menu__btn" type="button" aria-expanded="false" aria-controls="products-menu" data-products-btn>
+              <span data-i18n="nav.products">Products</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-chevron-down"></use></svg>
+            </button>
+            <div class="menu__panel" id="products-menu" hidden>
+              <a class="menu__item" href="../streams/"><span class="menu__icon"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-audio-lines"></use></svg></span><span class="menu__text"><b data-i18n="nav.streams">Bidirectional Streams</b><span data-i18n="nav.streamsLine">Bring your own bot over WebSocket</span></span></a>
+              <a class="menu__item" href="../autopilot/"><span class="menu__icon"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-bot"></use></svg></span><span class="menu__text"><b data-i18n="nav.autopilot">Autopilot</b><span data-i18n="nav.autopilotLine">AI agents from one config file</span></span></a>
+              <a class="menu__item" href="../private-regions/"><span class="menu__icon"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-shield-check"></use></svg></span><span class="menu__text"><b data-i18n="nav.regions">Private Regions</b><span data-i18n="nav.regionsLine">Calls run in your own cloud</span></span></a>
+            </div>
+          </div>
           <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
-          <a href="./" aria-current="page" data-i18n="nav.pricing">Pricing</a>
+          <a href="../pricing/" aria-current="page" data-i18n="nav.pricing">Pricing</a>
         </nav>
         <div class="nav__actions">
           <a class="gh-chip" href="https://github.com/fonoster/fonoster" aria-label="Fonoster on GitHub, 8.1K stars">
@@ -68,10 +76,12 @@
         </div>
       </div>
       <div class="sheet" id="sheet" hidden>
-        <a href="../autopilot/" data-i18n="nav.autopilot">Autopilot</a>
-        <a href="../#use-cases" data-i18n="nav.useCases">Use cases</a>
+        <span class="sheet__label" data-i18n="nav.products">Products</span>
+        <a class="sheet__product" href="../streams/"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-audio-lines"></use></svg><span data-i18n="nav.streams">Bidirectional Streams</span></a>
+        <a class="sheet__product" href="../autopilot/"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-bot"></use></svg><span data-i18n="nav.autopilot">Autopilot</span></a>
+        <a class="sheet__product" href="../private-regions/"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-shield-check"></use></svg><span data-i18n="nav.regions">Private Regions</span></a>
         <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
-        <a href="./" aria-current="page" data-i18n="nav.pricing">Pricing</a>
+        <a href="../pricing/" aria-current="page" data-i18n="nav.pricing">Pricing</a>
         <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
       </div>
     </header>
