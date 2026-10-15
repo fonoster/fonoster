@@ -47,6 +47,16 @@ export const sessionLanguageModelSchema = z
     temperature: z.number().min(0).max(2).default(0.4),
     maxTokens: z.number().int().positive().default(400),
     tools: z.array(toolSchema).default([]),
+    /** Documents for the knowledge port (same shape as before; wired by the operator). */
+    knowledgeBase: z
+      .array(
+        z.object({
+          type: z.enum(["s3"]),
+          title: z.string(),
+          document: z.string()
+        })
+      )
+      .default([]),
     provider: removed(
       "provider",
       "use a catalog id in model (for example openai/gpt-4o-mini)"
@@ -107,6 +117,8 @@ export const sessionAssistantSchema = z
   .object({
     conversationSettings: sessionConversationSettingsSchema,
     languageModel: sessionLanguageModelSchema,
+    /** Conversation eval cases, kept as they were (evaluated outside calls). */
+    testCases: z.any().optional(),
     eventsHook: removed(
       "eventsHook",
       "assistant webhooks were retired; use workspace webhooks"

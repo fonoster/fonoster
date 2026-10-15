@@ -89,3 +89,17 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - `mods/autopilot/test/session/fullstack.test.ts` runs a whole call with fakes only at the edges:
   fake media node → real gateway (STT, turn detection, TTS, output queue) → Autopilot over the
   session protocol → fake LLM, and back as audio to the caller. Passes in about 3 s.
+
+## 2026-10-15 (morning, with the owner)
+
+### AP8. Stored assistants are converted at cutover (owner decision on 5.3)
+
+- `convertLegacyAssistant(old, {assistantRef})` returns the new config plus the side effects for
+  the migration job: a workspace Secret for a real inline key (placeholders ignored), the
+  `eventsHook` URL to create a workspace webhook for, app audio filters, and plain-language notices
+  for the workspace. `provider` + `model` become a catalog id, `maxSpeechWaitTimeout > 0` becomes
+  `patience: patient`, `vad`, `baseUrl` and the transfer timeout are dropped with notices.
+  `knowledgeBase` and `testCases` carry over (added to the new schema as pass-through fields).
+- The migration job itself (reading and writing stored assistants) waits for the cutover.
+- Found: `config/assistant.example.json` uses tool formats `date` and `time`, which the current
+  tool schema already rejects; the example is invalid today.
