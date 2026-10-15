@@ -26,7 +26,7 @@ import { listNumbers } from "./listNumbers";
 import { deleteNumber } from "./operations";
 import { updateNumber } from "./updateNumber";
 
-/** `routing` sends app-linked numbers to Asterisk or the media nodes (default: all Asterisk). */
+/** `routing` picks the peer app-linked numbers point at (default: the media-node peer). */
 function buildService(
   clientOptions: ClientOptions,
   checkNumberPreconditions: NumberPreconditionsCheck,

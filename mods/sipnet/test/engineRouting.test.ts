@@ -26,6 +26,7 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import {
   createNumberRouting,
+  LEGACY_ASTERISK_PEER_AOR,
   MEDIA_NODE_PEER_AOR
 } from "../src/numbers/engineRouting";
 import { RoutrNumber, repointNumbers } from "../src/numbers/repointNumbers";
@@ -38,45 +39,16 @@ const sandbox = createSandbox();
 describe("@sipnet[numbers/engineRouting]", function () {
   afterEach(() => sandbox.restore());
 
-  it("keeps every app on Asterisk without configuration", async function () {
+  it("points every app-linked number at the media nodes", async function () {
     const routing = createNumberRouting();
-    expect(await routing.aorFor({ appRef: "a" })).to.equal(
-      ROUTR_DEFAULT_PEER_AOR
-    );
-  });
-
-  it("resolves number pin, then lookup, then lists, then the default", async function () {
-    const routing = createNumberRouting({
-      defaultEngine: "asterisk",
-      rebuildApps: ["new-app", "both"],
-      asteriskApps: ["both"],
-      numbers: { "+15550000001": "rebuild" },
-      engineOf: (appRef) => (appRef === "db-app" ? "rebuild" : undefined)
-    });
-    expect(await routing.engineFor({ appRef: "new-app" })).to.equal("rebuild");
-    expect(await routing.engineFor({ appRef: "both" })).to.equal("asterisk");
-    expect(await routing.engineFor({ appRef: "db-app" })).to.equal("rebuild");
-    expect(await routing.engineFor({ appRef: "other" })).to.equal("asterisk");
+    expect(ROUTR_DEFAULT_PEER_AOR).to.equal("sip:medianode@default");
+    expect(await routing.aorFor({ appRef: "a" })).to.equal(MEDIA_NODE_PEER_AOR);
+    expect(await routing.engineFor({ appRef: "b" })).to.equal("rebuild");
     expect(
-      await routing.engineFor({ appRef: "other", telUrl: "tel:+15550000001" })
-    ).to.equal("rebuild");
-    expect(await routing.aorFor({ appRef: "new-app" })).to.equal(
-      MEDIA_NODE_PEER_AOR
-    );
-  });
-
-  it("honors custom AORs and a rebuild default", async function () {
-    const routing = createNumberRouting({
-      defaultEngine: "rebuild",
-      mediaNodeAor: "sip:medianode@cell-1",
-      asteriskApps: ["legacy"]
-    });
-    expect(await routing.aorFor({ appRef: "x" })).to.equal(
-      "sip:medianode@cell-1"
-    );
-    expect(await routing.aorFor({ appRef: "legacy" })).to.equal(
-      ROUTR_DEFAULT_PEER_AOR
-    );
+      await createNumberRouting({ mediaNodeAor: "sip:mn@x" }).aorFor({
+        appRef: "a"
+      })
+    ).to.equal("sip:mn@x");
   });
 
   it("createNumber points a rebuild app's number at the media-node peer", async function () {
@@ -92,7 +64,7 @@ describe("@sipnet[numbers/engineRouting]", function () {
     await createNumber(
       numbers,
       sandbox.stub(),
-      createNumberRouting({ rebuildApps: ["app-1"] })
+      createNumberRouting()
     )(
       {
         metadata,
@@ -126,7 +98,7 @@ describe("@sipnet[numbers/engineRouting]", function () {
     await updateNumber(
       numbers,
       sandbox.stub(),
-      createNumberRouting({ numbers: { "+15550000001": "rebuild" } })
+      createNumberRouting()
     )({ request: { ref: "n1", appRef: "app-2" } } as never, sandbox.stub());
 
     expect(numbers.updateNumber).to.have.been.calledWithMatch({
@@ -135,7 +107,7 @@ describe("@sipnet[numbers/engineRouting]", function () {
     });
   });
 
-  it("without routing, create and update keep the Asterisk peer", async function () {
+  it("without routing, create and update use the media-node peer", async function () {
     const { updateNumber } = await import("../src/numbers/updateNumber");
     const numbers = {
       getNumber: sandbox.stub(),
@@ -160,14 +132,14 @@ describe("@sipnet[numbers/engineRouting]", function () {
         ref: "1",
         name: "one",
         telUrl: "tel:+15550000001",
-        aorLink: ROUTR_DEFAULT_PEER_AOR,
+        aorLink: LEGACY_ASTERISK_PEER_AOR,
         extraHeaders: header("app-a")
       },
       {
         ref: "2",
         name: "two",
         telUrl: "tel:+15550000002",
-        aorLink: ROUTR_DEFAULT_PEER_AOR,
+        aorLink: LEGACY_ASTERISK_PEER_AOR,
         // Written by hand with another header case.
         extraHeaders: [{ name: "X-App-Ref", value: "app-b" }]
       },
@@ -197,14 +169,11 @@ describe("@sipnet[numbers/engineRouting]", function () {
       updateNumber: sandbox.stub().resolves({})
     });
 
-    it("moves only the numbers of apps whose engine changed and skips agent numbers", async function () {
+    it("moves pre-rebuild numbers to the media nodes and skips agent numbers", async function () {
       const c = client(store());
-      const changes = await repointNumbers(
-        c,
-        createNumberRouting({ rebuildApps: ["app-a"] })
-      );
-      expect(changes.map((x) => x.ref)).to.deep.equal(["1"]);
-      expect(c.updateNumber).to.have.been.calledOnceWithExactly({
+      const changes = await repointNumbers(c, createNumberRouting());
+      expect(changes.map((x) => x.ref)).to.deep.equal(["1", "2"]);
+      expect(c.updateNumber).to.have.been.calledWithExactly({
         ref: "1",
         name: "one",
         aorLink: MEDIA_NODE_PEER_AOR,
@@ -212,22 +181,16 @@ describe("@sipnet[numbers/engineRouting]", function () {
       });
     });
 
-    it("rolls back to Asterisk and supports dry runs and app filters", async function () {
+    it("supports dry runs and app filters", async function () {
       const c = client(store());
       const dry = await repointNumbers(c, createNumberRouting(), {
-        dryRun: true
+        dryRun: true,
+        appRefs: ["app-b"]
       });
-      expect(dry.map((x) => [x.ref, x.to])).to.deep.equal([
-        ["4", ROUTR_DEFAULT_PEER_AOR]
+      expect(dry.map((x) => [x.ref, x.from, x.to])).to.deep.equal([
+        ["2", LEGACY_ASTERISK_PEER_AOR, MEDIA_NODE_PEER_AOR]
       ]);
       expect(c.updateNumber).to.not.have.been.called;
-
-      const filtered = await repointNumbers(
-        c,
-        createNumberRouting({ defaultEngine: "rebuild" }),
-        { appRefs: ["app-b"] }
-      );
-      expect(filtered.map((x) => x.ref)).to.deep.equal(["2"]);
     });
   });
 });

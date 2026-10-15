@@ -13,8 +13,8 @@ makes the TypeScript SDK a thin, typed client of the session protocol, keeps tod
   verifies the HMAC-signed connection request with the app's signing secret, and hands each
   session to the handler. It can also mount into an existing Express (TS) or FastAPI/ASGI (Python)
   app instead of listening on its own port.
-- **A new handler signature, `(session)`**, plus the old `(req, res)` signature kept as a thin
-  wrapper over the session, so most apps upgrade without code changes.
+- **A new handler signature, `(session)`**, the only one. (The `(req, res)` wrapper planned here
+  was dropped on 2026-10-15: the rebuild is an incompatible release, see build-log CB-B1.)
 - **Every method maps onto session messages**:
   - `say(text)` sends `speak` and resolves on `output.done` or `output.interrupted`, returning
     `{ interrupted, heardText }`.

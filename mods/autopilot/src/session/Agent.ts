@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { SessionEndedError } from "@fonoster/voice/session";
+import { SessionEndedError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
 import { SessionAssistant } from "./config";
 import { KNOWLEDGE_TIMEOUT_MS, KnowledgePort } from "./knowledge";
 import { sentences } from "./sentences";
 import { ChatMessage, Think, ThinkChunk, ToolCall, ToolSpec } from "./think";
 import { ToolPort } from "./tools";
-import type { Session } from "@fonoster/voice/session";
+import type { Session } from "@fonoster/voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 

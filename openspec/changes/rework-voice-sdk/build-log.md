@@ -111,3 +111,29 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   type-checked against `src/session`. Python examples in `python/fonoster-voice/examples`. Handlers
   are annotated `(session: Session)` because the handler union does not infer the parameter under
   `strict`.
+
+## Clean-break stream (2026-10-15, wave 2)
+
+### CB-B1. No backward compatibility: the session SDK is `@fonoster/voice`
+
+- Owner decision 2026-10-15: the rebuild is a new, incompatible release. This reverses the
+  morning decision (DX-B2, the deprecated `(req, res)` / `stream` / `sgather` shims).
+- `@fonoster/voice` exports the session SDK (`src/session/*` moved to `src/`). Deleted: the gRPC
+  `VoiceServer`, `VoiceResponse`, verbs, `legacy.ts`, the arity-based `(req, res)` dispatch, the
+  `stream` / `sgather` / `dial` shims and `RemovedMethodError`. `session.answer()` stays as a no-op
+  (spec "answer is a no-op").
+- `@fonoster/voice/session` stays as an alias (`session.js` re-exports `dist`) for one release.
+- Python: `legacy.py` and `RemovedMethodError` deleted; handlers with other than one parameter
+  raise `TypeError`.
+- Scenarios `say-hello-legacy` and `legacy-dial` deleted with their FIXTURES.md rows;
+  `answer-is-a-no-op` now runs the new `(session)` fixture `answer-then-say`.
+- Spec: "Session and legacy handler signatures" became "Session handler signature", the legacy
+  dial scenario is gone, and "Removed methods fail clearly" became "Removed methods do not exist".
+- `voice.proto` and the verb and stream types in `mods/common` are deleted (4.1). `DialStatus`,
+  `AmdStatus` and `Amd`, still used by the Calls API, the SDK, the CLI and `mods/amd`, moved to
+  `mods/common/src/calls`. `authz.proto` defines its own `CheckSessionAuthorizedRequest` with the
+  field numbers of the old `CreateSessionRequest` (minus `amd`), so external authorization servers
+  keep decoding it.
+- Docs: `docs/voice-sdk.md`, `docs/migrating-to-sessions.md` (now "What changed"),
+  `docs/release-notes-sessions.md`, the README and `mods/voice/README.md`; the dashboard's starter
+  templates use the session API.

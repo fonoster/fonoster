@@ -10,7 +10,7 @@ copy_if_missing() {
 }
 copy_if_missing .env.example.dev .env
 copy_if_missing config/fonoster.example.yaml config/fonoster.yaml
-copy_if_missing config/autopilot.example.yaml config/autopilot.yaml
+copy_if_missing config/autopilot-session.example.yaml config/autopilot-session.yaml
 
 npm ci
 npm run generate:keypair

@@ -72,10 +72,12 @@ regions ship in v1 and are customer-operated (we only sync config).
 
 ## Retired by this rebuild
 
-- `voice.proto` (gRPC voice sessions). The SDKs wrap the new session protocol; the old
-  `(req, res)` handler signature keeps working.
+- `voice.proto` (gRPC voice sessions) and the `(req, res)` handler signature. The rebuild is an
+  incompatible release (owner decision 2026-10-15): `@fonoster/voice` is the session SDK.
 - Verbs `record`, `setAudioFilters`, `mute`, `unmute` (recording and filters become app policy).
-- STT/TTS/audio filters inside the apiserver; the apiserver's ARI and AudioSocket handling.
+- STT/TTS/audio filters inside the apiserver; the apiserver's ARI and AudioSocket handling;
+  Asterisk itself (every app-linked number points at the media nodes).
+- The previous Autopilot engine (xstate machine, Silero VAD, gRPC voice server).
 - Silero VAD inside Autopilot (turn-taking moves into the gateway).
 
 The decision log with rationale lives in each change's `design.md`. The planning doc:

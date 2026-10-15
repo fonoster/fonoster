@@ -1,15 +1,16 @@
-# Cutover: from Asterisk to the media nodes
+# Upgrading from Asterisk to the media nodes
 
-This runbook moves calls from the old voice path to the new one, one app (or one number) at a
-time. Both paths run side by side the whole time, so any step can be rolled back.
+This release retires Asterisk (cleanbreak, 2026-10-15). There is no side-by-side mode any more:
+every app-linked number points at the media nodes, and the apiserver no longer talks ARI. This
+runbook upgrades an existing installation in one window.
 
 ```
-old:  carrier ─▶ Routr ─▶ Peer sip:voice@default (Asterisk) ─ARI─▶ apiserver ─gRPC─▶ app (VoiceServer)
-new:  carrier ─▶ Routr ─▶ Peer sip:medianode@default (Go media nodes, least-sessions)
-                           ─media-control (NATS)─▶ gateway ─WebSocket─▶ app (session protocol)
+before: carrier ─▶ Routr ─▶ Peer sip:voice@default (Asterisk) ─ARI─▶ apiserver ─gRPC─▶ app (VoiceServer)
+now:    carrier ─▶ Routr ─▶ Peer sip:medianode@default (Go media nodes, least-sessions)
+                            ─media-control (NATS)─▶ gateway ─WebSocket─▶ app (session protocol)
 ```
 
-Routr decides per Number: a Number goes to the Peer whose AOR equals its `aorLink`. The cutover
+Routr decides per Number: a Number goes to the Peer whose AOR equals its `aorLink`. The upgrade
 changes `aorLink`, nothing else. The Number keeps its `x-app-ref` header, and the gateway uses it
 to pick the app.
 
@@ -73,52 +74,32 @@ Act on every `action` notice before you move that app's numbers:
   stops getting calls at the cutover.
 - Per-app vendor credentials move to workspace secrets (bring-your-own-key).
 
-## 3. Move numbers, side by side
+## 3. Move the numbers
 
-Set `routr.engines` in `fonoster.yaml`. New and updated numbers follow it right away:
-
-```yaml
-routr:
-  engines:
-    default: asterisk            # every app not listed stays on Asterisk
-    rebuildApps: [app-ref-1]     # this app's numbers go to the media nodes
-    asteriskApps: []             # kept on Asterisk even when default is rebuild
-    numbers:                     # per-number pins win over the app (canaries)
-      "+17853178070": rebuild
-```
-
-Routr stores `aorLink` on each Number, so existing numbers must be rewritten. Use the same rules in a
-JSON file (`defaultEngine`, `rebuildApps`, `asteriskApps`, `numbers`, `asteriskAor`, `mediaNodeAor`):
+New and updated numbers point at the media-node peer (`routr.mediaNodePeer.aor`, default
+`sip:medianode@default`). Routr stores `aorLink` on each Number, so numbers created before this
+release still point at `sip:voice@default` until they are rewritten:
 
 ```sh
-ROUTR_API_ENDPOINT=routr:51907 node mods/sipnet/dist/numbers/repointNumbersCli.js engines.json            # dry run
-ROUTR_API_ENDPOINT=routr:51907 node mods/sipnet/dist/numbers/repointNumbersCli.js engines.json --apply    # all app numbers
-ROUTR_API_ENDPOINT=routr:51907 node mods/sipnet/dist/numbers/repointNumbersCli.js engines.json --apply --app app-ref-1
+echo '{}' > routing.json   # or {"mediaNodeAor": "sip:..."} for a custom peer AOR
+ROUTR_API_ENDPOINT=routr:51907 node mods/sipnet/dist/numbers/repointNumbersCli.js routing.json            # dry run
+ROUTR_API_ENDPOINT=routr:51907 node mods/sipnet/dist/numbers/repointNumbersCli.js routing.json --apply    # all app numbers
+ROUTR_API_ENDPOINT=routr:51907 node mods/sipnet/dist/numbers/repointNumbersCli.js routing.json --apply --app app-ref-1
 ```
 
 Only Numbers with an `x-app-ref` header are touched. Agent numbers never change.
 
-Suggested order:
-
-1. One canary number on a test app (`numbers:` pin). Call it, then check the app, the call record
-   and the hang-up.
-2. Internal apps, then one customer app at a time (`rebuildApps`).
-3. Autopilot apps together (they share the hosted Autopilot).
-4. `default: rebuild`, with stragglers in `asteriskApps`.
-5. When `asteriskApps` is empty and no calls reach Asterisk for a week, retire it (section 6).
+Then remove `mediaService`, `amd`, `audioFilters`, `routr.defaultPeer` and `routr.engines` from
+`fonoster.yaml` (unknown keys stop the apiserver at boot), stop the `asterisk` and `amd`
+containers, and delete the `sip:voice@default` Peer in Routr.
 
 ## 4. Rollback
 
-Rollback uses the same switch:
-
-1. Remove the app from `rebuildApps` (or set `default: asterisk`, or pin the number to `asterisk`).
-2. Run `repointNumbersCli.js engines.json --apply` (with `--app` to limit it).
-3. Restart the apiserver so new numbers follow the restored rules.
-
-New calls go to Asterisk at once. Calls already on a media node finish there: Routr keeps their
-dialogs. Asterisk, its Peer and the apiserver's ARI handling stay in place until section 6, so a
-rollback needs no deploy. Apps that already moved to the session SDK need their gRPC VoiceServer
-back for a rollback. Keep the old deployment until the app has run cleanly on the new path.
+There is no in-place rollback: the previous release's Asterisk path is gone from this one. To go
+back, redeploy the previous release's images and `fonoster.yaml`, and rewrite the Numbers to
+`sip:voice@default` with that release's `repointNumbersCli.js`. Apps already on the session SDK
+need their gRPC VoiceServer back. Keep the previous deployment's config until the new path has run
+cleanly.
 
 ## 5. Operating media nodes (add-media-node 4.4)
 
@@ -134,22 +115,19 @@ back for a rollback. Keep the old deployment until the app has run cleanly on th
 | Limits | 10 participants per room. Calls end after 4 h. 30 s without RTP ends a leg (media timeout). A warm transfer gives up after 30 s without an answer. |
 | Diagnostics | `-debug host:port` serves `GET /rooms` (rooms and hold state). It is not part of media-control; do not expose it publicly. |
 
-## 6. Retiring Asterisk (add-media-node 4.1–4.5)
+## 6. What was retired (add-media-node 4.1–4.5)
 
-| Task | Item | When |
+| Task | Item | Status |
 | --- | --- | --- |
-| 4.1 | Media-node Peer `sip:medianode@default` with least-sessions (`routr.mediaNodePeer`); per-app and per-number routing (`routr.engines`, `repointNumbers`) | done: in place for the cutover |
-| 4.2 | Remove the `asterisk` service from `compose.yaml` and Helm, the `asterisk/` image (`Dockerfile`, `run.sh`, `config/*.conf`: dialplan `extensions.conf`, `ari.conf`, `pjsip*.conf`, `rtp.conf`, `amd.conf`), the `ASTERISK_*` variables in `.env.example`, and `mediaService.asterisk` in the apiserver config | after `asteriskApps` is empty |
-| 4.2 | Remove the apiserver's ARI handling: `mods/apiserver/src/voice/**` (`connectToAri.ts`, `VoiceDispatcher.ts`, handlers, AudioSocket, STT/TTS inside the apiserver) and `voice.proto` with its stubs (voice-session 3.1) | same time |
-| 4.2 | Remove the Asterisk Peer `sip:voice@default` (`routr.defaultPeer`, `upsertDefaultPeer`) and make `rebuild` the only engine | after the above |
-| 4.3 | Move recording to the policy listener and AMD to a voice-worker listener; retire the `mods/amd` AudioSocket sidecar | before 4.2 for apps that use recording or AMD |
-| 4.5 | End of `{appRef}_{id}.wav` recordings in `/opt/fonoster/recordings` and of `GET /api/recordings/:id`. New recordings come from the call record and listeners. Export the old files first if customers need them. | with 4.2 |
-| 4.5 | End of GSM (Asterisk offered `g722,ulaw,alaw,gsm`). Carriers that send only GSM fail with 488 on the media nodes. | check carrier settings before 4.2 |
-| 4.5 | End of the verbs `record`, `setAudioFilters`, `mute`, `unmute` (voice-session) | with voice-session 3.2 |
+| 4.1 | Media-node Peer `sip:medianode@default` with least-sessions (`routr.mediaNodePeer`) | done; it is now the only peer for app-linked numbers |
+| 4.2 | The `asterisk` service in the compose files, the `asterisk/` image, the `ASTERISK_*` variables, `mediaService` in the apiserver config | removed |
+| 4.2 | The apiserver's ARI handling (`mods/apiserver/src/voice/**`, STT/TTS inside the apiserver) and `voice.proto` with its stubs | removed |
+| 4.2 | The Asterisk Peer `sip:voice@default` (`routr.defaultPeer`, `upsertDefaultPeer`) and `routr.engines` | removed |
+| 4.3 | Recording through the policy listener and AMD as a voice-worker listener | open: the `mods/amd` classifier stays, its AGI/AudioSocket front end has no caller |
+| 4.5 | `{appRef}_{id}.wav` recordings and `GET /api/recordings/:id` | removed; recordings come from the call record. Export old files from `/opt/fonoster/recordings` first if customers need them |
+| 4.5 | GSM (Asterisk offered `g722,ulaw,alaw,gsm`). Carriers that send only GSM fail with 488 on the media nodes | check carrier settings before upgrading |
+| 4.5 | The verbs `record`, `setAudioFilters`, `mute`, `unmute` | removed |
 
-Before 4.2, confirm all three:
-
-- Routr's location service has no routes for `sip:voice@default`, or no Numbers point there:
-  `repointNumbersCli.js` with `defaultEngine: rebuild` reports no changes.
-- No calls reach Asterisk for 7 days (Asterisk CDRs or the apiserver's ARI logs).
-- Every app passed its `action` notices from the app migration.
+API-originated calls (`CreateCall`) are placed on the least-loaded live media node from its
+heartbeats: `room.create`, `gateway.outbound`, then `participant.dial` through Routr with
+`X-Dod-Number`, `X-Call-Ref`, `X-Access-Key-Id` and `X-Is-Api-Originated-Type`.

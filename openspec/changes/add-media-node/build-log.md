@@ -312,3 +312,61 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   `encryption_required`).
 - Still open: recording listeners under encryption. The node requires `srtp` on listener blocks
   too, and `@fonoster/callrecord`'s Recorder does not send or decrypt it yet.
+## Clean-break stream (2026-10-15, wave 2)
+
+Owner decision 2026-10-15: no backward compatibility; Asterisk goes now, not after a side-by-side
+cutover.
+
+### CB-B2. API-originated calls go to the media nodes (3.3, minimal)
+
+- `CreateCall` still publishes `calls.create`; `mods/apiserver/src/outbound` now serves it instead
+  of the Asterisk originate: least-loaded non-draining node from `media.*.heartbeat` (stale after
+  6 s, `node.down` removes it, placed rooms count until the next heartbeat), then `room.create`,
+  `gateway.outbound` (so a gateway opens the app session on `call.answered`), then
+  `participant.dial` with `X-Call-Ref`, `X-Dod-Number`, `X-Access-Key-Id` and
+  `X-Is-Api-Originated-Type: true` for Routr. A refused gateway or dial ends the room.
+- No JetStream registry yet (3.2): each apiserver replica keeps its own view from heartbeats.
+- AMD on outbound calls is gone with Asterisk until 4.3.
+
+### CB-B3. Every app-linked number points at the media nodes
+
+- `ROUTR_DEFAULT_PEER_AOR` in `mods/common` is now `sip:medianode@default`. `createNumberRouting`
+  keeps its interface (so `createNumber` / `updateNumber` are untouched) but always answers the
+  media-node AOR. `routr.engines`, `routr.defaultPeer` and `upsertDefaultPeer` are deleted.
+- `repointNumbersCli` moves numbers created before this release (`LEGACY_ASTERISK_PEER_AOR`,
+  `sip:voice@default`) to the media-node peer. `docs/operators/cutover.md` is now a one-window
+  upgrade runbook with no in-place rollback.
+
+### CB-B4. The apiserver's voice path
+
+- Deleted: `src/voice/**` (ARI, `VoiceDispatcher`, handlers, AudioSocket, filters, STT/TTS
+  engines), `runCallManager.ts`, the welcome-demo gRPC voice service, `GET /api/recordings/:id`
+  and the HTTP bridge's stream map, the dial-event helpers and the AMD result cache.
+- Kept: the STT/TTS config and credential schemas, rewritten schema-only at their old paths
+  (`src/voice/stt/*`, `src/voice/tts/*`), so `applications/validation/speechValidators.ts` (another
+  stream's file) needs no edit.
+- `fonoster.yaml` loses `mediaService`, `amd`, `audioFilters`, `routr.defaultPeer` and
+  `routr.engines`; the config is strict, so old files fail at boot naming the key. The examples
+  set `routr.mediaNodePeer.password: ${MEDIANODE_PASSWORD}` (new `.env` variable).
+- Dropped dependencies: `ari-client`, the Deepgram, Google, Azure and ElevenLabs SDKs,
+  `pick-port`, `wait-port`, `wavefile`; the lock file's workspace entries follow (the now unused
+  top-level packages stay in the lock until the next `npm install`).
+
+### CB-B6. Asterisk image and compose
+
+- Deleted `asterisk/`, `.github/workflows/publish-asterisk.yaml`, the `asterisk` and `amd`
+  services in `compose.yaml` and `compose.dev.yaml`, the `ASTERISK_*` and `AMD_*` variables in
+  `.env.example*`, and Asterisk from the devcontainer, CONTRIBUTING and `start:services`. The
+  owner's running containers were not touched.
+- The root compose files keep the control plane, Routr and data stores; the media nodes and the
+  gateway run from `ops/rebuild/compose.yaml` until they are folded in.
+- `mods/amd` stays: its classifier is what 4.3 puts behind a voice-worker listener. Its
+  Asterisk smoke test (`docker-compose.smoke.yaml`, `smoke/`) is deleted.
+
+### CB-B7. Building in the worktree
+
+- The root `npm run build` runs `prisma generate` in `prebuild` (writes into the shared
+  `node_modules`), so every package was built with `npx tsc -b` instead (all pass; the dashboard
+  with `tsc -p tsconfig.build.json && vite build` into a scratch directory).
+- Worktree links (not committed): `mods/*/node_modules/@fonoster/{common,voice,autopilot,sipnet,
+  conformance}` point at this worktree, so the suite runs against the changed packages.

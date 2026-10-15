@@ -75,67 +75,47 @@ Then point a phone number at the new application (in the dashboard, or with `npx
 
 ### Voice Applications
 
-For full control over the call, write a Voice Application instead. A Voice Application is a server that controls a call's flow. A Voice Application can use any combination of the following verbs:
+For full control over the call, write a Voice Application instead. Fonoster opens one signed WebSocket **session** to your app for every call ([session protocol](docs/session-protocol.md)); the SDKs for TypeScript (`@fonoster/voice`) and Python (`fonoster-voice`) wrap it. A session can:
 
-- `Answer` - Accepts an incoming call
-- `Hangup` - Closes the call
-- `Play`: Takes a URL with a media file and streams the sound back to the calling party
-- `PlayDtmf` - Takes a DTMF sequence and plays it back to the calling party
-- `Say` - Takes a text, synthesizes the text into audio, and streams back the result
-- `Gather` - Waits for DTMF or speech events and returns back the result
-- `SGather` - Returns a stream for future DTMF and speech results
-- `Stream` - Creates a bidirectional stream to send and receive audio from a caller
-- `Dial` - Passes the call to an Agent or a Number at the PSTN
-- `Record` - It records the voice of the calling party and saves the audio on the Storage sub-system
-- `Mute` - It tells the channel to stop sending media, effectively muting the channel
-- `Unmute` - It tells the channel to allow media flow
+- `say` - Speak text (or a stream of model tokens) and report what the caller heard
+- `gather` - Wait for speech or keypresses
+- `play` / `playDtmf` - Play a media file or DTMF tones
+- `transfer` - Cold, warm or SIP REFER transfer to a number or SIP URI
+- `hold` / `resume`, `handoff`, `hangup`
+- `audio` - Raw call audio in and out, for your own speech stack
+- Events: turns, partial transcripts, keypresses
 
 Voice Application Example:
 
 ```typescript
-const VoiceServer = require("@fonoster/voice").default;
-const { 
-  GatherSource, 
-  VoiceRequest, 
-  VoiceResponse 
-} = require("@fonoster/voice");
+const { VoiceServer } = require("@fonoster/voice");
 
-new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
-  const { ingressNumber, sessionRef, appRef } = req;
+// The gateway signs every connection; set APP_SIGNING_SECRET to the app's signing secret.
+new VoiceServer({ port: 3000 }).listen(async (session) => {
+  await session.say("Hi there! What's your name?");
 
-  // When Answering Machine Detection is enabled, `req.amd` carries an early
-  // verdict for outbound calls: { status: "HUMAN" | "MACHINE" | "UNKNOWN",
-  // confidence, detector, latencyMs }. It is absent when AMD did not run.
-  if (req.amd?.status === "MACHINE") {
-    return voice.hangup();
-  }
+  const { speech: name } = await session.gather();
 
-  await voice.answer();
+  await session.say("Nice to meet you " + name + "!");
 
-  await voice.say("Hi there! What's your name?");
+  await session.say("Please enter your 4 digit pin.");
 
-  const { speech: name } = await voice.gather({
-    source: GatherSource.SPEECH
-  });
-
-  await voice.say("Nice to meet you " + name + "!");
-
-  await voice.say("Please enter your 4 digit pin.");
-
-  const { digits } = await voice.gather({
+  const { digits } = await session.gather({
     maxDigits: 4,
     finishOnKey: "#"
   });
 
-  await voice.say("Your pin is " + digits);
+  await session.say("Your pin is " + digits);
 
-  await voice.hangup();
+  await session.hangup();
 });
 
-// Your app will live at tcp://127.0.0.1:50061 
-// and you can easily publish it to the Internet with:
-// ngrok tcp 50061
+// Your app lives at ws://127.0.0.1:3000
+// and you can publish it to the Internet with:
+// ngrok http 3000
 ```
+
+Coming from the gRPC SDK? See [What changed](docs/migrating-to-sessions.md).
 
 ### Making calls
 

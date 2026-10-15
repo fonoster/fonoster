@@ -256,7 +256,7 @@ class Session:
         await self._command({"type": "record.note", "data": data})
 
     async def answer(self) -> None:
-        """The gateway answers on connect; kept so old apps keep working."""
+        """Returns at once: the gateway answers the call on connect."""
 
     # ---- incoming ---------------------------------------------------------------------
 

@@ -16,37 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AudioFilterConfig } from "@fonoster/common";
-
-type GatherStream = {
-  stop: () => Promise<void>;
-  onData: (
-    cb: (payload: { speech: string; responseTime: number }) => void
-  ) => void;
-};
-
-type Stream = {
-  stop: () => Promise<void>;
-  onData: (cb: (chunk: Uint8Array) => void) => void;
-};
-
 type TransferOptions = {
   timeout?: number;
   record?: boolean;
 };
 
+/**
+ * The call controls the LangChain models' built-in tools (hangup, transfer) use. Only the
+ * evaluations (createEvaluateIntelligence) drive these models now, with a stand-in; the hosted
+ * engine in ../session talks to the session SDK instead.
+ */
 type Voice = {
-  mediaSessionRef: string;
   answer: () => Promise<void>;
-  setAudioFilters: (filters: AudioFilterConfig[]) => Promise<void>;
   hangup: () => Promise<void>;
   say: (text: string) => Promise<void>;
   playDtmf: (dtmf: string) => Promise<void>;
-  sgather: () => Promise<GatherStream>;
   transfer: (destination: string, options?: TransferOptions) => Promise<void>;
-  stream: () => Promise<Stream>;
-  stopSpeech: () => Promise<void>;
-  stopStreams: () => Promise<void>;
 };
 
 export { TransferOptions, Voice };

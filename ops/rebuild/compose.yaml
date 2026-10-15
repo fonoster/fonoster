@@ -128,7 +128,7 @@ services:
     profiles: ["autopilot"]
     build:
       context: ../..
-      dockerfile: mods/autopilot/Dockerfile.session
+      dockerfile: mods/autopilot/Dockerfile
     image: ${RB_REGISTRY:-fonoster}/autopilot-session:${RB_TAG:-dev}
     restart: unless-stopped
     environment:

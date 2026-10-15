@@ -13,7 +13,6 @@ from websockets.asyncio.server import Server, ServerConnection, serve
 from websockets.exceptions import ConnectionClosed
 from websockets.http11 import Request
 
-from .legacy import LegacyResponse, legacy_request
 from .session import Session
 from .signature import verify_signature
 
@@ -25,15 +24,15 @@ Handler = Callable[..., Awaitable[None]]
 def _check_handler(handler: Handler) -> int:
     if not inspect.iscoroutinefunction(handler):
         raise TypeError("voice handlers must be async def functions")
-    return len(inspect.signature(handler).parameters)
+    arity = len(inspect.signature(handler).parameters)
+    if arity != 1:
+        raise TypeError("voice handlers take one argument: the session")
+    return arity
 
 
 async def _run_handler(handler: Handler, arity: int, session: Session) -> None:
     try:
-        if arity >= 2:
-            await handler(legacy_request(session), LegacyResponse(session))
-        else:
-            await handler(session)
+        await handler(session)
     except Exception as e:  # noqa: BLE001
         if session.ended:
             return

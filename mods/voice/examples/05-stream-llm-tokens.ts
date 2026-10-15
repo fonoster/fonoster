@@ -1,5 +1,5 @@
 // Stream LLM tokens straight into speech: one utterance, sent as `speak` pieces sharing an id.
-import { Session, VoiceServer } from "@fonoster/voice/session";
+import { Session, VoiceServer } from "@fonoster/voice";
 
 async function* reply(question: string): AsyncGenerator<string> {
   // Replace with your model's token stream.

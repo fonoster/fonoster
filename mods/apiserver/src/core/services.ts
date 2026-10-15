@@ -31,14 +31,9 @@ import { buildCallsService } from "../calls";
 import { influxdb } from "../calls/influxdb";
 import { buildCapabilitiesService } from "../capabilities";
 import { getConfig } from "../config";
-import {
-  ROUTR_DEFAULT_PEER_AOR,
-  ROUTR_ENGINES,
-  ROUTR_MEDIA_NODE_PEER
-} from "../envs";
+import { ROUTR_MEDIA_NODE_PEER } from "../envs";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";
-import { buildWelcomeDemoService } from "./buildWelcomeDemoService";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
 import { routrConfig } from "./routrConfig";
@@ -52,14 +47,9 @@ const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);
 const trunksService = buildTrunksService(routrConfig);
-// App-linked numbers go to Asterisk or the media nodes (routr.engines; all Asterisk by default).
+// App-linked numbers point at the media-node peer (Asterisk is retired, cleanbreak CB-B3).
 const numberRouting = createNumberRouting({
-  defaultEngine: ROUTR_ENGINES.default,
-  asteriskAor: ROUTR_DEFAULT_PEER_AOR,
-  mediaNodeAor: ROUTR_MEDIA_NODE_PEER.aor,
-  rebuildApps: ROUTR_ENGINES.rebuildApps,
-  asteriskApps: ROUTR_ENGINES.asteriskApps,
-  numbers: ROUTR_ENGINES.numbers
+  mediaNodeAor: ROUTR_MEDIA_NODE_PEER.aor
 });
 const numbersService = buildNumbersService(
   routrConfig,
@@ -67,7 +57,6 @@ const numbersService = buildNumbersService(
   numberRouting
 );
 const aclsService = buildAclsService(routrConfig);
-const welcomeDemoService = buildWelcomeDemoService();
 const capabilitiesService = buildCapabilitiesService(getConfig());
 
 const services = Promise.all([
@@ -81,7 +70,6 @@ const services = Promise.all([
   numbersService,
   trunksService,
   domainsService,
-  welcomeDemoService,
   capabilitiesService
 ]);
 

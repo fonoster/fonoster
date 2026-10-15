@@ -1,37 +1,38 @@
-# Migrating to sessions
+# What changed: voice sessions
 
-Fonoster used to run your voice app as a gRPC server (`voice.proto`) that the apiserver talked to.
-Every call now reaches your app as one WebSocket **session** that the VoiceSessionGateway opens to
-your app's URL ([session protocol](./session-protocol.md)). This guide covers what changes, in the
-order most people need it.
+Fonoster used to run your voice app as a gRPC server (`voice.proto`) that the apiserver talked to,
+with Asterisk in front. Every call now reaches your app as one WebSocket **session** that the
+VoiceSessionGateway opens to your app's URL ([session protocol](./session-protocol.md)), and the Go
+media nodes carry the audio. This is a new, incompatible release: nothing from the gRPC stack keeps
+working, and there are no compatibility shims.
 
-Two breaking changes ship together:
+What is gone:
 
-1. `voice.proto` is retired. An app that spoke it directly, without the SDK, must move to the
-   session protocol or to an SDK.
-2. `record()`, `setAudioFilters()`, `mute()` and `unmute()` are removed.
-
-Everything else keeps working: a handler written as `async (req, res) => { ... }` runs unchanged.
+- `voice.proto`, the gRPC `VoiceServer`, `VoiceResponse` and `(req, res)` handlers.
+- `stream()`, `sgather()`, `record()`, `setAudioFilters()`, `mute()`, `unmute()` and `dial()`.
+- Asterisk, its dialplan and the apiserver's ARI handling; `/api/recordings/:id` and the
+  `{appRef}_{id}.wav` recordings (recordings are part of the call record now).
+- The previous Autopilot engine (xstate machine, Silero VAD, gRPC voice server). Autopilot is the
+  hosted session engine (`mods/autopilot/src/session`).
+- In `fonoster.yaml`: `mediaService`, `amd`, `audioFilters`, `routr.defaultPeer` and
+  `routr.engines`. Unknown keys stop the apiserver at boot, so delete them.
 
 ## Which path are you on?
 
-| You have | Do this |
+| You had | Do this |
 | --- | --- |
-| `@fonoster/voice` with `new VoiceServer().listen(async (req, res) => ...)` | [Bump the SDK](#1-sdk-users-bump-the-version), set the signing secret, update the app |
+| `@fonoster/voice` with `new VoiceServer().listen(async (req, res) => ...)` | [Rewrite the handler](#1-sdk-users-rewrite-the-handler) to take the session, set the signing secret |
 | A Twilio Media Streams bot (Pipecat, for example) | [Use the Twilio flavor](#4-twilio-flavor-with-pipecat), no code change |
 | Your own gRPC server speaking `voice.proto` | Use an SDK, or implement [the protocol](./session-protocol.md) |
 | An Autopilot assistant | Nothing. Autopilot is an ordinary app of the platform |
+| Numbers created before this release | Run `repointNumbersCli` (sipnet) to move them from `sip:voice@default` to the media-node peer |
 
-## 1. SDK users: bump the version
+## 1. SDK users: rewrite the handler
 
 ```sh
 npm install @fonoster/voice@latest          # TypeScript
-pip install fonoster-voice                  # Python (new)
+pip install fonoster-voice                  # Python
 ```
-
-During the transition the session-based server is imported from `@fonoster/voice/session`; the
-default export of `@fonoster/voice` is still the gRPC server. In the major version the session
-server becomes the default.
 
 ```ts
 // before
@@ -42,48 +43,33 @@ new VoiceServer().listen(async (req, res) => {
   await res.hangup();
 });
 
-// after: same handler, new import, and a signing secret
-import { VoiceServer } from "@fonoster/voice/session";
+// after: one argument, the session, and a signing secret
+import { VoiceServer } from "@fonoster/voice";
 new VoiceServer({ port: 3000, signingSecret: process.env.APP_SIGNING_SECRET }).listen(
-  async (req, res) => {
-    await res.answer(); // a no-op now: the gateway answers when your socket connects
-    await res.say("Hello");
-    await res.hangup();
+  async (session) => {
+    await session.say("Hello");
+    await session.hangup();
   }
 );
 ```
 
-The server refuses to start without a signing secret (set `signingSecret` or
-`APP_SIGNING_SECRET`). It refuses any connection that is not signed by the gateway.
+`@fonoster/voice/session` still resolves to the same SDK for one release. The server refuses to
+start without a signing secret (set `signingSecret` or `APP_SIGNING_SECRET`) and refuses any
+connection that is not signed by the gateway. See [the voice SDK](./voice-sdk.md) and
+`mods/voice/examples`.
 
-New code should prefer the `(session)` signature: `async (session) => { await session.say(...) }`.
-The methods are the same, plus `hold`, `handoff`, events and `audio`. See
-[the voice SDK](./voice-sdk.md) and `mods/voice/examples`.
-
-### Removed and deprecated methods
-
-Removed. They throw an error that names the replacement:
-
-| Method | Replacement |
-| --- | --- |
-| `record()` | Recording is an app policy: set it on the app (`off`, `on`, `on after consent prompt`). The recording is attached to the call record |
-| `setAudioFilters()` | Audio filters are part of the app's configuration |
-| `mute()` | `hold()` (the caller hears silence or music) |
-| `unmute()` | `resume()` |
-
-Renamed:
+### Methods
 
 | Before | After |
 | --- | --- |
-| `dial(number)` | `transfer(to, { mode })`. `res.dial()` still works and is a cold transfer. `mode` is `cold`, `warm` (use `completeTransfer()`) or `refer` |
-| `answer()` | Nothing to do. It stays as a no-op |
-
-Deprecated. They keep working and log a warning once:
-
-| Before | After | Difference |
-| --- | --- | --- |
-| `stream()` | `session.audio` (`onFrame`, `send`, `mark`, `clear`) | Frames are raw audio in the session's format (PCM16 16 kHz by default), not the old WAV stream |
-| `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf")` | Payloads are `{ speech \| digit, responseTime }` |
+| `req.callerNumber`, `req.ingressNumber`, `req.appRef` | `session.from`, `session.to`, `session.appRef` |
+| `answer()` | Nothing to do: the gateway answers when your socket connects. `session.answer()` resolves at once |
+| `dial(number)` | `transfer(to, { mode })`; `mode` is `cold`, `warm` (use `completeTransfer()`) or `refer` |
+| `stream()` | `session.audio` (`onFrame`, `send`, `mark`, `clear`): raw audio in the session's format (PCM16 16 kHz by default), not the old WAV stream |
+| `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf")` |
+| `record()` | Recording is an app policy (`off`, `on`, `on after consent prompt`); the recording is attached to the call record |
+| `setAudioFilters()` | Audio filters are part of the app's configuration |
+| `mute()` / `unmute()` | `hold()` / `resume()` |
 
 ### Behavior that changed
 
@@ -196,10 +182,11 @@ against the gateway.
 
 ## 5. Checklist
 
-- [ ] Bump `@fonoster/voice` (or install `fonoster-voice`) and change the import
+- [ ] Bump `@fonoster/voice` (or install `fonoster-voice`) and rewrite handlers to `(session)`
 - [ ] Create the app with its `url`, flavor, speech defaults and fallback; copy the signing secret
 - [ ] Set `APP_SIGNING_SECRET` in the app's environment
-- [ ] Replace `record`, `setAudioFilters`, `mute` and `unmute`
+- [ ] Replace `dial`, `stream`, `sgather`, `record`, `setAudioFilters`, `mute` and `unmute`
 - [ ] Decide recording as app policy
-- [ ] Check `dial()` callers: use `transfer()` for warm and refer transfers
-- [ ] Re-point numbers at the new app; keep the old app as the fallback until you are confident
+- [ ] Remove `mediaService`, `amd`, `audioFilters`, `routr.defaultPeer` and `routr.engines` from
+      `fonoster.yaml`; set `routr.mediaNodePeer.password`
+- [ ] Move numbers created before this release to the media-node peer (`repointNumbersCli`)

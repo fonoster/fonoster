@@ -31,10 +31,10 @@ async def say_hello(session):
     await session.hangup()
 
 
-async def say_hello_legacy(req, res):
-    await res.answer()
-    await res.say("Hello from the SDK.")
-    await res.hangup()
+async def answer_then_say(session):
+    await session.answer()
+    await session.say("Hello from the SDK.")
+    await session.hangup()
 
 
 async def say_kept(session):
@@ -118,10 +118,6 @@ async def handoff(s):
     await s.handoff("app-escalation", {"reason": "angry caller"})
 
 
-async def legacy_dial(req, res):
-    await res.dial("+15551234567")
-
-
 async def audio_mark(s):
     s.on("dtmf", lambda _: s.audio.clear())
     for _ in range(3):
@@ -150,7 +146,7 @@ async def record_note(s):
 FIXTURES = {
     "record-note": record_note,
     "say-hello": say_hello,
-    "say-hello-legacy": say_hello_legacy,
+    "answer-then-say": answer_then_say,
     "say-reports-interruption": say_reports_interruption,
     "say-kept": say_kept,
     "gather-echo": gather_echo,
@@ -166,7 +162,6 @@ FIXTURES = {
     "transfer-cold": transfer_cold,
     "transfer-warm": transfer_warm,
     "handoff": handoff,
-    "legacy-dial": legacy_dial,
     "audio-mark": audio_mark,
     "say-error": say_error,
     "say-then-gather": say_then_gather,

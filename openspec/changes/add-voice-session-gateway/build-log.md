@@ -292,3 +292,14 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - `docs/operators/cutover.md`: prerequisites, app migration, side-by-side routing with
   `routr.engines` and `repointNumbersCli`, rollback (the same switch, Asterisk kept warm), media
   node operations, and the Asterisk retirement list (add-media-node 4.1–4.5).
+
+## Clean-break stream (2026-10-15, wave 2)
+
+### CB-B8. Cutover items closed by the clean break
+
+- 3.1: `voice.proto`, its stubs and the apiserver's `src/voice/**` are gone (see rework-voice-sdk
+  CB-B1 and add-media-node CB-B4).
+- 3.2 and 3.4: `docs/migrating-to-sessions.md` is now a "what changed" note for an incompatible
+  release; `docs/release-notes-sessions.md` lists the five breaking changes.
+- `gateway.outbound` (B8) now has a caller: the apiserver's outbound placement (add-media-node
+  CB-B2).
