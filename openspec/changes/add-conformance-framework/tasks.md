@@ -33,5 +33,5 @@
 
 - [x] 4.1 Run fake-based suites on every pull request, scoped to the contracts a change touches
 - [ ] 4.2 Nightly job for end-to-end and load suites on dedicated runners
-- [ ] 4.3 Manual trigger for live provider tests
+- [x] 4.3 Manual trigger for live provider tests
 - [x] 4.4 Publish per-suite reports (latency percentiles, scale numbers, turn-taking metrics)

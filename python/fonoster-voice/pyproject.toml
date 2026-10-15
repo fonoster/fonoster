@@ -4,11 +4,30 @@ version = "0.27.0"
 description = "Fonoster Voice SDK for Python: answer calls over the Fonoster session protocol (asyncio)"
 readme = "README.md"
 license = "MIT"
+authors = [{ name = "Pedro Sanders", email = "psanders@fonoster.com" }]
+keywords = ["voice", "sip", "telephony", "ai", "fonoster", "websocket", "asyncio"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Framework :: AsyncIO",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Communications :: Telephony",
+  "Typing :: Typed",
+]
 requires-python = ">=3.11"
 dependencies = ["websockets>=13"]
 
 [project.optional-dependencies]
 test = ["pytest>=8", "fonoster-conformance"]
+
+[project.urls]
+Homepage = "https://fonoster.com"
+Documentation = "https://github.com/fonoster/fonoster/blob/main/docs/voice-sdk.md"
+Repository = "https://github.com/fonoster/fonoster"
 
 [build-system]
 requires = ["hatchling"]
@@ -16,3 +35,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fonoster"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/fonoster", "README.md", "pyproject.toml"]

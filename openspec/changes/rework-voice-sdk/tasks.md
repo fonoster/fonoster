@@ -37,8 +37,8 @@
 
 ## 4. Migration and docs
 
-- [ ] 4.1 Retire `voice.proto` and the verb types in `mods/common`
-- [ ] 4.2 Upgrade guide: version bump, removed methods and their replacements, `dial` to
+- [ ] 4.1 Retire `voice.proto` and the verb types in `mods/common` (marked deprecated; deletion waits for the apiserver voice path to go, see DX-B2)
+- [x] 4.2 Upgrade guide: version bump, removed methods and their replacements, `dial` to
       `transfer`, signing secret setup
 - [x] 4.3 Docs pages for TypeScript and Python with matching examples
-- [ ] 4.4 Release notes flagging both breaking changes
+- [x] 4.4 Release notes flagging both breaking changes
