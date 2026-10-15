@@ -24,7 +24,7 @@ import {
   loadScenarios,
   runScenario
 } from "@fonoster/conformance";
-import { Gateway, GatewayConfig } from "../src";
+import { Gateway, GatewayConfig, MemoryCallRecordSink } from "../src";
 
 // The conformance suites for voice-session and twilio-media-streams-flavor, run against this
 // gateway with the fakes. Needs NATS: set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
@@ -47,7 +47,11 @@ function configFor(scenario: Scenario, harness: FakesHarness): GatewayConfig {
             ? "twilio"
             : "native"),
         signingSecret: scenario.setup?.app?.signingSecret ?? SECRET,
-        speech: { voice: "fake/default", language: "en-US" }
+        speech: {
+          voice: "fake/default",
+          language: "en-US",
+          ...(scenario.setup?.app?.speech ?? {})
+        }
       }
     ],
     providers: {
@@ -63,7 +67,8 @@ function configFor(scenario: Scenario, harness: FakesHarness): GatewayConfig {
 
 for (const contract of [
   "voice-session",
-  "twilio-media-streams-flavor"
+  "twilio-media-streams-flavor",
+  "turn-taking"
 ] as const) {
   describe(`@gateway conformance: ${contract}`, function () {
     this.timeout(15000);
@@ -80,8 +85,14 @@ for (const contract of [
 
     for (const scenario of loadScenarios(contract)) {
       it(scenario.name, async function () {
+        const record = new MemoryCallRecordSink();
         const harness = await new FakesHarness({
-          vendorCalls: () => 0
+          vendorCalls: () => 0,
+          recordEvents: (type) =>
+            [...record.records.values()]
+              .flat()
+              .filter((e) => e.source === "event" && e.message.type === type)
+              .map((e) => e.message as Record<string, unknown>)
         }).start();
         harness.mediaNode.attachNats(nc, {
           commands: `media.${harness.mediaNode.nodeId}.commands`,
@@ -89,7 +100,8 @@ for (const contract of [
         });
         const gateway = await new Gateway({
           config: configFor(scenario, harness),
-          nats: nc
+          nats: nc,
+          record
         }).start();
         try {
           const result = await runScenario(scenario, {

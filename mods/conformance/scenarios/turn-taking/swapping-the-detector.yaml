@@ -1,0 +1,21 @@
+format: fonoster.scenario.v1
+name: swapping-the-detector
+contract: turn-taking
+role: app
+spec: "Detectors are pluggable behind one interface / Swapping the Detector"
+description: The app's settings select another Detector; the app sees the same events and fields.
+setup:
+  app: { speech: { detector: backchannel-hold } }
+  providers:
+    stt: { script: [{ atMs: 500, text: "What are your hours" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.user_started }
+    within_ms: 1000
+  - expect: { type: turn.likely_ended, text: "What are your hours" }
+    within_ms: 2000
+  - expect: { type: turn.ended, text: "What are your hours", language: "*", confidence: "*", durationMs: { $gte: 0 } }
+    within_ms: 1500
+  - assert: { record.events.turn.decision: { $includes: [{ event: turn.ended, detector: backchannel-hold@1 }] } }

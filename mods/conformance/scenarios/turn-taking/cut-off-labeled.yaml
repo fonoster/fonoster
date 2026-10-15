@@ -1,0 +1,21 @@
+format: fonoster.scenario.v1
+name: cut-off-labeled
+contract: turn-taking
+role: app
+spec: "Every turn decision is recorded with its outcome / A cut-off is labeled"
+description: The caller speaks again 300 ms after the reply starts (cut-off window 1.5 s).
+setup:
+  providers:
+    stt: { script: [{ atMs: 400, text: "I want to" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.ended, text: "I want to" }
+    within_ms: 2500
+  - send: { type: speak, id: r1, text: "Sure, what would you like to do?", last: true }
+  - expect: { type: output.started, id: r1 }
+  - wait: { ms: 300 }
+  - caller: { audio: { kind: tone, ms: 500 } }
+  - wait: { ms: 800 }
+  - assert: { record.events.turn.label: { $includes: [{ label: cut-off, labelVersion: 2 }] } }

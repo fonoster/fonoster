@@ -27,7 +27,8 @@
         "twilio-media-streams-flavor",
         "voice-sdk",
         "media-control",
-        "autopilot"
+        "autopilot",
+        "turn-taking"
       ]
     },
     "role": {

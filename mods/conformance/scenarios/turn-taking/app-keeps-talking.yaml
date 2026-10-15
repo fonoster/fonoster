@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: app-keeps-talking
+contract: turn-taking
+role: app
+spec: "The app decides whether an interruption stops output / The app keeps talking"
+description: The app sends no clear; the gateway never stops output on caller speech by itself.
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "This message plays to the end.", last: true, interruptible: false }
+  - expect: { type: output.started, id: r1 }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.user_started }
+    within_ms: 1000
+  - expect: { type: output.done, id: r1 }
+    within_ms: 3000

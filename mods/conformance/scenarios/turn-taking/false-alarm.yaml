@@ -1,0 +1,25 @@
+format: fonoster.scenario.v1
+name: false-alarm
+contract: turn-taking
+role: app
+spec: "The Pacing policy derives turn events from the estimate / False alarm"
+description: >
+  The caller pauses long enough for turn.likely_ended, then keeps talking: turn.resumed, and
+  turn.ended only after the second part.
+setup:
+  app: { speech: { silenceTimeoutMs: 1200 } }
+  providers:
+    stt: { script: [{ atMs: 500, text: "I want" }, { atMs: 2400, text: "to pay my bill" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.likely_ended, text: "I want" }
+    within_ms: 2000
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.resumed }
+    within_ms: 1000
+  - expect_none: { type: turn.ended }
+    for_ms: 300
+  - expect: { type: turn.ended, text: "I want to pay my bill" }
+    within_ms: 4000
