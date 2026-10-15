@@ -309,7 +309,7 @@ export class CallRecordWriter {
    */
   async deleteParts(
     callRef: string,
-    parts: RecordPart[],
+    requested: RecordPart[],
     by: {
       reason: string;
       actor: string;
@@ -317,6 +317,12 @@ export class CallRecordWriter {
       location?: string;
     }
   ): Promise<{ sealed: SealedVersion; audit: AuditEntry[] }> {
+    // messages.ndjson holds every session message, the caller's and the agent's words included:
+    // deleting the transcript deletes it too (RV-B11), and the audit says so.
+    const parts: RecordPart[] =
+      requested.includes("transcript") && !requested.includes("messages")
+        ? [...requested, "messages"]
+        : requested;
     const store = this.storeAt(by.location, by.workspaceRef);
     const at = new Date().toISOString();
     const deletion = (part: RecordPart) => ({

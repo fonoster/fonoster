@@ -127,7 +127,12 @@ export function createRecordMaintenance(
             }
           : {
               version: reply.version,
-              parts: row.parts.filter((p) => !parts.includes(p))
+              // The region may delete more than asked (the transcript takes the messages).
+              parts: row.parts.filter(
+                (p) =>
+                  !parts.includes(p) &&
+                  !reply.audit.some((a: AuditEntry) => a.part === p)
+              )
             }
     });
     logger.info(`call record ${request.callRef}: ${request.op} done`, {

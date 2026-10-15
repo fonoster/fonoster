@@ -231,3 +231,12 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   deleted or erased.
 - Tests: callrecord "puts records of a workspace with its own bucket there ..." (maintenance
   after a fallback).
+
+### RV-B11. Deleting the transcript deletes the raw messages too
+- `messages.ndjson` is every session message, including `turn.ended` and `say` text, so a
+  transcript deletion (request or retention policy) that left it kept the words. Deleting
+  `transcript` now also deletes `messages` (the file and its vCon references); the audit lists
+  both parts with the same reason, and the apiserver drops every audited part from the index.
+  Stripping only the text out of the messages was not chosen: which fields carry words differs
+  by message type and app flavor.
+- Tests: callrecord "deleting the transcript also deletes the raw messages".

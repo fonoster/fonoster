@@ -285,6 +285,27 @@ describe("@callrecord recording, retention and erasure", function () {
     });
   });
 
+  it("deleting the transcript also deletes the raw messages, which hold the words (RV-B11)", async function () {
+    await recordedCall("ret-3");
+    expect(await store.getPart("ret-3", "messages.ndjson")).to.not.equal(
+      undefined
+    );
+    const { sealed, audit } = await writer.deleteParts(
+      "ret-3",
+      ["transcript"],
+      {
+        reason: "request",
+        actor: "user-1"
+      }
+    );
+    expect(await store.getPart("ret-3", "messages.ndjson")).to.equal(undefined);
+    expect(audit.map((a) => a.part)).to.deep.equal(["transcript", "messages"]);
+    expect(sealed.parts.map((p) => p.name)).to.not.include("messages.ndjson");
+    const v2 = decodeVcon((await store.getSealed("ret-3"))!.signed);
+    expect(JSON.stringify(v2)).to.not.include("I want my balance");
+    expect(index[index.length - 1].parts).to.not.include("messages");
+  });
+
   it("deleting the transcript removes it from earlier versions too", async function () {
     await recordedCall("ret-2");
     await writer.deleteParts("ret-2", ["transcript", "messages"], {
