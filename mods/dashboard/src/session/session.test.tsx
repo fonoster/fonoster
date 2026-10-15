@@ -49,6 +49,16 @@ describe("apps", () => {
     expect(screen.getByText("twilio")).toBeInTheDocument();
   });
 
+  it("warns about deprecated catalog items and names the apps that use them", async () => {
+    apps("/w/ws-1/apps");
+    expect(
+      await screen.findByText(
+        "The model deepgram/nova-2 is deprecated and will be retired on 2027-01-31. Use deepgram/nova-3 instead."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("Used by: Support line.")).toBeInTheDocument();
+  });
+
   it("creates an app and shows its secret once", async () => {
     const { user, api } = apps("/w/ws-1/apps/new");
     await user.type(await screen.findByLabelText("Name"), "Bot");

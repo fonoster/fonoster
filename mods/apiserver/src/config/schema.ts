@@ -98,6 +98,17 @@ const sessionAppsSchema = z
   .default({});
 
 /**
+ * Provider registry (add-provider-registry 4.1): the platform credentials (credentialRef names)
+ * the gateways have. When set, the catalog only lists providers with one of them or with the
+ * workspace's own key.
+ */
+const registrySchema = z
+  .object({
+    platformCredentials: z.array(z.string().min(1)).optional()
+  })
+  .default({});
+
+/**
  * Workspace webhooks fan-out (add-workspace-webhooks 2.2): events producers publish on the bus
  * (`webhooks.events`) are delivered from here.
  */
@@ -251,6 +262,7 @@ const fonosterConfigSchema = z
     callRecords: callRecordsSchema,
     apps: sessionAppsSchema,
     webhooks: webhooksSchema,
+    registry: registrySchema,
     regions: regionsSchema
   })
   .superRefine((config, ctx) => {

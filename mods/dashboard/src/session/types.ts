@@ -75,6 +75,27 @@ export type Catalog = {
   providers: CatalogEntry[];
 };
 
+/** A deprecated or retired catalog item the workspace uses (registry warnings, LO-B11). */
+export type CatalogWarning = {
+  id: string;
+  kind: "provider" | "model" | "voice";
+  state: "deprecated" | "retired";
+  replacement?: string;
+  retireOn?: string;
+  /** Saved apps and assistants that name it (and, for a TTS model, the voice they use). */
+  usedBy: {
+    kind: "app" | "assistant";
+    ref: string;
+    name: string;
+    field: string;
+    voice?: string;
+  }[];
+  /** Apps whose calls used it lately, including ids no saved app names. */
+  runtimeApps: string[];
+  runtimeSessions: number;
+  lastUsedAt?: string;
+};
+
 export type CallStatus = string;
 
 export type CallRecordSummary = {
@@ -158,6 +179,8 @@ export type SessionApi = {
   rotateSecret(ref: string): Promise<SessionApp>;
   deleteApp(ref: string): Promise<void>;
   getCatalog(): Promise<Catalog>;
+  /** Deprecated or retired catalog items this workspace uses, and where. */
+  listCatalogWarnings(): Promise<CatalogWarning[]>;
   listCalls(): Promise<CallRecordSummary[]>;
   getCall(callRef: string): Promise<CallRecord | undefined>;
   /** The recording as a downloadable object URL (the API needs the access token). */

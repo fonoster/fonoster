@@ -2,7 +2,7 @@
 
 ## 1. Conformance assets
 
-- [ ] 1.1 Registry utility suite: a temporary database with fixtures (providers, models, voices, apps across two workspaces) that runs every scenario in `specs/provider-registry/spec.md`
+- [x] 1.1 Registry utility suite: a temporary database with fixtures (providers, models, voices, apps across two workspaces) that runs every scenario in `specs/provider-registry/spec.md` (LO-B13)
 - [x] 1.2 Impact-report fixtures: the `turbo-v2` → `flash-v2.5` case with mappable, unmappable and dropped-setting usages, with expected report text
 - [x] 1.3 Two-database fixture for `export` / `plan` / `apply`, including the idempotency check
 - [x] 1.4 Secret-safety checks: no schema column can hold a credential, `export` output has no secret, the utility's role cannot write outside registry and audit tables
@@ -28,8 +28,8 @@
 
 ## 4. Platform surfaces
 
-- [ ] 4.1 `GetCapabilities` lists only active or deprecated items with an adapter and an available credential
-- [ ] 4.2 Dashboard pickers filtered by compatibility; deprecation and retirement warnings per workspace with where-used lists
+- [x] 4.1 `GetCapabilities` lists only active or deprecated items with an adapter and an available credential (`ListCatalog`, LO-B12)
+- [ ] 4.2 Dashboard pickers filtered by compatibility; deprecation and retirement warnings per workspace with where-used lists (warnings done, LO-B11; picker filtering open)
 - [x] 4.3 Workspace UI and API to store and bind a bring-your-own key as a write-only Secret
 
 ## 5. Migration and docs

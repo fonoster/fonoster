@@ -39,6 +39,7 @@ import {
   Gateway,
   GatewayConfig,
   maintenanceSubject,
+  REGISTRY_USED_SUBJECT,
   recordingPolicy
 } from "../src";
 
@@ -416,6 +417,40 @@ describe("@gateway call records", function () {
       ]);
       expect(mine.every((e) => e.workspaceRef === "ws-1")).to.equal(true);
       expect(webhooks).to.deep.equal([]);
+    } finally {
+      sub.unsubscribe();
+    }
+  });
+
+  it("publishes each catalog id a session resolves once on registry.used (LO-B11)", async function () {
+    const used: Record<string, unknown>[] = [];
+    const sub = nc.subscribe(REGISTRY_USED_SUBJECT, {
+      callback: (_e, msg) => used.push(JSON.parse(sc.decode(msg.data)))
+    });
+    try {
+      await start([app()]);
+      const { roomRef } = harness.mediaNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      for (const id of ["s1", "s2"]) {
+        peer.sendJson({ type: "speak", id, text: "Hi.", last: true });
+        await waitFor(
+          () => json(peer).find((m) => m.type === "output.done" && m.id === id),
+          8000
+        );
+      }
+      harness.mediaNode.callerHangup(roomRef);
+      await waitFor(() => used.length > 0);
+      await sleep(100);
+      const mine = used.filter((u) => u.callRef === roomRef);
+      expect(mine).to.have.length(1);
+      expect(mine[0]).to.deep.include({
+        workspaceRef: "ws-1",
+        appRef: "a",
+        id: "fake/default",
+        resolvedId: "fake/default"
+      });
+      expect(mine[0]).to.not.have.property("event");
     } finally {
       sub.unsubscribe();
     }

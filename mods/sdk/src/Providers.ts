@@ -18,9 +18,11 @@
  */
 import {
   CatalogItem,
+  CatalogWarning,
   ListCatalogRequest,
   ListCatalogResponse,
   ListProviderKeysResponse,
+  ListWarningsResponse,
   ProviderKey,
   SetProviderKeyRequest
 } from "@fonoster/types";
@@ -34,8 +36,11 @@ import {
   ListCatalogResponse as ListCatalogResponsePB,
   ListProviderKeysRequest as ListProviderKeysRequestPB,
   ListProviderKeysResponse as ListProviderKeysResponsePB,
+  ListWarningsRequest as ListWarningsRequestPB,
+  ListWarningsResponse as ListWarningsResponsePB,
   ProviderKey as ProviderKeyPB,
-  SetProviderKeyRequest as SetProviderKeyRequestPB
+  SetProviderKeyRequest as SetProviderKeyRequestPB,
+  Warning as WarningPB
 } from "./generated/node/providers_pb";
 
 type Raw = Record<string, unknown>;
@@ -121,6 +126,40 @@ class Providers {
       repeatableObjectMapping: [["itemsList", ProviderKeyPB]]
     });
     return { items: raw.items ?? [] };
+  }
+
+  /**
+   * Deprecated or retired catalog items this workspace uses, with the saved configs that name
+   * them and the apps whose sessions used them lately (the dashboard's warnings).
+   */
+  async listWarnings(): Promise<ListWarningsResponse> {
+    const client = this.client.getProvidersClient();
+    const raw = await makeRpcRequest<
+      ListWarningsRequestPB,
+      ListWarningsResponsePB,
+      Record<string, never>,
+      { items?: Raw[] }
+    >({
+      method: client.listWarnings.bind(client),
+      requestPBObjectConstructor: ListWarningsRequestPB,
+      metadata: this.client.getMetadata(),
+      request: {},
+      repeatableObjectMapping: [["itemsList", WarningPB]]
+    });
+    return {
+      items: (raw.items ?? []).map((w) => {
+        const out: Raw = {};
+        for (const [key, value] of Object.entries(w)) {
+          const name = key.endsWith("List") ? key.slice(0, -4) : key;
+          if (value === "") continue;
+          out[name] = value;
+        }
+        out.usedBy ??= [];
+        out.runtimeApps ??= [];
+        out.runtimeSessions ??= 0;
+        return out as unknown as CatalogWarning;
+      })
+    };
   }
 
   /** Removes the workspace's key for a provider (the platform key applies again). */

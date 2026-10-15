@@ -54,6 +54,9 @@ export const callSubject = (callRef: string) => `gateway.calls.${callRef}`;
 /** Outbound session requests from the control plane (MN5), shared across replicas. */
 export const OUTBOUND_SUBJECT = "gateway.outbound";
 
+/** Catalog ids sessions resolved (one message per session and id; the control plane counts them). */
+export const REGISTRY_USED_SUBJECT = "registry.used";
+
 export type GatewayOptions = {
   config: GatewayConfig;
   record?: CallRecordSink;
@@ -238,6 +241,8 @@ export class Gateway {
       record: this.record,
       findApp: this.findApp,
       webhooks: this.webhooks,
+      onCatalogUse: (use) =>
+        this.nc?.publish(REGISTRY_USED_SUBJECT, sc.encode(JSON.stringify(use))),
       onEnded: (c) => {
         this.calls.delete(c.callRef);
         sub?.unsubscribe();

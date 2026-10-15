@@ -45,6 +45,7 @@ import {
   WEBHOOKS
 } from "../envs";
 import { runOutboundCalls } from "../outbound";
+import { subscribeRegistryUsage } from "../providers";
 import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
 import {
   createSnapshotSources,
@@ -124,7 +125,9 @@ async function runServices() {
     routers: [...records.routers, ...regions.routers]
   });
 
-  // Workspace webhooks: fan-out of the events producers publish on the bus (LO-B1)
+  // Bus consumers: webhook fan-out (LO-B1) and the gateways' catalog use (LO-B11)
+  const bus = await connect({ servers: NATS_URL, maxReconnectAttempts: -1 });
+  subscribeRegistryUsage(bus, prisma);
   if (WEBHOOKS.fanout) {
     await runWebhookFanout(
       {
@@ -132,10 +135,7 @@ async function runServices() {
         enabled: true,
         allowInsecureUrls: SESSION_APPS.allowInsecureWebhooks
       },
-      {
-        nc: await connect({ servers: NATS_URL, maxReconnectAttempts: -1 }),
-        db: prisma
-      }
+      { nc: bus, db: prisma }
     );
   }
 

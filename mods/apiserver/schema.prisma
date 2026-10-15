@@ -267,6 +267,19 @@ model RegistryNotice {
   @@map("registry_notices")
 }
 
+/// Sessions per workspace, catalog id and day that resolved the id at runtime (registry `usage`,
+/// LO-B11). Filled from the gateways' `registry.used` events.
+model RegistryUsage {
+  accessKeyId String   @map("access_key_id")
+  catalogId   String   @map("catalog_id") @db.VarChar(255)
+  day         DateTime @db.Date
+  sessions    Int      @default(0)
+
+  @@id([accessKeyId, catalogId, day])
+  @@index([catalogId, day])
+  @@map("registry_usage")
+}
+
 /// A workspace's own vendor key (P1): a binding from a catalog provider to a Secret. The key itself
 /// is only in the encrypted, write-only Secret.
 model WorkspaceProviderKey {

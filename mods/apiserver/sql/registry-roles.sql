@@ -31,6 +31,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE
   TO fonoster_registry;
 GRANT SELECT, INSERT ON registry_audit, registry_notices TO fonoster_registry;
 GRANT USAGE, SELECT ON SEQUENCE registry_audit_seq_seq TO fonoster_registry;
+-- Runtime session counts for `usage` (written by the apiserver, LO-B11): read-only here.
+GRANT SELECT ON registry_usage TO fonoster_registry;
 
 -- Usages: read apps and assistants; rewrite only their catalog ids.
 GRANT SELECT ON applications, intelligence_services TO fonoster_registry;
@@ -45,9 +47,9 @@ GRANT SELECT, INSERT, UPDATE ON webhook_deliveries TO fonoster_registry;
 -- Readers: the registry tables, read-only.
 GRANT SELECT
   ON registry_providers, registry_models, registry_voices, registry_voice_models,
-     registry_audit, registry_notices
+     registry_audit, registry_notices, registry_usage
   TO fonoster_registry_reader;
 REVOKE INSERT, UPDATE, DELETE, TRUNCATE
   ON registry_providers, registry_models, registry_voices, registry_voice_models,
-     registry_audit, registry_notices
+     registry_audit, registry_notices, registry_usage
   FROM fonoster_registry_reader;

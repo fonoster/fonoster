@@ -211,5 +211,48 @@ export class ProvidersClient {
     this.methodDescriptorDeleteProviderKey);
   }
 
+  methodDescriptorListWarnings = new grpcWeb.MethodDescriptor(
+    '/fonoster.providers.v1beta2.Providers/ListWarnings',
+    grpcWeb.MethodType.UNARY,
+    providers_pb.ListWarningsRequest,
+    providers_pb.ListWarningsResponse,
+    (request: providers_pb.ListWarningsRequest) => {
+      return request.serializeBinary();
+    },
+    providers_pb.ListWarningsResponse.deserializeBinary
+  );
+
+  listWarnings(
+    request: providers_pb.ListWarningsRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<providers_pb.ListWarningsResponse>;
+
+  listWarnings(
+    request: providers_pb.ListWarningsRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: providers_pb.ListWarningsResponse) => void): grpcWeb.ClientReadableStream<providers_pb.ListWarningsResponse>;
+
+  listWarnings(
+    request: providers_pb.ListWarningsRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: providers_pb.ListWarningsResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.providers.v1beta2.Providers/ListWarnings',
+        request,
+        metadata || {},
+        this.methodDescriptorListWarnings,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.providers.v1beta2.Providers/ListWarnings',
+    request,
+    metadata || {},
+    this.methodDescriptorListWarnings);
+  }
+
 }
 
