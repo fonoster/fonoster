@@ -387,6 +387,7 @@ export class AppSession {
   private keepalive?: ReturnType<typeof setInterval>;
   private filters?: AudioFilterChain;
   private lastEstimate?: Estimate;
+  private reportedIds = new Set<string>();
   private labeler = new TurnLabeler((label) =>
     this.call.record("event", { type: "turn.label", ...label })
   );
@@ -801,6 +802,17 @@ export class AppSession {
             relatesTo: id
           });
           return;
+        }
+        if (voice.event && !this.reportedIds.has(voiceId)) {
+          // Once per session and id (add-provider-registry, "Runtime use is caught").
+          this.reportedIds.add(voiceId);
+          this.call.record("event", {
+            type: voice.event,
+            id: voiceId,
+            replacement: voice.replacement,
+            sessionRef: this.sessionRef,
+            appRef: this.app.ref
+          });
         }
         this.queue.speak({
           id: id ?? this.call.nextCommandId(),

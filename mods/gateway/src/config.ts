@@ -68,6 +68,12 @@ export type GatewayConfig = {
   outputQueueMaxMs?: number;
   /** The Twilio-compatible hang-up endpoint (twilio-media-streams-flavor). */
   http?: { host?: string; port: number; accountSid: string; authToken: string };
+  /**
+   * The provider registry (add-provider-registry). With it, voice ids resolve through the catalog:
+   * retired ids play their replacement and deprecated or retired use is recorded. Until the
+   * registry tables exist it is the JSON file the fonoster-registry utility writes.
+   */
+  registry?: { file: string };
   /** Keepalive overrides (mainly for tests). */
   keepalive?: { pingIntervalMs?: number; idleTimeoutMs?: number };
   /** Call records (add-call-record): working records, sealing and signing. */

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Registry as RegistryNs } from "@fonoster/common";
 import { DEFAULTS, GatewayConfig, providerKey } from "../config";
 import { DeepgramSttAdapter, DeepgramTtsAdapter } from "./deepgram";
 import { ElevenLabsTtsAdapter } from "./elevenlabs";
@@ -26,11 +27,32 @@ import { SttAdapter, TtsAdapter } from "./types";
  * Resolves catalog ids (`<provider>/<voice>`) to adapters. A stand-in for the provider registry
  * (add-provider-registry): providers and voices come from the gateway config for now.
  */
+export type VoiceResolution = {
+  adapter: TtsAdapter;
+  /** The provider's own voice name. */
+  voice: string;
+  /** The catalog id actually used (the replacement, for a retired id). */
+  id: string;
+  event?: "provider.deprecated_used" | "provider.retired_used";
+  replacement?: string;
+};
+
 export class Catalog {
+  private registry?: {
+    store: RegistryNs.FileRegistryStore;
+    registry: RegistryNs.Registry;
+  };
   private tts = new Map<string, TtsAdapter>();
   private stt = new Map<string, SttAdapter>();
 
   constructor(private readonly config: GatewayConfig) {
+    if (config.registry) {
+      const store = new RegistryNs.FileRegistryStore(config.registry.file);
+      this.registry = {
+        store,
+        registry: new RegistryNs.Registry({ store, actor: "gateway" })
+      };
+    }
     for (const [name, p] of Object.entries(config.providers ?? {})) {
       const tts = p.capabilities.includes("tts");
       const stt = p.capabilities.includes("stt");
@@ -73,16 +95,30 @@ export class Catalog {
     }
   }
 
-  /** The TTS adapter and provider voice for a catalog voice id, or undefined if not in the catalog. */
-  resolveVoice(id: string): { adapter: TtsAdapter; voice: string } | undefined {
-    const slash = id.indexOf("/");
+  /**
+   * The TTS adapter and provider voice for a catalog voice id, or undefined if not in the catalog.
+   * With a registry, retired ids resolve to their replacement and `event` says what to record.
+   */
+  resolveVoice(id: string): VoiceResolution | undefined {
+    let resolved = id;
+    let event: VoiceResolution["event"];
+    let replacement: string | undefined;
+    if (this.registry) {
+      const entry = this.registry.store.get(id);
+      if (!entry || entry.kind !== "voice") return undefined;
+      const r = this.registry.registry.resolve(id);
+      resolved = r.id;
+      event = r.event;
+      replacement = r.replacement;
+    }
+    const slash = resolved.indexOf("/");
     if (slash <= 0) return undefined;
-    const provider = id.slice(0, slash);
-    const voice = id.slice(slash + 1);
+    const provider = resolved.slice(0, slash);
+    const voice = resolved.slice(slash + 1);
     const adapter = this.tts.get(provider);
     const voices = this.config.providers[provider]?.voices;
     if (!adapter || (voices && !voices.includes(voice))) return undefined;
-    return { adapter, voice };
+    return { adapter, voice, id: resolved, event, replacement };
   }
 
   /** The STT adapter for the gateway (one STT provider per deployment for now). */

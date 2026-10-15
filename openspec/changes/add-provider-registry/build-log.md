@@ -46,6 +46,14 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   tests run by hand, T4). ElevenLabs word timings are not used yet.
 - Not ported yet: Google and Azure TTS/STT, LLM adapters.
 
+### PR4. The gateway resolves voices through the registry
+
+- Gateway config `registry: {file}`: voice ids must exist in the catalog; a retired id plays its
+  replacement; the first deprecated or retired use per session and id is recorded as
+  `provider.deprecated_used` / `provider.retired_used` (with the id, replacement, session and app)
+  in the call record. Forwarding these to the control plane (dashboard warnings) is not done.
+- Only voices go through it so far; STT models and LLM ids do not.
+
 ### Not done
 
 - 1.1 suite against a real temporary database, 1.4 database-role checks, 1.5 adapter conformance,

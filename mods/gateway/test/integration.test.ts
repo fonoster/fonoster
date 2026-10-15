@@ -27,6 +27,10 @@ import {
   OUTBOUND_SUBJECT
 } from "../src";
 import { AudioFilterFactory } from "../src/filters";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import { Registry as RegistryNs } from "@fonoster/common";
 import { z } from "zod";
 
 // Gateway behaviour that needs more than one app or no app at all, so it is not expressed as a
@@ -485,6 +489,70 @@ describe("@gateway integration", function () {
       policy: "default@1"
     });
     expect(decision?.message.eot).to.equal(1);
+  });
+
+  it("plays a retired voice's replacement and records the use", async function () {
+    const file = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), "registry-")),
+      "registry.json"
+    );
+    const registry = new RegistryNs.Registry({
+      store: new RegistryNs.FileRegistryStore(file),
+      testMode: true
+    });
+    registry.addProvider({
+      id: "fake",
+      adapter: "fake",
+      capabilities: ["tts", "stt"],
+      credentialRef: "none"
+    });
+    registry.addModel({ id: "fake/tts", type: "tts", features: ["streaming"] });
+    registry.addVoice({ id: "fake/old", models: ["fake/tts"] });
+    registry.addVoice({ id: "fake/new", models: ["fake/tts"] });
+    registry.deprecate("voice", "fake/old", "fake/new", "2027-01-31");
+    registry.retire("voice", "fake/old");
+
+    await start(
+      [
+        app("a", harness.app.url, {
+          speech: { voice: "fake/old", language: "en-US" }
+        })
+      ],
+      { registry: { file } }
+    );
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({ type: "speak", id: "r1", text: "Hello.", last: true });
+    peer.sendJson({ type: "speak", id: "r2", text: "Again.", last: true });
+    peer.sendJson({
+      type: "speak",
+      id: "r3",
+      text: "Who?",
+      last: true,
+      voice: "fake/unknown"
+    });
+    await waitFor(
+      () => json(peer).find((m) => m.type === "output.done" && m.id === "r2"),
+      5000
+    );
+
+    expect(harness.tts.synthesized.map((s) => s.voice)).to.deep.equal([
+      "new",
+      "new"
+    ]);
+    expect(json(peer).find((m) => m.type === "error")).to.include({
+      code: "invalid_catalog_id",
+      relatesTo: "r3"
+    });
+    const used = [...record.records.values()][0].filter(
+      (e) => e.message.type === "provider.retired_used"
+    );
+    expect(used).to.have.length(1);
+    expect(used[0].message).to.include({
+      id: "fake/old",
+      replacement: "fake/new"
+    });
   });
 
   it("hangs up when the app drops mid-call", async function () {
