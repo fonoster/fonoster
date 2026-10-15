@@ -10,4 +10,4 @@ if [ "$1" = "run" ] && [ -n "${APISERVER_DATABASE_URL:-}" ]; then
     echo "waiting for the cell database…"; sleep 2
   done
 fi
-exec fonoster-region "$@"
+exec fonoster-regions "$@"

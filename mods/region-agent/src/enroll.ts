@@ -31,7 +31,7 @@ import {
 } from "./token";
 import { Components, EnrollResponse, RegionIdentity } from "./types";
 
-// `fonoster-region enroll <token>` (contract 2, task 3.1): verify the token, make the cell's key
+// `fonoster-regions enroll <token>` (contract 2, task 3.1): verify the token, make the cell's key
 // pair, exchange the token for leaf credentials, and keep what came back on the cell only.
 
 /** Files of an enrolled cell (also the keys of the Kubernetes Secret). */
@@ -96,7 +96,7 @@ export class KubeIdentityStore implements IdentityStore {
 /** The NATS include for the cell's server: one leaf remote to the control plane. */
 export function leafConf(leafUrl: string, credsPath: string) {
   return [
-    "# Written by `fonoster-region enroll`: the cell's link to the control plane (outbound only).",
+    "# Written by `fonoster-regions enroll`: the cell's link to the control plane (outbound only).",
     "leafnodes {",
     "  remotes = [",
     "    {",
@@ -128,6 +128,7 @@ const ENROLL_CODES: EnrollErrorCode[] = [
   "token_expired",
   "token_used",
   "region_not_found",
+  "region_deleted",
   "workspace_deleted"
 ];
 
@@ -199,7 +200,13 @@ export async function enroll(options: EnrollOptions): Promise<RegionIdentity> {
 
   const identity: RegionIdentity = {
     regionRef: r.regionRef,
-    workspaceRef: r.workspaceRef ?? claims.wsp,
+    regionId: r.regionId ?? claims.rid,
+    kind: r.kind ?? claims.knd,
+    sipDomain: r.sipDomain ?? null,
+    // Old control planes bound one workspace to a region.
+    ...((r.workspaceRef ?? claims.wsp)
+      ? { workspaceRef: r.workspaceRef ?? claims.wsp }
+      : {}),
     controlPlane: base,
     leafUrl: r.leafUrl ?? claims.leaf,
     subjects: r.subjects ?? `region.${r.regionRef}.>`,
@@ -227,7 +234,7 @@ export async function loadIdentity(
   const files = await store.load();
   if (!files?.[FILES.identity])
     throw new Error(
-      `this cell is not enrolled (nothing in ${store.where}); run \`fonoster-region enroll <token>\` first`
+      `this cell is not enrolled (nothing in ${store.where}); run \`fonoster-regions enroll <token>\` first`
     );
   return JSON.parse(files[FILES.identity]) as RegionIdentity;
 }

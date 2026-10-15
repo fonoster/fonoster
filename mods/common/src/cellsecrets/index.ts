@@ -258,3 +258,51 @@ export class CellSecretKeys {
     return undefined;
   }
 }
+
+/** What `NatsWorkspaceKeys` needs of a NATS connection (nats.js connections fit). */
+export interface KeyRequester {
+  request(
+    subject: string,
+    data: Uint8Array,
+    options: { timeout: number }
+  ): Promise<{ data: Uint8Array }>;
+}
+
+/** The cell-local subject the region agent answers (contract 6); it never crosses the link. */
+export const CELL_WORKSPACE_KEYS_SUBJECT = "cell.workspacekeys.get";
+
+/**
+ * A workspace's bring-your-own key in a public region (add-private-regions PR-20): asked of the
+ * region agent on the cell's NATS for each call, which asks the control plane over the region
+ * link. Never cached and never logged; undefined (the region's own key applies) when the
+ * workspace has none or the answer does not come within the timeout.
+ */
+export class NatsWorkspaceKeys {
+  constructor(
+    private readonly requester: () => Promise<KeyRequester>,
+    private readonly timeoutMs = 2000
+  ) {}
+
+  async get(
+    workspaceRef: string,
+    providerId: string
+  ): Promise<string | undefined> {
+    if (!workspaceRef || !providerId) return undefined;
+    try {
+      const nc = await this.requester();
+      const reply = await nc.request(
+        CELL_WORKSPACE_KEYS_SUBJECT,
+        Buffer.from(JSON.stringify({ workspaceRef, provider: providerId })),
+        { timeout: this.timeoutMs }
+      );
+      const body = JSON.parse(Buffer.from(reply.data).toString("utf8")) as {
+        value?: unknown;
+      };
+      return typeof body.value === "string" && body.value
+        ? body.value
+        : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+}

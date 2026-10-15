@@ -1,6 +1,9 @@
-# A private region's cell (add-private-regions; operator guide: docs/operators/private-region.md).
-# Everything that touches calls runs here; the only link to Fonoster is the NATS leaf connection,
-# outbound only, carrying `region.<ref>.>`. Provider keys and call content never leave the cell.
+# A region's cell (add-private-regions; operator guide: docs/operators/private-region.md). The same
+# install serves a private region (a user's, for any of their workspaces that picked it) and a
+# public region (enrolled by an operator, PR-13). Everything that touches calls runs here; the only
+# link to Fonoster is the NATS leaf connection, outbound only, carrying `region.<ref>.>`. Provider
+# keys and call content never leave the cell. The region's SIP domain needs wildcard DNS
+# (`*.<sipDomain>`) pointing here and a TLS certificate for it (PR-16).
 #
 #   1. cp ops/rebuild/cell/cell.env.example ops/rebuild/cell/.env   (fill in the secrets)
 #   2. docker compose -f ops/rebuild/cell/compose.yaml run --rm --no-deps region-agent enroll <token>

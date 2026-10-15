@@ -38,7 +38,8 @@ export class FakeControlPlane {
 
   constructor(
     readonly regionRef = "rg_testregion",
-    readonly workspaceRef = "WOtestworkspace"
+    readonly workspaceRef = "WOtestworkspace",
+    readonly kind: "public" | "private" = "private"
   ) {
     const { privateKey, publicKey } = generateKeyPairSync("ec", {
       namedCurve: "P-256"
@@ -81,7 +82,8 @@ export class FakeControlPlane {
       iss: this.url,
       aud: options.aud ?? "fonoster.region.v1",
       sub: this.regionRef,
-      wsp: this.workspaceRef,
+      rid: "acme-hq",
+      knd: this.kind,
       cp: options.cp ?? this.url,
       leaf: options.leaf ?? "nats://127.0.0.1:7422",
       jti,
@@ -126,7 +128,10 @@ export class FakeControlPlane {
         this.used.add(claims.jti);
         send(200, {
           regionRef: this.regionRef,
-          workspaceRef: this.workspaceRef,
+          regionId: "acme-hq",
+          kind: this.kind,
+          sipDomain: "sip.acme.example",
+          workspaceRefs: [this.workspaceRef],
           leafUrl: claims.leaf,
           credentials:
             "-----BEGIN NATS USER JWT-----\neyJ0ZXN0IjoidHJ1ZSJ9\n------END NATS USER JWT------\n",

@@ -199,14 +199,16 @@ regionAgent:
   enabled: false
   image: { repository: fonoster/region-agent, tag: dev, pullPolicy: IfNotPresent }
   enroll:
-    # The one-time token from the dashboard. Single use, 24 h; clear it after the Job succeeded.
+    # The one-time token from the region's page in your account (a private region), or from
+    # `fonoster-regions create|token` (an operator's public region). Single use, 24 h; clear it
+    # after the Job succeeded.
     token: ""
     # Only for a control plane on plain http:// and nats:// (testing).
     allowInsecure: false
   # Secret written by `enroll` (region.json, leaf.creds, leaf.conf, cell.key). Mount it into your
   # NATS server at /etc/nats/region and include leaf.conf (see the operator guide).
   identitySecret: fonoster-region
-  # Provider keys of the cell (`fonoster-region secrets set <name> --k8s-secret <this>`, or create
+  # Provider keys of the cell (`fonoster-regions secrets set <name> --k8s-secret <this>`, or create
   # it yourself with one key per provider: deepgram, openai, groq, …). Mounted as a directory.
   secretsSecret: fonoster-region-secrets
   # Existing Secret with the cell database URL (key `url`) and its encryption key (key `key`).

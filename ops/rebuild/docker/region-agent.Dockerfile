@@ -1,6 +1,6 @@
 ##
-# The region agent of a private cell (add-private-regions task 3): `fonoster-region enroll`,
-# `secrets` and `run`. The image also carries the apiserver schema and migrations: a cell has no
+# The region agent of a region (public or private, add-private-regions task 3, PR-13, PR-21):
+# `fonoster-regions enroll`, `secrets` and `run` (`fonoster-region` is a deprecated alias). The image also carries the apiserver schema and migrations: a cell has no
 # apiserver, so `run` applies them to the cell's database first (RC-B6).
 ##
 FROM node:22-slim AS builder
@@ -46,7 +46,8 @@ COPY --from=builder --chown=appuser:appuser /work/node_modules ./node_modules
 COPY --from=builder --chown=appuser:appuser /work/package.json ./package.json
 COPY --from=builder --chown=appuser:appuser /work/mods ./mods
 COPY --chown=appuser:appuser ops/rebuild/cell/region-entrypoint.sh /usr/local/bin/fonoster-region-entrypoint
-RUN ln -s /work/mods/region-agent/dist/cli.js /usr/local/bin/fonoster-region \
+RUN ln -s /work/mods/region-agent/dist/cli.js /usr/local/bin/fonoster-regions \
+  && ln -s /work/mods/region-agent/dist/cli.js /usr/local/bin/fonoster-region \
   && chmod +x /work/mods/region-agent/dist/cli.js /usr/local/bin/fonoster-region-entrypoint
 
 USER appuser

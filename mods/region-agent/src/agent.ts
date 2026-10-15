@@ -25,7 +25,9 @@ import { DatabaseApplier } from "./apply/DatabaseApplier";
 import { RefMap, RoutrApplier, RoutrPort } from "./apply/RoutrApplier";
 import { endpointsHash } from "./endpoints";
 import { RelayResponder } from "./relay";
+import { normalizeSnapshot, UNKNOWN_WORKSPACE } from "./snapshot";
 import {
+  CELL_WORKSPACE_KEYS_SUBJECT,
   Components,
   ConfigSnapshot,
   Endpoints,
@@ -38,9 +40,11 @@ import {
 const logger = getLogger({ service: "region-agent", filePath: __filename });
 const sc = StringCodec();
 
-// The cell side of a private region (task 3.3): heartbeats, config sync into the cell's own
-// systems, the relay responder, and call-record index and usage forwarding. It talks to the
-// cell's NATS; the cell's NATS carries `region.<ref>.>` to the control plane over the leaf node.
+// The region side (task 3.3; public and private regions alike, PR-13): heartbeats, config sync
+// into the region's own systems for every workspace bound to it (PR-14), the relay responder,
+// call-record index and usage forwarding per workspace, and bring-your-own keys fetched per call
+// for public regions (PR-20). It talks to the cell's NATS; the cell's NATS carries
+// `region.<ref>.>` to the control plane over the leaf node.
 
 /** Where the cell's gateways publish sealed records' index entries (call-record). */
 export const RECORD_SEALED_SUBJECT = "callrecord.sealed";
@@ -49,6 +53,8 @@ export const GATEWAY_HEARTBEAT_SUBJECT = "gateway.heartbeat";
 const NODE_FRESH_MS = 10_000;
 /** A gateway counts while its heartbeats (every 5 s) are this fresh. */
 const GATEWAY_FRESH_MS = 20_000;
+/** How long a bring-your-own key request waits for the control plane (contract 6). */
+const KEY_TIMEOUT_MS = 2000;
 
 export type AgentState = {
   /** The enrollment the state belongs to; a new enrollment starts over (RC-B11). */
@@ -58,8 +64,10 @@ export type AgentState = {
   configVersion: number;
   routrRefs: RefMap;
   secretsNeeded: string[];
-  /** Call seconds by period (YYYY-MM, UTC), rounded up to minutes per call. */
-  usage: Record<string, number>;
+  /** The workspaces of the last applied snapshot; records of others are not forwarded. */
+  workspaces: string[];
+  /** Call seconds by workspace, then period (YYYY-MM, UTC), rounded up to minutes per call. */
+  usage: Record<string, Record<string, number>>;
   revoked?: { at: string; reason: string };
 };
 
@@ -121,6 +129,9 @@ export class RegionAgent {
       configVersion: -1,
       routrRefs: {},
       secretsNeeded: [],
+      workspaces: this.options.identity.workspaceRef
+        ? [this.options.identity.workspaceRef]
+        : [],
       usage: {}
     };
     const { regionRef, tokenId } = this.options.identity;
@@ -132,6 +143,13 @@ export class RegionAgent {
     }
     if (!saved || saved.regionRef !== regionRef)
       return { ...fresh, regionRef, tokenId };
+    // Usage of the one-workspace cells was {period: seconds}.
+    const usage: AgentState["usage"] = {};
+    for (const [k, v] of Object.entries(saved.usage ?? {}))
+      if (typeof v === "object" && v) usage[k] = v;
+      else if (typeof v === "number" && this.options.identity.workspaceRef)
+        (usage[this.options.identity.workspaceRef] ??= {})[k] = v;
+    saved = { ...saved, usage };
     if (saved.tokenId !== tokenId)
       // Re-enrolled: apply the next snapshot in full; the cell's Routr refs stay valid.
       return {
@@ -201,6 +219,10 @@ export class RegionAgent {
     this.on(s.endpointsRequest, () => void this.publishEndpoints(true));
     this.on(s.relay, (m, b) => void this.onRelay(m, b as RelayRequest));
     this.on(RECORD_SEALED_SUBJECT, (_m, b) => this.onSealed(b));
+    this.on(
+      CELL_WORKSPACE_KEYS_SUBJECT,
+      (m, b) => void this.onKeyRequest(m, b)
+    );
     await this.options.nc.flush();
 
     void this.requestConfig();
@@ -282,7 +304,11 @@ export class RegionAgent {
   }
 
   private async apply(snapshot: ConfigSnapshot) {
-    if (snapshot?.type !== "region.config" || !snapshot.kinds) return;
+    if (
+      snapshot?.type !== "region.config" ||
+      (!snapshot.kinds && !snapshot.workspaces)
+    )
+      return;
     const version = Number(snapshot.configVersion);
     if (version <= this.state.configVersion) {
       logger.verbose(`config v${version} already applied`);
@@ -300,6 +326,11 @@ export class RegionAgent {
       return;
     }
     this.state.configVersion = version;
+    this.state.workspaces = Object.keys(
+      normalizeSnapshot(snapshot, this.options.identity.workspaceRef).workspaces
+    )
+      .filter((w) => w !== UNKNOWN_WORKSPACE)
+      .sort();
     this.paused = undefined;
     if (this.routr) this.state.routrRefs = this.routr.refs;
     this.saveState();
@@ -316,7 +347,7 @@ export class RegionAgent {
     const missing = names.filter((n) => !set.has(n));
     if (missing.length)
       logger.warn(
-        `secrets missing in this cell: ${missing.join(", ")} (fonoster-region secrets set <name>)`
+        `secrets missing in this region: ${missing.join(", ")} (fonoster-regions secrets set <name>)`
       );
   }
 
@@ -325,57 +356,125 @@ export class RegionAgent {
     this.state.revoked = { at: new Date(this.now()).toISOString(), reason };
     this.saveState();
     logger.error(
-      `the control plane revoked this cell (${reason}); calls keep running on the last config. Re-issue a token and run fonoster-region enroll to reconnect.`
+      `the control plane revoked this cell (${reason}); calls keep running on the last config. Re-issue a token and run fonoster-regions enroll to reconnect.`
     );
   }
 
   private async onRelay(msg: Msg, req: RelayRequest) {
     if (!msg.reply) return;
-    const chunks = this.options.relay
-      ? await this.options.relay.respond(req)
-      : [
+    // Only records of a workspace of this region, for the workspace the caller is in (contract 5).
+    const foreign =
+      !req.workspaceRef || !this.state.workspaces.includes(req.workspaceRef);
+    const chunks = foreign
+      ? [
           {
             type: "region.relay.error" as const,
             id: String(req.id ?? ""),
-            code: "store_unavailable"
+            code: req.workspaceRef ? "not_found" : "bad_request"
           }
-        ];
+        ]
+      : this.options.relay
+        ? await this.options.relay.respond(req)
+        : [
+            {
+              type: "region.relay.error" as const,
+              id: String(req.id ?? ""),
+              code: "store_unavailable"
+            }
+          ];
     for (const chunk of chunks)
       this.options.nc.publish(msg.reply, sc.encode(JSON.stringify(chunk)));
+  }
+
+  /**
+   * A gateway asks for a workspace's bring-your-own key (contract 6): forwarded to the control
+   * plane for this one call. Never cached, stored or logged; `{}` means "use the region's key".
+   */
+  private async onKeyRequest(msg: Msg, b: unknown) {
+    if (!msg.reply) return;
+    const { workspaceRef, provider } = (b ?? {}) as {
+      workspaceRef?: string;
+      provider?: string;
+    };
+    let answer: { value?: string } = {};
+    if (
+      this.options.identity.kind !== "private" &&
+      !this.state.revoked &&
+      typeof workspaceRef === "string" &&
+      typeof provider === "string" &&
+      this.state.workspaces.includes(workspaceRef)
+    ) {
+      try {
+        const reply = await this.options.nc.request(
+          this.subjects.secretsGet,
+          sc.encode(
+            JSON.stringify({
+              type: "region.secrets.get",
+              workspaceRef,
+              provider
+            })
+          ),
+          { timeout: KEY_TIMEOUT_MS }
+        );
+        const r = JSON.parse(sc.decode(reply.data));
+        if (
+          r?.type === "region.secrets.value" &&
+          typeof r.value === "string" &&
+          r.workspaceRef === workspaceRef
+        )
+          answer = { value: r.value };
+      } catch (e) {
+        // The message names the subject only, never a value.
+        logger.verbose(`workspace key request: ${(e as Error).message}`);
+      }
+    }
+    msg.respond(sc.encode(JSON.stringify(answer)));
   }
 
   private onSealed(b: unknown) {
     const entry = b as {
       callRef?: string;
+      workspaceRef?: string | null;
+      accessKeyId?: string | null;
       durationSeconds?: number;
       startedAt?: string;
       endedAt?: string | null;
       status?: string;
     };
     if (!entry.callRef) return;
-    // The control plane attributes the entry to the region's workspace anyway (contract 5).
-    this.publish(this.subjects.index, {
-      ...entry,
-      workspaceRef: this.options.identity.workspaceRef
-    });
+    // Only records of the region's workspaces cross the link (contract 5).
+    const ws = entry.workspaceRef ?? entry.accessKeyId ?? undefined;
+    if (!ws || !this.state.workspaces.includes(ws)) {
+      logger.warn(
+        `record ${entry.callRef} of workspace ${ws ?? "?"} is not in this region; not indexed`
+      );
+      return;
+    }
+    this.publish(this.subjects.index, { ...entry, workspaceRef: ws });
     if (entry.status === "erased" || !entry.durationSeconds) return;
     const period = String(entry.endedAt ?? entry.startedAt ?? "").slice(0, 7);
     if (!/^\d{4}-\d{2}$/.test(period)) return;
-    this.state.usage[period] =
-      (this.state.usage[period] ?? 0) +
-      Math.ceil(entry.durationSeconds / 60) * 60;
+    const usage = (this.state.usage[ws] ??= {});
+    usage[period] =
+      (usage[period] ?? 0) + Math.ceil(entry.durationSeconds / 60) * 60;
     this.saveState();
-    this.publishUsage(period);
+    this.publishUsage(period, [ws]);
   }
 
+  /** `region.usage` per workspace (contract 3); at start, every workspace of the region. */
   private publishUsage(
-    period = new Date(this.now()).toISOString().slice(0, 7)
+    period = new Date(this.now()).toISOString().slice(0, 7),
+    workspaces = this.state.workspaces
   ) {
-    this.publish(this.subjects.usage, {
-      type: "region.usage",
-      minutes: Math.round((this.state.usage[period] ?? 0) / 60),
-      period
-    });
+    for (const workspaceRef of workspaces)
+      this.publish(this.subjects.usage, {
+        type: "region.usage",
+        workspaceRef,
+        minutes: Math.round(
+          (this.state.usage[workspaceRef]?.[period] ?? 0) / 60
+        ),
+        period
+      });
   }
 
   private secretsSet(): string[] {

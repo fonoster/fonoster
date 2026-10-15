@@ -24,6 +24,7 @@ import {
   CellSecretKeys,
   DirectorySecretStore,
   EncryptedFileSecretStore,
+  NatsWorkspaceKeys,
   openCellSecrets
 } from "../../src/cellsecrets";
 
@@ -88,5 +89,45 @@ describe("cell secrets (add-private-regions PR-4)", () => {
       ])
     ).to.equal("sk-1");
     expect(() => openCellSecrets({ file: "x" }, {})).to.throw(/is not set/);
+  });
+});
+
+describe("workspace keys over the region link (add-private-regions PR-20)", () => {
+  it("asks on cell.workspacekeys.get per call and never caches", async () => {
+    const asked: unknown[] = [];
+    let value: string | undefined = "byo-1";
+    const keys = new NatsWorkspaceKeys(async () => ({
+      async request(subject, data) {
+        asked.push({ subject, ...JSON.parse(Buffer.from(data).toString()) });
+        return {
+          data: Buffer.from(JSON.stringify(value ? { value } : {}))
+        };
+      }
+    }));
+    expect(await keys.get("WO1", "openai")).to.equal("byo-1");
+    value = undefined;
+    expect(await keys.get("WO1", "openai")).to.equal(undefined);
+    expect(asked).to.deep.equal([
+      {
+        subject: "cell.workspacekeys.get",
+        workspaceRef: "WO1",
+        provider: "openai"
+      },
+      {
+        subject: "cell.workspacekeys.get",
+        workspaceRef: "WO1",
+        provider: "openai"
+      }
+    ]);
+  });
+
+  it("answers undefined on a timeout or a broken link", async () => {
+    const keys = new NatsWorkspaceKeys(async () => ({
+      request: async () => {
+        throw new Error("TIMEOUT");
+      }
+    }));
+    expect(await keys.get("WO1", "openai")).to.equal(undefined);
+    expect(await keys.get("", "openai")).to.equal(undefined);
   });
 });

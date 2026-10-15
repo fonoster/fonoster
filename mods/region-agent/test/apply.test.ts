@@ -20,8 +20,16 @@ import { expect } from "chai";
 import { createTestDb, TestDb } from "../../common/test/persistence/testDb";
 import { DatabaseApplier } from "../src/apply/DatabaseApplier";
 import { ensureMediaNodePeer, RoutrApplier } from "../src/apply/RoutrApplier";
+import { regionDomainUri } from "../src/snapshot";
 import { FakeRoutr } from "./fakeRoutr";
-import { snapshot, WS } from "./fixtures";
+import {
+  kindsOf,
+  legacySnapshot,
+  secondWorkspace,
+  snapshot,
+  WS,
+  WS2
+} from "./fixtures";
 
 // add-private-regions task 3.3: config snapshots into the cell's Routr and database (PR-7).
 
@@ -43,8 +51,8 @@ describe("@region-agent Routr resources", function () {
     );
 
     const s2 = snapshot(2);
-    s2.kinds.routr!.agents = [];
-    s2.kinds.routr!.domains![0].name = "Office HQ";
+    kindsOf(s2).routr!.agents = [];
+    kindsOf(s2).routr!.domains![0].name = "Office HQ";
     const r2 = await applier.apply(s2);
     expect(r2.deleted).to.equal(1);
     expect(r2.updated).to.equal(4);
@@ -56,6 +64,64 @@ describe("@region-agent Routr resources", function () {
     const r3 = await applier.apply(snapshot(3));
     expect(r3.failed).to.equal(0);
     expect(routr.of("acls")).to.have.length(1);
+  });
+
+  it("applies every workspace's resources and drops a workspace that left (PR-14)", async function () {
+    const routr = new FakeRoutr();
+    const applier = new RoutrApplier(routr);
+    await applier.apply(snapshot(1, {}, { [WS2]: secondWorkspace() }));
+    expect(routr.of("domains").map((d) => d.name)).to.have.members([
+      "Office",
+      "Sales"
+    ]);
+    const r = await applier.apply(snapshot(2));
+    expect(r.deleted).to.equal(1);
+    expect(routr.of("domains").map((d) => d.name)).to.deep.equal(["Office"]);
+    // A snapshot with no workspace left removes everything.
+    const empty = snapshot(3);
+    empty.workspaces = {};
+    await applier.apply(empty);
+    expect(routr.of("agents")).to.have.length(0);
+    expect(routr.of("domains")).to.have.length(0);
+  });
+
+  it("moves domains under the region's SIP domain (PR-16)", async function () {
+    const region = {
+      sipDomain: "sip.acme.com",
+      rootDomain: "sip.fonoster.local"
+    };
+    expect(regionDomainUri("sales.sip.fonoster.local", region)).to.equal(
+      "sales.sip.acme.com"
+    );
+    expect(regionDomainUri("office.acme.local", region)).to.equal(
+      "office.sip.acme.com"
+    );
+    expect(regionDomainUri("x.sip.acme.com", region)).to.equal(
+      "x.sip.acme.com"
+    );
+    expect(
+      regionDomainUri("sales.sip.fonoster.local", { sipDomain: null })
+    ).to.equal("sales.sip.fonoster.local");
+
+    const routr = new FakeRoutr();
+    await new RoutrApplier(routr).apply(
+      snapshot(
+        1,
+        {},
+        { [WS2]: secondWorkspace() },
+        { ...region, kind: "private" }
+      )
+    );
+    expect(routr.of("domains").map((d) => d.domainUri)).to.have.members([
+      "office.sip.acme.com",
+      "sales.sip.acme.com"
+    ]);
+  });
+
+  it("applies an old single-workspace snapshot", async function () {
+    const routr = new FakeRoutr();
+    const r = await new RoutrApplier(routr).apply(legacySnapshot(1));
+    expect(r.created).to.equal(5);
   });
 
   it("creates the media-node peer once", async function () {
@@ -119,7 +185,7 @@ describe("@region-agent database snapshot (needs PERSISTENCE_TEST_DATABASE_URL)"
     // Full snapshots are authoritative: what is gone from the control plane goes from the cell.
     const r2 = await applier.apply(
       snapshot(2, {
-        apps: [snapshot(1).kinds.apps![0]],
+        apps: [kindsOf(snapshot(1)).apps![0]],
         webhooks: [],
         // The control plane's shape (RG-B4): retention lands in call_record_retention.
         recordingPolicy: {
@@ -141,5 +207,42 @@ describe("@region-agent database snapshot (needs PERSISTENCE_TEST_DATABASE_URL)"
     ).to.deep.equal([{ accessKeyId: WS, part: "recording", days: 30 }]);
     expect(await db!.prisma.application.count()).to.equal(1);
     expect(await db!.prisma.intelligence.count()).to.equal(0);
+  });
+
+  it("keys rows by workspace and removes a workspace that left the region (PR-14)", async function () {
+    const applier = new DatabaseApplier(db!.prisma);
+    const r = await applier.apply(
+      snapshot(3, {}, { [WS2]: secondWorkspace() })
+    );
+    expect(r.workspaces).to.have.members([WS, WS2]);
+    const sales = await db!.prisma.application.findUnique({
+      where: { ref: "app-sales" }
+    });
+    expect(sales.accessKeyId).to.equal(WS2);
+    expect(await applier.workspacesInCell()).to.have.members([WS, WS2]);
+
+    const r2 = await applier.apply(snapshot(4));
+    expect(r2.removedWorkspaces).to.deep.equal([WS2]);
+    expect(
+      await db!.prisma.application.count({ where: { accessKeyId: WS2 } })
+    ).to.equal(0);
+    expect(
+      await db!.prisma.webhookEndpoint.count({ where: { accessKeyId: WS2 } })
+    ).to.equal(0);
+    expect(
+      await db!.prisma.callRecordRetention.count({
+        where: { accessKeyId: WS2 }
+      })
+    ).to.equal(0);
+    expect(
+      await db!.prisma.application.count({ where: { accessKeyId: WS } })
+    ).to.equal(2);
+  });
+
+  it("applies an old single-workspace snapshot to the enrolled workspace", async function () {
+    const applier = new DatabaseApplier(db!.prisma, { workspaceRef: WS });
+    const r = await applier.apply(legacySnapshot(5));
+    expect(r.workspaces).to.deep.equal([WS]);
+    expect(r.apps).to.equal(2);
   });
 });

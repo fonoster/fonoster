@@ -30,6 +30,7 @@ import {
   Webhooks
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { connect, NatsConnection } from "nats";
 import { AppStore, PrismaAppStore } from "./apps/AppStore";
 import { databaseUrl, GatewayConfig, loadConfig } from "./config";
 import { Gateway } from "./Gateway";
@@ -129,8 +130,8 @@ function analyticsLoader(
 }
 
 /**
- * Cell secrets (a private region, PR-4) before the database's workspace keys; either alone; or
- * none (platform keys only).
+ * A public region's per-call workspace keys (PR-20), then the region's secrets (PR-4), then the
+ * database's workspace keys; any subset; or none (platform keys only).
  */
 function keySource(
   config: GatewayConfig,
@@ -141,7 +142,19 @@ function keySource(
         CellSecrets.openCellSecrets(config.cellSecrets)
       )
     : undefined;
-  return chainKeySources(cell, db);
+  // A public region: the workspace's own key (fetched per call) wins over the region's keys.
+  let link: Promise<NatsConnection> | undefined;
+  const byo = config.cellSecrets?.workspaceKeysFromCloud
+    ? new CellSecrets.NatsWorkspaceKeys(
+        () =>
+          (link ??= connect({
+            servers: config.nats.url,
+            name: "gateway-workspace-keys",
+            maxReconnectAttempts: -1
+          }))
+      )
+    : undefined;
+  return chainKeySources(byo, cell, db);
 }
 
 /**

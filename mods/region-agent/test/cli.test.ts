@@ -20,12 +20,15 @@ import { expect } from "chai";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { spawnSync } from "child_process";
+import * as http from "http";
+import { AddressInfo } from "net";
 import { Writable } from "stream";
 import { main, parseArgs } from "../src/cli";
 import { loadAgentConfig } from "../src/config";
 import { FakeControlPlane } from "./fakeControlPlane";
 
-// add-private-regions tasks 3.1 and 3.2: the `fonoster-region` commands.
+// add-private-regions tasks 3.1 and 3.2, PR-21: the `fonoster-regions` commands.
 
 function capture() {
   const lines: string[] = [];
@@ -41,7 +44,7 @@ function capture() {
   };
 }
 
-describe("@region-agent fonoster-region CLI", function () {
+describe("@region-agent fonoster-regions CLI", function () {
   let dir: string;
   const saved = { ...process.env };
   beforeEach(() => {
@@ -74,7 +77,9 @@ describe("@region-agent fonoster-region CLI", function () {
     const cp = await new FakeControlPlane().start();
     const c = capture();
     await main(["enroll", cp.issue().token], c.out);
-    expect(c.text()).to.match(/Enrolled region rg_testregion/);
+    expect(c.text()).to.match(
+      /Enrolled private region acme-hq \(rg_testregion\)/
+    );
     const s = capture();
     await main(["status"], s.out);
     expect(s.text()).to.include('"regionRef": "rg_testregion"');
@@ -122,6 +127,141 @@ describe("@region-agent fonoster-region CLI", function () {
     expect(loadAgentConfig(file).autopilot?.url).to.equal(
       "ws://secret-autopilot:3000"
     );
+  });
+
+  it("runs the cloud-side commands against the admin API with the operator key (PR-19)", async function () {
+    const seen: { method: string; url: string; key: string; body: string }[] =
+      [];
+    const server = http.createServer((req, res) => {
+      const chunks: Buffer[] = [];
+      req.on("data", (c) => chunks.push(c));
+      req.on("end", () => {
+        seen.push({
+          method: req.method!,
+          url: req.url!,
+          key: String(req.headers["x-operator-key"] ?? ""),
+          body: Buffer.concat(chunks).toString()
+        });
+        res.setHeader("content-type", "application/json");
+        if (req.headers["x-operator-key"] !== "op-key-1") {
+          res.statusCode = 401;
+          return res.end(JSON.stringify({ error: "operator_key_invalid" }));
+        }
+        if (req.method === "GET")
+          return res.end(
+            JSON.stringify({
+              items: [
+                {
+                  id: "default",
+                  kind: "public",
+                  status: "connected",
+                  displayName: "US East"
+                },
+                {
+                  ref: "rg_aaaa",
+                  id: "us-east-2",
+                  kind: "public",
+                  status: "waiting",
+                  published: false,
+                  workspaceCount: 0,
+                  displayName: "US East 2"
+                }
+              ]
+            })
+          );
+        if (req.url === "/api/admin/regions")
+          return res.end(
+            JSON.stringify({
+              ref: "rg_aaaa",
+              id: "us-east-2",
+              token: "TOKEN-1",
+              expiresAt: "2026-10-16T00:00:00.000Z"
+            })
+          );
+        if (req.url!.endsWith("/token"))
+          return res.end(
+            JSON.stringify({
+              token: "TOKEN-2",
+              expiresAt: "2026-10-16T00:00:00.000Z"
+            })
+          );
+        res.end(JSON.stringify({ id: "us-east-2", status: "connected" }));
+      });
+    });
+    await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+    const api = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    process.env.FONOSTER_API_URL = api;
+    process.env.FONOSTER_OPERATOR_KEY = "op-key-1";
+    try {
+      const c = capture();
+      await main(
+        [
+          "create",
+          "us-east-2",
+          "--name",
+          "US East 2",
+          "--sip-domain",
+          "sip.us2.example"
+        ],
+        c.out
+      );
+      expect(c.text()).to.include("TOKEN-1");
+      expect(JSON.parse(seen[0].body)).to.deep.equal({
+        id: "us-east-2",
+        displayName: "US East 2",
+        sipDomain: "sip.us2.example"
+      });
+      const l = capture();
+      await main(["list"], l.out);
+      expect(l.text()).to.match(/^ID\s+KIND\s+STATUS/);
+      expect(l.text()).to.match(/default\s+public\s+connected\s+configured/);
+      expect(l.text()).to.match(/us-east-2\s+public\s+waiting\s+no\s+0/);
+      const t = capture();
+      await main(["token", "us-east-2"], t.out);
+      expect(t.text()).to.include("TOKEN-2");
+      await main(["publish", "us-east-2"], capture().out);
+      await main(["revoke", "us-east-2"], capture().out);
+      expect(seen.map((s) => `${s.method} ${s.url}`)).to.deep.equal([
+        "POST /api/admin/regions",
+        "GET /api/admin/regions",
+        "POST /api/admin/regions/us-east-2/token",
+        "POST /api/admin/regions/us-east-2/publish",
+        "POST /api/admin/regions/us-east-2/revoke"
+      ]);
+      expect(seen.every((s) => s.key === "op-key-1")).to.equal(true);
+      // The key never shows in the output.
+      expect(c.text() + l.text() + t.text()).to.not.include("op-key-1");
+
+      let err: Error | undefined;
+      await main(["list", "--operator-key", "wrong"], capture().out).catch(
+        (e) => (err = e)
+      );
+      expect(err?.message).to.match(/401 operator_key_invalid/);
+      delete process.env.FONOSTER_OPERATOR_KEY;
+      err = undefined;
+      await main(["list"], capture().out).catch((e) => (err = e));
+      expect(err?.message).to.match(/operator key is required/);
+    } finally {
+      server.close();
+    }
+  });
+
+  it("keeps fonoster-region as a deprecated alias", function () {
+    const cli = path.join(__dirname, "../dist/cli.js");
+    if (!fs.existsSync(cli)) this.skip();
+    const alias = path.join(dir, "fonoster-region");
+    fs.symlinkSync(cli, alias);
+    const old = spawnSync(process.execPath, [alias, "--help"], {
+      encoding: "utf8"
+    });
+    expect(old.stderr).to.match(
+      /fonoster-region is deprecated; use fonoster-regions/
+    );
+    expect(old.stdout).to.match(/^fonoster-regions <command>/);
+    const now = spawnSync(process.execPath, [cli, "--help"], {
+      encoding: "utf8"
+    });
+    expect(now.stderr).to.equal("");
   });
 
   it("loads the Compose cell's agent config", function () {
