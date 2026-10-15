@@ -126,6 +126,11 @@ export class Call {
     return this.info.callRef;
   }
 
+  /** The workspace of the app currently running the call, when the app config names it. */
+  get workspaceRef(): string | undefined {
+    return this.session?.workspaceRef;
+  }
+
   nextCommandId(): string {
     return `gw-${this.info.callRef}-${++this.seq}`;
   }
@@ -385,6 +390,10 @@ type PendingTransfer = { id: string; mode: string };
 /** One app's session on a call (until hangup, transfer or handoff). */
 export class AppSession {
   readonly sessionRef = randomUUID();
+
+  get workspaceRef() {
+    return this.app.workspaceRef;
+  }
   private codec: FlavorCodec;
   private queue: OutputQueue;
   private stt?: SttStream;
@@ -422,7 +431,9 @@ export class AppSession {
       app.flavor === "twilio"
         ? new TwilioCodec(
             send,
-            deps.config.http?.accountSid ?? "AC00000000000000000000000000000000"
+            app.workspaceRef ??
+              deps.config.http?.accountSid ??
+              "AC00000000000000000000000000000000"
           )
         : new NativeCodec(send, app.audio ?? { codec: "pcm16", rate: 16000 });
     this.queue = new OutputQueue({

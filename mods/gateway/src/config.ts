@@ -31,6 +31,8 @@ export type AppConfig = {
   speech: { voice: string; language: string; silenceTimeoutMs?: number };
   /** Caller and agent audio format for the native flavor (default pcm16 at 16 kHz). */
   audio?: { codec: "pcm16" | "pcmu"; rate: number };
+  /** The workspace that owns the app (its access key id); the Twilio flavor's AccountSid. */
+  workspaceRef?: string;
   /** Numbers routed to this app (inbound). */
   numbers?: string[];
   fallback?: { app?: string; message?: string };
@@ -67,7 +69,17 @@ export type GatewayConfig = {
   /** Maximum queued output before `queue_full` (default 120 s). */
   outputQueueMaxMs?: number;
   /** The Twilio-compatible hang-up endpoint (twilio-media-streams-flavor). */
-  http?: { host?: string; port: number; accountSid: string; authToken: string };
+  /**
+   * The Twilio-compatible Calls endpoint. With `identity`, workspace API keys are checked through
+   * Identity; otherwise the single accountSid/authToken pair applies (self-hosting).
+   */
+  http?: {
+    host?: string;
+    port: number;
+    accountSid?: string;
+    authToken?: string;
+    identity?: { endpoint: string };
+  };
   /**
    * The provider registry (add-provider-registry). With it, voice ids resolve through the catalog:
    * retired ids play their replacement and deprecated or retired use is recorded. Until the
@@ -129,6 +141,10 @@ export function validateConfig(config: GatewayConfig): string[] {
         `app ${app.ref}: fallback app ${app.fallback.app} does not exist`
       );
     }
+  }
+  const h = config.http;
+  if (h && !h.identity && !(h.accountSid && h.authToken)) {
+    problems.push("http: set identity.endpoint, or accountSid and authToken");
   }
   for (const [name, p] of Object.entries(config.providers ?? {})) {
     if (p.adapter === "fake" && !config.testMode) {

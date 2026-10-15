@@ -182,3 +182,15 @@ dedicated runner are still to do (conformance 3.10, 4.2).
 
 - Kept in the protocol and both SDKs for Autopilot's traces, but removed from the public docs,
   marked internal in the SDKs, and reserved in the spec (it may change without a new protocol name).
+
+### B20. Hang-up endpoint auth: workspace API keys through Identity (owner decision on OQ3)
+
+- The URL's AccountSid is the workspace's access key id; Basic auth carries one of that
+  workspace's API keys (access key id and secret). With `http.identity.endpoint` set, the endpoint
+  calls Identity's ExchangeApiKey and accepts the request only if the returned access token grants
+  that workspace. Without it, the single `accountSid`/`authToken` pair applies (self-hosting).
+- Apps may name their `workspaceRef`; it becomes the Twilio flavor's AccountSid, and the replica
+  that owns a call refuses a hang-up from another workspace (the endpoint answers 404/20404, the
+  same as for an ended call).
+- Seen once: the Pipecat golden test failed in a combined run and passed on three reruns; watch
+  for flakiness in the nightly job.

@@ -18,10 +18,15 @@
  */
 import * as http from "http";
 import { AddressInfo } from "net";
+import { IdentityClient } from "@fonoster/identity-client";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec, Subscription } from "nats";
 import { AppConfig, GatewayConfig, validateConfig } from "./config";
-import { createHangupHandler } from "./http/hangupEndpoint";
+import {
+  configPairAuthenticator,
+  createHangupHandler,
+  identityAuthenticator
+} from "./http/hangupEndpoint";
 import { KEY_SET_PATH, keySetHandler } from "./http/keySetRoute";
 import {
   MediaControl,
@@ -99,7 +104,14 @@ export class Gateway {
     await this.nc.flush();
 
     if (this.config.http) {
-      const hangup = createHangupHandler(this.config.http, this.nc);
+      const h = this.config.http;
+      const authenticate = h.identity
+        ? identityAuthenticator(new IdentityClient(h.identity.endpoint))
+        : configPairAuthenticator({
+            accountSid: h.accountSid ?? "",
+            authToken: h.authToken ?? ""
+          });
+      const hangup = createHangupHandler(authenticate, this.nc);
       const keys = keySetHandler(this.config.callRecord);
       this.server = http.createServer((req, res) =>
         keys && req.method === "GET" && req.url?.split("?")[0] === KEY_SET_PATH
@@ -159,6 +171,17 @@ export class Gateway {
         if (err) return;
         const request = JSON.parse(sc.decode(msg.data));
         if (request.type === "hangup") {
+          // Only the call's own workspace may hang it up (the endpoint answers 404 otherwise).
+          if (
+            request.accountSid &&
+            call.workspaceRef &&
+            request.accountSid !== call.workspaceRef
+          ) {
+            msg.respond(
+              sc.encode(JSON.stringify({ type: "error", code: "not_found" }))
+            );
+            return;
+          }
           void call.hangup("app_hangup");
           msg.respond(sc.encode(JSON.stringify({ type: "ack" })));
         }

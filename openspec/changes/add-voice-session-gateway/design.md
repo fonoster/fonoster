@@ -193,8 +193,8 @@ Settled during the build (2026-10-15, see `build-log.md`; reversible):
    `provider_unavailable`, `provider_timeout`, `invalid_catalog_id`, `feature_not_supported`,
    `transfer_failed`, `queue_full`, `play_fetch_failed`, `internal`.
 2. ~~**Playback queue cap.**~~ Resolved: 120 s of queued audio, configurable per gateway.
-3. **Hang-up endpoint authentication.** Interim: one `accountSid` / `authToken` pair in the
-   gateway config (B9). Still open: mapping to workspace credentials through Identity.
+3. ~~**Hang-up endpoint authentication.**~~ Decided: workspace API keys verified through Identity
+   (AccountSid = the workspace's access key id), with the config pair kept for self-hosting (B20).
 4. ~~**Keepalive.**~~ Resolved: ping every 10 s; a socket that answers nothing (no pong, no frame)
    for 30 s is dropped, which hangs up the call (`app.idle_timeout` in the call record).
 5. ~~**Signature header name and format.**~~ Resolved: `X-Fonoster-Timestamp` (Unix seconds) and
