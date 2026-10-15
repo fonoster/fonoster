@@ -1,0 +1,52 @@
+# Catalog seed for the rebuild stack (VO-B5): the vendors the owner tests with. Load it with
+#   fonoster-registry apply -f catalog-seed.yaml          (file store; FONOSTER_REGISTRY_FILE)
+#   fonoster-registry apply -f catalog-seed.yaml --store database
+# No keys here: providers name a credentialRef; the gateway and Autopilot map it to a key in their
+# own config (gateway `providers.<id>.credential`, Autopilot `credentials.<ref>`).
+#
+# App speech defaults then take catalog ids:
+#   speech: { voice: deepgram/aura-2-thalia-en, sttModel: deepgram/nova-3, hints: [Fonoster] }
+#   speech: { voice: elevenlabs/EXAVITQu4vr4xnSDxMaL, language: en-US }   # ElevenLabs "Sarah"
+# The gateway's provider names must match the catalog's provider ids:
+#   registry: { file: /etc/fonoster/registry.json }
+#   providers:
+#     deepgram: { adapter: deepgram, capabilities: [stt, tts], credential: { env: DEEPGRAM_API_KEY } }
+#     elevenlabs: { adapter: elevenlabs, capabilities: [tts], credential: { env: ELEVENLABS_API_KEY } }
+entries:
+  # ---- providers -------------------------------------------------------------------------
+  - { kind: provider, id: deepgram, adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram-default, state: active }
+  - { kind: provider, id: elevenlabs, adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs-default, state: active }
+  - { kind: provider, id: openai, adapter: openai, capabilities: [llm], credentialRef: openai-default, state: active }
+  # ---- models ----------------------------------------------------------------------------
+  - { kind: model, id: deepgram/nova-3, type: stt, features: [streaming, interim-results, word-timings, multilingual], languages: [en, es, multi], settings: [], state: active }
+  - { kind: model, id: deepgram/nova-2-phonecall, type: stt, features: [streaming, interim-results, word-timings], languages: [en], settings: [], state: active }
+  - { kind: model, id: deepgram/aura-2, type: tts, features: [streaming], languages: [en, es], settings: [], state: active }
+  - { kind: model, id: elevenlabs/eleven_flash_v2_5, type: tts, features: [streaming], languages: [en, es, multi], settings: [stability, similarity_boost, style, speed], state: active }
+  - { kind: model, id: openai/gpt-4o-mini, type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
+  - { kind: model, id: openai/gpt-4.1-mini, type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
+  # ---- voices: Deepgram Aura-2 (catalog id = deepgram/<Deepgram model name>) ---------------
+  - { kind: voice, id: deepgram/aura-2-thalia-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-andromeda-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-helena-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-luna-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-asteria-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-apollo-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-arcas-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-orion-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-zeus-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-draco-en, models: [deepgram/aura-2], language: en-GB, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-celeste-es, models: [deepgram/aura-2], language: es-CO, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-estrella-es, models: [deepgram/aura-2], language: es-MX, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-selena-es, models: [deepgram/aura-2], language: es-419, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-aquila-es, models: [deepgram/aura-2], language: es-419, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-javier-es, models: [deepgram/aura-2], language: es-MX, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-nestor-es, models: [deepgram/aura-2], language: es-ES, gender: male, state: active }
+  # ---- voices: ElevenLabs premade (catalog id = elevenlabs/<voice id>) -------------------
+  - { kind: voice, id: elevenlabs/21m00Tcm4TlvDq8ikWAM, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Rachel
+  - { kind: voice, id: elevenlabs/EXAVITQu4vr4xnSDxMaL, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Sarah
+  - { kind: voice, id: elevenlabs/cgSgspJ2msm6clMCkdW9, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Jessica
+  - { kind: voice, id: elevenlabs/XrExE9yKIg1WjnnlVkGX, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Matilda
+  - { kind: voice, id: elevenlabs/JBFqnCBsd6RMkjVDRZzb, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # George
+  - { kind: voice, id: elevenlabs/nPczCjzI2devNBz1zQrb, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Brian
+  - { kind: voice, id: elevenlabs/cjVigY5qzO86Huf0OWal, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Eric
+  - { kind: voice, id: elevenlabs/onwK4e9ZLuTAKqWW03F9, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Daniel
