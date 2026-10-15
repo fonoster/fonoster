@@ -1,0 +1,15 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-gateway
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  gateway.yaml: |
+    nats:
+      url: {{ .Values.nats.url | quote }}
+    rtp:
+      host: 0.0.0.0
+    {{- toYaml .Values.gateway.config | nindent 4 }}
+{{- end }}

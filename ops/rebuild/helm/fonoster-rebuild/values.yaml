@@ -1,0 +1,49 @@
+# NATS is an external dependency (use the official nats chart, or the one your platform runs).
+nats:
+  url: nats://nats:4222
+
+# Telemetry: any OTLP/HTTP endpoint, empty to run without it (services log to stdout).
+otel:
+  endpoint: ""
+
+gateway:
+  enabled: true
+  image: { repository: fonoster/gateway, tag: dev, pullPolicy: IfNotPresent }
+  replicas: 2
+  # In-flight sessions are not moved between replicas; give calls time to finish on rollout.
+  terminationGracePeriodSeconds: 30
+  # Rendered into gateway.yaml next to nats.url. Secrets: inline or secret:// references.
+  config:
+    apps: []
+    providers: {}
+    # http: { port: 8080, accountSid: "", authToken: "" }
+  service: { type: ClusterIP, port: 8080 }
+  resources: {}
+  podDisruptionBudget: { minAvailable: 1 }
+
+medianode:
+  enabled: true
+  image: { repository: fonoster/medianode, tag: dev, pullPolicy: IfNotPresent }
+  # Each pod is one node; its id is the pod name.
+  replicas: 2
+  # Drain grace = the node's drain wait (maxWait): SIGTERM stops new rooms, existing ones may end
+  # naturally until this many seconds pass.
+  drainGraceSeconds: 600
+  # RTP is UDP on a port range, so the pod uses the host network by default.
+  hostNetwork: true
+  rtp:
+    portMin: 30000
+    portMax: 30199
+    # Address Routr/RTPEngine reach. "hostIP" uses the node's IP (downward API); or set a literal.
+    advertise: hostIP
+  sip:
+    listen: 0.0.0.0:5060
+    advertise: hostIP
+  routr:
+    registrar: routr:5060
+    domain: nodes.fonoster.local
+    username: ""          # empty: the pod name
+    # Name of a Secret with key `password` (the peer password at Routr).
+    passwordSecret: medianode-peer
+    outboundProxy: routr:5060
+  resources: {}
