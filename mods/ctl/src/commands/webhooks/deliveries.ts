@@ -56,7 +56,7 @@ export default class Deliveries extends AuthenticatedCommand<
 
       const ui = cliui({ width: 200 });
       ui.div(
-        { text: "REF", padding: [0, 0, 0, 0], width: 40 },
+        { text: "REF", padding: [0, 2, 0, 0], width: 46 },
         { text: "EVENT", padding: [0, 0, 0, 0], width: 22 },
         { text: "STATUS", padding: [0, 0, 0, 0], width: 11 },
         { text: "ATTEMPTS", padding: [0, 0, 0, 0], width: 10 },
@@ -66,7 +66,7 @@ export default class Deliveries extends AuthenticatedCommand<
       );
       response.items.forEach((d) => {
         ui.div(
-          { text: d.ref, padding: [0, 0, 0, 0], width: 40 },
+          { text: d.ref, padding: [0, 2, 0, 0], width: 46 },
           { text: d.eventType, padding: [0, 0, 0, 0], width: 22 },
           { text: d.status, padding: [0, 0, 0, 0], width: 11 },
           { text: String(d.attempts), padding: [0, 0, 0, 0], width: 10 },

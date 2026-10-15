@@ -449,3 +449,13 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - `workspaces:login --endpoint --access-key-id --access-key-secret` skips the questions (for
   scripts and the try-it guide). The secret then sits in shell history; the questions remain the
   default.
+
+### CLI-B8. Smoke against the local stack
+- Ran with `ops/rebuild/stack up && seed && call` (own project/ports): login, `applications`
+  list/get/update (Autopilot: patience, recording)/create (twilio flavor, listener)/rotate-secret/
+  delete, an unknown voice refused by the catalog check, `providers` catalog and keys,
+  every `webhooks` command, `records` list/get and downloads (WAV, vCon, signed) and an outbound
+  call printing TRYING, PROGRESS, FAILED (no carrier) and exiting on its own.
+- Found and fixed: webhook refs (`whe_` + uuid) ran into the next column; a record's detail lists
+  manifest entries (`{name, size, ...}`) while `CallRecordSummary.parts` in `@fonoster/types` says
+  `string[]` (the CLI shows both; the type is not changed here).

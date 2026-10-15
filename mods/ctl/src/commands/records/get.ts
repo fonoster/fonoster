@@ -24,6 +24,13 @@ import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import errorHandler from "../../errorHandler";
 import { formatDate } from "../../utils/format";
 
+// The summary lists part names; the detail lists manifest entries ({ name, size, ... }).
+function partLabel(part: unknown): string {
+  if (typeof part === "string") return part;
+  const p = part as { name?: string; size?: number };
+  return p.size ? `${p.name} (${p.size} bytes)` : String(p.name);
+}
+
 export function formatRecord(r: CallRecordDetail): string {
   const vcon = (r.vcon ?? {}) as {
     analysis?: Array<{ type?: string; body?: unknown }>;
@@ -49,7 +56,7 @@ export function formatRecord(r: CallRecordDetail): string {
     `DURATION: \t${Math.round(r.durationSeconds ?? 0)}s`,
     `REGION: \t${r.region || "-"}`,
     `VERSION: \t${r.version} of ${r.currentVersion ?? r.version}${r.redacted ? " (redacted)" : ""}`,
-    `PARTS: \t${(r.parts ?? []).join(", ") || "-"}`,
+    `PARTS: \t${((r.parts ?? []) as unknown[]).map(partLabel).join(", ") || "-"}`,
     ...(turns !== undefined ? [`TRANSCRIPT: \t${turns} entries`] : []),
     `SIZE: \t${r.size ?? 0} bytes`
   ].join("\n");

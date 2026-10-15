@@ -47,13 +47,13 @@ export default class List extends AuthenticatedCommand<typeof List> {
 
       const ui = cliui({ width: 200 });
       ui.div(
-        { text: "REF", padding: [0, 0, 0, 0], width: 40 },
+        { text: "REF", padding: [0, 2, 0, 0], width: 46 },
         { text: "URL", padding: [0, 0, 0, 0], width: 60 },
         { text: "EVENTS", padding: [0, 0, 0, 0] }
       );
       response.items.forEach((webhook) => {
         ui.div(
-          { text: webhook.ref, padding: [0, 0, 0, 0], width: 40 },
+          { text: webhook.ref, padding: [0, 2, 0, 0], width: 46 },
           { text: webhook.url, padding: [0, 0, 0, 0], width: 60 },
           { text: webhook.events.join(", "), padding: [0, 0, 0, 0] }
         );

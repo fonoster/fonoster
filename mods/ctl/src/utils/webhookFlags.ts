@@ -24,7 +24,7 @@ export const WEBHOOK_EVENTS = [...Webhooks.WEBHOOK_EVENT_TYPES] as string[];
 export const eventFlag = (required: boolean) =>
   Flags.string({
     char: "e",
-    description: `an event to receive (repeatable): ${WEBHOOK_EVENTS.join(", ")}`,
+    description: "an event to receive (repeatable)",
     options: WEBHOOK_EVENTS,
     multiple: true,
     required

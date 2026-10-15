@@ -104,6 +104,11 @@ describe("@ctl[records]", function () {
       ...summary,
       currentVersion: 2,
       redacted: true,
+      // The detail lists manifest entries, not names.
+      parts: [
+        { name: "recording", size: 1000 },
+        { name: "transcript", size: 20 }
+      ] as never,
       vcon: { analysis: [{ type: "transcript", body: [{}, {}, {}] }] },
       jws: {}
     });
@@ -120,7 +125,7 @@ describe("@ctl[records]", function () {
       original: false
     });
     expect(stdout).to.contain("1 of 2 (redacted)");
-    expect(stdout).to.contain("recording, transcript");
+    expect(stdout).to.contain("recording (1000 bytes), transcript (20 bytes)");
     expect(stdout).to.contain("3 entries");
     expect(stdout).to.contain("65s");
   });
