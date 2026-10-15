@@ -18,6 +18,7 @@
  */
 import * as SDK from "@fonoster/sdk";
 import { confirm, input, password } from "@inquirer/prompts";
+import { Flags } from "@oclif/core";
 import { BaseCommand } from "../../BaseCommand";
 import { addWorkspace, getConfig, WorkspaceConfig } from "../../config";
 import { saveConfig } from "../../config/saveConfig";
@@ -25,9 +26,39 @@ import { CONFIG_FILE } from "../../constants";
 
 export default class Login extends BaseCommand<typeof Login> {
   static override description = "link a Workspace to the local environment";
-  static override examples = ["<%= config.bin %> <%= command.id %>"];
+  static override examples = [
+    "<%= config.bin %> <%= command.id %>",
+    "<%= config.bin %> <%= command.id %> --insecure --endpoint localhost:16449 --access-key-id WO... --access-key-secret ..."
+  ];
+  static override flags = {
+    endpoint: Flags.string({
+      char: "e",
+      description: "the API endpoint (skips the questions with the key flags)"
+    }),
+    "access-key-id": Flags.string({ description: "a Workspace API key id" }),
+    "access-key-secret": Flags.string({
+      description: "the API key secret"
+    })
+  };
 
   public async run(): Promise<void> {
+    const { flags } = await this.parse(Login);
+    if (flags["access-key-id"] && flags["access-key-secret"]) {
+      const answers = {
+        endpoint: flags.endpoint ?? "api.fonoster.com",
+        accessKeyId: flags["access-key-id"],
+        accessKeySecret: flags["access-key-secret"]
+      };
+      const workspaceFromDB = await this.getWorkspaceFromDB(answers);
+      this.saveConfig({
+        ...answers,
+        workspaceAccessKeyId: workspaceFromDB.accessKeyId,
+        ref: workspaceFromDB.ref,
+        name: workspaceFromDB.name
+      });
+      return;
+    }
+
     this.log("This utility will help you add a Workspace.");
     this.log("Press ^C at any time to quit.");
 

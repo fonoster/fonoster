@@ -133,6 +133,63 @@ Every call is sealed as a signed record (vCon) in MinIO and indexed by the API s
 - The objects: MinIO console <http://localhost:16901> (user and password in `info`), bucket
   `records`.
 
+## From the terminal
+
+The `fonoster` CLI (`mods/ctl`) drives the same API. Build it once from this checkout and log in
+with the workspace API key that `ops/rebuild/stack info` prints:
+
+```sh
+(cd mods/ctl && npx tsc -b)
+alias fonoster="node $PWD/mods/ctl/bin/run.js"
+fonoster workspaces:login --insecure --endpoint localhost:16449 \
+  --access-key-id <API key id> --access-key-secret <API key secret>
+```
+
+Every command below talks to the active workspace and needs `--insecure` (`-i`) on the local
+stack, which has no TLS.
+
+Apps (a WebSocket URL + flavor + speech defaults, or an Autopilot assistant):
+
+```sh
+fonoster applications:list -i
+fonoster applications:get -i <app-ref>
+fonoster applications:create -i --name "My bot" --url wss://bot.example.com/session \
+  --voice deepgram/aura-2-thalia-en --stt-model deepgram/nova-3 --recording on
+fonoster applications:create -i --name "Twilio bot" --url wss://bot.example.com/media --flavor twilio
+fonoster applications:create -i --name Receptionist --assistant assistant.yaml
+fonoster applications:update -i <app-ref> --patience high --listener wss://rec.example.com/ws,inbound
+fonoster applications:rotate-secret -i <app-ref>   # the new signing secret, shown once
+```
+
+`create` prints the app's signing secret once (Autopilot apps share the hosted Autopilot's, so
+none is shown). `update` changes only the flags you pass; `--from-file app.yaml` takes the same
+fields as the API (`url`, `flavor`, `speech`, `audio`, `listeners`, `recording`,
+`fallbackAppRef`, ... and `assistant` for an Autopilot app).
+
+Voices and models are catalog ids; vendor keys are per workspace:
+
+```sh
+fonoster providers:catalog -i --kind voice
+fonoster providers:keys:set -i deepgram          # asks for the key (no echo)
+fonoster providers:keys:list -i
+fonoster providers:keys:delete -i deepgram
+```
+
+Webhooks, call records and outbound calls:
+
+```sh
+fonoster webhooks:create -i --url https://example.com/hooks -e call.ended -e call_record.sealed
+fonoster webhooks:deliveries -i            # the delivery log; webhooks:resend <delivery-ref>
+fonoster records:list -i --after 2026-10-01
+fonoster records:get -i <call-ref>
+fonoster records:download -i <call-ref>                  # <call-ref>.wav
+fonoster records:download -i <call-ref> --part vcon      # <call-ref>.vcon.json (signed: --part signed)
+fonoster sipnet:calls:create -i -f <from> -t <to> -a <app-ref>   # prints each dial status
+```
+
+`webhooks` also has `list`, `get`, `update`, `delete` and `rotate`. `fonoster --help` lists every
+command; `mods/ctl/README.md` has their flags.
+
 ## Real voices
 
 Put your keys in `ops/rebuild/.local/vendor.env` (created by the first `up`, git-ignored, never

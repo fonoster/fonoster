@@ -277,3 +277,12 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Adapters built with workspace keys are cached by provider and key for the process's life, not
   only the session; good enough for now.
 - The hosted Autopilot resolves LLM keys the same way (CP-B11).
+
+## 2026-10-15 (cli stream)
+
+### CLI-B7. `providers:*` commands
+- `providers:catalog [--kind provider|model|voice] [--type stt|tts|llm]` lists catalog ids with
+  state (a deprecated item shows its replacement) and languages.
+- `providers:keys:set <provider> [--key]` (asks without echo when `--key` is omitted),
+  `providers:keys:list` (never shows keys), `providers:keys:delete <provider>`.
+- Tests: `mods/ctl/test/providers`.

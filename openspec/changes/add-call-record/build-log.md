@@ -240,3 +240,15 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   Stripping only the text out of the messages was not chosen: which fields carry words differs
   by message type and app flavor.
 - Tests: callrecord "deleting the transcript also deletes the raw messages".
+
+## 2026-10-15 (cli stream)
+
+### CLI-B6. `records:*` commands
+- `records:list` (filters `--after --before --number --app --status`, `--page-size`, prints the
+  next `--page-token`), `records:get <callRef>` (a summary: parties, status, end reason, times,
+  version and redaction, parts, transcript size; `--version`, `--original`) and
+  `records:download <callRef> --part recording|vcon|signed [-o file]`: the WAV, the decoded vCon
+  JSON, or the signed JWS (the file to verify). Defaults: `<callRef>.wav`, `.vcon.json`,
+  `.vcon.jws.json`.
+- Erasure, part deletion, retention and the analytics rebuild have no CLI commands yet.
+- Tests: `mods/ctl/test/records`.

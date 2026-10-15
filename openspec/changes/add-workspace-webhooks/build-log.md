@@ -87,3 +87,14 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   re-checked); the node reads `FONOSTER_ALLOWED_DESTINATIONS` too.
 - Tests: `mods/common/test/net`, `mods/autopilot/test/session/tools.test.ts`,
   `go/medianode/internal/netguard`.
+
+## 2026-10-15 (cli stream)
+
+### CLI-B5. `webhooks:*` commands
+- `create --url -e <event>...` (prints the signing secret once), `list`, `get` (secret hint only),
+  `update <ref> [--url] [-e ...]` (`-e` replaces the event list), `delete`, `rotate` (prints the
+  new secret and until when the previous one is accepted), `deliveries [webhook-ref]` and
+  `resend <delivery-ref>`.
+- `--event` choices come from `WEBHOOK_EVENT_TYPES` in `@fonoster/common`, so a typo fails
+  before the API call.
+- Tests: `mods/ctl/test/webhooks`.

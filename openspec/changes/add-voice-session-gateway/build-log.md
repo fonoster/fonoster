@@ -411,3 +411,41 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   request without an accountSid) could be hung up by any authenticated account. Calls of
   config-file apps without a workspace can no longer be hung up through the endpoint.
 - Tests: `@gateway integration` "hangs up over the call subject only for the call's own workspace".
+
+## 2026-10-15 (cli stream)
+
+### CLI-B1. `applications:*` speak the session app model; updates start from the current app
+- `create`/`update` take flags for every app field: `--url`, `--flavor native|twilio`,
+  `--voice`/`--language`/`--stt-model`/`--tts-model` (catalog ids), `--silence-timeout`,
+  `--patience`, `--audio-codec`/`--audio-rate`, `--fallback-app`/`--fallback-message`,
+  `--listener <wss-url>[,inbound|outbound|both]` (repeatable; `--clear-listeners` on update),
+  `--recording off|on|consent`, and `--assistant <file>` (YAML/JSON) for an Autopilot app.
+  `--from-file` takes the API's fields, plus `assistant` inline.
+- The control plane replaces the whole app on update, so `update` reads the app, applies the file
+  and then the flags, and sends it all: "only the flags you pass change". An Autopilot app keeps
+  its assistant and follows the operator's hosted URL (the CLI never sends its `url`).
+- The old wizard (STT/TTS vendor, model and `endpoint` questions) is gone; with no `--name` and no
+  file, `create` asks five questions in the new model. `get`/`list` show kind, URL, flavor,
+  speech, audio, listeners, recording, fallback and the secret hint.
+- The CLI checks the obvious (name, url for external apps, assistant and native flavor for
+  Autopilot) before the round trip; everything else is the API's validation.
+- `applications:rotate-secret` prints the new secret once; `create` prints the app's secret once
+  (none for Autopilot apps, which share the hosted Autopilot's). Any `apiKey` in an assistant file
+  is dropped: model keys are vendor keys (`providers:keys:set`).
+- Tests: `mods/ctl/test/applications`, `mods/ctl/test/createOrUpdateApplication.test.ts`.
+
+### CLI-B2. Outbound calls follow the status by default
+- `sipnet:calls:create` prints every dial status until a final one (ANSWER, BUSY, CANCEL, FAILED,
+  NOANSWER) and returns; `--detach` prints only the ref. `--track-call` and the `process.exit`
+  are gone; bad `--metadata` JSON is a clear error. `--app-ref` stays required (the API needs it).
+- Tests: `mods/ctl/test/calls`.
+
+### CLI-B3. The records API URL comes from the workspace endpoint
+- The CLI passes `httpUrl` to the SDK client: `http://<endpoint>` with `--insecure`,
+  `https://<endpoint>` otherwise (an endpoint with a scheme is used as is). Envoy serves gRPC and
+  `/api` on the same port, so the local stack works with `localhost:16449`.
+
+### CLI-B4. Non-interactive login
+- `workspaces:login --endpoint --access-key-id --access-key-secret` skips the questions (for
+  scripts and the try-it guide). The secret then sits in shell history; the questions remain the
+  default.
