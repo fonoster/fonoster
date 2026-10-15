@@ -28,6 +28,8 @@ import {
   GetApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
+  RotateSigningSecretRequest,
+  RotateSigningSecretResponse,
   TestTokenResponse,
   UpdateApplicationRequest,
   UpdateApplicationResponse
@@ -58,6 +60,10 @@ type ApplicationsClient = {
     metadata?: Record<string, string> | null
   ) => ClientReadableStream<EvaluateIntelligenceEvent>;
   createTestToken: ClientFunction<Empty, TestTokenResponse>;
+  rotateSigningSecret: ClientFunction<
+    RotateSigningSecretRequest,
+    RotateSigningSecretResponse
+  >;
 };
 
 export { ApplicationsClient };

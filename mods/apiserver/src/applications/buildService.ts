@@ -35,7 +35,16 @@ function buildService(
   testTokenConfig: TestTokenConfiguration,
   config: SessionAppsConfig = SESSION_APPS as SessionAppsConfig
 ) {
-  const integrations = getIntegrationsFromFile(INTEGRATIONS_FILE);
+  // Read on first use: only the legacy assistant evaluation needs the integrations file.
+  let evaluate: ReturnType<typeof createEvaluateIntelligence> | undefined;
+  const evaluateIntelligence = (
+    ...args: Parameters<ReturnType<typeof createEvaluateIntelligence>>
+  ) => {
+    evaluate ??= createEvaluateIntelligence(
+      getIntegrationsFromFile(INTEGRATIONS_FILE)
+    );
+    return evaluate(...args);
+  };
 
   return {
     definition: {
@@ -51,7 +60,7 @@ function buildService(
       deleteApplication: createDeleteApplication(prisma),
       updateApplication: createUpdateApplication(prisma, config),
       rotateSigningSecret: createRotateSigningSecret(prisma, config),
-      evaluateIntelligence: createEvaluateIntelligence(integrations),
+      evaluateIntelligence,
       createTestToken: createCreateTestToken(testTokenConfig)
     }
   };
