@@ -12,5 +12,5 @@
       "path": "../common",
     }
   ],
-  "exclude": ["node_modules", "dist", "test", "session.js", "session.d.ts"]
+  "exclude": ["node_modules", "dist", "test", "examples", "session.js", "session.d.ts"]
 }
