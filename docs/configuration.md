@@ -8,9 +8,11 @@ Fonoster is three deployables, each configured on its own:
 | Autopilot | `autopilot-session.yaml` | One file for every replica |
 | Dashboard | `DASHBOARD_API_URL` | Everything else comes from the API server |
 
-Third-party containers (Routr, RTPEngine, Postgres, InfluxDB, NATS, Envoy) keep
-their environment variables in `.env`. The media nodes and the gateway run from
-`ops/rebuild/compose.yaml` (docs/operators/rebuild.md).
+The Compose stack is `ops/rebuild/compose.yaml` (the root `compose.yaml` includes
+it; docs/operators/rebuild.md), and `ops/rebuild/stack up` renders every file
+below for one machine (docs/try-the-new-platform.md). `compose.dev.yaml` holds
+the developer services (Routr, RTPEngine, Postgres, InfluxDB, NATS, Envoy, with
+their environment variables in `.env`) for running the services from source.
 
 The dashboard is a static app behind nginx. At start-up it writes `/config.js`
 and its Content-Security-Policy from `DASHBOARD_API_URL` (the API's public URL as
@@ -28,7 +30,7 @@ mkdir -p config/keys                                   # signing keys for tokens
 openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:2048 -out config/keys/private.pem
 openssl rsa -in config/keys/private.pem -pubout -out config/keys/public.pem
 chmod 600 config/fonoster.yaml config/autopilot-session.yaml
-docker compose up -d
+docker compose -f compose.dev.yaml up -d   # developer services; the platform: ops/rebuild/stack up
 ```
 
 ## How the files work

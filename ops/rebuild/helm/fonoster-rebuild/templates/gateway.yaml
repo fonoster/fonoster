@@ -37,6 +37,13 @@ spec:
             - name: APISERVER_ENCRYPTION_KEY
               valueFrom: { secretKeyRef: { name: {{ $db | quote }}, key: key } }
             {{- end }}
+            {{- with .Values.gateway.analyticsSecret }}
+            # ClickHouse credentials for config callRecord.analytics.clickhouse (LO-B6).
+            - name: CLICKHOUSE_USER
+              valueFrom: { secretKeyRef: { name: {{ . | quote }}, key: user } }
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ . | quote }}, key: password } }
+            {{- end }}
           ports:
             - { name: http, containerPort: 8080 }
           volumeMounts:

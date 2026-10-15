@@ -96,7 +96,7 @@ On first start it runs `npm ci`, copies `.env.example.dev` to `.env` and `config
 The container holds the Node workspace and tooling only. Postgres, NATS, InfluxDB, Routr, RTPEngine, envoy and mailhog keep running on your host's Docker engine. The container talks to that engine through the mounted Docker socket, so from inside it you can run:
 
 ```bash
-npm run start:services   # docker compose -f compose.yaml -f compose.dev.yaml up ...
+npm run start:services   # docker compose -f compose.dev.yaml up ...
 ```
 
 The repo is mounted at the same path as on your host, so the bind mounts in the compose files (`./.keys`, `./etc`, `./config`) resolve correctly on the host's Docker engine. Those services publish their ports on the host. Inside the container, `postgres`, `nats`, `influxdb`, `routr`, `envoy` and `mailhog` resolve to the host, so the example configs work as they are. The apiserver's port 50051 is published on the host, which lets envoy reach it at `DOCKER_HOST_ADDRESS`. Ports 3030 (dashboard), 6006 (Storybook), 50061 (autopilot), 8449 (envoy) and 8025 (mailhog) are forwarded.

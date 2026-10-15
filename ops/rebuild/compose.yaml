@@ -6,7 +6,8 @@
 #                  and (profile `autopilot`) the hosted Autopilot session engine.
 #   Control plane: the apiserver (with its embedded Identity), Envoy and the dashboard.
 #   Profiles:      `autopilot`, `fakes` (fake TTS/STT/LLM, no vendor keys), `tools` (the SIP caller
-#                  bot), `observability` (OTel collector, Prometheus, Loki, Tempo, Grafana).
+#                  bot), `observability` (OTel collector, Prometheus, Loki, Tempo, Grafana),
+#                  `analytics` (ClickHouse, loaded with every sealed call record's metrics).
 #
 #   docker compose -f ops/rebuild/compose.yaml --profile autopilot up -d --build
 #   OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318 \
@@ -200,6 +201,9 @@ services:
       # Vendor keys, read only when gateway.yaml names them (credential.env).
       DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:-}
       ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      # ClickHouse, read only when gateway.yaml has callRecord.analytics (profile `analytics`).
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-fonoster}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
     volumes:
       - ${RB_CONFIG_DIR:-./config}/gateway.yaml:/etc/fonoster/gateway.yaml:ro
       - ${RB_CONFIG_DIR:-./config}/keys:/etc/fonoster/keys:ro
@@ -305,6 +309,33 @@ services:
     expose:
       - 3030
 
+  # ---- profile `analytics`: ClickHouse for call metrics (add-call-record 6.1, LO-B6) ----
+  # The gateway loads each sealed record's redacted copy into fonoster.call_metrics (created on
+  # first use) when gateway.yaml has callRecord.analytics.clickhouse (the stack adds it with this
+  # profile). Rebuild from the records with `fonoster-callrecord analytics rebuild`. No default
+  # password (RV-B6): without CLICKHOUSE_PASSWORD the image allows no network access.
+  clickhouse:
+    profiles: ["analytics"]
+    image: clickhouse/clickhouse-server:24.8
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DB: fonoster
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-fonoster}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "0"
+    ulimits:
+      nofile: { soft: 262144, hard: 262144 }
+    # HTTP interface, host-only by default (RV-B6); RB_CLICKHOUSE_BIND=0.0.0.0 opts in.
+    ports:
+      - "${RB_CLICKHOUSE_BIND:-127.0.0.1}:${RB_CLICKHOUSE_PORT:-8123}:8123"
+    volumes:
+      - clickhouse:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   # ---- profile `fakes`: fake TTS (:7001), STT (:7002) and LLM (:7003) ----
   fakes:
     profiles: ["fakes"]
@@ -387,3 +418,4 @@ volumes:
   nats:
   nats-regions:
   minio:
+  clickhouse:

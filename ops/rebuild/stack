@@ -84,6 +84,8 @@ init_local() {
     var="NATS_${svc}_PASSWORD"
     grep -q "^$var=" "$STACK_ENV" || echo "$var=$(rand)" >> "$STACK_ENV"
   done
+  # ClickHouse (profile analytics); added to stack.env files made before it.
+  grep -q "^CLICKHOUSE_PASSWORD=" "$STACK_ENV" || echo "CLICKHOUSE_PASSWORD=$(rand)" >> "$STACK_ENV"
   if [ ! -f "$CONF/keys/private.pem" ]; then
     log "generating Identity's signing keys"
     openssl genrsa -out "$CONF/keys/private.pem" 2048 2>/dev/null
@@ -297,6 +299,13 @@ callRecord:
   store: $s3_store
   recording: off
 EOF
+  # Profile analytics: every sealed record's metrics go to ClickHouse (LO-B6).
+  if [[ ",${RB_PROFILES:-autopilot,fakes,tools,regions}," == *",analytics,"* ]]; then
+    cat >> "$CONF/gateway.yaml" <<EOF
+  analytics:
+    clickhouse: { url: "http://clickhouse:8123", database: fonoster }
+EOF
+  fi
 
   # The hosted Autopilot: assistants, the catalog and workspace vendor keys from the database. A
   # language-model provider without a platform key answers through the fake LLM (same ids).

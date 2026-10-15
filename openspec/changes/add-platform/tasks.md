@@ -21,10 +21,11 @@
 - [ ] 2.6 Default observability profile (Grafana, Tempo, Loki, Prometheus) for Compose and Helm
   - Compose profile `observability` is written and validated with `docker compose config`; not brought up end to end, and no Helm equivalent yet (PL-B6).
   - Compose profile brought up and verified end to end (Tempo, Loki, Prometheus; HE-B9). Helm `observability.enabled` / `values-observability.yaml` written and render-tested, not installed on a cluster (HE-B7).
-- [ ] 2.7 Helm chart for all deployables; Compose updated (Asterisk and InfluxDB removed, NATS JetStream and leaf nodes, optional ClickHouse)
+- [x] 2.7 Helm chart for all deployables; Compose updated (Asterisk and InfluxDB removed, NATS JetStream and leaf nodes, optional ClickHouse)
   - `ops/rebuild/compose.yaml` and `ops/rebuild/helm/fonoster-rebuild` (gateway and media node, `helm lint` clean). Missing: apiserver, dashboard and Autopilot in the chart, ClickHouse, the root `compose.yaml` migration.
   - Compose now runs the whole platform with the control plane (apiserver, Envoy, dashboard, fakes, caller bot; appsync removed in FN-B1) and `ops/rebuild/stack` brings it up, seeds it and smoke-tests a call (ST-B1..B9). Helm still lacks the control plane.
   - Helm now has every deployable: apiserver + migrations Job, Envoy, dashboard, Autopilot, NATS + region hub, optional Postgres/MinIO (`values-cloud.yaml`, HE-B1..B5). Still missing: ClickHouse, the root `compose.yaml` migration, a cluster smoke install (HE-B7).
+  - Done (EV-B3): the root `compose.yaml` includes the rebuild stack (no Asterisk, no InfluxDB), NATS JetStream on (leaf nodes via the `regions` hub), ClickHouse as profile `analytics` wired to the gateway's analytics sink; Helm takes ClickHouse credentials (`gateway.analyticsSecret`). A cluster smoke install is still not done (HE-B7).
 - [x] 2.8 Region tokens, cell registration and config sync (numbers, apps, catalog) over the leaf node
   - Built and tested in add-private-regions (tasks 2.2–2.4, 3.1, 3.3); the chart wires the region hub (HE-B1).
 - [x] 2.9 Call-record index entries from cells; dashboard fetches private-cell records from the cell

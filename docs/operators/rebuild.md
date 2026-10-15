@@ -22,6 +22,7 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `fakes` (profile) | `ops/rebuild/docker/fakes.Dockerfile` | Fake TTS/STT/LLM for test deployments. |
 | `sipcaller` (profile `tools`) | media node image | The SIP caller bot (smoke tests). |
 | observability (profile) | otel-collector, prometheus, loki, tempo, grafana | See below. |
+| `clickhouse` (profile `analytics`) | `clickhouse/clickhouse-server` | Call metrics from every sealed record. See Analytics. |
 
 Each Fonoster service reads exactly one YAML file and never a `.env` file. The media node is
 configured with flags or `MEDIANODE_*` environment variables (a Go binary with no config file).
@@ -40,6 +41,11 @@ into the registry tables once the apiserver has migrated:
 docker compose -f ops/rebuild/compose.yaml up -d --build            # core
 docker compose -f ops/rebuild/compose.yaml --profile autopilot up -d # + Autopilot sessions
 ```
+
+The root `compose.yaml` includes this file, so `docker compose up` from the repository root runs
+the same stack (give it the same environment, e.g. `--env-file ops/rebuild/.local/stack.env`).
+`compose.dev.yaml` is not a deployment: it holds the developer services for running the
+TypeScript services from source.
 
 Compose-level knobs (host ports, tags, ranges) are `${VAR:-default}` values in the file:
 `RB_NATS_PORT`, `RB_SIP_PORT`, `RB_GATEWAY_PORT`, `RB_NODE_*`, `RTPENGINE_PORT_MIN/MAX`, and so on.
@@ -143,6 +149,30 @@ them one at a time (`gateway.podDisruptionBudget`) and give calls time via
 | Silent caller media timeout | 30 s | `-media-timeout`, `MEDIANODE_MEDIA_TIMEOUT` |
 | Heartbeat | 2 s | `-heartbeat` |
 | Call claim by a gateway | 500 ms, one retry, then 503 | fixed by the spec |
+
+## Analytics (profile `analytics`)
+
+ClickHouse holds one row per call (`fonoster.call_metrics`: status, duration, turns,
+interruptions, false cut-offs, recording) for dashboards and SQL. The gateway loads every sealed
+record's redacted copy after sealing; a failed load is logged and never touches the call or the
+record. Turn it on with the profile and the gateway key:
+
+```yaml
+# gateway.yaml
+callRecord:
+  analytics:
+    clickhouse: { url: "http://clickhouse:8123", database: fonoster }  # userEnv/passwordEnv: CLICKHOUSE_USER/PASSWORD
+```
+
+```sh
+CLICKHOUSE_PASSWORD=... docker compose -f ops/rebuild/compose.yaml --profile analytics up -d
+```
+
+With the local stack, add `analytics` to `RB_PROFILES` (`ops/rebuild/stack` then adds the key and
+generates the password). The HTTP interface is on `RB_CLICKHOUSE_PORT` (8123), host-only unless
+`RB_CLICKHOUSE_BIND` says otherwise. To refill the table from the records (after a schema change,
+or for records sealed before the profile was on): `fonoster-callrecord analytics rebuild
+--store-config '<ObjectStoreConfig JSON>' --clickhouse-url http://localhost:8123`.
 
 ## Observability
 

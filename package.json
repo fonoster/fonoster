@@ -61,9 +61,9 @@
     "start:mcp": "cross-env NODE_ENV=development LOGS_LEVEL=verbose npm run start:dev -w @fonoster/mcp",
     "start:oauth2-demo": "npm run start:oauth2-demo -w @fonoster/sdk",
     "start:sdk-demo": "npm run start:demo -w @fonoster/sdk",
-    "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine -d --remove-orphans",
+    "start:services": "cross-env docker compose -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine -d --remove-orphans",
     "start:storybook": "cross-env NODE_ENV=development npm run storybook -w @fonoster/dashboard",
-    "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
+    "stop:services": "cross-env docker compose -f compose.dev.yaml down",
     "pretest": ".scripts/check-preconditions.sh && npm run generate:keypair",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --timeout 30000 --ignore 'mods/**/*.integration.test.ts' 'mods/!(dashboard)/**/*.test.ts'"
   },

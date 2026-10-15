@@ -508,3 +508,34 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Tests (JetStream, `CONFORMANCE_JETSTREAM_URL`): Go `TestWriterPutsDeletesAndEntriesExpire`,
   e2e `TestNodeWritesTheSessionRegistry`; apiserver "places a call at once after a restart, from
   nodes in the registry", lease expiry; gateway `sessions.test.ts`.
+
+## 2026-10-15 (evals stream: Compose default, ClickHouse)
+
+### EV-B3. The rebuild stack is the Compose default; ClickHouse is profile `analytics` (2.7)
+
+- Verified first: the root `compose.yaml` was still the legacy production stack (0.26.0 images,
+  InfluxDB, autoheal, no gateway or media node; Asterisk already gone). `ops/rebuild/compose.yaml`
+  has no Asterisk and no InfluxDB, NATS runs JetStream (`config/nats.conf`), and leaf nodes come
+  through the `regions` hub (`nats-regions`, 7422).
+- Root `compose.yaml` is now only an `include` of `ops/rebuild/compose.yaml` (project directory
+  `ops/rebuild`, so its relative paths resolve as before): `docker compose up` from the root runs
+  the platform. `ops/rebuild/stack` still calls `ops/rebuild/compose.yaml` directly, unchanged.
+  Checked with `docker compose config` both ways.
+- `compose.dev.yaml` is now self-contained (the legacy base merged in): the developer services
+  for running the TS services from source (`npm run start:services`, the dev container, the
+  apiserver publish workflow), all switched to `-f compose.dev.yaml`. NATS there now runs with
+  `-js` (the gateway's session registry needs JetStream). InfluxDB stays only in this dev file,
+  because the apiserver's legacy call listing still reads it unless `listCallsFromIndex` is set
+  (leftover for whoever removes that path; the platform stack lists from the record index).
+- ClickHouse: `clickhouse/clickhouse-server:24.8` (the version LO-B6 tested), profile `analytics`,
+  database `fonoster`, HTTP on `RB_CLICKHOUSE_PORT` host-only, its own volume. No default password
+  (RV-B6): empty means the image allows no network access. The gateway gets `CLICKHOUSE_USER` /
+  `CLICKHOUSE_PASSWORD`; `ops/rebuild/stack` generates the password into stack.env and, when
+  `RB_PROFILES` contains `analytics`, adds `callRecord.analytics.clickhouse` to gateway.yaml.
+  Verified the container's auth setup with the sink's own tests (`clickhouse.test.ts` against a
+  throwaway `rb-evals-clickhouse`, 3 passing). Not brought up inside the full stack here.
+- Helm: the chart runs no ClickHouse (point the gateway at a managed one); new
+  `gateway.analyticsSecret` maps a Secret's `user`/`password` to the two variables (render and
+  lint checked, deployment suite green).
+- Left as is: the release workflow still seds image tags in the root `compose.yaml`; with the
+  include it finds none and reports "already up to date" (the stack builds or takes `RB_TAG`).
