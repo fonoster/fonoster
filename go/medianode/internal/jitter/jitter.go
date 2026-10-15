@@ -19,6 +19,8 @@ type Stats struct {
 	Duplicate uint64 `json:"duplicate"`
 	Overflow  uint64 `json:"overflow"`
 	Underruns uint64 `json:"underruns"`
+	// Stretched ticks held playout back one frame (concealed) to grow the delay after late packets.
+	Stretched uint64 `json:"stretched"`
 	// Trimmed frames were skipped on purpose to bring a grown buffer back to its target delay
 	// (after a burst); they are not counted as dropped.
 	Trimmed uint64 `json:"trimmed"`
@@ -30,7 +32,7 @@ func (s Stats) Dropped() uint64 { return s.Late + s.Overflow + s.Lost }
 // Add sums two stats.
 func (s Stats) Add(o Stats) Stats {
 	return Stats{s.Pushed + o.Pushed, s.Played + o.Played, s.Lost + o.Lost, s.Late + o.Late,
-		s.Duplicate + o.Duplicate, s.Overflow + o.Overflow, s.Underruns + o.Underruns, s.Trimmed + o.Trimmed}
+		s.Duplicate + o.Duplicate, s.Overflow + o.Overflow, s.Underruns + o.Underruns, s.Stretched + o.Stretched, s.Trimmed + o.Trimmed}
 }
 
 // Result of one Pop.
@@ -47,8 +49,11 @@ const (
 
 // Buffer is safe for one pusher and one popper.
 type Buffer struct {
-	// Prefetch is the playout delay in frames before playing starts (and after an underrun).
+	// Prefetch is the initial playout delay in frames (before playing starts and after an
+	// underrun). Late packets raise the delay a frame at a time up to MaxDelay; it decays back
+	// after quiet periods.
 	Prefetch int
+	MaxDelay int
 	// Max is the most frames held; the oldest is dropped beyond it.
 	Max int
 
@@ -63,7 +68,11 @@ type Buffer struct {
 	// are not audio, so they are neither played nor lost.
 	skips     map[uint64]bool
 	overTicks int
-	stats     Stats
+	// delay is the current target delay in frames; stretch asks Pop to hold back one tick.
+	delay      int
+	stretch    bool
+	quietTicks int
+	stats      Stats
 }
 
 // trimAfter is how many ticks in a row the buffer may sit above its target before one frame is
@@ -71,7 +80,17 @@ type Buffer struct {
 const trimAfter = 50
 
 // New returns a buffer with a 40 ms playout delay holding at most 200 ms.
-func New() *Buffer { return &Buffer{Prefetch: 2, Max: 10} }
+func New() *Buffer { return &Buffer{Prefetch: 2, MaxDelay: 5, Max: 10} }
+
+// decayAfter is how many ticks without a late packet bring the delay down one frame.
+const decayAfter = 500
+
+func (b *Buffer) target() int {
+	if b.delay < b.Prefetch {
+		b.delay = b.Prefetch
+	}
+	return b.delay
+}
 
 // extend unwraps a 16-bit sequence number near the highest one seen.
 func (b *Buffer) extend(seq uint16) uint64 {
@@ -102,6 +121,11 @@ func (b *Buffer) Push(p *rtp.Packet) {
 	ext := b.extend(p.SequenceNumber)
 	if b.anchored && ext < b.next {
 		b.stats.Late++
+		if b.MaxDelay > 0 && b.target() < b.MaxDelay {
+			b.delay++
+			b.stretch = true
+		}
+		b.quietTicks = 0
 		return
 	}
 	if _, dup := b.packets[ext]; dup {
@@ -156,11 +180,21 @@ func (b *Buffer) Pop() (Result, []byte) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	if !b.playing {
-		if len(b.packets) < b.Prefetch || len(b.packets) == 0 {
+		if len(b.packets) < b.target() || len(b.packets) == 0 {
 			return Silent, nil
 		}
 		b.playing, b.anchored = true, true
 		b.next = b.minKey()
+	}
+	if b.stretch {
+		// Hold playout back one frame: the delay grows and the next packets have time to arrive.
+		b.stretch = false
+		b.stats.Stretched++
+		return Lost, nil
+	}
+	if b.quietTicks++; b.quietTicks >= decayAfter && b.delay > b.Prefetch {
+		b.delay--
+		b.quietTicks = 0
 	}
 	for b.skips[b.next] {
 		delete(b.skips, b.next)
@@ -202,7 +236,7 @@ func (b *Buffer) popLocked() (Result, []byte) {
 
 // trim skips one frame when the buffer has stayed above its target for trimAfter ticks.
 func (b *Buffer) trim() {
-	if len(b.packets) <= b.Prefetch+2 {
+	if len(b.packets) <= b.target()+2 {
 		b.overTicks = 0
 		return
 	}

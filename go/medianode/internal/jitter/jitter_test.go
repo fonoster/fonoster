@@ -127,3 +127,32 @@ func TestGrownBufferIsTrimmed(t *testing.T) {
 		t.Fatalf("len %d stats %+v", b.Len(), s)
 	}
 }
+
+func TestDelayGrowsAfterLatePackets(t *testing.T) {
+	b := New()
+	seq := uint16(0)
+	late := func() uint64 { return b.Stats().Late }
+	// Every 10th packet arrives 3 frames late.
+	var held []*rtp.Packet
+	for tick := 0; tick < 400; tick++ {
+		p := pkt(seq)
+		seq++
+		if tick%10 == 5 {
+			held = append(held, p)
+		} else {
+			b.Push(p)
+		}
+		if len(held) > 0 && tick%10 == 8 {
+			b.Push(held[0])
+			held = held[1:]
+		}
+		b.Pop()
+	}
+	first := late()
+	if first == 0 || first > 5 {
+		t.Fatalf("late packets before adapting: %d", first)
+	}
+	if s := b.Stats(); s.Stretched == 0 || b.delay <= b.Prefetch {
+		t.Fatalf("delay did not grow: %+v delay %d", s, b.delay)
+	}
+}
