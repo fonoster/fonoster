@@ -152,7 +152,9 @@ export class Call {
   }
 
   /** Dials the app, then its fallback app; returns undefined when only a message is left. */
-  private async dial(app: AppConfig): Promise<{ app: AppConfig; socket: WebSocket } | undefined> {
+  private async dial(
+    app: AppConfig
+  ): Promise<{ app: AppConfig; socket: WebSocket } | undefined> {
     const retry = this.deps.config.retry ?? {};
     const options = {
       windowMs: retry.windowMs ?? DEFAULTS.retryWindowMs,
