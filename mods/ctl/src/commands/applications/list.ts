@@ -42,21 +42,40 @@ export default class List extends AuthenticatedCommand<typeof List> {
       pageSize: parseInt(flags["page-size"])
     });
 
-    const ui = cliui({ width: 170 });
+    const ui = cliui({ width: 200 });
 
     ui.div(
       { text: "REF", padding: [0, 0, 0, 0], width: 40 },
       { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
-      { text: "TYPE", padding: [0, 0, 0, 0], width: 10 },
-      { text: "ENDPOINT", padding: [0, 0, 0, 0] }
+      { text: "KIND", padding: [0, 0, 0, 0], width: 11 },
+      { text: "FLAVOR", padding: [0, 0, 0, 0], width: 8 },
+      { text: "VOICE", padding: [0, 0, 0, 0], width: 34 },
+      { text: "URL", padding: [0, 0, 0, 0] }
     );
 
     response.items.forEach((application) => {
       ui.div(
         { text: application.ref, padding: [0, 0, 0, 0], width: 40 },
         { text: application.name, padding: [0, 0, 0, 0], width: 30 },
-        { text: application.type, padding: [0, 0, 0, 0], width: 10 },
-        { text: application.endpoint, padding: [0, 0, 0, 0] }
+        {
+          text: application.type === "AUTOPILOT" ? "Autopilot" : "External",
+          padding: [0, 0, 0, 0],
+          width: 11
+        },
+        {
+          text: application.flavor || "native",
+          padding: [0, 0, 0, 0],
+          width: 8
+        },
+        {
+          text: application.speech?.voice || "-",
+          padding: [0, 0, 0, 0],
+          width: 34
+        },
+        {
+          text: application.url || application.endpoint || "-",
+          padding: [0, 0, 0, 0]
+        }
       );
     });
 

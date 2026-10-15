@@ -22,6 +22,15 @@ import { BaseCommand } from "./BaseCommand"; // Adjust the import based on your 
 import { getActiveWorkspace, getConfig } from "./config";
 import { CONFIG_FILE } from "./constants";
 
+/**
+ * The HTTP API (call records, `/api/records`) sits behind the same host and port as gRPC:
+ * `http://` for an insecure (local) endpoint, `https://` otherwise (CLI-B3).
+ */
+export function httpUrlFor(endpoint: string, insecure = false): string {
+  if (/^https?:\/\//.test(endpoint)) return endpoint.replace(/\/+$/, "");
+  return `${insecure ? "http" : "https"}://${endpoint}`.replace(/\/+$/, "");
+}
+
 export abstract class AuthenticatedCommand<
   T extends typeof Command
 > extends BaseCommand<T> {
@@ -39,7 +48,8 @@ export abstract class AuthenticatedCommand<
       const client = new SDK.Client({
         endpoint: activeWorkspace.endpoint,
         accessKeyId: activeWorkspace.workspaceAccessKeyId,
-        allowInsecure: this.flags.insecure
+        allowInsecure: this.flags.insecure,
+        httpUrl: httpUrlFor(activeWorkspace.endpoint, this.flags.insecure)
       });
 
       await client.loginWithApiKey(

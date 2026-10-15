@@ -16,44 +16,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { readFileSync } from "fs";
-import path from "path";
 import * as SDK from "@fonoster/sdk";
 import {
-  CreateApplicationRequest,
+  CreateApplicationResponse,
   UpdateApplicationRequest
 } from "@fonoster/types";
-import { load } from "js-yaml";
-import { AppConfig } from "./types";
+import {
+  ApplicationFlags,
+  applicationToRequest,
+  applyFlags,
+  AppRequest,
+  checkRequest,
+  fileToRequest,
+  readConfigFile
+} from "./applicationRequest";
 
+/**
+ * Creates an app, or updates one, from an optional YAML/JSON file in the app model plus flags.
+ * An update starts from the current app (the control plane replaces the whole app), then the
+ * file, then the flags.
+ */
 export async function createOrUpdateApplication(
   client: SDK.Client,
-  filePath: string,
+  filePath?: string,
   appRef?: string,
-  isUpdate = false
-) {
-  const fileContent = readFileSync(filePath, "utf8");
-  const fileExt = path.extname(filePath).toLowerCase();
-  type Config = CreateApplicationRequest & AppConfig & { ref?: string };
-  let config: Config;
-
-  if (fileExt === ".yaml" || fileExt === ".yml") {
-    config = load(fileContent) as Config;
-  } else if (fileExt === ".json") {
-    config = JSON.parse(fileContent) as Config;
-  } else {
-    throw new Error("Unsupported file format. Please use YAML or JSON files.");
-  }
-
+  isUpdate = false,
+  flags: ApplicationFlags = {}
+): Promise<CreateApplicationResponse> {
+  const fromFile: AppRequest = filePath
+    ? fileToRequest(readConfigFile(filePath))
+    : ({} as AppRequest);
   const applications = new SDK.Applications(client);
-
-  delete config.testCases;
-  delete config.intelligence?.config?.languageModel?.apiKey;
 
   if (isUpdate) {
     // The positional appRef takes precedence over any `ref` in the file; fall
     // back to the file's `ref` when the positional is omitted.
-    const ref = appRef ?? config.ref;
+    const ref = appRef ?? fromFile.ref;
 
     if (!ref) {
       throw new Error(
@@ -61,13 +59,24 @@ export async function createOrUpdateApplication(
       );
     }
 
-    delete config.ref;
-    const updateConfig: UpdateApplicationRequest = {
-      ...config,
-      ref
+    const current = applicationToRequest(
+      await applications.getApplication(ref)
+    );
+    const merged: AppRequest = {
+      ...current,
+      ...fromFile,
+      speech: { ...(current.speech ?? {}), ...(fromFile.speech ?? {}) }
     };
-    return applications.updateApplication(updateConfig);
+    delete merged.ref;
+    const request = applyFlags(merged, flags);
+    checkRequest(request);
+
+    const updateRequest: UpdateApplicationRequest = { ...request, ref };
+    return applications.updateApplication(updateRequest);
   }
 
-  return applications.createApplication(config);
+  delete fromFile.ref;
+  const request = applyFlags(fromFile, flags);
+  checkRequest(request);
+  return applications.createApplication(request);
 }

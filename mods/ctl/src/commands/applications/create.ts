@@ -16,154 +16,101 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS } from "@fonoster/common";
-import * as SDK from "@fonoster/sdk";
-import { CreateApplicationRequest } from "@fonoster/types";
+import { CreateApplicationResponse } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
-import { Flags } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import errorHandler from "../../errorHandler";
+import { applicationFlags } from "../../utils/applicationFlags";
 import { createOrUpdateApplication } from "../../utils/createOrUpdateApplication";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description =
     "add a new Application to the active Workspace";
-  static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
-  static override readonly flags = {
-    "from-file": Flags.string({
-      char: "f",
-      description: "create Application from YAML or JSON file"
-    })
-  };
+  static override readonly examples = [
+    "<%= config.bin %> <%= command.id %> --name Bot --url wss://bot.example.com/session",
+    "<%= config.bin %> <%= command.id %> --name Bot --url wss://bot.example.com/media --flavor twilio",
+    "<%= config.bin %> <%= command.id %> --name Receptionist --assistant assistant.yaml --voice deepgram/aura-2-thalia-en",
+    "<%= config.bin %> <%= command.id %> --from-file app.yaml",
+    "<%= config.bin %> <%= command.id %>   # asks for the basics"
+  ];
+  static override readonly flags = applicationFlags;
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(Create);
-    const client = await this.createSdkClient();
-
-    if (flags["from-file"]) {
-      try {
-        await createOrUpdateApplication(client, flags["from-file"] as string);
-        this.log("Done!");
-        return;
-      } catch (e) {
-        errorHandler(e, this.error.bind(this));
-        return;
-      }
-    }
-
-    this.log("This utility will help you create an Application.");
-    this.log("Press ^C at any time to quit.");
-
-    const answers = {
-      name: await input({
-        message: "Name",
-        required: true
-      }),
-      type: await select({
-        message: "Type",
-        choices: [{ name: "External", value: "External" }]
-      }),
-      endpoint: await input({
-        message: "Endpoint",
-        default: WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS,
-        required: true
-      }),
-      speechToText: {
-        productRef: await select({
-          message: "SST Vendor",
-          choices: [{ name: "Deepgram", value: "stt.deepgram" }]
-        }),
-        config: {
-          languageCode: await select({
-            message: "STT Language",
-            choices: [
-              { name: "English", value: "en-US" },
-              { name: "Spanish", value: "es-ES" },
-              { name: "Multilingual (Nova 3 or Nova 2)", value: "multi" }
-            ]
-          }),
-          model: await select({
-            message: "STT Model",
-            choices: [
-              { name: "Nova 3", value: "nova-3" },
-              { name: "Nova 2", value: "nova-2" },
-              { name: "Nova 2 Phone Call", value: "nova-2-phonecall" },
-              {
-                name: "Nova 2 Conversational AI",
-                value: "nova-2-conversationalai"
-              }
-            ],
-            default: "nova-3"
-          })
-        }
-      },
-      textToSpeech: {
-        productRef: await select({
-          message: "TTS Vendor",
-          choices: [
-            { name: "Deepgram", value: "tts.deepgram" },
-            { name: "ElevenLabs", value: "tts.elevenlabs" },
-            { name: "Google", value: "tts.google" },
-            { name: "Azure", value: "tts.azure" }
-          ]
-        }),
-        config: {}
-      }
-    };
-
-    const answersPartTwo = {
-      textToSpeech: {
-        config: {
-          model:
-            answers.textToSpeech.productRef === "tts.elevenlabs"
-              ? await select({
-                  message: "TTS Model",
-                  choices: [
-                    {
-                      name: "Multilingual v2",
-                      value: "eleven_multilingual_v2"
-                    },
-                    { name: "Flash v2.5", value: "eleven_flash_v2_5" },
-                    { name: "Flash v2", value: "eleven_flash_v" },
-                    { name: "Turbo v2", value: "eleven_turbo_v2" },
-                    { name: "Turbo v2.5", value: "eleven_turbo_v2_5" },
-                    {
-                      name: "Multilingual Speech to Speech",
-                      value: "eleven_multilingual_sts_v2"
-                    }
-                  ],
-                  default: "eleven_flash_v2_5"
-                })
-              : null,
-          voice: await input({
-            message: "TTS Voice",
-            required: true
-          })
-        }
-      },
-      confirm: await confirm({
-        message: "Ready?"
-      })
-    };
-
-    if (!answersPartTwo.confirm) {
-      this.log("Aborted!");
-      return;
-    }
-
-    answers.textToSpeech.config = {
-      ...answers.textToSpeech.config,
-      ...answersPartTwo.textToSpeech.config
-    };
+    const interactive = !flags["from-file"] && !flags.name;
 
     try {
-      const applications = new SDK.Applications(client);
+      const answers = interactive ? await this.ask() : {};
+      if (!answers) {
+        this.log("Aborted!");
+        return;
+      }
 
-      await applications.createApplication(answers as CreateApplicationRequest);
-
-      this.log("Done!");
+      const client = await this.createSdkClient();
+      const response = await createOrUpdateApplication(
+        client,
+        flags["from-file"],
+        undefined,
+        false,
+        { ...flags, ...answers }
+      );
+      this.printCreated(response);
     } catch (e) {
       errorHandler(e, this.error.bind(this));
     }
+  }
+
+  private printCreated(response: CreateApplicationResponse) {
+    this.log(`Application created: ${response.ref}`);
+    if (response.signingSecret) {
+      this.log(
+        `Signing secret: ${response.signingSecret}\n` +
+          "Save it now: it is shown only once (rotate it with applications:rotate-secret)."
+      );
+    }
+  }
+
+  private async ask() {
+    this.log("This utility will help you create an Application.");
+    this.log("Press ^C at any time to quit.");
+
+    const name = await input({ message: "Name", required: true });
+    const kind = await select({
+      message: "Kind",
+      choices: [
+        { name: "Your app (WebSocket URL)", value: "external" },
+        {
+          name: "Autopilot (hosted, with an assistant file)",
+          value: "autopilot"
+        }
+      ]
+    });
+    const answers: Record<string, string> = { name };
+    if (kind === "autopilot") {
+      answers.assistant = await input({
+        message: "Assistant file (YAML or JSON)",
+        required: true
+      });
+    } else {
+      answers.url = await input({
+        message: "URL (ws:// or wss://)",
+        required: true
+      });
+      answers.flavor = await select({
+        message: "Flavor",
+        choices: [
+          { name: "Native", value: "native" },
+          { name: "Twilio Media Streams", value: "twilio" }
+        ]
+      });
+    }
+    const voice = await input({
+      message: "Voice (catalog id, empty for the default)"
+    });
+    if (voice) answers.voice = voice;
+    const language = await input({ message: "Language", default: "en-US" });
+    if (language) answers.language = language;
+
+    return (await confirm({ message: "Ready?" })) ? answers : undefined;
   }
 }
