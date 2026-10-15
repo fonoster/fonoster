@@ -116,7 +116,11 @@ const fonosterConfigSchema = z
       .default({}),
     features: featuresSchema,
     mediaService: z.object({
-      provider: z.literal("asterisk").default("asterisk"),
+      /**
+       * `none` runs without Asterisk (the rebuild stack: Go media nodes and the gateway carry
+       * calls). The asterisk block is then unused but still parsed.
+       */
+      provider: z.enum(["asterisk", "none"]).default("asterisk"),
       asterisk: z.object({
         ariUrl: z.string().min(1),
         ariUsername: z.string().min(1),

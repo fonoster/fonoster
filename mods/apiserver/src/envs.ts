@@ -40,6 +40,9 @@ export const APISERVER_SIGNALING_SERVER = getSignalingServer(config);
 // Frontend configurations
 export const APP_URL = getAppUrl(config);
 
+/** `none`: no Asterisk; ARI and the ARI call manager are not started. */
+export const MEDIA_SERVICE_PROVIDER = config.mediaService.provider;
+
 export const ASTERISK_ARI_PROXY_URL = config.mediaService.asterisk.ariUrl;
 
 export const ASTERISK_ARI_SECRET = config.mediaService.asterisk.ariPassword;

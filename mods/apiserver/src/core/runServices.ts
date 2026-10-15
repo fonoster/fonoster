@@ -39,6 +39,7 @@ import {
   CALL_RECORDS,
   HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
+  MEDIA_SERVICE_PROVIDER,
   NATS_URL
 } from "../envs";
 import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
@@ -80,21 +81,28 @@ async function runServices() {
     db: prisma as unknown as RecordsDb
   });
 
-  // Connecting to Asterisk ARI
-  await connectToAri(
-    httpBridge(identityConfig, {
-      port: HTTP_BRIDGE_PORT,
-      routers: records.routers
-    })
-  );
-
-  // Additional Call Managers subscriber may be added here to handle call events
-  await runCallManager({
-    natsUrl: NATS_URL,
-    ariProxyUrl: ASTERISK_ARI_PROXY_URL,
-    ariUsername: ASTERISK_ARI_USERNAME,
-    ariPassword: ASTERISK_ARI_SECRET
+  const filesServer = httpBridge(identityConfig, {
+    port: HTTP_BRIDGE_PORT,
+    routers: records.routers
   });
+
+  if (MEDIA_SERVICE_PROVIDER === "none") {
+    // The rebuild stack: no Asterisk to wait for (the media nodes and gateway carry calls).
+    logger.info(
+      "mediaService.provider is none: ARI and the ARI call manager are off"
+    );
+  } else {
+    // Connecting to Asterisk ARI
+    await connectToAri(filesServer);
+
+    // Additional Call Managers subscriber may be added here to handle call events
+    await runCallManager({
+      natsUrl: NATS_URL,
+      ariProxyUrl: ASTERISK_ARI_PROXY_URL,
+      ariUsername: ASTERISK_ARI_USERNAME,
+      ariPassword: ASTERISK_ARI_SECRET
+    });
+  }
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);
