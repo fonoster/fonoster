@@ -743,7 +743,11 @@ export class AppSession {
 
   start() {
     const info = this.call.info;
-    const audio = this.app.audio ?? { codec: "pcm16" as const, rate: 16000 };
+    // Validated against the format menu (APP_AUDIO_FORMATS) when the app is loaded.
+    const audio = (this.app.audio ?? {
+      codec: "pcm16",
+      rate: 16000
+    }) as SessionStart["audio"];
     const start: SessionStart = {
       type: "session.start",
       protocol: SESSION_PROTOCOL,

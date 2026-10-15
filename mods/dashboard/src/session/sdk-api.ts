@@ -79,6 +79,10 @@ export function toSessionApp(app: Application): SessionApp {
       tracks: l.tracks ?? "both"
     })),
     recording: (app.recording ?? "") as SessionApp["recording"],
+    amd: app.amd?.enabled === true,
+    ...(app.amd?.enabled && app.amd.windowMs
+      ? { amdWindowMs: app.amd.windowMs }
+      : {}),
     ...(config ? { assistant: config as Record<string, unknown> } : {})
   };
 }
@@ -110,6 +114,12 @@ export function toRequest(
       .filter((l) => l.url.trim())
       .map((l) => ({ url: l.url.trim(), tracks: l.tracks })),
     recording: app.recording || undefined,
+    amd: app.amd
+      ? {
+          enabled: true,
+          ...(app.amdWindowMs ? { windowMs: app.amdWindowMs } : {})
+        }
+      : undefined,
     ...(autopilot && app.assistant
       ? { intelligence: { config: app.assistant } }
       : {})

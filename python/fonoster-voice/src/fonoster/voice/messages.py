@@ -167,6 +167,19 @@ Dtmf = TypedDict(
 )
 
 
+AmdResult = TypedDict(
+    "AmdResult",
+    {
+        "type": Literal["amd.result"],
+        "status": Literal["human", "voicemail", "ivr", "machine", "unknown"],
+        "confidence": float,
+        "detector": str,
+        "audioMs": float,
+        "reason": NotRequired[str],
+    },
+)
+
+
 Speak = TypedDict(
     "Speak",
     {
@@ -316,5 +329,5 @@ RecordNote = TypedDict(
 )
 
 
-GatewayMessage = Union[SessionStart, SessionEnd, ErrorMessage, TurnUserStarted, TurnLikelyEnded, TurnEnded, TurnResumed, TurnBackchannel, TurnEstimate, TranscriptPartial, OutputStarted, OutputDone, OutputInterrupted, MarkEvent, Dtmf]
+GatewayMessage = Union[SessionStart, SessionEnd, ErrorMessage, TurnUserStarted, TurnLikelyEnded, TurnEnded, TurnResumed, TurnBackchannel, TurnEstimate, TranscriptPartial, OutputStarted, OutputDone, OutputInterrupted, MarkEvent, Dtmf, AmdResult]
 AppCommand = Union[Speak, Play, ListenUpdate, Subscribe, MarkCommand, Clear, Hangup, DtmfSend, Transfer, TransferComplete, Hold, Resume, Handoff, RecordNote]

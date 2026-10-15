@@ -138,6 +138,19 @@ describe("@gateway apps", function () {
     expect(bad?.recording).to.be.undefined;
   });
 
+  it("appFromRow: reads the amd columns (AO-B1)", function () {
+    const row = {
+      ref: "a",
+      url: "wss://bot.example.com",
+      signingSecret: "s"
+    };
+    expect(appFromRow({ ...row, amd: false })?.amd).to.be.undefined;
+    expect(appFromRow({ ...row, amd: true })?.amd).to.equal(true);
+    expect(
+      appFromRow({ ...row, amd: true, amdWindowMs: 2500 })?.amd
+    ).to.deep.equal({ windowMs: 2500 });
+  });
+
   it("config: database features need a database URL", function () {
     const base: GatewayConfig = {
       nats: { url: "nats://x" },

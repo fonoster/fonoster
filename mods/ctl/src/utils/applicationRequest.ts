@@ -47,6 +47,8 @@ type ApplicationFlags = {
   listener?: string[];
   "clear-listeners"?: boolean;
   recording?: string;
+  amd?: boolean;
+  "amd-window"?: number;
 };
 
 type AppRequest = CreateApplicationRequest & { ref?: string };
@@ -111,7 +113,10 @@ function applicationToRequest(app: Application): AppRequest {
     fallbackAppRef: app.fallbackAppRef || undefined,
     fallbackMessage: app.fallbackMessage || undefined,
     listeners: app.listeners ?? [],
-    recording: (app.recording || undefined) as AppRequest["recording"]
+    recording: (app.recording || undefined) as AppRequest["recording"],
+    amd: app.amd?.enabled
+      ? compact({ enabled: true, windowMs: app.amd.windowMs })
+      : undefined
   };
   // Autopilot apps follow the operator's hosted Autopilot URL; only external apps carry theirs.
   if (app.type !== "AUTOPILOT") request.url = app.url || app.endpoint;
@@ -198,6 +203,12 @@ function applyFlags(base: AppRequest, flags: ApplicationFlags): AppRequest {
   }
   if (flags.recording !== undefined)
     request.recording = flags.recording as AppRequest["recording"];
+
+  if (flags.amd === false) request.amd = undefined;
+  else if (flags.amd || flags["amd-window"] !== undefined) {
+    const windowMs = flags["amd-window"] ?? request.amd?.windowMs;
+    request.amd = windowMs ? { enabled: true, windowMs } : { enabled: true };
+  }
 
   if (!request.type) request.type = "EXTERNAL" as AppRequest["type"];
   return request;

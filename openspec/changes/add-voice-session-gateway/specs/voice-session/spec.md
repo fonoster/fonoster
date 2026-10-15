@@ -268,6 +268,23 @@ app never waits forever.
 - **THEN** the app receives `turn.estimate` messages with `eot` between 0 and 1, `speaking` and `kind`
 - **AND** an app that never subscribes receives no `turn.estimate`
 
+### Requirement: Answering-machine detection reaches the app
+
+The gateway SHALL send exactly one `amd.result` per call to an app with answering-machine
+detection on (the app setting `amd`, with an optional window of caller audio, default 4 s), with
+`status` (`human`, `voicemail`, `ivr`, `machine` or `unknown`), `confidence`, `detector`, `audioMs`
+and, when detection could not run, `reason`. It SHALL be sent whether or not the app uses the Speech layer. The gateway
+SHALL NOT act on the verdict: hanging up or leaving a message is the app's decision.
+
+#### Scenario: Voicemail answers an outbound call
+- **WHEN** an app with `amd` on places a call that a voicemail greeting answers
+- **THEN** the app receives one `amd.result` with `status: "voicemail"` within the window plus a short grace
+- **AND** the call stays up until the app acts
+
+#### Scenario: Detection off
+- **WHEN** an app has `amd` off
+- **THEN** it receives no `amd.result`
+
 ### Requirement: Changing how the caller is heard
 
 The gateway SHALL accept `listen.update` with optional `language` (a catalog id or language code),
@@ -283,6 +300,21 @@ waits for more speech before `turn.ended`; see `turn-taking`), and apply them fr
 The gateway SHALL send the caller's audio as binary frames of 20 ms in the format announced in
 `session.start`. It SHALL accept agent audio as binary frames of any length in that format, queue
 them in the output queue and play them at real-time speed.
+
+A native app SHALL choose its format from this menu: `pcm16` (16-bit little-endian) at 8000, 16000
+or 24000 Hz, or `pcmu` (G.711 μ-law) at 8000 Hz; the default is `pcm16` at 16000 Hz. The format is
+independent of the caller's SIP codec: the media node negotiates PCMU, PCMA, G.722 or Opus with the
+caller and transcodes to the gateway's leg, which is always L16 at 16000 Hz. Opus is not offered
+over WebSocket in v1.
+
+#### Scenario: Any SIP codec reaches any app format
+- **WHEN** a caller whose phone negotiated Opus calls an app that chose `pcmu` at 8000 Hz
+- **THEN** `session.start` announces `pcmu` at 8000 Hz and every caller-audio frame is 160 bytes of μ-law
+- **AND** agent audio the app sends as μ-law is heard by the caller
+
+#### Scenario: Off-menu format
+- **WHEN** an app is configured with `opus` or `pcmu` at 16000 Hz
+- **THEN** the control plane (or the gateway's YAML check) rejects the app with a message naming the menu
 
 #### Scenario: Caller audio cadence
 - **WHEN** a session is active

@@ -204,5 +204,7 @@ Settled during the build (2026-10-15, see `build-log.md`; reversible):
    beyond either the command gets `error` `bad_message` and the session continues.
 7. ~~**Listener limits.**~~ Resolved for v1: at most 4 listeners, attached through app config
    (`listeners: [{url, tracks}]`). Still open: attaching to a running call through the API.
-8. **Which audio formats the native flavor offers.** μ-law 8 kHz and PCM16 at 8, 16 and 24 kHz
-   work (`apps[].audio`). Still open: Opus framing over WebSocket.
+8. ~~**Which audio formats the native flavor offers.**~~ Resolved (AO-B4): PCM16 at 8, 16 and
+   24 kHz and μ-law 8 kHz (`apps[].audio`). The gateway leg to the media node stays L16/16000; the
+   node negotiates PCMU, PCMA, G.722 and Opus with callers and transcodes. Opus over WebSocket is
+   not offered in v1 (it needs a native or WASM codec in the gateway).

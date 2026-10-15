@@ -33,7 +33,7 @@
 - [x] 4.2 Private region setup page and Region page
 - [x] 4.3 Secrets page for private workspaces; app warnings for missing keys (AD-B1)
 - [x] 4.4 Call content through the relay; offline states
-- [ ] 4.5 Flat fee per private region in billing; usage shown, not billed (SaaS only) (partial: note in Settings → Region, no Billing page yet; see RU-B7)
+- [x] 4.5 Flat fee per private region in billing; usage shown, not billed (SaaS only) (region drawer line with this month's minutes, cloud only; AO-B5)
 
 ## 5. Rework to the decisions of 2026-10-15 evening (PR-12..PR-21)
 

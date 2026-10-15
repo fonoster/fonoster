@@ -19,6 +19,7 @@
 import * as fs from "fs";
 import { resolveSecretRefs } from "@fonoster/common";
 import { parse } from "yaml";
+import { isAppAudioFormat } from "./audio/pcm";
 import { isDetectorChoice } from "./turn/createDetector";
 import type { ObjectStoreConfig } from "@fonoster/callrecord";
 
@@ -188,8 +189,11 @@ export type GatewayConfig = {
   /** Keepalive overrides (mainly for tests). */
   keepalive?: { pingIntervalMs?: number; idleTimeoutMs?: number };
   /** Call records (add-call-record): working records, sealing and signing. */
-  /** The AMD classifier (mods/amd's model); apps opt in with `amd`. */
-  amd?: { modelDir?: string };
+  /**
+   * The AMD classifier (mods/amd's model, on by default, loaded on the first AMD call); apps opt
+   * in with `amd`. `enabled: false` makes every verdict `unknown` / `no_classifier`.
+   */
+  amd?: { enabled?: boolean; modelDir?: string };
   callRecord?: {
     dir: string;
     region: string;
@@ -291,6 +295,10 @@ export function validateConfig(config: GatewayConfig): string[] {
     if (app.recording && !RECORDING_POLICIES.includes(app.recording))
       problems.push(
         `app ${app.ref}: unknown recording policy ${app.recording}`
+      );
+    if (app.audio && !isAppAudioFormat(app.audio))
+      problems.push(
+        `app ${app.ref}: audio must be pcm16 at 8000, 16000 or 24000 Hz, or pcmu at 8000 Hz`
       );
     if ((app.listeners?.length ?? 0) > 4) {
       problems.push(`app ${app.ref}: at most 4 listeners`);

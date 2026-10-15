@@ -223,3 +223,78 @@ describe("@gateway call recording through the Go media node", function () {
     }
   });
 });
+
+// Every SIP codec the node negotiates reaches the app in the app's format (AO-B4): the gateway leg
+// stays L16/16000 and the media node transcodes PCMU, PCMA, G.722 and Opus.
+describe("@gateway SIP codecs through the Go media node", function () {
+  this.timeout(30000);
+  let nc: NatsConnection;
+  let bins: MediaNodeBinaries | undefined;
+
+  before(async function () {
+    this.timeout(120000);
+    if (!NATS_URL) return this.skip();
+    bins = buildMediaNode(NATS_URL);
+    if (!bins) return this.skip();
+    nc = await connect({ servers: NATS_URL });
+  });
+
+  after(async () => nc?.close());
+
+  for (const codec of ["PCMU/8000", "PCMA/8000", "G722/8000", "opus/48000"]) {
+    it(`a ${codec} caller and a pcm16 app hear each other`, async function () {
+      const harness = await new RealMediaHarness(nc, bins!, {
+        vendorCalls: () => 0
+      }).start();
+      const gateway = await new Gateway({
+        config: configFor({ name: codec } as Scenario, harness),
+        nats: nc,
+        record: new MemoryCallRecordSink()
+      }).start();
+      try {
+        let peer;
+        try {
+          peer = await harness.offerCallAndAccept(5000, { codecs: [codec] });
+        } catch (e) {
+          // A node built without libopus refuses an Opus-only offer.
+          if (codec.startsWith("opus")) return this.skip();
+          throw e;
+        }
+        expect((await harness.media.status()).codec).to.equal(codec);
+        const commands = (await harness.measure("media.commands", 0)) as {
+          type: string;
+          rtp?: { codec?: string };
+        }[];
+        const gateLeg = commands.find((c) => c.type === "participant.add");
+        expect(gateLeg?.rtp?.codec).to.equal("L16/16000");
+
+        const before = peer.frames.items.length;
+        await harness.caller({ audio: { kind: "tone", ms: 600 } });
+        const deadline = Date.now() + 5000;
+        const loudFrames = () =>
+          peer!.frames.items.slice(before).filter((f) => {
+            if (f.kind !== "binary") return false;
+            const b = f.data as Buffer;
+            for (let i = 1; i + 1 < b.length; i += 2)
+              if (Math.abs(b.readInt16LE(i)) > 1000) return true;
+            return false;
+          }).length;
+        while (loudFrames() < 15) {
+          if (Date.now() > deadline) throw new Error("no caller tone");
+          await new Promise((r) => setTimeout(r, 20));
+        }
+
+        const since = Date.now();
+        peer.sendJson({ type: "speak", id: "s1", text: "Hello.", last: true });
+        while ((await harness.media.status(since)).audibleMsSince < 300) {
+          if (Date.now() > deadline + 5000)
+            throw new Error("the caller heard nothing");
+          await new Promise((r) => setTimeout(r, 50));
+        }
+      } finally {
+        await gateway.stop();
+        await harness.stop();
+      }
+    });
+  }
+});

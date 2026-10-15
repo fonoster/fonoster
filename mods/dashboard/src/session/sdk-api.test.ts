@@ -65,6 +65,22 @@ describe("SDK adapter", () => {
     expect(request.fallbackAppRef).toBeUndefined();
   });
 
+  it("maps the AMD setting both ways, keeping the window (AO-B1)", () => {
+    const on = toSessionApp({
+      ...app,
+      amd: { enabled: true, windowMs: 3000 }
+    } as Application);
+    expect(on).toMatchObject({ amd: true, amdWindowMs: 3000 });
+    expect(toRequest(on).amd).toEqual({ enabled: true, windowMs: 3000 });
+    const off = toSessionApp({
+      ...app,
+      amd: { enabled: false, windowMs: 0 }
+    } as Application);
+    expect(off.amd).toBe(false);
+    expect(toRequest(off).amd).toBeUndefined();
+    expect(toRequest({ ...off, amd: true }).amd).toEqual({ enabled: true });
+  });
+
   it("sends the assistant and no URL for an Autopilot app on the hosted Autopilot", () => {
     const request = toRequest({
       ...toSessionApp(app),

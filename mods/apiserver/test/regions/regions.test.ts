@@ -991,6 +991,20 @@ describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function (
       })
     );
     expect(usage.minutes).to.equal(12.5);
+    // The region view shows this month's minutes next to the flat fee (PR-11, AO-B5).
+    const period = new Date().toISOString().slice(0, 7);
+    send("usage", {
+      type: "region.usage",
+      workspaceRef: WS2,
+      minutes: 3,
+      period
+    });
+    const expected = 3 + (period === "2026-10" ? 12.5 : 0);
+    const viewed = await until(async () => {
+      const r = await api(`/api/regions/${ref}`, { user: OWNER });
+      return r.body.minutesThisMonth === expected ? r.body : undefined;
+    });
+    expect(viewed.minutesThisMonth).to.equal(expected);
     await wait(200);
     expect(
       await db!.prisma.callRecord.findUnique({

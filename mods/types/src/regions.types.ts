@@ -113,6 +113,8 @@ type Region = {
   endpoints?: RegionEndpoints;
   /** Private regions on the cloud: the flat monthly fee (PR-11); null when billing is off. */
   monthlyFeeCents?: number | null;
+  /** Private regions: minutes reported this calendar month (UTC); shown, not billed. */
+  minutesThisMonth?: number;
 };
 
 type CreateRegionRequest = {

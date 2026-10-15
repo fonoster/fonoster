@@ -190,3 +190,25 @@ def test_asgi_mount_verifies_and_runs_the_handler():
     assert calls == ["c1"]
     assert sent[0] == {"type": "websocket.accept"}
     assert any(json.loads(e["text"])["type"] == "speak" for e in sent if e.get("type") == "websocket.send")
+
+
+def test_amd_result_reaches_the_handler():
+    async def main():
+        seen = []
+
+        async def handler(session):
+            session.on("amd.result", seen.append)
+            await asyncio.sleep(0.2)
+
+        server = await standalone(handler)
+        peer = await FakeGateway(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
+        await peer.send_json(START)
+        await asyncio.sleep(0.03)
+        await peer.send_json(
+            {"type": "amd.result", "status": "voicemail", "confidence": 0.9, "detector": "fake", "audioMs": 4000}
+        )
+        await asyncio.sleep(0.05)
+        await server.close()
+        return seen
+
+    assert run(main()) == [{"status": "voicemail", "confidence": 0.9, "detector": "fake", "audioMs": 4000}]

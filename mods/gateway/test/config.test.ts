@@ -21,6 +21,7 @@ import { AddressInfo } from "net";
 import { expect } from "chai";
 import { NatsConnection } from "nats";
 import { GatewayConfig, loadConfig, providerKey, validateConfig } from "../src";
+import { APP_AUDIO_FORMATS } from "../src/audio/pcm";
 import {
   configPairAuthenticator,
   createHangupHandler,
@@ -69,6 +70,23 @@ describe("@gateway/config", function () {
     const problems = validateConfig(c).join();
     expect(problems).to.contain("ws:// or wss://");
     expect(problems).to.contain("fallback app missing");
+  });
+
+  it("accepts only formats on the audio menu (AO-B4)", function () {
+    for (const audio of APP_AUDIO_FORMATS) {
+      const c = base();
+      c.apps[0].audio = audio;
+      expect(validateConfig(c)).to.deep.equal([]);
+    }
+    for (const audio of [
+      { codec: "opus", rate: 48000 },
+      { codec: "pcmu", rate: 16000 },
+      { codec: "pcm16", rate: 44100 }
+    ]) {
+      const c = base();
+      c.apps[0].audio = audio as never;
+      expect(validateConfig(c).join()).to.contain("audio must be pcm16");
+    }
   });
 });
 

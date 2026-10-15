@@ -35,6 +35,7 @@ import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
+  AmdSettings as AmdSettingsPB,
   Application as ApplicationPB,
   ApplicationType,
   AudioFormat as AudioFormatPB,
@@ -98,7 +99,8 @@ const REQUEST_OBJECTS: [string, unknown][] = [
   ["intelligence", ProductContainerPB],
   ["speech", SpeechDefaultsPB],
   ["audio", AudioFormatPB],
-  ["listeners", ListenerPB]
+  ["listeners", ListenerPB],
+  ["amd", AmdSettingsPB]
 ];
 
 /** Repeated fields come back as `listenersList` when empty; always return `listeners`. */

@@ -312,7 +312,14 @@ class Session:
             self._barge_in()
             self._emit(t, {})
             self._input({"type": "turn.user_started"})
-        elif t in ("turn.likely_ended", "turn.resumed", "turn.backchannel", "transcript.partial", "turn.estimate"):
+        elif t in (
+            "turn.likely_ended",
+            "turn.resumed",
+            "turn.backchannel",
+            "transcript.partial",
+            "turn.estimate",
+            "amd.result",
+        ):
             self._emit(t, {k: v for k, v in msg.items() if k != "type"})
         # Unknown types are ignored (additive-only protocol).
 

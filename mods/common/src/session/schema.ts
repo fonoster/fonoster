@@ -64,8 +64,9 @@ export const sessionStartSchema = {
       type: "object",
       required: ["codec", "rate"],
       properties: {
-        codec: { enum: ["pcm16", "pcmu", "opus"] },
-        rate: { type: "integer" }
+        // The native format menu (voice-session OQ8, AO-B4); Opus is not offered over WebSocket.
+        codec: { enum: ["pcm16", "pcmu"] },
+        rate: { enum: [8000, 16000, 24000] }
       }
     },
     tracks: {
@@ -240,6 +241,22 @@ export const dtmfEventSchema = {
   }
 } as const;
 
+/** Answering-machine detection, once per call, for apps with `amd` (add-media-node 4.3). */
+export const amdResultSchema = {
+  type: "object",
+  required: ["type", "status", "confidence", "detector", "audioMs"],
+  properties: {
+    type: { const: "amd.result" },
+    status: { enum: ["human", "voicemail", "ivr", "machine", "unknown"] },
+    confidence: { type: "number", minimum: 0, maximum: 1 },
+    detector: { type: "string" },
+    /** How much caller audio the verdict is based on. */
+    audioMs: { type: "number", minimum: 0 },
+    /** Why detection could not run (status unknown): no_audio, no_classifier, call_ended, … */
+    reason: { type: "string" }
+  }
+} as const;
+
 // ---- app → gateway ---------------------------------------------------------------------
 
 export const speakSchema = {
@@ -403,6 +420,7 @@ export type OutputDone = FromSchema<typeof outputDoneSchema>;
 export type OutputInterrupted = FromSchema<typeof outputInterruptedSchema>;
 export type MarkEvent = FromSchema<typeof markEventSchema>;
 export type DtmfEvent = FromSchema<typeof dtmfEventSchema>;
+export type AmdResult = FromSchema<typeof amdResultSchema>;
 
 export type Speak = FromSchema<typeof speakSchema>;
 export type Play = FromSchema<typeof playSchema>;
@@ -435,7 +453,8 @@ export type GatewayMessage =
   | OutputDone
   | OutputInterrupted
   | MarkEvent
-  | DtmfEvent;
+  | DtmfEvent
+  | AmdResult;
 
 export type AppCommand =
   | Speak
@@ -469,7 +488,8 @@ export const GATEWAY_MESSAGE_SCHEMAS = {
   "output.done": outputDoneSchema,
   "output.interrupted": outputInterruptedSchema,
   mark: markEventSchema,
-  dtmf: dtmfEventSchema
+  dtmf: dtmfEventSchema,
+  "amd.result": amdResultSchema
 } as const;
 
 export const APP_COMMAND_SCHEMAS = {

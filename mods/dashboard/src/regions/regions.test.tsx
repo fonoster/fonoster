@@ -20,6 +20,8 @@ import type { Workspace } from "@fonoster/types";
 import { screen, waitFor, within } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
+import type { Capabilities } from "~/lib/client";
+import { cloudCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
 import CreateWorkspacePage from "~/workspaces/create-workspace.page";
 import WorkspacesPage from "~/workspaces/landing.page";
@@ -31,6 +33,7 @@ import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
 import { RegionsApiProvider } from "./api";
 import { RegionBanner } from "./banner";
+import { formatFee } from "./region-drawer";
 import { createMockRegionsApi, privateRegion } from "./mock-api";
 import { RegionSettings } from "./region-settings";
 import { remaining } from "./status";
@@ -198,7 +201,10 @@ describe("start screen", () => {
 });
 
 describe("region drawer", () => {
-  const drawer = async (region = privateRegion()) => {
+  const drawer = async (
+    region = privateRegion(),
+    capabilities?: Capabilities
+  ) => {
     const api = createMockRegionsApi([region]);
     const { auth } = withWorkspaces(api);
     vi.mocked(auth.sdk.workspaces.listWorkspaces).mockResolvedValue({
@@ -207,7 +213,8 @@ describe("region drawer", () => {
     const view = render(<WorkspacesPage />, api, {
       path: "/workspaces",
       route: "/workspaces?region=rg_7K2QF",
-      auth
+      auth,
+      ...(capabilities ? { capabilities } : {})
     });
     const d = await screen.findByRole("dialog");
     await within(d).findByText("Version");
@@ -231,6 +238,20 @@ describe("region drawer", () => {
     expect(
       within(d).getByText("fonoster-regions secrets set elevenlabs")
     ).toBeInTheDocument();
+  });
+
+  it("shows the flat monthly fee on Fonoster Cloud only (PR-11)", async () => {
+    const cloud = await drawer(
+      privateRegion({ monthlyFeeCents: 4900, minutesThisMonth: 1000 }),
+      cloudCapabilities
+    );
+    expect(
+      within(cloud.d).getByText("Monthly fee").nextSibling
+    ).toHaveTextContent("$49 / month · 1,000 min this month");
+    cloud.unmount();
+    const selfHosted = await drawer(privateRegion({ monthlyFeeCents: 4900 }));
+    expect(within(selfHosted.d).queryByText("Monthly fee")).toBeNull();
+    expect(formatFee(4950)).toBe("$49.50");
   });
 
   it("says offline and unsupported in one line", async () => {

@@ -198,8 +198,8 @@ export class AmdListener {
 }
 
 /**
- * The production classifier: mods/amd's ONNX model, loaded on first use. `@fonoster/amd` is an
- * optional runtime dependency of the gateway image; without it every verdict is `unknown`.
+ * The production classifier: mods/amd's ONNX model, loaded on first use. `@fonoster/amd` is a
+ * dependency of the gateway (and its image, model included; AO-B2).
  */
 export function loadAmdClassifier(modelDir?: string): AmdClassifier {
   let classify:
@@ -207,8 +207,9 @@ export function loadAmdClassifier(modelDir?: string): AmdClassifier {
     | undefined;
   return async (pcm) => {
     if (!classify) {
+      // The model module only (not the AGI/AudioSocket servers in the package index).
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const amd = require("@fonoster/amd") as {
+      const amd = require("@fonoster/amd/dist/amd/AmdModel") as {
         classifyPcm: (pcm: Buffer, dir?: string) => Promise<AmdVerdict>;
       };
       classify = amd.classifyPcm;

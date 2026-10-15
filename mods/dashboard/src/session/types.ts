@@ -56,6 +56,9 @@ export type SessionApp = {
   fallback: { appRef?: string; message?: string };
   listeners: { url: string; tracks: ListenerTrack }[];
   recording: RecordingPolicy;
+  /** Answering-machine detection (AO-B1); the window is kept as the API has it. */
+  amd?: boolean;
+  amdWindowMs?: number;
   /** Autopilot apps: the assistant (sessionAssistantSchema), as JSON. */
   assistant?: Record<string, unknown>;
 };

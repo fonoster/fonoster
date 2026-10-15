@@ -483,3 +483,37 @@ cutover.
   (add-platform HD-B2). `MEDIANODE_NATS_USER` / `MEDIANODE_NATS_PASSWORD` connect as the node's
   NATS user (add-platform HD-B1). The password, `MEDIANODE_PASSWORD` and the TLS PEM settings
   accept `secret://env|file|k8s` references (`internal/secretref`).
+
+## 2026-10-15 (amdopus stream)
+
+### AO-B1. AMD is an app setting, end to end (4.3)
+- `applications` gets `amd BOOLEAN NOT NULL DEFAULT false` and `amd_window_ms INTEGER` (migration
+  `20261015700000_app_amd`, additive). The API carries `AmdSettings amd {enabled, window_ms}` on
+  Application, create and update (proto fields 19 / 15 / 16; SDK code regenerated); update replaces
+  the app, so leaving `amd` out turns it off. `windowMs` 500 to 15000, 0/unset is the default 4 s.
+- `@fonoster/types` `amd?: {enabled, windowMs?}`; the SDK maps it as a nested message.
+- CLI: `applications:create|update --amd`, `--no-amd`, `--amd-window <ms>` (implies `--amd`);
+  `applications:get` shows `AMD: on (4000 ms)` or `off`. Update keeps the current setting.
+- Dashboard: one switch on the app form, "Detect answering machines". The window is not shown; a
+  window set through the API or CLI survives dashboard saves.
+- Gateway: `appFromRow` reads the columns (`amd: true` or `{windowMs}`), so the database app store
+  turns AMD on per app; the YAML `apps[].amd` keeps working.
+- `amd.result` joins the session protocol schema (`session.v1.json`, gateway → app), the
+  voice-session spec (requirement "Answering-machine detection reaches the app"), and the Python
+  SDK (`session.on("amd.result", ...)`; `messages.py` regenerated with `AmdResult`).
+
+### AO-B2. `@fonoster/amd` is a gateway dependency; the classifier is on by default
+- Declared in `mods/gateway/package.json` (workspace package; local link only, no install, so the
+  root `package-lock.json` is not updated: the next `npm install` records it). The gateway image
+  now builds `mods/streams` and `mods/amd` and ships `amd-model` (about 32 MB).
+- The gateway loads `@fonoster/amd/dist/amd/AmdModel` (the model only, not the AGI/AudioSocket
+  servers) on the first AMD call. Gateway config `amd: {enabled: false}` turns the classifier off
+  (verdicts `unknown` / `no_classifier`); `amd.modelDir` still overrides the bundled model.
+- Test: the gateway resolves the model module through the dependency (a missing model directory
+  fails before ONNX Runtime starts threads; ONNX threads abort a process at `mocha --exit`, which
+  mods/amd's own tests already hit).
+
+### AO-B3. The fake media node honors `listener.detach`
+- It keeps each listener's forks, closes them on detach (no more packets), drops the listener
+  participant without room events, and answers `listener_not_found` for an unknown ref (as the Go
+  node does). `activeListeners()` lets tests check it; the AMD test does.

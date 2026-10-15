@@ -74,13 +74,17 @@ export class RealMediaHarness extends FakesHarness {
    * Starts the node (after setup, so its options apply), places the call and returns once the
    * caller is answered: a real caller cannot send audio, keys or BYE before that.
    */
-  async offerCallAndAccept(timeoutMs = 5000): Promise<Peer> {
+  async offerCallAndAccept(
+    timeoutMs = 5000,
+    options: { codecs?: string[] } = {}
+  ): Promise<Peer> {
     await this.media.start();
     if (this.dialOutcome) await this.media.callee(this.dialOutcome);
     await this.media.call({
       appRef: "app-1",
       to: this.call?.to,
-      from: this.call?.from
+      from: this.call?.from,
+      ...(options.codecs ? { codecs: options.codecs } : {})
     });
     const peer = (await this.app.nextConnection(timeoutMs)).peer;
     const deadline = Date.now() + timeoutMs;

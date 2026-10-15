@@ -125,11 +125,12 @@ export class Gateway {
     );
     this.apps = options.apps ?? new YamlAppStore(options.config.apps ?? []);
     this.webhooks = options.webhooks;
+    // On by default now that @fonoster/amd is a dependency (AO-B2); loaded on first use.
     this.amdClassifier =
       options.amdClassifier ??
-      (options.config.amd
-        ? loadAmdClassifier(options.config.amd.modelDir)
-        : undefined);
+      (options.config.amd?.enabled === false
+        ? undefined
+        : loadAmdClassifier(options.config.amd?.modelDir));
   }
 
   private readonly amdClassifier?: AmdClassifier;

@@ -59,7 +59,8 @@ export function toRegionDetail(r: SdkRegion): RegionDetail {
     workspaces: (r.workspaces ?? []).map(({ ref, name }) => ({ ref, name })),
     secrets,
     endpoints: r.endpoints,
-    monthlyFeeCents: r.monthlyFeeCents ?? undefined
+    monthlyFeeCents: r.monthlyFeeCents ?? undefined,
+    minutesThisMonth: r.minutesThisMonth
   };
 }
 

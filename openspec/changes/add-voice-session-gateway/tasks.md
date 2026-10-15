@@ -18,7 +18,7 @@
 - [x] 2.3 Envelope handling: id echo, ignore unknown types and fields, `error` events
 - [x] 2.4 Speech layer: streamed `speak`, `play`, per-item voice and language, `listen.update`, `subscribe`
 - [x] 2.5 Output queue: agent audio, speak and play in one queue; `preempt`, `clear`, `mark`, `output.*` events with `heardText` and `heardMs`
-- [ ] 2.6 Audio layer: format conversion for the format menu, 20 ms caller frames, real-time playout (partial: mods/gateway/src/audio/pcm.ts converts pcm16/l16/pcmu at any rate, 20 ms frames, OutputQueue playout; Opus open, design OQ8)
+- [x] 2.6 Audio layer: format conversion for the format menu, 20 ms caller frames, real-time playout (menu pcm16 8/16/24 kHz and pcmu 8 kHz; SIP Opus/PCMA/G.722 transcoded by the media node; AO-B4)
 - [x] 2.7 Control: `dtmf`, `dtmf.send`, `transfer` (cold, warm, refer), `transfer.complete`, `hold`, `resume` through the `media-control` contract
 - [x] 2.8 Handoff and listen-only sockets (tracks, side byte, `read_only`)
 - [x] 2.9 App-configured audio filters before STT and turn detection

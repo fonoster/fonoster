@@ -67,12 +67,16 @@ describe("apps", () => {
     expect(screen.getByText("Must start with ws:// or wss://")).toBeVisible();
     await user.clear(screen.getByLabelText("URL"));
     await user.type(screen.getByLabelText("URL"), "wss://bot.example.com");
+    await user.click(
+      screen.getByRole("switch", { name: "Detect answering machines" })
+    );
     await user.click(screen.getByRole("button", { name: "Create app" }));
     expect(await screen.findByText(/shown once/)).toBeInTheDocument();
     const saved = (await api.listApps()).find((a) => a.name === "Bot");
     expect(saved).toMatchObject({
       url: "wss://bot.example.com",
-      flavor: "native"
+      flavor: "native",
+      amd: true
     });
   });
 

@@ -30,6 +30,29 @@ export type Format = { codec: Codec; rate: number };
 
 export const INTERNAL: Format = { codec: "pcm16", rate: INTERNAL_RATE };
 
+/**
+ * The native flavor's format menu (voice-session "Raw audio in both directions", design OQ8,
+ * AO-B4): what an app may choose for caller and agent audio. The leg to the media node stays
+ * L16/16000 whatever the caller's SIP codec (PCMU, PCMA, G.722 or Opus): the node transcodes.
+ * Opus is not offered over WebSocket in v1.
+ */
+export const APP_AUDIO_FORMATS: readonly {
+  codec: "pcm16" | "pcmu";
+  rate: number;
+}[] = [
+  { codec: "pcm16", rate: 8000 },
+  { codec: "pcm16", rate: 16000 },
+  { codec: "pcm16", rate: 24000 },
+  { codec: "pcmu", rate: 8000 }
+];
+
+/** Whether an app audio format is on the menu. */
+export function isAppAudioFormat(audio: { codec?: unknown; rate?: unknown }) {
+  return APP_AUDIO_FORMATS.some(
+    (f) => f.codec === audio.codec && f.rate === audio.rate
+  );
+}
+
 /** Parses codec names from sessions and SDP-style strings: "pcm16", "PCMU/8000", "L16/16000". */
 export function parseCodec(name: string, rate?: number): Format {
   const [codec, r] = name.split("/");
