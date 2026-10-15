@@ -5,7 +5,7 @@
 - [ ] 1.1 Registry utility suite: a temporary database with fixtures (providers, models, voices, apps across two workspaces) that runs every scenario in `specs/provider-registry/spec.md`
 - [x] 1.2 Impact-report fixtures: the `turbo-v2` → `flash-v2.5` case with mappable, unmappable and dropped-setting usages, with expected report text
 - [x] 1.3 Two-database fixture for `export` / `plan` / `apply`, including the idempotency check
-- [ ] 1.4 Secret-safety checks: no schema column can hold a credential, `export` output has no secret, the utility's role cannot write outside registry and audit tables
+- [x] 1.4 Secret-safety checks: no schema column can hold a credential, `export` output has no secret, the utility's role cannot write outside registry and audit tables
 - [ ] 1.5 Adapter conformance suite per type (STT, TTS, LLM): every declared feature is verified, cancel is fast, vendor errors map to `provider_unavailable`; live runs on demand only
 - [ ] 1.6 Gateway scenarios with fake providers: credential resolution order, `provider.deprecated_used`, `provider.retired_used`, `provider_unavailable` with no switching
 
@@ -17,7 +17,7 @@
 - [x] 2.4 Impact report shared by `deprecate-*` and `retire-*`, with `--voice-map` and confirmation
 - [x] 2.5 Emit `provider.deprecated` workspace webhooks on deprecate (`add-workspace-webhooks`)
 - [x] 2.6 Retire transaction: rewrite compatible configs, audit per config, notices, mark retired
-- [ ] 2.7 Restricted database role for the utility; read-only role for the apiserver
+- [x] 2.7 Restricted database role for the utility; read-only role for the apiserver
 
 ## 3. Adapters and gateway
 

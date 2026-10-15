@@ -18,6 +18,8 @@
  */
 import { expect } from "chai";
 import { FakeWebhookReceiver } from "@fonoster/conformance";
+import * as fs from "fs";
+import * as path from "path";
 import { runWithDatabase } from "../../src/registry/cli";
 import {
   MemoryRegistryStore,
@@ -511,6 +513,84 @@ describe("@common/persistence (Prisma stores)", function () {
       } finally {
         await receiver.stop();
       }
+    });
+  });
+
+  describe("database roles (registry-roles.sql)", function () {
+    /** Splits the script into statements, keeping `DO $$ ... $$;` blocks whole. */
+    function statements(sql: string) {
+      const out: string[] = [];
+      let cur = "";
+      let inBlock = false;
+      for (const line of sql.split("\n")) {
+        if (line.trim().startsWith("--") && !inBlock) continue;
+        cur += line + "\n";
+        if ((line.match(/\$\$/g) ?? []).length % 2 === 1) inBlock = !inBlock;
+        if (!inBlock && line.trim().endsWith(";")) {
+          out.push(cur.trim());
+          cur = "";
+        }
+      }
+      return out.filter(Boolean);
+    }
+
+    const as = (role: string, sql: string) =>
+      db.prisma.$transaction(async (tx: typeof db.prisma) => {
+        await tx.$executeRawUnsafe(`SET LOCAL ROLE ${role}`);
+        return tx.$executeRawUnsafe(sql);
+      });
+
+    before(async () => {
+      const sql = fs.readFileSync(
+        path.resolve(__dirname, "../../../apiserver/sql/registry-roles.sql"),
+        "utf8"
+      );
+      for (const st of statements(sql)) await db.prisma.$executeRawUnsafe(st);
+    });
+
+    it("the utility role writes the registry but nothing outside it", async function () {
+      await as(
+        "fonoster_registry",
+        `insert into registry_audit (at, actor, action, target) values (now(), 'ops', 'test', 'x')`
+      );
+      await as(
+        "fonoster_registry",
+        `update applications set speech_voice = speech_voice where ref = 'a1'`
+      );
+      for (const sql of [
+        `insert into secrets (ref, access_key_id, name, secret_hash) values ('s', 'WO1', 'k', 'v')`,
+        `update applications set url = 'wss://evil' where ref = 'a1'`,
+        `update registry_audit set actor = 'someone else'`,
+        `delete from webhook_endpoints`
+      ]) {
+        let denied = false;
+        try {
+          await as("fonoster_registry", sql);
+        } catch (e) {
+          denied = /permission denied/.test((e as Error).message);
+        }
+        expect(denied, sql).to.equal(true);
+      }
+    });
+
+    it("the reader role can only read the registry", async function () {
+      let denied = false;
+      try {
+        await as(
+          "fonoster_registry_reader",
+          `insert into registry_providers (id, adapter, credential_ref) values ('x', 'fake', 'x')`
+        );
+      } catch (e) {
+        denied = /permission denied/.test((e as Error).message);
+      }
+      expect(denied).to.equal(true);
+      await db.prisma.$transaction(async (tx: typeof db.prisma) => {
+        await tx.$executeRawUnsafe("SET LOCAL ROLE fonoster_registry_reader");
+        const rows = await tx.$queryRawUnsafe(
+          "select count(*)::int as n from registry_providers"
+        );
+        expect(rows[0].n).to.be.greaterThan(0);
+      });
     });
   });
 });

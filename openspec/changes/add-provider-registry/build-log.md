@@ -103,8 +103,22 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   lives in the encrypted, write-only Secret).
 - Lifecycle is a Postgres enum (`ACTIVE | DEPRECATED | RETIRED`). The voice → model relation has no
   foreign key to the model: `apply` may write a voice before its models; the registry checks it.
-- Secret safety (1.4, partly): a test asserts no `registry_*` column is named like a secret, key,
-  token, password or hash. Database roles (2.7) are not done.
+- Secret safety (1.4): a test asserts no `registry_*` column is named like a secret, key, token,
+  password or hash; `export` already refuses secret-looking input (PR2).
+
+### P-B2a. Database roles (task 2.7)
+
+- `mods/apiserver/sql/registry-roles.sql`, run by the owner after migrations (not a Prisma
+  migration: roles are cluster-wide and deployments name their own logins).
+- `fonoster_registry` (the utility): writes the catalog, appends to the audit and notices, writes
+  webhook deliveries, and may update only `applications` speech columns and
+  `intelligence_services.config` (retire rewrites). The spec says "only registry and audit
+  tables"; rewrites need those two column grants, so that is the narrowest working role.
+- `fonoster_registry_reader`: read-only on the registry tables, for the apiserver and gateway logins.
+  It only restricts roles that do not own the tables, so services must not connect as the
+  migration owner (today they do; changing that is a deployment step).
+- Tested by switching roles in a transaction: secrets, app URLs, audit updates and endpoint deletes
+  are denied.
 
 ### P-B3. `fonoster-registry --store database`
 
@@ -135,5 +149,5 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 
 ### Not done (persistence stream)
 
-- 1.1 as a full scenario suite, 2.7 roles, 4.3 API/UI for workspace keys (table only), runtime
+- 1.1 as a full scenario suite, 4.3 API/UI for workspace keys (table only), runtime
   `provider.deprecated_used` → dashboard notice (the gateway records it in the call record only).
