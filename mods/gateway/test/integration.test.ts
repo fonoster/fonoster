@@ -191,6 +191,22 @@ describe("@gateway integration", function () {
     expect(commands()).not.to.include("hangup");
   });
 
+  it("never merges a call into a live call with the same callRef (RV-B7)", async function () {
+    await start([app("a", harness.app.url)]);
+    harness.mediaNode.offerCall({ callRef: "dup" });
+    const first = (await harness.app.nextConnection()).peer;
+    const start1 = await waitFor(() =>
+      json(first).find((m) => m.type === "session.start")
+    );
+    const second = harness.mediaNode.offerCall({ callRef: "dup" });
+    const peer2 = (await harness.app.nextConnection()).peer;
+    const start2 = await waitFor(() =>
+      json(peer2).find((m) => m.type === "session.start")
+    );
+    expect(start1.callRef).to.equal("dup");
+    expect(start2.callRef).to.equal(second.roomRef);
+  });
+
   it("opens outbound sessions only when the callee answers", async function () {
     await start([app("a", harness.app.url)]);
     const room = await harness.mediaNode.handle({

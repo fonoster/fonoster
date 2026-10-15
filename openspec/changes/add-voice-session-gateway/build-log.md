@@ -397,3 +397,10 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   same `bad_message` "unknown app" as for a missing ref, so other workspaces' refs are not
   confirmed. Config-file apps without a workspace cannot hand off any more.
 - Tests: `@gateway integration` "refuses a handoff to an app in another workspace / no workspace".
+
+### RV-B7. A colliding callRef never joins a live call
+- `call.incoming` whose callRef (from X-Call-Ref) names a call this gateway is still running gets
+  its room's ref instead (logged); before, the new call replaced the live one in the call map and
+  shared its control subject. The media node now accepts INVITEs only from trusted sources
+  (add-media-node RV-B7), so X-Call-Ref comes from Routr.
+- Tests: `@gateway integration` "never merges a call into a live call with the same callRef".
