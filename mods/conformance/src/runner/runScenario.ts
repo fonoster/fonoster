@@ -74,6 +74,8 @@ export type ScenarioResult = {
   reason?: string;
   steps: StepResult[];
   samples: TimingSample[];
+  /** Every value measured by an assert step, for reports. */
+  measurements: { step: number; name: string; value: unknown }[];
   durationMs: number;
 };
 
@@ -93,6 +95,7 @@ export async function runScenario(
     status: "passed",
     steps: [],
     samples: [],
+    measurements: [],
     durationMs: 0
   };
 
@@ -201,7 +204,7 @@ class Run {
           throw new StepFailure("the harness cannot inject provider behaviour");
         return this.options.harness.inject(step.inject!);
       case "assert":
-        return this.assert(step.assert!);
+        return this.assert(index, step.assert!, this.anchor(step));
       case "close":
         this.peer.close(step.close!.code, step.close!.reason);
         return;
@@ -458,12 +461,15 @@ class Run {
     this.checkTiming(index, step, anchor, closed.at);
   }
 
-  private async assert(assertions: Record<string, unknown>) {
+  private async assert(index: number, assertions: Record<string, unknown>, since: number) {
     const harness = this.options.harness;
     for (const [name, expected] of Object.entries(assertions)) {
       const measured = harness?.measure
-        ? await harness.measure(name, this.prevEnd)
+        ? await harness.measure(name, since)
         : undefined;
+      if (measured !== undefined) {
+        this.result.measurements.push({ step: index, name, value: measured });
+      }
       if (measured === undefined)
         throw new StepFailure(`the harness cannot measure "${name}"`);
       const r = match(interpolate(expected, this.vars), measured);

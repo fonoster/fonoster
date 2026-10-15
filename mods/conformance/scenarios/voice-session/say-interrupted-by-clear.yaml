@@ -12,6 +12,9 @@ steps:
     budget_ms: 500
   - wait: { ms: 300 }
   - send: { type: clear }
+    label: clear
   - expect: { type: output.interrupted, id: s1, heardText: "*", heardMs: { $gte: 1 } }
     within_ms: 1000
+  - wait: { ms: 150 }
   - assert: { media.output_silent_within_ms: { $lte: 40 } }
+    from: clear

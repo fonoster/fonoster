@@ -142,7 +142,9 @@ scenario rather than ignoring it.
 
 ## Assertions
 
-`assert` names checks that a harness evaluates against its fakes. Each value is a literal or a
+`assert` names checks that a harness evaluates against its fakes. Measurements that refer to a
+point in time (such as `media.output_silent_within_ms`) start at the end of the previous step, or
+at the step named by `from`. Each value is a literal or a
 matcher, compared with what the harness measured.
 
 | Assertion | Measured value |

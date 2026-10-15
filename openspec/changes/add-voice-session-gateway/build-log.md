@@ -108,3 +108,15 @@ it touches are named.
   and the chosen tracks as binary frames tagged with track id 1 (caller) or 2 (agent). Commands
   get `error` `read_only`; audio from a listener is dropped.
 - Not done: attaching a listener to a running call through the API (needs the control plane).
+
+### B13. T1 timing harness, first numbers (local laptop, not a dedicated runner)
+
+- `repeatScenario` (conformance) runs a scenario N times and reports distributions;
+  `mods/gateway/test/timing.test.ts` runs when `CONFORMANCE_TIMING_RUNS` is set and writes JSON
+  reports to `CONFORMANCE_REPORT_DIR`.
+- 100 runs, 2026-10-15: speak → first audio adds **p95 22 ms** after subtracting the fake TTS's
+  200 ms (bar: 50 ms); most of it is waiting for the next 20 ms output tick. `clear` → silence
+  **p95 1 ms** (bar: 40 ms).
+- Not measured yet: caller audio → STT (the other half of T1). Needs the fake STT to timestamp
+  frames against the fake media node's send times.
+- `assert` steps accept `from: <label>` so time-based measurements can start at a named step.

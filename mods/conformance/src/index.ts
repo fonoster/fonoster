@@ -33,3 +33,4 @@ export * from "./runner/runScenario";
 export * from "./scenario/loadScenario";
 export * from "./scenario/match";
 export * from "./scenario/types";
+export * from "./runner/repeat";
