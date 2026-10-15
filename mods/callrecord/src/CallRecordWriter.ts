@@ -17,12 +17,20 @@
  * limitations under the License.
  */
 import { randomUUID } from "crypto";
+import * as path from "path";
 import { getLogger } from "@fonoster/logger";
 import { indexEntry, RecordIndexEntry } from "./indexEntry";
-import { assembleRecording, RECORDING_PART } from "./recording";
-import { contentHash, decodeVcon, SigningKey, signVcon } from "./sign";
+import { isKeyCustody, KeyCustody, StaticKeyCustody } from "./keys";
+import { assembleRecordingFile, RECORDING_PART } from "./recording";
+import { contentHash, decodeVcon, SigningKey, signVconWith } from "./sign";
 import { FsWorkingStore, RecordStore } from "./storage";
-import { RecordEntry, SealedVersion, Vcon } from "./types";
+import {
+  RecordEntry,
+  SealedVersion,
+  SealingVersion,
+  StoredPart,
+  Vcon
+} from "./types";
 import { buildVcon } from "./vcon";
 
 const logger = getLogger({ service: "callrecord", filePath: __filename });
@@ -79,7 +87,8 @@ export type CallRecordWriterOptions = {
    * stays in the region store and the index says so (open question O7, interim).
    */
   workspaceStore?: (workspaceRef: string) => RecordStore | undefined;
-  key: SigningKey;
+  /** A fixed key, or a custody that names the current key and signs (task 2.6). */
+  key: SigningKey | KeyCustody;
   region: string;
   /** Called after each sealed version: index it, send `call_record.sealed`. */
   onSealed?: (entry: RecordIndexEntry) => void;
@@ -92,9 +101,15 @@ export type CallRecordWriterOptions = {
 export class CallRecordWriter {
   /** Calls appended in this process and not closed yet; the sweep leaves them alone. */
   private readonly active = new Set<string>();
-  private readonly sealing = new Map<string, Promise<SealedVersion>>();
+  private readonly sealing = new Map<string, Promise<SealingVersion>>();
 
-  constructor(private readonly options: CallRecordWriterOptions) {}
+  private readonly custody: KeyCustody;
+
+  constructor(private readonly options: CallRecordWriterOptions) {
+    this.custody = isKeyCustody(options.key)
+      ? options.key
+      : new StaticKeyCustody(options.key);
+  }
 
   get region() {
     return this.options.region;
@@ -149,7 +164,7 @@ export class CallRecordWriter {
   }
 
   /** Seals a working record as version 1 and returns it; idempotent while in progress. */
-  seal(callRef: string): Promise<SealedVersion> {
+  seal(callRef: string): Promise<SealingVersion> {
     const inProgress = this.sealing.get(callRef);
     if (inProgress) return inProgress;
     const p = this.doSeal(callRef).finally(() => this.sealing.delete(callRef));
@@ -157,17 +172,30 @@ export class CallRecordWriter {
     return p;
   }
 
-  private async doSeal(callRef: string): Promise<SealedVersion> {
-    const { working, key, region } = this.options;
+  private async doSeal(callRef: string): Promise<SealingVersion> {
+    const { working, region } = this.options;
     const entries = working.readWorking(callRef);
     const workspaceRef = workspaceOf(entries);
     let store = this.storeFor(workspaceRef);
-    const existing = await store.getSealed(callRef);
-    if (existing) {
+    const existing = await store.getVersion(callRef);
+    if (existing?.signed && existing.redacted) {
       working.discardWorking(callRef);
-      return existing;
+      return {
+        version: existing.version,
+        signed: existing.signed,
+        redacted: existing.redacted,
+        parts: existing.manifest.parts.map(
+          (p): StoredPart => ({ ...p, stored: true })
+        )
+      };
     }
-    const rec = assembleRecording(working.recordingDir(callRef));
+    // Streamed to a file next to the tracks and uploaded from there (LO-B7); the working
+    // directory, file included, is discarded once the record is stored.
+    const recDir = working.recordingDir(callRef);
+    const rec = assembleRecordingFile(
+      recDir,
+      path.join(recDir, RECORDING_PART)
+    );
     const built = buildVcon(callRef, entries, {
       region,
       recording: rec
@@ -175,17 +203,19 @@ export class CallRecordWriter {
             part: {
               name: RECORDING_PART,
               mimetype: "audio/x-wav",
-              data: rec.wav
+              file: rec.file,
+              size: rec.size,
+              content_hash: rec.content_hash
             },
             startedAt: rec.startedAt,
             durationMs: rec.durationMs
           }
         : undefined
     });
-    const sealed: SealedVersion = {
+    const sealed: SealingVersion = {
       version: 1,
-      signed: signVcon(built.vcon, key),
-      redacted: signVcon(built.redacted, key),
+      signed: await signVconWith(built.vcon, this.custody),
+      redacted: await signVconWith(built.redacted, this.custody),
       parts: built.parts
     };
     try {
@@ -205,7 +235,7 @@ export class CallRecordWriter {
 
   private sealed(
     callRef: string,
-    sealed: SealedVersion,
+    sealed: SealedVersion | SealingVersion,
     vcon: Vcon,
     store: RecordStore
   ) {
@@ -247,11 +277,20 @@ export class CallRecordWriter {
     change: (vcon: Vcon, redacted: boolean) => Vcon,
     checkWorkspace = false,
     location?: string
-  ): Promise<{ sealed: SealedVersion; previous: SealedVersion }> {
-    const { key } = this.options;
+  ): Promise<{ sealed: SealingVersion; previous: { version: number } }> {
     const store = this.storeAt(location, workspaceRef);
-    const current = await store.getSealed(callRef);
-    if (!current) throw new Error(`no sealed record for ${callRef}`);
+    // Without part contents: a new version shares the stored parts (no recording download).
+    const stored = await store.getVersion(callRef);
+    if (!stored?.signed || !stored.redacted)
+      throw new Error(`no sealed record for ${callRef}`);
+    const current = {
+      version: stored.version,
+      signed: stored.signed,
+      redacted: stored.redacted,
+      parts: stored.manifest.parts.map(
+        (p): StoredPart => ({ ...p, stored: true })
+      )
+    };
     if (checkWorkspace)
       assertSameWorkspace(callRef, decodeVcon(current.signed), workspaceRef);
     const next = (signed: SealedVersion["signed"], redacted: boolean): Vcon => {
@@ -267,10 +306,10 @@ export class CallRecordWriter {
       };
     };
     const vcon = next(current.signed, false);
-    const sealed: SealedVersion = {
+    const sealed: SealingVersion = {
       version: current.version + 1,
-      signed: signVcon(vcon, key),
-      redacted: signVcon(next(current.redacted, true), key),
+      signed: await signVconWith(vcon, this.custody),
+      redacted: await signVconWith(next(current.redacted, true), this.custody),
       parts: current.parts
     };
     await store.putSealed(callRef, sealed);
@@ -287,7 +326,7 @@ export class CallRecordWriter {
     additions: { analysis?: Record<string, unknown>[] },
     workspaceRef?: string,
     location?: string
-  ): Promise<SealedVersion> {
+  ): Promise<SealingVersion> {
     const { sealed } = await this.newVersion(
       callRef,
       workspaceRef,
@@ -316,7 +355,7 @@ export class CallRecordWriter {
       workspaceRef?: string | null;
       location?: string;
     }
-  ): Promise<{ sealed: SealedVersion; audit: AuditEntry[] }> {
+  ): Promise<{ sealed: SealingVersion; audit: AuditEntry[] }> {
     // messages.ndjson holds every session message, the caller's and the agent's words included:
     // deleting the transcript deletes it too (RV-B11), and the audit says so.
     const parts: RecordPart[] =
@@ -447,7 +486,7 @@ export class CallRecordWriter {
       }
     };
     const version = current.version + 1;
-    const signed = signVcon(tombstone, this.options.key);
+    const signed = await signVconWith(tombstone, this.custody);
     const sealed: SealedVersion = {
       version,
       signed,

@@ -17,9 +17,10 @@
  * limitations under the License.
  */
 import { randomUUID } from "crypto";
+import { partHash } from "./parts";
 import { redactText } from "./redact";
 import { contentHash } from "./sign";
-import { Part, RecordEntry, Vcon } from "./types";
+import { RecordEntry, SealingPart, Vcon } from "./types";
 
 /**
  * Pinned to draft-ietf-vcon-vcon-core-04 (September 2026), which requires "0.4.0" (call-record
@@ -27,11 +28,16 @@ import { Part, RecordEntry, Vcon } from "./types";
  */
 export const VCON_VERSION = "0.4.0";
 
-type Built = { vcon: Vcon; redacted: Vcon; parts: Part[]; missing: string[] };
+type Built = {
+  vcon: Vcon;
+  redacted: Vcon;
+  parts: SealingPart[];
+  missing: string[];
+};
 
 /** The recording the recorder left for this call, as assembled at seal. */
 export type BuiltRecording = {
-  part: Part;
+  part: SealingPart;
   startedAt: number;
   durationMs: number;
 };
@@ -187,7 +193,7 @@ export function buildVcon(
   const messages = Buffer.from(
     entries.map((e) => JSON.stringify(e)).join("\n") + "\n"
   );
-  const parts: Part[] = [
+  const parts: SealingPart[] = [
     {
       name: "messages.ndjson",
       mimetype: "application/x-ndjson",
@@ -211,7 +217,7 @@ export function buildVcon(
       mimetype: recording.part.mimetype,
       filename: recording.part.name,
       url: `parts/${recording.part.name}`,
-      content_hash: contentHash(recording.part.data),
+      content_hash: partHash(recording.part),
       meta: { channels: ["caller", "agent"] }
     });
   }
@@ -251,7 +257,7 @@ export function buildVcon(
         type: "session_messages",
         mimetype: p.mimetype,
         url: `parts/${p.name}`,
-        content_hash: contentHash(p.data)
+        content_hash: partHash(p)
       })),
     fonoster: {
       callRef,

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createHash } from "crypto";
 import * as dgram from "dgram";
 import * as fs from "fs";
 import * as path from "path";
@@ -203,6 +204,88 @@ export function assembleRecording(
   }
   return {
     wav: Buffer.concat([wavHeader(data.length, 2, meta.rate), data]),
+    startedAt: meta.startedAt,
+    durationMs: Math.round((samples * 1000) / meta.rate)
+  };
+}
+
+/** Samples per side per chunk when streaming the WAV (64 Ki samples: 256 KiB of output). */
+const CHUNK_SAMPLES = 65536;
+
+/**
+ * Like `assembleRecording`, but streams the stereo WAV to `outFile` chunk by chunk and hashes it
+ * on the way, so a long recording never sits in memory (LO-B7). Returns the file part's facts.
+ */
+export function assembleRecordingFile(
+  dir: string,
+  outFile: string
+):
+  | {
+      file: string;
+      size: number;
+      content_hash: string;
+      startedAt: number;
+      durationMs: number;
+    }
+  | undefined {
+  const metaFile = path.join(dir, "meta.json");
+  if (!fs.existsSync(metaFile)) return undefined;
+  const meta = JSON.parse(fs.readFileSync(metaFile, "utf8")) as RecordingMeta;
+  const open = (side: RecordingSide) => {
+    const f = path.join(dir, `${side}.pcm`);
+    if (!fs.existsSync(f)) return { fd: -1, samples: 0 };
+    return {
+      fd: fs.openSync(f, "r"),
+      samples: Math.floor(fs.statSync(f).size / 2)
+    };
+  };
+  const left = open("caller");
+  const right = open("agent");
+  const samples = Math.max(left.samples, right.samples);
+  const close = () =>
+    [left.fd, right.fd]
+      .filter((fd) => fd >= 0)
+      .forEach((fd) => fs.closeSync(fd));
+  if (samples === 0) {
+    close();
+    return undefined;
+  }
+  const hash = createHash("sha512");
+  const out = fs.openSync(outFile, "w");
+  const write = (b: Buffer) => {
+    fs.writeSync(out, b);
+    hash.update(b);
+  };
+  try {
+    write(wavHeader(samples * 4, 2, meta.rate));
+    const l = Buffer.alloc(CHUNK_SAMPLES * 2);
+    const r = Buffer.alloc(CHUNK_SAMPLES * 2);
+    for (let start = 0; start < samples; start += CHUNK_SAMPLES) {
+      const n = Math.min(CHUNK_SAMPLES, samples - start);
+      const read = (side: { fd: number; samples: number }, buf: Buffer) => {
+        buf.fill(0, 0, n * 2);
+        const want = Math.max(0, Math.min(n, side.samples - start));
+        if (side.fd >= 0 && want > 0)
+          fs.readSync(side.fd, buf, 0, want * 2, start * 2);
+      };
+      read(left, l);
+      read(right, r);
+      const data = Buffer.alloc(n * 4);
+      for (let i = 0; i < n; i++) {
+        data.writeInt16LE(l.readInt16LE(i * 2), i * 4);
+        data.writeInt16LE(r.readInt16LE(i * 2), i * 4 + 2);
+      }
+      write(data);
+    }
+    fs.fsyncSync(out);
+  } finally {
+    fs.closeSync(out);
+    close();
+  }
+  return {
+    file: outFile,
+    size: 44 + samples * 4,
+    content_hash: `sha512-${hash.digest("base64url")}`,
     startedAt: meta.startedAt,
     durationMs: Math.round((samples * 1000) / meta.rate)
   };

@@ -19,8 +19,15 @@
 import * as fs from "fs";
 import * as path from "path";
 import { FsObjectStore, ObjectStore } from "./objectStore";
-import { contentHash } from "./sign";
-import { Part, RecordEntry, SealedVersion, SignedVcon } from "./types";
+import { isFilePart, isStoredPart, partHash, partSize } from "./parts";
+import {
+  Part,
+  RecordEntry,
+  SealedVersion,
+  SealingPart,
+  SealingVersion,
+  SignedVcon
+} from "./types";
 
 /**
  * Working records live on the gateway's local disk while the call runs: one fsynced JSON line
@@ -126,19 +133,35 @@ export class RecordStore {
     return [safe(callRef), ...rest].join("/");
   }
 
+  private async has(key: string) {
+    return this.objects.has
+      ? this.objects.has(key)
+      : (await this.objects.get(key)) !== undefined;
+  }
+
+  /** Streams a local file into the store (no full copy in memory when the store supports it). */
+  private async putFile(key: string, file: string, contentType: string) {
+    if (this.objects.putFile)
+      return this.objects.putFile(key, file, contentType);
+    return this.objects.put(key, fs.readFileSync(file), contentType);
+  }
+
   async currentVersion(callRef: string): Promise<number | undefined> {
     const v = await this.objects.get(this.key(callRef, "current"));
     return v ? Number(v.toString()) : undefined;
   }
 
-  async putSealed(callRef: string, sealed: SealedVersion) {
+  async putSealed(callRef: string, sealed: SealedVersion | SealingVersion) {
     const v = `v${sealed.version}`;
-    if (await this.objects.get(this.key(callRef, v, "manifest.json")))
+    if (await this.has(this.key(callRef, v, "manifest.json")))
       throw new Error(`${callRef} ${v} is already sealed`);
-    for (const part of sealed.parts) {
+    for (const part of sealed.parts as SealingPart[]) {
+      // Parts are shared by versions: an earlier version already stored this one.
+      if (isStoredPart(part)) continue;
       const key = this.key(callRef, "parts", part.name);
-      if (!(await this.objects.get(key)))
-        await this.objects.put(key, part.data, part.mimetype);
+      if (await this.has(key)) continue;
+      if (isFilePart(part)) await this.putFile(key, part.file, part.mimetype);
+      else await this.objects.put(key, part.data, part.mimetype);
     }
     const json = (o: unknown) => Buffer.from(JSON.stringify(o));
     await this.objects.put(
@@ -154,11 +177,11 @@ export class RecordStore {
     const manifest: Manifest = {
       version: sealed.version,
       sealedAt: new Date().toISOString(),
-      parts: sealed.parts.map((p) => ({
+      parts: (sealed.parts as SealingPart[]).map((p) => ({
         name: p.name,
         mimetype: p.mimetype,
-        content_hash: contentHash(p.data),
-        size: p.data.length
+        content_hash: partHash(p),
+        size: partSize(p)
       }))
     };
     await this.objects.put(

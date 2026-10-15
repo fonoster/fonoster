@@ -21,6 +21,7 @@ import * as path from "path";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client
@@ -34,6 +35,10 @@ export interface ObjectStore {
   /** Where objects live, as stored in the index: `s3://bucket/prefix` or `file:///dir`. */
   readonly location: string;
   put(key: string, data: Buffer, contentType?: string): Promise<void>;
+  /** Streams a local file into the store (large recordings); optional. */
+  putFile?(key: string, file: string, contentType?: string): Promise<void>;
+  /** Whether an object exists, without reading it; optional. */
+  has?(key: string): Promise<boolean>;
   get(key: string): Promise<Buffer | undefined>;
   /** Returns whether the object existed. */
   delete(key: string): Promise<boolean>;
@@ -63,6 +68,18 @@ export class FsObjectStore implements ObjectStore {
     const tmp = `${file}.${process.pid}.tmp`;
     fs.writeFileSync(tmp, data);
     fs.renameSync(tmp, file);
+  }
+
+  async putFile(key: string, source: string) {
+    const file = this.file(key);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const tmp = `${file}.${process.pid}.tmp`;
+    fs.copyFileSync(source, tmp);
+    fs.renameSync(tmp, file);
+  }
+
+  async has(key: string) {
+    return fs.existsSync(this.file(key));
   }
 
   async get(key: string) {
@@ -132,6 +149,43 @@ export class S3ObjectStore implements ObjectStore {
     );
   }
 
+  async putFile(key: string, file: string, contentType?: string) {
+    // One streamed PUT (S3 allows up to 5 GB; an hour of stereo 16 kHz is about 230 MB).
+    await this.client.send(
+      new PutObjectCommand({
+        Bucket: this.config.bucket,
+        Key: this.prefix + key,
+        Body: fs.createReadStream(file),
+        ContentLength: fs.statSync(file).size,
+        ContentType: contentType
+      })
+    );
+  }
+
+  async has(key: string) {
+    try {
+      await this.client.send(
+        new HeadObjectCommand({
+          Bucket: this.config.bucket,
+          Key: this.prefix + key
+        })
+      );
+      return true;
+    } catch (e) {
+      const err = e as {
+        name?: string;
+        $metadata?: { httpStatusCode?: number };
+      };
+      if (
+        err.name === "NotFound" ||
+        err.name === "NoSuchKey" ||
+        err.$metadata?.httpStatusCode === 404
+      )
+        return false;
+      throw e;
+    }
+  }
+
   async get(key: string) {
     try {
       const res = await this.client.send(
@@ -149,7 +203,7 @@ export class S3ObjectStore implements ObjectStore {
   }
 
   async delete(key: string) {
-    const existed = (await this.get(key)) !== undefined;
+    const existed = await this.has(key);
     await this.client.send(
       new DeleteObjectCommand({
         Bucket: this.config.bucket,

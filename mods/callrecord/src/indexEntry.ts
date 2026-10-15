@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SealedVersion, Vcon } from "./types";
+import { partSize } from "./parts";
+import { SealedVersion, SealingPart, SealingVersion, Vcon } from "./types";
 
 /**
  * What the control plane keeps about a record (design V2: call id, workspace, time, size,
@@ -51,7 +52,7 @@ export const RECORD_SEALED_SUBJECT = "callrecord.sealed";
 
 export function indexEntry(
   callRef: string,
-  sealed: SealedVersion,
+  sealed: SealedVersion | SealingVersion,
   vcon: Vcon,
   where: { region: string; location: string }
 ): RecordIndexEntry {
@@ -69,7 +70,7 @@ export function indexEntry(
   const hasTranscript = vcon.dialog.some((d) => d.type === "text");
   const hasMessages = vcon.attachments.some((a) => a.url);
   const size =
-    sealed.parts.reduce((n, p) => n + p.data.length, 0) +
+    (sealed.parts as SealingPart[]).reduce((n, p) => n + partSize(p), 0) +
     sealed.signed.payload.length +
     sealed.redacted.payload.length;
   return {
