@@ -25,8 +25,8 @@
 
 ## 4. Dashboard and billing
 
-- [ ] 4.1 Region picker in "New workspace" with confirm step (region is permanent)
-- [ ] 4.2 Private region setup page and Region page
-- [ ] 4.3 Secrets page for private workspaces; app warnings for missing keys
-- [ ] 4.4 Call content through the relay; offline states
-- [ ] 4.5 Flat fee per private region in billing; usage shown, not billed (SaaS only)
+- [x] 4.1 Region picker in "New workspace" with confirm step (region is permanent)
+- [x] 4.2 Private region setup page and Region page
+- [x] 4.3 Secrets page for private workspaces; app warnings for missing keys
+- [x] 4.4 Call content through the relay; offline states
+- [ ] 4.5 Flat fee per private region in billing; usage shown, not billed (SaaS only) (partial: note in Settings → Region, no Billing page yet; see RU-B7)

@@ -88,7 +88,8 @@ describe("workspace landing", () => {
     await user.type(screen.getByLabelText("Workspace name"), "Acme Support");
     await user.click(screen.getByRole("button", { name: "Create workspace" }));
     expect(auth.sdk.workspaces.createWorkspace).toHaveBeenCalledWith({
-      name: "Acme Support"
+      name: "Acme Support",
+      region: "us-east-1"
     });
     expect(await screen.findByTestId("location")).toHaveTextContent("/w/ws1");
     expect(localStorage.getItem("fonoster.workspace")).toBe("ws1");

@@ -31,10 +31,21 @@ import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/app/shell/page";
 import { formatDate } from "~/lib/format";
+import { useWorkspace } from "~/lib/workspace";
+import { isPrivateWorkspace, PrivateSecrets } from "~/regions";
 import { SecretDrawer } from "./secret-drawer";
 import { useDeleteSecret, useSecrets } from "./secrets.service";
 
 export default function SecretsScreen() {
+  const workspace = useWorkspace();
+  return isPrivateWorkspace(workspace) ? (
+    <PrivateSecrets />
+  ) : (
+    <WorkspaceSecrets />
+  );
+}
+
+function WorkspaceSecrets() {
   const list = useSecrets();
   const remove = useDeleteSecret();
   const [editing, setEditing] = useState<Secret | undefined>();

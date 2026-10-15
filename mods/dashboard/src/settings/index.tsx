@@ -29,6 +29,7 @@ import { PageHeader } from "~/app/shell/page";
 import { cn } from "~/lib/utils";
 import { useWorkspace } from "~/lib/workspace";
 import { GeneralSettings } from "./general";
+import { RegionSettings } from "~/regions";
 import { MembersSettings } from "./members";
 
 /**
@@ -55,6 +56,7 @@ export default function SettingsScreen() {
         <Route element={<SettingsTabs base={base} />}>
           <Route index element={<GeneralSettings />} />
           <Route path="members" element={<MembersSettings />} />
+          <Route path="region" element={<RegionSettings />} />
           <Route path="*" element={<Navigate to={base} replace />} />
         </Route>
       </Routes>
@@ -65,7 +67,8 @@ export default function SettingsScreen() {
 function SettingsTabs({ base }: { base: string }) {
   const tabs = [
     { to: base, label: "General", end: true },
-    { to: `${base}/members`, label: "Members" }
+    { to: `${base}/members`, label: "Members" },
+    { to: `${base}/region`, label: "Region" }
   ];
 
   return (
