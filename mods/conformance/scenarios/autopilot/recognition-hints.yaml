@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: recognition-hints
 contract: autopilot
 role: gateway
-spec: "Assistant recognition hints reach the gateway with listen.update (VO-B3)"
+spec: "Plugs, not vendors / Recognition hints"
 setup:
   assistant:
     conversationSettings: { systemPrompt: "You are the receptionist of Fonoster.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong.", hints: [Fonoster, Routr] }
