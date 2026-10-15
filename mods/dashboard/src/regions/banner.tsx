@@ -27,16 +27,13 @@ export function RegionBanner() {
   if (region.status === "offline")
     return (
       <Alert variant="error" className="rounded-none">
-        Your region is offline. Last heartbeat {ago(region.lastHeartbeatAt)}.
-        Calls on it can't run and call content can't be opened until it
-        reconnects.
+        Your region is offline. Last seen {ago(region.lastHeartbeatAt)}.
       </Alert>
     );
   if (region.status === "unsupported")
     return (
       <Alert variant="warning" className="rounded-none">
-        Your region runs an unsupported version ({region.version}). Config sync
-        is paused; upgrade your region.
+        Your region needs an upgrade.
       </Alert>
     );
   return null;

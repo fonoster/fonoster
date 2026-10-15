@@ -27,7 +27,7 @@ import { errorMessage } from "~/lib/errors";
 import { useWorkspace } from "~/lib/workspace";
 import { regionKey, useRegion, useRegionsApi } from "./api";
 import { remaining, StatusPill } from "./status";
-import type { EnrollmentToken } from "./types";
+import type { RegionToken } from "./types";
 
 export const composeCommand = (token: string) =>
   `FONOSTER_ENROLLMENT_TOKEN=${token} docker compose -f fonoster-region.yml up -d`;
@@ -44,17 +44,18 @@ function useNow(ms = 30_000) {
   return now;
 }
 
-/** /w/:workspaceRef/region-setup: connect the cell with a one-time token (PR-3). */
+/** /w/:workspaceRef/region-setup: connect the region with a one-time token (PR-3). */
 export default function RegionSetup() {
   const workspace = useWorkspace();
   const api = useRegionsApi();
   const queryClient = useQueryClient();
   const { state } = useLocation();
-  const [enrollment, setEnrollment] = useState<EnrollmentToken | undefined>(
-    (state as { enrollment?: EnrollmentToken } | null)?.enrollment
+  const [enrollment, setEnrollment] = useState<RegionToken | undefined>(
+    (state as { enrollment?: RegionToken } | null)?.enrollment
   );
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<"compose" | "helm">("compose");
   const { data: region } = useRegion(3_000);
   const now = useNow();
 
@@ -76,85 +77,72 @@ export default function RegionSetup() {
   const connected =
     region?.status === "connected" || region?.status === "degraded";
   const left = enrollment ? remaining(enrollment.expiresAt, now) : undefined;
+  const missing = region?.secrets.filter((k) => !k.set) ?? [];
 
   return (
     <>
       <PageHeader
         title="Connect your region"
-        description={`${workspace.name} runs on your servers. Install the region, then it connects to Fonoster by itself; no inbound ports are needed.`}
         actions={region && <StatusPill status={region.status} />}
       />
-      <div className="flex max-w-3xl flex-col gap-6 px-4 pb-10 sm:px-8">
+      <div className="flex max-w-3xl flex-col gap-5 px-4 pb-10 sm:px-8">
         {error && <Alert variant="error">{error}</Alert>}
-        {connected ? (
-          <Alert variant="success">
-            Your region is connected
-            {region?.version ? ` (version ${region.version})` : ""}. Set its
-            provider keys below, then you can take calls.
-          </Alert>
+        {enrollment ? (
+          <section aria-label="Install" className="flex flex-col gap-3">
+            <div role="tablist" className="flex gap-2">
+              {(["compose", "helm"] as const).map((t) => (
+                <Button
+                  key={t}
+                  role="tab"
+                  aria-selected={tab === t}
+                  variant={tab === t ? "default" : "outline"}
+                  onClick={() => setTab(t)}
+                >
+                  {t === "compose" ? "Compose" : "Helm"}
+                </Button>
+              ))}
+            </div>
+            <CopyField
+              label={tab === "compose" ? "Docker Compose" : "Helm"}
+              value={
+                tab === "compose"
+                  ? composeCommand(enrollment.token)
+                  : helmCommand(enrollment.token)
+              }
+            />
+            <p className="font-display text-xs text-muted-foreground">
+              {left ? `Expires in ${left}.` : "This token has expired."}
+            </p>
+          </section>
         ) : (
-          <Alert variant="info">
-            Waiting for the first heartbeat from your region…
-          </Alert>
-        )}
-
-        <section aria-label="Install" className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium">1. Install with your token</h2>
-          {enrollment ? (
-            <>
-              <CopyField label="Enrollment token" value={enrollment.token} />
-              <p className="font-display text-xs text-muted-foreground">
-                {left
-                  ? `Expires in ${left}. It works once.`
-                  : "This token has expired."}
-              </p>
-              <CopyField
-                label="Docker Compose"
-                value={composeCommand(enrollment.token)}
-              />
-              <CopyField label="Helm" value={helmCommand(enrollment.token)} />
-            </>
-          ) : (
-            <Alert variant="note">
-              The token is only shown when it is issued. Re-issue one to see the
-              install commands again.
-            </Alert>
-          )}
-          <div>
-            <Button
-              variant="outline"
-              loading={busy}
-              onClick={() => void reissue()}
-            >
-              Re-issue token
-            </Button>
-          </div>
-        </section>
-
-        <section aria-label="Provider keys" className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium">2. Set your provider keys</h2>
-          <p className="font-display text-xs text-muted-foreground">
-            Keys never leave your region. Run this on the server for each key:
+          <p className="font-display text-sm text-muted-foreground">
+            The command is only shown once. Re-issue the token to see it again.
           </p>
-          {region?.secrets.length ? (
-            <ul className="flex flex-col gap-2">
-              {region.secrets.map((s) => (
-                <li key={s.name} className="flex items-center gap-2">
+        )}
+        <div>
+          <Button
+            variant="outline"
+            loading={busy}
+            onClick={() => void reissue()}
+          >
+            Re-issue token
+          </Button>
+        </div>
+
+        {missing.length > 0 && (
+          <section aria-label="Keys" className="flex flex-col gap-2">
+            <h2 className="text-sm font-medium">Keys to set</h2>
+            <ul className="flex flex-col gap-1">
+              {missing.map((k) => (
+                <li key={k.name}>
                   <code className="rounded bg-muted px-2 py-1 text-[13px]">
-                    fonoster-region secrets set {s.name}
+                    fonoster-region secrets set {k.name}
                   </code>
-                  <span className="font-display text-xs text-muted-foreground">
-                    {s.set ? "set" : "missing"}
-                  </span>
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="font-display text-xs text-muted-foreground">
-              No keys are needed yet. They appear here as you add apps.
-            </p>
-          )}
-        </section>
+          </section>
+        )}
 
         {connected && (
           <div>

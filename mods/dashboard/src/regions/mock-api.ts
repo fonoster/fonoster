@@ -18,7 +18,7 @@
  */
 import {
   DEFAULT_REGION,
-  type EnrollmentToken,
+  type RegionToken,
   type Region,
   type RegionsApi
 } from "./types";
@@ -69,7 +69,7 @@ export function createMockRegionsApi(initial: Region = privateRegion()) {
       };
     },
     getRegion: async () => state.region,
-    reissueRegionToken: async (): Promise<EnrollmentToken> => ({
+    reissueRegionToken: async (): Promise<RegionToken> => ({
       token: "eyJhbGciOiJFUzI1NiJ9.reissued.token",
       expiresAt: inHours(24)
     }),
