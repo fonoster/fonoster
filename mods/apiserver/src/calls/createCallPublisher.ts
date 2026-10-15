@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { natsConnectOptions, NatsTarget } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { connect } from "nats";
 import { CALLS_CREATE_SUBJECT } from "../envs";
@@ -23,10 +24,11 @@ import { CreateCallRequest } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-async function createCallPublisher(natsUrl: string) {
-  logger.verbose("connecting to nats", { natsUrl });
+async function createCallPublisher(nats: NatsTarget) {
+  const options = natsConnectOptions(nats);
+  logger.verbose("connecting to nats", { natsUrl: options.servers });
 
-  const nc = await connect({ servers: natsUrl, maxReconnectAttempts: -1 });
+  const nc = await connect({ ...options, maxReconnectAttempts: -1 });
 
   return {
     publishCall: async (request: CreateCallRequest & { ref: string }) => {

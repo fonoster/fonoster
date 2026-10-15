@@ -39,7 +39,7 @@ import {
   DOMAIN,
   HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
-  NATS_URL,
+  NATS,
   REGIONS,
   SESSION_APPS,
   WEBHOOKS
@@ -118,7 +118,7 @@ async function runServices() {
 
   // Call records (add-call-record): index consumer, retention and the /api/records routes
   const records = await runCallRecords(CALL_RECORDS as CallRecordsConfig, {
-    natsUrl: NATS_URL,
+    natsUrl: NATS,
     identityPublicKey: IDENTITY_PUBLIC_KEY,
     db: prisma as unknown as RecordsDb,
     relay: { regionOf: regions.regionOf, client: regions.relay },
@@ -131,7 +131,7 @@ async function runServices() {
   });
 
   // Bus consumers: webhook fan-out (LO-B1) and the gateways' catalog use (LO-B11)
-  const bus = await connect({ servers: NATS_URL, maxReconnectAttempts: -1 });
+  const bus = await connect({ ...NATS, maxReconnectAttempts: -1 });
   subscribeRegistryUsage(bus, prisma);
   if (WEBHOOKS.fanout) {
     await runWebhookFanout(
@@ -145,7 +145,7 @@ async function runServices() {
   }
 
   // CreateCall: places API-originated calls on the media nodes (cleanbreak CB-B2)
-  await runOutboundCalls({ natsUrl: NATS_URL });
+  await runOutboundCalls({ natsUrl: NATS });
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);

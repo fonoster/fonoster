@@ -14,7 +14,7 @@ import {
   INFLUXDB_ORG,
   INFLUXDB_TOKEN,
   INFLUXDB_URL,
-  NATS_URL,
+  NATS,
   OWNER_EMAIL,
   OWNER_NAME,
   OWNER_PASSWORD
@@ -58,7 +58,7 @@ async function main() {
   });
 
   // Subscribe to NATs events
-  watchNats(NATS_URL, (event: Record<string, unknown>) => {
+  watchNats(NATS, (event: Record<string, unknown>) => {
     logger.verbose("received nats event", { ...event });
 
     pubToInfluxDb({

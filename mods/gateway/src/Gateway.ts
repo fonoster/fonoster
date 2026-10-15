@@ -24,7 +24,12 @@ import {
   RECORD_SEALED_SUBJECT,
   RecordIndexEntry
 } from "@fonoster/callrecord";
-import { Registry as RegistryNs, Webhooks } from "@fonoster/common";
+import {
+  natsConnectOptions,
+  Registry as RegistryNs,
+  Sessions,
+  Webhooks
+} from "@fonoster/common";
 import { IdentityClient } from "@fonoster/identity-client";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec, Subscription } from "nats";
@@ -72,6 +77,12 @@ export type GatewayOptions = {
   registryStore?: RegistryNs.RegistryStore;
   /** Workspace vendor keys (registry 3.2); without it every call uses the platform keys. */
   workspaceKeys?: WorkspaceKeySource;
+  /**
+   * The session registry (add-platform 2.3): `true` (default) writes this gateway's
+   * `gateways.<ref>` and `calls.<callRef>` entries when JetStream is available; `false` skips it;
+   * a string names another bucket (tests).
+   */
+  sessions?: boolean | string;
 };
 
 /** Gateways announce themselves here every 5 s (counted by a private region's agent). */
@@ -88,6 +99,9 @@ export class Gateway {
   private media?: MediaControl;
   private catalog: Catalog;
   private stops: (() => void)[] = [];
+  /** This gateway's session-registry entries (undefined until the bucket is open, or without JetStream). */
+  private leases?: Sessions.SessionLeases;
+  readonly gatewayRef = randomUUID();
   private server?: http.Server;
   private heartbeats = new Map<string, number>();
   readonly apps: AppStore;
@@ -120,7 +134,8 @@ export class Gateway {
 
   async start(): Promise<this> {
     this.nc =
-      this.options.nats ?? (await connect({ servers: this.config.nats.url }));
+      this.options.nats ??
+      (await connect(natsConnectOptions(this.config.nats)));
     this.ownsNats = !this.options.nats;
     this.media = new NatsMediaControl(this.nc);
     if (
@@ -149,8 +164,12 @@ export class Gateway {
       }
     });
     this.stops.push(() => outbound.unsubscribe());
-    const gatewayRef = randomUUID();
-    const beat = () =>
+    const gatewayRef = this.gatewayRef;
+    const beat = () => {
+      this.leases?.set("gateways", gatewayRef, {
+        gatewayRef,
+        calls: this.calls.size
+      });
       this.nc?.publish(
         GATEWAY_HEARTBEAT_SUBJECT,
         sc.encode(
@@ -162,6 +181,8 @@ export class Gateway {
           })
         )
       );
+    };
+    if (this.options.sessions !== false) await this.openSessions();
     beat();
     const beats = setInterval(beat, 5000);
     this.stops.push(() => clearInterval(beats));
@@ -196,10 +217,32 @@ export class Gateway {
     return this;
   }
 
+  /** Opens the session registry; without JetStream the gateway runs on heartbeats only. */
+  private async openSessions() {
+    const bucket =
+      typeof this.options.sessions === "string"
+        ? this.options.sessions
+        : undefined;
+    try {
+      const kv = await Promise.race([
+        Sessions.openSessions(this.nc!, { bucket }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("timed out")), 3000).unref()
+        )
+      ]);
+      this.leases = new Sessions.SessionLeases(kv, { logger });
+    } catch (e) {
+      logger.warn(
+        `session registry unavailable (is JetStream on?): ${(e as Error).message}`
+      );
+    }
+  }
+
   async stop() {
     for (const stop of this.stops) stop();
     this.apps.stop?.();
     for (const call of [...this.calls.values()]) call.finish("error");
+    await this.leases?.close();
     await new Promise<void>((r) =>
       this.server ? this.server.close(() => r()) : r()
     );
@@ -254,10 +297,19 @@ export class Gateway {
         this.nc?.publish(REGISTRY_USED_SUBJECT, sc.encode(JSON.stringify(use))),
       onEnded: (c) => {
         this.calls.delete(c.callRef);
+        void this.leases?.delete("calls", c.callRef);
         sub?.unsubscribe();
       }
     });
     this.calls.set(info.callRef, call);
+    // The call in the session registry: any replica (or the control plane) finds its owner.
+    void this.leases?.set("calls", info.callRef, {
+      callRef: info.callRef,
+      gatewayRef: this.gatewayRef,
+      nodeId: info.nodeId,
+      roomRef: info.roomRef,
+      direction: info.direction
+    });
 
     // Call control from other replicas (the Twilio-compatible hang-up endpoint).
     sub = this.nc!.subscribe(callSubject(info.callRef), {

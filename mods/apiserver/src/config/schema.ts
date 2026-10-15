@@ -252,7 +252,13 @@ const fonosterConfigSchema = z
           .default({})
       })
       .default({}),
-    nats: z.object({ url: z.string().min(1) }),
+    // user/password: the apiserver's NATS user when the server has per-service users
+    // (add-platform 4.1); password is usually a secret:// reference.
+    nats: z.object({
+      url: z.string().min(1),
+      user: z.string().min(1).optional(),
+      password: z.string().min(1).optional()
+    }),
     influxdb: z.object({
       url: z.string().min(1),
       org: z.string().min(1),

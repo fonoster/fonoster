@@ -28,9 +28,9 @@ export type MediaNodeStatus = {
 export const NODE_STALE_MS = 6000;
 
 /**
- * The media nodes this replica has heard from, for placing outbound calls (add-media-node 3.3,
- * minimal: least-loaded non-draining node from heartbeats; the JetStream registry of 3.2 is not
- * built yet).
+ * The media nodes this replica knows, for placing outbound calls (add-media-node 3.3): fed by the
+ * session registry's `nodes.` entries (JetStream KV, 3.2; read in full at start, so a restarted
+ * replica places calls at once) and by `node.heartbeat` / `node.down` events.
  */
 export function createNodeDirectory(
   options: { staleMs?: number; now?: () => number } = {}
@@ -40,18 +40,25 @@ export function createNodeDirectory(
   const nodes = new Map<string, MediaNodeStatus>();
 
   return {
-    /** Feeds one `node.heartbeat` or `node.down` event. */
-    note(event: Record<string, unknown>) {
+    /**
+     * Feeds one `node.heartbeat` or `node.down` event; `seenAt` (ms) is when it was written, for
+     * registry entries read after the fact (default now).
+     */
+    note(event: Record<string, unknown>, seenAt?: number) {
       const nodeId = typeof event.nodeId === "string" ? event.nodeId : "";
       if (!nodeId) return;
       if (event.type === "node.down") {
         nodes.delete(nodeId);
       } else if (event.type === "node.heartbeat") {
+        const at = seenAt ?? now();
+        const known = nodes.get(nodeId);
+        // An older registry entry never replaces a fresher heartbeat.
+        if (known && known.seenAt > at) return;
         nodes.set(nodeId, {
           nodeId,
           rooms: Number(event.rooms ?? 0),
           draining: event.draining === true,
-          seenAt: now()
+          seenAt: at
         });
       }
     },

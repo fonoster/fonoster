@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { ObjectStoreConfig } from "@fonoster/callrecord";
+import { natsConnectOptions, NatsTarget } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Router } from "express";
 import { connect } from "nats";
@@ -42,7 +43,7 @@ export type CallRecordsConfig = {
 export async function runCallRecords(
   config: CallRecordsConfig,
   deps: {
-    natsUrl: string;
+    natsUrl: NatsTarget;
     identityPublicKey: string;
     db: RecordsDb;
     relay?: RecordsRouterDeps["relay"];
@@ -51,7 +52,7 @@ export async function runCallRecords(
 ): Promise<{ routers: { path: string; router: Router }[] }> {
   if (!config.enabled) return { routers: [] };
   const nc = await connect({
-    servers: deps.natsUrl,
+    ...natsConnectOptions(deps.natsUrl),
     maxReconnectAttempts: -1
   });
   subscribeRecordIndex(nc, deps.db);

@@ -21,6 +21,7 @@
  * ./config), loaded once on first import; the names are kept from the
  * env-var era so modules that import them didn't change.
  */
+import { natsConnectOptions } from "@fonoster/common";
 import {
   getAppUrl,
   getConfig,
@@ -113,6 +114,9 @@ export const INFLUXDB_USERNAME = config.influxdb.username;
 export const INTEGRATIONS_FILE = config.integrationsFile;
 
 export const NATS_URL = config.nats.url;
+
+/** nats.js connect options: the URL plus the apiserver's NATS user, when set (add-platform 4.1). */
+export const NATS = natsConnectOptions(config.nats);
 
 // Default owner (if identity.owner is set, the system creates a user and a workspace)
 export const OWNER_EMAIL = config.identity.owner?.email;
