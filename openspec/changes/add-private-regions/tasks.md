@@ -8,12 +8,12 @@
 
 ## 2. Control plane
 
-- [ ] 2.1 `Workspace.region` (immutable), default public region migration for existing workspaces
-- [ ] 2.2 Region records, enrollment token issuing (ES256 JWT, single use, 24 h) and the enrollment endpoint
-- [ ] 2.3 NATS leaf-node accounts/credentials scoped to `region.<id>.>`, revocation
-- [ ] 2.4 Config sync publisher per region; pause on unsupported versions
-- [ ] 2.5 Content relay (streamed, access-checked, size/rate limited)
-- [ ] 2.6 Heartbeat consumer and region status
+- [x] 2.1 `Workspace.region` (immutable), default public region migration for existing workspaces
+- [x] 2.2 Region records, enrollment token issuing (ES256 JWT, single use, 24 h) and the enrollment endpoint
+- [x] 2.3 NATS leaf-node accounts/credentials scoped to `region.<id>.>`, revocation
+- [x] 2.4 Config sync publisher per region; pause on unsupported versions
+- [x] 2.5 Content relay (streamed, access-checked, size/rate limited)
+- [x] 2.6 Heartbeat consumer and region status
 
 ## 3. Cell
 

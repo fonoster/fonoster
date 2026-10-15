@@ -26,11 +26,12 @@ import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { WorkspaceRegionHooks } from "../exchanges/types";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-function createDeleteWorkspace(prisma: Prisma) {
+function createDeleteWorkspace(prisma: Prisma, regions?: WorkspaceRegionHooks) {
   const deleteWorkspace = async (
     call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
@@ -43,12 +44,23 @@ function createDeleteWorkspace(prisma: Prisma) {
 
     logger.verbose("deleting workspace from the system", { ref, ownerRef });
 
-    await prisma.workspace.delete({
+    const deleted = await prisma.workspace.delete({
       where: {
         ref,
         ownerRef
       }
     });
+
+    // Deleting the workspace revokes its private region (PR-2).
+    if (deleted?.region?.startsWith("rg_"))
+      await regions
+        ?.deleteRegion({ accessKeyId: deleted.accessKeyId })
+        .catch((e) =>
+          logger.error("could not retire the workspace's region", {
+            ref,
+            error: (e as Error).message
+          })
+        );
 
     callback(null, { ref });
   };

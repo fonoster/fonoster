@@ -154,3 +154,8 @@ export const CALL_RECORDS = config.callRecords;
 
 // Session apps (rebuild: control): hosted Autopilot URL and signing secret, webhook URL policy
 export const SESSION_APPS = config.apps;
+
+// Regions (add-private-regions): public regions, the region-signing key and the region hub
+export const REGIONS = config.regions;
+
+export const DOMAIN = config.domain;

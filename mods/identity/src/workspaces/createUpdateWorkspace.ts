@@ -41,6 +41,7 @@ function createUpdateWorkspace(prisma: Prisma) {
 
     const { request } = call;
     const { ref, name } = request;
+    const region = (request as { region?: string }).region;
 
     logger.verbose("call to updateWorkspace", { ref, userRef });
 
@@ -53,6 +54,18 @@ function createUpdateWorkspace(prisma: Prisma) {
         message: "Only the workspace owner or an admin can update it"
       });
       return;
+    }
+
+    // The region is fixed at creation (add-private-regions PR-1).
+    if (region) {
+      const current = await prisma.workspace.findUnique({ where: { ref } });
+      if (current && current.region !== region) {
+        callback({
+          code: GRPCStatus.FAILED_PRECONDITION,
+          message: "region_immutable: a workspace's region cannot change"
+        });
+        return;
+      }
     }
 
     await prisma.workspace.update({

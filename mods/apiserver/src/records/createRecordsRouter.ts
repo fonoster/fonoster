@@ -25,6 +25,8 @@ import {
 import { decodeToken, isValidToken } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import express, { NextFunction, Request, Response, Router } from "express";
+import { RelayClient } from "../regions/relay";
+import { relayToResponse } from "../regions/relayHttp";
 import { createSearchRecords } from "./createSearchRecords";
 import { createRecordMaintenance, RecordMaintenanceError } from "./maintenance";
 import { CallRecordRow, MaintenanceClient, RecordsDb } from "./types";
@@ -42,6 +44,16 @@ export type RecordsRouterDeps = {
   identityPublicKey: string;
   stores: (location: string) => RecordStore | undefined;
   maintenance: MaintenanceClient;
+  /**
+   * Private regions (add-private-regions 2.5): content of a private workspace's calls is fetched
+   * from its cell and streamed, never read from (or written to) central storage.
+   */
+  relay?: {
+    regionOf(accessKeyId: string): Promise<string | undefined>;
+    client?: RelayClient;
+  };
+  /** Retention is part of the recording policy a private cell syncs. */
+  onConfigChange?: (accessKeyId: string) => void;
 };
 
 /**
@@ -180,6 +192,7 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
         await deps.db.callRecordRetention.deleteMany({
           where: { accessKeyId, part }
         });
+        deps.onConfigChange?.(accessKeyId);
         return res.json({ part, days: null });
       }
       if (!Number.isInteger(days) || days < 1)
@@ -191,6 +204,7 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
         create: { accessKeyId, part, days },
         update: { days }
       });
+      deps.onConfigChange?.(accessKeyId);
       res.json({ part, days });
     })
   );
@@ -209,6 +223,55 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
       return undefined;
     }
     return row;
+  };
+
+  /**
+   * For a private workspace: relays the content from its cell and returns true (the response is
+   * sent). Offline regions answer 503 `region_offline`.
+   */
+  const relayed = async (
+    req: Request,
+    res: Response,
+    row: CallRecordRow,
+    op: "record.get" | "record.part",
+    part?: string
+  ) => {
+    const regionRef = await deps.relay?.regionOf(caller(res).accessKeyId);
+    if (!regionRef) return false;
+    const original = req.query.original === "true";
+    if (original && !privileged(res)) {
+      res.status(403).json({
+        error: "permission_denied",
+        message: "the unredacted original needs the owner or admin role"
+      });
+      return true;
+    }
+    if (!deps.relay?.client) {
+      res.status(503).json({
+        error: "region_offline",
+        message: "the region link is not configured on this control plane"
+      });
+      return true;
+    }
+    await relayToResponse(
+      deps.relay.client,
+      regionRef,
+      {
+        userRef: caller(res).actor,
+        op,
+        callRef: row.callRef,
+        part,
+        original,
+        version: req.query.version ? Number(req.query.version) : undefined,
+        range:
+          typeof req.headers.range === "string" ? req.headers.range : undefined
+      },
+      res,
+      op === "record.part"
+        ? { "content-disposition": `attachment; filename="${row.callRef}.wav"` }
+        : {}
+    );
+    return true;
   };
 
   /** The requested copy of a version: redacted by default, the original only when allowed. */
@@ -247,6 +310,7 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
     handle(async (req, res) => {
       const row = await rowOf(req, res);
       if (!row) return;
+      if (await relayed(req, res, row, "record.get")) return;
       const copy = await copyOf(req, res, row);
       if (!copy) return;
       res.json({
@@ -266,6 +330,7 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
     handle(async (req, res) => {
       const row = await rowOf(req, res);
       if (!row) return;
+      if (await relayed(req, res, row, "record.part", "recording")) return;
       const copy = await copyOf(req, res, row);
       if (!copy) return;
       const ref = decodeVcon(copy.signed).dialog.find(

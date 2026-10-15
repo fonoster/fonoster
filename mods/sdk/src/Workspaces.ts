@@ -19,10 +19,13 @@
 import {
   BaseApiObject,
   CreateWorkspaceRequest,
+  CreateWorkspaceResponse,
   InviteUserToWorkspaceRequest,
   ListWorkspaceMembersRequest,
   ListWorkspaceMembersResponse,
   ListWorkspacesResponse,
+  Region,
+  RegionEnrollmentToken,
   RemoveUserFromWorkspaceRequest,
   RemoveUserFromWorkspaceResponse,
   ResendWorkspaceMembershipInvitationRequest,
@@ -53,6 +56,7 @@ import {
   WorkspaceMember as WorkspaceMemberPB,
   Workspace as WorkspacePB
 } from "./generated/node/identity_pb";
+import { Regions } from "./Regions";
 
 /**
  * @classdesc Fonoster Workspaces, part of the Fonoster Identity subsystem,
@@ -105,7 +109,8 @@ class Workspaces {
    *
    * @param {CreateWorkspaceRequest} request - The request object that contains the necessary information to create a new Workspace
    * @param {string} request.name - The name of the Workspace
-   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Workspace
+   * @param {string} request.region - A public region id (default `us-east-1`) or "private"; fixed for life
+   * @return {Promise<CreateWorkspaceResponse>} - The reference and region; for "private", the one-time enrollment token and its expiry
    * @example
    * const workspaces = new SDK.Workspaces(client); // Existing client object
    *
@@ -120,19 +125,54 @@ class Workspaces {
    */
   async createWorkspace(
     request: CreateWorkspaceRequest
-  ): Promise<BaseApiObject> {
+  ): Promise<CreateWorkspaceResponse> {
     const client = this.client.getIdentityClient();
-    return await makeRpcRequest<
+    const res = await makeRpcRequest<
       CreateWorkspaceRequestPB,
       CreateWorkspaceResponsePB,
       CreateWorkspaceRequest,
-      BaseApiObject
+      CreateWorkspaceResponse
     >({
       method: client.createWorkspace.bind(client),
       requestPBObjectConstructor: CreateWorkspaceRequestPB,
       metadata: this.client.getMetadata(),
       request
     });
+    // Empty proto strings mean "absent" (public regions carry no token).
+    return {
+      ref: res.ref,
+      region: res.region || undefined,
+      ...(res.enrollmentToken
+        ? { enrollmentToken: res.enrollmentToken, expiresAt: res.expiresAt }
+        : {})
+    };
+  }
+
+  /**
+   * The current workspace's region (add-private-regions): for a private region, the cell's status,
+   * version, components, active calls and which secrets it needs and has.
+   *
+   * @return {Promise<Region>} - The region view
+   */
+  async getRegion(): Promise<Region> {
+    return new Regions(this.client).getRegion();
+  }
+
+  /**
+   * Issues a new one-time enrollment token for the current workspace's private region (owner or
+   * admin). Enrolling a cell with it revokes the previous cell's credentials.
+   *
+   * @return {Promise<RegionEnrollmentToken>} - The token (shown once) and its expiry
+   */
+  async reissueRegionToken(): Promise<RegionEnrollmentToken> {
+    return new Regions(this.client).reissueRegionToken();
+  }
+
+  /**
+   * Revokes the current workspace's cell now; the region goes back to `waiting` (owner or admin).
+   */
+  async disconnectRegion(): Promise<void> {
+    return new Regions(this.client).disconnectRegion();
   }
 
   /**
