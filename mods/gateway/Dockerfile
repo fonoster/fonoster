@@ -5,6 +5,9 @@ FROM node:22-slim AS builder
 LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /work
+# openssl lets `prisma generate` pick the runtime's engine (openssl 3).
+RUN apt-get update && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json lerna.json tsconfig.json ./
 COPY mods/types ./mods/types
@@ -13,6 +16,9 @@ COPY mods/common ./mods/common
 COPY mods/callrecord ./mods/callrecord
 COPY mods/identity-client ./mods/identity-client
 COPY mods/gateway ./mods/gateway
+# The apiserver schema: `appStore.source: database`, the database registry and webhooks read the
+# control-plane database through a client generated from it.
+COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
 
 # Only the gateway's workspace closure is installed (not the whole monorepo).
 RUN --mount=type=cache,target=/root/.npm \
@@ -23,6 +29,7 @@ RUN for p in types logger common callrecord identity-client gateway; do \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
   && npm prune --omit=dev --workspace @fonoster/gateway \
+  && npx -y prisma@6.19.3 generate --schema mods/apiserver/schema.prisma \
   && find node_modules -name "*.map" -type f -delete
 
 ##
@@ -30,7 +37,10 @@ RUN for p in types logger common callrecord identity-client gateway; do \
 ##
 FROM node:22-slim
 
-RUN groupadd -g 1001 appuser && useradd -u 1001 -g appuser -m appuser
+# openssl: the Prisma query engine needs libssl to load.
+RUN apt-get update && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/* \
+  && groupadd -g 1001 appuser && useradd -u 1001 -g appuser -m appuser
 
 WORKDIR /work
 COPY --from=builder --chown=appuser:appuser /work/node_modules ./node_modules

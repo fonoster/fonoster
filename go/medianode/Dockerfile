@@ -8,7 +8,8 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/medianode ./cmd/medianode
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/medianode ./cmd/medianode \
+  && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/sipcaller ./cmd/sipcaller
 
 ##
 # Run stage: static binary, no shell
@@ -16,6 +17,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/mediano
 FROM gcr.io/distroless/static-debian12:nonroot
 
 COPY --from=builder /out/medianode /medianode
+# The SIP caller bot (test calls, the rebuild stack's smoke test): `--entrypoint /sipcaller`.
+COPY --from=builder /out/sipcaller /sipcaller
 
 # SIP (UDP and TCP) and the RTP range. The range is whatever the node hands out; publish the same
 # range you configure (see docs/operators/rebuild.md). Config comes from MEDIANODE_* variables or flags.
