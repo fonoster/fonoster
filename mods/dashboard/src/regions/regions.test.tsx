@@ -368,25 +368,21 @@ describe("token countdown", () => {
 });
 
 describe("Settings → Region", () => {
-  it("is read-only and links to a private region", async () => {
+  it("is one read-only line linking to a private region", async () => {
     render(<RegionSettings />);
-    expect((await screen.findByText("ID")).nextSibling).toHaveTextContent(
-      "acme-dallas"
-    );
-    expect(screen.getByText("Type").nextSibling).toHaveTextContent("Private");
-    expect(screen.getByRole("link", { name: "Manage region" })).toHaveAttribute(
+    expect(await screen.findByText("Acme Dallas")).toBeInTheDocument();
+    expect(screen.getByText("Connected")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /View region/ })).toHaveAttribute(
       "href",
       "/workspaces?region=rg_7K2QF"
     );
     expect(screen.queryByRole("button", { name: "Disconnect" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Re-issue token" })).toBeNull();
   });
 
-  it("shows the default region without controls", async () => {
+  it("shows the default region without a link", async () => {
     render(<RegionSettings />, createMockRegionsApi(), {}, testWorkspace);
     expect(await screen.findByText("Default")).toBeInTheDocument();
-    expect(screen.getByText("Type").nextSibling).toHaveTextContent("Public");
-    expect(screen.queryByRole("link", { name: "Manage region" })).toBeNull();
+    expect(screen.queryByRole("link", { name: /View region/ })).toBeNull();
   });
 });
 

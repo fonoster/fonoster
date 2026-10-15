@@ -293,3 +293,4 @@
 - RM-B4. New region is a small dialog (ID, display name, SIP domain, same validation); after create the region appears as waiting with its command block.
 - RM-B5. Settings > Region ("Manage region"), Secrets and the region links now point at the drawer. Create workspace's region select is unchanged.
 - RM-B6. `regions/sdk-api.ts` uses the typed `sdk.regions.*` calls and `@fonoster/types` (`listRegions` returns `{items}`); a public region without a `ref` gets `rg_<id>`.
+- RM-B7. Per the final designs, Settings > Region is one line (name, status dot, "View region →" opening the drawer); no details table.
