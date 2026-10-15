@@ -184,32 +184,25 @@ for call control. ConversationRelay is a separate product. This change unifies b
 
 ## Open Questions
 
-1. **Error codes (proposed starter set):**
-   - `bad_message`: unparseable, or missing required fields
-   - `unknown_command`
-   - `read_only`: a listener sent a command
-   - `not_supported_by_flavor`
-   - `provider_unavailable`
-   - `provider_timeout`
-   - `invalid_catalog_id`
-   - `feature_not_supported`: e.g. the voice doesn't fit the model
-   - `transfer_failed`
-   - `queue_full`
-   - `play_fetch_failed`
-   - `internal`
+Settled during the build (2026-10-15, see `build-log.md`; reversible):
 
-   Fatal or not is defined per code.
-2. **Playback queue cap.** The maximum queued audio, in seconds or bytes, before `queue_full`.
-   Proposed: 120 s of audio.
-3. **Hang-up endpoint authentication.** Which credentials Basic auth maps to: the workspace
-   access key and an API secret, or a per-app token.
-4. **Keepalive.** WebSocket ping interval and the idle timeout before a silent socket counts as
-   dropped. Proposed: ping every 10 s, dropped after 30 s.
+1. ~~**Error codes.**~~ Resolved: the starter set below, all non-fatal in v1 (no code ends a
+   session on its own; fatal conditions end it with `session.end` instead). `unknown_command` is
+   reserved: unknown types are ignored, per the versioning rule.
+   `bad_message`, `unknown_command`, `read_only`, `not_supported_by_flavor`,
+   `provider_unavailable`, `provider_timeout`, `invalid_catalog_id`, `feature_not_supported`,
+   `transfer_failed`, `queue_full`, `play_fetch_failed`, `internal`.
+2. ~~**Playback queue cap.**~~ Resolved: 120 s of queued audio, configurable per gateway.
+3. **Hang-up endpoint authentication.** Interim: one `accountSid` / `authToken` pair in the
+   gateway config (B9). Still open: mapping to workspace credentials through Identity.
+4. ~~**Keepalive.**~~ Resolved: ping every 10 s; a socket that answers nothing (no pong, no frame)
+   for 30 s is dropped, which hangs up the call (`app.idle_timeout` in the call record).
 5. ~~**Signature header name and format.**~~ Resolved: `X-Fonoster-Timestamp` (Unix seconds) and
    `X-Fonoster-Signature` (hex HMAC-SHA256 of `<timestamp>.<url>`), ±300 s. Same scheme as workspace
    webhooks, which sign the body instead of the URL.
-6. **Handoff limits.** The maximum payload size, and loop protection for repeated handoffs.
-7. **Listener limits.** The maximum listeners per call, and how a listener is attached (API call
-   or app config).
-8. **Which audio formats the native flavor offers.** The menu decided earlier: μ-law 8 kHz, PCM16
-   at 8, 16 and 24 kHz, and Opus. Still to settle: Opus framing over WebSocket.
+6. ~~**Handoff limits.**~~ Resolved: payload at most 16 KB of JSON, at most 5 handoffs per call;
+   beyond either the command gets `error` `bad_message` and the session continues.
+7. ~~**Listener limits.**~~ Resolved for v1: at most 4 listeners, attached through app config
+   (`listeners: [{url, tracks}]`). Still open: attaching to a running call through the API.
+8. **Which audio formats the native flavor offers.** μ-law 8 kHz and PCM16 at 8, 16 and 24 kHz
+   work (`apps[].audio`). Still open: Opus framing over WebSocket.

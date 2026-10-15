@@ -93,6 +93,7 @@ export class Call {
   private session?: AppSession;
   private ended = false;
   private seq = 0;
+  private handoffs = 0;
 
   constructor(
     readonly info: CallInfo,
@@ -275,9 +276,24 @@ export class Call {
   }
 
   /** Hands the call to another app (VS8). The caller stays connected. */
+  /** Checks handoff limits before the current session is ended; returns a reason when refused. */
+  handoffRefusal(payload: Record<string, unknown>): string | undefined {
+    if (this.handoffs >= DEFAULTS.maxHandoffsPerCall) {
+      return `at most ${DEFAULTS.maxHandoffsPerCall} handoffs per call`;
+    }
+    if (
+      Buffer.byteLength(JSON.stringify(payload)) >
+      DEFAULTS.maxHandoffPayloadBytes
+    ) {
+      return `handoff payload exceeds ${DEFAULTS.maxHandoffPayloadBytes} bytes`;
+    }
+    return undefined;
+  }
+
   async handoff(appRef: string, payload: Record<string, unknown>) {
     const target = this.deps.findApp(appRef);
     if (!target) return false;
+    this.handoffs++;
     const reached = await this.dial(target);
     if (!reached) return false;
     this.record("event", { type: "handoff", to: reached.app.ref });
@@ -353,6 +369,7 @@ export class AppSession {
   private closed = false;
   private transfer?: PendingTransfer;
   private listeners: Listener[] = [];
+  private keepalive?: ReturnType<typeof setInterval>;
   pendingTransferEnd = false;
 
   constructor(
@@ -413,12 +430,35 @@ export class AppSession {
     );
     this.socket.on("close", () => this.onSocketClosed());
     this.socket.on("error", () => undefined);
+    this.startKeepalive();
 
     this.codec.start(start);
     this.call.record("gateway", start as unknown as Record<string, unknown>);
     void this.attachListeners(start);
     this.queue.start();
     if (this.codec.speechLayer) this.startSpeech();
+  }
+
+  /** Pings the app; a socket that answers nothing for the idle timeout counts as dropped. */
+  private startKeepalive() {
+    const k = this.deps.config.keepalive ?? {};
+    const interval = k.pingIntervalMs ?? DEFAULTS.pingIntervalMs;
+    const idle = k.idleTimeoutMs ?? DEFAULTS.idleTimeoutMs;
+    let lastHeard = Date.now();
+    const heard = () => (lastHeard = Date.now());
+    this.socket.on("pong", heard);
+    this.socket.on("message", heard);
+    this.keepalive = setInterval(() => {
+      if (Date.now() - lastHeard > idle) {
+        this.call.record("event", {
+          type: "app.idle_timeout",
+          sessionRef: this.sessionRef
+        });
+        this.socket.terminate();
+        return;
+      }
+      if (this.socket.readyState === WebSocket.OPEN) this.socket.ping();
+    }, interval);
   }
 
   private async attachListeners(start: SessionStart) {
@@ -553,6 +593,7 @@ export class AppSession {
   end(reason: SessionEndReason) {
     if (this.closed) return;
     this.closed = true;
+    clearInterval(this.keepalive);
     this.queue.stop();
     this.stt?.close();
     const end = { type: "session.end", reason };
@@ -587,6 +628,7 @@ export class AppSession {
     for (const l of this.listeners) l.close();
     this.listeners = [];
     this.closed = true;
+    clearInterval(this.keepalive);
     this.queue.stop();
     this.stt?.close();
     this.call.sessionDetached(this);
@@ -789,11 +831,20 @@ export class AppSession {
           });
           return;
         }
+        const payload = (cmd.payload as Record<string, unknown>) ?? {};
+        const refusal = this.call.handoffRefusal(payload);
+        if (refusal) {
+          this.emit({
+            type: "error",
+            code: "bad_message",
+            message: refusal,
+            fatal: false,
+            relatesTo: id
+          });
+          return;
+        }
         this.end("handoff");
-        const ok = await this.call.handoff(
-          target,
-          (cmd.payload as Record<string, unknown>) ?? {}
-        );
+        const ok = await this.call.handoff(target, payload);
         if (!ok) await this.call.hangup("error");
         return;
       }

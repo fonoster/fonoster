@@ -9,7 +9,7 @@
       (1.3 and 1.4 live in `mods/conformance`, built under `add-conformance-framework`)
 - [x] 1.5 Add a stopwatch harness for the timing budgets: 50 ms or less added by the gateway (p95), `clear` silent within 40 ms
 - [ ] 1.6 Add a golden test that runs an unmodified Pipecat bot (`TwilioFrameSerializer`) against the `twilio` flavor
-- [ ] 1.7 Resolve the design's Open Questions (error codes, queue cap, keepalive, signature format, hang-up auth, limits) and update the specs
+- [x] 1.7 Resolve the design's Open Questions (error codes, queue cap, keepalive, signature format, hang-up auth, limits) and update the specs
 
 ## 2. Implementation
 

@@ -61,6 +61,8 @@ export type GatewayConfig = {
   outputQueueMaxMs?: number;
   /** The Twilio-compatible hang-up endpoint (twilio-media-streams-flavor). */
   http?: { host?: string; port: number; accountSid: string; authToken: string };
+  /** Keepalive overrides (mainly for tests). */
+  keepalive?: { pingIntervalMs?: number; idleTimeoutMs?: number };
   /** Enables the `fake` adapters (conformance "Implementations ship fake provider adapters"). */
   testMode?: boolean;
 };
@@ -70,6 +72,12 @@ export const DEFAULTS = {
   retryIntervalMs: 250,
   outputQueueMaxMs: 120_000,
   silenceTimeoutMs: 600,
+  /** WebSocket keepalive (design OQ4): ping every 10 s, a silent socket is dropped after 30 s. */
+  pingIntervalMs: 10_000,
+  idleTimeoutMs: 30_000,
+  /** Handoff limits (design OQ6). */
+  maxHandoffPayloadBytes: 16 * 1024,
+  maxHandoffsPerCall: 5,
   ttsTimeoutMs: 3000
 };
 

@@ -93,7 +93,7 @@ describe("@gateway integration", function () {
     };
   }
 
-  async function start(apps: AppConfig[]) {
+  async function start(apps: AppConfig[], extra: Partial<GatewayConfig> = {}) {
     const urls = harness.providerUrls;
     const config: GatewayConfig = {
       nats: { url: NATS_URL! },
@@ -107,7 +107,8 @@ describe("@gateway integration", function () {
           tts: { url: urls.tts },
           stt: { url: urls.stt }
         }
-      }
+      },
+      ...extra
     };
     gateway = await new Gateway({ config, nats: nc, record }).start();
   }
@@ -324,6 +325,45 @@ describe("@gateway integration", function () {
         .map((f) => (f.data as Buffer)[0])
     );
     expect([...tracks]).to.deep.equal([1]);
+  });
+
+  it("drops an app that stops answering pings", async function () {
+    await start([app("a", harness.app.url)], {
+      keepalive: { pingIntervalMs: 100, idleTimeoutMs: 350 }
+    });
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    // Stop reading the socket: no pongs, no frames.
+    (
+      peer as unknown as { socket: { _socket: { pause(): void } } }
+    ).socket._socket.pause();
+    await waitFor(() => commands().includes("hangup"), 3000);
+    const types = [...record.records.values()][0].map((e) => e.message.type);
+    expect(types).to.include("app.idle_timeout");
+  });
+
+  it("refuses oversized handoff payloads and keeps the session", async function () {
+    await start([
+      app("ivr", harness.app.url),
+      app("billing", other.url, { numbers: ["+0"] })
+    ]);
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({
+      type: "handoff",
+      id: "h1",
+      app: "billing",
+      payload: { blob: "x".repeat(20000) }
+    });
+    const error = await waitFor(() =>
+      json(peer).find((m) => m.type === "error")
+    );
+    expect(error).to.include({ code: "bad_message", relatesTo: "h1" });
+    await sleep(200);
+    expect(json(peer).some((m) => m.type === "session.end")).to.equal(false);
+    expect(other.attempts).to.have.length(0);
   });
 
   it("hangs up when the app drops mid-call", async function () {
