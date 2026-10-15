@@ -46,7 +46,7 @@ describe("@control: SDK end to end (gRPC + database)", function () {
     if (!testDatabaseUrl()) return this.skip();
     // In the full suite another copy of the SDK (the shared node_modules') can register its older
     // generated messages in google-protobuf's global namespace first; run this file alone then.
-    // Generated messages serialize through google-protobuf's global \`proto\` namespace, which
+    // Generated messages serialize through google-protobuf's global `proto` namespace, which
     // the last loaded copy of the SDK owns.
     const g = globalThis as unknown as {
       proto?: {
