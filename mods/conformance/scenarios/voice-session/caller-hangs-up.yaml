@@ -1,0 +1,12 @@
+format: fonoster.scenario.v1
+name: caller-hangs-up
+contract: voice-session
+role: app
+spec: "Session ending / Caller hangs up"
+steps:
+  - expect: { type: session.start }
+  - caller: { hangup: true }
+  - expect: { type: session.end, reason: caller_hangup }
+    within_ms: 1000
+  - expect_close: {}
+    within_ms: 1000

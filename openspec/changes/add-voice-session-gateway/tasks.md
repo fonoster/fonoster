@@ -19,7 +19,7 @@
 - [x] 2.4 Speech layer: streamed `speak`, `play`, per-item voice and language, `listen.update`, `subscribe`
 - [x] 2.5 Output queue: agent audio, speak and play in one queue; `preempt`, `clear`, `mark`, `output.*` events with `heardText` and `heardMs`
 - [ ] 2.6 Audio layer: format conversion for the format menu, 20 ms caller frames, real-time playout
-- [ ] 2.7 Control: `dtmf`, `dtmf.send`, `transfer` (cold, warm, refer), `transfer.complete`, `hold`, `resume` through the `media-control` contract
+- [x] 2.7 Control: `dtmf`, `dtmf.send`, `transfer` (cold, warm, refer), `transfer.complete`, `hold`, `resume` through the `media-control` contract
 - [ ] 2.8 Handoff and listen-only sockets (tracks, side byte, `read_only`)
 - [ ] 2.9 App-configured audio filters before STT and turn detection
 - [x] 2.10 Append every message to the call record

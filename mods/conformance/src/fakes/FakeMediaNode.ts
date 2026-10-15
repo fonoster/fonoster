@@ -117,8 +117,10 @@ class SessionRtp {
   }
 
   /** Sends caller audio as RTP at real-time pace, then silence until stopped. */
+  private pending: Buffer[] = [];
+
   play(audio: Buffer) {
-    const chunks = splitFrames(audio, this.format);
+    this.pending = splitFrames(audio, this.format);
     const silence = encode(
       generate("silence", FRAME_MS, this.format.rate),
       this.format
@@ -128,7 +130,7 @@ class SessionRtp {
     let i = 0;
 
     const tick = () => {
-      const payload = chunks[i] ?? silence;
+      const payload = this.pending.shift() ?? silence;
       this.send(payload, samplesPerFrame);
       i++;
       this.timer = setTimeout(
@@ -137,6 +139,11 @@ class SessionRtp {
       );
     };
     tick();
+  }
+
+  /** Replaces whatever caller audio is still pending with new audio, from the next frame. */
+  speak(audio: Buffer) {
+    this.pending = splitFrames(audio, this.format);
   }
 
   private send(payload: Buffer, samples: number) {
@@ -229,6 +236,13 @@ export class FakeMediaNode extends EventEmitter {
       metadata: call.metadata ?? {}
     });
     return { roomRef: room.roomRef, participantRef: caller.participantRef };
+  }
+
+  /** The caller speaks: audio replaces pending caller audio on every session participant. */
+  callerSpeaks(source: AudioSource & { pcm16le?: Buffer }) {
+    for (const session of this.sessions) {
+      session.speak(this.audioFor(source, session.format));
+    }
   }
 
   /** The caller presses a key. */
@@ -440,7 +454,12 @@ export class FakeMediaNode extends EventEmitter {
     });
     this.sessions.push(session.rtp);
     const local = await session.rtp.bind(this.options.host ?? "127.0.0.1");
-    session.rtp.play(this.callerAudio(format));
+    session.rtp.play(
+      this.audioFor(
+        this.options.callerAudio ?? { kind: "silence", ms: 0 },
+        format
+      )
+    );
     this.emitEvent({
       type: "participant.joined",
       id: command.id,
@@ -456,8 +475,10 @@ export class FakeMediaNode extends EventEmitter {
     };
   }
 
-  private callerAudio(format: AudioFormat): Buffer {
-    const source = this.options.callerAudio ?? { kind: "silence", ms: 0 };
+  private audioFor(
+    source: AudioSource & { pcm16le?: Buffer },
+    format: AudioFormat
+  ): Buffer {
     if (source.kind === "file" || source.pcm16le) {
       let pcm = source.pcm16le ?? fs.readFileSync(source.file!);
       if (format.rate === 8000) {

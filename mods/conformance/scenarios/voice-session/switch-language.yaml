@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: switch-language
+contract: voice-session
+role: app
+spec: "Changing how the caller is heard / Switch language mid-call"
+setup:
+  call: { metadata: { lang: es } }
+  providers:
+    stt: { script: [{ atMs: 800, text: "I need help" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update, language: en }
+  - expect: { type: turn.ended, text: "I need help", language: en }
+    within_ms: 3000

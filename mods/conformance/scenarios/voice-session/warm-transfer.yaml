@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: warm-transfer
+contract: voice-session
+role: app
+spec: "Call control / Warm transfer"
+steps:
+  - expect: { type: session.start }
+  - send: { type: transfer, id: t2, to: "+15551234567", mode: warm }
+  - expect_none: { type: session.end }
+    for_ms: 400
+  - send: { type: transfer.complete, id: t2 }
+  - expect: { type: session.end, reason: transfer }
+    within_ms: 2000
+  - assert:
+      media.commands: { $includes: [{ type: transfer, mode: warm }, { type: participant.remove }] }

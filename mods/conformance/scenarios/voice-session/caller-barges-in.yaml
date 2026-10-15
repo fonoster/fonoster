@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: caller-barges-in
+contract: voice-session
+role: app
+spec: "Output lifecycle and interruption report / Caller barges in"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Your balance is forty two dollars and your next payment is due on Monday.", last: true, interruptible: true }
+  - expect: { type: output.started, id: r1 }
+  - wait: { ms: 600 }
+  - caller: { audio: { kind: tone, ms: 800 } }
+  - expect: { type: output.interrupted, id: r1, heardMs: { $gte: 500 }, heardText: { $re: "^Your" } }
+    within_ms: 1000
+  - expect: { type: turn.user_started }
+    within_ms: 500

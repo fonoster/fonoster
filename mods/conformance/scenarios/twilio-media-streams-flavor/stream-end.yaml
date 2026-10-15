@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: stream-end
+contract: twilio-media-streams-flavor
+role: app
+spec: "Twilio Media Streams messages / Stream end"
+setup:
+  app: { flavor: twilio }
+ignore: [media]
+steps:
+  - expect: { event: start }
+  - caller: { hangup: true }
+  - expect: { event: stop }
+    within_ms: 1000
+  - expect_close: {}
+    within_ms: 1000

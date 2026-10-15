@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: hold-and-resume
+contract: voice-session
+role: app
+spec: "Call control / Hold and resume"
+steps:
+  - expect: { type: session.start }
+  - send: { type: hold, id: h1 }
+  - wait: { ms: 200 }
+  - send: { type: resume, id: h2 }
+  - wait: { ms: 200 }
+  - assert:
+      media.commands: { $includes: [{ type: hold, id: h1 }, { type: resume, id: h2 }] }
+  - expect_none: { type: error }
+    for_ms: 1

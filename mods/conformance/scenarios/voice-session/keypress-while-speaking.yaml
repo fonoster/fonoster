@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: keypress-while-speaking
+contract: voice-session
+role: app
+spec: "Call control / Keypress while the agent speaks"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Please listen carefully as our menu options have changed.", last: true }
+  - expect: { type: output.started, id: r1 }
+  - caller: { dtmf: "0" }
+  - expect: { type: dtmf, digit: "0" }
+    within_ms: 500
+  - expect_none: { type: output.done, id: r1 }
+    for_ms: 100

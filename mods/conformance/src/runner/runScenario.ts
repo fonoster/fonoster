@@ -148,7 +148,10 @@ class Run {
       scenario.setup?.app?.flavor === "twilio";
     this.ignore = new Set(scenario.ignore ?? []);
     this.timeout = options.defaultTimeoutMs ?? 5000;
-    this.vars = { scenario: scenario.name };
+    this.vars = {
+      ...(options.harness?.vars?.() ?? {}),
+      scenario: scenario.name
+    };
     if (this.twilio) this.format = { codec: "pcmu", rate: 8000 };
   }
 
@@ -202,6 +205,11 @@ class Run {
       case "close":
         this.peer.close(step.close!.code, step.close!.reason);
         return;
+      case "caller":
+        if (!this.options.harness?.caller) {
+          throw new StepFailure("the harness cannot act as the caller");
+        }
+        return this.options.harness.caller(step.caller!);
     }
   }
 

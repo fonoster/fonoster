@@ -16,11 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as http from "http";
+import { AddressInfo } from "net";
 import * as path from "path";
+import { encode, generate } from "../audio/codecs";
 import { Harness } from "../runner/Harness";
 import { Peer } from "../runner/Peer";
 import { SCENARIOS_DIR } from "../scenario/loadScenario";
-import { Providers, Setup } from "../scenario/types";
+import { AudioSource, CallerAction, Providers, Setup } from "../scenario/types";
 import { FakeApp } from "./FakeApp";
 import { FakeMediaNode } from "./FakeMediaNode";
 import { FakeLlm } from "./providers/FakeLlm";
@@ -51,6 +54,7 @@ export class FakesHarness implements Harness {
   readonly app: FakeApp;
   readonly mediaNode: FakeMediaNode;
   private call: Setup["call"] = {};
+  private mediaServer?: http.Server;
 
   constructor(private readonly options: FakesHarnessOptions = {}) {
     this.app = options.app ?? new FakeApp();
@@ -62,7 +66,8 @@ export class FakesHarness implements Harness {
       this.app.start(),
       this.tts.start(),
       this.stt.start(),
-      this.llm.start()
+      this.llm.start(),
+      this.startMediaServer()
     ]);
     return this;
   }
@@ -73,7 +78,10 @@ export class FakesHarness implements Harness {
       this.tts.stop(),
       this.stt.stop(),
       this.llm.stop(),
-      this.mediaNode.stop()
+      this.mediaNode.stop(),
+      new Promise<void>((r) =>
+        this.mediaServer ? this.mediaServer.close(() => r()) : r()
+      )
     ]);
   }
 
@@ -89,15 +97,8 @@ export class FakesHarness implements Harness {
   async setup(setup: Setup) {
     if (setup.providers) await this.inject(setup.providers);
     if (setup.callerAudio) {
-      const source = setup.callerAudio;
       this.mediaNode.configure({
-        callerAudio:
-          source.kind === "file"
-            ? {
-                ...source,
-                file: path.join(SCENARIOS_DIR, "audio", source.file ?? "")
-              }
-            : source
+        callerAudio: this.resolveAudio(setup.callerAudio)
       });
     }
     if (setup.app) {
@@ -107,7 +108,68 @@ export class FakesHarness implements Harness {
       });
       if (setup.app.reachable === false) await this.app.stop();
     }
+    if (setup.media) this.mediaNode.configure(setup.media);
     this.call = setup.call ?? {};
+  }
+
+  /** Base URL of the test media server (`tone-<ms>.wav`, 404 otherwise). */
+  get mediaUrl(): string {
+    const address = this.mediaServer?.address() as AddressInfo | undefined;
+    if (!address) throw new Error("media server is not running");
+    return `http://127.0.0.1:${address.port}`;
+  }
+
+  vars() {
+    return { media: this.mediaUrl };
+  }
+
+  caller(action: CallerAction) {
+    if (action.dtmf)
+      for (const digit of action.dtmf) this.mediaNode.pressKey(digit);
+    if (action.audio)
+      this.mediaNode.callerSpeaks(this.resolveAudio(action.audio));
+    if (action.hangup) this.mediaNode.callerHangup();
+  }
+
+  private resolveAudio(source: AudioSource): AudioSource {
+    return source.kind === "file"
+      ? {
+          ...source,
+          file: path.join(SCENARIOS_DIR, "audio", source.file ?? "")
+        }
+      : source;
+  }
+
+  private startMediaServer(): Promise<void> {
+    this.mediaServer = http.createServer((req, res) => {
+      const m = /^\/tone-(\d+)\.wav$/.exec(req.url ?? "");
+      if (!m) {
+        res.writeHead(404).end();
+        return;
+      }
+      const pcm = encode(generate("tone", Number(m[1]), 16000), {
+        codec: "pcm16",
+        rate: 16000
+      });
+      const header = Buffer.alloc(44);
+      header.write("RIFF", 0);
+      header.writeUInt32LE(36 + pcm.length, 4);
+      header.write("WAVEfmt ", 8);
+      header.writeUInt32LE(16, 16);
+      header.writeUInt16LE(1, 20);
+      header.writeUInt16LE(1, 22);
+      header.writeUInt32LE(16000, 24);
+      header.writeUInt32LE(32000, 28);
+      header.writeUInt16LE(2, 32);
+      header.writeUInt16LE(16, 34);
+      header.write("data", 36);
+      header.writeUInt32LE(pcm.length, 40);
+      res.writeHead(200, { "content-type": "audio/wav" });
+      res.end(Buffer.concat([header, pcm]));
+    });
+    return new Promise((r) =>
+      this.mediaServer!.listen(0, "127.0.0.1", () => r())
+    );
   }
 
   /**

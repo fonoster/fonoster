@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: tokens-streamed
+contract: voice-session
+role: app
+spec: "Streamed speech output / Tokens streamed as they arrive"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Hello, ", last: false }
+  - expect: { type: output.started, id: r1 }
+    within_ms: 1000
+  - send: { type: speak, id: r1, text: "how can I help?", last: true }
+  - expect: { type: output.done, id: r1 }
+    within_ms: 3000
+  - expect_none: { type: output.started, id: r1 }
+    for_ms: 1

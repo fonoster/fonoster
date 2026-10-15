@@ -71,6 +71,13 @@ export type Setup = {
   };
   providers?: Providers;
   callerAudio?: AudioSource;
+  media?: { dialOutcome?: "answered" | "busy" | "no_answer" | "failed" };
+};
+
+export type CallerAction = {
+  dtmf?: string;
+  hangup?: true;
+  audio?: AudioSource;
 };
 
 export type Timing = {
@@ -94,6 +101,7 @@ export type Step = Timing & {
   inject?: Providers;
   assert?: Record<string, unknown>;
   close?: { code?: number; reason?: string };
+  caller?: CallerAction;
 };
 
 export type Scenario = {
@@ -123,7 +131,8 @@ export const STEP_ACTIONS = [
   "wait",
   "inject",
   "assert",
-  "close"
+  "close",
+  "caller"
 ] as const;
 
 export type StepAction = (typeof STEP_ACTIONS)[number];

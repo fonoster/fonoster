@@ -1,0 +1,12 @@
+format: fonoster.scenario.v1
+name: play-a-file
+contract: voice-session
+role: app
+spec: "Playing media / Play a file"
+steps:
+  - expect: { type: session.start }
+  - send: { type: play, id: p1, url: "${media}/tone-500.wav" }
+  - expect: { type: output.started, id: p1 }
+    within_ms: 1000
+  - expect: { type: output.done, id: p1 }
+    within_ms: 1500

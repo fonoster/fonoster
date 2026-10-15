@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: opt-in-estimate
+contract: voice-session
+role: app
+spec: "Turn events reach every client / Opt-in estimate"
+setup:
+  providers:
+    stt: { script: [{ atMs: 400, text: "Hello" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: subscribe, events: [turn.estimate] }
+  - expect: { type: turn.estimate, eot: { $gte: 0 }, speaking: "*", kind: "*" }
+    within_ms: 1000
+  - expect: { type: turn.estimate, eot: { $gt: 0.4 } }
+    within_ms: 2000

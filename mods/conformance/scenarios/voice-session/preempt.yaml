@@ -1,0 +1,16 @@
+format: fonoster.scenario.v1
+name: preempt
+contract: voice-session
+role: app
+spec: "One output queue / Preempt"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "This is a long answer that will not finish because something more urgent comes.", last: true }
+  - expect: { type: output.started, id: r1 }
+  - wait: { ms: 200 }
+  - send: { type: speak, id: r2, text: "One moment.", last: true, preempt: true }
+  - expect: { type: output.interrupted, id: r1, heardMs: { $gt: 0 } }
+    within_ms: 1000
+  - expect: { type: output.started, id: r2 }
+    within_ms: 1000
+  - expect: { type: output.done, id: r2 }

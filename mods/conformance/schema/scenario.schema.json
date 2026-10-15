@@ -136,6 +136,20 @@
         },
         "callerAudio": {
           "$ref": "#/definitions/audioSource"
+        },
+        "media": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dialOutcome": {
+              "enum": [
+                "answered",
+                "busy",
+                "no_answer",
+                "failed"
+              ]
+            }
+          }
         }
       }
     },
@@ -308,6 +322,24 @@
         },
         "from": {
           "type": "string"
+        },
+        "caller": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "The fake media node acts as the caller: presses keys, speaks or hangs up",
+          "properties": {
+            "dtmf": {
+              "type": "string",
+              "pattern": "^[0-9A-D*#]+$"
+            },
+            "hangup": {
+              "const": true
+            },
+            "audio": {
+              "$ref": "#/definitions/audioSource"
+            }
+          }
         }
       },
       "additionalProperties": false,
@@ -361,6 +393,11 @@
         {
           "required": [
             "close"
+          ]
+        },
+        {
+          "required": [
+            "caller"
           ]
         }
       ]

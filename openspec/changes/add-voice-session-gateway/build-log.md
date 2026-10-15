@@ -87,9 +87,15 @@ it touches are named.
 ### B10. Not implemented yet
 
 - 2.6: Opus (design OQ8 still open). μ-law 8 kHz and PCM16 at any rate work.
-- 2.7: control commands are wired (dtmf, dtmf.send, transfer cold/warm/refer, transfer.complete,
-  hold, resume) but no conformance scenario exercises them yet.
 - 2.8: handoff is implemented; listen-only sockets are not (how listeners attach is OQ7).
 - 2.9: audio filters (the aiCoustics filter lives in the apiserver; to be ported with the vendor
   adapters).
 - Real vendor STT/TTS adapters (B2).
+
+### B11. Scenario format grew a `caller` step and `setup.media`
+
+- `caller: {dtmf | hangup | audio}` lets the fake media node act as the caller mid-scenario, and
+  `setup.media.dialOutcome` drives transfer and dial outcomes. The fakes harness also serves test
+  media (`${media}/tone-<ms>.wav`). Additive to `fonoster.scenario.v1`.
+- 36 scenarios (29 voice-session, 7 Twilio flavor) now pass against the gateway; breaking `clear`
+  or barge-in makes the matching scenarios fail.

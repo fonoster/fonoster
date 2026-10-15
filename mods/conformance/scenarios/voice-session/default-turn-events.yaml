@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: default-turn-events
+contract: voice-session
+role: app
+spec: "Turn events reach every client / Default events"
+setup:
+  providers:
+    stt: { script: [{ atMs: 600, text: "I want to pay my bill" }] }
+steps:
+  - expect: { type: session.start }
+  - expect: { type: turn.user_started }
+    within_ms: 2000
+  - expect: { type: turn.ended, text: "I want to pay my bill", language: "*", confidence: "*", durationMs: { $gte: 0 } }
+    within_ms: 2000

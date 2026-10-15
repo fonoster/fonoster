@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+name: no-estimate-without-subscribe
+contract: voice-session
+role: app
+spec: "Turn events reach every client / Opt-in estimate"
+description: The second half of the scenario - an app that never subscribes receives no turn.estimate.
+setup:
+  providers:
+    stt: { script: [{ atMs: 300, text: "Hello" }] }
+steps:
+  - expect: { type: session.start }
+  - expect_none: { type: turn.estimate }
+    for_ms: 1500

@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: failed-transfer
+contract: voice-session
+role: app
+spec: "Call control / Failed transfer"
+setup:
+  media: { dialOutcome: busy }
+steps:
+  - expect: { type: session.start }
+  - send: { type: transfer, id: t1, to: "+15551234567" }
+  - expect: { type: error, code: transfer_failed, relatesTo: t1, fatal: false }
+    within_ms: 2000
+  - expect_none: { type: session.end }
+    for_ms: 300

@@ -55,6 +55,7 @@ Each step has exactly one action key.
 | `inject: {tts|stt|llm: {…}}` | Change a fake provider's behaviour from this point on. |
 | `assert: {name: value}` | Evaluate named harness assertions (see Assertions). |
 | `close: {code, reason}` | Close the socket from the runner's side. |
+| `caller: {dtmf | hangup | audio}` | The fake media node acts as the caller: presses keys (`dtmf: "12#"`), hangs up (`hangup: true`) or speaks (`audio`, same shape as `send_audio`, replacing any caller audio still pending). |
 
 In the `twilio` flavor, `send_audio` sends μ-law 8 kHz `media` events (base64 payloads) using the
 `streamSid` from the `start` message, and `expect_audio` counts incoming `media` events.
@@ -114,7 +115,9 @@ runners, not from a single scenario run.
 `capture: {var: path}` on an `expect` step stores values from the matched frame, where `path` is a
 dotted path such as `start.streamSid` or `tracks.0.id`. Later `send` steps may use `${var}` inside
 strings. A string that is exactly `"${var}"` is replaced by the captured value with its type (so a
-number stays a number). Built-in variables: `${scenario}` (the scenario name).
+number stays a number). Built-in variables: `${scenario}` (the scenario name) and, from the fakes harness, `${media}`: the
+base URL of a test media server serving `tone-<ms>.wav` (a 16 kHz tone of that length) and
+returning 404 for anything else.
 
 ## Setup
 
@@ -127,6 +130,7 @@ scenario rather than ignoring it.
 | `app` | The app record: `flavor`, `signingSecret`, `verifySignature`, `reachable`, `fallback`, `speech`. |
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake media node plays as the caller once the call is answered. |
+| `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`). |
 
 ### Fake provider behaviour
 

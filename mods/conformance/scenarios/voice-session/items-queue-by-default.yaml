@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+name: items-queue-by-default
+contract: voice-session
+role: app
+spec: "One output queue / Items queue by default"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "First.", last: true }
+  - send: { type: speak, id: r2, text: "Second.", last: true }
+  - expect: { type: output.started, id: r1 }
+  - expect: { type: output.done, id: r1 }
+  - expect: { type: output.started, id: r2 }
+  - expect: { type: output.done, id: r2 }
