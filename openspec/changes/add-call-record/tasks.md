@@ -25,7 +25,8 @@
 - [x] 2.3 Versioning: post-seal additions create new versions that reference the predecessor
 - [x] 2.4 Region object storage plus per-workspace S3-compatible bucket configuration
 - [x] 2.5 Control-plane index (call id, workspace, time, size, location, current version)
-- [ ] 2.6 Region signing keys and a published key history (see open question O2)
+- [x] 2.6 Region signing keys and a published key history (see open question O2) (file custody
+      with rotation, LO-B5)
 
 ## 3. Recording and SIP trace
 
@@ -49,10 +50,10 @@
 
 ## 6. Analytics
 
-- [ ] 6.1 Loader that fills the analytics store from sealed records (ClickHouse, optional in
-      Community) (loader contract and per-call metrics done; no ClickHouse sink, R-B13)
-- [ ] 6.2 Rebuild command that drops and refills the store from records (`rebuildAnalytics`
-      done and tested; no CLI command yet)
+- [x] 6.1 Loader that fills the analytics store from sealed records (ClickHouse, optional in
+      Community) (ClickHouse sink and gateway loader, LO-B6)
+- [x] 6.2 Rebuild command that drops and refills the store from records
+      (`fonoster-callrecord analytics rebuild`, LO-B6)
 
 ## 7. Migration and docs
 

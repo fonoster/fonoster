@@ -240,3 +240,52 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   Stripping only the text out of the messages was not chosen: which fields carry words differs
   by message type and app flavor.
 - Tests: callrecord "deleting the transcript also deletes the raw messages".
+
+## 2026-10-15 (leftovers stream)
+
+### LO-B5. Key custody and rotation (task 2.6)
+
+- The writer no longer holds a key: it asks a `KeyCustody` for the current `kid` (+ `jku`) and a
+  signature (`signVconWith`). A KMS or Vault custody implements the same three methods (`current`,
+  `sign`, `publicKeys`) and keeps the private key out of the gateway; only the file custody is
+  built.
+- `FileKeyCustody` (a key directory): `<kid>.key.pem` (0600, never overwritten), `<kid>.pub.pem`,
+  `current`. `fonoster-callrecord keys rotate --dir <dir> [--kid|--prefix]` adds a P-256 key and
+  switches `current` atomically; running gateways sign with it from their next record (one stat
+  per signature, no restart). `keys retire <kid>` deletes an old private key and keeps its public
+  half published; the current key cannot be retired. `keys list`, `keys publish` (the JWK Set).
+- Gateway: `callRecord.signingKey: {dir, jku}` uses the directory; `{kid, privateKeyFile}` still
+  works (one fixed key). The published set (`/.well-known/call-record-keys.json`) is every key in
+  the directory plus `keyHistory`, rebuilt at most every 5 s, so a rotation shows up without a
+  restart. Records signed before a rotation keep verifying (tested).
+
+### LO-B6. ClickHouse analytics (tasks 6.1, 6.2)
+
+- `ClickHouseAnalyticsSink` over ClickHouse's HTTP interface (no client library): table
+  `fonoster.call_metrics` (configurable), `ReplacingMergeTree(loaded_at)` keyed by call id, so
+  loading a record again replaces its row; reads use `FINAL`. Created on first use. Credentials in
+  headers, never in URLs or logs.
+- An erased record removes its row (`remove`, a lightweight `DELETE`); before, the loader skipped
+  erased records and left the old row behind.
+- Gateway `callRecord.analytics.clickhouse: {url, database?, table?, userEnv?, passwordEnv?}`
+  loads every sealed version's redacted copy after sealing. Failures are logged and never touch
+  the call or the record.
+- `fonoster-callrecord analytics rebuild (--store-dir | --store-config <ObjectStoreConfig JSON>)
+  --clickhouse-url ...` truncates and refills from the records (in batches of 500); `--keep` adds
+  another store (a workspace bucket) without truncating. Credentials from `CLICKHOUSE_USER` /
+  `CLICKHOUSE_PASSWORD` only.
+- Tested against a throwaway `clickhouse/clickhouse-server:24.8` (`CLICKHOUSE_TEST_URL`); the
+  rebuild gives the same rows as the in-memory sink.
+
+### LO-B7. Recordings are streamed at seal (R-B2 follow-up)
+
+- `assembleRecordingFile` interleaves the two sides into `recording.wav` next to the tracks in
+  64 Ki-sample chunks, hashing on the way; the part is uploaded from the file (`putFile`:
+  `copyFile` on disk, one streamed `PutObject` with `ContentLength` on S3, which allows up to
+  5 GB, about 20 hours of stereo 16 kHz). Byte-identical to the old in-memory WAV (tested).
+- New versions (additions, deletions) reference the stored parts from the manifest instead of
+  downloading them; existence checks use `HEAD`/`stat` instead of reading the object. The
+  writer's `seal`/`addVersion`/`deleteParts` return a `SealingVersion` whose parts may be file or
+  stored references; read records with `RecordStore.getSealed`.
+- Tested on disk and against MinIO (`RECORDS_S3_ENDPOINT`).
+

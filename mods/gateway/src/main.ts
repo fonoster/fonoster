@@ -17,7 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallRecordWriter } from "@fonoster/callrecord";
+import {
+  CallRecordWriter,
+  ClickHouseAnalyticsSink,
+  loadRecord,
+  RecordIndexEntry
+} from "@fonoster/callrecord";
 import {
   CellSecrets,
   logUnhandledRejections,
@@ -48,9 +53,11 @@ async function main() {
   // eslint-disable-next-line prefer-const
   let gateway: Gateway | undefined;
   if (config.callRecord) {
-    writer = createRecordWriter(config.callRecord, (entry) =>
-      gateway?.onRecordSealed(entry)
-    );
+    const analytics = analyticsLoader(config.callRecord, () => writer);
+    writer = createRecordWriter(config.callRecord, (entry) => {
+      gateway?.onRecordSealed(entry);
+      analytics?.(entry);
+    });
     record = writer;
   } else if (process.env.GATEWAY_RECORD_DIR) {
     record = new JsonlCallRecordSink(process.env.GATEWAY_RECORD_DIR);
@@ -87,6 +94,37 @@ async function main() {
   };
   process.on("SIGTERM", shutdown);
   process.on("SIGINT", shutdown);
+}
+
+/**
+ * Loads every sealed version into the analytics store (add-call-record 6.1, LO-B6). A failure is
+ * logged and never affects the call or the record; `fonoster-callrecord analytics rebuild` refills
+ * the store from the records.
+ */
+function analyticsLoader(
+  c: NonNullable<GatewayConfig["callRecord"]>,
+  writer: () => CallRecordWriter | undefined
+) {
+  const ch = c.analytics?.clickhouse;
+  if (!ch) return undefined;
+  const sink = new ClickHouseAnalyticsSink({
+    url: ch.url,
+    database: ch.database,
+    table: ch.table,
+    user: process.env[ch.userEnv ?? "CLICKHOUSE_USER"],
+    password: process.env[ch.passwordEnv ?? "CLICKHOUSE_PASSWORD"]
+  });
+  return (entry: RecordIndexEntry) => {
+    const w = writer();
+    if (!w) return;
+    void loadRecord(
+      w.storeAt(entry.location, entry.workspaceRef),
+      sink,
+      entry.callRef
+    ).catch((e) =>
+      logger.warn(`analytics load of ${entry.callRef} failed: ${e.message}`)
+    );
+  };
 }
 
 /**

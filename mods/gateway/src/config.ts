@@ -166,8 +166,17 @@ export type GatewayConfig = {
   callRecord?: {
     dir: string;
     region: string;
-    /** jku: the HTTPS URL where this region's key set is published (KEY_SET_PATH on the gateway). */
-    signingKey: { kid: string; privateKeyFile: string; jku?: string };
+    /**
+     * The region's signing key: `dir`, a key directory managed with `fonoster-callrecord keys
+     * rotate` (rotation without restart), or one fixed key (`kid` + `privateKeyFile`). jku: the
+     * HTTPS URL where this region's key set is published (KEY_SET_PATH on the gateway).
+     */
+    signingKey: {
+      kid?: string;
+      privateKeyFile?: string;
+      dir?: string;
+      jku?: string;
+    };
     /** Earlier keys, still published so old records verify after rotation. */
     keyHistory?: { kid: string; publicKeyFile: string }[];
     /** How often to seal records of calls whose gateway died (default 10 s). */
@@ -188,6 +197,19 @@ export type GatewayConfig = {
     consentPrompt?: string;
     /** Base URL of the records API, for the link in `call_record.sealed` (default /api/records). */
     recordUrl?: string;
+    /**
+     * Analytics (task 6.1, optional): every sealed version's redacted copy is loaded into
+     * ClickHouse. Credentials come from the named environment variables.
+     */
+    analytics?: {
+      clickhouse: {
+        url: string;
+        database?: string;
+        table?: string;
+        userEnv?: string;
+        passwordEnv?: string;
+      };
+    };
   };
   /** Enables the `fake` adapters (conformance "Implementations ship fake provider adapters"). */
   testMode?: boolean;
@@ -274,6 +296,12 @@ export function validateConfig(config: GatewayConfig): string[] {
   if (config.appStore && !["yaml", "database"].includes(config.appStore.source))
     problems.push(`appStore: unknown source ${config.appStore.source}`);
   const cr = config.callRecord;
+  if (
+    cr &&
+    !cr.signingKey?.dir &&
+    !(cr.signingKey?.kid && cr.signingKey?.privateKeyFile)
+  )
+    problems.push("callRecord.signingKey: set dir, or kid and privateKeyFile");
   for (const policy of [
     cr?.recording,
     ...Object.values(cr?.workspaces ?? {}).map((w) => w.recording)

@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
 import * as path from "path";
 import {
   CallRecordWriter,
@@ -26,6 +25,7 @@ import {
   RecordStore
 } from "@fonoster/callrecord";
 import { GatewayConfig } from "../config";
+import { keyCustody } from "./keyCustody";
 
 /**
  * The call-record writer from the gateway's `callRecord` config: working records on local disk,
@@ -48,11 +48,7 @@ export function createRecordWriter(
     store,
     workspaceStore: (ref) => workspaceStores.get(ref),
     region: c.region,
-    key: {
-      kid: c.signingKey.kid,
-      privateKeyPem: fs.readFileSync(c.signingKey.privateKeyFile, "utf8"),
-      jku: c.signingKey.jku
-    },
+    key: keyCustody(c),
     onSealed
   });
 }
