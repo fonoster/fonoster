@@ -129,8 +129,8 @@ func startWith(t *testing.T, o rigOptions) *rig {
 		bot.Close()
 		callee.Close()
 		n.Shutdown()
+		ua.Close() // unregisters while the transport is still up
 		cancel()
-		ua.Close()
 		nc.Close()
 	})
 	return r

@@ -72,6 +72,10 @@ export type BotCallStatus = {
   audibleMs: number;
   audibleMsSince: number;
   lastAudibleAfterMs: number;
+  /** The negotiated codec ("PCMU/8000", "opus/48000", ...). */
+  codec?: string;
+  /** True when the call's media is SRTP. */
+  secure?: boolean;
 };
 
 async function freeUdpPort(): Promise<number> {
@@ -208,6 +212,10 @@ export class MediaNodeProcess {
     from?: string;
     appRef?: string;
     callRef?: string;
+    /** Codecs to offer, in order (default PCMU only). */
+    codecs?: string[];
+    /** Leave RFC 4733 out of the offer (SIP INFO and in-band DTMF). */
+    noTelephoneEvent?: boolean;
   }) {
     const headers: Record<string, string> = {};
     if (call.appRef) headers["X-App-Ref"] = call.appRef;
@@ -216,7 +224,9 @@ export class MediaNodeProcess {
       target: `127.0.0.1:${this.sipPort}`,
       to: call.to ?? "+15550002222",
       from: call.from,
-      headers
+      headers,
+      codecs: call.codecs,
+      noTelephoneEvent: call.noTelephoneEvent
     });
     this.callId = status.id;
     return status;
@@ -226,8 +236,9 @@ export class MediaNodeProcess {
     return this.api(`/calls/${this.callId}${since ? `?since=${since}` : ""}`);
   }
 
-  dtmf(digits: string) {
-    return this.api(`/calls/${this.callId}/dtmf`, { digits });
+  /** Sends keypresses as RFC 4733 events (default), SIP INFO or in-band tones. */
+  dtmf(digits: string, mode: "rfc4733" | "info" | "inband" = "rfc4733") {
+    return this.api(`/calls/${this.callId}/dtmf`, { digits, mode });
   }
 
   speak(kind: string, ms: number) {

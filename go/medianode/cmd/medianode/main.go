@@ -100,7 +100,6 @@ func main() {
 		logger.Error("sip", "err", err)
 		os.Exit(1)
 	}
-	defer ua.Close()
 	if err := n.Start(); err != nil {
 		logger.Error("media-control", "err", err)
 		os.Exit(1)
@@ -144,4 +143,5 @@ func main() {
 		logger.Warn("drain wait over; ended rooms", "rooms", forced)
 	}
 	n.Shutdown()
+	ua.Close() // REGISTER with Expires: 0, so Routr drops this node at once
 }

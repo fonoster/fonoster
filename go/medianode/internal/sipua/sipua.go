@@ -106,7 +106,9 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if err != nil {
 		return nil, err
 	}
-	client, err := sipgo.NewClient(ua, sipgo.WithClientHostname(cfg.AdvertiseHost))
+	// rport on Via (WithClientNAT) lets Routr answer to where requests really came from, which
+	// matters behind NAT and container port mappings.
+	client, err := sipgo.NewClient(ua, sipgo.WithClientHostname(cfg.AdvertiseHost), sipgo.WithClientNAT())
 	if err != nil {
 		return nil, err
 	}
@@ -165,8 +167,16 @@ func (u *UA) Serve(ctx context.Context) error {
 	}
 }
 
-// Close releases the user agent.
-func (u *UA) Close() { _ = u.ua.Close() }
+// Close unregisters (Expires: 0, so Routr stops routing here at once) and releases the user
+// agent.
+func (u *UA) Close() {
+	if u.cfg.Registrar != "" {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		_ = u.registerWith(ctx, 0)
+		cancel()
+	}
+	_ = u.ua.Close()
+}
 
 func header(req *sip.Request, name string) string {
 	if h := req.GetHeader(name); h != nil {
@@ -452,6 +462,11 @@ func (u *UA) registerLoop(ctx context.Context) {
 }
 
 func (u *UA) register(ctx context.Context) error {
+	return u.registerWith(ctx, int(u.cfg.RegisterEvery.Seconds()*2))
+}
+
+// registerWith sends one REGISTER with the current session count; expires 0 unregisters.
+func (u *UA) registerWith(ctx context.Context, expires int) error {
 	count := u.node.ActiveRooms()
 	if u.node.Draining() {
 		count = 1 << 20 // full: Routr stops choosing this node
@@ -475,7 +490,7 @@ func (u *UA) register(ctx context.Context) error {
 	contactParams.Add("transport", u.cfg.Transport)
 	req.AppendHeader(&sip.ContactHeader{Address: sip.Uri{User: user, Host: u.cfg.AdvertiseHost, Port: u.cfg.AdvertisePort,
 		UriParams: contactParams}})
-	req.AppendHeader(sip.NewHeader("Expires", strconv.Itoa(int(u.cfg.RegisterEvery.Seconds()*2))))
+	req.AppendHeader(sip.NewHeader("Expires", strconv.Itoa(expires)))
 	req.AppendHeader(sip.NewHeader("X-Session-Count", strconv.Itoa(count)))
 
 	cctx, cancel := context.WithTimeout(ctx, 5*time.Second)

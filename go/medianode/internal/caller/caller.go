@@ -133,6 +133,9 @@ type DialOptions struct {
 	Transport string
 	// SRTP offers RTP/SAVP with an SDES key.
 	SRTP bool
+	// RequestHost, when set, is the Request-URI host (a carrier's trunk name as Routr expects
+	// it) while the INVITE still goes to the target address.
+	RequestHost string
 }
 
 // New starts a bot listening for in-dialog requests (BYE) on host:0.
@@ -305,7 +308,18 @@ func (b *Bot) DialWith(target, to, from string, headers map[string]string, o Dia
 		hdrs = append(hdrs, sip.NewHeader(k, v))
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	session, err := b.dialogs.Invite(ctx, recipient, offer, hdrs...)
+	var session *sipgo.DialogClientSession
+	if o.RequestHost != "" {
+		req := sip.NewRequest(sip.INVITE, sip.Uri{User: to, Host: o.RequestHost, UriParams: recipient.UriParams})
+		req.SetDestination(target)
+		req.SetBody(offer)
+		for _, h := range hdrs {
+			req.AppendHeader(h)
+		}
+		session, err = b.dialogs.WriteInvite(ctx, req)
+	} else {
+		session, err = b.dialogs.Invite(ctx, recipient, offer, hdrs...)
+	}
 	if err != nil {
 		cancel()
 		ep.Close()
