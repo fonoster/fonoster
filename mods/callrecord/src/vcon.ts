@@ -305,6 +305,11 @@ export function buildVcon(
     dialog: redactions
       ? redactedDialog.filter((d) => d.type !== "recording")
       : redactedDialog,
+    // Turn decisions carry the caller's words and app notes are free-form: every string in the
+    // analysis is redacted too.
+    analysis: base.analysis.map(
+      (a) => redactStrings(a) as Record<string, unknown>
+    ),
     // The redacted copy does not carry the raw messages, which contain the unredacted text.
     attachments: [],
     redacted: {
@@ -319,4 +324,15 @@ export function buildVcon(
     }
   };
   return { vcon, redacted, parts, missing };
+}
+
+/** Redacts every string inside a JSON value (for the redacted copy's analysis). */
+function redactStrings(value: unknown): unknown {
+  if (typeof value === "string") return redactText(value).text;
+  if (Array.isArray(value)) return value.map(redactStrings);
+  if (value && typeof value === "object")
+    return Object.fromEntries(
+      Object.entries(value).map(([k, v]) => [k, redactStrings(v)])
+    );
+  return value;
 }

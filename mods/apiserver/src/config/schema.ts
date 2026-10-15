@@ -48,6 +48,41 @@ const featuresSchema = z
   })
   .default({});
 
+/** Where call records live (add-call-record): a directory, or S3-compatible storage. */
+const recordStoreSchema = z.union([
+  z.object({ dir: z.string().min(1) }),
+  z.object({
+    s3: z.object({
+      bucket: z.string().min(1),
+      prefix: z.string().optional(),
+      region: z.string().optional(),
+      endpoint: z.string().optional(),
+      forcePathStyle: z.boolean().optional(),
+      credentials: z
+        .object({
+          accessKeyId: z.string().min(1),
+          secretAccessKey: z.string().min(1)
+        })
+        .optional()
+    })
+  })
+]);
+
+/**
+ * Call records (add-call-record): the index, the records API, retention, and ListCalls from the
+ * index instead of InfluxDB. `stores` are the record stores the API reads from (the regions' and
+ * any workspace buckets), matched by the location in each index entry.
+ */
+const callRecordsSchema = z
+  .object({
+    enabled: z.boolean().default(false),
+    listCallsFromIndex: z.boolean().default(false),
+    stores: z.array(recordStoreSchema).default([]),
+    retentionIntervalMinutes: z.number().int().positive().default(60),
+    maintenanceTimeoutMs: z.number().int().positive().default(30000)
+  })
+  .default({});
+
 /** fonoster.yaml: everything the API server (and embedded Identity) needs. */
 const fonosterConfigSchema = z
   .object({
@@ -127,7 +162,8 @@ const fonosterConfigSchema = z
       })
       .default({}),
     twilio: twilioSchema.optional(),
-    identity: identitySectionSchema
+    identity: identitySectionSchema,
+    callRecords: callRecordsSchema
   })
   .superRefine((config, ctx) => {
     if (config.authz.enabled && !config.authz.host) {

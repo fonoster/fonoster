@@ -250,6 +250,8 @@ describe("@callrecord", function () {
     expect(redacted.dialog[1].body).to.equal(`It is ${CARD_MASK}`);
     expect(redacted.redacted).to.deep.include({ type: "pii" });
     expect(redacted.attachments).to.have.length(0);
+    // Turn decisions carry the caller's words too; nothing in the copy may leak the number.
+    expect(JSON.stringify(redacted)).to.not.contain("4111 1111");
     expect(decodeVcon(sealed.signed).dialog[1].body).to.equal(
       "It is 4111 1111 1111 1111"
     );

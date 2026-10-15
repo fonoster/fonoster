@@ -190,3 +190,6 @@ export const TWILIO_PHONE_NUMBER = config.twilio?.phoneNumber;
 
 // Caller-audio filters
 export const AI_COUSTICS_LICENSE = config.audioFilters.aiCoustics.license;
+
+// Call records (add-call-record): index, records API, retention, ListCalls from the index.
+export const CALL_RECORDS = config.callRecords;
