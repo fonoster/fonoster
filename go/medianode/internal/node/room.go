@@ -322,6 +322,7 @@ func (r *Room) servePhone(p *Participant) {
 	}
 	go p.endpoint.Serve(rtpio.Handlers{
 		Packet: p.push,
+		Skip:   p.jb.Skip,
 		DTMF:   func(d string) { r.reportDTMF(p, d, SourceRFC4733) },
 	})
 }

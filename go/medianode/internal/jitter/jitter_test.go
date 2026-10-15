@@ -92,3 +92,38 @@ func TestDuplicates(t *testing.T) {
 		t.Fatalf("stats %+v", s)
 	}
 }
+
+func TestSkippedSequenceNumbersAreNotLosses(t *testing.T) {
+	b := New()
+	b.Push(pkt(1))
+	b.Push(pkt(2))
+	for s := uint16(3); s < 8; s++ {
+		b.Skip(s) // an RFC 4733 event took these
+	}
+	b.Push(pkt(8))
+	b.Push(pkt(9))
+	got := drain(b, 4)
+	if got[0] != "1" || got[1] != "2" || got[2] != "8" || got[3] != "9" {
+		t.Fatalf("played %v", got)
+	}
+	if s := b.Stats(); s.Lost != 0 || s.Overflow != 0 {
+		t.Fatalf("stats %+v", s)
+	}
+}
+
+func TestGrownBufferIsTrimmed(t *testing.T) {
+	b := New()
+	seq := uint16(0)
+	for i := 0; i < 8; i++ { // a burst: 8 frames at once
+		b.Push(pkt(seq))
+		seq++
+	}
+	for i := 0; i < trimAfter*3; i++ {
+		b.Push(pkt(seq))
+		seq++
+		b.Pop()
+	}
+	if s := b.Stats(); s.Trimmed == 0 || b.Len() > 6 || s.Dropped() != 0 {
+		t.Fatalf("len %d stats %+v", b.Len(), s)
+	}
+}

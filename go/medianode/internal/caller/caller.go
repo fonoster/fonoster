@@ -502,6 +502,9 @@ func (c *Call) remoteContact() sip.Uri {
 	return c.session.InviteRequest.Recipient
 }
 
+// SetImpair applies network impairment to what this call sends (load harness and tests).
+func (c *Call) SetImpair(fn func() (copies int, delay time.Duration)) { c.endpoint.SetImpair(fn) }
+
 // Hangup sends BYE (answered) or CANCEL (still calling).
 func (c *Call) Hangup() error {
 	c.mu.Lock()

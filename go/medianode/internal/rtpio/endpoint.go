@@ -22,6 +22,9 @@ type Handlers struct {
 	Audio  func(audio.Frame)
 	Packet func(*rtp.Packet)
 	DTMF   func(digit string)
+	// Skip gets the sequence numbers of non-audio packets (RFC 4733 events), which share the
+	// stream's numbering, so a jitter buffer does not count them as lost audio.
+	Skip func(seq uint16)
 }
 
 // Stats counts what an endpoint saw.
@@ -50,9 +53,15 @@ type Endpoint struct {
 
 	received, sent, undecrypted atomic.Uint64
 
-	// Impair, when set, decides what happens to each outgoing packet (tests and the load
-	// harness): it returns how many copies to send (0 drops it) and a delay before sending.
-	Impair func() (copies int, delay time.Duration)
+	impair func() (copies int, delay time.Duration)
+}
+
+// SetImpair makes fn decide what happens to each outgoing packet (tests and the load harness):
+// it returns how many copies to send (0 drops it) and a delay before sending.
+func (e *Endpoint) SetImpair(fn func() (copies int, delay time.Duration)) {
+	e.mu.Lock()
+	e.impair = fn
+	e.mu.Unlock()
 }
 
 var dtmfDigits = "0123456789*#ABCD"
@@ -167,12 +176,18 @@ func (e *Endpoint) Serve(h Handlers) {
 		codec, dtmfType, pt := e.codec, e.dtmfType, e.payloadType
 		e.mu.Unlock()
 		if dtmfType >= 0 && int(p.PayloadType) == dtmfType {
+			if h.Skip != nil {
+				h.Skip(p.SequenceNumber)
+			}
 			if digit, ok := e.dtmfEnd(p); ok && h.DTMF != nil {
 				h.DTMF(digit)
 			}
 			continue
 		}
 		if codec == nil || p.PayloadType != pt {
+			if h.Skip != nil {
+				h.Skip(p.SequenceNumber)
+			}
 			continue
 		}
 		e.received.Add(1)
@@ -251,8 +266,11 @@ func (e *Endpoint) marshalLocked(p *rtp.Packet) ([]byte, bool) {
 
 func (e *Endpoint) write(raw []byte, remote *net.UDPAddr) {
 	copies, delay := 1, time.Duration(0)
-	if e.Impair != nil {
-		copies, delay = e.Impair()
+	e.mu.Lock()
+	impair := e.impair
+	e.mu.Unlock()
+	if impair != nil {
+		copies, delay = impair()
 	}
 	if copies <= 0 {
 		return
