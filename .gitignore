@@ -31,3 +31,6 @@ next-env.d.ts
 .npmrc
 # ai-coustics models downloaded by the filter bench
 /models/
+
+# worktrees link node_modules as a symlink
+/node_modules
