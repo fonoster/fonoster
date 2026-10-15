@@ -21,6 +21,9 @@ import (
 
 const dtmfPayloadType = 101
 
+// maxHeardFrames caps the heard-audio buffer at two minutes.
+const maxHeardFrames = 2 * 60 * 1000 / audio.FrameMs
+
 // Bot places calls from one local address.
 type Bot struct {
 	host    string
@@ -85,8 +88,12 @@ type Call struct {
 	audibleAt []time.Time
 	digits    string
 	pending   []audio.Frame
-	cancel    context.CancelFunc
-	stop      chan struct{}
+	// spokeUntil is when the last queued frame went out (zero while speaking or before any).
+	spokeUntil time.Time
+	// heardPCM keeps what the caller heard (up to maxHeardFrames), for transcribing replies.
+	heardPCM []audio.Frame
+	cancel   context.CancelFunc
+	stop     chan struct{}
 }
 
 // Status is what the bot observed on a call.
@@ -99,6 +106,10 @@ type Status struct {
 	// With a since time: audible agent audio after it, and the ms from it to the last audible frame.
 	AudibleMsSince   int `json:"audibleMsSince"`
 	LastAudibleAfter int `json:"lastAudibleAfterMs"`
+	// With a since time: ms from it to the first audible frame (-1: none yet).
+	FirstAudibleAfter int `json:"firstAudibleAfterMs"`
+	// When the caller's queued speech finished (unix ms; 0 while speaking or before any).
+	SpokeUntil int64 `json:"spokeUntilMs"`
 }
 
 // New starts a bot listening for in-dialog requests (BYE) on host:0.
@@ -300,6 +311,9 @@ func (c *Call) heard(f audio.Frame) {
 	}
 	c.mu.Lock()
 	c.heardMs += audio.FrameMs
+	if len(c.heardPCM) < maxHeardFrames {
+		c.heardPCM = append(c.heardPCM, append(audio.Frame(nil), f...))
+	}
 	if math.Sqrt(sum/float64(len(f))) > 300 {
 		c.audibleMs += audio.FrameMs
 		c.audibleAt = append(c.audibleAt, time.Now())
@@ -321,6 +335,9 @@ func (c *Call) talk() {
 		var f audio.Frame
 		if len(c.pending) > 0 {
 			f, c.pending = c.pending[0], c.pending[1:]
+			if len(c.pending) == 0 {
+				c.spokeUntil = time.Now().Add(audio.FrameMs * time.Millisecond)
+			}
 		}
 		c.mu.Unlock()
 		if f == nil {
@@ -344,9 +361,42 @@ func (c *Call) Speak(kind string, ms int) {
 		}
 		out = append(out, f)
 	}
+	c.queue(out)
+}
+
+// SpeakPCM queues recorded speech: 16-bit little-endian PCM at the internal 16 kHz rate.
+func (c *Call) SpeakPCM(pcm []byte) {
+	out := make([]audio.Frame, 0, len(pcm)/(audio.FrameSamples*2)+1)
+	for off := 0; off < len(pcm); off += audio.FrameSamples * 2 {
+		f := audio.Silence()
+		for j := range f {
+			if i := off + j*2; i+1 < len(pcm) {
+				f[j] = int16(uint16(pcm[i]) | uint16(pcm[i+1])<<8)
+			}
+		}
+		out = append(out, f)
+	}
+	c.queue(out)
+}
+
+func (c *Call) queue(frames []audio.Frame) {
 	c.mu.Lock()
-	c.pending = out
+	c.pending = frames
+	c.spokeUntil = time.Time{}
 	c.mu.Unlock()
+}
+
+// Heard returns what the caller heard so far as 16-bit little-endian PCM at 16 kHz.
+func (c *Call) Heard() []byte {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	out := make([]byte, 0, len(c.heardPCM)*audio.FrameSamples*2)
+	for _, f := range c.heardPCM {
+		for _, v := range f {
+			out = append(out, byte(v), byte(uint16(v)>>8))
+		}
+	}
+	return out
 }
 
 // DTMF sends keypresses as RFC 4733 events.
@@ -382,9 +432,16 @@ func (c *Call) Status() Status { return c.StatusSince(time.Time{}) }
 func (c *Call) StatusSince(since time.Time) Status {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	s := Status{ID: c.ID, SIP: append([]int(nil), c.statuses...), State: c.state, HeardMs: c.heardMs, AudibleMs: c.audibleMs}
+	s := Status{ID: c.ID, SIP: append([]int(nil), c.statuses...), State: c.state, HeardMs: c.heardMs, AudibleMs: c.audibleMs,
+		FirstAudibleAfter: -1}
+	if !c.spokeUntil.IsZero() {
+		s.SpokeUntil = c.spokeUntil.UnixMilli()
+	}
 	for _, at := range c.audibleAt {
 		if !at.Before(since) {
+			if s.FirstAudibleAfter < 0 {
+				s.FirstAudibleAfter = int(at.Sub(since).Milliseconds())
+			}
 			s.AudibleMsSince += audio.FrameMs
 			s.LastAudibleAfter = int(at.Sub(since).Milliseconds())
 		}

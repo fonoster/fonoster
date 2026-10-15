@@ -72,6 +72,10 @@ export type BotCallStatus = {
   audibleMs: number;
   audibleMsSince: number;
   lastAudibleAfterMs: number;
+  /** With a since time: ms from it to the first audible agent frame (-1: none yet). */
+  firstAudibleAfterMs?: number;
+  /** When the caller's queued speech finished (unix ms; 0 while speaking or before any). */
+  spokeUntilMs?: number;
 };
 
 async function freeUdpPort(): Promise<number> {
@@ -232,6 +236,21 @@ export class MediaNodeProcess {
 
   speak(kind: string, ms: number) {
     return this.api(`/calls/${this.callId}/audio`, { kind, ms });
+  }
+
+  /** The caller says recorded speech: 16-bit little-endian PCM at 16 kHz (sent as PCMU). */
+  speakPcm(pcm: Buffer) {
+    return this.api(`/calls/${this.callId}/audio`, {
+      kind: "pcm",
+      pcm: pcm.toString("base64")
+    });
+  }
+
+  /** Everything the caller heard so far, as 16-bit little-endian PCM at 16 kHz. */
+  async heard(): Promise<Buffer> {
+    const res = await fetch(`${this.botUrl}/calls/${this.callId}/heard`);
+    if (!res.ok) throw new Error(`caller bot heard: ${res.status}`);
+    return Buffer.from(await res.arrayBuffer());
   }
 
   hangup() {
