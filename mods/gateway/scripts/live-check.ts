@@ -25,8 +25,11 @@
 // Keys come only from the environment and are never printed.
 import * as fs from "fs";
 import * as path from "path";
-import { DeepgramSttAdapter, DeepgramTtsAdapter } from "../src/speech/deepgram";
-import { ElevenLabsTtsAdapter } from "../src/speech/elevenlabs";
+import {
+  DeepgramSttAdapter,
+  DeepgramTtsAdapter
+} from "@fonoster/community/deepgram";
+import { ElevenLabsTtsAdapter } from "@fonoster/community/elevenlabs";
 import { Transcript } from "../src/speech/types";
 
 const TEXT =

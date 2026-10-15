@@ -23,8 +23,11 @@ import { expect } from "chai";
 import { parse } from "yaml";
 import { Registry as RegistryNs } from "@fonoster/common";
 import { Catalog } from "../src";
-import { DeepgramSttAdapter, DeepgramTtsAdapter } from "../src/speech/deepgram";
-import { ElevenLabsTtsAdapter } from "../src/speech/elevenlabs";
+import {
+  DeepgramSttAdapter,
+  DeepgramTtsAdapter
+} from "@fonoster/community/deepgram";
+import { ElevenLabsTtsAdapter } from "@fonoster/community/elevenlabs";
 
 // The vendor catalog seed (VO-B5): it applies cleanly, every entry would pass the registry's own
 // add-* checks, and the gateway resolves the owner's speech defaults through it.

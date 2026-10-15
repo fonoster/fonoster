@@ -17,16 +17,13 @@
  * limitations under the License.
  */
 import { Registry as RegistryNs } from "@fonoster/common";
+import { adapterFor, SttAdapter, TtsAdapter } from "@fonoster/community";
 import {
   DEFAULTS,
   GatewayConfig,
   ProviderConfig,
   providerKey
 } from "../config";
-import { DeepgramSttAdapter, DeepgramTtsAdapter } from "./deepgram";
-import { ElevenLabsTtsAdapter } from "./elevenlabs";
-import { FakeSttAdapter, FakeTtsAdapter } from "./fake";
-import { SttAdapter, TtsAdapter } from "./types";
 
 /**
  * Resolves catalog ids (`<provider>/<voice>`) to adapters. A stand-in for the provider registry
@@ -58,34 +55,32 @@ export type WorkspaceKeySource = {
 
 type Adapters = { tts?: TtsAdapter; stt?: SttAdapter };
 
-/** The adapters a provider gets with a given key. */
-function buildAdapters(p: ProviderConfig, apiKey: string): Adapters {
-  const tts = p.capabilities.includes("tts");
-  const stt = p.capabilities.includes("stt");
+/**
+ * The adapters a provider gets with a given key, built by its catalog adapter id
+ * (@fonoster/community). Keyless adapters (fake) are built without one.
+ */
+function buildAdapters(p: ProviderConfig, apiKey?: string): Adapters {
+  const factories = adapterFor(p.adapter);
+  if (!factories) return {};
   const timeoutMs = p.tts?.timeoutMs ?? DEFAULTS.ttsTimeoutMs;
-  if (p.adapter === "deepgram")
-    return {
-      tts: tts
-        ? new DeepgramTtsAdapter({ apiKey, baseUrl: p.tts?.url, timeoutMs })
-        : undefined,
-      stt: stt
-        ? new DeepgramSttAdapter({
-            apiKey,
-            baseUrl: p.stt?.url,
-            sttModel: p.stt?.model
-          })
-        : undefined
-    };
-  if (p.adapter === "elevenlabs" && tts)
-    return {
-      tts: new ElevenLabsTtsAdapter({
-        apiKey,
-        baseUrl: p.tts?.url,
-        model: p.tts?.model,
-        timeoutMs
-      })
-    };
-  return {};
+  return {
+    tts: p.capabilities.includes("tts")
+      ? factories.tts?.({
+          apiKey,
+          url: p.tts?.url,
+          model: p.tts?.model,
+          timeoutMs
+        })
+      : undefined,
+    stt: p.capabilities.includes("stt")
+      ? factories.stt?.({ apiKey, url: p.stt?.url, model: p.stt?.model })
+      : undefined
+  };
+}
+
+/** Whether a provider's adapter works without a credential (fake). */
+function keyless(p: ProviderConfig): boolean {
+  return Boolean(adapterFor(p.adapter)?.keyless);
 }
 
 export class Catalog {
@@ -115,18 +110,8 @@ export class Catalog {
       };
     }
     for (const [name, p] of Object.entries(config.providers ?? {})) {
-      const tts = p.capabilities.includes("tts");
-      const stt = p.capabilities.includes("stt");
-      const timeoutMs = p.tts?.timeoutMs ?? DEFAULTS.ttsTimeoutMs;
-      if (p.adapter === "fake") {
-        if (tts && p.tts?.url)
-          this.tts.set(name, new FakeTtsAdapter({ url: p.tts.url, timeoutMs }));
-        if (stt && p.stt?.url)
-          this.stt.set(name, new FakeSttAdapter({ url: p.stt.url }));
-        continue;
-      }
-      const apiKey = providerKey(p);
-      if (!apiKey) continue;
+      const apiKey = keyless(p) ? undefined : providerKey(p);
+      if (!keyless(p) && !apiKey) continue;
       const built = buildAdapters(p, apiKey);
       if (built.tts) this.tts.set(name, built.tts);
       if (built.stt) this.stt.set(name, built.stt);
@@ -142,7 +127,7 @@ export class Catalog {
     if (!this.keySource || !workspaceRef) return;
     const keys = new Map<string, string>();
     const names = Object.entries(this.config.providers ?? {})
-      .filter(([, p]) => p.adapter !== "fake")
+      .filter(([, p]) => !keyless(p))
       .map(([name]) => name);
     await Promise.all(
       names.map(async (name) => {

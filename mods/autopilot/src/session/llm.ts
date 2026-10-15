@@ -17,7 +17,8 @@
  * limitations under the License.
  */
 import { Registry } from "@fonoster/common";
-import { OpenAiCompatibleThink, Think } from "./think";
+import { adapterFor, Think } from "@fonoster/community";
+import { OPENAI_COMPATIBLE } from "@fonoster/community/openai";
 
 // Language models through the provider registry (rework-autopilot A8, A11, task 3.1; registry
 // PR6: Autopilot resolves its own LLM credential, the gateway resolves speech). The assistant
@@ -61,13 +62,8 @@ export class LayeredCredentials implements CredentialSource {
   }
 }
 
-/** Adapters whose LLMs speak OpenAI-compatible Chat Completions, with their default endpoints. */
-export const OPENAI_COMPATIBLE: Record<string, string | undefined> = {
-  openai: "https://api.openai.com",
-  groq: "https://api.groq.com/openai",
-  ollama: "http://localhost:11434",
-  fake: undefined
-};
+/** Adapters whose LLMs speak OpenAI-compatible Chat Completions (moved to @fonoster/community/openai). */
+export { OPENAI_COMPATIBLE };
 
 export class LlmResolutionError extends Error {}
 
@@ -117,14 +113,15 @@ export class RegistryLlmResolver implements LlmResolver {
       throw new LlmResolutionError(`no provider ${providerId} for ${id}`);
     if (provider.state === "retired")
       throw new LlmResolutionError(`provider ${providerId} is retired`);
-    if (!(provider.adapter in OPENAI_COMPATIBLE))
+    const llm = adapterFor(provider.adapter)?.llm;
+    if (!llm)
       throw new LlmResolutionError(
         `adapter ${provider.adapter} has no language model implementation in Autopilot yet`
       );
     const baseUrl =
       this.options.endpoints?.[provider.id] ??
       this.options.endpoints?.[provider.adapter] ??
-      OPENAI_COMPATIBLE[provider.adapter];
+      llm.defaultEndpoint;
     if (!baseUrl)
       throw new LlmResolutionError(
         `no endpoint for provider ${provider.id} (adapter ${provider.adapter})`
@@ -133,13 +130,13 @@ export class RegistryLlmResolver implements LlmResolver {
       provider.credentialRef,
       scope
     );
-    if (!apiKey && provider.adapter !== "fake" && provider.adapter !== "ollama")
+    if (!apiKey && !adapterFor(provider.adapter)?.keyless)
       throw new LlmResolutionError(
         `no credential ${provider.credentialRef} for provider ${provider.id}`
       );
     return {
       id,
-      think: new OpenAiCompatibleThink(
+      think: llm.create(
         { baseUrl, apiKey },
         id.slice(providerId.length + 1),
         settings

@@ -19,7 +19,7 @@
 import { EventEmitter } from "events";
 import { URLSearchParams } from "url";
 import WebSocket from "ws";
-import { streamingPost } from "./http";
+import { streamingPost } from "../http";
 import {
   SpeechError,
   SttAdapter,
@@ -27,7 +27,7 @@ import {
   Synthesis,
   Transcript,
   TtsAdapter
-} from "./types";
+} from "../speech";
 
 // Deepgram, ported from mods/apiserver/src/voice/{stt,tts}/Deepgram.ts onto the streaming
 // adapter interfaces. Plain HTTP and WebSocket (no SDK), with a base URL override for tests.

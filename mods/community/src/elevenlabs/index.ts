@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { streamingPost } from "./http";
-import { Synthesis, TtsAdapter } from "./types";
+import { streamingPost } from "../http";
+import { Synthesis, TtsAdapter } from "../speech";
 
 // ElevenLabs TTS, ported from mods/apiserver/src/voice/tts/ElevenLabs.ts onto the streaming
 // adapter interface. Asks for raw 16 kHz PCM (the gateway's internal format), so no conversion.
