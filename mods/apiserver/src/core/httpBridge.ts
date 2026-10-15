@@ -29,6 +29,19 @@ import { APP_URL } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
+const RECORDINGS_DIR = "/opt/fonoster/recordings";
+
+/**
+ * The file a recording id names, or undefined when the id could reach outside the recordings
+ * directory. Express decodes `%2F` in route params, so ids like `..%2F..%2Fetc%2Fpasswd` must be
+ * refused here: only plain file names (letters, digits, `_`, `-`, `.`, no leading dot) are allowed.
+ */
+export function recordingFile(id: string, dir = RECORDINGS_DIR) {
+  if (!/^[A-Za-z0-9_-][A-Za-z0-9._-]*$/.test(id) || id.includes("..")) return;
+  const file = path.resolve(dir, id);
+  return path.dirname(file) === path.resolve(dir) ? file : undefined;
+}
+
 function httpBridge(
   identityConfig: IdentityConfig,
   params: { port: number; routers?: { path: string; router: Router }[] }
@@ -54,13 +67,13 @@ function httpBridge(
   );
 
   app.get("/api/recordings/:id", (req: Request, res: Response) => {
-    const RECORDINGS_PATH = path.join(
-      "/opt/fonoster/recordings",
-      req.params.id as string
-    );
-    const wave = fs.readFileSync(RECORDINGS_PATH);
+    const file = recordingFile(req.params.id as string);
+    if (!file || !fs.existsSync(file)) {
+      res.status(404).end();
+      return;
+    }
     res.setHeader("content-type", "audio/wav");
-    res.send(wave);
+    res.send(fs.readFileSync(file));
   });
 
   app.listen(port, () => {
