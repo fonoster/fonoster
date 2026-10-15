@@ -350,6 +350,31 @@ describe("@gateway vendor adapters", function () {
     );
   });
 
+  // PR5: Deepgram works through audio at about real-time pace even when it arrives faster, so the
+  // final can come seconds after the last frame; closing after a fixed wait dropped it.
+  it("Deepgram STT finish() waits for the vendor's last results", async function () {
+    const v = await fakeListen((socket) => {
+      socket.on("message", (d, binary) => {
+        if (binary || JSON.parse(d.toString()).type !== "CloseStream") return;
+        setTimeout(() => {
+          socket.send(results("this is a live check"));
+          socket.close(1000);
+        }, 300);
+      });
+    });
+    const stt = new DeepgramSttAdapter({ apiKey: "k", baseUrl: v.url }).open({
+      language: "en"
+    });
+    const heard: string[] = [];
+    stt.on("transcript", (t: Transcript) => heard.push(t.text));
+    stt.write(Buffer.alloc(640));
+    await sleep(50);
+    await stt.finish(2000);
+    v.server.close();
+    expect(heard).to.deep.equal(["this is a live check"]);
+    expect(v.urls).to.have.length(1);
+  });
+
   it("Deepgram STT reports a rejected handshake once and does not retry", async function () {
     const v = await vendor((_req, res) => res.writeHead(401).end());
     const stt = new DeepgramSttAdapter({ apiKey: "bad", baseUrl: v.url }).open({

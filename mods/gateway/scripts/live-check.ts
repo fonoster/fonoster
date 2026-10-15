@@ -40,9 +40,9 @@ async function collect(audio: AsyncIterable<Buffer>) {
 }
 
 /**
- * Streams PCM to Deepgram STT in 20 ms frames at about 4x real time, then a second of silence to
- * flush, and waits up to 8 s for the final transcript. Reports what the stream did (close codes,
- * errors, result count) so an empty transcript says why (PR5).
+ * Streams PCM to Deepgram STT in 20 ms frames at about 4x real time, then a second of silence,
+ * and waits for Deepgram to send its last results and close. Reports the result count and any
+ * errors so an empty transcript says why (PR5).
  */
 async function transcribe(apiKey: string, pcm: Buffer, hints?: string[]) {
   const finals: string[] = [];
@@ -62,14 +62,8 @@ async function transcribe(apiKey: string, pcm: Buffer, hints?: string[]) {
     stt.write(audio.subarray(i, i + 640));
     await new Promise((r) => setTimeout(r, 5));
   }
-  for (
-    let waited = 0;
-    waited < 8000 && !/speech adapt/i.test(finals.join(" "));
-    waited += 250
-  ) {
-    await new Promise((r) => setTimeout(r, 250));
-  }
-  stt.close();
+  // Wait for Deepgram's last results instead of a fixed time (the PR5 empty transcripts).
+  await stt.finish(15000);
   const heard = finals.join(" ");
   return {
     ok: /live check/i.test(heard),

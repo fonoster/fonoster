@@ -82,11 +82,12 @@ const MAX_QUEUED_FRAMES = 250;
 /** How long a replaced socket may keep delivering its last transcripts (VO-B1). */
 const DRAIN_MS = 2000;
 
-class DeepgramSttStream extends EventEmitter implements SttStream {
+export class DeepgramSttStream extends EventEmitter implements SttStream {
   private socket!: WebSocket;
   private queue: Buffer[] = [];
   private keepalive?: ReturnType<typeof setInterval>;
   private closed = false;
+  private finishing = false;
   private failures = 0;
   private retry?: ReturnType<typeof setTimeout>;
 
@@ -147,7 +148,8 @@ class DeepgramSttStream extends EventEmitter implements SttStream {
     // Deepgram may close a live stream (NET-0001 after 10 s without audio, 1011 on its side). The
     // old adapter went quietly deaf then; now it reconnects, keeping frames meanwhile (VO-B1).
     socket.on("close", (code: number, reason: Buffer) => {
-      if (socket !== this.socket || this.closed || rejected) return;
+      if (socket !== this.socket || this.closed || this.finishing || rejected)
+        return;
       clearInterval(this.keepalive);
       if (code === 1008) {
         this.emit(
@@ -224,6 +226,31 @@ class DeepgramSttStream extends EventEmitter implements SttStream {
     this.connect();
   }
 
+  /**
+   * Ends the audio and waits (up to timeoutMs) for Deepgram to send its last results and close
+   * the socket, then closes the stream. Deepgram works through audio at about real-time pace even
+   * when it arrives faster, so a fixed wait followed by close() can drop every final (PR5, VO-B1).
+   */
+  async finish(timeoutMs = 10000): Promise<void> {
+    if (this.closed) return;
+    this.finishing = true;
+    clearTimeout(this.retry);
+    clearInterval(this.keepalive);
+    const s = this.socket;
+    if (s.readyState === WebSocket.OPEN) {
+      const done = new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, timeoutMs);
+        s.once("close", () => {
+          clearTimeout(timer);
+          resolve();
+        });
+      });
+      s.send(JSON.stringify({ type: "CloseStream" }));
+      await done;
+    }
+    this.close();
+  }
+
   close() {
     this.closed = true;
     clearTimeout(this.retry);
@@ -254,7 +281,7 @@ export class DeepgramSttAdapter implements SttAdapter {
     language: string;
     hints?: string[];
     model?: string;
-  }): SttStream {
+  }): DeepgramSttStream {
     return new DeepgramSttStream(
       this.options,
       options.language,
