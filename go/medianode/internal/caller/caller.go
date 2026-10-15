@@ -47,6 +47,10 @@ type Bot struct {
 	answerMode  string // answer (default), busy, no_answer, decline
 	answerAfter time.Duration
 	refers      []string
+	// authUser and authPass, when set, make the bot challenge INVITEs (RequireAuth).
+	authUser, authPass string
+	// challenged counts the INVITEs the bot answered with 401.
+	challenged int
 }
 
 // Callee sets how the bot answers INVITEs: "answer", "busy", "no_answer" (rings forever),
@@ -55,6 +59,13 @@ func (b *Bot) Callee(mode string, after time.Duration) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.answerMode, b.answerAfter = mode, after
+}
+
+// Challenged is how many INVITEs the bot answered with a 401 challenge.
+func (b *Bot) Challenged() int {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.challenged
 }
 
 // Refers lists the Refer-To targets the bot accepted.
@@ -106,6 +117,9 @@ type Call struct {
 	heardPCM []audio.Frame
 	cancel   context.CancelFunc
 	stop     chan struct{}
+	// from and headers are the received INVITE's From URI and X- headers (calls the bot answered).
+	from    string
+	headers map[string]string
 }
 
 // Status is what the bot observed on a call.
@@ -125,6 +139,9 @@ type Status struct {
 	// Codec is the negotiated codec ("PCMU/8000"); Secure is true for SRTP.
 	Codec  string `json:"codec,omitempty"`
 	Secure bool   `json:"secure,omitempty"`
+	// From and Headers (X- headers) of the INVITE the bot answered, for calls it received.
+	From    string            `json:"from,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // DialOptions shape one call's offer.
@@ -618,7 +635,7 @@ func (c *Call) StatusSince(since time.Time) Status {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	s := Status{ID: c.ID, SIP: append([]int(nil), c.statuses...), State: c.state, HeardMs: c.heardMs, AudibleMs: c.audibleMs,
-		Codec: c.codec, Secure: c.secure, FirstAudibleAfter: -1}
+		Codec: c.codec, Secure: c.secure, FirstAudibleAfter: -1, From: c.from, Headers: c.headers}
 	if !c.spokeUntil.IsZero() {
 		s.SpokeUntil = c.spokeUntil.UnixMilli()
 	}
@@ -638,6 +655,13 @@ func (c *Call) StatusSince(since time.Time) Status {
 func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 	b.mu.Lock()
 	mode, after := b.answerMode, b.answerAfter
+	user, pass := b.authUser, b.authPass
+	if pass != "" && !authorized(req, user, pass) {
+		b.challenged++
+		b.mu.Unlock()
+		challenge(req, tx)
+		return
+	}
 	b.seq++
 	id := fmt.Sprintf("in-%d", b.seq)
 	b.mu.Unlock()
@@ -698,7 +722,15 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		}
 	}
 	c := &Call{ID: id, bot: b, endpoint: ep, inbound: dlg, state: "answered", stop: make(chan struct{}), statuses: []int{200},
-		codec: codecName, secure: ep.Secure(), dtmfPT: offer.DTMF}
+		codec: codecName, secure: ep.Secure(), dtmfPT: offer.DTMF, headers: map[string]string{}}
+	if f := req.From(); f != nil {
+		c.from = f.Address.String()
+	}
+	for _, h := range req.Headers() {
+		if strings.HasPrefix(strings.ToLower(h.Name()), "x-") {
+			c.headers[h.Name()] = h.Value()
+		}
+	}
 	b.mu.Lock()
 	b.calls[id] = c
 	b.mu.Unlock()

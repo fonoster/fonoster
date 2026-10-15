@@ -110,15 +110,18 @@ func main() {
 	}))
 
 	mux.HandleFunc("GET /calls", func(w http.ResponseWriter, _ *http.Request) {
-		writeJSON(w, map[string]any{"calls": bot.Calls(), "refers": bot.Refers()})
+		writeJSON(w, map[string]any{"calls": bot.Calls(), "refers": bot.Refers(), "challenged": bot.Challenged()})
 	})
 	mux.HandleFunc("POST /callee", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Mode    string
 			AfterMs int
+			// Username and Password make the bot challenge INVITEs like Routr does a Peer's.
+			Username, Password string
 		}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		bot.Callee(req.Mode, time.Duration(req.AfterMs)*time.Millisecond)
+		bot.RequireAuth(req.Username, req.Password)
 		w.WriteHeader(204)
 	})
 	// The bot's own SIP address, for the node's outbound proxy in tests.

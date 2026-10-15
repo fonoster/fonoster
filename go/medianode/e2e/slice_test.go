@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -426,6 +427,43 @@ func TestDialIntoRoom(t *testing.T) {
 	}
 	r.waitEvent(typed("participant.left", "participantRef", joined["participantRef"], "reason", "callee_hangup"), 2*time.Second)
 	r.waitEvent(typed("room.ended", "roomRef", room, "reason", "callee_hangup"), 2*time.Second)
+}
+
+// TestDialAsPeer: the node dials as its Routr Peer (OB-B1). The callee bot stands in for Routr: it
+// challenges the INVITE, and the answered INVITE has the Peer in From and the caller-id number in
+// X-DOD-Number, which is what Routr's PEER_TO_PSTN routing needs.
+func TestDialAsPeer(t *testing.T) {
+	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
+		c.Domain, c.Username, c.Password = "default", "medianode", "peer-secret"
+	}})
+	r.callee.RequireAuth("medianode", "peer-secret")
+	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
+	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+15551234567",
+		"from": "+17853178070", "headers": map[string]any{"X-Call-Ref": "call-1"}})
+	r.waitEvent(typed("call.answered", "id", "d1"), 3*time.Second)
+	if got := r.callee.Challenged(); got != 1 {
+		t.Fatalf("callee challenged %d INVITEs, want 1", got)
+	}
+	calls := r.callee.Calls()
+	if len(calls) != 1 {
+		t.Fatalf("callee saw %d calls", len(calls))
+	}
+	st := calls[0]
+	if !strings.HasPrefix(st.From, "sip:medianode@default") {
+		t.Fatalf("From = %q, want the Peer sip:medianode@default", st.From)
+	}
+	if st.Headers[sipua.DODNumberHeader] != "+17853178070" || st.Headers["X-Call-Ref"] != "call-1" {
+		t.Fatalf("headers = %v", st.Headers)
+	}
+}
+
+// TestDialAsPeerBadSecret: a wrong Peer password fails the dial with the proxy's 401.
+func TestDialAsPeerBadSecret(t *testing.T) {
+	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) { c.Username, c.Password = "medianode", "wrong" }})
+	r.callee.RequireAuth("medianode", "peer-secret")
+	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
+	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+1555", "from": "+1785"})
+	r.waitEvent(typed("call.progress", "id", "d1", "status", "failed", "sipStatus", 401), 3*time.Second)
 }
 
 func TestDialBusy(t *testing.T) {
