@@ -181,7 +181,7 @@ class Applications {
    */
   async createApplication(
     request: CreateApplicationRequest
-  ): Promise<BaseApiObject> {
+  ): Promise<CreateApplicationResponse> {
     const reqWithStructOverride = buildStructOverride(request);
     const applicationsClient = this.client.getApplicationsClient();
 
@@ -189,7 +189,7 @@ class Applications {
       CreateApplicationRequestPB,
       CreateApplicationResponsePB,
       CreateApplicationRequest,
-      BaseApiObject
+      CreateApplicationResponse
     >({
       method: applicationsClient.createApplication.bind(applicationsClient),
       requestPBObjectConstructor: CreateApplicationRequestPB,
