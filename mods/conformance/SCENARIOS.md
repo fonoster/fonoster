@@ -17,6 +17,7 @@ scenarios/
   voice-session/                  # runner plays the app, the gateway is under test
   twilio-media-streams-flavor/    # runner plays a Twilio Media Streams app
   voice-sdk/                      # runner plays the gateway, an SDK fixture app is under test
+  media-control/                  # runner plays the gateway against a media node (fake or Go) over NATS
   autopilot/                      # runner plays the gateway, Autopilot (with setup.assistant) is under test
   audio/                          # recorded caller audio (raw PCM16LE mono 16 kHz)
 ```
@@ -29,12 +30,12 @@ The file name is the scenario `name` plus `.yaml`. A scenario belongs to exactly
 | --- | --- | --- |
 | `format` | yes | Always `fonoster.scenario.v1`. A breaking change to this format gets a new value. |
 | `name` | yes | Kebab-case, equal to the file name. |
-| `contract` | yes | `voice-session`, `twilio-media-streams-flavor`, `voice-sdk` or `media-control`. |
+| `contract` | yes | `voice-session`, `twilio-media-streams-flavor`, `voice-sdk`, `media-control` or `autopilot`. |
 | `role` | yes | The side the runner plays: `app`, `gateway` or `media-control-client`. |
 | `spec` | no | The requirement and scenario this file proves: `"Requirement / Scenario"`. |
 | `description` | no | Free text. |
 | `fixture` | `voice-sdk` | The fixture app the SDK runner starts (see Fixtures). |
-| `tags` | no | Used to select subsets, e.g. `timing`, `slow`. |
+| `tags` | no | Used to select subsets. In use: `timing` (needs real time, loose limits on shared runners) and `slow` (run in the nightly job or on request). Runners may ignore tags they do not know. |
 | `skip` | no | A reason; the scenario is reported as skipped, never silently dropped. |
 | `ignore` | no | Message types that `expect` and `expect_none` never look at. |
 | `setup` | no | How the harness prepares the fakes before the first step. |
@@ -182,6 +183,20 @@ SDK scenarios exercise an app written with the SDK. `fixture` names that app; ev
 ships one implementation per fixture, written idiomatically in its language. The fixture's
 behaviour is described in `scenarios/voice-sdk/FIXTURES.md` and is part of the contract: two SDKs
 implementing the same fixture must produce the same frames.
+
+## Running the files from another language
+
+A runner needs, in any language: a YAML parser; a JSON Schema validator (validate every file
+against `schema/scenario.schema.json` before running it and fail on any error); the matcher
+(partial objects, `*` and the `$` operators above); a WebSocket client or server for the role it
+plays; and the signature headers (`X-Fonoster-Timestamp`, `X-Fonoster-Signature`, see
+`docs/session-protocol.md`) for roles that dial or verify an app. Steps run in order and the first
+failure fails the scenario. Report every scenario as passed, failed or skipped, never silently
+omitted, and fail any scenario that uses a `setup` key, action or assertion the runner does not
+implement. `python/fonoster-conformance` is the reference second implementation; the Go media node
+runs the `media-control` files through `mods/conformance/test/media-control-go.test.ts`.
+Point other runners at the published `@fonoster/conformance` package of the same version (the Python
+runner reads it from `FONOSTER_CONFORMANCE_DIR`) rather than copying the files.
 
 ## Versioning
 
