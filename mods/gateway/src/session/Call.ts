@@ -375,6 +375,7 @@ export class Call {
   }
 
   private async joinRoom() {
+    if (this.deps.config.rtp?.srtp) this.rtp.enableSrtp();
     const offer = await this.rtp.bind(
       this.deps.config.rtp?.host ?? "127.0.0.1",
       this.deps.config.rtp?.advertiseHost
@@ -384,7 +385,11 @@ export class Call {
       kind: "session",
       rtp: offer
     });
-    const rtp = ack.rtp as { host: string; port: number };
+    const rtp = ack.rtp as {
+      host: string;
+      port: number;
+      srtp?: { suite: string; key: string };
+    };
     this.sessionParticipantRef = ack.participantRef as string;
     this.rtp.connect(rtp);
     this.rtp.on("frame", (frame: Buffer) => this.session?.callerAudio(frame));
@@ -832,9 +837,34 @@ export class AppSession {
     );
     this.queue.onPlaying((playing) => this.pacing?.onOutput(playing));
 
-    const adapter = this.deps.catalog.defaultStt();
-    if (!adapter) return;
-    this.stt = adapter.open({ language });
+    // The app's STT model (catalog id) and default hints (VO-B3, VO-B4).
+    const sttId = this.app.speech.sttModel;
+    const stt = this.deps.catalog.resolveStt(sttId);
+    if (!stt) {
+      if (sttId)
+        this.emit({
+          type: "error",
+          code: "invalid_catalog_id",
+          message: `STT model ${sttId} is not in the catalog`,
+          fatal: false
+        });
+      return;
+    }
+    if (stt.event && sttId) {
+      this.reportedIds.add(sttId);
+      this.call.record("event", {
+        type: stt.event,
+        id: sttId,
+        replacement: stt.replacement,
+        sessionRef: this.sessionRef,
+        appRef: this.app.ref
+      });
+    }
+    this.stt = stt.adapter.open({
+      language,
+      hints: mergeHints(this.app.speech.hints),
+      model: stt.model
+    });
     this.stt.on("transcript", (t) => this.pacing?.onTranscript(t, Date.now()));
     this.stt.on("error", (e: SpeechError) =>
       this.emit({
@@ -1107,7 +1137,10 @@ export class AppSession {
         if (cmd.language) this.pacing?.setLanguage(cmd.language as string);
         this.stt?.update({
           language: cmd.language as string,
-          hints: cmd.hints as string[]
+          // Session hints add to the app's default hints (VO-B3).
+          hints: cmd.hints
+            ? mergeHints(this.app.speech.hints, cmd.hints as string[])
+            : undefined
         });
         return;
       case "hangup":
@@ -1249,4 +1282,17 @@ export class AppSession {
       for (const l of this.listeners) l.json(message);
     if (message.type !== "turn.estimate") this.call.record("gateway", message);
   }
+}
+
+/** App default hints plus session hints: trimmed, deduplicated (case-insensitive), at most 100. */
+export function mergeHints(...lists: (string[] | undefined)[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const h of lists.flat()) {
+    const t = typeof h === "string" ? h.trim() : "";
+    if (!t || seen.has(t.toLowerCase())) continue;
+    seen.add(t.toLowerCase());
+    out.push(t);
+  }
+  return out.slice(0, 100);
 }

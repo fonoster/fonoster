@@ -42,6 +42,10 @@ export type AppConfig = {
     patience?: "low" | "normal" | "high";
     /** Turn Detector: baseline (default), backchannel-hold, stt, or a ws:// Detector URL. */
     detector?: string;
+    /** STT model catalog id (e.g. `deepgram/nova-3`); default: the deployment's STT provider. */
+    sttModel?: string;
+    /** Words to bias recognition toward (names, brands); sent on every STT stream. */
+    hints?: string[];
   };
   /** Caller and agent audio format for the native flavor (default pcm16 at 16 kHz). */
   audio?: { codec: "pcm16" | "pcmu"; rate: number };
@@ -75,7 +79,11 @@ export type ProviderConfig = {
 
 export type GatewayConfig = {
   nats: { url: string };
-  rtp?: { host?: string; advertiseHost?: string };
+  /**
+   * The RTP leg to the media node. `srtp: true` encrypts it (SDES keys in participant.add,
+   * AES_CM_128_HMAC_SHA1_80); required when the node runs with -require-encryption (MN6).
+   */
+  rtp?: { host?: string; advertiseHost?: string; srtp?: boolean };
   /** Apps when `appStore.source` is yaml (the default). */
   apps?: AppConfig[];
   providers: Record<string, ProviderConfig>;
@@ -202,6 +210,16 @@ export function validateConfig(config: GatewayConfig): string[] {
       !["low", "normal", "high"].includes(app.speech.patience)
     )
       problems.push(`app ${app.ref}: patience must be low, normal or high`);
+    if (app.speech?.sttModel && !/^[a-z0-9-]+\/.+/.test(app.speech.sttModel))
+      problems.push(
+        `app ${app.ref}: sttModel must be a catalog id like deepgram/nova-3`
+      );
+    if (
+      app.speech?.hints &&
+      (!Array.isArray(app.speech.hints) ||
+        app.speech.hints.some((h) => typeof h !== "string"))
+    )
+      problems.push(`app ${app.ref}: hints must be a list of strings`);
     if (app.recording && !RECORDING_POLICIES.includes(app.recording))
       problems.push(
         `app ${app.ref}: unknown recording policy ${app.recording}`

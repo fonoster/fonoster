@@ -23,7 +23,7 @@ import {
   Scenario,
   runScenario
 } from "@fonoster/conformance";
-import { VoiceServer } from "@fonoster/voice/session";
+import { VoiceServer } from "@fonoster/voice";
 import { parse } from "yaml";
 import {
   TurnTrace,

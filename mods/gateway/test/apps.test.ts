@@ -100,6 +100,20 @@ describe("@gateway apps", function () {
       listeners: [{ url: "wss://l.example.com", tracks: "both" }],
       fallback: { app: "b" }
     });
+    const speech = appFromRow({
+      ref: "s",
+      url: "wss://bot.example.com",
+      signingSecret: "s",
+      speechVoice: "deepgram/aura-2-thalia-en",
+      speechSttModel: "deepgram/nova-3",
+      speechSettings: { hints: ["Fonoster", 7] }
+    })!.speech;
+    expect(speech).to.deep.equal({
+      voice: "deepgram/aura-2-thalia-en",
+      language: "en-US",
+      sttModel: "deepgram/nova-3",
+      hints: ["Fonoster"]
+    });
   });
 
   it("appFromRow: reads patience and the recording policy (CP-B1)", function () {

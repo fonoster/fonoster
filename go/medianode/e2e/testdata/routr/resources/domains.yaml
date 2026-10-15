@@ -1,0 +1,8 @@
+- apiVersion: v2beta1
+  kind: Domain
+  ref: domain-01
+  metadata:
+    name: Local Domain
+  spec:
+    context:
+      domainUri: sip.local

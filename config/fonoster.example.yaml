@@ -8,7 +8,7 @@
 #     environment variables of its own. Treat this file as a secret: chmod 600,
 #     never commit it, mount it from a Secret on Kubernetes.
 #   - ${VAR} only appears where a value is shared with a container configured
-#     through .env (Postgres, InfluxDB, Asterisk), so each value is written once.
+#     through .env (Postgres, InfluxDB), so each value is written once.
 #   - Unknown or misspelled keys stop the API server at boot, naming the key.
 #   - JSON with comments works too (fonoster.jsonc). Keep only one of the two.
 
@@ -20,7 +20,7 @@ domain: fonoster.local
 
 server:
   bindAddr: 0.0.0.0:50051
-  httpBridgePort: 9876                           # HTTP bridge, also serves recordings
+  httpBridgePort: 9876                           # HTTP bridge (invites, /api/records)
   host: apiserver                                # how other services reach this one
 
 logs:
@@ -67,37 +67,13 @@ features:
     transcripts: { store: true, retentionDays: 30 }
     recordings: { store: false }
 
-mediaService:
-  provider: asterisk
-  asterisk:
-    ariUrl: http://asterisk:8088
-    ariUsername: ${ASTERISK_ARI_USERNAME}
-    ariPassword: ${ASTERISK_ARI_SECRET}
-    systemDomain: sip.invalid
-
-# Answering machine detection on outbound calls (thresholds live in amd.conf).
-amd:
-  enabled: false
-  engine: native                                 # native | ml
-  mode: compact                                  # compact | full
-
 routr:
   apiEndpoint: routr:51907
-  defaultPeer:
-    aor: sip:voice@default
-    name: Voice Server
-    username: ${ASTERISK_SIPPROXY_USERNAME}      # Asterisk registers with Routr as this peer
-    password: ${ASTERISK_SIPPROXY_SECRET}
-  # Cutover to the Go media nodes (docs/operators/cutover.md). Off by default: every app on Asterisk.
-  # mediaNodePeer:
-  #   aor: sip:medianode@default
-  #   username: medianode
-  #   password: ${MEDIANODE_PASSWORD}             # set it to have the apiserver create the peer
-  # engines:
-  #   default: asterisk                           # or rebuild
-  #   rebuildApps: [app-ref-1]                    # these apps' numbers go to the media nodes
-  #   asteriskApps: []                            # kept on Asterisk even when default is rebuild
-  #   numbers: { "+17853178070": rebuild }        # per-number pins win over apps
+  # The peer Go media nodes register under; every app-linked number points at it.
+  mediaNodePeer:
+    aor: sip:medianode@default
+    username: medianode
+    password: ${MEDIANODE_PASSWORD}             # the apiserver creates the peer when set
 
 nats:
   url: nats://nats:4222
@@ -128,11 +104,6 @@ influxdb:                                        # call records
 
 # Speech provider credentials, shared with Autopilot (JSON or YAML).
 integrationsFile: /opt/fonoster/integrations.json
-
-# Caller-audio filters. Only needed when applications use them.
-# audioFilters:
-#   aiCoustics:
-#     license: aic-license-key
 
 # SMS for phone verification (needed when identity.security asks for it).
 # twilio:

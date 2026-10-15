@@ -29,10 +29,7 @@ import {
 const ENV = {
   POSTGRES_USER: "postgres",
   POSTGRES_PASSWORD: "postgres",
-  ASTERISK_ARI_USERNAME: "ari",
-  ASTERISK_ARI_SECRET: "changeme",
-  ASTERISK_SIPPROXY_USERNAME: "voice",
-  ASTERISK_SIPPROXY_SECRET: "changeme",
+  MEDIANODE_PASSWORD: "changeme",
   INFLUXDB_INIT_ORG: "fonoster",
   INFLUXDB_INIT_USERNAME: "influxdb",
   INFLUXDB_INIT_PASSWORD: "changeme",
@@ -60,16 +57,9 @@ describe("@apiserver[config/examples]", function () {
     expect(config.identity.database?.url).to.equal(
       "postgresql://postgres:postgres@postgres:5432/fnidentity"
     );
-    expect(config.routr.defaultPeer.username).to.equal("voice");
-    // Cutover defaults: every app on Asterisk, no media-node peer created.
-    expect(config.routr.engines).to.deep.equal({
-      default: "asterisk",
-      rebuildApps: [],
-      asteriskApps: [],
-      numbers: {}
-    });
+    // Every app-linked number points at the media-node peer (cleanbreak CB-B3).
     expect(config.routr.mediaNodePeer.aor).to.equal("sip:medianode@default");
-    expect(config.routr.mediaNodePeer.password).to.equal(undefined);
+    expect(config.routr.mediaNodePeer.password).to.equal("changeme");
     expect(config.features.auth.methods).to.deep.equal(["password"]);
   });
 
@@ -78,6 +68,6 @@ describe("@apiserver[config/examples]", function () {
     const jsonc = load("fonoster.example.jsonc");
     expect(jsonc.database).to.deep.equal(yaml.database);
     expect(jsonc.influxdb).to.deep.equal(yaml.influxdb);
-    expect(jsonc.mediaService).to.deep.equal(yaml.mediaService);
+    expect(jsonc.routr.apiEndpoint).to.equal(yaml.routr.apiEndpoint);
   });
 });

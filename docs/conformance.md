@@ -125,7 +125,6 @@ fixture.) Rules for a runner in a new language:
 2. Implement the matcher exactly as in `SCENARIOS.md`.
 3. Fail, never skip silently, anything the runner does not understand.
 4. Sign the connection with `X-Fonoster-Timestamp` and `X-Fonoster-Signature`.
-5. Handler functions for `(req, res)` fixtures use the old signature.
 
 ## CI
 

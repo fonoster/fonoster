@@ -156,6 +156,12 @@ and tools through ports. Assistant configs MUST NOT contain vendor credentials.
 - **WHEN** an assistant sets a voice different from the app default
 - **THEN** each `speak` Autopilot sends carries that voice's catalog id
 
+#### Scenario: Recognition hints
+
+- **WHEN** an assistant lists recognition `hints` (names, brands)
+- **THEN** Autopilot sends them with `listen.update` when the session starts, and the gateway adds
+  them to the app's default hints
+
 ### Requirement: Idle handling
 
 Autopilot SHALL run its idle clock only while listening, announce idleness with the idle message,

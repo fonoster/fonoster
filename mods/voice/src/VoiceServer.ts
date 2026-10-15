@@ -16,74 +16,179 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  createAuthInterceptor,
-  getPublicKey,
-  getServerCredentials,
-  GRPC_SERVING_STATUS,
-  statusMap
-} from "@fonoster/common";
+import * as http from "http";
+import { Duplex } from "stream";
+import { SessionStart } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
-import merge from "deepmerge";
-import { HealthImplementation } from "grpc-health-check";
-import { createSession } from "./createSession";
-import { defaultServerConfig } from "./defaultServerConfig";
-import { serviceDefinition } from "./serviceDefinition";
-import { ServerConfig, VoiceHandler } from "./types";
+import WebSocket from "ws";
+import { Session } from "./Session";
+import { verifySignature } from "./signature";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-export default class VoiceServer {
-  config: ServerConfig;
-  constructor(config: ServerConfig = defaultServerConfig) {
-    this.config = merge(defaultServerConfig, config);
+export type SessionHandler = (session: Session) => Promise<void> | void;
+export type Handler = SessionHandler;
+
+export type VoiceServerOptions = {
+  port?: number;
+  host?: string;
+  /** Path to accept sessions on (default: any). */
+  path?: string;
+  /** The app's signing secret (default: APP_SIGNING_SECRET). */
+  signingSecret?: string;
+  /** Turn verification off for local development only; every connection then logs a warning. */
+  verifySignature?: boolean;
+  /** The app's URL as configured in Fonoster, when a proxy changes the host or scheme. */
+  publicUrl?: string;
+  /** How long to wait for session.start after the socket opens (default 5 s). */
+  startTimeoutMs?: number;
+};
+
+/**
+ * Accepts VoiceSessionGateway sessions over WebSocket and runs the handler once per session
+ * (voice-sdk, "VoiceServer accepts gateway sessions over WebSocket").
+ */
+export class VoiceServer {
+  private wss = new WebSocket.Server({ noServer: true });
+  private server?: http.Server;
+  private handler?: Handler;
+  private readonly secret?: string;
+  private readonly verify: boolean;
+
+  constructor(private readonly options: VoiceServerOptions = {}) {
+    this.secret = options.signingSecret ?? process.env.APP_SIGNING_SECRET;
+    this.verify = options.verifySignature ?? true;
+    if (this.verify && !this.secret) {
+      throw new Error(
+        "VoiceServer needs signingSecret (or APP_SIGNING_SECRET), or verifySignature: false"
+      );
+    }
   }
 
-  async listen(handler: VoiceHandler) {
-    try {
-      const healthImpl = new HealthImplementation(statusMap);
-      const credentials = await getServerCredentials({});
+  /** Starts a standalone server. Resolves once it is listening. */
+  async listen(handler: Handler): Promise<this> {
+    this.handler = handler;
+    this.server = http.createServer((_req, res) =>
+      res.writeHead(426).end("WebSocket required")
+    );
+    this.server.on("upgrade", (req, socket, head) =>
+      this.handleUpgrade(req, socket, head)
+    );
+    await new Promise<void>((resolve) =>
+      this.server!.listen(
+        this.options.port ?? 3000,
+        this.options.host ?? "0.0.0.0",
+        resolve
+      )
+    );
+    logger.info(`voice server listening on ${this.options.port ?? 3000}`);
+    return this;
+  }
 
-      let server: grpc.Server;
+  /** Mounts on an existing HTTP server (Express included): sessions arrive on `path`. */
+  attach(server: http.Server, handler: Handler): this {
+    this.handler = handler;
+    server.on("upgrade", (req, socket, head) => {
+      if (this.options.path && req.url?.split("?")[0] !== this.options.path)
+        return;
+      this.handleUpgrade(req, socket, head);
+    });
+    return this;
+  }
 
-      if (this.config.skipIdentity) {
-        server = new grpc.Server();
-      } else {
-        // Get the public key from the identity service
-        const response = await getPublicKey(this.config.identityAddress);
+  get port(): number | undefined {
+    const address = this.server?.address();
+    return typeof address === "object" && address ? address.port : undefined;
+  }
 
-        const authorization = createAuthInterceptor(response.publicKey, [
-          "/grpc.health.v1.Health/Check"
-        ]);
+  async close() {
+    for (const client of this.wss.clients) client.terminate();
+    await new Promise<void>((r) =>
+      this.server ? this.server.close(() => r()) : r()
+    );
+  }
 
-        server = new grpc.Server({
-          interceptors: [authorization]
-        });
-      }
-
-      server.addService(serviceDefinition, {
-        createSession: createSession(handler)
-      });
-
-      // Add the health check service to the server
-      healthImpl.addToServer(server);
-
-      const bindAddr = `${this.config.bind}:${this.config.port}`;
-
-      server.bindAsync(bindAddr, credentials, async () => {
-        healthImpl.setStatus("", GRPC_SERVING_STATUS);
-        logger.info(
-          `started voice server @ ${this.config.bind}, port=${this.config.port}`
+  /** Handles one upgrade request: verifies the signature, then runs a session. */
+  handleUpgrade(req: http.IncomingMessage, socket: Duplex, head: Buffer) {
+    if (this.options.path && req.url?.split("?")[0] !== this.options.path) {
+      socket.end("HTTP/1.1 404 Not Found\r\n\r\n");
+      return;
+    }
+    if (this.verify) {
+      const result = verifySignature(
+        this.candidateUrls(req),
+        req.headers,
+        this.secret!
+      );
+      if (!result.ok) {
+        logger.warn(
+          `rejected a session connection: signature ${result.reason}`
         );
-      });
-    } catch (err) {
-      if (err.code === grpc.status.UNAVAILABLE) {
-        logger.error("failed to connect to identity service");
-      } else {
-        logger.error("failed to start voice server", err);
+        socket.end("HTTP/1.1 401 Unauthorized\r\n\r\n");
+        return;
       }
-      process.exit(1);
+    } else {
+      logger.warn(
+        "accepted a session connection without signature verification (development only)"
+      );
+    }
+    this.wss.handleUpgrade(
+      req,
+      socket as Parameters<WebSocket.Server["handleUpgrade"]>[1],
+      head,
+      (ws) => this.run(ws)
+    );
+  }
+
+  private candidateUrls(req: http.IncomingMessage): string[] {
+    if (this.options.publicUrl) return [this.options.publicUrl];
+    const host = req.headers["x-forwarded-host"] ?? req.headers.host;
+    return ["ws", "wss"].map((scheme) => `${scheme}://${host}${req.url}`);
+  }
+
+  private run(ws: WebSocket) {
+    let session: Session | undefined;
+    const timer = setTimeout(() => {
+      if (!session) ws.close(1008, "no session.start");
+    }, this.options.startTimeoutMs ?? 5000);
+
+    ws.on("message", (raw: WebSocket.Data, isBinary: boolean) => {
+      const data = raw as Buffer;
+      if (session) return session.receive(data, isBinary);
+      if (isBinary) return;
+      let start: SessionStart;
+      try {
+        start = JSON.parse(data.toString());
+      } catch {
+        return;
+      }
+      if (start.type !== "session.start") return;
+      clearTimeout(timer);
+      session = new Session(start, {
+        sendJson: (m) =>
+          ws.readyState === WebSocket.OPEN && ws.send(JSON.stringify(m)),
+        sendBinary: (b) =>
+          ws.readyState === WebSocket.OPEN && ws.send(b, { binary: true }),
+        close: () => ws.readyState === WebSocket.OPEN && ws.close(1000)
+      });
+      void this.invoke(session);
+    });
+    ws.on("close", () => {
+      clearTimeout(timer);
+      session?.closed();
+    });
+    ws.on("error", () => undefined);
+  }
+
+  private async invoke(session: Session) {
+    const handler = this.handler!;
+    try {
+      await handler(session);
+    } catch (e) {
+      if (session.ended) return;
+      // An app that crashes hangs up the call rather than leaving the caller in silence.
+      logger.error(`voice handler failed: ${(e as Error).message}`);
+      await session.hangup().catch(() => undefined);
     }
   }
 }

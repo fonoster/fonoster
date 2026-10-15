@@ -16,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The hosted Autopilot's entry point (rework-autopilot task 4.3). Its config is its own file,
-// separate from the current Autopilot's autopilot.yaml until the cutover:
+// Autopilot's entry point (rework-autopilot task 4.3; the only engine since cleanbreak CB-B5):
 //
-//   node dist/session/main.js --config /opt/fonoster/autopilot-session.yaml
+//   node dist/session/main.js --config /etc/fonoster/autopilot-session.yaml
 import { initTelemetry } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { loadHostedConfig, startHostedAutopilot } from "./hosted";

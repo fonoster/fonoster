@@ -129,33 +129,9 @@ const fonosterConfigSchema = z
       })
       .default({}),
     features: featuresSchema,
-    mediaService: z.object({
-      provider: z.literal("asterisk").default("asterisk"),
-      asterisk: z.object({
-        ariUrl: z.string().min(1),
-        ariUsername: z.string().min(1),
-        ariPassword: z.string().min(1),
-        systemDomain: z.string().default("sip.invalid")
-      })
-    }),
-    amd: z
-      .object({
-        enabled: z.boolean().default(false),
-        engine: z.enum(["native", "ml"]).default("native"),
-        mode: z.enum(["compact", "full"]).default("compact")
-      })
-      .default({}),
     routr: z
       .object({
         apiEndpoint: z.string().default("routr:51907"),
-        defaultPeer: z
-          .object({
-            aor: z.string().default("sip:voice@default"),
-            name: z.string().default("Voice Server"),
-            username: z.string().default("voice"),
-            password: z.string().default("changeme")
-          })
-          .default({}),
         /**
          * The peer Go media nodes register under (least-sessions, add-media-node 4.1). Without a
          * password the apiserver does not create it.
@@ -166,20 +142,6 @@ const fonosterConfigSchema = z
             name: z.string().default("Media Nodes"),
             username: z.string().default("medianode"),
             password: z.string().optional()
-          })
-          .default({}),
-        /**
-         * Which voice stack answers app-linked numbers during the cutover: `asterisk` (the default
-         * peer) or `rebuild` (the media-node peer). Per-number pins win over app lists.
-         */
-        engines: z
-          .object({
-            default: z.enum(["asterisk", "rebuild"]).default("asterisk"),
-            rebuildApps: z.array(z.string()).default([]),
-            asteriskApps: z.array(z.string()).default([]),
-            numbers: z
-              .record(z.string(), z.enum(["asterisk", "rebuild"]))
-              .default({})
           })
           .default({})
       })
@@ -194,13 +156,6 @@ const fonosterConfigSchema = z
     }),
     integrationsFile: z.string().default("/opt/fonoster/integrations.json"),
     templatesDir: z.string().optional(),
-    audioFilters: z
-      .object({
-        aiCoustics: z
-          .object({ license: z.string().min(1).optional() })
-          .default({})
-      })
-      .default({}),
     twilio: twilioSchema.optional(),
     identity: identitySectionSchema,
     callRecords: callRecordsSchema,
@@ -256,10 +211,6 @@ const SHARED_VALUE_PATHS = [
   "database.url",
   "identity.database.url",
   "influxdb.*",
-  "mediaService.asterisk.ariUsername",
-  "mediaService.asterisk.ariPassword",
-  "routr.defaultPeer.username",
-  "routr.defaultPeer.password",
   "routr.mediaNodePeer.username",
   "routr.mediaNodePeer.password"
 ];

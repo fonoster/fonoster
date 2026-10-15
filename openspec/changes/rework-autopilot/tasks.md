@@ -60,8 +60,9 @@
 
 ## 8. Cutover (added 2026-10-15, AP-B6)
 
-- [ ] 8.1 Delete the current engine: `vad/`, the raw stream, `sgather`, the LangChain chain and
-      models (with `add-turn-taking` 3.1)
+- [x] 8.1 Delete the current engine: `vad/`, the raw stream, `sgather`, the LangChain chain and
+      models (with `add-turn-taking` 3.1). The LangChain models stay for `createEvaluateIntelligence`
+      only (CB-B5)
 - [ ] 8.2 Delete the legacy assistant schema and `sendConversation*Event`
 - [ ] 8.3 Run the stored-assistant migration job (5.3) and route Autopilot apps to the hosted
       Autopilot

@@ -1,6 +1,6 @@
 // A small receptionist: greet, ask, and transfer to a person on request.
 // Run: APP_SIGNING_SECRET=... npx tsx 01-say-gather-transfer.ts
-import { Session, VoiceServer } from "@fonoster/voice/session";
+import { Session, VoiceServer } from "@fonoster/voice";
 
 new VoiceServer({
   port: 3000,

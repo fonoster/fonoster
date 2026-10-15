@@ -5,11 +5,12 @@ Fonoster is three deployables, each configured on its own:
 | Service | Reads | Notes |
 |---|---|---|
 | API server (with Identity) | `fonoster.yaml` | Everything, secrets included |
-| Autopilot | `autopilot.yaml` | One file for every replica |
+| Autopilot | `autopilot-session.yaml` | One file for every replica |
 | Dashboard | `DASHBOARD_API_URL` | Everything else comes from the API server |
 
-Third-party containers (Routr, Asterisk, RTPEngine, AMD, Postgres, InfluxDB,
-NATS, Envoy) keep their environment variables in `.env`.
+Third-party containers (Routr, RTPEngine, Postgres, InfluxDB, NATS, Envoy) keep
+their environment variables in `.env`. The media nodes and the gateway run from
+`ops/rebuild/compose.yaml` (docs/operators/rebuild.md).
 
 The dashboard is a static app behind nginx. At start-up it writes `/config.js`
 and its Content-Security-Policy from `DASHBOARD_API_URL` (the API's public URL as
@@ -22,12 +23,12 @@ the image, so one image serves Community and Cloud.
 ```bash
 cp .env.example .env                                   # third-party containers; set the host IP and DASHBOARD_API_URL
 cp config/fonoster.example.yaml config/fonoster.yaml   # API server
-cp config/autopilot.example.yaml config/autopilot.yaml # Autopilot
+cp config/autopilot-session.example.yaml config/autopilot-session.yaml # Autopilot
 cp config/integrations.example.json config/integrations.json
 mkdir -p config/keys                                   # signing keys for tokens
 openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:2048 -out config/keys/private.pem
 openssl rsa -in config/keys/private.pem -pubout -out config/keys/public.pem
-chmod 600 config/fonoster.yaml config/autopilot.yaml config/integrations.json
+chmod 600 config/fonoster.yaml config/autopilot-session.yaml config/integrations.json
 docker compose up -d
 ```
 
@@ -43,7 +44,7 @@ docker compose up -d
   committed, mounted from a Secret on Kubernetes.
 - **`${VAR}` for shared values only.** Where `fonoster.yaml` needs a value a
   third-party container also reads from `.env` (the Postgres user and password,
-  `INFLUXDB_INIT_*`, the ARI and SIP proxy credentials) it references the
+  `INFLUXDB_INIT_*`, `MEDIANODE_PASSWORD`) it references the
   variable, so the value is written once. `${VAR}` anywhere else is an error.
   Compose passes `.env` to the API server (`env_file`) for this.
 - **Strict.** An unknown or misspelled key stops the service at boot and names it
@@ -111,8 +112,8 @@ The same settings sit under `identity:` in `fonoster.yaml`. Validation is strict
 ## Upgrading from environment variables
 
 Move each value from `.env` into the key below, then delete the variable.
-Variables not listed here (`ROUTR_*`, `ASTERISK_*`, `RTPENGINE_*`, `AMD_*`,
-`POSTGRES_*`, `INFLUXDB_INIT_*`) stay in `.env`.
+Variables not listed here (`ROUTR_*`, `RTPENGINE_*`, `POSTGRES_*`,
+`INFLUXDB_INIT_*`) stay in `.env`. `ASTERISK_*` and `AMD_*` are gone with Asterisk.
 
 ### API server → `fonoster.yaml`
 
@@ -128,22 +129,15 @@ Variables not listed here (`ROUTR_*`, `ASTERISK_*`, `RTPENGINE_*`, `AMD_*`,
 | `APISERVER_SMTP_HOST / _PORT / _SECURE / _SENDER` | `smtp.host / port / secure / sender` |
 | `APISERVER_SMTP_AUTH_USER / _AUTH_PASS` | `smtp.user / smtp.password` |
 | `APISERVER_AUTHZ_SERVICE_ENABLED / _HOST / _PORT / _METHODS` | `authz.enabled / host / port / methods (a list)` |
-| `APISERVER_ASTERISK_ARI_PROXY_URL` | `mediaService.asterisk.ariUrl` |
-| `APISERVER_ASTERISK_ARI_USERNAME / _SECRET` | `mediaService.asterisk.ariUsername / ariPassword (reference ${ASTERISK_ARI_USERNAME}, ${ASTERISK_ARI_SECRET})` |
-| `APISERVER_ASTERISK_SYSTEM_DOMAIN` | `mediaService.asterisk.systemDomain` |
-| `APISERVER_AMD_ENABLED / _ENGINE / _MODE` | `amd.enabled / engine / mode` |
 | `APISERVER_ROUTR_API_ENDPOINT` | `routr.apiEndpoint` |
-| `APISERVER_ROUTR_DEFAULT_PEER_AOR / _NAME` | `routr.defaultPeer.aor / name` |
-| `APISERVER_ROUTR_DEFAULT_PEER_USERNAME / _PASSWORD` | `routr.defaultPeer.username / password (reference ${ASTERISK_SIPPROXY_USERNAME}, ${ASTERISK_SIPPROXY_SECRET})` |
-| (new) | `routr.mediaNodePeer.aor / name / username / password` (the media-node peer; created only with a password) |
-| (new) | `routr.engines.default / rebuildApps / asteriskApps / numbers` (Asterisk or media nodes per app or number; see docs/operators/cutover.md) |
+| (new) | `routr.mediaNodePeer.aor / name / username / password` (the peer every app-linked number points at; created only with a password, reference `${MEDIANODE_PASSWORD}`) |
+| `APISERVER_ASTERISK_*`, `APISERVER_AMD_*`, `APISERVER_ROUTR_DEFAULT_PEER_*`, `AIC_SDK_LICENSE` | Removed with Asterisk (`mediaService`, `amd`, `routr.defaultPeer`, `routr.engines` and `audioFilters` are unknown keys now) |
 | `APISERVER_NATS_URL` | `nats.url` |
 | `APISERVER_INFLUXDB_URL` | `influxdb.url` |
 | `APISERVER_INFLUXDB_INIT_ORG / _USERNAME / _PASSWORD / _TOKEN` | `influxdb.org / username / password / token (reference ${INFLUXDB_INIT_*})` |
 | `APISERVER_INTEGRATIONS_FILE` | `integrationsFile` |
 | `APISERVER_TEMPLATES_DIR` | `templatesDir` |
 | `APISERVER_TWILIO_PHONE_NUMBER / _ACCOUNT_SID / _AUTH_TOKEN` | `twilio.phoneNumber / accountSid / authToken` |
-| `AIC_SDK_LICENSE` | `audioFilters.aiCoustics.license` |
 | `APISERVER_IDENTITY_DATABASE_URL` | `identity.database.url (optional; defaults to database.url)` |
 | `APISERVER_IDENTITY_ISSUER / _AUDIENCE` | `identity.issuer (defaults to appUrl) / identity.audience` |
 | `APISERVER_IDENTITY_PRIVATE_KEY_PATH / _PUBLIC_KEY_PATH` | `identity.keys.privateKeyPath / publicKeyPath (or privateKey / publicKey inline)` |
@@ -154,21 +148,11 @@ Variables not listed here (`ROUTR_*`, `ASTERISK_*`, `RTPENGINE_*`, `AMD_*`,
 | `APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_ID / _CLIENT_SECRET` | `identity.oauth2.github.clientId / clientSecret` |
 | `APISERVER_OWNER_NAME / _EMAIL / _PASSWORD` | `identity.owner.name / email / password` |
 
-### Autopilot → `autopilot.yaml`
+### Autopilot → `autopilot-session.yaml`
 
-| Variable | Key |
-|---|---|
-| `AUTOPILOT_APISERVER_ENDPOINT` | `apiserver.endpoint` |
-| `AUTOPILOT_LOGS_*` | `logs.*` |
-| `AUTOPILOT_CONVERSATION_PROVIDER / _PROVIDER_FILE` | `conversation.provider / file` |
-| `AUTOPILOT_INTEGRATIONS_FILE` | `integrationsFile` |
-| `AUTOPILOT_KNOWLEDGE_BASE_ENABLED` | `knowledgeBase.enabled` |
-| `AUTOPILOT_AWS_S3_ENDPOINT / _REGION / _ACCESS_KEY_ID / _SECRET_ACCESS_KEY` | `knowledgeBase.s3.endpoint / region / accessKeyId / secretAccessKey` |
-| `AUTOPILOT_UNSTRUCTURED_API_URL / _API_KEY` | `knowledgeBase.unstructured.url / apiKey` |
-| `AUTOPILOT_OPENAI_API_KEY` | `knowledgeBase.embeddings.openaiApiKey` |
-| `AUTOPILOT_RECORDING_BASE_URL` | `recordings.baseUrl` |
-| `AUTOPILOT_SKIP_IDENTITY` | `dev.skipIdentity` |
-| `(new)` | `server.bindAddr, server.identityAddress (were fixed in code)` |
+The previous Autopilot engine and its `autopilot.yaml` are gone. The hosted engine reads
+`autopilot-session.yaml` (see `config/autopilot-session.example.yaml` and
+[docs/autopilot.md](./autopilot.md)); none of the `AUTOPILOT_*` variables carry over.
 
 ### Easy to get wrong
 

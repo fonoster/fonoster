@@ -23,7 +23,7 @@
 
 - [ ] 3.1 Move TTS and STT adapters out of `mods/apiserver/src/voice` and LLM adapters out of `mods/autopilot/src/models` into one package per vendor behind the type interfaces
 - [ ] 3.2 Gateway credential resolution at session start (workspace key, else platform key by `credentialRef`), held in memory for the session only
-- [ ] 3.3 Runtime events `provider.deprecated_used` and `provider.retired_used`; retired ids resolve to their replacement
+- [x] 3.3 Runtime events `provider.deprecated_used` and `provider.retired_used`; retired ids resolve to their replacement
 - [ ] 3.4 `provider_unavailable` errors to the app and the call record; no failover
 
 ## 4. Platform surfaces

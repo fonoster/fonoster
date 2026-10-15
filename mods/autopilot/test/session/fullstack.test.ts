@@ -20,7 +20,7 @@ import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
 import { FakesHarness } from "@fonoster/conformance";
 import { Gateway, MemoryCallRecordSink } from "@fonoster/gateway";
-import { VoiceServer } from "@fonoster/voice/session";
+import { VoiceServer } from "@fonoster/voice";
 import { Agent, createAutopilotHandler } from "../../src/session";
 
 // The whole rebuilt call path with fakes at the edges: caller audio from the fake media node,

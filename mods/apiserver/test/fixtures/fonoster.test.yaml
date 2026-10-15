@@ -4,11 +4,6 @@ database:
   url: postgresql://postgres:postgres@localhost:5432/fonoster
 encryption:
   key: k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=
-mediaService:
-  asterisk:
-    ariUrl: http://localhost:8088
-    ariUsername: ari
-    ariPassword: changeme
 nats:
   url: nats://localhost:4222
 influxdb:

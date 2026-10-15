@@ -1,6 +1,6 @@
 // Fonoster dev container. See CONTRIBUTING.md#dev-container.
 // Holds the Node workspace and tooling only; Postgres, NATS, InfluxDB, Routr,
-// Asterisk, RTPEngine, envoy and mailhog run on the host Docker engine from
+// RTPEngine, envoy and mailhog run on the host Docker engine from
 // compose.yaml + compose.dev.yaml (docker-outside-of-docker).
 {
   "name": "Fonoster",
@@ -25,7 +25,6 @@
     "--add-host=nats:host-gateway",
     "--add-host=influxdb:host-gateway",
     "--add-host=routr:host-gateway",
-    "--add-host=asterisk:host-gateway",
     "--add-host=envoy:host-gateway",
     "--add-host=mailhog:host-gateway"
   ],
@@ -33,8 +32,8 @@
   "mounts": [
     "source=fonoster-node_modules-${devcontainerId},target=${containerWorkspaceFolder}/node_modules,type=volume"
   ],
-  // apiserver is published on the host (not just forwarded) so envoy and
-  // Asterisk, which reach it at DOCKER_HOST_ADDRESS, can call it.
+  // apiserver is published on the host (not just forwarded) so envoy, which
+  // reaches it at DOCKER_HOST_ADDRESS, can call it.
   "appPort": ["50051:50051"],
   "forwardPorts": [3030, 6006, 50061, 8449, 8025],
   "portsAttributes": {

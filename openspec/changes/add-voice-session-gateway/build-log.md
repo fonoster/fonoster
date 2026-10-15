@@ -337,8 +337,8 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 
 ### CP-B7. Session apps' numbers go to the media nodes
 
-- `createNumberRouting` gets `engineOf`: an app with a `url` → `rebuild` (media-node peer).
-  Per-number pins still win; other apps fall through to `routr.engines`.
+- Superseded by the clean break (CB-B3): every app-linked number points at the media-node peer,
+  so the per-app `engineOf` lookup was dropped in the merge.
 
 ### CP-B8. Dashboard
 
@@ -356,3 +356,14 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   {common,types}` and `mods/dashboard/node_modules/@fonoster/{sdk,types}` point at this
   worktree. TypeScript dedupes `@fonoster/types@0.27.0` to whichever copy it meets first, so the
   apiserver declares its few new response types locally.
+
+## Clean-break stream (2026-10-15, wave 2)
+
+### CB-B8. Cutover items closed by the clean break
+
+- 3.1: `voice.proto`, its stubs and the apiserver's `src/voice/**` are gone (see rework-voice-sdk
+  CB-B1 and add-media-node CB-B4).
+- 3.2 and 3.4: `docs/migrating-to-sessions.md` is now a "what changed" note for an incompatible
+  release; `docs/release-notes-sessions.md` lists the five breaking changes.
+- `gateway.outbound` (B8) now has a caller: the apiserver's outbound placement (add-media-node
+  CB-B2).

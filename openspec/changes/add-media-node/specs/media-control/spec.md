@@ -95,6 +95,13 @@ over SIP, NATS or WebSocket, and agents MUST NOT connect to the media node direc
 - **WHEN** the gateway sends RTP packets to the node's returned host and port
 - **THEN** the caller hears that audio, and no SIP, NATS or WebSocket traffic carries it
 
+When MN6 encryption is on, the node SHALL refuse an `rtp` block without `srtp` (on
+`participant.add` and on every `listener.attach` track) with error code `encryption_required`.
+
+#### Scenario: Plain gateway leg refused when encryption is required
+- **WHEN** encryption is enabled and the gateway sends `participant.add` with an `rtp` block that has no `srtp`
+- **THEN** the node replies `{type: "error", id, code: "encryption_required"}` and the room is unchanged
+
 #### Scenario: Encrypted deployment uses SRTP
 - **WHEN** edge-to-node encryption is enabled and the gateway adds its session participant
 - **THEN** the negotiated `rtp` block carries SRTP keying and plain RTP from the gateway is dropped
@@ -204,6 +211,16 @@ gateway SHALL take the app from `appRef` and SHALL fall back to a number lookup 
 #### Scenario: Missing app reference
 - **WHEN** an INVITE arrives without `X-App-Ref` and no development routing file is configured
 - **THEN** the gateway replies `claimed`, then sends `hangup` with `sipStatus: 404`, and the call ends with `reason: "rejected"`
+
+### Requirement: Calls can carry a lower maximum duration
+
+`answer` and `room.create` MAY carry `maxDurationSec`, lowering the node's maximum call duration
+(media-node "Call and room limits") for that room; a value above the node's limit SHALL be
+ignored. When it is reached the room ends with `reason: "max_duration"`.
+
+#### Scenario: App limit applied
+- **WHEN** the gateway answers with `maxDurationSec: 600` and the call reaches 10 minutes
+- **THEN** the node ends the room with `reason: "max_duration"`
 
 ### Requirement: Ringing before answer
 

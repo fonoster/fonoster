@@ -24,7 +24,7 @@ import {
   loadScenarios,
   runScenario
 } from "@fonoster/conformance";
-import { VoiceServer } from "@fonoster/voice/session";
+import { VoiceServer } from "@fonoster/voice";
 import { createAutopilotHandler } from "../../src/session";
 
 // The autopilot conformance scenarios, run against the session engine: the runner plays the

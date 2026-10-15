@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { SessionEndedError } from "@fonoster/voice/session";
+import { SessionEndedError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
 import { SessionAssistant } from "./config";
 import { KNOWLEDGE_TIMEOUT_MS, KnowledgePort } from "./knowledge";
 import { sentences } from "./sentences";
 import { ChatMessage, Think, ThinkChunk, ToolCall, ToolSpec } from "./think";
 import { ToolPort } from "./tools";
-import type { Session } from "@fonoster/voice/session";
+import type { Session } from "@fonoster/voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -140,8 +140,17 @@ export class Agent {
     await this.safely(async () => {
       await this.session.subscribe(["turn.estimate"]);
       // The gateway's Pacing policy owns turn timing; Autopilot only tells it how patient to be.
-      if (this.settings.patience !== "normal")
-        await this.session.listen({ patience: this.settings.patience });
+      // Recognition hints (names, brands) add to the app's defaults at the gateway (VO-B3).
+      const hints = this.settings.hints?.length
+        ? this.settings.hints
+        : undefined;
+      if (this.settings.patience !== "normal" || hints)
+        await this.session.listen({
+          ...(this.settings.patience !== "normal"
+            ? { patience: this.settings.patience }
+            : {}),
+          ...(hints ? { hints } : {})
+        });
       if (this.settings.initialDtmf)
         await this.session.playDtmf(this.settings.initialDtmf);
       if (this.settings.firstMessage) {

@@ -1,0 +1,8 @@
+kind: Location
+apiVersion: v2beta1
+metadata:
+  region: default
+spec:
+  bindAddr: 0.0.0.0:51902
+  cache:
+    provider: memory

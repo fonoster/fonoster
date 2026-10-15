@@ -4,6 +4,7 @@ package sipua
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -37,7 +38,21 @@ type Config struct {
 	OutboundProxy string
 	// RegisterEvery is the re-register interval; re-registers also follow load changes.
 	RegisterEvery time.Duration
-	Logger        *slog.Logger
+	// ReregisterDelta re-registers at once when the room count moved by at least this much since
+	// the last REGISTER (default 5).
+	ReregisterDelta int
+	// TLSListen is host:port for SIP over TLS (empty: no TLS listener); TLSConfig is its
+	// server certificate. ClientTLS verifies the edge when the node dials or registers over TLS.
+	TLSListen string
+	TLSConfig *tls.Config
+	ClientTLS *tls.Config
+	// RequireEncryption serves SIP over TLS only and refuses INVITEs that arrive any other way
+	// (MN6); RTP must then be SRTP (node.Config.RequireEncryption).
+	RequireEncryption bool
+	// OutboundTransport is "udp" (default), "tcp" or "tls" for INVITEs to OutboundProxy; it is
+	// "tls" whenever encryption is required.
+	OutboundTransport string
+	Logger            *slog.Logger
 }
 
 // UA serves SIP for one node.
@@ -52,6 +67,8 @@ type UA struct {
 	kick    chan struct{}
 	lastReg int
 	mu      sync.Mutex
+	// legs by Call-ID, for SIP INFO keypresses.
+	legs sync.Map
 	// udp is the UDP listening socket, bound in New so requests can go out from it.
 	udp net.PacketConn
 }
@@ -64,10 +81,26 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if cfg.RegisterEvery == 0 {
 		cfg.RegisterEvery = 15 * time.Second
 	}
+	if cfg.ReregisterDelta <= 0 {
+		cfg.ReregisterDelta = 5
+	}
 	if cfg.Transport == "" {
 		cfg.Transport = "udp"
 	}
-	ua, err := sipgo.NewUA(sipgo.WithUserAgent("fonoster-medianode"))
+	if cfg.OutboundTransport == "" {
+		cfg.OutboundTransport = "udp"
+	}
+	if cfg.RequireEncryption {
+		cfg.Transport, cfg.OutboundTransport = "tls", "tls"
+		if cfg.TLSListen == "" || cfg.TLSConfig == nil {
+			return nil, errors.New("encryption required but no TLS listener or certificate configured")
+		}
+	}
+	opts := []sipgo.UserAgentOption{sipgo.WithUserAgent("fonoster-medianode")}
+	if cfg.ClientTLS != nil {
+		opts = append(opts, sipgo.WithUserAgenTLSConfig(cfg.ClientTLS))
+	}
+	ua, err := sipgo.NewUA(opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,17 +110,29 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	}
 	// rport (RFC 3581) and requests sent from the listening port: Routr stores the REGISTER's
 	// source address and port as the route, so INVITEs must be able to come back to it, behind NAT
-	// (Docker for Mac, cloud load balancers) as well as without it (CO-B2).
-	udp, err := net.ListenPacket("udp4", cfg.Listen)
-	if err != nil {
-		return nil, err
+	// (Docker for Mac, cloud load balancers) as well as without it (CO-B2). With encryption
+	// required there is no plain listener at all (MN6).
+	var udp net.PacketConn
+	clientOpts := []sipgo.ClientOption{sipgo.WithClientHostname(cfg.AdvertiseHost), sipgo.WithClientNAT()}
+	if !cfg.RequireEncryption {
+		udp, err = net.ListenPacket("udp4", cfg.Listen)
+		if err != nil {
+			return nil, err
+		}
+		clientOpts = append(clientOpts, sipgo.WithClientConnectionAddr(udp.LocalAddr().String()))
 	}
-	client, err := sipgo.NewClient(ua, sipgo.WithClientHostname(cfg.AdvertiseHost), sipgo.WithClientNAT(),
-		sipgo.WithClientConnectionAddr(udp.LocalAddr().String()))
+	client, err := sipgo.NewClient(ua, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
 	contact := sip.ContactHeader{Address: sip.Uri{User: "medianode", Host: cfg.AdvertiseHost, Port: cfg.AdvertisePort}}
+	if cfg.RequireEncryption {
+		_, tlsPort, _ := net.SplitHostPort(cfg.TLSListen)
+		port, _ := strconv.Atoi(tlsPort)
+		params := sip.NewParams()
+		params.Add("transport", "tls")
+		contact.Address.Port, contact.Address.UriParams = port, params
+	}
 	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp,
 		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact),
 		kick: make(chan struct{}, 1), lastReg: -1}
@@ -101,10 +146,12 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 			_ = tx.Respond(sip.NewResponseFromRequest(req, 481, "Call/Transaction Does Not Exist", nil))
 		}
 	})
+	srv.OnInfo(u.onInfo)
 	srv.OnOptions(func(req *sip.Request, tx sip.ServerTransaction) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
 	})
 	n.OnRoomCount = func(count int) { u.loadChanged(count) }
+	n.OnDrain = func() { u.Kick() }
 	if cfg.OutboundProxy != "" {
 		n.SetDialer(u)
 	}
@@ -113,9 +160,14 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 
 // Serve listens on UDP and TCP until ctx ends.
 func (u *UA) Serve(ctx context.Context) error {
-	errs := make(chan error, 2)
-	go func() { errs <- u.srv.ServeUDP(u.udp) }()
-	go func() { errs <- u.srv.ListenAndServe(ctx, "tcp", u.cfg.Listen) }()
+	errs := make(chan error, 3)
+	if !u.cfg.RequireEncryption {
+		go func() { errs <- u.srv.ServeUDP(u.udp) }()
+		go func() { errs <- u.srv.ListenAndServe(ctx, "tcp", u.cfg.Listen) }()
+	}
+	if u.cfg.TLSListen != "" && u.cfg.TLSConfig != nil {
+		go func() { errs <- u.srv.ListenAndServeTLS(ctx, "tcp", u.cfg.TLSListen, u.cfg.TLSConfig) }()
+	}
 	if u.cfg.Registrar != "" {
 		go u.registerLoop(ctx)
 	}
@@ -127,10 +179,12 @@ func (u *UA) Serve(ctx context.Context) error {
 	}
 }
 
-// Close releases the user agent.
+// Close releases the user agent (call Unregister first on a clean exit).
 func (u *UA) Close() {
 	_ = u.ua.Close()
-	_ = u.udp.Close()
+	if u.udp != nil {
+		_ = u.udp.Close()
+	}
 }
 
 func header(req *sip.Request, name string) string {
@@ -141,6 +195,10 @@ func header(req *sip.Request, name string) string {
 }
 
 func (u *UA) onInvite(req *sip.Request, tx sip.ServerTransaction) {
+	if u.cfg.RequireEncryption && !strings.EqualFold(req.Transport(), "TLS") {
+		_ = tx.Respond(sip.NewResponseFromRequest(req, 403, "TLS Required", nil))
+		return
+	}
 	media, err := sdp.Parse(req.Body())
 	if err != nil {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 488, "Not Acceptable Here", nil))
@@ -158,6 +216,12 @@ func (u *UA) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 	_ = dlg.Respond(100, "Trying", nil)
 
 	leg := &inviteLeg{dlg: dlg, final: make(chan int, 1)}
+	callID := req.CallID().Value()
+	u.legs.Store(callID, leg)
+	go func() {
+		<-dlg.Context().Done()
+		u.legs.Delete(callID)
+	}()
 	headers := map[string]string{}
 	for _, h := range req.Headers() {
 		name := h.Name()
@@ -224,6 +288,81 @@ type inviteLeg struct {
 	dlg   *sipgo.DialogServerSession
 	final chan int
 	once  sync.Once
+	dtmf
+}
+
+// dtmf holds a leg's SIP INFO keypress handler (node.DTMFSource).
+type dtmf struct {
+	mu sync.Mutex
+	fn func(string)
+}
+
+func (d *dtmf) OnDTMF(fn func(string)) {
+	d.mu.Lock()
+	d.fn = fn
+	d.mu.Unlock()
+}
+
+func (d *dtmf) deliver(digit string) bool {
+	d.mu.Lock()
+	fn := d.fn
+	d.mu.Unlock()
+	if fn == nil {
+		return false
+	}
+	fn(digit)
+	return true
+}
+
+type dtmfLeg interface{ deliver(string) bool }
+
+// onInfo reads SIP INFO keypresses: application/dtmf-relay ("Signal=7") or application/dtmf ("7").
+func (u *UA) onInfo(req *sip.Request, tx sip.ServerTransaction) {
+	v, ok := u.legs.Load(req.CallID().Value())
+	if !ok {
+		_ = tx.Respond(sip.NewResponseFromRequest(req, 481, "Call/Transaction Does Not Exist", nil))
+		return
+	}
+	digit := infoDigit(req)
+	if digit == "" {
+		_ = tx.Respond(sip.NewResponseFromRequest(req, 415, "Unsupported Media Type", nil))
+		return
+	}
+	_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
+	v.(dtmfLeg).deliver(digit)
+}
+
+func infoDigit(req *sip.Request) string {
+	ct := ""
+	if h := req.ContentType(); h != nil {
+		ct = strings.ToLower(h.Value())
+	}
+	body := strings.TrimSpace(string(req.Body()))
+	switch {
+	case strings.HasPrefix(ct, "application/dtmf-relay"):
+		for _, line := range strings.Split(body, "\n") {
+			k, v, ok := strings.Cut(strings.TrimSpace(line), "=")
+			if ok && strings.EqualFold(strings.TrimSpace(k), "signal") {
+				return normalizeDigit(strings.TrimSpace(v))
+			}
+		}
+	case strings.HasPrefix(ct, "application/dtmf"):
+		return normalizeDigit(body)
+	}
+	return ""
+}
+
+func normalizeDigit(v string) string {
+	switch v {
+	case "10":
+		return "*"
+	case "11":
+		return "#"
+	}
+	if len(v) == 1 && strings.Contains("0123456789*#ABCDabcd", v) {
+		return strings.ToUpper(v)
+	}
+	return ""
 }
 
 func (l *inviteLeg) finish(status int) {
@@ -296,11 +435,8 @@ func (u *UA) loadChanged(count int) {
 	u.mu.Lock()
 	last := u.lastReg
 	u.mu.Unlock()
-	if last < 0 || abs(count-last) >= 5 || count == 0 {
-		select {
-		case u.kick <- struct{}{}:
-		default:
-		}
+	if last < 0 || abs(count-last) >= u.cfg.ReregisterDelta || count == 0 {
+		u.Kick()
 	}
 }
 
@@ -415,7 +551,12 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 	for k, v := range headers {
 		hdrs = append(hdrs, sip.NewHeader(k, v))
 	}
-	session, err := u.out.Invite(ctx, sip.Uri{User: to, Host: host, Port: port}, offer, hdrs...)
+	target := sip.Uri{User: to, Host: host, Port: port}
+	if u.cfg.OutboundTransport != "udp" {
+		target.UriParams = sip.NewParams()
+		target.UriParams.Add("transport", u.cfg.OutboundTransport)
+	}
+	session, err := u.out.Invite(ctx, target, offer, hdrs...)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -436,10 +577,20 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 	if err := session.Ack(context.Background()); err != nil {
 		return nil, nil, err
 	}
-	return &outLeg{session: session}, session.InviteResponse.Body(), nil
+	leg := &outLeg{session: session}
+	callID := session.InviteRequest.CallID().Value()
+	u.legs.Store(callID, leg)
+	go func() {
+		<-session.Context().Done()
+		u.legs.Delete(callID)
+	}()
+	return leg, session.InviteResponse.Body(), nil
 }
 
-type outLeg struct{ session *sipgo.DialogClientSession }
+type outLeg struct {
+	session *sipgo.DialogClientSession
+	dtmf
+}
 
 func (l *outLeg) Bye() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

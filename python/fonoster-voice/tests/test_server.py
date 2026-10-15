@@ -8,13 +8,11 @@ import pytest
 from fonoster_conformance import FakeGateway, signature_headers
 
 from fonoster.voice import (
-    RemovedMethodError,
     Session,
     SessionEndedError,
     VoiceServer,
     voice_asgi_app,
 )
-from fonoster.voice.legacy import LegacyResponse
 
 SECRET = "unit-secret"
 START = {
@@ -138,20 +136,22 @@ def test_crashing_handler_hangs_up():
     assert {"type": "hangup"} in run(main())
 
 
-def test_removed_methods_name_their_replacement():
-    async def main():
-        class T:
-            async def send_text(self, t): ...
-            async def send_bytes(self, b): ...
-            async def close(self): ...
+def test_removed_methods_are_not_on_the_session():
+    class T:
+        async def send_text(self, t): ...
+        async def send_bytes(self, b): ...
+        async def close(self): ...
 
-        res = LegacyResponse(Session(START, T()))
-        with pytest.raises(RemovedMethodError, match="app policy"):
-            res.record()
-        with pytest.raises(RemovedMethodError, match="hold"):
-            res.mute()
+    session = Session(START, T())
+    for name in ("record", "set_audio_filters", "mute", "unmute", "dial"):
+        assert not hasattr(session, name), name
 
-    run(main())
+
+def test_two_argument_handlers_are_refused():
+    async def old(req, res): ...
+
+    with pytest.raises(TypeError, match="one argument"):
+        VoiceServer(signing_secret=SECRET).handler(old)
 
 
 def test_asgi_mount_verifies_and_runs_the_handler():

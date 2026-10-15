@@ -21,7 +21,7 @@ server.run()
 
 Mount into FastAPI or any ASGI app with `app.mount("/voice", voice_asgi_app(on_call, signing_secret=...))`.
 
-The SDK passes the same conformance scenarios as the TypeScript SDK (`@fonoster/voice/session`):
+The SDK passes the same conformance scenarios as the TypeScript SDK (`@fonoster/voice`):
 see `mods/conformance/scenarios/voice-sdk`.
 
 ## Install

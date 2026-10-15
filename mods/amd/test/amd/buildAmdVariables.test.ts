@@ -21,10 +21,7 @@ import { expect } from "chai";
 import { buildAmdVariables, parseMode } from "../../src/amd/buildAmdVariables";
 import { ProbeResult } from "../../src/probe/runProbe";
 
-const classified = (
-  status: AmdStatus,
-  confidence: number
-): ProbeResult => ({
+const classified = (status: AmdStatus, confidence: number): ProbeResult => ({
   kind: "classified",
   status,
   confidence,
@@ -61,7 +58,11 @@ describe("@amd/buildAmdVariables", function () {
 
     cases.forEach(([status, amdstatus, amdcause]) => {
       it(`maps ${status} at high confidence -> AMDSTATUS=${amdstatus} AMDCAUSE=${amdcause}`, function () {
-        const result = buildAmdVariables(classified(status, 0.95), "compact", 0.8);
+        const result = buildAmdVariables(
+          classified(status, 0.95),
+          "compact",
+          0.8
+        );
         expect(result).to.deep.equal({
           AMDSTATUS: amdstatus,
           AMDCAUSE: amdcause
@@ -95,7 +96,10 @@ describe("@amd/buildAmdVariables", function () {
 
     it("passes an unknown result's cause through as NOTSURE", function () {
       const result = buildAmdVariables(unknown("ML-TIMEOUT"), "compact", 0.8);
-      expect(result).to.deep.equal({ AMDSTATUS: "NOTSURE", AMDCAUSE: "ML-TIMEOUT" });
+      expect(result).to.deep.equal({
+        AMDSTATUS: "NOTSURE",
+        AMDCAUSE: "ML-TIMEOUT"
+      });
     });
 
     it("only ever produces AMDSTATUS/AMDCAUSE — nothing native AMD() wouldn't set", function () {
@@ -104,7 +108,10 @@ describe("@amd/buildAmdVariables", function () {
         "compact",
         0.8
       );
-      expect(Object.keys(result).sort()).to.deep.equal(["AMDCAUSE", "AMDSTATUS"]);
+      expect(Object.keys(result).sort()).to.deep.equal([
+        "AMDCAUSE",
+        "AMDSTATUS"
+      ]);
     });
   });
 
@@ -125,7 +132,11 @@ describe("@amd/buildAmdVariables", function () {
     });
 
     it("reports IVR untouched (never collapsed to MACHINE)", function () {
-      const result = buildAmdVariables(classified(AmdStatus.IVR, 0.88), "full", 0.8);
+      const result = buildAmdVariables(
+        classified(AmdStatus.IVR, 0.88),
+        "full",
+        0.8
+      );
       expect(result.AMDSTATUS).to.equal("IVR");
     });
 

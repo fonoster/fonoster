@@ -33,7 +33,6 @@ import { createGetApplication } from "../../src/applications/createGetApplicatio
 import { createListApplications } from "../../src/applications/createListApplications";
 import { createRotateSigningSecret } from "../../src/applications/createRotateSigningSecret";
 import { createUpdateApplication } from "../../src/applications/createUpdateApplication";
-import { createEngineOfApp } from "../../src/applications/session/engineOfApp";
 import { getConfig } from "../../src/config";
 import { createProvidersHandlers } from "../../src/providers";
 import { createWebhooksHandlers } from "../../src/webhooks";
@@ -392,21 +391,6 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       });
       expect(row).to.include({ signingSecret: "theirs", name: "theirs" });
       await db.prisma.application.delete({ where: { ref: foreign.ref } });
-    });
-
-    it("routes session apps' numbers to the media nodes", async function () {
-      const engineOf = createEngineOfApp(db.prisma);
-      expect(await engineOf(appRef)).to.equal("rebuild");
-      const legacy = await db.prisma.application.create({
-        data: {
-          accessKeyId: WS,
-          name: "legacy",
-          type: "EXTERNAL",
-          endpoint: "localhost:50061"
-        }
-      });
-      expect(await engineOf(legacy.ref)).to.equal(undefined);
-      expect(await engineOf("missing")).to.equal(undefined);
     });
 
     it("deletes an app", async function () {

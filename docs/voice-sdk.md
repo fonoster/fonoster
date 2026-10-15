@@ -3,13 +3,13 @@
 The voice SDKs answer calls over the [session protocol](./session-protocol.md). TypeScript and
 Python have the same methods and send the same messages; both pass the same conformance scenarios.
 
-During the transition the TypeScript SDK is imported from `@fonoster/voice/session`; the default
-export of `@fonoster/voice` is still the gRPC server.
+Import the TypeScript SDK from `@fonoster/voice`. `@fonoster/voice/session` still works as an alias
+for one release.
 
 ## TypeScript
 
 ```ts
-import { VoiceServer } from "@fonoster/voice/session";
+import { VoiceServer } from "@fonoster/voice";
 
 new VoiceServer({ port: 3000, signingSecret: process.env.APP_SIGNING_SECRET }).listen(async (session) => {
   await session.say("Hi! What can I do for you?");
@@ -85,25 +85,16 @@ SDK stops it with `clear` and the call resolves with `interrupted: true`. Pass
   never hang.
 - A handler that throws hangs up the call.
 
-## Moving from the gRPC SDK
+## Coming from the gRPC SDK
 
-The full guide is [Migrating to sessions](./migrating-to-sessions.md); runnable examples are in
-`mods/voice/examples` and `python/fonoster-voice/examples`.
+This release is not compatible with the gRPC SDK; [What changed](./migrating-to-sessions.md)
+lists every difference. Runnable examples are in `mods/voice/examples` and
+`python/fonoster-voice/examples`.
 
-Handlers written as `async (req, res) => { … }` keep working: the SDK detects the two-parameter form
-and passes a `res` that forwards to the session. `res.dial(number)` is a cold `transfer`.
-
-Removed, with an error that names the replacement:
-
-| Method | Replacement |
-| --- | --- |
-| `record()` | Recording is an app policy |
-| `setAudioFilters()` | Audio filters are part of the app's configuration |
-| `mute()` / `unmute()` | `hold()` / `resume()` |
-
-Deprecated but still working (each logs a warning once):
-
-| Method | Replacement |
-| --- | --- |
-| `stream()` | `session.audio` |
-| `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf")` |
+- Handlers take one argument, the session. `(req, res)` handlers are not supported; the Python SDK
+  refuses them with a `TypeError`.
+- `dial(number)` is `transfer(number)`.
+- `stream()` is `session.audio`; `sgather()` is `session.on("turn.ended" | "transcript.partial" |
+  "dtmf")`.
+- `record()`, `setAudioFilters()`, `mute()` and `unmute()` do not exist: recording is an app policy,
+  audio filters are part of the app's configuration, and `hold()` / `resume()` replace muting.
