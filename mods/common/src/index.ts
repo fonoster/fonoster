@@ -35,3 +35,4 @@ export * from "./countryIsoCodes";
 export * from "./identity";
 export { getRootDomain, setRootDomain } from "./envs";
 export * from "./session";
+export * as Registry from "./registry";

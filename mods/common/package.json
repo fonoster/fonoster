@@ -56,5 +56,8 @@
   "devDependencies": {
     "@types/nodemailer": "^6.4.21"
   },
-  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579"
+  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
+  "bin": {
+    "fonoster-registry": "dist/registry/cli.js"
+  }
 }
