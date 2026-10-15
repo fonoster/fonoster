@@ -208,6 +208,8 @@ export class Call {
       from: this.info.from,
       to: this.info.to
     });
+    // The workspace's own vendor keys, looked up once per session (registry 3.2).
+    await this.deps.catalog.prepare(app.workspaceRef);
 
     const reached = await this.dial(app);
     const socket = reached?.socket;
@@ -261,7 +263,10 @@ export class Call {
       this.deps.config.callRecord?.consentPrompt ??
       "This call will be recorded.";
     this.record("event", { type: "recording.consent_requested", text });
-    const voice = this.deps.catalog.resolveVoice(app.speech.voice);
+    const voice = this.deps.catalog.resolveVoice(
+      app.speech.voice,
+      app.workspaceRef
+    );
     if (!voice) return;
     await new Promise<void>((resolve) => {
       const queue = new OutputQueue({
@@ -399,7 +404,7 @@ export class Call {
   private async fallbackMessage(app: AppConfig) {
     const message = app.fallback?.message;
     const voice = message
-      ? this.deps.catalog.resolveVoice(app.speech.voice)
+      ? this.deps.catalog.resolveVoice(app.speech.voice, app.workspaceRef)
       : undefined;
     if (!message || !voice) return this.hangup("error");
     const queue = new OutputQueue({
@@ -485,6 +490,7 @@ export class Call {
     const target = this.deps.findApp(appRef);
     if (!target) return false;
     this.handoffs++;
+    await this.deps.catalog.prepare(target.workspaceRef);
     const reached = await this.dial(target);
     if (!reached) return false;
     this.record("event", { type: "handoff", to: reached.app.ref });
@@ -839,7 +845,7 @@ export class AppSession {
 
     // The app's STT model (catalog id) and default hints (VO-B3, VO-B4).
     const sttId = this.app.speech.sttModel;
-    const stt = this.deps.catalog.resolveStt(sttId);
+    const stt = this.deps.catalog.resolveStt(sttId, this.app.workspaceRef);
     if (!stt) {
       if (sttId)
         this.emit({
@@ -1072,7 +1078,10 @@ export class AppSession {
     switch (type) {
       case "speak": {
         const voiceId = (cmd.voice as string) ?? this.app.speech.voice;
-        const voice = this.deps.catalog.resolveVoice(voiceId);
+        const voice = this.deps.catalog.resolveVoice(
+          voiceId,
+          this.app.workspaceRef
+        );
         if (!voice) {
           this.emit({
             type: "error",

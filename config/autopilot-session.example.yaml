@@ -6,15 +6,20 @@ host: 0.0.0.0
 port: 50061
 # The secret the gateway signs Autopilot sessions with (the same for every Autopilot app).
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
-# Apps and their assistants: {apps: {<appRef>: {workspaceRef, assistant}}} (JSON or YAML).
+# Apps and their assistants: {apps: {<appRef>: {workspaceRef, assistant}}} (JSON or YAML), or
+# the Autopilot apps managed in the dashboard/API (needs `database`):
+#   assistants: { source: database, cacheMs: 5000 }
 assistants: { file: ./assistants.json }
 # The catalog written by the fonoster-registry utility.
 registry: { file: ./registry.json }
 # Platform keys by credentialRef.
 credentials:
   openai-default: { env: OPENAI_API_KEY }
-# Workspace Secrets (bring your own key): {<workspaceRef>: {<credentialRef>: key}}.
+# Workspace Secrets (bring your own key): {<workspaceRef>: {<credentialRef>: key}}, or the
+# workspace vendor keys from the dashboard: { source: database } (also `registry: { source: database }`).
 # workspaceSecrets: { file: ./workspace-secrets.json }
+# The apiserver's database (for any source: database); the key decrypts vendor keys.
+# database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: CLOAK_ENCRYPTION_KEY }
 # Endpoint overrides by adapter or provider id.
 endpoints:
   ollama: http://ollama:11434

@@ -54,14 +54,53 @@ export const hostedConfigSchema = z
     port: z.number().int().nonnegative().default(50061),
     /** The secret the gateway signs Autopilot sessions with (one for every Autopilot app). */
     signingSecret: secretRef,
-    /** Apps and their assistants: `{apps: {<appRef>: {workspaceRef?, assistant}}}` (JSON or YAML). */
-    assistants: z.object({ file: z.string() }).strict(),
-    /** The provider registry's catalog (the JSON file fonoster-registry writes). */
-    registry: z.object({ file: z.string() }).strict(),
+    /**
+     * Apps and their assistants: a file `{apps: {<appRef>: {workspaceRef?, assistant}}}` (JSON or
+     * YAML), or `database`: the apps' Intelligence rows, cached for `cacheMs` (CP-B11).
+     */
+    assistants: z.union([
+      z.object({ file: z.string() }).strict(),
+      z
+        .object({
+          source: z.literal("database"),
+          cacheMs: z.number().int().nonnegative().default(5000)
+        })
+        .strict()
+    ]),
+    /** The provider registry's catalog: the JSON file fonoster-registry writes, or the tables. */
+    registry: z.union([
+      z.object({ file: z.string() }).strict(),
+      z
+        .object({
+          source: z.literal("database"),
+          refreshMs: z.number().int().positive().default(30000)
+        })
+        .strict()
+    ]),
     /** Platform keys by credentialRef. */
     credentials: z.record(secretRef).default({}),
-    /** Workspace Secrets (bring your own key) by workspace and credentialRef, JSON. */
-    workspaceSecrets: z.object({ file: z.string() }).strict().optional(),
+    /**
+     * Workspace Secrets (bring your own key): a JSON file by workspace and credentialRef, or
+     * `database`: the workspace's vendor keys (workspace_provider_keys).
+     */
+    workspaceSecrets: z
+      .union([
+        z.object({ file: z.string() }).strict(),
+        z.object({ source: z.literal("database") }).strict()
+      ])
+      .optional(),
+    /** The control-plane database (the apiserver's), for any `source: database`. */
+    database: z
+      .object({
+        url: z.string().optional(),
+        urlEnv: z.string().default("APISERVER_DATABASE_URL"),
+        /** The apiserver's encryption key (vendor keys are encrypted Secrets). */
+        encryptionKeyEnv: z.string().optional(),
+        /** A client generated from the apiserver schema (default `@prisma/client`). */
+        clientModule: z.string().optional()
+      })
+      .strict()
+      .optional(),
     /** Endpoint overrides by adapter or provider id (e.g. a local ollama, the fake LLM). */
     endpoints: z.record(z.string()).default({}),
     /** The S3 + Unstructured knowledge bases; keys by credentialRef (task 4.1). */
@@ -92,12 +131,20 @@ export function loadHostedConfig(file: string): HostedConfig {
   const config = hostedConfigSchema.parse(readStructured(file));
   const dir = path.dirname(file);
   const rel = (p: string) => (path.isAbsolute(p) ? p : path.join(dir, p));
+  const withFile = <T extends object>(c: T): T =>
+    "file" in c ? ({ ...c, file: rel(c.file as string) } as T) : c;
+  const needsDb =
+    !("file" in config.assistants) ||
+    !("file" in config.registry) ||
+    (config.workspaceSecrets && !("file" in config.workspaceSecrets));
+  if (needsDb && !config.database)
+    throw new Error("source: database needs a database section");
   return {
     ...config,
-    assistants: { file: rel(config.assistants.file) },
-    registry: { file: rel(config.registry.file) },
+    assistants: withFile(config.assistants),
+    registry: withFile(config.registry),
     ...(config.workspaceSecrets
-      ? { workspaceSecrets: { file: rel(config.workspaceSecrets.file) } }
+      ? { workspaceSecrets: withFile(config.workspaceSecrets) }
       : {})
   };
 }
@@ -117,6 +164,60 @@ export class FileAssistantSource {
     return app
       ? { assistant: app.assistant, workspaceRef: app.workspaceRef }
       : undefined;
+  }
+}
+
+type AssistantRow = {
+  ref: string;
+  accessKeyId: string;
+  type: string;
+  intelligence?: { config: unknown } | null;
+};
+
+/**
+ * Assistants from the control plane: an Autopilot app's Intelligence row holds its assistant
+ * (CP-B3). Each app is cached for `cacheMs` (misses too), so edits show up within seconds.
+ */
+export class PrismaAssistantSource {
+  private cache = new Map<string, { at: number; value?: LoadedAssistant }>();
+
+  constructor(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private readonly prisma: any,
+    private readonly options: { cacheMs?: number; now?: () => number } = {}
+  ) {}
+
+  async get(appRef: string): Promise<LoadedAssistant | undefined> {
+    const now = this.options.now?.() ?? Date.now();
+    const hit = this.cache.get(appRef);
+    if (hit && now - hit.at < (this.options.cacheMs ?? 5000)) return hit.value;
+    const row: AssistantRow | null = await this.prisma.application.findUnique({
+      where: { ref: appRef },
+      include: { intelligence: true }
+    });
+    const value =
+      row && row.type === "AUTOPILOT" && row.intelligence?.config
+        ? { assistant: row.intelligence.config, workspaceRef: row.accessKeyId }
+        : undefined;
+    this.cache.set(appRef, { at: now, value });
+    return value;
+  }
+}
+
+/** Workspace vendor keys from the database, looked up by the credentialRef's providers. */
+export class DatabaseWorkspaceSecrets implements CredentialSource {
+  constructor(
+    private readonly keys: Registry.PrismaWorkspaceKeys,
+    private readonly providers: () => { id: string; credentialRef: string }[]
+  ) {}
+
+  get(ref: string, scope: { workspaceRef?: string }) {
+    if (!scope.workspaceRef) return undefined;
+    return this.keys.forCredentialRef(
+      scope.workspaceRef,
+      ref,
+      this.providers()
+    );
   }
 }
 
@@ -202,19 +303,85 @@ function defaultKnowledgeBase(params: Record<string, unknown>) {
   }) as KnowledgeBaseLike;
 }
 
+/** Opens the control-plane database named in the config (once). */
+function databaseOf(config: HostedConfig) {
+  const d = config.database!;
+  const url = d.url ?? process.env[d.urlEnv];
+  if (!url) throw new Error(`database: set url or ${d.urlEnv}`);
+  return Registry.openPrismaClient({
+    url,
+    encryptionKey: d.encryptionKeyEnv
+      ? process.env[d.encryptionKeyEnv]
+      : undefined,
+    clientModule: d.clientModule
+  });
+}
+
+/** The registry store: the file, or the tables refreshed every `refreshMs`. */
+function registryStore(
+  config: HostedConfig,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  db: () => any
+): Registry.MemoryRegistryStore {
+  if ("file" in config.registry)
+    return new Registry.FileRegistryStore(config.registry.file);
+  const store = new Registry.MemoryRegistryStore();
+  const every = (config.registry as { refreshMs?: number }).refreshMs ?? 30000;
+  const load = () =>
+    Registry.PrismaRegistryStore.open(db())
+      .then((loaded) => {
+        for (const e of loaded.all()) store.put(e);
+      })
+      .catch((e: Error) =>
+        logger.warn(`registry refresh failed, keeping the last: ${e.message}`)
+      );
+  void load();
+  setInterval(load, every).unref();
+  return store;
+}
+
 /** The handler options the hosted Autopilot runs with, built from its config. */
-export function hostedOptions(config: HostedConfig): AutopilotOptions {
+export function hostedOptions(
+  config: HostedConfig,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  deps: { prisma?: any } = {}
+): AutopilotOptions {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let prisma: any = deps.prisma;
+  const db = () => (prisma ??= databaseOf(config));
+  const store = registryStore(config, db);
   const registry = new Registry.Registry({
-    store: new Registry.FileRegistryStore(config.registry.file),
+    store,
     testMode: config.testMode
   });
+  const providers = () =>
+    store
+      .all()
+      .filter((e) => e.kind === "provider")
+      .map((e) => ({
+        id: e.id,
+        credentialRef: (e as { credentialRef: string }).credentialRef
+      }));
+  const workspace = config.workspaceSecrets;
   const credentials = new LayeredCredentials([
-    ...(config.workspaceSecrets
-      ? [new FileWorkspaceSecrets(config.workspaceSecrets.file)]
+    ...(workspace
+      ? [
+          "file" in workspace
+            ? new FileWorkspaceSecrets(workspace.file)
+            : new DatabaseWorkspaceSecrets(
+                new Registry.PrismaWorkspaceKeys(db()),
+                providers
+              )
+        ]
       : []),
     new ConfigCredentials(config.credentials)
   ]);
-  const assistants = new FileAssistantSource(config.assistants.file);
+  const assistants =
+    "file" in config.assistants
+      ? new FileAssistantSource(config.assistants.file)
+      : new PrismaAssistantSource(db(), {
+          cacheMs: (config.assistants as { cacheMs?: number }).cacheMs
+        });
   const knowledge = config.knowledge
     ? s3Knowledge(config.knowledge, credentials)
     : undefined;

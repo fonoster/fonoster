@@ -54,6 +54,7 @@ async function main() {
     record,
     apps: db.apps,
     registryStore: db.registryStore,
+    workspaceKeys: db.workspaceKeys,
     webhooks: db.webhooks
   }).start();
   const running = gateway;
@@ -90,6 +91,7 @@ async function openDatabase(config: GatewayConfig): Promise<{
   apps?: AppStore;
   registryStore?: RegistryNs.RegistryStore;
   webhooks?: (event: Webhooks.WebhookEvent) => void;
+  workspaceKeys?: RegistryNs.PrismaWorkspaceKeys;
   close(): Promise<void>;
 }> {
   const url = databaseUrl(config);
@@ -115,6 +117,11 @@ async function openDatabase(config: GatewayConfig): Promise<{
   if (config.appStore?.source === "database") {
     out.apps = await PrismaAppStore.open(prisma, {
       cacheMs: config.appStore.cacheMs
+    });
+  }
+  if (config.workspaceKeys?.enabled) {
+    out.workspaceKeys = new RegistryNs.PrismaWorkspaceKeys(prisma, {
+      cacheMs: config.workspaceKeys.cacheMs
     });
   }
   if (config.registry?.source === "database") {

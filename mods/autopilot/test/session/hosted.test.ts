@@ -30,7 +30,9 @@ import {
 } from "@fonoster/conformance";
 import {
   ConfigCredentials,
+  DatabaseWorkspaceSecrets,
   LayeredCredentials,
+  PrismaAssistantSource,
   loadHostedConfig,
   RegistryLlmResolver,
   s3Knowledge,
@@ -361,5 +363,97 @@ describe("@autopilot/session knowledge port wiring", function () {
       languageModel: { model: "fake/llm" }
     });
     expect(await factory(none, { workspaceRef: "ws-1" })).to.equal(undefined);
+  });
+});
+
+describe("@autopilot/session assistants and keys from the database (CP-B11)", function () {
+  const rows: Record<string, unknown> = {
+    ap1: {
+      ref: "ap1",
+      accessKeyId: "WO1",
+      type: "AUTOPILOT",
+      intelligence: {
+        config: { languageModel: { model: "openai/gpt-4o-mini" } }
+      }
+    },
+    ext: {
+      ref: "ext",
+      accessKeyId: "WO1",
+      type: "EXTERNAL",
+      intelligence: null
+    }
+  };
+
+  it("loads an Autopilot app's assistant and caches it", async function () {
+    let calls = 0;
+    let now = 0;
+    const prisma = {
+      application: {
+        findUnique: async ({ where }: { where: { ref: string } }) => {
+          calls++;
+          return rows[where.ref] ?? null;
+        }
+      }
+    };
+    const source = new PrismaAssistantSource(prisma, {
+      cacheMs: 5000,
+      now: () => now
+    });
+    expect(await source.get("ap1")).to.deep.equal({
+      assistant: { languageModel: { model: "openai/gpt-4o-mini" } },
+      workspaceRef: "WO1"
+    });
+    expect(await source.get("ext")).to.equal(undefined);
+    expect(await source.get("missing")).to.equal(undefined);
+    await source.get("ap1");
+    expect(calls).to.equal(3);
+    now = 6000;
+    await source.get("ap1");
+    expect(calls).to.equal(4);
+  });
+
+  it("finds the workspace's vendor key through the credentialRef's provider", async function () {
+    const prisma = {
+      workspaceProviderKey: {
+        findUnique: async ({
+          where
+        }: {
+          where: Record<string, Record<string, string>>;
+        }) =>
+          where.accessKeyId_providerId.accessKeyId === "WO1" &&
+          where.accessKeyId_providerId.providerId === "openai"
+            ? { secretRef: "s1" }
+            : null
+      },
+      secret: { findUnique: async () => ({ secret: "sk-workspace" }) }
+    };
+    const secrets = new DatabaseWorkspaceSecrets(
+      new Registry.PrismaWorkspaceKeys(prisma),
+      () => [{ id: "openai", credentialRef: "openai-default" }]
+    );
+    expect(
+      await secrets.get("openai-default", { workspaceRef: "WO1" })
+    ).to.equal("sk-workspace");
+    expect(
+      await secrets.get("openai-default", { workspaceRef: "WO2" })
+    ).to.equal(undefined);
+    expect(await secrets.get("other-ref", { workspaceRef: "WO1" })).to.equal(
+      undefined
+    );
+  });
+
+  it("needs a database section for database sources", function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ap-db-"));
+    const file = path.join(dir, "autopilot.yaml");
+    fs.writeFileSync(
+      file,
+      "signingSecret: { value: s }\nassistants: { source: database }\nregistry: { file: r.json }\n"
+    );
+    expect(() => loadHostedConfig(file)).to.throw(/database section/);
+    fs.appendFileSync(file, "database: { url: postgres://x/y }\n");
+    expect(loadHostedConfig(file).assistants).to.deep.equal({
+      source: "database",
+      cacheMs: 5000
+    });
   });
 });

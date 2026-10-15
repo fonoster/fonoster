@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { Registry as RegistryNs } from "@fonoster/common";
-import { DEFAULTS, GatewayConfig, providerKey } from "../config";
+import {
+  DEFAULTS,
+  GatewayConfig,
+  ProviderConfig,
+  providerKey
+} from "../config";
 import { DeepgramSttAdapter, DeepgramTtsAdapter } from "./deepgram";
 import { ElevenLabsTtsAdapter } from "./elevenlabs";
 import { FakeSttAdapter, FakeTtsAdapter } from "./fake";
@@ -46,6 +51,43 @@ export type SttResolution = {
   replacement?: string;
 };
 
+/** A workspace's own vendor keys (bring your own key, registry 3.2). */
+export type WorkspaceKeySource = {
+  get(workspaceRef: string, providerId: string): Promise<string | undefined>;
+};
+
+type Adapters = { tts?: TtsAdapter; stt?: SttAdapter };
+
+/** The adapters a provider gets with a given key. */
+function buildAdapters(p: ProviderConfig, apiKey: string): Adapters {
+  const tts = p.capabilities.includes("tts");
+  const stt = p.capabilities.includes("stt");
+  const timeoutMs = p.tts?.timeoutMs ?? DEFAULTS.ttsTimeoutMs;
+  if (p.adapter === "deepgram")
+    return {
+      tts: tts
+        ? new DeepgramTtsAdapter({ apiKey, baseUrl: p.tts?.url, timeoutMs })
+        : undefined,
+      stt: stt
+        ? new DeepgramSttAdapter({
+            apiKey,
+            baseUrl: p.stt?.url,
+            sttModel: p.stt?.model
+          })
+        : undefined
+    };
+  if (p.adapter === "elevenlabs" && tts)
+    return {
+      tts: new ElevenLabsTtsAdapter({
+        apiKey,
+        baseUrl: p.tts?.url,
+        model: p.tts?.model,
+        timeoutMs
+      })
+    };
+  return {};
+}
+
 export class Catalog {
   private registry?: {
     store: RegistryNs.RegistryStore;
@@ -53,10 +95,15 @@ export class Catalog {
   };
   private tts = new Map<string, TtsAdapter>();
   private stt = new Map<string, SttAdapter>();
+  /** Workspace keys found by `prepare`, by workspace then provider. */
+  private workspaceKeys = new Map<string, Map<string, string>>();
+  /** Adapters built with a workspace key, by provider and key. */
+  private keyed = new Map<string, Adapters>();
 
   constructor(
     private readonly config: GatewayConfig,
-    registryStore?: RegistryNs.RegistryStore
+    registryStore?: RegistryNs.RegistryStore,
+    private readonly keySource?: WorkspaceKeySource
   ) {
     if (registryStore || config.registry?.file) {
       const store =
@@ -80,40 +127,66 @@ export class Catalog {
       }
       const apiKey = providerKey(p);
       if (!apiKey) continue;
-      if (p.adapter === "deepgram") {
-        if (tts)
-          this.tts.set(
-            name,
-            new DeepgramTtsAdapter({ apiKey, baseUrl: p.tts?.url, timeoutMs })
-          );
-        if (stt)
-          this.stt.set(
-            name,
-            new DeepgramSttAdapter({
-              apiKey,
-              baseUrl: p.stt?.url,
-              sttModel: p.stt?.model
-            })
-          );
-      } else if (p.adapter === "elevenlabs" && tts) {
-        this.tts.set(
-          name,
-          new ElevenLabsTtsAdapter({
-            apiKey,
-            baseUrl: p.tts?.url,
-            model: p.tts?.model,
-            timeoutMs
-          })
-        );
-      }
+      const built = buildAdapters(p, apiKey);
+      if (built.tts) this.tts.set(name, built.tts);
+      if (built.stt) this.stt.set(name, built.stt);
     }
+  }
+
+  /**
+   * Looks up the workspace's own vendor keys at session start (registry 3.2): resolutions for
+   * that workspace then use them instead of the platform keys. A lookup that fails or takes more
+   * than a second falls back to the platform keys.
+   */
+  async prepare(workspaceRef?: string): Promise<void> {
+    if (!this.keySource || !workspaceRef) return;
+    const keys = new Map<string, string>();
+    const names = Object.entries(this.config.providers ?? {})
+      .filter(([, p]) => p.adapter !== "fake")
+      .map(([name]) => name);
+    await Promise.all(
+      names.map(async (name) => {
+        const key = await Promise.race([
+          this.keySource!.get(workspaceRef, name).catch(() => undefined),
+          new Promise<undefined>((r) => setTimeout(() => r(undefined), 1000))
+        ]);
+        if (key) keys.set(name, key);
+      })
+    );
+    this.workspaceKeys.set(workspaceRef, keys);
+  }
+
+  /** The provider's adapters with the workspace's key, when it has one. */
+  private forWorkspace(
+    provider: string,
+    workspaceRef?: string
+  ): Adapters | undefined {
+    const key = workspaceRef
+      ? this.workspaceKeys.get(workspaceRef)?.get(provider)
+      : undefined;
+    const p = this.config.providers?.[provider];
+    if (!key || !p) return undefined;
+    const id = `${provider}\u0000${key}`;
+    let built = this.keyed.get(id);
+    if (!built) {
+      built = buildAdapters(p, key);
+      this.keyed.set(id, built);
+    }
+    return built;
+  }
+
+  /** Whether calls of this workspace use its own key for a provider (for the call record). */
+  usesWorkspaceKey(provider: string, workspaceRef?: string): boolean {
+    return Boolean(
+      workspaceRef && this.workspaceKeys.get(workspaceRef)?.has(provider)
+    );
   }
 
   /**
    * The TTS adapter and provider voice for a catalog voice id, or undefined if not in the catalog.
    * With a registry, retired ids resolve to their replacement and `event` says what to record.
    */
-  resolveVoice(id: string): VoiceResolution | undefined {
+  resolveVoice(id: string, workspaceRef?: string): VoiceResolution | undefined {
     let resolved = id;
     let event: VoiceResolution["event"];
     let replacement: string | undefined;
@@ -129,7 +202,8 @@ export class Catalog {
     if (slash <= 0) return undefined;
     const provider = resolved.slice(0, slash);
     const voice = resolved.slice(slash + 1);
-    const adapter = this.tts.get(provider);
+    const adapter =
+      this.forWorkspace(provider, workspaceRef)?.tts ?? this.tts.get(provider);
     const voices = this.config.providers[provider]?.voices;
     if (!adapter || (voices && !voices.includes(voice))) return undefined;
     return { adapter, voice, id: resolved, event, replacement };
@@ -140,9 +214,9 @@ export class Catalog {
    * id, the deployment's default STT provider with its configured model. With a registry the id
    * must be an STT model in the catalog; a retired one resolves to its replacement (VO-B4).
    */
-  resolveStt(id?: string): SttResolution | undefined {
+  resolveStt(id?: string, workspaceRef?: string): SttResolution | undefined {
     if (!id) {
-      const adapter = this.defaultStt();
+      const adapter = this.defaultStt(workspaceRef);
       return adapter && { adapter };
     }
     let resolved = id;
@@ -159,7 +233,9 @@ export class Catalog {
     }
     const slash = resolved.indexOf("/");
     if (slash <= 0) return undefined;
-    const adapter = this.stt.get(resolved.slice(0, slash));
+    const provider = resolved.slice(0, slash);
+    const adapter =
+      this.forWorkspace(provider, workspaceRef)?.stt ?? this.stt.get(provider);
     if (!adapter) return undefined;
     return {
       adapter,
@@ -171,8 +247,10 @@ export class Catalog {
   }
 
   /** The STT adapter for the gateway (one STT provider per deployment for now). */
-  defaultStt(): SttAdapter | undefined {
-    const name = this.config.stt?.provider;
-    return name ? this.stt.get(name) : this.stt.values().next().value;
+  defaultStt(workspaceRef?: string): SttAdapter | undefined {
+    const name =
+      this.config.stt?.provider ?? (this.stt.keys().next().value as string);
+    if (!name) return undefined;
+    return this.forWorkspace(name, workspaceRef)?.stt ?? this.stt.get(name);
   }
 }
