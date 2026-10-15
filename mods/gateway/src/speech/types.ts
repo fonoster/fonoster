@@ -55,6 +55,8 @@ export type Transcript = {
   confidence: number;
   startMs?: number;
   endMs?: number;
+  /** Per-word timings when the recognizer reports them (catalog feature `word-timings`). */
+  words?: WordTiming[];
   /**
    * Turn signals from a turn-aware recognizer (catalog feature `turn-detection`): its own
    * end-of-thought estimate and whether it declared the end of the turn. Absent otherwise.

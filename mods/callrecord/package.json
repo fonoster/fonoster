@@ -36,5 +36,8 @@
   },
   "bin": {
     "fonoster-callrecord": "dist/cli.js"
+  },
+  "devDependencies": {
+    "ajv": "^8.18.0"
   }
 }

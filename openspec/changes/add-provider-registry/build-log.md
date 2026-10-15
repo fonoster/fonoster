@@ -350,3 +350,20 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Spec deviation kept: the reuse scenario retires `deepgram/enhanced` instead of `nova-2`
   (later scenarios need `nova-2` deprecated, not retired).
 
+### LO-B14. Adapter conformance per type (task 1.5)
+
+- Speech (`mods/gateway/test/adapterConformance.test.ts`) and LLM
+  (`mods/autopilot/test/session/llmConformance.test.ts`): for every model in
+  `ops/rebuild/config/catalog-seed.yaml`, its provider's adapter must be built in and every declared
+  feature must have a check that passes against a local stand-in of the vendor; a declared feature
+  without a check fails. Each adapter must also stop within 200 ms when cancelled and map vendor
+  errors (503, 401, 429, unreachable) to `provider_unavailable` (400 → `bad_message`, silence →
+  `provider_timeout`). Live runs stay on demand (`mods/gateway/scripts/live-check.ts`).
+- What it found and fixed:
+  - Deepgram STT declared `word-timings` but dropped them: transcripts now carry `startMs`/`endMs`
+    and `words` (ms from the start of that vendor stream; a reconnect starts again at 0).
+  - OpenAI-compatible LLMs declared `json-mode` with no way to ask for it: `OpenAiCompatibleThink`
+    takes `jsonMode` (`response_format: json_object`). Nothing in Autopilot turns it on yet.
+  - LLM failures were plain `Error`s: they are now `ThinkError` with the session codes (an abort
+    is rethrown as it is).
+

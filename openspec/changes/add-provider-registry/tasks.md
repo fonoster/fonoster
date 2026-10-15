@@ -6,7 +6,7 @@
 - [x] 1.2 Impact-report fixtures: the `turbo-v2` → `flash-v2.5` case with mappable, unmappable and dropped-setting usages, with expected report text
 - [x] 1.3 Two-database fixture for `export` / `plan` / `apply`, including the idempotency check
 - [x] 1.4 Secret-safety checks: no schema column can hold a credential, `export` output has no secret, the utility's role cannot write outside registry and audit tables
-- [ ] 1.5 Adapter conformance suite per type (STT, TTS, LLM): every declared feature is verified, cancel is fast, vendor errors map to `provider_unavailable`; live runs on demand only
+- [x] 1.5 Adapter conformance suite per type (STT, TTS, LLM): every declared feature is verified, cancel is fast, vendor errors map to `provider_unavailable`; live runs on demand only (LO-B14)
 - [x] 1.6 Gateway scenarios with fake providers: credential resolution order, `provider.deprecated_used`, `provider.retired_used`, `provider_unavailable` with no switching (LO-B10)
 
 ## 2. Registry and utility (`mods/common`)
