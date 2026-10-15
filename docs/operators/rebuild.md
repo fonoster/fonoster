@@ -127,7 +127,15 @@ Loki or Prometheus container runs. With Helm, set `otel.endpoint`.
 
 Metrics: `fonoster.gateway.calls.active`, `fonoster.gateway.calls.total`,
 `fonoster.medianode.rooms.active`, `fonoster.medianode.draining`, `fonoster.medianode.calls.incoming`,
-`fonoster.autopilot.sessions.total`.
+`fonoster.autopilot.sessions.total`, `fonoster.apiserver.grpc.requests` (by `rpc.method` and
+`rpc.grpc.status_code`), `fonoster.apiserver.records.indexed` (by `outcome`),
+`fonoster.registry.commands` (the `fonoster-registry` utility, by `command` and `outcome`).
+
+Traces cross services with a W3C `traceparent` header: the media node sends it on `call.incoming`
+(the gateway's `gateway.call` span becomes its child), the gateway sends it on every media-control
+command (`medianode.command` spans) and on a record's index entry while the call's span is open
+(`apiserver.records.index`). The apiserver makes a span per gRPC request (`apiserver.grpc`) and joins
+a `traceparent` metadata entry when a client sends one.
 
 ## Regions and cells
 
@@ -138,21 +146,114 @@ no inbound port other than SIP and RTP from its carriers. Call content (recordin
 records, provider keys) stays in the cell; only the call-record index, config and health cross the
 link. If the control plane is unreachable, the cell keeps taking calls with its last synced config.
 
-Region tokens and cell registration (task 2.8) are not built yet: `ops/rebuild/config/nats.conf` has
-the commented leaf-node block the hub side will use. Upgrades in a private cell are yours; nothing
+Region tokens, cell registration and config sync are described in
+[Running a private region](./private-region.md); the control plane's region hub is the Compose
+profile `regions` or the chart's `natsRegions`. Upgrades in a private cell are yours; nothing
 changes until you roll the images.
+
+## Secrets in config files (`secret://`)
+
+A config value may be a reference instead of the secret itself (decision D8). Every Fonoster service
+(apiserver and its Identity, gateway, Autopilot, region agent) resolves references once at startup,
+before validating its config, and never logs the value; an error names the key path and the
+reference only.
+
+| Reference | Resolves to |
+| --- | --- |
+| `secret://env/NAME` | The environment variable `NAME` (must be set and non-empty). |
+| `secret://file/<absolute path>` | The file's contents, without one trailing newline (`secret://file/run/secrets/db-url`). |
+| `secret://k8s/<secret>#<key>` | `<FONOSTER_SECRETS_DIR>/<secret>/<key>`: a Kubernetes Secret mounted as a volume (default dir `/var/run/fonoster/secrets`). |
+| `secret://k8s/<namespace>/<secret>#<key>` | The same, after checking `<namespace>` is the pod's (`POD_NAMESPACE`). |
+
+The whole value must be the reference; text that merely contains `secret://` is left alone. The
+services do not call the Kubernetes API: the chart mounts each Secret listed in a service's
+`secretMounts` at `/var/run/fonoster/secrets/<secret>` and sets `FONOSTER_SECRETS_DIR` and
+`POD_NAMESPACE`. For example, in `gateway.yaml`:
+
+```yaml
+providers:
+  deepgram:
+    adapter: deepgram
+    capabilities: [tts, stt]
+    credential: { value: "secret://k8s/fonoster-vendors#deepgram" }
+```
 
 ## Helm
 
+The chart `ops/rebuild/helm/fonoster-rebuild` has three values files:
+
+| File | Installs |
+| --- | --- |
+| `values.yaml` (default) | The data plane only: gateway and media nodes (and, opt-in, the hosted Autopilot and a private cell's region agent). NATS, Routr, RTPEngine, Postgres and MinIO are external. |
+| `values-cloud.yaml` | The whole platform, mirroring `ops/rebuild/compose.yaml`: apiserver (embedded Identity, migrations Job), Envoy, dashboard, hosted Autopilot, single-node NATS with JetStream, dev-grade Postgres and MinIO, gateway and media nodes. |
+| `values-observability.yaml` | The default observability profile: OTel collector, Prometheus, Loki, Tempo and Grafana; every service exports to the collector. Combine it with either file above. |
+
+Routr and RTPEngine come from their own charts (Routr at `routr:5060` / `routr:51907`, using the
+release's Postgres database `routr` and NATS). The control plane is off by default so a private
+cell's install (regionAgent) does not change.
+
+### Cloud install
+
+Create the Secrets first; values never hold a raw secret, configs reference them with
+`secret://k8s/...`:
+
 ```sh
-helm lint ops/rebuild/helm/fonoster-rebuild
+kubectl create secret generic fonoster-postgres --from-literal=password="$PG"
+kubectl create secret generic fonoster-db \
+  --from-literal=url="postgresql://postgres:$PG@fonoster-postgres:5432/fonoster" \
+  --from-literal=identityUrl="postgresql://postgres:$PG@fonoster-postgres:5432/fnidentity" \
+  --from-literal=key="$ENCRYPTION_KEY"   # k1.aesgcm256.… from `npx @47ng/cloak generate`
+kubectl create secret generic fonoster-minio --from-literal=rootUser=minio --from-literal=rootPassword="$MINIO"
+kubectl create secret generic fonoster-identity-keys --from-file=private.pem --from-file=public.pem
+kubectl create secret generic fonoster-apiserver --from-literal=ownerPassword="$OWNER"
+kubectl create secret generic fonoster-autopilot --from-literal=secret="$(openssl rand -hex 32)"
+kubectl create secret generic medianode-peer --from-literal=password="$(openssl rand -hex 16)"
+kubectl create secret generic fonoster-records-key --from-file=records.pem   # EC P-256
+kubectl create secret generic fonoster-vendors --from-literal=deepgram="$DEEPGRAM_API_KEY"
+
+helm install fonoster ops/rebuild/helm/fonoster-rebuild \
+  -f ops/rebuild/helm/fonoster-rebuild/values-cloud.yaml \
+  -f ops/rebuild/helm/fonoster-rebuild/values-observability.yaml
+kubectl port-forward svc/fonoster-envoy 8449      # dashboard and API on http://localhost:8449
+kubectl port-forward svc/fonoster-grafana 3000
+```
+
+(The URLs above assume the release name `fonoster`; service names are `<release>-<component>`.)
+
+- **Migrations.** Each release revision runs the Job `<release>-apiserver-migrate-<revision>`
+  (`entrypoint --migrate-only`: core and Identity migrations, then the seed). The apiserver replicas
+  start with `--skip-migrations` and wait until `prisma migrate status` reports both schemas up to
+  date. `apiserver.migrations.job: false` restores the Compose behaviour (every replica migrates at
+  start).
+- **Identity** is embedded in the apiserver, as in Compose; there is no separate deployable.
+- **NATS.** `nats.deploy: true` runs a single-node NATS with JetStream; for production use the
+  official nats chart and set `nats.url` (with `nats.deploy: false`).
+- **Region hub.** `natsRegions.enabled` runs the hub that private cells link to. Its config is the
+  `region-hub.conf` written by `fonoster-region-hub-setup`, stored in `natsRegions.configSecret`;
+  the leaf port is a LoadBalancer Service (`<release>-nats-regions-leaf`, 7422). Put the setup's
+  `keys/region-hub/*` in `apiserver.regionHubSecret` and `region-signing.pem` in
+  `apiserver.keysSecret`.
+- **Postgres and MinIO** (`postgres.deploy`, `minio.deploy`) are single-replica and for trying the
+  platform; point the database and store URLs in your Secrets at managed services instead.
+- **Gateway RTP.** The gateway advertises its pod IP to the media nodes (`rtp.advertiseHostEnv:
+  POD_IP`) unless `rtp.advertiseHost` is set.
+- **Observability.** With `observability.enabled` and no `otel.endpoint`, every service exports to
+  `<release>-otel-collector:4318`. To use your own backend, leave the profile off and set
+  `otel.endpoint`. Grafana is anonymous-admin by default, like Compose: set
+  `observability.grafana.anonymousAdmin: false` and `adminSecret` outside a laptop.
+
+### Data plane only
+
+```sh
 helm install fonoster ops/rebuild/helm/fonoster-rebuild \
   --set nats.url=nats://nats.fonoster:4222 \
   --set medianode.replicas=3 --set medianode.drainGraceSeconds=900 \
   --set medianode.rtp.portMin=30000 --set medianode.rtp.portMax=30199
 ```
 
-The chart deploys the gateway (Deployment, ConfigMap with `gateway.yaml`, Service, PDB) and the
-media node (StatefulSet, host network by default because RTP needs a UDP range, node id = pod name).
-NATS, Routr, RTPEngine, Postgres and MinIO come from their own charts. Create the Secret named by
-`medianode.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
+The gateway runs as a Deployment (ConfigMap with `gateway.yaml`, Service, PDB) and the media node as
+a StatefulSet (host network by default because RTP needs a UDP range, node id = pod name). Create the
+Secret named by `medianode.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
+
+`helm lint` and `helm template` run in the deployment suite (`mods/conformance/test/deployment.test.ts`),
+which also loads every rendered config through its service's loader with the Secrets mounted.
