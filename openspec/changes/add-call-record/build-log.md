@@ -205,3 +205,19 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 
 - `minio/minio` and `quay.io/minio/minio` cannot be pulled here; the S3 test ran against
   `bitnamilegacy/minio:2025.4.22` and is gated by `RECORDS_S3_ENDPOINT`.
+
+## 2026-10-15 (control stream)
+
+### CP-B9. SDK and dashboard on the records API; index on by default
+
+- `callRecords.enabled` and `callRecords.listCallsFromIndex` now default to true (no backward
+  compatibility needed).
+- SDK `CallRecords` (HTTP, `/api/records`): list, get (version, original), recording download,
+  audit, erase, delete part, retention; base URL from the client (`WebClient` url, or Node
+  `Client({httpUrl})`, default `https://<endpoint host>`); retries once after a token refresh on
+  401. No CTL commands yet.
+- Dashboard Calls reads records: turns from the vCon dialog, turn decisions and app notes from
+  analysis, warnings from `fonoster.missing`/`failures`; the recording downloads as a blob since
+  the API needs the bearer token. Session messages are not shown (the redacted copy has no
+  messages part and the API has no route for it). Browsers need same-origin `/api` (Envoy) or
+  CORS on the HTTP bridge, which the records router does not set.

@@ -151,3 +151,18 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 
 - 1.1 as a full scenario suite, 4.3 API/UI for workspace keys (table only), runtime
   `provider.deprecated_used` → dashboard notice (the gateway records it in the call record only).
+
+## 2026-10-15 (control stream)
+
+### CP-B6. Catalog listing and workspace keys API (4.3)
+
+- New gRPC service `fonoster.providers.v1beta2.Providers`: `ListCatalog` (providers, models,
+  voices; retired items and other workspaces' custom voices hidden; filter by kind/type),
+  `SetProviderKey`, `ListProviderKeys`, `DeleteProviderKey`.
+- A key is a Secret named `provider-key/<provider>` bound by `workspace_provider_keys`; setting
+  it again overwrites the Secret in place. Nothing returns a key. Not an interactive transaction:
+  the field-encryption extension wraps the client, so a failed binding deletes the Secret again.
+- Set/delete need WORKSPACE_OWNER or WORKSPACE_ADMIN; list and catalog are workspace access.
+- The catalog is queried directly (not `PrismaRegistryStore`, which also loads the audit log).
+- SDK `Providers`; dashboard Vendor keys page and catalog pickers in the app editor. The gateway
+  does not read workspace keys yet (3.2).

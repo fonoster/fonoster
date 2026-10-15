@@ -109,8 +109,13 @@ influxdb:                                        # call records
   password: ${INFLUXDB_INIT_PASSWORD}
   token: ${INFLUXDB_INIT_TOKEN}
 
+# Session apps: Autopilot apps point at the hosted Autopilot and share its signing secret.
+# apps:
+#   autopilotUrl: ws://autopilot:50061
+#   autopilotSigningSecret: ${AUTOPILOT_SIGNING_SECRET}
+
 # Call records (vCon, add-call-record): the index of sealed records, the /api/records API on the
-# HTTP bridge, retention, and call history from the index instead of InfluxDB. Off by default.
+# HTTP bridge, retention, and call history from the index instead of InfluxDB. On by default.
 # callRecords:
 #   enabled: true
 #   listCallsFromIndex: true

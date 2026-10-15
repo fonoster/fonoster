@@ -30,7 +30,7 @@
 
 - [ ] 4.1 `GetCapabilities` lists only active or deprecated items with an adapter and an available credential
 - [ ] 4.2 Dashboard pickers filtered by compatibility; deprecation and retirement warnings per workspace with where-used lists
-- [ ] 4.3 Workspace UI and API to store and bind a bring-your-own key as a write-only Secret
+- [x] 4.3 Workspace UI and API to store and bind a bring-your-own key as a write-only Secret
 
 ## 5. Migration and docs
 

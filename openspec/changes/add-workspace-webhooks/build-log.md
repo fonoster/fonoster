@@ -53,3 +53,17 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   (call.started, call.ended, call.failed), attempts due deliveries every second and reloads
   endpoints every 30 s. `provider.deprecated` is produced by the registry utility (P-B3 in
   add-provider-registry). Media node and record writer producers are not wired here.
+
+## 2026-10-15 (control stream)
+
+### CP-B5. Webhooks API
+
+- New gRPC service `fonoster.webhooks.v1beta2.Webhooks`: create (secret shown once), list, get,
+  update (URL and/or events), delete, rotate (previous secret verifies 24 h, W4), list
+  deliveries (newest first) and resend. Every query is scoped to the caller's access key id.
+- Create and update reuse the dispatcher's checks (HTTPS, known event types) through a throwaway
+  `MemoryWebhookStore`. Resend opens a `PrismaWebhookStore`, loads the one delivery and calls
+  `WebhookDispatcher.resend`, so it signs exactly like the gateways.
+- `apps.allowInsecureWebhooks` (default false) allows http:// endpoints for local testing.
+- SDK `Webhooks`; dashboard Webhooks page (endpoints, events, rotation, delivery log, resend).
+  No CTL commands yet.

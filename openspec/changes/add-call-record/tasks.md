@@ -43,7 +43,7 @@
 
 - [x] 5.1 API: fetch by `callRef` and version, search by time range, number, app and status
 - [ ] 5.2 SDK and CTL support for fetching records and downloading files
-- [ ] 5.3 Dashboard call detail backed by the record, with recording download
+- [x] 5.3 Dashboard call detail backed by the record, with recording download
 - [x] 5.4 Emit `call_record.sealed` (link only) through workspace webhooks
 - [x] 5.5 Minimal records for calls that never reach an app, emitting `call.failed`
 
