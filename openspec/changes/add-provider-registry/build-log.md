@@ -59,3 +59,15 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - 1.1 suite against a real temporary database, 1.4 database-role checks, 1.5 adapter conformance,
   1.6 gateway scenarios, 2.1 tables, 2.5 webhooks, 2.6 transaction, 2.7 roles, 3.x adapters and
   gateway resolution, 4.x platform surfaces, 5.x migration and docs.
+
+## 2026-10-15 (morning, with the owner)
+
+### PR5. First live check (T4), keys from config/integrations.json with the owner's approval
+
+- `mods/gateway/scripts/live-check.ts` (keys from the environment only, never printed).
+- Deepgram TTS: works (about 4.4 s of audio for the test sentence, 2.5–8.5 s to complete).
+- ElevenLabs TTS (`pcm_16000`, eleven_flash_v2_5): works (about 4.5 s of audio, about 1.1 s).
+- Deepgram STT (nova-3, streaming): works when run alone or in a direct probe ("Hello from
+  Finaster. This is a live check of the new speech adapters."), but returned no transcript in both
+  runs where it followed the ElevenLabs synthesis in the same process. Cause not found yet; to
+  investigate before relying on it. "Fonoster" is misheard without a `keyterm` hint.
