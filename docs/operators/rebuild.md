@@ -16,12 +16,24 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `gateway` | `mods/gateway/Dockerfile` | VoiceSessionGateway: speech, turn-taking, app sessions. |
 | `autopilot` (profile) | `mods/autopilot/Dockerfile.session` | Hosted Autopilot session engine. |
 | `minio` | `minio/minio` | Object storage for recordings and records. |
+| `apiserver` | `ops/rebuild/docker/apiserver.Dockerfile` | Control plane API with embedded Identity; applies migrations at start. `mediaService.provider: none` (no Asterisk). |
+| `envoy` | `envoyproxy/envoy` | gRPC, gRPC-Web, `/api` and the dashboard on one port (root `config/envoy.yaml`). |
+| `dashboard` | `ops/rebuild/docker/dashboard.Dockerfile` | The dashboard, built with this checkout's SDK. |
+| `appsync` | apiserver image | Interim: points Autopilot apps at the hosted Autopilot and writes its assistants file. |
+| `fakes` (profile) | `ops/rebuild/docker/fakes.Dockerfile` | Fake TTS/STT/LLM for test deployments. |
+| `sipcaller` (profile `tools`) | media node image | The SIP caller bot (smoke tests). |
 | observability (profile) | otel-collector, prometheus, loki, tempo, grafana | See below. |
 
 Each Fonoster service reads exactly one YAML file and never a `.env` file. The media node is
 configured with flags or `MEDIANODE_*` environment variables (a Go binary with no config file).
 
 ## Start
+
+To try everything on one machine (generated configs and secrets, seed, smoke test), use
+`ops/rebuild/stack up` instead: see `docs/try-the-new-platform.md`. For your own deployment, fill
+`ops/rebuild/config/` (`fonoster.yaml`, `gateway.yaml`, `autopilot-session.yaml`, `registry.json`,
+`routr-edgeport.yaml`, `integrations.json`, and `keys/` with Identity's RSA pair and the
+call-record ES256 key) or point `RB_CONFIG_DIR` at another directory.
 
 ```sh
 docker compose -f ops/rebuild/compose.yaml up -d --build            # core
