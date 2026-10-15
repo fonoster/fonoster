@@ -35,3 +35,5 @@ export * from "./scenario/match";
 export * from "./scenario/types";
 export * from "./runner/repeat";
 export * from "./fakes/FakeWebhookReceiver";
+export * from "./fakes/MediaNodeHarness";
+export * from "./runner/NatsMediaControlPeer";

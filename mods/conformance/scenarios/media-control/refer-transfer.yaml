@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: refer-transfer
+spec: "Transfer modes / Refer transfer"
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
+  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
+    within_ms: 1000
+    capture: { room: roomRef, caller: participantRef }
+  - send: { type: transfer, id: t3, roomRef: "${room}", to: "+15551234567", mode: refer }
+  - expect: { type: transfer.result, id: t3, status: referred }
+    within_ms: 1000
+  - expect: { type: room.ended }
+    within_ms: 1000

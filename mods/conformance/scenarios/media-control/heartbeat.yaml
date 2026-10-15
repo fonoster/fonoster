@@ -1,0 +1,9 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: heartbeat
+spec: "Nodes report liveness / Heartbeats while alive"
+description: A live node publishes node.heartbeat at least every 2 s.
+steps:
+  - expect: { type: node.heartbeat, rooms: { $gte: 0 }, draining: false }
+    within_ms: 2500

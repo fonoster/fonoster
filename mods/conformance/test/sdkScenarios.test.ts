@@ -34,9 +34,23 @@ function session(socket: WebSocket) {
   // DTMF right after session.start), and an SDK must not lose them.
   const backlog: Json[] = [];
   const listeners = new Set<(m: Json) => boolean>();
+  // Outputs this app sent, so it can cut off interruptible ones on barge-in (gateway B22).
+  const outputs = new Map<
+    string,
+    { interruptible: boolean; started: boolean }
+  >();
   socket.on("message", (raw, isBinary) => {
     if (isBinary) return;
     const msg = JSON.parse(raw.toString());
+    const output = outputs.get(msg.id as string);
+    if (msg.type === "output.started" && output) output.started = true;
+    if (msg.type === "output.done" || msg.type === "output.interrupted")
+      outputs.delete(msg.id as string);
+    if (msg.type === "turn.user_started") {
+      const playing = [...outputs.values()].filter((o) => o.started);
+      if (playing.length && playing.every((o) => o.interruptible))
+        send({ type: "clear" });
+    }
     if (![...listeners].some((l) => l(msg))) backlog.push(msg);
   });
   const next = (pred: (m: Json) => boolean) =>
@@ -58,9 +72,17 @@ function session(socket: WebSocket) {
 
   return {
     started: next((m) => m.type === "session.start"),
-    async say(text: string) {
+    async say(text: string, options: { interruptible?: boolean } = {}) {
       const id = `say-${++seq}`;
-      send({ type: "speak", id, text, last: true });
+      const interruptible = options.interruptible ?? true;
+      outputs.set(id, { interruptible, started: false });
+      send({
+        type: "speak",
+        id,
+        text,
+        last: true,
+        ...(interruptible ? {} : { interruptible: false })
+      });
       const end = await next(
         (m) =>
           m.id === id &&
@@ -106,6 +128,9 @@ const FIXTURES: Record<
   "say-reports-interruption": async (s) => {
     const r = await s.say("Your balance is forty two dollars.");
     if (r.interrupted) await s.say(`You heard: ${r.heardText}`);
+  },
+  "say-kept": async (s) => {
+    await s.say("Please hold.", { interruptible: false });
   },
   "gather-echo": async (s) => {
     const r = await s.gather("#");

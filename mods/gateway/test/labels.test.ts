@@ -20,6 +20,7 @@ import { expect } from "chai";
 import { createSandbox } from "sinon";
 import { FRAME_BYTES, Pacing, TurnEvent } from "../src";
 import {
+  BARGE_IN_WINDOW_MS,
   CUT_OFF_WINDOW_MS,
   TurnLabel,
   TurnLabeler
@@ -54,7 +55,13 @@ describe("@gateway turn labels", function () {
     turn(1000, 1900, 2500);
     clock.tick(CUT_OFF_WINDOW_MS + 1);
     expect(labels).to.deep.equal([
-      { label: "ok", gapMs: 1500, turnEndedAt: 1900, outputStartedAt: 2500 }
+      {
+        label: "ok",
+        labelVersion: 2,
+        gapMs: 1500,
+        turnEndedAt: 1900,
+        outputStartedAt: 2500
+      }
     ]);
   });
 
@@ -68,6 +75,32 @@ describe("@gateway turn labels", function () {
     turn(1000, 1900, 2500);
     labeler.estimate(talking, 3000);
     expect(labels[0]).to.include({ label: "cut-off" });
+  });
+  it("labels a missed barge-in when the app lets output play on", function () {
+    labeler.outputStarted(0);
+    labeler.interruption(100);
+    clock.tick(BARGE_IN_WINDOW_MS + 1);
+    expect(labels).to.deep.equal([
+      { label: "missed-barge-in", labelVersion: 2, at: 100 }
+    ]);
+  });
+
+  it("does not label a barge-in the app cleared", function () {
+    labeler.outputStarted(0);
+    labeler.interruption(100);
+    labeler.outputCleared(300);
+    labeler.outputStopped(300);
+    clock.tick(BARGE_IN_WINDOW_MS + 1);
+    expect(labels).to.deep.equal([]);
+  });
+
+  it("labels a clear right after a backchannel as a misfire", function () {
+    labeler.outputStarted(0);
+    labeler.backchannel(500);
+    labeler.outputCleared(700);
+    expect(labels).to.deep.equal([
+      { label: "backchannel-misfire", labelVersion: 2, at: 700 }
+    ]);
   });
 });
 
@@ -96,6 +129,44 @@ describe("@gateway turn-taking test doubles", function () {
       "turn.likely_ended",
       "turn.ended"
     ]);
+  });
+
+  it("abandons a turn with no speech and no transcript for 10 s", function () {
+    const events: TurnEvent[] = [];
+    const detector = new ScriptedDetector([
+      { atMs: 0, ...talking },
+      { atMs: 300, eot: 0, speaking: false, kind: "none" }
+    ]);
+    const pacing = new Pacing(
+      detector,
+      {
+        turn: (e) => events.push(e),
+        partial: () => undefined,
+        estimate: () => undefined,
+        interruption: () => undefined
+      },
+      { language: "en" }
+    );
+    for (let t = 0; t <= 10400; t += 20)
+      pacing.onAudio(Buffer.alloc(FRAME_BYTES), t);
+    expect(events.map((e) => e.type)).to.deep.equal([
+      "turn.user_started",
+      "turn.ended"
+    ]);
+    expect(events[1]).to.include({ text: "", abandoned: true });
+  });
+
+  it("waits longer with a longer silence timeout (patience)", function () {
+    const detector = new BaselineDetector({ silenceTimeoutMs: 600 });
+    detector.onTranscript(
+      { text: "hi", final: true, language: "en", confidence: 1 },
+      0
+    );
+    detector.setSilenceTimeout(1200);
+    let eot = 0;
+    for (let t = 20; t <= 600; t += 20)
+      eot = detector.onAudio(Buffer.alloc(FRAME_BYTES), t).eot;
+    expect(eot).to.be.closeTo(0.5, 0.05);
   });
 
   it("records a Detector's estimates without changing them", function () {

@@ -235,6 +235,9 @@
         "durationMs": {
           "type": "number",
           "minimum": 0
+        },
+        "abandoned": {
+          "type": "boolean"
         }
       }
     },
@@ -343,6 +346,10 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 128
+        },
+        "heardMs": {
+          "type": "number",
+          "minimum": 0
         }
       }
     },
@@ -499,6 +506,13 @@
           "items": {
             "type": "string"
           }
+        },
+        "patience": {
+          "enum": [
+            "low",
+            "normal",
+            "high"
+          ]
         }
       }
     },
@@ -625,6 +639,9 @@
             "warm",
             "refer"
           ]
+        },
+        "music": {
+          "type": "string"
         }
       }
     },

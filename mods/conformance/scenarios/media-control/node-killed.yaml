@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: node-killed
+spec: "Nodes report liveness / Node killed"
+description: A killed node stops its heartbeats; gateways count it down after 3 missed beats.
+setup:
+  media: { heartbeatMs: 200 }
+steps:
+  - expect: { type: node.heartbeat }
+    within_ms: 1000
+  - caller: { nodeCrash: true }
+  - wait: { ms: 250 }
+  - expect_none: { type: node.heartbeat }
+    for_ms: 800

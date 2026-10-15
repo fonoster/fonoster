@@ -18,6 +18,7 @@
  */
 import * as http from "http";
 import { AddressInfo } from "net";
+import { Webhooks } from "@fonoster/common";
 import { IdentityClient } from "@fonoster/identity-client";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec, Subscription } from "nats";
@@ -50,7 +51,12 @@ export type GatewayOptions = {
   record?: CallRecordSink;
   /** Use an existing NATS connection instead of connecting to config.nats.url. */
   nats?: NatsConnection;
+  /** Receives call.started, call.ended and call.failed (a WebhookDispatcher's publish). */
+  webhooks?: (event: Webhooks.WebhookEvent) => void;
 };
+
+/** A node is down after this long without a heartbeat (3 missed beats of 2 s). */
+export const NODE_DOWN_AFTER_MS = 6000;
 
 export class Gateway {
   readonly calls = new Map<string, Call>();
@@ -61,6 +67,7 @@ export class Gateway {
   private catalog: Catalog;
   private stops: (() => void)[] = [];
   private server?: http.Server;
+  private heartbeats = new Map<string, number>();
 
   constructor(private readonly options: GatewayOptions) {
     const problems = validateConfig(options.config);
@@ -89,8 +96,11 @@ export class Gateway {
     this.stops.push(
       this.media.onIncoming(
         (nodeId, event) => void this.onIncoming(nodeId, event)
-      )
+      ),
+      this.media.onNodeStatus((event) => this.onNodeStatus(event))
     );
+    const watch = setInterval(() => this.checkNodes(), 1000);
+    this.stops.push(() => clearInterval(watch));
     const outbound = this.nc.subscribe(OUTBOUND_SUBJECT, {
       queue: "gateway-outbound",
       callback: (err, msg) => {
@@ -142,7 +152,10 @@ export class Gateway {
   findApp = (ref: string): AppConfig | undefined =>
     this.config.apps.find((a) => a.ref === ref);
 
-  /** The app a dialed number routes to; apps without numbers catch everything else. */
+  /**
+   * Development fallback when Routr sent no `X-App-Ref` (build log B21): the app a dialed number
+   * routes to; apps without numbers catch everything else.
+   */
   appForNumber(to: string): AppConfig | undefined {
     return (
       this.config.apps.find((a) => a.numbers?.includes(to)) ??
@@ -158,6 +171,7 @@ export class Gateway {
       catalog: this.catalog,
       record: this.record,
       findApp: this.findApp,
+      webhooks: this.options.webhooks,
       onEnded: (c) => {
         this.calls.delete(c.callRef);
         sub?.unsubscribe();
@@ -190,33 +204,70 @@ export class Gateway {
     return call;
   }
 
+  /** A claimed `call.incoming`: Routr's X-App-Ref picks the app (B21). */
   private async onIncoming(nodeId: string, event: MediaEvent) {
     const participant = event.participant as
       | { participantRef: string }
       | undefined;
     const roomRef = event.roomRef as string;
     const to = String(event.to ?? "");
+    const appRef = event.appRef as string | undefined;
     const info: CallInfo = {
       nodeId,
       roomRef,
       callRef: (event.callRef as string) ?? roomRef,
-      callerRef: participant?.participantRef ?? "",
+      callerRef:
+        (event.participantRef as string) ?? participant?.participantRef ?? "",
       direction: "inbound",
       from: String(event.from ?? ""),
       to,
       metadata: (event.metadata as Record<string, unknown>) ?? {}
     };
-    const app = this.appForNumber(to);
+    const app = appRef ? this.findApp(appRef) : this.appForNumber(to);
     const call = this.newCall(info);
     if (!app) {
-      call.record("event", { type: "call.unrouted", to });
-      return call.hangup("error");
+      call.record("event", { type: "call.unrouted", appRef, to });
+      this.options.webhooks?.(
+        Webhooks.callFailed("default", {
+          callRef: info.callRef,
+          appRef,
+          from: info.from,
+          to,
+          direction: "inbound",
+          reason: "no_app"
+        })
+      );
+      return call.reject(404);
     }
+    // The caller hears ringing while the app is dialed (media-control, "Ringing before answer").
+    void call
+      .mediaCommand({ type: "ring", participantRef: info.callerRef })
+      .catch(() => undefined);
     try {
       await call.run(app);
     } catch (e) {
       logger.error(`call ${info.callRef} failed: ${(e as Error).message}`);
       await call.hangup("error");
+    }
+  }
+
+  private onNodeStatus(event: MediaEvent) {
+    const nodeId = String(event.nodeId ?? "");
+    if (!nodeId) return;
+    if (event.type === "node.heartbeat")
+      this.heartbeats.set(nodeId, Date.now());
+    else if (event.type === "node.down") this.heartbeats.delete(nodeId);
+  }
+
+  /** Ends the calls of nodes that stopped sending heartbeats (media-control, liveness). */
+  private checkNodes() {
+    const now = Date.now();
+    for (const [nodeId, at] of this.heartbeats) {
+      if (now - at < NODE_DOWN_AFTER_MS) continue;
+      this.heartbeats.delete(nodeId);
+      logger.warn(`media node ${nodeId} missed its heartbeats`);
+      for (const call of [...this.calls.values()])
+        if (call.info.nodeId === nodeId) call.nodeLost();
     }
   }
 
@@ -263,7 +314,26 @@ export class Gateway {
             source: "event",
             message: { type: "call.progress", status: event.status }
           });
+          this.record.append(callRef, {
+            at: Date.now(),
+            source: "event",
+            message: {
+              type: "call.failed",
+              reason: event.status,
+              sipStatus: event.sipStatus
+            }
+          });
           this.record.close(callRef);
+          this.options.webhooks?.(
+            Webhooks.callFailed(app.workspaceRef ?? "default", {
+              callRef,
+              appRef: app.ref,
+              from: request.from ?? "",
+              to: request.to ?? "",
+              direction: "outbound",
+              reason: String(event.status)
+            })
+          );
         }
       }
     );

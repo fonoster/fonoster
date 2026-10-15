@@ -40,6 +40,7 @@ export type SessionTransport = {
 type Output = {
   text: string;
   startedAt?: number;
+  interruptible: boolean;
   resolve: (r: SayResult) => void;
   reject: (e: Error) => void;
 };
@@ -171,13 +172,13 @@ export class Session {
     });
 
     if (typeof input === "string") {
-      const done = this.awaitOutput(id, input);
+      const done = this.awaitOutput(id, input, options.interruptible ?? true);
       this.send({ type: "speak", id, text: input, last: true, ...fields });
       return done;
     }
 
     let text = "";
-    const done = this.awaitOutput(id, "");
+    const done = this.awaitOutput(id, "", options.interruptible ?? true);
     try {
       for await (const piece of input) {
         text += piece;
@@ -203,7 +204,7 @@ export class Session {
 
   async play(url: string, options: PlayOptions = {}): Promise<PlayResult> {
     const id = this.nextId("play");
-    const done = this.awaitOutput(id, "");
+    const done = this.awaitOutput(id, "", options.interruptible ?? true);
     this.send({ type: "play", id, url, ...this.compact(options) });
     const r = await done;
     return { interrupted: r.interrupted, heardMs: r.heardMs };
@@ -399,6 +400,7 @@ export class Session {
         this.emit(type, this.without(msg, "type"));
         return this.input({ type: "turn.ended", text: String(msg.text ?? "") });
       case "turn.user_started":
+        this.bargeIn();
         this.emit(type, {});
         return this.input({ type: "turn.user_started" });
       case "turn.likely_ended":
@@ -499,12 +501,28 @@ export class Session {
     this.send({ ...message, id });
   }
 
-  private awaitOutput(id: string, text: string): Promise<SayResult> {
+  private awaitOutput(
+    id: string,
+    text: string,
+    interruptible = true
+  ): Promise<SayResult> {
     return new Promise((resolve, reject) => {
       if (this.endedReason)
         return reject(new SessionEndedError(this.endedReason));
-      this.outputs.set(id, { text, resolve, reject });
+      this.outputs.set(id, { text, resolve, reject, interruptible });
     });
+  }
+
+  /**
+   * The app owns interruption (gateway B22): when the caller starts talking over an interruptible
+   * say or play, the SDK cuts it off with clear; a non-interruptible one keeps playing.
+   */
+  private bargeIn() {
+    const playing = [...this.outputs.values()].filter(
+      (o) => o.startedAt !== undefined
+    );
+    if (playing.length && playing.every((o) => o.interruptible))
+      this.send({ type: "clear" });
   }
 
   private take(id: string): Output | undefined {

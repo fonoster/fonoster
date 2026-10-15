@@ -67,6 +67,11 @@ export class BaselineDetector implements Detector {
 
   constructor(private readonly options: BaselineOptions) {}
 
+  /** Patience (turn-taking): a longer timeout waits longer before the turn ends. */
+  setSilenceTimeout(ms: number) {
+    this.options.silenceTimeoutMs = ms;
+  }
+
   onAudio(frame: Buffer, _at: number): Estimate {
     const voice = rms(frame) > (this.options.voiceThreshold ?? 700);
     if (voice) {

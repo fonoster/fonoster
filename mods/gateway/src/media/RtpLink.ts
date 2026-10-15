@@ -55,14 +55,25 @@ export class RtpLink extends EventEmitter {
   async bind(
     host = "127.0.0.1",
     advertiseHost?: string
-  ): Promise<{ host: string; port: number; codec: string }> {
+  ): Promise<{
+    host: string;
+    port: number;
+    codec: string;
+    payloadType: number;
+    ptime: number;
+    ssrc: number;
+  }> {
     this.socket.on("message", (msg) => this.onPacket(msg));
     this.socket.on("error", () => this.close());
     await new Promise<void>((resolve) => this.socket.bind(0, host, resolve));
     return {
       host: advertiseHost ?? host,
       port: this.socket.address().port,
-      codec: OFFERED_CODEC
+      codec: OFFERED_CODEC,
+      // The rtp block of media-control ("Gateway audio is RTP negotiated in participant.add").
+      payloadType: this.format.codec === "pcmu" ? 0 : 96,
+      ptime: 20,
+      ssrc: this.ssrc >>> 0
     };
   }
 

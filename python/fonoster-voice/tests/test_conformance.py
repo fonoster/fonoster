@@ -37,6 +37,10 @@ async def say_hello_legacy(req, res):
     await res.hangup()
 
 
+async def say_kept(session):
+    await session.say("Please hold.", interruptible=False)
+
+
 async def say_reports_interruption(session):
     r = await session.say("Your balance is forty two dollars.")
     if r.interrupted:
@@ -148,6 +152,7 @@ FIXTURES = {
     "say-hello": say_hello,
     "say-hello-legacy": say_hello_legacy,
     "say-reports-interruption": say_reports_interruption,
+    "say-kept": say_kept,
     "gather-echo": gather_echo,
     "session-info": session_info,
     "say-voice-override": say_voice_override,

@@ -1,0 +1,11 @@
+format: fonoster.scenario.v1
+name: media-timeout-ends-session
+contract: voice-session
+role: app
+spec: "Endings carry a reason / No RTP from the caller"
+description: The node's reason, not a guess, decides session.end (media_timeout maps to error).
+steps:
+  - expect: { type: session.start }
+  - caller: { drop: { reason: media_timeout } }
+  - expect: { type: session.end, reason: error }
+    within_ms: 1000

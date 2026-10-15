@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: node-crash-ends-session
+contract: voice-session
+role: app
+spec: "Nodes report liveness / Node killed"
+tags: [slow]
+setup:
+  media: { heartbeatMs: 500 }
+steps:
+  - expect: { type: session.start }
+  - wait: { ms: 600 }
+  - caller: { nodeCrash: true }
+  - expect: { type: session.end, reason: error }
+    within_ms: 8000

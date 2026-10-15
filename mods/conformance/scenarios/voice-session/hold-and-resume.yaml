@@ -3,12 +3,23 @@ name: hold-and-resume
 contract: voice-session
 role: app
 spec: "Call control / Hold and resume"
+description: On hold the caller is held by the node and the app gets no caller audio or turn events.
+setup:
+  callerAudio: { kind: silence, ms: 100 }
 steps:
   - expect: { type: session.start }
+  - send: { type: listen.update }
   - send: { type: hold, id: h1 }
   - wait: { ms: 200 }
+  - assert:
+      media.held: true
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect_none: { type: turn.user_started }
+    for_ms: 800
   - send: { type: resume, id: h2 }
   - wait: { ms: 200 }
+  - assert:
+      media.held: false
   - assert:
       media.commands: { $includes: [{ type: hold, id: h1 }, { type: resume, id: h2 }] }
   - expect_none: { type: error }

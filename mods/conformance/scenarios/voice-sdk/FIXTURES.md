@@ -9,6 +9,7 @@ same scenario. Keep fixtures tiny; they exercise the SDK, not app logic.
 | `say-hello` | `(session)` | `await say("Hello from the SDK.")`, then `hangup()`. |
 | `say-hello-legacy` | `(req, res)` | `await res.say("Hello from the SDK.")`, then `res.hangup()`. Must produce the same frames as `say-hello`. |
 | `say-reports-interruption` | `(session)` | `r = await say("Your balance is forty two dollars.")`; if `r.interrupted`, `await say("You heard: " + r.heardText)`. |
+| `say-kept` | `(session)` | `await say("Please hold.", { interruptible: false })`. |
 | `gather-echo` | `(session)` | `r = await gather({ finishOnKey: "#" })`; with speech, `say("You said: " + r.speech)`; with digits, `say("You pressed: " + r.digits)`. |
 | `session-info` | `(session)` | `say("Call <callRef> to <to> from <from> (<direction>, app <appRef>)")`. |
 | `say-voice-override` | `(session)` | `say("Hola", { voice: "elevenlabs/rachel", language: "es" })`. |

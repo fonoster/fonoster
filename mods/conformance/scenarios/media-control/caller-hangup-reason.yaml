@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: caller-hangup-reason
+spec: "Endings carry a reason / Caller hangs up"
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
+  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
+    within_ms: 1000
+    capture: { room: roomRef, caller: participantRef }
+  - caller: { hangup: true }
+  - expect: { type: participant.left, participantRef: "${caller}", reason: caller_hangup }
+    within_ms: 1000
+  - expect: { type: room.ended, reason: caller_hangup }
+    within_ms: 1000

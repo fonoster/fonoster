@@ -48,6 +48,9 @@ const FIXTURES: Record<string, Handler> = {
     const r = await session.say("Your balance is forty two dollars.");
     if (r.interrupted) await session.say(`You heard: ${r.heardText}`);
   },
+  "say-kept": async (s: Session) => {
+    await s.say("Please hold.", { interruptible: false });
+  },
   "session-info": async (s: Session) => {
     await s.say(
       `Call ${s.callRef} to ${s.to} from ${s.from} (${s.direction}, app ${s.appRef})`

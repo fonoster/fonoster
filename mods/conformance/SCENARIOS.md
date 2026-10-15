@@ -56,7 +56,7 @@ Each step has exactly one action key.
 | `inject: {tts|stt|llm: {…}}` | Change a fake provider's behaviour from this point on. |
 | `assert: {name: value}` | Evaluate named harness assertions (see Assertions). |
 | `close: {code, reason}` | Close the socket from the runner's side. |
-| `caller: {dtmf | hangup | audio}` | The fake media node acts as the caller: presses keys (`dtmf: "12#"`), hangs up (`hangup: true`) or speaks (`audio`, same shape as `send_audio`, replacing any caller audio still pending). |
+| `caller: {dtmf | hangup | audio | drop | nodeCrash}` | The fake media node acts as the caller: presses keys (`dtmf: "12#"`), hangs up (`hangup: true`) or speaks (`audio`, same shape as `send_audio`, replacing any caller audio still pending). `drop: {reason, sipStatus?}` makes the node end the room with a media-control reason; `nodeCrash: true` kills the node (no heartbeats, replies or events). |
 
 In the `twilio` flavor, `send_audio` sends μ-law 8 kHz `media` events (base64 payloads) using the
 `streamSid` from the `start` message, and `expect_audio` counts incoming `media` events.
@@ -134,7 +134,7 @@ scenario rather than ignoring it.
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake media node plays as the caller once the call is answered. |
 | `assistant` | `autopilot` only: the assistant config Autopilot runs for this scenario. |
-| `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`). |
+| `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
 
 ### Fake provider behaviour
 
@@ -143,6 +143,17 @@ scenario rather than ignoring it.
 | `delayMs` | Fixed delay before the provider's first byte. Subtracted by `budget_ms`. |
 | `failNext` | The next request fails: `provider_unavailable` (HTTP 503), `provider_timeout` (no response), `bad_request` (HTTP 400). |
 | `script` | STT: `[{atMs, text, final}]` transcripts keyed to caller-audio time. LLM: replies in order, each `{content, chunkDelayMs?}` (a pause after every sentence) or `{tool_calls: [{name, arguments}]}`. |
+
+## media-control scenarios
+
+With `role: media-control-client` the runner plays the gateway and control plane against a media
+node over NATS: `send` is a command (a NATS request on `media.<nodeId>.commands`) and its reply
+(`ack` or `error`, or `no_reply` after 2 s) arrives as a frame; room events, `node.heartbeat`,
+`node.down` and `call.incoming` (which the runner claims unless `claimCalls: false`) arrive as
+frames too. `caller: {call: {to, from, appRef, callRef}}` makes a call arrive at the node, as an
+INVITE from Routr would. Replies and events travel on different subjects, so do not rely on their
+relative order. Against the fake node `caller` steps drive the fake; against a real node the
+harness drives a SIP caller bot.
 
 ## Assertions
 
@@ -156,6 +167,8 @@ matcher, compared with what the harness measured.
 | `media.output_silent_within_ms` | ms between the previous step and the last agent-audio packet the fake media node received |
 | `media.output_audio_ms` | ms of agent audio the fake media node has received since the previous step |
 | `media.commands` | the list of `media-control` commands received (for `$includes`) |
+| `media.held` | whether the fake media node has the caller on hold |
+| `media.sip` | SIP statuses the caller received, in order (180 for `ring`, 200 for `answer`, refusals such as 404 or 503) |
 | `providers.vendor_calls` | network calls to anything other than the fakes (always expected to be `0`); needs a harness that watches egress, such as a proxy around the implementation |
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
 | `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |

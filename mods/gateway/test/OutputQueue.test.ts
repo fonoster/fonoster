@@ -177,19 +177,6 @@ describe("@gateway/OutputQueue", function () {
     ]);
   });
 
-  it("barge-in interrupts only interruptible items", async function () {
-    q = setup();
-    const adapter = tts();
-    q.queue.start();
-    q.queue.speak(
-      speak(adapter, "r1", "keep playing", { interruptible: false })
-    );
-    await sleep(60);
-    expect(q.queue.interrupt()).to.equal(false);
-    await sleep(250);
-    expect(q.types()).to.deep.equal(["output.started:r1", "output.done:r1"]);
-  });
-
   it("reports provider failures with relatesTo and no output events", async function () {
     q = setup();
     q.queue.start();

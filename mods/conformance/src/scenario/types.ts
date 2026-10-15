@@ -72,7 +72,13 @@ export type Setup = {
   };
   providers?: Providers;
   callerAudio?: AudioSource;
-  media?: { dialOutcome?: "answered" | "busy" | "no_answer" | "failed" };
+  media?: {
+    dialOutcome?: "answered" | "busy" | "no_answer" | "failed";
+    appRef?: string;
+    heartbeatMs?: number;
+    /** media-control: whether the runner claims call.incoming (default true). */
+    claimCalls?: boolean;
+  };
   assistant?: Record<string, unknown>;
 };
 
@@ -80,6 +86,10 @@ export type CallerAction = {
   dtmf?: string;
   hangup?: true;
   audio?: AudioSource;
+  drop?: { reason: string; sipStatus?: number };
+  nodeCrash?: true;
+  /** media-control: a call arrives at the node, as an INVITE from Routr would. */
+  call?: { from?: string; to?: string; appRef?: string; callRef?: string };
 };
 
 export type Timing = {

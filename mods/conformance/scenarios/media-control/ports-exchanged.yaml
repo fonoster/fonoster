@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: ports-exchanged
+spec: "Gateway audio is RTP negotiated in participant.add / Ports are exchanged in participant.add"
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
+  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
+    within_ms: 1000
+    capture: { room: roomRef, caller: participantRef }
+  - send: { type: participant.add, id: c3, roomRef: "${room}", kind: session, rtp: { host: 127.0.0.1, port: 9, codec: "L16/16000", payloadType: 96, ptime: 20, ssrc: 1111 } }
+  - expect: { type: ack, id: c3, rtp: { host: { $re: ".+" }, port: { $gt: 0 }, codec: "L16/16000", payloadType: 96, ptime: 20, ssrc: { $gte: 0 } } }
+    within_ms: 2000

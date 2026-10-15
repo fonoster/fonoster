@@ -55,16 +55,30 @@ export interface MediaControl {
     roomRef: string,
     handler: (event: MediaEvent) => void
   ): () => void;
-  /** Receives `call.incoming` from every node, shared across gateway replicas. */
+  /**
+   * Claims `call.incoming` requests (media-control, "Incoming calls are claimed by exactly one
+   * gateway replica"). Replicas share one queue group, so each call reaches one of them.
+   */
   onIncoming(handler: (nodeId: string, event: MediaEvent) => void): () => void;
+  /** Receives every node's `node.heartbeat` and `node.down` (every replica, no queue group). */
+  onNodeStatus(handler: (event: MediaEvent) => void): () => void;
 }
+
+/** Subject media nodes send `call.incoming` requests to. */
+export const INCOMING_SUBJECT = "gateway.incoming";
+/** Every node's heartbeat subject. */
+export const heartbeatSubject = (nodeId: string) => `media.${nodeId}.heartbeat`;
 
 const sc = StringCodec();
 
 export class NatsMediaControl implements MediaControl {
   constructor(
     private readonly nc: NatsConnection,
-    private readonly options: { queue?: string; timeoutMs?: number } = {}
+    private readonly options: {
+      queue?: string;
+      timeoutMs?: number;
+      gatewayRef?: string;
+    } = {}
   ) {}
 
   async command(nodeId: string, command: MediaCommand): Promise<MediaReply> {
@@ -107,15 +121,39 @@ export class NatsMediaControl implements MediaControl {
   }
 
   onIncoming(handler: (nodeId: string, event: MediaEvent) => void): () => void {
-    // One queue group: each incoming call is served by exactly one gateway replica. Other event
-    // types reaching this subscription are ignored; room owners subscribe to their room directly.
-    const sub: Subscription = this.nc.subscribe("media.*.events.*", {
+    const gatewayRef = this.options.gatewayRef ?? "gateway";
+    const sub: Subscription = this.nc.subscribe(INCOMING_SUBJECT, {
       queue: this.options.queue ?? "gateway-incoming",
       callback: (err, msg) => {
         if (err) return;
-        const event = JSON.parse(sc.decode(msg.data)) as MediaEvent;
-        if (event.type === "call.incoming")
-          handler(msg.subject.split(".")[1], event);
+        let event: MediaEvent;
+        try {
+          event = JSON.parse(sc.decode(msg.data)) as MediaEvent;
+        } catch {
+          return;
+        }
+        if (event.type !== "call.incoming") return;
+        // Claim first: the node gives up after 500 ms. Routing happens after the claim.
+        msg.respond(
+          sc.encode(
+            JSON.stringify({ type: "claimed", id: event.id, gatewayRef })
+          )
+        );
+        handler(String(event.nodeId ?? ""), event);
+      }
+    });
+    return () => sub.unsubscribe();
+  }
+
+  onNodeStatus(handler: (event: MediaEvent) => void): () => void {
+    const sub = this.nc.subscribe(heartbeatSubject("*"), {
+      callback: (err, msg) => {
+        if (err) return;
+        try {
+          handler(JSON.parse(sc.decode(msg.data)) as MediaEvent);
+        } catch {
+          // not ours
+        }
       }
     });
     return () => sub.unsubscribe();

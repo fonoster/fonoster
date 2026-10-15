@@ -210,15 +210,51 @@ describe("@conformance/FakeMediaNode", function () {
     expect(node.events.map((e) => e.event)).to.deep.include({
       type: "room.ended",
       id: "h1",
-      roomRef: first.roomRef
+      roomRef: first.roomRef,
+      reason: "removed"
     });
 
     const second = node.offerCall();
     node.callerHangup(second.roomRef);
-    expect(node.events.slice(-2).map((e) => e.event.type)).to.deep.equal([
-      "participant.left",
-      "room.ended"
+    expect(
+      node.events.slice(-2).map((e) => [e.event.type, e.event.reason])
+    ).to.deep.equal([
+      ["participant.left", "caller_hangup"],
+      ["room.ended", "caller_hangup"]
     ]);
+  });
+
+  it("refuses unknown commands with unknown_command", async function () {
+    node = new FakeMediaNode();
+    node.offerCall();
+    expect(
+      await node.handle({ type: "room.mute_all", id: "x1" })
+    ).to.deep.equal({ type: "error", id: "x1", code: "unknown_command" });
+  });
+
+  it("rings, answers, holds and completes a warm transfer", async function () {
+    node = new FakeMediaNode({ answerAfterMs: 5 });
+    const { roomRef } = node.offerCall();
+    await node.handle({ type: "ring", id: "r", roomRef });
+    await node.handle({ type: "answer", id: "a", roomRef });
+    expect(node.sipStatuses(roomRef)).to.deep.equal([180, 200]);
+    await node.handle({
+      type: "transfer",
+      id: "t",
+      roomRef,
+      to: "+1",
+      mode: "warm"
+    });
+    expect(node.isHeld(roomRef)).to.equal(true);
+    await sleep(20);
+    await node.handle({ type: "transfer.complete", id: "t", roomRef });
+    expect(node.isHeld(roomRef)).to.equal(false);
+    expect(node.events.map((e) => e.event)).to.deep.include({
+      type: "transfer.result",
+      id: "t",
+      roomRef,
+      status: "completed"
+    });
   });
 });
 

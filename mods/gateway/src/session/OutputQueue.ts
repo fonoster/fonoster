@@ -31,7 +31,7 @@ import { SpeechError, TtsAdapter, WordTiming } from "../speech/types";
 
 export type OutputEvent =
   | { type: "output.started"; id: string }
-  | { type: "output.done"; id: string }
+  | { type: "output.done"; id: string; heardMs: number }
   | {
       type: "output.interrupted";
       id: string;
@@ -292,17 +292,6 @@ export class OutputQueue {
     this.notifyPlaying();
   }
 
-  /** Stops the current item if it is interruptible (caller barge-in). */
-  interrupt(): boolean {
-    const head = this.queue[0];
-    if (!head || head.kind === "mark" || !head.started || !head.interruptible)
-      return false;
-    this.queue.shift();
-    this.cut(head);
-    this.notifyPlaying();
-    return true;
-  }
-
   // ---- internals --------------------------------------------------------------------
 
   private full(id?: string): boolean {
@@ -334,7 +323,7 @@ export class OutputQueue {
     this.queue = this.queue.filter((i) => i !== item);
   }
 
-  /** Reports an item dropped by clear, preempt or barge-in. */
+  /** Reports an item dropped by clear or preempt. */
   private cut(item: Item) {
     if (item.kind === "mark") {
       this.options.emit({ type: "mark", name: item.name, cleared: true });
@@ -461,7 +450,12 @@ export class OutputQueue {
     this.remove(item);
     if (item.kind === "audio") return;
     if (item.kind === "speak" && item.failed) return;
-    if (item.started) this.options.emit({ type: "output.done", id: item.id });
+    if (item.started)
+      this.options.emit({
+        type: "output.done",
+        id: item.id,
+        heardMs: Math.round(item.sentMs)
+      });
   }
 
   private notifyPlaying() {

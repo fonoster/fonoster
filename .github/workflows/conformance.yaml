@@ -56,6 +56,7 @@ jobs:
           'mods/gateway/test/integration.test.ts' \
           'mods/gateway/test/crash.test.ts' \
           'mods/conformance/test/nats.test.ts' \
+          'mods/conformance/test/media-control.test.ts' \
           'mods/autopilot/test/session/fullstack.test.ts'
 
   python:

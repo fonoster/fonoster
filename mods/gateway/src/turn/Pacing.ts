@@ -21,6 +21,8 @@ import { Detector, Estimate } from "./Detector";
 
 /** How long after a backchannel burst its transcript may arrive and still count as one. */
 const BACKCHANNEL_TRANSCRIPT_WINDOW_MS = 1500;
+/** A turn with no speech and no transcript for this long is abandoned (turn-taking). */
+export const ABANDON_AFTER_MS = 10000;
 
 export type TurnEvent =
   | { type: "turn.user_started" }
@@ -32,6 +34,7 @@ export type TurnEvent =
       language: string;
       confidence: number;
       durationMs: number;
+      abandoned?: true;
     }
   | { type: "turn.backchannel"; text: string };
 
@@ -61,6 +64,7 @@ export class Pacing {
   private burstKind: Estimate["kind"] = "none";
   private backchannelUntil?: number;
   private turnStart = 0;
+  private lastSpeechAt = 0;
   private finals: Transcript[] = [];
   private partialText = "";
   private language: string;
@@ -134,8 +138,16 @@ export class Pacing {
       this.backchannelUntil = at + BACKCHANNEL_TRANSCRIPT_WINDOW_MS;
     }
     this.wasSpeaking = estimate.speaking;
+    if (estimate.speaking) this.lastSpeechAt = at;
 
     if (!this.inTurn) return;
+    if (
+      !estimate.speaking &&
+      !this.finals.length &&
+      !this.partialText &&
+      at - this.lastSpeechAt >= ABANDON_AFTER_MS
+    )
+      return this.endTurn(at, true);
     if (this.likelyEnded && estimate.eot < this.prepare && !estimate.speaking) {
       this.likelyEnded = false;
       this.handlers.turn({ type: "turn.resumed" });
@@ -165,10 +177,11 @@ export class Pacing {
     this.inTurn = true;
     this.likelyEnded = false;
     this.turnStart = at;
+    this.lastSpeechAt = at;
     this.handlers.turn({ type: "turn.user_started" });
   }
 
-  private endTurn(at: number) {
+  private endTurn(at: number, abandoned = false) {
     const text = this.text();
     const language =
       this.finals[this.finals.length - 1]?.language || this.language;
@@ -180,7 +193,8 @@ export class Pacing {
       text,
       language,
       confidence,
-      durationMs: at - this.turnStart
+      durationMs: at - this.turnStart,
+      ...(abandoned ? { abandoned: true as const } : {})
     });
     this.inTurn = false;
     this.likelyEnded = false;

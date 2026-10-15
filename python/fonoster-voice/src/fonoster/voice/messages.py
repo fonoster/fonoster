@@ -75,6 +75,7 @@ TurnEnded = TypedDict(
         "language": str,
         "confidence": float,
         "durationMs": float,
+        "abandoned": NotRequired[bool],
     },
 )
 
@@ -131,6 +132,7 @@ OutputDone = TypedDict(
     {
         "type": Literal["output.done"],
         "id": str,
+        "heardMs": NotRequired[float],
     },
 )
 
@@ -200,6 +202,7 @@ ListenUpdate = TypedDict(
         "id": NotRequired[str],
         "language": NotRequired[str],
         "hints": NotRequired[list[str]],
+        "patience": NotRequired[Literal["low", "normal", "high"]],
     },
 )
 
@@ -259,6 +262,7 @@ Transfer = TypedDict(
         "to": str,
         "headers": NotRequired[dict[str, Any]],
         "mode": NotRequired[Literal["cold", "warm", "refer"]],
+        "music": NotRequired[str],
     },
 )
 

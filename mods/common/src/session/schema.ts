@@ -117,6 +117,7 @@ export const ERROR_CODES = [
   "invalid_catalog_id",
   "feature_not_supported",
   "transfer_failed",
+  "on_hold",
   "queue_full",
   "play_fetch_failed",
   "internal"
@@ -154,7 +155,9 @@ export const turnEndedSchema = {
     text: { type: "string" },
     language: { type: "string" },
     confidence: { type: "number", minimum: 0, maximum: 1 },
-    durationMs: { type: "number", minimum: 0 }
+    durationMs: { type: "number", minimum: 0 },
+    /** No speech followed turn.user_started for 10 s (noise, a dropped line). */
+    abandoned: { type: "boolean" }
   }
 } as const;
 
@@ -200,7 +203,11 @@ export const outputStartedSchema = {
 export const outputDoneSchema = {
   type: "object",
   required: ["type", "id"],
-  properties: { type: { const: "output.done" }, id }
+  properties: {
+    type: { const: "output.done" },
+    id,
+    heardMs: { type: "number", minimum: 0 }
+  }
 } as const;
 
 export const outputInterruptedSchema = {
@@ -270,7 +277,9 @@ export const listenUpdateSchema = {
     type: { const: "listen.update" },
     id,
     language: catalogId,
-    hints: { type: "array", items: { type: "string" } }
+    hints: { type: "array", items: { type: "string" } },
+    /** How long the Turn Detector waits before turn.ended. */
+    patience: { enum: ["low", "normal", "high"] }
   }
 } as const;
 
@@ -330,7 +339,9 @@ export const transferSchema = {
     id,
     to: { type: "string", minLength: 1 },
     headers: { type: "object", additionalProperties: { type: "string" } },
-    mode: { enum: TRANSFER_MODES }
+    mode: { enum: TRANSFER_MODES },
+    /** Warm transfers: what the caller hears while waiting. */
+    music: { type: "string" }
   }
 } as const;
 

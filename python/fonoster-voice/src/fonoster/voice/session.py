@@ -109,6 +109,9 @@ class Session:
         self._transport = transport
         self._seq = 0
         self._outputs: dict[str, tuple[asyncio.Future, str, list[float | None]]] = {}
+        # Outputs sent with interruptible=False; the SDK does not clear them on barge-in.
+        self._kept: set[str] = set()
+        self._tasks: set[asyncio.Task] = set()
         self._commands: dict[str, asyncio.Future] = {}
         self._marks: dict[str, list[asyncio.Future]] = {}
         self._end_waiters: list[tuple[list[str], asyncio.Future]] = []
@@ -139,6 +142,8 @@ class Session:
         """Speaks text, or a stream of text pieces as one utterance, and reports what was heard."""
         id_ = self._next_id("say")
         fields = _compact(voice=voice, language=language, interruptible=interruptible, preempt=preempt)
+        if interruptible is False:
+            self._kept.add(id_)
         if isinstance(text, str):
             future = self._await_output(id_, text)
             await self._send({"type": "speak", "id": id_, "text": text, "last": True, **fields})
@@ -169,6 +174,8 @@ class Session:
     async def play(self, url: str, *, loop: bool | None = None, interruptible: bool | None = None,
                    preempt: bool | None = None) -> PlayResult:
         id_ = self._next_id("play")
+        if interruptible is False:
+            self._kept.add(id_)
         future = self._await_output(id_, "")
         await self._send({"type": "play", "id": id_, "url": url,
                           **_compact(loop=loop, interruptible=interruptible, preempt=preempt)})
@@ -302,6 +309,7 @@ class Session:
             self._emit(t, {k: v for k, v in msg.items() if k != "type"})
             self._input({"type": "turn.ended", "text": str(msg.get("text", ""))})
         elif t == "turn.user_started":
+            self._barge_in()
             self._emit(t, {})
             self._input({"type": "turn.user_started"})
         elif t in ("turn.likely_ended", "turn.resumed", "turn.backchannel", "transcript.partial", "turn.estimate"):
@@ -386,6 +394,14 @@ class Session:
 
     async def _command(self, message: dict[str, Any]) -> None:
         await self._send({**message, "id": self._next_id(str(message["type"]).replace(".", "-"))})
+
+    def _barge_in(self) -> None:
+        """The app owns interruption (gateway B22): clear when every playing output is interruptible."""
+        playing = [i for i, entry in self._outputs.items() if entry[2][0] is not None]
+        if playing and not any(i in self._kept for i in playing):
+            task = asyncio.get_running_loop().create_task(self._send({"type": "clear"}))
+            self._tasks.add(task)
+            task.add_done_callback(self._tasks.discard)
 
     def _await_output(self, id_: str, text: str) -> asyncio.Future:
         if self._ended_reason:

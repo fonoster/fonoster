@@ -149,6 +149,18 @@
                 "no_answer",
                 "failed"
               ]
+            },
+            "appRef": {
+              "type": "string",
+              "description": "Sent in call.incoming as Routr's X-App-Ref; omitted means none"
+            },
+            "heartbeatMs": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "claimCalls": {
+              "type": "boolean",
+              "description": "media-control: whether the runner claims call.incoming (default true)"
             }
           }
         },
@@ -332,7 +344,7 @@
           "type": "object",
           "additionalProperties": false,
           "minProperties": 1,
-          "description": "The fake media node acts as the caller: presses keys, speaks or hangs up",
+          "description": "The fake media node acts as the caller: presses keys, speaks or hangs up; or the node drops the room or crashes",
           "properties": {
             "dtmf": {
               "type": "string",
@@ -343,6 +355,33 @@
             },
             "audio": {
               "$ref": "#/definitions/audioSource"
+            },
+            "drop": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["reason"],
+              "description": "The node ends the room with a media-control reason (for example media_timeout)",
+              "properties": {
+                "reason": {
+                  "enum": ["caller_hangup", "callee_hangup", "busy", "no_answer", "rejected", "media_timeout", "node_error", "max_duration", "removed"]
+                },
+                "sipStatus": { "type": "integer" }
+              }
+            },
+            "nodeCrash": {
+              "const": true,
+              "description": "The media node dies: no more heartbeats, replies or events"
+            },
+            "call": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "media-control: a call arrives at the node, as an INVITE from Routr would",
+              "properties": {
+                "from": { "type": "string" },
+                "to": { "type": "string" },
+                "appRef": { "type": "string" },
+                "callRef": { "type": "string" }
+              }
             }
           }
         },

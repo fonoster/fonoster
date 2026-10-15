@@ -1,0 +1,22 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: warm-transfer-not-answered
+spec: "Warm transfer keeps the caller on hold / Warm transfer not answered"
+description: The fake answers no_answer at once; the real node waits 30 s.
+setup:
+  media: { dialOutcome: no_answer }
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
+  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
+    within_ms: 1000
+    capture: { room: roomRef, caller: participantRef }
+  - send: { type: participant.add, id: s1, roomRef: "${room}", kind: session, rtp: { host: 127.0.0.1, port: 9, codec: "L16/16000", payloadType: 96, ptime: 20, ssrc: 1111 } }
+  - expect: { type: ack, id: s1 }
+    within_ms: 2000
+    capture: { session: participantRef }
+  - send: { type: transfer, id: t2, roomRef: "${room}", to: "+15551234567", mode: warm }
+  - expect: { type: transfer.result, id: t2, status: failed }
+    within_ms: 31000
+  - assert:
+      media.held: false

@@ -25,7 +25,7 @@ import { Peer } from "../runner/Peer";
 import { SCENARIOS_DIR } from "../scenario/loadScenario";
 import { AudioSource, CallerAction, Providers, Setup } from "../scenario/types";
 import { FakeApp } from "./FakeApp";
-import { FakeMediaNode } from "./FakeMediaNode";
+import { EndReason, FakeMediaNode } from "./FakeMediaNode";
 import { FakeLlm } from "./providers/FakeLlm";
 import { FakeStt } from "./providers/FakeStt";
 import { FakeTts } from "./providers/FakeTts";
@@ -131,6 +131,12 @@ export class FakesHarness implements Harness {
     if (action.audio)
       this.mediaNode.callerSpeaks(this.resolveAudio(action.audio));
     if (action.hangup) this.mediaNode.callerHangup();
+    if (action.drop)
+      this.mediaNode.dropRoom(
+        action.drop.reason as EndReason,
+        action.drop.sipStatus
+      );
+    if (action.nodeCrash) this.mediaNode.crash();
   }
 
   private resolveAudio(source: AudioSource): AudioSource {
@@ -216,6 +222,10 @@ export class FakesHarness implements Harness {
         return this.mediaNode.outputAudioMs(since);
       case "media.commands":
         return this.mediaNode.commands.map((c) => c.command);
+      case "media.held":
+        return this.mediaNode.isHeld();
+      case "media.sip":
+        return this.mediaNode.sipStatuses();
       case "providers.tts.requests":
         return this.tts.requests;
       case "providers.stt.requests":

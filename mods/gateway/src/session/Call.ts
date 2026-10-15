@@ -23,7 +23,8 @@ import {
   SESSION_PROTOCOL,
   SessionEndReason,
   SessionStart,
-  SUBSCRIBABLE_EVENTS
+  SUBSCRIBABLE_EVENTS,
+  Webhooks
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import Ajv, { ValidateFunction } from "ajv";
@@ -81,6 +82,31 @@ const POLICY_VERSION = "default@1";
 /** How often turn.estimate is sent to subscribers. */
 const ESTIMATE_EVERY_MS = 100;
 
+/** Silence-timeout multipliers for `listen.update.patience` (turn-taking, one knob). */
+export const PATIENCE = { low: 0.6, normal: 1, high: 1.6 } as const;
+
+/** Commands an app may send while the caller is on hold (gateway B24). */
+const ALLOWED_ON_HOLD = new Set([
+  "resume",
+  "hangup",
+  "transfer",
+  "handoff",
+  "record.note"
+]);
+
+/** media-control ending reasons → session.end reasons (voice-session, "Session ending"). */
+export function sessionEndReason(reason: unknown): SessionEndReason {
+  switch (reason) {
+    case "max_duration":
+      return "timeout";
+    case "media_timeout":
+    case "node_error":
+      return "error";
+    default:
+      return "caller_hangup";
+  }
+}
+
 export type CallInfo = {
   nodeId: string;
   roomRef: string;
@@ -98,6 +124,7 @@ export type CallDeps = {
   catalog: Catalog;
   record: CallRecordSink;
   findApp: (ref: string) => AppConfig | undefined;
+  webhooks?: (event: Webhooks.WebhookEvent) => void;
   onEnded: (call: Call) => void;
 };
 
@@ -116,6 +143,10 @@ export class Call {
   private hangingUp?: SessionEndReason;
   private seq = 0;
   private handoffs = 0;
+  /** The first app that answered; set once its session starts (call.started). */
+  private answeredBy?: AppConfig;
+  private routedTo?: AppConfig;
+  onHold = false;
 
   constructor(
     readonly info: CallInfo,
@@ -148,6 +179,7 @@ export class Call {
 
   /** Runs an inbound or answered outbound call with its app. */
   async run(app: AppConfig) {
+    this.routedTo = app;
     this.unsubscribeRoom = this.deps.media.subscribeRoom(
       this.info.nodeId,
       this.info.roomRef,
@@ -177,7 +209,51 @@ export class Call {
       return this.finish("error");
     }
 
-    if (!socket) await this.fallbackMessage(app);
+    if (!socket) {
+      this.failed("app_unreachable");
+      await this.fallbackMessage(app);
+    }
+  }
+
+  private parties(app?: AppConfig) {
+    return {
+      callRef: this.info.callRef,
+      appRef: app?.ref ?? "",
+      from: this.info.from,
+      to: this.info.to,
+      direction: this.info.direction
+    };
+  }
+
+  /** The call never reached an app: a minimal record and `call.failed` (gateway B26). */
+  failed(reason: string, sipStatus?: number) {
+    if (this.answeredBy) return;
+    this.record("event", { type: "call.failed", reason, sipStatus });
+    this.deps.webhooks?.(
+      Webhooks.callFailed(this.routedTo?.workspaceRef ?? "default", {
+        ...this.parties(this.routedTo),
+        reason
+      })
+    );
+  }
+
+  /** Refuses an unroutable call (claimed, then hung up with a SIP status). */
+  async reject(sipStatus: number) {
+    this.hangingUp = "error";
+    try {
+      await this.mediaCommand({ type: "hangup", sipStatus });
+    } catch {
+      // the room may already be gone
+    }
+    this.finish("error");
+  }
+
+  /** The media node stopped sending heartbeats: its calls are gone (media-control, liveness). */
+  nodeLost() {
+    if (this.ended) return;
+    this.record("event", { type: "call.failure", reason: "node_error" });
+    if (!this.answeredBy) this.failed("node_error");
+    this.finish("error");
   }
 
   /** Dials the app, then its fallback app; returns undefined when only a message is left. */
@@ -277,6 +353,12 @@ export class Call {
     socket: WebSocket,
     handoff: Record<string, unknown> | null
   ) {
+    if (!this.answeredBy) {
+      this.answeredBy = app;
+      this.deps.webhooks?.(
+        Webhooks.callStarted(app.workspaceRef ?? "default", this.parties(app))
+      );
+    }
     this.session = new AppSession(this, app, socket, handoff, this.deps, (f) =>
       this.rtp.send(f)
     );
@@ -352,6 +434,15 @@ export class Call {
     this.rtp.close();
     this.unsubscribeRoom?.();
     this.record("event", { type: "call.ended", reason });
+    if (this.answeredBy)
+      this.deps.webhooks?.(
+        Webhooks.callEnded(this.answeredBy.workspaceRef ?? "default", {
+          ...this.parties(this.answeredBy),
+          // Until the room ends, even after a cold transfer (B26).
+          durationSeconds: Math.round((Date.now() - this.startedAt) / 1000),
+          endReason: reason
+        })
+      );
     this.deps.record.close(this.info.callRef);
     this.deps.onEnded(this);
   }
@@ -368,14 +459,18 @@ export class Call {
         break;
       case "participant.left":
         if (event.participantRef === this.info.callerRef)
-          this.finish(this.hangingUp ?? "caller_hangup");
+          this.finish(this.hangingUp ?? sessionEndReason(event.reason));
         else if (event.participantRef === this.sessionParticipantRef)
           this.session?.leftRoom();
         break;
       case "room.ended":
+        if (!this.answeredBy && event.reason && event.reason !== "removed")
+          this.failed(String(event.reason), event.sipStatus as number);
         this.finish(
           this.hangingUp ??
-            (this.session?.pendingTransferEnd ? "transfer" : "caller_hangup")
+            (this.session?.pendingTransferEnd
+              ? "transfer"
+              : sessionEndReason(event.reason))
         );
         break;
       case "transfer.result":
@@ -398,6 +493,7 @@ export class AppSession {
   private queue: OutputQueue;
   private stt?: SttStream;
   private pacing?: Pacing;
+  private detector?: BaselineDetector;
   private subscriptions = new Set<string>();
   private lastEstimateAt = 0;
   private closed = false;
@@ -592,11 +688,12 @@ export class AppSession {
 
   private startSpeech() {
     const language = this.app.speech.language;
+    this.detector = new BaselineDetector({
+      silenceTimeoutMs:
+        this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs
+    });
     this.pacing = new Pacing(
-      new BaselineDetector({
-        silenceTimeoutMs:
-          this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs
-      }),
+      this.detector,
       {
         turn: (e) => {
           // The decision, with the estimate behind it and the versions that made it (2.8).
@@ -608,6 +705,8 @@ export class AppSession {
             policy: POLICY_VERSION
           });
           if (e.type === "turn.ended") this.labeler.turnEnded(Date.now());
+          if (e.type === "turn.backchannel")
+            this.labeler.backchannel(Date.now());
           this.emit(e);
         },
         partial: (text, lang) => {
@@ -628,7 +727,8 @@ export class AppSession {
             kind: e.kind
           });
         },
-        interruption: () => this.queue.interrupt()
+        // The app owns interruption (B22): the gateway only reports turn.user_started.
+        interruption: () => this.labeler.interruption(Date.now())
       },
       { language }
     );
@@ -651,7 +751,8 @@ export class AppSession {
   // ---- from the call -----------------------------------------------------------------
 
   callerAudio(frame: Buffer) {
-    if (this.closed) return;
+    // On hold the app hears nothing and gets no turn events (B24).
+    if (this.closed || this.call.onHold) return;
     this.codec.callerAudio(frame);
     for (const l of this.listeners) l.callerAudio(frame);
     if (!this.speechStarted) {
@@ -807,6 +908,16 @@ export class AppSession {
       return;
     }
     if (!this.codec.speechLayer && !["mark", "clear"].includes(type)) return;
+    if (this.call.onHold && !ALLOWED_ON_HOLD.has(type)) {
+      this.emit({
+        type: "error",
+        code: "on_hold",
+        message: `${type} is not allowed while the caller is on hold`,
+        fatal: false,
+        relatesTo
+      });
+      return;
+    }
 
     if (SPEECH_COMMANDS.has(type)) this.ensureSpeech();
     try {
@@ -853,6 +964,7 @@ export class AppSession {
             appRef: this.app.ref
           });
         }
+        if (cmd.preempt) this.labeler.outputCleared(Date.now());
         this.queue.speak({
           id: id ?? this.call.nextCommandId(),
           text: cmd.text as string,
@@ -866,6 +978,7 @@ export class AppSession {
         return;
       }
       case "play":
+        if (cmd.preempt) this.labeler.outputCleared(Date.now());
         this.queue.play({
           id: id ?? this.call.nextCommandId(),
           url: cmd.url as string,
@@ -878,6 +991,7 @@ export class AppSession {
         this.queue.mark(cmd.name as string);
         return;
       case "clear":
+        this.labeler.outputCleared(Date.now());
         this.queue.clear();
         return;
       case "subscribe":
@@ -888,6 +1002,13 @@ export class AppSession {
         return;
       case "listen.update":
         // An empty listen.update only starts listening (ensureSpeech above).
+        if (cmd.patience) {
+          const base =
+            this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs;
+          this.detector?.setSilenceTimeout(
+            base * PATIENCE[cmd.patience as keyof typeof PATIENCE]
+          );
+        }
         if (!cmd.language && !cmd.hints) return;
         if (cmd.language) this.pacing?.setLanguage(cmd.language as string);
         this.stt?.update({
@@ -913,12 +1034,14 @@ export class AppSession {
           },
           id
         );
+        this.call.onHold = true;
         return;
       case "resume":
         await this.call.mediaCommand(
           { type: "resume", participantRef: this.call.callerParticipantRef },
           id
         );
+        this.call.onHold = false;
         return;
       case "transfer": {
         const transferId = id ?? this.call.nextCommandId();
@@ -926,7 +1049,13 @@ export class AppSession {
         this.transfer = { id: transferId, mode };
         try {
           await this.call.mediaCommand(
-            { type: "transfer", to: cmd.to, mode, headers: cmd.headers },
+            {
+              type: "transfer",
+              to: cmd.to,
+              mode,
+              headers: cmd.headers,
+              music: cmd.music
+            },
             transferId
           );
         } catch (e) {
@@ -956,10 +1085,7 @@ export class AppSession {
           });
           return;
         }
-        await this.call.mediaCommand({
-          type: "participant.remove",
-          participantRef: this.call.sessionParticipant
-        });
+        await this.call.mediaCommand({ type: "transfer.complete" }, id);
         this.endWith("transfer");
         return;
       case "record.note":
@@ -1011,6 +1137,8 @@ export class AppSession {
 
   private onOutput(e: OutputEvent) {
     if (e.type === "output.started") this.labeler.outputStarted(Date.now());
+    if (e.type === "output.done" || e.type === "output.interrupted")
+      this.labeler.outputStopped(Date.now());
     this.emit(e as unknown as Record<string, unknown>);
   }
 

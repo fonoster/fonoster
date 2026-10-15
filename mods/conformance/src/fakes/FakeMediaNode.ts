@@ -45,12 +45,14 @@ export type MediaReply = {
 export type MediaEvent = { type: string; id?: string; [key: string]: unknown };
 
 export const MEDIA_COMMANDS = [
+  "ring",
   "answer",
   "room.create",
   "participant.add",
   "participant.dial",
   "participant.remove",
   "transfer",
+  "transfer.complete",
   "hold",
   "resume",
   "dtmf.send",
@@ -62,6 +64,26 @@ export const MEDIA_COMMANDS = [
 
 export type DialOutcome = "answered" | "busy" | "no_answer" | "failed";
 
+/** media-control ending reasons ("Endings carry a reason"). */
+export type EndReason =
+  | "caller_hangup"
+  | "callee_hangup"
+  | "busy"
+  | "no_answer"
+  | "rejected"
+  | "media_timeout"
+  | "node_error"
+  | "max_duration"
+  | "removed";
+
+/** Where nodes send `call.incoming` requests (media-control, claimed by one gateway). */
+export const INCOMING_SUBJECT = "gateway.incoming";
+const SIP_STATUS: Partial<Record<DialOutcome, number>> = {
+  busy: 486,
+  no_answer: 480,
+  failed: 503
+};
+
 export type FakeMediaNodeOptions = {
   nodeId?: string;
   /** Address the node's RTP sockets bind to and advertise (default 127.0.0.1). */
@@ -72,6 +94,12 @@ export type FakeMediaNodeOptions = {
   dialOutcome?: DialOutcome;
   /** Delay before a dial or transfer is answered (default 50 ms). */
   answerAfterMs?: number;
+  /** Sent as `appRef` in call.incoming, as Routr's X-App-Ref would be. */
+  appRef?: string;
+  /** How long to wait for a gateway to claim a call (default 500 ms, then one retry). */
+  claimTimeoutMs?: number;
+  /** Heartbeat period once attached to NATS (default 2000 ms; 0 disables). */
+  heartbeatMs?: number;
 };
 
 type Track = {
@@ -92,6 +120,9 @@ type Room = {
   roomRef: string;
   participants: Map<string, Participant>;
   ended: boolean;
+  held: boolean;
+  /** SIP status the caller got (180, 200, or the refusal). */
+  sip: number[];
 };
 
 type ReceivedPacket = { at: number; ms: number; audible: boolean };
@@ -100,9 +131,11 @@ class SessionRtp {
   readonly received: ReceivedPacket[] = [];
   private socket = dgram.createSocket("udp4");
   private timer?: ReturnType<typeof setTimeout>;
+  /** On hold the session participant hears silence (media-control, hold by mixing). */
+  held = false;
   private seq = Math.floor(Math.random() * 0xffff);
   private timestamp = Math.floor(Math.random() * 0xffffffff);
-  private ssrc = Math.floor(Math.random() * 0xffffffff);
+  readonly ssrc = Math.floor(Math.random() * 0xffffffff);
 
   constructor(
     readonly format: AudioFormat,
@@ -130,7 +163,8 @@ class SessionRtp {
     let i = 0;
 
     const tick = () => {
-      const payload = this.pending.shift() ?? silence;
+      const next = this.pending.shift();
+      const payload = this.held ? silence : (next ?? silence);
       this.send(payload, samplesPerFrame);
       i++;
       this.timer = setTimeout(
@@ -202,6 +236,9 @@ export class FakeMediaNode extends EventEmitter {
   private sessions: SessionRtp[] = [];
   private subscription?: Subscription;
   private timers = new Set<ReturnType<typeof setTimeout>>();
+  private nc?: NatsConnection;
+  private heartbeat?: ReturnType<typeof setInterval>;
+  private crashed = false;
 
   constructor(private readonly options: FakeMediaNodeOptions = {}) {
     super();
@@ -210,32 +247,100 @@ export class FakeMediaNode extends EventEmitter {
 
   configure(options: Partial<FakeMediaNodeOptions>) {
     Object.assign(this.options, options);
+    if (options.heartbeatMs !== undefined && this.nc) this.startHeartbeat();
+  }
+
+  private startHeartbeat() {
+    clearInterval(this.heartbeat);
+    const every = this.options.heartbeatMs ?? 2000;
+    if (every <= 0) return;
+    const beat = () =>
+      this.publishStatus({
+        type: "node.heartbeat",
+        nodeId: this.nodeId,
+        rooms: [...this.rooms.values()].filter((r) => !r.ended).length,
+        draining: false
+      });
+    beat();
+    this.heartbeat = setInterval(beat, every);
   }
 
   // ---- driving the call ------------------------------------------------------------------
 
-  /** Offers an inbound call, as a SIP INVITE from Routr would. */
+  /**
+   * Offers an inbound call, as a SIP INVITE from Routr would: `call.incoming` goes to the gateway
+   * queue group as a request; no claim within the timeout, twice, refuses the call with 503.
+   */
   offerCall(
     call: {
       from?: string;
       to?: string;
+      appRef?: string;
+      callRef?: string;
       metadata?: Record<string, unknown>;
     } = {}
   ) {
     const room = this.createRoom();
     const caller = this.addParticipant(room, "phone", ref("p-caller"));
-    this.emitEvent({
+    const appRef = call.appRef ?? this.options.appRef;
+    const event: MediaEvent = {
       type: "call.incoming",
+      id: ref("in"),
+      nodeId: this.nodeId,
       roomRef: room.roomRef,
+      participantRef: caller.participantRef,
       participant: {
         participantRef: caller.participantRef,
         tracks: caller.tracks
       },
+      ...(appRef ? { appRef } : {}),
+      ...(call.callRef ? { callRef: call.callRef } : {}),
+      direction: "inbound",
       from: call.from ?? "+15550001111",
       to: call.to ?? "+15550002222",
+      callerName: "",
+      headers: {},
       metadata: call.metadata ?? {}
-    });
-    return { roomRef: room.roomRef, participantRef: caller.participantRef };
+    };
+    this.events.push({ at: Date.now(), event });
+    this.emit("event", event);
+    const claimed = this.claim(room, event);
+    return {
+      roomRef: room.roomRef,
+      participantRef: caller.participantRef,
+      claimed
+    };
+  }
+
+  private async claim(room: Room, event: MediaEvent): Promise<boolean> {
+    if (!this.nc) return true;
+    const sc = StringCodec();
+    const timeout = this.options.claimTimeoutMs ?? 500;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const msg = await this.nc.request(
+          INCOMING_SUBJECT,
+          sc.encode(JSON.stringify(event)),
+          { timeout }
+        );
+        const reply = JSON.parse(sc.decode(msg.data));
+        if (reply.type === "claimed") return true;
+      } catch {
+        // no gateway answered in time
+      }
+    }
+    room.sip.push(503);
+    this.endRoom(room, undefined, "node_error", 503);
+    return false;
+  }
+
+  /** SIP statuses the caller of a room received, in order. */
+  sipStatuses(roomRef = this.lastRoomRef()): number[] {
+    return this.rooms.get(roomRef)?.sip ?? [];
+  }
+
+  isHeld(roomRef = this.lastRoomRef()): boolean {
+    return this.rooms.get(roomRef)?.held ?? false;
   }
 
   /** The caller speaks: audio replaces pending caller audio on every session participant. */
@@ -261,9 +366,42 @@ export class FakeMediaNode extends EventEmitter {
       this.emitEvent({
         type: "participant.left",
         roomRef,
-        participantRef: caller.participantRef
+        participantRef: caller.participantRef,
+        reason: "caller_hangup"
       });
-    this.endRoom(room);
+    this.endRoom(room, undefined, "caller_hangup");
+  }
+
+  /** The node ends the room itself (media timeout, maximum duration, ...). */
+  dropRoom(
+    reason: EndReason,
+    sipStatus?: number,
+    roomRef = this.lastRoomRef()
+  ) {
+    const room = this.rooms.get(roomRef);
+    if (room) this.endRoom(room, undefined, reason, sipStatus);
+  }
+
+  /** The node dies: no more heartbeats, replies or events (media-control, liveness). */
+  crash() {
+    this.crashed = true;
+    clearInterval(this.heartbeat);
+    this.subscription?.unsubscribe();
+    for (const session of this.sessions) session.close();
+  }
+
+  /** A clean shutdown: publishes node.down. */
+  shutdown() {
+    clearInterval(this.heartbeat);
+    this.publishStatus({ type: "node.down", nodeId: this.nodeId });
+  }
+
+  private publishStatus(event: MediaEvent) {
+    if (!this.nc || this.crashed) return;
+    this.nc.publish(
+      `media.${this.nodeId}.heartbeat`,
+      StringCodec().encode(JSON.stringify(event))
+    );
   }
 
   // ---- media-control -------------------------------------------------------------------
@@ -289,6 +427,30 @@ export class FakeMediaNode extends EventEmitter {
     if (!room || room.ended) return error("room_not_found");
 
     switch (command.type) {
+      case "ring":
+        room.sip.push(180);
+        return ack();
+      case "answer":
+        room.sip.push(200);
+        return ack();
+      case "hold":
+      case "resume":
+        this.setHeld(room, command.type === "hold");
+        return ack();
+      case "transfer.complete": {
+        this.setHeld(room, false);
+        const session = [...room.participants.values()].find(
+          (p) => p.kind === "session"
+        );
+        if (session) this.removeParticipant(room, session, id, "removed");
+        this.emitEvent({
+          type: "transfer.result",
+          id,
+          roomRef: room.roomRef,
+          status: "completed"
+        });
+        return ack();
+      }
       case "participant.add":
         return this.addSession(room, command);
       case "participant.dial":
@@ -298,26 +460,46 @@ export class FakeMediaNode extends EventEmitter {
         const ref = String(command.participantRef);
         const p = room.participants.get(ref);
         if (!p) return error("participant_not_found");
-        this.removeParticipant(room, p, id);
+        this.removeParticipant(room, p, id, "removed");
         return ack();
       }
       case "transfer":
         this.transfer(room, command);
         return ack();
-      case "listener.attach":
+      case "listener.attach": {
+        // One RTP destination per selected track (media-control, "Listeners fork audio by track").
+        const tracks = command.tracks as
+          | { trackId?: number; rtp?: { host?: string; port?: number } }[]
+          | undefined;
+        if (tracks?.some((t) => !t.rtp?.host || !t.rtp?.port))
+          return error("bad_message");
+        const listener = this.addParticipant(
+          room,
+          "listener",
+          ref("p-listener")
+        );
         return ack({
-          participantRef: this.addParticipant(
-            room,
-            "listener",
-            ref("p-listener")
-          ).participantRef
+          listenerRef: listener.participantRef,
+          participantRef: listener.participantRef
         });
+      }
       case "room.end":
       case "hangup":
-        this.later(() => this.endRoom(room, id), 0);
+        if (typeof command.sipStatus === "number")
+          room.sip.push(command.sipStatus);
+        this.later(
+          () =>
+            this.endRoom(
+              room,
+              id,
+              command.sipStatus ? "rejected" : "removed",
+              command.sipStatus as number | undefined
+            ),
+          0
+        );
         return ack();
       default:
-        // answer, hold, resume, dtmf.send, listener.detach
+        // dtmf.send, listener.detach
         return ack();
     }
   }
@@ -333,6 +515,8 @@ export class FakeMediaNode extends EventEmitter {
     const commands = subjects.commands ?? `media.${this.nodeId}.commands`;
     const events = subjects.events ?? `media.${this.nodeId}.events`;
     const sc = StringCodec();
+    this.nc = nc;
+    this.startHeartbeat();
 
     this.subscription = nc.subscribe(commands, {
       callback: async (err, msg) => {
@@ -346,9 +530,14 @@ export class FakeMediaNode extends EventEmitter {
         msg.respond(sc.encode(JSON.stringify(reply)));
       }
     });
-    this.on("event", (event: MediaEvent) =>
-      nc.publish(`${events}.${event.roomRef}`, sc.encode(JSON.stringify(event)))
-    );
+    this.on("event", (event: MediaEvent) => {
+      // call.incoming is a request to the gateways (offerCall), not a room event.
+      if (event.type === "call.incoming" || this.crashed) return;
+      nc.publish(
+        `${events}.${event.roomRef}`,
+        sc.encode(JSON.stringify(event))
+      );
+    });
     return { commands, events };
   }
 
@@ -377,6 +566,7 @@ export class FakeMediaNode extends EventEmitter {
   }
 
   async stop() {
+    clearInterval(this.heartbeat);
     for (const t of this.timers) clearTimeout(t);
     this.timers.clear();
     for (const session of this.sessions) session.close();
@@ -408,7 +598,9 @@ export class FakeMediaNode extends EventEmitter {
     const room: Room = {
       roomRef: ref("room"),
       participants: new Map(),
-      ended: false
+      ended: false,
+      held: false,
+      sip: []
     };
     this.rooms.set(room.roomRef, room);
     return room;
@@ -440,15 +632,27 @@ export class FakeMediaNode extends EventEmitter {
     command: MediaCommand
   ): Promise<MediaReply> {
     const rtp = command.rtp as
-      | { host?: string; port?: number; codec?: string }
+      | {
+          host?: string;
+          port?: number;
+          codec?: string;
+          payloadType?: number;
+          ptime?: number;
+        }
       | undefined;
     if (!rtp?.host || !rtp.port || !rtp.codec) {
       return { type: "error", id: command.id, code: "bad_message" };
     }
-    const format = parseFormat(rtp.codec);
+    let format: AudioFormat;
+    try {
+      format = parseFormat(rtp.codec);
+    } catch {
+      return { type: "error", id: command.id, code: "unsupported_codec" };
+    }
+    const payloadType = rtp.payloadType ?? (format.codec === "pcmu" ? 0 : 96);
     const session = this.addParticipant(room, "session", ref("p-session"));
     session.tracks[0].codec = rtp.codec;
-    session.rtp = new SessionRtp(format, format.codec === "pcmu" ? 0 : 96, {
+    session.rtp = new SessionRtp(format, payloadType, {
       host: rtp.host,
       port: rtp.port
     });
@@ -471,7 +675,13 @@ export class FakeMediaNode extends EventEmitter {
       type: "ack",
       id: command.id,
       participantRef: session.participantRef,
-      rtp: local
+      rtp: {
+        ...local,
+        codec: rtp.codec,
+        payloadType,
+        ptime: rtp.ptime ?? 20,
+        ssrc: session.rtp.ssrc
+      }
     };
   }
 
@@ -514,7 +724,8 @@ export class FakeMediaNode extends EventEmitter {
           type: "call.progress",
           id: command.id,
           roomRef: room.roomRef,
-          status: outcome
+          status: outcome,
+          sipStatus: SIP_STATUS[outcome]
         });
         return;
       }
@@ -539,9 +750,12 @@ export class FakeMediaNode extends EventEmitter {
     const mode = (command.mode as string) ?? "cold";
     const outcome = this.options.dialOutcome ?? "answered";
     const after = this.options.answerAfterMs ?? 50;
+    // Warm: the caller waits on hold while the app briefs the new party ("Warm transfer").
+    if (mode === "warm") this.setHeld(room, true);
 
     this.later(() => {
       if (outcome !== "answered") {
+        if (mode === "warm") this.setHeld(room, false);
         this.emitEvent({
           type: "transfer.result",
           id: command.id,
@@ -573,8 +787,10 @@ export class FakeMediaNode extends EventEmitter {
         const session = [...room.participants.values()].find(
           (p) => p.kind === "session"
         );
-        if (session) this.removeParticipant(room, session, command.id);
+        if (session)
+          this.removeParticipant(room, session, command.id, "removed");
       }
+      if (mode === "warm") return; // completed by transfer.complete
       this.emitEvent({
         type: "transfer.result",
         id: command.id,
@@ -584,21 +800,43 @@ export class FakeMediaNode extends EventEmitter {
     }, after);
   }
 
-  private removeParticipant(room: Room, p: Participant, id?: string) {
+  private setHeld(room: Room, held: boolean) {
+    room.held = held;
+    for (const p of room.participants.values()) if (p.rtp) p.rtp.held = held;
+  }
+
+  private removeParticipant(
+    room: Room,
+    p: Participant,
+    id: string | undefined,
+    reason: EndReason
+  ) {
     p.rtp?.close();
     room.participants.delete(p.participantRef);
     this.emitEvent({
       type: "participant.left",
       id,
       roomRef: room.roomRef,
-      participantRef: p.participantRef
+      participantRef: p.participantRef,
+      reason
     });
   }
 
-  private endRoom(room: Room, id?: string) {
+  private endRoom(
+    room: Room,
+    id?: string,
+    reason: EndReason = "removed",
+    sipStatus?: number
+  ) {
     if (room.ended) return;
     room.ended = true;
     for (const p of room.participants.values()) p.rtp?.close();
-    this.emitEvent({ type: "room.ended", id, roomRef: room.roomRef });
+    this.emitEvent({
+      type: "room.ended",
+      ...(id ? { id } : {}),
+      roomRef: room.roomRef,
+      reason,
+      ...(sipStatus ? { sipStatus } : {})
+    });
   }
 }
