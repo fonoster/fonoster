@@ -33,6 +33,7 @@ type Stats struct {
 	Received    uint64 // audio packets accepted
 	Sent        uint64
 	Undecrypted uint64 // packets dropped because SRTP authentication failed (or they were plain)
+	Foreign     uint64 // packets dropped because they came from another source than the latched one
 }
 
 // Endpoint is a local UDP port and the remote it talks to.
@@ -51,8 +52,13 @@ type Endpoint struct {
 	closed      bool
 	encrypt     *srtp.Context
 	decrypt     *srtp.Context
+	// latched is the one source whose packets are accepted (RV-B8): the configured remote (SDP)
+	// once it sends, else the first source that sent a valid packet. latchedRemote means it is
+	// the configured remote, which nothing replaces.
+	latched       *net.UDPAddr
+	latchedRemote bool
 
-	received, sent, undecrypted atomic.Uint64
+	received, sent, undecrypted, foreign atomic.Uint64
 
 	impair func() (copies int, delay time.Duration)
 }
@@ -143,6 +149,9 @@ func (e *Endpoint) Configure(codec audio.Codec, payloadType int, dtmfType int, r
 	}
 	e.mu.Lock()
 	defer e.mu.Unlock()
+	if e.remote == nil || !sameAddr(e.remote, addr) {
+		e.latched, e.latchedRemote = nil, false
+	}
 	e.codec, e.payloadType, e.dtmfType, e.remote = codec, uint8(payloadType), dtmfType, addr
 	return nil
 }
@@ -173,7 +182,8 @@ func (e *Endpoint) Secure() bool {
 
 // Stats returns the endpoint's counters.
 func (e *Endpoint) Stats() Stats {
-	return Stats{Received: e.received.Load(), Sent: e.sent.Load(), Undecrypted: e.undecrypted.Load()}
+	return Stats{Received: e.received.Load(), Sent: e.sent.Load(), Undecrypted: e.undecrypted.Load(),
+		Foreign: e.foreign.Load()}
 }
 
 // LastPacketAt is when the last RTP packet arrived (for media timeouts).
@@ -188,14 +198,19 @@ func (e *Endpoint) Serve(h Handlers) {
 	buf := make([]byte, 1500)
 	var plain []byte
 	for {
-		n, _, err := e.conn.ReadFromUDP(buf)
+		n, src, err := e.conn.ReadFromUDP(buf)
 		if err != nil {
 			return
 		}
 		data := buf[:n]
 		e.mu.Lock()
 		dec := e.decrypt
+		accept := e.acceptLocked(src)
 		e.mu.Unlock()
+		if !accept {
+			e.foreign.Add(1)
+			continue
+		}
 		if dec != nil {
 			var hdr rtp.Header
 			out, err := dec.DecryptRTP(plain[:0], data, &hdr)
@@ -211,6 +226,7 @@ func (e *Endpoint) Serve(h Handlers) {
 			continue
 		}
 		e.mu.Lock()
+		e.latchLocked(src)
 		e.lastPacket = time.Now()
 		codec, dtmfType, pt := e.codec, e.dtmfType, e.payloadType
 		e.mu.Unlock()
@@ -239,6 +255,34 @@ func (e *Endpoint) Serve(h Handlers) {
 		if h.Audio != nil {
 			h.Audio(codec.Decode(p.Payload))
 		}
+	}
+}
+
+func sameAddr(a, b *net.UDPAddr) bool {
+	return a != nil && b != nil && a.Port == b.Port && a.IP.Equal(b.IP)
+}
+
+// acceptLocked reports whether a packet from src may be processed: before any latch, anything
+// (the packet must still decrypt and parse to latch); after, the latched source, or the
+// configured remote, which takes over from a first-source latch. e.mu must be held.
+func (e *Endpoint) acceptLocked(src *net.UDPAddr) bool {
+	if e.latched == nil || sameAddr(src, e.latched) {
+		return true
+	}
+	return !e.latchedRemote && sameAddr(src, e.remote)
+}
+
+// latchLocked latches to src after a valid packet. e.mu must be held.
+func (e *Endpoint) latchLocked(src *net.UDPAddr) {
+	if e.latchedRemote || src == nil {
+		return
+	}
+	if sameAddr(src, e.remote) {
+		e.latched, e.latchedRemote = src, true
+		return
+	}
+	if e.latched == nil {
+		e.latched = src
 	}
 }
 

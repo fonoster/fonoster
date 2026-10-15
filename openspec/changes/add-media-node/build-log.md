@@ -425,3 +425,15 @@ cutover.
   CANCEL, errors), so sipgo's dialog cache no longer keeps one entry per failed call. Answered
   dialogs still close when they end. `UA.OpenDialogs()` exposes the count for tests.
 - Tests: e2e `TestUnansweredDialogsAreClosed`.
+
+### RV-B8. RTP latches to one source; skips are capped
+- Each RTP endpoint accepts packets from one source: the configured remote (from SDP or the
+  gateway's rtp block) once it sends, otherwise the first source whose packet decrypts and
+  parses (symmetric RTP behind NAT). The configured remote takes over a first-source latch and
+  is never replaced; a new remote (Configure) resets the latch. Other senders are dropped and
+  counted (`Stats.Foreign`).
+- The jitter buffer holds at most 64 skipped sequence numbers (RFC 4733 events and other
+  payload types); past and far-ahead ones are pruned, and beyond the cap a skip is dropped
+  (one concealed frame at worst).
+- Tests: rtpio `TestLatchesToRemoteAndDropsOtherSenders`, `TestLatchesToFirstSourceWithoutRemote`;
+  jitter `TestSkipsAreCapped`.
