@@ -1,4 +1,8 @@
 {{- if .Values.gateway.enabled }}
+{{- $cfg := tpl (toYaml .Values.gateway.config) . | fromYaml }}
+{{- $_ := set $cfg "nats" (merge (default (dict) $cfg.nats) (dict "url" (include "fonoster-rebuild.natsUrl" .))) }}
+{{- /* The media node sends RTP to this pod's IP unless rtp.advertiseHost is set. */}}
+{{- $_ := set $cfg "rtp" (merge (default (dict) $cfg.rtp) (dict "host" "0.0.0.0" "advertiseHostEnv" "POD_IP")) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,9 +11,5 @@ metadata:
     {{- include "fonoster-rebuild.labels" . | nindent 4 }}
 data:
   gateway.yaml: |
-    nats:
-      url: {{ .Values.nats.url | quote }}
-    rtp:
-      host: 0.0.0.0
-    {{- toYaml .Values.gateway.config | nindent 4 }}
+    {{- toYaml $cfg | nindent 4 }}
 {{- end }}

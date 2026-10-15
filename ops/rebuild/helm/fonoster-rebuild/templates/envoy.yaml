@@ -1,0 +1,62 @@
+{{- if .Values.envoy.enabled }}
+{{- $e := .Values.envoy }}
+# gRPC, gRPC-Web, /api and the dashboard on one port: the root config/envoy.yaml (copied to
+# files/envoy.yaml) with this release's service names. TLS terminates in front (ingress or LB).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-envoy
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  envoy.yaml: |
+    {{- .Files.Get "files/envoy.yaml" | replace "address: apiserver" (printf "address: %s-apiserver" .Release.Name) | replace "address: dashboard" (printf "address: %s-dashboard" .Release.Name) | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-envoy
+  labels:
+    app.kubernetes.io/name: envoy
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  replicas: {{ $e.replicas }}
+  selector:
+    matchLabels:
+      {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "envoy") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "envoy") | nindent 8 }}
+      annotations:
+        checksum/config: {{ .Files.Get "files/envoy.yaml" | sha256sum }}
+    spec:
+      containers:
+        - name: envoy
+          image: "{{ $e.image.repository }}:{{ $e.image.tag }}"
+          args: ["-c", "/etc/envoy/envoy.yaml"]
+          ports:
+            - { name: http, containerPort: 8449 }
+          readinessProbe:
+            tcpSocket: { port: http }
+          volumeMounts:
+            - { name: config, mountPath: /etc/envoy, readOnly: true }
+          resources:
+            {{- toYaml $e.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap: { name: {{ .Release.Name }}-envoy }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-envoy
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  type: {{ $e.service.type }}
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "envoy") | nindent 4 }}
+  ports:
+    - { name: http, port: {{ $e.service.port }}, targetPort: http }
+{{- end }}

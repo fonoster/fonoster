@@ -1,0 +1,153 @@
+{{- if .Values.nats.deploy }}
+{{- $n := .Values.nats }}
+# The platform's NATS (JetStream for the session registry KV). Single node: enough to try the
+# platform; use the official nats chart (cluster) for production and set nats.url instead.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-nats
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  nats.conf: |
+    port: 4222
+    http_port: 8222
+    jetstream {
+      store_dir: /data
+    }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-nats
+  labels:
+    app.kubernetes.io/name: nats
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ .Release.Name }}-nats
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "nats") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "nats") | nindent 8 }}
+    spec:
+      containers:
+        - name: nats
+          image: "{{ $n.image.repository }}:{{ $n.image.tag }}"
+          args: ["-c", "/etc/nats/nats.conf"]
+          ports:
+            - { name: client, containerPort: 4222 }
+            - { name: monitor, containerPort: 8222 }
+          readinessProbe:
+            httpGet: { path: /healthz, port: monitor }
+          volumeMounts:
+            - { name: config, mountPath: /etc/nats }
+            - { name: data, mountPath: /data }
+          resources:
+            {{- toYaml $n.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap: { name: {{ .Release.Name }}-nats }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: { requests: { storage: {{ $n.storage | quote }} } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-nats
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "nats") | nindent 4 }}
+  ports:
+    - { name: client, port: 4222, targetPort: client }
+    - { name: monitor, port: 8222, targetPort: monitor }
+{{- end }}
+{{- if .Values.natsRegions.enabled }}
+{{- $h := .Values.natsRegions }}
+---
+# The region hub (add-private-regions): NATS in operator mode where private cells link over an
+# outbound leaf node. Its config comes from `fonoster-region-hub-setup` (region-hub.conf), stored
+# in the Secret `natsRegions.configSecret`; the JWT resolver keeps its state under /data.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-nats-regions
+  labels:
+    app.kubernetes.io/name: nats-regions
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ .Release.Name }}-nats-regions
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "nats-regions") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "nats-regions") | nindent 8 }}
+    spec:
+      containers:
+        - name: nats
+          image: "{{ .Values.nats.image.repository }}:{{ .Values.nats.image.tag }}"
+          args: ["-c", "/etc/nats/region-hub.conf"]
+          ports:
+            - { name: client, containerPort: 4222 }
+            - { name: monitor, containerPort: 8222 }
+            - { name: leaf, containerPort: 7422 }
+          readinessProbe:
+            httpGet: { path: /healthz, port: monitor }
+          volumeMounts:
+            - { name: config, mountPath: /etc/nats, readOnly: true }
+            - { name: data, mountPath: /data }
+            {{- if $h.tlsSecret }}
+            # region-hub.conf's leaf tls { cert_file, key_file } should point here.
+            - { name: tls, mountPath: /certs, readOnly: true }
+            {{- end }}
+      volumes:
+        - name: config
+          secret: { secretName: {{ $h.configSecret | quote }} }
+        {{- if $h.tlsSecret }}
+        - name: tls
+          secret: { secretName: {{ $h.tlsSecret | quote }} }
+        {{- end }}
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: { requests: { storage: {{ $h.storage | quote }} } }
+---
+# Client port for the control plane (in-cluster).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-nats-regions
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "nats-regions") | nindent 4 }}
+  ports:
+    - { name: client, port: 4222, targetPort: client }
+---
+# The leaf port cells dial (outbound from the cell); usually a LoadBalancer.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-nats-regions-leaf
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  type: {{ $h.leafService.type }}
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "nats-regions") | nindent 4 }}
+  ports:
+    - { name: leaf, port: {{ $h.leafService.port }}, targetPort: leaf }
+{{- end }}

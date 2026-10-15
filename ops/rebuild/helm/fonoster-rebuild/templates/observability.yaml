@@ -1,0 +1,141 @@
+{{- if .Values.observability.enabled }}
+{{- $o := .Values.observability }}
+{{- $r := .Release.Name }}
+# The default observability profile (same as Compose's `observability`): an OTel collector that
+# fans out to Tempo (traces), Loki (logs) and Prometheus (metrics), and Grafana with all three.
+# Single-replica and on emptyDir: for trying the platform. To use your own backend, leave this off
+# and set otel.endpoint.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $r }}-observability
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  otel-collector.yaml: |
+    {{- .Files.Get "files/observability/otel-collector.yaml" | replace "tempo:4317" (printf "%s-tempo:4317" $r) | replace "http://loki:" (printf "http://%s-loki:" $r) | replace "http://prometheus:" (printf "http://%s-prometheus:" $r) | nindent 4 }}
+  prometheus.yml: |
+    {{- .Files.Get "files/observability/prometheus.yml" | nindent 4 }}
+  loki.yaml: |
+    {{- .Files.Get "files/observability/loki.yaml" | nindent 4 }}
+  tempo.yaml: |
+    {{- .Files.Get "files/observability/tempo.yaml" | nindent 4 }}
+  datasources.yaml: |
+    {{- .Files.Get "files/observability/grafana-datasources.yaml" | replace "http://tempo:" (printf "http://%s-tempo:" $r) | replace "http://loki:" (printf "http://%s-loki:" $r) | replace "http://prometheus:" (printf "http://%s-prometheus:" $r) | nindent 4 }}
+{{- $components := list
+  (dict "name" "otel-collector" "image" $o.collector.image "args" (list "--config=/etc/obs/otel-collector.yaml") "ports" (list (dict "name" "otlp-http" "port" 4318) (dict "name" "otlp-grpc" "port" 4317)) "data" "")
+  (dict "name" "prometheus" "image" $o.prometheus.image "args" (list "--config.file=/etc/obs/prometheus.yml" "--web.enable-remote-write-receiver" "--storage.tsdb.path=/data") "ports" (list (dict "name" "http" "port" 9090)) "data" "/data")
+  (dict "name" "loki" "image" $o.loki.image "args" (list "-config.file=/etc/obs/loki.yaml") "ports" (list (dict "name" "http" "port" 3100)) "data" "/loki")
+  (dict "name" "tempo" "image" $o.tempo.image "args" (list "-config.file=/etc/obs/tempo.yaml") "ports" (list (dict "name" "http" "port" 3200) (dict "name" "otlp-grpc" "port" 4317)) "data" "/var/tempo")
+}}
+{{- range $c := $components }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $r }}-{{ $c.name }}
+  labels:
+    app.kubernetes.io/name: {{ $c.name }}
+    {{- include "fonoster-rebuild.labels" $ | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fonoster-rebuild.selector" (dict "root" $ "name" $c.name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fonoster-rebuild.selector" (dict "root" $ "name" $c.name) | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ $c.name }}
+          image: {{ $c.image | quote }}
+          args:
+            {{- toYaml $c.args | nindent 12 }}
+          ports:
+            {{- range $p := $c.ports }}
+            - { name: {{ $p.name }}, containerPort: {{ $p.port }} }
+            {{- end }}
+          volumeMounts:
+            - { name: config, mountPath: /etc/obs, readOnly: true }
+            {{- if $c.data }}
+            - { name: data, mountPath: {{ $c.data }} }
+            {{- end }}
+      volumes:
+        - name: config
+          configMap: { name: {{ $r }}-observability }
+        {{- if $c.data }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $r }}-{{ $c.name }}
+  labels:
+    {{- include "fonoster-rebuild.labels" $ | nindent 4 }}
+spec:
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" $c.name) | nindent 4 }}
+  ports:
+    {{- range $p := $c.ports }}
+    - { name: {{ $p.name }}, port: {{ $p.port }}, targetPort: {{ $p.name }} }
+    {{- end }}
+{{- end }}
+{{- if $o.grafana.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $r }}-grafana
+  labels:
+    app.kubernetes.io/name: grafana
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "grafana") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "grafana") | nindent 8 }}
+    spec:
+      containers:
+        - name: grafana
+          image: {{ $o.grafana.image | quote }}
+          env:
+            {{- if $o.grafana.anonymousAdmin }}
+            # Local trials only: anyone reaching Grafana is an admin.
+            - { name: GF_AUTH_ANONYMOUS_ENABLED, value: "true" }
+            - { name: GF_AUTH_ANONYMOUS_ORG_ROLE, value: Admin }
+            {{- end }}
+            {{- if $o.grafana.adminSecret }}
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ $o.grafana.adminSecret | quote }}, key: password } }
+            {{- end }}
+          ports:
+            - { name: http, containerPort: 3000 }
+          volumeMounts:
+            - { name: datasources, mountPath: /etc/grafana/provisioning/datasources, readOnly: true }
+      volumes:
+        - name: datasources
+          configMap:
+            name: {{ $r }}-observability
+            items: [{ key: datasources.yaml, path: datasources.yaml }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $r }}-grafana
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  type: {{ $o.grafana.service.type }}
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "grafana") | nindent 4 }}
+  ports:
+    - { name: http, port: 3000, targetPort: http }
+{{- end }}
+{{- end }}

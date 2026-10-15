@@ -1,0 +1,7 @@
+# The default observability profile: every service exports OTLP to the chart's collector, which
+# feeds Tempo, Loki and Prometheus; Grafana has all three. Combine with any other values file:
+#   helm install fonoster . -f values-cloud.yaml -f values-observability.yaml
+#   kubectl port-forward svc/fonoster-grafana 3000
+# To use your own backend instead, leave this out and set otel.endpoint.
+observability:
+  enabled: true

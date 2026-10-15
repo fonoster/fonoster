@@ -1,10 +1,125 @@
-# NATS is an external dependency (use the official nats chart, or the one your platform runs).
+# Defaults install the data plane only (gateway and media nodes, as in a private cell). For the
+# whole platform with its control plane use values-cloud.yaml:
+#   helm install fonoster . -f values-cloud.yaml
+# and add values-observability.yaml for the default observability profile.
+
+# NATS: an external one (nats.url; e.g. the official nats chart), or deploy: true for a single-node
+# NATS with JetStream in this release (then nats.url is ignored).
 nats:
   url: nats://nats:4222
+  deploy: false
+  image: { repository: nats, tag: 2.11.8-alpine }
+  storage: 2Gi
+  resources: {}
 
-# Telemetry: any OTLP/HTTP endpoint, empty to run without it (services log to stdout).
+# The region hub (add-private-regions; control plane side). Run `fonoster-region-hub-setup <dir>`
+# once, then: kubectl create secret generic fonoster-region-hub-config
+#   --from-file=region-hub.conf=<dir>/region-hub.conf
+# and the apiserver's keys (apiserver.regionHubSecret, region-signing.pem in apiserver.keysSecret).
+natsRegions:
+  enabled: false
+  configSecret: fonoster-region-hub-config
+  # Secret with tls.crt/tls.key mounted at /certs (setup --leaf-tls /certs/tls.crt /certs/tls.key).
+  tlsSecret: ""
+  storage: 1Gi
+  leafService: { type: LoadBalancer, port: 7422 }
+
+# Telemetry: any OTLP/HTTP endpoint, empty to run without it (services log to stdout). Empty with
+# observability.enabled points every service at the chart's collector.
 otel:
   endpoint: ""
+
+# The default observability profile (OTel collector, Prometheus, Loki, Tempo, Grafana). Off by
+# default; values-observability.yaml turns it on. Single replica, emptyDir storage: for trials.
+observability:
+  enabled: false
+  collector: { image: otel/opentelemetry-collector-contrib:0.111.0 }
+  prometheus: { image: prom/prometheus:v2.55.0 }
+  loki: { image: grafana/loki:3.2.0 }
+  tempo: { image: grafana/tempo:2.6.0 }
+  grafana:
+    enabled: true
+    image: grafana/grafana:11.3.0
+    # Anonymous admin, like the Compose profile. Turn off and set adminSecret (key `password`)
+    # anywhere but a laptop or a private cluster.
+    anonymousAdmin: true
+    adminSecret: ""
+    service: { type: ClusterIP }
+
+# secret:// references (D8). Config values may be `secret://env/NAME`, `secret://file/<path>` or
+# `secret://k8s/<secret>#<key>`; the last reads <mountDir>/<secret>/<key>, so list the Secret in the
+# service's secretMounts and the chart mounts it there. YAML and values never hold the raw secret.
+secrets:
+  mountDir: /var/run/fonoster/secrets
+
+# ---- control plane (off by default; values-cloud.yaml turns it on) ----
+
+# The API server with its embedded Identity (no separate Identity deployable, as in Compose).
+apiserver:
+  enabled: false
+  image: { repository: fonoster/apiserver, tag: dev, pullPolicy: IfNotPresent }
+  replicas: 2
+  migrations:
+    # A Job per release revision applies core + Identity migrations and the seed
+    # (`entrypoint --migrate-only`); replicas start with --skip-migrations. false: every replica
+    # migrates at start (Compose behaviour; Prisma serializes them).
+    job: true
+    backoffLimit: 10
+    ttlSecondsAfterFinished: 86400
+  # Existing Secret with Identity's RSA pair: private.pem, public.pem (and region-signing.pem for
+  # private regions). Mounted at /opt/fonoster/keys.
+  keysSecret: fonoster-identity-keys
+  # Existing Secret with fonoster-region-hub-setup's keys/region-hub files, mounted at
+  # /opt/fonoster/keys/region-hub. Empty: no private regions.
+  regionHubSecret: ""
+  # Secrets mounted for secret://k8s/<name>#<key> references in config.
+  secretMounts: []
+  # Rendered as integrations.json (config integrationsFile: /opt/fonoster/integrations.json).
+  integrations: []
+  # fonoster.yaml (config/fonoster.example.yaml documents every key). Rendered with `tpl`, so
+  # {{ .Release.Name }} works. nats.url defaults to the chart's NATS URL.
+  config: {}
+  resources: {}
+
+dashboard:
+  enabled: false
+  image: { repository: fonoster/dashboard, tag: dev, pullPolicy: IfNotPresent }
+  replicas: 1
+  # The API as browsers reach it (Envoy's public URL).
+  publicApiUrl: http://localhost:8449
+  resources: {}
+
+# gRPC, gRPC-Web, /api and the dashboard on one port (8449). Put TLS in front (ingress or LB).
+envoy:
+  enabled: false
+  image: { repository: envoyproxy/envoy, tag: v1.35.0 }
+  replicas: 1
+  service: { type: ClusterIP, port: 8449 }
+  resources: {}
+
+# Dev-grade Postgres and MinIO in the release (single replica). For production set deploy: false
+# and point the configs at managed services through your Secrets.
+postgres:
+  deploy: false
+  image: { repository: postgres, tag: 16.10-alpine3.22 }
+  user: postgres
+  # Existing Secret with the superuser password.
+  existingSecret: fonoster-postgres
+  passwordKey: password
+  storage: 8Gi
+  resources: {}
+
+minio:
+  deploy: false
+  image: { repository: bitnamilegacy/minio, tag: 2025.4.22 }
+  existingSecret: fonoster-minio
+  userKey: rootUser
+  passwordKey: rootPassword
+  buckets: [records]
+  storage: 8Gi
+  resources: {}
+
+# ---- data plane ----
 
 gateway:
   enabled: true
@@ -18,6 +133,12 @@ gateway:
     providers: {}
     # http: { port: 8080, accountSid: "", authToken: "" }
   service: { type: ClusterIP, port: 8080 }
+  # Secrets mounted for secret://k8s/<name>#<key> references in config.
+  secretMounts: []
+  # Existing Secret with the control-plane database URL (`url`) and encryption key (`key`), as
+  # APISERVER_DATABASE_URL / APISERVER_ENCRYPTION_KEY (config `database`). Empty: none, or in a
+  # private cell regionAgent.databaseSecret.
+  databaseSecret: ""
   resources: {}
   podDisruptionBudget: { minAvailable: 1 }
 
@@ -67,6 +188,8 @@ autopilot:
     registry: { source: database }
     workspaceSecrets: { cellSecrets: { dir: /var/lib/fonoster-secrets } }
     database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
+  # Secrets mounted for secret://k8s/<name>#<key> references in config.
+  secretMounts: []
   resources: {}
 
 # A private region's cell (add-private-regions; docs/operators/private-region.md). Off by default.
@@ -90,6 +213,8 @@ regionAgent:
   databaseSecret: fonoster-cell-db
   # Existing Secret with the Autopilot signing secret (key `secret`) for the cell's Autopilot apps.
   autopilotSecret: fonoster-cell-autopilot
+  # Secrets mounted for secret://k8s/<name>#<key> references in config.
+  secretMounts: []
   # Rendered into region-agent.yaml next to dataDir, stateDir, nats, database and cellSecrets.
   config:
     routr:

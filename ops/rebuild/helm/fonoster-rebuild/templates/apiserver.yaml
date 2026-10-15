@@ -1,0 +1,135 @@
+{{- if .Values.apiserver.enabled }}
+{{- $a := .Values.apiserver }}
+{{- $cfg := tpl (toYaml $a.config) . | fromYaml }}
+{{- if not (hasKey $cfg "nats") }}{{- $_ := set $cfg "nats" (dict "url" (include "fonoster-rebuild.natsUrl" .)) }}{{- end }}
+# The API server with its embedded Identity (as in the Compose stack). fonoster.yaml is rendered
+# from apiserver.config; secrets in it are secret:// references (D8), resolved at startup from the
+# Secrets listed in apiserver.secretMounts. Raw secrets never go in values.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-apiserver
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  fonoster.yaml: |
+    {{- toYaml $cfg | nindent 4 }}
+  integrations.json: |
+    {{- toJson $a.integrations | nindent 4 }}
+{{- if $a.migrations.job }}
+---
+# Core and Identity migrations, then the seed, once per release revision. Replicas start with
+# --skip-migrations and keep retrying their queries until it finished.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-apiserver-migrate-{{ .Release.Revision }}
+  labels:
+    app.kubernetes.io/name: apiserver-migrate
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ $a.migrations.backoffLimit }}
+  ttlSecondsAfterFinished: {{ $a.migrations.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: apiserver-migrate
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: "{{ $a.image.repository }}:{{ $a.image.tag }}"
+          imagePullPolicy: {{ $a.image.pullPolicy }}
+          args: ["node", "/work/mods/apiserver/dist/bin/entrypoint.js", "--migrations-root", "/service", "--migrate-only"]
+          env:
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "apiserver-migrate") | nindent 12 }}
+          volumeMounts:
+            {{- include "fonoster-rebuild.apiserverMounts" . | nindent 12 }}
+      volumes:
+        {{- include "fonoster-rebuild.apiserverVolumes" . | nindent 8 }}
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-apiserver
+  labels:
+    app.kubernetes.io/name: apiserver
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  replicas: {{ $a.replicas }}
+  selector:
+    matchLabels:
+      {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "apiserver") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "apiserver") | nindent 8 }}
+      annotations:
+        checksum/config: {{ toYaml $cfg | sha256sum }}
+    spec:
+      containers:
+        - name: apiserver
+          image: "{{ $a.image.repository }}:{{ $a.image.tag }}"
+          imagePullPolicy: {{ $a.image.pullPolicy }}
+          args:
+            - node
+            - /work/mods/apiserver/dist/bin/entrypoint.js
+            - --migrations-root
+            - /service
+            {{- if $a.migrations.job }}
+            - --skip-migrations
+            {{- end }}
+          env:
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "apiserver") | nindent 12 }}
+          ports:
+            - { name: grpc, containerPort: 50051 }
+            - { name: http, containerPort: 9876 }
+          readinessProbe:
+            tcpSocket: { port: grpc }
+            periodSeconds: 5
+          volumeMounts:
+            {{- include "fonoster-rebuild.apiserverMounts" . | nindent 12 }}
+          resources:
+            {{- toYaml $a.resources | nindent 12 }}
+      volumes:
+        {{- include "fonoster-rebuild.apiserverVolumes" . | nindent 8 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-apiserver
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "apiserver") | nindent 4 }}
+  ports:
+    - { name: grpc, port: 50051, targetPort: grpc, appProtocol: kubernetes.io/h2c }
+    - { name: http, port: 9876, targetPort: http }
+{{- end }}
+
+{{- define "fonoster-rebuild.apiserverMounts" -}}
+- { name: config, mountPath: /opt/fonoster/fonoster.yaml, subPath: fonoster.yaml, readOnly: true }
+- { name: config, mountPath: /opt/fonoster/integrations.json, subPath: integrations.json, readOnly: true }
+- { name: keys, mountPath: /opt/fonoster/keys, readOnly: true }
+{{- if .Values.apiserver.regionHubSecret }}
+- { name: region-hub, mountPath: /opt/fonoster/keys/region-hub, readOnly: true }
+{{- end }}
+{{- include "fonoster-rebuild.secretMounts" (dict "root" $ "names" .Values.apiserver.secretMounts) }}
+{{- end }}
+
+{{- define "fonoster-rebuild.apiserverVolumes" -}}
+- name: config
+  configMap: { name: {{ .Release.Name }}-apiserver }
+# Identity's RSA pair (private.pem, public.pem) and, for private regions, region-signing.pem.
+- name: keys
+  secret: { secretName: {{ .Values.apiserver.keysSecret | quote }} }
+{{- if .Values.apiserver.regionHubSecret }}
+# fonoster-region-hub-setup's keys/region-hub/* (operator and REGIONS seeds, creds).
+- name: region-hub
+  secret: { secretName: {{ .Values.apiserver.regionHubSecret | quote }} }
+{{- end }}
+{{- include "fonoster-rebuild.secretVolumes" (dict "root" $ "names" .Values.apiserver.secretMounts) }}
+{{- end }}
