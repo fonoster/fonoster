@@ -25,4 +25,11 @@ cellSecrets:
 autopilot:
   url: ws://autopilot:3000
   signingSecretEnv: AUTOPILOT_SIGNING_SECRET
+# Public connection details reported to the control plane (shown in the dashboard). Unset fields
+# come from EXTERNAL_ADDRS, RB_SIP_PORT, RTPENGINE_PUBLIC_IP and RTPENGINE_PORT_MIN/MAX.
+# endpoints:
+#   sip: [{ host: sip.example.com, port: 5061, transport: tls }]
+#   signalingAddresses: [203.0.113.10]
+#   mediaAddresses: [203.0.113.11]
+#   rtpPorts: { min: 10000, max: 20000 }
 heartbeatMs: 30000

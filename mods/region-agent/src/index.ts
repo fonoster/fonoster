@@ -20,6 +20,7 @@ export * from "./agent";
 export * from "./apply/DatabaseApplier";
 export * from "./apply/RoutrApplier";
 export * from "./config";
+export * from "./endpoints";
 export * from "./enroll";
 export * from "./kube";
 export * from "./relay";

@@ -98,4 +98,11 @@ regionAgent:
       store: { s3: { bucket: records, endpoint: "http://minio:9000", forcePathStyle: true } }
     autopilot:
       url: ws://autopilot:3000
+    # The public connection details carriers and softphones use (region.endpoints; set them, the
+    # pod cannot see the load balancer's address):
+    # endpoints:
+    #   sip: [{ host: sip.example.com, port: 5061, transport: tls }]
+    #   signalingAddresses: [203.0.113.10]
+    #   mediaAddresses: [203.0.113.11]
+    #   rtpPorts: { min: 30000, max: 30199 }
   resources: {}

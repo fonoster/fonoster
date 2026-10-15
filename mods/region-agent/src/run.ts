@@ -31,6 +31,7 @@ import { RegionAgent } from "./agent";
 import { DatabaseApplier } from "./apply/DatabaseApplier";
 import { ensureMediaNodePeer, sdkRoutrPort } from "./apply/RoutrApplier";
 import { AgentConfig, packageVersion } from "./config";
+import { EndpointsOverride, resolveEndpoints } from "./endpoints";
 import { DirIdentityStore, loadIdentity } from "./enroll";
 import { RelayResponder } from "./relay";
 
@@ -164,12 +165,17 @@ export async function runAgent(
     secrets,
     autopilotProbe: config.autopilot
       ? tcpProbe(config.autopilot.url)
-      : undefined
+      : undefined,
+    endpoints: () =>
+      resolveEndpoints(config.endpoints as EndpointsOverride | undefined, env)
   }).start();
 
   (async () => {
     for await (const s of nc.status()) {
-      if (s.type === "reconnect") void agent.requestConfig();
+      if (s.type === "reconnect") {
+        void agent.requestConfig();
+        agent.publishEndpoints(true);
+      }
     }
   })().catch(() => undefined);
 

@@ -73,7 +73,25 @@ export type Heartbeat = {
   activeCalls: number;
   secretsSet: string[];
   configVersion: number;
+  /** Hash of the last `region.endpoints` sent (contract 3); absent when none are known. */
+  endpointsHash?: string;
   at: string;
+};
+
+export type SipEndpoint = {
+  host: string;
+  port: number;
+  transport: "udp" | "tcp" | "tls" | "ws" | "wss";
+};
+
+/** `region.R.endpoints` (cell → cp): public connection details, on connect and on change. */
+export type Endpoints = {
+  type: "region.endpoints";
+  sip: SipEndpoint[];
+  signalingAddresses: string[];
+  mediaAddresses: string[];
+  rtpPorts?: { min: number; max: number };
+  updatedAt: string;
 };
 
 /** Rows as the control plane holds them; the cell takes the fields it knows (RC-B6). */
@@ -150,6 +168,7 @@ export const subjects = (regionRef: string) => ({
   relay: `region.${regionRef}.relay`,
   index: `region.${regionRef}.index`,
   usage: `region.${regionRef}.usage`,
+  endpoints: `region.${regionRef}.endpoints`,
   revoked: `region.${regionRef}.revoked`,
   /** Reply subjects for requests that cross the link (RG-B4): the link client's inboxPrefix. */
   inbox: `region.${regionRef}._INBOX`

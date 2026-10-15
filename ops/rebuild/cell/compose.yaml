@@ -204,6 +204,13 @@ services:
       RB_NODE_PASSWORD: ${RB_NODE_PASSWORD:?set RB_NODE_PASSWORD}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
+      # The cell's public connection details (region.endpoints), from the same settings Routr and
+      # RTPEngine use; override them in region-agent.yaml `endpoints`.
+      EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}
+      RB_SIP_PORT: ${RB_SIP_PORT:-5060}
+      RTPENGINE_PUBLIC_IP: ${RTPENGINE_PUBLIC_IP:-${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}}
+      RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
+      RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10100}
       # For a local control plane on plain nats:// and http:// (testing only).
       FONOSTER_REGION_ALLOW_INSECURE: ${FONOSTER_REGION_ALLOW_INSECURE:-}
     volumes:

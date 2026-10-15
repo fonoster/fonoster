@@ -17,6 +17,7 @@ Autopilot, MinIO and the **region agent** (`fonoster-region`).
 | Heartbeat | Every 30 s: version, media nodes, gateways, Autopilot, active calls, the **names** of the secrets set, and the config version. |
 | Config sync | Applies the control plane's snapshots to the cell: apps, assistants, the provider catalog and webhook endpoints into the cell database; domains, agents, trunks, ACLs and numbers into the cell's Routr. Autopilot apps are pointed at the cell's own Autopilot. |
 | Relay | Answers the dashboard's requests for a record or recording by reading the cell's storage, in chunks. Every read is written to `relay-audit.jsonl` in the cell. |
+| Connection details | Reports the cell's public SIP endpoints (host, port, transport), signaling and media addresses and RTP range on connect and whenever they change; the dashboard shows them (trunk form, SIP settings). Taken from `EXTERNAL_ADDRS`, `RB_SIP_PORT`, `RTPENGINE_PUBLIC_IP` and the RTP range, or set `endpoints` in `region-agent.yaml`. |
 | Index and usage | Forwards each sealed call record's index entry (never contents) and the month's minutes. |
 | Secrets | `fonoster-region secrets set <name>` stores provider keys in the cell. Values never cross the link. |
 

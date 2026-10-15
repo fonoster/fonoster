@@ -192,3 +192,32 @@
   config, and the request is retried every minute.
 - Tests: the cell test's link client uses the prefix and checks the reply subject; a second test
   covers `region.config.paused`.
+
+### RC-B16. Connection details (`region.endpoints`, task 3.6)
+
+- The agent sends `region.R.endpoints` on start, after each NATS reconnect, and whenever the
+  details change (checked before each heartbeat); heartbeats carry `endpointsHash` (sha256 of the
+  canonical fields, 16 hex chars). `updatedAt` is when they last changed.
+- Values: the agent config's `endpoints` (each set field wins), else the environment the cell's
+  services use: `EXTERNAL_ADDRS` (signaling addresses and the SIP host; `ROUTR_SIP_HOST`
+  overrides the host), `ROUTR_SIP_PORT`/`RB_SIP_PORT` (default 5060), `ROUTR_SIP_TRANSPORTS`
+  (default `udp,tcp`), `RTPENGINE_PUBLIC_IP` (else `MEDIANODE_RTP_ADVERTISE`, else
+  `EXTERNAL_ADDRS`) and `RTPENGINE_PORT_MIN/MAX` (else `MEDIANODE_RTP_PORT_MIN/MAX`). Compose
+  passes those to the agent; on Kubernetes set `regionAgent.config.endpoints` (the pod cannot see
+  the load balancer's address). Nothing known: no message, no hash.
+
+### RC-B17. Real round trip against the `ops/rebuild` stack (2026-10-15)
+
+- Control plane: `ops/rebuild/stack up` with the `regions` profile (ports 22xxx). Cell: its own NATS
+  container linked as a leaf to `nats-regions`, the agent on the host, a fresh cell database.
+  Steps and results: `createWorkspace({region: "private"})` returned a token → `enroll` → region
+  `connected` (nodes 1, gateways 1) → creating an app in the workspace reached the cell database
+  (config v1 → v2, catalog entries included) → a `callrecord.sealed` on the cell's NATS was indexed
+  → `GET /api/records/<call>/recording?original=true` streamed 700 KB from the cell byte-for-byte;
+  `GET /api/records/<call>` returned the redacted vCon; the redacted recording answered 403
+  `permission_denied`; four reads in the cell's audit log.
+- Found: the first snapshot requests failed while Routr's API was still starting (the control
+  plane answered "Internal server error" to config requests and heartbeats); the agent's retry
+  covered it. The token's `leaf` is the host's LAN address, which a container on Docker Desktop
+  reaches as `host.docker.internal`.
+

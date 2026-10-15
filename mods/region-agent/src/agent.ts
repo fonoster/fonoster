@@ -23,10 +23,12 @@ import { getLogger } from "@fonoster/logger";
 import { Msg, NatsConnection, StringCodec, Subscription } from "nats";
 import { DatabaseApplier } from "./apply/DatabaseApplier";
 import { RefMap, RoutrApplier, RoutrPort } from "./apply/RoutrApplier";
+import { endpointsHash } from "./endpoints";
 import { RelayResponder } from "./relay";
 import {
   Components,
   ConfigSnapshot,
+  Endpoints,
   Heartbeat,
   RegionIdentity,
   RelayRequest,
@@ -78,6 +80,8 @@ export type RegionAgentOptions = {
   secrets?: CellSecrets.CellSecretStore;
   /** Whether the cell's hosted Autopilot answers. */
   autopilotProbe?: () => Promise<boolean>;
+  /** The cell's public connection details (task 3.6); re-read before each heartbeat. */
+  endpoints?: () => Omit<Endpoints, "type" | "updatedAt"> | undefined;
   now?: () => number;
 };
 
@@ -91,6 +95,7 @@ export class RegionAgent {
   private applying: Promise<unknown> = Promise.resolve();
   private routr?: RoutrApplier;
   private stopped = false;
+  private sentEndpoints?: { hash: string; updatedAt: string };
   /** Set while the control plane pauses config sync (unsupported version). */
   paused?: { reason: string; requiredVersion?: string };
   /** Resolves after each applied (or skipped) snapshot; for tests and logs. */
@@ -206,6 +211,7 @@ export class RegionAgent {
       }, this.options.firstHeartbeatMs ?? 6000)
     );
     this.publishUsage();
+    this.publishEndpoints(true);
     logger.info(
       `region agent for ${this.options.identity.regionRef} started (config v${this.state.configVersion})`
     );
@@ -404,8 +410,34 @@ export class RegionAgent {
     };
   }
 
+  /**
+   * Sends `region.endpoints` when they changed (or always with `force`, e.g. after a reconnect);
+   * returns their hash.
+   */
+  publishEndpoints(force = false): string | undefined {
+    let e: ReturnType<NonNullable<RegionAgentOptions["endpoints"]>>;
+    try {
+      e = this.options.endpoints?.();
+    } catch (err) {
+      logger.warn(`endpoints: ${(err as Error).message}`);
+      return this.sentEndpoints?.hash;
+    }
+    if (!e) return undefined;
+    const hash = endpointsHash(e);
+    if (!force && this.sentEndpoints?.hash === hash) return hash;
+    const updatedAt =
+      this.sentEndpoints?.hash === hash
+        ? this.sentEndpoints.updatedAt
+        : new Date(this.now()).toISOString();
+    this.sentEndpoints = { hash, updatedAt };
+    const message: Endpoints = { type: "region.endpoints", ...e, updatedAt };
+    this.publish(this.subjects.endpoints, message);
+    return hash;
+  }
+
   async heartbeat(): Promise<Heartbeat | undefined> {
     if (this.stopped || this.state.revoked) return undefined;
+    const hash = this.publishEndpoints();
     const { components, activeCalls } = await this.components();
     const beat: Heartbeat = {
       type: "region.heartbeat",
@@ -415,6 +447,7 @@ export class RegionAgent {
       activeCalls,
       secretsSet: this.secretsSet(),
       configVersion: Math.max(0, this.state.configVersion),
+      ...(hash ? { endpointsHash: hash } : {}),
       at: new Date(this.now()).toISOString()
     };
     this.publish(this.subjects.heartbeat, beat);

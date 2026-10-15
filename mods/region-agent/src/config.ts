@@ -95,6 +95,33 @@ export const agentConfigSchema = z
       })
       .strict()
       .optional(),
+    /**
+     * The cell's public connection details (task 3.6). Unset fields come from the environment the
+     * cell's services use (EXTERNAL_ADDRS, ROUTR_SIP_PORT/RB_SIP_PORT, ROUTR_SIP_TRANSPORTS,
+     * RTPENGINE_PUBLIC_IP, RTPENGINE_PORT_MIN/MAX, MEDIANODE_RTP_*).
+     */
+    endpoints: z
+      .object({
+        sip: z
+          .array(
+            z
+              .object({
+                host: z.string(),
+                port: z.number().int().positive(),
+                transport: z.enum(["udp", "tcp", "tls", "ws", "wss"])
+              })
+              .strict()
+          )
+          .optional(),
+        signalingAddresses: z.array(z.string()).optional(),
+        mediaAddresses: z.array(z.string()).optional(),
+        rtpPorts: z
+          .object({ min: z.number().int(), max: z.number().int() })
+          .strict()
+          .optional()
+      })
+      .strict()
+      .optional(),
     heartbeatMs: z.number().int().positive().default(30_000),
     /** Reported version (default: this package's). */
     version: z.string().optional()

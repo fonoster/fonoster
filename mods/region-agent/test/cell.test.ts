@@ -111,7 +111,7 @@ describe("@region-agent private cell against a fake control plane", function () 
         m.respond(sc.encode(JSON.stringify(snapshot(1))));
       }
     });
-    for (const s of ["heartbeat", "index", "usage"])
+    for (const s of ["heartbeat", "index", "usage", "endpoints"])
       nc.subscribe(`region.${R}.${s}`, {
         callback: (_e, m) => (got[s] ??= []).push(JSON.parse(sc.decode(m.data)))
       });
@@ -126,6 +126,14 @@ describe("@region-agent private cell against a fake control plane", function () 
     const audio = randomBytes(900 * 1024);
     await sealRecord(records, "call-1", audio);
     const applied: number[] = [];
+    let endpoints = {
+      sip: [
+        { host: "sip.acme.example", port: 5061, transport: "tls" as const }
+      ],
+      signalingAddresses: ["203.0.113.10"],
+      mediaAddresses: ["203.0.113.11"],
+      rtpPorts: { min: 10000, max: 20000 }
+    };
     agent = new RegionAgent({
       identity,
       nc: cellNc,
@@ -145,7 +153,8 @@ describe("@region-agent private cell against a fake control plane", function () 
         path.join(dir, "relay-audit.jsonl")
       ),
       secrets,
-      autopilotProbe: async () => true
+      autopilotProbe: async () => true,
+      endpoints: () => endpoints
     });
     agent.onApplied = (v) => applied.push(v);
     await agent.start();
@@ -197,6 +206,31 @@ describe("@region-agent private cell against a fake control plane", function () 
       activeCalls: 3,
       secretsSet: ["deepgram"]
     });
+
+    // endpoints (task 3.6): sent on connect, hashed in heartbeats, resent when they change
+    const first = (await waitFor(() => got.endpoints?.[0])) as Record<
+      string,
+      unknown
+    >;
+    expect(first).to.deep.include({
+      type: "region.endpoints",
+      sip: [{ host: "sip.acme.example", port: 5061, transport: "tls" }],
+      signalingAddresses: ["203.0.113.10"]
+    });
+    expect(beat.endpointsHash).to.match(/^[0-9a-f]{16}$/);
+    endpoints = { ...endpoints, signalingAddresses: ["203.0.113.99"] };
+    const changed = (await waitFor(() =>
+      (got.endpoints as Record<string, unknown>[]).find(
+        (e) => (e.signalingAddresses as string[])[0] === "203.0.113.99"
+      )
+    )) as Record<string, unknown>;
+    expect(changed.updatedAt).to.be.a("string");
+    const newer = (await waitFor(() =>
+      (got.heartbeat as Record<string, unknown>[]).find(
+        (h) => h.endpointsHash && h.endpointsHash !== beat.endpointsHash
+      )
+    )) as Record<string, unknown>;
+    expect(newer.endpointsHash).to.be.a("string");
 
     // a pushed snapshot (newer) applies; an older one is ignored
     const s2 = snapshot(2);
