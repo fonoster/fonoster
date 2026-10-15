@@ -53,7 +53,7 @@ export class FakesHarness implements Harness {
   readonly llm = new FakeLlm(this.ledger);
   readonly app: FakeApp;
   readonly mediaNode: FakeMediaNode;
-  private call: Setup["call"] = {};
+  protected call: Setup["call"] = {};
   private mediaServer?: http.Server;
   /** Calls to the fake tool endpoints (`${media}/tool/<name>`). */
   readonly toolCalls: { at: number; name: string }[] = [];

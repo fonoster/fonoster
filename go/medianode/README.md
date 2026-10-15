@@ -1,0 +1,40 @@
+# Fonoster media node (Go)
+
+The media node replaces Asterisk: SIP legs from Routr become **rooms** that mix audio for their
+participants (mix-minus), driven by the VoiceSessionGateway over **media-control** on NATS. Specs:
+`openspec/changes/add-media-node` (media-node and media-control), decisions in its `build-log.md`.
+
+## What this version does
+
+| Area | State |
+| --- | --- |
+| Inbound INVITE, `X-App-Ref` / `X-Call-Ref` / `X-Call-Direction`, `call.incoming` claimed by one gateway (500 ms, one retry, then 503) | done |
+| `ring` (180), `answer` (200 + SDP), `hangup` with `sipStatus`, `room.end`, caller BYE / CANCEL | done |
+| PCMU on SIP legs, L16/16000 for the gateway's session participant, mix-minus every 20 ms | done |
+| RFC 4733 keypresses in and out (`dtmf`, `dtmf.send`) | done |
+| `hold` / `resume` by mixing, hold music from a PCM16 WAV URL | done |
+| `participant.left` / `room.ended` reasons, media timeout (30 s), maximum duration (4 h) | done |
+| `node.heartbeat` every 2 s, drain on SIGTERM, `node.down` | done |
+| REGISTER to Routr with `X-Session-Count` (re-registers on load changes) | done, not yet tried against Routr |
+| `participant.dial`, transfers, listeners, PCMA/G.722/Opus, SIP INFO and in-band DTMF, SRTP | next slices |
+
+## Run
+
+```sh
+cd go/medianode
+go build ./cmd/...
+./medianode -node-id node-a -nats nats://127.0.0.1:4222 -sip 0.0.0.0:5060 \
+  -sip-advertise 10.0.0.5 -rtp-advertise 10.0.0.5 -registrar routr:5060
+```
+
+Every flag also reads an environment variable (`MEDIANODE_ID`, `MEDIANODE_NATS_URL`,
+`MEDIANODE_SIP_LISTEN`, `MEDIANODE_REGISTRAR`, ...); see `cmd/medianode/main.go`.
+
+## Test
+
+- `go test ./...`: unit tests, plus end-to-end tests in `e2e/` when `CONFORMANCE_NATS_URL` is set
+  (a SIP caller bot calls the node; the test plays the gateway).
+- `mods/conformance/test/media-control-go.test.ts`: the media-control scenario files against this
+  node, with the caller bot (`cmd/sipcaller`, an HTTP-driven SIP UA) as the caller.
+- `mods/gateway/test/gonode.test.ts`: the voice-session suite through gateway → this node → caller
+  bot, over real SIP and RTP.

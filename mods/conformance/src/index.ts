@@ -37,3 +37,6 @@ export * from "./runner/repeat";
 export * from "./fakes/FakeWebhookReceiver";
 export * from "./fakes/MediaNodeHarness";
 export * from "./runner/NatsMediaControlPeer";
+export * from "./fakes/ProcessMediaNodeHarness";
+export * from "./fakes/MediaNodeProcess";
+export * from "./fakes/RealMediaHarness";
