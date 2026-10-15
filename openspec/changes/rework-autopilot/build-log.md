@@ -293,3 +293,28 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - Not verified here: the dashboard's `agents.test.tsx` and its TypeScript check do not resolve the
   rebuilt `@fonoster/sdk`/`@fonoster/types` in this worktree (same 37 type errors before and after);
   `agent-form.test.ts` passes.
+
+### EV-B1. Conversation evals run on the session engine (1.4)
+
+- `runSessionEval` / `evaluateSessionScenario` (`mods/autopilot/src/models/evaluations/session`)
+  run each test-case scenario through the real state machine and Agent on an in-memory
+  `EvalSession`: no gateway, socket or audio; each `userInput` goes in as `turn.ended`, every reply
+  is heard in full (no barge-in in an eval). A step ends when the engine records the turn, hangs
+  up, transfers or the model fails, then waits for the session to go quiet.
+- What is compared: the streamed reply as said (sentences joined); for the built-in `hangup` or
+  `transfer`, the goodbye or transfer message, as the legacy evals did. Tool expectations are
+  checked against the structured tool calls in the history (every round of the turn, not just the
+  first). Reports keep the wire shape and add `streaming` (pieces, firstTokenMs, firstSpeakMs) and
+  `toolMessages` (assistant tool calls + tool results), which the gRPC payload ignores.
+- Evals never call tool endpoints: the default eval tool port answers `{ status: "ok" }` for every
+  tool (an eval must not book a real appointment). Callers can pass their own `tools`.
+- A step after the engine ended the call fails with "the call had already ended" (the legacy path
+  kept talking to a model that had hung up). A model failure fails the step with the error and the
+  apology the engine said.
+- `EvaluateIntelligence` uses the session engine for catalog providers that speak OpenAI-compatible
+  Chat Completions with a default endpoint (openai, groq, ollama). google and anthropic stay on the
+  LangChain path until community has adapters for them; that path is the only remaining LangChain
+  user besides the similarity judge (always OpenAI, from `testCases.evalsLanguageModel`).
+- Tests: `mods/autopilot/test/evaluations/sessionEval.test.ts` (FakeLlm via `FakesHarness`:
+  streamed sentences + history, EXACT/SIMILAR failures, tool calls and tool messages, hangup then
+  ended call, provider failure, provider routing).
