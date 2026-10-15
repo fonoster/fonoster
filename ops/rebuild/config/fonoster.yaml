@@ -25,7 +25,6 @@ callRecords:
         endpoint: http://minio:9000
         forcePathStyle: true
         credentials: { accessKeyId: minio, secretAccessKey: change-me-please }
-integrationsFile: /opt/fonoster/integrations.json
 identity:
   database: { url: "postgresql://postgres:change-me@postgres:5432/fnidentity" }
   audience: api

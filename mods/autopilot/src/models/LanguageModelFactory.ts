@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LanguageModelProvider } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Voice } from "../voice";
 import { AbstractLanguageModel } from "./AbstractLanguageModel";
@@ -52,11 +51,11 @@ type LanguageModelConstructor<T extends BaseModelParams = BaseModelParams> =
   ) => AbstractLanguageModel;
 
 type LanguageModelConfigMap = {
-  [LanguageModelProvider.OPENAI]: OpenAIParams;
-  [LanguageModelProvider.GROQ]: GroqParams;
-  [LanguageModelProvider.OLLAMA]: OllamaParams;
-  [LanguageModelProvider.GOOGLE]: GoogleParams;
-  [LanguageModelProvider.ANTHROPIC]: AnthropicParams;
+  openai: OpenAIParams;
+  groq: GroqParams;
+  ollama: OllamaParams;
+  google: GoogleParams;
+  anthropic: AnthropicParams;
 };
 
 class LanguageModelFactory {

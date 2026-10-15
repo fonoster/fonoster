@@ -39,7 +39,8 @@ type IntegrationsConfig = Array<{
 }>;
 
 /**
- * Reads and validates the integrations file (shared by apiserver and autopilot).
+ * Reads and validates the retired integrations file. Only `fonoster-migrate-legacy --integrations`
+ * reads it now, to move its keys into operator config by credentialRef (add-provider-registry 5.3).
  * YAML (`.yaml`/`.yml`) or JSON with comments (`.json`/`.jsonc`). Throws with the
  * file path when the file can't be read or doesn't validate.
  */

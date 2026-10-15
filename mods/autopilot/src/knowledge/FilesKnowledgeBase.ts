@@ -21,7 +21,7 @@ import { Embeddings } from "@langchain/core/embeddings";
 import { AbstractKnowledgeBase } from "./AbstractKnowledgeBase";
 
 class FilesKnowledgeBase extends AbstractKnowledgeBase {
-  constructor(private params: { embeddings?: Embeddings; files: string[] }) {
+  constructor(private params: { embeddings: Embeddings; files: string[] }) {
     super(params);
     this.params = params;
   }

@@ -81,7 +81,6 @@ jobs:
       - name: Starting services for integration tests
         run: |
           npm run generate:keypair
-          cp config/integrations.example.json config/integrations.json
           cp .env.example .env
           echo "" >> .env
           echo "DOCKER_HOST_ADDRESS=127.0.0.1" >> .env

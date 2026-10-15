@@ -24,11 +24,10 @@ the image, so one image serves Community and Cloud.
 cp .env.example .env                                   # third-party containers; set the host IP and DASHBOARD_API_URL
 cp config/fonoster.example.yaml config/fonoster.yaml   # API server
 cp config/autopilot-session.example.yaml config/autopilot-session.yaml # Autopilot
-cp config/integrations.example.json config/integrations.json
 mkdir -p config/keys                                   # signing keys for tokens
 openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:2048 -out config/keys/private.pem
 openssl rsa -in config/keys/private.pem -pubout -out config/keys/public.pem
-chmod 600 config/fonoster.yaml config/autopilot-session.yaml config/integrations.json
+chmod 600 config/fonoster.yaml config/autopilot-session.yaml
 docker compose up -d
 ```
 
@@ -135,7 +134,7 @@ Variables not listed here (`ROUTR_*`, `RTPENGINE_*`, `POSTGRES_*`,
 | `APISERVER_NATS_URL` | `nats.url` |
 | `APISERVER_INFLUXDB_URL` | `influxdb.url` |
 | `APISERVER_INFLUXDB_INIT_ORG / _USERNAME / _PASSWORD / _TOKEN` | `influxdb.org / username / password / token (reference ${INFLUXDB_INIT_*})` |
-| `APISERVER_INTEGRATIONS_FILE` | `integrationsFile` |
+| `APISERVER_INTEGRATIONS_FILE` | Removed: vendor keys are operator config by credentialRef (`evaluations.credentials`, the gateway's and Autopilot's `credentials`); `fonoster-migrate-legacy --integrations` converts the old file |
 | `APISERVER_TEMPLATES_DIR` | `templatesDir` |
 | `APISERVER_TWILIO_PHONE_NUMBER / _ACCOUNT_SID / _AUTH_TOKEN` | `twilio.phoneNumber / accountSid / authToken` |
 | `APISERVER_IDENTITY_DATABASE_URL` | `identity.database.url (optional; defaults to database.url)` |
@@ -174,11 +173,6 @@ The previous Autopilot engine and its `autopilot.yaml` are gone. The hosted engi
   unset so they follow `appUrl` (`<appUrl>/invites`), and make `appUrl` the
   dashboard's public URL.
 - **The owner password needs 8+ characters** (`identity.owner.password`).
-- **Autopilot's defaults are for development.** Copy `autopilot.example.yaml`
-  rather than relying on them: without a file, `conversation.provider` is `file`
-  and `recordings.baseUrl` points at localhost. Self-hosted installs set
-  `server.identityAddress` to their own API's address; it defaults to
-  `api.fonoster.com`, as it did before.
 - **The dashboard needs `DASHBOARD_API_URL`** at run time (the API's public URL,
   as the browser reaches it). Its old build arguments are gone. Users sign in
   again after the upgrade.

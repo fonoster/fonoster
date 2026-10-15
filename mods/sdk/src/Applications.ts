@@ -87,28 +87,14 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  * const request = {
  *   name: "My application",
  *   type: "EXTERNAL",
- *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
- *   speechToText: {
- *     productRef: "stt.deepgram",
- *     config: {
- *       model: "nova-2",
- *       languageCode: "en-US"
- *     }
- *   },
- *   textToSpeech: {
- *     productRef: "tts.elevenlabs",
- *     config: {
- *       voice: "lrTWbMInQjSJ9q5ywFKP"
- *     }
- *   }
+ *   url: "wss://bot.example.com/session", // Serves the session protocol (@fonoster/voice)
+ *   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
  * };
  *
  * main(request);
  */
-/** Nested messages of create and update requests (the session app model and legacy products). */
+/** Nested messages of create and update requests (the session app model). */
 const REQUEST_OBJECTS: [string, unknown][] = [
-  ["textToSpeech", ProductContainerPB],
-  ["speechToText", ProductContainerPB],
   ["intelligence", ProductContainerPB],
   ["speech", SpeechDefaultsPB],
   ["audio", AudioFormatPB],
@@ -144,15 +130,8 @@ class Applications {
    * @param {string} request.name - The name of the application
    * @param {ApplicationType} request.type - The type of application (e.g., EXTERNAL)
    * @param {string} request.endpoint - The endpoint where the application is hosted
-   * @param {SpeechToText} request.speechToText - The speech-to-text configuration
-   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.deepgram)
-   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" })
-   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
-   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.elevenlabs)
-   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" })
    * @param {Intelligence} request.intelligence - The intelligence configuration
-   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
-   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
+   * @param {object} request.intelligence.config - Autopilot apps: the assistant (a session assistant; its model is a catalog id such as openai/gpt-4o-mini)
    * @return {Promise<CreateAppResponse>} - The response object that contains the reference to the newly created application
    * @example
    * const apps = new SDK.Applications(client); // Existing client object
@@ -160,19 +139,8 @@ class Applications {
    * const request = {
    *   name: "My application",
    *   type: "EXTERNAL",
-   *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
-   *   speechToText: {
-   *     productRef: "stt.deepgram",
-   *     config: {
-   *       languageCode: "en-US"
-   *     }
-   *   },
-   *   textToSpeech: {
-   *     productRef: "tts.elevenlabs",
-   *     config: {
-   *       voice: "lrTWbMInQjSJ9q5ywFKP"
-   *     }
-   *   }
+   *   url: "wss://bot.example.com/session",
+   *   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
    * };
    *
    * apps
@@ -230,11 +198,7 @@ class Applications {
       metadata: this.client.getMetadata(),
       request: { ref },
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [
-        ["textToSpeech", ProductContainerPB],
-        ["speechToText", ProductContainerPB],
-        ["intelligence", ProductContainerPB]
-      ]
+      objectMapping: [["intelligence", ProductContainerPB]]
     });
 
     return withSessionFields(buildStructOverrideReverse(response));
@@ -247,15 +211,8 @@ class Applications {
    * @param {string} request.ref - The reference of the application to update
    * @param {string} request.name - The name of the application
    * @param {string} request.endpoint - The endpoint where the application is hosted
-   * @param {SpeechToText} request.speechToText - The speech-to-text configuration
-   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.deepgram)
-   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" })
-   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
-   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.elevenlabs)
-   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" })
    * @param {Intelligence} request.intelligence - The intelligence configuration
-   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
-   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
+   * @param {object} request.intelligence.config - Autopilot apps: the assistant (a session assistant; its model is a catalog id such as openai/gpt-4o-mini)
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated application
    * @example
    * const apps = new SDK.Applications(client); // Existing client object
@@ -263,7 +220,7 @@ class Applications {
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "My application",
-   *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
+   *   url: "wss://bot.example.com/session"
    * };
    *
    * apps
@@ -327,11 +284,7 @@ class Applications {
       metadata: this.client.getMetadata(),
       request,
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [
-        ["speechToText", ProductContainerPB],
-        ["textToSpeech", ProductContainerPB],
-        ["intelligence", ProductContainerPB]
-      ],
+      objectMapping: [["intelligence", ProductContainerPB]],
       repeatableObjectMapping: [["itemsList", ApplicationPB]]
     });
 
@@ -402,8 +355,7 @@ class Applications {
    * Evaluates the intelligence of an application.
    *
    * @param {EvaluateIntelligenceRequest} request - The request object that contains the necessary information to evaluate the intelligence of an application
-   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
-   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
+   * @param {object} request.intelligence.config - Autopilot apps: the assistant (a session assistant; its model is a catalog id such as openai/gpt-4o-mini)
    * @return {AsyncGenerator<EvaluateIntelligenceEvent>} - Stream of evaluation events (step results, scenario summaries, or errors)
    * @example
    * const apps = new SDK.Applications(client);

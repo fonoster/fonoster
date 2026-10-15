@@ -21,8 +21,8 @@ import { toolSchema } from "./tools";
 
 // The assistant config for the rebuilt Autopilot (rework-autopilot A8, A11, A12; tasks 5.1, 5.2,
 // 5.4). Strict: vendor credentials, vendor enums, VAD settings and the assistant webhook are
-// rejected with messages pointing to where they moved. The legacy assistantSchema stays for the
-// current Autopilot until the cutover converts stored assistants (convertLegacyAssistant).
+// rejected with messages pointing to where they moved. It is the only assistant schema: the legacy
+// one was deleted after the cutover job converts stored assistants (rework-autopilot 8.2).
 
 const removed = (key: string, message: string) =>
   z

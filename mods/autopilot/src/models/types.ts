@@ -16,11 +16,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  SessionConversationSettings,
+  SessionLanguageModel,
+  testCasesSchema
+} from "@fonoster/common";
 import { CallDirection } from "@fonoster/types";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ToolCall } from "@langchain/core/messages/tool";
 import { KnowledgeBase } from "../knowledge";
 import { Tool } from "../tools/types";
+import { z } from "zod";
+
+/** The language model vendors the LangChain models (used by the evaluations only) implement. */
+type LlmProvider = "openai" | "groq" | "ollama" | "google" | "anthropic";
+
+/**
+ * A session assistant as the evaluations run it (rework-autopilot 8.2): the catalog id split into
+ * provider and model, and the keys the control plane resolved for this run. Never stored.
+ */
+type EvalAssistant = {
+  conversationSettings: SessionConversationSettings;
+  languageModel: Omit<
+    SessionLanguageModel,
+    "model" | "provider" | "apiKey" | "baseUrl"
+  > & {
+    provider: LlmProvider;
+    model: string;
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  testCases?: z.infer<typeof testCasesSchema>;
+};
 
 type LanguageModel = {
   invoke: (text: string, isReentry?: boolean) => Promise<InvocationResult>;
@@ -55,6 +82,8 @@ type TelephonyContext = {
 
 export {
   BaseModelParams,
+  EvalAssistant,
+  LlmProvider,
   InvocationResult,
   LanguageModel,
   LanguageModelParams,

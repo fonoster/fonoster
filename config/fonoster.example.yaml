@@ -102,8 +102,12 @@ influxdb:                                        # call records
 #         endpoint: http://minio:9000
 #         credentials: { accessKeyId: ${RECORDS_S3_KEY}, secretAccessKey: ${RECORDS_S3_SECRET} }
 
-# Speech provider credentials, shared with Autopilot (JSON or YAML).
-integrationsFile: /opt/fonoster/integrations.json
+# Platform model keys for assistant evaluations, by credentialRef (secret:// references work).
+# A workspace's own vendor key wins. `fonoster-migrate-legacy --integrations` writes them from the
+# retired integrations.json.
+# evaluations:
+#   credentials:
+#     openai-default: ${OPENAI_API_KEY}
 
 # SMS for phone verification (needed when identity.security asks for it).
 # twilio:

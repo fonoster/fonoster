@@ -24,7 +24,7 @@ type KnowledgeBase = {
 };
 
 type S3KnowledgeBaseParams = {
-  embeddings?: Embeddings;
+  embeddings: Embeddings;
   bucket: string;
   documents: string[];
   s3Config: {

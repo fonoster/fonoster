@@ -14,8 +14,6 @@ metadata:
 data:
   fonoster.yaml: |
     {{- toYaml $cfg | nindent 4 }}
-  integrations.json: |
-    {{- toJson $a.integrations | nindent 4 }}
 {{- if $a.migrations.job }}
 ---
 # Core and Identity migrations, then the seed, once per release revision. Replicas start with
@@ -112,7 +110,6 @@ spec:
 
 {{- define "fonoster-rebuild.apiserverMounts" -}}
 - { name: config, mountPath: /opt/fonoster/fonoster.yaml, subPath: fonoster.yaml, readOnly: true }
-- { name: config, mountPath: /opt/fonoster/integrations.json, subPath: integrations.json, readOnly: true }
 - { name: keys, mountPath: /opt/fonoster/keys, readOnly: true }
 {{- if .Values.apiserver.regionHubSecret }}
 - { name: region-hub, mountPath: /opt/fonoster/keys/region-hub, readOnly: true }

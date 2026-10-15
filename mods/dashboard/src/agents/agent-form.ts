@@ -19,8 +19,8 @@
 /**
  * The agent editor's form values, their validation, and the mapping to and
  * from the API's Application. Validation copies the rules of
- * @fonoster/common's assistantSchema (common/src/assistants), which can't be
- * imported into the browser bundle.
+ * @fonoster/common's sessionAssistantSchema (common/src/assistants), which
+ * can't be imported into the browser bundle.
  */
 import type {
   Application,
@@ -33,15 +33,11 @@ import { MULTILINGUAL_MODELS, type LlmProvider } from "./catalog";
 const POSITIVE = "Must be a positive number";
 const NUMBER = "Enter a number";
 const VALID_URL = "Must be a valid URL";
-const BETWEEN_0_AND_1 = "Must be a number between 0 and 1";
 const BETWEEN_0_AND_2 = "Must be a number between 0 and 2";
 
 const num = () => z.number({ invalid_type_error: NUMBER });
 const positiveInt = () => num().int(POSITIVE).positive(POSITIVE);
 const positive = () => num().positive(POSITIVE);
-const ratio = () => num().gt(0, BETWEEN_0_AND_1).max(1, BETWEEN_0_AND_1);
-
-export const EVENTS = ["conversation.started", "conversation.ended"] as const;
 
 /** Function names the language model providers accept. */
 const TOOL_NAME = /^[a-zA-Z0-9_-]{1,64}$/;
@@ -137,9 +133,6 @@ export const agentSchema = z
         .trim()
         .regex(/^[0-9*#]*$/, "Must be a valid DTMF"),
       maxSessionMinutes: positive(),
-      maxSpeechWaitTimeout: num()
-        .int(POSITIVE)
-        .gte(0, "Must be a number greater than or equal to 0"),
       allowUserBargeIn: z.boolean(),
       idleMessage: z.string(),
       idleTimeoutSeconds: positive(),
@@ -148,31 +141,15 @@ export const agentSchema = z
         .string()
         .trim()
         .regex(/^\+?[0-9 ()-]*$/, "Use a phone number like +18095550100"),
-      transferMessage: z.string(),
-      vad: z.object({
-        activationThreshold: ratio(),
-        deactivationThreshold: ratio(),
-        debounceFrames: positiveInt()
-      })
+      transferMessage: z.string()
     }),
     model: z.object({
       provider: z.enum(["openai", "groq", "google", "anthropic", "ollama"]),
       model: z.string().trim().min(1, "Pick a model"),
       temperature: num().min(0, BETWEEN_0_AND_2).max(2, BETWEEN_0_AND_2),
-      maxTokens: positiveInt(),
-      baseUrl: z.union([z.literal(""), z.string().trim().url(VALID_URL)])
+      maxTokens: positiveInt()
     }),
-    tools: z.array(toolSchema),
-    audioFilters: z.array(
-      z.object({
-        name: z.string().min(1, "An audio filter name is required"),
-        options: z.record(z.unknown())
-      })
-    ),
-    eventsHook: z.object({
-      url: z.union([z.literal(""), z.string().trim().url(VALID_URL)]),
-      events: z.array(z.enum(EVENTS))
-    })
+    tools: z.array(toolSchema)
   })
   .superRefine((values, ctx) => {
     if (
@@ -200,21 +177,17 @@ export type AgentValues = z.infer<typeof agentSchema>;
 export type ToolValues = AgentValues["tools"][number];
 export type ParameterValues = ToolValues["parameters"][number];
 
-// Defaults of common/src/assistants/conversationSettingsSchema.ts.
+// Defaults of common/src/assistants/sessionAssistantSchema.ts.
 export const DEFAULTS = {
   maxSessionDuration: 30 * 60 * 1000,
-  maxSpeechWaitTimeout: 0,
   idleTimeout: 30000,
   idleMaxTimeoutCount: 2,
-  transferTimeout: 30000,
-  vad: {
-    activationThreshold: 0.4,
-    deactivationThreshold: 0.25,
-    debounceFrames: 4
-  },
   temperature: 0.4,
   maxTokens: 300
 };
+
+/** The app's default voice when it names none (the API's DEFAULT_VOICE). */
+const DEFAULT_VOICE = "deepgram/aura-2-thalia-en";
 
 export const EMPTY_TOOL: ToolValues = {
   name: "",
@@ -274,46 +247,29 @@ function toolToValues(raw: unknown): ToolValues {
 
 /** The editor's values for a saved agent; missing settings get defaults. */
 export function toValues(app: Application): AgentValues {
-  const tts = app.textToSpeech;
-  const stt = obj(app.speechToText?.config);
   const config = obj(app.intelligence?.config);
   // The session app model (CP-B13): catalog ids on the app's speech defaults.
   const speech = obj(app.speech);
-  const [voiceVendor, ...voiceRest] = str(speech.voice).split("/");
+  const [voiceVendor, ...voiceRest] = (
+    str(speech.voice) || DEFAULT_VOICE
+  ).split("/");
   const sttModel = str(speech.sttModel).split("/").slice(1).join("/");
   const conversation = obj(config.conversationSettings);
   const idle = obj(conversation.idleOptions);
   const transfer = obj(conversation.transferOptions);
-  const vad = obj(conversation.vad);
   const languageModel = obj(config.languageModel);
-  const eventsHook = obj(config.eventsHook);
-  const events = Array.isArray(eventsHook.events)
-    ? (eventsHook.events as string[])
-    : [];
   const [modelVendor, ...modelRest] = str(languageModel.model).split("/");
-  const catalogModel = modelRest.length > 0;
-  const provider = (
-    catalogModel ? modelVendor : str(languageModel.provider, "openai")
-  ) as LlmProvider;
 
   return {
     name: app.name ?? "",
-    tts: voiceRest.length
-      ? {
-          productRef:
-            voiceVendor === "elevenlabs" ? "tts.elevenlabs" : "tts.deepgram",
-          voice: voiceRest.join("/")
-        }
-      : {
-          productRef:
-            tts?.productRef === "tts.elevenlabs"
-              ? "tts.elevenlabs"
-              : "tts.deepgram",
-          voice: str(obj(tts?.config).voice)
-        },
+    tts: {
+      productRef:
+        voiceVendor === "elevenlabs" ? "tts.elevenlabs" : "tts.deepgram",
+      voice: voiceRest.join("/")
+    },
     stt: {
-      model: sttModel || str(stt.model, "nova-3"),
-      languageCode: str(speech.language) || str(stt.languageCode, "en-US")
+      model: sttModel || "nova-3",
+      languageCode: str(speech.language, "en-US")
     },
     conversation: {
       firstMessage: str(conversation.firstMessage),
@@ -324,10 +280,6 @@ export function toValues(app: Application): AgentValues {
       maxSessionMinutes:
         numOr(conversation.maxSessionDuration, DEFAULTS.maxSessionDuration) /
         60000,
-      maxSpeechWaitTimeout: numOr(
-        conversation.maxSpeechWaitTimeout,
-        DEFAULTS.maxSpeechWaitTimeout
-      ),
       allowUserBargeIn: conversation.allowUserBargeIn !== false,
       idleMessage: str(idle.message),
       idleTimeoutSeconds: numOr(idle.timeout, DEFAULTS.idleTimeout) / 1000,
@@ -336,41 +288,17 @@ export function toValues(app: Application): AgentValues {
         DEFAULTS.idleMaxTimeoutCount
       ),
       transferPhoneNumber: str(transfer.phoneNumber),
-      transferMessage: str(transfer.message),
-      vad: {
-        activationThreshold: numOr(
-          vad.activationThreshold,
-          DEFAULTS.vad.activationThreshold
-        ),
-        deactivationThreshold: numOr(
-          vad.deactivationThreshold,
-          DEFAULTS.vad.deactivationThreshold
-        ),
-        debounceFrames: numOr(vad.debounceFrames, DEFAULTS.vad.debounceFrames)
-      }
+      transferMessage: str(transfer.message)
     },
     model: {
-      provider,
-      model: catalogModel ? modelRest.join("/") : str(languageModel.model),
+      provider: (modelRest.length ? modelVendor : "openai") as LlmProvider,
+      model: modelRest.join("/"),
       temperature: numOr(languageModel.temperature, DEFAULTS.temperature),
-      maxTokens: numOr(languageModel.maxTokens, DEFAULTS.maxTokens),
-      baseUrl: str(languageModel.baseUrl)
+      maxTokens: numOr(languageModel.maxTokens, DEFAULTS.maxTokens)
     },
     tools: Array.isArray(languageModel.tools)
       ? languageModel.tools.map(toolToValues)
-      : [],
-    audioFilters: Array.isArray(config.audioFilters)
-      ? config.audioFilters.map((filter) => ({
-          name: str(obj(filter).name),
-          options: obj(obj(filter).options)
-        }))
-      : [],
-    eventsHook: {
-      url: str(eventsHook.url),
-      events: events.includes("all")
-        ? [...EVENTS]
-        : EVENTS.filter((event) => events.includes(event))
-    }
+      : []
   };
 }
 
@@ -422,16 +350,13 @@ function toolToConfig(tool: ToolValues) {
 
 /**
  * The create/update payload. Settings the editor doesn't show (test cases,
- * knowledge base, webhook headers, VAD model path…) are carried over from
- * `base`, the agent as last saved.
+ * knowledge base) are carried over from `base`, the agent as last saved.
  */
 export function toRequest(
   values: AgentValues,
   base?: Application
 ): CreateApplicationRequest {
   // The session assistant (sessionAssistantSchema, CP-B13): strict, so only its keys are sent.
-  // VAD, the speech wait timeout, audio filters, the events webhook and per-agent base URLs
-  // moved out of the assistant (turn-taking, app filters, workspace webhooks, the registry).
   const previous = obj(base?.intelligence?.config);
   const previousModel = obj(previous.languageModel);
   const c = values.conversation;
@@ -543,6 +468,5 @@ export function tabsWithErrors(errors: object): string[] {
     if (!onConfigure.includes(key)) tabs.add("advanced");
   }
   if (e.tools) tabs.add("tools");
-  if (e.audioFilters || e.eventsHook) tabs.add("advanced");
   return [...tabs];
 }

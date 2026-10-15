@@ -109,6 +109,15 @@ const registrySchema = z
   .default({});
 
 /**
+ * Assistant evaluations (EvaluateIntelligence): platform model keys by credentialRef, used when a
+ * workspace has no key of its own for the provider. Values take `secret://` references (D8).
+ * `fonoster-migrate-legacy --integrations` writes them from the retired integrations.json.
+ */
+const evaluationsSchema = z
+  .object({ credentials: z.record(z.string().min(1)).default({}) })
+  .default({});
+
+/**
  * Workspace webhooks fan-out (add-workspace-webhooks 2.2): events producers publish on the bus
  * (`webhooks.events`) are delivered from here.
  */
@@ -260,7 +269,7 @@ const fonosterConfigSchema = z
       password: z.string().min(1),
       token: z.string().min(1)
     }),
-    integrationsFile: z.string().default("/opt/fonoster/integrations.json"),
+    evaluations: evaluationsSchema,
     templatesDir: z.string().optional(),
     twilio: twilioSchema.optional(),
     identity: identitySectionSchema,
@@ -360,7 +369,9 @@ const MOVED_KEYS = {
   tokens: "identity.tokens",
   oauth2: "identity.oauth2",
   "smtp.auth": "smtp.user and smtp.password",
-  owner: "identity.owner"
+  owner: "identity.owner",
+  integrationsFile:
+    "evaluations.credentials (run fonoster-migrate-legacy --integrations once)"
 };
 
 export {

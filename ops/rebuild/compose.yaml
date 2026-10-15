@@ -262,7 +262,6 @@ services:
     volumes:
       - ${RB_CONFIG_DIR:-./config}/fonoster.yaml:/opt/fonoster/fonoster.yaml:ro
       - ${RB_CONFIG_DIR:-./config}/keys:/opt/fonoster/keys:ro
-      - ${RB_CONFIG_DIR:-./config}/integrations.json:/opt/fonoster/integrations.json:ro
     expose:
       - 50051
       - 9876

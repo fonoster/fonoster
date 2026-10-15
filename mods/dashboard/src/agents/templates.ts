@@ -181,24 +181,19 @@ export function templateValues(
       systemErrorMessage: copy.systemErrorMessage,
       initialDtmf: "",
       maxSessionMinutes: DEFAULTS.maxSessionDuration / 60000,
-      maxSpeechWaitTimeout: DEFAULTS.maxSpeechWaitTimeout,
       allowUserBargeIn: true,
       idleMessage: copy.idleMessage,
       idleTimeoutSeconds: 10,
       idleMaxTimeoutCount: 3,
       transferPhoneNumber: "",
-      transferMessage: copy.transferMessage,
-      vad: { ...DEFAULTS.vad }
+      transferMessage: copy.transferMessage
     },
     model: {
       provider: "openai",
       model: "gpt-4o-mini",
       temperature: DEFAULTS.temperature,
-      maxTokens: DEFAULTS.maxTokens,
-      baseUrl: ""
+      maxTokens: DEFAULTS.maxTokens
     },
-    tools: [],
-    audioFilters: [],
-    eventsHook: { url: "", events: [] }
+    tools: []
   };
 }

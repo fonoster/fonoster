@@ -66,14 +66,6 @@ type Application = SessionAppFields & {
   /** The last characters of the signing secret; the secret itself is never read back. */
   signingSecretHint?: string;
   endpoint?: string;
-  textToSpeech?: {
-    productRef: string;
-    config: Record<string, unknown>;
-  };
-  speechToText?: {
-    productRef: string;
-    config: Record<string, unknown>;
-  };
   intelligence?: {
     productRef: string;
     config: Record<string, unknown>;
@@ -86,18 +78,9 @@ type CreateApplicationRequest = SessionAppFields & {
   name: string;
   type: ApplicationType;
   endpoint?: string;
-  textToSpeech?: {
-    productRef: string;
-    config: Record<string, unknown>;
-  };
-  speechToText?: {
-    productRef: string;
-    config: Record<string, unknown>;
-  };
   /** Autopilot apps: the assistant (sessionAssistantSchema); productRef is derived from its model. */
   intelligence?: {
     productRef?: string;
-    credentials?: Record<string, unknown>;
     config: Record<string, unknown>;
   };
 };
@@ -132,7 +115,9 @@ type ListApplicationsResponse = ListResponse<Application>;
 
 type EvaluateIntelligenceRequest = {
   intelligence: {
-    productRef: string;
+    /** Ignored: the assistant's catalog id names the provider. */
+    productRef?: string;
+    /** A session assistant with testCases. */
     config: Record<string, unknown>;
   };
 };

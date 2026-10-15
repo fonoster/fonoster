@@ -23,7 +23,6 @@ services:
     volumes:
       - ./config/fonoster.yaml:/opt/fonoster/fonoster.yaml:ro
       - ./config/keys:/opt/fonoster/keys:ro
-      - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   # The hosted Autopilot session engine: a session app the gateway dials. It reads
   # config/autopilot-session.yaml only; scale replicas freely.

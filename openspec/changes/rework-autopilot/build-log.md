@@ -263,3 +263,33 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   default voice).
 - Tests: `mods/apiserver/test/migration/migrateLegacy.test.ts` on a throwaway Postgres (dry run,
   apply, idempotent re-run, key conflict, hosted Autopilot reads the converted assistant).
+
+### LG-B4. The legacy assistant schema is gone (8.2)
+
+- Deleted from `@fonoster/common`: `assistantSchema`, `conversationSettingsSchema`,
+  `languageModelConfigSchema`, `LanguageModelProvider`, `eventsHookSchema`, `audioFiltersSchema`
+  (the gateway has its own filter type) and `findIntegrationsCredentials`. `testCasesSchema` is now
+  exported (the evaluations validate test cases with it). `sendConversation*Event` was already gone
+  (CB-B5); nothing in the dashboard, SDK or ctl referenced it.
+- Deleted from Autopilot: the legacy loaders and types (`assistants/`, `types.ts`) and `envs.ts`
+  (the old `autopilot.yaml` with `integrationsFile` and knowledge-base keys);
+  `config/autopilot.example.yaml` and `config/integrations.example.json` went with them. Knowledge
+  bases now always get their embeddings from the caller (the hosted Autopilot resolves the key by
+  credentialRef).
+- Evaluations take session assistants. `createEvaluateIntelligence(keys)` splits the catalog id
+  into provider and model for the LangChain models (an internal `EvalAssistant`, never stored) and
+  asks `keys(provider, workspace)` for the model and the OpenAI evaluation keys. The apiserver's
+  keys: the workspace's vendor key, else `evaluations.credentials.<credentialRef>` in
+  `fonoster.yaml` (the provider's credentialRef from the catalog, `<provider>-default` when it is
+  not in the catalog). `integrationsFile` is now an unknown key (moved-key message points to
+  `evaluations.credentials`); compose, the rebuild stack and the Helm chart no longer mount the
+  file. The productRef in `EvaluateIntelligence` is ignored (left in the proto to avoid
+  regenerating the SDK).
+- `ctl applications:eval` validates the file with `sessionAssistantSchema`. The dashboard's agent
+  form dropped the VAD, speech-wait, events-webhook, audio-filter and base-URL values (no UI
+  rendered them) and reads only the session model (app `speech` + catalog ids); the agents list
+  does too. The SDK and `@fonoster/types` lost the app `textToSpeech`/`speechToText` fields and
+  `intelligence.credentials`.
+- Not verified here: the dashboard's `agents.test.tsx` and its TypeScript check do not resolve the
+  rebuilt `@fonoster/sdk`/`@fonoster/types` in this worktree (same 37 type errors before and after);
+  `agent-form.test.ts` passes.

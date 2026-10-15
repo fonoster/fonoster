@@ -74,8 +74,6 @@ apiserver:
   regionHubSecret: ""
   # Secrets mounted for secret://k8s/<name>#<key> references in config.
   secretMounts: []
-  # Rendered as integrations.json (config integrationsFile: /opt/fonoster/integrations.json).
-  integrations: []
   # fonoster.yaml (config/fonoster.example.yaml documents every key). Rendered with `tpl`, so
   # {{ .Release.Name }} works. nats.url defaults to the chart's NATS URL.
   config: {}

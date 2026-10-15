@@ -63,6 +63,6 @@
 - [x] 8.1 Delete the current engine: `vad/`, the raw stream, `sgather`, the LangChain chain and
       models (with `add-turn-taking` 3.1). The LangChain models stay for `createEvaluateIntelligence`
       only (CB-B5)
-- [ ] 8.2 Delete the legacy assistant schema and `sendConversation*Event`
+- [x] 8.2 Delete the legacy assistant schema and `sendConversation*Event` (LG-B4)
 - [x] 8.3 Run the stored-assistant migration job (5.3) and route Autopilot apps to the hosted
       Autopilot (LG-B1: `fonoster-migrate-legacy`; running it is a deployment step)

@@ -18,7 +18,7 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { assistantSchema } from "@fonoster/common";
+import { sessionAssistantSchema } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
 import { ExpectedTextType } from "@fonoster/types";
 import { Flags } from "@oclif/core";
@@ -83,7 +83,7 @@ export default class EvalIntelligence extends AuthenticatedCommand<
     };
 
     let rawAutopilotApplication: {
-      intelligence: { config: RawConfig; productRef: string };
+      intelligence: { config: RawConfig; productRef?: string };
     };
 
     switch (extension) {
@@ -122,13 +122,14 @@ export default class EvalIntelligence extends AuthenticatedCommand<
     rawAutopilotApplication.intelligence.config.testCases.scenarios =
       mappedScenarios;
 
-    const parsedAutopilotApplication = assistantSchema.parse(
+    // A session assistant (its catalog id names the provider; keys come from the workspace or
+    // the platform, never from the file).
+    const parsedAutopilotApplication = sessionAssistantSchema.parse(
       rawAutopilotApplication.intelligence.config
     );
-
     const autopilotApplication = {
       intelligence: {
-        productRef: rawAutopilotApplication.intelligence.productRef,
+        productRef: `llm.${parsedAutopilotApplication.languageModel.model.split("/")[0]}`,
         config: parsedAutopilotApplication
       }
     };
