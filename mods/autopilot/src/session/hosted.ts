@@ -18,7 +18,7 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { Registry } from "@fonoster/common";
+import { CellSecrets, Registry } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceServer } from "@fonoster/voice";
 import * as yaml from "js-yaml";
@@ -91,7 +91,20 @@ export const hostedConfigSchema = z
     workspaceSecrets: z
       .union([
         z.object({ file: z.string() }).strict(),
-        z.object({ source: z.literal("database") }).strict()
+        z.object({ source: z.literal("database") }).strict(),
+        // A private region's cell secrets (add-private-regions PR-4, PR-9): by credentialRef or
+        // provider id, set on the cell with `fonoster-region secrets set <name>`.
+        z
+          .object({
+            cellSecrets: z
+              .object({
+                file: z.string().optional(),
+                dir: z.string().optional(),
+                keyEnv: z.string().optional()
+              })
+              .strict()
+          })
+          .strict()
       ])
       .optional(),
     /** The control-plane database (the apiserver's), for any `source: database`. */
@@ -141,7 +154,9 @@ export function loadHostedConfig(file: string): HostedConfig {
   const needsDb =
     !("file" in config.assistants) ||
     !("file" in config.registry) ||
-    (config.workspaceSecrets && !("file" in config.workspaceSecrets));
+    (config.workspaceSecrets &&
+      "source" in config.workspaceSecrets &&
+      config.workspaceSecrets.source === "database");
   if (needsDb && !config.database)
     throw new Error("source: database needs a database section");
   return {
@@ -223,6 +238,18 @@ export class DatabaseWorkspaceSecrets implements CredentialSource {
       ref,
       this.providers()
     );
+  }
+}
+
+/** A private region's cell secrets (PR-4): keys never leave the cell. */
+export class CellSecretCredentials implements CredentialSource {
+  constructor(
+    private readonly keys: CellSecrets.CellSecretKeys,
+    private readonly providers: () => { id: string; credentialRef: string }[]
+  ) {}
+
+  get(ref: string) {
+    return this.keys.forCredentialRef(ref, this.providers());
   }
 }
 
@@ -373,10 +400,17 @@ export function hostedOptions(
       ? [
           "file" in workspace
             ? new FileWorkspaceSecrets(workspace.file)
-            : new DatabaseWorkspaceSecrets(
-                new Registry.PrismaWorkspaceKeys(db()),
-                providers
-              )
+            : "cellSecrets" in workspace
+              ? new CellSecretCredentials(
+                  new CellSecrets.CellSecretKeys(
+                    CellSecrets.openCellSecrets(workspace.cellSecrets)
+                  ),
+                  providers
+                )
+              : new DatabaseWorkspaceSecrets(
+                  new Registry.PrismaWorkspaceKeys(db()),
+                  providers
+                )
         ]
       : []),
     new ConfigCredentials(config.credentials)

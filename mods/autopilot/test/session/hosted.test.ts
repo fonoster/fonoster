@@ -20,7 +20,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
-import { Registry } from "@fonoster/common";
+import { CellSecrets, Registry } from "@fonoster/common";
 import {
   FakeGateway,
   FakesHarness,
@@ -29,6 +29,7 @@ import {
   runScenario
 } from "@fonoster/conformance";
 import {
+  CellSecretCredentials,
   ConfigCredentials,
   DatabaseWorkspaceSecrets,
   LayeredCredentials,
@@ -476,5 +477,30 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
       source: "database",
       cacheMs: 5000
     });
+  });
+});
+
+describe("@autopilot/session cell secrets (add-private-regions PR-9)", function () {
+  it("reads LLM keys from the cell's secret store by credentialRef or provider", async function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ap-cell-"));
+    const file = path.join(dir, "secrets.enc");
+    new CellSecrets.EncryptedFileSecretStore(file, "pass").set("groq", "gq");
+    const yaml = path.join(dir, "autopilot.yaml");
+    fs.writeFileSync(
+      yaml,
+      `signingSecret: { value: s }\nassistants: { file: a.json }\nregistry: { file: r.json }\nworkspaceSecrets: { cellSecrets: { file: ${file}, keyEnv: AP_CELL_KEY } }\n`
+    );
+    expect(loadHostedConfig(yaml).workspaceSecrets).to.deep.equal({
+      cellSecrets: { file, keyEnv: "AP_CELL_KEY" }
+    });
+    const credentials = new CellSecretCredentials(
+      new CellSecrets.CellSecretKeys(
+        CellSecrets.openCellSecrets({ file, key: "pass" })
+      ),
+      () => [{ id: "groq", credentialRef: "groq-default" }]
+    );
+    expect(await credentials.get("groq-default")).to.equal("gq");
+    expect(await credentials.get("openai-default")).to.equal(undefined);
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 });

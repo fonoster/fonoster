@@ -1,0 +1,132 @@
+{{- if .Values.regionAgent.enabled }}
+{{- $r := .Values.regionAgent }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-region-agent
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+---
+# enroll and `secrets set --k8s-secret` write only these two Secrets.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-region-agent
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ $r.identitySecret | quote }}, {{ $r.secretsSecret | quote }}]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-region-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-region-agent
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}-region-agent
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-region-agent
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  region-agent.yaml: |
+    dataDir: /var/lib/fonoster-region
+    stateDir: /var/lib/fonoster-region-state
+    nats:
+      url: {{ .Values.nats.url | quote }}
+    database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
+    cellSecrets: { dir: /var/lib/fonoster-secrets }
+    {{- toYaml $r.config | nindent 4 }}
+{{- if $r.enroll.token }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-region-enroll-{{ $r.enroll.token | sha256sum | trunc 8 }}
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: {{ .Release.Name }}-region-agent
+      restartPolicy: Never
+      containers:
+        - name: enroll
+          image: "{{ $r.image.repository }}:{{ $r.image.tag }}"
+          imagePullPolicy: {{ $r.image.pullPolicy }}
+          args:
+            - enroll
+            - {{ $r.enroll.token | quote }}
+            - --k8s-secret
+            - {{ $r.identitySecret | quote }}
+            {{- if $r.enroll.allowInsecure }}
+            - --allow-insecure
+            {{- end }}
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-region-agent
+  labels:
+    app.kubernetes.io/name: region-agent
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  # One agent per cell: it applies config and answers the relay.
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: region-agent
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: region-agent
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ toYaml $r.config | sha256sum }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-region-agent
+      containers:
+        - name: region-agent
+          image: "{{ $r.image.repository }}:{{ $r.image.tag }}"
+          imagePullPolicy: {{ $r.image.pullPolicy }}
+          args: ["run"]
+          env:
+            - name: APISERVER_DATABASE_URL
+              valueFrom: { secretKeyRef: { name: {{ $r.databaseSecret | quote }}, key: url } }
+            - name: APISERVER_ENCRYPTION_KEY
+              valueFrom: { secretKeyRef: { name: {{ $r.databaseSecret | quote }}, key: key } }
+            - name: AUTOPILOT_SIGNING_SECRET
+              valueFrom: { secretKeyRef: { name: {{ $r.autopilotSecret | quote }}, key: secret } }
+          volumeMounts:
+            - { name: config, mountPath: /etc/fonoster/region-agent.yaml, subPath: region-agent.yaml, readOnly: true }
+            - { name: identity, mountPath: /var/lib/fonoster-region, readOnly: true }
+            - { name: cell-secrets, mountPath: /var/lib/fonoster-secrets, readOnly: true }
+            - { name: state, mountPath: /var/lib/fonoster-region-state }
+          resources:
+            {{- toYaml $r.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-region-agent
+        - name: identity
+          secret: { secretName: {{ $r.identitySecret | quote }} }
+        - name: cell-secrets
+          secret: { secretName: {{ $r.secretsSecret | quote }}, optional: true }
+        - name: state
+          emptyDir: {}
+{{- end }}
