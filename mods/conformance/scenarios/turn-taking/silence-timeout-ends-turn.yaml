@@ -1,0 +1,22 @@
+format: fonoster.scenario.v1
+name: silence-timeout-ends-turn
+contract: turn-taking
+role: app
+spec: "The baseline Detector reproduces today's behavior / Silence timeout ends the turn"
+description: >
+  Baseline with a 1,000 ms silence timeout: turn.ended about 1.2 s after the caller stops
+  (200 ms voice debounce + 1,000 ms), within the gateway budget.
+setup:
+  app: { speech: { silenceTimeoutMs: 1000 } }
+  providers:
+    stt: { script: [{ atMs: 400, text: "I want to pay my bill" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - wait: { ms: 600 }
+    label: spoke
+  - expect: { type: turn.ended, text: "I want to pay my bill" }
+    from: spoke
+    not_before_ms: 1000
+    within_ms: 1800

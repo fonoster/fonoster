@@ -18,6 +18,7 @@
  */
 import * as fs from "fs";
 import { parse } from "yaml";
+import { isDetectorChoice } from "./turn/createDetector";
 
 export type Flavor = "native" | "twilio";
 
@@ -28,7 +29,15 @@ export type AppConfig = {
   flavor: Flavor;
   signingSecret: string;
   /** Default voice and language as catalog ids; STT language defaults to `language`. */
-  speech: { voice: string; language: string; silenceTimeoutMs?: number };
+  speech: {
+    voice: string;
+    language: string;
+    silenceTimeoutMs?: number;
+    /** The default Pacing policy's patience knob (turn-taking); default normal. */
+    patience?: "low" | "normal" | "high";
+    /** Turn Detector: baseline (default), backchannel-hold, stt, or a ws:// Detector URL. */
+    detector?: string;
+  };
   /** Caller and agent audio format for the native flavor (default pcm16 at 16 kHz). */
   audio?: { codec: "pcm16" | "pcmu"; rate: number };
   /** The workspace that owns the app (its access key id); the Twilio flavor's AccountSid. */
@@ -161,6 +170,15 @@ export function validateConfig(config: GatewayConfig): string[] {
       problems.push(`app ${app.ref}: unknown flavor ${app.flavor}`);
     if (!app.signingSecret)
       problems.push(`app ${app.ref}: signingSecret is required`);
+    if (app.speech?.detector && !isDetectorChoice(app.speech.detector))
+      problems.push(
+        `app ${app.ref}: unknown detector ${app.speech.detector} (baseline, backchannel-hold, stt or a ws:// URL)`
+      );
+    if (
+      app.speech?.patience &&
+      !["low", "normal", "high"].includes(app.speech.patience)
+    )
+      problems.push(`app ${app.ref}: patience must be low, normal or high`);
     if ((app.listeners?.length ?? 0) > 4) {
       problems.push(`app ${app.ref}: at most 4 listeners`);
     }

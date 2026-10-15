@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: simple-speech-app
+contract: turn-taking
+role: app
+spec: "Turn-taking runs in the gateway's Speech layer / A simple speech app gets turn events"
+description: A Speech-layer app gets turn events for a spoken sentence without touching audio.
+setup:
+  providers:
+    stt: { script: [{ atMs: 500, text: "What are your hours" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.user_started }
+    within_ms: 1000
+  - expect: { type: turn.ended, text: "What are your hours" }
+    within_ms: 2500

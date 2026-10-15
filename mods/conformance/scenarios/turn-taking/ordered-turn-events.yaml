@@ -1,0 +1,35 @@
+format: fonoster.scenario.v1
+name: ordered-turn-events
+contract: turn-taking
+role: app
+spec: "The Pacing policy derives turn events from the estimate / Turn events are ordered per turn"
+description: >
+  user_started, a (likely_ended, resumed) pair, likely_ended, then exactly one ended, with nothing
+  else in between.
+ignore: [turn.estimate, transcript.partial]
+setup:
+  app: { speech: { silenceTimeoutMs: 1200 } }
+  providers:
+    stt: { script: [{ atMs: 500, text: "I want" }, { atMs: 2400, text: "to pay my bill" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.user_started }
+    next: true
+    within_ms: 1000
+  - expect: { type: turn.likely_ended }
+    next: true
+    within_ms: 2000
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.resumed }
+    next: true
+    within_ms: 1000
+  - expect: { type: turn.likely_ended }
+    next: true
+    within_ms: 3000
+  - expect: { type: turn.ended }
+    next: true
+    within_ms: 2000
+  - expect_none: { type: turn.ended }
+    for_ms: 500

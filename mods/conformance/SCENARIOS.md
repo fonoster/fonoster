@@ -19,6 +19,7 @@ scenarios/
   voice-sdk/                      # runner plays the gateway, an SDK fixture app is under test
   media-control/                  # runner plays the gateway against a media node (fake or Go) over NATS
   autopilot/                      # runner plays the gateway, Autopilot (with setup.assistant) is under test
+  turn-taking/                    # runner plays the app, the gateway's turn-taking is under test
   audio/                          # recorded caller audio (raw PCM16LE mono 16 kHz)
 ```
 
@@ -173,6 +174,7 @@ matcher, compared with what the harness measured.
 | `providers.vendor_calls` | network calls to anything other than the fakes (always expected to be `0`); needs a harness that watches egress, such as a proxy around the implementation |
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
 | `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |
+| `record.events.<type>` | the call record's gateway events of that type, e.g. `record.events.turn.label` (needs a harness that can read the record) |
 | `tools.calls` | names of the fake tools called (`${media}/tool/hours` answers `{"open":"9"}`, `${media}/tool/error` fails) |
 
 A runner that does not know an assertion name fails the step; it never passes it silently.

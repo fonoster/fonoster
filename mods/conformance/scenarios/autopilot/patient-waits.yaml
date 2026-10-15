@@ -5,7 +5,7 @@ role: gateway
 spec: "Pacing policy / Patient assistant waits for the detector's final event"
 setup:
   assistant:
-    conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong.", patience: patient }
+    conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong.", patience: high }
     languageModel: { model: fake/llm }
   providers:
     llm: { script: [{ content: "Sure." }] }
@@ -26,6 +26,8 @@ steps:
         - { id: 1, side: inbound, kind: audio, codec: pcm16 }
         - { id: 2, side: outbound, kind: audio, codec: pcm16 }
       speech: { voice: fonoster/default, language: en-US }
+  - expect: { type: listen.update, patience: high }
+    within_ms: 1000
   - send: { type: turn.user_started }
   - send: { type: turn.likely_ended, text: "I want to book" }
   - expect_none: { type: speak }

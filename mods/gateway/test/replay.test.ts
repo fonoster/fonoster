@@ -22,7 +22,13 @@ import { expect } from "chai";
 import { BackchannelDetector } from "../src/turn/BackchannelDetector";
 import { Corpus, CorpusCall } from "../src/turn/corpus";
 import { BaselineDetector } from "../src/turn/Detector";
-import { compare, replay, replayCall } from "../src/turn/replay";
+import {
+  categoryOf,
+  compare,
+  formatReport,
+  replay,
+  replayCall
+} from "../src/turn/replay";
 
 const baseline = () => new BaselineDetector({ silenceTimeoutMs: 600 });
 const corpus = JSON.parse(
@@ -138,5 +144,44 @@ describe("@gateway turn-taking replay", function () {
     const verdict = compare(b, impatient);
     expect(verdict.pass).to.equal(false);
     expect(verdict.regressions.join()).to.contain("falseCutOffRate");
+  });
+
+  it("breaks the metrics down by category and language and lists the calls to listen to", function () {
+    const b = replay(corpus.calls, baseline);
+    expect(Object.keys(b.byCategory)).to.include.members([
+      "clean",
+      "long-pause",
+      "backchannel",
+      "barge-in"
+    ]);
+    expect(Object.keys(b.byLanguage)).to.include.members(["en", "es"]);
+    expect(b.byCategory.clean.falseCutOffRate).to.equal(0);
+    expect(b.byCategory["long-pause"].falseCutOffRate).to.equal(1);
+    expect(b.problems.some((p) => p.name.includes("long-pause"))).to.equal(
+      true
+    );
+    expect(categoryOf(call({ name: "x", tags: ["noisy"] }))).to.equal("noisy");
+  });
+
+  it("replays with the app's patience: more patient, fewer cut-offs and later ends", function () {
+    const normal = replay(corpus.calls, baseline);
+    const high = replay(corpus.calls, baseline, { patience: "high" });
+    expect(high.falseCutOffRate).to.be.lessThan(normal.falseCutOffRate);
+    expect(high.delayMedianMs).to.be.greaterThan(normal.delayMedianMs);
+  });
+
+  it("formats a report with a verdict per candidate", function () {
+    const text = formatReport([
+      { name: "baseline", report: replay(corpus.calls, baseline) },
+      {
+        name: "backchannel-hold",
+        report: replay(
+          corpus.calls,
+          () => new BackchannelDetector({ silenceTimeoutMs: 600 })
+        )
+      }
+    ]);
+    expect(text).to.contain("baseline by category");
+    expect(text).to.contain("backchannel-hold vs baseline: PASS");
   });
 });

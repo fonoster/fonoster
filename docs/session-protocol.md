@@ -159,7 +159,8 @@ events:
 
 Changes recognition from now on: `{ "type": "listen.update", "language": "es", "hints": ["Fonoster"], "patience": "high" }`.
 `patience` (`low`, `normal` or `high`) sets how long the turn detector waits for more speech before
-`turn.ended`.
+`turn.ended`. See [turn-taking](./turn-taking.md) for what each level does and how the gateway adapts
+within a call.
 
 ## Audio
 

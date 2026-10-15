@@ -1,0 +1,27 @@
+format: fonoster.scenario.v1
+name: backchannel-over-output
+contract: turn-taking
+role: app
+spec: "Backchannels do not interrupt the agent / \"Uh-huh\" while the agent talks"
+description: >
+  With a Detector that classifies backchannels (backchannel-hold), a short "uh-huh" over an
+  interruptible speak item produces turn.backchannel, no turn.user_started, and the item plays to
+  the end. The STT script is timed against the recognizer's audio clock: the burst runs at about
+  1.0-1.2 s and its transcript arrives at 1.9 s, after the burst and inside the 1.5 s window.
+setup:
+  app: { speech: { detector: backchannel-hold } }
+  providers:
+    stt: { script: [{ atMs: 1900, text: "uh-huh" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - send: { type: speak, id: r1, text: "Your balance is forty two dollars and your next payment is due on Monday the twelfth.", last: true, interruptible: true }
+  - expect: { type: output.started, id: r1 }
+  - wait: { ms: 800 }
+  - caller: { audio: { kind: tone, ms: 200 } }
+  - expect: { type: turn.backchannel, text: "uh-huh" }
+    next: true
+    within_ms: 2500
+  - expect: { type: output.done, id: r1 }
+    next: true
+    within_ms: 8000

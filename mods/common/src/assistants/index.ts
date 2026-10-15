@@ -23,3 +23,4 @@ export * from "./LanguageModelProvider";
 export * from "./conversationSettingsSchema";
 export * from "./languageModelConfigSchema";
 export * from "./eventsHookSchema";
+export * from "./sessionAssistantSchema";

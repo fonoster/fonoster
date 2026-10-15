@@ -135,7 +135,8 @@ services:
       <<: *otel
     volumes:
       - ./config/autopilot-session.yaml:/etc/fonoster/autopilot-session.yaml:ro
-      - ./config/assistant.json:/etc/fonoster/assistant.json:ro
+      - ./config/assistants.json:/etc/fonoster/assistants.json:ro
+      - ./config/registry.json:/etc/fonoster/registry.json:ro
     expose:
       - 3000
 

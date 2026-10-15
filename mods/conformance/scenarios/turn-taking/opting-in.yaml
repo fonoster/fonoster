@@ -1,0 +1,18 @@
+format: fonoster.scenario.v1
+name: opting-in
+contract: turn-taking
+role: app
+spec: "The estimate is available on request / Opting in"
+setup:
+  providers:
+    stt: { script: [{ atMs: 500, text: "Hello" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: subscribe, events: [turn.estimate] }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.estimate, speaking: true }
+    within_ms: 1000
+  - expect: { type: turn.estimate, speaking: false }
+    within_ms: 1500
+  - expect: { type: turn.ended, text: "Hello" }
+    within_ms: 2000

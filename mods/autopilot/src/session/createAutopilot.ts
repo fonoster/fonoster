@@ -18,9 +18,10 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { createActor } from "xstate";
-import { Agent, Recorder, sessionRecorder } from "./Agent";
+import { Agent, AgentEvent, Recorder, sessionRecorder } from "./Agent";
 import { SessionAssistant, sessionAssistantSchema } from "./config";
 import { KnowledgePort } from "./knowledge";
+import { LlmResolver } from "./llm";
 import { autopilotMachine } from "./machine";
 import { resolveThink, Think, ThinkProvider } from "./think";
 import { HttpToolPort, ToolPort } from "./tools";
@@ -28,15 +29,34 @@ import type { Session } from "@fonoster/voice/session";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
+/** What the hosted Autopilot knows about the app a session belongs to. */
+export type LoadedAssistant = {
+  assistant: unknown;
+  /** The workspace that owns the app: scope for its own keys (BYOK) and knowledge. */
+  workspaceRef?: string;
+};
+
 export type AutopilotOptions = {
   /** The assistant for a session (validated with the session assistant schema). */
-  assistant: unknown | ((session: Session) => Promise<unknown> | unknown);
-  /** Language model endpoints by provider name (stand-in for the provider registry). */
+  assistant?: unknown | ((session: Session) => Promise<unknown> | unknown);
+  /**
+   * The hosted path: loads the app's assistant and workspace for a session; undefined means the
+   * app has no assistant (the call is ended).
+   */
+  load?: (session: Session) => Promise<LoadedAssistant | undefined>;
+  /** Language models through the provider registry (task 3.1). */
+  llm?: LlmResolver;
+  /** Language model endpoints by provider name (the stand-in used before the registry). */
   providers?: Record<string, ThinkProvider>;
   think?: Think;
   tools?: ToolPort;
   /** Finds what is relevant to the caller's question (the knowledge port). */
   knowledge?: KnowledgePort;
+  /** Builds the knowledge port for an assistant (operator wiring, task 4.1). */
+  knowledgeFor?: (
+    assistant: SessionAssistant,
+    scope: { workspaceRef?: string }
+  ) => KnowledgePort | undefined;
   recorder?: Recorder;
   /** Called with each session's Agent, for tests and observability. */
   onAgent?: (agent: Agent) => void;
@@ -48,50 +68,99 @@ export type AutopilotOptions = {
  */
 export function createAutopilotHandler(options: AutopilotOptions) {
   return async (session: Session): Promise<void> => {
-    const raw =
-      typeof options.assistant === "function"
-        ? await options.assistant(session)
-        : options.assistant;
-    const assistant: SessionAssistant = sessionAssistantSchema.parse(raw);
-    const think =
-      options.think ??
-      resolveThink(assistant.languageModel.model, options.providers ?? {}, {
-        temperature: assistant.languageModel.temperature,
-        maxTokens: assistant.languageModel.maxTokens
+    // Listen before any await: turn events that arrive while the assistant and model load are
+    // held and delivered once the machine runs.
+    const early: AgentEvent[] = [];
+    let deliver: (event: AgentEvent) => void = (event) => early.push(event);
+    session.on("turn.user_started", () =>
+      deliver({ type: "TURN_USER_STARTED" })
+    );
+    session.on("turn.likely_ended", (e) =>
+      deliver({ type: "TURN_LIKELY_ENDED", text: e.text })
+    );
+    session.on("turn.resumed", () => deliver({ type: "TURN_RESUMED" }));
+    session.on("turn.ended", (e) =>
+      deliver({ type: "TURN_ENDED", text: e.text })
+    );
+    session.on("turn.backchannel", () => deliver({ type: "TURN_BACKCHANNEL" }));
+    const ended = new Promise<void>((resolve) =>
+      session.on("end", () => {
+        deliver({ type: "SESSION_END" });
+        resolve();
+      })
+    );
+
+    const loaded: LoadedAssistant | undefined = options.load
+      ? await options.load(session)
+      : {
+          assistant:
+            typeof options.assistant === "function"
+              ? await options.assistant(session)
+              : options.assistant
+        };
+    if (!loaded) {
+      logger.warn("no assistant for this app; ending the call", {
+        appRef: session.appRef,
+        callRef: session.callRef
       });
+      await session.hangup().catch(() => undefined);
+      return;
+    }
+    const assistant: SessionAssistant = sessionAssistantSchema.parse(
+      loaded.assistant
+    );
+    const scope = { workspaceRef: loaded.workspaceRef };
+    const recorder = options.recorder ?? sessionRecorder(session);
+    const settings = {
+      temperature: assistant.languageModel.temperature,
+      maxTokens: assistant.languageModel.maxTokens
+    };
+    let think = options.think;
+    if (!think && options.llm) {
+      try {
+        const resolved = await options.llm.resolve(
+          assistant.languageModel.model,
+          settings,
+          scope
+        );
+        think = resolved.think;
+        if (resolved.event) recorder.note(resolved.event);
+      } catch (e) {
+        // A model the registry cannot serve: apologise and end the call, never a silent line.
+        logger.error(
+          `autopilot cannot reach its language model: ${(e as Error).message}`
+        );
+        recorder.note({
+          type: "llm.unavailable",
+          reason: (e as Error).message
+        });
+        await session
+          .say(assistant.conversationSettings.systemErrorMessage, {
+            interruptible: false
+          })
+          .catch(() => undefined);
+        await session.hangup().catch(() => undefined);
+        return;
+      }
+    }
+    think ??= resolveThink(
+      assistant.languageModel.model,
+      options.providers ?? {},
+      settings
+    );
     const agent = new Agent(
       session,
       assistant,
       think,
       options.tools ?? new HttpToolPort(assistant.languageModel.tools),
-      options.recorder ?? sessionRecorder(session),
-      options.knowledge
+      recorder,
+      options.knowledge ?? options.knowledgeFor?.(assistant, scope)
     );
     options.onAgent?.(agent);
 
     const actor = createActor(autopilotMachine, { input: { agent } });
     agent.send = (event) => actor.send(event);
 
-    session.on("turn.user_started", () =>
-      actor.send({ type: "TURN_USER_STARTED" })
-    );
-    session.on("turn.likely_ended", (e) =>
-      actor.send({ type: "TURN_LIKELY_ENDED", text: e.text })
-    );
-    session.on("turn.resumed", () => actor.send({ type: "TURN_RESUMED" }));
-    session.on("turn.ended", (e) =>
-      actor.send({ type: "TURN_ENDED", text: e.text })
-    );
-    session.on("turn.backchannel", () =>
-      actor.send({ type: "TURN_BACKCHANNEL" })
-    );
-
-    const ended = new Promise<void>((resolve) =>
-      session.on("end", () => {
-        actor.send({ type: "SESSION_END" });
-        resolve();
-      })
-    );
     actor.subscribe((state) =>
       logger.verbose("autopilot state", {
         callRef: session.callRef,
@@ -99,6 +168,8 @@ export function createAutopilotHandler(options: AutopilotOptions) {
       })
     );
     actor.start();
+    deliver = (event) => actor.send(event);
+    for (const event of early.splice(0)) actor.send(event);
     await ended;
     actor.stop();
   };

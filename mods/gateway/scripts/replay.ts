@@ -16,19 +16,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Replays the turn-taking corpus through the baseline Detector and a candidate, and prints the
-// report (add-turn-taking task 1.6).
+// Replays the turn-taking corpus through the default Detector (baseline) and candidates, and
+// prints the report (add-turn-taking tasks 1.6, TT-B9). The baseline stays the default; a
+// candidate's PASS only says it may be proposed as the default.
 //
-//   npx tsx mods/gateway/scripts/replay.ts [corpus.json]
+//   npx tsx mods/gateway/scripts/replay.ts [corpus.json] [--candidate backchannel-hold]...
+//       [--patience low|normal|high] [--no-adapt] [--json]
 import * as fs from "fs";
 import * as path from "path";
-import { BackchannelDetector } from "../src/turn/BackchannelDetector";
 import { Corpus } from "../src/turn/corpus";
-import { BaselineDetector } from "../src/turn/Detector";
-import { compare, replay, ReplayReport } from "../src/turn/replay";
+import { createDetector, DETECTORS } from "../src/turn/createDetector";
+import { Patience } from "../src/turn/Pacing";
+import { formatReport, replay } from "../src/turn/replay";
+
+const args = process.argv.slice(2);
+const flag = (name: string) => args.includes(name);
+const values = (name: string) =>
+  args.flatMap((a, i) => (a === name && args[i + 1] ? [args[i + 1]] : []));
+const positional = args.filter(
+  (a, i) =>
+    !a.startsWith("--") &&
+    !args[i - 1]?.startsWith("--c") &&
+    !args[i - 1]?.startsWith("--p")
+);
 
 const file =
-  process.argv[2] ??
+  positional[0] ??
   path.join(
     __dirname,
     "..",
@@ -38,41 +51,31 @@ const file =
     "synthetic-v1.json"
   );
 const corpus = JSON.parse(fs.readFileSync(file, "utf8")) as Corpus;
+const candidates = values("--candidate");
+for (const c of candidates)
+  if (!(DETECTORS as readonly string[]).includes(c))
+    throw new Error(`unknown detector ${c} (${DETECTORS.join(", ")})`);
+const options = {
+  patience: (values("--patience")[0] ?? "normal") as Patience,
+  adapt: !flag("--no-adapt")
+};
+const run = (name: string) => ({
+  name,
+  report: replay(
+    corpus.calls,
+    () => createDetector({ silenceTimeoutMs: 600, detector: name }).detector,
+    options
+  )
+});
 
-const baseline = replay(
-  corpus.calls,
-  () => new BaselineDetector({ silenceTimeoutMs: 600 })
-);
-const candidate = replay(
-  corpus.calls,
-  () => new BackchannelDetector({ silenceTimeoutMs: 600 })
-);
-
-const row = (name: string, r: ReplayReport) =>
-  [
-    name,
-    r.falseCutOffRate,
-    r.delayMedianMs,
-    r.delayP95Ms,
-    r.missedBargeInRate,
-    r.backchannelMisfireRate
-  ].join("\t");
-console.log(
-  `corpus: ${path.basename(file)}, ${baseline.calls} calls, ${baseline.turns} turns\n`
-);
-console.log(
-  [
-    "detector",
-    "falseCutOff",
-    "delayMedian",
-    "delayP95",
-    "missedBargeIn",
-    "backchannelMisfire"
-  ].join("\t")
-);
-console.log(row("baseline", baseline));
-console.log(row("backchannel-hold", candidate));
-console.log(
-  "\ncandidate vs baseline:",
-  JSON.stringify(compare(baseline, candidate))
-);
+const reports = [
+  "baseline",
+  ...(candidates.length ? candidates : ["backchannel-hold"])
+].map(run);
+if (flag("--json")) console.log(JSON.stringify(reports, null, 2));
+else {
+  console.log(
+    `corpus: ${path.basename(file)}, patience ${options.patience}, adaptation ${options.adapt ? "on" : "off"}\n`
+  );
+  console.log(formatReport(reports));
+}

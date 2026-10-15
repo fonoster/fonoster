@@ -1,0 +1,21 @@
+format: fonoster.scenario.v1
+name: app-clears-on-interruption
+contract: turn-taking
+role: app
+spec: "The app decides whether an interruption stops output / The caller cuts in and the app clears"
+description: >
+  The gateway reports the interruption with turn.user_started and keeps playing; output stops only
+  when the app sends clear, and output.interrupted reports what was heard.
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Your balance is forty two dollars and your next payment is due on Monday.", last: true, interruptible: true }
+  - expect: { type: output.started, id: r1 }
+  - wait: { ms: 600 }
+  - caller: { audio: { kind: tone, ms: 800 } }
+  - expect: { type: turn.user_started }
+    within_ms: 1000
+  - expect_none: { type: output.interrupted, id: r1 }
+    for_ms: 300
+  - send: { type: clear }
+  - expect: { type: output.interrupted, id: r1, heardMs: { $gte: 500 }, heardText: { $re: "^Your" } }
+    within_ms: 500

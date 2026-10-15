@@ -40,6 +40,14 @@ export interface Detector {
   onOutput(playing: boolean): void;
   /** Forget the current turn (called by the Pacing policy after turn.ended). */
   reset(): void;
+  /**
+   * Patience as a factor of the Detector's configured timing (1 = as configured, 1.6 = waits
+   * 60% longer). Set by the Pacing policy from the app's patience and within-call adaptation.
+   * Detectors without a tunable timing may ignore it.
+   */
+  setPatience?(factor: number): void;
+  /** Releases resources (out-of-process connections). */
+  close?(): void;
 }
 
 export type BaselineOptions = {
@@ -64,12 +72,24 @@ export class BaselineDetector implements Detector {
   private silenceMs = 0;
   private hasFinal = false;
   private playing = false;
+  private readonly baseTimeoutMs: number;
 
-  constructor(private readonly options: BaselineOptions) {}
+  constructor(private readonly options: BaselineOptions) {
+    this.options = { ...options };
+    this.baseTimeoutMs = options.silenceTimeoutMs;
+  }
 
   /** Patience (turn-taking): a longer timeout waits longer before the turn ends. */
   setSilenceTimeout(ms: number) {
     this.options.silenceTimeoutMs = ms;
+  }
+
+  setPatience(factor: number) {
+    this.options.silenceTimeoutMs = Math.round(this.baseTimeoutMs * factor);
+  }
+
+  get silenceTimeoutMs() {
+    return this.options.silenceTimeoutMs;
   }
 
   onAudio(frame: Buffer, _at: number): Estimate {

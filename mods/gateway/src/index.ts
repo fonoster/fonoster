@@ -30,3 +30,7 @@ export * from "./speech/types";
 export * from "./turn/Detector";
 export * from "./turn/Pacing";
 export * from "./apps/AppStore";
+export * from "./turn/createDetector";
+export * from "./turn/remote";
+export * from "./turn/SttTurnDetector";
+export * from "./turn/BackchannelDetector";

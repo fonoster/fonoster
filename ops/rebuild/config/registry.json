@@ -1,0 +1,60 @@
+{
+  "entries": [
+    {
+      "kind": "provider",
+      "id": "openai",
+      "adapter": "openai",
+      "capabilities": [
+        "llm"
+      ],
+      "credentialRef": "openai-default",
+      "state": "active"
+    },
+    {
+      "kind": "model",
+      "id": "openai/gpt-4o-mini",
+      "type": "llm",
+      "features": [],
+      "languages": [],
+      "settings": [],
+      "state": "active"
+    }
+  ],
+  "audit": [
+    {
+      "at": "2026-10-15T14:23:06.715Z",
+      "actor": "psanders",
+      "action": "add-provider",
+      "target": "openai",
+      "details": {
+        "entry": {
+          "kind": "provider",
+          "id": "openai",
+          "adapter": "openai",
+          "capabilities": [
+            "llm"
+          ],
+          "credentialRef": "openai-default",
+          "state": "active"
+        }
+      }
+    },
+    {
+      "at": "2026-10-15T14:23:06.753Z",
+      "actor": "psanders",
+      "action": "add-model",
+      "target": "openai/gpt-4o-mini",
+      "details": {
+        "entry": {
+          "kind": "model",
+          "id": "openai/gpt-4o-mini",
+          "type": "llm",
+          "features": [],
+          "languages": [],
+          "settings": [],
+          "state": "active"
+        }
+      }
+    }
+  ]
+}

@@ -487,7 +487,7 @@ describe("@gateway integration", function () {
     );
     expect(decision?.message).to.include({
       detector: "baseline@1",
-      policy: "default@1"
+      policy: "default@2"
     });
     expect(decision?.message.eot).to.equal(1);
   });

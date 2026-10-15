@@ -46,6 +46,11 @@ export type CorpusCall = {
   agent: AgentOutput[];
   /** Simulated recognizer latency after each segment ends (default 300 ms). */
   sttLatencyMs?: number;
+  /**
+   * What the call exercises (for the report's breakdown), e.g. ["long-pause"]. When absent the
+   * category is read from the name `<language>-<category>-<n>`.
+   */
+  tags?: string[];
 };
 
 export type Corpus = { format: "fonoster.turn-corpus.v1"; calls: CorpusCall[] };
