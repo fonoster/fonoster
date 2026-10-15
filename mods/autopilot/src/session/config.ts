@@ -95,8 +95,12 @@ export const sessionConversationSettingsSchema = z
       })
       .optional(),
     allowUserBargeIn: z.boolean().default(true),
-    /** eager: prepare a reply on turn.likely_ended; patient: only on turn.ended. */
-    patience: z.enum(["eager", "patient"]).default("eager"),
+    /**
+     * The turn-taking patience knob (TT-B5): sent to the gateway with listen.update so its Pacing
+     * policy waits less (low) or more (high) before turn.ended. Autopilot prepares a reply on
+     * turn.likely_ended at low and normal, and only on turn.ended at high.
+     */
+    patience: z.enum(["low", "normal", "high"]).default("normal"),
     /** Played with play() while thinking; the reply preempts it (A9). */
     filler: z.object({ url: z.string().url() }).optional(),
     /** Catalog ids overriding the app's speech defaults on every speak. */

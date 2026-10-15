@@ -109,7 +109,8 @@ export class Agent {
   private maxTimer?: ReturnType<typeof setTimeout>;
   private idleCount = 0;
   private resumes = 0;
-  private patience: "eager" | "patient";
+  /** Whether a reply is prepared on turn.likely_ended (off at high patience or once adapted). */
+  private prepareEarly: boolean;
   private stopped = false;
   send: (event: AgentEvent) => void = () => undefined;
 
@@ -121,7 +122,7 @@ export class Agent {
     private readonly recorder: Recorder = logRecorder,
     private readonly knowledge?: KnowledgePort
   ) {
-    this.patience = assistant.conversationSettings.patience;
+    this.prepareEarly = assistant.conversationSettings.patience !== "high";
   }
 
   get settings() {
@@ -138,6 +139,9 @@ export class Agent {
     );
     await this.safely(async () => {
       await this.session.subscribe(["turn.estimate"]);
+      // The gateway's Pacing policy owns turn timing; Autopilot only tells it how patient to be.
+      if (this.settings.patience !== "normal")
+        await this.session.listen({ patience: this.settings.patience });
       if (this.settings.initialDtmf)
         await this.session.playDtmf(this.settings.initialDtmf);
       if (this.settings.firstMessage) {
@@ -194,9 +198,9 @@ export class Agent {
 
   // ---- pacing -----------------------------------------------------------------------
 
-  /** turn.likely_ended: start generating silently (eager pacing only). */
+  /** turn.likely_ended: start generating silently (when preparing early). */
   prepare(text: string) {
-    if (this.patience !== "eager" || !text.trim()) return;
+    if (!this.prepareEarly || !text.trim()) return;
     this.discardPrepared();
     const abort = new AbortController();
     const chunks = new AsyncQueue<ThinkChunk>();
@@ -220,12 +224,14 @@ export class Agent {
   resumed() {
     this.discardPrepared();
     this.resumes++;
-    if (this.resumes >= 3 && this.patience === "eager") {
-      // A caller who pauses often: stop preparing early for the rest of this call.
-      this.patience = "patient";
+    if (this.resumes >= 3 && this.prepareEarly) {
+      // A caller who pauses often: stop preparing early for the rest of this call. The gateway
+      // adapts its own turn timing within the call (TT-B6), so Autopilot does not also change
+      // the patience it asked for (AP-B2).
+      this.prepareEarly = false;
       this.recorder.note({
         type: "pacing.adapted",
-        patience: "patient",
+        prepare: "on turn.ended",
         resumes: this.resumes
       });
     }
