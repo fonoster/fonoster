@@ -27,7 +27,7 @@ import {
   Transcript,
   TtsAdapter,
   WordTiming
-} from "./types";
+} from "../speech";
 
 // The fake adapters speak the fake provider protocol (mods/conformance/PROVIDERS.md). They are
 // built in, like every adapter, and enabled only in test mode.

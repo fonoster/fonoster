@@ -21,7 +21,7 @@
 
 ## 3. Adapters and gateway
 
-- [ ] 3.1 Move TTS and STT adapters out of `mods/apiserver/src/voice` and LLM adapters out of `mods/autopilot/src/models` into one package per vendor behind the type interfaces (partial: Deepgram and ElevenLabs adapters live in mods/gateway/src/speech; apiserver voice/{stt,tts} remain for app validation and autopilot models for evals; not one package per vendor)
+- [x] 3.1 Move TTS and STT adapters out of `mods/apiserver/src/voice` and LLM adapters out of `mods/autopilot/src/models` into one package per vendor behind the type interfaces (`@fonoster/community`, AD-B1)
 - [x] 3.2 Gateway credential resolution at session start (workspace key, else platform key by `credentialRef`), held in memory for the session only
 - [x] 3.3 Runtime events `provider.deprecated_used` and `provider.retired_used`; retired ids resolve to their replacement
 - [x] 3.4 `provider_unavailable` errors to the app and the call record; no failover (LO-B10)
@@ -29,7 +29,7 @@
 ## 4. Platform surfaces
 
 - [x] 4.1 `GetCapabilities` lists only active or deprecated items with an adapter and an available credential (`ListCatalog`, LO-B12)
-- [ ] 4.2 Dashboard pickers filtered by compatibility; deprecation and retirement warnings per workspace with where-used lists (warnings done, LO-B11; picker filtering open)
+- [x] 4.2 Dashboard pickers filtered by compatibility; deprecation and retirement warnings per workspace with where-used lists (warnings LO-B11; pickers AD-B2)
 - [x] 4.3 Workspace UI and API to store and bind a bring-your-own key as a write-only Secret
 
 ## 5. Migration and docs

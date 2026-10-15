@@ -37,6 +37,12 @@ import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
 import { errorMessage, useAsync, useSessionApi } from "./api";
+import {
+  compatibleLlmModels,
+  compatibleSttModels,
+  compatibleVoices
+} from "./compat";
+import { MissingKeysWarning } from "./missing-keys";
 import type {
   AppType,
   AudioCodec,
@@ -118,6 +124,15 @@ export function validateApp(
     }
   }
   return errors;
+}
+
+function parseObject(text: string): Record<string, unknown> | undefined {
+  try {
+    const v = JSON.parse(text);
+    return v && typeof v === "object" && !Array.isArray(v) ? v : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /** One warning: what changed, what to use instead, and where this workspace uses it. */
@@ -217,6 +232,7 @@ export function AppsList() {
       />
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
         <CatalogWarnings warnings={warnings.data ?? []} />
+        <MissingKeysWarning apps={data ?? []} />
         <DataTable
           label="Apps"
           columns={columns}
@@ -274,6 +290,8 @@ export function AppEditor() {
           voices: [],
           languages: [],
           sttModels: [],
+          ttsModels: [],
+          llmModels: [],
           providers: []
         })
       ),
@@ -300,6 +318,7 @@ export function AppEditor() {
       initial={loaded.data?.app ? toDraft(loaded.data.app) : blank}
       isNew={isNew}
       catalog={loaded.data!.catalog}
+      savedApp={loaded.data?.app}
       otherApps={(loaded.data!.apps ?? []).filter((a) => a.ref !== ref)}
     />
   );
@@ -312,6 +331,7 @@ function CatalogField({
   value,
   entries,
   placeholder,
+  incompatibleHint,
   onChange
 }: {
   label: string;
@@ -319,6 +339,7 @@ function CatalogField({
   value: string;
   entries: CatalogEntry[];
   placeholder: string;
+  incompatibleHint?: string;
   onChange: (value: string) => void;
 }) {
   const known = entries.find((e) => e.id === value);
@@ -328,7 +349,9 @@ function CatalogField({
       hint={
         known?.state === "deprecated"
           ? `Deprecated${known.replacement ? `: use ${known.replacement}` : ""}. It will be retired.`
-          : hint
+          : known?.incompatible
+            ? (incompatibleHint ?? "Doesn't fit the other settings.")
+            : hint
       }
     >
       {(p) =>
@@ -341,7 +364,11 @@ function CatalogField({
               ...entries.map((e) => ({
                 value: e.id,
                 label:
-                  e.state === "deprecated" ? `${e.label} (deprecated)` : e.label
+                  e.state === "deprecated"
+                    ? `${e.label} (deprecated)`
+                    : e.incompatible
+                      ? `${e.label} (doesn't fit)`
+                      : e.label
               }))
             ]}
             onValueChange={(v) => onChange(v === "default" ? "" : v)}
@@ -363,11 +390,14 @@ function Editor({
   initial,
   isNew,
   catalog,
+  savedApp,
   otherApps
 }: {
   initial: Draft;
   isNew: boolean;
   catalog: Catalog;
+  /** The app as saved (missing-key warnings are about saved settings). */
+  savedApp?: SessionApp;
   otherApps: SessionApp[];
 }) {
   const api = useSessionApi();
@@ -388,6 +418,13 @@ function Editor({
     setApp((a) => ({ ...a, [key]: value }));
   };
   const autopilot = app.type === "AUTOPILOT";
+  /** The assistant as an object while its JSON parses (the model picker edits it). */
+  const assistant = autopilot ? parseObject(app.assistantText) : undefined;
+  const llm =
+    typeof (assistant?.languageModel as { model?: unknown } | undefined)
+      ?.model === "string"
+      ? ((assistant!.languageModel as { model: string }).model as string)
+      : "";
 
   const run = async (work: () => Promise<void>) => {
     setBusy(true);
@@ -447,6 +484,7 @@ function Editor({
         }
       />
       <div className="flex max-w-2xl flex-col gap-5 px-4 pb-10 sm:px-8">
+        {savedApp && <MissingKeysWarning apps={[savedApp]} />}
         <Field label="Name" error={errors.name}>
           {(p) => (
             <Input
@@ -512,6 +550,31 @@ function Editor({
           </Field>
         )}
 
+        {autopilot && assistant && (
+          <CatalogField
+            label="Language model"
+            value={llm}
+            entries={compatibleLlmModels(catalog, assistant, llm)}
+            placeholder="openai/gpt-4o-mini"
+            incompatibleHint="This model can't call the assistant's tools."
+            onChange={(v) =>
+              set(
+                "assistantText",
+                JSON.stringify(
+                  {
+                    ...assistant,
+                    languageModel: {
+                      ...(assistant.languageModel as object),
+                      model: v || undefined
+                    }
+                  },
+                  null,
+                  2
+                )
+              )
+            }
+          />
+        )}
         {autopilot && (
           <Field
             label="Assistant (JSON)"
@@ -597,9 +660,14 @@ function Editor({
           <CatalogField
             label="Voice"
             value={app.speech.voice}
-            entries={catalog.voices}
+            entries={compatibleVoices(
+              catalog,
+              app.speech.language,
+              app.speech.voice
+            )}
             placeholder="deepgram/aura-2-thalia-en"
             hint="A catalog id: provider/voice."
+            incompatibleHint="This voice doesn't speak the selected language."
             onChange={(v) => set("speech", { ...app.speech, voice: v })}
           />
           <CatalogField
@@ -612,7 +680,12 @@ function Editor({
           <CatalogField
             label="Speech-to-text model"
             value={app.speech.sttModel ?? ""}
-            entries={catalog.sttModels}
+            entries={compatibleSttModels(
+              catalog,
+              app.speech.language,
+              app.speech.sttModel
+            )}
+            incompatibleHint="This model doesn't understand the selected language."
             placeholder="deepgram/nova-3"
             onChange={(v) => set("speech", { ...app.speech, sttModel: v })}
           />

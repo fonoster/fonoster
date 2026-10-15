@@ -24,8 +24,11 @@ import { expect } from "chai";
 import WebSocket from "ws";
 import { parse } from "yaml";
 import { SpeechError, SttAdapter, Transcript, TtsAdapter } from "../src";
-import { DeepgramSttAdapter, DeepgramTtsAdapter } from "../src/speech/deepgram";
-import { ElevenLabsTtsAdapter } from "../src/speech/elevenlabs";
+import {
+  DeepgramSttAdapter,
+  DeepgramTtsAdapter
+} from "@fonoster/community/deepgram";
+import { ElevenLabsTtsAdapter } from "@fonoster/community/elevenlabs";
 
 // Adapter conformance per type (add-provider-registry task 1.5, build log LO-B14): every feature
 // a catalog model declares for a speech adapter is checked, cancelling is fast, and vendor errors

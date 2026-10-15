@@ -66,11 +66,21 @@ export type CatalogEntry = {
   state: "active" | "deprecated";
   /** Deprecated entries: what to use instead. */
   replacement?: string;
+  /** Models and voices: languages served ("multi" = any); empty = not stated. */
+  languages?: string[];
+  /** Models: catalog features (streaming, tool-calling, …). */
+  features?: string[];
+  /** Voices: the TTS models the voice exists on. */
+  models?: string[];
+  /** Set by the pickers on a saved value that no longer fits the other settings. */
+  incompatible?: boolean;
 };
 export type Catalog = {
   voices: CatalogEntry[];
   languages: CatalogEntry[];
   sttModels: CatalogEntry[];
+  ttsModels: CatalogEntry[];
+  llmModels: CatalogEntry[];
   /** Provider ids (for vendor keys). */
   providers: CatalogEntry[];
 };

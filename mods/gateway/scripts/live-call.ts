@@ -39,18 +39,18 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { connect } from "nats";
 import { Registry } from "@fonoster/common";
+import { DeepgramSttAdapter } from "@fonoster/community/deepgram";
 import { buildMediaNode, MediaNodeProcess } from "@fonoster/conformance";
-import { Gateway } from "../src/Gateway";
-import { MemoryCallRecordSink } from "../src/record/CallRecordSink";
-import { DeepgramSttAdapter } from "../src/speech/deepgram";
-import { Transcript } from "../src/speech/types";
-// The hosted Autopilot, from its sources (the gateway does not depend on the autopilot package).
+import { connect } from "nats";
 import {
   loadHostedConfig,
   startHostedAutopilot
 } from "../../autopilot/src/session/hosted";
+import { Gateway } from "../src/Gateway";
+import { MemoryCallRecordSink } from "../src/record/CallRecordSink";
+import { Transcript } from "../src/speech/types";
+// The hosted Autopilot, from its sources (the gateway does not depend on the autopilot package).
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const SEED = path.join(

@@ -4,6 +4,6 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "references": [{ "path": "../common" }, { "path": "../logger" }, { "path": "../callrecord" }],
+  "references": [{ "path": "../common" }, { "path": "../logger" }, { "path": "../callrecord" }, { "path": "../community" }],
   "exclude": ["node_modules", "dist", "test", "scripts"]
 }

@@ -21,8 +21,11 @@ import { AddressInfo } from "net";
 import { expect } from "chai";
 import WebSocket from "ws";
 import { SpeechError, Transcript, validateConfig } from "../src";
-import { DeepgramSttAdapter, DeepgramTtsAdapter } from "../src/speech/deepgram";
-import { ElevenLabsTtsAdapter } from "../src/speech/elevenlabs";
+import {
+  DeepgramSttAdapter,
+  DeepgramTtsAdapter
+} from "@fonoster/community/deepgram";
+import { ElevenLabsTtsAdapter } from "@fonoster/community/elevenlabs";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 

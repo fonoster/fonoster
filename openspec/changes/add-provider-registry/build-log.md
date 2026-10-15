@@ -375,3 +375,39 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   - LLM failures were plain `Error`s: they are now `ThinkError` with the session codes (an abort
     is rethrown as it is).
 
+
+## AD-B (adapters stream)
+
+### AD-B1. Vendor adapters in one package, one subpath per vendor (task 3.1)
+
+- Owner direction (via the coordinator, 2026-10-15): no package per vendor. All vendor adapters
+  live in `@fonoster/community` (`mods/community`): `@fonoster/community/deepgram` (STT + TTS),
+  `/elevenlabs` (TTS), `/openai` (OpenAI-compatible LLMs: openai, groq, ollama, the fake LLM),
+  `/fake` (fake speech). The root (and `/types`) exports the shared interfaces (`TtsAdapter`,
+  `SttAdapter`, `Think`, `SpeechError`, `ThinkError`, …) and `ADAPTERS` / `adapterFor(id)`: the
+  factories by catalog adapter id, which is what a registry provider row's `adapter` names.
+- Subpaths use package `exports` plus `typesVersions`, so they type-check under the repo's
+  `moduleResolution: node`.
+- The gateway's `Catalog` and Autopilot's `RegistryLlmResolver` build vendor clients only through
+  `adapterFor(adapter)`; "works without a key" is the adapter's `keyless` flag (fake, ollama)
+  instead of name checks. `gateway/src/speech/types.ts` and `autopilot/src/session/think.ts` stay
+  as re-exports so existing imports keep working. Behaviour unchanged: every adapter, conformance
+  and catalog-seed test passes as before.
+- Not moved: `mods/apiserver/src/voice` (vendor-SDK classes the legacy application validators
+  use for their config schemas) and `mods/autopilot/src/models` (the retired LangChain engine).
+  Neither runs calls in the rebuild; they go with the legacy app model (tasks 5.1/5.2).
+- Local setup: worktrees need `mods/{gateway,autopilot}/node_modules/@fonoster/community →
+  ../../../community` (like the other links); no new npm dependency (`ws` was already there).
+
+### AD-B2. Dashboard pickers filtered by compatibility (task 4.2 rest)
+
+- The app editor's pickers use the catalog's relations: Voice lists voices that speak the chosen
+  language and exist on a TTS model the catalog offers (voice ↔ model); Speech-to-text model lists
+  models that understand the language; Autopilot apps get a "Language model" picker (above the
+  assistant JSON, writing `languageModel.model`) that lists only LLMs with the assistant's hard
+  features (`streaming`, plus `tool-calling` when it has tools; same rule as the registry checker).
+- Language match: same base language (`es-419` fits `es`/`es-CO`), `multi`, or none stated. An
+  entry without stated features or models is not filtered out.
+- A saved value that no longer fits stays selectable, marked "(doesn't fit)" with a one-line hint.
+- Only the rebuild's app editor (`session/apps.tsx`); the legacy Agents screens keep their
+  hard-coded lists (they go with the legacy Application model).

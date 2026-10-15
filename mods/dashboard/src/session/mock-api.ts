@@ -51,12 +51,33 @@ export const catalogWarnings: CatalogWarning[] = [
 
 export const catalog: Catalog = {
   voices: [
-    { id: "elevenlabs/rachel", label: "ElevenLabs Rachel", state: "active" },
-    { id: "elevenlabs/adam", label: "ElevenLabs Adam", state: "active" },
+    {
+      id: "elevenlabs/rachel",
+      label: "ElevenLabs Rachel",
+      state: "active",
+      languages: ["multi"],
+      models: ["elevenlabs/eleven_flash_v2_5"]
+    },
+    {
+      id: "elevenlabs/adam",
+      label: "ElevenLabs Adam",
+      state: "active",
+      languages: ["multi"],
+      models: ["elevenlabs/eleven_flash_v2_5"]
+    },
     {
       id: "deepgram/aura-asteria",
       label: "Deepgram Aura Asteria",
-      state: "deprecated"
+      state: "deprecated",
+      languages: ["en-US"],
+      models: ["deepgram/aura"]
+    },
+    {
+      id: "deepgram/aura-2-celeste-es",
+      label: "Deepgram Aura 2 Celeste",
+      state: "active",
+      languages: ["es-CO"],
+      models: ["deepgram/aura-2"]
     }
   ],
   languages: [
@@ -65,7 +86,52 @@ export const catalog: Catalog = {
     { id: "multi", label: "Multilingual", state: "active" }
   ],
   sttModels: [
-    { id: "deepgram/nova-3", label: "deepgram/nova-3", state: "active" }
+    {
+      id: "deepgram/nova-3",
+      label: "deepgram/nova-3",
+      state: "active",
+      languages: ["en", "es", "multi"]
+    },
+    {
+      id: "deepgram/nova-2-phonecall",
+      label: "deepgram/nova-2-phonecall",
+      state: "active",
+      languages: ["en"]
+    }
+  ],
+  ttsModels: [
+    {
+      id: "elevenlabs/eleven_flash_v2_5",
+      label: "elevenlabs/eleven_flash_v2_5",
+      state: "active",
+      languages: ["en", "es", "multi"]
+    },
+    {
+      id: "deepgram/aura",
+      label: "deepgram/aura",
+      state: "deprecated",
+      languages: ["en"]
+    },
+    {
+      id: "deepgram/aura-2",
+      label: "deepgram/aura-2",
+      state: "active",
+      languages: ["en", "es"]
+    }
+  ],
+  llmModels: [
+    {
+      id: "openai/gpt-4o-mini",
+      label: "openai/gpt-4o-mini",
+      state: "active",
+      features: ["streaming", "tool-calling", "json-mode"]
+    },
+    {
+      id: "acme/no-tools",
+      label: "acme/no-tools",
+      state: "active",
+      features: ["streaming"]
+    }
   ],
   providers: [
     { id: "deepgram", label: "deepgram", state: "active" },

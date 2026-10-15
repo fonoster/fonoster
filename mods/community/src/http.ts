@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SpeechError, Synthesis } from "./types";
+import { SpeechError, Synthesis } from "./speech";
 
 /**
  * Shared HTTP plumbing for streaming TTS vendors: timeouts, error mapping, body streaming.
