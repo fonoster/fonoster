@@ -28,6 +28,13 @@ func env(name, def string) string {
 	return def
 }
 
+func envDuration(name string, def time.Duration) time.Duration {
+	if d, err := time.ParseDuration(os.Getenv(name)); err == nil {
+		return d
+	}
+	return def
+}
+
 func main() {
 	hostname, _ := os.Hostname()
 	nodeID := flag.String("node-id", env("MEDIANODE_ID", hostname), "node id used in media-control subjects")
@@ -43,6 +50,7 @@ func main() {
 	outbound := flag.String("outbound-proxy", env("MEDIANODE_OUTBOUND_PROXY", ""), "host:port outbound INVITEs go to (Routr); empty disables dial and transfers")
 	transport := flag.String("transport", env("MEDIANODE_TRANSPORT", "udp"), "REGISTER transport (udp or tcp)")
 	heartbeat := flag.Duration("heartbeat", 2*time.Second, "node.heartbeat period")
+	registerEvery := flag.Duration("register-every", envDuration("MEDIANODE_REGISTER_EVERY", 15*time.Second), "REGISTER interval (Expires is twice this); load changes of 5+ rooms re-register at once")
 	debugAddr := flag.String("debug", env("MEDIANODE_DEBUG_ADDR", ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
 	drainWait := flag.Duration("drain-wait", 10*time.Minute, "longest wait for rooms to end on SIGTERM")
 	flag.Parse()
@@ -60,7 +68,7 @@ func main() {
 	_, portText, _ := net.SplitHostPort(*sipListen)
 	port, _ := strconv.Atoi(portText)
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
-		Registrar: *registrar, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
+		Registrar: *registrar, RegisterEvery: *registerEvery, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
 		Logger: logger})
 	if err != nil {
 		logger.Error("sip", "err", err)

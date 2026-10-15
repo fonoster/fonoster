@@ -2,6 +2,7 @@
 // language can drive real calls into a media node:
 //
 //	POST /calls               {"target":"127.0.0.1:5060","to":"+1555","from":"+1444","headers":{"X-App-Ref":"app-1"}}
+//	                          (optional "requestHost": the Request-URI host, e.g. a Routr Trunk's inboundUri)
 //	GET  /calls/{id}          {"sip":[100,180,200],"state":"answered","heardMs":..,"audibleMs":..}
 //	POST /calls/{id}/dtmf     {"digits":"12#"}
 //	POST /calls/{id}/audio    {"kind":"tone","ms":800}
@@ -25,9 +26,10 @@ import (
 func main() {
 	listen := flag.String("listen", "127.0.0.1:0", "HTTP control address")
 	host := flag.String("host", "127.0.0.1", "address for SIP and RTP")
+	sipAdvertise := flag.String("sip-advertise", "", "host in Via and Contact when a proxy reaches the bot by another name (default: -host)")
 	flag.Parse()
 
-	bot, err := caller.New(*host)
+	bot, err := caller.NewWithOptions(caller.Options{Host: *host, SIPAdvertise: *sipAdvertise})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,13 +39,14 @@ func main() {
 	mux.HandleFunc("POST /calls", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Target, To, From string
+			RequestHost      string
 			Headers          map[string]string
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), 400)
 			return
 		}
-		c, err := bot.Dial(req.Target, req.To, req.From, req.Headers)
+		c, err := bot.DialVia(req.Target, req.RequestHost, req.To, req.From, req.Headers)
 		if err != nil {
 			http.Error(w, err.Error(), 502)
 			return
