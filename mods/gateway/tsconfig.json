@@ -5,5 +5,5 @@
     "rootDir": "src"
   },
   "references": [{ "path": "../common" }, { "path": "../logger" }],
-  "exclude": ["node_modules", "dist", "test"]
+  "exclude": ["node_modules", "dist", "test", "scripts"]
 }

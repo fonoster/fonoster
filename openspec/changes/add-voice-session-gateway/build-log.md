@@ -146,3 +146,23 @@ it touches are named.
   like every app message, no other effect; oversized notes get `error` `bad_message`. Added to the
   spec, the JSON Schemas, both SDKs (`session.note`) and Autopilot's recorder. Reason: Autopilot's
   per-turn traces had no way into the call record (rework-autopilot AP5).
+
+### B17. First scale numbers (pass bar T2), laptop only
+
+`npx tsx mods/gateway/scripts/scale.ts --calls N --seconds S` runs N concurrent calls through one
+gateway **process** (its own event loop, i.e. one core), with the fakes in a separate driver
+process. Every call speaks every 3 s and streams caller audio both ways. Apple M4 Pro, Node 22.17:
+
+| Calls | Outbound RTP delivered | Caller audio to app | speak → output.started p95 | Gateway CPU p50 / p95 (one core = 100%) | RSS p95 |
+| --- | --- | --- | --- | --- | --- |
+| 10 | 99.99% | 99.7% | 25 ms | 12% / 38% | 143 MB |
+| 100 | 99.98% | 99.97% | 23 ms | 39% / 54% | 230 MB |
+| 250 | 99.97% | 99.96% | 22 ms | 70% / 79% | 173 MB |
+| 400 | 99.98% | 99.96% | 23 ms | 94% / 99% | 188 MB |
+
+The missing fraction is window edges, not drops. Caveats before trusting this for capacity: a
+cloud vCPU is slower than an M4 core; the fakes do no real work (real STT/TTS adapters add TLS and
+vendor framing); no audio filter ran (aiCoustics is CPU-heavy); calls were mostly idle between
+speaks. Still, the TypeScript-gateway risk (platform risk table) looks small: T2 asks for 100 calls
+on about 2 vCPU, and one core here holds about 4x that. The 10-replica, 1,000-call half of T2 and a
+dedicated runner are still to do (conformance 3.10, 4.2).
