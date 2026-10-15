@@ -498,10 +498,7 @@ func (u *UA) send(ctx context.Context, expires int) error {
 	req := sip.NewRequest(sip.REGISTER, sip.Uri{Host: domain})
 	req.SetDestination(fmt.Sprintf("%s:%d", host, port))
 	req.SetTransport(strings.ToUpper(u.cfg.Transport))
-	user := u.cfg.Username
-	if user == "" {
-		user = "medianode"
-	}
+	user := u.peerUser()
 	req.AppendHeader(&sip.FromHeader{Address: sip.Uri{User: user, Host: domain}, Params: sip.NewParams()})
 	req.AppendHeader(&sip.ToHeader{Address: sip.Uri{User: user, Host: domain}})
 	contactParams := sip.NewParams()
@@ -534,6 +531,32 @@ func (u *UA) send(ctx context.Context, expires int) error {
 
 // ---- outbound legs --------------------------------------------------------------------------
 
+// DODNumberHeader carries the caller-id number of a Peer's call to the PSTN; Routr picks the
+// trunk by it (connect's peerToPSTN reads X-DOD-Number; SIP header names are case-insensitive).
+const DODNumberHeader = "X-DOD-Number"
+
+// peerUser is the node's Routr Peer username (REGISTER and outbound INVITEs).
+func (u *UA) peerUser() string {
+	if u.cfg.Username != "" {
+		return u.cfg.Username
+	}
+	return "medianode"
+}
+
+// peerDomain is the host in the Peer's From: the configured domain, else the registrar's or
+// outbound proxy's host.
+func (u *UA) peerDomain() string {
+	if u.cfg.Domain != "" {
+		return u.cfg.Domain
+	}
+	for _, addr := range []string{u.cfg.Registrar, u.cfg.OutboundProxy} {
+		if host, _, err := net.SplitHostPort(addr); err == nil && host != "" {
+			return host
+		}
+	}
+	return u.cfg.AdvertiseHost
+}
+
 // Dial sends an INVITE through the outbound proxy (node.Dialer).
 func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]string, offer []byte,
 	onProgress func(status int)) (node.OutLeg, []byte, error) {
@@ -542,14 +565,23 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 		return nil, nil, err
 	}
 	port, _ := strconv.Atoi(portText)
-	if from == "" {
-		from = "medianode"
-	}
-	fromHdr := &sip.FromHeader{Address: sip.Uri{User: from, Host: u.cfg.AdvertiseHost}, Params: sip.NewParams()}
+	// The node calls as its Routr Peer, the way Asterisk's outbound endpoint did (from_user and
+	// outbound_auth): Routr finds the caller by the From user, so From is the Peer and the caller-id
+	// number travels in X-DOD-Number, which picks the trunk (PEER_TO_PSTN). A Number in From makes
+	// the routing direction unknown and Routr answers 403 (OB-B1).
+	user := u.peerUser()
+	fromHdr := &sip.FromHeader{Address: sip.Uri{User: user, Host: u.peerDomain()}, Params: sip.NewParams()}
 	fromHdr.Params.Add("tag", sip.GenerateTagN(10))
 	hdrs := []sip.Header{fromHdr, sip.NewHeader("Content-Type", "application/sdp")}
+	hasDOD := false
 	for k, v := range headers {
+		if strings.EqualFold(k, DODNumberHeader) {
+			hasDOD = true
+		}
 		hdrs = append(hdrs, sip.NewHeader(k, v))
+	}
+	if !hasDOD && from != "" {
+		hdrs = append(hdrs, sip.NewHeader(DODNumberHeader, from))
 	}
 	target := sip.Uri{User: to, Host: host, Port: port}
 	if u.cfg.OutboundTransport != "udp" {
@@ -560,10 +592,12 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 	if err != nil {
 		return nil, nil, err
 	}
-	err = session.WaitAnswer(ctx, sipgo.AnswerOptions{OnResponse: func(res *sip.Response) error {
-		onProgress(int(res.StatusCode))
-		return nil
-	}})
+	// Routr challenges a Peer's INVITE (401) like its REGISTER: answer with the same credentials.
+	err = session.WaitAnswer(ctx, sipgo.AnswerOptions{Username: user, Password: u.cfg.Password,
+		OnResponse: func(res *sip.Response) error {
+			onProgress(int(res.StatusCode))
+			return nil
+		}})
 	if err != nil {
 		var final *sipgo.ErrDialogResponse
 		if errors.As(err, &final) {

@@ -29,7 +29,7 @@ require (
 	github.com/gobwas/ws v1.3.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 // indirect
-	github.com/icholy/digest v1.1.0 // indirect
+	github.com/icholy/digest v1.1.0
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/nats-io/nkeys v0.4.11 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect

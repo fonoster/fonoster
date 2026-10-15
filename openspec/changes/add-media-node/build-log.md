@@ -370,3 +370,34 @@ cutover.
   with `tsc -p tsconfig.build.json && vite build` into a scratch directory).
 - Worktree links (not committed): `mods/*/node_modules/@fonoster/{common,voice,autopilot,sipnet,
   conformance}` point at this worktree, so the suite runs against the changed packages.
+
+### OB-B1. Outbound INVITEs as the media-node Peer (fixes ST-B11's 403)
+
+- Routr's connect processor finds the caller by the From user (Number first, then Agent, then
+  Peer by username) and the callee by the Request-URI. With the DOD number in From the caller was
+  a Number, the direction UNKNOWN, and Routr answered 403. `sipua.Dial` now sends
+  `From: <sip:<peer user>@<domain>>` (the REGISTER username, default `medianode`; host is
+  `-domain`, else the registrar or outbound proxy host), exactly as Asterisk's `from_user` did.
+  Routr then sees PEER_TO_PSTN.
+- The caller-id number goes in `X-DOD-Number` (Routr's `CT.ExtraHeader.DOD_NUMBER`; it picks
+  the trunk). The apiserver already sends it as `X-Dod-Number` (header names are
+  case-insensitive), so `mods/apiserver/src/outbound` is unchanged; the node adds the header from
+  the command's `from` only when the headers lack it (covers other dialers).
+- Routr challenges a Peer's INVITE (401, `checkAgentOrPeerAccess`); the node answers with the
+  REGISTER credentials through sipgo's `AnswerOptions{Username, Password}` (one retry, no new
+  config). A wrong password ends the dial as `call.progress failed`, `sipStatus` 401.
+- Caller bot: `RequireAuth(user, pass)` (HTTP `POST /callee` takes `Username`/`Password`)
+  challenges INVITEs like Routr and checks the MD5 digest (with or without qop); answered calls
+  report the INVITE's `from` and X- `headers`, and `GET /calls` reports `challenged`. `icholy/digest`
+  (already in the module graph through sipgo) is now a direct dependency.
+- Tests: e2e `TestDialAsPeer` (challenge answered once, From is the Peer, X-DOD-Number and
+  X-Call-Ref arrive) and `TestDialAsPeerBadSecret`.
+- Verified in the local stack (ports 18xxx, project `rb-outbound`): trunk URI pointed at the
+  caller bot, SDK `createCall` from +17853178070 through real Routr: the bot answered (Routr added
+  `X-Call-Direction: peer-to-pstn`), heard 7.4 s of the Autopilot greeting, and after hangup the
+  record was `completed`, `outbound`, 45 s, `s3://records/`.
+- Seen, not fixed (other owners): the SDK's `createCall` status stream yielded no events within
+  40 s; the outbound record's `end_reason` is `caller_hangup` although the dialed party hung up;
+  updating a trunk's URIs needs `name` and `inboundUri` in the request or Routr's update fails
+  with "Expected a string but received a undefined" (500 from the apiserver).
+
