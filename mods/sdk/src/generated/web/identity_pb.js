@@ -1273,7 +1273,8 @@ ownerRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
 accessKeyId: jspb.Message.getFieldWithDefault(msg, 4, ""),
 createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
 updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0),
-owner: (f = msg.getOwner()) && proto.fonoster.identity.v1beta2.Workspace.Owner.toObject(includeInstance, f)
+owner: (f = msg.getOwner()) && proto.fonoster.identity.v1beta2.Workspace.Owner.toObject(includeInstance, f),
+region: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -1338,6 +1339,10 @@ proto.fonoster.identity.v1beta2.Workspace.deserializeBinaryFromReader = function
       var value = new proto.fonoster.identity.v1beta2.Workspace.Owner;
       reader.readMessage(value,proto.fonoster.identity.v1beta2.Workspace.Owner.deserializeBinaryFromReader);
       msg.setOwner(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRegion(value);
       break;
     default:
       reader.skipField();
@@ -1416,6 +1421,13 @@ proto.fonoster.identity.v1beta2.Workspace.serializeBinaryToWriter = function(mes
       7,
       f,
       proto.fonoster.identity.v1beta2.Workspace.Owner.serializeBinaryToWriter
+    );
+  }
+  f = message.getRegion();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
+      f
     );
   }
 };
@@ -1756,6 +1768,24 @@ proto.fonoster.identity.v1beta2.Workspace.prototype.hasOwner = function() {
 };
 
 
+/**
+ * optional string region = 8;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.Workspace.prototype.getRegion = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.Workspace} returns this
+ */
+proto.fonoster.identity.v1beta2.Workspace.prototype.setRegion = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+
 
 
 
@@ -1788,7 +1818,8 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.prototype.toObject = func
  */
 proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-name: jspb.Message.getFieldWithDefault(msg, 1, "")
+name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+region: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1829,6 +1860,10 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.deserializeBinaryFromRead
       var value = /** @type {string} */ (reader.readString());
       msg.setName(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRegion(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1865,6 +1900,13 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.serializeBinaryToWriter =
       f
     );
   }
+  f = message.getRegion();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
 };
 
 
@@ -1883,6 +1925,24 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.prototype.getName = funct
  */
 proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.prototype.setName = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string region = 2;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.prototype.getRegion = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.CreateWorkspaceRequest} returns this
+ */
+proto.fonoster.identity.v1beta2.CreateWorkspaceRequest.prototype.setRegion = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -1918,7 +1978,10 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.toObject = fun
  */
 proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+region: jspb.Message.getFieldWithDefault(msg, 2, ""),
+enrollmentToken: jspb.Message.getFieldWithDefault(msg, 3, ""),
+expiresAt: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -1959,6 +2022,18 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.deserializeBinaryFromRea
       var value = /** @type {string} */ (reader.readString());
       msg.setRef(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRegion(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEnrollmentToken(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setExpiresAt(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1995,6 +2070,27 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.serializeBinaryToWriter 
       f
     );
   }
+  f = message.getRegion();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getEnrollmentToken();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getExpiresAt();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
 };
 
 
@@ -2013,6 +2109,60 @@ proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.getRef = funct
  */
 proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.setRef = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string region = 2;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.getRegion = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.CreateWorkspaceResponse} returns this
+ */
+proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.setRegion = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string enrollment_token = 3;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.getEnrollmentToken = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.CreateWorkspaceResponse} returns this
+ */
+proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.setEnrollmentToken = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string expires_at = 4;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.getExpiresAt = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.CreateWorkspaceResponse} returns this
+ */
+proto.fonoster.identity.v1beta2.CreateWorkspaceResponse.prototype.setExpiresAt = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -2789,7 +2939,8 @@ proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.prototype.toObject = func
 proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
 ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-name: jspb.Message.getFieldWithDefault(msg, 2, "")
+name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+region: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -2834,6 +2985,10 @@ proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.deserializeBinaryFromRead
       var value = /** @type {string} */ (reader.readString());
       msg.setName(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRegion(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2877,6 +3032,13 @@ proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.serializeBinaryToWriter =
       f
     );
   }
+  f = message.getRegion();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -2913,6 +3075,24 @@ proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.prototype.getName = funct
  */
 proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.prototype.setName = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string region = 3;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.prototype.getRegion = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest} returns this
+ */
+proto.fonoster.identity.v1beta2.UpdateWorkspaceRequest.prototype.setRegion = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 

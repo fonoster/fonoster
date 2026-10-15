@@ -21,7 +21,7 @@ import { getLogger } from "@fonoster/logger";
 import { Router } from "express";
 import { connect } from "nats";
 import { subscribeRecordIndex } from "./createIndexRecord";
-import { createRecordsRouter } from "./createRecordsRouter";
+import { createRecordsRouter, RecordsRouterDeps } from "./createRecordsRouter";
 import { natsMaintenanceClient, runRetention } from "./maintenance";
 import { createStoreResolver } from "./stores";
 import { RecordsDb } from "./types";
@@ -41,7 +41,13 @@ export type CallRecordsConfig = {
  */
 export async function runCallRecords(
   config: CallRecordsConfig,
-  deps: { natsUrl: string; identityPublicKey: string; db: RecordsDb }
+  deps: {
+    natsUrl: string;
+    identityPublicKey: string;
+    db: RecordsDb;
+    relay?: RecordsRouterDeps["relay"];
+    onConfigChange?: (accessKeyId: string) => void;
+  }
 ): Promise<{ routers: { path: string; router: Router }[] }> {
   if (!config.enabled) return { routers: [] };
   const nc = await connect({
@@ -66,7 +72,9 @@ export async function runCallRecords(
     db: deps.db,
     identityPublicKey: deps.identityPublicKey,
     stores: createStoreResolver(config.stores),
-    maintenance
+    maintenance,
+    relay: deps.relay,
+    onConfigChange: deps.onConfigChange
   });
   logger.info("call records: index, retention and /api/records are on");
   return { routers: [{ path: "/api/records", router }] };

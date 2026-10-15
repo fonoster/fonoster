@@ -2582,6 +2582,7 @@ export namespace Prisma {
     ref: string | null
     accessKeyId: string | null
     name: string | null
+    region: string | null
     createdAt: Date | null
     updatedAt: Date | null
     ownerRef: string | null
@@ -2591,6 +2592,7 @@ export namespace Prisma {
     ref: string | null
     accessKeyId: string | null
     name: string | null
+    region: string | null
     createdAt: Date | null
     updatedAt: Date | null
     ownerRef: string | null
@@ -2600,6 +2602,7 @@ export namespace Prisma {
     ref: number
     accessKeyId: number
     name: number
+    region: number
     createdAt: number
     updatedAt: number
     ownerRef: number
@@ -2611,6 +2614,7 @@ export namespace Prisma {
     ref?: true
     accessKeyId?: true
     name?: true
+    region?: true
     createdAt?: true
     updatedAt?: true
     ownerRef?: true
@@ -2620,6 +2624,7 @@ export namespace Prisma {
     ref?: true
     accessKeyId?: true
     name?: true
+    region?: true
     createdAt?: true
     updatedAt?: true
     ownerRef?: true
@@ -2629,6 +2634,7 @@ export namespace Prisma {
     ref?: true
     accessKeyId?: true
     name?: true
+    region?: true
     createdAt?: true
     updatedAt?: true
     ownerRef?: true
@@ -2711,6 +2717,7 @@ export namespace Prisma {
     ref: string
     accessKeyId: string
     name: string
+    region: string
     createdAt: Date
     updatedAt: Date
     ownerRef: string
@@ -2737,6 +2744,7 @@ export namespace Prisma {
     ref?: boolean
     accessKeyId?: boolean
     name?: boolean
+    region?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     ownerRef?: boolean
@@ -2750,6 +2758,7 @@ export namespace Prisma {
     ref?: boolean
     accessKeyId?: boolean
     name?: boolean
+    region?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     ownerRef?: boolean
@@ -2760,6 +2769,7 @@ export namespace Prisma {
     ref?: boolean
     accessKeyId?: boolean
     name?: boolean
+    region?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     ownerRef?: boolean
@@ -2770,12 +2780,13 @@ export namespace Prisma {
     ref?: boolean
     accessKeyId?: boolean
     name?: boolean
+    region?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     ownerRef?: boolean
   }
 
-  export type WorkspaceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ref" | "accessKeyId" | "name" | "createdAt" | "updatedAt" | "ownerRef", ExtArgs["result"]["workspace"]>
+  export type WorkspaceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ref" | "accessKeyId" | "name" | "region" | "createdAt" | "updatedAt" | "ownerRef", ExtArgs["result"]["workspace"]>
   export type WorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
@@ -2800,6 +2811,10 @@ export namespace Prisma {
       ref: string
       accessKeyId: string
       name: string
+      /**
+       * A public region id (us-east-1) or the workspace's private region ref (rg_…). Immutable.
+       */
+      region: string
       createdAt: Date
       updatedAt: Date
       ownerRef: string
@@ -3232,6 +3247,7 @@ export namespace Prisma {
     readonly ref: FieldRef<"Workspace", 'String'>
     readonly accessKeyId: FieldRef<"Workspace", 'String'>
     readonly name: FieldRef<"Workspace", 'String'>
+    readonly region: FieldRef<"Workspace", 'String'>
     readonly createdAt: FieldRef<"Workspace", 'DateTime'>
     readonly updatedAt: FieldRef<"Workspace", 'DateTime'>
     readonly ownerRef: FieldRef<"Workspace", 'String'>
@@ -6995,6 +7011,7 @@ export namespace Prisma {
     ref: 'ref',
     accessKeyId: 'accessKeyId',
     name: 'name',
+    region: 'region',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     ownerRef: 'ownerRef'
@@ -7322,6 +7339,7 @@ export namespace Prisma {
     ref?: StringFilter<"Workspace"> | string
     accessKeyId?: StringFilter<"Workspace"> | string
     name?: StringFilter<"Workspace"> | string
+    region?: StringFilter<"Workspace"> | string
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
     ownerRef?: StringFilter<"Workspace"> | string
@@ -7334,6 +7352,7 @@ export namespace Prisma {
     ref?: SortOrder
     accessKeyId?: SortOrder
     name?: SortOrder
+    region?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     ownerRef?: SortOrder
@@ -7349,6 +7368,7 @@ export namespace Prisma {
     OR?: WorkspaceWhereInput[]
     NOT?: WorkspaceWhereInput | WorkspaceWhereInput[]
     name?: StringFilter<"Workspace"> | string
+    region?: StringFilter<"Workspace"> | string
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
     ownerRef?: StringFilter<"Workspace"> | string
@@ -7361,6 +7381,7 @@ export namespace Prisma {
     ref?: SortOrder
     accessKeyId?: SortOrder
     name?: SortOrder
+    region?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     ownerRef?: SortOrder
@@ -7376,6 +7397,7 @@ export namespace Prisma {
     ref?: StringWithAggregatesFilter<"Workspace"> | string
     accessKeyId?: StringWithAggregatesFilter<"Workspace"> | string
     name?: StringWithAggregatesFilter<"Workspace"> | string
+    region?: StringWithAggregatesFilter<"Workspace"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
     ownerRef?: StringWithAggregatesFilter<"Workspace"> | string
@@ -7720,6 +7742,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
@@ -7731,6 +7754,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     ownerRef: string
@@ -7742,6 +7766,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
@@ -7753,6 +7778,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ownerRef?: StringFieldUpdateOperationsInput | string
@@ -7764,6 +7790,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     ownerRef: string
@@ -7773,6 +7800,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7781,6 +7809,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ownerRef?: StringFieldUpdateOperationsInput | string
@@ -8253,6 +8282,7 @@ export namespace Prisma {
     ref?: SortOrder
     accessKeyId?: SortOrder
     name?: SortOrder
+    region?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     ownerRef?: SortOrder
@@ -8262,6 +8292,7 @@ export namespace Prisma {
     ref?: SortOrder
     accessKeyId?: SortOrder
     name?: SortOrder
+    region?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     ownerRef?: SortOrder
@@ -8271,6 +8302,7 @@ export namespace Prisma {
     ref?: SortOrder
     accessKeyId?: SortOrder
     name?: SortOrder
+    region?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     ownerRef?: SortOrder
@@ -9009,6 +9041,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
@@ -9019,6 +9052,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
@@ -9086,6 +9120,7 @@ export namespace Prisma {
     ref?: StringFilter<"Workspace"> | string
     accessKeyId?: StringFilter<"Workspace"> | string
     name?: StringFilter<"Workspace"> | string
+    region?: StringFilter<"Workspace"> | string
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
     ownerRef?: StringFilter<"Workspace"> | string
@@ -9357,6 +9392,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
@@ -9367,6 +9403,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     ownerRef: string
@@ -9440,6 +9477,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
@@ -9450,6 +9488,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ownerRef?: StringFieldUpdateOperationsInput | string
@@ -9460,6 +9499,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
@@ -9470,6 +9510,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     ownerRef: string
@@ -9496,6 +9537,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
@@ -9506,6 +9548,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ownerRef?: StringFieldUpdateOperationsInput | string
@@ -9516,6 +9559,7 @@ export namespace Prisma {
     ref?: string
     accessKeyId: string
     name: string
+    region?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9533,6 +9577,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
@@ -9543,6 +9588,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -9553,6 +9599,7 @@ export namespace Prisma {
     ref?: StringFieldUpdateOperationsInput | string
     accessKeyId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

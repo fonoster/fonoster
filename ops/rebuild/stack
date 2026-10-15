@@ -53,7 +53,7 @@ compose() {
   load_env
   local args=(--project-directory "$HERE" -f "$HERE/compose.yaml" --env-file "$STACK_ENV")
   [ -f "$HOST_ENV" ] && args+=(--env-file "$HOST_ENV")
-  COMPOSE_PROFILES="${RB_PROFILES:-autopilot,fakes,tools}" docker compose "${args[@]}" "$@"
+  COMPOSE_PROFILES="${RB_PROFILES:-autopilot,fakes,tools,regions}" docker compose "${args[@]}" "$@"
 }
 
 # ---- one-time setup: env file with secrets, keys ----
@@ -88,8 +88,14 @@ init_local() {
     openssl ecparam -name prime256v1 -genkey -noout 2>/dev/null \
       | openssl pkcs8 -topk8 -nocrypt -out "$CONF/keys/records.pem"
   fi
+  if [ ! -f "$CONF/region-hub.conf" ]; then
+    log "generating the region hub (private regions: operator, accounts, region-signing key)"
+    (cd "$ROOT" && npx --no-install tsx mods/apiserver/src/bin/regionHubSetup.ts "$CONF" >/dev/null) \
+      || log "could not generate the region hub; private regions stay off"
+  fi
   # Containers run as another user; local keys only.
   chmod 644 "$CONF/keys/"*.pem
+  if [ -d "$CONF/keys/region-hub" ]; then chmod 644 "$CONF/keys/region-hub/"*; fi
 }
 
 # The address softphones and the media path reach from both the host and the containers: the
@@ -212,6 +218,23 @@ identity:
   invites: { expiration: 1d }
   owner: { name: Admin, email: "$RB_ADMIN_EMAIL", password: "$RB_ADMIN_PASSWORD" }
 EOF
+  # Private regions (add-private-regions): cells link to the region hub (nats-regions) over a
+  # plain leaf node on this machine; enrollment goes through Envoy's /api.
+  if [ -f "$CONF/region-hub.conf" ]; then
+    cat >> "$CONF/fonoster.yaml" <<EOF
+regions:
+  controlPlaneUrl: "http://$host_ip:$RB_API_PORT"
+  leafUrl: "nats://$host_ip:${RB_LEAF_PORT:-7422}"
+  allowInsecureLeaf: true
+  signingKey: { file: /opt/fonoster/keys/region-signing.pem }
+  hub:
+    url: "nats://nats-regions:4222"
+    credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds
+    systemCredentialsFile: /opt/fonoster/keys/region-hub/system.creds
+    operatorSeedFile: /opt/fonoster/keys/region-hub/operator.seed
+    accountSeedFile: /opt/fonoster/keys/region-hub/account.seed
+EOF
+  fi
 
   # Speech providers: the vendor when its key is present, else the fake (fakes service).
   local providers=""

@@ -41,6 +41,8 @@ model Workspace {
   ref         String   @id @default(uuid())
   accessKeyId String   @unique @map("access_key_id") @db.VarChar(255)
   name        String   @db.VarChar(60)
+  /// A public region id (us-east-1) or the workspace's private region ref (rg_…). Immutable.
+  region      String   @default("us-east-1") @db.VarChar(64)
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
 

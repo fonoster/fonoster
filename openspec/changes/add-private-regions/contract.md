@@ -51,9 +51,32 @@ Responses:
 | `region.R.usage` | cell → cp | `{type:"region.usage", minutes, period}` (visibility only; flat fee billing) |
 | `region.R.revoked` | cp → cell | `{type:"region.revoked", reason}` best-effort notice before credentials stop working |
 
+Additions from the control-plane build (RG-B4, additive):
+
+- **Reply subjects stay inside the region.** The leaf credentials allow only `region.R.>`, so a
+  request that crosses the link must carry a reply subject under `region.R._INBOX.>`. The control
+  plane uses `region.R._INBOX.<id>` for relay requests; the cell must connect its link client with
+  `inboxPrefix: "region.R._INBOX"` (nats.js) for `region.R.config.request`, or its replies never
+  come back.
+- `region.R.relay` requests also carry `original?: boolean` (record.get: the unredacted copy; the
+  control plane already checked the owner/admin role) and `version?: number`.
+- A relay the cell cannot serve answers once with
+  `{type:"region.relay.error", id, code:"not_found"|"contents_deleted"|"permission_denied"|…, message?}`.
+  Chunk `seq` starts at 0; the control plane reorders chunks and gives up when the first chunk
+  takes over 5 s (`region_offline`, HTTP 503) or the next over 10 s.
+- `region.R.config.request` may also be answered with
+  `{type:"region.config.paused", reason, requiredVersion}` while the region is `unsupported`.
+- `region.R.config` snapshots: `apps` are application rows in the columns the gateway's
+  `appFromRow` reads (including the app's session `signingSecret`), `assistants` are
+  `{appRef, productRef, config}`, `webhooks` include the endpoint signing secrets (both are
+  Fonoster-generated, not provider keys), `catalog` holds the provider, model and voice entries
+  the apps reference, `recordingPolicy` is `{transcripts, recordings, retention:[{part, days}]}`.
+- A heartbeat whose `configVersion` is behind makes the control plane resend the current snapshot
+  (same version). Heartbeats, index and usage from a region that is not enrolled are ignored.
+
 ## 4. Status rules (control plane)
 
-- `waiting`: never enrolled, or disconnected. `connected`: heartbeat within 2 min, version in window,
+- `waiting`: never enrolled, disconnected, or enrolled less than 2 min ago without a heartbeat yet. `connected`: heartbeat within 2 min, version in window,
   all components > 0. `degraded`: heartbeat within 2 min but a component count is 0.
   `offline`: no heartbeat for 2 min. `unsupported`: version older than the previous minor release
   (config sync paused; reason shown).

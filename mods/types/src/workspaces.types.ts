@@ -37,6 +37,8 @@ type Workspace = {
   accessKeyId: string;
   createdAt: Date;
   updatedAt: Date;
+  /** A public region id (`us-east-1`) or the workspace's private region ref (`rg_…`). */
+  region?: string;
   owner?: {
     ref: string;
     name: string;
@@ -46,6 +48,16 @@ type Workspace = {
 
 type CreateWorkspaceRequest = {
   name: string;
+  /** A public region id, or `"private"` for a new private region. Fixed for life. */
+  region?: string;
+};
+
+type CreateWorkspaceResponse = {
+  ref: string;
+  region?: string;
+  /** Private regions only: the one-time enrollment token (shown once) and its expiry. */
+  enrollmentToken?: string;
+  expiresAt?: string;
 };
 
 type UpdateWorkspaceRequest = {
@@ -84,6 +96,7 @@ type ResendWorkspaceMembershipInvitationResponse = {
 };
 
 export {
+  CreateWorkspaceResponse,
   CreateWorkspaceRequest,
   InviteUserToWorkspaceRequest,
   InviteUserToWorkspaceResponse,

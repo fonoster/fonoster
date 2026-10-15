@@ -382,3 +382,62 @@ model CallRecordRetention {
   @@unique([accessKeyId, part])
   @@map("call_record_retention")
 }
+
+// rebuild: regions
+// Private regions (add-private-regions). A region belongs to exactly one workspace (PR-2); the
+// workspace's `region` column (Identity) holds the region ref. Secrets values are never stored here.
+
+model Region {
+  ref                 String    @id @db.VarChar(64)
+  accessKeyId         String    @unique @map("access_key_id")
+  /// waiting (never enrolled or disconnected) | enrolled. The shown status adds heartbeat rules.
+  state               String    @default("waiting") @db.VarChar(16)
+  cellPublicKey       String?   @map("cell_public_key")
+  version             String?   @db.VarChar(64)
+  components          Json?
+  activeCalls         Int       @default(0) @map("active_calls")
+  secretsSet          String[]  @map("secrets_set")
+  reportedConfig      Int       @default(0) @map("reported_config_version")
+  configVersion       Int       @default(0) @map("config_version")
+  lastHeartbeatAt     DateTime? @map("last_heartbeat_at")
+  enrolledAt          DateTime? @map("enrolled_at")
+  deletedAt           DateTime? @map("deleted_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("regions")
+}
+
+/// One enrollment token (single use, 24 h). Only its id is kept, never the token.
+model RegionToken {
+  jti        String    @id @db.VarChar(64)
+  regionRef  String    @map("region_ref") @db.VarChar(64)
+  issuedAt   DateTime  @map("issued_at")
+  expiresAt  DateTime  @map("expires_at")
+  usedAt     DateTime? @map("used_at")
+
+  @@index([regionRef])
+  @@map("region_tokens")
+}
+
+/// The NATS users issued to a region's cell; a revoked one is in the REGIONS account revocations.
+model RegionCredential {
+  userPublicKey String    @id @map("user_public_key") @db.VarChar(64)
+  regionRef     String    @map("region_ref") @db.VarChar(64)
+  issuedAt      DateTime  @map("issued_at")
+  revokedAt     DateTime? @map("revoked_at")
+
+  @@index([regionRef])
+  @@map("region_credentials")
+}
+
+/// Minutes reported by the cell per period (visibility only; flat fee billing, PR-11).
+model RegionUsage {
+  regionRef String   @map("region_ref") @db.VarChar(64)
+  period    String   @db.VarChar(16)
+  minutes   Float
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@id([regionRef, period])
+  @@map("region_usage")
+}
