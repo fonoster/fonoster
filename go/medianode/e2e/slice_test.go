@@ -331,7 +331,22 @@ func TestUnclaimedCallGets503(t *testing.T) {
 	r.mu.Lock()
 	r.claim = false
 	r.mu.Unlock()
-	call, err := r.bot.Dial(r.sip, "+15550002222", "", map[string]string{"X-App-Ref": "app-1"})
+	// The workspace learns about the failed call through the webhook bus (LO-B1).
+	appRef := fmt.Sprintf("app-unclaimed-%d", time.Now().UnixNano())
+	hooks := make(chan map[string]any, 4)
+	sub, err := r.nc.Subscribe(node.WebhookEventsSubject, func(m *nats.Msg) {
+		var ev map[string]any
+		if json.Unmarshal(m.Data, &ev) == nil {
+			if d, _ := ev["data"].(map[string]any); d != nil && d["appRef"] == appRef {
+				hooks <- ev
+			}
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sub.Unsubscribe()
+	call, err := r.bot.Dial(r.sip, "+15550002222", "", map[string]string{"X-App-Ref": appRef})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -340,6 +355,17 @@ func TestUnclaimedCallGets503(t *testing.T) {
 		t.Fatalf("caller statuses %v", s.SIP)
 	}
 	r.waitEvent(typed("room.ended", "reason", "node_error", "sipStatus", 503), 2*time.Second)
+	select {
+	case ev := <-hooks:
+		d := ev["data"].(map[string]any)
+		if ev["type"] != "call.failed" || ev["workspaceRef"] != "" || d["reason"] != "node_error" ||
+			d["to"] != "+15550002222" || d["direction"] != "inbound" || d["callRef"] == "" ||
+			!strings.HasPrefix(ev["id"].(string), "evt_") {
+			t.Fatalf("call.failed event %v", ev)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("no call.failed on the webhook bus")
+	}
 }
 
 func TestNodeHangupAndRejection(t *testing.T) {

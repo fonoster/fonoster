@@ -416,6 +416,7 @@ func (n *Node) Incoming(call IncomingCall) {
 	n.cfg.Logger.Warn("no gateway claimed the call", "room", room.Ref, telemetry.CallRefKey, call.CallRef)
 	_ = call.Leg.Reject(503)
 	room.end(ReasonNodeError, 503, "")
+	n.publishCallFailed(orDefault(call.CallRef, room.Ref), call, ReasonNodeError)
 }
 
 // CallerGone is a BYE or CANCEL from the caller.
