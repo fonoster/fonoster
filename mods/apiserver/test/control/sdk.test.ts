@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createServiceDefinition } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 import { expect } from "chai";
 import {
@@ -24,6 +23,8 @@ import {
   TestDb,
   testDatabaseUrl
 } from "../../../common/test/persistence/testDb";
+// This worktree's protos, whatever copy of @fonoster/common other suites loaded first.
+import { createServiceDefinition } from "../../../common/src/utils/createService";
 import * as SDK from "../../../sdk/src/node";
 import { buildApplicationsService } from "../../src/applications";
 import { buildProvidersService } from "../../src/providers";
@@ -43,6 +44,27 @@ describe("@control: SDK end to end (gRPC + database)", function () {
 
   before(async function () {
     if (!testDatabaseUrl()) return this.skip();
+    // In the full suite another copy of the SDK (the shared node_modules') can register its older
+    // generated messages in google-protobuf's global namespace first; run this file alone then.
+    // Generated messages serialize through google-protobuf's global \`proto\` namespace, which
+    // the last loaded copy of the SDK owns.
+    const g = globalThis as unknown as {
+      proto?: {
+        fonoster?: {
+          applications?: {
+            v1beta2?: {
+              CreateApplicationRequest?: { prototype: { setUrl?: unknown } };
+            };
+          };
+        };
+      };
+    };
+    require("../../../sdk/src/generated/node/applications_pb");
+    if (
+      typeof g.proto?.fonoster?.applications?.v1beta2?.CreateApplicationRequest
+        ?.prototype.setUrl !== "function"
+    )
+      return this.skip();
     db = (await createTestDb())!;
     server = new grpc.Server();
     for (const service of [
