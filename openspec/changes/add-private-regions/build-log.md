@@ -294,3 +294,4 @@
 - RM-B5. Settings > Region ("Manage region"), Secrets and the region links now point at the drawer. Create workspace's region select is unchanged.
 - RM-B6. `regions/sdk-api.ts` uses the typed `sdk.regions.*` calls and `@fonoster/types` (`listRegions` returns `{items}`); a public region without a `ref` gets `rg_<id>`.
 - RM-B7. Per the final designs, Settings > Region is one line (name, status dot, "View region →" opening the drawer); no details table.
+- HD-B6. Helm `regionAgent.workspaceKeysFromCloud` (task 5.9): with the region agent on, the chart merges `cellSecrets: { dir: /var/lib/fonoster-secrets }` into gateway.yaml (the mounted cell secrets; it was left to the user before) and adds `workspaceKeysFromCloud: true` when the value is set; user-given `cellSecrets` keys win. Deployment suite checks both. Cell NATS users and the agent's `nats.user/password` are add-platform HD-B1.

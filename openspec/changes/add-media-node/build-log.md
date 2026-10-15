@@ -437,3 +437,23 @@ cutover.
   (one concealed frame at worst).
 - Tests: rtpio `TestLatchesToRemoteAndDropsOtherSenders`, `TestLatchesToFirstSourceWithoutRemote`;
   jitter `TestSkipsAreCapped`.
+
+## 2026-10-15 (harden stream)
+
+### HD-B4. Node and room entries in the session registry (task 3.2)
+- `internal/registry`: binds or creates the JetStream KV bucket `fonoster_sessions` (15 s max
+  age) and writes through one goroutine with a 1024-op queue (full: the write is dropped and
+  logged; the next refresh repairs it), so media never waits on NATS.
+- The node writes `nodes.<id>` `{nodeId, rooms, draining, at}` on every heartbeat (and at once on
+  drain), `rooms.<ref>` `{roomRef, nodeId, at}` when a room is created and every 5 s while it
+  lives, deletes a room's entry when it ends and its own on shutdown. Placement in the apiserver
+  reads these (add-platform HD-B3).
+- `MEDIANODE_SESSION_REGISTRY=false` disables it; without JetStream the node logs a warning and
+  keeps heartbeats only.
+- Tests: `TestWriterPutsDeletesAndEntriesExpire`, e2e `TestNodeWritesTheSessionRegistry`.
+
+### HD-B5. Mutual TLS toward the edge and secret:// settings
+- `MEDIANODE_TLS_CLIENT_CA` turns on client-certificate verification on the TLS listener
+  (add-platform HD-B2). `MEDIANODE_NATS_USER` / `MEDIANODE_NATS_PASSWORD` connect as the node's
+  NATS user (add-platform HD-B1). The password, `MEDIANODE_PASSWORD` and the TLS PEM settings
+  accept `secret://env|file|k8s` references (`internal/secretref`).

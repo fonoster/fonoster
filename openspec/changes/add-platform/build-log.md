@@ -424,3 +424,76 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   - root `package.json`: scripts only.
 - Refresh: `rm -rf node_modules && npm install` on a clean checkout, commit `package-lock.json`.
   Go: no new modules (`otel/propagation` and `sdk/trace/tracetest` are in modules already required).
+
+## 2026-10-15 (harden stream: NATS users, mTLS, session registry)
+
+### HD-B1. NATS users and subject permissions per service (task 4.1)
+- Plain `authorization { users }` in the main and cell NATS, not operator/JWT mode: the services
+  are ours and fixed, and the region hub keeps its own operator mode (per-cell users,
+  `region.<ref>.>`), untouched.
+- One permission file per service, `ops/rebuild/config/nats-permissions/<service>.conf`
+  (apiserver, gateway, medianode, routr, region-agent), each defining `<SERVICE>_PERMISSIONS`;
+  the main NATS includes apiserver/gateway/medianode/routr, the cell's gateway/medianode/routr/
+  region-agent, the chart (`nats.auth`) the services the release runs (Routr always). NATS
+  refuses unreferenced variables, hence a file per service rather than one shared file.
+- Who may publish what: only nodes `media.*.heartbeat`, `media.*.events.*` and
+  `gateway.incoming`; only gateways `callrecord.sealed`, `registry.used`, `gateway.heartbeat`,
+  `gateway.calls.*`, `cell.workspacekeys.get`; only the apiserver `calls.create`, `calls.track`,
+  `gateway.outbound`, `callrecord.*.maintenance`; `media.*.commands` from gateways and the
+  apiserver; `webhooks.events` from gateways and nodes; Routr `routr.>`; the region agent
+  `region.>`. Responders use `allow_responses`; everyone may subscribe to `_INBOX.>`.
+- Autopilot has no NATS connection, so no user. No Routr subscription beyond `_INBOX.>`.
+- Credentials: `nats: { url, user, password }` in fonoster.yaml, gateway.yaml and
+  region-agent.yaml (`natsConnectOptions` in @fonoster/common), password
+  `secret://env/NATS_<SERVICE>_PASSWORD`; the media node `MEDIANODE_NATS_USER/PASSWORD` (Go
+  `secretref`, same reference forms as the TS resolver). Routr's user is in its URL
+  (`nats://routr:<pw>@nats:4222`; EdgePort uses jnats, which reads URL user info; not verified
+  against a live Routr here), hence hex passwords.
+- Stack: `ops/rebuild/stack` generates `NATS_{APISERVER,GATEWAY,MEDIANODE,ROUTR}_PASSWORD` into
+  `.local/stack.env` (appended to older files). Compose requires them (`:?`). Cell: four entries
+  in `cell.env`. Helm: `nats.auth.enabled` (on in values-cloud.yaml) + Secret
+  `fonoster-nats-users`; services get `NATS_<USER>_PASSWORD` from it.
+- Open: `_INBOX.>` is shared, so a compromised service can read others' replies (per-service
+  inbox prefixes would close it); per-node users (a node impersonating another node) not done.
+- Tests: `mods/conformance/test/natsPermissions.test.ts` (opt-in `NATS_ACL_TEST=docker`) runs the
+  checked-in main and cell configs in Docker: anonymous and wrong password refused; every flow
+  works (media-control both ways, claims, index entries, catalog use, webhooks, maintenance,
+  Routr events, BYO keys); 11 forged publishes and 4 subscriptions refused (e.g. a gateway
+  cannot publish `media.n1.heartbeat`, a node cannot publish `callrecord.sealed` or
+  `calls.create`, Routr cannot send media-control); KV writes only under each owner's prefix,
+  nobody may delete the bucket. Deployment suite: chart users, env and permission copies.
+  Go writes under ACLs were checked once by hand (nodes.* accepted, calls.* refused).
+
+### HD-B2. Mutual TLS between Routr and the media nodes (task 4.2)
+- `MEDIANODE_TLS_CLIENT_CA`: the TLS listener requires and verifies a client certificate signed
+  by that CA (`tls.RequireAndVerifyClientCert`); `go/medianode/internal/edgetls` builds the
+  configs. With a CA set the node also presents its certificate when it dials or registers over
+  TLS. Cert, key and CAs are file paths or `secret://` references whose value is the PEM.
+- The trusted-source allowlist (RV-B7) stays on as an extra check. Off by default locally; Helm
+  `medianode.tls` (`enabled`, `listen`, `secret` with tls.crt/tls.key/ca.crt, `mutual`) and
+  `medianode.trustedSources`. Routr's client certificate is Routr's config (not in this repo).
+- Tests: e2e `TestMutualTLSAcceptsTheEdge`, `TestMutualTLSRefusesClientsWithoutAValidCertificate`
+  (no certificate, foreign CA), `TestEdgeTLSValidation`; `secretref` unit tests.
+
+### HD-B3. Session registry in JetStream KV (task 2.3; add-media-node 3.2)
+- One bucket, `fonoster_sessions` (history 1, max age 15 s), keys `nodes.<id>`, `rooms.<ref>`
+  (media node), `calls.<ref>`, `gateways.<ref>` (gateway). Entries are leases: owners rewrite
+  them (node every heartbeat, rooms every 5 s, gateway every 5 s) and delete them on a clean
+  exit; a crashed owner's entries expire. Key-prefix ownership is what the NATS permissions
+  enforce (HD-B1). Separate buckets per kind were not needed: one TTL fits all.
+- The node writes room entries itself (inbound and outbound), so the spec's "the control plane
+  records the room-to-node mapping" is met by the owner of the room, not the apiserver.
+- Placement: the apiserver's node directory reads `nodes.` at start and watches it, using each
+  entry's write time (so a stale entry of a crashed node is not offered), and keeps heartbeats
+  for immediacy; a restarted replica places calls at once. Without JetStream every service warns
+  and keeps heartbeats only (the shared test NATS has no JetStream). Clock skew between the NATS
+  server and the apiserver shifts staleness; fine on one host or with NTP.
+- `Sessions` in @fonoster/common (openSessions, SessionLeases, watchSessions, getSession; type
+  imports from `nats` only); Go `internal/registry` (async single writer, never blocks media).
+  `MEDIANODE_SESSION_REGISTRY=false` turns the node's writes off. Gateway option
+  `sessions: false | <bucket>`.
+- Not done: "No capacity" (at-limit nodes) is still only draining; apiserver hangup through the
+  registry (the gateway's hangup endpoint covers it).
+- Tests (JetStream, `CONFORMANCE_JETSTREAM_URL`): Go `TestWriterPutsDeletesAndEntriesExpire`,
+  e2e `TestNodeWritesTheSessionRegistry`; apiserver "places a call at once after a restart, from
+  nodes in the registry", lease expiry; gateway `sessions.test.ts`.

@@ -14,7 +14,8 @@
 
 - [ ] 2.1 New gateway package; move `mods/apiserver/src/voice/{stt,tts,filters}` into it
 - [ ] 2.2 Strip ARI, AudioSocket and speech from the apiserver; keep management gRPC, Identity, `GetCapabilities`, call creation and webhooks
-- [ ] 2.3 Session registry (JetStream KV) keys for calls, rooms, nodes and gateways; least-loaded placement
+- [x] 2.3 Session registry (JetStream KV) keys for calls, rooms, nodes and gateways; least-loaded placement
+  - One bucket `fonoster_sessions` with leases; nodes/rooms from the media node, calls/gateways from the gateway; placement reads it at start (HD-B3).
 - [ ] 2.4 NATS subjects and queue groups for `media-control`, events and webhook dispatch
 - [x] 2.5 OTel SDK in every service with `fonoster.call_ref` propagation; OTLP config in each YAML
   - Gateway, media node, Autopilot (PL-B3..B5); apiserver, region agent and the registry utility (HE-B8); traceparent over NATS (HE-B9). OTLP settings are the standard `OTEL_*` environment, not a YAML key (PL-B3).
@@ -44,5 +45,7 @@
 
 ## 4. Hardening (from the review, RV-B6/RV-B7)
 
-- [ ] 4.1 NATS users and subject ACLs per service (gateway, media node, apiserver, autopilot, Routr): today any client on the NATS network can publish index entries, maintenance requests and media-control commands
-- [ ] 4.2 mTLS between Routr and the media nodes (the trusted-source allowlist, RV-B7, is the interim check)
+- [x] 4.1 NATS users and subject ACLs per service (gateway, media node, apiserver, autopilot, Routr): today any client on the NATS network can publish index entries, maintenance requests and media-control commands
+  - Compose, cell and Helm; Autopilot has no NATS connection; `_INBOX.>` still shared (HD-B1).
+- [x] 4.2 mTLS between Routr and the media nodes (the trusted-source allowlist, RV-B7, is the interim check)
+  - Node side and Helm wiring (HD-B2); Routr's client certificate is configured in Routr.

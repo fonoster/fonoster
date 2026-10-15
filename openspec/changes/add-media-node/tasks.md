@@ -31,7 +31,7 @@
 
 - [x] 3.1 `media-control` contract definition over NATS request and reply (PL3) with additive-only rules
 - [x] 3.4 Gateway RTP leg: `rtp` offer and answer in `participant.add`, RTP send and receive, SRTP when encryption is on (MN13)
-- [ ] 3.2 Session registry entries per node and per room in NATS JetStream KV
+- [x] 3.2 Session registry entries per node and per room in NATS JetStream KV (add-platform HD-B3, add-media-node HD-B4)
 - [x] 3.3 Outbound placement: least-loaded non-draining node, room-to-node mapping (from heartbeats until 3.2, CB-B2)
 
 ## 4. Migration and docs
