@@ -44,7 +44,7 @@
 
 - [x] 5.1 `languageModel` uses one catalog id; remove `provider` enum and `apiKey`
 - [x] 5.2 Move `vad` and `maxSpeechWaitTimeout` to the turn-taking configuration
-- [ ] 5.3 Migration of stored assistant configs (see design Open Question 1)
+- [x] 5.3 Migration of stored assistant configs (see design Open Question 1) (LG-B1)
 - [x] 5.4 Remove `eventsHook` from the assistant schema and `sendConversation*Event`; add the
       optional filler setting (deleting `sendConversation*Event` with the current engine moved to 8.2)
 
@@ -64,5 +64,5 @@
       models (with `add-turn-taking` 3.1). The LangChain models stay for `createEvaluateIntelligence`
       only (CB-B5)
 - [ ] 8.2 Delete the legacy assistant schema and `sendConversation*Event`
-- [ ] 8.3 Run the stored-assistant migration job (5.3) and route Autopilot apps to the hosted
-      Autopilot
+- [x] 8.3 Run the stored-assistant migration job (5.3) and route Autopilot apps to the hosted
+      Autopilot (LG-B1: `fonoster-migrate-legacy`; running it is a deployment step)

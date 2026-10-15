@@ -91,12 +91,13 @@ to the call record with the transcript and recording.
 
 ## Migrating an assistant
 
-Stored assistants are converted once, at cutover (`convertLegacyAssistant`). What changes:
+Stored assistants are converted once, at cutover, by `fonoster-migrate-legacy`
+(`docs/operators/cutover.md`, section 2; it runs `convertLegacyAssistant`). What changes:
 
 | Before | After |
 | --- | --- |
 | `languageModel.provider` + `model` | `languageModel.model: "<provider>/<model>"` |
-| `languageModel.apiKey` | Removed. A real key moves to a workspace Secret; placeholders are dropped |
+| `languageModel.apiKey` | Removed. A real key becomes the workspace's vendor key for that provider (Secret `provider-key/<provider>`, the same as the dashboard's Vendor keys); a key the workspace already has wins. Placeholders are dropped |
 | `languageModel.baseUrl` | Removed; endpoints come from the provider registry |
 | `maxSpeechWaitTimeout: 0` (the default) | `patience: normal` (today's timing) |
 | `maxSpeechWaitTimeout` above 0 | `patience: high` (about 1.6 × the gateway's silence timeout, more as it adapts) |

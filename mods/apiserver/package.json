@@ -19,7 +19,8 @@
   },
   "bin": {
     "fonoster": "./dist/index.js",
-    "fonoster-region-hub-setup": "./dist/bin/regionHubSetup.js"
+    "fonoster-region-hub-setup": "./dist/bin/regionHubSetup.js",
+    "fonoster-migrate-legacy": "./dist/migration/cli.js"
   },
   "dependencies": {
     "@fonoster/authz": "^0.27.0",

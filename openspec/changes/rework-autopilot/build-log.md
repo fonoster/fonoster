@@ -235,3 +235,31 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - The hosted config takes `allowedDestinations` (RV-B2) for HTTP tools; the hosted tests use it
   for their local tool server.
 - Tests: hosted.test "logs a knowledge port that fails to build instead of an unhandled rejection".
+
+## 2026-10-15 (legacy stream)
+
+### LG-B1. The stored-assistant migration job (5.3, 8.3)
+
+- `fonoster-migrate-legacy` (apiserver bin, `src/migration`) is the one cutover job: dry run by
+  default, `--apply` writes, every step idempotent (a row that already parses as a session
+  assistant is left alone). It replaces `applications/migration/cli.js`; the app step is the same
+  conversion, run after the assistants.
+- Assistants: `convertLegacyAssistant` on each Intelligence row; the productRef follows the
+  model's provider. Unconvertible ones (unknown provider) are skipped with an `action` notice;
+  the hosted Autopilot hangs up on them until fixed in the dashboard.
+- Secret naming aligned with the registry (AP-B4 open issue): the converter now returns
+  `{providerId, name: "provider-key/<provider>"}` and the job binds it in
+  `workspace_provider_keys` exactly like the Vendor keys page (CP-B6). The credentialRef lookup
+  (`PrismaWorkspaceKeys.forCredentialRef`) finds it with no new naming. Keys are per workspace,
+  not per assistant: when a workspace already has a different key for that provider, it is kept
+  and the assistant's key is dropped with an `action` notice.
+- `eventsHook` → a workspace webhook (`call.started`, `call.ended`, `call_record.sealed`) unless
+  the workspace already has one for that URL; non-HTTPS URLs become an `action` notice. The
+  receiver must take the new signing secret (rotate to read it).
+- Assistant `audioFilters` move to the app's `filters` when the app has none.
+- Notices are printed and stored per workspace as `registry_notices` type `legacy.migrated`
+  (the dashboard's runtime warnings ignore that type; a future notices view can show them).
+- App re-runs keep an app's speech defaults (they used to reset to the legacy TTS voice or the
+  default voice).
+- Tests: `mods/apiserver/test/migration/migrateLegacy.test.ts` on a throwaway Postgres (dry run,
+  apply, idempotent re-run, key conflict, hosted Autopilot reads the converted assistant).

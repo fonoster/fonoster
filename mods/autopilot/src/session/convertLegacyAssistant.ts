@@ -81,8 +81,13 @@ function isDefaultVad(vad: unknown): boolean {
 
 export type AssistantConversion = {
   assistant: SessionAssistant;
-  /** An inline key to store as a workspace Secret (the config no longer holds it). */
-  secret?: { name: string; value: string };
+  /**
+   * An inline key to store as the workspace's key for `providerId` (the config no longer holds
+   * it). The migration job binds it like the dashboard's Vendor keys page does (a Secret named
+   * `provider-key/<provider>` in workspace_provider_keys), which is where the registry's
+   * credentialRef lookup finds workspace keys (AP-B4, LG-B1).
+   */
+  secret?: { providerId: string; name: string; value: string };
   /** The retired eventsHook URL, for creating a workspace webhook endpoint. */
   webhook?: { url: string };
   /** Audio filters that now belong in the app's configuration. */
@@ -108,12 +113,14 @@ export function convertLegacyAssistant(
     typeof lm.apiKey === "string" &&
     !PLACEHOLDER_KEYS.has(lm.apiKey.trim())
   ) {
+    void options.assistantRef;
     result.secret = {
-      name: `${provider}-${options.assistantRef}`,
+      providerId: provider,
+      name: `provider-key/${provider}`,
       value: lm.apiKey
     };
     notices.push(
-      `The ${provider} key moved out of the assistant into the workspace Secret "${result.secret.name}".`
+      `The ${provider} key moved out of the assistant into the workspace's ${provider} vendor key (Secret "${result.secret.name}").`
     );
   }
   if (lm.baseUrl) {

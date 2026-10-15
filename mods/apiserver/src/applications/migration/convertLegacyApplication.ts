@@ -149,7 +149,9 @@ export function convertLegacyApplication(
       hostedSecret(legacy, options) ??
       existing?.signingSecret ??
       (options.newSecret ?? newSigningSecret)(),
-    speech: { voice, language },
+    // An app migrated before (or created on the new model) keeps its speech defaults: re-runs
+    // must not reset a voice chosen since (LG-B2).
+    speech: existing?.speech.voice ? existing.speech : { voice, language },
     ...(existing?.fallback
       ? { fallback: existing.fallback }
       : options.fallbackMessage
