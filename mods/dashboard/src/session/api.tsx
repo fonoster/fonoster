@@ -16,23 +16,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createContext, useContext, useEffect, useState } from "react";
-import { createMockSessionApi } from "./mock-api";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+import { useParams } from "react-router-dom";
+import { useSdk } from "~/lib/auth";
+import { createSdkSessionApi } from "./sdk-api";
 import type { SessionApi } from "./types";
 
 const SessionApiContext = createContext<SessionApi | undefined>(undefined);
+/** Overrides the SDK adapter (tests and stories pass the in-memory mock). */
 export const SessionApiProvider = SessionApiContext.Provider;
 
-let fallback: SessionApi | undefined;
-
-/** The provided adapter, or the in-memory mock when none is provided. */
+/** The provided adapter, or the SDK adapter for the current workspace. */
 export function useSessionApi(): SessionApi {
   const provided = useContext(SessionApiContext);
-  if (provided) return provided;
-  fallback ??= createMockSessionApi();
-  return fallback;
+  const sdk = useSdk();
+  // A new adapter per workspace, so pages reload when the workspace changes.
+  const { workspaceRef } = useParams();
+  return useMemo(
+    () => provided ?? createSdkSessionApi(sdk),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [provided, sdk, workspaceRef]
+  );
 }
 
+/** The message of an API error (gRPC-Web errors carry it in `message`). */
+export function errorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
+
+/** Loads data for a page; `reload()` runs the loader again. */
 export function useAsync<T>(load: () => Promise<T>, deps: unknown[]) {
   const [state, setState] = useState<{
     data?: T;
@@ -41,17 +60,20 @@ export function useAsync<T>(load: () => Promise<T>, deps: unknown[]) {
   }>({
     loading: true
   });
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     let live = true;
     setState((s) => ({ ...s, loading: true }));
     load().then(
       (data) => live && setState({ data, loading: false }),
-      (e: unknown) => live && setState({ error: String(e), loading: false })
+      (e: unknown) =>
+        live && setState({ error: errorMessage(e), loading: false })
     );
     return () => {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-  return state;
+  }, [...deps, tick]);
+  const reload = useCallback(() => setTick((t) => t + 1), []);
+  return { ...state, reload };
 }

@@ -100,11 +100,11 @@ describe("numbers", () => {
     });
   });
 
-  it("sends a number to a voice app", async () => {
+  it("sends a number to an app", async () => {
     const { user, sdk } = setup();
     await user.click(await screen.findByText("Spare"));
     const drawer = await screen.findByRole("dialog");
-    await user.click(within(drawer).getByRole("radio", { name: "Voice app" }));
+    await user.click(within(drawer).getByRole("radio", { name: "App" }));
     expect(
       within(drawer).queryByText("Billing reminders")
     ).not.toBeInTheDocument();

@@ -30,7 +30,7 @@ export type Route = { kind: RouteKind; to: string };
 export const ROUTE_KINDS: { value: RouteKind; label: string; noun: string }[] =
   [
     { value: "agent", label: "Agent", noun: "agents" },
-    { value: "app", label: "Voice app", noun: "voice apps" },
+    { value: "app", label: "App", noun: "apps" },
     { value: "sip", label: "SIP user", noun: "SIP users" }
   ];
 

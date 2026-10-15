@@ -40,9 +40,6 @@ const CreateWorkspace = lazy(
   () => import("~/workspaces/create-workspace.page")
 );
 
-// Not linked from the navigation: the session-protocol preview (mock data).
-const SessionPreview = lazy(() => import("~/session-preview"));
-
 function screen(path: string, title: string) {
   const Screen = SCREENS[path];
   return Screen ? <Screen /> : <PendingScreen title={title} />;
@@ -85,7 +82,6 @@ export function AppRoutes() {
                   />
                 )
               )}
-              <Route path="preview/*" element={<SessionPreview />} />
               <Route path="*" element={<Navigate to="." replace />} />
             </Route>
           </Route>

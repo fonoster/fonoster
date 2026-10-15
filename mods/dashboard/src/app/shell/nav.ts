@@ -30,6 +30,8 @@ import {
   SmartToy,
   SpaceDashboard,
   Key,
+  VpnKey,
+  Webhook,
   type MaterialIcon
 } from "~/components/icons/material";
 
@@ -42,7 +44,7 @@ export const NAVIGATION: NavSection[] = [
     items: [
       { label: "Overview", path: "", icon: SpaceDashboard },
       { label: "Agents", path: "agents", icon: SmartToy },
-      { label: "Voice apps", path: "voice-apps", icon: CodeBlocks },
+      { label: "Apps", path: "apps", icon: CodeBlocks },
       { label: "Calls", path: "calls", icon: CallLog }
     ]
   },
@@ -60,6 +62,8 @@ export const NAVIGATION: NavSection[] = [
   {
     title: "Workspace",
     items: [
+      { label: "Webhooks", path: "webhooks", icon: Webhook },
+      { label: "Vendor keys", path: "vendor-keys", icon: VpnKey },
       { label: "Secrets", path: "secrets", icon: Lock },
       { label: "API keys", path: "api-keys", icon: Key },
       { label: "Settings", path: "settings", icon: Settings }

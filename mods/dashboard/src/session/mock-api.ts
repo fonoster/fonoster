@@ -21,7 +21,10 @@ import type {
   CallRecordSummary,
   Catalog,
   SessionApi,
-  SessionApp
+  SessionApp,
+  VendorKey,
+  Webhook,
+  WebhookDelivery
 } from "./types";
 
 export const catalog: Catalog = {
@@ -38,6 +41,13 @@ export const catalog: Catalog = {
     { id: "en-US", label: "English (US)", state: "active" },
     { id: "es-419", label: "Spanish (Latin America)", state: "active" },
     { id: "multi", label: "Multilingual", state: "active" }
+  ],
+  sttModels: [
+    { id: "deepgram/nova-3", label: "deepgram/nova-3", state: "active" }
+  ],
+  providers: [
+    { id: "deepgram", label: "deepgram", state: "active" },
+    { id: "elevenlabs", label: "elevenlabs", state: "active" }
   ]
 };
 
@@ -45,6 +55,7 @@ const seedApps = (): SessionApp[] => [
   {
     ref: "support-line",
     name: "Support line",
+    type: "EXTERNAL",
     url: "wss://bot.example.com/agent",
     flavor: "native",
     signingSecretHint: "…a91c",
@@ -57,6 +68,7 @@ const seedApps = (): SessionApp[] => [
   {
     ref: "pipecat-bot",
     name: "Pipecat bot",
+    type: "EXTERNAL",
     url: "wss://pipecat.example.com/ws",
     flavor: "twilio",
     signingSecretHint: "…77e0",
@@ -64,7 +76,7 @@ const seedApps = (): SessionApp[] => [
     audio: "pcmu-8000",
     fallback: { appRef: "support-line" },
     listeners: [],
-    recording: "off"
+    recording: ""
   }
 ];
 
@@ -81,18 +93,14 @@ const sampleCall = (): CallRecord => ({
   to: "+15550002222",
   direction: "inbound",
   startedAt: "2026-10-15T14:00:00.000Z",
-  answeredAt: "2026-10-15T14:00:00.200Z",
   endedAt: "2026-10-15T14:00:42.000Z",
   durationMs: 42000,
-  status: "sealed",
+  status: "completed",
+  redacted: true,
   version: 1,
   endReason: "caller_hangup",
   warnings: ["Voice deepgram/aura-asteria is deprecated"],
-  recording: {
-    url: "https://example.com/recordings/room-1.wav",
-    sha256: "9f2c5a7e1d0b4c8a6e3f",
-    sizeBytes: 1_344_000
-  },
+  recording: { sha256: "9f2c5a7e1d0b4c8a6e3f" },
   turns: [
     {
       index: 0,
@@ -180,7 +188,7 @@ const summary = (c: CallRecord): CallRecordSummary => ({
 const randomSecret = () =>
   `whsec_${Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`;
 
-/** In-memory SessionApi so the pages render without a backend. */
+/** In-memory SessionApi so the pages render without a backend (tests and stories). */
 export function createMockSessionApi(): SessionApi {
   const apps = new Map(seedApps().map((a) => [a.ref, a]));
   const calls = [
@@ -195,29 +203,103 @@ export function createMockSessionApi(): SessionApi {
       recording: undefined
     }
   ];
+  const webhooks = new Map<string, Webhook>([
+    [
+      "whe_1",
+      {
+        ref: "whe_1",
+        url: "https://hooks.example.com/fonoster",
+        events: ["call.ended", "call_record.sealed"],
+        secretHint: "…9f1a",
+        createdAt: "2026-10-15T12:00:00.000Z"
+      }
+    ]
+  ]);
+  const deliveries: WebhookDelivery[] = [
+    {
+      ref: "whd_1",
+      webhookRef: "whe_1",
+      eventId: "evt_1",
+      eventType: "call.ended",
+      status: "failed",
+      attempts: 3,
+      lastStatus: 500,
+      createdAt: "2026-10-15T12:05:00.000Z"
+    }
+  ];
+  const keys = new Map<string, VendorKey>([
+    ["deepgram", { providerId: "deepgram", updatedAt: "2026-10-15T12:00:00Z" }]
+  ]);
+  let next = 1;
   return {
     listApps: async () => [...apps.values()],
     getApp: async (ref) => apps.get(ref),
     saveApp: async (input) => {
-      const previous = apps.get(input.ref);
+      const previous = input.ref ? apps.get(input.ref) : undefined;
+      const ref = input.ref || `app-${next++}`;
       const saved: SessionApp = {
         ...input,
+        ref,
         signingSecretHint: previous?.signingSecretHint ?? "…new0",
         signingSecret: previous ? undefined : randomSecret()
       };
-      apps.set(saved.ref, { ...saved, signingSecret: undefined });
+      apps.set(ref, { ...saved, signingSecret: undefined });
       return saved;
     },
     rotateSecret: async (ref) => {
       const app = apps.get(ref);
       if (!app) throw new Error(`No app ${ref}`);
       const secret = randomSecret();
-      const next = { ...app, signingSecretHint: `…${secret.slice(-4)}` };
-      apps.set(ref, next);
-      return { ...next, signingSecret: secret };
+      const updated = { ...app, signingSecretHint: `…${secret.slice(-4)}` };
+      apps.set(ref, updated);
+      return { ...updated, signingSecret: secret };
+    },
+    deleteApp: async (ref) => {
+      apps.delete(ref);
     },
     getCatalog: async () => catalog,
     listCalls: async () => calls.map(summary),
-    getCall: async (ref) => calls.find((c) => c.callRef === ref)
+    getCall: async (ref) => calls.find((c) => c.callRef === ref),
+    recordingUrl: async (ref) => `blob:recording-${ref}`,
+    listWebhooks: async () => [...webhooks.values()],
+    createWebhook: async ({ url, events }) => {
+      const ref = `whe_${next++}`;
+      const secret = randomSecret();
+      webhooks.set(ref, {
+        ref,
+        url,
+        events,
+        secretHint: `…${secret.slice(-4)}`
+      });
+      return { ref, secret };
+    },
+    deleteWebhook: async (ref) => {
+      webhooks.delete(ref);
+    },
+    rotateWebhookSecret: async (ref) => {
+      const secret = randomSecret();
+      const w = webhooks.get(ref)!;
+      webhooks.set(ref, {
+        ...w,
+        secretHint: `…${secret.slice(-4)}`,
+        previousSecretUntil: new Date(Date.now() + 86_400_000).toISOString()
+      });
+      return { secret };
+    },
+    listDeliveries: async (webhookRef) =>
+      deliveries.filter((d) => !webhookRef || d.webhookRef === webhookRef),
+    resendDelivery: async (ref) => {
+      const d = deliveries.find((x) => x.ref === ref)!;
+      Object.assign(d, { status: "succeeded", lastStatus: 200 });
+      d.attempts += 1;
+      return { ...d };
+    },
+    listVendorKeys: async () => [...keys.values()],
+    setVendorKey: async (providerId) => {
+      keys.set(providerId, { providerId, updatedAt: new Date().toISOString() });
+    },
+    deleteVendorKey: async (providerId) => {
+      keys.delete(providerId);
+    }
   };
 }

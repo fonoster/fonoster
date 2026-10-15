@@ -32,12 +32,15 @@ export function createSdk(client: SDK.WebClient) {
     apiKeys: new SDK.ApiKeys(client),
     applications: new SDK.Applications(client),
     calls: new SDK.Calls(client),
+    callRecords: new SDK.CallRecords(client),
     credentials: new SDK.Credentials(client),
     domains: new SDK.Domains(client),
     numbers: new SDK.Numbers(client),
+    providers: new SDK.Providers(client),
     secrets: new SDK.Secrets(client),
     trunks: new SDK.Trunks(client),
     users: new SDK.Users(client),
+    webhooks: new SDK.Webhooks(client),
     workspaces: new SDK.Workspaces(client)
   };
 }

@@ -17,15 +17,28 @@
  * limitations under the License.
  */
 import { Route, Routes } from "react-router-dom";
-import { CallDetail } from "./call-detail";
-import { CallsList } from "./calls-list";
+import { AppEditor, AppsList } from "./apps";
+import { CallRecordView, CallRecordsList } from "./calls";
 
-/** Call records: /w/:ws/calls and /w/:ws/calls/:ref. */
-export default function CallsScreen() {
+// The session-protocol pages (apps, call records, webhooks, vendor keys), backed by the SDK
+// adapter (./sdk-api.ts). Tests and stories wrap them in SessionApiProvider with the mock.
+
+/** /w/:workspaceRef/apps */
+export function AppsScreen() {
   return (
     <Routes>
-      <Route index element={<CallsList />} />
-      <Route path=":ref" element={<CallDetail />} />
+      <Route index element={<AppsList />} />
+      <Route path=":ref" element={<AppEditor />} />
+    </Routes>
+  );
+}
+
+/** /w/:workspaceRef/calls */
+export function CallsScreen() {
+  return (
+    <Routes>
+      <Route index element={<CallRecordsList />} />
+      <Route path=":callRef" element={<CallRecordView />} />
     </Routes>
   );
 }
