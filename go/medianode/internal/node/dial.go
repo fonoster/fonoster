@@ -142,6 +142,7 @@ func (r *Room) dial(cmd Command) {
 	p, err := r.dialParty(ctx, to, from, stringMap(cmd["headers"]), func() {})
 	if err != nil {
 		status := dialStatus(err)
+		r.node.cfg.Logger.Warn("dial failed", "room", r.Ref, "to", to, "err", err)
 		r.node.emit(r.Ref, Event{"type": "call.progress", "id": id, "status": progressStatus(status), "sipStatus": status})
 		return
 	}

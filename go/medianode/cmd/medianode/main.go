@@ -4,6 +4,8 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -45,6 +47,14 @@ func main() {
 	heartbeat := flag.Duration("heartbeat", 2*time.Second, "node.heartbeat period")
 	debugAddr := flag.String("debug", env("MEDIANODE_DEBUG_ADDR", ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
 	drainWait := flag.Duration("drain-wait", 10*time.Minute, "longest wait for rooms to end on SIGTERM")
+	maxDuration := flag.Duration("max-duration", 4*time.Hour, "longest call; apps can lower it per call")
+	maxParticipants := flag.Int("max-participants", 10, "participants per room")
+	tlsListen := flag.String("tls", env("MEDIANODE_TLS_LISTEN", ""), "SIP-over-TLS listen address; empty disables TLS")
+	tlsCert := flag.String("tls-cert", env("MEDIANODE_TLS_CERT", ""), "PEM certificate for the TLS listener")
+	tlsKey := flag.String("tls-key", env("MEDIANODE_TLS_KEY", ""), "PEM key for the TLS listener")
+	tlsCA := flag.String("tls-ca", env("MEDIANODE_TLS_CA", ""), "PEM CA that signs the edge's certificate (dialing and registering over TLS)")
+	requireEnc := flag.Bool("require-encryption", env("MEDIANODE_REQUIRE_ENCRYPTION", "") == "true", "SIP over TLS only and SRTP on every leg (MN6)")
+	outboundTransport := flag.String("outbound-transport", env("MEDIANODE_OUTBOUND_TRANSPORT", "udp"), "transport to the outbound proxy (udp, tcp, tls)")
 	flag.Parse()
 
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, nil)).With("nodeId", *nodeID)
@@ -56,12 +66,33 @@ func main() {
 	defer nc.Close()
 
 	n := node.New(nc, node.Config{NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
-		Heartbeat: *heartbeat, Logger: logger})
+		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants,
+		RequireEncryption: *requireEnc, Logger: logger})
+	var serverTLS, clientTLS *tls.Config
+	if *tlsCert != "" {
+		cert, err := tls.LoadX509KeyPair(*tlsCert, *tlsKey)
+		if err != nil {
+			logger.Error("tls certificate", "err", err)
+			os.Exit(1)
+		}
+		serverTLS = &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12}
+	}
+	if *tlsCA != "" {
+		pem, err := os.ReadFile(*tlsCA)
+		if err != nil {
+			logger.Error("tls ca", "err", err)
+			os.Exit(1)
+		}
+		pool := x509.NewCertPool()
+		pool.AppendCertsFromPEM(pem)
+		clientTLS = &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}
+	}
 	_, portText, _ := net.SplitHostPort(*sipListen)
 	port, _ := strconv.Atoi(portText)
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
 		Registrar: *registrar, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
-		Logger: logger})
+		TLSListen: *tlsListen, TLSConfig: serverTLS, ClientTLS: clientTLS, RequireEncryption: *requireEnc,
+		OutboundTransport: *outboundTransport, Logger: logger})
 	if err != nil {
 		logger.Error("sip", "err", err)
 		os.Exit(1)
@@ -87,6 +118,10 @@ func main() {
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(n.Rooms())
 		})
+		mux.HandleFunc("GET /stats", func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(n.Stats())
+		})
 		go func() { _ = http.ListenAndServe(*debugAddr, mux) }()
 	}
 	fmt.Printf("medianode %s ready sip=%s\n", *nodeID, *sipListen)
@@ -94,16 +129,16 @@ func main() {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 	<-signals
-	// Drain: report full, keep existing rooms, exit when they end or the wait runs out (MN9).
+	// Drain: report full, keep existing rooms, exit when they end or the wait runs out (MN9). A
+	// second signal stops waiting.
 	logger.Info("draining", "rooms", n.ActiveRooms())
-	n.Drain()
-	deadline := time.Now().Add(*drainWait)
-	for n.ActiveRooms() > 0 && time.Now().Before(deadline) {
-		select {
-		case <-signals:
-			deadline = time.Now()
-		case <-time.After(500 * time.Millisecond):
-		}
+	stop := make(chan struct{})
+	go func() {
+		<-signals
+		close(stop)
+	}()
+	if forced := n.DrainAndWait(*drainWait, stop); forced > 0 {
+		logger.Warn("drain wait over; ended rooms", "rooms", forced)
 	}
 	n.Shutdown()
 }

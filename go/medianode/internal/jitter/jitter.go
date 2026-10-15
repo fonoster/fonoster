@@ -49,14 +49,14 @@ type Buffer struct {
 	// Max is the most frames held; the oldest is dropped beyond it.
 	Max int
 
-	mu      sync.Mutex
-	packets map[uint64]*rtp.Packet
-	next    uint64 // extended sequence number to play next
-	highest uint64
-	started bool // seen any packet (extended numbering anchored)
-	playing bool // prefetched and playing
+	mu       sync.Mutex
+	packets  map[uint64]*rtp.Packet
+	next     uint64 // extended sequence number to play next
+	highest  uint64
+	started  bool // seen any packet (extended numbering anchored)
+	playing  bool // prefetched and playing
 	anchored bool // next has been set once; anything older is late from then on
-	stats   Stats
+	stats    Stats
 }
 
 // New returns a buffer with a 40 ms playout delay holding at most 200 ms.
