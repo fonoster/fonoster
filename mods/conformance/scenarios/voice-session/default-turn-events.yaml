@@ -8,6 +8,7 @@ setup:
     stt: { script: [{ atMs: 600, text: "I want to pay my bill" }] }
 steps:
   - expect: { type: session.start }
+  - send: { type: listen.update }
   - expect: { type: turn.user_started }
     within_ms: 2000
   - expect: { type: turn.ended, text: "I want to pay my bill", language: "*", confidence: "*", durationMs: { $gte: 0 } }

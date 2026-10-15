@@ -232,7 +232,10 @@ heard, and then either `output.done` when it has been fully heard or `output.int
 The gateway SHALL deliver turn events produced by its Turn Detector (`turn.user_started`,
 `turn.likely_ended`, `turn.ended`, `turn.resumed`, `turn.backchannel`) to every controlling client.
 `turn.estimate` and `transcript.partial` SHALL be sent only to clients that request them with
-`subscribe`. The detector itself is specified in `turn-taking`.
+`subscribe`. The detector itself is specified in `turn-taking`. Speech recognition and turn
+detection SHALL start with the app's first `speak`, `play`, `subscribe` or `listen.update` (an
+empty `listen.update` only starts listening), so sessions that use only the Audio layer never run
+them.
 
 #### Scenario: Default events
 - **WHEN** the caller says "I want to pay my bill" and stops

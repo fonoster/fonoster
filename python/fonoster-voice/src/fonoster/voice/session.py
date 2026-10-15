@@ -15,6 +15,8 @@ from typing import Any, AsyncIterable, Awaitable, Callable, Protocol
 from .errors import SessionEndedError, SessionError
 
 DEFAULT_GATHER_TIMEOUT = 4.0
+#: Commands that make the gateway start listening (speech recognition and turn events).
+SPEECH_COMMANDS = {"speak", "play", "subscribe", "listen.update"}
 MAX_BUFFERED_INPUTS = 32
 
 
@@ -115,6 +117,7 @@ class Session:
         self._buffered: list[dict[str, Any]] = []
         self._last_warm_transfer: str | None = None
         self._ended_reason: str | None = None
+        self._listening = False
 
     # ---- properties -------------------------------------------------------------------
 
@@ -179,6 +182,9 @@ class Session:
             raise SessionEndedError(self._ended_reason)
         if self._gather:
             raise RuntimeError("a gather is already pending")
+        # The gateway listens only after a Speech-layer command; a gather may be the first one.
+        if source != "dtmf" and not self._listening:
+            await self._send({"type": "listen.update"})
         future = asyncio.get_running_loop().create_future()
         g = _Gather(source != "dtmf", source != "speech", max_digits, finish_on_key, timeout, future)
         self._gather = g
@@ -371,6 +377,8 @@ class Session:
     async def _send(self, message: dict[str, Any]) -> None:
         if self._ended_reason:
             raise SessionEndedError(self._ended_reason)
+        if message.get("type") in SPEECH_COMMANDS:
+            self._listening = True
         await self._transport.send_text(json.dumps(message))
 
     async def _command(self, message: dict[str, Any]) -> None:

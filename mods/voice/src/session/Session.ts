@@ -68,6 +68,13 @@ type Input =
   | { type: "turn.user_started" };
 
 const DEFAULT_GATHER_TIMEOUT_MS = 4000;
+/** Commands that make the gateway start listening (speech recognition and turn events). */
+const SPEECH_COMMANDS = new Set([
+  "speak",
+  "play",
+  "subscribe",
+  "listen.update"
+]);
 const MAX_BUFFERED_INPUTS = 32;
 
 /**
@@ -107,6 +114,7 @@ export class Session {
   private buffered: Input[] = [];
   private lastWarmTransfer?: string;
   private endedReason?: string;
+  private listening = false;
 
   constructor(
     start: SessionStart,
@@ -208,6 +216,9 @@ export class Session {
     if (this.gatherState)
       return Promise.reject(new Error("a gather is already pending"));
     const source = options.source ?? "speech_and_dtmf";
+    // The gateway listens only after a Speech-layer command; a gather may be the first one.
+    if (source !== "dtmf" && !this.listening)
+      this.send({ type: "listen.update" });
     return new Promise((resolve, reject) => {
       const g: Gather = {
         speech: source !== "dtmf",
@@ -474,6 +485,7 @@ export class Session {
 
   private send(message: Record<string, unknown>) {
     if (this.endedReason) throw new SessionEndedError(this.endedReason);
+    if (SPEECH_COMMANDS.has(message.type as string)) this.listening = true;
     this.transport.sendJson(message);
   }
 

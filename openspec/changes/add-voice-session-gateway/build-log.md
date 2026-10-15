@@ -167,3 +167,13 @@ vendor framing); no audio filter ran (aiCoustics is CPU-heavy); calls were mostl
 speaks. Still, the TypeScript-gateway risk (platform risk table) looks small: T2 asks for 100 calls
 on about 2 vCPU, and one core here holds about 4x that. The 10-replica, 1,000-call half of T2 and a
 dedicated runner are still to do (conformance 3.10, 4.2).
+
+## 2026-10-15 (morning, with the owner)
+
+### B18. Speech starts on the first Speech-layer command (owner decision, replaces B6's "always")
+
+- STT, filters and turn-taking start with the app's first `speak`, `play`, `subscribe` or
+  `listen.update`; an empty `listen.update` just starts listening. The last 500 ms of caller audio
+  are kept and fed to STT when it starts, so the first words are not lost. Both SDKs send an empty
+  `listen.update` from `gather()` when nothing has started listening yet.
+- Scenario `audio-only-no-stt` checks that an audio-only session opens no STT stream.

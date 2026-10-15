@@ -466,6 +466,7 @@ describe("@gateway integration", function () {
     await start([app("a", harness.app.url)]);
     harness.mediaNode.offerCall();
     const { peer } = await harness.app.nextConnection();
+    peer.sendJson({ type: "listen.update" });
     await waitFor(() => json(peer).find((m) => m.type === "turn.ended"), 5000);
     peer.sendJson({
       type: "speak",

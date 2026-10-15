@@ -64,6 +64,16 @@ const validators = Object.fromEntries(
   ])
 ) as Record<AppCommandType, ValidateFunction>;
 
+/** Caller audio kept before speech starts: 25 frames of 20 ms. */
+const RECENT_CALLER_FRAMES = 25;
+/** Commands that start the Speech layer. */
+const SPEECH_COMMANDS = new Set([
+  "speak",
+  "play",
+  "subscribe",
+  "listen.update"
+]);
+
 /** Recorded with every turn decision (turn-taking 2.8). */
 const DETECTOR_VERSION = "baseline@1";
 const POLICY_VERSION = "default@1";
@@ -387,6 +397,9 @@ export class AppSession {
   private keepalive?: ReturnType<typeof setInterval>;
   private filters?: AudioFilterChain;
   private lastEstimate?: Estimate;
+  private speechStarted = false;
+  /** The last 500 ms of caller audio, for STT when speech starts late. */
+  private recentCaller: Buffer[] = [];
   private reportedIds = new Set<string>();
   private labeler = new TurnLabeler((label) =>
     this.call.record("event", { type: "turn.label", ...label })
@@ -460,10 +473,18 @@ export class AppSession {
     for (const f of early) this.onFrame(f.data as Buffer, f.isBinary);
     void this.attachListeners(start);
     this.queue.start();
-    if (this.codec.speechLayer) {
-      void this.startFilters();
-      this.startSpeech();
-    }
+    // Speech recognition starts with the app's first Speech-layer command, so audio-only apps
+    // never pay for it (build log B18).
+  }
+
+  /** Starts STT, filters and turn-taking once, replaying the caller audio kept so far. */
+  private ensureSpeech() {
+    if (this.speechStarted || !this.codec.speechLayer || this.closed) return;
+    this.speechStarted = true;
+    void this.startFilters();
+    this.startSpeech();
+    for (const frame of this.recentCaller) this.stt?.write(frame);
+    this.recentCaller = [];
   }
 
   /** Pings the app; a socket that answers nothing for the idle timeout counts as dropped. */
@@ -622,6 +643,12 @@ export class AppSession {
     if (this.closed) return;
     this.codec.callerAudio(frame);
     for (const l of this.listeners) l.callerAudio(frame);
+    if (!this.speechStarted) {
+      this.recentCaller.push(frame);
+      if (this.recentCaller.length > RECENT_CALLER_FRAMES)
+        this.recentCaller.shift();
+      return;
+    }
     const chain = this.filters;
     if (!chain) return this.hear(frame, Date.now());
     // Filters are asynchronous; a promise chain keeps frames in order.
@@ -770,6 +797,7 @@ export class AppSession {
     }
     if (!this.codec.speechLayer && !["mark", "clear"].includes(type)) return;
 
+    if (SPEECH_COMMANDS.has(type)) this.ensureSpeech();
     try {
       await this.dispatch(type, cmd, relatesTo);
     } catch (e) {
@@ -848,6 +876,8 @@ export class AppSession {
         }
         return;
       case "listen.update":
+        // An empty listen.update only starts listening (ensureSpeech above).
+        if (!cmd.language && !cmd.hints) return;
         if (cmd.language) this.pacing?.setLanguage(cmd.language as string);
         this.stt?.update({
           language: cmd.language as string,
