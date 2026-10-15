@@ -320,5 +320,48 @@ export class ApplicationsClient {
     this.methodDescriptorCreateTestToken);
   }
 
+  methodDescriptorRotateSigningSecret = new grpcWeb.MethodDescriptor(
+    '/fonoster.applications.v1beta2.Applications/RotateSigningSecret',
+    grpcWeb.MethodType.UNARY,
+    applications_pb.RotateSigningSecretRequest,
+    applications_pb.RotateSigningSecretResponse,
+    (request: applications_pb.RotateSigningSecretRequest) => {
+      return request.serializeBinary();
+    },
+    applications_pb.RotateSigningSecretResponse.deserializeBinary
+  );
+
+  rotateSigningSecret(
+    request: applications_pb.RotateSigningSecretRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<applications_pb.RotateSigningSecretResponse>;
+
+  rotateSigningSecret(
+    request: applications_pb.RotateSigningSecretRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: applications_pb.RotateSigningSecretResponse) => void): grpcWeb.ClientReadableStream<applications_pb.RotateSigningSecretResponse>;
+
+  rotateSigningSecret(
+    request: applications_pb.RotateSigningSecretRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: applications_pb.RotateSigningSecretResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.applications.v1beta2.Applications/RotateSigningSecret',
+        request,
+        metadata || {},
+        this.methodDescriptorRotateSigningSecret,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.applications.v1beta2.Applications/RotateSigningSecret',
+    request,
+    metadata || {},
+    this.methodDescriptorRotateSigningSecret);
+  }
+
 }
 

@@ -129,6 +129,12 @@ export type GatewayConfig = {
     /** A client generated from the apiserver schema (default `@prisma/client`). */
     clientModule?: string;
   };
+  /**
+   * Workspace vendor keys from the database (registry 3.2): a workspace's own key for a provider
+   * (named as in `providers`) replaces the platform key for its calls. Needs `database` with the
+   * encryption key. Keys are reused for `cacheMs` (default 30 s).
+   */
+  workspaceKeys?: { enabled: boolean; cacheMs?: number };
   /** Where apps come from: `yaml` (the `apps` list, default) or `database` (applications rows). */
   appStore?: { source: "yaml" | "database"; cacheMs?: number };
   /** Workspace webhooks (add-workspace-webhooks) from the database's endpoints. */
@@ -239,7 +245,8 @@ export function validateConfig(config: GatewayConfig): string[] {
   const needsDb = [
     config.appStore?.source === "database" && "appStore.source: database",
     config.registry?.source === "database" && "registry.source: database",
-    config.webhooks?.enabled && "webhooks"
+    config.webhooks?.enabled && "webhooks",
+    config.workspaceKeys?.enabled && "workspaceKeys"
   ].filter(Boolean);
   if (needsDb.length && !databaseUrl(config))
     problems.push(`${needsDb.join(", ")} need database.url or database.urlEnv`);

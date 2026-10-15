@@ -18,18 +18,33 @@
  */
 import { createEvaluateIntelligence } from "@fonoster/autopilot";
 import { Prisma } from "../core/db";
-import { INTEGRATIONS_FILE } from "../envs";
+import { INTEGRATIONS_FILE, SESSION_APPS } from "../envs";
 import { getIntegrationsFromFile } from "../utils/getIntegrationsFromFile";
 import { createCreateApplication } from "./createCreateApplication";
 import { createCreateTestToken } from "./createCreateTestToken";
 import { createDeleteApplication } from "./createDeleteApplication";
 import { createGetApplication } from "./createGetApplication";
 import { createListApplications } from "./createListApplications";
+import { createRotateSigningSecret } from "./createRotateSigningSecret";
 import { createUpdateApplication } from "./createUpdateApplication";
+import { SessionAppsConfig } from "./session/appModel";
 import { TestTokenConfiguration } from "./types";
 
-function buildService(prisma: Prisma, testTokenConfig: TestTokenConfiguration) {
-  const integrations = getIntegrationsFromFile(INTEGRATIONS_FILE);
+function buildService(
+  prisma: Prisma,
+  testTokenConfig: TestTokenConfiguration,
+  config: SessionAppsConfig = SESSION_APPS as SessionAppsConfig
+) {
+  // Read on first use: only the legacy assistant evaluation needs the integrations file.
+  let evaluate: ReturnType<typeof createEvaluateIntelligence> | undefined;
+  const evaluateIntelligence = (
+    ...args: Parameters<ReturnType<typeof createEvaluateIntelligence>>
+  ) => {
+    evaluate ??= createEvaluateIntelligence(
+      getIntegrationsFromFile(INTEGRATIONS_FILE)
+    );
+    return evaluate(...args);
+  };
 
   return {
     definition: {
@@ -39,12 +54,13 @@ function buildService(prisma: Prisma, testTokenConfig: TestTokenConfiguration) {
       proto: "applications.proto"
     },
     handlers: {
-      createApplication: createCreateApplication(prisma),
+      createApplication: createCreateApplication(prisma, config),
       getApplication: createGetApplication(prisma),
       listApplications: createListApplications(prisma),
       deleteApplication: createDeleteApplication(prisma),
-      updateApplication: createUpdateApplication(prisma),
-      evaluateIntelligence: createEvaluateIntelligence(integrations),
+      updateApplication: createUpdateApplication(prisma, config),
+      rotateSigningSecret: createRotateSigningSecret(prisma, config),
+      evaluateIntelligence,
       createTestToken: createCreateTestToken(testTokenConfig)
     }
   };

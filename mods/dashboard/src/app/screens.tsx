@@ -26,7 +26,11 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 export const SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
   "": lazy(() => import("~/overview")),
   agents: lazy(() => import("~/agents")),
-  "voice-apps": lazy(() => import("~/voice-apps")),
+  apps: lazy(() =>
+    import("~/session").then((m) => ({ default: m.AppsScreen }))
+  ),
+  webhooks: lazy(() => import("~/session/webhooks")),
+  "vendor-keys": lazy(() => import("~/session/vendor-keys")),
   secrets: lazy(() => import("~/secrets")),
   "api-keys": lazy(() => import("~/api-keys")),
   settings: lazy(() => import("~/settings")),
@@ -36,5 +40,7 @@ export const SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
   "sip-users": lazy(() => import("~/sip-users")),
   acls: lazy(() => import("~/acls")),
   credentials: lazy(() => import("~/credentials")),
-  calls: lazy(() => import("~/calls"))
+  calls: lazy(() =>
+    import("~/session").then((m) => ({ default: m.CallsScreen }))
+  )
 };

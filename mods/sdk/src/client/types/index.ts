@@ -29,3 +29,7 @@ export * from "./IdentityClient";
 export * from "./SecretsClient";
 
 export * from "./common";
+
+export * from "./ProvidersClient";
+
+export * from "./WebhooksClient";

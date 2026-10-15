@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { AppConfig, Flavor } from "../config";
+import {
+  AppConfig,
+  Flavor,
+  RECORDING_POLICIES,
+  RecordingPolicy
+} from "../config";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 
@@ -87,6 +92,11 @@ export function appFromRow(row: Row): AppConfig | undefined {
     app.speech.hints = hints.filter((h): h is string => typeof h === "string");
   if (row.silenceTimeoutMs != null)
     app.speech.silenceTimeoutMs = row.silenceTimeoutMs as number;
+  // rebuild: control (CP-B1): patience and the recording policy columns.
+  if (["low", "normal", "high"].includes(row.patience as string))
+    app.speech.patience = row.patience as "low" | "normal" | "high";
+  if (RECORDING_POLICIES.includes(row.recording as RecordingPolicy))
+    app.recording = row.recording as RecordingPolicy;
   if (row.audio) app.audio = row.audio as AppConfig["audio"];
   if (row.filters) app.filters = row.filters as AppConfig["filters"];
   if (row.listeners)

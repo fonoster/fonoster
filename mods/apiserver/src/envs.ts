@@ -151,3 +151,6 @@ export const TWILIO_PHONE_NUMBER = config.twilio?.phoneNumber;
 
 // Call records (add-call-record): index, records API, retention, ListCalls from the index.
 export const CALL_RECORDS = config.callRecords;
+
+// Session apps (rebuild: control): hosted Autopilot URL and signing secret, webhook URL policy
+export const SESSION_APPS = config.apps;

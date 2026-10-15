@@ -43,7 +43,7 @@ import {
 import { CallRecordSink, MemoryCallRecordSink } from "./record/CallRecordSink";
 import { serveRecordMaintenance } from "./record/maintenance";
 import { Call, CallInfo } from "./session/Call";
-import { Catalog } from "./speech/Catalog";
+import { Catalog, WorkspaceKeySource } from "./speech/Catalog";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 const sc = StringCodec();
@@ -64,6 +64,8 @@ export type GatewayOptions = {
   apps?: AppStore;
   /** The provider registry's store (default: `registry.file` from the config). */
   registryStore?: RegistryNs.RegistryStore;
+  /** Workspace vendor keys (registry 3.2); without it every call uses the platform keys. */
+  workspaceKeys?: WorkspaceKeySource;
 };
 
 /** A node is down after this long without a heartbeat (3 missed beats of 2 s). */
@@ -88,7 +90,11 @@ export class Gateway {
         `invalid gateway config:\n  - ${problems.join("\n  - ")}`
       );
     this.record = options.record ?? new MemoryCallRecordSink();
-    this.catalog = new Catalog(options.config, options.registryStore);
+    this.catalog = new Catalog(
+      options.config,
+      options.registryStore,
+      options.workspaceKeys
+    );
     this.apps = options.apps ?? new YamlAppStore(options.config.apps ?? []);
   }
 

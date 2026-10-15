@@ -27,7 +27,7 @@ type PartialApplicationInput = {
     config: { [key: string]: unknown };
   } | null;
   intelligence?: {
-    credentials: { [key: string]: unknown };
+    credentials?: { [key: string]: unknown };
     config: { [key: string]: unknown };
   } | null;
 };

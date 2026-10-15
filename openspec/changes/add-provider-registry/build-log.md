@@ -152,6 +152,21 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - 1.1 as a full scenario suite, 4.3 API/UI for workspace keys (table only), runtime
   `provider.deprecated_used` → dashboard notice (the gateway records it in the call record only).
 
+## 2026-10-15 (control stream)
+
+### CP-B6. Catalog listing and workspace keys API (4.3)
+
+- New gRPC service `fonoster.providers.v1beta2.Providers`: `ListCatalog` (providers, models,
+  voices; retired items and other workspaces' custom voices hidden; filter by kind/type),
+  `SetProviderKey`, `ListProviderKeys`, `DeleteProviderKey`.
+- A key is a Secret named `provider-key/<provider>` bound by `workspace_provider_keys`; setting
+  it again overwrites the Secret in place. Nothing returns a key. Not an interactive transaction:
+  the field-encryption extension wraps the client, so a failed binding deletes the Secret again.
+- Set/delete need WORKSPACE_OWNER or WORKSPACE_ADMIN; list and catalog are workspace access.
+- The catalog is queried directly (not `PrismaRegistryStore`, which also loads the audit log).
+- SDK `Providers`; dashboard Vendor keys page and catalog pickers in the app editor. The gateway
+  does not read workspace keys yet (3.2).
+
 ## 2026-10-15 (voices stream; live vendor calls approved by the owner, about 3 USD cap)
 
 ### VO-B1. PR5 explained: Deepgram finishes at real-time pace; the check closed too early
@@ -249,3 +264,16 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   audio in total), about 0.05 USD. ElevenLabs: 7 short syntheses (under 600 characters), about
   0.05 USD. OpenAI: 3 requests refused for lack of credit (no charge). Model and voice lists:
   free. Total well under 0.25 USD of the 3 USD cap.
+
+### CP-B12. The gateway uses workspace vendor keys (3.2)
+
+- `PrismaWorkspaceKeys` (common): workspace + provider → the bound Secret's value, cached 30 s.
+- Gateway config `workspaceKeys: {enabled, cacheMs}` (needs `database` with the encryption key).
+  `Catalog.prepare(workspaceRef)` looks up the workspace's key for each configured provider at
+  session start and on handoff (1 s budget; a failed or slow lookup uses the platform keys).
+  Resolutions for that workspace then use adapters built with its key; a provider without a
+  platform key works for a workspace that brought one. Providers are matched by the gateway's
+  provider name (= the catalog provider id).
+- Adapters built with workspace keys are cached by provider and key for the process's life, not
+  only the session; good enough for now.
+- The hosted Autopilot resolves LLM keys the same way (CP-B11).

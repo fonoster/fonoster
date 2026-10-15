@@ -29,3 +29,6 @@ export * from "./numbers.types";
 export * from "./secrets.types";
 export * from "./trunks.types";
 export * from "./workspaces.types";
+export * from "./providers.types";
+export * from "./webhooks.types";
+export * from "./records.types";

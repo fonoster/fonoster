@@ -32,6 +32,10 @@ model Application {
   listeners        Json?
   fallbackAppRef   String? @map("fallback_app_ref")
   fallbackMessage  String? @map("fallback_message")
+  // rebuild: control. Recording policy (off | on | consent; null inherits the workspace's) and
+  // the Pacing policy's patience (low | normal | high; null is normal).
+  recording        String? @db.VarChar(16)
+  patience         String? @db.VarChar(16)
 
   // Relations
   textToSpeech TextToSpeech?

@@ -46,7 +46,9 @@ import { AgentsClient } from "./types/AgentsClient";
 import { CredentialsClient } from "./types/CredentialsClient";
 import { DomainsClient } from "./types/DomainsClient";
 import { NumbersClient } from "./types/NumbersClient";
+import { ProvidersClient } from "./types/ProvidersClient";
 import { TrunksClient } from "./types/TrunksClient";
+import { WebhooksClient } from "./types/WebhooksClient";
 
 type AuthMethod = "password" | "email_code" | "github";
 
@@ -337,6 +339,9 @@ abstract class AbstractClient implements FonosterClient {
   abstract getTrunksClient(): TrunksClient;
   abstract getAclsClient(): AclsClient;
   abstract getCallsClient(): CallsClient;
+  abstract getWebhooksClient(): WebhooksClient;
+  abstract getProvidersClient(): ProvidersClient;
+  abstract getHttpUrl(): string;
 }
 
 export { AbstractClient, AuthMethod, Capabilities };

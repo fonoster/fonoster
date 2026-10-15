@@ -32,8 +32,10 @@ import { influxdb } from "../calls/influxdb";
 import { buildCapabilitiesService } from "../capabilities";
 import { getConfig } from "../config";
 import { ROUTR_MEDIA_NODE_PEER } from "../envs";
+import { buildProvidersService } from "../providers";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";
+import { buildWebhooksService } from "../webhooks";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
 import { routrConfig } from "./routrConfig";
@@ -58,6 +60,8 @@ const numbersService = buildNumbersService(
 );
 const aclsService = buildAclsService(routrConfig);
 const capabilitiesService = buildCapabilitiesService(getConfig());
+const webhooksService = buildWebhooksService(prisma);
+const providersService = buildProvidersService(prisma);
 
 const services = Promise.all([
   applicationsService,
@@ -70,7 +74,9 @@ const services = Promise.all([
   numbersService,
   trunksService,
   domainsService,
-  capabilitiesService
+  capabilitiesService,
+  webhooksService,
+  providersService
 ]);
 
 export default services;

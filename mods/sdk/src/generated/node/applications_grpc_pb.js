@@ -134,6 +134,28 @@ function deserialize_fonoster_applications_v1beta2_ListApplicationsResponse(buff
   return applications_pb.ListApplicationsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_applications_v1beta2_RotateSigningSecretRequest(arg) {
+  if (!(arg instanceof applications_pb.RotateSigningSecretRequest)) {
+    throw new Error('Expected argument of type fonoster.applications.v1beta2.RotateSigningSecretRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_applications_v1beta2_RotateSigningSecretRequest(buffer_arg) {
+  return applications_pb.RotateSigningSecretRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_applications_v1beta2_RotateSigningSecretResponse(arg) {
+  if (!(arg instanceof applications_pb.RotateSigningSecretResponse)) {
+    throw new Error('Expected argument of type fonoster.applications.v1beta2.RotateSigningSecretResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_applications_v1beta2_RotateSigningSecretResponse(buffer_arg) {
+  return applications_pb.RotateSigningSecretResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_applications_v1beta2_TestTokenResponse(arg) {
   if (!(arg instanceof applications_pb.TestTokenResponse)) {
     throw new Error('Expected argument of type fonoster.applications.v1beta2.TestTokenResponse');
@@ -264,6 +286,18 @@ createTestToken: {
     requestDeserialize: deserialize_google_protobuf_Empty,
     responseSerialize: serialize_fonoster_applications_v1beta2_TestTokenResponse,
     responseDeserialize: deserialize_fonoster_applications_v1beta2_TestTokenResponse,
+  },
+  // Replace an application's signing secret; the old one stops working at once (no overlap)
+rotateSigningSecret: {
+    path: '/fonoster.applications.v1beta2.Applications/RotateSigningSecret',
+    requestStream: false,
+    responseStream: false,
+    requestType: applications_pb.RotateSigningSecretRequest,
+    responseType: applications_pb.RotateSigningSecretResponse,
+    requestSerialize: serialize_fonoster_applications_v1beta2_RotateSigningSecretRequest,
+    requestDeserialize: deserialize_fonoster_applications_v1beta2_RotateSigningSecretRequest,
+    responseSerialize: serialize_fonoster_applications_v1beta2_RotateSigningSecretResponse,
+    responseDeserialize: deserialize_fonoster_applications_v1beta2_RotateSigningSecretResponse,
   },
 };
 

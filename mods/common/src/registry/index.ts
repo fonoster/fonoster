@@ -21,3 +21,4 @@ export * from "./Registry";
 export * from "./stores";
 export * from "./types";
 export * from "./prisma";
+export * from "./workspaceKeys";

@@ -27,7 +27,7 @@ import { billingAgent } from "./fixtures";
 import { templateValues } from "./templates";
 
 describe("agent payload", () => {
-  it("round-trips a saved agent and keeps settings the editor doesn't show", () => {
+  it("round-trips a saved agent into the session assistant", () => {
     const request = toUpdateRequest(
       billingAgent.ref,
       toValues(billingAgent),
@@ -35,47 +35,51 @@ describe("agent payload", () => {
     );
     expect(request.ref).toBe("ap-7f3c91");
     expect(request.type).toBe("AUTOPILOT");
-    expect(request.intelligence).toMatchObject({
-      productRef: "llm.openai",
-      credentials: {}
+    expect(request.speech).toEqual({
+      voice: "deepgram/aura-2-celeste-es",
+      language: "es-419",
+      sttModel: "deepgram/nova-3"
     });
     const config = request.intelligence!.config as Record<string, any>;
-    // Untouched values come back the same.
-    expect(config.conversationSettings).toEqual(
-      (billingAgent.intelligence!.config as any).conversationSettings
+    const saved = billingAgent.intelligence!.config as any;
+    // Only the session assistant's keys (sessionAssistantSchema is strict).
+    expect(Object.keys(config).sort()).toEqual([
+      "conversationSettings",
+      "languageModel",
+      "testCases"
+    ]);
+    expect(config.conversationSettings).not.toHaveProperty("vad");
+    expect(config.conversationSettings).not.toHaveProperty(
+      "maxSpeechWaitTimeout"
     );
-    expect(config.languageModel.tools).toEqual(
-      (billingAgent.intelligence!.config as any).languageModel.tools
+    expect(config.conversationSettings.systemPrompt).toBe(
+      saved.conversationSettings.systemPrompt
     );
-    expect(config.testCases).toEqual(
-      (billingAgent.intelligence!.config as any).testCases
-    );
-    expect(config.eventsHook.headers).toEqual({ "x-signature": "abc" });
-    // Extra speech settings survive.
-    expect(request.speechToText!.config).toEqual({
-      model: "nova-3",
-      languageCode: "es-419",
-      smartFormat: true
+    expect(config.languageModel).toMatchObject({
+      model: `openai/${saved.languageModel.model}`
     });
+    expect(config.languageModel).not.toHaveProperty("provider");
+    expect(config.languageModel.tools).toEqual(saved.languageModel.tools);
+    expect(config.testCases).toEqual(saved.testCases);
+    // Reading the request back gives the same editor values.
+    const again = toValues({
+      ...billingAgent,
+      speech: request.speech,
+      intelligence: { productRef: "llm.openai", config }
+    } as never);
+    expect(again.model.provider).toBe("openai");
+    expect(again.model.model).toBe(saved.languageModel.model);
+    expect(again.tts.voice).toBe("aura-2-celeste-es");
   });
 
-  it("drops the events webhook when its URL is empty", () => {
+  it("never sends the retired events webhook", () => {
     const values = toValues(billingAgent);
-    values.eventsHook = { url: "", events: ["conversation.started"] };
-    expect(agentSchema.safeParse(values).success).toBe(true);
+    values.eventsHook = {
+      url: "https://hooks.acme.com/x",
+      events: ["conversation.started"]
+    };
     const config = toRequest(values, billingAgent).intelligence!.config;
     expect(config).not.toHaveProperty("eventsHook");
-  });
-
-  it("requires events when the webhook has a URL", () => {
-    const values = toValues(billingAgent);
-    values.eventsHook = { url: "https://hooks.acme.com/x", events: [] };
-    const result = agentSchema.safeParse(values);
-    expect(result.success).toBe(false);
-    expect(result.error!.issues[0]).toMatchObject({
-      path: ["eventsHook", "events"],
-      message: "Pick at least one event"
-    });
   });
 
   it("maps an edited tool to the assistant tool schema", () => {
@@ -160,22 +164,15 @@ describe("agent payload", () => {
     expect(request).toMatchObject({
       name: "Cobros",
       type: "AUTOPILOT",
-      textToSpeech: {
-        productRef: "tts.deepgram",
-        config: { voice: "aura-2-celeste-es" }
-      },
-      speechToText: {
-        productRef: "stt.deepgram",
-        config: { model: "nova-3", languageCode: "es-419" }
+      speech: {
+        voice: "deepgram/aura-2-celeste-es",
+        language: "es-419",
+        sttModel: "deepgram/nova-3"
       },
       intelligence: {
-        productRef: "llm.openai",
-        credentials: {},
         config: {
-          audioFilters: [],
           languageModel: {
-            provider: "openai",
-            model: "gpt-4o-mini",
+            model: "openai/gpt-4o-mini",
             tools: [],
             knowledgeBase: []
           }

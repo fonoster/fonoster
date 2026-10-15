@@ -29,6 +29,7 @@ import { TEST_TOKEN } from "../utils";
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
+const CONFIG = { autopilotUrl: "ws://autopilot:50061" };
 
 describe("@applications/createApplication", function () {
   afterEach(function () {
@@ -37,9 +38,8 @@ describe("@applications/createApplication", function () {
 
   it("should create an application", async function () {
     // Arrange
-    const { createCreateApplication } = await import(
-      "../../src/applications/createCreateApplication"
-    );
+    const { createCreateApplication } =
+      await import("../../src/applications/createCreateApplication");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
@@ -54,17 +54,21 @@ describe("@applications/createApplication", function () {
       request: {
         name: "My Application",
         type: ApplicationType.EXTERNAL,
-        endpoint: "localhost:50061"
+        url: "wss://bot.example.com/session"
       }
     };
 
     const callback = sandbox.stub();
 
     // Act
-    await createCreateApplication(applications)(call, callback);
+    await createCreateApplication(applications, CONFIG)(call, callback);
 
     // Assert
-    expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
+    expect(callback).to.have.been.calledOnce;
+    const [error, response] = callback.firstCall.args;
+    expect(error).to.equal(null);
+    expect(response.ref).to.equal("123");
+    expect(response.signingSecret).to.have.length.greaterThan(30);
   });
 
   it("should throw an error if the application already exists", async function () {
@@ -77,7 +81,7 @@ describe("@applications/createApplication", function () {
       request: {
         name: "My Application",
         type: ApplicationType.EXTERNAL,
-        endpoint: "localhost:50061"
+        url: "wss://bot.example.com/session"
       }
     };
 
@@ -87,12 +91,11 @@ describe("@applications/createApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createCreateApplication } = await import(
-      "../../src/applications/createCreateApplication"
-    );
+    const { createCreateApplication } =
+      await import("../../src/applications/createCreateApplication");
 
     // Act
-    await createCreateApplication(prisma)(call, (error) => {
+    await createCreateApplication(prisma, CONFIG)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.ALREADY_EXISTS,

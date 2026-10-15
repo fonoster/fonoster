@@ -45,7 +45,7 @@ describe("@applications/updateApplication", function () {
       request: {
         ref: TEST_UUID,
         name: "My new application name",
-        endpoint: "localhost:8765",
+        url: "wss://bot.example.com/session",
         type: ApplicationType.EXTERNAL
       }
     };
@@ -69,16 +69,18 @@ describe("@applications/updateApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createUpdateApplication } = await import(
-      "../../src/applications/createUpdateApplication"
-    );
+    const { createUpdateApplication } =
+      await import("../../src/applications/createUpdateApplication");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      createUpdateApplication(prisma)(call, (error, response) => {
-        if (error) return reject(error);
-        resolve(response);
-      });
+      createUpdateApplication(prisma, { autopilotUrl: "ws://autopilot" })(
+        call,
+        (error, response) => {
+          if (error) return reject(error);
+          resolve(response);
+        }
+      );
     });
 
     // Assert
@@ -105,19 +107,23 @@ describe("@applications/updateApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createUpdateApplication } = await import(
-      "../../src/applications/createUpdateApplication"
-    );
+    const { createUpdateApplication } =
+      await import("../../src/applications/createUpdateApplication");
 
     // Act
     const response = new Promise((resolve, reject) => {
-      createUpdateApplication(prisma)(call, (error, response) => {
-        if (error) return reject(error);
-        resolve(response);
-      });
+      createUpdateApplication(prisma, { autopilotUrl: "ws://autopilot" })(
+        call,
+        (error, response) => {
+          if (error) return reject(error);
+          resolve(response);
+        }
+      );
     });
 
     // Assert
-    await expect(response).to.be.rejectedWith("The requested resource was not found");
+    await expect(response).to.be.rejectedWith(
+      "The requested resource was not found"
+    );
   });
 });

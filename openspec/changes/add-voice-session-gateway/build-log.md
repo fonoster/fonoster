@@ -293,6 +293,69 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   `routr.engines` and `repointNumbersCli`, rollback (the same switch, Asterisk kept warm), media
   node operations, and the Asterisk retirement list (add-media-node 4.1–4.5).
 
+## 2026-10-15 (control stream: APIs and dashboard)
+
+### CP-B1. Recording policy and patience are app columns
+
+- Migration `20261015200000_app_recording_patience`: `applications.recording` (off | on |
+  consent; null inherits the workspace's) and `applications.patience` (low | normal | high).
+  The gateway's `appFromRow` reads both (`app.recording`, `app.speech.patience`); unknown values
+  are ignored. Patience is not kept in `speech_settings`, which the registry treats as vendor
+  settings.
+
+### CP-B2. Applications API speaks the app model; update is a PUT
+
+- `applications.proto` gains `url`, `flavor`, `speech` (`voice`, `language`, `stt_model`,
+  `tts_model`, `silence_timeout_ms`, `patience`), `audio`, `fallback_app_ref`,
+  `fallback_message`, `listeners`, `recording`, `signing_secret_hint`, and
+  `RotateSigningSecret`. Legacy fields stay in the proto but the server ignores TTS/STT products.
+- Create returns the signing secret (32 random bytes, base64url) once; reads only show a hint
+  (`…abcd`). Rotation replaces it at once (B25, no overlap).
+- Update replaces every app-model field (fields left out go back to defaults), keeps the secret.
+  Proto3 cannot tell "unset" from "clear" without field masks; the dashboard always sends the
+  whole app. Defaults: flavor native, voice `deepgram/aura-2-thalia-en`, language en-US.
+- `endpoint` (NOT NULL legacy column) mirrors the URL.
+- Fallback apps must exist in the same workspace and not be the app itself; at most 4
+  listeners; pcmu is 8 kHz only; Twilio-flavor apps store no audio format.
+
+### CP-B3. Autopilot apps
+
+- Config `apps.autopilotUrl` (default `ws://autopilot:50061`): Autopilot apps without a URL
+  point there, always native flavor.
+- Config `apps.autopilotSigningSecret`: the hosted Autopilot verifies one secret, so when set,
+  every Autopilot app gets it (not shown to the user, not rotatable through the API). Unset: each
+  app gets its own random secret (works only when Autopilot is configured per app).
+- The assistant is validated with `sessionAssistantSchema` and stored as today on the
+  Intelligence row, `productRef = llm.<provider of languageModel.model>` (the product must
+  exist). The hosted Autopilot still reads assistants from its file; a database assistant source
+  is not built (rework-autopilot's area).
+
+### CP-B4. Catalog ids are checked once the registry has entries
+
+- Voices and STT/TTS models must exist and not be retired (the error names the replacement)
+  when the registry has entries of that kind; an empty registry accepts any `provider/name`.
+
+### CP-B7. Session apps' numbers go to the media nodes
+
+- Superseded by the clean break (CB-B3): every app-linked number points at the media-node peer,
+  so the per-app `engineOf` lookup was dropped in the merge.
+
+### CP-B8. Dashboard
+
+- `src/session-preview` became `src/session`: Apps (replaces Voice apps; native, Twilio and
+  Autopilot with an assistant JSON editor), Calls (replaces the InfluxDB calls screen; turns,
+  turn decisions, recording download through the authenticated API), Webhooks, Vendor keys.
+  `SessionApi` has an SDK adapter (`sdk-api.ts`) and the mock stays for tests. The Agents screen
+  was ported afterwards (CP-B13).
+- Two Playwright flows on the old calls screen are skipped (they mock gRPC ListCalls).
+
+### CP-B10. Local links (not committed)
+
+- `mods/apiserver/node_modules/@fonoster/{common,types}`, `mods/sdk/node_modules/@fonoster/
+  {common,types}` and `mods/dashboard/node_modules/@fonoster/{sdk,types}` point at this
+  worktree. TypeScript dedupes `@fonoster/types@0.27.0` to whichever copy it meets first, so the
+  apiserver declares its few new response types locally.
+
 ## Clean-break stream (2026-10-15, wave 2)
 
 ### CB-B8. Cutover items closed by the clean break
@@ -303,3 +366,26 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   release; `docs/release-notes-sessions.md` lists the five breaking changes.
 - `gateway.outbound` (B8) now has a caller: the apiserver's outbound placement (add-media-node
   CB-B2).
+
+### CP-B13. The Agents screen writes the session assistant (kept, not folded into Apps)
+
+- Agents stays as the friendly editor for Autopilot apps; Apps → Autopilot remains the raw JSON
+  path. Its mapping now sends `speech` catalog ids (`deepgram/<voice>`, `deepgram/<stt model>`,
+  language) and an assistant with only `sessionAssistantSchema` keys: `languageModel.model` is
+  `<provider>/<model>`, and VAD, the speech wait timeout, audio filters, the events webhook and
+  base URLs are no longer sent. Their controls left the Advanced tab (a note says where they
+  went). It reads both the new and the legacy shapes. No URL is sent, so agents run on the hosted
+  Autopilot. The in-browser test call ("talk") still uses the old test-token path.
+
+### CP-B14. Records API in the browser: same origin through Envoy
+
+- The dashboard reaches the apiserver through Envoy, which already routes `/api` to the HTTP
+  bridge, so `/api/records` is same-origin. Envoy's CORS now also allows `authorization` and
+  `x-accesskey-id` and exposes `content-disposition` and `x-content-hash` (for a dashboard served
+  from another origin, e.g. Vite in development). No CORS on the bridge itself.
+
+### CP-B15. appsync is no longer needed
+
+- With the Applications API writing the app model, the hosted Autopilot reading assistants from
+  the database (CP-B11) and the gateway reading apps from `applications` (P-B9), rb-stack's
+  interim `appsync` (copies app fields and assistants every 3 s) can be removed once both land.

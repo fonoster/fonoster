@@ -22,7 +22,7 @@ import { Application, BaseApiObject } from "@fonoster/types";
 import { Prisma } from "../core/db";
 import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
+import { rowToApplication } from "./session/appModel";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -38,7 +38,7 @@ function createGetApplication(prisma: Prisma) {
 
     const result = await getFn(ref);
 
-    return result ? applicationWithEncodedStruct(result) : null;
+    return result ? (rowToApplication(result) as unknown as Application) : null;
   };
 
   return withErrorHandlingAndValidationAndAccess(

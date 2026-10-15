@@ -20,11 +20,13 @@ import {
   Application,
   BaseApiObject,
   CreateApplicationRequest,
+  CreateApplicationResponse,
   EvaluateIntelligenceEvent,
   EvaluateIntelligenceRequest,
   ExpectedTextType,
   ListApplicationsRequest,
   ListApplicationsResponse,
+  RotateSigningSecretResponse,
   UpdateApplicationRequest
 } from "@fonoster/types";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -34,6 +36,7 @@ import { FonosterClient } from "./client/types";
 import {
   Application as ApplicationPB,
   ApplicationType,
+  AudioFormat as AudioFormatPB,
   CreateApplicationRequest as CreateApplicationRequestPB,
   CreateApplicationResponse as CreateApplicationResponsePB,
   DeleteApplicationRequest as DeleteApplicationRequestPB,
@@ -42,7 +45,11 @@ import {
   GetApplicationRequest as GetApplicationRequestPB,
   ListApplicationsRequest as ListApplicationsRequestPB,
   ListApplicationsResponse as ListApplicationsResponsePB,
+  Listener as ListenerPB,
   ProductContainer as ProductContainerPB,
+  RotateSigningSecretRequest as RotateSigningSecretRequestPB,
+  RotateSigningSecretResponse as RotateSigningSecretResponsePB,
+  SpeechDefaults as SpeechDefaultsPB,
   TestTokenResponse,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
@@ -97,6 +104,25 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  *
  * main(request);
  */
+/** Nested messages of create and update requests (the session app model and legacy products). */
+const REQUEST_OBJECTS: [string, unknown][] = [
+  ["textToSpeech", ProductContainerPB],
+  ["speechToText", ProductContainerPB],
+  ["intelligence", ProductContainerPB],
+  ["speech", SpeechDefaultsPB],
+  ["audio", AudioFormatPB],
+  ["listeners", ListenerPB]
+];
+
+/** Repeated fields come back as `listenersList` when empty; always return `listeners`. */
+function withSessionFields<T extends Record<string, unknown>>(app: T): T {
+  const { listenersList, ...rest } = app as Record<string, unknown>;
+  return {
+    ...rest,
+    listeners: (rest.listeners ?? listenersList ?? []) as unknown
+  } as unknown as T;
+}
+
 class Applications {
   private readonly client: FonosterClient;
   /**
@@ -155,7 +181,7 @@ class Applications {
    */
   async createApplication(
     request: CreateApplicationRequest
-  ): Promise<BaseApiObject> {
+  ): Promise<CreateApplicationResponse> {
     const reqWithStructOverride = buildStructOverride(request);
     const applicationsClient = this.client.getApplicationsClient();
 
@@ -163,18 +189,14 @@ class Applications {
       CreateApplicationRequestPB,
       CreateApplicationResponsePB,
       CreateApplicationRequest,
-      BaseApiObject
+      CreateApplicationResponse
     >({
       method: applicationsClient.createApplication.bind(applicationsClient),
       requestPBObjectConstructor: CreateApplicationRequestPB,
       metadata: this.client.getMetadata(),
       request: reqWithStructOverride,
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [
-        ["textToSpeech", ProductContainerPB],
-        ["speechToText", ProductContainerPB],
-        ["intelligence", ProductContainerPB]
-      ]
+      objectMapping: REQUEST_OBJECTS
     });
   }
 
@@ -214,7 +236,7 @@ class Applications {
       ]
     });
 
-    return buildStructOverrideReverse(response);
+    return withSessionFields(buildStructOverrideReverse(response));
   }
 
   /**
@@ -265,11 +287,7 @@ class Applications {
       metadata: this.client.getMetadata(),
       request: reqWithStructOverride,
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [
-        ["textToSpeech", ProductContainerPB],
-        ["speechToText", ProductContainerPB],
-        ["intelligence", ProductContainerPB]
-      ]
+      objectMapping: REQUEST_OBJECTS
     });
   }
 
@@ -317,7 +335,9 @@ class Applications {
     });
 
     return {
-      items: response.items.map(buildStructOverrideReverse),
+      items: response.items.map((item) =>
+        withSessionFields(buildStructOverrideReverse(item))
+      ),
       nextPageToken: response.nextPageToken
     };
   }
@@ -338,6 +358,30 @@ class Applications {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
+  /**
+   * Replaces the app's signing secret. The old secret stops working at once (no overlap window),
+   * so redeploy the app with the new one. The secret is returned only here.
+   *
+   * @param {string} ref - The application's reference
+   * @return {Promise<RotateSigningSecretResponse>} - The new secret and its hint
+   * @example
+   * const { signingSecret } = await applications.rotateSigningSecret("00000000-...");
+   */
+  async rotateSigningSecret(ref: string): Promise<RotateSigningSecretResponse> {
+    const applicationsClient = this.client.getApplicationsClient();
+    return await makeRpcRequest<
+      RotateSigningSecretRequestPB,
+      RotateSigningSecretResponsePB,
+      BaseApiObject,
+      RotateSigningSecretResponse
+    >({
+      method: applicationsClient.rotateSigningSecret.bind(applicationsClient),
+      requestPBObjectConstructor: RotateSigningSecretRequestPB,
+      metadata: this.client.getMetadata(),
+      request: { ref }
+    });
+  }
+
   async deleteApplication(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<

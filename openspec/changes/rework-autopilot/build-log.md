@@ -212,3 +212,15 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   read. `sendConversation*Event` is gone.
 - `mods/autopilot/Dockerfile` is now the hosted engine (was `Dockerfile.session`); the compose
   files mount `config/autopilot-session.yaml`, and `npm run start:autopilot` uses it.
+
+## 2026-10-15 (control stream)
+
+### CP-B11. The hosted Autopilot reads the control plane's database
+
+- `assistants: {source: database, cacheMs}` (default 5 s): `PrismaAssistantSource` loads an
+  AUTOPILOT app's Intelligence row by `appRef` (workspace = its access key id); misses are cached
+  too. `registry: {source: database, refreshMs}` loads the registry tables into memory and
+  refreshes them, keeping the last good copy. `workspaceSecrets: {source: database}` reads
+  workspace vendor keys (CP-B6) through the providers that use the asked credentialRef.
+- A `database` section (`url` or `urlEnv`, `encryptionKeyEnv`, `clientModule`) is required for
+  any database source; the file sources stay for tests and self-hosting.

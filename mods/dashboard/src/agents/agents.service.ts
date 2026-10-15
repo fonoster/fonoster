@@ -31,7 +31,7 @@ import {
 } from "~/lib/resource";
 import { useWorkspace } from "~/lib/workspace";
 
-/** Shared with the Voice apps and Numbers screens; filtered to AUTOPILOT here. */
+/** Shared with the Apps and Numbers screens; filtered to AUTOPILOT here. */
 const RESOURCE = "applications";
 
 export function isAgent(app: Pick<Application, "type">) {
