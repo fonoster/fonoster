@@ -1,0 +1,12 @@
+format: fonoster.scenario.v1
+name: malformed-speak
+contract: voice-session
+role: app
+spec: "Errors are events / Malformed command"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r9, last: true }
+  - expect: { type: error, code: bad_message, fatal: false, relatesTo: r9, message: "*" }
+    within_ms: 1000
+  - send: { type: speak, id: r10, text: "Recovered.", last: true }
+  - expect: { type: output.started, id: r10 }

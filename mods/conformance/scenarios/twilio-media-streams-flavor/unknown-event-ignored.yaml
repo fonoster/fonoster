@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: unknown-event-ignored
+contract: twilio-media-streams-flavor
+role: app
+spec: "Twilio flavor scope / Unknown event from a Twilio-flavor app"
+setup:
+  app: { flavor: twilio }
+ignore: [media]
+steps:
+  - expect: { event: start }
+    capture: { sid: streamSid }
+  - send: { event: transfer, streamSid: "${sid}" }
+  - expect_none: { event: stop }
+    for_ms: 500

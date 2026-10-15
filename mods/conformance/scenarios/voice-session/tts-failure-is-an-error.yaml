@@ -1,0 +1,12 @@
+format: fonoster.scenario.v1
+name: tts-failure-is-an-error
+contract: voice-session
+role: app
+spec: "Errors are events / Provider fails mid-call"
+steps:
+  - expect: { type: session.start }
+  - inject: { tts: { failNext: provider_timeout } }
+  - send: { type: speak, id: r2, text: "This will fail.", last: true }
+  - expect: { type: error, code: provider_timeout, relatesTo: r2, fatal: false }
+    within_ms: 5000
+  - assert: { providers.tts.requests: 1, providers.vendor_calls: 0 }

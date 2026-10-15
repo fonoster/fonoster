@@ -72,7 +72,9 @@ steps:
 
 - **Why:** the TypeScript and Python SDKs run byte-identical cases, and a third SDK later costs one
   runner, not a new suite.
-- **Status:** proposed; the exact schema is an open question.
+- **Status:** settled. YAML for authoring, validated against a JSON Schema so every runner rejects
+  the same malformed files. The format is `fonoster.scenario.v1`, documented in
+  `mods/conformance/SCENARIOS.md` with the schema in `mods/conformance/schema/scenario.schema.json`.
 - **Rejected:** writing each SDK's tests in its own language. They drift apart within a release.
 
 ### C4. Suites per domain
@@ -140,8 +142,8 @@ other repositories to justify it.
 
 ## Open Questions
 
-- The exact scenario file schema (YAML as proposed, or JSON with a JSON Schema), and how wildcards
-  and timing assertions are expressed.
+- ~~The exact scenario file schema.~~ Resolved: YAML validated by a JSON Schema (`fonoster.scenario.v1`,
+  see C3).
 - CI resources for the nightly load test (dedicated runners, cloud machines per run) and its cost.
 - How recorded calls in the turn-taking corpus are stored and access-controlled, given they come
   from sealed originals with restricted access.

@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+name: app-hangup
+contract: voice-session
+role: app
+spec: "Session ending / App hangs up"
+steps:
+  - expect: { type: session.start }
+  - send: { type: hangup }
+  - expect: { type: session.end, reason: app_hangup }
+    within_ms: 1000
+  - expect_close: {}
+    within_ms: 1000
+  - assert: { media.commands: { $includes: [{ type: hangup }] } }

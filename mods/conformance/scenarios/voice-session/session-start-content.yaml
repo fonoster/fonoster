@@ -1,0 +1,24 @@
+format: fonoster.scenario.v1
+name: session-start-content
+contract: voice-session
+role: app
+spec: "session.start opens every native session / Start message content"
+setup:
+  call: { direction: inbound, from: "+15550001111", to: "+15550002222" }
+steps:
+  - expect:
+      type: session.start
+      protocol: fonoster.session.v1
+      sessionRef: "*"
+      callRef: "*"
+      appRef: "*"
+      direction: inbound
+      from: "+15550001111"
+      to: "+15550002222"
+      handoff: null
+      audio: { codec: "*", rate: "*" }
+      tracks: { $includes: [{ id: 1, side: inbound, kind: audio }] }
+      speech: { voice: "*", language: "*" }
+    within_ms: 3000
+  - expect_audio: { track: 1, ms: { $gte: 200 } }
+    within_ms: 1000

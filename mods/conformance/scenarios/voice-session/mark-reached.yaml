@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: mark-reached
+contract: voice-session
+role: app
+spec: "Marks / Mark reached"
+steps:
+  - expect: { type: session.start }
+  - send_audio: { ms: 2000, kind: tone, realtime: false }
+    label: audio
+  - send: { type: mark, name: m1 }
+  - expect: { type: mark, name: m1, cleared: false }
+    from: audio
+    not_before_ms: 1800
+    within_ms: 2600

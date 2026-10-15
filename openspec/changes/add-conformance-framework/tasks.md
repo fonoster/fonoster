@@ -1,18 +1,18 @@
-> Build deferred: do not start until the owner approves the build.
+> Build approved by the owner on 2026-10-15.
 
 ## 1. Harness foundations
 
-- [ ] 1.1 Settle the scenario file schema (format, wildcards, timing assertions) and document it
-- [ ] 1.2 Create the `mods/conformance` workspace package (fakes, runners, scenario files) and publish the scenario files so the Python SDK and the Go media node runner can consume them
-- [ ] 1.3 Build the scenario runner for TypeScript
+- [x] 1.1 Settle the scenario file schema (format, wildcards, timing assertions) and document it
+- [x] 1.2 Create the `mods/conformance` workspace package (fakes, runners, scenario files) and publish the scenario files so the Python SDK and the Go media node runner can consume them
+- [x] 1.3 Build the scenario runner for TypeScript
 - [ ] 1.4 Build the scenario runner for Python
 
 ## 2. Fakes
 
-- [ ] 2.1 Fake app (scripted native and Twilio flavor client)
-- [ ] 2.2 Fake gateway (scripted server for SDK suites)
-- [ ] 2.3 Fake media node (plays recorded caller audio, records output, accepts control commands)
-- [ ] 2.4 Fake STT, TTS and LLM providers with deterministic output and injectable delays and failures
+- [x] 2.1 Fake app (scripted native and Twilio flavor client)
+- [x] 2.2 Fake gateway (scripted server for SDK suites)
+- [x] 2.3 Fake media node (plays recorded caller audio, records output, accepts control commands)
+- [x] 2.4 Fake STT, TTS and LLM providers with deterministic output and injectable delays and failures
 - [ ] 2.5 Caller bot that places real SIP calls through Routr
 
 ## 3. Suites
