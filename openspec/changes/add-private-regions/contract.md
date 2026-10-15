@@ -77,10 +77,10 @@ Additions from the control-plane build (RG-B4, additive):
 
 Additions from the endpoints build (RE-B2, additive):
 
-- `endpointsHash` (heartbeat) is the lowercase sha256 hex of the canonical JSON
-  `{"sip":[{"host","port","transport"}…],"signalingAddresses":[…],"mediaAddresses":[…],"rtpPorts":{"min","max"}|null}`
-  (keys in that order, `sip` sorted by `"<transport>:<host>:<port>"`, address lists sorted,
-  `updatedAt` left out). A cell that hashes differently only causes an extra request per heartbeat.
+- `endpointsHash` (heartbeat) is the first 16 lowercase hex characters of the sha256 of
+  `{"sip":[[host,port,transport]…],"signalingAddresses":[…],"mediaAddresses":[…],"rtpPorts":[min,max]|null}`
+  in the order the cell sends them, `updatedAt` left out (the region agent's algorithm, RC-B16).
+  A cell that hashes differently only causes an extra request per heartbeat.
 - `region.R.endpoints.request` (cp → cell, plain publish): `{type:"region.endpoints.request"}`.
   Sent after a heartbeat whose `endpointsHash` differs from the stored one, or that has no hash
   while nothing is stored. The cell answers by publishing `region.R.endpoints`.

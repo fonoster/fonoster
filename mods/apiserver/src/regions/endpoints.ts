@@ -85,23 +85,22 @@ export function normalizeEndpoints(body: unknown): RegionEndpoints | undefined {
 }
 
 /**
- * `endpointsHash` (contract §3, RE-B2): sha256 hex of the canonical JSON
- * `{"sip":[{"host","port","transport"}…],"signalingAddresses":[…],"mediaAddresses":[…],"rtpPorts":{"min","max"}|null}`
- * with `sip` sorted by `transport:host:port` and the address lists sorted; `updatedAt` excluded.
+ * `endpointsHash` (contract §3, RE-B2), the region agent's algorithm (RC-B16): the first 16 hex
+ * characters of the sha256 of
+ * `{"sip":[[host,port,transport]…],"signalingAddresses":[…],"mediaAddresses":[…],"rtpPorts":[min,max]|null}`
+ * in the order the cell sent them; `updatedAt` left out.
  */
-export function endpointsHash(e: RegionEndpoints): string {
-  const sip = [...e.sip]
-    .map((s) => ({ host: s.host, port: s.port, transport: s.transport }))
-    .sort((a, b) =>
-      `${a.transport}:${a.host}:${a.port}`.localeCompare(
-        `${b.transport}:${b.host}:${b.port}`
-      )
-    );
+export function endpointsHash(e: {
+  sip?: { host: unknown; port: unknown; transport: unknown }[];
+  signalingAddresses?: unknown[];
+  mediaAddresses?: unknown[];
+  rtpPorts?: { min: unknown; max: unknown } | null;
+}): string {
   const canonical = JSON.stringify({
-    sip,
-    signalingAddresses: [...e.signalingAddresses].sort(),
-    mediaAddresses: [...e.mediaAddresses].sort(),
-    rtpPorts: e.rtpPorts ? { min: e.rtpPorts.min, max: e.rtpPorts.max } : null
+    sip: (e.sip ?? []).map((s) => [s.host, s.port, s.transport]),
+    signalingAddresses: e.signalingAddresses ?? [],
+    mediaAddresses: e.mediaAddresses ?? [],
+    rtpPorts: e.rtpPorts ? [e.rtpPorts.min, e.rtpPorts.max] : null
   });
-  return createHash("sha256").update(canonical).digest("hex");
+  return createHash("sha256").update(canonical).digest("hex").slice(0, 16);
 }

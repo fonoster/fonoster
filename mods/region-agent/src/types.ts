@@ -169,6 +169,8 @@ export const subjects = (regionRef: string) => ({
   index: `region.${regionRef}.index`,
   usage: `region.${regionRef}.usage`,
   endpoints: `region.${regionRef}.endpoints`,
+  /** cp → cell: publish the endpoints again (RE-B2). */
+  endpointsRequest: `region.${regionRef}.endpoints.request`,
   revoked: `region.${regionRef}.revoked`,
   /** Reply subjects for requests that cross the link (RG-B4): the link client's inboxPrefix. */
   inbox: `region.${regionRef}._INBOX`

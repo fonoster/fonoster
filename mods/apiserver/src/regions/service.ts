@@ -340,7 +340,10 @@ export function createRegionService(deps: {
         where: { ref: regionRef },
         data: {
           endpoints: { ...endpoints, updatedAt: now().toISOString() },
-          endpointsHash: endpointsHash(endpoints),
+          // Hash what the cell sent (as its heartbeats do), not the cleaned copy.
+          endpointsHash: endpointsHash(
+            body as Parameters<typeof endpointsHash>[0]
+          ),
           endpointsAt: now()
         }
       })) as RegionRow;

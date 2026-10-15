@@ -42,6 +42,8 @@ import {
   withConfigChangeHook
 } from "../../src/regions";
 
+const AGENT_HASH = "e04c56cca42b63d9";
+
 const pem = () =>
   generateKeyPairSync("ec", { namedCurve: "P-256" })
     .privateKey.export({ type: "pkcs8", format: "pem" })
@@ -227,15 +229,20 @@ describe("@apiserver[regions/units]", function () {
       expect(normalizeEndpoints("nope")).to.equal(undefined);
     });
 
-    it("hashes canonically: order and updatedAt do not matter", function () {
+    it("hashes like the region agent: updatedAt does not matter", function () {
       const a = normalizeEndpoints(e)!;
-      const b = normalizeEndpoints({
-        ...e,
-        sip: [...e.sip].reverse(),
-        updatedAt: new Date().toISOString()
-      })!;
-      expect(endpointsHash(a)).to.match(/^[0-9a-f]{64}$/);
+      const b = { ...a, updatedAt: new Date().toISOString() };
+      expect(endpointsHash(a)).to.match(/^[0-9a-f]{16}$/);
       expect(endpointsHash(a)).to.equal(endpointsHash(b));
+      // Same value as mods/region-agent's endpointsHash for this input.
+      expect(
+        endpointsHash({
+          sip: [{ host: "203.0.113.10", port: 5060, transport: "udp" }],
+          signalingAddresses: ["203.0.113.10"],
+          mediaAddresses: ["203.0.113.10"],
+          rtpPorts: { min: 10000, max: 20000 }
+        })
+      ).to.equal(AGENT_HASH);
       expect(
         endpointsHash({ ...a, mediaAddresses: ["203.0.113.12"] })
       ).to.not.equal(endpointsHash(a));
