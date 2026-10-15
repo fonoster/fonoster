@@ -1,0 +1,139 @@
+name: conformance
+
+# Rebuild conformance suites (add-conformance-framework, C6). Fake-based suites run on every pull
+# request; timing (T1), load (T2) and the Pipecat golden test run nightly. The plain unit-test
+# workflow already runs everything that needs no NATS.
+
+on:
+  pull_request:
+    branches:
+      - main
+      - next
+    paths:
+      - 'mods/common/**'
+      - 'mods/conformance/**'
+      - 'mods/gateway/**'
+      - 'mods/voice/**'
+      - 'mods/autopilot/**'
+      - 'mods/callrecord/**'
+      - 'python/**'
+      - 'package-lock.json'
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  suites:
+    name: session, SDK and Autopilot suites (NATS)
+    runs-on: ubuntu-latest
+    services:
+      nats:
+        image: nats:2.11.8
+        ports:
+          - 4222:4222
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: "22.x"
+
+    - name: Install dependencies and build
+      run: |
+        npm install
+        npm run build
+
+    - name: Run the suites that need NATS
+      env:
+        CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+        LOGS_LEVEL: none
+      run: |
+        cp .env.example.dev .env
+        npx mocha --timeout 30000 \
+          'mods/gateway/test/conformance.test.ts' \
+          'mods/gateway/test/integration.test.ts' \
+          'mods/gateway/test/crash.test.ts' \
+          'mods/conformance/test/nats.test.ts' \
+          'mods/autopilot/test/session/fullstack.test.ts'
+
+  python:
+    name: Python SDK and runner
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install and test
+      working-directory: python
+      run: |
+        python -m pip install -e fonoster-conformance -e "fonoster-voice[test]"
+        python -m pytest fonoster-conformance/tests fonoster-voice/tests
+
+  nightly:
+    name: timing (T1), load (T2) and Pipecat
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # Shared runners are noisy; these numbers are a trend, not the pass bar (which needs a
+    # dedicated runner, conformance task 4.2).
+    runs-on: ubuntu-latest
+    services:
+      nats:
+        image: nats:2.11.8
+        ports:
+          - 4222:4222
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: "22.x"
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies and build
+      run: |
+        npm install
+        npm run build
+        cp .env.example.dev .env
+        python -m pip install -r python/pipecat-golden/requirements.txt
+
+    - name: Timing (T1)
+      env:
+        CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+        CONFORMANCE_TIMING_RUNS: "200"
+        CONFORMANCE_REPORT_DIR: reports
+        LOGS_LEVEL: none
+      run: npx mocha --timeout 0 'mods/gateway/test/timing.test.ts'
+
+    - name: Load (T2)
+      run: |
+        mkdir -p reports
+        npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 60 | tee reports/scale-100.json
+
+    - name: Turn-taking replay (T3)
+      run: npx tsx mods/gateway/scripts/replay.ts | tee reports/turn-replay.txt
+
+    - name: Pipecat golden test
+      env:
+        CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+        PIPECAT_PYTHON: python
+        LOGS_LEVEL: none
+      run: npx mocha --timeout 60000 'mods/gateway/test/pipecat.test.ts'
+
+    - name: Publish reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: conformance-reports
+        path: reports/
