@@ -249,7 +249,12 @@ export class Catalog {
   /** The STT adapter for the gateway (one STT provider per deployment for now). */
   defaultStt(workspaceRef?: string): SttAdapter | undefined {
     const name =
-      this.config.stt?.provider ?? (this.stt.keys().next().value as string);
+      this.config.stt?.provider ??
+      (this.stt.keys().next().value as string) ??
+      // Keys only from the workspace or the cell (no platform key): the first STT provider.
+      Object.entries(this.config.providers ?? {}).find(([, p]) =>
+        p.capabilities.includes("stt")
+      )?.[0];
     if (!name) return undefined;
     return this.forWorkspace(name, workspaceRef)?.stt ?? this.stt.get(name);
   }

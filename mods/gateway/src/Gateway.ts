@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { randomUUID } from "crypto";
 import * as http from "http";
 import { AddressInfo } from "net";
 import {
@@ -67,6 +68,9 @@ export type GatewayOptions = {
   /** Workspace vendor keys (registry 3.2); without it every call uses the platform keys. */
   workspaceKeys?: WorkspaceKeySource;
 };
+
+/** Gateways announce themselves here every 5 s (counted by a private region's agent). */
+export const GATEWAY_HEARTBEAT_SUBJECT = "gateway.heartbeat";
 
 /** A node is down after this long without a heartbeat (3 missed beats of 2 s). */
 export const NODE_DOWN_AFTER_MS = 6000;
@@ -130,6 +134,22 @@ export class Gateway {
       }
     });
     this.stops.push(() => outbound.unsubscribe());
+    const gatewayRef = randomUUID();
+    const beat = () =>
+      this.nc?.publish(
+        GATEWAY_HEARTBEAT_SUBJECT,
+        sc.encode(
+          JSON.stringify({
+            type: "gateway.heartbeat",
+            gatewayRef,
+            calls: this.calls.size,
+            at: new Date().toISOString()
+          })
+        )
+      );
+    beat();
+    const beats = setInterval(beat, 5000);
+    this.stops.push(() => clearInterval(beats));
     if (this.record instanceof CallRecordWriter)
       this.stops.push(serveRecordMaintenance(this.nc, this.record));
     await this.nc.flush();
