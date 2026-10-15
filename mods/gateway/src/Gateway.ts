@@ -44,6 +44,7 @@ import {
 } from "./media/MediaControl";
 import { CallRecordSink, MemoryCallRecordSink } from "./record/CallRecordSink";
 import { serveRecordMaintenance } from "./record/maintenance";
+import { AmdClassifier, loadAmdClassifier } from "./amd/AmdListener";
 import { Call, CallInfo } from "./session/Call";
 import { Catalog, WorkspaceKeySource } from "./speech/Catalog";
 import { telemetry } from "./telemetry";
@@ -72,6 +73,8 @@ export type GatewayOptions = {
   registryStore?: RegistryNs.RegistryStore;
   /** Workspace vendor keys (registry 3.2); without it every call uses the platform keys. */
   workspaceKeys?: WorkspaceKeySource;
+  /** The AMD classifier (default: mods/amd's model when the config has `amd`). */
+  amdClassifier?: AmdClassifier;
 };
 
 /** Gateways announce themselves here every 5 s (counted by a private region's agent). */
@@ -108,7 +111,14 @@ export class Gateway {
     );
     this.apps = options.apps ?? new YamlAppStore(options.config.apps ?? []);
     this.webhooks = options.webhooks;
+    this.amdClassifier =
+      options.amdClassifier ??
+      (options.config.amd
+        ? loadAmdClassifier(options.config.amd.modelDir)
+        : undefined);
   }
+
+  private readonly amdClassifier?: AmdClassifier;
 
   get config() {
     return this.options.config;
@@ -250,6 +260,7 @@ export class Gateway {
       record: this.record,
       findApp: this.findApp,
       webhooks: this.webhooks,
+      amd: this.amdClassifier,
       onCatalogUse: (use) =>
         this.nc?.publish(REGISTRY_USED_SUBJECT, sc.encode(JSON.stringify(use))),
       onEnded: (c) => {

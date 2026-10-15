@@ -45,6 +45,7 @@ import {
   MediaEvent
 } from "../media/MediaControl";
 import { RtpLink } from "../media/RtpLink";
+import { AmdClassifier, AmdListener, amdWindowMs } from "../amd/AmdListener";
 import { CallRecording } from "../record/CallRecording";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
@@ -135,6 +136,8 @@ export type CallDeps = {
   webhooks?: (event: Webhooks.WebhookEvent) => void;
   /** Once per session and catalog id it resolved (registry usage and runtime warnings, LO-B11). */
   onCatalogUse?: (use: CatalogUse) => void;
+  /** Classifies the caller's first seconds for apps with `amd` (add-media-node 4.3). */
+  amd?: AmdClassifier;
   onEnded: (call: Call) => void;
 };
 
@@ -180,6 +183,8 @@ export class Call {
   onHold = false;
   /** The platform's recording listener (call-record, recording policy). */
   readonly recording: CallRecording;
+  /** The AMD listener while it runs. */
+  private amd?: AmdListener;
 
   private readonly span: ReturnType<typeof telemetry.startCall>;
 
@@ -277,10 +282,50 @@ export class Call {
       return this.finish("error");
     }
 
+    if (reached) void this.detectAnsweringMachine(reached.app);
+
     if (!socket) {
       this.failed("app_unreachable");
       await this.fallbackMessage(app);
     }
+  }
+
+  /**
+   * AMD as a voice-worker listener: one RTP stream (the caller's track) to an AmdListener, then
+   * `amd.result` to the session and the call record. Never affects the call itself.
+   */
+  private async detectAnsweringMachine(app: AppConfig) {
+    const windowMs = amdWindowMs(app.amd);
+    if (!windowMs || this.ended) return;
+    const report = (result: Record<string, unknown>) => {
+      const event = { type: "amd.result", ...result };
+      this.record("event", event);
+      this.session?.emit(event);
+    };
+    if (!this.deps.amd)
+      return report({
+        status: "unknown",
+        confidence: 0,
+        detector: "none",
+        audioMs: 0,
+        reason: "no_classifier"
+      });
+    const track = await this.recording.trackOf(this.info.callerRef);
+    if (this.ended) return;
+    if (track === undefined)
+      return report({
+        status: "unknown",
+        confidence: 0,
+        detector: "none",
+        audioMs: 0,
+        reason: "unknown_tracks"
+      });
+    const listener = new AmdListener(this, this.deps.amd, this.deps.config.rtp);
+    this.amd = listener;
+    this.record("event", { type: "amd.started", windowMs });
+    const result = await listener.run(track, windowMs);
+    this.amd = undefined;
+    report(result);
   }
 
   private async startRecording(policy: ReturnType<typeof recordingPolicy>) {
@@ -567,6 +612,7 @@ export class Call {
     this.unsubscribeRoom?.();
     // The recording is flushed before the record is closed, so sealing finds all of it.
     this.recording.stop();
+    this.amd?.stop();
     this.record("event", { type: "call.ended", reason: recordReason });
     if (this.answeredBy)
       this.deps.webhooks?.(
@@ -1383,7 +1429,7 @@ export class AppSession {
       });
     if (
       !this.codec.speechLayer &&
-      !["mark", "dtmf"].includes(message.type as string)
+      !["mark", "dtmf", "amd.result"].includes(message.type as string)
     )
       return;
     this.codec.event(message);

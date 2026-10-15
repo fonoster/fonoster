@@ -422,6 +422,7 @@ export class Session {
       case "turn.backchannel":
       case "transcript.partial":
       case "turn.estimate":
+      case "amd.result":
         return this.emit(type, this.without(msg, "type"));
       default:
       // Unknown types are ignored (additive-only protocol).

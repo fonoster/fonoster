@@ -61,6 +61,11 @@ export type AppConfig = {
   listeners?: { url: string; tracks?: "inbound" | "outbound" | "both" }[];
   /** Recording policy for this app; overrides the workspace's and the region default. */
   recording?: RecordingPolicy;
+  /**
+   * Answering-machine detection (add-media-node 4.3): `true`, or `{windowMs}` of caller audio to
+   * classify (default 4000). The session gets one `amd.result` event.
+   */
+  amd?: boolean | { enabled?: boolean; windowMs?: number };
 };
 
 export type ProviderConfig = {
@@ -179,6 +184,8 @@ export type GatewayConfig = {
   /** Keepalive overrides (mainly for tests). */
   keepalive?: { pingIntervalMs?: number; idleTimeoutMs?: number };
   /** Call records (add-call-record): working records, sealing and signing. */
+  /** The AMD classifier (mods/amd's model); apps opt in with `amd`. */
+  amd?: { modelDir?: string };
   callRecord?: {
     dir: string;
     region: string;
