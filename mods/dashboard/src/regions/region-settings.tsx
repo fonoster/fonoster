@@ -20,11 +20,10 @@ import { Link } from "react-router-dom";
 import { Alert } from "~/components/ui/alert";
 import { errorMessage } from "~/lib/errors";
 import { useRegion } from "./api";
-import { ConnectionDetails } from "./connection";
 import { regionLink } from "./links";
-import { Row, STATUS_NOTE } from "./status";
+import { StatusDot } from "./status";
 
-/** Settings → Region: read-only; a workspace never changes region. */
+/** Settings > Region: one read-only line; a workspace never changes region. */
 export function RegionSettings() {
   const { data: region, isPrivate, isLoading, error } = useRegion();
   if (isLoading) return <p>Loading…</p>;
@@ -34,22 +33,16 @@ export function RegionSettings() {
         {errorMessage(error ?? "Couldn't load the region")}
       </Alert>
     );
-  const note = isPrivate ? STATUS_NOTE[region.status] : undefined;
   return (
-    <section aria-label="Region" className="flex max-w-xl flex-col gap-5">
-      {note && <Alert variant={note.variant}>{note.text}</Alert>}
-      <dl>
-        <Row label="Region" value={region.displayName} />
-        <Row label="ID" value={region.id} />
-        <Row label="Type" value={isPrivate ? "Private" : "Public"} />
-      </dl>
-      <ConnectionDetails region={region} />
+    <section
+      aria-label="Region"
+      className="flex max-w-xl items-center gap-3 font-display text-sm"
+    >
+      <span className="font-medium">{region.displayName}</span>
+      <StatusDot status={region.status} />
       {isPrivate && (
-        <Link
-          to={regionLink(region.ref)}
-          className="font-display text-sm underline"
-        >
-          Manage region
+        <Link to={regionLink(region.ref)} className="ml-auto underline">
+          View region →
         </Link>
       )}
     </section>
