@@ -192,3 +192,17 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   refuses (PERMISSION_DENIED) when the caller's workspace is unknown, since Prisma drops an
   undefined filter and would match any workspace's app.
 - Tests: `mods/apiserver/test/utils/checkNumberPreconditions.test.ts`, sipnet createNumber.
+
+### RV-B6. NATS is not a trust boundary yet
+- Local stack: NATS (4222) and MinIO (API and console) are published on 127.0.0.1 only;
+  `RB_NATS_BIND` / `RB_MINIO_BIND=0.0.0.0` opt in to all interfaces. MinIO has no default
+  password any more: compose requires `MINIO_ROOT_PASSWORD`, which `ops/rebuild/stack` generates
+  into `.local/stack.env`.
+- Call-record index: an entry never changes an indexed record's non-null workspace
+  (`accessKeyId`); an entry naming another workspace is logged and dropped.
+- Record maintenance (gateway, `callrecord.<region>.maintenance`): the request must name a
+  workspace and it must be the stored record's (`WorkspaceMismatchError` -> `forbidden`);
+  `CallRecordWriter` checks whenever a caller names a workspace.
+- Not done (tasks 4.1, 4.2): NATS users and subject ACLs per service; mTLS for the edge.
+- Tests: apiserver records "never moves an indexed record to another workspace", callrecord
+  "refuses maintenance that names another workspace", gateway records maintenance.

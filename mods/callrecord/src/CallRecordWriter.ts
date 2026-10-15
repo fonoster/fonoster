@@ -34,6 +34,29 @@ export const SEAL_DEADLINE_MS = 30_000;
 export const RECORD_PARTS = ["recording", "transcript", "messages"] as const;
 export type RecordPart = (typeof RECORD_PARTS)[number];
 
+/** A maintenance request named another workspace than the stored record's (RV-B6). */
+export class WorkspaceMismatchError extends Error {
+  constructor(callRef: string) {
+    super(`record ${callRef} belongs to another workspace`);
+    this.name = "WorkspaceMismatchError";
+  }
+}
+
+/**
+ * Refuses a change when the caller named a workspace that is not the stored record's. Callers
+ * that do not name one (in-region jobs) are not checked; maintenance requests always name one.
+ */
+function assertSameWorkspace(
+  callRef: string,
+  stored: Vcon | undefined,
+  expected: string | null | undefined
+) {
+  if (expected === undefined) return;
+  const actual = stored ? workspaceOfVcon(stored) : null;
+  if ((actual ?? null) !== (expected ?? null))
+    throw new WorkspaceMismatchError(callRef);
+}
+
 /** One audited deletion (call-record "every deletion ... produces an audit entry"). */
 export type AuditEntry = {
   callRef: string;
@@ -204,12 +227,15 @@ export class CallRecordWriter {
   private async newVersion(
     callRef: string,
     workspaceRef: string | null | undefined,
-    change: (vcon: Vcon, redacted: boolean) => Vcon
+    change: (vcon: Vcon, redacted: boolean) => Vcon,
+    checkWorkspace = false
   ): Promise<{ sealed: SealedVersion; previous: SealedVersion }> {
     const { key } = this.options;
     const store = this.storeFor(workspaceRef);
     const current = await store.getSealed(callRef);
     if (!current) throw new Error(`no sealed record for ${callRef}`);
+    if (checkWorkspace)
+      assertSameWorkspace(callRef, decodeVcon(current.signed), workspaceRef);
     const next = (signed: SealedVersion["signed"], redacted: boolean): Vcon => {
       const prev = decodeVcon(signed);
       return {
@@ -312,7 +338,8 @@ export class CallRecordWriter {
             ]
           }
         };
-      }
+      },
+      true
     );
     for (const part of parts) {
       const file = fileOf[part];
@@ -356,6 +383,7 @@ export class CallRecordWriter {
     if (!current) throw new Error(`no sealed record for ${callRef}`);
     const at = new Date().toISOString();
     const previous = current.signed ? decodeVcon(current.signed) : undefined;
+    assertSameWorkspace(callRef, previous, by.workspaceRef);
     const workspaceRef =
       by.workspaceRef ?? (previous ? workspaceOfVcon(previous) : null);
     await store.deleteAll(callRef);

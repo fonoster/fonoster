@@ -325,6 +325,34 @@ describe("@callrecord recording, retention and erasure", function () {
     expect(verifyRecord(tomb, KEYS)).to.deep.include({ ok: true });
   });
 
+  it("refuses maintenance that names another workspace (RV-B6)", async function () {
+    await recordedCall("ws-check");
+    for (const op of [
+      () =>
+        writer.deleteParts("ws-check", ["recording"], {
+          reason: "r",
+          actor: "a",
+          workspaceRef: "ws-2"
+        }),
+      () =>
+        writer.erase("ws-check", {
+          reason: "r",
+          actor: "a",
+          workspaceRef: "ws-2"
+        })
+    ]) {
+      const e = await op().then(
+        () => undefined,
+        (err: Error) => err
+      );
+      expect(e?.name).to.equal("WorkspaceMismatchError");
+    }
+    expect((await store.getSealed("ws-check"))!.version).to.equal(1);
+    expect(await store.getPart("ws-check", "recording.wav")).to.not.equal(
+      undefined
+    );
+  });
+
   it("seals a minimal record for a call that never reached an app", async function () {
     const entries: RecordEntry[] = [
       {

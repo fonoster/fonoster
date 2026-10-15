@@ -48,7 +48,14 @@ export async function handleMaintenance(
   writer: CallRecordWriter,
   req: MaintenanceRequest
 ) {
-  if (!req.callRef || !req.reason || !req.actor)
+  // The workspace is required: the stored record must belong to it (RV-B6).
+  if (
+    !req.callRef ||
+    !req.reason ||
+    !req.actor ||
+    typeof req.workspaceRef !== "string" ||
+    !req.workspaceRef
+  )
     return { type: "error", code: "bad_request" };
   try {
     if (req.op === "erase") {
@@ -68,7 +75,12 @@ export async function handleMaintenance(
     const message = (e as Error).message;
     return {
       type: "error",
-      code: /no sealed record/.test(message) ? "not_found" : "error",
+      // A request for another workspace's record is refused (RV-B6).
+      code: /no sealed record/.test(message)
+        ? "not_found"
+        : (e as Error).name === "WorkspaceMismatchError"
+          ? "forbidden"
+          : "error",
       message
     };
   }
