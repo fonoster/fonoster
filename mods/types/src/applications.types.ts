@@ -115,6 +115,13 @@ type CreateApplicationResponse = {
   signingSecretHint?: string;
 };
 
+type UpdateApplicationResponse = {
+  ref: string;
+  /** Set only when the update generated a new secret (the app stopped being an Autopilot app). */
+  signingSecret?: string;
+  signingSecretHint?: string;
+};
+
 type RotateSigningSecretResponse = {
   ref: string;
   signingSecret: string;
@@ -194,6 +201,7 @@ export {
   AppListener,
   AudioFormat,
   CreateApplicationResponse,
+  UpdateApplicationResponse,
   RecordingPolicy,
   RotateSigningSecretResponse,
   SessionAppFields,

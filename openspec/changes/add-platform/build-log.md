@@ -206,3 +206,13 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Not done (tasks 4.1, 4.2): NATS users and subject ACLs per service; mTLS for the edge.
 - Tests: apiserver records "never moves an indexed record to another workspace", callrecord
   "refuses maintenance that names another workspace", gateway records maintenance.
+
+### RV-B13. Small review fixes
+- Autopilot's `recordings.baseUrl` defaulted to the removed `/api/recordings` bridge and nothing
+  reads it: the key stays accepted (older files load) with no default, and the example config no
+  longer sets it.
+- `UpdateApplication` regenerated a signing secret (an app that stopped being an Autopilot app)
+  without returning it, so nobody could ever see it. `UpdateApplicationResponse` now carries
+  `signing_secret` and `signing_secret_hint` (set only when generated; the shared Autopilot
+  secret is never returned); SDK stubs regenerated for applications only, SDK
+  `updateApplication` returns `UpdateApplicationResponse`.

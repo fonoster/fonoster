@@ -248,6 +248,11 @@ message UpdateApplicationRequest {
 message UpdateApplicationResponse {
   // Echo the reference of the application
   string ref = 1;
+  // A new signing secret when the update generated one (the app stopped being an Autopilot
+  // app); shown only in this response. Empty otherwise.
+  string signing_secret = 2;
+  // The last characters of the new secret (empty when there is none)
+  string signing_secret_hint = 3;
 }
 
 // Request to delete an application

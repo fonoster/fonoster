@@ -27,7 +27,8 @@ import {
   ListApplicationsRequest,
   ListApplicationsResponse,
   RotateSigningSecretResponse,
-  UpdateApplicationRequest
+  UpdateApplicationRequest,
+  UpdateApplicationResponse
 } from "@fonoster/types";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
@@ -272,7 +273,7 @@ class Applications {
    */
   async updateApplication(
     request: UpdateApplicationRequest
-  ): Promise<BaseApiObject> {
+  ): Promise<UpdateApplicationResponse> {
     const reqWithStructOverride = buildStructOverride(request);
     const applicationsClient = this.client.getApplicationsClient();
 
@@ -280,7 +281,7 @@ class Applications {
       UpdateApplicationRequestPB,
       UpdateApplicationResponsePB,
       UpdateApplicationRequest,
-      BaseApiObject
+      UpdateApplicationResponse
     >({
       method: applicationsClient.updateApplication.bind(applicationsClient),
       requestPBObjectConstructor: UpdateApplicationRequestPB,
