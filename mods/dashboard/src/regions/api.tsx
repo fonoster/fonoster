@@ -18,11 +18,15 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useMemo } from "react";
-import { useParams } from "react-router-dom";
 import { useSdk } from "~/lib/auth";
 import { useMaybeWorkspace } from "~/lib/workspace";
 import { createSdkRegionsApi } from "./sdk-api";
-import { isPrivateWorkspace, type Region, type RegionsApi } from "./types";
+import {
+  workspaceRegionId,
+  type Region,
+  type RegionDetail,
+  type RegionsApi
+} from "./types";
 
 const RegionsApiContext = createContext<RegionsApi | undefined>(undefined);
 /** Overrides the SDK adapter (tests and stories pass the in-memory mock). */
@@ -31,32 +35,47 @@ export const RegionsApiProvider = RegionsApiContext.Provider;
 export function useRegionsApi(): RegionsApi {
   const provided = useContext(RegionsApiContext);
   const sdk = useSdk();
-  const { workspaceRef } = useParams();
-  return useMemo(
-    () => provided ?? createSdkRegionsApi(sdk),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [provided, sdk, workspaceRef]
-  );
+  return useMemo(() => provided ?? createSdkRegionsApi(sdk), [provided, sdk]);
 }
 
-export const regionKey = (workspaceRef: string) =>
-  ["region", workspaceRef] as const;
+export const REGIONS_KEY = ["regions"] as const;
+export const regionKey = (ref: string) => ["region", ref] as const;
 
-/**
- * The current workspace's region. Private regions are polled (status, connection
- * details); a public region's details are configuration, loaded once.
- */
-export function useRegion(refetchMs = 30_000) {
+/** The user's regions: the public `default`, then their own. Polled while any is not up. */
+export function useRegions(refetchMs = 30_000) {
   const api = useRegionsApi();
-  const workspace = useMaybeWorkspace();
-  const priv = workspace ? isPrivateWorkspace(workspace) : false;
-  const query = useQuery<Region>({
-    queryKey: regionKey(workspace?.ref ?? ""),
-    queryFn: () => api.getRegion(),
-    enabled: !!workspace,
-    refetchInterval: priv ? refetchMs : false,
-    staleTime: priv ? 0 : 5 * 60_000,
-    retry: priv ? 3 : 1
+  return useQuery<Region[]>({
+    queryKey: REGIONS_KEY,
+    queryFn: () => api.listRegions(),
+    refetchInterval: (q) =>
+      q.state.data?.some((r) => r.kind === "private") ? refetchMs : false
   });
-  return { ...query, isPrivate: priv };
+}
+
+/** One region's detail, polled while it is private. */
+export function useRegionDetail(ref: string | undefined, refetchMs = 30_000) {
+  const api = useRegionsApi();
+  return useQuery<RegionDetail>({
+    queryKey: regionKey(ref ?? ""),
+    queryFn: () => api.getRegion(ref!),
+    enabled: !!ref,
+    refetchInterval: (q) =>
+      q.state.data?.kind === "public" ? false : refetchMs
+  });
+}
+
+/** The current workspace's region (its id is fixed for life). */
+export function useRegion(refetchMs = 30_000) {
+  const workspace = useMaybeWorkspace();
+  const regions = useRegions(refetchMs);
+  const id = workspace ? workspaceRegionId(workspace) : undefined;
+  const summary = regions.data?.find((r) => r.id === id);
+  const detail = useRegionDetail(summary?.ref, refetchMs);
+  return {
+    ...detail,
+    data: detail.data,
+    isLoading: regions.isLoading || detail.isLoading,
+    error: regions.error ?? detail.error,
+    isPrivate: summary?.kind === "private"
+  };
 }

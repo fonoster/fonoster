@@ -27,7 +27,7 @@ export function RegionBanner() {
   if (region.status === "offline")
     return (
       <Alert variant="error" className="rounded-none">
-        Your region is offline. Last seen {ago(region.lastHeartbeatAt)}.
+        Your region is offline. Last seen {ago(region.lastSeenAt)}.
       </Alert>
     );
   if (region.status === "unsupported")

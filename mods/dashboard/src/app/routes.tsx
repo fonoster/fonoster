@@ -37,6 +37,8 @@ const GitHubCallback = lazy(() => import("~/auth/github-callback.page"));
 const SetPassword = lazy(() => import("~/auth/set-password.page"));
 const Workspaces = lazy(() => import("~/workspaces/landing.page"));
 const RegionSetup = lazy(() => import("~/regions/setup"));
+const NewRegion = lazy(() => import("~/regions/new-region.page"));
+const RegionDetail = lazy(() => import("~/regions/region-detail.page"));
 const CreateWorkspace = lazy(
   () => import("~/workspaces/create-workspace.page")
 );
@@ -66,6 +68,9 @@ export function AppRoutes() {
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/workspaces" element={<Workspaces />} />
           <Route path="/workspaces/new" element={<CreateWorkspace />} />
+          <Route path="/regions/new" element={<NewRegion />} />
+          <Route path="/regions/:ref" element={<RegionDetail />} />
+          <Route path="/regions/:ref/setup" element={<RegionSetup />} />
           <Route path="/w/:workspaceRef" element={<WorkspaceGate />}>
             <Route element={<AppShell />}>
               {NAVIGATION.flatMap((section) => section.items).map((item) =>
@@ -83,7 +88,6 @@ export function AppRoutes() {
                   />
                 )
               )}
-              <Route path="region-setup" element={<RegionSetup />} />
               <Route path="*" element={<Navigate to="." replace />} />
             </Route>
           </Route>

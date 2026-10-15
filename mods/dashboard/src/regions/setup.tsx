@@ -18,21 +18,16 @@
  */
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { PageHeader } from "~/app/shell/page";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { CopyField } from "~/components/data/copy-field";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { errorMessage } from "~/lib/errors";
-import { useWorkspace } from "~/lib/workspace";
-import { regionKey, useRegion, useRegionsApi } from "./api";
+import { regionKey, useRegionDetail, useRegionsApi } from "./api";
+import { composeCommand, helmCommand, secretCommand } from "./install";
+import { StartLayout } from "./start-layout";
 import { remaining, StatusPill } from "./status";
 import type { RegionToken } from "./types";
-
-export const composeCommand = (token: string) =>
-  `FONOSTER_ENROLLMENT_TOKEN=${token} docker compose -f fonoster-region.yml up -d`;
-export const helmCommand = (token: string) =>
-  `helm install fonoster-region fonoster/region --set enrollment.token=${token}`;
 
 /** Re-renders every `ms` so countdowns move. */
 function useNow(ms = 30_000) {
@@ -44,9 +39,43 @@ function useNow(ms = 30_000) {
   return now;
 }
 
-/** /w/:workspaceRef/region-setup: connect the region with a one-time token (PR-3). */
+/** The install command with its token: Compose or Helm, and the expiry. */
+export function InstallCommand({ enrollment }: { enrollment: RegionToken }) {
+  const [tab, setTab] = useState<"compose" | "helm">("compose");
+  const left = remaining(enrollment.expiresAt, useNow());
+  return (
+    <section aria-label="Install" className="flex flex-col gap-3">
+      <div role="tablist" className="flex gap-2">
+        {(["compose", "helm"] as const).map((t) => (
+          <Button
+            key={t}
+            role="tab"
+            aria-selected={tab === t}
+            variant={tab === t ? "default" : "outline"}
+            onClick={() => setTab(t)}
+          >
+            {t === "compose" ? "Compose" : "Helm"}
+          </Button>
+        ))}
+      </div>
+      <CopyField
+        label={tab === "compose" ? "Docker Compose" : "Helm"}
+        value={
+          tab === "compose"
+            ? composeCommand(enrollment.token)
+            : helmCommand(enrollment.token)
+        }
+      />
+      <p className="font-display text-xs text-muted-foreground">
+        {left ? `Expires in ${left}.` : "This token has expired."}
+      </p>
+    </section>
+  );
+}
+
+/** /regions/:ref/setup: connect the region with a one-time token. */
 export default function RegionSetup() {
-  const workspace = useWorkspace();
+  const { ref } = useParams();
   const api = useRegionsApi();
   const queryClient = useQueryClient();
   const { state } = useLocation();
@@ -55,18 +84,14 @@ export default function RegionSetup() {
   );
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState<"compose" | "helm">("compose");
-  const { data: region } = useRegion(3_000);
-  const now = useNow();
+  const { data: region } = useRegionDetail(ref, 3_000);
 
   const reissue = async () => {
     setBusy(true);
     setError(undefined);
     try {
-      setEnrollment(await api.reissueRegionToken());
-      void queryClient.invalidateQueries({
-        queryKey: regionKey(workspace.ref)
-      });
+      setEnrollment(await api.reissueRegionToken(ref!));
+      void queryClient.invalidateQueries({ queryKey: regionKey(ref!) });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -76,82 +101,47 @@ export default function RegionSetup() {
 
   const connected =
     region?.status === "connected" || region?.status === "degraded";
-  const left = enrollment ? remaining(enrollment.expiresAt, now) : undefined;
   const missing = region?.secrets.filter((k) => !k.set) ?? [];
 
   return (
-    <>
-      <PageHeader
-        title="Connect your region"
-        actions={region && <StatusPill status={region.status} />}
-      />
-      <div className="flex max-w-3xl flex-col gap-5 px-4 pb-10 sm:px-8">
-        {error && <Alert variant="error">{error}</Alert>}
-        {enrollment ? (
-          <section aria-label="Install" className="flex flex-col gap-3">
-            <div role="tablist" className="flex gap-2">
-              {(["compose", "helm"] as const).map((t) => (
-                <Button
-                  key={t}
-                  role="tab"
-                  aria-selected={tab === t}
-                  variant={tab === t ? "default" : "outline"}
-                  onClick={() => setTab(t)}
-                >
-                  {t === "compose" ? "Compose" : "Helm"}
-                </Button>
-              ))}
-            </div>
-            <CopyField
-              label={tab === "compose" ? "Docker Compose" : "Helm"}
-              value={
-                tab === "compose"
-                  ? composeCommand(enrollment.token)
-                  : helmCommand(enrollment.token)
-              }
-            />
-            <p className="font-display text-xs text-muted-foreground">
-              {left ? `Expires in ${left}.` : "This token has expired."}
-            </p>
-          </section>
-        ) : (
-          <p className="font-display text-sm text-muted-foreground">
-            The command is only shown once. Re-issue the token to see it again.
-          </p>
-        )}
+    <StartLayout
+      title={connected ? "Region connected" : "Connect your region"}
+      actions={region && <StatusPill status={region.status} />}
+    >
+      {error && <Alert variant="error">{error}</Alert>}
+      {enrollment ? (
+        <InstallCommand enrollment={enrollment} />
+      ) : (
+        <p className="font-display text-sm text-muted-foreground">
+          The command is only shown once. Re-issue the token to see it again.
+        </p>
+      )}
+      <div>
+        <Button variant="outline" loading={busy} onClick={() => void reissue()}>
+          Re-issue token
+        </Button>
+      </div>
+      {missing.length > 0 && (
+        <section aria-label="Keys" className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium">Keys to set</h2>
+          <ul className="flex flex-col gap-1">
+            {missing.map((k) => (
+              <li key={k.name}>
+                <code className="rounded bg-muted px-2 py-1 text-[13px]">
+                  {secretCommand(k.name)}
+                </code>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {connected && (
         <div>
-          <Button
-            variant="outline"
-            loading={busy}
-            onClick={() => void reissue()}
-          >
-            Re-issue token
+          <Button asChild>
+            <Link to={`/regions/${ref}`}>View region</Link>
           </Button>
         </div>
-
-        {missing.length > 0 && (
-          <section aria-label="Keys" className="flex flex-col gap-2">
-            <h2 className="text-sm font-medium">Keys to set</h2>
-            <ul className="flex flex-col gap-1">
-              {missing.map((k) => (
-                <li key={k.name}>
-                  <code className="rounded bg-muted px-2 py-1 text-[13px]">
-                    fonoster-region secrets set {k.name}
-                  </code>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {connected && (
-          <div>
-            <Button asChild>
-              <Link to="..">Go to the dashboard</Link>
-            </Button>
-          </div>
-        )}
-      </div>
-    </>
+      )}
+    </StartLayout>
   );
 }

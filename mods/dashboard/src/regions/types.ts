@@ -25,36 +25,11 @@ export type RegionStatus =
   | "offline"
   | "unsupported";
 
-/** A region offered in the "New workspace" picker. */
-export type PublicRegion = { id: string; name: string };
-
 export type RegionSecret = {
   name: string;
   /** Apps or assistants that need the key. */
   usedBy: string[];
-  /** Reported as set by the cell's last heartbeat. */
   set: boolean;
-};
-
-export type Region = {
-  /** `us-east-1` for public regions, `rg_<base32>` for a private one. */
-  ref: string;
-  kind: "public" | "private";
-  name: string;
-  status: RegionStatus;
-  version?: string;
-  /** ISO time of the last heartbeat. */
-  lastHeartbeatAt?: string;
-  mediaNodes?: number;
-  gateways?: number;
-  activeCalls?: number;
-  enrolledAt?: string;
-  /** Why config sync is paused (status `unsupported`). */
-  unsupportedReason?: string;
-  /** The names the region's config needs, and whether the cell has them. */
-  secrets: RegionSecret[];
-  /** Where carriers and softphones connect; absent until a private region reports them. */
-  endpoints?: RegionEndpoints;
 };
 
 export type SipTransport = "udp" | "tcp" | "tls" | "ws" | "wss";
@@ -67,43 +42,79 @@ export type RegionEndpoints = {
   updatedAt?: string;
 };
 
+/** A region in a list: the public `default` first, then the user's own. */
+export type Region = {
+  /** Hidden `rg_...` ref; every call after creation keys on it. */
+  ref: string;
+  /** What users type and workspaces store: `default`, `acme-dallas`. */
+  id: string;
+  displayName: string;
+  kind: "public" | "private";
+  status: RegionStatus;
+};
+
+export type RegionDetail = Region & {
+  version?: string;
+  /** ISO time of the last heartbeat. */
+  lastSeenAt?: string;
+  mediaNodes?: number;
+  gateways?: number;
+  activeCalls?: number;
+  /** Why config sync is paused (status `unsupported`). */
+  unsupportedReason?: string;
+  sipDomain?: string;
+  /** Workspaces that picked this region. */
+  workspaces: { ref: string; name: string }[];
+  /** Provider keys the region's config needs, and whether the region has them. */
+  secrets: RegionSecret[];
+  /** Where carriers and softphones connect; absent until the region reports them. */
+  endpoints?: RegionEndpoints;
+  /** Cloud only: the monthly fee in USD cents. Absent for self-hosted. */
+  monthlyFeeCents?: number;
+};
+
 export type RegionToken = { token: string; expiresAt: string };
 
-export type CreatedWorkspace = {
-  ref: string;
-  /** Present when the workspace was created with a private region. */
-  enrollment?: RegionToken;
-};
+export type CreatedRegion = RegionToken & { ref: string; id: string };
 
-/** What the dashboard needs from the control plane for regions (RU-B1). */
+/** What the dashboard needs from the control plane for regions. */
 export type RegionsApi = {
-  listRegions(): Promise<PublicRegion[]>;
-  /** `region` is a public region id, or `"private"` for a new private region. */
-  createWorkspace(input: {
-    name: string;
-    region: string;
-  }): Promise<CreatedWorkspace>;
-  /** The region of the current workspace. */
-  getRegion(): Promise<Region>;
-  /** Issues a new token; the old cell identity is revoked when it enrolls. */
-  reissueRegionToken(): Promise<RegionToken>;
-  /** Revokes the cell's credentials; the region goes back to `waiting`. */
-  disconnectRegion(): Promise<void>;
+  /** The public `default` first, then the user's private regions. */
+  listRegions(): Promise<Region[]>;
+  createRegion(input: {
+    id: string;
+    displayName: string;
+    sipDomain: string;
+  }): Promise<CreatedRegion>;
+  getRegion(ref: string): Promise<RegionDetail>;
+  updateRegion(ref: string, input: { displayName: string }): Promise<void>;
+  /** Issues a new token; the old credentials are revoked when it enrolls. */
+  reissueRegionToken(ref: string): Promise<RegionToken>;
+  /** Revokes the credentials; the region goes back to `waiting`. */
+  disconnectRegion(ref: string): Promise<void>;
+  deleteRegion(ref: string): Promise<void>;
+  /** `region` is a region id. */
+  createWorkspace(input: { name: string; region: string }): Promise<{
+    ref: string;
+  }>;
 };
 
-export const DEFAULT_REGION: PublicRegion = {
-  id: "us-east-1",
-  name: "US East (N. Virginia)"
+export const DEFAULT_REGION_ID = "default";
+export const DEFAULT_REGION: Region = {
+  ref: "rg_default",
+  id: DEFAULT_REGION_ID,
+  displayName: "Default",
+  kind: "public",
+  status: "connected"
 };
-export const PRIVATE_REGION = "private";
 
-/** Workspaces carry `region` (RU-B2); a private region id starts with `rg_`. */
-export function workspaceRegion(workspace: Workspace): string {
+/** Workspaces carry the id of their region (fixed for life). */
+export function workspaceRegionId(workspace: Workspace): string {
   return (
-    (workspace as Workspace & { region?: string }).region ?? DEFAULT_REGION.id
+    (workspace as Workspace & { region?: string }).region ?? DEFAULT_REGION_ID
   );
 }
 
-export function isPrivateWorkspace(workspace: Workspace): boolean {
-  return workspaceRegion(workspace).startsWith("rg_");
-}
+/** A region that can take a new workspace. */
+export const isUsable = (r: Region) =>
+  r.status === "connected" || r.status === "degraded";

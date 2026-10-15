@@ -18,7 +18,7 @@
  */
 import { CopyField } from "~/components/data/copy-field";
 import { useRegion } from "./api";
-import type { Region, RegionEndpoints, SipTransport } from "./types";
+import type { RegionDetail, RegionEndpoints, SipTransport } from "./types";
 
 type Sip = RegionEndpoints["sip"][number];
 
@@ -54,14 +54,14 @@ export function allowlist(endpoints: RegionEndpoints | undefined): string[] {
 const hasDetails = (e?: RegionEndpoints) =>
   !!e && (e.sip.length > 0 || allowlist(e).length > 0);
 
-/** The current workspace's connection details (public or private region). */
+/** The current workspace's connection details (its region, public or private). */
 export function useEndpoints(): RegionEndpoints | undefined {
   const { data } = useRegion();
   return hasDetails(data?.endpoints) ? data!.endpoints : undefined;
 }
 
 /** Settings → Region: SIP addresses, addresses to allowlist and RTP ports, each copyable. */
-export function ConnectionDetails({ region }: { region?: Region }) {
+export function ConnectionDetails({ region }: { region?: RegionDetail }) {
   const e = region?.endpoints;
   if (!hasDetails(e)) {
     if (region?.kind !== "private") return null;

@@ -18,25 +18,30 @@
  */
 import {
   DEFAULT_REGION,
-  type RegionToken,
+  type CreatedRegion,
   type Region,
+  type RegionDetail,
   type RegionsApi
 } from "./types";
 
 const inHours = (h: number) =>
   new Date(Date.now() + h * 3600_000).toISOString();
 
-export const privateRegion = (over: Partial<Region> = {}): Region => ({
+export const privateRegion = (
+  over: Partial<RegionDetail> = {}
+): RegionDetail => ({
   ref: "rg_7K2QF",
+  id: "acme-dallas",
+  displayName: "Acme Dallas",
   kind: "private",
-  name: "Your region",
   status: "connected",
   version: "0.28.1",
-  lastHeartbeatAt: new Date().toISOString(),
+  lastSeenAt: new Date().toISOString(),
   mediaNodes: 2,
   gateways: 1,
   activeCalls: 3,
-  enrolledAt: "2026-10-14T15:00:00.000Z",
+  sipDomain: "sip.acme.com",
+  workspaces: [{ ref: "ws-1", name: "Acme Support" }],
   secrets: [
     { name: "deepgram", usedBy: ["Support line"], set: true },
     { name: "elevenlabs", usedBy: ["Support line", "Sales bot"], set: false }
@@ -44,37 +49,85 @@ export const privateRegion = (over: Partial<Region> = {}): Region => ({
   ...over
 });
 
-export const publicRegion = (): Region => ({
-  ref: DEFAULT_REGION.id,
-  kind: "public",
-  name: DEFAULT_REGION.name,
-  status: "connected",
-  secrets: []
+export const publicRegion = (
+  over: Partial<RegionDetail> = {}
+): RegionDetail => ({
+  ...DEFAULT_REGION,
+  workspaces: [],
+  secrets: [],
+  ...over
 });
 
-/** An in-memory RegionsApi; tests change `state.region` to move the status. */
-export function createMockRegionsApi(initial: Region = privateRegion()) {
-  const state = { region: initial, created: [] as unknown[] };
+const summary = (r: RegionDetail): Region => ({
+  ref: r.ref,
+  id: r.id,
+  displayName: r.displayName,
+  kind: r.kind,
+  status: r.status
+});
+
+/** An in-memory RegionsApi; tests change `state.regions` to move the status. */
+export function createMockRegionsApi(
+  initial: RegionDetail[] = [privateRegion()]
+) {
+  const state = {
+    regions: [publicRegion(), ...initial],
+    created: [] as unknown[],
+    createdRegions: [] as unknown[],
+    calls: [] as string[]
+  };
+  const find = (ref: string) => {
+    const r = state.regions.find((x) => x.ref === ref);
+    if (!r) throw new Error("Region not found");
+    return r;
+  };
+  const patch = (ref: string, over: Partial<RegionDetail>) => {
+    state.regions = state.regions.map((r) =>
+      r.ref === ref ? { ...r, ...over } : r
+    );
+  };
   const api: RegionsApi & { state: typeof state } = {
     state,
-    listRegions: async () => [DEFAULT_REGION],
-    createWorkspace: async (input) => {
-      state.created.push(input);
-      const priv = input.region === "private";
+    listRegions: async () => state.regions.map(summary),
+    createRegion: async (input): Promise<CreatedRegion> => {
+      state.createdRegions.push(input);
+      const ref = "rg_NEW01";
+      state.regions.push(
+        privateRegion({
+          ref,
+          id: input.id,
+          displayName: input.displayName,
+          sipDomain: input.sipDomain,
+          status: "waiting",
+          version: undefined,
+          workspaces: [],
+          secrets: []
+        })
+      );
       return {
-        ref: "ws-new",
-        enrollment: priv
-          ? { token: "eyJhbGciOiJFUzI1NiJ9.mock.token", expiresAt: inHours(24) }
-          : undefined
+        ref,
+        id: input.id,
+        token: "eyJhbGciOiJFUzI1NiJ9.mock.token",
+        expiresAt: inHours(24)
       };
     },
-    getRegion: async () => state.region,
-    reissueRegionToken: async (): Promise<RegionToken> => ({
-      token: "eyJhbGciOiJFUzI1NiJ9.reissued.token",
-      expiresAt: inHours(24)
-    }),
-    disconnectRegion: async () => {
-      state.region = { ...state.region, status: "waiting", version: undefined };
+    getRegion: async (ref) => find(ref),
+    updateRegion: async (ref, { displayName }) => patch(ref, { displayName }),
+    reissueRegionToken: async (ref) => {
+      state.calls.push(`reissue:${ref}`);
+      return {
+        token: "eyJhbGciOiJFUzI1NiJ9.reissued.token",
+        expiresAt: inHours(24)
+      };
+    },
+    disconnectRegion: async (ref) =>
+      patch(ref, { status: "waiting", version: undefined }),
+    deleteRegion: async (ref) => {
+      state.regions = state.regions.filter((r) => r.ref !== ref);
+    },
+    createWorkspace: async (input) => {
+      state.created.push(input);
+      return { ref: "ws-new" };
     }
   };
   return api;

@@ -31,18 +31,13 @@ import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/app/shell/page";
 import { formatDate } from "~/lib/format";
-import { useWorkspace } from "~/lib/workspace";
-import { isPrivateWorkspace, PrivateSecrets } from "~/regions";
+import { PrivateSecrets, useRegion } from "~/regions";
 import { SecretDrawer } from "./secret-drawer";
 import { useDeleteSecret, useSecrets } from "./secrets.service";
 
 export default function SecretsScreen() {
-  const workspace = useWorkspace();
-  return isPrivateWorkspace(workspace) ? (
-    <PrivateSecrets />
-  ) : (
-    <WorkspaceSecrets />
-  );
+  const { isPrivate } = useRegion();
+  return isPrivate ? <PrivateSecrets /> : <WorkspaceSecrets />;
 }
 
 function WorkspaceSecrets() {
