@@ -61,8 +61,15 @@ function session(socket: WebSocket) {
     async say(text: string) {
       const id = `say-${++seq}`;
       send({ type: "speak", id, text, last: true });
-      const end = await next((m) => m.id === id && (m.type === "output.done" || m.type === "output.interrupted"));
-      return { interrupted: end.type === "output.interrupted", heardText: end.heardText as string | undefined };
+      const end = await next(
+        (m) =>
+          m.id === id &&
+          (m.type === "output.done" || m.type === "output.interrupted")
+      );
+      return {
+        interrupted: end.type === "output.interrupted",
+        heardText: end.heardText as string | undefined
+      };
     },
     async gather(finishOnKey: string) {
       let digits = "";
@@ -73,13 +80,18 @@ function session(socket: WebSocket) {
         digits += msg.digit;
         return false;
       });
-      return m.type === "turn.ended" ? { speech: m.text as string } : { digits };
+      return m.type === "turn.ended"
+        ? { speech: m.text as string }
+        : { digits };
     },
     hangup: () => send({ type: "hangup" })
   };
 }
 
-const FIXTURES: Record<string, (s: ReturnType<typeof session>) => Promise<void>> = {
+const FIXTURES: Record<
+  string,
+  (s: ReturnType<typeof session>) => Promise<void>
+> = {
   "say-hello": async (s) => {
     await s.say("Hello from the SDK.");
     s.hangup();
@@ -96,22 +108,38 @@ const FIXTURES: Record<string, (s: ReturnType<typeof session>) => Promise<void>>
   },
   "gather-echo": async (s) => {
     const r = await s.gather("#");
-    await s.say(r.speech !== undefined ? `You said: ${r.speech}` : `You pressed: ${r.digits}`);
+    await s.say(
+      r.speech !== undefined
+        ? `You said: ${r.speech}`
+        : `You pressed: ${r.digits}`
+    );
   }
 };
 
-function startFixtureServer(fixture: string): Promise<{ url: string; close: () => void }> {
+function startFixtureServer(
+  fixture: string
+): Promise<{ url: string; close: () => void }> {
   return new Promise((resolve) => {
     const server = new WebSocket.Server(
       {
         host: "127.0.0.1",
         port: 0,
         verifyClient: (info, done) =>
-          done(verify(`ws://${info.req.headers.host}${info.req.url}`, info.req.headers, SECRET).ok, 401)
+          done(
+            verify(
+              `ws://${info.req.headers.host}${info.req.url}`,
+              info.req.headers,
+              SECRET
+            ).ok,
+            401
+          )
       },
       () => {
         const { port } = server.address() as AddressInfo;
-        resolve({ url: `ws://127.0.0.1:${port}/`, close: () => server.close() });
+        resolve({
+          url: `ws://127.0.0.1:${port}/`,
+          close: () => server.close()
+        });
       }
     );
     server.on("connection", async (socket) => {
@@ -128,7 +156,9 @@ describe("@conformance/voice-sdk scenarios against the reference fixtures", func
       const server = await startFixtureServer(scenario.fixture!);
       try {
         const gateway = new FakeGateway({ signingSecret: SECRET });
-        const result = await runScenario(scenario, { connect: () => gateway.dial(server.url) });
+        const result = await runScenario(scenario, {
+          connect: () => gateway.dial(server.url)
+        });
         expect(result.status, result.reason).to.equal("passed");
       } finally {
         server.close();

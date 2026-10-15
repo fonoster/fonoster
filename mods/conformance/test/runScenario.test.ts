@@ -28,14 +28,24 @@ const START = {
 };
 
 function scenario(yaml: string): Scenario {
-  return parse(`format: fonoster.scenario.v1\nname: t\ncontract: voice-session\nrole: app\n${yaml}`);
+  return parse(
+    `format: fonoster.scenario.v1\nname: t\ncontract: voice-session\nrole: app\n${yaml}`
+  );
 }
 
 /** Runs a scenario where `script` plays the implementation under test on the other peer. */
-async function run(s: Scenario, script: (impl: Peer) => void | Promise<void>, harness?: Harness) {
+async function run(
+  s: Scenario,
+  script: (impl: Peer) => void | Promise<void>,
+  harness?: Harness
+) {
   const [runnerSide, implSide] = peerPair();
   void script(implSide);
-  return runScenario(s, { connect: () => runnerSide, harness, defaultTimeoutMs: 500 });
+  return runScenario(s, {
+    connect: () => runnerSide,
+    harness,
+    defaultTimeoutMs: 500
+  });
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -127,7 +137,9 @@ steps:
     expect(result.status, result.reason).to.equal("passed");
     expect(result.samples[0].adjustedMs).to.be.lessThan(60);
 
-    const noHarness = await run(s, (impl) => impl.sendJson({ type: "output.started" }));
+    const noHarness = await run(s, (impl) =>
+      impl.sendJson({ type: "output.started" })
+    );
     expect(noHarness.reason).to.contain("provider delays");
   });
 
@@ -141,10 +153,15 @@ steps:
 `);
     const result = await run(s, (impl) => {
       impl.sendJson({ type: "speak", id: "abc" });
-      impl.frames.waitUntil(() => impl.frames.items.find((f) => f.kind === "json"), Date.now() + 500).then((f) => {
-        const data = (f as { data: { id: string } }).data;
-        impl.sendJson({ type: "ack", id: data.id });
-      });
+      impl.frames
+        .waitUntil(
+          () => impl.frames.items.find((f) => f.kind === "json"),
+          Date.now() + 500
+        )
+        .then((f) => {
+          const data = (f as { data: { id: string } }).data;
+          impl.sendJson({ type: "ack", id: data.id });
+        });
     });
     expect(result.status, result.reason).to.equal("passed");
   });
@@ -155,7 +172,9 @@ steps:
   - expect_none: { type: session.end }
     for_ms: 100
 `);
-    const result = await run(s, (impl) => impl.sendJson({ type: "session.end", reason: "error" }));
+    const result = await run(s, (impl) =>
+      impl.sendJson({ type: "session.end", reason: "error" })
+    );
     expect(result.status).to.equal("failed");
     expect(result.reason).to.contain("unexpected frame");
   });
@@ -170,7 +189,8 @@ steps:
     const result = await run(s, (impl) => {
       impl.sendJson(START);
       // 5 frames of 20 ms at 16 kHz PCM16, each with the track byte.
-      for (let i = 0; i < 5; i++) impl.sendBinary(Buffer.concat([Buffer.from([1]), Buffer.alloc(640)]));
+      for (let i = 0; i < 5; i++)
+        impl.sendBinary(Buffer.concat([Buffer.from([1]), Buffer.alloc(640)]));
     });
     expect(result.status, result.reason).to.equal("passed");
   });
@@ -183,7 +203,10 @@ steps:
 `);
     const [runnerSide, implSide] = peerPair();
     implSide.sendJson(START);
-    const result = await runScenario(s, { connect: () => runnerSide, keepOpen: true });
+    const result = await runScenario(s, {
+      connect: () => runnerSide,
+      keepOpen: true
+    });
     await sleep(10);
     expect(result.status, result.reason).to.equal("passed");
     const binary = implSide.frames.items.filter((f) => f.kind === "binary");
@@ -203,13 +226,21 @@ steps:
 `);
     const [runnerSide, implSide] = peerPair();
     implSide.sendJson({ event: "start", streamSid: "MZ1" });
-    const result = await runScenario(s, { connect: () => runnerSide, keepOpen: true });
+    const result = await runScenario(s, {
+      connect: () => runnerSide,
+      keepOpen: true
+    });
     await sleep(10);
     expect(result.status, result.reason).to.equal("passed");
     const media = implSide.frames.items.filter((f) => f.kind === "json");
     expect(media).to.have.length(2);
     expect((media[0].data as { streamSid: string }).streamSid).to.equal("MZ1");
-    expect(Buffer.from((media[0].data as { media: { payload: string } }).media.payload, "base64")).to.have.length(160);
+    expect(
+      Buffer.from(
+        (media[0].data as { media: { payload: string } }).media.payload,
+        "base64"
+      )
+    ).to.have.length(160);
   });
 
   it("fails assertions the harness cannot measure", async function () {

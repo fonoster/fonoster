@@ -42,29 +42,48 @@ describe("@conformance/FakeApp and FakeGateway", function () {
   });
 
   it("accepts a correctly signed connection and exchanges frames", async function () {
-    app = await new FakeApp({ signingSecret: "s3cret", verifySignature: true }).start();
-    const gatewaySide = await new FakeGateway({ signingSecret: "s3cret" }).dial(app.url);
+    app = await new FakeApp({
+      signingSecret: "s3cret",
+      verifySignature: true
+    }).start();
+    const gatewaySide = await new FakeGateway({ signingSecret: "s3cret" }).dial(
+      app.url
+    );
     const appSide = (await app.nextConnection()).peer;
 
     gatewaySide.sendJson({ type: "session.start" });
-    const frame = await appSide.frames.waitUntil(() => appSide.frames.items[0], Date.now() + 1000);
+    const frame = await appSide.frames.waitUntil(
+      () => appSide.frames.items[0],
+      Date.now() + 1000
+    );
     expect(frame?.kind).to.equal("json");
     expect(app.attempts[0].accepted).to.equal(true);
     gatewaySide.close();
   });
 
   it("refuses a connection signed with the wrong secret", async function () {
-    app = await new FakeApp({ signingSecret: "s3cret", verifySignature: true }).start();
+    app = await new FakeApp({
+      signingSecret: "s3cret",
+      verifySignature: true
+    }).start();
     let error: Error | undefined;
-    await new FakeGateway({ signingSecret: "wrong" }).dial(app.url).catch((e) => (error = e));
+    await new FakeGateway({ signingSecret: "wrong" })
+      .dial(app.url)
+      .catch((e) => (error = e));
     expect(error?.message).to.contain("401");
     expect(app.attempts[0]).to.include({ accepted: false, reason: "mismatch" });
   });
 
   it("refuses a stale signature", async function () {
-    app = await new FakeApp({ signingSecret: "s3cret", verifySignature: true }).start();
+    app = await new FakeApp({
+      signingSecret: "s3cret",
+      verifySignature: true
+    }).start();
     let error: Error | undefined;
-    await new FakeGateway({ signingSecret: "s3cret", timestamp: Math.floor(Date.now() / 1000) - 10 * 60 })
+    await new FakeGateway({
+      signingSecret: "s3cret",
+      timestamp: Math.floor(Date.now() / 1000) - 10 * 60
+    })
       .dial(app.url)
       .catch((e) => (error = e));
     expect(error).to.exist;
@@ -82,8 +101,12 @@ describe("@conformance/FakeMediaNode", function () {
   it("acknowledges commands with their id and rejects unknown ones", async function () {
     node = new FakeMediaNode();
     const { roomRef } = node.offerCall();
-    expect(await node.handle({ type: "hold", id: "c7", roomRef })).to.deep.equal({ type: "ack", id: "c7" });
-    expect(await node.handle({ type: "room.mute_all", id: "c8", roomRef })).to.include({
+    expect(
+      await node.handle({ type: "hold", id: "c7", roomRef })
+    ).to.deep.equal({ type: "ack", id: "c7" });
+    expect(
+      await node.handle({ type: "room.mute_all", id: "c8", roomRef })
+    ).to.include({
       type: "error",
       id: "c8",
       code: "unknown_command"
@@ -93,7 +116,11 @@ describe("@conformance/FakeMediaNode", function () {
   it("exchanges RTP with the session participant negotiated in participant.add", async function () {
     node = new FakeMediaNode({ callerAudio: { kind: "tone", ms: 200 } });
     const { roomRef } = node.offerCall({ from: "+1555", to: "+1666" });
-    expect(node.events[0].event).to.include({ type: "call.incoming", from: "+1555", roomRef });
+    expect(node.events[0].event).to.include({
+      type: "call.incoming",
+      from: "+1555",
+      roomRef
+    });
 
     const gateway = dgram.createSocket("udp4");
     const received: Buffer[] = [];
@@ -105,7 +132,11 @@ describe("@conformance/FakeMediaNode", function () {
       id: "c3",
       roomRef,
       kind: "session",
-      rtp: { host: "127.0.0.1", port: gateway.address().port, codec: "L16/16000" }
+      rtp: {
+        host: "127.0.0.1",
+        port: gateway.address().port,
+        codec: "L16/16000"
+      }
     });
     expect(ack).to.include({ type: "ack", id: "c3" });
     const nodeRtp = ack.rtp as { host: string; port: number };
@@ -120,9 +151,15 @@ describe("@conformance/FakeMediaNode", function () {
     const since = Date.now();
     const header = Buffer.from([0x80, 96, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1]);
     const tone = Buffer.alloc(640);
-    for (let i = 0; i < 320; i++) tone.writeInt16BE(Math.round(8000 * Math.sin(i / 3)), i * 2);
-    for (let i = 0; i < 5; i++) gateway.send(Buffer.concat([header, tone]), nodeRtp.port, nodeRtp.host);
-    gateway.send(Buffer.concat([header, Buffer.alloc(640)]), nodeRtp.port, nodeRtp.host);
+    for (let i = 0; i < 320; i++)
+      tone.writeInt16BE(Math.round(8000 * Math.sin(i / 3)), i * 2);
+    for (let i = 0; i < 5; i++)
+      gateway.send(Buffer.concat([header, tone]), nodeRtp.port, nodeRtp.host);
+    gateway.send(
+      Buffer.concat([header, Buffer.alloc(640)]),
+      nodeRtp.port,
+      nodeRtp.host
+    );
     await sleep(50);
     expect(node.outputAudioMs(since)).to.equal(100);
     expect(node.outputSilentWithinMs(since)).to.be.lessThan(50);
@@ -135,16 +172,34 @@ describe("@conformance/FakeMediaNode", function () {
     const seen: MediaEvent[] = [];
     node.on("event", (e) => seen.push(e));
 
-    await node.handle({ type: "participant.dial", id: "d1", roomRef, to: "+15551234567" });
+    await node.handle({
+      type: "participant.dial",
+      id: "d1",
+      roomRef,
+      to: "+15551234567"
+    });
     await sleep(30);
-    expect(seen.map((e) => e.type)).to.deep.equal(["call.progress", "call.answered", "participant.joined"]);
+    expect(seen.map((e) => e.type)).to.deep.equal([
+      "call.progress",
+      "call.answered",
+      "participant.joined"
+    ]);
     expect(seen.every((e) => e.id === "d1")).to.equal(true);
 
     node.configure({ dialOutcome: "busy" });
     seen.length = 0;
-    await node.handle({ type: "participant.dial", id: "d2", roomRef, to: "+15551234567" });
+    await node.handle({
+      type: "participant.dial",
+      id: "d2",
+      roomRef,
+      to: "+15551234567"
+    });
     await sleep(30);
-    expect(seen[1]).to.include({ type: "call.progress", status: "busy", id: "d2" });
+    expect(seen[1]).to.include({
+      type: "call.progress",
+      status: "busy",
+      id: "d2"
+    });
   });
 
   it("ends the room on hangup and on caller hangup", async function () {
@@ -152,11 +207,18 @@ describe("@conformance/FakeMediaNode", function () {
     const first = node.offerCall();
     await node.handle({ type: "hangup", id: "h1", roomRef: first.roomRef });
     await sleep(5);
-    expect(node.events.map((e) => e.event)).to.deep.include({ type: "room.ended", id: "h1", roomRef: first.roomRef });
+    expect(node.events.map((e) => e.event)).to.deep.include({
+      type: "room.ended",
+      id: "h1",
+      roomRef: first.roomRef
+    });
 
     const second = node.offerCall();
     node.callerHangup(second.roomRef);
-    expect(node.events.slice(-2).map((e) => e.event.type)).to.deep.equal(["participant.left", "room.ended"]);
+    expect(node.events.slice(-2).map((e) => e.event.type)).to.deep.equal([
+      "participant.left",
+      "room.ended"
+    ]);
   });
 });
 
@@ -175,7 +237,11 @@ describe("@conformance/fake providers", function () {
   });
 
   const post = (url: string, body: unknown) =>
-    fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body)
+    });
 
   it("TTS returns deterministic audio and word timings after the injected delay", async function () {
     tts.configure({ delayMs: 100 });
@@ -184,16 +250,24 @@ describe("@conformance/fake providers", function () {
     const audio = Buffer.from(await res.arrayBuffer());
     expect(res.status).to.equal(200);
     expect(Date.now() - started).to.be.at.least(95);
-    expect(audio.length).to.equal((speechDurationMs("Hello there") / 1000) * 16000 * 2);
-    expect(JSON.parse(res.headers.get("x-fake-word-timings")!)).to.deep.equal(wordTimings("Hello there"));
+    expect(audio.length).to.equal(
+      (speechDurationMs("Hello there") / 1000) * 16000 * 2
+    );
+    expect(JSON.parse(res.headers.get("x-fake-word-timings")!)).to.deep.equal(
+      wordTimings("Hello there")
+    );
     expect(ledger.delayBetween(started, Date.now())).to.be.within(95, 130);
     tts.configure({ delayMs: 0 });
   });
 
   it("TTS fails the next request once when told to", async function () {
     tts.configure({ failNext: "provider_unavailable" });
-    expect((await post(`${tts.url}/v1/synthesize`, { text: "a" })).status).to.equal(503);
-    expect((await post(`${tts.url}/v1/synthesize`, { text: "a" })).status).to.equal(200);
+    expect(
+      (await post(`${tts.url}/v1/synthesize`, { text: "a" })).status
+    ).to.equal(503);
+    expect(
+      (await post(`${tts.url}/v1/synthesize`, { text: "a" })).status
+    ).to.equal(200);
   });
 
   it("TTS holds the request open for provider_timeout", async function () {
@@ -207,7 +281,9 @@ describe("@conformance/fake providers", function () {
 
   it("STT emits scripted transcripts by caller-audio time", async function () {
     stt.configure({ script: [{ atMs: 100, text: "I want to pay my bill" }] });
-    const socket = new WebSocket(`${stt.url.replace("http", "ws")}/v1/listen?language=en-US`);
+    const socket = new WebSocket(
+      `${stt.url.replace("http", "ws")}/v1/listen?language=en-US`
+    );
     const messages: Record<string, unknown>[] = [];
     socket.on("message", (m) => messages.push(JSON.parse(m.toString())));
     await new Promise((r) => socket.once("open", r));
@@ -217,7 +293,12 @@ describe("@conformance/fake providers", function () {
     expect(messages).to.have.length(0);
     socket.send(Buffer.alloc(640)); // 100 ms
     await sleep(30);
-    expect(messages[0]).to.include({ type: "transcript", text: "I want to pay my bill", final: true, language: "en-US" });
+    expect(messages[0]).to.include({
+      type: "transcript",
+      text: "I want to pay my bill",
+      final: true,
+      language: "en-US"
+    });
     socket.close();
   });
 
@@ -236,7 +317,11 @@ describe("@conformance/fake providers", function () {
     expect(content).to.equal("Your balance is 42 dollars.");
     expect(text.trim().endsWith("data: [DONE]")).to.equal(true);
 
-    const echo = await (await post(`${llm.url}/v1/chat/completions`, { messages: [{ role: "user", content: "hi" }] })).json();
+    const echo = await (
+      await post(`${llm.url}/v1/chat/completions`, {
+        messages: [{ role: "user", content: "hi" }]
+      })
+    ).json();
     expect(echo.choices[0].message.content).to.equal("Echo: hi");
   });
 });

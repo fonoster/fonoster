@@ -1,0 +1,95 @@
+# Build log: add-voice-session-gateway
+
+Decisions made during the build, and anything to review. Each entry can be reversed; the files
+it touches are named.
+
+## 2026-10-15 (overnight, owner asleep; decisions taken without review)
+
+### B1. Session message schemas live in `@fonoster/common`
+
+- `mods/common/src/session/schema.ts` holds one JSON Schema per message, written as TypeScript
+  `as const` objects. TypeScript types are derived from them with `json-schema-to-ts`
+  (`FromSchema`), so types cannot drift from the schemas (task 1.1).
+- `mods/common/schema/session.v1.json` is exported from them (`npm run generate:session-schema`)
+  for the Python SDK and other languages; a test fails while the export is stale.
+- Why `common`: the SDK (`mods/voice`) and Autopilot already depend on it. Rejected: a new
+  protocol package (one more package to release for ~400 lines); the gateway package (the SDK
+  must not depend on the gateway).
+- Python types are not generated yet; that comes with the Python SDK (`datamodel-codegen` over the
+  exported file is the plan).
+
+### B2. The gateway is a new package, `mods/gateway` (`@fonoster/gateway`)
+
+- Own deployable (PL1), binary `fonoster-gateway`. It does not depend on `mods/apiserver`.
+- The existing vendor STT/TTS adapters in `mods/apiserver/src/voice` are not moved yet: their
+  interfaces (whole-utterance `Readable`, no cancel, no word timings) don't fit the streaming
+  session. Only the `fake` adapters exist so far; porting Deepgram/ElevenLabs/Google/Azure to the
+  new adapter interface is the next build step and pairs with `add-provider-registry`.
+
+### B3. Nothing destructive yet
+
+- `voice.proto` and `mods/apiserver/src/voice/**` stay (task 3.1 not started). Production calls
+  still run through Asterisk and the apiserver; the gateway can only carry real calls once the Go
+  media node exists. Until then the gateway runs against the fake media node in the conformance
+  suite.
+
+### B4. Local dependency links in this worktree
+
+- This worktree's `node_modules` is a symlink to `fonoster-platform-refresh/node_modules`, whose
+  `@fonoster/*` links point at that worktree's packages. `mods/gateway/node_modules/@fonoster/`
+  holds symlinks to this worktree's `common`, `logger` and `conformance` (git-ignored). Packages
+  are consumed through their `dist`, so rebuild `common` after changing it.
+
+### B5. Inbound routing and app model come from the gateway YAML for now
+
+- `GatewayConfig.apps` lists apps (ref, url, flavor, signing secret, speech defaults, audio format,
+  numbers, fallback). A call routes to the app whose `numbers` include the dialed number, else to
+  an app with no `numbers` (catch-all), else it is hung up and recorded as `call.unrouted`.
+- Task 2.12 (the Application model in the apiserver database, synced to cells) is not done; this
+  config is the stand-in the conformance suite needs.
+
+### B6. Turn-taking runs for every native session
+
+- Native sessions always run STT + the baseline Detector + Pacing. Twilio-flavor sessions never do
+  (no Speech layer). An audio-only native app therefore still costs STT. Proposed follow-up: an app
+  setting (`speech.listen: false`) or starting STT on the first Speech-layer command. Not decided.
+- Baseline Detector: energy VAD (RMS > 700, 4 frames on, 10 frames off), eot rises from 0 to 1
+  over the silence timeout (default 600 ms) after a final transcript. No backchannel
+  classification: any caller speech over output is an interruption. Thresholds: prepare 0.5,
+  commit 1.0. All provisional until add-turn-taking's open questions are settled.
+- `turn.estimate` is sent at most every 100 ms to subscribers.
+
+### B7. Output queue details the specs left open
+
+- `speak` without `last` is treated as `last: true`; without `interruptible`, as `true`.
+- Items without `id` get a gateway id (`gw-<callRef>-<n>`) so `output.*` can always carry one.
+- Items dropped by `clear` or `preempt` before they started still get `output.interrupted` with
+  `heardMs: 0` and `heardText: ""`, so no SDK promise is left hanging.
+- A failed `speak` sends `error` (with `relatesTo`) and no `output.*` events.
+- `heardText` uses provider word timings; without them, a proportional cut at a word boundary.
+- Queue cap 120 s (design OQ2 proposal) → `queue_full`.
+- The gateway sends a continuous RTP stream (silence when idle).
+
+### B8. Outbound calls: control plane → `gateway.outbound`
+
+- The control plane places the call on a node (`room.create`, `participant.dial`) and sends a NATS
+  request on `gateway.outbound` (queue group `gateway-outbound`) with `{nodeId, roomRef, appRef,
+  callRef?, from, to, metadata}`. The gateway watches the room and opens the app session on
+  `call.answered`; other outcomes go to the call record only (VS13). Not yet covered by a scenario.
+
+### B9. Twilio hang-up endpoint auth and routing (design OQ3)
+
+- HTTP Basic with a single `accountSid` / `authToken` pair from the gateway config. Workspace
+  credentials (per-workspace token) need the identity service; not done.
+- The endpoint runs on every replica and forwards the hang-up over NATS to
+  `gateway.calls.<callRef>`, answered only by the owning replica; no responder → 404 / 20404.
+
+### B10. Not implemented yet
+
+- 2.6: Opus (design OQ8 still open). μ-law 8 kHz and PCM16 at any rate work.
+- 2.7: control commands are wired (dtmf, dtmf.send, transfer cold/warm/refer, transfer.complete,
+  hold, resume) but no conformance scenario exercises them yet.
+- 2.8: handoff is implemented; listen-only sockets are not (how listeners attach is OQ7).
+- 2.9: audio filters (the aiCoustics filter lives in the apiserver; to be ported with the vendor
+  adapters).
+- Real vendor STT/TTS adapters (B2).

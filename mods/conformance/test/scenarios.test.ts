@@ -20,7 +20,12 @@ import * as fs from "fs";
 import * as path from "path";
 import { expect } from "chai";
 import { parse } from "yaml";
-import { SCENARIOS_DIR, listScenarioFiles, loadScenarioFile, validateScenario } from "../src";
+import {
+  SCENARIOS_DIR,
+  listScenarioFiles,
+  loadScenarioFile,
+  validateScenario
+} from "../src";
 
 const OPENSPEC = path.join(__dirname, "..", "..", "..", "openspec");
 
@@ -53,7 +58,11 @@ describe("@conformance/scenario files", function () {
 
   it("finds scenario files for every seeded contract", function () {
     const contracts = new Set(files.map((f) => path.basename(path.dirname(f))));
-    expect([...contracts]).to.include.members(["voice-session", "twilio-media-streams-flavor", "voice-sdk"]);
+    expect([...contracts]).to.include.members([
+      "voice-session",
+      "twilio-media-streams-flavor",
+      "voice-sdk"
+    ]);
   });
 
   files.forEach((file) => {
@@ -65,13 +74,21 @@ describe("@conformance/scenario files", function () {
 
     it(`${rel} names a spec scenario that exists`, function () {
       const scenario = loadScenarioFile(file);
-      expect(scenario.spec, "spec is required on seeded scenarios").to.be.a("string");
-      expect(KNOWN_SPEC_REFS.has(scenario.spec!), `unknown spec reference "${scenario.spec}"`).to.equal(true);
+      expect(scenario.spec, "spec is required on seeded scenarios").to.be.a(
+        "string"
+      );
+      expect(
+        KNOWN_SPEC_REFS.has(scenario.spec!),
+        `unknown spec reference "${scenario.spec}"`
+      ).to.equal(true);
     });
   });
 
   it("documents every voice-sdk fixture in FIXTURES.md", function () {
-    const fixtures = fs.readFileSync(path.join(SCENARIOS_DIR, "voice-sdk", "FIXTURES.md"), "utf8");
+    const fixtures = fs.readFileSync(
+      path.join(SCENARIOS_DIR, "voice-sdk", "FIXTURES.md"),
+      "utf8"
+    );
     listScenarioFiles("voice-sdk").forEach((file) => {
       const { fixture } = loadScenarioFile(file);
       expect(fixtures, `fixture ${fixture}`).to.contain(`| \`${fixture}\` |`);
@@ -108,8 +125,13 @@ steps:
 
   it("rejects a from that does not name an earlier label", function () {
     const s = base();
-    s.steps.push({ expect: { type: "x" }, from: "later" }, { wait: { ms: 1 }, label: "later" });
-    expect(validateScenario(s).join()).to.contain('does not name an earlier label');
+    s.steps.push(
+      { expect: { type: "x" }, from: "later" },
+      { wait: { ms: 1 }, label: "later" }
+    );
+    expect(validateScenario(s).join()).to.contain(
+      "does not name an earlier label"
+    );
   });
 
   it("rejects timing limits on non-expect steps", function () {
@@ -126,6 +148,8 @@ steps:
   });
 
   it("checks the name against the file name", function () {
-    expect(validateScenario(base(), "/x/voice-session/other.yaml").join()).to.contain("file name");
+    expect(
+      validateScenario(base(), "/x/voice-session/other.yaml").join()
+    ).to.contain("file name");
   });
 });

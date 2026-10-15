@@ -1,0 +1,47 @@
+{
+  "name": "@fonoster/gateway",
+  "version": "0.27.0",
+  "description": "VoiceSessionGateway: serves each call to its app over the Fonoster session protocol",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "bin": {
+    "fonoster-gateway": "dist/main.js"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@fonoster/common": "^0.27.0",
+    "@fonoster/logger": "^0.27.0",
+    "ajv": "^8.17.1",
+    "nats": "^2.25.0",
+    "ws": "^8.18.0",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@fonoster/conformance": "^0.27.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  }
+}

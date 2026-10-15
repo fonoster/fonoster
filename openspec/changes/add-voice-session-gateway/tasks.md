@@ -1,4 +1,4 @@
-> Build deferred: do not start until the owner approves the build.
+> Build approved by the owner on 2026-10-15. Decisions and open items: see build-log.md.
 
 ## 1. Conformance assets
 
@@ -13,17 +13,17 @@
 
 ## 2. Implementation
 
-- [ ] 2.1 WebSocket client side of the gateway: dial out, sign the request, retry about 2–3 s, apply the fallback
-- [ ] 2.2 Session lifecycle: `session.start`, auto-answer, outbound-at-answer, `hangup`, socket close, `session.end` reasons
-- [ ] 2.3 Envelope handling: id echo, ignore unknown types and fields, `error` events
-- [ ] 2.4 Speech layer: streamed `speak`, `play`, per-item voice and language, `listen.update`, `subscribe`
-- [ ] 2.5 Output queue: agent audio, speak and play in one queue; `preempt`, `clear`, `mark`, `output.*` events with `heardText` and `heardMs`
+- [x] 2.1 WebSocket client side of the gateway: dial out, sign the request, retry about 2–3 s, apply the fallback
+- [x] 2.2 Session lifecycle: `session.start`, auto-answer, outbound-at-answer, `hangup`, socket close, `session.end` reasons
+- [x] 2.3 Envelope handling: id echo, ignore unknown types and fields, `error` events
+- [x] 2.4 Speech layer: streamed `speak`, `play`, per-item voice and language, `listen.update`, `subscribe`
+- [x] 2.5 Output queue: agent audio, speak and play in one queue; `preempt`, `clear`, `mark`, `output.*` events with `heardText` and `heardMs`
 - [ ] 2.6 Audio layer: format conversion for the format menu, 20 ms caller frames, real-time playout
 - [ ] 2.7 Control: `dtmf`, `dtmf.send`, `transfer` (cold, warm, refer), `transfer.complete`, `hold`, `resume` through the `media-control` contract
 - [ ] 2.8 Handoff and listen-only sockets (tracks, side byte, `read_only`)
 - [ ] 2.9 App-configured audio filters before STT and turn detection
-- [ ] 2.10 Append every message to the call record
-- [ ] 2.11 `twilio` flavor: message mapping, base64 μ-law, mark/clear semantics, compatible Calls hang-up endpoint
+- [x] 2.10 Append every message to the call record
+- [x] 2.11 `twilio` flavor: message mapping, base64 μ-law, mark/clear semantics, compatible Calls hang-up endpoint
 - [ ] 2.12 Application model: WebSocket URL, flavor, signing secret, speech defaults, filters, fallback
 
 ## 3. Migration and docs

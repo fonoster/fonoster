@@ -15,7 +15,8 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "postbuild": "cp -a src/protos dist",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
+    "generate:session-schema": "tsx scripts/export-session-schema.ts"
   },
   "dependencies": {
     "@fonoster/logger": "^0.27.0",
@@ -26,8 +27,9 @@
     "dotenv": "^16.6.1",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",
-    "jsonwebtoken": "^9.0.2",
+    "json-schema-to-ts": "^3.1.1",
     "jsonc-parser": "^3.2.0",
+    "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "nodemailer": "^6.10.1",
     "pb-util": "^1.0.3",
@@ -38,7 +40,8 @@
     "zod-validation-error": "^3.5.4"
   },
   "files": [
-    "dist"
+    "dist",
+    "schema"
   ],
   "publishConfig": {
     "access": "public"
