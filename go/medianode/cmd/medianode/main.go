@@ -17,13 +17,29 @@ import (
 	"time"
 
 	"github.com/fonoster/fonoster/go/medianode/internal/node"
+	"github.com/fonoster/fonoster/go/medianode/internal/rtpio"
 	"github.com/fonoster/fonoster/go/medianode/internal/sipua"
+	"github.com/fonoster/fonoster/go/medianode/internal/telemetry"
 	"github.com/nats-io/nats.go"
 )
 
 func env(name, def string) string {
 	if v := os.Getenv(name); v != "" {
 		return v
+	}
+	return def
+}
+
+func envInt(name string, def int) int {
+	if v, err := strconv.Atoi(os.Getenv(name)); err == nil {
+		return v
+	}
+	return def
+}
+
+func envDuration(name string, def time.Duration) time.Duration {
+	if d, err := time.ParseDuration(os.Getenv(name)); err == nil {
+		return d
 	}
 	return def
 }
@@ -36,6 +52,8 @@ func main() {
 	sipAdvertise := flag.String("sip-advertise", env("MEDIANODE_SIP_ADVERTISE", "127.0.0.1"), "host in Contact headers")
 	rtpHost := flag.String("rtp", env("MEDIANODE_RTP_HOST", "0.0.0.0"), "address RTP sockets bind to")
 	rtpAdvertise := flag.String("rtp-advertise", env("MEDIANODE_RTP_ADVERTISE", "127.0.0.1"), "address in SDP and rtp blocks")
+	rtpMin := flag.Int("rtp-port-min", envInt("MEDIANODE_RTP_PORT_MIN", 0), "lowest RTP port (0 with -rtp-port-max 0: any port)")
+	rtpMax := flag.Int("rtp-port-max", envInt("MEDIANODE_RTP_PORT_MAX", 0), "highest RTP port; publish exactly [min,max]/udp")
 	registrar := flag.String("registrar", env("MEDIANODE_REGISTRAR", ""), "Routr host:port; empty disables REGISTER")
 	domain := flag.String("domain", env("MEDIANODE_DOMAIN", ""), "registration domain")
 	username := flag.String("username", env("MEDIANODE_USERNAME", "medianode"), "peer username at Routr")
@@ -44,10 +62,27 @@ func main() {
 	transport := flag.String("transport", env("MEDIANODE_TRANSPORT", "udp"), "REGISTER transport (udp or tcp)")
 	heartbeat := flag.Duration("heartbeat", 2*time.Second, "node.heartbeat period")
 	debugAddr := flag.String("debug", env("MEDIANODE_DEBUG_ADDR", ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
-	drainWait := flag.Duration("drain-wait", 10*time.Minute, "longest wait for rooms to end on SIGTERM")
+	drainWait := flag.Duration("drain-wait", envDuration("MEDIANODE_DRAIN_WAIT", 10*time.Minute), "longest wait for rooms to end on SIGTERM")
+	maxDuration := flag.Duration("max-duration", envDuration("MEDIANODE_MAX_DURATION", 4*time.Hour), "longest call (ended with reason timeout)")
+	maxParticipants := flag.Int("max-participants", envInt("MEDIANODE_MAX_PARTICIPANTS", 10), "participants per room (room_full beyond it)")
+	mediaTimeout := flag.Duration("media-timeout", envDuration("MEDIANODE_MEDIA_TIMEOUT", 30*time.Second), "end an answered call with no caller RTP for this long")
 	flag.Parse()
+	if *rtpMax != 0 {
+		if *rtpMin <= 0 || *rtpMin > *rtpMax {
+			fmt.Fprintln(os.Stderr, "invalid RTP port range")
+			os.Exit(2)
+		}
+		rtpio.SetPortRange(*rtpMin, *rtpMax)
+	}
 
-	logger := slog.New(slog.NewJSONHandler(os.Stderr, nil)).With("nodeId", *nodeID)
+	// OTLP is configured with the standard OTEL_* variables; unset means no-op (add-platform).
+	shutdownOtel, otelLogs, err := telemetry.Setup(context.Background(), "fonoster-medianode", *nodeID)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "telemetry:", err)
+		os.Exit(1)
+	}
+	defer func() { _ = shutdownOtel(context.Background()) }()
+	logger := slog.New(telemetry.Tee(slog.NewJSONHandler(os.Stderr, nil), otelLogs)).With("nodeId", *nodeID)
 	nc, err := nats.Connect(*natsURL, nats.Name("medianode-"+*nodeID))
 	if err != nil {
 		logger.Error("nats", "err", err)
@@ -56,7 +91,8 @@ func main() {
 	defer nc.Close()
 
 	n := node.New(nc, node.Config{NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
-		Heartbeat: *heartbeat, Logger: logger})
+		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants,
+		MediaTimeout: *mediaTimeout, Logger: logger})
 	_, portText, _ := net.SplitHostPort(*sipListen)
 	port, _ := strconv.Atoi(portText)
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
@@ -67,6 +103,9 @@ func main() {
 		os.Exit(1)
 	}
 	defer ua.Close()
+	if m, err := telemetry.RegisterNode(*nodeID, n.ActiveRooms, n.Draining); err == nil {
+		telemetry.SetMeters(m)
+	}
 	if err := n.Start(); err != nil {
 		logger.Error("media-control", "err", err)
 		os.Exit(1)

@@ -1,0 +1,6 @@
+# autopilot-session.yaml: the hosted Autopilot session engine (profile `autopilot`).
+port: 3000
+host: 0.0.0.0
+signingSecret: change-me
+assistantFile: /etc/fonoster/assistant.json
+providers: {}

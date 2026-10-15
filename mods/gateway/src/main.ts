@@ -25,6 +25,7 @@ import { AppStore, PrismaAppStore } from "./apps/AppStore";
 import { databaseUrl, GatewayConfig, loadConfig } from "./config";
 import { Gateway } from "./Gateway";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
+import { telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 
@@ -62,12 +63,14 @@ async function main() {
     registryStore: db.registryStore,
     webhooks: db.webhooks
   }).start();
+  telemetry.gauge("fonoster.gateway.calls.active", () => gateway.calls.size);
 
   const shutdown = async () => {
     logger.info("shutting down");
     if (sweeper) clearInterval(sweeper);
     await gateway.stop();
     await db.close();
+    await telemetry.shutdown();
     process.exit(0);
   };
   process.on("SIGTERM", shutdown);

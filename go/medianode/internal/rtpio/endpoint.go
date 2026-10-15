@@ -3,6 +3,7 @@
 package rtpio
 
 import (
+	"fmt"
 	"math/rand"
 	"net"
 	"strconv"
@@ -37,9 +38,47 @@ type Endpoint struct {
 
 var dtmfDigits = "0123456789*#ABCD"
 
-// Listen binds a UDP port on host (0 picks one).
+var (
+	rangeMu          sync.Mutex
+	portMin, portMax int
+	portNext         int
+)
+
+// SetPortRange limits the UDP ports Listen binds to [min, max] (both 0 restores "any port").
+// Operators publish exactly this range on the node's container or pod.
+func SetPortRange(min, max int) {
+	rangeMu.Lock()
+	defer rangeMu.Unlock()
+	portMin, portMax, portNext = min, max, min
+}
+
+func listenUDP(host string) (*net.UDPConn, error) {
+	ip := net.ParseIP(host)
+	rangeMu.Lock()
+	lo, hi, start := portMin, portMax, portNext
+	rangeMu.Unlock()
+	if hi == 0 {
+		return net.ListenUDP("udp4", &net.UDPAddr{IP: ip})
+	}
+	size := hi - lo + 1
+	var lastErr error
+	for i := 0; i < size; i++ {
+		port := lo + (start-lo+i)%size
+		conn, err := net.ListenUDP("udp4", &net.UDPAddr{IP: ip, Port: port})
+		if err == nil {
+			rangeMu.Lock()
+			portNext = lo + (port-lo+1)%size
+			rangeMu.Unlock()
+			return conn, nil
+		}
+		lastErr = err
+	}
+	return nil, fmt.Errorf("rtp port range %d-%d exhausted: %w", lo, hi, lastErr)
+}
+
+// Listen binds a UDP port on host (0 picks one; with SetPortRange, one inside the range).
 func Listen(host string) (*Endpoint, error) {
-	conn, err := net.ListenUDP("udp4", &net.UDPAddr{IP: net.ParseIP(host)})
+	conn, err := listenUDP(host)
 	if err != nil {
 		return nil, err
 	}

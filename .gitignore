@@ -33,3 +33,6 @@ next-env.d.ts
 /models/
 mods/common/test/.prisma-client
 mods/common/test/.prisma-work
+
+# worktrees link node_modules as a symlink
+/node_modules
