@@ -51,6 +51,8 @@ describe("@region-agent fonoster-regions CLI", function () {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "region-cli-"));
     process.env.FONOSTER_REGION_DATA_DIR = dir;
     process.env.FONOSTER_REGION_SECRETS_KEY = "cli-pass";
+    // The cell's region-agent.yaml reads its NATS password from here (add-platform 4.1).
+    process.env.NATS_REGION_AGENT_PASSWORD = "nats-agent";
   });
   afterEach(() => {
     process.env = { ...saved };
@@ -270,5 +272,10 @@ describe("@region-agent fonoster-regions CLI", function () {
     );
     expect(c.heartbeatMs).to.equal(30000);
     expect(c.autopilot?.url).to.equal("ws://autopilot:3000");
+    expect(c.nats).to.deep.equal({
+      url: "nats://nats:4222",
+      user: "region-agent",
+      password: "nats-agent"
+    });
   });
 });

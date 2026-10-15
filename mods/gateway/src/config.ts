@@ -84,7 +84,11 @@ export type ProviderConfig = {
 };
 
 export type GatewayConfig = {
-  nats: { url: string };
+  /**
+   * user/password: the gateway's NATS user when the server has per-service users (add-platform
+   * 4.1); password is usually a secret:// reference.
+   */
+  nats: { url: string; user?: string; password?: string };
   /**
    * The RTP leg to the media node. `srtp: true` encrypts it (SDES keys in participant.add,
    * AES_CM_128_HMAC_SHA1_80); required when the node runs with -require-encryption (MN6).

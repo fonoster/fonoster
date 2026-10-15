@@ -26,6 +26,7 @@ import {
 import {
   CellSecrets,
   logUnhandledRejections,
+  natsConnectOptions,
   Registry as RegistryNs,
   Webhooks
 } from "@fonoster/common";
@@ -148,7 +149,7 @@ function keySource(
     ? new CellSecrets.NatsWorkspaceKeys(
         () =>
           (link ??= connect({
-            servers: config.nats.url,
+            ...natsConnectOptions(config.nats),
             name: "gateway-workspace-keys",
             maxReconnectAttempts: -1
           }))

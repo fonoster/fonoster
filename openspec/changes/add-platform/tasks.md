@@ -44,5 +44,7 @@
 
 ## 4. Hardening (from the review, RV-B6/RV-B7)
 
-- [ ] 4.1 NATS users and subject ACLs per service (gateway, media node, apiserver, autopilot, Routr): today any client on the NATS network can publish index entries, maintenance requests and media-control commands
-- [ ] 4.2 mTLS between Routr and the media nodes (the trusted-source allowlist, RV-B7, is the interim check)
+- [x] 4.1 NATS users and subject ACLs per service (gateway, media node, apiserver, autopilot, Routr): today any client on the NATS network can publish index entries, maintenance requests and media-control commands
+  - Compose, cell and Helm; Autopilot has no NATS connection; `_INBOX.>` still shared (HD-B1).
+- [x] 4.2 mTLS between Routr and the media nodes (the trusted-source allowlist, RV-B7, is the interim check)
+  - Node side and Helm wiring (HD-B2); Routr's client certificate is configured in Routr.

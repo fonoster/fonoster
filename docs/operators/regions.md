@@ -144,6 +144,12 @@ provider keys with `kubectl exec deploy/<release>-region-agent -- fonoster-regio
 deepgram --k8s-secret fonoster-region-secrets` (value on stdin), or manage the
 `fonoster-region-secrets` Secret yourself (one key per provider).
 
+NATS users: the Compose cell gives each service its own NATS user (`NATS_*_PASSWORD` in `cell.env`,
+permissions in `ops/rebuild/config/nats-permissions/`). On Kubernetes, give your NATS the same users
+and permission files and set `nats.auth.enabled` with the Secret `nats.auth.secret` (keys
+`gateway`, `medianode`, `routr`, `region-agent`); see the operator guide, "NATS users and subject
+permissions".
+
 ## Firewall
 
 | Direction | Port | Why |
@@ -203,7 +209,8 @@ fonoster-regions create us-east-2 --name "US East (Ohio)" [--sip-domain sip.us-e
 # on the new location: install as above, then
 fonoster-regions enroll <token>
 fonoster-regions secrets set deepgram < deepgram.key   # Fonoster's own provider keys
-# set `cellSecrets.workspaceKeysFromCloud: true` in the gateway config (workspaces' own keys per call)
+# set `cellSecrets.workspaceKeysFromCloud: true` in the gateway config (workspaces' own keys per
+# call); on Kubernetes: --set regionAgent.workspaceKeysFromCloud=true
 fonoster-regions publish us-east-2     # offered in pickers while it is connected
 fonoster-regions list [--json]         # every region (public and private) with status
 fonoster-regions token us-east-2       # a new token (enrolling with it revokes the current cell)

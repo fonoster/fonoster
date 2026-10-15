@@ -4,8 +4,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -19,8 +17,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fonoster/fonoster/go/medianode/internal/edgetls"
 	"github.com/fonoster/fonoster/go/medianode/internal/node"
+	"github.com/fonoster/fonoster/go/medianode/internal/registry"
 	"github.com/fonoster/fonoster/go/medianode/internal/rtpio"
+	"github.com/fonoster/fonoster/go/medianode/internal/secretref"
 	"github.com/fonoster/fonoster/go/medianode/internal/sipua"
 	"github.com/fonoster/fonoster/go/medianode/internal/telemetry"
 	"github.com/nats-io/nats.go"
@@ -74,6 +75,10 @@ func main() {
 	tlsCert := flag.String("tls-cert", env("MEDIANODE_TLS_CERT", ""), "PEM certificate for the TLS listener")
 	tlsKey := flag.String("tls-key", env("MEDIANODE_TLS_KEY", ""), "PEM key for the TLS listener")
 	tlsCA := flag.String("tls-ca", env("MEDIANODE_TLS_CA", ""), "PEM CA that signs the edge's certificate (dialing and registering over TLS)")
+	tlsClientCA := flag.String("tls-client-ca", env("MEDIANODE_TLS_CLIENT_CA", ""), "PEM CA for mutual TLS: the TLS listener requires a client certificate it signed (the edge's); empty: no client certificates")
+	sessionRegistry := flag.Bool("session-registry", env("MEDIANODE_SESSION_REGISTRY", "true") != "false", "write nodes.<id> and rooms.<ref> to the session registry (JetStream KV); off or unavailable keeps heartbeats only")
+	natsUser := flag.String("nats-user", env("MEDIANODE_NATS_USER", ""), "NATS user (per-service users, add-platform 4.1); empty connects without one")
+	natsPassword := flag.String("nats-password", env("MEDIANODE_NATS_PASSWORD", ""), "NATS password (or a secret:// reference)")
 	requireEnc := flag.Bool("require-encryption", env("MEDIANODE_REQUIRE_ENCRYPTION", "") == "true", "SIP over TLS only and SRTP on every leg (MN6)")
 	reregisterDelta := flag.Int("reregister-delta", 5, "re-register at once when the room count moves by this much")
 	outboundTransport := flag.String("outbound-transport", env("MEDIANODE_OUTBOUND_TRANSPORT", "udp"), "transport to the outbound proxy (udp, tcp, tls)")
@@ -95,40 +100,56 @@ func main() {
 	}
 	defer func() { _ = shutdownOtel(context.Background()) }()
 	logger := slog.New(telemetry.Tee(slog.NewJSONHandler(os.Stderr, nil), otelLogs)).With("nodeId", *nodeID)
-	nc, err := nats.Connect(*natsURL, nats.Name("medianode-"+*nodeID))
+	natsOpts := []nats.Option{nats.Name("medianode-" + *nodeID)}
+	if *natsUser != "" {
+		pass, err := secretref.Resolve(*natsPassword)
+		if err != nil {
+			logger.Error("nats password", "err", err)
+			os.Exit(1)
+		}
+		natsOpts = append(natsOpts, nats.UserInfo(*natsUser, pass))
+	}
+	sipPassword, err := secretref.Resolve(*password)
+	if err != nil {
+		logger.Error("sip password", "err", err)
+		os.Exit(1)
+	}
+	nc, err := nats.Connect(*natsURL, natsOpts...)
 	if err != nil {
 		logger.Error("nats", "err", err)
 		os.Exit(1)
 	}
 	defer nc.Close()
 
-	n := node.New(nc, node.Config{NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
+	var reg node.Registry
+	if *sessionRegistry {
+		rctx, rcancel := context.WithTimeout(context.Background(), 5*time.Second)
+		kv, err := registry.Open(rctx, nc, logger)
+		rcancel()
+		if err != nil {
+			logger.Warn("session registry unavailable (is JetStream on?); heartbeats only", "err", err)
+		} else {
+			reg = kv
+		}
+	}
+	n := node.New(nc, node.Config{Registry: reg, NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
 		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants,
 		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger,
 		AllowedDestinations: strings.Split(os.Getenv("FONOSTER_ALLOWED_DESTINATIONS"), ",")})
-	var serverTLS, clientTLS *tls.Config
-	if *tlsCert != "" {
-		cert, err := tls.LoadX509KeyPair(*tlsCert, *tlsKey)
-		if err != nil {
-			logger.Error("tls certificate", "err", err)
-			os.Exit(1)
-		}
-		serverTLS = &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12}
+	// The PEM settings are file paths or secret:// references (edgetls, add-platform 4.2).
+	edge, err := edgetls.Build(edgetls.Options{Cert: *tlsCert, Key: *tlsKey, CA: *tlsCA, ClientCA: *tlsClientCA})
+	if err != nil {
+		logger.Error("tls", "err", err)
+		os.Exit(1)
 	}
-	if *tlsCA != "" {
-		pem, err := os.ReadFile(*tlsCA)
-		if err != nil {
-			logger.Error("tls ca", "err", err)
-			os.Exit(1)
-		}
-		pool := x509.NewCertPool()
-		pool.AppendCertsFromPEM(pem)
-		clientTLS = &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}
+	if edge.Mutual {
+		logger.Info("mutual TLS on the SIP listener: client certificates required", "listen", *tlsListen)
 	}
+	serverTLS, clientTLS := edge.Server, edge.Client
 	_, portText, _ := net.SplitHostPort(*sipListen)
 	port, _ := strconv.Atoi(portText)
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
-		Registrar: *registrar, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
+		Registrar: *registrar, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: sipPassword, Transport: *transport,
 		TLSListen: *tlsListen, TLSConfig: serverTLS, ClientTLS: clientTLS, RequireEncryption: *requireEnc,
 		OutboundTransport: *outboundTransport, RegisterEvery: *registerEvery, ReregisterDelta: *reregisterDelta,
 		TrustedSources: strings.Split(*trustedSources, ","), Logger: logger})

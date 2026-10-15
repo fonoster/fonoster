@@ -306,3 +306,4 @@
   keys: Support line (elevenlabs).") and an app page "This app needs a key for openai.", each with
   an "Add key" link: the region drawer (private) or Vendor keys (public). Unknown state (catalog
   or region not loaded) shows nothing.
+- HD-B6. Helm `regionAgent.workspaceKeysFromCloud` (task 5.9): with the region agent on, the chart merges `cellSecrets: { dir: /var/lib/fonoster-secrets }` into gateway.yaml (the mounted cell secrets; it was left to the user before) and adds `workspaceKeysFromCloud: true` when the value is set; user-given `cellSecrets` keys win. Deployment suite checks both. Cell NATS users and the agent's `nats.user/password` are add-platform HD-B1.

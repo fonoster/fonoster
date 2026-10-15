@@ -46,6 +46,18 @@ type Config struct {
 	// (FONOSTER_ALLOWED_DESTINATIONS); everything else must be public (RV-B2).
 	AllowedDestinations []string
 	Logger              *slog.Logger
+	// Registry, when set, receives this node's session-registry entries (nodes.<id> on every
+	// heartbeat, rooms.<ref> while a room lives; add-media-node 3.2). Nil keeps heartbeats only.
+	Registry Registry
+	// RoomRefresh is how often live room entries are rewritten (5 s; the bucket TTL is 15 s).
+	RoomRefresh time.Duration
+}
+
+// Registry is the slice of the session registry the node writes (registry.KV fits).
+type Registry interface {
+	Put(kind, id string, value any)
+	Delete(kind, id string)
+	Close()
 }
 
 func (c *Config) defaults() {
@@ -73,6 +85,9 @@ func (c *Config) defaults() {
 	if c.Logger == nil {
 		c.Logger = slog.Default()
 	}
+	if c.RoomRefresh == 0 {
+		c.RoomRefresh = 5 * time.Second
+	}
 }
 
 // Node owns rooms and serves media-control over NATS.
@@ -87,7 +102,9 @@ type Node struct {
 	draining bool
 	subs     []*nats.Subscription
 	stop     chan struct{}
-	dialer   Dialer
+	// roomsWritten is when live room entries were last rewritten in the registry.
+	roomsWritten time.Time
+	dialer       Dialer
 
 	// Counters for the load harness (GET /stats on the debug endpoint).
 	framesMixed, lateTicks, missedTicks, dtmfReported atomic.Uint64
@@ -272,6 +289,10 @@ func (n *Node) Shutdown() {
 	}
 	n.publish(fmt.Sprintf("media.%s.heartbeat", n.cfg.NodeID), Event{"type": "node.down", "nodeId": n.cfg.NodeID})
 	_ = n.nc.Flush()
+	if reg := n.cfg.Registry; reg != nil {
+		reg.Delete("nodes", n.cfg.NodeID)
+		reg.Close()
+	}
 }
 
 func (n *Node) heartbeats() {
@@ -291,8 +312,28 @@ func (n *Node) heartbeats() {
 func (n *Node) beat() {
 	n.mu.Lock()
 	ev := Event{"type": "node.heartbeat", "nodeId": n.cfg.NodeID, "rooms": len(n.rooms), "draining": n.draining}
+	var refresh []string
+	now := time.Now()
+	if n.cfg.Registry != nil && now.Sub(n.roomsWritten) >= n.cfg.RoomRefresh {
+		n.roomsWritten = now
+		for ref := range n.rooms {
+			refresh = append(refresh, ref)
+		}
+	}
 	n.mu.Unlock()
 	n.publish(fmt.Sprintf("media.%s.heartbeat", n.cfg.NodeID), ev)
+	if reg := n.cfg.Registry; reg != nil {
+		reg.Put("nodes", n.cfg.NodeID, Event{"nodeId": n.cfg.NodeID, "rooms": ev["rooms"],
+			"draining": ev["draining"], "at": now.UTC().Format(time.RFC3339Nano)})
+		for _, ref := range refresh {
+			n.writeRoom(ref, now)
+		}
+	}
+}
+
+func (n *Node) writeRoom(ref string, now time.Time) {
+	n.cfg.Registry.Put("rooms", ref, Event{"roomRef": ref, "nodeId": n.cfg.NodeID,
+		"at": now.UTC().Format(time.RFC3339Nano)})
 }
 
 func (n *Node) publish(subject string, ev Event) {
@@ -330,6 +371,9 @@ func (n *Node) newRoom() (*Room, error) {
 	if n.OnRoomCount != nil {
 		n.OnRoomCount(count)
 	}
+	if n.cfg.Registry != nil {
+		n.writeRoom(r.Ref, time.Now())
+	}
 	go r.run()
 	return r, nil
 }
@@ -343,6 +387,9 @@ func (n *Node) roomEnded(r *Room) {
 	n.mu.Unlock()
 	if n.OnRoomCount != nil {
 		n.OnRoomCount(count)
+	}
+	if n.cfg.Registry != nil {
+		n.cfg.Registry.Delete("rooms", r.Ref)
 	}
 }
 

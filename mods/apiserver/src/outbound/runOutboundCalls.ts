@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { natsConnectOptions, NatsTarget, Sessions } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec } from "nats";
 import {
@@ -109,14 +110,42 @@ export function callTracker(nc: NatsConnection, ref: string) {
  * Returns a stop function.
  */
 export async function runOutboundCalls(config: {
-  natsUrl?: string;
+  natsUrl?: NatsTarget;
+  /** The session registry's bucket (default Sessions.SESSIONS_BUCKET; tests). */
+  sessionsBucket?: string;
   nc?: NatsConnection;
 }): Promise<() => Promise<void>> {
   const nc =
     config.nc ??
-    (await connect({ servers: config.natsUrl, maxReconnectAttempts: -1 }));
+    (await connect({
+      ...natsConnectOptions(config.natsUrl ?? ""),
+      maxReconnectAttempts: -1
+    }));
   const nodes = createNodeDirectory();
   const request = natsRequester(nc);
+
+  // The session registry (add-media-node 3.2): every live node at once, then changes.
+  let stopWatch: (() => void) | undefined;
+  try {
+    const kv = await Promise.race([
+      Sessions.openSessions(nc, { bucket: config.sessionsBucket }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("timed out")), 5000).unref()
+      )
+    ]);
+    stopWatch = await Sessions.watchSessions(kv, "nodes", (e) =>
+      nodes.note(
+        e.value
+          ? { nodeId: e.id, ...e.value, type: "node.heartbeat" }
+          : { type: "node.down", nodeId: e.id },
+        e.writtenAt.getTime()
+      )
+    );
+  } catch (e) {
+    logger.warn(
+      `session registry unavailable (is JetStream on?); placing from heartbeats only: ${(e as Error).message}`
+    );
+  }
 
   const status = nc.subscribe("media.*.heartbeat", {
     callback: (err, msg) => {
@@ -159,6 +188,7 @@ export async function runOutboundCalls(config: {
   await nc.flush();
 
   return async () => {
+    stopWatch?.();
     status.unsubscribe();
     calls.unsubscribe();
     if (!config.nc) await nc.drain();

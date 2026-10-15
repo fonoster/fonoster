@@ -45,4 +45,4 @@
 - [x] 5.6 Routr domains under the region's SIP domain; sipDomain in endpoints
 - [x] 5.7 `fonoster-regions` ops utility (cloud `create|list|token|publish|revoke`, region `enroll|secrets|status|run`; `fonoster-region` deprecated alias)
 - [x] 5.8 Spec, contract, local stack (operator key, `default`) and cell packaging updated
-- [ ] 5.9 Helm value for `workspaceKeysFromCloud` (public regions on Kubernetes)
+- [x] 5.9 Helm value for `workspaceKeysFromCloud` (public regions on Kubernetes)

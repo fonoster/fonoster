@@ -41,6 +41,32 @@ references need (the pod's namespace and where Secrets are mounted). (dict "root
   valueFrom: { fieldRef: { fieldPath: metadata.namespace } }
 - name: FONOSTER_SECRETS_DIR
   value: {{ .root.Values.secrets.mountDir | quote }}
+{{- if .nats }}
+{{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" .root "user" .nats) }}
+{{- end }}
+{{- end }}
+
+{{/*
+A service's NATS password (nats.auth, add-platform 4.1) as NATS_<USER>_PASSWORD, from the
+nats.auth.secret key named after the user. (dict "root" $ "user" "gateway")
+*/}}
+{{- define "fonoster-rebuild.natsPasswordEnv" -}}
+{{- if .root.Values.nats.auth.enabled }}
+- name: {{ printf "NATS_%s_PASSWORD" (.user | upper | replace "-" "_") }}
+  valueFrom: { secretKeyRef: { name: {{ .root.Values.nats.auth.secret | quote }}, key: {{ .user | quote }} } }
+{{- end }}
+{{- end }}
+
+{{/*
+A service's `nats` config: the URL and, with nats.auth, its user and a secret:// reference to the
+password env above. (dict "root" $ "user" "gateway") → YAML map
+*/}}
+{{- define "fonoster-rebuild.natsConfig" -}}
+url: {{ include "fonoster-rebuild.natsUrl" .root | quote }}
+{{- if .root.Values.nats.auth.enabled }}
+user: {{ .user | quote }}
+password: {{ printf "secret://env/NATS_%s_PASSWORD" (.user | upper | replace "-" "_") | quote }}
+{{- end }}
 {{- end }}
 
 {{/*

@@ -35,8 +35,15 @@ services:
     image: nats:2.11.8-alpine
     restart: unless-stopped
     command: ["-c", "/etc/nats/nats.conf"]
+    # One NATS user per service (add-platform 4.1); each service gets its password below.
+    environment:
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?set NATS_GATEWAY_PASSWORD}
+      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD:?set NATS_MEDIANODE_PASSWORD}
+      NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?set NATS_ROUTR_PASSWORD}
+      NATS_REGION_AGENT_PASSWORD: ${NATS_REGION_AGENT_PASSWORD:?set NATS_REGION_AGENT_PASSWORD}
     volumes:
       - ./config/nats.conf:/etc/nats/nats.conf:ro
+      - ../config/nats-permissions:/etc/nats/nats-permissions:ro
       - region:/etc/nats/region:ro
       - nats:/data
     healthcheck:
@@ -72,7 +79,8 @@ services:
       EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}
       LOCALNETS: ${ROUTR_LOCALNETS:-}
       NATS_PUBLISHER_ENABLED: "true"
-      NATS_PUBLISHER_URL: nats://nats:4222
+      # Hex passwords only: the password sits in the URL (Routr's NATS client reads user info).
+      NATS_PUBLISHER_URL: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
       RTPENGINE_HOST: ${RB_RTPENGINE_HOST-rtpengine}
       START_INTERNAL_DB: "false"
       CONFIG_PATH: /etc/routr/stack/edgeport.yaml
@@ -111,6 +119,9 @@ services:
       <<: *otel
       MEDIANODE_ID: ${RB_NODE_ID:-node-a}
       MEDIANODE_NATS_URL: nats://nats:4222
+      MEDIANODE_NATS_USER: medianode
+      MEDIANODE_NATS_PASSWORD: secret://env/NATS_MEDIANODE_PASSWORD
+      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD}
       MEDIANODE_SIP_LISTEN: 0.0.0.0:5060
       MEDIANODE_SIP_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.17}.42}
       MEDIANODE_RTP_HOST: 0.0.0.0
@@ -143,6 +154,7 @@ services:
       region-agent: { condition: service_started }
     environment:
       <<: [*otel, *cell-db]
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD}
       # The call-record store (MinIO), through the AWS SDK's default credential chain.
       AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minio}
       AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
@@ -202,6 +214,7 @@ services:
       minio: { condition: service_healthy }
     environment:
       <<: *cell-db
+      NATS_REGION_AGENT_PASSWORD: ${NATS_REGION_AGENT_PASSWORD}
       FONOSTER_REGION_SECRETS_FILE: /var/lib/fonoster-secrets/secrets.enc
       AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?set AUTOPILOT_SIGNING_SECRET}
       RB_NODE_PASSWORD: ${RB_NODE_PASSWORD:?set RB_NODE_PASSWORD}

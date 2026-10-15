@@ -68,14 +68,56 @@ publish the same range on the container, pod (host network) or firewall. `MEDIAN
 is the address that goes into SDP; it must be reachable from Routr and RTPEngine. Behind NAT, set
 it to the reachable address; on Kubernetes the chart defaults to the node's host IP.
 
-## Encryption switch
+## Encryption and mutual TLS toward the edge
 
-The spec (`media-node`, "Optional TLS and SRTP") asks for a per-deployment switch: plain SIP and RTP,
-or TLS signaling with SRTP media, and in encrypted mode the node refuses plaintext. That slice is not
-implemented in the node yet (the README lists SRTP as a next slice), so there is no switch to flip
-today. Until then, keep Routr, RTPEngine and the node on a private network, and put the node's SIP
-port behind no public route. When the switch ships it will be a single setting
-(`MEDIANODE_ENCRYPTION=required`) mirrored by a `medianode.encryption` chart value.
+`MEDIANODE_REQUIRE_ENCRYPTION=true` makes the node serve SIP over TLS only and require SRTP on every
+leg (MN6); the TLS listener is `MEDIANODE_TLS_LISTEN` with `MEDIANODE_TLS_CERT` and
+`MEDIANODE_TLS_KEY`, and `MEDIANODE_TLS_CA` verifies Routr when the node dials or registers over TLS.
+
+**Mutual TLS** (add-platform 4.2): set `MEDIANODE_TLS_CLIENT_CA` to the CA that signs Routr's
+certificate and the TLS listener requires a client certificate signed by it from every connection
+(`RequireAndVerifyClientCert`); anything else fails the handshake before a SIP message is read. With
+a CA set, the node also presents its own certificate when it connects to Routr over TLS, so Routr
+can verify the node. Every PEM setting is a file path or a `secret://` reference whose value is the
+PEM. `MEDIANODE_TRUSTED_SOURCES` (RV-B7) stays on as an extra check. Off by default locally; the
+chart's `medianode.tls` (`enabled`, `listen`, `secret` with `tls.crt`/`tls.key`/`ca.crt`, `mutual`)
+wires it on Kubernetes. Routr's side (a client certificate on its TLS transport) is Routr's config.
+
+## NATS users and subject permissions
+
+NATS is a trust boundary (add-platform 4.1): every service connects as its own user and may publish
+and subscribe only on its subjects. The permission files are
+`ops/rebuild/config/nats-permissions/<service>.conf` (apiserver, gateway, medianode, routr,
+region-agent); the main NATS, the cell's NATS and the chart (`nats.auth`) include the ones they
+serve. In short: only media nodes publish heartbeats, room events and `gateway.incoming`; only
+gateways publish `callrecord.sealed` (index entries) and `registry.used`; only the apiserver
+publishes `calls.create` and `callrecord.<region>.maintenance`; media-control commands come from
+gateways and the apiserver; Routr publishes `routr.>` only; the region agent alone talks
+`region.>`. The region hub is a separate server in operator mode with per-cell users and is
+unchanged.
+
+- **Passwords**: one per service. `ops/rebuild/stack` generates them into `.local/stack.env`
+  (`NATS_<SERVICE>_PASSWORD`, added to older files on the next `up`); a cell takes them from
+  `cell.env`; the chart from the Secret `nats.auth.secret` (keys `apiserver`, `gateway`,
+  `medianode`, `routr`, `region-agent`).
+- **Service config**: `nats: { url, user, password }` in fonoster.yaml, gateway.yaml and
+  region-agent.yaml, with `password: secret://env/NATS_<SERVICE>_PASSWORD`; the media node takes
+  `MEDIANODE_NATS_USER` and `MEDIANODE_NATS_PASSWORD` (a `secret://` reference is fine). Routr's
+  user goes in its URL (`nats://routr:<password>@nats:4222`), so use hex passwords.
+- **Not covered yet**: every service may subscribe to `_INBOX.>` (replies), so a compromised
+  service could read other services' replies; per-service inbox prefixes would close that.
+- `NATS_ACL_TEST=docker npm test` runs both configs in Docker and checks every allowed and refused
+  subject (`mods/conformance/test/natsPermissions.test.ts`).
+
+## Session registry
+
+The session registry (D3) is the JetStream KV bucket `fonoster_sessions`: `nodes.<id>` and
+`rooms.<ref>` (written by media nodes), `calls.<ref>` and `gateways.<ref>` (written by gateways).
+Entries are leases: the bucket keeps a value 15 s after its last write, owners rewrite theirs every
+2 to 5 s and delete them on a clean exit, so a crashed owner's entries expire on their own. The
+apiserver reads `nodes.` at start and follows it, so a restarted replica places outbound calls at
+once (it still listens to heartbeats). Without JetStream every service logs a warning and runs on
+heartbeats only; `MEDIANODE_SESSION_REGISTRY=false` turns the node's writes off.
 
 ## Drain and rollout
 
@@ -210,6 +252,9 @@ kubectl create secret generic fonoster-autopilot --from-literal=secret="$(openss
 kubectl create secret generic medianode-peer --from-literal=password="$(openssl rand -hex 16)"
 kubectl create secret generic fonoster-records-key --from-file=records.pem   # EC P-256
 kubectl create secret generic fonoster-vendors --from-literal=deepgram="$DEEPGRAM_API_KEY"
+kubectl create secret generic fonoster-nats-users \
+  --from-literal=apiserver="$(openssl rand -hex 16)" --from-literal=gateway="$(openssl rand -hex 16)" \
+  --from-literal=medianode="$(openssl rand -hex 16)" --from-literal=routr="$(openssl rand -hex 16)"
 
 helm install fonoster ops/rebuild/helm/fonoster-rebuild \
   -f ops/rebuild/helm/fonoster-rebuild/values-cloud.yaml \
@@ -227,7 +272,9 @@ kubectl port-forward svc/fonoster-grafana 3000
   start).
 - **Identity** is embedded in the apiserver, as in Compose; there is no separate deployable.
 - **NATS.** `nats.deploy: true` runs a single-node NATS with JetStream; for production use the
-  official nats chart and set `nats.url` (with `nats.deploy: false`).
+  official nats chart and set `nats.url` (with `nats.deploy: false`). `nats.auth.enabled` (on in
+  values-cloud.yaml) gives each service its NATS user (see "NATS users and subject permissions");
+  Routr's NATS URL then carries the `routr` user and password.
 - **Region hub.** `natsRegions.enabled` runs the hub that private cells link to. Its config is the
   `region-hub.conf` written by `fonoster-region-hub-setup`, stored in `natsRegions.configSecret`;
   the leaf port is a LoadBalancer Service (`<release>-nats-regions-leaf`, 7422). Put the setup's

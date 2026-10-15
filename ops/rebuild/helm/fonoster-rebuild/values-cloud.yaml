@@ -16,9 +16,13 @@
 #   medianode-peer         password                     (the media nodes' Routr peer)
 #   fonoster-records-key   records.pem                  (EC P-256 key that signs call records)
 #   fonoster-vendors       deepgram                     (platform Deepgram key: TTS and STT)
+#   fonoster-nats-users    apiserver, gateway, medianode, routr   (NATS passwords, hex; Routr's
+#                          NATS URL is nats://routr:<routr password>@fonoster-nats:4222)
 
 nats:
   deploy: true
+  # One user per service, limited to its subjects (add-platform 4.1).
+  auth: { enabled: true }
 
 postgres:
   deploy: true

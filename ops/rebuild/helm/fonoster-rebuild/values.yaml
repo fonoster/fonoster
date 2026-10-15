@@ -11,6 +11,15 @@ nats:
   image: { repository: nats, tag: 2.11.8-alpine }
   storage: 2Gi
   resources: {}
+  # One NATS user per service, limited to its subjects (add-platform 4.1; the permissions are
+  # files/nats-permissions/, copies of ops/rebuild/config/nats-permissions/). `secret` holds one
+  # password per user: keys apiserver, gateway, medianode, routr, region-agent (those you run).
+  # Services read theirs through secret://env/NATS_<USER>_PASSWORD. With nats.deploy the chart's
+  # NATS gets the users; with your own NATS, give it the same users and permission files. Routr
+  # connects as `routr` with the password in its NATS URL (hex passwords only).
+  auth:
+    enabled: false
+    secret: fonoster-nats-users
 
 # The region hub (add-private-regions; control plane side). Run `fonoster-region-hub-setup <dir>`
 # once, then: kubectl create secret generic fonoster-region-hub-config
@@ -165,6 +174,16 @@ medianode:
     # Name of a Secret with key `password` (the peer password at Routr).
     passwordSecret: medianode-peer
     outboundProxy: routr:5060
+  # IPs, CIDRs or host names allowed to send INVITEs (Routr); empty accepts any source (RV-B7).
+  trustedSources: ""
+  # SIP over TLS toward the edge (add-platform 4.2). `secret` holds tls.crt and tls.key (the
+  # node's certificate) and ca.crt (the CA that signs the edge's certificates). mutual: the
+  # listener requires a client certificate signed by ca.crt from every connection (Routr's).
+  tls:
+    enabled: false
+    listen: 0.0.0.0:5061
+    secret: medianode-tls
+    mutual: true
   resources: {}
 
 # The hosted Autopilot session engine (Autopilot apps point to ws://<release>-autopilot:3000). A
@@ -214,6 +233,9 @@ regionAgent:
   # Existing Secret with the Autopilot signing secret (key `secret`) for the cell's Autopilot apps.
   autopilotSecret: fonoster-cell-autopilot
   # Secrets mounted for secret://k8s/<name>#<key> references in config.
+  # A public region (PR-20): the gateway fetches a workspace's own provider key from the cloud
+  # per call (through this agent) before the region's keys. Leave off for a private region.
+  workspaceKeysFromCloud: false
   secretMounts: []
   # Rendered into region-agent.yaml next to dataDir, stateDir, nats, database and cellSecrets.
   config:
