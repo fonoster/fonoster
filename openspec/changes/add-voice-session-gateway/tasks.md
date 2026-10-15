@@ -4,8 +4,9 @@
 
 - [ ] 1.1 Write JSON Schemas for every `native` message (lifecycle, speech, audio, control, subscribe, error) and generate TypeScript and Python types from them
 - [ ] 1.2 Write language-neutral scenario files for every scenario in `voice-session` and `twilio-media-streams-flavor`
-- [ ] 1.3 Build a scripted fake app (drives the gateway) and a fake media node (supplies recorded caller audio, records control commands)
-- [ ] 1.4 Build fake STT/TTS providers with deterministic output and injectable delay and failure
+- [x] 1.3 Build a scripted fake app (drives the gateway) and a fake media node (supplies recorded caller audio, records control commands)
+- [x] 1.4 Build fake STT/TTS providers with deterministic output and injectable delay and failure
+      (1.3 and 1.4 live in `mods/conformance`, built under `add-conformance-framework`)
 - [ ] 1.5 Add a stopwatch harness for the timing budgets: 50 ms or less added by the gateway (p95), `clear` silent within 40 ms
 - [ ] 1.6 Add a golden test that runs an unmodified Pipecat bot (`TwilioFrameSerializer`) against the `twilio` flavor
 - [ ] 1.7 Resolve the design's Open Questions (error codes, queue cap, keepalive, signature format, hang-up auth, limits) and update the specs

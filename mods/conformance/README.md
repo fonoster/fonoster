@@ -10,6 +10,7 @@ What is here:
 | --- | --- | --- |
 | Scenario files | `scenarios/<contract>/*.yaml` | Language-neutral cases shared by every runner |
 | Scenario format | `SCENARIOS.md`, `schema/scenario.schema.json` | The `fonoster.scenario.v1` format and its JSON Schema |
+| Fake provider protocol | `PROVIDERS.md` | What every implementation's `fake` adapters speak |
 | TypeScript runner | `src/runner` | `runScenario(scenario, { connect, harness })` |
 | Fake app | `src/fakes/FakeApp.ts` | WebSocket server the gateway dials; verifies signatures |
 | Fake gateway | `src/fakes/FakeGateway.ts` | Dials an SDK app with a signed request, for SDK suites |

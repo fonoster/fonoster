@@ -37,12 +37,20 @@ number MUST point to an app. Outbound calls MUST name an app the same way.
 ### Requirement: Connection requests are signed
 
 The gateway SHALL sign every connection request with an HMAC-SHA256 over the URL and a timestamp,
-using the app's signing secret, and SHALL send the signature and timestamp as request headers.
+using the app's signing secret, and SHALL send the signature and timestamp as request headers:
+`X-Fonoster-Timestamp` carries the signing time in Unix seconds, and `X-Fonoster-Signature` carries
+the lowercase hex HMAC-SHA256 of `<timestamp>.<url>`, where `<url>` is the app's WebSocket URL
+exactly as configured, query string included. Apps MUST reject a timestamp more than 300 seconds
+away from their own clock.
 
 #### Scenario: App verifies a genuine request
 - **WHEN** the gateway connects to an app
 - **THEN** the request carries a signature header and a timestamp header
 - **AND** recomputing the HMAC over the URL and timestamp with the app's secret yields the same signature
+
+#### Scenario: Stale timestamp
+- **WHEN** a connection request carries an `X-Fonoster-Timestamp` 10 minutes in the past
+- **THEN** an app verifying signatures refuses it even if the signature matches
 
 #### Scenario: Signature reflects the secret
 - **WHEN** an app's signing secret is rotated

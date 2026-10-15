@@ -18,12 +18,14 @@
  */
 import { createHmac, timingSafeEqual } from "crypto";
 
-// Connection signing as proposed in add-voice-session-gateway (open question 5): HMAC-SHA256 over
-// "<timestamp>.<url>" with the app's signing secret, hex encoded. Until that question is settled,
-// these names live here only, so changing them touches one file.
+// Connection signing from voice-session ("Connection requests are signed"): X-Fonoster-Timestamp
+// in Unix seconds and X-Fonoster-Signature as the hex HMAC-SHA256 of "<timestamp>.<url>", with a
+// ±300 s window.
 export const SIGNATURE_HEADER = "x-fonoster-signature";
 export const TIMESTAMP_HEADER = "x-fonoster-timestamp";
-export const MAX_SKEW_MS = 5 * 60 * 1000;
+export const MAX_SKEW_SECONDS = 300;
+
+const nowSeconds = () => Math.floor(Date.now() / 1000);
 
 export function sign(url: string, timestamp: number, secret: string): string {
   return createHmac("sha256", secret)
@@ -34,7 +36,7 @@ export function sign(url: string, timestamp: number, secret: string): string {
 export function signatureHeaders(
   url: string,
   secret: string,
-  now = Date.now()
+  now = nowSeconds()
 ): Record<string, string> {
   return {
     [SIGNATURE_HEADER]: sign(url, now, secret),
@@ -51,13 +53,13 @@ export function verify(
   url: string,
   headers: Record<string, string | string[] | undefined>,
   secret: string,
-  now = Date.now()
+  now = nowSeconds()
 ): VerifyResult {
   const signature = headers[SIGNATURE_HEADER];
   const timestamp = Number(headers[TIMESTAMP_HEADER]);
   if (typeof signature !== "string" || !Number.isFinite(timestamp))
     return { ok: false, reason: "missing" };
-  if (Math.abs(now - timestamp) > MAX_SKEW_MS)
+  if (Math.abs(now - timestamp) > MAX_SKEW_SECONDS)
     return { ok: false, reason: "stale" };
   const expected = Buffer.from(sign(url, timestamp, secret), "hex");
   const given = Buffer.from(signature, "hex");

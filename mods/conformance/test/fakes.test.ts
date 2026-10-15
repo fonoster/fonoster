@@ -64,7 +64,7 @@ describe("@conformance/FakeApp and FakeGateway", function () {
   it("refuses a stale signature", async function () {
     app = await new FakeApp({ signingSecret: "s3cret", verifySignature: true }).start();
     let error: Error | undefined;
-    await new FakeGateway({ signingSecret: "s3cret", timestamp: Date.now() - 10 * 60 * 1000 })
+    await new FakeGateway({ signingSecret: "s3cret", timestamp: Math.floor(Date.now() / 1000) - 10 * 60 })
       .dial(app.url)
       .catch((e) => (error = e));
     expect(error).to.exist;

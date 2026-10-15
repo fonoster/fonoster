@@ -42,7 +42,7 @@ describe("@conformance/FakeMediaNode over NATS", function () {
     const subjects = node.attachNats(nc);
     const sc = StringCodec();
     const events: Record<string, unknown>[] = [];
-    nc.subscribe(subjects.events, { callback: (_e, m) => events.push(JSON.parse(sc.decode(m.data))) });
+    nc.subscribe(`${subjects.events}.>`, { callback: (_e, m) => events.push(JSON.parse(sc.decode(m.data))) });
     await nc.flush();
 
     const { roomRef } = node.offerCall();
@@ -50,5 +50,13 @@ describe("@conformance/FakeMediaNode over NATS", function () {
     expect(JSON.parse(sc.decode(reply.data))).to.deep.equal({ type: "ack", id: "c7" });
     await nc.flush();
     expect(events[0]).to.include({ type: "call.incoming", roomRef });
+
+    // Events are scoped to the room's subject.
+    const scoped = nc.subscribe(`${subjects.events}.${roomRef}`, { max: 1 });
+    await nc.flush();
+    node.pressKey("5", roomRef);
+    for await (const m of scoped) {
+      expect(JSON.parse(sc.decode(m.data))).to.include({ type: "dtmf", digit: "5" });
+    }
   });
 });

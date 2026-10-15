@@ -24,9 +24,11 @@ VoiceSessionGateway and runs the app's handler once per session. It MUST be usab
 
 ### Requirement: Connections are verified before the handler runs
 
-The SDK SHALL verify the gateway's HMAC-signed connection request with the app's signing secret
-and MUST reject a connection whose signature is missing, invalid or outside the allowed time
-window before invoking the handler.
+The SDK SHALL verify the gateway's HMAC-signed connection request with the app's signing secret,
+as defined in `voice-session` ("Connection requests are signed": `X-Fonoster-Timestamp`,
+`X-Fonoster-Signature`, ±300 s), and MUST reject a connection whose signature is missing, invalid
+or outside the allowed time window before invoking the handler. Because proxies can rewrite the
+host, the SDK SHALL verify against the app's public URL when one is configured.
 
 #### Scenario: Valid signature
 

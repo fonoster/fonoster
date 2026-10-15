@@ -205,8 +205,9 @@ for call control. ConversationRelay is a separate product. This change unifies b
    access key and an API secret, or a per-app token.
 4. **Keepalive.** WebSocket ping interval and the idle timeout before a silent socket counts as
    dropped. Proposed: ping every 10 s, dropped after 30 s.
-5. **Signature header name and format.** The exact canonical string, and the clock-skew window.
-   Proposed: `X-Fonoster-Signature`, ±5 min.
+5. ~~**Signature header name and format.**~~ Resolved: `X-Fonoster-Timestamp` (Unix seconds) and
+   `X-Fonoster-Signature` (hex HMAC-SHA256 of `<timestamp>.<url>`), ±300 s. Same scheme as workspace
+   webhooks, which sign the body instead of the URL.
 6. **Handoff limits.** The maximum payload size, and loop protection for repeated handoffs.
 7. **Listener limits.** The maximum listeners per call, and how a listener is attached (API call
    or app config).

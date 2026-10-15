@@ -34,6 +34,8 @@ type ChatMessage = { role: string; content?: string };
  *
  * Replies come from the script in order ({content} or {tool_calls}); with an empty script the
  * reply is "Echo: <last user message>". Streaming sends one chunk per word.
+ *
+ * Implementations' built-in "fake" adapters speak this protocol (see PROVIDERS.md).
  */
 export class FakeLlm extends FakeProvider {
   readonly conversations: { at: number; messages: ChatMessage[] }[] = [];

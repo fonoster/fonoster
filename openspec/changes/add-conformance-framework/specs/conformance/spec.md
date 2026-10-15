@@ -37,6 +37,26 @@ calls.
 - **THEN** the gateway sends an `error` that names the failing command's `id` in `relatesTo`
 - **AND** does not switch to another provider
 
+### Requirement: Implementations ship fake provider adapters
+
+Every implementation that uses STT, TTS or LLM providers (the gateway, Autopilot) SHALL include a
+`fake` adapter per capability that speaks the fake provider protocol documented in
+`mods/conformance/PROVIDERS.md`: TTS as HTTP `POST /v1/synthesize`, STT as a WebSocket at
+`/v1/listen`, and LLM as OpenAI-compatible `POST /v1/chat/completions`. The `fake` adapters SHALL
+be available only when the deployment enables test mode, and the registry utility MUST refuse to
+add a provider with adapter `fake` otherwise.
+
+#### Scenario: A rewrite uses the same fakes
+
+- **WHEN** the gateway is reimplemented in another language
+- **THEN** its `fake` adapters reach the same fake providers over the network
+- **AND** the session protocol suite runs with no change to the fakes
+
+#### Scenario: Fakes are not available in production
+
+- **WHEN** an operator runs `add-provider fake --adapter fake --capabilities tts` on a deployment without test mode
+- **THEN** the command exits non-zero and the registry is unchanged
+
 ### Requirement: Scenarios are language-neutral and shared by the SDKs
 
 Conformance scenarios SHALL be data files independent of any programming language, and the

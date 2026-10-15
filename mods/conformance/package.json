@@ -29,7 +29,8 @@
     "dist",
     "scenarios",
     "schema",
-    "SCENARIOS.md"
+    "SCENARIOS.md",
+    "PROVIDERS.md"
   ],
   "publishConfig": {
     "access": "public"

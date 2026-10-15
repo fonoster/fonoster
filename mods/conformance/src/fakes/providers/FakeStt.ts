@@ -40,6 +40,8 @@ export type SttScriptEntry = {
  * Transcripts are scripted against caller-audio time: an entry fires once the stream has carried
  * atMs of audio, after the configured delay. Injected failures close the socket with code 1011
  * (provider_unavailable) or 1008 (bad_request); provider_timeout accepts audio and never answers.
+ *
+ * Implementations' built-in "fake" adapters speak this protocol (see PROVIDERS.md).
  */
 export class FakeStt extends FakeProvider {
   readonly streams: {

@@ -23,7 +23,7 @@ import { signatureHeaders } from "./signature";
 export type FakeGatewayOptions = {
   /** Secret used to sign the connection request; omit to send no signature. */
   signingSecret?: string;
-  /** Sign with this timestamp instead of now (to test stale signatures). */
+  /** Sign with this Unix time in seconds instead of now (to test stale signatures). */
   timestamp?: number;
   /** Fails the dial if the socket is not open within this time (default 5 s). */
   timeoutMs?: number;

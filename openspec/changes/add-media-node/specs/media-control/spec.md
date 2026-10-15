@@ -21,6 +21,29 @@ contract only ever grows.
 - **WHEN** the gateway sends a command with `type: "room.mute_all"`
 - **THEN** the node replies with `unknown_command` and the room is unchanged
 
+### Requirement: media-control runs over NATS request and reply
+
+Each media node SHALL serve commands as NATS requests on `media.<nodeId>.commands` and SHALL answer
+every command with exactly one JSON reply: `{type: "ack", id, ...}` carrying any results (such as
+`roomRef`, `participantRef` or `rtp`), or `{type: "error", id, code, message}`. Outcomes that take
+time (dial progress, transfers, room end) SHALL arrive later as events. The node SHALL publish
+every event on `media.<nodeId>.events.<roomRef>`, so a gateway subscribes only to its room and the
+control plane to `media.*.events.>`. A sender SHALL treat a command with no reply within 2 seconds
+as failed.
+
+#### Scenario: Ack carries results
+- **WHEN** the control plane sends `room.create` `{id: "c1"}` to `media.node-a.commands`
+- **THEN** the reply is `{type: "ack", id: "c1", roomRef: "<new room>"}`
+
+#### Scenario: Events are scoped to the room
+- **WHEN** the caller in room `r1` on node `node-a` presses `5`
+- **THEN** a `dtmf` event is published on `media.node-a.events.r1`
+- **AND** nothing is published on any other room's subject
+
+#### Scenario: No reply
+- **WHEN** a node does not reply to `hold` within 2 seconds
+- **THEN** the gateway treats the command as failed and reports `error` to the app with `relatesTo` set to the command's id
+
 ### Requirement: Participants and tracks are kind-neutral
 
 Every participant described in `media-control` SHALL list its tracks, each with `trackId`, `kind`,

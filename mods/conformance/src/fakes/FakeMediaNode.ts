@@ -32,9 +32,8 @@ import {
 } from "../audio/codecs";
 import { AudioSource } from "../scenario/types";
 
-// The media-control message shapes below follow add-media-node/specs/media-control. The reply
-// envelope ({type: "ack" | "error", id}) and the NATS subject names are this fake's proposal until
-// that contract pins them down.
+// The media-control message shapes, reply envelope ({type: "ack" | "error", id}) and NATS subjects
+// follow add-media-node/specs/media-control ("media-control runs over NATS request and reply").
 
 export type MediaCommand = { type: string; id: string; [key: string]: unknown };
 export type MediaReply = {
@@ -309,7 +308,10 @@ export class FakeMediaNode extends EventEmitter {
     }
   }
 
-  /** Serves media-control over NATS request and reply; events are published on `events`. */
+  /**
+   * Serves media-control over NATS request and reply. Events are published on
+   * `<events>.<roomRef>` (default `media.<nodeId>.events.<roomRef>`).
+   */
   attachNats(
     nc: NatsConnection,
     subjects: { commands?: string; events?: string } = {}
@@ -331,7 +333,7 @@ export class FakeMediaNode extends EventEmitter {
       }
     });
     this.on("event", (event: MediaEvent) =>
-      nc.publish(events, sc.encode(JSON.stringify(event)))
+      nc.publish(`${events}.${event.roomRef}`, sc.encode(JSON.stringify(event)))
     );
     return { commands, events };
   }

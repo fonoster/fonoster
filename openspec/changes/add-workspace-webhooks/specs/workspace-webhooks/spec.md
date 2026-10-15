@@ -49,7 +49,10 @@ fetch the record and MUST NOT include the transcript, recording or SIP trace.
 ### Requirement: Deliveries are signed
 
 Every delivery SHALL carry a timestamp and an HMAC-SHA256 signature over the timestamp and the raw
-body, made with the workspace's signing secret. The signing secret MUST be shown only once when
+body, made with the workspace's signing secret: `X-Fonoster-Timestamp` in Unix seconds and
+`X-Fonoster-Signature` as the lowercase hex HMAC-SHA256 of `<timestamp>.<raw body>`. During a
+rotation window the header SHALL carry one signature per valid secret, separated by commas.
+Receivers SHOULD reject timestamps more than 300 seconds from their clock. The signing secret MUST be shown only once when
 created and MUST be rotatable, with both old and new secrets valid during the rotation window.
 
 #### Scenario: Verifying a delivery

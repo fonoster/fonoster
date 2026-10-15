@@ -169,8 +169,9 @@ not an SFU; and Routr, which already balances peers by session count, stays the 
    re-registering after a change in load.
 3. **How Routr learns a node is draining.** A very high `X-Session-Count`, a dedicated header, or
    unregistering.
-4. **`media-control` transport.** Resolved: commands travel over NATS request and reply (PL3);
-   gateway audio travels as RTP (MN13).
+4. **`media-control` transport.** Resolved: commands travel over NATS request and reply (PL3) on
+   `media.<nodeId>.commands`, replies are `{type: "ack" | "error", id}`, events are published on
+   `media.<nodeId>.events.<roomRef>`; gateway audio travels as RTP (MN13).
 5. **Dial-in conference affinity.** Deferred (MN4): redirect to the owning node, Routr affinity by
    room, or cascading.
 6. **Opus capacity target.** A bar for Opus-heavy load once the first numbers exist.

@@ -67,8 +67,9 @@ time; a manual resend. Kept for a bounded period.
 
 ## Open Questions
 
-1. Signature header name and format, and the clock-skew window (proposed: `X-Fonoster-Signature`,
-   ±5 minutes, matching the session connection signature).
+1. ~~Signature header name and format.~~ Resolved: `X-Fonoster-Timestamp` (Unix seconds) and
+   `X-Fonoster-Signature` (hex HMAC-SHA256 of `<timestamp>.<raw body>`, comma-separated during
+   rotation), ±300 s, the same scheme as the session connection signature.
 2. Retry schedule and maximum retry period (proposed: exponential from 10 s, up to 24 h).
 3. Delivery timeout per attempt (proposed: 10 s) and the delivery log retention (proposed: 30 days).
 4. Maximum endpoints per workspace, and whether endpoints can filter by app in v1.

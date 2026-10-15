@@ -60,6 +60,8 @@ export function speechDurationMs(text: string): number {
  *
  * The audio is a tone lasting MS_PER_CHAR per character, so durations and word timings are
  * predictable. The gateway's built-in "fake" adapter talks to this endpoint.
+ *
+ * Implementations' built-in "fake" adapters speak this protocol (see PROVIDERS.md).
  */
 export class FakeTts extends FakeProvider {
   readonly synthesized: {
