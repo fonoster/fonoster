@@ -64,4 +64,4 @@
       in favor of the record's recording reference (LG-B6)
 - [x] 7.3 Point users of Autopilot's retired `conversation.ended` webhook (`rework-autopilot`) to
       `call.ended` and `call_record.sealed` (release note) (LG-B6)
-- [ ] 7.4 Docs: what a call record contains, retention and erasure, redaction, verifying a record
+- [x] 7.4 Docs: what a call record contains, retention and erasure, redaction, verifying a record
