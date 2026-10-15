@@ -19,7 +19,12 @@
 import { randomBytes, randomUUID } from "crypto";
 import { URL } from "url";
 import { assertPublicUrlShape, safeFetch } from "../net";
-import { WEBHOOK_EVENT_TYPES, WebhookEvent, WebhookEventType } from "./events";
+import {
+  RETIRED_EVENT_TYPES,
+  WEBHOOK_EVENT_TYPES,
+  WebhookEvent,
+  WebhookEventType
+} from "./events";
 import { webhookHeaders } from "./signing";
 
 // add-workspace-webhooks: subscriptions (W1), at-least-once delivery with retries (W5) and the
@@ -143,6 +148,15 @@ export class WebhookDispatcher {
     const unknown = input.events.filter(
       (e) => !(WEBHOOK_EVENT_TYPES as readonly string[]).includes(e)
     );
+    const retired = unknown.filter((e) => RETIRED_EVENT_TYPES[e]);
+    if (retired.length)
+      throw new WebhookError(
+        `retired event types: ${retired
+          .map((e) => `${e} (use ${RETIRED_EVENT_TYPES[e].join(" or ")})`)
+          .join(
+            ", "
+          )}; the conversation's transcript and recording are in the call record`
+      );
     if (unknown.length)
       throw new WebhookError(`unknown event types: ${unknown.join(", ")}`);
     const endpoint: WebhookEndpoint = {

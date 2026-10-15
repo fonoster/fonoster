@@ -102,6 +102,20 @@ describe("@common/webhooks", function () {
     ).to.throw(WebhookError, "webhook URLs must use HTTPS");
   });
 
+  it("points the retired assistant webhook events to their replacements", function () {
+    const d = new WebhookDispatcher({ store: new MemoryWebhookStore() });
+    expect(() =>
+      d.createEndpoint({
+        workspaceRef: "W",
+        url: "https://hooks.example.com/fonoster",
+        events: ["conversation.ended"] as never
+      })
+    ).to.throw(
+      WebhookError,
+      "retired event types: conversation.ended (use call.ended or call_record.sealed)"
+    );
+  });
+
   it("builds the v1 payloads from the spec", function () {
     const failed = callFailed("W", {
       callRef: "c2",

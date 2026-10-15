@@ -128,7 +128,7 @@ export const sessionAssistantSchema = z
     testCases: z.any().optional(),
     eventsHook: removed(
       "eventsHook",
-      "assistant webhooks were retired; use workspace webhooks"
+      "assistant webhooks were retired; use workspace webhooks (conversation.ended → call.ended or call_record.sealed)"
     ),
     audioFilters: removed(
       "audioFilters",
