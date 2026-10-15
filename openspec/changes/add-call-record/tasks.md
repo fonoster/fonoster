@@ -1,4 +1,4 @@
-> Build deferred: do not start until the owner approves the build.
+> Build started 2026-10-15 under the owner's overnight go-ahead. Decisions: see build-log.md.
 
 # Tasks
 
@@ -7,9 +7,9 @@
 - [ ] 1.1 Pin the vCon draft version and vendor its JSON schema for validation
 - [ ] 1.2 Fixture calls (scripted sessions plus recorded caller audio), including one with a spoken
       card number and one with a handoff
-- [ ] 1.3 Crash harness: kill the gateway mid-call and assert a sealed record appears within the
+- [x] 1.3 Crash harness: kill the gateway mid-call and assert a sealed record appears within the
       seal deadline, with missing parts listed
-- [ ] 1.4 Verifier tool: checks the signature against the region's published keys and every file
+- [x] 1.4 Verifier tool: checks the signature against the region's published keys and every file
       hash; reports the first mismatching part
 - [ ] 1.5 Retention and erasure tests: policy expiry, per-call erasure, audit entries
 - [ ] 1.6 Redaction tests: masked transcript and beeped audio for seeded personal data; original
@@ -17,11 +17,11 @@
 
 ## 2. Writer and storage
 
-- [ ] 2.1 Working-record appends from the gateway (session messages, turn decisions, transcript
+- [x] 2.1 Working-record appends from the gateway (session messages, turn decisions, transcript
       segments, deprecation warnings), each durable on its own
-- [ ] 2.2 Sealing at hangup: assemble the vCon, hash files, sign (JWS) and mark sealed; record
+- [x] 2.2 Sealing at hangup: assemble the vCon, hash files, sign (JWS) and mark sealed; record
       missing parts
-- [ ] 2.3 Versioning: post-seal additions create new versions that reference the predecessor
+- [x] 2.3 Versioning: post-seal additions create new versions that reference the predecessor
 - [ ] 2.4 Region object storage plus per-workspace S3-compatible bucket configuration
 - [ ] 2.5 Control-plane index (call id, workspace, time, size, location, current version)
 - [ ] 2.6 Region signing keys and a published key history (see open question O2)

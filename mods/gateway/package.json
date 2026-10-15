@@ -21,6 +21,7 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
+    "@fonoster/callrecord": "^0.27.0",
     "@fonoster/common": "^0.27.0",
     "@fonoster/logger": "^0.27.0",
     "ajv": "^8.17.1",

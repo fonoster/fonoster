@@ -17,10 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as fs from "fs";
+import { CallRecordWriter, FsRecordStorage } from "@fonoster/callrecord";
 import { getLogger } from "@fonoster/logger";
 import { loadConfig } from "./config";
 import { Gateway } from "./Gateway";
-import { JsonlCallRecordSink } from "./record/CallRecordSink";
+import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 
@@ -30,14 +32,30 @@ async function main() {
     process.argv[2] ??
     "/etc/fonoster/gateway.yaml";
   const config = loadConfig(file);
-  const recordDir = process.env.GATEWAY_RECORD_DIR;
-  const gateway = await new Gateway({
-    config,
-    record: recordDir ? new JsonlCallRecordSink(recordDir) : undefined
-  }).start();
+  let record: CallRecordSink | undefined;
+  let sweeper: ReturnType<typeof setInterval> | undefined;
+  if (config.callRecord) {
+    const c = config.callRecord;
+    const writer = new CallRecordWriter({
+      storage: new FsRecordStorage(c.dir),
+      region: c.region,
+      key: {
+        kid: c.signingKey.kid,
+        privateKeyPem: fs.readFileSync(c.signingKey.privateKeyFile, "utf8")
+      }
+    });
+    // Records of calls whose gateway died are sealed by whichever replica sweeps first.
+    writer.sweep();
+    sweeper = setInterval(() => writer.sweep(), c.sweepIntervalMs ?? 10_000);
+    record = writer;
+  } else if (process.env.GATEWAY_RECORD_DIR) {
+    record = new JsonlCallRecordSink(process.env.GATEWAY_RECORD_DIR);
+  }
+  const gateway = await new Gateway({ config, record }).start();
 
   const shutdown = async () => {
     logger.info("shutting down");
+    if (sweeper) clearInterval(sweeper);
     await gateway.stop();
     process.exit(0);
   };

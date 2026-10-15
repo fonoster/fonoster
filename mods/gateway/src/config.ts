@@ -65,6 +65,14 @@ export type GatewayConfig = {
   http?: { host?: string; port: number; accountSid: string; authToken: string };
   /** Keepalive overrides (mainly for tests). */
   keepalive?: { pingIntervalMs?: number; idleTimeoutMs?: number };
+  /** Call records (add-call-record): working records, sealing and signing. */
+  callRecord?: {
+    dir: string;
+    region: string;
+    signingKey: { kid: string; privateKeyFile: string };
+    /** How often to seal records of calls whose gateway died (default 10 s). */
+    sweepIntervalMs?: number;
+  };
   /** Enables the `fake` adapters (conformance "Implementations ship fake provider adapters"). */
   testMode?: boolean;
 };

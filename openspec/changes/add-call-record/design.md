@@ -182,11 +182,14 @@ dispute. Rejected: only an index entry and the event, which would lose that trac
 
 ## Open Questions
 
-1. **O1. Seal deadline.** How many seconds after hangup must a record be sealed? Proposal: 30 s,
-   measured by the conformance suite.
-2. **O2. Signing keys.** Custody (KMS, Vault or file) and rotation period. Old signatures must stay
+1. ~~**O1. Seal deadline.**~~ Decided (build, 2026-10-15): 30 s. Records are sealed at hangup;
+   records of calls whose gateway died are sealed by a sweep once 30 s pass without an append.
+2. **O2. Signing keys.** Interim (build): ES256 keys as PEM files per region, `kid` in the JWS
+   header, verification against a key history (`kid` → public key). Still open: custody (KMS,
+   Vault or file), rotation period, and where the history is published. Old signatures must stay
    verifiable after rotation, so we need a published key history per region.
-3. **O3. Redaction engine.** Which detector (rules, a model or a vendor) and which languages.
+3. **O3. Redaction engine.** Interim (build): rules for payment card numbers (digits or spoken
+   digit words in English and Spanish, Luhn-checked), transcript text only. Which detector (rules, a model or a vendor) and which languages.
    How are beeps aligned with audio when transcript timings are coarse?
 4. **O4. vCon version.** Which IETF draft we pin, and how we handle a later standard version.
 5. **O6. Consent prompt.** Who supplies the wording and language, and what happens if the caller

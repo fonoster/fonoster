@@ -22,14 +22,32 @@ import { signatureHeaders } from "../signing";
 
 export type ConnectFailure = { at: number; url: string; reason: string };
 
+export type EarlyFrame = { data: WebSocket.Data; isBinary: boolean };
+
+/** A socket from connectApp: frames received before the session attached are kept. */
+export type BufferedSocket = WebSocket & {
+  takeEarlyFrames?: () => EarlyFrame[];
+};
+
 function attempt(app: AppConfig, timeoutMs: number): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(app.url, {
       headers: signatureHeaders(app.url, app.signingSecret),
       handshakeTimeout: timeoutMs
     });
-    // The app may send frames right after the handshake; buffer them until the session listens.
-    socket.once("open", () => resolve(socket));
+    socket.once("open", () => {
+      // The app may send frames before the session is attached (media setup takes a round
+      // trip); keep them so none is lost.
+      const early: EarlyFrame[] = [];
+      const keep = (data: WebSocket.Data, isBinary: boolean) =>
+        early.push({ data, isBinary });
+      socket.on("message", keep);
+      (socket as BufferedSocket).takeEarlyFrames = () => {
+        socket.off("message", keep);
+        return early;
+      };
+      resolve(socket);
+    });
     socket.once("unexpected-response", (_req, res) => {
       socket.terminate();
       reject(new Error(`HTTP ${res.statusCode}`));

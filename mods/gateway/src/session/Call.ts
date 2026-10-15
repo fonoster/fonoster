@@ -49,7 +49,7 @@ import { Catalog } from "../speech/Catalog";
 import { SpeechError, SttStream } from "../speech/types";
 import { BaselineDetector } from "../turn/Detector";
 import { Pacing } from "../turn/Pacing";
-import { connectApp } from "./connectApp";
+import { BufferedSocket, connectApp } from "./connectApp";
 import { Listener } from "./Listener";
 import { OutputEvent, OutputQueue } from "./OutputQueue";
 
@@ -440,12 +440,14 @@ export class AppSession {
     this.socket.on("message", (raw: WebSocket.Data, isBinary: boolean) =>
       this.onFrame(raw as Buffer, isBinary)
     );
+    const early = (this.socket as BufferedSocket).takeEarlyFrames?.() ?? [];
     this.socket.on("close", () => this.onSocketClosed());
     this.socket.on("error", () => undefined);
     this.startKeepalive();
 
     this.codec.start(start);
     this.call.record("gateway", start as unknown as Record<string, unknown>);
+    for (const f of early) this.onFrame(f.data as Buffer, f.isBinary);
     void this.attachListeners(start);
     this.queue.start();
     if (this.codec.speechLayer) {
