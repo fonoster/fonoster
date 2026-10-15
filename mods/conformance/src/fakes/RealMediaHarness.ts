@@ -31,6 +31,7 @@ import { MediaNodeBinaries, MediaNodeProcess } from "./MediaNodeProcess";
  */
 export class RealMediaHarness extends FakesHarness {
   private dialOutcome?: "answered" | "busy" | "no_answer" | "failed";
+  private appRef?: string;
   readonly media: MediaNodeProcess;
   private callerAudio?: AudioSource;
   private commands: Record<string, unknown>[] = [];
@@ -64,6 +65,7 @@ export class RealMediaHarness extends FakesHarness {
 
   async setup(setup: Setup) {
     this.dialOutcome = setup.media?.dialOutcome;
+    this.appRef = setup.media?.appRef;
     this.callerAudio = setup.callerAudio;
     if (setup.media?.heartbeatMs !== undefined)
       this.media.heartbeatMs = setup.media.heartbeatMs;
@@ -80,13 +82,15 @@ export class RealMediaHarness extends FakesHarness {
   ): Promise<Peer> {
     await this.media.start();
     if (this.dialOutcome) await this.media.callee(this.dialOutcome);
+    const mark = this.connectionMark();
     await this.media.call({
-      appRef: "app-1",
+      appRef: this.appRef ?? "app-1",
       to: this.call?.to,
       from: this.call?.from,
       ...(options.codecs ? { codecs: options.codecs } : {})
     });
-    const peer = (await this.app.nextConnection(timeoutMs)).peer;
+    const peer = await this.acceptSession(mark, timeoutMs);
+    if (this.reachesNoApp) return peer;
     const deadline = Date.now() + timeoutMs;
     while ((await this.media.status()).state !== "answered") {
       if (Date.now() > deadline)

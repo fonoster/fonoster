@@ -1,7 +1,7 @@
 // Fonoster dev container. See CONTRIBUTING.md#dev-container.
 // Holds the Node workspace and tooling only; Postgres, NATS, InfluxDB, Routr,
 // RTPEngine, envoy and mailhog run on the host Docker engine from
-// compose.yaml + compose.dev.yaml (docker-outside-of-docker).
+// compose.dev.yaml (docker-outside-of-docker).
 {
   "name": "Fonoster",
   "build": { "dockerfile": "Dockerfile" },

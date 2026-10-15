@@ -3,7 +3,7 @@
 ## 1. Conformance assets
 
 - [x] 1.1 Write JSON Schemas for every `native` message (lifecycle, speech, audio, control, subscribe, error) and generate TypeScript and Python types from them
-- [ ] 1.2 Write language-neutral scenario files for every scenario in `voice-session` and `twilio-media-streams-flavor` (partial: mods/conformance/scenarios has 39 voice-session and 7 twilio files for 55 + 13 spec scenarios; the rest are covered only by mods/gateway/test/integration.test.ts)
+- [x] 1.2 Write language-neutral scenario files for every scenario in `voice-session` and `twilio-media-streams-flavor` (52 of 55 voice-session and 10 of 13 twilio scenarios have a file; the 6 that cannot be expressed in the format are listed in build-log EV-B2 with where they are tested)
 - [x] 1.3 Build a scripted fake app (drives the gateway) and a fake media node (supplies recorded caller audio, records control commands)
 - [x] 1.4 Build fake STT/TTS providers with deterministic output and injectable delay and failure
       (1.3 and 1.4 live in `mods/conformance`, built under `add-conformance-framework`)

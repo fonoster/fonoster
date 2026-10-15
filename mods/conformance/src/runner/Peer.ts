@@ -140,6 +140,30 @@ export class WebSocketPeer implements Peer {
   }
 }
 
+/**
+ * A peer for a session that never reached an app (unreachable app, refused signature, busy
+ * callee): nothing arrives and nothing can be sent, so such scenarios only `wait` and `assert`.
+ */
+export class DetachedPeer implements Peer {
+  readonly frames = new FrameLog();
+
+  sendJson(): void {
+    throw new Error(
+      "no app session: this scenario's call never reached an app"
+    );
+  }
+
+  sendBinary(): void {
+    throw new Error(
+      "no app session: this scenario's call never reached an app"
+    );
+  }
+
+  close(code = 1000, reason?: string) {
+    this.frames.markClosed(code, reason);
+  }
+}
+
 /** Two peers wired to each other in memory; useful for testing runners and fakes. */
 export function peerPair(): [Peer, Peer] {
   const make = (): Peer & { other?: Peer & { frames: FrameLog } } => ({

@@ -21,7 +21,7 @@ import { AddressInfo } from "net";
 import * as path from "path";
 import { encode, generate } from "../audio/codecs";
 import { Harness } from "../runner/Harness";
-import { Peer } from "../runner/Peer";
+import { DetachedPeer, Peer } from "../runner/Peer";
 import { SCENARIOS_DIR } from "../scenario/loadScenario";
 import { AudioSource, CallerAction, Providers, Setup } from "../scenario/types";
 import { FakeApp } from "./FakeApp";
@@ -33,6 +33,8 @@ import { ProviderLedger } from "./providers/ProviderLedger";
 
 export type FakesHarnessOptions = {
   app?: FakeApp;
+  /** The second app (`app-2`): fallback, handoff and routing target, or a listen-only socket. */
+  otherApp?: FakeApp;
   mediaNode?: FakeMediaNode;
   /**
    * Counts network calls that reached anything other than the fakes (for example from an egress
@@ -42,7 +44,17 @@ export type FakesHarnessOptions = {
   vendorCalls?: () => number;
   /** The call record's event entries of one type (makes record.events.<type> measurable). */
   recordEvents?: (type: string) => Record<string, unknown>[];
+  /**
+   * The call record's entries of one type from any source, each as the message plus `source`
+   * and `at` (makes record.messages.<type> measurable).
+   */
+  recordMessages?: (type: string) => Record<string, unknown>[];
+  /** Lifecycle events handed to the webhook dispatcher, as `{type, ...data}` (webhooks.events). */
+  webhookEvents?: () => Record<string, unknown>[];
 };
+
+/** How many connections each fake app had when a call was offered. */
+export type ConnectionMark = { app: number; other: number };
 
 /**
  * The fakes around a gateway under test, exposed to the runner as a Harness: setup, provider
@@ -54,20 +66,25 @@ export class FakesHarness implements Harness {
   readonly stt = new FakeStt(this.ledger);
   readonly llm = new FakeLlm(this.ledger);
   readonly app: FakeApp;
+  readonly otherApp: FakeApp;
   readonly mediaNode: FakeMediaNode;
   protected call: Setup["call"] = {};
+  protected appSetup: Setup["app"] = {};
+  protected listener?: Setup["listener"];
   private mediaServer?: http.Server;
   /** Calls to the fake tool endpoints (`${media}/tool/<name>`). */
   readonly toolCalls: { at: number; name: string }[] = [];
 
   constructor(private readonly options: FakesHarnessOptions = {}) {
     this.app = options.app ?? new FakeApp();
+    this.otherApp = options.otherApp ?? new FakeApp({ path: "/other" });
     this.mediaNode = options.mediaNode ?? new FakeMediaNode();
   }
 
   async start(): Promise<this> {
     await Promise.all([
       this.app.start(),
+      this.otherApp.start(),
       this.tts.start(),
       this.stt.start(),
       this.llm.start(),
@@ -79,6 +96,7 @@ export class FakesHarness implements Harness {
   async stop() {
     await Promise.all([
       this.app.stop(),
+      this.otherApp.stop(),
       this.tts.stop(),
       this.stt.stop(),
       this.llm.stop(),
@@ -107,13 +125,15 @@ export class FakesHarness implements Harness {
     }
     if (setup.app) {
       this.app.configure({
-        signingSecret: setup.app.signingSecret,
+        signingSecret: setup.app.verifySecret ?? setup.app.signingSecret,
         verifySignature: setup.app.verifySignature
       });
       if (setup.app.reachable === false) await this.app.stop();
     }
     if (setup.media) this.mediaNode.configure(setup.media);
     this.call = setup.call ?? {};
+    this.appSetup = setup.app ?? {};
+    this.listener = setup.listener;
   }
 
   /** Base URL of the test media server (`tone-<ms>.wav`, 404 otherwise). */
@@ -202,8 +222,56 @@ export class FakesHarness implements Harness {
    * gateway opens to the fake app.
    */
   async offerCallAndAccept(timeoutMs = 5000): Promise<Peer> {
+    const mark = this.connectionMark();
     this.mediaNode.offerCall(this.call);
-    return (await this.app.nextConnection(timeoutMs)).peer;
+    return this.acceptSession(mark, timeoutMs);
+  }
+
+  connectionMark(): ConnectionMark {
+    return {
+      app: this.app.connections.length,
+      other: this.otherApp.connections.length
+    };
+  }
+
+  /** Whether the scenario's call is set up never to reach an app (no peer to hand out). */
+  get reachesNoApp(): boolean {
+    const a = this.appSetup ?? {};
+    const refused =
+      a.reachable === false ||
+      (a.verifySignature === true &&
+        a.verifySecret !== undefined &&
+        a.verifySecret !== a.signingSecret);
+    return refused && !a.fallback?.app;
+  }
+
+  /**
+   * The socket the runner plays once a call was placed: the first app the gateway reached
+   * (`app-1`, or `app-2` for routing and fallback), the listener when `listener.peer` says so, or
+   * a detached peer when the call is set up never to reach an app.
+   */
+  async acceptSession(mark: ConnectionMark, timeoutMs = 5000): Promise<Peer> {
+    if (this.reachesNoApp) return new DetachedPeer();
+    const deadline = Date.now() + timeoutMs;
+    const listenerPeer = this.listener?.peer === "listener";
+    for (;;) {
+      if (listenerPeer || this.listener) {
+        const conn = listenerPeer
+          ? this.otherApp.connections[mark.other]
+          : this.app.connections[mark.app];
+        if (conn) return conn.peer;
+      } else {
+        const conn =
+          this.app.connections[mark.app] ??
+          this.otherApp.connections[mark.other];
+        if (conn) return conn.peer;
+      }
+      if (Date.now() > deadline)
+        throw new Error(
+          `no connection reached the fake app within ${timeoutMs} ms`
+        );
+      await new Promise((r) => setTimeout(r, 5));
+    }
   }
 
   async inject(providers: Providers) {
@@ -241,11 +309,46 @@ export class FakesHarness implements Harness {
           ?.messages;
       case "providers.vendor_calls":
         return this.options.vendorCalls?.();
+      case "providers.tts.voices":
+        return this.tts.synthesized.map((s) => s.voice ?? null);
+      case "app.attempts":
+        return this.app.attempts.map(({ accepted, reason }) => ({
+          accepted,
+          ...(reason ? { reason } : {})
+        }));
+      case "app.text_frames":
+        return this.app.connections.reduce(
+          (n, c) =>
+            n + c.peer.frames.items.filter((f) => f.kind === "text").length,
+          0
+        );
+      case "other_app.messages":
+        return this.otherApp.connections.flatMap((c) =>
+          c.peer.frames.items
+            .filter((f) => f.kind === "json")
+            .map((f) => f.data as Record<string, unknown>)
+        );
+      case "other_app.audio_tracks":
+        return [
+          ...new Set(
+            this.otherApp.connections.flatMap((c) =>
+              c.peer.frames.items
+                .filter((f) => f.kind === "binary")
+                .map((f) => (f.data as Buffer)[0])
+            )
+          )
+        ].sort((a, b) => a - b);
+      case "webhooks.events":
+        return this.options.webhookEvents?.();
       default:
         // record.events.<type>: the call record's event entries of that type, when the
         // implementation under test exposes its record (turn-taking labels and decisions).
         if (name.startsWith("record.events.") && this.options.recordEvents)
           return this.options.recordEvents(name.slice("record.events.".length));
+        if (name.startsWith("record.messages.") && this.options.recordMessages)
+          return this.options.recordMessages(
+            name.slice("record.messages.".length)
+          );
         return undefined;
     }
   }

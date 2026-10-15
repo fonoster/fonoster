@@ -1,0 +1,12 @@
+format: fonoster.scenario.v1
+name: app-never-reached
+contract: voice-session
+role: app
+spec: "The gateway produces call lifecycle events / App never reached"
+setup:
+  app: { reachable: false }
+steps:
+  - wait: { ms: 2000 }
+  - assert:
+      webhooks.events: { $includes: [{ type: call.failed, reason: app_unreachable }] }
+      record.messages.call.failed: { $includes: [{ reason: app_unreachable }] }

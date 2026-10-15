@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+name: outbound-answered
+contract: voice-session
+role: app
+spec: "Outbound sessions open at answer / Answered callee"
+description: The control plane places the call; the app's socket opens only when the callee answers.
+setup:
+  call: { direction: outbound, to: "+15551234567" }
+steps:
+  - expect: { type: session.start, direction: outbound }
+    within_ms: 3000
+  - assert:
+      media.commands: { $excludes: [{ type: answer }] }

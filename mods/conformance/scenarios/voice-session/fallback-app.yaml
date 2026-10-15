@@ -1,0 +1,12 @@
+format: fonoster.scenario.v1
+name: fallback-app
+contract: voice-session
+role: app
+spec: "Unreachable apps fall back / App down, fallback app configured"
+setup:
+  app: { reachable: false, fallback: { app: app-2 } }
+steps:
+  - expect: { type: session.start, appRef: app-2 }
+    within_ms: 5000
+  - assert:
+      record.messages.app.unreachable: { $includes: [{ url: { $contains: /session } }] }

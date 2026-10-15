@@ -10,7 +10,7 @@
 - [x] 1.2 Fake LLM (scripted token streams with delays, scripted tool calls), fake tool port and
       fake knowledge port
 - [x] 1.3 Latency stopwatch: turn end to first `speak`, excluding fake provider delays
-- [ ] 1.4 Extend the existing conversation evals (`models/evaluations`) to streaming replies and
+- [x] 1.4 Extend the existing conversation evals (`models/evaluations`) to streaming replies and
       structured tool messages
 
 ## 2. State machine (`mods/autopilot/src/machine`)

@@ -62,14 +62,28 @@ export type Setup = {
     from?: string;
     to?: string;
     metadata?: Record<string, unknown>;
+    /** The callRef the media node gives the call (Twilio's callSid). */
+    callRef?: string;
   };
   app?: {
     flavor?: "native" | "twilio";
     signingSecret?: string;
     verifySignature?: boolean;
     reachable?: boolean;
-    fallback?: Record<string, unknown>;
+    /** The secret the fake app verifies with, when it is not the one the gateway signs with. */
+    verifySecret?: string;
+    /** `{app: "app-2"}` (the harness's second app) or `{message}`. */
+    fallback?: { app?: string; message?: string };
     speech?: Record<string, unknown>;
+    /** Audio filters the gateway applies to caller audio (`conformance-mute` silences it). */
+    filters?: { name: string; options?: Record<string, unknown> }[];
+    /** The app's workspace (Twilio's accountSid). */
+    workspaceRef?: string;
+  };
+  /** A listen-only socket on the harness's second app; `peer` says which socket the runner plays. */
+  listener?: {
+    tracks?: "inbound" | "outbound" | "both";
+    peer?: "app" | "listener";
   };
   providers?: Providers;
   callerAudio?: AudioSource;

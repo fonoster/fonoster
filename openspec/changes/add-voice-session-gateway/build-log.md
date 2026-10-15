@@ -484,3 +484,38 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   only PCMU, PCMA, G.722 or Opus through the real node: negotiated codec as offered, gateway leg
   `L16/16000`, the caller's tone reaches a pcm16 app and the app's speech reaches the caller.
 - `docs/operators/cutover.md` codec row updated.
+## 2026-10-15 (evals stream: scenario files for every spec scenario)
+
+### EV-B2. The rest of the voice-session and twilio scenarios as files (1.2)
+
+- 22 voice-session and 3 twilio files added (mods/conformance/scenarios); all pass on the fake
+  node (`mods/gateway/test/conformance.test.ts`). Every new voice-session file also passes on the
+  Go node (`gonode.test.ts`) except the two outbound ones, skipped there with a reason: the
+  real-media harness has no callee bot that answers the node's INVITE yet.
+- Format grew (additive, `fonoster.scenario.v1`): `setup.call.callRef`; `setup.app.verifySecret`
+  (the secret the fake app checks, for rotations), `fallback` (`{app: app-2}` or `{message}`),
+  `filters`, `workspaceRef`; `setup.listener` (`tracks`, `peer`). Assertions: `record.messages.<type>`
+  (any source, with `source` and `at`), `webhooks.events`, `app.attempts`, `app.text_frames`,
+  `other_app.messages`, `other_app.audio_tracks`, `providers.tts.voices`. Documented in
+  SCENARIOS.md; the JSON Schema has the setup keys.
+- Runners configure a second app, `app-2`, served by the harness (fallback, handoff, routing
+  target, listener). The runner plays whichever app the gateway reaches first; a call set up never
+  to reach an app gets a `DetachedPeer` (no socket), so those scenarios only wait and assert.
+  Every runner registers the filter `conformance-mute` (silences every frame), so "Filter
+  configured" is checked by its effect: a caller tone over the agent is not a barge-in.
+- Outbound calls in the gateway runner go through `gateway.outbound` as the control plane places
+  them (`test/scenarioApps.ts`, shared by both runners with the app config and record readers).
+- Not expressible in the format (each tested elsewhere):
+  - "Autopilot is an ordinary app": to the gateway Autopilot is just an app URL; the proof is that
+    the autopilot contract scenarios run Autopilot on the same session protocol.
+  - "Stale timestamp": an app-side rule (the app refuses), and the gateway cannot be made to sign
+    stale; the SDKs test it (`mods/voice/test/VoiceServer.test.ts`, python `test_server.py`).
+  - "Legacy gRPC voice apps are not dialed": the rebuild has no gRPC endpoint field; a non-ws URL
+    is refused when apps load (`config.test.ts`), so there is no call to script.
+  - Twilio "Call already ended" and "Pipecat auto_hang_up with base_url": HTTP calls to the Calls
+    endpoint, which the format has no action for (`config.test.ts`, `pipecat.test.ts`).
+  - Twilio "Pipecat golden call": needs the unmodified Pipecat bot (`pipecat.test.ts`,
+    `python/pipecat-golden`).
+- Partial by nature: "Agent audio" (twilio) checks the amount and pace, not the order of what the
+  caller hears; "Busy callee" checks the record, not the reply to the API caller; "Filter
+  configured" does not see the 500 ms kept before speech.

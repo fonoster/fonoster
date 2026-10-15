@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: record-note
+contract: voice-session
+role: app
+spec: "Apps can annotate the call record / Autopilot records a turn trace"
+description: A record.note lands in the call record and has no other effect on the session.
+steps:
+  - expect: { type: session.start }
+  - send: { type: record.note, data: { kind: turn, firstTokenMs: 420 } }
+  - expect_none: { type: "*" }
+    for_ms: 300
+  - assert:
+      record.messages.record.note:
+        - { source: app, at: { $gt: 0 }, data: { kind: turn, firstTokenMs: 420 } }
+      media.commands: { $excludes: [{ type: record.note }, { data: "*" }] }

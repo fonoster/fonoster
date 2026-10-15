@@ -1,0 +1,93 @@
+/**
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { testCasesSchema } from "@fonoster/common";
+import {
+  OPENAI_COMPATIBLE,
+  OpenAiCompatibleThink
+} from "@fonoster/community/openai";
+import { SessionAssistant } from "../../../session/config";
+import { Think } from "../../../session/think";
+import { createTestTextSimilarity } from "../createTestTextSimilarity";
+import { textSimilaryPrompt } from "../textSimilaryPrompt";
+import { EvalScenario, RunEvalCallbacks } from "../types";
+import {
+  evaluateSessionScenario,
+  SessionEvalOptions,
+  SessionScenarioReport
+} from "./evaluateSessionScenario";
+
+export type RunSessionEvalOptions = Omit<
+  SessionEvalOptions,
+  "testTextSimilarity"
+> & {
+  /** Defaults to the OpenAI similarity judge from the assistant's testCases. */
+  testTextSimilarity?: SessionEvalOptions["testTextSimilarity"];
+  /** The judge's key (the testCases model is always OpenAI). */
+  evaluationApiKey?: string;
+};
+
+/**
+ * The session-engine Think for an assistant whose catalog provider speaks OpenAI-compatible Chat
+ * Completions with a known endpoint (openai, groq, ollama); undefined otherwise.
+ */
+export function sessionThinkFor(
+  assistant: SessionAssistant,
+  apiKey: string | undefined
+): Think | undefined {
+  const id = assistant.languageModel.model;
+  const slash = id.indexOf("/");
+  const baseUrl = OPENAI_COMPATIBLE[id.slice(0, slash)];
+  if (!baseUrl) return undefined;
+  return new OpenAiCompatibleThink({ baseUrl, apiKey }, id.slice(slash + 1), {
+    temperature: assistant.languageModel.temperature,
+    maxTokens: assistant.languageModel.maxTokens
+  });
+}
+
+/** Runs every test-case scenario through the session engine, streaming results. */
+export async function runSessionEval(
+  options: RunSessionEvalOptions,
+  callbacks?: Partial<RunEvalCallbacks>
+): Promise<SessionScenarioReport[]> {
+  const testCases = testCasesSchema.parse(options.assistant.testCases);
+  const testTextSimilarity =
+    options.testTextSimilarity ??
+    createTestTextSimilarity(
+      {
+        provider: testCases.evalsLanguageModel.provider,
+        model: testCases.evalsLanguageModel.model,
+        apiKey: options.evaluationApiKey ?? testCases.evalsLanguageModel.apiKey
+      },
+      testCases.evalsSystemPrompt || textSimilaryPrompt
+    );
+  const reports: SessionScenarioReport[] = [];
+  for (const scenario of testCases.scenarios as EvalScenario[]) {
+    const report = await evaluateSessionScenario(
+      { ...options, testTextSimilarity },
+      scenario,
+      callbacks?.onStepResult
+    );
+    reports.push(report);
+    await callbacks?.onScenarioComplete?.(
+      report.scenarioRef,
+      report.overallPassed
+    );
+  }
+  return reports;
+}

@@ -1,158 +1,18 @@
-# Control plane, SIP edge and data stores. Calls are answered by the Go media nodes and the
-# VoiceSessionGateway, which run from ops/rebuild/compose.yaml (docs/operators/rebuild.md);
-# Asterisk is retired.
-services:
-  dashboard:
-    image: fonoster/dashboard:0.26.0
-    restart: unless-stopped
-    expose:
-      - 3030
-    # The only setting; sign-in methods and the rest come from the API.
-    environment:
-      - DASHBOARD_API_URL
-
-  apiserver:
-    image: fonoster/apiserver:0.26.0
-    restart: unless-stopped
-    # The API server reads config/fonoster.yaml, not environment variables.
-    # .env is passed only so ${VAR} references in that file resolve values it
-    # shares with Postgres, InfluxDB and the media nodes.
-    env_file: .env
-    expose:
-      - 50051
-    volumes:
-      - ./config/fonoster.yaml:/opt/fonoster/fonoster.yaml:ro
-      - ./config/keys:/opt/fonoster/keys:ro
-
-  # The hosted Autopilot session engine: a session app the gateway dials. It reads
-  # config/autopilot-session.yaml only; scale replicas freely.
-  autopilot:
-    image: fonoster/autopilot:0.26.0
-    restart: unless-stopped
-    expose:
-      - 50061
-    volumes:
-      - ./config/autopilot-session.yaml:/etc/fonoster/autopilot-session.yaml:ro
-
-  routr:
-    image: fonoster/routr-one:2.15.1
-    restart: unless-stopped
-    labels:
-      - "autoheal=true"
-    environment:
-      DATABASE_URL: ${ROUTR_DATABASE_URL}
-      EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS}
-      LOGS_FORMAT: ${ROUTR_LOGS_FORMAT}
-      LOGS_LEVEL: ${ROUTR_LOGS_LEVEL}
-      LOGS_TRANSPORT: ${ROUTR_LOGS_TRANSPORT}
-      NATS_PUBLISHER_ENABLED: true
-      NATS_PUBLISHER_URL: ${ROUTR_NATS_PUBLISHER_URL}
-      RTPENGINE_HOST: ${ROUTR_RTPENGINE_HOST}
-      START_INTERNAL_DB: "false"
-      CONNECT_VERIFIER_PUBLIC_KEY_PATH: /etc/routr/keys/public.pem
-    expose:
-      - 51907
-      - 51908
-    ports:
-      - 5060:5060/udp
-      - 5060-5063:5060-5063
-    # Add this healthcheck along with the autoheal container as we are having issues with Routr crashing out.
-    # We will need a proper fix for this before we can remove this healthcheck.
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          'printf "REGISTER sip:localhost SIP/2.0\r\nVia: SIP/2.0/UDP 127.0.0.1:5061;branch=z9hG4bKhealth\r\nFrom: <sip:health@localhost>;tag=1234\r\nTo: <sip:health@localhost>\r\nCall-ID: health-$$@localhost\r\nCSeq: 1 REGISTER\r\nMax-Forwards: 70\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nping" | nc -u -w 1 127.0.0.1 5060 | grep -Eq "^SIP/2.0"'
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-      start_period: 15s
-    volumes:
-      - ./config/keys/public.pem:/etc/routr/keys/public.pem
-
-  # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
-  # is not possible in Docker, we need to use network_mode: host.
-  #
-  # Unfortunately, network_mode: host is not supported for Windows or Mac.
-  # In those cases, we need to use a different approach.
-  #
-  # By default we are opening a small range of ports (10000-10100) to handle RTP traffic.
-  # However, this is not enough for production environments.
-  #
-  # We recommend that when using Linux you use network_mode: host and remove the ports section.
-  rtpengine:
-    image: fonoster/rtpengine:0.3.17
-    restart: unless-stopped
-    platform: linux/x86_64
-    ports: 
-      - 10000-10100:10000-10100/udp
-      - 8080:8080
-    environment:
-      PORT_MAX: ${RTPENGINE_PORT_MAX}
-      PORT_MIN: ${RTPENGINE_PORT_MIN}
-      PUBLIC_IP: ${RTPENGINE_PUBLIC_IP}
-
-  postgres:
-    image: postgres:16.10-alpine3.22
-    restart: unless-stopped
-    environment:
-      PGTZ: UTC
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_USER: ${POSTGRES_USER}
-      TZ: UTC
-    expose:
-      - 5432
-    volumes:
-      - db:/var/lib/postgresql/data
-
-  influxdb:
-    image: influxdb:2.7
-    restart: unless-stopped
-    expose:
-      - 8086
-    environment:
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_INIT_TOKEN}
-      DOCKER_INFLUXDB_INIT_BUCKET: calls
-      DOCKER_INFLUXDB_INIT_RETENTION: 720h
-      DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_INIT_ORG}
-      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_INIT_PASSWORD}
-      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_INIT_USERNAME}
-    volumes:
-      - influxdb:/var/lib/influxdb2
-
-  nats:
-    image: nats:2.11.8
-    restart: unless-stopped
-    expose:
-      - 4222
-
-  envoy:
-    image: envoyproxy/envoy:v1.35.0
-    restart: unless-stopped
-    volumes:
-      - ./config/envoy.yaml:/etc/envoy/envoy.yaml:ro
-      # If using letsencrypt, you need to mount the letsencrypt directory
-      # by uncommenting the following line and changing the domain name to match your domain.
-      #
-      # Symbolic links will not work here!!!
-      #
-      # - ./path/to/letsencrypt:/etc/letsencrypt:ro
-    ports:
-      - 8449:8449
-      # If using letsencrypt, you need to expose port 443 and remove the default HTTP port (8449)
-      # - 443:443
-
-  autoheal:
-    image: willfarrell/autoheal:latest
-    restart: unless-stopped
-    environment:
-      - AUTOHEAL_CONTAINER_LABEL=autoheal
-      - AUTOHEAL_INTERVAL=10
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
-volumes:
-  db:
-  influxdb:
+# Fonoster on Docker Compose: the platform stack in ops/rebuild/compose.yaml (NATS with JetStream,
+# Postgres, Routr, RTPEngine, the Go media node, the VoiceSessionGateway, MinIO, the apiserver,
+# Envoy, the dashboard; profiles autopilot, fakes, tools, regions, observability, analytics).
+# Asterisk and InfluxDB are gone.
+#
+# The easy way, which generates configs, keys and secrets and runs that file:
+#
+#   ops/rebuild/stack up                       # docs/try-the-new-platform.md
+#
+# Running this file directly needs the same inputs the stack generates (operator guide:
+# docs/operators/rebuild.md):
+#
+#   docker compose --env-file ops/rebuild/.local/stack.env --profile autopilot up -d
+#
+# Developer services for running the TypeScript services from source: compose.dev.yaml.
+include:
+  - path: ops/rebuild/compose.yaml
+    project_directory: ops/rebuild

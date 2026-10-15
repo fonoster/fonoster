@@ -21,10 +21,12 @@ import {
   sessionAssistantSchema
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { StepEvaluationReport } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Struct, struct } from "pb-util";
 import { createEvalEffectiveConfig } from "./createEvalEffectiveConfig";
 import { runEval } from "./runEval";
+import { runSessionEval, sessionThinkFor } from "./session";
 import {
   evalErrorToEventPayload,
   scenarioSummaryToEventPayload,
@@ -81,27 +83,31 @@ function createEvaluateIntelligence(keys: EvalKeySource) {
           "no openai key for the evaluation model (workspace or platform)"
         );
 
+      const callbacks = {
+        onStepResult: (
+          scenarioRef: string,
+          stepReport: StepEvaluationReport
+        ) => {
+          call.write(stepReportToEventPayload(scenarioRef, stepReport));
+        },
+        onScenarioComplete: (scenarioRef: string, overallPassed: boolean) => {
+          call.write(scenarioSummaryToEventPayload(scenarioRef, overallPassed));
+        }
+      };
+
+      // The session engine (streaming replies, structured tool messages) for OpenAI-compatible
+      // providers; the LangChain path stays for the rest until their adapters land (EV-B1).
+      const think = sessionThinkFor(assistant, apiKey);
+      if (think) {
+        await runSessionEval({ assistant, think, evaluationApiKey }, callbacks);
+        return;
+      }
+
       const effectiveConfig = createEvalEffectiveConfig(assistant, {
         apiKey,
         evaluationApiKey
       });
-
-      await runEval(
-        { intelligence: { config: effectiveConfig } },
-        {
-          onStepResult: (scenarioRef, stepReport) => {
-            const payload = stepReportToEventPayload(scenarioRef, stepReport);
-            call.write(payload);
-          },
-          onScenarioComplete: (scenarioRef, overallPassed) => {
-            const payload = scenarioSummaryToEventPayload(
-              scenarioRef,
-              overallPassed
-            );
-            call.write(payload);
-          }
-        }
-      );
+      await runEval({ intelligence: { config: effectiveConfig } }, callbacks);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       call.write(evalErrorToEventPayload(message));

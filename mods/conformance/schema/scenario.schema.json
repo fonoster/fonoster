@@ -103,6 +103,10 @@
             },
             "metadata": {
               "type": "object"
+            },
+            "callRef": {
+              "type": "string",
+              "description": "The callRef the media node gives the call (Twilio's callSid)"
             }
           }
         },
@@ -125,12 +129,48 @@
             "reachable": {
               "type": "boolean"
             },
+            "verifySecret": {
+              "type": "string",
+              "description": "The secret the fake app verifies signatures with when it differs from signingSecret (the gateway's): a rotation the app has not picked up"
+            },
             "fallback": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": false,
+              "description": "app: the harness's second app (app-2); message: spoken before the hangup",
+              "properties": {
+                "app": { "const": "app-2" },
+                "message": { "type": "string" }
+              }
             },
             "speech": {
               "type": "object"
+            },
+            "filters": {
+              "type": "array",
+              "description": "Audio filters for caller audio; every runner registers conformance-mute, which silences every frame",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "options": { "type": "object" }
+                }
+              }
+            },
+            "workspaceRef": {
+              "type": "string",
+              "description": "The app's workspace (Twilio's accountSid)"
             }
+          }
+        },
+        "listener": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "voice-session: a listen-only socket on the harness's second app; peer is the socket the runner plays (default app)",
+          "properties": {
+            "tracks": { "enum": ["inbound", "outbound", "both"] },
+            "peer": { "enum": ["app", "listener"] }
           }
         },
         "providers": {

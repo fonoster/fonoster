@@ -36,22 +36,27 @@ import {
   wavChannels
 } from "@fonoster/callrecord";
 import { expect } from "chai";
+import { Webhooks } from "@fonoster/common";
 import { connect, NatsConnection } from "nats";
 import { GatewayConfig } from "../src/config";
 import { Gateway } from "../src/Gateway";
 import { MemoryCallRecordSink } from "../src/record/CallRecordSink";
 import { catalogFor } from "./scenarioCatalog";
+import { appsFor, recordReaders } from "./scenarioApps";
 
 // The voice-session suite through the gateway, the Go media node and a SIP caller bot: real SIP,
 // RTP and media-control end to end (add-media-node 3.x, the first-call milestone). Needs NATS
 // (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
-const SECRET = "conformance-secret";
 
 // Node features not built yet, and assertions only the fake node can make.
 const NOT_YET: Record<string, string> = {
   "media-timeout-ends-session":
-    "drop is a fake-node action (the real timeout is 30 s)"
+    "drop is a fake-node action (the real timeout is 30 s)",
+  "outbound-answered":
+    "outbound calls need a callee bot answering the node's INVITE (not in the real-media harness)",
+  "outbound-busy":
+    "outbound calls need a callee bot answering the node's INVITE (not in the real-media harness)"
 };
 
 function configFor(
@@ -63,15 +68,7 @@ function configFor(
     nats: { url: NATS_URL! },
     testMode: true,
     retry: { windowMs: 600, intervalMs: 100 },
-    apps: [
-      {
-        ref: "app-1",
-        url: harness.app.url,
-        flavor: "native",
-        signingSecret: scenario.setup?.app?.signingSecret ?? SECRET,
-        speech: { voice: "fake/default", language: "en-US" }
-      }
-    ],
+    apps: appsFor(scenario, harness, "native"),
     providers: {
       fake: {
         adapter: "fake",
@@ -105,19 +102,18 @@ describe("@gateway voice-session through the Go media node", function () {
     it(scenario.name, async function () {
       if (NOT_YET[scenario.name]) return this.skip();
       const record = new MemoryCallRecordSink();
+      const webhooks: Webhooks.WebhookEvent[] = [];
       const harness = await new RealMediaHarness(nc, bins!, {
         vendorCalls: () => 0,
-        recordEvents: (type) =>
-          [...record.records.values()]
-            .flat()
-            .filter((e) => e.source === "event" && e.message.type === type)
-            .map((e) => e.message as Record<string, unknown>)
+        ...recordReaders(record),
+        webhookEvents: () => webhooks.map((e) => ({ type: e.type, ...e.data }))
       }).start();
       const gateway = await new Gateway({
         config: configFor(scenario, harness),
         registryStore: catalogFor(scenario),
         nats: nc,
-        record
+        record,
+        webhooks: (e) => webhooks.push(e)
       }).start();
       try {
         const result = await runScenario(scenario, {

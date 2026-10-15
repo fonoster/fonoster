@@ -22,6 +22,8 @@ RB_MINIO_CONSOLE_PORT=16901
 RB_GRAFANA_PORT=16300
 RB_OTLP_HTTP_PORT=16318
 RB_CALLER_PORT=16080
+# ClickHouse's HTTP interface (profile analytics: RB_PROFILES=autopilot,fakes,tools,regions,analytics).
+RB_CLICKHOUSE_PORT=16123
 # RTPEngine (carrier and softphone media) and the media node's RTP range.
 RTPENGINE_PORT_MIN=16100
 RTPENGINE_PORT_MAX=16199

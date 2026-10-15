@@ -1,0 +1,12 @@
+format: fonoster.scenario.v1
+name: app-drops-mid-call
+contract: voice-session
+role: app
+spec: "Session ending / App drops mid-call"
+steps:
+  - expect: { type: session.start }
+  - close: {}
+  - wait: { ms: 300 }
+  - assert:
+      media.commands: { $includes: [{ type: hangup }] }
+      record.messages.app.dropped: { $includes: [{}] }

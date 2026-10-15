@@ -131,15 +131,23 @@ scenario rather than ignoring it.
 
 | Key | Meaning |
 | --- | --- |
-| `call` | The call the fake media node offers to the gateway: `direction`, `from`, `to`, `metadata`. |
-| `app` | The app record: `flavor`, `signingSecret`, `verifySignature`, `reachable`, `fallback`, `speech`. |
+| `call` | The call the fake media node offers to the gateway: `direction`, `from`, `to`, `metadata`, `callRef`. With `direction: outbound` the runner places the call as the control plane does and the app's socket opens when the callee answers (`media.dialOutcome`). |
+| `app` | The app under test (`app-1`): `flavor`, `signingSecret` (what the gateway signs with), `verifySignature`, `verifySecret` (what the fake app checks, when a rotation has not reached it), `reachable`, `fallback` (`{app: app-2}` or `{message}`), `speech`, `filters`, `workspaceRef` (both apps' workspace; Twilio's `accountSid`). |
+| `listener` | `voice-session`: a listen-only socket on `app-2` with `tracks`; `peer: listener` makes the runner play the listener while `app-1` stays silent. |
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake media node plays as the caller once the call is answered. |
 | `assistant` | `autopilot` only: the assistant config Autopilot runs for this scenario. |
 | `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
 | `catalog` | `voice-session` only: the provider catalog the gateway resolves ids with. The runner registers the `fake` provider, a TTS model and `fake/default`, then each listed voice (`{id, state, replacement}`), deprecating or retiring it as `state` says. |
 
-### Fake provider behaviour
+#Besides the app under test (`app-1`), voice-session runners configure a second app, `app-2`,
+served by the harness: the target of `fallback`, `handoff` and routing (`media.appRef: app-2`), and
+the listen-only socket. The runner plays whichever app the gateway reaches first. A call set up
+never to reach an app (unreachable or refusing app without `fallback.app`, busy or unanswered
+outbound callee) gives the runner no socket: such scenarios use only `wait`, `caller` and `assert`.
+Every runner registers the audio filter `conformance-mute`, which silences every caller frame.
+
+## Fake provider behaviour
 
 | Key | Meaning |
 | --- | --- |
@@ -176,6 +184,13 @@ matcher, compared with what the harness measured.
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
 | `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |
 | `record.events.<type>` | the call record's gateway events of that type, e.g. `record.events.turn.label` (needs a harness that can read the record) |
+| `record.messages.<type>` | the call record's entries of that type from any source (app commands, gateway messages, events), each with `source` and `at`, e.g. `record.messages.record.note` |
+| `webhooks.events` | the lifecycle events the gateway handed to the webhook dispatcher, in order, each as `{type, ...data}` |
+| `app.attempts` | `app-1`'s connection attempts, each `{accepted, reason?}` (refused signatures show as `accepted: false`) |
+| `app.text_frames` | text frames `app-1` received that were not JSON objects (always `0` in the native flavor) |
+| `other_app.messages` | every JSON message `app-2` received (fallback, handoff target or listener) |
+| `other_app.audio_tracks` | the distinct track ids (first byte) of the binary frames `app-2` received, sorted |
+| `providers.tts.voices` | the voice each fake TTS request named, in order |
 | `tools.calls` | names of the fake tools called (`${media}/tool/hours` answers `{"open":"9"}`, `${media}/tool/error` fails) |
 
 A runner that does not know an assertion name fails the step; it never passes it silently.

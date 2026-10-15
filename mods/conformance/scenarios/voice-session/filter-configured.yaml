@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: filter-configured
+contract: voice-session
+role: app
+spec: "Audio filters come from app configuration / Filter configured"
+description: >
+  With conformance-mute (silences every frame) the caller's tone never reaches turn detection, so
+  speaking over the agent is not a barge-in.
+setup:
+  app: { filters: [{ name: conformance-mute }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "The caller cannot be heard while this filter is on, however loud they are.", last: true }
+  - expect: { type: output.started, id: r1 }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect_none: { type: turn.user_started }
+    for_ms: 1500

@@ -90,7 +90,7 @@ jobs:
           yq -i '.smtp = {"host": "mailhog", "port": 1025, "secure": false, "sender": "Fonoster <no-reply@fonoster.local>"}' config/fonoster.yaml
           # The SDK tests create users, which needs open sign-up.
           yq -i '.features.auth.signup = "open"' config/fonoster.yaml
-          docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver mailhog
+          docker compose -f compose.dev.yaml up -d envoy routr nats postgres apiserver mailhog
 
       - name: Waiting for services to be ready
         run: |
@@ -120,4 +120,4 @@ jobs:
 
       - name: Apiserver logs (on failure)
         if: failure()
-        run: docker compose -f compose.yaml -f compose.dev.yaml logs apiserver
+        run: docker compose -f compose.dev.yaml logs apiserver
