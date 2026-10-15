@@ -18,7 +18,7 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { CellSecrets, Registry } from "@fonoster/common";
+import { CellSecrets, Registry, resolveSecretRefs } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceServer } from "@fonoster/voice";
 import * as yaml from "js-yaml";
@@ -146,7 +146,10 @@ function readStructured(file: string): unknown {
 }
 
 export function loadHostedConfig(file: string): HostedConfig {
-  const config = hostedConfigSchema.parse(readStructured(file));
+  // secret:// references (D8) resolve before validation.
+  const config = hostedConfigSchema.parse(
+    resolveSecretRefs(readStructured(file) ?? {})
+  );
   const dir = path.dirname(file);
   const rel = (p: string) => (path.isAbsolute(p) ? p : path.join(dir, p));
   const withFile = <T extends object>(c: T): T =>

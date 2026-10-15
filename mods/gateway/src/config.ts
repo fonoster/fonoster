@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import * as fs from "fs";
+import { resolveSecretRefs } from "@fonoster/common";
 import { parse } from "yaml";
 import { isDetectorChoice } from "./turn/createDetector";
 import type { ObjectStoreConfig } from "@fonoster/callrecord";
@@ -294,7 +295,10 @@ export function validateConfig(config: GatewayConfig): string[] {
 
 /** Loads the gateway's YAML config (one YAML file per service, PL5). */
 export function loadConfig(file: string): GatewayConfig {
-  const config = parse(fs.readFileSync(file, "utf8")) as GatewayConfig;
+  // secret:// references (D8) resolve before validation; errors name the key, not the value.
+  const config = resolveSecretRefs(
+    parse(fs.readFileSync(file, "utf8")) ?? {}
+  ) as GatewayConfig;
   const problems = validateConfig(config);
   if (problems.length)
     throw new Error(

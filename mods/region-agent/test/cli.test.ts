@@ -103,6 +103,27 @@ describe("@region-agent fonoster-region CLI", function () {
     expect(err?.message).to.match(/invalid secret name/);
   });
 
+  it("resolves secret:// references in the agent config (D8)", function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "agent-secret-"));
+    const file = path.join(dir, "region-agent.yaml");
+    fs.writeFileSync(
+      file,
+      fs
+        .readFileSync(
+          path.join(
+            __dirname,
+            "../../../ops/rebuild/cell/config/region-agent.yaml"
+          ),
+          "utf8"
+        )
+        .replace("ws://autopilot:3000", "secret://file" + path.join(dir, "ap"))
+    );
+    fs.writeFileSync(path.join(dir, "ap"), "ws://secret-autopilot:3000\n");
+    expect(loadAgentConfig(file).autopilot?.url).to.equal(
+      "ws://secret-autopilot:3000"
+    );
+  });
+
   it("loads the Compose cell's agent config", function () {
     const c = loadAgentConfig(
       path.join(__dirname, "../../../ops/rebuild/cell/config/region-agent.yaml")

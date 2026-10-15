@@ -24,6 +24,10 @@
  *
  *   node dist/bin/entrypoint.js [--config /opt/fonoster/fonoster.yaml]
  *                               [--migrations-root /service]
+ *                               [--migrate-only | --skip-migrations]
+ *
+ * --migrate-only applies the migrations and the seed, then exits (the Helm migrations Job);
+ * --skip-migrations serves right away (replicas behind that Job).
  */
 import { spawnSync } from "child_process";
 import { createConnection } from "net";
@@ -37,6 +41,8 @@ const flag = (name: string, fallback: string) => {
 };
 
 const migrationsRoot = flag("--migrations-root", "/service");
+const migrateOnly = argv.includes("--migrate-only");
+const skipMigrations = argv.includes("--skip-migrations");
 const WAIT_TIMEOUT_MS = 30_000;
 
 function waitForTcp(host: string, port: number, timeoutMs: number) {
@@ -89,6 +95,11 @@ async function main() {
   const config = getConfig();
   const identity = getIdentityConfig();
 
+  if (skipMigrations) {
+    await import("../index");
+    return;
+  }
+
   const db = new URL(config.database.url);
   await waitForTcp(db.hostname, Number(db.port || 5432), WAIT_TIMEOUT_MS);
 
@@ -121,6 +132,11 @@ async function main() {
       APISERVER_DATABASE_URL: config.database.url
     }
   );
+
+  if (migrateOnly) {
+    console.log("migrations and seed applied");
+    process.exit(0);
+  }
 
   await import("../index");
 }

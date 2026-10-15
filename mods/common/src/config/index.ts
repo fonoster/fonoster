@@ -23,4 +23,5 @@ export * from "./loadServiceConfig";
 export * from "./logsSchema";
 export * from "./parseConfigFile";
 export * from "./resolveConfigFile";
+export * from "./resolveSecretRefs";
 export * from "./strictDeep";

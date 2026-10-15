@@ -20,7 +20,7 @@ import * as http from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
 import { NatsConnection } from "nats";
-import { GatewayConfig, validateConfig } from "../src";
+import { GatewayConfig, loadConfig, providerKey, validateConfig } from "../src";
 import {
   configPairAuthenticator,
   createHangupHandler,
@@ -196,5 +196,36 @@ describe("@gateway/call-record key set", function () {
     ]);
     expect(JSON.stringify(set)).to.not.contain('"d"');
     expect(Object.keys(keyHistoryFromSet(set))).to.have.length(2);
+  });
+
+  it("resolves secret:// references when loading the file (D8)", function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gw-secret-"));
+    fs.mkdirSync(path.join(dir, "fonoster-deepgram"));
+    fs.writeFileSync(path.join(dir, "fonoster-deepgram", "key"), "dg-secret\n");
+    const file = path.join(dir, "gateway.yaml");
+    fs.writeFileSync(
+      file,
+      [
+        "nats: { url: nats://x }",
+        "testMode: true",
+        "providers:",
+        "  deepgram:",
+        "    adapter: deepgram",
+        "    capabilities: [stt]",
+        "    credential: { value: secret://k8s/fonoster/fonoster-deepgram#key }"
+      ].join("\n")
+    );
+    const prev = process.env.FONOSTER_SECRETS_DIR;
+    process.env.FONOSTER_SECRETS_DIR = dir;
+    try {
+      const config = loadConfig(file);
+      expect(providerKey(config.providers.deepgram)).to.equal("dg-secret");
+    } finally {
+      if (prev === undefined) delete process.env.FONOSTER_SECRETS_DIR;
+      else process.env.FONOSTER_SECRETS_DIR = prev;
+    }
+    expect(() => loadConfig(file)).to.throw(
+      /providers\.deepgram\.credential\.value: secret:\/\/k8s\/fonoster\/fonoster-deepgram#key: cannot read/
+    );
   });
 });
