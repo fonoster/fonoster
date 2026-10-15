@@ -32,3 +32,5 @@
 - [ ] 3.2 Migration guide: raw gRPC voice apps, removed verbs (`record`, `setAudioFilters`, `mute`, `unmute`)
 - [x] 3.3 Docs: session protocol reference (both flavors), Pipecat guide (`base_url`, socket close)
 - [ ] 3.4 Release notes marking the BREAKING changes
+- [x] 3.5 Application migration: legacy Application rows to the app model (URL, flavor, signing secret, speech, fallback); Autopilot apps to the hosted Autopilot (CO-B7)
+- [x] 3.6 Cutover runbook: side-by-side routing per app and per number, rollback, Asterisk retirement (`docs/operators/cutover.md`, CO-B8)

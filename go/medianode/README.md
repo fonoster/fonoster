@@ -15,7 +15,7 @@ participants (mix-minus), driven by the VoiceSessionGateway over **media-control
 | `hold` / `resume` by mixing, hold music from a PCM16 WAV URL | done |
 | `participant.left` / `room.ended` reasons, media timeout (30 s), maximum duration (4 h) | done |
 | `node.heartbeat` every 2 s, drain on SIGTERM, `node.down` | done |
-| REGISTER to Routr with `X-Session-Count` (re-registers on load changes) | done, not yet tried against Routr |
+| REGISTER to Routr with `X-Session-Count` (re-registers on load changes and drain, unregisters on exit) | done, verified against Routr 2.15.1 (`docs/operators/routr-live-test.md`) |
 | `participant.dial` and cold, warm and refer transfers through an outbound proxy (`-outbound-proxy`, Routr in production) | done |
 | Debug endpoint (`-debug host:port`, `GET /rooms`) for tests and operators | done |
 | `listener.attach` / `listener.detach`: one unmixed RTP stream per selected track | done |
