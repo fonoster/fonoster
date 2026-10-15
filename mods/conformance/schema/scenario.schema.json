@@ -340,6 +340,10 @@
               "$ref": "#/definitions/audioSource"
             }
           }
+        },
+        "next": {
+          "const": true,
+          "description": "expect only: the match must be the next unconsumed JSON frame (no skipping)"
         }
       },
       "additionalProperties": false,

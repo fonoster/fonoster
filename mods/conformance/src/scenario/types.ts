@@ -102,6 +102,7 @@ export type Step = Timing & {
   assert?: Record<string, unknown>;
   close?: { code?: number; reason?: string };
   caller?: CallerAction;
+  next?: true;
 };
 
 export type Scenario = {

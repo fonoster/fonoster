@@ -91,7 +91,8 @@ consumes the first one that does, so two consecutive `expect` steps prove the se
 after the first. Frames whose `type` (or Twilio `event`) is listed in `ignore` are never matched.
 Binary frames are counted for `expect_audio` and never matched by `expect`.
 
-A frame consumed by one `expect` cannot satisfy a later one.
+A frame consumed by one `expect` cannot satisfy a later one. With `next: true`, an `expect` does not
+skip: the next unconsumed JSON frame (ignored types aside) must match.
 
 ## Timing
 

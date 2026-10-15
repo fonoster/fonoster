@@ -353,6 +353,7 @@ class Run {
           if (type && this.ignore.has(type)) continue;
           const r = match(pattern, frame.data);
           if (r.ok) return { index: scanned, frame };
+          if (step.next) return { index: scanned, frame, mismatch: r.reason };
           if (
             type !== undefined &&
             type === this.typeOf(pattern as Record<string, unknown>)
@@ -373,6 +374,11 @@ class Run {
       );
     }
 
+    if ("mismatch" in found) {
+      throw new StepFailure(
+        `the next frame did not match: ${JSON.stringify(found.frame.data)} (${found.mismatch})`
+      );
+    }
     this.cursor = found.index + 1;
     this.checkTiming(index, step, anchor, found.frame.at);
 

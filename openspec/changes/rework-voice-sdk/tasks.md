@@ -1,31 +1,31 @@
-> Build deferred: do not start until the owner approves the build.
+> Build started 2026-10-15 under the owner's overnight go-ahead. Decisions: see build-log.md.
 
 # Tasks
 
 ## 1. Conformance assets
 
-- [ ] 1.1 Write language-neutral SDK scenario files covering every scenario in
+- [x] 1.1 Write language-neutral SDK scenario files covering every scenario in
       `specs/voice-sdk/spec.md` (format defined by `add-conformance-framework`)
-- [ ] 1.2 Add a scripted fake gateway that plays scenario files to an SDK and records the
+- [x] 1.2 Add a scripted fake gateway that plays scenario files to an SDK and records the
       messages it receives
-- [ ] 1.3 Add signature fixtures: valid, wrong secret, missing, stale timestamp
+- [x] 1.3 Add signature fixtures: valid, wrong secret, missing, stale timestamp
 
 ## 2. TypeScript SDK (`mods/voice`)
 
-- [ ] 2.1 Replace the gRPC server with a WebSocket `VoiceServer` (standalone and Express
+- [x] 2.1 Replace the gRPC server with a WebSocket `VoiceServer` (standalone and Express
       middleware) that verifies signed connections
-- [ ] 2.2 Implement the session object: message encoding, command ids, event dispatch,
+- [x] 2.2 Implement the session object: message encoding, command ids, event dispatch,
       `SessionError` and `SessionEndedError`
-- [ ] 2.3 Implement `say(text)`, `say(stream)`, `stopSay`, `play`, `playDtmf`, `transfer`, `hold`,
+- [x] 2.3 Implement `say(text)`, `say(stream)`, `stopSay`, `play`, `playDtmf`, `transfer`, `hold`,
       `resume`, `handoff`, `hangup`, `subscribe`, `on`
-- [ ] 2.4 Implement `gather` from `turn.ended` and `dtmf` (source, maxDigits, finishOnKey,
+- [x] 2.4 Implement `gather` from `turn.ended` and `dtmf` (source, maxDigits, finishOnKey,
       timeout)
-- [ ] 2.5 Implement `session.audio` (`onFrame`, `send`, `mark`, `clear`)
-- [ ] 2.6 Implement the `(req, res)` wrapper, `answer()` no-op, `dial` alias and the explicit
+- [x] 2.5 Implement `session.audio` (`onFrame`, `send`, `mark`, `clear`)
+- [x] 2.6 Implement the `(req, res)` wrapper, `answer()` no-op, `dial` alias and the explicit
       `signature: "legacy"` override
-- [ ] 2.7 Remove `record`, `setAudioFilters`, `mute`, `unmute` from types; runtime errors naming
+- [x] 2.7 Remove `record`, `setAudioFilters`, `mute`, `unmute` from types; runtime errors naming
       the replacement
-- [ ] 2.8 Pass every SDK scenario against the fake gateway
+- [x] 2.8 Pass every SDK scenario against the fake gateway
 
 ## 3. Python SDK (new package)
 

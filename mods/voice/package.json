@@ -29,11 +29,14 @@
     "deepmerge": "^4.3.1",
     "grpc-health-check": "^2.0.2",
     "pb-util": "^1.0.3",
+    "ws": "^8.18.0",
     "zod": "^3.23.8",
     "zod-validation-error": "^3.3.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "session.d.ts",
+    "session.js"
   ],
   "publishConfig": {
     "access": "public"
@@ -45,5 +48,8 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579"
+  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
+  "devDependencies": {
+    "@fonoster/conformance": "^0.27.0"
+  }
 }

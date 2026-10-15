@@ -15,7 +15,7 @@ VoiceSessionGateway and runs the app's handler once per session. It MUST be usab
   `session.start`
 - **THEN** the SDK invokes the registered handler exactly once with a session for that call
 - **AND** the session exposes `callRef`, `sessionRef`, `appRef`, `direction`, `from`, `to`,
-  `metadata` and `handoff` from `session.start`
+  `metadata` and `handoffPayload` (the `handoff` field) from `session.start`
 
 #### Scenario: Mounted into an existing application
 

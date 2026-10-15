@@ -74,7 +74,8 @@ function session(socket: WebSocket) {
     async gather(finishOnKey: string) {
       let digits = "";
       const m = await next((msg) => {
-        if (msg.type === "turn.ended") return true;
+        // First input wins: once digits started, speech is ignored.
+        if (msg.type === "turn.ended") return digits === "";
         if (msg.type !== "dtmf") return false;
         if (msg.digit === finishOnKey) return true;
         digits += msg.digit;
@@ -151,18 +152,21 @@ function startFixtureServer(
 }
 
 describe("@conformance/voice-sdk scenarios against the reference fixtures", function () {
-  loadScenarios("voice-sdk").forEach((scenario) => {
-    it(scenario.name, async function () {
-      const server = await startFixtureServer(scenario.fixture!);
-      try {
-        const gateway = new FakeGateway({ signingSecret: SECRET });
-        const result = await runScenario(scenario, {
-          connect: () => gateway.dial(server.url)
-        });
-        expect(result.status, result.reason).to.equal("passed");
-      } finally {
-        server.close();
-      }
+  // Only the fixtures implemented here; the SDK suites run every voice-sdk scenario.
+  loadScenarios("voice-sdk")
+    .filter((scenario) => scenario.fixture! in FIXTURES)
+    .forEach((scenario) => {
+      it(scenario.name, async function () {
+        const server = await startFixtureServer(scenario.fixture!);
+        try {
+          const gateway = new FakeGateway({ signingSecret: SECRET });
+          const result = await runScenario(scenario, {
+            connect: () => gateway.dial(server.url)
+          });
+          expect(result.status, result.reason).to.equal("passed");
+        } finally {
+          server.close();
+        }
+      });
     });
-  });
 });
