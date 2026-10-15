@@ -36,3 +36,6 @@ mods/common/test/.prisma-work
 
 # worktrees link node_modules as a symlink
 /node_modules
+
+# The rebuild stack generates configs, keys and secrets here (ops/rebuild/stack)
+ops/rebuild/.local/

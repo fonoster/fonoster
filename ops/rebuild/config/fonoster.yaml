@@ -1,0 +1,36 @@
+# fonoster.yaml for the rebuild stack's apiserver (and its embedded Identity). Every key is
+# documented in config/fonoster.example.yaml. Replace every change-me, then mount keys/ with
+# Identity's RSA pair (private.pem, public.pem). `ops/rebuild/stack up` renders a local one instead.
+domain: fonoster.local
+server: { bindAddr: 0.0.0.0:50051, httpBridgePort: 9876, host: apiserver }
+logs: { level: info, format: json, transport: console }
+database: { url: "postgresql://postgres:change-me@postgres:5432/fonoster" }
+encryption: { key: "k1.aesgcm256.change-me-generate-with-npx-47ng-cloak-generate=" }
+features:
+  auth: { methods: [password], signup: invite }
+# No Asterisk: the media nodes and the gateway carry calls.
+mediaService:
+  provider: none
+  asterisk: { ariUrl: "http://asterisk:8088", ariUsername: unused, ariPassword: unused }
+routr:
+  apiEndpoint: routr:51907
+  # Created at start; the media nodes register with it (MEDIANODE_PASSWORD).
+  mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: change-me }
+  engines: { default: rebuild }
+nats: { url: "nats://nats:4222" }
+influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
+callRecords:
+  enabled: true
+  listCallsFromIndex: true
+  stores:
+    - s3:
+        bucket: records
+        endpoint: http://minio:9000
+        forcePathStyle: true
+        credentials: { accessKeyId: minio, secretAccessKey: change-me-please }
+integrationsFile: /opt/fonoster/integrations.json
+identity:
+  database: { url: "postgresql://postgres:change-me@postgres:5432/fnidentity" }
+  audience: api
+  keys: { privateKeyPath: /opt/fonoster/keys/private.pem, publicKeyPath: /opt/fonoster/keys/public.pem }
+  owner: { name: Admin, email: admin@fonoster.local, password: change-me }
