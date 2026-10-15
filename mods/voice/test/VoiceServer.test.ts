@@ -83,6 +83,15 @@ describe("@voice VoiceServer", function () {
     expect(calls()).to.equal(1);
   });
 
+  it("accepts a signature over the app URL without a trailing slash", async function () {
+    const calls = await standalone(async () => undefined);
+    const bare = url().replace(/\/$/, "");
+    const peer = await new FakeGateway({ signingSecret: SECRET }).dial(bare);
+    peer.sendJson(START);
+    await sleep(50);
+    expect(calls()).to.equal(1);
+  });
+
   for (const [name, options] of [
     ["a wrong secret", { signingSecret: "wrong" }],
     ["no signature", {}],

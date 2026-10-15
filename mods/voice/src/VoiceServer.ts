@@ -143,7 +143,11 @@ export class VoiceServer {
   private candidateUrls(req: http.IncomingMessage): string[] {
     if (this.options.publicUrl) return [this.options.publicUrl];
     const host = req.headers["x-forwarded-host"] ?? req.headers.host;
-    return ["ws", "wss"].map((scheme) => `${scheme}://${host}${req.url}`);
+    // An app URL without a path (ws://autopilot:3000) arrives as "/": accept both spellings.
+    const paths = req.url === "/" ? ["/", ""] : [req.url];
+    return ["ws", "wss"].flatMap((scheme) =>
+      paths.map((p) => `${scheme}://${host}${p}`)
+    );
   }
 
   private run(ws: WebSocket) {

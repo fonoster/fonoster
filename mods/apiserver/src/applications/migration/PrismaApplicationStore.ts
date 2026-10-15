@@ -50,8 +50,10 @@ export const NEW_COLUMNS = [
   "url",
   "flavor",
   "signingSecret",
-  "speech",
-  "fallback"
+  "speechVoice",
+  "speechLanguage",
+  "fallbackAppRef",
+  "fallbackMessage"
 ] as const;
 
 /** Reads legacy Application rows and writes the new app columns on the same rows. */
@@ -77,6 +79,9 @@ export class PrismaApplicationStore implements ApplicationMigrationStore {
   async getMigrated(ref: string): Promise<MigratedApplication | undefined> {
     const row = await this.prisma.application.findUnique({ where: { ref } });
     if (!row || typeof row.url !== "string" || !row.url) return undefined;
+    const fallback: MigratedApplication["fallback"] = {};
+    if (row.fallbackAppRef) fallback.app = String(row.fallbackAppRef);
+    if (row.fallbackMessage) fallback.message = String(row.fallbackMessage);
     return {
       ref,
       name: String(row.name),
@@ -84,8 +89,11 @@ export class PrismaApplicationStore implements ApplicationMigrationStore {
       url: row.url,
       flavor: (row.flavor as MigratedApplication["flavor"]) ?? "native",
       signingSecret: String(row.signingSecret ?? ""),
-      speech: row.speech as MigratedApplication["speech"],
-      fallback: (row.fallback as MigratedApplication["fallback"]) ?? undefined
+      speech: {
+        voice: String(row.speechVoice ?? ""),
+        language: String(row.speechLanguage ?? "en-US")
+      },
+      ...(fallback.app || fallback.message ? { fallback } : {})
     };
   }
 
@@ -93,12 +101,15 @@ export class PrismaApplicationStore implements ApplicationMigrationStore {
     try {
       await this.prisma.application.update({
         where: { ref: app.ref },
+        // The columns of the rebuild_persistence migration (speech_voice, fallback_app_ref, ...).
         data: {
           url: app.url,
           flavor: app.flavor,
           signingSecret: app.signingSecret,
-          speech: app.speech,
-          fallback: app.fallback ?? null
+          speechVoice: app.speech.voice,
+          speechLanguage: app.speech.language,
+          fallbackAppRef: app.fallback?.app ?? null,
+          fallbackMessage: app.fallback?.message ?? null
         }
       });
     } catch (e) {

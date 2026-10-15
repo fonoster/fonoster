@@ -11,13 +11,12 @@ COPY package.json package-lock.json lerna.json tsconfig.json ./
 COPY mods ./mods
 
 RUN --mount=type=cache,target=/root/.npm \
-    npm install --workspace @fonoster/autopilot --ignore-scripts --no-audit --no-fund
+    npm install --workspace @fonoster/autopilot --include-workspace-root --ignore-scripts --no-audit --no-fund
 
-RUN for p in types logger common sdk voice autopilot; do \
-      (cd mods/$p && npx tsc -b); \
-    done \
+# Stops on the first package that fails to compile (failures used to be ignored).
+RUN for p in types logger common voice autopilot; do (cd mods/$p && npx tsc -b) || exit 1; done \
   && cp -a mods/common/src/protos mods/common/dist/ \
-  && npm prune --omit=dev --workspace @fonoster/autopilot
+  && npm prune --omit=dev --workspace @fonoster/autopilot --include-workspace-root
 
 FROM node:22-slim
 

@@ -45,6 +45,13 @@ function urlFromEndpoint(endpoint: string): string | undefined {
   return `ws://${e}`;
 }
 
+/** AUTOPILOT apps share the hosted Autopilot's secret when it is given. */
+function hostedSecret(legacy: LegacyApplication, options: MigrationOptions) {
+  return legacy.type === "AUTOPILOT"
+    ? options.autopilotSigningSecret
+    : undefined;
+}
+
 /**
  * Converts one legacy Application to the new app model, with notices for anything an operator or
  * the app's owner must act on. `existing` keeps a previous run's signing secret (re-runs are
@@ -139,7 +146,9 @@ export function convertLegacyApplication(
     url,
     flavor: "native",
     signingSecret:
-      existing?.signingSecret ?? (options.newSecret ?? newSigningSecret)(),
+      hostedSecret(legacy, options) ??
+      existing?.signingSecret ??
+      (options.newSecret ?? newSigningSecret)(),
     speech: { voice, language },
     ...(existing?.fallback
       ? { fallback: existing.fallback }
@@ -147,7 +156,7 @@ export function convertLegacyApplication(
         ? { fallback: { message: options.fallbackMessage } }
         : {})
   };
-  if (!existing) {
+  if (!existing && !hostedSecret(legacy, options)) {
     note(
       "action",
       "new signing secret: give it to the app (APP_SIGNING_SECRET) so it can verify the gateway"

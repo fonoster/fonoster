@@ -79,7 +79,12 @@ function createInfluxDbPub(config) {
 
     try {
       writeClient.writePoint(point);
-      writeClient.flush();
+      // flush() rejects when InfluxDB is unreachable; unhandled, that killed the process (ST-B8).
+      writeClient
+        .flush()
+        .catch((error) =>
+          logger.warn(`error writing to InfluxDB: ${error.message}`)
+        );
     } catch (error) {
       logger.error("error writing to InfluxDB:", error);
     }
