@@ -35,7 +35,7 @@ None.
 
 ## Impact
 
-- **Affected code (when built):** a new test harness with fakes (app, gateway, media node,
+- **Affected code (when built):** a new workspace package, `mods/conformance`, holding the test harness with fakes (app, gateway, media node,
   providers, caller bot), scenario files, and CI workflows. No production code changes.
 - **Depends on:** every other rebuild change; its scenarios are the cases these suites execute.
 - **CI cost:** nightly end-to-end and load runs need dedicated runners; live provider tests spend

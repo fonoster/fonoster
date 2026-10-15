@@ -53,6 +53,18 @@ TypeScript and Python SDK suites MUST execute the same scenario files.
 - **WHEN** an SDK scenario uses an app written with the `(req, res)` handler signature
 - **THEN** it passes against the fake gateway exactly as the `(session)` signature does
 
+### Requirement: The harness lives in `mods/conformance`
+
+The fakes, runners and scenario files SHALL live in the `mods/conformance` workspace package. The
+scenario files MUST be published with that package so the Python SDK suite and the Go media node's
+test runner consume the same files as the TypeScript tests.
+
+#### Scenario: One source of scenario files
+
+- **WHEN** the TypeScript suite, the Python SDK suite and the Go media node runner run
+- **THEN** each loads its scenarios from the `mods/conformance` scenario files of the same version
+- **AND** no runner keeps a private copy of a shared scenario
+
 ### Requirement: Session protocol suite
 
 The session protocol suite SHALL drive the real gateway with a scripted fake app, a fake media

@@ -41,9 +41,11 @@ an ordinary client of those contracts. It is an improvement, not a rewrite.
 - **Plugs, not vendors.** Think uses the provider registry by catalog id; Tools and Knowledge are
   ports; Hear and Speak are the gateway's Speech layer. LangChain's chain is replaced by a thin
   streaming LLM interface from the provider registry.
-- **Thinking signal.** Autopilot tells the gateway when it is thinking, so the audio pipeline can
-  fill silence (comfort noise or a filler sound). Noise cancellation and comfort noise themselves
-  live in the audio pipeline.
+- **Optional filler while thinking.** Autopilot plays an assistant's configured filler (comfort
+  noise or a soft sound) with `play` while it prepares a reply and stops it on its first `speak`.
+  There is no platform "thinking" signal. Noise cancellation lives in the audio pipeline.
+- **BREAKING: assistant webhooks are retired.** The `eventsHook` `conversation.started` and
+  `conversation.ended` webhooks are replaced by workspace webhooks (`add-workspace-webhooks`).
 - **Conversation events go to the call record**: turns, responses, interruptions with what was
   heard, tool calls and results, and per-turn timings.
 
@@ -52,7 +54,7 @@ an ordinary client of those contracts. It is an improvement, not a rewrite.
 ### New Capabilities
 
 - `autopilot`: the conversation runtime as a session client: states, pacing, streaming speech,
-  honest history, tools and knowledge ports, thinking signal and the events it records.
+  honest history, tools and knowledge ports, optional filler and the events it records.
 
 ### Modified Capabilities
 

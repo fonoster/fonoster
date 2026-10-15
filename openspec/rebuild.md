@@ -15,12 +15,13 @@ Your code (apps, Autopilot, Pipecat bots)
    │  WebSocket session: native flavor or Twilio flavor
 VoiceSessionGateway (one per call, runs in the voice worker)
    │  Speech layer (STT, TTS, play, turn-taking) · Audio layer · Control
-Media node (Go, behind Routr)  ── parked, specified later
+Media node (Go, behind Routr)  ── rooms (audio mixer), SIP legs, forks; see add-media-node
    │  SIP + RTP
 SIP edge (Routr + RTPEngine) ── carriers, WebRTC
 ```
 
-Cross-cutting: provider registry (STT/TTS/LLM catalog), call record (vCon), conformance framework.
+Cross-cutting: provider registry (STT/TTS/LLM catalog), call record (vCon), workspace webhooks,
+conformance framework.
 
 ## Changes, in dependency order
 
@@ -32,9 +33,16 @@ Cross-cutting: provider registry (STT/TTS/LLM catalog), call record (vCon), conf
 | `add-call-record` | `call-record` | `voice-session` |
 | `rework-voice-sdk` | `voice-sdk` | `voice-session` |
 | `rework-autopilot` | `autopilot` | `voice-session`, `turn-taking`, `voice-sdk`, `provider-registry` |
+| `add-media-node` | `media-node`, `media-control` | `voice-session`, `call-record` |
+| `add-workspace-webhooks` | `workspace-webhooks` | `call-record`, `provider-registry` |
 | `add-conformance-framework` | `conformance` | all of the above |
 
-Not yet specified: the media node (Go), the control plane, deployment and regions, observability.
+Media node in one line: rooms are audio mixers with a track-based (video-ready) contract; "add a
+participant to a room" serves inbound, outbound and transfer (cold/warm in the room, optional SIP
+REFER); Routr balances nodes with least-sessions from `X-Session-Count`; rooms stay on one node;
+optional TLS + SRTP to the edge; sipgo and livekit/media-sdk are reused as libraries.
+
+Not yet specified: the control plane, deployment and regions, observability.
 
 ## Vocabulary (use these names exactly)
 
@@ -52,6 +60,10 @@ Not yet specified: the media node (Go), the control plane, deployment and region
 - **Turn Detector**: lives in the gateway; produces an end-of-thought estimate (0–1) and turn
   events. **Pacing policy** turns the estimate into actions.
 - **Call record**: one vCon per call, built live, sealed and signed at hangup.
+- **Room**: lives on one media node and mixes audio for its participants (each hears everyone
+  but themselves). Participants have **tracks** with a `kind` (`audio` in v1) and a codec.
+- **Participant**: a SIP leg, the gateway's session, or a listener (fork).
+- **MediaControl**: the contract between the gateway or control plane and the media node.
 
 ## Retired by this rebuild
 

@@ -148,7 +148,9 @@ its config, and users MUST NOT be asked to declare them.
 `deprecate-<kind> <id> --replacement <id> --retire-on <date>` SHALL mark the item deprecated only
 when the replacement is an active item of the same kind, and SHALL print an impact report. While
 deprecated, every workspace that uses the item SHALL see a dashboard warning naming where it is
-used, and the gateway SHALL emit `provider.deprecated_used` for every session that resolves it.
+used, each such workspace SHALL receive one `provider.deprecated` workspace webhook naming the
+item, its replacement and the retire date, and the gateway SHALL emit `provider.deprecated_used`
+for every session that resolves it.
 Nothing SHALL happen automatically when the retire date arrives.
 
 #### Scenario: Deprecating a model prints the impact report
@@ -167,6 +169,7 @@ Nothing SHALL happen automatically when the retire date arrives.
 
 - **WHEN** `deepgram/nova-2` is deprecated and workspace W's app "Support line" uses it
 - **THEN** W's dashboard shows a warning naming `deepgram/nova-2`, its replacement, its retire date and the app "Support line"
+- **AND** W receives one `provider.deprecated` webhook with `deepgram/nova-2`, its replacement and the retire date
 
 #### Scenario: Runtime use is caught
 

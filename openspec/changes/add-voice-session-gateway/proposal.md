@@ -69,4 +69,4 @@ None. `voice.proto` was never captured as an OpenSpec capability; its retirement
   from the Speech layer).
 - **Used by:** `call-record` (every message is appended to the call record), `rework-autopilot`,
   `rework-voice-sdk`, `add-conformance-framework`.
-- **Out of scope:** the media node itself (parked), the management API (stays gRPC).
+- **Out of scope:** the media node itself (specified in `add-media-node`), the management API (stays gRPC).

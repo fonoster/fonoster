@@ -52,14 +52,16 @@ using the app's signing secret, and SHALL send the signature and timestamp as re
 
 In the `native` flavor the first message from the gateway SHALL be `session.start`, carrying
 `protocol` (`fonoster.session.v1`), `sessionRef`, `callRef`, `appRef`, `direction`, `from`, `to`,
-`metadata`, `handoff` (null unless handed off), `audio` (`codec`, `rate`) and `speech` (default
-`voice` and `language` as catalog ids).
+`metadata`, `handoff` (null unless handed off), `audio` (`codec`, `rate`), `tracks` (the list of
+track ids the session will carry, each with `id`, `side` (`inbound` or `outbound`), `kind`
+(`audio` in v1) and `codec`) and `speech` (default `voice` and `language` as catalog ids).
 
 #### Scenario: Start message content
 - **WHEN** the app's socket opens
 - **THEN** the first text frame is a JSON object with `type: "session.start"`
 - **AND** `protocol` equals `fonoster.session.v1`
 - **AND** `audio.codec` and `audio.rate` describe every caller-audio binary frame that follows
+- **AND** `tracks` contains `{id: 1, side: "inbound", kind: "audio"}` for the caller's audio
 
 ### Requirement: Inbound calls are answered on verified connect
 
@@ -273,16 +275,42 @@ dropped by `clear`.
 ### Requirement: Call control
 
 The gateway SHALL send `dtmf` with `digit` whenever the caller presses a key, at any point of the
-call. It SHALL accept `dtmf.send` (`id`, `digits`), `transfer` (`id`, `to`, optional `headers`),
-`hold` (`id`, optional `music`) and `resume` (`id`) and pass them to the media node.
+call. It SHALL accept `dtmf.send` (`id`, `digits`), `transfer` (`id`, `to`, optional `headers`,
+optional `mode`), `transfer.complete` (`id`), `hold` (`id`, optional `music`) and `resume` (`id`)
+and pass them to the media node.
+
+`transfer.mode` SHALL be `cold` (the default), `warm` or `refer`:
+
+- `cold`: the media node dials `to` into the caller's room. When the new party answers, the app's
+  session leaves the room and ends with `reason: "transfer"`; the caller and the new party stay in
+  the room, and recording continues.
+- `warm`: the media node dials `to` into the room and the app's session stays, so the agent can
+  brief the new party. The session ends with `reason: "transfer"` when the app sends
+  `transfer.complete` with the transfer's `id`.
+- `refer`: the media node sends a SIP REFER on the caller's leg and leaves the call once the REFER
+  is accepted. The session ends with `reason: "transfer"`, and recording ends at that point.
 
 #### Scenario: Keypress while the agent speaks
 - **WHEN** the caller presses `0` while item `r1` is playing
 - **THEN** the app receives `{ "type": "dtmf", "digit": "0" }` immediately
 
-#### Scenario: Successful transfer
-- **WHEN** the app sends `transfer` `{id: "t1", to: "+15551234567"}` and the transfer succeeds
+#### Scenario: Cold transfer stays in the room
+- **WHEN** the app sends `transfer` `{id: "t1", to: "+15551234567"}` and the new party answers
 - **THEN** the app receives `session.end` with `reason: "transfer"`
+- **AND** the caller and the new party remain connected in the same room
+- **AND** the call record keeps receiving audio and events until the room ends
+
+#### Scenario: Warm transfer
+- **WHEN** the app sends `transfer` `{id: "t2", to: "+15551234567", mode: "warm"}` and the new party answers
+- **THEN** the app's session stays open and the app, the caller and the new party hear each other
+- **AND** when the app sends `transfer.complete` `{id: "t2"}` the app receives `session.end` with `reason: "transfer"`
+- **AND** the caller and the new party remain connected
+
+#### Scenario: Transfer by SIP REFER
+- **WHEN** the app sends `transfer` `{id: "t3", to: "+15551234567", mode: "refer"}` and the REFER is accepted
+- **THEN** the app receives `session.end` with `reason: "transfer"`
+- **AND** the media node no longer carries the call
+- **AND** the call record notes that recording ended at the transfer
 
 #### Scenario: Failed transfer
 - **WHEN** the transfer target cannot be reached
@@ -308,15 +336,18 @@ The gateway SHALL accept `handoff` with `app` and `payload`. It SHALL send `sess
 ### Requirement: Listen-only sockets
 
 The platform SHALL let a session have listen-only sockets in addition to the controlling app. A
-listener SHALL choose `tracks`: `inbound` (default), `outbound` or `both`. With `both`, the two
-sides SHALL arrive as separate frames and MUST NOT be mixed. In the `native` flavor every binary
-frame sent by the gateway SHALL begin with one byte naming its side. A listener SHALL receive the
+listener SHALL choose `tracks`: `inbound` (default), `outbound` or `both`. These options select
+track ids from the session's `tracks` list. With `both`, the two sides SHALL arrive as separate
+frames and MUST NOT be mixed. In the `native` flavor every binary frame sent by the gateway SHALL
+begin with one byte holding the track id it belongs to, so new track kinds (such as video) can be
+added without changing the frame format. A listener SHALL receive the
 same events as the controlling app, and any command it sends SHALL be answered with `error`
 `code: "read_only"`.
 
 #### Scenario: Both tracks
 - **WHEN** a listener attaches with `tracks: "both"`
-- **THEN** it receives caller frames and agent frames as separate binary frames, each starting with a side byte
+- **THEN** it receives caller frames and agent frames as separate binary frames
+- **AND** each frame starts with the track id of the caller's track or the agent's track, as listed in `tracks`
 
 #### Scenario: Listener tries to hang up
 - **WHEN** a listener sends `hangup`
@@ -349,8 +380,8 @@ call's record as it happens.
 
 ### Requirement: The media node receives only control
 
-The gateway SHALL send the media node only call-control commands (answer, hangup, transfer, hold,
-resume, send DTMF, attach listener) and SHALL receive from it caller audio and call events. Speech,
+The gateway SHALL send the media node only call-control commands through the `media-control`
+contract (answer, hangup, transfer, hold, resume, send DTMF, attach listener) and SHALL receive from it caller audio and call events. Speech,
 turn detection, format conversion and the output queue MUST stay in the gateway.
 
 #### Scenario: Speech never reaches the media node

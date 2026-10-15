@@ -37,7 +37,8 @@ It supports signing (JWS) and redacted or appended versions natively.
 **Non-Goals**
 
 - Full logs, LLM prompts and responses, and per-turn audio clips (decision V1).
-- Pushing records to customers (webhooks, continuous export). Deferred past v1 (decision V6).
+- Pushing record contents to customers (continuous export). Deferred past v1; v1 only notifies
+  with a `call_record.sealed` webhook carrying a link (decision V6).
 - Real-time analytics on live calls. The record is about what happened; listeners cover live use.
 - Defining the analytics schema. It is derived, and specified with the analytics work.
 
@@ -50,7 +51,7 @@ It supports signing (JWS) and redacted or appended versions natively.
 | `parties` | Caller and callee: number or SIP URI, and role (caller, agent app, transfer target) |
 | `dialog` | Start, answer and end times; direction; recording reference (URL plus content hash) when recording is on |
 | `analysis` | Transcript (per turn, per side, with timings); turn decisions and their outcomes; provider substitutions and deprecation warnings |
-| `attachments` | Every session message in both directions, in order with timestamps (audio frames excluded); SIP trace (pcap); app and handoff chain |
+| `attachments` | Every session message in both directions, in order with timestamps (audio frames excluded); SIP trace (pcap, captured at the Routr edge only, MN10); app and handoff chain |
 
 **Excluded:** full logs (noisy and large), LLM exchanges (they carry the customer's system prompt,
 which is their IP), and per-turn clips (they duplicate the recording).
@@ -119,7 +120,7 @@ The API, dashboard and analytics use the redacted version by default.
 - Redacting before storing: the original is lost forever, which is bad for disputes.
 - No redaction in v1: it's unsafe for collections and payments.
 
-### V6. Access: API and dashboard only
+### V6. Access: API, dashboard and a seal webhook
 
 The API fetches a record by `callRef` (latest version, or a given version) and searches by:
 - time range
@@ -132,7 +133,9 @@ The dashboard shows the record and lets users download the recording and the SIP
 users get their own traces for troubleshooting). Access follows workspace roles. Unredacted
 originals need an explicit permission.
 
-There's no webhook on seal and no continuous export in v1.
+When a record is sealed, the workspace webhook `call_record.sealed` (`add-workspace-webhooks`)
+delivers the call ref and a link to fetch the record; the webhook never carries the record itself.
+There's no continuous export in v1.
 
 ### V7. Integrity: hashes always, signatures on seal
 
@@ -157,6 +160,15 @@ The analytics store (ClickHouse, optional in Community; decision D4) is filled f
 Analytics is a view of the records, never a second source of truth: it can be dropped and rebuilt
 from the vCons at any time.
 
+### V10. Calls that never reach an app get a minimal record
+
+Rejected, busy and unanswered calls, calls whose app is unreachable after the retry and fallback,
+and calls lost to a media node crash before a session opened all get a record. It holds parties,
+timing, the failure reason and the edge SIP trace, with no recording and no transcript. It uses
+the same storage, retention, signing and index as any record, and the `call.failed` workspace
+webhook fires for it. The SIP trace of a failed call is often the most useful evidence in a carrier
+dispute. Rejected: only an index entry and the event, which would lose that trace.
+
 ## Risks / Trade-offs
 
 | Risk | Mitigation |
@@ -177,9 +189,7 @@ from the vCons at any time.
 3. **O3. Redaction engine.** Which detector (rules, a model or a vendor) and which languages.
    How are beeps aligned with audio when transcript timings are coarse?
 4. **O4. vCon version.** Which IETF draft we pin, and how we handle a later standard version.
-5. **O5. Calls that never reach a session** (rejected, busy, no answer). Do they get a minimal
-   record or only an index entry?
-6. **O6. Consent prompt.** Who supplies the wording and language, and what happens if the caller
+5. **O6. Consent prompt.** Who supplies the wording and language, and what happens if the caller
    refuses (end the call, or continue without recording)?
-7. **O7. Customer bucket failures.** If a workspace bucket is unreachable at seal, do we buffer in
+6. **O7. Customer bucket failures.** If a workspace bucket is unreachable at seal, do we buffer in
    region storage and retry, and for how long?

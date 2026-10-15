@@ -37,10 +37,11 @@ for call control. ConversationRelay is a separate product. This change unifies b
 
 **Non-Goals:**
 
-- Media node internals (SIP, RTP, codecs, DTMF detection, transfer mechanics). They are parked.
+- Media node internals (SIP, RTP, codecs, DTMF detection, rooms, transfer mechanics). They are
+  specified in `add-media-node`.
 - A webhook or TwiML-style mode. It is deferred.
 - A gRPC session transport.
-- Conference, warm transfer, AMD as a verb, and pause/resume recording.
+- Conference, AMD as a verb, and pause/resume recording.
 
 ## Decisions
 
@@ -100,7 +101,19 @@ for call control. ConversationRelay is a separate product. This change unifies b
 **VS9. Listen-only sockets (G5).**
 - `tracks` is `inbound` (default), `outbound` or `both`. With `both`, the sides arrive as
   separate tagged frames and are never mixed, as in Twilio and Telnyx.
-- Native binary frames sent by the gateway begin with one byte naming the side.
+- Native binary frames sent by the gateway begin with one byte holding a track id. `session.start`
+  lists the tracks (`id`, `side`, `kind`, `codec`), and the listener options select track ids.
+- Why a track id and not a side: the room contract is track-based (`add-media-node`, MN1), so a
+  future video track is just another id. Rejected: a side byte, which would need a new frame
+  format for video.
+
+**VS9b. Transfer keeps the caller in the room by default (MN2).**
+- `transfer.mode` is `cold` (default), `warm` or `refer`. Cold and warm dial the new party into the
+  caller's room, so recording and the call record stay complete. Warm keeps the app's session until
+  `transfer.complete`. `refer` asks the media node to step out with SIP REFER to save capacity.
+- Rejected: REFER as the default (the earlier tentative choice), because with rooms staying costs
+  little and stepping out loses recording and visibility. Rejected: room only, because some
+  deployments want the capacity back.
 
 **VS10. Unreachable app: retry about 2–3 s with ringing, then fall back (G6).**
 - The fallback is either a fallback app URL, or a spoken message followed by hangup.
@@ -146,6 +159,15 @@ for call control. ConversationRelay is a separate product. This change unifies b
   `Status=completed`, lets Pipecat's `auto_hang_up` work after setting `base_url`.
 - There is no transfer and no TwiML.
 
+**VS21. No platform "thinking" signal; apps play their own filler.**
+- The protocol has no `agent.state` or similar message. An app that wants comfort noise or a
+  filler sound while it prepares a reply plays it itself, with `play` or Audio-layer frames, and
+  stops it when it speaks (`preempt: true` on the reply, or `clear`).
+- Rejected: an explicit `agent.state` message with the gateway playing configured filler (one more
+  message and a config surface for something apps can already do), and the gateway inferring
+  "thinking" from the gap between `turn.ended` and the first `speak` (it can't tell thinking from
+  deliberate silence).
+
 ## Risks / Trade-offs
 
 - **Retiring `voice.proto` breaks raw gRPC users.** This affects apps that call it without the SDK.
@@ -162,10 +184,7 @@ for call control. ConversationRelay is a separate product. This change unifies b
 
 ## Open Questions
 
-1. **A "thinking" signal (proposed, unconfirmed).** A C→G `agent.state` with
-   `state: "thinking" | "idle"` would let the gateway play comfort noise or a filler sound, as set
-   in the app config. Autopilot needs some such signal to keep comfort noise out of its own code.
-2. **Error codes (proposed starter set):**
+1. **Error codes (proposed starter set):**
    - `bad_message`: unparseable, or missing required fields
    - `unknown_command`
    - `read_only`: a listener sent a command
@@ -180,16 +199,16 @@ for call control. ConversationRelay is a separate product. This change unifies b
    - `internal`
 
    Fatal or not is defined per code.
-3. **Playback queue cap.** The maximum queued audio, in seconds or bytes, before `queue_full`.
+2. **Playback queue cap.** The maximum queued audio, in seconds or bytes, before `queue_full`.
    Proposed: 120 s of audio.
-4. **Hang-up endpoint authentication.** Which credentials Basic auth maps to: the workspace
+3. **Hang-up endpoint authentication.** Which credentials Basic auth maps to: the workspace
    access key and an API secret, or a per-app token.
-5. **Keepalive.** WebSocket ping interval and the idle timeout before a silent socket counts as
+4. **Keepalive.** WebSocket ping interval and the idle timeout before a silent socket counts as
    dropped. Proposed: ping every 10 s, dropped after 30 s.
-6. **Signature header name and format.** The exact canonical string, and the clock-skew window.
+5. **Signature header name and format.** The exact canonical string, and the clock-skew window.
    Proposed: `X-Fonoster-Signature`, ±5 min.
-7. **Handoff limits.** The maximum payload size, and loop protection for repeated handoffs.
-8. **Listener limits.** The maximum listeners per call, and how a listener is attached (API call
+6. **Handoff limits.** The maximum payload size, and loop protection for repeated handoffs.
+7. **Listener limits.** The maximum listeners per call, and how a listener is attached (API call
    or app config).
-9. **Which audio formats the native flavor offers.** The menu decided earlier: μ-law 8 kHz, PCM16
+8. **Which audio formats the native flavor offers.** The menu decided earlier: μ-law 8 kHz, PCM16
    at 8, 16 and 24 kHz, and Opus. Still to settle: Opus framing over WebSocket.

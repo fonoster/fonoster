@@ -15,8 +15,9 @@
 - [ ] 2.2 Feature vocabulary with hard or soft marks, and the compatibility checker (requirements derived from app and assistant configs)
 - [ ] 2.3 `fonoster-registry` binary: add, deprecate and retire for provider, model and voice; `usage`, `list`, `show`, `history`; `export`, `plan`, `apply`
 - [ ] 2.4 Impact report shared by `deprecate-*` and `retire-*`, with `--voice-map` and confirmation
-- [ ] 2.5 Retire transaction: rewrite compatible configs, audit per config, notices, mark retired
-- [ ] 2.6 Restricted database role for the utility; read-only role for the apiserver
+- [ ] 2.5 Emit `provider.deprecated` workspace webhooks on deprecate (`add-workspace-webhooks`)
+- [ ] 2.6 Retire transaction: rewrite compatible configs, audit per config, notices, mark retired
+- [ ] 2.7 Restricted database role for the utility; read-only role for the apiserver
 
 ## 3. Adapters and gateway
 

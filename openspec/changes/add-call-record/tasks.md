@@ -30,7 +30,7 @@
 
 - [ ] 3.1 Recording policy setting per workspace and app (`off`, `on`, `on after consent prompt`)
 - [ ] 3.2 Internal recording listener (`tracks: both`, separate sides) uploading to record storage
-- [ ] 3.3 SIP trace capture per call, attached as pcap with its hash
+- [ ] 3.3 SIP trace capture per call at the Routr edge (carrier-facing), attached as pcap with its hash
 
 ## 4. Privacy
 
@@ -43,6 +43,8 @@
 - [ ] 5.1 API: fetch by `callRef` and version, search by time range, number, app and status
 - [ ] 5.2 SDK and CTL support for fetching records and downloading files
 - [ ] 5.3 Dashboard call detail backed by the record, with recording and SIP trace download
+- [ ] 5.4 Emit `call_record.sealed` (link only) through workspace webhooks
+- [ ] 5.5 Minimal records for calls that never reach an app, emitting `call.failed`
 
 ## 6. Analytics
 
@@ -56,6 +58,6 @@
       records
 - [ ] 7.2 Retire the recording-URL convention (`${RECORDING_BASE_URL}/${appRef}_${mediaSessionRef}.wav`)
       in favor of the record's recording reference
-- [ ] 7.3 Remove `chatHistory` and `recordingUrl` from Autopilot's `conversation.ended` webhook
-      (release note)
+- [ ] 7.3 Point users of Autopilot's retired `conversation.ended` webhook (`rework-autopilot`) to
+      `call.ended` and `call_record.sealed` (release note)
 - [ ] 7.4 Docs: what a call record contains, retention and erasure, redaction, verifying a record

@@ -25,7 +25,8 @@ retired, kept strictly apart from the keys that pay for it.
   `export`, `plan`, `apply` to keep several regions' registries identical. It is not part of the
   customer-facing ctl.
 - **A fully manual lifecycle.** `deprecate-*` makes every workspace that uses the item see a
-  dashboard warning that names where it is used; the warning clears when they switch. `retire-*`,
+  dashboard warning that names where it is used, and pushes a `provider.deprecated` workspace
+  webhook; the warning clears when they switch. `retire-*`,
   run by hand on the final date, rewrites every compatible config to the replacement, notifies
   every affected workspace and is audited. Nothing happens on a timer.
 - **Compatibility checks.** Models declare features from a fixed vocabulary, each marked hard or

@@ -43,11 +43,16 @@ in an open format, the IETF vCon, which becomes the system of record for what ha
 - **Recording becomes a policy.** Full-call recording is a workspace or app setting (on, off, or
   on after a consent prompt), applied by the platform through an internal listener.
 - **Access through the API and the dashboard.** Fetch by id, search, and view or download,
-  including the SIP trace. No webhook or continuous export in v1.
+  including the SIP trace. When a record is sealed, a `call_record.sealed` workspace webhook
+  (`add-workspace-webhooks`) carries the call ref and a link to fetch it. No continuous export in v1.
+- **Calls that never reach an app get a minimal record.** Rejected, busy, unanswered and
+  unreachable-app calls, and calls lost to a media node crash before a session opened, get a record
+  with parties, timing, the failure reason and the edge SIP trace, and fire `call.failed`.
 - **Analytics is derived.** The analytics store (ClickHouse, optional in Community; decision D4) is
   built from sealed vCons and can always be rebuilt from them.
-- **BREAKING:** the `conversation.ended` webhook's `chatHistory` and `recordingUrl` fields, the
-  recording-URL convention and InfluxDB CDRs are superseded by the call record. The migration is
+- **BREAKING:** the recording-URL convention and InfluxDB CDRs are superseded by the call record,
+  and Autopilot's `conversation.ended` webhook (with its `chatHistory` and `recordingUrl`) is retired
+  in favor of workspace webhooks (`rework-autopilot`, `add-workspace-webhooks`). The migration is
   covered in the tasks.
 
 ## Capabilities

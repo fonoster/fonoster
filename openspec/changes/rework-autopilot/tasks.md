@@ -21,7 +21,7 @@
       `hasLateSpeech` and `maxSpeechWaitTimeout`
 - [ ] 2.3 Pacing policy: per-assistant patience, within-call adaptation, `turn.estimate`
       subscription
-- [ ] 2.4 Thinking signal on entering and leaving thinking
+- [ ] 2.4 Optional filler: `play` on entering thinking, first reply `speak` with `preempt: true`
 
 ## 3. Language model (`mods/autopilot/src/models`)
 
@@ -43,7 +43,9 @@
 
 - [ ] 5.1 `languageModel` uses one catalog id; remove `provider` enum and `apiKey`
 - [ ] 5.2 Move `vad` and `maxSpeechWaitTimeout` to the turn-taking configuration
-- [ ] 5.3 Migration of stored assistant configs (see design Open Question 2)
+- [ ] 5.3 Migration of stored assistant configs (see design Open Question 1)
+- [ ] 5.4 Remove `eventsHook` from the assistant schema and `sendConversation*Event`; add the
+      optional filler setting
 
 ## 6. Call record
 

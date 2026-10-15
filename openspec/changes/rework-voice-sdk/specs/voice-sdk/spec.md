@@ -176,15 +176,23 @@ The session SHALL expose `on(event, callback)` for `turn.user_started`, `turn.li
 
 ### Requirement: Call control methods map one to one
 
-`play`, `playDtmf`, `transfer`, `hold`, `resume`, `handoff` and `hangup` SHALL each send exactly
-one corresponding session message (`play`, `dtmf.send`, `transfer`, `hold`, `resume`, `handoff`,
-`hangup`). The legacy `dial` MUST remain on the `(req, res)` wrapper as an alias of `transfer`.
+`play`, `playDtmf`, `transfer`, `completeTransfer`, `hold`, `resume`, `handoff` and `hangup` SHALL
+each send exactly one corresponding session message (`play`, `dtmf.send`, `transfer`,
+`transfer.complete`, `hold`, `resume`, `handoff`, `hangup`). `transfer` SHALL accept an optional
+`mode` (`cold` by default, `warm` or `refer`) and pass it through unchanged. The legacy `dial` MUST
+remain on the `(req, res)` wrapper as an alias of a cold `transfer`.
 
 #### Scenario: Transfer
 
 - **WHEN** the app calls `transfer("+15551234567")`
 - **THEN** the SDK sends `transfer` with `to: "+15551234567"`
 - **AND** when the gateway ends the session with `reason: transfer`, the call resolves
+
+#### Scenario: Warm transfer
+
+- **WHEN** the app calls `transfer("+15551234567", { mode: "warm" })` and later `completeTransfer()`
+- **THEN** the SDK sends `transfer` with `mode: "warm"` and then `transfer.complete` with the same `id`
+- **AND** the session ends with `reason: transfer` only after `transfer.complete`
 
 #### Scenario: Handoff
 
@@ -266,3 +274,18 @@ release.
 - **WHEN** the scenario "say interrupted then gather digits" runs against both SDKs
 - **THEN** both send the same messages in the same order with the same fields
 - **AND** both return the same results to the handler
+
+### Requirement: The Python SDK is asyncio only
+
+The Python SDK SHALL expose an asyncio API only: handlers MUST be `async def` functions and every
+session method MUST be a coroutine. It SHALL NOT ship a synchronous facade.
+
+#### Scenario: Async handler
+
+- **WHEN** a Python app registers `async def handler(session)` and calls `await session.say("Hi")`
+- **THEN** the SDK sends `speak` with `last: true` and the coroutine resolves on `output.done`
+
+#### Scenario: Sync handler rejected
+
+- **WHEN** a Python app registers a plain `def handler(session)`
+- **THEN** `listen` raises a `TypeError` stating that handlers must be `async def`

@@ -79,6 +79,10 @@ gateway before release. If something is awkward in Python, the protocol is fixed
 
 *Rejected:* TypeScript first. Faster, but risks protocol choices shaped by one language.
 
+The Python SDK is **asyncio only**: handlers are `async def`, and every method is a coroutine, as in
+Pipecat, FastAPI and LiveKit Agents. There is no synchronous facade. *Rejected:* a blocking facade
+for simple IVR scripts, which would add a second surface to test and document.
+
 ### S5. Autopilot is a plain SDK client
 
 Autopilot is a hosted `VoiceServer`. It uses `say(stream)`, turn events and the opt-in
@@ -129,7 +133,7 @@ local development flag disables verification and logs a warning on every connect
 | `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf", cb)` | Events (`transcript.partial` requires `subscribe`) |
 | `play(url)` | Same, plus `{ loop?, interruptible?, preempt? }` | `play` |
 | `playDtmf(d)` | Same | `dtmf.send` |
-| `dial(number)` | `transfer(number, { headers? })` | `transfer` |
+| `dial(number)` | `transfer(number, { mode?, headers? })`, `completeTransfer()` for warm transfers | `transfer`, `transfer.complete` |
 | `stream()` | `session.audio.onFrame(cb)`, `.send(bytes)`, `.mark(name)`, `.clear()` | Binary frames, `mark`, `clear` |
 | `hangup()` | Same | `hangup` |
 | `answer()` | No-op | — |
@@ -159,10 +163,9 @@ command id reject that command's promise with a typed `SessionError` (`code`, `m
 
 ## Open Questions
 
-1. Python async style: `asyncio` only, or also a sync facade for simple IVR scripts?
-2. Package names: keep `@fonoster/voice` for TypeScript; `fonoster-voice` or `fonoster` on PyPI?
-3. Version number for the breaking release (next major of `@fonoster/voice`, or aligned with the
+1. Package names: keep `@fonoster/voice` for TypeScript; `fonoster-voice` or `fonoster` on PyPI?
+2. Version number for the breaking release (next major of `@fonoster/voice`, or aligned with the
    platform version)?
-4. Should `gather()` with `source: "speech"` also accept a partial transcript after `timeout`, or
+3. Should `gather()` with `source: "speech"` also accept a partial transcript after `timeout`, or
    return empty, as today?
-5. Does `say()` need a `{ wait: false }` option, or is "don't await the promise" enough?
+4. Does `say()` need a `{ wait: false }` option, or is "don't await the promise" enough?

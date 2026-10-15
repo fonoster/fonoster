@@ -31,7 +31,8 @@ A sealed call record SHALL contain:
 - every session message in both directions, in order, with timestamps (audio frames excluded)
 - the turn decisions with their outcomes
 - any provider substitution or deprecation warning
-- the SIP trace as an attachment
+- the SIP trace as an attachment, captured at the Routr edge (the carrier-facing signaling); the
+  media node does not capture SIP
 
 It SHALL NOT contain full log output, LLM prompts or responses, or per-turn audio clips.
 
@@ -55,7 +56,7 @@ It SHALL NOT contain full log output, LLM prompts or responses, or per-turn audi
 #### Scenario: The SIP trace is attached
 
 - **WHEN** a call completes
-- **THEN** the record has a pcap attachment containing the call's SIP signaling
+- **THEN** the record has a pcap attachment containing the call's SIP signaling as seen at the Routr edge
 - **AND** the attachment's content hash matches the stored file
 
 #### Scenario: LLM exchanges are excluded
@@ -212,8 +213,9 @@ kept separate. Apps SHALL NOT be able to override the policy.
 
 The API SHALL fetch a record by `callRef` (latest or a given version) and search records by time
 range, number, app and status, within the caller's workspace. The dashboard SHALL display a record
-and offer download of its recording and SIP trace. No webhook or continuous export SHALL be
-required in this version.
+and offer download of its recording and SIP trace. When a record is sealed, the platform SHALL
+emit the `call_record.sealed` workspace webhook with the call ref and a link to fetch the record,
+and MUST NOT include record contents in the webhook. Continuous export is not part of this version.
 
 #### Scenario: Fetch and search
 
@@ -221,10 +223,37 @@ required in this version.
 - **THEN** the matching records from that workspace are returned
 - **AND** records from other workspaces are never returned
 
+#### Scenario: Seal notification
+
+- **WHEN** a record is sealed for a workspace subscribed to `call_record.sealed`
+- **THEN** the workspace receives one `call_record.sealed` webhook with the `callRef` and a fetch link
+- **AND** the webhook body contains no transcript, recording or SIP trace
+
 #### Scenario: Download the SIP trace
 
 - **WHEN** a user opens a call in the dashboard and downloads its SIP trace
 - **THEN** they receive the pcap whose hash matches the record
+
+### Requirement: Calls that never reach an app get a minimal record
+
+The platform SHALL seal a minimal record for every call that never reaches an app: rejected,
+busy, unanswered, app unreachable after retry and fallback, or lost to a media node crash before a
+session opens. The record holds the parties, timing, failure reason and edge SIP trace. It MUST NOT contain a recording or transcript,
+and it SHALL use the same storage, retention, signing and index as any record. The platform SHALL
+emit the `call.failed` workspace webhook for it.
+
+#### Scenario: Busy outbound call
+
+- **WHEN** an outbound call gets `486 Busy Here` and no session opens
+- **THEN** a sealed record exists with both parties, timing, failure reason `busy` and the edge SIP trace
+- **AND** the record has no recording and no transcript
+- **AND** its signature verifies with the region key
+- **AND** a `call.failed` webhook is delivered with the same `callRef`
+
+#### Scenario: App unreachable
+
+- **WHEN** an inbound call's app URL fails every connection attempt and the fallback is a spoken message and hangup
+- **THEN** the sealed record has failure reason `app_unreachable` and the edge SIP trace
 
 ### Requirement: The analytics store is derived from records
 

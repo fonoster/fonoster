@@ -141,12 +141,14 @@ with `speak` and recorded as heard or interrupted like any other output.
 Wiring happens outside the state machine: a small factory reads the assistant config, resolves
 catalog ids and hands the machine its plugs.
 
-### A9. Thinking signal; filters live in the pipeline
+### A9. Autopilot plays its own filler; filters live in the pipeline
 
-Noise cancellation and comfort noise work on audio, so they belong in the audio pipeline, configured
-per app. Autopilot only says what it is doing: it signals "thinking" when entering `thinking` and
-clears it when speech starts. The message that carries this signal is an open question for
-`add-voice-session-gateway`; until it exists, the gateway infers thinking from the gap between
+Noise cancellation works on caller audio, so it belongs in the audio pipeline, configured per app.
+There is no platform "thinking" signal (gateway decision VS21). An assistant may set an optional
+filler (comfort noise or a soft sound, by URL or catalog asset); Autopilot plays it with `play`
+when it enters `thinking` and stops it when it speaks, by sending its first `speak` with
+`preempt: true`. With no filler configured, Autopilot plays nothing. Rejected: an explicit
+`agent.state` message with gateway-played filler, and gateway inference from the gap between
 `turn.ended` and the first `speak`.
 
 ### A10. Conversation events go to the call record
@@ -161,6 +163,14 @@ messages are already appended by the gateway; Autopilot adds only what the gatew
 `languageModel.provider` + `model` become one catalog id (for example `openai/gpt-4o-mini`).
 `apiKey` is removed; credentials come from the provider registry (platform keys or the
 workspace's own keys).
+
+### A12. Assistant webhooks are retired
+
+**BREAKING.** The assistant `eventsHook` (`conversation.started`, `conversation.ended`) is removed.
+Its job moves to workspace webhooks (`add-workspace-webhooks`): `call.started`, `call.ended` and
+`call_record.sealed`, which links to the call record holding the transcript and recording. One
+webhook system serves every app type. Rejected: keeping the assistant webhooks, slimmed or as
+they are, which would leave two webhook systems and two copies of the same data.
 
 ## Risks / Trade-offs
 
@@ -185,13 +195,9 @@ workspace's own keys).
 
 ## Open Questions
 
-1. **Webhooks.** Do the `eventsHook` `conversation.started` and `conversation.ended` webhooks stay
-   (fed from the call record), or are they retired in favor of the call record API?
-2. **Assistant schema migration.** Automatic rewrite of stored assistant configs, or a versioned
+1. **Assistant schema migration.** Automatic rewrite of stored assistant configs, or a versioned
    schema that accepts both shapes for one release?
-3. **Knowledge port shape.** Is "query returns passages" enough, or do we need ingest and
+2. **Knowledge port shape.** Is "query returns passages" enough, or do we need ingest and
    citation metadata in the port?
-4. **Thinking signal message.** Name and shape of the message (see A9), owned by
-   `add-voice-session-gateway`.
-5. **Initial DTMF and first message.** `initialDtmf` is sent after answer today. Keep it as an
+3. **Initial DTMF and first message.** `initialDtmf` is sent after answer today. Keep it as an
    Autopilot setting or move it to app routing?

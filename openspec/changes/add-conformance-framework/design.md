@@ -24,7 +24,8 @@ harness.
 - Judging whether a replacement model is good enough. That review happens outside the system,
   with internal evals (provider-registry decision P5).
 - Testing vendor quality (word error rate, voice naturalness) beyond "the declared features work".
-- The media node's own suites. The media node is parked; this harness only fakes it.
+- The media node's own behavior rules. They are specified in `add-media-node`; its Go test runner
+  consumes this harness's scenario files.
 
 ## Decisions
 
@@ -114,6 +115,16 @@ A domain is architecture-done when its OpenSpec change is approved and its confo
 specified (scenarios written, fakes and pass bars defined). Building the suite and the
 implementation stays deferred until the owner approves the build.
 
+### C8. The harness lives in `mods/conformance`
+
+The harness is a new workspace package, `mods/conformance`, built, linted and released with the
+monorepo like any other module. It holds the fakes, the runners and the language-neutral scenario
+files. The scenario files are consumed by three runners: the TypeScript tests in this repo, the
+Python SDK's test suite (which pulls the files from the published package), and the Go media
+node's test runner. *Rejected:* a top-level `conformance/` folder, which would need its own tooling
+and CI wiring, and a separate repository, which adds version coordination before there are SDKs in
+other repositories to justify it.
+
 ## Risks / Trade-offs
 
 - **Fakes can lie.** A fake media node or fake provider may behave more nicely than the real one.
@@ -131,8 +142,6 @@ implementation stays deferred until the owner approves the build.
 
 - The exact scenario file schema (YAML as proposed, or JSON with a JSON Schema), and how wildcards
   and timing assertions are expressed.
-- Where the harness lives in the repo (a new `mods/conformance`, or a top-level `conformance/`
-  folder) and how scenario files are shared with the Python SDK repo or package.
 - CI resources for the nightly load test (dedicated runners, cloud machines per run) and its cost.
 - How recorded calls in the turn-taking corpus are stored and access-controlled, given they come
   from sealed originals with restricted access.

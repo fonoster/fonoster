@@ -3,7 +3,7 @@
 ## 1. Harness foundations
 
 - [ ] 1.1 Settle the scenario file schema (format, wildcards, timing assertions) and document it
-- [ ] 1.2 Decide where the harness lives (`mods/conformance` or `conformance/`) and how scenario files reach the Python SDK
+- [ ] 1.2 Create the `mods/conformance` workspace package (fakes, runners, scenario files) and publish the scenario files so the Python SDK and the Go media node runner can consume them
 - [ ] 1.3 Build the scenario runner for TypeScript
 - [ ] 1.4 Build the scenario runner for Python
 

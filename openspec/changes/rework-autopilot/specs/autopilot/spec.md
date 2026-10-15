@@ -171,16 +171,32 @@ and end the call after the configured maximum number of idle announcements.
 - **WHEN** Autopilot is speaking for longer than the idle timeout
 - **THEN** no idle message is sent until speech ends and the timeout elapses again
 
-### Requirement: Thinking signal
+### Requirement: Optional filler while thinking
 
-Autopilot SHALL signal when it is thinking, so the audio pipeline can fill silence. It MUST NOT
-generate comfort noise or filtering itself.
+When the assistant config sets a filler, Autopilot SHALL play it with `play` while it prepares a
+reply and MUST stop it when it speaks. Autopilot MUST NOT rely on any platform "thinking" signal,
+and MUST NOT play a filler when none is configured.
 
-#### Scenario: Thinking after a turn
+#### Scenario: Filler configured
 
-- **WHEN** the session sends `turn.ended`
-- **THEN** Autopilot signals thinking before its first `speak`
-- **AND** clears the signal when its first `speak` is sent
+- **WHEN** the assistant sets a filler URL and the session sends `turn.ended`
+- **THEN** Autopilot sends `play` with that URL and `interruptible: true` before its first `speak`
+- **AND** its first `speak` for the reply carries `preempt: true`, so the filler stops
+
+#### Scenario: No filler configured
+
+- **WHEN** the assistant sets no filler and the session sends `turn.ended`
+- **THEN** Autopilot sends no `play` before its first `speak`
+
+### Requirement: No assistant webhooks
+
+Autopilot SHALL NOT send `conversation.started` or `conversation.ended` webhooks; the assistant
+config MUST NOT accept an `eventsHook` block. Call notifications come from workspace webhooks.
+
+#### Scenario: Old config with eventsHook
+
+- **WHEN** an assistant config containing `eventsHook` is validated
+- **THEN** validation fails with an error naming `eventsHook` and pointing to workspace webhooks
 
 ### Requirement: Conversation events in the call record
 

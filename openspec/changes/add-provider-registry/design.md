@@ -77,6 +77,9 @@ States: `active` → `deprecated` → `retired`. Every transition is a command a
 1. `deprecate-<kind> <id> --replacement <id> --retire-on <date> [--note]` requires an active
    replacement of the same kind. It prints the impact report (P9). From then on:
    - the dashboard shows each workspace that uses the item a warning listing where it is used;
+   - each such workspace also receives a `provider.deprecated` workspace webhook
+     (`add-workspace-webhooks`) with the item, its replacement and the retire date; the dashboard
+     warning stays;
    - the gateway emits `provider.deprecated_used` on every session that resolves the item, which
      also catches ids an app sends at runtime and never saves in a config;
    - a workspace's warning clears as soon as none of its configs reference the item and no session
@@ -209,7 +212,8 @@ adapter exists in the running version, and a credential is available to the aski
    off the mapping table?
 3. Runtime usage window: is "used by a session in the last 30 days" the right horizon for
    `usage` and for clearing a warning?
-4. Notices: in-dashboard only, or also email to workspace owners on deprecate and retire?
+4. Notices: besides the dashboard warning and the `provider.deprecated` webhook, should workspace
+   owners also get email on deprecate and retire?
 5. Provider-level deprecation: does `deprecate-provider` require a replacement provider, or a
    per-model replacement map?
 6. Who holds operator identity for the audit when the utility runs in CI (the `apply` path)?
