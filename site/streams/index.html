@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-49RD5H9MR3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-49RD5H9MR3');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bidirectional Streams · Fonoster</title>
+    <meta name="description" content="Every call becomes a WebSocket. Speak the Twilio Media Streams protocol and your Pipecat bot runs unchanged." />
+    <meta name="theme-color" content="#181818" />
+    <link rel="canonical" href="https://fonoster.com/streams/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fonoster" />
+    <meta property="og:title" content="Bidirectional Streams · Fonoster" />
+    <meta property="og:description" content="Every call becomes a WebSocket. Speak the Twilio Media Streams protocol and your Pipecat bot runs unchanged." />
+    <meta property="og:url" content="https://fonoster.com/streams/" />
+    <meta property="og:image" content="https://fonoster.com/assets/img/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AI that answers the phone — Fonoster" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@fonoster" />
+    <link rel="icon" href="../assets/img/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/v1.css" />
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("fonoster.theme") === "light" ? "light" : "dark";
+      } catch (e) {}
+    </script>
+  </head>
+  <body data-page="streams" data-icons="../assets/img/icons.svg">
+    <script src="../assets/js/notice.js"></script>
+    <header class="nav" data-nav>
+      <div class="container nav__in">
+        <a class="logo" href="../" aria-label="Fonoster">
+          <img class="logo--dark" src="../assets/img/logo-dark.svg" alt="Fonoster" width="124" height="32" />
+          <img class="logo--light" src="../assets/img/logo.svg" alt="Fonoster" width="124" height="32" />
+        </a>
+        <nav class="nav__links" aria-label="Main">
+          <div class="menu is-current" data-products>
+            <button class="menu__btn" type="button" aria-expanded="false" aria-controls="products-menu" data-products-btn>
+              <span data-i18n="nav.products">Products</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-chevron-down"></use></svg>
+            </button>
+            <div class="menu__panel" id="products-menu" hidden>
+              <a class="menu__item" href="../streams/" aria-current="page"><span class="menu__icon"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-audio-lines"></use></svg></span><span class="menu__text"><b data-i18n="nav.streams">Bidirectional Streams</b><span data-i18n="nav.streamsLine">Bring your own bot over WebSocket</span></span></a>
+              <a class="menu__item" href="../autopilot/"><span class="menu__icon"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-bot"></use></svg></span><span class="menu__text"><b data-i18n="nav.autopilot">Autopilot</b><span data-i18n="nav.autopilotLine">AI agents from one config file</span></span></a>
+              <a class="menu__item" href="../private-regions/"><span class="menu__icon"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-shield-check"></use></svg></span><span class="menu__text"><b data-i18n="nav.regions">Private Regions</b><span data-i18n="nav.regionsLine">Calls run in your own cloud</span></span></a>
+            </div>
+          </div>
+          <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+          <a href="../pricing/" data-i18n="nav.pricing">Pricing</a>
+        </nav>
+        <div class="nav__actions">
+          <a class="gh-chip" href="https://github.com/fonoster/fonoster" aria-label="Fonoster on GitHub, 8.1K stars">
+            <svg class="icon i-github" aria-hidden="true"><use href="../assets/img/icons.svg#i-github"></use></svg>
+            <svg class="icon i-star" aria-hidden="true"><use href="../assets/img/icons.svg#i-star"></use></svg>
+            <span>8.1K</span>
+          </a>
+          <a class="btn btn--primary btn--sm" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+          <button class="nav__menu" type="button" aria-expanded="false" aria-controls="sheet" aria-label="Menu" data-menu data-i18n-attr="aria-label:nav.menu">
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-menu"></use></svg>
+          </button>
+        </div>
+      </div>
+      <div class="sheet" id="sheet" hidden>
+        <span class="sheet__label" data-i18n="nav.products">Products</span>
+        <a class="sheet__product" href="../streams/" aria-current="page"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-audio-lines"></use></svg><span data-i18n="nav.streams">Bidirectional Streams</span></a>
+        <a class="sheet__product" href="../autopilot/"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-bot"></use></svg><span data-i18n="nav.autopilot">Autopilot</span></a>
+        <a class="sheet__product" href="../private-regions/"><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-shield-check"></use></svg><span data-i18n="nav.regions">Private Regions</span></a>
+        <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+        <a href="../pricing/" data-i18n="nav.pricing">Pricing</a>
+        <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero + call flow -->
+      <section class="aphero" data-loop>
+        <div class="atmos atmos--center" aria-hidden="true">
+          <div class="dots"><i class="dots__wave"></i></div>
+        </div>
+        <div class="container aphero__copy">
+          <span class="pill" data-reveal>
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-audio-lines"></use></svg>
+            <span data-i18n="nav.streams">Bidirectional Streams</span>
+          </span>
+          <h1 class="t-h1" data-i18n="st.title" data-reveal style="--i: 1">Bring your own bot.<br />We answer<br class="br-m" /> the phone.</h1>
+          <p class="t-lead" data-i18n="st.sub" data-reveal style="--i: 2">Every call becomes a WebSocket. Speak the Twilio Media Streams protocol and your Pipecat bot runs unchanged.</p>
+          <div class="ctas" data-reveal style="--i: 3">
+            <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+            <a class="btn btn--secondary" href="https://docs.fonoster.com/" data-i18n="cta.docs">Read the docs</a>
+          </div>
+        </div>
+
+        <div class="flow">
+          <div class="container flow__in" data-reveal style="--i: 4">
+            <div class="fcard fcard--caller">
+              <div class="fhead">
+                <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-phone"></use></svg>
+                <div><b data-i18n="st.caller">Caller</b><span data-i18n="st.callerSub">Any phone, any carrier</span></div>
+              </div>
+              <span class="fmeta">+1 (415) 555-0134<span class="show-m-i"> · <span data-i18n="st.connectedM">Connected 00:42</span></span></span>
+              <span class="fmeta hide-m" data-i18n="st.connected">Connected · 00:42</span>
+            </div>
+            <div class="flink">
+              <span class="flink__proto">SIP · RTP</span>
+              <span class="wire" aria-hidden="true"><svg class="icon"><use href="../assets/img/icons.svg#i-chevron-left"></use></svg><svg class="icon"><use href="../assets/img/icons.svg#i-chevron-right"></use></svg></span>
+              <span data-i18n="st.trunk">your number · SIP trunk</span>
+            </div>
+            <div class="fcard fcard--fono">
+              <div class="fhead">
+                <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-audio-lines"></use></svg>
+                <div><b>Fonoster</b><span data-i18n="st.fonoSub">Telephony + streams</span></div>
+              </div>
+              <div class="layer"><b data-i18n="st.audio">Audio</b><span data-i18n="st.audioLine">Raw frames, mark, clear</span></div>
+              <div class="layer"><b data-i18n="st.speech">Speech</b><span data-i18n="st.speechLine">STT, TTS, turn events</span></div>
+              <div class="layer"><b data-i18n="st.control">Control</b><span data-i18n="st.controlLine">DTMF, transfer, <span class="hide-m">hold, </span>hang up</span></div>
+            </div>
+            <div class="flink">
+              <span class="flink__proto">WebSocket</span>
+              <span class="wire" aria-hidden="true"><svg class="icon"><use href="../assets/img/icons.svg#i-chevron-left"></use></svg><svg class="icon"><use href="../assets/img/icons.svg#i-chevron-right"></use></svg></span>
+              <span>wss://bot.acme.com/ws</span>
+            </div>
+            <div class="fcard fcard--bot">
+              <div class="fhead">
+                <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-bot"></use></svg>
+                <div><b data-i18n="st.bot">Your bot</b><span data-i18n="st.botSub">Pipecat, Autopilot, your code</span></div>
+              </div>
+              <div class="events" aria-label="Stream messages">
+                <div><b class="lr">→</b><b class="dn">↓</b>start  callSid=CA7f…</div>
+                <div><b class="lr">→</b><b class="dn">↓</b>media  inbound · μ-law</div>
+                <div class="out"><b class="lr">←</b><b class="dn">↑</b>media  payload=…</div>
+                <div class="out"><b class="lr">←</b><b class="dn">↑</b>mark   reply-1</div>
+                <div><b class="lr">→</b><b class="dn">↓</b>dtmf   5</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Speaks what your bot speaks -->
+      <section class="works">
+        <div class="container">
+          <p class="works__label" data-i18n="st.works" data-reveal>Speaks what your bot already speaks</p>
+          <ul class="works__list" data-reveal style="--i: 1">
+            <li>Pipecat</li>
+            <li>Twilio Media Streams</li>
+            <li>Autopilot</li>
+            <li>Python</li>
+            <li>TypeScript</li>
+            <li class="hide-m" data-i18n="st.anyWs">Any WebSocket</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Pipecat over the Twilio protocol -->
+      <section class="section features">
+        <div class="container">
+          <span class="eyebrow" data-reveal>
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-plug-zap"></use></svg>
+            <span data-i18n="st.pcEyebrow">Twilio Media Streams compatible</span>
+          </span>
+          <h2 class="t-h2" data-i18n="st.pcTitle" data-reveal style="--i: 1; margin-top: 16px">Your Pipecat bot. Unchanged.</h2>
+          <p class="t-sub lead-max" data-i18n="st.pcSub" data-reveal style="--i: 2">Fonoster speaks the protocol your bot already uses. Point a number at it and take the call.</p>
+
+          <div class="stage" data-reveal style="--i: 3">
+            <div class="stage__end">
+              <img class="logo--dark" src="../assets/img/logo-dark.svg" alt="Fonoster" width="124" height="32" />
+              <img class="logo--light" src="../assets/img/logo.svg" alt="Fonoster" width="124" height="32" />
+              <span class="fmeta fmeta--hi">+1 (415) 555-0134</span>
+              <span class="fmeta">app: support-bot</span>
+            </div>
+            <div class="lane" data-lane data-loop>
+              <div class="lane__head">
+                <span class="lane__end" data-i18n="st.phone">phone</span>
+                <span class="lane__proto">WebSocket · protocol: twilio</span>
+                <span class="lane__end" data-i18n="st.botShort">bot</span>
+                <i class="lane__pulse" aria-hidden="true"></i>
+              </div>
+              <ol class="lane__list" aria-label="Messages on one call">
+                <li class="lm hide-m"><span class="lm__pill">connected</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></li>
+                <li class="lm"><span class="lm__pill">start   callSid=CA7f…<span class="hide-m">  μ-law 8 kHz</span></span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></li>
+                <li class="lm" data-media><span class="lm__pill">media   <span class="hide-m">inbound  </span>"<span data-i18n="st.m1">Hi, I need to reschedule</span>"</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></li>
+                <li class="lm lm--bot" data-media data-queued><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-left"></use></svg><span class="lm__pill">media   "<span data-i18n="st.m2">Sure, which day works?</span>"</span></li>
+                <li class="lm lm--bot" data-queued><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-left"></use></svg><span class="lm__pill">mark    reply-1</span></li>
+                <li class="lm" data-media><span class="lm__pill">media   <span class="hide-m">inbound  </span>"<span data-i18n="st.m3">Actually—</span>"</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></li>
+                <li class="lm lm--bot lm--key" data-clear><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-left"></use></svg><span class="lm__pill">clear</span></li>
+                <li class="lm"><span class="lm__pill">mark    reply-1</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></li>
+                <li class="lm"><span class="lm__pill">dtmf    5</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></li>
+                <li class="lm hide-m"><span class="lm__pill">stop</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></li>
+              </ol>
+            </div>
+            <div class="stage__end">
+              <img class="logo--dark" src="../assets/img/pipecat-dark.png" alt="Pipecat" width="166" height="32" />
+              <img class="logo--light" src="../assets/img/pipecat-light.png" alt="Pipecat" width="166" height="32" />
+              <span class="fmeta fmeta--hi">TwilioFrameSerializer</span>
+              <span class="fmeta">wss://bot.acme.com/ws</span>
+            </div>
+          </div>
+
+          <div class="facts">
+            <div class="fact" data-reveal>
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-code"></use></svg>
+              <span class="fact__title" data-i18n="st.f1">Zero code changes</span>
+              <span class="fact__line" data-i18n="st.f1Line">Keep your serializer and pipeline. Only the number changes.</span>
+            </div>
+            <div class="fact" data-reveal style="--i: 1">
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-hand"></use></svg>
+              <span class="fact__title" data-i18n="st.f2">Barge-in that works</span>
+              <span class="fact__line" data-i18n="st.f2Line">clear and mark behave exactly as your bot expects.</span>
+            </div>
+            <div class="fact" data-reveal style="--i: 2">
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-phone-off"></use></svg>
+              <span class="fact__title" data-i18n="st.f3">Hang up from the bot</span>
+              <span class="fact__line" data-i18n="st.f3Line">auto_hang_up works through a Twilio-compatible endpoint.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quickstart -->
+      <section class="band evals">
+        <div class="container section split">
+          <div class="split__copy" data-reveal>
+            <span class="eyebrow">
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-plug"></use></svg>
+              <span data-i18n="st.qsEyebrow">Quickstart</span>
+            </span>
+            <h2 class="t-h2" data-i18n="st.qsTitle">Point a number<br />at a URL.</h2>
+            <p class="t-sub" data-i18n="st.qsSub">An app is a WebSocket URL and a protocol. Create it, then point a number at it. Calls open a socket to your bot.</p>
+          </div>
+          <div class="window" data-reveal style="--i: 1">
+            <div class="window__bar"><i></i><i></i><i></i>Terminal</div>
+            <div class="evalterm" data-print>
+              <div><span class="g">$ </span>fonoster applications:create \</div>
+              <div><span class="g">    --name </span>support-bot \</div>
+              <div><span class="g">    --url </span>wss://bot.acme.com/ws \</div>
+              <div><span class="g">    --flavor </span>twilio<span class="g">   # or native</span></div>
+              <div class="pass"><span class="ok">✔ </span>Application created: 7f3c9a…</div>
+              <div> </div>
+              <div><span class="g">$ </span>fonoster sipnet:numbers:update 2b81e4…</div>
+              <div><span class="g">? Application </span>support-bot</div>
+              <div><span class="g">? Ready? </span>Yes</div>
+              <div class="pass"><span class="ok">✔ </span>Done!</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grows with every call -->
+      <section class="section">
+        <div class="container">
+          <h2 class="t-h3" data-i18n="st.scaleTitle" data-reveal>Grows with every call.</h2>
+          <div class="run__grid">
+            <div class="run__item" data-reveal>
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-trending-up"></use></svg>
+              <span class="run__name" data-i18n="st.s1">Scale without rewrites</span>
+              <span class="run__line" data-i18n="st.s1Line">Your first call or your busiest day. Same app, same code.</span>
+            </div>
+            <div class="run__item" data-reveal style="--i: 1">
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-zap"></use></svg>
+              <span class="run__name" data-i18n="st.s2">Built for real-time</span>
+              <span class="run__line" data-i18n="st.s2Line">Audio takes the shortest path from the caller to your bot.</span>
+            </div>
+            <div class="run__item" data-reveal style="--i: 2">
+              <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-shield-check"></use></svg>
+              <span class="run__name" data-i18n="st.s3">Calls stay up</span>
+              <span class="run__line" data-i18n="st.s3Line">Upgrade and scale out without dropping live calls.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="final final--rule" data-loop>
+        <div class="atmos atmos--bottom" aria-hidden="true">
+          <div class="dots"><i class="dots__wave"></i></div>
+        </div>
+        <div class="container final__in">
+          <h2 class="t-h1" data-i18n="st.final" data-reveal>Your bot,<br />on the phone.</h2>
+          <div class="ctas" data-reveal style="--i: 1">
+            <a class="btn btn--primary" href="https://app.fonoster.com/auth/login" data-i18n="cta.start">Start building</a>
+            <a class="btn btn--secondary" href="https://docs.fonoster.com/" data-i18n="cta.docs">Read the docs</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__in">
+        <span class="footer__copy" data-i18n="footer.rights">© 2026 Fonoster Inc.</span>
+        <nav class="footer__links" aria-label="Footer">
+          <a href="https://docs.fonoster.com/" data-i18n="nav.docs">Docs</a>
+          <a href="https://github.com/fonoster/fonoster">GitHub</a>
+          <a href="https://discord.gg/4QWgSz4hTC">Discord</a>
+          <a href="https://x.com/fonoster">X</a>
+        </nav>
+        <div class="prefs">
+          <label class="prefs__item">
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-globe"></use></svg>
+            <span class="sr-only" data-i18n="prefs.language">Language</span>
+            <select data-pref="lang">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+            <svg class="icon chev" aria-hidden="true"><use href="../assets/img/icons.svg#i-chevron-down"></use></svg>
+          </label>
+          <span class="prefs__div" aria-hidden="true"></span>
+          <label class="prefs__item">
+            <svg class="icon" aria-hidden="true" data-theme-icon><use href="../assets/img/icons.svg#i-moon"></use></svg>
+            <span class="sr-only" data-i18n="prefs.theme">Theme</span>
+            <select data-pref="theme">
+              <option value="dark" data-i18n="prefs.dark">Dark</option>
+              <option value="light" data-i18n="prefs.light">Light</option>
+            </select>
+            <svg class="icon chev" aria-hidden="true"><use href="../assets/img/icons.svg#i-chevron-down"></use></svg>
+          </label>
+        </div>
+      </div>
+    </footer>
+
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/v1.js"></script>
+  </body>
+</html>
