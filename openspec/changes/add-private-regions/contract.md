@@ -43,6 +43,7 @@ Responses:
 | Subject | Direction | Payload |
 | --- | --- | --- |
 | `region.R.heartbeat` | cell → cp | `{type:"region.heartbeat", regionRef, version, components:{mediaNodes, gateways, autopilot}, activeCalls, secretsSet:["deepgram",…], configVersion, at}` every 30 s |
+| `region.R.endpoints` | cell → cp | `{type:"region.endpoints", sip:[{host, port, transport:"udp"\|"tcp"\|"tls"\|"ws"\|"wss"}], signalingAddresses:["203.0.113.10",…], mediaAddresses:["203.0.113.11",…], rtpPorts:{min, max}, updatedAt}` — on connect and whenever they change (and included as `endpointsHash` in heartbeats so the cp can request them); public addresses only, as carriers and softphones see them |
 | `region.R.config` | cp → cell | `{type:"region.config", configVersion, full:true, kinds:{numbers:[…], apps:[…], assistants:[…], routr:{domains,agents,trunks,acls}, catalog:[…], webhooks:[…], recordingPolicy}}` — full snapshot, published on change and on request |
 | `region.R.config.request` | cell → cp (request/reply) | `{type:"region.config.request", haveVersion}` → reply is a `region.config` snapshot (or `{type:"region.config.current"}` when `haveVersion` is current) |
 | `region.R.secrets.needed` | cp → cell | `{type:"region.secrets.needed", names:["deepgram","groq",…]}` (derived from the workspace's apps and catalog choices) |
@@ -73,6 +74,11 @@ Additions from the control-plane build (RG-B4, additive):
   the apps reference, `recordingPolicy` is `{transcripts, recordings, retention:[{part, days}]}`.
 - A heartbeat whose `configVersion` is behind makes the control plane resend the current snapshot
   (same version). Heartbeats, index and usage from a region that is not enrolled are ignored.
+
+## 3a. Endpoints of public regions
+
+Public regions (e.g. `us-east-1`) carry the same `endpoints` shape in the control plane's region
+configuration, so the dashboard and API treat public and private regions alike.
 
 ## 4. Status rules (control plane)
 

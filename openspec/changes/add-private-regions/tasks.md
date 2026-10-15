@@ -21,9 +21,12 @@
 - [ ] 3.2 Local secret store and `fonoster-region secrets set/list`; report set names in heartbeats
 - [ ] 3.3 Config sync consumer; relay responder with audit; heartbeat publisher
 - [ ] 3.4 Webhook delivery from the cell
+- [ ] 3.6 Report endpoints (SIP host/port/transport, public signaling and media addresses, RTP range) on connect and on change
 - [ ] 3.5 Hosted Autopilot in the cell's Compose/Helm; assistant sync; LLM keys from the cell's secrets
 
 ## 4. Dashboard and billing
+
+- [ ] 4.6 Connection details in Settings → Region, the trunk form and SIP user settings
 
 - [x] 4.1 Region picker in "New workspace" with confirm step (region is permanent)
 - [x] 4.2 Private region setup page and Region page
