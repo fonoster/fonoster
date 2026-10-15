@@ -169,7 +169,6 @@ Changes recognition from now on: `{ "type": "listen.update", "language": "es", "
 | `hold` | `music` | Puts the caller on hold |
 | `resume` | | Takes the caller off hold |
 | `handoff` | `app`, `payload` (JSON, 16 KB max) | Hands the call to another app: you get `session.end` with `handoff`, the other app gets `session.start` with your payload. At most 5 handoffs per call |
-| `record.note` | `data` (JSON, 16 KB max) | Adds a note to the call record; nothing else happens |
 
 The caller's keypresses arrive at any time as `dtmf { digit }`.
 

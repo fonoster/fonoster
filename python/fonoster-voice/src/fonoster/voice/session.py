@@ -242,7 +242,10 @@ class Session:
         await self._until_end(["app_hangup", "caller_hangup", "closed"], None, {"type": "hangup"})
 
     async def note(self, data: dict[str, Any]) -> None:
-        """Adds a note to the call record (record.note); it has no other effect on the call."""
+        """Adds a note to the call record (record.note).
+
+        Internal: reserved for Fonoster's own apps (Autopilot); not part of the public SDK and may change.
+        """
         await self._command({"type": "record.note", "data": data})
 
     async def answer(self) -> None:

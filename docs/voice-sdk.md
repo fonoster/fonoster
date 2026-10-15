@@ -63,7 +63,6 @@ The Python SDK is asyncio only; plain `def` handlers are rejected.
 | `transfer(to, { mode, headers })`, `completeTransfer()` | `transfer(...)`, `complete_transfer()` | `transfer`, `transfer.complete`; `transfer()` resolves when the session ends with `transfer` |
 | `hold({ music })`, `resume()` | same | `hold`, `resume` |
 | `handoff(app, payload)` | same | `handoff` |
-| `note(data)` | same | `record.note` (adds a note to the call record) |
 | `hangup()` | same | `hangup` |
 | `answer()` | same | nothing (the gateway answers on connect) |
 

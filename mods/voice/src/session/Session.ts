@@ -319,7 +319,11 @@ export class Session {
     );
   }
 
-  /** Adds a note to the call record (record.note); it has no other effect on the call. */
+  /**
+   * Adds a note to the call record (record.note).
+   *
+   * @internal Reserved for Fonoster's own apps (Autopilot); not part of the public SDK and may change.
+   */
   async note(data: Record<string, unknown>): Promise<void> {
     this.command({ type: "record.note", data });
   }

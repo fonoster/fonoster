@@ -177,3 +177,8 @@ dedicated runner are still to do (conformance 3.10, 4.2).
   are kept and fed to STT when it starts, so the first words are not lost. Both SDKs send an empty
   `listen.update` from `gather()` when nothing has started listening yet.
 - Scenario `audio-only-no-stt` checks that an audio-only session opens no STT stream.
+
+### B19. `record.note` is internal (owner decision)
+
+- Kept in the protocol and both SDKs for Autopilot's traces, but removed from the public docs,
+  marked internal in the SDKs, and reserved in the spec (it may change without a new protocol name).

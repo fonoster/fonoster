@@ -392,7 +392,9 @@ call's record as it happens.
 ### Requirement: Apps can annotate the call record
 
 The gateway SHALL accept `record.note` with a JSON object in `data` (at most 16 KB) and SHALL append
-it to the call's record as an app note, without any other effect on the session. A `record.note`
+it to the call's record as an app note, without any other effect on the session. `record.note` is
+reserved for Fonoster's own apps (Autopilot's turn traces): it SHALL NOT appear in the public
+protocol reference or SDK documentation, and it may change without a new protocol name. A `record.note`
 whose `data` is missing or too large SHALL be answered with `error` `bad_message`.
 
 #### Scenario: Autopilot records a turn trace
