@@ -13,7 +13,7 @@
 - [x] 2.3 Delivery workers: signing, timeout, retries with exponential backoff, failure marking
 - [ ] 2.4 Producers: `call.started`, `call.ended`, `call.failed` (gateway and media node),
       `call_record.sealed` (record writer), `provider.deprecated` (registry utility)
-- [ ] 2.5 Delivery log storage and resend
+- [x] 2.5 Delivery log storage and resend
 
 ## 3. Surfaces and docs
 

@@ -60,7 +60,8 @@ export type ProviderConfig = {
 export type GatewayConfig = {
   nats: { url: string };
   rtp?: { host?: string; advertiseHost?: string };
-  apps: AppConfig[];
+  /** Apps when `appStore.source` is yaml (the default). */
+  apps?: AppConfig[];
   providers: Record<string, ProviderConfig>;
   /** The provider used for STT (default: the first provider with the stt capability). */
   stt?: { provider?: string };
@@ -85,7 +86,37 @@ export type GatewayConfig = {
    * retired ids play their replacement and deprecated or retired use is recorded. Until the
    * registry tables exist it is the JSON file the fonoster-registry utility writes.
    */
-  registry?: { file: string };
+  registry?: {
+    file?: string;
+    /** `database`: the registry tables (needs `database`); refreshed every refreshMs (30 s). */
+    source?: "file" | "database";
+    refreshMs?: number;
+  };
+  /**
+   * The control-plane database (the apiserver's), for `apps.source: database`, database registry
+   * and webhooks. The gateway only reads apps and the catalog; it writes webhook deliveries.
+   */
+  database?: {
+    url?: string;
+    /** Environment variable holding the URL (default APISERVER_DATABASE_URL). */
+    urlEnv?: string;
+    /** Environment variable with the apiserver's encryption key (app signing secrets, webhooks). */
+    encryptionKeyEnv?: string;
+    /** A client generated from the apiserver schema (default `@prisma/client`). */
+    clientModule?: string;
+  };
+  /** Where apps come from: `yaml` (the `apps` list, default) or `database` (applications rows). */
+  appStore?: { source: "yaml" | "database"; cacheMs?: number };
+  /** Workspace webhooks (add-workspace-webhooks) from the database's endpoints. */
+  webhooks?: {
+    enabled: boolean;
+    /** How often due deliveries are attempted (default 1 s). */
+    intervalMs?: number;
+    /** How often endpoints are reloaded and orphaned deliveries adopted (default 30 s). */
+    refreshMs?: number;
+    /** Plain http:// endpoints (tests only). */
+    allowInsecureUrls?: boolean;
+  };
   /** Keepalive overrides (mainly for tests). */
   keepalive?: { pingIntervalMs?: number; idleTimeoutMs?: number };
   /** Call records (add-call-record): working records, sealing and signing. */
@@ -142,6 +173,21 @@ export function validateConfig(config: GatewayConfig): string[] {
       );
     }
   }
+  const needsDb = [
+    config.appStore?.source === "database" && "appStore.source: database",
+    config.registry?.source === "database" && "registry.source: database",
+    config.webhooks?.enabled && "webhooks"
+  ].filter(Boolean);
+  if (needsDb.length && !databaseUrl(config))
+    problems.push(`${needsDb.join(", ")} need database.url or database.urlEnv`);
+  if (
+    config.registry &&
+    config.registry.source !== "database" &&
+    !config.registry.file
+  )
+    problems.push("registry: set file, or source: database");
+  if (config.appStore && !["yaml", "database"].includes(config.appStore.source))
+    problems.push(`appStore: unknown source ${config.appStore.source}`);
   const h = config.http;
   if (h && !h.identity && !(h.accountSid && h.authToken)) {
     problems.push("http: set identity.endpoint, or accountSid and authToken");
@@ -178,4 +224,11 @@ export function providerKey(p: ProviderConfig): string | undefined {
     p.credential?.value ??
     (p.credential?.env ? process.env[p.credential.env] : undefined)
   );
+}
+
+/** The control-plane database URL, if configured. */
+export function databaseUrl(config: GatewayConfig): string | undefined {
+  const d = config.database;
+  if (!d) return undefined;
+  return d.url ?? process.env[d.urlEnv ?? "APISERVER_DATABASE_URL"];
 }

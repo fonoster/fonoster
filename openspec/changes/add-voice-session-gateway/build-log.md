@@ -237,3 +237,30 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 
 - The hang-up endpoint still needs Identity; during an Identity outage it errors and apps can
   close the socket instead.
+
+## 2026-10-15 (persistence stream)
+
+### P-B8. The app model lives on `applications` rows (task 2.12)
+
+- Additive columns: `url`, `flavor`, `signing_secret_hash` (`/// @encrypted`), `speech_voice`,
+  `speech_language`, `speech_stt_model`, `speech_tts_model` (catalog ids), `speech_settings`,
+  `silence_timeout_ms`, `audio`, `filters`, `listeners` (JSON), `fallback_app_ref`,
+  `fallback_message`. The workspace is the existing `access_key_id` (the AppConfig's
+  `workspaceRef`); no new column. Legacy columns (`type`, `endpoint`, TTS/STT/Intelligence rows)
+  stay.
+- A row is a session app only when it has `url` and `signing_secret`; others are ignored by the
+  gateway. Moving legacy apps over (Autopilot URL, secrets) is a cutover step, not done here.
+
+### P-B9. `AppStore`: YAML or database, chosen by config
+
+- `AppStore` (`find`, `forNumber`, `count`) with `YamlAppStore` (the `apps` list; tests and
+  self-hosting without a database) and `PrismaAppStore` (`applications` rows). Gateway config
+  `appStore: {source: yaml | database, cacheMs}` and `database: {url | urlEnv, encryptionKeyEnv,
+  clientModule}`; `GatewayOptions.apps` injects one.
+- Lookups stay synchronous: the database store holds every session app in memory and reloads them
+  all every `cacheMs` (default 5 s), keeping the last good set if the database is down. One query
+  per replica per 5 s is fine for thousands of apps; per-app lazy loading would make `findApp`
+  async through `Call.ts`. Revisit if app counts grow.
+- Numbers stay in Routr (`X-App-Ref`, B21); the database store has no number fallback.
+- The gateway reads the apiserver's database directly (read-only for apps and the catalog) rather
+  than through a control-plane API; the read-only role is still to do (provider-registry 2.7).

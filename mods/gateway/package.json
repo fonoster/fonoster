@@ -25,8 +25,10 @@
     "@fonoster/common": "^0.27.0",
     "@fonoster/identity-client": "^0.27.0",
     "@fonoster/logger": "^0.27.0",
+    "@prisma/client": "^6.19.1",
     "ajv": "^8.17.1",
     "nats": "^2.25.0",
+    "prisma-field-encryption": "^1.6.0",
     "ws": "^8.18.0",
     "yaml": "^2.9.0",
     "zod": "^3.25.76"

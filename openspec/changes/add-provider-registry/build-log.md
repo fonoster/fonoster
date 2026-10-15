@@ -81,3 +81,59 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - The gateway resolves speech credentials, Autopilot resolves its LLM credential through the same
   registry API (matches AP2). Credentials never travel in the session protocol. Two scenarios that
   named nonexistent `listen.update` / `speak` model fields were rewritten.
+
+## 2026-10-15 (persistence stream)
+
+### P-B1. Database stores keep the synchronous interfaces
+
+- `RegistryStore`, `UsageSource` and `WebhookStore` stay synchronous (the registry and the
+  gateway's Catalog call them inline). The Prisma stores load a snapshot, write behind in order
+  (`WriteBehind`), and `flush()` waits for the writes and throws the first failure. The utility
+  flushes before it exits; the gateway refreshes on a timer.
+- *Why:* no rewrite of the tested registry logic or of the gateway's call path. *Cost:* a
+  long-running process sees other writers' changes only after `refresh()`.
+
+### P-B2. Registry tables (task 2.1)
+
+- In the apiserver schema, inside a `// rebuild: persistence` block, migration
+  `20261015120000_rebuild_persistence` (additive only): `registry_providers`, `registry_models`,
+  `registry_voices`, `registry_voice_models` (with `position`, so a voice's model order survives),
+  `registry_audit` (append-only, `details` JSON), `registry_notices` (dashboard warnings per
+  workspace), `workspace_provider_keys` (workspace + provider → `secrets.ref`; the key itself only
+  lives in the encrypted, write-only Secret).
+- Lifecycle is a Postgres enum (`ACTIVE | DEPRECATED | RETIRED`). The voice → model relation has no
+  foreign key to the model: `apply` may write a voice before its models; the registry checks it.
+- Secret safety (1.4, partly): a test asserts no `registry_*` column is named like a secret, key,
+  token, password or hash. Database roles (2.7) are not done.
+
+### P-B3. `fonoster-registry --store database`
+
+- `--store database` or `FONOSTER_REGISTRY_STORE=database`, URL from `--database-url` or
+  `FONOSTER_REGISTRY_DATABASE_URL`. The client is loaded at run time (`FONOSTER_PRISMA_CLIENT`,
+  default `@prisma/client`), so `@fonoster/common` has no hard dependency on a generated client.
+- Usages (task 2.6 transaction, 2.5 webhooks): apps (`speech_voice`, `speech_tts_model`,
+  `speech_stt_model`, `speech_settings` keys as settings) and assistants (the Autopilot assistant in
+  the app's Intelligence config: `languageModel.model`, with tools → requires `tool-calling`, and
+  `conversationSettings.voice`). Legacy rows with raw vendor names are not usages until 5.1 maps
+  them.
+- Rewrites are optimistic: each only applies if the field still holds the value read. A skipped
+  one is printed and audited as `rewrite-skipped`; the config keeps the old id. Not one database
+  transaction across all configs (each rewrite is its own statement).
+- Deprecation stores one `registry_notices` row per workspace and, when
+  `FONOSTER_REGISTRY_ENCRYPTION_KEY` (the apiserver's key, to sign with endpoint secrets) is set,
+  publishes one `provider.deprecated` webhook per workspace, attempts it once, and leaves retries
+  in `webhook_deliveries` for a running dispatcher to adopt (P-B6 in add-workspace-webhooks).
+  Without the key it says so and only stores the notices.
+
+### P-B4. The gateway can read the catalog from the database
+
+- Gateway config `registry: {source: database, refreshMs}` (with `database`): the Catalog uses a
+  `PrismaRegistryStore`, reloaded every 30 s by default. `registry: {file}` still works.
+- `@prisma/client` and `prisma-field-encryption` are declared in the gateway's package.json (both
+  already in the workspace's node_modules; nothing installed). Images that use the database need
+  a client generated from the apiserver schema (or `database.clientModule`).
+
+### Not done (persistence stream)
+
+- 1.1 as a full scenario suite, 2.7 roles, 4.3 API/UI for workspace keys (table only), runtime
+  `provider.deprecated_used` → dashboard notice (the gateway records it in the call record only).

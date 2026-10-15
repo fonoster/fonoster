@@ -39,15 +39,20 @@ export type VoiceResolution = {
 
 export class Catalog {
   private registry?: {
-    store: RegistryNs.FileRegistryStore;
+    store: RegistryNs.RegistryStore;
     registry: RegistryNs.Registry;
   };
   private tts = new Map<string, TtsAdapter>();
   private stt = new Map<string, SttAdapter>();
 
-  constructor(private readonly config: GatewayConfig) {
-    if (config.registry) {
-      const store = new RegistryNs.FileRegistryStore(config.registry.file);
+  constructor(
+    private readonly config: GatewayConfig,
+    registryStore?: RegistryNs.RegistryStore
+  ) {
+    if (registryStore || config.registry?.file) {
+      const store =
+        registryStore ??
+        new RegistryNs.FileRegistryStore(config.registry!.file!);
       this.registry = {
         store,
         registry: new RegistryNs.Registry({ store, actor: "gateway" })
