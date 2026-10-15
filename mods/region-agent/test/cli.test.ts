@@ -22,6 +22,7 @@ import * as os from "os";
 import * as path from "path";
 import { Writable } from "stream";
 import { main, parseArgs } from "../src/cli";
+import { loadAgentConfig } from "../src/config";
 import { FakeControlPlane } from "./fakeControlPlane";
 
 // add-private-regions tasks 3.1 and 3.2: the `fonoster-region` commands.
@@ -100,5 +101,13 @@ describe("@region-agent fonoster-region CLI", function () {
       (e) => (err = e)
     );
     expect(err?.message).to.match(/invalid secret name/);
+  });
+
+  it("loads the Compose cell's agent config", function () {
+    const c = loadAgentConfig(
+      path.join(__dirname, "../../../ops/rebuild/cell/config/region-agent.yaml")
+    );
+    expect(c.heartbeatMs).to.equal(30000);
+    expect(c.autopilot?.url).to.equal("ws://autopilot:3000");
   });
 });
