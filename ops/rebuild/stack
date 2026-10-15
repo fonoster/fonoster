@@ -78,6 +78,12 @@ init_local() {
     } > "$STACK_ENV"
     chmod 600 "$STACK_ENV"
   fi
+  # One NATS user per service (add-platform 4.1); added to stack.env files made before them.
+  local svc var
+  for svc in APISERVER GATEWAY MEDIANODE ROUTR; do
+    var="NATS_${svc}_PASSWORD"
+    grep -q "^$var=" "$STACK_ENV" || echo "$var=$(rand)" >> "$STACK_ENV"
+  done
   if [ ! -f "$CONF/keys/private.pem" ]; then
     log "generating Identity's signing keys"
     openssl genrsa -out "$CONF/keys/private.pem" 2048 2>/dev/null
@@ -199,7 +205,7 @@ features:
 routr:
   apiEndpoint: routr:51907
   mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: "$RB_NODE_PASSWORD" }
-nats: { url: "nats://nats:4222" }
+nats: { url: "nats://nats:4222", user: apiserver, password: "secret://env/NATS_APISERVER_PASSWORD" }
 # Autopilot apps point at the hosted Autopilot and share its signing secret (FN-B1).
 apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: "$AUTOPILOT_SIGNING_SECRET" }
 # Required by the schema; unused with callRecords.listCallsFromIndex.
@@ -271,7 +277,7 @@ EOF
   fi
   cat > "$CONF/gateway.yaml" <<EOF
 # Rendered by ops/rebuild/stack up. Local only.
-nats: { url: "nats://nats:4222" }
+nats: { url: "nats://nats:4222", user: gateway, password: "secret://env/NATS_GATEWAY_PASSWORD" }
 rtp: { host: 0.0.0.0, advertiseHost: "$net.43" }
 # Fake adapters are allowed (test mode) so the stack runs without vendor keys.
 testMode: true

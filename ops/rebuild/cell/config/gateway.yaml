@@ -4,6 +4,8 @@
 # <provider>`), never from the cloud database.
 nats:
   url: nats://nats:4222
+  user: gateway
+  password: secret://env/NATS_GATEWAY_PASSWORD
 rtp:
   host: 0.0.0.0
   advertiseHost: gateway

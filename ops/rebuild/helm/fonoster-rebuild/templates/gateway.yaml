@@ -26,7 +26,7 @@ spec:
           image: "{{ .Values.gateway.image.repository }}:{{ .Values.gateway.image.tag }}"
           imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
           env:
-            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "gateway") | nindent 12 }}
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "gateway" "nats" "gateway") | nindent 12 }}
             - name: POD_IP
               valueFrom: { fieldRef: { fieldPath: status.podIP } }
             {{- $db := .Values.gateway.databaseSecret | default (and .Values.regionAgent.enabled .Values.regionAgent.databaseSecret) }}

@@ -44,7 +44,7 @@ data:
     dataDir: /var/lib/fonoster-region
     stateDir: /var/lib/fonoster-region-state
     nats:
-      url: {{ include "fonoster-rebuild.natsUrl" . | quote }}
+      {{- include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "region-agent") | nindent 6 }}
     database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
     cellSecrets: { dir: /var/lib/fonoster-secrets }
     {{- toYaml $r.config | nindent 4 }}
@@ -106,7 +106,7 @@ spec:
           imagePullPolicy: {{ $r.image.pullPolicy }}
           args: ["run"]
           env:
-            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "region-agent") | nindent 12 }}
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "region-agent" "nats" "region-agent") | nindent 12 }}
             - name: APISERVER_DATABASE_URL
               valueFrom: { secretKeyRef: { name: {{ $r.databaseSecret | quote }}, key: url } }
             - name: APISERVER_ENCRYPTION_KEY

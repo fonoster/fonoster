@@ -35,11 +35,19 @@ services:
     image: nats:2.11.8-alpine
     restart: unless-stopped
     command: ["-c", "/etc/nats/nats.conf"]
-    # Host-only by default: NATS has no per-service users yet (RV-B6); RB_NATS_BIND=0.0.0.0 opts in.
+    # One user per service, limited to its subjects (add-platform 4.1, HD-B1); the stack generates
+    # the passwords into .local/stack.env. Still host-only by default (RV-B6); RB_NATS_BIND=0.0.0.0
+    # opts in.
+    environment:
+      NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?set NATS_APISERVER_PASSWORD}
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?set NATS_GATEWAY_PASSWORD}
+      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD:?set NATS_MEDIANODE_PASSWORD}
+      NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?set NATS_ROUTR_PASSWORD}
     ports:
       - "${RB_NATS_BIND:-127.0.0.1}:${RB_NATS_PORT:-4222}:4222"
     volumes:
       - ./config/nats.conf:/etc/nats/nats.conf:ro
+      - ./config/nats-permissions:/etc/nats/nats-permissions:ro
       - nats:/data
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
@@ -99,7 +107,8 @@ services:
       LOCALNETS: ${ROUTR_LOCALNETS:-}
       LOGS_LEVEL: ${ROUTR_LOGS_LEVEL:-info}
       NATS_PUBLISHER_ENABLED: "true"
-      NATS_PUBLISHER_URL: nats://nats:4222
+      # Hex password (the stack's): it sits in the URL, Routr's NATS client reads user info.
+      NATS_PUBLISHER_URL: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
       # Set it empty for no media anchoring (RTP then flows directly between the parties).
       RTPENGINE_HOST: ${RB_RTPENGINE_HOST-rtpengine}
       # A separate Postgres: the internal-DB mode stalls on an unpinned `npx prisma`.
@@ -145,6 +154,9 @@ services:
       <<: *otel
       MEDIANODE_ID: ${RB_NODE_ID:-node-a}
       MEDIANODE_NATS_URL: nats://nats:4222
+      MEDIANODE_NATS_USER: medianode
+      MEDIANODE_NATS_PASSWORD: secret://env/NATS_MEDIANODE_PASSWORD
+      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD}
       MEDIANODE_SIP_LISTEN: 0.0.0.0:5060
       MEDIANODE_SIP_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.16}.42}
       MEDIANODE_RTP_HOST: 0.0.0.0
@@ -183,6 +195,8 @@ services:
       <<: *otel
       # The apiserver's encryption key: app signing secrets are encrypted columns.
       APISERVER_ENCRYPTION_KEY: ${RB_ENCRYPTION_KEY:-}
+      # gateway.yaml: nats.password: secret://env/NATS_GATEWAY_PASSWORD
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD}
       # Vendor keys, read only when gateway.yaml names them (credential.env).
       DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:-}
       ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
@@ -259,6 +273,8 @@ services:
       nats-regions: { condition: service_healthy, required: false }
     environment:
       <<: *otel
+      # fonoster.yaml: nats.password: secret://env/NATS_APISERVER_PASSWORD
+      NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD}
     volumes:
       - ${RB_CONFIG_DIR:-./config}/fonoster.yaml:/opt/fonoster/fonoster.yaml:ro
       - ${RB_CONFIG_DIR:-./config}/keys:/opt/fonoster/keys:ro

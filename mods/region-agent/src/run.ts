@@ -24,7 +24,7 @@ import {
   RecordStore,
   S3StoreConfig
 } from "@fonoster/callrecord";
-import { CellSecrets, Registry } from "@fonoster/common";
+import { CellSecrets, natsConnectOptions, Registry } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { connect } from "nats";
 import { RegionAgent } from "./agent";
@@ -65,7 +65,7 @@ export async function runAgent(
   const identity = await loadIdentity(new DirIdentityStore(config.dataDir));
   const stateDir = config.stateDir ?? config.dataDir;
   const nc = await connect({
-    servers: config.nats.url,
+    ...natsConnectOptions(config.nats),
     name: `region-agent-${identity.regionRef}`,
     // Requests that cross the leaf link need replies under region.<ref>.> (RG-B4).
     inboxPrefix: `region.${identity.regionRef}._INBOX`,

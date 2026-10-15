@@ -197,7 +197,13 @@ describe("@conformance/deployment (Helm chart)", function () {
       fs.writeFileSync(file, find(objs, "ConfigMap", cm)!.data![key]);
       return file;
     };
-    const env = { FONOSTER_SECRETS_DIR: secretsDir, POD_NAMESPACE: "default" };
+    const env = {
+      FONOSTER_SECRETS_DIR: secretsDir,
+      POD_NAMESPACE: "default",
+      // nats.auth (values-cloud): each service's password env from fonoster-nats-users.
+      NATS_APISERVER_PASSWORD: "nats-api",
+      NATS_GATEWAY_PASSWORD: "nats-gw"
+    };
 
     const api = loadServiceConfig({
       service: "apiserver",
@@ -212,7 +218,11 @@ describe("@conformance/deployment (Helm chart)", function () {
     });
     expect(api.database.url).to.equal("postgresql://u:p@db:5432/fonoster");
     expect(api.apps.autopilotSigningSecret).to.equal("ap-secret");
-    expect(api.nats.url).to.equal("nats://fonoster-nats:4222");
+    expect(api.nats).to.deep.equal({
+      url: "nats://fonoster-nats:4222",
+      user: "apiserver",
+      password: "nats-api"
+    });
 
     const saved = { ...process.env };
     Object.assign(process.env, env, { POD_IP: "10.1.2.3" });
@@ -221,6 +231,7 @@ describe("@conformance/deployment (Helm chart)", function () {
       expect(providerKey(gw.providers.deepgram)).to.equal("dg-key");
       expect(gw.rtp?.advertiseHost).to.equal("10.1.2.3");
       expect(gw.database?.url).to.equal("postgresql://u:p@db:5432/fonoster");
+      expect(gw.nats).to.include({ user: "gateway", password: "nats-gw" });
       const ap = loadHostedConfig(
         write("fonoster-autopilot", "autopilot-session.yaml")
       );
@@ -245,6 +256,90 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(loadAgentConfig(file).nats.url).to.equal("nats://nats:4222");
   });
 
+  it("gives every service its NATS user and the chart's NATS the users (nats.auth)", function () {
+    const objs = render("values-cloud.yaml", "--set=regionAgent.enabled=true");
+    const conf = find(objs, "ConfigMap", "fonoster-nats")!.data!;
+    ["apiserver", "gateway", "medianode", "routr", "region-agent"].forEach(
+      (u) => {
+        expect(conf["nats.conf"]).to.contain(`{ user: ${u}, password: $NATS_`);
+        expect(conf[`permissions-${u}.conf`], u).to.equal(
+          fs.readFileSync(
+            path.join(ROOT, "ops/rebuild/config/nats-permissions", `${u}.conf`),
+            "utf8"
+          )
+        );
+      }
+    );
+    const env = (kind: string, name: string) =>
+      JSON.stringify(find(objs, kind, name)!.spec);
+    expect(env("StatefulSet", "fonoster-nats")).to.contain(
+      '"name":"NATS_ROUTR_PASSWORD"'
+    );
+    expect(env("Deployment", "fonoster-gateway")).to.contain(
+      '"name":"NATS_GATEWAY_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"gateway"}}'
+    );
+    expect(env("StatefulSet", "fonoster-medianode")).to.contain(
+      '"name":"MEDIANODE_NATS_PASSWORD","value":"secret://env/NATS_MEDIANODE_PASSWORD"'
+    );
+    const agent = parseAllDocuments(
+      find(objs, "ConfigMap", "fonoster-region-agent")!.data![
+        "region-agent.yaml"
+      ]
+    )[0].toJS();
+    expect(agent.nats).to.deep.equal({
+      url: "nats://fonoster-nats:4222",
+      user: "region-agent",
+      password: "secret://env/NATS_REGION_AGENT_PASSWORD"
+    });
+    // Without nats.auth (the default data plane) nothing changes.
+    const plain = render();
+    const gw = parseAllDocuments(
+      find(plain, "ConfigMap", "fonoster-gateway")!.data!["gateway.yaml"]
+    )[0].toJS();
+    expect(gw.nats).to.deep.equal({ url: "nats://nats:4222" });
+  });
+
+  it("renders workspaceKeysFromCloud for a public region's gateway (add-private-regions 5.9)", function () {
+    const gatewayConfig = (...args: string[]) =>
+      parseAllDocuments(
+        find(render(...args), "ConfigMap", "fonoster-gateway")!.data![
+          "gateway.yaml"
+        ]
+      )[0].toJS();
+    expect(
+      gatewayConfig(
+        "--set=regionAgent.enabled=true,regionAgent.workspaceKeysFromCloud=true"
+      ).cellSecrets
+    ).to.deep.equal({
+      dir: "/var/lib/fonoster-secrets",
+      workspaceKeysFromCloud: true
+    });
+    expect(
+      gatewayConfig("--set=regionAgent.enabled=true").cellSecrets
+    ).to.deep.equal({ dir: "/var/lib/fonoster-secrets" });
+    expect(gatewayConfig().cellSecrets).to.equal(undefined);
+  });
+
+  it("renders the media nodes' mutual TLS toward the edge (add-platform 4.2)", function () {
+    const node = JSON.stringify(
+      find(
+        render("--set=medianode.tls.enabled=true"),
+        "StatefulSet",
+        "fonoster-medianode"
+      )!.spec
+    );
+    expect(node).to.contain(
+      '"name":"MEDIANODE_TLS_LISTEN","value":"0.0.0.0:5061"'
+    );
+    expect(node).to.contain(
+      '"name":"MEDIANODE_TLS_CLIENT_CA","value":"/etc/medianode/tls/ca.crt"'
+    );
+    expect(node).to.contain('"secretName":"medianode-tls"');
+    expect(
+      JSON.stringify(find(render(), "StatefulSet", "fonoster-medianode"))
+    ).to.not.contain("MEDIANODE_TLS");
+  });
+
   it("keeps the chart's copies of the Compose configs in sync", function () {
     const same = (a: string, b: string) =>
       expect(fs.readFileSync(path.join(CHART, "files", a), "utf8"), a).to.equal(
@@ -260,6 +355,13 @@ describe("@conformance/deployment (Helm chart)", function () {
     same(
       "observability/grafana-datasources.yaml",
       "ops/rebuild/config/grafana/datasources.yaml"
+    );
+    const perms = path.join(ROOT, "ops/rebuild/config/nats-permissions");
+    expect(
+      fs.readdirSync(path.join(CHART, "files", "nats-permissions"))
+    ).to.deep.equal(fs.readdirSync(perms));
+    fs.readdirSync(perms).forEach((f) =>
+      same(`nats-permissions/${f}`, `ops/rebuild/config/nats-permissions/${f}`)
     );
   });
 });

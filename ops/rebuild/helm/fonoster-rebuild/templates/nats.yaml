@@ -1,5 +1,12 @@
 {{- if .Values.nats.deploy }}
 {{- $n := .Values.nats }}
+{{- /* NATS users of the services this release runs (nats.auth, add-platform 4.1). */}}
+{{- $users := list }}
+{{- if .Values.apiserver.enabled }}{{- $users = append $users "apiserver" }}{{- end }}
+{{- if .Values.gateway.enabled }}{{- $users = append $users "gateway" }}{{- end }}
+{{- if .Values.medianode.enabled }}{{- $users = append $users "medianode" }}{{- end }}
+{{- $users = append $users "routr" }}
+{{- if .Values.regionAgent.enabled }}{{- $users = append $users "region-agent" }}{{- end }}
 # The platform's NATS (JetStream for the session registry KV). Single node: enough to try the
 # platform; use the official nats chart (cluster) for production and set nats.url instead.
 apiVersion: v1
@@ -15,6 +22,23 @@ data:
     jetstream {
       store_dir: /data
     }
+    {{- if $n.auth.enabled }}
+    {{- range $users }}
+    include ./permissions-{{ . }}.conf
+    {{- end }}
+    authorization {
+      users = [
+        {{- range $users }}
+        {{- $var := . | upper | replace "-" "_" }}
+        { user: {{ . }}, password: ${{ printf "NATS_%s_PASSWORD" $var }}, permissions: ${{ printf "%s_PERMISSIONS" $var }} }
+        {{- end }}
+      ]
+    }
+  {{- range $users }}
+  permissions-{{ . }}.conf: |
+    {{- $.Files.Get (printf "files/nats-permissions/%s.conf" .) | nindent 4 }}
+  {{- end }}
+    {{- end }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -38,6 +62,12 @@ spec:
         - name: nats
           image: "{{ $n.image.repository }}:{{ $n.image.tag }}"
           args: ["-c", "/etc/nats/nats.conf"]
+          {{- if $n.auth.enabled }}
+          env:
+            {{- range $users }}
+            {{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" $ "user" .) | nindent 12 }}
+            {{- end }}
+          {{- end }}
           ports:
             - { name: client, containerPort: 4222 }
             - { name: monitor, containerPort: 8222 }

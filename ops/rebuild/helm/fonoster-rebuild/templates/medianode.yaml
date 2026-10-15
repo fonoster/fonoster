@@ -38,6 +38,25 @@ spec:
               valueFrom: { fieldRef: { fieldPath: metadata.name } }
             - name: MEDIANODE_NATS_URL
               value: {{ include "fonoster-rebuild.natsUrl" . | quote }}
+            {{- if .Values.nats.auth.enabled }}
+            - { name: MEDIANODE_NATS_USER, value: medianode }
+            {{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" $ "user" "medianode") | nindent 12 }}
+            - { name: MEDIANODE_NATS_PASSWORD, value: "secret://env/NATS_MEDIANODE_PASSWORD" }
+            {{- end }}
+            {{- if $m.tls.enabled }}
+            # SIP over TLS toward the edge; with mutual, Routr must present a certificate signed by
+            # ca.crt (add-platform 4.2). The trusted-source allowlist still applies.
+            - { name: MEDIANODE_TLS_LISTEN, value: {{ $m.tls.listen | quote }} }
+            - { name: MEDIANODE_TLS_CERT, value: /etc/medianode/tls/tls.crt }
+            - { name: MEDIANODE_TLS_KEY, value: /etc/medianode/tls/tls.key }
+            - { name: MEDIANODE_TLS_CA, value: /etc/medianode/tls/ca.crt }
+            {{- if $m.tls.mutual }}
+            - { name: MEDIANODE_TLS_CLIENT_CA, value: /etc/medianode/tls/ca.crt }
+            {{- end }}
+            {{- end }}
+            {{- if $m.trustedSources }}
+            - { name: MEDIANODE_TRUSTED_SOURCES, value: {{ $m.trustedSources | quote }} }
+            {{- end }}
             - name: MEDIANODE_SIP_LISTEN
               value: {{ $m.sip.listen | quote }}
             - name: MEDIANODE_SIP_ADVERTISE
@@ -71,6 +90,19 @@ spec:
           ports:
             - { name: sip-udp, containerPort: 5060, protocol: UDP }
             - { name: sip-tcp, containerPort: 5060, protocol: TCP }
+            {{- if $m.tls.enabled }}
+            - { name: sip-tls, containerPort: {{ (splitList ":" $m.tls.listen | last) | int }}, protocol: TCP }
+            {{- end }}
+          {{- if $m.tls.enabled }}
+          volumeMounts:
+            - { name: tls, mountPath: /etc/medianode/tls, readOnly: true }
+          {{- end }}
           resources:
             {{- toYaml $m.resources | nindent 12 }}
+      {{- if $m.tls.enabled }}
+      volumes:
+        # tls.crt, tls.key (the node's certificate) and ca.crt (the CA of the edge's certificates).
+        - name: tls
+          secret: { secretName: {{ $m.tls.secret | quote }} }
+      {{- end }}
 {{- end }}

@@ -43,7 +43,15 @@ export const agentConfigSchema = z
     /** Writable state (applied config version, Routr ref map, usage); default dataDir. */
     stateDir: z.string().optional(),
     /** The cell's own NATS server (with the leaf remote to the control plane). */
-    nats: z.object({ url: z.string() }).strict(),
+    // user/password: the agent's user on the cell's NATS (add-platform 4.1); password is usually
+    // a secret:// reference.
+    nats: z
+      .object({
+        url: z.string(),
+        user: z.string().min(1).optional(),
+        password: z.string().min(1).optional()
+      })
+      .strict(),
     /** The cell's database (the apiserver schema), where synced config lands. */
     database: z
       .object({

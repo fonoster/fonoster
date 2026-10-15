@@ -1,6 +1,6 @@
 # The region agent (add-private-regions task 3): heartbeats, config sync, relay, index forwarding.
 dataDir: /var/lib/fonoster-region
-nats: { url: nats://nats:4222 }
+nats: { url: nats://nats:4222, user: region-agent, password: "secret://env/NATS_REGION_AGENT_PASSWORD" }
 database:
   urlEnv: APISERVER_DATABASE_URL
   encryptionKeyEnv: APISERVER_ENCRYPTION_KEY

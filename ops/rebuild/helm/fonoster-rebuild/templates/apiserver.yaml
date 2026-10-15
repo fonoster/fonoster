@@ -1,7 +1,7 @@
 {{- if .Values.apiserver.enabled }}
 {{- $a := .Values.apiserver }}
 {{- $cfg := tpl (toYaml $a.config) . | fromYaml }}
-{{- if not (hasKey $cfg "nats") }}{{- $_ := set $cfg "nats" (dict "url" (include "fonoster-rebuild.natsUrl" .)) }}{{- end }}
+{{- if not (hasKey $cfg "nats") }}{{- $_ := set $cfg "nats" (include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "apiserver") | fromYaml) }}{{- end }}
 # The API server with its embedded Identity (as in the Compose stack). fonoster.yaml is rendered
 # from apiserver.config; secrets in it are secret:// references (D8), resolved at startup from the
 # Secrets listed in apiserver.secretMounts. Raw secrets never go in values.
@@ -43,7 +43,7 @@ spec:
           imagePullPolicy: {{ $a.image.pullPolicy }}
           args: ["node", "/work/mods/apiserver/dist/bin/entrypoint.js", "--migrations-root", "/service", "--migrate-only"]
           env:
-            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "apiserver-migrate") | nindent 12 }}
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "apiserver-migrate" "nats" "apiserver") | nindent 12 }}
           volumeMounts:
             {{- include "fonoster-rebuild.apiserverMounts" . | nindent 12 }}
       volumes:
@@ -82,7 +82,7 @@ spec:
             - --skip-migrations
             {{- end }}
           env:
-            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "apiserver") | nindent 12 }}
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "apiserver" "nats" "apiserver") | nindent 12 }}
           ports:
             - { name: grpc, containerPort: 50051 }
             - { name: http, containerPort: 9876 }
