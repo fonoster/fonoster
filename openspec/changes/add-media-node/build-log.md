@@ -87,3 +87,13 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - `listener.attach` takes one RTP destination per track and sends that participant's audio
   unmixed (silence while it is silent); listeners have no inbound path, so they cannot speak.
   `listener.detach` closes the forks. All 20 media-control scenarios now pass on the Go node.
+
+### MN-B8. Live Routr check not done yet
+
+- A throwaway `fonoster/routr-one:2.15.1` with its internal database stalls at start: its startup
+  runs an unpinned `npx prisma`, which resolves to `prisma@8.0.0-rc.23` and never finishes. The
+  shared platform-refresh Routr (external database) was deliberately left untouched. Next: a
+  throwaway Routr against its own Postgres container, then Credentials + Peer
+  (`sip:medianode@...`, least-sessions) + Trunk (`inboundUri`) + Number (`aorLink`,
+  `extraHeaders` X-App-Ref), and a caller-bot INVITE through it. The caller bot will need a
+  Request-URI host different from its destination (Routr finds the Trunk by Request-URI host).
