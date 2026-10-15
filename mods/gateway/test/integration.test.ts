@@ -455,6 +455,38 @@ describe("@gateway integration", function () {
     });
   });
 
+  it("records turn decisions with their estimate and labels the turn", async function () {
+    harness.stt.configure({
+      script: [{ atMs: 400, text: "What are your hours?" }]
+    });
+    await start([app("a", harness.app.url)]);
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "turn.ended"), 5000);
+    peer.sendJson({
+      type: "speak",
+      id: "r1",
+      text: "Nine to five.",
+      last: true
+    });
+    await waitFor(() => json(peer).find((m) => m.type === "output.started"));
+    const entries = () => [...record.records.values()][0];
+    const label = await waitFor(
+      () => entries().find((e) => e.message.type === "turn.label"),
+      4000
+    );
+    expect(label.message).to.include({ label: "ok" });
+    const decision = entries().find(
+      (e) =>
+        e.message.type === "turn.decision" && e.message.event === "turn.ended"
+    );
+    expect(decision?.message).to.include({
+      detector: "baseline@1",
+      policy: "default@1"
+    });
+    expect(decision?.message.eot).to.equal(1);
+  });
+
   it("hangs up when the app drops mid-call", async function () {
     await start([app("a", harness.app.url)]);
     harness.mediaNode.offerCall();

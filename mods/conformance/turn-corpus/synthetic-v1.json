@@ -1,0 +1,1589 @@
+{
+ "format": "fonoster.turn-corpus.v1",
+ "calls": [
+  {
+   "name": "en-clean-0",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 2445,
+     "text": "Can I speak to someone about my order",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3645,
+     "endMs": 6045,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-short-pause-0",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1573,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 1958,
+     "endMs": 2848,
+     "text": "on Saturday",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4048,
+     "endMs": 6248,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-long-pause-0",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1168,
+     "text": "Can I speak to someone about my order",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2672,
+     "endMs": 3585,
+     "text": "for this month",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4885,
+     "endMs": 7085,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-backchannel-0",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1513,
+     "text": "What are your opening hours",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3729,
+     "endMs": 4133,
+     "text": "yeah",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2513,
+     "endMs": 7013,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-barge-in-0",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1312,
+     "text": "Can I speak to someone about my order",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4207,
+     "endMs": 5887,
+     "text": "Hold on, stop please",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2312,
+     "endMs": 7312,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-clean-1",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1525,
+     "text": "Can I speak to someone about my order",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2725,
+     "endMs": 5125,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-short-pause-1",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1601,
+     "text": "I want to pay my bill",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2007,
+     "endMs": 2964,
+     "text": "for this month",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4164,
+     "endMs": 6364,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-long-pause-1",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1577,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2726,
+     "endMs": 3784,
+     "text": "for this month",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 5084,
+     "endMs": 7284,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-backchannel-1",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1569,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4534,
+     "endMs": 4973,
+     "text": "yeah",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2569,
+     "endMs": 7069,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-barge-in-1",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1287,
+     "text": "Can I speak to someone about my order",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3402,
+     "endMs": 5192,
+     "text": "Hold on, stop please",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2287,
+     "endMs": 7287,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-clean-2",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 2167,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3367,
+     "endMs": 5767,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-short-pause-2",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1413,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 1947,
+     "endMs": 2877,
+     "text": "for this month",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4077,
+     "endMs": 6277,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-long-pause-2",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1659,
+     "text": "What are your opening hours",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3235,
+     "endMs": 3961,
+     "text": "to next Tuesday",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 5261,
+     "endMs": 7461,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-backchannel-2",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1666,
+     "text": "What are your opening hours",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3953,
+     "endMs": 4388,
+     "text": "uh-huh",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2666,
+     "endMs": 7166,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-barge-in-2",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1435,
+     "text": "I want to pay my bill",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3769,
+     "endMs": 5048,
+     "text": "Sorry, that's not what I asked",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2435,
+     "endMs": 7435,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-clean-3",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1429,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2629,
+     "endMs": 5029,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-short-pause-3",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1672,
+     "text": "Can I speak to someone about my order",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2014,
+     "endMs": 2950,
+     "text": "to next Tuesday",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4150,
+     "endMs": 6350,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-long-pause-3",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1050,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2180,
+     "endMs": 3298,
+     "text": "please",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4598,
+     "endMs": 6798,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-backchannel-3",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1719,
+     "text": "I want to pay my bill",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4268,
+     "endMs": 4645,
+     "text": "uh-huh",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2719,
+     "endMs": 7219,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-barge-in-3",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1481,
+     "text": "Can I speak to someone about my order",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3503,
+     "endMs": 4880,
+     "text": "Sorry, that's not what I asked",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2481,
+     "endMs": 7481,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-clean-4",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 2512,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3712,
+     "endMs": 6112,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-short-pause-4",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1783,
+     "text": "I want to pay my bill",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2480,
+     "endMs": 3423,
+     "text": "please",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4623,
+     "endMs": 6823,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-long-pause-4",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1348,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2379,
+     "endMs": 3370,
+     "text": "on Saturday",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4670,
+     "endMs": 6870,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-backchannel-4",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1382,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4074,
+     "endMs": 4367,
+     "text": "uh-huh",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2382,
+     "endMs": 6882,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-barge-in-4",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1663,
+     "text": "What are your opening hours",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3576,
+     "endMs": 5326,
+     "text": "No wait, I meant Tuesday",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2663,
+     "endMs": 7663,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-clean-5",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1966,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3166,
+     "endMs": 5566,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-short-pause-5",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1265,
+     "text": "I want to pay my bill",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 1664,
+     "endMs": 2854,
+     "text": "to next Tuesday",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4054,
+     "endMs": 6254,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-long-pause-5",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1619,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3027,
+     "endMs": 3634,
+     "text": "for this month",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4934,
+     "endMs": 7134,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-backchannel-5",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1685,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4586,
+     "endMs": 4868,
+     "text": "yeah",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2685,
+     "endMs": 7185,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "en-barge-in-5",
+   "consent": "synthetic",
+   "language": "en",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1461,
+     "text": "I need to change my appointment",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3768,
+     "endMs": 5137,
+     "text": "Hold on, stop please",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2461,
+     "endMs": 7461,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-clean-0",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 2217,
+     "text": "Quiero hablar con alguien de mi pedido",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3417,
+     "endMs": 5817,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-short-pause-0",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1733,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2193,
+     "endMs": 3337,
+     "text": "para el martes",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4537,
+     "endMs": 6737,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-long-pause-0",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1406,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2607,
+     "endMs": 3490,
+     "text": "por favor",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4790,
+     "endMs": 6990,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-backchannel-0",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1474,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3628,
+     "endMs": 3971,
+     "text": "vale",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2474,
+     "endMs": 6974,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-barge-in-0",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1685,
+     "text": "Necesito cambiar mi cita",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4447,
+     "endMs": 5750,
+     "text": "No, espere, era el martes",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2685,
+     "endMs": 7685,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-clean-1",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 2468,
+     "text": "Necesito cambiar mi cita",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3668,
+     "endMs": 6068,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-short-pause-1",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1206,
+     "text": "Necesito cambiar mi cita",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 1611,
+     "endMs": 2645,
+     "text": "el sábado",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3845,
+     "endMs": 6045,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-long-pause-1",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1697,
+     "text": "A qué hora abren",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2909,
+     "endMs": 4065,
+     "text": "para el martes",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 5365,
+     "endMs": 7565,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-backchannel-1",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1458,
+     "text": "Quiero hablar con alguien de mi pedido",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3862,
+     "endMs": 4231,
+     "text": "ajá",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2458,
+     "endMs": 6958,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-barge-in-1",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1412,
+     "text": "Necesito cambiar mi cita",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3824,
+     "endMs": 5350,
+     "text": "Perdón, no pregunté eso",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2412,
+     "endMs": 7412,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-clean-2",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1241,
+     "text": "Quiero hablar con alguien de mi pedido",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2441,
+     "endMs": 4841,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-short-pause-2",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1188,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 1591,
+     "endMs": 2387,
+     "text": "el sábado",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3587,
+     "endMs": 5787,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-long-pause-2",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1447,
+     "text": "Necesito cambiar mi cita",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2628,
+     "endMs": 3285,
+     "text": "el sábado",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4585,
+     "endMs": 6785,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-backchannel-2",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1529,
+     "text": "Quiero hablar con alguien de mi pedido",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4090,
+     "endMs": 4451,
+     "text": "claro",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2529,
+     "endMs": 7029,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-barge-in-2",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1333,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3308,
+     "endMs": 4616,
+     "text": "Perdón, no pregunté eso",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2333,
+     "endMs": 7333,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-clean-3",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1997,
+     "text": "Necesito cambiar mi cita",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3197,
+     "endMs": 5597,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-short-pause-3",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1531,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2062,
+     "endMs": 3080,
+     "text": "el sábado",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4280,
+     "endMs": 6480,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-long-pause-3",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1162,
+     "text": "Quiero hablar con alguien de mi pedido",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2165,
+     "endMs": 2970,
+     "text": "el sábado",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4270,
+     "endMs": 6470,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-backchannel-3",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1381,
+     "text": "A qué hora abren",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4065,
+     "endMs": 4377,
+     "text": "claro",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2381,
+     "endMs": 6881,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-barge-in-3",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1417,
+     "text": "Quiero hablar con alguien de mi pedido",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4103,
+     "endMs": 5312,
+     "text": "Perdón, no pregunté eso",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2417,
+     "endMs": 7417,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-clean-4",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1567,
+     "text": "Quiero hablar con alguien de mi pedido",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2767,
+     "endMs": 5167,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-short-pause-4",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1492,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 1836,
+     "endMs": 2448,
+     "text": "el sábado",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 3648,
+     "endMs": 5848,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-long-pause-4",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1646,
+     "text": "A qué hora abren",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2789,
+     "endMs": 3408,
+     "text": "de este mes",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4708,
+     "endMs": 6908,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-backchannel-4",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1358,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3810,
+     "endMs": 4246,
+     "text": "ajá",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2358,
+     "endMs": 6858,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-barge-in-4",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1393,
+     "text": "Necesito cambiar mi cita",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4055,
+     "endMs": 5718,
+     "text": "Perdón, no pregunté eso",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2393,
+     "endMs": 7393,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-clean-5",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1581,
+     "text": "A qué hora abren",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2781,
+     "endMs": 5181,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-short-pause-5",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1675,
+     "text": "Necesito cambiar mi cita",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 2071,
+     "endMs": 3073,
+     "text": "para el martes",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 4273,
+     "endMs": 6473,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-long-pause-5",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 500,
+     "endMs": 1672,
+     "text": "A qué hora abren",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3107,
+     "endMs": 4157,
+     "text": "por favor",
+     "kind": "turn",
+     "turn": 1
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 5457,
+     "endMs": 7657,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-backchannel-5",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1878,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 4198,
+     "endMs": 4494,
+     "text": "claro",
+     "kind": "backchannel"
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2878,
+     "endMs": 7378,
+     "interruptible": true
+    }
+   ]
+  },
+  {
+   "name": "es-barge-in-5",
+   "consent": "synthetic",
+   "language": "es",
+   "segments": [
+    {
+     "startMs": 400,
+     "endMs": 1251,
+     "text": "Quiero pagar mi factura",
+     "kind": "turn",
+     "turn": 1
+    },
+    {
+     "startMs": 3549,
+     "endMs": 4910,
+     "text": "Perdón, no pregunté eso",
+     "kind": "interruption",
+     "turn": 2
+    }
+   ],
+   "agent": [
+    {
+     "startMs": 2251,
+     "endMs": 7251,
+     "interruptible": true
+    }
+   ]
+  }
+ ]
+}

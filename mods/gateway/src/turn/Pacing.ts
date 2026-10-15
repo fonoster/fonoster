@@ -19,6 +19,9 @@
 import { Transcript } from "../speech/types";
 import { Detector, Estimate } from "./Detector";
 
+/** How long after a backchannel burst its transcript may arrive and still count as one. */
+const BACKCHANNEL_TRANSCRIPT_WINDOW_MS = 1500;
+
 export type TurnEvent =
   | { type: "turn.user_started" }
   | { type: "turn.likely_ended"; text: string }
@@ -55,6 +58,8 @@ export class Pacing {
   private inTurn = false;
   private likelyEnded = false;
   private wasSpeaking = false;
+  private burstKind: Estimate["kind"] = "none";
+  private backchannelUntil?: number;
   private turnStart = 0;
   private finals: Transcript[] = [];
   private partialText = "";
@@ -83,6 +88,18 @@ export class Pacing {
   onTranscript(t: Transcript, at: number) {
     this.detector.onTranscript(t, at);
     if (!t.text.trim()) return;
+    if (
+      t.final &&
+      this.backchannelUntil !== undefined &&
+      at <= this.backchannelUntil &&
+      !this.inTurn
+    ) {
+      // The transcript of a burst the Detector called a backchannel: not a turn.
+      this.backchannelUntil = undefined;
+      this.detector.reset();
+      this.handlers.turn({ type: "turn.backchannel", text: t.text });
+      return;
+    }
     if (!this.inTurn) this.startTurn(at);
     if (t.final) {
       this.finals.push(t);
@@ -98,12 +115,23 @@ export class Pacing {
     this.handlers.estimate(estimate);
 
     if (estimate.speaking && !this.wasSpeaking) {
-      if (estimate.kind === "interruption") this.handlers.interruption();
-      if (!this.inTurn) this.startTurn(at);
-      else if (this.likelyEnded) {
-        this.likelyEnded = false;
-        this.handlers.turn({ type: "turn.resumed" });
-      }
+      this.burstKind = estimate.kind;
+      // A burst the Detector calls a backchannel is held back: no turn, no interruption, unless
+      // the Detector later reclassifies it.
+      if (estimate.kind !== "backchannel") this.callerTakesTurn(estimate, at);
+    } else if (
+      estimate.speaking &&
+      this.burstKind === "backchannel" &&
+      estimate.kind !== "backchannel"
+    ) {
+      this.burstKind = estimate.kind;
+      this.callerTakesTurn(estimate, at);
+    } else if (
+      !estimate.speaking &&
+      this.wasSpeaking &&
+      this.burstKind === "backchannel"
+    ) {
+      this.backchannelUntil = at + BACKCHANNEL_TRANSCRIPT_WINDOW_MS;
     }
     this.wasSpeaking = estimate.speaking;
 
@@ -121,6 +149,16 @@ export class Pacing {
       this.handlers.turn({ type: "turn.likely_ended", text: this.text() });
     }
     if (estimate.eot >= this.commit) this.endTurn(at);
+  }
+
+  private callerTakesTurn(estimate: Estimate, at: number) {
+    this.backchannelUntil = undefined;
+    if (estimate.kind === "interruption") this.handlers.interruption();
+    if (!this.inTurn) this.startTurn(at);
+    else if (this.likelyEnded) {
+      this.likelyEnded = false;
+      this.handlers.turn({ type: "turn.resumed" });
+    }
   }
 
   private startTurn(at: number) {

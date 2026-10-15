@@ -47,8 +47,9 @@ import { RtpLink } from "../media/RtpLink";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
 import { SpeechError, SttStream } from "../speech/types";
-import { BaselineDetector } from "../turn/Detector";
+import { BaselineDetector, Estimate } from "../turn/Detector";
 import { Pacing } from "../turn/Pacing";
+import { TurnLabeler } from "../turn/TurnLabeler";
 import { BufferedSocket, connectApp } from "./connectApp";
 import { Listener } from "./Listener";
 import { OutputEvent, OutputQueue } from "./OutputQueue";
@@ -62,6 +63,10 @@ const validators = Object.fromEntries(
     ajv.compile(schema)
   ])
 ) as Record<AppCommandType, ValidateFunction>;
+
+/** Recorded with every turn decision (turn-taking 2.8). */
+const DETECTOR_VERSION = "baseline@1";
+const POLICY_VERSION = "default@1";
 
 /** How often turn.estimate is sent to subscribers. */
 const ESTIMATE_EVERY_MS = 100;
@@ -381,6 +386,10 @@ export class AppSession {
   private listeners: Listener[] = [];
   private keepalive?: ReturnType<typeof setInterval>;
   private filters?: AudioFilterChain;
+  private lastEstimate?: Estimate;
+  private labeler = new TurnLabeler((label) =>
+    this.call.record("event", { type: "turn.label", ...label })
+  );
   private filtering: Promise<void> = Promise.resolve();
   pendingTransferEnd = false;
 
@@ -556,12 +565,25 @@ export class AppSession {
           this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs
       }),
       {
-        turn: (e) => this.emit(e),
+        turn: (e) => {
+          // The decision, with the estimate behind it and the versions that made it (2.8).
+          this.call.record("event", {
+            type: "turn.decision",
+            event: e.type,
+            ...this.lastEstimate,
+            detector: DETECTOR_VERSION,
+            policy: POLICY_VERSION
+          });
+          if (e.type === "turn.ended") this.labeler.turnEnded(Date.now());
+          this.emit(e);
+        },
         partial: (text, lang) => {
           if (this.subscriptions.has("transcript.partial"))
             this.emit({ type: "transcript.partial", text, language: lang });
         },
         estimate: (e) => {
+          this.lastEstimate = e;
+          this.labeler.estimate(e, Date.now());
           if (!this.subscriptions.has("turn.estimate")) return;
           const now = Date.now();
           if (now - this.lastEstimateAt < ESTIMATE_EVERY_MS) return;
@@ -658,6 +680,7 @@ export class AppSession {
     if (this.closed) return;
     this.closed = true;
     clearInterval(this.keepalive);
+    this.labeler.stop();
     this.closeFilters();
     this.queue.stop();
     this.stt?.close();
@@ -694,6 +717,7 @@ export class AppSession {
     this.listeners = [];
     this.closed = true;
     clearInterval(this.keepalive);
+    this.labeler.stop();
     this.closeFilters();
     this.queue.stop();
     this.stt?.close();
@@ -933,6 +957,7 @@ export class AppSession {
   // ---- to the app --------------------------------------------------------------------
 
   private onOutput(e: OutputEvent) {
+    if (e.type === "output.started") this.labeler.outputStarted(Date.now());
     this.emit(e as unknown as Record<string, unknown>);
   }
 

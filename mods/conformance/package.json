@@ -26,11 +26,12 @@
     "@types/ws": "^8.5.12"
   },
   "files": [
+    "PROVIDERS.md",
+    "SCENARIOS.md",
     "dist",
     "scenarios",
     "schema",
-    "SCENARIOS.md",
-    "PROVIDERS.md"
+    "turn-corpus"
   ],
   "publishConfig": {
     "access": "public"
