@@ -93,26 +93,16 @@ export default function CreateWorkspacePage() {
       <UserBar />
       <main className="flex flex-1 justify-center px-4 pb-20 pt-10">
         <div className="flex w-full max-w-[420px] flex-col gap-7">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-[26px] font-semibold">
-              {first
-                ? `Welcome${firstName ? `, ${firstName}` : ""}`
-                : "New workspace"}
-            </h1>
-            <p className="font-display text-sm text-muted-foreground">
-              {first
-                ? "You're not in any workspace yet. A workspace holds your agents, voice apps, numbers and calls. You name it now and invite your team later from Settings › Members."
-                : "Create a workspace for another team's agents, numbers and calls."}
-            </p>
-          </div>
+          <h1 className="text-[26px] font-semibold">
+            {first
+              ? `Welcome${firstName ? `, ${firstName}` : ""}`
+              : "New workspace"}
+          </h1>
           <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
             {create.error && (
               <Alert variant="error">{errorMessage(create.error)}</Alert>
             )}
-            <Field
-              label="Workspace name"
-              error={form.formState.errors.name?.message}
-            >
+            <Field label="Name" error={form.formState.errors.name?.message}>
               {(a11y) => (
                 <Input
                   {...a11y}
@@ -125,14 +115,10 @@ export default function CreateWorkspacePage() {
             </Field>
             <RegionPicker value={region} onChange={setRegion} />
             {confirming !== undefined ? (
-              <div className="flex flex-col gap-3 rounded-control border border-input p-4">
-                <h2 className="text-base font-semibold">
-                  Create {confirming} in a private region?
-                </h2>
+              <div className="flex flex-col gap-3">
                 <p className="font-display text-sm text-muted-foreground">
-                  The region can't be changed afterwards. You'll get a token to
-                  connect your own servers next, and calls won't run until they
-                  are connected.
+                  A private region runs on your own servers and can't be changed
+                  later.
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -147,7 +133,7 @@ export default function CreateWorkspacePage() {
                     loading={create.isPending}
                     onClick={() => void createWith(confirming)}
                   >
-                    Create private workspace
+                    Create
                   </Button>
                 </div>
               </div>
@@ -157,7 +143,7 @@ export default function CreateWorkspacePage() {
                 className={authButton}
                 loading={create.isPending}
               >
-                Create workspace
+                Create
               </Button>
             )}
           </form>

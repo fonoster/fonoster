@@ -18,7 +18,6 @@
  */
 import { PageHeader } from "~/app/shell/page";
 import { DataTable, NameCell, type Column } from "~/components/data/data-table";
-import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { useRegion } from "./api";
 import type { RegionSecret } from "./types";
@@ -31,19 +30,11 @@ export function PrivateSecrets() {
   const columns: Column<RegionSecret>[] = [
     { header: "Name", cell: (s) => <NameCell name={s.name} /> },
     {
-      header: "Used by",
-      cell: (s) => (
-        <span className="text-muted-foreground">
-          {s.usedBy.join(", ") || "-"}
-        </span>
-      )
-    },
-    {
       header: "Status",
-      className: "w-48",
+      className: "w-32",
       cell: (s) =>
         s.set ? (
-          <Badge variant="success">Set in your region</Badge>
+          <Badge variant="success">Set</Badge>
         ) : (
           <Badge variant="warning">Missing</Badge>
         )
@@ -51,23 +42,12 @@ export function PrivateSecrets() {
   ];
   return (
     <>
-      <PageHeader
-        title="Secrets"
-        description="Provider keys for this workspace live in your region, never in Fonoster's cloud."
-      />
+      <PageHeader title="Secrets" />
       <div className="flex flex-col gap-5 px-4 pb-8 sm:px-8">
-        <Alert variant="note">
-          Set a key on your server with{" "}
-          <code>fonoster-region secrets set &lt;name&gt;</code>, or through your
-          Helm values or an existing Kubernetes Secret. Values never cross the
-          link.
-        </Alert>
-        {missing > 0 && (
-          <Alert variant="warning">
-            {missing} {missing === 1 ? "key is" : "keys are"} missing in your
-            region. Calls that need {missing === 1 ? "it" : "them"} will fail.
-          </Alert>
-        )}
+        <p className="font-display text-sm text-muted-foreground">
+          Keys are set in your region, not here.
+          {missing > 0 && ` ${missing} missing.`}
+        </p>
         <DataTable
           label="Secrets"
           columns={columns}

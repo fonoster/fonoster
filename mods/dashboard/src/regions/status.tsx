@@ -26,19 +26,23 @@ const PILL: Record<
     variant: "success" | "warning" | "error" | "neutral" | "info";
   }
 > = {
-  waiting: { label: "Waiting for your region", variant: "info" },
+  waiting: { label: "Waiting", variant: "info" },
   connected: { label: "Connected", variant: "success" },
   degraded: { label: "Degraded", variant: "warning" },
   offline: { label: "Offline", variant: "error" },
-  unsupported: { label: "Unsupported version", variant: "warning" }
+  unsupported: { label: "Needs upgrade", variant: "warning" }
 };
+
+export const PILL_LABEL = Object.fromEntries(
+  Object.entries(PILL).map(([k, v]) => [k, v.label])
+) as Record<RegionStatus, string>;
 
 export function StatusPill({ status }: { status: RegionStatus }) {
   const { label, variant } = PILL[status];
   return <Badge variant={variant}>{label}</Badge>;
 }
 
-/** "3 min ago", "just now"; empty when there never was a heartbeat. */
+/** "3 min ago", "just now"; empty when the region was never seen. */
 export function ago(iso?: string, now = Date.now()): string {
   if (!iso) return "never";
   const s = Math.max(0, Math.round((now - Date.parse(iso)) / 1000));
