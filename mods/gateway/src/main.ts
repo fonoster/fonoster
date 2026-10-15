@@ -145,7 +145,8 @@ async function openDatabase(config: GatewayConfig): Promise<{
     hooks = store;
     const dispatcher = new Webhooks.WebhookDispatcher({
       store,
-      allowInsecureUrls: w.allowInsecureUrls
+      allowInsecureUrls: w.allowInsecureUrls,
+      allowedDestinations: w.allowedDestinations
     });
     let running = false;
     timers.push(

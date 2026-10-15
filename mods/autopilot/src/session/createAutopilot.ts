@@ -50,6 +50,11 @@ export type AutopilotOptions = {
   providers?: Record<string, ThinkProvider>;
   think?: Think;
   tools?: ToolPort;
+  /**
+   * Private destinations HTTP tools may call (host names, IPs, CIDRs); defaults to
+   * FONOSTER_ALLOWED_DESTINATIONS. Everything else must be public (RV-B2).
+   */
+  allowedDestinations?: string[];
   /** Finds what is relevant to the caller's question (the knowledge port). */
   knowledge?: KnowledgePort;
   /** Builds the knowledge port for an assistant (operator wiring, task 4.1). */
@@ -152,7 +157,10 @@ export function createAutopilotHandler(options: AutopilotOptions) {
       session,
       assistant,
       think,
-      options.tools ?? new HttpToolPort(assistant.languageModel.tools),
+      options.tools ??
+        new HttpToolPort(assistant.languageModel.tools, {
+          allow: options.allowedDestinations
+        }),
       recorder,
       options.knowledge ?? options.knowledgeFor?.(assistant, scope)
     );

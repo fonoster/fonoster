@@ -67,3 +67,23 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - `apps.allowInsecureWebhooks` (default false) allows http:// endpoints for local testing.
 - SDK `Webhooks`; dashboard Webhooks page (endpoints, events, rotation, delivery log, resend).
   No CTL commands yet.
+
+### RV-B2. Tenant URLs cannot reach the platform's network (SSRF)
+- One rule in `@fonoster/common` (`mods/common/src/net/assertPublicDestination.ts`):
+  `assertPublicDestination` (http/https only; no single-label or internal names such as
+  `redis`, `localhost`, `*.internal`, `*.local`; every resolved address public: no loopback,
+  RFC 1918, link-local 169.254/16 and fe80::/10, ULA, CGNAT, multicast, 0.0.0.0, NAT64,
+  documentation ranges, IPv4-mapped forms of those) and `safeFetch`, which re-checks the
+  address the socket actually connects to (DNS rebinding), re-checks every redirect (max 3),
+  times out (10 s) and caps the body (5 MiB). No new dependency (node:http/https, net.BlockList).
+- Operator override for self-hosting: `FONOSTER_ALLOWED_DESTINATIONS` (comma-separated host
+  names, IPs or CIDRs; default empty). Code can pass the list explicitly (`allowedDestinations`
+  on the webhook dispatcher, the apiserver webhooks config, the gateway `webhooks` config and
+  `createAutopilotHandler`); tests pass `["127.0.0.1"]` for their local receivers.
+- Applied to: Autopilot HTTP tools (`HttpToolPort`), webhook endpoint validation (create and
+  update) and webhook delivery (no redirects followed there: a 3xx is a failed attempt).
+- Go: `go/medianode/internal/netguard` implements the same rule for hold music: a dedicated
+  client (10 s timeout, check in the dialer's Control on the resolved address, redirects
+  re-checked); the node reads `FONOSTER_ALLOWED_DESTINATIONS` too.
+- Tests: `mods/common/test/net`, `mods/autopilot/test/session/tools.test.ts`,
+  `go/medianode/internal/netguard`.

@@ -417,6 +417,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
     const handlers = () =>
       createWebhooksHandlers(db.prisma, {
         allowInsecureUrls: true,
+        allowedDestinations: ["127.0.0.1"],
         now: () => now
       });
 

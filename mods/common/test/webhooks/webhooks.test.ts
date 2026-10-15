@@ -51,6 +51,7 @@ describe("@common/webhooks", function () {
     dispatcher = new WebhookDispatcher({
       store,
       allowInsecureUrls: true,
+      allowedDestinations: ["127.0.0.1"],
       now: () => clock,
       attemptTimeoutMs: 2000
     });
@@ -215,6 +216,7 @@ describe("@common/webhooks", function () {
     const failing = new WebhookDispatcher({
       store,
       allowInsecureUrls: true,
+      allowedDestinations: ["127.0.0.1"],
       now: () => clock,
       firstDelayMs: 1000,
       retryPeriodMs: 5000

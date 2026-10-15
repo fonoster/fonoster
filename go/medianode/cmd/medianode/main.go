@@ -104,7 +104,8 @@ func main() {
 
 	n := node.New(nc, node.Config{NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
 		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants,
-		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger})
+		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger,
+		AllowedDestinations: strings.Split(os.Getenv("FONOSTER_ALLOWED_DESTINATIONS"), ",")})
 	var serverTLS, clientTLS *tls.Config
 	if *tlsCert != "" {
 		cert, err := tls.LoadX509KeyPair(*tlsCert, *tlsKey)

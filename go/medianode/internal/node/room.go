@@ -642,7 +642,7 @@ func (r *Room) setHold(held bool, musicURL string) {
 	r.mu.Unlock()
 	if held && musicURL != "" {
 		go func() {
-			frames, err := fetchWav(musicURL)
+			frames, err := r.node.fetchWav(musicURL)
 			if err != nil {
 				r.node.cfg.Logger.Warn("hold music", "url", musicURL, "err", err)
 				return

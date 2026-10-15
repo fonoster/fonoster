@@ -38,3 +38,4 @@ export * from "./session";
 export * as Registry from "./registry";
 export * as Webhooks from "./webhooks";
 export * from "./telemetry";
+export * from "./net";
