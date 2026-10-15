@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DEFAULTS, GatewayConfig } from "../config";
+import { DEFAULTS, GatewayConfig, providerKey } from "../config";
+import { DeepgramSttAdapter, DeepgramTtsAdapter } from "./deepgram";
+import { ElevenLabsTtsAdapter } from "./elevenlabs";
 import { FakeSttAdapter, FakeTtsAdapter } from "./fake";
 import { SttAdapter, TtsAdapter } from "./types";
 
@@ -30,18 +32,44 @@ export class Catalog {
 
   constructor(private readonly config: GatewayConfig) {
     for (const [name, p] of Object.entries(config.providers ?? {})) {
-      if (p.adapter !== "fake") continue;
-      if (p.capabilities.includes("tts") && p.tts) {
+      const tts = p.capabilities.includes("tts");
+      const stt = p.capabilities.includes("stt");
+      const timeoutMs = p.tts?.timeoutMs ?? DEFAULTS.ttsTimeoutMs;
+      if (p.adapter === "fake") {
+        if (tts && p.tts?.url)
+          this.tts.set(name, new FakeTtsAdapter({ url: p.tts.url, timeoutMs }));
+        if (stt && p.stt?.url)
+          this.stt.set(name, new FakeSttAdapter({ url: p.stt.url }));
+        continue;
+      }
+      const apiKey = providerKey(p);
+      if (!apiKey) continue;
+      if (p.adapter === "deepgram") {
+        if (tts)
+          this.tts.set(
+            name,
+            new DeepgramTtsAdapter({ apiKey, baseUrl: p.tts?.url, timeoutMs })
+          );
+        if (stt)
+          this.stt.set(
+            name,
+            new DeepgramSttAdapter({
+              apiKey,
+              baseUrl: p.stt?.url,
+              sttModel: p.stt?.model
+            })
+          );
+      } else if (p.adapter === "elevenlabs" && tts) {
         this.tts.set(
           name,
-          new FakeTtsAdapter({
-            url: p.tts.url,
-            timeoutMs: p.tts.timeoutMs ?? DEFAULTS.ttsTimeoutMs
+          new ElevenLabsTtsAdapter({
+            apiKey,
+            baseUrl: p.tts?.url,
+            model: p.tts?.model,
+            timeoutMs
           })
         );
       }
-      if (p.capabilities.includes("stt") && p.stt)
-        this.stt.set(name, new FakeSttAdapter({ url: p.stt.url }));
     }
   }
 

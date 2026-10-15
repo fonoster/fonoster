@@ -87,7 +87,8 @@ it touches are named.
 ### B10. Not implemented yet
 
 - 2.6: Opus (design OQ8 still open). μ-law 8 kHz and PCM16 at any rate work.
-- Real vendor STT/TTS adapters (B2).
+- Vendor adapters: Deepgram (STT, TTS) and ElevenLabs (TTS) exist now (see add-provider-registry
+  PR3); Google and Azure do not.
 
 ### B11. Scenario format grew a `caller` step and `setup.media`
 

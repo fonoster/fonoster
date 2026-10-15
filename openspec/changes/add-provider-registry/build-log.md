@@ -33,6 +33,19 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - `export` is YAML (`fonoster.catalog.v1`), keys sorted so equal catalogs export byte-identical;
   `apply` writes one audit entry per change and reports `no changes` when idempotent.
 
+### PR3. First vendor adapters on the streaming interfaces
+
+- `mods/gateway/src/speech/deepgram.ts` (STT over WebSocket with interim results, `keyterm` hints,
+  reconnect on language change; TTS over HTTP as 16 kHz linear PCM) and `elevenlabs.ts` (TTS as raw
+  `pcm_16000`, default model `eleven_flash_v2_5`), ported from the apiserver adapters. Plain
+  HTTP/WebSocket, no vendor SDKs; each takes a base URL override.
+- Gateway config: `providers.<name>: {adapter: deepgram | elevenlabs, credential: {env | value},
+  tts/stt: {url?, model?}}` (platform keys in operator config, P3). Vendor failures map to
+  `provider_unavailable`, `provider_timeout` or `bad_message`.
+- Tested against local stand-ins of the vendor endpoints only; **no live call was made** (live
+  tests run by hand, T4). ElevenLabs word timings are not used yet.
+- Not ported yet: Google and Azure TTS/STT, LLM adapters.
+
 ### Not done
 
 - 1.1 suite against a real temporary database, 1.4 database-role checks, 1.5 adapter conformance,

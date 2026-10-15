@@ -41,11 +41,16 @@ export type AppConfig = {
 };
 
 export type ProviderConfig = {
-  adapter: "fake";
+  adapter: "fake" | "deepgram" | "elevenlabs";
   capabilities: ("tts" | "stt")[];
-  /** Base URLs of the provider endpoints. */
-  tts?: { url: string; timeoutMs?: number };
-  stt?: { url: string };
+  /**
+   * The platform key for this provider (P3: platform keys live in operator config, never in the
+   * catalog): read from an environment variable, or given inline in the YAML.
+   */
+  credential?: { env?: string; value?: string };
+  /** Endpoint overrides (required for fake; optional for vendors, e.g. a regional host). */
+  tts?: { url?: string; timeoutMs?: number; model?: string };
+  stt?: { url?: string; model?: string };
   /** Voices offered under this provider's catalog ids (`<provider>/<voice>`); omit to allow any. */
   voices?: string[];
 };
@@ -122,6 +127,11 @@ export function validateConfig(config: GatewayConfig): string[] {
         `provider ${name}: the fake adapter is only available in test mode`
       );
     }
+    if (p.adapter !== "fake" && !providerKey(p)) {
+      problems.push(
+        `provider ${name}: no credential (set credential.env or credential.value)`
+      );
+    }
   }
   return problems;
 }
@@ -135,4 +145,12 @@ export function loadConfig(file: string): GatewayConfig {
       `invalid gateway config ${file}:\n  - ${problems.join("\n  - ")}`
     );
   return config;
+}
+
+/** The platform key of a vendor provider, if configured. */
+export function providerKey(p: ProviderConfig): string | undefined {
+  return (
+    p.credential?.value ??
+    (p.credential?.env ? process.env[p.credential.env] : undefined)
+  );
 }
