@@ -25,6 +25,7 @@ export * from "./ApiKeys";
 export * from "./Applications";
 
 export * from "./CallRecords";
+export * from "./Regions";
 
 export * from "./Calls";
 

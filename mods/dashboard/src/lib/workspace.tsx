@@ -24,6 +24,11 @@ const WorkspaceContext = createContext<Workspace | null>(null);
 /** Set by WorkspaceGate for everything under /w/:workspaceRef. */
 export const WorkspaceProvider = WorkspaceContext.Provider;
 
+/** The workspace if there is one (shared components used outside a workspace route). */
+export function useMaybeWorkspace(): Workspace | null {
+  return useContext(WorkspaceContext);
+}
+
 /** The workspace the current screen acts on. */
 export function useWorkspace(): Workspace {
   const workspace = useContext(WorkspaceContext);

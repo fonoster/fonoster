@@ -85,10 +85,11 @@ describe("workspace landing", () => {
     expect(
       await screen.findByRole("heading", { name: "Welcome, Ada" })
     ).toBeInTheDocument();
-    await user.type(screen.getByLabelText("Workspace name"), "Acme Support");
-    await user.click(screen.getByRole("button", { name: "Create workspace" }));
+    await user.type(screen.getByLabelText("Name"), "Acme Support");
+    await user.click(screen.getByRole("button", { name: "Create" }));
     expect(auth.sdk.workspaces.createWorkspace).toHaveBeenCalledWith({
-      name: "Acme Support"
+      name: "Acme Support",
+      region: "us-east-1"
     });
     expect(await screen.findByTestId("location")).toHaveTextContent("/w/ws1");
     expect(localStorage.getItem("fonoster.workspace")).toBe("ws1");

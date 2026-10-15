@@ -80,14 +80,22 @@ message Workspace {
   int32 created_at = 5;
   int32 updated_at = 6;
   Owner owner = 7;
+  // A public region id (us-east-1) or the private region ref (rg_...). Immutable.
+  string region = 8;
 }
 
 message CreateWorkspaceRequest {
   string name = 1;
+  // A public region id, or "private" for a new private region. Empty means the default region.
+  string region = 2;
 }
 
 message CreateWorkspaceResponse {
   string ref = 1;
+  string region = 2;
+  // Private regions only: the one-time enrollment token (shown once) and its expiry (ISO 8601).
+  string enrollment_token = 3;
+  string expires_at = 4;
 }
 
 message DeleteWorkspaceRequest {
@@ -115,6 +123,8 @@ message ListWorkspacesResponse {
 message UpdateWorkspaceRequest {
   string ref = 1;
   string name = 2;
+  // Accepted only when unchanged (the region is immutable).
+  string region = 3;
 }
 
 message UpdateWorkspaceResponse {

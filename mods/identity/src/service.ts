@@ -67,8 +67,8 @@ function buildIdentityService(identityConfig: IdentityConfig) {
     definition: serviceDefinitionParams,
     handlers: {
       // Workspace operations
-      createWorkspace: createCreateWorkspace(prisma),
-      deleteWorkspace: createDeleteWorkspace(prisma),
+      createWorkspace: createCreateWorkspace(prisma, identityConfig.regions),
+      deleteWorkspace: createDeleteWorkspace(prisma, identityConfig.regions),
       getWorkspace: createGetWorkspace(prisma),
       updateWorkspace: createUpdateWorkspace(prisma),
       listWorkspaces: createListWorkspaces(prisma),

@@ -38,13 +38,17 @@ import { createCheckNumberPreconditions } from "../utils";
 import { buildWebhooksService } from "../webhooks";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
+import { workspaceRegionHooks } from "./regionHooks";
 import { routrConfig } from "./routrConfig";
 import { testTokenConfig } from "./testTokenConfig";
 
 const applicationsService = buildApplicationsService(prisma, testTokenConfig);
 const secretsService = buildSecretsService(prisma);
 const callsService = buildCallsService(influxdb);
-const identityService = buildIdentityService(identityConfig);
+const identityService = buildIdentityService({
+  ...identityConfig,
+  regions: workspaceRegionHooks
+});
 const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);

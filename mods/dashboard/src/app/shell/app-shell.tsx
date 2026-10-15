@@ -22,6 +22,7 @@ import { STORAGE_KEYS, storage } from "~/lib/storage";
 import { useMediaQuery } from "~/lib/use-media-query";
 import { useWorkspace } from "~/lib/workspace";
 import { DOCS_URL, SUPPORT_URL } from "./nav";
+import { RegionBanner } from "~/regions";
 import { Sidebar } from "./sidebar";
 
 /** The signed-in frame: sidebar (240px, or a 64px rail) and a top bar over the page. */
@@ -78,6 +79,7 @@ export function AppShell() {
             Support
           </a>
         </header>
+        <RegionBanner />
         <main className="flex min-w-0 flex-1 flex-col">
           <Outlet />
         </main>

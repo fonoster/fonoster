@@ -142,6 +142,7 @@ exports.Prisma.WorkspaceScalarFieldEnum = {
   ref: 'ref',
   accessKeyId: 'accessKeyId',
   name: 'name',
+  region: 'region',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   ownerRef: 'ownerRef'

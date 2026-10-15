@@ -97,6 +97,62 @@ const sessionAppsSchema = z
   })
   .default({});
 
+/**
+ * Regions (add-private-regions). Public regions come from data (PR-10); private regions need the
+ * region-signing key (ES256 PEM) and the region hub (NATS in operator mode, RG-B2), both generated
+ * by `fonoster-region-hub-setup`. Without them, workspaces can only pick a public region.
+ */
+const regionsSchema = z
+  .object({
+    public: z
+      .array(
+        z.object({
+          id: z.string().regex(/^[a-z0-9-]+$/),
+          name: z.string().min(1),
+          default: z.boolean().optional()
+        })
+      )
+      .min(1)
+      .default([
+        { id: "us-east-1", name: "US East (N. Virginia)", default: true }
+      ]),
+    /** `cp` in enrollment tokens. Defaults to appUrl. */
+    controlPlaneUrl: z.string().min(1).optional(),
+    /** `leaf` in enrollment tokens. Defaults to tls://<domain>:7422. */
+    leafUrl: z.string().min(1).optional(),
+    /** Allows a plain nats:// leaf URL (local stacks only). */
+    allowInsecureLeaf: z.boolean().default(false),
+    signingKey: z
+      .object({ file: z.string().min(1), kid: z.string().min(1).optional() })
+      .optional(),
+    hub: z
+      .object({
+        url: z.string().min(1),
+        credentialsFile: z.string().min(1),
+        systemCredentialsFile: z.string().min(1),
+        operatorSeedFile: z.string().min(1),
+        accountSeedFile: z.string().min(1)
+      })
+      .optional(),
+    relay: z
+      .object({
+        firstChunkTimeoutMs: z.number().int().positive().default(5000),
+        idleTimeoutMs: z.number().int().positive().default(10000),
+        maxBytes: z
+          .number()
+          .int()
+          .positive()
+          .default(256 * 1024 * 1024),
+        /** Relays in flight per region (HTTP 429 beyond). */
+        maxConcurrent: z.number().int().positive().default(8)
+      })
+      .default({}),
+    /** The release cells are measured against (default: this apiserver's version). */
+    currentVersion: z.string().optional(),
+    configDebounceMs: z.number().int().nonnegative().default(500)
+  })
+  .default({});
+
 /** fonoster.yaml: everything the API server (and embedded Identity) needs. */
 const fonosterConfigSchema = z
   .object({
@@ -159,7 +215,8 @@ const fonosterConfigSchema = z
     twilio: twilioSchema.optional(),
     identity: identitySectionSchema,
     callRecords: callRecordsSchema,
-    apps: sessionAppsSchema
+    apps: sessionAppsSchema,
+    regions: regionsSchema
   })
   .superRefine((config, ctx) => {
     if (config.authz.enabled && !config.authz.host) {
@@ -186,6 +243,19 @@ const fonosterConfigSchema = z
         code: "custom",
         path: ["identity", "oauth2", "github"],
         message: "required when features.auth.methods includes github"
+      });
+    }
+
+    const leaf = config.regions.leafUrl;
+    if (
+      leaf &&
+      !leaf.startsWith("tls://") &&
+      !config.regions.allowInsecureLeaf
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["regions", "leafUrl"],
+        message: "must be tls:// unless regions.allowInsecureLeaf is true"
       });
     }
 

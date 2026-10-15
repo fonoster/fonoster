@@ -31,7 +31,13 @@ const createWorkspaceRequestSchema = z.object({
   name: z
     .string()
     .min(1, { message: MIN_NAME_MESSAGE })
-    .max(50, { message: MAX_NAME_MESSAGE })
+    .max(50, { message: MAX_NAME_MESSAGE }),
+  /** A public region id, or "private" for a new private region (add-private-regions). */
+  region: z
+    .string()
+    .max(64)
+    .regex(/^[a-z0-9-]*$/, { message: "Invalid region" })
+    .optional()
 });
 
 const createApiKeyRequestSchema = z.object({
@@ -113,6 +119,8 @@ const resendWorkspaceMembershipInvitationRequestSchema = z.object({
 
 const updateWorkspaceRequestSchema = z.object({
   ref: z.string().uuid({ message: WORKSPACE_REF_MESSAGE }),
+  /** Only accepted when unchanged: the region is immutable (region_immutable). */
+  region: z.string().max(64).optional(),
   name: z
     .string()
     .min(1, { message: MIN_NAME_MESSAGE })

@@ -36,6 +36,7 @@ const ResetPassword = lazy(() => import("~/auth/reset-password.page"));
 const GitHubCallback = lazy(() => import("~/auth/github-callback.page"));
 const SetPassword = lazy(() => import("~/auth/set-password.page"));
 const Workspaces = lazy(() => import("~/workspaces/landing.page"));
+const RegionSetup = lazy(() => import("~/regions/setup"));
 const CreateWorkspace = lazy(
   () => import("~/workspaces/create-workspace.page")
 );
@@ -82,6 +83,7 @@ export function AppRoutes() {
                   />
                 )
               )}
+              <Route path="region-setup" element={<RegionSetup />} />
               <Route path="*" element={<Navigate to="." replace />} />
             </Route>
           </Route>

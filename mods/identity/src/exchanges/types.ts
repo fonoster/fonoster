@@ -19,7 +19,26 @@
 import { Validators as V } from "@fonoster/common";
 import { z } from "zod";
 
+/**
+ * Workspace ↔ region binding (add-private-regions PR-1, PR-2), provided by the control plane.
+ * Without it every workspace is on the default public region.
+ */
+type WorkspaceRegionHooks = {
+  publicRegions: string[];
+  defaultRegion: string;
+  /** Creates the private region of a new workspace; returns its ref and first token. */
+  createPrivateRegion(workspace: { accessKeyId: string }): Promise<{
+    regionRef: string;
+    enrollmentToken: string;
+    expiresAt: string;
+  }>;
+  /** The workspace was deleted: revoke and retire its private region. */
+  deleteRegion(workspace: { accessKeyId: string }): Promise<void>;
+};
+
 type IdentityConfig = {
+  /** Workspace regions (control plane); absent means the default public region only. */
+  regions?: WorkspaceRegionHooks;
   dbUrl: string;
   issuer: string;
   audience: string;
@@ -84,6 +103,7 @@ type ExchangeRefreshTokenRequest = z.infer<
 >;
 
 export {
+  WorkspaceRegionHooks,
   ExchangeApiKeysRequest,
   ExchangeCredentialsRequest,
   ExchangeOauth2CodeRequest,

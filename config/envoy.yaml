@@ -23,6 +23,11 @@ static_resources:
                         route:
                           cluster: apiserver-cluster-http
                           timeout: 0s
+                      # Region-signing public keys (add-private-regions contract §1)
+                      - match:
+                          path: "/.well-known/region-keys.json"
+                        route:
+                          cluster: apiserver-cluster-http
                       - match:
                           prefix: "/fonoster.identity.v1beta2.Identity/SendVerificationCode"
                           headers:

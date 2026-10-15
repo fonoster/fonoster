@@ -26,24 +26,35 @@ import {
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
+import { getConfig } from "../config";
 import {
   APISERVER_BIND_ADDR,
+  APP_URL,
   AUTHZ_SERVICE_ENABLED,
   AUTHZ_SERVICE_HOST,
   AUTHZ_SERVICE_METHODS,
   AUTHZ_SERVICE_PORT,
   CALL_RECORDS,
+  DOMAIN,
   HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
-  NATS_URL
+  NATS_URL,
+  REGIONS
 } from "../envs";
-import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
 import { runOutboundCalls } from "../outbound";
+import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
+import {
+  createSnapshotSources,
+  RegionsConfig,
+  runRegions,
+  withConfigChangeHook
+} from "../regions";
 import { allowList } from "./allowList";
 import { prisma } from "./db";
 import { httpBridge } from "./httpBridge";
 import { identityConfig } from "./identityConfig";
 import loadServices from "./loadServices";
+import { workspaceRegionHooks } from "./regionHooks";
 import services from "./services";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -66,19 +77,44 @@ async function runServices() {
   // Add the health check service to the server
   healthImpl.addToServer(server);
 
-  // Load the remaining services
-  loadServices(server, await services);
+  const loaded = await services;
+
+  // Private regions (add-private-regions): hub link, config sync, relay and /api/regions
+  const handlers = Object.assign(
+    {},
+    ...loaded.map((s) => s.handlers)
+  ) as Record<string, never>;
+  const regions = await runRegions(REGIONS as RegionsConfig, {
+    db: prisma,
+    identityPublicKey: IDENTITY_PUBLIC_KEY,
+    issuer: REGIONS.controlPlaneUrl ?? APP_URL,
+    defaultControlPlaneUrl: APP_URL,
+    defaultLeafUrl: `tls://${DOMAIN}:7422`,
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    currentVersion: require("../../package.json").version,
+    sources: createSnapshotSources({
+      db: prisma,
+      handlers,
+      callFeatures: getConfig().features.calls
+    })
+  });
+  workspaceRegionHooks.attach(regions);
+
+  // Load the remaining services; writes to synced resources notify the config sync
+  loadServices(server, withConfigChangeHook(loaded, regions.onConfigChange));
 
   // Call records (add-call-record): index consumer, retention and the /api/records routes
   const records = await runCallRecords(CALL_RECORDS as CallRecordsConfig, {
     natsUrl: NATS_URL,
     identityPublicKey: IDENTITY_PUBLIC_KEY,
-    db: prisma as unknown as RecordsDb
+    db: prisma as unknown as RecordsDb,
+    relay: { regionOf: regions.regionOf, client: regions.relay },
+    onConfigChange: regions.onConfigChange
   });
 
   httpBridge(identityConfig, {
     port: HTTP_BRIDGE_PORT,
-    routers: records.routers
+    routers: [...records.routers, ...regions.routers]
   });
 
   // CreateCall: places API-originated calls on the media nodes (cleanbreak CB-B2)
