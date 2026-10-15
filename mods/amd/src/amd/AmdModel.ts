@@ -94,6 +94,21 @@ type LoadedModel = {
 
 let loaded: LoadedModel | null = null;
 
+/**
+ * Releases the loaded ONNX session. Call it before the process exits on purpose (tests): ONNX
+ * Runtime's threads abort the process ("mutex lock failed") if they are still alive at exit.
+ */
+export async function releaseAmdModel(): Promise<void> {
+  const entry = loaded;
+  loaded = null;
+  if (!entry) return;
+  try {
+    await (await entry.session).release();
+  } catch {
+    // never loaded, nothing to release
+  }
+}
+
 function load(modelDir: string): LoadedModel {
   if (loaded && loaded.dir === modelDir) return loaded;
 

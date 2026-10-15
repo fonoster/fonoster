@@ -19,6 +19,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { expect } from "chai";
+import { releaseAmdModel } from "../../src/amd/AmdModel";
 import { classifyPcm } from "../../src/amd/AmdModel";
 
 const FIXTURES_DIR = join(__dirname, "..", "fixtures", "regression");
@@ -50,6 +51,9 @@ const manifest = JSON.parse(
  * regression on its own — a status flip is the signal that matters.
  */
 describe("@amd/regression (permanent labeled corpus)", function () {
+  // ONNX Runtime aborts the process at exit if its session is still alive.
+  after(() => releaseAmdModel());
+
   manifest.entries.forEach((entry) => {
     it(`${entry.file}: stays ${entry.knownStatus} (ground truth: ${entry.groundTruthLabel})`, async function () {
       this.timeout(30000);
