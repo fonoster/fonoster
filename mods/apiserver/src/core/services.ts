@@ -27,6 +27,7 @@ import {
   createNumberRouting
 } from "@fonoster/sipnet";
 import { buildApplicationsService } from "../applications";
+import { createEngineOfApp } from "../applications/session/engineOfApp";
 import { buildCallsService } from "../calls";
 import { influxdb } from "../calls/influxdb";
 import { buildCapabilitiesService } from "../capabilities";
@@ -36,8 +37,10 @@ import {
   ROUTR_ENGINES,
   ROUTR_MEDIA_NODE_PEER
 } from "../envs";
+import { buildProvidersService } from "../providers";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";
+import { buildWebhooksService } from "../webhooks";
 import { buildWelcomeDemoService } from "./buildWelcomeDemoService";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
@@ -59,7 +62,9 @@ const numberRouting = createNumberRouting({
   mediaNodeAor: ROUTR_MEDIA_NODE_PEER.aor,
   rebuildApps: ROUTR_ENGINES.rebuildApps,
   asteriskApps: ROUTR_ENGINES.asteriskApps,
-  numbers: ROUTR_ENGINES.numbers
+  numbers: ROUTR_ENGINES.numbers,
+  // Session apps (rows with a url) always go to the media nodes (rebuild: control, CP-B7).
+  engineOf: createEngineOfApp(prisma)
 });
 const numbersService = buildNumbersService(
   routrConfig,
@@ -69,6 +74,8 @@ const numbersService = buildNumbersService(
 const aclsService = buildAclsService(routrConfig);
 const welcomeDemoService = buildWelcomeDemoService();
 const capabilitiesService = buildCapabilitiesService(getConfig());
+const webhooksService = buildWebhooksService(prisma);
+const providersService = buildProvidersService(prisma);
 
 const services = Promise.all([
   applicationsService,
@@ -82,7 +89,9 @@ const services = Promise.all([
   trunksService,
   domainsService,
   welcomeDemoService,
-  capabilitiesService
+  capabilitiesService,
+  webhooksService,
+  providersService
 ]);
 
 export default services;

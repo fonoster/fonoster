@@ -102,6 +102,28 @@ describe("@gateway apps", function () {
     });
   });
 
+  it("appFromRow: reads patience and the recording policy (CP-B1)", function () {
+    const app = appFromRow({
+      ref: "a",
+      accessKeyId: "WO1",
+      url: "wss://bot.example.com",
+      signingSecret: "s",
+      patience: "high",
+      recording: "consent"
+    });
+    expect(app?.speech.patience).to.equal("high");
+    expect(app?.recording).to.equal("consent");
+    const bad = appFromRow({
+      ref: "b",
+      url: "wss://bot.example.com",
+      signingSecret: "s",
+      patience: "eager",
+      recording: "maybe"
+    });
+    expect(bad?.speech.patience).to.be.undefined;
+    expect(bad?.recording).to.be.undefined;
+  });
+
   it("config: database features need a database URL", function () {
     const base: GatewayConfig = {
       nats: { url: "nats://x" },

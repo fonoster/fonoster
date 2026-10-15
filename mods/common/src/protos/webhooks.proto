@@ -1,0 +1,140 @@
+/*
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.webhooks.v1beta2;
+
+// Workspace webhooks (add-workspace-webhooks): endpoints, secret rotation and the delivery log
+service Webhooks {
+  // Create an endpoint; the response carries its signing secret (shown once)
+  rpc CreateWebhook(CreateWebhookRequest) returns (CreateWebhookResponse) {}
+  // List the workspace's endpoints
+  rpc ListWebhooks(ListWebhooksRequest) returns (ListWebhooksResponse) {}
+  // Get one endpoint
+  rpc GetWebhook(GetWebhookRequest) returns (Webhook) {}
+  // Change an endpoint's URL or events
+  rpc UpdateWebhook(UpdateWebhookRequest) returns (UpdateWebhookResponse) {}
+  // Delete an endpoint
+  rpc DeleteWebhook(DeleteWebhookRequest) returns (DeleteWebhookResponse) {}
+  // New signing secret; the previous one keeps verifying for 24 hours
+  rpc RotateWebhookSecret(RotateWebhookSecretRequest) returns (RotateWebhookSecretResponse) {}
+  // The delivery log, newest first
+  rpc ListWebhookDeliveries(ListWebhookDeliveriesRequest) returns (ListWebhookDeliveriesResponse) {}
+  // Send a delivery again now (same event id, fresh signature)
+  rpc ResendWebhookDelivery(ResendWebhookDeliveryRequest) returns (WebhookDelivery) {}
+}
+
+message Webhook {
+  string ref = 1;
+  string url = 2;
+  // Subscribed event types, e.g. call.ended
+  repeated string events = 3;
+  // The last characters of the current secret
+  string secret_hint = 4;
+  // Seconds since the epoch until which the previous secret still verifies (0: none)
+  int32 previous_secret_until = 5;
+  int32 created_at = 6;
+  int32 updated_at = 7;
+}
+
+message CreateWebhookRequest {
+  string url = 1;
+  repeated string events = 2;
+}
+
+message CreateWebhookResponse {
+  string ref = 1;
+  // Shown only here and on rotation
+  string secret = 2;
+}
+
+message ListWebhooksRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListWebhooksResponse {
+  repeated Webhook items = 1;
+  string next_page_token = 2;
+}
+
+message GetWebhookRequest {
+  string ref = 1;
+}
+
+message UpdateWebhookRequest {
+  string ref = 1;
+  // Empty keeps the URL
+  string url = 2;
+  // Empty keeps the events
+  repeated string events = 3;
+}
+
+message UpdateWebhookResponse {
+  string ref = 1;
+}
+
+message DeleteWebhookRequest {
+  string ref = 1;
+}
+
+message DeleteWebhookResponse {
+  string ref = 1;
+}
+
+message RotateWebhookSecretRequest {
+  string ref = 1;
+}
+
+message RotateWebhookSecretResponse {
+  string ref = 1;
+  string secret = 2;
+  // Seconds since the epoch until which the previous secret still verifies
+  int32 previous_secret_until = 3;
+}
+
+message WebhookDelivery {
+  string ref = 1;
+  string webhook_ref = 2;
+  string event_id = 3;
+  string event_type = 4;
+  // pending, succeeded or failed
+  string status = 5;
+  int32 attempts = 6;
+  // HTTP status of the last attempt (0: no response)
+  int32 last_status = 7;
+  int32 last_attempt_at = 8;
+  int32 next_attempt_at = 9;
+  int32 created_at = 10;
+}
+
+message ListWebhookDeliveriesRequest {
+  // Optional: one endpoint's deliveries
+  string webhook_ref = 1;
+  // At most this many (default 50, up to 200)
+  int32 page_size = 2;
+}
+
+message ListWebhookDeliveriesResponse {
+  repeated WebhookDelivery items = 1;
+}
+
+message ResendWebhookDeliveryRequest {
+  string ref = 1;
+}

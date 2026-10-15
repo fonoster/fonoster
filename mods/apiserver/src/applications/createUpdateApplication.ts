@@ -16,75 +16,82 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  AUTOPILOT_SPECIAL_LOCAL_ADDRESS,
-  getAccessKeyIdFromCall,
-  withErrorHandling
-} from "@fonoster/common";
+import { getAccessKeyIdFromCall, withErrorHandling } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { ApplicationType, UpdateApplicationRequest } from "@fonoster/types";
+import { UpdateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { Prisma } from "../core/db";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { convertToApplicationData } from "./utils/convertToApplicationData";
-import { validOrThrow } from "./validation/validOrThrow";
+import {
+  AppsDb,
+  assistantRow,
+  newSigningSecret,
+  SessionAppsConfig,
+  toAppColumns
+} from "./session/appModel";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createUpdateApplication(prisma: Prisma) {
+/**
+ * Replaces an app's settings (PUT semantics, CP-B2): fields left out go back to their defaults.
+ * The signing secret is kept; rotate it with RotateSigningSecret.
+ */
+function createUpdateApplication(prisma: AppsDb, config: SessionAppsConfig) {
   const getFn = createGetFnUtil(prisma);
 
   const updateApplication = async (call: {
     request: UpdateApplicationRequest;
   }) => {
-    const { request } = call;
-    const { type, ref: applicationRef } = request;
-
+    const { ref } = call.request;
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
+    const existing = (await getFn(ref)) as unknown as {
+      name: string;
+      type: string;
+      signingSecret?: string | null;
+    };
+    const request = {
+      ...(call.request as unknown as Record<string, unknown>),
+      name: call.request.name || existing.name,
+      type: (call.request.type as string) || existing.type
+    };
 
-    if (type === ApplicationType.AUTOPILOT && !request.endpoint) {
-      logger.verbose("setting default endpoint for autopilot application", {
-        autopilotEndpoint: AUTOPILOT_SPECIAL_LOCAL_ADDRESS
-      });
-      request.endpoint = AUTOPILOT_SPECIAL_LOCAL_ADDRESS;
-    }
+    logger.verbose("call to updateApplication", { accessKeyId, ref });
 
-    validOrThrow(request);
-
-    logger.verbose("call to updateApplication", {
-      accessKeyId,
-      type
-    });
+    const { columns, assistant, autopilot } = await toAppColumns(
+      prisma,
+      request,
+      { accessKeyId, ref, config }
+    );
+    const intelligence = assistant
+      ? await assistantRow(prisma, assistant)
+      : undefined;
+    // An app that became an Autopilot app takes the shared secret; one that stopped being one
+    // needs its own.
+    let signingSecret: string | undefined;
+    if (autopilot && config.autopilotSigningSecret)
+      signingSecret = config.autopilotSigningSecret;
+    else if (
+      !existing.signingSecret ||
+      existing.signingSecret === config.autopilotSigningSecret
+    )
+      signingSecret = newSigningSecret();
 
     await prisma.$transaction([
-      prisma.textToSpeech.deleteMany({
-        where: {
-          applicationRef
-        }
-      }),
-      prisma.speechToText.deleteMany({
-        where: {
-          applicationRef
-        }
-      }),
-      prisma.intelligence.deleteMany({
-        where: {
-          applicationRef
-        }
-      }),
+      prisma.intelligence.deleteMany({ where: { applicationRef: ref } }),
       prisma.application.update({
-        where: {
-          ref: applicationRef,
-          accessKeyId
-        },
-        data: convertToApplicationData(request)
+        where: { ref, accessKeyId },
+        data: {
+          ...columns,
+          ...(signingSecret ? { signingSecret } : {}),
+          updatedAt: new Date(),
+          ...(intelligence ? { intelligence: { create: intelligence } } : {})
+        }
       })
     ]);
 
-    return { ref: applicationRef };
+    return { ref };
   };
 
   return withErrorHandling(

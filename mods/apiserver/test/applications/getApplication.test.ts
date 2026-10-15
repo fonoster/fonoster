@@ -50,6 +50,8 @@ describe("@applications/getApplication", function () {
       ref: "123",
       name: "My Application",
       endpoint: "example.com:50051",
+      url: "wss://example.com/session",
+      signingSecret: "s3cret-abcd",
       accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
       createdAt: new Date(),
       updatedAt: new Date()
@@ -62,9 +64,8 @@ describe("@applications/getApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createGetApplication } = await import(
-      "../../src/applications/createGetApplication"
-    );
+    const { createGetApplication } =
+      await import("../../src/applications/createGetApplication");
 
     // Act
     const response = await new Promise((resolve, reject) => {
@@ -78,8 +79,9 @@ describe("@applications/getApplication", function () {
     expect(prisma.application.findUnique).to.have.been.calledTwice;
     expect(response).have.property("ref", application.ref);
     expect(response).have.property("name", application.name);
-    expect(response).have.property("endpoint", application.endpoint);
-    expect(response).have.property("accessKeyId", application.accessKeyId);
+    expect(response).have.property("url", application.url);
+    expect(response).have.property("signingSecretHint", "…abcd");
+    expect(response).not.have.property("signingSecret");
   });
 
   it("should throw an error if the application is not found", async function () {
@@ -100,9 +102,8 @@ describe("@applications/getApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createGetApplication } = await import(
-      "../../src/applications/createGetApplication"
-    );
+    const { createGetApplication } =
+      await import("../../src/applications/createGetApplication");
 
     // Act
     await createGetApplication(prisma)(call, (error) => {

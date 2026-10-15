@@ -17,55 +17,73 @@
  * limitations under the License.
  */
 import {
-  AUTOPILOT_SPECIAL_LOCAL_ADDRESS,
   getAccessKeyIdFromCall,
   GrpcErrorMessage,
   withErrorHandling
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { BaseApiObject, CreateApplicationRequest } from "@fonoster/types";
+import { CreateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { ApplicationType } from "@prisma/client";
-import { Prisma } from "../core/db";
-import { convertToApplicationData } from "./utils/convertToApplicationData";
-import { validOrThrow } from "./validation/validOrThrow";
+import {
+  AppsDb,
+  assistantRow,
+  newSigningSecret,
+  secretHint,
+  SessionAppsConfig,
+  toAppColumns
+} from "./session/appModel";
+
+type CreateApplicationResponse = {
+  ref: string;
+  signingSecret: string;
+  signingSecretHint: string;
+};
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createCreateApplication(prisma: Prisma) {
+/**
+ * Creates a session app. The response carries the signing secret, the only time it is shown.
+ * Autopilot apps share the configured Autopilot secret when one is set (CP-B3).
+ */
+function createCreateApplication(prisma: AppsDb, config: SessionAppsConfig) {
   const createApplication = async (
     call: { request: CreateApplicationRequest },
-    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
+    callback: (
+      error: GrpcErrorMessage,
+      response?: CreateApplicationResponse
+    ) => void
   ) => {
-    const { request } = call;
-    const { type } = request;
-
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
+    const request = call.request as unknown as Record<string, unknown>;
 
     logger.verbose("call to createApplication", {
       accessKeyId,
-      type
+      type: request.type
     });
 
-    if (type === ApplicationType.AUTOPILOT && !request.endpoint) {
-      logger.verbose("setting default endpoint for autopilot application", {
-        autopilotEndpoint: AUTOPILOT_SPECIAL_LOCAL_ADDRESS
-      });
-      request.endpoint = AUTOPILOT_SPECIAL_LOCAL_ADDRESS;
-    }
-
-    validOrThrow(request);
+    const { columns, assistant, autopilot } = await toAppColumns(
+      prisma,
+      request,
+      { accessKeyId, config }
+    );
+    const shared = autopilot ? config.autopilotSigningSecret : undefined;
+    const signingSecret = shared ?? newSigningSecret();
+    const intelligence = assistant
+      ? { create: await assistantRow(prisma, assistant) }
+      : undefined;
 
     const result = await prisma.application.create({
-      data: {
-        ...convertToApplicationData(request),
-        accessKeyId
-      }
+      data: { ...columns, signingSecret, accessKeyId, intelligence }
     });
 
-    callback(null, { ref: result.ref });
+    callback(null, {
+      ref: result.ref,
+      // A shared Autopilot secret is the operator's, not the app's to show.
+      signingSecret: shared ? "" : signingSecret,
+      signingSecretHint: secretHint(signingSecret)
+    });
   };
 
   return withErrorHandling(createApplication);

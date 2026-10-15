@@ -75,11 +75,25 @@ const recordStoreSchema = z.union([
  */
 const callRecordsSchema = z
   .object({
-    enabled: z.boolean().default(false),
-    listCallsFromIndex: z.boolean().default(false),
+    enabled: z.boolean().default(true),
+    listCallsFromIndex: z.boolean().default(true),
     stores: z.array(recordStoreSchema).default([]),
     retentionIntervalMinutes: z.number().int().positive().default(60),
     maintenanceTimeoutMs: z.number().int().positive().default(30000)
+  })
+  .default({});
+
+/**
+ * Session apps (voice-session G2): the hosted Autopilot that Autopilot apps point at, and the
+ * secret the gateway signs their sessions with (the hosted Autopilot verifies one secret for every
+ * Autopilot app). Without `signingSecret` each Autopilot app gets its own random secret.
+ */
+const sessionAppsSchema = z
+  .object({
+    autopilotUrl: z.string().min(1).default("ws://autopilot:50061"),
+    autopilotSigningSecret: z.string().min(1).optional(),
+    /** Plain http:// webhook endpoints (local testing only). */
+    allowInsecureWebhooks: z.boolean().default(false)
   })
   .default({});
 
@@ -189,7 +203,8 @@ const fonosterConfigSchema = z
       .default({}),
     twilio: twilioSchema.optional(),
     identity: identitySectionSchema,
-    callRecords: callRecordsSchema
+    callRecords: callRecordsSchema,
+    apps: sessionAppsSchema
   })
   .superRefine((config, ctx) => {
     if (config.authz.enabled && !config.authz.host) {

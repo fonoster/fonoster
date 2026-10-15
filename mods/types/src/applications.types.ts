@@ -29,10 +29,42 @@ enum ExpectedTextType {
   SIMILAR = "SIMILAR"
 }
 
-type Application = {
+/** Speech defaults of a session app; voices and models are catalog ids. */
+type SpeechDefaults = {
+  voice?: string;
+  language?: string;
+  sttModel?: string;
+  ttsModel?: string;
+  silenceTimeoutMs?: number;
+  patience?: "low" | "normal" | "high";
+};
+
+type AudioFormat = { codec: "pcm16" | "pcmu"; rate: number };
+
+type AppListener = { url: string; tracks?: "inbound" | "outbound" | "both" };
+
+type RecordingPolicy = "off" | "on" | "consent";
+
+/** The session app model (voice-session G2). */
+type SessionAppFields = {
+  /** ws:// or wss:// URL the gateway dials (Autopilot apps: the hosted Autopilot). */
+  url?: string;
+  flavor?: "native" | "twilio";
+  speech?: SpeechDefaults;
+  audio?: AudioFormat;
+  fallbackAppRef?: string;
+  fallbackMessage?: string;
+  listeners?: AppListener[];
+  /** Empty inherits the workspace's policy. */
+  recording?: RecordingPolicy | "";
+};
+
+type Application = SessionAppFields & {
   ref: string;
   name: string;
   type: ApplicationType;
+  /** The last characters of the signing secret; the secret itself is never read back. */
+  signingSecretHint?: string;
   endpoint?: string;
   textToSpeech?: {
     productRef: string;
@@ -50,7 +82,7 @@ type Application = {
   updatedAt: Date;
 };
 
-type CreateApplicationRequest = {
+type CreateApplicationRequest = SessionAppFields & {
   name: string;
   type: ApplicationType;
   endpoint?: string;
@@ -62,9 +94,10 @@ type CreateApplicationRequest = {
     productRef: string;
     config: Record<string, unknown>;
   };
+  /** Autopilot apps: the assistant (sessionAssistantSchema); productRef is derived from its model. */
   intelligence?: {
-    productRef: string;
-    credentials: Record<string, unknown>;
+    productRef?: string;
+    credentials?: Record<string, unknown>;
     config: Record<string, unknown>;
   };
 };
@@ -74,6 +107,19 @@ type UpdateApplicationRequest = Flatten<
 >;
 
 type ListApplicationsRequest = ListRequest;
+
+type CreateApplicationResponse = {
+  ref: string;
+  /** Shown only here and on rotation. */
+  signingSecret?: string;
+  signingSecretHint?: string;
+};
+
+type RotateSigningSecretResponse = {
+  ref: string;
+  signingSecret: string;
+  signingSecretHint: string;
+};
 
 type ListApplicationsResponse = ListResponse<Application>;
 
@@ -145,6 +191,13 @@ type CreateTestTokenResponse = {
 };
 
 export {
+  AppListener,
+  AudioFormat,
+  CreateApplicationResponse,
+  RecordingPolicy,
+  RotateSigningSecretResponse,
+  SessionAppFields,
+  SpeechDefaults,
   Application,
   ApplicationType,
   CreateApplicationRequest,
