@@ -86,6 +86,20 @@ describe("@gateway catalog seed", function () {
     expect(stt.adapter).to.be.instanceOf(DeepgramSttAdapter);
     expect(stt.model).to.equal("nova-3");
     expect(catalog.resolveStt("deepgram/aura-2")).to.equal(undefined);
+    // A retired STT model resolves to its replacement and says so (task 3.3).
+    const registry = new RegistryNs.Registry({ store, actor: "test" });
+    registry.deprecate(
+      "model",
+      "deepgram/nova-2-phonecall",
+      "deepgram/nova-3",
+      "2027-01-31"
+    );
+    registry.retire("model", "deepgram/nova-2-phonecall");
+    expect(catalog.resolveStt("deepgram/nova-2-phonecall")).to.deep.include({
+      model: "nova-3",
+      event: "provider.retired_used",
+      replacement: "deepgram/nova-3"
+    });
     expect(catalog.resolveVoice("elevenlabs/unknown")).to.equal(undefined);
   });
 });

@@ -151,3 +151,101 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 
 - 1.1 as a full scenario suite, 4.3 API/UI for workspace keys (table only), runtime
   `provider.deprecated_used` → dashboard notice (the gateway records it in the call record only).
+
+## 2026-10-15 (voices stream; live vendor calls approved by the owner, about 3 USD cap)
+
+### VO-B1. PR5 explained: Deepgram finishes at real-time pace; the check closed too early
+
+- Not an audio format problem: both saved syntheses (Deepgram and ElevenLabs, 16 kHz linear PCM)
+  transcribe correctly when replayed, and the unchanged live check passed 4 of 4 reruns.
+- Cause: Deepgram works through streamed audio at about real-time pace even when it arrives
+  faster (10.7 s of audio sent in 1.4 s: last final at 9 s). The live check waited a fixed 8 s,
+  then `close()` sent CloseStream and closed the socket at once, discarding every late final. In
+  the PR5 runs Deepgram was slow (its TTS took up to 8.5 s), so nothing arrived in time; the
+  ElevenLabs step only moved the timing. 
+- Fix: `DeepgramSttStream.finish(timeoutMs)` sends CloseStream and waits for Deepgram to close
+  the socket. The live check and the live call use it. Regression test: a fake Deepgram that only
+  answers after CloseStream.
+- Found while there, each with a test that fails on the old adapter:
+  - a stream Deepgram closed (1011, NET-0001) went quietly deaf. It now reconnects up to 3 times
+    (250/500/750 ms), keeping up to 5 s of frames; then `provider_unavailable` with the close code.
+    1008 → `bad_message`. A rejected handshake (401/400) is reported once and not retried.
+  - `update()` (language or hints) closed the old socket at once, losing the words just spoken.
+    It now sends Finalize + CloseStream and lets the old socket deliver for up to 2 s.
+  - KeepAlive every 5 s (was 8 s, close to Deepgram's 10 s idle limit).
+- `live-check.ts`: `LIVE_REPLAY_DIR` transcribes saved audio instead of synthesizing (cheapest
+  rerun), `LIVE_SAVE_DIR` keeps the audio; reports result counts and errors.
+
+### VO-B2. Hints: keyterm on Nova-3, keywords on older models
+
+- `keyterm` for `nova-3*` and `flux*`, `keywords` for every other model (Deepgram only supports
+  keyterm prompting on those). Live: without a hint Deepgram heard "Fonister", "Phonoster",
+  "Fodister"; with `keyterm=Fonoster` it heard "Fonoster" in every run, including through the
+  real call path (caller audio as PCMU, narrowband).
+
+### VO-B3. Where hints come from
+
+- App default hints: `speech.hints` in gateway YAML, or `speech_settings.hints` (or `keyterms`)
+  on the applications row. Sent on every STT stream from the start.
+- `listen.update` hints add to the app's defaults (deduplicated case-insensitively, at most 100);
+  they replace earlier `listen.update` hints, never the app's.
+- Assistants: `conversationSettings.hints` (rework-autopilot); Autopilot sends them with
+  `listen.update` when the session starts. Scenario `autopilot/recognition-hints`.
+
+### VO-B4. STT model through the catalog (task 3.3 completed with PR4 and AP-B4)
+
+- App `speech.sttModel` (`speech_stt_model` column) is a catalog id like `deepgram/nova-3`; the
+  gateway resolves it like voices: with a registry it must be an STT model in the catalog, a
+  retired one plays its replacement and `provider.retired_used`/`deprecated_used` is recorded;
+  unknown → non-fatal `invalid_catalog_id` and no STT. Without `sttModel`, the deployment's
+  default STT provider and its configured model (as before). `SttAdapter.open` takes `model`.
+- The app's TTS model column (`speech_tts_model`) is still not used: ElevenLabs uses the gateway
+  provider's `tts.model` (default `eleven_flash_v2_5`). Open.
+
+### VO-B5. Catalog seed for the owner's vendors
+
+- `ops/rebuild/config/catalog-seed.yaml` (`fonoster-registry apply -f`): providers deepgram,
+  elevenlabs, openai, groq; models deepgram/nova-3, deepgram/nova-2-phonecall, deepgram/aura-2,
+  elevenlabs/eleven_flash_v2_5, openai/gpt-4o-mini, openai/gpt-4.1-mini,
+  groq/llama-3.3-70b-versatile; 16 Aura-2 voices (en, es) and 8 ElevenLabs premade voices (ids
+  checked against the live voice and model lists, free endpoints). The gateway's provider names
+  must equal the catalog's provider ids (`deepgram`, `elevenlabs`); the header shows the config.
+- ElevenLabs catalog ids are the vendor's voice ids (`elevenlabs/EXAVITQu4vr4xnSDxMaL` = Sarah);
+  names are comments. Friendly aliases would need a catalog field; not done.
+- `ops/rebuild/config/registry.json` (the stack's) was left alone; apply the seed to it.
+
+### VO-B6. Live call through the real pieces, and turn latency
+
+- `mods/gateway/scripts/live-call.ts` (skipped unless `LIVE_CALL=1`): the SIP caller bot dials the
+  Go media node, the gateway runs Deepgram STT (`nova-3`, hint Fonoster) and the app's voice, the
+  hosted Autopilot (`startHostedAutopilot`, registry + credential refs) answers. The caller says
+  `scripts/fixtures/question-fonoster.wav` ("Hi there. What does Fonoster do? Please keep it
+  short.", 3.1 s). Options: `LIVE_VOICE`, `LIVE_STT`, `LIVE_LLM`, `LIVE_TURNS`,
+  `LIVE_TRANSCRIBE`, `LIVE_OUT` (heard.wav and the call record).
+- Caller bot (Go): `POST /calls/{id}/audio {"kind":"pcm"}` says 16 kHz PCM (sent as PCMU),
+  `GET /calls/{id}/heard` returns what the caller heard, status adds `spokeUntilMs` and
+  `firstAudibleAfterMs`.
+- **OpenAI blocked**: the key in integrations.json has no credits (HTTP 429
+  `insufficient_quota`), so Autopilot said its system error message instead of a model reply.
+  Groq is seeded and selectable (`LIVE_LLM=groq/llama-3.3-70b-versatile`, `GROQ_API_KEY`) but was
+  not called (not approved for this stream).
+- Measured (caller stops → first audible agent audio at the caller), 3 turns:
+
+  | voice | turn latency | turn.ended | app speak after turn.ended | TTS first audio | to caller |
+  | --- | --- | --- | --- | --- | --- |
+  | deepgram/aura-2-thalia-en | 2389 ms | 729 | 1363 (OpenAI 429) | 287 | 10 |
+  | deepgram/aura-2-thalia-en | 1768 ms | 728 | 299 (OpenAI 429) | 511 | 230 |
+  | elevenlabs/EXAVITQu4vr4xnSDxMaL | 1410 ms | 732 | 314 (OpenAI 429) | 333 | 31 |
+
+  Transcript at the gateway each time: "Hi there. What does Fonoster do? Please keep it short."
+  Greeting first audio after answer: 1.6 s (Aura), 0.57 s (ElevenLabs). Without the LLM, the
+  floor is about 730 ms (turn end: `likely_ended` about 430 ms, `ended` about 730 ms after the
+  caller stops) plus 300–500 ms TTS first audio; a real reply adds the model's first sentence
+  minus the head start Autopilot gets from preparing on `turn.likely_ended`.
+
+### VO-B7. Spend
+
+- Deepgram: about 10 short syntheses and about 20 streaming transcriptions (under 4 minutes of
+  audio in total), about 0.05 USD. ElevenLabs: 7 short syntheses (under 600 characters), about
+  0.05 USD. OpenAI: 3 requests refused for lack of credit (no charge). Model and voice lists:
+  free. Total well under 0.25 USD of the 3 USD cap.

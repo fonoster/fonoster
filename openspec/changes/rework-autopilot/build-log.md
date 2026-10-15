@@ -175,3 +175,23 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 ### Not done
 
 - 1.4 streaming evals, 5.3 the migration job, 8.x cutover.
+
+## 2026-10-15 (voices stream)
+
+### VO-B1. Assistant recognition hints
+
+- `conversationSettings.hints` (up to 100 strings) in the session assistant schema; Autopilot
+  sends them with `listen.update` (with patience, when not normal) as the session starts, and the
+  gateway adds them to the app's default hints (add-provider-registry VO-B3). Spec scenario
+  "Plugs, not vendors / Recognition hints", conformance `autopilot/recognition-hints`.
+
+### VO-B2. Live LLM path through the registry (OpenAI)
+
+- The live call (`mods/gateway/scripts/live-call.ts`) runs the hosted Autopilot from an operator
+  config: registry file from the catalog seed, `credentials: {openai-default: {env:
+  OPENAI_API_KEY}}`. Resolution worked (the request reached OpenAI with the key from the
+  credential ref) but the account has no credits: HTTP 429 `insufficient_quota` within 0.3–1.4 s,
+  and Autopilot spoke its system error message and kept the call (as specified). No model reply
+  was heard; latency with a real model is still to be measured. Spend: 0 USD.
+- To rerun with another OpenAI-compatible provider: `LIVE_LLM=groq/llama-3.3-70b-versatile`
+  with `GROQ_API_KEY` (seeded; not called here).
