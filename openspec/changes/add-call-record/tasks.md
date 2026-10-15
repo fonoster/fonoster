@@ -11,9 +11,10 @@
       seal deadline, with missing parts listed
 - [x] 1.4 Verifier tool: checks the signature against the region's published keys and every file
       hash; reports the first mismatching part
-- [ ] 1.5 Retention and erasure tests: policy expiry, per-call erasure, audit entries
+- [x] 1.5 Retention and erasure tests: policy expiry, per-call erasure, audit entries
 - [ ] 1.6 Redaction tests: masked transcript and beeped audio for seeded personal data; original
-      access refused without permission
+      access refused without permission (masked transcript and refused original done; beeps
+      wait on O3, R-B4)
 
 ## 2. Writer and storage
 
@@ -22,40 +23,41 @@
 - [x] 2.2 Sealing at hangup: assemble the vCon, hash files, sign (JWS) and mark sealed; record
       missing parts
 - [x] 2.3 Versioning: post-seal additions create new versions that reference the predecessor
-- [ ] 2.4 Region object storage plus per-workspace S3-compatible bucket configuration
-- [ ] 2.5 Control-plane index (call id, workspace, time, size, location, current version)
+- [x] 2.4 Region object storage plus per-workspace S3-compatible bucket configuration
+- [x] 2.5 Control-plane index (call id, workspace, time, size, location, current version)
 - [ ] 2.6 Region signing keys and a published key history (see open question O2)
 
 ## 3. Recording and SIP trace
 
-- [ ] 3.1 Recording policy setting per workspace and app (`off`, `on`, `on after consent prompt`)
-- [ ] 3.2 Internal recording listener (`tracks: both`, separate sides) uploading to record storage
+- [x] 3.1 Recording policy setting per workspace and app (`off`, `on`, `on after consent prompt`)
+- [x] 3.2 Internal recording listener (`tracks: both`, separate sides) uploading to record storage
 - [ ] ~~3.3 SIP trace capture~~ dropped for the first release (MN10, 2026-10-15)
 
 ## 4. Privacy
 
 - [ ] 4.1 Redaction step producing the redacted version at seal (engine per open question O3)
-- [ ] 4.2 Role permission for unredacted access; default reads return the redacted version
-- [ ] 4.3 Retention policy engine and per-call erasure, all writing audit entries
+- [x] 4.2 Role permission for unredacted access; default reads return the redacted version
+- [x] 4.3 Retention policy engine and per-call erasure, all writing audit entries
 
 ## 5. Access
 
-- [ ] 5.1 API: fetch by `callRef` and version, search by time range, number, app and status
+- [x] 5.1 API: fetch by `callRef` and version, search by time range, number, app and status
 - [ ] 5.2 SDK and CTL support for fetching records and downloading files
 - [ ] 5.3 Dashboard call detail backed by the record, with recording download
-- [ ] 5.4 Emit `call_record.sealed` (link only) through workspace webhooks
-- [ ] 5.5 Minimal records for calls that never reach an app, emitting `call.failed`
+- [x] 5.4 Emit `call_record.sealed` (link only) through workspace webhooks
+- [x] 5.5 Minimal records for calls that never reach an app, emitting `call.failed`
 
 ## 6. Analytics
 
 - [ ] 6.1 Loader that fills the analytics store from sealed records (ClickHouse, optional in
-      Community)
-- [ ] 6.2 Rebuild command that drops and refills the store from records
+      Community) (loader contract and per-call metrics done; no ClickHouse sink, R-B13)
+- [ ] 6.2 Rebuild command that drops and refills the store from records (`rebuildAnalytics`
+      done and tested; no CLI command yet)
 
 ## 7. Migration and docs
 
-- [ ] 7.1 Move call history off InfluxDB CDRs; serve `ListCalls`/`GetCall` from the index and
-      records
+- [x] 7.1 Move call history off InfluxDB CDRs; serve `ListCalls`/`GetCall` from the index and
+      records (behind `callRecords.listCallsFromIndex`; InfluxDB code kept, R-B11)
 - [ ] 7.2 Retire the recording-URL convention (`${RECORDING_BASE_URL}/${appRef}_${mediaSessionRef}.wav`)
       in favor of the record's recording reference
 - [ ] 7.3 Point users of Autopilot's retired `conversation.ended` webhook (`rework-autopilot`) to

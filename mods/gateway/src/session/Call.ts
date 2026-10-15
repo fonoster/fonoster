@@ -29,7 +29,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import Ajv, { ValidateFunction } from "ajv";
 import WebSocket from "ws";
-import { AppConfig, DEFAULTS, GatewayConfig } from "../config";
+import { AppConfig, DEFAULTS, GatewayConfig, recordingPolicy } from "../config";
 import {
   AudioFilterChain,
   AudioFilterFactory,
@@ -45,6 +45,7 @@ import {
   MediaEvent
 } from "../media/MediaControl";
 import { RtpLink } from "../media/RtpLink";
+import { CallRecording } from "../record/CallRecording";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
 import { SpeechError, SttStream } from "../speech/types";
@@ -114,6 +115,8 @@ export type CallInfo = {
   from: string;
   to: string;
   metadata: Record<string, unknown>;
+  /** The caller's tracks from call.incoming (the recording listener needs their ids). */
+  callerTracks?: unknown[];
 };
 
 export type CallDeps = {
@@ -145,6 +148,8 @@ export class Call {
   private answeredBy?: AppConfig;
   private routedTo?: AppConfig;
   onHold = false;
+  /** The platform's recording listener (call-record, recording policy). */
+  readonly recording: CallRecording;
 
   private readonly span: ReturnType<typeof telemetry.startCall>;
 
@@ -155,6 +160,12 @@ export class Call {
     this.span = telemetry.startCall(info.callRef, "gateway.call");
     telemetry.count("fonoster.gateway.calls.total");
     telemetry.log("info", "call started", { callRef: info.callRef });
+    this.recording = new CallRecording(
+      this,
+      deps.record.recordingDir?.(info.callRef),
+      deps.config.rtp
+    );
+    this.recording.noteTracks(info.callerRef, info.callerTracks);
   }
 
   get callRef() {
@@ -192,7 +203,10 @@ export class Call {
     this.record("event", {
       type: "call.started",
       direction: this.info.direction,
-      appRef: app.ref
+      appRef: app.ref,
+      workspaceRef: app.workspaceRef ?? null,
+      from: this.info.from,
+      to: this.info.to
     });
 
     const reached = await this.dial(app);
@@ -201,10 +215,23 @@ export class Call {
 
     try {
       await this.joinRoom();
-      // Auto-answer once the app's socket is open and session.start is sent (VS12).
-      if (reached) this.attach(reached.app, reached.socket, null);
-      if (this.info.direction === "inbound")
-        await this.mediaCommand({ type: "answer" });
+      const policy = recordingPolicy(this.deps.config, reached?.app ?? app);
+      if (reached && policy === "consent") {
+        // The caller hears the consent prompt before recording starts and before the app's
+        // session begins (call-record "Consent prompt").
+        if (this.info.direction === "inbound")
+          await this.mediaCommand({ type: "answer" });
+        await this.consentPrompt(reached.app);
+        if (this.ended) return socket?.terminate();
+        await this.startRecording(policy);
+        this.attach(reached.app, reached.socket, null);
+      } else {
+        if (reached) void this.startRecording(policy);
+        // Auto-answer once the app's socket is open and session.start is sent (VS12).
+        if (reached) this.attach(reached.app, reached.socket, null);
+        if (this.info.direction === "inbound")
+          await this.mediaCommand({ type: "answer" });
+      }
     } catch (e) {
       logger.error(
         `call ${this.callRef}: could not set up media: ${(e as Error).message}`
@@ -217,6 +244,52 @@ export class Call {
       this.failed("app_unreachable");
       await this.fallbackMessage(app);
     }
+  }
+
+  private async startRecording(policy: ReturnType<typeof recordingPolicy>) {
+    if (policy === "off" || !this.sessionParticipantRef) return;
+    await this.recording.start(
+      policy,
+      this.info.callerRef,
+      this.sessionParticipantRef
+    );
+  }
+
+  /** Speaks the consent prompt alone (no app session yet) and resolves when it has played. */
+  private async consentPrompt(app: AppConfig) {
+    const text =
+      this.deps.config.callRecord?.consentPrompt ??
+      "This call will be recorded.";
+    this.record("event", { type: "recording.consent_requested", text });
+    const voice = this.deps.catalog.resolveVoice(app.speech.voice);
+    if (!voice) return;
+    await new Promise<void>((resolve) => {
+      const queue = new OutputQueue({
+        sink: (f) => this.rtp.send(f),
+        maxQueuedMs: DEFAULTS.outputQueueMaxMs,
+        emit: (e) => {
+          if (
+            e.type === "output.done" ||
+            e.type === "output.interrupted" ||
+            e.type === "error"
+          ) {
+            queue.stop();
+            resolve();
+          }
+        }
+      });
+      queue.start();
+      queue.speak({
+        id: "consent",
+        text,
+        last: true,
+        interruptible: false,
+        preempt: false,
+        voice: voice.voice,
+        language: app.speech.language,
+        adapter: voice.adapter
+      });
+    });
   }
 
   private parties(app?: AppConfig) {
@@ -437,6 +510,8 @@ export class Call {
     this.session = undefined;
     this.rtp.close();
     this.unsubscribeRoom?.();
+    // The recording is flushed before the record is closed, so sealing finds all of it.
+    this.recording.stop();
     this.record("event", { type: "call.ended", reason });
     if (this.answeredBy)
       this.deps.webhooks?.(
@@ -462,6 +537,9 @@ export class Call {
   private onMediaEvent(event: MediaEvent) {
     this.record("event", { media: event });
     switch (event.type) {
+      case "participant.joined":
+        this.recording.noteTracks(event.participantRef, event.tracks);
+        break;
       case "dtmf":
         this.session?.callerDtmf(String(event.digit));
         break;

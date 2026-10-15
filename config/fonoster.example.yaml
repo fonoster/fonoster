@@ -109,6 +109,18 @@ influxdb:                                        # call records
   password: ${INFLUXDB_INIT_PASSWORD}
   token: ${INFLUXDB_INIT_TOKEN}
 
+# Call records (vCon, add-call-record): the index of sealed records, the /api/records API on the
+# HTTP bridge, retention, and call history from the index instead of InfluxDB. Off by default.
+# callRecords:
+#   enabled: true
+#   listCallsFromIndex: true
+#   retentionIntervalMinutes: 60
+#   stores:                                        # where the gateways put records
+#     - s3:
+#         bucket: records
+#         endpoint: http://minio:9000
+#         credentials: { accessKeyId: ${RECORDS_S3_KEY}, secretAccessKey: ${RECORDS_S3_SECRET} }
+
 # Speech provider credentials, shared with Autopilot (JSON or YAML).
 integrationsFile: /opt/fonoster/integrations.json
 

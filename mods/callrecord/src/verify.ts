@@ -36,8 +36,11 @@ export function verifyRecord(
   if (!verifySignature(sealed.redacted, keys))
     return { ok: false, failure: "signature (redacted copy)" };
   const vcon = decodeVcon(sealed.signed);
-  for (const attachment of vcon.attachments) {
-    const name = String(attachment.url ?? "").replace(/^parts\//, "");
+  // Every referenced file: attachments (messages) and dialog files (the recording). Entries
+  // whose file was deleted by retention or erasure carry no url and are not checked.
+  for (const attachment of [...vcon.dialog, ...vcon.attachments]) {
+    if (!attachment.url) continue;
+    const name = String(attachment.url).replace(/^parts\//, "");
     const part = sealed.parts.find((p) => p.name === name);
     if (!part) return { ok: false, failure: `part ${name} is missing` };
     if (contentHash(part.data) !== attachment.content_hash)

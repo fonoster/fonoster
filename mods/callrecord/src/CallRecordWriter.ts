@@ -18,8 +18,10 @@
  */
 import { randomUUID } from "crypto";
 import { getLogger } from "@fonoster/logger";
+import { indexEntry, RecordIndexEntry } from "./indexEntry";
+import { assembleRecording, RECORDING_PART } from "./recording";
 import { contentHash, decodeVcon, SigningKey, signVcon } from "./sign";
-import { RecordStorage } from "./storage";
+import { FsWorkingStore, RecordStore } from "./storage";
 import { RecordEntry, SealedVersion, Vcon } from "./types";
 import { buildVcon } from "./vcon";
 
@@ -28,12 +30,36 @@ const logger = getLogger({ service: "callrecord", filePath: __filename });
 /** Call-record open question O1: a record is sealed within 30 s of hangup. */
 export const SEAL_DEADLINE_MS = 30_000;
 
+/** Parts a retention policy or a deletion request can name (call-record "Retention"). */
+export const RECORD_PARTS = ["recording", "transcript", "messages"] as const;
+export type RecordPart = (typeof RECORD_PARTS)[number];
+
+/** One audited deletion (call-record "every deletion ... produces an audit entry"). */
+export type AuditEntry = {
+  callRef: string;
+  workspaceRef: string | null;
+  action: "delete_part" | "erase";
+  part: RecordPart | "all";
+  reason: string;
+  actor: string;
+  at: string;
+  /** The version that records the deletion. */
+  version: number;
+};
+
 export type CallRecordWriterOptions = {
-  storage: RecordStorage;
+  working: FsWorkingStore;
+  /** The region's record store. */
+  store: RecordStore;
+  /**
+   * A workspace's own bucket, if it configured one (design V2). When it fails at seal the record
+   * stays in the region store and the index says so (open question O7, interim).
+   */
+  workspaceStore?: (workspaceRef: string) => RecordStore | undefined;
   key: SigningKey;
   region: string;
-  /** Called after each sealed version (for call_record.sealed webhooks). */
-  onSealed?: (callRef: string, version: number) => void;
+  /** Called after each sealed version: index it, send `call_record.sealed`. */
+  onSealed?: (entry: RecordIndexEntry) => void;
 };
 
 /**
@@ -41,87 +67,353 @@ export type CallRecordWriterOptions = {
  * call and sealed at hangup"). It implements the gateway's CallRecordSink interface.
  */
 export class CallRecordWriter {
+  /** Calls appended in this process and not closed yet; the sweep leaves them alone. */
+  private readonly active = new Set<string>();
+  private readonly sealing = new Map<string, Promise<SealedVersion>>();
+
   constructor(private readonly options: CallRecordWriterOptions) {}
 
+  get region() {
+    return this.options.region;
+  }
+
   append(callRef: string, entry: RecordEntry) {
-    this.options.storage.append(callRef, entry);
+    this.active.add(callRef);
+    this.options.working.append(callRef, entry);
   }
 
-  /** The call ended: seal its record. */
+  /** Where the recorder writes this call's tracks (removed once the record is sealed). */
+  recordingDir(callRef: string) {
+    return this.options.working.recordingDir(callRef);
+  }
+
+  /** The call ended: seal its record in the background. */
   close(callRef: string) {
-    try {
-      this.seal(callRef);
-    } catch (e) {
-      logger.error(`could not seal ${callRef}: ${(e as Error).message}`);
-    }
+    this.active.delete(callRef);
+    void this.seal(callRef).catch((e) =>
+      logger.error(`could not seal ${callRef}: ${(e as Error).message}`)
+    );
   }
 
-  /** Seals a working record as version 1 and returns it. */
-  seal(callRef: string): SealedVersion {
-    const { storage, key, region } = this.options;
-    const existing = storage.getSealed(callRef);
+  /** Resolves once every seal in progress has finished (tests, shutdown). */
+  async flush() {
+    await Promise.allSettled([...this.sealing.values()]);
+  }
+
+  /** The store a workspace's records go to. */
+  storeFor(workspaceRef?: string | null): RecordStore {
+    return (
+      (workspaceRef && this.options.workspaceStore?.(workspaceRef)) ||
+      this.options.store
+    );
+  }
+
+  /** Seals a working record as version 1 and returns it; idempotent while in progress. */
+  seal(callRef: string): Promise<SealedVersion> {
+    const inProgress = this.sealing.get(callRef);
+    if (inProgress) return inProgress;
+    const p = this.doSeal(callRef).finally(() => this.sealing.delete(callRef));
+    this.sealing.set(callRef, p);
+    return p;
+  }
+
+  private async doSeal(callRef: string): Promise<SealedVersion> {
+    const { working, key, region } = this.options;
+    const entries = working.readWorking(callRef);
+    const workspaceRef = workspaceOf(entries);
+    let store = this.storeFor(workspaceRef);
+    const existing = await store.getSealed(callRef);
     if (existing) {
-      storage.discardWorking(callRef);
+      working.discardWorking(callRef);
       return existing;
     }
-    const built = buildVcon(callRef, storage.readWorking(callRef), { region });
+    const rec = assembleRecording(working.recordingDir(callRef));
+    const built = buildVcon(callRef, entries, {
+      region,
+      recording: rec
+        ? {
+            part: {
+              name: RECORDING_PART,
+              mimetype: "audio/x-wav",
+              data: rec.wav
+            },
+            startedAt: rec.startedAt,
+            durationMs: rec.durationMs
+          }
+        : undefined
+    });
     const sealed: SealedVersion = {
       version: 1,
       signed: signVcon(built.vcon, key),
       redacted: signVcon(built.redacted, key),
       parts: built.parts
     };
-    storage.putSealed(callRef, sealed);
-    storage.discardWorking(callRef);
-    this.options.onSealed?.(callRef, 1);
+    try {
+      await store.putSealed(callRef, sealed);
+    } catch (e) {
+      if (store === this.options.store) throw e;
+      logger.warn(
+        `workspace bucket failed for ${callRef}, keeping it in the region store: ${(e as Error).message}`
+      );
+      store = this.options.store;
+      await store.putSealed(callRef, sealed);
+    }
+    working.discardWorking(callRef);
+    this.sealed(callRef, sealed, built.vcon, store);
     return sealed;
+  }
+
+  private sealed(
+    callRef: string,
+    sealed: SealedVersion,
+    vcon: Vcon,
+    store: RecordStore
+  ) {
+    try {
+      this.options.onSealed?.(
+        indexEntry(callRef, sealed, vcon, {
+          region: this.options.region,
+          location: store.location
+        })
+      );
+    } catch (e) {
+      logger.error(`onSealed failed for ${callRef}: ${(e as Error).message}`);
+    }
   }
 
   /**
    * Seals records whose calls stopped appending more than `deadlineMs` ago without a hangup (a
    * gateway that crashed). Returns the callRefs sealed.
    */
-  sweep(now = Date.now(), deadlineMs = SEAL_DEADLINE_MS): string[] {
+  async sweep(now = Date.now(), deadlineMs = SEAL_DEADLINE_MS) {
     const sealed: string[] = [];
-    for (const w of this.options.storage.listWorking()) {
+    for (const w of this.options.working.listWorking()) {
+      if (this.active.has(w.callRef) || this.sealing.has(w.callRef)) continue;
       if (now - w.lastAppendAt < deadlineMs) continue;
-      this.close(w.callRef);
-      sealed.push(w.callRef);
+      try {
+        await this.seal(w.callRef);
+        sealed.push(w.callRef);
+      } catch (e) {
+        logger.error(`could not seal ${w.callRef}: ${(e as Error).message}`);
+      }
     }
     return sealed;
+  }
+
+  /** Adds a version derived from the current one (it references its predecessor). */
+  private async newVersion(
+    callRef: string,
+    workspaceRef: string | null | undefined,
+    change: (vcon: Vcon, redacted: boolean) => Vcon
+  ): Promise<{ sealed: SealedVersion; previous: SealedVersion }> {
+    const { key } = this.options;
+    const store = this.storeFor(workspaceRef);
+    const current = await store.getSealed(callRef);
+    if (!current) throw new Error(`no sealed record for ${callRef}`);
+    const next = (signed: SealedVersion["signed"], redacted: boolean): Vcon => {
+      const prev = decodeVcon(signed);
+      return {
+        ...change(prev, redacted),
+        uuid: randomUUID(),
+        updated_at: new Date().toISOString(),
+        amended: {
+          uuid: prev.uuid,
+          content_hash: contentHash(Buffer.from(JSON.stringify(prev)))
+        }
+      };
+    };
+    const vcon = next(current.signed, false);
+    const sealed: SealedVersion = {
+      version: current.version + 1,
+      signed: signVcon(vcon, key),
+      redacted: signVcon(next(current.redacted, true), key),
+      parts: current.parts
+    };
+    await store.putSealed(callRef, sealed);
+    this.sealed(callRef, sealed, vcon, store);
+    return { sealed, previous: current };
   }
 
   /**
    * Adds to a sealed record as a new version that references its predecessor (call-record
    * "Additions after sealing create new versions"); the previous version is unchanged.
    */
-  addVersion(
+  async addVersion(
     callRef: string,
-    additions: { analysis?: Record<string, unknown>[] }
-  ): SealedVersion {
-    const { storage, key } = this.options;
-    const current = storage.getSealed(callRef);
-    if (!current) throw new Error(`no sealed record for ${callRef}`);
-    const previous = decodeVcon(current.signed);
-    const previousRedacted = decodeVcon(current.redacted);
-    const next = (base: Vcon, prev: Vcon): Vcon => ({
-      ...base,
-      uuid: randomUUID(),
-      updated_at: new Date().toISOString(),
-      analysis: [...base.analysis, ...(additions.analysis ?? [])],
-      amended: {
-        uuid: prev.uuid,
-        content_hash: contentHash(Buffer.from(JSON.stringify(prev)))
-      }
-    });
-    const sealed: SealedVersion = {
-      version: current.version + 1,
-      signed: signVcon(next(previous, previous), key),
-      redacted: signVcon(next(previousRedacted, previousRedacted), key),
-      parts: current.parts
-    };
-    storage.putSealed(callRef, sealed);
-    this.options.onSealed?.(callRef, sealed.version);
+    additions: { analysis?: Record<string, unknown>[] },
+    workspaceRef?: string
+  ): Promise<SealedVersion> {
+    const { sealed } = await this.newVersion(callRef, workspaceRef, (v) => ({
+      ...v,
+      analysis: [...v.analysis, ...(additions.analysis ?? [])]
+    }));
     return sealed;
   }
+
+  /**
+   * Deletes parts of a record (retention policy or a request) and writes a version that records
+   * each removal (call-record "Retention follows workspace policy and deletions are audited").
+   * The recording and the messages are files; the transcript lives inside the vCons, so earlier
+   * versions' contents are deleted too and only their manifests remain.
+   */
+  async deleteParts(
+    callRef: string,
+    parts: RecordPart[],
+    by: { reason: string; actor: string; workspaceRef?: string | null }
+  ): Promise<{ sealed: SealedVersion; audit: AuditEntry[] }> {
+    const store = this.storeFor(by.workspaceRef);
+    const at = new Date().toISOString();
+    const deletion = (part: RecordPart) => ({
+      part,
+      at,
+      reason: by.reason,
+      actor: by.actor
+    });
+    const fileOf: Partial<Record<RecordPart, string>> = {
+      recording: RECORDING_PART,
+      messages: "messages.ndjson"
+    };
+    const { sealed, previous } = await this.newVersion(
+      callRef,
+      by.workspaceRef,
+      (v) => {
+        const removedFile = (entry: Record<string, unknown>) => {
+          const name = String(entry.url ?? "").replace(/^parts\//, "");
+          const part = parts.find((p) => fileOf[p] === name);
+          if (!part) return entry;
+          const { url: _url, ...rest } = entry;
+          void _url;
+          return {
+            ...rest,
+            meta: { ...(rest.meta as object), deleted: deletion(part) }
+          };
+        };
+        let dialog = v.dialog.map(removedFile);
+        let analysis = v.analysis;
+        if (parts.includes("transcript")) {
+          dialog = dialog.filter((d) => d.type !== "text");
+          analysis = analysis.map((a) =>
+            a.type === "turn_decisions"
+              ? { ...a, body: [], meta: { deleted: deletion("transcript") } }
+              : a
+          );
+        }
+        const f = (v.fonoster ?? {}) as Record<string, unknown>;
+        return {
+          ...v,
+          dialog,
+          analysis,
+          attachments: v.attachments.map(removedFile),
+          fonoster: {
+            ...f,
+            deletions: [
+              ...((f.deletions as unknown[]) ?? []),
+              ...parts.map(deletion)
+            ]
+          }
+        };
+      }
+    );
+    for (const part of parts) {
+      const file = fileOf[part];
+      if (file) await store.deletePart(callRef, file);
+    }
+    if (parts.includes("transcript"))
+      for (let v = 1; v <= previous.version; v++)
+        await store.deleteVersionContents(callRef, v);
+    const workspaceRef =
+      by.workspaceRef ?? workspaceOfVcon(decodeVcon(sealed.signed));
+    return {
+      sealed: {
+        ...sealed,
+        parts: sealed.parts.filter(
+          (p) => !parts.some((part) => fileOf[part] === p.name)
+        )
+      },
+      audit: parts.map((part) => ({
+        callRef,
+        workspaceRef,
+        action: "delete_part" as const,
+        part,
+        reason: by.reason,
+        actor: by.actor,
+        at,
+        version: sealed.version
+      }))
+    };
+  }
+
+  /**
+   * Erases one call (call-record "Erasing one call"): every file and version is deleted, and a
+   * signed tombstone version states when, why and by whom. It holds no call content.
+   */
+  async erase(
+    callRef: string,
+    by: { reason: string; actor: string; workspaceRef?: string | null }
+  ): Promise<{ audit: AuditEntry[]; version: number }> {
+    const store = this.storeFor(by.workspaceRef);
+    const current = await store.getVersion(callRef);
+    if (!current) throw new Error(`no sealed record for ${callRef}`);
+    const at = new Date().toISOString();
+    const previous = current.signed ? decodeVcon(current.signed) : undefined;
+    const workspaceRef =
+      by.workspaceRef ?? (previous ? workspaceOfVcon(previous) : null);
+    await store.deleteAll(callRef);
+    const tombstone: Vcon = {
+      vcon: previous?.vcon ?? "0.4.0",
+      uuid: randomUUID(),
+      created_at: at,
+      updated_at: at,
+      parties: [],
+      dialog: [],
+      analysis: [],
+      attachments: [],
+      fonoster: {
+        callRef,
+        region: this.options.region,
+        status: "erased",
+        workspaceRef,
+        erased: { at, reason: by.reason, actor: by.actor }
+      }
+    };
+    const version = current.version + 1;
+    const signed = signVcon(tombstone, this.options.key);
+    const sealed: SealedVersion = {
+      version,
+      signed,
+      redacted: signed,
+      parts: []
+    };
+    await store.putSealed(callRef, sealed);
+    this.sealed(callRef, sealed, tombstone, store);
+    return {
+      version,
+      audit: [
+        {
+          callRef,
+          workspaceRef,
+          action: "erase",
+          part: "all",
+          reason: by.reason,
+          actor: by.actor,
+          at,
+          version
+        }
+      ]
+    };
+  }
+}
+
+function workspaceOf(entries: RecordEntry[]): string | null {
+  for (const e of entries) {
+    const w = e.message.workspaceRef;
+    if (typeof w === "string" && w) return w;
+  }
+  return null;
+}
+
+function workspaceOfVcon(vcon: Vcon): string | null {
+  return (
+    ((vcon.fonoster ?? {}) as { workspaceRef?: string }).workspaceRef ?? null
+  );
 }

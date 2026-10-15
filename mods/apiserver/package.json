@@ -24,6 +24,7 @@
     "@deepgram/sdk": "^3.5.1",
     "@fonoster/authz": "^0.27.0",
     "@fonoster/autopilot": "^0.27.0",
+    "@fonoster/callrecord": "^0.27.0",
     "@fonoster/common": "^0.27.0",
     "@fonoster/identity": "^0.27.0",
     "@fonoster/logger": "^0.27.0",

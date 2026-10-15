@@ -18,6 +18,11 @@
  */
 import * as http from "http";
 import { AddressInfo } from "net";
+import {
+  CallRecordWriter,
+  RECORD_SEALED_SUBJECT,
+  RecordIndexEntry
+} from "@fonoster/callrecord";
 import { Registry as RegistryNs, Webhooks } from "@fonoster/common";
 import { IdentityClient } from "@fonoster/identity-client";
 import { getLogger } from "@fonoster/logger";
@@ -36,6 +41,7 @@ import {
   NatsMediaControl
 } from "./media/MediaControl";
 import { CallRecordSink, MemoryCallRecordSink } from "./record/CallRecordSink";
+import { serveRecordMaintenance } from "./record/maintenance";
 import { Call, CallInfo } from "./session/Call";
 import { Catalog } from "./speech/Catalog";
 
@@ -118,6 +124,8 @@ export class Gateway {
       }
     });
     this.stops.push(() => outbound.unsubscribe());
+    if (this.record instanceof CallRecordWriter)
+      this.stops.push(serveRecordMaintenance(this.nc, this.record));
     await this.nc.flush();
 
     if (this.config.http) {
@@ -158,6 +166,25 @@ export class Gateway {
   }
 
   findApp = (ref: string): AppConfig | undefined => this.apps.find(ref);
+  /**
+   * A record was sealed (a CallRecordWriter's onSealed): the index entry goes to the control
+   * plane over NATS and the workspace gets `call_record.sealed` with a link, never contents.
+   */
+  onRecordSealed(entry: RecordIndexEntry) {
+    this.nc?.publish(RECORD_SEALED_SUBJECT, sc.encode(JSON.stringify(entry)));
+    if (entry.status === "erased") return;
+    const base = (this.config.callRecord?.recordUrl ?? "/api/records").replace(
+      /\/$/,
+      ""
+    );
+    this.options.webhooks?.(
+      Webhooks.callRecordSealed(entry.workspaceRef ?? "default", {
+        callRef: entry.callRef,
+        version: entry.version,
+        recordUrl: `${base}/${encodeURIComponent(entry.callRef)}?version=${entry.version}`
+      })
+    );
+  }
 
   /**
    * Development fallback when Routr sent no `X-App-Ref` (build log B21): the app a dialed number
@@ -211,7 +238,7 @@ export class Gateway {
   /** A claimed `call.incoming`: Routr's X-App-Ref picks the app (B21). */
   private async onIncoming(nodeId: string, event: MediaEvent) {
     const participant = event.participant as
-      | { participantRef: string }
+      | { participantRef: string; tracks?: unknown[] }
       | undefined;
     const roomRef = event.roomRef as string;
     const to = String(event.to ?? "");
@@ -225,12 +252,23 @@ export class Gateway {
       direction: "inbound",
       from: String(event.from ?? ""),
       to,
-      metadata: (event.metadata as Record<string, unknown>) ?? {}
+      metadata: (event.metadata as Record<string, unknown>) ?? {},
+      callerTracks: participant?.tracks
     };
     const app = appRef ? this.findApp(appRef) : this.appForNumber(to);
     const call = this.newCall(info);
     if (!app) {
+      // A minimal record: parties, timing and the reason (call-record, minimal records).
+      call.record("event", {
+        type: "call.started",
+        direction: "inbound",
+        appRef: appRef ?? null,
+        workspaceRef: null,
+        from: info.from,
+        to
+      });
       call.record("event", { type: "call.unrouted", appRef, to });
+      call.record("event", { type: "call.failed", reason: "no_app" });
       this.options.webhooks?.(
         Webhooks.callFailed("default", {
           callRef: info.callRef,
@@ -291,12 +329,24 @@ export class Gateway {
     const app = this.findApp(request.appRef);
     if (!app) return { type: "error", code: "unknown_app" };
     const callRef = request.callRef ?? request.roomRef;
-    const unsubscribe = this.media!.subscribeRoom(
+    let answered: Call | undefined;
+    let subscribed = true;
+    const unsubscribe = () => {
+      if (subscribed) stop();
+      subscribed = false;
+    };
+    const stop = this.media!.subscribeRoom(
       request.nodeId,
       request.roomRef,
       (event) => {
-        if (event.type === "call.answered") {
-          unsubscribe();
+        if (event.type === "participant.joined" && answered) {
+          // The callee's tracks follow call.answered (the recording listener needs their ids).
+          if (event.participantRef === answered.info.callerRef) {
+            answered.recording.noteTracks(event.participantRef, event.tracks);
+            unsubscribe();
+          }
+        } else if (event.type === "call.answered") {
+          setTimeout(unsubscribe, 5000);
           const call = this.newCall({
             nodeId: request.nodeId,
             roomRef: request.roomRef,
@@ -307,12 +357,25 @@ export class Gateway {
             to: request.to ?? "",
             metadata: request.metadata ?? {}
           });
+          answered = call;
           void call.run(app).catch(() => call.hangup("error"));
         } else if (
           event.type === "call.progress" &&
           event.status !== "ringing"
         ) {
           unsubscribe();
+          this.record.append(callRef, {
+            at: Date.now(),
+            source: "event",
+            message: {
+              type: "call.started",
+              direction: "outbound",
+              appRef: app.ref,
+              workspaceRef: app.workspaceRef ?? null,
+              from: request.from ?? "",
+              to: request.to ?? ""
+            }
+          });
           this.record.append(callRef, {
             at: Date.now(),
             source: "event",

@@ -24,6 +24,17 @@ import {
   runScenario,
   Scenario
 } from "@fonoster/conformance";
+import { generateKeyPairSync } from "crypto";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import {
+  CallRecordWriter,
+  RecordIndexEntry,
+  decodeVcon,
+  fsStores,
+  wavChannels
+} from "@fonoster/callrecord";
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import { GatewayConfig } from "../src/config";
@@ -110,4 +121,95 @@ describe("@gateway voice-session through the Go media node", function () {
       }
     });
   }
+});
+
+// Recording policy through the real node's listener.attach (add-call-record 3.2): one unmixed RTP
+// stream per side, written by the gateway's recorder and sealed into the record.
+describe("@gateway call recording through the Go media node", function () {
+  this.timeout(30000);
+  let nc: NatsConnection;
+  let bins: MediaNodeBinaries | undefined;
+
+  before(async function () {
+    this.timeout(120000);
+    if (!NATS_URL) return this.skip();
+    bins = buildMediaNode(NATS_URL);
+    if (!bins) return this.skip();
+    nc = await connect({ servers: NATS_URL });
+  });
+
+  after(async () => nc?.close());
+
+  it("records both sides of a real call into the sealed record", async function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gonode-recording-"));
+    const sealed: RecordIndexEntry[] = [];
+    const stores = fsStores(dir);
+    const writer = new CallRecordWriter({
+      ...stores,
+      region: "test",
+      key: {
+        kid: "k",
+        privateKeyPem: generateKeyPairSync("ec", { namedCurve: "P-256" })
+          .privateKey.export({ type: "pkcs8", format: "pem" })
+          .toString()
+      },
+      onSealed: (e) => sealed.push(e)
+    });
+    const harness = await new RealMediaHarness(nc, bins!, {
+      vendorCalls: () => 0
+    }).start();
+    const config = configFor({ name: "recording" } as Scenario, harness);
+    config.apps[0].recording = "on";
+    const gateway = await new Gateway({
+      config: {
+        ...config,
+        callRecord: {
+          dir,
+          region: "test",
+          signingKey: { kid: "k", privateKeyFile: "unused" }
+        }
+      },
+      nats: nc,
+      record: writer
+    }).start();
+    try {
+      const peer = await harness.offerCallAndAccept();
+      await harness.caller({ audio: { kind: "tone", ms: 600 } });
+      peer.sendJson({
+        type: "speak",
+        id: "s1",
+        text: "Hello from the agent.",
+        last: true
+      });
+      const deadline = Date.now() + 8000;
+      while (
+        !peer.frames.items.some(
+          (f) =>
+            f.kind === "json" &&
+            (f.data as { type: string }).type === "output.done"
+        )
+      ) {
+        if (Date.now() > deadline) throw new Error("no output.done");
+        await new Promise((r) => setTimeout(r, 20));
+      }
+      await harness.caller({ hangup: true });
+      while (!sealed.length) {
+        if (Date.now() > deadline + 5000) throw new Error("not sealed");
+        await new Promise((r) => setTimeout(r, 20));
+      }
+      const record = (await stores.store.getSealed(sealed[0].callRef))!;
+      const vcon = decodeVcon(record.signed);
+      expect(vcon.dialog.some((d) => d.type === "recording")).to.equal(true);
+      const wav = record.parts.find((p) => p.name === "recording.wav")!.data;
+      const [caller, agent] = wavChannels(wav);
+      const loud = (c: Int16Array) =>
+        c.filter((x) => Math.abs(x) > 1000).length;
+      expect(loud(caller)).to.be.greaterThan(1600);
+      expect(loud(agent)).to.be.greaterThan(1600);
+    } finally {
+      await gateway.stop();
+      await harness.stop();
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });

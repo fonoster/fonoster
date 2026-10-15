@@ -317,3 +317,64 @@ model WebhookDelivery {
 }
 
 // end rebuild: persistence --------------------------------------------------------------------
+// rebuild: records
+// Call records (add-call-record). The control plane keeps only an index entry per record (design
+// V2); the vCons and recordings stay in the region's (or the workspace's) object storage.
+
+model CallRecord {
+  callRef         String    @id @map("call_ref")
+  accessKeyId     String?   @map("access_key_id")
+  appRef          String?   @map("app_ref")
+  fromNumber      String?   @map("from_number")
+  toNumber        String?   @map("to_number")
+  direction       String?
+  status          String
+  endReason       String?   @map("end_reason")
+  failureReason   String?   @map("failure_reason")
+  sipStatus       Int?      @map("sip_status")
+  startedAt       DateTime  @map("started_at")
+  endedAt         DateTime? @map("ended_at")
+  durationSeconds Int       @default(0) @map("duration_seconds")
+  region          String
+  location        String
+  version         Int
+  size            BigInt    @default(0)
+  parts           String[]
+  erasedAt        DateTime? @map("erased_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Indexes and maps
+  @@index([accessKeyId, startedAt])
+  @@map("call_records")
+}
+
+model CallRecordAudit {
+  ref         String   @id @default(uuid())
+  callRef     String   @map("call_ref")
+  accessKeyId String?  @map("access_key_id")
+  action      String
+  part        String
+  reason      String
+  actor       String
+  version     Int
+  at          DateTime
+
+  // Indexes and maps
+  @@index([callRef])
+  @@index([accessKeyId, at])
+  @@map("call_record_audits")
+}
+
+model CallRecordRetention {
+  ref         String   @id @default(uuid())
+  accessKeyId String   @map("access_key_id")
+  part        String
+  days        Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Indexes and maps
+  @@unique([accessKeyId, part])
+  @@map("call_record_retention")
+}

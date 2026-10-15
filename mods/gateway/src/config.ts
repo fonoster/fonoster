@@ -19,8 +19,13 @@
 import * as fs from "fs";
 import { parse } from "yaml";
 import { isDetectorChoice } from "./turn/createDetector";
+import type { ObjectStoreConfig } from "@fonoster/callrecord";
 
 export type Flavor = "native" | "twilio";
+
+/** Full-call recording policy (call-record "Recording is applied by policy"). */
+export type RecordingPolicy = "off" | "on" | "consent";
+export const RECORDING_POLICIES: RecordingPolicy[] = ["off", "on", "consent"];
 
 /** An app: a WebSocket URL, a flavor and speech defaults (voice-session, G2). */
 export type AppConfig = {
@@ -49,6 +54,8 @@ export type AppConfig = {
   filters?: { name: string; options?: Record<string, unknown> }[];
   /** Listen-only sockets dialed for every session of this app (signed with its secret). */
   listeners?: { url: string; tracks?: "inbound" | "outbound" | "both" }[];
+  /** Recording policy for this app; overrides the workspace's and the region default. */
+  recording?: RecordingPolicy;
 };
 
 export type ProviderConfig = {
@@ -138,6 +145,22 @@ export type GatewayConfig = {
     keyHistory?: { kid: string; publicKeyFile: string }[];
     /** How often to seal records of calls whose gateway died (default 10 s). */
     sweepIntervalMs?: number;
+    /**
+     * The region's object storage for sealed records and recordings (default: `<dir>/sealed` on
+     * disk, for development). `{s3: {bucket, endpoint, ...}}` for S3-compatible storage.
+     */
+    store?: ObjectStoreConfig;
+    /** Recording policy when neither the app nor its workspace sets one (default off). */
+    recording?: RecordingPolicy;
+    /** Per-workspace settings: recording policy and the workspace's own bucket. */
+    workspaces?: Record<
+      string,
+      { recording?: RecordingPolicy; store?: ObjectStoreConfig }
+    >;
+    /** What the caller hears before recording starts under the `consent` policy (O6, interim). */
+    consentPrompt?: string;
+    /** Base URL of the records API, for the link in `call_record.sealed` (default /api/records). */
+    recordUrl?: string;
   };
   /** Enables the `fake` adapters (conformance "Implementations ship fake provider adapters"). */
   testMode?: boolean;
@@ -179,6 +202,10 @@ export function validateConfig(config: GatewayConfig): string[] {
       !["low", "normal", "high"].includes(app.speech.patience)
     )
       problems.push(`app ${app.ref}: patience must be low, normal or high`);
+    if (app.recording && !RECORDING_POLICIES.includes(app.recording))
+      problems.push(
+        `app ${app.ref}: unknown recording policy ${app.recording}`
+      );
     if ((app.listeners?.length ?? 0) > 4) {
       problems.push(`app ${app.ref}: at most 4 listeners`);
     }
@@ -206,6 +233,13 @@ export function validateConfig(config: GatewayConfig): string[] {
     problems.push("registry: set file, or source: database");
   if (config.appStore && !["yaml", "database"].includes(config.appStore.source))
     problems.push(`appStore: unknown source ${config.appStore.source}`);
+  const cr = config.callRecord;
+  for (const policy of [
+    cr?.recording,
+    ...Object.values(cr?.workspaces ?? {}).map((w) => w.recording)
+  ])
+    if (policy && !RECORDING_POLICIES.includes(policy))
+      problems.push(`callRecord: unknown recording policy ${policy}`);
   const h = config.http;
   if (h && !h.identity && !(h.accountSid && h.authToken)) {
     problems.push("http: set identity.endpoint, or accountSid and authToken");
@@ -249,4 +283,19 @@ export function databaseUrl(config: GatewayConfig): string | undefined {
   const d = config.database;
   if (!d) return undefined;
   return d.url ?? process.env[d.urlEnv ?? "APISERVER_DATABASE_URL"];
+}
+
+/** The recording policy for a call: the app's, else its workspace's, else the region default. */
+export function recordingPolicy(
+  config: GatewayConfig,
+  app: AppConfig
+): RecordingPolicy {
+  return (
+    app.recording ??
+    (app.workspaceRef
+      ? config.callRecord?.workspaces?.[app.workspaceRef]?.recording
+      : undefined) ??
+    config.callRecord?.recording ??
+    "off"
+  );
 }

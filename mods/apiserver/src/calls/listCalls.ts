@@ -30,9 +30,11 @@ import { createFetchCalls } from "./createFetchCalls";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function listCalls(influx: InfluxDBClient) {
-  const fetchCalls = createFetchCalls(influx);
-
+/** `fetchCalls` defaults to InfluxDB CDRs; the call-record index replaces it behind a flag. */
+function listCalls(
+  influx: InfluxDBClient,
+  fetchCalls: ReturnType<typeof createFetchCalls> = createFetchCalls(influx)
+) {
   const fn = async (
     call: {
       request: ListCallsRequest;

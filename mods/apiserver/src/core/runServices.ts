@@ -36,12 +36,15 @@ import {
   AUTHZ_SERVICE_HOST,
   AUTHZ_SERVICE_METHODS,
   AUTHZ_SERVICE_PORT,
+  CALL_RECORDS,
   HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
   NATS_URL
 } from "../envs";
+import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
 import { connectToAri } from "../voice/connectToAri";
 import { allowList } from "./allowList";
+import { prisma } from "./db";
 import { httpBridge } from "./httpBridge";
 import { identityConfig } from "./identityConfig";
 import loadServices from "./loadServices";
@@ -70,8 +73,20 @@ async function runServices() {
   // Load the remaining services
   loadServices(server, await services);
 
+  // Call records (add-call-record): index consumer, retention and the /api/records routes
+  const records = await runCallRecords(CALL_RECORDS as CallRecordsConfig, {
+    natsUrl: NATS_URL,
+    identityPublicKey: IDENTITY_PUBLIC_KEY,
+    db: prisma as unknown as RecordsDb
+  });
+
   // Connecting to Asterisk ARI
-  await connectToAri(httpBridge(identityConfig, { port: HTTP_BRIDGE_PORT }));
+  await connectToAri(
+    httpBridge(identityConfig, {
+      port: HTTP_BRIDGE_PORT,
+      routers: records.routers
+    })
+  );
 
   // Additional Call Managers subscriber may be added here to handle call events
   await runCallManager({

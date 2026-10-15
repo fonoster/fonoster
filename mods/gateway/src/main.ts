@@ -17,14 +17,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
-import { CallRecordWriter, FsRecordStorage } from "@fonoster/callrecord";
+import { CallRecordWriter } from "@fonoster/callrecord";
 import { Registry as RegistryNs, Webhooks } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { AppStore, PrismaAppStore } from "./apps/AppStore";
 import { databaseUrl, GatewayConfig, loadConfig } from "./config";
 import { Gateway } from "./Gateway";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
+import { createRecordWriter } from "./record/createRecordWriter";
 import { telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
@@ -36,39 +36,43 @@ async function main() {
     "/etc/fonoster/gateway.yaml";
   const config = loadConfig(file);
   let record: CallRecordSink | undefined;
+  let writer: CallRecordWriter | undefined;
   let sweeper: ReturnType<typeof setInterval> | undefined;
+  // eslint-disable-next-line prefer-const
+  let gateway: Gateway | undefined;
   if (config.callRecord) {
-    const c = config.callRecord;
-    const writer = new CallRecordWriter({
-      storage: new FsRecordStorage(c.dir),
-      region: c.region,
-      key: {
-        kid: c.signingKey.kid,
-        privateKeyPem: fs.readFileSync(c.signingKey.privateKeyFile, "utf8"),
-        jku: c.signingKey.jku
-      }
-    });
-    // Records of calls whose gateway died are sealed by whichever replica sweeps first.
-    writer.sweep();
-    sweeper = setInterval(() => writer.sweep(), c.sweepIntervalMs ?? 10_000);
+    writer = createRecordWriter(config.callRecord, (entry) =>
+      gateway?.onRecordSealed(entry)
+    );
     record = writer;
   } else if (process.env.GATEWAY_RECORD_DIR) {
     record = new JsonlCallRecordSink(process.env.GATEWAY_RECORD_DIR);
   }
   const db = await openDatabase(config);
-  const gateway = await new Gateway({
+  gateway = await new Gateway({
     config,
     record,
     apps: db.apps,
     registryStore: db.registryStore,
     webhooks: db.webhooks
   }).start();
-  telemetry.gauge("fonoster.gateway.calls.active", () => gateway.calls.size);
+  const running = gateway;
+  telemetry.gauge("fonoster.gateway.calls.active", () => running.calls.size);
+  if (writer) {
+    const w = writer;
+    // Records of calls whose gateway died are sealed by whichever replica sweeps first.
+    void w.sweep();
+    sweeper = setInterval(
+      () => void w.sweep(),
+      config.callRecord?.sweepIntervalMs ?? 10_000
+    );
+  }
 
   const shutdown = async () => {
     logger.info("shutting down");
     if (sweeper) clearInterval(sweeper);
-    await gateway.stop();
+    await gateway?.stop();
+    await writer?.flush();
     await db.close();
     await telemetry.shutdown();
     process.exit(0);
