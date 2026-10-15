@@ -14,6 +14,7 @@
 - [x] 2.4 Config sync publisher per region; pause on unsupported versions
 - [x] 2.5 Content relay (streamed, access-checked, size/rate limited)
 - [x] 2.6 Heartbeat consumer and region status
+- [ ] 2.7 Region endpoints: store `region.endpoints` from cells, configured endpoints for public regions, expose in GetRegion
 
 ## 3. Cell
 
@@ -21,9 +22,12 @@
 - [x] 3.2 Local secret store and `fonoster-region secrets set/list`; report set names in heartbeats
 - [x] 3.3 Config sync consumer; relay responder with audit; heartbeat publisher
 - [x] 3.4 Webhook delivery from the cell
+- [ ] 3.6 Report endpoints (SIP host/port/transport, public signaling and media addresses, RTP range) on connect and on change
 - [x] 3.5 Hosted Autopilot in the cell's Compose/Helm; assistant sync; LLM keys from the cell's secrets
 
 ## 4. Dashboard and billing
+
+- [ ] 4.6 Connection details in Settings → Region, the trunk form and SIP user settings
 
 - [x] 4.1 Region picker in "New workspace" with confirm step (region is permanent)
 - [x] 4.2 Private region setup page and Region page

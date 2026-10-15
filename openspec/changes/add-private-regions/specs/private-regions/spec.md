@@ -164,3 +164,26 @@ SHALL be reported for visibility and SHALL NOT be billed per minute.
 #### Scenario: Usage shown, not billed
 - **WHEN** a private workspace makes 1,000 minutes of calls in a month
 - **THEN** its usage page shows 1,000 minutes and its bill is the region's flat fee
+
+### Requirement: Regions report their connection details and the dashboard shows them
+
+Every region SHALL publish its connection details: SIP endpoints (host, port, transport), the
+public signaling and media addresses carriers must allowlist, and its RTP port range. A private
+region's agent SHALL report them on connect and whenever they change; a public region's details
+SHALL come from the control plane's configuration. The API SHALL return the details of the
+workspace's region, and the dashboard SHALL show them in Settings → Region and where they are
+needed: the trunk form ("Point your carrier at …" and the addresses to allowlist) and SIP user
+settings (server, port, transport for a softphone).
+
+#### Scenario: Private region reports its SIP host
+- **WHEN** a private region's cell connects with SIP at `sip.acme.example:5061` over TLS and signaling address `203.0.113.10`
+- **THEN** Settings → Region shows that host, port, transport and address with copy buttons
+- **AND** the trunk form of that workspace tells the user to point the carrier at `sip.acme.example:5061` and allowlist `203.0.113.10`
+
+#### Scenario: Details change
+- **WHEN** the cell's public address changes and the agent reports new endpoints
+- **THEN** the dashboard shows the new address within one heartbeat interval
+
+#### Scenario: Public region
+- **WHEN** a workspace in `us-east-1` opens Settings → Region or the trunk form
+- **THEN** it sees `us-east-1`'s configured SIP host, ports, transports and addresses
