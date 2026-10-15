@@ -93,6 +93,34 @@ provider keys with `kubectl exec deploy/<release>-region-agent -- fonoster-regio
 deepgram --k8s-secret fonoster-region-secrets` (value on stdin), or manage the
 `fonoster-region-secrets` Secret yourself (one key per provider).
 
+## Firewall
+
+| Direction | Port | Why |
+| --- | --- | --- |
+| Outbound | 443 (HTTPS) to the control plane URL | Enrollment only (`fonoster-region enroll`). |
+| Outbound | 7422 (NATS leaf over TLS) to the control plane's region hub | Config sync, heartbeats, the call-record index and the relay. The cell dials out; nothing dials in. |
+| Inbound | Your SIP port(s) (5060 UDP/TCP, 5061 TLS) from your carriers and softphones | Calls. |
+| Inbound | RTPEngine's UDP range from your carriers and softphones | Call audio. |
+| Inbound | Envoy/dashboard ports | None: the dashboard is the control plane's. |
+| Internal only | NATS 4222, Postgres 5432, MinIO 9000, the gateway 8080, the media nodes' SIP and RTP range | Keep them on the cell's private network. |
+
+Provider APIs (Deepgram, ElevenLabs, your LLM) are outbound HTTPS from the gateway and Autopilot.
+
+## Upgrades
+
+Upgrades are yours: nothing changes in the cell until you roll its images.
+
+1. Read the release notes of the target version; stay within the current or previous minor release
+   of the control plane (see Versions below).
+2. Compose: set the image tags (`RB_TAG`) and `docker compose -f ops/rebuild/cell/compose.yaml up -d`.
+   Helm: `helm upgrade` with the new image tags. The media nodes drain (calls in progress finish, up
+   to `medianode.drainGraceSeconds`) and the gateways keep in-flight sessions until they end.
+3. The region agent reports the new version on its next heartbeat; the dashboard's Region page
+   shows it. Config sync resumes on its own if it had paused for an unsupported version.
+
+Enrollment, credentials and secrets survive upgrades (they live in the `region` volume or the
+`fonoster-region` and `fonoster-region-secrets` Secrets).
+
 ## Operations
 
 - **Status**: `fonoster-region status` shows the region, workspace, control plane and the applied

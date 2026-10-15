@@ -1,0 +1,136 @@
+{{- if .Values.postgres.deploy }}
+{{- $p := .Values.postgres }}
+# A single Postgres for trying the platform (the databases fonoster, fnidentity and routr). For
+# production point the apiserver at a managed database instead (postgres.deploy: false and the
+# URLs in your database Secret).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-postgres-init
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  10-fonoster.sql: |
+    CREATE DATABASE fonoster;
+    CREATE DATABASE fnidentity;
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-postgres
+  labels:
+    app.kubernetes.io/name: postgres
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ .Release.Name }}-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "postgres") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "postgres") | nindent 8 }}
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ $p.image.repository }}:{{ $p.image.tag }}"
+          env:
+            - { name: PGTZ, value: UTC }
+            - { name: TZ, value: UTC }
+            - { name: POSTGRES_USER, value: {{ $p.user | quote }} }
+            - { name: POSTGRES_DB, value: routr }
+            - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
+            - name: POSTGRES_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ $p.existingSecret | quote }}, key: {{ $p.passwordKey | quote }} } }
+          ports:
+            - { name: postgres, containerPort: 5432 }
+          readinessProbe:
+            exec: { command: ["pg_isready", "-U", {{ $p.user | quote }}, "-d", "routr"] }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/postgresql/data }
+            - { name: init, mountPath: /docker-entrypoint-initdb.d, readOnly: true }
+          resources:
+            {{- toYaml $p.resources | nindent 12 }}
+      volumes:
+        - name: init
+          configMap: { name: {{ .Release.Name }}-postgres-init }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: { requests: { storage: {{ $p.storage | quote }} } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-postgres
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "postgres") | nindent 4 }}
+  ports:
+    - { name: postgres, port: 5432, targetPort: postgres }
+{{- end }}
+{{- if .Values.minio.deploy }}
+{{- $m := .Values.minio }}
+---
+# Object storage for sealed call records and recordings (S3 API on 9000). For production use your
+# S3 or MinIO and set the store endpoints in the apiserver and gateway configs.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-minio
+  labels:
+    app.kubernetes.io/name: minio
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ .Release.Name }}-minio
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "minio") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "minio") | nindent 8 }}
+    spec:
+      securityContext: { fsGroup: 1001 }
+      containers:
+        - name: minio
+          image: "{{ $m.image.repository }}:{{ $m.image.tag }}"
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom: { secretKeyRef: { name: {{ $m.existingSecret | quote }}, key: {{ $m.userKey | quote }} } }
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ $m.existingSecret | quote }}, key: {{ $m.passwordKey | quote }} } }
+            - { name: MINIO_DEFAULT_BUCKETS, value: {{ $m.buckets | join "," | quote }} }
+          ports:
+            - { name: s3, containerPort: 9000 }
+            - { name: console, containerPort: 9001 }
+          readinessProbe:
+            httpGet: { path: /minio/health/live, port: s3 }
+          volumeMounts:
+            - { name: data, mountPath: /bitnami/minio/data }
+          resources:
+            {{- toYaml $m.resources | nindent 12 }}
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: { requests: { storage: {{ $m.storage | quote }} } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-minio
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "minio") | nindent 4 }}
+  ports:
+    - { name: s3, port: 9000, targetPort: s3 }
+    - { name: console, port: 9001, targetPort: console }
+{{- end }}

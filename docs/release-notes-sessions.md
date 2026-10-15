@@ -38,6 +38,24 @@ connections that are not signed by the gateway. Rotation is immediate, with no o
 - Twilio Media Streams flavor for Pipecat and similar bots.
 - Listen-only sockets for monitoring.
 
+## Deployables and operations
+
+- **New deployables.** The **VoiceSessionGateway** (`fonoster/gateway`: speech, turn-taking, app
+  sessions) and the Go **media node** (`fonoster/medianode`: rooms, mixing, RTP) replace Asterisk
+  and the voice code that lived in the apiserver. The apiserver keeps the management gRPC API,
+  Identity, `GetCapabilities`, call creation and webhooks; it no longer talks ARI, AudioSocket or
+  speech vendors.
+- **One YAML per service**, with `secret://env/…`, `secret://file/…` and `secret://k8s/…`
+  references instead of raw secrets ([operator guide](./operators/rebuild.md)).
+- **Helm** covers the whole platform (`values-cloud.yaml`), with the apiserver's migrations as a
+  Job and an optional observability profile; Compose (`ops/rebuild/compose.yaml`) is the other
+  official target.
+- **Private regions** are customer-operated cells (decision D9, softened): the customer runs the
+  data plane and upgrades it; the cell links to the control plane only through an outbound NATS
+  leaf node ([Running a private region](./operators/private-region.md)).
+- **Telemetry**: every service exports OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; a call's trace
+  runs from the media node through the gateway (a `traceparent` NATS header).
+
 ## Upgrade
 
 See [What changed](./migrating-to-sessions.md).

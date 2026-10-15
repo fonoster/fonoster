@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import * as fs from "fs";
+import { resolveSecretRefs } from "@fonoster/common";
 import { parse } from "yaml";
 import { isDetectorChoice } from "./turn/createDetector";
 import type { ObjectStoreConfig } from "@fonoster/callrecord";
@@ -83,7 +84,13 @@ export type GatewayConfig = {
    * The RTP leg to the media node. `srtp: true` encrypts it (SDES keys in participant.add,
    * AES_CM_128_HMAC_SHA1_80); required when the node runs with -require-encryption (MN6).
    */
-  rtp?: { host?: string; advertiseHost?: string; srtp?: boolean };
+  rtp?: {
+    host?: string;
+    advertiseHost?: string;
+    /** Environment variable with the advertised host when advertiseHost is unset (Helm: POD_IP). */
+    advertiseHostEnv?: string;
+    srtp?: boolean;
+  };
   /** Apps when `appStore.source` is yaml (the default). */
   apps?: AppConfig[];
   providers: Record<string, ProviderConfig>;
@@ -294,7 +301,13 @@ export function validateConfig(config: GatewayConfig): string[] {
 
 /** Loads the gateway's YAML config (one YAML file per service, PL5). */
 export function loadConfig(file: string): GatewayConfig {
-  const config = parse(fs.readFileSync(file, "utf8")) as GatewayConfig;
+  // secret:// references (D8) resolve before validation; errors name the key, not the value.
+  const config = resolveSecretRefs(
+    parse(fs.readFileSync(file, "utf8")) ?? {}
+  ) as GatewayConfig;
+  const envHost = config.rtp?.advertiseHostEnv;
+  if (config.rtp && envHost && !config.rtp.advertiseHost)
+    config.rtp.advertiseHost = process.env[envHost] || undefined;
   const problems = validateConfig(config);
   if (problems.length)
     throw new Error(

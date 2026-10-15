@@ -56,6 +56,8 @@ import { identityConfig } from "./identityConfig";
 import loadServices from "./loadServices";
 import { workspaceRegionHooks } from "./regionHooks";
 import services from "./services";
+import { apiserverTelemetry } from "./telemetry";
+import { createTelemetryInterceptor } from "./telemetryInterceptor";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -68,9 +70,11 @@ const checkMethodAuthorized = createCheckMethodAuthorized(
 async function runServices() {
   const healthImpl = new HealthImplementation(statusMap);
   const credentials = await getServerCredentials({});
+  // Telemetry first, so refused requests are measured too.
+  const telemetry = createTelemetryInterceptor(apiserverTelemetry());
   const interceptors = AUTHZ_SERVICE_ENABLED
-    ? [authorization, checkMethodAuthorized]
-    : [authorization];
+    ? [telemetry, authorization, checkMethodAuthorized]
+    : [telemetry, authorization];
 
   const server = new grpc.Server({ interceptors });
 

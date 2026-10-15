@@ -37,7 +37,7 @@ spec:
             - name: MEDIANODE_ID
               valueFrom: { fieldRef: { fieldPath: metadata.name } }
             - name: MEDIANODE_NATS_URL
-              value: {{ .Values.nats.url | quote }}
+              value: {{ include "fonoster-rebuild.natsUrl" . | quote }}
             - name: MEDIANODE_SIP_LISTEN
               value: {{ $m.sip.listen | quote }}
             - name: MEDIANODE_SIP_ADVERTISE
@@ -66,7 +66,7 @@ spec:
               {{- end }}
             - name: MEDIANODE_PASSWORD
               valueFrom: { secretKeyRef: { name: {{ $m.routr.passwordSecret | quote }}, key: password, optional: true } }
-            - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: {{ .Values.otel.endpoint | quote }} }
+            - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: {{ include "fonoster-rebuild.otlpEndpoint" . | quote }} }
             - { name: OTEL_SERVICE_NAME, value: fonoster-medianode }
           ports:
             - { name: sip-udp, containerPort: 5060, protocol: UDP }

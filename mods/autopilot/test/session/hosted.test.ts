@@ -168,6 +168,39 @@ describe("@autopilot/session hosted Autopilot", function () {
     expect(path.isAbsolute(config.registry.file)).to.equal(true);
   });
 
+  it("resolves secret:// references in its config (D8)", function () {
+    const example = path.join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "..",
+      "config",
+      "autopilot-session.example.yaml"
+    );
+    const file = path.join(dir, "secret-ref.yaml");
+    fs.writeFileSync(
+      file,
+      fs
+        .readFileSync(example, "utf8")
+        .replace(
+          "signingSecret: { env: AUTOPILOT_SIGNING_SECRET }",
+          "signingSecret: { value: secret://env/RB_TEST_AP_SECRET }"
+        )
+    );
+    process.env.RB_TEST_AP_SECRET = "from-env";
+    try {
+      expect(loadHostedConfig(file).signingSecret).to.deep.equal({
+        value: "from-env"
+      });
+    } finally {
+      delete process.env.RB_TEST_AP_SECRET;
+    }
+    expect(() => loadHostedConfig(file)).to.throw(
+      "signingSecret.value: secret://env/RB_TEST_AP_SECRET"
+    );
+  });
+
   it("rejects a connection with a bad signature before loading any assistant", async function () {
     const harness = await new FakesHarness().start();
     const server = await startHostedAutopilot(

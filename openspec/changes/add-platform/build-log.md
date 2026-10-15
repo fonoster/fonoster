@@ -308,3 +308,119 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   `signing_secret` and `signing_secret_hint` (set only when generated; the shared Autopilot
   secret is never returned); SDK stubs regenerated for applications only, SDK
   `updateApplication` returns `UpdateApplicationResponse`.
+
+## 2026-10-15 (helm stream: the cloud side in the chart, secret://, observability)
+
+### HE-B1. One chart, three values files; control plane off by default
+- `ops/rebuild/helm/fonoster-rebuild` now has apiserver (+ migrations Job), Envoy, dashboard,
+  NATS (+ the region hub), dev-grade Postgres and MinIO, and the observability profile.
+- Defaults still install only the data plane (gateway, media nodes; opt-in Autopilot and region
+  agent), so the private-cell Helm install in `docs/operators/private-region.md` is unchanged.
+  `values-cloud.yaml` turns on the whole platform (mirrors `ops/rebuild/compose.yaml`);
+  `values-observability.yaml` adds the profile.
+- Identity stays embedded in the apiserver, as in the stack: no separate deployable.
+- Routr and RTPEngine stay external (their own charts); `values-cloud.yaml` expects Routr at
+  `routr:5060` / `routr:51907`.
+- NATS, Postgres and MinIO are small in-chart StatefulSets (`nats.deploy`, `postgres.deploy`,
+  `minio.deploy`), not subchart dependencies: no `helm dependency update` / Chart.lock or network
+  at render time, and Bitnami's images are legacy now (ST-B7). Single replica, for trying the
+  platform; production points `nats.url` and the Secrets' URLs at managed services.
+- Region templates changed only in wiring: the NATS URL helper, common env (OTLP, POD_NAMESPACE,
+  FONOSTER_SECRETS_DIR) and optional `secretMounts`.
+
+### HE-B2. `secret://` references (D8)
+- `resolveSecretRefs` in `@fonoster/common` (config/resolveSecretRefs.ts): a string value that is
+  exactly `secret://env/NAME`, `secret://file/<absolute path>` or
+  `secret://k8s/[<namespace>/]<secret>#<key>` is replaced at startup. k8s references read the
+  mounted Secret at `<FONOSTER_SECRETS_DIR>/<secret>/<key>` (default `/var/run/fonoster/secrets`);
+  services never call the Kubernetes API (no RBAC needed). A namespace other than POD_NAMESPACE is
+  refused. Files lose one trailing newline.
+- Applied by `loadServiceConfig` (apiserver, Identity) after `${VAR}` interpolation and before
+  validation, and by the gateway, hosted Autopilot and region agent loaders. Errors name the key
+  path and the reference, never the value.
+- The chart mounts each Secret listed in a service's `secretMounts` at that path; values-cloud.yaml
+  holds only references (the deployment suite fails on any secret-looking key that is not one).
+
+### HE-B3. Migrations Job and `--migrate-only` / `--skip-migrations`
+- The apiserver entrypoint gained `--migrate-only` (core + Identity migrations, seed, exit) and
+  `--skip-migrations`. The chart runs a Job `<release>-apiserver-migrate-<revision>` per revision
+  (no Helm hook: a post-install hook would deadlock with `--wait`, a pre-install hook runs before
+  the in-chart Postgres exists).
+- `--skip-migrations` replicas poll `prisma migrate status` for both schemas (every 5 s, up to
+  15 min) before serving: `main()` reads tables at once (password storage migration, owner upsert)
+  and would otherwise die silently. Verified on a throwaway Postgres: status exits 1 with pending
+  migrations, 0 after deploy.
+- `apiserver.migrations.job: false` keeps the Compose behaviour (each replica migrates).
+
+### HE-B4. Gateway RTP address in Kubernetes
+- The chart's gateway advertised `0.0.0.0` to the media node (rtp.host without advertiseHost). New
+  gateway key `rtp.advertiseHostEnv` (env var holding the address, like `database.urlEnv`); the
+  chart sets it to `POD_IP` (downward API) unless `rtp.advertiseHost` is given.
+- `gateway.yaml` is now merged (user config + chart's `nats` and `rtp`) instead of concatenated,
+  which produced duplicate keys when values set `rtp`.
+
+### HE-B5. Helm merges maps: `workspaceSecrets: { cellSecrets: null }`
+- values-cloud.yaml's Autopilot `workspaceSecrets: { source: database }` merged with the default
+  `{ cellSecrets: ... }` and the hosted config refused both keys. Found by the deployment suite;
+  values-cloud.yaml nulls `cellSecrets`.
+
+### HE-B6. Deployment suite (part of task 1.4)
+- `mods/conformance/test/deployment.test.ts` (skips without `helm`): lint for default, cloud +
+  observability and private-cell values; render checks; no raw secrets; the rendered
+  `fonoster.yaml`, `gateway.yaml`, `autopilot-session.yaml` and `region-agent.yaml` load through
+  each service's own loader with Secrets mounted in a temp dir; the chart's copies of
+  `config/envoy.yaml` and the observability configs (`files/`) must equal the Compose ones.
+- Not done for 1.4: nightly e2e on Compose and Helm, the release gate, `.env` ignored.
+- Finding: `mods/common/src/envs.ts` still loads the repository `.env` when
+  `NODE_ENV=development` (contradicts "no .env"); left as is, it only affects dev runs.
+
+### HE-B7. No cluster smoke install
+- No kind, k3d or minikube on this machine (helm 4.2.2 and kubectl only), so no smoke install; the
+  chart is covered by lint, template and the loader checks above. The images
+  (`fonoster/apiserver`, `dashboard`, `gateway`, `autopilot-session`, `medianode`) are the stack's
+  (`ops/rebuild/docker/*`, `mods/*/Dockerfile`) and are not published.
+
+### HE-B8. Telemetry for the apiserver, region agent and registry utility (task 2.5)
+- `Telemetry` gains `startSpan(name, attrs, parent?)` and `traceparent(callRef)`; `startCall` takes
+  an optional parent traceparent. Each instance uses its provider's tracer (not the global one), so
+  a second `initTelemetry` in one process still exports.
+- apiserver: `initTelemetry("fonoster-apiserver")`, a gRPC interceptor (first in the chain, so
+  refused calls count) with an `apiserver.grpc` span and `fonoster.apiserver.grpc.requests`
+  (method, status); call-record indexing has an `apiserver.records.index` span and
+  `fonoster.apiserver.records.indexed` (outcome). Compose passes OTEL to the apiserver now.
+- `fonoster-registry`: `registry.command` span and `fonoster.registry.commands` (command,
+  outcome), flushed before exit. Region agent: telemetry on `run`.
+- OTLP settings stay the standard `OTEL_*` environment (PL-B3), not a key in each YAML.
+
+### HE-B9. Trace propagation over NATS headers
+- W3C `traceparent` header: media node → gateway on `call.incoming` (the gateway's `gateway.call`
+  span is its child), gateway → media node on every media-control command (`medianode.command`
+  span, Go `telemetry.Extract/Traceparent/StartSpan`), gateway → apiserver on a record's index entry.
+- The index entry carries it only while the call span is open; records are usually sealed after
+  the call ends, so that link is mostly absent. Not propagated: apiserver → gateway (outbound
+  placement, hangup), webhook dispatch, region relay.
+- Default profile end to end (Compose, project `rb-helm-obs`): a call span with a propagated
+  child, a log and a counter sent to the collector came back from Tempo
+  (`{ span.fonoster.call_ref = "<ref>" }`, both spans in one trace), Loki (`fonoster_call_ref`) and
+  Prometheus (`fonoster_gateway_calls_total`). The Helm profile is render-tested only.
+
+### HE-B10. package-lock.json needs a refresh on a clean checkout
+- Not refreshed (shared node_modules). Changes to package.json files since eb40a4a9b that the
+  lockfile lacks (this stream added none):
+  - new workspace `mods/region-agent` (@fonoster/region-agent): `@fonoster/callrecord`,
+    `@fonoster/common`, `@fonoster/logger`, `@prisma/client ^6.19.1`, `@routr/sdk ^2.13.20`,
+    `nats ^2.25.0`, `prisma-field-encryption ^1.6.0`, `yaml ^2.9.0`, `zod ^3.25.76`
+  - `mods/apiserver`: + `@fonoster/callrecord`, `nkeys.js ^1.1.0`, bin
+    `fonoster-region-hub-setup`; − `@deepgram/sdk`, `@google-cloud/speech`,
+    `@google-cloud/text-to-speech`, `ari-client`, `@types/ari-client`, `elevenlabs`,
+    `microsoft-cognitiveservices-speech-sdk`, `pick-port`, `wait-port`, `wavefile`
+  - `mods/common`: + `@opentelemetry/api ^1.9.0`, `@opentelemetry/resources ^1.30.1`,
+    `@opentelemetry/sdk-trace-base ^1.30.1`, `@opentelemetry/sdk-trace-node ^1.30.1`
+  - `mods/callrecord`: + `@aws-sdk/client-s3 ^3.958.0`
+  - `mods/gateway`: + `@prisma/client ^6.19.1`, `prisma-field-encryption ^1.6.0`
+  - `mods/autopilot`: − `@fonoster/sdk`, `moment`, `onnxruntime-node`, `uuid`
+  - `mods/voice`: − `@fonoster/identity`, `@grpc/grpc-js`, `deepmerge`, `grpc-health-check`,
+    `pb-util`, `zod`, `zod-validation-error`; bin `fonoster` removed
+  - root `package.json`: scripts only.
+- Refresh: `rm -rf node_modules && npm install` on a clean checkout, commit `package-lock.json`.
+  Go: no new modules (`otel/propagation` and `sdk/trace/tracetest` are in modules already required).

@@ -18,6 +18,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/propagation"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -166,4 +167,32 @@ func envOr(k, def string) string {
 		return v
 	}
 	return def
+}
+
+// TraceparentHeader is the NATS header carrying the W3C trace context between services (the
+// gateway sends it on media-control commands; the node sends it on call.incoming).
+const TraceparentHeader = "traceparent"
+
+var traceContext = propagation.TraceContext{}
+
+// Extract returns ctx with the remote span context of a W3C traceparent (unchanged when empty or
+// invalid), so spans started from it join the sender's trace.
+func Extract(ctx context.Context, traceparent string) context.Context {
+	if traceparent == "" {
+		return ctx
+	}
+	return traceContext.Extract(ctx, propagation.MapCarrier{TraceparentHeader: traceparent})
+}
+
+// Traceparent returns the W3C traceparent of ctx's span, or "" when there is no recording span.
+func Traceparent(ctx context.Context) string {
+	c := propagation.MapCarrier{}
+	traceContext.Inject(ctx, c)
+	return c[TraceparentHeader]
+}
+
+// StartSpan starts a span (not call-scoped) under ctx and returns the func that ends it.
+func StartSpan(ctx context.Context, name string, attrs ...attribute.KeyValue) (context.Context, func()) {
+	ctx, span := otel.Tracer(scope).Start(ctx, name, trace.WithAttributes(attrs...))
+	return ctx, func() { span.End() }
 }

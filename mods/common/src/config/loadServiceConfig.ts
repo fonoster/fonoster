@@ -23,6 +23,7 @@ import { findLegacyEnv, findMovedKeys, MovedKeys } from "./configHints";
 import { interpolateEnv } from "./interpolateEnv";
 import { parseConfigFile } from "./parseConfigFile";
 import { resolveConfigFile } from "./resolveConfigFile";
+import { resolveSecretRefs } from "./resolveSecretRefs";
 import { strictDeep } from "./strictDeep";
 
 const logger = getLogger({ service: "common", filePath: __filename });
@@ -148,8 +149,18 @@ function loadServiceConfig<S extends ZodTypeAny>(
     );
   }
 
+  // `secret://` references (D8): resolved here so the schema sees real values.
+  let withSecrets: unknown;
+  try {
+    withSecrets = resolveSecretRefs(interpolated, { env });
+  } catch (e) {
+    throw new Error(
+      `invalid ${service} config at ${where}: ${(e as Error).message}`
+    );
+  }
+
   const strictSchema = strictDeep(schema);
-  const result = strictSchema.safeParse(interpolated);
+  const result = strictSchema.safeParse(withSecrets);
   if (!result.success) {
     throw new Error(
       `invalid ${service} config at ${where}: ${formatIssues(result.error)}`

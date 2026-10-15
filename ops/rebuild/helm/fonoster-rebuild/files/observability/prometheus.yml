@@ -1,0 +1,4 @@
+global:
+  scrape_interval: 15s
+# Service metrics arrive through the collector (remote write); nothing to scrape by default.
+scrape_configs: []

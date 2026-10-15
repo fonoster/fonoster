@@ -257,6 +257,8 @@ services:
       nats: { condition: service_healthy }
       routr: { condition: service_started }
       nats-regions: { condition: service_healthy, required: false }
+    environment:
+      <<: *otel
     volumes:
       - ${RB_CONFIG_DIR:-./config}/fonoster.yaml:/opt/fonoster/fonoster.yaml:ro
       - ${RB_CONFIG_DIR:-./config}/keys:/opt/fonoster/keys:ro

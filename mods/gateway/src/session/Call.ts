@@ -122,6 +122,8 @@ export type CallInfo = {
   metadata: Record<string, unknown>;
   /** The caller's tracks from call.incoming (the recording listener needs their ids). */
   callerTracks?: unknown[];
+  /** The media node's trace context from call.incoming: the call's span joins its trace. */
+  traceparent?: string;
 };
 
 export type CallDeps = {
@@ -168,7 +170,12 @@ export class Call {
     readonly info: CallInfo,
     private readonly deps: CallDeps
   ) {
-    this.span = telemetry.startCall(info.callRef, "gateway.call");
+    this.span = telemetry.startCall(
+      info.callRef,
+      "gateway.call",
+      undefined,
+      info.traceparent
+    );
     telemetry.count("fonoster.gateway.calls.total");
     telemetry.log("info", "call started", { callRef: info.callRef });
     this.recording = new CallRecording(
@@ -467,11 +474,11 @@ export class Call {
     command: { type: string; [k: string]: unknown },
     id = this.nextCommandId()
   ) {
-    return this.deps.media.command(this.info.nodeId, {
-      ...command,
-      id,
-      roomRef: this.info.roomRef
-    });
+    return this.deps.media.command(
+      this.info.nodeId,
+      { ...command, id, roomRef: this.info.roomRef },
+      telemetry.traceparent(this.info.callRef)
+    );
   }
 
   get callerParticipantRef() {

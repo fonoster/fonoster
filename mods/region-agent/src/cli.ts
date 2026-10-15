@@ -19,7 +19,7 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { CellSecrets } from "@fonoster/common";
+import { CellSecrets, initTelemetry } from "@fonoster/common";
 import { loadAgentConfig, packageVersion } from "./config";
 import {
   DirIdentityStore,
@@ -158,8 +158,14 @@ export async function main(argv: string[], out = process.stdout) {
     const file =
       flag(a, "config", "FONOSTER_REGION_CONFIG") ??
       "/etc/fonoster/region-agent.yaml";
+    // OTLP when OTEL_EXPORTER_OTLP_ENDPOINT is set (add-platform 2.5); a no-op otherwise.
+    const telemetry = initTelemetry("fonoster-region-agent");
     const { stop } = await runAgent(loadAgentConfig(file));
-    const shutdown = () => void stop().finally(() => process.exit(0));
+    telemetry.log("info", "region agent started");
+    const shutdown = () =>
+      void stop()
+        .then(() => telemetry.shutdown())
+        .finally(() => process.exit(0));
     process.on("SIGTERM", shutdown);
     process.on("SIGINT", shutdown);
     return;

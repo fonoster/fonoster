@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import * as fs from "fs";
+import { resolveSecretRefs } from "@fonoster/common";
 import { parse } from "yaml";
 import { z } from "zod";
 
@@ -131,7 +132,10 @@ export const agentConfigSchema = z
 export type AgentConfig = z.infer<typeof agentConfigSchema>;
 
 export function loadAgentConfig(file: string): AgentConfig {
-  return agentConfigSchema.parse(parse(fs.readFileSync(file, "utf8")) ?? {});
+  // secret:// references (D8) resolve before validation.
+  return agentConfigSchema.parse(
+    resolveSecretRefs(parse(fs.readFileSync(file, "utf8")) ?? {})
+  );
 }
 
 /** This package's version. */

@@ -36,8 +36,7 @@ spec:
           image: "{{ $a.image.repository }}:{{ $a.image.tag }}"
           imagePullPolicy: {{ $a.image.pullPolicy }}
           env:
-            - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: {{ .Values.otel.endpoint | quote }}
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "autopilot") | nindent 12 }}
             - name: AUTOPILOT_SIGNING_SECRET
               valueFrom: { secretKeyRef: { name: {{ $a.secret | quote }}, key: secret } }
             - name: APISERVER_DATABASE_URL
@@ -48,6 +47,7 @@ spec:
             - { name: session, containerPort: {{ $a.config.port | default 3000 }} }
           volumeMounts:
             - { name: config, mountPath: /etc/fonoster/autopilot-session.yaml, subPath: autopilot-session.yaml, readOnly: true }
+            {{- include "fonoster-rebuild.secretMounts" (dict "root" $ "names" $a.secretMounts) | nindent 12 }}
             {{- if .Values.regionAgent.enabled }}
             - { name: cell-secrets, mountPath: /var/lib/fonoster-secrets, readOnly: true }
             {{- end }}
@@ -57,6 +57,7 @@ spec:
         - name: config
           configMap:
             name: {{ .Release.Name }}-autopilot
+        {{- include "fonoster-rebuild.secretVolumes" (dict "root" $ "names" $a.secretMounts) | nindent 8 }}
         {{- if .Values.regionAgent.enabled }}
         - name: cell-secrets
           secret: { secretName: {{ .Values.regionAgent.secretsSecret | quote }}, optional: true }

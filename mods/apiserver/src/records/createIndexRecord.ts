@@ -17,8 +17,10 @@
  * limitations under the License.
  */
 import { RECORD_SEALED_SUBJECT } from "@fonoster/callrecord";
+import { CALL_REF_ATTR, TRACEPARENT_HEADER } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { NatsConnection, StringCodec } from "nats";
+import { apiserverTelemetry } from "../core/telemetry";
 import { RecordIndexEntry, RecordsDb } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -96,9 +98,27 @@ export function subscribeRecordIndex(nc: NatsConnection, db: RecordsDb) {
       } catch {
         return;
       }
-      index(entry).catch((e) =>
-        logger.error(`could not index ${entry.callRef}: ${e.message}`)
+      // One span per entry, in the gateway's trace when it sent a traceparent header.
+      const telemetry = apiserverTelemetry();
+      const span = telemetry.startSpan(
+        "apiserver.records.index",
+        { [CALL_REF_ATTR]: entry.callRef ?? "" },
+        msg.headers?.get(TRACEPARENT_HEADER) || undefined
       );
+      index(entry)
+        .then((done) => {
+          telemetry.count("fonoster.apiserver.records.indexed", 1, {
+            outcome: done ? "indexed" : "skipped"
+          });
+          span.end();
+        })
+        .catch((e) => {
+          telemetry.count("fonoster.apiserver.records.indexed", 1, {
+            outcome: "error"
+          });
+          span.end(undefined, e.message);
+          logger.error(`could not index ${entry.callRef}: ${e.message}`);
+        });
     }
   });
   return () => sub.unsubscribe();
