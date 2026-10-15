@@ -171,6 +171,56 @@ describe("@apiserver[applications/migration]", function () {
     });
   });
 
+  it("AUTOPILOT apps share the hosted Autopilot's signing secret when given", function () {
+    const options = { ...OPTIONS, autopilotSigningSecret: "hosted-secret" };
+    const { app, notices } = convertLegacyApplication(autopilot, options);
+    expect(app!.signingSecret).to.equal("hosted-secret");
+    expect(notices.some((n) => /new signing secret/.test(n.message))).to.equal(
+      false
+    );
+    const ext = convertLegacyApplication(external, options).app!;
+    expect(ext.signingSecret).to.not.equal("hosted-secret");
+  });
+
+  it("the Prisma adapter writes the rebuild_persistence columns", async function () {
+    const updates: { data: Record<string, unknown> }[] = [];
+    const prisma = {
+      application: {
+        findMany: async () => [],
+        findUnique: async () => ({
+          ref: "ext-1",
+          name: "Support line",
+          accessKeyId: "WO1",
+          url: "ws://x:1",
+          flavor: "native",
+          signingSecret: "s",
+          speechVoice: "elevenlabs/rachel",
+          speechLanguage: "es-419",
+          fallbackMessage: "Sorry"
+        }),
+        update: async (args: { data: Record<string, unknown> }) => {
+          updates.push(args);
+          return {};
+        }
+      }
+    };
+    const store = new PrismaApplicationStore(prisma as never);
+    const migrated = await store.getMigrated("ext-1");
+    expect(migrated!.speech).to.deep.equal({
+      voice: "elevenlabs/rachel",
+      language: "es-419"
+    });
+    expect(migrated!.fallback).to.deep.equal({ message: "Sorry" });
+    await store.saveMigrated(migrated!);
+    expect(updates[0].data).to.deep.include({
+      speechVoice: "elevenlabs/rachel",
+      speechLanguage: "es-419",
+      fallbackAppRef: null,
+      fallbackMessage: "Sorry"
+    });
+    expect(updates[0].data).to.not.have.property("speech");
+  });
+
   it("the Prisma adapter reads relations and explains missing columns", async function () {
     const updates: unknown[] = [];
     const prisma = {

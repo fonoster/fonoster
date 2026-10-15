@@ -30,6 +30,7 @@ import { ApplicationMigrationStore, LegacyApplication } from "./types";
  *   node dist/applications/migration/cli.js --autopilot-url wss://autopilot.example.com/session \
  *     [--apply] [--from-json legacy.json] [--gateway-apps apps.json] [--app <ref>]... \
  *     [--default-voice deepgram/aura-2-thalia-en] [--default-language en-US] [--fallback-message "..."]
+ *     [--autopilot-secret-env AUTOPILOT_SIGNING_SECRET]
  *
  * Without --apply nothing is written to the database. --from-json reads an exported array of
  * Application rows instead of the database. --gateway-apps writes the gateway's `apps:` list
@@ -68,7 +69,11 @@ async function main(argv: string[]) {
       voice: arg(argv, "--default-voice") ?? "deepgram/aura-2-thalia-en",
       language: arg(argv, "--default-language") ?? "en-US"
     },
-    fallbackMessage: arg(argv, "--fallback-message")
+    fallbackMessage: arg(argv, "--fallback-message"),
+    // The hosted Autopilot's secret, by environment variable name (never on the command line).
+    autopilotSigningSecret: arg(argv, "--autopilot-secret-env")
+      ? process.env[arg(argv, "--autopilot-secret-env")!]
+      : undefined
   });
 
   const gatewayApps = arg(argv, "--gateway-apps");

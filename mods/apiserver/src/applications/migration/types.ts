@@ -73,6 +73,11 @@ export type MigrationOptions = {
   fallbackMessage?: string;
   /** Secret generator (tests inject a fixed one). */
   newSecret?: () => string;
+  /**
+   * The hosted Autopilot's signing secret. It verifies every Autopilot session with one secret,
+   * so AUTOPILOT apps get this one instead of a generated secret (ST-B4).
+   */
+  autopilotSigningSecret?: string;
 };
 
 /** Where legacy apps come from and migrated apps go (Prisma in production, memory in tests). */
