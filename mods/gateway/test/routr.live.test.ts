@@ -126,6 +126,7 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
   let gateway: Gateway;
   let botUrl = "";
   let nodePort = 0;
+  let nodeProc: ChildProcess | undefined;
 
   const bot = async <T = Record<string, unknown>>(
     path: string,
@@ -187,6 +188,7 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
       /ready/
     );
     procs.push(node.child);
+    nodeProc = node.child;
 
     const caller = await start(
       bins.sipcaller,
@@ -321,5 +323,16 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
       return r && r.sessionCount === 0 ? r : undefined;
     });
     expect(idle.sessionCount).to.equal(0);
+  });
+
+  it("a node that exits on SIGTERM drains and removes its route", async () => {
+    const exited = new Promise((r) => nodeProc!.once("exit", r));
+    nodeProc!.kill("SIGTERM");
+    await exited;
+    const routes = await findRoutes(ROUTR_LOCATION, ROUTING.aor).catch(
+      () => [] as LocationRoute[]
+    );
+    expect(routes.filter((r) => r.advertisedPort === String(nodePort))).to.be
+      .empty;
   });
 });

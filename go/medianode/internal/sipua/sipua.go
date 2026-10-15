@@ -327,7 +327,28 @@ func (u *UA) registerLoop(ctx context.Context) {
 	}
 }
 
+// Kick re-registers now (e.g. after Drain, so Routr stops choosing this node at once).
+func (u *UA) Kick() {
+	select {
+	case u.kick <- struct{}{}:
+	default:
+	}
+}
+
+// Unregister removes this node's route from Routr (REGISTER with Expires 0), so Routr stops
+// choosing a node that exits instead of waiting for its registration to expire (CO-B3).
+func (u *UA) Unregister(ctx context.Context) error {
+	if u.cfg.Registrar == "" {
+		return nil
+	}
+	return u.send(ctx, 0)
+}
+
 func (u *UA) register(ctx context.Context) error {
+	return u.send(ctx, int(u.cfg.RegisterEvery.Seconds()*2))
+}
+
+func (u *UA) send(ctx context.Context, expires int) error {
 	count := u.node.ActiveRooms()
 	if u.node.Draining() {
 		count = 1 << 20 // full: Routr stops choosing this node
@@ -351,7 +372,7 @@ func (u *UA) register(ctx context.Context) error {
 	contactParams.Add("transport", u.cfg.Transport)
 	req.AppendHeader(&sip.ContactHeader{Address: sip.Uri{User: user, Host: u.cfg.AdvertiseHost, Port: u.cfg.AdvertisePort,
 		UriParams: contactParams}})
-	req.AppendHeader(sip.NewHeader("Expires", strconv.Itoa(int(u.cfg.RegisterEvery.Seconds()*2))))
+	req.AppendHeader(sip.NewHeader("Expires", strconv.Itoa(expires)))
 	req.AppendHeader(sip.NewHeader("X-Session-Count", strconv.Itoa(count)))
 
 	cctx, cancel := context.WithTimeout(ctx, 5*time.Second)

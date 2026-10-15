@@ -105,6 +105,7 @@ func main() {
 	// Drain: report full, keep existing rooms, exit when they end or the wait runs out (MN9).
 	logger.Info("draining", "rooms", n.ActiveRooms())
 	n.Drain()
+	ua.Kick() // Routr learns "full" now, not at the next REGISTER
 	deadline := time.Now().Add(*drainWait)
 	for n.ActiveRooms() > 0 && time.Now().Before(deadline) {
 		select {
@@ -113,5 +114,11 @@ func main() {
 		case <-time.After(500 * time.Millisecond):
 		}
 	}
+	cancel() // stops the REGISTER timer; the UDP socket still serves the reply
+	uctx, ucancel := context.WithTimeout(context.Background(), 2*time.Second)
+	if err := ua.Unregister(uctx); err != nil {
+		logger.Warn("unregister failed", "err", err)
+	}
+	ucancel()
 	n.Shutdown()
 }
