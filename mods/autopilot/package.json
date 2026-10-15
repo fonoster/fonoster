@@ -55,5 +55,8 @@
     "xstate": "^5.17.3",
     "zod": "^3.25.76"
   },
-  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579"
+  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
+  "devDependencies": {
+    "yaml": "^2.9.0"
+  }
 }

@@ -54,7 +54,36 @@ type SetProviderKeyRequest = { providerId: string; key: string };
 
 type ListProviderKeysResponse = { items: ProviderKey[] };
 
+/** Where a warned item is used in the workspace. */
+type WarningUse = {
+  kind: "app" | "assistant";
+  ref: string;
+  name: string;
+  /** voice, ttsModel, sttModel or llm */
+  field: string;
+  /** For a TTS model: the voice the config uses with it. */
+  voice?: string;
+};
+
+/** A deprecated or retired catalog item the workspace uses (dashboard warnings). */
+type CatalogWarning = {
+  id: string;
+  kind: "provider" | "model" | "voice";
+  state: "deprecated" | "retired";
+  replacement?: string;
+  retireOn?: string;
+  usedBy: WarningUse[];
+  runtimeApps: string[];
+  runtimeSessions: number;
+  lastUsedAt?: string;
+};
+
+type ListWarningsResponse = { items: CatalogWarning[] };
+
 export {
+  CatalogWarning,
+  ListWarningsResponse,
+  WarningUse,
   CatalogItem,
   ListCatalogRequest,
   ListCatalogResponse,

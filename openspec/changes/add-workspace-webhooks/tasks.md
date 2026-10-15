@@ -9,9 +9,9 @@
 ## 2. Implementation
 
 - [x] 2.1 Subscription storage and API (create, list, update, delete, rotate secret)
-- [ ] 2.2 Event fan-out from the event bus to subscribed endpoints
+- [x] 2.2 Event fan-out from the event bus to subscribed endpoints
 - [x] 2.3 Delivery workers: signing, timeout, retries with exponential backoff, failure marking
-- [ ] 2.4 Producers: `call.started`, `call.ended`, `call.failed` (gateway and media node),
+- [x] 2.4 Producers: `call.started`, `call.ended`, `call.failed` (gateway and media node),
       `call_record.sealed` (record writer), `provider.deprecated` (registry utility)
 - [x] 2.5 Delivery log storage and resend
 

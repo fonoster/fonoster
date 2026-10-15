@@ -98,6 +98,29 @@ const sessionAppsSchema = z
   .default({});
 
 /**
+ * Provider registry (add-provider-registry 4.1): the platform credentials (credentialRef names)
+ * the gateways have. When set, the catalog only lists providers with one of them or with the
+ * workspace's own key.
+ */
+const registrySchema = z
+  .object({
+    platformCredentials: z.array(z.string().min(1)).optional()
+  })
+  .default({});
+
+/**
+ * Workspace webhooks fan-out (add-workspace-webhooks 2.2): events producers publish on the bus
+ * (`webhooks.events`) are delivered from here.
+ */
+const webhooksSchema = z
+  .object({
+    fanout: z.boolean().default(true),
+    intervalMs: z.number().int().positive().default(1000),
+    refreshMs: z.number().int().positive().default(10000)
+  })
+  .default({});
+
+/**
  * Regions (add-private-regions). Public regions come from data (PR-10); private regions need the
  * region-signing key (ES256 PEM) and the region hub (NATS in operator mode, RG-B2), both generated
  * by `fonoster-region-hub-setup`. Without them, workspaces can only pick a public region.
@@ -238,6 +261,8 @@ const fonosterConfigSchema = z
     identity: identitySectionSchema,
     callRecords: callRecordsSchema,
     apps: sessionAppsSchema,
+    webhooks: webhooksSchema,
+    registry: registrySchema,
     regions: regionsSchema
   })
   .superRefine((config, ctx) => {

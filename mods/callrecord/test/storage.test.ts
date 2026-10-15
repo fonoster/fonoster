@@ -266,7 +266,10 @@ describe("@callrecord recording, retention and erasure", function () {
     expect(vcon.dialog.some((d) => d.body === "I want my balance")).to.equal(
       true
     );
-    expect(verifyRecord(sealed, KEYS)).to.deep.include({ ok: true });
+    // The returned version references stored parts; verify what the store holds.
+    expect(
+      verifyRecord((await store.getSealed("ret-1"))!, KEYS)
+    ).to.deep.include({ ok: true });
     expect(audit).to.deep.equal([
       {
         callRef: "ret-1",

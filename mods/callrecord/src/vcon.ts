@@ -17,9 +17,11 @@
  * limitations under the License.
  */
 import { randomUUID } from "crypto";
+import { partHash } from "./parts";
+import { BeepSpan } from "./recording";
 import { redactText } from "./redact";
 import { contentHash } from "./sign";
-import { Part, RecordEntry, Vcon } from "./types";
+import { RecordEntry, SealingPart, Vcon } from "./types";
 
 /**
  * Pinned to draft-ietf-vcon-vcon-core-04 (September 2026), which requires "0.4.0" (call-record
@@ -27,13 +29,23 @@ import { Part, RecordEntry, Vcon } from "./types";
  */
 export const VCON_VERSION = "0.4.0";
 
-type Built = { vcon: Vcon; redacted: Vcon; parts: Part[]; missing: string[] };
+type Built = {
+  vcon: Vcon;
+  redacted: Vcon;
+  parts: SealingPart[];
+  missing: string[];
+};
 
 /** The recording the recorder left for this call, as assembled at seal. */
 export type BuiltRecording = {
-  part: Part;
+  part: SealingPart;
   startedAt: number;
   durationMs: number;
+  /**
+   * Builds the recording with these spans beeped, for the redacted copy (LO-B9). Without it, or
+   * when it returns nothing, the redacted copy withholds the recording.
+   */
+  beep?: (spans: BeepSpan[]) => SealingPart | undefined;
 };
 
 /** How the call ended, for the index and search (call-record "fetch and search ... status"). */
@@ -70,6 +82,12 @@ export function buildVcon(
   let recordingPolicy: string | undefined;
   let recordingFailed: string | undefined;
   let consentRequested = false;
+  // When each spoken dialog entry was heard, for redaction beeps (by dialog entry).
+  const heard = new Map<
+    Record<string, unknown>,
+    Omit<BeepSpan, "fromMs" | "toMs"> & { from: number; to: number }
+  >();
+  let userStartedAt: number | undefined;
 
   for (const e of entries) {
     const m = e.message;
@@ -90,14 +108,30 @@ export function buildVcon(
         );
       currentApp = appParty.get(appRef)!;
     } else if (e.source === "gateway" && type === "turn.ended") {
-      dialog.push({
+      const turn = {
         type: "text",
         start: iso(e.at),
         parties: [0],
         originator: 0,
         mimetype: "text/plain",
+        mediatype: "text/plain",
+        encoding: "none",
         body: m.text
+      };
+      dialog.push(turn);
+      // The caller spoke from turn.user_started (or durationMs plus the end-of-turn wait before
+      // turn.ended) until turn.ended.
+      const spoke =
+        typeof m.durationMs === "number" ? m.durationMs + 1500 : 10_000;
+      heard.set(turn, {
+        side: "caller",
+        from: userStartedAt ?? e.at - spoke,
+        to: e.at
       });
+      userStartedAt = undefined;
+      decisions.push({ at: iso(e.at), ...m });
+    } else if (e.source === "gateway" && type === "turn.user_started") {
+      userStartedAt ??= e.at;
       decisions.push({ at: iso(e.at), ...m });
     } else if (
       e.source === "gateway" &&
@@ -120,12 +154,14 @@ export function buildVcon(
       const s = speech.get(String(m.id));
       if (s && s.text) {
         const interrupted = type === "output.interrupted";
-        dialog.push({
+        const said: Record<string, unknown> = {
           type: "text",
           start: iso(s.startedAt ?? e.at),
           parties: [s.party],
           originator: s.party,
           mimetype: "text/plain",
+          mediatype: "text/plain",
+          encoding: "none",
           body: interrupted ? String(m.heardText ?? "") : s.text,
           ...(interrupted
             ? {
@@ -136,7 +172,9 @@ export function buildVcon(
                 }
               }
             : {})
-        });
+        };
+        dialog.push(said);
+        heard.set(said, { side: "agent", from: s.startedAt ?? e.at, to: e.at });
       }
     } else if (e.source === "app" && type === "record.note") {
       notes.push({ at: iso(e.at), ...(m.data as Record<string, unknown>) });
@@ -187,7 +225,7 @@ export function buildVcon(
   const messages = Buffer.from(
     entries.map((e) => JSON.stringify(e)).join("\n") + "\n"
   );
-  const parts: Part[] = [
+  const parts: SealingPart[] = [
     {
       name: "messages.ndjson",
       mimetype: "application/x-ndjson",
@@ -209,9 +247,10 @@ export function buildVcon(
       parties: [0, appParty.size ? [...appParty.values()][0] : 1],
       originator: 0,
       mimetype: recording.part.mimetype,
+      mediatype: recording.part.mimetype,
       filename: recording.part.name,
       url: `parts/${recording.part.name}`,
-      content_hash: contentHash(recording.part.data),
+      content_hash: partHash(recording.part),
       meta: { channels: ["caller", "agent"] }
     });
   }
@@ -249,9 +288,16 @@ export function buildVcon(
       .filter((p) => p !== recording?.part)
       .map((p) => ({
         type: "session_messages",
+        purpose: "session_messages",
+        // draft-04 4.4: who distributed it (the first app, or the caller for a minimal record)
+        // and the dialog it relates to.
+        start: iso(startedAt),
+        party: appParty.size ? [...appParty.values()][0] : 0,
+        dialog: 0,
         mimetype: p.mimetype,
+        mediatype: p.mimetype,
         url: `parts/${p.name}`,
-        content_hash: contentHash(p.data)
+        content_hash: partHash(p)
       })),
     fonoster: {
       callRef,
@@ -281,10 +327,22 @@ export function buildVcon(
 
   const vcon: Vcon = { ...base, uuid: randomUUID(), dialog };
   let redactions = 0;
+  const spans: BeepSpan[] = [];
+  let unlocatable = false;
   const redactedDialog = dialog.map((d) => {
     if (d.type === "recording") return d;
     const r = redactText(String(d.body ?? ""));
     redactions += r.redactions;
+    const full = (d.meta as { fullText?: string } | undefined)?.fullText;
+    const span = heard.get(d);
+    if (recording && (r.redactions || (full && redactText(full).redactions))) {
+      const fromMs = span ? span.from - recording.startedAt : NaN;
+      const toMs = span ? span.to - recording.startedAt : NaN;
+      // A span that is not inside the recording cannot be beeped: withhold instead.
+      if (!(toMs > 0 && fromMs < recording.durationMs && toMs > fromMs))
+        unlocatable = true;
+      else spans.push({ side: span!.side, fromMs: Math.max(0, fromMs), toMs });
+    }
     const { meta, ...rest } = d as Record<string, unknown> & {
       meta?: Record<string, unknown>;
     };
@@ -297,14 +355,35 @@ export function buildVcon(
       ...(meta ? { meta: { ...meta, ...(fullText ? { fullText } : {}) } } : {})
     };
   });
-  // Beeping the audio needs word timings (open question O3): until then a redacted copy with any
-  // redaction does not reference the recording at all.
+  // Redacted words are beeped in the recording the redacted copy references (LO-B9): the whole
+  // turn that carried them, since there are no word timings yet (O3). Without a beeped copy the
+  // redacted copy does not reference the recording at all.
+  const beeped =
+    redactions && recording && spans.length && !unlocatable
+      ? recording.beep?.(spans)
+      : undefined;
+  if (beeped) parts.push(beeped);
   const redacted: Vcon = {
     ...base,
     uuid: randomUUID(),
-    dialog: redactions
-      ? redactedDialog.filter((d) => d.type !== "recording")
-      : redactedDialog,
+    dialog: !redactions
+      ? redactedDialog
+      : beeped
+        ? redactedDialog.map((d) =>
+            d.type === "recording"
+              ? {
+                  ...d,
+                  filename: beeped.name,
+                  url: `parts/${beeped.name}`,
+                  content_hash: partHash(beeped),
+                  meta: {
+                    ...(d.meta as object),
+                    redacted: { method: "beep", spans: spans.length }
+                  }
+                }
+              : d
+          )
+        : redactedDialog.filter((d) => d.type !== "recording"),
     // Turn decisions carry the caller's words and app notes are free-form: every string in the
     // analysis is redacted too.
     analysis: base.analysis.map(
@@ -320,14 +399,16 @@ export function buildVcon(
     fonoster: {
       ...base.fonoster,
       redactions,
-      ...(redactions && recording ? { recordingWithheld: "redaction" } : {})
+      ...(redactions && recording && !beeped
+        ? { recordingWithheld: "redaction" }
+        : {})
     }
   };
   return { vcon, redacted, parts, missing };
 }
 
 /** Redacts every string inside a JSON value (for the redacted copy's analysis). */
-function redactStrings(value: unknown): unknown {
+export function redactStrings(value: unknown): unknown {
   if (typeof value === "string") return redactText(value).text;
   if (Array.isArray(value)) return value.map(redactStrings);
   if (value && typeof value === "object")

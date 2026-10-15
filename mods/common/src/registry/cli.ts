@@ -54,8 +54,9 @@ function parseArgs(argv: string[]): {
   const flags: Flags = {};
   for (let i = 0; i < rest.length; i++) {
     const a = rest[i];
-    if (a.startsWith("--")) {
-      const key = a.slice(2);
+    if (a.startsWith("--") || /^-[a-z]$/.test(a)) {
+      // `--name value`, `--flag`, or a short `-f value` (plan -f, apply -f).
+      const key = a.replace(/^--?/, "");
       const next = rest[i + 1];
       if (next === undefined || next.startsWith("--")) flags[key] = true;
       else {
@@ -65,6 +66,19 @@ function parseArgs(argv: string[]): {
     } else positional.push(a);
   }
   return { command, positional, flags };
+}
+
+/** The command line as audited: database flags (they may carry credentials in URLs) left out. */
+function commandLine(argv: string[]): string {
+  const out: string[] = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--database-url" || argv[i] === "--store") {
+      i++;
+      continue;
+    }
+    out.push(/\s/.test(argv[i]) ? JSON.stringify(argv[i]) : argv[i]);
+  }
+  return `fonoster-registry ${out.join(" ")}`;
 }
 
 const list = (v: string | true | undefined) =>
@@ -94,6 +108,24 @@ const HELP = `fonoster-registry <command>
 
 const DB_FLAGS = ["store", "database-url"];
 
+/** The options each write command accepts (by command without its kind). */
+const OPTIONS: Record<string, string[]> = {
+  add: [
+    "adapter",
+    "capabilities",
+    "credential-ref",
+    "type",
+    "features",
+    "languages",
+    "settings",
+    "models",
+    "language",
+    "gender"
+  ],
+  deprecate: ["replacement", "retire-on"],
+  retire: ["voice-map", "yes"]
+};
+
 /** Runs one command against the JSON file store (synchronous; the default store). */
 export function run(
   argv: string[],
@@ -105,7 +137,8 @@ export function run(
     store: new FileRegistryStore(
       process.env.FONOSTER_REGISTRY_FILE ?? "registry.json"
     ),
-    testMode: process.env.FONOSTER_TEST_MODE === "true"
+    testMode: process.env.FONOSTER_TEST_MODE === "true",
+    commandLine: commandLine(argv)
   });
   return execute(registry, command, positional, flags, out);
 }
@@ -162,9 +195,14 @@ export async function runWithDatabase(
       store,
       usages,
       actor: deps.actor,
-      testMode: process.env.FONOSTER_TEST_MODE === "true"
+      testMode: process.env.FONOSTER_TEST_MODE === "true",
+      commandLine: commandLine(argv)
     });
-    const code = execute(registry, command, positional, flags, out);
+    const sessions =
+      command === "usage" && positional[0]
+        ? await sessionCounts(prisma, positional[0])
+        : undefined;
+    const code = execute(registry, command, positional, flags, out, sessions);
     await usages.flush();
     for (const c of usages.conflicts) {
       out(`skipped ${c.usage.config.kind} ${c.usage.config.name}: ${c.reason}`);
@@ -196,23 +234,30 @@ function execute(
   command: string,
   positional: string[],
   flags: Flags,
-  out: (s: string) => void
+  out: (s: string) => void,
+  sessions?: Record<string, number>
 ): number {
   const id = positional[0];
   const printImpact = (
     lines: { mark: string; text: string; count: number }[]
   ) =>
     lines.length
-      ? lines.forEach((l) => out(`${l.mark} ${l.text} (${l.count} apps)`))
+      ? lines.forEach((l) => {
+          // The count goes before an action hint: "... (3 apps) → needs --voice-map ...".
+          const [what, hint] = l.text.split(" → ");
+          out(`${l.mark} ${what} (${l.count} apps)${hint ? ` → ${hint}` : ""}`);
+        })
       : out("no configs use it");
   try {
+    // Write commands take only their own options: anything else (`--api-key`) is refused before
+    // it can reach the catalog (spec "A key cannot be smuggled into the catalog").
+    const allowed = OPTIONS[command.replace(/-(provider|model|voice)$/, "")];
+    const unknown =
+      allowed && Object.keys(flags).find((f) => !allowed.includes(f));
+    if (unknown) throw new RegistryError(`unknown option: --${unknown}`);
     switch (command) {
       case "add-provider": {
-        const extra = Object.fromEntries(
-          Object.entries(flags).map(([k, v]) => [k, v])
-        );
         registry.addProvider({
-          ...extra,
           id,
           adapter: str(flags.adapter, "adapter"),
           capabilities: list(flags.capabilities) as Capability[],
@@ -273,8 +318,24 @@ function execute(
       case "usage": {
         const usages = registry.usage(id);
         if (!usages.length) out("no configs use it");
-        for (const u of usages)
-          out(`${u.workspace}\t${u.config.kind}\t${u.config.name}`);
+        if (!sessions) {
+          for (const u of usages)
+            out(`${u.workspace}\t${u.config.kind}\t${u.config.name}`);
+          break;
+        }
+        // With the database: per workspace, its sessions that resolved the id in the last 30
+        // days (from the gateways' registry.used events, LO-B11), then its configs.
+        const workspaces = [
+          ...new Set([
+            ...usages.map((u) => u.workspace),
+            ...Object.keys(sessions)
+          ])
+        ].sort();
+        for (const w of workspaces) {
+          out(`${w}\tsessions (30 days)\t${sessions[w] ?? 0}`);
+          for (const u of usages.filter((x) => x.workspace === w))
+            out(`${w}\t${u.config.kind}\t${u.config.name}`);
+        }
         break;
       }
       case "list":
@@ -285,7 +346,8 @@ function execute(
         out(JSON.stringify(registry.show(id), null, 2));
         break;
       case "history":
-        for (const h of registry.history(id))
+        // Newest first (spec "Every write is audited").
+        for (const h of [...registry.history(id)].reverse())
           out(`${h.at}\t${h.actor}\t${h.action}\t${h.target}`);
         break;
       case "export":
@@ -345,6 +407,28 @@ export async function runTraced(
     span.end(undefined, error);
     await telemetry.shutdown();
   }
+}
+
+/** Sessions per workspace that resolved an id in the last 30 days (registry_usage). */
+async function sessionCounts(
+  prisma: PrismaLike,
+  id: string,
+  now = new Date()
+): Promise<Record<string, number> | undefined> {
+  if (!prisma.registryUsage) return undefined;
+  const since = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
+  const rows: { accessKeyId: string; _sum: { sessions: number | null } }[] =
+    await prisma.registryUsage.groupBy({
+      by: ["accessKeyId"],
+      where: {
+        catalogId: id,
+        day: { gte: new Date(since.toISOString().slice(0, 10)) }
+      },
+      _sum: { sessions: true }
+    });
+  return Object.fromEntries(
+    rows.map((r) => [r.accessKeyId, r._sum.sessions ?? 0])
+  );
 }
 
 // Run when executed as the fonoster-registry binary.

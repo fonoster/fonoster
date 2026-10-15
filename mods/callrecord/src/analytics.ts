@@ -21,8 +21,8 @@ import { RecordStore } from "./storage";
 import { Vcon } from "./types";
 
 // The analytics store is derived from sealed records only (design V9) and can be dropped and
-// rebuilt from them at any time. The schema belongs to the analytics work; this is the loader
-// contract plus the per-call row it fills. A ClickHouse sink is not built yet.
+// rebuilt from them at any time. This is the loader contract plus the per-call row it fills;
+// `ClickHouseAnalyticsSink` (clickhouse.ts) is the production sink.
 
 /** One call's row in the analytics store, derived from its (redacted) vCon. */
 export type CallMetrics = {
@@ -44,6 +44,10 @@ export interface AnalyticsSink {
   drop(): Promise<void>;
   /** Inserts or replaces one call's row. */
   upsert(row: CallMetrics): Promise<void>;
+  /** Inserts or replaces many rows at once (used by rebuilds when present). */
+  upsertMany?(rows: CallMetrics[]): Promise<void>;
+  /** Removes an erased call's row. */
+  remove?(callRef: string): Promise<void>;
 }
 
 export class MemoryAnalyticsSink implements AnalyticsSink {
@@ -53,6 +57,9 @@ export class MemoryAnalyticsSink implements AnalyticsSink {
   }
   async upsert(row: CallMetrics) {
     this.rows.set(row.callRef, row);
+  }
+  async remove(callRef: string) {
+    this.rows.delete(callRef);
   }
 }
 
@@ -95,24 +102,53 @@ export async function loadRecord(
   sink: AnalyticsSink,
   callRef: string
 ) {
+  const row = await metricsOf(store, callRef);
+  if (row === "erased") {
+    // An erased call leaves no trace in analytics either.
+    await sink.remove?.(callRef);
+    return false;
+  }
+  if (!row) return false;
+  await sink.upsert(row);
+  return true;
+}
+
+async function metricsOf(
+  store: RecordStore,
+  callRef: string
+): Promise<CallMetrics | "erased" | undefined> {
   const stored = await store.getVersion(callRef);
   // The redacted copy: analytics never sees unredacted text (design V5).
-  if (!stored?.redacted) return false;
+  if (!stored?.redacted) return undefined;
   const vcon = decodeVcon(stored.redacted);
   if ((vcon.fonoster as { status?: string } | undefined)?.status === "erased")
-    return false;
-  await sink.upsert(callMetrics(vcon));
-  return true;
+    return "erased";
+  return callMetrics(vcon);
 }
 
 /** Drops the analytics store and refills it from every sealed record (task 6.2). */
 export async function rebuildAnalytics(
   store: RecordStore,
-  sink: AnalyticsSink
+  sink: AnalyticsSink,
+  options: { drop?: boolean } = {}
 ): Promise<number> {
-  await sink.drop();
+  // `drop: false` adds a further store (a workspace bucket) after the region's.
+  if (options.drop !== false) await sink.drop();
   let n = 0;
-  for (const callRef of await store.listCalls())
-    if (await loadRecord(store, sink, callRef)) n++;
+  let batch: CallMetrics[] = [];
+  const flush = async () => {
+    if (!batch.length) return;
+    if (sink.upsertMany) await sink.upsertMany(batch);
+    else for (const row of batch) await sink.upsert(row);
+    n += batch.length;
+    batch = [];
+  };
+  for (const callRef of await store.listCalls()) {
+    const row = await metricsOf(store, callRef);
+    if (!row || row === "erased") continue;
+    batch.push(row);
+    if (batch.length >= 500) await flush();
+  }
+  await flush();
   return n;
 }

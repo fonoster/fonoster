@@ -17,7 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallRecordWriter } from "@fonoster/callrecord";
+import {
+  CallRecordWriter,
+  ClickHouseAnalyticsSink,
+  loadRecord,
+  RecordIndexEntry
+} from "@fonoster/callrecord";
 import {
   CellSecrets,
   logUnhandledRejections,
@@ -31,6 +36,7 @@ import { Gateway } from "./Gateway";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
 import { createRecordWriter } from "./record/createRecordWriter";
 import { WorkspaceKeySource } from "./speech/Catalog";
+import { chainKeySources } from "./speech/keySources";
 import { telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
@@ -48,9 +54,11 @@ async function main() {
   // eslint-disable-next-line prefer-const
   let gateway: Gateway | undefined;
   if (config.callRecord) {
-    writer = createRecordWriter(config.callRecord, (entry) =>
-      gateway?.onRecordSealed(entry)
-    );
+    const analytics = analyticsLoader(config.callRecord, () => writer);
+    writer = createRecordWriter(config.callRecord, (entry) => {
+      gateway?.onRecordSealed(entry);
+      analytics?.(entry);
+    });
     record = writer;
   } else if (process.env.GATEWAY_RECORD_DIR) {
     record = new JsonlCallRecordSink(process.env.GATEWAY_RECORD_DIR);
@@ -90,6 +98,37 @@ async function main() {
 }
 
 /**
+ * Loads every sealed version into the analytics store (add-call-record 6.1, LO-B6). A failure is
+ * logged and never affects the call or the record; `fonoster-callrecord analytics rebuild` refills
+ * the store from the records.
+ */
+function analyticsLoader(
+  c: NonNullable<GatewayConfig["callRecord"]>,
+  writer: () => CallRecordWriter | undefined
+) {
+  const ch = c.analytics?.clickhouse;
+  if (!ch) return undefined;
+  const sink = new ClickHouseAnalyticsSink({
+    url: ch.url,
+    database: ch.database,
+    table: ch.table,
+    user: process.env[ch.userEnv ?? "CLICKHOUSE_USER"],
+    password: process.env[ch.passwordEnv ?? "CLICKHOUSE_PASSWORD"]
+  });
+  return (entry: RecordIndexEntry) => {
+    const w = writer();
+    if (!w) return;
+    void loadRecord(
+      w.storeAt(entry.location, entry.workspaceRef),
+      sink,
+      entry.callRef
+    ).catch((e) =>
+      logger.warn(`analytics load of ${entry.callRef} failed: ${e.message}`)
+    );
+  };
+}
+
+/**
  * Cell secrets (a private region, PR-4) before the database's workspace keys; either alone; or
  * none (platform keys only).
  */
@@ -97,18 +136,12 @@ function keySource(
   config: GatewayConfig,
   db?: WorkspaceKeySource
 ): WorkspaceKeySource | undefined {
-  if (!config.cellSecrets) return db;
-  const cell = new CellSecrets.CellSecretKeys(
-    CellSecrets.openCellSecrets(config.cellSecrets)
-  );
-  return {
-    async get(workspaceRef, providerId) {
-      return (
-        (await cell.get(workspaceRef, providerId)) ??
-        (await db?.get(workspaceRef, providerId))
-      );
-    }
-  };
+  const cell = config.cellSecrets
+    ? new CellSecrets.CellSecretKeys(
+        CellSecrets.openCellSecrets(config.cellSecrets)
+      )
+    : undefined;
+  return chainKeySources(cell, db);
 }
 
 /**
@@ -166,7 +199,7 @@ async function openDatabase(config: GatewayConfig): Promise<{
     );
     out.registryStore = store;
   }
-  if (config.webhooks?.enabled) {
+  if (config.webhooks?.enabled && config.webhooks.transport !== "bus") {
     const w = config.webhooks;
     const store = await Webhooks.PrismaWebhookStore.open(prisma, {
       adoptOverdue: true

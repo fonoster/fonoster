@@ -240,3 +240,125 @@ export namespace DeleteProviderKeyResponse {
   }
 }
 
+export class WarningUse extends jspb.Message {
+  getKind(): string;
+  setKind(value: string): WarningUse;
+
+  getRef(): string;
+  setRef(value: string): WarningUse;
+
+  getName(): string;
+  setName(value: string): WarningUse;
+
+  getField(): string;
+  setField(value: string): WarningUse;
+
+  getVoice(): string;
+  setVoice(value: string): WarningUse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): WarningUse.AsObject;
+  static toObject(includeInstance: boolean, msg: WarningUse): WarningUse.AsObject;
+  static serializeBinaryToWriter(message: WarningUse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): WarningUse;
+  static deserializeBinaryFromReader(message: WarningUse, reader: jspb.BinaryReader): WarningUse;
+}
+
+export namespace WarningUse {
+  export type AsObject = {
+    kind: string,
+    ref: string,
+    name: string,
+    field: string,
+    voice: string,
+  }
+}
+
+export class Warning extends jspb.Message {
+  getId(): string;
+  setId(value: string): Warning;
+
+  getKind(): string;
+  setKind(value: string): Warning;
+
+  getState(): string;
+  setState(value: string): Warning;
+
+  getReplacement(): string;
+  setReplacement(value: string): Warning;
+
+  getRetireOn(): string;
+  setRetireOn(value: string): Warning;
+
+  getUsedByList(): Array<WarningUse>;
+  setUsedByList(value: Array<WarningUse>): Warning;
+  clearUsedByList(): Warning;
+  addUsedBy(value?: WarningUse, index?: number): WarningUse;
+
+  getRuntimeAppsList(): Array<string>;
+  setRuntimeAppsList(value: Array<string>): Warning;
+  clearRuntimeAppsList(): Warning;
+  addRuntimeApps(value: string, index?: number): Warning;
+
+  getRuntimeSessions(): number;
+  setRuntimeSessions(value: number): Warning;
+
+  getLastUsedAt(): string;
+  setLastUsedAt(value: string): Warning;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Warning.AsObject;
+  static toObject(includeInstance: boolean, msg: Warning): Warning.AsObject;
+  static serializeBinaryToWriter(message: Warning, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Warning;
+  static deserializeBinaryFromReader(message: Warning, reader: jspb.BinaryReader): Warning;
+}
+
+export namespace Warning {
+  export type AsObject = {
+    id: string,
+    kind: string,
+    state: string,
+    replacement: string,
+    retireOn: string,
+    usedByList: Array<WarningUse.AsObject>,
+    runtimeAppsList: Array<string>,
+    runtimeSessions: number,
+    lastUsedAt: string,
+  }
+}
+
+export class ListWarningsRequest extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListWarningsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ListWarningsRequest): ListWarningsRequest.AsObject;
+  static serializeBinaryToWriter(message: ListWarningsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListWarningsRequest;
+  static deserializeBinaryFromReader(message: ListWarningsRequest, reader: jspb.BinaryReader): ListWarningsRequest;
+}
+
+export namespace ListWarningsRequest {
+  export type AsObject = {
+  }
+}
+
+export class ListWarningsResponse extends jspb.Message {
+  getItemsList(): Array<Warning>;
+  setItemsList(value: Array<Warning>): ListWarningsResponse;
+  clearItemsList(): ListWarningsResponse;
+  addItems(value?: Warning, index?: number): Warning;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ListWarningsResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ListWarningsResponse): ListWarningsResponse.AsObject;
+  static serializeBinaryToWriter(message: ListWarningsResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListWarningsResponse;
+  static deserializeBinaryFromReader(message: ListWarningsResponse, reader: jspb.BinaryReader): ListWarningsResponse;
+}
+
+export namespace ListWarningsResponse {
+  export type AsObject = {
+    itemsList: Array<Warning.AsObject>,
+  }
+}
+

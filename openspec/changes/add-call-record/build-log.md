@@ -252,3 +252,91 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   `.vcon.jws.json`.
 - Erasure, part deletion, retention and the analytics rebuild have no CLI commands yet.
 - Tests: `mods/ctl/test/records`.
+## 2026-10-15 (leftovers stream)
+
+### LO-B5. Key custody and rotation (task 2.6)
+
+- The writer no longer holds a key: it asks a `KeyCustody` for the current `kid` (+ `jku`) and a
+  signature (`signVconWith`). A KMS or Vault custody implements the same three methods (`current`,
+  `sign`, `publicKeys`) and keeps the private key out of the gateway; only the file custody is
+  built.
+- `FileKeyCustody` (a key directory): `<kid>.key.pem` (0600, never overwritten), `<kid>.pub.pem`,
+  `current`. `fonoster-callrecord keys rotate --dir <dir> [--kid|--prefix]` adds a P-256 key and
+  switches `current` atomically; running gateways sign with it from their next record (one stat
+  per signature, no restart). `keys retire <kid>` deletes an old private key and keeps its public
+  half published; the current key cannot be retired. `keys list`, `keys publish` (the JWK Set).
+- Gateway: `callRecord.signingKey: {dir, jku}` uses the directory; `{kid, privateKeyFile}` still
+  works (one fixed key). The published set (`/.well-known/call-record-keys.json`) is every key in
+  the directory plus `keyHistory`, rebuilt at most every 5 s, so a rotation shows up without a
+  restart. Records signed before a rotation keep verifying (tested).
+
+### LO-B6. ClickHouse analytics (tasks 6.1, 6.2)
+
+- `ClickHouseAnalyticsSink` over ClickHouse's HTTP interface (no client library): table
+  `fonoster.call_metrics` (configurable), `ReplacingMergeTree(loaded_at)` keyed by call id, so
+  loading a record again replaces its row; reads use `FINAL`. Created on first use. Credentials in
+  headers, never in URLs or logs.
+- An erased record removes its row (`remove`, a lightweight `DELETE`); before, the loader skipped
+  erased records and left the old row behind.
+- Gateway `callRecord.analytics.clickhouse: {url, database?, table?, userEnv?, passwordEnv?}`
+  loads every sealed version's redacted copy after sealing. Failures are logged and never touch
+  the call or the record.
+- `fonoster-callrecord analytics rebuild (--store-dir | --store-config <ObjectStoreConfig JSON>)
+  --clickhouse-url ...` truncates and refills from the records (in batches of 500); `--keep` adds
+  another store (a workspace bucket) without truncating. Credentials from `CLICKHOUSE_USER` /
+  `CLICKHOUSE_PASSWORD` only.
+- Tested against a throwaway `clickhouse/clickhouse-server:24.8` (`CLICKHOUSE_TEST_URL`); the
+  rebuild gives the same rows as the in-memory sink.
+
+### LO-B7. Recordings are streamed at seal (R-B2 follow-up)
+
+- `assembleRecordingFile` interleaves the two sides into `recording.wav` next to the tracks in
+  64 Ki-sample chunks, hashing on the way; the part is uploaded from the file (`putFile`:
+  `copyFile` on disk, one streamed `PutObject` with `ContentLength` on S3, which allows up to
+  5 GB, about 20 hours of stereo 16 kHz). Byte-identical to the old in-memory WAV (tested).
+- New versions (additions, deletions) reference the stored parts from the manifest instead of
+  downloading them; existence checks use `HEAD`/`stat` instead of reading the object. The
+  writer's `seal`/`addVersion`/`deleteParts` return a `SealingVersion` whose parts may be file or
+  stored references; read records with `RecordStore.getSealed`.
+- Tested on disk and against MinIO (`RECORDS_S3_ENDPOINT`).
+
+### LO-B8. vCon schema pinned; fixture calls (tasks 1.1, 1.2)
+
+- `mods/callrecord/schema/vcon-core-04.schema.json` is the draft's own JSON Schema, from the
+  `draft-ietf-vcon-vcon-core-04` tag of `ietf-wg-vcon/draft-ietf-vcon-vcon-core`
+  (`vcon_json_schema.json`, sha256 `b3c1ae28…a8d9`, Appendix B; `main` currently has a broken
+  copy). Shipped in the npm package (`files`). Tests validate every fixture's original and
+  redacted copy, later versions, deletion versions and tombstones with ajv (formats uuid,
+  date-time, uri added by hand; ajv-formats is not installed).
+- Fixed what the schema found: text dialog entries now carry `mediatype` and `encoding: none`
+  (`mimetype` kept for current readers); the messages attachment carries `start`, `party` (the
+  first app, or 0 for a minimal record), `dialog: 0`, `purpose` and `mediatype`; additions get an
+  `encoding`; the redacted copy of a later version no longer carries both `redacted` and
+  `amended` (mutually exclusive): the original holds the version chain, the redacted copy points
+  at its own original.
+- Deviation kept: part URLs stay relative (`parts/<name>`, resolved by the records API against
+  the record's store) instead of absolute HTTPS URLs, because records move between stores. The
+  test checks that shape and resolves it against a placeholder base for the `uri` format.
+- Fixtures (`mods/callrecord/test/fixtures/calls/*.json`, player in `fixtures/index.ts`):
+  `card-number` (spoken digits, then repeated by the agent), `handoff` (two apps, one record),
+  `failed-busy` (486, minimal), `recorded-call`, `gateway-crash` (sealed by the sweep). Each
+  states the status, missing parts, redactions, agents and which recording each copy references.
+  Audio is synthetic (constant levels per side); no recorded caller audio (needs real calls), so
+  1.2 stays open.
+- Also: the redacted copy of an addition now has the addition's strings redacted (it was copied
+  as is).
+
+### LO-B9. Redaction beeps in the recording (tasks 1.6, 4.1)
+
+- No word timings yet (O3), so the whole utterance that carried a redaction is beeped on its own
+  side: a caller turn from `turn.user_started` (else `durationMs` + 1.5 s before `turn.ended`) to
+  `turn.ended`; an agent output from `output.started` to `output.done`/`output.interrupted`.
+  1 kHz tone; the other side is untouched.
+- The beeped copy is a second part, `recording.redacted.wav`, streamed from the sealed WAV and
+  referenced only by the redacted copy (`meta.redacted {method: beep, spans}`); the original
+  references `recording.wav`. Default downloads therefore get the beeped audio; the original needs
+  unredacted access as before.
+- When a redacted utterance is not inside the recording (it started later, or clocks disagree),
+  nothing is beeped and the redacted copy withholds the recording (`recordingWithheld`), as before.
+- Deleting `recording` (retention or request) deletes both files.
+

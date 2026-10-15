@@ -293,6 +293,14 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
     },
     getCatalog: async () =>
       toCatalog((await sdk.providers.listCatalog()).items),
+    listCatalogWarnings: async () =>
+      (await sdk.providers.listWarnings()).items.map((w) => ({
+        ...w,
+        usedBy: w.usedBy.map((u) => ({
+          ...u,
+          kind: u.kind as "app" | "assistant"
+        }))
+      })),
     listCalls: async () => {
       const { items } = await sdk.callRecords.listRecords({ pageSize: 100 });
       return (items as unknown as Summary[]).map(toSummary);

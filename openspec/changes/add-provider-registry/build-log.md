@@ -286,3 +286,92 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - `providers:keys:set <provider> [--key]` (asks without echo when `--key` is omitted),
   `providers:keys:list` (never shows keys), `providers:keys:delete <provider>`.
 - Tests: `mods/ctl/test/providers`.
+## 2026-10-15 (leftovers stream)
+
+### LO-B10. Gateway scenarios with fake providers (task 1.6) and provider errors in the record (3.4)
+
+- Scenario setup key `catalog` (schema, SCENARIOS.md, `Setup` type): the voice-session runner
+  registers the fake provider, a TTS model and `fake/default`, then each listed voice in its state
+  (deprecated or retired with its replacement). Runners that do not support it fail such
+  scenarios, as for any setup key.
+- New voice-session scenarios: `deprecated-voice-is-reported` (the call goes on;
+  `provider.deprecated_used` once per session with the replacement), `retired-voice-resolves`
+  (no error, the replacement speaks, `provider.retired_used`), `tts-outage-is-not-switched`
+  (`provider_unavailable` with `relatesTo`, one TTS request, no vendor calls, session stays open,
+  failure in the record).
+- 3.4: errors with a `provider_*` code are also recorded as a `provider.error` event (code,
+  relatesTo, session, app), even when the app does not take the speech layer. No failover existed
+  and none was added.
+- Credential order is one function (`chainKeySources`, gateway): a private cell's secret, then the
+  workspace's key, then the platform key named by `credentialRef`; tested in
+  `workspaceKeys.test.ts`. Not a scenario file: the fake providers take no key.
+
+### LO-B11. Runtime use reaches the control plane: warnings and session counts (3.3 rest, 4.2 part)
+
+- The gateway publishes `registry.used` once per session and catalog id it resolves (voices and
+  STT models): workspace, app, session, call, the id, what was used, and the deprecated/retired
+  event when there is one. Reporting never affects the call. Autopilot's LLM resolutions are not
+  reported yet.
+- The apiserver consumes it (queue group `apiserver-registry-usage`): `registry_usage` counts
+  sessions per workspace, id and day (new table, migration `20261015500000_registry_usage`,
+  additive; `migrate diff` is empty), and one runtime notice per workspace and deprecated or
+  retired id keeps the apps, session count and first/last use. Same trust as other NATS subjects
+  (RV-B6): messages are shape-checked, not authenticated.
+- `Providers.ListWarnings` (gRPC, SDK `providers.listWarnings()`, role-allowed like ListCatalog):
+  every deprecated or retired item (or item of a deprecated provider) that a saved app or assistant
+  of the workspace names (with the field, and the voice for a TTS model, so a cloned voice is
+  named), or that a session used in the last 7 days. Derived from the catalog's current state, so
+  switching every config away clears it, and runtime-only warnings fade 7 days after the last
+  session. A retired item still named by a config is one with no compatible replacement.
+- Dashboard: the Apps page shows one alert per warning (deprecated: retire date and replacement;
+  retired: pick a new model or voice) with the apps that use it and recent runtime use.
+- `fonoster-registry usage <id>` with the database prints, per workspace, its sessions in the last
+  30 days, then its configs. The utility and reader roles can read `registry_usage`.
+- Not done (4.2 rest): pickers filtered by compatibility (the app editor has no TTS model picker
+  and assistants are edited as JSON).
+
+### LO-B12. Only usable providers in the catalog (task 4.1)
+
+- `ListCatalog` is the rebuild's GetCapabilities. It now hides providers whose adapter is not
+  built in, and, when the apiserver config lists `registry.platformCredentials` (the credentialRef
+  names the gateways have), providers with neither one of those nor the workspace's own key; their
+  models and voices go with them. Without the setting no credential filtering happens
+  (development). The legacy Capabilities service is untouched.
+
+### LO-B13. The registry scenario suite (task 1.1) and what it found
+
+- `mods/apiserver/test/registry/spec.test.ts`: a throwaway database with providers, models,
+  voices (one cloned voice) and apps and assistants in two workspaces; one test per spec scenario,
+  driving `fonoster-registry` (database store), the Providers handlers, `listWarnings` and the
+  runtime-use recorder. Scenarios run elsewhere are listed with their file (gateway credential
+  tests, Autopilot, the conformance scenarios of LO-B10, the database-role test); a final test
+  fails if any spec scenario is in neither place.
+- Fixed on the way, to match the spec:
+  - write commands refuse options they do not take: `--api-key` → `unknown option: --api-key`
+    (the registry's secret guard stays for `apply` files);
+  - every audit entry stores the command line (database flags left out) and the entry before and
+    after;
+  - `history` prints newest first;
+  - the impact report puts the count before the hint: `✗ voice nova-legacy only exists on
+    turbo-v2 (3 apps) → needs --voice-map nova-legacy=<voice>`;
+  - `plan -f` / `apply -f` accept the short flag.
+- Spec deviation kept: the reuse scenario retires `deepgram/enhanced` instead of `nova-2`
+  (later scenarios need `nova-2` deprecated, not retired).
+
+### LO-B14. Adapter conformance per type (task 1.5)
+
+- Speech (`mods/gateway/test/adapterConformance.test.ts`) and LLM
+  (`mods/autopilot/test/session/llmConformance.test.ts`): for every model in
+  `ops/rebuild/config/catalog-seed.yaml`, its provider's adapter must be built in and every declared
+  feature must have a check that passes against a local stand-in of the vendor; a declared feature
+  without a check fails. Each adapter must also stop within 200 ms when cancelled and map vendor
+  errors (503, 401, 429, unreachable) to `provider_unavailable` (400 → `bad_message`, silence →
+  `provider_timeout`). Live runs stay on demand (`mods/gateway/scripts/live-check.ts`).
+- What it found and fixed:
+  - Deepgram STT declared `word-timings` but dropped them: transcripts now carry `startMs`/`endMs`
+    and `words` (ms from the start of that vendor stream; a reconnect starts again at 0).
+  - OpenAI-compatible LLMs declared `json-mode` with no way to ask for it: `OpenAiCompatibleThink`
+    takes `jsonMode` (`response_format: json_object`). Nothing in Autopilot turns it on yet.
+  - LLM failures were plain `Error`s: they are now `ThinkError` with the session codes (an abort
+    is rethrown as it is).
+

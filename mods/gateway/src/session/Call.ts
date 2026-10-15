@@ -133,7 +133,24 @@ export type CallDeps = {
   record: CallRecordSink;
   findApp: (ref: string) => AppConfig | undefined;
   webhooks?: (event: Webhooks.WebhookEvent) => void;
+  /** Once per session and catalog id it resolved (registry usage and runtime warnings, LO-B11). */
+  onCatalogUse?: (use: CatalogUse) => void;
   onEnded: (call: Call) => void;
+};
+
+/** A session resolved a catalog id (published on `registry.used`). */
+export type CatalogUse = {
+  workspaceRef: string | null;
+  appRef: string;
+  sessionRef: string;
+  callRef: string;
+  /** The id the app or its config named. */
+  id: string;
+  /** What was used (the replacement, for a retired id). */
+  resolvedId: string;
+  event?: "provider.deprecated_used" | "provider.retired_used";
+  replacement?: string;
+  at: string;
 };
 
 /**
@@ -641,6 +658,7 @@ export class AppSession {
   /** The last 500 ms of caller audio, for STT when speech starts late. */
   private recentCaller: Buffer[] = [];
   private reportedIds = new Set<string>();
+  private usedIds = new Set<string>();
   private labeler = new TurnLabeler((label) =>
     this.call.record("event", { type: "turn.label", ...label })
   );
@@ -893,6 +911,7 @@ export class AppSession {
         });
       return;
     }
+    if (sttId) this.noteCatalogUse(sttId, stt);
     if (stt.event && sttId) {
       this.reportedIds.add(sttId);
       this.call.record("event", {
@@ -1129,6 +1148,7 @@ export class AppSession {
           });
           return;
         }
+        this.noteCatalogUse(voiceId, voice);
         if (voice.event && !this.reportedIds.has(voiceId)) {
           // Once per session and id (add-provider-registry, "Runtime use is caught").
           this.reportedIds.add(voiceId);
@@ -1325,8 +1345,42 @@ export class AppSession {
     this.emit(e as unknown as Record<string, unknown>);
   }
 
+  /** Reports the first use of a catalog id in this session (LO-B11). */
+  private noteCatalogUse(
+    id: string,
+    r: { id?: string; event?: CatalogUse["event"]; replacement?: string }
+  ) {
+    if (this.usedIds.has(id) || !this.deps.onCatalogUse) return;
+    this.usedIds.add(id);
+    try {
+      this.deps.onCatalogUse({
+        workspaceRef: this.app.workspaceRef ?? null,
+        appRef: this.app.ref,
+        sessionRef: this.sessionRef,
+        callRef: this.call.callRef,
+        id,
+        resolvedId: r.id ?? id,
+        ...(r.event ? { event: r.event, replacement: r.replacement } : {}),
+        at: new Date().toISOString()
+      });
+    } catch {
+      // Reporting never affects the call.
+    }
+  }
+
   emit(message: Record<string, unknown>) {
     if (this.closed) return;
+    // Provider failures go in the call record as events too (add-provider-registry 3.4), even
+    // when the app does not take the speech layer.
+    if (message.type === "error" && /^provider_/.test(String(message.code)))
+      this.call.record("event", {
+        type: "provider.error",
+        code: message.code,
+        relatesTo: message.relatesTo ?? null,
+        message: message.message,
+        sessionRef: this.sessionRef,
+        appRef: this.app.ref
+      });
     if (
       !this.codec.speechLayer &&
       !["mark", "dtmf"].includes(message.type as string)

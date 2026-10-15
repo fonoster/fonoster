@@ -39,6 +39,7 @@ import {
   Gateway,
   GatewayConfig,
   maintenanceSubject,
+  REGISTRY_USED_SUBJECT,
   recordingPolicy
 } from "../src";
 
@@ -139,7 +140,8 @@ describe("@gateway call records", function () {
 
   async function start(
     apps: AppConfig[],
-    callRecord: Partial<NonNullable<GatewayConfig["callRecord"]>> = {}
+    callRecord: Partial<NonNullable<GatewayConfig["callRecord"]>> = {},
+    bus = false
   ) {
     const urls = harness.providerUrls;
     gateway = await new Gateway({
@@ -162,11 +164,14 @@ describe("@gateway call records", function () {
           signingKey: { kid: KEY.kid, privateKeyFile: "unused" },
           recordUrl: "https://api.example.com/api/records",
           ...callRecord
-        }
+        },
+        ...(bus
+          ? { webhooks: { enabled: true, transport: "bus" as const } }
+          : {})
       },
       nats: nc,
       record: writer,
-      webhooks: (e) => webhooks.push(e)
+      webhooks: bus ? undefined : (e) => webhooks.push(e)
     }).start();
   }
 
@@ -384,5 +389,70 @@ describe("@gateway call records", function () {
         actor: "y"
       })
     ).to.deep.include({ type: "error", code: "not_found" });
+  });
+
+  it("publishes call and record events on the bus in bus mode (webhooks 2.2, 2.4)", async function () {
+    const onBus: Webhooks.WebhookEvent[] = [];
+    const sub = nc.subscribe(Webhooks.WEBHOOK_EVENTS_SUBJECT, {
+      callback: (_e, msg) => {
+        const e = Webhooks.parseBusEvent(msg.data);
+        if (e) onBus.push(e);
+      }
+    });
+    try {
+      await start([app()], {}, true);
+      const { roomRef } = harness.mediaNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      harness.mediaNode.callerHangup(roomRef);
+      await sealedRecord(roomRef);
+      await waitFor(() => onBus.find((e) => e.type === "call_record.sealed"));
+      const mine = onBus.filter(
+        (e) => (e.data as { callRef?: string }).callRef === roomRef
+      );
+      expect(mine.map((e) => e.type)).to.include.members([
+        "call.started",
+        "call.ended",
+        "call_record.sealed"
+      ]);
+      expect(mine.every((e) => e.workspaceRef === "ws-1")).to.equal(true);
+      expect(webhooks).to.deep.equal([]);
+    } finally {
+      sub.unsubscribe();
+    }
+  });
+
+  it("publishes each catalog id a session resolves once on registry.used (LO-B11)", async function () {
+    const used: Record<string, unknown>[] = [];
+    const sub = nc.subscribe(REGISTRY_USED_SUBJECT, {
+      callback: (_e, msg) => used.push(JSON.parse(sc.decode(msg.data)))
+    });
+    try {
+      await start([app()]);
+      const { roomRef } = harness.mediaNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      for (const id of ["s1", "s2"]) {
+        peer.sendJson({ type: "speak", id, text: "Hi.", last: true });
+        await waitFor(
+          () => json(peer).find((m) => m.type === "output.done" && m.id === id),
+          8000
+        );
+      }
+      harness.mediaNode.callerHangup(roomRef);
+      await waitFor(() => used.length > 0);
+      await sleep(100);
+      const mine = used.filter((u) => u.callRef === roomRef);
+      expect(mine).to.have.length(1);
+      expect(mine[0]).to.deep.include({
+        workspaceRef: "ws-1",
+        appRef: "a",
+        id: "fake/default",
+        resolvedId: "fake/default"
+      });
+      expect(mine[0]).to.not.have.property("event");
+    } finally {
+      sub.unsubscribe();
+    }
   });
 });

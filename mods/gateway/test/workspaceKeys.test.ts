@@ -18,6 +18,7 @@
  */
 import { expect } from "chai";
 import { Catalog } from "../src/speech/Catalog";
+import { chainKeySources } from "../src/speech/keySources";
 
 // Workspace vendor keys (add-provider-registry 3.2, build log CP-B12).
 
@@ -94,5 +95,34 @@ describe("@gateway/workspace vendor keys", function () {
     expect(key(catalog.resolveVoice("deepgram/aura", "WO1")!.adapter)).to.equal(
       "platform-key"
     );
+  });
+
+  it("resolves in order: cell secrets, then the workspace's key, then the platform key", async function () {
+    const cell = {
+      get: async (w: string, p: string) =>
+        w === "WO1" && p === "deepgram" ? "cell-key" : undefined
+    };
+    const db = {
+      get: async (w: string, p: string) =>
+        w === "WO1" ? `db-${p}-key` : undefined
+    };
+    const catalog = new Catalog(config, undefined, chainKeySources(cell, db));
+    await catalog.prepare("WO1");
+    await catalog.prepare("WO2");
+    expect(key(catalog.resolveVoice("deepgram/aura", "WO1")!.adapter)).to.equal(
+      "cell-key"
+    );
+    expect(
+      key(catalog.resolveVoice("elevenlabs/rachel", "WO1")!.adapter)
+    ).to.equal("db-elevenlabs-key");
+    expect(key(catalog.resolveVoice("deepgram/aura", "WO2")!.adapter)).to.equal(
+      "platform-key"
+    );
+    // No platform key for ElevenLabs and none in WO2: not offered.
+    expect(catalog.resolveVoice("elevenlabs/rachel", "WO2")).to.equal(
+      undefined
+    );
+    expect(chainKeySources(undefined, undefined)).to.equal(undefined);
+    expect(chainKeySources(undefined, db)).to.equal(db);
   });
 });

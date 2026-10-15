@@ -26,6 +26,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
+import { connect } from "nats";
 import { getConfig } from "../config";
 import {
   APISERVER_BIND_ADDR,
@@ -39,9 +40,12 @@ import {
   HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
   NATS_URL,
-  REGIONS
+  REGIONS,
+  SESSION_APPS,
+  WEBHOOKS
 } from "../envs";
 import { runOutboundCalls } from "../outbound";
+import { subscribeRegistryUsage } from "../providers";
 import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
 import {
   createSnapshotSources,
@@ -49,6 +53,10 @@ import {
   runRegions,
   withConfigChangeHook
 } from "../regions";
+import {
+  runWebhookFanout,
+  WebhookFanoutConfig
+} from "../webhooks/runWebhookFanout";
 import { allowList } from "./allowList";
 import { prisma } from "./db";
 import { httpBridge } from "./httpBridge";
@@ -120,6 +128,20 @@ async function runServices() {
     port: HTTP_BRIDGE_PORT,
     routers: [...records.routers, ...regions.routers]
   });
+
+  // Bus consumers: webhook fan-out (LO-B1) and the gateways' catalog use (LO-B11)
+  const bus = await connect({ servers: NATS_URL, maxReconnectAttempts: -1 });
+  subscribeRegistryUsage(bus, prisma);
+  if (WEBHOOKS.fanout) {
+    await runWebhookFanout(
+      {
+        ...(WEBHOOKS as WebhookFanoutConfig),
+        enabled: true,
+        allowInsecureUrls: SESSION_APPS.allowInsecureWebhooks
+      },
+      { nc: bus, db: prisma }
+    );
+  }
 
   // CreateCall: places API-originated calls on the media nodes (cleanbreak CB-B2)
   await runOutboundCalls({ natsUrl: NATS_URL });

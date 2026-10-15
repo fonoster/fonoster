@@ -42,6 +42,7 @@ import type {
   AudioCodec,
   Catalog,
   CatalogEntry,
+  CatalogWarning,
   Flavor,
   ListenerTrack,
   Patience,
@@ -119,11 +120,60 @@ export function validateApp(
   return errors;
 }
 
+/** One warning: what changed, what to use instead, and where this workspace uses it. */
+function warningText(w: CatalogWarning) {
+  const what = `${w.kind} ${w.id}`;
+  const instead = w.replacement ? ` Use ${w.replacement} instead.` : "";
+  const status =
+    w.state === "retired"
+      ? `The ${what} is retired and no replacement fits these settings; pick a new ${w.kind === "voice" ? "voice" : "model or voice"}.`
+      : `The ${what} is deprecated${w.retireOn ? ` and will be retired on ${w.retireOn}` : ""}.${instead}`;
+  const saved = w.usedBy.map(
+    (u) =>
+      `${u.name}${u.voice && u.voice !== w.id ? ` (voice ${u.voice})` : ""}`
+  );
+  const runtime = w.runtimeApps.filter(
+    (a) => !w.usedBy.some((u) => u.ref === a)
+  );
+  return { status, saved, runtime };
+}
+
+/** Deprecated or retired catalog items this workspace uses (add-provider-registry 4.2). */
+export function CatalogWarnings({ warnings }: { warnings: CatalogWarning[] }) {
+  if (!warnings.length) return null;
+  return (
+    <div className="flex flex-col gap-2" aria-label="Catalog warnings">
+      {warnings.map((w) => {
+        const t = warningText(w);
+        return (
+          <Alert
+            key={w.id}
+            variant={w.state === "retired" ? "error" : "warning"}
+          >
+            <p>{t.status}</p>
+            {t.saved.length > 0 && <p>Used by: {t.saved.join(", ")}.</p>}
+            {t.runtime.length > 0 && (
+              <p>
+                Calls of {t.runtime.join(", ")} used it in the last days (
+                {w.runtimeSessions} sessions).
+              </p>
+            )}
+          </Alert>
+        );
+      })}
+    </div>
+  );
+}
+
 export function AppsList() {
   const api = useSessionApi();
   const navigate = useNavigate();
   const { data, loading, error, reload } = useAsync(
     () => api.listApps(),
+    [api]
+  );
+  const warnings = useAsync(
+    () => api.listCatalogWarnings().catch(() => []),
     [api]
   );
   const add = (
@@ -165,7 +215,8 @@ export function AppsList() {
         description="An app is a WebSocket URL, a flavor and speech defaults. Numbers point to apps; Autopilot apps run on the hosted Autopilot."
         actions={(data?.length ?? 0) > 0 && add}
       />
-      <div className="px-4 pb-8 sm:px-8">
+      <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
+        <CatalogWarnings warnings={warnings.data ?? []} />
         <DataTable
           label="Apps"
           columns={columns}

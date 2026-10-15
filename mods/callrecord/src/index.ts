@@ -18,7 +18,9 @@
  */
 export * from "./CallRecordWriter";
 export * from "./analytics";
+export * from "./clickhouse";
 export * from "./indexEntry";
+export * from "./keys";
 export * from "./objectStore";
 export * from "./recording";
 export * from "./redact";

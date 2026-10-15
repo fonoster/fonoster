@@ -44,20 +44,25 @@ export function contentHash(data: Buffer): string {
   return `sha512-${createHash("sha512").update(data).digest("base64url")}`;
 }
 
-export function signVcon(vcon: Vcon, key: SigningKey): SignedVcon {
-  const header = b64url(
+/** The protected JWS header of a record signed with `kid` (and `jku`, when published). */
+function protectedHeader(kid: string, jku?: string) {
+  return b64url(
     JSON.stringify({
       alg: "ES256",
       typ: "vcon+jws",
-      kid: key.kid,
-      ...(key.jku ? { jku: key.jku } : {})
+      kid,
+      ...(jku ? { jku } : {})
     })
   );
-  const payload = b64url(JSON.stringify(vcon));
-  const signature = cryptoSign("sha256", Buffer.from(`${header}.${payload}`), {
-    key: createPrivateKey(key.privateKeyPem),
-    dsaEncoding: "ieee-p1363"
-  });
+}
+
+function assemble(
+  vcon: Vcon,
+  header: string,
+  payload: string,
+  kid: string,
+  signature: Buffer
+): SignedVcon {
   return {
     payload,
     signatures: [
@@ -65,11 +70,53 @@ export function signVcon(vcon: Vcon, key: SigningKey): SignedVcon {
         protected: header,
         signature: b64url(signature),
         // draft-04 5.2.2 also asks for x5c or x5u (a certificate chain); see build-log.md.
-        header: { kid: key.kid, uuid: vcon.uuid }
+        header: { kid, uuid: vcon.uuid }
       }
     ]
   };
 }
+
+/** ES256 over `input` with a PEM private key (raw r||s, as JWS wants it). */
+export function es256(privateKeyPem: string, input: Buffer): Buffer {
+  return cryptoSign("sha256", input, {
+    key: createPrivateKey(privateKeyPem),
+    dsaEncoding: "ieee-p1363"
+  });
+}
+
+export function signVcon(vcon: Vcon, key: SigningKey): SignedVcon {
+  const header = protectedHeader(key.kid, key.jku);
+  const payload = b64url(JSON.stringify(vcon));
+  const signature = es256(
+    key.privateKeyPem,
+    Buffer.from(`${header}.${payload}`)
+  );
+  return assemble(vcon, header, payload, key.kid, signature);
+}
+
+/**
+ * Signs through a key custody (task 2.6): the custody names the current key and signs, so the
+ * private key may live in a file, a KMS or Vault and never reach this process.
+ */
+export async function signVconWith(
+  vcon: Vcon,
+  custody: KeyCustodyLike
+): Promise<SignedVcon> {
+  const { kid, jku } = custody.current();
+  const header = protectedHeader(kid, jku);
+  const payload = b64url(JSON.stringify(vcon));
+  const signature = await custody.sign(
+    kid,
+    Buffer.from(`${header}.${payload}`)
+  );
+  return assemble(vcon, header, payload, kid, signature);
+}
+
+/** See `KeyCustody` in keys.ts (declared here to keep sign.ts free of file access). */
+export type KeyCustodyLike = {
+  current(): { kid: string; jku?: string };
+  sign(kid: string, input: Buffer): Promise<Buffer>;
+};
 
 export function decodeVcon(signed: SignedVcon): Vcon {
   return JSON.parse(Buffer.from(signed.payload, "base64url").toString());

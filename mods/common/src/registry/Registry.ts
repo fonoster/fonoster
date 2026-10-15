@@ -65,6 +65,8 @@ export type RegistryOptions = {
   /** Allows the fake adapter (test deployments only; conformance "Implementations ship fake adapters"). */
   testMode?: boolean;
   now?: () => Date;
+  /** The command line that made the change, stored in every audit entry (spec "Every write is audited"). */
+  commandLine?: string;
 };
 
 const noUsages: UsageSource = {
@@ -95,7 +97,9 @@ export class Registry {
       actor: this.options.actor ?? process.env.USER ?? "operator",
       action,
       target,
-      details
+      details: this.options.commandLine
+        ? { command: this.options.commandLine, ...details }
+        : details
     });
   }
 
@@ -164,7 +168,7 @@ export class Registry {
       state: "active"
     };
     this.store.put(entry);
-    this.audit("add-provider", entry.id, { entry });
+    this.audit("add-provider", entry.id, { entry, before: null, after: entry });
     return entry;
   }
 
@@ -195,7 +199,7 @@ export class Registry {
       state: "active"
     };
     this.store.put(entry);
-    this.audit("add-model", entry.id, { entry });
+    this.audit("add-model", entry.id, { entry, before: null, after: entry });
     return entry;
   }
 
@@ -225,7 +229,7 @@ export class Registry {
       state: "active"
     };
     this.store.put(entry);
-    this.audit("add-voice", entry.id, { entry });
+    this.audit("add-voice", entry.id, { entry, before: null, after: entry });
     return entry;
   }
 
@@ -333,8 +337,19 @@ export class Registry {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(retireOn))
       throw new RegistryError("--retire-on must be a date (YYYY-MM-DD)");
     const report = this.impact(id, replacement);
-    this.store.put({ ...item, state: "deprecated", replacement, retireOn });
-    this.audit(`deprecate-${kind}`, id, { replacement, retireOn });
+    const after = {
+      ...item,
+      state: "deprecated" as const,
+      replacement,
+      retireOn
+    };
+    this.store.put(after);
+    this.audit(`deprecate-${kind}`, id, {
+      replacement,
+      retireOn,
+      before: item,
+      after
+    });
     const workspaces = new Set(this.usages.find(id).map((u) => u.workspace));
     // One provider.deprecated notice per workspace (sent as a workspace webhook by the apiserver).
     for (const w of workspaces)
@@ -388,8 +403,11 @@ export class Registry {
         replacement: item.replacement
       });
     }
-    this.store.put({ ...item, state: "retired" });
+    const after = { ...item, state: "retired" as const };
+    this.store.put(after);
     this.audit(`retire-${kind}`, id, {
+      before: item,
+      after,
       replacement: item.replacement,
       unmappable: report.unmappable.length
     });
@@ -468,8 +486,13 @@ export class Registry {
   apply(file: string): string[] {
     const changes = this.diff(file);
     for (const c of changes) {
+      const before = this.store.get(c.entry.id) ?? null;
       this.store.put(c.entry);
-      this.audit("apply", c.entry.id, { change: c.line });
+      this.audit("apply", c.entry.id, {
+        change: c.line,
+        before,
+        after: c.entry
+      });
     }
     return changes.length ? changes.map((c) => c.line) : ["no changes"];
   }

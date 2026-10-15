@@ -50,11 +50,31 @@ export interface Think {
 
 export type ThinkProvider = { baseUrl: string; apiKey?: string };
 
+/**
+ * A language model vendor failed, named like the session error codes (registry "vendor errors
+ * map to provider_unavailable", task 1.5): unreachable or 401/403/429/5xx → provider_unavailable,
+ * 400/422 → bad_message. An abort is not a provider error and is rethrown as it is.
+ */
+export class ThinkError extends Error {
+  constructor(
+    readonly code: "provider_unavailable" | "provider_timeout" | "bad_message",
+    message: string
+  ) {
+    super(message);
+    this.name = "ThinkError";
+  }
+}
+
 export class OpenAiCompatibleThink implements Think {
   constructor(
     private readonly provider: ThinkProvider,
     private readonly model: string,
-    private readonly options: { temperature: number; maxTokens: number }
+    private readonly options: {
+      temperature: number;
+      maxTokens: number;
+      /** Ask for a JSON object reply (catalog feature `json-mode`). */
+      jsonMode?: boolean;
+    }
   ) {}
 
   async *stream(
@@ -70,31 +90,61 @@ export class OpenAiCompatibleThink implements Think {
       messages: messages.map(toOpenAi),
       ...(tools.length
         ? { tools: tools.map((t) => ({ type: "function", function: t })) }
+        : {}),
+      ...(this.options.jsonMode
+        ? { response_format: { type: "json_object" } }
         : {})
     };
-    const res = await fetch(
-      `${this.provider.baseUrl.replace(/\/$/, "")}/v1/chat/completions`,
-      {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          ...(this.provider.apiKey
-            ? { authorization: `Bearer ${this.provider.apiKey}` }
-            : {})
-        },
-        body: JSON.stringify(body),
-        signal
-      }
-    );
+    let res: Awaited<ReturnType<typeof fetch>>;
+    try {
+      res = await fetch(
+        `${this.provider.baseUrl.replace(/\/$/, "")}/v1/chat/completions`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            ...(this.provider.apiKey
+              ? { authorization: `Bearer ${this.provider.apiKey}` }
+              : {})
+          },
+          body: JSON.stringify(body),
+          signal
+        }
+      );
+    } catch (e) {
+      if (signal.aborted) throw e;
+      throw new ThinkError(
+        "provider_unavailable",
+        `language model unreachable: ${(e as Error).message}`
+      );
+    }
+    if (res.status === 400 || res.status === 422)
+      throw new ThinkError(
+        "bad_message",
+        `language model rejected the request (HTTP ${res.status})`
+      );
     if (!res.ok || !res.body)
-      throw new Error(`language model answered HTTP ${res.status}`);
+      throw new ThinkError(
+        "provider_unavailable",
+        `language model answered HTTP ${res.status}`
+      );
 
     const calls = new Map<number, ToolCall>();
     const decoder = new TextDecoder();
     let buffer = "";
     const reader = res.body.getReader();
     for (;;) {
-      const { done, value } = await reader.read();
+      let next: Awaited<ReturnType<typeof reader.read>>;
+      try {
+        next = await reader.read();
+      } catch (e) {
+        if (signal.aborted) throw e;
+        throw new ThinkError(
+          "provider_unavailable",
+          `language model stream failed: ${(e as Error).message}`
+        );
+      }
+      const { done, value } = next;
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
       let newline: number;

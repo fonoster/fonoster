@@ -150,9 +150,14 @@ export type GatewayConfig = {
   cellSecrets?: { file?: string; dir?: string; keyEnv?: string };
   /** Where apps come from: `yaml` (the `apps` list, default) or `database` (applications rows). */
   appStore?: { source: "yaml" | "database"; cacheMs?: number };
-  /** Workspace webhooks (add-workspace-webhooks) from the database's endpoints. */
+  /**
+   * Workspace webhooks (add-workspace-webhooks). `transport: database` (default) delivers from
+   * here using the database's endpoints; `transport: bus` only publishes events on NATS
+   * (`webhooks.events`) for the control plane's fan-out and needs no database (LO-B1).
+   */
   webhooks?: {
     enabled: boolean;
+    transport?: "database" | "bus";
     /** How often due deliveries are attempted (default 1 s). */
     intervalMs?: number;
     /** How often endpoints are reloaded and orphaned deliveries adopted (default 30 s). */
@@ -168,8 +173,17 @@ export type GatewayConfig = {
   callRecord?: {
     dir: string;
     region: string;
-    /** jku: the HTTPS URL where this region's key set is published (KEY_SET_PATH on the gateway). */
-    signingKey: { kid: string; privateKeyFile: string; jku?: string };
+    /**
+     * The region's signing key: `dir`, a key directory managed with `fonoster-callrecord keys
+     * rotate` (rotation without restart), or one fixed key (`kid` + `privateKeyFile`). jku: the
+     * HTTPS URL where this region's key set is published (KEY_SET_PATH on the gateway).
+     */
+    signingKey: {
+      kid?: string;
+      privateKeyFile?: string;
+      dir?: string;
+      jku?: string;
+    };
     /** Earlier keys, still published so old records verify after rotation. */
     keyHistory?: { kid: string; publicKeyFile: string }[];
     /** How often to seal records of calls whose gateway died (default 10 s). */
@@ -190,6 +204,19 @@ export type GatewayConfig = {
     consentPrompt?: string;
     /** Base URL of the records API, for the link in `call_record.sealed` (default /api/records). */
     recordUrl?: string;
+    /**
+     * Analytics (task 6.1, optional): every sealed version's redacted copy is loaded into
+     * ClickHouse. Credentials come from the named environment variables.
+     */
+    analytics?: {
+      clickhouse: {
+        url: string;
+        database?: string;
+        table?: string;
+        userEnv?: string;
+        passwordEnv?: string;
+      };
+    };
   };
   /** Enables the `fake` adapters (conformance "Implementations ship fake provider adapters"). */
   testMode?: boolean;
@@ -260,7 +287,9 @@ export function validateConfig(config: GatewayConfig): string[] {
   const needsDb = [
     config.appStore?.source === "database" && "appStore.source: database",
     config.registry?.source === "database" && "registry.source: database",
-    config.webhooks?.enabled && "webhooks",
+    config.webhooks?.enabled &&
+      config.webhooks.transport !== "bus" &&
+      "webhooks",
     config.workspaceKeys?.enabled && "workspaceKeys"
   ].filter(Boolean);
   if (needsDb.length && !databaseUrl(config))
@@ -274,6 +303,12 @@ export function validateConfig(config: GatewayConfig): string[] {
   if (config.appStore && !["yaml", "database"].includes(config.appStore.source))
     problems.push(`appStore: unknown source ${config.appStore.source}`);
   const cr = config.callRecord;
+  if (
+    cr &&
+    !cr.signingKey?.dir &&
+    !(cr.signingKey?.kid && cr.signingKey?.privateKeyFile)
+  )
+    problems.push("callRecord.signingKey: set dir, or kid and privateKeyFile");
   for (const policy of [
     cr?.recording,
     ...Object.values(cr?.workspaces ?? {}).map((w) => w.recording)

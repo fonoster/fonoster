@@ -182,8 +182,19 @@ export class DeepgramSttStream extends EventEmitter implements SttStream {
     let msg: {
       type?: string;
       is_final?: boolean;
+      start?: number;
+      duration?: number;
       channel?: {
-        alternatives?: { transcript?: string; confidence?: number }[];
+        alternatives?: {
+          transcript?: string;
+          confidence?: number;
+          words?: {
+            word: string;
+            punctuated_word?: string;
+            start: number;
+            end: number;
+          }[];
+        }[];
       };
     };
     try {
@@ -201,6 +212,18 @@ export class DeepgramSttStream extends EventEmitter implements SttStream {
       language: this.language,
       confidence: alt.confidence ?? 0
     };
+    // Word timings (catalog feature `word-timings`), in ms from the start of this vendor stream.
+    const ms = (sec: unknown) => Math.round(Number(sec) * 1000);
+    if (typeof msg.start === "number" && typeof msg.duration === "number") {
+      t.startMs = ms(msg.start);
+      t.endMs = ms(msg.start + msg.duration);
+    }
+    if (Array.isArray(alt.words) && alt.words.length)
+      t.words = alt.words.map((w) => ({
+        word: w.punctuated_word ?? w.word,
+        startMs: ms(w.start),
+        endMs: ms(w.end)
+      }));
     this.emit("transcript", t);
   }
 

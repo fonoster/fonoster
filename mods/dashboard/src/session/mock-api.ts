@@ -20,12 +20,34 @@ import type {
   CallRecord,
   CallRecordSummary,
   Catalog,
+  CatalogWarning,
   SessionApi,
   SessionApp,
   VendorKey,
   Webhook,
   WebhookDelivery
 } from "./types";
+
+/** The mock workspace uses one deprecated STT model (the warnings on the Apps page). */
+export const catalogWarnings: CatalogWarning[] = [
+  {
+    id: "deepgram/nova-2",
+    kind: "model",
+    state: "deprecated",
+    replacement: "deepgram/nova-3",
+    retireOn: "2027-01-31",
+    usedBy: [
+      {
+        kind: "app",
+        ref: "support-line",
+        name: "Support line",
+        field: "sttModel"
+      }
+    ],
+    runtimeApps: [],
+    runtimeSessions: 0
+  }
+];
 
 export const catalog: Catalog = {
   voices: [
@@ -258,6 +280,7 @@ export function createMockSessionApi(): SessionApi {
       apps.delete(ref);
     },
     getCatalog: async () => catalog,
+    listCatalogWarnings: async () => catalogWarnings,
     listCalls: async () => calls.map(summary),
     getCall: async (ref) => calls.find((c) => c.callRef === ref),
     recordingUrl: async (ref) => `blob:recording-${ref}`,

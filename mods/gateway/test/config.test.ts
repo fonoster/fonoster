@@ -30,7 +30,8 @@ import { generateKeyPairSync } from "crypto";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { keyHistoryFromSet } from "@fonoster/callrecord";
+import { FileKeyCustody, keyHistoryFromSet } from "@fonoster/callrecord";
+import { keyCustody } from "../src/record/keyCustody";
 import { keySetHandler } from "../src/http/keySetRoute";
 
 const base = (): GatewayConfig => ({
@@ -227,5 +228,45 @@ describe("@gateway/call-record key set", function () {
     expect(() => loadConfig(file)).to.throw(
       /providers\.deepgram\.credential\.value: secret:\/\/k8s\/fonoster\/fonoster-deepgram#key: cannot read/
     );
+  });
+
+  it("publishes a key directory's keys and picks up a rotation (LO-B5)", async function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gw-keys-"));
+    const keys = path.join(dir, "keys");
+    FileKeyCustody.rotate(keys, { kid: "eu-1" });
+    const config = {
+      dir,
+      region: "eu",
+      signingKey: { dir: keys }
+    };
+    expect(
+      validateConfig({
+        nats: { url: "nats://x" },
+        callRecord: config
+      } as GatewayConfig)
+    ).to.deep.equal([]);
+    expect(
+      validateConfig({
+        nats: { url: "nats://x" },
+        callRecord: { dir, region: "eu", signingKey: { kid: "x" } }
+      } as GatewayConfig)
+    ).to.include("callRecord.signingKey: set dir, or kid and privateKeyFile");
+    const custody = keyCustody(config);
+    expect(custody.current().kid).to.equal("eu-1");
+    FileKeyCustody.rotate(keys, { kid: "eu-2" });
+    expect(custody.current().kid).to.equal("eu-2");
+    const server = http.createServer(keySetHandler(config)!);
+    await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+    const set = await (
+      await fetch(
+        `http://127.0.0.1:${(server.address() as AddressInfo).port}/.well-known/call-record-keys.json`
+      )
+    ).json();
+    server.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+    expect(set.keys.map((k: { kid: string }) => k.kid).sort()).to.deep.equal([
+      "eu-1",
+      "eu-2"
+    ]);
   });
 });

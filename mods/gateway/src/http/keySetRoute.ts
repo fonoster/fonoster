@@ -16,11 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createPublicKey } from "crypto";
-import * as fs from "fs";
 import * as http from "http";
 import { keySet } from "@fonoster/callrecord";
 import { GatewayConfig } from "../config";
+import { keyCustody } from "../record/keyCustody";
 
 /** Where the region's call-record keys are published (the records' jku points here). */
 export const KEY_SET_PATH = "/.well-known/call-record-keys.json";
@@ -33,20 +32,19 @@ export function keySetHandler(
   config: GatewayConfig["callRecord"]
 ): http.RequestListener | undefined {
   if (!config) return undefined;
-  const history: Record<string, string> = {};
-  for (const k of config.keyHistory ?? [])
-    history[k.kid] = fs.readFileSync(k.publicKeyFile, "utf8");
-  history[config.signingKey.kid] = createPublicKey(
-    fs.readFileSync(config.signingKey.privateKeyFile, "utf8")
-  )
-    .export({ type: "spki", format: "pem" })
-    .toString();
-  const body = JSON.stringify(keySet(history));
+  const custody = keyCustody(config);
+  // Rebuilt at most every 5 s, so a rotation shows up without a restart.
+  let cached: { at: number; body: string } | undefined;
   return (_req, res) => {
+    if (!cached || Date.now() - cached.at > 5000)
+      cached = {
+        at: Date.now(),
+        body: JSON.stringify(keySet(custody.publicKeys()))
+      };
     res.writeHead(200, {
       "content-type": "application/jwk-set+json",
       "cache-control": "public, max-age=300"
     });
-    res.end(body);
+    res.end(cached.body);
   };
 }

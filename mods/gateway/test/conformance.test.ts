@@ -25,6 +25,7 @@ import {
   runScenario
 } from "@fonoster/conformance";
 import { Gateway, GatewayConfig, MemoryCallRecordSink } from "../src";
+import { catalogFor } from "./scenarioCatalog";
 
 // The conformance suites for voice-session and twilio-media-streams-flavor, run against this
 // gateway with the fakes. Needs NATS: set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
@@ -101,7 +102,8 @@ for (const contract of [
         const gateway = await new Gateway({
           config: configFor(scenario, harness),
           nats: nc,
-          record
+          record,
+          registryStore: catalogFor(scenario)
         }).start();
         try {
           const result = await runScenario(scenario, {

@@ -39,6 +39,8 @@ import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import { GatewayConfig } from "../src/config";
 import { Gateway } from "../src/Gateway";
+import { MemoryCallRecordSink } from "../src/record/CallRecordSink";
+import { catalogFor } from "./scenarioCatalog";
 
 // The voice-session suite through the gateway, the Go media node and a SIP caller bot: real SIP,
 // RTP and media-control end to end (add-media-node 3.x, the first-call milestone). Needs NATS
@@ -102,12 +104,20 @@ describe("@gateway voice-session through the Go media node", function () {
   for (const scenario of scenarios) {
     it(scenario.name, async function () {
       if (NOT_YET[scenario.name]) return this.skip();
+      const record = new MemoryCallRecordSink();
       const harness = await new RealMediaHarness(nc, bins!, {
-        vendorCalls: () => 0
+        vendorCalls: () => 0,
+        recordEvents: (type) =>
+          [...record.records.values()]
+            .flat()
+            .filter((e) => e.source === "event" && e.message.type === type)
+            .map((e) => e.message as Record<string, unknown>)
       }).start();
       const gateway = await new Gateway({
         config: configFor(scenario, harness),
-        nats: nc
+        registryStore: catalogFor(scenario),
+        nats: nc,
+        record
       }).start();
       try {
         const result = await runScenario(scenario, {

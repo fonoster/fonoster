@@ -88,6 +88,28 @@ function deserialize_fonoster_providers_v1beta2_ListProviderKeysResponse(buffer_
   return providers_pb.ListProviderKeysResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_providers_v1beta2_ListWarningsRequest(arg) {
+  if (!(arg instanceof providers_pb.ListWarningsRequest)) {
+    throw new Error('Expected argument of type fonoster.providers.v1beta2.ListWarningsRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_providers_v1beta2_ListWarningsRequest(buffer_arg) {
+  return providers_pb.ListWarningsRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_providers_v1beta2_ListWarningsResponse(arg) {
+  if (!(arg instanceof providers_pb.ListWarningsResponse)) {
+    throw new Error('Expected argument of type fonoster.providers.v1beta2.ListWarningsResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_providers_v1beta2_ListWarningsResponse(buffer_arg) {
+  return providers_pb.ListWarningsResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_providers_v1beta2_ProviderKey(arg) {
   if (!(arg instanceof providers_pb.ProviderKey)) {
     throw new Error('Expected argument of type fonoster.providers.v1beta2.ProviderKey');
@@ -160,6 +182,18 @@ deleteProviderKey: {
     requestDeserialize: deserialize_fonoster_providers_v1beta2_DeleteProviderKeyRequest,
     responseSerialize: serialize_fonoster_providers_v1beta2_DeleteProviderKeyResponse,
     responseDeserialize: deserialize_fonoster_providers_v1beta2_DeleteProviderKeyResponse,
+  },
+  // Deprecated or retired items this workspace uses, with where they are used
+listWarnings: {
+    path: '/fonoster.providers.v1beta2.Providers/ListWarnings',
+    requestStream: false,
+    responseStream: false,
+    requestType: providers_pb.ListWarningsRequest,
+    responseType: providers_pb.ListWarningsResponse,
+    requestSerialize: serialize_fonoster_providers_v1beta2_ListWarningsRequest,
+    requestDeserialize: deserialize_fonoster_providers_v1beta2_ListWarningsRequest,
+    responseSerialize: serialize_fonoster_providers_v1beta2_ListWarningsResponse,
+    responseDeserialize: deserialize_fonoster_providers_v1beta2_ListWarningsResponse,
   },
 };
 

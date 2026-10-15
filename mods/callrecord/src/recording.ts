@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createHash } from "crypto";
 import * as dgram from "dgram";
 import * as fs from "fs";
 import * as path from "path";
@@ -29,6 +30,8 @@ import * as path from "path";
 export const RECORDING_RATE = 16000;
 export const RECORDING_CODEC = "L16/16000";
 export const RECORDING_PART = "recording.wav";
+/** The recording with redacted spans beeped, referenced by the redacted copy (LO-B9). */
+export const REDACTED_RECORDING_PART = "recording.redacted.wav";
 export const RECORDING_SIDES = ["caller", "agent"] as const;
 export type RecordingSide = (typeof RECORDING_SIDES)[number];
 
@@ -206,6 +209,159 @@ export function assembleRecording(
     startedAt: meta.startedAt,
     durationMs: Math.round((samples * 1000) / meta.rate)
   };
+}
+
+/** Samples per side per chunk when streaming the WAV (64 Ki samples: 256 KiB of output). */
+const CHUNK_SAMPLES = 65536;
+
+/**
+ * Like `assembleRecording`, but streams the stereo WAV to `outFile` chunk by chunk and hashes it
+ * on the way, so a long recording never sits in memory (LO-B7). Returns the file part's facts.
+ */
+export function assembleRecordingFile(
+  dir: string,
+  outFile: string
+):
+  | {
+      file: string;
+      size: number;
+      content_hash: string;
+      startedAt: number;
+      durationMs: number;
+    }
+  | undefined {
+  const metaFile = path.join(dir, "meta.json");
+  if (!fs.existsSync(metaFile)) return undefined;
+  const meta = JSON.parse(fs.readFileSync(metaFile, "utf8")) as RecordingMeta;
+  const open = (side: RecordingSide) => {
+    const f = path.join(dir, `${side}.pcm`);
+    if (!fs.existsSync(f)) return { fd: -1, samples: 0 };
+    return {
+      fd: fs.openSync(f, "r"),
+      samples: Math.floor(fs.statSync(f).size / 2)
+    };
+  };
+  const left = open("caller");
+  const right = open("agent");
+  const samples = Math.max(left.samples, right.samples);
+  const close = () =>
+    [left.fd, right.fd]
+      .filter((fd) => fd >= 0)
+      .forEach((fd) => fs.closeSync(fd));
+  if (samples === 0) {
+    close();
+    return undefined;
+  }
+  const hash = createHash("sha512");
+  const out = fs.openSync(outFile, "w");
+  const write = (b: Buffer) => {
+    fs.writeSync(out, b);
+    hash.update(b);
+  };
+  try {
+    write(wavHeader(samples * 4, 2, meta.rate));
+    const l = Buffer.alloc(CHUNK_SAMPLES * 2);
+    const r = Buffer.alloc(CHUNK_SAMPLES * 2);
+    for (let start = 0; start < samples; start += CHUNK_SAMPLES) {
+      const n = Math.min(CHUNK_SAMPLES, samples - start);
+      const read = (side: { fd: number; samples: number }, buf: Buffer) => {
+        buf.fill(0, 0, n * 2);
+        const want = Math.max(0, Math.min(n, side.samples - start));
+        if (side.fd >= 0 && want > 0)
+          fs.readSync(side.fd, buf, 0, want * 2, start * 2);
+      };
+      read(left, l);
+      read(right, r);
+      const data = Buffer.alloc(n * 4);
+      for (let i = 0; i < n; i++) {
+        data.writeInt16LE(l.readInt16LE(i * 2), i * 4);
+        data.writeInt16LE(r.readInt16LE(i * 2), i * 4 + 2);
+      }
+      write(data);
+    }
+    fs.fsyncSync(out);
+  } finally {
+    fs.closeSync(out);
+    close();
+  }
+  return {
+    file: outFile,
+    size: 44 + samples * 4,
+    content_hash: `sha512-${hash.digest("base64url")}`,
+    startedAt: meta.startedAt,
+    durationMs: Math.round((samples * 1000) / meta.rate)
+  };
+}
+
+/** A stretch of one side to beep, in ms from the start of the recording. */
+export type BeepSpan = { side: RecordingSide; fromMs: number; toMs: number };
+
+const BEEP_HZ = 1000;
+const BEEP_AMPLITUDE = 6000;
+
+/**
+ * Copies a stereo recording (left caller, right agent) to `outFile` with every span replaced by
+ * a 1 kHz tone on its side (redaction beeps, LO-B9), streaming and hashing like
+ * `assembleRecordingFile`. The other side of a span is untouched.
+ */
+export function beepRecordingFile(
+  source: string,
+  outFile: string,
+  spans: BeepSpan[]
+): { file: string; size: number; content_hash: string } {
+  const input = fs.openSync(source, "r");
+  const out = fs.openSync(outFile, "w");
+  const hash = createHash("sha512");
+  const write = (b: Buffer) => {
+    fs.writeSync(out, b);
+    hash.update(b);
+  };
+  try {
+    const header = Buffer.alloc(44);
+    fs.readSync(input, header, 0, 44, 0);
+    const channels = header.readUInt16LE(22);
+    const rate = header.readUInt32LE(24);
+    write(header);
+    const frameBytes = channels * 2;
+    const ranges = spans.map((s) => ({
+      channel: s.side === "caller" ? 0 : 1,
+      from: Math.max(0, Math.floor((s.fromMs * rate) / 1000)),
+      to: Math.ceil((s.toMs * rate) / 1000)
+    }));
+    const size = fs.fstatSync(input).size;
+    const chunk = Buffer.alloc(CHUNK_SAMPLES * frameBytes);
+    let frame = 0;
+    for (let pos = 44; pos < size; ) {
+      const n = fs.readSync(input, chunk, 0, chunk.length, pos);
+      if (n <= 0) break;
+      const data = chunk.subarray(0, n);
+      const frames = Math.floor(n / frameBytes);
+      for (const r of ranges) {
+        if (r.channel >= channels) continue;
+        const a = Math.max(r.from, frame);
+        const b = Math.min(r.to, frame + frames);
+        for (let i = a; i < b; i++)
+          data.writeInt16LE(
+            Math.round(
+              BEEP_AMPLITUDE * Math.sin((2 * Math.PI * BEEP_HZ * i) / rate)
+            ),
+            (i - frame) * frameBytes + r.channel * 2
+          );
+      }
+      write(data);
+      frame += frames;
+      pos += n;
+    }
+    fs.fsyncSync(out);
+    return {
+      file: outFile,
+      size,
+      content_hash: `sha512-${hash.digest("base64url")}`
+    };
+  } finally {
+    fs.closeSync(input);
+    fs.closeSync(out);
+  }
 }
 
 /** Splits a stereo 16-bit WAV into its channels (for tests and tools). */

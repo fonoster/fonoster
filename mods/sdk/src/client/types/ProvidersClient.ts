@@ -23,6 +23,8 @@ import {
   ListCatalogResponse,
   ListProviderKeysRequest,
   ListProviderKeysResponse,
+  ListWarningsRequest,
+  ListWarningsResponse,
   ProviderKey,
   SetProviderKeyRequest
 } from "../../generated/web/providers_pb";
@@ -39,6 +41,7 @@ type ProvidersClient = {
     DeleteProviderKeyRequest,
     DeleteProviderKeyResponse
   >;
+  listWarnings: ClientFunction<ListWarningsRequest, ListWarningsResponse>;
 };
 
 export { ProvidersClient };

@@ -98,3 +98,31 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - `--event` choices come from `WEBHOOK_EVENT_TYPES` in `@fonoster/common`, so a typo fails
   before the API call.
 - Tests: `mods/ctl/test/webhooks`.
+## 2026-10-15 (leftovers stream)
+
+### LO-B1. Fan-out from the event bus (task 2.2)
+
+- Producers without a database publish v1 events on NATS `webhooks.events` (`Webhooks.
+  busWebhookPublisher`). The apiserver consumes them in queue group `apiserver-webhooks` (one
+  replica per event), stores one delivery per subscribed endpoint, attempts it at once and retries
+  due deliveries every second (`webhooks: {fanout, intervalMs, refreshMs}` in the apiserver config,
+  fan-out on by default; endpoints reloaded every 10 s, overdue deliveries adopted as in P-B6).
+- An event with an empty (or `default`) `workspaceRef` and a `data.appRef` gets the app's workspace
+  (`applications.access_key_id`, cached 60 s); one whose app is unknown is dropped.
+- Malformed messages, unknown types and ids not shaped `evt_…` are dropped. Anyone on NATS can
+  publish there (same trust as `callrecord.sealed`, RV-B6); a forged event would reach only the
+  named workspace's own endpoints.
+- Gateway `webhooks: {enabled: true, transport: bus}` publishes call.started/ended/failed and
+  call_record.sealed on the bus and needs no database; `transport: database` (default) keeps the
+  P-B7 behaviour.
+
+### LO-B2. Producers complete (task 2.4)
+
+- Media node (Go): a call no gateway claims (503) publishes `call.failed` with `reason:
+  node_error`, the app from `X-App-Ref` and an empty workspace (the node does not know it; the
+  fan-out fills it in). Calls without an app produce nothing.
+- Record writer: `call_record.sealed` is sent by the gateway that sealed (R-B8), on the bus in bus
+  mode. Registry utility: `provider.deprecated` (P-B3), unchanged.
+- Tests: `mods/common/test/webhooks/bus.test.ts`, `mods/apiserver/test/webhooks/fanout.test.ts`
+  (Postgres + NATS), gateway `records.test.ts` (bus mode), Go `TestUnclaimedCallGets503`.
+

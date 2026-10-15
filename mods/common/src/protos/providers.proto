@@ -30,6 +30,8 @@ service Providers {
   rpc ListProviderKeys(ListProviderKeysRequest) returns (ListProviderKeysResponse) {}
   // Remove the workspace's key for a provider (and its Secret)
   rpc DeleteProviderKey(DeleteProviderKeyRequest) returns (DeleteProviderKeyResponse) {}
+  // Deprecated or retired items this workspace uses, with where they are used
+  rpc ListWarnings(ListWarningsRequest) returns (ListWarningsResponse) {}
 }
 
 message CatalogItem {
@@ -96,4 +98,38 @@ message DeleteProviderKeyRequest {
 
 message DeleteProviderKeyResponse {
   string provider_id = 1;
+}
+
+message WarningUse {
+  // app or assistant
+  string kind = 1;
+  string ref = 2;
+  string name = 3;
+  // The config field naming the item: voice, ttsModel, sttModel or llm
+  string field = 4;
+  // For a TTS model: the voice the config uses with it (e.g. the workspace's cloned voice)
+  string voice = 5;
+}
+
+message Warning {
+  string id = 1;
+  // provider, model or voice
+  string kind = 2;
+  // deprecated or retired
+  string state = 3;
+  string replacement = 4;
+  string retire_on = 5;
+  // Saved configs that reference the item
+  repeated WarningUse used_by = 6;
+  // Apps whose sessions used it in the last days, including ids no saved config names
+  repeated string runtime_apps = 7;
+  int32 runtime_sessions = 8;
+  // ISO 8601; empty without recent runtime use
+  string last_used_at = 9;
+}
+
+message ListWarningsRequest {}
+
+message ListWarningsResponse {
+  repeated Warning items = 1;
 }

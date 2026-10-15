@@ -21,7 +21,8 @@
     "@fonoster/logger": "^0.27.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "schema"
   ],
   "publishConfig": {
     "access": "public"
@@ -32,5 +33,11 @@
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "bin": {
+    "fonoster-callrecord": "dist/cli.js"
+  },
+  "devDependencies": {
+    "ajv": "^8.18.0"
   }
 }
