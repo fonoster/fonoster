@@ -120,10 +120,25 @@ describe("@region-agent database snapshot (needs PERSISTENCE_TEST_DATABASE_URL)"
     const r2 = await applier.apply(
       snapshot(2, {
         apps: [snapshot(1).kinds.apps![0]],
-        webhooks: []
+        webhooks: [],
+        // The control plane's shape (RG-B4): retention lands in call_record_retention.
+        recordingPolicy: {
+          recordings: true,
+          retention: [{ part: "recording", days: 30 }]
+        }
       })
     );
-    expect(r2).to.include({ apps: 1, removedApps: 1, removedWebhooks: 1 });
+    expect(r2).to.include({
+      apps: 1,
+      removedApps: 1,
+      removedWebhooks: 1,
+      retention: 1
+    });
+    expect(
+      await db!.prisma.callRecordRetention.findMany({
+        select: { accessKeyId: true, part: true, days: true }
+      })
+    ).to.deep.equal([{ accessKeyId: WS, part: "recording", days: 30 }]);
     expect(await db!.prisma.application.count()).to.equal(1);
     expect(await db!.prisma.intelligence.count()).to.equal(0);
   });

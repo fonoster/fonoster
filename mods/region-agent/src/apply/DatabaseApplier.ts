@@ -79,6 +79,7 @@ export type ApplyResult = {
   catalog: number;
   webhooks: number;
   removedWebhooks: number;
+  retention?: number;
 };
 
 /** An API-shaped app (`speech: {voice, …}`) as columns; column-shaped rows pass through. */
@@ -148,12 +149,19 @@ export class DatabaseApplier {
     // The catalog first: apps and assistants name catalog ids.
     if (k.catalog) result.catalog = await this.applyCatalog(k.catalog);
     if (k.apps) {
-      const r = await this.applyApps(k.apps, k.recordingPolicy ?? undefined);
+      const r = await this.applyApps(
+        k.apps,
+        typeof k.recordingPolicy === "string" ? k.recordingPolicy : undefined
+      );
       result.apps = r.apps;
       result.removedApps = r.removed;
     }
     if (k.apps || k.assistants)
       result.assistants = await this.applyAssistants(snapshot);
+    if (k.recordingPolicy && typeof k.recordingPolicy === "object")
+      result.retention = await this.applyRetention(
+        k.recordingPolicy.retention ?? []
+      );
     if (k.webhooks) {
       const r = await this.applyWebhooks(k.webhooks);
       result.webhooks = r.webhooks;
@@ -268,6 +276,24 @@ export class DatabaseApplier {
         ...e
       } as unknown as Registry.CatalogEntry);
     await store.flush();
+    return valid.length;
+  }
+
+  /** The workspace's retention policies (call_record_retention), replaced as a whole. */
+  private async applyRetention(rows: { part: string; days: number }[]) {
+    const accessKeyId = this.options.workspaceRef;
+    const valid = rows.filter(
+      (r) =>
+        typeof r.part === "string" && Number.isInteger(r.days) && r.days > 0
+    );
+    await this.db.$transaction([
+      this.db.callRecordRetention.deleteMany({ where: { accessKeyId } }),
+      ...valid.map((r) =>
+        this.db.callRecordRetention.create({
+          data: { accessKeyId, part: r.part, days: r.days }
+        })
+      )
+    ]);
     return valid.length;
   }
 

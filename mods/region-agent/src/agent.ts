@@ -91,6 +91,8 @@ export class RegionAgent {
   private applying: Promise<unknown> = Promise.resolve();
   private routr?: RoutrApplier;
   private stopped = false;
+  /** Set while the control plane pauses config sync (unsupported version). */
+  paused?: { reason: string; requiredVersion?: string };
   /** Resolves after each applied (or skipped) snapshot; for tests and logs. */
   onApplied?: (version: number, result: Record<string, unknown>) => void;
 
@@ -239,7 +241,24 @@ export class RegionAgent {
       );
       const body = JSON.parse(sc.decode(reply.data));
       if (body.type === "region.config") await this.enqueue(body);
-      else logger.verbose("config is current");
+      else if (body.type === "region.config.paused") {
+        // Unsupported version (RG-B4): calls keep running on the last config; ask again later.
+        this.paused = {
+          reason: String(body.reason ?? "unsupported"),
+          requiredVersion: body.requiredVersion
+        };
+        logger.warn(
+          `config sync paused by the control plane: ${this.paused.reason}${
+            body.requiredVersion
+              ? ` (upgrade this cell to ${body.requiredVersion})`
+              : ""
+          }`
+        );
+        if (!this.stopped)
+          this.timers.push(
+            setTimeout(() => void this.requestConfig(), retry * 6)
+          );
+      } else logger.verbose("config is current");
     } catch (e) {
       logger.verbose(`config request: ${(e as Error).message}; retrying`);
       if (!this.stopped)
@@ -274,6 +293,7 @@ export class RegionAgent {
       return;
     }
     this.state.configVersion = version;
+    this.paused = undefined;
     if (this.routr) this.state.routrRefs = this.routr.refs;
     this.saveState();
     logger.info(`config v${version} applied`, result);
@@ -308,13 +328,9 @@ export class RegionAgent {
       ? await this.options.relay.respond(req)
       : [
           {
-            type: "region.relay.chunk" as const,
+            type: "region.relay.error" as const,
             id: String(req.id ?? ""),
-            seq: 0,
-            last: true,
-            contentType: "application/json",
-            data: "",
-            error: "store_unavailable"
+            code: "store_unavailable"
           }
         ];
     for (const chunk of chunks)

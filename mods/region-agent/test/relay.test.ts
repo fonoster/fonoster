@@ -64,8 +64,14 @@ describe("@region-agent relay responder", function () {
     const chunks = await relay.respond(
       req({ op: "record.part", part: "recording", original: true })
     );
-    expect(chunks.map((c) => c.seq)).to.deep.equal([0, 1, 2]);
-    expect(chunks.map((c) => c.last)).to.deep.equal([false, false, true]);
+    expect(chunks.map((c) => (c as { seq: number }).seq)).to.deep.equal([
+      0, 1, 2
+    ]);
+    expect(chunks.map((c) => (c as { last: boolean }).last)).to.deep.equal([
+      false,
+      false,
+      true
+    ]);
     for (const c of chunks)
       expect(Buffer.byteLength(JSON.stringify(c))).to.be.at.most(512 * 1024);
     const joined = Buffer.concat(
@@ -79,9 +85,17 @@ describe("@region-agent relay responder", function () {
     const [denied] = await relay.respond(
       req({ op: "record.part", part: "recording" })
     );
-    expect(denied.error).to.equal("not_found");
+    // Withheld from the redacted copy: the caller needs unredacted access (records API parity).
+    expect(denied).to.deep.equal({
+      type: "region.relay.error",
+      id: "r1",
+      code: "permission_denied"
+    });
     const [missing] = await relay.respond(req({ callRef: "nope" }));
-    expect(missing.error).to.equal("not_found");
+    expect(missing).to.include({
+      type: "region.relay.error",
+      code: "not_found"
+    });
     await relay.respond(
       req({
         op: "record.part",
@@ -96,7 +110,7 @@ describe("@region-agent relay responder", function () {
       .split("\n")
       .map((l) => JSON.parse(l));
     expect(audit.map((a) => a.result)).to.deep.equal([
-      "not_found",
+      "permission_denied",
       "not_found",
       "ok"
     ]);

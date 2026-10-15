@@ -19,7 +19,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { decodeVcon, RecordStore, SignedVcon } from "@fonoster/callrecord";
-import { RelayChunk, RelayRequest } from "./types";
+import { RelayChunk, RelayErrorReply, RelayRequest } from "./types";
 
 // The relay responder (contract 3 `region.R.relay`, PR-5): the control plane asks for a record or
 // one of its parts; the cell reads its own object storage and answers with chunks on the reply
@@ -135,7 +135,20 @@ export class RelayResponder {
       const { byRole, names } = referencedParts(vcon);
       // Only parts the chosen copy references: the redacted copy withholds what it redacted.
       const name = byRole.get(want) ?? (names.has(want) ? want : undefined);
-      if (!name) throw new RelayError(want ? "not_found" : "bad_request");
+      if (!name) {
+        if (!want) throw new RelayError("bad_request");
+        // In the original but withheld from the redacted copy: the caller needs unredacted access.
+        const inOriginal =
+          !req.original && stored.signed
+            ? referencedParts(decodeVcon(stored.signed))
+            : undefined;
+        throw new RelayError(
+          inOriginal &&
+            (inOriginal.byRole.has(want) || inOriginal.names.has(want))
+            ? "permission_denied"
+            : "not_found"
+        );
+      }
       const data = await store.getPart(req.callRef, name);
       if (!data) throw new RelayError("not_found");
       const mimetype =
@@ -146,8 +159,8 @@ export class RelayResponder {
     throw new RelayError("unknown_op");
   }
 
-  /** The reply chunks for a request (every failure becomes one chunk with `error`). */
-  async respond(req: RelayRequest): Promise<RelayChunk[]> {
+  /** The replies for a request: chunks, or one `region.relay.error` (RG-B4). */
+  async respond(req: RelayRequest): Promise<(RelayChunk | RelayErrorReply)[]> {
     const base = {
       at: new Date().toISOString(),
       id: String(req.id ?? ""),
@@ -181,17 +194,7 @@ export class RelayResponder {
     } catch (e) {
       const code = e instanceof RelayError ? e.code : "internal";
       this.audit({ ...base, bytes: 0, result: code });
-      return [
-        {
-          type: "region.relay.chunk",
-          id: base.id,
-          seq: 0,
-          last: true,
-          contentType: "application/json",
-          data: "",
-          error: code
-        }
-      ];
+      return [{ type: "region.relay.error", id: base.id, code }];
     }
   }
 }

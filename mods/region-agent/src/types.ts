@@ -99,8 +99,15 @@ export type ConfigSnapshot = {
     routr?: RoutrKinds;
     catalog?: Row[];
     webhooks?: Row[];
-    recordingPolicy?: string | null;
+    /** RG-B4: `{transcripts?, recordings?, retention: [{part, days}]}`; a string is an app default. */
+    recordingPolicy?: RecordingPolicySnapshot | string | null;
   };
+};
+
+export type RecordingPolicySnapshot = {
+  transcripts?: unknown;
+  recordings?: unknown;
+  retention?: { part: string; days: number }[];
 };
 
 export type RelayRequest = {
@@ -111,7 +118,7 @@ export type RelayRequest = {
   callRef: string;
   part?: string;
   range?: { start?: number; end?: number } | string;
-  /** Not in contract 3: the unredacted original, when the control plane allows it (RC-B10). */
+  /** The unredacted original (the control plane checked the role; RG-B4). */
   original?: boolean;
   version?: number;
 };
@@ -123,10 +130,16 @@ export type RelayChunk = {
   last: boolean;
   contentType: string;
   data: string;
-  /** Not in contract 3: set on the only chunk of a failed read (RC-B10). */
-  error?: string;
   /** Not in contract 3: total bytes of the content (or of the range). */
   size?: number;
+};
+
+/** The one reply to a relay the cell cannot serve (RG-B4). */
+export type RelayErrorReply = {
+  type: "region.relay.error";
+  id: string;
+  code: string;
+  message?: string;
 };
 
 export const subjects = (regionRef: string) => ({
@@ -137,5 +150,7 @@ export const subjects = (regionRef: string) => ({
   relay: `region.${regionRef}.relay`,
   index: `region.${regionRef}.index`,
   usage: `region.${regionRef}.usage`,
-  revoked: `region.${regionRef}.revoked`
+  revoked: `region.${regionRef}.revoked`,
+  /** Reply subjects for requests that cross the link (RG-B4): the link client's inboxPrefix. */
+  inbox: `region.${regionRef}._INBOX`
 });

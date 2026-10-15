@@ -70,10 +70,12 @@
 - Snapshots apply one at a time, only when `configVersion` is newer than the applied one; a failed
   apply keeps the last version (calls keep running) and the next snapshot retries.
 
-### RC-B7. Workspace recording policy becomes the apps' policy in the cell
+### RC-B7. Recording policy in the cell
 
-- `recordingPolicy` has no table (the gateway reads workspace policies from its YAML), so the agent
-  writes it into every synced app whose own `recording` is unset. Same effect: app, else workspace.
+- The control plane sends `recordingPolicy` as `{transcripts, recordings, retention: [{part,
+  days}]}` (RG-B4): retention replaces the workspace's `call_record_retention` rows in the cell.
+  The feature flags are not applied (the cell's gateway YAML holds those). A plain string
+  (`off|on|consent`) is still accepted and fills synced apps whose own `recording` is unset.
 
 ### RC-B8. Routr resources through a cp → cell ref map
 
@@ -102,8 +104,9 @@
   `original` (the cp sets it when the user may read originals) and `version`.
 - `range`: `{start, end}` (end inclusive) or `bytes=a-b`.
 - Chunks are 380 KB of raw bytes so each JSON message stays ≤ 512 KB after base64; all chunks go
-  to the request's reply subject in order with `seq` and `last`. Failures are one chunk with
-  `last: true` and an additive `error` (`not_found`, `contents_deleted`, `bad_range`, …).
+  to the request's reply subject in order with `seq` and `last`. Failures answer once with
+  `{type: "region.relay.error", id, code}` (RG-B4): `not_found`, `contents_deleted`,
+  `permission_denied` (a part the redacted copy withholds, like the records API), `bad_range`, ….
 - Every read (or refusal) is appended to `relay-audit.jsonl` in the state dir: time, request id,
   userRef, op, callRef, part, bytes, result.
 
@@ -143,3 +146,13 @@
 
 - Nothing new to build: the cell's gateway already delivers webhooks from `webhook_endpoints`
   (`webhooks.enabled`), which the agent syncs.
+
+### RC-B15. Aligned with the control plane's contract additions (RG-B4)
+
+- The agent's NATS client uses `inboxPrefix: "region.<ref>._INBOX"`, so the reply to
+  `region.<ref>.config.request` comes back through the leaf (the cell's user may only use
+  `region.<ref>.>`). The relay replies go to the control plane's `region.<ref>._INBOX.<id>` as given.
+- `region.config.paused` (unsupported version) is logged with the required version, keeps the last
+  config, and the request is retried every minute.
+- Tests: the cell test's link client uses the prefix and checks the reply subject; a second test
+  covers `region.config.paused`.

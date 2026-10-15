@@ -66,6 +66,8 @@ export async function runAgent(
   const nc = await connect({
     servers: config.nats.url,
     name: `region-agent-${identity.regionRef}`,
+    // Requests that cross the leaf link need replies under region.<ref>.> (RG-B4).
+    inboxPrefix: `region.${identity.regionRef}._INBOX`,
     maxReconnectAttempts: -1
   });
 

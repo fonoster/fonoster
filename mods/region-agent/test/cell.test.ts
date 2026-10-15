@@ -61,6 +61,7 @@ describe("@region-agent private cell against a fake control plane", function () 
   this.timeout(120_000);
   let cp: FakeControlPlane;
   let nc: NatsConnection;
+  let cellNc: NatsConnection | undefined;
   let dir: string;
   let db: TestDb | undefined;
   let agent: RegionAgent | undefined;
@@ -79,6 +80,7 @@ describe("@region-agent private cell against a fake control plane", function () 
   });
   after(async () => {
     await agent?.stop();
+    await cellNc?.drain();
     await nc?.drain();
     await cp?.stop();
     await db?.drop();
@@ -94,12 +96,18 @@ describe("@region-agent private cell against a fake control plane", function () 
       version: "0.28.1"
     });
     const R = identity.regionRef;
+    // The cell's link client: replies to requests that cross the leaf stay in region.R.> (RG-B4).
+    cellNc = await connect({
+      servers: NATS_URL,
+      inboxPrefix: `region.${R}._INBOX`
+    });
 
     // 2. the control plane's side of the link: config replies, and every message from the cell
     let configRequests = 0;
     nc.subscribe(`region.${R}.config.request`, {
       callback: (_e, m) => {
         configRequests++;
+        expect(m.reply).to.match(new RegExp(`^region\\.${R}\\._INBOX\\.`));
         m.respond(sc.encode(JSON.stringify(snapshot(1))));
       }
     });
@@ -120,7 +128,7 @@ describe("@region-agent private cell against a fake control plane", function () 
     const applied: number[] = [];
     agent = new RegionAgent({
       identity,
-      nc,
+      nc: cellNc,
       version: "0.28.1",
       stateDir: dir,
       heartbeatMs: 300,
@@ -201,7 +209,7 @@ describe("@region-agent private cell against a fake control plane", function () 
     expect(routr.of("agents")).to.have.length(0);
 
     // relay: a recording in chunks on the reply inbox
-    const inbox = nc.subscribe("_INBOX.relay-test");
+    const inbox = nc.subscribe(`region.${R}._INBOX.relay-test`);
     const chunks: Record<string, unknown>[] = [];
     nc.publish(
       `region.${R}.relay`,
@@ -216,7 +224,7 @@ describe("@region-agent private cell against a fake control plane", function () 
           original: true
         })
       ),
-      { reply: "_INBOX.relay-test" }
+      { reply: `region.${R}._INBOX.relay-test` }
     );
     for await (const m of inbox) {
       const c = JSON.parse(sc.decode(m.data));
@@ -279,5 +287,54 @@ describe("@region-agent private cell against a fake control plane", function () 
       JSON.parse(fs.readFileSync(path.join(dir, "state.json"), "utf8")).revoked
         .reason
     ).to.equal("disconnected");
+  });
+
+  it("pauses on region.config.paused and keeps the last config", async function () {
+    const other = await new FakeControlPlane(
+      `rg_${randomBytes(4).toString("hex")}`,
+      WS
+    ).start();
+    const odir = fs.mkdtempSync(path.join(os.tmpdir(), "region-paused-"));
+    const identity = await enroll({
+      token: other.issue().token,
+      store: new DirIdentityStore(odir),
+      version: "0.1.0"
+    });
+    const R = identity.regionRef;
+    const sub = nc.subscribe(`region.${R}.config.request`, {
+      callback: (_e, m) =>
+        m.respond(
+          sc.encode(
+            JSON.stringify({
+              type: "region.config.paused",
+              reason: "version 0.1.0 is not supported",
+              requiredVersion: "0.27.0"
+            })
+          )
+        )
+    });
+    const link = await connect({
+      servers: NATS_URL,
+      inboxPrefix: `region.${R}._INBOX`
+    });
+    const paused = new RegionAgent({
+      identity,
+      nc: link,
+      version: "0.1.0",
+      stateDir: odir,
+      firstHeartbeatMs: 60_000
+    });
+    await paused.start();
+    await waitFor(() => paused.paused);
+    expect(paused.paused).to.deep.equal({
+      reason: "version 0.1.0 is not supported",
+      requiredVersion: "0.27.0"
+    });
+    expect(paused.state.configVersion).to.equal(-1);
+    await paused.stop();
+    sub.unsubscribe();
+    await link.drain();
+    await other.stop();
+    fs.rmSync(odir, { recursive: true, force: true });
   });
 });
