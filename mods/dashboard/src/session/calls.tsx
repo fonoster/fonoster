@@ -30,6 +30,7 @@ import { EmptyState } from "~/components/data/empty-state";
 import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { useRegion } from "~/regions";
 import { errorMessage, useAsync, useSessionApi } from "./api";
 import type { CallRecordSummary, SessionMessage, Turn } from "./types";
 
@@ -146,6 +147,8 @@ export function CallRecordView() {
   const [download, setDownload] = useState<{ url?: string; error?: string }>(
     {}
   );
+  const { data: region, isPrivate } = useRegion();
+  const offline = isPrivate && region?.status === "offline";
   const {
     data: call,
     loading,
@@ -183,7 +186,7 @@ export function CallRecordView() {
                 All calls
               </Link>
             </Button>
-            {call.recording ? (
+            {offline ? null : call.recording ? (
               download.url ? (
                 <Button asChild variant="outline">
                   <a href={download.url} download={`${call.callRef}.wav`}>
@@ -202,6 +205,13 @@ export function CallRecordView() {
         }
       />
       <div className="flex flex-col gap-5 px-4 pb-10 sm:px-8">
+        {isPrivate && <Badge variant="info">Stored in your region</Badge>}
+        {offline && (
+          <Alert variant="error">
+            Your region is offline, so the transcript, turns and recording can't
+            be opened. Only the call's metadata is shown.
+          </Alert>
+        )}
         {download.error && <Alert variant="error">{download.error}</Alert>}
         {call.redacted && (
           <Alert variant="note">
@@ -214,52 +224,61 @@ export function CallRecordView() {
           </Alert>
         ))}
 
-        <section aria-label="Turns" className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium">Turns</h2>
-          {call.turns.length === 0 && (
-            <p className="text-xs text-muted-foreground">Nothing was said.</p>
-          )}
-          <ol className="flex flex-col gap-2">
-            {call.turns.map((t) => (
-              <li
-                key={t.index}
-                className={`flex gap-3 rounded-xl border border-border p-3 ${t.side === "agent" ? "bg-card" : ""}`}
-              >
-                <span className="w-20 shrink-0 text-xs text-muted-foreground">
-                  {t.side} {formatMs(t.startMs)}
-                </span>
-                <span className="flex-1">{t.text}</span>
-                {t.outcome && (
-                  <Badge variant={OUTCOME[t.outcome].variant}>
-                    {OUTCOME[t.outcome].label}
-                  </Badge>
-                )}
-              </li>
-            ))}
-          </ol>
-        </section>
+        {!offline && (
+          <>
+            <section aria-label="Turns" className="flex flex-col gap-2">
+              <h2 className="text-sm font-medium">Turns</h2>
+              {call.turns.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Nothing was said.
+                </p>
+              )}
+              <ol className="flex flex-col gap-2">
+                {call.turns.map((t) => (
+                  <li
+                    key={t.index}
+                    className={`flex gap-3 rounded-xl border border-border p-3 ${t.side === "agent" ? "bg-card" : ""}`}
+                  >
+                    <span className="w-20 shrink-0 text-xs text-muted-foreground">
+                      {t.side} {formatMs(t.startMs)}
+                    </span>
+                    <span className="flex-1">{t.text}</span>
+                    {t.outcome && (
+                      <Badge variant={OUTCOME[t.outcome].variant}>
+                        {OUTCOME[t.outcome].label}
+                      </Badge>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </section>
 
-        <section aria-label="Turn decisions" className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium">Turn decisions and notes</h2>
-          <ol className="flex flex-col font-mono text-xs">
-            {call.messages.map((m, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-3 border-b border-border py-1.5"
-              >
-                <span className="w-16 shrink-0 text-muted-foreground">
-                  {formatMs(m.at)}
-                </span>
-                <Badge variant={SOURCE_BADGE[m.source]}>{m.source}</Badge>
-                <span>{describeMessage(m.message)}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-        {call.recording?.sha256 && (
-          <p className="text-xs text-muted-foreground">
-            Recording {call.recording.sha256}
-          </p>
+            <section
+              aria-label="Turn decisions"
+              className="flex flex-col gap-2"
+            >
+              <h2 className="text-sm font-medium">Turn decisions and notes</h2>
+              <ol className="flex flex-col font-mono text-xs">
+                {call.messages.map((m, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center gap-3 border-b border-border py-1.5"
+                  >
+                    <span className="w-16 shrink-0 text-muted-foreground">
+                      {formatMs(m.at)}
+                    </span>
+                    <Badge variant={SOURCE_BADGE[m.source]}>{m.source}</Badge>
+                    <span>{describeMessage(m.message)}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+            {call.recording?.sha256 && (
+              <p className="text-xs text-muted-foreground">
+                Recording {call.recording.sha256}
+              </p>
+            )}
+          </>
         )}
       </div>
     </>

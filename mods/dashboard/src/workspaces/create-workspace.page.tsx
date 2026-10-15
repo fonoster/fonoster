@@ -30,10 +30,16 @@ import { useAuth } from "~/lib/auth";
 import { errorMessage } from "~/lib/errors";
 import { UserBar } from "./user-bar";
 import { rememberWorkspace, workspacePath } from "./workspace-session";
+import { useRegionsApi } from "~/regions/api";
+import { RegionPicker } from "~/regions/region-picker";
+import { DEFAULT_REGION, PRIVATE_REGION } from "~/regions/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import {
-  useCreateWorkspace,
   useCurrentUser,
-  useWorkspaces
+  useWorkspaces,
+  WORKSPACES_KEY
 } from "./workspaces.service";
 
 const schema = z.object({
@@ -48,7 +54,15 @@ export default function CreateWorkspacePage() {
   const { user } = useAuth();
   const { data: profile } = useCurrentUser();
   const { data: workspaces } = useWorkspaces();
-  const create = useCreateWorkspace();
+  const regionsApi = useRegionsApi();
+  const queryClient = useQueryClient();
+  const create = useMutation({
+    mutationFn: (input: { name: string; region: string }) =>
+      regionsApi.createWorkspace(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: WORKSPACES_KEY })
+  });
+  const [region, setRegion] = useState(DEFAULT_REGION.id);
+  const [confirming, setConfirming] = useState<string | undefined>();
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -57,10 +71,21 @@ export default function CreateWorkspacePage() {
   const first = workspaces?.length === 0;
   const firstName = (profile?.name || user?.email || "").split(/[\s@]/)[0];
 
-  const onSubmit = form.handleSubmit(async ({ name }) => {
-    const { ref } = await create.mutateAsync({ name });
+  const createWith = async (name: string) => {
+    const { ref, enrollment } = await create.mutateAsync({ name, region });
     rememberWorkspace(ref);
-    navigate(workspacePath(ref), { replace: true });
+    if (region === PRIVATE_REGION)
+      navigate(`${workspacePath(ref)}/region-setup`, {
+        replace: true,
+        state: { enrollment }
+      });
+    else navigate(workspacePath(ref), { replace: true });
+  };
+
+  // A private region is permanent, so it gets a confirm step first.
+  const onSubmit = form.handleSubmit(async ({ name }) => {
+    if (region === PRIVATE_REGION) setConfirming(name);
+    else await createWith(name);
   });
 
   return (
@@ -98,13 +123,43 @@ export default function CreateWorkspacePage() {
                 />
               )}
             </Field>
-            <Button
-              type="submit"
-              className={authButton}
-              loading={create.isPending}
-            >
-              Create workspace
-            </Button>
+            <RegionPicker value={region} onChange={setRegion} />
+            {confirming !== undefined ? (
+              <div className="flex flex-col gap-3 rounded-control border border-input p-4">
+                <h2 className="text-base font-semibold">
+                  Create {confirming} in a private region?
+                </h2>
+                <p className="font-display text-sm text-muted-foreground">
+                  The region can't be changed afterwards. You'll get a token to
+                  connect your own servers next, and calls won't run until they
+                  are connected.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setConfirming(undefined)}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    loading={create.isPending}
+                    onClick={() => void createWith(confirming)}
+                  >
+                    Create private workspace
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                type="submit"
+                className={authButton}
+                loading={create.isPending}
+              >
+                Create workspace
+              </Button>
+            )}
           </form>
           {first ? (
             <p className="flex items-center gap-2 font-display text-[13px] text-muted-foreground">
