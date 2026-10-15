@@ -340,3 +340,19 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   nothing is beeped and the redacted copy withholds the recording (`recordingWithheld`), as before.
 - Deleting `recording` (retention or request) deletes both files.
 
+
+## 2026-10-15 (legacy stream)
+
+### LG-B6. Recording URLs and the retired conversation webhook (7.2, 7.3)
+
+- 7.2: no code builds `${RECORDING_BASE_URL}/${appRef}_${id}.wav` any more: the Asterisk recording
+  path went with CB-B3/CB-B4, and the last reader (Autopilot's old `recordings.baseUrl` in
+  `envs.ts`) was deleted with the legacy schema (rework-autopilot LG-B4). A guard test
+  (`mods/callrecord/test/recordingUrlRetired.test.ts`) fails if a service builds one again.
+  Recordings are the record's `recording.wav` part (`GET /api/records/:callRef/recording`).
+- 7.3: workspace webhooks refuse the retired names with the replacement
+  (`conversation.ended (use call.ended or call_record.sealed)`, `conversation.started` →
+  `call.started`, `all` → all three), via `RETIRED_EVENT_TYPES` in `@fonoster/common`. The
+  assistant schema's `eventsHook` rejection names the same mapping. `fonoster-migrate-legacy`
+  turns every stored `eventsHook` into such a workspace webhook (LG-B1). Release note:
+  `docs/release-notes-sessions.md`, breaking changes 6 and 7.

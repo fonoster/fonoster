@@ -26,18 +26,16 @@ export const billingAgent = {
   name: "Billing reminders",
   type: "AUTOPILOT",
   endpoint: "",
-  textToSpeech: {
-    productRef: "tts.deepgram",
-    config: { voice: "aura-2-celeste-es" }
-  },
-  speechToText: {
-    productRef: "stt.deepgram",
-    config: { model: "nova-3", languageCode: "es-419", smartFormat: true }
+  url: "wss://autopilot.fonoster.local/session",
+  flavor: "native",
+  speech: {
+    voice: "deepgram/aura-2-celeste-es",
+    language: "es-419",
+    sttModel: "deepgram/nova-3"
   },
   intelligence: {
     productRef: "llm.openai",
     config: {
-      audioFilters: [],
       conversationSettings: {
         firstMessage:
           "Hola, le llamo de Acme sobre su factura pendiente. ¿Tiene un minuto?",
@@ -46,7 +44,6 @@ export const billingAgent = {
         goodbyeMessage: "Gracias por su tiempo. ¡Que tenga buen día!",
         systemErrorMessage: "Disculpe, hubo un error. Le llamamos luego.",
         maxSessionDuration: 1800000,
-        maxSpeechWaitTimeout: 5000,
         allowUserBargeIn: true,
         idleOptions: {
           message: "¿Sigue ahí?",
@@ -55,18 +52,11 @@ export const billingAgent = {
         },
         transferOptions: {
           phoneNumber: "+18095550100",
-          message: "Le transfiero con una persona.",
-          timeout: 30000
-        },
-        vad: {
-          activationThreshold: 0.4,
-          deactivationThreshold: 0.25,
-          debounceFrames: 4
+          message: "Le transfiero con una persona."
         }
       },
       languageModel: {
-        provider: "openai",
-        model: "gpt-4o-mini",
+        model: "openai/gpt-4o-mini",
         temperature: 0.4,
         maxTokens: 300,
         knowledgeBase: [],
@@ -112,11 +102,6 @@ export const billingAgent = {
           }
         ]
       },
-      eventsHook: {
-        url: "https://api.acme.com/fonoster/events",
-        headers: { "x-signature": "abc" },
-        events: ["conversation.started", "conversation.ended"]
-      },
       testCases: {
         evalsLanguageModel: { provider: "openai", model: "gpt-4o-mini" },
         scenarios: []
@@ -140,18 +125,17 @@ const simple = (
     ...billingAgent,
     ref,
     name,
-    textToSpeech: { productRef: "tts.deepgram", config: { voice } },
-    speechToText: {
-      productRef: "stt.deepgram",
-      config: { model: "nova-3", languageCode }
+    speech: {
+      voice: `deepgram/${voice}`,
+      language: languageCode,
+      sttModel: "deepgram/nova-3"
     },
     intelligence: {
       productRef: `llm.${provider}`,
       config: {
         ...billingAgent.intelligence!.config,
         languageModel: {
-          provider,
-          model,
+          model: `${provider}/${model}`,
           temperature: 0.4,
           maxTokens: 300,
           tools: []

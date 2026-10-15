@@ -18,8 +18,7 @@
  */
 import { createEvaluateIntelligence } from "@fonoster/autopilot";
 import { Prisma } from "../core/db";
-import { INTEGRATIONS_FILE, SESSION_APPS } from "../envs";
-import { getIntegrationsFromFile } from "../utils/getIntegrationsFromFile";
+import { EVALUATIONS, SESSION_APPS } from "../envs";
 import { createCreateApplication } from "./createCreateApplication";
 import { createCreateTestToken } from "./createCreateTestToken";
 import { createDeleteApplication } from "./createDeleteApplication";
@@ -27,6 +26,7 @@ import { createGetApplication } from "./createGetApplication";
 import { createListApplications } from "./createListApplications";
 import { createRotateSigningSecret } from "./createRotateSigningSecret";
 import { createUpdateApplication } from "./createUpdateApplication";
+import { createEvalKeys } from "./evalKeys";
 import { SessionAppsConfig } from "./session/appModel";
 import { TestTokenConfiguration } from "./types";
 
@@ -35,16 +35,9 @@ function buildService(
   testTokenConfig: TestTokenConfiguration,
   config: SessionAppsConfig = SESSION_APPS as SessionAppsConfig
 ) {
-  // Read on first use: only the legacy assistant evaluation needs the integrations file.
-  let evaluate: ReturnType<typeof createEvaluateIntelligence> | undefined;
-  const evaluateIntelligence = (
-    ...args: Parameters<ReturnType<typeof createEvaluateIntelligence>>
-  ) => {
-    evaluate ??= createEvaluateIntelligence(
-      getIntegrationsFromFile(INTEGRATIONS_FILE)
-    );
-    return evaluate(...args);
-  };
+  const evaluateIntelligence = createEvaluateIntelligence(
+    createEvalKeys(prisma, EVALUATIONS.credentials)
+  );
 
   return {
     definition: {

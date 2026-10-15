@@ -126,18 +126,8 @@ export function convertLegacyApplication(
       `STT model ${sttModel} is not part of the app model; it moves to the provider configuration`
     );
   }
-  for (const [kind, product] of [
-    ["TTS", legacy.textToSpeech],
-    ["STT", legacy.speechToText],
-    ["LLM", legacy.intelligence]
-  ] as const) {
-    if (product?.credentials) {
-      note(
-        "action",
-        `${kind} has its own credentials: move them to a workspace secret (bring-your-own-key) before the cutover`
-      );
-    }
-  }
+  // Per-app vendor credentials are moved by the job's credentials step (fonoster-migrate-legacy,
+  // add-provider-registry 5.2), before apps are converted.
 
   const app: MigratedApplication = {
     ref: legacy.ref,
@@ -149,7 +139,9 @@ export function convertLegacyApplication(
       hostedSecret(legacy, options) ??
       existing?.signingSecret ??
       (options.newSecret ?? newSigningSecret)(),
-    speech: { voice, language },
+    // An app migrated before (or created on the new model) keeps its speech defaults: re-runs
+    // must not reset a voice chosen since (LG-B2).
+    speech: existing?.speech.voice ? existing.speech : { voice, language },
     ...(existing?.fallback
       ? { fallback: existing.fallback }
       : options.fallbackMessage

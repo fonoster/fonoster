@@ -127,3 +127,16 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - 1.5 internal recorded calls in the corpus, 2.2 checking the baseline against recorded calls (no
   recordings yet), 3.1 deleting Silero VAD and late-speech handling from the current Autopilot
   (with rework-autopilot's cutover, 8.1).
+
+## 2026-10-15 (legacy stream)
+
+### LG-B5. Nothing of the old turn handling is left in Autopilot (3.1)
+
+- Verified after the engine deletion (rework-autopilot CB-B5) and the schema deletion (LG-B4): no
+  Silero model or `onnxruntime-node`, no `vad/`, no `maxSpeechWaitTimeout` timer, no late-speech
+  (`hasLateSpeech`) or `SPEECH_*` events, no barge-in detection in `mods/autopilot` (the session
+  engine reacts to the gateway's `turn.user_started` only). The dashboard's agent form dropped its
+  VAD and speech-wait values (LG-B4). What remains on purpose: `convertLegacyAssistant` maps the old
+  settings to patience, and `sessionAssistantSchema` rejects them with a message naming the
+  gateway. `onnxruntime-node` stays in `mods/amd` (its own classifier, not turn-taking).
+- Guard test: `mods/autopilot/test/turnTakingRemoved.test.ts` fails if any of it comes back.

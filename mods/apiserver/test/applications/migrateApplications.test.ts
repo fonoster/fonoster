@@ -80,7 +80,7 @@ describe("@apiserver[applications/migration]", function () {
     expect(app!.signingSecret).to.match(/^secret-/);
     const text = notices.map((n) => n.message).join("\n");
     expect(text).to.match(/session protocol/);
-    expect(text).to.match(/workspace secret/);
+    expect(text).to.not.match(/credentials/);
     expect(text).to.match(/STT model nova-3/);
     expect(text).to.not.include("encrypted-blob");
   });

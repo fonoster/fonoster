@@ -31,7 +31,7 @@ configured with flags or `MEDIANODE_*` environment variables (a Go binary with n
 To try everything on one machine (generated configs and secrets, seed, smoke test), use
 `ops/rebuild/stack up` instead: see `docs/try-the-new-platform.md`. For your own deployment, fill
 `ops/rebuild/config/` (`fonoster.yaml`, `gateway.yaml`, `autopilot-session.yaml`,
-`routr-edgeport.yaml`, `integrations.json`, and `keys/` with Identity's RSA pair and the
+`routr-edgeport.yaml`, and `keys/` with Identity's RSA pair and the
 call-record ES256 key) or point `RB_CONFIG_DIR` at another directory. Load the provider catalog
 into the registry tables once the apiserver has migrated:
 `fonoster-registry apply -f ops/rebuild/config/catalog-seed.yaml --store database`.

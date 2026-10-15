@@ -16,21 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { assistantSchema } from "@fonoster/common";
-import { z } from "zod";
-
-const assistantWithoutApiKeySchema = assistantSchema.extend({
-  languageModel: assistantSchema.shape.languageModel.superRefine(
-    (data, ctx) => {
-      if ("apiKey" in data) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "apiKey is not allowed in languageModel",
-          path: ["apiKey"]
-        });
-      }
-    }
-  )
-});
-
-export { assistantWithoutApiKeySchema };
+export * from "./argv";
+export * from "./catalogMapping";
+export * from "./migrateAssistants";
+export * from "./migrateCredentials";
+export * from "./migrateIntegrations";
+export * from "./seedCatalog";
+export * from "./migrateLegacy";
+export * from "./providerKeys";
+export * from "./types";

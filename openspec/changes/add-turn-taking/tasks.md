@@ -34,8 +34,8 @@
 
 ## 3. Migration and docs
 
-- [x] 3.1 Remove Silero VAD, `maxSpeechWaitTimeout`, late-speech and barge-in handling from (done: Silero VAD, vad/ and late-speech handling deleted from mods/autopilot, CB-B5; only legacy-config conversion mentions maxSpeechWaitTimeout; AU-B1)
-      `mods/autopilot` (coordinated with `rework-autopilot`)
+- [x] 3.1 Remove Silero VAD, `maxSpeechWaitTimeout`, late-speech and barge-in handling from
+      `mods/autopilot` (coordinated with `rework-autopilot`) (CB-B5, LG-B5)
 - [x] 3.2 Map existing assistant settings (`maxSpeechWaitTimeout`, `allowUserBargeIn`, `vad.*`) to
       the new patience setting and interruptible defaults; document the mapping
 - [x] 3.3 Docs page: turn events, patience, choosing a Detector, reading turn labels in the call

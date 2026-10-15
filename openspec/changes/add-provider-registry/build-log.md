@@ -411,3 +411,34 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - A saved value that no longer fits stays selectable, marked "(doesn't fit)" with a one-line hint.
 - Only the rebuild's app editor (`session/apps.tsx`); the legacy Agents screens keep their
   hard-coded lists (they go with the legacy Application model).
+## 2026-10-15 (legacy stream)
+
+### LG-B3. Legacy data into the registry (5.1–5.3), in `fonoster-migrate-legacy`
+
+- One job for the whole cutover (rework-autopilot LG-B1), not a `fonoster-registry` subcommand:
+  it needs the apiserver's tables and Autopilot's assistant converter, which `@fonoster/common`
+  cannot import. Steps: catalog, app credentials, assistants, apps, platform keys.
+- 5.1 Catalog: `ProductVendor` → provider id = adapter (`MICROSOFT` → `azure`, `ELEVEN_LABS` →
+  `elevenlabs`; Amazon, IBM, Rasa and Generic have no adapter and are only noted), credentialRef
+  `<provider>-default` (the seed's convention). Raw names become `<provider>/<name>`: STT
+  `config.model`, assistant `languageModel.model`, TTS `config.voice` as a voice on its model
+  (Deepgram `aura-2-*` → `deepgram/aura-2`, other Aura voices → `deepgram/aura`; ElevenLabs
+  `config.model` or `eleven_flash_v2_5`; others `<provider>/tts`). Features are the minimum
+  (`streaming`, plus `tool-calling` for LLMs); languages from `languageCode`. Existing entries are
+  never touched, so the operator's catalog wins; writes are audited as `fonoster-migrate-legacy`.
+- 5.2 Credentials columns: each becomes the workspace's vendor key for the product's provider
+  (same binding as the Vendor keys page, so the gateway's and Autopilot's credentialRef lookup
+  finds it). `{apiKey}` is stored as the bare key; multi-field credentials (Google service
+  accounts) as their JSON. The column is set to null after moving. One key per workspace and
+  provider: the first wins, others are dropped with an `action` notice.
+- Readers deleted: the apiserver no longer loads TextToSpeech/SpeechToText rows (or their
+  credentials); the dead legacy conversion (`applications/utils`) and validation
+  (`applications/validation`) code is gone. The columns stay until a later schema migration drops
+  them, so the job can still read a database that has not been migrated.
+- 5.3 `integrations.json` → a JSON config fragment (`--credentials-out`, mode 0600):
+  `credentials.<ref>` for the hosted Autopilot, `providers.<id>.credential` for the gateway,
+  `registry.platformCredentials` for the apiserver. Keys go to one file each in `--secrets-dir`
+  referenced as `secret://file/...` (D8), or to environment variables named after the ref. The
+  apiserver's runtime reader of the file (assistant evals) is replaced in rework-autopilot LG-B4.
+- Tests: `mods/apiserver/test/migration` (Postgres for the catalog and credentials steps, plain
+  unit tests for names and integrations).

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {
-  AssistantConfig,
+  EvalAssistant,
   hangupToolDefinition,
   KnowledgeBase,
   LanguageModelFactory,
@@ -28,7 +28,7 @@ import {
 
 function createLanguageModel(params: {
   voice: Voice;
-  assistantConfig: AssistantConfig;
+  assistantConfig: EvalAssistant;
   knowledgeBase: KnowledgeBase;
   telephonyContext: TelephonyContext;
 }) {

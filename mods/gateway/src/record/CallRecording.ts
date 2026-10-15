@@ -65,7 +65,8 @@ export class CallRecording {
     for (const w of this.waiters.splice(0)) w();
   }
 
-  private async trackOf(participantRef: string): Promise<number | undefined> {
+  /** A participant's audio track id, once known (waits up to 3 s). */
+  async trackOf(participantRef: string): Promise<number | undefined> {
     const deadline = Date.now() + TRACKS_TIMEOUT_MS;
     while (!this.tracks.has(participantRef) && !this.stopped) {
       const left = deadline - Date.now();

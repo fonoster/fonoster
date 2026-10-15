@@ -437,3 +437,30 @@ cutover.
   (one concealed frame at worst).
 - Tests: rtpio `TestLatchesToRemoteAndDropsOtherSenders`, `TestLatchesToFirstSourceWithoutRemote`;
   jitter `TestSkipsAreCapped`.
+
+## 2026-10-15 (legacy stream)
+
+### LG-B7. AMD as a voice-worker listener (4.3, partly)
+
+- Recording already runs as the policy listener (`CallRecording`, call-record 3.2). AMD now does
+  the same in the gateway: `AmdListener` (`mods/gateway/src/amd`) binds one UDP socket, sends
+  media-control `listener.attach` with one track (the caller's) as `L16/16000`, collects the first
+  `windowMs` of caller audio, sends `listener.detach`, classifies, and reports one `amd.result`
+  `{status: human|voicemail|ivr|machine|unknown, confidence, detector, audioMs, reason?}` to the
+  session (also to apps that never take the Speech layer) and the call record (`amd.started`,
+  `amd.result`). It never touches the call: hanging up or not is the app's decision.
+- Trigger: app option `amd: true | {windowMs}` (default 4000 ms, clamped 500–15000), for inbound
+  and answered outbound calls alike. Without enough audio (300 ms), on attach failure, when the
+  call ends first or the classifier throws, the verdict is `unknown` with a `reason`.
+- Classifier: `Gateway({amdClassifier})`, or gateway config `amd: {modelDir?}`, which loads
+  mods/amd's `classifyPcm` (the ONNX model) lazily with `require("@fonoster/amd")`. Without either,
+  apps with `amd` get `unknown` / `no_classifier`.
+- The voice SDK (TypeScript) emits `amd.result` (`session.on("amd.result")`).
+- Tests: `mods/gateway/test/amd.test.ts` (fake media node: one-track attach, detach, 16 kHz PCM
+  with the caller's tone reaches the classifier, the session gets the verdict; no classifier →
+  `unknown`; apps without `amd` attach nothing).
+- Open (why 4.3 stays unticked): the app option is in the gateway's app config only (no
+  `applications` column, API field or dashboard toggle yet); `@fonoster/amd` is not a declared
+  dependency of the gateway image (adding it needs an install, which this stream must not run);
+  the Python SDK does not surface `amd.result` yet; the fake media node ignores `listener.detach`;
+  `amd.result` is not yet in the voice-session spec's event list (additive).

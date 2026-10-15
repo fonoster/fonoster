@@ -86,12 +86,13 @@ describe("@autopilot/session convertLegacyAssistant", function () {
       .and.not.contain('"apiKey"');
   });
 
-  it("moves a real inline key out as a workspace Secret", function () {
+  it("moves a real inline key out as the workspace's vendor key", function () {
     const c = convertLegacyAssistant(minimal({}, { apiKey: "sk-live-123" }), {
       assistantRef: "billing"
     });
     expect(c.secret).to.deep.equal({
-      name: "openai-billing",
+      providerId: "openai",
+      name: "provider-key/openai",
       value: "sk-live-123"
     });
     expect(JSON.stringify(c.assistant)).to.not.contain("sk-live-123");

@@ -23,9 +23,4 @@ type NumberPreconditionsCheck = (request: {
   accessKeyId?: string;
 }) => Promise<void>;
 
-type IntegrationConfig = {
-  productRef: string;
-  credentials: Record<string, unknown>;
-};
-
-export { NumberPreconditionsCheck, IntegrationConfig };
+export { NumberPreconditionsCheck };

@@ -62,7 +62,6 @@ assets
 # Config files that aren't needed in build
 config/keys
 config/*.json
-!config/integrations.example.json
 config/*.yaml
 config/*.yml
 config/*.jsonc

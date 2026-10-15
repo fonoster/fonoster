@@ -60,8 +60,8 @@
 
 - [x] 7.1 Move call history off InfluxDB CDRs; serve `ListCalls`/`GetCall` from the index and
       records (behind `callRecords.listCallsFromIndex`; InfluxDB code kept, R-B11)
-- [x] 7.2 Retire the recording-URL convention (`${RECORDING_BASE_URL}/${appRef}_${mediaSessionRef}.wav`) (done: no RECORDING_BASE_URL or {appRef}_{id}.wav left in code; recordings served by callRef from mods/apiserver/src/records; docs/operators/cutover.md section 6; AU-B1)
-      in favor of the record's recording reference
-- [ ] 7.3 Point users of Autopilot's retired `conversation.ended` webhook (`rework-autopilot`) to (partial: docs/autopilot.md points to call.ended and call_record.sealed; release note missing)
-      `call.ended` and `call_record.sealed` (release note)
-- [x] 7.4 Docs: what a call record contains, retention and erasure, redaction, verifying a record
+- [x] 7.2 Retire the recording-URL convention (`${RECORDING_BASE_URL}/${appRef}_${mediaSessionRef}.wav`)
+      in favor of the record's recording reference (LG-B6)
+- [x] 7.3 Point users of Autopilot's retired `conversation.ended` webhook (`rework-autopilot`) to
+      `call.ended` and `call_record.sealed` (release note) (LG-B6)
+- [ ] 7.4 Docs: what a call record contains, retention and erasure, redaction, verifying a record

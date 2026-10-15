@@ -41,27 +41,60 @@ to pick the app.
 
 ## 2. Migrate the applications
 
-Legacy Application rows (EXTERNAL with a gRPC `endpoint`, AUTOPILOT) become apps: a WebSocket URL,
-the `native` flavor, a signing secret and speech defaults.
+One job, `fonoster-migrate-legacy` (`mods/apiserver/dist/migration/cli.js`), converts the legacy
+data once. It reads the apiserver's `fonoster.yaml` (database URL and encryption key). It is a dry
+run unless you pass `--apply`, and every step is idempotent: run it again and it changes nothing.
 
 ```sh
-# Dry run: prints the plan and the notices, writes nothing
-node mods/apiserver/dist/applications/migration/cli.js \
-  --autopilot-url wss://autopilot.example.com/session
+# Dry run: prints each step's plan and notices, writes nothing
+fonoster-migrate-legacy --autopilot-url wss://autopilot.example.com/session \
+  --autopilot-secret-env AUTOPILOT_SIGNING_SECRET
 
-# Write the gateway's apps list (holds signing secrets; written with mode 0600)
-node mods/apiserver/dist/applications/migration/cli.js \
-  --autopilot-url wss://autopilot.example.com/session --gateway-apps /etc/fonoster/gateway-apps.json
-
-# Write the new Application columns (url, flavor, signingSecret, speech, fallback) once they exist
-node mods/apiserver/dist/applications/migration/cli.js --autopilot-url ... --apply
+# Apply, and write the gateway's apps list (holds signing secrets; written with mode 0600)
+fonoster-migrate-legacy --apply --autopilot-url wss://autopilot.example.com/session \
+  --autopilot-secret-env AUTOPILOT_SIGNING_SECRET --gateway-apps /etc/fonoster/gateway-apps.json
 ```
+
+Steps, in order:
+
+1. **Catalog.** Providers from the `Product` rows that have an adapter (credentialRef
+   `<provider>-default`), and the models and voices the legacy rows name, as catalog ids
+   (`elevenlabs/<voice id>`, `deepgram/nova-2`, `openai/gpt-4o-mini`). Entries already in the
+   catalog are never changed: apply your own catalog (`ops/rebuild/config/catalog-seed.yaml`) first
+   if you want different features or languages.
+2. **App credentials.** The per-app `credentials` of TTS, STT and LLM rows become the workspace's
+   vendor key for that provider; the column is cleared. A workspace that already has a different
+   key keeps it (an `action` notice says so).
+3. **Assistants.** Every stored assistant (the Intelligence row of an Autopilot app) becomes a
+   session assistant (`docs/autopilot.md`, migration guide). An inline model key becomes the
+   workspace's vendor key for that provider (the dashboard's Vendor keys; a workspace that already
+   has one keeps it). An `eventsHook` becomes a workspace webhook for `call.started`, `call.ended`
+   and `call_record.sealed`. Assistant audio filters move to the app. Assistants that cannot be
+   converted are listed as `action` notices; fix them in the dashboard. Notices are also stored for
+   the workspace (`registry_notices`, type `legacy.migrated`).
+4. **Apps.** Legacy Application rows (EXTERNAL with a gRPC `endpoint`, AUTOPILOT) become apps: a
+   WebSocket URL, the `native` flavor, a signing secret and speech defaults. Autopilot apps point at
+   the hosted Autopilot and share its signing secret.
+
+5. **Platform keys** (with `--integrations`). `integrations.json` becomes operator config keyed by
+   credentialRef:
+
+   ```sh
+   fonoster-migrate-legacy --apply ... --integrations /opt/fonoster/integrations.json \
+     --credentials-out /etc/fonoster/credentials.json --secrets-dir /run/secrets/fonoster
+   ```
+
+   Each key is written to its own file in `--secrets-dir` (mode 0600) and referenced as
+   `secret://file/<path>`; without `--secrets-dir` the fragment names environment variables
+   (`OPENAI_DEFAULT`, ...) for you to set. Copy `credentials` into the hosted Autopilot's config,
+   `providers` into the gateway's, and `registry.platformCredentials` (plus `evaluations.credentials`)
+   into `fonoster.yaml`. The apiserver no longer reads `integrations.json`.
 
 How apps are mapped:
 
 | Legacy | New |
 | --- | --- |
-| EXTERNAL, `endpoint: host:port` | `url: ws://host:port` (or `--from-json` plus a URL override), flavor `native` |
+| EXTERNAL, `endpoint: host:port` | `url: ws://host:port`, flavor `native` |
 | AUTOPILOT | `url: <hosted Autopilot>`, flavor `native`; the assistant config stays on the app and is read by `appRef` |
 | `tts.<vendor>` + `config.voice` | `speech.voice: <vendor>/<voice>` (a catalog id) |
 | STT `config.languageCode` | `speech.language` (default `en-US`) |

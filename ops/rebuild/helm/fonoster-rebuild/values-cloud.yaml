@@ -58,7 +58,6 @@ apiserver:
             credentials:
               accessKeyId: "secret://k8s/fonoster-minio#rootUser"
               secretAccessKey: "secret://k8s/fonoster-minio#rootPassword"
-    integrationsFile: /opt/fonoster/integrations.json
     identity:
       database: { url: "secret://k8s/fonoster-db#identityUrl" }
       audience: api

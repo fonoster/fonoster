@@ -53,10 +53,13 @@ export function agentRow(app: Application, numbers: INumber[] | undefined) {
   const languageModel = (app.intelligence?.config as Config)?.languageModel as
     | Config
     | undefined;
-  const provider = field(languageModel, "provider");
-  const model = field(languageModel, "model");
-  const voice = field(app.textToSpeech?.config as Config, "voice");
-  const language = field(app.speechToText?.config as Config, "languageCode");
+  // The session model: catalog ids on the assistant and on the app's speech defaults.
+  const [provider, ...modelRest] = field(languageModel, "model").split("/");
+  const model = modelRest.join("/");
+  const speech = (app as { speech?: Config }).speech;
+  const [voiceVendor, ...voiceRest] = field(speech, "voice").split("/");
+  const voice = voiceRest.join("/");
+  const language = field(speech, "language");
   return {
     numbers:
       routed.length === 0
@@ -65,7 +68,7 @@ export function agentRow(app: Application, numbers: INumber[] | undefined) {
           (routed.length > 1 ? ` +${routed.length - 1}` : ""),
     model: [provider, model].filter(Boolean).join(" · ") || "—",
     voice:
-      [voice && voiceName(app.textToSpeech?.productRef ?? "", voice), language]
+      [voice && voiceName(`tts.${voiceVendor}`, voice), language]
         .filter(Boolean)
         .join(" · ") || "—"
   };

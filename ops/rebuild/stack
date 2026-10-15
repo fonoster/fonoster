@@ -176,8 +176,6 @@ spec:
       port: $RB_SIP_INTERNAL_PORT
 EOF
 
-  echo "[]" > "$CONF/integrations.json"
-
   local db="postgresql://postgres:$POSTGRES_PASSWORD@postgres:5432"
   local s3_store="{ s3: { bucket: records, endpoint: \"http://minio:9000\", region: us-east-1, forcePathStyle: true, credentials: { accessKeyId: \"$MINIO_ROOT_USER\", secretAccessKey: \"$MINIO_ROOT_PASSWORD\" } } }"
 
@@ -208,7 +206,6 @@ callRecords:
   enabled: true
   listCallsFromIndex: true
   stores: [ $s3_store ]
-integrationsFile: /opt/fonoster/integrations.json
 identity:
   database: { url: "$db/fnidentity" }
   audience: api
@@ -327,7 +324,7 @@ EOF
   chmod 600 "$CONF/fonoster.yaml" "$CONF/gateway.yaml"
   # Containers read these as another user (local only).
   chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot-session.yaml" \
-    "$CONF/routr-edgeport.yaml" "$CONF/integrations.json"
+    "$CONF/routr-edgeport.yaml"
   local speech="${DEEPGRAM_API_KEY:+deepgram }${ELEVENLABS_API_KEY:+elevenlabs }"
   log "host address $host_ip; speech: ${speech:-fake }llm: ${llm:-fake }app defaults: $(default_voice), $(default_model)"
 }

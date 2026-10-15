@@ -16,9 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./assistants";
 export * from "./knowledge";
 export * from "./models";
 export * from "./tools";
-export * from "./types";
 export * from "./voice";

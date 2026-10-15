@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AssistantConfig } from "../../assistants";
-import { InvocationResult } from "../types";
+import { InvocationResult, EvalAssistant } from "../types";
 
 /**
  * Maps language model invocation result to the text that should be compared
@@ -25,7 +24,7 @@ import { InvocationResult } from "../types";
  */
 export function extractAiResponse(
   response: InvocationResult,
-  assistantConfig: AssistantConfig
+  assistantConfig: EvalAssistant
 ): string {
   if (response.toolCalls && response.toolCalls.length > 0) {
     const topTool = response.toolCalls[0];

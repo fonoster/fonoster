@@ -17,10 +17,9 @@
  * limitations under the License.
  */
 import { ScenarioEvaluationReport } from "@fonoster/types";
-import { AssistantConfig } from "../../assistants";
 import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
-import { TelephonyContext } from "../types";
+import { TelephonyContext, EvalAssistant } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";
@@ -28,7 +27,7 @@ import { EvalScenario } from "./types";
 
 export async function evalTestCases(autopilotApplication: {
   intelligence: {
-    config: AssistantConfig;
+    config: EvalAssistant;
   };
 }): Promise<ScenarioEvaluationReport[]> {
   const { testCases } = autopilotApplication.intelligence.config;

@@ -16,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AssistantConfig } from "../../assistants";
 import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
-import { TelephonyContext } from "../types";
+import { TelephonyContext, EvalAssistant } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";
@@ -27,7 +26,7 @@ import { EvalScenario, RunEvalCallbacks } from "./types";
 
 export type RunEvalConfig = {
   intelligence: {
-    config: AssistantConfig;
+    config: EvalAssistant;
   };
 };
 

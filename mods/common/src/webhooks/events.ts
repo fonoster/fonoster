@@ -31,6 +31,17 @@ export const WEBHOOK_EVENT_TYPES = [
 
 export type WebhookEventType = (typeof WEBHOOK_EVENT_TYPES)[number];
 
+/**
+ * Event names of the retired Autopilot assistant webhook (`eventsHook`) and what replaces them
+ * (add-call-record 7.3). The record of a conversation (transcript, turns, recording) is in the call
+ * record that `call_record.sealed` links to.
+ */
+export const RETIRED_EVENT_TYPES: Record<string, WebhookEventType[]> = {
+  "conversation.started": ["call.started"],
+  "conversation.ended": ["call.ended", "call_record.sealed"],
+  all: ["call.started", "call.ended", "call_record.sealed"]
+};
+
 export type WebhookEvent<D = Record<string, unknown>> = {
   id: string;
   type: WebhookEventType;

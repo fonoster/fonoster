@@ -29,19 +29,8 @@ function createApplicationsTestCases(expect) {
         request: {
           name: "My Application",
           type: "EXTERNAL",
-          endpoint: "localhost:3000",
-          textToSpeech: {
-            productRef: "tts.google",
-            config: {
-              voice: "en-US-Casual-K"
-            }
-          },
-          speechToText: {
-            productRef: "stt.google",
-            config: {
-              languageCode: "en-US"
-            }
-          }
+          url: "ws://localhost:3000/session",
+          speech: { voice: "deepgram/aura-2-thalia-en", language: "en-US" }
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
@@ -68,8 +57,7 @@ function createApplicationsTestCases(expect) {
           expect(response).has.property("name").to.be.not.null;
           expect(response).has.property("type").to.be.equal("EXTERNAL");
           expect(response).has.property("endpoint").to.be.not.null;
-          expect(response).has.property("textToSpeech").to.be.a("object");
-          expect(response).has.property("speechToText").to.be.a("object");
+          expect(response).has.property("speech").to.be.a("object");
           expect(response).does.not.have.property("intelligence");
           expect(response).has.property("createdAt").to.be.a("date");
           expect(response).has.property("updatedAt").to.be.a("date");

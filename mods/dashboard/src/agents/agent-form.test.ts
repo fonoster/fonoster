@@ -56,7 +56,7 @@ describe("agent payload", () => {
       saved.conversationSettings.systemPrompt
     );
     expect(config.languageModel).toMatchObject({
-      model: `openai/${saved.languageModel.model}`
+      model: saved.languageModel.model
     });
     expect(config.languageModel).not.toHaveProperty("provider");
     expect(config.languageModel.tools).toEqual(saved.languageModel.tools);
@@ -68,18 +68,8 @@ describe("agent payload", () => {
       intelligence: { productRef: "llm.openai", config }
     } as never);
     expect(again.model.provider).toBe("openai");
-    expect(again.model.model).toBe(saved.languageModel.model);
+    expect(again.model.model).toBe("gpt-4o-mini");
     expect(again.tts.voice).toBe("aura-2-celeste-es");
-  });
-
-  it("never sends the retired events webhook", () => {
-    const values = toValues(billingAgent);
-    values.eventsHook = {
-      url: "https://hooks.acme.com/x",
-      events: ["conversation.started"]
-    };
-    const config = toRequest(values, billingAgent).intelligence!.config;
-    expect(config).not.toHaveProperty("eventsHook");
   });
 
   it("maps an edited tool to the assistant tool schema", () => {
