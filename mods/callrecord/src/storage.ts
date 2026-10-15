@@ -18,8 +18,8 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { contentHash } from "./sign";
 import { FsObjectStore, ObjectStore } from "./objectStore";
+import { contentHash } from "./sign";
 import { Part, RecordEntry, SealedVersion, SignedVcon } from "./types";
 
 /**

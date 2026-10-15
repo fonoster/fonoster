@@ -251,10 +251,10 @@ describe("@gateway integration", function () {
     });
     await sleep(300);
     expect(harness.app.attempts).to.have.length(0);
-    expect(record.records.get("out-1")?.[0].message).to.include({
-      type: "call.progress",
-      status: "busy"
-    });
+    const entries = record.records.get("out-1")!.map((e) => e.message);
+    // The minimal record carries the parties (call.started), then the progress and the failure.
+    expect(entries[0]).to.include({ type: "call.started", to: "" });
+    expect(entries[1]).to.include({ type: "call.progress", status: "busy" });
   });
 
   it("appends every message in both directions to the call record", async function () {

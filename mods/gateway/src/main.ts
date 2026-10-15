@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
-import { CallRecordWriter, FsRecordStorage } from "@fonoster/callrecord";
+import { CallRecordWriter } from "@fonoster/callrecord";
 import { getLogger } from "@fonoster/logger";
 import { loadConfig } from "./config";
 import { Gateway } from "./Gateway";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
+import { createRecordWriter } from "./record/createRecordWriter";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 
@@ -33,31 +33,34 @@ async function main() {
     "/etc/fonoster/gateway.yaml";
   const config = loadConfig(file);
   let record: CallRecordSink | undefined;
+  let writer: CallRecordWriter | undefined;
   let sweeper: ReturnType<typeof setInterval> | undefined;
+  // eslint-disable-next-line prefer-const
+  let gateway: Gateway | undefined;
   if (config.callRecord) {
-    const c = config.callRecord;
-    const writer = new CallRecordWriter({
-      storage: new FsRecordStorage(c.dir),
-      region: c.region,
-      key: {
-        kid: c.signingKey.kid,
-        privateKeyPem: fs.readFileSync(c.signingKey.privateKeyFile, "utf8"),
-        jku: c.signingKey.jku
-      }
-    });
-    // Records of calls whose gateway died are sealed by whichever replica sweeps first.
-    writer.sweep();
-    sweeper = setInterval(() => writer.sweep(), c.sweepIntervalMs ?? 10_000);
+    writer = createRecordWriter(config.callRecord, (entry) =>
+      gateway?.onRecordSealed(entry)
+    );
     record = writer;
   } else if (process.env.GATEWAY_RECORD_DIR) {
     record = new JsonlCallRecordSink(process.env.GATEWAY_RECORD_DIR);
   }
-  const gateway = await new Gateway({ config, record }).start();
+  gateway = await new Gateway({ config, record }).start();
+  if (writer) {
+    const w = writer;
+    // Records of calls whose gateway died are sealed by whichever replica sweeps first.
+    void w.sweep();
+    sweeper = setInterval(
+      () => void w.sweep(),
+      config.callRecord?.sweepIntervalMs ?? 10_000
+    );
+  }
 
   const shutdown = async () => {
     logger.info("shutting down");
     if (sweeper) clearInterval(sweeper);
-    await gateway.stop();
+    await gateway?.stop();
+    await writer?.flush();
     process.exit(0);
   };
   process.on("SIGTERM", shutdown);

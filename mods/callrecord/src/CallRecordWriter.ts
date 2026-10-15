@@ -378,12 +378,14 @@ export class CallRecordWriter {
     };
     const version = current.version + 1;
     const signed = signVcon(tombstone, this.options.key);
-    await store.putSealed(callRef, {
+    const sealed: SealedVersion = {
       version,
       signed,
       redacted: signed,
       parts: []
-    });
+    };
+    await store.putSealed(callRef, sealed);
+    this.sealed(callRef, sealed, tombstone, store);
     return {
       version,
       audit: [

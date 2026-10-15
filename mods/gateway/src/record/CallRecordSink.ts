@@ -34,6 +34,11 @@ export interface CallRecordSink {
   append(callRef: string, entry: RecordEntry): void;
   /** The call has ended; nothing more will be appended for it. */
   close(callRef: string): void;
+  /**
+   * Where a recording of this call is written, when the sink can keep recordings (call-record
+   * "Recording is applied by policy"). Sinks without it get no recording.
+   */
+  recordingDir?(callRef: string): string;
 }
 
 /** Keeps entries in memory; for tests and development. */
