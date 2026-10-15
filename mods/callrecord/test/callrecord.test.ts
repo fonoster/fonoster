@@ -24,10 +24,13 @@ import { expect } from "chai";
 import {
   CARD_MASK,
   CallRecordWriter,
-  FsRecordStorage,
+  FsWorkingStore,
   RecordEntry,
+  RecordIndexEntry,
+  RecordStore,
   decodeVcon,
   keyHistoryFromSet,
+  fsStores,
   keySet,
   redactText,
   verifyRecord
@@ -68,7 +71,14 @@ function normalCall(callRef: string): RecordEntry[] {
     {
       at: at(),
       source: "event",
-      message: { type: "call.started", direction: "inbound", appRef: "ivr" }
+      message: {
+        type: "call.started",
+        direction: "inbound",
+        appRef: "ivr",
+        workspaceRef: "ws-1",
+        from: "+15550001111",
+        to: "+15550002222"
+      }
     },
     start("ivr"),
     {
@@ -149,31 +159,38 @@ function normalCall(callRef: string): RecordEntry[] {
 
 describe("@callrecord", function () {
   let dir: string;
-  let storage: FsRecordStorage;
+  let working: FsWorkingStore;
+  let store: RecordStore;
   let writer: CallRecordWriter;
   const sealedEvents: string[] = [];
+  const index: RecordIndexEntry[] = [];
 
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "callrecord-"));
-    storage = new FsRecordStorage(dir);
+    ({ working, store } = fsStores(dir));
     writer = new CallRecordWriter({
-      storage,
+      working,
+      store,
       key: KEY,
       region: "us-east",
-      onSealed: (callRef, v) => sealedEvents.push(`${callRef}@${v}`)
+      onSealed: (e) => {
+        sealedEvents.push(`${e.callRef}@${e.version}`);
+        index.push(e);
+      }
     });
   });
 
   afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
 
-  function record(callRef: string, entries = normalCall(callRef)) {
+  async function record(callRef: string, entries = normalCall(callRef)) {
     for (const e of entries) writer.append(callRef, e);
     writer.close(callRef);
-    return storage.getSealed(callRef)!;
+    await writer.flush();
+    return (await store.getSealed(callRef))!;
   }
 
-  it("seals one signed vCon per call, including handed-off calls", function () {
-    const sealed = record("call-1");
+  it("seals one signed vCon per call, including handed-off calls", async function () {
+    const sealed = await record("call-1");
     expect(sealed.version).to.equal(1);
     expect(verifyRecord(sealed, { [KEY.kid]: KEY.publicKeyPem })).to.deep.equal(
       { ok: true, kid: KEY.kid }
@@ -189,16 +206,27 @@ describe("@callrecord", function () {
       endReason: "caller_hangup",
       complete: true
     });
-    expect((vcon.fonoster as { missing: string[] }).missing).to.deep.equal([
-      "recording",
-      "sip_trace"
-    ]);
-    expect(storage.listWorking()).to.have.length(0);
+    expect((vcon.fonoster as { missing: string[] }).missing).to.deep.equal([]);
+    expect(working.listWorking()).to.have.length(0);
     expect(sealedEvents).to.include("call-1@1");
+    const entry = index.find((e) => e.callRef === "call-1")!;
+    expect(entry).to.deep.include({
+      workspaceRef: "ws-1",
+      appRef: "ivr",
+      from: "+15550001111",
+      to: "+15550002222",
+      direction: "inbound",
+      status: "completed",
+      region: "us-east",
+      version: 1,
+      parts: ["transcript", "messages"]
+    });
+    expect(entry.location).to.match(/^file:\/\//);
+    expect(entry.size).to.be.greaterThan(0);
   });
 
-  it("keeps what the caller heard, marks interruptions and carries turn decisions and notes", function () {
-    const vcon = decodeVcon(record("call-2").signed);
+  it("keeps what the caller heard, marks interruptions and carries turn decisions and notes", async function () {
+    const vcon = decodeVcon((await record("call-2")).signed);
     const bodies = vcon.dialog.map((d) => d.body);
     expect(bodies).to.deep.equal([
       "Your card number please.",
@@ -216,8 +244,8 @@ describe("@callrecord", function () {
     expect(kinds).to.deep.equal(["turn_decisions", "app_notes"]);
   });
 
-  it("masks a card number in the redacted copy and leaves the original unchanged", function () {
-    const sealed = record("call-3");
+  it("masks a card number in the redacted copy and leaves the original unchanged", async function () {
+    const sealed = await record("call-3");
     const redacted = decodeVcon(sealed.redacted);
     expect(redacted.dialog[1].body).to.equal(`It is ${CARD_MASK}`);
     expect(redacted.redacted).to.deep.include({ type: "pii" });
@@ -227,8 +255,8 @@ describe("@callrecord", function () {
     );
   });
 
-  it("detects tampering with a part or the payload", function () {
-    const sealed = record("call-4");
+  it("detects tampering with a part or the payload", async function () {
+    const sealed = await record("call-4");
     const keys = { [KEY.kid]: KEY.publicKeyPem };
     const tamperedPart = {
       ...sealed,
@@ -253,10 +281,12 @@ describe("@callrecord", function () {
     });
   });
 
-  it("never edits a sealed version; additions create a new version that points back", function () {
-    const v1 = record("call-5");
-    expect(() => storage.putSealed("call-5", v1)).to.throw("already sealed");
-    const v2 = writer.addVersion("call-5", {
+  it("never edits a sealed version; additions create a new version that points back", async function () {
+    const v1 = await record("call-5");
+    let refused: Error | undefined;
+    await store.putSealed("call-5", v1).catch((e) => (refused = e));
+    expect(refused?.message).to.contain("already sealed");
+    const v2 = await writer.addVersion("call-5", {
       analysis: [{ type: "summary", body: "Asked for the balance." }]
     });
     expect(v2.version).to.equal(2);
@@ -265,16 +295,28 @@ describe("@callrecord", function () {
     expect(String(vcon2.amended!.content_hash)).to.match(/^sha512-/);
     expect(vcon2.vcon).to.equal("0.4.0");
     expect(vcon2.analysis.map((a) => a.type)).to.include("summary");
-    expect(storage.getSealed("call-5", 1)!.signed).to.deep.equal(v1.signed);
-    expect(storage.getSealed("call-5")!.version).to.equal(2);
+    expect((await store.getSealed("call-5", 1))!.signed).to.deep.equal(
+      v1.signed
+    );
+    expect((await store.getSealed("call-5"))!.version).to.equal(2);
+    expect(
+      verifyRecord((await store.getSealed("call-5", 1))!, {
+        [KEY.kid]: KEY.publicKeyPem
+      })
+    ).to.deep.include({ ok: true });
   });
 
-  it("seals records left behind by a crashed gateway, listing the missing hangup", function () {
+  it("seals records left behind by a crashed gateway, listing the missing hangup", async function () {
     const entries = normalCall("call-6").slice(0, 7);
-    for (const e of entries) writer.append("call-6", e);
-    expect(writer.sweep(Date.now(), 60_000)).to.deep.equal([]);
-    expect(writer.sweep(Date.now() + 60_000, 30_000)).to.deep.equal(["call-6"]);
-    const vcon = decodeVcon(storage.getSealed("call-6")!.signed);
+    // Appended by another (crashed) process: this writer never saw the call as active.
+    const crashed = new FsWorkingStore(dir);
+    for (const e of entries) crashed.append("call-6", e);
+    expect(await writer.sweep(Date.now(), 60_000)).to.deep.equal([]);
+    expect(await writer.sweep(Date.now() + 60_000, 30_000)).to.deep.equal([
+      "call-6"
+    ]);
+    const vcon = decodeVcon((await store.getSealed("call-6"))!.signed);
+    expect(vcon.fonoster).to.include({ status: "incomplete" });
     expect(vcon.fonoster).to.deep.include({ complete: false, endReason: null });
     expect((vcon.fonoster as { missing: string[] }).missing).to.include(
       "hangup"
@@ -284,9 +326,16 @@ describe("@callrecord", function () {
     );
   });
 
-  it("publishes its key set and records point to it", function () {
+  it("leaves calls still running in this process to their hangup", async function () {
+    for (const e of normalCall("call-9").slice(0, 3))
+      writer.append("call-9", e);
+    expect(await writer.sweep(Date.now() + 60_000, 30_000)).to.deep.equal([]);
+  });
+
+  it("publishes its key set and records point to it", async function () {
     const withJku = new CallRecordWriter({
-      storage,
+      working,
+      store,
       region: "us-east",
       key: {
         ...KEY,
@@ -295,7 +344,8 @@ describe("@callrecord", function () {
     });
     for (const e of normalCall("call-8")) withJku.append("call-8", e);
     withJku.close("call-8");
-    const sealed = storage.getSealed("call-8")!;
+    await withJku.flush();
+    const sealed = (await store.getSealed("call-8"))!;
     const header = JSON.parse(
       Buffer.from(sealed.signed.signatures[0].protected, "base64url").toString()
     );
@@ -321,8 +371,8 @@ describe("@callrecord", function () {
     ).to.deep.include({ ok: true });
   });
 
-  it("verifies old records after the key rotates", function () {
-    const sealed = record("call-7");
+  it("verifies old records after the key rotates", async function () {
+    const sealed = await record("call-7");
     const next = keyPair("region-1-2027");
     const history = {
       [KEY.kid]: KEY.publicKeyPem,

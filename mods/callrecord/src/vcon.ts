@@ -29,6 +29,16 @@ export const VCON_VERSION = "0.4.0";
 
 type Built = { vcon: Vcon; redacted: Vcon; parts: Part[]; missing: string[] };
 
+/** The recording the recorder left for this call, as assembled at seal. */
+export type BuiltRecording = {
+  part: Part;
+  startedAt: number;
+  durationMs: number;
+};
+
+/** How the call ended, for the index and search (call-record "fetch and search ... status"). */
+export type RecordStatus = "completed" | "failed" | "incomplete";
+
 const iso = (ms: number) => new Date(ms).toISOString();
 
 /**
@@ -39,7 +49,7 @@ const iso = (ms: number) => new Date(ms).toISOString();
 export function buildVcon(
   callRef: string,
   entries: RecordEntry[],
-  options: { region: string }
+  options: { region: string; recording?: BuiltRecording }
 ): Built {
   const parties: Record<string, unknown>[] = [];
   const dialog: Record<string, unknown>[] = [];
@@ -55,6 +65,11 @@ export function buildVcon(
   let endedAt: number | undefined;
   let endReason: string | undefined;
   const failures: string[] = [];
+  let started: Record<string, unknown> | undefined;
+  let failure: { reason: string; sipStatus?: number } | undefined;
+  let recordingPolicy: string | undefined;
+  let recordingFailed: string | undefined;
+  let consentRequested = false;
 
   for (const e of entries) {
     const m = e.message;
@@ -125,6 +140,20 @@ export function buildVcon(
       }
     } else if (e.source === "app" && type === "record.note") {
       notes.push({ at: iso(e.at), ...(m.data as Record<string, unknown>) });
+    } else if (e.source === "event" && type === "call.started") {
+      started ??= m;
+      startedAt = e.at;
+    } else if (e.source === "event" && type === "call.failed") {
+      failure ??= {
+        reason: String(m.reason),
+        ...(typeof m.sipStatus === "number" ? { sipStatus: m.sipStatus } : {})
+      };
+    } else if (e.source === "event" && type === "recording.started") {
+      recordingPolicy = String(m.policy ?? "on");
+    } else if (e.source === "event" && type === "recording.failed") {
+      recordingFailed = String(m.reason ?? "error");
+    } else if (e.source === "event" && type === "recording.consent_requested") {
+      consentRequested = true;
     } else if (e.source === "event" && type === "call.ended") {
       endedAt = e.at;
       endReason = String(m.reason);
@@ -138,6 +167,23 @@ export function buildVcon(
     }
   }
 
+  // A call that never reached an app has no session.start: its parties come from call.started
+  // (minimal record, call-record "Calls that never reach an app get a minimal record").
+  if (!parties.length && started) {
+    parties.push(
+      { tel: started.from, role: "caller" },
+      { tel: started.to, role: "callee" }
+    );
+    if (started.appRef)
+      parties.push({
+        name: started.appRef,
+        role: "agent",
+        meta: { appRef: started.appRef }
+      });
+  }
+  const appRefs = [...appParty.keys()];
+  if (!appRefs.length && started?.appRef) appRefs.push(String(started.appRef));
+
   const messages = Buffer.from(
     entries.map((e) => JSON.stringify(e)).join("\n") + "\n"
   );
@@ -148,8 +194,32 @@ export function buildVcon(
       data: messages
     }
   ];
-  const missing = ["recording", "sip_trace"];
+  // SIP traces are not part of the first release (CR5), so they are never listed as missing.
+  const missing: string[] = [];
   if (endedAt === undefined) missing.push("hangup");
+  const recording = options.recording;
+  if ((recordingPolicy || recordingFailed) && !recording)
+    missing.push("recording");
+  if (recording) {
+    parts.push(recording.part);
+    dialog.unshift({
+      type: "recording",
+      start: iso(recording.startedAt),
+      duration: recording.durationMs / 1000,
+      parties: [0, appParty.size ? [...appParty.values()][0] : 1],
+      originator: 0,
+      mimetype: recording.part.mimetype,
+      filename: recording.part.name,
+      url: `parts/${recording.part.name}`,
+      content_hash: contentHash(recording.part.data),
+      meta: { channels: ["caller", "agent"] }
+    });
+  }
+  const status: RecordStatus = failure
+    ? "failed"
+    : endedAt === undefined
+      ? "incomplete"
+      : "completed";
 
   const base = {
     vcon: VCON_VERSION,
@@ -175,21 +245,35 @@ export function buildVcon(
           ]
         : [])
     ],
-    attachments: parts.map((p) => ({
-      type: "session_messages",
-      mimetype: p.mimetype,
-      url: `parts/${p.name}`,
-      content_hash: contentHash(p.data)
-    })),
+    attachments: parts
+      .filter((p) => p !== recording?.part)
+      .map((p) => ({
+        type: "session_messages",
+        mimetype: p.mimetype,
+        url: `parts/${p.name}`,
+        content_hash: contentHash(p.data)
+      })),
     fonoster: {
       callRef,
       region: options.region,
       startedAt: iso(startedAt),
       endedAt: endedAt ? iso(endedAt) : null,
       endReason: endReason ?? null,
-      complete:
-        missing.filter((m) => m !== "recording" && m !== "sip_trace").length ===
-        0,
+      status,
+      direction: (started?.direction as string) ?? null,
+      workspaceRef: (started?.workspaceRef as string) ?? null,
+      appRefs,
+      ...(failure ? { failure } : {}),
+      ...(recordingPolicy || recordingFailed || consentRequested
+        ? {
+            recording: {
+              policy: recordingPolicy ?? null,
+              consentRequested,
+              ...(recordingFailed ? { failed: recordingFailed } : {})
+            }
+          }
+        : {}),
+      complete: !missing.includes("hangup"),
       missing,
       failures
     }
@@ -198,6 +282,7 @@ export function buildVcon(
   const vcon: Vcon = { ...base, uuid: randomUUID(), dialog };
   let redactions = 0;
   const redactedDialog = dialog.map((d) => {
+    if (d.type === "recording") return d;
     const r = redactText(String(d.body ?? ""));
     redactions += r.redactions;
     const { meta, ...rest } = d as Record<string, unknown> & {
@@ -212,10 +297,14 @@ export function buildVcon(
       ...(meta ? { meta: { ...meta, ...(fullText ? { fullText } : {}) } } : {})
     };
   });
+  // Beeping the audio needs word timings (open question O3): until then a redacted copy with any
+  // redaction does not reference the recording at all.
   const redacted: Vcon = {
     ...base,
     uuid: randomUUID(),
-    dialog: redactedDialog,
+    dialog: redactions
+      ? redactedDialog.filter((d) => d.type !== "recording")
+      : redactedDialog,
     // The redacted copy does not carry the raw messages, which contain the unredacted text.
     attachments: [],
     redacted: {
@@ -223,7 +312,11 @@ export function buildVcon(
       type: "pii",
       content_hash: contentHash(Buffer.from(JSON.stringify(vcon)))
     },
-    fonoster: { ...base.fonoster, redactions }
+    fonoster: {
+      ...base.fonoster,
+      redactions,
+      ...(redactions && recording ? { recordingWithheld: "redaction" } : {})
+    }
   };
   return { vcon, redacted, parts, missing };
 }
