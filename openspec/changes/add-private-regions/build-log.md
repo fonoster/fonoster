@@ -307,3 +307,7 @@
   an "Add key" link: the region drawer (private) or Vendor keys (public). Unknown state (catalog
   or region not loaded) shows nothing.
 - HD-B6. Helm `regionAgent.workspaceKeysFromCloud` (task 5.9): with the region agent on, the chart merges `cellSecrets: { dir: /var/lib/fonoster-secrets }` into gateway.yaml (the mounted cell secrets; it was left to the user before) and adds `workspaceKeysFromCloud: true` when the value is set; user-given `cellSecrets` keys win. Deployment suite checks both. Cell NATS users and the agent's `nats.user/password` are add-platform HD-B1.
+
+## amdopus decisions
+
+- AO-B5. Flat fee (task 4.5, PR-11, supersedes the RU-B7 placeholder): there is still no Billing page, so the fee is one line in the region drawer, "Monthly fee: $499 / month · 1,234 min this month", shown only when `capabilities.billing.enabled` and the API returns `monthlyFeeCents` (private regions on Fonoster Cloud; hidden in self-hosted). The region view gains `minutesThisMonth` (sum of `region_usage` for the current UTC month; the workspace's own minutes on `/current`, all workspaces on the owner view) so usage is shown next to the fee and never billed. When a Billing page returns, the same two fields feed it.

@@ -71,6 +71,8 @@ export type RegionDetail = Region & {
   endpoints?: RegionEndpoints;
   /** Cloud only: the monthly fee in USD cents. Absent for self-hosted. */
   monthlyFeeCents?: number;
+  /** Minutes this month (private regions); shown with the fee, not billed. */
+  minutesThisMonth?: number;
 };
 
 export type RegionToken = { token: string; expiresAt: string };

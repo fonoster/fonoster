@@ -580,6 +580,23 @@ export function createRegionService(deps: {
       return REGION_REF.test(key) ? byRef(key) : publicRow(key);
     },
 
+    /**
+     * Minutes reported by a region this calendar month (UTC), for one workspace or all of them.
+     * Shown next to the flat fee, never billed (PR-11, AO-B5).
+     */
+    async minutesThisMonth(row: RegionRow, accessKeyId?: string) {
+      const period = now().toISOString().slice(0, 7);
+      const rows: { minutes: number }[] = await db.regionUsage.findMany({
+        where: {
+          regionRef: row.ref,
+          period,
+          ...(accessKeyId ? { accessKeyId } : {})
+        },
+        select: { minutes: true }
+      });
+      return rows.reduce((sum, r) => sum + r.minutes, 0);
+    },
+
     /** Whether a workspace is bound to this region (PR-14: the cloud checks every record). */
     async serves(row: RegionRow, accessKeyId: unknown) {
       if (typeof accessKeyId !== "string" || !accessKeyId) return false;

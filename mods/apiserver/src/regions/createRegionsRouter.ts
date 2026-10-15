@@ -113,6 +113,12 @@ export async function regionView(
         }
       : undefined;
   const lastSeenAt = row.lastHeartbeatAt?.toISOString();
+  const minutesThisMonth =
+    row.kind === "private"
+      ? await service
+          .minutesThisMonth(row, options.workspace?.accessKeyId)
+          .catch(() => undefined)
+      : undefined;
   return {
     ref: row.ref,
     id: row.id,
@@ -162,7 +168,9 @@ export async function regionView(
     })),
     endpoints,
     monthlyFeeCents:
-      row.kind === "private" ? (options.monthlyFeeCents ?? null) : null
+      row.kind === "private" ? (options.monthlyFeeCents ?? null) : null,
+    /** Usage shown with the fee, not billed (PR-11). */
+    minutesThisMonth
   };
 }
 

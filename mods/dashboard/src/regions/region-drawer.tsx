@@ -23,6 +23,7 @@ import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
+import { useCapabilities } from "~/lib/capabilities";
 import { errorMessage } from "~/lib/errors";
 import { REGIONS_KEY, regionKey, useRegionDetail, useRegionsApi } from "./api";
 import { ConnectionDetails } from "./connection";
@@ -59,6 +60,7 @@ function DrawerBody({
   onClose: () => void;
 }) {
   const api = useRegionsApi();
+  const { billing } = useCapabilities();
   const queryClient = useQueryClient();
   const { data: region, error } = useRegionDetail(ref);
   const [confirming, setConfirming] = useState(false);
@@ -165,6 +167,17 @@ function DrawerBody({
             <Row label="Version" value={region.version} />
             <Row label="Last seen" value={ago(region.lastSeenAt)} />
             <Row label="SIP domain" value={region.sipDomain} />
+            {/* Cloud only (PR-11, AO-B5): the flat monthly fee; usage is shown, not billed. */}
+            {billing.enabled && region.monthlyFeeCents != null && (
+              <Row
+                label="Monthly fee"
+                value={`${formatFee(region.monthlyFeeCents)} / month${
+                  region.minutesThisMonth != null
+                    ? ` · ${Math.round(region.minutesThisMonth).toLocaleString("en-US")} min this month`
+                    : ""
+                }`}
+              />
+            )}
           </dl>
           <ConnectionDetails region={region} />
           <section aria-label="Workspaces" className="flex flex-col gap-2">
@@ -220,4 +233,13 @@ function DrawerBody({
       )}
     </SheetContent>
   );
+}
+
+/** USD cents as "$49" or "$49.50". */
+export function formatFee(cents: number): string {
+  const dollars = cents / 100;
+  return `$${dollars.toLocaleString("en-US", {
+    minimumFractionDigits: cents % 100 ? 2 : 0,
+    maximumFractionDigits: 2
+  })}`;
 }
