@@ -270,10 +270,10 @@ app never waits forever.
 
 ### Requirement: Answering-machine detection reaches the app
 
-An app with answering-machine detection on (the app setting `amd`, with an optional window of
-caller audio, default 4 s) SHALL receive exactly one `amd.result` per call with `status` (`human`,
-`voicemail`, `ivr`, `machine` or `unknown`), `confidence`, `detector`, `audioMs` and, when detection
-could not run, `reason`. It SHALL be sent whether or not the app uses the Speech layer. The gateway
+The gateway SHALL send exactly one `amd.result` per call to an app with answering-machine
+detection on (the app setting `amd`, with an optional window of caller audio, default 4 s), with
+`status` (`human`, `voicemail`, `ivr`, `machine` or `unknown`), `confidence`, `detector`, `audioMs`
+and, when detection could not run, `reason`. It SHALL be sent whether or not the app uses the Speech layer. The gateway
 SHALL NOT act on the verdict: hanging up or leaving a message is the app's decision.
 
 #### Scenario: Voicemail answers an outbound call
