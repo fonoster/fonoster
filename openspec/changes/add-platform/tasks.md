@@ -20,7 +20,7 @@
   - Compose profile `observability` is written and validated with `docker compose config`; not brought up end to end, and no Helm equivalent yet (PL-B6).
 - [ ] 2.7 Helm chart for all deployables; Compose updated (Asterisk and InfluxDB removed, NATS JetStream and leaf nodes, optional ClickHouse)
   - `ops/rebuild/compose.yaml` and `ops/rebuild/helm/fonoster-rebuild` (gateway and media node, `helm lint` clean). Missing: apiserver, dashboard and Autopilot in the chart, ClickHouse, the root `compose.yaml` migration.
-  - Compose now runs the whole platform with the control plane (apiserver, Envoy, dashboard, appsync, fakes, caller bot) and `ops/rebuild/stack` brings it up, seeds it and smoke-tests a call (ST-B1..B9). Helm still lacks the control plane.
+  - Compose now runs the whole platform with the control plane (apiserver, Envoy, dashboard, fakes, caller bot; appsync removed in FN-B1) and `ops/rebuild/stack` brings it up, seeds it and smoke-tests a call (ST-B1..B9). Helm still lacks the control plane.
 - [ ] 2.8 Region tokens, cell registration and config sync (numbers, apps, catalog) over the leaf node
 - [ ] 2.9 Call-record index entries from cells; dashboard fetches private-cell records from the cell
 

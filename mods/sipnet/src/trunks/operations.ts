@@ -41,9 +41,44 @@ function createTrunk(trunks: TrunkApi) {
   );
 }
 
+const blank = (v: unknown) =>
+  v === undefined || v === null || v === "" || (Array.isArray(v) && !v.length);
+
+/**
+ * A partial update: fields the request leaves blank keep their current value (proto3 sends ""
+ * and [] for fields not set, and Routr rejects a trunk without a name or inbound URI). Clearing
+ * the URIs or a reference through an update is therefore not possible; recreate the trunk.
+ */
+export function mergeTrunkUpdate(
+  request: UpdateTrunkRequest,
+  current: Partial<TrunkExtended>
+): UpdateTrunkRequest {
+  const merged: Record<string, unknown> = { ...request };
+  for (const key of [
+    "name",
+    "inboundUri",
+    "accessControlListRef",
+    "inboundCredentialsRef",
+    "outboundCredentialsRef",
+    "uris"
+  ] as const) {
+    const value = (current as Record<string, unknown>)[key];
+    if (blank(merged[key]) && !blank(value)) merged[key] = value;
+  }
+  return merged as UpdateTrunkRequest;
+}
+
 function updateTrunk(trunks: TrunkApi) {
+  const partial = {
+    ...trunks,
+    getTrunk: (ref: string) => trunks.getTrunk(ref),
+    updateTrunk: async (request: UpdateTrunkRequest) =>
+      trunks.updateTrunk(
+        mergeTrunkUpdate(request, await trunks.getTrunk(request.ref))
+      )
+  } as TrunkApi;
   return updateResource<TrunkExtended, UpdateTrunkRequest, TrunkApi>(
-    trunks,
+    partial,
     RESOURCE,
     V.updateTrunkRequestSchema
   );

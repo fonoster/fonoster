@@ -13,6 +13,8 @@ routr:
   # Created at start; the media nodes register with it (MEDIANODE_PASSWORD).
   mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: change-me }
 nats: { url: "nats://nats:4222" }
+# Autopilot apps point at the hosted Autopilot and share its signing secret.
+apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: change-me }
 influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
 callRecords:
   enabled: true

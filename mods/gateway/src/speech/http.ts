@@ -18,7 +18,12 @@
  */
 import { SpeechError, Synthesis } from "./types";
 
-/** Shared HTTP plumbing for streaming TTS vendors: timeouts, error mapping, body streaming. */
+/**
+ * Shared HTTP plumbing for streaming TTS vendors: timeouts, error mapping, body streaming.
+ * `timeoutMs` bounds the wait for the response and for each next chunk, not the whole body: the
+ * body is read at playback pace, so a reply longer than `timeoutMs` must not count as a stall
+ * (FN-B6: long replies were cut off with "Deepgram stalled").
+ */
 export async function streamingPost(
   url: string,
   init: { headers: Record<string, string>; body: string },
@@ -26,11 +31,19 @@ export async function streamingPost(
   timeoutMs: number,
   vendor: string
 ): Promise<Synthesis["audio"]> {
-  const timeout = AbortSignal.timeout(timeoutMs);
   const controller = new AbortController();
   const abort = () => controller.abort();
   signal.addEventListener("abort", abort, { once: true });
-  timeout.addEventListener("abort", abort, { once: true });
+  const timeout = { aborted: false };
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const arm = () => {
+    timer = setTimeout(() => {
+      timeout.aborted = true;
+      controller.abort();
+    }, timeoutMs);
+  };
+  const disarm = () => clearTimeout(timer);
+  arm();
 
   let res: Awaited<ReturnType<typeof fetch>>;
   try {
@@ -41,6 +54,7 @@ export async function streamingPost(
       signal: controller.signal
     });
   } catch (e) {
+    disarm();
     if (timeout.aborted)
       throw new SpeechError(
         "provider_timeout",
@@ -52,6 +66,7 @@ export async function streamingPost(
       `${vendor} unreachable: ${(e as Error).message}`
     );
   }
+  disarm();
   if (res.status === 400 || res.status === 422) {
     throw new SpeechError(
       "bad_message",
@@ -71,7 +86,9 @@ export async function streamingPost(
     let odd: Buffer | undefined;
     try {
       for (;;) {
+        arm();
         const { done, value } = await reader.read();
+        disarm();
         if (done) return;
         let chunk = Buffer.from(value);
         if (odd) {
@@ -90,6 +107,7 @@ export async function streamingPost(
       if (!signal.aborted)
         throw new SpeechError("provider_unavailable", (e as Error).message);
     } finally {
+      disarm();
       signal.removeEventListener("abort", abort);
     }
   })();

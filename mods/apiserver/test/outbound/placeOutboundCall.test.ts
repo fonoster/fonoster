@@ -218,4 +218,63 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS", function () {
       gateway.unsubscribe();
     }
   });
+  it("publishes the call's status for TrackCall from the room's events", async function () {
+    if (!NATS_URL) return this.skip();
+    const nc = await connect({ servers: NATS_URL });
+    const nodeId = `n-${Date.now()}`;
+    const roomRef = `r-${Date.now()}`;
+    const statuses: Record<string, unknown>[] = [];
+    const track = nc.subscribe("calls.track", {
+      callback: (_e, msg) => statuses.push(JSON.parse(sc.decode(msg.data)))
+    });
+    const node = nc.subscribe(`media.${nodeId}.commands`, {
+      callback: (_e, msg) => {
+        const cmd = JSON.parse(sc.decode(msg.data));
+        msg.respond(
+          sc.encode(JSON.stringify({ type: "ack", id: cmd.id, roomRef }))
+        );
+        if (cmd.type !== "participant.dial") return;
+        const events = `media.${nodeId}.events.${roomRef}`;
+        for (const ev of [
+          { type: "call.progress", status: "ringing" },
+          { type: "call.answered", participantRef: "p-1" },
+          { type: "room.ended", reason: "callee_hangup" }
+        ])
+          nc.publish(events, sc.encode(JSON.stringify({ ...ev, roomRef })));
+      }
+    });
+    const gateway = nc.subscribe("gateway.outbound", {
+      queue: "gateway-outbound",
+      callback: (_e, msg) =>
+        msg.respond(sc.encode(JSON.stringify({ type: "ack" })))
+    });
+    const stop = await runOutboundCalls({ nc });
+    try {
+      nc.publish(
+        `media.${nodeId}.heartbeat`,
+        sc.encode(JSON.stringify({ type: "node.heartbeat", nodeId, rooms: 0 }))
+      );
+      await nc.flush();
+      await new Promise((r) => setTimeout(r, 50));
+      nc.publish(
+        "calls.create",
+        sc.encode(JSON.stringify({ ...CALL, ref: "call-track" }))
+      );
+      const deadline = Date.now() + 3000;
+      while (statuses.length < 4 && Date.now() < deadline)
+        await new Promise((r) => setTimeout(r, 20));
+      expect(statuses).to.deep.equal([
+        { ref: "call-track", status: "TRYING" },
+        { ref: "call-track", status: "PROGRESS" },
+        { ref: "call-track", status: "ANSWER" },
+        { ref: "call-track", final: true }
+      ]);
+    } finally {
+      await stop();
+      track.unsubscribe();
+      node.unsubscribe();
+      gateway.unsubscribe();
+      await nc.close();
+    }
+  });
 });

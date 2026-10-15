@@ -23,7 +23,8 @@
 //   Trunk, one Autopilot app, and a Number on that Trunk pointing at the app.
 //
 // Run by `ops/rebuild/stack seed`. Reads RB_API_ENDPOINT, RB_ADMIN_EMAIL, RB_ADMIN_PASSWORD,
-// RB_AGENT_PASSWORD, RB_SEED_FILE from the environment and writes the result (refs and the local
+// RB_AGENT_PASSWORD, RB_SEED_FILE, RB_DEFAULT_VOICE and RB_DEFAULT_MODEL (catalog ids the stack picks
+// from the vendor keys present) from the environment and writes the result (refs and the local
 // credentials) to RB_SEED_FILE. Nothing here is meant for a shared or production deployment.
 const fs = require("fs");
 const SDK = require("@fonoster/sdk");
@@ -46,6 +47,15 @@ const DEMO = {
   appName: "Demo Autopilot"
 };
 
+const MODEL = env("RB_DEFAULT_MODEL", "openai/gpt-4o-mini");
+const SPEECH = {
+  voice: env("RB_DEFAULT_VOICE", "deepgram/aura-2-thalia-en"),
+  language: "en-US",
+  sttModel: "deepgram/nova-3"
+};
+
+// The session assistant schema (sessionAssistantSchema): the model is a catalog id, and the
+// recognition hints bias Deepgram toward the product name.
 const ASSISTANT = {
   conversationSettings: {
     firstMessage:
@@ -58,15 +68,13 @@ const ASSISTANT = {
       message: "Are you still there?",
       timeout: 30000,
       maxTimeoutCount: 2
-    }
+    },
+    hints: ["Fonoster"]
   },
   languageModel: {
-    provider: "openai",
-    model: "gpt-4o-mini",
+    model: MODEL,
     temperature: 0.4,
-    maxTokens: 250,
-    knowledgeBase: [],
-    tools: []
+    maxTokens: 250
   }
 };
 
@@ -172,16 +180,27 @@ async function main() {
       uris: []
     }));
 
+  // Created once, then brought in line with the current keys (voice, model) on every seed.
   const applications = new SDK.Applications(client);
-  const app =
-    items(await applications.listApplications({ pageSize: 100 })).find(
-      (a) => a.name === DEMO.appName
-    ) ??
-    (await applications.createApplication({
-      name: DEMO.appName,
-      type: "AUTOPILOT",
-      intelligence: { productRef: "llm.openai", config: ASSISTANT }
-    }));
+  const appRequest = {
+    name: DEMO.appName,
+    type: "AUTOPILOT",
+    speech: SPEECH,
+    intelligence: {
+      productRef: `llm.${MODEL.split("/")[0]}`,
+      config: ASSISTANT
+    }
+  };
+  const existing = items(
+    await applications.listApplications({ pageSize: 100 })
+  ).find((a) => a.name === DEMO.appName);
+  const app = existing
+    ? (await applications.updateApplication({
+        ref: existing.ref,
+        ...appRequest
+      }),
+      existing)
+    : await applications.createApplication(appRequest);
 
   const numbers = new SDK.Numbers(client);
   const telUrl = `tel:${DEMO.number}`;
@@ -216,7 +235,15 @@ async function main() {
   fs.writeFileSync(seedFile, JSON.stringify(result, null, 2) + "\n", {
     mode: 0o600
   });
-  console.log(JSON.stringify({ ok: true, app: result.app, number: telUrl }));
+  console.log(
+    JSON.stringify({
+      ok: true,
+      app: result.app,
+      number: telUrl,
+      model: MODEL,
+      voice: SPEECH.voice
+    })
+  );
 }
 
 // Routr starts after the API server (about a minute on a cold start); Routr-backed calls answer

@@ -6,13 +6,16 @@
 #   ops/rebuild/stack info      URLs and the local credentials
 #   ops/rebuild/stack smoke     up + seed + one call through Routr to the app + checks + down
 #   ops/rebuild/stack call      place one test call with the caller bot (stack must be up)
+#   ops/rebuild/stack ask       call, say a recorded question, report the turn latency
+#                               (RB_QUESTION=<16 kHz WAV>, RB_TURNS, RB_TRANSCRIBE=1 transcribes)
 #   ops/rebuild/stack logs [s]  follow logs (all services, or one)
 #   ops/rebuild/stack ps        list containers
 #   ops/rebuild/stack down      stop and remove containers (keeps data)
 #   ops/rebuild/stack reset     down and delete volumes and ops/rebuild/.local
 #
-# Real vendors: export DEEPGRAM_API_KEY / ELEVENLABS_API_KEY / OPENAI_API_KEY (or put them in
-# ops/rebuild/.local/vendor.env) before `up`. Without them the stack uses the fake providers.
+# Real vendors: put DEEPGRAM_API_KEY, ELEVENLABS_API_KEY, GROQ_API_KEY and/or OPENAI_API_KEY in
+# ops/rebuild/.local/vendor.env (or export them) before `up` and `seed`. Without them the stack
+# uses the fake providers.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -107,6 +110,22 @@ detect_host_ip() {
   echo "$ip"
 }
 
+# The seeded app's voice and model follow the keys present (docs/try-the-new-platform.md):
+# Deepgram Aura-2 (ElevenLabs when only its key is set), gpt-oss-120b on Groq (else OpenAI
+# gpt-4o-mini, which the fake LLM answers without a key). RB_DEFAULT_VOICE / RB_DEFAULT_MODEL
+# override them.
+default_voice() {
+  if [ -n "${RB_DEFAULT_VOICE:-}" ]; then echo "$RB_DEFAULT_VOICE"
+  elif [ -z "${DEEPGRAM_API_KEY:-}" ] && [ -n "${ELEVENLABS_API_KEY:-}" ]; then
+    echo "elevenlabs/${RB_ELEVENLABS_VOICE:-EXAVITQu4vr4xnSDxMaL}"
+  else echo "deepgram/aura-2-thalia-en"; fi
+}
+default_model() {
+  if [ -n "${RB_DEFAULT_MODEL:-}" ]; then echo "$RB_DEFAULT_MODEL"
+  elif [ -n "${GROQ_API_KEY:-}" ]; then echo "groq/openai/gpt-oss-120b"
+  else echo "openai/gpt-4o-mini"; fi
+}
+
 # ---- configs (rendered on every `up`, from stack.env and the vendor keys present) ----
 
 render_configs() {
@@ -122,14 +141,6 @@ render_configs() {
     echo "RB_PUBLIC_API_URL=http://localhost:$RB_API_PORT"
   } > "$HOST_ENV"
 
-  local voice="deepgram/aura-2-thalia-en" tts_providers="deepgram"
-  [ -n "${ELEVENLABS_API_KEY:-}" ] && [ -z "${DEEPGRAM_API_KEY:-}" ] \
-    && voice="elevenlabs/${RB_ELEVENLABS_VOICE:-21m00Tcm4TlvDq8ikWAM}"
-  [ -n "${ELEVENLABS_API_KEY:-}" ] && tts_providers="deepgram,elevenlabs"
-  {
-    echo "RB_DEFAULT_VOICE=${RB_DEFAULT_VOICE:-$voice}"
-    echo "RB_TTS_PROVIDERS=$tts_providers"
-  } >> "$HOST_ENV"
 
   # Routr's EdgePort: SIP on the published port, inside the container too.
   cat > "$CONF/routr-edgeport.yaml" <<EOF
@@ -183,6 +194,8 @@ routr:
   apiEndpoint: routr:51907
   mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: "$RB_NODE_PASSWORD" }
 nats: { url: "nats://nats:4222" }
+# Autopilot apps point at the hosted Autopilot and share its signing secret (FN-B1).
+apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: "$AUTOPILOT_SIGNING_SECRET" }
 # Required by the schema; unused with callRecords.listCallsFromIndex.
 influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
 callRecords:
@@ -219,11 +232,14 @@ testMode: true
 providers:
 $providers
 stt: { provider: deepgram }
-# Apps, webhooks: the control-plane database (the apiserver's).
+# Apps, the catalog (seeded from catalog-seed.yaml at \`up\`), workspace vendor keys and
+# webhooks: the control-plane database (the apiserver's).
 database:
   url: "$db/fonoster"
   encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
 appStore: { source: database, cacheMs: 3000 }
+registry: { source: database, refreshMs: 5000 }
+workspaceKeys: { enabled: true, cacheMs: 5000 }
 webhooks: { enabled: true, refreshMs: 5000 }
 callRecord:
   dir: /tmp/fonoster-records
@@ -233,40 +249,41 @@ callRecord:
   recording: off
 EOF
 
-  # The hosted Autopilot: OpenAI when its key is present, else the fake LLM under the same id.
-  local llm_adapter="fake" test_mode="true"
-  [ -n "${OPENAI_API_KEY:-}" ] && llm_adapter="openai" && test_mode="false"
+  # The hosted Autopilot: assistants, the catalog and workspace vendor keys from the database. A
+  # language-model provider without a platform key answers through the fake LLM (same ids).
+  local creds="" endpoints="" llm=""
+  if [ -n "${GROQ_API_KEY:-}" ]; then
+    llm+="groq "; creds+="  groq-default: { env: GROQ_API_KEY }"$'\n'
+  else
+    creds+="  groq-default: { value: fake }"$'\n'; endpoints+="  groq: \"http://fakes:7003\""$'\n'
+  fi
+  if [ -n "${OPENAI_API_KEY:-}" ]; then
+    llm+="openai "; creds+="  openai-default: { env: OPENAI_API_KEY }"$'\n'
+  else
+    creds+="  openai-default: { value: fake }"$'\n'; endpoints+="  openai: \"http://fakes:7003\""$'\n'
+  fi
+  [ -n "$endpoints" ] || endpoints="  {}"
   cat > "$CONF/autopilot-session.yaml" <<EOF
 # Rendered by ops/rebuild/stack up. Local only.
 host: 0.0.0.0
 port: 3000
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
-assistants: { file: /var/lib/fonoster/assistants/assistants.json }
-registry: { file: /etc/fonoster/registry.json }
+assistants: { source: database, cacheMs: 3000 }
+registry: { source: database, refreshMs: 5000 }
+workspaceSecrets: { source: database }
+database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
+# Platform keys by the catalog's credentialRef (the fake LLM takes any).
 credentials:
-  openai-default: { env: OPENAI_API_KEY }
+$creds
 endpoints:
-  fake: "http://fakes:7003"
-testMode: $test_mode
+$endpoints
 EOF
-  # The catalog seed (config/catalog-seed.yaml) as the hosted Autopilot's file store; without a
-  # vendor key, its LLM providers use the fake adapter under the same ids.
-  (cd "$ROOT" && LLM_ADAPTER="$llm_adapter" node -e '
-    const fs = require("fs");
-    const yaml = require("yaml");
-    const seed = yaml.parse(fs.readFileSync(process.argv[1], "utf8"));
-    const entries = seed.entries.map((e) =>
-      e.kind === "provider" && e.capabilities.includes("llm") && process.env.LLM_ADAPTER === "fake"
-        ? { ...e, adapter: "fake" }
-        : e
-    );
-    fs.writeFileSync(process.argv[2], JSON.stringify({ entries, audit: [] }, null, 2) + "\n");
-  ' "$HERE/config/catalog-seed.yaml" "$CONF/registry.json")
   chmod 600 "$CONF/fonoster.yaml" "$CONF/gateway.yaml"
   # Containers read these as another user (local only).
   chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot-session.yaml" \
-    "$CONF/registry.json" "$CONF/routr-edgeport.yaml" "$CONF/integrations.json"
-  log "host address $host_ip; speech: ${DEEPGRAM_API_KEY:+deepgram}${DEEPGRAM_API_KEY:-fake}, llm: $llm_adapter"
+    "$CONF/routr-edgeport.yaml" "$CONF/integrations.json"
+  local speech="${DEEPGRAM_API_KEY:+deepgram }${ELEVENLABS_API_KEY:+elevenlabs }"
+  log "host address $host_ip; speech: ${speech:-fake }llm: ${llm:-fake }app defaults: $(default_voice), $(default_model)"
 }
 
 wait_for() {
@@ -298,7 +315,18 @@ cmd_up() {
   compose up -d --build --remove-orphans
   wait_for "the apiserver (migrations, Identity, seed)" 120 api_ready \
     || { compose logs --tail 40 apiserver; die "apiserver did not start"; }
+  seed_catalog
   cmd_info
+}
+
+# The provider catalog (config/catalog-seed.yaml) into the registry tables, through the
+# fonoster-registry utility in the apiserver image. Idempotent ("no changes" on later runs).
+seed_catalog() {
+  log "catalog: $(compose exec -T \
+    -e FONOSTER_REGISTRY_DATABASE_URL="postgresql://postgres:$POSTGRES_PASSWORD@postgres:5432/fonoster" \
+    apiserver node /work/mods/common/dist/registry/cli.js apply --f /dev/stdin --store database \
+    < "$HERE/config/catalog-seed.yaml" \
+    | awk '/^error|no changes/ {print; next} {n++} END {if (n) print n " entries added or changed"}')"
 }
 
 cmd_seed() {
@@ -307,14 +335,12 @@ cmd_seed() {
   command -v node >/dev/null || die "node is required (and 'npm install' in the repository)"
   log "seeding through the API at localhost:$RB_API_PORT"
   (cd "$ROOT" && RB_API_ENDPOINT="localhost:$RB_API_PORT" RB_SEED_FILE="$SEED_FILE" \
+    RB_DEFAULT_VOICE="$(default_voice)" RB_DEFAULT_MODEL="$(default_model)" \
     node "$HERE/seed.cjs")
-  wait_for "appsync to point the app at the hosted Autopilot" 30 app_synced \
-    || die "appsync did not update the app; see 'ops/rebuild/stack logs appsync'"
+  # The apiserver points Autopilot apps at the hosted Autopilot itself (apps.autopilotUrl).
+  [ "$(psql_fonoster "select url from applications where ref='$(seed_get app.ref)'")" = "ws://autopilot:3000" ] \
+    || die "the app does not point at the hosted Autopilot (apps.autopilotUrl in fonoster.yaml)"
   cmd_info
-}
-
-app_synced() {
-  [ "$(psql_fonoster "select url from applications where ref='$(seed_get app.ref)'")" = "${RB_AUTOPILOT_URL:-ws://autopilot:3000}" ]
 }
 
 psql_fonoster() {
@@ -380,6 +406,20 @@ cmd_call() {
   printf '%s\n' "$CALL_STATUS" > "$LOCAL/last-call.json"
 }
 
+# One call in which the caller bot asks a recorded question (ops/rebuild/ask.cjs): the turn
+# latency and what the caller heard (heard.wav; transcribed with RB_TRANSCRIBE=1 and Deepgram).
+cmd_ask() {
+  load_env
+  [ -f "$SEED_FILE" ] || die "seed first"
+  local number
+  number="$(seed_get number.telUrl)"; number="${number#tel:}"
+  wait_for "the caller bot" 30 curl -sf "http://localhost:$RB_CALLER_PORT/calls"
+  RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_INTERNAL_PORT" \
+    RB_REQUEST_HOST="$(seed_get trunk.inboundUri)" RB_TO="$number" \
+    RB_QUESTION="${RB_QUESTION:-$ROOT/mods/gateway/scripts/fixtures/question-fonoster.wav}" \
+    RB_OUT="${RB_OUT:-$LOCAL/ask}" node "$HERE/ask.cjs"
+}
+
 record_indexed() {
   [ "$(psql_fonoster "select count(*) from call_records where app_ref='$(seed_get app.ref)' and status <> 'erased'")" -gt "${RECORDS_BEFORE:-0}" ]
 }
@@ -400,6 +440,8 @@ cmd_smoke() {
   cmd_up
   cmd_seed
   RECORDS_BEFORE="$(psql_fonoster "select count(*) from call_records where app_ref='$(seed_get app.ref)'")"
+  # The gateway and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.
+  sleep 4
   cmd_call
   check_call || die "smoke test failed (logs: ops/rebuild/stack logs)"
   log "smoke test passed"
@@ -424,10 +466,11 @@ case "${1:-}" in
     check_call && log "call ok"
     ;;
   smoke) cmd_smoke ;;
+  ask) cmd_ask ;;
   logs) shift; compose logs -f --tail 100 "$@" ;;
   ps) compose ps ;;
   down) cmd_down ;;
   reset) cmd_reset ;;
   compose) shift; compose "$@" ;;
-  *) sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

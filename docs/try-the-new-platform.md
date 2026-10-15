@@ -46,7 +46,9 @@ runs reuse them. `up` prints the dashboard URL and the login when the API server
 The stack runs: NATS, Postgres (Routr, the API server and Identity each have a database), Routr,
 RTPEngine, the media node, the gateway, the hosted Autopilot, MinIO, the API server (it applies
 every migration, including `rebuild_persistence` and `add_call_records`, then Identity's), Envoy,
-the dashboard, `appsync`, the fake providers and the caller bot. No Asterisk.
+the dashboard, the fake providers and the caller bot. No Asterisk. Once the API server is up, `up`
+loads the provider catalog (`ops/rebuild/config/catalog-seed.yaml`: Deepgram, ElevenLabs, OpenAI,
+Groq and their models and voices) into the registry tables.
 
 ## Seed the demo
 
@@ -59,9 +61,11 @@ It uses the API (as the owner account) to create, once:
 - the workspace **Demo** and a workspace API key,
 - a SIP Domain `demo.fonoster.local` with the Agent `softphone` (a generated password),
 - a Trunk `carrier.fonoster.local` (stands in for a carrier),
-- the Autopilot app **Demo Autopilot** (a short receptionist prompt, `openai/gpt-4o-mini`),
+- the Autopilot app **Demo Autopilot** (a short receptionist prompt; its model and voice follow
+  your keys, see "Real voices" below; Deepgram `nova-3` recognition with the hint "Fonoster"),
 - the Number `+17853178070` on that Trunk, pointing at the app.
 
+Running `seed` again updates the app's model and voice to match the keys you have now.
 `ops/rebuild/stack info` prints everything again: URLs, the dashboard login, the API key, the
 softphone settings and the number. The values live in `ops/rebuild/.local/seed.json`.
 
@@ -69,8 +73,11 @@ softphone settings and the number. The values live in `ops/rebuild/.local/seed.j
 
 Open <http://localhost:16449> and sign in with the email and password `info` prints
 (`admin@fonoster.local` and a generated password). Pick the **Demo** workspace: the app, the
-number, the domain and the agent are there. Apps you create in the dashboard work too: `appsync`
-points every Autopilot app at the hosted Autopilot within a few seconds.
+number, the domain and the agent are there. Apps and agents you create in the dashboard answer
+calls right away: the API server points every Autopilot app at the hosted Autopilot, which reads
+the assistant from the database (edits apply within a few seconds). An agent's "Talk" panel lists
+the numbers that reach it; link a number to the agent's app in Numbers to call it. Talking to an
+agent from the browser is not available yet (the media path has no WebRTC).
 
 ## Register a softphone
 
@@ -108,6 +115,14 @@ No softphone? The caller bot places a call and checks the answer:
 ops/rebuild/stack call
 ```
 
+Or let it ask a recorded question ("What is Fonoster?") and measure how fast the agent answers:
+
+```sh
+ops/rebuild/stack ask                    # prints the turn latency; saves .local/ask/heard.wav
+RB_TRANSCRIBE=1 ops/rebuild/stack ask    # also transcribes what it heard (Deepgram key needed)
+RB_QUESTION=my-question.wav RB_TURNS=2 ops/rebuild/stack ask   # 16 kHz mono 16-bit WAV
+```
+
 ## Call records
 
 Every call is sealed as a signed record (vCon) in MinIO and indexed by the API server.
@@ -118,20 +133,52 @@ Every call is sealed as a signed record (vCon) in MinIO and indexed by the API s
 - The objects: MinIO console <http://localhost:16901> (user and password in `info`), bucket
   `records`.
 
-## Real vendors
+## Real voices
 
-Put the keys in your shell or in `ops/rebuild/.local/vendor.env` (git-ignored), then run `up` again:
+Put your keys in `ops/rebuild/.local/vendor.env` (created by the first `up`, git-ignored, never
+committed), one per line, then run `up` and `seed` again:
 
 ```sh
-DEEPGRAM_API_KEY=...      # speech-to-text and the default voice (deepgram/aura-2-thalia-en)
-ELEVENLABS_API_KEY=...    # optional voices: elevenlabs/<voice id>
-OPENAI_API_KEY=...        # the assistant's language model
+# ops/rebuild/.local/vendor.env
+DEEPGRAM_API_KEY=...      # speech-to-text (nova-3) and the default voice (Aura-2)
+ELEVENLABS_API_KEY=...    # optional: ElevenLabs voices (elevenlabs/<voice id>)
+GROQ_API_KEY=...          # the default language model (gpt-oss-120b on Groq)
+OPENAI_API_KEY=...        # optional: OpenAI models (openai/gpt-4o-mini, openai/gpt-4.1-mini)
 ```
 
-`up` renders the gateway with the Deepgram (and ElevenLabs) adapters instead of the fakes, and the
-hosted Autopilot's catalog with the OpenAI adapter instead of the fake model. Each one switches on
-its own: with only `OPENAI_API_KEY` you get a real model and fake speech. Keys are passed to the
-containers by name and never written to the rendered configs.
+```sh
+ops/rebuild/stack up && ops/rebuild/stack seed
+```
+
+Exported shell variables work too. Each key switches on by itself; what you get:
+
+| Keys present | Speech | Demo app's voice | Demo app's model |
+| --- | --- | --- | --- |
+| none | fake (tones, scripted recognizer) | `deepgram/aura-2-thalia-en` (fake) | `openai/gpt-4o-mini` (fake echo) |
+| `DEEPGRAM_API_KEY` | Deepgram `nova-3`, hint "Fonoster" | `deepgram/aura-2-thalia-en` | as below |
+| only `ELEVENLABS_API_KEY` (no Deepgram) | fake recognizer | `elevenlabs/EXAVITQu4vr4xnSDxMaL` (Sarah) | as below |
+| `GROQ_API_KEY` | | | `groq/openai/gpt-oss-120b` |
+| `OPENAI_API_KEY` without Groq | | | `openai/gpt-4o-mini` |
+
+`RB_DEFAULT_VOICE` and `RB_DEFAULT_MODEL` (catalog ids, in `vendor.env` too) override the demo
+app's voice and model, e.g. `RB_DEFAULT_VOICE=elevenlabs/JBFqnCBsd6RMkjVDRZzb` (George) or
+`RB_DEFAULT_MODEL=openai/gpt-4.1-mini`. Every voice and model in the catalog can also be picked per
+app or agent in the dashboard. Without its key, a language model answers through the fake model
+under the same id; a voice whose provider has no key is not available (pick another).
+
+Keys reach the containers by variable name only (the gateway for speech, the hosted Autopilot for
+language models) and are never written to the rendered configs. Workspace vendor keys added in
+the dashboard (Vendor keys) replace the platform key for that workspace's calls, for speech and
+language models alike.
+
+Groq retired Llama 3.3 70B, so the catalog marks `groq/llama-3.3-70b-versatile` retired: an
+assistant that still names it runs on `groq/openai/gpt-oss-120b` (`groq/openai/gpt-oss-20b` is
+there too).
+
+Measured on a laptop with `ops/rebuild/stack ask` (the caller asks "What is Fonoster?" over
+PCMU): from the end of the question to the first audio of the answer, about 1.5 s with
+gpt-oss-120b on Groq, Deepgram nova-3 and Aura-2 (1.52 s and 1.54 s), and 1.3 s with an
+ElevenLabs voice. The answers were on topic.
 
 ## Logs, status, stop
 
@@ -152,11 +199,12 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
   server creates (`routr.mediaNodePeer`). Numbers of apps go to that Peer.
 - **Gateway**: reads apps from the API server's database (`appStore.source: database`), delivers
   workspace webhooks, writes call records to MinIO and announces them to the index on NATS.
+- **Gateway** also reads the provider catalog (`registry.source: database`) and workspace vendor
+  keys (`workspaceKeys.enabled`) from the same database.
 - **Hosted Autopilot** (`mods/autopilot/src/session/main.ts`): the URL every Autopilot app points
-  to (`ws://autopilot:3000`), with one signing secret.
-- **appsync** (`ops/rebuild/appsync.cjs`, interim): writes the session-app columns of Autopilot
-  apps and the hosted Autopilot's assistants file, because the API server does not yet do it when
-  an app is created.
+  to (`ws://autopilot:3000`, the API server's `apps.autopilotUrl`), with one signing secret
+  (`apps.autopilotSigningSecret`). Assistants, the catalog and workspace vendor keys come from the
+  API server's database (`source: database` in `autopilot-session.yaml`).
 
 ## Troubleshooting
 

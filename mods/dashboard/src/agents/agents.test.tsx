@@ -46,8 +46,7 @@ function setup({
     }),
     createApplication: vi.fn().mockResolvedValue({ ref: billingAgent.ref }),
     updateApplication: vi.fn().mockResolvedValue({ ref: billingAgent.ref }),
-    deleteApplication: vi.fn().mockResolvedValue({ ref: billingAgent.ref }),
-    createTestToken: vi.fn()
+    deleteApplication: vi.fn().mockResolvedValue({ ref: billingAgent.ref })
   };
   const listCalls = vi.fn().mockImplementation(async (request) => ({
     items: request.to === "+18295550199" ? [inboundCall] : [],
@@ -312,6 +311,35 @@ describe("Agent detail", () => {
     expect(
       await screen.findByRole("heading", { name: "Agents" })
     ).toBeInTheDocument();
+  });
+
+  it("talk drawer lists the agent's numbers to call", async () => {
+    const { user } = setup({ route });
+    await user.click(
+      await screen.findByRole("button", { name: "Talk to agent" })
+    );
+    const dialog = await screen.findByRole("dialog");
+    expect(await within(dialog).findByLabelText("Claro")).toHaveTextContent(
+      "+18295550199"
+    );
+    expect(within(dialog).getByLabelText("Altice")).toHaveTextContent(
+      "+18095550177"
+    );
+    expect(within(dialog).queryByText("+34910555210")).not.toBeInTheDocument();
+  });
+
+  it("talk drawer says when no number is linked", async () => {
+    const { user } = setup({ route, numbers: [] });
+    await user.click(
+      await screen.findByRole("button", { name: "Talk to agent" })
+    );
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      await within(dialog).findByText(/No phone number is linked/)
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("link", { name: "Go to Numbers" })
+    ).toHaveAttribute("href", "/w/ws-1/numbers");
   });
 
   it("says when the agent doesn't exist", async () => {
