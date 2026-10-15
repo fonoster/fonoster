@@ -16,9 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Must match ops/rebuild/cell/compose.yaml and the fonoster-rebuild Helm chart
+// (docs/operators/regions.md): enroll once with the token, then start the region.
+const CELL_COMPOSE = "ops/rebuild/cell/compose.yaml";
 export const composeCommand = (token: string) =>
-  `FONOSTER_ENROLLMENT_TOKEN=${token} docker compose -f fonoster-region.yml up -d`;
+  `docker compose -f ${CELL_COMPOSE} run --rm --no-deps region-agent enroll ${token} && docker compose -f ${CELL_COMPOSE} up -d`;
 export const helmCommand = (token: string) =>
-  `helm install fonoster-region fonoster/region --set enrollment.token=${token}`;
+  `helm install fonoster-region ops/rebuild/helm/fonoster-rebuild --set regionAgent.enabled=true --set regionAgent.enroll.token=${token}`;
 export const secretCommand = (name: string) =>
   `fonoster-regions secrets set ${name}`;
