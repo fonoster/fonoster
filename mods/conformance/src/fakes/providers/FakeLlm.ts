@@ -21,7 +21,7 @@ import { FakeProvider } from "./FakeProvider";
 import { ProviderLedger } from "./ProviderLedger";
 
 export type LlmReply =
-  | { content: string }
+  | { content: string; chunkDelayMs?: number }
   | { tool_calls: { name: string; arguments: Record<string, unknown> }[] };
 
 type ChatMessage = { role: string; content?: string };
@@ -125,8 +125,13 @@ export class FakeLlm extends FakeProvider {
 
     send({ role: "assistant" });
     if ("content" in reply) {
-      for (const piece of reply.content.match(/\S+\s*/g) ?? [])
+      for (const piece of reply.content.match(/\S+\s*/g) ?? []) {
         send({ content: piece });
+        // Optional pause after each sentence, to test streaming into speech.
+        if (reply.chunkDelayMs && /[.!?]\s*$/.test(piece)) {
+          await new Promise((r) => setTimeout(r, reply.chunkDelayMs));
+        }
+      }
       send({}, "stop");
     } else {
       send({ tool_calls: toolCalls });

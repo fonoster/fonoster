@@ -26,7 +26,8 @@
         "voice-session",
         "twilio-media-streams-flavor",
         "voice-sdk",
-        "media-control"
+        "media-control",
+        "autopilot"
       ]
     },
     "role": {
@@ -150,6 +151,10 @@
               ]
             }
           }
+        },
+        "assistant": {
+          "type": "object",
+          "description": "autopilot only: the assistant config the implementation under test runs (strings may use ${media})"
         }
       }
     },

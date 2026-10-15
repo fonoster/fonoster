@@ -25,7 +25,8 @@ export type Contract =
   | "voice-session"
   | "twilio-media-streams-flavor"
   | "voice-sdk"
-  | "media-control";
+  | "media-control"
+  | "autopilot";
 
 export type Role = "app" | "gateway" | "media-control-client";
 
@@ -72,6 +73,7 @@ export type Setup = {
   providers?: Providers;
   callerAudio?: AudioSource;
   media?: { dialOutcome?: "answered" | "busy" | "no_answer" | "failed" };
+  assistant?: Record<string, unknown>;
 };
 
 export type CallerAction = {

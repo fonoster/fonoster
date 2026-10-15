@@ -62,6 +62,10 @@ export abstract class FakeProvider {
   async stop() {
     for (const res of this.held) res.destroy();
     this.held.clear();
+    // Do not wait for keep-alive or aborted connections (Node >= 18.2).
+    (
+      this.server as http.Server & { closeAllConnections?: () => void }
+    )?.closeAllConnections?.();
     await new Promise<void>((resolve) =>
       this.server ? this.server.close(() => resolve()) : resolve()
     );

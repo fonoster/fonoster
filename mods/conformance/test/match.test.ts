@@ -67,6 +67,15 @@ describe("@conformance/match", function () {
     expect(match({ $includes: [{ id: 3 }] }, [{ id: 2 }]).ok).to.equal(false);
   });
 
+  it("supports $excludes", function () {
+    expect(
+      match({ $excludes: [{ role: "tool" }] }, [{ role: "user" }]).ok
+    ).to.equal(true);
+    expect(
+      match({ $excludes: [{ role: "user" }] }, [{ role: "user" }]).ok
+    ).to.equal(false);
+  });
+
   it("fails on unknown operators instead of passing", function () {
     expect(match({ $sometimes: 1 }, 1).reason).to.contain("unknown operator");
   });

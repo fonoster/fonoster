@@ -72,6 +72,14 @@ def _operator(op: dict[str, Any], value: Any, path: str) -> str | None:
             if not any(_match(want, el, f"{path}[{j}]") is None for j, el in enumerate(value)):
                 return _fail(path, f"no element matches $includes[{i}] {_show(want)}")
         return None
+    if key == "$excludes":
+        if not isinstance(value, list):
+            return _fail(path, f"expected a list, got {_show(value)}")
+        for i, unwanted in enumerate(arg):
+            for j, el in enumerate(value):
+                if _match(unwanted, el, f"{path}[{j}]") is None:
+                    return _fail(path, f"element {j} matches $excludes[{i}] {_show(unwanted)}")
+        return None
     return _fail(path, f"unknown operator {key}")
 
 

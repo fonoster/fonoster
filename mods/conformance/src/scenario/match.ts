@@ -144,6 +144,22 @@ function matchOperator(
       }
       return OK;
     }
+    case "$excludes": {
+      if (!Array.isArray(arg)) return fail(path, "$excludes takes a list");
+      if (!Array.isArray(value))
+        return fail(path, `expected a list, got ${show(value)}`);
+      for (const [i, unwanted] of arg.entries()) {
+        const j = value.findIndex(
+          (el, k) => matchAt(unwanted, el, true, `${path}[${k}]`).ok
+        );
+        if (j >= 0)
+          return fail(
+            path,
+            `element ${j} matches $excludes[${i}] ${show(unwanted)}`
+          );
+      }
+      return OK;
+    }
     default:
       return fail(path, `unknown operator ${key}`);
   }

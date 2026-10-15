@@ -34,3 +34,8 @@ def test_interpolation_keeps_types():
 def test_shared_scenarios_validate():
     for contract in ("voice-session", "twilio-media-streams-flavor", "voice-sdk"):
         assert load_scenarios(contract)
+
+
+def test_excludes():
+    assert match({"$excludes": [{"role": "tool"}]}, [{"role": "user"}]) is None
+    assert match({"$excludes": [{"role": "user"}]}, [{"role": "user"}]) is not None

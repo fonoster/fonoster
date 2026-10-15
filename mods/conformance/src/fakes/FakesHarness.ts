@@ -55,6 +55,8 @@ export class FakesHarness implements Harness {
   readonly mediaNode: FakeMediaNode;
   private call: Setup["call"] = {};
   private mediaServer?: http.Server;
+  /** Calls to the fake tool endpoints (`${media}/tool/<name>`). */
+  readonly toolCalls: { at: number; name: string }[] = [];
 
   constructor(private readonly options: FakesHarnessOptions = {}) {
     this.app = options.app ?? new FakeApp();
@@ -142,6 +144,21 @@ export class FakesHarness implements Harness {
 
   private startMediaServer(): Promise<void> {
     this.mediaServer = http.createServer((req, res) => {
+      // Fake tools for Autopilot scenarios: /tool/hours answers, /tool/error fails.
+      if (req.url?.startsWith("/tool/")) {
+        const name = req.url.slice(6).split("?")[0];
+        this.toolCalls.push({ at: Date.now(), name });
+        if (name === "error") {
+          res
+            .writeHead(500, { "content-type": "application/json" })
+            .end('{"error":"tool failed"}');
+        } else {
+          res
+            .writeHead(200, { "content-type": "application/json" })
+            .end(name === "hours" ? '{"open":"9"}' : "{}");
+        }
+        return;
+      }
       const m = /^\/tone-(\d+)\.wav$/.exec(req.url ?? "");
       if (!m) {
         res.writeHead(404).end();
@@ -205,6 +222,11 @@ export class FakesHarness implements Harness {
         return this.stt.requests;
       case "providers.llm.requests":
         return this.llm.requests;
+      case "tools.calls":
+        return this.toolCalls.map((c) => c.name);
+      case "providers.llm.last_messages":
+        return this.llm.conversations[this.llm.conversations.length - 1]
+          ?.messages;
       case "providers.vendor_calls":
         return this.options.vendorCalls?.();
       default:

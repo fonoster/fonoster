@@ -17,6 +17,7 @@ scenarios/
   voice-session/                  # runner plays the app, the gateway is under test
   twilio-media-streams-flavor/    # runner plays a Twilio Media Streams app
   voice-sdk/                      # runner plays the gateway, an SDK fixture app is under test
+  autopilot/                      # runner plays the gateway, Autopilot (with setup.assistant) is under test
   audio/                          # recorded caller audio (raw PCM16LE mono 16 kHz)
 ```
 
@@ -85,6 +86,7 @@ A step may also carry `label` (so later steps can measure from it) and `capture`
   | `$re: "pattern"` | a string matching the regular expression (ECMAScript / RE2 common subset) |
   | `$oneOf: [a, b]` | any of the listed patterns |
   | `$includes: [p…]` | an array containing, in any order, an element matching each pattern |
+  | `$excludes: [p…]` | an array with no element matching any of the patterns |
 
 **Order.** Frames are consumed in arrival order. `expect` skips frames that do not match, then
 consumes the first one that does, so two consecutive `expect` steps prove the second message came
@@ -131,6 +133,7 @@ scenario rather than ignoring it.
 | `app` | The app record: `flavor`, `signingSecret`, `verifySignature`, `reachable`, `fallback`, `speech`. |
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake media node plays as the caller once the call is answered. |
+| `assistant` | `autopilot` only: the assistant config Autopilot runs for this scenario. |
 | `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`). |
 
 ### Fake provider behaviour
@@ -139,7 +142,7 @@ scenario rather than ignoring it.
 | --- | --- |
 | `delayMs` | Fixed delay before the provider's first byte. Subtracted by `budget_ms`. |
 | `failNext` | The next request fails: `provider_unavailable` (HTTP 503), `provider_timeout` (no response), `bad_request` (HTTP 400). |
-| `script` | STT: `[{atMs, text, final}]` transcripts keyed to caller-audio time. LLM: replies in order. |
+| `script` | STT: `[{atMs, text, final}]` transcripts keyed to caller-audio time. LLM: replies in order, each `{content, chunkDelayMs?}` (a pause after every sentence) or `{tool_calls: [{name, arguments}]}`. |
 
 ## Assertions
 
@@ -155,6 +158,8 @@ matcher, compared with what the harness measured.
 | `media.commands` | the list of `media-control` commands received (for `$includes`) |
 | `providers.vendor_calls` | network calls to anything other than the fakes (always expected to be `0`); needs a harness that watches egress, such as a proxy around the implementation |
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
+| `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |
+| `tools.calls` | names of the fake tools called (`${media}/tool/hours` answers `{"open":"9"}`, `${media}/tool/error` fails) |
 
 A runner that does not know an assertion name fails the step; it never passes it silently.
 
