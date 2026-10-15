@@ -411,6 +411,18 @@ export class FakeMediaNode extends EventEmitter {
 
   /** The caller hangs up. */
   callerHangup(roomRef = this.lastRoomRef()) {
+    this.phoneHangup(roomRef, "caller_hangup");
+  }
+
+  /** The dialed party of an outbound call hangs up. */
+  calleeHangup(roomRef = this.lastRoomRef()) {
+    this.phoneHangup(roomRef, "callee_hangup");
+  }
+
+  private phoneHangup(
+    roomRef: string,
+    reason: "caller_hangup" | "callee_hangup"
+  ) {
     const room = this.rooms.get(roomRef);
     if (!room) return;
     const caller = [...room.participants.values()].find(
@@ -421,9 +433,9 @@ export class FakeMediaNode extends EventEmitter {
         type: "participant.left",
         roomRef,
         participantRef: caller.participantRef,
-        reason: "caller_hangup"
+        reason
       });
-    this.endRoom(room, undefined, "caller_hangup");
+    this.endRoom(room, undefined, reason);
   }
 
   /** The node ends the room itself (media timeout, maximum duration, ...). */
