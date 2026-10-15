@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Link } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
 import { DataTable, NameCell, type Column } from "~/components/data/data-table";
 import { Badge } from "~/components/ui/badge";
@@ -45,7 +46,18 @@ export function PrivateSecrets() {
       <PageHeader title="Secrets" />
       <div className="flex flex-col gap-5 px-4 pb-8 sm:px-8">
         <p className="font-display text-sm text-muted-foreground">
-          Keys are set in your region, not here.
+          Keys are set in{" "}
+          {region ? (
+            <Link
+              to={`/regions/${region.ref}`}
+              className="text-foreground underline"
+            >
+              {region.displayName}
+            </Link>
+          ) : (
+            "your region"
+          )}
+          , not here.
           {missing > 0 && ` ${missing} missing.`}
         </p>
         <DataTable

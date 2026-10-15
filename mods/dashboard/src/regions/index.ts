@@ -16,9 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { RegionsApiProvider, useRegion, useRegionsApi } from "./api";
+export {
+  RegionsApiProvider,
+  useRegion,
+  useRegions,
+  useRegionsApi
+} from "./api";
 export { RegionBanner } from "./banner";
 export { createMockRegionsApi, privateRegion, publicRegion } from "./mock-api";
 export { PrivateSecrets } from "./private-secrets";
 export { RegionSettings } from "./region-settings";
-export { isPrivateWorkspace } from "./types";
+export { RegionsSection } from "./regions-section";

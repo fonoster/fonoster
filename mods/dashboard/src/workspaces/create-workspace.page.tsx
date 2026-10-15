@@ -32,7 +32,7 @@ import { UserBar } from "./user-bar";
 import { rememberWorkspace, workspacePath } from "./workspace-session";
 import { useRegionsApi } from "~/regions/api";
 import { RegionPicker } from "~/regions/region-picker";
-import { DEFAULT_REGION, PRIVATE_REGION } from "~/regions/types";
+import { DEFAULT_REGION_ID } from "~/regions/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -61,8 +61,7 @@ export default function CreateWorkspacePage() {
       regionsApi.createWorkspace(input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: WORKSPACES_KEY })
   });
-  const [region, setRegion] = useState(DEFAULT_REGION.id);
-  const [confirming, setConfirming] = useState<string | undefined>();
+  const [region, setRegion] = useState(DEFAULT_REGION_ID);
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -71,21 +70,10 @@ export default function CreateWorkspacePage() {
   const first = workspaces?.length === 0;
   const firstName = (profile?.name || user?.email || "").split(/[\s@]/)[0];
 
-  const createWith = async (name: string) => {
-    const { ref, enrollment } = await create.mutateAsync({ name, region });
-    rememberWorkspace(ref);
-    if (region === PRIVATE_REGION)
-      navigate(`${workspacePath(ref)}/region-setup`, {
-        replace: true,
-        state: { enrollment }
-      });
-    else navigate(workspacePath(ref), { replace: true });
-  };
-
-  // A private region is permanent, so it gets a confirm step first.
   const onSubmit = form.handleSubmit(async ({ name }) => {
-    if (region === PRIVATE_REGION) setConfirming(name);
-    else await createWith(name);
+    const { ref } = await create.mutateAsync({ name, region });
+    rememberWorkspace(ref);
+    navigate(workspacePath(ref), { replace: true });
   });
 
   return (
@@ -114,38 +102,13 @@ export default function CreateWorkspacePage() {
               )}
             </Field>
             <RegionPicker value={region} onChange={setRegion} />
-            {confirming !== undefined ? (
-              <div className="flex flex-col gap-3">
-                <p className="font-display text-sm text-muted-foreground">
-                  A private region runs on your own servers and can't be changed
-                  later.
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setConfirming(undefined)}
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    type="button"
-                    loading={create.isPending}
-                    onClick={() => void createWith(confirming)}
-                  >
-                    Create
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Button
-                type="submit"
-                className={authButton}
-                loading={create.isPending}
-              >
-                Create
-              </Button>
-            )}
+            <Button
+              type="submit"
+              className={authButton}
+              loading={create.isPending}
+            >
+              Create
+            </Button>
           </form>
           {first ? (
             <p className="flex items-center gap-2 font-display text-[13px] text-muted-foreground">

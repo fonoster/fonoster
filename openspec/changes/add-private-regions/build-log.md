@@ -232,3 +232,26 @@
   covered it. The token's `leaf` is the host's LAN address, which a container on Docker Desktop
   reaches as `host.docker.internal`.
 
+
+## RD-B (rgdash: dashboard regions at the user level)
+
+- RD-B1. Regions live on the start screen, not in a workspace: `/workspaces` has a "Your regions"
+  section (private regions + outline "New region"); `/regions/new`, `/regions/:ref` (detail) and
+  `/regions/:ref/setup` use the start layout (no sidebar). The in-workspace `region-setup` route is
+  gone. A user with no workspaces but with a private region is not redirected to Create workspace.
+- RD-B2. Create workspace = name + one Region select (Default + the user's regions, waiting/offline/
+  unsupported disabled, "can't change later"); no confirm step. `createWorkspace({name, region})`
+  sends the region id; `default` is the default.
+- RD-B3. Shapes assumed from the SDK brief, behind a local adapter (`regions/sdk-api.ts`, cast, so
+  it builds before the SDK lands): `listRegions()` may return an array or `{items}`; items carry
+  `ref, id, displayName, kind, state` (`status` accepted); `getRegion(ref)` adds `version,
+  lastSeenAt, components{mediaNodes,gateways}, activeCalls, sipDomain, endpoints, workspaces[],
+  secretsNeeded[], secretsSet[]`; `createRegion` returns `{ref,id,token,expiresAt}`;
+  `reissueRegionToken(ref)` returns `{token,expiresAt}`. A failed list falls back to `default` only.
+- RD-B4. Monthly fee row shows only when `getRegion` returns `monthlyFeeCents` (assumed field,
+  cloud only); self-hosted shows no row.
+- RD-B5. A workspace's region is resolved by id from the region list, then its detail by ref.
+  Settings > Region is read-only with a "Manage region" link for private regions; Secrets for a
+  private region shows Set/Missing and links to the region. `RegionBanner` unchanged in behaviour.
+- RD-B6. No UI yet for rename (`updateRegion`) or delete (`deleteRegion`); both are in the API
+  adapter. Key command is `fonoster-regions secrets set <name>` (PR-21).

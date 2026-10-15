@@ -24,6 +24,7 @@ import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useAuth } from "~/lib/auth";
 import { errorMessage } from "~/lib/errors";
+import { RegionsSection, useRegions } from "~/regions";
 import { UserBar } from "./user-bar";
 import { rememberWorkspace, workspacePath } from "./workspace-session";
 import { useWorkspaces } from "./workspaces.service";
@@ -45,7 +46,10 @@ function workspaceInitials(name: string) {
 export default function WorkspacesPage() {
   const { data: workspaces, isPending, error, refetch } = useWorkspaces();
 
-  if (workspaces && workspaces.length === 0)
+  const { data: regions } = useRegions();
+  const hasRegions = regions?.some((r) => r.kind === "private");
+
+  if (workspaces && workspaces.length === 0 && regions && !hasRegions)
     return <Navigate to="/workspaces/new" replace />;
 
   return (
@@ -95,6 +99,7 @@ export default function WorkspacesPage() {
           ) : (
             <WorkspaceList workspaces={workspaces} />
           )}
+          <RegionsSection />
           <p className="flex items-center gap-2 font-display text-[13px] text-muted-foreground">
             <Mail className="size-[15px]" aria-hidden />
             Invited somewhere else? Open the link in the invite email and it
