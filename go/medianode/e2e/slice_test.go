@@ -55,6 +55,14 @@ type rigOptions struct {
 	botOpts caller.Options
 }
 
+func (o rigOptions) bot() caller.Options {
+	b := o.botOpts
+	if b.Host == "" {
+		b.Host = "127.0.0.1"
+	}
+	return b
+}
+
 func startWith(t *testing.T, o rigOptions) *rig {
 	url := os.Getenv("CONFORMANCE_NATS_URL")
 	if url == "" {
@@ -73,7 +81,7 @@ func startWith(t *testing.T, o rigOptions) *rig {
 	port := freePort(t)
 	addr := "127.0.0.1:" + strconv.Itoa(port)
 	// A second bot answers what the node dials (Routr's place in production).
-	callee, err := caller.NewWithOptions("127.0.0.1", o.botOpts)
+	callee, err := caller.NewWithOptions(o.bot())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +102,7 @@ func startWith(t *testing.T, o rigOptions) *rig {
 	if err := n.Start(); err != nil {
 		t.Fatal(err)
 	}
-	bot, err := caller.NewWithOptions("127.0.0.1", o.botOpts)
+	bot, err := caller.NewWithOptions(o.bot())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,8 +137,11 @@ func startWith(t *testing.T, o rigOptions) *rig {
 		bot.Close()
 		callee.Close()
 		n.Shutdown()
-		ua.Close() // unregisters while the transport is still up
+		uctx, ucancel := context.WithTimeout(context.Background(), 2*time.Second)
+		_ = ua.Unregister(uctx) // while the transport is still up
+		ucancel()
 		cancel()
+		ua.Close()
 		nc.Close()
 	})
 	return r

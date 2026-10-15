@@ -32,3 +32,25 @@
   the Pipecat golden test, with reports uploaded as the `conformance-reports` artifact (task 4.4).
   They run on shared runners, so they are trends, not pass bars; task 4.2 (dedicated runners) stays
   open. Live provider tests (4.3) wait for real adapters.
+
+## 2026-10-15 (dashboard stream: docs)
+
+### DX-B5. One page for running the suites
+
+- `docs/conformance.md` covers the fake node, Go node and real stack layers, the nightly timing,
+  load, replay and Pipecat jobs, the Python runner, how a third-party SDK runs `voice-sdk` scenarios
+  (reusing `python/fonoster-conformance` as the reference) and the CI jobs. The real stack and the
+  dedicated runners stay documented as "not yet" because tasks 2.5, 3.11 and 4.2 are open.
+
+### DX-B6. `SCENARIOS.md` gaps closed
+
+- Added `media-control/` to the layout and `autopilot` to the `contract` row (the schema already had
+  both), described the `timing` and `slow` tags, and added "Running the files from another language"
+  with the minimum a new runner needs.
+
+### DX-B7. Live provider trigger (4.3)
+
+- `.github/workflows/live-providers.yaml` is `workflow_dispatch` only and runs
+  `mods/gateway/scripts/live-check.ts` with the vendor keys from repository secrets. It is not
+  exercised locally (no Actions runner here) and no paid call was made. The remaining conformance
+  tasks (2.5, 3.4 to 3.11, 4.2) are suite or infrastructure work, outside this stream's docs scope.

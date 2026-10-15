@@ -24,7 +24,7 @@
 - [x] 2.9 App-configured audio filters before STT and turn detection
 - [x] 2.10 Append every message to the call record
 - [x] 2.11 `twilio` flavor: message mapping, base64 μ-law, mark/clear semantics, compatible Calls hang-up endpoint
-- [ ] 2.12 Application model: WebSocket URL, flavor, signing secret, speech defaults, filters, fallback
+- [x] 2.12 Application model: WebSocket URL, flavor, signing secret, speech defaults, filters, fallback
 
 ## 3. Migration and docs
 
@@ -32,3 +32,5 @@
 - [ ] 3.2 Migration guide: raw gRPC voice apps, removed verbs (`record`, `setAudioFilters`, `mute`, `unmute`)
 - [x] 3.3 Docs: session protocol reference (both flavors), Pipecat guide (`base_url`, socket close)
 - [ ] 3.4 Release notes marking the BREAKING changes
+- [x] 3.5 Application migration: legacy Application rows to the app model (URL, flavor, signing secret, speech, fallback); Autopilot apps to the hosted Autopilot (CO-B7)
+- [x] 3.6 Cutover runbook: side-by-side routing per app and per number, rollback, Asterisk retirement (`docs/operators/cutover.md`, CO-B8)

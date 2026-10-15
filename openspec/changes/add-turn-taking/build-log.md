@@ -59,3 +59,71 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - `missed-barge-in` and `backchannel-misfire` are redefined against the app's `clear`, so the live
   labeler can produce them; every label carries `labelVersion`.
 - Patience (OQ3) is one knob, `low` / `normal` / `high`; abandoned turns end after 10 s.
+
+## 2026-10-15 (afternoon, autopilot stream)
+
+### TT-B6. Patience and within-call adaptation live in the Pacing policy
+
+- The knob (`low` 0.6, `normal` 1, `high` 1.6) is a factor on the Detector's own timing, through an
+  optional `Detector.setPatience(factor)`; for the baseline it scales the silence timeout. Set per
+  app (`speech.patience` in the gateway's app config) or with `listen.update {patience}`.
+- Adaptation (OQ6): each `turn.resumed` makes the policy 15% more patient, capped at 1.6 × the
+  app's level; never less patient than the app asked; a new call starts from the app's setting
+  (state lives in the per-session policy, nothing is stored). Every change is recorded as
+  `turn.patience` `{patience, factor, reason: app | adapted}`.
+- The policy version in `turn.decision` is now `default@2`, since adaptation changes decisions.
+
+### TT-B7. Turn-aware STT as a Detector, and choosing a Detector per app
+
+- `Transcript.turn {eot?, endOfTurn?}` carries a recognizer's own turn signals. `SttTurnDetector`
+  (`detector: stt`) uses them for `eot` and keeps the baseline's voice activity for `speaking` and
+  `kind`, so events and labels mean the same. Safety net: with no signal, a final transcript
+  followed by 2.5 s of silence (× patience) ends the turn.
+- Only the fake STT sends turn signals (script entries take `eot` / `endOfTurn`). Mapping Deepgram
+  Flux or another vendor's end-of-turn messages onto `turn` is per adapter work, not done.
+- The Detector is chosen by `speech.detector` in the gateway's app config: `baseline` (default),
+  `backchannel-hold`, `stt`, or a `ws://` URL. The spec's "chosen from the catalog by the
+  `turn-detection` feature" waits for the registry to drive app speech settings.
+
+### TT-B8. Out-of-process Detectors over a local WebSocket (OQ4)
+
+- Decision: WebSocket, protocol `fonoster.detector.v1`, because the gateway already speaks it,
+  every language has a client, and binary frames carry audio without encoding. gRPC was rejected
+  (a second stack in the gateway for one internal hop).
+- The gateway streams each 20 ms caller frame (binary) plus transcripts, output state, patience and
+  reset (JSON); the Detector answers one `estimate` per frame. The gateway uses an estimate while it
+  is at most 200 ms behind and otherwise answers with a local baseline, recording
+  `detector.source {source, reason}` when the answering side changes. A broken Detector never stalls
+  a call.
+- The language-neutral contract (task 1.1) is `mods/conformance/schema/detector.v1.schema.json`.
+  `serveDetector()` hosts any TypeScript Detector behind it (reference server and test double).
+
+### TT-B9. Replay report
+
+- Adds per-category (tags or `<language>-<category>-<n>` names) and per-language breakdowns, the
+  missed-end rate (also a regression metric now), the list of calls to listen to, a text formatter
+  with PASS/FAIL per candidate, and replay options for patience and adaptation. CLI:
+  `npx tsx mods/gateway/scripts/replay.ts [--candidate x]... [--patience p] [--no-adapt] [--json]`.
+- With adaptation on, the synthetic corpus gives the same headline numbers as TT-B2 (false cut-off
+  20%, delay 892 / 899 ms); short-pause calls' p95 delay rises to 997 ms (the caller paused, so
+  the policy waited longer, as intended). `high` cuts false cut-offs to 10% at 1,252 / 1,410 ms;
+  `low` raises them to 22% at 652 / 659 ms. The baseline stays the default.
+
+### TT-B10. Turn-taking scenarios
+
+- New contract folder `scenarios/turn-taking` (20 files, runner plays the app, gateway under test),
+  one or more per spec scenario, run by the gateway's conformance test with the app's speech
+  settings from `setup.app.speech`. New assertion `record.events.<type>` reads the call record
+  (labels, decisions).
+- Covered elsewhere: "Audio-only sessions" (voice-session `audio-only-no-stt`), "Nothing is
+  remembered across calls" (unit test: a new policy starts at the app's factor), the replay
+  requirements (replay unit tests).
+- Several scenarios depend on the fake STT's audio clock lining up with caller audio within a few
+  hundred ms (backchannel, false alarm). They passed repeatedly here; on a loaded CI runner they
+  are the first to suspect.
+
+### Not done
+
+- 1.5 internal recorded calls in the corpus, 2.2 checking the baseline against recorded calls (no
+  recordings yet), 3.1 deleting Silero VAD and late-speech handling from the current Autopilot
+  (with rework-autopilot's cutover, 8.1).

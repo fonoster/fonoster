@@ -26,7 +26,8 @@ export type Contract =
   | "twilio-media-streams-flavor"
   | "voice-sdk"
   | "media-control"
-  | "autopilot";
+  | "autopilot"
+  | "turn-taking";
 
 export type Role = "app" | "gateway" | "media-control-client";
 

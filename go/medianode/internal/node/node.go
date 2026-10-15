@@ -11,6 +11,7 @@ import (
 
 	"github.com/fonoster/fonoster/go/medianode/internal/audio"
 	"github.com/fonoster/fonoster/go/medianode/internal/jitter"
+	"github.com/fonoster/fonoster/go/medianode/internal/telemetry"
 
 	"github.com/nats-io/nats.go"
 )
@@ -339,6 +340,8 @@ func (n *Node) room(ref string) *Room {
 // Incoming handles an INVITE: a room with the caller, then call.incoming until a gateway claims
 // it; no claim within the timeout, twice, refuses the call with 503.
 func (n *Node) Incoming(call IncomingCall) {
+	ctx, endSpan := telemetry.StartCall(context.Background(), "medianode.call.incoming", call.CallRef)
+	defer endSpan()
 	if _, _, ok := call.Media.Choose(audio.PhoneCodecs()...); !ok {
 		_ = call.Leg.Reject(488)
 		return
@@ -396,10 +399,12 @@ func (n *Node) Incoming(call IncomingCall) {
 		}
 		var reply map[string]any
 		if json.Unmarshal(msg.Data, &reply) == nil && reply["type"] == "claimed" {
+			telemetry.CallIncoming(ctx, call.CallRef, "claimed")
 			return
 		}
 	}
-	n.cfg.Logger.Warn("no gateway claimed the call", "room", room.Ref)
+	telemetry.CallIncoming(ctx, call.CallRef, "unclaimed")
+	n.cfg.Logger.Warn("no gateway claimed the call", "room", room.Ref, telemetry.CallRefKey, call.CallRef)
 	_ = call.Leg.Reject(503)
 	room.end(ReasonNodeError, 503, "")
 }

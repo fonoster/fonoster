@@ -6,6 +6,7 @@
 //	GET  /calls/{id}          {"sip":[100,180,200],"state":"answered","heardMs":..,"audibleMs":..,"codec":"PCMA/8000"}
 //	POST /calls/{id}/dtmf     {"digits":"12#","mode":"rfc4733|info|inband"}
 //	POST /calls/{id}/audio    {"kind":"tone","ms":800}   (kind: tone, tone:<hz>, silence)
+//	                          (optional "requestHost": the Request-URI host, e.g. a Routr Trunk's inboundUri)
 //	POST /calls/{id}/hangup
 package main
 
@@ -26,9 +27,10 @@ import (
 func main() {
 	listen := flag.String("listen", "127.0.0.1:0", "HTTP control address")
 	host := flag.String("host", "127.0.0.1", "address for SIP and RTP")
+	sipAdvertise := flag.String("sip-advertise", "", "host in Via and Contact when a proxy reaches the bot by another name (default: -host)")
 	flag.Parse()
 
-	bot, err := caller.New(*host)
+	bot, err := caller.NewWithOptions(caller.Options{Host: *host, SIPAdvertise: *sipAdvertise})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,6 +40,7 @@ func main() {
 	mux.HandleFunc("POST /calls", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Target, To, From string
+			RequestHost      string
 			Headers          map[string]string
 			Codecs           []string
 			NoTelephoneEvent bool
@@ -49,7 +52,8 @@ func main() {
 			return
 		}
 		c, err := bot.DialWith(req.Target, req.To, req.From, req.Headers, caller.DialOptions{
-			Codecs: req.Codecs, NoTelephoneEvent: req.NoTelephoneEvent, Transport: req.Transport, SRTP: req.SRTP})
+			Codecs: req.Codecs, NoTelephoneEvent: req.NoTelephoneEvent, Transport: req.Transport, SRTP: req.SRTP,
+			RequestHost: req.RequestHost})
 		if err != nil {
 			http.Error(w, err.Error(), 502)
 			return

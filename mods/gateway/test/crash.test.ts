@@ -26,8 +26,8 @@ import { NatsConnection, connect } from "nats";
 import { stringify } from "yaml";
 import {
   CallRecordWriter,
-  FsRecordStorage,
   decodeVcon,
+  fsStores,
   verifyRecord
 } from "@fonoster/callrecord";
 import { FakesHarness } from "@fonoster/conformance";
@@ -156,15 +156,16 @@ describe("@gateway call record after a crash", function () {
     await sleep(200);
 
     // Any surviving replica's sweep seals it once the deadline passes.
-    const storage = new FsRecordStorage(path.join(dir, "records"));
+    const { working, store } = fsStores(path.join(dir, "records"));
     const writer = new CallRecordWriter({
-      storage,
+      working,
+      store,
       region: "test",
       key: { kid: "test-1", privateKeyPem: fs.readFileSync(keyFile, "utf8") }
     });
-    expect(writer.sweep(Date.now() + 31_000)).to.deep.equal([roomRef]);
+    expect(await writer.sweep(Date.now() + 31_000)).to.deep.equal([roomRef]);
 
-    const sealed = storage.getSealed(roomRef)!;
+    const sealed = (await store.getSealed(roomRef))!;
     const verified = verifyRecord(sealed, {
       "test-1": publicKey.export({ type: "spki", format: "pem" }).toString()
     });

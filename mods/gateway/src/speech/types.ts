@@ -55,6 +55,11 @@ export type Transcript = {
   confidence: number;
   startMs?: number;
   endMs?: number;
+  /**
+   * Turn signals from a turn-aware recognizer (catalog feature `turn-detection`): its own
+   * end-of-thought estimate and whether it declared the end of the turn. Absent otherwise.
+   */
+  turn?: { eot?: number; endOfTurn?: boolean };
 };
 
 /** One streaming recognition session. Emits "transcript" (Transcript) and "error" (SpeechError). */

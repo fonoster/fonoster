@@ -18,10 +18,16 @@
  */
 import * as http from "http";
 import { AddressInfo } from "net";
-import { Webhooks } from "@fonoster/common";
+import {
+  CallRecordWriter,
+  RECORD_SEALED_SUBJECT,
+  RecordIndexEntry
+} from "@fonoster/callrecord";
+import { Registry as RegistryNs, Webhooks } from "@fonoster/common";
 import { IdentityClient } from "@fonoster/identity-client";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec, Subscription } from "nats";
+import { AppStore, YamlAppStore } from "./apps/AppStore";
 import { AppConfig, GatewayConfig, validateConfig } from "./config";
 import {
   configPairAuthenticator,
@@ -35,6 +41,7 @@ import {
   NatsMediaControl
 } from "./media/MediaControl";
 import { CallRecordSink, MemoryCallRecordSink } from "./record/CallRecordSink";
+import { serveRecordMaintenance } from "./record/maintenance";
 import { Call, CallInfo } from "./session/Call";
 import { Catalog } from "./speech/Catalog";
 
@@ -53,6 +60,10 @@ export type GatewayOptions = {
   nats?: NatsConnection;
   /** Receives call.started, call.ended and call.failed (a WebhookDispatcher's publish). */
   webhooks?: (event: Webhooks.WebhookEvent) => void;
+  /** Where apps come from (default: the config's `apps` list). */
+  apps?: AppStore;
+  /** The provider registry's store (default: `registry.file` from the config). */
+  registryStore?: RegistryNs.RegistryStore;
 };
 
 /** A node is down after this long without a heartbeat (3 missed beats of 2 s). */
@@ -68,6 +79,7 @@ export class Gateway {
   private stops: (() => void)[] = [];
   private server?: http.Server;
   private heartbeats = new Map<string, number>();
+  readonly apps: AppStore;
 
   constructor(private readonly options: GatewayOptions) {
     const problems = validateConfig(options.config);
@@ -76,7 +88,8 @@ export class Gateway {
         `invalid gateway config:\n  - ${problems.join("\n  - ")}`
       );
     this.record = options.record ?? new MemoryCallRecordSink();
-    this.catalog = new Catalog(options.config);
+    this.catalog = new Catalog(options.config, options.registryStore);
+    this.apps = options.apps ?? new YamlAppStore(options.config.apps ?? []);
   }
 
   get config() {
@@ -111,6 +124,8 @@ export class Gateway {
       }
     });
     this.stops.push(() => outbound.unsubscribe());
+    if (this.record instanceof CallRecordWriter)
+      this.stops.push(serveRecordMaintenance(this.nc, this.record));
     await this.nc.flush();
 
     if (this.config.http) {
@@ -136,12 +151,13 @@ export class Gateway {
         )
       );
     }
-    logger.info(`gateway started with ${this.config.apps.length} apps`);
+    logger.info(`gateway started with ${this.apps.count()} apps`);
     return this;
   }
 
   async stop() {
     for (const stop of this.stops) stop();
+    this.apps.stop?.();
     for (const call of [...this.calls.values()]) call.finish("error");
     await new Promise<void>((r) =>
       this.server ? this.server.close(() => r()) : r()
@@ -149,18 +165,33 @@ export class Gateway {
     if (this.ownsNats) await this.nc?.drain();
   }
 
-  findApp = (ref: string): AppConfig | undefined =>
-    this.config.apps.find((a) => a.ref === ref);
+  findApp = (ref: string): AppConfig | undefined => this.apps.find(ref);
+  /**
+   * A record was sealed (a CallRecordWriter's onSealed): the index entry goes to the control
+   * plane over NATS and the workspace gets `call_record.sealed` with a link, never contents.
+   */
+  onRecordSealed(entry: RecordIndexEntry) {
+    this.nc?.publish(RECORD_SEALED_SUBJECT, sc.encode(JSON.stringify(entry)));
+    if (entry.status === "erased") return;
+    const base = (this.config.callRecord?.recordUrl ?? "/api/records").replace(
+      /\/$/,
+      ""
+    );
+    this.options.webhooks?.(
+      Webhooks.callRecordSealed(entry.workspaceRef ?? "default", {
+        callRef: entry.callRef,
+        version: entry.version,
+        recordUrl: `${base}/${encodeURIComponent(entry.callRef)}?version=${entry.version}`
+      })
+    );
+  }
 
   /**
    * Development fallback when Routr sent no `X-App-Ref` (build log B21): the app a dialed number
    * routes to; apps without numbers catch everything else.
    */
   appForNumber(to: string): AppConfig | undefined {
-    return (
-      this.config.apps.find((a) => a.numbers?.includes(to)) ??
-      this.config.apps.find((a) => !a.numbers?.length)
-    );
+    return this.apps.forNumber(to);
   }
 
   private newCall(info: CallInfo): Call {
@@ -207,7 +238,7 @@ export class Gateway {
   /** A claimed `call.incoming`: Routr's X-App-Ref picks the app (B21). */
   private async onIncoming(nodeId: string, event: MediaEvent) {
     const participant = event.participant as
-      | { participantRef: string }
+      | { participantRef: string; tracks?: unknown[] }
       | undefined;
     const roomRef = event.roomRef as string;
     const to = String(event.to ?? "");
@@ -221,12 +252,23 @@ export class Gateway {
       direction: "inbound",
       from: String(event.from ?? ""),
       to,
-      metadata: (event.metadata as Record<string, unknown>) ?? {}
+      metadata: (event.metadata as Record<string, unknown>) ?? {},
+      callerTracks: participant?.tracks
     };
     const app = appRef ? this.findApp(appRef) : this.appForNumber(to);
     const call = this.newCall(info);
     if (!app) {
+      // A minimal record: parties, timing and the reason (call-record, minimal records).
+      call.record("event", {
+        type: "call.started",
+        direction: "inbound",
+        appRef: appRef ?? null,
+        workspaceRef: null,
+        from: info.from,
+        to
+      });
       call.record("event", { type: "call.unrouted", appRef, to });
+      call.record("event", { type: "call.failed", reason: "no_app" });
       this.options.webhooks?.(
         Webhooks.callFailed("default", {
           callRef: info.callRef,
@@ -287,12 +329,24 @@ export class Gateway {
     const app = this.findApp(request.appRef);
     if (!app) return { type: "error", code: "unknown_app" };
     const callRef = request.callRef ?? request.roomRef;
-    const unsubscribe = this.media!.subscribeRoom(
+    let answered: Call | undefined;
+    let subscribed = true;
+    const unsubscribe = () => {
+      if (subscribed) stop();
+      subscribed = false;
+    };
+    const stop = this.media!.subscribeRoom(
       request.nodeId,
       request.roomRef,
       (event) => {
-        if (event.type === "call.answered") {
-          unsubscribe();
+        if (event.type === "participant.joined" && answered) {
+          // The callee's tracks follow call.answered (the recording listener needs their ids).
+          if (event.participantRef === answered.info.callerRef) {
+            answered.recording.noteTracks(event.participantRef, event.tracks);
+            unsubscribe();
+          }
+        } else if (event.type === "call.answered") {
+          setTimeout(unsubscribe, 5000);
           const call = this.newCall({
             nodeId: request.nodeId,
             roomRef: request.roomRef,
@@ -303,12 +357,25 @@ export class Gateway {
             to: request.to ?? "",
             metadata: request.metadata ?? {}
           });
+          answered = call;
           void call.run(app).catch(() => call.hangup("error"));
         } else if (
           event.type === "call.progress" &&
           event.status !== "ringing"
         ) {
           unsubscribe();
+          this.record.append(callRef, {
+            at: Date.now(),
+            source: "event",
+            message: {
+              type: "call.started",
+              direction: "outbound",
+              appRef: app.ref,
+              workspaceRef: app.workspaceRef ?? null,
+              from: request.from ?? "",
+              to: request.to ?? ""
+            }
+          });
           this.record.append(callRef, {
             at: Date.now(),
             source: "event",

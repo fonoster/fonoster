@@ -1,0 +1,208 @@
+# Fonoster rebuild stack (add-platform): NATS, Postgres, Routr, RTPEngine, the media node, the
+# VoiceSessionGateway, MinIO and, with the `observability` profile, an OTel collector with
+# Prometheus, Loki, Tempo and Grafana. Operator guide: docs/operators/rebuild.md
+#
+#   docker compose -f ops/rebuild/compose.yaml up -d                           # core
+#   OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318 \
+#     docker compose -f ops/rebuild/compose.yaml --profile observability up -d  # + observability
+#
+# Fonoster services read one YAML file each (config/*.yaml) and never a .env file (PL5). The
+# ${VAR:-default} values below are Compose-level knobs (host ports, image tags, range bounds), and
+# the media node's MEDIANODE_* / OTEL_* values are its documented environment settings.
+name: ${COMPOSE_PROJECT_NAME:-fonoster-rebuild}
+
+x-otel: &otel
+  # Empty means off: services serve normally and log locally. Set it to any OTLP/HTTP endpoint.
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+
+services:
+  nats:
+    image: nats:2.11.8-alpine
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats.conf"]
+    ports:
+      - "${RB_NATS_PORT:-4222}:4222"
+    volumes:
+      - ./config/nats.conf:/etc/nats/nats.conf:ro
+      - nats:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres:
+    image: postgres:16.10-alpine3.22
+    restart: unless-stopped
+    environment:
+      PGTZ: UTC
+      TZ: UTC
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: routr
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d routr"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  routr:
+    image: fonoster/routr-one:2.15.1
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      nats: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/routr
+      EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}
+      LOGS_LEVEL: ${ROUTR_LOGS_LEVEL:-info}
+      NATS_PUBLISHER_ENABLED: "true"
+      NATS_PUBLISHER_URL: nats://nats:4222
+      RTPENGINE_HOST: rtpengine
+      # A separate Postgres: the internal-DB mode stalls on an unpinned `npx prisma`.
+      START_INTERNAL_DB: "false"
+    ports:
+      - "${RB_SIP_PORT:-5060}:5060/udp"
+      - "${RB_SIP_PORT:-5060}:5060/tcp"
+
+  # RTPEngine needs a wide UDP range; on Linux prefer network_mode: host and drop `ports`.
+  rtpengine:
+    image: fonoster/rtpengine:0.3.17
+    restart: unless-stopped
+    platform: linux/x86_64
+    environment:
+      PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
+      PORT_MAX: ${RTPENGINE_PORT_MAX:-10100}
+      PUBLIC_IP: ${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}
+    ports:
+      - "${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10100}:${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10100}/udp"
+
+  medianode:
+    build:
+      context: ../../go/medianode
+    image: ${RB_REGISTRY:-fonoster}/medianode:${RB_TAG:-dev}
+    restart: unless-stopped
+    # SIGTERM drains: the node reports full and exits when its rooms end or the wait runs out.
+    stop_grace_period: ${RB_DRAIN_GRACE:-10m}
+    depends_on:
+      nats: { condition: service_healthy }
+    environment:
+      <<: *otel
+      MEDIANODE_ID: ${RB_NODE_ID:-node-a}
+      MEDIANODE_NATS_URL: nats://nats:4222
+      MEDIANODE_SIP_LISTEN: 0.0.0.0:5060
+      MEDIANODE_SIP_ADVERTISE: ${RB_NODE_ADVERTISE:-medianode}
+      MEDIANODE_RTP_HOST: 0.0.0.0
+      # What Routr and RTPEngine put in SDP. Behind NAT, set it to the address they reach.
+      MEDIANODE_RTP_ADVERTISE: ${RB_NODE_ADVERTISE:-medianode}
+      MEDIANODE_RTP_PORT_MIN: ${RB_NODE_RTP_MIN:-30000}
+      MEDIANODE_RTP_PORT_MAX: ${RB_NODE_RTP_MAX:-30199}
+      MEDIANODE_REGISTRAR: routr:5060
+      MEDIANODE_DOMAIN: ${RB_NODE_DOMAIN:-nodes.fonoster.local}
+      MEDIANODE_USERNAME: ${RB_NODE_ID:-node-a}
+      MEDIANODE_PASSWORD: ${RB_NODE_PASSWORD:-change-me}
+      MEDIANODE_OUTBOUND_PROXY: routr:5060
+      MEDIANODE_DEBUG_ADDR: 0.0.0.0:8099
+    ports:
+      - "${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}:${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}/udp"
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: mods/gateway/Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/gateway:${RB_TAG:-dev}
+    restart: unless-stopped
+    depends_on:
+      nats: { condition: service_healthy }
+    environment:
+      <<: *otel
+    volumes:
+      - ./config/gateway.yaml:/etc/fonoster/gateway.yaml:ro
+    ports:
+      - "${RB_GATEWAY_PORT:-8080}:8080"
+
+  # The hosted Autopilot session engine: a session app the gateway dials (app url ws://autopilot:3000).
+  autopilot:
+    profiles: ["autopilot"]
+    build:
+      context: ../..
+      dockerfile: mods/autopilot/Dockerfile.session
+    image: ${RB_REGISTRY:-fonoster}/autopilot-session:${RB_TAG:-dev}
+    restart: unless-stopped
+    environment:
+      <<: *otel
+    volumes:
+      - ./config/autopilot-session.yaml:/etc/fonoster/autopilot-session.yaml:ro
+      - ./config/assistants.json:/etc/fonoster/assistants.json:ro
+      - ./config/registry.json:/etc/fonoster/registry.json:ro
+    expose:
+      - 3000
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-me-please}
+    ports:
+      - "${RB_MINIO_PORT:-9000}:9000"
+      - "${RB_MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio:/data
+
+  # ---- optional observability profile (enabled with --profile observability) ----
+  otel-collector:
+    profiles: ["observability"]
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./config/otel-collector.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "${RB_OTLP_HTTP_PORT:-4318}:4318"
+
+  prometheus:
+    profiles: ["observability"]
+    image: prom/prometheus:v2.55.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  loki:
+    profiles: ["observability"]
+    image: grafana/loki:3.2.0
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/loki.yaml"]
+    volumes:
+      - ./config/loki.yaml:/etc/loki/loki.yaml:ro
+
+  tempo:
+    profiles: ["observability"]
+    image: grafana/tempo:2.6.0
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - ./config/tempo.yaml:/etc/tempo/tempo.yaml:ro
+
+  grafana:
+    profiles: ["observability"]
+    image: grafana/grafana:11.3.0
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    volumes:
+      - ./config/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    ports:
+      - "${RB_GRAFANA_PORT:-3000}:3000"
+
+volumes:
+  db:
+  nats:
+  minio:

@@ -32,9 +32,16 @@ import { GetCallRequest } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function getCall(influx: InfluxDBClient) {
-  const fetchSingleCall = createFetchSingleCall(influx);
-
+/** `fetchSingleCall` defaults to InfluxDB CDRs; the call-record index replaces it behind a flag. */
+function getCall(
+  influx: InfluxDBClient,
+  fetchSingleCall: (
+    accessKeyId: string,
+    ref: string
+  ) => Promise<CallDetailRecord | null | undefined> = createFetchSingleCall(
+    influx
+  )
+) {
   const fn = async (
     call: {
       request: GetCallRequest;

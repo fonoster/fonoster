@@ -17,6 +17,7 @@
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.958.0",
     "@fonoster/logger": "^0.27.0"
   },
   "files": [

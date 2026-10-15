@@ -9,6 +9,7 @@ import { getConfig } from "./config";
 import { identityConfig } from "./core/identityConfig";
 import runServices from "./core/runServices";
 import { upsertDefaultPeer } from "./core/upsertDefaultPeer";
+import { upsertMediaNodePeer } from "./core/upsertMediaNodePeer";
 import {
   INFLUXDB_ORG,
   INFLUXDB_TOKEN,
@@ -47,6 +48,8 @@ async function main() {
   // Upsert a Peer for the default region, if it doesn't already exist. Runs in
   // the background: it waits for Routr, which may start after the API server.
   upsertDefaultPeer().catch(logger.error);
+  // The media-node peer, when configured (add-media-node 4.1).
+  upsertMediaNodePeer().catch(logger.error);
 
   // Start the gRPC server
   runServices().catch(logger.error);

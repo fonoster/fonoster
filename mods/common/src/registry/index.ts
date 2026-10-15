@@ -20,3 +20,4 @@ export * from "./features";
 export * from "./Registry";
 export * from "./stores";
 export * from "./types";
+export * from "./prisma";

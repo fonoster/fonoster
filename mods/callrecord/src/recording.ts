@@ -1,0 +1,221 @@
+/**
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import * as dgram from "dgram";
+import * as fs from "fs";
+import * as path from "path";
+
+// Full-call recording (call-record "Recording is applied by policy", design V8): an internal
+// listener attached with media-control `listener.attach`, one unmixed RTP stream per side. The
+// recorder writes each side as raw 16 kHz PCM next to the working record, so a gateway crash
+// keeps what was recorded; sealing turns the two sides into one stereo WAV (left: caller,
+// right: agent) and references it, with its hash, from the vCon dialog.
+
+export const RECORDING_RATE = 16000;
+export const RECORDING_CODEC = "L16/16000";
+export const RECORDING_PART = "recording.wav";
+export const RECORDING_SIDES = ["caller", "agent"] as const;
+export type RecordingSide = (typeof RECORDING_SIDES)[number];
+
+/** Gaps longer than this are not filled with silence (a clock jump, not a pause). */
+const MAX_GAP_SAMPLES = RECORDING_RATE * 60;
+
+export type RecordingMeta = {
+  startedAt: number;
+  rate: number;
+  sides: RecordingSide[];
+};
+
+class Track {
+  private fd: number;
+  private written = 0;
+  private firstTs?: number;
+  private firstOffset = 0;
+
+  constructor(
+    file: string,
+    private readonly startedAt: number
+  ) {
+    this.fd = fs.openSync(file, "a");
+  }
+
+  /** Places a packet by its RTP timestamp; silence fills gaps, late packets are dropped. */
+  packet(msg: Buffer, now = Date.now()) {
+    if (msg.length < 12 || msg[0] >> 6 !== 2) return;
+    let offset = 12 + (msg[0] & 0x0f) * 4;
+    if (msg[0] & 0x10) offset += 4 + msg.readUInt16BE(offset + 2) * 4;
+    const ts = msg.readUInt32BE(4);
+    const payload = msg.subarray(offset);
+    if (this.firstTs === undefined) {
+      this.firstTs = ts;
+      this.firstOffset = Math.max(
+        0,
+        Math.round(((now - this.startedAt) * RECORDING_RATE) / 1000)
+      );
+    }
+    const position =
+      this.firstOffset + ((ts - this.firstTs + 0x100000000) % 0x100000000);
+    if (position < this.written) return;
+    const gap = position - this.written;
+    if (gap > 0 && gap <= MAX_GAP_SAMPLES) this.write(Buffer.alloc(gap * 2));
+    // L16 on the wire is big-endian; the WAV is little-endian.
+    const le = Buffer.alloc(payload.length - (payload.length % 2));
+    for (let i = 0; i < le.length; i += 2)
+      le.writeInt16LE(payload.readInt16BE(i), i);
+    this.write(le);
+  }
+
+  private write(data: Buffer) {
+    fs.writeSync(this.fd, data);
+    this.written += data.length / 2;
+  }
+
+  close() {
+    try {
+      fs.fsyncSync(this.fd);
+      fs.closeSync(this.fd);
+    } catch {
+      // already closed
+    }
+  }
+}
+
+/** The rtp block a listener.attach track points at. */
+export type RecorderRtp = { host: string; port: number; codec: string };
+
+/**
+ * Receives one RTP stream per side and appends it to `<dir>/<side>.pcm`. Bind it, send
+ * `listener.attach` with `rtpFor(side)`, and stop it before the record is sealed.
+ */
+export class Recorder {
+  private sockets = new Map<RecordingSide, dgram.Socket>();
+  private tracks = new Map<RecordingSide, Track>();
+  private stopped = false;
+  readonly startedAt = Date.now();
+
+  constructor(private readonly dir: string) {}
+
+  async bind(host = "127.0.0.1", advertiseHost?: string) {
+    fs.mkdirSync(this.dir, { recursive: true });
+    const meta: RecordingMeta = {
+      startedAt: this.startedAt,
+      rate: RECORDING_RATE,
+      sides: [...RECORDING_SIDES]
+    };
+    fs.writeFileSync(path.join(this.dir, "meta.json"), JSON.stringify(meta));
+    const rtp: Partial<Record<RecordingSide, RecorderRtp>> = {};
+    for (const side of RECORDING_SIDES) {
+      const track = new Track(
+        path.join(this.dir, `${side}.pcm`),
+        this.startedAt
+      );
+      const socket = dgram.createSocket("udp4");
+      socket.on("message", (msg) => !this.stopped && track.packet(msg));
+      socket.on("error", () => undefined);
+      await new Promise<void>((resolve) => socket.bind(0, host, resolve));
+      this.sockets.set(side, socket);
+      this.tracks.set(side, track);
+      rtp[side] = {
+        host: advertiseHost ?? host,
+        port: socket.address().port,
+        codec: RECORDING_CODEC
+      };
+    }
+    return rtp as Record<RecordingSide, RecorderRtp>;
+  }
+
+  /** Closes the sockets and flushes both sides to disk. Safe to call twice. */
+  stop() {
+    if (this.stopped) return;
+    this.stopped = true;
+    for (const s of this.sockets.values()) {
+      try {
+        s.close();
+      } catch {
+        // already closed
+      }
+    }
+    for (const t of this.tracks.values()) t.close();
+  }
+}
+
+export function wavHeader(
+  dataBytes: number,
+  channels: number,
+  rate = RECORDING_RATE
+) {
+  const h = Buffer.alloc(44);
+  h.write("RIFF", 0);
+  h.writeUInt32LE(36 + dataBytes, 4);
+  h.write("WAVE", 8);
+  h.write("fmt ", 12);
+  h.writeUInt32LE(16, 16);
+  h.writeUInt16LE(1, 20); // PCM
+  h.writeUInt16LE(channels, 22);
+  h.writeUInt32LE(rate, 24);
+  h.writeUInt32LE(rate * channels * 2, 28);
+  h.writeUInt16LE(channels * 2, 32);
+  h.writeUInt16LE(16, 34);
+  h.write("data", 36);
+  h.writeUInt32LE(dataBytes, 40);
+  return h;
+}
+
+/**
+ * Builds the stereo WAV (left: caller, right: agent) from a recorder's directory, or undefined
+ * when nothing was recorded. Works on what a crashed gateway left behind as well.
+ */
+export function assembleRecording(
+  dir: string
+): { wav: Buffer; startedAt: number; durationMs: number } | undefined {
+  const metaFile = path.join(dir, "meta.json");
+  if (!fs.existsSync(metaFile)) return undefined;
+  const meta = JSON.parse(fs.readFileSync(metaFile, "utf8")) as RecordingMeta;
+  const read = (side: RecordingSide) => {
+    const f = path.join(dir, `${side}.pcm`);
+    return fs.existsSync(f) ? fs.readFileSync(f) : Buffer.alloc(0);
+  };
+  const left = read("caller");
+  const right = read("agent");
+  const samples = Math.floor(Math.max(left.length, right.length) / 2);
+  if (samples === 0) return undefined;
+  const data = Buffer.alloc(samples * 4);
+  for (let i = 0; i < samples; i++) {
+    if (i * 2 + 1 < left.length)
+      data.writeInt16LE(left.readInt16LE(i * 2), i * 4);
+    if (i * 2 + 1 < right.length)
+      data.writeInt16LE(right.readInt16LE(i * 2), i * 4 + 2);
+  }
+  return {
+    wav: Buffer.concat([wavHeader(data.length, 2, meta.rate), data]),
+    startedAt: meta.startedAt,
+    durationMs: Math.round((samples * 1000) / meta.rate)
+  };
+}
+
+/** Splits a stereo 16-bit WAV into its channels (for tests and tools). */
+export function wavChannels(wav: Buffer): Int16Array[] {
+  const channels = wav.readUInt16LE(22);
+  const data = wav.subarray(44);
+  const frames = Math.floor(data.length / (2 * channels));
+  const out = Array.from({ length: channels }, () => new Int16Array(frames));
+  for (let i = 0; i < frames; i++)
+    for (let c = 0; c < channels; c++)
+      out[c][i] = data.readInt16LE((i * channels + c) * 2);
+  return out;
+}

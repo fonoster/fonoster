@@ -36,6 +36,7 @@ type Bot struct {
 	inboundTLS *sipgo.DialogServerCache
 	port       int
 	tlsPort    int
+	sipHost    string // host in Via and Contact
 	mu         sync.Mutex
 	calls      map[string]*Call
 	seq        int
@@ -115,13 +116,6 @@ type Status struct {
 	Secure bool   `json:"secure,omitempty"`
 }
 
-// Options configure a bot. TLS, when set, adds a SIP-over-TLS listener (needed to receive
-// in-dialog requests on TLS calls); ClientTLS verifies the node when dialing over TLS.
-type Options struct {
-	TLS       *tls.Config
-	ClientTLS *tls.Config
-}
-
 // DialOptions shape one call's offer.
 type DialOptions struct {
 	// Codecs to offer, in order ("PCMU/8000", "PCMA/8000", "G722/8000", "opus/48000", or any
@@ -139,13 +133,31 @@ type DialOptions struct {
 }
 
 // New starts a bot listening for in-dialog requests (BYE) on host:0.
-func New(host string) (*Bot, error) { return NewWithOptions(host, Options{}) }
+func New(host string) (*Bot, error) { return NewWithOptions(Options{Host: host}) }
 
-// NewWithOptions starts a bot, with a TLS listener when opts.TLS is set.
-func NewWithOptions(host string, opts Options) (*Bot, error) {
+// Options configure a bot.
+type Options struct {
+	// Host is where the bot binds SIP and RTP, and the address in its SDP.
+	Host string
+	// SIPAdvertise is the host in the bot's Via and Contact (default Host), for a proxy that can
+	// only reach the bot by another name (Routr in Docker reaching the host as
+	// host.docker.internal). Setting it also asks for rport (RFC 3581).
+	SIPAdvertise string
+	// TLS, when set, adds a SIP-over-TLS listener (needed to receive in-dialog requests on TLS
+	// calls); ClientTLS verifies the node when dialing over TLS.
+	TLS       *tls.Config
+	ClientTLS *tls.Config
+}
+
+// NewWithOptions starts a bot listening for in-dialog requests (BYE) on Host:0.
+func NewWithOptions(o Options) (*Bot, error) {
+	host, sipHost := o.Host, o.SIPAdvertise
+	if sipHost == "" {
+		sipHost = host
+	}
 	uaOpts := []sipgo.UserAgentOption{sipgo.WithUserAgent("fonoster-caller-bot")}
-	if opts.ClientTLS != nil {
-		uaOpts = append(uaOpts, sipgo.WithUserAgenTLSConfig(opts.ClientTLS))
+	if o.ClientTLS != nil {
+		uaOpts = append(uaOpts, sipgo.WithUserAgenTLSConfig(o.ClientTLS))
 	}
 	ua, err := sipgo.NewUA(uaOpts...)
 	if err != nil {
@@ -160,13 +172,17 @@ func NewWithOptions(host string, opts Options) (*Bot, error) {
 		return nil, err
 	}
 	port := l.LocalAddr().(*net.UDPAddr).Port
-	client, err := sipgo.NewClient(ua, sipgo.WithClientHostname(host), sipgo.WithClientConnectionAddr(net.JoinHostPort(host, strconv.Itoa(port))))
+	clientOpts := []sipgo.ClientOption{sipgo.WithClientHostname(sipHost), sipgo.WithClientConnectionAddr(net.JoinHostPort(host, strconv.Itoa(port)))}
+	if o.SIPAdvertise != "" {
+		clientOpts = append(clientOpts, sipgo.WithClientNAT())
+	}
+	client, err := sipgo.NewClient(ua, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
-	b := &Bot{host: host, ua: ua, srv: srv, client: client, port: port, calls: map[string]*Call{}}
-	b.dialogs = sipgo.NewDialogClientCache(client, sip.ContactHeader{Address: sip.Uri{User: "caller", Host: host, Port: port}})
-	contact := sip.ContactHeader{Address: sip.Uri{User: "callee", Host: host, Port: port}}
+	b := &Bot{host: host, sipHost: sipHost, ua: ua, srv: srv, client: client, port: port, calls: map[string]*Call{}}
+	b.dialogs = sipgo.NewDialogClientCache(client, sip.ContactHeader{Address: sip.Uri{User: "caller", Host: sipHost, Port: port}})
+	contact := sip.ContactHeader{Address: sip.Uri{User: "callee", Host: sipHost, Port: port}}
 	b.inbound = sipgo.NewDialogServerCache(client, contact)
 	srv.OnBye(func(req *sip.Request, tx sip.ServerTransaction) {
 		if err := b.dialogs.ReadBye(req, tx); err == nil {
@@ -200,15 +216,15 @@ func NewWithOptions(host string, opts Options) (*Bot, error) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
 	})
 	go func() { _ = srv.ServeUDP(l) }()
-	if opts.TLS != nil {
-		tl, err := tls.Listen("tcp4", net.JoinHostPort(host, "0"), opts.TLS)
+	if o.TLS != nil {
+		tl, err := tls.Listen("tcp4", net.JoinHostPort(host, "0"), o.TLS)
 		if err != nil {
 			return nil, err
 		}
 		b.tlsPort = tl.Addr().(*net.TCPAddr).Port
 		params := sip.NewParams()
 		params.Add("transport", "tls")
-		b.inboundTLS = sipgo.NewDialogServerCache(client, sip.ContactHeader{Address: sip.Uri{User: "callee", Host: host,
+		b.inboundTLS = sipgo.NewDialogServerCache(client, sip.ContactHeader{Address: sip.Uri{User: "callee", Host: sipHost,
 			Port: b.tlsPort, UriParams: params}})
 		go func() { _ = srv.ServeTLS(tl) }()
 	}
@@ -273,7 +289,14 @@ func (b *Bot) Dial(target, to, from string, headers map[string]string) (*Call, e
 	return b.DialWith(target, to, from, headers, DialOptions{})
 }
 
-// DialWith calls target with a chosen offer and transport.
+// DialVia sends the INVITE to target (host:port) with requestHost as the Request-URI host, the
+// way a carrier calls Routr: Routr finds the Trunk by that host (its inboundUri), not by where the
+// INVITE was sent. An empty requestHost means target's host and port.
+func (b *Bot) DialVia(target, requestHost, to, from string, headers map[string]string) (*Call, error) {
+	return b.DialWith(target, to, from, headers, DialOptions{RequestHost: requestHost})
+}
+
+// DialWith calls target with a chosen offer, transport and Request-URI host.
 func (b *Bot) DialWith(target, to, from string, headers map[string]string, o DialOptions) (*Call, error) {
 	ep, err := rtpio.Listen(b.host)
 	if err != nil {
@@ -302,24 +325,23 @@ func (b *Bot) DialWith(target, to, from string, headers map[string]string, o Dia
 		// The client binds its SIP port for TCP and TLS too, so the node's in-dialog requests reuse
 		// the connection the INVITE opened.
 		contactPort := b.port
-		hdrs = append(hdrs, &sip.ContactHeader{Address: sip.Uri{User: "caller", Host: b.host, Port: contactPort, UriParams: contactParams}})
+		hdrs = append(hdrs, &sip.ContactHeader{Address: sip.Uri{User: "caller", Host: b.sipHost, Port: contactPort, UriParams: contactParams}})
 	}
 	for k, v := range headers {
 		hdrs = append(hdrs, sip.NewHeader(k, v))
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	var session *sipgo.DialogClientSession
+	ruri := recipient
 	if o.RequestHost != "" {
-		req := sip.NewRequest(sip.INVITE, sip.Uri{User: to, Host: o.RequestHost, UriParams: recipient.UriParams})
-		req.SetDestination(target)
-		req.SetBody(offer)
-		for _, h := range hdrs {
-			req.AppendHeader(h)
-		}
-		session, err = b.dialogs.WriteInvite(ctx, req)
-	} else {
-		session, err = b.dialogs.Invite(ctx, recipient, offer, hdrs...)
+		ruri = sip.Uri{User: to, Host: o.RequestHost, UriParams: recipient.UriParams}
 	}
+	req := sip.NewRequest(sip.INVITE, ruri)
+	req.SetBody(offer)
+	for _, h := range hdrs {
+		req.AppendHeader(h)
+	}
+	req.SetDestination(target)
+	session, err := b.dialogs.WriteInvite(ctx, req)
 	if err != nil {
 		cancel()
 		ep.Close()

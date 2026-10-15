@@ -23,3 +23,27 @@ Mount into FastAPI or any ASGI app with `app.mount("/voice", voice_asgi_app(on_c
 
 The SDK passes the same conformance scenarios as the TypeScript SDK (`@fonoster/voice/session`):
 see `mods/conformance/scenarios/voice-sdk`.
+
+## Install
+
+```sh
+pip install fonoster-voice
+```
+
+Requires Python 3.11 or newer. The only dependency is `websockets`. The package ships type
+information (`py.typed`). Handlers must be `async def`; a plain `def` handler is rejected.
+
+## Examples and docs
+
+See `examples/` for `say`/`gather`/`transfer`, barge-in, a FastAPI mount and token streaming, and
+`docs/voice-sdk.md` and `docs/migrating-to-sessions.md` in the repository.
+
+## Build and publish
+
+```sh
+cd python
+uv build fonoster-voice            # or: python -m build fonoster-voice
+uv publish fonoster-voice/dist/*   # needs a PyPI token
+```
+
+The version tracks the npm packages (`@fonoster/voice`); release them together.

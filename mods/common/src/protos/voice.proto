@@ -22,6 +22,10 @@ package fonoster.voice.v1beta2;
 
 import "google/protobuf/struct.proto";
 
+// DEPRECATED: voice.proto is retired by rework-voice-sdk. Voice apps now speak the session
+// protocol (docs/session-protocol.md); this file and the verb types remain only until the
+// legacy apiserver voice path is removed at cutover.
+
 // The voice service definition
 service Voice {
   rpc CreateSession(stream VoiceInStream) returns (stream VoiceOutStream) {}

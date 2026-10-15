@@ -23,3 +23,33 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   `CallRecordWriter` has `onSealed`, the registry calls `UsageSource.notify` with
   `provider.deprecated`. Turning them into deliveries needs the workspace of each call, which lives
   in the control plane (apiserver consuming events from NATS). Not done.
+
+## 2026-10-15 (persistence stream)
+
+### P-B5. Endpoint and delivery tables
+
+- `webhook_endpoints` (workspace = `access_key_id`, url, events, `secret_hash` and
+  `previous_secret_hash` as `/// @encrypted` columns, `previous_until` for the rotation window) and
+  `webhook_deliveries` (the delivery log: event JSON with its id, status, attempts, timestamps,
+  last HTTP status, next attempt). No foreign key from deliveries to endpoints: the log outlives a
+  deleted endpoint, and its pending deliveries fail.
+- `PrismaWebhookStore` implements `WebhookStore` with an endpoint snapshot (`refresh()`) and
+  write-behind (P-B1 in add-provider-registry). `loadDeliveries()` reads the log (newest first) and
+  makes those deliveries resendable by `WebhookDispatcher.resend`.
+- Encryption needs a client with the apiserver's field-encryption extension
+  (`openPrismaClient({encryptionKey})`); a client without it would store secrets in clear.
+
+### P-B6. Retries survive a dead process (adoption)
+
+- Each process retries the deliveries it created. A store opened with `adoptOverdue` claims pending
+  deliveries more than 60 s overdue (a conditional update on `next_attempt_at`, so only one process
+  wins) and retries them. The gateway runs with adoption on; the registry utility does not.
+- Duplicates stay possible at the edges (at-least-once); receivers dedupe by event id.
+
+### P-B7. The gateway's producer is wired (task 2.4, gateway part)
+
+- Gateway config `database` + `webhooks: {enabled: true}`: `main.ts` builds a
+  `WebhookDispatcher` over the database store, passes its `publish` as `GatewayOptions.webhooks`
+  (call.started, call.ended, call.failed), attempts due deliveries every second and reloads
+  endpoints every 30 s. `provider.deprecated` is produced by the registry utility (P-B3 in
+  add-provider-registry). Media node and record writer producers are not wired here.

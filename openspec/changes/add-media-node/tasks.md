@@ -13,7 +13,7 @@
 ## 2. Media node implementation (Go)
 
 - [x] 2.1 Module skeleton with `sipgo` and `livekit/media-sdk` behind our own interfaces
-- [x] 2.2 Routr registration with `X-Session-Count`, short interval and re-register on load change (fake registrar tests; live least-sessions check against a throwaway Routr, MN-B16)
+- [x] 2.2 Routr registration with `X-Session-Count`, short interval and re-register on load change (verified live against Routr 2.15.1, CO-B1; fake registrar tests and a least-sessions check both ways, MN-B16)
 - [x] 2.3 Inbound INVITE handling, header extraction, `call.incoming` claimed by request and reply (500 ms, one retry, then 503), `ring`, answer on command
 - [x] 2.4 Codecs PCMU, PCMA, G.722, Opus and transcoding to the room format
 - [x] 2.5 Rooms: mix-minus mixer, track-based participants, `unsupported_track_kind`, 10-participant limit
@@ -36,8 +36,8 @@
 
 ## 4. Migration and docs
 
-- [ ] 4.1 Routr peer configuration for media nodes with `least-sessions`
+- [x] 4.1 Routr peer configuration for media nodes with `least-sessions` (plus per-app and per-number routing, CO-B4)
 - [ ] 4.2 Remove the Asterisk image, dialplan and ARI handling from the apiserver after cutover
 - [ ] 4.3 Move recording to the policy listener and AMD to a voice-worker listener
-- [ ] 4.4 Operator guide: RTP ports, encryption switch, drain behavior, limits
-- [ ] 4.5 Asterisk retirement notes, including the end of `{appRef}_{id}.wav` recordings and GSM
+- [x] 4.4 Operator guide: RTP ports, encryption switch, drain behavior, limits (`docs/operators/cutover.md` section 5)
+- [x] 4.5 Asterisk retirement notes, including the end of `{appRef}_{id}.wav` recordings and GSM (`docs/operators/cutover.md` section 6)

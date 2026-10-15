@@ -24,14 +24,18 @@ import {
   IdentityConfig
 } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import express, { Request, Response } from "express";
+import express, { Request, Response, Router } from "express";
 import { APP_URL } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
+function httpBridge(
+  identityConfig: IdentityConfig,
+  params: { port: number; routers?: { path: string; router: Router }[] }
+) {
   const { port } = params;
   const app = express();
+  for (const r of params.routers ?? []) app.use(r.path, r.router);
   const streamMap = new Map<string, Readable>();
 
   app.get(

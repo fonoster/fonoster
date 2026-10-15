@@ -243,6 +243,20 @@ export class Session {
     });
   }
 
+  /**
+   * Starts listening or changes how the gateway listens (`listen.update`): recognition language,
+   * hints, and the turn-taking patience knob (`low`, `normal` or `high`).
+   */
+  async listen(
+    options: {
+      language?: string;
+      hints?: string[];
+      patience?: "low" | "normal" | "high";
+    } = {}
+  ): Promise<void> {
+    this.send({ type: "listen.update", ...this.compact(options) });
+  }
+
   /** Requests opt-in events: "turn.estimate", "transcript.partial". */
   async subscribe(
     events: ("turn.estimate" | "transcript.partial")[]

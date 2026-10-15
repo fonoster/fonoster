@@ -87,6 +87,9 @@ SDK stops it with `clear` and the call resolves with `interrupted: true`. Pass
 
 ## Moving from the gRPC SDK
 
+The full guide is [Migrating to sessions](./migrating-to-sessions.md); runnable examples are in
+`mods/voice/examples` and `python/fonoster-voice/examples`.
+
 Handlers written as `async (req, res) => { … }` keep working: the SDK detects the two-parameter form
 and passes a `res` that forwards to the session. `res.dial(number)` is a cold `transfer`.
 

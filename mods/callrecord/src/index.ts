@@ -17,6 +17,10 @@
  * limitations under the License.
  */
 export * from "./CallRecordWriter";
+export * from "./analytics";
+export * from "./indexEntry";
+export * from "./objectStore";
+export * from "./recording";
 export * from "./redact";
 export * from "./sign";
 export * from "./storage";

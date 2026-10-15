@@ -136,7 +136,8 @@ class FakeSttStream extends EventEmitter implements SttStream {
           language: msg.language,
           confidence: msg.confidence,
           startMs: msg.startMs,
-          endMs: msg.endMs
+          endMs: msg.endMs,
+          ...(msg.turn ? { turn: msg.turn } : {})
         };
         this.emit("transcript", t);
       }

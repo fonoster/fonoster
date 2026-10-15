@@ -61,6 +61,15 @@ describe("@apiserver[config/examples]", function () {
       "postgresql://postgres:postgres@postgres:5432/fnidentity"
     );
     expect(config.routr.defaultPeer.username).to.equal("voice");
+    // Cutover defaults: every app on Asterisk, no media-node peer created.
+    expect(config.routr.engines).to.deep.equal({
+      default: "asterisk",
+      rebuildApps: [],
+      asteriskApps: [],
+      numbers: {}
+    });
+    expect(config.routr.mediaNodePeer.aor).to.equal("sip:medianode@default");
+    expect(config.routr.mediaNodePeer.password).to.equal(undefined);
     expect(config.features.auth.methods).to.deep.equal(["password"]);
   });
 

@@ -51,6 +51,34 @@ type Legacy = {
   testCases?: unknown;
 };
 
+/**
+ * VAD-era settings → the patience knob (add-turn-taking 3.2, AP-B3). maxSpeechWaitTimeout was
+ * extra waiting after the caller's speech before answering; 0 (the old default) is today's
+ * behaviour, normal. Any extra wait becomes high (about 1.6 × the gateway's silence timeout, and
+ * more as the gateway adapts to a caller who pauses). Nothing maps to low: the old settings had
+ * no way to answer faster than the default. allowUserBargeIn keeps its meaning: it sets
+ * `interruptible` on every speak and whether Autopilot sends clear on turn.user_started.
+ */
+export function patienceFor(
+  maxSpeechWaitTimeout?: number
+): "low" | "normal" | "high" {
+  return (maxSpeechWaitTimeout ?? 0) > 0 ? "high" : "normal";
+}
+
+const DEFAULT_VAD = {
+  activationThreshold: 0.4,
+  deactivationThreshold: 0.25,
+  debounceFrames: 4
+};
+
+function isDefaultVad(vad: unknown): boolean {
+  if (!vad || typeof vad !== "object") return true;
+  const v = vad as Record<string, unknown>;
+  return (Object.keys(DEFAULT_VAD) as (keyof typeof DEFAULT_VAD)[]).every(
+    (k) => v[k] === undefined || v[k] === DEFAULT_VAD[k]
+  );
+}
+
 export type AssistantConversion = {
   assistant: SessionAssistant;
   /** An inline key to store as a workspace Secret (the config no longer holds it). */
@@ -94,14 +122,15 @@ export function convertLegacyAssistant(
     );
   }
 
-  if ((cs.maxSpeechWaitTimeout ?? 0) > 0) {
+  const patience = patienceFor(cs.maxSpeechWaitTimeout);
+  if (patience !== "normal") {
     notices.push(
-      `maxSpeechWaitTimeout (${cs.maxSpeechWaitTimeout} ms) became patience "patient"; turn timing now comes from the gateway.`
+      `maxSpeechWaitTimeout (${cs.maxSpeechWaitTimeout} ms) became patience "${patience}"; turn timing now comes from the gateway.`
     );
   }
-  if (cs.vad !== undefined)
+  if (cs.vad !== undefined && !isDefaultVad(cs.vad))
     notices.push(
-      "VAD settings were removed; turn detection now runs in the gateway."
+      "Custom VAD settings were removed; turn detection now runs in the gateway. For noisy lines use the app's audio filters or a more patient setting."
     );
   if (
     cs.transferOptions?.timeout !== undefined &&
@@ -124,6 +153,7 @@ export function convertLegacyAssistant(
 
   const { maxSpeechWaitTimeout, vad, transferOptions, ...settings } = cs;
   void vad;
+  void maxSpeechWaitTimeout;
   const assistant = sessionAssistantSchema.parse({
     conversationSettings: {
       ...settings,
@@ -135,7 +165,7 @@ export function convertLegacyAssistant(
             }
           }
         : {}),
-      ...((maxSpeechWaitTimeout ?? 0) > 0 ? { patience: "patient" } : {})
+      ...(patience !== "normal" ? { patience } : {})
     },
     languageModel: {
       model,

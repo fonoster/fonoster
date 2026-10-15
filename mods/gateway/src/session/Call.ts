@@ -29,7 +29,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import Ajv, { ValidateFunction } from "ajv";
 import WebSocket from "ws";
-import { AppConfig, DEFAULTS, GatewayConfig } from "../config";
+import { AppConfig, DEFAULTS, GatewayConfig, recordingPolicy } from "../config";
 import {
   AudioFilterChain,
   AudioFilterFactory,
@@ -45,11 +45,14 @@ import {
   MediaEvent
 } from "../media/MediaControl";
 import { RtpLink } from "../media/RtpLink";
+import { CallRecording } from "../record/CallRecording";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
 import { SpeechError, SttStream } from "../speech/types";
-import { BaselineDetector, Estimate } from "../turn/Detector";
-import { Pacing } from "../turn/Pacing";
+import { telemetry } from "../telemetry";
+import { createDetector } from "../turn/createDetector";
+import { Detector, Estimate } from "../turn/Detector";
+import { Pacing, Patience } from "../turn/Pacing";
 import { TurnLabeler } from "../turn/TurnLabeler";
 import { BufferedSocket, connectApp } from "./connectApp";
 import { Listener } from "./Listener";
@@ -76,14 +79,10 @@ const SPEECH_COMMANDS = new Set([
 ]);
 
 /** Recorded with every turn decision (turn-taking 2.8). */
-const DETECTOR_VERSION = "baseline@1";
-const POLICY_VERSION = "default@1";
+const POLICY_VERSION = "default@2";
 
 /** How often turn.estimate is sent to subscribers. */
 const ESTIMATE_EVERY_MS = 100;
-
-/** Silence-timeout multipliers for `listen.update.patience` (turn-taking, one knob). */
-export const PATIENCE = { low: 0.6, normal: 1, high: 1.6 } as const;
 
 /** Commands an app may send while the caller is on hold (gateway B24). */
 const ALLOWED_ON_HOLD = new Set([
@@ -116,6 +115,8 @@ export type CallInfo = {
   from: string;
   to: string;
   metadata: Record<string, unknown>;
+  /** The caller's tracks from call.incoming (the recording listener needs their ids). */
+  callerTracks?: unknown[];
 };
 
 export type CallDeps = {
@@ -147,11 +148,25 @@ export class Call {
   private answeredBy?: AppConfig;
   private routedTo?: AppConfig;
   onHold = false;
+  /** The platform's recording listener (call-record, recording policy). */
+  readonly recording: CallRecording;
+
+  private readonly span: ReturnType<typeof telemetry.startCall>;
 
   constructor(
     readonly info: CallInfo,
     private readonly deps: CallDeps
-  ) {}
+  ) {
+    this.span = telemetry.startCall(info.callRef, "gateway.call");
+    telemetry.count("fonoster.gateway.calls.total");
+    telemetry.log("info", "call started", { callRef: info.callRef });
+    this.recording = new CallRecording(
+      this,
+      deps.record.recordingDir?.(info.callRef),
+      deps.config.rtp
+    );
+    this.recording.noteTracks(info.callerRef, info.callerTracks);
+  }
 
   get callRef() {
     return this.info.callRef;
@@ -188,7 +203,10 @@ export class Call {
     this.record("event", {
       type: "call.started",
       direction: this.info.direction,
-      appRef: app.ref
+      appRef: app.ref,
+      workspaceRef: app.workspaceRef ?? null,
+      from: this.info.from,
+      to: this.info.to
     });
 
     const reached = await this.dial(app);
@@ -197,10 +215,23 @@ export class Call {
 
     try {
       await this.joinRoom();
-      // Auto-answer once the app's socket is open and session.start is sent (VS12).
-      if (reached) this.attach(reached.app, reached.socket, null);
-      if (this.info.direction === "inbound")
-        await this.mediaCommand({ type: "answer" });
+      const policy = recordingPolicy(this.deps.config, reached?.app ?? app);
+      if (reached && policy === "consent") {
+        // The caller hears the consent prompt before recording starts and before the app's
+        // session begins (call-record "Consent prompt").
+        if (this.info.direction === "inbound")
+          await this.mediaCommand({ type: "answer" });
+        await this.consentPrompt(reached.app);
+        if (this.ended) return socket?.terminate();
+        await this.startRecording(policy);
+        this.attach(reached.app, reached.socket, null);
+      } else {
+        if (reached) void this.startRecording(policy);
+        // Auto-answer once the app's socket is open and session.start is sent (VS12).
+        if (reached) this.attach(reached.app, reached.socket, null);
+        if (this.info.direction === "inbound")
+          await this.mediaCommand({ type: "answer" });
+      }
     } catch (e) {
       logger.error(
         `call ${this.callRef}: could not set up media: ${(e as Error).message}`
@@ -213,6 +244,52 @@ export class Call {
       this.failed("app_unreachable");
       await this.fallbackMessage(app);
     }
+  }
+
+  private async startRecording(policy: ReturnType<typeof recordingPolicy>) {
+    if (policy === "off" || !this.sessionParticipantRef) return;
+    await this.recording.start(
+      policy,
+      this.info.callerRef,
+      this.sessionParticipantRef
+    );
+  }
+
+  /** Speaks the consent prompt alone (no app session yet) and resolves when it has played. */
+  private async consentPrompt(app: AppConfig) {
+    const text =
+      this.deps.config.callRecord?.consentPrompt ??
+      "This call will be recorded.";
+    this.record("event", { type: "recording.consent_requested", text });
+    const voice = this.deps.catalog.resolveVoice(app.speech.voice);
+    if (!voice) return;
+    await new Promise<void>((resolve) => {
+      const queue = new OutputQueue({
+        sink: (f) => this.rtp.send(f),
+        maxQueuedMs: DEFAULTS.outputQueueMaxMs,
+        emit: (e) => {
+          if (
+            e.type === "output.done" ||
+            e.type === "output.interrupted" ||
+            e.type === "error"
+          ) {
+            queue.stop();
+            resolve();
+          }
+        }
+      });
+      queue.start();
+      queue.speak({
+        id: "consent",
+        text,
+        last: true,
+        interruptible: false,
+        preempt: false,
+        voice: voice.voice,
+        language: app.speech.language,
+        adapter: voice.adapter
+      });
+    });
   }
 
   private parties(app?: AppConfig) {
@@ -433,6 +510,8 @@ export class Call {
     this.session = undefined;
     this.rtp.close();
     this.unsubscribeRoom?.();
+    // The recording is flushed before the record is closed, so sealing finds all of it.
+    this.recording.stop();
     this.record("event", { type: "call.ended", reason });
     if (this.answeredBy)
       this.deps.webhooks?.(
@@ -444,6 +523,10 @@ export class Call {
         })
       );
     this.deps.record.close(this.info.callRef);
+    telemetry.log("info", `call ended: ${reason}`, {
+      callRef: this.info.callRef
+    });
+    this.span.end({ "fonoster.end_reason": String(reason) });
     this.deps.onEnded(this);
   }
 
@@ -454,6 +537,9 @@ export class Call {
   private onMediaEvent(event: MediaEvent) {
     this.record("event", { media: event });
     switch (event.type) {
+      case "participant.joined":
+        this.recording.noteTracks(event.participantRef, event.tracks);
+        break;
       case "dtmf":
         this.session?.callerDtmf(String(event.digit));
         break;
@@ -493,7 +579,8 @@ export class AppSession {
   private queue: OutputQueue;
   private stt?: SttStream;
   private pacing?: Pacing;
-  private detector?: BaselineDetector;
+  private detector?: Detector;
+  private detectorVersion = "baseline@1";
   private subscriptions = new Set<string>();
   private lastEstimateAt = 0;
   private closed = false;
@@ -688,10 +775,19 @@ export class AppSession {
 
   private startSpeech() {
     const language = this.app.speech.language;
-    this.detector = new BaselineDetector({
-      silenceTimeoutMs:
-        this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs
-    });
+    const chosen = createDetector(
+      {
+        silenceTimeoutMs:
+          this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs,
+        detector: this.app.speech.detector
+      },
+      {
+        onSource: (source, reason) =>
+          this.call.record("event", { type: "detector.source", source, reason })
+      }
+    );
+    this.detector = chosen.detector;
+    this.detectorVersion = chosen.version;
     this.pacing = new Pacing(
       this.detector,
       {
@@ -701,7 +797,7 @@ export class AppSession {
             type: "turn.decision",
             event: e.type,
             ...this.lastEstimate,
-            detector: DETECTOR_VERSION,
+            detector: this.detectorVersion,
             policy: POLICY_VERSION
           });
           if (e.type === "turn.ended") this.labeler.turnEnded(Date.now());
@@ -728,9 +824,11 @@ export class AppSession {
           });
         },
         // The app owns interruption (B22): the gateway only reports turn.user_started.
-        interruption: () => this.labeler.interruption(Date.now())
+        interruption: () => this.labeler.interruption(Date.now()),
+        patience: (change) =>
+          this.call.record("event", { type: "turn.patience", ...change })
       },
-      { language }
+      { language, patience: this.app.speech.patience }
     );
     this.queue.onPlaying((playing) => this.pacing?.onOutput(playing));
 
@@ -824,6 +922,7 @@ export class AppSession {
     this.closeFilters();
     this.queue.stop();
     this.stt?.close();
+    this.detector?.close?.();
     const end = { type: "session.end", reason };
     for (const l of this.listeners) {
       l.json(end);
@@ -861,6 +960,7 @@ export class AppSession {
     this.closeFilters();
     this.queue.stop();
     this.stt?.close();
+    this.detector?.close?.();
     this.call.sessionDetached(this);
     void this.call.hangup("app_hangup");
   }
@@ -1002,13 +1102,7 @@ export class AppSession {
         return;
       case "listen.update":
         // An empty listen.update only starts listening (ensureSpeech above).
-        if (cmd.patience) {
-          const base =
-            this.app.speech.silenceTimeoutMs ?? DEFAULTS.silenceTimeoutMs;
-          this.detector?.setSilenceTimeout(
-            base * PATIENCE[cmd.patience as keyof typeof PATIENCE]
-          );
-        }
+        if (cmd.patience) this.pacing?.setPatience(cmd.patience as Patience);
         if (!cmd.language && !cmd.hints) return;
         if (cmd.language) this.pacing?.setLanguage(cmd.language as string);
         this.stt?.update({

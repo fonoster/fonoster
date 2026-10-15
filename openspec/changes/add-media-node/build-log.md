@@ -217,3 +217,84 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   - Up to 30 ms jitter alone (fixed delay): 2 late + 2 concealed.
 - Caveat: a laptop core is faster than a cloud vCPU and the harness shares the machine; the bar
   should be re-run on a 2 vCPU VM before release.
+
+## 2026-10-15 (cutover stream)
+
+### CO-B1. First call through a real Routr (closes MN-B8)
+
+- Throwaway rig: `fonoster/routr-one:2.15.1` with `START_INTERNAL_DB=false` and its own Postgres
+  container; the image's own start command runs `npx prisma@6.12.0 migrate deploy` against the
+  external database (the same path platform Compose uses), so no extra migration step is needed.
+  Files: `mods/gateway/test/routr/` (compose, EdgePort config on 15560, `rig.sh`, SDK provisioning,
+  location reader). Doc: `docs/operators/routr-live-test.md`.
+- `routr.live.test.ts` (skipped unless `ROUTR_LIVE=1`): the node registers as Peer `medianode`
+  (least-sessions) and Routr's location shows `sessionCount` 0 → 1 during the call → 0; the bot
+  INVITEs `+17853178070@trunk.rig.local` through Routr; the app gets `session.start` with
+  `appRef` from the Number's `x-app-ref`; audio flows both ways; the BYE crosses Routr; a node
+  stopped with SIGTERM removes its route. 3/3 pass, repeatably.
+- Caller bot: `DialVia(target, requestHost, ...)` and `requestHost` on `POST /calls` (Routr finds
+  the Trunk by Request-URI host); `-sip-advertise` puts another host in Via and Contact (Routr in
+  Docker reaches the host as `host.docker.internal`).
+- The check reads Routr's internal location service (port exposed only in the rig) with a fresh
+  `callId` per lookup: Routr caches `findRoutes` results per AOR + callId.
+
+### CO-B2. The node sends SIP from its listening port, with rport (shared `sipua.go`)
+
+- Routr stores the REGISTER's source address and port (received/rport) as the route, not the
+  Contact. The node used an ephemeral client socket, so Routr's INVITEs went to a closed port
+  behind NAT (Docker for Mac shows it as an outside address). Now `sipua.New` binds the UDP
+  socket and the client sends from it, with `rport`. It is correct without NAT too, and needed
+  behind cloud NAT. e2e tests unchanged and passing.
+- New flag `-register-every` / `MEDIANODE_REGISTER_EVERY` (default 15 s). Below a change of 5
+  rooms the count only reaches Routr on the timer (MN3 as built); the rig uses 2 s.
+
+### CO-B3. Drain re-registers at once; exit unregisters
+
+- SIGTERM now kicks a REGISTER right away, so Routr sees "full" without waiting for the timer. On
+  exit the node sends REGISTER with Expires 0 before `node.down`. Without it a stopped node's
+  route stayed up to 30 s and least-sessions picked it (seen live: the call never arrived). Only
+  crashes leave dead routes now.
+
+### CO-B4. Per-app and per-number routing in sipnet (task 4.1)
+
+- `createNumberRouting` picks an app-linked Number's `aorLink`. Order: per-number pin, then a
+  per-app lookup (meant for a future `Application.engine` column), then the `rebuildApps` /
+  `asteriskApps` lists, then the default (`asterisk`). With no config, behavior is unchanged.
+- The apiserver reads `routr.engines` and `routr.mediaNodePeer`. It creates the least-sessions
+  media-node Peer (`sip:medianode@default`, `maxContacts -1`) only when a password is set. The
+  Asterisk AOR now comes from `routr.defaultPeer.aor`; before, sipnet used the constant and
+  ignored a customized AOR.
+- Routr stores `aorLink` per Number, so flipping an app needs a rewrite: `repointNumbers` and
+  `repointNumbersCli.js` (dry run by default) rewrite only Numbers with an `x-app-ref` header.
+  Header names match case-insensitively. Checked live against the rig: rollback and cutover both
+  changed the Number and kept its trunk and headers.
+- Routr's updates need the full object (`name` on Numbers; `name` and `username` on Credentials),
+  so `repointNumbers` sends the name back.
+
+### CO-B5. Dependencies and links
+
+- No new npm dependencies. The rig helpers use `@routr/sdk`, `@routr/common` and `@grpc/*` from
+  the root `node_modules`; they are test-only and not declared in the gateway's package.json.
+- Worktree link `mods/apiserver/node_modules/@fonoster/sipnet → ../../../sipnet` (not committed),
+  so the apiserver typechecks against this branch's sipnet.
+
+### CO-B6. Found along the way (not fixed here)
+
+- `GET /api/recordings/:id` (`mods/apiserver/src/core/httpBridge.ts`) joins the raw id into a
+  path, so it may allow path traversal. It is retired with Asterisk (task 4.5); worth a fix
+  before then.
+- RTP ports come from the OS ephemeral range; there is no configurable range yet (cutover
+  runbook, section 5).
+
+### MN-B18. Merge with the cutover and platform streams
+
+- One implementation each: registration uses the cutover stream's `send` / `Kick` / `Unregister`
+  (CO-B2, CO-B3) and listening-socket UDP with rport; this stream's `ReregisterDelta`, TLS
+  listener and INFO handling sit on top. With `-require-encryption` the plain UDP socket is not
+  bound at all. `Drain` calls `Kick` through `OnDrain`; `main` uses `DrainAndWait` (ends rooms
+  with `node_error` after `-drain-wait`), then unregisters, then `node.down`.
+- Flags from both sides kept (`-register-every` with `MEDIANODE_REGISTER_EVERY`,
+  `-reregister-delta`, `-media-timeout`, `-rtp-port-min/-max`, TLS and encryption flags);
+  `-max-duration`, `-max-participants` and `-drain-wait` take the platform stream's env vars.
+- Caller bot: one `Options` (`Host`, `SIPAdvertise`, `TLS`, `ClientTLS`); `DialVia` is
+  `DialWith` with `RequestHost`.

@@ -48,6 +48,41 @@ const featuresSchema = z
   })
   .default({});
 
+/** Where call records live (add-call-record): a directory, or S3-compatible storage. */
+const recordStoreSchema = z.union([
+  z.object({ dir: z.string().min(1) }),
+  z.object({
+    s3: z.object({
+      bucket: z.string().min(1),
+      prefix: z.string().optional(),
+      region: z.string().optional(),
+      endpoint: z.string().optional(),
+      forcePathStyle: z.boolean().optional(),
+      credentials: z
+        .object({
+          accessKeyId: z.string().min(1),
+          secretAccessKey: z.string().min(1)
+        })
+        .optional()
+    })
+  })
+]);
+
+/**
+ * Call records (add-call-record): the index, the records API, retention, and ListCalls from the
+ * index instead of InfluxDB. `stores` are the record stores the API reads from (the regions' and
+ * any workspace buckets), matched by the location in each index entry.
+ */
+const callRecordsSchema = z
+  .object({
+    enabled: z.boolean().default(false),
+    listCallsFromIndex: z.boolean().default(false),
+    stores: z.array(recordStoreSchema).default([]),
+    retentionIntervalMinutes: z.number().int().positive().default(60),
+    maintenanceTimeoutMs: z.number().int().positive().default(30000)
+  })
+  .default({});
+
 /** fonoster.yaml: everything the API server (and embedded Identity) needs. */
 const fonosterConfigSchema = z
   .object({
@@ -106,6 +141,32 @@ const fonosterConfigSchema = z
             username: z.string().default("voice"),
             password: z.string().default("changeme")
           })
+          .default({}),
+        /**
+         * The peer Go media nodes register under (least-sessions, add-media-node 4.1). Without a
+         * password the apiserver does not create it.
+         */
+        mediaNodePeer: z
+          .object({
+            aor: z.string().default("sip:medianode@default"),
+            name: z.string().default("Media Nodes"),
+            username: z.string().default("medianode"),
+            password: z.string().optional()
+          })
+          .default({}),
+        /**
+         * Which voice stack answers app-linked numbers during the cutover: `asterisk` (the default
+         * peer) or `rebuild` (the media-node peer). Per-number pins win over app lists.
+         */
+        engines: z
+          .object({
+            default: z.enum(["asterisk", "rebuild"]).default("asterisk"),
+            rebuildApps: z.array(z.string()).default([]),
+            asteriskApps: z.array(z.string()).default([]),
+            numbers: z
+              .record(z.string(), z.enum(["asterisk", "rebuild"]))
+              .default({})
+          })
           .default({})
       })
       .default({}),
@@ -127,7 +188,8 @@ const fonosterConfigSchema = z
       })
       .default({}),
     twilio: twilioSchema.optional(),
-    identity: identitySectionSchema
+    identity: identitySectionSchema,
+    callRecords: callRecordsSchema
   })
   .superRefine((config, ctx) => {
     if (config.authz.enabled && !config.authz.host) {
@@ -182,7 +244,9 @@ const SHARED_VALUE_PATHS = [
   "mediaService.asterisk.ariUsername",
   "mediaService.asterisk.ariPassword",
   "routr.defaultPeer.username",
-  "routr.defaultPeer.password"
+  "routr.defaultPeer.password",
+  "routr.mediaNodePeer.username",
+  "routr.mediaNodePeer.password"
 ];
 
 /** Keys people may carry over from identity.json or older drafts. */

@@ -40,6 +40,8 @@ export type FakesHarnessOptions = {
    * measurable and scenarios asserting it fail.
    */
   vendorCalls?: () => number;
+  /** The call record's event entries of one type (makes record.events.<type> measurable). */
+  recordEvents?: (type: string) => Record<string, unknown>[];
 };
 
 /**
@@ -240,6 +242,10 @@ export class FakesHarness implements Harness {
       case "providers.vendor_calls":
         return this.options.vendorCalls?.();
       default:
+        // record.events.<type>: the call record's event entries of that type, when the
+        // implementation under test exposes its record (turn-taking labels and decisions).
+        if (name.startsWith("record.events.") && this.options.recordEvents)
+          return this.options.recordEvents(name.slice("record.events.".length));
         return undefined;
     }
   }

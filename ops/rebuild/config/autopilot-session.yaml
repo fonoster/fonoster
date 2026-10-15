@@ -1,0 +1,8 @@
+# autopilot-session.yaml: the hosted Autopilot (profile `autopilot`), an ordinary session app the
+# gateway dials at ws://autopilot:3000. Format: config/autopilot-session.example.yaml.
+port: 3000
+signingSecret: change-me
+assistants: { file: /etc/fonoster/assistants.json }
+registry: { file: /etc/fonoster/registry.json }
+credentials:
+  openai-default: { env: OPENAI_API_KEY }

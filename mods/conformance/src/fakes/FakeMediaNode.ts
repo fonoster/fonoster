@@ -127,8 +127,59 @@ type Room = {
 
 type ReceivedPacket = { at: number; ms: number; audible: boolean };
 
+/**
+ * One listener fork: re-sends a track's payloads as their own RTP stream (media-control,
+ * "Listeners fork audio by track"). The fake forwards payloads in the session's codec as they
+ * are; the Go node transcodes to the codec each fork asks for.
+ */
+class ForkRtp {
+  private socket = dgram.createSocket("udp4");
+  private seq = Math.floor(Math.random() * 0xffff);
+  private timestamp = Math.floor(Math.random() * 0xffffffff);
+  private readonly ssrc = Math.floor(Math.random() * 0xffffffff);
+  closed = false;
+
+  constructor(
+    private readonly remote: { host: string; port: number },
+    private readonly payloadType: number,
+    private readonly samplesPerFrame: number
+  ) {
+    this.socket.on("error", () => undefined);
+  }
+
+  send(payload: Buffer) {
+    if (this.closed) return;
+    const header = Buffer.alloc(12);
+    header[0] = 0x80;
+    header[1] = this.payloadType & 0x7f;
+    header.writeUInt16BE(this.seq, 2);
+    header.writeUInt32BE(this.timestamp >>> 0, 4);
+    header.writeUInt32BE(this.ssrc >>> 0, 8);
+    this.seq = (this.seq + 1) & 0xffff;
+    this.timestamp = (this.timestamp + this.samplesPerFrame) >>> 0;
+    this.socket.send(
+      Buffer.concat([header, payload]),
+      this.remote.port,
+      this.remote.host
+    );
+  }
+
+  close() {
+    if (this.closed) return;
+    this.closed = true;
+    try {
+      this.socket.close();
+    } catch {
+      // already closed
+    }
+  }
+}
+
 class SessionRtp {
   readonly received: ReceivedPacket[] = [];
+  /** Listener forks of the caller's track (what this sends) and of the session's (what it gets). */
+  readonly callerForks: ForkRtp[] = [];
+  readonly sessionForks: ForkRtp[] = [];
   private socket = dgram.createSocket("udp4");
   private timer?: ReturnType<typeof setTimeout>;
   /** On hold the session participant hears silence (media-control, hold by mixing). */
@@ -194,6 +245,7 @@ class SessionRtp {
       this.remote.port,
       this.remote.host
     );
+    for (const f of this.callerForks) f.send(payload);
   }
 
   private onPacket(msg: Buffer) {
@@ -202,6 +254,7 @@ class SessionRtp {
     let offset = 12 + csrcCount * 4;
     if (msg[0] & 0x10) offset += 4 + msg.readUInt16BE(offset + 2) * 4;
     const payload = msg.subarray(offset);
+    for (const f of this.sessionForks) f.send(payload);
     this.received.push({
       at: Date.now(),
       ms: durationMs(payload.length, this.format),
@@ -211,6 +264,7 @@ class SessionRtp {
 
   close() {
     if (this.timer) clearTimeout(this.timer);
+    for (const f of [...this.callerForks, ...this.sessionForks]) f.close();
     try {
       this.socket.close();
     } catch {
@@ -478,6 +532,23 @@ export class FakeMediaNode extends EventEmitter {
           "listener",
           ref("p-listener")
         );
+        const session = [...room.participants.values()].find(
+          (p) => p.kind === "session" && p.rtp
+        )?.rtp;
+        for (const t of tracks ?? []) {
+          const owner = [...room.participants.values()].find((p) =>
+            p.tracks.some((x) => x.trackId === t.trackId)
+          );
+          if (!session || !owner) continue;
+          const fork = new ForkRtp(
+            { host: t.rtp!.host!, port: t.rtp!.port! },
+            session.format.codec === "pcmu" ? 0 : 96,
+            (session.format.rate / 1000) * FRAME_MS
+          );
+          if (owner.kind === "session") session.sessionForks.push(fork);
+          else if (owner.kind === "phone") session.callerForks.push(fork);
+          else fork.close();
+        }
         return ack({
           listenerRef: listener.participantRef,
           participantRef: listener.participantRef

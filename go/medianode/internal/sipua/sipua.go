@@ -69,6 +69,8 @@ type UA struct {
 	mu      sync.Mutex
 	// legs by Call-ID, for SIP INFO keypresses.
 	legs sync.Map
+	// udp is the UDP listening socket, bound in New so requests can go out from it.
+	udp net.PacketConn
 }
 
 // New wires a SIP user agent to the node.
@@ -106,9 +108,20 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if err != nil {
 		return nil, err
 	}
-	// rport on Via (WithClientNAT) lets Routr answer to where requests really came from, which
-	// matters behind NAT and container port mappings.
-	client, err := sipgo.NewClient(ua, sipgo.WithClientHostname(cfg.AdvertiseHost), sipgo.WithClientNAT())
+	// rport (RFC 3581) and requests sent from the listening port: Routr stores the REGISTER's
+	// source address and port as the route, so INVITEs must be able to come back to it, behind NAT
+	// (Docker for Mac, cloud load balancers) as well as without it (CO-B2). With encryption
+	// required there is no plain listener at all (MN6).
+	var udp net.PacketConn
+	clientOpts := []sipgo.ClientOption{sipgo.WithClientHostname(cfg.AdvertiseHost), sipgo.WithClientNAT()}
+	if !cfg.RequireEncryption {
+		udp, err = net.ListenPacket("udp4", cfg.Listen)
+		if err != nil {
+			return nil, err
+		}
+		clientOpts = append(clientOpts, sipgo.WithClientConnectionAddr(udp.LocalAddr().String()))
+	}
+	client, err := sipgo.NewClient(ua, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +133,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 		params.Add("transport", "tls")
 		contact.Address.Port, contact.Address.UriParams = port, params
 	}
-	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client,
+	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp,
 		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact),
 		kick: make(chan struct{}, 1), lastReg: -1}
 	srv.OnInvite(u.onInvite)
@@ -138,7 +151,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
 	})
 	n.OnRoomCount = func(count int) { u.loadChanged(count) }
-	n.OnDrain = func() { u.kickRegister() }
+	n.OnDrain = func() { u.Kick() }
 	if cfg.OutboundProxy != "" {
 		n.SetDialer(u)
 	}
@@ -149,9 +162,8 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 func (u *UA) Serve(ctx context.Context) error {
 	errs := make(chan error, 3)
 	if !u.cfg.RequireEncryption {
-		for _, network := range []string{"udp", "tcp"} {
-			go func(network string) { errs <- u.srv.ListenAndServe(ctx, network, u.cfg.Listen) }(network)
-		}
+		go func() { errs <- u.srv.ServeUDP(u.udp) }()
+		go func() { errs <- u.srv.ListenAndServe(ctx, "tcp", u.cfg.Listen) }()
 	}
 	if u.cfg.TLSListen != "" && u.cfg.TLSConfig != nil {
 		go func() { errs <- u.srv.ListenAndServeTLS(ctx, "tcp", u.cfg.TLSListen, u.cfg.TLSConfig) }()
@@ -167,15 +179,12 @@ func (u *UA) Serve(ctx context.Context) error {
 	}
 }
 
-// Close unregisters (Expires: 0, so Routr stops routing here at once) and releases the user
-// agent.
+// Close releases the user agent (call Unregister first on a clean exit).
 func (u *UA) Close() {
-	if u.cfg.Registrar != "" {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		_ = u.registerWith(ctx, 0)
-		cancel()
-	}
 	_ = u.ua.Close()
+	if u.udp != nil {
+		_ = u.udp.Close()
+	}
 }
 
 func header(req *sip.Request, name string) string {
@@ -427,14 +436,7 @@ func (u *UA) loadChanged(count int) {
 	last := u.lastReg
 	u.mu.Unlock()
 	if last < 0 || abs(count-last) >= u.cfg.ReregisterDelta || count == 0 {
-		u.kickRegister()
-	}
-}
-
-func (u *UA) kickRegister() {
-	select {
-	case u.kick <- struct{}{}:
-	default:
+		u.Kick()
 	}
 }
 
@@ -461,12 +463,28 @@ func (u *UA) registerLoop(ctx context.Context) {
 	}
 }
 
-func (u *UA) register(ctx context.Context) error {
-	return u.registerWith(ctx, int(u.cfg.RegisterEvery.Seconds()*2))
+// Kick re-registers now (e.g. after Drain, so Routr stops choosing this node at once).
+func (u *UA) Kick() {
+	select {
+	case u.kick <- struct{}{}:
+	default:
+	}
 }
 
-// registerWith sends one REGISTER with the current session count; expires 0 unregisters.
-func (u *UA) registerWith(ctx context.Context, expires int) error {
+// Unregister removes this node's route from Routr (REGISTER with Expires 0), so Routr stops
+// choosing a node that exits instead of waiting for its registration to expire (CO-B3).
+func (u *UA) Unregister(ctx context.Context) error {
+	if u.cfg.Registrar == "" {
+		return nil
+	}
+	return u.send(ctx, 0)
+}
+
+func (u *UA) register(ctx context.Context) error {
+	return u.send(ctx, int(u.cfg.RegisterEvery.Seconds()*2))
+}
+
+func (u *UA) send(ctx context.Context, expires int) error {
 	count := u.node.ActiveRooms()
 	if u.node.Draining() {
 		count = 1 << 20 // full: Routr stops choosing this node

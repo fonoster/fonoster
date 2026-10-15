@@ -19,7 +19,7 @@
 import { FRAME_BYTES, FRAME_MS } from "../audio/pcm";
 import { CorpusCall } from "./corpus";
 import { Detector } from "./Detector";
-import { Pacing, TurnEvent } from "./Pacing";
+import { Pacing, Patience, TurnEvent } from "./Pacing";
 
 // Replays corpus calls through a Detector and the Pacing policy and scores the decisions
 // (add-turn-taking task 1.6, conformance pass bar T3).
@@ -45,7 +45,7 @@ export type CallResult = {
   backchannelMisfires: number;
 };
 
-export type ReplayReport = {
+export type Metrics = {
   calls: number;
   turns: number;
   falseCutOffRate: number;
@@ -53,7 +53,25 @@ export type ReplayReport = {
   delayP95Ms: number;
   missedBargeInRate: number;
   backchannelMisfireRate: number;
+  /** Turns that never got a turn.ended before the next one started. */
+  missedEndRate: number;
+};
+
+export type ReplayReport = Metrics & {
   results: CallResult[];
+  /** The same metrics per category (tags or `<language>-<category>-<n>` names) and language. */
+  byCategory: Record<string, Metrics>;
+  byLanguage: Record<string, Metrics>;
+  /** Calls where something went wrong, with what, to listen to first. */
+  problems: { name: string; issues: string[] }[];
+};
+
+export type ReplayOptions = {
+  language?: string;
+  /** The app patience the policy runs with (default normal). */
+  patience?: Patience;
+  /** Within-call adaptation (default on, as in the gateway). */
+  adapt?: boolean;
 };
 
 function percentile(values: number[], p: number) {
@@ -67,7 +85,7 @@ function percentile(values: number[], p: number) {
 export function replayCall(
   call: CorpusCall,
   makeDetector: () => Detector,
-  options: { language?: string } = {}
+  options: ReplayOptions = {}
 ): CallResult {
   const turnEnds: number[] = [];
   const interruptions: number[] = [];
@@ -82,7 +100,11 @@ export function replayCall(
       estimate: () => undefined,
       interruption: () => interruptions.push(now)
     },
-    { language: options.language ?? call.language }
+    {
+      language: options.language ?? call.language,
+      patience: options.patience,
+      adapt: options.adapt
+    }
   );
 
   const latency = call.sttLatencyMs ?? 300;
@@ -166,14 +188,14 @@ export function replayCall(
   return result;
 }
 
-export function replay(
-  calls: CorpusCall[],
-  makeDetector: () => Detector
-): ReplayReport {
-  const consented = calls.filter((c) =>
-    ["synthetic", "internal", "customer-opt-in"].includes(c.consent)
-  );
-  const results = consented.map((c) => replayCall(c, makeDetector));
+/** The category of a corpus call: its first tag, or the middle of `<language>-<category>-<n>`. */
+export function categoryOf(call: CorpusCall): string {
+  if (call.tags?.length) return call.tags[0];
+  const parts = call.name.split("-");
+  return parts.length >= 3 ? parts.slice(1, -1).join("-") : "other";
+}
+
+function metrics(results: CallResult[]): Metrics {
   const sum = (f: (r: CallResult) => number) =>
     results.reduce((a, r) => a + f(r), 0);
   const turns = sum((r) => r.delays.length + r.missedEnds);
@@ -196,20 +218,139 @@ export function replay(
       sum((r) => r.backchannelMisfires),
       sum((r) => r.backchannelsOverOutput)
     ),
-    results
+    missedEndRate: ratio(
+      sum((r) => r.missedEnds),
+      turns
+    )
   };
+}
+
+function groupBy(
+  calls: CorpusCall[],
+  results: CallResult[],
+  key: (c: CorpusCall) => string
+): Record<string, Metrics> {
+  const groups = new Map<string, CallResult[]>();
+  calls.forEach((c, i) => {
+    const k = key(c);
+    groups.set(k, [...(groups.get(k) ?? []), results[i]]);
+  });
+  return Object.fromEntries(
+    [...groups.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, rs]) => [k, metrics(rs)])
+  );
+}
+
+function issuesOf(r: CallResult): string[] {
+  const issues: string[] = [];
+  if (r.falseCutOffs) issues.push(`${r.falseCutOffs} false cut-off`);
+  if (r.missedEnds) issues.push(`${r.missedEnds} missed end`);
+  if (r.missedBargeIns) issues.push(`${r.missedBargeIns} missed barge-in`);
+  if (r.backchannelMisfires)
+    issues.push(`${r.backchannelMisfires} backchannel misfire`);
+  return issues;
+}
+
+export function replay(
+  calls: CorpusCall[],
+  makeDetector: () => Detector,
+  options: ReplayOptions = {}
+): ReplayReport {
+  const consented = calls.filter((c) =>
+    ["synthetic", "internal", "customer-opt-in"].includes(c.consent)
+  );
+  const results = consented.map((c) => replayCall(c, makeDetector, options));
+  return {
+    ...metrics(results),
+    results,
+    byCategory: groupBy(consented, results, categoryOf),
+    byLanguage: groupBy(consented, results, (c) => c.language),
+    problems: results
+      .map((r) => ({ name: r.name, issues: issuesOf(r) }))
+      .filter((p) => p.issues.length)
+  };
+}
+
+const COLUMNS: [keyof Metrics, string][] = [
+  ["falseCutOffRate", "false cut-off"],
+  ["delayMedianMs", "delay p50 ms"],
+  ["delayP95Ms", "delay p95 ms"],
+  ["missedBargeInRate", "missed barge-in"],
+  ["backchannelMisfireRate", "backchannel misfire"],
+  ["missedEndRate", "missed end"]
+];
+
+function table(rows: [string, Metrics][]): string {
+  const header = ["", ...COLUMNS.map(([, h]) => h)];
+  const body = rows.map(([name, m]) => [
+    name,
+    ...COLUMNS.map(([k]) => String(m[k]))
+  ]);
+  const widths = header.map((_, i) =>
+    Math.max(...[header, ...body].map((r) => r[i].length))
+  );
+  const line = (r: string[]) =>
+    r
+      .map((c, i) => c.padEnd(widths[i]))
+      .join("  ")
+      .trimEnd();
+  return [line(header), ...body.map(line)].join("\n");
+}
+
+/**
+ * A plain-text report: overall metrics per Detector, the breakdown per category for each, the
+ * calls to listen to, and the verdict of each candidate against the first (the default).
+ */
+export function formatReport(
+  reports: { name: string; report: ReplayReport }[],
+  tolerance?: Tolerance
+): string {
+  const [base, ...candidates] = reports;
+  const out: string[] = [
+    `${base.report.calls} calls, ${base.report.turns} turns`,
+    "",
+    table(reports.map((r) => [r.name, r.report]))
+  ];
+  for (const r of reports) {
+    out.push(
+      "",
+      `${r.name} by category`,
+      table(Object.entries(r.report.byCategory))
+    );
+    if (r.report.problems.length)
+      out.push(
+        "",
+        `${r.name}: calls to listen to`,
+        ...r.report.problems
+          .slice(0, 10)
+          .map((p) => `  ${p.name}: ${p.issues.join(", ")}`),
+        ...(r.report.problems.length > 10
+          ? [`  and ${r.report.problems.length - 10} more`]
+          : [])
+      );
+  }
+  for (const c of candidates) {
+    const verdict = compare(base.report, c.report, tolerance);
+    out.push(
+      "",
+      `${c.name} vs ${base.name}: ${verdict.pass ? "PASS (may become the default)" : "FAIL"}`,
+      ...verdict.regressions.map((r) => `  ${r}`)
+    );
+  }
+  return out.join("\n");
 }
 
 export type Tolerance = { rate: number; delayMs: number };
 
 /** A candidate may replace the default only if it regresses on no metric beyond the tolerance. */
 export function compare(
-  baseline: ReplayReport,
-  candidate: ReplayReport,
+  baseline: Metrics,
+  candidate: Metrics,
   tolerance: Tolerance = { rate: 0.02, delayMs: 100 }
 ) {
   const regressions: string[] = [];
-  const rate = (name: keyof ReplayReport) => {
+  const rate = (name: keyof Metrics) => {
     const b = baseline[name] as number;
     const c = candidate[name] as number;
     if (c > b + tolerance.rate)
@@ -217,7 +358,7 @@ export function compare(
         `${String(name)} ${c} > baseline ${b} + ${tolerance.rate}`
       );
   };
-  const delay = (name: keyof ReplayReport) => {
+  const delay = (name: keyof Metrics) => {
     const b = baseline[name] as number;
     const c = candidate[name] as number;
     if (c > b + tolerance.delayMs)
@@ -230,5 +371,6 @@ export function compare(
   delay("delayP95Ms");
   rate("missedBargeInRate");
   rate("backchannelMisfireRate");
+  rate("missedEndRate");
   return { pass: regressions.length === 0, regressions };
 }

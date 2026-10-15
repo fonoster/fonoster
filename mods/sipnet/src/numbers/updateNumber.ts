@@ -29,12 +29,14 @@ import {
   UpdateNumberRequest
 } from "@fonoster/types";
 import { convertToRoutrNumberUpdate } from "./convertToRoutrNumber";
+import { NumberRouting } from "./engineRouting";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function updateNumber(
   api: NumbersApi,
-  checkNumberPreconditions: NumberPreconditionsCheck
+  checkNumberPreconditions: NumberPreconditionsCheck,
+  routing?: NumberRouting
 ) {
   const fn = async (
     call: { request: UpdateNumberRequest },
@@ -47,8 +49,17 @@ function updateNumber(
 
     logger.verbose("call to updateNumber", { ...request });
 
+    // The number's telUrl matters only for per-number pins, so it is read only with routing.
+    const appPeerAor =
+      routing && request.appRef
+        ? await routing.aorFor({
+            appRef: request.appRef,
+            telUrl: (await api.getNumber(request.ref))?.telUrl
+          })
+        : undefined;
+
     const response = await api.updateNumber(
-      convertToRoutrNumberUpdate(request)
+      convertToRoutrNumberUpdate(request, appPeerAor)
     );
 
     callback(null, response);

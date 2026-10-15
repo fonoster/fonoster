@@ -18,40 +18,29 @@
  */
 import * as fs from "fs";
 import * as path from "path";
+import { FsObjectStore, ObjectStore } from "./objectStore";
+import { contentHash } from "./sign";
 import { Part, RecordEntry, SealedVersion, SignedVcon } from "./types";
 
 /**
- * Where working records and sealed records live: region object storage, or the workspace's own
- * bucket. This interface is what the writer needs; `FsRecordStorage` is the local implementation.
+ * Working records live on the gateway's local disk while the call runs: one fsynced JSON line
+ * per entry, plus the raw recording tracks. Sealed records go to object storage (RecordStore).
  */
-export interface RecordStorage {
-  /** Appends one entry durably (each append survives a crash on its own). */
-  append(callRef: string, entry: RecordEntry): void;
-  readWorking(callRef: string): RecordEntry[];
-  /** Working records not sealed yet, with the time of their last append. */
-  listWorking(): { callRef: string; lastAppendAt: number }[];
-  discardWorking(callRef: string): void;
-  putSealed(callRef: string, sealed: SealedVersion): void;
-  /** The current version, or a given one. */
-  getSealed(callRef: string, version?: number): SealedVersion | undefined;
-  /** Removes a stored part (retention, erasure); returns whether it existed. */
-  deletePart(callRef: string, version: number, name: string): boolean;
-}
-
-export class FsRecordStorage implements RecordStorage {
+export class FsWorkingStore {
   constructor(private readonly dir: string) {
     fs.mkdirSync(path.join(dir, "working"), { recursive: true });
-    fs.mkdirSync(path.join(dir, "sealed"), { recursive: true });
   }
 
   private workingFile(callRef: string) {
     return path.join(this.dir, "working", `${safe(callRef)}.jsonl`);
   }
 
-  private versionDir(callRef: string, version: number) {
-    return path.join(this.dir, "sealed", safe(callRef), `v${version}`);
+  /** Where the recorder writes this call's raw tracks. */
+  recordingDir(callRef: string) {
+    return path.join(this.dir, "working", `${safe(callRef)}.rec`);
   }
 
+  /** Appends one entry durably (each append survives a crash on its own). */
   append(callRef: string, entry: RecordEntry) {
     const fd = fs.openSync(this.workingFile(callRef), "a");
     try {
@@ -78,6 +67,7 @@ export class FsRecordStorage implements RecordStorage {
       });
   }
 
+  /** Working records not sealed yet, with the time of their last append. */
   listWorking() {
     const dir = path.join(this.dir, "working");
     return fs
@@ -91,67 +81,181 @@ export class FsRecordStorage implements RecordStorage {
 
   discardWorking(callRef: string) {
     fs.rmSync(this.workingFile(callRef), { force: true });
+    fs.rmSync(this.recordingDir(callRef), { recursive: true, force: true });
+  }
+}
+
+export type ManifestPart = {
+  name: string;
+  mimetype: string;
+  content_hash: string;
+  size: number;
+};
+
+export type Manifest = {
+  version: number;
+  sealedAt: string;
+  parts: ManifestPart[];
+};
+
+/** A stored version without its part contents (for reads that do not need the audio). */
+export type StoredVersion = {
+  version: number;
+  signed?: SignedVcon;
+  redacted?: SignedVcon;
+  manifest: Manifest;
+};
+
+/**
+ * Sealed records in object storage. Layout per call:
+ *   <callRef>/current                     the current version number
+ *   <callRef>/v<n>/vcon.jws.json          the signed original
+ *   <callRef>/v<n>/vcon.redacted.jws.json the signed redacted copy
+ *   <callRef>/v<n>/manifest.json          parts of that version, with hashes and sizes
+ *   <callRef>/parts/<name>                the parts (recording, messages), shared by versions
+ * A version is never rewritten; retention and erasure delete objects and add a version.
+ */
+export class RecordStore {
+  constructor(readonly objects: ObjectStore) {}
+
+  get location() {
+    return this.objects.location;
   }
 
-  putSealed(callRef: string, sealed: SealedVersion) {
-    const dir = this.versionDir(callRef, sealed.version);
-    if (fs.existsSync(dir))
-      throw new Error(`${callRef} v${sealed.version} is already sealed`);
-    fs.mkdirSync(path.join(dir, "parts"), { recursive: true });
-    for (const part of sealed.parts)
-      fs.writeFileSync(path.join(dir, "parts", part.name), part.data);
-    fs.writeFileSync(
-      path.join(dir, "vcon.jws.json"),
-      JSON.stringify(sealed.signed)
+  private key(callRef: string, ...rest: string[]) {
+    return [safe(callRef), ...rest].join("/");
+  }
+
+  async currentVersion(callRef: string): Promise<number | undefined> {
+    const v = await this.objects.get(this.key(callRef, "current"));
+    return v ? Number(v.toString()) : undefined;
+  }
+
+  async putSealed(callRef: string, sealed: SealedVersion) {
+    const v = `v${sealed.version}`;
+    if (await this.objects.get(this.key(callRef, v, "manifest.json")))
+      throw new Error(`${callRef} ${v} is already sealed`);
+    for (const part of sealed.parts) {
+      const key = this.key(callRef, "parts", part.name);
+      if (!(await this.objects.get(key)))
+        await this.objects.put(key, part.data, part.mimetype);
+    }
+    const json = (o: unknown) => Buffer.from(JSON.stringify(o));
+    await this.objects.put(
+      this.key(callRef, v, "vcon.jws.json"),
+      json(sealed.signed),
+      "application/json"
     );
-    fs.writeFileSync(
-      path.join(dir, "vcon.redacted.jws.json"),
-      JSON.stringify(sealed.redacted)
+    await this.objects.put(
+      this.key(callRef, v, "vcon.redacted.jws.json"),
+      json(sealed.redacted),
+      "application/json"
     );
-    fs.writeFileSync(
-      path.join(dir, "parts.json"),
-      JSON.stringify(
-        sealed.parts.map((p) => ({ name: p.name, mimetype: p.mimetype }))
-      )
+    const manifest: Manifest = {
+      version: sealed.version,
+      sealedAt: new Date().toISOString(),
+      parts: sealed.parts.map((p) => ({
+        name: p.name,
+        mimetype: p.mimetype,
+        content_hash: contentHash(p.data),
+        size: p.data.length
+      }))
+    };
+    await this.objects.put(
+      this.key(callRef, v, "manifest.json"),
+      json(manifest),
+      "application/json"
     );
-    fs.writeFileSync(
-      path.join(this.dir, "sealed", safe(callRef), "current"),
-      String(sealed.version)
+    await this.objects.put(
+      this.key(callRef, "current"),
+      Buffer.from(String(sealed.version)),
+      "text/plain"
     );
   }
 
-  getSealed(callRef: string, version?: number): SealedVersion | undefined {
-    const base = path.join(this.dir, "sealed", safe(callRef));
-    if (!fs.existsSync(path.join(base, "current"))) return undefined;
-    const v =
-      version ?? Number(fs.readFileSync(path.join(base, "current"), "utf8"));
-    const dir = this.versionDir(callRef, v);
-    if (!fs.existsSync(dir)) return undefined;
-    const read = (f: string) =>
-      JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
-    const parts = (
-      read("parts.json") as { name: string; mimetype: string }[]
-    ).flatMap((p) => {
-      const file = path.join(dir, "parts", p.name);
-      return fs.existsSync(file) ? [{ ...p, data: fs.readFileSync(file) }] : [];
-    });
+  /** A version's vCons and manifest, without loading part contents. */
+  async getVersion(
+    callRef: string,
+    version?: number
+  ): Promise<StoredVersion | undefined> {
+    const v = version ?? (await this.currentVersion(callRef));
+    if (v === undefined) return undefined;
+    const read = async (name: string) => {
+      const data = await this.objects.get(this.key(callRef, `v${v}`, name));
+      return data ? JSON.parse(data.toString()) : undefined;
+    };
+    const manifest = (await read("manifest.json")) as Manifest | undefined;
+    if (!manifest) return undefined;
     return {
       version: v,
-      signed: read("vcon.jws.json") as SignedVcon,
-      redacted: read("vcon.redacted.jws.json") as SignedVcon,
+      manifest,
+      signed: await read("vcon.jws.json"),
+      redacted: await read("vcon.redacted.jws.json")
+    };
+  }
+
+  /** The current version, or a given one, with every part still stored. */
+  async getSealed(
+    callRef: string,
+    version?: number
+  ): Promise<SealedVersion | undefined> {
+    const stored = await this.getVersion(callRef, version);
+    if (!stored?.signed || !stored.redacted) return undefined;
+    const parts: Part[] = [];
+    for (const p of stored.manifest.parts) {
+      const data = await this.getPart(callRef, p.name);
+      if (data) parts.push({ name: p.name, mimetype: p.mimetype, data });
+    }
+    return {
+      version: stored.version,
+      signed: stored.signed,
+      redacted: stored.redacted,
       parts
     };
   }
 
-  deletePart(callRef: string, version: number, name: string): boolean {
-    const file = path.join(this.versionDir(callRef, version), "parts", name);
-    if (!fs.existsSync(file)) return false;
-    fs.rmSync(file);
-    return true;
+  getPart(callRef: string, name: string) {
+    return this.objects.get(this.key(callRef, "parts", name));
+  }
+
+  /** Removes a stored part (retention, erasure); returns whether it existed. */
+  deletePart(callRef: string, name: string) {
+    return this.objects.delete(this.key(callRef, "parts", name));
+  }
+
+  /** Removes a version's vCons (their contents were deleted); the manifest stays as a trace. */
+  async deleteVersionContents(callRef: string, version: number) {
+    await this.objects.delete(
+      this.key(callRef, `v${version}`, "vcon.jws.json")
+    );
+    await this.objects.delete(
+      this.key(callRef, `v${version}`, "vcon.redacted.jws.json")
+    );
+  }
+
+  /** Removes every object of a call (erasure). */
+  async deleteAll(callRef: string) {
+    for (const key of await this.objects.list(`${safe(callRef)}/`))
+      await this.objects.delete(key);
+  }
+
+  /** Every call with a sealed record (for rebuilding derived stores). */
+  async listCalls(): Promise<string[]> {
+    return (await this.objects.list(""))
+      .filter((k) => k.endsWith("/current"))
+      .map((k) => k.slice(0, -"/current".length));
   }
 }
 
-function safe(callRef: string) {
+/** A working store and a record store in one directory (development and tests). */
+export function fsStores(dir: string) {
+  return {
+    working: new FsWorkingStore(dir),
+    store: new RecordStore(new FsObjectStore(path.join(dir, "sealed")))
+  };
+}
+
+export function safe(callRef: string) {
   return callRef.replace(/[^A-Za-z0-9._-]/g, "_");
 }
 

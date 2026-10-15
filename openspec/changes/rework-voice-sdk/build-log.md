@@ -79,3 +79,35 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   Both log a deprecation warning once and are marked `@deprecated`.
 - Difference to note in the upgrade guide: `stream()` payloads carry raw frames in the session's
   audio format (PCM16 16 kHz by default), not the old "WAV" stream.
+
+## 2026-10-15 (dashboard stream: docs and packaging)
+
+### DX-B1. Migration docs live in `docs/`, release notes are a draft page
+
+- `docs/migrating-to-sessions.md` is the upgrade guide (4.2): SDK bump, removed and deprecated
+  methods, `dial` to `transfer`, app model fields, signing secret setup and rotation, verification
+  snippets in TypeScript and Python, and the Twilio flavor with Pipecat (`base_url` for `auto_hang_up`).
+- `docs/release-notes-sessions.md` flags both breaking changes (4.4). It is a draft to paste into the
+  GitHub release; the version number is left to the release job.
+
+### DX-B2. `voice.proto` is marked deprecated, not deleted (4.1 left open)
+
+- The legacy apiserver voice path (`VoiceDispatcher`, handlers and their tests) and the default
+  export of `@fonoster/voice` still import `voice.proto` and the verb types. Deleting them would break
+  the build for code owned by other streams, so the file only carries a DEPRECATED header. Delete
+  both together with the apiserver voice path at cutover.
+
+### DX-B3. Python packaging
+
+- `fonoster-voice` now has authors, classifiers (`Typing :: Typed`), keywords, project URLs, a
+  `py.typed` marker and an sdist limited to source and README. `uv build` produces the sdist and wheel;
+  the wheel installs into a clean venv and imports. `python -m build` is not installed here, `uv build`
+  is the equivalent. Publishing is `uv publish` with a PyPI token (documented in its README); the
+  version follows the npm packages.
+
+### DX-B4. Examples
+
+- TypeScript examples in `mods/voice/examples` (outside `src`, not compiled by the package build) are
+  type-checked against `src/session`. Python examples in `python/fonoster-voice/examples`. Handlers
+  are annotated `(session: Session)` because the handler union does not infer the parameter under
+  `strict`.

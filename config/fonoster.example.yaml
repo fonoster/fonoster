@@ -88,6 +88,16 @@ routr:
     name: Voice Server
     username: ${ASTERISK_SIPPROXY_USERNAME}      # Asterisk registers with Routr as this peer
     password: ${ASTERISK_SIPPROXY_SECRET}
+  # Cutover to the Go media nodes (docs/operators/cutover.md). Off by default: every app on Asterisk.
+  # mediaNodePeer:
+  #   aor: sip:medianode@default
+  #   username: medianode
+  #   password: ${MEDIANODE_PASSWORD}             # set it to have the apiserver create the peer
+  # engines:
+  #   default: asterisk                           # or rebuild
+  #   rebuildApps: [app-ref-1]                    # these apps' numbers go to the media nodes
+  #   asteriskApps: []                            # kept on Asterisk even when default is rebuild
+  #   numbers: { "+17853178070": rebuild }        # per-number pins win over apps
 
 nats:
   url: nats://nats:4222
@@ -98,6 +108,18 @@ influxdb:                                        # call records
   username: ${INFLUXDB_INIT_USERNAME}
   password: ${INFLUXDB_INIT_PASSWORD}
   token: ${INFLUXDB_INIT_TOKEN}
+
+# Call records (vCon, add-call-record): the index of sealed records, the /api/records API on the
+# HTTP bridge, retention, and call history from the index instead of InfluxDB. Off by default.
+# callRecords:
+#   enabled: true
+#   listCallsFromIndex: true
+#   retentionIntervalMinutes: 60
+#   stores:                                        # where the gateways put records
+#     - s3:
+#         bucket: records
+#         endpoint: http://minio:9000
+#         credentials: { accessKeyId: ${RECORDS_S3_KEY}, secretAccessKey: ${RECORDS_S3_SECRET} }
 
 # Speech provider credentials, shared with Autopilot (JSON or YAML).
 integrationsFile: /opt/fonoster/integrations.json

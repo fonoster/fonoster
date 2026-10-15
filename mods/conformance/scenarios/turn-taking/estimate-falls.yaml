@@ -1,0 +1,18 @@
+format: fonoster.scenario.v1
+name: estimate-falls
+contract: turn-taking
+role: app
+spec: "The Detector publishes a continuous end-of-thought estimate / The estimate falls when the caller resumes"
+setup:
+  app: { speech: { silenceTimeoutMs: 1200 } }
+  providers:
+    stt: { script: [{ atMs: 500, text: "I want" }, { atMs: 2400, text: "to pay my bill" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: subscribe, events: [turn.estimate] }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.estimate, speaking: false, eot: { $gte: 0.5 } }
+    within_ms: 2000
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.estimate, speaking: true, eot: 0 }
+    within_ms: 1000

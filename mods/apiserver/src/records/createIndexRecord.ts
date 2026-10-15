@@ -1,0 +1,93 @@
+/**
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { RECORD_SEALED_SUBJECT } from "@fonoster/callrecord";
+import { getLogger } from "@fonoster/logger";
+import { NatsConnection, StringCodec } from "nats";
+import { RecordIndexEntry, RecordsDb } from "./types";
+
+const logger = getLogger({ service: "apiserver", filePath: __filename });
+const sc = StringCodec();
+
+/**
+ * Upserts a record's index entry. Entries arrive at least once and possibly out of order, so a
+ * lower version never overwrites a higher one. An erased record keeps its row, without numbers.
+ */
+export function createIndexRecord(db: RecordsDb) {
+  return async (entry: RecordIndexEntry) => {
+    const existing = await db.callRecord.findUnique({
+      where: { callRef: entry.callRef }
+    });
+    if (existing && existing.version > entry.version) return false;
+    const erased = entry.status === "erased";
+    const data = {
+      accessKeyId: entry.workspaceRef ?? existing?.accessKeyId ?? null,
+      appRef: erased ? (existing?.appRef ?? null) : entry.appRef,
+      fromNumber: erased ? null : entry.from,
+      toNumber: erased ? null : entry.to,
+      direction: erased ? (existing?.direction ?? null) : entry.direction,
+      status: entry.status,
+      endReason: erased ? (existing?.endReason ?? null) : entry.endReason,
+      failureReason: entry.failureReason,
+      sipStatus: entry.sipStatus,
+      startedAt:
+        erased && existing ? existing.startedAt : new Date(entry.startedAt),
+      endedAt: erased
+        ? (existing?.endedAt ?? null)
+        : entry.endedAt
+          ? new Date(entry.endedAt)
+          : null,
+      durationSeconds: erased
+        ? (existing?.durationSeconds ?? 0)
+        : entry.durationSeconds,
+      region: entry.region,
+      location: entry.location,
+      version: entry.version,
+      size: BigInt(entry.size),
+      parts: entry.parts,
+      erasedAt: erased ? new Date() : null
+    };
+    await db.callRecord.upsert({
+      where: { callRef: entry.callRef },
+      create: { callRef: entry.callRef, ...data },
+      update: data
+    });
+    return true;
+  };
+}
+
+/** Consumes the gateways' index entries (one apiserver replica per entry). */
+export function subscribeRecordIndex(nc: NatsConnection, db: RecordsDb) {
+  const index = createIndexRecord(db);
+  const sub = nc.subscribe(RECORD_SEALED_SUBJECT, {
+    queue: "apiserver-call-records",
+    callback: (err, msg) => {
+      if (err) return;
+      let entry: RecordIndexEntry;
+      try {
+        entry = JSON.parse(sc.decode(msg.data));
+      } catch {
+        return;
+      }
+      index(entry).catch((e) =>
+        logger.error(`could not index ${entry.callRef}: ${e.message}`)
+      );
+    }
+  });
+  return () => sub.unsubscribe();
+}
