@@ -41,9 +41,21 @@ func (r *Room) dialParty(ctx context.Context, to, from string, headers map[strin
 	if err != nil {
 		return nil, err
 	}
-	offer := sdp.Write(r.node.cfg.AdvertiseHost, ep.Port(), 0, "PCMU/8000", 101)
+	offer := sdp.Description{Host: r.node.cfg.AdvertiseHost, Port: ep.Port(), DTMF: 101}
+	for _, name := range audio.PhoneCodecs() {
+		pt := audio.StaticPayloadType(name)
+		if pt < 0 {
+			pt = 111
+		}
+		offer.Codecs = append(offer.Codecs, sdp.Codec{PT: pt, Name: name})
+	}
+	localKey := ""
+	if r.node.cfg.RequireEncryption {
+		localKey = rtpio.NewSRTPKey()
+		offer.Crypto = &sdp.Crypto{Tag: 1, Suite: rtpio.SRTPSuite, Key: localKey}
+	}
 	ringing := false
-	leg, answer, err := dialer.Dial(ctx, to, from, headers, offer, func(status int) {
+	leg, answer, err := dialer.Dial(ctx, to, from, headers, sdp.WriteDescription(offer), func(status int) {
 		if (status == 180 || status == 183) && !ringing {
 			ringing = true
 			onRinging()
@@ -59,7 +71,7 @@ func (r *Room) dialParty(ctx context.Context, to, from string, headers map[strin
 		ep.Close()
 		return nil, err
 	}
-	pt, codecName, ok := media.Choose("PCMU/8000")
+	pt, codecName, ok := media.Choose(audio.PhoneCodecs()...)
 	if !ok {
 		_ = leg.Bye()
 		ep.Close()
@@ -71,19 +83,27 @@ func (r *Room) dialParty(ctx context.Context, to, from string, headers map[strin
 		ep.Close()
 		return nil, err
 	}
-	p := &Participant{Ref: r.node.nextRef("p-dialed"), Kind: KindPhone, Codec: codecName, endpoint: ep,
-		out: leg, media: media, pt: pt, answered: true}
+	if localKey != "" {
+		remote := ""
+		for _, c := range media.Crypto {
+			if c.Suite == rtpio.SRTPSuite {
+				remote = c.Key
+			}
+		}
+		if !media.Secure || remote == "" || ep.SetSRTP(localKey, remote) != nil {
+			_ = leg.Bye()
+			ep.Close()
+			return nil, &DialError{Status: 488}
+		}
+	}
+	p := newParticipant(r.node.nextRef("p-dialed"), KindPhone, codecName, codec, ep, pt)
+	p.out, p.media, p.answered, p.srtpKey = leg, media, true, localKey
 	if err := r.add(p); err != nil {
 		_ = leg.Bye()
 		ep.Close()
 		return nil, err
 	}
-	go ep.Serve(rtpio.Handlers{
-		Audio: p.push,
-		DTMF: func(d string) {
-			r.node.emit(r.Ref, Event{"type": "dtmf", "participantRef": p.Ref, "digit": d, "source": "rfc4733"})
-		},
-	})
+	r.servePhone(p)
 	go func() {
 		<-leg.Gone()
 		r.remove(p.Ref, "", ReasonCalleeHangup)

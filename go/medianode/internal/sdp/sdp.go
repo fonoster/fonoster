@@ -18,6 +18,16 @@ type Media struct {
 	Codecs       map[int]string
 	// DTMF is the telephone-event payload type, or -1.
 	DTMF int
+	// Secure is true for an RTP/SAVP stream; Crypto lists its SDES keys (RFC 4568).
+	Secure bool
+	Crypto []Crypto
+}
+
+// Crypto is one a=crypto line: tag, suite and the inline base64 key and salt.
+type Crypto struct {
+	Tag   int
+	Suite string
+	Key   string
 }
 
 // Parse reads the first audio stream.
@@ -46,11 +56,23 @@ func Parse(body []byte) (Media, error) {
 				return m, fmt.Errorf("bad audio port %q", fields[1])
 			}
 			m.Port = port
+			m.Secure = strings.Contains(fields[2], "SAVP")
 			for _, f := range fields[3:] {
 				if pt, err := strconv.Atoi(f); err == nil {
 					m.PayloadTypes = append(m.PayloadTypes, pt)
 				}
 			}
+		case inAudio && strings.HasPrefix(line, "a=crypto:"):
+			parts := strings.Fields(strings.TrimPrefix(line, "a=crypto:"))
+			if len(parts) < 3 || !strings.HasPrefix(parts[2], "inline:") {
+				continue
+			}
+			tag, _ := strconv.Atoi(parts[0])
+			key := strings.TrimPrefix(parts[2], "inline:")
+			if i := strings.Index(key, "|"); i >= 0 {
+				key = key[:i] // lifetime and MKI are not used
+			}
+			m.Crypto = append(m.Crypto, Crypto{Tag: tag, Suite: parts[1], Key: key})
 		case inAudio && strings.HasPrefix(line, "a=rtpmap:"):
 			rest := strings.TrimPrefix(line, "a=rtpmap:")
 			parts := strings.Fields(rest)
@@ -106,26 +128,71 @@ func (m Media) Choose(supported ...string) (int, string, bool) {
 	return 0, "", false
 }
 
-// Write builds an offer or answer for one audio stream.
+// Codec is one payload type and its rtpmap name ("PCMU/8000", "opus/48000").
+type Codec struct {
+	PT   int
+	Name string
+}
+
+// Description is one audio stream to offer or answer.
+type Description struct {
+	Host   string
+	Port   int
+	Codecs []Codec
+	// DTMF is the telephone-event payload type, or -1 for none.
+	DTMF int
+	// Crypto, when set, makes the stream RTP/SAVP with this SDES key.
+	Crypto *Crypto
+}
+
+// Write builds an offer or answer for one audio stream with one codec.
 func Write(host string, port int, pt int, codec string, dtmf int) []byte {
+	return WriteDescription(Description{Host: host, Port: port, Codecs: []Codec{{pt, codec}}, DTMF: dtmf})
+}
+
+// WriteDescription builds an offer or answer for one audio stream.
+func WriteDescription(d Description) []byte {
 	id := time.Now().UnixNano() / 1000
-	pts := strconv.Itoa(pt)
-	if dtmf >= 0 {
-		pts += " " + strconv.Itoa(dtmf)
+	pts := []string{}
+	for _, c := range d.Codecs {
+		pts = append(pts, strconv.Itoa(c.PT))
+	}
+	if d.DTMF >= 0 {
+		pts = append(pts, strconv.Itoa(d.DTMF))
+	}
+	profile := "RTP/AVP"
+	if d.Crypto != nil {
+		profile = "RTP/SAVP"
 	}
 	lines := []string{
 		"v=0",
-		fmt.Sprintf("o=fonoster %d %d IN IP4 %s", id, id, host),
+		fmt.Sprintf("o=fonoster %d %d IN IP4 %s", id, id, d.Host),
 		"s=fonoster",
-		"c=IN IP4 " + host,
+		"c=IN IP4 " + d.Host,
 		"t=0 0",
-		fmt.Sprintf("m=audio %d RTP/AVP %s", port, pts),
-		fmt.Sprintf("a=rtpmap:%d %s", pt, codec),
+		fmt.Sprintf("m=audio %d %s %s", d.Port, profile, strings.Join(pts, " ")),
 	}
-	if dtmf >= 0 {
+	for _, c := range d.Codecs {
+		name := c.Name
+		if strings.EqualFold(name, "opus/48000") {
+			name = "opus/48000/2"
+		}
+		lines = append(lines, fmt.Sprintf("a=rtpmap:%d %s", c.PT, name))
+		if strings.HasPrefix(strings.ToLower(name), "opus/") {
+			lines = append(lines, fmt.Sprintf("a=fmtp:%d useinbandfec=1", c.PT))
+		}
+	}
+	if d.DTMF >= 0 {
 		lines = append(lines,
-			fmt.Sprintf("a=rtpmap:%d telephone-event/8000", dtmf),
-			fmt.Sprintf("a=fmtp:%d 0-16", dtmf))
+			fmt.Sprintf("a=rtpmap:%d telephone-event/8000", d.DTMF),
+			fmt.Sprintf("a=fmtp:%d 0-16", d.DTMF))
+	}
+	if d.Crypto != nil {
+		tag := d.Crypto.Tag
+		if tag == 0 {
+			tag = 1
+		}
+		lines = append(lines, fmt.Sprintf("a=crypto:%d %s inline:%s", tag, d.Crypto.Suite, d.Crypto.Key))
 	}
 	lines = append(lines, "a=ptime:20", "a=sendrecv")
 	return []byte(strings.Join(lines, "\r\n") + "\r\n")

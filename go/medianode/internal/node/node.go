@@ -6,7 +6,11 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"sync/atomic"
 	"time"
+
+	"github.com/fonoster/fonoster/go/medianode/internal/audio"
+	"github.com/fonoster/fonoster/go/medianode/internal/jitter"
 
 	"github.com/nats-io/nats.go"
 )
@@ -31,7 +35,10 @@ type Config struct {
 	MaxDuration time.Duration
 	// MaxParticipants per room (10).
 	MaxParticipants int
-	Logger          *slog.Logger
+	// RequireEncryption refuses plain RTP on every leg (MN6): SIP legs must offer RTP/SAVP with
+	// an SDES key, and the gateway's rtp blocks must carry srtp.
+	RequireEncryption bool
+	Logger            *slog.Logger
 }
 
 func (c *Config) defaults() {
@@ -72,6 +79,12 @@ type Node struct {
 	subs     []*nats.Subscription
 	stop     chan struct{}
 	dialer   Dialer
+
+	// Counters for the load harness (GET /stats on the debug endpoint).
+	framesMixed, lateTicks, missedTicks, dtmfReported atomic.Uint64
+	endedStats                                        jitter.Stats
+	// OnDrain is told when the node starts draining (Routr registration reports it full).
+	OnDrain func()
 	// OnRoomCount is told the number of active rooms whenever it changes (Routr registration).
 	OnRoomCount func(n int)
 }
@@ -135,12 +148,81 @@ func (n *Node) Start() error {
 	return n.nc.Flush()
 }
 
-// Drain stops taking new rooms; Done reports when the last one ended.
+// Drain stops taking new rooms and reports the node full (MN9); existing rooms keep running.
 func (n *Node) Drain() {
 	n.mu.Lock()
 	n.draining = true
 	n.mu.Unlock()
 	n.beat()
+	if n.OnDrain != nil {
+		n.OnDrain()
+	}
+}
+
+// DrainAndWait drains and returns when the last room has ended, or ends the rooms still up after
+// maxWait with node_error (their apps get session.end reason "error"). Stop cuts the wait short.
+// It returns the number of rooms it had to end.
+func (n *Node) DrainAndWait(maxWait time.Duration, stop <-chan struct{}) int {
+	n.Drain()
+	deadline := time.NewTimer(maxWait)
+	defer deadline.Stop()
+	poll := time.NewTicker(100 * time.Millisecond)
+	defer poll.Stop()
+	for n.ActiveRooms() > 0 {
+		select {
+		case <-deadline.C:
+			return n.endAll(ReasonNodeError)
+		case <-stop:
+			return n.endAll(ReasonNodeError)
+		case <-poll.C:
+		}
+	}
+	return 0
+}
+
+func (n *Node) endAll(reason string) int {
+	n.mu.Lock()
+	rooms := make([]*Room, 0, len(n.rooms))
+	for _, r := range n.rooms {
+		rooms = append(rooms, r)
+	}
+	n.mu.Unlock()
+	for _, r := range rooms {
+		r.hangupAll(reason, 0, "")
+	}
+	return len(rooms)
+}
+
+// Stats is what the load harness reads: frames mixed, clock stalls, jitter buffer counters and
+// keypresses reported.
+type Stats struct {
+	Rooms        int          `json:"rooms"`
+	FramesMixed  uint64       `json:"framesMixed"`
+	LateTicks    uint64       `json:"lateTicks"`
+	MissedTicks  uint64       `json:"missedTicks"`
+	DTMFReported uint64       `json:"dtmfReported"`
+	Jitter       jitter.Stats `json:"jitter"`
+	// DroppedFrames is every frame lost inside the node: missed clock ticks plus frames the jitter
+	// buffers discarded (late, overflow) or had to conceal (lost on the way in).
+	DroppedFrames uint64 `json:"droppedFrames"`
+}
+
+// Stats sums the node's counters, including rooms that already ended.
+func (n *Node) Stats() Stats {
+	n.mu.Lock()
+	rooms := make([]*Room, 0, len(n.rooms))
+	for _, r := range n.rooms {
+		rooms = append(rooms, r)
+	}
+	js := n.endedStats
+	n.mu.Unlock()
+	for _, r := range rooms {
+		js = js.Add(r.jitterStats())
+	}
+	s := Stats{Rooms: len(rooms), FramesMixed: n.framesMixed.Load(), LateTicks: n.lateTicks.Load(),
+		MissedTicks: n.missedTicks.Load(), DTMFReported: n.dtmfReported.Load(), Jitter: js}
+	s.DroppedFrames = s.MissedTicks + js.Dropped()
+	return s
 }
 
 // ActiveRooms counts rooms that have not ended.
@@ -237,7 +319,9 @@ func (n *Node) newRoom() (*Room, error) {
 }
 
 func (n *Node) roomEnded(r *Room) {
+	st := r.jitterStats()
 	n.mu.Lock()
+	n.endedStats = n.endedStats.Add(st)
 	delete(n.rooms, r.Ref)
 	count := len(n.rooms)
 	n.mu.Unlock()
@@ -255,7 +339,11 @@ func (n *Node) room(ref string) *Room {
 // Incoming handles an INVITE: a room with the caller, then call.incoming until a gateway claims
 // it; no claim within the timeout, twice, refuses the call with 503.
 func (n *Node) Incoming(call IncomingCall) {
-	if _, _, ok := call.Media.Choose("PCMU/8000"); !ok {
+	if _, _, ok := call.Media.Choose(audio.PhoneCodecs()...); !ok {
+		_ = call.Leg.Reject(488)
+		return
+	}
+	if n.cfg.RequireEncryption && !call.Media.Secure {
 		_ = call.Leg.Reject(488)
 		return
 	}
@@ -264,15 +352,21 @@ func (n *Node) Incoming(call IncomingCall) {
 		_ = call.Leg.Reject(503)
 		return
 	}
-	caller, err := room.addPhone(call)
+	caller, status, err := room.addPhone(call)
 	if err != nil {
-		n.cfg.Logger.Error("caller leg", "err", err)
-		_ = call.Leg.Reject(500)
-		room.end(ReasonNodeError, 500, "")
+		n.cfg.Logger.Warn("caller leg", "err", err, "status", status)
+		_ = call.Leg.Reject(status)
+		room.end(ReasonRejected, status, "")
 		return
 	}
 	if call.OnRoom != nil {
 		call.OnRoom(room.Ref)
+	}
+	if n.Draining() {
+		// Drain began while the room was set up.
+		_ = call.Leg.Reject(503)
+		room.end(ReasonNodeError, 503, "")
+		return
 	}
 	ev := Event{
 		"type":           "call.incoming",
@@ -367,6 +461,7 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 		if err != nil {
 			return fail("draining", "")
 		}
+		r.setMaxDuration(cmd)
 		return ack(Command{"roomRef": r.Ref})
 	}
 	roomRef, _ := cmd["roomRef"].(string)
@@ -381,6 +476,7 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 		}
 		return ack(nil)
 	case "answer":
+		r.setMaxDuration(cmd)
 		if err := r.answer(); err != nil {
 			return fail("sip_error", err.Error())
 		}

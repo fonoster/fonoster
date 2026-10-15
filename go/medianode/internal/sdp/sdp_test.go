@@ -32,3 +32,19 @@ func TestWriteRoundTrip(t *testing.T) {
 		t.Fatalf("round trip %+v %v", m, err)
 	}
 }
+
+func TestOpusAndCryptoRoundTrip(t *testing.T) {
+	body := WriteDescription(Description{Host: "10.0.0.1", Port: 6000, DTMF: -1,
+		Codecs: []Codec{{111, "opus/48000"}, {8, "PCMA/8000"}},
+		Crypto: &Crypto{Tag: 1, Suite: "AES_CM_128_HMAC_SHA1_80", Key: "abc"}})
+	m, err := Parse(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !m.Secure || len(m.Crypto) != 1 || m.Crypto[0].Key != "abc" || m.DTMF != -1 {
+		t.Fatalf("parsed %+v", m)
+	}
+	if pt, name, ok := m.Choose("G722/8000", "opus/48000"); !ok || pt != 111 || name != "opus/48000" {
+		t.Fatalf("chose %d %s", pt, name)
+	}
+}
