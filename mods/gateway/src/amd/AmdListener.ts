@@ -74,7 +74,7 @@ export class AmdListener {
   private chunks: Buffer[] = [];
   private bytes = 0;
   private done = false;
-  private timer?: NodeJS.Timeout;
+  private timer?: ReturnType<typeof setTimeout>;
   private listenerRef?: string;
 
   constructor(

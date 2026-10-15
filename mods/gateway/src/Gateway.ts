@@ -28,6 +28,7 @@ import { Registry as RegistryNs, Webhooks } from "@fonoster/common";
 import { IdentityClient } from "@fonoster/identity-client";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec, Subscription } from "nats";
+import { AmdClassifier, loadAmdClassifier } from "./amd/AmdListener";
 import { AppStore, YamlAppStore } from "./apps/AppStore";
 import { AppConfig, GatewayConfig, validateConfig } from "./config";
 import {
@@ -44,7 +45,6 @@ import {
 } from "./media/MediaControl";
 import { CallRecordSink, MemoryCallRecordSink } from "./record/CallRecordSink";
 import { serveRecordMaintenance } from "./record/maintenance";
-import { AmdClassifier, loadAmdClassifier } from "./amd/AmdListener";
 import { Call, CallInfo } from "./session/Call";
 import { Catalog, WorkspaceKeySource } from "./speech/Catalog";
 import { telemetry } from "./telemetry";

@@ -29,6 +29,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import Ajv, { ValidateFunction } from "ajv";
 import WebSocket from "ws";
+import { AmdClassifier, AmdListener, amdWindowMs } from "../amd/AmdListener";
 import { AppConfig, DEFAULTS, GatewayConfig, recordingPolicy } from "../config";
 import {
   AudioFilterChain,
@@ -45,7 +46,6 @@ import {
   MediaEvent
 } from "../media/MediaControl";
 import { RtpLink } from "../media/RtpLink";
-import { AmdClassifier, AmdListener, amdWindowMs } from "../amd/AmdListener";
 import { CallRecording } from "../record/CallRecording";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
