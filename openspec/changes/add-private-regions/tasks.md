@@ -4,7 +4,7 @@
 
 - [x] 1.1 Resolve open questions (PR-9 Autopilot in the cell, PR-10 one public region, PR-11 flat fee)
 - [x] 1.2 Dashboard designs (designs/dashboard.pen, row "Regions" at y=14000; no Degraded frame or re-issue dialog yet): new-workspace region picker, private region setup (token + install), Region page (status, version, nodes, re-issue, disconnect), Secrets page for private workspaces, call view via relay, offline banner
-- [ ] 1.3 Conformance scenarios for enrollment, revocation, relay and status
+- [ ] 1.3 Conformance scenarios for enrollment, revocation, relay and status (partial: covered by mods/region-agent/test and mods/apiserver/test/regions; no scenario files)
 
 ## 2. Control plane
 

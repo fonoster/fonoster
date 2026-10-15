@@ -21,7 +21,7 @@
 
 ## 3. Adapters and gateway
 
-- [ ] 3.1 Move TTS and STT adapters out of `mods/apiserver/src/voice` and LLM adapters out of `mods/autopilot/src/models` into one package per vendor behind the type interfaces
+- [ ] 3.1 Move TTS and STT adapters out of `mods/apiserver/src/voice` and LLM adapters out of `mods/autopilot/src/models` into one package per vendor behind the type interfaces (partial: Deepgram and ElevenLabs adapters live in mods/gateway/src/speech; apiserver voice/{stt,tts} remain for app validation and autopilot models for evals; not one package per vendor)
 - [x] 3.2 Gateway credential resolution at session start (workspace key, else platform key by `credentialRef`), held in memory for the session only
 - [x] 3.3 Runtime events `provider.deprecated_used` and `provider.retired_used`; retired ids resolve to their replacement
 - [x] 3.4 `provider_unavailable` errors to the app and the call record; no failover (LO-B10)
