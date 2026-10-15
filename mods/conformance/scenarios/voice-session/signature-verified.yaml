@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+name: signature-verified
+contract: voice-session
+role: app
+spec: "Connection requests are signed / App verifies a genuine request"
+description: The fake app recomputes the HMAC over the URL and timestamp and accepts only a match.
+setup:
+  app: { signingSecret: genuine-secret, verifySignature: true }
+steps:
+  - expect: { type: session.start }
+    within_ms: 3000
+  - assert:
+      app.attempts: [{ accepted: true }]

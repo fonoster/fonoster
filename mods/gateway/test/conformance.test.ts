@@ -18,6 +18,7 @@
  */
 import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
+import { Webhooks } from "@fonoster/common";
 import {
   FakesHarness,
   Scenario,
@@ -26,11 +27,11 @@ import {
 } from "@fonoster/conformance";
 import { Gateway, GatewayConfig, MemoryCallRecordSink } from "../src";
 import { catalogFor } from "./scenarioCatalog";
+import { appsFor, placeOutbound, recordReaders } from "./scenarioApps";
 
 // The conformance suites for voice-session and twilio-media-streams-flavor, run against this
 // gateway with the fakes. Needs NATS: set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
-const SECRET = "conformance-secret";
 
 function configFor(scenario: Scenario, harness: FakesHarness): GatewayConfig {
   const urls = harness.providerUrls;
@@ -38,23 +39,7 @@ function configFor(scenario: Scenario, harness: FakesHarness): GatewayConfig {
     nats: { url: NATS_URL! },
     testMode: true,
     retry: { windowMs: 600, intervalMs: 100 },
-    apps: [
-      {
-        ref: "app-1",
-        url: harness.app.url,
-        flavor:
-          scenario.setup?.app?.flavor ??
-          (scenario.contract === "twilio-media-streams-flavor"
-            ? "twilio"
-            : "native"),
-        signingSecret: scenario.setup?.app?.signingSecret ?? SECRET,
-        speech: {
-          voice: "fake/default",
-          language: "en-US",
-          ...(scenario.setup?.app?.speech ?? {})
-        }
-      }
-    ],
+    apps: appsFor(scenario, harness),
     providers: {
       fake: {
         adapter: "fake",
@@ -87,13 +72,12 @@ for (const contract of [
     for (const scenario of loadScenarios(contract)) {
       it(scenario.name, async function () {
         const record = new MemoryCallRecordSink();
+        const webhooks: Webhooks.WebhookEvent[] = [];
         const harness = await new FakesHarness({
           vendorCalls: () => 0,
-          recordEvents: (type) =>
-            [...record.records.values()]
-              .flat()
-              .filter((e) => e.source === "event" && e.message.type === type)
-              .map((e) => e.message as Record<string, unknown>)
+          ...recordReaders(record),
+          webhookEvents: () =>
+            webhooks.map((e) => ({ type: e.type, ...e.data }))
         }).start();
         harness.mediaNode.attachNats(nc, {
           commands: `media.${harness.mediaNode.nodeId}.commands`,
@@ -103,12 +87,16 @@ for (const contract of [
           config: configFor(scenario, harness),
           nats: nc,
           record,
-          registryStore: catalogFor(scenario)
+          registryStore: catalogFor(scenario),
+          webhooks: (e) => webhooks.push(e)
         }).start();
         try {
           const result = await runScenario(scenario, {
             harness,
-            connect: () => harness.offerCallAndAccept()
+            connect: () =>
+              scenario.setup?.call?.direction === "outbound"
+                ? placeOutbound(nc, harness, scenario)
+                : harness.offerCallAndAccept()
           });
           expect(result.status, result.reason).to.equal("passed");
         } finally {

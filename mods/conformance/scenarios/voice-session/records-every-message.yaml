@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: records-every-message
+contract: voice-session
+role: app
+spec: "Every message is part of the call record / Commands and events recorded"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Bye.", last: true }
+  - expect: { type: output.done, id: r1 }
+    within_ms: 5000
+  - send: { type: hangup }
+  - expect: { type: session.end, reason: app_hangup }
+  - wait: { ms: 100 }
+  - assert:
+      record.messages.speak: [{ source: app, id: r1, text: "Bye.", at: { $gt: 0 } }]
+      record.messages.output.done: [{ source: gateway, id: r1, at: { $gt: 0 } }]
+      record.messages.session.end: [{ source: gateway, reason: app_hangup, at: { $gt: 0 } }]

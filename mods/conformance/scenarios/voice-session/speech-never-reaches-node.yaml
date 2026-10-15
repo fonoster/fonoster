@@ -1,0 +1,16 @@
+format: fonoster.scenario.v1
+name: speech-never-reaches-node
+contract: voice-session
+role: app
+spec: "The media node receives only control / Speech never reaches the media node"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Hello there, this is only audio to the node.", last: true }
+    label: spoke
+  - expect: { type: output.done, id: r1 }
+    within_ms: 5000
+  - assert:
+      media.output_audio_ms: { $gt: 500 }
+    from: spoke
+  - assert:
+      media.commands: { $excludes: [{ type: speak }, { type: play }, { text: "*" }] }

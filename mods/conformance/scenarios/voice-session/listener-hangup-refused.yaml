@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: listener-hangup-refused
+contract: voice-session
+role: app
+spec: "Listen-only sockets / Listener tries to hang up"
+description: The runner plays the listener (app-2); the controlling app (app-1) stays silent.
+setup:
+  listener: { peer: listener }
+steps:
+  - expect: { type: session.start }
+  - send: { type: hangup, id: x1 }
+  - expect: { type: error, code: read_only, relatesTo: x1 }
+    within_ms: 1000
+  - expect_none: { type: session.end }
+    for_ms: 300
+  - assert:
+      media.commands: { $excludes: [{ type: hangup }] }

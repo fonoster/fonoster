@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: caller-audio
+contract: twilio-media-streams-flavor
+role: app
+spec: "μ-law 8 kHz audio in base64 / Caller audio"
+setup:
+  app: { flavor: twilio }
+steps:
+  - expect: { event: start }
+  - expect:
+      event: media
+      media: { track: inbound, chunk: "1", timestamp: { $re: "^[0-9]+$" }, payload: { $re: "^[A-Za-z0-9+/]+=*$" } }
+    within_ms: 1000
+  - expect: { event: media, media: { track: inbound, chunk: "2" } }
+    next: true
+  - expect: { event: media, media: { track: inbound, chunk: "3" } }
+    next: true

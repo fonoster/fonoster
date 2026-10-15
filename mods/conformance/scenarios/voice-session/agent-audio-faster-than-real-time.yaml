@@ -1,0 +1,19 @@
+format: fonoster.scenario.v1
+name: agent-audio-faster-than-real-time
+contract: voice-session
+role: app
+spec: "Raw audio in both directions / Agent audio faster than real time"
+description: 3 s of agent audio sent at once plays over 3 s, without gaps or truncation.
+tags: [timing]
+steps:
+  - expect: { type: session.start }
+  - send_audio: { ms: 3000, kind: tone, realtime: false }
+    label: sent
+  - wait: { ms: 1500 }
+  - assert:
+      media.output_audio_ms: { $near: 1500, $tolerance: 400 }
+    from: sent
+  - wait: { ms: 2000 }
+  - assert:
+      media.output_audio_ms: { $near: 3000, $tolerance: 200 }
+    from: sent

@@ -1,0 +1,18 @@
+format: fonoster.scenario.v1
+name: ids-map-to-session
+contract: twilio-media-streams-flavor
+role: app
+spec: "Twilio Media Streams messages / Ids map to the session"
+description: callSid is the callRef, accountSid the app's workspace, streamSid the session's sessionRef.
+setup:
+  app: { flavor: twilio, workspaceRef: WS-conformance }
+  call: { callRef: CA-conformance-1 }
+ignore: [media]
+steps:
+  - expect:
+      event: start
+      start: { callSid: CA-conformance-1, accountSid: WS-conformance, streamSid: "*" }
+    capture: { sid: start.streamSid }
+  - wait: { ms: 100 }
+  - assert:
+      record.messages.session.start: [{ sessionRef: "${sid}", callRef: CA-conformance-1 }]

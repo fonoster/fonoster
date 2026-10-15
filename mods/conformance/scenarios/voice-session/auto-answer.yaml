@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+name: auto-answer
+contract: voice-session
+role: app
+spec: "Inbound calls are answered on verified connect / Auto-answer"
+description: The app sends nothing; the call is answered and caller audio follows session.start.
+steps:
+  - expect: { type: session.start }
+    next: true
+  - expect_audio: { track: 1, ms: { $gte: 100 } }
+    within_ms: 1000
+  - assert:
+      media.commands: { $includes: [{ type: answer }] }

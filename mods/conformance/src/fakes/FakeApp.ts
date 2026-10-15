@@ -51,6 +51,8 @@ export type ConnectionAttempt = {
  */
 export class FakeApp {
   readonly attempts: ConnectionAttempt[] = [];
+  /** Every accepted connection, in order (pending or already handed out). */
+  readonly connections: AppConnection[] = [];
   private server?: WebSocket.Server;
   private pending: AppConnection[] = [];
   private waiting: ((c: AppConnection) => void)[] = [];
@@ -87,6 +89,7 @@ export class FakeApp {
         headers: req.headers,
         at: Date.now()
       };
+      this.connections.push(connection);
       const waiter = this.waiting.shift();
       if (waiter) waiter(connection);
       else this.pending.push(connection);

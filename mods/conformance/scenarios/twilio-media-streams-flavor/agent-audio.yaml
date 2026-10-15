@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: agent-audio
+contract: twilio-media-streams-flavor
+role: app
+spec: "μ-law 8 kHz audio in base64 / Agent audio"
+description: Base64 μ-law media from the app is played to the caller at real-time speed.
+setup:
+  app: { flavor: twilio }
+ignore: [media]
+steps:
+  - expect: { event: start }
+  - send_audio: { ms: 1000, kind: tone, realtime: false }
+    label: sent
+  - wait: { ms: 1400 }
+  - assert:
+      media.output_audio_ms: { $near: 1000, $tolerance: 150 }
+    from: sent

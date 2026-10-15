@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: fallback-message
+contract: voice-session
+role: app
+spec: "Unreachable apps fall back / App down, no fallback app"
+setup:
+  app: { reachable: false, fallback: { message: "We are closed. Please call back later." } }
+steps:
+  - wait: { ms: 1 }
+    label: offered
+  - wait: { ms: 3000 }
+  - assert:
+      providers.tts.requests: { $gte: 1 }
+      media.commands: { $includes: [{ type: hangup }] }
+  - assert:
+      media.output_audio_ms: { $gt: 500 }
+    from: offered

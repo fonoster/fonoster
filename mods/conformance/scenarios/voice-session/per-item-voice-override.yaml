@@ -1,0 +1,20 @@
+format: fonoster.scenario.v1
+name: per-item-voice-override
+contract: voice-session
+role: app
+spec: "Streamed speech output / Per-item voice override"
+description: The fake TTS adapter receives the voice part of the catalog id.
+setup:
+  catalog:
+    voices:
+      - { id: fake/rachel }
+steps:
+  - expect: { type: session.start, speech: { voice: fake/default } }
+  - send: { type: speak, id: r1, text: "With Rachel.", voice: fake/rachel, last: true }
+  - expect: { type: output.done, id: r1 }
+    within_ms: 5000
+  - send: { type: speak, id: r2, text: "With the default.", last: true }
+  - expect: { type: output.done, id: r2 }
+    within_ms: 5000
+  - assert:
+      providers.tts.voices: [rachel, default]
