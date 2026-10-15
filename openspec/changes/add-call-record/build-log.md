@@ -53,3 +53,13 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - 1.1 vCon schema pin, 1.2 fixture calls with recorded audio, 1.5 retention/erasure, 1.6 restricted
   access, 2.4 object storage, 2.5 index, 2.6 key publishing, 3.x recording and SIP trace, 4.x privacy
   beyond text redaction, 5.x access APIs, 6.x analytics, 7.x migration and docs.
+
+## 2026-10-15 (morning, with the owner)
+
+### CR4. Bare region keys plus a published key set (owner decision on O2 / x5c)
+
+- Signed records carry `jku` (the HTTPS URL of the region's key set) in the protected JWS header,
+  next to `kid`. The gateway serves the set at `/.well-known/call-record-keys.json` as a JWK Set:
+  the current key's public half plus every key in `callRecord.keyHistory`, so records signed before
+  a rotation keep verifying. `keyHistoryFromSet()` turns a fetched set into the verifier's input.
+- This replaces the draft's x5c/x5u certificate chain with a plain published key list; no CA.

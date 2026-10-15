@@ -22,6 +22,7 @@ import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec, Subscription } from "nats";
 import { AppConfig, GatewayConfig, validateConfig } from "./config";
 import { createHangupHandler } from "./http/hangupEndpoint";
+import { KEY_SET_PATH, keySetHandler } from "./http/keySetRoute";
 import {
   MediaControl,
   MediaEvent,
@@ -98,8 +99,12 @@ export class Gateway {
     await this.nc.flush();
 
     if (this.config.http) {
-      this.server = http.createServer(
-        createHangupHandler(this.config.http, this.nc)
+      const hangup = createHangupHandler(this.config.http, this.nc);
+      const keys = keySetHandler(this.config.callRecord);
+      this.server = http.createServer((req, res) =>
+        keys && req.method === "GET" && req.url?.split("?")[0] === KEY_SET_PATH
+          ? keys(req, res)
+          : hangup(req, res)
       );
       await new Promise<void>((r) =>
         this.server!.listen(

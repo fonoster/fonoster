@@ -29,7 +29,12 @@ import { SignedVcon, Vcon } from "./types";
 // signature travels with the record (call-record "Records are hashed and signed"). Keys are PEM
 // files; the key history maps every kid ever used to its public key (open question O2).
 
-export type SigningKey = { kid: string; privateKeyPem: string };
+export type SigningKey = {
+  kid: string;
+  privateKeyPem: string;
+  /** HTTPS URL of the region's published key set (JWK Set); goes in the JWS header as jku. */
+  jku?: string;
+};
 export type KeyHistory = Record<string, string>;
 
 const b64url = (data: Buffer | string) =>
@@ -41,7 +46,12 @@ export function contentHash(data: Buffer): string {
 
 export function signVcon(vcon: Vcon, key: SigningKey): SignedVcon {
   const header = b64url(
-    JSON.stringify({ alg: "ES256", typ: "vcon+jws", kid: key.kid })
+    JSON.stringify({
+      alg: "ES256",
+      typ: "vcon+jws",
+      kid: key.kid,
+      ...(key.jku ? { jku: key.jku } : {})
+    })
   );
   const payload = b64url(JSON.stringify(vcon));
   const signature = cryptoSign("sha256", Buffer.from(`${header}.${payload}`), {
@@ -83,4 +93,52 @@ export function verifySignature(
     if (ok) return kid;
   }
   return undefined;
+}
+
+export type Jwk = {
+  kty: string;
+  crv?: string;
+  x?: string;
+  y?: string;
+  kid: string;
+  use: "sig";
+  alg: "ES256";
+};
+export type JwkSet = { keys: Jwk[] };
+
+/**
+ * The region's published key set (owner decision: bare region keys plus a published key list,
+ * pointed to by jku). Includes every key ever used, so old records keep verifying after rotation.
+ */
+export function keySet(history: KeyHistory): JwkSet {
+  return {
+    keys: Object.entries(history).map(([kid, pem]) => ({
+      ...(createPublicKey(pem).export({ format: "jwk" }) as {
+        kty: string;
+        crv?: string;
+        x?: string;
+        y?: string;
+      }),
+      kid,
+      use: "sig",
+      alg: "ES256"
+    }))
+  };
+}
+
+/** The key history (kid → public PEM) from a published key set, for verifyRecord. */
+export function keyHistoryFromSet(set: JwkSet): KeyHistory {
+  return Object.fromEntries(
+    set.keys.map((k) => {
+      const { kid, use: _use, alg: _alg, ...jwk } = k;
+      void _use;
+      void _alg;
+      return [
+        kid,
+        createPublicKey({ key: jwk, format: "jwk" })
+          .export({ type: "spki", format: "pem" })
+          .toString()
+      ];
+    })
+  );
 }

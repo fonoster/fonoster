@@ -80,7 +80,10 @@ export type GatewayConfig = {
   callRecord?: {
     dir: string;
     region: string;
-    signingKey: { kid: string; privateKeyFile: string };
+    /** jku: the HTTPS URL where this region's key set is published (KEY_SET_PATH on the gateway). */
+    signingKey: { kid: string; privateKeyFile: string; jku?: string };
+    /** Earlier keys, still published so old records verify after rotation. */
+    keyHistory?: { kid: string; publicKeyFile: string }[];
     /** How often to seal records of calls whose gateway died (default 10 s). */
     sweepIntervalMs?: number;
   };

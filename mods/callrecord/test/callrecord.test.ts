@@ -27,6 +27,8 @@ import {
   FsRecordStorage,
   RecordEntry,
   decodeVcon,
+  keyHistoryFromSet,
+  keySet,
   redactText,
   verifyRecord
 } from "../src";
@@ -280,6 +282,43 @@ describe("@callrecord", function () {
     expect(vcon.dialog.map((d) => d.body)).to.include(
       "It is 4111 1111 1111 1111"
     );
+  });
+
+  it("publishes its key set and records point to it", function () {
+    const withJku = new CallRecordWriter({
+      storage,
+      region: "us-east",
+      key: {
+        ...KEY,
+        jku: "https://records.us-east.fonoster.com/.well-known/call-record-keys.json"
+      }
+    });
+    for (const e of normalCall("call-8")) withJku.append("call-8", e);
+    withJku.close("call-8");
+    const sealed = storage.getSealed("call-8")!;
+    const header = JSON.parse(
+      Buffer.from(sealed.signed.signatures[0].protected, "base64url").toString()
+    );
+    expect(header).to.include({
+      alg: "ES256",
+      kid: KEY.kid,
+      jku: "https://records.us-east.fonoster.com/.well-known/call-record-keys.json"
+    });
+    const published = keySet({ [KEY.kid]: KEY.publicKeyPem });
+    expect(published.keys[0]).to.include({
+      kty: "EC",
+      crv: "P-256",
+      kid: KEY.kid,
+      use: "sig",
+      alg: "ES256"
+    });
+    expect(published.keys[0]).to.not.have.property("d");
+    expect(
+      verifyRecord(
+        sealed,
+        keyHistoryFromSet(JSON.parse(JSON.stringify(published)))
+      )
+    ).to.deep.include({ ok: true });
   });
 
   it("verifies old records after the key rotates", function () {

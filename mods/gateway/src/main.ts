@@ -41,7 +41,8 @@ async function main() {
       region: c.region,
       key: {
         kid: c.signingKey.kid,
-        privateKeyPem: fs.readFileSync(c.signingKey.privateKeyFile, "utf8")
+        privateKeyPem: fs.readFileSync(c.signingKey.privateKeyFile, "utf8"),
+        jku: c.signingKey.jku
       }
     });
     // Records of calls whose gateway died are sealed by whichever replica sweeps first.

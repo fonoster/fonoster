@@ -22,6 +22,12 @@ import { expect } from "chai";
 import { NatsConnection } from "nats";
 import { GatewayConfig, validateConfig } from "../src";
 import { createHangupHandler } from "../src/http/hangupEndpoint";
+import { generateKeyPairSync } from "crypto";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import { keyHistoryFromSet } from "@fonoster/callrecord";
+import { keySetHandler } from "../src/http/keySetRoute";
 
 const base = (): GatewayConfig => ({
   nats: { url: "nats://x" },
@@ -102,5 +108,48 @@ describe("@gateway/hang-up endpoint", function () {
     const again = await post("CA1");
     expect(again.status).to.equal(404);
     expect((await again.json()).code).to.equal(20404);
+  });
+});
+
+describe("@gateway/call-record key set", function () {
+  it("publishes the current key and the history, without private parts", async function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "keys-"));
+    const current = generateKeyPairSync("ec", { namedCurve: "P-256" });
+    const old = generateKeyPairSync("ec", { namedCurve: "P-256" });
+    fs.writeFileSync(
+      path.join(dir, "current.pem"),
+      current.privateKey.export({ type: "pkcs8", format: "pem" })
+    );
+    fs.writeFileSync(
+      path.join(dir, "old.pub.pem"),
+      old.publicKey.export({ type: "spki", format: "pem" })
+    );
+    const handler = keySetHandler({
+      dir,
+      region: "us-east",
+      signingKey: {
+        kid: "us-east-2026",
+        privateKeyFile: path.join(dir, "current.pem")
+      },
+      keyHistory: [
+        { kid: "us-east-2025", publicKeyFile: path.join(dir, "old.pub.pem") }
+      ]
+    })!;
+    const server = http.createServer(handler);
+    await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+    const res = await fetch(
+      `http://127.0.0.1:${(server.address() as AddressInfo).port}/.well-known/call-record-keys.json`
+    );
+    const set = await res.json();
+    server.close();
+    expect(res.headers.get("content-type")).to.equal(
+      "application/jwk-set+json"
+    );
+    expect(set.keys.map((k: { kid: string }) => k.kid).sort()).to.deep.equal([
+      "us-east-2025",
+      "us-east-2026"
+    ]);
+    expect(JSON.stringify(set)).to.not.contain('"d"');
+    expect(Object.keys(keyHistoryFromSet(set))).to.have.length(2);
   });
 });
