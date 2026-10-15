@@ -4,17 +4,17 @@
 
 ## 1. Conformance assets
 
-- [ ] 1.1 Pin the vCon draft version and vendor its JSON schema for validation
+- [x] 1.1 Pin the vCon draft version and vendor its JSON schema for validation (LO-B8)
 - [ ] 1.2 Fixture calls (scripted sessions plus recorded caller audio), including one with a spoken
-      card number and one with a handoff
+      card number and one with a handoff (scripted sessions with synthetic audio done, LO-B8;
+      recorded caller audio needs real calls)
 - [x] 1.3 Crash harness: kill the gateway mid-call and assert a sealed record appears within the
       seal deadline, with missing parts listed
 - [x] 1.4 Verifier tool: checks the signature against the region's published keys and every file
       hash; reports the first mismatching part
 - [x] 1.5 Retention and erasure tests: policy expiry, per-call erasure, audit entries
-- [ ] 1.6 Redaction tests: masked transcript and beeped audio for seeded personal data; original
-      access refused without permission (masked transcript and refused original done; beeps
-      wait on O3, R-B4)
+- [x] 1.6 Redaction tests: masked transcript and beeped audio for seeded personal data; original
+      access refused without permission (beeps per utterance, LO-B9)
 
 ## 2. Writer and storage
 
@@ -36,7 +36,8 @@
 
 ## 4. Privacy
 
-- [ ] 4.1 Redaction step producing the redacted version at seal (engine per open question O3)
+- [x] 4.1 Redaction step producing the redacted version at seal (engine per open question O3)
+      (rule-based text, utterance beeps in audio, LO-B9)
 - [x] 4.2 Role permission for unredacted access; default reads return the redacted version
 - [x] 4.3 Retention policy engine and per-call erasure, all writing audit entries
 

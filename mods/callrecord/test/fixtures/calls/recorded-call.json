@@ -1,0 +1,30 @@
+{
+  "description": "A recorded call with nothing to redact: both copies reference the same recording.",
+  "callRef": "fx-recorded",
+  "audio": {
+    "startMs": 200,
+    "caller": [{ "fromMs": 1700, "toMs": 3000 }],
+    "agent": [{ "fromMs": 300, "toMs": 1300 }, { "fromMs": 3600, "toMs": 4800 }]
+  },
+  "entries": [
+    { "atMs": 0, "source": "event", "message": { "type": "call.started", "direction": "inbound", "appRef": "support", "workspaceRef": "ws-fixtures", "from": "+15550005555", "to": "+15550002222" } },
+    { "atMs": 100, "source": "gateway", "message": { "type": "session.start", "callRef": "fx-recorded", "appRef": "support", "from": "+15550005555", "to": "+15550002222", "direction": "inbound" } },
+    { "atMs": 200, "source": "event", "message": { "type": "recording.started", "policy": "on" } },
+    { "atMs": 450, "source": "app", "message": { "type": "speak", "id": "g1", "text": "Hi, how can I help?", "last": true } },
+    { "atMs": 500, "source": "gateway", "message": { "type": "output.started", "id": "g1" } },
+    { "atMs": 1500, "source": "gateway", "message": { "type": "output.done", "id": "g1" } },
+    { "atMs": 1900, "source": "gateway", "message": { "type": "turn.user_started" } },
+    { "atMs": 3700, "source": "gateway", "message": { "type": "turn.ended", "text": "When are you open?", "durationMs": 1300 } },
+    { "atMs": 3750, "source": "app", "message": { "type": "speak", "id": "g2", "text": "From nine to five.", "last": true } },
+    { "atMs": 3800, "source": "gateway", "message": { "type": "output.started", "id": "g2" } },
+    { "atMs": 5000, "source": "gateway", "message": { "type": "output.done", "id": "g2" } },
+    { "atMs": 5600, "source": "event", "message": { "type": "call.ended", "reason": "caller_hangup" } }
+  ],
+  "expect": {
+    "status": "completed",
+    "redactions": 0,
+    "missing": [],
+    "agents": ["support"],
+    "recording": "same"
+  }
+}

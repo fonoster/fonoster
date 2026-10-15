@@ -289,3 +289,43 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   stored references; read records with `RecordStore.getSealed`.
 - Tested on disk and against MinIO (`RECORDS_S3_ENDPOINT`).
 
+### LO-B8. vCon schema pinned; fixture calls (tasks 1.1, 1.2)
+
+- `mods/callrecord/schema/vcon-core-04.schema.json` is the draft's own JSON Schema, from the
+  `draft-ietf-vcon-vcon-core-04` tag of `ietf-wg-vcon/draft-ietf-vcon-vcon-core`
+  (`vcon_json_schema.json`, sha256 `b3c1ae28…a8d9`, Appendix B; `main` currently has a broken
+  copy). Shipped in the npm package (`files`). Tests validate every fixture's original and
+  redacted copy, later versions, deletion versions and tombstones with ajv (formats uuid,
+  date-time, uri added by hand; ajv-formats is not installed).
+- Fixed what the schema found: text dialog entries now carry `mediatype` and `encoding: none`
+  (`mimetype` kept for current readers); the messages attachment carries `start`, `party` (the
+  first app, or 0 for a minimal record), `dialog: 0`, `purpose` and `mediatype`; additions get an
+  `encoding`; the redacted copy of a later version no longer carries both `redacted` and
+  `amended` (mutually exclusive): the original holds the version chain, the redacted copy points
+  at its own original.
+- Deviation kept: part URLs stay relative (`parts/<name>`, resolved by the records API against
+  the record's store) instead of absolute HTTPS URLs, because records move between stores. The
+  test checks that shape and resolves it against a placeholder base for the `uri` format.
+- Fixtures (`mods/callrecord/test/fixtures/calls/*.json`, player in `fixtures/index.ts`):
+  `card-number` (spoken digits, then repeated by the agent), `handoff` (two apps, one record),
+  `failed-busy` (486, minimal), `recorded-call`, `gateway-crash` (sealed by the sweep). Each
+  states the status, missing parts, redactions, agents and which recording each copy references.
+  Audio is synthetic (constant levels per side); no recorded caller audio (needs real calls), so
+  1.2 stays open.
+- Also: the redacted copy of an addition now has the addition's strings redacted (it was copied
+  as is).
+
+### LO-B9. Redaction beeps in the recording (tasks 1.6, 4.1)
+
+- No word timings yet (O3), so the whole utterance that carried a redaction is beeped on its own
+  side: a caller turn from `turn.user_started` (else `durationMs` + 1.5 s before `turn.ended`) to
+  `turn.ended`; an agent output from `output.started` to `output.done`/`output.interrupted`.
+  1 kHz tone; the other side is untouched.
+- The beeped copy is a second part, `recording.redacted.wav`, streamed from the sealed WAV and
+  referenced only by the redacted copy (`meta.redacted {method: beep, spans}`); the original
+  references `recording.wav`. Default downloads therefore get the beeped audio; the original needs
+  unredacted access as before.
+- When a redacted utterance is not inside the recording (it started later, or clocks disagree),
+  nothing is beeped and the redacted copy withholds the recording (`recordingWithheld`), as before.
+- Deleting `recording` (retention or request) deletes both files.
+

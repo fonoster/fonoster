@@ -30,6 +30,8 @@ import * as path from "path";
 export const RECORDING_RATE = 16000;
 export const RECORDING_CODEC = "L16/16000";
 export const RECORDING_PART = "recording.wav";
+/** The recording with redacted spans beeped, referenced by the redacted copy (LO-B9). */
+export const REDACTED_RECORDING_PART = "recording.redacted.wav";
 export const RECORDING_SIDES = ["caller", "agent"] as const;
 export type RecordingSide = (typeof RECORDING_SIDES)[number];
 
@@ -289,6 +291,77 @@ export function assembleRecordingFile(
     startedAt: meta.startedAt,
     durationMs: Math.round((samples * 1000) / meta.rate)
   };
+}
+
+/** A stretch of one side to beep, in ms from the start of the recording. */
+export type BeepSpan = { side: RecordingSide; fromMs: number; toMs: number };
+
+const BEEP_HZ = 1000;
+const BEEP_AMPLITUDE = 6000;
+
+/**
+ * Copies a stereo recording (left caller, right agent) to `outFile` with every span replaced by
+ * a 1 kHz tone on its side (redaction beeps, LO-B9), streaming and hashing like
+ * `assembleRecordingFile`. The other side of a span is untouched.
+ */
+export function beepRecordingFile(
+  source: string,
+  outFile: string,
+  spans: BeepSpan[]
+): { file: string; size: number; content_hash: string } {
+  const input = fs.openSync(source, "r");
+  const out = fs.openSync(outFile, "w");
+  const hash = createHash("sha512");
+  const write = (b: Buffer) => {
+    fs.writeSync(out, b);
+    hash.update(b);
+  };
+  try {
+    const header = Buffer.alloc(44);
+    fs.readSync(input, header, 0, 44, 0);
+    const channels = header.readUInt16LE(22);
+    const rate = header.readUInt32LE(24);
+    write(header);
+    const frameBytes = channels * 2;
+    const ranges = spans.map((s) => ({
+      channel: s.side === "caller" ? 0 : 1,
+      from: Math.max(0, Math.floor((s.fromMs * rate) / 1000)),
+      to: Math.ceil((s.toMs * rate) / 1000)
+    }));
+    const size = fs.fstatSync(input).size;
+    const chunk = Buffer.alloc(CHUNK_SAMPLES * frameBytes);
+    let frame = 0;
+    for (let pos = 44; pos < size; ) {
+      const n = fs.readSync(input, chunk, 0, chunk.length, pos);
+      if (n <= 0) break;
+      const data = chunk.subarray(0, n);
+      const frames = Math.floor(n / frameBytes);
+      for (const r of ranges) {
+        if (r.channel >= channels) continue;
+        const a = Math.max(r.from, frame);
+        const b = Math.min(r.to, frame + frames);
+        for (let i = a; i < b; i++)
+          data.writeInt16LE(
+            Math.round(
+              BEEP_AMPLITUDE * Math.sin((2 * Math.PI * BEEP_HZ * i) / rate)
+            ),
+            (i - frame) * frameBytes + r.channel * 2
+          );
+      }
+      write(data);
+      frame += frames;
+      pos += n;
+    }
+    fs.fsyncSync(out);
+    return {
+      file: outFile,
+      size,
+      content_hash: `sha512-${hash.digest("base64url")}`
+    };
+  } finally {
+    fs.closeSync(input);
+    fs.closeSync(out);
+  }
 }
 
 /** Splits a stereo 16-bit WAV into its channels (for tests and tools). */

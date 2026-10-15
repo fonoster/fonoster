@@ -21,7 +21,12 @@ import * as path from "path";
 import { getLogger } from "@fonoster/logger";
 import { indexEntry, RecordIndexEntry } from "./indexEntry";
 import { isKeyCustody, KeyCustody, StaticKeyCustody } from "./keys";
-import { assembleRecordingFile, RECORDING_PART } from "./recording";
+import {
+  assembleRecordingFile,
+  beepRecordingFile,
+  RECORDING_PART,
+  REDACTED_RECORDING_PART
+} from "./recording";
 import { contentHash, decodeVcon, SigningKey, signVconWith } from "./sign";
 import { FsWorkingStore, RecordStore } from "./storage";
 import {
@@ -31,7 +36,7 @@ import {
   StoredPart,
   Vcon
 } from "./types";
-import { buildVcon } from "./vcon";
+import { buildVcon, redactStrings } from "./vcon";
 
 const logger = getLogger({ service: "callrecord", filePath: __filename });
 
@@ -208,7 +213,16 @@ export class CallRecordWriter {
               content_hash: rec.content_hash
             },
             startedAt: rec.startedAt,
-            durationMs: rec.durationMs
+            durationMs: rec.durationMs,
+            beep: (spans) => ({
+              name: REDACTED_RECORDING_PART,
+              mimetype: "audio/x-wav",
+              ...beepRecordingFile(
+                rec.file,
+                path.join(recDir, REDACTED_RECORDING_PART),
+                spans
+              )
+            })
           }
         : undefined
     });
@@ -306,10 +320,23 @@ export class CallRecordWriter {
       };
     };
     const vcon = next(current.signed, false);
+    // draft-04 4.1: `redacted` and `amended` are mutually exclusive. The original carries the
+    // version chain (amended → its predecessor); the redacted copy points at this version's
+    // original only (LO-B8).
+    const { amended: _amended, ...redactedNext } = next(current.redacted, true);
+    void _amended;
+    const redactedVcon: Vcon = {
+      ...redactedNext,
+      redacted: {
+        ...((decodeVcon(current.redacted).redacted as object) ?? {}),
+        uuid: vcon.uuid,
+        content_hash: contentHash(Buffer.from(JSON.stringify(vcon)))
+      }
+    };
     const sealed: SealingVersion = {
       version: current.version + 1,
       signed: await signVconWith(vcon, this.custody),
-      redacted: await signVconWith(next(current.redacted, true), this.custody),
+      redacted: await signVconWith(redactedVcon, this.custody),
       parts: current.parts
     };
     await store.putSealed(callRef, sealed);
@@ -330,9 +357,25 @@ export class CallRecordWriter {
     const { sealed } = await this.newVersion(
       callRef,
       workspaceRef,
-      (v) => ({
+      (v, redacted) => ({
         ...v,
-        analysis: [...v.analysis, ...(additions.analysis ?? [])]
+        analysis: [
+          ...v.analysis,
+          // The redacted copy gets the additions redacted too (like the sealed analysis, R-B4).
+          // draft-04 2.3.2: an inline body needs its encoding.
+          ...(additions.analysis ?? [])
+            .map((a) =>
+              a.body !== undefined && a.body !== "" && !a.encoding
+                ? {
+                    ...a,
+                    encoding: typeof a.body === "string" ? "none" : "json"
+                  }
+                : a
+            )
+            .map((a) =>
+              redacted ? (redactStrings(a) as Record<string, unknown>) : a
+            )
+        ]
       }),
       false,
       location
@@ -370,9 +413,10 @@ export class CallRecordWriter {
       reason: by.reason,
       actor: by.actor
     });
-    const fileOf: Partial<Record<RecordPart, string>> = {
-      recording: RECORDING_PART,
-      messages: "messages.ndjson"
+    // The recording is two files when the redacted copy has a beeped one (LO-B9).
+    const fileOf: Partial<Record<RecordPart, string[]>> = {
+      recording: [RECORDING_PART, REDACTED_RECORDING_PART],
+      messages: ["messages.ndjson"]
     };
     const { sealed, previous } = await this.newVersion(
       callRef,
@@ -380,7 +424,7 @@ export class CallRecordWriter {
       (v) => {
         const removedFile = (entry: Record<string, unknown>) => {
           const name = String(entry.url ?? "").replace(/^parts\//, "");
-          const part = parts.find((p) => fileOf[p] === name);
+          const part = parts.find((p) => fileOf[p]?.includes(name));
           if (!part) return entry;
           const { url: _url, ...rest } = entry;
           void _url;
@@ -417,10 +461,9 @@ export class CallRecordWriter {
       true,
       by.location
     );
-    for (const part of parts) {
-      const file = fileOf[part];
-      if (file) await store.deletePart(callRef, file);
-    }
+    for (const part of parts)
+      for (const file of fileOf[part] ?? [])
+        await store.deletePart(callRef, file);
     if (parts.includes("transcript"))
       for (let v = 1; v <= previous.version; v++)
         await store.deleteVersionContents(callRef, v);
@@ -430,7 +473,7 @@ export class CallRecordWriter {
       sealed: {
         ...sealed,
         parts: sealed.parts.filter(
-          (p) => !parts.some((part) => fileOf[part] === p.name)
+          (p) => !parts.some((part) => fileOf[part]?.includes(p.name))
         )
       },
       audit: parts.map((part) => ({
