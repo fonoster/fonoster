@@ -389,3 +389,11 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - With the Applications API writing the app model, the hosted Autopilot reading assistants from
   the database (CP-B11) and the gateway reading apps from `applications` (P-B9), rb-stack's
   interim `appsync` (copies app fields and assistants every 3 s) can be removed once both land.
+
+### RV-B3. Handoff never crosses workspaces
+- `handoff` is refused unless the target app and the current app both have a `workspaceRef` and
+  they are equal; checked in the command and again in `Call.handoff` (which now takes the
+  current app's workspace, since the session is ended before the dial). The refusal is the
+  same `bad_message` "unknown app" as for a missing ref, so other workspaces' refs are not
+  confirmed. Config-file apps without a workspace cannot hand off any more.
+- Tests: `@gateway integration` "refuses a handoff to an app in another workspace / no workspace".

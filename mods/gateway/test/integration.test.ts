@@ -167,8 +167,8 @@ describe("@gateway integration", function () {
 
   it("hands the call to another app with its payload and keeps the caller connected", async function () {
     await start([
-      app("ivr", harness.app.url),
-      app("billing", other.url, { numbers: ["+0"] })
+      app("ivr", harness.app.url, { workspaceRef: "W1" }),
+      app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
     ]);
     harness.mediaNode.offerCall();
     const first = (await harness.app.nextConnection()).peer;
@@ -349,10 +349,33 @@ describe("@gateway integration", function () {
     expect(types).to.include("app.idle_timeout");
   });
 
+  for (const [name, target] of [
+    ["another workspace", "W2"],
+    ["no workspace", undefined]
+  ] as const) {
+    it(`refuses a handoff to an app in ${name} (RV-B3)`, async function () {
+      await start([
+        app("ivr", harness.app.url, { workspaceRef: "W1" }),
+        app("theirs", other.url, { numbers: ["+0"], workspaceRef: target })
+      ]);
+      harness.mediaNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      peer.sendJson({ type: "handoff", id: "h1", app: "theirs", payload: {} });
+      const error = await waitFor(() =>
+        json(peer).find((m) => m.type === "error")
+      );
+      expect(error).to.include({ code: "bad_message", relatesTo: "h1" });
+      await sleep(200);
+      expect(json(peer).some((m) => m.type === "session.end")).to.equal(false);
+      expect(other.attempts).to.have.length(0);
+    });
+  }
+
   it("refuses oversized handoff payloads and keeps the session", async function () {
     await start([
-      app("ivr", harness.app.url),
-      app("billing", other.url, { numbers: ["+0"] })
+      app("ivr", harness.app.url, { workspaceRef: "W1" }),
+      app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
     ]);
     harness.mediaNode.offerCall();
     const { peer } = await harness.app.nextConnection();
