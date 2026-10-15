@@ -1,34 +1,34 @@
 ##
-# Build stage
+# Hosted Autopilot session engine (add-platform): a session app the gateway dials.
+# Build from the repository root:  docker build -f mods/autopilot/Dockerfile .
 ##
 FROM node:22-slim AS builder
 LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /work
-COPY . .
 
-RUN npm install && npm run build
+COPY package.json package-lock.json lerna.json tsconfig.json ./
+COPY mods ./mods
 
-##
-# Run stage
-##
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --workspace @fonoster/autopilot --ignore-scripts --no-audit --no-fund
+
+RUN for p in types logger common sdk voice autopilot; do \
+      (cd mods/$p && npx tsc -b); \
+    done \
+  && cp -a mods/common/src/protos mods/common/dist/ \
+  && npm prune --omit=dev --workspace @fonoster/autopilot
+
 FROM node:22-slim
 
-ENV ASSISTANT=/opt/fonoster/assistant.json
-
-RUN groupadd -r appuser && useradd -r -g appuser -m -d /home/appuser appuser
-
-COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/dist /home/appuser/autopilot/dist
-COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/package.json /home/appuser/autopilot/package.json
-COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/node_modules /home/appuser/autopilot/node_modules
-COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/silero_vad_v5.onnx /home/appuser/autopilot/silero_vad_v5.onnx
-COPY --from=builder --chown=appuser:appuser /work/mods/autopilot/silero_vad_v5_16k_op15.onnx /home/appuser/autopilot/silero_vad_v5_16k_op15.onnx
-
-WORKDIR /home/appuser/autopilot
-
-# Workaround for missing voice module
-RUN npm install @fonoster/voice
+RUN groupadd -g 1001 appuser && useradd -u 1001 -g appuser -m appuser
+WORKDIR /work
+COPY --from=builder --chown=appuser:appuser /work/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appuser /work/package.json ./package.json
+COPY --from=builder --chown=appuser:appuser /work/mods ./mods
 
 USER appuser
+ENV AUTOPILOT_SESSION_CONFIG=/etc/fonoster/autopilot-session.yaml
+EXPOSE 3000
 
-CMD ["node", "/home/appuser/autopilot/dist/server.js"]
+CMD ["node", "/work/mods/autopilot/dist/session/main.js"]
