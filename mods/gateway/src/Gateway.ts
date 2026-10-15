@@ -222,10 +222,11 @@ export class Gateway {
         if (err) return;
         const request = JSON.parse(sc.decode(msg.data));
         if (request.type === "hangup") {
-          // Only the call's own workspace may hang it up (the endpoint answers 404 otherwise).
+          // Only the call's own workspace may hang it up (the endpoint answers 404 otherwise);
+          // a call without a workspace cannot be hung up this way (RV-B12).
           if (
-            request.accountSid &&
-            call.workspaceRef &&
+            !request.accountSid ||
+            !call.workspaceRef ||
             request.accountSid !== call.workspaceRef
           ) {
             msg.respond(

@@ -20,6 +20,7 @@ import { expect } from "chai";
 import { NatsConnection, StringCodec, connect } from "nats";
 import { FakeApp, FakesHarness, Peer } from "@fonoster/conformance";
 import {
+  callSubject,
   AppConfig,
   Gateway,
   GatewayConfig,
@@ -205,6 +206,44 @@ describe("@gateway integration", function () {
     );
     expect(start1.callRef).to.equal("dup");
     expect(start2.callRef).to.equal(second.roomRef);
+  });
+
+  it("hangs up over the call subject only for the call's own workspace (RV-B12)", async function () {
+    await start([
+      app("none", harness.app.url, { numbers: ["+1000"] }),
+      app("mine", other.url, { numbers: ["+2000"], workspaceRef: "W1" })
+    ]);
+    const hangup = async (callRef: string, accountSid?: string) =>
+      JSON.parse(
+        sc.decode(
+          (
+            await nc.request(
+              callSubject(callRef),
+              sc.encode(JSON.stringify({ type: "hangup", accountSid })),
+              { timeout: 2000 }
+            )
+          ).data
+        )
+      );
+    harness.mediaNode.offerCall({
+      to: "+1000",
+      appRef: "none",
+      callRef: "c-none"
+    });
+    const p1 = (await harness.app.nextConnection()).peer;
+    await waitFor(() => json(p1).find((m) => m.type === "session.start"));
+    expect(await hangup("c-none", "W1")).to.include({ code: "not_found" });
+
+    harness.mediaNode.offerCall({
+      to: "+2000",
+      appRef: "mine",
+      callRef: "c-mine"
+    });
+    const p2 = (await other.nextConnection()).peer;
+    await waitFor(() => json(p2).find((m) => m.type === "session.start"));
+    expect(await hangup("c-mine")).to.include({ code: "not_found" });
+    expect(await hangup("c-mine", "W2")).to.include({ code: "not_found" });
+    expect(await hangup("c-mine", "W1")).to.include({ type: "ack" });
   });
 
   it("opens outbound sessions only when the callee answers", async function () {

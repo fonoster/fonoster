@@ -404,3 +404,10 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   shared its control subject. The media node now accepts INVITEs only from trusted sources
   (add-media-node RV-B7), so X-Call-Ref comes from Routr.
 - Tests: `@gateway integration` "never merges a call into a live call with the same callRef".
+
+### RV-B12. The Twilio hang-up endpoint needs the call's workspace
+- A hang-up request over `gateway.calls.<callRef>` is honoured only when it carries an
+  `accountSid` and the call has a workspace equal to it; before, a call without a workspace (or a
+  request without an accountSid) could be hung up by any authenticated account. Calls of
+  config-file apps without a workspace can no longer be hung up through the endpoint.
+- Tests: `@gateway integration` "hangs up over the call subject only for the call's own workspace".
