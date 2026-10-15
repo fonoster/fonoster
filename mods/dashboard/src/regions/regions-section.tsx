@@ -16,48 +16,123 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { MoreHorizontal, Plus } from "lucide-react";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
-import { useRegions } from "./api";
-import { StatusPill } from "./status";
+import { errorMessage } from "~/lib/errors";
+import { REGIONS_KEY, useRegions, useRegionsApi } from "./api";
+import { InstallCommand } from "./install-command";
+import { NewRegionDialog } from "./new-region-dialog";
+import { RegionDrawer } from "./region-drawer";
+import { StatusDot } from "./status";
+import type { RegionToken } from "./types";
 
-/** "Your regions" on the start screen: the user's private regions and New region. */
+/**
+ * "Your regions" on the start screen: one compact row per private region (name and status dot).
+ * A waiting region shows its install command inline; More opens the details drawer
+ * (`?region=<ref>`).
+ */
 export function RegionsSection() {
+  const api = useRegionsApi();
+  const queryClient = useQueryClient();
   const { data } = useRegions();
+  const [params, setParams] = useSearchParams();
+  const [creating, setCreating] = useState(false);
+  const [tokens, setTokens] = useState<Record<string, RegionToken>>({});
+  const [busy, setBusy] = useState<string>();
+  const [error, setError] = useState<unknown>();
   const regions = (data ?? []).filter((r) => r.kind === "private");
+
+  const setToken = (ref: string, token: RegionToken) =>
+    setTokens((t) => ({ ...t, [ref]: token }));
+  const open = (ref: string | null) =>
+    setParams(
+      (p) => {
+        const next = new URLSearchParams(p);
+        if (ref) next.set("region", ref);
+        else next.delete("region");
+        return next;
+      },
+      { replace: true }
+    );
+  const reissue = async (ref: string) => {
+    setBusy(ref);
+    setError(undefined);
+    try {
+      setToken(ref, await api.reissueRegionToken(ref));
+      void queryClient.invalidateQueries({ queryKey: REGIONS_KEY });
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(undefined);
+    }
+  };
+
   return (
     <section aria-label="Your regions" className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h2 className="font-display text-[13px] font-medium">Your regions</h2>
-        <Button asChild variant="outline" className="font-display">
-          <Link to="/regions/new">
-            <Plus className="size-4" aria-hidden /> New region
-          </Link>
+        <Button
+          variant="outline"
+          className="font-display"
+          onClick={() => setCreating(true)}
+        >
+          <Plus className="size-4" aria-hidden /> New region
         </Button>
       </div>
+      {error !== undefined && (
+        <Alert variant="error">{errorMessage(error)}</Alert>
+      )}
       {regions.length > 0 && (
         <ul className="overflow-hidden rounded-xl border border-border bg-card">
           {regions.map((r) => (
-            <li key={r.ref} className="border-b border-border last:border-b-0">
-              <Link
-                to={`/regions/${r.ref}`}
-                className="flex items-center justify-between gap-3 px-5 py-4 hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
-              >
-                <span className="flex min-w-0 flex-col gap-1">
-                  <span className="truncate font-display text-[15px] font-medium">
-                    {r.displayName}
-                  </span>
-                  <span className="font-display text-xs text-muted-foreground">
-                    {r.id}
-                  </span>
+            <li
+              key={r.ref}
+              className="flex flex-col gap-3 border-b border-border px-5 py-3 last:border-b-0"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="truncate font-display text-[15px] font-medium">
+                  {r.displayName}
                 </span>
-                <StatusPill status={r.status} />
-              </Link>
+                <span className="flex items-center gap-2">
+                  <StatusDot status={r.status} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    aria-label={`More for ${r.displayName}`}
+                    onClick={() => open(r.ref)}
+                  >
+                    <MoreHorizontal aria-hidden />
+                  </Button>
+                </span>
+              </div>
+              {r.status === "waiting" && (
+                <InstallCommand
+                  enrollment={tokens[r.ref]}
+                  busy={busy === r.ref}
+                  onReissue={() => void reissue(r.ref)}
+                />
+              )}
             </li>
           ))}
         </ul>
       )}
+      <NewRegionDialog
+        open={creating}
+        onOpenChange={setCreating}
+        onCreated={({ ref, token, expiresAt }) =>
+          setToken(ref, { token, expiresAt })
+        }
+      />
+      <RegionDrawer
+        regionRef={params.get("region")}
+        onClose={() => open(null)}
+        onToken={setToken}
+      />
     </section>
   );
 }

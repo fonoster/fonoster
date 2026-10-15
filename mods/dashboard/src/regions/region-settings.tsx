@@ -21,7 +21,8 @@ import { Alert } from "~/components/ui/alert";
 import { errorMessage } from "~/lib/errors";
 import { useRegion } from "./api";
 import { ConnectionDetails } from "./connection";
-import { Row, STATUS_NOTE } from "./region-detail.page";
+import { regionLink } from "./links";
+import { Row, STATUS_NOTE } from "./status";
 
 /** Settings → Region: read-only; a workspace never changes region. */
 export function RegionSettings() {
@@ -45,7 +46,7 @@ export function RegionSettings() {
       <ConnectionDetails region={region} />
       {isPrivate && (
         <Link
-          to={`/regions/${region.ref}`}
+          to={regionLink(region.ref)}
           className="font-display text-sm underline"
         >
           Manage region

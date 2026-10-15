@@ -21,6 +21,7 @@ import { PageHeader } from "~/app/shell/page";
 import { DataTable, NameCell, type Column } from "~/components/data/data-table";
 import { Badge } from "~/components/ui/badge";
 import { useRegion } from "./api";
+import { regionLink } from "./links";
 import type { RegionSecret } from "./types";
 
 /** Secrets of a private workspace: names only; values live in the customer's region (PR-4). */
@@ -49,7 +50,7 @@ export function PrivateSecrets() {
           Keys are set in{" "}
           {region ? (
             <Link
-              to={`/regions/${region.ref}`}
+              to={regionLink(region.ref)}
               className="text-foreground underline"
             >
               {region.displayName}

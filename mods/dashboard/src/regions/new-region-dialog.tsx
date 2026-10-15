@@ -20,15 +20,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from "~/components/ui/dialog";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { errorMessage } from "~/lib/errors";
 import { REGIONS_KEY, useRegionsApi } from "./api";
-import { StartLayout } from "./start-layout";
+import type { CreatedRegion } from "./types";
 import { validateRegionId, validateSipDomain } from "./validation";
 
 const schema = z.object({
@@ -50,11 +55,18 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-/** /regions/new: a private region is created at the user level (PR-15). */
-export default function NewRegionPage() {
+/** New region: ID, display name and SIP domain. `onCreated` gets the one-time token. */
+export function NewRegionDialog({
+  open,
+  onOpenChange,
+  onCreated
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreated: (created: CreatedRegion) => void;
+}) {
   const api = useRegionsApi();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [error, setError] = useState<unknown>();
   const form = useForm<Values>({
     resolver: zodResolver(schema),
@@ -65,63 +77,67 @@ export default function NewRegionPage() {
   const onSubmit = form.handleSubmit(async (values) => {
     setError(undefined);
     try {
-      const { ref, token, expiresAt } = await api.createRegion(values);
+      const created = await api.createRegion(values);
       await queryClient.invalidateQueries({ queryKey: REGIONS_KEY });
-      navigate(`/regions/${ref}/setup`, {
-        replace: true,
-        state: { enrollment: { token, expiresAt } }
-      });
+      form.reset();
+      onCreated(created);
+      onOpenChange(false);
     } catch (e) {
       setError(e);
     }
   });
 
   return (
-    <StartLayout title="New region">
-      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
-        {error !== undefined && (
-          <Alert variant="error">{errorMessage(error)}</Alert>
-        )}
-        <Field
-          label="ID"
-          error={errors.id?.message}
-          hint="Lowercase, for example acme-dallas. It can't change later."
-        >
-          {(a11y) => (
-            <Input
-              {...a11y}
-              {...form.register("id")}
-              placeholder="acme-dallas"
-              autoFocus
-            />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New region</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+          {error !== undefined && (
+            <Alert variant="error">{errorMessage(error)}</Alert>
           )}
-        </Field>
-        <Field label="Display name" error={errors.displayName?.message}>
-          {(a11y) => (
-            <Input
-              {...a11y}
-              {...form.register("displayName")}
-              placeholder="Acme Dallas"
-            />
-          )}
-        </Field>
-        <Field
-          label="SIP domain"
-          error={errors.sipDomain?.message}
-          hint="Point *.sip.acme.com at the region and provide its TLS certificate."
-        >
-          {(a11y) => (
-            <Input
-              {...a11y}
-              {...form.register("sipDomain")}
-              placeholder="sip.acme.com"
-            />
-          )}
-        </Field>
-        <Button type="submit" loading={isSubmitting} className="self-start">
-          Create region
-        </Button>
-      </form>
-    </StartLayout>
+          <Field
+            label="ID"
+            error={errors.id?.message}
+            hint="Lowercase, for example acme-dallas. It can't change later."
+          >
+            {(a11y) => (
+              <Input
+                {...a11y}
+                {...form.register("id")}
+                placeholder="acme-dallas"
+                autoFocus
+              />
+            )}
+          </Field>
+          <Field label="Display name" error={errors.displayName?.message}>
+            {(a11y) => (
+              <Input
+                {...a11y}
+                {...form.register("displayName")}
+                placeholder="Acme Dallas"
+              />
+            )}
+          </Field>
+          <Field
+            label="SIP domain"
+            error={errors.sipDomain?.message}
+            hint="Point *.sip.acme.com at the region and provide its TLS certificate."
+          >
+            {(a11y) => (
+              <Input
+                {...a11y}
+                {...form.register("sipDomain")}
+                placeholder="sip.acme.com"
+              />
+            )}
+          </Field>
+          <Button type="submit" loading={isSubmitting} className="self-start">
+            Create region
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
