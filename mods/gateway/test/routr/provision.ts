@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -44,10 +44,12 @@ export type Provisioned = {
 
 type Named = { ref: string; name?: string; username?: string };
 
-async function listAll<T extends Named>(list: (r: {
-  pageSize: number;
-  pageToken?: string;
-}) => Promise<{ items: T[]; nextPageToken?: string }>): Promise<T[]> {
+async function listAll<T extends Named>(
+  list: (r: {
+    pageSize: number;
+    pageToken?: string;
+  }) => Promise<{ items: T[]; nextPageToken?: string }>
+): Promise<T[]> {
   const out: T[] = [];
   let pageToken: string | undefined;
   do {
@@ -114,9 +116,9 @@ export async function provisionMediaNodeRouting(
     } as never));
 
   const telUrl = `tel:${r.number}`;
-  const existing = (
-    await listAll((q) => numbers.listNumbers(q) as never)
-  ).find((n) => (n as unknown as { telUrl: string }).telUrl === telUrl);
+  const existing = (await listAll((q) => numbers.listNumbers(q) as never)).find(
+    (n) => (n as unknown as { telUrl: string }).telUrl === telUrl
+  );
   const extraHeaders = [{ name: "X-App-Ref", value: r.appRef }];
   const number = existing
     ? await numbers.updateNumber({

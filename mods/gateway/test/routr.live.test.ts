@@ -70,7 +70,10 @@ function start(
   return new Promise((resolve, reject) => {
     const child = spawn(bin, args, { stdio: ["ignore", "pipe", "pipe"] });
     const lines = readline.createInterface({ input: child.stdout! });
-    const timer = setTimeout(() => reject(new Error(`${bin} not ready`)), 10000);
+    const timer = setTimeout(
+      () => reject(new Error(`${bin} not ready`)),
+      10000
+    );
     lines.on("line", (line) => {
       if (ready.test(line)) {
         clearTimeout(timer);
