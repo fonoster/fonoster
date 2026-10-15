@@ -66,6 +66,57 @@ an organization/account level; Fonoster operating or upgrading customer cells (P
 
 **PR-8. Existing workspaces are pinned to the default public region.** (Proposed default)
 
+**Decisions of 2026-10-15 (evening), locked one by one with the owner. They supersede PR-2, the
+"set up from New workspace" flow and the `fonoster-region` CLI naming.**
+
+**PR-12. "Region" stays the concept.** A region is infrastructure (where calls run), separate from a
+workspace (who you are and what is configured). Public and private are the same concept. Marketing:
+"Private Regions" (BYOC for enterprise buyers); "cell" is internal only.
+
+**PR-13. One mechanism for public and private regions.** Same install, same enrollment token and
+agent, same status, connection details and config sync. They differ only in owner and tenancy:
+public = platform-owned, serves every workspace that picks it; private = owned by a user.
+Fonoster provides a default public region to reduce friction.
+
+**PR-14. A private region belongs to a user and may serve several of that user's workspaces.**
+(Reverses PR-2.) Any workspace with the same owner can pick it at creation; a workspace still never
+moves (PR-1). The region receives config, secrets and calls only for its owner's workspaces; data
+in the region is keyed by workspace; the cloud checks that every record's workspace belongs to the
+region.
+
+**PR-15. Regions are created and onboarded at the user level, not in "New workspace".** A user
+creates a private region from their account area (ID, display name, SIP domain), installs and
+connects it, and manages it there. Creating a workspace shows one select of the public region(s)
+and the user's private regions. Workspace Settings → Region is read-only.
+
+**PR-16. A private region's SIP domain is the customer's own and is required at creation.** Routr
+gives workspaces subdomains of it (wildcard), so the customer points wildcard DNS
+(`*.sip.acme.com`) at the region and provides the TLS certificate. Public regions use Fonoster's
+hostnames. The CLI and every API always go to the cloud API (`api.fonoster.com`; self-hosters their
+own URL); regions expose no user API.
+
+**PR-17. The default public region's id is always `default`.** Geography, if any, is only in its
+display name.
+
+**PR-18. Region ids and names.** Id: lowercase letters, digits and hyphens, 3–32 characters,
+starting with a letter; never changes. Display name: free text, editable. Public ids follow
+`<geo>-<area>-<n>` plus `default`. Private: recommended `<company>-<place>`; `default` and public
+geo prefixes (`us-`, `eu-`, `sa-`, `ap-`, `af-`, `me-`) are reserved. Private ids are unique per
+owner; internally everything keys on the hidden `rg_…` ref.
+
+**PR-19. Public regions are created by an operator with an operator key.** The apiserver config
+holds an operator key; region administration (create, list, publish, revoke public regions) uses
+it. On the new location the operator enrolls with the same command customers use.
+
+**PR-20. Keys in public regions.** Fonoster's own provider keys are set on each public region with
+the same secrets command as private regions (never stored in the cloud database). A workspace's
+bring-your-own keys stay in the cloud as encrypted workspace Secrets and are fetched per call.
+
+**PR-21. Region operations live in one ops utility, `fonoster-regions`, not in the `fonoster` CLI.**
+Region work is not day-to-day: `fonoster-regions create|list|publish|revoke` (cloud side, operator
+key) and `fonoster-regions enroll|secrets|status|run` (on the region machine) ship as a standalone
+utility like `fonoster-registry`. Users create private regions from the dashboard.
+
 ## Risks / Trade-offs
 
 | Risk | Mitigation |
