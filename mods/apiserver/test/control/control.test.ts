@@ -18,7 +18,7 @@
  */
 import * as http from "http";
 import { AddressInfo } from "net";
-import { Webhooks } from "@fonoster/common";
+import { Registry, Webhooks } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 import { expect } from "chai";
 import { struct } from "pb-util";
@@ -36,6 +36,7 @@ import { createUpdateApplication } from "../../src/applications/createUpdateAppl
 import { getConfig } from "../../src/config";
 import { createProvidersHandlers } from "../../src/providers";
 import { createWebhooksHandlers } from "../../src/webhooks";
+import { PrismaAssistantSource } from "../../../autopilot/src/session/hosted";
 import { TEST_TOKEN } from "../utils";
 
 // The control-plane APIs (rebuild: control) against a throwaway Postgres
@@ -224,6 +225,10 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         ref: res.ref
       });
       expect(struct.decode(app.intelligence.config)).to.deep.equal(ASSISTANT);
+      // The hosted Autopilot loads it from the same row (CP-B11).
+      expect(
+        await new PrismaAssistantSource(db.prisma).get(res.ref)
+      ).to.deep.equal({ assistant: ASSISTANT, workspaceRef: WS });
 
       const bad = await invoke(createCreateApplication(db.prisma, CONFIG), {
         name: "Bad",
@@ -702,6 +707,16 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         OTHER
       );
       expect(other.items).to.deep.equal([]);
+
+      // What the gateway and the hosted Autopilot read back (CP-B11, CP-B12).
+      const keys = new Registry.PrismaWorkspaceKeys(db.prisma);
+      expect(await keys.get(WS, "deepgram")).to.equal("dg-key-2");
+      expect(await keys.get(OTHER, "deepgram")).to.equal(undefined);
+      expect(
+        await keys.forCredentialRef(WS, "deepgram-default", [
+          { id: "deepgram", credentialRef: "deepgram-default" }
+        ])
+      ).to.equal("dg-key-2");
 
       await invoke(h.deleteProviderKey, { providerId: "deepgram" });
       expect(await db.prisma.workspaceProviderKey.count()).to.equal(0);
