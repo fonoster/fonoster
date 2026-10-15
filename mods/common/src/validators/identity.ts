@@ -32,11 +32,11 @@ const createWorkspaceRequestSchema = z.object({
     .string()
     .min(1, { message: MIN_NAME_MESSAGE })
     .max(50, { message: MAX_NAME_MESSAGE }),
-  /** A public region id, or "private" for a new private region (add-private-regions). */
+  /** An offered public region id, or one of the caller's private regions (id or rg_ ref). */
   region: z
     .string()
     .max(64)
-    .regex(/^[a-z0-9-]*$/, { message: "Invalid region" })
+    .regex(/^[a-z0-9_-]*$/, { message: "Invalid region" })
     .optional()
 });
 

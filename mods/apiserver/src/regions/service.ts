@@ -20,15 +20,25 @@ import { randomBytes, randomUUID } from "crypto";
 import { getLogger } from "@fonoster/logger";
 import { endpointsHash, normalizeEndpoints } from "./endpoints";
 import { EnrollmentTokenError, RegionSigner } from "./enrollmentToken";
+import {
+  checkDisplayName,
+  checkPrivateRegionId,
+  checkPublicRegionId,
+  checkSipDomain
+} from "./ids";
 import { RegionNatsAuth } from "./natsAuth";
 import { regionStatus } from "./status";
 import {
   Components,
   Heartbeat,
+  REGION_REF,
   RegionError,
+  regionKey,
   RegionRow,
   RegionsDb,
-  subjects
+  subjects,
+  WorkspaceDirectory,
+  WorkspaceInfo
 } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -74,9 +84,32 @@ export type RegionServiceConfig = {
 /** Publishes on the region hub (the link); a no-op without one. */
 export type LinkPublisher = (subject: string, payload: unknown) => void;
 
+export type CreateRegionInput = {
+  id?: unknown;
+  displayName?: unknown;
+  sipDomain?: unknown;
+};
+
+export type IssuedToken = {
+  token: string;
+  enrollmentToken: string;
+  expiresAt: string;
+};
+
+/** Directory used until Identity attaches the real one (no workspaces). */
+const EMPTY_DIRECTORY: WorkspaceDirectory = {
+  workspace: async () => undefined,
+  inRegion: async () => []
+};
+
+const isUniqueViolation = (e: unknown) =>
+  (e as { code?: string })?.code === "P2002" ||
+  /unique constraint/i.test(String((e as Error)?.message));
+
 /**
- * Private regions on the control plane (tasks 2.1, 2.2, 2.3, 2.6): region rows, enrollment tokens,
- * enrollment, revocation, heartbeats and the status the dashboard shows.
+ * Regions on the control plane (PR-12..PR-21): user-owned private regions and operator-created
+ * public regions, one enrollment and credential mechanism for both, heartbeats and status, and
+ * which workspaces a region serves.
  */
 export function createRegionService(deps: {
   db: RegionsDb;
@@ -84,18 +117,21 @@ export function createRegionService(deps: {
   natsAuth?: RegionNatsAuth;
   publish?: LinkPublisher;
   config: RegionServiceConfig;
+  /** Identity's workspaces; may be attached later (setDirectory). */
+  directory?: WorkspaceDirectory;
   now?: () => Date;
 }) {
   const { db, config } = deps;
   const now = deps.now ?? (() => new Date());
   const publish: LinkPublisher = deps.publish ?? (() => undefined);
+  let directory = deps.directory ?? EMPTY_DIRECTORY;
 
   const signer = () => {
     if (!deps.signer)
       throw new RegionError(
         503,
         "regions_unavailable",
-        "private regions are not configured on this control plane (regions.signingKey)"
+        "regions are not configured on this control plane (regions.signingKey)"
       );
     return deps.signer;
   };
@@ -109,23 +145,16 @@ export function createRegionService(deps: {
     return deps.natsAuth;
   };
 
-  const live = async (accessKeyId: string): Promise<RegionRow> => {
-    const row = await db.region.findUnique({ where: { accessKeyId } });
-    if (!row || row.deletedAt)
-      throw new RegionError(
-        404,
-        "region_not_found",
-        "the workspace has no private region"
-      );
-    return row;
-  };
+  const notFound = () =>
+    new RegionError(404, "region_not_found", "no such region");
 
-  const issueToken = async (row: RegionRow) => {
+  const issueToken = async (row: RegionRow): Promise<IssuedToken> => {
     const jti = randomUUID();
     const token = signer().sign({
       iss: config.issuer,
       sub: row.ref,
-      wsp: row.accessKeyId,
+      rid: row.id,
+      knd: row.kind,
       cp: config.controlPlaneUrl,
       leaf: config.leafUrl,
       jti
@@ -140,7 +169,11 @@ export function createRegionService(deps: {
         expiresAt
       }
     });
-    return { enrollmentToken: token, expiresAt: expiresAt.toISOString() };
+    return {
+      token,
+      enrollmentToken: token,
+      expiresAt: expiresAt.toISOString()
+    };
   };
 
   /** Revokes every live credential of a region and pushes the revocations to the hub. */
@@ -170,21 +203,226 @@ export function createRegionService(deps: {
     await natsAuth().pushRevocations(map);
   };
 
-  return {
-    /** Creates the private region of a new workspace and its first token (PR-2). */
-    async createPrivateRegion(accessKeyId: string) {
+  const insert = async (data: Record<string, unknown>) => {
+    try {
+      return (await db.region.create({
+        data: { ref: newRegionRef(), state: "waiting", ...data }
+      })) as RegionRow;
+    } catch (e) {
+      if (isUniqueViolation(e))
+        throw new RegionError(
+          409,
+          "region_id_taken",
+          `a region with id "${data.id}" already exists`
+        );
+      throw e;
+    }
+  };
+
+  const byRef = async (ref: string): Promise<RegionRow | undefined> => {
+    const row = await db.region.findUnique({ where: { ref } });
+    return row && !row.deletedAt ? row : undefined;
+  };
+
+  /** The live public region row with this id (or ref). */
+  const publicRow = async (idOrRef: string): Promise<RegionRow | undefined> => {
+    if (REGION_REF.test(idOrRef)) {
+      const row = await byRef(idOrRef);
+      return row?.kind === "public" ? row : undefined;
+    }
+    return (
+      (await db.region.findFirst({
+        where: { kind: "public", id: idOrRef, deletedAt: null }
+      })) ?? undefined
+    );
+  };
+
+  /** A live region by id or ref, for the admin API (ids name public regions). */
+  const anyRow = async (idOrRef: string): Promise<RegionRow | undefined> =>
+    REGION_REF.test(idOrRef) ? byRef(idOrRef) : publicRow(idOrRef);
+
+  const workspaces = (row: RegionRow): Promise<WorkspaceInfo[]> =>
+    directory.inRegion(regionKey(row));
+
+  const service = {
+    setDirectory(d: WorkspaceDirectory) {
+      directory = d;
+    },
+    get directory() {
+      return directory;
+    },
+
+    /** A user creates a private region (PR-15, PR-16, PR-18); the first token is returned once. */
+    async createRegion(ownerRef: string, input: CreateRegionInput) {
+      if (!ownerRef)
+        throw new RegionError(401, "unauthenticated", "a user is required");
+      const id = checkPrivateRegionId(input.id);
+      const displayName = checkDisplayName(input.displayName ?? id);
+      const sipDomain = checkSipDomain(input.sipDomain);
       signer();
-      const row: RegionRow = await db.region.create({
-        data: { ref: newRegionRef(), accessKeyId, state: "waiting" }
+      const exists = await db.region.findFirst({
+        where: { kind: "private", ownerRef, id, deletedAt: null }
+      });
+      if (exists)
+        throw new RegionError(
+          409,
+          "region_id_taken",
+          `you already have a region with id "${id}"`
+        );
+      const row = await insert({
+        id,
+        kind: "private",
+        ownerRef,
+        displayName,
+        sipDomain
       });
       const token = await issueToken(row);
-      logger.info(`private region ${row.ref} created for ${accessKeyId}`);
-      return { regionRef: row.ref, ...token };
+      logger.info(`private region ${row.ref} (${id}) created for ${ownerRef}`);
+      return { ref: row.ref, id: row.id, ...token };
+    },
+
+    /** The operator creates a public region (PR-19); unpublished until `publish`. */
+    async createPublicRegion(
+      input: CreateRegionInput & { endpoints?: unknown }
+    ) {
+      const id = checkPublicRegionId(input.id);
+      const displayName = checkDisplayName(input.displayName ?? id);
+      const sipDomain = checkSipDomain(input.sipDomain, true);
+      signer();
+      if (await publicRow(id))
+        throw new RegionError(
+          409,
+          "region_id_taken",
+          `public region "${id}" already exists`
+        );
+      const endpoints = input.endpoints
+        ? normalizeEndpoints(input.endpoints)
+        : undefined;
+      const row = await insert({
+        id,
+        kind: "public",
+        displayName,
+        sipDomain: sipDomain ?? null,
+        ...(endpoints
+          ? {
+              endpoints: { ...endpoints, updatedAt: now().toISOString() },
+              endpointsAt: now()
+            }
+          : {})
+      });
+      const token = await issueToken(row);
+      logger.info(`public region ${row.ref} (${id}) created by the operator`);
+      return { ref: row.ref, id: row.id, ...token };
+    },
+
+    /** The caller's private region by id or ref; 404 for anything else. */
+    async owned(ownerRef: string, idOrRef: string): Promise<RegionRow> {
+      const row = REGION_REF.test(idOrRef)
+        ? await byRef(idOrRef)
+        : await db.region.findFirst({
+            where: { kind: "private", ownerRef, id: idOrRef, deletedAt: null }
+          });
+      if (!row || row.kind !== "private" || row.ownerRef !== ownerRef)
+        throw notFound();
+      return row;
+    },
+
+    async listOwned(ownerRef: string): Promise<RegionRow[]> {
+      return db.region.findMany({
+        where: { kind: "private", ownerRef, deletedAt: null },
+        orderBy: { createdAt: "asc" }
+      });
+    },
+
+    async listPublicRows(): Promise<RegionRow[]> {
+      return db.region.findMany({
+        where: { kind: "public", deletedAt: null },
+        orderBy: { createdAt: "asc" }
+      });
+    },
+
+    async listAll(): Promise<RegionRow[]> {
+      return db.region.findMany({
+        where: { deletedAt: null },
+        orderBy: { createdAt: "asc" }
+      });
+    },
+
+    publicRow,
+    anyRow,
+    byRef,
+    workspaces,
+
+    async updateDisplayName(row: RegionRow, displayName: unknown) {
+      return (await db.region.update({
+        where: { ref: row.ref },
+        data: { displayName: checkDisplayName(displayName) }
+      })) as RegionRow;
     },
 
     /** A new enrollment token; the current cell keeps working until a cell enrolls with it. */
-    async reissueToken(accessKeyId: string) {
-      return issueToken(await live(accessKeyId));
+    async reissueToken(row: RegionRow) {
+      return issueToken(row);
+    },
+
+    /** Revokes the cell now and puts the region back in `waiting`. */
+    async disconnect(row: RegionRow, reason = "disconnected") {
+      await revokeAll(row.ref, reason);
+      const updated = (await db.region.update({
+        where: { ref: row.ref },
+        data: {
+          state: "waiting",
+          cellPublicKey: null,
+          lastHeartbeatAt: null,
+          enrolledAt: null,
+          // The next cell's heartbeat then always asks for fresh endpoints.
+          endpointsHash: null
+        }
+      })) as RegionRow;
+      logger.info(`region ${row.ref} disconnected (${reason})`);
+      return updated;
+    },
+
+    /** Deletes a region no workspace uses and revokes its cell (refused while in use). */
+    async deleteRegion(row: RegionRow) {
+      const using = await workspaces(row);
+      if (using.length)
+        throw new RegionError(
+          409,
+          "region_in_use",
+          `the region is used by ${using.length} workspace(s): ${using
+            .map((w) => w.name)
+            .join(", ")}`
+        );
+      await db.region.update({
+        where: { ref: row.ref },
+        data: { deletedAt: now(), state: "waiting", published: false }
+      });
+      await revokeAll(row.ref, "region deleted").catch((e) =>
+        logger.error(`could not revoke region ${row.ref}: ${e.message}`)
+      );
+      logger.info(`region ${row.ref} (${row.id}) deleted`);
+    },
+
+    /** Public regions: offered in pickers while connected (PR-19). */
+    async publish(row: RegionRow) {
+      if (row.kind !== "public")
+        throw new RegionError(400, "not_public", "only public regions publish");
+      return (await db.region.update({
+        where: { ref: row.ref },
+        data: { published: true }
+      })) as RegionRow;
+    },
+
+    /** Public regions: withdrawn from pickers and the cell's credentials revoked. */
+    async revoke(row: RegionRow) {
+      if (row.kind !== "public")
+        throw new RegionError(400, "not_public", "only public regions revoke");
+      await db.region.update({
+        where: { ref: row.ref },
+        data: { published: false }
+      });
+      return service.disconnect(row, "revoked by the operator");
     },
 
     /** Exchanges a one-time token for cell credentials (contract §2). */
@@ -216,13 +454,7 @@ export function createRegionService(deps: {
         where: { ref: claims.sub }
       });
       if (!row) throw new RegionError(404, "region_not_found");
-      if (row.deletedAt) throw new RegionError(409, "workspace_deleted");
-      if (row.accessKeyId !== claims.wsp)
-        throw new RegionError(
-          400,
-          "token_invalid",
-          "token names another workspace"
-        );
+      if (row.deletedAt) throw new RegionError(409, "region_deleted");
       natsAuth();
       // Spend the token first: of two concurrent enrollments only one gets here.
       const spent = await db.regionToken.updateMany({
@@ -258,10 +490,16 @@ export function createRegionService(deps: {
           endpointsHash: null
         }
       });
-      logger.info(`region ${row.ref} enrolled (cell ${body.version ?? "?"})`);
+      const bound = await workspaces(row).catch(() => []);
+      logger.info(
+        `region ${row.ref} (${row.id}) enrolled (cell ${body.version ?? "?"}, ${bound.length} workspace(s))`
+      );
       return {
         regionRef: row.ref,
-        workspaceRef: row.accessKeyId,
+        regionId: row.id,
+        kind: row.kind,
+        sipDomain: row.sipDomain ?? null,
+        workspaceRefs: bound.map((w) => w.accessKeyId),
         leafUrl: claims.leaf,
         credentials: user.creds,
         subjects: subjects(row.ref).all,
@@ -269,45 +507,10 @@ export function createRegionService(deps: {
       };
     },
 
-    /** Revokes the cell now and puts the region back in `waiting`. */
-    async disconnect(accessKeyId: string) {
-      const row = await live(accessKeyId);
-      await revokeAll(row.ref, "disconnected");
-      await db.region.update({
-        where: { ref: row.ref },
-        data: {
-          state: "waiting",
-          cellPublicKey: null,
-          lastHeartbeatAt: null,
-          enrolledAt: null,
-          // The next cell's heartbeat then always asks for fresh endpoints.
-          endpointsHash: null
-        }
-      });
-      logger.info(`region ${row.ref} disconnected`);
-    },
-
-    /** The workspace was deleted: revoke the cell and refuse further enrollments. */
-    async deleteForWorkspace(accessKeyId: string) {
-      const row: RegionRow | null = await db.region.findUnique({
-        where: { accessKeyId }
-      });
-      if (!row || row.deletedAt) return;
-      await db.region.update({
-        where: { ref: row.ref },
-        data: { deletedAt: now(), state: "waiting" }
-      });
-      await revokeAll(row.ref, "workspace deleted").catch((e) =>
-        logger.error(`could not revoke region ${row.ref}: ${e.message}`)
-      );
-    },
-
     /** Records a heartbeat; returns the row, or undefined when the region is not enrolled. */
     async heartbeat(regionRef: string, hb: Partial<Heartbeat>) {
-      const row: RegionRow | null = await db.region.findUnique({
-        where: { ref: regionRef }
-      });
-      if (!row || row.deletedAt || row.state !== "enrolled") return undefined;
+      const row = await byRef(regionRef);
+      if (!row || row.state !== "enrolled") return undefined;
       const c = hb.components ?? ({} as Partial<Components>);
       return (await db.region.update({
         where: { ref: regionRef },
@@ -330,10 +533,8 @@ export function createRegionService(deps: {
 
     /** Stores the connection details a cell reported (contract §3); undefined when ignored. */
     async reportEndpoints(regionRef: string, body: unknown) {
-      const row: RegionRow | null = await db.region.findUnique({
-        where: { ref: regionRef }
-      });
-      if (!row || row.deletedAt || row.state !== "enrolled") return undefined;
+      const row = await byRef(regionRef);
+      if (!row || row.state !== "enrolled") return undefined;
       const endpoints = normalizeEndpoints(body);
       if (!endpoints) return undefined;
       return (await db.region.update({
@@ -364,19 +565,63 @@ export function createRegionService(deps: {
       });
     },
 
-    async byRef(regionRef: string): Promise<RegionRow | undefined> {
-      const row = await db.region.findUnique({ where: { ref: regionRef } });
-      return row && !row.deletedAt ? row : undefined;
+    /** The region row a workspace is bound to; undefined for a configured public region. */
+    async regionOfWorkspace(
+      accessKeyId: string
+    ): Promise<RegionRow | undefined> {
+      const ws = await directory.workspace(accessKeyId);
+      if (!ws) return undefined;
+      return service.regionByKey(ws.region);
     },
 
-    async byWorkspace(accessKeyId: string): Promise<RegionRow | undefined> {
-      const row = await db.region.findUnique({ where: { accessKeyId } });
-      return row && !row.deletedAt ? row : undefined;
+    /** The row for a `Workspace.region` value (a private ref or a public id). */
+    async regionByKey(key: string): Promise<RegionRow | undefined> {
+      if (!key) return undefined;
+      return REGION_REF.test(key) ? byRef(key) : publicRow(key);
+    },
+
+    /** Whether a workspace is bound to this region (PR-14: the cloud checks every record). */
+    async serves(row: RegionRow, accessKeyId: unknown) {
+      if (typeof accessKeyId !== "string" || !accessKeyId) return false;
+      const ws = await directory.workspace(accessKeyId);
+      return !!ws && ws.region === regionKey(row);
+    },
+
+    /**
+     * Migration from the old model (one workspace per private region): a private region without
+     * an owner gets its workspace's owner (RW-B3). Identity has its own database, so this runs at
+     * start instead of in SQL.
+     */
+    async migrateLegacyOwners() {
+      const rows: RegionRow[] = await db.region.findMany({
+        where: { kind: "private", ownerRef: null, deletedAt: null }
+      });
+      let n = 0;
+      for (const row of rows) {
+        if (!row.accessKeyId) continue;
+        const ws = await directory.workspace(row.accessKeyId);
+        if (!ws) continue;
+        try {
+          await db.region.update({
+            where: { ref: row.ref },
+            data: { ownerRef: ws.ownerRef }
+          });
+          n++;
+        } catch (e) {
+          logger.warn(
+            `could not set the owner of region ${row.ref}: ${(e as Error).message}`
+          );
+        }
+      }
+      if (n)
+        logger.info(`regions: ${n} legacy private region(s) got their owner`);
+      return n;
     },
 
     /** Re-pushes every revocation (on startup, so a restarted hub converges). */
     pushRevocations
   };
+  return service;
 }
 
 export type RegionService = ReturnType<typeof createRegionService>;

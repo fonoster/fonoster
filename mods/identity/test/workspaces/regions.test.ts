@@ -43,18 +43,20 @@ function run<T>(
 }
 
 function hooks(): WorkspaceRegionHooks & {
-  createPrivateRegion: sinon.SinonStub;
-  deleteRegion: sinon.SinonStub;
+  resolveRegion: sinon.SinonStub;
+  workspaceChanged: sinon.SinonStub;
 } {
   return {
-    publicRegions: ["us-east-1"],
-    defaultRegion: "us-east-1",
-    createPrivateRegion: sandbox.stub().resolves({
-      regionRef: "rg_abcdefghijklmnop",
-      enrollmentToken: "eyJ.token",
-      expiresAt: "2026-10-16T12:00:00.000Z"
-    }),
-    deleteRegion: sandbox.stub().resolves()
+    publicRegions: ["default"],
+    defaultRegion: "default",
+    resolveRegion: sandbox
+      .stub()
+      .callsFake(async (_owner: string, requested?: string) => {
+        if (!requested || requested === "default") return { region: "default" };
+        if (requested === "acme-hq") return { region: "rg_abcdefghijklmnop" };
+        throw new Error("region must be one of default or one of yours");
+      }),
+    workspaceChanged: sandbox.stub()
   } as never;
 }
 
@@ -64,68 +66,63 @@ describe("@identity[workspaces/regions] (add-private-regions)", function () {
   it("binds a new workspace to the default public region", async function () {
     const create = sandbox.stub().resolves({ ref: "w1" });
     const prisma = { workspace: { create } } as unknown as Prisma;
+    const h = hooks();
     const { createCreateWorkspace } =
       await import("../../src/workspaces/createCreateWorkspace");
-    const { response } = await run(createCreateWorkspace(prisma, hooks()), {
+    const { response } = await run(createCreateWorkspace(prisma, h), {
       name: "Acme"
     });
-    expect(response).to.deep.equal({ ref: "w1", region: "us-east-1" });
-    expect(create.firstCall.args[0].data.region).to.equal("us-east-1");
+    expect(response).to.deep.equal({ ref: "w1", region: "default" });
+    expect(create.firstCall.args[0].data.region).to.equal("default");
+    expect(h.workspaceChanged).to.have.been.calledWithMatch({
+      region: "default"
+    });
   });
 
-  it("creates the private region with the workspace and returns the token once", async function () {
+  it("binds a workspace to one of the caller's private regions (stored as its ref)", async function () {
     const create = sandbox.stub().resolves({ ref: "w2" });
     const prisma = { workspace: { create } } as unknown as Prisma;
     const h = hooks();
     const { createCreateWorkspace } =
       await import("../../src/workspaces/createCreateWorkspace");
+    const { getUserRefFromToken } =
+      await import("../../src/utils/getUserRefFromToken");
     const { response } = await run(createCreateWorkspace(prisma, h), {
       name: "Acme on-prem",
-      region: "private"
+      region: "acme-hq"
     });
     expect(response).to.deep.equal({
       ref: "w2",
-      region: "rg_abcdefghijklmnop",
-      enrollmentToken: "eyJ.token",
-      expiresAt: "2026-10-16T12:00:00.000Z"
+      region: "rg_abcdefghijklmnop"
     });
-    const accessKeyId = create.firstCall.args[0].data.accessKeyId;
-    expect(h.createPrivateRegion).to.have.been.calledWith({ accessKeyId });
+    expect(h.resolveRegion).to.have.been.calledWith(
+      getUserRefFromToken(TEST_TOKEN),
+      "acme-hq"
+    );
     expect(create.firstCall.args[0].data.region).to.equal(
       "rg_abcdefghijklmnop"
     );
+    expect(h.workspaceChanged).to.have.been.calledWithMatch({
+      region: "rg_abcdefghijklmnop"
+    });
   });
 
-  it("refuses an unknown region and private without the control plane", async function () {
-    const prisma = {
-      workspace: { create: sandbox.stub() }
-    } as unknown as Prisma;
+  it("refuses a region the caller cannot pick, and anything but default without the control plane", async function () {
+    const create = sandbox.stub();
+    const prisma = { workspace: { create } } as unknown as Prisma;
     const { createCreateWorkspace } =
       await import("../../src/workspaces/createCreateWorkspace");
     const bad = await run(createCreateWorkspace(prisma, hooks()), {
       name: "Acme",
-      region: "eu-west-9"
+      region: "someone-elses"
     });
     expect(bad.error).to.include({ code: grpc.status.INVALID_ARGUMENT });
     const none = await run(createCreateWorkspace(prisma), {
       name: "Acme",
       region: "private"
     });
-    expect(none.error).to.include({ code: grpc.status.FAILED_PRECONDITION });
-  });
-
-  it("retires the region when the workspace row cannot be created", async function () {
-    const prisma = {
-      workspace: { create: sandbox.stub().rejects(new Error("db down")) }
-    } as unknown as Prisma;
-    const h = hooks();
-    const { createCreateWorkspace } =
-      await import("../../src/workspaces/createCreateWorkspace");
-    await run(createCreateWorkspace(prisma, h), {
-      name: "Acme",
-      region: "private"
-    });
-    expect(h.deleteRegion).to.have.been.calledOnce;
+    expect(none.error).to.include({ code: grpc.status.INVALID_ARGUMENT });
+    expect(create).not.to.have.been.called;
   });
 
   it("refuses a region change with region_immutable", async function () {
@@ -136,7 +133,7 @@ describe("@identity[workspaces/regions] (add-private-regions)", function () {
       workspace: {
         findUnique: sandbox.stub().resolves({
           ref: "w1",
-          region: "us-east-1",
+          region: "default",
           ownerRef: getUserRefFromToken(TEST_TOKEN),
           members: []
         }),
@@ -155,16 +152,14 @@ describe("@identity[workspaces/regions] (add-private-regions)", function () {
     expect(update).not.to.have.been.called;
   });
 
-  it("deleting a private workspace retires its region", async function () {
+  it("deleting a workspace leaves its region and resyncs it", async function () {
     const prisma = {
       workspace: {
-        delete: sandbox
-          .stub()
-          .resolves({
-            ref: "w2",
-            accessKeyId: "WOacme",
-            region: "rg_abcdefghijklmnop"
-          })
+        delete: sandbox.stub().resolves({
+          ref: "w2",
+          accessKeyId: "WOacme",
+          region: "rg_abcdefghijklmnop"
+        })
       }
     } as unknown as Prisma;
     const h = hooks();
@@ -173,6 +168,38 @@ describe("@identity[workspaces/regions] (add-private-regions)", function () {
     await run(createDeleteWorkspace(prisma, h), {
       ref: "123e4567-e89b-12d3-a456-426614174000"
     });
-    expect(h.deleteRegion).to.have.been.calledWith({ accessKeyId: "WOacme" });
+    expect(h.workspaceChanged).to.have.been.calledWith({
+      accessKeyId: "WOacme",
+      region: "rg_abcdefghijklmnop"
+    });
+  });
+
+  it("the workspace directory reads workspaces by key and by region", async function () {
+    const row = {
+      ref: "w1",
+      accessKeyId: "WOacme",
+      name: "Acme",
+      ownerRef: "u1",
+      region: "default",
+      createdAt: new Date()
+    };
+    const prisma = {
+      workspace: {
+        findUnique: sandbox.stub().resolves(row),
+        findMany: sandbox.stub().resolves([row])
+      }
+    } as unknown as Prisma;
+    const { createWorkspaceDirectory } =
+      await import("../../src/workspaces/createWorkspaceDirectory");
+    const dir = createWorkspaceDirectory(prisma);
+    const expected = {
+      ref: "w1",
+      accessKeyId: "WOacme",
+      name: "Acme",
+      ownerRef: "u1",
+      region: "default"
+    };
+    expect(await dir.workspace("WOacme")).to.deep.equal(expected);
+    expect(await dir.inRegion("default")).to.deep.equal([expected]);
   });
 });

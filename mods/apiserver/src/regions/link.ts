@@ -28,6 +28,22 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 const sc = StringCodec();
 const QUEUE = "apiserver-regions";
 
+/** A workspace's key for a provider (workspace_provider_keys → encrypted Secret), uncached. */
+export async function workspaceKey(
+  db: RegionsDb,
+  accessKeyId: string,
+  providerId: string
+): Promise<string | undefined> {
+  const binding = await db.workspaceProviderKey.findUnique({
+    where: { accessKeyId_providerId: { accessKeyId, providerId } }
+  });
+  if (!binding) return undefined;
+  const secret = await db.secret.findUnique({
+    where: { ref: binding.secretRef }
+  });
+  return secret?.secret || undefined;
+}
+
 /**
  * The control plane's side of the link (contract §3), subscribed on the region hub: heartbeats,
  * config requests, index entries and usage. The hub only lets a cell publish under its own
@@ -98,28 +114,68 @@ export function startRegionLink(deps: {
       if (msg.reply) msg.respond(sc.encode(JSON.stringify(answer)));
     }),
     on("region.*.index", async (_msg, row, body) => {
-      // Always the region's workspace, whatever the entry says (contract §5).
+      // The entry must name a workspace bound to this region (contract §5, PR-14).
+      const ws = body.workspaceRef ?? body.accessKeyId;
+      if (!body.callRef) return;
+      if (!(await service.serves(row, ws))) {
+        logger.warn(
+          `region ${row.ref}: index entry ${String(body.callRef)} names a workspace the region does not serve; dropped`
+        );
+        return;
+      }
       const entry = {
         ...(body as unknown as RecordIndexEntry),
-        workspaceRef: row.accessKeyId,
+        workspaceRef: String(ws),
         region: row.ref
       };
-      if (!entry.callRef) return;
       await index(entry);
     }),
     on("region.*.usage", async (_msg, row, body) => {
       const minutes = Number(body.minutes);
       const period = String(body.period ?? "").slice(0, 16);
       if (!period || !Number.isFinite(minutes)) return;
+      const accessKeyId = body.workspaceRef;
+      if (!(await service.serves(row, accessKeyId))) return;
       await db.regionUsage.upsert({
-        where: { regionRef_period: { regionRef: row.ref, period } },
-        create: { regionRef: row.ref, period, minutes },
+        where: {
+          regionRef_accessKeyId_period: {
+            regionRef: row.ref,
+            accessKeyId,
+            period
+          }
+        },
+        create: { regionRef: row.ref, accessKeyId, period, minutes },
         update: { minutes }
       });
+    }),
+    on("region.*.secrets.get", async (msg, row, body) => {
+      // PR-20: a public region asks for a workspace's bring-your-own key, per call. The value is
+      // only ever in this reply: never cached, stored or logged.
+      if (!msg.reply) return;
+      const reply = (m: unknown) => {
+        msg.respond(sc.encode(JSON.stringify(m)));
+      };
+      const workspaceRef = body.workspaceRef;
+      const provider = body.provider;
+      if (typeof provider !== "string" || !provider)
+        return reply({ type: "region.secrets.error", code: "bad_request" });
+      if (row.kind !== "public")
+        return reply({ type: "region.secrets.error", code: "not_public" });
+      if (!(await service.serves(row, workspaceRef)))
+        return reply({
+          type: "region.secrets.error",
+          code: "workspace_not_in_region"
+        });
+      const value = await workspaceKey(db, String(workspaceRef), provider);
+      reply(
+        value
+          ? { type: "region.secrets.value", workspaceRef, provider, value }
+          : { type: "region.secrets.none", workspaceRef, provider }
+      );
     })
   ];
   logger.info(
-    "region link: heartbeat, endpoints, config, index and usage consumers on"
+    "region link: heartbeat, endpoints, config, index, usage and secrets consumers on"
   );
   return () => subs.forEach((s) => s.unsubscribe());
 }

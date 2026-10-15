@@ -219,12 +219,20 @@ identity:
   owner: { name: Admin, email: "$RB_ADMIN_EMAIL", password: "$RB_ADMIN_PASSWORD" }
 EOF
   # The local public region and its connection details (contract §3a): Routr's published SIP
-  # port and RTPEngine's range on this machine's address.
+  # port and RTPEngine's range on this machine's address. Its id is always `default` (PR-17); it
+  # is the configured fallback (always offered) until an enrolled public region replaces it.
+  # The operator key (PR-19) authorizes the region admin API (fonoster-regions create|list|…).
+  if [ ! -f "$CONF/keys/region-operator.key" ]; then
+    mkdir -p "$CONF/keys"
+    printf '%s' "$(openssl rand -hex 24)" > "$CONF/keys/region-operator.key"
+  fi
+  chmod 644 "$CONF/keys/region-operator.key"
   cat >> "$CONF/fonoster.yaml" <<EOF
 regions:
+  operatorKey: "secret://file/opt/fonoster/keys/region-operator.key"
   public:
-    - id: us-east-1
-      name: "US East (N. Virginia)"
+    - id: default
+      name: "Local (this machine)"
       default: true
       endpoints:
         sip:

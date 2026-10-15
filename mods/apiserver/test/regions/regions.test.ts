@@ -42,16 +42,18 @@ import {
   generateRegionHub,
   RegionNatsAuth,
   RegionsConfig,
+  createWorkspaceRegionHooks,
   RegionsRuntime,
   runRegions,
-  SnapshotSources
+  SnapshotSources,
+  WorkspaceInfo
 } from "../../src/regions";
 import {
   endpointsHash as agentEndpointsHash,
   RegionAgent
 } from "../../../region-agent/src";
 
-// The control plane's side of private regions end to end, with a fake cell: enrollment, config
+// The control plane's side of regions end to end (PR-12..PR-21), with a fake cell: enrollment, config
 // sync, heartbeats and status, index and usage ingestion, the content relay, re-issue, disconnect
 // and workspace deletion. Needs PERSISTENCE_TEST_DATABASE_URL and CONFORMANCE_NATS_URL; with
 // REGION_HUB_TEST=1 it also starts a real region hub (rb-regcp-hub, NATS in operator mode) and
@@ -61,7 +63,12 @@ const sc = StringCodec();
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const HUB = process.env.REGION_HUB_TEST === "1";
 const HUB_PORT = Number(process.env.REGION_HUB_PORT ?? 21422);
+const HUB_NAME = process.env.REGION_HUB_NAME ?? "rb-regcp-hub";
 const WS = "WOacme00000000000000000000000000";
+const WS2 = "WOacme20000000000000000000000000";
+const WS_PUBLIC = "WOpublic000000000000000000000000";
+const OWNER = "user-WORKSPACE_OWNER";
+const OPERATOR_KEY = "operator-key-for-tests-0123456789";
 const rsa = generateKeyPairSync("rsa", { modulusLength: 2048 });
 const IDENTITY_PUBLIC = rsa.publicKey
   .export({ type: "spki", format: "pem" })
@@ -71,10 +78,10 @@ const ecPem = () =>
     .privateKey.export({ type: "pkcs8", format: "pem" })
     .toString();
 
-function accessToken(role: string, accessKeyId = WS) {
+function accessToken(role: string, accessKeyId = WS, sub = `user-${role}`) {
   return jwt.sign(
     {
-      sub: `user-${role}`,
+      sub,
       accessKeyId: "user-key",
       tokenUse: "access",
       access: [{ accessKeyId, role }]
@@ -115,6 +122,7 @@ async function until<T>(
 class FakeCell {
   configs: Record<string, unknown>[] = [];
   needed: string[][] = [];
+  neededMessages: Record<string, unknown>[] = [];
   revoked: unknown[] = [];
   errors: string[] = [];
   relayed: Record<string, unknown>[] = [];
@@ -141,9 +149,11 @@ class FakeCell {
     const on = (subject: string, fn: (m: Msg) => void) =>
       nc.subscribe(`region.${ref}.${subject}`, { callback: (_e, m) => fn(m) });
     on("config", (m) => cell.configs.push(JSON.parse(sc.decode(m.data))));
-    on("secrets.needed", (m) =>
-      cell.needed.push(JSON.parse(sc.decode(m.data)).names)
-    );
+    on("secrets.needed", (m) => {
+      const body = JSON.parse(sc.decode(m.data));
+      cell.needed.push(body.names);
+      cell.neededMessages.push(body);
+    });
     on("revoked", (m) => cell.revoked.push(JSON.parse(sc.decode(m.data))));
     on("endpoints.request", () => cell.endpointRequests++);
     on("relay", (m) => {
@@ -208,6 +218,17 @@ class FakeCell {
     );
   }
 
+  async secret(workspaceRef: string, provider: string) {
+    const r = await this.nc.request(
+      `region.${this.ref}.secrets.get`,
+      sc.encode(
+        JSON.stringify({ type: "region.secrets.get", workspaceRef, provider })
+      ),
+      { timeout: 3000 }
+    );
+    return JSON.parse(sc.decode(r.data));
+  }
+
   async requestConfig(haveVersion: number) {
     const r = await this.nc.request(
       `region.${this.ref}.config.request`,
@@ -222,7 +243,7 @@ class FakeCell {
   }
 }
 
-describe("@apiserver[regions/e2e] private region round trip", function () {
+describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function () {
   this.timeout(60000);
   let db: TestDb | undefined;
   let runtime: RegionsRuntime;
@@ -234,6 +255,24 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
   let hubUrl: string = NATS_URL ?? "";
   const pushed: Record<string, number>[] = [];
   const cells: FakeCell[] = [];
+  const hooks = createWorkspaceRegionHooks([
+    {
+      id: "default",
+      name: "US East (N. Virginia)",
+      default: true,
+      endpoints: PUBLIC_ENDPOINTS
+    }
+  ]);
+  // Identity's workspaces (the directory Identity attaches in production).
+  const workspaces = new Map<string, WorkspaceInfo>();
+  const bind = (accessKeyId: string, region: string, name = accessKeyId) =>
+    workspaces.set(accessKeyId, {
+      ref: `ref-${accessKeyId}`,
+      accessKeyId,
+      name,
+      ownerRef: OWNER,
+      region
+    });
   const kinds: ConfigKinds = {
     numbers: [{ ref: "n1", telUrl: "tel:+15551230000", appRef: "app-1" }],
     apps: [
@@ -245,7 +284,12 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       }
     ],
     assistants: [],
-    routr: { domains: [{ ref: "d1" }], agents: [], trunks: [], acls: [] },
+    routr: {
+      domains: [{ ref: "d1", domainUri: "acme.fonoster.example" }],
+      agents: [],
+      trunks: [],
+      acls: []
+    },
     catalog: [],
     webhooks: [],
     recordingPolicy: { recordings: { store: true } }
@@ -263,12 +307,12 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       const hub = generateRegionHub({ resolverDir: "/data/jwt" });
       hubDir = mkdtempSync(join(tmpdir(), "rb-regcp-hub-"));
       writeFileSync(join(hubDir, "nats.conf"), hub.conf);
-      execFileSync("docker", ["rm", "-f", "rb-regcp-hub"], { stdio: "ignore" });
+      execFileSync("docker", ["rm", "-f", HUB_NAME], { stdio: "ignore" });
       execFileSync("docker", [
         "run",
         "-d",
         "--name",
-        "rb-regcp-hub",
+        HUB_NAME,
         "-p",
         `${HUB_PORT}:4222`,
         "-v",
@@ -321,7 +365,7 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     const config: RegionsConfig = {
       public: [
         {
-          id: "us-east-1",
+          id: "default",
           name: "US East (N. Virginia)",
           default: true,
           endpoints: PUBLIC_ENDPOINTS
@@ -333,7 +377,9 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
         idleTimeoutMs: 2000,
         maxBytes: 1024 * 1024
       },
-      configDebounceMs: 50
+      configDebounceMs: 50,
+      operatorKey: OPERATOR_KEY,
+      privateRegionMonthlyFeeCents: 49900
     };
     runtime = await runRegions(config, {
       db: db.prisma,
@@ -346,7 +392,14 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       signer,
       natsAuth,
       natsSeeds,
-      hubConnections: { nc: cp, system }
+      hubConnections: { nc: cp, system },
+      rootDomain: () => "fonoster.example"
+    });
+    hooks.attach(runtime);
+    hooks.attachDirectory({
+      workspace: async (id) => workspaces.get(id),
+      inRegion: async (key) =>
+        [...workspaces.values()].filter((w) => w.region === key)
     });
     const app = express();
     for (const r of runtime.routers) app.use(r.path, r.router);
@@ -372,25 +425,34 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     await system?.close();
     await db?.drop();
     if (HUB)
-      execFileSync("docker", ["rm", "-f", "rb-regcp-hub"], { stdio: "ignore" });
+      execFileSync("docker", ["rm", "-f", HUB_NAME], { stdio: "ignore" });
     if (hubDir) rmSync(hubDir, { recursive: true, force: true });
   });
 
   const api = async (
     path: string,
-    init: { method?: string; body?: unknown; role?: string } = {}
+    init: {
+      method?: string;
+      body?: unknown;
+      role?: string;
+      user?: string;
+      workspace?: string;
+      operator?: string;
+    } = {}
   ) => {
+    const headers: Record<string, string> = {
+      "content-type": "application/json"
+    };
+    if (init.role) {
+      headers.authorization = `Bearer ${accessToken(init.role, init.workspace ?? WS)}`;
+      headers["x-accesskey-id"] = init.workspace ?? WS;
+    }
+    if (init.user)
+      headers.authorization = `Bearer ${accessToken("WORKSPACE_OWNER", WS, init.user)}`;
+    if (init.operator) headers["x-operator-key"] = init.operator;
     const res = await fetch(`${base}${path}`, {
       method: init.method ?? "GET",
-      headers: {
-        "content-type": "application/json",
-        ...(init.role
-          ? {
-              authorization: `Bearer ${accessToken(init.role)}`,
-              "x-accesskey-id": WS
-            }
-          : {})
-      },
+      headers,
       body: init.body ? JSON.stringify(init.body) : undefined
     });
     const text = await res.text();
@@ -400,8 +462,12 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     } catch {
       body = { text };
     }
-    return { status: res.status, body, headers: res.headers };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return { status: res.status, body: body as any, headers: res.headers };
   };
+  const current = async (workspace = WS) =>
+    (await api("/api/regions/current", { role: "WORKSPACE_MEMBER", workspace }))
+      .body;
   const enroll = (
     token: string,
     publicKey = Buffer.alloc(32, 7).toString("base64url")
@@ -420,25 +486,120 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
   let firstToken: string;
   let creds: string;
 
-  it("creates a private region in waiting with a one-time token", async function () {
-    const created = await runtime.service.createPrivateRegion(WS);
-    ref = created.regionRef;
-    firstToken = created.enrollmentToken;
+  it("a user creates a private region (id, display name, SIP domain) and gets a one-time token", async function () {
+    const created = await api("/api/regions", {
+      method: "POST",
+      user: OWNER,
+      body: {
+        id: "acme-hq",
+        displayName: "Acme HQ",
+        sipDomain: "SIP.acme.com"
+      }
+    });
+    expect(created.status).to.equal(201);
+    expect(created.body).to.include({ id: "acme-hq" });
+    expect(created.body.token).to.equal(created.body.enrollmentToken);
+    ref = created.body.ref;
+    firstToken = created.body.token;
     expect(ref).to.match(/^rg_/);
-    expect(Date.parse(created.expiresAt) - Date.now()).to.be.closeTo(
+    expect(Date.parse(created.body.expiresAt) - Date.now()).to.be.closeTo(
       24 * 3600e3,
       5000
     );
+    const claims = runtime.signer!.verify(firstToken);
+    expect(claims).to.include({ sub: ref, rid: "acme-hq", knd: "private" });
     const keys = await api("/.well-known/region-keys.json");
     expect((keys.body.keys as unknown[]).length).to.equal(1);
-    const region = await api("/api/regions/current", {
-      role: "WORKSPACE_MEMBER"
+  });
+
+  it("validates ids and SIP domains; ids are unique per owner", async function () {
+    const post = (body: unknown, user = OWNER) =>
+      api("/api/regions", { method: "POST", user, body });
+    const bad = await post({ id: "1x", displayName: "x", sipDomain: "a.com" });
+    expect(bad.body.error).to.equal("region_id_invalid");
+    expect(
+      (await post({ id: "us-hq", displayName: "x", sipDomain: "a.com" })).body
+        .error
+    ).to.equal("region_id_reserved");
+    expect(
+      (await post({ id: "default", displayName: "x", sipDomain: "a.com" })).body
+        .error
+    ).to.equal("region_id_reserved");
+    expect(
+      (await post({ id: "acme-lab", displayName: "x" })).body.error
+    ).to.equal("sip_domain_invalid");
+    const dup = await post({
+      id: "acme-hq",
+      displayName: "Again",
+      sipDomain: "sip.acme.com"
     });
-    expect(region.body).to.include({ ref, kind: "private", status: "waiting" });
-    const list = await api("/api/regions");
-    expect(list.body.items).to.deep.equal([
-      { id: "us-east-1", name: "US East (N. Virginia)", default: true }
+    expect(dup.status).to.equal(409);
+    expect(dup.body.error).to.equal("region_id_taken");
+    // Another user may use the same id.
+    const other = await post(
+      { id: "acme-hq", displayName: "Theirs", sipDomain: "sip.other.com" },
+      "user-other"
+    );
+    expect(other.status).to.equal(201);
+    const anon = await api("/api/regions", {
+      method: "POST",
+      body: { id: "anon-hq", displayName: "x", sipDomain: "a.com" }
+    });
+    expect(anon.status).to.equal(401);
+  });
+
+  it("lists public regions for everyone and the caller's own private regions with status", async function () {
+    const anon = await api("/api/regions");
+    expect(anon.body.items).to.deep.equal([
+      {
+        id: "default",
+        name: "US East (N. Virginia)",
+        displayName: "US East (N. Virginia)",
+        kind: "public",
+        default: true,
+        status: "connected",
+        state: "connected"
+      }
     ]);
+    const mine = await api("/api/regions", { user: OWNER });
+    expect(mine.body.items).to.have.length(2);
+    expect(mine.body.items[1]).to.include({
+      ref,
+      id: "acme-hq",
+      displayName: "Acme HQ",
+      kind: "private",
+      status: "waiting",
+      state: "waiting",
+      sipDomain: "sip.acme.com",
+      workspaces: 0
+    });
+    const theirs = await api("/api/regions", { user: "user-other" });
+    expect(
+      theirs.body.items.filter((i: { ref?: string }) => i.ref === ref)
+    ).to.have.length(0);
+  });
+
+  it("new workspaces pick a public region or one of the owner's private regions (by id or ref)", async function () {
+    expect(await hooks.resolveRegion(OWNER, undefined)).to.deep.equal({
+      region: "default"
+    });
+    expect(await hooks.resolveRegion(OWNER, "acme-hq")).to.deep.equal({
+      region: ref
+    });
+    expect(await hooks.resolveRegion(OWNER, ref)).to.deep.equal({
+      region: ref
+    });
+    const refused = async (owner: string, r: string) =>
+      hooks
+        .resolveRegion(owner, r)
+        .then(() => "ok")
+        .catch((e) => e.code);
+    expect(await refused("user-other", ref)).to.equal("region_invalid");
+    expect(await refused(OWNER, "private")).to.equal("region_invalid");
+    expect(await refused(OWNER, "us-east-1")).to.equal("region_invalid");
+    bind(WS, ref, "Acme");
+    bind(WS2, ref, "Acme Labs");
+    bind(WS_PUBLIC, "default", "Public one");
   });
 
   it("refuses bad, expired and foreign tokens with the contract codes", async function () {
@@ -447,7 +608,8 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     const claims = {
       iss: "x",
       sub: ref,
-      wsp: WS,
+      rid: "acme-hq",
+      knd: "private",
       cp: "x",
       leaf: "x",
       jti: "j"
@@ -464,15 +626,18 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     expect((await enroll(firstToken, "short")).status).to.equal(400);
   });
 
-  it("enrolls once and returns region-scoped credentials", async function () {
+  it("enrolls once and returns region-scoped credentials and the region's workspaces", async function () {
     const r = await enroll(firstToken);
     expect(r.status).to.equal(200);
     expect(r.body).to.include({
       regionRef: ref,
-      workspaceRef: WS,
+      regionId: "acme-hq",
+      kind: "private",
+      sipDomain: "sip.acme.com",
       leafUrl: "nats://leaf.example.com:7422",
       subjects: `region.${ref}.>`
     });
+    expect(r.body.workspaceRefs).to.deep.equal([WS, WS2]);
     creds = String(r.body.credentials);
     expect(creds).to.contain("BEGIN NATS USER JWT");
     const replay = await enroll(firstToken);
@@ -482,7 +647,7 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
 
   let cell: FakeCell;
 
-  it("serves the config snapshot on request and a heartbeat makes the region connected", async function () {
+  it("serves one snapshot keyed by workspace, with domains under the region's SIP domain", async function () {
     cell = await FakeCell.connect(ref, HUB ? creds : undefined, hubUrl);
     cells.push(cell);
     const config = await cell.requestConfig(0);
@@ -491,25 +656,63 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       configVersion: 1,
       full: true
     });
-    expect(config.kinds.apps[0]).to.include({ ref: "app-1" });
-    expect(config.kinds.routr.domains).to.have.length(1);
+    expect(config.region).to.deep.equal({
+      ref,
+      id: "acme-hq",
+      kind: "private",
+      sipDomain: "sip.acme.com",
+      rootDomain: "fonoster.example"
+    });
+    expect(Object.keys(config.workspaces)).to.deep.equal([WS, WS2]);
+    expect(config.workspaces[WS]).to.include({
+      ref: `ref-${WS}`,
+      name: "Acme",
+      domain: "acme.sip.acme.com"
+    });
+    expect(config.workspaces[WS].kinds.apps[0]).to.include({ ref: "app-1" });
+    expect(config.workspaces[WS].kinds.routr.domains).to.have.length(1);
+    expect(config.workspaces[WS].kinds.catalog).to.equal(undefined);
+    expect(config.catalog.map((c: { id: string }) => c.id)).to.deep.equal([
+      "deepgram",
+      "elevenlabs"
+    ]);
     expect(await cell.requestConfig(1)).to.deep.equal({
       type: "region.config.current",
       configVersion: 1
     });
     await until(() => cell.needed.length > 0);
-    expect(cell.needed[0]).to.deep.equal(["deepgram", "elevenlabs"]);
+    expect(cell.neededMessages[0]).to.deep.equal({
+      type: "region.secrets.needed",
+      names: ["deepgram", "elevenlabs"],
+      workspaces: {
+        [WS]: ["deepgram", "elevenlabs"],
+        [WS2]: ["deepgram", "elevenlabs"]
+      }
+    });
 
     cell.heartbeat({ configVersion: 1 });
     const region = await until(async () => {
-      const r = await api("/api/regions/current", { role: "WORKSPACE_MEMBER" });
-      return r.body.status === "connected" ? r.body : undefined;
+      const r = await current();
+      return r.status === "connected" ? r : undefined;
     });
     expect(region).to.include({
+      ref,
+      id: "acme-hq",
+      kind: "private",
+      displayName: "Acme HQ",
+      sipDomain: "sip.acme.com",
       version: "0.27.0",
       activeCalls: 2,
       mediaNodes: 1,
-      gateways: 1
+      gateways: 1,
+      workspaceDomain: "acme.sip.acme.com",
+      monthlyFeeCents: 49900
+    });
+    expect(region.lastSeenAt).to.equal(region.lastHeartbeatAt);
+    expect(region.components).to.deep.equal({
+      mediaNodes: 1,
+      gateways: 1,
+      autopilot: true
     });
     expect(region.secrets).to.deep.equal([
       { name: "deepgram", usedBy: ["Reception"], set: true },
@@ -517,8 +720,49 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     ]);
   });
 
+  it("the owner's region view lists its workspaces and merges their secrets", async function () {
+    const r = await api("/api/regions/acme-hq", { user: OWNER });
+    expect(r.status).to.equal(200);
+    expect(r.body.workspaces).to.deep.equal([
+      {
+        ref: `ref-${WS}`,
+        accessKeyId: WS,
+        name: "Acme",
+        domain: "acme.sip.acme.com"
+      },
+      {
+        ref: `ref-${WS2}`,
+        accessKeyId: WS2,
+        name: "Acme Labs",
+        domain: "acme.sip.acme.com"
+      }
+    ]);
+    expect(r.body.secrets[0]).to.deep.equal({
+      name: "deepgram",
+      usedBy: ["Acme Labs: Reception", "Acme: Reception"],
+      set: true
+    });
+    expect((await api(`/api/regions/${ref}`, { user: OWNER })).status).to.equal(
+      200
+    );
+    expect(
+      (await api("/api/regions/acme-hq", { user: "user-other" })).body.ref
+    ).not.to.equal(ref);
+    expect(
+      (await api(`/api/regions/${ref}`, { user: "user-other" })).status
+    ).to.equal(404);
+    const renamed = await api("/api/regions/acme-hq", {
+      method: "PATCH",
+      user: OWNER,
+      body: { displayName: "Acme Headquarters", id: "nope" }
+    });
+    expect(renamed.body).to.include({
+      id: "acme-hq",
+      displayName: "Acme Headquarters"
+    });
+  });
+
   it("asks for endpoints, stores what the cell reports and re-asks when the hash changes", async function () {
-    // The heartbeat above carried no endpointsHash and none are stored yet: the cp asks.
     await until(() => cell.endpointRequests > 0);
     const first = {
       sip: [
@@ -533,8 +777,8 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     };
     cell.endpoints(first);
     const region = await until(async () => {
-      const r = await api("/api/regions/current", { role: "WORKSPACE_MEMBER" });
-      return r.body.endpoints ? r.body : undefined;
+      const r = await current();
+      return r.endpoints?.sip?.length ? r : undefined;
     });
     expect(region.endpoints.sip).to.deep.equal([
       { host: "sip.acme.example", port: 5061, transport: "tls" }
@@ -542,33 +786,27 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     expect(region.endpoints).to.deep.include({
       signalingAddresses: ["203.0.113.10"],
       mediaAddresses: ["203.0.113.11"],
-      rtpPorts: { min: 20000, max: 20999 }
+      rtpPorts: { min: 20000, max: 20999 },
+      sipDomain: "sip.acme.com"
     });
     const hash = endpointsHash(first);
 
-    // Same hash in the heartbeat: no request.
     const asked = cell.endpointRequests;
     cell.heartbeat({ configVersion: 1, endpointsHash: hash });
     await wait(300);
     expect(cell.endpointRequests).to.equal(asked);
 
-    // The address changed: the heartbeat's hash differs, the cp asks, the cell answers.
     cell.heartbeat({ configVersion: 1, endpointsHash: "changed" });
     await until(() => cell.endpointRequests > asked);
     cell.endpoints({ ...first, signalingAddresses: ["203.0.113.20"] });
     await until(
       async () =>
-        (await api("/api/regions/current", { role: "WORKSPACE_MEMBER" })).body
-          .endpoints?.signalingAddresses?.[0] === "203.0.113.20"
+        (await current()).endpoints?.signalingAddresses?.[0] === "203.0.113.20"
     );
 
-    // Nothing usable is ignored (the stored details stay).
     cell.endpoints({ sip: [{ host: "", port: 0 }] });
     await wait(300);
-    const kept = await api("/api/regions/current", {
-      role: "WORKSPACE_MEMBER"
-    });
-    expect(kept.body.endpoints.signalingAddresses).to.deep.equal([
+    expect((await current()).endpoints.signalingAddresses).to.deep.equal([
       "203.0.113.20"
     ]);
   });
@@ -592,7 +830,9 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     const agent = new RegionAgent({
       identity: {
         regionRef: ref,
-        workspaceRef: WS,
+        regionId: "acme-hq",
+        kind: "private",
+        sipDomain: "sip.acme.com",
         controlPlane: base,
         leafUrl: NATS_URL!,
         subjects: `region.${ref}.>`,
@@ -600,7 +840,7 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
         enrolledAt: new Date().toISOString(),
         tokenId: "agent-test",
         publicKey: "x"
-      },
+      } as never,
       nc,
       version: "0.27.0",
       stateDir,
@@ -611,9 +851,7 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     try {
       await agent.start();
       const r = await until(async () => {
-        const b = (
-          await api("/api/regions/current", { role: "WORKSPACE_MEMBER" })
-        ).body;
+        const b = await current();
         return b.endpoints?.sip?.[0]?.host === "sip.cell.example"
           ? b
           : undefined;
@@ -626,8 +864,6 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       const row = await runtime.service.byRef(ref);
       expect(row!.endpointsHash).to.equal(agentEndpointsHash(reported));
 
-      // The agent's heartbeats now match: no requests. A foreign hash makes the cp ask, and
-      // the agent answers with a fresh report.
       const asked = cell.endpointRequests;
       await wait(500);
       expect(cell.endpointRequests).to.equal(asked);
@@ -644,7 +880,7 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     }
   });
 
-  it("publishes a new version when the workspace's config changes", async function () {
+  it("publishes a new version when a workspace's config changes or a workspace joins", async function () {
     const before = cell.configs.length;
     kinds.apps = [...kinds.apps, { ref: "app-2", name: "After hours" }];
     runtime.onConfigChange(WS);
@@ -653,23 +889,31 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     expect(msg).to.include({ configVersion: 2 });
     await wait(200);
     expect(cell.configs.length).to.equal(before + 1);
+    // A workspace of a public region does not touch this region.
+    runtime.onConfigChange(WS_PUBLIC);
+    await wait(200);
+    expect(cell.configs.length).to.equal(before + 1);
+    // A new workspace joins: the region gets a snapshot with it.
+    bind("WOacme3", ref, "Acme Three");
+    hooks.workspaceChanged({ accessKeyId: "WOacme3", region: ref });
+    const joined = await until(() => cell.configs[before + 1]);
+    expect(Object.keys(joined.workspaces as object)).to.include("WOacme3");
+    workspaces.delete("WOacme3");
+    hooks.workspaceChanged({ accessKeyId: "WOacme3", region: ref });
+    const left = await until(() => cell.configs[before + 2]);
+    expect(Object.keys(left.workspaces as object)).not.to.include("WOacme3");
+    expect(left.configVersion).to.equal(4);
   });
 
   it("degraded with a component down; unsupported pauses config sync", async function () {
     cell.heartbeat({
-      configVersion: 2,
+      configVersion: 4,
       components: { mediaNodes: 0, gateways: 1, autopilot: true }
     });
-    await until(
-      async () =>
-        (await api("/api/regions/current", { role: "WORKSPACE_MEMBER" })).body
-          .status === "degraded"
-    );
-    cell.heartbeat({ configVersion: 2, version: "0.25.1" });
+    await until(async () => (await current()).status === "degraded");
+    cell.heartbeat({ configVersion: 4, version: "0.25.1" });
     const r = await until(async () => {
-      const b = (
-        await api("/api/regions/current", { role: "WORKSPACE_MEMBER" })
-      ).body;
+      const b = await current();
       return b.status === "unsupported" ? b : undefined;
     });
     expect(r.requiredVersion).to.equal("0.26.0");
@@ -681,18 +925,14 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     runtime.onConfigChange(WS);
     await wait(300);
     expect(cell.configs.length).to.equal(n);
-    cell.heartbeat({ configVersion: 2 });
-    await until(
-      async () =>
-        (await api("/api/regions/current", { role: "WORKSPACE_MEMBER" })).body
-          .status === "connected"
-    );
+    cell.heartbeat({ configVersion: 4 });
+    await until(async () => (await current()).status === "connected");
   });
 
-  it("ingests index entries for the region's workspace only, and usage", async function () {
+  it("ingests index entries and usage only for workspaces the region serves", async function () {
     const entry = {
       callRef: "call-1",
-      workspaceRef: "WOsomeoneelse",
+      workspaceRef: WS2,
       appRef: "app-1",
       from: "+1555",
       to: "+1666",
@@ -707,30 +947,64 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       size: 100,
       parts: ["recording"]
     };
-    cell.nc.publish(`region.${ref}.index`, sc.encode(JSON.stringify(entry)));
-    cell.nc.publish(
-      `region.${ref}.usage`,
-      sc.encode(
-        JSON.stringify({
-          type: "region.usage",
-          minutes: 12.5,
-          period: "2026-10"
-        })
-      )
-    );
+    const send = (subject: string, body: unknown) =>
+      cell.nc.publish(
+        `region.${ref}.${subject}`,
+        sc.encode(JSON.stringify(body))
+      );
+    send("index", {
+      ...entry,
+      callRef: "call-foreign",
+      workspaceRef: WS_PUBLIC
+    });
+    send("index", { ...entry, callRef: "call-1", workspaceRef: WS });
+    send("index", { ...entry, callRef: "call-ws2" });
+    send("usage", {
+      type: "region.usage",
+      workspaceRef: WS,
+      minutes: 12.5,
+      period: "2026-10"
+    });
+    send("usage", {
+      type: "region.usage",
+      workspaceRef: WS_PUBLIC,
+      minutes: 99,
+      period: "2026-10"
+    });
     const row = await until(() =>
       db!.prisma.callRecord.findUnique({ where: { callRef: "call-1" } })
     );
     expect(row).to.include({ accessKeyId: WS, region: ref });
+    const ws2 = await until(() =>
+      db!.prisma.callRecord.findUnique({ where: { callRef: "call-ws2" } })
+    );
+    expect(ws2).to.include({ accessKeyId: WS2, region: ref });
     const usage = await until(() =>
       db!.prisma.regionUsage.findUnique({
-        where: { regionRef_period: { regionRef: ref, period: "2026-10" } }
+        where: {
+          regionRef_accessKeyId_period: {
+            regionRef: ref,
+            accessKeyId: WS,
+            period: "2026-10"
+          }
+        }
       })
     );
     expect(usage.minutes).to.equal(12.5);
+    await wait(200);
+    expect(
+      await db!.prisma.callRecord.findUnique({
+        where: { callRef: "call-foreign" }
+      })
+    ).to.equal(null);
+    expect(
+      await db!.prisma.regionUsage.count({
+        where: { regionRef: ref, accessKeyId: WS_PUBLIC }
+      })
+    ).to.equal(0);
   });
 
-  it("relays a private recording through the control plane in order, without storing it", async function () {
+  it("relays a private recording through the control plane in order, naming the workspace", async function () {
     const r = await api("/api/records/call-1/recording", {
       role: "WORKSPACE_ADMIN"
     });
@@ -741,7 +1015,8 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       op: "record.part",
       callRef: "call-1",
       part: "recording",
-      userRef: "user-WORKSPACE_ADMIN"
+      userRef: "user-WORKSPACE_ADMIN",
+      workspaceRef: WS
     });
     const rec = await api("/api/records/call-1", { role: "WORKSPACE_MEMBER" });
     expect(rec.status).to.equal(200);
@@ -768,6 +1043,13 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     expect(missing.body.error).to.equal("not_found");
   });
 
+  it("never hands a private region a workspace key (PR-20 is for public regions)", async function () {
+    expect(await cell.secret(WS, "deepgram")).to.deep.equal({
+      type: "region.secrets.error",
+      code: "not_public"
+    });
+  });
+
   it("answers 503 region_offline when the cell does not answer", async function () {
     await db!.prisma.callRecord.create({
       data: {
@@ -780,7 +1062,6 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
         version: 1
       }
     });
-    // The cell goes away (offline): nobody answers the relay.
     await cell.close();
     const r = await api("/api/records/call-2/recording", {
       role: "WORKSPACE_ADMIN"
@@ -789,23 +1070,24 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     expect(r.body.error).to.equal("region_offline");
   });
 
-  it("re-issuing (owner/admin) and enrolling again revokes the previous credentials", async function () {
+  it("the owner re-issues a token; enrolling again revokes the previous credentials", async function () {
     expect(
       (
-        await api("/api/regions/current/token", {
+        await api(`/api/regions/${ref}/token`, {
           method: "POST",
-          role: "WORKSPACE_MEMBER"
+          user: "user-other"
         })
       ).status
-    ).to.equal(403);
-    const reissued = await api("/api/regions/current/token", {
+    ).to.equal(404);
+    const reissued = await api("/api/regions/acme-hq/token", {
       method: "POST",
-      role: "WORKSPACE_OWNER"
+      user: OWNER
     });
     expect(reissued.status).to.equal(200);
+    expect(reissued.body.token).to.be.a("string");
     const old = await FakeCell.connect(ref, HUB ? creds : undefined, hubUrl);
     cells.push(old);
-    const r = await enroll(String(reissued.body.enrollmentToken));
+    const r = await enroll(String(reissued.body.token));
     expect(r.status).to.equal(200);
     const fresh = String(r.body.credentials);
     expect(fresh).not.to.equal(creds);
@@ -819,7 +1101,6 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       rows.filter((x: { revokedAt: Date | null }) => !x.revokedAt)
     ).to.have.length(1);
     if (HUB) {
-      // The old user is disconnected and refused; the new one works and is scoped.
       await until(
         () =>
           old.errors.some((e) => e.startsWith("disconnect")) ||
@@ -843,16 +1124,13 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     }
   });
 
-  it("disconnect revokes now and puts the region in waiting", async function () {
-    const r = await api("/api/regions/current/disconnect", {
+  it("the owner disconnects: revoked now and back to waiting", async function () {
+    const r = await api("/api/regions/acme-hq/disconnect", {
       method: "POST",
-      role: "WORKSPACE_ADMIN"
+      user: OWNER
     });
     expect(r.status).to.equal(200);
-    const region = await api("/api/regions/current", {
-      role: "WORKSPACE_MEMBER"
-    });
-    expect(region.body.status).to.equal("waiting");
+    expect((await current()).status).to.equal("waiting");
     if (HUB)
       await until(
         () =>
@@ -862,16 +1140,215 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     else expect(Object.keys(pushed.at(-1)!)).to.have.length(2);
   });
 
-  it("deleting the workspace retires the region: enrollment answers workspace_deleted", async function () {
-    const t = await runtime.service.reissueToken(WS);
-    await runtime.service.deleteForWorkspace(WS);
-    const r = await enroll(t.enrollmentToken);
-    expect(r.status).to.equal(409);
-    expect(r.body.error).to.equal("workspace_deleted");
-    const region = await api("/api/regions/current", {
-      role: "WORKSPACE_MEMBER"
+  it("delete is refused while workspaces use the region, then retires it", async function () {
+    const inUse = await api("/api/regions/acme-hq", {
+      method: "DELETE",
+      user: OWNER
     });
-    expect(region.body.kind).to.equal("public");
-    expect(region.body.endpoints).to.deep.equal(PUBLIC_ENDPOINTS);
+    expect(inUse.status).to.equal(409);
+    expect(inUse.body.error).to.equal("region_in_use");
+    expect(inUse.body.message).to.contain("Acme").and.contain("Acme Labs");
+    const t = await api("/api/regions/acme-hq/token", {
+      method: "POST",
+      user: OWNER
+    });
+    workspaces.delete(WS);
+    workspaces.delete(WS2);
+    const gone = await api("/api/regions/acme-hq", {
+      method: "DELETE",
+      user: OWNER
+    });
+    expect(gone.status).to.equal(200);
+    const r = await enroll(String(t.body.token));
+    expect(r.status).to.equal(409);
+    expect(r.body.error).to.equal("region_deleted");
+    const mine = await api("/api/regions", { user: OWNER });
+    expect(mine.body.items.map((i: { id: string }) => i.id)).to.deep.equal([
+      "default"
+    ]);
+    // The id is free again for this owner.
+    const again = await api("/api/regions", {
+      method: "POST",
+      user: OWNER,
+      body: {
+        id: "acme-hq",
+        displayName: "Acme HQ 2",
+        sipDomain: "sip.acme.com"
+      }
+    });
+    expect(again.status).to.equal(201);
+  });
+
+  it("a workspace on a configured public region sees it (with its endpoints)", async function () {
+    const region = await current(WS_PUBLIC);
+    expect(region).to.include({
+      id: "default",
+      kind: "public",
+      status: "connected"
+    });
+    expect(region.endpoints).to.deep.equal(PUBLIC_ENDPOINTS);
+  });
+
+  describe("public regions through the operator key (PR-19, PR-20)", function () {
+    let pubRef: string;
+    let pubToken: string;
+    let pubCell: FakeCell;
+    const WS_EAST = "WOeast00000000000000000000000000";
+
+    it("the admin API answers only to the operator key", async function () {
+      expect((await api("/api/admin/regions")).status).to.equal(401);
+      expect(
+        (await api("/api/admin/regions", { operator: "wrong" })).status
+      ).to.equal(401);
+      expect(
+        (
+          await api("/api/admin/regions", {
+            method: "POST",
+            user: OWNER,
+            body: { id: "us-east-2", displayName: "US East 2" }
+          })
+        ).status
+      ).to.equal(401);
+      const list = await api("/api/admin/regions", { operator: OPERATOR_KEY });
+      expect(list.status).to.equal(200);
+      expect(
+        list.body.items.find((i: { id: string }) => i.id === "default")
+      ).to.include({ configured: true });
+    });
+
+    it("creates an unpublished public region; it is not offered until published and connected", async function () {
+      expect(
+        (
+          await api("/api/admin/regions", {
+            method: "POST",
+            operator: OPERATOR_KEY,
+            body: { id: "acme-hq", displayName: "Nope" }
+          })
+        ).body.error
+      ).to.equal("region_id_invalid");
+      const created = await api("/api/admin/regions", {
+        method: "POST",
+        operator: OPERATOR_KEY,
+        body: { id: "us-east-2", displayName: "US East (Ohio)" }
+      });
+      expect(created.status).to.equal(201);
+      pubRef = created.body.ref;
+      pubToken = created.body.token;
+      expect(runtime.signer!.verify(pubToken)).to.include({
+        rid: "us-east-2",
+        knd: "public"
+      });
+      const offered = async () =>
+        (await api("/api/regions")).body.items.map((i: { id: string }) => i.id);
+      expect(await offered()).to.deep.equal(["default"]);
+      const pub = await api("/api/admin/regions/us-east-2/publish", {
+        method: "POST",
+        operator: OPERATOR_KEY
+      });
+      expect(pub.body).to.include({ published: true, status: "waiting" });
+      expect(await offered()).to.deep.equal(["default"]);
+
+      const enrolled = await enroll(pubToken);
+      expect(enrolled.body).to.include({
+        kind: "public",
+        regionId: "us-east-2"
+      });
+      pubCell = await FakeCell.connect(
+        pubRef,
+        HUB ? String(enrolled.body.credentials) : undefined,
+        hubUrl
+      );
+      cells.push(pubCell);
+      pubCell.heartbeat({ configVersion: 0 });
+      await until(async () => (await offered()).includes("us-east-2"));
+      expect(
+        await hooks.resolveRegion("user-anyone", "us-east-2")
+      ).to.deep.equal({ region: "us-east-2" });
+    });
+
+    it("serves every workspace that picked it and hands out their own keys per call", async function () {
+      if (HUB) return this.skip();
+      bind(WS_EAST, "us-east-2", "East");
+      hooks.workspaceChanged({ accessKeyId: WS_EAST, region: "us-east-2" });
+      const snap = await until(() =>
+        pubCell.configs.find((c) =>
+          Object.keys((c.workspaces ?? {}) as object).includes(WS_EAST)
+        )
+      );
+      expect((snap.region as { kind: string }).kind).to.equal("public");
+      const secret = await db!.prisma.secret.create({
+        data: { accessKeyId: WS_EAST, name: "deepgram", secret: "dg-byo-key" }
+      });
+      await db!.prisma.workspaceProviderKey.create({
+        data: {
+          accessKeyId: WS_EAST,
+          providerId: "deepgram",
+          secretRef: secret.ref
+        }
+      });
+      expect(await pubCell.secret(WS_EAST, "deepgram")).to.deep.equal({
+        type: "region.secrets.value",
+        workspaceRef: WS_EAST,
+        provider: "deepgram",
+        value: "dg-byo-key"
+      });
+      expect(await pubCell.secret(WS_EAST, "groq")).to.deep.equal({
+        type: "region.secrets.none",
+        workspaceRef: WS_EAST,
+        provider: "groq"
+      });
+      expect(await pubCell.secret(WS_PUBLIC, "deepgram")).to.deep.equal({
+        type: "region.secrets.error",
+        code: "workspace_not_in_region"
+      });
+      expect((await current(WS_EAST)).id).to.equal("us-east-2");
+    });
+
+    it("revoke withdraws it from pickers and revokes its cell", async function () {
+      const r = await api("/api/admin/regions/us-east-2/revoke", {
+        method: "POST",
+        operator: OPERATOR_KEY
+      });
+      expect(r.body).to.include({ published: false, status: "waiting" });
+      const offered = (await api("/api/regions")).body.items.map(
+        (i: { id: string }) => i.id
+      );
+      expect(offered).to.deep.equal(["default"]);
+      expect(
+        await db!.prisma.regionCredential.count({
+          where: { regionRef: pubRef, revokedAt: null }
+        })
+      ).to.equal(0);
+      const t = await api("/api/admin/regions/us-east-2/token", {
+        method: "POST",
+        operator: OPERATOR_KEY
+      });
+      expect(t.body.token).to.be.a("string");
+    });
+  });
+
+  it("gives legacy private regions (old model) their workspace's owner", async function () {
+    await db!.prisma.region.create({
+      data: {
+        ref: "rg_legacylegacyleg",
+        id: "private-legacylegacyleg",
+        kind: "private",
+        displayName: "Private region",
+        accessKeyId: "WOlegacy"
+      }
+    });
+    workspaces.set("WOlegacy", {
+      ref: "ref-legacy",
+      accessKeyId: "WOlegacy",
+      name: "Legacy",
+      ownerRef: "user-legacy",
+      region: "rg_legacylegacyleg"
+    });
+    expect(await runtime.service.migrateLegacyOwners()).to.equal(1);
+    const mine = await api("/api/regions", { user: "user-legacy" });
+    expect(mine.body.items[1]).to.include({
+      ref: "rg_legacylegacyleg",
+      workspaces: 1
+    });
   });
 });

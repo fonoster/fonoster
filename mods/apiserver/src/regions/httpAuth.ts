@@ -21,23 +21,32 @@ import { NextFunction, Request, Response } from "express";
 
 export type Caller = { accessKeyId: string; role: string; actor: string };
 
+/** A signed-in user (regions belong to users, PR-14). */
+export type UserCaller = { userRef: string };
+
 export const ADMIN_ROLES = ["WORKSPACE_OWNER", "WORKSPACE_ADMIN"];
+
+const bearer = (req: Request) => {
+  const header = req.headers.authorization ?? "";
+  return header.startsWith("Bearer ") ? header.slice(7) : "";
+};
+
+type Decoded = {
+  sub?: string;
+  accessKeyId?: string;
+  access?: { accessKeyId: string; role: string }[];
+};
 
 /** Bearer access token + `x-accesskey-id` (same rules as the records API). */
 export function createHttpAuth(identityPublicKey: string) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const header = req.headers.authorization ?? "";
-    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+    const token = bearer(req);
     const accessKeyId = String(
       req.headers["x-accesskey-id"] ?? req.headers["accesskeyid"] ?? ""
     );
     if (!token || !isValidToken(token, identityPublicKey))
       return res.status(401).json({ error: "unauthenticated" });
-    const decoded = decodeToken(token) as {
-      sub?: string;
-      accessKeyId?: string;
-      access?: { accessKeyId: string; role: string }[];
-    };
+    const decoded = decodeToken(token) as Decoded;
     const access = decoded.access?.find((a) => a.accessKeyId === accessKeyId);
     if (!accessKeyId || !access)
       return res.status(403).json({ error: "permission_denied" });
@@ -46,6 +55,31 @@ export function createHttpAuth(identityPublicKey: string) {
       role: access.role,
       actor: decoded.sub ?? decoded.accessKeyId ?? "unknown"
     } as Caller;
+    next();
+  };
+}
+
+const userOf = (token: string, identityPublicKey: string) => {
+  if (!token || !isValidToken(token, identityPublicKey)) return undefined;
+  const decoded = decodeToken(token) as Decoded;
+  return decoded.sub ? ({ userRef: decoded.sub } as UserCaller) : undefined;
+};
+
+/** A user-level call: a valid Bearer access token; its `sub` is the user (no workspace). */
+export function createUserAuth(identityPublicKey: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = userOf(bearer(req), identityPublicKey);
+    if (!user) return res.status(401).json({ error: "unauthenticated" });
+    res.locals.user = user;
+    next();
+  };
+}
+
+/** Sets `res.locals.user` when a valid token is present; never refuses. */
+export function optionalUser(identityPublicKey: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = userOf(bearer(req), identityPublicKey);
+    if (user) res.locals.user = user;
     next();
   };
 }

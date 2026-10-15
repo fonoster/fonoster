@@ -47,6 +47,7 @@ import {
   createSendResetPasswordCode,
   createUpdateUser,
   createUpdateWorkspace,
+  createWorkspaceDirectory,
   sendInvite
 } from ".";
 
@@ -62,6 +63,9 @@ function buildIdentityService(identityConfig: IdentityConfig) {
     identityConfig.dbUrl,
     identityConfig.encryptionKey
   );
+
+  // The control plane's regions read workspaces through this (add-private-regions PR-14).
+  identityConfig.regions?.attachDirectory?.(createWorkspaceDirectory(prisma));
 
   const service = {
     definition: serviceDefinitionParams,

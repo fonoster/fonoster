@@ -51,16 +51,19 @@ function createDeleteWorkspace(prisma: Prisma, regions?: WorkspaceRegionHooks) {
       }
     });
 
-    // Deleting the workspace revokes its private region (PR-2).
-    if (deleted?.region?.startsWith("rg_"))
-      await regions
-        ?.deleteRegion({ accessKeyId: deleted.accessKeyId })
-        .catch((e) =>
-          logger.error("could not retire the workspace's region", {
-            ref,
-            error: (e as Error).message
-          })
-        );
+    // The region stays (it belongs to the user, PR-14); it stops serving this workspace.
+    if (deleted?.region)
+      try {
+        regions?.workspaceChanged({
+          accessKeyId: deleted.accessKeyId,
+          region: deleted.region
+        });
+      } catch (e) {
+        logger.error("could not resync the workspace's region", {
+          ref,
+          error: (e as Error).message
+        });
+      }
 
     callback(null, { ref });
   };

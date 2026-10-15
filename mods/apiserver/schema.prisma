@@ -402,7 +402,19 @@ model CallRecordRetention {
 
 model Region {
   ref                 String    @id @db.VarChar(64)
-  accessKeyId         String    @unique @map("access_key_id")
+  /// The region id (PR-18): unique per owner (private) or among public regions; never changes.
+  id                  String    @db.VarChar(32)
+  /// public | private (PR-13)
+  kind                String    @default("private") @db.VarChar(16)
+  /// The owning user of a private region (PR-14); null for public regions.
+  ownerRef            String?   @map("owner_ref") @db.VarChar(255)
+  displayName         String    @default("") @map("display_name") @db.VarChar(120)
+  /// The customer's SIP domain (PR-16); Routr gives workspaces subdomains of it.
+  sipDomain           String?   @map("sip_domain") @db.VarChar(253)
+  /// Public regions: offered in pickers (while connected) once published (PR-19).
+  published           Boolean   @default(false)
+  /// Legacy (old model): the one workspace a private region was created for; used to backfill ownerRef.
+  accessKeyId         String?   @map("access_key_id")
   /// waiting (never enrolled or disconnected) | enrolled. The shown status adds heartbeat rules.
   state               String    @default("waiting") @db.VarChar(16)
   cellPublicKey       String?   @map("cell_public_key")
@@ -422,6 +434,8 @@ model Region {
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at")
 
+  // Uniqueness of ids is enforced by partial indexes in the migration (live rows only).
+  @@index([ownerRef])
   @@map("regions")
 }
 
@@ -451,10 +465,12 @@ model RegionCredential {
 /// Minutes reported by the cell per period (visibility only; flat fee billing, PR-11).
 model RegionUsage {
   regionRef String   @map("region_ref") @db.VarChar(64)
+  /// The workspace the minutes belong to ('' for legacy rows).
+  accessKeyId String @default("") @map("access_key_id") @db.VarChar(255)
   period    String   @db.VarChar(16)
   minutes   Float
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  @@id([regionRef, period])
+  @@id([regionRef, accessKeyId, period])
   @@map("region_usage")
 }

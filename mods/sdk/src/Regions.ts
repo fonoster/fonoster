@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 import {
+  CreateRegionRequest,
+  CreateRegionResponse,
   ListRegionsResponse,
   Region,
   RegionEnrollmentToken
@@ -40,14 +42,18 @@ class RegionsError extends Error {
 }
 
 /**
- * @classdesc Regions (add-private-regions) through the HTTP API (`/api/regions`): the public
- * regions a new workspace can pick, and the current workspace's region: its status, a re-issued
- * enrollment token (owner or admin) and disconnecting its cell (owner or admin).
+ * @classdesc Regions (add-private-regions, PR-12..PR-21) through the HTTP API (`/api/regions`).
+ * Regions belong to the signed-in user: create a private region (id, display name, SIP domain),
+ * get its one-time enrollment token, watch its status, re-issue the token, disconnect or delete
+ * it. A workspace picks a region when it is created (`workspaces.createWorkspace({name, region})`).
  *
  * @example
  * const regions = new SDK.Regions(client);
  * const { items } = await regions.listRegions();
- * const region = await regions.getRegion();
+ * const { ref, token } = await regions.createRegion({
+ *   id: "acme-hq", displayName: "Acme HQ", sipDomain: "sip.acme.com"
+ * });
+ * const region = await regions.getRegion("acme-hq");
  */
 class Regions {
   private readonly client: FonosterClient;
@@ -64,55 +70,112 @@ class Regions {
       options.fetch ?? (globalThis.fetch as unknown as FetchLike | undefined)!;
   }
 
-  private async json<T>(path: string, method = "GET", auth = true): Promise<T> {
+  private headers(auth: boolean, body?: unknown): Record<string, string> {
+    const h: Record<string, string> = {};
+    if (body !== undefined) h["content-type"] = "application/json";
+    if (!auth) return h;
+    const token = this.client.getAccessToken?.();
+    if (token) h.authorization = `Bearer ${token}`;
+    const accessKeyId = this.client.getAccessKeyId?.();
+    if (accessKeyId) h["x-accesskey-id"] = accessKeyId;
+    return h;
+  }
+
+  private async json<T>(
+    path: string,
+    method = "GET",
+    body?: unknown,
+    auth = true
+  ): Promise<T> {
     const base =
       this.baseUrl ?? this.client.getHttpUrl?.() ?? "https://api.fonoster.com";
     const attempt = () =>
       this.fetchFn(`${base}/api/regions${path}`, {
         method,
-        headers: auth
-          ? {
-              authorization: `Bearer ${this.client.getAccessToken()}`,
-              "x-accesskey-id": this.client.getAccessKeyId()
-            }
-          : {}
+        headers: this.headers(auth, body),
+        ...(body !== undefined ? { body: JSON.stringify(body) } : {})
       });
     let res = await attempt();
     if (res.status === 401 && auth) {
       await this.client.refreshToken();
       res = await attempt();
     }
-    const body = (await res.json().catch(() => ({}))) as Record<
-      string,
-      unknown
-    >;
+    const out = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (!res.ok)
       throw new RegionsError(
         res.status,
-        String(body.error ?? "error"),
-        body.message as string | undefined
+        String(out.error ?? "error"),
+        out.message as string | undefined
       );
-    return body as T;
+    return out as T;
   }
 
-  /** The public regions a new workspace can pick (plus "private", always offered). */
+  private static path(region: string) {
+    return `/${encodeURIComponent(region)}`;
+  }
+
+  /**
+   * The regions a new workspace can pick: the offered public regions and, when signed in, your
+   * private regions (with status).
+   */
   async listRegions(): Promise<ListRegionsResponse> {
-    return this.json("", "GET", false);
+    let signedIn = false;
+    try {
+      signedIn = !!this.client.getAccessToken?.();
+    } catch {
+      signedIn = false;
+    }
+    return this.json("", "GET", undefined, signedIn);
   }
 
-  /** The current workspace's region; for a private one, its cell's status and secrets. */
-  async getRegion(): Promise<Region> {
-    return this.json("/current");
+  /**
+   * Creates a private region (PR-15, PR-16, PR-18). The token (`token`, also `enrollmentToken`)
+   * is returned once; run `fonoster-regions enroll <token>` on the region machine.
+   */
+  async createRegion(
+    request: CreateRegionRequest
+  ): Promise<CreateRegionResponse> {
+    return this.json("", "POST", request);
   }
 
-  /** A new one-time enrollment token; enrolling with it revokes the current cell (owner, admin). */
-  async reissueRegionToken(): Promise<RegionEnrollmentToken> {
-    return this.json("/current/token", "POST");
+  /**
+   * One region by id or ref; without an argument, the current workspace's region (its status,
+   * secrets and connection details).
+   */
+  async getRegion(region?: string): Promise<Region> {
+    return this.json(region ? Regions.path(region) : "/current");
   }
 
-  /** Revokes the cell's credentials now; the region goes back to `waiting` (owner, admin). */
-  async disconnectRegion(): Promise<void> {
-    await this.json("/current/disconnect", "POST");
+  /** Changes a private region's display name (the id never changes). */
+  async updateRegion(
+    region: string,
+    request: { displayName: string }
+  ): Promise<Region> {
+    return this.json(Regions.path(region), "PATCH", request);
+  }
+
+  /** A new one-time enrollment token; enrolling with it revokes the current cell. */
+  async reissueRegionToken(region?: string): Promise<RegionEnrollmentToken> {
+    return this.json(`${Regions.path(await this.refOf(region))}/token`, "POST");
+  }
+
+  /** Revokes the region's cell now; the region goes back to `waiting`. */
+  async disconnectRegion(region?: string): Promise<void> {
+    await this.json(
+      `${Regions.path(await this.refOf(region))}/disconnect`,
+      "POST"
+    );
+  }
+
+  /** Deletes a private region; refused (`region_in_use`) while any workspace uses it. */
+  async deleteRegion(region: string): Promise<{ ref: string }> {
+    return this.json(Regions.path(region), "DELETE");
+  }
+
+  /** The given region, or the current workspace's region. */
+  private async refOf(region?: string) {
+    if (region) return region;
+    return (await this.getRegion()).ref;
   }
 }
 

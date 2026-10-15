@@ -108,7 +108,8 @@ async function runServices() {
       db: prisma,
       handlers,
       callFeatures: getConfig().features.calls
-    })
+    }),
+    rootDomain: () => DOMAIN
   });
   workspaceRegionHooks.attach(regions);
 

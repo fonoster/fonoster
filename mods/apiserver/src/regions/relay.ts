@@ -24,6 +24,8 @@ const sc = StringCodec();
 
 export type RelayRequest = {
   userRef: string;
+  /** The caller's workspace; the region serves only that workspace's records (PR-14). */
+  workspaceRef: string;
   op: "record.get" | "record.part";
   callRef: string;
   part?: string;

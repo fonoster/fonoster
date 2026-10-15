@@ -109,8 +109,8 @@ class Workspaces {
    *
    * @param {CreateWorkspaceRequest} request - The request object that contains the necessary information to create a new Workspace
    * @param {string} request.name - The name of the Workspace
-   * @param {string} request.region - A public region id (default `us-east-1`) or "private"; fixed for life
-   * @return {Promise<CreateWorkspaceResponse>} - The reference and region; for "private", the one-time enrollment token and its expiry
+   * @param {string} request.region - An offered public region id (default `default`) or one of your private regions (id or ref, see `Regions.createRegion`); fixed for life
+   * @return {Promise<CreateWorkspaceResponse>} - The reference and the stored region
    * @example
    * const workspaces = new SDK.Workspaces(client); // Existing client object
    *
@@ -138,14 +138,7 @@ class Workspaces {
       metadata: this.client.getMetadata(),
       request
     });
-    // Empty proto strings mean "absent" (public regions carry no token).
-    return {
-      ref: res.ref,
-      region: res.region || undefined,
-      ...(res.enrollmentToken
-        ? { enrollmentToken: res.enrollmentToken, expiresAt: res.expiresAt }
-        : {})
-    };
+    return { ref: res.ref, region: res.region || undefined };
   }
 
   /**
@@ -159,8 +152,8 @@ class Workspaces {
   }
 
   /**
-   * Issues a new one-time enrollment token for the current workspace's private region (owner or
-   * admin). Enrolling a cell with it revokes the previous cell's credentials.
+   * Issues a new one-time enrollment token for the current workspace's region (its owner only).
+   * Enrolling a cell with it revokes the previous cell's credentials.
    *
    * @return {Promise<RegionEnrollmentToken>} - The token (shown once) and its expiry
    */
@@ -169,7 +162,7 @@ class Workspaces {
   }
 
   /**
-   * Revokes the current workspace's cell now; the region goes back to `waiting` (owner or admin).
+   * Revokes the current workspace's region cell now; it goes back to `waiting` (region owner).
    */
   async disconnectRegion(): Promise<void> {
     return new Regions(this.client).disconnectRegion();
