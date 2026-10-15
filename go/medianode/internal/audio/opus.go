@@ -11,6 +11,7 @@ package audio
 static int fo_set_bitrate(OpusEncoder *e, int b) { return opus_encoder_ctl(e, OPUS_SET_BITRATE(b)); }
 static int fo_set_fec(OpusEncoder *e, int on) { return opus_encoder_ctl(e, OPUS_SET_INBAND_FEC(on)); }
 static int fo_set_loss(OpusEncoder *e, int pct) { return opus_encoder_ctl(e, OPUS_SET_PACKET_LOSS_PERC(pct)); }
+static int fo_set_complexity(OpusEncoder *e, int c) { return opus_encoder_ctl(e, OPUS_SET_COMPLEXITY(c)); }
 */
 import "C"
 
@@ -21,6 +22,10 @@ import (
 
 // OpusAvailable is true when the build links libopus (cgo, without the noopus tag).
 const OpusAvailable = true
+
+// opusComplexity trades CPU for quality (0-10; libopus defaults to 10). 5 roughly halves the
+// encoder's cost and is plenty for narrowband telephony.
+const opusComplexity = 5
 
 // Opus is mono Opus at the room rate (16 kHz in, 16 kHz out); its RTP clock is always 48000.
 type Opus struct {
@@ -44,6 +49,7 @@ func NewOpus() (*Opus, error) {
 	C.fo_set_bitrate(enc, 24000)
 	C.fo_set_fec(enc, 1)
 	C.fo_set_loss(enc, 5)
+	C.fo_set_complexity(enc, opusComplexity)
 	o := &Opus{enc: enc, dec: dec}
 	setOpusFinalizer(o)
 	return o, nil

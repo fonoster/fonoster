@@ -38,6 +38,9 @@ type Config struct {
 	OutboundProxy string
 	// RegisterEvery is the re-register interval; re-registers also follow load changes.
 	RegisterEvery time.Duration
+	// ReregisterDelta re-registers at once when the room count moved by at least this much since
+	// the last REGISTER (default 5).
+	ReregisterDelta int
 	// TLSListen is host:port for SIP over TLS (empty: no TLS listener); TLSConfig is its
 	// server certificate. ClientTLS verifies the edge when the node dials or registers over TLS.
 	TLSListen string
@@ -75,6 +78,9 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	}
 	if cfg.RegisterEvery == 0 {
 		cfg.RegisterEvery = 15 * time.Second
+	}
+	if cfg.ReregisterDelta <= 0 {
+		cfg.ReregisterDelta = 5
 	}
 	if cfg.Transport == "" {
 		cfg.Transport = "udp"
@@ -410,7 +416,7 @@ func (u *UA) loadChanged(count int) {
 	u.mu.Lock()
 	last := u.lastReg
 	u.mu.Unlock()
-	if last < 0 || abs(count-last) >= 5 || count == 0 {
+	if last < 0 || abs(count-last) >= u.cfg.ReregisterDelta || count == 0 {
 		u.kickRegister()
 	}
 }

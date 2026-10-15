@@ -54,6 +54,8 @@ func main() {
 	tlsKey := flag.String("tls-key", env("MEDIANODE_TLS_KEY", ""), "PEM key for the TLS listener")
 	tlsCA := flag.String("tls-ca", env("MEDIANODE_TLS_CA", ""), "PEM CA that signs the edge's certificate (dialing and registering over TLS)")
 	requireEnc := flag.Bool("require-encryption", env("MEDIANODE_REQUIRE_ENCRYPTION", "") == "true", "SIP over TLS only and SRTP on every leg (MN6)")
+	registerEvery := flag.Duration("register-every", 15*time.Second, "REGISTER interval (MN3)")
+	reregisterDelta := flag.Int("reregister-delta", 5, "re-register at once when the room count moves by this much")
 	outboundTransport := flag.String("outbound-transport", env("MEDIANODE_OUTBOUND_TRANSPORT", "udp"), "transport to the outbound proxy (udp, tcp, tls)")
 	flag.Parse()
 
@@ -92,7 +94,8 @@ func main() {
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
 		Registrar: *registrar, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: *password, Transport: *transport,
 		TLSListen: *tlsListen, TLSConfig: serverTLS, ClientTLS: clientTLS, RequireEncryption: *requireEnc,
-		OutboundTransport: *outboundTransport, Logger: logger})
+		OutboundTransport: *outboundTransport, RegisterEvery: *registerEvery, ReregisterDelta: *reregisterDelta,
+		Logger: logger})
 	if err != nil {
 		logger.Error("sip", "err", err)
 		os.Exit(1)

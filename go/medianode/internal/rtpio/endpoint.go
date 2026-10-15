@@ -314,7 +314,7 @@ func (e *Endpoint) SendDTMF(digit rune, dtmfType int) {
 		raw, ok := e.marshalLocked(&p)
 		e.mu.Unlock()
 		if ok {
-			_, _ = e.conn.WriteToUDP(raw, remote)
+			e.write(raw, remote)
 		}
 		time.Sleep(20 * time.Millisecond)
 	}
