@@ -70,5 +70,10 @@ export interface SttStream extends EventEmitter {
 }
 
 export interface SttAdapter {
-  open(options: { language: string; hints?: string[] }): SttStream;
+  /** `model` is the provider's own model name (catalog id `<provider>/<model>`). */
+  open(options: {
+    language: string;
+    hints?: string[];
+    model?: string;
+  }): SttStream;
 }

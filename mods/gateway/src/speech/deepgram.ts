@@ -72,16 +72,29 @@ export class DeepgramTtsAdapter implements TtsAdapter {
   }
 }
 
+/** Deepgram's keyterm prompting works on Nova-3 and Flux; older models take `keywords`. */
+export function hintParam(model: string): "keyterm" | "keywords" {
+  return /^(nova-3|flux)/.test(model) ? "keyterm" : "keywords";
+}
+
+/** Frames kept while (re)connecting: 5 s of 20 ms frames. */
+const MAX_QUEUED_FRAMES = 250;
+/** How long a replaced socket may keep delivering its last transcripts (VO-B1). */
+const DRAIN_MS = 2000;
+
 class DeepgramSttStream extends EventEmitter implements SttStream {
   private socket!: WebSocket;
   private queue: Buffer[] = [];
   private keepalive?: ReturnType<typeof setInterval>;
   private closed = false;
+  private failures = 0;
+  private retry?: ReturnType<typeof setTimeout>;
 
   constructor(
     private readonly options: DeepgramOptions,
     private language: string,
-    private hints?: string[]
+    private hints: string[] = [],
+    private readonly model = options.sttModel ?? "nova-3"
   ) {
     super();
     this.connect();
@@ -89,7 +102,7 @@ class DeepgramSttStream extends EventEmitter implements SttStream {
 
   private connect() {
     const query = new URLSearchParams({
-      model: this.options.sttModel ?? "nova-3",
+      model: this.model,
       encoding: "linear16",
       sample_rate: "16000",
       channels: "1",
@@ -97,39 +110,70 @@ class DeepgramSttStream extends EventEmitter implements SttStream {
       smart_format: "true",
       language: this.language
     });
-    for (const h of this.hints ?? []) query.append("keyterm", h);
+    const param = hintParam(this.model);
+    for (const h of this.hints) query.append(param, h);
     const base = (this.options.baseUrl ?? API).replace(/^http/, "ws");
     const socket = new WebSocket(`${base}/v1/listen?${query}`, {
       headers: { authorization: `Token ${this.options.apiKey}` }
     });
     this.socket = socket;
+    let rejected = false;
     socket.on("open", () => {
       for (const f of this.queue) socket.send(f);
       this.queue = [];
+      clearInterval(this.keepalive);
       this.keepalive = setInterval(
         () =>
           socket.readyState === WebSocket.OPEN &&
           socket.send(JSON.stringify({ type: "KeepAlive" })),
-        8000
+        5000
       );
     });
     socket.on("message", (raw) => this.onMessage(raw.toString()));
-    socket.on("unexpected-response", (_req, res) => {
+    // A rejected handshake (bad key, unknown model or language) is not retried.
+    socket.on("unexpected-response", (req, res) => {
+      rejected = true;
+      req.destroy();
+      if (this.closed || socket !== this.socket) return;
       this.emit(
         "error",
         new SpeechError(
-          "provider_unavailable",
+          res.statusCode === 400 ? "bad_message" : "provider_unavailable",
           `Deepgram STT answered HTTP ${res.statusCode}`
         )
       );
     });
-    socket.on(
-      "error",
-      (e) =>
-        !this.closed &&
-        this.emit("error", new SpeechError("provider_unavailable", e.message))
-    );
-    socket.on("close", () => clearInterval(this.keepalive));
+    socket.on("error", () => undefined);
+    // Deepgram may close a live stream (NET-0001 after 10 s without audio, 1011 on its side). The
+    // old adapter went quietly deaf then; now it reconnects, keeping frames meanwhile (VO-B1).
+    socket.on("close", (code: number, reason: Buffer) => {
+      if (socket !== this.socket || this.closed || rejected) return;
+      clearInterval(this.keepalive);
+      if (code === 1008) {
+        this.emit(
+          "error",
+          new SpeechError(
+            "bad_message",
+            `Deepgram STT rejected the stream: ${reason.toString() || code}`
+          )
+        );
+        return;
+      }
+      if (++this.failures > 3) {
+        this.emit(
+          "error",
+          new SpeechError(
+            "provider_unavailable",
+            `Deepgram STT closed the stream (${code} ${reason.toString()})`.trim()
+          )
+        );
+        return;
+      }
+      this.retry = setTimeout(
+        () => !this.closed && this.connect(),
+        250 * this.failures
+      );
+    });
   }
 
   private onMessage(text: string) {
@@ -145,7 +189,8 @@ class DeepgramSttStream extends EventEmitter implements SttStream {
     } catch {
       return;
     }
-    if (msg.type !== "Results") return;
+    if (this.closed || msg.type !== "Results") return;
+    this.failures = 0;
     const alt = msg.channel?.alternatives?.[0];
     if (!alt?.transcript) return;
     const t: Transcript = {
@@ -158,41 +203,63 @@ class DeepgramSttStream extends EventEmitter implements SttStream {
   }
 
   write(frame: Buffer) {
+    if (this.closed) return;
     if (this.socket.readyState === WebSocket.OPEN) this.socket.send(frame);
-    else if (this.socket.readyState === WebSocket.CONNECTING)
+    else {
       this.queue.push(frame);
+      if (this.queue.length > MAX_QUEUED_FRAMES) this.queue.shift();
+    }
   }
 
-  /** Deepgram cannot change language mid-stream, so the stream reconnects. */
+  /**
+   * Deepgram cannot change language or keyterms mid-stream, so the stream reconnects. The old
+   * socket is finalized and drained, so words spoken just before the change are not lost.
+   */
   update(options: { language?: string; hints?: string[] }) {
+    if (this.closed) return;
     this.language = options.language ?? this.language;
     this.hints = options.hints ?? this.hints;
-    this.shutdown();
-    this.closed = false;
+    clearTimeout(this.retry);
+    this.retire(this.socket, DRAIN_MS);
     this.connect();
   }
 
   close() {
     this.closed = true;
-    this.shutdown();
+    clearTimeout(this.retry);
+    this.retire(this.socket, 0);
+    this.queue = [];
     this.removeAllListeners();
   }
 
-  private shutdown() {
+  private retire(s: WebSocket, drainMs: number) {
     clearInterval(this.keepalive);
-    const s = this.socket;
-    s.removeAllListeners("close");
-    if (s.readyState === WebSocket.OPEN) {
-      s.send(JSON.stringify({ type: "CloseStream" }));
-      s.close();
-    } else s.terminate();
+    if (s.readyState !== WebSocket.OPEN) {
+      s.terminate();
+      return;
+    }
+    s.send(JSON.stringify({ type: "Finalize" }));
+    s.send(JSON.stringify({ type: "CloseStream" }));
+    if (!drainMs) return s.close();
+    // Deepgram closes the socket itself once it has sent the last results.
+    const timer = setTimeout(() => s.terminate(), drainMs);
+    s.once("close", () => clearTimeout(timer));
   }
 }
 
 export class DeepgramSttAdapter implements SttAdapter {
   constructor(private readonly options: DeepgramOptions) {}
 
-  open(options: { language: string; hints?: string[] }): SttStream {
-    return new DeepgramSttStream(this.options, options.language, options.hints);
+  open(options: {
+    language: string;
+    hints?: string[];
+    model?: string;
+  }): SttStream {
+    return new DeepgramSttStream(
+      this.options,
+      options.language,
+      options.hints,
+      options.model ?? this.options.sttModel
+    );
   }
 }
