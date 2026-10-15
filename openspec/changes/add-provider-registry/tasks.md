@@ -7,7 +7,7 @@
 - [x] 1.3 Two-database fixture for `export` / `plan` / `apply`, including the idempotency check
 - [x] 1.4 Secret-safety checks: no schema column can hold a credential, `export` output has no secret, the utility's role cannot write outside registry and audit tables
 - [ ] 1.5 Adapter conformance suite per type (STT, TTS, LLM): every declared feature is verified, cancel is fast, vendor errors map to `provider_unavailable`; live runs on demand only
-- [ ] 1.6 Gateway scenarios with fake providers: credential resolution order, `provider.deprecated_used`, `provider.retired_used`, `provider_unavailable` with no switching
+- [x] 1.6 Gateway scenarios with fake providers: credential resolution order, `provider.deprecated_used`, `provider.retired_used`, `provider_unavailable` with no switching (LO-B10)
 
 ## 2. Registry and utility (`mods/common`)
 
@@ -24,7 +24,7 @@
 - [ ] 3.1 Move TTS and STT adapters out of `mods/apiserver/src/voice` and LLM adapters out of `mods/autopilot/src/models` into one package per vendor behind the type interfaces
 - [x] 3.2 Gateway credential resolution at session start (workspace key, else platform key by `credentialRef`), held in memory for the session only
 - [x] 3.3 Runtime events `provider.deprecated_used` and `provider.retired_used`; retired ids resolve to their replacement
-- [ ] 3.4 `provider_unavailable` errors to the app and the call record; no failover
+- [x] 3.4 `provider_unavailable` errors to the app and the call record; no failover (LO-B10)
 
 ## 4. Platform surfaces
 

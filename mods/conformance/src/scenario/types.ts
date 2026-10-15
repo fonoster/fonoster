@@ -81,6 +81,14 @@ export type Setup = {
     claimCalls?: boolean;
   };
   assistant?: Record<string, unknown>;
+  /** voice-session: the catalog the gateway resolves ids with (see SCENARIOS.md). */
+  catalog?: {
+    voices?: {
+      id: string;
+      state?: "active" | "deprecated" | "retired";
+      replacement?: string;
+    }[];
+  };
 };
 
 export type CallerAction = {

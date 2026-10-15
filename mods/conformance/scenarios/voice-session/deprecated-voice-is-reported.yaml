@@ -1,0 +1,26 @@
+format: fonoster.scenario.v1
+name: deprecated-voice-is-reported
+contract: voice-session
+role: app
+spec: "Deprecation is manual and warns every user / Runtime use is caught"
+description: >
+  An app speaks with a deprecated voice that no saved config references. The call goes on with
+  that voice, and the gateway records provider.deprecated_used once per session with the
+  replacement (the control plane turns it into the workspace's warning).
+setup:
+  catalog:
+    voices:
+      - { id: fake/nova }
+      - { id: fake/legacy, state: deprecated, replacement: fake/nova }
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: s1, text: "Hello.", voice: fake/legacy, last: true }
+  - expect: { type: output.done, id: s1 }
+    within_ms: 5000
+  - send: { type: speak, id: s2, text: "Again.", voice: fake/legacy, last: true }
+  - expect: { type: output.done, id: s2 }
+    within_ms: 5000
+  - assert:
+      record.events.provider.deprecated_used:
+        - { id: fake/legacy, replacement: fake/nova, sessionRef: "*" }
+      providers.tts.requests: 2

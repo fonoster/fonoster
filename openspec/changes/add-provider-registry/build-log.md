@@ -277,3 +277,24 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
 - Adapters built with workspace keys are cached by provider and key for the process's life, not
   only the session; good enough for now.
 - The hosted Autopilot resolves LLM keys the same way (CP-B11).
+
+## 2026-10-15 (leftovers stream)
+
+### LO-B10. Gateway scenarios with fake providers (task 1.6) and provider errors in the record (3.4)
+
+- Scenario setup key `catalog` (schema, SCENARIOS.md, `Setup` type): the voice-session runner
+  registers the fake provider, a TTS model and `fake/default`, then each listed voice in its state
+  (deprecated or retired with its replacement). Runners that do not support it fail such
+  scenarios, as for any setup key.
+- New voice-session scenarios: `deprecated-voice-is-reported` (the call goes on;
+  `provider.deprecated_used` once per session with the replacement), `retired-voice-resolves`
+  (no error, the replacement speaks, `provider.retired_used`), `tts-outage-is-not-switched`
+  (`provider_unavailable` with `relatesTo`, one TTS request, no vendor calls, session stays open,
+  failure in the record).
+- 3.4: errors with a `provider_*` code are also recorded as a `provider.error` event (code,
+  relatesTo, session, app), even when the app does not take the speech layer. No failover existed
+  and none was added.
+- Credential order is one function (`chainKeySources`, gateway): a private cell's secret, then the
+  workspace's key, then the platform key named by `credentialRef`; tested in
+  `workspaceKeys.test.ts`. Not a scenario file: the fake providers take no key.
+

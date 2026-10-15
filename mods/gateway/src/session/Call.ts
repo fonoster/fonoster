@@ -1320,6 +1320,17 @@ export class AppSession {
 
   emit(message: Record<string, unknown>) {
     if (this.closed) return;
+    // Provider failures go in the call record as events too (add-provider-registry 3.4), even
+    // when the app does not take the speech layer.
+    if (message.type === "error" && /^provider_/.test(String(message.code)))
+      this.call.record("event", {
+        type: "provider.error",
+        code: message.code,
+        relatesTo: message.relatesTo ?? null,
+        message: message.message,
+        sessionRef: this.sessionRef,
+        appRef: this.app.ref
+      });
     if (
       !this.codec.speechLayer &&
       !["mark", "dtmf"].includes(message.type as string)

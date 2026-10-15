@@ -1,0 +1,24 @@
+format: fonoster.scenario.v1
+name: retired-voice-resolves
+contract: voice-session
+role: app
+spec: "Retirement is manual, rewrites compatible configs and is audited / A retired id sent at runtime resolves to its replacement"
+description: >
+  After a voice was retired, an app that still sends it is not refused: the gateway speaks with the
+  replacement and records provider.retired_used, and the call continues.
+setup:
+  catalog:
+    voices:
+      - { id: fake/flash }
+      - { id: fake/turbo, state: retired, replacement: fake/flash }
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: s1, text: "Still here.", voice: fake/turbo, last: true }
+  - expect_none: { type: error }
+    for_ms: 300
+  - expect: { type: output.done, id: s1 }
+    within_ms: 5000
+  - assert:
+      record.events.provider.retired_used:
+        - { id: fake/turbo, replacement: fake/flash }
+      providers.tts.requests: 1

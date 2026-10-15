@@ -36,6 +36,7 @@ import { Gateway } from "./Gateway";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
 import { createRecordWriter } from "./record/createRecordWriter";
 import { WorkspaceKeySource } from "./speech/Catalog";
+import { chainKeySources } from "./speech/keySources";
 import { telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
@@ -135,18 +136,12 @@ function keySource(
   config: GatewayConfig,
   db?: WorkspaceKeySource
 ): WorkspaceKeySource | undefined {
-  if (!config.cellSecrets) return db;
-  const cell = new CellSecrets.CellSecretKeys(
-    CellSecrets.openCellSecrets(config.cellSecrets)
-  );
-  return {
-    async get(workspaceRef, providerId) {
-      return (
-        (await cell.get(workspaceRef, providerId)) ??
-        (await db?.get(workspaceRef, providerId))
-      );
-    }
-  };
+  const cell = config.cellSecrets
+    ? new CellSecrets.CellSecretKeys(
+        CellSecrets.openCellSecrets(config.cellSecrets)
+      )
+    : undefined;
+  return chainKeySources(cell, db);
 }
 
 /**
