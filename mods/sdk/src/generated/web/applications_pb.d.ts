@@ -64,6 +64,28 @@ export namespace AudioFormat {
   }
 }
 
+export class AmdSettings extends jspb.Message {
+  getEnabled(): boolean;
+  setEnabled(value: boolean): AmdSettings;
+
+  getWindowMs(): number;
+  setWindowMs(value: number): AmdSettings;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AmdSettings.AsObject;
+  static toObject(includeInstance: boolean, msg: AmdSettings): AmdSettings.AsObject;
+  static serializeBinaryToWriter(message: AmdSettings, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AmdSettings;
+  static deserializeBinaryFromReader(message: AmdSettings, reader: jspb.BinaryReader): AmdSettings;
+}
+
+export namespace AmdSettings {
+  export type AsObject = {
+    enabled: boolean,
+    windowMs: number,
+  }
+}
+
 export class Listener extends jspb.Message {
   getUrl(): string;
   setUrl(value: string): Listener;
@@ -227,6 +249,11 @@ export class Application extends jspb.Message {
   getRecording(): string;
   setRecording(value: string): Application;
 
+  getAmd(): AmdSettings | undefined;
+  setAmd(value?: AmdSettings): Application;
+  hasAmd(): boolean;
+  clearAmd(): Application;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Application.AsObject;
   static toObject(includeInstance: boolean, msg: Application): Application.AsObject;
@@ -255,6 +282,7 @@ export namespace Application {
     fallbackMessage: string,
     listenersList: Array<Listener.AsObject>,
     recording: string,
+    amd?: AmdSettings.AsObject,
   }
 }
 
@@ -313,6 +341,11 @@ export class CreateApplicationRequest extends jspb.Message {
   getRecording(): string;
   setRecording(value: string): CreateApplicationRequest;
 
+  getAmd(): AmdSettings | undefined;
+  setAmd(value?: AmdSettings): CreateApplicationRequest;
+  hasAmd(): boolean;
+  clearAmd(): CreateApplicationRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateApplicationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateApplicationRequest): CreateApplicationRequest.AsObject;
@@ -337,6 +370,7 @@ export namespace CreateApplicationRequest {
     fallbackMessage: string,
     listenersList: Array<Listener.AsObject>,
     recording: string,
+    amd?: AmdSettings.AsObject,
   }
 }
 
@@ -488,6 +522,11 @@ export class UpdateApplicationRequest extends jspb.Message {
   getRecording(): string;
   setRecording(value: string): UpdateApplicationRequest;
 
+  getAmd(): AmdSettings | undefined;
+  setAmd(value?: AmdSettings): UpdateApplicationRequest;
+  hasAmd(): boolean;
+  clearAmd(): UpdateApplicationRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateApplicationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateApplicationRequest): UpdateApplicationRequest.AsObject;
@@ -513,6 +552,7 @@ export namespace UpdateApplicationRequest {
     fallbackMessage: string,
     listenersList: Array<Listener.AsObject>,
     recording: string,
+    amd?: AmdSettings.AsObject,
   }
 }
 

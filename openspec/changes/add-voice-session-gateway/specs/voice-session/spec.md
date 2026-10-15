@@ -268,6 +268,23 @@ app never waits forever.
 - **THEN** the app receives `turn.estimate` messages with `eot` between 0 and 1, `speaking` and `kind`
 - **AND** an app that never subscribes receives no `turn.estimate`
 
+### Requirement: Answering-machine detection reaches the app
+
+An app with answering-machine detection on (the app setting `amd`, with an optional window of
+caller audio, default 4 s) SHALL receive exactly one `amd.result` per call with `status` (`human`,
+`voicemail`, `ivr`, `machine` or `unknown`), `confidence`, `detector`, `audioMs` and, when detection
+could not run, `reason`. It SHALL be sent whether or not the app uses the Speech layer. The gateway
+SHALL NOT act on the verdict: hanging up or leaving a message is the app's decision.
+
+#### Scenario: Voicemail answers an outbound call
+- **WHEN** an app with `amd` on places a call that a voicemail greeting answers
+- **THEN** the app receives one `amd.result` with `status: "voicemail"` within the window plus a short grace
+- **AND** the call stays up until the app acts
+
+#### Scenario: Detection off
+- **WHEN** an app has `amd` off
+- **THEN** it receives no `amd.result`
+
 ### Requirement: Changing how the caller is heard
 
 The gateway SHALL accept `listen.update` with optional `language` (a catalog id or language code),

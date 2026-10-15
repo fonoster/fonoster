@@ -45,6 +45,13 @@ type AppListener = { url: string; tracks?: "inbound" | "outbound" | "both" };
 
 type RecordingPolicy = "off" | "on" | "consent";
 
+/** Answering-machine detection: one `amd.result` event per call. */
+type AmdSettings = {
+  enabled: boolean;
+  /** Caller audio to classify in ms (default 4000; 500 to 15000). */
+  windowMs?: number;
+};
+
 /** The session app model (voice-session G2). */
 type SessionAppFields = {
   /** ws:// or wss:// URL the gateway dials (Autopilot apps: the hosted Autopilot). */
@@ -57,6 +64,8 @@ type SessionAppFields = {
   listeners?: AppListener[];
   /** Empty inherits the workspace's policy. */
   recording?: RecordingPolicy | "";
+  /** Off when unset. */
+  amd?: AmdSettings;
 };
 
 type Application = SessionAppFields & {
@@ -183,6 +192,7 @@ type CreateTestTokenResponse = {
 };
 
 export {
+  AmdSettings,
   AppListener,
   AudioFormat,
   CreateApplicationResponse,

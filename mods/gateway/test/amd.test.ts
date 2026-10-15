@@ -24,7 +24,8 @@ import {
   AppConfig,
   Gateway,
   MemoryCallRecordSink,
-  amdWindowMs
+  amdWindowMs,
+  loadAmdClassifier
 } from "../src";
 
 // AMD as a voice-worker listener (add-media-node 4.3): an app with `amd` gets one `amd.result`
@@ -83,6 +84,7 @@ describe("@gateway AMD listener", function () {
       config: {
         nats: { url: NATS_URL! },
         testMode: true,
+        ...(classifier ? {} : { amd: { enabled: false } }),
         retry: { windowMs: 300, intervalMs: 100 },
         apps: [
           {
@@ -152,6 +154,8 @@ describe("@gateway AMD listener", function () {
         (c) => c.command.type === "listener.detach"
       )
     );
+    // The fake honors the detach: the listener's forks are gone (AO-B3).
+    await waitFor(() => harness.mediaNode.activeListeners() === 0);
 
     // The classifier got 16 kHz PCM with the caller's tone in it.
     const pcm = heard[0];
@@ -199,5 +203,18 @@ describe("@gateway AMD listener", function () {
         (c) => c.command.type === "listener.attach"
       )
     ).to.equal(false);
+  });
+});
+
+describe("@gateway AMD classifier", function () {
+  it("resolves mods/amd's model module through the declared dependency (AO-B2)", async function () {
+    // A missing model directory fails before ONNX Runtime starts its threads (which abort the
+    // process at mocha --exit); reaching the model loader proves the dependency resolves.
+    const classify = loadAmdClassifier("/nonexistent-amd-model");
+    let error: Error | undefined;
+    await classify(Buffer.alloc(3200)).catch((e: Error) => (error = e));
+    expect(error?.message).to.match(
+      /ENOENT.*nonexistent-amd-model.*meta\.json/
+    );
   });
 });

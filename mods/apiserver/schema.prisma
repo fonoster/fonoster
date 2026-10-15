@@ -36,6 +36,10 @@ model Application {
   // the Pacing policy's patience (low | normal | high; null is normal).
   recording        String? @db.VarChar(16)
   patience         String? @db.VarChar(16)
+  // rebuild: amdopus (AO-B1). Answering-machine detection: on/off and the window of caller
+  // audio to classify in ms (null: 4000).
+  amd              Boolean @default(false)
+  amdWindowMs      Int?    @map("amd_window_ms")
 
   // Relations
   textToSpeech TextToSpeech?

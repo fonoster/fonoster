@@ -44,6 +44,7 @@ const app = {
   audio: { codec: "pcm16", rate: 16000 },
   listeners: [{ url: "wss://rec.example.com/ws", tracks: "inbound" }],
   recording: "consent",
+  amd: { enabled: true, windowMs: 3000 },
   fallbackAppRef: "app-0",
   fallbackMessage: "",
   signingSecretHint: "…wxyz",
@@ -144,6 +145,41 @@ describe("@ctl[applications]", function () {
     expect(stdout).to.contain("Application updated: app-1");
   });
 
+  it("turns AMD on and off (AO-B1)", async function () {
+    const create = sandbox
+      .stub(SDK.Applications.prototype, "createApplication")
+      .resolves({ ref: "app-2", signingSecret: "s" });
+    await runCommand([
+      "applications:create",
+      "--name",
+      "Dialer",
+      "--url",
+      "wss://bot.example.com/session",
+      "--amd"
+    ]);
+    expect(create.firstCall.args[0].amd).to.deep.equal({ enabled: true });
+
+    sandbox
+      .stub(SDK.Applications.prototype, "getApplication")
+      .resolves(app as never);
+    const update = sandbox
+      .stub(SDK.Applications.prototype, "updateApplication")
+      .resolves({ ref: "app-1" });
+    await runCommand(["applications:update", "app-1", "--amd-window", "6000"]);
+    expect(update.firstCall.args[0].amd).to.deep.equal({
+      enabled: true,
+      windowMs: 6000
+    });
+    await runCommand(["applications:update", "app-1", "--no-amd"]);
+    expect(update.secondCall.args[0].amd).to.be.undefined;
+    // Untouched: the current setting is kept.
+    await runCommand(["applications:update", "app-1", "--name", "Bot3"]);
+    expect(update.thirdCall.args[0].amd).to.deep.equal({
+      enabled: true,
+      windowMs: 3000
+    });
+  });
+
   it("shows an app in the session model", async function () {
     sandbox
       .stub(SDK.Applications.prototype, "getApplication")
@@ -158,6 +194,7 @@ describe("@ctl[applications]", function () {
     expect(stdout).to.contain("pcm16 16000 Hz");
     expect(stdout).to.contain("wss://rec.example.com/ws (inbound)");
     expect(stdout).to.contain("consent");
+    expect(stdout).to.contain("on (3000 ms)");
     expect(stdout).to.contain("…wxyz");
   });
 

@@ -413,6 +413,45 @@
           "pattern": "^[0-9A-D*#]$"
         }
       }
+    },
+    "amd.result": {
+      "type": "object",
+      "required": [
+        "type",
+        "status",
+        "confidence",
+        "detector",
+        "audioMs"
+      ],
+      "properties": {
+        "type": {
+          "const": "amd.result"
+        },
+        "status": {
+          "enum": [
+            "human",
+            "voicemail",
+            "ivr",
+            "machine",
+            "unknown"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "detector": {
+          "type": "string"
+        },
+        "audioMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
     }
   },
   "appToGateway": {

@@ -149,6 +149,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         { url: "wss://qa.example.com/listen", tracks: "inbound" }
       ]);
       expect(app.recording).to.equal("consent");
+      expect(app.amd).to.deep.equal({ enabled: false, windowMs: 0 });
     });
 
     it("rejects invalid apps with clear messages", async function () {
@@ -208,7 +209,8 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           name: "Receptionist",
           type: "AUTOPILOT",
           intelligence: { config: struct.encode(ASSISTANT) },
-          speech: { patience: "high" }
+          speech: { patience: "high" },
+          amd: { enabled: true, windowMs: 3000 }
         }
       );
       const row = await db.prisma.application.findUnique({
@@ -218,6 +220,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       expect(row.url).to.equal(CONFIG.autopilotUrl);
       expect(row.flavor).to.equal("native");
       expect(row.patience).to.equal("high");
+      expect(row).to.include({ amd: true, amdWindowMs: 3000 });
       expect(row.intelligence.productRef).to.equal("llm.openai");
       expect(row.intelligence.config).to.deep.equal(ASSISTANT);
 

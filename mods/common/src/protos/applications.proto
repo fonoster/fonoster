@@ -67,6 +67,14 @@ message AudioFormat {
   int32 rate = 2;
 }
 
+// Answering-machine detection: one amd.result event per call
+message AmdSettings {
+  // Classify the caller's first seconds of audio
+  bool enabled = 1;
+  // How much caller audio to classify, in milliseconds (0: 4000; 500 to 15000)
+  int32 window_ms = 2;
+}
+
 // A listen-only socket dialed for every session of the app
 message Listener {
   // ws:// or wss:// address
@@ -144,6 +152,8 @@ message Application {
   repeated Listener listeners = 17;
   // Recording policy: off, on or consent (empty: the workspace's)
   string recording = 18;
+  // Answering-machine detection (off when unset)
+  AmdSettings amd = 19;
 }
 
 // Request to create a new application
@@ -176,6 +186,8 @@ message CreateApplicationRequest {
   repeated Listener listeners = 13;
   // Recording policy: off, on or consent (empty: the workspace's)
   string recording = 14;
+  // Answering-machine detection (off when unset)
+  AmdSettings amd = 15;
 }
 
 // Response for create application
@@ -242,6 +254,8 @@ message UpdateApplicationRequest {
   repeated Listener listeners = 14;
   // Recording policy: off, on or consent (empty: the workspace's)
   string recording = 15;
+  // Answering-machine detection (off when unset)
+  AmdSettings amd = 16;
 }
 
 // Response for update application

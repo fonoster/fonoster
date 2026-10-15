@@ -112,7 +112,17 @@ export const sessionAppInputSchema = z.object({
       )
       .max(4, "at most 4 listeners")
   ),
-  recording: optional(z.enum(["off", "on", "consent"]))
+  recording: optional(z.enum(["off", "on", "consent"])),
+  // AO-B1: answering-machine detection; absent (or enabled false) is off.
+  amd: z.preprocess(
+    (v) => v ?? undefined,
+    z
+      .object({
+        enabled: z.boolean().default(false),
+        windowMs: optional(z.number().int().min(500).max(15_000))
+      })
+      .optional()
+  )
 });
 
 export type SessionAppInput = z.infer<typeof sessionAppInputSchema>;
@@ -202,7 +212,9 @@ export async function toAppColumns(
     listeners: input.listeners.length ? input.listeners : null,
     fallbackAppRef: input.fallbackAppRef ?? null,
     fallbackMessage: input.fallbackMessage ?? null,
-    recording: input.recording ?? null
+    recording: input.recording ?? null,
+    amd: input.amd?.enabled ?? false,
+    amdWindowMs: input.amd?.enabled ? (input.amd.windowMs ?? null) : null
   };
   return { columns, assistant, autopilot };
 }
@@ -274,6 +286,7 @@ export function rowToApplication(row: Row) {
     fallbackMessage: row.fallbackMessage ?? "",
     listeners,
     recording: row.recording ?? "",
+    amd: { enabled: row.amd === true, windowMs: row.amdWindowMs ?? 0 },
     createdAt: row.createdAt,
     updatedAt: row.updatedAt
   };

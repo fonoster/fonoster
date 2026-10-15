@@ -35,6 +35,7 @@ import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
+import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
 import { errorMessage, useAsync, useSessionApi } from "./api";
 import {
@@ -268,6 +269,7 @@ const blank: Draft = {
   fallback: {},
   listeners: [],
   recording: "",
+  amd: false,
   assistantText: JSON.stringify(ASSISTANT_EXAMPLE, null, 2)
 };
 
@@ -840,6 +842,14 @@ function Editor({
             />
           )}
         </Field>
+
+        <label className="flex items-center gap-3 text-sm">
+          <Switch
+            checked={Boolean(app.amd)}
+            onCheckedChange={(on) => set("amd", on)}
+          />
+          Detect answering machines
+        </label>
 
         {failure && <Alert variant="error">{failure}</Alert>}
         <div className="flex items-center gap-2">

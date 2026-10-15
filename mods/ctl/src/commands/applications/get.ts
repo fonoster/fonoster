@@ -56,6 +56,7 @@ export function formatApplication(app: Application): string {
     `PATIENCE: \t${or(speech.patience, "normal")}`,
     `AUDIO: \t${app.audio?.codec ? `${app.audio.codec} ${app.audio.rate} Hz` : "default"}`,
     `RECORDING: \t${or(app.recording, "off")}`,
+    `AMD: \t${app.amd?.enabled ? `on (${app.amd.windowMs || 4000} ms)` : "off"}`,
     `FALLBACK APP: \t${or(app.fallbackAppRef)}`,
     `FALLBACK MESSAGE: \t${or(app.fallbackMessage)}`,
     `LISTENERS: \t${or(listeners)}`,

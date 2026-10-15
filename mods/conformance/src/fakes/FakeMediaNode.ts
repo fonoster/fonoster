@@ -286,6 +286,8 @@ export class FakeMediaNode extends EventEmitter {
   readonly commands: { at: number; command: MediaCommand }[] = [];
   readonly events: { at: number; event: MediaEvent }[] = [];
   private rooms = new Map<string, Room>();
+  /** Each attached listener's forks, closed on listener.detach (AO-B3). */
+  private listenerForks = new Map<string, ForkRtp[]>();
   // Kept after participants leave, so measurements still see their audio.
   private sessions: SessionRtp[] = [];
   private subscription?: Subscription;
@@ -391,6 +393,11 @@ export class FakeMediaNode extends EventEmitter {
   /** SIP statuses the caller of a room received, in order. */
   sipStatuses(roomRef = this.lastRoomRef()): number[] {
     return this.rooms.get(roomRef)?.sip ?? [];
+  }
+
+  /** Listeners attached and not yet detached (AO-B3). */
+  activeListeners(): number {
+    return this.listenerForks.size;
   }
 
   isHeld(roomRef = this.lastRoomRef()): boolean {
@@ -547,6 +554,8 @@ export class FakeMediaNode extends EventEmitter {
         const session = [...room.participants.values()].find(
           (p) => p.kind === "session" && p.rtp
         )?.rtp;
+        const forks: ForkRtp[] = [];
+        this.listenerForks.set(listener.participantRef, forks);
         for (const t of tracks ?? []) {
           const owner = [...room.participants.values()].find((p) =>
             p.tracks.some((x) => x.trackId === t.trackId)
@@ -557,6 +566,7 @@ export class FakeMediaNode extends EventEmitter {
             session.format.codec === "pcmu" ? 0 : 96,
             (session.format.rate / 1000) * FRAME_MS
           );
+          forks.push(fork);
           if (owner.kind === "session") session.sessionForks.push(fork);
           else if (owner.kind === "phone") session.callerForks.push(fork);
           else fork.close();
@@ -581,8 +591,27 @@ export class FakeMediaNode extends EventEmitter {
           0
         );
         return ack();
+      case "listener.detach": {
+        // Stops the listener's forks at once; the listener leaves without room events.
+        const listenerRef = String(command.listenerRef ?? "");
+        const forks = this.listenerForks.get(listenerRef);
+        if (!forks) return error("listener_not_found");
+        this.listenerForks.delete(listenerRef);
+        for (const f of forks) f.close();
+        const session = [...room.participants.values()].find(
+          (p) => p.kind === "session" && p.rtp
+        )?.rtp;
+        if (session) {
+          const keep = (list: ForkRtp[]) =>
+            list.splice(0, list.length, ...list.filter((f) => !f.closed));
+          keep(session.callerForks);
+          keep(session.sessionForks);
+        }
+        room.participants.delete(listenerRef);
+        return ack();
+      }
       default:
-        // dtmf.send, listener.detach
+        // dtmf.send
         return ack();
     }
   }

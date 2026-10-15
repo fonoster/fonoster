@@ -85,5 +85,14 @@ export const applicationFlags = {
   recording: Flags.string({
     description: "the recording policy",
     options: ["off", "on", "consent"]
+  }),
+  amd: Flags.boolean({
+    description:
+      "answering-machine detection: the app gets one amd.result per call (--no-amd turns it off)",
+    allowNo: true
+  }),
+  "amd-window": Flags.integer({
+    description:
+      "milliseconds of caller audio AMD classifies (500 to 15000, default 4000); implies --amd"
   })
 };

@@ -188,8 +188,11 @@ export type GatewayConfig = {
   /** Keepalive overrides (mainly for tests). */
   keepalive?: { pingIntervalMs?: number; idleTimeoutMs?: number };
   /** Call records (add-call-record): working records, sealing and signing. */
-  /** The AMD classifier (mods/amd's model); apps opt in with `amd`. */
-  amd?: { modelDir?: string };
+  /**
+   * The AMD classifier (mods/amd's model, on by default, loaded on the first AMD call); apps opt
+   * in with `amd`. `enabled: false` makes every verdict `unknown` / `no_classifier`.
+   */
+  amd?: { enabled?: boolean; modelDir?: string };
   callRecord?: {
     dir: string;
     region: string;

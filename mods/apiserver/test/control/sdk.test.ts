@@ -113,7 +113,8 @@ describe("@control: SDK end to end (gRPC + database)", function () {
       },
       audio: { codec: "pcm16", rate: 16000 },
       listeners: [{ url: "wss://l.example.com", tracks: "both" }],
-      recording: "on"
+      recording: "on",
+      amd: { enabled: true, windowMs: 2000 }
     });
     expect(created.signingSecret).to.have.length.greaterThan(30);
 
@@ -125,6 +126,7 @@ describe("@control: SDK end to end (gRPC + database)", function () {
       url: "wss://bot.example.com",
       flavor: "native",
       recording: "on",
+      amd: { enabled: true, windowMs: 2000 },
       signingSecretHint: created.signingSecretHint,
       audio: { codec: "pcm16", rate: 16000 },
       listeners: [{ url: "wss://l.example.com", tracks: "both" }]

@@ -38,6 +38,6 @@
 
 - [x] 4.1 Routr peer configuration for media nodes with `least-sessions` (plus per-app and per-number routing, CO-B4)
 - [x] 4.2 Remove the Asterisk image, dialplan and ARI handling from the apiserver after cutover (CB-B3, CB-B4, CB-B6)
-- [ ] 4.3 Move recording to the policy listener and AMD to a voice-worker listener (recording: call-record 3.2; AMD listener: LG-B7, control-plane option and image open)
+- [x] 4.3 Move recording to the policy listener and AMD to a voice-worker listener (recording: call-record 3.2; AMD listener: LG-B7; app setting, dependency, Python SDK, fake detach: AO-B1..AO-B3)
 - [x] 4.4 Operator guide: RTP ports, encryption switch, drain behavior, limits (`docs/operators/cutover.md` section 5)
 - [x] 4.5 Asterisk retirement notes, including the end of `{appRef}_{id}.wav` recordings and GSM (`docs/operators/cutover.md` section 6)
