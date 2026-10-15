@@ -34,3 +34,15 @@
 - [ ] 4.3 Secrets page for private workspaces (done); app warnings for missing keys (open)
 - [x] 4.4 Call content through the relay; offline states
 - [ ] 4.5 Flat fee per private region in billing; usage shown, not billed (SaaS only) (partial: note in Settings → Region, no Billing page yet; see RU-B7)
+
+## 5. Rework to the decisions of 2026-10-15 evening (PR-12..PR-21)
+
+- [x] 5.1 Regions belong to a user (private) or the platform (public); id, display name, SIP domain; owner backfill for old private regions; `default` id and workspace migration
+- [x] 5.2 User Region API (create, list, get, update, re-issue, disconnect, delete) and CreateWorkspace `region` = an offered public id or one of the caller's private regions
+- [x] 5.3 Admin API on the operator key (create, list, token, publish, revoke public regions); configured public regions as the fallback
+- [x] 5.4 Multi-workspace sync: snapshots keyed by workspace, secrets.needed per workspace, index/usage/relay checked against the region's workspaces
+- [x] 5.5 Bring-your-own keys in public regions over the link (`region.R.secrets.get`), per call, gateway key source in the cell
+- [x] 5.6 Routr domains under the region's SIP domain; sipDomain in endpoints
+- [x] 5.7 `fonoster-regions` ops utility (cloud `create|list|token|publish|revoke`, region `enroll|secrets|status|run`; `fonoster-region` deprecated alias)
+- [x] 5.8 Spec, contract, local stack (operator key, `default`) and cell packaging updated
+- [ ] 5.9 Helm value for `workspaceKeysFromCloud` (public regions on Kubernetes)

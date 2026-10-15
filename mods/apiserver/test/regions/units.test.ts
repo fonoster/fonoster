@@ -24,6 +24,9 @@ import { fromPublic } from "nkeys.js";
 import { fonosterConfigSchema } from "../../src/config/schema";
 import {
   catalogUse,
+  checkPrivateRegionId,
+  checkPublicRegionId,
+  checkSipDomain,
   createRegionSigner,
   createRelayClient,
   decodeNatsJwt,
@@ -36,6 +39,8 @@ import {
   newRegionRef,
   normalizeEndpoints,
   REGION_REF,
+  RegionError,
+  regionDomainUri,
   regionStatus,
   regionsAccountJwt,
   requiredVersion,
@@ -55,7 +60,8 @@ describe("@apiserver[regions/units]", function () {
     const claims = {
       iss: "https://api.example.com",
       sub: "rg_abcdefghijklmnop",
-      wsp: "WOacme",
+      rid: "acme-hq",
+      knd: "private",
       cp: "https://api.example.com",
       leaf: "tls://leaf.example.com:7422",
       jti: "j-1"
@@ -252,7 +258,7 @@ describe("@apiserver[regions/units]", function () {
       const regions = fonosterConfigSchema.innerType().shape.regions.parse({
         public: [
           {
-            id: "us-east-1",
+            id: "default",
             name: "US East",
             default: true,
             endpoints: {
@@ -269,6 +275,133 @@ describe("@apiserver[regions/units]", function () {
         mediaAddresses: [],
         rtpPorts: { min: 10000, max: 20000 }
       });
+    });
+  });
+
+  describe("region ids and SIP domains (PR-16, PR-18)", function () {
+    const code = (fn: () => unknown) => {
+      try {
+        fn();
+        return "ok";
+      } catch (e) {
+        return (e as RegionError).code;
+      }
+    };
+
+    it("accepts private ids of 3-32 lowercase letters, digits and hyphens starting with a letter", function () {
+      expect(checkPrivateRegionId("acme-hq")).to.equal("acme-hq");
+      expect(code(() => checkPrivateRegionId("abc"))).to.equal("ok");
+      expect(code(() => checkPrivateRegionId("a".repeat(32)))).to.equal("ok");
+      for (const bad of [
+        "ab",
+        "a".repeat(33),
+        "1acme",
+        "Acme",
+        "acme_hq",
+        "",
+        7
+      ])
+        expect(code(() => checkPrivateRegionId(bad))).to.equal(
+          "region_id_invalid"
+        );
+    });
+
+    it("reserves default, the public geo prefixes and route words for private ids", function () {
+      for (const id of [
+        "default",
+        "us-acme",
+        "eu-west-1",
+        "sa-x1",
+        "ap-tokyo",
+        "af-x1",
+        "me-x1",
+        "current",
+        "enroll",
+        "admin"
+      ])
+        expect(code(() => checkPrivateRegionId(id))).to.equal(
+          "region_id_reserved"
+        );
+      expect(code(() => checkPrivateRegionId("usa-hq"))).to.equal("ok");
+    });
+
+    it("public ids are default or <geo>-<area>-<n>", function () {
+      expect(checkPublicRegionId("default")).to.equal("default");
+      expect(checkPublicRegionId("us-east-1")).to.equal("us-east-1");
+      for (const bad of ["acme-hq", "us-east", "xx-east-1"])
+        expect(code(() => checkPublicRegionId(bad))).to.equal(
+          "region_id_invalid"
+        );
+    });
+
+    it("requires a lowercase FQDN as SIP domain", function () {
+      expect(checkSipDomain("SIP.Acme.com.")).to.equal("sip.acme.com");
+      for (const bad of [
+        "",
+        "localhost",
+        "*.sip.acme.com",
+        "-sip.acme.com",
+        "sip.acme.123",
+        "sip..acme.com",
+        `${"a".repeat(64)}.com`,
+        undefined
+      ])
+        expect(code(() => checkSipDomain(bad))).to.equal("sip_domain_invalid");
+      expect(checkSipDomain(undefined, true)).to.equal(undefined);
+    });
+
+    it("rewrites cloud domains under the region's SIP domain", function () {
+      expect(
+        regionDomainUri(
+          "acme.fonoster.example",
+          "fonoster.example",
+          "sip.acme.com"
+        )
+      ).to.equal("acme.sip.acme.com");
+      expect(
+        regionDomainUri(
+          "ops.acme.sip.acme.com",
+          "fonoster.example",
+          "sip.acme.com"
+        )
+      ).to.equal("ops.acme.sip.acme.com");
+      expect(
+        regionDomainUri("x.other.net", "fonoster.example", "sip.acme.com")
+      ).to.equal("x.sip.acme.com");
+      expect(
+        regionDomainUri("acme.fonoster.example", "fonoster.example", null)
+      ).to.equal("acme.fonoster.example");
+    });
+  });
+
+  describe("config (PR-17, PR-19)", function () {
+    it("defaults to one public region with the id default and refuses another default id", function () {
+      const regions = fonosterConfigSchema.innerType().shape.regions.parse({});
+      expect(regions.public).to.deep.equal([
+        { id: "default", name: "Default", default: true }
+      ]);
+      const base = {
+        domain: "example.com",
+        database: { url: "postgres://x" },
+        encryption: { key: "k".repeat(32) },
+        nats: { url: "nats://x" },
+        influxdb: {
+          url: "u",
+          org: "o",
+          username: "u",
+          password: "p",
+          token: "t"
+        },
+        identity: {}
+      };
+      const bad = fonosterConfigSchema.safeParse({
+        ...base,
+        regions: { public: [{ id: "us-east-1", name: "US", default: true }] }
+      });
+      expect(bad.success).to.equal(false);
+      expect(JSON.stringify(bad.error?.issues)).to.contain(
+        "the default public region's id must be `default`"
+      );
     });
   });
 
@@ -360,7 +493,12 @@ describe("@apiserver[regions/units]", function () {
         firstChunkTimeoutMs: 100,
         maxConcurrent: 1
       });
-      const req = { userRef: "u", op: "record.get" as const, callRef: "c" };
+      const req = {
+        userRef: "u",
+        workspaceRef: "WOacme",
+        op: "record.get" as const,
+        callRef: "c"
+      };
       const first = relay.open("rg_aaaaaaaaaaaaaaaa", req).catch((e) => e.code);
       const second = await relay
         .open("rg_aaaaaaaaaaaaaaaa", req)

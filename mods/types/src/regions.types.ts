@@ -24,9 +24,31 @@ type RegionStatus =
   | "offline"
   | "unsupported";
 
-type PublicRegion = { id: string; name: string; default: boolean };
+type RegionKind = "public" | "private";
 
-type ListRegionsResponse = { items: PublicRegion[] };
+/** A region in a list (`GET /api/regions`): offered public regions and the caller's own. */
+type RegionSummary = {
+  /** Absent for a configured public region. */
+  ref?: string;
+  id: string;
+  /** Same as displayName. */
+  name: string;
+  displayName: string;
+  kind: RegionKind;
+  default: boolean;
+  status: RegionStatus;
+  /** Same as status. */
+  state: RegionStatus;
+  sipDomain?: string;
+  /** The caller's private regions: how many workspaces use it. */
+  workspaces?: number;
+  published?: boolean;
+};
+
+/** @deprecated use RegionSummary */
+type PublicRegion = RegionSummary;
+
+type ListRegionsResponse = { items: RegionSummary[] };
 
 type RegionSecret = { name: string; usedBy: string[]; set: boolean };
 
@@ -40,14 +62,30 @@ type RegionEndpoints = {
   /** Public addresses media (RTP) comes from. */
   mediaAddresses: string[];
   rtpPorts?: { min: number; max: number };
+  /** The region's SIP domain (PR-16): workspaces get subdomains of it. */
+  sipDomain?: string;
   updatedAt?: string;
 };
 
-/** The workspace's region and, for a private one, its cell's status. */
+type RegionWorkspace = {
+  ref: string;
+  accessKeyId: string;
+  name: string;
+  /** The workspace's SIP domain in this region (`<label>.<sipDomain>`). */
+  domain?: string;
+};
+
+/** A region and its status (contract §0 `Region`). */
 type Region = {
   ref: string;
-  kind: "public" | "private";
+  id: string;
+  kind: RegionKind;
   name: string;
+  displayName: string;
+  default?: boolean;
+  sipDomain?: string;
+  ownerRef?: string;
+  published?: boolean;
   status: RegionStatus;
   /** Same as status (alias). */
   state: RegionStatus;
@@ -56,23 +94,51 @@ type Region = {
   requiredVersion?: string;
   version?: string;
   lastHeartbeatAt?: string;
+  /** Same as lastHeartbeatAt. */
+  lastSeenAt?: string;
   enrolledAt?: string;
   components?: { mediaNodes: number; gateways: number; autopilot: boolean };
   mediaNodes?: number;
   gateways?: number;
   activeCalls?: number;
   configVersion?: number;
+  /** Owner views: the workspaces the region serves. */
+  workspaces?: RegionWorkspace[];
+  /** `getRegion()` of the current workspace: its SIP domain in the region. */
+  workspaceDomain?: string;
   secretsNeeded?: string[];
   secretsSet?: string[];
   secrets: RegionSecret[];
-  /** Connection details; absent until a private region's cell reports them. */
+  /** Connection details; absent until a region's cell reports them. */
   endpoints?: RegionEndpoints;
+  /** Private regions on the cloud: the flat monthly fee (PR-11); null when billing is off. */
+  monthlyFeeCents?: number | null;
 };
 
-type RegionEnrollmentToken = { enrollmentToken: string; expiresAt: string };
+type CreateRegionRequest = {
+  /** 3-32 lowercase letters, digits, hyphens; starts with a letter; never changes (PR-18). */
+  id: string;
+  displayName: string;
+  /** Your SIP domain (PR-16), e.g. sip.acme.com; point *.sip.acme.com at the region. */
+  sipDomain: string;
+};
+
+/** A one-time enrollment token (shown once); `enrollmentToken` is the same value. */
+type RegionEnrollmentToken = {
+  token: string;
+  enrollmentToken: string;
+  expiresAt: string;
+};
+
+type CreateRegionResponse = RegionEnrollmentToken & { ref: string; id: string };
 
 export {
+  CreateRegionRequest,
+  CreateRegionResponse,
   ListRegionsResponse,
+  RegionKind,
+  RegionSummary,
+  RegionWorkspace,
   PublicRegion,
   Region,
   RegionEndpoints,

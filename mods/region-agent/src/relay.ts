@@ -32,6 +32,7 @@ export type RelayAuditEntry = {
   at: string;
   id: string;
   userRef: string;
+  workspaceRef?: string;
   op: string;
   callRef: string;
   part?: string;
@@ -111,6 +112,14 @@ export class RelayResponder {
     if (!store) throw new RelayError("store_unavailable");
     const stored = await store.getVersion(req.callRef, req.version);
     if (!stored) throw new RelayError("not_found");
+    // A region serves several workspaces (PR-14): only the caller's workspace's records.
+    const any = stored.signed ?? stored.redacted;
+    const owner = any
+      ? ((decodeVcon(any).fonoster ?? {}) as { workspaceRef?: string })
+          .workspaceRef
+      : undefined;
+    if (req.workspaceRef !== undefined && owner !== req.workspaceRef)
+      throw new RelayError("not_found");
     const copy: SignedVcon | undefined = req.original
       ? stored.signed
       : stored.redacted;
@@ -165,6 +174,7 @@ export class RelayResponder {
       at: new Date().toISOString(),
       id: String(req.id ?? ""),
       userRef: String(req.userRef ?? ""),
+      workspaceRef: req.workspaceRef,
       op: String(req.op ?? ""),
       callRef: String(req.callRef ?? ""),
       part: req.part

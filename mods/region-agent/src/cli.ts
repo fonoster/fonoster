@@ -20,6 +20,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { CellSecrets, initTelemetry } from "@fonoster/common";
+import { admin, AdminOptions, DEFAULT_API_URL, formatRegions } from "./admin";
 import { loadAgentConfig, packageVersion } from "./config";
 import {
   DirIdentityStore,
@@ -32,10 +33,27 @@ import {
 import { KubeSecrets } from "./kube";
 import { runAgent } from "./run";
 
-// fonoster-region: the private region's cell tool (add-private-regions task 3).
+// fonoster-regions: the region operations utility (PR-21), not part of the `fonoster` CLI.
+// Cloud side (public regions, operator key): create, list, token, publish, revoke. Region side
+// (on the region's machine, public or private): enroll, run, status, secrets. `fonoster-region`
+// is a deprecated alias of the same file.
 
-const USAGE = `fonoster-region <command>
+export const COMMAND = "fonoster-regions";
+export const DEPRECATED_COMMAND = "fonoster-region";
 
+const USAGE = `${COMMAND} <command>
+
+Cloud side (public regions; needs the operator key)
+  create <id> --name <display name> [--sip-domain <fqdn>]
+                            Create a public region (unpublished) and print its enrollment token
+  list [--json]             List every region (public and private) with status
+  token <id>                Issue a new enrollment token (enrolling with it revokes the current cell)
+  publish <id>              Offer a public region in pickers (shown while connected)
+  revoke <id>               Withdraw a public region and revoke its cell's credentials
+      --api <url>             the control plane API ($FONOSTER_API_URL, default ${DEFAULT_API_URL})
+      --operator-key <key>    the operator key ($FONOSTER_OPERATOR_KEY; prefer the variable)
+
+Region side (on the region's machine)
   enroll <token>            Exchange a one-time enrollment token for this cell's credentials
       --data-dir <dir>        where to keep them (default $FONOSTER_REGION_DATA_DIR or /var/lib/fonoster-region)
       --k8s-secret <name>     keep them in a Kubernetes Secret instead ($FONOSTER_REGION_K8S_SECRET)
@@ -65,7 +83,8 @@ export function parseArgs(argv: string[]): Args {
     }
     const [k, v] = a.slice(2).split("=", 2);
     if (v !== undefined) out.flags[k] = v;
-    else if (["allow-insecure", "help"].includes(k)) out.flags[k] = true;
+    else if (["allow-insecure", "help", "json"].includes(k))
+      out.flags[k] = true;
     else out.flags[k] = argv[++i] ?? "";
   }
   return out;
@@ -125,15 +144,75 @@ async function readStdin(): Promise<string> {
     .replace(/\r?\n$/, "");
 }
 
+function adminOptions(a: Args): AdminOptions {
+  return {
+    api: flag(a, "api", "FONOSTER_API_URL") ?? DEFAULT_API_URL,
+    operatorKey: flag(a, "operator-key", "FONOSTER_OPERATOR_KEY") ?? ""
+  };
+}
+
+/** The cloud-side commands; false when `cmd` is not one. */
+async function cloud(a: Args, print: (s: string) => void): Promise<boolean> {
+  const [cmd, id] = a._;
+  if (!["create", "list", "token", "publish", "revoke"].includes(cmd))
+    return false;
+  const o = adminOptions(a);
+  if (cmd === "list") {
+    const { items } = await admin.list(o);
+    print(
+      a.flags.json
+        ? JSON.stringify(items, null, 2)
+        : items.length
+          ? formatRegions(items)
+          : "(no regions)"
+    );
+    return true;
+  }
+  if (!id) throw new Error(`usage: ${COMMAND} ${cmd} <id>`);
+  if (cmd === "create") {
+    const name = flag(a, "name");
+    if (!name)
+      throw new Error(
+        `usage: ${COMMAND} create <id> --name <display name> [--sip-domain <fqdn>]`
+      );
+    const r = await admin.create(o, {
+      id,
+      displayName: name,
+      ...(flag(a, "sip-domain") ? { sipDomain: flag(a, "sip-domain") } : {})
+    });
+    print(`Created public region ${r.id} (${r.ref}); not published yet.`);
+    print(`Enrollment token (single use, expires ${r.expiresAt}):\n${r.token}`);
+    print(
+      `On the new region: ${COMMAND} enroll <token>, start it, then ${COMMAND} publish ${r.id}.`
+    );
+    return true;
+  }
+  if (cmd === "token") {
+    const r = await admin.token(o, id);
+    print(`Enrollment token for ${id} (single use, expires ${r.expiresAt}):`);
+    print(r.token);
+    return true;
+  }
+  const r =
+    cmd === "publish" ? await admin.publish(o, id) : await admin.revoke(o, id);
+  print(
+    cmd === "publish"
+      ? `Published ${r.id ?? id}; pickers offer it while it is connected (now ${r.status ?? "unknown"}).`
+      : `Revoked ${r.id ?? id}: withdrawn from pickers and its cell's credentials revoked.`
+  );
+  return true;
+}
+
 export async function main(argv: string[], out = process.stdout) {
   const a = parseArgs(argv);
   const [cmd, sub, arg] = a._;
   const print = (s: string) => out.write(s + "\n");
   if (!cmd || a.flags.help) return print(USAGE);
+  if (await cloud(a, print)) return;
 
   if (cmd === "enroll") {
     const token = sub ?? process.env.FONOSTER_REGION_TOKEN;
-    if (!token) throw new Error("usage: fonoster-region enroll <token>");
+    if (!token) throw new Error(`usage: ${COMMAND} enroll <token>`);
     const store = identityStore(a);
     const identity = await enroll({
       token,
@@ -148,7 +227,7 @@ export async function main(argv: string[], out = process.stdout) {
       natsCredsPath: flag(a, "nats-creds-path")
     });
     print(
-      `Enrolled region ${identity.regionRef} (workspace ${identity.workspaceRef}).`
+      `Enrolled ${identity.kind ?? "the"} region ${identity.regionId ?? identity.regionRef} (${identity.regionRef}).`
     );
     print(`Credentials saved to ${store.where}. Next: start the cell.`);
     return;
@@ -181,6 +260,7 @@ export async function main(argv: string[], out = process.stdout) {
         JSON.stringify(
           {
             configVersion: s.configVersion,
+            workspaces: s.workspaces,
             secretsNeeded: s.secretsNeeded,
             revoked: s.revoked
           },
@@ -200,17 +280,17 @@ export async function main(argv: string[], out = process.stdout) {
       return;
     }
     if (sub === "set") {
-      if (!arg) throw new Error("usage: fonoster-region secrets set <name>");
+      if (!arg) throw new Error(`usage: ${COMMAND} secrets set <name>`);
       CellSecrets.assertSecretName(arg);
       const fromEnv = flag(a, "from-env");
       const value = fromEnv ? process.env[fromEnv] : await readStdin();
       if (!value) throw new Error("empty value; nothing set");
       await store.set(arg, value);
-      print(`Secret ${arg} set (the value stays in this cell).`);
+      print(`Secret ${arg} set (the value stays in this region).`);
       return;
     }
     if (sub === "delete") {
-      if (!arg) throw new Error("usage: fonoster-region secrets delete <name>");
+      if (!arg) throw new Error(`usage: ${COMMAND} secrets delete <name>`);
       print(
         (await store.delete(arg))
           ? `Secret ${arg} deleted.`
@@ -218,7 +298,7 @@ export async function main(argv: string[], out = process.stdout) {
       );
       return;
     }
-    throw new Error("usage: fonoster-region secrets set|list|delete");
+    throw new Error(`usage: ${COMMAND} secrets set|list|delete`);
   }
   throw new Error(`unknown command ${cmd}\n\n${USAGE}`);
 }
@@ -227,8 +307,13 @@ export { FILES };
 
 // eslint-disable-next-line no-undef
 if (require.main === module) {
+  const invoked = path.basename(process.argv[1] ?? "").replace(/\.js$/, "");
+  if (invoked === DEPRECATED_COMMAND)
+    process.stderr.write(
+      `${DEPRECATED_COMMAND} is deprecated; use ${COMMAND} (same commands)\n`
+    );
   main(process.argv.slice(2)).catch((e) => {
-    process.stderr.write(`fonoster-region: ${(e as Error).message}\n`);
+    process.stderr.write(`${COMMAND}: ${(e as Error).message}\n`);
     process.exit(1);
   });
 }

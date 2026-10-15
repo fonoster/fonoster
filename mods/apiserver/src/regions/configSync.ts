@@ -105,16 +105,52 @@ export function catalogUse(
   return { ids: [...ids].sort(), secrets };
 }
 
+/** One workspace's part of a snapshot (contract §3). */
+export type WorkspaceConfig = {
+  ref: string;
+  name: string;
+  /** The workspace's first SIP domain as the region writes it (PR-16). */
+  domain: string | null;
+  kinds: Omit<ConfigKinds, "catalog">;
+};
+
 export type ConfigMessage = {
   type: "region.config";
   configVersion: number;
   full: true;
-  kinds: ConfigKinds;
+  region: {
+    ref: string;
+    id: string;
+    kind: string;
+    sipDomain: string | null;
+    rootDomain: string;
+  };
+  catalog: Record<string, unknown>[];
+  workspaces: Record<string, WorkspaceConfig>;
 };
 
 /**
- * Config sync to private cells (task 2.4): full snapshots with an increasing configVersion,
- * published on change (debounced) and on request; paused while the region is `unsupported`.
+ * A cloud domain as the region writes it (PR-16): `<label>.<rootDomain>` becomes
+ * `<label>.<sipDomain>`; another name keeps its first label; no sipDomain leaves it unchanged.
+ */
+export function regionDomainUri(
+  uri: string,
+  rootDomain: string,
+  sipDomain?: string | null
+) {
+  if (!sipDomain || !uri) return uri;
+  if (uri === sipDomain || uri.endsWith(`.${sipDomain}`)) return uri;
+  const label =
+    rootDomain && uri.endsWith(`.${rootDomain}`)
+      ? uri.slice(0, -rootDomain.length - 1)
+      : uri.split(".")[0];
+  return `${label}.${sipDomain}`;
+}
+
+/**
+ * Config sync to regions (task 2.4, PR-14): one full snapshot per region holding every workspace
+ * bound to it (keyed by workspace), with an increasing configVersion, published on change
+ * (debounced) and on request; paused while the region is `unsupported`.
  */
 export function createConfigSync(deps: {
   db: RegionsDb;
@@ -122,11 +158,14 @@ export function createConfigSync(deps: {
   sources: SnapshotSources;
   publish: LinkPublisher;
   debounceMs?: number;
+  /** The cloud's SIP root domain (workspace domains end with it). */
+  rootDomain?: () => string;
 }) {
   const { db, service, sources, publish } = deps;
   const timers = new Map<string, ReturnType<typeof setTimeout>>();
+  const rootDomain = () => deps.rootDomain?.() ?? "";
 
-  const snapshot = async (accessKeyId: string): Promise<ConfigKinds> => {
+  const workspaceKinds = async (accessKeyId: string) => {
     const [{ apps, assistants }, numbers, routr, webhooks, recordingPolicy] =
       await Promise.all([
         sources.apps(accessKeyId),
@@ -135,53 +174,123 @@ export function createConfigSync(deps: {
         sources.webhooks(accessKeyId),
         sources.recordingPolicy(accessKeyId)
       ]);
-    const use = catalogUse(apps, assistants);
+    return { numbers, apps, assistants, routr, webhooks, recordingPolicy };
+  };
+
+  const snapshot = async (
+    row: RegionRow
+  ): Promise<Omit<ConfigMessage, "type" | "configVersion" | "full">> => {
+    const bound = await service.workspaces(row);
+    const workspaces: Record<string, WorkspaceConfig> = {};
+    const ids = new Set<string>();
+    const providers = new Set<string>();
+    for (const ws of bound) {
+      const kinds = await workspaceKinds(ws.accessKeyId);
+      const use = catalogUse(kinds.apps, kinds.assistants);
+      use.ids.forEach((i) => ids.add(i));
+      use.secrets.forEach((s) => providers.add(s.name));
+      const first = (kinds.routr.domains as { domainUri?: string }[])[0]
+        ?.domainUri;
+      workspaces[ws.accessKeyId] = {
+        ref: ws.ref,
+        name: ws.name,
+        domain: first
+          ? regionDomainUri(first, rootDomain(), row.sipDomain)
+          : null,
+        kinds
+      };
+    }
     const catalog = await sources.catalog(
-      use.ids,
-      use.secrets.map((s) => s.name)
+      [...ids].sort(),
+      [...providers].sort()
     );
     return {
-      numbers,
-      apps,
-      assistants,
-      routr,
+      region: {
+        ref: row.ref,
+        id: row.id,
+        kind: row.kind,
+        sipDomain: row.sipDomain ?? null,
+        rootDomain: rootDomain()
+      },
       catalog,
-      webhooks,
-      recordingPolicy
+      workspaces
     };
   };
 
-  const secretsNeeded = async (accessKeyId: string) => {
-    const { apps, assistants } = await sources.apps(accessKeyId);
-    return catalogUse(apps, assistants).secrets;
+  /** Secret names (provider ids) per workspace and their union, with who uses them. */
+  const secretsNeeded = async (row: RegionRow, only?: string) => {
+    const bound = (await service.workspaces(row)).filter(
+      (w) => !only || w.accessKeyId === only
+    );
+    const perWorkspace: Record<string, string[]> = {};
+    const usedBy = new Map<string, Set<string>>();
+    for (const ws of bound) {
+      const { apps, assistants } = await sources.apps(ws.accessKeyId);
+      const secrets = catalogUse(apps, assistants).secrets;
+      perWorkspace[ws.accessKeyId] = secrets.map((s) => s.name);
+      for (const s of secrets) {
+        if (!usedBy.has(s.name)) usedBy.set(s.name, new Set());
+        s.usedBy.forEach((b) =>
+          usedBy.get(s.name)!.add(bound.length > 1 ? `${ws.name}: ${b}` : b)
+        );
+      }
+    }
+    const secrets = [...usedBy.entries()]
+      .map(([name, by]) => ({ name, usedBy: [...by].sort() }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return { secrets, perWorkspace };
   };
 
   const paused = (row: RegionRow) =>
     service.statusOf(row).status === "unsupported";
 
+  const message = async (
+    row: RegionRow,
+    configVersion: number
+  ): Promise<ConfigMessage> => ({
+    type: "region.config",
+    configVersion,
+    full: true,
+    ...(await snapshot(row))
+  });
+
+  const publishSecretsNeeded = async (row: RegionRow) => {
+    const { secrets, perWorkspace } = await secretsNeeded(row);
+    publish(subjects(row.ref).secretsNeeded, {
+      type: "region.secrets.needed",
+      names: secrets.map((s) => s.name),
+      workspaces: perWorkspace
+    });
+  };
+
   /** Builds and publishes a new version; returns it, or undefined when paused or not enrolled. */
   const publishNow = async (row: RegionRow) => {
     if (row.state !== "enrolled" || paused(row)) return undefined;
-    const kinds = await snapshot(row.accessKeyId);
     const updated: RegionRow = await db.region.update({
       where: { ref: row.ref },
       data: { configVersion: { increment: 1 } }
     });
-    const message: ConfigMessage = {
-      type: "region.config",
-      configVersion: updated.configVersion,
-      full: true,
-      kinds
-    };
-    publish(subjects(row.ref).config, message);
-    const names = catalogUse(kinds.apps, kinds.assistants).secrets.map(
-      (s) => s.name
-    );
-    publish(subjects(row.ref).secretsNeeded, {
-      type: "region.secrets.needed",
-      names
-    });
-    return message;
+    const m = await message(row, updated.configVersion);
+    publish(subjects(row.ref).config, m);
+    await publishSecretsNeeded(row);
+    return m;
+  };
+
+  const schedule = (
+    key: string,
+    load: () => Promise<RegionRow | undefined>
+  ) => {
+    clearTimeout(timers.get(key));
+    const timer = setTimeout(() => {
+      timers.delete(key);
+      void load()
+        .then((row) => (row ? publishNow(row) : undefined))
+        .catch((e) =>
+          logger.error(`config sync for ${key} failed: ${e.message}`)
+        );
+    }, deps.debounceMs ?? 500);
+    timer.unref?.();
+    timers.set(key, timer);
   };
 
   return {
@@ -189,20 +298,19 @@ export function createConfigSync(deps: {
     secretsNeeded,
     publishNow,
 
-    /** A workspace's config changed: publish soon (several changes make one version). */
+    /** A workspace's config changed: publish its region soon (several changes make one version). */
     onChange(accessKeyId: string) {
-      clearTimeout(timers.get(accessKeyId));
-      const timer = setTimeout(() => {
-        timers.delete(accessKeyId);
-        void service
-          .byWorkspace(accessKeyId)
-          .then((row) => (row ? publishNow(row) : undefined))
-          .catch((e) =>
-            logger.error(`config sync for ${accessKeyId} failed: ${e.message}`)
-          );
-      }, deps.debounceMs ?? 500);
-      timer.unref?.();
-      timers.set(accessKeyId, timer);
+      // Debounced per workspace; the region is resolved when the timer fires.
+      schedule(`ws:${accessKeyId}`, () =>
+        service.regionOfWorkspace(accessKeyId)
+      );
+    },
+
+    /** A workspace joined or left a region (created or deleted): publish that region soon. */
+    onRegionChange(regionKeyValue: string) {
+      schedule(`rg:${regionKeyValue}`, () =>
+        service.regionByKey(regionKeyValue)
+      );
     },
 
     /** The answer to `region.R.config.request` (contract §3). */
@@ -221,13 +329,7 @@ export function createConfigSync(deps: {
           configVersion: row.configVersion
         };
       if (row.configVersion === 0) return publishNow(row);
-      const kinds = await snapshot(row.accessKeyId);
-      return {
-        type: "region.config",
-        configVersion: row.configVersion,
-        full: true,
-        kinds
-      } as ConfigMessage;
+      return message(row, row.configVersion);
     },
 
     /** After a heartbeat: a supported cell behind the current version gets the snapshot again. */
@@ -237,13 +339,10 @@ export function createConfigSync(deps: {
         await publishNow(row);
       } else if (row.reportedConfig < row.configVersion) {
         // Resend the current version (no bump): the cell missed it while offline.
-        const kinds = await snapshot(row.accessKeyId);
-        publish(subjects(row.ref).config, {
-          type: "region.config",
-          configVersion: row.configVersion,
-          full: true,
-          kinds
-        } as ConfigMessage);
+        publish(
+          subjects(row.ref).config,
+          await message(row, row.configVersion)
+        );
       }
     },
 

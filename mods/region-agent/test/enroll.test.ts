@@ -34,7 +34,7 @@ import {
 import { KubeSecrets } from "../src/kube";
 import { FakeControlPlane } from "./fakeControlPlane";
 
-// add-private-regions task 3.1: `fonoster-region enroll <token>` (contract 1 and 2).
+// add-private-regions task 3.1: `fonoster-regions enroll <token>` (contract 1 and 2).
 
 async function rejects(p: Promise<unknown>, code: string) {
   try {
@@ -84,7 +84,13 @@ describe("@region-agent enrollment", function () {
       version: "0.28.1"
     });
     expect(identity.regionRef).to.equal(cp.regionRef);
-    expect(identity.workspaceRef).to.equal(cp.workspaceRef);
+    // A region serves several workspaces (PR-14): no workspace in the identity.
+    expect(identity).to.include({
+      regionId: "acme-hq",
+      kind: "private",
+      sipDomain: "sip.acme.example"
+    });
+    expect(identity.workspaceRef).to.equal(undefined);
     expect(identity.tokenId).to.equal(jti);
     const sent = cp.enrollments[0] as Record<string, unknown>;
     expect(sent.token).to.equal(token);

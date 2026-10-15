@@ -17,13 +17,16 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { ConfigSnapshot, Row } from "../types";
+import { normalizeSnapshot, regionDomainUri } from "../snapshot";
+import { ConfigSnapshot, Row, SnapshotRegion } from "../types";
 
 const logger = getLogger({ service: "region-agent", filePath: __filename });
 
 // Applies the snapshot's Routr resources (domains, agents, trunks, ACLs, numbers) to the cell's
 // Routr (RC-B8). Routr makes its own refs on create, so the cell keeps a map from control-plane
 // refs to cell refs and rewrites references (an agent's domainRef, a number's trunkRef, …).
+// The rows of every workspace in the snapshot are applied together (control-plane refs are
+// unique across workspaces), and domains move under the region's SIP domain (PR-16).
 
 export const ROUTR_KINDS = [
   "acls",
@@ -100,13 +103,24 @@ export class RoutrApplier {
     readonly refs: RefMap = {}
   ) {}
 
+  /** The kind's rows across workspaces; undefined when no workspace carries the kind. */
   private rows(snapshot: ConfigSnapshot, kind: RoutrKind): Row[] | undefined {
-    if (kind === "numbers") return snapshot.kinds.numbers;
     if (kind === "peers") return undefined;
-    return (snapshot.kinds.routr as Record<string, Row[] | undefined>)?.[kind];
+    const n = normalizeSnapshot(snapshot);
+    let out: Row[] | undefined;
+    for (const w of Object.values(n.workspaces)) {
+      const rows =
+        kind === "numbers"
+          ? w.kinds.numbers
+          : (w.kinds.routr as Record<string, Row[] | undefined>)?.[kind];
+      if (rows) out = [...(out ?? []), ...rows];
+    }
+    // A full multi-workspace snapshot with no workspace left: nothing of this kind remains.
+    if (!out && snapshot.workspaces && snapshot.full !== false) return [];
+    return out;
   }
 
-  private translate(kind: RoutrKind, row: Row): Row {
+  private translate(kind: RoutrKind, row: Row, region: SnapshotRegion): Row {
     const data: Row = {};
     for (const [k, v] of Object.entries(row))
       if (!DROP.includes(k) && v !== undefined) data[k] = v;
@@ -124,6 +138,8 @@ export class RoutrApplier {
           numberRef: this.refs.numbers?.[String(p.numberRef)]
         }))
         .filter((p) => p.numberRef);
+    if (kind === "domains" && typeof row.domainUri === "string")
+      data.domainUri = regionDomainUri(row.domainUri, region);
     return data;
   }
 
@@ -144,7 +160,7 @@ export class RoutrApplier {
         const cpRef = String(row.ref ?? "");
         if (!cpRef) continue;
         present[kind]!.add(cpRef);
-        const data = this.translate(kind, row);
+        const data = this.translate(kind, row, snapshot.region ?? {});
         try {
           const cellRef = map[cpRef];
           if (cellRef) {

@@ -147,7 +147,16 @@ export type GatewayConfig = {
    * `fonoster-region secrets set <provider>`, by provider name. They come before the database's
    * workspace keys, and providers need no platform credential when this is set.
    */
-  cellSecrets?: { file?: string; dir?: string; keyEnv?: string };
+  cellSecrets?: {
+    file?: string;
+    dir?: string;
+    keyEnv?: string;
+    /**
+     * Public regions (PR-20): a workspace's own key is fetched per call from the cloud through the
+     * region agent (`cell.workspacekeys.get` on this gateway's NATS) before the region's keys.
+     */
+    workspaceKeysFromCloud?: boolean;
+  };
   /** Where apps come from: `yaml` (the `apps` list, default) or `database` (applications rows). */
   appStore?: { source: "yaml" | "database"; cacheMs?: number };
   /**

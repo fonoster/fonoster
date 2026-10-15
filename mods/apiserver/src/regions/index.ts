@@ -19,6 +19,7 @@
 export * from "./configSync";
 export * from "./createRegionsRouter";
 export * from "./endpoints";
+export * from "./ids";
 export * from "./enrollmentToken";
 export * from "./link";
 export * from "./natsAuth";

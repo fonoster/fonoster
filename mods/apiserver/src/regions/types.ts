@@ -39,6 +39,8 @@ export const subjects = (ref: string) => ({
   index: `region.${ref}.index`,
   usage: `region.${ref}.usage`,
   revoked: `region.${ref}.revoked`,
+  /** region → cp request/reply: a workspace's bring-your-own key (public regions, §6). */
+  secretsGet: `region.${ref}.secrets.get`,
   endpoints: `region.${ref}.endpoints`,
   /** cp → cell: please publish `region.R.endpoints` again (RE-B2). */
   endpointsRequest: `region.${ref}.endpoints.request`,
@@ -72,6 +74,9 @@ export type RegionStatus =
   | "offline"
   | "unsupported";
 
+export type RegionKind = "public" | "private";
+
+/** A configured public region (`regions.public`, the fallback for `default`). */
 export type PublicRegion = {
   id: string;
   name: string;
@@ -83,7 +88,14 @@ export type PublicRegion = {
 /** A Region row (Prisma). */
 export type RegionRow = {
   ref: string;
-  accessKeyId: string;
+  id: string;
+  kind: RegionKind | string;
+  ownerRef: string | null;
+  displayName: string;
+  sipDomain: string | null;
+  published: boolean;
+  /** Legacy (old model): the workspace a private region was created for. */
+  accessKeyId: string | null;
   state: string;
   cellPublicKey: string | null;
   version: string | null;
@@ -100,6 +112,26 @@ export type RegionRow = {
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+};
+
+/** What `Workspace.region` holds for a region: the id (public) or the ref (private). */
+export const regionKey = (row: Pick<RegionRow, "kind" | "id" | "ref">) =>
+  row.kind === "public" ? row.id : row.ref;
+
+/** A workspace as the regions code sees it (from Identity). */
+export type WorkspaceInfo = {
+  ref: string;
+  accessKeyId: string;
+  name: string;
+  ownerRef: string;
+  region: string;
+};
+
+/** Identity's workspaces, read by the regions code (Identity has its own database). */
+export type WorkspaceDirectory = {
+  workspace(accessKeyId: string): Promise<WorkspaceInfo | undefined>;
+  /** Workspaces whose `region` is this key (a public id or a private ref). */
+  inRegion(regionKey: string): Promise<WorkspaceInfo[]>;
 };
 
 /** The Prisma client, narrowed to what the regions code uses (tests pass a real one). */

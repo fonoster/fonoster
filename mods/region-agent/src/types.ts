@@ -25,14 +25,22 @@ export const CONTRACT_VERSION = "fonoster.region.v1";
 export type EnrollmentClaims = {
   iss: string;
   aud: string | string[];
+  /** The region ref (`rg_…`). */
   sub: string;
-  wsp: string;
+  /** The region id (`acme-hq`, `us-east-2`). */
+  rid?: string;
+  /** `public` | `private`. */
+  knd?: RegionKind;
+  /** Gone since PR-14 (a region serves several workspaces); read only from old tokens. */
+  wsp?: string;
   cp: string;
   leaf: string;
   jti: string;
   iat: number;
   exp: number;
 };
+
+export type RegionKind = "public" | "private";
 
 export type Components = {
   mediaNodes: number;
@@ -43,7 +51,13 @@ export type Components = {
 /** `200` of `POST {cp}/api/regions/enroll` (contract 2). */
 export type EnrollResponse = {
   regionRef: string;
-  workspaceRef: string;
+  regionId?: string;
+  kind?: RegionKind;
+  sipDomain?: string | null;
+  /** Informational; the config snapshot is authoritative. */
+  workspaceRefs?: string[];
+  /** Old control planes (one workspace per region). */
+  workspaceRef?: string;
   leafUrl: string;
   credentials: string;
   subjects: string;
@@ -53,7 +67,11 @@ export type EnrollResponse = {
 /** What the cell keeps after enrolling (file 0600 or a Kubernetes Secret). */
 export type RegionIdentity = {
   regionRef: string;
-  workspaceRef: string;
+  regionId?: string;
+  kind?: RegionKind;
+  sipDomain?: string | null;
+  /** Old identity files (one workspace per region); a snapshot's single `kinds` maps to it. */
+  workspaceRef?: string;
   controlPlane: string;
   leafUrl: string;
   subjects: string;
@@ -106,20 +124,45 @@ export type RoutrKinds = {
   credentials?: Row[];
 };
 
+/** One workspace's part of a snapshot. */
+export type WorkspaceKinds = {
+  numbers?: Row[];
+  apps?: Row[];
+  assistants?: Row[];
+  routr?: RoutrKinds;
+  /** Old single-workspace snapshots carried the catalog here. */
+  catalog?: Row[];
+  webhooks?: Row[];
+  /** RG-B4: `{transcripts?, recordings?, retention: [{part, days}]}`; a string is an app default. */
+  recordingPolicy?: RecordingPolicySnapshot | string | null;
+};
+
+export type SnapshotRegion = {
+  ref?: string;
+  id?: string;
+  kind?: RegionKind;
+  sipDomain?: string | null;
+  /** The cloud's SIP root domain; cloud domains end with it. */
+  rootDomain?: string | null;
+};
+
+export type SnapshotWorkspace = {
+  ref?: string;
+  name?: string;
+  domain?: string | null;
+  kinds: WorkspaceKinds;
+};
+
+/** `region.R.config` (contract 3): one snapshot per region, keyed by workspace. */
 export type ConfigSnapshot = {
   type: "region.config";
   configVersion: number;
   full: boolean;
-  kinds: {
-    numbers?: Row[];
-    apps?: Row[];
-    assistants?: Row[];
-    routr?: RoutrKinds;
-    catalog?: Row[];
-    webhooks?: Row[];
-    /** RG-B4: `{transcripts?, recordings?, retention: [{part, days}]}`; a string is an app default. */
-    recordingPolicy?: RecordingPolicySnapshot | string | null;
-  };
+  region?: SnapshotRegion;
+  catalog?: Row[];
+  workspaces?: Record<string, SnapshotWorkspace>;
+  /** Old single-workspace shape; mapped to the identity's workspaceRef. */
+  kinds?: WorkspaceKinds;
 };
 
 export type RecordingPolicySnapshot = {
@@ -132,6 +175,8 @@ export type RelayRequest = {
   type: "region.relay";
   id: string;
   userRef: string;
+  /** The caller's workspace; only its records are served (contract 5). */
+  workspaceRef?: string;
   op: "record.get" | "record.part";
   callRef: string;
   part?: string;
@@ -172,6 +217,11 @@ export const subjects = (regionRef: string) => ({
   /** cp → cell: publish the endpoints again (RE-B2). */
   endpointsRequest: `region.${regionRef}.endpoints.request`,
   revoked: `region.${regionRef}.revoked`,
+  /** region → cp request/reply: a workspace's bring-your-own key (contract 6, PR-20). */
+  secretsGet: `region.${regionRef}.secrets.get`,
   /** Reply subjects for requests that cross the link (RG-B4): the link client's inboxPrefix. */
   inbox: `region.${regionRef}._INBOX`
 });
+
+/** Cell-local subject the gateway asks for a workspace's key on (contract 6; never crosses the link). */
+export const CELL_WORKSPACE_KEYS_SUBJECT = "cell.workspacekeys.get";

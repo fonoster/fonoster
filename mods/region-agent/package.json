@@ -1,13 +1,14 @@
 {
   "name": "@fonoster/region-agent",
   "version": "0.27.0",
-  "description": "The agent of a private region's cell: enrollment, config sync, heartbeats, content relay and cell secrets",
+  "description": "The region agent and the fonoster-regions ops utility: public and private regions' enrollment, config sync, heartbeats, content relay and region secrets; public region administration",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",
   "bin": {
+    "fonoster-regions": "dist/cli.js",
     "fonoster-region": "dist/cli.js"
   },
   "directories": {

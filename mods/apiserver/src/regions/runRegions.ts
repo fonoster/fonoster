@@ -22,12 +22,19 @@ import { Router } from "express";
 import { connect, credsAuthenticator, NatsConnection, StringCodec } from "nats";
 import { ConfigSync, createConfigSync, SnapshotSources } from "./configSync";
 import { createRegionsRouter } from "./createRegionsRouter";
+import { offeredPublicRegions } from "./createRegionsRouter";
 import { createRegionSigner, RegionSigner } from "./enrollmentToken";
+import { DEFAULT_REGION_ID } from "./ids";
 import { startRegionLink } from "./link";
 import { createRegionNatsAuth, RegionNatsAuth } from "./natsAuth";
 import { createRelayClient, RelayClient } from "./relay";
 import { createRegionService, RegionService } from "./service";
-import { PublicRegion, RegionError, RegionsDb } from "./types";
+import {
+  PublicRegion,
+  RegionError,
+  RegionsDb,
+  WorkspaceDirectory
+} from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 const sc = StringCodec();
@@ -53,6 +60,9 @@ export type RegionsConfig = {
   };
   currentVersion?: string;
   configDebounceMs: number;
+  /** PR-19: the admin API's only credential (resolved from secret:// by the config loader). */
+  operatorKey?: string;
+  privateRegionMonthlyFeeCents?: number;
 };
 
 export type RegionsRuntime = {
@@ -64,7 +74,7 @@ export type RegionsRuntime = {
   routers: { path: string; router: Router }[];
   /** A workspace's synced config changed (numbers, apps, Routr resources, webhooks, policy). */
   onConfigChange(accessKeyId: string): void;
-  /** The private region ref of a workspace, if it has one. */
+  /** The ref of the enrolled-region row a workspace is bound to (content is relayed from it). */
   regionOf(accessKeyId: string): Promise<string | undefined>;
   close(): Promise<void>;
 };
@@ -88,6 +98,10 @@ export async function runRegions(
     signer?: RegionSigner;
     /** Tests on a plain NATS server (no hub) pass their own issuer/revoker. */
     natsAuth?: RegionNatsAuth;
+    /** Identity's workspaces (tests); production attaches it through the workspace hooks. */
+    directory?: WorkspaceDirectory;
+    /** The cloud's SIP root domain (workspace domains end with it). */
+    rootDomain?: () => string;
   }
 ): Promise<RegionsRuntime> {
   const signer =
@@ -134,6 +148,7 @@ export async function runRegions(
     signer,
     natsAuth,
     publish,
+    directory: deps.directory,
     config: {
       issuer: deps.issuer,
       controlPlaneUrl: config.controlPlaneUrl ?? deps.defaultControlPlaneUrl,
@@ -151,7 +166,8 @@ export async function runRegions(
       service,
       sources: deps.sources,
       publish,
-      debounceMs: config.configDebounceMs
+      debounceMs: config.configDebounceMs,
+      rootDomain: deps.rootDomain
     });
     relay = createRelayClient(nc, config.relay);
     stopLink = startRegionLink({ nc, db: deps.db, service, configSync });
@@ -169,12 +185,18 @@ export async function runRegions(
     configSync,
     signer,
     publicRegions,
-    identityPublicKey: deps.identityPublicKey
+    identityPublicKey: deps.identityPublicKey,
+    operatorKey: config.operatorKey,
+    monthlyFeeCents: config.privateRegionMonthlyFeeCents
   });
   logger.info(
-    `regions: ${publicRegions.map((r) => r.id).join(", ")} public; private ${
+    `regions: configured public ${publicRegions
+      .map((r) => r.id)
+      .join(
+        ", "
+      )} (always offered; an enrolled public region with the same id replaces it once published and connected); enrolled regions ${
       signer && nc ? "on" : "off (needs regions.signingKey and regions.hub)"
-    }`
+    }; admin API ${config.operatorKey ? "on" : "off (no regions.operatorKey)"}`
   );
 
   return {
@@ -186,7 +208,7 @@ export async function runRegions(
     routers: [{ path: "/", router }],
     onConfigChange: (accessKeyId) => configSync?.onChange(accessKeyId),
     async regionOf(accessKeyId) {
-      return (await service.byWorkspace(accessKeyId))?.ref;
+      return (await service.regionOfWorkspace(accessKeyId))?.ref;
     },
     async close() {
       stopLink();
@@ -200,31 +222,65 @@ export async function runRegions(
 }
 
 /**
- * The hooks Identity calls when a workspace is created or deleted (PR-1, PR-2). Identity is built
- * before the regions runtime starts, so the hooks delegate to it once attached.
+ * The hooks Identity calls (PR-1, PR-14, PR-15): which region a new workspace may pick, and that a
+ * workspace joined or left a region. Identity is built before the regions runtime starts, so the
+ * hooks delegate to it once attached; Identity attaches its workspace directory the same way.
  */
 export function createWorkspaceRegionHooks(publicRegions: PublicRegion[]) {
   let runtime: RegionsRuntime | undefined;
+  let directory: WorkspaceDirectory | undefined;
   const defaultRegion =
     (publicRegions.find((r) => r.default) ?? publicRegions[0])?.id ??
-    "us-east-1";
+    DEFAULT_REGION_ID;
+  const connect = () => {
+    if (!runtime || !directory) return;
+    runtime.service.setDirectory(directory);
+    void runtime.service
+      .migrateLegacyOwners()
+      .catch((e) =>
+        logger.warn(`regions: owner backfill failed: ${(e as Error).message}`)
+      );
+  };
   return {
     publicRegions: publicRegions.map((r) => r.id),
     defaultRegion,
     attach(r: RegionsRuntime) {
       runtime = r;
+      connect();
     },
-    async createPrivateRegion(workspace: { accessKeyId: string }) {
-      if (!runtime)
-        throw new RegionError(
-          503,
-          "regions_unavailable",
-          "private regions are not running"
-        );
-      return runtime.service.createPrivateRegion(workspace.accessKeyId);
+    attachDirectory(d: WorkspaceDirectory) {
+      directory = d;
+      connect();
     },
-    async deleteRegion(workspace: { accessKeyId: string }) {
-      await runtime?.service.deleteForWorkspace(workspace.accessKeyId);
+    /**
+     * The `Workspace.region` value for what the caller picked: an offered public region id, or
+     * one of the caller's private regions (id or ref). Throws RegionError 400 otherwise.
+     */
+    async resolveRegion(ownerRef: string, requested?: string) {
+      const wanted = requested || defaultRegion;
+      const offered = runtime
+        ? await offeredPublicRegions(runtime.service, publicRegions)
+        : publicRegions.map((r) => ({ id: r.id }));
+      if (offered.some((r) => r.id === wanted)) return { region: wanted };
+      if (runtime) {
+        const row = await runtime.service
+          .owned(ownerRef, wanted)
+          .catch(() => undefined);
+        if (row) return { region: row.ref };
+      }
+      throw new RegionError(
+        400,
+        "region_invalid",
+        `region must be one of ${offered.map((r) => r.id).join(", ")} or one of your private regions${
+          wanted === "private"
+            ? ' (create a private region first; "private" is not a region)'
+            : ""
+        }`
+      );
+    },
+    /** A workspace joined (created) or left (deleted) a region: resync that region. */
+    workspaceChanged(workspace: { accessKeyId: string; region: string }) {
+      runtime?.configSync?.onRegionChange(workspace.region);
     }
   };
 }

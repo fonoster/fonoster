@@ -30,7 +30,10 @@ export type EnrollmentClaims = {
   iss: string;
   aud: string;
   sub: string;
-  wsp: string;
+  /** Region id (PR-18). */
+  rid: string;
+  /** Region kind: public | private. */
+  knd: string;
   cp: string;
   leaf: string;
   jti: string;
@@ -92,7 +95,7 @@ export function createRegionSigner(options: {
           algorithms: ["ES256"],
           audience: REGION_AUDIENCE
         }) as EnrollmentClaims;
-        if (!claims.sub || !claims.jti || !claims.wsp)
+        if (!claims.sub || !claims.jti)
           throw new EnrollmentTokenError("token_invalid");
         return claims;
       } catch (e) {

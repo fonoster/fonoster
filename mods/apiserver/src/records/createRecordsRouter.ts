@@ -237,7 +237,8 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
     part?: string
   ) => {
     const regionRef = await deps.relay?.regionOf(caller(res).accessKeyId);
-    if (!regionRef) return false;
+    // Only records indexed from that region live there (PR-14: same mechanism for public ones).
+    if (!regionRef || (row.region && row.region !== regionRef)) return false;
     const original = req.query.original === "true";
     if (original && !privileged(res)) {
       res.status(403).json({
@@ -258,6 +259,7 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
       regionRef,
       {
         userRef: caller(res).actor,
+        workspaceRef: caller(res).accessKeyId,
         op,
         callRef: row.callRef,
         part,

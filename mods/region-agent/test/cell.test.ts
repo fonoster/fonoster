@@ -35,7 +35,7 @@ import {
 } from "../src";
 import { FakeControlPlane } from "./fakeControlPlane";
 import { FakeRoutr } from "./fakeRoutr";
-import { sealRecord, snapshot, WS } from "./fixtures";
+import { kindsOf, sealRecord, snapshot, WS } from "./fixtures";
 
 // The cell side end to end against a fake control plane (add-private-regions task 3): enroll with
 // a test-key JWT, heartbeats with component counts and secret names (never values), a config
@@ -71,9 +71,11 @@ describe("@region-agent private cell against a fake control plane", function () 
   before(async function () {
     if (!NATS_URL) this.skip();
     db = await createTestDb();
+    // A public region: bring-your-own keys are fetched per call (PR-20).
     cp = await new FakeControlPlane(
       `rg_${randomBytes(4).toString("hex")}`,
-      WS
+      WS,
+      "public"
     ).start();
     nc = await connect({ servers: NATS_URL });
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "region-cell-"));
@@ -111,6 +113,32 @@ describe("@region-agent private cell against a fake control plane", function () 
         m.respond(sc.encode(JSON.stringify(snapshot(1))));
       }
     });
+    let keyRequests = 0;
+    nc.subscribe(`region.${R}.secrets.get`, {
+      callback: (_e, m) => {
+        keyRequests++;
+        expect(m.reply).to.match(new RegExp(`^region\\.${R}\\._INBOX\\.`));
+        const q = JSON.parse(sc.decode(m.data));
+        m.respond(
+          sc.encode(
+            JSON.stringify(
+              q.provider === "openai"
+                ? {
+                    type: "region.secrets.value",
+                    workspaceRef: q.workspaceRef,
+                    provider: q.provider,
+                    value: "BYO-OPENAI-VALUE"
+                  }
+                : {
+                    type: "region.secrets.none",
+                    workspaceRef: q.workspaceRef,
+                    provider: q.provider
+                  }
+            )
+          )
+        );
+      }
+    });
     for (const s of ["heartbeat", "index", "usage", "endpoints"])
       nc.subscribe(`region.${R}.${s}`, {
         callback: (_e, m) => (got[s] ??= []).push(JSON.parse(sc.decode(m.data)))
@@ -143,7 +171,6 @@ describe("@region-agent private cell against a fake control plane", function () 
       firstHeartbeatMs: 400,
       db: db
         ? new DatabaseApplier(db.prisma, {
-            workspaceRef: identity.workspaceRef,
             autopilot: { url: "ws://autopilot:3000" }
           })
         : undefined,
@@ -234,7 +261,7 @@ describe("@region-agent private cell against a fake control plane", function () 
 
     // a pushed snapshot (newer) applies; an older one is ignored
     const s2 = snapshot(2);
-    s2.kinds.routr!.agents = [];
+    kindsOf(s2).routr!.agents = [];
     nc.publish(`region.${R}.config`, sc.encode(JSON.stringify(s2)));
     nc.publish(`region.${R}.config`, sc.encode(JSON.stringify(snapshot(1))));
     await waitFor(() => applied.includes(2));
@@ -252,6 +279,7 @@ describe("@region-agent private cell against a fake control plane", function () 
           type: "region.relay",
           id: "rl-1",
           userRef: "user-9",
+          workspaceRef: WS,
           op: "record.part",
           callRef: "call-1",
           part: "recording",
@@ -273,13 +301,77 @@ describe("@region-agent private cell against a fake control plane", function () 
     const audit = fs.readFileSync(path.join(dir, "relay-audit.jsonl"), "utf8");
     expect(audit).to.include('"userRef":"user-9"');
 
-    // index entries and usage
+    // relay: another workspace's caller, or none, gets nothing (contract 5)
+    const ask = async (workspaceRef?: string) => {
+      const reply = `region.${R}._INBOX.relay-${workspaceRef ?? "none"}`;
+      const sub = nc.subscribe(reply, { max: 1 });
+      nc.publish(
+        `region.${R}.relay`,
+        sc.encode(
+          JSON.stringify({
+            type: "region.relay",
+            id: "rl-x",
+            userRef: "user-9",
+            workspaceRef,
+            op: "record.get",
+            callRef: "call-1"
+          })
+        ),
+        { reply }
+      );
+      for await (const m of sub) return JSON.parse(sc.decode(m.data));
+    };
+    expect(await ask("WOothertenant")).to.include({
+      type: "region.relay.error",
+      code: "not_found"
+    });
+    expect(await ask(undefined)).to.include({
+      type: "region.relay.error",
+      code: "bad_request"
+    });
+
+    // bring-your-own keys: per call over the link, only for the region's workspaces (PR-20)
+    const key = async (workspaceRef: string, provider: string) =>
+      JSON.parse(
+        sc.decode(
+          (
+            await nc.request(
+              "cell.workspacekeys.get",
+              sc.encode(JSON.stringify({ workspaceRef, provider })),
+              { timeout: 3000 }
+            )
+          ).data
+        )
+      );
+    expect(await key(WS, "openai")).to.deep.equal({
+      value: "BYO-OPENAI-VALUE"
+    });
+    expect(await key(WS, "groq")).to.deep.equal({});
+    const asked = keyRequests;
+    expect(await key("WOothertenant", "openai")).to.deep.equal({});
+    expect(keyRequests).to.equal(asked);
+    const keys = new CellSecrets.NatsWorkspaceKeys(async () => nc);
+    expect(await keys.get(WS, "openai")).to.equal("BYO-OPENAI-VALUE");
+    expect(await keys.get(WS, "groq")).to.equal(undefined);
+
+    // index entries and usage: only for the region's workspaces (contract 5)
+    nc.publish(
+      "callrecord.sealed",
+      sc.encode(
+        JSON.stringify({
+          callRef: "call-foreign",
+          workspaceRef: "WOothertenant",
+          durationSeconds: 60,
+          endedAt: "2026-10-15T10:01:30.000Z"
+        })
+      )
+    );
     nc.publish(
       "callrecord.sealed",
       sc.encode(
         JSON.stringify({
           callRef: "call-1",
-          workspaceRef: "WOspoofed",
+          workspaceRef: WS,
           status: "completed",
           startedAt: "2026-10-15T10:00:00.000Z",
           endedAt: "2026-10-15T10:01:30.000Z",
@@ -297,13 +389,22 @@ describe("@region-agent private cell against a fake control plane", function () 
     )) as Record<string, unknown>;
     expect(usage).to.deep.equal({
       type: "region.usage",
+      workspaceRef: WS,
       minutes: 2,
       period: "2026-10"
     });
+    expect(
+      (got.index as Record<string, unknown>[]).map((e) => e.callRef)
+    ).to.deep.equal(["call-1"]);
 
-    // the secret value never crossed the link
+    // the secret values never crossed the link or reached the cell's files
     const everything = JSON.stringify(got);
     expect(everything).to.not.include("dg-SECRET-VALUE");
+    for (const f of fs.readdirSync(dir).filter((f) => !f.endsWith(".enc")))
+      if (fs.statSync(path.join(dir, f)).isFile())
+        expect(fs.readFileSync(path.join(dir, f), "utf8")).to.not.include(
+          "BYO-OPENAI-VALUE"
+        );
 
     // revocation: heartbeats stop
     nc.publish(
@@ -365,6 +466,20 @@ describe("@region-agent private cell against a fake control plane", function () 
       requiredVersion: "0.27.0"
     });
     expect(paused.state.configVersion).to.equal(-1);
+    // A private region never asks the control plane for workspace keys (contract 6).
+    let asked = false;
+    const keySub = nc.subscribe(`region.${R}.secrets.get`, {
+      callback: () => (asked = true)
+    });
+    paused.state.workspaces = [WS];
+    const reply = await nc.request(
+      "cell.workspacekeys.get",
+      sc.encode(JSON.stringify({ workspaceRef: WS, provider: "openai" })),
+      { timeout: 3000 }
+    );
+    expect(JSON.parse(sc.decode(reply.data))).to.deep.equal({});
+    expect(asked).to.equal(false);
+    keySub.unsubscribe();
     await paused.stop();
     sub.unsubscribe();
     await link.drain();

@@ -25,3 +25,4 @@ export * from "./createListWorkspaceMembers";
 export * from "./createRemoveUserFromWorkspace";
 export * from "./createResendWorkspaceMembershipInvitation";
 export * from "./createUpdateWorkspace";
+export * from "./createWorkspaceDirectory";

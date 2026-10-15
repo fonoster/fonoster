@@ -35,19 +35,14 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const DEFAULT_REGION = "us-east-1";
-const PRIVATE_REGION = "private";
+const DEFAULT_REGION = "default";
 
-type CreateWorkspaceResponse = BaseApiObject & {
-  region: string;
-  enrollmentToken?: string;
-  expiresAt?: string;
-};
+type CreateWorkspaceResponse = BaseApiObject & { region: string };
 
 /**
- * Creates a workspace in one region, for its whole life (add-private-regions PR-1): a public
- * region id, or "private" to create the workspace's own private region with it (PR-2), whose
- * one-time enrollment token is returned here only.
+ * Creates a workspace in one region, for its whole life (add-private-regions PR-1, PR-15): an
+ * offered public region id (default `default`) or one of the caller's private regions (by id or
+ * ref). Private regions are created at the user level, never here.
  */
 function createCreateWorkspace(prisma: Prisma, regions?: WorkspaceRegionHooks) {
   const createWorkspace = async (
@@ -59,10 +54,7 @@ function createCreateWorkspace(prisma: Prisma, regions?: WorkspaceRegionHooks) {
   ) => {
     const { request } = call;
     const { name } = request;
-    const requested =
-      (request as { region?: string }).region ||
-      regions?.defaultRegion ||
-      DEFAULT_REGION;
+    const requested = (request as { region?: string }).region || undefined;
 
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const ownerRef = getUserRefFromToken(token);
@@ -74,51 +66,40 @@ function createCreateWorkspace(prisma: Prisma, regions?: WorkspaceRegionHooks) {
       region: requested
     });
 
-    const publicRegions = regions?.publicRegions ?? [DEFAULT_REGION];
-    if (requested !== PRIVATE_REGION && !publicRegions.includes(requested)) {
-      callback({
-        code: GRPCStatus.INVALID_ARGUMENT,
-        message: `region must be one of ${[...publicRegions, PRIVATE_REGION].join(", ")}`
-      });
-      return;
-    }
-
-    let region = requested;
-    let enrollment: { enrollmentToken: string; expiresAt: string } | undefined;
-    if (requested === PRIVATE_REGION) {
-      if (!regions) {
+    let region: string;
+    if (regions) {
+      try {
+        region = (await regions.resolveRegion(ownerRef, requested)).region;
+      } catch (e) {
         callback({
-          code: GRPCStatus.FAILED_PRECONDITION,
-          message: "private regions are not available on this server"
+          code: GRPCStatus.INVALID_ARGUMENT,
+          message: (e as Error).message
         });
         return;
       }
-      const created = await regions.createPrivateRegion({ accessKeyId });
-      region = created.regionRef;
-      enrollment = {
-        enrollmentToken: created.enrollmentToken,
-        expiresAt: created.expiresAt
-      };
+    } else {
+      region = requested ?? DEFAULT_REGION;
+      if (region !== DEFAULT_REGION) {
+        callback({
+          code: GRPCStatus.INVALID_ARGUMENT,
+          message: `region must be ${DEFAULT_REGION}`
+        });
+        return;
+      }
     }
 
-    let workspace;
-    try {
-      workspace = await prisma.workspace.create({
-        data: {
-          name,
-          accessKeyId,
-          ownerRef,
-          region
-        }
-      });
-    } catch (e) {
-      if (enrollment) await regions?.deleteRegion({ accessKeyId });
-      throw e;
-    }
+    const workspace = await prisma.workspace.create({
+      data: {
+        name,
+        accessKeyId,
+        ownerRef,
+        region
+      }
+    });
 
-    const { ref } = workspace;
+    regions?.workspaceChanged({ accessKeyId, region });
 
-    callback(null, { ref, region, ...(enrollment ?? {}) });
+    callback(null, { ref: workspace.ref, region });
   };
 
   return withErrorHandlingAndValidation(

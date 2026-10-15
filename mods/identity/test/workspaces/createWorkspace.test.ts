@@ -58,7 +58,7 @@ describe("@identity[workspaces/createWorkspace]", function () {
     // Act
     await createCreateWorkspace(prisma)(call, (_, response) => {
       // Assert
-      expect(response).to.deep.equal({ ref: "123", region: "us-east-1" });
+      expect(response).to.deep.equal({ ref: "123", region: "default" });
     });
   });
 

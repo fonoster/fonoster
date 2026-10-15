@@ -158,9 +158,14 @@ const regionsSchema = z
         })
       )
       .min(1)
-      .default([
-        { id: "us-east-1", name: "US East (N. Virginia)", default: true }
-      ]),
+      .default([{ id: "default", name: "Default", default: true }]),
+    /**
+     * The operator key (PR-19): the only credential of the region admin API (create, list,
+     * publish, revoke public regions). `secret://` references are resolved. Absent: admin API off.
+     */
+    operatorKey: z.string().min(16).optional(),
+    /** The flat monthly fee per private region (PR-11), shown when billing is on. */
+    privateRegionMonthlyFeeCents: z.number().int().nonnegative().optional(),
     /** `cp` in enrollment tokens. Defaults to appUrl. */
     controlPlaneUrl: z.string().min(1).optional(),
     /** `leaf` in enrollment tokens. Defaults to tls://<domain>:7422. */
@@ -290,6 +295,18 @@ const fonosterConfigSchema = z
         code: "custom",
         path: ["identity", "oauth2", "github"],
         message: "required when features.auth.methods includes github"
+      });
+    }
+
+    // PR-17: the default public region's id is always `default`.
+    const publicRegions = config.regions.public;
+    const dflt = publicRegions.find((r) => r.default) ?? publicRegions[0];
+    if (dflt && dflt.id !== "default") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["regions", "public"],
+        message:
+          "the default public region's id must be `default` (put the geography in its name)"
       });
     }
 

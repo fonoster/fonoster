@@ -19,14 +19,16 @@
 import { randomBytes } from "crypto";
 import { Registry } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { ConfigSnapshot, Row } from "../types";
+import { normalizeSnapshot, UNKNOWN_WORKSPACE } from "../snapshot";
+import { ConfigSnapshot, Row, WorkspaceKinds } from "../types";
 
 const logger = getLogger({ service: "region-agent", filePath: __filename });
 
 // Applies a config snapshot to the cell's database (RC-B6): the apiserver's own schema and tables,
 // so the cell's gateway (`appStore`/`registry`/`webhooks: database`) and hosted Autopilot
 // (`assistants: database`) read them exactly as they do in a public region. A snapshot is
-// authoritative: apps and webhook endpoints of the workspace that are not in it are removed.
+// authoritative and carries every workspace of the region (PR-14): apps and webhook endpoints of a
+// workspace that are not in it are removed, and a workspace missing from it is removed entirely.
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = any;
@@ -80,6 +82,10 @@ export type ApplyResult = {
   webhooks: number;
   removedWebhooks: number;
   retention?: number;
+  /** Workspaces the snapshot carried (applied). */
+  workspaces: string[];
+  /** Workspaces found in the cell but gone from the snapshot (their rows were removed). */
+  removedWorkspaces: string[];
 };
 
 /** An API-shaped app (`speech: {voice, …}`) as columns; column-shaped rows pass through. */
@@ -106,9 +112,9 @@ function appColumns(row: Row): Record<string, unknown> {
 }
 
 /** The assistant of an app: from `assistants` ({appRef, config}) or the row's `intelligence`. */
-function assistantsOf(snapshot: ConfigSnapshot) {
+function assistantsOf(kinds: WorkspaceKinds) {
   const out = new Map<string, { config: unknown; productRef?: string }>();
-  for (const app of snapshot.kinds.apps ?? []) {
+  for (const app of kinds.apps ?? []) {
     const intel = (app.intelligence ?? app.assistant) as Row | undefined;
     if (intel)
       out.set(String(app.ref), {
@@ -116,7 +122,7 @@ function assistantsOf(snapshot: ConfigSnapshot) {
         productRef: intel.productRef as string | undefined
       });
   }
-  for (const a of snapshot.kinds.assistants ?? []) {
+  for (const a of kinds.assistants ?? []) {
     const ref = String(a.appRef ?? a.applicationRef ?? a.ref ?? "");
     if (ref)
       out.set(ref, {
@@ -131,47 +137,118 @@ export class DatabaseApplier {
   constructor(
     private readonly db: Db,
     private readonly options: {
-      workspaceRef: string;
+      /** Old single-workspace snapshots (`kinds`) apply to this workspace. */
+      workspaceRef?: string;
       autopilot?: CellAutopilot;
-    }
+    } = {}
   ) {}
 
+  /** Workspaces that have rows in the cell (everything there came from a snapshot). */
+  async workspacesInCell(): Promise<string[]> {
+    const [apps, hooks, retention] = await Promise.all([
+      this.db.application.findMany({
+        select: { accessKeyId: true },
+        distinct: ["accessKeyId"]
+      }),
+      this.db.webhookEndpoint.findMany({
+        select: { accessKeyId: true },
+        distinct: ["accessKeyId"]
+      }),
+      this.db.callRecordRetention.findMany({
+        select: { accessKeyId: true },
+        distinct: ["accessKeyId"]
+      })
+    ]);
+    return [
+      ...new Set(
+        [...apps, ...hooks, ...retention].map(
+          (r: { accessKeyId: string }) => r.accessKeyId
+        )
+      )
+    ].sort();
+  }
+
   async apply(snapshot: ConfigSnapshot): Promise<ApplyResult> {
-    const k = snapshot.kinds;
+    const n = normalizeSnapshot(snapshot, this.options.workspaceRef);
     const result: ApplyResult = {
       apps: 0,
       removedApps: 0,
       assistants: 0,
       catalog: 0,
       webhooks: 0,
-      removedWebhooks: 0
+      removedWebhooks: 0,
+      workspaces: [],
+      removedWorkspaces: []
     };
     // The catalog first: apps and assistants name catalog ids.
-    if (k.catalog) result.catalog = await this.applyCatalog(k.catalog);
-    if (k.apps) {
-      const r = await this.applyApps(
-        k.apps,
-        typeof k.recordingPolicy === "string" ? k.recordingPolicy : undefined
-      );
-      result.apps = r.apps;
-      result.removedApps = r.removed;
+    if (n.catalog) result.catalog = await this.applyCatalog(n.catalog);
+    for (const [ws, w] of Object.entries(n.workspaces)) {
+      if (ws === UNKNOWN_WORKSPACE) {
+        logger.warn("an old single-workspace snapshot, but no workspace known");
+        continue;
+      }
+      const r = await this.applyWorkspace(ws, w.kinds);
+      result.apps += r.apps;
+      result.removedApps += r.removedApps;
+      result.assistants += r.assistants;
+      result.webhooks += r.webhooks;
+      result.removedWebhooks += r.removedWebhooks;
+      if (r.retention !== undefined)
+        result.retention = (result.retention ?? 0) + r.retention;
+      result.workspaces.push(ws);
     }
-    if (k.apps || k.assistants)
-      result.assistants = await this.applyAssistants(snapshot);
-    if (k.recordingPolicy && typeof k.recordingPolicy === "object")
-      result.retention = await this.applyRetention(
-        k.recordingPolicy.retention ?? []
-      );
-    if (k.webhooks) {
-      const r = await this.applyWebhooks(k.webhooks);
-      result.webhooks = r.webhooks;
-      result.removedWebhooks = r.removed;
-    }
+    // A full snapshot names every workspace of the region; the rest left the region.
+    if (snapshot.full !== false && snapshot.workspaces)
+      for (const ws of await this.workspacesInCell()) {
+        if (n.workspaces[ws]) continue;
+        await this.removeWorkspace(ws);
+        result.removedWorkspaces.push(ws);
+      }
     return result;
   }
 
-  private async applyApps(rows: Row[], recordingPolicy?: string) {
-    const ws = this.options.workspaceRef;
+  /** Everything the cell holds for a workspace that left the region. */
+  async removeWorkspace(ws: string) {
+    await this.applyApps(ws, []);
+    await this.applyWebhooks(ws, []);
+    await this.applyRetention(ws, []);
+    logger.info(`workspace ${ws} left the region; its config was removed`);
+  }
+
+  private async applyWorkspace(ws: string, k: WorkspaceKinds) {
+    const r = {
+      apps: 0,
+      removedApps: 0,
+      assistants: 0,
+      webhooks: 0,
+      removedWebhooks: 0,
+      retention: undefined as number | undefined
+    };
+    if (k.apps) {
+      const a = await this.applyApps(
+        ws,
+        k.apps,
+        typeof k.recordingPolicy === "string" ? k.recordingPolicy : undefined
+      );
+      r.apps = a.apps;
+      r.removedApps = a.removed;
+    }
+    if (k.apps || k.assistants)
+      r.assistants = await this.applyAssistants(ws, k);
+    if (k.recordingPolicy && typeof k.recordingPolicy === "object")
+      r.retention = await this.applyRetention(
+        ws,
+        k.recordingPolicy.retention ?? []
+      );
+    if (k.webhooks) {
+      const w = await this.applyWebhooks(ws, k.webhooks);
+      r.webhooks = w.webhooks;
+      r.removedWebhooks = w.removed;
+    }
+    return r;
+  }
+
+  private async applyApps(ws: string, rows: Row[], recordingPolicy?: string) {
     const keep = new Set<string>();
     for (const row of rows) {
       const ref = String(row.ref ?? "");
@@ -238,14 +315,14 @@ export class DatabaseApplier {
     });
   }
 
-  private async applyAssistants(snapshot: ConfigSnapshot) {
-    const assistants = assistantsOf(snapshot);
+  private async applyAssistants(ws: string, kinds: WorkspaceKinds) {
+    const assistants = assistantsOf(kinds);
     let n = 0;
     for (const [appRef, a] of assistants) {
       const app = await this.db.application.findUnique({
         where: { ref: appRef }
       });
-      if (!app || app.accessKeyId !== this.options.workspaceRef) continue;
+      if (!app || app.accessKeyId !== ws) continue;
       const model = String(
         ((a.config as Row)?.languageModel as Row | undefined)?.model ??
           "generic"
@@ -280,8 +357,10 @@ export class DatabaseApplier {
   }
 
   /** The workspace's retention policies (call_record_retention), replaced as a whole. */
-  private async applyRetention(rows: { part: string; days: number }[]) {
-    const accessKeyId = this.options.workspaceRef;
+  private async applyRetention(
+    accessKeyId: string,
+    rows: { part: string; days: number }[]
+  ) {
     const valid = rows.filter(
       (r) =>
         typeof r.part === "string" && Number.isInteger(r.days) && r.days > 0
@@ -297,8 +376,7 @@ export class DatabaseApplier {
     return valid.length;
   }
 
-  private async applyWebhooks(rows: Row[]) {
-    const ws = this.options.workspaceRef;
+  private async applyWebhooks(ws: string, rows: Row[]) {
     const keep = new Set<string>();
     for (const row of rows) {
       const ref = String(row.ref ?? "");

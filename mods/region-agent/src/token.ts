@@ -29,6 +29,7 @@ export type EnrollErrorCode =
   | "token_expired"
   | "token_used"
   | "region_not_found"
+  | "region_deleted"
   | "workspace_deleted"
   | "control_plane_mismatch"
   | "insecure_url"
@@ -37,13 +38,14 @@ export type EnrollErrorCode =
 
 const HINTS: Record<EnrollErrorCode, string> = {
   token_invalid:
-    "the token is not valid (bad signature, wrong audience or cut when copied). Copy it again from the dashboard's Region page.",
+    "the token is not valid (bad signature, wrong audience or cut when copied). Copy it again from the region's page in your account (operators: fonoster-regions token <id>).",
   token_expired:
-    "the token expired (tokens last 24 hours). Re-issue a token from the dashboard's Region page and enroll again.",
+    "the token expired (tokens last 24 hours). Re-issue a token from the region's page in your account (operators: fonoster-regions token <id>) and enroll again.",
   token_used:
-    "the token was already used. Each token enrolls one cell once; re-issue a token from the dashboard's Region page (this revokes the cell enrolled before).",
+    "the token was already used. Each token enrolls one cell once; re-issue a token from the region's page in your account (operators: fonoster-regions token <id>) (this revokes the cell enrolled before).",
   region_not_found:
-    "the control plane does not know this region. It may have been deleted; create the workspace's region again.",
+    "the control plane does not know this region. It may have been deleted; create the region again.",
+  region_deleted: "the region was deleted, so it cannot enroll.",
   workspace_deleted:
     "the region's workspace was deleted, so the region cannot enroll.",
   control_plane_mismatch:
@@ -124,7 +126,7 @@ export function verifyToken(
   const aud = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
   if (!aud.includes(CONTRACT_VERSION))
     throw new EnrollError("token_invalid", `audience ${claims.aud}`);
-  for (const c of ["sub", "wsp", "cp", "leaf", "jti"] as const)
+  for (const c of ["sub", "cp", "leaf", "jti"] as const)
     if (!claims[c]) throw new EnrollError("token_invalid", `no ${c} claim`);
   if (typeof claims.exp !== "number" || claims.exp * 1000 <= now)
     throw new EnrollError("token_expired");

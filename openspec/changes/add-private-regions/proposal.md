@@ -1,3 +1,9 @@
+> **Superseded in part (2026-10-15 evening, PR-12..PR-21 in design.md):** private regions now belong
+> to a user and may serve several of that user's workspaces; they are created at the user level with
+> an id, display name and SIP domain, not from "New workspace"; the default public region's id is
+> `default`; public regions are created by an operator (operator key) and enrolled like private ones;
+> region operations live in the `fonoster-regions` utility. The contract and spec follow the new model.
+
 ## Why
 
 The platform spec (`add-platform`, PL6/PL7) says private regions exist and are customer-operated,
