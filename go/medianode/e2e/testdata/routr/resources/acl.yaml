@@ -1,0 +1,11 @@
+- apiVersion: v2beta1
+  kind: AccessControlList
+  ref: acl-01
+  metadata:
+    name: everyone
+  spec:
+    accessControlList:
+      deny:
+        - 0.0.0.0/1
+      allow:
+        - 0.0.0.0/0

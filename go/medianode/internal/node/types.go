@@ -72,6 +72,12 @@ type Dialer interface {
 	Dial(ctx Context, to, from string, headers map[string]string, offer []byte, onProgress func(status int)) (OutLeg, []byte, error)
 }
 
+// DTMFSource is a SIP leg that reports SIP INFO keypresses (application/dtmf-relay or
+// application/dtmf).
+type DTMFSource interface {
+	OnDTMF(func(digit string))
+}
+
 // Referrer is a call leg that can be transferred with SIP REFER.
 type Referrer interface {
 	Refer(target string) error

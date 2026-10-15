@@ -2,7 +2,10 @@
 // conversions between it and the codecs on each leg.
 package audio
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"strings"
+)
 
 const (
 	// Rate is the room's internal sample rate.
@@ -68,12 +71,79 @@ func (L16) Encode(f Frame) []byte {
 	return out
 }
 
-// CodecFor resolves a media-control or SDP codec name ("PCMU/8000", "L16/16000").
+// Concealer is a codec that can stand in for a lost packet (packet loss concealment).
+type Concealer interface {
+	Conceal() Frame
+}
+
+// Canonical SDP names (rtpmap without channels) of the codecs SIP legs can use, in the node's
+// order of preference for its own offers.
+const (
+	NamePCMU = "PCMU/8000"
+	NamePCMA = "PCMA/8000"
+	NameG722 = "G722/8000"
+	NameOpus = "opus/48000"
+	NameL16  = "L16/16000"
+)
+
+// PhoneCodecs lists the SIP-leg codecs this build supports (Opus only when built with libopus).
+func PhoneCodecs() []string {
+	out := []string{NamePCMU, NamePCMA, NameG722}
+	if OpusAvailable {
+		out = append(out, NameOpus)
+	}
+	return out
+}
+
+// StaticPayloadType returns the RFC 3551 static payload type of a codec, or -1 for dynamic ones.
+func StaticPayloadType(name string) int {
+	switch canonical(name) {
+	case NamePCMU:
+		return 0
+	case NamePCMA:
+		return 8
+	case NameG722:
+		return 9
+	}
+	return -1
+}
+
+func canonical(name string) string {
+	switch strings.ToLower(name) {
+	case "pcmu/8000", "pcmu":
+		return NamePCMU
+	case "pcma/8000", "pcma":
+		return NamePCMA
+	case "g722/8000", "g722":
+		return NameG722
+	case "opus/48000", "opus/48000/2", "opus":
+		return NameOpus
+	case "l16/16000", "l16":
+		return NameL16
+	}
+	return ""
+}
+
+// CodecFor returns a fresh codec instance (stateful codecs keep per-stream state) for a
+// media-control or SDP codec name ("PCMU/8000", "opus/48000/2", "L16/16000").
 func CodecFor(name string) (Codec, bool) {
-	switch name {
-	case "PCMU/8000", "PCMU", "pcmu":
+	switch canonical(name) {
+	case NamePCMU:
 		return PCMU{}, true
-	case "L16/16000", "L16", "l16":
+	case NamePCMA:
+		return PCMA{}, true
+	case NameG722:
+		return NewG722(), true
+	case NameOpus:
+		if !OpusAvailable {
+			return nil, false
+		}
+		c, err := NewOpus()
+		if err != nil {
+			return nil, false
+		}
+		return c, true
+	case NameL16:
 		return L16{}, true
 	}
 	return nil, false

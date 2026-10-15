@@ -1,11 +1,12 @@
 // Command sipcaller is the SIP caller bot behind a small HTTP API, so conformance harnesses in any
 // language can drive real calls into a media node:
 //
-//	POST /calls               {"target":"127.0.0.1:5060","to":"+1555","from":"+1444","headers":{"X-App-Ref":"app-1"}}
+//	POST /calls               {"target":"127.0.0.1:5060","to":"+1555","from":"+1444","headers":{"X-App-Ref":"app-1"},
+//	                           "codecs":["PCMA/8000"],"noTelephoneEvent":false,"transport":"udp","srtp":false}
+//	GET  /calls/{id}          {"sip":[100,180,200],"state":"answered","heardMs":..,"audibleMs":..,"codec":"PCMA/8000"}
+//	POST /calls/{id}/dtmf     {"digits":"12#","mode":"rfc4733|info|inband"}
+//	POST /calls/{id}/audio    {"kind":"tone","ms":800}   (kind: tone, tone:<hz>, silence)
 //	                          (optional "requestHost": the Request-URI host, e.g. a Routr Trunk's inboundUri)
-//	GET  /calls/{id}          {"sip":[100,180,200],"state":"answered","heardMs":..,"audibleMs":..}
-//	POST /calls/{id}/dtmf     {"digits":"12#"}
-//	POST /calls/{id}/audio    {"kind":"tone","ms":800}
 //	POST /calls/{id}/hangup
 package main
 
@@ -41,12 +42,18 @@ func main() {
 			Target, To, From string
 			RequestHost      string
 			Headers          map[string]string
+			Codecs           []string
+			NoTelephoneEvent bool
+			Transport        string
+			SRTP             bool
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), 400)
 			return
 		}
-		c, err := bot.DialVia(req.Target, req.RequestHost, req.To, req.From, req.Headers)
+		c, err := bot.DialWith(req.Target, req.To, req.From, req.Headers, caller.DialOptions{
+			Codecs: req.Codecs, NoTelephoneEvent: req.NoTelephoneEvent, Transport: req.Transport, SRTP: req.SRTP,
+			RequestHost: req.RequestHost})
 		if err != nil {
 			http.Error(w, err.Error(), 502)
 			return
@@ -72,9 +79,9 @@ func main() {
 		writeJSON(w, c.StatusSince(since))
 	}))
 	mux.HandleFunc("POST /calls/{id}/dtmf", withCall(func(c *caller.Call, w http.ResponseWriter, r *http.Request) {
-		var req struct{ Digits string }
+		var req struct{ Digits, Mode string }
 		_ = json.NewDecoder(r.Body).Decode(&req)
-		go c.DTMF(req.Digits)
+		go c.DTMFVia(req.Digits, req.Mode)
 		writeJSON(w, c.Status())
 	}))
 	mux.HandleFunc("POST /calls/{id}/audio", withCall(func(c *caller.Call, w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,20 @@
+- apiVersion: v2beta1
+  kind: Trunk
+  ref: trunk-01
+  metadata:
+    name: Test carrier
+    region: us-east1
+  spec:
+    inbound:
+      uri: trunk01.acme.com
+      accessControlListRef: acl-01
+    outbound:
+      uris:
+        - uri:
+            user: pbx-1
+            host: sip.provider.net
+            port: 7060
+            transport: udp
+          priority: 10
+          weight: 10
+          enabled: true

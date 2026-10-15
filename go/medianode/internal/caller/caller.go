@@ -5,16 +5,19 @@ package caller
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"math"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/emiago/sipgo"
 	"github.com/emiago/sipgo/sip"
 	"github.com/fonoster/fonoster/go/medianode/internal/audio"
+	"github.com/fonoster/fonoster/go/medianode/internal/dtmf"
 	"github.com/fonoster/fonoster/go/medianode/internal/rtpio"
 	"github.com/fonoster/fonoster/go/medianode/internal/sdp"
 )
@@ -29,10 +32,14 @@ type Bot struct {
 	client  *sipgo.Client
 	dialogs *sipgo.DialogClientCache
 	inbound *sipgo.DialogServerCache
-	port    int
-	mu      sync.Mutex
-	calls   map[string]*Call
-	seq     int
+	// inboundTLS answers INVITEs that came over TLS, with a TLS Contact.
+	inboundTLS *sipgo.DialogServerCache
+	port       int
+	tlsPort    int
+	sipHost    string // host in Via and Contact
+	mu         sync.Mutex
+	calls      map[string]*Call
+	seq        int
 	// How the bot answers INVITEs it receives (as the callee of a dial or transfer).
 	answerMode  string // answer (default), busy, no_answer, decline
 	answerAfter time.Duration
@@ -77,6 +84,11 @@ type Call struct {
 	inbound  *sipgo.DialogServerSession
 	endpoint *rtpio.Endpoint
 
+	codec  string
+	secure bool
+	dtmfPT int
+	opts   DialOptions
+
 	mu        sync.Mutex
 	statuses  []int
 	state     string // calling, answered, ended
@@ -99,6 +111,25 @@ type Status struct {
 	// With a since time: audible agent audio after it, and the ms from it to the last audible frame.
 	AudibleMsSince   int `json:"audibleMsSince"`
 	LastAudibleAfter int `json:"lastAudibleAfterMs"`
+	// Codec is the negotiated codec ("PCMU/8000"); Secure is true for SRTP.
+	Codec  string `json:"codec,omitempty"`
+	Secure bool   `json:"secure,omitempty"`
+}
+
+// DialOptions shape one call's offer.
+type DialOptions struct {
+	// Codecs to offer, in order ("PCMU/8000", "PCMA/8000", "G722/8000", "opus/48000", or any
+	// other rtpmap name such as "GSM/8000" to test refusals). Default: PCMU only.
+	Codecs []string
+	// NoTelephoneEvent leaves RFC 4733 out of the offer (for SIP INFO and in-band tests).
+	NoTelephoneEvent bool
+	// Transport is "udp" (default), "tcp" or "tls".
+	Transport string
+	// SRTP offers RTP/SAVP with an SDES key.
+	SRTP bool
+	// RequestHost, when set, is the Request-URI host (a carrier's trunk name as Routr expects
+	// it) while the INVITE still goes to the target address.
+	RequestHost string
 }
 
 // New starts a bot listening for in-dialog requests (BYE) on host:0.
@@ -112,6 +143,10 @@ type Options struct {
 	// only reach the bot by another name (Routr in Docker reaching the host as
 	// host.docker.internal). Setting it also asks for rport (RFC 3581).
 	SIPAdvertise string
+	// TLS, when set, adds a SIP-over-TLS listener (needed to receive in-dialog requests on TLS
+	// calls); ClientTLS verifies the node when dialing over TLS.
+	TLS       *tls.Config
+	ClientTLS *tls.Config
 }
 
 // NewWithOptions starts a bot listening for in-dialog requests (BYE) on Host:0.
@@ -120,7 +155,11 @@ func NewWithOptions(o Options) (*Bot, error) {
 	if sipHost == "" {
 		sipHost = host
 	}
-	ua, err := sipgo.NewUA(sipgo.WithUserAgent("fonoster-caller-bot"))
+	uaOpts := []sipgo.UserAgentOption{sipgo.WithUserAgent("fonoster-caller-bot")}
+	if o.ClientTLS != nil {
+		uaOpts = append(uaOpts, sipgo.WithUserAgenTLSConfig(o.ClientTLS))
+	}
+	ua, err := sipgo.NewUA(uaOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +180,7 @@ func NewWithOptions(o Options) (*Bot, error) {
 	if err != nil {
 		return nil, err
 	}
-	b := &Bot{host: host, ua: ua, srv: srv, client: client, port: port, calls: map[string]*Call{}}
+	b := &Bot{host: host, sipHost: sipHost, ua: ua, srv: srv, client: client, port: port, calls: map[string]*Call{}}
 	b.dialogs = sipgo.NewDialogClientCache(client, sip.ContactHeader{Address: sip.Uri{User: "caller", Host: sipHost, Port: port}})
 	contact := sip.ContactHeader{Address: sip.Uri{User: "callee", Host: sipHost, Port: port}}
 	b.inbound = sipgo.NewDialogServerCache(client, contact)
@@ -149,11 +188,19 @@ func NewWithOptions(o Options) (*Bot, error) {
 		if err := b.dialogs.ReadBye(req, tx); err == nil {
 			return
 		}
+		if b.inboundTLS != nil && b.inboundTLS.ReadBye(req, tx) == nil {
+			return
+		}
 		if err := b.inbound.ReadBye(req, tx); err != nil {
 			_ = tx.Respond(sip.NewResponseFromRequest(req, 481, "No dialog", nil))
 		}
 	})
-	srv.OnAck(func(req *sip.Request, tx sip.ServerTransaction) { _ = b.inbound.ReadAck(req, tx) })
+	srv.OnAck(func(req *sip.Request, tx sip.ServerTransaction) {
+		if b.inboundTLS != nil && b.inboundTLS.ReadAck(req, tx) == nil {
+			return
+		}
+		_ = b.inbound.ReadAck(req, tx)
+	})
 	srv.OnInvite(b.onInvite)
 	srv.OnRefer(func(req *sip.Request, tx sip.ServerTransaction) {
 		target := ""
@@ -165,12 +212,66 @@ func NewWithOptions(o Options) (*Bot, error) {
 		b.mu.Unlock()
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 202, "Accepted", nil))
 	})
+	srv.OnInfo(func(req *sip.Request, tx sip.ServerTransaction) {
+		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
+	})
 	go func() { _ = srv.ServeUDP(l) }()
+	if o.TLS != nil {
+		tl, err := tls.Listen("tcp4", net.JoinHostPort(host, "0"), o.TLS)
+		if err != nil {
+			return nil, err
+		}
+		b.tlsPort = tl.Addr().(*net.TCPAddr).Port
+		params := sip.NewParams()
+		params.Add("transport", "tls")
+		b.inboundTLS = sipgo.NewDialogServerCache(client, sip.ContactHeader{Address: sip.Uri{User: "callee", Host: sipHost,
+			Port: b.tlsPort, UriParams: params}})
+		go func() { _ = srv.ServeTLS(tl) }()
+	}
 	return b, nil
+}
+
+// offer builds the bot's SDP offer for the options; key is the SRTP key it will send with.
+func (b *Bot) offer(port int, o DialOptions) (body []byte, key string) {
+	d := sdp.Description{Host: b.host, Port: port, DTMF: dtmfPayloadType}
+	if o.NoTelephoneEvent {
+		d.DTMF = -1
+	}
+	codecs := o.Codecs
+	if len(codecs) == 0 {
+		codecs = []string{audio.NamePCMU}
+	}
+	dynamic := 111
+	for _, name := range codecs {
+		pt := audio.StaticPayloadType(name)
+		if pt < 0 {
+			switch strings.ToUpper(name) {
+			case "GSM/8000", "GSM":
+				pt = 3
+			default:
+				pt = dynamic
+				dynamic++
+			}
+		}
+		d.Codecs = append(d.Codecs, sdp.Codec{PT: pt, Name: name})
+	}
+	if o.SRTP {
+		key = rtpio.NewSRTPKey()
+		d.Crypto = &sdp.Crypto{Tag: 1, Suite: rtpio.SRTPSuite, Key: key}
+	}
+	return sdp.WriteDescription(d), key
 }
 
 // Address is the bot's SIP host:port (where it receives INVITEs as a callee).
 func (b *Bot) Address() string { return net.JoinHostPort(b.host, strconv.Itoa(b.port)) }
+
+// TLSAddress is the bot's SIP-over-TLS host:port ("" without a TLS listener).
+func (b *Bot) TLSAddress() string {
+	if b.tlsPort == 0 {
+		return ""
+	}
+	return net.JoinHostPort(b.host, strconv.Itoa(b.tlsPort))
+}
 
 // Close stops the bot.
 func (b *Bot) Close() { _ = b.ua.Close() }
@@ -182,15 +283,21 @@ func (b *Bot) Get(id string) *Call {
 	return b.calls[id]
 }
 
-// Dial calls target (host:port) for number `to`, with extra headers (e.g. X-App-Ref).
+// Dial calls target (host:port) for number `to`, with extra headers (e.g. X-App-Ref), offering
+// PCMU with RFC 4733 over UDP.
 func (b *Bot) Dial(target, to, from string, headers map[string]string) (*Call, error) {
-	return b.DialVia(target, "", to, from, headers)
+	return b.DialWith(target, to, from, headers, DialOptions{})
 }
 
 // DialVia sends the INVITE to target (host:port) with requestHost as the Request-URI host, the
 // way a carrier calls Routr: Routr finds the Trunk by that host (its inboundUri), not by where the
 // INVITE was sent. An empty requestHost means target's host and port.
 func (b *Bot) DialVia(target, requestHost, to, from string, headers map[string]string) (*Call, error) {
+	return b.DialWith(target, to, from, headers, DialOptions{RequestHost: requestHost})
+}
+
+// DialWith calls target with a chosen offer, transport and Request-URI host.
+func (b *Bot) DialWith(target, to, from string, headers map[string]string, o DialOptions) (*Call, error) {
 	ep, err := rtpio.Listen(b.host)
 	if err != nil {
 		return nil, err
@@ -203,19 +310,30 @@ func (b *Bot) DialVia(target, requestHost, to, from string, headers map[string]s
 	if from == "" {
 		from = "+15550001111"
 	}
-	offer := sdp.Write(b.host, ep.Port(), 0, "PCMU/8000", dtmfPayloadType)
+	offer, key := b.offer(ep.Port(), o)
 	hdrs := []sip.Header{
 		&sip.FromHeader{Address: sip.Uri{User: from, Host: b.host}, Params: sip.NewParams()},
 		sip.NewHeader("Content-Type", "application/sdp"),
 	}
 	hdrs[0].(*sip.FromHeader).Params.Add("tag", sip.GenerateTagN(10))
+	recipient := sip.Uri{User: to, Host: host, Port: port}
+	if o.Transport != "" && o.Transport != "udp" {
+		recipient.UriParams = sip.NewParams()
+		recipient.UriParams.Add("transport", o.Transport)
+		contactParams := sip.NewParams()
+		contactParams.Add("transport", o.Transport)
+		// The client binds its SIP port for TCP and TLS too, so the node's in-dialog requests reuse
+		// the connection the INVITE opened.
+		contactPort := b.port
+		hdrs = append(hdrs, &sip.ContactHeader{Address: sip.Uri{User: "caller", Host: b.sipHost, Port: contactPort, UriParams: contactParams}})
+	}
 	for k, v := range headers {
 		hdrs = append(hdrs, sip.NewHeader(k, v))
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	ruri := sip.Uri{User: to, Host: host, Port: port}
-	if requestHost != "" {
-		ruri = sip.Uri{User: to, Host: requestHost}
+	ruri := recipient
+	if o.RequestHost != "" {
+		ruri = sip.Uri{User: to, Host: o.RequestHost, UriParams: recipient.UriParams}
 	}
 	req := sip.NewRequest(sip.INVITE, ruri)
 	req.SetBody(offer)
@@ -232,14 +350,14 @@ func (b *Bot) DialVia(target, requestHost, to, from string, headers map[string]s
 	b.mu.Lock()
 	b.seq++
 	c := &Call{ID: fmt.Sprintf("call-%d", b.seq), bot: b, session: session, endpoint: ep, state: "calling",
-		cancel: cancel, stop: make(chan struct{})}
+		cancel: cancel, stop: make(chan struct{}), opts: o}
 	b.calls[c.ID] = c
 	b.mu.Unlock()
-	go c.await(ctx)
+	go c.await(ctx, key)
 	return c, nil
 }
 
-func (c *Call) await(ctx context.Context) {
+func (c *Call) await(ctx context.Context, key string) {
 	err := c.session.WaitAnswer(ctx, sipgo.AnswerOptions{OnResponse: func(res *sip.Response) error {
 		c.mu.Lock()
 		c.statuses = append(c.statuses, int(res.StatusCode))
@@ -270,10 +388,24 @@ func (c *Call) await(ctx context.Context) {
 		_ = c.Hangup()
 		return
 	}
-	pt, codecName, _ := answer.Choose("PCMU/8000")
-	codec, _ := audio.CodecFor(codecName)
-	_ = c.endpoint.Configure(codec, pt, answer.DTMF, answer.Host, answer.Port)
 	_ = c.session.Ack(context.Background())
+	pt, codecName, ok := answer.Choose(append(audio.PhoneCodecs(), c.opts.Codecs...)...)
+	codec, known := audio.CodecFor(codecName)
+	if !ok || !known {
+		_ = c.Hangup()
+		return
+	}
+	_ = c.endpoint.Configure(codec, pt, answer.DTMF, answer.Host, answer.Port)
+	if key != "" {
+		for _, cr := range answer.Crypto {
+			if cr.Suite == rtpio.SRTPSuite {
+				_ = c.endpoint.SetSRTP(key, cr.Key)
+			}
+		}
+	}
+	c.mu.Lock()
+	c.codec, c.secure, c.dtmfPT = codecName, c.endpoint.Secure(), answer.DTMF
+	c.mu.Unlock()
 	c.mu.Lock()
 	c.state = "answered"
 	c.mu.Unlock()
@@ -330,8 +462,12 @@ func (c *Call) talk() {
 	}
 }
 
-// Speak queues a 440 Hz tone (or silence) of ms milliseconds.
+// Speak queues a tone (440 Hz, or "tone:<hz>") or silence of ms milliseconds.
 func (c *Call) Speak(kind string, ms int) {
+	freq := 440.0
+	if f, err := strconv.ParseFloat(strings.TrimPrefix(kind, "tone:"), 64); err == nil && strings.HasPrefix(kind, "tone:") {
+		freq = f
+	}
 	frames := ms / audio.FrameMs
 	out := make([]audio.Frame, 0, frames)
 	for i := 0; i < frames; i++ {
@@ -339,7 +475,7 @@ func (c *Call) Speak(kind string, ms int) {
 		if kind != "silence" {
 			for j := range f {
 				n := float64(i*audio.FrameSamples + j)
-				f[j] = int16(8000 * math.Sin(2*math.Pi*440*n/audio.Rate))
+				f[j] = int16(8000 * math.Sin(2*math.Pi*freq*n/audio.Rate))
 			}
 		}
 		out = append(out, f)
@@ -350,11 +486,60 @@ func (c *Call) Speak(kind string, ms int) {
 }
 
 // DTMF sends keypresses as RFC 4733 events.
-func (c *Call) DTMF(digits string) {
-	for _, d := range digits {
-		c.endpoint.SendDTMF(d, dtmfPayloadType)
+func (c *Call) DTMF(digits string) { c.DTMFVia(digits, "rfc4733") }
+
+// DTMFVia sends keypresses as "rfc4733" events, "info" (SIP INFO, application/dtmf-relay) or
+// "inband" tones (100 ms tone, 100 ms gap) in the audio.
+func (c *Call) DTMFVia(digits, mode string) {
+	switch mode {
+	case "info":
+		for _, d := range digits {
+			req := sip.NewRequest(sip.INFO, c.remoteContact())
+			req.AppendHeader(sip.NewHeader("Content-Type", "application/dtmf-relay"))
+			req.SetBody([]byte(fmt.Sprintf("Signal=%c\r\nDuration=160\r\n", d)))
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			if c.inbound != nil {
+				_, _ = c.inbound.Do(ctx, req)
+			} else {
+				_, _ = c.session.Do(ctx, req)
+			}
+			cancel()
+			time.Sleep(100 * time.Millisecond)
+		}
+	case "inband":
+		frames := []audio.Frame{}
+		for _, d := range digits {
+			frames = append(frames, dtmf.Tone(d, 100)...)
+			frames = append(frames, dtmf.Tone(0, 100)...)
+		}
+		c.mu.Lock()
+		c.pending = append(c.pending, frames...)
+		c.mu.Unlock()
+	default:
+		c.mu.Lock()
+		pt := c.dtmfPT
+		c.mu.Unlock()
+		if pt <= 0 {
+			pt = dtmfPayloadType
+		}
+		for _, d := range digits {
+			c.endpoint.SendDTMF(d, pt)
+		}
 	}
 }
+
+func (c *Call) remoteContact() sip.Uri {
+	if c.inbound != nil {
+		return c.inbound.InviteRequest.Contact().Address
+	}
+	if h := c.session.InviteResponse.Contact(); h != nil {
+		return h.Address
+	}
+	return c.session.InviteRequest.Recipient
+}
+
+// SetImpair applies network impairment to what this call sends (load harness and tests).
+func (c *Call) SetImpair(fn func() (copies int, delay time.Duration)) { c.endpoint.SetImpair(fn) }
 
 // Hangup sends BYE (answered) or CANCEL (still calling).
 func (c *Call) Hangup() error {
@@ -382,7 +567,8 @@ func (c *Call) Status() Status { return c.StatusSince(time.Time{}) }
 func (c *Call) StatusSince(since time.Time) Status {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	s := Status{ID: c.ID, SIP: append([]int(nil), c.statuses...), State: c.state, HeardMs: c.heardMs, AudibleMs: c.audibleMs}
+	s := Status{ID: c.ID, SIP: append([]int(nil), c.statuses...), State: c.state, HeardMs: c.heardMs, AudibleMs: c.audibleMs,
+		Codec: c.codec, Secure: c.secure}
 	for _, at := range c.audibleAt {
 		if !at.Before(since) {
 			s.AudibleMsSince += audio.FrameMs
@@ -404,7 +590,11 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 488, "Not Acceptable Here", nil))
 		return
 	}
-	dlg, err := b.inbound.ReadInvite(req, tx)
+	cache := b.inbound
+	if b.inboundTLS != nil && strings.EqualFold(req.Transport(), "TLS") {
+		cache = b.inboundTLS
+	}
+	dlg, err := cache.ReadInvite(req, tx)
 	if err != nil {
 		return
 	}
@@ -433,7 +623,7 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		_ = dlg.Respond(500, "Server Error", nil)
 		return
 	}
-	pt, codecName, ok := offer.Choose("PCMU/8000")
+	pt, codecName, ok := offer.Choose(audio.PhoneCodecs()...)
 	if !ok {
 		ep.Close()
 		_ = dlg.Respond(488, "Not Acceptable Here", nil)
@@ -441,11 +631,22 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 	}
 	codec, _ := audio.CodecFor(codecName)
 	_ = ep.Configure(codec, pt, offer.DTMF, offer.Host, offer.Port)
-	c := &Call{ID: id, bot: b, endpoint: ep, inbound: dlg, state: "answered", stop: make(chan struct{}), statuses: []int{200}}
+	answer := sdp.Description{Host: b.host, Port: ep.Port(), Codecs: []sdp.Codec{{PT: pt, Name: codecName}}, DTMF: offer.DTMF}
+	if offer.Secure {
+		for _, cr := range offer.Crypto {
+			if cr.Suite == rtpio.SRTPSuite {
+				key := rtpio.NewSRTPKey()
+				_ = ep.SetSRTP(key, cr.Key)
+				answer.Crypto = &sdp.Crypto{Tag: cr.Tag, Suite: cr.Suite, Key: key}
+			}
+		}
+	}
+	c := &Call{ID: id, bot: b, endpoint: ep, inbound: dlg, state: "answered", stop: make(chan struct{}), statuses: []int{200},
+		codec: codecName, secure: ep.Secure(), dtmfPT: offer.DTMF}
 	b.mu.Lock()
 	b.calls[id] = c
 	b.mu.Unlock()
-	if err := dlg.RespondSDP(sdp.Write(b.host, ep.Port(), pt, codecName, offer.DTMF)); err != nil {
+	if err := dlg.RespondSDP(sdp.WriteDescription(answer)); err != nil {
 		ep.Close()
 		return
 	}

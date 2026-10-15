@@ -75,7 +75,11 @@ export type ProviderConfig = {
 
 export type GatewayConfig = {
   nats: { url: string };
-  rtp?: { host?: string; advertiseHost?: string };
+  /**
+   * The RTP leg to the media node. `srtp: true` encrypts it (SDES keys in participant.add,
+   * AES_CM_128_HMAC_SHA1_80); required when the node runs with -require-encryption (MN6).
+   */
+  rtp?: { host?: string; advertiseHost?: string; srtp?: boolean };
   /** Apps when `appStore.source` is yaml (the default). */
   apps?: AppConfig[];
   providers: Record<string, ProviderConfig>;

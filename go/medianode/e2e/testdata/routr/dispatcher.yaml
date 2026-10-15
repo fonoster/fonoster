@@ -1,0 +1,15 @@
+kind: MessageDispatcher
+apiVersion: v2beta1
+ref: message-dispatcher
+spec:
+  bindAddr: 0.0.0.0:51901
+  processors:
+    - ref: connect-processor
+      addr: connect:51904
+      matchFunc: req => true
+      methods:
+        - REGISTER
+        - INVITE
+        - ACK
+        - BYE
+        - CANCEL

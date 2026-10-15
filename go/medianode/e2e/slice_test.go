@@ -33,6 +33,8 @@ type rig struct {
 	mu     sync.Mutex
 	events []map[string]any
 	claim  bool
+	// tlsAddr is the node's SIP-over-TLS address in encrypted runs.
+	tlsAddr string
 }
 
 func freePort(t *testing.T) int {
@@ -44,7 +46,24 @@ func freePort(t *testing.T) int {
 	return l.LocalAddr().(*net.UDPAddr).Port
 }
 
-func start(t *testing.T) *rig {
+func start(t *testing.T) *rig { return startWith(t, rigOptions{}) }
+
+// rigOptions vary the node under test.
+type rigOptions struct {
+	nodeCfg func(*node.Config)
+	uaCfg   func(*sipua.Config)
+	botOpts caller.Options
+}
+
+func (o rigOptions) bot() caller.Options {
+	b := o.botOpts
+	if b.Host == "" {
+		b.Host = "127.0.0.1"
+	}
+	return b
+}
+
+func startWith(t *testing.T, o rigOptions) *rig {
 	url := os.Getenv("CONFORMANCE_NATS_URL")
 	if url == "" {
 		t.Skip("set CONFORMANCE_NATS_URL to run")
@@ -54,16 +73,27 @@ func start(t *testing.T) *rig {
 		t.Fatal(err)
 	}
 	id := fmt.Sprintf("e2e-%d", time.Now().UnixNano())
-	n := node.New(nc, node.Config{NodeID: id, Heartbeat: 200 * time.Millisecond, ClaimTimeout: 200 * time.Millisecond})
+	cfg := node.Config{NodeID: id, Heartbeat: 200 * time.Millisecond, ClaimTimeout: 200 * time.Millisecond}
+	if o.nodeCfg != nil {
+		o.nodeCfg(&cfg)
+	}
+	n := node.New(nc, cfg)
 	port := freePort(t)
 	addr := "127.0.0.1:" + strconv.Itoa(port)
 	// A second bot answers what the node dials (Routr's place in production).
-	callee, err := caller.New("127.0.0.1")
+	callee, err := caller.NewWithOptions(o.bot())
 	if err != nil {
 		t.Fatal(err)
 	}
-	ua, err := sipua.New(n, sipua.Config{Listen: addr, AdvertiseHost: "127.0.0.1", AdvertisePort: port,
-		OutboundProxy: callee.Address()})
+	uaCfg := sipua.Config{Listen: addr, AdvertiseHost: "127.0.0.1", AdvertisePort: port,
+		OutboundProxy: callee.Address()}
+	if o.uaCfg != nil {
+		o.uaCfg(&uaCfg)
+	}
+	if uaCfg.RequireEncryption {
+		uaCfg.OutboundProxy = callee.TLSAddress()
+	}
+	ua, err := sipua.New(n, uaCfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +102,7 @@ func start(t *testing.T) *rig {
 	if err := n.Start(); err != nil {
 		t.Fatal(err)
 	}
-	bot, err := caller.New("127.0.0.1")
+	bot, err := caller.NewWithOptions(o.bot())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,6 +137,9 @@ func start(t *testing.T) *rig {
 		bot.Close()
 		callee.Close()
 		n.Shutdown()
+		uctx, ucancel := context.WithTimeout(context.Background(), 2*time.Second)
+		_ = ua.Unregister(uctx) // while the transport is still up
+		ucancel()
 		cancel()
 		ua.Close()
 		nc.Close()

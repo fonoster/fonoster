@@ -25,6 +25,10 @@ import {
   parseCodec,
   toInternal
 } from "../audio/pcm";
+import { newSrtpKey, SRTP_SUITE, SrtpContext } from "./srtp";
+
+/** media-control's optional `srtp` object in an rtp block (MN6, MN13). */
+export type SrtpBlock = { suite: string; key: string };
 
 /** The codec the gateway offers in participant.add: the internal format, so no transcoding. */
 export const OFFERED_CODEC = "L16/16000";
@@ -41,10 +45,26 @@ export class RtpLink extends EventEmitter {
   private timestamp = Math.floor(Math.random() * 0xffffffff);
   private readonly ssrc = Math.floor(Math.random() * 0xffffffff);
   private closed = false;
+  private localKey?: string;
+  private outbound?: SrtpContext;
+  private inbound?: SrtpContext;
 
   constructor(codec = OFFERED_CODEC) {
     super();
     this.format = parseCodec(codec);
+  }
+
+  /**
+   * Makes this leg SRTP: bind() then offers a fresh key, connect() needs the node's key, and
+   * plain RTP from the node is dropped. Call before bind().
+   */
+  enableSrtp() {
+    this.localKey = newSrtpKey();
+    this.outbound = new SrtpContext(this.localKey);
+  }
+
+  get secure(): boolean {
+    return this.localKey !== undefined;
   }
 
   get codec(): string {
@@ -62,6 +82,7 @@ export class RtpLink extends EventEmitter {
     payloadType: number;
     ptime: number;
     ssrc: number;
+    srtp?: SrtpBlock;
   }> {
     this.socket.on("message", (msg) => this.onPacket(msg));
     this.socket.on("error", () => this.close());
@@ -73,12 +94,27 @@ export class RtpLink extends EventEmitter {
       // The rtp block of media-control ("Gateway audio is RTP negotiated in participant.add").
       payloadType: this.format.codec === "pcmu" ? 0 : 96,
       ptime: 20,
-      ssrc: this.ssrc >>> 0
+      ssrc: this.ssrc >>> 0,
+      ...(this.localKey
+        ? { srtp: { suite: SRTP_SUITE, key: this.localKey } }
+        : {})
     };
   }
 
-  connect(remote: { host: string; port: number }) {
-    this.remote = remote;
+  /** Points the link at the node's block; on an SRTP leg the block must carry the node's key. */
+  connect(remote: { host: string; port: number; srtp?: SrtpBlock }) {
+    if (this.localKey) {
+      if (
+        !remote.srtp?.key ||
+        (remote.srtp.suite && remote.srtp.suite !== SRTP_SUITE)
+      ) {
+        throw new Error(
+          "the node answered without srtp keying on an encrypted leg"
+        );
+      }
+      this.inbound = new SrtpContext(remote.srtp.key);
+    }
+    this.remote = { host: remote.host, port: remote.port };
   }
 
   /** Sends one internal 20 ms frame. */
@@ -94,8 +130,9 @@ export class RtpLink extends EventEmitter {
     this.seq = (this.seq + 1) & 0xffff;
     this.timestamp =
       (this.timestamp + (this.format.rate / 1000) * FRAME_MS) >>> 0;
+    const packet = Buffer.concat([header, payload]);
     this.socket.send(
-      Buffer.concat([header, payload]),
+      this.outbound ? this.outbound.protect(packet) : packet,
       this.remote.port,
       this.remote.host
     );
@@ -112,7 +149,13 @@ export class RtpLink extends EventEmitter {
     this.removeAllListeners();
   }
 
-  private onPacket(msg: Buffer) {
+  private onPacket(raw: Buffer) {
+    let msg: Buffer | undefined = raw;
+    if (this.localKey) {
+      // Plain or forged packets do not authenticate and are dropped.
+      msg = this.inbound?.unprotect(raw);
+      if (!msg) return;
+    }
     if (msg.length < 12 || msg[0] >> 6 !== 2) return;
     let offset = 12 + (msg[0] & 0x0f) * 4;
     if (msg[0] & 0x10) offset += 4 + msg.readUInt16BE(offset + 2) * 4;
