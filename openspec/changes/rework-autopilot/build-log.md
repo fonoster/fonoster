@@ -56,8 +56,11 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - A10 wants per-turn traces (timings, token counts, tool calls) in the call record, but the
   session protocol gives apps no way to append to it. The engine reports traces through a
   `Recorder` interface (logged by default). Proposal for review: an additive session command
-  such as `record.note { data }` that the gateway appends to the call record. Task 6.1 waits on
-  that decision.
+  such as `record.note { data }` that the gateway appends to the call record.
+- **Resolved the same night:** `record.note { data }` was added to `voice-session` (requirement
+  "Apps can annotate the call record"), both SDKs (`session.note(data)`), and the engine's default
+  recorder sends `autopilot.turn` and `autopilot.note` notes. Task 6.1 is done; token counts are
+  not reported yet (the Think plug does not surface usage).
 
 ### Conformance
 
@@ -71,4 +74,10 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 
 - 1.3 latency stopwatch as a repeated measurement (traces carry the timings), 1.4 evals, 3.1 the
   provider registry's LLM interface (stand-in above), 4.1 knowledge port, 4.3 removing VAD and
-  the raw stream from the current engine, 5.x schema migration, 6.1 call record traces, 7.x docs.
+  the raw stream from the current engine, 5.x schema migration, 7.x docs.
+
+### AP6. Full-stack test
+
+- `mods/autopilot/test/session/fullstack.test.ts` runs a whole call with fakes only at the edges:
+  fake media node → real gateway (STT, turn detection, TTS, output queue) → Autopilot over the
+  session protocol → fake LLM, and back as audio to the caller. Passes in about 3 s.

@@ -883,6 +883,19 @@ export class AppSession {
         });
         this.endWith("transfer");
         return;
+      case "record.note":
+        // Already appended to the call record with every app message (2.10); only the size is
+        // checked here (voice-session, "Apps can annotate the call record").
+        if (Buffer.byteLength(JSON.stringify(cmd.data)) > 16 * 1024) {
+          this.emit({
+            type: "error",
+            code: "bad_message",
+            message: "record.note data exceeds 16 KB",
+            fatal: false,
+            relatesTo: id
+          });
+        }
+        return;
       case "handoff": {
         const target = cmd.app as string;
         if (!this.deps.findApp(target)) {

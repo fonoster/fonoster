@@ -26,3 +26,4 @@ same scenario. Keep fixtures tiny; they exercise the SDK, not app logic.
 | `audio-mark` | `(session)` | Registers `on("dtmf", () => audio.clear())`; sends three 20 ms frames of silence with `audio.send`; `m = await audio.mark("r1")`; `say(m.cleared ? "Cleared." : "Heard.")`. |
 | `say-error` | `(session)` | `say("Hi")`; if it rejects with a session error, `say("Error: " + code)`. |
 | `say-then-gather` | `(session)` | `r = await say("Please enter your PIN.")`; `g = await gather({ maxDigits: 4 })`; `say("PIN " + digits + " (heard: " + r.heardText + ")")`. Digits pressed during the say count (type-ahead). |
+| `record-note` | `(session)` | `await note({ kind: "turn", firstTokenMs: 420 })`. |

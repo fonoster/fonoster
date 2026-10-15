@@ -75,6 +75,15 @@ export interface Recorder {
   note(event: Record<string, unknown>): void;
 }
 
+/** Writes turn traces and notes to the call record through the session (record.note). */
+export function sessionRecorder(session: Session): Recorder {
+  const write = (data: Record<string, unknown>) => void session.note(data).catch(() => undefined);
+  return {
+    turn: (trace) => write({ kind: "autopilot.turn", ...trace }),
+    note: (event) => write({ kind: "autopilot.note", ...event })
+  };
+}
+
 export const logRecorder: Recorder = {
   turn: (trace) => logger.verbose("autopilot turn", trace),
   note: (event) => logger.verbose("autopilot note", event)

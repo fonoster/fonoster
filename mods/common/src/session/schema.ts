@@ -363,6 +363,16 @@ export const handoffSchema = {
   }
 } as const;
 
+export const recordNoteSchema = {
+  type: "object",
+  required: ["type", "data"],
+  properties: {
+    type: { const: "record.note" },
+    id,
+    data: { type: "object" }
+  }
+} as const;
+
 // ---- types -----------------------------------------------------------------------------
 
 export type SessionStart = FromSchema<typeof sessionStartSchema>;
@@ -397,6 +407,7 @@ export type TransferComplete = FromSchema<typeof transferCompleteSchema>;
 export type Hold = FromSchema<typeof holdSchema>;
 export type Resume = FromSchema<typeof resumeSchema>;
 export type Handoff = FromSchema<typeof handoffSchema>;
+export type RecordNote = FromSchema<typeof recordNoteSchema>;
 
 export type GatewayMessage =
   | SessionStart
@@ -428,7 +439,8 @@ export type AppCommand =
   | TransferComplete
   | Hold
   | Resume
-  | Handoff;
+  | Handoff
+  | RecordNote;
 
 /** Schemas by message type, per direction. "mark" exists in both directions. */
 export const GATEWAY_MESSAGE_SCHEMAS = {
@@ -462,7 +474,8 @@ export const APP_COMMAND_SCHEMAS = {
   "transfer.complete": transferCompleteSchema,
   hold: holdSchema,
   resume: resumeSchema,
-  handoff: handoffSchema
+  handoff: handoffSchema,
+  "record.note": recordNoteSchema
 } as const;
 
 export type AppCommandType = keyof typeof APP_COMMAND_SCHEMAS;

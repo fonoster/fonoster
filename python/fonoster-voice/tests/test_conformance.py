@@ -139,7 +139,12 @@ async def say_then_gather(s):
     await s.say(f"PIN {g.digits} (heard: {r.heard_text})")
 
 
+async def record_note(s):
+    await s.note({"kind": "turn", "firstTokenMs": 420})
+
+
 FIXTURES = {
+    "record-note": record_note,
     "say-hello": say_hello,
     "say-hello-legacy": say_hello_legacy,
     "say-reports-interruption": say_reports_interruption,

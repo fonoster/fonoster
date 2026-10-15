@@ -703,6 +703,26 @@
           "type": "object"
         }
       }
+    },
+    "record.note": {
+      "type": "object",
+      "required": [
+        "type",
+        "data"
+      ],
+      "properties": {
+        "type": {
+          "const": "record.note"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "data": {
+          "type": "object"
+        }
+      }
     }
   }
 }

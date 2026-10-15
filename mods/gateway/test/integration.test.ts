@@ -426,6 +426,35 @@ describe("@gateway integration", function () {
     expect(String(failure?.message.reason)).to.contain("does-not-exist");
   });
 
+  it("records app notes and refuses oversized ones", async function () {
+    await start([app("a", harness.app.url)]);
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({
+      type: "record.note",
+      id: "n1",
+      data: { kind: "turn", firstTokenMs: 420 }
+    });
+    peer.sendJson({
+      type: "record.note",
+      id: "n2",
+      data: { blob: "x".repeat(17000) }
+    });
+    const error = await waitFor(() =>
+      json(peer).find((m) => m.type === "error")
+    );
+    expect(error).to.include({ code: "bad_message", relatesTo: "n2" });
+    const note = [...record.records.values()][0].find(
+      (e) => e.message.type === "record.note"
+    );
+    expect(note).to.deep.include({ source: "app" });
+    expect(note?.message.data).to.deep.equal({
+      kind: "turn",
+      firstTokenMs: 420
+    });
+  });
+
   it("hangs up when the app drops mid-call", async function () {
     await start([app("a", harness.app.url)]);
     harness.mediaNode.offerCall();

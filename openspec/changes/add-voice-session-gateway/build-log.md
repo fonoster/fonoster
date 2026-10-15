@@ -139,3 +139,10 @@ it touches are named.
   `auto_hang_up` + `base_url` (Calls endpoint, 200) and via socket close. Runs only with
   `PIPECAT_PYTHON` set (it needs a Python with pipecat-ai).
 - Pipecat detected our `start` message as Twilio with its own `parse_telephony_websocket`.
+
+### B16. `record.note`: apps can annotate the call record
+
+- New additive command `record.note { data }` (at most 16 KB of JSON): appended to the call record
+  like every app message, no other effect; oversized notes get `error` `bad_message`. Added to the
+  spec, the JSON Schemas, both SDKs (`session.note`) and Autopilot's recorder. Reason: Autopilot's
+  per-turn traces had no way into the call record (rework-autopilot AP5).

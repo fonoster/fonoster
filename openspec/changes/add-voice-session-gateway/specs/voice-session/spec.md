@@ -386,6 +386,17 @@ call's record as it happens.
 - **WHEN** a call ends after the app sent `speak` `r1` and the gateway sent `output.done` `r1`
 - **THEN** the sealed call record contains both messages with their timestamps
 
+### Requirement: Apps can annotate the call record
+
+The gateway SHALL accept `record.note` with a JSON object in `data` (at most 16 KB) and SHALL append
+it to the call's record as an app note, without any other effect on the session. A `record.note`
+whose `data` is missing or too large SHALL be answered with `error` `bad_message`.
+
+#### Scenario: Autopilot records a turn trace
+- **WHEN** an app sends `{ "type": "record.note", "data": { "kind": "turn", "firstTokenMs": 420 } }`
+- **THEN** the call record contains that note with its timestamp
+- **AND** nothing is sent to the media node and no event is sent to the app
+
 ### Requirement: The media node receives only control
 
 The gateway SHALL send the media node only call-control commands through the `media-control`

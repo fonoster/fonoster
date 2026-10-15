@@ -302,5 +302,15 @@ Handoff = TypedDict(
 )
 
 
+RecordNote = TypedDict(
+    "RecordNote",
+    {
+        "type": Literal["record.note"],
+        "id": NotRequired[str],
+        "data": dict[str, Any],
+    },
+)
+
+
 GatewayMessage = Union[SessionStart, SessionEnd, ErrorMessage, TurnUserStarted, TurnLikelyEnded, TurnEnded, TurnResumed, TurnBackchannel, TurnEstimate, TranscriptPartial, OutputStarted, OutputDone, OutputInterrupted, MarkEvent, Dtmf]
-AppCommand = Union[Speak, Play, ListenUpdate, Subscribe, MarkCommand, Clear, Hangup, DtmfSend, Transfer, TransferComplete, Hold, Resume, Handoff]
+AppCommand = Union[Speak, Play, ListenUpdate, Subscribe, MarkCommand, Clear, Hangup, DtmfSend, Transfer, TransferComplete, Hold, Resume, Handoff, RecordNote]

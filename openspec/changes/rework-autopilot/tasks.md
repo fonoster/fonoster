@@ -49,7 +49,7 @@
 
 ## 6. Call record
 
-- [ ] 6.1 Append per-turn traces: user text, reply, heard text, interruptions, tool calls,
+- [x] 6.1 Append per-turn traces: user text, reply, heard text, interruptions, tool calls,
       timings, token counts
 
 ## 7. Documentation

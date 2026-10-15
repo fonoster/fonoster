@@ -18,7 +18,7 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { createActor } from "xstate";
-import { Agent, Recorder } from "./Agent";
+import { Agent, Recorder, sessionRecorder } from "./Agent";
 import { SessionAssistant, sessionAssistantSchema } from "./config";
 import { autopilotMachine } from "./machine";
 import { resolveThink, Think, ThinkProvider } from "./think";
@@ -61,7 +61,7 @@ export function createAutopilotHandler(options: AutopilotOptions) {
       assistant,
       think,
       options.tools ?? new HttpToolPort(assistant.languageModel.tools),
-      options.recorder
+      options.recorder ?? sessionRecorder(session)
     );
     options.onAgent?.(agent);
 

@@ -123,6 +123,9 @@ const FIXTURES: Record<string, Handler> = {
       if (e instanceof SessionError) await s.say(`Error: ${e.code}`);
     }
   },
+  "record-note": async (s: Session) => {
+    await s.note({ kind: "turn", firstTokenMs: 420 });
+  },
   "say-then-gather": async (s: Session) => {
     const r = await s.say("Please enter your PIN.");
     const g = await s.gather({ maxDigits: 4 });

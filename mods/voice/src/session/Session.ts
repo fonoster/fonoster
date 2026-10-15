@@ -308,6 +308,11 @@ export class Session {
     );
   }
 
+  /** Adds a note to the call record (record.note); it has no other effect on the call. */
+  async note(data: Record<string, unknown>): Promise<void> {
+    this.command({ type: "record.note", data });
+  }
+
   /** The gateway answers on connect (voice-sdk S2); kept so old apps keep working. */
   async answer(): Promise<void> {}
 
