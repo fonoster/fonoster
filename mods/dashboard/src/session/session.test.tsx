@@ -76,6 +76,20 @@ describe("apps", () => {
     });
   });
 
+  it("picks an Autopilot language model from the catalog into the assistant", async () => {
+    const { user } = apps("/w/ws-1/apps/new");
+    await user.click(await screen.findByLabelText("Type"));
+    await user.click(await screen.findByRole("option", { name: /Autopilot/ }));
+    await user.click(screen.getByLabelText("Language model"));
+    expect(
+      (await screen.findAllByRole("option")).map((o) => o.textContent)
+    ).toEqual(["Platform default", "openai/gpt-4o-mini", "acme/no-tools"]);
+    await user.click(screen.getByRole("option", { name: "acme/no-tools" }));
+    expect(
+      (screen.getByLabelText("Assistant (JSON)") as HTMLTextAreaElement).value
+    ).toContain('"model": "acme/no-tools"');
+  });
+
   it("rotates the secret behind a confirmation", async () => {
     const { user } = apps("/w/ws-1/apps/support-line");
     await user.click(

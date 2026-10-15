@@ -113,6 +113,8 @@ describe("SDK adapter", () => {
       replacement: "deepgram/aura-3"
     });
     expect(catalog.languages.map((l) => l.id)).toEqual(["en-US", "es-419"]);
+    expect(catalog.voices[0].languages).toEqual(["en-US"]);
+    expect(catalog.llmModels).toEqual([]);
   });
 
   it("reads turns, decisions and warnings from a vCon", () => {

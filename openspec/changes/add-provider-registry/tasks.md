@@ -29,7 +29,7 @@
 ## 4. Platform surfaces
 
 - [x] 4.1 `GetCapabilities` lists only active or deprecated items with an adapter and an available credential (`ListCatalog`, LO-B12)
-- [ ] 4.2 Dashboard pickers filtered by compatibility; deprecation and retirement warnings per workspace with where-used lists (warnings done, LO-B11; picker filtering open)
+- [x] 4.2 Dashboard pickers filtered by compatibility; deprecation and retirement warnings per workspace with where-used lists (warnings LO-B11; pickers AD-B2)
 - [x] 4.3 Workspace UI and API to store and bind a bring-your-own key as a write-only Secret
 
 ## 5. Migration and docs

@@ -398,3 +398,16 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   Neither runs calls in the rebuild; they go with the legacy app model (tasks 5.1/5.2).
 - Local setup: worktrees need `mods/{gateway,autopilot}/node_modules/@fonoster/community →
   ../../../community` (like the other links); no new npm dependency (`ws` was already there).
+
+### AD-B2. Dashboard pickers filtered by compatibility (task 4.2 rest)
+
+- The app editor's pickers use the catalog's relations: Voice lists voices that speak the chosen
+  language and exist on a TTS model the catalog offers (voice ↔ model); Speech-to-text model lists
+  models that understand the language; Autopilot apps get a "Language model" picker (above the
+  assistant JSON, writing `languageModel.model`) that lists only LLMs with the assistant's hard
+  features (`streaming`, plus `tool-calling` when it has tools; same rule as the registry checker).
+- Language match: same base language (`es-419` fits `es`/`es-CO`), `multi`, or none stated. An
+  entry without stated features or models is not filtered out.
+- A saved value that no longer fits stays selectable, marked "(doesn't fit)" with a one-line hint.
+- Only the rebuild's app editor (`session/apps.tsx`); the legacy Agents screens keep their
+  hard-coded lists (they go with the legacy Application model).

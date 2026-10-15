@@ -120,7 +120,10 @@ const entry = (item: CatalogItem): CatalogEntry => ({
   id: item.id,
   label: item.id,
   state: item.state === "deprecated" ? "deprecated" : "active",
-  ...(item.replacement ? { replacement: item.replacement } : {})
+  ...(item.replacement ? { replacement: item.replacement } : {}),
+  ...(item.languages?.length ? { languages: item.languages } : {}),
+  ...(item.features?.length ? { features: item.features } : {}),
+  ...(item.models?.length ? { models: item.models } : {})
 });
 
 /** The catalog as the pickers need it; languages come from models and voices. */
@@ -131,6 +134,12 @@ export function toCatalog(items: CatalogItem[]): Catalog {
     voices: items.filter((i) => i.kind === "voice").map(entry),
     sttModels: items
       .filter((i) => i.kind === "model" && i.type === "stt")
+      .map(entry),
+    ttsModels: items
+      .filter((i) => i.kind === "model" && i.type === "tts")
+      .map(entry),
+    llmModels: items
+      .filter((i) => i.kind === "model" && i.type === "llm")
       .map(entry),
     providers: items.filter((i) => i.kind === "provider").map(entry),
     languages: [...languages]
