@@ -33,6 +33,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
 import { errorMessage } from "~/lib/errors";
 import { useAllNumbers } from "~/numbers/numbers.service";
+import { CarrierHint } from "~/regions/connection";
 import { formatNumber } from "~/numbers/routing";
 import { OutboundUris } from "./outbound-uris";
 import {
@@ -280,6 +281,7 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                 )}
               </Field>
             </div>
+            <CarrierHint />
           </Section>
           <OutboundUris form={form} />
         </div>

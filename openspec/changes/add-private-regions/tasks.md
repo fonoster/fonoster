@@ -14,7 +14,7 @@
 - [x] 2.4 Config sync publisher per region; pause on unsupported versions
 - [x] 2.5 Content relay (streamed, access-checked, size/rate limited)
 - [x] 2.6 Heartbeat consumer and region status
-- [ ] 2.7 Region endpoints: store `region.endpoints` from cells, configured endpoints for public regions, expose in GetRegion
+- [x] 2.7 Region endpoints: store `region.endpoints` from cells, configured endpoints for public regions, expose in GetRegion
 
 ## 3. Cell
 
@@ -27,7 +27,7 @@
 
 ## 4. Dashboard and billing
 
-- [ ] 4.6 Connection details in Settings → Region, the trunk form and SIP user settings
+- [x] 4.6 Connection details in Settings → Region, the trunk form and SIP user settings
 
 - [x] 4.1 Region picker in "New workspace" with confirm step (region is permanent)
 - [x] 4.2 Private region setup page and Region page

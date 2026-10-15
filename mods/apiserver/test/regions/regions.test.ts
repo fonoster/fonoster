@@ -38,6 +38,7 @@ import { createRecordsRouter } from "../../src/records";
 import {
   ConfigKinds,
   createRegionSigner,
+  endpointsHash,
   generateRegionHub,
   RegionNatsAuth,
   RegionsConfig,
@@ -45,6 +46,10 @@ import {
   runRegions,
   SnapshotSources
 } from "../../src/regions";
+import {
+  endpointsHash as agentEndpointsHash,
+  RegionAgent
+} from "../../../region-agent/src";
 
 // The control plane's side of private regions end to end, with a fake cell: enrollment, config
 // sync, heartbeats and status, index and usage ingestion, the content relay, re-issue, disconnect
@@ -79,6 +84,19 @@ function accessToken(role: string, accessKeyId = WS) {
   );
 }
 
+const PUBLIC_ENDPOINTS = {
+  sip: [
+    {
+      host: "sip.us-east-1.fonoster.com",
+      port: 5060,
+      transport: "udp" as const
+    }
+  ],
+  signalingAddresses: ["198.51.100.1"],
+  mediaAddresses: ["198.51.100.2"],
+  rtpPorts: { min: 10000, max: 20000 }
+};
+
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function until<T>(
   fn: () => T | undefined | Promise<T | undefined>,
@@ -100,6 +118,7 @@ class FakeCell {
   revoked: unknown[] = [];
   errors: string[] = [];
   relayed: Record<string, unknown>[] = [];
+  endpointRequests = 0;
   constructor(
     readonly nc: NatsConnection,
     readonly ref: string
@@ -126,6 +145,7 @@ class FakeCell {
       cell.needed.push(JSON.parse(sc.decode(m.data)).names)
     );
     on("revoked", (m) => cell.revoked.push(JSON.parse(sc.decode(m.data))));
+    on("endpoints.request", () => cell.endpointRequests++);
     on("relay", (m) => {
       const req = JSON.parse(sc.decode(m.data));
       cell.relayed.push(req);
@@ -178,6 +198,13 @@ class FakeCell {
           ...o
         })
       )
+    );
+  }
+
+  endpoints(e: Record<string, unknown>) {
+    this.nc.publish(
+      `region.${this.ref}.endpoints`,
+      sc.encode(JSON.stringify({ type: "region.endpoints", ...e }))
     );
   }
 
@@ -293,7 +320,12 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
     };
     const config: RegionsConfig = {
       public: [
-        { id: "us-east-1", name: "US East (N. Virginia)", default: true }
+        {
+          id: "us-east-1",
+          name: "US East (N. Virginia)",
+          default: true,
+          endpoints: PUBLIC_ENDPOINTS
+        }
       ],
       allowInsecureLeaf: true,
       relay: {
@@ -483,6 +515,133 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       { name: "deepgram", usedBy: ["Reception"], set: true },
       { name: "elevenlabs", usedBy: ["Reception"], set: false }
     ]);
+  });
+
+  it("asks for endpoints, stores what the cell reports and re-asks when the hash changes", async function () {
+    // The heartbeat above carried no endpointsHash and none are stored yet: the cp asks.
+    await until(() => cell.endpointRequests > 0);
+    const first = {
+      sip: [
+        { host: "sip.acme.example", port: 5061, transport: "tls" },
+        { host: "sip.acme.example", port: 99999, transport: "udp" },
+        { host: "bad host!", port: 5060, transport: "udp" }
+      ],
+      signalingAddresses: ["203.0.113.10"],
+      mediaAddresses: ["203.0.113.11"],
+      rtpPorts: { min: 20000, max: 20999 },
+      updatedAt: new Date().toISOString()
+    };
+    cell.endpoints(first);
+    const region = await until(async () => {
+      const r = await api("/api/regions/current", { role: "WORKSPACE_MEMBER" });
+      return r.body.endpoints ? r.body : undefined;
+    });
+    expect(region.endpoints.sip).to.deep.equal([
+      { host: "sip.acme.example", port: 5061, transport: "tls" }
+    ]);
+    expect(region.endpoints).to.deep.include({
+      signalingAddresses: ["203.0.113.10"],
+      mediaAddresses: ["203.0.113.11"],
+      rtpPorts: { min: 20000, max: 20999 }
+    });
+    const hash = endpointsHash(first);
+
+    // Same hash in the heartbeat: no request.
+    const asked = cell.endpointRequests;
+    cell.heartbeat({ configVersion: 1, endpointsHash: hash });
+    await wait(300);
+    expect(cell.endpointRequests).to.equal(asked);
+
+    // The address changed: the heartbeat's hash differs, the cp asks, the cell answers.
+    cell.heartbeat({ configVersion: 1, endpointsHash: "changed" });
+    await until(() => cell.endpointRequests > asked);
+    cell.endpoints({ ...first, signalingAddresses: ["203.0.113.20"] });
+    await until(
+      async () =>
+        (await api("/api/regions/current", { role: "WORKSPACE_MEMBER" })).body
+          .endpoints?.signalingAddresses?.[0] === "203.0.113.20"
+    );
+
+    // Nothing usable is ignored (the stored details stay).
+    cell.endpoints({ sip: [{ host: "", port: 0 }] });
+    await wait(300);
+    const kept = await api("/api/regions/current", {
+      role: "WORKSPACE_MEMBER"
+    });
+    expect(kept.body.endpoints.signalingAddresses).to.deep.equal([
+      "203.0.113.20"
+    ]);
+  });
+
+  it("stores the real region agent's endpoints and its hash matches (RE-B2)", async function () {
+    // The agent also listens on media.*/gateway.* subjects, outside the hub credentials.
+    if (HUB) return this.skip();
+    const stateDir = mkdtempSync(join(tmpdir(), "rb-regep-agent-"));
+    const nc = await connect({
+      servers: NATS_URL!,
+      inboxPrefix: `region.${ref}._INBOX`
+    });
+    const reported = {
+      sip: [
+        { host: "sip.cell.example", port: 5061, transport: "tls" as const }
+      ],
+      signalingAddresses: ["203.0.113.30"],
+      mediaAddresses: ["203.0.113.31"],
+      rtpPorts: { min: 30000, max: 30999 }
+    };
+    const agent = new RegionAgent({
+      identity: {
+        regionRef: ref,
+        workspaceRef: WS,
+        controlPlane: base,
+        leafUrl: NATS_URL!,
+        subjects: `region.${ref}.>`,
+        configVersion: 1,
+        enrolledAt: new Date().toISOString(),
+        tokenId: "agent-test",
+        publicKey: "x"
+      },
+      nc,
+      version: "0.27.0",
+      stateDir,
+      heartbeatMs: 200,
+      firstHeartbeatMs: 100,
+      endpoints: () => reported
+    });
+    try {
+      await agent.start();
+      const r = await until(async () => {
+        const b = (
+          await api("/api/regions/current", { role: "WORKSPACE_MEMBER" })
+        ).body;
+        return b.endpoints?.sip?.[0]?.host === "sip.cell.example"
+          ? b
+          : undefined;
+      });
+      expect(r.endpoints).to.deep.include({
+        signalingAddresses: ["203.0.113.30"],
+        mediaAddresses: ["203.0.113.31"],
+        rtpPorts: { min: 30000, max: 30999 }
+      });
+      const row = await runtime.service.byRef(ref);
+      expect(row!.endpointsHash).to.equal(agentEndpointsHash(reported));
+
+      // The agent's heartbeats now match: no requests. A foreign hash makes the cp ask, and
+      // the agent answers with a fresh report.
+      const asked = cell.endpointRequests;
+      await wait(500);
+      expect(cell.endpointRequests).to.equal(asked);
+      const before = row!.endpointsAt!.getTime();
+      cell.heartbeat({ configVersion: 1, endpointsHash: "stale" });
+      await until(async () => {
+        const again = await runtime.service.byRef(ref);
+        return again!.endpointsAt!.getTime() > before;
+      });
+    } finally {
+      await agent.stop();
+      await nc.close();
+      rmSync(stateDir, { recursive: true, force: true });
+    }
   });
 
   it("publishes a new version when the workspace's config changes", async function () {
@@ -713,5 +872,6 @@ describe("@apiserver[regions/e2e] private region round trip", function () {
       role: "WORKSPACE_MEMBER"
     });
     expect(region.body.kind).to.equal("public");
+    expect(region.body.endpoints).to.deep.equal(PUBLIC_ENDPOINTS);
   });
 });

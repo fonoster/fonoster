@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { RegionEndpoints } from "./endpoints";
+
 /** Wire names of the private region contract (openspec/changes/add-private-regions/contract.md). */
 export const REGION_AUDIENCE = "fonoster.region.v1";
 
@@ -37,6 +39,9 @@ export const subjects = (ref: string) => ({
   index: `region.${ref}.index`,
   usage: `region.${ref}.usage`,
   revoked: `region.${ref}.revoked`,
+  endpoints: `region.${ref}.endpoints`,
+  /** cp → cell: please publish `region.R.endpoints` again (RE-B2). */
+  endpointsRequest: `region.${ref}.endpoints.request`,
   /** Reply subjects for requests that cross the link (RG-B4). */
   inbox: `region.${ref}._INBOX`
 });
@@ -55,6 +60,8 @@ export type Heartbeat = {
   activeCalls: number;
   secretsSet: string[];
   configVersion: number;
+  /** See `endpointsHash()` (RE-B2); a change makes the control plane ask for the endpoints. */
+  endpointsHash?: string;
   at: string;
 };
 
@@ -65,7 +72,13 @@ export type RegionStatus =
   | "offline"
   | "unsupported";
 
-export type PublicRegion = { id: string; name: string; default?: boolean };
+export type PublicRegion = {
+  id: string;
+  name: string;
+  default?: boolean;
+  /** Configured connection details (contract §3a). */
+  endpoints?: RegionEndpoints;
+};
 
 /** A Region row (Prisma). */
 export type RegionRow = {
@@ -81,6 +94,9 @@ export type RegionRow = {
   configVersion: number;
   lastHeartbeatAt: Date | null;
   enrolledAt: Date | null;
+  endpoints?: unknown;
+  endpointsHash?: string | null;
+  endpointsAt?: Date | null;
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;

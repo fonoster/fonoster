@@ -218,11 +218,26 @@ identity:
   invites: { expiration: 1d }
   owner: { name: Admin, email: "$RB_ADMIN_EMAIL", password: "$RB_ADMIN_PASSWORD" }
 EOF
+  # The local public region and its connection details (contract §3a): Routr's published SIP
+  # port and RTPEngine's range on this machine's address.
+  cat >> "$CONF/fonoster.yaml" <<EOF
+regions:
+  public:
+    - id: us-east-1
+      name: "US East (N. Virginia)"
+      default: true
+      endpoints:
+        sip:
+          - { host: "$host_ip", port: $RB_SIP_PORT, transport: udp }
+          - { host: "$host_ip", port: $RB_SIP_PORT, transport: tcp }
+        signalingAddresses: ["$host_ip"]
+        mediaAddresses: ["$host_ip"]
+        rtpPorts: { min: $RTPENGINE_PORT_MIN, max: $RTPENGINE_PORT_MAX }
+EOF
   # Private regions (add-private-regions): cells link to the region hub (nats-regions) over a
   # plain leaf node on this machine; enrollment goes through Envoy's /api.
   if [ -f "$CONF/region-hub.conf" ]; then
     cat >> "$CONF/fonoster.yaml" <<EOF
-regions:
   controlPlaneUrl: "http://$host_ip:$RB_API_PORT"
   leafUrl: "nats://$host_ip:${RB_LEAF_PORT:-7422}"
   allowInsecureLeaf: true

@@ -30,6 +30,7 @@ import { Select } from "~/components/ui/select";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { Switch } from "~/components/ui/switch";
 import { errorMessage } from "~/lib/errors";
+import { SoftphoneSettings } from "~/regions/connection";
 import {
   asPrivacy,
   DEFAULT_EXPIRES,
@@ -336,6 +337,7 @@ export function SipUserDrawer({
               )}
             />
           </div>
+          <SoftphoneSettings />
         </form>
       </SheetContent>
     </Sheet>

@@ -18,6 +18,7 @@
  */
 import { randomBytes, randomUUID } from "crypto";
 import { getLogger } from "@fonoster/logger";
+import { endpointsHash, normalizeEndpoints } from "./endpoints";
 import { EnrollmentTokenError, RegionSigner } from "./enrollmentToken";
 import { RegionNatsAuth } from "./natsAuth";
 import { regionStatus } from "./status";
@@ -253,7 +254,8 @@ export function createRegionService(deps: {
           components,
           enrolledAt: now(),
           lastHeartbeatAt: null,
-          reportedConfig: 0
+          reportedConfig: 0,
+          endpointsHash: null
         }
       });
       logger.info(`region ${row.ref} enrolled (cell ${body.version ?? "?"})`);
@@ -277,7 +279,9 @@ export function createRegionService(deps: {
           state: "waiting",
           cellPublicKey: null,
           lastHeartbeatAt: null,
-          enrolledAt: null
+          enrolledAt: null,
+          // The next cell's heartbeat then always asks for fresh endpoints.
+          endpointsHash: null
         }
       });
       logger.info(`region ${row.ref} disconnected`);
@@ -322,6 +326,34 @@ export function createRegionService(deps: {
           lastHeartbeatAt: now()
         }
       })) as RegionRow;
+    },
+
+    /** Stores the connection details a cell reported (contract §3); undefined when ignored. */
+    async reportEndpoints(regionRef: string, body: unknown) {
+      const row: RegionRow | null = await db.region.findUnique({
+        where: { ref: regionRef }
+      });
+      if (!row || row.deletedAt || row.state !== "enrolled") return undefined;
+      const endpoints = normalizeEndpoints(body);
+      if (!endpoints) return undefined;
+      return (await db.region.update({
+        where: { ref: regionRef },
+        data: {
+          endpoints: { ...endpoints, updatedAt: now().toISOString() },
+          // Hash what the cell sent (as its heartbeats do), not the cleaned copy.
+          endpointsHash: endpointsHash(
+            body as Parameters<typeof endpointsHash>[0]
+          ),
+          endpointsAt: now()
+        }
+      })) as RegionRow;
+    },
+
+    /** Whether to ask the cell for its endpoints after this heartbeat (RE-B2). */
+    needsEndpoints(row: RegionRow, hb: Partial<Heartbeat>) {
+      if (typeof hb.endpointsHash === "string" && hb.endpointsHash)
+        return hb.endpointsHash !== row.endpointsHash;
+      return !row.endpoints;
     },
 
     statusOf(row: RegionRow) {

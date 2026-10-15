@@ -198,6 +198,7 @@ export class RegionAgent {
     this.on(s.config, (_m, b) => this.enqueue(b as ConfigSnapshot));
     this.on(s.secretsNeeded, (_m, b) => this.onSecretsNeeded(b));
     this.on(s.revoked, (_m, b) => this.onRevoked(b));
+    this.on(s.endpointsRequest, () => void this.publishEndpoints(true));
     this.on(s.relay, (m, b) => void this.onRelay(m, b as RelayRequest));
     this.on(RECORD_SEALED_SUBJECT, (_m, b) => this.onSealed(b));
     await this.options.nc.flush();

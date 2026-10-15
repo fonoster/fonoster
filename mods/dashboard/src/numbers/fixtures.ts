@@ -166,6 +166,25 @@ type Mock = {
  * The SDK areas these screens call, as mocks made by `mock` (vi.fn in
  * tests, storybook's fn in stories).
  */
+/** us-east-1 as `GET /api/regions/current` returns it, with connection details. */
+export const publicRegionWithEndpoints = {
+  ref: "us-east-1",
+  kind: "public",
+  name: "US East (N. Virginia)",
+  status: "connected",
+  state: "connected",
+  secrets: [],
+  endpoints: {
+    sip: [
+      { host: "sip.us-east-1.fonoster.com", port: 5060, transport: "udp" },
+      { host: "sip.us-east-1.fonoster.com", port: 5061, transport: "tls" }
+    ],
+    signalingAddresses: ["198.51.100.1"],
+    mediaAddresses: ["198.51.100.2"],
+    rtpPorts: { min: 10000, max: 20000 }
+  }
+};
+
 export function fakeSdk(
   mock: () => Mock,
   data: {
@@ -196,6 +215,7 @@ export function fakeSdk(
     applications: { listApplications: page(apps) },
     agents: { listAgents: page(sipUsers) },
     acls: { listAcls: page(acls) },
-    credentials: { listCredentials: page(credentials) }
+    credentials: { listCredentials: page(credentials) },
+    regions: { getRegion: ok(publicRegionWithEndpoints) }
   };
 }

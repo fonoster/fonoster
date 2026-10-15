@@ -21,6 +21,7 @@ import { WorkspaceProvider } from "~/lib/workspace";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
 import SipUsersScreen from ".";
+import { publicRegionWithEndpoints } from "~/numbers/fixtures";
 import { toSipUserRow } from "./sip-users.service";
 
 // jsdom lacks these; Radix Select uses them.
@@ -62,9 +63,12 @@ function setup(items: object[] = []) {
       items: [{ ref: "cr-1", name: "Maria's phone", username: "maria" }]
     })
   };
+  const regions = {
+    getRegion: vi.fn().mockResolvedValue(publicRegionWithEndpoints)
+  };
   const auth = fakeAuth({
     status: "signedIn",
-    sdk: { agents, domains, credentials } as never
+    sdk: { agents, domains, credentials, regions } as never
   });
   const view = renderScreen(
     <WorkspaceProvider value={testWorkspace}>
@@ -76,6 +80,24 @@ function setup(items: object[] = []) {
 }
 
 describe("SIP users", () => {
+  it("shows the server, port and transport for a softphone", async () => {
+    const { user } = setup([]);
+    await user.click(
+      await screen.findByRole("button", { name: "Add SIP user" })
+    );
+    const phone = await screen.findByRole("region", {
+      name: "Softphone settings"
+    });
+    expect(within(phone).getByLabelText("Server")).toHaveTextContent(
+      "sip.us-east-1.fonoster.com"
+    );
+    expect(within(phone).getByLabelText("Port")).toHaveTextContent("5060");
+    expect(within(phone).getByLabelText("Transport")).toHaveTextContent("UDP");
+    expect(
+      within(phone).getByRole("button", { name: "Copy Server" })
+    ).toBeInTheDocument();
+  });
+
   it("lists SIP users with their SIP address", async () => {
     setup([maria]);
     const table = await screen.findByRole("table", { name: "SIP users" });

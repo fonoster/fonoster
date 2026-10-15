@@ -22,7 +22,7 @@ import { createIndexRecord } from "../records/createIndexRecord";
 import { RecordIndexEntry } from "../records/types";
 import { ConfigSync } from "./configSync";
 import { RegionService } from "./service";
-import { REGION_REF, RegionRow, RegionsDb } from "./types";
+import { REGION_REF, RegionRow, RegionsDb, subjects } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 const sc = StringCodec();
@@ -78,7 +78,17 @@ export function startRegionLink(deps: {
   const subs = [
     on("region.*.heartbeat", async (_msg, row, body) => {
       const updated = await service.heartbeat(row.ref, body);
-      if (updated) await configSync.afterHeartbeat(updated);
+      if (!updated) return;
+      if (service.needsEndpoints(updated, body))
+        nc.publish(
+          subjects(row.ref).endpointsRequest,
+          sc.encode(JSON.stringify({ type: "region.endpoints.request" }))
+        );
+      await configSync.afterHeartbeat(updated);
+    }),
+    on("region.*.endpoints", async (_msg, row, body) => {
+      if (body.type !== undefined && body.type !== "region.endpoints") return;
+      await service.reportEndpoints(row.ref, body);
     }),
     on("region.*.config.request", async (msg, row, body) => {
       const answer = await configSync.answer(
@@ -108,6 +118,8 @@ export function startRegionLink(deps: {
       });
     })
   ];
-  logger.info("region link: heartbeat, config, index and usage consumers on");
+  logger.info(
+    "region link: heartbeat, endpoints, config, index and usage consumers on"
+  );
   return () => subs.forEach((s) => s.unsubscribe());
 }

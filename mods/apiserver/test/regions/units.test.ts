@@ -21,23 +21,28 @@ import * as grpc from "@grpc/grpc-js";
 import { expect } from "chai";
 import jwt from "jsonwebtoken";
 import { fromPublic } from "nkeys.js";
+import { fonosterConfigSchema } from "../../src/config/schema";
 import {
   catalogUse,
   createRegionSigner,
   createRelayClient,
   decodeNatsJwt,
+  endpointsHash,
   EnrollmentTokenError,
   generateRegionHub,
   isSupportedVersion,
   issueUserCreds,
   keyPairFromSeed,
   newRegionRef,
+  normalizeEndpoints,
   REGION_REF,
   regionStatus,
   regionsAccountJwt,
   requiredVersion,
   withConfigChangeHook
 } from "../../src/regions";
+
+const AGENT_HASH = "e04c56cca42b63d9";
 
 const pem = () =>
   generateKeyPairSync("ec", { namedCurve: "P-256" })
@@ -196,6 +201,74 @@ describe("@apiserver[regions/units]", function () {
       expect(isSupportedVersion("1.2.9", "1.4.2")).to.equal(false);
       expect(isSupportedVersion("2.0.0", "1.4.2")).to.equal(true);
       expect(isSupportedVersion("nonsense", "1.4.2")).to.equal(false);
+    });
+  });
+
+  describe("endpoints (contract §3, §3a)", function () {
+    const e = {
+      sip: [
+        { host: "sip.acme.example", port: 5061, transport: "TLS" },
+        { host: "sip.acme.example", port: 5060, transport: "udp" },
+        { host: "x", port: 5060, transport: "sctp" },
+        { host: "", port: 5060 }
+      ],
+      signalingAddresses: ["203.0.113.10", "203.0.113.10", "a b"],
+      mediaAddresses: ["203.0.113.11"],
+      rtpPorts: { min: 30000, max: 20000 }
+    };
+
+    it("keeps valid SIP entries and addresses, drops the rest", function () {
+      const n = normalizeEndpoints(e)!;
+      expect(n.sip).to.deep.equal([
+        { host: "sip.acme.example", port: 5061, transport: "tls" },
+        { host: "sip.acme.example", port: 5060, transport: "udp" }
+      ]);
+      expect(n.signalingAddresses).to.deep.equal(["203.0.113.10"]);
+      expect(n.rtpPorts).to.equal(undefined);
+      expect(normalizeEndpoints({ sip: [] })).to.equal(undefined);
+      expect(normalizeEndpoints("nope")).to.equal(undefined);
+    });
+
+    it("hashes like the region agent: updatedAt does not matter", function () {
+      const a = normalizeEndpoints(e)!;
+      const b = { ...a, updatedAt: new Date().toISOString() };
+      expect(endpointsHash(a)).to.match(/^[0-9a-f]{16}$/);
+      expect(endpointsHash(a)).to.equal(endpointsHash(b));
+      // Same value as mods/region-agent's endpointsHash for this input.
+      expect(
+        endpointsHash({
+          sip: [{ host: "203.0.113.10", port: 5060, transport: "udp" }],
+          signalingAddresses: ["203.0.113.10"],
+          mediaAddresses: ["203.0.113.10"],
+          rtpPorts: { min: 10000, max: 20000 }
+        })
+      ).to.equal(AGENT_HASH);
+      expect(
+        endpointsHash({ ...a, mediaAddresses: ["203.0.113.12"] })
+      ).to.not.equal(endpointsHash(a));
+    });
+
+    it("accepts configured endpoints for public regions", function () {
+      const regions = fonosterConfigSchema.innerType().shape.regions.parse({
+        public: [
+          {
+            id: "us-east-1",
+            name: "US East",
+            default: true,
+            endpoints: {
+              sip: [{ host: "203.0.113.5", port: 5060, transport: "udp" }],
+              signalingAddresses: ["203.0.113.5"],
+              rtpPorts: { min: 10000, max: 20000 }
+            }
+          }
+        ]
+      });
+      expect(regions.public[0].endpoints).to.deep.equal({
+        sip: [{ host: "203.0.113.5", port: 5060, transport: "udp" }],
+        signalingAddresses: ["203.0.113.5"],
+        mediaAddresses: [],
+        rtpPorts: { min: 10000, max: 20000 }
+      });
     });
   });
 

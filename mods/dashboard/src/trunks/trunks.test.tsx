@@ -92,6 +92,13 @@ describe("trunks list", () => {
 });
 
 describe("trunk page", () => {
+  it("tells the user where to point the carrier and what to allowlist", async () => {
+    setup("/w/ws1/trunks/new");
+    expect(await screen.findByTestId("carrier-hint")).toHaveTextContent(
+      "Point your carrier at sip.us-east-1.fonoster.com:5060 (UDP); allowlist 198.51.100.1, 198.51.100.2."
+    );
+  });
+
   it("edits outbound URIs and security, then saves", async () => {
     const { user, sdk } = setup("/w/ws1/trunks/tk-31a0c2");
     await screen.findByRole("heading", { name: "Claro" });

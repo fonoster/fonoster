@@ -19,6 +19,7 @@
 import { getLogger } from "@fonoster/logger";
 import express, { Request, Response, Router } from "express";
 import { ConfigSync } from "./configSync";
+import { RegionEndpoints } from "./endpoints";
 import { RegionSigner } from "./enrollmentToken";
 import { ADMIN_ROLES, Caller, createHttpAuth } from "./httpAuth";
 import { RegionService } from "./service";
@@ -66,7 +67,8 @@ export async function regionView(
       name: n.name,
       usedBy: n.usedBy,
       set: set.has(n.name)
-    }))
+    })),
+    endpoints: (row.endpoints ?? undefined) as RegionEndpoints | undefined
   };
 }
 
@@ -149,7 +151,8 @@ export function createRegionsRouter(deps: {
           name: r?.name,
           status: "connected",
           state: "connected",
-          secrets: []
+          secrets: [],
+          endpoints: r?.endpoints
         });
       }
       res.json(await regionView(row, service, deps.configSync));

@@ -25,6 +25,7 @@ import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { useWorkspace } from "~/lib/workspace";
 import { regionKey, useRegion, useRegionsApi } from "./api";
+import { ConnectionDetails } from "./connection";
 import { composeCommand, helmCommand } from "./setup";
 import { ago, PILL_LABEL, remaining } from "./status";
 import { workspaceRegion, type RegionToken, type Region } from "./types";
@@ -67,11 +68,12 @@ export function RegionSettings() {
 
   if (!isPrivate)
     return (
-      <section aria-label="Region" className="flex max-w-xl flex-col gap-3">
+      <section aria-label="Region" className="flex max-w-xl flex-col gap-5">
         <dl>
           <Row label="Region" value={workspaceRegion(workspace)} />
           <Row label="Type" value="Public" />
         </dl>
+        <ConnectionDetails region={region} />
       </section>
     );
   if (isLoading) return <p>Loading…</p>;
@@ -122,6 +124,7 @@ export function RegionSettings() {
         <Row label="Nodes" value={region.mediaNodes} />
         <Row label="Active calls" value={region.activeCalls} />
       </dl>
+      <ConnectionDetails region={region} />
       {region.status === "waiting" && (
         <Button asChild variant="outline" className="self-start">
           <Link to="../../region-setup" relative="path">

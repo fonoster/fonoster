@@ -109,7 +109,29 @@ const regionsSchema = z
         z.object({
           id: z.string().regex(/^[a-z0-9-]+$/),
           name: z.string().min(1),
-          default: z.boolean().optional()
+          default: z.boolean().optional(),
+          /** Where carriers and softphones reach this region (contract §3a). */
+          endpoints: z
+            .object({
+              sip: z
+                .array(
+                  z.object({
+                    host: z.string().min(1),
+                    port: z.number().int().min(1).max(65535),
+                    transport: z.enum(["udp", "tcp", "tls", "ws", "wss"])
+                  })
+                )
+                .default([]),
+              signalingAddresses: z.array(z.string().min(1)).default([]),
+              mediaAddresses: z.array(z.string().min(1)).default([]),
+              rtpPorts: z
+                .object({
+                  min: z.number().int().min(1).max(65535),
+                  max: z.number().int().min(1).max(65535)
+                })
+                .optional()
+            })
+            .optional()
         })
       )
       .min(1)
