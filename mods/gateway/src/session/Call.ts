@@ -82,7 +82,6 @@ const POLICY_VERSION = "default@2";
 /** How often turn.estimate is sent to subscribers. */
 const ESTIMATE_EVERY_MS = 100;
 
-
 /** Commands an app may send while the caller is on hold (gateway B24). */
 const ALLOWED_ON_HOLD = new Set([
   "resume",

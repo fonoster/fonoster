@@ -34,12 +34,22 @@ const flag = (name: string) => args.includes(name);
 const values = (name: string) =>
   args.flatMap((a, i) => (a === name && args[i + 1] ? [args[i + 1]] : []));
 const positional = args.filter(
-  (a, i) => !a.startsWith("--") && !args[i - 1]?.startsWith("--c") && !args[i - 1]?.startsWith("--p")
+  (a, i) =>
+    !a.startsWith("--") &&
+    !args[i - 1]?.startsWith("--c") &&
+    !args[i - 1]?.startsWith("--p")
 );
 
 const file =
   positional[0] ??
-  path.join(__dirname, "..", "..", "conformance", "turn-corpus", "synthetic-v1.json");
+  path.join(
+    __dirname,
+    "..",
+    "..",
+    "conformance",
+    "turn-corpus",
+    "synthetic-v1.json"
+  );
 const corpus = JSON.parse(fs.readFileSync(file, "utf8")) as Corpus;
 const candidates = values("--candidate");
 for (const c of candidates)
@@ -58,7 +68,10 @@ const run = (name: string) => ({
   )
 });
 
-const reports = ["baseline", ...(candidates.length ? candidates : ["backchannel-hold"])].map(run);
+const reports = [
+  "baseline",
+  ...(candidates.length ? candidates : ["backchannel-hold"])
+].map(run);
 if (flag("--json")) console.log(JSON.stringify(reports, null, 2));
 else {
   console.log(

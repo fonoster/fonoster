@@ -291,7 +291,10 @@ function table(rows: [string, Metrics][]): string {
     Math.max(...[header, ...body].map((r) => r[i].length))
   );
   const line = (r: string[]) =>
-    r.map((c, i) => c.padEnd(widths[i])).join("  ").trimEnd();
+    r
+      .map((c, i) => c.padEnd(widths[i]))
+      .join("  ")
+      .trimEnd();
   return [line(header), ...body.map(line)].join("\n");
 }
 
@@ -310,7 +313,11 @@ export function formatReport(
     table(reports.map((r) => [r.name, r.report]))
   ];
   for (const r of reports) {
-    out.push("", `${r.name} by category`, table(Object.entries(r.report.byCategory)));
+    out.push(
+      "",
+      `${r.name} by category`,
+      table(Object.entries(r.report.byCategory))
+    );
     if (r.report.problems.length)
       out.push(
         "",

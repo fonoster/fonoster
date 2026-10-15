@@ -24,7 +24,11 @@ import { VoiceServer } from "@fonoster/voice/session";
 import * as yaml from "js-yaml";
 import { z } from "zod";
 import { SessionAssistant } from "./config";
-import { AutopilotOptions, createAutopilotHandler, LoadedAssistant } from "./createAutopilot";
+import {
+  AutopilotOptions,
+  createAutopilotHandler,
+  LoadedAssistant
+} from "./createAutopilot";
 import { fromKnowledgeBase, KnowledgePort } from "./knowledge";
 import {
   ConfigCredentials,
@@ -188,9 +192,9 @@ export function s3Knowledge(
 function defaultKnowledgeBase(params: Record<string, unknown>) {
   // Loaded lazily: the S3 loader and embeddings pull in LangChain, which only the knowledge
   // port still uses.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { S3KnowledgeBase } = require("../knowledge/S3KnowledgeBase");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { OpenAIEmbeddings } = require("@langchain/openai");
   return new S3KnowledgeBase({
     ...params,

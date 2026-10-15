@@ -16,15 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The hosted Autopilot's entry point (rework-autopilot task 4.3):
+// The hosted Autopilot's entry point (rework-autopilot task 4.3). Its config is its own file,
+// separate from the current Autopilot's autopilot.yaml until the cutover:
 //
-//   AUTOPILOT_CONFIG=/etc/fonoster/autopilot.yaml node dist/session/main.js
+//   node dist/session/main.js --config /opt/fonoster/autopilot-session.yaml
 import { getLogger } from "@fonoster/logger";
 import { loadHostedConfig, startHostedAutopilot } from "./hosted";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-const file = process.env.AUTOPILOT_CONFIG ?? "./autopilot.yaml";
+const at = process.argv.indexOf("--config");
+const file = at >= 0 ? process.argv[at + 1] : "./config/autopilot-session.yaml";
 
 startHostedAutopilot(loadHostedConfig(file)).catch((e: Error) => {
   logger.error(`hosted autopilot failed to start: ${e.message}`);

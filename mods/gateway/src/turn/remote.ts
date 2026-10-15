@@ -103,9 +103,11 @@ export class RemoteDetector implements Detector {
     const local = this.options.fallback.onAudio(frame, at);
     this.sent++;
     this.send(frame);
-    const maxLagFrames = (this.options.maxLagMs ?? REMOTE_MAX_LAG_MS) / FRAME_MS;
+    const maxLagFrames =
+      (this.options.maxLagMs ?? REMOTE_MAX_LAG_MS) / FRAME_MS;
     const fresh =
-      this.latest !== undefined && this.sent - this.latest.frame <= maxLagFrames;
+      this.latest !== undefined &&
+      this.sent - this.latest.frame <= maxLagFrames;
     this.use(
       fresh ? "remote" : "fallback",
       fresh

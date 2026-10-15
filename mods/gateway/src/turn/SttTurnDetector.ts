@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { Transcript } from "../speech/types";
-import { BaselineDetector, BaselineOptions, Detector, Estimate } from "./Detector";
+import {
+  BaselineDetector,
+  BaselineOptions,
+  Detector,
+  Estimate
+} from "./Detector";
 
 /**
  * Silence after the last transcript before the turn ends anyway when a turn-aware recognizer

@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { toolSchema } from "./tools";
 import { z } from "zod";
+import { toolSchema } from "./tools";
 
 // The assistant config for the rebuilt Autopilot (rework-autopilot A8, A11, A12; tasks 5.1, 5.2,
 // 5.4). Strict: vendor credentials, vendor enums, VAD settings and the assistant webhook are

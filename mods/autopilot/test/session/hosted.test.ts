@@ -144,6 +144,25 @@ describe("@autopilot/session hosted Autopilot", function () {
     });
   }
 
+  it("reads the example config", function () {
+    const config = loadHostedConfig(
+      path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "..",
+        "config",
+        "autopilot-session.example.yaml"
+      )
+    );
+    expect(config.port).to.equal(50061);
+    expect(config.credentials["openai-default"]).to.deep.equal({
+      env: "OPENAI_API_KEY"
+    });
+    expect(path.isAbsolute(config.registry.file)).to.equal(true);
+  });
+
   it("rejects a connection with a bad signature before loading any assistant", async function () {
     const harness = await new FakesHarness().start();
     const server = await startHostedAutopilot(
@@ -200,12 +219,12 @@ describe("@autopilot/session language models through the registry", function () 
       },
       new ConfigCredentials({ "openai-default": { value: "platform-key" } })
     ]);
-    expect(await credentials.get("openai-default", { workspaceRef: "ws-1" })).to.equal(
-      "workspace-key"
-    );
-    expect(await credentials.get("openai-default", { workspaceRef: "ws-2" })).to.equal(
-      "platform-key"
-    );
+    expect(
+      await credentials.get("openai-default", { workspaceRef: "ws-1" })
+    ).to.equal("workspace-key");
+    expect(
+      await credentials.get("openai-default", { workspaceRef: "ws-2" })
+    ).to.equal("platform-key");
   });
 
   it("refuses a model without a credential and an id that is not a language model", async function () {

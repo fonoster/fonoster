@@ -41,7 +41,9 @@ export function isDetectorChoice(value: string): boolean {
 
 export function createDetector(
   settings: DetectorSettings,
-  hooks: { onSource?: (source: "remote" | "fallback", reason?: string) => void } = {}
+  hooks: {
+    onSource?: (source: "remote" | "fallback", reason?: string) => void;
+  } = {}
 ): { detector: Detector; version: string } {
   const choice = settings.detector ?? "baseline";
   const baseline = () =>

@@ -127,8 +127,13 @@ export function createAutopilotHandler(options: AutopilotOptions) {
         if (resolved.event) recorder.note(resolved.event);
       } catch (e) {
         // A model the registry cannot serve: apologise and end the call, never a silent line.
-        logger.error(`autopilot cannot reach its language model: ${(e as Error).message}`);
-        recorder.note({ type: "llm.unavailable", reason: (e as Error).message });
+        logger.error(
+          `autopilot cannot reach its language model: ${(e as Error).message}`
+        );
+        recorder.note({
+          type: "llm.unavailable",
+          reason: (e as Error).message
+        });
         await session
           .say(assistant.conversationSettings.systemErrorMessage, {
             interruptible: false
