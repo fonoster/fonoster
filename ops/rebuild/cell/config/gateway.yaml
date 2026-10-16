@@ -1,6 +1,6 @@
 # gateway.yaml for a region's cell: apps, the catalog and webhook endpoints of every workspace of
 # the region come from the cell's database (written by the region agent from the control plane's
-# snapshots); provider keys come from the region's secret store (`fonoster-regions secrets set
+# snapshots); provider keys come from the region's secret store (`fonoster-region secrets set
 # <provider>`), never from the cloud database.
 nats:
   url: nats://nats:4222

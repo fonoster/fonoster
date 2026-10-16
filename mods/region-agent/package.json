@@ -1,7 +1,7 @@
 {
   "name": "@fonoster/region-agent",
   "version": "0.27.0",
-  "description": "The region agent and the fonoster-regions ops utility: public and private regions' enrollment, config sync, heartbeats, content relay and region secrets; public region administration",
+  "description": "The region agent and the fonoster-region ops utility: public and private regions' enrollment, config sync, heartbeats, content relay and region secrets; public region administration",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",

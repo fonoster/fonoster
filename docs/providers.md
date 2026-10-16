@@ -48,7 +48,7 @@ The dashboard has the same under Vendor keys. A provider the platform has no key
 usable once your workspace sets its own. If the lookup of your key is slow or fails at session start, the call uses the platform key.
 
 In a private region, provider keys are set on the region machine instead
-(`fonoster-regions secrets set <provider>`); see
+(`fonoster-region secrets set <provider>`); see
 [Running a region](./operators/regions.md).
 
 ## What a deprecation warning means

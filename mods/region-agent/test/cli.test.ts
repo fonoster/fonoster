@@ -28,7 +28,7 @@ import { main, parseArgs } from "../src/cli";
 import { loadAgentConfig } from "../src/config";
 import { FakeControlPlane } from "./fakeControlPlane";
 
-// add-private-regions tasks 3.1 and 3.2, PR-21: the `fonoster-regions` commands.
+// add-private-regions tasks 3.1 and 3.2, PR-21: the `fonoster-region` commands.
 
 function capture() {
   const lines: string[] = [];
@@ -44,7 +44,7 @@ function capture() {
   };
 }
 
-describe("@region-agent fonoster-regions CLI", function () {
+describe("@region-agent fonoster-region CLI", function () {
   let dir: string;
   const saved = { ...process.env };
   beforeEach(() => {
@@ -248,18 +248,18 @@ describe("@region-agent fonoster-regions CLI", function () {
     }
   });
 
-  it("keeps fonoster-region as a deprecated alias", function () {
+  it("keeps fonoster-regions as a deprecated alias", function () {
     const cli = path.join(__dirname, "../dist/cli.js");
     if (!fs.existsSync(cli)) this.skip();
-    const alias = path.join(dir, "fonoster-region");
+    const alias = path.join(dir, "fonoster-regions");
     fs.symlinkSync(cli, alias);
     const old = spawnSync(process.execPath, [alias, "--help"], {
       encoding: "utf8"
     });
     expect(old.stderr).to.match(
-      /fonoster-region is deprecated; use fonoster-regions/
+      /fonoster-regions is deprecated; use fonoster-region /
     );
-    expect(old.stdout).to.match(/^fonoster-regions <command>/);
+    expect(old.stdout).to.match(/^fonoster-region <command>/);
     const now = spawnSync(process.execPath, [cli, "--help"], {
       encoding: "utf8"
     });

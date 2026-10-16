@@ -14,12 +14,12 @@ them with the operator key (see "Public regions" below).
 Two tools, two places:
 
 - **Dashboard** (users): create and manage private regions from the start screen.
-- **`fonoster-regions`** (operators): `create`, `list`, `token`, `publish` and `revoke` run
+- **`fonoster-region`** (operators): `create`, `list`, `token`, `publish` and `revoke` run
   anywhere with the operator key; `enroll`, `secrets`, `status` and `run` run on the region's
   machine.
 
 The cell runs NATS, Postgres, Routr, RTPEngine, a media node, the VoiceSessionGateway, the hosted
-Autopilot, MinIO and the **region agent**. Region operations use one utility, `fonoster-regions`
+Autopilot, MinIO and the **region agent**. Region operations use one utility, `fonoster-region`
 (`fonoster-region` still works as a deprecated alias); it is not part of the `fonoster` CLI.
 
 ## Private regions from the dashboard
@@ -62,14 +62,14 @@ The region's connection details in the dashboard include the SIP domain.
 
 | Job | How |
 | --- | --- |
-| Enrollment | `fonoster-regions enroll <token>` checks the one-time token, creates the cell's key pair, gets the cell's leaf credentials and stores them (files `0600` or a Kubernetes Secret). |
+| Enrollment | `fonoster-region enroll <token>` checks the one-time token, creates the cell's key pair, gets the cell's leaf credentials and stores them (files `0600` or a Kubernetes Secret). |
 | Heartbeat | Every 30 s: version, media nodes, gateways, Autopilot, active calls, the **names** of the secrets set, and the config version. |
 | Config sync | Applies the control plane's snapshots to the cell for every workspace of the region: apps, assistants, the provider catalog and webhook endpoints into the cell database; domains (under the region's SIP domain), agents, trunks, ACLs and numbers into the cell's Routr. A workspace that is deleted leaves the region and its config is removed from the cell. Autopilot apps are pointed at the cell's own Autopilot. |
 | Workspace keys (public regions) | A workspace's own provider keys are fetched from Fonoster for each call over the link and never stored or logged in the region; Fonoster's keys are set on the region with `secrets set`. |
 | Relay | Answers the dashboard's requests for a record or recording by reading the cell's storage, in chunks. Every read is written to `relay-audit.jsonl` in the cell. |
 | Connection details | Reports the cell's public SIP endpoints (host, port, transport), signaling and media addresses and RTP range on connect and whenever they change; the dashboard shows them (trunk form, SIP settings). Taken from `EXTERNAL_ADDRS`, `RB_SIP_PORT`, `RTPENGINE_PUBLIC_IP` and the RTP range, or set `endpoints` in `region-agent.yaml`. |
 | Index and usage | Forwards each sealed call record's index entry (never contents) and the month's minutes, per workspace; records of workspaces that are not in the region are not sent. |
-| Secrets | `fonoster-regions secrets set <name>` stores provider keys in the cell. Values never cross the link. |
+| Secrets | `fonoster-region secrets set <name>` stores provider keys in the cell. Values never cross the link. |
 
 ## Install with Docker Compose
 
@@ -141,7 +141,7 @@ gateway:
 
 The enroll Job writes the credentials into the `fonoster-region` Secret. Mount that Secret into your
 NATS server at `/etc/nats/region` and add `include ./region/leaf.conf` to its config (NATS resolves includes relative to the including file, so the config must sit in `/etc/nats`). Set
-provider keys with `kubectl exec deploy/<release>-region-agent -- fonoster-regions secrets set
+provider keys with `kubectl exec deploy/<release>-region-agent -- fonoster-region secrets set
 deepgram --k8s-secret fonoster-region-secrets` (value on stdin), or manage the
 `fonoster-region-secrets` Secret yourself (one key per provider).
 
@@ -156,7 +156,7 @@ permissions".
 
 | Direction | Port | Why |
 | --- | --- | --- |
-| Outbound | 443 (HTTPS) to the control plane URL | Enrollment only (`fonoster-regions enroll`). |
+| Outbound | 443 (HTTPS) to the control plane URL | Enrollment only (`fonoster-region enroll`). |
 | Outbound | 7422 (NATS leaf over TLS) to the control plane's region hub | Config sync, heartbeats, the call-record index and the relay. The cell dials out; nothing dials in. |
 | Inbound | Your SIP port(s) (5060 UDP/TCP, 5061 TLS) from your carriers and softphones | Calls. |
 | Inbound | RTPEngine's UDP range from your carriers and softphones | Call audio. |
@@ -182,11 +182,11 @@ Enrollment, credentials and secrets survive upgrades (they live in the `region` 
 
 ## Operations
 
-- **Status**: `fonoster-regions status` prints the cell's region and control plane, then the
+- **Status**: `fonoster-region status` prints the cell's region and control plane, then the
   applied config version, workspaces, secret names still needed and whether it was revoked. It
   never prints credentials. Read the store with the same `--data-dir` or `--k8s-secret` you
   enrolled with.
-- **Secrets**: `fonoster-regions secrets set|list|delete <name>`. `set` reads stdin or
+- **Secrets**: `fonoster-region secrets set|list|delete <name>`. `set` reads stdin or
   `--from-env <VAR>`. The store is a Kubernetes Secret (`--k8s-secret`), a directory
   (`--dir`) or an encrypted file (`--file`, default `<data-dir>/secrets.enc`, key in
   `FONOSTER_REGION_SECRETS_KEY`).
@@ -207,16 +207,16 @@ Public regions are created on the cloud side with the operator key (the API serv
 
 ```sh
 export FONOSTER_API_URL=https://api.fonoster.com FONOSTER_OPERATOR_KEY=…   # never on the command line in shared shells
-fonoster-regions create us-east-2 --name "US East (Ohio)" [--sip-domain sip.us-east-2.fonoster.com]
+fonoster-region create us-east-2 --name "US East (Ohio)" [--sip-domain sip.us-east-2.fonoster.com]
 # on the new location: install as above, then
-fonoster-regions enroll <token>
-fonoster-regions secrets set deepgram < deepgram.key   # Fonoster's own provider keys
+fonoster-region enroll <token>
+fonoster-region secrets set deepgram < deepgram.key   # Fonoster's own provider keys
 # set `cellSecrets.workspaceKeysFromCloud: true` in the gateway config (workspaces' own keys per
 # call); on Kubernetes: --set regionAgent.workspaceKeysFromCloud=true
-fonoster-regions publish us-east-2     # offered in pickers while it is connected
-fonoster-regions list [--json]         # every region (public and private) with status
-fonoster-regions token us-east-2       # a new token (enrolling with it revokes the current cell)
-fonoster-regions revoke us-east-2      # withdraw it and revoke its cell
+fonoster-region publish us-east-2     # offered in pickers while it is connected
+fonoster-region list [--json]         # every region (public and private) with status
+fonoster-region token us-east-2       # a new token (enrolling with it revokes the current cell)
+fonoster-region revoke us-east-2      # withdraw it and revoke its cell
 ```
 
 Public ids are `default` or `<geo>-<area>-<n>`. The configured `default` region of a self-hosted

@@ -31,7 +31,7 @@ import {
 } from "./token";
 import { Components, EnrollResponse, RegionIdentity } from "./types";
 
-// `fonoster-regions enroll <token>` (contract 2, task 3.1): verify the token, make the cell's key
+// `fonoster-region enroll <token>` (contract 2, task 3.1): verify the token, make the cell's key
 // pair, exchange the token for leaf credentials, and keep what came back on the cell only.
 
 /** Files of an enrolled cell (also the keys of the Kubernetes Secret). */
@@ -96,7 +96,7 @@ export class KubeIdentityStore implements IdentityStore {
 /** The NATS include for the cell's server: one leaf remote to the control plane. */
 export function leafConf(leafUrl: string, credsPath: string) {
   return [
-    "# Written by `fonoster-regions enroll`: the cell's link to the control plane (outbound only).",
+    "# Written by `fonoster-region enroll`: the region's link to the control plane (outbound only).",
     "leafnodes {",
     "  remotes = [",
     "    {",
@@ -234,7 +234,7 @@ export async function loadIdentity(
   const files = await store.load();
   if (!files?.[FILES.identity])
     throw new Error(
-      `this cell is not enrolled (nothing in ${store.where}); run \`fonoster-regions enroll <token>\` first`
+      `this region is not enrolled (nothing in ${store.where}); run \`fonoster-region enroll <token>\` first`
     );
   return JSON.parse(files[FILES.identity]) as RegionIdentity;
 }

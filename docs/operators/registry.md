@@ -125,6 +125,6 @@ Load it once after the API server has migrated:
 - Roll a catalog change region by region: `plan` first, then `apply`. Deprecate in the control
   plane first so every workspace gets its notice before any region retires the item.
 - Keys differ by region. A gateway picks a key in this order: a private cell's own secret
-  (`fonoster-regions secrets set <provider>`), then the workspace's own key, then the platform
+  (`fonoster-region secrets set <provider>`), then the workspace's own key, then the platform
   key named by `credentialRef`. See [Running a region](./regions.md).
 - Retire in each region separately: `retire-*` rewrites that region's configs.

@@ -39,7 +39,7 @@ const APP_COLUMNS = [
   "type",
   "endpoint",
   "url",
-  "flavor",
+  "protocol",
   "signingSecret",
   "speechVoice",
   "speechLanguage",
@@ -255,8 +255,12 @@ export class DatabaseApplier {
       if (!ref) continue;
       keep.add(ref);
       const cols = appColumns(row);
-      const type = String(cols.type ?? "EXTERNAL").toUpperCase();
+      // A snapshot from a control plane older than unify-vocabulary still says EXTERNAL/flavor.
+      let type = String(cols.type ?? "STREAM").toUpperCase();
+      if (type === "EXTERNAL") type = "STREAM";
       cols.type = type;
+      if (cols.protocol === undefined && row.flavor !== undefined)
+        cols.protocol = row.flavor === "native" ? "fonoster" : row.flavor;
       // PR-9: Autopilot apps run on the cell's own Autopilot, signed with the cell's secret.
       if (type === "AUTOPILOT" && this.options.autopilot?.url) {
         cols.url = this.options.autopilot.url;
@@ -274,7 +278,7 @@ export class DatabaseApplier {
       const existing = await this.db.application.findUnique({ where: { ref } });
       if (existing && existing.accessKeyId !== ws) {
         logger.warn(
-          `app ${ref} belongs to another workspace in this cell; skipped`
+          `app ${ref} belongs to another workspace in this region; skipped`
         );
         continue;
       }

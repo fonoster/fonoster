@@ -196,7 +196,7 @@ export class RegionAgent {
   async start(): Promise<this> {
     if (this.state.revoked)
       logger.warn(
-        `this cell was revoked (${this.state.revoked.reason}); re-enroll with a new token`
+        `this region was revoked (${this.state.revoked.reason}); re-enroll with a new token`
       );
     const s = this.subjects;
     this.on("media.*.heartbeat", (_m, b) => {
@@ -279,7 +279,7 @@ export class RegionAgent {
         logger.warn(
           `config sync paused by the control plane: ${this.paused.reason}${
             body.requiredVersion
-              ? ` (upgrade this cell to ${body.requiredVersion})`
+              ? ` (upgrade this region to ${body.requiredVersion})`
               : ""
           }`
         );
@@ -347,7 +347,7 @@ export class RegionAgent {
     const missing = names.filter((n) => !set.has(n));
     if (missing.length)
       logger.warn(
-        `secrets missing in this region: ${missing.join(", ")} (fonoster-regions secrets set <name>)`
+        `secrets missing in this region: ${missing.join(", ")} (fonoster-region secrets set <name>)`
       );
   }
 
@@ -356,7 +356,7 @@ export class RegionAgent {
     this.state.revoked = { at: new Date(this.now()).toISOString(), reason };
     this.saveState();
     logger.error(
-      `the control plane revoked this cell (${reason}); calls keep running on the last config. Re-issue a token and run fonoster-regions enroll to reconnect.`
+      `the control plane revoked this region (${reason}); calls keep running on the last config. Re-issue a token and run fonoster-region enroll to reconnect.`
     );
   }
 
@@ -481,7 +481,7 @@ export class RegionAgent {
     try {
       return this.options.secrets?.names() ?? [];
     } catch (e) {
-      logger.warn(`cell secrets unreadable: ${(e as Error).message}`);
+      logger.warn(`region secrets unreadable: ${(e as Error).message}`);
       return [];
     }
   }
