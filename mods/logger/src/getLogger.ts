@@ -30,7 +30,7 @@ function getLogger(config: { service?: string; filePath: string }) {
 
   const humanFormat = winston.format.combine(
     winston.format.timestamp({
-      format: "YYYY-MM-dd HH:mm:ss.SSS"
+      format: "YYYY-MM-DD HH:mm:ss.SSS"
     }),
     winston.format.printf(
       ({ level, message, timestamp, ...metadata }) =>
