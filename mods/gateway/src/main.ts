@@ -39,17 +39,16 @@ import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
 import { createRecordWriter } from "./record/createRecordWriter";
 import { WorkspaceKeySource } from "./speech/Catalog";
 import { chainKeySources } from "./speech/keySources";
-import { telemetry } from "./telemetry";
+import { startTelemetry, telemetry } from "./telemetry";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 logUnhandledRejections(logger);
 
 async function main() {
-  const file =
-    process.env.GATEWAY_CONFIG ??
-    process.argv[2] ??
-    "/etc/fonoster/gateway.yaml";
-  const config = loadConfig(file);
+  // GATEWAY_CONFIG or the first argument names the file; else /config/gateway.yaml (or the
+  // older /etc/fonoster/gateway.yaml).
+  const config = loadConfig(process.env.GATEWAY_CONFIG ?? process.argv[2]);
+  startTelemetry(config.telemetry);
   let record: CallRecordSink | undefined;
   let writer: CallRecordWriter | undefined;
   let sweeper: ReturnType<typeof setInterval> | undefined;
@@ -114,8 +113,8 @@ function analyticsLoader(
     url: ch.url,
     database: ch.database,
     table: ch.table,
-    user: process.env[ch.userEnv ?? "CLICKHOUSE_USER"],
-    password: process.env[ch.passwordEnv ?? "CLICKHOUSE_PASSWORD"]
+    user: ch.user,
+    password: ch.password
   });
   return (entry: RecordIndexEntry) => {
     const w = writer();
@@ -174,9 +173,7 @@ async function openDatabase(config: GatewayConfig): Promise<{
   const timers: ReturnType<typeof setInterval>[] = [];
   if (!url) return { close: async () => undefined };
   const d = config.database!;
-  const encryptionKey = d.encryptionKeyEnv
-    ? process.env[d.encryptionKeyEnv]
-    : undefined;
+  const encryptionKey = config.encryption?.key;
   const prisma = RegistryNs.openPrismaClient({
     url,
     encryptionKey,

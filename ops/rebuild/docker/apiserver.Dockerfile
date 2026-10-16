@@ -51,6 +51,6 @@ COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma /s
 USER appuser
 WORKDIR /service
 
-# Reads /opt/fonoster/fonoster.yaml, waits for Postgres, applies the core and identity
+# Reads /config/fonoster.yaml (or /opt/fonoster/fonoster.yaml), waits for Postgres, applies the core and identity
 # migrations, seeds, then starts.
 CMD ["node", "/work/mods/apiserver/dist/bin/entrypoint.js", "--migrations-root", "/service"]

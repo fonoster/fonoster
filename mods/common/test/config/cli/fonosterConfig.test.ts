@@ -139,7 +139,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "config/keys/records.pem"
       ])
         expect(existsSync(join(dir, f)), f).to.equal(true);
-      // The region hub is opt-in (init --regions).
+      // Hosting private regions is a manual addition: init writes no region hub.
       for (const f of [
         "config/region-hub.conf",
         "config/keys/region-operator.key",
@@ -262,51 +262,6 @@ describe("@common[config/cli] fonoster-config", function () {
         for (const [name, value] of secrets)
           expect(text, `${f} holds ${name}`).to.not.contain(value);
       }
-    });
-
-    it("generates the region hub with --regions and prints what to add", async function () {
-      const dir = unpack();
-      const run = await cli([
-        "init",
-        "--dir",
-        dir,
-        "--host-ip",
-        "192.0.2.10",
-        "--regions"
-      ]);
-      expect(run.code, run.err).to.equal(0);
-      for (const f of [
-        "config/region-hub.conf",
-        "config/keys/region-operator.key",
-        "config/keys/region-signing.pem",
-        "config/keys/region-hub/operator.seed",
-        "config/keys/region-hub/account.seed",
-        "config/keys/region-hub/control-plane.creds",
-        "config/keys/region-hub/system.creds"
-      ]) {
-        expect(existsSync(join(dir, f)), f).to.equal(true);
-        expect(mode(join(dir, f)), f).to.equal(0o644);
-      }
-      const conf = readFileSync(join(dir, "config/region-hub.conf"), "utf8");
-      expect(conf).to.match(/^operator: /m);
-      // TLS on the leaf listener.
-      expect(conf).to.contain('cert_file: "/etc/nats/tls/leaf.crt"');
-      expect(run.out).to.contain("nats-regions:");
-      expect(run.out).to.contain("compose.override.yaml");
-      expect(run.out).to.contain('leafUrl: "tls://${HOST_IP}:7422"');
-      expect(run.out).to.contain(
-        "credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds"
-      );
-      // A second run keeps the hub byte for byte.
-      const before = readFileSync(
-        join(dir, "config/keys/region-hub/account.seed")
-      );
-      expect((await cli(["init", "--dir", dir, "--regions"])).code).to.equal(0);
-      expect(
-        readFileSync(join(dir, "config/keys/region-hub/account.seed")).equals(
-          before
-        )
-      ).to.equal(true);
     });
 
     it("advertises the --host-ip address instead of the detected one", async function () {
@@ -669,11 +624,13 @@ describe("@common[config/cli] fonoster-config", function () {
         "info",
         "check",
         "--host-ip",
-        "--regions",
         "docker compose up -d"
       ])
         expect(help.out).to.contain(c);
       expect((await cli(["nope"])).code).to.equal(2);
+      expect((await cli(["init", "--regions"])).err).to.contain(
+        "unknown option --regions"
+      );
       expect((await cli(["init", "--nope"])).err).to.contain(
         "unknown option --nope"
       );

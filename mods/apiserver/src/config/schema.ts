@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { logsSchema } from "@fonoster/common";
+import { logsSchema, telemetrySchema } from "@fonoster/common";
 import {
   authFeaturesSchema,
   encryptionKeySchema,
@@ -156,7 +156,8 @@ const regionsSchema = z
                 .array(
                   z.object({
                     host: z.string().min(1),
-                    port: z.number().int().min(1).max(65535),
+                    // coerce: usually "${SIP_PORT}", a string until resolved.
+                    port: z.coerce.number().int().min(1).max(65535),
                     transport: z.enum(["udp", "tcp", "tls", "ws", "wss"])
                   })
                 )
@@ -165,8 +166,8 @@ const regionsSchema = z
               mediaAddresses: z.array(z.string().min(1)).default([]),
               rtpPorts: z
                 .object({
-                  min: z.number().int().min(1).max(65535),
-                  max: z.number().int().min(1).max(65535)
+                  min: z.coerce.number().int().min(1).max(65535),
+                  max: z.coerce.number().int().min(1).max(65535)
                 })
                 .optional()
             })
@@ -237,6 +238,8 @@ const fonosterConfigSchema = z
       })
       .default({}),
     logs: logsSchema,
+    /** OTLP export (empty = off): `otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"`. */
+    telemetry: telemetrySchema,
     database: z.object({ url: z.string().min(1) }),
     encryption: z.object({ key: encryptionKeySchema }),
     smtp: smtpSchema.optional(),
@@ -364,13 +367,11 @@ const fonosterConfigSchema = z
 type FonosterConfig = z.infer<typeof fonosterConfigSchema>;
 
 /** Paths where ${VAR} may reference a value shared with another container. */
-const SHARED_VALUE_PATHS = [
-  "database.url",
-  "identity.database.url",
-  "influxdb.*",
-  "routr.mediaNodePeer.username",
-  "routr.mediaNodePeer.password"
-];
+/**
+ * Where `${VAR}` may appear: every key (unify-config-placeholders). Secrets stay in `.env` and
+ * reach the container through Compose's env_file.
+ */
+const SHARED_VALUE_PATHS = ["*"];
 
 /** Keys people may carry over from identity.json or older drafts. */
 const MOVED_KEYS = {

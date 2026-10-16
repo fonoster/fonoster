@@ -18,25 +18,40 @@
  */
 // Autopilot's entry point (rework-autopilot task 4.3; the only engine since cleanbreak CB-B5):
 //
-//   node dist/session/main.js --config /etc/fonoster/autopilot-session.yaml
-import { initTelemetry, logUnhandledRejections } from "@fonoster/common";
+//   node dist/session/main.js --config /config/autopilot.yaml
+import {
+  initTelemetry,
+  logUnhandledRejections,
+  telemetryEnv
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { loadHostedConfig, startHostedAutopilot } from "./hosted";
+import {
+  findHostedConfig,
+  loadHostedConfig,
+  startHostedAutopilot
+} from "./hosted";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 logUnhandledRejections(logger);
 
-// Off unless an OTLP endpoint is configured (add-platform observability).
-initTelemetry("fonoster-autopilot");
-
+// --config, AUTOPILOT_SESSION_CONFIG, else /config/autopilot.yaml (or an older location).
 const at = process.argv.indexOf("--config");
 const file =
   at >= 0
     ? process.argv[at + 1]
-    : (process.env.AUTOPILOT_SESSION_CONFIG ??
-      "./config/autopilot-session.yaml");
+    : (process.env.AUTOPILOT_SESSION_CONFIG ?? findHostedConfig());
+if (!file) {
+  logger.error(
+    "no Autopilot config file: mount /config/autopilot.yaml or pass --config <file>"
+  );
+  process.exit(1);
+}
+const config = loadHostedConfig(file);
 
-startHostedAutopilot(loadHostedConfig(file)).catch((e: Error) => {
+// Off unless an OTLP endpoint is configured (telemetry.otlpEndpoint or OTEL_EXPORTER_OTLP_*).
+initTelemetry("fonoster-autopilot", undefined, telemetryEnv(config.telemetry));
+
+startHostedAutopilot(config).catch((e: Error) => {
   logger.error(`hosted autopilot failed to start: ${e.message}`);
   process.exit(1);
 });

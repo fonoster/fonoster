@@ -42,8 +42,6 @@ Commands:
 Options:
   --dir <folder>        The bundle folder (default: the current folder)
   --host-ip <address>   init: the address softphones and browsers reach this machine at
-  --regions             init: also generate the region hub's keys (private regions join this
-                        install) and print the settings to add
   -h, --help            Show this help
 
 Then start it with: docker compose up -d
@@ -58,7 +56,6 @@ type Parsed = {
 };
 
 const VALUE_FLAGS = ["dir", "host-ip", "config-dir", "env-file", "overlay"];
-const BOOLEAN_FLAGS = ["regions"];
 
 export function parseArgs(argv: string[]): Parsed {
   const out: Parsed = { flags: {}, lists: {} };
@@ -69,10 +66,6 @@ export function parseArgs(argv: string[]): Parsed {
       const eq = a.indexOf("=");
       const name = eq < 0 ? a.slice(2) : a.slice(2, eq);
       const inline = eq < 0 ? undefined : a.slice(eq + 1);
-      if (BOOLEAN_FLAGS.includes(name) && inline === undefined) {
-        out.flags[name] = true;
-        continue;
-      }
       if (!VALUE_FLAGS.includes(name))
         return { ...out, error: `unknown option ${a}` };
       const value = inline ?? argv[++i];
@@ -138,8 +131,7 @@ export async function main(
           hostIp:
             args.flags["host-ip"] === undefined
               ? undefined
-              : String(args.flags["host-ip"]),
-          regions: args.flags.regions === true
+              : String(args.flags["host-ip"])
         },
         io
       );

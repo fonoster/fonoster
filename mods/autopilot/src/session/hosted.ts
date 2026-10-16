@@ -18,7 +18,13 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { CellSecrets, Registry, resolveSecretRefs } from "@fonoster/common";
+import {
+  CellSecrets,
+  loadServiceConfig,
+  Registry,
+  resolveConfigFile,
+  telemetrySchema
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceServer } from "@fonoster/voice";
 import * as yaml from "js-yaml";
@@ -112,8 +118,6 @@ export const hostedConfigSchema = z
       .object({
         url: z.string().optional(),
         urlEnv: z.string().default("APISERVER_DATABASE_URL"),
-        /** The apiserver's encryption key (vendor keys are encrypted Secrets). */
-        encryptionKeyEnv: z.string().optional(),
         /** A client generated from the apiserver schema (default `@prisma/client`). */
         clientModule: z.string().optional()
       })
@@ -134,6 +138,13 @@ export const hostedConfigSchema = z
         embeddings: z.object({ apiKeyRef: z.string() })
       })
       .optional(),
+    /**
+     * The apiserver's encryption key (fonoster.yaml `encryption.key`; vendor keys are encrypted
+     * Secrets). Usually "${ENCRYPTION_KEY}".
+     */
+    encryption: z.object({ key: z.string().min(1) }).strict().optional(),
+    /** OTLP export (empty = off): `otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"`. */
+    telemetry: telemetrySchema,
     testMode: z.boolean().default(false)
   })
   .strict();
@@ -145,11 +156,33 @@ function readStructured(file: string): unknown {
   return /\.ya?ml$/.test(file) ? yaml.load(text) : JSON.parse(text);
 }
 
-export function loadHostedConfig(file: string): HostedConfig {
-  // secret:// references (D8) resolve before validation.
-  const config = hostedConfigSchema.parse(
-    resolveSecretRefs(readStructured(file) ?? {})
-  );
+/** Where Autopilot looks for its file when none is named (autopilot.yaml, then the older name). */
+export const AUTOPILOT_CONFIG_DIRS = ["/config", "/etc/fonoster", "./config"];
+
+/** The file `loadHostedConfig` reads without `--config`: the first one found, or undefined. */
+export function findHostedConfig(): string | undefined {
+  for (const base of ["autopilot", "autopilot-session"]) {
+    const found = resolveConfigFile(base, [], AUTOPILOT_CONFIG_DIRS);
+    if (found.path) return found.path;
+  }
+  return undefined;
+}
+
+/**
+ * Loads the hosted Autopilot's file the apiserver's way (unify-config-placeholders): `${VAR}`
+ * placeholders from the container environment, `secret://` references, strict validation.
+ */
+export function loadHostedConfig(
+  file: string,
+  env: Record<string, string | undefined> = process.env
+): HostedConfig {
+  const config: HostedConfig = loadServiceConfig({
+    service: "autopilot",
+    schema: hostedConfigSchema,
+    argv: ["--config", file],
+    env,
+    interpolatePaths: ["*"]
+  });
   const dir = path.dirname(file);
   const rel = (p: string) => (path.isAbsolute(p) ? p : path.join(dir, p));
   const withFile = <T extends object>(c: T): T =>
@@ -345,9 +378,7 @@ function databaseOf(config: HostedConfig) {
   if (!url) throw new Error(`database: set url or ${d.urlEnv}`);
   return Registry.openPrismaClient({
     url,
-    encryptionKey: d.encryptionKeyEnv
-      ? process.env[d.encryptionKeyEnv]
-      : undefined,
+    encryptionKey: config.encryption?.key,
     clientModule: d.clientModule
   });
 }
