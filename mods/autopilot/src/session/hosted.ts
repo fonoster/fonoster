@@ -142,7 +142,10 @@ export const hostedConfigSchema = z
      * The apiserver's encryption key (fonoster.yaml `encryption.key`; vendor keys are encrypted
      * Secrets). Usually "${ENCRYPTION_KEY}".
      */
-    encryption: z.object({ key: z.string().min(1) }).strict().optional(),
+    encryption: z
+      .object({ key: z.string().min(1) })
+      .strict()
+      .optional(),
     /** OTLP export (empty = off): `otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"`. */
     telemetry: telemetrySchema,
     testMode: z.boolean().default(false)
