@@ -72,14 +72,15 @@ type Story = StoryObj<typeof meta>;
 
 export const Expanded: Story = {
   beforeEach: () => {
-    localStorage.removeItem("fonoster.nav");
+    localStorage.setItem("fonoster.nav", "expanded");
+    return () => localStorage.removeItem("fonoster.nav");
   }
 };
 
+/** The default: no saved preference shows the icon rail. */
 export const Collapsed: Story = {
   beforeEach: () => {
-    localStorage.setItem("fonoster.nav", "collapsed");
-    return () => localStorage.removeItem("fonoster.nav");
+    localStorage.removeItem("fonoster.nav");
   }
 };
 

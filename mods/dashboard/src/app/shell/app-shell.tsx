@@ -29,8 +29,10 @@ import { Sidebar } from "./sidebar";
 export function AppShell() {
   const workspace = useWorkspace();
   const wide = useMediaQuery("(min-width: 768px)");
+  // Collapsed (icon rail) unless the user chose to expand it; the choice is
+  // remembered under "fonoster.nav". Narrow screens are always a rail.
   const [collapsedByUser, setCollapsed] = useState(
-    () => storage.get(STORAGE_KEYS.nav) === "collapsed"
+    () => storage.get(STORAGE_KEYS.nav) !== "expanded"
   );
   const collapsed = collapsedByUser || !wide;
   const content = useRef<HTMLDivElement>(null);

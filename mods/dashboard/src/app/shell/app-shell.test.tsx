@@ -45,6 +45,7 @@ function renderShell() {
 
 describe("AppShell", () => {
   it("shows the navigation with the current page active", () => {
+    localStorage.setItem("fonoster.nav", "expanded");
     renderShell();
     const nav = screen.getByRole("navigation");
     expect(nav).toHaveTextContent("SIP network");
@@ -60,12 +61,11 @@ describe("AppShell", () => {
     ).toBeInTheDocument();
   });
 
-  it("collapses to a rail and remembers it", async () => {
+  it("starts collapsed to a rail when there is no saved preference", async () => {
     const { user } = renderShell();
-    await user.click(screen.getByRole("button", { name: "Collapse sidebar" }));
     expect(
       screen.getByRole("button", { name: "Expand sidebar" })
-    ).toBeInTheDocument();
+    ).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByText("SIP network")).not.toBeInTheDocument();
     // Regression: the tooltip wrapper used to stringify NavLink's className function.
     expect(screen.getByRole("link", { name: "Numbers" })).toHaveClass(
@@ -75,6 +75,32 @@ describe("AppShell", () => {
       "aria-current",
       "page"
     );
+    // Icons keep their labels as tooltips.
+    await user.hover(screen.getByRole("link", { name: "Numbers" }));
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Numbers");
+  });
+
+  it("remembers when the user expands and collapses it", async () => {
+    const { user, unmount } = renderShell();
+    await user.click(screen.getByRole("button", { name: "Expand sidebar" }));
+    expect(screen.getByRole("navigation")).toHaveTextContent("SIP network");
+    expect(localStorage.getItem("fonoster.nav")).toBe("expanded");
+    await user.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+    expect(screen.queryByText("SIP network")).not.toBeInTheDocument();
     expect(localStorage.getItem("fonoster.nav")).toBe("collapsed");
+    unmount();
+    renderShell();
+    expect(
+      screen.getByRole("button", { name: "Expand sidebar" })
+    ).toBeInTheDocument();
+  });
+
+  it("honors a saved expanded preference", () => {
+    localStorage.setItem("fonoster.nav", "expanded");
+    renderShell();
+    expect(
+      screen.getByRole("button", { name: "Collapse sidebar" })
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("navigation")).toHaveTextContent("SIP network");
   });
 });
