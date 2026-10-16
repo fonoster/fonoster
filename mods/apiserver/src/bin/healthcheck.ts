@@ -36,7 +36,7 @@ function checkHealth(
   const client = new Health(
     address,
     grpc.credentials.createInsecure()
-  ) as grpc.Client & {
+  ) as unknown as grpc.Client & {
     Check: (
       req: { service: string },
       options: grpc.CallOptions,
