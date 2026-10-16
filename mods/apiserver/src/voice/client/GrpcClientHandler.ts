@@ -27,6 +27,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { GRPCClient } from "../types";
+import { parseVoiceEndpoint } from "../utils/parseVoiceEndpoint";
 import { VoiceServiceClientConstructor } from "../utils/VoiceServiceClientConstructor";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -43,9 +44,15 @@ class GrpcClientHandler {
   }
 
   async setupGrpcClient(): Promise<void> {
+    // A bare host:port stays plaintext, as every existing application is
+    // configured. A grpcs:// or https:// endpoint dials over TLS, which is
+    // what an application behind a terminating proxy needs -- the proxy drops
+    // a plaintext HTTP/2 preface before it routes anything.
+    const { address, secure } = parseVoiceEndpoint(this.config.endpoint);
+
     this.grpcClient = new VoiceServiceClientConstructor(
-      this.config.endpoint,
-      grpc.credentials.createInsecure()
+      address,
+      secure ? grpc.credentials.createSsl() : grpc.credentials.createInsecure()
     ) as unknown as GRPCClient;
 
     const metadata = new grpc.Metadata();
