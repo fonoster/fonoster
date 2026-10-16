@@ -103,3 +103,11 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - `ops/rebuild/helm/fonoster-rebuild/files/envoy.yaml` must equal `config/envoy.yaml`
   (deployment conformance test), so it gets the `/sip` route too. The chart has no Routr, so
   `/sip` answers 503 there; browser calls on Helm wait for Routr in the chart.
+
+## Open follow-up (owner, 2026-10-16): fix later
+
+- **Cross-workspace X-App-Ref from softphones.** A SIP user registered in workspace A can INVITE the
+  media-node peer with `X-App-Ref` of an agent or app in workspace B and reach it. Browser test calls are
+  checked (the gateway verifies the token's workspace, TB-B entries above); calls from registered SIP users
+  and other peers are not. Fix: the gateway (or Routr) must bind the app ref to the caller's workspace for
+  every inbound path, not only test tokens.
