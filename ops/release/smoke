@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# Installs a release archive the way a self-hoster does and checks that it starts
+# (revamp-ci-workflows, the stack-smoke workflow):
+#
+#   ops/release/smoke <version>
+#
+# Needs dist/release/<version>/ from `ops/release/bundle <version>` and the bundle images
+# fonoster/<service>:<version> in the local Docker. Unpacks the archive in a temporary folder,
+# runs `fonoster-config init` and `check`, `docker compose up -d`, waits for the apiserver to be
+# healthy and the dashboard to answer 200 through Envoy, then removes everything (volumes too).
+#
+# Ports, the subnet and the project name come from the environment so a shared host can run it
+# next to other stacks: SMOKE_PROJECT (fonoster-smoke), SMOKE_SUBNET (10.216.30),
+# SMOKE_PORT_BASE (18000: HTTP on base+1, SIP base+2, NATS base+3, MinIO base+4/5, RTPEngine
+# base+10..39, media node base+40..69), SMOKE_TIMEOUT seconds (600), SMOKE_KEEP=1 keeps the stack.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+VERSION="${1:?usage: ops/release/smoke <version>}"
+OUT="$ROOT/dist/release/$VERSION"
+PROJECT="${SMOKE_PROJECT:-fonoster-smoke}"
+SUBNET="${SMOKE_SUBNET:-10.216.30}"
+BASE="${SMOKE_PORT_BASE:-18000}"
+TIMEOUT="${SMOKE_TIMEOUT:-600}"
+HTTP_PORT=$((BASE + 1))
+
+log() { printf '\033[1m[smoke]\033[0m %s\n' "$*" >&2; }
+
+[ -f "$OUT/fonoster-$VERSION.tar.gz" ] || { log "no $OUT/fonoster-$VERSION.tar.gz: run ops/release/bundle $VERSION"; exit 1; }
+
+WORK="$(mktemp -d)"
+cd "$WORK"
+tar -xzf "$OUT/fonoster-$VERSION.tar.gz"
+cd fonoster
+config() { npx -y -p "$OUT/fonoster-common-$VERSION.tgz" fonoster-config "$@"; }
+
+cleanup() {
+  local code=$?
+  if [ "$code" != 0 ]; then
+    log "failed; service states and the last logs:"
+    docker compose ps -a >&2 || true
+    docker compose logs --no-color --tail 80 >&2 || true
+  fi
+  if [ "${SMOKE_KEEP:-}" = "1" ]; then
+    log "kept: $WORK/fonoster (docker compose down -v there to remove it)"
+  else
+    docker compose down -v --remove-orphans >/dev/null 2>&1 || true
+    rm -rf "$WORK"
+  fi
+  exit "$code"
+}
+trap cleanup EXIT
+
+# A .env with this host's ports; init keeps these values and generates the empty secrets.
+sed -e "s/^COMPOSE_PROJECT_NAME=.*/COMPOSE_PROJECT_NAME=$PROJECT/" \
+  -e "s/^SUBNET_PREFIX=.*/SUBNET_PREFIX=$SUBNET/" \
+  -e "s/^HTTP_PORT=.*/HTTP_PORT=$HTTP_PORT/" \
+  -e "s/^SIP_PORT=.*/SIP_PORT=$((BASE + 2))/" \
+  -e "s/^NATS_PORT=.*/NATS_PORT=$((BASE + 3))/" \
+  -e "s/^MINIO_PORT=.*/MINIO_PORT=$((BASE + 4))/" \
+  -e "s/^MINIO_CONSOLE_PORT=.*/MINIO_CONSOLE_PORT=$((BASE + 5))/" \
+  -e "s/^RTPENGINE_PORT_MIN=.*/RTPENGINE_PORT_MIN=$((BASE + 10))/" \
+  -e "s/^RTPENGINE_PORT_MAX=.*/RTPENGINE_PORT_MAX=$((BASE + 39))/" \
+  -e "s/^MEDIANODE_RTP_PORT_MIN=.*/MEDIANODE_RTP_PORT_MIN=$((BASE + 40))/" \
+  -e "s/^MEDIANODE_RTP_PORT_MAX=.*/MEDIANODE_RTP_PORT_MAX=$((BASE + 69))/" \
+  .env.example >.env
+
+log "fonoster-config init"
+config init --host-ip 127.0.0.1 >&2
+log "fonoster-config check"
+config check >&2
+
+log "docker compose up -d ($PROJECT)"
+docker compose up -d --quiet-pull >&2
+
+deadline=$((SECONDS + TIMEOUT))
+until [ "$(docker inspect -f '{{.State.Health.Status}}' "$(docker compose ps -q apiserver)" 2>/dev/null)" = "healthy" ]; do
+  [ "$SECONDS" -lt "$deadline" ] || { log "apiserver not healthy after ${TIMEOUT}s"; exit 1; }
+  sleep 5
+done
+log "apiserver healthy"
+
+until [ "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$HTTP_PORT/")" = "200" ]; do
+  [ "$SECONDS" -lt "$deadline" ] || { log "dashboard did not answer 200 on :$HTTP_PORT after ${TIMEOUT}s"; exit 1; }
+  sleep 5
+done
+log "dashboard 200 on :$HTTP_PORT"
+
+# Every long-running service is still up (none exited or is restarting).
+bad="$(docker compose ps -a --format '{{.Service}} {{.State}}' | awk '$2 != "running" {print}')"
+[ -z "$bad" ] || { log "services not running: $bad"; exit 1; }
+log "ok"

@@ -1,0 +1,137 @@
+name: stack smoke
+
+# The deployment targets start (add-platform: Docker Compose and Helm are official targets):
+#   compose       build the bundle images and the install archive (ops/release/bundle), install it
+#                 the way a self-hoster does and wait for a healthy apiserver and the dashboard
+#                 (ops/release/smoke)
+#   helm          lint and render the chart with each values file, validate with kubeconform
+#   devcontainer  build the dev container's image (when .devcontainer/ changes, and nightly)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/stack-smoke.yaml'
+      - 'ops/**'
+      - '.devcontainer/**'
+      - 'compose.yaml'
+      - '**/Dockerfile'
+      - 'go/medianode/**'
+      - 'mods/**'
+      - '!mods/**/test/**'
+      - '!mods/**/*.md'
+      - '!mods/dashboard/e2e/**'
+      - 'package.json'
+      - 'package-lock.json'
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      compose: ${{ steps.filter.outputs.compose }}
+      helm: ${{ steps.filter.outputs.helm }}
+      devcontainer: ${{ steps.filter.outputs.devcontainer }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          predicate-quantifier: every
+          filters: |
+            compose:
+              - '!ops/rebuild/helm/**'
+              - '!.devcontainer/**'
+            helm:
+              - 'ops/rebuild/helm/**'
+            devcontainer:
+              - '.devcontainer/**'
+
+  compose:
+    name: compose install (bundle)
+    needs: changes
+    if: github.event_name != 'pull_request' || needs.changes.outputs.compose == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      VERSION: 0.0.0-smoke
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      # The bundle exports the config schemas (tsx) and packs @fonoster/common.
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build the images and the archive
+        run: ops/release/bundle "$VERSION"
+
+      - name: Install and start it
+        env:
+          SMOKE_PORT_BASE: "18000"
+          SMOKE_TIMEOUT: "900"
+        run: ops/release/smoke "$VERSION"
+
+  helm:
+    name: helm chart
+    needs: changes
+    if: github.event_name != 'pull_request' || needs.changes.outputs.helm == 'true'
+    runs-on: ubuntu-latest
+    env:
+      CHART: ops/rebuild/helm/fonoster-rebuild
+      KUBECONFORM_VERSION: v0.7.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/$KUBECONFORM_VERSION/kubeconform-linux-amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin kubeconform
+
+      - name: Lint, render and validate with each values file
+        run: |
+          for values in "" values-cloud.yaml values-observability.yaml; do
+            args=()
+            [ -z "$values" ] || args=(-f "$CHART/$values")
+            echo "::group::values.yaml ${values}"
+            helm lint --strict "$CHART" "${args[@]}"
+            helm template fonoster "$CHART" "${args[@]}" \
+              | kubeconform -strict -ignore-missing-schemas -summary -kubernetes-version 1.30.0
+            echo "::endgroup::"
+          done
+
+  devcontainer:
+    name: dev container image
+    needs: changes
+    if: github.event_name != 'pull_request' || needs.changes.outputs.devcontainer == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build .devcontainer/Dockerfile
+        run: docker build -t fonoster-dev-workspace .devcontainer

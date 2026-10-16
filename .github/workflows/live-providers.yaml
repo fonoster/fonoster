@@ -2,41 +2,50 @@ name: live-providers
 
 # On-demand live provider check (conformance pass bar T4). It spends a few cents against the real
 # vendors, so it runs only when someone starts it from the Actions tab; never on pull requests or a
-# schedule. Keys come from repository secrets and are never printed.
+# schedule. Needs the repository secrets DEEPGRAM_API_KEY and ELEVENLABS_API_KEY (never printed).
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   live:
     name: live provider check
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: "22.x"
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
 
-    - name: Install dependencies and build
-      run: |
-        npm install
-        npm run build
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
 
-    - name: Live check
-      env:
-        DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
-        ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-        LOGS_LEVEL: none
-      run: |
-        mkdir -p reports
-        npx tsx mods/gateway/scripts/live-check.ts | tee reports/live-check.json
+      - name: Live check
+        env:
+          DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          LOGS_LEVEL: none
+        run: |
+          if [ -z "$DEEPGRAM_API_KEY" ] || [ -z "$ELEVENLABS_API_KEY" ]; then
+            echo "::error::add the DEEPGRAM_API_KEY and ELEVENLABS_API_KEY repository secrets first"
+            exit 1
+          fi
+          mkdir -p reports
+          npx tsx mods/gateway/scripts/live-check.ts | tee reports/live-check.json
 
-    - name: Publish report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: live-provider-report
-        path: reports/
+      - name: Publish report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-provider-report
+          path: reports/
+          if-no-files-found: ignore

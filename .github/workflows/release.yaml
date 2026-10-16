@@ -1,24 +1,37 @@
 name: release
 
+# Cuts a release, by hand only (Actions tab). Nothing here runs on merge.
+#
+#   1. version: .scripts/next-release.sh (conventional commits since the last tag; a
+#      `Release-As: x.y.z` footer pins it). "none" stops here.
+#   2. npm: `npm run release` (lerna publish, dist-tag latest), which commits the version bump,
+#      tags v<version> and pushes both to main.
+#   3. images: images.yaml at the release commit (every image in ops/release/images.json).
+#   4. bundle: ops/release/bundle <version> (images skipped) and a DRAFT GitHub release with
+#      fonoster-<version>.tar.gz and fonoster-common-<version>.tgz attached.
+#   5. approval: the release-approval environment (review the draft and the images).
+#   6. publish: the draft becomes the published release.
+#
+# compose.yaml is never edited: the archive's .env.example carries FONOSTER_VERSION.
+
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - mods/**
-      - package.json
-      - package-lock.json
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
-  build:
+  npm:
+    name: version and npm packages
     runs-on: ubuntu-latest
-
     outputs:
-      RELEASE: ${{ env.RELEASE }}
-      LERNA_VERSION: ${{ env.LERNA_VERSION }}
-      RELEASE_SHA: ${{ env.RELEASE_SHA }}
-
+      release: ${{ steps.next.outputs.release }}
+      version: ${{ steps.version.outputs.version }}
+      sha: ${{ steps.version.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,52 +43,79 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "22.x"
+          registry-url: https://registry.npmjs.org
+
+      - name: Next release
+        id: next
+        run: |
+          release="$(.scripts/next-release.sh)"
+          echo "Next release: $release"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies and build
+        if: steps.next.outputs.release != 'none'
         run: |
-          npm install
+          npm install --no-audit --no-fund
           npm run build
 
-      # We will do this manually for now
-      - name: Check for next release
+      - name: Publish the packages to npm
+        if: steps.next.outputs.release != 'none'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          release=$(.scripts/next-release.sh)
-          echo "Next release: $release"
-          echo "RELEASE=$release" >> $GITHUB_ENV
-
-      - name: Publish packages to NPM
-        if: env.RELEASE != 'none'
-        run: |
-          echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
-          echo "GITHUB_TOKEN=${{ secrets.GH_PAT }}" >> $GITHUB_ENV
-          echo "@routr:registry=https://registry.npmjs.org/" > .npmrc
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
-
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git checkout .
-
           npm run release
 
-      - name: Get version from Lerna
+      - name: Released version and commit
+        id: version
+        if: steps.next.outputs.release != 'none'
         run: |
-          lerna_version=$(node -p "require('./lerna.json').version")
-          echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
+          echo "version=$(node -p "require('./lerna.json').version")" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      # "npm run release" (lerna publish) commits and pushes the version bump
-      # to main. The publish-*.yaml jobs below each do their own fresh
-      # checkout with no explicit ref, which defaults to the commit that
-      # triggered this workflow run — one commit BEHIND this bump. Passing
-      # this SHA explicitly is what makes their checkout build the actual
-      # released code (with matching package.json versions) instead of the
-      # pre-bump commit.
-      - name: Capture release commit SHA
-        run: |
-          release_sha=$(git rev-parse HEAD)
-          echo "RELEASE_SHA=$release_sha" >> $GITHUB_ENV
+  images:
+    name: images
+    needs: npm
+    if: needs.npm.outputs.release != 'none'
+    uses: ./.github/workflows/images.yaml
+    with:
+      version: ${{ needs.npm.outputs.version }}
+      ref: ${{ needs.npm.outputs.sha }}
+      latest: true
+    secrets: inherit
 
-      - name: Create release note
-        if: env.RELEASE != 'none'
+  bundle:
+    name: install archive and draft release
+    needs: npm
+    if: needs.npm.outputs.release != 'none'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.npm.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.npm.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build the archive
+        run: SKIP_IMAGES=1 ops/release/bundle "$VERSION"
+
+      - name: Release notes
         id: changelog
         uses: loopwerk/tag-changelog@v1
         with:
@@ -83,166 +123,40 @@ jobs:
           exclude_types: other,doc,chore
           config_file: ./.scripts/tag-changelog-config.cjs
 
-      - name: Create draft release
-        if: env.RELEASE != 'none'
+      - name: Draft release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.LERNA_VERSION }}
-          name: Release v${{ env.LERNA_VERSION }}
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
           body: ${{ steps.changelog.outputs.changelog }}
           draft: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            dist/release/${{ env.VERSION }}/fonoster-${{ env.VERSION }}.tar.gz
+            dist/release/${{ env.VERSION }}/fonoster-common-${{ env.VERSION }}.tgz
 
-  publish-apiserver:
-    name: Publish APIServer to Docker Hub
-    needs: [build]
-    if: needs.build.outputs.RELEASE != 'none'
-    uses: ./.github/workflows/publish-apiserver.yaml
-    with:
-      version: ${{ needs.build.outputs.LERNA_VERSION }}
-      ref: ${{ needs.build.outputs.RELEASE_SHA }}
-    secrets: inherit
-
-  publish-autopilot:
-    name: Publish Autopilot to Docker Hub
-    needs: [build]
-    if: needs.build.outputs.RELEASE != 'none'
-    uses: ./.github/workflows/publish-autopilot.yaml
-    with:
-      version: ${{ needs.build.outputs.LERNA_VERSION }}
-      ref: ${{ needs.build.outputs.RELEASE_SHA }}
-    secrets: inherit
-
-  publish-amd:
-    name: Publish AMD to Docker Hub
-    needs: [build]
-    if: needs.build.outputs.RELEASE != 'none'
-    uses: ./.github/workflows/publish-amd.yaml
-    with:
-      version: ${{ needs.build.outputs.LERNA_VERSION }}
-      ref: ${{ needs.build.outputs.RELEASE_SHA }}
-    secrets: inherit
-
-  publish-dashboard:
-    name: Publish Dashboard to Docker Hub
-    needs: [build]
-    if: needs.build.outputs.RELEASE != 'none'
-    uses: ./.github/workflows/publish-dashboard.yaml
-    with:
-      version: ${{ needs.build.outputs.LERNA_VERSION }}
-      ref: ${{ needs.build.outputs.RELEASE_SHA }}
-    secrets: inherit
-
-  publish-identity:
-    name: Publish Identity to Docker Hub
-    needs: [build]
-    if: needs.build.outputs.RELEASE != 'none'
-    uses: ./.github/workflows/publish-identity.yaml
-    with:
-      version: ${{ needs.build.outputs.LERNA_VERSION }}
-      ref: ${{ needs.build.outputs.RELEASE_SHA }}
-    secrets: inherit
-
-  manual-approval:
-    name: Manual Approval for Release Finalization
-    needs: [build, publish-apiserver, publish-autopilot, publish-amd, publish-dashboard, publish-identity]
-    if: needs.build.outputs.RELEASE != 'none'
+  approval:
+    name: approve the release
+    needs: [npm, images, bundle]
     runs-on: ubuntu-latest
     environment: release-approval
     steps:
-      - name: Display release information
+      - name: What is waiting
+        env:
+          VERSION: ${{ needs.npm.outputs.version }}
         run: |
-          echo "✅ All Docker images have been built and published successfully!"
-          echo "📦 Version: ${{ needs.build.outputs.LERNA_VERSION }}"
-          echo "🐳 Docker images published:"
-          echo "  - fonoster/apiserver:${{ needs.build.outputs.LERNA_VERSION }}"
-          echo "  - fonoster/autopilot:${{ needs.build.outputs.LERNA_VERSION }}"
-          echo "  - fonoster/amd:${{ needs.build.outputs.LERNA_VERSION }}"
-          echo "  - fonoster/dashboard:${{ needs.build.outputs.LERNA_VERSION }}"
-          echo ""
-          echo "Please review the draft release and Docker images."
-          echo "If everything looks good, approve this step to finalize the release."
-      
+          echo "Release v$VERSION: npm packages published, images pushed (fonoster/<name>:$VERSION"
+          echo "for every entry in ops/release/images.json), draft release with the install archive."
+          echo "Review the draft release and the images, then approve to publish the release."
 
-  finalize-release:
-    name: Finalize Release and Update Compose
-    needs: [build, manual-approval]
-    if: needs.build.outputs.RELEASE != 'none'
+  publish:
+    name: publish the release
+    needs: [npm, approval]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GH_PAT }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "22.x"
-
-      - name: Get version from Lerna
-        run: |
-          lerna_version=$(node -p "require('./lerna.json').version")
-          echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
-
-      - name: Find and publish release
-        run: |
-          # List releases and find the draft with matching tag
-          # Note: /releases/tags/{tag} doesn't return draft releases
-          release_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases" \
-            | jq -r '.[] | select(.tag_name == "v${{ env.LERNA_VERSION }}" and .draft == true) | .id' \
-            | head -1)
-          
-          if [ -z "$release_id" ]; then
-            echo "Error: Could not find draft release with tag v${{ env.LERNA_VERSION }}"
-            exit 1
-          fi
-          
-          echo "Found draft release ID: $release_id"
-          
-          # Publish the release (remove draft status)
-          curl -X PATCH \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/$release_id" \
-            -d '{"draft": false}'
-          
-          echo "✅ Release v${{ env.LERNA_VERSION }} has been published"
-
-      - name: Commit and push updated compose.yaml
-        run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Pull latest changes first (before making modifications)
-          git pull --rebase origin main
-          
-          # Update custom service images from any version to :${LERNA_VERSION}
-          sed -i "s|fonoster/dashboard:[^[:space:]]*|fonoster/dashboard:${{ env.LERNA_VERSION }}|g" compose.yaml
-          sed -i "s|fonoster/apiserver:[^[:space:]]*|fonoster/apiserver:${{ env.LERNA_VERSION }}|g" compose.yaml
-          sed -i "s|fonoster/autopilot:[^[:space:]]*|fonoster/autopilot:${{ env.LERNA_VERSION }}|g" compose.yaml
-          sed -i "s|fonoster/amd:[^[:space:]]*|fonoster/amd:${{ env.LERNA_VERSION }}|g" compose.yaml
-
-          git add compose.yaml
-          
-          # Check if there are any changes to commit
-          if git diff --staged --quiet; then
-            echo "No changes to commit - compose.yaml already up to date"
-          else
-            git commit -m "chore: update compose.yaml with version ${{ env.LERNA_VERSION }} [skip ci]"
-            git push origin main
-            echo "✅ Updated compose.yaml with version ${{ env.LERNA_VERSION }}"
-          fi
-
-      - name: Release Summary
-        run: |
-          echo "## 🎉 Release Finalization Complete!"
-          echo ""
-          echo "**Version:** ${{ env.LERNA_VERSION }}"
-          echo "**Status:** ✅ Published to GitHub"
-          echo "**Docker Images:** ✅ Available with tag ${{ env.LERNA_VERSION }}"
-          echo "**Compose File:** ✅ Updated with new version tags"
-          echo ""
-          echo "The release is now live and ready for use! 🚀"
+      - name: Publish the draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.npm.outputs.version }}
+        run: gh release edit "v$VERSION" --repo "${{ github.repository }}" --draft=false --latest
