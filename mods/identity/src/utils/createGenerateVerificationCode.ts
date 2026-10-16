@@ -16,14 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { randomInt } from "crypto";
 import { VERIFICATION_CODE_EXPIRATION } from "../constants";
 import { Prisma } from "../db";
 import { VerificationType } from "../generated/@prisma/client";
+import { normalizeContact } from "./normalizeContact";
 
+/**
+ * Issues a 6-digit code for a contact. Earlier unused codes for the same
+ * contact stop working, so only the latest email or SMS is valid.
+ */
 function createGenerateVerificationCode(prisma: Prisma) {
   return async (params: { type: VerificationType; value: string }) => {
-    const { type, value } = params;
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const { type } = params;
+    const value = normalizeContact(type, params.value);
+    const code = randomInt(100000, 1000000).toString();
+
+    await prisma.verificationCode.deleteMany({
+      where: { type, value, consumedAt: null }
+    });
 
     await prisma.verificationCode.create({
       data: {

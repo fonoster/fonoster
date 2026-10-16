@@ -21,7 +21,7 @@ import * as grpc from "@grpc/grpc-js";
 import * as chai from "chai";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
+import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { TEST_TOKEN } from "./testToken";
 import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "@fonoster/common";
@@ -72,6 +72,10 @@ describe("@sipnet[sipnet/createNumber]", function () {
 
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
+    // RV-B4: the appRef is checked against the caller's workspace
+    expect(checkNumberPreconditions).to.have.been.calledOnceWith(
+      sinon.match({ appRef: "123", accessKeyId })
+    );
     expect(numbers.createNumber).to.have.been.calledOnceWith({
       name: call.request.name,
       telUrl: call.request.telUrl,
@@ -157,7 +161,7 @@ describe("@sipnet[sipnet/createNumber]", function () {
     expect(callback).to.have.been.calledOnceWithExactly({
       code: grpc.status.INVALID_ARGUMENT,
       // eslint-disable-next-line prettier/prettier
-      message: "Invalid SIP URI at \"agentAor\""
+      message: 'Invalid SIP URI at "agentAor"'
     });
   });
 

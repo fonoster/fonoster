@@ -1,0 +1,19 @@
+format: fonoster.scenario.v1
+name: listener-both-tracks
+contract: voice-session
+role: app
+spec: "Listen-only sockets / Both tracks"
+description: A listener on app-2 with tracks both gets caller and agent audio as separate frames tagged with their track ids.
+setup:
+  listener: { tracks: both }
+steps:
+  - expect:
+      type: session.start
+      tracks: { $includes: [{ id: 1, side: inbound }, { id: 2, side: outbound }] }
+  - send: { type: speak, id: r1, text: "Hello listener.", last: true }
+  - expect: { type: output.done, id: r1 }
+    within_ms: 5000
+  - wait: { ms: 100 }
+  - assert:
+      other_app.audio_tracks: [1, 2]
+      other_app.messages: { $includes: [{ type: session.start }, { type: output.started, id: r1 }, { type: output.done, id: r1 }] }

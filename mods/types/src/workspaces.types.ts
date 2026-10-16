@@ -37,6 +37,8 @@ type Workspace = {
   accessKeyId: string;
   createdAt: Date;
   updatedAt: Date;
+  /** A public region id (`default`, `us-east-1`) or a private region ref (`rg_…`). Immutable. */
+  region?: string;
   owner?: {
     ref: string;
     name: string;
@@ -46,6 +48,16 @@ type Workspace = {
 
 type CreateWorkspaceRequest = {
   name: string;
+  /**
+   * An offered public region id (default `default`) or one of your private regions (id or ref),
+   * created first with `sdk.regions.createRegion`. Fixed for life.
+   */
+  region?: string;
+};
+
+type CreateWorkspaceResponse = {
+  ref: string;
+  region?: string;
 };
 
 type UpdateWorkspaceRequest = {
@@ -84,6 +96,7 @@ type ResendWorkspaceMembershipInvitationResponse = {
 };
 
 export {
+  CreateWorkspaceResponse,
   CreateWorkspaceRequest,
   InviteUserToWorkspaceRequest,
   InviteUserToWorkspaceResponse,

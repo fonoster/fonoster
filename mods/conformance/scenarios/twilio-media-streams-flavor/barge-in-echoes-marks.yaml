@@ -1,0 +1,21 @@
+format: fonoster.scenario.v1
+name: barge-in-echoes-marks
+contract: twilio-media-streams-flavor
+role: app
+spec: "Clear and mark follow Twilio semantics / Barge-in"
+setup:
+  app: { protocol: twilio }
+ignore: [media]
+steps:
+  - expect: { event: start }
+    capture: { sid: streamSid }
+  - send_audio: { ms: 2000, kind: tone, realtime: false }
+  - send: { event: mark, streamSid: "${sid}", mark: { name: reply-1 } }
+  - wait: { ms: 200 }
+  - send: { event: clear, streamSid: "${sid}" }
+    label: clear
+  - expect: { event: mark, streamSid: "${sid}", mark: { name: reply-1 } }
+    within_ms: 500
+  - wait: { ms: 150 }
+  - assert: { media.output_silent_within_ms: { $lte: 40 } }
+    from: clear

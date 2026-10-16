@@ -1,0 +1,97 @@
+# The development layer on the self-host bundle (add-self-host-installer D6). ops/bundle/compose.yaml
+# is the one Compose source; this override only adds what a checkout needs: images built from
+# source, the fake providers, the SIP caller bot, the region hub and the gateway's HTTP port. Vendor
+# keys reach the services through .local/services.env (env_file) as ${NAME} in the overlays. `ops/rebuild/stack up` (docs/try-the-new-platform.md) generates the secrets into
+# ops/rebuild/.local, renders the service configs from ops/bundle/config/*.example.* and runs
+#
+#   docker compose --project-directory ops/rebuild \
+#     -f ops/bundle/compose.yaml -f ops/rebuild/compose.yaml \
+#     --env-file .local/stack.env --env-file .local/host.env --env-file .local/bundle.env ...
+#
+# Relative paths below resolve from ops/rebuild (the project directory). Host ports are in the
+# 16000 range (stack.defaults), so the stack runs next to a self-hosted install.
+#
+#   Profiles added: `fakes` (fake TTS/STT/LLM, no vendor keys), `tools` (the SIP caller bot),
+#   `regions` (the region hub).
+services:
+  medianode:
+    build:
+      context: ../../go/medianode
+    image: ${RB_REGISTRY:-fonoster}/medianode:${RB_TAG:-dev}
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: mods/gateway/Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/gateway:${RB_TAG:-dev}
+    ports:
+      - "${RB_GATEWAY_PORT:-8080}:8080"
+
+  autopilot:
+    build:
+      context: ../..
+      dockerfile: mods/autopilot/Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/autopilot-session:${RB_TAG:-dev}
+
+  apiserver:
+    build:
+      context: ../..
+      dockerfile: ops/rebuild/docker/apiserver.Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/apiserver:${RB_TAG:-dev}
+    depends_on:
+      nats-regions: { condition: service_healthy, required: false }
+
+  # ---- profile `regions`: the region hub private regions link to (the bundle leaves it out; see
+  # docs for hosting private regions). `stack up` generates config/region-hub.conf. ----
+  nats-regions:
+    image: nats:2.11.8-alpine
+    profiles: [regions]
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats.conf"]
+    ports:
+      - "${LEAF_BIND:-0.0.0.0}:${RB_LEAF_PORT:-7422}:7422"
+    volumes:
+      - ${CONFIG_DIR:-./config}/region-hub.conf:/etc/nats/nats.conf:ro
+      - nats-regions:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  dashboard:
+    build:
+      context: ../..
+      dockerfile: ops/rebuild/docker/dashboard.Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/dashboard:${RB_TAG:-dev}
+
+  # ---- profile `fakes`: fake TTS (:7001), STT (:7002) and LLM (:7003) ----
+  fakes:
+    profiles: ["fakes"]
+    build:
+      context: ../..
+      dockerfile: ops/rebuild/docker/fakes.Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/fakes:${RB_TAG:-dev}
+    restart: unless-stopped
+    expose:
+      - 7001
+      - 7002
+      - 7003
+
+  # ---- profile `tools`: the SIP caller bot (go/medianode/cmd/sipcaller), HTTP on RB_CALLER_PORT ----
+  sipcaller:
+    profiles: ["tools"]
+    build:
+      context: ../../go/medianode
+    image: ${RB_REGISTRY:-fonoster}/medianode:${RB_TAG:-dev}
+    entrypoint: ["/sipcaller"]
+    command: ["-listen", "0.0.0.0:8080", "-host", "${SUBNET_PREFIX}.44"]
+    restart: unless-stopped
+    ports:
+      - "${RB_CALLER_PORT:-8081}:8080"
+    networks:
+      default:
+        ipv4_address: ${SUBNET_PREFIX}.44
+
+volumes:
+  nats-regions:

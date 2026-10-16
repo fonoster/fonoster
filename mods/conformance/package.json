@@ -1,0 +1,46 @@
+{
+  "name": "@fonoster/conformance",
+  "version": "0.27.0",
+  "description": "Conformance harness for the Fonoster rebuild contracts: scenario files, runners and fakes",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "nats": "^2.25.0",
+    "ws": "^8.18.0",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.12"
+  },
+  "files": [
+    "PROVIDERS.md",
+    "SCENARIOS.md",
+    "dist",
+    "scenarios",
+    "schema",
+    "turn-corpus"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  }
+}

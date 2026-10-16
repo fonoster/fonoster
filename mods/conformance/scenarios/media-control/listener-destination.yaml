@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: listener-destination
+spec: "Listeners fork audio by track / Listener audio destination"
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
+  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
+    within_ms: 1000
+    capture: { room: roomRef, caller: participantRef }
+  - send: { type: listener.attach, id: l1, roomRef: "${room}", tracks: [{ trackId: 1, rtp: { host: 127.0.0.1, port: 40100, codec: "L16/16000" } }] }
+  - expect: { type: ack, id: l1, listenerRef: { $re: ".+" } }
+    within_ms: 2000

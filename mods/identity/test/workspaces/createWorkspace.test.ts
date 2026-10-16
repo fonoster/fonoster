@@ -52,14 +52,13 @@ describe("@identity[workspaces/createWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { createCreateWorkspace } = await import(
-      "../../src/workspaces/createCreateWorkspace"
-    );
+    const { createCreateWorkspace } =
+      await import("../../src/workspaces/createCreateWorkspace");
 
     // Act
     await createCreateWorkspace(prisma)(call, (_, response) => {
       // Assert
-      expect(response).to.deep.equal({ ref: "123" });
+      expect(response).to.deep.equal({ ref: "123", region: "default" });
     });
   });
 
@@ -80,9 +79,8 @@ describe("@identity[workspaces/createWorkspace]", function () {
       }
     } as unknown as Prisma;
 
-    const { createCreateWorkspace } = await import(
-      "../../src/workspaces/createCreateWorkspace"
-    );
+    const { createCreateWorkspace } =
+      await import("../../src/workspaces/createCreateWorkspace");
 
     // Act
     await createCreateWorkspace(prisma)(call, (error) => {
@@ -105,9 +103,8 @@ describe("@identity[workspaces/createWorkspace]", function () {
     // Doesn't matter because it will not be called
     const prisma = {} as unknown as Prisma;
 
-    const { createCreateWorkspace } = await import(
-      "../../src/workspaces/createCreateWorkspace"
-    );
+    const { createCreateWorkspace } =
+      await import("../../src/workspaces/createCreateWorkspace");
 
     // Act
     await createCreateWorkspace(prisma)(call, (error) => {
@@ -116,7 +113,7 @@ describe("@identity[workspaces/createWorkspace]", function () {
         code: grpc.status.INVALID_ARGUMENT,
         message:
           // eslint-disable-next-line prettier/prettier
-          "The name is required at \"name\""
+          'The name is required at "name"'
       });
     });
   });

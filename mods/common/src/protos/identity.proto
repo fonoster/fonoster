@@ -56,6 +56,8 @@ service Identity {
   rpc ExchangeApiKey (ExchangeApiKeyRequest) returns (ExchangeApiKeyResponse) {}
   rpc ExchangeOauth2Code (ExchangeOauth2CodeRequest) returns (ExchangeOauth2CodeResponse) {}
   rpc ExchangeRefreshToken (ExchangeRefreshTokenRequest) returns (ExchangeRefreshTokenResponse) {}
+  // Trade an emailed sign-in code for tokens (passwordless sign-in)
+  rpc ExchangeVerificationCode (ExchangeVerificationCodeRequest) returns (ExchangeVerificationCodeResponse) {}
   rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
 
   // Get the public key for verifying JWTs
@@ -78,14 +80,22 @@ message Workspace {
   int32 created_at = 5;
   int32 updated_at = 6;
   Owner owner = 7;
+  // A public region id (default, us-east-1) or a private region ref (rg_...). Immutable.
+  string region = 8;
 }
 
 message CreateWorkspaceRequest {
   string name = 1;
+  // A public region id, or one of the caller's private regions (id or rg_ ref). Empty means "default".
+  string region = 2;
 }
 
 message CreateWorkspaceResponse {
   string ref = 1;
+  string region = 2;
+  // Unused since PR-15 (regions are created at the user level, POST /api/regions); kept reserved.
+  string enrollment_token = 3;
+  string expires_at = 4;
 }
 
 message DeleteWorkspaceRequest {
@@ -113,6 +123,8 @@ message ListWorkspacesResponse {
 message UpdateWorkspaceRequest {
   string ref = 1;
   string name = 2;
+  // Accepted only when unchanged (the region is immutable).
+  string region = 3;
 }
 
 message UpdateWorkspaceResponse {
@@ -356,4 +368,15 @@ message RevokeTokenResponse {
 // Message with response with the public key
 message GetPublicKeyResponse {
   string public_key = 1;
+}
+
+message ExchangeVerificationCodeRequest {
+  string email = 1;
+  string code = 2;
+}
+
+message ExchangeVerificationCodeResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
 }

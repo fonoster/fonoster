@@ -1,0 +1,30 @@
+format: fonoster.scenario.v1
+name: audio-mark-cleared
+contract: voice-sdk
+role: gateway
+fixture: audio-mark
+spec: "Raw audio access / Mark dropped by clear"
+steps:
+  - send:
+      type: session.start
+      protocol: fonoster.session.v1
+      sessionRef: sess-1
+      callRef: call-1
+      appRef: app-1
+      direction: inbound
+      from: "+15550001111"
+      to: "+15550002222"
+      metadata: {}
+      handoff: null
+      audio: { codec: pcm16, rate: 16000 }
+      tracks:
+        - { id: 1, side: inbound, kind: audio, codec: pcm16 }
+        - { id: 2, side: outbound, kind: audio, codec: pcm16 }
+      speech: { voice: fonoster/default, language: en-US }
+  - expect: { type: mark, name: r1 }
+  - send: { type: dtmf, digit: "9" }
+  - expect: { type: clear }
+    within_ms: 1000
+  - send: { type: mark, name: r1, cleared: true }
+  - expect: { type: speak, text: "Cleared.", last: true }
+    within_ms: 1000

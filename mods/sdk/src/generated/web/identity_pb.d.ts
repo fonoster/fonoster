@@ -27,6 +27,9 @@ export class Workspace extends jspb.Message {
   hasOwner(): boolean;
   clearOwner(): Workspace;
 
+  getRegion(): string;
+  setRegion(value: string): Workspace;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Workspace.AsObject;
   static toObject(includeInstance: boolean, msg: Workspace): Workspace.AsObject;
@@ -44,6 +47,7 @@ export namespace Workspace {
     createdAt: number,
     updatedAt: number,
     owner?: Workspace.Owner.AsObject,
+    region: string,
   }
 
   export class Owner extends jspb.Message {
@@ -78,6 +82,9 @@ export class CreateWorkspaceRequest extends jspb.Message {
   getName(): string;
   setName(value: string): CreateWorkspaceRequest;
 
+  getRegion(): string;
+  setRegion(value: string): CreateWorkspaceRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateWorkspaceRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateWorkspaceRequest): CreateWorkspaceRequest.AsObject;
@@ -89,12 +96,22 @@ export class CreateWorkspaceRequest extends jspb.Message {
 export namespace CreateWorkspaceRequest {
   export type AsObject = {
     name: string,
+    region: string,
   }
 }
 
 export class CreateWorkspaceResponse extends jspb.Message {
   getRef(): string;
   setRef(value: string): CreateWorkspaceResponse;
+
+  getRegion(): string;
+  setRegion(value: string): CreateWorkspaceResponse;
+
+  getEnrollmentToken(): string;
+  setEnrollmentToken(value: string): CreateWorkspaceResponse;
+
+  getExpiresAt(): string;
+  setExpiresAt(value: string): CreateWorkspaceResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateWorkspaceResponse.AsObject;
@@ -107,6 +124,9 @@ export class CreateWorkspaceResponse extends jspb.Message {
 export namespace CreateWorkspaceResponse {
   export type AsObject = {
     ref: string,
+    region: string,
+    enrollmentToken: string,
+    expiresAt: string,
   }
 }
 
@@ -217,6 +237,9 @@ export class UpdateWorkspaceRequest extends jspb.Message {
   getName(): string;
   setName(value: string): UpdateWorkspaceRequest;
 
+  getRegion(): string;
+  setRegion(value: string): UpdateWorkspaceRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateWorkspaceRequest.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateWorkspaceRequest): UpdateWorkspaceRequest.AsObject;
@@ -229,6 +252,7 @@ export namespace UpdateWorkspaceRequest {
   export type AsObject = {
     ref: string,
     name: string,
+    region: string,
   }
 }
 
@@ -1235,6 +1259,54 @@ export class GetPublicKeyResponse extends jspb.Message {
 export namespace GetPublicKeyResponse {
   export type AsObject = {
     publicKey: string,
+  }
+}
+
+export class ExchangeVerificationCodeRequest extends jspb.Message {
+  getEmail(): string;
+  setEmail(value: string): ExchangeVerificationCodeRequest;
+
+  getCode(): string;
+  setCode(value: string): ExchangeVerificationCodeRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ExchangeVerificationCodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ExchangeVerificationCodeRequest): ExchangeVerificationCodeRequest.AsObject;
+  static serializeBinaryToWriter(message: ExchangeVerificationCodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ExchangeVerificationCodeRequest;
+  static deserializeBinaryFromReader(message: ExchangeVerificationCodeRequest, reader: jspb.BinaryReader): ExchangeVerificationCodeRequest;
+}
+
+export namespace ExchangeVerificationCodeRequest {
+  export type AsObject = {
+    email: string,
+    code: string,
+  }
+}
+
+export class ExchangeVerificationCodeResponse extends jspb.Message {
+  getIdToken(): string;
+  setIdToken(value: string): ExchangeVerificationCodeResponse;
+
+  getAccessToken(): string;
+  setAccessToken(value: string): ExchangeVerificationCodeResponse;
+
+  getRefreshToken(): string;
+  setRefreshToken(value: string): ExchangeVerificationCodeResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ExchangeVerificationCodeResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ExchangeVerificationCodeResponse): ExchangeVerificationCodeResponse.AsObject;
+  static serializeBinaryToWriter(message: ExchangeVerificationCodeResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ExchangeVerificationCodeResponse;
+  static deserializeBinaryFromReader(message: ExchangeVerificationCodeResponse, reader: jspb.BinaryReader): ExchangeVerificationCodeResponse;
+}
+
+export namespace ExchangeVerificationCodeResponse {
+  export type AsObject = {
+    idToken: string,
+    accessToken: string,
+    refreshToken: string,
   }
 }
 

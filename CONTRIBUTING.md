@@ -79,7 +79,38 @@ Depending on the project's roadmap and priorities, you might also be asked to:
 
 ## Development Environment Setup
 
-See our [Development environment setup](https://github.com/fonoster/fonoster/tree/main/docs/self-hosting) guide to get started locally.
+The [dev container](https://containers.dev) is the only way to develop Fonoster. You need Docker
+and VS Code with the Dev Containers extension (or a Codespace, or the
+[devcontainer CLI](https://github.com/devcontainers/cli)). Nothing else goes on your machine.
+
+1. Clone the repository (a regular clone, not a `git worktree`) and choose **Reopen in Container**
+   (CLI: `npx @devcontainers/cli up --workspace-folder .`).
+2. The first time, it writes the dev config to `.dev/` (secrets, keys and service files from
+   `fonoster-config init`; git-ignored), starts the dependencies (Postgres, NATS, Routr,
+   RTPEngine, MinIO, Envoy) and then installs and builds everything. It ends by printing the
+   dashboard URL and the owner login.
+3. In the container's terminal, start our components from source:
+
+```bash
+npm run dev            # all of them, with prefixed logs
+npm run dev:gateway    # or one: dev:apiserver, dev:gateway, dev:autopilot, dev:medianode, dev:dashboard, dev:fakes
+```
+
+Each one reloads when you save its source (the media node is rebuilt). Open the dashboard at
+`http://localhost:8449` and sign in with the login `npm run dev:info` prints. Calls use fake
+speech and language-model providers, so no vendor keys are needed.
+
+Run the tests in the same terminal: `npm test` (its NATS and database are the dev container's test
+services), `npm test -w @fonoster/dashboard`, and `cd go/medianode && go test ./...`.
+
+`npm run dev:config` renders `.dev/` again after you change a config example or your overrides in
+`.dev/overlay/<service>.yaml`; every secret is kept.
+
+Notes:
+
+- Use a regular clone: in a `git worktree`, `.git` points to a host path the container can't see.
+- `npm ci` and the build rewrite the committed Prisma client in `mods/identity/src/generated` (a
+  Linux engine file appears) and `mods/identity-client/proto`. Don't commit that diff.
 
 ## Sign your Commits
 

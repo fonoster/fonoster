@@ -1,7 +1,7 @@
 {
   "name": "@fonoster/voice",
   "version": "0.27.0",
-  "description": "Voice Server for Fonoster",
+  "description": "Session SDK for Fonoster voice applications",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
@@ -15,25 +15,17 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:readme": "node ../../.scripts/gen-readme.cjs",
-    "start:dev": "nodemon --exec tsx --watch src src/demo.ts"
-  },
-  "bin": {
-    "fonoster": "./dist/index.js"
+    "generate:readme": "node ../../.scripts/gen-readme.cjs"
   },
   "dependencies": {
     "@fonoster/common": "^0.27.0",
-    "@fonoster/identity": "^0.27.0",
     "@fonoster/logger": "^0.27.0",
-    "@grpc/grpc-js": "~1.10.6",
-    "deepmerge": "^4.3.1",
-    "grpc-health-check": "^2.0.2",
-    "pb-util": "^1.0.3",
-    "zod": "^3.23.8",
-    "zod-validation-error": "^3.3.0"
+    "ws": "^8.18.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "session.d.ts",
+    "session.js"
   ],
   "publishConfig": {
     "access": "public"
@@ -45,5 +37,8 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579"
+  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
+  "devDependencies": {
+    "@fonoster/conformance": "^0.27.0"
+  }
 }

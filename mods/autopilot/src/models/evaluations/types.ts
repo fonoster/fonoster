@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 import { StepEvaluationReport } from "@fonoster/types";
-import { AssistantConfig } from "../../assistants";
-import { LanguageModel } from "../types";
+import { LanguageModel, EvalAssistant } from "../types";
 
 type EvalExpectedTool = {
   tool: string;
@@ -47,8 +46,10 @@ type EvalScenario = {
 
 type EvaluateIntelligenceRequest = {
   intelligence: {
-    productRef: string;
-    config: AssistantConfig;
+    /** Ignored: the assistant's catalog id names the provider. */
+    productRef?: string;
+    /** A session assistant (with testCases), as a protobuf Struct. */
+    config: unknown;
   };
 };
 
@@ -56,11 +57,11 @@ type EvaluateStepParams = {
   step: EvalConversationStep;
   languageModel: LanguageModel;
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
-  assistantConfig: AssistantConfig;
+  assistantConfig: EvalAssistant;
 };
 
 type ScenarioEvaluationRequest = {
-  assistantConfig: AssistantConfig;
+  assistantConfig: EvalAssistant;
   scenario: EvalScenario;
   languageModel: LanguageModel;
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;

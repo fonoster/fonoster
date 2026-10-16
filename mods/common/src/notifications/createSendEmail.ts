@@ -28,7 +28,9 @@ function createSendEmail(config: EmailSenderConfig) {
     host,
     port,
     secure,
-    auth
+    // Relays without authentication (e.g. a local MailHog) get no auth block;
+    // an empty one makes nodemailer fail with "Missing credentials".
+    auth: auth?.user ? auth : undefined
   });
 
   return async function sendEmail(params: EmailParams): Promise<void> {

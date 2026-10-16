@@ -1,0 +1,35 @@
+# The region agent (add-private-regions task 3): heartbeats, config sync, relay, index forwarding.
+dataDir: /var/lib/fonoster-region
+nats: { url: nats://nats:4222, user: region-agent, password: "secret://env/NATS_REGION_AGENT_PASSWORD" }
+database:
+  urlEnv: APISERVER_DATABASE_URL
+  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
+routr:
+  endpoint: routr:51907
+  mediaNodePeer:
+    name: Media nodes
+    username: medianode
+    aor: sip:medianode@default
+    passwordEnv: RB_NODE_PASSWORD
+records:
+  store:
+    s3:
+      bucket: records
+      endpoint: http://minio:9000
+      forcePathStyle: true
+      accessKeyIdEnv: MINIO_ROOT_USER
+      secretAccessKeyEnv: MINIO_ROOT_PASSWORD
+cellSecrets:
+  file: /var/lib/fonoster-secrets/secrets.enc
+  keyEnv: FONOSTER_REGION_SECRETS_KEY
+autopilot:
+  url: ws://autopilot:3000
+  signingSecretEnv: AUTOPILOT_SIGNING_SECRET
+# Public connection details reported to the control plane (shown in the dashboard). Unset fields
+# come from EXTERNAL_ADDRS, RB_SIP_PORT, RTPENGINE_PUBLIC_IP and RTPENGINE_PORT_MIN/MAX.
+# endpoints:
+#   sip: [{ host: sip.example.com, port: 5061, transport: tls }]
+#   signalingAddresses: [203.0.113.10]
+#   mediaAddresses: [203.0.113.11]
+#   rtpPorts: { min: 10000, max: 20000 }
+heartbeatMs: 30000

@@ -16,16 +16,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const GITHUB_API_URL = "https://github.com/login/oauth/access_token";
-const GITHUB_USER_API_URL = "https://api.github.com/user";
+const GITHUB_URL = "https://github.com";
+const GITHUB_API_URL = "https://api.github.com";
 
+type GitHubEmail = { email: string; primary: boolean; verified: boolean };
+
+type GitHubUser = {
+  name?: string;
+  login?: string;
+  avatar_url?: string;
+  /** The primary verified address, or undefined when there is none. */
+  email?: string;
+  /** Every verified address, primary first; used to find an existing user. */
+  verifiedEmails?: string[];
+};
+
+/**
+ * Trades an OAuth code for the GitHub user. The email is the account's
+ * primary *verified* address from /user/emails, never the public profile
+ * email, which the user can set to anything.
+ */
 async function getGitHubUserWithOauth2Code(params: {
   clientId: string;
   clientSecret: string;
   code: string;
-}) {
+  /** Defaults to https://github.com; a fake GitHub in tests. */
+  url?: string;
+  /** Defaults to https://api.github.com. */
+  apiUrl?: string;
+}): Promise<GitHubUser> {
   const { clientId, clientSecret, code } = params;
-  const tokenResponse = await fetch(GITHUB_API_URL, {
+  const url = params.url ?? GITHUB_URL;
+  const apiUrl = params.apiUrl ?? GITHUB_API_URL;
+  const tokenResponse = await fetch(`${url}/login/oauth/access_token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -41,13 +64,41 @@ async function getGitHubUserWithOauth2Code(params: {
   const tokenData = await tokenResponse.json();
   const accessToken = tokenData?.access_token;
 
-  const userResponse = await fetch(GITHUB_USER_API_URL, {
-    headers: {
-      Authorization: `token ${accessToken}`
-    }
-  });
+  if (!accessToken) {
+    return {};
+  }
 
-  return userResponse.json();
+  const headers = {
+    Authorization: `token ${accessToken}`,
+    Accept: "application/vnd.github+json"
+  };
+
+  const [userResponse, emailsResponse] = await Promise.all([
+    fetch(`${apiUrl}/user`, { headers }),
+    fetch(`${apiUrl}/user/emails`, { headers })
+  ]);
+
+  const user = await userResponse.json();
+  const emails: GitHubEmail[] = emailsResponse.ok
+    ? await emailsResponse.json()
+    : [];
+  const primary = Array.isArray(emails)
+    ? emails.find((e) => e.primary && e.verified)
+    : undefined;
+
+  const verified = Array.isArray(emails)
+    ? emails.filter((e) => e.verified).map((e) => e.email)
+    : [];
+
+  return {
+    name: user?.name || user?.login,
+    login: user?.login,
+    avatar_url: user?.avatar_url,
+    email: primary?.email,
+    verifiedEmails: primary
+      ? [primary.email, ...verified.filter((e) => e !== primary.email)]
+      : verified
+  };
 }
 
-export { getGitHubUserWithOauth2Code };
+export { getGitHubUserWithOauth2Code, GitHubUser };

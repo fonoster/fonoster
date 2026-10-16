@@ -29,6 +29,18 @@ const workspaceResourceAccess = [
   "/fonoster.applications.v1beta2.Applications/DeleteApplication",
   "/fonoster.applications.v1beta2.Applications/ListApplications",
   "/fonoster.applications.v1beta2.Applications/EvaluateIntelligence",
+  "/fonoster.applications.v1beta2.Applications/RotateSigningSecret",
+  "/fonoster.webhooks.v1beta2.Webhooks/CreateWebhook",
+  "/fonoster.webhooks.v1beta2.Webhooks/ListWebhooks",
+  "/fonoster.webhooks.v1beta2.Webhooks/GetWebhook",
+  "/fonoster.webhooks.v1beta2.Webhooks/UpdateWebhook",
+  "/fonoster.webhooks.v1beta2.Webhooks/DeleteWebhook",
+  "/fonoster.webhooks.v1beta2.Webhooks/RotateWebhookSecret",
+  "/fonoster.webhooks.v1beta2.Webhooks/ListWebhookDeliveries",
+  "/fonoster.webhooks.v1beta2.Webhooks/ResendWebhookDelivery",
+  "/fonoster.providers.v1beta2.Providers/ListCatalog",
+  "/fonoster.providers.v1beta2.Providers/ListProviderKeys",
+  "/fonoster.providers.v1beta2.Providers/ListWarnings",
   "/fonoster.agents.v1beta2.Agents/CreateAgent",
   "/fonoster.agents.v1beta2.Agents/UpdateAgent",
   "/fonoster.agents.v1beta2.Agents/GetAgent",
@@ -76,6 +88,9 @@ const workspaceResourceAccess = [
 ];
 
 const workspaceResourceOwnerOrAdminAccess = [
+  // Bring-your-own vendor keys (add-provider-registry P1): owners and admins only.
+  "/fonoster.providers.v1beta2.Providers/SetProviderKey",
+  "/fonoster.providers.v1beta2.Providers/DeleteProviderKey",
   "/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers",
   "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
   "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",

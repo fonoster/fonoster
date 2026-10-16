@@ -65,7 +65,8 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
         sender: "Fonoster <info@fonoster.local>",
         auth: {}
       },
-      privateKey: TEST_PRIVATE_KEY
+      privateKey: TEST_PRIVATE_KEY,
+      auth: { methods: ["password"], signup: "invite" }
     } as IdentityConfig;
 
     const prisma = {
@@ -100,6 +101,13 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
 
     // Assert
     expect(sendInvite).to.have.been.calledOnce;
+    const { data } = prisma.user.create.firstCall.args[0];
+    expect(data.mustChangePassword).to.be.true;
+    expect(data.passwordDigest).to.match(/^scrypt\$/);
+    // The email carries the one-time password, which was stored only as a digest.
+    const { oneTimePassword } = sendInvite.firstCall.args[1];
+    expect(oneTimePassword).to.have.length(10);
+    expect(data.passwordDigest).not.to.include(oneTimePassword);
     // expect(prisma.user.create).to.have.been.calledOnce;
     // expect(prisma.workspaceMember.create).to.have.been.calledOnce;
   });
@@ -123,7 +131,8 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
         sender: "Fonoster <info@fonoster.local>",
         auth: {}
       },
-      privateKey: TEST_PRIVATE_KEY
+      privateKey: TEST_PRIVATE_KEY,
+      auth: { methods: ["password"], signup: "invite" }
     } as IdentityConfig;
 
     const prisma = {
@@ -173,7 +182,9 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
-    const identityConfig = {} as IdentityConfig;
+    const identityConfig = {
+      auth: { methods: ["password"], signup: "invite" }
+    } as IdentityConfig;
 
     const call = {
       metadata,

@@ -1,0 +1,30 @@
+# Routr's EdgePort for the rebuild stack (mounted as CONFIG_PATH). The SIP port here must equal the
+# container side of the routr service's port mapping (RB_SIP_INTERNAL_PORT).
+kind: EdgePort
+apiVersion: v2beta1
+ref: default
+metadata:
+  region: default
+spec:
+  unknownMethodAction: Discard
+  processor:
+    addr: localhost:51901
+  securityContext:
+    client:
+      protocols: [SSLv3, TLSv1.2]
+      authType: DisabledAll
+    keyStorePassword: changeme
+    trustStorePassword: changeme
+    keyStore: "/etc/routr/certs/signaling.p12"
+    trustStore: "/etc/routr/certs/signaling.p12"
+    keyStoreType: pkcs12
+  methods: [REGISTER, MESSAGE, INVITE, ACK, BYE, CANCEL]
+  transport:
+    - protocol: tcp
+      port: 5060
+    - protocol: udp
+      port: 5060
+    # SIP over WebSocket for browser calls ("Talk to agent"). Not published: Envoy proxies /sip on
+    # the API port to it.
+    - protocol: ws
+      port: 5062

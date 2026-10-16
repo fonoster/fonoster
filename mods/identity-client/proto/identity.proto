@@ -56,6 +56,8 @@ service Identity {
   rpc ExchangeApiKey (ExchangeApiKeyRequest) returns (ExchangeApiKeyResponse) {}
   rpc ExchangeOauth2Code (ExchangeOauth2CodeRequest) returns (ExchangeOauth2CodeResponse) {}
   rpc ExchangeRefreshToken (ExchangeRefreshTokenRequest) returns (ExchangeRefreshTokenResponse) {}
+  // Trade an emailed sign-in code for tokens (passwordless sign-in)
+  rpc ExchangeVerificationCode (ExchangeVerificationCodeRequest) returns (ExchangeVerificationCodeResponse) {}
   rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
 
   // Get the public key for verifying JWTs
@@ -356,4 +358,15 @@ message RevokeTokenResponse {
 // Message with response with the public key
 message GetPublicKeyResponse {
   string public_key = 1;
+}
+
+message ExchangeVerificationCodeRequest {
+  string email = 1;
+  string code = 2;
+}
+
+message ExchangeVerificationCodeResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
 }

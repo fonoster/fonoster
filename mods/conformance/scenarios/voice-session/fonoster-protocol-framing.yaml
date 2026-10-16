@@ -1,0 +1,16 @@
+format: fonoster.scenario.v1
+name: fonoster-protocol-framing
+contract: voice-session
+role: app
+spec: "Sessions are delivered over WebSocket only / Fonoster protocol framing"
+description: Every message is a JSON text frame and audio arrives only as binary frames.
+steps:
+  - expect: { type: session.start }
+    next: true
+  - expect_audio: { track: 1, ms: { $gte: 200 } }
+  - send: { type: speak, id: r1, text: "Hello.", last: true }
+  - expect: { type: output.started, id: r1 }
+  - expect: { type: output.done, id: r1 }
+    within_ms: 5000
+  - assert:
+      app.text_frames: 0

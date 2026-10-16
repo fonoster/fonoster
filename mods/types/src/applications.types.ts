@@ -20,7 +20,7 @@ import { BaseApiObject, ListRequest, ListResponse } from "./common";
 import { Flatten } from "./utils";
 
 enum ApplicationType {
-  EXTERNAL = "EXTERNAL",
+  STREAM = "STREAM",
   AUTOPILOT = "AUTOPILOT"
 }
 
@@ -29,19 +29,53 @@ enum ExpectedTextType {
   SIMILAR = "SIMILAR"
 }
 
-type Application = {
+/** Speech defaults of an application; voices and models are catalog ids. */
+type SpeechDefaults = {
+  voice?: string;
+  language?: string;
+  sttModel?: string;
+  ttsModel?: string;
+  silenceTimeoutMs?: number;
+  patience?: "low" | "normal" | "high";
+};
+
+type AudioFormat = { codec: "pcm16" | "pcmu"; rate: number };
+
+type AppListener = { url: string; tracks?: "inbound" | "outbound" | "both" };
+
+type RecordingPolicy = "off" | "on" | "consent";
+
+/** Answering-machine detection: one `amd.result` event per call. */
+type AmdSettings = {
+  enabled: boolean;
+  /** Caller audio to classify in ms (default 4000; 500 to 15000). */
+  windowMs?: number;
+};
+
+/** The application model (voice-session G2): a stream or an Autopilot agent. */
+type SessionAppFields = {
+  /** ws:// or wss:// URL the gateway dials (Autopilot agents: the hosted Autopilot). */
+  url?: string;
+  /** The stream's wire protocol (default fonoster). */
+  protocol?: "fonoster" | "twilio";
+  speech?: SpeechDefaults;
+  audio?: AudioFormat;
+  fallbackAppRef?: string;
+  fallbackMessage?: string;
+  listeners?: AppListener[];
+  /** Empty inherits the workspace's policy. */
+  recording?: RecordingPolicy | "";
+  /** Off when unset. */
+  amd?: AmdSettings;
+};
+
+type Application = SessionAppFields & {
   ref: string;
   name: string;
   type: ApplicationType;
+  /** The last characters of the signing secret; the secret itself is never read back. */
+  signingSecretHint?: string;
   endpoint?: string;
-  textToSpeech?: {
-    productRef: string;
-    config: Record<string, unknown>;
-  };
-  speechToText?: {
-    productRef: string;
-    config: Record<string, unknown>;
-  };
   intelligence?: {
     productRef: string;
     config: Record<string, unknown>;
@@ -50,21 +84,13 @@ type Application = {
   updatedAt: Date;
 };
 
-type CreateApplicationRequest = {
+type CreateApplicationRequest = SessionAppFields & {
   name: string;
   type: ApplicationType;
   endpoint?: string;
-  textToSpeech?: {
-    productRef: string;
-    config: Record<string, unknown>;
-  };
-  speechToText?: {
-    productRef: string;
-    config: Record<string, unknown>;
-  };
+  /** Autopilot apps: the assistant (sessionAssistantSchema); productRef is derived from its model. */
   intelligence?: {
-    productRef: string;
-    credentials: Record<string, unknown>;
+    productRef?: string;
     config: Record<string, unknown>;
   };
 };
@@ -75,11 +101,33 @@ type UpdateApplicationRequest = Flatten<
 
 type ListApplicationsRequest = ListRequest;
 
+type CreateApplicationResponse = {
+  ref: string;
+  /** Shown only here and on rotation. */
+  signingSecret?: string;
+  signingSecretHint?: string;
+};
+
+type UpdateApplicationResponse = {
+  ref: string;
+  /** Set only when the update generated a new secret (the app stopped being an Autopilot app). */
+  signingSecret?: string;
+  signingSecretHint?: string;
+};
+
+type RotateSigningSecretResponse = {
+  ref: string;
+  signingSecret: string;
+  signingSecretHint: string;
+};
+
 type ListApplicationsResponse = ListResponse<Application>;
 
 type EvaluateIntelligenceRequest = {
   intelligence: {
-    productRef: string;
+    /** Ignored: the assistant's catalog id names the provider. */
+    productRef?: string;
+    /** A session assistant with testCases. */
     config: Record<string, unknown>;
   };
 };
@@ -145,6 +193,15 @@ type CreateTestTokenResponse = {
 };
 
 export {
+  AmdSettings,
+  AppListener,
+  AudioFormat,
+  CreateApplicationResponse,
+  UpdateApplicationResponse,
+  RecordingPolicy,
+  RotateSigningSecretResponse,
+  SessionAppFields,
+  SpeechDefaults,
   Application,
   ApplicationType,
   CreateApplicationRequest,

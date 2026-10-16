@@ -1158,6 +1158,49 @@ export class IdentityClient {
     this.methodDescriptorExchangeRefreshToken);
   }
 
+  methodDescriptorExchangeVerificationCode = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/ExchangeVerificationCode',
+    grpcWeb.MethodType.UNARY,
+    identity_pb.ExchangeVerificationCodeRequest,
+    identity_pb.ExchangeVerificationCodeResponse,
+    (request: identity_pb.ExchangeVerificationCodeRequest) => {
+      return request.serializeBinary();
+    },
+    identity_pb.ExchangeVerificationCodeResponse.deserializeBinary
+  );
+
+  exchangeVerificationCode(
+    request: identity_pb.ExchangeVerificationCodeRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.ExchangeVerificationCodeResponse>;
+
+  exchangeVerificationCode(
+    request: identity_pb.ExchangeVerificationCodeRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: identity_pb.ExchangeVerificationCodeResponse) => void): grpcWeb.ClientReadableStream<identity_pb.ExchangeVerificationCodeResponse>;
+
+  exchangeVerificationCode(
+    request: identity_pb.ExchangeVerificationCodeRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: identity_pb.ExchangeVerificationCodeResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.identity.v1beta2.Identity/ExchangeVerificationCode',
+        request,
+        metadata || {},
+        this.methodDescriptorExchangeVerificationCode,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.identity.v1beta2.Identity/ExchangeVerificationCode',
+    request,
+    metadata || {},
+    this.methodDescriptorExchangeVerificationCode);
+  }
+
   methodDescriptorRevokeToken = new grpcWeb.MethodDescriptor(
     '/fonoster.identity.v1beta2.Identity/RevokeToken',
     grpcWeb.MethodType.UNARY,

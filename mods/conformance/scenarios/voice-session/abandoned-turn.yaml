@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: abandoned-turn
+contract: voice-session
+role: app
+spec: "Turn events reach every client / Abandoned turn"
+description: A noise burst with no transcript ends as an abandoned turn after 10 s of silence.
+tags: [slow]
+setup:
+  callerAudio: { kind: silence, ms: 100 }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 400 } }
+  - expect: { type: turn.user_started }
+    within_ms: 1000
+  - expect: { type: turn.ended, text: "", abandoned: true }
+    within_ms: 11500

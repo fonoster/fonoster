@@ -1,0 +1,284 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Fonoster",
+  "description": "The AI that answers the phone. Build, test, and run voice agents on real phone lines.",
+  "colors": {
+    "primary": "#008751",
+    "light": "#39E19E",
+    "dark": "#008751"
+  },
+  "background": {
+    "color": {
+      "light": "#FFFFFF",
+      "dark": "#181818"
+    }
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://fonoster.com"
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Poppins",
+      "weight": 600
+    },
+    "body": {
+      "family": "Poppins"
+    }
+  },
+  "styling": {
+    "codeblocks": "system"
+  },
+  "navigation": {
+    "versions": [
+      {
+        "version": "v0.30",
+        "default": true,
+        "tabs": [
+          {
+            "tab": "Docs",
+            "groups": [
+              {
+                "group": "Get started",
+                "pages": [
+                  "introduction"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Self-hosting",
+            "groups": [
+              {
+                "group": "Start",
+                "pages": [
+                  "self-hosting/overview",
+                  "self-hosting/install-compose"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Private regions",
+            "groups": [
+              {
+                "group": "Private regions",
+                "pages": [
+                  "private-regions/overview"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Hacking Fonoster",
+            "groups": [
+              {
+                "group": "Start",
+                "pages": [
+                  "hacking/overview"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "version": "Legacy (≤0.27)",
+        "tabs": [
+          {
+            "tab": "Documentation",
+            "groups": [
+              {
+                "group": "Get Started",
+                "pages": [
+                  "legacy/introduction",
+                  "legacy/quickstart"
+                ]
+              },
+              {
+                "group": "Concepts",
+                "pages": [
+                  "legacy/concepts/workspaces",
+                  "legacy/concepts/identity-and-tokens",
+                  "legacy/concepts/apikeys",
+                  "legacy/concepts/sdks",
+                  "legacy/concepts/programmable-voice",
+                  "legacy/concepts/autopilot",
+                  "legacy/concepts/speech-vendors",
+                  "legacy/concepts/bidirectional-streams",
+                  "legacy/concepts/sipnetwork",
+                  "legacy/concepts/calling"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "legacy/guides/linking-a-twilio-number",
+                  "legacy/guides/linking-any-virtual-number",
+                  "legacy/guides/overwriting-speech-voices",
+                  "legacy/guides/prompting-guide"
+                ]
+              },
+              {
+                "group": "Self Hosting",
+                "pages": [
+                  "legacy/self-hosting/overview",
+                  "legacy/self-hosting/deploy-with-docker",
+                  "legacy/self-hosting/first-apikeys",
+                  "legacy/self-hosting/securing-the-api"
+                ]
+              },
+              {
+                "group": "Contributing",
+                "pages": [
+                  "legacy/contributing/overview",
+                  "legacy/contributing/hacking-the-backend"
+                ]
+              },
+              {
+                "group": "Changelog",
+                "pages": [
+                  "legacy/changelog"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/fonoster/fonoster",
+          "icon": "github"
+        },
+        {
+          "anchor": "Community",
+          "href": "https://discord.gg/4QWgSz4hTC",
+          "icon": "discord"
+        }
+      ]
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Website",
+        "href": "https://fonoster.com"
+      },
+      {
+        "label": "Support",
+        "href": "https://form.typeform.com/to/DVAwugzh"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://app.fonoster.com"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "redirects": [
+    {
+      "source": "/concepts/workspaces",
+      "destination": "/legacy/concepts/workspaces"
+    },
+    {
+      "source": "/concepts/identity-and-tokens",
+      "destination": "/legacy/concepts/identity-and-tokens"
+    },
+    {
+      "source": "/concepts/apikeys",
+      "destination": "/legacy/concepts/apikeys"
+    },
+    {
+      "source": "/concepts/sdks",
+      "destination": "/legacy/concepts/sdks"
+    },
+    {
+      "source": "/concepts/programmable-voice",
+      "destination": "/legacy/concepts/programmable-voice"
+    },
+    {
+      "source": "/concepts/autopilot",
+      "destination": "/legacy/concepts/autopilot"
+    },
+    {
+      "source": "/concepts/speech-vendors",
+      "destination": "/legacy/concepts/speech-vendors"
+    },
+    {
+      "source": "/concepts/bidirectional-streams",
+      "destination": "/legacy/concepts/bidirectional-streams"
+    },
+    {
+      "source": "/concepts/sipnetwork",
+      "destination": "/legacy/concepts/sipnetwork"
+    },
+    {
+      "source": "/concepts/calling",
+      "destination": "/legacy/concepts/calling"
+    },
+    {
+      "source": "/guides/linking-a-twilio-number",
+      "destination": "/legacy/guides/linking-a-twilio-number"
+    },
+    {
+      "source": "/guides/linking-any-virtual-number",
+      "destination": "/legacy/guides/linking-any-virtual-number"
+    },
+    {
+      "source": "/guides/overwriting-speech-voices",
+      "destination": "/legacy/guides/overwriting-speech-voices"
+    },
+    {
+      "source": "/guides/prompting-guide",
+      "destination": "/legacy/guides/prompting-guide"
+    },
+    {
+      "source": "/self-hosting/deploy-with-docker",
+      "destination": "/legacy/self-hosting/deploy-with-docker"
+    },
+    {
+      "source": "/self-hosting/first-apikeys",
+      "destination": "/legacy/self-hosting/first-apikeys"
+    },
+    {
+      "source": "/self-hosting/securing-the-api",
+      "destination": "/legacy/self-hosting/securing-the-api"
+    },
+    {
+      "source": "/contributing/overview",
+      "destination": "/legacy/contributing/overview"
+    },
+    {
+      "source": "/contributing/hacking-the-backend",
+      "destination": "/legacy/contributing/hacking-the-backend"
+    }
+  ],
+  "footer": {
+    "socials": {
+      "x": "https://x.com/fonoster",
+      "github": "https://github.com/fonoster",
+      "linkedin": "https://linkedin.com/company/fonoster"
+    }
+  }
+}

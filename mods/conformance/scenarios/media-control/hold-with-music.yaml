@@ -1,0 +1,20 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: hold-with-music
+spec: "Hold silences the app and plays hold audio / Hold with music"
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
+  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
+    within_ms: 1000
+    capture: { room: roomRef, caller: participantRef }
+  - send: { type: hold, id: h1, roomRef: "${room}", participantRef: "${caller}", music: "https://example.com/hold.wav" }
+  - expect: { type: ack, id: h1 }
+    within_ms: 2000
+  - assert:
+      media.held: true
+  - send: { type: resume, id: h2, roomRef: "${room}", participantRef: "${caller}" }
+  - expect: { type: ack, id: h2 }
+    within_ms: 2000
+  - assert:
+      media.held: false

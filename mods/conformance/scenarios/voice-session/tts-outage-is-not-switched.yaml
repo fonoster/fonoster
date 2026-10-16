@@ -1,0 +1,26 @@
+format: fonoster.scenario.v1
+name: tts-outage-is-not-switched
+contract: voice-session
+role: app
+spec: "Provider failure is reported, never switched / TTS vendor outage mid-call"
+description: >
+  The TTS vendor answers 503. The app gets provider_unavailable for that command, the failure is
+  in the call record, no other provider is tried and the session stays open.
+setup:
+  catalog:
+    voices:
+      - { id: fake/rachel }
+steps:
+  - expect: { type: session.start }
+  - inject: { tts: { failNext: provider_unavailable } }
+  - send: { type: speak, id: s1, text: "This fails.", voice: fake/rachel, last: true }
+  - expect: { type: error, code: provider_unavailable, relatesTo: s1, fatal: false }
+    within_ms: 5000
+  - assert:
+      providers.tts.requests: 1
+      providers.vendor_calls: 0
+      record.events.provider.error:
+        - { code: provider_unavailable, relatesTo: s1 }
+  - send: { type: speak, id: s2, text: "This works.", voice: fake/rachel, last: true }
+  - expect: { type: output.done, id: s2 }
+    within_ms: 5000

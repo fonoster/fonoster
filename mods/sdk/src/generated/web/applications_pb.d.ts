@@ -4,6 +4,154 @@ import * as google_protobuf_struct_pb from 'google-protobuf/google/protobuf/stru
 import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb'; // proto import: "google/protobuf/empty.proto"
 
 
+export class SpeechDefaults extends jspb.Message {
+  getVoice(): string;
+  setVoice(value: string): SpeechDefaults;
+
+  getLanguage(): string;
+  setLanguage(value: string): SpeechDefaults;
+
+  getSttModel(): string;
+  setSttModel(value: string): SpeechDefaults;
+
+  getTtsModel(): string;
+  setTtsModel(value: string): SpeechDefaults;
+
+  getSilenceTimeoutMs(): number;
+  setSilenceTimeoutMs(value: number): SpeechDefaults;
+
+  getPatience(): string;
+  setPatience(value: string): SpeechDefaults;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SpeechDefaults.AsObject;
+  static toObject(includeInstance: boolean, msg: SpeechDefaults): SpeechDefaults.AsObject;
+  static serializeBinaryToWriter(message: SpeechDefaults, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SpeechDefaults;
+  static deserializeBinaryFromReader(message: SpeechDefaults, reader: jspb.BinaryReader): SpeechDefaults;
+}
+
+export namespace SpeechDefaults {
+  export type AsObject = {
+    voice: string,
+    language: string,
+    sttModel: string,
+    ttsModel: string,
+    silenceTimeoutMs: number,
+    patience: string,
+  }
+}
+
+export class AudioFormat extends jspb.Message {
+  getCodec(): string;
+  setCodec(value: string): AudioFormat;
+
+  getRate(): number;
+  setRate(value: number): AudioFormat;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AudioFormat.AsObject;
+  static toObject(includeInstance: boolean, msg: AudioFormat): AudioFormat.AsObject;
+  static serializeBinaryToWriter(message: AudioFormat, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AudioFormat;
+  static deserializeBinaryFromReader(message: AudioFormat, reader: jspb.BinaryReader): AudioFormat;
+}
+
+export namespace AudioFormat {
+  export type AsObject = {
+    codec: string,
+    rate: number,
+  }
+}
+
+export class AmdSettings extends jspb.Message {
+  getEnabled(): boolean;
+  setEnabled(value: boolean): AmdSettings;
+
+  getWindowMs(): number;
+  setWindowMs(value: number): AmdSettings;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AmdSettings.AsObject;
+  static toObject(includeInstance: boolean, msg: AmdSettings): AmdSettings.AsObject;
+  static serializeBinaryToWriter(message: AmdSettings, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AmdSettings;
+  static deserializeBinaryFromReader(message: AmdSettings, reader: jspb.BinaryReader): AmdSettings;
+}
+
+export namespace AmdSettings {
+  export type AsObject = {
+    enabled: boolean,
+    windowMs: number,
+  }
+}
+
+export class Listener extends jspb.Message {
+  getUrl(): string;
+  setUrl(value: string): Listener;
+
+  getTracks(): string;
+  setTracks(value: string): Listener;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Listener.AsObject;
+  static toObject(includeInstance: boolean, msg: Listener): Listener.AsObject;
+  static serializeBinaryToWriter(message: Listener, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Listener;
+  static deserializeBinaryFromReader(message: Listener, reader: jspb.BinaryReader): Listener;
+}
+
+export namespace Listener {
+  export type AsObject = {
+    url: string,
+    tracks: string,
+  }
+}
+
+export class RotateSigningSecretRequest extends jspb.Message {
+  getRef(): string;
+  setRef(value: string): RotateSigningSecretRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RotateSigningSecretRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: RotateSigningSecretRequest): RotateSigningSecretRequest.AsObject;
+  static serializeBinaryToWriter(message: RotateSigningSecretRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RotateSigningSecretRequest;
+  static deserializeBinaryFromReader(message: RotateSigningSecretRequest, reader: jspb.BinaryReader): RotateSigningSecretRequest;
+}
+
+export namespace RotateSigningSecretRequest {
+  export type AsObject = {
+    ref: string,
+  }
+}
+
+export class RotateSigningSecretResponse extends jspb.Message {
+  getRef(): string;
+  setRef(value: string): RotateSigningSecretResponse;
+
+  getSigningSecret(): string;
+  setSigningSecret(value: string): RotateSigningSecretResponse;
+
+  getSigningSecretHint(): string;
+  setSigningSecretHint(value: string): RotateSigningSecretResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RotateSigningSecretResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: RotateSigningSecretResponse): RotateSigningSecretResponse.AsObject;
+  static serializeBinaryToWriter(message: RotateSigningSecretResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RotateSigningSecretResponse;
+  static deserializeBinaryFromReader(message: RotateSigningSecretResponse, reader: jspb.BinaryReader): RotateSigningSecretResponse;
+}
+
+export namespace RotateSigningSecretResponse {
+  export type AsObject = {
+    ref: string,
+    signingSecret: string,
+    signingSecretHint: string,
+  }
+}
+
 export class ProductContainer extends jspb.Message {
   getProductRef(): string;
   setProductRef(value: string): ProductContainer;
@@ -68,6 +216,44 @@ export class Application extends jspb.Message {
   getUpdatedAt(): number;
   setUpdatedAt(value: number): Application;
 
+  getUrl(): string;
+  setUrl(value: string): Application;
+
+  getProtocol(): string;
+  setProtocol(value: string): Application;
+
+  getSigningSecretHint(): string;
+  setSigningSecretHint(value: string): Application;
+
+  getSpeech(): SpeechDefaults | undefined;
+  setSpeech(value?: SpeechDefaults): Application;
+  hasSpeech(): boolean;
+  clearSpeech(): Application;
+
+  getAudio(): AudioFormat | undefined;
+  setAudio(value?: AudioFormat): Application;
+  hasAudio(): boolean;
+  clearAudio(): Application;
+
+  getFallbackAppRef(): string;
+  setFallbackAppRef(value: string): Application;
+
+  getFallbackMessage(): string;
+  setFallbackMessage(value: string): Application;
+
+  getListenersList(): Array<Listener>;
+  setListenersList(value: Array<Listener>): Application;
+  clearListenersList(): Application;
+  addListeners(value?: Listener, index?: number): Listener;
+
+  getRecording(): string;
+  setRecording(value: string): Application;
+
+  getAmd(): AmdSettings | undefined;
+  setAmd(value?: AmdSettings): Application;
+  hasAmd(): boolean;
+  clearAmd(): Application;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Application.AsObject;
   static toObject(includeInstance: boolean, msg: Application): Application.AsObject;
@@ -87,6 +273,16 @@ export namespace Application {
     intelligence?: ProductContainer.AsObject,
     createdAt: number,
     updatedAt: number,
+    url: string,
+    protocol: string,
+    signingSecretHint: string,
+    speech?: SpeechDefaults.AsObject,
+    audio?: AudioFormat.AsObject,
+    fallbackAppRef: string,
+    fallbackMessage: string,
+    listenersList: Array<Listener.AsObject>,
+    recording: string,
+    amd?: AmdSettings.AsObject,
   }
 }
 
@@ -115,6 +311,41 @@ export class CreateApplicationRequest extends jspb.Message {
   hasIntelligence(): boolean;
   clearIntelligence(): CreateApplicationRequest;
 
+  getUrl(): string;
+  setUrl(value: string): CreateApplicationRequest;
+
+  getProtocol(): string;
+  setProtocol(value: string): CreateApplicationRequest;
+
+  getSpeech(): SpeechDefaults | undefined;
+  setSpeech(value?: SpeechDefaults): CreateApplicationRequest;
+  hasSpeech(): boolean;
+  clearSpeech(): CreateApplicationRequest;
+
+  getAudio(): AudioFormat | undefined;
+  setAudio(value?: AudioFormat): CreateApplicationRequest;
+  hasAudio(): boolean;
+  clearAudio(): CreateApplicationRequest;
+
+  getFallbackAppRef(): string;
+  setFallbackAppRef(value: string): CreateApplicationRequest;
+
+  getFallbackMessage(): string;
+  setFallbackMessage(value: string): CreateApplicationRequest;
+
+  getListenersList(): Array<Listener>;
+  setListenersList(value: Array<Listener>): CreateApplicationRequest;
+  clearListenersList(): CreateApplicationRequest;
+  addListeners(value?: Listener, index?: number): Listener;
+
+  getRecording(): string;
+  setRecording(value: string): CreateApplicationRequest;
+
+  getAmd(): AmdSettings | undefined;
+  setAmd(value?: AmdSettings): CreateApplicationRequest;
+  hasAmd(): boolean;
+  clearAmd(): CreateApplicationRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateApplicationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateApplicationRequest): CreateApplicationRequest.AsObject;
@@ -131,12 +362,27 @@ export namespace CreateApplicationRequest {
     textToSpeech?: ProductContainer.AsObject,
     speechToText?: ProductContainer.AsObject,
     intelligence?: ProductContainer.AsObject,
+    url: string,
+    protocol: string,
+    speech?: SpeechDefaults.AsObject,
+    audio?: AudioFormat.AsObject,
+    fallbackAppRef: string,
+    fallbackMessage: string,
+    listenersList: Array<Listener.AsObject>,
+    recording: string,
+    amd?: AmdSettings.AsObject,
   }
 }
 
 export class CreateApplicationResponse extends jspb.Message {
   getRef(): string;
   setRef(value: string): CreateApplicationResponse;
+
+  getSigningSecret(): string;
+  setSigningSecret(value: string): CreateApplicationResponse;
+
+  getSigningSecretHint(): string;
+  setSigningSecretHint(value: string): CreateApplicationResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateApplicationResponse.AsObject;
@@ -149,6 +395,8 @@ export class CreateApplicationResponse extends jspb.Message {
 export namespace CreateApplicationResponse {
   export type AsObject = {
     ref: string,
+    signingSecret: string,
+    signingSecretHint: string,
   }
 }
 
@@ -244,6 +492,41 @@ export class UpdateApplicationRequest extends jspb.Message {
   hasIntelligence(): boolean;
   clearIntelligence(): UpdateApplicationRequest;
 
+  getUrl(): string;
+  setUrl(value: string): UpdateApplicationRequest;
+
+  getProtocol(): string;
+  setProtocol(value: string): UpdateApplicationRequest;
+
+  getSpeech(): SpeechDefaults | undefined;
+  setSpeech(value?: SpeechDefaults): UpdateApplicationRequest;
+  hasSpeech(): boolean;
+  clearSpeech(): UpdateApplicationRequest;
+
+  getAudio(): AudioFormat | undefined;
+  setAudio(value?: AudioFormat): UpdateApplicationRequest;
+  hasAudio(): boolean;
+  clearAudio(): UpdateApplicationRequest;
+
+  getFallbackAppRef(): string;
+  setFallbackAppRef(value: string): UpdateApplicationRequest;
+
+  getFallbackMessage(): string;
+  setFallbackMessage(value: string): UpdateApplicationRequest;
+
+  getListenersList(): Array<Listener>;
+  setListenersList(value: Array<Listener>): UpdateApplicationRequest;
+  clearListenersList(): UpdateApplicationRequest;
+  addListeners(value?: Listener, index?: number): Listener;
+
+  getRecording(): string;
+  setRecording(value: string): UpdateApplicationRequest;
+
+  getAmd(): AmdSettings | undefined;
+  setAmd(value?: AmdSettings): UpdateApplicationRequest;
+  hasAmd(): boolean;
+  clearAmd(): UpdateApplicationRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateApplicationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateApplicationRequest): UpdateApplicationRequest.AsObject;
@@ -261,12 +544,27 @@ export namespace UpdateApplicationRequest {
     textToSpeech?: ProductContainer.AsObject,
     speechToText?: ProductContainer.AsObject,
     intelligence?: ProductContainer.AsObject,
+    url: string,
+    protocol: string,
+    speech?: SpeechDefaults.AsObject,
+    audio?: AudioFormat.AsObject,
+    fallbackAppRef: string,
+    fallbackMessage: string,
+    listenersList: Array<Listener.AsObject>,
+    recording: string,
+    amd?: AmdSettings.AsObject,
   }
 }
 
 export class UpdateApplicationResponse extends jspb.Message {
   getRef(): string;
   setRef(value: string): UpdateApplicationResponse;
+
+  getSigningSecret(): string;
+  setSigningSecret(value: string): UpdateApplicationResponse;
+
+  getSigningSecretHint(): string;
+  setSigningSecretHint(value: string): UpdateApplicationResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateApplicationResponse.AsObject;
@@ -279,6 +577,8 @@ export class UpdateApplicationResponse extends jspb.Message {
 export namespace UpdateApplicationResponse {
   export type AsObject = {
     ref: string,
+    signingSecret: string,
+    signingSecretHint: string,
   }
 }
 
@@ -596,7 +896,7 @@ export namespace TestTokenResponse {
 }
 
 export enum ApplicationType { 
-  EXTERNAL = 0,
+  STREAM = 0,
   AUTOPILOT = 1,
 }
 export enum ExpectedTextType { 

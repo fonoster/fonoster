@@ -19,8 +19,18 @@
 import { createSendEmail as createSendEmailOriginal } from "@fonoster/common";
 import { IdentityConfig } from "../exchanges/types";
 
+const SMTP_NOT_CONFIGURED =
+  "email can't be sent: smtp is not configured (set smtp in the config file)";
+
 function createSendEmail(identityConfig: IdentityConfig) {
   const { smtpConfig } = identityConfig;
+
+  if (!smtpConfig) {
+    return async () => {
+      throw new Error(SMTP_NOT_CONFIGURED);
+    };
+  }
+
   const { host, port, secure, sender, auth } = smtpConfig;
   const { user, pass } = auth;
 
@@ -36,4 +46,4 @@ function createSendEmail(identityConfig: IdentityConfig) {
   });
 }
 
-export { createSendEmail };
+export { createSendEmail, SMTP_NOT_CONFIGURED };

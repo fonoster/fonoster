@@ -1,0 +1,171 @@
+---
+title: "Install with Docker Compose"
+description: "Run Fonoster on one machine with Docker Compose, from download to signed in to the dashboard."
+---
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/install-compose/banner-light.png"
+  alt="One machine, every service: a terminal shows docker compose ps with all eleven Fonoster services up."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/install-compose/banner-dark.png"
+  alt="One machine, every service: a terminal shows docker compose ps with all eleven Fonoster services up."
+/>
+
+In this tutorial you install Fonoster on one machine. At the end, every service is running and you
+are signed in to the dashboard as the owner, ready to make your first call.
+
+## Before you begin
+
+You need:
+
+- [Docker](https://docs.docker.com/get-docker/) with Compose v2 (`docker compose version` prints
+  `v2` or later).
+- [Node.js 22](https://nodejs.org/en/download/) or later. You use it to run the setup tool with `npx`.
+- `curl`.
+- About 6 GB of free disk for the images.
+
+<Note>
+  Fonoster uses port `8449` (dashboard and API), `5060` UDP and TCP (SIP), the UDP ranges
+  `10000-10999` and `11000-11999` (call media), and, on localhost only, `4222` (NATS) and `9000-9001`
+  (MinIO). Stop anything else that uses them, such as another Fonoster install, or change the ports
+  in step 2.
+</Note>
+
+<Note>
+  If this machine ran Fonoster 0.27 or older with Docker Compose, stop it first: run
+  `docker compose down` in its folder. Don't remove its volumes. The new install doesn't use them.
+</Note>
+
+## Install Fonoster
+
+<Steps>
+  <Step title="Download the release">
+    Download the release and unpack it into a new `fonoster` folder:
+
+    ```bash
+    curl -fsSL https://github.com/fonoster/fonoster/releases/download/v0.30.0/fonoster-0.30.0.tar.gz | tar xz
+    cd fonoster
+    ```
+
+    The folder holds `compose.yaml`, `.env.example`, a `config` folder with one example per
+    service, and a `README.md`.
+  </Step>
+
+  <Step title="Generate the configuration">
+    Run `init` to generate the secrets and keys, find this machine's address, and write the
+    configuration:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config init
+    ```
+
+    It prints what it wrote:
+
+    ```text
+    .env written (11 secrets generated)
+    keys: 10 files created in config/keys
+    config: config/autopilot.yaml, config/fonoster.yaml, config/gateway.yaml, config/routr-edgeport.yaml
+    host address: 192.0.2.10
+
+    Next: docker compose up -d
+    ```
+
+    The host address is the one softphones, carriers and browsers use to reach this machine. To use a
+    different one, run `init` again with `--host-ip <address>`.
+
+    <Tip>
+      To change a port, edit it in `.env` (for example `HTTP_PORT=8449` or `SIP_PORT=5060`) and run
+      `init` again, then `docker compose up -d`. `init` keeps every secret and only updates the
+      configuration.
+    </Tip>
+  </Step>
+
+  <Step title="Check the configuration">
+    Validate the configuration before you start:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config check
+    ```
+
+    Each service reports `valid`:
+
+    ```text
+    config/autopilot.yaml: valid
+    config/fonoster.yaml: valid
+    config/gateway.yaml: valid
+    config/medianode.yaml: valid (no schema; values only)
+    config/routr-edgeport.yaml: valid (no schema; values only)
+    ```
+  </Step>
+
+  <Step title="Start Fonoster">
+    Start every service in the background:
+
+    ```bash
+    docker compose up -d
+    ```
+
+    The first start downloads the images, which takes a few minutes. Then list the services to see
+    them running:
+
+    ```bash
+    docker compose ps
+    ```
+
+    You see `apiserver`, `autopilot`, `dashboard`, `envoy`, `gateway`, `medianode`, `minio`, `nats`,
+    `postgres`, `routr` and `rtpengine`, each `Up`.
+  </Step>
+
+  <Step title="Get your login">
+    Print the dashboard address and the owner's login:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config info
+    ```
+
+    ```text
+    Dashboard   http://192.0.2.10:8449
+    Owner       admin@fonoster.local / <generated password>
+    API         192.0.2.10:8449 (gRPC and gRPC-Web, plain HTTP)
+    SIP         192.0.2.10:5060 (UDP and TCP)
+    ```
+  </Step>
+
+  <Step title="Sign in to the dashboard">
+    Open the dashboard address in your browser and sign in with the owner's email and password.
+    If **Choose a workspace** appears, select your workspace.
+  </Step>
+</Steps>
+
+<Check>
+  Fonoster is running and you are signed in as the owner.
+</Check>
+
+## Where your files are
+
+Everything lives in the `fonoster` folder:
+
+| Path           | What it holds                                                    |
+| -------------- | ---------------------------------------------------------------- |
+| `.env`         | Ports, the host address, the owner's login and every generated secret |
+| `config/`      | Each service's settings, written by `init` from the examples. They name secrets as `${NAME}`, which each container reads from `.env` |
+| `config/keys/` | The signing keys                                                  |
+
+<Warning>
+  Back up `.env`. Its encryption key protects the vendor keys you store, and they can't be recovered
+  without it.
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Make your first call" icon="phone">
+    Add a vendor key, create an agent, and call it from a softphone.
+  </Card>
+  <Card title="Configure services" icon="sliders">
+    Change what each service does with the files in `config/`.
+  </Card>
+</CardGroup>

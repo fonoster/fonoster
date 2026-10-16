@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 export * from "./assistants";
+export * from "./config";
 export * from "./GrpcError";
 export * from "./constants";
 export * from "./errors";
@@ -29,6 +30,15 @@ export * from "./types";
 export * from "./utils";
 export * as Validators from "./validators";
 export * from "./validators";
-export * from "./voice";
+export * from "./calls";
 export * from "./countryIsoCodes";
 export * from "./identity";
+export { getRootDomain, setRootDomain } from "./envs";
+export * from "./session";
+export * as Registry from "./registry";
+export * as Webhooks from "./webhooks";
+export * as CellSecrets from "./cellsecrets";
+export * from "./telemetry";
+export * from "./net";
+export * as Sessions from "./sessions";
+export * as RegionHub from "./regions/hub";

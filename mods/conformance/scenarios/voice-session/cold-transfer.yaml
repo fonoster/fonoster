@@ -1,0 +1,12 @@
+format: fonoster.scenario.v1
+name: cold-transfer
+contract: voice-session
+role: app
+spec: "Call control / Cold transfer stays in the room"
+steps:
+  - expect: { type: session.start }
+  - send: { type: transfer, id: t1, to: "+15551234567" }
+  - expect: { type: session.end, reason: transfer }
+    within_ms: 2000
+  - assert:
+      media.commands: { $includes: [{ type: transfer, id: t1, to: "+15551234567", mode: cold }] }

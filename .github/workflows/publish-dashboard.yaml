@@ -72,12 +72,3 @@ jobs:
           tags: |
             fonoster/dashboard:latest
             fonoster/dashboard:${{ env.LERNA_VERSION }}
-          build-args: |
-            DASHBOARD_EDITION=cloud
-            DASHBOARD_VERSION=${{ env.LERNA_VERSION }}
-            DASHBOARD_API_URL=https://api.fonoster.com
-            DASHBOARD_AUTH_GITHUB_ENABLED=true
-            DASHBOARD_AUTH_GITHUB_CLIENT_ID=176eada057a4bbd96736
-            DASHBOARD_AUTH_GITHUB_URL=https://github.com/login/oauth/authorize
-            DASHBOARD_AUTH_GITHUB_CALLBACK_URL=https://app.fonoster.com/oauth/github/callback
-            DASHBOARD_RESET_PASSWORD_URL=https://app.fonoster.com/auth/reset-password

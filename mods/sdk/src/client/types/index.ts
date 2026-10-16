@@ -20,6 +20,8 @@ export * from "./ApplicationsClient";
 
 export * from "./CallsClient";
 
+export * from "./CapabilitiesClient";
+
 export * from "./FonosterClient";
 
 export * from "./IdentityClient";
@@ -27,3 +29,7 @@ export * from "./IdentityClient";
 export * from "./SecretsClient";
 
 export * from "./common";
+
+export * from "./ProvidersClient";
+
+export * from "./WebhooksClient";

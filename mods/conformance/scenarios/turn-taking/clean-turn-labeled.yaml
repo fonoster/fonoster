@@ -1,0 +1,18 @@
+format: fonoster.scenario.v1
+name: clean-turn-labeled
+contract: turn-taking
+role: app
+spec: "Every turn decision is recorded with its outcome / A clean turn is labeled"
+setup:
+  providers:
+    stt: { script: [{ atMs: 400, text: "What are your hours" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.ended, text: "What are your hours" }
+    within_ms: 2500
+  - send: { type: speak, id: r1, text: "We open at nine.", last: true }
+  - expect: { type: output.started, id: r1 }
+  - wait: { ms: 1800 }
+  - assert: { record.events.turn.label: { $includes: [{ label: ok, labelVersion: 2 }] } }

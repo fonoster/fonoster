@@ -1,0 +1,10 @@
+format: fonoster.scenario.v1
+name: invalid-catalog-id
+contract: voice-session
+role: app
+spec: "Streamed speech output / Invalid catalog id"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r3, text: "Hi", last: true, voice: "nobody/nothing" }
+  - expect: { type: error, code: invalid_catalog_id, relatesTo: r3, fatal: false }
+    within_ms: 1000

@@ -1,0 +1,16 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: one-replica-claims
+spec: "Incoming calls are claimed by exactly one gateway replica / One replica claims the call"
+description: The runner plays the claiming gateway; the call stays up and accepts its commands.
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
+  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
+    within_ms: 1000
+    capture: { room: roomRef, caller: participantRef }
+  - send: { type: ring, id: r1, roomRef: "${room}", participantRef: "${caller}" }
+  - expect: { type: ack, id: r1 }
+    within_ms: 2000
+  - expect_none: { type: room.ended }
+    for_ms: 800

@@ -21,6 +21,7 @@ import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import { createPrismaClient } from "../db";
 import { IdentityConfig } from "../exchanges";
+import { passwordColumns } from "../utils/userPasswords";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -53,6 +54,7 @@ async function upsertDefaultUser(
     const validatedRequest = createUserRequestSchema.parse(request);
 
     const { name, email, password } = validatedRequest;
+    const passwordData = password ? await passwordColumns(password) : {};
 
     logger.verbose("call to upsertDefaultUser", {
       email,
@@ -64,7 +66,7 @@ async function upsertDefaultUser(
       update: {
         name,
         email,
-        password: password || undefined,
+        ...passwordData,
         accessKeyId: USER_ACCESS_KEY_ID,
         updatedAt: new Date()
       },
@@ -72,7 +74,7 @@ async function upsertDefaultUser(
         ref: USER_REF,
         name,
         email,
-        password,
+        ...passwordData,
         accessKeyId: USER_ACCESS_KEY_ID
       }
     });

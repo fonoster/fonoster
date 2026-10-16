@@ -26,26 +26,47 @@ import {
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
-import { createCreateCallSubscriber as runCallManager } from "../calls/runCallManager";
+import { connect } from "nats";
+import { getConfig } from "../config";
 import {
   APISERVER_BIND_ADDR,
-  ASTERISK_ARI_PROXY_URL,
-  ASTERISK_ARI_SECRET,
-  ASTERISK_ARI_USERNAME,
+  APP_URL,
   AUTHZ_SERVICE_ENABLED,
   AUTHZ_SERVICE_HOST,
   AUTHZ_SERVICE_METHODS,
   AUTHZ_SERVICE_PORT,
+  CALL_RECORDS,
+  DOMAIN,
   HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
-  NATS_URL
+  NATS,
+  NATS_CONNECTION,
+  REGIONS,
+  SESSION_APPS,
+  WEBHOOKS
 } from "../envs";
-import { connectToAri } from "../voice/connectToAri";
+import { runOutboundCalls } from "../outbound";
+import { subscribeRegistryUsage } from "../providers";
+import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
+import {
+  createSnapshotSources,
+  RegionsConfig,
+  runRegions,
+  withConfigChangeHook
+} from "../regions";
+import {
+  runWebhookFanout,
+  WebhookFanoutConfig
+} from "../webhooks/runWebhookFanout";
 import { allowList } from "./allowList";
+import { prisma } from "./db";
 import { httpBridge } from "./httpBridge";
 import { identityConfig } from "./identityConfig";
 import loadServices from "./loadServices";
+import { workspaceRegionHooks } from "./regionHooks";
 import services from "./services";
+import { apiserverTelemetry } from "./telemetry";
+import { createTelemetryInterceptor } from "./telemetryInterceptor";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -58,28 +79,74 @@ const checkMethodAuthorized = createCheckMethodAuthorized(
 async function runServices() {
   const healthImpl = new HealthImplementation(statusMap);
   const credentials = await getServerCredentials({});
+  // Telemetry first, so refused requests are measured too.
+  const telemetry = createTelemetryInterceptor(apiserverTelemetry());
   const interceptors = AUTHZ_SERVICE_ENABLED
-    ? [authorization, checkMethodAuthorized]
-    : [authorization];
+    ? [telemetry, authorization, checkMethodAuthorized]
+    : [telemetry, authorization];
 
   const server = new grpc.Server({ interceptors });
 
   // Add the health check service to the server
   healthImpl.addToServer(server);
 
-  // Load the remaining services
-  loadServices(server, await services);
+  const loaded = await services;
 
-  // Connecting to Asterisk ARI
-  await connectToAri(httpBridge(identityConfig, { port: HTTP_BRIDGE_PORT }));
-
-  // Additional Call Managers subscriber may be added here to handle call events
-  await runCallManager({
-    natsUrl: NATS_URL,
-    ariProxyUrl: ASTERISK_ARI_PROXY_URL,
-    ariUsername: ASTERISK_ARI_USERNAME,
-    ariPassword: ASTERISK_ARI_SECRET
+  // Private regions (add-private-regions): hub link, config sync, relay and /api/regions
+  const handlers = Object.assign(
+    {},
+    ...loaded.map((s) => s.handlers)
+  ) as Record<string, never>;
+  const regions = await runRegions(REGIONS as RegionsConfig, {
+    db: prisma,
+    identityPublicKey: IDENTITY_PUBLIC_KEY,
+    issuer: REGIONS.controlPlaneUrl ?? APP_URL,
+    defaultControlPlaneUrl: APP_URL,
+    defaultLeafUrl: `tls://${DOMAIN}:7422`,
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    currentVersion: require("../../package.json").version,
+    sources: createSnapshotSources({
+      db: prisma,
+      handlers,
+      callFeatures: getConfig().features.calls
+    }),
+    rootDomain: () => DOMAIN
   });
+  workspaceRegionHooks.attach(regions);
+
+  // Load the remaining services; writes to synced resources notify the config sync
+  loadServices(server, withConfigChangeHook(loaded, regions.onConfigChange));
+
+  // Call records (add-call-record): index consumer, retention and the /api/records routes
+  const records = await runCallRecords(CALL_RECORDS as CallRecordsConfig, {
+    natsUrl: NATS_CONNECTION,
+    identityPublicKey: IDENTITY_PUBLIC_KEY,
+    db: prisma as unknown as RecordsDb,
+    relay: { regionOf: regions.regionOf, client: regions.relay },
+    onConfigChange: regions.onConfigChange
+  });
+
+  httpBridge(identityConfig, {
+    port: HTTP_BRIDGE_PORT,
+    routers: [...records.routers, ...regions.routers]
+  });
+
+  // Bus consumers: webhook fan-out (LO-B1) and the gateways' catalog use (LO-B11)
+  const bus = await connect({ ...NATS, maxReconnectAttempts: -1 });
+  subscribeRegistryUsage(bus, prisma);
+  if (WEBHOOKS.fanout) {
+    await runWebhookFanout(
+      {
+        ...(WEBHOOKS as WebhookFanoutConfig),
+        enabled: true,
+        allowInsecureUrls: SESSION_APPS.allowInsecureWebhooks
+      },
+      { nc: bus, db: prisma }
+    );
+  }
+
+  // CreateCall: places API-originated calls on the media nodes (cleanbreak CB-B2)
+  await runOutboundCalls({ natsUrl: NATS_CONNECTION });
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);

@@ -17,17 +17,16 @@
  * limitations under the License.
  */
 import {
-  assistantSchema,
-  findIntegrationsCredentials,
   getAccessKeyIdFromCall,
-  IntegrationConfig
+  sessionAssistantSchema
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { StepEvaluationReport } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Struct, struct } from "pb-util";
-import { z } from "zod";
 import { createEvalEffectiveConfig } from "./createEvalEffectiveConfig";
 import { runEval } from "./runEval";
+import { runSessionEval, sessionThinkFor } from "./session";
 import {
   evalErrorToEventPayload,
   scenarioSummaryToEventPayload,
@@ -43,7 +42,20 @@ type ServerStreamCall = {
   end: () => void;
 };
 
-function createEvaluateIntelligence(integrations: IntegrationConfig[]) {
+/**
+ * A model provider's key for a workspace: the workspace's own vendor key, else the platform key
+ * by the provider's credentialRef (the control plane decides; integrations.json is gone).
+ */
+export type EvalKeySource = (
+  providerId: string,
+  workspaceRef: string
+) => Promise<string | undefined>;
+
+/**
+ * Runs an assistant's test cases (rework-autopilot 8.2: the assistant is a session assistant; its
+ * catalog id picks the provider, and keys come from `keys`, never from the assistant).
+ */
+function createEvaluateIntelligence(keys: EvalKeySource) {
   const evaluateIntelligence = async (
     call: ServerStreamCall
   ): Promise<void> => {
@@ -54,57 +66,48 @@ function createEvaluateIntelligence(integrations: IntegrationConfig[]) {
       call as unknown as ServerInterceptingCall
     );
 
-    logger.verbose("call to evaluateIntelligence", {
-      accessKeyId,
-      llmProductRef: intelligence.productRef,
-      evalLlmProductRef: "llm.openai"
-    });
-
     try {
       const config = struct.decode(intelligence.config as unknown as Struct);
+      const assistant = sessionAssistantSchema.parse(config);
+      const provider = assistant.languageModel.model.split("/")[0];
+      logger.verbose("call to evaluateIntelligence", {
+        accessKeyId,
+        model: assistant.languageModel.model
+      });
+      const apiKey = await keys(provider, accessKeyId);
+      const evaluationApiKey = await keys("openai", accessKeyId);
+      if (!apiKey && provider !== "ollama")
+        throw new Error(`no ${provider} key for this workspace or platform`);
+      if (!evaluationApiKey)
+        throw new Error(
+          "no openai key for the evaluation model (workspace or platform)"
+        );
 
-      const parsedIntelligence = z
-        .object({
-          productRef: z.string(),
-          config: assistantSchema
-        })
-        .parse({
-          productRef: intelligence.productRef,
-          config
-        });
-
-      const credentials = findIntegrationsCredentials(
-        integrations,
-        intelligence.productRef
-      ) as { apiKey: string };
-
-      const evaluationApiKey = findIntegrationsCredentials(
-        integrations,
-        "llm.openai"
-      ) as { apiKey: string };
-
-      const effectiveConfig = createEvalEffectiveConfig(
-        parsedIntelligence.config,
-        credentials,
-        evaluationApiKey
-      );
-
-      await runEval(
-        { intelligence: { config: effectiveConfig } },
-        {
-          onStepResult: (scenarioRef, stepReport) => {
-            const payload = stepReportToEventPayload(scenarioRef, stepReport);
-            call.write(payload);
-          },
-          onScenarioComplete: (scenarioRef, overallPassed) => {
-            const payload = scenarioSummaryToEventPayload(
-              scenarioRef,
-              overallPassed
-            );
-            call.write(payload);
-          }
+      const callbacks = {
+        onStepResult: (
+          scenarioRef: string,
+          stepReport: StepEvaluationReport
+        ) => {
+          call.write(stepReportToEventPayload(scenarioRef, stepReport));
+        },
+        onScenarioComplete: (scenarioRef: string, overallPassed: boolean) => {
+          call.write(scenarioSummaryToEventPayload(scenarioRef, overallPassed));
         }
-      );
+      };
+
+      // The session engine (streaming replies, structured tool messages) for OpenAI-compatible
+      // providers; the LangChain path stays for the rest until their adapters land (EV-B1).
+      const think = sessionThinkFor(assistant, apiKey);
+      if (think) {
+        await runSessionEval({ assistant, think, evaluationApiKey }, callbacks);
+        return;
+      }
+
+      const effectiveConfig = createEvalEffectiveConfig(assistant, {
+        apiKey,
+        evaluationApiKey
+      });
+      await runEval({ intelligence: { config: effectiveConfig } }, callbacks);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       call.write(evalErrorToEventPayload(message));

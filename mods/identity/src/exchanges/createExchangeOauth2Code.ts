@@ -24,7 +24,13 @@ import {
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
-import { createGetUserByEmail } from "../utils/createGetUserByEmail";
+import { createUserFromGitHub } from "../users/createUserFromGitHub";
+import {
+  isMethodEnabled,
+  isOpenSignup,
+  methodDisabledError
+} from "../utils/authMethods";
+import { createGetUserByGitHubEmails } from "../utils/createGetUserByGitHubEmails";
 import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
 import { exchangeTokens } from "./exchangeTokens";
 import {
@@ -48,13 +54,40 @@ function createExchangeOauth2Code(
 
     logger.verbose("call to exchangeOauth2Code", { provider });
 
+    if (
+      !isMethodEnabled(identityConfig, "github") ||
+      !identityConfig.githubOauth2Config
+    ) {
+      return callback(methodDisabledError("github"));
+    }
+
     const userData = await getGitHubUserWithOauth2Code({
       clientId: identityConfig.githubOauth2Config.clientId,
       clientSecret: identityConfig.githubOauth2Config.clientSecret,
+      url: identityConfig.githubOauth2Config.url,
+      apiUrl: identityConfig.githubOauth2Config.apiUrl,
       code
     });
 
-    const user = await createGetUserByEmail(prisma)(userData.email);
+    if (!userData.email) {
+      return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: "Your GitHub account has no verified primary email"
+      });
+    }
+
+    // First GitHub sign-in creates the account when sign-up is open; invited
+    // users already exist (the invite created them).
+    const user =
+      (await createGetUserByGitHubEmails(prisma)(
+        userData.verifiedEmails ?? [userData.email]
+      )) ??
+      (isOpenSignup(identityConfig)
+        ? await createUserFromGitHub(prisma)({
+            ...userData,
+            email: userData.email
+          })
+        : null);
 
     if (!user) {
       return callback({

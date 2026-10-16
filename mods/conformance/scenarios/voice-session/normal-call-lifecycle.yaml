@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: normal-call-lifecycle
+contract: voice-session
+role: app
+spec: "The gateway produces call lifecycle events / Normal call"
+steps:
+  - expect: { type: session.start }
+  - caller: { hangup: true }
+  - expect: { type: session.end, reason: caller_hangup }
+    within_ms: 1000
+  - wait: { ms: 200 }
+  - assert:
+      webhooks.events:
+        - { type: call.started }
+        - { type: call.ended, endReason: caller_hangup }

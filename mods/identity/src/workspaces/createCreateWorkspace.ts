@@ -24,8 +24,9 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateWorkspaceRequest } from "@fonoster/types";
-import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { WorkspaceRegionHooks } from "../exchanges/types";
 import {
   AccessKeyIdType,
   generateAccessKeyId
@@ -34,31 +35,71 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-function createCreateWorkspace(prisma: Prisma) {
+const DEFAULT_REGION = "default";
+
+type CreateWorkspaceResponse = BaseApiObject & { region: string };
+
+/**
+ * Creates a workspace in one region, for its whole life (add-private-regions PR-1, PR-15): an
+ * offered public region id (default `default`) or one of the caller's private regions (by id or
+ * ref). Private regions are created at the user level, never here.
+ */
+function createCreateWorkspace(prisma: Prisma, regions?: WorkspaceRegionHooks) {
   const createWorkspace = async (
     call: { request: CreateWorkspaceRequest },
-    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
+    callback: (
+      error: GrpcErrorMessage,
+      response?: CreateWorkspaceResponse
+    ) => void
   ) => {
     const { request } = call;
     const { name } = request;
+    const requested = (request as { region?: string }).region || undefined;
 
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const ownerRef = getUserRefFromToken(token);
     const accessKeyId = generateAccessKeyId(AccessKeyIdType.WORKSPACE);
 
-    logger.verbose("call to createWorkspace", { name, ownerRef });
+    logger.verbose("call to createWorkspace", {
+      name,
+      ownerRef,
+      region: requested
+    });
+
+    let region: string;
+    if (regions) {
+      try {
+        region = (await regions.resolveRegion(ownerRef, requested)).region;
+      } catch (e) {
+        callback({
+          code: GRPCStatus.INVALID_ARGUMENT,
+          message: (e as Error).message
+        });
+        return;
+      }
+    } else {
+      region = requested ?? DEFAULT_REGION;
+      if (region !== DEFAULT_REGION) {
+        callback({
+          code: GRPCStatus.INVALID_ARGUMENT,
+          message: `region must be ${DEFAULT_REGION}`
+        });
+        return;
+      }
+    }
 
     const workspace = await prisma.workspace.create({
       data: {
         name,
         accessKeyId,
-        ownerRef
+        ownerRef,
+        region
       }
     });
 
-    const { ref } = workspace;
+    regions?.workspaceChanged({ accessKeyId, region });
 
-    callback(null, { ref });
+    callback(null, { ref: workspace.ref, region });
   };
 
   return withErrorHandlingAndValidation(

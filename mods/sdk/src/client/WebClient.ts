@@ -20,12 +20,15 @@ import { AclsClient } from "../generated/web/AclsServiceClientPb";
 import { AgentsClient } from "../generated/web/AgentsServiceClientPb";
 import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
 import { CallsClient } from "../generated/web/CallsServiceClientPb";
+import { CapabilitiesClient } from "../generated/web/CapabilitiesServiceClientPb";
 import { CredentialsServiceClient } from "../generated/web/CredentialsServiceClientPb";
 import { DomainsClient } from "../generated/web/DomainsServiceClientPb";
 import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
 import { NumbersClient } from "../generated/web/NumbersServiceClientPb";
+import { ProvidersClient } from "../generated/web/ProvidersServiceClientPb";
 import { SecretsClient } from "../generated/web/SecretsServiceClientPb";
 import { TrunksClient } from "../generated/web/TrunksServiceClientPb";
+import { WebhooksClient } from "../generated/web/WebhooksServiceClientPb";
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherWeb } from "./TokenRefresherWeb";
 
@@ -73,6 +76,10 @@ export class WebClient extends AbstractClient {
     return new IdentityClient(this.url, null, null);
   }
 
+  getCapabilitiesClient() {
+    return new CapabilitiesClient(this.url, null, null);
+  }
+
   getSecretsClient() {
     return new SecretsClient(this.url, null, {
       streamInterceptors: [new TokenRefresherWeb(this)]
@@ -113,5 +120,22 @@ export class WebClient extends AbstractClient {
     return new CredentialsServiceClient(this.url, null, {
       streamInterceptors: [new TokenRefresherWeb(this)]
     });
+  }
+
+  getWebhooksClient() {
+    return new WebhooksClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  getProvidersClient() {
+    return new ProvidersClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  /** The HTTP API (call records) is served next to gRPC-Web under /api. */
+  getHttpUrl() {
+    return this.url.replace(/\/+$/, "");
   }
 }

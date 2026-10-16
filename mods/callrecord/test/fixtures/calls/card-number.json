@@ -1,0 +1,33 @@
+{
+  "description": "Recorded inbound call: the caller reads a card number aloud and the agent repeats it in digits. Both turns are masked in the redacted copy and beeped in its recording.",
+  "callRef": "fx-card-number",
+  "audio": {
+    "startMs": 300,
+    "caller": [{ "fromMs": 2200, "toMs": 6000 }],
+    "agent": [
+      { "fromMs": 600, "toMs": 1800 },
+      { "fromMs": 7000, "toMs": 9500 }
+    ]
+  },
+  "entries": [
+    { "atMs": 0, "source": "event", "message": { "type": "call.started", "direction": "inbound", "appRef": "payments", "workspaceRef": "ws-fixtures", "from": "+15550001111", "to": "+15550002222" } },
+    { "atMs": 100, "source": "gateway", "message": { "type": "session.start", "callRef": "fx-card-number", "appRef": "payments", "from": "+15550001111", "to": "+15550002222", "direction": "inbound" } },
+    { "atMs": 300, "source": "event", "message": { "type": "recording.started", "policy": "on" } },
+    { "atMs": 850, "source": "app", "message": { "type": "speak", "id": "s1", "text": "What is your card number?", "last": true } },
+    { "atMs": 900, "source": "gateway", "message": { "type": "output.started", "id": "s1" } },
+    { "atMs": 2100, "source": "gateway", "message": { "type": "output.done", "id": "s1" } },
+    { "atMs": 2500, "source": "gateway", "message": { "type": "turn.user_started" } },
+    { "atMs": 6900, "source": "gateway", "message": { "type": "turn.ended", "text": "It is four one one one one one one one one one one one one one one one", "language": "en", "durationMs": 3800 } },
+    { "atMs": 7250, "source": "app", "message": { "type": "speak", "id": "s2", "text": "I have 4111 1111 1111 1111, thank you.", "last": true } },
+    { "atMs": 7300, "source": "gateway", "message": { "type": "output.started", "id": "s2" } },
+    { "atMs": 9800, "source": "gateway", "message": { "type": "output.done", "id": "s2" } },
+    { "atMs": 10500, "source": "event", "message": { "type": "call.ended", "reason": "caller_hangup" } }
+  ],
+  "expect": {
+    "status": "completed",
+    "redactions": 2,
+    "missing": [],
+    "agents": ["payments"],
+    "recording": "beeped"
+  }
+}

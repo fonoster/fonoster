@@ -36,7 +36,7 @@ const CreateCallSchema = z.object({
   metadata: z
     .record(z.string(), z.any())
     .optional()
-    .describe("The metadata to send to the Voice Application")
+    .describe("The metadata to send to the application")
 });
 
 const CreateCallBatchSchema = z.object({
@@ -47,7 +47,7 @@ const CreateCallBatchSchema = z.object({
   metadata: z
     .record(z.string(), z.any())
     .optional()
-    .describe("The metadata to send to the Voice Application"),
+    .describe("The metadata to send to the application"),
   calls_per_minute: z.number().min(1).max(60).optional().default(20)
 });
 

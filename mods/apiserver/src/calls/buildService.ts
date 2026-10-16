@@ -19,7 +19,12 @@
 import { InfluxDBClient } from "@fonoster/common";
 import { connect } from "nats";
 import { prisma } from "../core/db";
-import { NATS_URL } from "../envs";
+import { CALL_RECORDS, NATS, NATS_CONNECTION } from "../envs";
+import {
+  createFetchCallsFromIndex,
+  createFetchSingleCallFromIndex,
+  RecordsDb
+} from "../records";
 import { createCall } from "./createCall";
 import { createCallPublisher } from "./createCallPublisher";
 import { createTrackCall } from "./createTrackCall";
@@ -27,8 +32,8 @@ import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
 
 async function buildService(influxdb: InfluxDBClient) {
-  const callPublisher = await createCallPublisher(NATS_URL);
-  const nc = await connect({ servers: NATS_URL, maxReconnectAttempts: -1 });
+  const callPublisher = await createCallPublisher(NATS_CONNECTION);
+  const nc = await connect({ ...NATS, maxReconnectAttempts: -1 });
 
   return {
     definition: {
@@ -39,8 +44,20 @@ async function buildService(influxdb: InfluxDBClient) {
     },
     handlers: {
       createCall: createCall(prisma, callPublisher),
-      listCalls: listCalls(influxdb),
-      getCall: getCall(influxdb),
+      // Call history from the call-record index (add-call-record 7.1) when the flag is on; the
+      // InfluxDB CDR path stays until the migration is done.
+      listCalls: CALL_RECORDS.listCallsFromIndex
+        ? listCalls(
+            influxdb,
+            createFetchCallsFromIndex(prisma as unknown as RecordsDb)
+          )
+        : listCalls(influxdb),
+      getCall: CALL_RECORDS.listCallsFromIndex
+        ? getCall(
+            influxdb,
+            createFetchSingleCallFromIndex(prisma as unknown as RecordsDb)
+          )
+        : getCall(influxdb),
       trackCall: createTrackCall(nc)
     }
   };

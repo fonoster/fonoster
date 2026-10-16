@@ -20,6 +20,7 @@ import { createPrismaClient } from "./db";
 import { createExchangeOauth2Code } from "./exchanges/createExchangeOauth2Code";
 import { IdentityConfig } from "./exchanges/types";
 import { createGetPublicKey } from "./getPublicKey";
+import { isMethodEnabled } from "./utils/authMethods";
 import { createSendVerificationCode, createVerifyCode } from "./verification";
 import {
   createCreateApiKey,
@@ -32,6 +33,7 @@ import {
   createExchangeApiKey,
   createExchangeCredentials,
   createExchangeRefreshToken,
+  createExchangeVerificationCode,
   createGetUser,
   createGetWorkspace,
   createInviteUserToWorkspace,
@@ -45,6 +47,7 @@ import {
   createSendResetPasswordCode,
   createUpdateUser,
   createUpdateWorkspace,
+  createWorkspaceDirectory,
   sendInvite
 } from ".";
 
@@ -61,12 +64,15 @@ function buildIdentityService(identityConfig: IdentityConfig) {
     identityConfig.encryptionKey
   );
 
+  // The control plane's regions read workspaces through this (add-private-regions PR-14).
+  identityConfig.regions?.attachDirectory?.(createWorkspaceDirectory(prisma));
+
   const service = {
     definition: serviceDefinitionParams,
     handlers: {
       // Workspace operations
-      createWorkspace: createCreateWorkspace(prisma),
-      deleteWorkspace: createDeleteWorkspace(prisma),
+      createWorkspace: createCreateWorkspace(prisma, identityConfig.regions),
+      deleteWorkspace: createDeleteWorkspace(prisma, identityConfig.regions),
       getWorkspace: createGetWorkspace(prisma),
       updateWorkspace: createUpdateWorkspace(prisma),
       listWorkspaces: createListWorkspaces(prisma),
@@ -84,7 +90,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
         ),
       removeUserFromWorkspace: createRemoveUserFromWorkspace(prisma),
       // User operations
-      createUser: createCreateUser(prisma),
+      createUser: createCreateUser(prisma, identityConfig),
       createUserWithOauth2Code: createCreateUserWithOauth2Code(
         prisma,
         identityConfig
@@ -107,6 +113,10 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       exchangeCredentials: createExchangeCredentials(prisma, identityConfig),
       exchangeOauth2Code: createExchangeOauth2Code(prisma, identityConfig),
       exchangeRefreshToken: createExchangeRefreshToken(prisma, identityConfig),
+      exchangeVerificationCode: createExchangeVerificationCode(
+        prisma,
+        identityConfig
+      ),
       getPublicKey: createGetPublicKey(identityConfig.publicKey),
       // Placeholders for conditional handlers
       sendVerificationCode: undefined as unknown as ReturnType<
@@ -118,7 +128,8 @@ function buildIdentityService(identityConfig: IdentityConfig) {
 
   if (
     identityConfig.contactVerificationRequired ||
-    identityConfig.twoFactorAuthenticationRequired
+    identityConfig.twoFactorAuthenticationRequired ||
+    isMethodEnabled(identityConfig, "email_code")
   ) {
     service.handlers.sendVerificationCode = createSendVerificationCode(
       prisma,

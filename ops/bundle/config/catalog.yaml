@@ -1,0 +1,49 @@
+# The provider catalog: the providers, models and voices the dashboard's pickers offer. The API
+# server loads this file on every start (config/fonoster.yaml: catalog.file): it adds and updates
+# the entries listed here and never removes others.
+# No keys here: providers name a credentialRef. Owners add vendor keys per workspace in the
+# dashboard (Settings, provider keys).
+entries:
+  # ---- providers -------------------------------------------------------------------------
+  - { kind: provider, id: deepgram, adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram-default, state: active }
+  - { kind: provider, id: elevenlabs, adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs-default, state: active }
+  - { kind: provider, id: openai, adapter: openai, capabilities: [llm], credentialRef: openai-default, state: active }
+  - { kind: provider, id: groq, adapter: groq, capabilities: [llm], credentialRef: groq-default, state: active }
+  # ---- models ----------------------------------------------------------------------------
+  - { kind: model, id: deepgram/nova-3, type: stt, features: [streaming, interim-results, word-timings, multilingual], languages: [en, es, multi], settings: [], state: active }
+  - { kind: model, id: deepgram/nova-2-phonecall, type: stt, features: [streaming, interim-results, word-timings], languages: [en], settings: [], state: active }
+  - { kind: model, id: deepgram/aura-2, type: tts, features: [streaming], languages: [en, es], settings: [], state: active }
+  - { kind: model, id: elevenlabs/eleven_flash_v2_5, type: tts, features: [streaming], languages: [en, es, multi], settings: [stability, similarity_boost, style, speed], state: active }
+  - { kind: model, id: openai/gpt-4o-mini, type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
+  # Groq serves OpenAI's open-weight models (catalog id = groq/<Groq model name>). Groq retired
+  # Llama 3.3 70B; assistants that still name it run on gpt-oss-120b (FN-B5).
+  - { kind: model, id: groq/openai/gpt-oss-120b, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
+  - { kind: model, id: groq/openai/gpt-oss-20b, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
+  - { kind: model, id: groq/llama-3.3-70b-versatile, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: retired, replacement: groq/openai/gpt-oss-120b, retireOn: "2026-10-15" }
+  - { kind: model, id: openai/gpt-4.1-mini, type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
+  # ---- voices: Deepgram Aura-2 (catalog id = deepgram/<Deepgram model name>) ---------------
+  - { kind: voice, id: deepgram/aura-2-thalia-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-andromeda-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-helena-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-luna-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-asteria-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-apollo-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-arcas-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-orion-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-zeus-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-draco-en, models: [deepgram/aura-2], language: en-GB, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-celeste-es, models: [deepgram/aura-2], language: es-CO, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-estrella-es, models: [deepgram/aura-2], language: es-MX, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-selena-es, models: [deepgram/aura-2], language: es-419, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-aquila-es, models: [deepgram/aura-2], language: es-419, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-javier-es, models: [deepgram/aura-2], language: es-MX, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-nestor-es, models: [deepgram/aura-2], language: es-ES, gender: male, state: active }
+  # ---- voices: ElevenLabs premade (catalog id = elevenlabs/<voice id>) -------------------
+  - { kind: voice, id: elevenlabs/21m00Tcm4TlvDq8ikWAM, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Rachel
+  - { kind: voice, id: elevenlabs/EXAVITQu4vr4xnSDxMaL, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Sarah
+  - { kind: voice, id: elevenlabs/cgSgspJ2msm6clMCkdW9, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Jessica
+  - { kind: voice, id: elevenlabs/XrExE9yKIg1WjnnlVkGX, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Matilda
+  - { kind: voice, id: elevenlabs/JBFqnCBsd6RMkjVDRZzb, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # George
+  - { kind: voice, id: elevenlabs/nPczCjzI2devNBz1zQrb, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Brian
+  - { kind: voice, id: elevenlabs/cjVigY5qzO86Huf0OWal, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Eric
+  - { kind: voice, id: elevenlabs/onwK4e9ZLuTAKqWW03F9, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Daniel

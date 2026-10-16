@@ -1,0 +1,92 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-gateway
+  labels:
+    app.kubernetes.io/name: gateway
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.gateway.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gateway
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/gateway-config.yaml") . | sha256sum }}
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.gateway.terminationGracePeriodSeconds }}
+      containers:
+        - name: gateway
+          image: "{{ .Values.gateway.image.repository }}:{{ .Values.gateway.image.tag }}"
+          imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
+          env:
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "gateway" "nats" "gateway") | nindent 12 }}
+            - name: POD_IP
+              valueFrom: { fieldRef: { fieldPath: status.podIP } }
+            {{- $db := .Values.gateway.databaseSecret | default (and .Values.regionAgent.enabled .Values.regionAgent.databaseSecret) }}
+            {{- if $db }}
+            # Apps, catalog and webhooks from the control-plane (or, in a private cell, the cell) database.
+            - name: APISERVER_DATABASE_URL
+              valueFrom: { secretKeyRef: { name: {{ $db | quote }}, key: url } }
+            - name: APISERVER_ENCRYPTION_KEY
+              valueFrom: { secretKeyRef: { name: {{ $db | quote }}, key: key } }
+            {{- end }}
+            {{- with .Values.gateway.analyticsSecret }}
+            # ClickHouse credentials for config callRecord.analytics.clickhouse (LO-B6).
+            - name: CLICKHOUSE_USER
+              valueFrom: { secretKeyRef: { name: {{ . | quote }}, key: user } }
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ . | quote }}, key: password } }
+            {{- end }}
+          ports:
+            - { name: http, containerPort: 8080 }
+          volumeMounts:
+            - { name: config, mountPath: /etc/fonoster/gateway.yaml, subPath: gateway.yaml, readOnly: true }
+            {{- include "fonoster-rebuild.secretMounts" (dict "root" $ "names" .Values.gateway.secretMounts) | nindent 12 }}
+            {{- if .Values.regionAgent.enabled }}
+            # A private cell's provider keys (config cellSecrets.dir: /var/lib/fonoster-secrets).
+            - { name: cell-secrets, mountPath: /var/lib/fonoster-secrets, readOnly: true }
+            {{- end }}
+          resources:
+            {{- toYaml .Values.gateway.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-gateway
+        {{- include "fonoster-rebuild.secretVolumes" (dict "root" $ "names" .Values.gateway.secretMounts) | nindent 8 }}
+        {{- if .Values.regionAgent.enabled }}
+        - name: cell-secrets
+          secret: { secretName: {{ .Values.regionAgent.secretsSecret | quote }}, optional: true }
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-gateway
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.gateway.service.type }}
+  selector:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+    - { name: http, port: {{ .Values.gateway.service.port }}, targetPort: http }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}-gateway
+spec:
+  minAvailable: {{ .Values.gateway.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

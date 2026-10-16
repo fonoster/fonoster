@@ -27,9 +27,11 @@ const hostOrIPSchema = z
     message: "Must be a valid IP or FQDN"
   });
 
+// Booleans are optional: the gRPC loader drops proto3 defaults, so `false`
+// arrives as a missing field.
 const createTrunkRequestSchema = z.object({
   name: nameSchema,
-  sendRegister: z.boolean(),
+  sendRegister: z.boolean().optional(),
   inboundUri: hostOrIPSchema,
   uris: z.array(
     z.object({
@@ -39,7 +41,7 @@ const createTrunkRequestSchema = z.object({
       user: z.string().optional(),
       weight: z.number(),
       priority: z.number(),
-      enabled: z.boolean()
+      enabled: z.boolean().optional()
     })
   )
 });

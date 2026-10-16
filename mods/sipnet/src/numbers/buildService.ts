@@ -20,14 +20,17 @@ import { NumberPreconditionsCheck } from "@fonoster/common";
 import SDK from "@routr/sdk";
 import { ClientOptions } from "../types";
 import { createNumber } from "./createNumber";
+import { NumberRouting } from "./engineRouting";
 import { getNumber } from "./getNumber";
 import { listNumbers } from "./listNumbers";
 import { deleteNumber } from "./operations";
 import { updateNumber } from "./updateNumber";
 
+/** `routing` picks the peer app-linked numbers point at (default: the media-node peer). */
 function buildService(
   clientOptions: ClientOptions,
-  checkNumberPreconditions: NumberPreconditionsCheck
+  checkNumberPreconditions: NumberPreconditionsCheck,
+  routing?: NumberRouting
 ) {
   const client = new SDK.Numbers(clientOptions);
 
@@ -39,8 +42,8 @@ function buildService(
       proto: "numbers.proto"
     },
     handlers: {
-      createNumber: createNumber(client, checkNumberPreconditions),
-      updateNumber: updateNumber(client, checkNumberPreconditions),
+      createNumber: createNumber(client, checkNumberPreconditions, routing),
+      updateNumber: updateNumber(client, checkNumberPreconditions, routing),
       getNumber: getNumber(client),
       listNumbers: listNumbers(client),
       deleteNumber: deleteNumber(client)

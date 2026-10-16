@@ -1,0 +1,19 @@
+format: fonoster.scenario.v1
+name: handoff
+contract: voice-session
+role: app
+spec: "Handoff between apps / IVR hands off to Autopilot"
+description: app-1 (the IVR) hands off to app-2 in the same workspace; the caller stays connected.
+setup:
+  app: { workspaceRef: WS-conformance }
+steps:
+  - expect: { type: session.start, appRef: app-1 }
+  - send: { type: handoff, app: app-2, payload: { accountId: "42" } }
+  - expect: { type: session.end, reason: handoff }
+    within_ms: 2000
+  - expect_close: {}
+    within_ms: 1000
+  - wait: { ms: 500 }
+  - assert:
+      other_app.messages: { $includes: [{ type: session.start, appRef: app-2, handoff: { accountId: "42" } }] }
+      media.commands: { $excludes: [{ type: hangup }] }

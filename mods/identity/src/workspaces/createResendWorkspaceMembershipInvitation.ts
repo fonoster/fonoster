@@ -33,8 +33,11 @@ import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites";
 import { createSendEmail } from "../utils";
+import { isMethodEnabled } from "../utils/authMethods";
 import { createGenerateWorkspaceInviteToken } from "../utils/createGenerateWorkspaceInviteToken";
+import { generateOneTimePassword } from "../utils/generateOneTimePassword";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
+import { passwordColumns } from "../utils/userPasswords";
 import { createIsAdminMember } from "./createIsAdminMember";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
@@ -109,11 +112,26 @@ function createResendWorkspaceMembershipInvitation(
       expiresIn: identityConfig.workspaceInviteExpiration
     });
 
+    // Stored passwords can't be read back (they are digests). An invitee who
+    // never replaced their one-time password gets a new one.
+    const oneTimePassword =
+      member.user.mustChangePassword &&
+      isMethodEnabled(identityConfig, "password")
+        ? generateOneTimePassword()
+        : undefined;
+
+    if (oneTimePassword) {
+      await prisma.user.update({
+        where: { ref: member.user.ref },
+        data: await passwordColumns(oneTimePassword)
+      });
+    }
+
     await sendInvite(createSendEmail(identityConfig), {
       recipient: member.user.email,
-      oneTimePassword: member.user.password,
+      oneTimePassword,
       workspaceName: member.workspace.name,
-      isExistingUser: true,
+      isExistingUser: !oneTimePassword,
       inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`
     });
 

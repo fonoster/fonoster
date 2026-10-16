@@ -1,0 +1,31 @@
+# Defaults for the local rebuild stack (`ops/rebuild/stack`). Copied once into
+# ops/rebuild/.local/stack.env, which you may edit; secrets are generated there, never here. The
+# stack maps these to the bundle's names (ops/bundle/.env.example) in .local/bundle.env.
+#
+# Host ports live in 16000-16999 so the stack runs next to a legacy Fonoster stack (5060-5063,
+# 8449, 50051, 4222, 5432, 8080, ...).
+COMPOSE_PROJECT_NAME=rb-stack
+RB_CONFIG_DIR=./.local/config
+# Local image names (rb-stack/<service>:dev), built from this checkout.
+RB_REGISTRY=rb-stack
+RB_TAG=dev
+
+# Envoy: the dashboard and the API (gRPC, gRPC-Web and /api) on one port.
+RB_API_PORT=16449
+# Routr SIP (UDP and TCP). Routr also listens on this port inside its container, so the port
+# in Via and Record-Route is the one softphones reach.
+RB_SIP_PORT=16060
+RB_NATS_PORT=16222
+RB_GATEWAY_PORT=16808
+RB_MINIO_PORT=16900
+RB_MINIO_CONSOLE_PORT=16901
+RB_CALLER_PORT=16080
+# RTPEngine (carrier and softphone media) and the media node's RTP range.
+RTPENGINE_PORT_MIN=16100
+RTPENGINE_PORT_MAX=16199
+RB_NODE_RTP_MIN=16200
+RB_NODE_RTP_MAX=16299
+
+# The stack's private network. Routr, RTPEngine, the media node, the gateway and the caller bot get
+# fixed addresses in it (RB_NET.40-.44); change it if it collides with one of your networks.
+RB_NET=10.216.16

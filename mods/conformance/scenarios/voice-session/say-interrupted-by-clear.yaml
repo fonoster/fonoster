@@ -1,0 +1,20 @@
+format: fonoster.scenario.v1
+name: say-interrupted-by-clear
+contract: voice-session
+role: app
+spec: "One output queue / Clear"
+tags: [timing]
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: s1, text: "Hello there, how are you today? I have a lot to tell you.", last: true }
+    label: speak
+  - expect: { type: output.started, id: s1 }
+    budget_ms: 500
+  - wait: { ms: 300 }
+  - send: { type: clear }
+    label: clear
+  - expect: { type: output.interrupted, id: s1, heardText: "*", heardMs: { $gte: 1 } }
+    within_ms: 1000
+  - wait: { ms: 150 }
+  - assert: { media.output_silent_within_ms: { $lte: 40 } }
+    from: clear

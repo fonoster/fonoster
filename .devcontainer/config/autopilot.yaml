@@ -1,0 +1,10 @@
+# Dev layer over .dev/config/autopilot.yaml (fonoster-config render --overlay). Your own
+# overrides: .dev/overlay/autopilot.yaml.
+#
+# The catalog's language models answer through the fake LLM (npm run dev:fakes), no vendor keys.
+credentials:
+  groq-default: { value: fake }
+  openai-default: { value: fake }
+endpoints:
+  groq: "http://localhost:7003"
+  openai: "http://localhost:7003"

@@ -17,36 +17,65 @@
  * limitations under the License.
  */
 import {
-  createSendEmail,
   createSendSmsTwilioImpl,
   GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { Metadata, status } from "@grpc/grpc-js";
+import { VERIFICATION_CODE_SEND_LIMITS } from "../constants";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
+import { createSendEmail } from "../utils/createSendEmail";
+import { createRateLimiter } from "../utils/rateLimiter";
 import { sendVerificationEmail } from "./sendVerificationEmail";
 import { sendVerificationMessage } from "./sendVerificationMessage";
 import { ContactType, SendVerificationCodeRequest } from "./types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
+type CallWithPeer = {
+  request: SendVerificationCodeRequest;
+  metadata?: Metadata;
+  getPeer?: () => string;
+};
+
+/** The caller's address: Envoy's x-forwarded-for when present, else the peer. */
+function clientAddress(call: CallWithPeer): string {
+  const forwarded = call.metadata?.get("x-forwarded-for")?.[0]?.toString();
+  return forwarded?.split(",")[0].trim() || call.getPeer?.() || "unknown";
+}
+
+const tooManyRequests = {
+  code: status.RESOURCE_EXHAUSTED,
+  message: "Too many verification codes requested; try again later"
+};
+
 function createSendVerificationCode(
   prisma: Prisma,
   identityConfig: IdentityConfig
 ) {
   const sendSms = createSendSmsTwilioImpl(identityConfig.twilioSmsConfig);
-  const sendEmail = createSendEmail(identityConfig.smtpConfig);
+  const sendEmail = createSendEmail(identityConfig);
   const generateVerificationCode = createGenerateVerificationCode(prisma);
+  const { perEmail, perIp, windowMs } = VERIFICATION_CODE_SEND_LIMITS;
+  const withinContactLimit = createRateLimiter({ limit: perEmail, windowMs });
+  const withinIpLimit = createRateLimiter({ limit: perIp, windowMs });
 
+  // The response never says whether the contact belongs to an account.
   const fn = async (
-    call: { request: SendVerificationCodeRequest },
+    call: CallWithPeer,
     callback: (error: GrpcErrorMessage) => void
   ) => {
     const { request } = call;
     const actualContactType = request.contactType ?? ContactType.EMAIL;
+    const contact = `${actualContactType}:${request.value.toLowerCase()}`;
+
+    if (!withinIpLimit(clientAddress(call)) || !withinContactLimit(contact)) {
+      return callback(tooManyRequests);
+    }
 
     const verificationCode = await generateVerificationCode({
       type: actualContactType,

@@ -1,0 +1,18 @@
+format: fonoster.scenario.v1
+name: mark-reached
+contract: twilio-media-streams-flavor
+role: app
+spec: "Clear and mark follow Twilio semantics / Mark reached"
+setup:
+  app: { protocol: twilio }
+ignore: [media]
+steps:
+  - expect: { event: start }
+    capture: { sid: streamSid }
+  - send_audio: { ms: 1000, kind: tone, realtime: false }
+    label: audio
+  - send: { event: mark, streamSid: "${sid}", mark: { name: m1 } }
+  - expect: { event: mark, mark: { name: m1 } }
+    from: audio
+    not_before_ms: 850
+    within_ms: 1600

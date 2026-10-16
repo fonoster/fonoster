@@ -1,0 +1,20 @@
+# gateway.yaml: the VoiceSessionGateway's only configuration (one YAML per service, no .env).
+# Secrets may be inline or secret:// references.
+nats:
+  url: nats://nats:4222
+  user: gateway
+  password: secret://env/NATS_GATEWAY_PASSWORD
+rtp:
+  host: 0.0.0.0
+  advertiseHost: gateway
+apps: []
+providers: {}
+# Twilio-compatible Calls endpoint and keys; uncomment to serve it on :8080.
+# http:
+#   port: 8080
+#   accountSid: ACchange-me
+#   authToken: change-me
+# callRecord:
+#   dir: /var/lib/fonoster/records
+#   region: default
+#   signingKey: { kid: k1, privateKeyFile: /etc/fonoster/keys/records.pem }

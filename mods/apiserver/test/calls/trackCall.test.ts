@@ -18,7 +18,8 @@
  * limitations under the License.
  */
 import { DialStatus } from "@fonoster/common";
-import * as chai from "chai"; import { expect } from "chai";
+import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { NatsConnection } from "nats";
 import { createSandbox } from "sinon";
@@ -46,25 +47,77 @@ describe("@calls/trackCall", function () {
     };
 
     const subscription = { callback: sandbox.stub() };
-    const nc = { subscribe: sandbox.stub().returns(subscription) } as unknown as NatsConnection;
+    const nc = {
+      subscribe: sandbox.stub().returns(subscription)
+    } as unknown as NatsConnection;
 
     const trackCall = createTrackCall(nc);
 
     trackCall(call, () => {});
 
     const msg = {
-      json: sandbox.stub().onFirstCall().returns({ ref: callRef, status: DialStatus.TRYING })
-        .onSecondCall().returns({ ref: callRef, status: DialStatus.PROGRESS })
-        .onThirdCall().returns({ ref: callRef, status: DialStatus.ANSWER })
+      json: sandbox
+        .stub()
+        .onFirstCall()
+        .returns({ ref: callRef, status: DialStatus.TRYING })
+        .onSecondCall()
+        .returns({ ref: callRef, status: DialStatus.PROGRESS })
+        .onThirdCall()
+        .returns({ ref: callRef, status: DialStatus.ANSWER })
     };
 
     subscription.callback(null, msg);
     subscription.callback(null, msg);
     subscription.callback(null, msg);
 
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.TRYING });
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.PROGRESS });
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.ANSWER });
+    expect(call.write).to.have.been.calledWith({
+      ref: callRef,
+      status: DialStatus.TRYING
+    });
+    expect(call.write).to.have.been.calledWith({
+      ref: callRef,
+      status: DialStatus.PROGRESS
+    });
+    expect(call.write).to.have.been.calledWith({
+      ref: callRef,
+      status: DialStatus.ANSWER
+    });
   });
 
+  it("replays statuses that came before TrackCall and ends on the final message", async function () {
+    const clock = sandbox.useFakeTimers();
+    const { createTrackCall } = await import("../../src/calls/createTrackCall");
+    const callRef = "9b2f1a8e-1c4d-4f7a-8e2b-3d5c6a7b8c9d";
+    const subscription = { callback: sandbox.stub() };
+    const nc = {
+      subscribe: sandbox.stub().returns(subscription)
+    } as unknown as NatsConnection;
+    const trackCall = createTrackCall(nc);
+    const send = (m: Record<string, unknown>) =>
+      subscription.callback(null, { json: () => m });
+
+    send({ ref: callRef, status: DialStatus.TRYING });
+    send({ ref: callRef, status: DialStatus.PROGRESS });
+
+    const call = {
+      write: sandbox.stub(),
+      end: sandbox.stub(),
+      request: { ref: callRef }
+    };
+    await trackCall(call, () => {});
+    expect(call.write.firstCall.args[0]).to.deep.equal({
+      ref: callRef,
+      status: DialStatus.TRYING
+    });
+    expect(call.write.secondCall.args[0]).to.deep.equal({
+      ref: callRef,
+      status: DialStatus.PROGRESS
+    });
+
+    send({ ref: callRef, status: DialStatus.ANSWER });
+    send({ ref: callRef, final: true });
+    clock.tick(600);
+    expect(call.write).to.have.callCount(3);
+    expect(call.end).to.have.been.calledOnce;
+  });
 });

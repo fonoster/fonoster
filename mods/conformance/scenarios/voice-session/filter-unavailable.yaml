@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: filter-unavailable
+contract: voice-session
+role: app
+spec: "Audio filters come from app configuration / Filter unavailable"
+setup:
+  app: { filters: [{ name: does-not-exist }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Still here.", last: true }
+  - expect: { type: output.done, id: r1 }
+    within_ms: 5000
+  - assert:
+      record.messages.filter.failed: { $includes: [{ reason: { $contains: does-not-exist } }] }

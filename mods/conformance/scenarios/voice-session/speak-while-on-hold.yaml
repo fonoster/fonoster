@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: speak-while-on-hold
+contract: voice-session
+role: app
+spec: "Call control / Speaking while on hold"
+steps:
+  - expect: { type: session.start }
+  - send: { type: hold, id: h1 }
+  - wait: { ms: 100 }
+  - send: { type: speak, id: r1, text: "Are you still there?", last: true }
+  - expect: { type: error, code: on_hold, relatesTo: r1, fatal: false }
+    within_ms: 500
+  - expect_none: { type: output.started }
+    for_ms: 300

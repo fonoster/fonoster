@@ -1,0 +1,16 @@
+format: fonoster.scenario.v1
+name: prepare-then-speak
+contract: turn-taking
+role: app
+spec: "The Pacing policy derives turn events from the estimate / Prepare, then speak"
+setup:
+  providers:
+    stt: { script: [{ atMs: 500, text: "I want to pay my bill" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.likely_ended, text: "I want to pay my bill" }
+    within_ms: 2000
+  - expect: { type: turn.ended, text: "I want to pay my bill", language: "*", confidence: "*", durationMs: { $gte: 0 } }
+    within_ms: 1500

@@ -17,9 +17,5 @@
  * limitations under the License.
  */
 export * from "./tools";
-export * from "./audioFiltersSchema";
-export * from "./assistantSchema";
-export * from "./LanguageModelProvider";
-export * from "./conversationSettingsSchema";
-export * from "./languageModelConfigSchema";
-export * from "./eventsHookSchema";
+export * from "./sessionAssistantSchema";
+export * from "./testCasesSchema";

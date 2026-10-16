@@ -1,0 +1,135 @@
+/*
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.providers.v1beta2;
+
+// The provider catalog (read-only) and the workspace's own vendor keys (add-provider-registry)
+service Providers {
+  // Catalog entries this workspace can use: providers, models and voices (not retired)
+  rpc ListCatalog(ListCatalogRequest) returns (ListCatalogResponse) {}
+  // Store or replace the workspace's key for a provider (kept in a write-only Secret)
+  rpc SetProviderKey(SetProviderKeyRequest) returns (ProviderKey) {}
+  // The workspace's provider keys (never the key itself)
+  rpc ListProviderKeys(ListProviderKeysRequest) returns (ListProviderKeysResponse) {}
+  // Remove the workspace's key for a provider (and its Secret)
+  rpc DeleteProviderKey(DeleteProviderKeyRequest) returns (DeleteProviderKeyResponse) {}
+  // Deprecated or retired items this workspace uses, with where they are used
+  rpc ListWarnings(ListWarningsRequest) returns (ListWarningsResponse) {}
+}
+
+message CatalogItem {
+  // Catalog id, e.g. deepgram/nova-3 or elevenlabs/rachel; a provider's id has no slash
+  string id = 1;
+  // provider, model or voice
+  string kind = 2;
+  // active or deprecated
+  string state = 3;
+  // The provider id (the item's own id for providers)
+  string provider_id = 4;
+  // Models: stt, tts or llm
+  string type = 5;
+  // Providers: capabilities (stt, tts, llm)
+  repeated string capabilities = 6;
+  // Models: languages; voices: their language
+  repeated string languages = 7;
+  // Models: features
+  repeated string features = 8;
+  // Voices: the models they work on
+  repeated string models = 9;
+  // Voices: gender, when known
+  string gender = 10;
+  // Deprecated items: the suggested replacement and the retirement date (YYYY-MM-DD)
+  string replacement = 11;
+  string retire_on = 12;
+}
+
+message ListCatalogRequest {
+  // Optional: provider, model or voice
+  string kind = 1;
+  // Optional: stt, tts or llm (models and providers)
+  string type = 2;
+}
+
+message ListCatalogResponse {
+  repeated CatalogItem items = 1;
+}
+
+message ProviderKey {
+  string ref = 1;
+  string provider_id = 2;
+  // The Secret holding the key
+  string secret_ref = 3;
+  int32 created_at = 4;
+  int32 updated_at = 5;
+}
+
+message SetProviderKeyRequest {
+  string provider_id = 1;
+  // The vendor key; write-only
+  string key = 2;
+}
+
+message ListProviderKeysRequest {}
+
+message ListProviderKeysResponse {
+  repeated ProviderKey items = 1;
+}
+
+message DeleteProviderKeyRequest {
+  string provider_id = 1;
+}
+
+message DeleteProviderKeyResponse {
+  string provider_id = 1;
+}
+
+message WarningUse {
+  // app or assistant
+  string kind = 1;
+  string ref = 2;
+  string name = 3;
+  // The config field naming the item: voice, ttsModel, sttModel or llm
+  string field = 4;
+  // For a TTS model: the voice the config uses with it (e.g. the workspace's cloned voice)
+  string voice = 5;
+}
+
+message Warning {
+  string id = 1;
+  // provider, model or voice
+  string kind = 2;
+  // deprecated or retired
+  string state = 3;
+  string replacement = 4;
+  string retire_on = 5;
+  // Saved configs that reference the item
+  repeated WarningUse used_by = 6;
+  // Apps whose sessions used it in the last days, including ids no saved config names
+  repeated string runtime_apps = 7;
+  int32 runtime_sessions = 8;
+  // ISO 8601; empty without recent runtime use
+  string last_used_at = 9;
+}
+
+message ListWarningsRequest {}
+
+message ListWarningsResponse {
+  repeated Warning items = 1;
+}

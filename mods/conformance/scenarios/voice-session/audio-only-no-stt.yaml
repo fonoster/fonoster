@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: audio-only-no-stt
+contract: voice-session
+role: app
+spec: "Turn-taking runs in the gateway's Speech layer / Audio-only sessions do not require turn-taking"
+description: An app that only exchanges audio never starts speech recognition or turn events.
+setup:
+  providers:
+    stt: { script: [{ atMs: 300, text: "Hello there" }] }
+steps:
+  - expect: { type: session.start }
+  - send_audio: { ms: 400, kind: tone, realtime: false }
+  - expect_none: { type: turn.user_started }
+    for_ms: 1500
+  - assert: { providers.stt.requests: 0 }

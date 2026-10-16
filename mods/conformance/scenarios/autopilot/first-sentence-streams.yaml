@@ -1,0 +1,38 @@
+format: fonoster.scenario.v1
+name: first-sentence-streams
+contract: autopilot
+role: gateway
+spec: "Replies stream into speech / First sentence starts before generation ends"
+setup:
+  assistant:
+    conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong." }
+    languageModel: { model: fake/llm }
+  providers:
+    llm: { script: [{ content: "Sure. We open at nine. We close at five.", chunkDelayMs: 300 }] }
+steps:
+  - send:
+      type: session.start
+      protocol: fonoster.session.v1
+      sessionRef: sess-1
+      callRef: call-1
+      appRef: app-1
+      direction: inbound
+      from: "+15550001111"
+      to: "+15550002222"
+      metadata: {}
+      handoff: null
+      audio: { codec: pcm16, rate: 16000 }
+      tracks:
+        - { id: 1, side: inbound, kind: audio, codec: pcm16 }
+        - { id: 2, side: outbound, kind: audio, codec: pcm16 }
+      speech: { voice: fonoster/default, language: en-US }
+  - send: { type: turn.ended, text: "What are your hours?", language: en-US, confidence: 0.9, durationMs: 900 }
+    label: turn
+  - expect: { type: speak, text: "Sure. ", last: false }
+    capture: { rid: id }
+    from: turn
+    within_ms: 250
+  - expect: { type: speak, id: "${rid}", text: "We open at nine. ", last: false }
+  - expect: { type: speak, id: "${rid}", last: true }
+    from: turn
+    not_before_ms: 600

@@ -4,5 +4,8 @@
   ],
   "ignore": [
     "**/node_modules/**"
+  ],
+  "require": [
+    "mods/apiserver/test/setupConfig.ts"
   ]
 }

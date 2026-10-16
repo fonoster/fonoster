@@ -26,6 +26,7 @@ import { ContactType, ResetPasswordRequest } from "@fonoster/types";
 import { status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
+import { passwordColumns } from "../utils/userPasswords";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -39,11 +40,7 @@ function createResetPassword(prisma: Prisma) {
     const { request } = call;
     const { username, password, verificationCode } = request;
 
-    logger.verbose("call to resetPassword", {
-      username,
-      password,
-      verificationCode
-    });
+    logger.verbose("call to resetPassword", { username });
 
     const isValid = await isValidVerificationCode({
       type: ContactType.EMAIL,
@@ -60,7 +57,7 @@ function createResetPassword(prisma: Prisma) {
 
     await prisma.user.update({
       where: { email: username },
-      data: { password }
+      data: { ...(await passwordColumns(password)), mustChangePassword: false }
     });
 
     callback(null);

@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: unknown-message-ignored
+contract: voice-session
+role: app
+spec: "Message envelope and versioning / Unknown message from the app"
+steps:
+  - expect: { type: session.start }
+  - send: { type: future.thing, someField: 42 }
+  - expect_none: { type: session.end }
+    for_ms: 500
+  - expect_none: { type: error, fatal: true }
+    for_ms: 1
+  - send: { type: speak, id: r1, text: "Still here.", last: true }
+  - expect: { type: output.started, id: r1 }

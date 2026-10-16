@@ -20,6 +20,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { AmdStatus } from "@fonoster/common";
 import { expect } from "chai";
+import { releaseAmdModel } from "../../src/amd/AmdModel";
 import {
   classifyPcm,
   mapLabelToStatus,
@@ -29,6 +30,9 @@ import {
 const FIXTURES = join(__dirname, "fixtures");
 
 describe("@amd/AmdModel", function () {
+  // ONNX Runtime aborts the process at exit if its session is still alive.
+  after(() => releaseAmdModel());
+
   describe("mapLabelToStatus", function () {
     const cases: [string | undefined, AmdStatus][] = [
       ["human", AmdStatus.HUMAN],

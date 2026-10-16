@@ -16,23 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from "fs";
-import path from "path";
-import { Readable } from "stream";
 import {
   createUpdateMembershipStatus,
   IdentityConfig
 } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import express, { Request, Response } from "express";
+import express, { Request, Response, Router } from "express";
 import { APP_URL } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
+function httpBridge(
+  identityConfig: IdentityConfig,
+  params: { port: number; routers?: { path: string; router: Router }[] }
+) {
   const { port } = params;
   const app = express();
-  const streamMap = new Map<string, Readable>();
+  for (const r of params.routers ?? []) app.use(r.path, r.router);
 
   app.get(
     "/api/identity/accept-invite",
@@ -49,36 +49,9 @@ function httpBridge(identityConfig: IdentityConfig, params: { port: number }) {
     }
   );
 
-  app.get("/api/recordings/:id", (req: Request, res: Response) => {
-    const RECORDINGS_PATH = path.join(
-      "/opt/fonoster/recordings",
-      req.params.id as string
-    );
-    const wave = fs.readFileSync(RECORDINGS_PATH);
-    res.setHeader("content-type", "audio/wav");
-    res.send(wave);
-  });
-
   app.listen(port, () => {
     logger.info(`HTTP bridge is running on port ${port}`);
   });
-
-  return {
-    addStream: (id: string, stream: Readable) => {
-      streamMap.set(id, stream);
-    },
-    removeStream: (id: string) => {
-      logger.verbose(`removing stream with id: ${id}`);
-      const stream = streamMap.get(id);
-      if (stream) {
-        stream.destroy();
-      }
-      streamMap.delete(id);
-    },
-    getStream: (id: string) => {
-      return streamMap.get(id);
-    }
-  };
 }
 
 export { httpBridge };

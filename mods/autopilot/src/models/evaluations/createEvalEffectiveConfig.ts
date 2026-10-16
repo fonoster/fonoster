@@ -16,24 +16,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AssistantConfig } from "../../assistants";
+import { SessionAssistant, testCasesSchema } from "@fonoster/common";
+import { EvalAssistant, LlmProvider } from "../types";
 
+const LLM_PROVIDERS: LlmProvider[] = [
+  "openai",
+  "groq",
+  "ollama",
+  "google",
+  "anthropic"
+];
+
+/**
+ * The session assistant as the evaluations run it: the catalog id split into provider and model,
+ * with the keys the caller resolved (never stored in the assistant).
+ */
 export function createEvalEffectiveConfig(
-  config: AssistantConfig,
-  credentials: { apiKey: string },
-  evaluationApiKey: { apiKey: string }
-) {
+  assistant: SessionAssistant,
+  keys: { apiKey?: string; evaluationApiKey?: string }
+): EvalAssistant {
+  const [provider, ...rest] = assistant.languageModel.model.split("/");
+  if (!LLM_PROVIDERS.includes(provider as LlmProvider))
+    throw new Error(`evaluations do not support ${provider} models`);
+  const testCases = testCasesSchema.parse(assistant.testCases);
+  const {
+    provider: _p,
+    apiKey: _k,
+    baseUrl: _b,
+    ...languageModel
+  } = assistant.languageModel;
+  void _p;
+  void _k;
+  void _b;
   return {
-    ...config,
+    conversationSettings: assistant.conversationSettings,
     languageModel: {
-      ...config.languageModel,
-      apiKey: credentials.apiKey
+      ...languageModel,
+      provider: provider as LlmProvider,
+      model: rest.join("/"),
+      apiKey: keys.apiKey
     },
     testCases: {
-      ...config.testCases,
+      ...testCases,
       evalsLanguageModel: {
-        ...config.testCases.evalsLanguageModel,
-        apiKey: evaluationApiKey.apiKey
+        ...testCases.evalsLanguageModel,
+        apiKey: keys.evaluationApiKey
       }
     }
   };

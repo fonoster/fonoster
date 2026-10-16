@@ -1,0 +1,26 @@
+format: fonoster.scenario.v1
+name: turn-aware-stt
+contract: turn-taking
+role: app
+spec: "Detectors are pluggable behind one interface / A turn-aware STT as the Detector"
+description: >
+  With detector stt, the recognizer's turn signals drive the estimate: its eot 0.6 gives
+  turn.likely_ended and its end-of-turn gives turn.ended, the same events as the baseline.
+setup:
+  app: { speech: { detector: stt } }
+  providers:
+    stt:
+      script:
+        - { atMs: 500, text: "I want to pay my bill", eot: 0.6 }
+        - { atMs: 1300, text: "", endOfTurn: true }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.user_started }
+    within_ms: 1000
+  - expect: { type: turn.likely_ended, text: "I want to pay my bill" }
+    within_ms: 2000
+  - expect: { type: turn.ended, text: "I want to pay my bill", language: "*", confidence: "*", durationMs: { $gte: 0 } }
+    within_ms: 1500
+  - assert: { record.events.turn.decision: { $includes: [{ event: turn.ended, detector: stt@1 }] } }

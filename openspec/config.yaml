@@ -17,18 +17,42 @@ context: |
   - `mods/sdk` — `@fonoster/sdk`: client SDK with `Users`/`Workspaces`/`ApiKeys` wrappers over
     generated gRPC stubs, targeting a single Fonoster `apiserver` endpoint; stateful single-principal
     (accessKeyId + token refresher).
-  - `mods/common` — `createServiceDefinition`, auth interceptor, proto loading.
+  - `mods/common` — `createServiceDefinition`, auth interceptor, proto loading, and the shared
+    config loader (`src/config/`).
+  - `mods/autopilot` — the AI voice agent runtime, deployed and scaled separately from the
+    apiserver.
+  - `mods/dashboard` — web app (being rebuilt as a plain Vite SPA in `dashboard-tailwind-migration`); the browser SDK talks gRPC-web to the apiserver through Envoy.
+  - `mods/logger` — shared winston logger used by every service.
+
+  Fonoster ships as three deployables — **apiserver** (with Identity embedded), **autopilot**,
+  and **dashboard** — next to third-party containers (Routr, Asterisk, RTPEngine, Postgres,
+  InfluxDB, NATS) that keep their own env-based configuration. It is offered as a self-hosted
+  Community install and as a Cloud service; behavior differences are expressed as `features`
+  in config, never as an "edition" flag in code.
 
   ## Context for changes
 
-  External products (e.g. QCobro, an AI-voice collections app) want to **reuse Fonoster
-  Identity** without running the telephony monolith. Today they must hand-wire their own
-  gRPC server around `buildIdentityService`, vendor the proto + generate a client, and vendor
-  the Prisma schema. These OpenSpec changes aim to make Identity consumable as (a) a standalone
-  service, (b) a client package, and (c) a multi-product identity store.
+  - **Identity reuse** (`identity-standalone-service`, `identity-client`,
+    `identity-multi-product`): external products (e.g. QCobro) want to reuse Fonoster Identity
+    without running the telephony monolith.
+  - **Platform refresh** (`unified-service-config` → `identity-auth-modes` →
+    `dashboard-tailwind-migration`, on one branch): replace ~90 env vars with one config file per
+    Fonoster service, add passwordless sign-in and a public capabilities RPC, and rebuild the
+    dashboard on Tailwind + shadcn from the designs in `designs/dashboard.pen`.
 
   ## Conventions
 
   - TypeScript, ESM, gRPC (`@grpc/grpc-js`), Prisma (PostgreSQL), MIT-licensed headers.
+  - Validated factories with dependency injection; mocha + sinon tests per factory.
   - Spec deltas follow OpenSpec format: `## ADDED/MODIFIED Requirements`, `### Requirement: …`,
     `#### Scenario: …` with WHEN/THEN/AND.
+
+  ## Rebuild (architecture specs, build approved 2026-10-15)
+
+  A layered rebuild is being specified before any code is written. Read `openspec/rebuild.md`
+  first: it holds the layer map, the change order and the vocabulary every rebuild change must
+  use (Session, VoiceSessionGateway, native/twilio flavors, Speech/Audio/Control layers, catalog
+  ids, Turn Detector, call record). Rebuild changes describe target behavior; the owner
+  approved the build on 2026-10-15, and each change's build-log.md records decisions made while
+  building. Spec scenarios double as conformance cases, so write
+  them so a test harness could execute them against any implementation.

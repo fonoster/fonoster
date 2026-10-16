@@ -24,12 +24,13 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
+  Application,
   ListApplicationsRequest,
   ListApplicationsResponse
 } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../core/db";
-import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
+import { rowToApplication } from "./session/appModel";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -58,16 +59,17 @@ function createListApplications(prisma: Prisma) {
     const result = await prisma.application.findMany({
       where: { accessKeyId },
       include: {
-        textToSpeech: true,
-        speechToText: true,
         intelligence: true
       },
+      orderBy: [{ createdAt: "desc" }, { ref: "asc" }],
       take: pageSize,
       skip: pageToken ? 1 : 0,
       cursor: pageToken ? { ref: pageToken } : undefined
     });
 
-    const items = result.map(applicationWithEncodedStruct);
+    const items = result.map(
+      (row) => rowToApplication(row) as unknown as Application
+    );
 
     callback(null, {
       items,

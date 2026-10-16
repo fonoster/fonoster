@@ -23,15 +23,23 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateUserRequest } from "@fonoster/types";
+import { status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { IdentityConfig } from "../exchanges/types";
+import { isMethodEnabled, isOpenSignup } from "../utils/authMethods";
 import {
   AccessKeyIdType,
   generateAccessKeyId
 } from "../utils/generateAccessKeyId";
+import { passwordColumns } from "../utils/userPasswords";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-function createCreateUser(prisma: Prisma) {
+/**
+ * Self-service sign-up with a password. Allowed only when sign-up is open and
+ * password sign-in is enabled; invited users are created by the invite.
+ */
+function createCreateUser(prisma: Prisma, identityConfig: IdentityConfig) {
   const createUser = async (
     call: { request: CreateUserRequest },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
@@ -41,12 +49,22 @@ function createCreateUser(prisma: Prisma) {
 
     logger.verbose("call to createUser", { email });
 
+    if (
+      !isOpenSignup(identityConfig) ||
+      !isMethodEnabled(identityConfig, "password")
+    ) {
+      return callback({
+        code: status.PERMISSION_DENIED,
+        message: "Sign-up is by invitation only"
+      });
+    }
+
     const user = await prisma.user.create({
       data: {
         name,
         email,
         accessKeyId: generateAccessKeyId(AccessKeyIdType.USER),
-        password,
+        ...(await passwordColumns(password)),
         avatar,
         phoneNumber: phone || undefined
       }

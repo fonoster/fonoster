@@ -23,10 +23,15 @@ import {
   GRPC_SERVING_STATUS,
   statusMap
 } from "@fonoster/common";
-import { getLogger } from "@fonoster/logger";
+import { configureLogger, getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
-import { buildIdentityService, identityAllowList, upsertDefaultUser } from "..";
+import {
+  buildIdentityService,
+  identityAllowList,
+  migratePasswordStorage,
+  upsertDefaultUser
+} from "..";
 import { loadConfig } from "./config";
 import { startHttpBridge } from "./httpBridge";
 
@@ -36,11 +41,19 @@ const logger = getLogger({ service: "identity", filePath: __filename });
  * Standalone Identity gRPC service. Wraps `buildIdentityService` with the auth
  * interceptor, the identity allow-list, a health service, and the accept-invite
  * HTTP bridge — without any telephony subsystem. Configured entirely from a
- * file (see `./config`); no environment variables.
+ * file (see `./config`): identity.json, fields at the root.
  */
 async function main() {
-  const { bindAddr, httpBridgePort, appUrl, defaultUser, identityConfig } =
-    loadConfig();
+  const {
+    bindAddr,
+    httpBridgePort,
+    appUrl,
+    logs,
+    defaultUser,
+    identityConfig
+  } = loadConfig();
+
+  configureLogger(logs);
 
   const { definition, handlers } = buildIdentityService(identityConfig);
 
@@ -57,6 +70,8 @@ async function main() {
     createServiceDefinition(definition),
     handlers as unknown as grpc.UntypedServiceImplementation
   );
+
+  await migratePasswordStorage(identityConfig);
 
   if (defaultUser) {
     await upsertDefaultUser(identityConfig, defaultUser);

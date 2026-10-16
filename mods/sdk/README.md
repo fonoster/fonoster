@@ -92,7 +92,7 @@ async function main() {
   const applications = new SDK.Applications(client);
   await applications.createApplication({
     name: "MyApp",
-    type: "EXTERNAL",
+    type: "STREAM",
     endpoint: "localhost:50061" // Your app's endpoint
  });
 }
@@ -694,7 +694,8 @@ apiKeys
 
 ## Applications
 Fonoster Applications, part of the Fonoster Voice Subsystem,
-allow you to create, update, retrieve, and delete Voice Applications.
+allow you to create, update, retrieve, and delete Applications: streams (your own WebSocket
+server) and Autopilot agents.
 Note that an active Fonoster deployment is required.
 
 **Kind**: global class  
@@ -747,7 +748,7 @@ async function main(request) {
 
 const request = {
   name: "My application",
-  type: "EXTERNAL",
+  type: "STREAM",
   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
   speechToText: {
     productRef: "stt.deepgram",
@@ -778,7 +779,7 @@ Creates a new Application in Fonoster. The only required fields are the name and
 | --- | --- | --- |
 | request | <code>CreateApplicationRequest</code> | The request object that contains the necessary information to create a new application |
 | request.name | <code>string</code> | The name of the application |
-| request.type | <code>ApplicationType</code> | The type of application (e.g., EXTERNAL) |
+| request.type | <code>ApplicationType</code> | The type of application: STREAM or AUTOPILOT |
 | request.endpoint | <code>string</code> | The endpoint where the application is hosted |
 | request.speechToText | <code>SpeechToText</code> | The speech-to-text configuration |
 | request.speechToText.productRef | <code>string</code> | The product reference of the speech-to-text engine (e.g., stt.deepgram) |
@@ -796,7 +797,7 @@ const apps = new SDK.Applications(client); // Existing client object
 
 const request = {
   name: "My application",
-  type: "EXTERNAL",
+  type: "STREAM",
   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
   speechToText: {
     productRef: "stt.deepgram",

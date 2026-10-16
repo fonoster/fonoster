@@ -1,0 +1,787 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://fonoster.com/schemas/session/v1.json",
+  "title": "fonoster.session.v1",
+  "description": "Messages of the Fonoster session protocol (a stream with protocol fonoster). Unknown types and fields must be ignored.",
+  "protocol": "fonoster.session.v1",
+  "gatewayToApp": {
+    "session.start": {
+      "type": "object",
+      "required": [
+        "type",
+        "protocol",
+        "sessionRef",
+        "callRef",
+        "appRef",
+        "direction",
+        "from",
+        "to",
+        "metadata",
+        "handoff",
+        "audio",
+        "tracks",
+        "speech"
+      ],
+      "properties": {
+        "type": {
+          "const": "session.start"
+        },
+        "protocol": {
+          "const": "fonoster.session.v1"
+        },
+        "sessionRef": {
+          "type": "string"
+        },
+        "callRef": {
+          "type": "string"
+        },
+        "appRef": {
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "inbound",
+            "outbound"
+          ]
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "handoff": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "audio": {
+          "type": "object",
+          "required": [
+            "codec",
+            "rate"
+          ],
+          "properties": {
+            "codec": {
+              "enum": [
+                "pcm16",
+                "pcmu"
+              ]
+            },
+            "rate": {
+              "enum": [
+                8000,
+                16000,
+                24000
+              ]
+            }
+          }
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "side",
+              "kind",
+              "codec"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "side": {
+                "enum": [
+                  "inbound",
+                  "outbound"
+                ]
+              },
+              "kind": {
+                "enum": [
+                  "audio"
+                ]
+              },
+              "codec": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "speech": {
+          "type": "object",
+          "required": [
+            "voice",
+            "language"
+          ],
+          "properties": {
+            "voice": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "session.end": {
+      "type": "object",
+      "required": [
+        "type",
+        "reason"
+      ],
+      "properties": {
+        "type": {
+          "const": "session.end"
+        },
+        "reason": {
+          "enum": [
+            "caller_hangup",
+            "app_hangup",
+            "transfer",
+            "handoff",
+            "error",
+            "timeout"
+          ]
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "required": [
+        "type",
+        "code",
+        "message",
+        "fatal"
+      ],
+      "properties": {
+        "type": {
+          "const": "error"
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "fatal": {
+          "type": "boolean"
+        },
+        "relatesTo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "turn.user_started": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "turn.user_started"
+        }
+      }
+    },
+    "turn.likely_ended": {
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "properties": {
+        "type": {
+          "const": "turn.likely_ended"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "turn.ended": {
+      "type": "object",
+      "required": [
+        "type",
+        "text",
+        "language",
+        "confidence",
+        "durationMs"
+      ],
+      "properties": {
+        "type": {
+          "const": "turn.ended"
+        },
+        "text": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "durationMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "abandoned": {
+          "type": "boolean"
+        }
+      }
+    },
+    "turn.resumed": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "turn.resumed"
+        }
+      }
+    },
+    "turn.backchannel": {
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "properties": {
+        "type": {
+          "const": "turn.backchannel"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "turn.estimate": {
+      "type": "object",
+      "required": [
+        "type",
+        "eot",
+        "speaking",
+        "kind"
+      ],
+      "properties": {
+        "type": {
+          "const": "turn.estimate"
+        },
+        "eot": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "speaking": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "speech",
+            "backchannel",
+            "interruption",
+            "none"
+          ]
+        }
+      }
+    },
+    "transcript.partial": {
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "properties": {
+        "type": {
+          "const": "transcript.partial"
+        },
+        "text": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        }
+      }
+    },
+    "output.started": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "const": "output.started"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "output.done": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "const": "output.done"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "heardMs": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "output.interrupted": {
+      "type": "object",
+      "required": [
+        "type",
+        "id",
+        "heardText",
+        "heardMs"
+      ],
+      "properties": {
+        "type": {
+          "const": "output.interrupted"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "heardText": {
+          "type": "string"
+        },
+        "heardMs": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "mark": {
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "cleared"
+      ],
+      "properties": {
+        "type": {
+          "const": "mark"
+        },
+        "name": {
+          "type": "string"
+        },
+        "cleared": {
+          "type": "boolean"
+        }
+      }
+    },
+    "dtmf": {
+      "type": "object",
+      "required": [
+        "type",
+        "digit"
+      ],
+      "properties": {
+        "type": {
+          "const": "dtmf"
+        },
+        "digit": {
+          "type": "string",
+          "pattern": "^[0-9A-D*#]$"
+        }
+      }
+    },
+    "amd.result": {
+      "type": "object",
+      "required": [
+        "type",
+        "status",
+        "confidence",
+        "detector",
+        "audioMs"
+      ],
+      "properties": {
+        "type": {
+          "const": "amd.result"
+        },
+        "status": {
+          "enum": [
+            "human",
+            "voicemail",
+            "ivr",
+            "machine",
+            "unknown"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "detector": {
+          "type": "string"
+        },
+        "audioMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "appToGateway": {
+    "speak": {
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "properties": {
+        "type": {
+          "const": "speak"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "text": {
+          "type": "string"
+        },
+        "last": {
+          "type": "boolean"
+        },
+        "voice": {
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interruptible": {
+          "type": "boolean"
+        },
+        "preempt": {
+          "type": "boolean"
+        }
+      }
+    },
+    "play": {
+      "type": "object",
+      "required": [
+        "type",
+        "url"
+      ],
+      "properties": {
+        "type": {
+          "const": "play"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "loop": {
+          "type": "boolean"
+        },
+        "interruptible": {
+          "type": "boolean"
+        },
+        "preempt": {
+          "type": "boolean"
+        }
+      }
+    },
+    "listen.update": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "listen.update"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "language": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "patience": {
+          "enum": [
+            "low",
+            "normal",
+            "high"
+          ]
+        }
+      }
+    },
+    "subscribe": {
+      "type": "object",
+      "required": [
+        "type",
+        "events"
+      ],
+      "properties": {
+        "type": {
+          "const": "subscribe"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mark": {
+      "type": "object",
+      "required": [
+        "type",
+        "name"
+      ],
+      "properties": {
+        "type": {
+          "const": "mark"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "clear": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "clear"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "hangup": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "hangup"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "dtmf.send": {
+      "type": "object",
+      "required": [
+        "type",
+        "digits"
+      ],
+      "properties": {
+        "type": {
+          "const": "dtmf.send"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "digits": {
+          "type": "string",
+          "pattern": "^[0-9A-D*#w]+$"
+        }
+      }
+    },
+    "transfer": {
+      "type": "object",
+      "required": [
+        "type",
+        "to"
+      ],
+      "properties": {
+        "type": {
+          "const": "transfer"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "mode": {
+          "enum": [
+            "cold",
+            "warm",
+            "refer"
+          ]
+        },
+        "music": {
+          "type": "string"
+        }
+      }
+    },
+    "transfer.complete": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "const": "transfer.complete"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "hold": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "hold"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "music": {
+          "type": "string"
+        }
+      }
+    },
+    "resume": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "resume"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "required": [
+        "type",
+        "app"
+      ],
+      "properties": {
+        "type": {
+          "const": "handoff"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "app": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload": {
+          "type": "object"
+        }
+      }
+    },
+    "record.note": {
+      "type": "object",
+      "required": [
+        "type",
+        "data"
+      ],
+      "properties": {
+        "type": {
+          "const": "record.note"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "data": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

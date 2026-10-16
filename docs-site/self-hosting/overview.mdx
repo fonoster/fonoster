@@ -1,0 +1,28 @@
+---
+title: "Overview"
+description: "What self-hosting Fonoster means, who this section is for, and where to start."
+---
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/self-hosting/banner-light.png"
+  alt="Fonoster on your own servers: a terminal runs curl, fonoster-config init and docker compose up -d, then shows the dashboard address."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/self-hosting/banner-dark.png"
+  alt="Fonoster on your own servers: a terminal runs curl, fonoster-config init and docker compose up -d, then shows the dashboard address."
+/>
+
+Self-hosting means you run Fonoster on your own machines, with your own data, carriers and
+dashboard. This section is for the people who install and operate it. To build agents and voice
+apps, go to the **Docs** tab. To run a private region joined to a control plane, go to the
+**Private regions** tab.
+
+The install runs on one machine with Docker Compose and includes only what a call needs: the voice
+path, the API and dashboard, Autopilot and storage. You add vendor keys per workspace in the
+dashboard. ClickHouse metrics, telemetry and hosting private regions are optional integrations.
+
+<Card title="Install with Docker Compose" icon="docker" href="/self-hosting/install-compose">
+  Install Fonoster on one machine and sign in to the dashboard.
+</Card>

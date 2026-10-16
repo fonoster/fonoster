@@ -1,0 +1,16 @@
+format: fonoster.scenario.v1
+name: warm-transfer-not-answered
+contract: voice-session
+role: app
+spec: "Call control / Warm transfer not answered"
+setup:
+  media: { dialOutcome: no_answer }
+steps:
+  - expect: { type: session.start }
+  - send: { type: transfer, id: t2, to: "+15551234567", mode: warm }
+  - expect: { type: error, code: transfer_failed, relatesTo: t2, fatal: false }
+    within_ms: 2000
+  - assert:
+      media.held: false
+  - expect_none: { type: session.end }
+    for_ms: 300

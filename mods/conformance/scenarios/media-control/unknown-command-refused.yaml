@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: unknown-command-refused
+spec: "Commands go down, audio and call events come up / Unknown command refused"
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
+  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
+    within_ms: 1000
+    capture: { room: roomRef, caller: participantRef }
+  - send: { type: room.mute_all, id: c8, roomRef: "${room}" }
+  - expect: { type: error, id: c8, code: unknown_command }
+    within_ms: 2000

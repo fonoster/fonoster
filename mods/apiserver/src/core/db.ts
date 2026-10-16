@@ -18,10 +18,11 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { fieldEncryptionExtension } from "prisma-field-encryption";
-import { CLOAK_ENCRYPTION_KEY } from "../envs";
+import { CLOAK_ENCRYPTION_KEY, DATABASE_URL } from "../envs";
 
+// The URL comes from fonoster.yaml, not the schema's env() reference.
 // We encrypt all fields marked with /// encrypted in the schema
-const prisma = new PrismaClient().$extends(
+const prisma = new PrismaClient({ datasourceUrl: DATABASE_URL }).$extends(
   fieldEncryptionExtension({
     encryptionKey: CLOAK_ENCRYPTION_KEY
   })

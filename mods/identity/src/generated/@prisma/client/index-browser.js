@@ -128,6 +128,8 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   emailVerified: 'emailVerified',
   password: 'password',
+  passwordDigest: 'passwordDigest',
+  mustChangePassword: 'mustChangePassword',
   phoneNumber: 'phoneNumber',
   phoneNumberVerified: 'phoneNumberVerified',
   avatar: 'avatar',
@@ -140,6 +142,7 @@ exports.Prisma.WorkspaceScalarFieldEnum = {
   ref: 'ref',
   accessKeyId: 'accessKeyId',
   name: 'name',
+  region: 'region',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   ownerRef: 'ownerRef'
@@ -172,6 +175,8 @@ exports.Prisma.VerificationCodeScalarFieldEnum = {
   code: 'code',
   value: 'value',
   expiresAt: 'expiresAt',
+  attempts: 'attempts',
+  consumedAt: 'consumedAt',
   createdAt: 'createdAt'
 };
 

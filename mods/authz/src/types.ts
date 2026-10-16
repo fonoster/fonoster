@@ -16,7 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest } from "@fonoster/common";
+
+/** The call a session would serve (CheckSessionAuthorizedRequest in authz.proto). */
+type VoiceRequest = {
+  appRef: string;
+  accessKeyId: string;
+  endpoint: string;
+  ingressNumber: string;
+  callerName: string;
+  callerNumber: string;
+  mediaSessionRef: string;
+  callRef: string;
+  sessionToken: string;
+  callDirection: "FROM_PSTN" | "TO_PSTN" | "INTRA_NETWORK";
+  metadata?: Record<string, string>;
+};
 
 type ServerConfig = {
   bind?: string;

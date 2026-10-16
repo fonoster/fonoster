@@ -20,12 +20,15 @@ import { AclsClient } from "./AclsClient";
 import { AgentsClient } from "./AgentsClient";
 import { ApplicationsClient } from "./ApplicationsClient";
 import { CallsClient } from "./CallsClient";
+import { CapabilitiesClient } from "./CapabilitiesClient";
 import { CredentialsClient } from "./CredentialsClient";
 import { DomainsClient } from "./DomainsClient";
 import { IdentityClient } from "./IdentityClient";
 import { NumbersClient } from "./NumbersClient";
+import { ProvidersClient } from "./ProvidersClient";
 import { SecretsClient } from "./SecretsClient";
 import { TrunksClient } from "./TrunksClient";
+import { WebhooksClient } from "./WebhooksClient";
 
 interface FonosterClient {
   getAccessToken(): string;
@@ -33,6 +36,7 @@ interface FonosterClient {
   getApplicationsClient(): ApplicationsClient;
   getCallsClient(): CallsClient;
   getIdentityClient(): IdentityClient;
+  getCapabilitiesClient(): CapabilitiesClient;
   getSecretsClient(): SecretsClient;
   getAgentsClient(): AgentsClient;
   getNumbersClient(): NumbersClient;
@@ -40,6 +44,10 @@ interface FonosterClient {
   getDomainsClient(): DomainsClient;
   getTrunksClient(): TrunksClient;
   getAclsClient(): AclsClient;
+  getWebhooksClient(): WebhooksClient;
+  getProvidersClient(): ProvidersClient;
+  /** Base URL of the HTTP API (/api/records), e.g. https://api.fonoster.com. */
+  getHttpUrl?(): string;
   getMetadata(): unknown;
   refreshToken(): Promise<void>;
 }

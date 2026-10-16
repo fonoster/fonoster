@@ -20,20 +20,25 @@ import {
   Application,
   BaseApiObject,
   CreateApplicationRequest,
+  CreateApplicationResponse,
   EvaluateIntelligenceEvent,
   EvaluateIntelligenceRequest,
   ExpectedTextType,
   ListApplicationsRequest,
   ListApplicationsResponse,
-  UpdateApplicationRequest
+  RotateSigningSecretResponse,
+  UpdateApplicationRequest,
+  UpdateApplicationResponse
 } from "@fonoster/types";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
+  AmdSettings as AmdSettingsPB,
   Application as ApplicationPB,
   ApplicationType,
+  AudioFormat as AudioFormatPB,
   CreateApplicationRequest as CreateApplicationRequestPB,
   CreateApplicationResponse as CreateApplicationResponsePB,
   DeleteApplicationRequest as DeleteApplicationRequestPB,
@@ -42,7 +47,11 @@ import {
   GetApplicationRequest as GetApplicationRequestPB,
   ListApplicationsRequest as ListApplicationsRequestPB,
   ListApplicationsResponse as ListApplicationsResponsePB,
+  Listener as ListenerPB,
   ProductContainer as ProductContainerPB,
+  RotateSigningSecretRequest as RotateSigningSecretRequestPB,
+  RotateSigningSecretResponse as RotateSigningSecretResponsePB,
+  SpeechDefaults as SpeechDefaultsPB,
   TestTokenResponse,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
@@ -51,7 +60,8 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
 
 /**
  * @classdesc Fonoster Applications, part of the Fonoster Voice Subsystem,
- * allow you to create, update, retrieve, and delete Voice Applications.
+ * allow you to create, update, retrieve, and delete Applications: streams (your own WebSocket
+ * server) and Autopilot agents.
  * Note that an active Fonoster deployment is required.
  *
  * @example
@@ -78,25 +88,32 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  *
  * const request = {
  *   name: "My application",
- *   type: "EXTERNAL",
- *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
- *   speechToText: {
- *     productRef: "stt.deepgram",
- *     config: {
- *       model: "nova-2",
- *       languageCode: "en-US"
- *     }
- *   },
- *   textToSpeech: {
- *     productRef: "tts.elevenlabs",
- *     config: {
- *       voice: "lrTWbMInQjSJ9q5ywFKP"
- *     }
- *   }
+ *   type: "STREAM",
+ *   url: "wss://bot.example.com/session", // Serves the session protocol (@fonoster/voice)
+ *   protocol: "fonoster", // or "twilio" for a Twilio Media Streams server
+ *   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
  * };
  *
  * main(request);
  */
+/** Nested messages of create and update requests (the application model). */
+const REQUEST_OBJECTS: [string, unknown][] = [
+  ["intelligence", ProductContainerPB],
+  ["speech", SpeechDefaultsPB],
+  ["audio", AudioFormatPB],
+  ["listeners", ListenerPB],
+  ["amd", AmdSettingsPB]
+];
+
+/** Repeated fields come back as `listenersList` when empty; always return `listeners`. */
+function withSessionFields<T extends Record<string, unknown>>(app: T): T {
+  const { listenersList, ...rest } = app as Record<string, unknown>;
+  return {
+    ...rest,
+    listeners: (rest.listeners ?? listenersList ?? []) as unknown
+  } as unknown as T;
+}
+
 class Applications {
   private readonly client: FonosterClient;
   /**
@@ -115,37 +132,19 @@ class Applications {
    *
    * @param {CreateApplicationRequest} request - The request object that contains the necessary information to create a new application
    * @param {string} request.name - The name of the application
-   * @param {ApplicationType} request.type - The type of application (e.g., EXTERNAL)
+   * @param {ApplicationType} request.type - The type of application: STREAM or AUTOPILOT
    * @param {string} request.endpoint - The endpoint where the application is hosted
-   * @param {SpeechToText} request.speechToText - The speech-to-text configuration
-   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.deepgram)
-   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" })
-   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
-   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.elevenlabs)
-   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" })
    * @param {Intelligence} request.intelligence - The intelligence configuration
-   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
-   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
+   * @param {object} request.intelligence.config - Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini)
    * @return {Promise<CreateAppResponse>} - The response object that contains the reference to the newly created application
    * @example
    * const apps = new SDK.Applications(client); // Existing client object
    *
    * const request = {
    *   name: "My application",
-   *   type: "EXTERNAL",
-   *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
-   *   speechToText: {
-   *     productRef: "stt.deepgram",
-   *     config: {
-   *       languageCode: "en-US"
-   *     }
-   *   },
-   *   textToSpeech: {
-   *     productRef: "tts.elevenlabs",
-   *     config: {
-   *       voice: "lrTWbMInQjSJ9q5ywFKP"
-   *     }
-   *   }
+   *   type: "STREAM",
+   *   url: "wss://bot.example.com/session",
+   *   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
    * };
    *
    * apps
@@ -155,7 +154,7 @@ class Applications {
    */
   async createApplication(
     request: CreateApplicationRequest
-  ): Promise<BaseApiObject> {
+  ): Promise<CreateApplicationResponse> {
     const reqWithStructOverride = buildStructOverride(request);
     const applicationsClient = this.client.getApplicationsClient();
 
@@ -163,18 +162,14 @@ class Applications {
       CreateApplicationRequestPB,
       CreateApplicationResponsePB,
       CreateApplicationRequest,
-      BaseApiObject
+      CreateApplicationResponse
     >({
       method: applicationsClient.createApplication.bind(applicationsClient),
       requestPBObjectConstructor: CreateApplicationRequestPB,
       metadata: this.client.getMetadata(),
       request: reqWithStructOverride,
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [
-        ["textToSpeech", ProductContainerPB],
-        ["speechToText", ProductContainerPB],
-        ["intelligence", ProductContainerPB]
-      ]
+      objectMapping: REQUEST_OBJECTS
     });
   }
 
@@ -207,14 +202,10 @@ class Applications {
       metadata: this.client.getMetadata(),
       request: { ref },
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [
-        ["textToSpeech", ProductContainerPB],
-        ["speechToText", ProductContainerPB],
-        ["intelligence", ProductContainerPB]
-      ]
+      objectMapping: [["intelligence", ProductContainerPB]]
     });
 
-    return buildStructOverrideReverse(response);
+    return withSessionFields(buildStructOverrideReverse(response));
   }
 
   /**
@@ -224,15 +215,8 @@ class Applications {
    * @param {string} request.ref - The reference of the application to update
    * @param {string} request.name - The name of the application
    * @param {string} request.endpoint - The endpoint where the application is hosted
-   * @param {SpeechToText} request.speechToText - The speech-to-text configuration
-   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.deepgram)
-   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" })
-   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
-   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.elevenlabs)
-   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" })
    * @param {Intelligence} request.intelligence - The intelligence configuration
-   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
-   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
+   * @param {object} request.intelligence.config - Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini)
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated application
    * @example
    * const apps = new SDK.Applications(client); // Existing client object
@@ -240,7 +224,7 @@ class Applications {
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "My application",
-   *   endpoint: "welcome.demo.fonoster.local", // Built-in demo application
+   *   url: "wss://bot.example.com/session"
    * };
    *
    * apps
@@ -250,7 +234,7 @@ class Applications {
    */
   async updateApplication(
     request: UpdateApplicationRequest
-  ): Promise<BaseApiObject> {
+  ): Promise<UpdateApplicationResponse> {
     const reqWithStructOverride = buildStructOverride(request);
     const applicationsClient = this.client.getApplicationsClient();
 
@@ -258,18 +242,14 @@ class Applications {
       UpdateApplicationRequestPB,
       UpdateApplicationResponsePB,
       UpdateApplicationRequest,
-      BaseApiObject
+      UpdateApplicationResponse
     >({
       method: applicationsClient.updateApplication.bind(applicationsClient),
       requestPBObjectConstructor: UpdateApplicationRequestPB,
       metadata: this.client.getMetadata(),
       request: reqWithStructOverride,
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [
-        ["textToSpeech", ProductContainerPB],
-        ["speechToText", ProductContainerPB],
-        ["intelligence", ProductContainerPB]
-      ]
+      objectMapping: REQUEST_OBJECTS
     });
   }
 
@@ -308,16 +288,14 @@ class Applications {
       metadata: this.client.getMetadata(),
       request,
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [
-        ["speechToText", ProductContainerPB],
-        ["textToSpeech", ProductContainerPB],
-        ["intelligence", ProductContainerPB]
-      ],
+      objectMapping: [["intelligence", ProductContainerPB]],
       repeatableObjectMapping: [["itemsList", ApplicationPB]]
     });
 
     return {
-      items: response.items.map(buildStructOverrideReverse),
+      items: response.items.map((item) =>
+        withSessionFields(buildStructOverrideReverse(item))
+      ),
       nextPageToken: response.nextPageToken
     };
   }
@@ -338,6 +316,30 @@ class Applications {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
+  /**
+   * Replaces the app's signing secret. The old secret stops working at once (no overlap window),
+   * so redeploy the app with the new one. The secret is returned only here.
+   *
+   * @param {string} ref - The application's reference
+   * @return {Promise<RotateSigningSecretResponse>} - The new secret and its hint
+   * @example
+   * const { signingSecret } = await applications.rotateSigningSecret("00000000-...");
+   */
+  async rotateSigningSecret(ref: string): Promise<RotateSigningSecretResponse> {
+    const applicationsClient = this.client.getApplicationsClient();
+    return await makeRpcRequest<
+      RotateSigningSecretRequestPB,
+      RotateSigningSecretResponsePB,
+      BaseApiObject,
+      RotateSigningSecretResponse
+    >({
+      method: applicationsClient.rotateSigningSecret.bind(applicationsClient),
+      requestPBObjectConstructor: RotateSigningSecretRequestPB,
+      metadata: this.client.getMetadata(),
+      request: { ref }
+    });
+  }
+
   async deleteApplication(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<
@@ -357,8 +359,7 @@ class Applications {
    * Evaluates the intelligence of an application.
    *
    * @param {EvaluateIntelligenceRequest} request - The request object that contains the necessary information to evaluate the intelligence of an application
-   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., llm.groq)
-   * @param {object} request.intelligence.config - The configuration object for the intelligence engine
+   * @param {object} request.intelligence.config - Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini)
    * @return {AsyncGenerator<EvaluateIntelligenceEvent>} - Stream of evaluation events (step results, scenario summaries, or errors)
    * @example
    * const apps = new SDK.Applications(client);

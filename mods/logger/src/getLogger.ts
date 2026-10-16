@@ -17,7 +17,8 @@
  * limitations under the License.
  */
 import winston from "winston";
-import { fluent, level, transports } from "./envs";
+import { endFluent, getSettings, getTransports } from "./envs";
+import { register } from "./registry";
 
 const loggers = new Map();
 
@@ -30,7 +31,7 @@ function getLogger(config: { service?: string; filePath: string }) {
 
   const humanFormat = winston.format.combine(
     winston.format.timestamp({
-      format: "YYYY-MM-dd HH:mm:ss.SSS"
+      format: "YYYY-MM-DD HH:mm:ss.SSS"
     }),
     winston.format.printf(
       ({ level, message, timestamp, ...metadata }) =>
@@ -40,16 +41,16 @@ function getLogger(config: { service?: string; filePath: string }) {
     )
   );
 
-  const newLogger = winston.createLogger({
-    levels: winston.config.npm.levels,
-    format: humanFormat,
-    transports,
-    level
-  });
+  const newLogger = register(
+    winston.createLogger({
+      levels: winston.config.npm.levels,
+      format: humanFormat,
+      transports: getTransports(),
+      level: getSettings().level
+    })
+  );
 
-  newLogger.on("finish", () => {
-    fluent.sender.end("end", {}, () => {});
-  });
+  newLogger.on("finish", endFluent);
 
   loggers.set(key, newLogger);
 

@@ -19,11 +19,16 @@
 import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "@fonoster/common";
 import { CreateNumberRequest, UpdateNumberRequest } from "@fonoster/types";
 
+/**
+ * `appPeerAor` is the peer an app-linked number routes to: the media-node peer by default (see
+ * engineRouting.ts).
+ */
 function convertToRoutrNumber(
   number: CreateNumberRequest,
-  accessKeyId: string
+  accessKeyId: string,
+  appPeerAor: string = ROUTR_DEFAULT_PEER_AOR
 ) {
-  const aorLink = number.appRef ? ROUTR_DEFAULT_PEER_AOR : number.agentAor;
+  const aorLink = number.appRef ? appPeerAor : number.agentAor;
 
   return {
     name: number.name,
@@ -45,12 +50,15 @@ function convertToRoutrNumber(
   };
 }
 
-function convertToRoutrNumberUpdate(number: UpdateNumberRequest) {
+function convertToRoutrNumberUpdate(
+  number: UpdateNumberRequest,
+  appPeerAor: string = ROUTR_DEFAULT_PEER_AOR
+) {
   let aorLink: string | undefined;
   let extraHeaders: { name: string; value: string }[] = [];
 
   if (number.appRef) {
-    aorLink = ROUTR_DEFAULT_PEER_AOR;
+    aorLink = appPeerAor;
     extraHeaders.push({
       name: APP_REF_HEADER,
       value: number.appRef

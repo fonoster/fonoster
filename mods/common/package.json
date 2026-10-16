@@ -15,27 +15,39 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "postbuild": "cp -a src/protos dist",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
+    "generate:session-schema": "tsx scripts/export-session-schema.ts"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/resources": "^1.30.1",
+    "@opentelemetry/sdk-trace-base": "^1.30.1",
+    "@opentelemetry/sdk-trace-node": "^1.30.1",
     "@fonoster/logger": "^0.27.0",
     "@fonoster/types": "^0.27.0",
     "@grpc/grpc-js": "~1.10.11",
     "@grpc/proto-loader": "^0.7.15",
     "@influxdata/influxdb-client": "^1.35.0",
+    "ajv": "^8.17.1",
     "dotenv": "^16.6.1",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",
+    "json-schema-to-ts": "^3.1.1",
+    "jsonc-parser": "^3.2.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
+    "nkeys.js": "^1.1.0",
     "nodemailer": "^6.10.1",
     "pb-util": "^1.0.3",
     "twilio": "^5.11.1",
     "validator": "^13.12.0",
+    "yaml": "^2.9.0",
+    "zod": "^3.25.76",
     "zod-validation-error": "^3.5.4"
   },
   "files": [
-    "dist"
+    "dist",
+    "schema"
   ],
   "publishConfig": {
     "access": "public"
@@ -50,5 +62,9 @@
   "devDependencies": {
     "@types/nodemailer": "^6.4.21"
   },
-  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579"
+  "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
+  "bin": {
+    "fonoster-registry": "dist/registry/cli.js",
+    "fonoster-config": "dist/config/cli/index.js"
+  }
 }

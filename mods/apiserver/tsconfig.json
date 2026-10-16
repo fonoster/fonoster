@@ -25,6 +25,9 @@
     },
     {
       "path": "../autopilot",
+    },
+    {
+      "path": "../callrecord",
     }
   ],
   "exclude": ["node_modules", "dist", "test"]

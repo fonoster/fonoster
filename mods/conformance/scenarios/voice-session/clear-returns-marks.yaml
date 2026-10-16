@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: clear-returns-marks
+contract: voice-session
+role: app
+spec: "Marks / Mark cleared"
+steps:
+  - expect: { type: session.start }
+  - send_audio: { ms: 2000, kind: tone, realtime: false }
+  - send: { type: mark, name: m1 }
+  - wait: { ms: 200 }
+  - send: { type: clear }
+  - expect: { type: mark, name: m1, cleared: true }
+    within_ms: 500
+  - wait: { ms: 100 }
+  - assert: { media.output_audio_ms: { $lte: 600 } }

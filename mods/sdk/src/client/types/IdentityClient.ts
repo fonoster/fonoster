@@ -37,6 +37,8 @@ import {
   ExchangeOauth2CodeResponse,
   ExchangeRefreshTokenRequest,
   ExchangeRefreshTokenResponse,
+  ExchangeVerificationCodeRequest,
+  ExchangeVerificationCodeResponse,
   GetUserRequest,
   GetWorkspaceRequest,
   InviteUserToWorkspaceRequest,
@@ -87,6 +89,10 @@ type IdentityClient = {
   exchangeRefreshToken: ClientFunction<
     ExchangeRefreshTokenRequest,
     ExchangeRefreshTokenResponse
+  >;
+  exchangeVerificationCode: ClientFunction<
+    ExchangeVerificationCodeRequest,
+    ExchangeVerificationCodeResponse
   >;
   // User
   createUser: ClientFunction<CreateUserRequest, CreateUserResponse>;

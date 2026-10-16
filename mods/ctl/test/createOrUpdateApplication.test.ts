@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+/**
+ * Copyright (C) 2026 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -25,6 +25,7 @@ import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
+import { parseListener } from "../src/utils/applicationRequest";
 import { createOrUpdateApplication } from "../src/utils/createOrUpdateApplication";
 
 chai.use(chaiAsPromised);
@@ -35,13 +36,40 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
   let tmpDir: string;
   let createStub: sinon.SinonStub;
   let updateStub: sinon.SinonStub;
+  let getStub: sinon.SinonStub;
   const client = {} as unknown as SDK.Client;
 
-  // A minimal but valid-shaped application config.
   const baseConfig = {
     name: "My App",
-    type: "EXTERNAL",
-    endpoint: "example.com"
+    url: "wss://bot.example.com/session",
+    protocol: "fonoster"
+  };
+
+  const assistant = {
+    name: "Receptionist",
+    languageModel: { model: "openai/gpt-4o-mini", apiKey: "sk-should-go" }
+  };
+
+  const currentApp = {
+    ref: "positional-ref",
+    name: "Current",
+    type: "STREAM",
+    url: "wss://old.example.com/session",
+    protocol: "twilio",
+    speech: {
+      voice: "deepgram/aura-2-thalia-en",
+      language: "en-US",
+      sttModel: "",
+      ttsModel: "",
+      silenceTimeoutMs: 0,
+      patience: ""
+    },
+    listeners: [{ url: "wss://rec.example.com/ws", tracks: "inbound" }],
+    recording: "on",
+    fallbackAppRef: "",
+    fallbackMessage: "",
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 
   function writeConfig(ext: string, content: unknown): string {
@@ -56,10 +84,13 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     tmpDir = mkdtempSync(join(tmpdir(), "ctl-app-"));
     createStub = sandbox
       .stub(SDK.Applications.prototype, "createApplication")
-      .resolves({ ref: "created-ref" });
+      .resolves({ ref: "created-ref", signingSecret: "s3cret" });
     updateStub = sandbox
       .stub(SDK.Applications.prototype, "updateApplication")
       .resolves({ ref: "updated-ref" });
+    getStub = sandbox
+      .stub(SDK.Applications.prototype, "getApplication")
+      .resolves(currentApp as never);
   });
 
   afterEach(function () {
@@ -67,27 +98,150 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it("creates an application when isUpdate is false", async function () {
+  it("creates an application from a file in the app model", async function () {
     const filePath = writeConfig("json", baseConfig);
+
+    const response = await createOrUpdateApplication(client, filePath);
+
+    expect(response.signingSecret).to.equal("s3cret");
+    expect(createStub).to.have.been.calledOnce;
+    expect(updateStub).to.not.have.been.called;
+    expect(createStub.firstCall.args[0]).to.include({
+      ...baseConfig,
+      type: "STREAM"
+    });
+  });
+
+  it("creates an application from flags only", async function () {
+    await createOrUpdateApplication(client, undefined, undefined, false, {
+      name: "Flags",
+      url: "wss://bot.example.com/media",
+      protocol: "twilio",
+      voice: "elevenlabs/rachel",
+      "stt-model": "deepgram/nova-3",
+      patience: "high",
+      listener: ["wss://rec.example.com/ws,outbound"],
+      recording: "consent"
+    });
+
+    const request = createStub.firstCall.args[0];
+    expect(request).to.include({
+      name: "Flags",
+      type: "STREAM",
+      url: "wss://bot.example.com/media",
+      protocol: "twilio",
+      recording: "consent"
+    });
+    expect(request.speech).to.deep.equal({
+      voice: "elevenlabs/rachel",
+      sttModel: "deepgram/nova-3",
+      patience: "high"
+    });
+    expect(request.listeners).to.deep.equal([
+      { url: "wss://rec.example.com/ws", tracks: "outbound" }
+    ]);
+  });
+
+  it("makes an Autopilot agent from an agent file and drops any model key", async function () {
+    const assistantPath = writeConfig("json", assistant);
+
+    await createOrUpdateApplication(client, undefined, undefined, false, {
+      name: "Receptionist",
+      agent: assistantPath
+    });
+
+    const request = createStub.firstCall.args[0];
+    expect(request.type).to.equal("AUTOPILOT");
+    expect(request.url).to.equal(undefined);
+    expect(request.intelligence.productRef).to.equal("llm.openai");
+    expect(request.intelligence.config.languageModel).to.deep.equal({
+      model: "openai/gpt-4o-mini"
+    });
+  });
+
+  it("accepts an inline assistant in the app file (YAML)", async function () {
+    const filePath = writeConfig(
+      "yaml",
+      "name: Bot\nassistant:\n  name: Bot\n  languageModel:\n    model: groq/llama\n"
+    );
 
     await createOrUpdateApplication(client, filePath);
 
-    expect(createStub).to.have.been.calledOnce;
-    expect(updateStub).to.not.have.been.called;
-    expect(createStub.firstCall.args[0]).to.include(baseConfig);
+    const request = createStub.firstCall.args[0];
+    expect(request.type).to.equal("AUTOPILOT");
+    expect(request.intelligence.productRef).to.equal("llm.groq");
   });
 
-  it("updates using the positional ref when provided", async function () {
-    const filePath = writeConfig("json", baseConfig);
-
-    await createOrUpdateApplication(client, filePath, "positional-ref", true);
-
-    expect(updateStub).to.have.been.calledOnce;
+  it("refuses a stream without a url", async function () {
+    await expect(
+      createOrUpdateApplication(client, undefined, undefined, false, {
+        name: "No url"
+      })
+    ).to.be.rejectedWith(/a url is required/);
     expect(createStub).to.not.have.been.called;
-    expect(updateStub.firstCall.args[0]).to.have.property(
-      "ref",
-      "positional-ref"
-    );
+  });
+
+  it("refuses an Autopilot agent on the twilio protocol", async function () {
+    const assistantPath = writeConfig("json", assistant);
+    await expect(
+      createOrUpdateApplication(client, undefined, undefined, false, {
+        name: "x",
+        agent: assistantPath,
+        protocol: "twilio"
+      })
+    ).to.be.rejectedWith(/fonoster protocol/);
+  });
+
+  it("updates from the current app, changing only the flags given", async function () {
+    await createOrUpdateApplication(client, undefined, "positional-ref", true, {
+      voice: "elevenlabs/rachel"
+    });
+
+    expect(getStub).to.have.been.calledOnceWith("positional-ref");
+    const request = updateStub.firstCall.args[0];
+    expect(request).to.include({
+      ref: "positional-ref",
+      name: "Current",
+      url: "wss://old.example.com/session",
+      protocol: "twilio",
+      recording: "on"
+    });
+    expect(request.speech).to.deep.equal({
+      voice: "elevenlabs/rachel",
+      language: "en-US"
+    });
+    expect(request.listeners).to.have.length(1);
+  });
+
+  it("replaces listeners with --clear-listeners and --listener", async function () {
+    await createOrUpdateApplication(client, undefined, "positional-ref", true, {
+      "clear-listeners": true,
+      listener: ["wss://new.example.com/ws"]
+    });
+
+    expect(updateStub.firstCall.args[0].listeners).to.deep.equal([
+      { url: "wss://new.example.com/ws", tracks: "both" }
+    ]);
+  });
+
+  it("keeps an Autopilot app's assistant when updating other fields", async function () {
+    getStub.resolves({
+      ...currentApp,
+      type: "AUTOPILOT",
+      protocol: "fonoster",
+      url: "ws://autopilot:8080/session",
+      intelligence: { productRef: "llm.openai", config: assistant }
+    } as never);
+
+    await createOrUpdateApplication(client, undefined, "positional-ref", true, {
+      language: "es-ES"
+    });
+
+    const request = updateStub.firstCall.args[0];
+    expect(request.type).to.equal("AUTOPILOT");
+    expect(request.url).to.equal(undefined);
+    expect(request.intelligence.config.name).to.equal("Receptionist");
+    expect(request.speech.language).to.equal("es-ES");
   });
 
   it("lets the positional ref override a ref in the file", async function () {
@@ -99,6 +253,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
       "ref",
       "positional-ref"
     );
+    expect(updateStub.firstCall.args[0]).to.include({ name: "My App" });
   });
 
   it("falls back to the file ref when the positional is omitted", async function () {
@@ -106,7 +261,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
 
     await createOrUpdateApplication(client, filePath, undefined, true);
 
-    expect(updateStub).to.have.been.calledOnce;
+    expect(getStub).to.have.been.calledOnceWith("file-ref");
     expect(updateStub.firstCall.args[0]).to.have.property("ref", "file-ref");
   });
 
@@ -127,5 +282,19 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     await expect(
       createOrUpdateApplication(client, filePath, "ref", true)
     ).to.be.rejectedWith(/Unsupported file format/);
+  });
+
+  it("parses listeners with and without tracks", function () {
+    expect(parseListener("wss://a.example.com/x")).to.deep.equal({
+      url: "wss://a.example.com/x",
+      tracks: "both"
+    });
+    expect(parseListener("wss://a.example.com/x,inbound")).to.deep.equal({
+      url: "wss://a.example.com/x",
+      tracks: "inbound"
+    });
+    expect(() => parseListener("wss://a.example.com/x,sideways")).to.throw(
+      /invalid listener tracks/
+    );
   });
 });

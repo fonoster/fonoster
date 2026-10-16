@@ -23,33 +23,51 @@ import {
   buildCredentialsService,
   buildDomainsService,
   buildNumbersService,
-  buildTrunksService
+  buildTrunksService,
+  createNumberRouting
 } from "@fonoster/sipnet";
 import { buildApplicationsService } from "../applications";
 import { buildCallsService } from "../calls";
 import { influxdb } from "../calls/influxdb";
+import { buildCapabilitiesService } from "../capabilities";
+import { getConfig } from "../config";
+import { REGISTRY, ROUTR_MEDIA_NODE_PEER } from "../envs";
+import { buildProvidersService } from "../providers";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";
-import { buildWelcomeDemoService } from "./buildWelcomeDemoService";
+import { buildWebhooksService } from "../webhooks";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
+import { workspaceRegionHooks } from "./regionHooks";
 import { routrConfig } from "./routrConfig";
 import { testTokenConfig } from "./testTokenConfig";
 
 const applicationsService = buildApplicationsService(prisma, testTokenConfig);
 const secretsService = buildSecretsService(prisma);
 const callsService = buildCallsService(influxdb);
-const identityService = buildIdentityService(identityConfig);
+const identityService = buildIdentityService({
+  ...identityConfig,
+  regions: workspaceRegionHooks
+});
 const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);
 const trunksService = buildTrunksService(routrConfig);
+// App-linked numbers point at the media-node peer (Asterisk is retired, cleanbreak CB-B3).
+const numberRouting = createNumberRouting({
+  mediaNodeAor: ROUTR_MEDIA_NODE_PEER.aor
+});
 const numbersService = buildNumbersService(
   routrConfig,
-  createCheckNumberPreconditions(prisma)
+  createCheckNumberPreconditions(prisma),
+  numberRouting
 );
 const aclsService = buildAclsService(routrConfig);
-const welcomeDemoService = buildWelcomeDemoService();
+const capabilitiesService = buildCapabilitiesService(getConfig());
+const webhooksService = buildWebhooksService(prisma);
+const providersService = buildProvidersService(prisma, {
+  platformCredentials: REGISTRY.platformCredentials
+});
 
 const services = Promise.all([
   applicationsService,
@@ -62,7 +80,9 @@ const services = Promise.all([
   numbersService,
   trunksService,
   domainsService,
-  welcomeDemoService
+  capabilitiesService,
+  webhooksService,
+  providersService
 ]);
 
 export default services;

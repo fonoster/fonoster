@@ -39,13 +39,69 @@ service Applications {
   rpc EvaluateIntelligence(EvaluateIntelligenceRequest) returns (stream EvaluateIntelligenceEvent);
   // Create an Ephemeral Agent to perform test calls to an application
   rpc CreateTestToken(google.protobuf.Empty) returns (TestTokenResponse) {}
+  // Replace an application's signing secret; the old one stops working at once (no overlap)
+  rpc RotateSigningSecret(RotateSigningSecretRequest) returns (RotateSigningSecretResponse) {}
+}
+
+// Speech defaults of an application; voices and models are catalog ids (provider/model-or-voice)
+message SpeechDefaults {
+  // Default voice, e.g. elevenlabs/rachel
+  string voice = 1;
+  // Default language (BCP 47), e.g. en-US
+  string language = 2;
+  // Speech-to-text model, e.g. deepgram/nova-3 (empty: the platform default)
+  string stt_model = 3;
+  // Text-to-speech model (empty: the voice's default)
+  string tts_model = 4;
+  // Silence timeout in milliseconds (0: the gateway default)
+  int32 silence_timeout_ms = 5;
+  // The Pacing policy's patience: low, normal or high (empty: normal)
+  string patience = 6;
+}
+
+// Caller and agent audio format for the fonoster protocol
+message AudioFormat {
+  // pcm16 or pcmu
+  string codec = 1;
+  // Sample rate in Hz: 8000, 16000 or 24000 (pcmu is 8000 only)
+  int32 rate = 2;
+}
+
+// Answering-machine detection: one amd.result event per call
+message AmdSettings {
+  // Classify the caller's first seconds of audio
+  bool enabled = 1;
+  // How much caller audio to classify, in milliseconds (0: 4000; 500 to 15000)
+  int32 window_ms = 2;
+}
+
+// A listen-only socket dialed for every session of the app
+message Listener {
+  // ws:// or wss:// address
+  string url = 1;
+  // inbound, outbound or both
+  string tracks = 2;
+}
+
+message RotateSigningSecretRequest {
+  // The reference to the application
+  string ref = 1;
+}
+
+message RotateSigningSecretResponse {
+  // The reference to the application
+  string ref = 1;
+  // The new secret; shown only in this response
+  string signing_secret = 2;
+  // The last characters of the secret
+  string signing_secret_hint = 3;
 }
 
 // The type of application
 enum ApplicationType {
-  // Programmable Voice
-  EXTERNAL = 0;
-  // Internal LLM based applications
+  // A stream: your own WebSocket server
+  STREAM = 0;
+  // An Autopilot agent (hosted by Fonoster)
   AUTOPILOT = 1;
 }
 
@@ -78,6 +134,26 @@ message Application {
   int32 created_at = 8;
   // Update time
   int32 updated_at = 9;
+  // The WebSocket URL the gateway dials
+  string url = 10;
+  // Stream protocol: fonoster or twilio
+  string protocol = 11;
+  // The last characters of the signing secret (the secret is never returned on reads)
+  string signing_secret_hint = 12;
+  // Speech defaults
+  SpeechDefaults speech = 13;
+  // Audio format (fonoster protocol)
+  AudioFormat audio = 14;
+  // App used when this one cannot be reached
+  string fallback_app_ref = 15;
+  // Message spoken when neither the app nor its fallback can be reached
+  string fallback_message = 16;
+  // Listen-only sockets
+  repeated Listener listeners = 17;
+  // Recording policy: off, on or consent (empty: the workspace's)
+  string recording = 18;
+  // Answering-machine detection (off when unset)
+  AmdSettings amd = 19;
 }
 
 // Request to create a new application
@@ -94,12 +170,34 @@ message CreateApplicationRequest {
   ProductContainer speech_to_text = 5;
   // Inference engine
   ProductContainer intelligence = 6;
+  // The WebSocket URL (Autopilot agents default to the hosted Autopilot)
+  string url = 7;
+  // fonoster or twilio (default fonoster)
+  string protocol = 8;
+  // Speech defaults
+  SpeechDefaults speech = 9;
+  // Audio format (fonoster protocol)
+  AudioFormat audio = 10;
+  // App used when this one cannot be reached
+  string fallback_app_ref = 11;
+  // Message spoken when neither the app nor its fallback can be reached
+  string fallback_message = 12;
+  // Listen-only sockets
+  repeated Listener listeners = 13;
+  // Recording policy: off, on or consent (empty: the workspace's)
+  string recording = 14;
+  // Answering-machine detection (off when unset)
+  AmdSettings amd = 15;
 }
 
 // Response for create application
 message CreateApplicationResponse {
   // Echo the reference of the application
   string ref = 1;
+  // The app's signing secret; shown only in this response
+  string signing_secret = 2;
+  // The last characters of the secret
+  string signing_secret_hint = 3;
 }
 
 // Request to get an application
@@ -140,12 +238,35 @@ message UpdateApplicationRequest {
   ProductContainer speech_to_text = 6;
   // Intelligence product
   ProductContainer intelligence = 7;
+  // The WebSocket URL (Autopilot agents default to the hosted Autopilot)
+  string url = 8;
+  // fonoster or twilio (default fonoster)
+  string protocol = 9;
+  // Speech defaults
+  SpeechDefaults speech = 10;
+  // Audio format (fonoster protocol)
+  AudioFormat audio = 11;
+  // App used when this one cannot be reached
+  string fallback_app_ref = 12;
+  // Message spoken when neither the app nor its fallback can be reached
+  string fallback_message = 13;
+  // Listen-only sockets
+  repeated Listener listeners = 14;
+  // Recording policy: off, on or consent (empty: the workspace's)
+  string recording = 15;
+  // Answering-machine detection (off when unset)
+  AmdSettings amd = 16;
 }
 
 // Response for update application
 message UpdateApplicationResponse {
   // Echo the reference of the application
   string ref = 1;
+  // A new signing secret when the update generated one (the app stopped being an Autopilot
+  // app); shown only in this response. Empty otherwise.
+  string signing_secret = 2;
+  // The last characters of the new secret (empty when there is none)
+  string signing_secret_hint = 3;
 }
 
 // Request to delete an application

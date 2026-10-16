@@ -1,0 +1,11 @@
+- apiVersion: v2beta1
+  kind: Peer
+  ref: peer-mn
+  metadata:
+    name: Media nodes
+  spec:
+    aor: sip:medianode@sip.local
+    username: medianode
+    credentialsRef: credentials-mn
+    loadBalancing:
+      algorithm: least-sessions

@@ -24,6 +24,9 @@ export * from "./ApiKeys";
 
 export * from "./Applications";
 
+export * from "./CallRecords";
+export * from "./Regions";
+
 export * from "./Calls";
 
 export * from "./Credentials";
@@ -32,12 +35,21 @@ export * from "./Domains";
 
 export * from "./Numbers";
 
+export * from "./Providers";
+
 export * from "./Secrets";
 
 export * from "./Trunks";
 
 export * from "./Users";
 
+export * from "./Webhooks";
+
 export * from "./Workspaces";
 
+export type {
+  AuthMethod,
+  Capabilities,
+  ConnectionDetails
+} from "./client/AbstractClient";
 export * from "./client/WebClient";

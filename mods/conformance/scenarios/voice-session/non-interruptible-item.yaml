@@ -1,0 +1,16 @@
+format: fonoster.scenario.v1
+name: non-interruptible-item
+contract: voice-session
+role: app
+spec: "Output lifecycle and interruption report / Caller talks over an item the app keeps"
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "This message plays to the end.", last: true, interruptible: false }
+  - expect: { type: output.started, id: r1 }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - expect: { type: turn.user_started }
+    within_ms: 1000
+  - expect: { type: output.done, id: r1 }
+    within_ms: 3000
+  - expect_none: { type: output.interrupted, id: r1 }
+    for_ms: 100

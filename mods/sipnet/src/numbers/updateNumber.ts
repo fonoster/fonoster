@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
   NumberPreconditionsCheck,
   Validators as V,
@@ -28,13 +29,16 @@ import {
   NumbersApi,
   UpdateNumberRequest
 } from "@fonoster/types";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { convertToRoutrNumberUpdate } from "./convertToRoutrNumber";
+import { NumberRouting } from "./engineRouting";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function updateNumber(
   api: NumbersApi,
-  checkNumberPreconditions: NumberPreconditionsCheck
+  checkNumberPreconditions: NumberPreconditionsCheck,
+  routing?: NumberRouting
 ) {
   const fn = async (
     call: { request: UpdateNumberRequest },
@@ -42,13 +46,25 @@ function updateNumber(
   ) => {
     const { request } = call;
 
-    // Validates that the appRef or agentAor exists in the system
-    await checkNumberPreconditions(request);
+    // Validates that the appRef exists in the caller's workspace (RV-B4)
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
+    await checkNumberPreconditions({ ...request, accessKeyId });
 
     logger.verbose("call to updateNumber", { ...request });
 
+    // The number's telUrl matters only for per-number pins, so it is read only with routing.
+    const appPeerAor =
+      routing && request.appRef
+        ? await routing.aorFor({
+            appRef: request.appRef,
+            telUrl: (await api.getNumber(request.ref))?.telUrl
+          })
+        : undefined;
+
     const response = await api.updateNumber(
-      convertToRoutrNumberUpdate(request)
+      convertToRoutrNumberUpdate(request, appPeerAor)
     );
 
     callback(null, response);

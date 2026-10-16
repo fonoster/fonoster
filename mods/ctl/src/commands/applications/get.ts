@@ -17,15 +17,62 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
+import { Application } from "@fonoster/types";
 import { Args } from "@oclif/core";
 import cliui from "cliui";
 import moment from "moment";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
+import errorHandler from "../../errorHandler";
+
+const or = (value: unknown, fallback = "-") =>
+  value === undefined || value === null || value === "" || value === 0
+    ? fallback
+    : String(value);
+
+export function formatApplication(app: Application): string {
+  const speech = app.speech ?? {};
+  const listeners = (app.listeners ?? [])
+    .map((l) => `${l.url} (${l.tracks ?? "both"})`)
+    .join(", ");
+  const assistant = app.intelligence?.config as
+    | { languageModel?: { model?: string } }
+    | undefined;
+  const lines = [
+    "APPLICATION DETAILS",
+    "------------------",
+    `NAME: \t${app.name}`,
+    `REF: \t${app.ref}`,
+    `KIND: \t${app.type === "AUTOPILOT" ? "Autopilot agent" : "Stream"}`,
+    `URL: \t${or(app.url || app.endpoint)}`,
+    `PROTOCOL: \t${or(app.protocol, "fonoster")}`,
+    ...(app.type === "AUTOPILOT"
+      ? [`MODEL: \t${or(assistant?.languageModel?.model)}`]
+      : []),
+    `VOICE: \t${or(speech.voice)}`,
+    `LANGUAGE: \t${or(speech.language)}`,
+    `STT MODEL: \t${or(speech.sttModel, "default")}`,
+    `TTS MODEL: \t${or(speech.ttsModel, "default")}`,
+    `SILENCE TIMEOUT: \t${or(speech.silenceTimeoutMs, "default")}`,
+    `PATIENCE: \t${or(speech.patience, "normal")}`,
+    `AUDIO: \t${app.audio?.codec ? `${app.audio.codec} ${app.audio.rate} Hz` : "default"}`,
+    `RECORDING: \t${or(app.recording, "off")}`,
+    `AMD: \t${app.amd?.enabled ? `on (${app.amd.windowMs || 4000} ms)` : "off"}`,
+    `FALLBACK APP: \t${or(app.fallbackAppRef)}`,
+    `FALLBACK MESSAGE: \t${or(app.fallbackMessage)}`,
+    `LISTENERS: \t${or(listeners)}`,
+    `SIGNING SECRET: \t${or(app.signingSecretHint)}`,
+    `CREATED: \t${moment(app.createdAt).format("YYYY-MM-DD HH:mm:ss")}`,
+    `UPDATED: \t${moment(app.updatedAt).format("YYYY-MM-DD HH:mm:ss")}`
+  ];
+  return lines.join("\n");
+}
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
   static override readonly description =
     "retrieve details of an Application by reference";
-  static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
+  static override readonly examples = [
+    "<%= config.bin %> <%= command.id %> <ref>"
+  ];
   static override readonly args = {
     ref: Args.string({
       description: "The Application to show details about",
@@ -35,34 +82,17 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
 
   public async run(): Promise<void> {
     const { args } = await this.parse(Get);
-    const client = await this.createSdkClient();
-    const applications = new SDK.Applications(client);
 
-    const response = await applications.getApplication(args.ref);
+    try {
+      const client = await this.createSdkClient();
+      const applications = new SDK.Applications(client);
+      const response = await applications.getApplication(args.ref);
 
-    const ui = cliui({ width: 200 });
-
-    // STT or none of productRef is undefined
-    const stt = response.speechToText?.productRef
-      ? response.speechToText?.productRef.replace("stt.", "")
-      : "none";
-    const tts = response.textToSpeech?.productRef
-      ? response.textToSpeech?.productRef.replace("tts.", "")
-      : "none";
-
-    ui.div(
-      "APPLICATION DETAILS\n" +
-        "------------------\n" +
-        `NAME: \t${response.name}\n` +
-        `REF: \t${response.ref}\n` +
-        `STT: \t${stt}\n` +
-        `TTS: \t${tts}\n` +
-        `TYPE: \t${response.type}\n` +
-        `ENDPOINT: \t${response.endpoint}\n` +
-        `CREATED: \t${moment(response.createdAt).format("YYYY-MM-DD HH:mm:ss")}\n` +
-        `UPDATED: \t${moment(response.updatedAt).format("YYYY-MM-DD HH:mm:ss")}`
-    );
-
-    this.log(ui.toString());
+      const ui = cliui({ width: 200 });
+      ui.div(formatApplication(response));
+      this.log(ui.toString());
+    } catch (e) {
+      errorHandler(e, this.error.bind(this));
+    }
   }
 }

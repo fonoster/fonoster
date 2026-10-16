@@ -12,15 +12,19 @@ The autopilot module provides a way to create Voice AI applications in Fonoster.
 * [Example](#example)
 * [Adding Knowledge Base](#configuring-the-knowledge-base)
 * [Adding Tools](#configuring-the-tools)
-* [What's Next](#whats-next)
 
 ## Installation
 
+Autopilot is an ordinary session app that the VoiceSessionGateway dials. Run the
+`fonoster/autopilot` image (built from `mods/autopilot/Dockerfile`), or from the repository:
+
 ```sh-session
-$ npm install -g @fonoster/autopilot
+$ cp config/autopilot-session.example.yaml config/autopilot-session.yaml
+$ node mods/autopilot/dist/session/main.js --config config/autopilot-session.yaml
 ```
 
-The previous command will install the module globally.
+See [docs/autopilot.md](../../docs/autopilot.md) for the engine, pacing and the assistant
+schema.
 
 ## Example
 
@@ -179,53 +183,12 @@ For example:
 { "result": "The available appointment times are 9:00 AM, 10:00 AM, and 11:00 AM." }
 ```
 
-## Environment Variables
+## Configuration
 
-Please use the following environment variables to configure the Autopilot:
+Autopilot reads `autopilot-session.yaml`, found via `--config <path>`, the
+`AUTOPILOT_SESSION_CONFIG` variable or `./config/autopilot-session.yaml`. It names the signing
+secret the gateway uses for Autopilot apps, where apps and assistants come from, the registry
+catalog, platform keys by credential ref and the knowledge settings. See
+`config/autopilot-session.example.yaml` for every key.
 
-- `AUTOPILOT_AWS_S3_ACCESS_KEY_ID`: The AWS S3 access key.
-- `AUTOPILOT_AWS_S3_ENDPOINT`: The AWS S3 endpoint.
-- `AUTOPILOT_AWS_S3_REGION`: The AWS S3 region.
-- `AUTOPILOT_AWS_S3_SECRET_ACCESS_KEY`: The AWS S3 secret access key.
-- `AUTOPILOT_CONVERSATION_PROVIDER`: The conversation provider.
-- `AUTOPILOT_KNOWLEDGE_BASE_ENABLED`: Enable knowledge base powered by AWS S3 and Unstructured API.
-- `AUTOPILOT_LOGS_FORMAT`: The logs format.
-- `AUTOPILOT_LOGS_LEVEL`: The logs level.
-- `AUTOPILOT_LOGS_TRANSPORT`: The logs transport.
-- `AUTOPILOT_OPENAI_API_KEY`: The OpenAI API key needed for embeddings support.
-- `AUTOPILOT_UNSTRUCTURED_API_KEY`: The Unstructured API key.
-- `AUTOPILOT_UNSTRUCTURED_API_URL`: The Unstructured API URL. Default is `https://api.unstructured.com`.
-- `AUTOPILOT_RECORDING_BASE_URL`: The recording base URL. Default is `http://localhost:9876/api/recordings`.
-
-## What's Next
-
-The Autopilot is still under heavy development. The next steps are to add support for Retrieval-Augmented Generation(RAG), improve the language model integration, and improve the Finite State Machine (FSM) that powers the conversations. If you have any suggestions or feedback, please let us know.
-
-## Audio filters
-
-Background voices reach speech recognition and the voice activity detector, and the assistant
-answers them. An assistant can ask the Media Server to filter the caller's audio first, by adding
-`audioFilters` to its configuration — the same block whether the assistant comes from a file or
-from an Application:
-
-```yaml
-audioFilters:
-  - name: aiCoustics
-    options:
-      enhancementLevel: 0.8 # 0 to 1; higher also suppresses competing voices
-
-conversationSettings:
-  firstMessage: "Hola, ¿en qué puedo ayudarte?"
-  # ...
-```
-
-For an Application, the same block goes inside `intelligence.config`, and is applied with:
-
-```sh
-fonoster applications:create -f app.yaml
-```
-
-Assistant files may be YAML or JSON. Filtering needs the optional `@ai-coustics/aic-sdk` package
-and an `AIC_SDK_LICENSE` key on the apiserver; the key never appears in assistant configuration,
-so these files stay safe to commit. If the filter cannot be applied, the call continues with
-unfiltered audio and the reason is logged.
+Audio filters are part of the app's configuration (the gateway runs them), not the assistant's.

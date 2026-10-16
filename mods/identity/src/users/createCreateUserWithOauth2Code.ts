@@ -24,16 +24,17 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { CreateUserWithOauth2CodeRequest } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
-import { customAlphabet } from "nanoid";
 import { Prisma } from "../db";
 import { exchangeTokens } from "../exchanges/exchangeTokens";
 import { ExchangeResponse, IdentityConfig } from "../exchanges/types";
-import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import {
-  AccessKeyIdType,
-  generateAccessKeyId
-} from "../utils/generateAccessKeyId";
+  isMethodEnabled,
+  isOpenSignup,
+  methodDisabledError
+} from "../utils/authMethods";
+import { createGetUserByGitHubEmails } from "../utils/createGetUserByGitHubEmails";
 import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
+import { createUserFromGitHub } from "./createUserFromGitHub";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -50,21 +51,38 @@ function createCreateUserWithOauth2Code(
 
     logger.verbose("call to createCreateUserWithOauth2Code");
 
+    if (
+      !isMethodEnabled(identityConfig, "github") ||
+      !identityConfig.githubOauth2Config
+    ) {
+      return callback(methodDisabledError("github"));
+    }
+
+    if (!isOpenSignup(identityConfig)) {
+      return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: "Sign-up is by invitation only"
+      });
+    }
+
     const userData = await getGitHubUserWithOauth2Code({
       clientId: identityConfig.githubOauth2Config.clientId,
       clientSecret: identityConfig.githubOauth2Config.clientSecret,
+      url: identityConfig.githubOauth2Config.url,
+      apiUrl: identityConfig.githubOauth2Config.apiUrl,
       code
     });
 
     if (!userData.email) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
-        message:
-          "Failed to get user data from GitHub. This typically happens when your GitHub account doesn't have a public email address"
+        message: "Your GitHub account has no verified primary email"
       });
     }
 
-    const userFromDB = await createGetUserByEmail(prisma)(userData.email);
+    const userFromDB = await createGetUserByGitHubEmails(prisma)(
+      userData.verifiedEmails ?? [userData.email]
+    );
 
     if (userFromDB) {
       return callback({
@@ -73,15 +91,9 @@ function createCreateUserWithOauth2Code(
       });
     }
 
-    const user = await prisma.user.create({
-      data: {
-        name: userData.name,
-        email: userData.email,
-        accessKeyId: generateAccessKeyId(AccessKeyIdType.USER),
-        emailVerified: true,
-        password: customAlphabet("1234567890abcdef", 10)(),
-        avatar: userData.avatar_url
-      }
+    const user = await createUserFromGitHub(prisma)({
+      ...userData,
+      email: userData.email
     });
 
     callback(

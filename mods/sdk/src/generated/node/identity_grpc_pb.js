@@ -254,6 +254,28 @@ function deserialize_fonoster_identity_v1beta2_ExchangeRefreshTokenResponse(buff
   return identity_pb.ExchangeRefreshTokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_ExchangeVerificationCodeRequest(arg) {
+  if (!(arg instanceof identity_pb.ExchangeVerificationCodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ExchangeVerificationCodeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeRequest(buffer_arg) {
+  return identity_pb.ExchangeVerificationCodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse(arg) {
+  if (!(arg instanceof identity_pb.ExchangeVerificationCodeResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ExchangeVerificationCodeResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse(buffer_arg) {
+  return identity_pb.ExchangeVerificationCodeResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_GetPublicKeyResponse(arg) {
   if (!(arg instanceof identity_pb.GetPublicKeyResponse)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.GetPublicKeyResponse');
@@ -875,6 +897,18 @@ exchangeCredentials: {
     requestDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeRefreshTokenRequest,
     responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeRefreshTokenResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeRefreshTokenResponse,
+  },
+  // Trade an emailed sign-in code for tokens (passwordless sign-in)
+exchangeVerificationCode: {
+    path: '/fonoster.identity.v1beta2.Identity/ExchangeVerificationCode',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.ExchangeVerificationCodeRequest,
+    responseType: identity_pb.ExchangeVerificationCodeResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_ExchangeVerificationCodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeVerificationCodeResponse,
   },
   revokeToken: {
     path: '/fonoster.identity.v1beta2.Identity/RevokeToken',

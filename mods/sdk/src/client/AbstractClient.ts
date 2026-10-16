@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 import { ContactType } from "@fonoster/types";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { GetCapabilitiesResponse as GetCapabilitiesResponsePB } from "../generated/node/capabilities_pb";
 import {
   ContactType as ContactTypePB,
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
@@ -25,6 +27,8 @@ import {
   ExchangeOauth2CodeRequest as ExchangeOauth2CodeRequestPB,
   ExchangeOauth2CodeResponse as ExchangeOauth2CodeResponsePB,
   ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
+  ExchangeVerificationCodeRequest as ExchangeVerificationCodeRequestPB,
+  ExchangeVerificationCodeResponse as ExchangeVerificationCodeResponsePB,
   SendVerificationCodeRequest as SendVerificationCodeRequestPB,
   VerifyCodeRequest as VerifyCodeRequestPB
 } from "../generated/node/identity_pb";
@@ -32,6 +36,7 @@ import { makeRpcRequest } from "./makeRpcRequest";
 import {
   ApplicationsClient,
   CallsClient,
+  CapabilitiesClient,
   FonosterClient,
   IdentityClient,
   SecretsClient
@@ -41,7 +46,63 @@ import { AgentsClient } from "./types/AgentsClient";
 import { CredentialsClient } from "./types/CredentialsClient";
 import { DomainsClient } from "./types/DomainsClient";
 import { NumbersClient } from "./types/NumbersClient";
+import { ProvidersClient } from "./types/ProvidersClient";
 import { TrunksClient } from "./types/TrunksClient";
+import { WebhooksClient } from "./types/WebhooksClient";
+
+type AuthMethod = "password" | "email_code" | "github";
+
+/** The deployment's capabilities, from the Capabilities service. */
+type Capabilities = {
+  auth: {
+    methods: AuthMethod[];
+    signup: "invite" | "open";
+    github?: { clientId: string; authorizeUrl: string };
+  };
+  billing: { enabled: boolean };
+  costs: { display: "none" | "usage" | "prices" };
+  domain: string;
+  appUrl: string;
+  /**
+   * `private` is true only when the operator configured the region hub, so
+   * workspaces can enroll private regions. The local public region always
+   * exists and is not a reason to show region features.
+   */
+  regions: { private: boolean };
+  /**
+   * Where carriers and softphones reach this deployment (its default public
+   * region): SIP endpoints, addresses to allowlist and the RTP port range.
+   * Empty lists when the operator listed none or the server is older.
+   */
+  connection: ConnectionDetails;
+};
+
+type SipTransport = "udp" | "tcp" | "tls" | "ws" | "wss";
+
+type ConnectionDetails = {
+  sip: { host: string; port: number; transport: SipTransport }[];
+  signalingAddresses: string[];
+  mediaAddresses: string[];
+  rtpPorts?: { min: number; max: number };
+};
+
+/** The Capabilities response's connection details as plain values. */
+function toConnectionDetails(
+  response: GetCapabilitiesResponsePB
+): ConnectionDetails {
+  const c = response.getConnection();
+  const ports = c?.getRtpPorts();
+  return {
+    sip: (c?.getSipList() ?? []).map((s) => ({
+      host: s.getHost(),
+      port: s.getPort(),
+      transport: s.getTransport() as SipTransport
+    })),
+    signalingAddresses: c?.getSignalingAddressesList() ?? [],
+    mediaAddresses: c?.getMediaAddressesList() ?? [],
+    rtpPorts: ports ? { min: ports.getMin(), max: ports.getMax() } : undefined
+  };
+}
 
 abstract class AbstractClient implements FonosterClient {
   protected accessKeyId: string;
@@ -161,6 +222,78 @@ abstract class AbstractClient implements FonosterClient {
     this._idToken = idToken;
   }
 
+  /**
+   * Passwordless sign-in: trades the 6-digit code emailed by
+   * `sendVerificationCode(ContactType.EMAIL, email)` for tokens.
+   */
+  async loginWithVerificationCode(email: string, code: string): Promise<void> {
+    const { refreshToken, accessToken, idToken } = await makeRpcRequest<
+      ExchangeVerificationCodeRequestPB,
+      ExchangeVerificationCodeResponsePB,
+      { email: string; code: string },
+      { refreshToken: string; accessToken: string; idToken: string }
+    >({
+      method: this.identityClient.exchangeVerificationCode.bind(
+        this.identityClient
+      ),
+      requestPBObjectConstructor: ExchangeVerificationCodeRequestPB,
+      metadata: {},
+      request: { email, code }
+    });
+
+    this._refreshToken = refreshToken;
+    this._accessToken = accessToken;
+    this._idToken = idToken;
+  }
+
+  /**
+   * What the deployment supports (from the server's fonoster.yaml): sign-in
+   * methods, sign-up policy, the GitHub client id when enabled, billing, cost
+   * display, domain and app URL. Needs no credentials.
+   */
+  async getCapabilities(): Promise<Capabilities> {
+    return new Promise((resolve, reject) => {
+      this.getCapabilitiesClient().getCapabilities(
+        new Empty(),
+        {},
+        (error: Error | null, response: GetCapabilitiesResponsePB) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          const auth = response.getAuth();
+          const github = auth?.getGithub();
+
+          resolve({
+            auth: {
+              methods: (auth?.getMethodsList() ?? []) as AuthMethod[],
+              signup: (auth?.getSignup() ||
+                "invite") as Capabilities["auth"]["signup"],
+              github: github
+                ? {
+                    clientId: github.getClientId(),
+                    authorizeUrl: github.getAuthorizeUrl()
+                  }
+                : undefined
+            },
+            billing: { enabled: response.getBilling()?.getEnabled() ?? false },
+            costs: {
+              display: (response.getCosts()?.getDisplay() ||
+                "none") as Capabilities["costs"]["display"]
+            },
+            domain: response.getDomain(),
+            appUrl: response.getAppUrl(),
+            regions: {
+              private: response.getRegions()?.getPrivate() ?? false
+            },
+            connection: toConnectionDetails(response)
+          });
+        }
+      );
+    });
+  }
+
   setAccessToken(accessToken: string) {
     this._accessToken = accessToken;
   }
@@ -240,6 +373,7 @@ abstract class AbstractClient implements FonosterClient {
   abstract getMetadata(): unknown;
   abstract getApplicationsClient(): ApplicationsClient;
   abstract getIdentityClient(): IdentityClient;
+  abstract getCapabilitiesClient(): CapabilitiesClient;
   abstract getSecretsClient(): SecretsClient;
   abstract getAgentsClient(): AgentsClient;
   abstract getNumbersClient(): NumbersClient;
@@ -248,6 +382,15 @@ abstract class AbstractClient implements FonosterClient {
   abstract getTrunksClient(): TrunksClient;
   abstract getAclsClient(): AclsClient;
   abstract getCallsClient(): CallsClient;
+  abstract getWebhooksClient(): WebhooksClient;
+  abstract getProvidersClient(): ProvidersClient;
+  abstract getHttpUrl(): string;
 }
 
-export { AbstractClient };
+export {
+  AbstractClient,
+  AuthMethod,
+  Capabilities,
+  ConnectionDetails,
+  toConnectionDetails
+};

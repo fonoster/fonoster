@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: socket-closed
+contract: twilio-media-streams-flavor
+role: app
+spec: "Hanging up from a Twilio-protocol stream / Socket closed"
+setup:
+  app: { protocol: twilio }
+ignore: [media]
+steps:
+  - expect: { event: start }
+  - close: {}
+  - wait: { ms: 300 }
+  - assert:
+      media.commands: { $includes: [{ type: hangup }] }

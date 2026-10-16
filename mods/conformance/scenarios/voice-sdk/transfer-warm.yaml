@@ -1,0 +1,34 @@
+format: fonoster.scenario.v1
+name: transfer-warm
+contract: voice-sdk
+role: gateway
+fixture: transfer-warm
+spec: "Call control methods map one to one / Warm transfer"
+steps:
+  - send:
+      type: session.start
+      protocol: fonoster.session.v1
+      sessionRef: sess-1
+      callRef: call-1
+      appRef: app-1
+      direction: inbound
+      from: "+15550001111"
+      to: "+15550002222"
+      metadata: {}
+      handoff: null
+      audio: { codec: pcm16, rate: 16000 }
+      tracks:
+        - { id: 1, side: inbound, kind: audio, codec: pcm16 }
+        - { id: 2, side: outbound, kind: audio, codec: pcm16 }
+      speech: { voice: fonoster/default, language: en-US }
+  - expect: { type: transfer, to: "+15551234567", mode: warm }
+    capture: { tid: id }
+  - expect: { type: speak, text: "Connecting you now.", last: true }
+    capture: { sid: id }
+  - expect_none: { type: transfer.complete }
+    for_ms: 100
+  - send: { type: output.started, id: "${sid}" }
+  - send: { type: output.done, id: "${sid}" }
+  - expect: { type: transfer.complete, id: "${tid}" }
+    within_ms: 1000
+  - send: { type: session.end, reason: transfer }

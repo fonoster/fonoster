@@ -26,3 +26,4 @@ export * from "./getTwilioTrunk";
 export * from "./linkTwilioNumberToApplication";
 export * from "./types";
 export * from "./createOrUpdateApplication";
+export * from "./applicationRequest";

@@ -1,0 +1,10 @@
+format: fonoster.scenario.v1
+name: refer-transfer
+contract: voice-session
+role: app
+spec: "Call control / Transfer by SIP REFER"
+steps:
+  - expect: { type: session.start }
+  - send: { type: transfer, id: t3, to: "+15551234567", mode: refer }
+  - expect: { type: session.end, reason: transfer }
+    within_ms: 2000

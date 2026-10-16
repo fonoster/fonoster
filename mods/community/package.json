@@ -1,0 +1,81 @@
+{
+  "name": "@fonoster/community",
+  "version": "0.27.0",
+  "description": "Vendor adapters (STT, TTS, LLM) behind shared interfaces, one subpath per vendor",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./deepgram": {
+      "types": "./dist/deepgram/index.d.ts",
+      "default": "./dist/deepgram/index.js"
+    },
+    "./elevenlabs": {
+      "types": "./dist/elevenlabs/index.d.ts",
+      "default": "./dist/elevenlabs/index.js"
+    },
+    "./openai": {
+      "types": "./dist/openai/index.d.ts",
+      "default": "./dist/openai/index.js"
+    },
+    "./fake": {
+      "types": "./dist/fake/index.d.ts",
+      "default": "./dist/fake/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "types": [
+        "dist/types.d.ts"
+      ],
+      "deepgram": [
+        "dist/deepgram/index.d.ts"
+      ],
+      "elevenlabs": [
+        "dist/elevenlabs/index.d.ts"
+      ],
+      "openai": [
+        "dist/openai/index.d.ts"
+      ],
+      "fake": [
+        "dist/fake/index.d.ts"
+      ]
+    }
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  }
+}

@@ -21,9 +21,7 @@ import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 import { Document } from "@langchain/core/documents";
 import { Embeddings } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
-import { OpenAIEmbeddings } from "@langchain/openai";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { OPENAI_API_KEY } from "../envs";
 import { KnowledgeBase } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -32,12 +30,9 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
   protected embeddings: Embeddings;
   protected vectorStore: VectorStore;
 
-  constructor(params?: { embeddings?: Embeddings }) {
-    this.embeddings =
-      params?.embeddings ||
-      new OpenAIEmbeddings({
-        apiKey: OPENAI_API_KEY
-      });
+  /** The embeddings come from the caller (the hosted Autopilot resolves their key by credentialRef). */
+  constructor(params: { embeddings: Embeddings }) {
+    this.embeddings = params.embeddings;
   }
 
   abstract getLoaders(): Promise<unknown>;

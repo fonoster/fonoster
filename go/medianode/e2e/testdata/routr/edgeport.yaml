@@ -1,0 +1,24 @@
+kind: EdgePort
+apiVersion: v2beta1
+ref: edgeport-01
+metadata:
+  region: default
+spec:
+  unknownMethodAction: Discard
+  processor:
+    addr: dispatcher:51901
+  externalAddrs:
+    - 127.0.0.1
+  localnets:
+    - 172.16.0.0/12
+  methods:
+    - REGISTER
+    - INVITE
+    - ACK
+    - BYE
+    - CANCEL
+  transport:
+    - protocol: udp
+      port: 15360
+    - protocol: tcp
+      port: 15360

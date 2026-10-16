@@ -19,7 +19,42 @@
 import { Validators as V } from "@fonoster/common";
 import { z } from "zod";
 
+/** A workspace as the control plane's regions code reads it. */
+type RegionWorkspace = {
+  ref: string;
+  accessKeyId: string;
+  name: string;
+  ownerRef: string;
+  region: string;
+};
+
+/**
+ * Workspace ↔ region binding (add-private-regions PR-1, PR-14, PR-15), provided by the control
+ * plane. Without it every workspace is on the default public region.
+ */
+type WorkspaceRegionHooks = {
+  publicRegions: string[];
+  defaultRegion: string;
+  /**
+   * The `region` to store for what the caller picked (an offered public id, or one of the
+   * caller's private regions by id or ref); throws (status 400) for anything else.
+   */
+  resolveRegion(
+    ownerRef: string,
+    requested?: string
+  ): Promise<{ region: string }>;
+  /** A workspace joined (created) or left (deleted) a region. */
+  workspaceChanged(workspace: { accessKeyId: string; region: string }): void;
+  /** Identity hands the control plane read access to its workspaces. */
+  attachDirectory?(directory: {
+    workspace(accessKeyId: string): Promise<RegionWorkspace | undefined>;
+    inRegion(region: string): Promise<RegionWorkspace[]>;
+  }): void;
+};
+
 type IdentityConfig = {
+  /** Workspace regions (control plane); absent means the default public region only. */
+  regions?: WorkspaceRegionHooks;
   dbUrl: string;
   issuer: string;
   audience: string;
@@ -34,7 +69,8 @@ type IdentityConfig = {
   workspaceInviteFailUrl: string;
   contactVerificationRequired: boolean;
   twoFactorAuthenticationRequired: boolean;
-  smtpConfig: {
+  /** Absent when outgoing email isn't configured; sending email then fails clearly. */
+  smtpConfig?: {
     sender: string;
     host: string;
     port: number;
@@ -52,6 +88,15 @@ type IdentityConfig = {
   githubOauth2Config?: {
     clientId: string;
     clientSecret: string;
+    /** Defaults to https://github.com. */
+    url?: string;
+    /** Defaults to https://api.github.com. */
+    apiUrl?: string;
+  };
+  /** Sign-in methods and sign-up policy, from features.auth. */
+  auth: {
+    methods: Array<"password" | "email_code" | "github">;
+    signup: "invite" | "open";
   };
 };
 
@@ -74,6 +119,8 @@ type ExchangeRefreshTokenRequest = z.infer<
 >;
 
 export {
+  RegionWorkspace,
+  WorkspaceRegionHooks,
   ExchangeApiKeysRequest,
   ExchangeCredentialsRequest,
   ExchangeOauth2CodeRequest,

@@ -1,0 +1,16 @@
+{
+  "description": "An outbound call the callee rejects with 486 Busy Here: a minimal record, no dialog.",
+  "callRef": "fx-failed-busy",
+  "entries": [
+    { "atMs": 0, "source": "event", "message": { "type": "call.started", "direction": "outbound", "appRef": "reminders", "workspaceRef": "ws-fixtures", "from": "+15550002222", "to": "+15550004444" } },
+    { "atMs": 4000, "source": "event", "message": { "type": "call.failed", "reason": "busy", "sipStatus": 486 } },
+    { "atMs": 4001, "source": "event", "message": { "type": "call.ended", "reason": "busy" } }
+  ],
+  "expect": {
+    "status": "failed",
+    "redactions": 0,
+    "missing": [],
+    "agents": ["reminders"],
+    "recording": "none"
+  }
+}

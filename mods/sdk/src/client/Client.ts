@@ -26,12 +26,15 @@ import { AclsClient } from "../generated/node/acls_grpc_pb";
 import { AgentsClient } from "../generated/node/agents_grpc_pb";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
 import { CallsClient } from "../generated/node/calls_grpc_pb";
+import { CapabilitiesClient } from "../generated/node/capabilities_grpc_pb";
 import { CredentialsServiceClient } from "../generated/node/credentials_grpc_pb";
 import { DomainsClient } from "../generated/node/domains_grpc_pb";
 import { IdentityClient } from "../generated/node/identity_grpc_pb";
 import { NumbersClient } from "../generated/node/numbers_grpc_pb";
+import { ProvidersClient } from "../generated/node/providers_grpc_pb";
 import { SecretsClient } from "../generated/node/secrets_grpc_pb";
 import { TrunksClient } from "../generated/node/trunks_grpc_pb";
+import { WebhooksClient } from "../generated/node/webhooks_grpc_pb";
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherNode } from "./TokenRefresherNode";
 
@@ -39,6 +42,7 @@ const DEFAULT_ENDPOINT = "api.fonoster.com";
 
 export class Client extends AbstractClient {
   private readonly endpoint: string;
+  private readonly httpUrl?: string;
   private readonly tokenRefresherInterceptor: Interceptor;
   private readonly channelCredentials: ChannelCredentials;
 
@@ -48,6 +52,8 @@ export class Client extends AbstractClient {
       accessKeyId: string;
       allowInsecure?: boolean;
       withoutInterceptors?: boolean;
+      /** The HTTP API (call records); default https://<endpoint host>. */
+      httpUrl?: string;
     } = {
       endpoint: DEFAULT_ENDPOINT,
       accessKeyId: "",
@@ -69,6 +75,7 @@ export class Client extends AbstractClient {
 
     this.channelCredentials = channelCredentials;
     this.endpoint = config?.endpoint ?? DEFAULT_ENDPOINT;
+    this.httpUrl = config?.httpUrl;
 
     this.tokenRefresherInterceptor = config.withoutInterceptors
       ? null
@@ -96,6 +103,10 @@ export class Client extends AbstractClient {
 
   getIdentityClient() {
     return new IdentityClient(this.endpoint, this.channelCredentials);
+  }
+
+  getCapabilitiesClient() {
+    return new CapabilitiesClient(this.endpoint, this.channelCredentials);
   }
 
   getSecretsClient() {
@@ -132,6 +143,24 @@ export class Client extends AbstractClient {
     return new NumbersClient(this.endpoint, this.channelCredentials, {
       interceptors: [this.tokenRefresherInterceptor]
     });
+  }
+
+  getWebhooksClient() {
+    return new WebhooksClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getProvidersClient() {
+    return new ProvidersClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getHttpUrl() {
+    return (
+      this.httpUrl ?? `https://${this.endpoint.replace(/:\d+$/, "")}`
+    ).replace(/\/+$/, "");
   }
 
   getCredentialsClient() {

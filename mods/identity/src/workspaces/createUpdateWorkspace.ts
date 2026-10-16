@@ -27,7 +27,7 @@ import { BaseApiObject, UpdateWorkspaceRequest } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
-import { createIsWorkspaceMember } from "./createIsWorkspaceMember";
+import { createIsAdminMember } from "./createIsAdminMember";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -41,16 +41,31 @@ function createUpdateWorkspace(prisma: Prisma) {
 
     const { request } = call;
     const { ref, name } = request;
+    const region = (request as { region?: string }).region;
 
     logger.verbose("call to updateWorkspace", { ref, userRef });
 
-    const isMember = await createIsWorkspaceMember(prisma)(ref, userRef);
+    // The owner and admins rename a workspace; members only use it.
+    const isAdmin = await createIsAdminMember(prisma)(ref, userRef);
 
-    if (!isMember) {
+    if (!isAdmin) {
       callback({
         code: GRPCStatus.PERMISSION_DENIED,
-        message: "User is not a member of the workspace"
+        message: "Only the workspace owner or an admin can update it"
       });
+      return;
+    }
+
+    // The region is fixed at creation (add-private-regions PR-1).
+    if (region) {
+      const current = await prisma.workspace.findUnique({ where: { ref } });
+      if (current && current.region !== region) {
+        callback({
+          code: GRPCStatus.FAILED_PRECONDITION,
+          message: "region_immutable: a workspace's region cannot change"
+        });
+        return;
+      }
     }
 
     await prisma.workspace.update({

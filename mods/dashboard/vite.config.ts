@@ -16,25 +16,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { reactRouter } from "@react-router/dev/vite";
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import type { Plugin } from "vite";
+import { defineConfig } from "vitest/config";
+
+// The SDK's "module" field names a file it doesn't ship, so point straight at
+// its browser build.
+const sdkWeb = join(
+  dirname(createRequire(import.meta.url).resolve("@fonoster/sdk/package.json")),
+  "dist/web/index.esm.js"
+);
+
+// In the dev container (npm run dev:dashboard) the API's URL comes from DASHBOARD_API_URL, as in
+// the image (nginx/40-fonoster-config.sh); without it public/config.js is served.
+const runtimeConfigFromEnv = (): Plugin => ({
+  name: "fonoster-runtime-config",
+  configureServer(server) {
+    const apiUrl = process.env.DASHBOARD_API_URL;
+    if (!apiUrl) return;
+    server.middlewares.use("/config.js", (_req, res) => {
+      res.setHeader("content-type", "text/javascript");
+      res.end(`window.__FONOSTER__ = ${JSON.stringify({ apiUrl })};\n`);
+    });
+  }
+});
 
 export default defineConfig({
-  plugins: [reactRouter(), tsconfigPaths()],
+  plugins: [react(), tailwindcss(), runtimeConfigFromEnv()],
   resolve: {
-    dedupe: ["react", "react-dom", "react/jsx-runtime"]
+    alias: {
+      "~": fileURLToPath(new URL("./src", import.meta.url)),
+      "@fonoster/sdk": sdkWeb
+    },
+    dedupe: ["react", "react-dom"]
   },
-  ssr: {
-    noExternal: ["@mui/*", "@emotion/*"]
-  },
-  optimizeDeps: {
-    include: ["@mui/*", "@emotion/*"],
-    force: true
-  },
-  server: {
-    port: 3030,
-    strictPort: true
-  },
-  envPrefix: "DASHBOARD_"
+  server: { port: 3030, strictPort: true },
+  preview: { port: 3030, strictPort: true },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
+    css: false
+  }
 });

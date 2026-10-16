@@ -1,0 +1,128 @@
+# Build log: add-workspace-webhooks
+
+Decisions taken while building, for the owner to review. Each can be reversed.
+
+## 2026-10-15 (overnight, owner asleep)
+
+### WH1. Core in `@fonoster/common` (`src/webhooks`, exported as `Webhooks`)
+
+- Event builders for the five v1 types with the spec envelope (`evt_` ids, stable across retries);
+  `call_record.sealed` carries `callRef`, `version` and `recordUrl` only.
+- Signing per W4 (comma-separated signatures during rotation) and `verifyWebhook()` for
+  receivers (rejects timestamps more than 300 s off).
+- `WebhookDispatcher`: endpoints (HTTPS only; secrets `whsec_…`, shown once), rotation windows,
+  fan-out by workspace and event type, at-least-once delivery (2xx within 10 s), backoff from
+  10 s doubling (capped at 1 h) for 24 h, then failed and resendable with the same event id.
+- Storage behind `WebhookStore` (memory implementation only). No database tables, API, SDK or
+  dashboard yet (2.1, 2.5 storage, 3.x).
+- Fake receiver for suites: `FakeWebhookReceiver` in `@fonoster/conformance` (task 1.1).
+
+### WH2. Producers not wired yet (2.2, 2.4)
+
+- The pieces exist: the gateway records `call.started`/`call.ended` and `call.failed`-like events,
+  `CallRecordWriter` has `onSealed`, the registry calls `UsageSource.notify` with
+  `provider.deprecated`. Turning them into deliveries needs the workspace of each call, which lives
+  in the control plane (apiserver consuming events from NATS). Not done.
+
+## 2026-10-15 (persistence stream)
+
+### P-B5. Endpoint and delivery tables
+
+- `webhook_endpoints` (workspace = `access_key_id`, url, events, `secret_hash` and
+  `previous_secret_hash` as `/// @encrypted` columns, `previous_until` for the rotation window) and
+  `webhook_deliveries` (the delivery log: event JSON with its id, status, attempts, timestamps,
+  last HTTP status, next attempt). No foreign key from deliveries to endpoints: the log outlives a
+  deleted endpoint, and its pending deliveries fail.
+- `PrismaWebhookStore` implements `WebhookStore` with an endpoint snapshot (`refresh()`) and
+  write-behind (P-B1 in add-provider-registry). `loadDeliveries()` reads the log (newest first) and
+  makes those deliveries resendable by `WebhookDispatcher.resend`.
+- Encryption needs a client with the apiserver's field-encryption extension
+  (`openPrismaClient({encryptionKey})`); a client without it would store secrets in clear.
+
+### P-B6. Retries survive a dead process (adoption)
+
+- Each process retries the deliveries it created. A store opened with `adoptOverdue` claims pending
+  deliveries more than 60 s overdue (a conditional update on `next_attempt_at`, so only one process
+  wins) and retries them. The gateway runs with adoption on; the registry utility does not.
+- Duplicates stay possible at the edges (at-least-once); receivers dedupe by event id.
+
+### P-B7. The gateway's producer is wired (task 2.4, gateway part)
+
+- Gateway config `database` + `webhooks: {enabled: true}`: `main.ts` builds a
+  `WebhookDispatcher` over the database store, passes its `publish` as `GatewayOptions.webhooks`
+  (call.started, call.ended, call.failed), attempts due deliveries every second and reloads
+  endpoints every 30 s. `provider.deprecated` is produced by the registry utility (P-B3 in
+  add-provider-registry). Media node and record writer producers are not wired here.
+
+## 2026-10-15 (control stream)
+
+### CP-B5. Webhooks API
+
+- New gRPC service `fonoster.webhooks.v1beta2.Webhooks`: create (secret shown once), list, get,
+  update (URL and/or events), delete, rotate (previous secret verifies 24 h, W4), list
+  deliveries (newest first) and resend. Every query is scoped to the caller's access key id.
+- Create and update reuse the dispatcher's checks (HTTPS, known event types) through a throwaway
+  `MemoryWebhookStore`. Resend opens a `PrismaWebhookStore`, loads the one delivery and calls
+  `WebhookDispatcher.resend`, so it signs exactly like the gateways.
+- `apps.allowInsecureWebhooks` (default false) allows http:// endpoints for local testing.
+- SDK `Webhooks`; dashboard Webhooks page (endpoints, events, rotation, delivery log, resend).
+  No CTL commands yet.
+
+### RV-B2. Tenant URLs cannot reach the platform's network (SSRF)
+- One rule in `@fonoster/common` (`mods/common/src/net/assertPublicDestination.ts`):
+  `assertPublicDestination` (http/https only; no single-label or internal names such as
+  `redis`, `localhost`, `*.internal`, `*.local`; every resolved address public: no loopback,
+  RFC 1918, link-local 169.254/16 and fe80::/10, ULA, CGNAT, multicast, 0.0.0.0, NAT64,
+  documentation ranges, IPv4-mapped forms of those) and `safeFetch`, which re-checks the
+  address the socket actually connects to (DNS rebinding), re-checks every redirect (max 3),
+  times out (10 s) and caps the body (5 MiB). No new dependency (node:http/https, net.BlockList).
+- Operator override for self-hosting: `FONOSTER_ALLOWED_DESTINATIONS` (comma-separated host
+  names, IPs or CIDRs; default empty). Code can pass the list explicitly (`allowedDestinations`
+  on the webhook dispatcher, the apiserver webhooks config, the gateway `webhooks` config and
+  `createAutopilotHandler`); tests pass `["127.0.0.1"]` for their local receivers.
+- Applied to: Autopilot HTTP tools (`HttpToolPort`), webhook endpoint validation (create and
+  update) and webhook delivery (no redirects followed there: a 3xx is a failed attempt).
+- Go: `go/medianode/internal/netguard` implements the same rule for hold music: a dedicated
+  client (10 s timeout, check in the dialer's Control on the resolved address, redirects
+  re-checked); the node reads `FONOSTER_ALLOWED_DESTINATIONS` too.
+- Tests: `mods/common/test/net`, `mods/autopilot/test/session/tools.test.ts`,
+  `go/medianode/internal/netguard`.
+
+## 2026-10-15 (cli stream)
+
+### CLI-B5. `webhooks:*` commands
+- `create --url -e <event>...` (prints the signing secret once), `list`, `get` (secret hint only),
+  `update <ref> [--url] [-e ...]` (`-e` replaces the event list), `delete`, `rotate` (prints the
+  new secret and until when the previous one is accepted), `deliveries [webhook-ref]` and
+  `resend <delivery-ref>`.
+- `--event` choices come from `WEBHOOK_EVENT_TYPES` in `@fonoster/common`, so a typo fails
+  before the API call.
+- Tests: `mods/ctl/test/webhooks`.
+## 2026-10-15 (leftovers stream)
+
+### LO-B1. Fan-out from the event bus (task 2.2)
+
+- Producers without a database publish v1 events on NATS `webhooks.events` (`Webhooks.
+  busWebhookPublisher`). The apiserver consumes them in queue group `apiserver-webhooks` (one
+  replica per event), stores one delivery per subscribed endpoint, attempts it at once and retries
+  due deliveries every second (`webhooks: {fanout, intervalMs, refreshMs}` in the apiserver config,
+  fan-out on by default; endpoints reloaded every 10 s, overdue deliveries adopted as in P-B6).
+- An event with an empty (or `default`) `workspaceRef` and a `data.appRef` gets the app's workspace
+  (`applications.access_key_id`, cached 60 s); one whose app is unknown is dropped.
+- Malformed messages, unknown types and ids not shaped `evt_…` are dropped. Anyone on NATS can
+  publish there (same trust as `callrecord.sealed`, RV-B6); a forged event would reach only the
+  named workspace's own endpoints.
+- Gateway `webhooks: {enabled: true, transport: bus}` publishes call.started/ended/failed and
+  call_record.sealed on the bus and needs no database; `transport: database` (default) keeps the
+  P-B7 behaviour.
+
+### LO-B2. Producers complete (task 2.4)
+
+- Media node (Go): a call no gateway claims (503) publishes `call.failed` with `reason:
+  node_error`, the app from `X-App-Ref` and an empty workspace (the node does not know it; the
+  fan-out fills it in). Calls without an app produce nothing.
+- Record writer: `call_record.sealed` is sent by the gateway that sealed (R-B8), on the bus in bus
+  mode. Registry utility: `provider.deprecated` (P-B3), unchanged.
+- Tests: `mods/common/test/webhooks/bus.test.ts`, `mods/apiserver/test/webhooks/fanout.test.ts`
+  (Postgres + NATS), gateway `records.test.ts` (bus mode), Go `TestUnclaimedCallGets503`.
+

@@ -21,7 +21,7 @@ import * as grpc from "@grpc/grpc-js";
 import * as chai from "chai";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
+import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/core/db";
 import { TEST_TOKEN, TEST_UUID } from "../utils";
@@ -45,8 +45,8 @@ describe("@applications/updateApplication", function () {
       request: {
         ref: TEST_UUID,
         name: "My new application name",
-        endpoint: "localhost:8765",
-        type: ApplicationType.EXTERNAL
+        url: "wss://bot.example.com/session",
+        type: ApplicationType.STREAM
       }
     };
 
@@ -69,20 +69,32 @@ describe("@applications/updateApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createUpdateApplication } = await import(
-      "../../src/applications/createUpdateApplication"
-    );
+    const { createUpdateApplication } =
+      await import("../../src/applications/createUpdateApplication");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      createUpdateApplication(prisma)(call, (error, response) => {
-        if (error) return reject(error);
-        resolve(response);
-      });
+      createUpdateApplication(prisma, { autopilotUrl: "ws://autopilot" })(
+        call,
+        (error, response) => {
+          if (error) return reject(error);
+          resolve(response);
+        }
+      );
     });
 
-    // Assert
-    expect(response).to.deep.equal({ ref: TEST_UUID });
+    // Assert: the app had no secret, so the update generated one and shows it once
+    const r = response as {
+      ref: string;
+      signingSecret: string;
+      signingSecretHint: string;
+    };
+    expect(r.ref).to.equal(TEST_UUID);
+    expect(r.signingSecret).to.be.a("string").and.not.equal("");
+    expect(r.signingSecretHint).to.equal(`…${r.signingSecret.slice(-4)}`);
+    const written = (prisma.application.update as sinon.SinonStub).firstCall
+      .args[0].data.signingSecret;
+    expect(written).to.equal(r.signingSecret);
   });
 
   it("should throw an error if the application does not exist", async function () {
@@ -105,19 +117,23 @@ describe("@applications/updateApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createUpdateApplication } = await import(
-      "../../src/applications/createUpdateApplication"
-    );
+    const { createUpdateApplication } =
+      await import("../../src/applications/createUpdateApplication");
 
     // Act
     const response = new Promise((resolve, reject) => {
-      createUpdateApplication(prisma)(call, (error, response) => {
-        if (error) return reject(error);
-        resolve(response);
-      });
+      createUpdateApplication(prisma, { autopilotUrl: "ws://autopilot" })(
+        call,
+        (error, response) => {
+          if (error) return reject(error);
+          resolve(response);
+        }
+      );
     });
 
     // Assert
-    await expect(response).to.be.rejectedWith("The requested resource was not found");
+    await expect(response).to.be.rejectedWith(
+      "The requested resource was not found"
+    );
   });
 });

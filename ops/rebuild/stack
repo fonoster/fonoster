@@ -1,0 +1,471 @@
+#!/usr/bin/env bash
+# The Fonoster rebuild stack on one machine (docs/try-the-new-platform.md).
+#
+#   ops/rebuild/stack up        generate configs/keys/secrets (once), build and start everything
+#   ops/rebuild/stack seed      workspace, API key, softphone agent, Autopilot app, number
+#   ops/rebuild/stack info      URLs and the local credentials
+#   ops/rebuild/stack smoke     up + seed + one call through Routr to the app + checks + down
+#   ops/rebuild/stack call      place one test call with the caller bot (stack must be up)
+#   ops/rebuild/stack ask       call, say a recorded question, report the turn latency
+#                               (RB_QUESTION=<16 kHz WAV>, RB_TURNS, RB_TRANSCRIBE=1 transcribes)
+#   ops/rebuild/stack logs [s]  follow logs (all services, or one)
+#   ops/rebuild/stack ps        list containers
+#   ops/rebuild/stack down      stop and remove containers (keeps data)
+#   ops/rebuild/stack reset     down and delete volumes and ops/rebuild/.local
+#
+# Real vendors: put DEEPGRAM_API_KEY, ELEVENLABS_API_KEY, GROQ_API_KEY and/or OPENAI_API_KEY in
+# ops/rebuild/.local/vendor.env (or export them) before `up` and `seed`. Without them the stack
+# uses the fake providers.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$HERE/../.." && pwd)"
+LOCAL="$HERE/.local"
+CONF="$LOCAL/config"
+STACK_ENV="$LOCAL/stack.env"
+HOST_ENV="$LOCAL/host.env"
+SEED_FILE="$LOCAL/seed.json"
+BUNDLE="$ROOT/ops/bundle"
+BUNDLE_ENV="$LOCAL/bundle.env"
+# What Compose passes to the Fonoster containers (env_file), where config/*.yaml reference it as
+# ${NAME}: the stack's, the bundle's and the vendor keys present.
+SERVICES_ENV="$LOCAL/services.env"
+OVERLAY="$LOCAL/overlay"
+CONFIG_CLI_DIR="$ROOT/mods/common/dist/config/cli"
+
+log() { printf '\033[1m[stack]\033[0m %s\n' "$*" >&2; }
+die() { printf '\033[31m[stack] %s\033[0m\n' "$*" >&2; exit 1; }
+rand() { openssl rand -hex "${1:-16}"; }
+# A 32-byte key in base64 without + or / (valid for both Cloak and the apiserver's check).
+cloak_key() {
+  local k
+  while :; do
+    k="$(openssl rand -base64 32)"
+    case "$k" in *+* | */*) ;; *) echo "$k"; return ;; esac
+  done
+}
+
+load_env() {
+  set -a
+  # shellcheck disable=SC1090
+  . "$STACK_ENV"
+  # shellcheck disable=SC1090
+  [ -f "$HOST_ENV" ] && . "$HOST_ENV"
+  # shellcheck disable=SC1090
+  [ -f "$LOCAL/vendor.env" ] && . "$LOCAL/vendor.env"
+  set +a
+}
+
+profiles() { echo "${RB_PROFILES:-fakes,tools,regions}"; }
+
+# The bundle's compose file (ops/bundle, the one Compose source) with this stack's override.
+compose() {
+  load_env
+  local args=(--project-directory "$HERE" -f "$BUNDLE/compose.yaml" -f "$HERE/compose.yaml"
+    --env-file "$STACK_ENV")
+  [ -f "$HOST_ENV" ] && args+=(--env-file "$HOST_ENV")
+  [ -f "$BUNDLE_ENV" ] && args+=(--env-file "$BUNDLE_ENV")
+  COMPOSE_PROFILES="$(profiles)" docker compose "${args[@]}" "$@"
+}
+
+# ---- one-time setup: env file with secrets, keys ----
+
+init_local() {
+  mkdir -p "$CONF/keys"
+  if [ ! -f "$STACK_ENV" ]; then
+    log "creating $STACK_ENV (local secrets; never commit it)"
+    {
+      cat "$HERE/stack.defaults"
+      echo
+      echo "# Generated secrets (local only)"
+      echo "POSTGRES_PASSWORD=$(rand)"
+      echo "MINIO_ROOT_USER=fonoster"
+      echo "MINIO_ROOT_PASSWORD=$(rand)"
+      echo "RB_NODE_PASSWORD=$(rand)"
+      echo "AUTOPILOT_SIGNING_SECRET=$(rand 24)"
+      echo "RB_ENCRYPTION_KEY=k1.aesgcm256.$(cloak_key)"
+      echo "RB_ADMIN_EMAIL=admin@fonoster.local"
+      echo "RB_ADMIN_PASSWORD=$(rand 8)"
+      echo "RB_AGENT_PASSWORD=$(rand 8)"
+    } > "$STACK_ENV"
+    chmod 600 "$STACK_ENV"
+  fi
+  # One NATS user per service (add-platform 4.1); added to stack.env files made before them.
+  # NATS parses a variable's value as config, so a password starting with a digit fails to load:
+  # each starts with a letter, and one generated before this rule is replaced.
+  local svc var
+  for svc in APISERVER GATEWAY MEDIANODE ROUTR; do
+    var="NATS_${svc}_PASSWORD"
+    if grep -q "^$var=[0-9]" "$STACK_ENV"; then
+      sed -i.bak "/^$var=/d" "$STACK_ENV" && rm -f "$STACK_ENV.bak"
+    fi
+    grep -q "^$var=" "$STACK_ENV" || echo "$var=n$(rand)" >> "$STACK_ENV"
+  done
+  if [ ! -f "$CONF/keys/private.pem" ]; then
+    log "generating Identity's signing keys"
+    openssl genrsa -out "$CONF/keys/private.pem" 2048 2>/dev/null
+    openssl rsa -in "$CONF/keys/private.pem" -pubout -out "$CONF/keys/public.pem" 2>/dev/null
+  fi
+  if [ ! -f "$CONF/keys/records.pem" ]; then
+    log "generating the call-record signing key (ES256)"
+    openssl ecparam -name prime256v1 -genkey -noout 2>/dev/null \
+      | openssl pkcs8 -topk8 -nocrypt -out "$CONF/keys/records.pem"
+  fi
+  if [ ! -f "$CONF/region-hub.conf" ]; then
+    log "generating the region hub (private regions: operator, accounts, region-signing key)"
+    (cd "$ROOT" && npx --no-install tsx mods/apiserver/src/bin/regionHubSetup.ts "$CONF" >/dev/null) \
+      || log "could not generate the region hub; private regions stay off"
+  fi
+  # Containers run as another user; local keys only.
+  chmod 644 "$CONF/keys/"*.pem
+  if [ -d "$CONF/keys/region-hub" ]; then chmod 644 "$CONF/keys/region-hub/"*; fi
+}
+
+# The address softphones and the media path reach from both the host and the containers: the
+# machine's LAN address (RB_HOST_IP overrides; on Linux any host address works).
+detect_host_ip() {
+  if [ -n "${RB_HOST_IP:-}" ]; then echo "$RB_HOST_IP"; return; fi
+  local ip=""
+  if command -v ipconfig >/dev/null 2>&1; then
+    local ifc
+    ifc="$(route -n get default 2>/dev/null | awk '/interface:/ {print $2}')"
+    [ -n "$ifc" ] && ip="$(ipconfig getifaddr "$ifc" 2>/dev/null || true)"
+    [ -z "$ip" ] && ip="$(ipconfig getifaddr en0 2>/dev/null || true)"
+  fi
+  if [ -z "$ip" ] && command -v hostname >/dev/null 2>&1; then
+    ip="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"
+  fi
+  [ -n "$ip" ] || die "could not find this machine's LAN address; set RB_HOST_IP"
+  echo "$ip"
+}
+
+# The seeded app's voice and model follow the keys present (docs/try-the-new-platform.md):
+# Deepgram Aura-2 (ElevenLabs when only its key is set), gpt-oss-120b on Groq (else OpenAI
+# gpt-4o-mini, which the fake LLM answers without a key). RB_DEFAULT_VOICE / RB_DEFAULT_MODEL
+# override them.
+default_voice() {
+  if [ -n "${RB_DEFAULT_VOICE:-}" ]; then echo "$RB_DEFAULT_VOICE"
+  elif [ -z "${DEEPGRAM_API_KEY:-}" ] && [ -n "${ELEVENLABS_API_KEY:-}" ]; then
+    echo "elevenlabs/${RB_ELEVENLABS_VOICE:-EXAVITQu4vr4xnSDxMaL}"
+  else echo "deepgram/aura-2-thalia-en"; fi
+}
+default_model() {
+  if [ -n "${RB_DEFAULT_MODEL:-}" ]; then echo "$RB_DEFAULT_MODEL"
+  elif [ -n "${GROQ_API_KEY:-}" ]; then echo "groq/openai/gpt-oss-120b"
+  else echo "openai/gpt-4o-mini"; fi
+}
+
+# ---- configs (rendered on every `up`, from stack.env and the vendor keys present) ----
+
+render_configs() {
+  load_env
+  local host_ip net
+  host_ip="$(detect_host_ip)"
+  net="$RB_NET"
+  {
+    echo "# Rendered by ops/rebuild/stack up (host address, vendor switches)."
+    echo "RB_HOST_IP=$host_ip"
+    echo "ROUTR_EXTERNAL_ADDRS=$host_ip"
+    echo "ROUTR_LOCALNETS=$net.40/29"
+    echo "RB_PUBLIC_API_URL=http://localhost:$RB_API_PORT"
+  } > "$HOST_ENV"
+
+  # The bundle's Compose and config names (ops/bundle/.env.example) from the stack's: the base
+  # compose file and the config examples read only these.
+  {
+    echo "# Rendered by ops/rebuild/stack up: ops/bundle names from stack.env and host.env."
+    echo "FONOSTER_VERSION=${RB_TAG:-dev}"
+    echo "CONFIG_DIR=$RB_CONFIG_DIR"
+    echo "FONOSTER_ENV_FILE=./.local/services.env"
+    echo "HOST_IP=$host_ip"
+    echo "SUBNET_PREFIX=$net"
+    echo "HTTP_PORT=$RB_API_PORT"
+    echo "PUBLIC_URL=http://localhost:$RB_API_PORT"
+    echo "SIP_PORT=$RB_SIP_PORT"
+    echo "RTPENGINE_PORT_MIN=$RTPENGINE_PORT_MIN"
+    echo "RTPENGINE_PORT_MAX=$RTPENGINE_PORT_MAX"
+    echo "MEDIANODE_RTP_PORT_MIN=$RB_NODE_RTP_MIN"
+    echo "MEDIANODE_RTP_PORT_MAX=$RB_NODE_RTP_MAX"
+    echo "MINIO_PORT=$RB_MINIO_PORT"
+    echo "MINIO_CONSOLE_PORT=$RB_MINIO_CONSOLE_PORT"
+    echo "NATS_PORT=$RB_NATS_PORT"
+    echo "LEAF_PORT=${RB_LEAF_PORT:-7422}"
+    echo "ENCRYPTION_KEY=$RB_ENCRYPTION_KEY"
+    echo "MEDIANODE_PASSWORD=$RB_NODE_PASSWORD"
+    echo "OWNER_EMAIL=$RB_ADMIN_EMAIL"
+    echo "OWNER_PASSWORD=$RB_ADMIN_PASSWORD"
+  } > "$BUNDLE_ENV"
+  chmod 600 "$BUNDLE_ENV"
+  {
+    echo "# Rendered by ops/rebuild/stack up: the Fonoster containers' environment (env_file)."
+    cat "$STACK_ENV" "$HOST_ENV" "$BUNDLE_ENV"
+    local k
+    for k in DEEPGRAM_API_KEY ELEVENLABS_API_KEY GROQ_API_KEY OPENAI_API_KEY \
+      OTEL_EXPORTER_OTLP_ENDPOINT; do
+      [ -n "${!k:-}" ] && echo "$k=${!k}"
+    done
+  } > "$SERVICES_ENV"
+  chmod 600 "$SERVICES_ENV"
+
+  # The operator key (PR-19) authorizes the region admin API (fonoster-region create|list|…).
+  if [ ! -f "$CONF/keys/region-operator.key" ]; then
+    mkdir -p "$CONF/keys"
+    printf '%s' "$(openssl rand -hex 24)" > "$CONF/keys/region-operator.key"
+  fi
+  chmod 644 "$CONF/keys/region-operator.key"
+
+  # The bundle's config folder (static files and examples), then the stack's own layer: fake
+  # providers or vendor keys (overlays deep-merged into the rendered YAML; ops/bundle has neither).
+  cp -R "$BUNDLE/config/." "$CONF/"
+  rm -rf "$OVERLAY" && mkdir -p "$OVERLAY"
+
+  # Speech providers: the vendor when its key is present, else the fake (fakes service).
+  {
+    echo "# Fake adapters are allowed (test mode) so the stack runs without vendor keys."
+    echo "testMode: true"
+    echo "providers:"
+    if [ -n "${DEEPGRAM_API_KEY:-}" ]; then
+      echo "  deepgram: { credential: { value: \"\${DEEPGRAM_API_KEY}\" } }"
+    else
+      echo "  deepgram: { adapter: fake, tts: { url: \"http://fakes:7001\" }, stt: { url: \"ws://fakes:7002\" } }"
+    fi
+    if [ -n "${ELEVENLABS_API_KEY:-}" ]; then
+      echo "  elevenlabs: { credential: { value: \"\${ELEVENLABS_API_KEY}\" } }"
+    fi
+  } > "$OVERLAY/gateway.yaml"
+
+  # The hosted Autopilot: a language-model provider without a platform key answers through the
+  # fake LLM (same ids).
+  local creds="" endpoints="" llm=""
+  if [ -n "${GROQ_API_KEY:-}" ]; then
+    llm+="groq "; creds+="  groq-default: { value: \"\${GROQ_API_KEY}\" }"$'\n'
+  else
+    creds+="  groq-default: { value: fake }"$'\n'; endpoints+="  groq: \"http://fakes:7003\""$'\n'
+  fi
+  if [ -n "${OPENAI_API_KEY:-}" ]; then
+    llm+="openai "; creds+="  openai-default: { value: \"\${OPENAI_API_KEY}\" }"$'\n'
+  else
+    creds+="  openai-default: { value: fake }"$'\n'; endpoints+="  openai: \"http://fakes:7003\""$'\n'
+  fi
+  [ -n "$endpoints" ] || endpoints="  {}"
+  printf 'credentials:\n%sendpoints:\n%s\n' "$creds" "$endpoints" > "$OVERLAY/autopilot.yaml"
+
+  # The API server: the region admin API (operator key) and, with the regions profile, the region
+  # hub private regions link to (the bundle leaves both out; ops/rebuild/compose.yaml runs the hub).
+  {
+    echo "regions:"
+    echo "  operatorKey: \"secret://file/opt/fonoster/keys/region-operator.key\""
+    if [[ ",$(profiles)," == *",regions,"* ]] && [ -f "$CONF/region-hub.conf" ]; then
+      cat <<'YAML'
+  controlPlaneUrl: "http://${HOST_IP}:${HTTP_PORT}"
+  leafUrl: "nats://${HOST_IP}:${LEAF_PORT}"
+  allowInsecureLeaf: true
+  signingKey: { file: /opt/fonoster/keys/region-signing.pem }
+  hub:
+    url: "nats://nats-regions:4222"
+    credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds
+    systemCredentialsFile: /opt/fonoster/keys/region-hub/system.creds
+    operatorSeedFile: /opt/fonoster/keys/region-hub/operator.seed
+    accountSeedFile: /opt/fonoster/keys/region-hub/account.seed
+YAML
+    fi
+  } > "$OVERLAY/fonoster.yaml"
+  # Your own overrides of the rendered configs, kept across runs: .local/overlay.local/<file>.yaml
+  # (merged after the stack's).
+  local mine=()
+  [ -d "$LOCAL/overlay.local" ] && mine=(--overlay "$LOCAL/overlay.local")
+
+  # The same renderer `fonoster-config init` uses (mods/common: fonoster-config render).
+  [ -f "$CONFIG_CLI_DIR/index.js" ] \
+    || die "build @fonoster/common first: (cd mods/common && npx tsc -b && cp -a src/protos dist)"
+  node "$CONFIG_CLI_DIR/index.js" render --config-dir "$CONF" --env-file "$SERVICES_ENV" \
+    --overlay "$OVERLAY" ${mine[@]+"${mine[@]}"} >/dev/null || die "could not render the configs"
+  # Containers read these as another user (local only).
+  chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot.yaml" \
+    "$CONF/medianode.yaml" "$CONF/routr-edgeport.yaml"
+  local speech="${DEEPGRAM_API_KEY:+deepgram }${ELEVENLABS_API_KEY:+elevenlabs }"
+  log "host address $host_ip; speech: ${speech:-fake }llm: ${llm:-fake }app defaults: $(default_voice), $(default_model)"
+}
+
+wait_for() {
+  local what="$1" tries="$2"; shift 2
+  local i=0
+  printf '[stack] waiting for %s' "$what" >&2
+  until "$@" >/dev/null 2>&1; do
+    i=$((i + 1))
+    [ "$i" -ge "$tries" ] && { echo " timed out" >&2; return 1; }
+    printf '.' >&2
+    sleep 2
+  done
+  echo " ok" >&2
+}
+
+# Envoy answers 503 until the apiserver's HTTP bridge is up; any other status means it serves.
+api_ready() {
+  local code
+  code="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$RB_API_PORT/api/records")"
+  [ "$code" != "000" ] && [ "$code" != "503" ] && [ "$code" != "502" ]
+}
+
+cmd_up() {
+  command -v docker >/dev/null || die "docker is required"
+  command -v openssl >/dev/null || die "openssl is required"
+  init_local
+  render_configs
+  log "building and starting (first run builds images: several minutes)"
+  compose up -d --build --remove-orphans
+  wait_for "the apiserver (migrations, Identity, seed)" 120 api_ready \
+    || { compose logs --tail 40 apiserver; die "apiserver did not start"; }
+  # Routr's API comes up later (it migrates its own database first); seeding needs it. The
+  # apiserver logs the media-node peer once Routr answers.
+  wait_for "Routr" 90 routr_ready || { compose logs --tail 20 routr; die "Routr did not start"; }
+  cmd_info
+}
+
+routr_ready() { compose logs apiserver 2>/dev/null | grep -q "media-node peer \(created\|already exists\)"; }
+
+cmd_seed() {
+  [ -f "$STACK_ENV" ] || die "run 'ops/rebuild/stack up' first"
+  load_env
+  command -v node >/dev/null || die "node is required (and 'npm install' in the repository)"
+  log "seeding through the API at localhost:$RB_API_PORT"
+  (cd "$ROOT" && RB_API_ENDPOINT="localhost:$RB_API_PORT" RB_SEED_FILE="$SEED_FILE" \
+    RB_DEFAULT_VOICE="$(default_voice)" RB_DEFAULT_MODEL="$(default_model)" \
+    node "$HERE/seed.cjs")
+  # The apiserver points Autopilot apps at the hosted Autopilot itself (apps.autopilotUrl).
+  [ "$(psql_fonoster "select url from applications where ref='$(seed_get app.ref)'")" = "ws://autopilot:3000" ] \
+    || die "the app does not point at the hosted Autopilot (apps.autopilotUrl in fonoster.yaml)"
+  cmd_info
+}
+
+psql_fonoster() {
+  compose exec -T postgres psql -U postgres -d fonoster -tAc "$1" 2>/dev/null | tr -d '\r'
+}
+
+cmd_info() {
+  load_env
+  local sip="$RB_HOST_IP:$RB_SIP_PORT"
+  cat >&2 <<EOF
+
+  Dashboard   http://localhost:$RB_API_PORT
+              sign in as $RB_ADMIN_EMAIL / $RB_ADMIN_PASSWORD   (local dev password)
+  API         localhost:$RB_API_PORT (gRPC, insecure)
+  SIP (Routr) $sip  UDP or TCP
+  MinIO       http://localhost:$RB_MINIO_CONSOLE_PORT  ($MINIO_ROOT_USER / $MINIO_ROOT_PASSWORD)
+EOF
+  if [ -f "$SEED_FILE" ]; then
+    node -e '
+      const s = require(process.argv[1]);
+      console.error(`
+  Workspace   ${s.workspace.name} (${s.workspace.accessKeyId})
+  API key     ${s.apiKey.accessKeyId} / ${s.apiKey.accessKeySecret}
+  Softphone   domain ${s.domain.domainUri}, user ${s.agent.username}, password ${s.agent.password}
+              proxy ${process.argv[2]}, transport TCP
+  Call        ${s.number.telUrl.replace("tel:", "")} (Autopilot app "${s.app.name}", ${s.app.ref})
+`);' "$SEED_FILE" "$sip"
+  else
+    echo "  Not seeded yet: ops/rebuild/stack seed" >&2
+  fi
+}
+
+# One call from the caller bot (in the stack's network) through Routr to the seeded number.
+json_get() { node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{const j=JSON.parse(d);const v=process.argv[1].split(".").reduce((o,k)=>o==null?o:o[k],j);console.log(v??"")})' "$1"; }
+seed_get() { json_get "$1" < "$SEED_FILE"; }
+
+cmd_call() {
+  load_env
+  [ -f "$SEED_FILE" ] || die "seed first"
+  local number trunk caller="http://localhost:$RB_CALLER_PORT"
+  number="$(seed_get number.telUrl)"; number="${number#tel:}"
+  trunk="$(seed_get trunk.inboundUri)"
+  wait_for "the caller bot" 30 curl -sf "$caller/calls"
+  log "calling $number through Routr ($RB_NET.40:$RB_SIP_PORT, request host $trunk)"
+  # Routr answers 480 until the media node has registered (every 15 s): retry for a minute.
+  local res state tries=0
+  while :; do
+    res="$(curl -sS -X POST "$caller/calls" -H 'content-type: application/json' \
+      -d "{\"Target\":\"$RB_NET.40:$RB_SIP_PORT\",\"RequestHost\":\"$trunk\",\"To\":\"$number\",\"From\":\"+15550001111\"}")"
+    CALL_ID="$(printf '%s' "$res" | json_get id 2>/dev/null || true)"
+    [ -n "$CALL_ID" ] || die "the caller bot could not place the call: $res"
+    sleep 3
+    state="$(curl -sS "$caller/calls/$CALL_ID" | json_get state)"
+    [ "$state" != "ended" ] && break
+    tries=$((tries + 1))
+    [ "$tries" -ge 20 ] && die "the call did not connect: $(curl -sS "$caller/calls/$CALL_ID")"
+    log "not answered yet ($(curl -sS "$caller/calls/$CALL_ID" | json_get sip)); retrying"
+  done
+  log "call $CALL_ID: $(printf '%s' "$res" | json_get state); listening for ${RB_CALL_SECONDS:-10}s"
+  sleep "${RB_CALL_SECONDS:-10}"
+  CALL_STATUS="$(curl -sS "$caller/calls/$CALL_ID")"
+  curl -sS -X POST "$caller/calls/$CALL_ID/hangup" >/dev/null || true
+  printf '%s\n' "$CALL_STATUS" > "$LOCAL/last-call.json"
+}
+
+# One call in which the caller bot asks a recorded question (ops/rebuild/ask.cjs): the turn
+# latency and what the caller heard (heard.wav; transcribed with RB_TRANSCRIBE=1 and Deepgram).
+cmd_ask() {
+  load_env
+  [ -f "$SEED_FILE" ] || die "seed first"
+  local number
+  number="$(seed_get number.telUrl)"; number="${number#tel:}"
+  wait_for "the caller bot" 30 curl -sf "http://localhost:$RB_CALLER_PORT/calls"
+  RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_PORT" \
+    RB_REQUEST_HOST="$(seed_get trunk.inboundUri)" RB_TO="$number" \
+    RB_QUESTION="${RB_QUESTION:-$ROOT/mods/gateway/scripts/fixtures/question-fonoster.wav}" \
+    RB_OUT="${RB_OUT:-$LOCAL/ask}" node "$HERE/ask.cjs"
+}
+
+record_indexed() {
+  [ "$(psql_fonoster "select count(*) from call_records where app_ref='$(seed_get app.ref)' and status <> 'erased'")" -gt "${RECORDS_BEFORE:-0}" ]
+}
+
+# The app answered (the caller heard its greeting) and the call record was sealed and indexed.
+check_call() {
+  local audible
+  audible="$(printf '%s' "$CALL_STATUS" | json_get audibleMs)"
+  log "caller bot heard ${audible:-0} ms of audio from the app"
+  [ "${audible:-0}" -gt 0 ] || { log "the caller heard nothing"; return 1; }
+  wait_for "the call record in the index" 45 record_indexed || return 1
+  log "call record: $(psql_fonoster "select call_ref || ' ' || status || ' ' || duration_seconds || 's ' || location from call_records where app_ref='$(seed_get app.ref)' order by started_at desc limit 1")"
+}
+
+cmd_smoke() {
+  RB_SMOKE_KEEP="${RB_KEEP:-}"
+  trap 'status=$?; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
+  cmd_up
+  cmd_seed
+  RECORDS_BEFORE="$(psql_fonoster "select count(*) from call_records where app_ref='$(seed_get app.ref)'")"
+  # The gateway and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.
+  sleep 4
+  cmd_call
+  check_call || die "smoke test failed (logs: ops/rebuild/stack logs)"
+  log "smoke test passed"
+}
+
+cmd_down() { [ -f "$STACK_ENV" ] && compose down --remove-orphans; }
+
+cmd_reset() {
+  [ -f "$STACK_ENV" ] && compose down -v --remove-orphans
+  rm -rf "$LOCAL"
+  log "removed containers, volumes and $LOCAL"
+}
+
+case "${1:-}" in
+  up) cmd_up ;;
+  seed) cmd_seed ;;
+  info) cmd_info ;;
+  call)
+    load_env
+    RECORDS_BEFORE="$(psql_fonoster "select count(*) from call_records where app_ref='$(seed_get app.ref)'")"
+    cmd_call
+    check_call && log "call ok"
+    ;;
+  smoke) cmd_smoke ;;
+  ask) cmd_ask ;;
+  logs) shift; compose logs -f --tail 100 "$@" ;;
+  ps) compose ps ;;
+  down) cmd_down ;;
+  reset) cmd_reset ;;
+  compose) shift; compose "$@" ;;
+  *) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+esac

@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: keypress
+contract: twilio-media-streams-flavor
+role: app
+spec: "Caller DTMF / Keypress"
+setup:
+  app: { protocol: twilio }
+ignore: [media]
+steps:
+  - expect: { event: start }
+    capture: { sid: streamSid }
+  - caller: { dtmf: "5" }
+  - expect: { event: dtmf, streamSid: "${sid}", dtmf: { track: inbound_track, digit: "5" } }
+    within_ms: 500

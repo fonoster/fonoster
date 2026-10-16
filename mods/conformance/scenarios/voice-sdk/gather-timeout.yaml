@@ -1,0 +1,28 @@
+format: fonoster.scenario.v1
+name: gather-timeout
+contract: voice-sdk
+role: gateway
+fixture: gather-timeout
+spec: "gather is built from events / Timeout"
+steps:
+  - send:
+      type: session.start
+      protocol: fonoster.session.v1
+      sessionRef: sess-1
+      callRef: call-1
+      appRef: app-1
+      direction: inbound
+      from: "+15550001111"
+      to: "+15550002222"
+      metadata: {}
+      handoff: null
+      audio: { codec: pcm16, rate: 16000 }
+      tracks:
+        - { id: 1, side: inbound, kind: audio, codec: pcm16 }
+        - { id: 2, side: outbound, kind: audio, codec: pcm16 }
+      speech: { voice: fonoster/default, language: en-US }
+    label: start
+  - expect: { type: speak, text: "No input.", last: true }
+    from: start
+    not_before_ms: 250
+    within_ms: 1500

@@ -55,6 +55,8 @@ type IdToken = BaseToken & {
   phoneNumberVerified: boolean;
   phoneNumber: string;
   email: string;
+  /** True while the user holds an invite's one-time password. */
+  mustChangePassword?: boolean;
   tokenUse: TokenUseEnum.ID;
 };
 

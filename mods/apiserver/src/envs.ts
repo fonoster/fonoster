@@ -16,243 +16,156 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from "fs";
-import { join } from "path";
-import { assertEnvsAreSet } from "@fonoster/common";
-import dotenv from "dotenv";
+/**
+ * The API server's settings, as constants. They come from fonoster.yaml (see
+ * ./config), loaded once on first import; the names are kept from the
+ * env-var era so modules that import them didn't change.
+ */
+import { natsConnectOptions } from "@fonoster/common";
+import {
+  getAppUrl,
+  getConfig,
+  getIdentityConfig,
+  getSignalingServer
+} from "./config";
 
-if (process.env.NODE_ENV === "development") {
-  dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
-}
+const config = getConfig();
+const identity = getIdentityConfig();
 
-const e = process.env;
+export const APISERVER_BIND_ADDR = config.server.bindAddr;
 
-assertEnvsAreSet([
-  "APISERVER_APP_URL",
-  "APISERVER_SIGNALING_SERVER",
-  "APISERVER_ASTERISK_ARI_PROXY_URL",
-  "APISERVER_ASTERISK_ARI_USERNAME",
-  "APISERVER_ASTERISK_ARI_SECRET",
-  "APISERVER_CLOAK_ENCRYPTION_KEY",
-  "APISERVER_SMTP_HOST",
-  "APISERVER_SMTP_SENDER",
-  "APISERVER_SMTP_AUTH_USER",
-  "APISERVER_SMTP_AUTH_PASS",
-  "APISERVER_IDENTITY_ISSUER",
-  "APISERVER_IDENTITY_DATABASE_URL",
-  "APISERVER_IDENTITY_WORKSPACE_INVITE_URL",
-  "APISERVER_IDENTITY_WORKSPACE_INVITE_FAIL_URL",
-  "APISERVER_DATABASE_URL",
-  "APISERVER_INFLUXDB_URL",
-  "APISERVER_INFLUXDB_INIT_USERNAME",
-  "APISERVER_INFLUXDB_INIT_PASSWORD",
-  "APISERVER_INFLUXDB_INIT_ORG",
-  "APISERVER_INFLUXDB_INIT_TOKEN",
-  "APISERVER_NATS_URL"
-]);
+export const APISERVER_HOST = config.server.host;
 
-const IDENTITY_PRIVATE_KEY_PATH =
-  e.APISERVER_IDENTITY_PRIVATE_KEY_PATH || "/opt/fonoster/keys/private.pem";
-const IDENTITY_PUBLIC_KEY_PATH =
-  e.APISERVER_IDENTITY_PUBLIC_KEY_PATH || "/opt/fonoster/keys/public.pem";
-
-export const APISERVER_BIND_ADDR = e.APISERVER_BIND_ADDR || "0.0.0.0:50051";
-
-export const APISERVER_HOST = e.APISERVER_HOST || "apiserver";
-
-export const APISERVER_SIGNALING_SERVER = e.APISERVER_SIGNALING_SERVER;
+export const APISERVER_SIGNALING_SERVER = getSignalingServer(config);
 
 // Frontend configurations
-export const APP_URL = e.APISERVER_APP_URL;
-
-export const ASTERISK_ARI_PROXY_URL = e.APISERVER_ASTERISK_ARI_PROXY_URL;
-
-export const ASTERISK_ARI_SECRET = e.APISERVER_ASTERISK_ARI_SECRET;
-
-export const ASTERISK_ARI_USERNAME = e.APISERVER_ASTERISK_ARI_USERNAME;
-
-export const ASTERISK_SYSTEM_DOMAIN =
-  e.APISERVER_ASTERISK_SYSTEM_DOMAIN || "sip.invalid";
-
-export const ASTERISK_TRUNK = "routr";
+export const APP_URL = getAppUrl(config);
 
 export const CALLS_CREATE_SUBJECT = "calls.create";
 
 export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
 
-// Answering Machine Detection (AMD) configuration
-//
-// When enabled, outbound calls run Asterisk's AMD() application in the dialplan
-// before entering Stasis, and its verdict is attached to the session request as
-// `amd`. Thresholds live in the media server's amd.conf, not here. Disabled by
-// default: when on, the caller hears silence for up to amd.conf's
-// total_analysis_time before the voice application is dispatched.
-export const AMD_ENABLED = e.APISERVER_AMD_ENABLED === "true";
-
-// Which detector runs behind AMD_ENABLED: Asterisk's native AMD() heuristic
-// ("native", the default) or the amd sidecar's ONNX classifier ("ml"),
-// selected by asterisk/config/extensions.conf's AMD_ENGINE gate. Either way
-// the verdict lands in the same AMDSTATUS/AMDCAUSE channel variables, so
-// nothing downstream of runCallManager.ts needs to know which one ran.
-export const AMD_ENGINE = e.APISERVER_AMD_ENGINE === "ml" ? "ml" : "native";
-
-// Feature flag for the "ml" engine only: "compact" (the default) makes
-// amd report the same native-AMD-compatible AMDSTATUS/AMDCAUSE pair
-// as the "native" engine above, so switching engines never changes what
-// apiserver reads. "full" additionally reports AMDCONFIDENCE/AMDDETECTOR/
-// AMDLATENCYMS and the classifier's own five-way status (HUMAN/MACHINE/
-// VOICEMAIL/IVR/UNKNOWN) — a consumer must opt into "full" to see those.
-export const AMD_MODE = e.APISERVER_AMD_MODE === "full" ? "full" : "compact";
-
 // Other configurations
-export const CLOAK_ENCRYPTION_KEY = e.APISERVER_CLOAK_ENCRYPTION_KEY;
+export const CLOAK_ENCRYPTION_KEY = config.encryption.key;
+
+export const DATABASE_URL = config.database.url;
 
 export const DEFAULT_NATS_QUEUE_GROUP = "apiserver";
 
-export const HTTP_BRIDGE_PORT = e.APISERVER_HTTP_BRIDGE_PORT
-  ? parseInt(e.APISERVER_HTTP_BRIDGE_PORT)
-  : 9876;
+export const HTTP_BRIDGE_PORT = config.server.httpBridgePort;
 
-// Identity configurations
-export const IDENTITY_ACCESS_TOKEN_EXPIRES_IN =
-  e.APISERVER_IDENTITY_ACCESS_TOKEN_EXPIRES_IN || "15m";
+// Identity configurations (from the identity: section)
+export const IDENTITY_ACCESS_TOKEN_EXPIRES_IN = identity.accessTokenExpiresIn;
 
-export const IDENTITY_AUDIENCE = e.APISERVER_IDENTITY_AUDIENCE || "api";
+export const IDENTITY_AUDIENCE = identity.audience;
 
-export const IDENTITY_ID_TOKEN_EXPIRES_IN =
-  e.APISERVER_IDENTITY_ID_TOKEN_EXPIRES_IN || "15m";
+export const IDENTITY_ID_TOKEN_EXPIRES_IN = identity.idTokenExpiresIn;
 
-export const IDENTITY_ISSUER = e.APISERVER_IDENTITY_ISSUER;
+export const IDENTITY_ISSUER = identity.issuer;
 
 export const IDENTITY_CONTACT_VERIFICATION_REQUIRED =
-  e.APISERVER_IDENTITY_CONTACT_VERIFICATION_REQUIRED === "true";
+  identity.contactVerificationRequired;
 
 export const IDENTITY_TWO_FACTOR_AUTHENTICATION_REQUIRED =
-  e.APISERVER_IDENTITY_TWO_FACTOR_AUTHENTICATION_REQUIRED === "true";
+  identity.twoFactorAuthenticationRequired;
 
 export const IDENTITY_OAUTH2_GITHUB_ENABLED =
-  e.APISERVER_IDENTITY_OAUTH2_GITHUB_ENABLED === "true";
+  config.features.auth.methods.includes("github");
 
 export const IDENTITY_OAUTH2_GITHUB_CLIENT_ID =
-  e.APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_ID;
+  identity.githubOauth2Config?.clientId;
 
 export const IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET =
-  e.APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET;
+  identity.githubOauth2Config?.clientSecret;
 
-export const IDENTITY_PRIVATE_KEY = fs.readFileSync(
-  IDENTITY_PRIVATE_KEY_PATH,
-  "utf8"
-);
+export const IDENTITY_PRIVATE_KEY = identity.privateKey;
 
-export const IDENTITY_PUBLIC_KEY = fs.readFileSync(
-  IDENTITY_PUBLIC_KEY_PATH,
-  "utf8"
-);
+export const IDENTITY_PUBLIC_KEY = identity.publicKey;
 
-export const IDENTITY_REFRESH_TOKEN_EXPIRES_IN =
-  e.APISERVER_IDENTITY_REFRESH_TOKEN_EXPIRES_IN || "24h";
+export const IDENTITY_REFRESH_TOKEN_EXPIRES_IN = identity.refreshTokenExpiresIn;
 
 export const IDENTITY_WORKSPACE_INVITE_FAIL_URL =
-  e.APISERVER_IDENTITY_WORKSPACE_INVITE_FAIL_URL;
+  identity.workspaceInviteFailUrl;
 
 export const IDENTITY_WORKSPACE_INVITE_EXPIRATION =
-  e.APISERVER_IDENTITY_WORKSPACE_INVITE_EXPIRATION || "1d";
+  identity.workspaceInviteExpiration;
 
-export const IDENTITY_WORKSPACE_INVITE_URL =
-  e.APISERVER_IDENTITY_WORKSPACE_INVITE_URL;
+export const IDENTITY_WORKSPACE_INVITE_URL = identity.workspaceInviteUrl;
 
-export const IDENTITY_DATABASE_URL = e.APISERVER_IDENTITY_DATABASE_URL;
-
-if (e.APISERVER_IDENTITY_OAUTH2_GITHUB_ENABLED === "true") {
-  assertEnvsAreSet([
-    "APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_ID",
-    "APISERVER_IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET"
-  ]);
-}
-
-if (
-  IDENTITY_CONTACT_VERIFICATION_REQUIRED ||
-  IDENTITY_TWO_FACTOR_AUTHENTICATION_REQUIRED
-) {
-  assertEnvsAreSet([
-    "APISERVER_TWILIO_ACCOUNT_SID",
-    "APISERVER_TWILIO_AUTH_TOKEN",
-    "APISERVER_TWILIO_PHONE_NUMBER"
-  ]);
-}
-
-if (e.APISERVER_AUTHZ_SERVICE_ENABLED === "true") {
-  assertEnvsAreSet(["APISERVER_AUTHZ_SERVICE_HOST"]);
-}
+export const IDENTITY_DATABASE_URL = identity.dbUrl;
 
 // Authz configurations
-export const AUTHZ_SERVICE_ENABLED =
-  e.APISERVER_AUTHZ_SERVICE_ENABLED === "true";
-export const AUTHZ_SERVICE_HOST = e.APISERVER_AUTHZ_SERVICE_HOST;
-export const AUTHZ_SERVICE_PORT = e.APISERVER_AUTHZ_SERVICE_PORT || 50071;
-export const AUTHZ_SERVICE_METHODS = e.APISERVER_AUTHZ_SERVICE_METHODS
-  ? e.APISERVER_AUTHZ_SERVICE_METHODS.split(",")
-  : ["/fonoster.calls.v1beta2.Calls/CreateCall"];
+export const AUTHZ_SERVICE_ENABLED = config.authz.enabled;
+export const AUTHZ_SERVICE_HOST = config.authz.host;
+export const AUTHZ_SERVICE_PORT = config.authz.port;
+export const AUTHZ_SERVICE_METHODS = config.authz.methods;
 
 // InfluxDB configurations
-export const INFLUXDB_ORG = e.APISERVER_INFLUXDB_INIT_ORG;
+export const INFLUXDB_ORG = config.influxdb.org;
 
-export const INFLUXDB_PASSWORD = e.APISERVER_INFLUXDB_INIT_PASSWORD;
+export const INFLUXDB_PASSWORD = config.influxdb.password;
 
-export const INFLUXDB_TOKEN = e.APISERVER_INFLUXDB_INIT_TOKEN;
+export const INFLUXDB_TOKEN = config.influxdb.token;
 
-export const INFLUXDB_URL = e.APISERVER_INFLUXDB_URL;
+export const INFLUXDB_URL = config.influxdb.url;
 
-export const INFLUXDB_USERNAME = e.APISERVER_INFLUXDB_INIT_USERNAME;
+export const INFLUXDB_USERNAME = config.influxdb.username;
 
-export const INTEGRATIONS_FILE =
-  e.APISERVER_INTEGRATIONS_FILE || "/opt/fonoster/integrations.json";
+// Platform model keys for assistant evaluations, by credentialRef (rework-autopilot 8.2).
+export const EVALUATIONS = config.evaluations;
 
-export const NATS_URL = e.APISERVER_NATS_URL;
+export const NATS_URL = config.nats.url;
 
-export const OWNER_EMAIL = e.APISERVER_OWNER_EMAIL;
+/** The `nats` setting itself (URL, user, password), for helpers that take a NatsTarget. */
+export const NATS_CONNECTION = config.nats;
 
-// Default owner configurations (If OWNER_EMAIL is set, the system will create a default user and a workspace)
-export const OWNER_NAME = e.APISERVER_OWNER_NAME || "Admin";
+/** nats.js connect options: the URL plus the apiserver's NATS user, when set (add-platform 4.1). */
+export const NATS = natsConnectOptions(config.nats);
 
-export const OWNER_PASSWORD = e.APISERVER_OWNER_PASSWORD || "changeme";
+// Default owner (if identity.owner is set, the system creates a user and a workspace)
+export const OWNER_EMAIL = config.identity.owner?.email;
 
-export const ROUTR_API_ENDPOINT =
-  e.APISERVER_ROUTR_API_ENDPOINT || "routr:51907";
+export const OWNER_NAME = config.identity.owner?.name ?? "Admin";
 
-export const ROUTR_DEFAULT_PEER_AOR =
-  e.APISERVER_ROUTR_DEFAULT_PEER_AOR || "sip:voice@default";
+export const OWNER_PASSWORD = config.identity.owner?.password;
 
-export const ROUTR_DEFAULT_PEER_NAME =
-  e.APISERVER_ROUTR_DEFAULT_PEER_NAME || "Voice Server";
+export const ROUTR_API_ENDPOINT = config.routr.apiEndpoint;
 
-export const ROUTR_DEFAULT_PEER_PASSWORD =
-  e.APISERVER_ROUTR_DEFAULT_PEER_PASSWORD || "changeme";
+// The media-node peer every app-linked number points at (add-media-node 4.1)
+export const ROUTR_MEDIA_NODE_PEER = config.routr.mediaNodePeer;
 
-export const ROUTR_DEFAULT_PEER_USERNAME =
-  e.APISERVER_ROUTR_DEFAULT_PEER_USERNAME || "voice";
+// SMTP configurations (optional; email features fail clearly without it)
+export const SMTP_AUTH_PASS = config.smtp?.password;
 
-export const SMTP_AUTH_PASS = e.APISERVER_SMTP_AUTH_PASS;
+export const SMTP_AUTH_USER = config.smtp?.user;
 
-export const SMTP_AUTH_USER = e.APISERVER_SMTP_AUTH_USER;
+export const SMTP_HOST = config.smtp?.host;
 
-// SMTP configurations
-export const SMTP_HOST = e.APISERVER_SMTP_HOST;
+export const SMTP_PORT = config.smtp?.port ?? 587;
 
-export const SMTP_PORT = e.APISERVER_SMTP_PORT
-  ? parseInt(e.APISERVER_SMTP_PORT)
-  : 587;
+export const SMTP_SECURE = config.smtp?.secure ?? false;
 
-export const SMTP_SECURE = e.APISERVER_SMTP_SECURE?.toLowerCase() === "true";
-
-export const SMTP_SENDER = e.APISERVER_SMTP_SENDER;
+export const SMTP_SENDER = config.smtp?.sender;
 
 // Custom templates
-export const TEMPLATES_DIR = e.APISERVER_TEMPLATES_DIR;
+export const TEMPLATES_DIR = config.templatesDir;
 
 // Twilio configurations
-export const TWILIO_ACCOUNT_SID = e.APISERVER_TWILIO_ACCOUNT_SID;
+export const TWILIO_ACCOUNT_SID = config.twilio?.accountSid;
 
-export const TWILIO_AUTH_TOKEN = e.APISERVER_TWILIO_AUTH_TOKEN;
+export const TWILIO_AUTH_TOKEN = config.twilio?.authToken;
 
-export const TWILIO_PHONE_NUMBER = e.APISERVER_TWILIO_PHONE_NUMBER;
+export const TWILIO_PHONE_NUMBER = config.twilio?.phoneNumber;
+
+// Call records (add-call-record): index, records API, retention, ListCalls from the index.
+export const CALL_RECORDS = config.callRecords;
+
+// Session apps (rebuild: control): hosted Autopilot URL and signing secret, webhook URL policy
+export const SESSION_APPS = config.apps;
+export const WEBHOOKS = config.webhooks;
+export const REGISTRY = config.registry;
+
+// Regions (add-private-regions): public regions, the region-signing key and the region hub
+export const REGIONS = config.regions;
+
+export const DOMAIN = config.domain;

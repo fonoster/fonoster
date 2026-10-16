@@ -19,6 +19,37 @@
 import { MappingTuple } from "./types";
 import { getEnumKey, isMapping } from "./utils";
 
+type Message = { toObject(): Record<string, unknown> };
+
+/**
+ * A protobuf message to flatten. google.protobuf.Struct values (they have
+ * toJavaScript) are left as they are: callers convert them with toJavaScript().
+ */
+function isMessage(value: unknown): value is Message {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    typeof (value as Message).toObject === "function" &&
+    typeof (value as { toJavaScript?: unknown }).toJavaScript !== "function"
+  );
+}
+
+/** protobuf toObject() names repeated fields "xList"; the SDK's types say "x". */
+function withoutListSuffix(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutListSuffix);
+  if (value === null || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [
+      key.endsWith("List") && Array.isArray(item) ? key.slice(0, -4) : key,
+      withoutListSuffix(item)
+    ])
+  );
+}
+
+function plainMessage(message: Message): unknown {
+  return withoutListSuffix(message.toObject());
+}
+
 function objectToJson<J extends Record<string, unknown>>(
   obj: new () => unknown,
   enumMapping?: MappingTuple<unknown>,
@@ -67,6 +98,17 @@ function objectToJson<J extends Record<string, unknown>>(
               repeatableObjectMapping
             )
           );
+        } else if (isMessage(value)) {
+          // A nested message without an explicit mapping (e.g. a domain's
+          // accessControlList): return it as a plain object, not a raw message.
+          json[propName] = plainMessage(value);
+        } else if (
+          propName.endsWith("List") &&
+          Array.isArray(value) &&
+          value.length > 0 &&
+          value.every(isMessage)
+        ) {
+          json[propName.slice(0, -4)] = value.map(plainMessage);
         } else if (value !== undefined) {
           if (
             ["createdAt", "updatedAt", "startedAt", "endedAt"].includes(

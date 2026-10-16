@@ -47,8 +47,8 @@ static_resources:
                             "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
                             stat_prefix: sms_verification_rate_limit
                             token_bucket:
-                              max_tokens: 1
-                              tokens_per_fill: 1
+                              max_tokens: 20
+                              tokens_per_fill: 20
                               fill_interval: 60s
                             filter_enabled:
                               default_value:
@@ -62,7 +62,7 @@ static_resources:
                               - append_action: OVERWRITE_IF_EXISTS_OR_ADD
                                 header:
                                   key: x-ratelimit-limit
-                                  value: "1 per 60s"
+                                  value: "20 per 60s"
                       - match:
                           prefix: "/"
                           headers:
@@ -84,9 +84,9 @@ static_resources:
                       allow_origin_string_match:
                         - prefix: "*"
                       allow_methods: GET, PUT, DELETE, POST, OPTIONS
-                      allow_headers: token,accesskeyid,keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout
+                      allow_headers: authorization,x-accesskey-id,token,accesskeyid,keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout
                       max_age: "1728000"
-                      expose_headers: grpc-status,grpc-message
+                      expose_headers: grpc-status,grpc-message,content-disposition,x-content-hash
               http_filters:
                 - name: envoy.filters.http.grpc_web
                   typed_config:
@@ -99,8 +99,8 @@ static_resources:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
                     stat_prefix: general_api_rate_limit
                     token_bucket:
-                      max_tokens: 100
-                      tokens_per_fill: 100
+                      max_tokens: 600
+                      tokens_per_fill: 600
                       fill_interval: 60s
                     filter_enabled:
                       default_value:
@@ -114,7 +114,7 @@ static_resources:
                       - append_action: OVERWRITE_IF_EXISTS_OR_ADD
                         header:
                           key: x-ratelimit-limit
-                          value: "100"
+                          value: "600"
                       - append_action: OVERWRITE_IF_EXISTS_OR_ADD
                         header:
                           key: x-ratelimit-remaining

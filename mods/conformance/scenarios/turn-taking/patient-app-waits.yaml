@@ -1,0 +1,21 @@
+format: fonoster.scenario.v1
+name: patient-app-waits
+contract: turn-taking
+role: app
+spec: "Patience is configurable per app and adapts only within a call / A patient app waits longer"
+description: >
+  listen.update {patience: high} stretches the 600 ms silence timeout by 1.6: the turn ends about
+  1.16 s after the caller stops (200 ms voice debounce + 960 ms), never within 1 s.
+setup:
+  providers:
+    stt: { script: [{ atMs: 400, text: "I want to pay my bill" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update, patience: high }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - wait: { ms: 600 }
+    label: spoke
+  - expect: { type: turn.ended, text: "I want to pay my bill" }
+    from: spoke
+    not_before_ms: 1000
+    within_ms: 2000

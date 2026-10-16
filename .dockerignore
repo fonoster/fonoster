@@ -62,7 +62,11 @@ assets
 # Config files that aren't needed in build
 config/keys
 config/*.json
-!config/integrations.example.json
+config/*.yaml
+config/*.yml
+config/*.jsonc
+!config/*.example.yaml
+!config/*.example.jsonc
 
 # Compose files
 compose*.yaml
@@ -78,3 +82,6 @@ coverage
 *.map
 .eslintcache
 
+
+# The dev container's generated config and secrets
+.dev

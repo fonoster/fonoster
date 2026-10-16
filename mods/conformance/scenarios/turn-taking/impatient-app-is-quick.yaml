@@ -1,0 +1,21 @@
+format: fonoster.scenario.v1
+name: impatient-app-is-quick
+contract: turn-taking
+role: app
+spec: "Patience is configurable per app and adapts only within a call / A patient app waits longer"
+description: >
+  The other side of the comparison, set in the app's configuration: patience low (0.6 × 600 ms)
+  ends the same turn within 900 ms of the caller stopping.
+setup:
+  app: { speech: { patience: low } }
+  providers:
+    stt: { script: [{ atMs: 400, text: "I want to pay my bill" }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - wait: { ms: 600 }
+    label: spoke
+  - expect: { type: turn.ended, text: "I want to pay my bill" }
+    from: spoke
+    within_ms: 900

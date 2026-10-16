@@ -1,0 +1,22 @@
+format: fonoster.scenario.v1
+name: stream-opening
+contract: twilio-media-streams-flavor
+role: app
+spec: "Twilio Media Streams messages / Stream opening"
+setup:
+  app: { protocol: twilio }
+steps:
+  - expect: { event: connected, protocol: Call, version: "1.0.0" }
+    within_ms: 3000
+  - expect:
+      event: start
+      streamSid: "*"
+      start:
+        streamSid: "*"
+        callSid: "*"
+        accountSid: "*"
+        tracks: [inbound]
+        customParameters: "*"
+        mediaFormat: { encoding: audio/x-mulaw, sampleRate: 8000, channels: 1 }
+  - expect: { event: media, media: { track: inbound, chunk: "*", timestamp: "*", payload: "*" } }
+    within_ms: 500

@@ -40,6 +40,28 @@ function jsonToObject<J extends Record<string, unknown>, T>(params: {
       return;
     }
 
+    // Repeated fields have "List" setters (setEgressPoliciesList); objects in
+    // them are built with the constructor from objectMapping.
+    const listSetterName = `${setterName}List`;
+    if (
+      Array.isArray(json[key]) &&
+      typeof instance[listSetterName] === "function"
+    ) {
+      const constructor = objectMapping?.find((tuple) => tuple[0] === key)?.[1];
+      const items = constructor
+        ? (json[key] as Record<string, unknown>[]).map((item) =>
+            jsonToObject({
+              json: item,
+              objectConstructor: constructor as new () => unknown,
+              enumMapping,
+              objectMapping
+            })
+          )
+        : json[key];
+      instance[listSetterName](items);
+      return;
+    }
+
     if (isMapping(key, enumMapping)) {
       const enumValue = getEnumValue(key, json[key] as string, enumMapping);
       instance[setterName](enumValue);

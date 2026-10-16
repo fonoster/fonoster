@@ -1,0 +1,525 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://fonoster.com/schemas/conformance/scenario.v1.json",
+  "title": "Fonoster conformance scenario",
+  "description": "A language-neutral conformance scenario. See mods/conformance/SCENARIOS.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "name",
+    "contract",
+    "role",
+    "steps"
+  ],
+  "properties": {
+    "format": {
+      "const": "fonoster.scenario.v1"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Unique within its contract folder; matches the file name without .yaml"
+    },
+    "contract": {
+      "enum": [
+        "voice-session",
+        "twilio-media-streams-flavor",
+        "voice-sdk",
+        "media-control",
+        "autopilot",
+        "turn-taking"
+      ]
+    },
+    "role": {
+      "enum": [
+        "app",
+        "gateway",
+        "media-control-client"
+      ],
+      "description": "The side the runner plays. The implementation under test is the other side."
+    },
+    "description": {
+      "type": "string"
+    },
+    "spec": {
+      "type": "string",
+      "description": "The requirement and scenario this file proves, as 'Requirement / Scenario'"
+    },
+    "fixture": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "voice-sdk only: the app each SDK runner starts (see SCENARIOS.md, Fixtures)"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "skip": {
+      "type": "string",
+      "description": "Reason this scenario is not run yet; runners report it as skipped"
+    },
+    "ignore": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Message types never matched by expect/expect_none (e.g. turn.estimate)"
+    },
+    "setup": {
+      "$ref": "#/definitions/setup"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/step"
+      }
+    }
+  },
+  "definitions": {
+    "setup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "call": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "direction": {
+              "enum": [
+                "inbound",
+                "outbound"
+              ]
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object"
+            },
+            "callRef": {
+              "type": "string",
+              "description": "The callRef the media node gives the call (Twilio's callSid)"
+            }
+          }
+        },
+        "app": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "protocol": {
+              "enum": [
+                "fonoster",
+                "twilio"
+              ]
+            },
+            "signingSecret": {
+              "type": "string"
+            },
+            "verifySignature": {
+              "type": "boolean"
+            },
+            "reachable": {
+              "type": "boolean"
+            },
+            "verifySecret": {
+              "type": "string",
+              "description": "The secret the fake app verifies signatures with when it differs from signingSecret (the gateway's): a rotation the app has not picked up"
+            },
+            "fallback": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "app: the harness's second app (app-2); message: spoken before the hangup",
+              "properties": {
+                "app": { "const": "app-2" },
+                "message": { "type": "string" }
+              }
+            },
+            "speech": {
+              "type": "object"
+            },
+            "filters": {
+              "type": "array",
+              "description": "Audio filters for caller audio; every runner registers conformance-mute, which silences every frame",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "options": { "type": "object" }
+                }
+              }
+            },
+            "workspaceRef": {
+              "type": "string",
+              "description": "The app's workspace (Twilio's accountSid)"
+            }
+          }
+        },
+        "listener": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "voice-session: a listen-only socket on the harness's second app; peer is the socket the runner plays (default app)",
+          "properties": {
+            "tracks": { "enum": ["inbound", "outbound", "both"] },
+            "peer": { "enum": ["app", "listener"] }
+          }
+        },
+        "providers": {
+          "$ref": "#/definitions/providers"
+        },
+        "callerAudio": {
+          "$ref": "#/definitions/audioSource"
+        },
+        "media": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dialOutcome": {
+              "enum": [
+                "answered",
+                "busy",
+                "no_answer",
+                "failed"
+              ]
+            },
+            "appRef": {
+              "type": "string",
+              "description": "Sent in call.incoming as Routr's X-App-Ref; omitted means none"
+            },
+            "heartbeatMs": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "claimCalls": {
+              "type": "boolean",
+              "description": "media-control: whether the runner claims call.incoming (default true)"
+            }
+          }
+        },
+        "assistant": {
+          "type": "object",
+          "description": "autopilot only: the assistant config the implementation under test runs (strings may use ${media})"
+        },
+        "catalog": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "voice-session: the provider catalog the gateway resolves catalog ids with. The runner registers the fake provider, its TTS model and the voice fake/default; each listed voice is added, then deprecated or retired (with its replacement) as its state says",
+          "properties": {
+            "voices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id"],
+                "properties": {
+                  "id": { "type": "string", "pattern": "^fake/[a-z0-9._-]+$" },
+                  "state": { "enum": ["active", "deprecated", "retired"] },
+                  "replacement": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "providers": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tts": {
+          "$ref": "#/definitions/providerBehavior"
+        },
+        "stt": {
+          "$ref": "#/definitions/providerBehavior"
+        },
+        "llm": {
+          "$ref": "#/definitions/providerBehavior"
+        }
+      }
+    },
+    "providerBehavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "delayMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failNext": {
+          "enum": [
+            "provider_unavailable",
+            "provider_timeout",
+            "bad_request"
+          ]
+        },
+        "script": {
+          "type": "array",
+          "description": "stt: transcripts by caller-audio time; llm: replies in order",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "audioSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "enum": [
+            "silence",
+            "tone",
+            "file"
+          ]
+        },
+        "file": {
+          "type": "string",
+          "description": "Path relative to scenarios/audio"
+        },
+        "track": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "realtime": {
+          "type": "boolean",
+          "description": "Pace frames at 20 ms (default true); false sends as fast as possible"
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "send": {
+          "type": "object",
+          "description": "A JSON text frame sent by the runner"
+        },
+        "send_audio": {
+          "$ref": "#/definitions/audioSource"
+        },
+        "expect": {
+          "type": "object",
+          "description": "Pattern for the next matching JSON frame (see Matching)"
+        },
+        "expect_none": {
+          "type": "object",
+          "description": "No frame matching this pattern arrives for for_ms"
+        },
+        "for_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expect_audio": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "track": {
+              "type": "integer"
+            },
+            "ms": {
+              "$ref": "#/definitions/numberOrMatcher"
+            }
+          }
+        },
+        "expect_close": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "integer"
+            }
+          }
+        },
+        "capture": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Variable name -> dotted path in the matched frame"
+        },
+        "wait": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ms"
+          ],
+          "properties": {
+            "ms": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "inject": {
+          "$ref": "#/definitions/providers"
+        },
+        "assert": {
+          "type": "object",
+          "description": "Named harness assertions, each with an expected value or matcher"
+        },
+        "close": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "integer"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        },
+        "within_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "budget_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "not_before_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "from": {
+          "type": "string"
+        },
+        "caller": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "The fake media node acts as the caller: presses keys, speaks or hangs up; or the node drops the room or crashes",
+          "properties": {
+            "dtmf": {
+              "type": "string",
+              "pattern": "^[0-9A-D*#]+$"
+            },
+            "hangup": {
+              "const": true
+            },
+            "audio": {
+              "$ref": "#/definitions/audioSource"
+            },
+            "drop": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["reason"],
+              "description": "The node ends the room with a media-control reason (for example media_timeout)",
+              "properties": {
+                "reason": {
+                  "enum": ["caller_hangup", "callee_hangup", "busy", "no_answer", "rejected", "media_timeout", "node_error", "max_duration", "removed"]
+                },
+                "sipStatus": { "type": "integer" }
+              }
+            },
+            "nodeCrash": {
+              "const": true,
+              "description": "The media node dies: no more heartbeats, replies or events"
+            },
+            "call": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "media-control: a call arrives at the node, as an INVITE from Routr would",
+              "properties": {
+                "from": { "type": "string" },
+                "to": { "type": "string" },
+                "appRef": { "type": "string" },
+                "callRef": { "type": "string" }
+              }
+            }
+          }
+        },
+        "next": {
+          "const": true,
+          "description": "expect only: the match must be the next unconsumed JSON frame (no skipping)"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "send"
+          ]
+        },
+        {
+          "required": [
+            "send_audio"
+          ]
+        },
+        {
+          "required": [
+            "expect"
+          ]
+        },
+        {
+          "required": [
+            "expect_none",
+            "for_ms"
+          ]
+        },
+        {
+          "required": [
+            "expect_audio"
+          ]
+        },
+        {
+          "required": [
+            "expect_close"
+          ]
+        },
+        {
+          "required": [
+            "wait"
+          ]
+        },
+        {
+          "required": [
+            "inject"
+          ]
+        },
+        {
+          "required": [
+            "assert"
+          ]
+        },
+        {
+          "required": [
+            "close"
+          ]
+        },
+        {
+          "required": [
+            "caller"
+          ]
+        }
+      ]
+    },
+    "numberOrMatcher": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    }
+  }
+}

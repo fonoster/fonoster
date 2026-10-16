@@ -38,8 +38,14 @@ function createGetIdTokenPayload(
     }
 
     const { issuer, audience } = identityConfig;
-    const { ref, email, phoneNumber, emailVerified, phoneNumberVerified } =
-      user;
+    const {
+      ref,
+      email,
+      phoneNumber,
+      emailVerified,
+      phoneNumberVerified,
+      mustChangePassword
+    } = user;
 
     return {
       iss: issuer,
@@ -50,7 +56,8 @@ function createGetIdTokenPayload(
       email,
       emailVerified,
       phoneNumber,
-      phoneNumberVerified
+      phoneNumberVerified,
+      mustChangePassword
     } as IdToken;
   };
 }

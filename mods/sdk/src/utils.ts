@@ -20,43 +20,18 @@ import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { TrackCallResponse } from "./generated/web/calls_pb";
 
 type PartialApplicationInput = {
-  textToSpeech?: {
-    config: { [key: string]: unknown };
-  } | null;
-  speechToText?: {
-    config: { [key: string]: unknown };
-  } | null;
   intelligence?: {
-    credentials: { [key: string]: unknown };
     config: { [key: string]: unknown };
   } | null;
 };
 
+/** The Autopilot agent (intelligence.config) travels as a protobuf Struct. */
 function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
   return {
     ...request,
-    textToSpeech: request.textToSpeech
-      ? {
-          ...request.textToSpeech,
-          config: request.textToSpeech.config
-            ? Struct.fromJavaScript(request.textToSpeech.config)
-            : undefined
-        }
-      : undefined,
-    speechToText: request.speechToText
-      ? {
-          ...request.speechToText,
-          config: request.speechToText.config
-            ? Struct.fromJavaScript(request.speechToText.config)
-            : undefined
-        }
-      : undefined,
     intelligence: request.intelligence
       ? {
           ...request.intelligence,
-          credentials: request.intelligence.credentials
-            ? Struct.fromJavaScript(request.intelligence.credentials)
-            : undefined,
           config: request.intelligence.config
             ? Struct.fromJavaScript(request.intelligence.config)
             : undefined
@@ -68,28 +43,9 @@ function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
 function buildStructOverrideReverse(request) {
   const result = {
     ...request,
-    textToSpeech: request.textToSpeech
-      ? {
-          ...request.textToSpeech,
-          config: request.textToSpeech.config
-            ? request.textToSpeech.config.toJavaScript()
-            : undefined
-        }
-      : undefined,
-    speechToText: request.speechToText
-      ? {
-          ...request.speechToText,
-          config: request.speechToText.config
-            ? request.speechToText.config.toJavaScript()
-            : undefined
-        }
-      : undefined,
     intelligence: request.intelligence
       ? {
           ...request.intelligence,
-          credentials: request.intelligence.credentials
-            ? request.intelligence.credentials.toJavaScript()
-            : undefined,
           config: request.intelligence.config
             ? request.intelligence.config.toJavaScript()
             : undefined

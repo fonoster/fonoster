@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+name: text-to-first-audio
+contract: voice-session
+role: app
+spec: "Gateway latency pass bar (T1) / Text to first audio"
+tags: [timing]
+description: >
+  One sample of the T1 measurement. On pull requests the limit is loose; the timing suite repeats
+  this scenario 1,000 times on a dedicated runner and checks the p95.
+setup:
+  providers: { tts: { delayMs: 200 } }
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Your appointment is confirmed.", last: true }
+  - expect: { type: output.started, id: r1 }
+    label: first-audio
+    budget_ms: 150

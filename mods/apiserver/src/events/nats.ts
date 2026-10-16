@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { natsConnectOptions, NatsTarget } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { connect } from "nats";
 import { NatsEventCallback } from "./types";
@@ -39,13 +40,18 @@ async function streamEvents(subscription, callback: NatsEventCallback) {
  * @param {RegisterEventCallback} callback - The callback function
  * @return {void}
  */
-function watchNats(natsUrl: string, callback: NatsEventCallback) {
+function watchNats(nats: NatsTarget, callback: NatsEventCallback) {
   (async () => {
-    const nc = await connect({ servers: natsUrl, maxReconnectAttempts: -1 });
+    const nc = await connect({
+      ...natsConnectOptions(nats),
+      maxReconnectAttempts: -1
+    });
 
     const a = nc.subscribe(ROUTR_CALL_SUBJECT);
 
-    logger.verbose("connected to nats", { natsUrl });
+    logger.verbose("connected to nats", {
+      natsUrl: natsConnectOptions(nats).servers
+    });
     logger.verbose("subscribed to subjects", {
       subjects: [ROUTR_CALL_SUBJECT]
     });

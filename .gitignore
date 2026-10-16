@@ -1,7 +1,6 @@
 node_modules/
 .env*
 !.env.example
-!.env.example.dev
 *.log
 reporting/*
 out/*
@@ -14,8 +13,34 @@ tsconfig.tsbuildinfo
 integrations.json
 config/assistant*
 !assistant.example.json
+# Service config files hold secrets; only the *.example.* versions are committed
+config/fonoster.yaml
+config/fonoster.yml
+config/fonoster.json
+config/fonoster.jsonc
+config/autopilot.yaml
+config/autopilot.yml
+config/autopilot.json
+config/autopilot.jsonc
+config/identity.yaml
+config/identity.yml
+config/identity.jsonc
 .next
 next-env.d.ts
 .npmrc
 # ai-coustics models downloaded by the filter bench
 /models/
+mods/common/test/.prisma-client
+mods/common/test/.prisma-work
+
+# worktrees link node_modules as a symlink
+/node_modules
+
+# The rebuild stack generates configs, keys and secrets here (ops/rebuild/stack)
+ops/rebuild/.local/
+
+# The dev container's generated config and secrets (.devcontainer/initialize.sh)
+/.dev/
+
+# A private cell's local keys (docs/operators/regions.md)
+ops/rebuild/cell/.local/

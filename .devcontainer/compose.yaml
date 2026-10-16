@@ -1,0 +1,85 @@
+# The Fonoster dev container (CONTRIBUTING.md). Opening it starts the `workspace` (where you run
+# our components from source: `npm run dev`) and the dependencies, which are the self-host
+# bundle's own services (`extends` of ops/bundle/compose.yaml): same images, health checks, fixed
+# addresses and published ports, so development and self-hosting cannot drift.
+#
+# Values come from .env here, a link to ../.dev/.env that .devcontainer/initialize.sh writes with
+# `fonoster-config init` before the containers start (secrets are generated, never committed).
+name: ${COMPOSE_PROJECT_NAME:-fonoster-dev}
+
+# The bundle's network: Routr, RTPEngine and the workspace (standing in for the media node) need
+# fixed addresses for SIP and SDP.
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${SUBNET_PREFIX:?run .devcontainer/initialize.sh}.0/24
+          ip_range: ${SUBNET_PREFIX}.128/25
+
+services:
+  workspace:
+    # Built from ./Dockerfile by initialize.sh (before the containers start).
+    image: fonoster-dev-workspace
+    pull_policy: never
+    command: sleep infinity
+    volumes:
+      - ..:/workspaces/fonoster:cached
+      # Linux node_modules stay out of the host checkout (native binaries differ).
+      - node-modules:/workspaces/fonoster/node_modules
+      - go-cache:/home/node/go
+      # The keys and the provider catalog at the paths the bundle's config files name. The
+      # service files themselves are passed explicitly (npm run dev): mounted at /config they
+      # would also be picked up by the media nodes and gateways the tests start.
+      - ../.dev/config/keys:/opt/fonoster/keys:ro
+      - ../.dev/config/keys:/etc/fonoster/keys:ro
+      - ../.dev/config/catalog.yaml:/etc/fonoster/catalog.yaml:ro
+    environment:
+      # Tests use their own NATS and database, never the dev stack's.
+      CONFORMANCE_NATS_URL: nats://nats-test:4222
+      PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster_test
+    networks:
+      default:
+        # The media node's fixed address (the bundle's medianode.yaml advertises it; Routr trusts
+        # INVITEs from it) and the names the bundle's Envoy and configs use for our services.
+        ipv4_address: ${SUBNET_PREFIX}.42
+        aliases: [apiserver, gateway, autopilot, medianode, dashboard, fakes]
+
+  nats:
+    extends: { file: ../ops/bundle/compose.yaml, service: nats }
+
+  postgres:
+    extends: { file: ../ops/bundle/compose.yaml, service: postgres }
+    volumes:
+      - ./postgres-test.sql:/docker-entrypoint-initdb.d/20-test.sql:ro
+
+  routr:
+    extends: { file: ../ops/bundle/compose.yaml, service: routr }
+
+  rtpengine:
+    extends: { file: ../ops/bundle/compose.yaml, service: rtpengine }
+
+  minio:
+    extends: { file: ../ops/bundle/compose.yaml, service: minio }
+
+  # Routes to the workspace (the `apiserver` and `dashboard` aliases), which runs them from source.
+  envoy:
+    extends: { file: ../ops/bundle/compose.yaml, service: envoy }
+    depends_on: !reset {}
+
+  # The conformance suites' NATS (CONFORMANCE_NATS_URL): JetStream, no users.
+  nats-test:
+    image: nats:2.11.8-alpine
+    restart: unless-stopped
+    command: ["-js", "-m", "8222"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
+  nats-data:
+  minio-data:
+  node-modules:
+  go-cache:
