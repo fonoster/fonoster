@@ -79,7 +79,10 @@ export const AuthenticatedProvider = ({
    */
   const onWorkspaceChange = useCallback(
     (workspaceId: string) => {
-      const workspace = workspaces.find((w) => w.ref === workspaceId);
+      const want = workspaceId.trim().toLowerCase();
+      const workspace = workspaces.find(
+        (w) => String(w.ref || "").trim().toLowerCase() === want
+      );
 
       if (workspace) {
         setCurrentWorkspace(workspace);

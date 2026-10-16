@@ -58,7 +58,10 @@ export const WorkspaceSelector: React.FC<FilterSearchBySelectorProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const selectedFilterLabel =
-    workspaces.find((option) => option.id === selectedWorkspaceId)?.name ||
+    workspaces.find(
+      (option) =>
+        option.id.trim().toLowerCase() === selectedWorkspaceId.trim().toLowerCase()
+    )?.name ||
     placeholder;
 
   const handleFilterSelect = (filterId: string) => {
