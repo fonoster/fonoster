@@ -1,5 +1,5 @@
-# The voice gateway. `fonoster-config init` writes config/gateway.yaml from this file, filling
-# each ${NAME} from .env.
+# The voice gateway. `fonoster-config init` writes config/gateway.yaml from this file; each
+# ${NAME} stays as written and is read from the gateway's environment (Compose passes .env).
 nats: { url: "nats://nats:4222", user: gateway, password: "${NATS_GATEWAY_PASSWORD}" }
 # The RTP leg to the media node, on the gateway's fixed address.
 rtp: { host: 0.0.0.0, advertiseHost: "${SUBNET_PREFIX}.43" }
@@ -12,7 +12,11 @@ stt: { provider: deepgram }
 # Apps, the catalog, workspace vendor keys and webhooks: the API server's database.
 database:
   url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
-  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
+# The API server's encryption key (the same as fonoster.yaml): app signing secrets and workspace
+# vendor keys are encrypted columns.
+encryption: { key: "${ENCRYPTION_KEY}" }
+# OTLP/HTTP export to your collector; empty (the default) is off.
+telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
 appStore: { source: database, cacheMs: 3000 }
 registry: { source: database, refreshMs: 5000 }
 workspaceKeys: { enabled: true, cacheMs: 5000 }
@@ -29,9 +33,11 @@ callRecord:
       forcePathStyle: true
       credentials: { accessKeyId: "${MINIO_ROOT_USER}", secretAccessKey: "${MINIO_ROOT_PASSWORD}" }
   recording: off
-  # Every sealed record's metrics go to ClickHouse (profile analytics: COMPOSE_PROFILES=analytics
-  # in .env, then run init again).
-  #@if profile analytics
-  analytics:
-    clickhouse: { url: "http://clickhouse:8123", database: fonoster }
-  #@end
+  # Every sealed record's metrics to your ClickHouse (the user needs CREATE DATABASE, CREATE TABLE
+  # and INSERT; add CLICKHOUSE_USER and CLICKHOUSE_PASSWORD to .env):
+  # analytics:
+  #   clickhouse:
+  #     url: "https://clickhouse.example.com:8443"
+  #     database: fonoster
+  #     user: "${CLICKHOUSE_USER}"
+  #     password: "${CLICKHOUSE_PASSWORD}"

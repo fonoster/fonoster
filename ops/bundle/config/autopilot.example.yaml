@@ -1,5 +1,5 @@
-# The hosted Autopilot. `fonoster-config init` writes config/autopilot.yaml from this file,
-# filling each ${NAME} from .env.
+# The hosted Autopilot. `fonoster-config init` writes config/autopilot.yaml from this file; each
+# ${NAME} stays as written and is read from Autopilot's environment (Compose passes .env).
 host: 0.0.0.0
 port: 3000
 signingSecret: { value: "${AUTOPILOT_SIGNING_SECRET}" }
@@ -9,7 +9,10 @@ registry: { source: database, refreshMs: 5000 }
 workspaceSecrets: { source: database }
 database:
   url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
-  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
+# The API server's encryption key (the same as fonoster.yaml): workspace vendor keys.
+encryption: { key: "${ENCRYPTION_KEY}" }
+# OTLP/HTTP export to your collector; empty (the default) is off.
+telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
 # Platform keys by the catalog's credentialRef, for every workspace (e.g.
 # `groq-default: { value: "<key>" }`). Without them each workspace uses its own keys.
 credentials: {}

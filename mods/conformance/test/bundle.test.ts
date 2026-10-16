@@ -16,17 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The self-host Compose bundle (add-self-host-installer): ops/bundle/compose.yaml uses published
-// images only, its profiles are the documented ones, nothing in it says "rebuild", its copies of
-// the dev stack's static configs stay in sync, and its examples, rendered the way
-// `fonoster-config init` renders them, load through each service's own config validation.
+// The self-host Compose bundle (add-self-host-installer, unify-config-placeholders):
+// ops/bundle/compose.yaml uses published images only and has no profiles, nothing in it says
+// "rebuild", its copies of the dev stack's static configs stay in sync, and its examples, written
+// the way `fonoster-config init` writes them (placeholders kept), load through each service's own
+// config validation with .env's values, which Compose passes to the containers.
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
 import { parse } from "yaml";
+import {
+  decryptStringSync,
+  encryptStringSync,
+  findKeyForMessage,
+  makeKeychainSync,
+  parseKeySync
+} from "@47ng/cloak";
 import { loadServiceConfig } from "@fonoster/common";
-import { fonosterConfigSchema } from "../../apiserver/src/config/schema";
+import {
+  fonosterConfigSchema,
+  SHARED_VALUE_PATHS
+} from "../../apiserver/src/config/schema";
 import { loadHostedConfig } from "../../autopilot/src/session/hosted";
 import { expandEnv, readEnvFile } from "../../common/src/config/cli/envFile";
 import { renderConfigDir } from "../../common/src/config/cli/render";
@@ -41,6 +52,9 @@ type Service = {
   image?: string;
   build?: unknown;
   profiles?: string[];
+  env_file?: unknown;
+  volumes?: string[];
+  environment?: Record<string, string>;
 };
 
 function filesUnder(dir: string): string[] {
@@ -86,13 +100,10 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     expect(Object.keys(services)).to.not.include("sipcaller");
   });
 
-  it("starts the core path, the dashboard and Autopilot by default; the rest is opt-in", function () {
-    const byProfile = (p?: string) =>
-      Object.entries(services)
-        .filter(([, s]) => (p ? s.profiles?.includes(p) : !s.profiles))
-        .map(([n]) => n)
-        .sort();
-    expect(byProfile()).to.deep.equal(
+  it("starts the core path, the dashboard and Autopilot, with no opt-in profiles", function () {
+    for (const [name, svc] of Object.entries(services))
+      expect(svc.profiles, name).to.equal(undefined);
+    expect(Object.keys(services).sort()).to.deep.equal(
       [
         "apiserver",
         "autopilot",
@@ -107,11 +118,24 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
         "rtpengine"
       ].sort()
     );
-    expect(byProfile("observability")).to.deep.equal(
-      ["grafana", "loki", "otel-collector", "prometheus", "tempo"].sort()
-    );
-    expect(byProfile("analytics")).to.deep.equal(["clickhouse"]);
-    expect(byProfile("regions")).to.deep.equal(["nats-regions"]);
+  });
+
+  it("gives each Fonoster service its file at /config and .env through env_file", function () {
+    const files: Record<string, string> = {
+      apiserver: "fonoster",
+      gateway: "gateway",
+      autopilot: "autopilot",
+      medianode: "medianode"
+    };
+    for (const [svc, file] of Object.entries(files)) {
+      const s = services[svc];
+      expect(s.env_file, svc).to.equal("${FONOSTER_ENV_FILE:-.env}");
+      expect(s.volumes, svc).to.include(
+        `\${CONFIG_DIR:-./config}/${file}.yaml:/config/${file}.yaml:ro`
+      );
+      // Settings come from the file, not from per-service variables.
+      expect(s.environment, svc).to.equal(undefined);
+    }
   });
 
   it("never says rebuild or RB_", function () {
@@ -123,14 +147,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     expect(read("ops/bundle/config/envoy.yaml")).to.equal(
       read("config/envoy.yaml")
     );
-    for (const f of [
-      "otel-collector.yaml",
-      "prometheus.yml",
-      "loki.yaml",
-      "tempo.yaml",
-      "postgres-init.sql",
-      "grafana/datasources.yaml"
-    ])
+    for (const f of ["postgres-init.sql"])
       expect(read(`ops/bundle/config/${f}`), f).to.equal(
         read(`ops/rebuild/config/${f}`)
       );
@@ -148,73 +165,115 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     );
   });
 
-  it("names in its examples only values .env.example defines", function () {
+  it("names in its examples only values .env.example defines (or that have a default)", function () {
     const defined = readEnvFile(path.join(BUNDLE, ".env.example"));
     const dir = path.join(BUNDLE, "config");
     for (const f of fs
       .readdirSync(dir)
       .filter((n) => n.includes(".example."))) {
       const refs = body(fs.readFileSync(path.join(dir, f), "utf8")).match(
-        /\$\{[A-Za-z_][A-Za-z0-9_]*/g
+        /\$\{[A-Za-z_][A-Za-z0-9_]*(?!:-)\}/g
       );
       for (const r of refs ?? [])
-        expect(defined.has(r.slice(2)), `${f}: ${r}`).to.equal(true);
+        expect(defined.has(r.slice(2, -1)), `${f}: ${r}`).to.equal(true);
     }
   });
 
-  for (const profiles of ["", "regions,analytics"]) {
-    it(`renders configs each service loads (profiles: ${profiles || "default"})`, function () {
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "bundle-config-"));
-      fs.cpSync(path.join(BUNDLE, "config"), dir, { recursive: true });
-      ensureKeys(dir);
-      const example = readEnvFile(path.join(BUNDLE, ".env.example"));
-      for (const [k, v] of example)
-        if (v === "") example.set(k, `x${k.length}secret`);
-      example.set("HOST_IP", "192.0.2.10");
-      example.set("COMPOSE_PROFILES", profiles);
-      example.set(
-        "ENCRYPTION_KEY",
-        "k1.aesgcm256.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
-      );
-      renderConfigDir({ configDir: dir, env: expandEnv(example) });
-
-      // The API server: until it knows `catalog` (add-self-host-installer 1.2), leave it out.
-      const fonoster = parse(
-        fs.readFileSync(path.join(dir, "fonoster.yaml"), "utf8")
-      );
-      const inner = fonosterConfigSchema as unknown as {
-        _def: { schema?: { shape?: object } };
-      };
-      const shape = inner._def.schema?.shape;
-      if (shape && !("catalog" in shape)) delete fonoster.catalog;
-      // Key files are read in the container; point them at the rendered ones.
-      const yamlText = JSON.stringify(fonoster).replace(
-        /\/opt\/fonoster\//g,
-        `${dir}/`
-      );
-      const api = path.join(dir, "fonoster.check.json");
-      fs.writeFileSync(api, yamlText);
-      const loaded = loadServiceConfig({
-        service: "apiserver",
-        schema: fonosterConfigSchema,
-        argv: ["node", "x", "--config", api],
-        env: {}
-      }) as { regions?: { hub?: unknown } };
-      expect(Boolean(loaded.regions?.hub)).to.equal(
-        profiles.includes("regions")
-      );
-
-      const gw = loadGatewayConfig(path.join(dir, "gateway.yaml")) as {
-        callRecord?: { analytics?: unknown };
-        testMode?: boolean;
-      };
-      expect(Boolean(gw.callRecord?.analytics)).to.equal(
-        profiles.includes("analytics")
-      );
-      expect(gw.testMode).to.not.equal(true);
-
-      const ap = loadHostedConfig(path.join(dir, "autopilot.yaml"));
-      expect(ap.database?.url).to.contain("@postgres:5432/fonoster");
-    });
+  /** The bundle's config folder written as init writes it, and the env Compose passes. */
+  function install() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "bundle-config-"));
+    fs.cpSync(path.join(BUNDLE, "config"), dir, { recursive: true });
+    ensureKeys(dir);
+    const example = readEnvFile(path.join(BUNDLE, ".env.example"));
+    for (const [k, v] of example)
+      if (v === "") example.set(k, `x${k.length}secret${k}`);
+    example.set("HOST_IP", "192.0.2.10");
+    example.set("OTEL_EXPORTER_OTLP_ENDPOINT", "");
+    example.set(
+      "ENCRYPTION_KEY",
+      "k1.aesgcm256.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    );
+    const env = expandEnv(example);
+    renderConfigDir({ configDir: dir, env });
+    return { dir, env };
   }
+
+  function loadApiserver(dir: string, env: Record<string, string>) {
+    // Key files are read in the container; point them at the written ones.
+    const fonoster = parse(
+      fs.readFileSync(path.join(dir, "fonoster.yaml"), "utf8")
+    );
+    const api = path.join(dir, "fonoster.check.json");
+    fs.writeFileSync(
+      api,
+      JSON.stringify(fonoster).replace(/\/opt\/fonoster\//g, `${dir}/`)
+    );
+    return loadServiceConfig({
+      service: "apiserver",
+      schema: fonosterConfigSchema,
+      argv: ["node", "x", "--config", api],
+      env,
+      interpolatePaths: SHARED_VALUE_PATHS
+    }) as {
+      encryption: { key: string };
+      regions?: { hub?: unknown; public: { endpoints?: { sip: unknown[] } }[] };
+      telemetry?: { otlpEndpoint?: string };
+    };
+  }
+
+  it("writes configs each service loads with .env's values, and no secret in them", function () {
+    const { dir, env } = install();
+    const loaded = loadApiserver(dir, env);
+    expect(loaded.regions?.hub).to.equal(undefined);
+    expect(loaded.regions?.public[0].endpoints?.sip[0]).to.deep.equal({
+      host: "192.0.2.10",
+      port: 5060,
+      transport: "udp"
+    });
+    expect(loaded.telemetry?.otlpEndpoint).to.equal("");
+
+    const gw = loadGatewayConfig(path.join(dir, "gateway.yaml"), env);
+    expect(gw.callRecord?.analytics).to.equal(undefined);
+    expect(gw.testMode).to.not.equal(true);
+    expect(gw.nats.password).to.equal(env.NATS_GATEWAY_PASSWORD);
+
+    const ap = loadHostedConfig(path.join(dir, "autopilot.yaml"), env);
+    expect(ap.database?.url).to.contain("@postgres:5432/fonoster");
+
+    for (const f of [
+      "fonoster.yaml",
+      "gateway.yaml",
+      "autopilot.yaml",
+      "medianode.yaml"
+    ]) {
+      const text = fs.readFileSync(path.join(dir, f), "utf8");
+      for (const [k, v] of Object.entries(env))
+        if (v.includes("secret"))
+          expect(text, `${f} holds ${k}`).to.not.contain(v);
+    }
+  });
+
+  it("lets the gateway and Autopilot decrypt a vendor key the API server encrypted", function () {
+    const { dir, env } = install();
+    const apiKey = loadApiserver(dir, env).encryption.key;
+    // What prisma-field-encryption stores for a workspace vendor key.
+    const stored = encryptStringSync("dg-workspace-key", parseKeySync(apiKey));
+    const gwKey = loadGatewayConfig(path.join(dir, "gateway.yaml"), env)
+      .encryption?.key;
+    const apKey = loadHostedConfig(path.join(dir, "autopilot.yaml"), env)
+      .encryption?.key;
+    for (const key of [gwKey, apKey]) {
+      expect(key).to.be.a("string");
+      const keychain = makeKeychainSync([key!]);
+      const match = findKeyForMessage(stored, keychain);
+      expect(decryptStringSync(stored, match)).to.equal("dg-workspace-key");
+    }
+    // A service without the key fails the same way it would at start.
+    expect(() =>
+      loadGatewayConfig(path.join(dir, "gateway.yaml"), {
+        ...env,
+        ENCRYPTION_KEY: ""
+      })
+    ).to.throw(/encryption\.key: .*ENCRYPTION_KEY/);
+  });
 });

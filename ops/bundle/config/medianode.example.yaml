@@ -1,0 +1,25 @@
+# The media node. `fonoster-config init` writes config/medianode.yaml from this file; each ${NAME}
+# stays as written and is read from the node's environment (Compose passes .env).
+nodeId: "${MEDIANODE_ID:-node-a}"
+nats: { url: "nats://nats:4222", user: medianode, password: "${NATS_MEDIANODE_PASSWORD}" }
+# SIP and RTP on the node's fixed address; Compose publishes the RTP range on the host.
+sip: { listen: "0.0.0.0:5060", advertise: "${SUBNET_PREFIX}.42" }
+rtp:
+  host: 0.0.0.0
+  advertise: "${SUBNET_PREFIX}.42"
+  portMin: "${MEDIANODE_RTP_PORT_MIN}"
+  portMax: "${MEDIANODE_RTP_PORT_MAX}"
+# The media-node Peer the API server creates (routr.mediaNodePeer in fonoster.yaml).
+registration:
+  registrar: "routr:${SIP_PORT}"
+  domain: default
+  username: medianode
+  password: "${MEDIANODE_PASSWORD}"
+  transport: udp
+  every: 15s
+outboundProxy: "routr:${SIP_PORT}"
+debugAddr: "0.0.0.0:8099"
+# INVITEs (and their X-App-Ref/X-Call-Ref headers) only from Routr.
+trustedSources: ["${SUBNET_PREFIX}.40"]
+# OTLP/HTTP export to your collector; empty (the default) is off.
+telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
