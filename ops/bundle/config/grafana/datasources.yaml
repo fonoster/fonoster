@@ -1,5 +1,0 @@
-apiVersion: 1
-datasources:
-  - { name: Tempo, type: tempo, uid: tempo, url: "http://tempo:3200", access: proxy }
-  - { name: Loki, type: loki, uid: loki, url: "http://loki:3100", access: proxy }
-  - { name: Prometheus, type: prometheus, uid: prometheus, url: "http://prometheus:9090", access: proxy, isDefault: true }

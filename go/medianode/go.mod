@@ -20,6 +20,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0
 )
 
+require gopkg.in/yaml.v3 v3.0.1
+
 require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
