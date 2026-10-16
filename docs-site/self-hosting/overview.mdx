@@ -14,39 +14,14 @@ description: "What self-hosting Fonoster means, who this section is for, and whe
   alt="Fonoster on your own servers: a terminal runs curl, fonoster-config init and docker compose up -d, then shows the dashboard address."
 />
 
-Self-hosting means you run Fonoster on your own machines. Your calls, recordings and data stay on
-infrastructure you control, you connect your own carriers, and you sign in to your own dashboard.
+Self-hosting means you run Fonoster on your own machines, with your own data, carriers and
+dashboard. This section is for the people who install and operate it. To build agents and voice
+apps, go to the **Docs** tab. To run a private region joined to a control plane, go to the
+**Private regions** tab.
 
-## Who this section is for
-
-This section is for the people who install and operate Fonoster: teams with on-premises or
-compliance requirements, teams that already have SIP carriers, and anyone who wants full control
-of the stack.
-
-- To build agents and voice apps, go to the **Docs** tab. It applies whether you self-host or not.
-- To run a private region that joins a Fonoster control plane, go to the **Private regions** tab.
-
-## What you run
-
-A self-hosted Fonoster runs on one machine with Docker Compose. One download and three commands
-start everything a call needs:
-
-- **The voice path**: SIP signaling, media, and the gateway that connects calls to your apps.
-- **The API and the dashboard**: where you manage workspaces, agents, numbers and keys.
-- **Autopilot**: the hosted runtime for your AI agents.
-- **Storage**: the database, and object storage for call records and recordings.
-
-## What isn't included
-
-The install starts with only what a call needs. You add the rest when you want it:
-
-- **Speech and language-model vendor keys.** Add them per workspace in the dashboard, under
-  **Vendor keys**.
-- **Call metrics, telemetry and private regions.** These are optional integrations. You connect
-  Fonoster to your own ClickHouse, your own OpenTelemetry collector, or turn your install into a
-  control plane for private regions, each with its own guide.
-
-## Start here
+The install runs on one machine with Docker Compose and includes only what a call needs: the voice
+path, the API and dashboard, Autopilot and storage. You add vendor keys per workspace in the
+dashboard. ClickHouse metrics, telemetry and hosting private regions are optional integrations.
 
 <Card title="Install with Docker Compose" icon="docker" href="/self-hosting/install-compose">
   Install Fonoster on one machine and sign in to the dashboard.
