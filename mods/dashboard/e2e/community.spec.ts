@@ -139,7 +139,7 @@ test("lists and opens an agent with its saved configuration", async ({ page, api
   await page.getByLabel("Password").fill("pw");
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("link", { name: /Acme Support/ }).click();
-  await page.getByRole("link", { name: "Agents" }).click();
+  await page.getByRole("link", { name: "Autopilot", exact: true }).click();
 
   await expect(page.getByText("Front desk")).toBeVisible();
   await expect(page.getByText(/gpt-4o-mini/)).toBeVisible();
