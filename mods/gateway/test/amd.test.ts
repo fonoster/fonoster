@@ -173,6 +173,56 @@ describe("@gateway AMD listener", function () {
     harness.mediaNode.callerHangup(roomRef);
   });
 
+  it("starts the window when the caller starts speaking, not at answer", async function () {
+    // 1.2 s of carrier silence, then the greeting.
+    const silence = Buffer.alloc(16000 * 2 * 1.2);
+    const tone = Buffer.alloc(16000 * 2 * 1);
+    for (let i = 0; i < tone.length / 2; i++)
+      tone.writeInt16LE(
+        Math.round(8000 * Math.sin((2 * Math.PI * 440 * i) / 16000)),
+        i * 2
+      );
+    harness.mediaNode.configure({
+      callerAudio: { pcm16le: Buffer.concat([silence, tone]) }
+    });
+    await start({ amd: { windowMs: 500 } });
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    const result = await waitFor(
+      () => json(peer).find((m) => m.type === "amd.result"),
+      8000
+    );
+    expect(result).to.deep.include({ status: "machine" });
+    expect(result.audioMs).to.be.within(480, 520);
+    // Measured from the attach, so a little under the 1.2 s sent.
+    expect(result.speechOnsetMs).to.be.within(600, 1250);
+
+    // The classifier got the greeting, not the silence.
+    const pcm = heard[0];
+    let loud = 0;
+    for (let i = 0; i < pcm.length; i += 2)
+      if (Math.abs(pcm.readInt16LE(i)) > 1000) loud++;
+    expect(loud).to.be.greaterThan((pcm.length / 2) * 0.8);
+  });
+
+  it("reports no_speech when the caller never speaks", async function () {
+    harness.mediaNode.configure({ callerAudio: { kind: "silence", ms: 8000 } });
+    await start({ amd: { windowMs: 500 } });
+    harness.mediaNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    const result = await waitFor(
+      () => json(peer).find((m) => m.type === "amd.result"),
+      8000
+    );
+    expect(result).to.deep.include({
+      status: "unknown",
+      reason: "no_speech",
+      audioMs: 0
+    });
+    expect(result).to.not.have.property("speechOnsetMs");
+    expect(heard).to.have.length(0);
+  });
+
   it("reports unknown without a classifier, and nothing for apps without amd", async function () {
     await start({ amd: true }, false);
     harness.mediaNode.offerCall();

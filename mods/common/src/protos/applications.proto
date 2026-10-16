@@ -69,9 +69,9 @@ message AudioFormat {
 
 // Answering-machine detection: one amd.result event per call
 message AmdSettings {
-  // Classify the caller's first seconds of audio
+  // Classify the caller's first seconds of speech
   bool enabled = 1;
-  // How much caller audio to classify, in milliseconds (0: 4000; 500 to 15000)
+  // How much caller speech to classify, in milliseconds (0: 4000; 500 to 15000)
   int32 window_ms = 2;
 }
 

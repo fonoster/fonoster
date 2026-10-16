@@ -63,7 +63,8 @@ export type AppConfig = {
   recording?: RecordingPolicy;
   /**
    * Answering-machine detection (add-media-node 4.3): `true`, or `{windowMs}` of caller audio to
-   * classify (default 4000). The session gets one `amd.result` event.
+   * classify from when the caller starts speaking (default 4000). The session gets one
+   * `amd.result` event.
    */
   amd?: boolean | { enabled?: boolean; windowMs?: number };
 };
