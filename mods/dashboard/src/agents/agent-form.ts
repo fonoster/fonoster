@@ -28,6 +28,7 @@ import type {
   UpdateApplicationRequest
 } from "@fonoster/types";
 import { z } from "zod";
+import { mergeUpdate } from "~/lib/app-request";
 import { MULTILINGUAL_MODELS, type LlmProvider } from "./catalog";
 
 const POSITIVE = "Must be a positive number";
@@ -425,8 +426,11 @@ export function toUpdateRequest(
   values: AgentValues,
   base?: Application
 ): UpdateApplicationRequest {
-  // `type` must be sent: the API validates `intelligence` only for AUTOPILOT.
-  return { ref, ...toRequest(values, base) };
+  // `type` must be sent: the API validates `intelligence` only for AUTOPILOT. The API replaces
+  // every column on update, so the agent's call handling (fallback, listeners, recording, AMD,
+  // audio, other speech settings) comes from the saved app.
+  const request = toRequest(values, base);
+  return base ? { ...mergeUpdate(base, request), ref } : { ref, ...request };
 }
 
 /** A rough token count (≈4 characters per token), for the prompt's size hint. */

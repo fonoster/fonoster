@@ -72,6 +72,46 @@ describe("agent payload", () => {
     expect(again.tts.voice).toBe("aura-2-celeste-es");
   });
 
+  it("keeps the call handling the agent page doesn't edit", () => {
+    const saved = {
+      ...billingAgent,
+      url: "wss://autopilot.example.com",
+      flavor: "native",
+      speech: {
+        ...billingAgent.speech,
+        ttsModel: "deepgram/aura-2",
+        silenceTimeoutMs: 9000,
+        patience: "high"
+      },
+      audio: { codec: "pcmu", rate: 8000 },
+      fallbackAppRef: "app-fallback",
+      fallbackMessage: "One moment",
+      listeners: [{ url: "wss://listen.example.com", tracks: "inbound" }],
+      recording: "consent",
+      amd: { enabled: true, windowMs: 3000 }
+    } as unknown as typeof billingAgent;
+    const values = { ...toValues(saved), name: "Renamed" };
+    const request = toUpdateRequest(saved.ref, values, saved);
+    expect(request).toMatchObject({
+      ref: saved.ref,
+      name: "Renamed",
+      url: "wss://autopilot.example.com",
+      flavor: "native",
+      audio: { codec: "pcmu", rate: 8000 },
+      fallbackAppRef: "app-fallback",
+      fallbackMessage: "One moment",
+      listeners: [{ url: "wss://listen.example.com", tracks: "inbound" }],
+      recording: "consent",
+      amd: { enabled: true, windowMs: 3000 },
+      speech: {
+        voice: "deepgram/aura-2-celeste-es",
+        ttsModel: "deepgram/aura-2",
+        silenceTimeoutMs: 9000,
+        patience: "high"
+      }
+    });
+  });
+
   it("maps an edited tool to the assistant tool schema", () => {
     const values = toValues(billingAgent);
     values.tools = [

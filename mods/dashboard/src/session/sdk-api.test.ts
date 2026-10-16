@@ -17,8 +17,15 @@
  * limitations under the License.
  */
 import type { Application, CatalogItem } from "@fonoster/types";
-import { describe, expect, it } from "vitest";
-import { fromVcon, toCatalog, toRequest, toSessionApp } from "./sdk-api";
+import { describe, expect, it, vi } from "vitest";
+import type { FonosterSdk } from "~/lib/client";
+import {
+  createSdkSessionApi,
+  fromVcon,
+  toCatalog,
+  toRequest,
+  toSessionApp
+} from "./sdk-api";
 
 describe("SDK adapter", () => {
   const app = {
@@ -207,5 +214,115 @@ describe("SDK adapter", () => {
     expect(record.warnings).toEqual(["Missing: recording"]);
     expect(record.endReason).toBe("caller_hangup");
     expect(record.recording).toEqual({ sha256: "sha512-x" });
+  });
+});
+
+describe("SDK adapter saves", () => {
+  const agent = {
+    ref: "ap-1",
+    name: "Billing",
+    type: "AUTOPILOT",
+    url: "wss://autopilot.example.com",
+    flavor: "native",
+    signingSecretHint: "",
+    speech: {
+      voice: "deepgram/aura-2-celeste-es",
+      language: "es-419",
+      sttModel: "deepgram/nova-3",
+      ttsModel: "deepgram/aura-2",
+      silenceTimeoutMs: 9000,
+      patience: ""
+    },
+    fallbackAppRef: "",
+    fallbackMessage: "",
+    listeners: [],
+    recording: "",
+    amd: { enabled: false, windowMs: 0 },
+    intelligence: {
+      productRef: "llm.openai",
+      config: { languageModel: { model: "openai/gpt-4o-mini" } }
+    },
+    createdAt: new Date(),
+    updatedAt: new Date()
+  } as unknown as Application;
+
+  const fakeSdk = (saved: Application) => {
+    const updateApplication = vi.fn().mockResolvedValue({ ref: saved.ref });
+    const sdk = {
+      applications: {
+        getApplication: vi.fn().mockResolvedValue(saved),
+        updateApplication
+      }
+    } as unknown as FonosterSdk;
+    return { api: createSdkSessionApi(sdk), updateApplication };
+  };
+
+  it("call handling keeps the agent's assistant and speech", async () => {
+    // The drawer's draft is older: the agent page changed the assistant and voice since.
+    const drawerDraft = toSessionApp({
+      ...agent,
+      speech: { voice: "deepgram/old", language: "en-US" },
+      intelligence: { productRef: "llm.openai", config: { old: true } }
+    } as unknown as Application);
+    const { api, updateApplication } = fakeSdk({
+      ...agent,
+      speech: { ...agent.speech, voice: "deepgram/old", language: "en-US" }
+    } as Application);
+    const { signingSecretHint: _h, ...edit } = {
+      ...drawerDraft,
+      fallback: { appRef: "app-2", message: "Hold on" },
+      listeners: [{ url: "wss://l", tracks: "both" as const }],
+      recording: "on" as const,
+      amd: true,
+      amdWindowMs: 2500
+    };
+    await api.saveApp(edit);
+    const request = updateApplication.mock.calls[0][0];
+    expect(request).toMatchObject({
+      ref: "ap-1",
+      name: "Billing",
+      type: "AUTOPILOT",
+      intelligence: { config: agent.intelligence!.config },
+      speech: {
+        voice: "deepgram/old",
+        language: "en-US",
+        ttsModel: "deepgram/aura-2",
+        silenceTimeoutMs: 9000
+      },
+      fallbackAppRef: "app-2",
+      fallbackMessage: "Hold on",
+      listeners: [{ url: "wss://l", tracks: "both" }],
+      recording: "on",
+      amd: { enabled: true, windowMs: 2500 }
+    });
+    // The app had no audio format; the drawer's default doesn't add one.
+    expect(request.audio).toBeUndefined();
+  });
+
+  it("a stream edit keeps the settings the drawer doesn't show", async () => {
+    const stream = {
+      ...agent,
+      ref: "st-1",
+      type: "EXTERNAL",
+      url: "wss://bot.example.com",
+      audio: { codec: "pcmu", rate: 8000 },
+      listeners: [{ url: "wss://l", tracks: "inbound" }],
+      recording: "consent",
+      amd: { enabled: true, windowMs: 3000 },
+      intelligence: undefined
+    } as unknown as Application;
+    const { api, updateApplication } = fakeSdk(stream);
+    const { signingSecretHint: _h, ...draft } = toSessionApp(stream);
+    await api.saveApp({ ...draft, name: "Renamed" });
+    expect(updateApplication.mock.calls[0][0]).toMatchObject({
+      ref: "st-1",
+      name: "Renamed",
+      url: "wss://bot.example.com",
+      audio: { codec: "pcmu", rate: 8000 },
+      listeners: [{ url: "wss://l", tracks: "inbound" }],
+      recording: "consent",
+      amd: { enabled: true, windowMs: 3000 },
+      speech: { ttsModel: "deepgram/aura-2", silenceTimeoutMs: 9000 }
+    });
   });
 });

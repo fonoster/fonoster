@@ -19,8 +19,10 @@
 import type {
   Application,
   CatalogItem,
-  CreateApplicationRequest
+  CreateApplicationRequest,
+  UpdateApplicationRequest
 } from "@fonoster/types";
+import { mergeUpdate } from "~/lib/app-request";
 import type { FonosterSdk } from "~/lib/client";
 import type {
   AudioCodec,
@@ -124,6 +126,22 @@ export function toRequest(
       ? { intelligence: { config: app.assistant } }
       : {})
   };
+}
+
+/**
+ * The update for a drawer save. The API replaces every column, so it starts from the app as saved
+ * now and overlays what the drawer edits. The drawer doesn't edit the assistant (the agent page
+ * does) or the TTS model and silence timeout, so those stay as saved; the audio format stays as
+ * saved unless it was changed (the drawer shows a default when the app has none).
+ */
+export function toUpdateRequest(
+  current: Application,
+  request: CreateApplicationRequest,
+  app: Pick<SessionApp, "audio">
+): UpdateApplicationRequest {
+  const { intelligence: _assistant, ...edits } = request;
+  if (app.audio === audioOf(current.audio)) delete edits.audio;
+  return mergeUpdate(current, edits);
 }
 
 const entry = (item: CatalogItem): CatalogEntry => ({
@@ -295,7 +313,10 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
     saveApp: async (app) => {
       const request = toRequest(app);
       if (app.ref) {
-        await sdk.applications.updateApplication({ ref: app.ref, ...request });
+        const current = await sdk.applications.getApplication(app.ref);
+        await sdk.applications.updateApplication(
+          toUpdateRequest(current, request, app)
+        );
         return (await getApp(app.ref))!;
       }
       const created = await sdk.applications.createApplication(request);
