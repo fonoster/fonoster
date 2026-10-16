@@ -7,6 +7,8 @@ import {
 import { migratePasswordStorage, upsertDefaultUser } from "@fonoster/identity";
 import { configureLogger, getLogger } from "@fonoster/logger";
 import { getConfig } from "./config";
+import { applyCatalog } from "./core/applyCatalog";
+import { prisma } from "./core/db";
 import { identityConfig } from "./core/identityConfig";
 import runServices from "./core/runServices";
 import { upsertMediaNodePeer } from "./core/upsertMediaNodePeer";
@@ -41,6 +43,23 @@ async function main() {
       password: OWNER_PASSWORD
     };
     await upsertDefaultUser(identityConfig, user);
+  }
+
+  // The provider catalog (add-self-host-installer D7): applied on every start, idempotent. A
+  // configured file that can't be read or applied stops the server (IC-B2).
+  if (config.catalog) {
+    try {
+      const lines = await applyCatalog(config.catalog.file, prisma);
+      logger.info(
+        lines[0] === "no changes"
+          ? "catalog: no changes"
+          : `catalog: ${lines.length} entries added or changed`,
+        { file: config.catalog.file }
+      );
+    } catch (e) {
+      logger.error(`catalog: ${(e as Error).message}`);
+      process.exit(1);
+    }
   }
 
   // The media-node peer every app-linked number points at (add-media-node 4.1). Runs in the

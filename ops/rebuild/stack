@@ -227,6 +227,8 @@ identity:
   security: { contactVerificationRequired: false, twoFactorAuthenticationRequired: false }
   invites: { expiration: 1d }
   owner: { name: Admin, email: "$RB_ADMIN_EMAIL", password: "$RB_ADMIN_PASSWORD" }
+# The provider catalog (config/catalog-seed.yaml, mounted): applied on every start.
+catalog: { file: /opt/fonoster/catalog.yaml }
 EOF
   # The local public region and its connection details (contract §3a): Routr's published SIP
   # port and RTPEngine's range on this machine's address. Its id is always `default` (PR-17); it
@@ -381,21 +383,10 @@ cmd_up() {
   # Routr's API comes up later (it migrates its own database first); seeding needs it. The
   # apiserver logs the media-node peer once Routr answers.
   wait_for "Routr" 90 routr_ready || { compose logs --tail 20 routr; die "Routr did not start"; }
-  seed_catalog
   cmd_info
 }
 
 routr_ready() { compose logs apiserver 2>/dev/null | grep -q "media-node peer \(created\|already exists\)"; }
-
-# The provider catalog (config/catalog-seed.yaml) into the registry tables, through the
-# fonoster-registry utility in the apiserver image. Idempotent ("no changes" on later runs).
-seed_catalog() {
-  log "catalog: $(compose exec -T \
-    -e FONOSTER_REGISTRY_DATABASE_URL="postgresql://postgres:$POSTGRES_PASSWORD@postgres:5432/fonoster" \
-    apiserver node /work/mods/common/dist/registry/cli.js apply --f /dev/stdin --store database \
-    < "$HERE/config/catalog-seed.yaml" \
-    | awk '/^error|no changes/ {print; next} {n++} END {if (n) print n " entries added or changed"}')"
-}
 
 cmd_seed() {
   [ -f "$STACK_ENV" ] || die "run 'ops/rebuild/stack up' first"

@@ -109,6 +109,13 @@ const registrySchema = z
   .default({});
 
 /**
+ * The provider catalog file (add-self-host-installer D7): applied to the registry tables on
+ * every start with `fonoster-registry apply --store database` semantics. Listed entries are added
+ * or updated; entries not in the file (operator-added) are kept. Absent: nothing is applied.
+ */
+const catalogSchema = z.object({ file: z.string().min(1) }).optional();
+
+/**
  * Assistant evaluations (EvaluateIntelligence): platform model keys by credentialRef, used when a
  * workspace has no key of its own for the provider. Values take `secret://` references (D8).
  * `fonoster-migrate-legacy --integrations` writes them from the retired integrations.json.
@@ -283,6 +290,7 @@ const fonosterConfigSchema = z
     apps: sessionAppsSchema,
     webhooks: webhooksSchema,
     registry: registrySchema,
+    catalog: catalogSchema,
     regions: regionsSchema
   })
   .superRefine((config, ctx) => {

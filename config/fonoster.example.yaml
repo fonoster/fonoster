@@ -115,6 +115,12 @@ influxdb:                                        # call records
 #   accountSid: ACxxxxxxxxxxxxxxxx
 #   authToken: twilio-token
 
+# The provider catalog (providers, models, voices) applied on every start: listed entries are
+# added or updated, entries an operator added with fonoster-registry are kept. Omit to manage
+# the catalog only with fonoster-registry.
+catalog:
+  file: /opt/fonoster/catalog.yaml
+
 identity:
   database:
     url: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fnidentity
