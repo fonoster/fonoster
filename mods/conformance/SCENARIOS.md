@@ -60,7 +60,7 @@ Each step has exactly one action key.
 | `close: {code, reason}` | Close the socket from the runner's side. |
 | `caller: {dtmf | hangup | audio | drop | nodeCrash}` | The fake media node acts as the caller: presses keys (`dtmf: "12#"`), hangs up (`hangup: true`) or speaks (`audio`, same shape as `send_audio`, replacing any caller audio still pending). `drop: {reason, sipStatus?}` makes the node end the room with a media-control reason; `nodeCrash: true` kills the node (no heartbeats, replies or events). |
 
-In the `twilio` flavor, `send_audio` sends μ-law 8 kHz `media` events (base64 payloads) using the
+With the `twilio` protocol, `send_audio` sends μ-law 8 kHz `media` events (base64 payloads) using the
 `streamSid` from the `start` message, and `expect_audio` counts incoming `media` events.
 
 A step may also carry `label` (so later steps can measure from it) and `capture` (see Variables).
@@ -132,7 +132,7 @@ scenario rather than ignoring it.
 | Key | Meaning |
 | --- | --- |
 | `call` | The call the fake media node offers to the gateway: `direction`, `from`, `to`, `metadata`, `callRef`. With `direction: outbound` the runner places the call as the control plane does and the app's socket opens when the callee answers (`media.dialOutcome`). |
-| `app` | The app under test (`app-1`): `flavor`, `signingSecret` (what the gateway signs with), `verifySignature`, `verifySecret` (what the fake app checks, when a rotation has not reached it), `reachable`, `fallback` (`{app: app-2}` or `{message}`), `speech`, `filters`, `workspaceRef` (both apps' workspace; Twilio's `accountSid`). |
+| `app` | The app under test (`app-1`): `protocol`, `signingSecret` (what the gateway signs with), `verifySignature`, `verifySecret` (what the fake app checks, when a rotation has not reached it), `reachable`, `fallback` (`{app: app-2}` or `{message}`), `speech`, `filters`, `workspaceRef` (both apps' workspace; Twilio's `accountSid`). |
 | `listener` | `voice-session`: a listen-only socket on `app-2` with `tracks`; `peer: listener` makes the runner play the listener while `app-1` stays silent. |
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake media node plays as the caller once the call is answered. |
@@ -187,7 +187,7 @@ matcher, compared with what the harness measured.
 | `record.messages.<type>` | the call record's entries of that type from any source (app commands, gateway messages, events), each with `source` and `at`, e.g. `record.messages.record.note` |
 | `webhooks.events` | the lifecycle events the gateway handed to the webhook dispatcher, in order, each as `{type, ...data}` |
 | `app.attempts` | `app-1`'s connection attempts, each `{accepted, reason?}` (refused signatures show as `accepted: false`) |
-| `app.text_frames` | text frames `app-1` received that were not JSON objects (always `0` in the native flavor) |
+| `app.text_frames` | text frames `app-1` received that were not JSON objects (always `0` with the `fonoster` protocol) |
 | `other_app.messages` | every JSON message `app-2` received (fallback, handoff target or listener) |
 | `other_app.audio_tracks` | the distinct track ids (first byte) of the binary frames `app-2` received, sorted |
 | `providers.tts.voices` | the voice each fake TTS request named, in order |

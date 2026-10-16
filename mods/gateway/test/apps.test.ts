@@ -45,7 +45,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const yamlApp = (ref: string, extra: Partial<AppConfig> = {}): AppConfig => ({
   ref,
   url: "wss://bot.example.com",
-  flavor: "native",
+  protocol: "fonoster",
   signingSecret: "s",
   speech: { voice: "fake/default", language: "en-US" },
   ...extra
@@ -73,7 +73,7 @@ describe("@gateway apps", function () {
         ref: "a",
         accessKeyId: "WO1",
         url: "wss://bot.example.com/agent",
-        flavor: "twilio",
+        protocol: "twilio",
         signingSecret: "s3cret",
         speechVoice: "elevenlabs/rachel",
         speechLanguage: "es-419",
@@ -87,7 +87,7 @@ describe("@gateway apps", function () {
     ).to.deep.equal({
       ref: "a",
       url: "wss://bot.example.com/agent",
-      flavor: "twilio",
+      protocol: "twilio",
       signingSecret: "s3cret",
       speech: {
         voice: "elevenlabs/rachel",
@@ -189,7 +189,7 @@ describe("@gateway apps", function () {
           type: "EXTERNAL",
           endpoint: "",
           url: "wss://bot.example.com/agent",
-          flavor: "native",
+          protocol: "fonoster",
           signingSecret: "app-secret",
           speechVoice: "fake/default",
           speechLanguage: "en-US"

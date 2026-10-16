@@ -65,7 +65,7 @@ async function main() {
         {
           ref: "load",
           url: harness.app.url,
-          flavor: "native",
+          protocol: "fonoster",
           signingSecret: "s",
           speech: { voice: "fake/default", language: "en-US" }
         }

@@ -2,9 +2,9 @@ format: fonoster.scenario.v1
 name: socket-closed
 contract: twilio-media-streams-flavor
 role: app
-spec: "Hanging up from a Twilio-flavor app / Socket closed"
+spec: "Hanging up from a Twilio-protocol stream / Socket closed"
 setup:
-  app: { flavor: twilio }
+  app: { protocol: twilio }
 ignore: [media]
 steps:
   - expect: { event: start }

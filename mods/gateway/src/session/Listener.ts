@@ -19,7 +19,7 @@
 import { SessionStart } from "@fonoster/common";
 import WebSocket from "ws";
 import { convert, INTERNAL, parseCodec } from "../audio/pcm";
-import { AGENT_TRACK_ID, CALLER_TRACK_ID } from "../flavors/native";
+import { AGENT_TRACK_ID, CALLER_TRACK_ID } from "../protocols/fonoster";
 import { signatureHeaders } from "../signing";
 
 export type ListenerTracks = "inbound" | "outbound" | "both";

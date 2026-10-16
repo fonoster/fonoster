@@ -96,7 +96,7 @@ describe("@autopilot full stack: media node → gateway → Autopilot → LLM �
           {
             ref: "autopilot",
             url: `ws://127.0.0.1:${autopilot.port}/`,
-            flavor: "native",
+            protocol: "fonoster",
             signingSecret: SECRET,
             speech: {
               voice: "fake/default",
@@ -209,7 +209,7 @@ describe("@autopilot full stack: media node → gateway → Autopilot → LLM �
           {
             ref: "autopilot",
             url: `ws://127.0.0.1:${autopilot.port}/`,
-            flavor: "native",
+            protocol: "fonoster",
             signingSecret: SECRET,
             speech: {
               voice: "fake/default",

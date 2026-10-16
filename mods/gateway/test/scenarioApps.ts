@@ -48,7 +48,7 @@ AudioFilterFactory.registerFilter("conformance-mute", {
 export function appsFor(
   scenario: Scenario,
   harness: FakesHarness,
-  flavor?: "native" | "twilio"
+  protocol?: "fonoster" | "twilio"
 ): AppConfig[] {
   const a = scenario.setup?.app ?? {};
   const listener = scenario.setup?.listener;
@@ -56,12 +56,12 @@ export function appsFor(
     {
       ref: "app-1",
       url: harness.app.url,
-      flavor:
-        flavor ??
-        a.flavor ??
+      protocol:
+        protocol ??
+        a.protocol ??
         (scenario.contract === "twilio-media-streams-flavor"
           ? "twilio"
-          : "native"),
+          : "fonoster"),
       signingSecret: a.signingSecret ?? SCENARIO_SECRET,
       speech: {
         voice: "fake/default",
@@ -86,7 +86,7 @@ export function appsFor(
       // Reached only by appRef, fallback or handoff (numbers no call uses).
       ref: "app-2",
       url: harness.otherApp.url,
-      flavor: "native",
+      protocol: "fonoster",
       signingSecret: SCENARIO_SECRET,
       numbers: ["+0"],
       ...(a.workspaceRef ? { workspaceRef: a.workspaceRef } : {}),

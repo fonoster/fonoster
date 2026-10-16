@@ -25,7 +25,7 @@ import { FakesHarness } from "@fonoster/conformance";
 import { Gateway, MemoryCallRecordSink } from "../src";
 
 // Golden test (task 1.6, conformance 3.3): an unmodified Pipecat bot (TwilioFrameSerializer +
-// FastAPIWebsocketTransport) against the twilio flavor. Needs NATS and a Python with pipecat-ai:
+// FastAPIWebsocketTransport) against the twilio protocol. Needs NATS and a Python with pipecat-ai:
 // CONFORMANCE_NATS_URL=nats://127.0.0.1:4222 PIPECAT_PYTHON=python/.venv-pipecat/bin/python
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const PYTHON = process.env.PIPECAT_PYTHON;
@@ -139,7 +139,7 @@ class Bot {
   }
 }
 
-describe("@gateway Pipecat golden test (twilio flavor)", function () {
+describe("@gateway Pipecat golden test (twilio protocol)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
   let harness: FakesHarness;
@@ -183,7 +183,7 @@ describe("@gateway Pipecat golden test (twilio flavor)", function () {
           {
             ref: "pipecat",
             url: `ws://127.0.0.1:${botPort}/ws`,
-            flavor: "twilio",
+            protocol: "twilio",
             signingSecret: "unused-by-pipecat",
             speech: { voice: "fake/default", language: "en-US" }
           }

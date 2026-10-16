@@ -37,15 +37,15 @@ import {
   bufferToInt16,
   int16ToBuffer
 } from "../filters";
-import { NativeCodec } from "../flavors/native";
-import { TwilioCodec } from "../flavors/twilio";
-import { FlavorCodec } from "../flavors/types";
 import {
   MediaCommandError,
   MediaControl,
   MediaEvent
 } from "../media/MediaControl";
 import { RtpLink } from "../media/RtpLink";
+import { FonosterCodec } from "../protocols/fonoster";
+import { TwilioCodec } from "../protocols/twilio";
+import { ProtocolCodec } from "../protocols/types";
 import { CallRecording } from "../record/CallRecording";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
@@ -686,7 +686,7 @@ export class AppSession {
   get workspaceRef() {
     return this.app.workspaceRef;
   }
-  private codec: FlavorCodec;
+  private codec: ProtocolCodec;
   private queue: OutputQueue;
   private stt?: SttStream;
   private pacing?: Pacing;
@@ -723,14 +723,14 @@ export class AppSession {
       if (socket.readyState === WebSocket.OPEN) socket.send(data);
     };
     this.codec =
-      app.flavor === "twilio"
+      app.protocol === "twilio"
         ? new TwilioCodec(
             send,
             app.workspaceRef ??
               deps.config.http?.accountSid ??
               "AC00000000000000000000000000000000"
           )
-        : new NativeCodec(send, app.audio ?? { codec: "pcm16", rate: 16000 });
+        : new FonosterCodec(send, app.audio ?? { codec: "pcm16", rate: 16000 });
     this.queue = new OutputQueue({
       sink: (frame) => {
         sink(frame);
@@ -1437,7 +1437,7 @@ export class AppSession {
     )
       return;
     this.codec.event(message);
-    // Listeners get the same events as the controlling app (the native view, whatever the flavor).
+    // Listeners get the same events as the controlling app (the fonoster view, whatever the protocol).
     if (message.type !== "turn.estimate")
       for (const l of this.listeners) l.json(message);
     if (message.type !== "turn.estimate") this.call.record("gateway", message);

@@ -25,19 +25,19 @@ export type Incoming =
   | { kind: "ignore" };
 
 /**
- * Translates between the session and one wire flavor. The session speaks native messages
- * internally; a codec decides what each flavor's app sees and how its frames are read.
+ * Translates between the session and one wire protocol. The session speaks fonoster messages
+ * internally; a codec decides what each protocol's app sees and how its frames are read.
  */
-export interface FlavorCodec {
-  /** Whether the flavor offers the Speech layer (turn events, speak, play). */
+export interface ProtocolCodec {
+  /** Whether the protocol offers the Speech layer (turn events, speak, play). */
   readonly speechLayer: boolean;
-  /** Opening messages, built from the native session.start. */
+  /** Opening messages, built from the fonoster session.start. */
   start(start: SessionStart): void;
-  /** A native gateway → app message; flavors drop what they do not carry. */
+  /** A fonoster gateway → app message; protocols drop what they do not carry. */
   event(message: Record<string, unknown>): void;
   /** One 20 ms internal frame of caller audio. */
   callerAudio(frame: Buffer): void;
-  /** Closing message (native session.end, Twilio stop). */
+  /** Closing message (fonoster session.end, Twilio stop). */
   end(message: Record<string, unknown>): void;
   /** Reads one frame from the app. */
   parse(raw: Buffer, isBinary: boolean): Incoming;

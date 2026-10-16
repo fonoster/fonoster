@@ -4,7 +4,7 @@ contract: twilio-media-streams-flavor
 role: app
 spec: "Twilio Media Streams messages / Stream opening"
 setup:
-  app: { flavor: twilio }
+  app: { protocol: twilio }
 steps:
   - expect: { event: connected, protocol: Call, version: "1.0.0" }
     within_ms: 3000

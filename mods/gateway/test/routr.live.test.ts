@@ -104,7 +104,7 @@ async function until<T>(
   }
 }
 
-/** 16-bit little-endian sine at 16 kHz (the native flavor's default audio). */
+/** 16-bit little-endian sine at 16 kHz (the fonoster protocol's default audio). */
 function tone(ms: number): Buffer {
   const samples = (16000 * ms) / 1000;
   const buf = Buffer.alloc(samples * 2);
@@ -209,7 +209,7 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
           {
             ref: ROUTING.appRef,
             url: harness.app.url,
-            flavor: "native",
+            protocol: "fonoster",
             signingSecret: SECRET,
             speech: { voice: "fake/default", language: "en-US" }
           }

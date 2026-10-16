@@ -209,7 +209,7 @@ async function main() {
         {
           ref: "app-1",
           url: `ws://127.0.0.1:${autopilot.port}/`,
-          flavor: "native",
+          protocol: "fonoster",
           signingSecret: SECRET,
           speech: {
             voice,

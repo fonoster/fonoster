@@ -4,7 +4,7 @@ contract: twilio-media-streams-flavor
 role: app
 spec: "μ-law 8 kHz audio in base64 / Caller audio"
 setup:
-  app: { flavor: twilio }
+  app: { protocol: twilio }
 steps:
   - expect: { event: start }
   - expect:

@@ -138,7 +138,7 @@ describe("@gateway test calls (add-talk-in-browser)", function () {
       const app: AppConfig = {
         ref: "agent-a",
         url: harness.app.url,
-        flavor: "native",
+        protocol: "fonoster",
         signingSecret: "s",
         workspaceRef: "WO-A",
         speech: { voice: "fake/default", language: "en-US" }

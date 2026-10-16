@@ -4,7 +4,7 @@ contract: twilio-media-streams-flavor
 role: app
 spec: "Caller DTMF / Keypress"
 setup:
-  app: { flavor: twilio }
+  app: { protocol: twilio }
 ignore: [media]
 steps:
   - expect: { event: start }

@@ -214,7 +214,7 @@ steps:
     expect((binary[0].data as Buffer).length).to.equal(640);
   });
 
-  it("wraps audio as media events in the Twilio flavor", async function () {
+  it("wraps audio as media events in the Twilio protocol", async function () {
     const s: Scenario = parse(`
 format: fonoster.scenario.v1
 name: t

@@ -5,7 +5,7 @@ role: app
 spec: "μ-law 8 kHz audio in base64 / Agent audio"
 description: Base64 μ-law media from the app is played to the caller at real-time speed.
 setup:
-  app: { flavor: twilio }
+  app: { protocol: twilio }
 ignore: [media]
 steps:
   - expect: { event: start }

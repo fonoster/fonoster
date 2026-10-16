@@ -22,7 +22,7 @@ import { FakesHarness, Peer } from "@fonoster/conformance";
 import { Gateway, MemoryCallRecordSink } from "../src";
 import { APP_AUDIO_FORMATS, convert, INTERNAL } from "../src/audio/pcm";
 
-// The native format menu end to end (voice-session "Raw audio in both directions", AO-B4): for
+// The fonoster format menu end to end (voice-session "Raw audio in both directions", AO-B4): for
 // every format an app may pick, session.start announces it, caller frames are 20 ms of it, and
 // agent audio sent in it reaches the media node at real time. Needs NATS.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -97,7 +97,7 @@ describe("@gateway audio format menu", function () {
             {
               ref: "a",
               url: harness.app.url,
-              flavor: "native",
+              protocol: "fonoster",
               signingSecret: "s",
               speech: { voice: "fake/default", language: "en-US" },
               audio
