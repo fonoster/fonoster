@@ -1,0 +1,27 @@
+# Routr's EdgePort. `fonoster-config init` writes config/routr-edgeport.yaml from this file. SIP
+# listens on SIP_PORT inside the container too, so Via and Record-Route carry the port softphones
+# and carriers reach.
+kind: EdgePort
+apiVersion: v2beta1
+ref: default
+metadata:
+  region: default
+spec:
+  unknownMethodAction: Discard
+  processor:
+    addr: localhost:51901
+  securityContext:
+    client:
+      protocols: [SSLv3, TLSv1.2]
+      authType: DisabledAll
+    keyStorePassword: changeme
+    trustStorePassword: changeme
+    keyStore: "/etc/routr/certs/signaling.p12"
+    trustStore: "/etc/routr/certs/signaling.p12"
+    keyStoreType: pkcs12
+  methods: [REGISTER, MESSAGE, INVITE, ACK, BYE, CANCEL]
+  transport:
+    - protocol: tcp
+      port: ${SIP_PORT}
+    - protocol: udp
+      port: ${SIP_PORT}

@@ -353,7 +353,14 @@ export function validateConfig(config: GatewayConfig): string[] {
         `provider ${name}: the fake adapter is only available in test mode`
       );
     }
-    if (p.adapter !== "fake" && !providerKey(p) && !config.cellSecrets) {
+    // Without a platform key a provider still serves workspaces that saved their own key
+    // (workspaceKeys, cellSecrets): a self-hosted install starts with no vendor keys.
+    if (
+      p.adapter !== "fake" &&
+      !providerKey(p) &&
+      !config.cellSecrets &&
+      !config.workspaceKeys?.enabled
+    ) {
       problems.push(
         `provider ${name}: no credential (set credential.env or credential.value)`
       );

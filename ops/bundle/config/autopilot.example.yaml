@@ -1,0 +1,16 @@
+# The hosted Autopilot. `fonoster-config init` writes config/autopilot.yaml from this file,
+# filling each ${NAME} from .env.
+host: 0.0.0.0
+port: 3000
+signingSecret: { value: "${AUTOPILOT_SIGNING_SECRET}" }
+# Assistants, the catalog and workspace vendor keys: the API server's database.
+assistants: { source: database, cacheMs: 3000 }
+registry: { source: database, refreshMs: 5000 }
+workspaceSecrets: { source: database }
+database:
+  url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
+  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
+# Platform keys by the catalog's credentialRef, for every workspace (e.g.
+# `groq-default: { value: "<key>" }`). Without them each workspace uses its own keys.
+credentials: {}
+endpoints: {}

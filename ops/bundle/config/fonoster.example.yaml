@@ -1,0 +1,72 @@
+# The API server with its embedded Identity. `fonoster-config init` writes config/fonoster.yaml
+# from this file, filling each ${NAME} from .env. Edit this example (not the rendered file) and
+# run init again to change it (https://docs.fonoster.com/self-hosting/install-compose).
+domain: fonoster.local
+appUrl: ${PUBLIC_URL}
+server: { bindAddr: 0.0.0.0:50051, httpBridgePort: 9876, host: apiserver }
+logs: { level: info, format: text, transport: console }
+database: { url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster" }
+encryption: { key: "${ENCRYPTION_KEY}" }
+authz: { enabled: false }
+features:
+  auth: { methods: [password], signup: invite }
+  billing: { enabled: false }
+  costs: { display: usage }
+# Numbers of apps route to the media nodes' Peer, created at start with this password.
+routr:
+  apiEndpoint: routr:51907
+  mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: "${MEDIANODE_PASSWORD}" }
+nats: { url: "nats://nats:4222", user: apiserver, password: "${NATS_APISERVER_PASSWORD}" }
+# Autopilot apps point at the hosted Autopilot and share its signing secret.
+apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: "${AUTOPILOT_SIGNING_SECRET}" }
+# Required by the schema; unused with callRecords.listCallsFromIndex.
+influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
+callRecords:
+  enabled: true
+  listCallsFromIndex: true
+  stores:
+    - s3:
+        bucket: records
+        endpoint: "http://minio:9000"
+        region: us-east-1
+        forcePathStyle: true
+        credentials: { accessKeyId: "${MINIO_ROOT_USER}", secretAccessKey: "${MINIO_ROOT_PASSWORD}" }
+# The provider catalog, loaded on every start (adds and updates entries, never removes any).
+catalog: { file: /etc/fonoster/catalog.yaml }
+identity:
+  database: { url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fnidentity" }
+  audience: api
+  keys: { privateKeyPath: /opt/fonoster/keys/private.pem, publicKeyPath: /opt/fonoster/keys/public.pem }
+  tokens: { accessTokenExpiresIn: 15m, idTokenExpiresIn: 15m, refreshTokenExpiresIn: 24h }
+  security: { contactVerificationRequired: false, twoFactorAuthenticationRequired: false }
+  invites: { expiration: 1d }
+  owner: { name: Admin, email: "${OWNER_EMAIL}", password: "${OWNER_PASSWORD}" }
+# This machine as the public region `default`: Routr's SIP port and RTPEngine's range on the host
+# address. The operator key authorizes the region admin API.
+regions:
+  operatorKey: "secret://file/opt/fonoster/keys/region-operator.key"
+  public:
+    - id: default
+      name: "Local (this machine)"
+      default: true
+      endpoints:
+        sip:
+          - { host: "${HOST_IP}", port: ${SIP_PORT}, transport: udp }
+          - { host: "${HOST_IP}", port: ${SIP_PORT}, transport: tcp }
+        signalingAddresses: ["${HOST_IP}"]
+        mediaAddresses: ["${HOST_IP}"]
+        rtpPorts: { min: ${RTPENGINE_PORT_MIN}, max: ${RTPENGINE_PORT_MAX} }
+  # Private regions link to the region hub (profile regions: COMPOSE_PROFILES=regions in .env,
+  # then run init again). Enrollment goes through Envoy's /api.
+  #@if profile regions
+  controlPlaneUrl: "http://${HOST_IP}:${HTTP_PORT}"
+  leafUrl: "nats://${HOST_IP}:${LEAF_PORT}"
+  allowInsecureLeaf: true
+  signingKey: { file: /opt/fonoster/keys/region-signing.pem }
+  hub:
+    url: "nats://nats-regions:4222"
+    credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds
+    systemCredentialsFile: /opt/fonoster/keys/region-hub/system.creds
+    operatorSeedFile: /opt/fonoster/keys/region-hub/operator.seed
+    accountSeedFile: /opt/fonoster/keys/region-hub/account.seed
+  #@end

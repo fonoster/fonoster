@@ -1,0 +1,354 @@
+# Fonoster on one machine with Docker Compose (https://docs.fonoster.com/self-hosting/install-compose).
+#
+#   npx -p @fonoster/common fonoster-config init     secrets, keys, config/*.yaml and .env
+#   docker compose up -d                              start
+#   npx -p @fonoster/common fonoster-config info     dashboard URL, owner login, SIP address
+#
+# Default services: NATS, Postgres, Routr, RTPEngine, the media node, the voice gateway, MinIO, the
+# API server (with Identity), Envoy, the dashboard and the hosted Autopilot.
+# Opt-in profiles:
+#   observability   OpenTelemetry collector, Prometheus, Loki, Tempo and Grafana
+#   analytics       ClickHouse with every call record's metrics
+#   regions         the region hub private regions link to
+#
+# Every Fonoster service reads one YAML file in config/ (written by `fonoster-config init` from the
+# config/*.example.yaml next to it). The ${NAME} values below come from .env: host ports, the image
+# version, the host address and the few secrets third-party containers take from the environment.
+name: ${COMPOSE_PROJECT_NAME:-fonoster}
+
+x-otel: &otel
+  # Empty means off. With the observability profile: http://otel-collector:4318
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+
+# One network with fixed addresses for the SIP and RTP parties (SDP needs addresses, not names).
+# Dynamic addresses come from the upper half, so they never take a fixed one.
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${SUBNET_PREFIX:-10.216.30}.0/24
+          ip_range: ${SUBNET_PREFIX:-10.216.30}.128/25
+
+services:
+  nats:
+    image: nats:2.11.8-alpine
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats.conf"]
+    # One user per service, each limited to its own subjects (config/nats-permissions).
+    environment:
+      NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run fonoster-config init}
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?run fonoster-config init}
+      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD:?run fonoster-config init}
+      NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?run fonoster-config init}
+    ports:
+      - "${NATS_BIND:-127.0.0.1}:${NATS_PORT:-4222}:4222"
+    volumes:
+      - ${CONFIG_DIR:-./config}/nats.conf:/etc/nats/nats.conf:ro
+      - ${CONFIG_DIR:-./config}/nats-permissions:/etc/nats/nats-permissions:ro
+      - nats:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # The region hub (profile `regions`): NATS in operator mode where private regions link over an
+  # outbound leaf node. `fonoster-config init` writes its config (config/region-hub.conf).
+  nats-regions:
+    image: nats:2.11.8-alpine
+    profiles: [regions]
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats.conf"]
+    ports:
+      - "${LEAF_BIND:-0.0.0.0}:${LEAF_PORT:-7422}:7422"
+    volumes:
+      - ${CONFIG_DIR:-./config}/region-hub.conf:/etc/nats/nats.conf:ro
+      - nats-regions:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Routr's database (routr), the API server's (fonoster) and Identity's (fnidentity).
+  postgres:
+    image: postgres:16.10-alpine3.22
+    restart: unless-stopped
+    environment:
+      PGTZ: UTC
+      TZ: UTC
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      POSTGRES_DB: routr
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ${CONFIG_DIR:-./config}/postgres-init.sql:/docker-entrypoint-initdb.d/10-fonoster.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d routr"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  routr:
+    image: fonoster/routr-one:2.15.1
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      nats: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/routr
+      # The address Routr writes in Via and Record-Route for parties outside LOCALNETS: one that
+      # carriers and softphones reach.
+      EXTERNAL_ADDRS: ${HOST_IP:?run fonoster-config init}
+      LOCALNETS: ${SUBNET_PREFIX:-10.216.30}.40/29
+      LOGS_LEVEL: ${ROUTR_LOGS_LEVEL:-info}
+      NATS_PUBLISHER_ENABLED: "true"
+      NATS_PUBLISHER_URL: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
+      RTPENGINE_HOST: rtpengine
+      START_INTERNAL_DB: "false"
+      # config/routr-edgeport.yaml (SIP on SIP_PORT inside the container too, so Via and
+      # Record-Route carry the port softphones reach); mounted aside from the image's own.
+      CONFIG_PATH: /etc/routr/fonoster/edgeport.yaml
+    volumes:
+      - ${CONFIG_DIR:-./config}/routr-edgeport.yaml:/etc/routr/fonoster/edgeport.yaml:ro
+    ports:
+      - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/udp"
+      - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/tcp"
+    networks:
+      default:
+        ipv4_address: ${SUBNET_PREFIX:-10.216.30}.40
+
+  # Media anchoring for carriers and softphones. On Linux, network_mode: host avoids publishing
+  # the whole range.
+  rtpengine:
+    image: fonoster/rtpengine:0.3.17
+    restart: unless-stopped
+    platform: linux/x86_64
+    environment:
+      PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
+      PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}
+      # Written in SDP for both sides of a call: an address the media node and the far end reach.
+      PUBLIC_IP: ${HOST_IP}
+    ports:
+      - "${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10999}:${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10999}/udp"
+    networks:
+      default:
+        ipv4_address: ${SUBNET_PREFIX:-10.216.30}.41
+
+  medianode:
+    image: fonoster/medianode:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+    restart: unless-stopped
+    # SIGTERM drains: the node reports full and exits when its rooms end or the wait runs out.
+    stop_grace_period: ${MEDIANODE_DRAIN_GRACE:-10m}
+    depends_on:
+      nats: { condition: service_healthy }
+    environment:
+      <<: *otel
+      MEDIANODE_ID: ${MEDIANODE_ID:-node-a}
+      MEDIANODE_NATS_URL: nats://nats:4222
+      MEDIANODE_NATS_USER: medianode
+      MEDIANODE_NATS_PASSWORD: secret://env/NATS_MEDIANODE_PASSWORD
+      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD}
+      MEDIANODE_SIP_LISTEN: 0.0.0.0:5060
+      MEDIANODE_SIP_ADVERTISE: ${SUBNET_PREFIX:-10.216.30}.42
+      MEDIANODE_RTP_HOST: 0.0.0.0
+      MEDIANODE_RTP_ADVERTISE: ${SUBNET_PREFIX:-10.216.30}.42
+      MEDIANODE_RTP_PORT_MIN: ${MEDIANODE_RTP_PORT_MIN:-11000}
+      MEDIANODE_RTP_PORT_MAX: ${MEDIANODE_RTP_PORT_MAX:-11999}
+      # The media-node Peer the API server creates (routr.mediaNodePeer in config/fonoster.yaml).
+      MEDIANODE_REGISTRAR: routr:${SIP_PORT:-5060}
+      MEDIANODE_DOMAIN: default
+      MEDIANODE_USERNAME: medianode
+      MEDIANODE_PASSWORD: ${MEDIANODE_PASSWORD:?run fonoster-config init}
+      MEDIANODE_TRANSPORT: udp
+      MEDIANODE_REGISTER_EVERY: 15s
+      MEDIANODE_OUTBOUND_PROXY: routr:${SIP_PORT:-5060}
+      MEDIANODE_DEBUG_ADDR: 0.0.0.0:8099
+      # INVITEs (and their X-App-Ref/X-Call-Ref headers) only from Routr.
+      MEDIANODE_TRUSTED_SOURCES: ${SUBNET_PREFIX:-10.216.30}.40
+    ports:
+      - "${MEDIANODE_RTP_PORT_MIN:-11000}-${MEDIANODE_RTP_PORT_MAX:-11999}:${MEDIANODE_RTP_PORT_MIN:-11000}-${MEDIANODE_RTP_PORT_MAX:-11999}/udp"
+    networks:
+      default:
+        ipv4_address: ${SUBNET_PREFIX:-10.216.30}.42
+
+  # The voice gateway: config/gateway.yaml.
+  gateway:
+    image: fonoster/gateway:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+    restart: unless-stopped
+    depends_on:
+      nats: { condition: service_healthy }
+      apiserver: { condition: service_started }
+    environment:
+      <<: *otel
+      # The API server's encryption key (app signing secrets and workspace vendor keys are
+      # encrypted columns); gateway.yaml names it with database.encryptionKeyEnv.
+      APISERVER_ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
+      # ClickHouse (profile analytics), read only when gateway.yaml has callRecord.analytics.
+      CLICKHOUSE_USER: fonoster
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+    volumes:
+      - ${CONFIG_DIR:-./config}/gateway.yaml:/etc/fonoster/gateway.yaml:ro
+      - ${CONFIG_DIR:-./config}/keys:/etc/fonoster/keys:ro
+    networks:
+      default:
+        ipv4_address: ${SUBNET_PREFIX:-10.216.30}.43
+
+  # The hosted Autopilot: Autopilot apps point to it (ws://autopilot:3000). Assistants, the catalog
+  # and workspace vendor keys come from the API server's database (config/autopilot.yaml).
+  autopilot:
+    image: fonoster/autopilot:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+    restart: unless-stopped
+    depends_on:
+      apiserver: { condition: service_started }
+    environment:
+      <<: *otel
+      # The key that decrypts workspace vendor keys (database.encryptionKeyEnv).
+      APISERVER_ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    volumes:
+      - ${CONFIG_DIR:-./config}/autopilot.yaml:/etc/fonoster/autopilot-session.yaml:ro
+    expose:
+      - 3000
+
+  # Call records. Bitnami's build creates the bucket itself (MINIO_DEFAULT_BUCKETS).
+  minio:
+    image: bitnamilegacy/minio:2025.4.22
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
+      MINIO_DEFAULT_BUCKETS: records
+    # Host-only by default; MINIO_BIND=0.0.0.0 opts in.
+    ports:
+      - "${MINIO_BIND:-127.0.0.1}:${MINIO_PORT:-9000}:9000"
+      - "${MINIO_BIND:-127.0.0.1}:${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio:/bitnami/minio/data
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # ---- control plane ----
+  # The API server with its embedded Identity (config/fonoster.yaml). It applies its database
+  # migrations and loads the provider catalog (config/catalog.yaml) on every start.
+  apiserver:
+    image: fonoster/apiserver:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      nats: { condition: service_healthy }
+      routr: { condition: service_started }
+      nats-regions: { condition: service_healthy, required: false }
+    environment:
+      <<: *otel
+    volumes:
+      - ${CONFIG_DIR:-./config}/fonoster.yaml:/opt/fonoster/fonoster.yaml:ro
+      - ${CONFIG_DIR:-./config}/keys:/opt/fonoster/keys:ro
+      - ${CONFIG_DIR:-./config}/catalog.yaml:/etc/fonoster/catalog.yaml:ro
+    expose:
+      - 50051
+      - 9876
+
+  # gRPC, gRPC-Web, /api and the dashboard on one port (config/envoy.yaml).
+  envoy:
+    image: envoyproxy/envoy:v1.35.0
+    restart: unless-stopped
+    depends_on:
+      apiserver: { condition: service_started }
+    volumes:
+      - ${CONFIG_DIR:-./config}/envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - "${HTTP_PORT:-8449}:8449"
+
+  dashboard:
+    image: fonoster/dashboard:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+    restart: unless-stopped
+    environment:
+      # The API as the browser reaches it (Envoy).
+      DASHBOARD_API_URL: ${PUBLIC_URL:-http://localhost:8449}
+    expose:
+      - 3030
+
+  # ---- profile `analytics`: ClickHouse for call metrics ----
+  # The gateway loads each sealed record's redacted copy into fonoster.call_metrics (created on
+  # first use) when the profile is on (COMPOSE_PROFILES=analytics in .env, then fonoster-config
+  # init). Without CLICKHOUSE_PASSWORD the image allows no network access.
+  clickhouse:
+    profiles: ["analytics"]
+    image: clickhouse/clickhouse-server:24.8
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DB: fonoster
+      CLICKHOUSE_USER: fonoster
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "0"
+    ulimits:
+      nofile: { soft: 262144, hard: 262144 }
+    # HTTP interface, host-only by default; CLICKHOUSE_BIND=0.0.0.0 opts in.
+    ports:
+      - "${CLICKHOUSE_BIND:-127.0.0.1}:${CLICKHOUSE_PORT:-8123}:8123"
+    volumes:
+      - clickhouse:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # ---- profile `observability` ----
+  otel-collector:
+    profiles: ["observability"]
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ${CONFIG_DIR:-./config}/otel-collector.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "${OTLP_HTTP_BIND:-127.0.0.1}:${OTLP_HTTP_PORT:-4318}:4318"
+
+  prometheus:
+    profiles: ["observability"]
+    image: prom/prometheus:v2.55.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ${CONFIG_DIR:-./config}/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  loki:
+    profiles: ["observability"]
+    image: grafana/loki:3.2.0
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/loki.yaml"]
+    volumes:
+      - ${CONFIG_DIR:-./config}/loki.yaml:/etc/loki/loki.yaml:ro
+
+  tempo:
+    profiles: ["observability"]
+    image: grafana/tempo:2.6.0
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - ${CONFIG_DIR:-./config}/tempo.yaml:/etc/tempo/tempo.yaml:ro
+
+  grafana:
+    profiles: ["observability"]
+    image: grafana/grafana:11.3.0
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    volumes:
+      - ${CONFIG_DIR:-./config}/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    ports:
+      - "${GRAFANA_BIND:-127.0.0.1}:${GRAFANA_PORT:-3000}:3000"
+
+volumes:
+  db:
+  nats:
+  nats-regions:
+  minio:
+  clickhouse:
