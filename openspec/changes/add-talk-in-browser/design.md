@@ -60,6 +60,9 @@ i.e. a proto + SDK change; the workspace check in D4 is enough isolation).
   instead of the legacy `wss://<domain>:5062`.
 - SIP.js keeps the WebSocket alive with CRLF pings every 15 s, under Envoy's 5 min stream idle
   timeout.
+- Routr's WebSocket handshake matches `Host` and `Sec-WebSocket-Protocol` case-sensitively, so
+  Envoy uses the `preserve_case` header formatter (build log TB-B2).
+- The dashboard's CSP allows `ws:` as well as `wss:` (TB-B7).
 
 Plain `ws` is fine for localhost and LAN: the bundle serves plain HTTP today, and a page served
 over `http://` may open `ws://`. Behind TLS, `wss://<host>/sip` works through the same route.
@@ -99,7 +102,9 @@ Identity's access tokens are signed with the same key. Routr rejects them as con
 
 ### D6. Media: RTPEngine bridges WebRTC to RTP
 
-No change in RTPEngine or the media node. RTPEngine advertises `PUBLIC_IP` (= `HOST_IP`) in both
+No change in the media node. RTPEngine runs with `--dtls-passive` (TB-B9), and the bundle passes
+its settings under the names the image reads (`RTPENGINE_PORT_MIN/MAX`, `RTPENGINE_PUBLIC_IP`,
+TB-B8). RTPEngine advertises `PUBLIC_IP` (= `HOST_IP`) in both
 SDPs, so the browser's ICE reaches `HOST_IP:<RTPENGINE range>/udp`, already published. The media
 node chooses its codec from the browser's offer (PCMU/PCMA/G722/Opus pass through RTPEngine
 unchanged). No TURN: browser and server must reach each other directly (localhost or LAN).

@@ -25,7 +25,7 @@ Ports are in 16000-16999, so the stack runs next to a legacy Fonoster stack. Cha
 
 | Port | What |
 | --- | --- |
-| 16449 | Dashboard and API (Envoy: gRPC, gRPC-Web, `/api`) |
+| 16449 | Dashboard and API (Envoy: gRPC, gRPC-Web, `/api`, browser calls at `/sip`) |
 | 16060 | SIP (Routr), UDP and TCP |
 | 16100-16199/udp | Media (RTPEngine) |
 | 16200-16299/udp | Media node RTP |
@@ -75,9 +75,13 @@ Open <http://localhost:16449> and sign in with the email and password `info` pri
 (`admin@fonoster.local` and a generated password). Pick the **Demo** workspace: the app, the
 number, the domain and the agent are there. Apps and agents you create in the dashboard answer
 calls right away: the API server points every Autopilot app at the hosted Autopilot, which reads
-the assistant from the database (edits apply within a few seconds). An agent's "Talk" panel lists
-the numbers that reach it; link a number to the agent's app in Numbers to call it. Talking to an
-agent from the browser is not available yet (the media path has no WebRTC).
+the assistant from the database (edits apply within a few seconds). To talk to an agent, open it and click **Talk to agent**, then
+**Call**: the browser asks for the microphone and calls the saved version of the agent (Mute and
+Hang up are in the panel). The panel also lists the numbers that reach the agent.
+
+Browsers allow the microphone only on HTTPS or `http://localhost`, so open the dashboard at
+<http://localhost:16449> on the machine running the stack. From another machine the Call button is
+replaced by a note until the dashboard is served over HTTPS.
 
 ## Register a softphone
 
@@ -252,6 +256,12 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
 - **Routr** runs with its own EdgePort on 16060 inside the container (so Via and Record-Route
   carry the port you reach) and `EXTERNAL_ADDRS` set to your LAN address. RTPEngine anchors the
   media at the same address, which both your softphone and the containers can reach.
+- **Browser calls** ("Talk to agent"): the dashboard gets a test token from the API server
+  (`CreateTestToken`), opens SIP over WebSocket at `ws://<LAN address>:16449/sip` (Envoy proxies it
+  to Routr's `ws` transport on 5062 in the container) and calls the media-node Peer with
+  `X-App-Ref` naming the agent. Routr checks the token with Identity's public key; RTPEngine turns
+  the browser's WebRTC (ICE, DTLS-SRTP) into plain RTP; the gateway answers only agents of the
+  token's workspace.
 - **Media node**: registers to Routr (UDP, inside the Docker network) as the Peer `sip:medianode@default` that the API
   server creates (`routr.mediaNodePeer`). Numbers of apps go to that Peer.
 - **Gateway**: reads apps from the API server's database (`appStore.source: database`), delivers

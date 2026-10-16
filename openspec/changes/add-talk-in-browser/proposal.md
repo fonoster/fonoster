@@ -28,6 +28,8 @@ WebSocket, and the dashboard dropped its browser call.
   it is rejected (403), so a token can't reach another workspace's agent.
 - **Media**: unchanged components. Routr's RTP relay asks RTPEngine for ICE + DTLS-SRTP toward
   the browser and plain RTP (`RTP/AVP`) toward the media node.
+- **RTPEngine fixes in the bundle**: its settings use the names the image reads (it ignored the
+  port range and public address before), and it runs DTLS-passive so Chrome's handshake completes.
 - **Dashboard**: the Talk drawer gets a "Talk in the browser" card with Call, Mute and Hang up,
   call state and timer, clear errors for a blocked microphone, a rejected call and a non-secure
   page. The "Call this number" list stays below it.

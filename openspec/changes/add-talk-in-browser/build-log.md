@@ -59,3 +59,41 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - States: idle, connecting, ringing (180/183), connected (timer), ended, failed. Closing the
   drawer hangs up. The numbers list stays below the call card; the "In-browser calls are not
   available yet" note is gone.
+
+### TB-B7. The dashboard's CSP allows `ws:`
+
+- nginx's `connect-src` allowed only `wss:` besides the API origin, so the browser blocked
+  `ws://<host>:8449/sip` and sip.js's `connect()` never settled. It now allows `ws: wss:`
+  (`mods/dashboard/nginx/40-fonoster-config.sh`), and the hook gives up on `connect()` after 10 s
+  with "Couldn't reach the call server".
+
+### TB-B8. RTPEngine ignored the bundle's port range and public address (pre-existing)
+
+- `fonoster/rtpengine:0.3.17` reads `RTPENGINE_PORT_MIN`, `RTPENGINE_PORT_MAX` and
+  `RTPENGINE_PUBLIC_IP`; the bundle passed `PORT_MIN`/`PORT_MAX`/`PUBLIC_IP`. RTPEngine used its
+  own 23000-32768 (not published) and advertised its container address, so nothing outside the
+  Docker network could get media (browsers, and softphones too: ST-B10 never got this far).
+  Fixed the names in `ops/bundle/compose.yaml`. The caller-bot call (`stack call`) still passes.
+
+### TB-B9. RTPEngine runs with `--dtls-passive`
+
+- Routr's relay offers the browser leg with RTPEngine in the default active DTLS role, so
+  RTPEngine sent a ClientHello before the SDP answer. Chrome cached it, then discarded it when the
+  answer (`setup:passive`) made it the client, and both sides waited: ICE connected, DTLS stuck in
+  `connecting`, no audio (Chrome WebRTC logs and a packet capture next to RTPEngine).
+- `command: ["rtpengine", "--dtls-passive"]` (the image's entrypoint passes extra arguments) makes
+  RTPEngine wait for the browser's handshake. Phone calls have no DTLS and are unaffected.
+
+### TB-B10. Live check (dev stack `rb-talk-browser-stack`, ports 17500-17569)
+
+- Headless Chromium (Playwright, fake mic) signed in to the dashboard, opened the Demo agent's
+  Talk drawer and clicked Call: 180, 200, "Connected", timer, Mute/Unmute, Hang up, "Call ended".
+- WebRTC stats after 8 s: DTLS connected (client), SRTP AES-256-GCM, ~400 RTP packets each way.
+  A capture on the media node showed RTP from RTPEngine for the browser leg and from the gateway.
+- The sealed call record: `session.start` for the agent, the Autopilot greeting, two turns
+  (fake STT/LLM), `end_reason caller_hangup`. Agent-side hangup (gateway `hangup`) sent a BYE to
+  the browser over the WebSocket; the drawer showed "Call ended".
+- A forged token got 403 from Routr; a validly signed token for another workspace got 403 from
+  the gateway (`denied (workspace)`).
+- Not tried: a real (non-headless) Chrome with a real mic and speakers, Firefox/Safari, and a
+  browser on another machine (needs HTTPS: TB-B5).

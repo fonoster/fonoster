@@ -132,7 +132,13 @@ export function useBrowserCall(appRef: string) {
       userRef.current = user;
 
       try {
-        await user.connect();
+        // A blocked or unanswered WebSocket may never settle connect(): give up after 10 s.
+        await Promise.race([
+          user.connect(),
+          new Promise((_, reject) =>
+            window.setTimeout(() => reject(new Error("timeout")), 10_000)
+          )
+        ]);
       } catch {
         await fail("Couldn't reach the call server. Try again.");
         return;
