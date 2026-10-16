@@ -264,8 +264,8 @@ export function DomainDrawer({
               Egress rules
             </legend>
             <p className="font-display text-xs text-text-secondary">
-              When a SIP user dials a number matching the pattern, the call goes
-              out with this caller ID.
+              When a SIP agent dials a number matching the pattern, the call
+              goes out with this caller ID.
             </p>
             {rules.fields.map((row, index) => {
               const rowErrors = errors.egressPolicies?.[index];

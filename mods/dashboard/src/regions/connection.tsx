@@ -134,7 +134,7 @@ export function CarrierHint() {
   );
 }
 
-/** SIP user settings: what to type into a softphone. */
+/** SIP agent settings: what to type into a softphone. */
 export function SoftphoneSettings() {
   const sip = preferredSip(useEndpoints(), PHONE_ORDER);
   if (!sip) return null;

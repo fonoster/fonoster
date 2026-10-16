@@ -21,7 +21,7 @@ import { fn } from "@storybook/test";
 import type { AuthContextValue } from "~/lib/auth";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { testWorkspace } from "~/test/workspace";
-import SipUsersScreen from ".";
+import SipAgentsScreen from ".";
 
 const acme = { ref: "dm-1", name: "Acme HQ", domainUri: "acme.fonoster.local" };
 const madrid = {
@@ -46,7 +46,7 @@ const sample = [
   expires: 3600
 }));
 
-const withSipUsers = (items: object[]) => (auth: AuthContextValue) => ({
+const withSipAgents = (items: object[]) => (auth: AuthContextValue) => ({
   status: "signedIn" as const,
   sdk: {
     ...auth.sdk,
@@ -66,13 +66,13 @@ const withSipUsers = (items: object[]) => (auth: AuthContextValue) => ({
 });
 
 const meta = {
-  title: "SIP network/SIP users",
+  title: "SIP network/SIP agents",
   render: () => (
     <WorkspaceProvider value={testWorkspace}>
-      <SipUsersScreen />
+      <SipAgentsScreen />
     </WorkspaceProvider>
   ),
-  parameters: { screen: { auth: withSipUsers(sample) } }
+  parameters: { screen: { auth: withSipAgents(sample) } }
 } satisfies Meta;
 
 export default meta;
@@ -81,5 +81,5 @@ type Story = StoryObj<typeof meta>;
 export const List: Story = {};
 export const ListLight: Story = { globals: { theme: "light" } };
 export const Empty: Story = {
-  parameters: { screen: { auth: withSipUsers([]) } }
+  parameters: { screen: { auth: withSipAgents([]) } }
 };

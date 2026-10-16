@@ -61,7 +61,7 @@ describe("numbers", () => {
       row("+1 415 555 0175").getByText("Order status")
     ).toBeInTheDocument();
     expect(
-      row("+1 809 555 0100").getByText("maria · SIP user")
+      row("+1 809 555 0100").getByText("maria · SIP agent")
     ).toBeInTheDocument();
     expect(row("+1 809 555 0188").getByText("Not routed")).toBeInTheDocument();
   });
@@ -71,7 +71,7 @@ describe("numbers", () => {
     expect(await screen.findByText("No numbers yet")).toBeInTheDocument();
   });
 
-  it("reroutes a number to a SIP user", async () => {
+  it("reroutes a number to a SIP agent", async () => {
     const { user, sdk } = setup();
     await user.click(await screen.findByText("Billing inbound"));
     const drawer = await screen.findByRole("dialog");
@@ -86,8 +86,8 @@ describe("numbers", () => {
       within(drawer).getByText("ap-7f3c91 · 1 other number")
     ).toBeInTheDocument();
 
-    await user.click(within(drawer).getByRole("radio", { name: "SIP user" }));
-    await user.type(within(drawer).getByLabelText("Search SIP users"), "ju");
+    await user.click(within(drawer).getByRole("radio", { name: "SIP agent" }));
+    await user.type(within(drawer).getByLabelText("Search SIP agents"), "ju");
     expect(within(drawer).queryByText("Maria Lopez")).not.toBeInTheDocument();
     await user.click(within(drawer).getByRole("radio", { name: /Juan Perez/ }));
     await user.click(within(drawer).getByRole("button", { name: "Save" }));

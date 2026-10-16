@@ -24,4 +24,4 @@ export const composeCommand = (token: string) =>
 export const helmCommand = (token: string) =>
   `helm install fonoster-region ops/rebuild/helm/fonoster-rebuild --set regionAgent.enabled=true --set regionAgent.enroll.token=${token}`;
 export const secretCommand = (name: string) =>
-  `fonoster-regions secrets set ${name}`;
+  `fonoster-region secrets set ${name}`;

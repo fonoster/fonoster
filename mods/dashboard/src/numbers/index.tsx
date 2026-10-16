@@ -30,7 +30,7 @@ import {
 import { EmptyState } from "~/components/data/empty-state";
 import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
-import { useApplicationOptions, useSipUserOptions } from "./lookups";
+import { useApplicationOptions, useSipAgentOptions } from "./lookups";
 import { NumberDrawer } from "./number-drawer";
 import { useDeleteNumber, useNumbers } from "./numbers.service";
 import { ROUTE_ICONS } from "./route-picker";
@@ -40,7 +40,7 @@ export default function NumbersScreen() {
   const list = useNumbers();
   const remove = useDeleteNumber();
   const apps = useApplicationOptions();
-  const sipUsers = useSipUserOptions();
+  const sipAgents = useSipAgentOptions();
   const [editing, setEditing] = useState<INumber | undefined>();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [deleting, setDeleting] = useState<INumber | undefined>();
@@ -66,7 +66,7 @@ export default function NumbersScreen() {
     {
       header: "Routes to",
       cell: (n) => {
-        const route = routeLabel(n, apps.data ?? [], sipUsers.data ?? []);
+        const route = routeLabel(n, apps.data ?? [], sipAgents.data ?? []);
         if (!route) return <MutedCell>Not routed</MutedCell>;
         const Icon = ROUTE_ICONS[route.kind];
         return (
@@ -126,7 +126,7 @@ export default function NumbersScreen() {
             <EmptyState
               icon={Phone}
               title="No numbers yet"
-              description="Add a number from one of your trunks, then send its calls to an agent, a stream or a SIP user."
+              description="Add a number from one of your trunks, then send its calls to an agent, a stream or a SIP agent."
               action={add}
             />
           }

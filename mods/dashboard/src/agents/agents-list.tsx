@@ -144,8 +144,8 @@ export function AgentsList() {
   return (
     <>
       <PageHeader
-        title="Agents"
-        description="AI agents that answer and place calls, powered by Autopilot."
+        title="Autopilot"
+        description="AI agents that answer and place calls."
         actions={!list.isPending && !empty && <>{add}</>}
       />
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
@@ -197,7 +197,7 @@ export function AgentsList() {
               rows={rows}
               rowKey={(app) => app.ref}
               onRowClick={(app) =>
-                navigate(`/w/${workspace.ref}/agents/${app.ref}`)
+                navigate(`/w/${workspace.ref}/autopilot/${app.ref}`)
               }
               loading={list.isPending}
               error={list.error}

@@ -41,7 +41,7 @@ export default function CredentialsScreen() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [deleting, setDeleting] = useState<Credentials | undefined>();
 
-  // Undefined while trunks/SIP users load or when they can't be listed.
+  // Undefined while trunks/SIP agents load or when they can't be listed.
   const usedBy = (credentials?: Credentials) =>
     credentials && ready ? (usage.get(credentials.ref) ?? []) : undefined;
 
@@ -97,7 +97,7 @@ export default function CredentialsScreen() {
     <>
       <PageHeader
         title="Credentials"
-        description="Username and password pairs for trunks and SIP users. Passwords are never shown again."
+        description="Username and password pairs for trunks and SIP agents. Passwords are never shown again."
         actions={list.items.length > 0 && add}
       />
       <div className="px-4 pb-8 sm:px-8">
@@ -117,7 +117,7 @@ export default function CredentialsScreen() {
             <EmptyState
               icon={KeyRound}
               title="No credentials yet"
-              description="Add the username and password a carrier gave you, or the ones your SIP users sign in with."
+              description="Add the username and password a carrier gave you, or the ones your SIP agents sign in with."
               action={add}
             />
           }

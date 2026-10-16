@@ -25,7 +25,7 @@ export const apps = [
   { ref: "ap-55e2f0", name: "Main menu IVR", type: "STREAM" }
 ];
 
-export const sipUsers = [
+export const sipAgents = [
   {
     ref: "ag1",
     name: "Maria Lopez",
@@ -213,7 +213,7 @@ export function fakeSdk(
       deleteTrunk: ok({ ref: "tk-31a0c2" })
     },
     applications: { listApplications: page(apps) },
-    agents: { listAgents: page(sipUsers) },
+    agents: { listAgents: page(sipAgents) },
     acls: { listAcls: page(acls) },
     credentials: { listCredentials: page(credentials) },
     regions: { getRegion: ok(publicRegionWithEndpoints) }

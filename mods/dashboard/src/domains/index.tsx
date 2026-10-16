@@ -132,7 +132,7 @@ export default function DomainsScreen() {
         />
         {list.rows.length > 0 && (
           <TableNote>
-            Egress rules pick the caller ID when a SIP user dials out: a regex
+            Egress rules pick the caller ID when a SIP agent dials out: a regex
             on the dialed number, mapped to one of your numbers.
           </TableNote>
         )}
@@ -155,7 +155,7 @@ export default function DomainsScreen() {
           }
         }}
         title={`Delete ${deleting?.name ?? "domain"}?`}
-        description="SIP users on this domain will no longer be able to register or make calls."
+        description="SIP agents on this domain will no longer be able to register or make calls."
         pending={remove.isPending}
         error={remove.error}
         onConfirm={() =>

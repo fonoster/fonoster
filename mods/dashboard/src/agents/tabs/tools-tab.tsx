@@ -84,7 +84,7 @@ export function ToolsTab() {
             />
             <BuiltIn
               name="transfer"
-              description="Sends the caller to a human."
+              description="Sends the caller to an operator."
               status={
                 transfer?.trim()
                   ? `On · ${formatNumber(transfer.trim())}`

@@ -30,7 +30,7 @@ import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { errorMessage } from "~/lib/errors";
 import { useAllTrunks } from "~/trunks/trunks.service";
 import { COUNTRY_OPTIONS, countryName } from "./countries";
-import { useApplicationOptions, useSipUserOptions } from "./lookups";
+import { useApplicationOptions, useSipAgentOptions } from "./lookups";
 import {
   useAllNumbers,
   useCreateNumber,
@@ -99,7 +99,7 @@ export function NumberDrawer({
   const update = useUpdateNumber();
   const mutation = number ? update : create;
   const apps = useApplicationOptions();
-  const sipUsers = useSipUserOptions();
+  const sipAgents = useSipAgentOptions();
   const numbers = useAllNumbers();
   const trunks = useAllTrunks();
   const appList = useMemo(() => apps.data ?? [], [apps.data]);
@@ -259,11 +259,11 @@ export function NumberDrawer({
                 value={field.value}
                 onChange={field.onChange}
                 apps={appList}
-                sipUsers={sipUsers.data ?? []}
+                sipAgents={sipAgents.data ?? []}
                 numbers={numbers.data ?? []}
                 currentRef={number?.ref}
-                loading={apps.isPending || sipUsers.isPending}
-                error={apps.error ?? sipUsers.error}
+                loading={apps.isPending || sipAgents.isPending}
+                error={apps.error ?? sipAgents.error}
               />
             )}
           />

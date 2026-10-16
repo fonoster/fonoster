@@ -94,13 +94,13 @@ type LinkedAgent = {
   credentials?: { ref?: string };
 };
 
-/** "Trunk · Claro (outbound)" and "SIP user · María" labels per credentials ref. */
+/** "Trunk · Claro (outbound)" and "SIP agent · María" labels per credentials ref. */
 export function useCredentialsUsage() {
   const sdk = useSdk();
   const trunks = useResourceList<LinkedTrunk>("trunks", (request) =>
     sdk.trunks.listTrunks(request)
   );
-  const agents = useResourceList<LinkedAgent>("sip-users", (request) =>
+  const agents = useResourceList<LinkedAgent>("sip-agents", (request) =>
     sdk.agents.listAgents(request)
   );
 
@@ -123,7 +123,7 @@ export function useCredentialsUsage() {
     for (const agent of agents.items)
       add(
         agent.credentialsRef || agent.credentials?.ref,
-        `SIP user · ${agent.name}`
+        `SIP agent · ${agent.name}`
       );
     return map;
   }, [trunks.items, agents.items]);

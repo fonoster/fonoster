@@ -413,7 +413,7 @@ function Behavior() {
           </ValueBox>
         </BehaviorRow>
         <BehaviorRow
-          label="Transfer to a human"
+          label="Transfer to an operator"
           htmlFor="behavior-transfer"
           error={transferError}
         >

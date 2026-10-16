@@ -16,10 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AudioWaveform } from "lucide-react";
+import { createElement, type ComponentType, type SVGProps } from "react";
 import {
   Badge,
   CallLog,
-  CodeBlocks,
   Dialpad,
   Dns,
   HeadsetMic,
@@ -31,11 +32,16 @@ import {
   SpaceDashboard,
   Key,
   VpnKey,
-  Webhook,
-  type MaterialIcon
+  Webhook
 } from "~/components/icons/material";
 
-export type NavItem = { label: string; path: string; icon: MaterialIcon };
+/** Material Symbols, or a lucide icon where the set has no fit (Streams). */
+export type NavIcon = ComponentType<SVGProps<SVGSVGElement>>;
+export type NavItem = { label: string; path: string; icon: NavIcon };
+
+/** A live audio stream; a lighter stroke to sit with the weight-300 Material icons. */
+const StreamsIcon: NavIcon = (props) =>
+  createElement(AudioWaveform, { strokeWidth: 1.5, ...props });
 export type NavSection = { title?: string; items: NavItem[] };
 
 /** The sidebar, as in designs/dashboard.pen (Dashboard/App shell). Paths are relative to /w/:workspaceRef. */
@@ -43,8 +49,8 @@ export const NAVIGATION: NavSection[] = [
   {
     items: [
       { label: "Overview", path: "", icon: SpaceDashboard },
-      { label: "Agents", path: "agents", icon: SmartToy },
-      { label: "Streams", path: "streams", icon: CodeBlocks },
+      { label: "Autopilot", path: "autopilot", icon: SmartToy },
+      { label: "Streams", path: "streams", icon: StreamsIcon },
       { label: "Calls", path: "calls", icon: CallLog }
     ]
   },
@@ -54,7 +60,7 @@ export const NAVIGATION: NavSection[] = [
       { label: "Numbers", path: "numbers", icon: Dialpad },
       { label: "Trunks", path: "trunks", icon: Lan },
       { label: "Domains", path: "domains", icon: Dns },
-      { label: "SIP users", path: "sip-users", icon: HeadsetMic },
+      { label: "SIP agents", path: "sip-agents", icon: HeadsetMic },
       { label: "ACLs", path: "acls", icon: Shield },
       { label: "Credentials", path: "credentials", icon: Badge }
     ]
