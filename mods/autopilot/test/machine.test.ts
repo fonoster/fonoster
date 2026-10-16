@@ -139,6 +139,51 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
+  it("does not play the first message when the caller barges in during the greeting", async function () {
+    // Regression test for #892. The VAD stream is wired before the machine
+    // starts, so SPEECH_START can arrive while doGreetUser is still awaiting
+    // answer()/playDtmf(). xstate cannot cancel that promise, so the greeting
+    // used to start on top of a caller who already had the floor.
+    const { machine } = await import("../src/machine");
+
+    const input = getActorInput();
+    const actor = createActor(machine, { input });
+
+    // Act
+    actor.start();
+    // answer() resolves immediately and playDtmf() takes 500ms, so barge in
+    // while the greeting actor is still inside playDtmf.
+    await waitFor(100);
+    actor.send({ type: "SPEECH_START" });
+
+    // Past when say(FIRST_MESSAGE) would have been reached.
+    await waitFor(1500);
+
+    // Assert
+    expect(actor.getSnapshot().value).to.equal("listeningToUser");
+    expect(input.voice.answer).to.have.been.calledOnce;
+    expect(input.voice.say).to.not.have.been.calledWith(FIRST_MESSAGE);
+
+    // Cleanup
+    actor.stop();
+  }).timeout(20000);
+
+  it("still plays the first message when nobody barges in", async function () {
+    // The companion to the test above: the abort checks must not swallow the
+    // greeting on the normal path.
+    const { machine } = await import("../src/machine");
+
+    const input = getActorInput();
+    const actor = createActor(machine, { input });
+
+    actor.start();
+    await waitFor(1500);
+
+    expect(input.voice.say).to.have.been.calledOnceWith(FIRST_MESSAGE);
+
+    actor.stop();
+  }).timeout(20000);
+
   it("should set the state to 'idle' and then 'listeningToUser'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
