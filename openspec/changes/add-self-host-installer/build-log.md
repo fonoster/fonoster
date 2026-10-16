@@ -58,3 +58,10 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - `seed_catalog` and its call in `cmd_up` are gone. The stack renders `catalog: { file:
   /opt/fonoster/catalog.yaml }` into `fonoster.yaml` and `ops/rebuild/compose.yaml` mounts
   `ops/rebuild/config/catalog-seed.yaml` there (one added volume line).
+- `stack smoke` passed with the change (apiserver log: `catalog: 37 entries added or changed`,
+  then a call through Routr to the seeded app and a sealed record). It ran under project
+  `rb-installer-core-stack` (edited in the git-ignored `.local/stack.env`): an existing `rb-stack_db`
+  volume from an earlier run had a different Postgres password and was not mine to remove.
+- The stack's rendered `fonoster.yaml`, `gateway.yaml` and `autopilot-session.yaml` validate
+  against the exported JSON Schemas (checked by hand; `.local` is not in the repo, so the test
+  uses the committed examples).

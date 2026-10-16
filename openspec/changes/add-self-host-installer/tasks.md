@@ -2,7 +2,7 @@
 
 - [ ] 1.1 Move `generateRegionHub` and its NATS JWT helpers from `mods/apiserver/src/regions/` to `mods/common/src/regions/hub/`; apiserver imports from `@fonoster/common`; `mods/apiserver/test/regions` passes unchanged
 - [x] 1.2 Apiserver applies the catalog file named in `catalog.file` on every start (add/update, never delete); tests for first boot and restart-no-change
-- [ ] 1.3 Remove `seed_catalog` from `ops/rebuild/stack`; `stack smoke` still passes
+- [x] 1.3 Remove `seed_catalog` from `ops/rebuild/stack`; `stack smoke` still passes
 
 ## 2. Bundle source
 
