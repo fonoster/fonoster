@@ -1,7 +1,7 @@
 # Docs checkpoint — install-compose
 
 Started: 2026-10-15
-Current stage: 0 — Frame done; blocked on installer change
+Current stage: 7 — Wired (awaiting owner's install run)
 
 **Purpose:** A developer or operator who wants Fonoster running on their own machine arrives here
 first. They follow one path from a clean machine to a running stack, sign in to the dashboard and
@@ -18,6 +18,9 @@ OpenSpec: yes
 (Self-hosting tab)
 
 **Sources:** (every claim traces to one of these)
+- `ops/bundle/` (compose.yaml, .env.example, README.md), `ops/release/bundle`
+- `mods/common/src/config/cli/` (fonoster-config help and output from a clean-folder run)
+- `mods/dashboard/src/workspaces/landing.page.tsx` ("Choose a workspace")
 - `docs/try-the-new-platform.md`
 - `ops/rebuild/stack`, `ops/rebuild/stack.defaults`, `ops/rebuild/compose.yaml`
 - `ops/rebuild/seed.cjs`, `ops/rebuild/config/`
@@ -25,13 +28,13 @@ OpenSpec: yes
 | # | Stage | Status | Notes |
 | :- | :--- | :--- | :--- |
 | 0 | Frame | done | approved 2026-10-15 |
-| 1 | Source | pending | |
-| 2 | Place | pending | |
-| 3 | Outline | pending | |
-| 4 | Assets | pending | |
-| 5 | Draft | pending | |
-| 6 | Proof | pending | |
-| 7 | Wire | pending | |
+| 1 | Source | done | ops/bundle, fonoster-config help/output, dashboard labels |
+| 2 | Place | done | self-hosting/install-compose, Self-hosting → Start |
+| 3 | Outline | done | approved; first call split into its own page |
+| 4 | Assets | skipped | commands and output only |
+| 5 | Draft | done | |
+| 6 | Proof | done | disk 6 GB (≈5 GB images), localhost ports, no broken links |
+| 7 | Wire | done | renders at localhost:3333 |
 
 ## Friction log
 
@@ -58,6 +61,8 @@ Measured on the new installer (coordinator's clean-folder run, 2026-10-15, macOS
 - `.env` holds `OWNER_PASSWORD` in plain text (0600).
 
 ## Decision log
+
+- 2026-10-15 — Page written and wired. Ends signed in to the dashboard; "Make your first call" is the next tutorial (vendor keys → agent → domain/SIP user → trunk/number → softphone). Pre-release accordion to remove at v0.30.0.
 
 - 2026-10-15 — Installer spec written: openspec/changes/add-self-host-installer (curl archive → npx -p @fonoster/common fonoster-config init/info/check → docker compose up -d; keys in dashboard; local build for now).
 - 2026-10-15 — Frame approved. Owner chose to fix the installer first (published images + standalone bundle, no clone/Node/"rebuild" name); tutorial teaches that path once it exists.

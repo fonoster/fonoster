@@ -30,7 +30,8 @@ Diátaxis type: T tutorial, H how-to, R reference, E explanation. ★ = next up.
 | Group     | Page                         | Type | Path                                |
 | --------- | ---------------------------- | ---- | ----------------------------------- |
 | Start     | Overview and requirements    | E    | `self-hosting/overview`             |
-|           | Install with Docker Compose ★| T    | `self-hosting/install-compose`      |
+|           | Make your first call ★       | T    | `self-hosting/first-call`           |
+|           | Install with Docker Compose ✓| T    | `self-hosting/install-compose`      |
 | Operate   | Configure services           | H    | `self-hosting/configure`            |
 |           | Add providers and keys       | H    | `self-hosting/providers`            |
 |           | First workspace and API key  | H    | `self-hosting/first-workspace`      |

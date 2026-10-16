@@ -56,9 +56,10 @@
             "tab": "Self-hosting",
             "groups": [
               {
-                "group": "Self-hosting",
+                "group": "Start",
                 "pages": [
-                  "self-hosting/overview"
+                  "self-hosting/overview",
+                  "self-hosting/install-compose"
                 ]
               }
             ]
