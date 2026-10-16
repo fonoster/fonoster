@@ -27,12 +27,40 @@ You need:
 
 <Steps>
   <Step title="Download the release">
-    Download the release and unpack it into a new `fonoster` folder:
+    {/* Remove the Pre-release tab and the Warning when v0.30.0 is published. */}
+    <Warning>
+      v0.30.0 isn't published yet, so the download link returns 404. Use the **Pre-release** tab.
+    </Warning>
 
-    ```bash
-    curl -fsSL https://github.com/fonoster/fonoster/releases/download/v0.30.0/fonoster-0.30.0.tar.gz | tar xz
-    cd fonoster
-    ```
+    <Tabs>
+      <Tab title="Release">
+        Download the release and unpack it into a new `fonoster` folder:
+
+        ```bash
+        curl -fsSL https://github.com/fonoster/fonoster/releases/download/v0.30.0/fonoster-0.30.0.tar.gz | tar xz
+        cd fonoster
+        ```
+      </Tab>
+      <Tab title="Pre-release">
+        Build the release from a checkout of the `next` branch. It builds the images and writes the
+        archive and the npm package to `dist/release/<version>/`:
+
+        ```bash
+        ops/release/bundle
+        ```
+
+        Then, in an empty folder, point `R` at that output folder and unpack the archive:
+
+        ```bash
+        R=<checkout>/dist/release/<version>
+        tar -xzf $R/fonoster-*.tar.gz
+        cd fonoster
+        ```
+
+        In every step below, use `npx -y -p $R/fonoster-common-*.tgz` where the step says
+        `npx -p @fonoster/common`.
+      </Tab>
+    </Tabs>
 
     The folder holds `compose.yaml`, `.env.example`, a `config` folder with one example per
     service, and a `README.md`.
@@ -141,21 +169,6 @@ Everything lives in the `fonoster` folder:
   Back up `.env`. Its encryption key protects the vendor keys you store, and they can't be recovered
   without it.
 </Warning>
-
-{/* Remove this section when v0.30.0 is published. */}
-
-<Accordion title="Install a pre-release build">
-  Before v0.30.0 is published, build the release from a checkout of the `next` branch:
-
-  ```bash
-  ops/release/bundle
-  ```
-
-  It builds the images and writes the archive and the npm package to `dist/release/<version>/`,
-  then prints the install commands. Run them in an empty folder. They are the steps above, with
-  the archive and the package as local files: wherever a step says `npx -p @fonoster/common`, use
-  `npx -y -p <path to fonoster-common-<version>.tgz>` instead.
-</Accordion>
 
 ## Next steps
 

@@ -1,0 +1,573 @@
+{
+  "version": "2.21",
+  "children": [
+    {
+      "type": "frame",
+      "id": "XzPmi",
+      "x": 0,
+      "y": 0,
+      "name": "Docs / Self-hosting / Banner / Dark",
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 600,
+      "fill": [
+        "$ui:surface-raised",
+        {
+          "type": "image",
+          "enabled": true,
+          "url": "assets/pattern-hero.png",
+          "mode": "cover"
+        }
+      ],
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 2,
+      "gap": 72,
+      "padding": [
+        0,
+        96
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "IR4Qa",
+          "name": "Copy",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "m1gdkM",
+              "name": "Eyebrow",
+              "fill": "$ui:text-secondary",
+              "content": "SELF-HOSTING",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 20,
+              "fontWeight": "500",
+              "letterSpacing": 2.4
+            },
+            {
+              "type": "text",
+              "id": "WYYSo",
+              "name": "Headline",
+              "fill": "$ui:text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Fonoster on your own servers.",
+              "lineHeight": 1.06,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 68,
+              "fontWeight": "600",
+              "letterSpacing": -2.2
+            },
+            {
+              "type": "text",
+              "id": "i3wubo",
+              "name": "Subhead",
+              "fill": "$ui:text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "From download to dashboard in three commands.",
+              "lineHeight": 1.4,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 26,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "t1echm",
+          "name": "Terminal",
+          "clip": true,
+          "width": 720,
+          "fill": "$ui:surface-sunken",
+          "cornerRadius": 16,
+          "stroke": "$ui:border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "kZ22H",
+              "name": "Title bar",
+              "width": "fill_container",
+              "stroke": "$ui:border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 10,
+              "padding": [
+                18,
+                24
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "h57Rw",
+                  "name": "Dot 1",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "TwozK",
+                  "name": "Dot 2",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "V9wsUJ",
+                  "name": "Dot 3",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "DvzfK",
+                  "name": "Path",
+                  "fill": "$ui:text-muted",
+                  "content": "~/fonoster",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "X8EOU",
+              "name": "Lines",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 18,
+              "padding": [
+                32,
+                32,
+                36,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Z1HXEv",
+                  "name": "Command 1",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "p9CXpI",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HwmYz",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "curl -fsSL …/fonoster-0.30.0.tar.gz | tar xz",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PZY4B",
+                  "name": "Command 2",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ZUB9a",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "A3AbTU",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "npx -p @fonoster/common fonoster-config init",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Fvym7",
+                  "name": "Command 3",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LrKTh",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HGPBN",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "docker compose up -d",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rpPYk",
+                  "name": "Result",
+                  "gap": 14,
+                  "padding": [
+                    10,
+                    0,
+                    0,
+                    0
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "hkgCd",
+                      "name": "Check",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "circle-check",
+                      "library": "lucide",
+                      "fill": "$ui:accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XRt8D",
+                      "name": "Text",
+                      "fill": "$ui:text-secondary",
+                      "content": "Dashboard  http://192.0.2.10:8449",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "xB0Kp",
+      "x": 0,
+      "y": 700,
+      "name": "Docs / Self-hosting / Banner / Light",
+      "theme": {
+        "ui:mode": "light"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 600,
+      "fill": [
+        "$ui:surface",
+        {
+          "type": "image",
+          "enabled": true,
+          "url": "assets/pattern-hero.png",
+          "mode": "cover"
+        }
+      ],
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 2,
+      "gap": 72,
+      "padding": [
+        0,
+        96
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "WKrOF",
+          "name": "Copy",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "pKgUD",
+              "name": "Eyebrow",
+              "fill": "$ui:text-secondary",
+              "content": "SELF-HOSTING",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 20,
+              "fontWeight": "500",
+              "letterSpacing": 2.4
+            },
+            {
+              "type": "text",
+              "id": "hyjPP",
+              "name": "Headline",
+              "fill": "$ui:text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Fonoster on your own servers.",
+              "lineHeight": 1.06,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 68,
+              "fontWeight": "600",
+              "letterSpacing": -2.2
+            },
+            {
+              "type": "text",
+              "id": "xaXWQ",
+              "name": "Subhead",
+              "fill": "$ui:text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "From download to dashboard in three commands.",
+              "lineHeight": 1.4,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 26,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "s9ddRT",
+          "name": "Terminal",
+          "clip": true,
+          "width": 720,
+          "fill": "$ui:surface-sunken",
+          "cornerRadius": 16,
+          "stroke": "$ui:border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Zug9A",
+              "name": "Title bar",
+              "width": "fill_container",
+              "stroke": "$ui:border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 10,
+              "padding": [
+                18,
+                24
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "S8B07n",
+                  "name": "Dot 1",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "dbvNH",
+                  "name": "Dot 2",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "K1jyz",
+                  "name": "Dot 3",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "lgzdi",
+                  "name": "Path",
+                  "fill": "$ui:text-muted",
+                  "content": "~/fonoster",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lvV4z",
+              "name": "Lines",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 18,
+              "padding": [
+                32,
+                32,
+                36,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "MfDme",
+                  "name": "Command 1",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "itHuA",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ueWEh",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "curl -fsSL …/fonoster-0.30.0.tar.gz | tar xz",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "FbbAB",
+                  "name": "Command 2",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "j4nAW",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "CO1Oc",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "npx -p @fonoster/common fonoster-config init",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rQV6d",
+                  "name": "Command 3",
+                  "gap": 14,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "OeN8o",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "iqc46",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "docker compose up -d",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BnGGz",
+                  "name": "Result",
+                  "gap": 14,
+                  "padding": [
+                    10,
+                    0,
+                    0,
+                    0
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "pL2lS",
+                      "name": "Check",
+                      "width": 22,
+                      "height": 22,
+                      "icon": "circle-check",
+                      "library": "lucide",
+                      "fill": "$ui:accent"
+                    },
+                    {
+                      "type": "text",
+                      "id": "veDs8",
+                      "name": "Text",
+                      "fill": "$ui:text-secondary",
+                      "content": "Dashboard  http://192.0.2.10:8449",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "imports": {
+    "ui": "fonoster.lib.pen"
+  },
+  "fileToken": "15439663-3833-4bd9-b7ec-ab7b3cf0549a"
+}
