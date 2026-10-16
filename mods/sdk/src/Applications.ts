@@ -413,7 +413,7 @@ class Applications {
       done = true;
     });
 
-    while (!done || queue.length > 0) {
+    while (!done || queue.length > 0 || streamError) {
       if (streamError) throw streamError;
       if (queue.length > 0) {
         const next = queue.shift()!;
