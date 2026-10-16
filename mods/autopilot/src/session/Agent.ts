@@ -37,7 +37,7 @@ const BUILT_IN_TOOLS: ToolSpec[] = [
   },
   {
     name: "transfer",
-    description: "Transfer the caller to a human agent.",
+    description: "Transfer the caller to an operator (a person).",
     parameters: { type: "object", properties: {} }
   }
 ];

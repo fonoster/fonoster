@@ -43,7 +43,7 @@ service Applications {
   rpc RotateSigningSecret(RotateSigningSecretRequest) returns (RotateSigningSecretResponse) {}
 }
 
-// Speech defaults of a session app; voices and models are catalog ids (provider/model-or-voice)
+// Speech defaults of an application; voices and models are catalog ids (provider/model-or-voice)
 message SpeechDefaults {
   // Default voice, e.g. elevenlabs/rachel
   string voice = 1;

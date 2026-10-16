@@ -20,7 +20,7 @@ import { BuiltInTool } from "../types";
 
 const transferToolDefinition: BuiltInTool = {
   name: "transfer",
-  description: "Transfer the call to a live agent",
+  description: "Transfer the call to an operator (a person)",
   parameters: {
     type: "object",
     properties: {

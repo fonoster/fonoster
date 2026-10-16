@@ -442,7 +442,7 @@ export function createRegionService(deps: {
         throw new RegionError(
           400,
           "bad_request",
-          "publicKey must be the cell's Ed25519 public key (32 bytes, base64url)"
+          "publicKey must be the region's Ed25519 public key (32 bytes, base64url)"
         );
       const tokenRow = await db.regionToken.findUnique({
         where: { jti: claims.jti }
@@ -492,7 +492,7 @@ export function createRegionService(deps: {
       });
       const bound = await workspaces(row).catch(() => []);
       logger.info(
-        `region ${row.ref} (${row.id}) enrolled (cell ${body.version ?? "?"}, ${bound.length} workspace(s))`
+        `region ${row.ref} (${row.id}) enrolled (version ${body.version ?? "?"}, ${bound.length} workspace(s))`
       );
       return {
         regionRef: row.ref,

@@ -52,7 +52,7 @@ function supportsPrivateRegions(config: FonosterConfig): boolean {
 /**
  * Where carriers and softphones reach this deployment: the default public
  * region's endpoints (regions.public), the same ones the regions API reported.
- * Always served, so the trunk and SIP user hints work without private regions.
+ * Always served, so the trunk and SIP agent hints work without private regions.
  * Addresses and ports only.
  */
 function connectionDetails(config: FonosterConfig): ConnectionCapabilities {
