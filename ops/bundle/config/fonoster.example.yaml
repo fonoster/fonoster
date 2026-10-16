@@ -3,6 +3,9 @@
 # run init again to change it (https://docs.fonoster.com/self-hosting/install-compose).
 domain: fonoster.local
 appUrl: ${PUBLIC_URL}
+# Browser calls ("Talk to agent"): SIP over WebSocket through Envoy's /sip. Browsers allow the
+# microphone only on HTTPS or http://localhost, so without TLS open the dashboard on localhost.
+signalingServer: "ws://${HOST_IP}:${HTTP_PORT}/sip"
 server: { bindAddr: 0.0.0.0:50051, httpBridgePort: 9876, host: apiserver }
 logs: { level: info, format: text, transport: console }
 database: { url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster" }

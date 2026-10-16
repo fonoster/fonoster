@@ -109,8 +109,11 @@ services:
       # config/routr-edgeport.yaml (SIP on SIP_PORT inside the container too, so Via and
       # Record-Route carry the port softphones reach); mounted aside from the image's own.
       CONFIG_PATH: /etc/routr/fonoster/edgeport.yaml
+      # Browser calls: the API server's test tokens are signed with Identity's key.
+      CONNECT_VERIFIER_PUBLIC_KEY_PATH: /etc/routr/keys/public.pem
     volumes:
       - ${CONFIG_DIR:-./config}/routr-edgeport.yaml:/etc/routr/fonoster/edgeport.yaml:ro
+      - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/routr/keys/public.pem:ro
     ports:
       - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/udp"
       - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/tcp"
@@ -124,11 +127,16 @@ services:
     image: fonoster/rtpengine:0.3.17
     restart: unless-stopped
     platform: linux/x86_64
+    # Browser calls: RTPEngine waits for the browser's DTLS handshake. As the active side it sent
+    # a ClientHello before the SDP answer, which Chrome drops, and the call had no audio.
+    command: ["rtpengine", "--dtls-passive"]
+    # The image reads RTPENGINE_-prefixed names (its entrypoint); without them it used its own
+    # 23000-32768 range, unpublished, and advertised its container address.
     environment:
-      PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
-      PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}
+      RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
+      RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}
       # Written in SDP for both sides of a call: an address the media node and the far end reach.
-      PUBLIC_IP: ${HOST_IP}
+      RTPENGINE_PUBLIC_IP: ${HOST_IP}
     ports:
       - "${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10999}:${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10999}/udp"
     networks:

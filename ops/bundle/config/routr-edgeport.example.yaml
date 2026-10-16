@@ -25,3 +25,7 @@ spec:
       port: ${SIP_PORT}
     - protocol: udp
       port: ${SIP_PORT}
+    # SIP over WebSocket for browser calls ("Talk to agent"). Not published: Envoy proxies /sip on
+    # the API port to it.
+    - protocol: ws
+      port: 5062

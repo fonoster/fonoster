@@ -21,9 +21,10 @@ else
   echo "fonoster-dashboard: DASHBOARD_API_URL is missing or not an http(s) URL" >&2
 fi
 
-# connect-src allows wss: for the test-call SIP signaling server set in fonoster.yaml.
+# connect-src allows ws: and wss: for the browser-call SIP signaling server (signalingServer in
+# fonoster.yaml; plain ws: on installs without TLS).
 cat > "$CONF_DIR/security-headers.conf" <<CONF
-add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' ${API_ORIGIN} wss:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' ${API_ORIGIN} ws: wss:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'" always;
 add_header X-Content-Type-Options "nosniff" always;
 add_header Referrer-Policy "same-origin" always;
 CONF

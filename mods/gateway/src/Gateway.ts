@@ -53,6 +53,7 @@ import { serveRecordMaintenance } from "./record/maintenance";
 import { Call, CallInfo } from "./session/Call";
 import { Catalog, WorkspaceKeySource } from "./speech/Catalog";
 import { telemetry } from "./telemetry";
+import { TestCallVerifier } from "./testCalls";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 const sc = StringCodec();
@@ -134,6 +135,9 @@ export class Gateway {
   }
 
   private readonly amdClassifier?: AmdClassifier;
+  private readonly testCalls = new TestCallVerifier(
+    this.options.config.testCalls?.publicKeyFile
+  );
 
   get config() {
     return this.options.config;
@@ -408,6 +412,26 @@ export class Gateway {
         })
       );
       return call.reject(404);
+    }
+    // Browser test calls only reach apps of their token's workspace (add-talk-in-browser D4).
+    const test = this.testCalls.check(
+      event.headers as Record<string, unknown> | undefined,
+      app.workspaceRef
+    );
+    if (!test.ok) {
+      logger.warn(
+        `call ${info.callRef}: test call to app ${app.ref} denied (${test.reason})`
+      );
+      call.record("event", {
+        type: "call.started",
+        direction: "inbound",
+        appRef: app.ref,
+        workspaceRef: app.workspaceRef ?? null,
+        from: info.from,
+        to
+      });
+      call.record("event", { type: "call.failed", reason: "test_call_denied" });
+      return call.reject(403);
     }
     // The caller hears ringing while the app is dialed (media-control, "Ringing before answer").
     void call

@@ -237,6 +237,7 @@ export const gatewayConfigSchema = z.object({
         .optional()
     })
     .optional(),
+  testCalls: z.object({ publicKeyFile: z.string().optional() }).optional(),
   testMode: z.boolean().optional()
 });
 
