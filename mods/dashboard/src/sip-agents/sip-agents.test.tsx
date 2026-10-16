@@ -22,9 +22,9 @@ import { communityCapabilities, regionsCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
-import SipUsersScreen from ".";
+import SipAgentsScreen from ".";
 import { publicRegionWithEndpoints } from "~/numbers/fixtures";
-import { toSipUserRow } from "./sip-users.service";
+import { toSipAgentRow } from "./sip-agents.service";
 
 // jsdom lacks these; Radix Select uses them.
 beforeAll(() => {
@@ -77,18 +77,18 @@ function setup(
   });
   const view = renderScreen(
     <WorkspaceProvider value={testWorkspace}>
-      <SipUsersScreen />
+      <SipAgentsScreen />
     </WorkspaceProvider>,
     { auth, capabilities }
   );
   return { ...view, agents, regions };
 }
 
-describe("SIP users", () => {
+describe("SIP agents", () => {
   it("shows the server, port and transport for a softphone", async () => {
     const { user } = setup([]);
     await user.click(
-      await screen.findByRole("button", { name: "Add SIP user" })
+      await screen.findByRole("button", { name: "Add SIP agent" })
     );
     const phone = await screen.findByRole("region", {
       name: "Softphone settings"
@@ -103,21 +103,39 @@ describe("SIP users", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows no softphone settings (region info) without private regions", async () => {
+  it("takes the softphone settings from the deployment's capabilities without private regions", async () => {
     const { user, regions } = setup([], communityCapabilities);
     await user.click(
-      await screen.findByRole("button", { name: "Add SIP user" })
+      await screen.findByRole("button", { name: "Add SIP agent" })
+    );
+    const phone = await screen.findByRole("region", {
+      name: "Softphone settings"
+    });
+    expect(within(phone).getByLabelText("Server")).toHaveTextContent(
+      "192.0.2.10"
+    );
+    expect(within(phone).getByLabelText("Port")).toHaveTextContent("5060");
+    expect(within(phone).getByLabelText("Transport")).toHaveTextContent("UDP");
+    expect(regions.getRegion).not.toHaveBeenCalled();
+  });
+
+  it("shows no softphone settings when the deployment lists no SIP address", async () => {
+    const { user } = setup([], {
+      ...communityCapabilities,
+      connection: { sip: [], signalingAddresses: [], mediaAddresses: [] }
+    });
+    await user.click(
+      await screen.findByRole("button", { name: "Add SIP agent" })
     );
     await screen.findByRole("dialog");
     expect(
       screen.queryByRole("region", { name: "Softphone settings" })
     ).toBeNull();
-    expect(regions.getRegion).not.toHaveBeenCalled();
   });
 
-  it("lists SIP users with their SIP address", async () => {
+  it("lists SIP agents with their SIP address", async () => {
     setup([maria]);
-    const table = await screen.findByRole("table", { name: "SIP users" });
+    const table = await screen.findByRole("table", { name: "SIP agents" });
     expect(
       await within(table).findByText("María Rodríguez")
     ).toBeInTheDocument();
@@ -133,7 +151,7 @@ describe("SIP users", () => {
   });
 
   it("reads nested protobuf messages and the ID privacy alias", () => {
-    const row = toSipUserRow({
+    const row = toSipAgentRow({
       ...maria,
       privacy: "ID",
       domain: {
@@ -146,16 +164,16 @@ describe("SIP users", () => {
 
   it("shows the empty state with an add action", async () => {
     setup([]);
-    expect(await screen.findByText("No SIP users yet")).toBeInTheDocument();
+    expect(await screen.findByText("No SIP agents yet")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Add SIP user" })
+      screen.getByRole("button", { name: "Add SIP agent" })
     ).toBeInTheDocument();
   });
 
-  it("validates and creates a SIP user", async () => {
+  it("validates and creates a SIP agent", async () => {
     const { user, agents } = setup([]);
     await user.click(
-      await screen.findByRole("button", { name: "Add SIP user" })
+      await screen.findByRole("button", { name: "Add SIP agent" })
     );
     await user.type(screen.getByLabelText("Name"), "Front desk");
     await user.type(screen.getByLabelText("Username"), "Front Desk");
@@ -199,7 +217,7 @@ describe("SIP users", () => {
     });
   });
 
-  it("edits a SIP user without changing the username", async () => {
+  it("edits a SIP agent without changing the username", async () => {
     const { user, agents } = setup([maria]);
     await user.click(await screen.findByText("María Rodríguez"));
     expect(screen.getByLabelText("Username")).toBeDisabled();
@@ -216,7 +234,7 @@ describe("SIP users", () => {
     });
   });
 
-  it("toggles a SIP user from the list", async () => {
+  it("toggles a SIP agent from the list", async () => {
     const { user, agents } = setup([maria]);
     await user.click(
       await screen.findByRole("switch", { name: "Enable María Rodríguez" })

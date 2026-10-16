@@ -46,7 +46,7 @@ describe("@applications/updateApplication", function () {
         ref: TEST_UUID,
         name: "My new application name",
         url: "wss://bot.example.com/session",
-        type: ApplicationType.EXTERNAL
+        type: ApplicationType.STREAM
       }
     };
 

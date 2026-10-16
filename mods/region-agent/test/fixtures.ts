@@ -48,7 +48,7 @@ export function secondWorkspace(): WorkspaceKinds {
       {
         ref: "app-sales",
         name: "Sales",
-        type: "EXTERNAL",
+        type: "STREAM",
         url: "wss://sales.example.com/session",
         signingSecret: "sales-secret"
       }
@@ -132,9 +132,9 @@ function baseKinds(over: Partial<WorkspaceKinds>): WorkspaceKinds {
         ref: "app-support",
         accessKeyId: "WOsomeoneelse",
         name: "Support",
-        type: "EXTERNAL",
+        type: "STREAM",
         url: "wss://example.com/session",
-        flavor: "native",
+        protocol: "fonoster",
         signingSecret: "app-secret",
         speechVoice: "deepgram/aura-2-thalia-en",
         speechLanguage: "en-US",
@@ -145,7 +145,7 @@ function baseKinds(over: Partial<WorkspaceKinds>): WorkspaceKinds {
         name: "Bot",
         type: "AUTOPILOT",
         url: "ws://autopilot.fonoster.com:3000",
-        flavor: "native",
+        protocol: "fonoster",
         intelligence: {
           productRef: "llm.groq",
           config: {

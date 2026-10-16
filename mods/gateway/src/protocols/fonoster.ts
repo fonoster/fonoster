@@ -18,13 +18,13 @@
  */
 import { SessionStart } from "@fonoster/common";
 import { convert, Format, INTERNAL, parseCodec } from "../audio/pcm";
-import { FlavorCodec, Incoming } from "./types";
+import { Incoming, ProtocolCodec } from "./types";
 
 export const CALLER_TRACK_ID = 1;
 export const AGENT_TRACK_ID = 2;
 
-/** The native flavor: JSON text frames for messages, binary frames for audio. */
-export class NativeCodec implements FlavorCodec {
+/** The fonoster protocol: JSON text frames for messages, binary frames for audio. */
+export class FonosterCodec implements ProtocolCodec {
   readonly speechLayer = true;
   private readonly format: Format;
 

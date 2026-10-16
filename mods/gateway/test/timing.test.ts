@@ -66,7 +66,7 @@ describe("@gateway timing (T1)", function () {
           {
             ref: "app-1",
             url: harness.app.url,
-            flavor: "native",
+            protocol: "fonoster",
             signingSecret: "s",
             speech: { voice: "fake/default", language: "en-US" }
           }

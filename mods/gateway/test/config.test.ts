@@ -42,7 +42,7 @@ const base = (): GatewayConfig => ({
     {
       ref: "a",
       url: "wss://bot.example.com",
-      flavor: "native",
+      protocol: "fonoster",
       signingSecret: "s",
       speech: { voice: "fake/v", language: "en" }
     }
@@ -63,7 +63,7 @@ describe("@gateway/config", function () {
     expect(validateConfig(c).join()).to.contain("only available in test mode");
   });
 
-  it("checks app urls, flavors and fallbacks", function () {
+  it("checks app urls, protocols and fallbacks", function () {
     const c = base();
     c.apps[0].url = "https://bot";
     c.apps[0].fallback = { app: "missing" };

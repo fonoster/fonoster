@@ -31,35 +31,35 @@ import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
 import { Switch } from "~/components/ui/switch";
 import { TableNote } from "~/domains/table-note";
-import { SipUserDrawer } from "./sip-user-drawer";
+import { SipAgentDrawer } from "./sip-agent-drawer";
 import {
   sipUri,
-  useDeleteSipUser,
-  useSipUsers,
-  useToggleSipUser,
-  type SipUserRow
-} from "./sip-users.service";
+  useDeleteSipAgent,
+  useSipAgents,
+  useToggleSipAgent,
+  type SipAgentRow
+} from "./sip-agents.service";
 
-export default function SipUsersScreen() {
-  const list = useSipUsers();
-  const remove = useDeleteSipUser();
-  const toggle = useToggleSipUser();
-  const [editing, setEditing] = useState<SipUserRow | undefined>();
+export default function SipAgentsScreen() {
+  const list = useSipAgents();
+  const remove = useDeleteSipAgent();
+  const toggle = useToggleSipAgent();
+  const [editing, setEditing] = useState<SipAgentRow | undefined>();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [deleting, setDeleting] = useState<SipUserRow | undefined>();
+  const [deleting, setDeleting] = useState<SipAgentRow | undefined>();
 
-  const openDrawer = (sipUser?: SipUserRow) => {
-    setEditing(sipUser);
+  const openDrawer = (sipAgent?: SipAgentRow) => {
+    setEditing(sipAgent);
     setDrawerOpen(true);
   };
 
   const add = (
     <Button onClick={() => openDrawer()}>
-      <Plus aria-hidden /> Add SIP user
+      <Plus aria-hidden /> Add SIP agent
     </Button>
   );
 
-  const columns: Column<SipUserRow>[] = [
+  const columns: Column<SipAgentRow>[] = [
     {
       header: "Name",
       cell: (u) => <NameCell name={u.name} sub={sipUri(u)} />
@@ -122,13 +122,13 @@ export default function SipUsersScreen() {
   return (
     <>
       <PageHeader
-        title="SIP users"
-        description="Phones, softphones and agents' desks that register to your domains."
+        title="SIP agents"
+        description="Phones, softphones and operators' desks that register to your domains."
         actions={list.rows.length > 0 && add}
       />
       <div className="px-4 pb-8 sm:px-8">
         <DataTable
-          label="SIP users"
+          label="SIP agents"
           columns={columns}
           rows={list.rows}
           rowKey={(u) => u.ref}
@@ -142,25 +142,25 @@ export default function SipUsersScreen() {
           empty={
             <EmptyState
               icon={Smartphone}
-              title="No SIP users yet"
-              description="Add a SIP user for each phone, softphone or desk that should register to one of your domains."
+              title="No SIP agents yet"
+              description="Add a SIP agent for each phone, softphone or desk that should register to one of your domains."
               action={add}
             />
           }
         />
         {list.rows.length > 0 && (
           <TableNote>
-            Numbers can route straight to a SIP user. Set that on the number.
+            Numbers can route straight to a SIP agent. Set that on the number.
           </TableNote>
         )}
       </div>
-      <SipUserDrawer
+      <SipAgentDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
-        sipUser={editing}
-        onDelete={(sipUser) => {
+        sipAgent={editing}
+        onDelete={(sipAgent) => {
           setDrawerOpen(false);
-          setDeleting(sipUser);
+          setDeleting(sipAgent);
         }}
       />
       <ConfirmDialog
@@ -171,7 +171,7 @@ export default function SipUsersScreen() {
             remove.reset();
           }
         }}
-        title={`Delete ${deleting?.name ?? "SIP user"}?`}
+        title={`Delete ${deleting?.name ?? "SIP agent"}?`}
         description="Devices signed in as this user will be disconnected, and numbers routed to it will stop ringing."
         pending={remove.isPending}
         error={remove.error}

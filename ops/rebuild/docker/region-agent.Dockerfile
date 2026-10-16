@@ -1,6 +1,6 @@
 ##
 # The region agent of a region (public or private, add-private-regions task 3, PR-13, PR-21):
-# `fonoster-regions enroll`, `secrets` and `run` (`fonoster-region` is a deprecated alias). The image also carries the apiserver schema and migrations: a cell has no
+# `fonoster-region enroll`, `secrets` and `run` (`fonoster-regions` is a deprecated alias). The image also carries the apiserver schema and migrations: a cell has no
 # apiserver, so `run` applies them to the cell's database first (RC-B6).
 ##
 FROM node:22-slim AS builder

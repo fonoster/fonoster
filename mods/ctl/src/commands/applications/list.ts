@@ -48,7 +48,7 @@ export default class List extends AuthenticatedCommand<typeof List> {
       { text: "REF", padding: [0, 0, 0, 0], width: 40 },
       { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
       { text: "KIND", padding: [0, 0, 0, 0], width: 11 },
-      { text: "FLAVOR", padding: [0, 0, 0, 0], width: 8 },
+      { text: "PROTOCOL", padding: [0, 0, 0, 0], width: 10 },
       { text: "VOICE", padding: [0, 0, 0, 0], width: 34 },
       { text: "URL", padding: [0, 0, 0, 0] }
     );
@@ -58,12 +58,12 @@ export default class List extends AuthenticatedCommand<typeof List> {
         { text: application.ref, padding: [0, 0, 0, 0], width: 40 },
         { text: application.name, padding: [0, 0, 0, 0], width: 30 },
         {
-          text: application.type === "AUTOPILOT" ? "Autopilot" : "External",
+          text: application.type === "AUTOPILOT" ? "Autopilot" : "Stream",
           padding: [0, 0, 0, 0],
           width: 11
         },
         {
-          text: application.flavor || "native",
+          text: application.protocol || "fonoster",
           padding: [0, 0, 0, 0],
           width: 8
         },

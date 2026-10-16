@@ -37,13 +37,13 @@ export default class EvalIntelligence extends AuthenticatedCommand<
   typeof EvalIntelligence
 > {
   static override readonly description =
-    "experimental command to test an Autopilot application";
+    "experimental command to test an Autopilot agent";
 
   static override readonly examples = [
-    "<%= config.bin %> <%= command.id %> -f assistant.json",
-    "<%= config.bin %> <%= command.id %> -f assistant.yaml",
-    "<%= config.bin %> <%= command.id %> -f assistant.yaml -o json",
-    "<%= config.bin %> <%= command.id %> -f assistant.yaml -o json --output-file results.json"
+    "<%= config.bin %> <%= command.id %> -f agent.json",
+    "<%= config.bin %> <%= command.id %> -f agent.yaml",
+    "<%= config.bin %> <%= command.id %> -f agent.yaml -o json",
+    "<%= config.bin %> <%= command.id %> -f agent.yaml -o json --output-file results.json"
   ];
 
   static override readonly flags = {

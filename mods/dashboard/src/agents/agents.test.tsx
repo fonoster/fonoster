@@ -33,7 +33,7 @@ import {
 const inboundCall = sampleCalls[2];
 
 function setup({
-  route = "/w/ws-1/agents",
+  route = "/w/ws-1/autopilot",
   apps = [...sampleAgents, voiceApp],
   numbers = sampleNumbers
 }: { route?: string; apps?: object[]; numbers?: object[] } = {}) {
@@ -62,12 +62,12 @@ function setup({
     <WorkspaceProvider value={testWorkspace}>
       <AgentsScreen />
     </WorkspaceProvider>,
-    { auth, path: "/w/:workspaceRef/agents/*", route }
+    { auth, path: "/w/:workspaceRef/autopilot/*", route }
   );
   return { ...view, applications, listCalls };
 }
 
-describe("Agents list", () => {
+describe("Autopilot list", () => {
   it("maps an agent to its list columns", () => {
     expect(agentRow(billingAgent, sampleNumbers)).toEqual({
       numbers: "+1 829 555 0199 +1",
@@ -153,7 +153,7 @@ describe("Agents list", () => {
 });
 
 describe("Agent detail", () => {
-  const route = `/w/ws-1/agents/${billingAgent.ref}/configure`;
+  const route = `/w/ws-1/autopilot/${billingAgent.ref}/configure`;
 
   it("shows the header, numbers and configure fields", async () => {
     setup({ route });
@@ -170,7 +170,7 @@ describe("Agent detail", () => {
     );
     expect(screen.getByRole("link", { name: /Tools/ })).toHaveAttribute(
       "href",
-      `/w/ws-1/agents/${billingAgent.ref}/tools`
+      `/w/ws-1/autopilot/${billingAgent.ref}/tools`
     );
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
   });
@@ -224,7 +224,7 @@ describe("Agent detail", () => {
 
   it("adds a tool in the tools editor", async () => {
     const { user, applications } = setup({
-      route: `/w/ws-1/agents/${billingAgent.ref}/tools`
+      route: `/w/ws-1/autopilot/${billingAgent.ref}/tools`
     });
     expect(await screen.findByText("Always on")).toBeInTheDocument();
     expect(screen.getByText("On · +1 809 555 0100")).toBeInTheDocument();
@@ -264,7 +264,7 @@ describe("Agent detail", () => {
   });
 
   it("has no Knowledge or Tests tab in this release", async () => {
-    setup({ route: `/w/ws-1/agents/${billingAgent.ref}/configure` });
+    setup({ route: `/w/ws-1/autopilot/${billingAgent.ref}/configure` });
     const tabs = await screen.findByRole("navigation", {
       name: "Agent sections"
     });
@@ -281,7 +281,7 @@ describe("Agent detail", () => {
 
   it("lists the calls on the agent's numbers", async () => {
     const { listCalls } = setup({
-      route: `/w/ws-1/agents/${billingAgent.ref}/calls`
+      route: `/w/ws-1/autopilot/${billingAgent.ref}/calls`
     });
     expect(await screen.findByText("+1 809 555 0142")).toBeInTheDocument();
     // Both of its numbers, as caller and as callee.
@@ -298,7 +298,7 @@ describe("Agent detail", () => {
 
   it("deletes the agent from Advanced and returns to the list", async () => {
     const { user, applications } = setup({
-      route: `/w/ws-1/agents/${billingAgent.ref}/advanced`
+      route: `/w/ws-1/autopilot/${billingAgent.ref}/advanced`
     });
     await user.click(
       await screen.findByRole("button", { name: "Delete agent" })
@@ -309,13 +309,13 @@ describe("Agent detail", () => {
       billingAgent.ref
     );
     expect(
-      await screen.findByRole("heading", { name: "Agents" })
+      await screen.findByRole("heading", { name: "Autopilot" })
     ).toBeInTheDocument();
   });
 
   it("edits the agent's call handling from Advanced (it used to live in Apps)", async () => {
     const { user, applications } = setup({
-      route: `/w/ws-1/agents/${billingAgent.ref}/advanced`
+      route: `/w/ws-1/autopilot/${billingAgent.ref}/advanced`
     });
     const panel = await screen.findByRole("region", { name: "Call handling" });
     await user.click(within(panel).getByRole("button", { name: "Edit" }));
@@ -382,7 +382,7 @@ describe("Agent detail", () => {
   });
 
   it("says when the agent doesn't exist", async () => {
-    setup({ route: "/w/ws-1/agents/ap-missing/configure" });
+    setup({ route: "/w/ws-1/autopilot/ap-missing/configure" });
     expect(
       await screen.findByText(/This agent doesn't exist or was deleted/)
     ).toBeInTheDocument();

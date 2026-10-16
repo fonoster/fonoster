@@ -21,7 +21,7 @@ import type { Agent, Application, INumber } from "@fonoster/types";
 /**
  * Where a number sends its calls. In this UI "agents" are AI agents
  * (Autopilot applications), "streams" are the other applications (your own WebSocket servers), and
- * "SIP users" are sipnet Agents, reached through their address of record.
+ * "SIP agents" are sipnet Agents, reached through their address of record.
  */
 export type RouteKind = "agent" | "app" | "sip";
 
@@ -29,17 +29,17 @@ export type Route = { kind: RouteKind; to: string };
 
 export const ROUTE_KINDS: { value: RouteKind; label: string; noun: string }[] =
   [
-    { value: "agent", label: "Agent", noun: "agents" },
+    { value: "agent", label: "Autopilot agent", noun: "Autopilot agents" },
     { value: "app", label: "Stream", noun: "streams" },
-    { value: "sip", label: "SIP user", noun: "SIP users" }
+    { value: "sip", label: "SIP agent", noun: "SIP agents" }
   ];
 
 export function applicationKind(app: Pick<Application, "type">): RouteKind {
   return String(app.type) === "AUTOPILOT" ? "agent" : "app";
 }
 
-/** A SIP user's address of record, e.g. sip:maria@acme.sip.fonoster.io. */
-export function sipUserAor(user: Agent): string | undefined {
+/** A SIP agent's address of record, e.g. sip:maria@acme.sip.fonoster.io. */
+export function sipAgentAor(user: Agent): string | undefined {
   const domain = user.domain?.domainUri;
   return domain ? `sip:${user.username}@${domain}` : undefined;
 }
@@ -63,14 +63,14 @@ export function routeOf(
 export function routeLabel(
   number: Pick<INumber, "appRef" | "agentAor">,
   apps: Application[],
-  sipUsers: Agent[]
+  sipAgents: Agent[]
 ): { kind: RouteKind; label: string } | undefined {
   const route = routeOf(number, apps);
   if (!route) return undefined;
   if (route.kind === "sip") {
-    const user = sipUsers.find((u) => sipUserAor(u) === route.to);
+    const user = sipAgents.find((u) => sipAgentAor(u) === route.to);
     const name = user?.username ?? route.to.replace(/^sips?:/, "");
-    return { kind: "sip", label: `${name} · SIP user` };
+    return { kind: "sip", label: `${name} · SIP agent` };
   }
   const app = apps.find((a) => a.ref === route.to);
   return { kind: route.kind, label: app?.name ?? route.to };

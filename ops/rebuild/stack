@@ -207,7 +207,7 @@ render_configs() {
   } > "$SERVICES_ENV"
   chmod 600 "$SERVICES_ENV"
 
-  # The operator key (PR-19) authorizes the region admin API (fonoster-regions create|list|…).
+  # The operator key (PR-19) authorizes the region admin API (fonoster-region create|list|…).
   if [ ! -f "$CONF/keys/region-operator.key" ]; then
     mkdir -p "$CONF/keys"
     printf '%s' "$(openssl rand -hex 24)" > "$CONF/keys/region-operator.key"

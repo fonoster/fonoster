@@ -25,7 +25,7 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
  */
 export const SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
   "": lazy(() => import("~/overview")),
-  agents: lazy(() => import("~/agents")),
+  autopilot: lazy(() => import("~/agents")),
   streams: lazy(() =>
     import("~/session").then((m) => ({ default: m.StreamsScreen }))
   ),
@@ -37,7 +37,7 @@ export const SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
   numbers: lazy(() => import("~/numbers")),
   trunks: lazy(() => import("~/trunks")),
   domains: lazy(() => import("~/domains")),
-  "sip-users": lazy(() => import("~/sip-users")),
+  "sip-agents": lazy(() => import("~/sip-agents")),
   acls: lazy(() => import("~/acls")),
   credentials: lazy(() => import("~/credentials")),
   calls: lazy(() =>

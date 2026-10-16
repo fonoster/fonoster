@@ -119,12 +119,12 @@ Load it once after the API server has migrated:
 
 ## Multi-region notes
 
-- Each region (and each private cell) resolves against its own catalog. The control plane's
+- Each region (and each private region) resolves against its own catalog. The control plane's
   catalog is the one the dashboard shows. A private region receives the catalog entries its
   workspaces use through config sync; it does not run `fonoster-registry` itself.
 - Roll a catalog change region by region: `plan` first, then `apply`. Deprecate in the control
   plane first so every workspace gets its notice before any region retires the item.
-- Keys differ by region. A gateway picks a key in this order: a private cell's own secret
-  (`fonoster-regions secrets set <provider>`), then the workspace's own key, then the platform
+- Keys differ by region. A gateway picks a key in this order: a private region's own secret
+  (`fonoster-region secrets set <provider>`), then the workspace's own key, then the platform
   key named by `credentialRef`. See [Running a region](./regions.md).
 - Retire in each region separately: `retire-*` rewrites that region's configs.

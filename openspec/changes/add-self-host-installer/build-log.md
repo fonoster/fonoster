@@ -212,3 +212,57 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 - The bundle build greps the staged archive for `rebuild` / `RB_` and fails on a hit. `init` output
   is covered by the CLI tests. `check`, `info` and `--help` output from the tarball was scanned by
   hand: no hits.
+
+## install-papercuts
+
+Fixes from the owner's first install (`.claude/docs/install-compose.md`, "Owner's run").
+
+### IP-B1. Bundle volumes are named apart from legacy installs
+
+- Owner kept the default project name `fonoster`. The legacy root `compose.yaml` (0.27 and older)
+  named its volumes `db` and `influxdb`, so the bundle's `db` became `fonoster_db` and mounted the
+  old database (old password, Postgres auth failed). The bundle's volumes are now
+  `postgres-data`, `nats-data` and `minio-data`. A bundle scenario asserts no volume (declared or
+  mounted) is named `db` or `influxdb`.
+- The install page has one note in "Before you begin": stop a 0.27-or-older Compose install
+  (`docker compose down` in its folder) and keep its volumes. Its containers share the project
+  name, so running both would replace them.
+- An existing pre-release bundle install with data in `fonoster_db` starts on a new, empty
+  `fonoster_postgres-data`. Pre-release only; nothing migrates it.
+
+### IP-B2. The apiserver is healthy only once migrated and serving
+
+- Probe: `node /work/mods/apiserver/dist/bin/healthcheck.js` (new, apiserver package) calls the
+  standard gRPC health check (`grpc.health.v1.Health/Check`, already served and public) on
+  127.0.0.1:50051 and exits 0 on SERVING. The entrypoint applies migrations before it imports the
+  server, and the server sets SERVING after it binds, so healthy means the tables exist. No HTTP
+  route added: the gRPC one existed. Compose: interval 5 s, `start_period` 120 s, 30 retries.
+- `gateway` and `autopilot` (reads assistants, the catalog and keys from the database) now wait
+  for `apiserver: service_healthy`. Envoy stays `service_started` (it only proxies).
+- The gateway's first loads of apps, registry and webhooks retry (`openUntilReady`) every 2 s with
+  one warn line each (`apps not ready yet, retrying in 2s (the API server may still be applying
+  migrations): <Prisma's last line>`), then an info line when loaded. After 2 minutes the last
+  error is thrown and the gateway exits as before. Covers stacks without the healthcheck (Helm,
+  dev).
+
+### IP-B3. `fonoster-config check` no longer prints Ajv format warnings
+
+- `validateFormats: false`: formats (`uri`, `email`) in the exported schemas are documentation;
+  the services validate the values. Without `ajv-formats` Ajv printed "unknown format ... ignored"
+  once per format. A test captures console output during `check` and asserts none.
+
+### IP-B4. Connection details come from GetCapabilities (fixes RC-B4)
+
+- `GetCapabilities` gains `connection = 7` (`ConnectionCapabilities`: `sip[] {host, port,
+  transport}`, `signaling_addresses`, `media_addresses`, `rtp_ports {min, max}`): the default
+  public region's `endpoints` from fonoster.yaml (the one with `default: true`, else the first).
+  Chosen over a new route: it is public, always on, and the dashboard already reads it at boot.
+  Addresses and ports only, the same values the regions API showed; no credentials. Empty lists
+  when the region lists none. Bindings regenerated with protoc for capabilities.proto only.
+- SDK: `Capabilities.connection` (`ConnectionDetails`), empty for an older server.
+- Dashboard `useEndpoints`: with private regions, the workspace's region from the regions API
+  (unchanged, so Cloud's per-region details stay right); without, `capabilities.connection`. The
+  trunk carrier hint and the SIP user softphone settings show on a self-hosted install with no
+  hub, and no `/api/regions*` call is made. Settings → Region stays private-regions only.
+- With several public regions and no hub, the hints show the default region's details even for a
+  workspace placed elsewhere. Self-hosted has one public region; left as is.

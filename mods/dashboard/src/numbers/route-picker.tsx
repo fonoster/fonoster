@@ -25,7 +25,7 @@ import { cn } from "~/lib/utils";
 import {
   applicationKind,
   ROUTE_KINDS,
-  sipUserAor,
+  sipAgentAor,
   type Route,
   type RouteKind
 } from "./routing";
@@ -46,13 +46,13 @@ function plural(count: number, other: boolean) {
 
 /**
  * "When this number is called, send it to": a segmented choice between
- * agents, streams and SIP users, and a searchable list of the chosen kind.
+ * agents, streams and SIP agents, and a searchable list of the chosen kind.
  */
 export function RoutePicker({
   value,
   onChange,
   apps,
-  sipUsers,
+  sipAgents,
   numbers,
   currentRef,
   loading,
@@ -61,7 +61,7 @@ export function RoutePicker({
   value?: Route;
   onChange: (route: Route) => void;
   apps: Application[];
-  sipUsers: Agent[];
+  sipAgents: Agent[];
   /** All numbers, to say how many already use each target. */
   numbers: INumber[];
   /** The number being edited, left out of those counts. */
@@ -83,8 +83,8 @@ export function RoutePicker({
     const count = (match: (n: INumber) => boolean) =>
       plural(others.filter(match).length, Boolean(currentRef));
     if (kind === "sip") {
-      return sipUsers.flatMap((user) => {
-        const aor = sipUserAor(user);
+      return sipAgents.flatMap((user) => {
+        const aor = sipAgentAor(user);
         if (!aor) return [];
         return [
           {
@@ -102,7 +102,7 @@ export function RoutePicker({
         name: app.name,
         sub: `${app.ref} · ${count((n) => n.appRef === app.ref)}`
       }));
-  }, [kind, apps, sipUsers, numbers, currentRef]);
+  }, [kind, apps, sipAgents, numbers, currentRef]);
 
   const term = query.trim().toLowerCase();
   const visible = term

@@ -152,23 +152,23 @@ fonoster workspaces:login --insecure --endpoint localhost:16449 \
 Every command below talks to the active workspace and needs `--insecure` (`-i`) on the local
 stack, which has no TLS.
 
-Apps (a WebSocket URL + flavor + speech defaults, or an Autopilot assistant):
+Applications (a stream: a WebSocket URL + protocol + speech defaults; or an Autopilot agent):
 
 ```sh
 fonoster applications:list -i
 fonoster applications:get -i <app-ref>
 fonoster applications:create -i --name "My bot" --url wss://bot.example.com/session \
   --voice deepgram/aura-2-thalia-en --stt-model deepgram/nova-3 --recording on
-fonoster applications:create -i --name "Twilio bot" --url wss://bot.example.com/media --flavor twilio
-fonoster applications:create -i --name Receptionist --assistant assistant.yaml
+fonoster applications:create -i --name "Twilio bot" --url wss://bot.example.com/media --protocol twilio
+fonoster applications:create -i --name Receptionist --agent agent.yaml
 fonoster applications:update -i <app-ref> --patience high --listener wss://rec.example.com/ws,inbound
 fonoster applications:rotate-secret -i <app-ref>   # the new signing secret, shown once
 ```
 
-`create` prints the app's signing secret once (Autopilot apps share the hosted Autopilot's, so
+`create` prints the app's signing secret once (Autopilot agents share the hosted Autopilot's, so
 none is shown). `update` changes only the flags you pass; `--from-file app.yaml` takes the same
-fields as the API (`url`, `flavor`, `speech`, `audio`, `listeners`, `recording`,
-`fallbackAppRef`, ... and `assistant` for an Autopilot app).
+fields as the API (`url`, `protocol`, `speech`, `audio`, `listeners`, `recording`,
+`fallbackAppRef`, ... and `assistant` for an Autopilot agent).
 
 Voices and models are catalog ids; vendor keys are per workspace:
 

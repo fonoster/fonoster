@@ -27,7 +27,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     "modify an Application (only the fields you pass change)";
   static override readonly examples = [
     "<%= config.bin %> <%= command.id %> <ref> --voice elevenlabs/rachel --patience high",
-    "<%= config.bin %> <%= command.id %> <ref> --assistant assistant.yaml",
+    "<%= config.bin %> <%= command.id %> <ref> --agent agent.yaml",
     "<%= config.bin %> <%= command.id %> <ref> --clear-listeners --listener wss://rec.example.com/ws,inbound",
     "<%= config.bin %> <%= command.id %> --from-file app.yaml   # with `ref` in the file"
   ];

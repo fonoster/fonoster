@@ -22,17 +22,17 @@ import { gatewayConfigSchema } from "./configSchema";
 import { isDetectorChoice } from "./turn/createDetector";
 import type { ObjectStoreConfig } from "@fonoster/callrecord";
 
-export type Flavor = "native" | "twilio";
+export type Protocol = "fonoster" | "twilio";
 
 /** Full-call recording policy (call-record "Recording is applied by policy"). */
 export type RecordingPolicy = "off" | "on" | "consent";
 export const RECORDING_POLICIES: RecordingPolicy[] = ["off", "on", "consent"];
 
-/** An app: a WebSocket URL, a flavor and speech defaults (voice-session, G2). */
+/** An app: a WebSocket URL, a protocol and speech defaults (voice-session, G2). */
 export type AppConfig = {
   ref: string;
   url: string;
-  flavor: Flavor;
+  protocol: Protocol;
   signingSecret: string;
   /** Default voice and language as catalog ids; STT language defaults to `language`. */
   speech: {
@@ -48,9 +48,9 @@ export type AppConfig = {
     /** Words to bias recognition toward (names, brands); sent on every STT stream. */
     hints?: string[];
   };
-  /** Caller and agent audio format for the native flavor (default pcm16 at 16 kHz). */
+  /** Caller and agent audio format for the fonoster protocol (default pcm16 at 16 kHz). */
   audio?: { codec: "pcm16" | "pcmu"; rate: number };
-  /** The workspace that owns the app (its access key id); the Twilio flavor's AccountSid. */
+  /** The workspace that owns the app (its access key id); the Twilio protocol's AccountSid. */
   workspaceRef?: string;
   /** Numbers routed to this app (inbound). */
   numbers?: string[];
@@ -279,8 +279,12 @@ export function validateConfig(config: GatewayConfig): string[] {
     refs.add(app.ref);
     if (!/^wss?:\/\//.test(app.url))
       problems.push(`app ${app.ref}: url must be ws:// or wss://`);
-    if (!["native", "twilio"].includes(app.flavor))
-      problems.push(`app ${app.ref}: unknown flavor ${app.flavor}`);
+    if (!["fonoster", "twilio"].includes(app.protocol))
+      problems.push(
+        (app as { flavor?: unknown }).flavor !== undefined
+          ? `app ${app.ref}: flavor was renamed to protocol (fonoster or twilio)`
+          : `app ${app.ref}: unknown protocol ${app.protocol}`
+      );
     if (!app.signingSecret)
       problems.push(`app ${app.ref}: signingSecret is required`);
     if (app.speech?.detector && !isDetectorChoice(app.speech.detector))

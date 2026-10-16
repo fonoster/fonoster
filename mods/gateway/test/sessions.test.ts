@@ -76,7 +76,7 @@ describe("@gateway session registry", function () {
         {
           ref: "a",
           url: harness.app.url,
-          flavor: "native",
+          protocol: "fonoster",
           signingSecret: "secret",
           speech: { voice: "fake/default", language: "en-US" }
         }

@@ -61,6 +61,28 @@ message RegionsCapabilities {
   bool private = 1;
 }
 
+message SipEndpoint {
+  string host = 1;
+  int32 port = 2;
+  // udp | tcp | tls | ws | wss
+  string transport = 3;
+}
+
+message PortRange {
+  int32 min = 1;
+  int32 max = 2;
+}
+
+// Where carriers and softphones reach this deployment: the default public
+// region's endpoints (regions.public in fonoster.yaml). Addresses and ports
+// only, never credentials. Empty when the operator listed none.
+message ConnectionCapabilities {
+  repeated SipEndpoint sip = 1;
+  repeated string signaling_addresses = 2;
+  repeated string media_addresses = 3;
+  PortRange rtp_ports = 4;
+}
+
 message GetCapabilitiesResponse {
   AuthCapabilities auth = 1;
   BillingCapabilities billing = 2;
@@ -68,4 +90,5 @@ message GetCapabilitiesResponse {
   string domain = 4;
   string app_url = 5;
   RegionsCapabilities regions = 6;
+  ConnectionCapabilities connection = 7;
 }

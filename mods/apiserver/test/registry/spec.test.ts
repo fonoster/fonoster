@@ -554,10 +554,10 @@ describe("@registry scenario suite (spec.md, database)", function () {
           ref,
           accessKeyId: ws,
           name: ref,
-          type: "EXTERNAL",
+          type: "STREAM",
           endpoint: "",
           url: "wss://bot.example.com",
-          flavor: "native",
+          protocol: "fonoster",
           speechVoice: voice,
           speechTtsModel: "elevenlabs/turbo-v2",
           speechSettings: style
@@ -622,7 +622,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
         ref: "support-line",
         accessKeyId: W1,
         name: "Support line",
-        type: "EXTERNAL",
+        type: "STREAM",
         endpoint: "",
         speechSttModel: "deepgram/nova-2"
       }
@@ -741,7 +741,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
         ref: "clone-app",
         accessKeyId: W1,
         name: "Clone app",
-        type: "EXTERNAL",
+        type: "STREAM",
         endpoint: "",
         speechVoice: "elevenlabs/w1-clone",
         speechTtsModel: "elevenlabs/turbo-v2"

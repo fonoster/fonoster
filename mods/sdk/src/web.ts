@@ -47,5 +47,9 @@ export * from "./Webhooks";
 
 export * from "./Workspaces";
 
-export type { AuthMethod, Capabilities } from "./client/AbstractClient";
+export type {
+  AuthMethod,
+  Capabilities,
+  ConnectionDetails
+} from "./client/AbstractClient";
 export * from "./client/WebClient";

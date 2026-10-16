@@ -237,7 +237,7 @@ describe("region drawer", () => {
     expect(within(d).getByText("Set")).toBeInTheDocument();
     expect(within(d).getByText("Missing")).toBeInTheDocument();
     expect(
-      within(d).getByText("fonoster-regions secrets set elevenlabs")
+      within(d).getByText("fonoster-region secrets set elevenlabs")
     ).toBeInTheDocument();
   });
 

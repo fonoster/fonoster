@@ -33,13 +33,13 @@ import {
 import { KubeSecrets } from "./kube";
 import { runAgent } from "./run";
 
-// fonoster-regions: the region operations utility (PR-21), not part of the `fonoster` CLI.
+// fonoster-region: the region operations utility (PR-21), not part of the `fonoster` CLI.
 // Cloud side (public regions, operator key): create, list, token, publish, revoke. Region side
-// (on the region's machine, public or private): enroll, run, status, secrets. `fonoster-region`
+// (on the region's machine, public or private): enroll, run, status, secrets. `fonoster-regions`
 // is a deprecated alias of the same file.
 
-export const COMMAND = "fonoster-regions";
-export const DEPRECATED_COMMAND = "fonoster-region";
+export const COMMAND = "fonoster-region";
+export const DEPRECATED_COMMAND = "fonoster-regions";
 
 const USAGE = `${COMMAND} <command>
 
@@ -198,7 +198,7 @@ async function cloud(a: Args, print: (s: string) => void): Promise<boolean> {
   print(
     cmd === "publish"
       ? `Published ${r.id ?? id}; pickers offer it while it is connected (now ${r.status ?? "unknown"}).`
-      : `Revoked ${r.id ?? id}: withdrawn from pickers and its cell's credentials revoked.`
+      : `Revoked ${r.id ?? id}: withdrawn from pickers and its region machine's credentials revoked.`
   );
   return true;
 }
@@ -229,7 +229,7 @@ export async function main(argv: string[], out = process.stdout) {
     print(
       `Enrolled ${identity.kind ?? "the"} region ${identity.regionId ?? identity.regionRef} (${identity.regionRef}).`
     );
-    print(`Credentials saved to ${store.where}. Next: start the cell.`);
+    print(`Credentials saved to ${store.where}. Next: start the region.`);
     return;
   }
 

@@ -89,7 +89,7 @@ export function toGatewayApps(apps: MigratedApplication[]) {
   return apps.map((a) => ({
     ref: a.ref,
     url: a.url,
-    flavor: a.flavor,
+    protocol: a.protocol,
     signingSecret: a.signingSecret,
     workspaceRef: a.workspaceRef,
     speech: a.speech,

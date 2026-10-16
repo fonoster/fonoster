@@ -18,27 +18,30 @@
  */
 import { Flags } from "@oclif/core";
 
-/** Flags shared by `applications:create` and `applications:update` (the session app model). */
+/** Flags shared by `applications:create` and `applications:update` (a stream or an Autopilot agent). */
 export const applicationFlags = {
   "from-file": Flags.string({
     char: "f",
     description:
-      "a YAML or JSON file with the Application (an `assistant` key makes it an Autopilot app)"
+      "a YAML or JSON file with the Application (an `assistant` key makes it an Autopilot agent)"
   }),
   name: Flags.string({ char: "n", description: "the Application name" }),
   url: Flags.string({
     char: "u",
-    description: "the app's WebSocket URL (ws:// or wss://)"
+    description: "the stream's WebSocket URL (ws:// or wss://)"
   }),
-  flavor: Flags.string({
-    description: "the session protocol the app speaks",
-    options: ["native", "twilio"]
+  protocol: Flags.string({
+    description: "the protocol the stream speaks",
+    options: ["fonoster", "twilio"]
   }),
-  assistant: Flags.string({
+  agent: Flags.string({
     char: "a",
     description:
-      "a YAML or JSON assistant file; makes it an Autopilot app (hosted by Fonoster)"
+      "a YAML or JSON agent file; makes it an Autopilot agent (hosted by Fonoster)"
   }),
+  // Renamed in 0.30; kept hidden so old scripts get a clear error.
+  flavor: Flags.string({ hidden: true }),
+  assistant: Flags.string({ hidden: true }),
   voice: Flags.string({
     description: "TTS voice as a catalog id (e.g. deepgram/aura-2-thalia-en)"
   }),
@@ -57,15 +60,15 @@ export const applicationFlags = {
     options: ["low", "normal", "high"]
   }),
   "audio-codec": Flags.string({
-    description: "audio frames for native apps",
+    description: "audio frames for fonoster-protocol streams",
     options: ["pcm16", "pcmu"]
   }),
   "audio-rate": Flags.integer({
     description:
-      "audio sample rate for native apps: 8000, 16000 or 24000 (pcmu is 8000 only)"
+      "audio sample rate for fonoster-protocol streams: 8000, 16000 or 24000 (pcmu is 8000 only)"
   }),
   "fallback-app": Flags.string({
-    description: "the Application to hand the call to when this app fails"
+    description: "the Application to hand the call to when this one fails"
   }),
   "fallback-message": Flags.string({
     description:

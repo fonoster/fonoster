@@ -434,7 +434,7 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
     ext: {
       ref: "ext",
       accessKeyId: "WO1",
-      type: "EXTERNAL",
+      type: "STREAM",
       intelligence: null
     }
   };

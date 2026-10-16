@@ -46,7 +46,7 @@ export async function registerTools(server: McpServer) {
 
   server.tool(
     "list_applications",
-    "Lists applications from Fonoster in a table format (using markdown)",
+    "Lists applications from Fonoster (streams, type STREAM, and Autopilot agents, type AUTOPILOT) in a table format (using markdown)",
     ListApplicationsSchema.shape as Record<string, unknown>,
     createListApplications(client)
   );

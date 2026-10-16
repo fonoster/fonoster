@@ -27,7 +27,7 @@ import { plain } from "~/domains/domains.service";
 import { useSdk } from "~/lib/auth";
 import { useResourceList, useResourceMutation } from "~/lib/resource";
 
-// SIP users are "agents" in the SDK (not AI agents).
+// SIP agents are "agents" in the SDK (not AI agents).
 const RESOURCE = "agents";
 
 /** What the API sends and expects (the types' Privacy enum says "ID"). */
@@ -38,7 +38,7 @@ export const asPrivacy = (value: PrivacyValue) => value as unknown as Privacy;
 /** Registration expiry the API requires on create; not shown in the form. */
 export const DEFAULT_EXPIRES = 3600;
 
-export type SipUserRow = {
+export type SipAgentRow = {
   ref: string;
   name: string;
   username: string;
@@ -50,10 +50,10 @@ export type SipUserRow = {
 };
 
 /** Normalizes an SDK agent (its nested domain/credentials are raw protobufs). */
-export function toSipUserRow(agent: Agent): SipUserRow {
+export function toSipAgentRow(agent: Agent): SipAgentRow {
   const privacy = String(agent.privacy);
-  const domain = plain<SipUserRow["domain"]>(agent.domain);
-  const credentials = plain<SipUserRow["credentials"]>(agent.credentials);
+  const domain = plain<SipAgentRow["domain"]>(agent.domain);
+  const credentials = plain<SipAgentRow["credentials"]>(agent.credentials);
   return {
     ref: agent.ref,
     name: agent.name,
@@ -66,40 +66,40 @@ export function toSipUserRow(agent: Agent): SipUserRow {
   };
 }
 
-export function sipUri(user: Pick<SipUserRow, "username" | "domain">) {
+export function sipUri(user: Pick<SipAgentRow, "username" | "domain">) {
   return user.domain?.domainUri
     ? `sip:${user.username}@${user.domain.domainUri}`
     : `sip:${user.username}`;
 }
 
-export function useSipUsers() {
+export function useSipAgents() {
   const sdk = useSdk();
   const list = useResourceList<Agent>(RESOURCE, (request) =>
     sdk.agents.listAgents(request)
   );
-  return { ...list, rows: list.items.map(toSipUserRow) };
+  return { ...list, rows: list.items.map(toSipAgentRow) };
 }
 
-export function useCreateSipUser() {
+export function useCreateSipAgent() {
   const sdk = useSdk();
   return useResourceMutation(
     RESOURCE,
     (request: CreateAgentRequest) => sdk.agents.createAgent(request),
-    { success: "SIP user added" }
+    { success: "SIP agent added" }
   );
 }
 
-export function useUpdateSipUser() {
+export function useUpdateSipAgent() {
   const sdk = useSdk();
   return useResourceMutation(
     RESOURCE,
     (request: UpdateAgentRequest) => sdk.agents.updateAgent(request),
-    { success: "SIP user updated" }
+    { success: "SIP agent updated" }
   );
 }
 
-/** Flip a SIP user on or off from the list; errors go to a toast. */
-export function useToggleSipUser() {
+/** Flip a SIP agent on or off from the list; errors go to a toast. */
+export function useToggleSipAgent() {
   const sdk = useSdk();
   return useResourceMutation(
     RESOURCE,
@@ -109,12 +109,12 @@ export function useToggleSipUser() {
   );
 }
 
-export function useDeleteSipUser() {
+export function useDeleteSipAgent() {
   const sdk = useSdk();
   return useResourceMutation(
     RESOURCE,
     (ref: string) => sdk.agents.deleteAgent(ref),
-    { success: "SIP user deleted" }
+    { success: "SIP agent deleted" }
   );
 }
 

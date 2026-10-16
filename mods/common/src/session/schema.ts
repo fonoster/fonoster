@@ -18,7 +18,7 @@
  */
 import { FromSchema } from "json-schema-to-ts";
 
-// The fonoster.session.v1 messages (native flavor), as JSON Schema. These schemas are the source
+// The fonoster.session.v1 messages (fonoster protocol), as JSON Schema. These schemas are the source
 // of truth: TypeScript types are derived from them below, and schema/session.v1.json is exported
 // from them for other languages (see scripts/export-session-schema.ts).
 //
@@ -112,7 +112,7 @@ export const ERROR_CODES = [
   "bad_message",
   "unknown_command",
   "read_only",
-  "not_supported_by_flavor",
+  "not_supported_by_protocol",
   "provider_unavailable",
   "provider_timeout",
   "invalid_catalog_id",
@@ -519,7 +519,7 @@ export function sessionProtocolDocument() {
     $id: "https://fonoster.com/schemas/session/v1.json",
     title: SESSION_PROTOCOL,
     description:
-      "Messages of the Fonoster session protocol, native flavor. Unknown types and fields must be ignored.",
+      "Messages of the Fonoster session protocol (a stream with protocol fonoster). Unknown types and fields must be ignored.",
     protocol: SESSION_PROTOCOL,
     gatewayToApp: GATEWAY_MESSAGE_SCHEMAS,
     appToGateway: APP_COMMAND_SCHEMAS

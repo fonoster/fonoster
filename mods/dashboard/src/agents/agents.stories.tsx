@@ -55,7 +55,7 @@ const withAgents = (items: object[]) => (auth: AuthContextValue) => ({
 });
 
 const route = (url: string) => ({
-  path: "/w/:workspaceRef/agents/*",
+  path: "/w/:workspaceRef/autopilot/*",
   url
 });
 
@@ -63,13 +63,13 @@ const detail = (tab: string) => ({
   parameters: {
     screen: {
       auth: withAgents([...sampleAgents, voiceApp]),
-      route: route(`/w/ws-1/agents/${billingAgent.ref}/${tab}`)
+      route: route(`/w/ws-1/autopilot/${billingAgent.ref}/${tab}`)
     }
   }
 });
 
 const meta = {
-  title: "Workspace/Agents",
+  title: "Workspace/Autopilot",
   render: () => (
     <WorkspaceProvider value={testWorkspace}>
       <AgentsScreen />
@@ -78,7 +78,7 @@ const meta = {
   parameters: {
     screen: {
       auth: withAgents([...sampleAgents, voiceApp]),
-      route: route("/w/ws-1/agents")
+      route: route("/w/ws-1/autopilot")
     }
   }
 } satisfies Meta;
@@ -90,7 +90,7 @@ export const List: Story = {};
 export const ListLight: Story = { globals: { theme: "light" } };
 export const Empty: Story = {
   parameters: {
-    screen: { auth: withAgents([voiceApp]), route: route("/w/ws-1/agents") }
+    screen: { auth: withAgents([voiceApp]), route: route("/w/ws-1/autopilot") }
   }
 };
 

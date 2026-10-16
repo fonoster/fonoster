@@ -143,11 +143,11 @@ describe("Talk drawer: browser call", () => {
     );
 
     expect(createTestToken).toHaveBeenCalledOnce();
-    const sipUser = lastUser();
-    expect(sipUser.server).toBe("ws://localhost:8449/sip");
-    expect(sipUser.options.aor).toBe("sip:internal@internal");
-    expect(sipUser.connect).toHaveBeenCalled();
-    expect(sipUser.call).toHaveBeenCalledWith(
+    const sipAgent = lastUser();
+    expect(sipAgent.server).toBe("ws://localhost:8449/sip");
+    expect(sipAgent.options.aor).toBe("sip:internal@internal");
+    expect(sipAgent.connect).toHaveBeenCalled();
+    expect(sipAgent.call).toHaveBeenCalledWith(
       "sip:medianode@default",
       {
         extraHeaders: ["X-App-Ref: ap-7f3c91", "X-Connect-Token: jwt-1"]
@@ -156,25 +156,25 @@ describe("Talk drawer: browser call", () => {
     );
     expect(within(card()).getByText("Connecting…")).toBeInTheDocument();
 
-    const delegate = sipUser.call.mock.calls[0][2]
+    const delegate = sipAgent.call.mock.calls[0][2]
       .requestDelegate as RequestDelegate;
     act(() => delegate.onProgress?.({ message: { statusCode: 180 } }));
     expect(within(card()).getByText("Ringing…")).toBeInTheDocument();
 
-    act(() => sipUser.options.delegate.onCallAnswered?.());
+    act(() => sipAgent.options.delegate.onCallAnswered?.());
     expect(within(card()).getByText("Connected")).toBeInTheDocument();
     expect(within(card()).getByLabelText("Call time")).toHaveTextContent(
       "0:00"
     );
 
     await user.click(within(card()).getByRole("button", { name: "Mute" }));
-    expect(sipUser.mute).toHaveBeenCalled();
+    expect(sipAgent.mute).toHaveBeenCalled();
     await user.click(within(card()).getByRole("button", { name: "Unmute" }));
-    expect(sipUser.unmute).toHaveBeenCalled();
+    expect(sipAgent.unmute).toHaveBeenCalled();
 
     await user.click(within(card()).getByRole("button", { name: "Hang up" }));
-    expect(sipUser.hangup).toHaveBeenCalled();
-    expect(sipUser.disconnect).toHaveBeenCalled();
+    expect(sipAgent.hangup).toHaveBeenCalled();
+    expect(sipAgent.disconnect).toHaveBeenCalled();
     expect(within(card()).getByText("Call ended")).toBeInTheDocument();
     expect(
       within(card()).getByRole("button", { name: "Call again" })

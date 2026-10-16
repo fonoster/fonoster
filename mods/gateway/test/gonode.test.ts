@@ -68,7 +68,7 @@ function configFor(
     nats: { url: NATS_URL! },
     testMode: true,
     retry: { windowMs: 600, intervalMs: 100 },
-    apps: appsFor(scenario, harness, "native"),
+    apps: appsFor(scenario, harness, "fonoster"),
     providers: {
       fake: {
         adapter: "fake",

@@ -38,11 +38,11 @@ export type EnrollErrorCode =
 
 const HINTS: Record<EnrollErrorCode, string> = {
   token_invalid:
-    "the token is not valid (bad signature, wrong audience or cut when copied). Copy it again from the region's page in your account (operators: fonoster-regions token <id>).",
+    "the token is not valid (bad signature, wrong audience or cut when copied). Copy it again from the region's page in your account (operators: fonoster-region token <id>).",
   token_expired:
-    "the token expired (tokens last 24 hours). Re-issue a token from the region's page in your account (operators: fonoster-regions token <id>) and enroll again.",
+    "the token expired (tokens last 24 hours). Re-issue a token from the region's page in your account (operators: fonoster-region token <id>) and enroll again.",
   token_used:
-    "the token was already used. Each token enrolls one cell once; re-issue a token from the region's page in your account (operators: fonoster-regions token <id>) (this revokes the cell enrolled before).",
+    "the token was already used. Each token enrolls one region machine once; re-issue a token from the region's page in your account (operators: fonoster-region token <id>) (this revokes the machine enrolled before).",
   region_not_found:
     "the control plane does not know this region. It may have been deleted; create the region again.",
   region_deleted: "the region was deleted, so it cannot enroll.",

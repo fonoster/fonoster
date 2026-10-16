@@ -42,7 +42,7 @@ type CreateApplicationResponse = {
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 /**
- * Creates a session app. The response carries the signing secret, the only time it is shown.
+ * Creates an application (a stream or an Autopilot agent). The response carries the signing secret, the only time it is shown.
  * Autopilot apps share the configured Autopilot secret when one is set (CP-B3).
  */
 function createCreateApplication(prisma: AppsDb, config: SessionAppsConfig) {

@@ -18,7 +18,7 @@
  */
 import { SessionStart } from "@fonoster/common";
 import { convert, Format, INTERNAL } from "../audio/pcm";
-import { FlavorCodec, Incoming } from "./types";
+import { Incoming, ProtocolCodec } from "./types";
 
 const MULAW_8K: Format = { codec: "pcmu", rate: 8000 };
 
@@ -26,7 +26,7 @@ const MULAW_8K: Format = { codec: "pcmu", rate: 8000 };
  * twilio-media-streams-flavor: the Twilio Media Streams bidirectional protocol, μ-law 8 kHz in
  * base64. Audio, marks, clears and caller DTMF only; everything else is dropped both ways.
  */
-export class TwilioCodec implements FlavorCodec {
+export class TwilioCodec implements ProtocolCodec {
   readonly speechLayer = false;
   private streamSid = "";
   private callSid = "";
@@ -139,7 +139,7 @@ export class TwilioCodec implements FlavorCodec {
       case "clear":
         return { kind: "command", command: { type: "clear" } };
       default:
-        // Anything outside Media Streams (transfer, TwiML...) is ignored (Twilio flavor scope).
+        // Anything outside Media Streams (transfer, TwiML...) is ignored (Twilio protocol scope).
         return { kind: "ignore" };
     }
   }

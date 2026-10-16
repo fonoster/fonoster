@@ -61,9 +61,8 @@ describe("@applications/deleteApplication", function () {
       }
     } as unknown as Prisma;
 
-    const { createDeleteApplication } = await import(
-      "../../src/applications/createDeleteApplication"
-    );
+    const { createDeleteApplication } =
+      await import("../../src/applications/createDeleteApplication");
 
     // Act
     await createDeleteApplication(prisma)(call, (_, response) => {

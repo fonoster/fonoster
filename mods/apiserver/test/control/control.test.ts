@@ -105,9 +105,9 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         signingSecretHint: string;
       }>(createCreateApplication(db.prisma, CONFIG), {
         name: "Support bot",
-        type: "EXTERNAL",
+        type: "STREAM",
         url: "wss://bot.example.com/session",
-        flavor: "twilio",
+        protocol: "twilio",
         speech: { voice: "elevenlabs/rachel", language: "es-419" },
         listeners: [{ url: "wss://qa.example.com/listen", tracks: "inbound" }],
         recording: "consent",
@@ -124,14 +124,14 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       expect(row).to.include({
         accessKeyId: WS,
         url: "wss://bot.example.com/session",
-        flavor: "twilio",
+        protocol: "twilio",
         signingSecret: secret,
         speechVoice: "elevenlabs/rachel",
         speechLanguage: "es-419",
         recording: "consent",
         endpoint: "wss://bot.example.com/session"
       });
-      // Twilio flavor: the audio format is Twilio's, not stored.
+      // Twilio protocol: the audio format is Twilio's, not stored.
       expect(row.audio).to.equal(null);
     });
 
@@ -218,7 +218,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         include: { intelligence: true }
       });
       expect(row.url).to.equal(CONFIG.autopilotUrl);
-      expect(row.flavor).to.equal("native");
+      expect(row.protocol).to.equal("fonoster");
       expect(row.patience).to.equal("high");
       expect(row).to.include({ amd: true, amdWindowMs: 3000 });
       expect(row.intelligence.productRef).to.equal("llm.openai");
@@ -243,7 +243,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           })
         }
       }).catch((e) => e);
-      expect(bad.message).to.match(/invalid assistant/);
+      expect(bad.message).to.match(/invalid agent/);
     });
 
     it("Autopilot apps share the configured Autopilot secret", async function () {
@@ -282,7 +282,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       expect(row).to.include({
         name: "Support bot v2",
         url: "wss://bot.example.com/v2",
-        flavor: "native",
+        protocol: "fonoster",
         speechVoice: "deepgram/aura-2-thalia-en",
         speechLanguage: "en-US",
         silenceTimeoutMs: 1500,
@@ -376,7 +376,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         data: {
           accessKeyId: OTHER,
           name: "theirs",
-          type: "EXTERNAL",
+          type: "STREAM",
           endpoint: "wss://x.example.com",
           url: "wss://x.example.com",
           signingSecret: "theirs"

@@ -71,9 +71,9 @@ export const TABS = [
   { path: "advanced", label: "Advanced" }
 ] as const;
 
-/** /w/:ws/agents — built from the workspace, not relative to the splat route. */
+/** /w/:ws/autopilot — built from the workspace, not relative to the splat route. */
 function useAgentsBase() {
-  return `/w/${useWorkspace().ref}/agents`;
+  return `/w/${useWorkspace().ref}/autopilot`;
 }
 
 export function AgentDetail() {
@@ -101,7 +101,7 @@ export function AgentDetail() {
           to={base}
           className="flex items-center gap-1.5 font-display text-[13px] text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="size-3.5" aria-hidden /> Agents
+          <ArrowLeft className="size-3.5" aria-hidden /> Autopilot
         </Link>
         <Alert variant="error">
           {notFound
@@ -187,7 +187,7 @@ function AgentEditor({
           <ol className="flex items-center gap-2 text-muted-foreground">
             <li>
               <Link to={base} className="hover:text-foreground">
-                Agents
+                Autopilot
               </Link>
             </li>
             <li aria-hidden>/</li>
@@ -336,7 +336,7 @@ function AgentEditor({
   );
 }
 
-function TabLink({
+export function TabLink({
   to,
   label,
   count,
@@ -449,15 +449,21 @@ function AgentName({
   );
 }
 
-/** The agent's ref in a muted chip with a copy button. */
-function RefChip({ value }: { value: string }) {
+/** The agent's (or stream's) ref in a muted chip with a copy button. */
+export function RefChip({
+  value,
+  label = "Copy agent ref"
+}: {
+  value: string;
+  label?: string;
+}) {
   const [copied, setCopied] = useState(false);
   return (
     <span className="flex items-center gap-1.5 rounded-[6px] bg-muted px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
       {value}
       <button
         type="button"
-        aria-label="Copy agent ref"
+        aria-label={label}
         className="cursor-pointer outline-none hover:text-foreground focus-visible:text-foreground"
         onClick={() => {
           void navigator.clipboard?.writeText(value).then(() => {

@@ -2,9 +2,9 @@ format: fonoster.scenario.v1
 name: unknown-event-ignored
 contract: twilio-media-streams-flavor
 role: app
-spec: "Twilio flavor scope / Unknown event from a Twilio-flavor app"
+spec: "Twilio protocol scope / Unknown event from a Twilio-protocol stream"
 setup:
-  app: { flavor: twilio }
+  app: { protocol: twilio }
 ignore: [media]
 steps:
   - expect: { event: start }

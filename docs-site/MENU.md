@@ -11,7 +11,7 @@ Diátaxis type: T tutorial, H how-to, R reference, E explanation. ★ = next up.
 |             | Quickstart                      | T    | `quickstart`                  |
 |             | How Fonoster works              | E    | `concepts/how-fonoster-works` |
 | Build       | Autopilot agents                | H    | `build/autopilot`             |
-|             | Voice apps (SDK)                | H    | `build/voice-apps`            |
+|             | Streams (SDK)                   | H    | `build/streams`               |
 |             | Bring your Twilio/Pipecat app   | H    | `build/bring-your-app`        |
 |             | Webhooks                        | H    | `build/webhooks`              |
 |             | Call records and recordings     | H    | `build/call-records`          |
@@ -58,7 +58,7 @@ Diátaxis type: T tutorial, H how-to, R reference, E explanation. ★ = next up.
 |         | Troubleshooting              | H    | `private-regions/troubleshooting`     |
 | Control plane | Host private regions   | H    | `private-regions/host-private-regions` |
 | Tooling | `fonoster-region` CLI        | R    | `private-regions/tooling/cli`         |
-|         | Cell bundle (Compose)        | R    | `private-regions/tooling/cell-bundle` |
+|         | Region bundle (Compose)      | R    | `private-regions/tooling/region-bundle` |
 
 ## Changelog
 

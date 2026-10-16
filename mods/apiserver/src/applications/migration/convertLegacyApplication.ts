@@ -78,19 +78,19 @@ export function convertLegacyApplication(
     }
     note(
       "info",
-      "Autopilot app: served by the hosted Autopilot (native flavor); its assistant config stays on the app and is read by appRef"
+      "Autopilot agent: served by the hosted Autopilot (fonoster protocol); its agent config stays on the app and is read by appRef"
     );
   } else {
     url =
       options.urlOverrides?.[legacy.ref] ?? urlFromEndpoint(legacy.endpoint);
     if (!url) {
-      note("action", "EXTERNAL app skipped: no endpoint and no URL override");
+      note("action", "Stream skipped: no endpoint and no URL override");
       return { notices };
     }
     if (!options.urlOverrides?.[legacy.ref]) {
       note(
         "action",
-        `EXTERNAL app now dialed at ${url}: the app must serve the session protocol there (@fonoster/voice session SDK); a gRPC VoiceServer stops answering at the cutover`
+        `Stream now dialed at ${url}: the app must serve the session protocol there (@fonoster/voice session SDK); a gRPC VoiceServer stops answering at the cutover`
       );
     }
   }
@@ -134,7 +134,7 @@ export function convertLegacyApplication(
     name: legacy.name,
     workspaceRef: legacy.accessKeyId,
     url,
-    flavor: "native",
+    protocol: "fonoster",
     signingSecret:
       hostedSecret(legacy, options) ??
       existing?.signingSecret ??

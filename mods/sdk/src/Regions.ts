@@ -130,7 +130,7 @@ class Regions {
 
   /**
    * Creates a private region (PR-15, PR-16, PR-18). The token (`token`, also `enrollmentToken`)
-   * is returned once; run `fonoster-regions enroll <token>` on the region machine.
+   * is returned once; run `fonoster-region enroll <token>` on the region machine.
    */
   async createRegion(
     request: CreateRegionRequest

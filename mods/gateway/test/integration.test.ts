@@ -93,7 +93,7 @@ describe("@gateway integration", function () {
     return {
       ref,
       url,
-      flavor: "native",
+      protocol: "fonoster",
       signingSecret: "secret",
       speech: { voice: "fake/default", language: "en-US" },
       ...extra

@@ -77,7 +77,7 @@ describe("Credentials screen", () => {
 
     const maria = screen.getByText("maria-desk").closest("tr")!;
     expect(
-      within(maria).getByText("SIP user · María Rodríguez")
+      within(maria).getByText("SIP agent · María Rodríguez")
     ).toBeInTheDocument();
 
     const spare = screen
@@ -159,7 +159,7 @@ describe("Credentials screen", () => {
   it("warns before deleting credentials that are in use", async () => {
     const { user, sdk } = setup();
     await user.click(await screen.findByText("maria-desk"));
-    await screen.findByText("SIP user · María Rodríguez", { selector: "p" });
+    await screen.findByText("SIP agent · María Rodríguez", { selector: "p" });
     await user.click(
       screen.getByRole("button", { name: "Delete credentials" })
     );
@@ -167,7 +167,7 @@ describe("Credentials screen", () => {
       name: "Delete maria-desk?"
     });
     expect(
-      within(dialog).getByText(/used by SIP user · María Rodríguez/)
+      within(dialog).getByText(/used by SIP agent · María Rodríguez/)
     ).toBeInTheDocument();
     await user.click(within(dialog).getByRole("button", { name: "Delete" }));
     expect(sdk.credentials.deleteCredentials).toHaveBeenCalledWith("cr-2");

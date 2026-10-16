@@ -42,7 +42,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
   const baseConfig = {
     name: "My App",
     url: "wss://bot.example.com/session",
-    flavor: "native"
+    protocol: "fonoster"
   };
 
   const assistant = {
@@ -53,9 +53,9 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
   const currentApp = {
     ref: "positional-ref",
     name: "Current",
-    type: "EXTERNAL",
+    type: "STREAM",
     url: "wss://old.example.com/session",
-    flavor: "twilio",
+    protocol: "twilio",
     speech: {
       voice: "deepgram/aura-2-thalia-en",
       language: "en-US",
@@ -108,7 +108,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     expect(updateStub).to.not.have.been.called;
     expect(createStub.firstCall.args[0]).to.include({
       ...baseConfig,
-      type: "EXTERNAL"
+      type: "STREAM"
     });
   });
 
@@ -116,7 +116,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     await createOrUpdateApplication(client, undefined, undefined, false, {
       name: "Flags",
       url: "wss://bot.example.com/media",
-      flavor: "twilio",
+      protocol: "twilio",
       voice: "elevenlabs/rachel",
       "stt-model": "deepgram/nova-3",
       patience: "high",
@@ -127,9 +127,9 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     const request = createStub.firstCall.args[0];
     expect(request).to.include({
       name: "Flags",
-      type: "EXTERNAL",
+      type: "STREAM",
       url: "wss://bot.example.com/media",
-      flavor: "twilio",
+      protocol: "twilio",
       recording: "consent"
     });
     expect(request.speech).to.deep.equal({
@@ -142,12 +142,12 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     ]);
   });
 
-  it("makes an Autopilot app from an assistant file and drops any model key", async function () {
+  it("makes an Autopilot agent from an agent file and drops any model key", async function () {
     const assistantPath = writeConfig("json", assistant);
 
     await createOrUpdateApplication(client, undefined, undefined, false, {
       name: "Receptionist",
-      assistant: assistantPath
+      agent: assistantPath
     });
 
     const request = createStub.firstCall.args[0];
@@ -172,7 +172,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     expect(request.intelligence.productRef).to.equal("llm.groq");
   });
 
-  it("refuses an external app without a url", async function () {
+  it("refuses a stream without a url", async function () {
     await expect(
       createOrUpdateApplication(client, undefined, undefined, false, {
         name: "No url"
@@ -181,15 +181,15 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     expect(createStub).to.not.have.been.called;
   });
 
-  it("refuses an Autopilot app on the twilio flavor", async function () {
+  it("refuses an Autopilot agent on the twilio protocol", async function () {
     const assistantPath = writeConfig("json", assistant);
     await expect(
       createOrUpdateApplication(client, undefined, undefined, false, {
         name: "x",
-        assistant: assistantPath,
-        flavor: "twilio"
+        agent: assistantPath,
+        protocol: "twilio"
       })
-    ).to.be.rejectedWith(/native flavor/);
+    ).to.be.rejectedWith(/fonoster protocol/);
   });
 
   it("updates from the current app, changing only the flags given", async function () {
@@ -203,7 +203,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
       ref: "positional-ref",
       name: "Current",
       url: "wss://old.example.com/session",
-      flavor: "twilio",
+      protocol: "twilio",
       recording: "on"
     });
     expect(request.speech).to.deep.equal({
@@ -228,7 +228,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     getStub.resolves({
       ...currentApp,
       type: "AUTOPILOT",
-      flavor: "native",
+      protocol: "fonoster",
       url: "ws://autopilot:8080/session",
       intelligence: { productRef: "llm.openai", config: assistant }
     } as never);

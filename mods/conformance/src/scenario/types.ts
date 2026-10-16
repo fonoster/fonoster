@@ -66,7 +66,7 @@ export type Setup = {
     callRef?: string;
   };
   app?: {
-    flavor?: "native" | "twilio";
+    protocol?: "fonoster" | "twilio";
     signingSecret?: string;
     verifySignature?: boolean;
     reachable?: boolean;

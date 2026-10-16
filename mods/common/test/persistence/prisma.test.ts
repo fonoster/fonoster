@@ -168,10 +168,10 @@ describe("@common/persistence (Prisma stores)", function () {
             ref,
             accessKeyId: ws,
             name: ref,
-            type: "EXTERNAL",
+            type: "STREAM",
             endpoint: "",
             url: "wss://bot.example.com/agent",
-            flavor: "native",
+            protocol: "fonoster",
             speechVoice: voice,
             speechTtsModel: "elevenlabs/turbo-v2",
             speechLanguage: "en-US",
@@ -443,7 +443,7 @@ describe("@common/persistence (Prisma stores)", function () {
             ref: "stt-app",
             accessKeyId: "WO4",
             name: "stt app",
-            type: "EXTERNAL",
+            type: "STREAM",
             endpoint: "",
             speechSttModel: "deepgram/nova-2"
           }

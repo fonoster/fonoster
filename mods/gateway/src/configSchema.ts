@@ -45,7 +45,7 @@ const objectStore = z.union([
 const app = z.object({
   ref: z.string(),
   url: z.string(),
-  flavor: z.enum(["native", "twilio"]),
+  protocol: z.enum(["fonoster", "twilio"]),
   signingSecret: z.string(),
   speech: z.object({
     voice: z.string(),

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The cloud side of `fonoster-regions` (PR-19, PR-21): the operator's admin API for public regions
+// The cloud side of `fonoster-region` (PR-19, PR-21): the operator's admin API for public regions
 // (contract 0), authorized only by the operator key in `x-operator-key`. Never prints the key.
 
 export const DEFAULT_API_URL = "https://api.fonoster.com";
@@ -109,7 +109,7 @@ type AdminRegion = {
   sipDomain?: string | null;
 };
 
-/** `fonoster-regions list` as a table. */
+/** `fonoster-region list` as a table. */
 export function formatRegions(items: AdminRegion[]): string {
   const rows = items.map((r) => [
     r.id,

@@ -35,16 +35,16 @@ import {
   asPrivacy,
   DEFAULT_EXPIRES,
   sipUri,
-  useCreateSipUser,
+  useCreateSipAgent,
   useCredentialsLookup,
-  useUpdateSipUser,
-  type SipUserRow
-} from "./sip-users.service";
+  useUpdateSipAgent,
+  type SipAgentRow
+} from "./sip-agents.service";
 
 const NONE = "__none";
 
 // Same rules as the API (common/src/validators/sipnet/agents.ts).
-export const sipUserSchema = z.object({
+export const sipAgentSchema = z.object({
   name: z.string().trim().min(1, "Enter a name"),
   username: z
     .string()
@@ -67,33 +67,33 @@ export const sipUserSchema = z.object({
   enabled: z.boolean()
 });
 
-type Values = z.infer<typeof sipUserSchema>;
+type Values = z.infer<typeof sipAgentSchema>;
 
 const privacyOptions = [
   { value: "NONE", label: "None", description: "Show the caller ID" },
   { value: "PRIVATE", label: "Private", description: "Hide the caller ID" }
 ];
 
-/** Add a SIP user, or edit one (the username is fixed once created). */
-export function SipUserDrawer({
+/** Add a SIP agent, or edit one (the username is fixed once created). */
+export function SipAgentDrawer({
   open,
   onOpenChange,
-  sipUser,
+  sipAgent,
   onDelete
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** The SIP user to edit; adds a new one when absent. */
-  sipUser?: SipUserRow;
-  onDelete?: (sipUser: SipUserRow) => void;
+  /** The SIP agent to edit; adds a new one when absent. */
+  sipAgent?: SipAgentRow;
+  onDelete?: (sipAgent: SipAgentRow) => void;
 }) {
-  const create = useCreateSipUser();
-  const update = useUpdateSipUser();
-  const mutation = sipUser ? update : create;
+  const create = useCreateSipAgent();
+  const update = useUpdateSipAgent();
+  const mutation = sipAgent ? update : create;
   const domains = useDomains();
   const credentials = useCredentialsLookup();
   const form = useForm<Values>({
-    resolver: zodResolver(sipUserSchema),
+    resolver: zodResolver(sipAgentSchema),
     defaultValues: {
       name: "",
       username: "",
@@ -109,19 +109,19 @@ export function SipUserDrawer({
   useEffect(() => {
     if (!open) return;
     form.reset({
-      name: sipUser?.name ?? "",
-      username: sipUser?.username ?? "",
-      domainRef: sipUser?.domain?.ref ?? "",
-      credentialsRef: sipUser?.credentials?.ref ?? NONE,
-      privacy: sipUser?.privacy ?? "NONE",
-      maxContacts: String(sipUser?.maxContacts ?? 1),
-      enabled: sipUser?.enabled ?? true
+      name: sipAgent?.name ?? "",
+      username: sipAgent?.username ?? "",
+      domainRef: sipAgent?.domain?.ref ?? "",
+      credentialsRef: sipAgent?.credentials?.ref ?? NONE,
+      privacy: sipAgent?.privacy ?? "NONE",
+      maxContacts: String(sipAgent?.maxContacts ?? 1),
+      enabled: sipAgent?.enabled ?? true
     });
     create.reset();
     update.reset();
-    // Reset when the drawer opens for a (different) SIP user.
+    // Reset when the drawer opens for a (different) SIP agent.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, sipUser?.ref]);
+  }, [open, sipAgent?.ref]);
 
   const domainOptions = domains.rows.map((domain) => ({
     value: domain.ref,
@@ -147,9 +147,9 @@ export function SipUserDrawer({
     };
     const credentialsRef =
       values.credentialsRef === NONE ? undefined : values.credentialsRef;
-    if (sipUser) {
+    if (sipAgent) {
       await update.mutateAsync({
-        ref: sipUser.ref,
+        ref: sipAgent.ref,
         ...common,
         // An empty ref asks the API to drop the credentials.
         credentialsRef: credentialsRef ?? ""
@@ -168,21 +168,21 @@ export function SipUserDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        title={sipUser ? sipUser.name : "Add SIP user"}
+        title={sipAgent ? sipAgent.name : "Add SIP agent"}
         description={
-          sipUser
-            ? sipUri(sipUser)
+          sipAgent
+            ? sipUri(sipAgent)
             : "A phone, softphone or desk that registers to one of your domains."
         }
         footer={
           <>
-            {sipUser && onDelete ? (
+            {sipAgent && onDelete ? (
               <button
                 type="button"
                 className="cursor-pointer font-display text-[13px] text-destructive hover:underline"
-                onClick={() => onDelete(sipUser)}
+                onClick={() => onDelete(sipAgent)}
               >
-                Delete SIP user
+                Delete SIP agent
               </button>
             ) : (
               <span />
@@ -193,7 +193,7 @@ export function SipUserDrawer({
               </Button>
               <Button
                 type="submit"
-                form="sip-user-form"
+                form="sip-agent-form"
                 loading={mutation.isPending}
               >
                 Save
@@ -203,7 +203,7 @@ export function SipUserDrawer({
         }
       >
         <form
-          id="sip-user-form"
+          id="sip-agent-form"
           onSubmit={onSubmit}
           className="flex flex-col gap-[22px]"
           noValidate
@@ -225,7 +225,7 @@ export function SipUserDrawer({
             label="Username"
             error={errors.username?.message}
             hint={
-              sipUser
+              sipAgent
                 ? "The username can't be changed."
                 : "The user part of the SIP address, e.g. maria."
             }
@@ -237,7 +237,7 @@ export function SipUserDrawer({
                 placeholder="maria"
                 autoComplete="off"
                 spellCheck={false}
-                disabled={Boolean(sipUser)}
+                disabled={Boolean(sipAgent)}
                 className="font-mono"
               />
             )}
@@ -320,7 +320,7 @@ export function SipUserDrawer({
           </div>
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col gap-0.5">
-              <Label htmlFor="sip-user-enabled">Enabled</Label>
+              <Label htmlFor="sip-agent-enabled">Enabled</Label>
               <p className="font-display text-xs text-text-secondary">
                 Disabled users can't register or make calls.
               </p>
@@ -330,7 +330,7 @@ export function SipUserDrawer({
               name="enabled"
               render={({ field }) => (
                 <Switch
-                  id="sip-user-enabled"
+                  id="sip-agent-enabled"
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />

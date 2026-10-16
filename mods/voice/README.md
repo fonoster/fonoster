@@ -6,9 +6,9 @@ voice
 [![Downloads/week](https://img.shields.io/npm/dw/@fonoster/voice.svg)](https://npmjs.org/package/@fonoster/voice)
 [![License](https://img.shields.io/npm/l/@fonoster/voice.svg)](https://github.com/fonoster/fonoster/blob/main/package.json)
 
-The session SDK for Fonoster voice applications. For every call, Fonoster's VoiceSessionGateway
-opens one signed WebSocket **session** to your app; `VoiceServer` accepts it and runs your handler
-with the session. The protocol is in `docs/session-protocol.md`, the full SDK guide in
+The SDK for Fonoster **streams**: your own WebSocket server, speaking the `fonoster` protocol. For
+every call, Fonoster opens one signed WebSocket **session** to your stream; `VoiceServer` accepts it
+and runs your handler with the session. The protocol is in `docs/session-protocol.md`, the full SDK guide in
 `docs/voice-sdk.md`, and runnable examples in `examples/`.
 
 * [Installation](#installation)

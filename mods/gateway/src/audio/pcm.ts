@@ -31,7 +31,7 @@ export type Format = { codec: Codec; rate: number };
 export const INTERNAL: Format = { codec: "pcm16", rate: INTERNAL_RATE };
 
 /**
- * The native flavor's format menu (voice-session "Raw audio in both directions", design OQ8,
+ * The fonoster protocol's format menu (voice-session "Raw audio in both directions", design OQ8,
  * AO-B4): what an app may choose for caller and agent audio. The leg to the media node stays
  * L16/16000 whatever the caller's SIP codec (PCMU, PCMA, G.722 or Opus): the node transcodes.
  * Opus is not offered over WebSocket in v1.

@@ -28,7 +28,7 @@ function createApplicationsTestCases(expect) {
         method: "createApplication",
         request: {
           name: "My Application",
-          type: "EXTERNAL",
+          type: "STREAM",
           url: "ws://localhost:3000/session",
           speech: { voice: "deepgram/aura-2-thalia-en", language: "en-US" }
         },
@@ -41,7 +41,7 @@ function createApplicationsTestCases(expect) {
         name: "should failed to create an application (missing name)",
         method: "createApplication",
         request: {
-          type: "EXTERNAL",
+          type: "STREAM",
           endpoint: "localhost:3000"
         },
         grpcCode: 3
@@ -55,7 +55,7 @@ function createApplicationsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref").to.be.not.null;
           expect(response).has.property("name").to.be.not.null;
-          expect(response).has.property("type").to.be.equal("EXTERNAL");
+          expect(response).has.property("type").to.be.equal("STREAM");
           expect(response).has.property("endpoint").to.be.not.null;
           expect(response).has.property("speech").to.be.a("object");
           expect(response).does.not.have.property("intelligence");

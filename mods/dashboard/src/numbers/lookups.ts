@@ -61,8 +61,8 @@ export function useApplicationOptions() {
   );
 }
 
-/** SIP users (SDK Agents). */
-export function useSipUserOptions() {
+/** SIP agents (SDK Agents). */
+export function useSipAgentOptions() {
   const sdk = useSdk();
   return useAllOf<Agent>("agents", (request) => sdk.agents.listAgents(request));
 }

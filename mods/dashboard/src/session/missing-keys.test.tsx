@@ -36,7 +36,7 @@ const app = (over: Partial<SessionApp> = {}): SessionApp => ({
   name: "Bot",
   type: "AUTOPILOT",
   url: "",
-  flavor: "native",
+  protocol: "fonoster",
   signingSecretHint: "",
   speech: {
     voice: "elevenlabs/rachel",
@@ -79,7 +79,7 @@ function render(
 describe("missing provider keys", () => {
   it("names the providers an app's settings use", () => {
     expect(providersOf(app())).toEqual(["elevenlabs", "deepgram", "openai"]);
-    expect(providersOf(app({ type: "EXTERNAL" }))).toEqual([
+    expect(providersOf(app({ type: "STREAM" }))).toEqual([
       "elevenlabs",
       "deepgram"
     ]);
@@ -131,7 +131,7 @@ describe("missing provider keys", () => {
     const api = createMockSessionApi();
     const { ref } = await api.saveApp({
       ...app({
-        type: "EXTERNAL",
+        type: "STREAM",
         url: "wss://bot.example.com",
         speech: { voice: "", language: "en-US", sttModel: "openai/whisper" }
       }),

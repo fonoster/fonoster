@@ -90,7 +90,7 @@ describe("@gateway AMD listener", function () {
           {
             ref: "a",
             url: harness.app.url,
-            flavor: "native",
+            protocol: "fonoster",
             signingSecret: "s",
             workspaceRef: "ws-1",
             speech: { voice: "fake/default", language: "en-US" },

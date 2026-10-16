@@ -1,6 +1,6 @@
 # Autopilot
 
-Autopilot is the AI that answers the phone. It is an ordinary session app: the gateway dials it
+Autopilot is the AI that answers the phone. It is an ordinary application: the gateway dials it
 like any app, and it uses only the public [session protocol](./session-protocol.md). Anything
 Autopilot does, your own app can do too.
 

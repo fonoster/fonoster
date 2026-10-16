@@ -34,7 +34,7 @@ import {
 import { KubeSecrets } from "../src/kube";
 import { FakeControlPlane } from "./fakeControlPlane";
 
-// add-private-regions task 3.1: `fonoster-regions enroll <token>` (contract 1 and 2).
+// add-private-regions task 3.1: `fonoster-region enroll <token>` (contract 1 and 2).
 
 async function rejects(p: Promise<unknown>, code: string) {
   try {

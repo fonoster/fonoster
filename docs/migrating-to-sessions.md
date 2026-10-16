@@ -1,6 +1,6 @@
 # What changed: voice sessions
 
-Fonoster used to run your voice app as a gRPC server (`voice.proto`) that the apiserver talked to,
+Fonoster used to run your app as a gRPC server (`voice.proto`) that the apiserver talked to,
 with Asterisk in front. Every call now reaches your app as one WebSocket **session** that the
 VoiceSessionGateway opens to your app's URL ([session protocol](./session-protocol.md)), and the Go
 media nodes carry the audio. This is a new, incompatible release: nothing from the gRPC stack keeps
@@ -22,7 +22,7 @@ What is gone:
 | You had | Do this |
 | --- | --- |
 | `@fonoster/voice` with `new VoiceServer().listen(async (req, res) => ...)` | [Rewrite the handler](#1-sdk-users-rewrite-the-handler) to take the session, set the signing secret |
-| A Twilio Media Streams bot (Pipecat, for example) | [Use the Twilio flavor](#4-twilio-flavor-with-pipecat), no code change |
+| A Twilio Media Streams bot (Pipecat, for example) | [Use the Twilio protocol](#4-twilio-protocol-with-pipecat), no code change |
 | Your own gRPC server speaking `voice.proto` | Use an SDK, or implement [the protocol](./session-protocol.md) |
 | An Autopilot assistant | Nothing. Autopilot is an ordinary app of the platform |
 | Numbers created before this release | Run `repointNumbersCli` (sipnet) to move them from `sip:voice@default` to the media-node peer |
@@ -85,15 +85,15 @@ connection that is not signed by the gateway. See [the voice SDK](./voice-sdk.md
 
 ## 2. App model changes
 
-An app is now a record with these fields (Dashboard: Apps, preview at `/w/<workspace>/preview`):
+An app is now a record with these fields (Dashboard: Streams):
 
 | Field | Meaning |
 | --- | --- |
 | `url` | `ws://` or `wss://` address the gateway dials. Replaces the gRPC endpoint. Apps that only have a gRPC endpoint are **not** dialed; their calls follow the fallback |
-| `flavor` | `native` (session protocol) or `twilio` (Twilio Media Streams) |
+| `protocol` | `fonoster` (session protocol) or `twilio` (Twilio Media Streams) |
 | `signingSecret` | Signs every connection request. Shown once when created or rotated |
 | `speech` | Default `voice` and `language` as **catalog ids** (`elevenlabs/rachel`, `en-US`) rather than vendor settings |
-| `audio` | Native flavor format: `pcm16` at 8, 16 or 24 kHz, or `pcmu` at 8 kHz (default `pcm16` 16 kHz) |
+| `audio` | Format with the `fonoster` protocol: `pcm16` at 8, 16 or 24 kHz, or `pcmu` at 8 kHz (default `pcm16` 16 kHz) |
 | `fallback` | Another app, or a message spoken before hanging up, used when your URL cannot be reached (after about 2.5 s of ringing) |
 | `listeners` | Up to 4 listen-only sockets (`url`, `tracks`: `inbound`, `outbound`, `both`) for monitoring and analytics |
 | recording policy | `off`, `on`, `on after consent prompt`. Apps cannot override it |
@@ -155,14 +155,14 @@ def verify(configured_url: str, headers: dict[str, str], secret: str) -> bool:
 Behind a proxy, the URL the gateway signs is the one configured on the app, not the one your server
 sees. Pass the configured value, not `request.url`.
 
-## 4. Twilio flavor with Pipecat
+## 4. Twilio protocol with Pipecat
 
-An app built for Twilio Media Streams needs no code change: set `flavor` to `twilio` and `url` to
+An app built for Twilio Media Streams needs no code change: set `protocol` to `twilio` and `url` to
 its WebSocket address. The gateway sends `connected`, `start` (`streamSid` is the `sessionRef`,
 `callSid` is the `callRef`, μ-law 8 kHz), `media`, `dtmf`, `mark` and `stop`, and accepts `media`,
 `mark` and `clear`. Barge-in works the way Pipecat expects: its `clear` empties the output queue.
 
-There is no Speech layer, transfer or TwiML in this flavor. To hang up, close the socket, or let
+There is no Speech layer, transfer or TwiML with this protocol. To hang up, close the socket, or let
 the serializer call the compatible endpoint
 `POST {base}/2010-04-01/Accounts/{accountSid}/Calls/{callSid}.json` with `Status=completed`:
 
@@ -183,7 +183,7 @@ against the gateway.
 ## 5. Checklist
 
 - [ ] Bump `@fonoster/voice` (or install `fonoster-voice`) and rewrite handlers to `(session)`
-- [ ] Create the app with its `url`, flavor, speech defaults and fallback; copy the signing secret
+- [ ] Create the app with its `url`, protocol, speech defaults and fallback; copy the signing secret
 - [ ] Set `APP_SIGNING_SECRET` in the app's environment
 - [ ] Replace `dial`, `stream`, `sgather`, `record`, `setAudioFilters`, `mute` and `unmute`
 - [ ] Decide recording as app policy

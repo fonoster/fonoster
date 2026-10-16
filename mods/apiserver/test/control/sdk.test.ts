@@ -103,9 +103,9 @@ describe("@control: SDK end to end (gRPC + database)", function () {
     const apps = new SDK.Applications(client);
     const created = await apps.createApplication({
       name: "Bot",
-      type: "EXTERNAL" as never,
+      type: "STREAM" as never,
       url: "wss://bot.example.com",
-      flavor: "native",
+      protocol: "fonoster",
       speech: {
         voice: "elevenlabs/rachel",
         language: "en-US",
@@ -122,9 +122,9 @@ describe("@control: SDK end to end (gRPC + database)", function () {
     expect(app).to.deep.include({
       ref: created.ref,
       name: "Bot",
-      type: "EXTERNAL",
+      type: "STREAM",
       url: "wss://bot.example.com",
-      flavor: "native",
+      protocol: "fonoster",
       recording: "on",
       amd: { enabled: true, windowMs: 2000 },
       signingSecretHint: created.signingSecretHint,
@@ -142,13 +142,13 @@ describe("@control: SDK end to end (gRPC + database)", function () {
       ref: created.ref,
       name: "Bot 2",
       url: "wss://bot.example.com/2",
-      flavor: "twilio"
+      protocol: "twilio"
     });
     const listed = await apps.listApplications({ pageSize: 10 });
     expect(listed.items).to.have.length(1);
     expect(listed.items[0]).to.deep.include({
       name: "Bot 2",
-      flavor: "twilio",
+      protocol: "twilio",
       listeners: []
     });
 

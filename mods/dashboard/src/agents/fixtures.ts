@@ -27,7 +27,7 @@ export const billingAgent = {
   type: "AUTOPILOT",
   endpoint: "",
   url: "wss://autopilot.fonoster.local/session",
-  flavor: "native",
+  protocol: "fonoster",
   speech: {
     voice: "deepgram/aura-2-celeste-es",
     language: "es-419",
@@ -180,7 +180,7 @@ export const sampleAgents: Application[] = [
 export const voiceApp = {
   ref: "ap-ext001",
   name: "IVR (external)",
-  type: "EXTERNAL",
+  type: "STREAM",
   endpoint: "ivr.acme.com:50061",
   createdAt: at("2026-09-01"),
   updatedAt: at("2026-09-01")

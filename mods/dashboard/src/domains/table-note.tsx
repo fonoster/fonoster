@@ -19,7 +19,7 @@
 import { Info } from "lucide-react";
 import type { ReactNode } from "react";
 
-/** A one-line muted note under a table (design: Domains, SIP users). */
+/** A one-line muted note under a table (design: Domains, SIP agents). */
 export function TableNote({ children }: { children: ReactNode }) {
   return (
     <p className="mt-3 flex items-start gap-2 font-display text-xs text-muted-foreground">

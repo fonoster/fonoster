@@ -21,11 +21,11 @@ export const apps = [
   { ref: "ap-7f3c91", name: "Billing reminders", type: "AUTOPILOT" },
   { ref: "ap-2b8e04", name: "Front desk (ES)", type: "AUTOPILOT" },
   { ref: "ap-c4410e", name: "Appointment booking", type: "AUTOPILOT" },
-  { ref: "ap-91d0aa", name: "Order status", type: "EXTERNAL" },
-  { ref: "ap-55e2f0", name: "Main menu IVR", type: "EXTERNAL" }
+  { ref: "ap-91d0aa", name: "Order status", type: "STREAM" },
+  { ref: "ap-55e2f0", name: "Main menu IVR", type: "STREAM" }
 ];
 
-export const sipUsers = [
+export const sipAgents = [
   {
     ref: "ag1",
     name: "Maria Lopez",
@@ -213,7 +213,7 @@ export function fakeSdk(
       deleteTrunk: ok({ ref: "tk-31a0c2" })
     },
     applications: { listApplications: page(apps) },
-    agents: { listAgents: page(sipUsers) },
+    agents: { listAgents: page(sipAgents) },
     acls: { listAcls: page(acls) },
     credentials: { listCredentials: page(credentials) },
     regions: { getRegion: ok(publicRegionWithEndpoints) }

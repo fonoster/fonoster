@@ -19,7 +19,7 @@ model Application {
   // rebuild: persistence. The session app model (voice-session G2); legacy columns above stay.
   // The workspace is accessKeyId (the AppConfig's workspaceRef).
   url              String? @db.VarChar(1024)
-  flavor           String? @db.VarChar(16)
+  protocol         String? @db.VarChar(16)
   signingSecret    String? @map("signing_secret_hash") /// @encrypted
   speechVoice      String? @map("speech_voice") @db.VarChar(255)
   speechLanguage   String? @map("speech_language") @db.VarChar(64)
@@ -138,7 +138,7 @@ model Secret {
 }
 
 enum ApplicationType {
-  EXTERNAL
+  STREAM
   AUTOPILOT
 
   // Maps

@@ -102,7 +102,7 @@ describe("@gateway call record after a crash", function () {
         {
           ref: "a",
           url: harness.app.url,
-          flavor: "native",
+          protocol: "fonoster",
           signingSecret: "s",
           speech: { voice: "fake/default", language: "en-US" }
         }

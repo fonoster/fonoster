@@ -85,9 +85,27 @@ const audioSchema = z
 /** What create and update accept for the session app model (update replaces all of it). */
 export const sessionAppInputSchema = z.object({
   name: z.string().min(1, "name is required").max(255),
-  type: z.enum(["EXTERNAL", "AUTOPILOT"]).default("EXTERNAL"),
+  type: z
+    .enum(["STREAM", "AUTOPILOT"], {
+      errorMap: (_issue, ctx) => ({
+        message:
+          ctx.data === "EXTERNAL"
+            ? "type EXTERNAL was renamed to STREAM"
+            : "type must be STREAM or AUTOPILOT"
+      })
+    })
+    .default("STREAM"),
   url: optional(wsUrl("url")),
-  flavor: optional(z.enum(["native", "twilio"])),
+  protocol: optional(
+    z.enum(["fonoster", "twilio"], {
+      errorMap: (_issue, ctx) => ({
+        message:
+          ctx.data === "native"
+            ? "protocol native was renamed to fonoster"
+            : "protocol must be fonoster or twilio"
+      })
+    })
+  ),
   speech: z.preprocess((v) => v ?? undefined, speechSchema),
   audio: z.preprocess(
     (v) =>
@@ -144,7 +162,7 @@ export const invalid = (message: string): BadRequest => ({
 
 /**
  * Validates the request and returns the columns to write (without the secret). Autopilot apps get
- * the hosted Autopilot URL and the native flavor; the assistant is checked with
+ * the hosted Autopilot URL and the fonoster protocol; the agent is checked with
  * sessionAssistantSchema and kept on the Intelligence row as before.
  */
 export async function toAppColumns(
@@ -156,9 +174,11 @@ export async function toAppColumns(
   const autopilot = input.type === "AUTOPILOT";
   const url = input.url ?? (autopilot ? ctx.config.autopilotUrl : undefined);
   if (!url) throw invalid("url is required (ws:// or wss://)");
-  const flavor = input.flavor ?? "native";
-  if (autopilot && flavor !== "native")
-    throw invalid("Autopilot apps use the native flavor");
+  if ((request as { flavor?: unknown }).flavor !== undefined)
+    throw invalid("flavor was renamed to protocol (fonoster or twilio)");
+  const protocol = input.protocol ?? "fonoster";
+  if (autopilot && protocol !== "fonoster")
+    throw invalid("Autopilot agents use the fonoster protocol");
 
   let assistant: Record<string, unknown> | undefined;
   if (autopilot) {
@@ -166,7 +186,7 @@ export async function toAppColumns(
       | { config?: unknown }
       | undefined;
     const raw = intelligence?.config;
-    if (!raw) throw invalid("intelligence.config (the assistant) is required");
+    if (!raw) throw invalid("intelligence.config (the agent) is required");
     const decoded =
       (raw as { fields?: unknown }).fields !== undefined
         ? struct.decode(raw as Parameters<typeof struct.decode>[0])
@@ -174,7 +194,7 @@ export async function toAppColumns(
     const parsed = sessionAssistantSchema.safeParse(decoded);
     if (!parsed.success)
       throw invalid(
-        `invalid assistant: ${parsed.error.issues
+        `invalid agent: ${parsed.error.issues
           .map((i) => `${i.path.join(".")}: ${i.message}`)
           .join("; ")}`
       );
@@ -201,14 +221,14 @@ export async function toAppColumns(
     // The legacy column is required; it mirrors the session URL.
     endpoint: url.slice(0, 255),
     url,
-    flavor,
+    protocol,
     speechVoice: speech.voice ?? DEFAULT_VOICE,
     speechLanguage: speech.language ?? DEFAULT_LANGUAGE,
     speechSttModel: speech.sttModel ?? null,
     speechTtsModel: speech.ttsModel ?? null,
     silenceTimeoutMs: speech.silenceTimeoutMs ?? null,
     patience: speech.patience ?? null,
-    audio: flavor === "native" && input.audio ? input.audio : null,
+    audio: protocol === "fonoster" && input.audio ? input.audio : null,
     listeners: input.listeners.length ? input.listeners : null,
     fallbackAppRef: input.fallbackAppRef ?? null,
     fallbackMessage: input.fallbackMessage ?? null,
@@ -271,7 +291,7 @@ export function rowToApplication(row: Row) {
     name: row.name,
     type: row.type,
     url: row.url ?? "",
-    flavor: row.flavor ?? "",
+    protocol: row.protocol ?? "",
     signingSecretHint: secretHint(row.signingSecret as string | null),
     speech: {
       voice: row.speechVoice ?? "",

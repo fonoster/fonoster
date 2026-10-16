@@ -90,6 +90,14 @@ export function usePrivateRegions(): boolean {
   return useContext(CapabilitiesContext)?.regions?.private ?? false;
 }
 
+/**
+ * Where carriers and softphones reach this deployment (its default public
+ * region), from GetCapabilities: always served, private regions or not.
+ */
+export function useConnection(): Capabilities["connection"] | undefined {
+  return useContext(CapabilitiesContext)?.connection;
+}
+
 export function useAuthMethods() {
   const { auth } = useCapabilities();
   const has = (method: AuthMethod) => auth.methods.includes(method);

@@ -18,7 +18,8 @@
  * limitations under the License.
  */
 import { AmdStatus, CallType, CallStatus } from "@fonoster/types";
-import * as chai from "chai"; import { expect } from "chai";
+import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
@@ -35,9 +36,8 @@ describe("@calls/fetchCalls", function () {
 
   it("should fetch calls from influxdb with no filters", async function () {
     // Arrange
-    const { createFetchCalls } = await import(
-      "../../src/calls/createFetchCalls"
-    );
+    const { createFetchCalls } =
+      await import("../../src/calls/createFetchCalls");
     const accessKeyId = "accessKeyId";
     const items = [
       {
@@ -76,9 +76,8 @@ describe("@calls/fetchCalls", function () {
 
   it("should fetch calls from influxdb with filters", async function () {
     // Arrange
-    const { createFetchCalls } = await import(
-      "../../src/calls/createFetchCalls"
-    );
+    const { createFetchCalls } =
+      await import("../../src/calls/createFetchCalls");
     const accessKeyId = "accessKeyId";
     const type = CallType.API_ORIGINATED;
     const from = "+1234567890";
@@ -94,7 +93,7 @@ describe("@calls/fetchCalls", function () {
         to,
         status,
         accessKeyId,
-        type,
+        type
       }
     ];
 
@@ -118,13 +117,19 @@ describe("@calls/fetchCalls", function () {
 
     // Assert
     const queryStr = collectRows.getCall(0).args[0].toString();
-    expect(queryStr).to.include("from(bucket: \"calls\")");
+    expect(queryStr).to.include('from(bucket: "calls")');
     // expect(queryStr).to.include("range(start: 2024-01-01T00:00:00.000Z, stop: 2024-01-02T23:00:00.000Z)");
-    expect(queryStr).to.include("pivot(rowKey: [\"callId\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
-    expect(queryStr).to.include("duration: int(v: r.endedAt) - int(v: r.startedAt),");
-    expect(queryStr).to.include("r._measurement == \"cdr\"");
+    expect(queryStr).to.include(
+      'pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")'
+    );
+    expect(queryStr).to.include(
+      "duration: int(v: r.endedAt) - int(v: r.startedAt),"
+    );
+    expect(queryStr).to.include('r._measurement == "cdr"');
     expect(queryStr).to.include("group()");
-    expect(queryStr).to.include("sort(columns: [\"startedAtParsed\"], desc: true)");
+    expect(queryStr).to.include(
+      'sort(columns: ["startedAtParsed"], desc: true)'
+    );
     expect(queryStr).to.include("limit(n: 50)");
     expect(queryStr).to.include(`and r.accessKeyId == "${accessKeyId}"`);
     expect(queryStr).to.include(`and r.type == "${type}"`);

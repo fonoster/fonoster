@@ -20,10 +20,13 @@ import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { renderScreen } from "~/test/render";
 import { NAVIGATION } from "./shell/nav";
-import { AppsRedirect } from "./routes";
+import { RenamedRedirect } from "./routes";
 
-const at = (route: string) =>
-  renderScreen(<AppsRedirect />, { path: "/w/:workspaceRef/apps/*", route });
+const at = (route: string, from = "apps", to = "streams") =>
+  renderScreen(<RenamedRedirect to={to} />, {
+    path: `/w/:workspaceRef/${from}/*`,
+    route
+  });
 
 describe("Apps is now Streams", () => {
   it("the sidebar says Streams and links to /streams", () => {
@@ -45,6 +48,35 @@ describe("Apps is now Streams", () => {
     at("/w/ws-1/apps/pipecat-bot");
     expect(await screen.findByTestId("location")).toHaveTextContent(
       /^\/w\/ws-1\/streams\/pipecat-bot$/
+    );
+  });
+});
+
+describe("renamed sections", () => {
+  it("the sidebar says Autopilot and SIP agents", () => {
+    const items = NAVIGATION.flatMap((section) => section.items);
+    expect(items).toContainEqual(
+      expect.objectContaining({ label: "Autopilot", path: "autopilot" })
+    );
+    expect(items).toContainEqual(
+      expect.objectContaining({ label: "SIP agents", path: "sip-agents" })
+    );
+    expect(
+      items.some((item) => ["Agents", "SIP users"].includes(item.label))
+    ).toBe(false);
+  });
+
+  it("redirects /agents/:ref/<tab> to /autopilot/:ref/<tab>", async () => {
+    at("/w/ws-1/agents/ap-1/tools", "agents", "autopilot");
+    expect(await screen.findByTestId("location")).toHaveTextContent(
+      /^\/w\/ws-1\/autopilot\/ap-1\/tools$/
+    );
+  });
+
+  it("redirects /sip-users to /sip-agents", async () => {
+    at("/w/ws-1/sip-users", "sip-users", "sip-agents");
+    expect(await screen.findByTestId("location")).toHaveTextContent(
+      /^\/w\/ws-1\/sip-agents$/
     );
   });
 });

@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: session-start-content
 contract: voice-session
 role: app
-spec: "session.start opens every native session / Start message content"
+spec: "session.start opens every fonoster-protocol session / Start message content"
 setup:
   call: { direction: inbound, from: "+15550001111", to: "+15550002222" }
 steps:

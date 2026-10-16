@@ -60,7 +60,8 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
 
 /**
  * @classdesc Fonoster Applications, part of the Fonoster Voice Subsystem,
- * allow you to create, update, retrieve, and delete Voice Applications.
+ * allow you to create, update, retrieve, and delete Applications: streams (your own WebSocket
+ * server) and Autopilot agents.
  * Note that an active Fonoster deployment is required.
  *
  * @example
@@ -87,14 +88,15 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  *
  * const request = {
  *   name: "My application",
- *   type: "EXTERNAL",
+ *   type: "STREAM",
  *   url: "wss://bot.example.com/session", // Serves the session protocol (@fonoster/voice)
+ *   protocol: "fonoster", // or "twilio" for a Twilio Media Streams server
  *   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
  * };
  *
  * main(request);
  */
-/** Nested messages of create and update requests (the session app model). */
+/** Nested messages of create and update requests (the application model). */
 const REQUEST_OBJECTS: [string, unknown][] = [
   ["intelligence", ProductContainerPB],
   ["speech", SpeechDefaultsPB],
@@ -130,17 +132,17 @@ class Applications {
    *
    * @param {CreateApplicationRequest} request - The request object that contains the necessary information to create a new application
    * @param {string} request.name - The name of the application
-   * @param {ApplicationType} request.type - The type of application (e.g., EXTERNAL)
+   * @param {ApplicationType} request.type - The type of application: STREAM or AUTOPILOT
    * @param {string} request.endpoint - The endpoint where the application is hosted
    * @param {Intelligence} request.intelligence - The intelligence configuration
-   * @param {object} request.intelligence.config - Autopilot apps: the assistant (a session assistant; its model is a catalog id such as openai/gpt-4o-mini)
+   * @param {object} request.intelligence.config - Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini)
    * @return {Promise<CreateAppResponse>} - The response object that contains the reference to the newly created application
    * @example
    * const apps = new SDK.Applications(client); // Existing client object
    *
    * const request = {
    *   name: "My application",
-   *   type: "EXTERNAL",
+   *   type: "STREAM",
    *   url: "wss://bot.example.com/session",
    *   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
    * };
@@ -214,7 +216,7 @@ class Applications {
    * @param {string} request.name - The name of the application
    * @param {string} request.endpoint - The endpoint where the application is hosted
    * @param {Intelligence} request.intelligence - The intelligence configuration
-   * @param {object} request.intelligence.config - Autopilot apps: the assistant (a session assistant; its model is a catalog id such as openai/gpt-4o-mini)
+   * @param {object} request.intelligence.config - Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini)
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated application
    * @example
    * const apps = new SDK.Applications(client); // Existing client object
@@ -357,7 +359,7 @@ class Applications {
    * Evaluates the intelligence of an application.
    *
    * @param {EvaluateIntelligenceRequest} request - The request object that contains the necessary information to evaluate the intelligence of an application
-   * @param {object} request.intelligence.config - Autopilot apps: the assistant (a session assistant; its model is a catalog id such as openai/gpt-4o-mini)
+   * @param {object} request.intelligence.config - Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini)
    * @return {AsyncGenerator<EvaluateIntelligenceEvent>} - Stream of evaluation events (step results, scenario summaries, or errors)
    * @example
    * const apps = new SDK.Applications(client);

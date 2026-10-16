@@ -148,7 +148,7 @@ class Run {
   ) {
     this.twilio =
       scenario.contract === "twilio-media-streams-flavor" ||
-      scenario.setup?.app?.flavor === "twilio";
+      scenario.setup?.app?.protocol === "twilio";
     this.ignore = new Set(scenario.ignore ?? []);
     this.timeout = options.defaultTimeoutMs ?? 5000;
     this.vars = {

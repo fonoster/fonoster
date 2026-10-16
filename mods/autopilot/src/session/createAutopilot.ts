@@ -68,7 +68,7 @@ export type AutopilotOptions = {
 };
 
 /**
- * Autopilot as an ordinary session app (rework-autopilot A2): returns a VoiceServer handler that
+ * Autopilot as an ordinary application (rework-autopilot A2): returns a VoiceServer handler that
  * runs the state machine on the session's public messages only.
  */
 export function createAutopilotHandler(options: AutopilotOptions) {

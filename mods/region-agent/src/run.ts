@@ -57,7 +57,7 @@ export function tcpProbe(
     });
 }
 
-/** Starts the agent service from its config (`fonoster-regions run`). */
+/** Starts the agent service from its config (`fonoster-region run`). */
 export async function runAgent(
   config: AgentConfig,
   env: Record<string, string | undefined> = process.env

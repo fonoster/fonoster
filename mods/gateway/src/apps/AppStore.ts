@@ -20,7 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import { isAppAudioFormat } from "../audio/pcm";
 import {
   AppConfig,
-  Flavor,
+  Protocol,
   RECORDING_POLICIES,
   RecordingPolicy
 } from "../config";
@@ -69,15 +69,15 @@ export function appFromRow(row: Row): AppConfig | undefined {
   const url = row.url as string | null;
   const secret = row.signingSecret as string | null;
   if (!url || !secret) return undefined;
-  const flavor = ((row.flavor as string | null) ?? "native") as Flavor;
-  if (!/^wss?:\/\//.test(url) || !["native", "twilio"].includes(flavor)) {
-    logger.warn(`app ${row.ref}: invalid url or flavor, ignored`);
+  const protocol = ((row.protocol as string | null) ?? "fonoster") as Protocol;
+  if (!/^wss?:\/\//.test(url) || !["fonoster", "twilio"].includes(protocol)) {
+    logger.warn(`app ${row.ref}: invalid url or protocol, ignored`);
     return undefined;
   }
   const app: AppConfig = {
     ref: row.ref as string,
     url,
-    flavor,
+    protocol,
     signingSecret: secret,
     speech: {
       voice: (row.speechVoice as string | null) ?? "",

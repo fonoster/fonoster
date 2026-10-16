@@ -219,8 +219,8 @@ export class Application extends jspb.Message {
   getUrl(): string;
   setUrl(value: string): Application;
 
-  getFlavor(): string;
-  setFlavor(value: string): Application;
+  getProtocol(): string;
+  setProtocol(value: string): Application;
 
   getSigningSecretHint(): string;
   setSigningSecretHint(value: string): Application;
@@ -274,7 +274,7 @@ export namespace Application {
     createdAt: number,
     updatedAt: number,
     url: string,
-    flavor: string,
+    protocol: string,
     signingSecretHint: string,
     speech?: SpeechDefaults.AsObject,
     audio?: AudioFormat.AsObject,
@@ -314,8 +314,8 @@ export class CreateApplicationRequest extends jspb.Message {
   getUrl(): string;
   setUrl(value: string): CreateApplicationRequest;
 
-  getFlavor(): string;
-  setFlavor(value: string): CreateApplicationRequest;
+  getProtocol(): string;
+  setProtocol(value: string): CreateApplicationRequest;
 
   getSpeech(): SpeechDefaults | undefined;
   setSpeech(value?: SpeechDefaults): CreateApplicationRequest;
@@ -363,7 +363,7 @@ export namespace CreateApplicationRequest {
     speechToText?: ProductContainer.AsObject,
     intelligence?: ProductContainer.AsObject,
     url: string,
-    flavor: string,
+    protocol: string,
     speech?: SpeechDefaults.AsObject,
     audio?: AudioFormat.AsObject,
     fallbackAppRef: string,
@@ -495,8 +495,8 @@ export class UpdateApplicationRequest extends jspb.Message {
   getUrl(): string;
   setUrl(value: string): UpdateApplicationRequest;
 
-  getFlavor(): string;
-  setFlavor(value: string): UpdateApplicationRequest;
+  getProtocol(): string;
+  setProtocol(value: string): UpdateApplicationRequest;
 
   getSpeech(): SpeechDefaults | undefined;
   setSpeech(value?: SpeechDefaults): UpdateApplicationRequest;
@@ -545,7 +545,7 @@ export namespace UpdateApplicationRequest {
     speechToText?: ProductContainer.AsObject,
     intelligence?: ProductContainer.AsObject,
     url: string,
-    flavor: string,
+    protocol: string,
     speech?: SpeechDefaults.AsObject,
     audio?: AudioFormat.AsObject,
     fallbackAppRef: string,
@@ -896,7 +896,7 @@ export namespace TestTokenResponse {
 }
 
 export enum ApplicationType { 
-  EXTERNAL = 0,
+  STREAM = 0,
   AUTOPILOT = 1,
 }
 export enum ExpectedTextType { 

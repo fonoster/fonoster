@@ -20,7 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ComponentProps } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "~/components/ui/button";
-import { StreamDrawer } from "~/session/streams";
+import { CallHandlingDrawer } from "~/session/streams";
 import { type AgentValues } from "../agent-form";
 import { useFieldError, type AgentPath } from "../fields";
 import { Panel, PanelAction, SettingRow, ValueBox, ValueInput } from "../parts";
@@ -92,11 +92,10 @@ export function AdvancedTab({
             </PanelAction>
           }
         >
-          <StreamDrawer
-            mode="agent"
+          <CallHandlingDrawer
             open={callHandling}
             onOpenChange={setCallHandling}
-            streamRef={appRef}
+            appRef={appRef}
             onSaved={() => {
               setCallHandling(false);
               void queryClient.invalidateQueries({

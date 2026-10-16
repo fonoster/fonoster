@@ -1961,7 +1961,7 @@ intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2
 createdAt: jspb.Message.getFieldWithDefault(msg, 8, 0),
 updatedAt: jspb.Message.getFieldWithDefault(msg, 9, 0),
 url: jspb.Message.getFieldWithDefault(msg, 10, ""),
-flavor: jspb.Message.getFieldWithDefault(msg, 11, ""),
+protocol: jspb.Message.getFieldWithDefault(msg, 11, ""),
 signingSecretHint: jspb.Message.getFieldWithDefault(msg, 12, ""),
 speech: (f = msg.getSpeech()) && proto.fonoster.applications.v1beta2.SpeechDefaults.toObject(includeInstance, f),
 audio: (f = msg.getAudio()) && proto.fonoster.applications.v1beta2.AudioFormat.toObject(includeInstance, f),
@@ -2052,7 +2052,7 @@ proto.fonoster.applications.v1beta2.Application.deserializeBinaryFromReader = fu
       break;
     case 11:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFlavor(value);
+      msg.setProtocol(value);
       break;
     case 12:
       var value = /** @type {string} */ (reader.readString());
@@ -2192,7 +2192,7 @@ proto.fonoster.applications.v1beta2.Application.serializeBinaryToWriter = functi
       f
     );
   }
-  f = message.getFlavor();
+  f = message.getProtocol();
   if (f.length > 0) {
     writer.writeString(
       11,
@@ -2500,10 +2500,10 @@ proto.fonoster.applications.v1beta2.Application.prototype.setUrl = function(valu
 
 
 /**
- * optional string flavor = 11;
+ * optional string protocol = 11;
  * @return {string}
  */
-proto.fonoster.applications.v1beta2.Application.prototype.getFlavor = function() {
+proto.fonoster.applications.v1beta2.Application.prototype.getProtocol = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
 };
 
@@ -2512,7 +2512,7 @@ proto.fonoster.applications.v1beta2.Application.prototype.getFlavor = function()
  * @param {string} value
  * @return {!proto.fonoster.applications.v1beta2.Application} returns this
  */
-proto.fonoster.applications.v1beta2.Application.prototype.setFlavor = function(value) {
+proto.fonoster.applications.v1beta2.Application.prototype.setProtocol = function(value) {
   return jspb.Message.setProto3StringField(this, 11, value);
 };
 
@@ -2784,7 +2784,7 @@ textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2
 speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
 intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
 url: jspb.Message.getFieldWithDefault(msg, 7, ""),
-flavor: jspb.Message.getFieldWithDefault(msg, 8, ""),
+protocol: jspb.Message.getFieldWithDefault(msg, 8, ""),
 speech: (f = msg.getSpeech()) && proto.fonoster.applications.v1beta2.SpeechDefaults.toObject(includeInstance, f),
 audio: (f = msg.getAudio()) && proto.fonoster.applications.v1beta2.AudioFormat.toObject(includeInstance, f),
 fallbackAppRef: jspb.Message.getFieldWithDefault(msg, 11, ""),
@@ -2862,7 +2862,7 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.deserializeBinaryFr
       break;
     case 8:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFlavor(value);
+      msg.setProtocol(value);
       break;
     case 9:
       var value = new proto.fonoster.applications.v1beta2.SpeechDefaults;
@@ -2977,7 +2977,7 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.serializeBinaryToWr
       f
     );
   }
-  f = message.getFlavor();
+  f = message.getProtocol();
   if (f.length > 0) {
     writer.writeString(
       8,
@@ -3224,10 +3224,10 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.setUrl = 
 
 
 /**
- * optional string flavor = 8;
+ * optional string protocol = 8;
  * @return {string}
  */
-proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.getFlavor = function() {
+proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.getProtocol = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
 };
 
@@ -3236,7 +3236,7 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.getFlavor
  * @param {string} value
  * @return {!proto.fonoster.applications.v1beta2.CreateApplicationRequest} returns this
  */
-proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.setFlavor = function(value) {
+proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.setProtocol = function(value) {
   return jspb.Message.setProto3StringField(this, 8, value);
 };
 
@@ -4161,7 +4161,7 @@ textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2
 speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
 intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
 url: jspb.Message.getFieldWithDefault(msg, 8, ""),
-flavor: jspb.Message.getFieldWithDefault(msg, 9, ""),
+protocol: jspb.Message.getFieldWithDefault(msg, 9, ""),
 speech: (f = msg.getSpeech()) && proto.fonoster.applications.v1beta2.SpeechDefaults.toObject(includeInstance, f),
 audio: (f = msg.getAudio()) && proto.fonoster.applications.v1beta2.AudioFormat.toObject(includeInstance, f),
 fallbackAppRef: jspb.Message.getFieldWithDefault(msg, 12, ""),
@@ -4243,7 +4243,7 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.deserializeBinaryFr
       break;
     case 9:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFlavor(value);
+      msg.setProtocol(value);
       break;
     case 10:
       var value = new proto.fonoster.applications.v1beta2.SpeechDefaults;
@@ -4365,7 +4365,7 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.serializeBinaryToWr
       f
     );
   }
-  f = message.getFlavor();
+  f = message.getProtocol();
   if (f.length > 0) {
     writer.writeString(
       9,
@@ -4630,10 +4630,10 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.setUrl = 
 
 
 /**
- * optional string flavor = 9;
+ * optional string protocol = 9;
  * @return {string}
  */
-proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.getFlavor = function() {
+proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.getProtocol = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
 };
 
@@ -4642,7 +4642,7 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.getFlavor
  * @param {string} value
  * @return {!proto.fonoster.applications.v1beta2.UpdateApplicationRequest} returns this
  */
-proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.setFlavor = function(value) {
+proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.setProtocol = function(value) {
   return jspb.Message.setProto3StringField(this, 9, value);
 };
 
@@ -7368,7 +7368,7 @@ proto.fonoster.applications.v1beta2.TestTokenResponse.prototype.setUsername = fu
  * @enum {number}
  */
 proto.fonoster.applications.v1beta2.ApplicationType = {
-  EXTERNAL: 0,
+  STREAM: 0,
   AUTOPILOT: 1
 };
 

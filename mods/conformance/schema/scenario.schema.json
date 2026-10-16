@@ -114,9 +114,9 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "flavor": {
+            "protocol": {
               "enum": [
-                "native",
+                "fonoster",
                 "twilio"
               ]
             },

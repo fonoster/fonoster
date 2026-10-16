@@ -31,9 +31,9 @@ describe("SDK adapter", () => {
   const app = {
     ref: "a1",
     name: "Bot",
-    type: "EXTERNAL",
+    type: "STREAM",
     url: "wss://bot.example.com",
-    flavor: "native",
+    protocol: "fonoster",
     signingSecretHint: "…abcd",
     speech: { voice: "elevenlabs/rachel", language: "es-419", patience: "low" },
     audio: { codec: "pcmu", rate: 8000 },
@@ -49,7 +49,7 @@ describe("SDK adapter", () => {
     const mapped = toSessionApp(app);
     expect(mapped).toMatchObject({
       ref: "a1",
-      type: "EXTERNAL",
+      type: "STREAM",
       audio: "pcmu-8000",
       fallback: { message: "Sorry" },
       recording: "consent",
@@ -63,7 +63,7 @@ describe("SDK adapter", () => {
     expect(request).toMatchObject({
       name: "Bot",
       url: "wss://bot.example.com",
-      flavor: "native",
+      protocol: "fonoster",
       audio: { codec: "pcmu", rate: 8000 },
       fallbackMessage: "Sorry",
       recording: "consent",
@@ -93,11 +93,11 @@ describe("SDK adapter", () => {
       ...toSessionApp(app),
       type: "AUTOPILOT",
       url: "",
-      flavor: "twilio",
+      protocol: "twilio",
       assistant: { languageModel: { model: "openai/gpt-4o-mini" } }
     });
     expect(request.url).toBeUndefined();
-    expect(request.flavor).toBe("native");
+    expect(request.protocol).toBe("fonoster");
     expect(request.intelligence?.config).toEqual({
       languageModel: { model: "openai/gpt-4o-mini" }
     });
@@ -223,7 +223,7 @@ describe("SDK adapter saves", () => {
     name: "Billing",
     type: "AUTOPILOT",
     url: "wss://autopilot.example.com",
-    flavor: "native",
+    protocol: "fonoster",
     signingSecretHint: "",
     speech: {
       voice: "deepgram/aura-2-celeste-es",
@@ -303,7 +303,7 @@ describe("SDK adapter saves", () => {
     const stream = {
       ...agent,
       ref: "st-1",
-      type: "EXTERNAL",
+      type: "STREAM",
       url: "wss://bot.example.com",
       audio: { codec: "pcmu", rate: 8000 },
       listeners: [{ url: "wss://l", tracks: "inbound" }],

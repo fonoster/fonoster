@@ -72,8 +72,8 @@ Steps, in order:
    and `call_record.sealed`. Assistant audio filters move to the app. Assistants that cannot be
    converted are listed as `action` notices; fix them in the dashboard. Notices are also stored for
    the workspace (`registry_notices`, type `legacy.migrated`).
-4. **Apps.** Legacy Application rows (EXTERNAL with a gRPC `endpoint`, AUTOPILOT) become apps: a
-   WebSocket URL, the `native` flavor, a signing secret and speech defaults. Autopilot apps point at
+4. **Apps.** Legacy Application rows (EXTERNAL, now STREAM, with a gRPC `endpoint`; AUTOPILOT) become apps: a
+   WebSocket URL, the `fonoster` protocol, a signing secret and speech defaults. Autopilot apps point at
    the hosted Autopilot and share its signing secret.
 
 5. **Platform keys** (with `--integrations`). `integrations.json` becomes operator config keyed by
@@ -94,15 +94,15 @@ How apps are mapped:
 
 | Legacy | New |
 | --- | --- |
-| EXTERNAL, `endpoint: host:port` | `url: ws://host:port`, flavor `native` |
-| AUTOPILOT | `url: <hosted Autopilot>`, flavor `native`; the assistant config stays on the app and is read by `appRef` |
+| STREAM (was EXTERNAL), `endpoint: host:port` | `url: ws://host:port`, protocol `fonoster` |
+| AUTOPILOT | `url: <hosted Autopilot>`, protocol `fonoster`; the agent config stays on the app and is read by `appRef` |
 | `tts.<vendor>` + `config.voice` | `speech.voice: <vendor>/<voice>` (a catalog id) |
 | STT `config.languageCode` | `speech.language` (default `en-US`) |
 | — | `signingSecret`: generated once; re-runs keep it |
 
 Act on every `action` notice before you move that app's numbers:
 
-- EXTERNAL apps must serve the session protocol at their URL (the `@fonoster/voice` session SDK),
+- Streams must serve the session protocol at their URL (the `@fonoster/voice` session SDK),
   verify signatures with the new secret (`APP_SIGNING_SECRET`), and redeploy. A gRPC VoiceServer
   stops getting calls at the cutover.
 - Per-app vendor credentials move to workspace secrets (bring-your-own-key).

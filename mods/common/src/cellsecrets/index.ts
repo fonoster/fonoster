@@ -85,7 +85,7 @@ export class EncryptedFileSecretStore implements CellSecretStore {
     private readonly passphrase: string
   ) {
     if (!passphrase)
-      throw new Error("the cell secret store needs a key (passphrase)");
+      throw new Error("the region secret store needs a key (passphrase)");
   }
 
   private key(salt: Buffer) {

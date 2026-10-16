@@ -192,11 +192,13 @@ export function runCheck(options: CheckOptions, io: Io): number {
     if (schema) {
       // The exported schemas are draft 2020-12 (toJsonSchema).
       // coerceTypes: a placeholder is a string after YAML parsing; services accept "5060" for a
-      // port the same way.
+      // port the same way. validateFormats: false: formats (uri, email) only document a value
+      // here (the services check them), and Ajv without ajv-formats warned for each one.
       const ajv = new Ajv2020({
         allErrors: true,
         coerceTypes: true,
         strict: false,
+        validateFormats: false,
         verbose: true
       });
       const validate = ajv.compile(schema);

@@ -45,12 +45,19 @@ function screen(path: string, title: string) {
   return Screen ? <Screen /> : <PendingScreen title={title} />;
 }
 
-/** The old /apps and /apps/:ref links: Apps is now Streams. */
-export function AppsRedirect() {
+/** Sections that were renamed: old path → new path (relative to /w/:workspaceRef). */
+export const RENAMED: Record<string, string> = {
+  apps: "streams",
+  agents: "autopilot",
+  "sip-users": "sip-agents"
+};
+
+/** Sends an old section link (and anything under it) to the renamed section. */
+export function RenamedRedirect({ to }: { to: string }) {
   const { workspaceRef, "*": rest } = useParams();
   return (
     <Navigate
-      to={`/w/${workspaceRef}/streams${rest ? `/${rest}` : ""}`}
+      to={`/w/${workspaceRef}/${to}${rest ? `/${rest}` : ""}`}
       replace
     />
   );
@@ -94,7 +101,13 @@ export function AppRoutes() {
                   />
                 )
               )}
-              <Route path="apps/*" element={<AppsRedirect />} />
+              {Object.entries(RENAMED).map(([from, to]) => (
+                <Route
+                  key={from}
+                  path={`${from}/*`}
+                  element={<RenamedRedirect to={to} />}
+                />
+              ))}
               <Route path="*" element={<Navigate to="." replace />} />
             </Route>
           </Route>
