@@ -50,7 +50,7 @@ const streams = (route: string, api = createMockSessionApi()) => ({
   )
 });
 
-/** The mock workspace plus an Autopilot agent (agents belong under Agents). */
+/** The mock workspace plus an Autopilot agent (agents belong under Autopilot). */
 async function withAgent() {
   const api = createMockSessionApi();
   await api.saveApp({
@@ -93,58 +93,49 @@ describe("streams", () => {
     expect(screen.getByText("Used by: Support line.")).toBeInTheDocument();
   });
 
-  it("adds a stream in the drawer, validates it and shows its secret once", async () => {
+  it("creates a stream in a dialog, then opens it and shows its secret once", async () => {
     const { user, api } = streams("/w/ws-1/streams");
-    await user.click(await screen.findByRole("button", { name: /Add stream/ }));
-    const drawer = await screen.findByRole("dialog", { name: "Add stream" });
-    // No Autopilot choice here: agents are created under Agents.
-    expect(within(drawer).queryByLabelText("Type")).not.toBeInTheDocument();
-    await user.click(within(drawer).getByRole("button", { name: "Save" }));
-    expect(within(drawer).getByText("Enter a name")).toBeVisible();
-    await user.type(within(drawer).getByLabelText("Name"), "Bot");
-    await user.type(within(drawer).getByLabelText("URL"), "http://bot");
-    await user.click(within(drawer).getByRole("button", { name: "Save" }));
+    await user.click(await screen.findByRole("button", { name: /New stream/ }));
+    const dialog = await screen.findByRole("dialog", { name: "New stream" });
+    // No Autopilot choice here: agents are created under Autopilot.
+    expect(within(dialog).queryByLabelText("Type")).not.toBeInTheDocument();
+    await user.click(
+      within(dialog).getByRole("button", { name: "Create stream" })
+    );
+    expect(within(dialog).getByText("Enter a name")).toBeVisible();
+    await user.type(within(dialog).getByLabelText("Name"), "Bot");
+    await user.type(within(dialog).getByLabelText("URL"), "http://bot");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Create stream" })
+    );
     expect(
-      within(drawer).getByText("Must start with ws:// or wss://")
+      within(dialog).getByText("Must start with ws:// or wss://")
     ).toBeVisible();
-    await user.clear(within(drawer).getByLabelText("URL"));
+    await user.clear(within(dialog).getByLabelText("URL"));
     await user.type(
-      within(drawer).getByLabelText("URL"),
+      within(dialog).getByLabelText("URL"),
       "wss://bot.example.com"
     );
     await user.click(
-      within(drawer).getByRole("button", { name: /Add listener/ })
+      within(dialog).getByRole("button", { name: "Create stream" })
     );
-    await user.type(
-      within(drawer).getByLabelText("Listener 1 URL"),
-      "https://nope"
-    );
-    await user.click(within(drawer).getByRole("button", { name: "Save" }));
     expect(
-      within(drawer).getByText("Listener URLs must start with ws:// or wss://")
-    ).toBeVisible();
-    await user.click(
-      within(drawer).getByRole("button", { name: "Remove listener 1" })
-    );
-    await user.click(
-      within(drawer).getByRole("switch", { name: "Detect answering machines" })
-    );
-    await user.click(within(drawer).getByRole("button", { name: "Save" }));
-    expect(await screen.findByText(/shown once/)).toBeInTheDocument();
+      await screen.findByRole("heading", { name: "Bot" })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/shown once/)).toBeInTheDocument();
     const saved = (await api.listApps()).find((a) => a.name === "Bot");
     expect(saved).toMatchObject({
       type: "STREAM",
       url: "wss://bot.example.com",
-      protocol: "fonoster",
-      amd: true
+      protocol: "fonoster"
     });
   });
 
   it("offers the protocols in plain words; audio format only for Fonoster", async () => {
     const { user } = streams("/w/ws-1/streams/new");
-    const drawer = await screen.findByRole("dialog", { name: "Add stream" });
-    expect(within(drawer).getByLabelText("Audio format")).toBeInTheDocument();
-    await user.click(within(drawer).getByLabelText("Protocol"));
+    const dialog = await screen.findByRole("dialog", { name: "New stream" });
+    expect(within(dialog).getByLabelText("Audio format")).toBeInTheDocument();
+    await user.click(within(dialog).getByLabelText("Protocol"));
     expect(
       (await screen.findAllByRole("option")).map((o) => o.textContent)
     ).toEqual([
@@ -153,34 +144,47 @@ describe("streams", () => {
     ]);
     await user.click(screen.getByRole("option", { name: /Twilio-compatible/ }));
     expect(
-      within(drawer).queryByLabelText("Audio format")
+      within(dialog).queryByLabelText("Audio format")
     ).not.toBeInTheDocument();
   });
 
-  it("edits a stream from its row and closes the drawer on save", async () => {
+  it("opens a stream's page from its row and saves edits across tabs", async () => {
     const { user, api } = streams("/w/ws-1/streams");
     await user.click(await screen.findByText("Pipecat bot"));
-    const drawer = await screen.findByRole("dialog", { name: "Pipecat bot" });
-    const name = await within(drawer).findByLabelText("Name");
-    expect(name).toHaveValue("Pipecat bot");
+    expect(
+      await screen.findByRole("heading", { name: "Pipecat bot" })
+    ).toBeInTheDocument();
+    const name = await screen.findByLabelText("Name");
     await user.clear(name);
     await user.type(name, "Pipecat bot v2");
-    await user.click(within(drawer).getByRole("button", { name: "Save" }));
-    await waitFor(() =>
-      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    await user.click(screen.getByRole("link", { name: "Call handling" }));
+    await user.click(
+      await screen.findByRole("button", { name: /Add listener/ })
     );
-    expect(await api.getApp("pipecat-bot")).toMatchObject({
-      name: "Pipecat bot v2",
-      protocol: "twilio"
-    });
-    expect(await screen.findByText("Pipecat bot v2")).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Listener 1 URL"), "https://nope");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(
+      screen.getByText("Listener URLs must start with ws:// or wss://")
+    ).toBeVisible();
+    expect(screen.getByText(/Fix the highlighted fields in Call handling/));
+    await user.click(screen.getByRole("button", { name: "Remove listener 1" }));
+    await user.click(
+      screen.getByRole("switch", { name: "Detect answering machines" })
+    );
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(async () =>
+      expect(await api.getApp("pipecat-bot")).toMatchObject({
+        name: "Pipecat bot v2",
+        protocol: "twilio",
+        amd: true
+      })
+    );
   });
 
-  it("deletes a stream from the drawer behind a confirmation", async () => {
-    const { user, api } = streams("/w/ws-1/streams/pipecat-bot");
-    const drawer = await screen.findByRole("dialog", { name: "Pipecat bot" });
+  it("deletes a stream from Advanced behind a confirmation", async () => {
+    const { user, api } = streams("/w/ws-1/streams/pipecat-bot/advanced");
     await user.click(
-      await within(drawer).findByRole("button", { name: "Delete stream" })
+      await screen.findByRole("button", { name: "Delete stream" })
     );
     const confirm = await screen.findByRole("dialog", {
       name: "Delete Pipecat bot?"
@@ -189,13 +193,14 @@ describe("streams", () => {
     await waitFor(async () =>
       expect(await api.getApp("pipecat-bot")).toBeUndefined()
     );
-    await waitFor(() =>
-      expect(screen.queryByText("Pipecat bot")).not.toBeInTheDocument()
-    );
+    expect(
+      await screen.findByRole("heading", { name: "Streams" })
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Pipecat bot")).not.toBeInTheDocument();
   });
 
   it("rotates the secret behind a confirmation", async () => {
-    const { user } = streams("/w/ws-1/streams/support-line");
+    const { user } = streams("/w/ws-1/streams/support-line/advanced");
     await user.click(
       await screen.findByRole("button", { name: "Rotate secret" })
     );
@@ -209,7 +214,7 @@ describe("streams", () => {
     const agent = (await api.listApps()).find((a) => a.type === "AUTOPILOT")!;
     streams(`/w/ws-1/streams/${agent.ref}`, api);
     expect(await screen.findByTestId("location")).toHaveTextContent(
-      `/w/ws-1/agents/${agent.ref}`
+      `/w/ws-1/autopilot/${agent.ref}`
     );
   });
 

@@ -17,17 +17,20 @@
  * limitations under the License.
  */
 import { Route, Routes } from "react-router-dom";
+import { StreamDetail } from "./stream-detail";
 import { StreamsList } from "./streams";
 import { CallRecordView, CallRecordsList } from "./calls";
 
 // The session-protocol pages (streams, call records, webhooks, vendor keys), backed by the SDK
 // adapter (./sdk-api.ts). Tests and stories wrap them in SessionApiProvider with the mock.
 
-/** /w/:workspaceRef/streams; /streams/:ref opens the drawer ("new" adds a stream). */
+/** /w/:workspaceRef/streams and /streams/:ref/<tab>, like Autopilot; /streams/new opens New stream. */
 export function StreamsScreen() {
   return (
     <Routes>
-      <Route path=":ref?" element={<StreamsList />} />
+      <Route index element={<StreamsList />} />
+      <Route path="new" element={<StreamsList creating />} />
+      <Route path=":ref/*" element={<StreamDetail />} />
     </Routes>
   );
 }

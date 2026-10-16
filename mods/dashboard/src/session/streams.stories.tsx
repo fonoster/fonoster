@@ -48,9 +48,16 @@ export const Empty: Story = {
     );
   }
 };
-export const AddDrawer: Story = {
+export const NewStream: Story = {
   parameters: { screen: { route: route("/w/ws-1/streams/new") } }
 };
-export const EditDrawer: Story = {
-  parameters: { screen: { route: route("/w/ws-1/streams/pipecat-bot") } }
+export const Detail: Story = {
+  parameters: {
+    screen: { route: route("/w/ws-1/streams/pipecat-bot/configure") }
+  }
+};
+export const DetailCallHandling: Story = {
+  parameters: {
+    screen: { route: route("/w/ws-1/streams/pipecat-bot/call-handling") }
+  }
 };

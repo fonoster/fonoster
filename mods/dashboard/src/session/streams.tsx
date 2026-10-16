@@ -16,16 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Braces, Plus, X } from "lucide-react";
-import { useState, type FormEvent, type ReactNode } from "react";
-import {
-  Navigate,
-  useLocation,
-  useNavigate,
-  useParams
-} from "react-router-dom";
+import { AudioWaveform, Plus, Search, X } from "lucide-react";
+import { useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
-import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import { CopyField } from "~/components/data/copy-field";
 import {
   DataTable,
@@ -33,8 +27,6 @@ import {
   NameCell,
   type Column
 } from "~/components/data/data-table";
-import { EmptyState } from "~/components/data/empty-state";
-import { RowActions } from "~/components/data/row-actions";
 import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -47,29 +39,31 @@ import { toast } from "~/components/ui/sonner";
 import { Switch } from "~/components/ui/switch";
 import { errorMessage, useAsync, useSessionApi } from "./api";
 import { compatibleSttModels, compatibleVoices } from "./compat";
+import { CreateStreamDialog } from "./create-stream-dialog";
 import { MissingKeysWarning } from "./missing-keys";
 import type {
   AudioCodec,
   Catalog,
   CatalogEntry,
   CatalogWarning,
-  Protocol,
   ListenerTrack,
   Patience,
+  Protocol,
   RecordingPolicy,
   SessionApp
 } from "./types";
 
 // "Streams" are the workspace's own WebSocket servers: SDK Applications that aren't
-// Autopilot. Agents (AUTOPILOT) live under Agents; their call handling (fallback,
-// listeners, recording, AMD) opens this drawer in "agent" mode from the agent page.
+// Autopilot. The list and detail page mirror Autopilot's (agents-list.tsx, agent-detail.tsx).
+// Agents (AUTOPILOT) live under Autopilot; their call handling (fallback, listeners,
+// recording, AMD) opens CallHandlingDrawer from the agent page.
 
 /** Readable names for the stream protocols. */
 export const PROTOCOL_LABELS: Record<Protocol, string> = {
   fonoster: "Fonoster",
   twilio: "Twilio-compatible"
 };
-const PROTOCOLS = [
+export const PROTOCOLS = [
   { value: "fonoster", label: "Fonoster (session protocol)" },
   {
     value: "twilio",
@@ -101,7 +95,7 @@ const PATIENCE = [
 ];
 const NONE = "none";
 
-const EMPTY_CATALOG: Catalog = {
+export const EMPTY_CATALOG: Catalog = {
   voices: [],
   languages: [],
   sttModels: [],
@@ -114,9 +108,26 @@ const EMPTY_CATALOG: Catalog = {
 export const isStream = (app: Pick<SessionApp, "type">) =>
   app.type !== "AUTOPILOT";
 
-type Draft = Omit<SessionApp, "signingSecret">;
+export type Draft = Omit<SessionApp, "signingSecret">;
+export type SetDraft = <K extends keyof Draft>(key: K, value: Draft[K]) => void;
 
-const WS_URL = /^wss?:\/\/.+/;
+export const WS_URL = /^wss?:\/\/.+/;
+
+/** A new stream before it's saved. */
+export const blankStream: Draft = {
+  ref: "",
+  name: "",
+  type: "STREAM",
+  url: "",
+  protocol: "fonoster",
+  signingSecretHint: "",
+  speech: { voice: "", language: "", sttModel: "", patience: "" },
+  audio: "pcm16-16000",
+  fallback: {},
+  listeners: [],
+  recording: "",
+  amd: false
+};
 
 /** Field errors; agent mode only checks what it shows (the listeners). */
 export function validateStream(
@@ -179,14 +190,13 @@ export function CatalogWarnings({ warnings }: { warnings: CatalogWarning[] }) {
   );
 }
 
-/** /w/:ws/streams and /w/:ws/streams/:ref (the drawer open on a stream; "new" adds one). */
-export function StreamsList() {
+/** /w/:ws/streams: the list, laid out like Autopilot's. /streams/new opens the create dialog. */
+export function StreamsList({ creating: startCreating = false }) {
   const api = useSessionApi();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { workspaceRef, ref: openRef } = useParams();
+  const { workspaceRef } = useParams();
   const base = `/w/${workspaceRef}/streams`;
-  const { data, loading, error, reload } = useAsync(
+  const list = useAsync(
     async () => (await api.listApps()).filter(isStream),
     [api]
   );
@@ -194,21 +204,37 @@ export function StreamsList() {
     () => api.listCatalogWarnings().catch(() => []),
     [api]
   );
-  const [deleting, setDeleting] = useState<SessionApp | undefined>();
-  const [deletePending, setDeletePending] = useState(false);
-  const [deleteError, setDeleteError] = useState<string>();
+  const [query, setQuery] = useState("");
+  const [creating, setCreating] = useState(startCreating);
 
-  const open = (ref: string) => navigate(`${base}/${ref}`);
-  const close = () => navigate(base);
-  const secret = (location.state as { secret?: string } | null)?.secret;
+  const items = useMemo(() => list.data ?? [], [list.data]);
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return q
+      ? items.filter(
+          (a) =>
+            a.name.toLowerCase().includes(q) ||
+            a.ref.toLowerCase().includes(q) ||
+            a.url.toLowerCase().includes(q)
+        )
+      : items;
+  }, [items, query]);
 
   const add = (
-    <Button onClick={() => open("new")}>
-      <Plus aria-hidden /> Add stream
+    <Button onClick={() => setCreating(true)}>
+      <Plus aria-hidden /> New stream
     </Button>
   );
+
   const columns: Column<SessionApp>[] = [
-    { header: "Name", cell: (a) => <NameCell name={a.name} sub={a.url} /> },
+    { header: "Stream", cell: (a) => <NameCell name={a.name} sub={a.ref} /> },
+    {
+      header: "URL",
+      className: "w-64",
+      cell: (a) => (
+        <span className="block truncate font-mono text-[12px]">{a.url}</span>
+      )
+    },
     {
       header: "Protocol",
       className: "w-40",
@@ -219,240 +245,94 @@ export function StreamsList() {
       )
     },
     {
-      header: "Voice",
-      className: "w-56",
-      cell: (a) => <MutedCell>{a.speech.voice || "default"}</MutedCell>
-    },
-    {
-      header: "Secret",
-      className: "w-24",
-      cell: (a) => <MutedCell>{a.signingSecretHint}</MutedCell>
-    },
-    {
-      header: "",
-      className: "w-14",
+      header: "Voice · Language",
+      className: "w-52",
       cell: (a) => (
-        <RowActions
-          label={a.name}
-          onEdit={() => open(a.ref)}
-          onDelete={() => setDeleting(a)}
-        />
+        <MutedCell>
+          {[a.speech.voice, a.speech.language].filter(Boolean).join(" · ") ||
+            "—"}
+        </MutedCell>
       )
     }
   ];
+
+  const empty = !list.loading && !list.error && items.length === 0;
+
   return (
     <>
       <PageHeader
         title="Streams"
-        description="Your own WebSocket servers that numbers can stream calls to."
-        actions={(data?.length ?? 0) > 0 && add}
+        description="Your own WebSocket servers that numbers send calls to."
+        actions={!list.loading && !empty && add}
       />
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
         <CatalogWarnings warnings={warnings.data ?? []} />
-        <MissingKeysWarning apps={data ?? []} />
-        <DataTable
-          label="Streams"
-          columns={columns}
-          rows={data ?? []}
-          rowKey={(a) => a.ref}
-          onRowClick={(a) => open(a.ref)}
-          loading={loading}
-          error={error}
-          onRetry={reload}
-          empty={
-            <EmptyState
-              icon={Braces}
-              title="No streams yet"
-              description="Add the WebSocket URL of your own voice server, then point a number at it."
-              action={add}
+        <MissingKeysWarning apps={items} />
+        {empty ? (
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-16 text-center">
+            <span className="flex size-14 items-center justify-center rounded-xl bg-brand-subtle">
+              <AudioWaveform className="size-6 text-brand-text" aria-hidden />
+            </span>
+            <h2 className="font-display text-lg font-medium">
+              Connect your first stream
+            </h2>
+            <p className="max-w-md font-display text-sm text-muted-foreground">
+              Add the WebSocket URL of your own voice server, then point a
+              number at it.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 pt-2">
+              {add}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative w-full max-w-80">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <Input
+                  type="search"
+                  aria-label="Search streams"
+                  placeholder="Search streams"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              {!list.loading && (
+                <span className="font-display text-[13px] text-muted-foreground">
+                  {rows.length} {rows.length === 1 ? "stream" : "streams"}
+                </span>
+              )}
+            </div>
+            <DataTable
+              label="Streams"
+              columns={columns}
+              rows={rows}
+              rowKey={(a) => a.ref}
+              onRowClick={(a) => navigate(`${base}/${a.ref}`)}
+              loading={list.loading}
+              error={list.error}
+              onRetry={list.reload}
+              empty={
+                <p className="rounded-xl border border-dashed border-border px-6 py-10 text-center font-display text-sm text-muted-foreground">
+                  No streams match “{query}”.
+                </p>
+              }
             />
-          }
-        />
+          </>
+        )}
       </div>
-      <StreamDrawer
-        open={Boolean(openRef)}
-        onOpenChange={(next) => !next && close()}
-        streamRef={openRef === "new" ? undefined : openRef}
-        secret={secret}
-        onSaved={(saved, created) => {
-          reload();
-          if (created)
-            navigate(`${base}/${saved.ref}`, {
-              replace: true,
-              state: { secret: saved.signingSecret }
-            });
-          else close();
-        }}
-        onDelete={(app) => {
-          close();
-          setDeleting(app);
-        }}
-      />
-      <ConfirmDialog
-        open={Boolean(deleting)}
-        onOpenChange={(next) => {
-          if (!next) {
-            setDeleting(undefined);
-            setDeleteError(undefined);
-          }
-        }}
-        title={`Delete ${deleting?.name ?? "stream"}?`}
-        description="Numbers that point to this stream stop answering until you point them elsewhere."
-        pending={deletePending}
-        error={deleteError}
-        onConfirm={() => {
-          if (!deleting) return;
-          setDeletePending(true);
-          setDeleteError(undefined);
-          api.deleteApp(deleting.ref).then(
-            () => {
-              setDeletePending(false);
-              setDeleting(undefined);
-              toast.success("Stream deleted");
-              reload();
-            },
-            (e: unknown) => {
-              setDeletePending(false);
-              setDeleteError(errorMessage(e));
-            }
-          );
+      <CreateStreamDialog
+        open={creating}
+        onOpenChange={(open) => {
+          setCreating(open);
+          if (!open && startCreating) navigate(base, { replace: true });
         }}
       />
     </>
-  );
-}
-
-const blank: Draft = {
-  ref: "",
-  name: "",
-  type: "STREAM",
-  url: "",
-  protocol: "fonoster",
-  signingSecretHint: "",
-  speech: { voice: "", language: "", sttModel: "", patience: "" },
-  audio: "pcm16-16000",
-  fallback: {},
-  listeners: [],
-  recording: "",
-  amd: false
-};
-
-/**
- * Add or edit a stream in the right-side drawer. In "agent" mode it edits only an agent's
- * call handling (signing secret when it has its own URL, fallback, listeners, recording,
- * AMD); everything else about an agent is on the agent page.
- */
-export function StreamDrawer({
-  open,
-  onOpenChange,
-  streamRef,
-  mode = "stream",
-  secret,
-  onSaved,
-  onDelete
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  /** The application to edit; adds a new stream when absent. */
-  streamRef?: string;
-  mode?: "stream" | "agent";
-  /** A new stream's signing secret, shown once. */
-  secret?: string;
-  onSaved?: (app: SessionApp, created: boolean) => void;
-  onDelete?: (app: SessionApp) => void;
-}) {
-  const api = useSessionApi();
-  const { workspaceRef } = useParams();
-  const isNew = !streamRef;
-  const loaded = useAsync(
-    async () =>
-      open
-        ? {
-            app: streamRef ? await api.getApp(streamRef) : undefined,
-            catalog: await api.getCatalog().catch(() => EMPTY_CATALOG),
-            apps: await api.listApps()
-          }
-        : undefined,
-    [api, open, streamRef]
-  );
-  const agent = mode === "agent";
-  const app = loaded.data?.app;
-  const title = agent
-    ? "Call handling"
-    : isNew
-      ? "Add stream"
-      : (app?.name ?? "Stream");
-  const description = agent
-    ? app?.name
-    : isNew
-      ? "The gateway dials this WebSocket URL for every call."
-      : streamRef;
-  const formId = "stream-form";
-  const ready = !loaded.loading && loaded.data && (isNew || app);
-
-  // An agent opened as a stream (e.g. an old /apps/:ref link): it's edited under Agents.
-  if (!agent && app && !isStream(app))
-    return <Navigate to={`/w/${workspaceRef}/agents/${app.ref}`} replace />;
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        title={title}
-        description={description}
-        footer={
-          <>
-            {!isNew && !agent && app && onDelete ? (
-              <button
-                type="button"
-                className="cursor-pointer font-display text-[13px] text-destructive hover:underline"
-                onClick={() => onDelete(app)}
-              >
-                Delete stream
-              </button>
-            ) : (
-              <span />
-            )}
-            <div className="flex gap-2.5">
-              <Button variant="ghost" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" form={formId} disabled={!ready}>
-                Save
-              </Button>
-            </div>
-          </>
-        }
-      >
-        {loaded.loading || !loaded.data ? (
-          loaded.error ? (
-            <Alert variant="error">{loaded.error}</Alert>
-          ) : (
-            <div className="flex flex-col gap-4" aria-busy>
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-24 w-full" />
-            </div>
-          )
-        ) : !isNew && !app ? (
-          <Alert variant="error">
-            This {agent ? "agent" : "stream"} doesn&apos;t exist or was deleted.
-          </Alert>
-        ) : (
-          <StreamForm
-            key={streamRef ?? "new"}
-            formId={formId}
-            initial={app ?? blank}
-            savedApp={app}
-            isNew={isNew}
-            mode={mode}
-            catalog={loaded.data.catalog}
-            otherApps={loaded.data.apps.filter((a) => a.ref !== streamRef)}
-            secret={secret}
-            onSaved={(saved) => onSaved?.(saved, isNew)}
-          />
-        )}
-      </SheetContent>
-    </Sheet>
   );
 }
 
@@ -541,255 +421,142 @@ function Group({
   );
 }
 
-function StreamForm({
-  formId,
-  initial,
-  savedApp,
-  isNew,
-  mode,
-  catalog,
-  otherApps,
-  secret: initialSecret,
-  onSaved
-}: {
-  formId: string;
-  initial: Draft;
-  /** The app as saved (missing-key warnings are about saved settings). */
-  savedApp?: SessionApp;
-  isNew: boolean;
-  mode: "stream" | "agent";
-  catalog: Catalog;
-  otherApps: SessionApp[];
-  secret?: string;
-  onSaved: (app: SessionApp) => void;
-}) {
-  const api = useSessionApi();
-  const agent = mode === "agent";
-  const [app, setApp] = useState<Draft>(initial);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [secret, setSecret] = useState(initialSecret);
-  const [confirmRotate, setConfirmRotate] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [failure, setFailure] = useState<string>();
-  const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
-    setApp((a) => ({ ...a, [key]: value }));
+type FieldsProps = {
+  app: Draft;
+  set: SetDraft;
+  errors: Record<string, string>;
+};
 
-  const run = async (work: () => Promise<void>) => {
-    setBusy(true);
-    setFailure(undefined);
-    try {
-      await work();
-    } catch (e) {
-      setFailure(errorMessage(e));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const save = (event: FormEvent) => {
-    event.preventDefault();
-    const found = validateStream(app, mode);
-    setErrors(found);
-    if (Object.keys(found).length) return;
-    const { signingSecretHint: _hint, ...rest } = app;
-    void run(async () => {
-      const result = await api.saveApp(rest);
-      toast.success(
-        agent ? "Call handling saved" : isNew ? "Stream added" : "Stream saved"
-      );
-      onSaved(result);
-    });
-  };
-  const rotate = () =>
-    run(async () => {
-      const result = await api.rotateSecret(app.ref);
-      setSecret(result.signingSecret);
-      set("signingSecretHint", result.signingSecretHint);
-      setConfirmRotate(false);
-    });
-
-  const listenerError = errors.listeners;
-
+/** Name, URL, protocol and audio format. */
+export function ConnectionFields({ app, set, errors }: FieldsProps) {
   return (
-    <form
-      id={formId}
-      onSubmit={save}
-      className="flex flex-col gap-[22px]"
-      noValidate
-    >
-      {failure && <Alert variant="error">{failure}</Alert>}
-      {savedApp && !agent && <MissingKeysWarning apps={[savedApp]} />}
-
-      {!agent && (
-        <>
-          <Field label="Name" error={errors.name}>
-            {(p) => (
-              <Input
-                {...p}
-                value={app.name}
-                placeholder="Support bot"
-                autoComplete="off"
-                onChange={(e) => set("name", e.target.value)}
-              />
-            )}
-          </Field>
-          <Field
-            label="URL"
-            error={errors.url}
-            hint="The gateway dials this address for every call."
-          >
-            {(p) => (
-              <Input
-                {...p}
-                placeholder="wss://bot.example.com/agent"
-                autoComplete="off"
-                spellCheck={false}
-                className="font-mono"
-                value={app.url}
-                onChange={(e) => set("url", e.target.value)}
-              />
-            )}
-          </Field>
-          <Field label="Protocol">
-            {(p) => (
-              <Select
-                {...p}
-                value={app.protocol}
-                options={PROTOCOLS}
-                onValueChange={(v) => set("protocol", v as Protocol)}
-              />
-            )}
-          </Field>
-          {app.protocol === "fonoster" && (
-            <Field label="Audio format">
-              {(p) => (
-                <Select
-                  {...p}
-                  value={app.audio}
-                  options={AUDIO}
-                  onValueChange={(v) => set("audio", v as AudioCodec)}
-                />
-              )}
-            </Field>
+    <>
+      <Field label="Name" error={errors.name}>
+        {(p) => (
+          <Input
+            {...p}
+            value={app.name}
+            placeholder="Support bot"
+            autoComplete="off"
+            onChange={(e) => set("name", e.target.value)}
+          />
+        )}
+      </Field>
+      <Field
+        label="URL"
+        error={errors.url}
+        hint="The gateway dials this address for every call."
+      >
+        {(p) => (
+          <Input
+            {...p}
+            placeholder="wss://bot.example.com/agent"
+            autoComplete="off"
+            spellCheck={false}
+            className="font-mono"
+            value={app.url}
+            onChange={(e) => set("url", e.target.value)}
+          />
+        )}
+      </Field>
+      <Field label="Protocol">
+        {(p) => (
+          <Select
+            {...p}
+            value={app.protocol}
+            options={PROTOCOLS}
+            onValueChange={(v) => set("protocol", v as Protocol)}
+          />
+        )}
+      </Field>
+      {app.protocol === "fonoster" && (
+        <Field label="Audio format">
+          {(p) => (
+            <Select
+              {...p}
+              value={app.audio}
+              options={AUDIO}
+              onValueChange={(v) => set("audio", v as AudioCodec)}
+            />
           )}
-        </>
+        </Field>
       )}
+    </>
+  );
+}
 
-      {(!agent || app.url) && (
-        <Group
-          title="Signing secret"
-          hint="The gateway signs every connection with this secret. Check the signature before accepting a call."
-        >
-          {secret ? (
-            <>
-              <CopyField label="Signing secret (shown once)" value={secret} />
-              <Alert variant="warning">
-                Copy it now. It is not shown again.
-              </Alert>
-            </>
-          ) : (
-            <p className="font-display text-xs text-muted-foreground">
-              {app.signingSecretHint
-                ? `Current secret ends in ${app.signingSecretHint}`
-                : isNew
-                  ? "Created when you save."
-                  : "Managed by the platform."}
-            </p>
-          )}
-          {!isNew &&
-            (confirmRotate ? (
-              <Alert variant="warning">
-                Rotating takes effect immediately and there is no overlap
-                window: deploy the new secret to your server at the same time.
-                <div className="mt-2 flex gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    disabled={busy}
-                    onClick={() => void rotate()}
-                  >
-                    Rotate now
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setConfirmRotate(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </Alert>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="self-start"
-                onClick={() => setConfirmRotate(true)}
-              >
-                Rotate secret
-              </Button>
-            ))}
-        </Group>
-      )}
+/** Voice, language, speech-to-text model and patience. */
+export function SpeechFields({
+  app,
+  set,
+  catalog
+}: Omit<FieldsProps, "errors"> & { catalog: Catalog }) {
+  return (
+    <>
+      <CatalogField
+        label="Voice"
+        value={app.speech.voice}
+        entries={compatibleVoices(
+          catalog,
+          app.speech.language,
+          app.speech.voice
+        )}
+        placeholder="deepgram/aura-2-thalia-en"
+        hint="A catalog id: provider/voice."
+        incompatibleHint="This voice doesn't speak the selected language."
+        onChange={(v) => set("speech", { ...app.speech, voice: v })}
+      />
+      <CatalogField
+        label="Language"
+        value={app.speech.language}
+        entries={catalog.languages}
+        placeholder="en-US"
+        onChange={(v) => set("speech", { ...app.speech, language: v })}
+      />
+      <CatalogField
+        label="Speech-to-text model"
+        value={app.speech.sttModel ?? ""}
+        entries={compatibleSttModels(
+          catalog,
+          app.speech.language,
+          app.speech.sttModel
+        )}
+        incompatibleHint="This model doesn't understand the selected language."
+        placeholder="deepgram/nova-3"
+        onChange={(v) => set("speech", { ...app.speech, sttModel: v })}
+      />
+      <Field
+        label="Patience"
+        hint="How long the gateway waits before deciding the caller finished."
+      >
+        {(p) => (
+          <Select
+            {...p}
+            value={app.speech.patience || "default"}
+            options={PATIENCE}
+            onValueChange={(v) =>
+              set("speech", {
+                ...app.speech,
+                patience: (v === "default" ? "" : v) as Patience
+              })
+            }
+          />
+        )}
+      </Field>
+    </>
+  );
+}
 
-      {!agent && (
-        <Group title="Speech defaults">
-          <CatalogField
-            label="Voice"
-            value={app.speech.voice}
-            entries={compatibleVoices(
-              catalog,
-              app.speech.language,
-              app.speech.voice
-            )}
-            placeholder="deepgram/aura-2-thalia-en"
-            hint="A catalog id: provider/voice."
-            incompatibleHint="This voice doesn't speak the selected language."
-            onChange={(v) => set("speech", { ...app.speech, voice: v })}
-          />
-          <CatalogField
-            label="Language"
-            value={app.speech.language}
-            entries={catalog.languages}
-            placeholder="en-US"
-            onChange={(v) => set("speech", { ...app.speech, language: v })}
-          />
-          <CatalogField
-            label="Speech-to-text model"
-            value={app.speech.sttModel ?? ""}
-            entries={compatibleSttModels(
-              catalog,
-              app.speech.language,
-              app.speech.sttModel
-            )}
-            incompatibleHint="This model doesn't understand the selected language."
-            placeholder="deepgram/nova-3"
-            onChange={(v) => set("speech", { ...app.speech, sttModel: v })}
-          />
-          <Field
-            label="Patience"
-            hint="How long the gateway waits before deciding the caller finished."
-          >
-            {(p) => (
-              <Select
-                {...p}
-                value={app.speech.patience || "default"}
-                options={PATIENCE}
-                onValueChange={(v) =>
-                  set("speech", {
-                    ...app.speech,
-                    patience: (v === "default" ? "" : v) as Patience
-                  })
-                }
-              />
-            )}
-          </Field>
-        </Group>
-      )}
-
+/** Fallback, listeners, recording and answering-machine detection. */
+export function CallHandlingFields({
+  app,
+  set,
+  errors,
+  otherApps
+}: FieldsProps & { otherApps: SessionApp[] }) {
+  const listenerError = errors.listeners;
+  return (
+    <>
       <Group
         title="Fallback"
         hint="Used when the URL can't be reached (after about 2.5 seconds of ringing)."
@@ -922,6 +689,246 @@ function StreamForm({
         />
         Detect answering machines
       </label>
+    </>
+  );
+}
+
+/** A secret shown once (just created or rotated), with the copy-it-now warning. */
+export function FreshSecret({ secret }: { secret: string }) {
+  return (
+    <>
+      <CopyField label="Signing secret (shown once)" value={secret} />
+      <Alert variant="warning">Copy it now. It is not shown again.</Alert>
+    </>
+  );
+}
+
+/**
+ * An agent's call handling (fallback, listeners, recording, AMD, and the signing secret when
+ * it has its own URL) in the right-side drawer, opened from the agent's Advanced tab.
+ */
+export function CallHandlingDrawer({
+  open,
+  onOpenChange,
+  appRef,
+  onSaved
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  appRef: string;
+  onSaved?: (app: SessionApp) => void;
+}) {
+  const api = useSessionApi();
+  const loaded = useAsync(
+    async () =>
+      open
+        ? {
+            app: await api.getApp(appRef),
+            apps: await api.listApps()
+          }
+        : undefined,
+    [api, open, appRef]
+  );
+  const app = loaded.data?.app;
+  const formId = "call-handling-form";
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        title="Call handling"
+        description={app?.name}
+        footer={
+          <>
+            <span />
+            <div className="flex gap-2.5">
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                form={formId}
+                disabled={loaded.loading || !app}
+              >
+                Save
+              </Button>
+            </div>
+          </>
+        }
+      >
+        {loaded.loading || !loaded.data ? (
+          loaded.error ? (
+            <Alert variant="error">{loaded.error}</Alert>
+          ) : (
+            <div className="flex flex-col gap-4" aria-busy>
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          )
+        ) : !app ? (
+          <Alert variant="error">
+            This agent doesn&apos;t exist or was deleted.
+          </Alert>
+        ) : (
+          <CallHandlingForm
+            key={appRef}
+            formId={formId}
+            initial={app}
+            otherApps={loaded.data.apps.filter((a) => a.ref !== appRef)}
+            onSaved={(saved) => onSaved?.(saved)}
+          />
+        )}
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function CallHandlingForm({
+  formId,
+  initial,
+  otherApps,
+  onSaved
+}: {
+  formId: string;
+  initial: SessionApp;
+  otherApps: SessionApp[];
+  onSaved: (app: SessionApp) => void;
+}) {
+  const api = useSessionApi();
+  const [app, setApp] = useState<Draft>(initial);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [failure, setFailure] = useState<string>();
+  const [secret, setSecret] = useState<string>();
+  const set: SetDraft = (key, value) => setApp((a) => ({ ...a, [key]: value }));
+
+  const save = (event: FormEvent) => {
+    event.preventDefault();
+    const found = validateStream(app, "agent");
+    setErrors(found);
+    if (Object.keys(found).length) return;
+    const { signingSecretHint: _hint, ...rest } = app;
+    setFailure(undefined);
+    api.saveApp(rest).then(
+      (result) => {
+        toast.success("Call handling saved");
+        onSaved(result);
+      },
+      (e: unknown) => setFailure(errorMessage(e))
+    );
+  };
+
+  return (
+    <form
+      id={formId}
+      onSubmit={save}
+      className="flex flex-col gap-[22px]"
+      noValidate
+    >
+      {failure && <Alert variant="error">{failure}</Alert>}
+      {app.url && (
+        <Group
+          title="Signing secret"
+          hint="The gateway signs every connection with this secret. Check the signature before accepting a call."
+        >
+          <SecretControls
+            appRef={app.ref}
+            hint={app.signingSecretHint}
+            secret={secret}
+            onRotated={(r) => {
+              setSecret(r.signingSecret);
+              set("signingSecretHint", r.signingSecretHint);
+            }}
+          />
+        </Group>
+      )}
+      <CallHandlingFields
+        app={app}
+        set={set}
+        errors={errors}
+        otherApps={otherApps}
+      />
     </form>
+  );
+}
+
+/** The secret's hint (or the new secret once) and Rotate, behind a confirmation. */
+export function SecretControls({
+  appRef,
+  hint,
+  secret,
+  onRotated
+}: {
+  appRef: string;
+  hint: string;
+  secret?: string;
+  onRotated: (result: {
+    signingSecret?: string;
+    signingSecretHint: string;
+  }) => void;
+}) {
+  const api = useSessionApi();
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState<string>();
+  const rotate = () => {
+    setBusy(true);
+    setFailure(undefined);
+    api.rotateSecret(appRef).then(
+      (result) => {
+        setBusy(false);
+        setConfirming(false);
+        onRotated(result);
+      },
+      (e: unknown) => {
+        setBusy(false);
+        setFailure(errorMessage(e));
+      }
+    );
+  };
+  return (
+    <>
+      {failure && <Alert variant="error">{failure}</Alert>}
+      {secret ? (
+        <FreshSecret secret={secret} />
+      ) : (
+        <p className="font-display text-xs text-muted-foreground">
+          {hint ? `Current secret ends in ${hint}` : "Managed by the platform."}
+        </p>
+      )}
+      {confirming ? (
+        <Alert variant="warning">
+          Rotating takes effect immediately and there is no overlap window:
+          deploy the new secret to your server at the same time.
+          <div className="mt-2 flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="destructive"
+              disabled={busy}
+              onClick={rotate}
+            >
+              Rotate now
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => setConfirming(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </Alert>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          onClick={() => setConfirming(true)}
+        >
+          Rotate secret
+        </Button>
+      )}
+    </>
   );
 }
