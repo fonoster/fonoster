@@ -186,7 +186,7 @@ describe("@gateway apps", function () {
           ref: "support",
           accessKeyId: "WO1",
           name: "Support line",
-          type: "EXTERNAL",
+          type: "STREAM",
           endpoint: "",
           url: "wss://bot.example.com/agent",
           protocol: "fonoster",
@@ -200,7 +200,7 @@ describe("@gateway apps", function () {
           ref: "old",
           accessKeyId: "WO1",
           name: "legacy",
-          type: "EXTERNAL",
+          type: "STREAM",
           endpoint: "localhost:50061"
         }
       });

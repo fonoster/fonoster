@@ -75,7 +75,7 @@ describe("@autopilot/session convertLegacyAssistant", function () {
     });
     expect(c.assistant.conversationSettings.transferOptions).to.deep.equal({
       phoneNumber: "+17853178070",
-      message: "Please hold while I transfer you to an operator."
+      message: "Please hold while I transfer you to a live agent."
     });
     // "your-api-key" is a placeholder: nothing to move.
     expect(c.secret).to.equal(undefined);
