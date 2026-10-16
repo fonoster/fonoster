@@ -109,8 +109,11 @@ services:
       # config/routr-edgeport.yaml (SIP on SIP_PORT inside the container too, so Via and
       # Record-Route carry the port softphones reach); mounted aside from the image's own.
       CONFIG_PATH: /etc/routr/fonoster/edgeport.yaml
+      # Browser calls: the API server's test tokens are signed with Identity's key.
+      CONNECT_VERIFIER_PUBLIC_KEY_PATH: /etc/routr/keys/public.pem
     volumes:
       - ${CONFIG_DIR:-./config}/routr-edgeport.yaml:/etc/routr/fonoster/edgeport.yaml:ro
+      - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/routr/keys/public.pem:ro
     ports:
       - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/udp"
       - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/tcp"

@@ -18,6 +18,15 @@ static_resources:
                   - name: local_service
                     domains: ["*"]
                     routes:
+                      # SIP over WebSocket to Routr for browser calls ("Talk to agent").
+                      - match:
+                          prefix: "/sip"
+                        route:
+                          cluster: routr-ws-cluster
+                          prefix_rewrite: "/"
+                          timeout: 0s
+                          upgrade_configs:
+                            - upgrade_type: websocket
                       - match:
                           prefix: "/api"
                         route:
@@ -149,6 +158,19 @@ static_resources:
                     socket_address:
                       address: apiserver
                       port_value: 9876
+    - name: routr-ws-cluster
+      type: logical_dns
+      connect_timeout: 5s
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: routr-ws-cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: routr
+                      port_value: 5062
     - name: dashboard-cluster
       type: logical_dns
       connect_timeout: 20s
