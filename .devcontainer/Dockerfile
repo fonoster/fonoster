@@ -10,10 +10,10 @@ ENV GOTOOLCHAIN=local \
     PATH=/usr/local/go/bin:/home/node/go/bin:$PATH
 
 # protoc + well-known types for `npm run generate:protos` (the plugins come from node_modules/.bin),
-# openssl for Prisma.
+# openssl for Prisma, libopus for the media node (cgo).
 RUN apt-get update \
   && export DEBIAN_FRONTEND=noninteractive \
-  && apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev openssl \
+  && apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev openssl libopus-dev \
   && rm -rf /var/lib/apt/lists/* \
   && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH:-amd64}.tar.gz" \
     | tar -C /usr/local -xz \

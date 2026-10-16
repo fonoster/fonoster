@@ -24,7 +24,8 @@
 //   node .scripts/dev.mjs gateway autopilot   only those
 //
 // Each process gets the values of .dev/.env (with ${NAME} expanded, as Compose's env_file does)
-// for the ${NAME} placeholders of its /config/<service>.yaml.
+// for the ${NAME} placeholders of its config file, .dev/config/<service>.yaml (passed explicitly:
+// the media nodes and gateways the tests start look in /config).
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, symlinkSync, watch } from "node:fs";
 import { createRequire } from "node:module";
@@ -37,6 +38,7 @@ const DEV = join(ROOT, ".dev");
 const TSX = join(ROOT, "node_modules", ".bin", "tsx");
 const MEDIANODE_SRC = join(ROOT, "go", "medianode");
 const MEDIANODE_BIN = join(DEV, "bin", "medianode");
+const config = (service) => join(DEV, "config", `${service}.yaml`);
 
 const COLORS = [36, 35, 33, 32, 34, 31];
 const NAMES = [
@@ -108,7 +110,10 @@ function stop(child) {
   setTimeout(() => child.exitCode === null && kill("SIGKILL"), 3000).unref();
 }
 
-const tsxWatch = (entry) => [TSX, ["watch", "--clear-screen=false", entry]];
+const tsxWatch = (entry, ...args) => [
+  TSX,
+  ["watch", "--clear-screen=false", entry, ...args]
+];
 
 // The apiserver applies its migrations and seed with its own entrypoint (as in the container),
 // then serves from source under tsx watch. The entrypoint expects <root>/core and
@@ -129,7 +134,9 @@ function apiserver() {
       "mods/apiserver/src/bin/entrypoint.ts",
       "--migrate-only",
       "--migrations-root",
-      root
+      root,
+      "--config",
+      config("fonoster")
     ],
     {
       quiet: true,
@@ -139,7 +146,14 @@ function apiserver() {
           process.stdout.write("apiserver | migrations failed; not starting\n");
           return;
         }
-        run("apiserver", ...tsxWatch("mods/apiserver/src/index.ts"));
+        run(
+          "apiserver",
+          ...tsxWatch(
+            "mods/apiserver/src/index.ts",
+            "--config",
+            config("fonoster")
+          )
+        );
       }
     }
   );
@@ -156,7 +170,7 @@ function medianode() {
     mkdirSync(dirname(MEDIANODE_BIN), { recursive: true });
     const res = spawnSync(
       "go",
-      ["build", "-o", MEDIANODE_BIN, "./cmd/medianode"],
+      ["build", "-buildvcs=false", "-o", MEDIANODE_BIN, "./cmd/medianode"],
       {
         cwd: MEDIANODE_SRC,
         env: { ...process.env, GOTOOLCHAIN: "local" },
@@ -173,7 +187,9 @@ function medianode() {
     return true;
   };
   const start = () => {
-    node = run("medianode", MEDIANODE_BIN, [], { quiet: true });
+    node = run("medianode", MEDIANODE_BIN, ["-config", config("medianode")], {
+      quiet: true
+    });
   };
   const restart = () => {
     log("change detected: rebuilding");
@@ -197,9 +213,17 @@ const COMPONENTS = {
   // Autopilot at them, so calls work without vendor keys.
   fakes: () => run("fakes", TSX, ["mods/conformance/src/fakes/serve.ts"]),
   apiserver,
-  gateway: () => run("gateway", ...tsxWatch("mods/gateway/src/main.ts")),
+  gateway: () =>
+    run("gateway", ...tsxWatch("mods/gateway/src/main.ts", config("gateway"))),
   autopilot: () =>
-    run("autopilot", ...tsxWatch("mods/autopilot/src/session/main.ts")),
+    run(
+      "autopilot",
+      ...tsxWatch(
+        "mods/autopilot/src/session/main.ts",
+        "--config",
+        config("autopilot")
+      )
+    ),
   medianode,
   // Vite on :3030; Envoy (the bundle's) serves it with the API at PUBLIC_URL.
   dashboard: () =>

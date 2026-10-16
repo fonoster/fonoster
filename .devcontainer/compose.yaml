@@ -27,11 +27,12 @@ services:
       # Linux node_modules stay out of the host checkout (native binaries differ).
       - node-modules:/workspaces/fonoster/node_modules
       - go-cache:/home/node/go
-      # Where the bundle's containers find their files, so our services read the same paths:
-      # /config/<service>.yaml, keys and the provider catalog.
-      - ../.dev/config:/config:ro
-      - ../.dev/config:/etc/fonoster:ro
+      # The keys and the provider catalog at the paths the bundle's config files name. The
+      # service files themselves are passed explicitly (npm run dev): mounted at /config they
+      # would also be picked up by the media nodes and gateways the tests start.
       - ../.dev/config/keys:/opt/fonoster/keys:ro
+      - ../.dev/config/keys:/etc/fonoster/keys:ro
+      - ../.dev/config/catalog.yaml:/etc/fonoster/catalog.yaml:ro
     environment:
       # Tests use their own NATS and database, never the dev stack's.
       CONFORMANCE_NATS_URL: nats://nats-test:4222

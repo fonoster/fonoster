@@ -4,6 +4,8 @@ set -euo pipefail
 
 # Named volumes are created root-owned.
 sudo chown node:node node_modules /home/node/go
+# The checkout is owned by your host user, not `node`: let git (and husky) use it.
+git config --global --add safe.directory /workspaces/fonoster
 
 # Dependencies (postinstall generates the Prisma clients into this container's node_modules),
 # then every package's build: the services import each other's dist.
