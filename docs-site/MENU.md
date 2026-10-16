@@ -63,3 +63,20 @@ Diátaxis type: T tutorial, H how-to, R reference, E explanation. ★ = next up.
 ## Changelog
 
 `changelog` (v0.30 onward). The legacy changelog stays at `legacy/changelog`.
+
+## Hacking Fonoster
+
+The dev container is the only way to develop Fonoster (owner, 2026-10-16). Dependencies run as containers;
+our components run from source with reload.
+
+| Group      | Page                          | Type | Path                          |
+| ---------- | ----------------------------- | ---- | ----------------------------- |
+| Start      | Overview                      | E    | `hacking/overview`            |
+|            | Run Fonoster from source      | T    | `hacking/run-from-source`     |
+| Components | Work on the API server        | H    | `hacking/apiserver`           |
+|            | Work on the gateway           | H    | `hacking/gateway`             |
+|            | Work on Autopilot             | H    | `hacking/autopilot`           |
+|            | Work on the media node        | H    | `hacking/medianode`           |
+|            | Work on the dashboard         | H    | `hacking/dashboard`           |
+| Contribute | Run the tests                 | H    | `hacking/tests`               |
+|            | Contributing                  | H    | `hacking/contributing`        |

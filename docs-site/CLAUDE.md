@@ -19,6 +19,8 @@ Guidance for everything under `docs-site/` (the Mintlify docs). Pages are writte
   Kubernetes.
 - **Private regions**: operators who run a private region (a cell) that their workspaces use, joined
   to a control plane.
+- **Hacking Fonoster**: contributors who run Fonoster from source and work on its components. The dev
+  container is the only supported way.
 
 A page belongs to one tab. When behavior differs between Fonoster Cloud and self-hosted, note it on
 the page (a short note, or `<Tabs>`). Don't make a separate page for it.

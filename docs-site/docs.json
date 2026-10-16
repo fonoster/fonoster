@@ -74,6 +74,17 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "Hacking Fonoster",
+            "groups": [
+              {
+                "group": "Start",
+                "pages": [
+                  "hacking/overview"
+                ]
+              }
+            ]
           }
         ]
       },
