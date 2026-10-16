@@ -27,8 +27,16 @@ import { NatsConnection } from "nats";
 import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
 import { CallStream, TrackCallResponse } from "./types";
 
+// The last status a call can report. Nothing is published after these, so a
+// stream left open on one never ends: the entry leaks out of
+// `trackingCallsMap` and the SDK's status generator never completes.
+//
+// ANSWER belongs here even though the call continues afterwards -- there is no
+// later status for an answered call, so it is where tracking stops.
 const FINAL_STATUSES = [
+  DialStatus.ANSWER,
   DialStatus.BUSY,
+  DialStatus.CANCEL,
   DialStatus.FAILED,
   DialStatus.NOANSWER
 ];
@@ -57,14 +65,12 @@ function createTrackCall(nc: NatsConnection) {
       return;
     }
 
-    if (FINAL_STATUSES.includes(status)) {
-      stream.write({ ref, status });
+    stream.write({ ref, status });
 
+    if (FINAL_STATUSES.includes(status)) {
       setTimeout(() => stream.end(), 500);
 
       trackingCallsMap.delete(ref);
-    } else {
-      stream.write({ ref, status });
     }
   };
 

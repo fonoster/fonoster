@@ -67,4 +67,68 @@ describe("@calls/trackCall", function () {
     expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.ANSWER });
   });
 
+  // Regression tests for #882: a stream left open on a terminal status leaks
+  // its trackingCallsMap entry, and the SDK's status generator never finishes.
+  //
+  // `createTrackCall` ends the stream on a 500ms timer, so these wait it out
+  // rather than faking the clock -- sinon's fake timers also replace the
+  // setTimeout mocha runs its own test timeout on.
+  const afterTheEndTimer = () => new Promise((resolve) => setTimeout(resolve, 600));
+
+  function buildTracker() {
+    const callRef = "5d8c253a-62a0-48d5-9c8f-cfd00279936f";
+    const call = {
+      write: sandbox.stub(),
+      end: sandbox.stub(),
+      request: { ref: callRef }
+    };
+    const subscription = { callback: sandbox.stub() };
+    const nc = { subscribe: sandbox.stub().returns(subscription) } as unknown as NatsConnection;
+    return { callRef, call, subscription, nc };
+  }
+
+  [DialStatus.ANSWER, DialStatus.CANCEL, DialStatus.BUSY, DialStatus.FAILED, DialStatus.NOANSWER]
+    .forEach(function (status) {
+      it(`should end the stream once the call reaches ${status}`, async function () {
+        const { createTrackCall } = await import("../../src/calls/createTrackCall");
+        const { callRef, call, subscription, nc } = buildTracker();
+
+        const trackCall = createTrackCall(nc);
+        trackCall(call, () => {});
+
+        const msg = { json: sandbox.stub().returns({ ref: callRef, status }) };
+        subscription.callback(null, msg);
+
+        expect(call.write).to.have.been.calledWith({ ref: callRef, status });
+
+        await afterTheEndTimer();
+        expect(call.end).to.have.been.calledOnce;
+
+        // The entry is gone, so a late duplicate for the same ref is ignored
+        // instead of writing to a stream that has already ended.
+        call.write.resetHistory();
+        subscription.callback(null, msg);
+        expect(call.write).to.not.have.been.called;
+      });
+    });
+
+  [DialStatus.TRYING, DialStatus.PROGRESS].forEach(function (status) {
+    it(`should keep the stream open while the call is ${status}`, async function () {
+      const { createTrackCall } = await import("../../src/calls/createTrackCall");
+      const { callRef, call, subscription, nc } = buildTracker();
+
+      const trackCall = createTrackCall(nc);
+      trackCall(call, () => {});
+
+      subscription.callback(null, { json: sandbox.stub().returns({ ref: callRef, status }) });
+
+      await afterTheEndTimer();
+      expect(call.end).to.not.have.been.called;
+
+      // Still tracked, so further statuses keep reaching the stream.
+      subscription.callback(null, { json: sandbox.stub().returns({ ref: callRef, status: DialStatus.ANSWER }) });
+      expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.ANSWER });
+    });
+  });
+
 });
