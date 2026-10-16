@@ -99,7 +99,7 @@ docker run --rm --quiet -v "$ROOT:/src" -w /src -e NPM_CONFIG_UPDATE_NOTIFIER=fa
   -e HOST_IP="$host_ip" -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
   node:22-alpine sh -ec '
     npm install --prefix /opt/cli --no-audit --no-fund --loglevel=error \
-      yaml@2.9.0 ajv@8.18.0 tsx@4.21.0 >/dev/null
+      yaml@2.9.0 ajv@8.18.0 tsx@4.23.15 >/dev/null
     cli() { NODE_PATH=/opt/cli/node_modules /opt/cli/node_modules/.bin/tsx mods/common/src/config/cli/index.ts "$@"; }
     cli init --dir .dev --host-ip "$HOST_IP" >/dev/null
     cli render --dir .dev --config-dir .dev/config --env-file .dev/.env \
