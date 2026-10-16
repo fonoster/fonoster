@@ -1,7 +1,7 @@
 # The development layer on the self-host bundle (add-self-host-installer D6). ops/bundle/compose.yaml
 # is the one Compose source; this override only adds what a checkout needs: images built from
-# source, the fake providers, the SIP caller bot, vendor keys from the environment and the gateway's
-# HTTP port. `ops/rebuild/stack up` (docs/try-the-new-platform.md) generates the secrets into
+# source, the fake providers, the SIP caller bot, the region hub and the gateway's HTTP port. Vendor
+# keys reach the services through .local/services.env (env_file) as ${NAME} in the overlays. `ops/rebuild/stack up` (docs/try-the-new-platform.md) generates the secrets into
 # ops/rebuild/.local, renders the service configs from ops/bundle/config/*.example.* and runs
 #
 #   docker compose --project-directory ops/rebuild \
@@ -11,7 +11,8 @@
 # Relative paths below resolve from ops/rebuild (the project directory). Host ports are in the
 # 16000 range (stack.defaults), so the stack runs next to a self-hosted install.
 #
-#   Profiles added: `fakes` (fake TTS/STT/LLM, no vendor keys), `tools` (the SIP caller bot).
+#   Profiles added: `fakes` (fake TTS/STT/LLM, no vendor keys), `tools` (the SIP caller bot),
+#   `regions` (the region hub).
 services:
   medianode:
     build:
@@ -23,10 +24,6 @@ services:
       context: ../..
       dockerfile: mods/gateway/Dockerfile
     image: ${RB_REGISTRY:-fonoster}/gateway:${RB_TAG:-dev}
-    environment:
-      # Vendor keys, read only when gateway.yaml names them (credential.env; the stack's overlay).
-      DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:-}
-      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
     ports:
       - "${RB_GATEWAY_PORT:-8080}:8080"
 
@@ -35,16 +32,32 @@ services:
       context: ../..
       dockerfile: mods/autopilot/Dockerfile
     image: ${RB_REGISTRY:-fonoster}/autopilot-session:${RB_TAG:-dev}
-    environment:
-      # Platform LLM keys, read only when autopilot.yaml names them (the stack's overlay).
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      GROQ_API_KEY: ${GROQ_API_KEY:-}
 
   apiserver:
     build:
       context: ../..
       dockerfile: ops/rebuild/docker/apiserver.Dockerfile
     image: ${RB_REGISTRY:-fonoster}/apiserver:${RB_TAG:-dev}
+    depends_on:
+      nats-regions: { condition: service_healthy, required: false }
+
+  # ---- profile `regions`: the region hub private regions link to (the bundle leaves it out; see
+  # docs for hosting private regions). `stack up` generates config/region-hub.conf. ----
+  nats-regions:
+    image: nats:2.11.8-alpine
+    profiles: [regions]
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats.conf"]
+    ports:
+      - "${LEAF_BIND:-0.0.0.0}:${RB_LEAF_PORT:-7422}:7422"
+    volumes:
+      - ${CONFIG_DIR:-./config}/region-hub.conf:/etc/nats/nats.conf:ro
+      - nats-regions:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   dashboard:
     build:
@@ -79,3 +92,6 @@ services:
     networks:
       default:
         ipv4_address: ${SUBNET_PREFIX}.44
+
+volumes:
+  nats-regions:

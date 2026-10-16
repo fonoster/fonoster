@@ -21,11 +21,12 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `dashboard` | `ops/rebuild/docker/dashboard.Dockerfile` | The dashboard, built with this checkout's SDK. |
 | `fakes` (profile) | `ops/rebuild/docker/fakes.Dockerfile` | Fake TTS/STT/LLM for test deployments. |
 | `sipcaller` (profile `tools`) | media node image | The SIP caller bot (smoke tests). |
-| observability (profile) | otel-collector, prometheus, loki, tempo, grafana | See below. |
-| `clickhouse` (profile `analytics`) | `clickhouse/clickhouse-server` | Call metrics from every sealed record. See Analytics. |
 
-Each Fonoster service reads exactly one YAML file and never a `.env` file. The media node is
-configured with flags or `MEDIANODE_*` environment variables (a Go binary with no config file).
+Each Fonoster service reads exactly one YAML file (mounted at `/config/<service>.yaml`) and never a
+`.env` file; secrets in it are `${NAME}` placeholders the container's environment fills (Compose
+passes `.env` with `env_file`). The media node reads `/config/medianode.yaml` (or `-config <file>`;
+see `ops/bundle/config/medianode.example.yaml`); flags win over it, and the `MEDIANODE_*`
+variables below still work as a deprecated fallback that logs a warning.
 
 ## Start
 
@@ -58,14 +59,12 @@ Set `COMPOSE_PROJECT_NAME` to run several stacks on one host.
 | Port | Proto | Who | Notes |
 | --- | --- | --- | --- |
 | 4222 | TCP | NATS | Internal; publish only for debugging. 8222 is monitoring (`/healthz`). |
-| 7422 | TCP | NATS leaf nodes | Hub side of the regions link (see Regions). Off by default. |
+| 7422 | TCP | NATS leaf nodes | Hub side of the regions link (see Regions). Dev stack profile `regions` only (`RB_LEAF_PORT`). |
 | 5060 | UDP/TCP | Routr | Carrier-facing SIP. |
 | 5060 | UDP/TCP | Media node | Internal SIP from Routr; do not expose to the internet. |
 | 10000-10100 | UDP | RTPEngine | Carrier-facing media (`RTPENGINE_PORT_MIN/MAX`). Size to your concurrent calls. |
 | 30000-30199 | UDP | Media node RTP | `MEDIANODE_RTP_PORT_MIN/MAX`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
 | 8080 | TCP | Gateway | Twilio-compatible Calls endpoint when `http` is set in `gateway.yaml`. |
-| 4318 | TCP | OTel collector | OTLP/HTTP; observability profile. |
-| 3000 | TCP | Grafana | Observability profile. |
 
 ### RTP ranges
 
@@ -152,34 +151,33 @@ them one at a time (`gateway.podDisruptionBudget`) and give calls time via
 | Heartbeat | 2 s | `-heartbeat` |
 | Call claim by a gateway | 500 ms, one retry, then 503 | fixed by the spec |
 
-## Analytics (profile `analytics`)
+## Analytics
 
 ClickHouse holds one row per call (`fonoster.call_metrics`: status, duration, turns,
 interruptions, false cut-offs, recording) for dashboards and SQL. The gateway loads every sealed
 record's redacted copy after sealing; a failed load is logged and never touches the call or the
-record. Turn it on with the profile and the gateway key:
+record. Neither the bundle nor the local stack runs ClickHouse: point the gateway at yours
+(`CLICKHOUSE_USER` and `CLICKHOUSE_PASSWORD` in `.env`):
 
 ```yaml
 # gateway.yaml
 callRecord:
   analytics:
-    clickhouse: { url: "http://clickhouse:8123", database: fonoster }  # userEnv/passwordEnv: CLICKHOUSE_USER/PASSWORD
+    clickhouse:
+      url: "https://clickhouse.example.com:8443"
+      database: fonoster
+      user: "${CLICKHOUSE_USER}"
+      password: "${CLICKHOUSE_PASSWORD}"
 ```
 
-```sh
-# COMPOSE_PROFILES=analytics in .env, then fonoster-config init (adds the key)
-docker compose --profile analytics up -d
-```
-
-With the local stack, add `analytics` to `RB_PROFILES` (`ops/rebuild/stack` then adds the key and
-generates the password). The HTTP interface is on `RB_CLICKHOUSE_PORT` (8123), host-only unless
-`RB_CLICKHOUSE_BIND` says otherwise. To refill the table from the records (after a schema change,
-or for records sealed before the profile was on): `fonoster-callrecord analytics rebuild
+To refill the table from the records (after a schema change, or for records sealed before
+analytics was on): `fonoster-callrecord analytics rebuild
 --store-config '<ObjectStoreConfig JSON>' --clickhouse-url http://localhost:8123`.
 
 ## Observability
 
-Every service emits OpenTelemetry traces, metrics and logs over OTLP/HTTP when
+Every service emits OpenTelemetry traces, metrics and logs over OTLP/HTTP when its config's
+`telemetry.otlpEndpoint` (the bundle sets it to `${OTEL_EXPORTER_OTLP_ENDPOINT:-}`) or
 `OTEL_EXPORTER_OTLP_ENDPOINT` (or a per-signal `OTEL_EXPORTER_OTLP_{TRACES,METRICS,LOGS}_ENDPOINT`)
 is set, and is a complete no-op when unset: the service runs and logs to stdout. `OTEL_SERVICE_NAME`
 and `OTEL_EXPORTER_OTLP_HEADERS` are honoured; `OTEL_SDK_DISABLED=true` forces it off. The TypeScript
@@ -189,16 +187,9 @@ the collector's HTTP port (4318).
 Every call-scoped span, log record and metric carries `fonoster.call_ref`. To follow one call, query
 Tempo (`{ span.fonoster.call_ref = "<ref>" }`) and Loki (structured metadata `fonoster_call_ref`).
 
-Default profile:
-
-```sh
-# OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318 in the bundle's .env
-docker compose --profile observability up -d
-```
-
-Grafana is on `RB_GRAFANA_PORT` (3000) with Tempo, Loki and Prometheus provisioned. To use your own
-backend instead, skip the profile and point `OTEL_EXPORTER_OTLP_ENDPOINT` at it; no Grafana, Tempo,
-Loki or Prometheus container runs. With Helm, set `otel.endpoint`.
+Neither the bundle nor the local stack runs a collector: set `OTEL_EXPORTER_OTLP_ENDPOINT` in
+`.env` to yours (e.g. `http://collector.example.com:4318`) and recreate the containers. With Helm,
+set `otel.endpoint`.
 
 Metrics: `fonoster.gateway.calls.active`, `fonoster.gateway.calls.total`,
 `fonoster.medianode.rooms.active`, `fonoster.medianode.draining`, `fonoster.medianode.calls.incoming`,

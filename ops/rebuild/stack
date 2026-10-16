@@ -27,6 +27,9 @@ HOST_ENV="$LOCAL/host.env"
 SEED_FILE="$LOCAL/seed.json"
 BUNDLE="$ROOT/ops/bundle"
 BUNDLE_ENV="$LOCAL/bundle.env"
+# What Compose passes to the Fonoster containers (env_file), where config/*.yaml reference it as
+# ${NAME}: the stack's, the bundle's and the vendor keys present.
+SERVICES_ENV="$LOCAL/services.env"
 OVERLAY="$LOCAL/overlay"
 CONFIG_CLI_DIR="$ROOT/mods/common/dist/config/cli"
 
@@ -98,8 +101,6 @@ init_local() {
     fi
     grep -q "^$var=" "$STACK_ENV" || echo "$var=n$(rand)" >> "$STACK_ENV"
   done
-  # ClickHouse (profile analytics); added to stack.env files made before it.
-  grep -q "^CLICKHOUSE_PASSWORD=" "$STACK_ENV" || echo "CLICKHOUSE_PASSWORD=$(rand)" >> "$STACK_ENV"
   if [ ! -f "$CONF/keys/private.pem" ]; then
     log "generating Identity's signing keys"
     openssl genrsa -out "$CONF/keys/private.pem" 2048 2>/dev/null
@@ -175,7 +176,7 @@ render_configs() {
     echo "# Rendered by ops/rebuild/stack up: ops/bundle names from stack.env and host.env."
     echo "FONOSTER_VERSION=${RB_TAG:-dev}"
     echo "CONFIG_DIR=$RB_CONFIG_DIR"
-    echo "COMPOSE_PROFILES=$(profiles)"
+    echo "FONOSTER_ENV_FILE=./.local/services.env"
     echo "HOST_IP=$host_ip"
     echo "SUBNET_PREFIX=$net"
     echo "HTTP_PORT=$RB_API_PORT"
@@ -189,15 +190,22 @@ render_configs() {
     echo "MINIO_CONSOLE_PORT=$RB_MINIO_CONSOLE_PORT"
     echo "NATS_PORT=$RB_NATS_PORT"
     echo "LEAF_PORT=${RB_LEAF_PORT:-7422}"
-    echo "GRAFANA_PORT=$RB_GRAFANA_PORT"
-    echo "OTLP_HTTP_PORT=$RB_OTLP_HTTP_PORT"
-    echo "CLICKHOUSE_PORT=$RB_CLICKHOUSE_PORT"
     echo "ENCRYPTION_KEY=$RB_ENCRYPTION_KEY"
     echo "MEDIANODE_PASSWORD=$RB_NODE_PASSWORD"
     echo "OWNER_EMAIL=$RB_ADMIN_EMAIL"
     echo "OWNER_PASSWORD=$RB_ADMIN_PASSWORD"
   } > "$BUNDLE_ENV"
   chmod 600 "$BUNDLE_ENV"
+  {
+    echo "# Rendered by ops/rebuild/stack up: the Fonoster containers' environment (env_file)."
+    cat "$STACK_ENV" "$HOST_ENV" "$BUNDLE_ENV"
+    local k
+    for k in DEEPGRAM_API_KEY ELEVENLABS_API_KEY GROQ_API_KEY OPENAI_API_KEY \
+      OTEL_EXPORTER_OTLP_ENDPOINT; do
+      [ -n "${!k:-}" ] && echo "$k=${!k}"
+    done
+  } > "$SERVICES_ENV"
+  chmod 600 "$SERVICES_ENV"
 
   # The operator key (PR-19) authorizes the region admin API (fonoster-regions create|list|…).
   if [ ! -f "$CONF/keys/region-operator.key" ]; then
@@ -217,12 +225,12 @@ render_configs() {
     echo "testMode: true"
     echo "providers:"
     if [ -n "${DEEPGRAM_API_KEY:-}" ]; then
-      echo "  deepgram: { credential: { env: DEEPGRAM_API_KEY } }"
+      echo "  deepgram: { credential: { value: \"\${DEEPGRAM_API_KEY}\" } }"
     else
       echo "  deepgram: { adapter: fake, tts: { url: \"http://fakes:7001\" }, stt: { url: \"ws://fakes:7002\" } }"
     fi
     if [ -n "${ELEVENLABS_API_KEY:-}" ]; then
-      echo "  elevenlabs: { credential: { env: ELEVENLABS_API_KEY } }"
+      echo "  elevenlabs: { credential: { value: \"\${ELEVENLABS_API_KEY}\" } }"
     fi
   } > "$OVERLAY/gateway.yaml"
 
@@ -230,17 +238,38 @@ render_configs() {
   # fake LLM (same ids).
   local creds="" endpoints="" llm=""
   if [ -n "${GROQ_API_KEY:-}" ]; then
-    llm+="groq "; creds+="  groq-default: { env: GROQ_API_KEY }"$'\n'
+    llm+="groq "; creds+="  groq-default: { value: \"\${GROQ_API_KEY}\" }"$'\n'
   else
     creds+="  groq-default: { value: fake }"$'\n'; endpoints+="  groq: \"http://fakes:7003\""$'\n'
   fi
   if [ -n "${OPENAI_API_KEY:-}" ]; then
-    llm+="openai "; creds+="  openai-default: { env: OPENAI_API_KEY }"$'\n'
+    llm+="openai "; creds+="  openai-default: { value: \"\${OPENAI_API_KEY}\" }"$'\n'
   else
     creds+="  openai-default: { value: fake }"$'\n'; endpoints+="  openai: \"http://fakes:7003\""$'\n'
   fi
   [ -n "$endpoints" ] || endpoints="  {}"
   printf 'credentials:\n%sendpoints:\n%s\n' "$creds" "$endpoints" > "$OVERLAY/autopilot.yaml"
+
+  # The API server: the region admin API (operator key) and, with the regions profile, the region
+  # hub private regions link to (the bundle leaves both out; ops/rebuild/compose.yaml runs the hub).
+  {
+    echo "regions:"
+    echo "  operatorKey: \"secret://file/opt/fonoster/keys/region-operator.key\""
+    if [[ ",$(profiles)," == *",regions,"* ]] && [ -f "$CONF/region-hub.conf" ]; then
+      cat <<'YAML'
+  controlPlaneUrl: "http://${HOST_IP}:${HTTP_PORT}"
+  leafUrl: "nats://${HOST_IP}:${LEAF_PORT}"
+  allowInsecureLeaf: true
+  signingKey: { file: /opt/fonoster/keys/region-signing.pem }
+  hub:
+    url: "nats://nats-regions:4222"
+    credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds
+    systemCredentialsFile: /opt/fonoster/keys/region-hub/system.creds
+    operatorSeedFile: /opt/fonoster/keys/region-hub/operator.seed
+    accountSeedFile: /opt/fonoster/keys/region-hub/account.seed
+YAML
+    fi
+  } > "$OVERLAY/fonoster.yaml"
   # Your own overrides of the rendered configs, kept across runs: .local/overlay.local/<file>.yaml
   # (merged after the stack's).
   local mine=()
@@ -249,12 +278,11 @@ render_configs() {
   # The same renderer `fonoster-config init` uses (mods/common: fonoster-config render).
   [ -f "$CONFIG_CLI_DIR/index.js" ] \
     || die "build @fonoster/common first: (cd mods/common && npx tsc -b && cp -a src/protos dist)"
-  node "$CONFIG_CLI_DIR/index.js" render --config-dir "$CONF" \
-    --env-file "$STACK_ENV" --env-file "$HOST_ENV" --env-file "$BUNDLE_ENV" \
+  node "$CONFIG_CLI_DIR/index.js" render --config-dir "$CONF" --env-file "$SERVICES_ENV" \
     --overlay "$OVERLAY" ${mine[@]+"${mine[@]}"} >/dev/null || die "could not render the configs"
   # Containers read these as another user (local only).
   chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot.yaml" \
-    "$CONF/routr-edgeport.yaml"
+    "$CONF/medianode.yaml" "$CONF/routr-edgeport.yaml"
   local speech="${DEEPGRAM_API_KEY:+deepgram }${ELEVENLABS_API_KEY:+elevenlabs }"
   log "host address $host_ip; speech: ${speech:-fake }llm: ${llm:-fake }app defaults: $(default_voice), $(default_model)"
 }
