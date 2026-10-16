@@ -171,7 +171,7 @@ services:
     build:
       context: ../../..
       dockerfile: mods/autopilot/Dockerfile
-    image: ${RB_REGISTRY:-fonoster}/autopilot-session:${RB_TAG:-dev}
+    image: ${RB_REGISTRY:-fonoster}/autopilot:${RB_TAG:-dev}
     restart: unless-stopped
     depends_on:
       region-agent: { condition: service_started }

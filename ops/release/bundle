@@ -19,24 +19,16 @@ STAGE="$OUT/stage/fonoster"
 log() { printf '\033[1m[bundle]\033[0m %s\n' "$*" >&2; }
 
 build_images() {
-  # service:context:dockerfile (dockerfile relative to the context; "-" = context's Dockerfile)
-  local specs=(
-    "medianode:go/medianode:-"
-    "gateway:.:mods/gateway/Dockerfile"
-    "autopilot:.:mods/autopilot/Dockerfile"
-    "apiserver:.:ops/rebuild/docker/apiserver.Dockerfile"
-    "dashboard:.:ops/rebuild/docker/dashboard.Dockerfile"
-  )
-  local spec svc ctx file
-  for spec in "${specs[@]}"; do
-    IFS=: read -r svc ctx file <<<"$spec"
+  # The image list lives in ops/release/images.json (shared with .github/workflows/images.yaml);
+  # the archive's compose.yaml runs the entries marked "bundle".
+  local svc ctx file
+  while IFS=$'\t' read -r svc ctx file; do
     log "image fonoster/$svc:$VERSION"
-    if [ "$file" = "-" ]; then
-      docker build -q -t "fonoster/$svc:$VERSION" "$ROOT/$ctx" >/dev/null
-    else
-      docker build -q -t "fonoster/$svc:$VERSION" -f "$ROOT/$file" "$ROOT/$ctx" >/dev/null
-    fi
-  done
+    docker build -q -t "fonoster/$svc:$VERSION" -f "$ROOT/$file" "$ROOT/$ctx" >/dev/null
+  done < <(node -e '
+    const { images } = require(process.argv[1]);
+    for (const i of images.filter((i) => i.bundle)) console.log([i.name, i.context, i.dockerfile].join("\t"));
+  ' "$ROOT/ops/release/images.json")
 }
 
 build_archive() {

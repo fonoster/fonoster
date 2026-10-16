@@ -31,7 +31,7 @@ services:
     build:
       context: ../..
       dockerfile: mods/autopilot/Dockerfile
-    image: ${RB_REGISTRY:-fonoster}/autopilot-session:${RB_TAG:-dev}
+    image: ${RB_REGISTRY:-fonoster}/autopilot:${RB_TAG:-dev}
 
   apiserver:
     build:

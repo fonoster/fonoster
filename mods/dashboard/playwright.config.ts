@@ -19,7 +19,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { Variant } from "./e2e/fixtures";
 
-const PORT = 4174;
+const PORT = Number(process.env.E2E_PORT ?? 4174);
 
 export default defineConfig<{ variant: Variant }>({
   testDir: "./e2e",

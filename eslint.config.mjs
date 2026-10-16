@@ -126,7 +126,7 @@ import headerPlugin from 'eslint-plugin-header'; export default [
     }
   },
   {
-    files: ['mods/**/*.mjs', 'mods/**/*.cjs'],
+    files: ['mods/**/*.mjs', 'mods/**/*.cjs', 'mods/voice/session.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',

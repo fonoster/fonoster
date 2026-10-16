@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { StepEvaluationReport } from "@fonoster/types";
-import { LanguageModel, EvalAssistant } from "../types";
+import { EvalAssistant, LanguageModel } from "../types";
 
 type EvalExpectedTool = {
   tool: string;

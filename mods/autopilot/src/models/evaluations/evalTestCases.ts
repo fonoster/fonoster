@@ -19,7 +19,7 @@
 import { ScenarioEvaluationReport } from "@fonoster/types";
 import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
-import { TelephonyContext, EvalAssistant } from "../types";
+import { EvalAssistant, TelephonyContext } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";

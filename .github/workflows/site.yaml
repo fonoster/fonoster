@@ -1,0 +1,69 @@
+name: site
+
+# fonoster.com: site/ is published to GitHub Pages (gh-pages branch) on every push to main that
+# changes it. The docs (docs-site/, Mintlify, deployed by Mintlify itself) are checked for broken
+# links on pull requests that change them.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'site/**'
+      - '.github/workflows/site.yaml'
+  pull_request:
+    paths:
+      - 'docs-site/**'
+      - '.github/workflows/site.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: deploy fonoster.com
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: site-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Populate the out directory
+        run: |
+          # Publish everything under site/ (the deploy replaces the whole gh-pages branch)
+          mkdir -p out
+          cp -a site/. out/
+          rm -f out/README.md
+          echo > out/.nojekyll
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out
+          publish_branch: gh-pages
+          cname: fonoster.com
+
+  docs:
+    name: docs broken links
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+
+      # The same check as `npm run check:docs` (pinned Mintlify CLI), without installing the repo.
+      - name: Mintlify broken links
+        working-directory: docs-site
+        run: npx --yes mint@4.2.1045 broken-links

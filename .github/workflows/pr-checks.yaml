@@ -1,0 +1,71 @@
+name: pr checks
+
+# Contribution rules: sign-off (DCO), conventional commit messages and lint/format. Lint also runs on
+# every push to main so a merge that breaks it shows up at once.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dco:
+    name: DCO sign-off
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: KineticCafe/actions-dco@v1
+        with:
+          exempt-authors: |
+            @fonoster.com
+
+  commitlint:
+    name: conventional commits
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      # commitlint and its config are root devDependencies; no build needed.
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      # Rules: commitlint.config.cjs (merge commits are skipped).
+      - name: Check the pull request's commits
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+  lint:
+    name: eslint and prettier
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Lint (includes format checking)
+        run: npm run lint

@@ -1,15 +1,13 @@
 name: conformance
 
-# Rebuild conformance suites (add-conformance-framework, C6). Fake-based suites run on every pull
-# request; timing (T1), load (T2) and the Pipecat golden test run nightly. The plain unit-test
-# workflow already runs everything that needs no NATS.
+# Conformance suites (add-conformance-framework, C6). The suites that need NATS run on pull
+# requests that touch the voice path; timing (T1), load (T2), turn-taking replay (T3) and the
+# Pipecat golden test run nightly and on demand. Unit tests, Go and Python are in ci.yaml.
 
 on:
   pull_request:
-    branches:
-      - main
-      - next
     paths:
+      - '.github/workflows/conformance.yaml'
       - 'mods/common/**'
       - 'mods/conformance/**'
       - 'mods/gateway/**'
@@ -23,6 +21,13 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   suites:
     name: session, SDK and Autopilot suites (NATS)
@@ -33,68 +38,48 @@ jobs:
         ports:
           - 4222:4222
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: "22.x"
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
 
-    - name: Setup Go
-      uses: actions/setup-go@v5
-      with:
-        go-version-file: go/medianode/go.mod
+      # Some suites build and run the real media node (go build, cgo with libopus).
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go/medianode/go.mod
+          cache-dependency-path: go/medianode/go.sum
 
-    - name: Install dependencies and build
-      run: |
-        npm install
-        npm run build
+      - name: Install libopus
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
 
-    - name: Go media node (vet, unit and end-to-end tests)
-      working-directory: go/medianode
-      env:
-        CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
-      run: |
-        test -z "$(gofmt -l .)"
-        go vet ./...
-        go test -race ./...
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
 
-    - name: Run the suites that need NATS
-      env:
-        CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
-        LOGS_LEVEL: none
-      run: |
-        npx mocha --exit --timeout 30000 \
-          'mods/gateway/test/conformance.test.ts' \
-          'mods/gateway/test/integration.test.ts' \
-          'mods/gateway/test/crash.test.ts' \
-          'mods/conformance/test/nats.test.ts' \
-          'mods/conformance/test/media-control.test.ts' \
-          'mods/conformance/test/media-control-go.test.ts' \
-          'mods/gateway/test/gonode.test.ts' \
-          'mods/autopilot/test/session/fullstack.test.ts'
-
-  python:
-    name: Python SDK and runner
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
-
-    - name: Install and test
-      working-directory: python
-      run: |
-        python -m pip install -e fonoster-conformance -e "fonoster-voice[test]"
-        python -m pytest fonoster-conformance/tests fonoster-voice/tests
+      - name: Run the suites that need NATS
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          GOTOOLCHAIN: local
+          LOGS_LEVEL: none
+        run: |
+          npx mocha --exit --timeout 30000 \
+            'mods/gateway/test/conformance.test.ts' \
+            'mods/gateway/test/integration.test.ts' \
+            'mods/gateway/test/crash.test.ts' \
+            'mods/conformance/test/nats.test.ts' \
+            'mods/conformance/test/media-control.test.ts' \
+            'mods/conformance/test/media-control-go.test.ts' \
+            'mods/gateway/test/gonode.test.ts' \
+            'mods/autopilot/test/session/fullstack.test.ts'
 
   nightly:
-    name: timing (T1), load (T2) and Pipecat
+    name: timing (T1), load (T2), replay (T3) and Pipecat
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     # Shared runners are noisy; these numbers are a trend, not the pass bar (which needs a
     # dedicated runner, conformance task 4.2).
@@ -105,51 +90,52 @@ jobs:
         ports:
           - 4222:4222
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: "22.x"
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-    - name: Install dependencies and build
-      run: |
-        npm install
-        npm run build
-        python -m pip install -r python/pipecat-golden/requirements.txt
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          python -m pip install -r python/pipecat-golden/requirements.txt
 
-    - name: Timing (T1)
-      env:
-        CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
-        CONFORMANCE_TIMING_RUNS: "200"
-        CONFORMANCE_REPORT_DIR: reports
-        LOGS_LEVEL: none
-      run: npx mocha --timeout 0 'mods/gateway/test/timing.test.ts'
+      - name: Timing (T1)
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          CONFORMANCE_TIMING_RUNS: "200"
+          CONFORMANCE_REPORT_DIR: reports
+          LOGS_LEVEL: none
+        run: npx mocha --timeout 0 'mods/gateway/test/timing.test.ts'
 
-    - name: Load (T2)
-      run: |
-        mkdir -p reports
-        npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 60 | tee reports/scale-100.json
+      - name: Load (T2)
+        run: |
+          mkdir -p reports
+          npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 60 | tee reports/scale-100.json
 
-    - name: Turn-taking replay (T3)
-      run: npx tsx mods/gateway/scripts/replay.ts | tee reports/turn-replay.txt
+      - name: Turn-taking replay (T3)
+        run: npx tsx mods/gateway/scripts/replay.ts | tee reports/turn-replay.txt
 
-    - name: Pipecat golden test
-      env:
-        CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
-        PIPECAT_PYTHON: python
-        LOGS_LEVEL: none
-      run: npx mocha --timeout 60000 'mods/gateway/test/pipecat.test.ts'
+      - name: Pipecat golden test
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          PIPECAT_PYTHON: python
+          LOGS_LEVEL: none
+        run: npx mocha --timeout 60000 'mods/gateway/test/pipecat.test.ts'
 
-    - name: Publish reports
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: conformance-reports
-        path: reports/
+      - name: Publish reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-reports
+          path: reports/

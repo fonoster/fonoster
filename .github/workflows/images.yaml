@@ -1,0 +1,122 @@
+name: images
+
+# Builds the Fonoster images for linux/amd64 and linux/arm64 and pushes them to Docker Hub as
+# fonoster/<name>:<version> (and :latest when asked). The list is ops/release/images.json, the same
+# one ops/release/bundle builds from, so the published images and the release archive agree.
+# Called by release.yaml; can also be started by hand (e.g. to republish one version).
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Image tag (the release version)
+        required: true
+        type: string
+      ref:
+        description: Commit to build (default the calling commit)
+        required: false
+        type: string
+      latest:
+        description: Also tag :latest
+        required: false
+        type: boolean
+        default: false
+      only:
+        description: Build just this image (a name from ops/release/images.json); empty builds all
+        required: false
+        type: string
+        default: ""
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Image tag (the release version)
+        required: true
+        type: string
+      ref:
+        description: Commit, branch or tag to build (default the selected branch)
+        required: false
+        type: string
+      latest:
+        description: Also tag :latest
+        required: false
+        type: boolean
+        default: false
+      only:
+        description: Build just this image (a name from ops/release/images.json); empty builds all
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  list:
+    name: image list
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.list.outputs.images }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Read ops/release/images.json
+        id: list
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          images="$(jq -c --arg only "$ONLY" '[.images[] | select($only == "" or .name == $only)]' ops/release/images.json)"
+          [ "$images" != "[]" ] || { echo "no image named '$ONLY' in ops/release/images.json"; exit 1; }
+          echo "images=$images" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: fonoster/${{ matrix.image.name }}
+    needs: list
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.list.outputs.images) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Set up QEMU (arm64)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Tags
+        id: tags
+        env:
+          NAME: ${{ matrix.image.name }}
+          VERSION: ${{ inputs.version }}
+          LATEST: ${{ inputs.latest }}
+        run: |
+          {
+            echo "tags<<EOF"
+            echo "fonoster/$NAME:$VERSION"
+            [ "$LATEST" != "true" ] || echo "fonoster/$NAME:latest"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.image.context }}
+          file: ${{ matrix.image.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha,scope=${{ matrix.image.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image.name }}
