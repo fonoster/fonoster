@@ -25,7 +25,16 @@ export const communityCapabilities: Capabilities = {
   costs: { display: "none" },
   domain: "fonoster.local",
   appUrl: "http://localhost:3030",
-  regions: { private: false }
+  regions: { private: false },
+  connection: {
+    sip: [
+      { host: "192.0.2.10", port: 5060, transport: "udp" },
+      { host: "192.0.2.10", port: 5060, transport: "tcp" }
+    ],
+    signalingAddresses: ["192.0.2.10"],
+    mediaAddresses: ["192.0.2.10"],
+    rtpPorts: { min: 10000, max: 10999 }
+  }
 };
 
 /** Fonoster Cloud: GitHub and emailed codes, open sign-up, billing. */
@@ -42,7 +51,12 @@ export const cloudCapabilities: Capabilities = {
   costs: { display: "prices" },
   domain: "fonoster.com",
   appUrl: "https://app.fonoster.com",
-  regions: { private: true }
+  regions: { private: true },
+  connection: {
+    sip: [{ host: "sip.us-east-1.fonoster.com", port: 5060, transport: "udp" }],
+    signalingAddresses: ["198.51.100.1"],
+    mediaAddresses: ["198.51.100.2"]
+  }
 };
 
 /** Self-hosted with the region hub added: private regions on, billing off. */

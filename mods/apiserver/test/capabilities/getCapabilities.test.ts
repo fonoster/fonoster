@@ -161,4 +161,53 @@ describe("@apiserver[capabilities/getCapabilities]", function () {
       }
     });
   });
+  describe("connection", function () {
+    it("reports the default public region's SIP, allowlist and RTP details, with no private regions", async function () {
+      const response = await getCapabilities(
+        configWith({
+          regions: {
+            public: [
+              { id: "other", name: "Other" },
+              {
+                id: "default",
+                name: "Local",
+                default: true,
+                endpoints: {
+                  sip: [
+                    { host: "192.0.2.10", port: "5060", transport: "udp" },
+                    { host: "192.0.2.10", port: 5060, transport: "tcp" }
+                  ],
+                  signalingAddresses: ["192.0.2.10"],
+                  mediaAddresses: ["192.0.2.10"],
+                  rtpPorts: { min: "10000", max: 10999 }
+                }
+              }
+            ]
+          }
+        })
+      );
+
+      expect(response.regions).to.deep.equal({ private: false });
+      expect(response.connection).to.deep.equal({
+        sip: [
+          { host: "192.0.2.10", port: 5060, transport: "udp" },
+          { host: "192.0.2.10", port: 5060, transport: "tcp" }
+        ],
+        signalingAddresses: ["192.0.2.10"],
+        mediaAddresses: ["192.0.2.10"],
+        rtpPorts: { min: 10000, max: 10999 }
+      });
+    });
+
+    it("is empty when the region lists no endpoints", async function () {
+      const response = await getCapabilities(configWith({}));
+
+      expect(response.connection).to.deep.equal({
+        sip: [],
+        signalingAddresses: [],
+        mediaAddresses: [],
+        rtpPorts: undefined
+      });
+    });
+  });
 });

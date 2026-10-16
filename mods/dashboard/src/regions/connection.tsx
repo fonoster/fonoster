@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { CopyField } from "~/components/data/copy-field";
+import { useConnection, usePrivateRegions } from "~/lib/capabilities";
 import { useRegion } from "./api";
 import type { RegionDetail, RegionEndpoints, SipTransport } from "./types";
 
@@ -54,10 +55,17 @@ export function allowlist(endpoints: RegionEndpoints | undefined): string[] {
 const hasDetails = (e?: RegionEndpoints) =>
   !!e && (e.sip.length > 0 || allowlist(e).length > 0);
 
-/** The current workspace's connection details (its region, public or private). */
+/**
+ * The current workspace's connection details. With private regions, its region's (public or
+ * private, from the regions API). Without them the regions API is not mounted, so they come from
+ * GetCapabilities: the deployment's default public region.
+ */
 export function useEndpoints(): RegionEndpoints | undefined {
+  const privateRegions = usePrivateRegions();
   const { data } = useRegion();
-  return hasDetails(data?.endpoints) ? data!.endpoints : undefined;
+  const deployment = useConnection();
+  const endpoints = privateRegions ? data?.endpoints : deployment;
+  return hasDetails(endpoints) ? endpoints : undefined;
 }
 
 /** Settings → Region: SIP addresses, addresses to allowlist and RTP ports, each copyable. */

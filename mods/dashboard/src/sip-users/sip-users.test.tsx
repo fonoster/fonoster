@@ -103,8 +103,27 @@ describe("SIP users", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows no softphone settings (region info) without private regions", async () => {
+  it("takes the softphone settings from the deployment's capabilities without private regions", async () => {
     const { user, regions } = setup([], communityCapabilities);
+    await user.click(
+      await screen.findByRole("button", { name: "Add SIP user" })
+    );
+    const phone = await screen.findByRole("region", {
+      name: "Softphone settings"
+    });
+    expect(within(phone).getByLabelText("Server")).toHaveTextContent(
+      "192.0.2.10"
+    );
+    expect(within(phone).getByLabelText("Port")).toHaveTextContent("5060");
+    expect(within(phone).getByLabelText("Transport")).toHaveTextContent("UDP");
+    expect(regions.getRegion).not.toHaveBeenCalled();
+  });
+
+  it("shows no softphone settings when the deployment lists no SIP address", async () => {
+    const { user } = setup([], {
+      ...communityCapabilities,
+      connection: { sip: [], signalingAddresses: [], mediaAddresses: [] }
+    });
     await user.click(
       await screen.findByRole("button", { name: "Add SIP user" })
     );
@@ -112,7 +131,6 @@ describe("SIP users", () => {
     expect(
       screen.queryByRole("region", { name: "Softphone settings" })
     ).toBeNull();
-    expect(regions.getRegion).not.toHaveBeenCalled();
   });
 
   it("lists SIP users with their SIP address", async () => {
