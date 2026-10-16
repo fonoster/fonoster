@@ -451,6 +451,10 @@
           "type": "number",
           "minimum": 0
         },
+        "speechOnsetMs": {
+          "type": "number",
+          "minimum": 0
+        },
         "reason": {
           "type": "string"
         }

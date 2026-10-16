@@ -2812,7 +2812,7 @@ export namespace Prisma {
       accessKeyId: string
       name: string
       /**
-       * A public region id (us-east-1) or the workspace's private region ref (rg_…). Immutable.
+       * A public region id (`default`, `us-east-1`) or a private region ref (rg_…). Immutable.
        */
       region: string
       createdAt: Date

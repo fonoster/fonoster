@@ -24,8 +24,10 @@ const logger = getLogger({ service: "gateway", filePath: __filename });
 // Answering-machine detection as a voice-worker listener (add-media-node 4.3, design: "AMD via
 // AMD() or the ML sidecar over AGI/AudioSocket → a listener in the voice worker"). The gateway
 // attaches a listen-only participant to the room with one RTP stream: the caller's track. It
-// collects the first `windowMs` of the caller's audio (16 kHz L16, the recording format), asks the
-// classifier, detaches, and reports `amd.result` to the session and the call record.
+// collects `windowMs` of the caller's audio (16 kHz L16, the recording format) from the moment the
+// caller starts speaking, asks the classifier, detaches, and reports `amd.result` to the session and
+// the call record. Carriers can send seconds of silence after answer before a voicemail greeting
+// starts; the model reads that silence as a confident human, so it is measured, not classified.
 
 export const AMD_RATE = 16000;
 export const AMD_CODEC = "L16/16000";
@@ -34,6 +36,21 @@ const DEFAULT_WINDOW_MS = 4000;
 const GRACE_MS = 1500;
 /** Below this much audio the verdict is `unknown` without asking the classifier. */
 const MIN_AUDIO_MS = 300;
+/** One 20 ms frame of 16 kHz L16. */
+const FRAME_BYTES = (AMD_RATE * 2 * 20) / 1000;
+/** Mean absolute sample value (0-32767) a frame must reach to count as speech. */
+const SPEECH_LEVEL = 256;
+/** Consecutive loud frames that start the window, so a click or line pop doesn't. */
+const ONSET_FRAMES = 3;
+/** How long to wait for the caller to start speaking; then the verdict is `no_speech`. */
+const SPEECH_WAIT_MS = 4000;
+
+function frameLevel(pcm: Buffer, offset: number): number {
+  let sum = 0;
+  for (let i = 0; i < FRAME_BYTES; i += 2)
+    sum += Math.abs(pcm.readInt16LE(offset + i));
+  return sum / (FRAME_BYTES / 2);
+}
 
 export type AmdVerdict = {
   status: "human" | "voicemail" | "ivr" | "machine" | "unknown";
@@ -64,6 +81,8 @@ type Host = {
 export type AmdResult = AmdVerdict & {
   /** How much caller audio the verdict is based on. */
   audioMs: number;
+  /** Caller audio received before speech began; unset when the caller never spoke. */
+  speechOnsetMs?: number;
   /** Set when the detection could not run; the status is then `unknown`. */
   reason?: string;
 };
@@ -73,6 +92,12 @@ export class AmdListener {
   private socket?: dgram.Socket;
   private chunks: Buffer[] = [];
   private bytes = 0;
+  private received = 0;
+  /** Before onset: the current run of loud frames, and how many bytes came before it. */
+  private pending: Buffer = Buffer.alloc(0);
+  private beforeOnset = 0;
+  private loudFrames = 0;
+  private onsetMs?: number;
   private done = false;
   private timer?: ReturnType<typeof setTimeout>;
   private listenerRef?: string;
@@ -95,17 +120,22 @@ export class AmdListener {
         await this.detach();
         const pcm = Buffer.concat(this.chunks).subarray(0, need);
         const audioMs = Math.round((pcm.length / 2 / AMD_RATE) * 1000);
+        const onset =
+          this.onsetMs === undefined ? {} : { speechOnsetMs: this.onsetMs };
+        if (!reason && this.onsetMs === undefined)
+          reason = this.received ? "no_speech" : "no_audio";
         if (reason || audioMs < MIN_AUDIO_MS) {
           return resolve({
             status: "unknown",
             confidence: 0,
             detector: "none",
             audioMs,
+            ...onset,
             reason: reason ?? "no_audio"
           });
         }
         try {
-          resolve({ ...(await this.classify(pcm)), audioMs });
+          resolve({ ...(await this.classify(pcm)), audioMs, ...onset });
         } catch (e) {
           logger.warn(
             `call ${this.host.callRef}: amd classifier failed: ${(e as Error).message}`
@@ -115,14 +145,19 @@ export class AmdListener {
             confidence: 0,
             detector: "none",
             audioMs,
+            ...onset,
             reason: "classifier_failed"
           });
         }
       };
       this.onEnough = () => void finish();
       this.stopNow = (reason) => void finish(reason);
+      this.onSpeech = () => {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => void finish(), windowMs + GRACE_MS);
+      };
       this.need = need;
-      this.timer = setTimeout(() => void finish(), windowMs + GRACE_MS);
+      this.timer = setTimeout(() => void finish(), SPEECH_WAIT_MS);
       void this.attach(callerTrack).catch((e: Error & { code?: string }) =>
         finish(e.code ?? "attach_failed")
       );
@@ -131,11 +166,12 @@ export class AmdListener {
 
   private need = 0;
   private onEnough: () => void = () => undefined;
+  private onSpeech: () => void = () => undefined;
   private stopNow: (reason: string) => void = () => undefined;
 
   /** Ends the run early (the call ended); the verdict is `unknown` unless enough audio arrived. */
   stop() {
-    if (this.bytes >= this.need) this.onEnough();
+    if (this.onsetMs !== undefined && this.bytes >= this.need) this.onEnough();
     else this.stopNow("call_ended");
   }
 
@@ -173,9 +209,43 @@ export class AmdListener {
     const le = Buffer.alloc(payload.length - (payload.length % 2));
     for (let i = 0; i < le.length; i += 2)
       le.writeInt16LE(payload.readInt16BE(i), i);
-    this.chunks.push(le);
-    this.bytes += le.length;
+    this.received += le.length;
+    if (this.onsetMs === undefined) this.scanForOnset(le);
+    else this.append(le);
+  }
+
+  private append(pcm: Buffer) {
+    this.chunks.push(pcm);
+    this.bytes += pcm.length;
     if (this.bytes >= this.need) this.onEnough();
+  }
+
+  /** Drops quiet frames until ONSET_FRAMES loud ones in a row; the window starts at the first. */
+  private scanForOnset(pcm: Buffer) {
+    this.pending = this.pending.length
+      ? Buffer.concat([this.pending, pcm])
+      : pcm;
+    let offset = this.loudFrames * FRAME_BYTES;
+    while (this.pending.length - offset >= FRAME_BYTES) {
+      if (frameLevel(this.pending, offset) < SPEECH_LEVEL) {
+        const drop = offset + FRAME_BYTES;
+        this.beforeOnset += drop;
+        this.pending = this.pending.subarray(drop);
+        this.loudFrames = 0;
+        offset = 0;
+        continue;
+      }
+      this.loudFrames++;
+      offset += FRAME_BYTES;
+      if (this.loudFrames === ONSET_FRAMES) {
+        const speech = this.pending;
+        this.pending = Buffer.alloc(0);
+        this.onsetMs = Math.round((this.beforeOnset / 2 / AMD_RATE) * 1000);
+        this.onSpeech();
+        this.append(speech);
+        return;
+      }
+    }
   }
 
   private async detach() {

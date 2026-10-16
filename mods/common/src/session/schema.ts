@@ -250,9 +250,11 @@ export const amdResultSchema = {
     status: { enum: ["human", "voicemail", "ivr", "machine", "unknown"] },
     confidence: { type: "number", minimum: 0, maximum: 1 },
     detector: { type: "string" },
-    /** How much caller audio the verdict is based on. */
+    /** How much caller audio the verdict is based on, from when the caller started speaking. */
     audioMs: { type: "number", minimum: 0 },
-    /** Why detection could not run (status unknown): no_audio, no_classifier, call_ended, … */
+    /** Caller audio received before speech began (unset when the caller never spoke). */
+    speechOnsetMs: { type: "number", minimum: 0 },
+    /** Why detection could not run (status unknown): no_audio, no_speech, no_classifier, call_ended, … */
     reason: { type: "string" }
   }
 } as const;
