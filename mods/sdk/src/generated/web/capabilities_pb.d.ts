@@ -91,6 +91,24 @@ export namespace CostsCapabilities {
   }
 }
 
+export class RegionsCapabilities extends jspb.Message {
+  getPrivate(): boolean;
+  setPrivate(value: boolean): RegionsCapabilities;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RegionsCapabilities.AsObject;
+  static toObject(includeInstance: boolean, msg: RegionsCapabilities): RegionsCapabilities.AsObject;
+  static serializeBinaryToWriter(message: RegionsCapabilities, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RegionsCapabilities;
+  static deserializeBinaryFromReader(message: RegionsCapabilities, reader: jspb.BinaryReader): RegionsCapabilities;
+}
+
+export namespace RegionsCapabilities {
+  export type AsObject = {
+    pb_private: boolean,
+  }
+}
+
 export class GetCapabilitiesResponse extends jspb.Message {
   getAuth(): AuthCapabilities | undefined;
   setAuth(value?: AuthCapabilities): GetCapabilitiesResponse;
@@ -113,6 +131,11 @@ export class GetCapabilitiesResponse extends jspb.Message {
   getAppUrl(): string;
   setAppUrl(value: string): GetCapabilitiesResponse;
 
+  getRegions(): RegionsCapabilities | undefined;
+  setRegions(value?: RegionsCapabilities): GetCapabilitiesResponse;
+  hasRegions(): boolean;
+  clearRegions(): GetCapabilitiesResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetCapabilitiesResponse.AsObject;
   static toObject(includeInstance: boolean, msg: GetCapabilitiesResponse): GetCapabilitiesResponse.AsObject;
@@ -128,6 +151,7 @@ export namespace GetCapabilitiesResponse {
     costs?: CostsCapabilities.AsObject,
     domain: string,
     appUrl: string,
+    regions?: RegionsCapabilities.AsObject,
   }
 }
 

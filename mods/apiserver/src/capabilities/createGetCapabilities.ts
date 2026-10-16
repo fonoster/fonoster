@@ -28,7 +28,18 @@ type GetCapabilitiesResponse = {
   costs: { display: string };
   domain: string;
   appUrl: string;
+  regions: { private: boolean };
 };
+
+/**
+ * Private regions are an optional integration: enrollment needs both the
+ * region-signing key and the region hub (regions.signingKey + regions.hub,
+ * the same pair runRegions checks). Only the boolean is exposed, never the
+ * hub URL, credentials or key.
+ */
+function supportsPrivateRegions(config: FonosterConfig): boolean {
+  return Boolean(config.regions?.signingKey && config.regions?.hub);
+}
 
 /**
  * What this deployment supports, from fonoster.yaml, for clients that render
@@ -55,7 +66,8 @@ function createGetCapabilities(config: FonosterConfig) {
     billing: { enabled: billing.enabled },
     costs: { display: costs.display },
     domain: config.domain,
-    appUrl: getAppUrl(config)
+    appUrl: getAppUrl(config),
+    regions: { private: supportsPrivateRegions(config) }
   };
 
   return async (
@@ -64,4 +76,8 @@ function createGetCapabilities(config: FonosterConfig) {
   ) => callback(null, response);
 }
 
-export { createGetCapabilities, GetCapabilitiesResponse };
+export {
+  createGetCapabilities,
+  GetCapabilitiesResponse,
+  supportsPrivateRegions
+};

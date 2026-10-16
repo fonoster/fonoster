@@ -63,6 +63,12 @@ type Capabilities = {
   costs: { display: "none" | "usage" | "prices" };
   domain: string;
   appUrl: string;
+  /**
+   * `private` is true only when the operator configured the region hub, so
+   * workspaces can enroll private regions. The local public region always
+   * exists and is not a reason to show region features.
+   */
+  regions: { private: boolean };
 };
 
 abstract class AbstractClient implements FonosterClient {
@@ -244,7 +250,10 @@ abstract class AbstractClient implements FonosterClient {
                 "none") as Capabilities["costs"]["display"]
             },
             domain: response.getDomain(),
-            appUrl: response.getAppUrl()
+            appUrl: response.getAppUrl(),
+            regions: {
+              private: response.getRegions()?.getPrivate() ?? false
+            }
           });
         }
       );

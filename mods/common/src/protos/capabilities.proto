@@ -52,10 +52,20 @@ message CostsCapabilities {
   string display = 1;
 }
 
+// Private regions (customer-run regions enrolled through the region hub).
+// The local public region always exists and is not reported here.
+message RegionsCapabilities {
+  // True when the operator configured the region hub and the region-signing
+  // key (regions.hub and regions.signingKey), so workspaces can enroll
+  // private regions. Never carries hub URLs or keys.
+  bool private = 1;
+}
+
 message GetCapabilitiesResponse {
   AuthCapabilities auth = 1;
   BillingCapabilities billing = 2;
   CostsCapabilities costs = 3;
   string domain = 4;
   string app_url = 5;
+  RegionsCapabilities regions = 6;
 }

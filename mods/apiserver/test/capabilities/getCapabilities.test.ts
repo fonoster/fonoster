@@ -108,4 +108,57 @@ describe("@apiserver[capabilities/getCapabilities]", function () {
       "http://localhost:3999/login/oauth/authorize"
     );
   });
+
+  describe("regions.private", function () {
+    const hub = {
+      url: "tls://hub.internal.example:4222",
+      credentialsFile: "/etc/fonoster/hub.creds",
+      systemCredentialsFile: "/etc/fonoster/sys.creds",
+      operatorSeedFile: "/etc/fonoster/operator.nk",
+      accountSeedFile: "/etc/fonoster/account.nk"
+    };
+    const signingKey = { file: "/etc/fonoster/region-signing.pem" };
+
+    it("is false without hub settings (the default public region does not count)", async function () {
+      const response = await getCapabilities(configWith({}));
+
+      expect(response.regions).to.deep.equal({ private: false });
+    });
+
+    it("is false with only the signing key or only the hub", async function () {
+      const keyOnly = await getCapabilities(
+        configWith({ regions: { signingKey } })
+      );
+      const hubOnly = await getCapabilities(configWith({ regions: { hub } }));
+
+      expect(keyOnly.regions).to.deep.equal({ private: false });
+      expect(hubOnly.regions).to.deep.equal({ private: false });
+    });
+
+    it("is true with the hub and signing key, without exposing them", async function () {
+      const response = await getCapabilities(
+        configWith({
+          regions: {
+            signingKey,
+            hub,
+            leafUrl: "tls://leaf.internal.example:7422",
+            controlPlaneUrl: "https://cp.internal.example"
+          }
+        })
+      );
+
+      expect(response.regions).to.deep.equal({ private: true });
+      const json = JSON.stringify(response);
+      for (const leak of [
+        "hub.internal",
+        "leaf.internal",
+        "cp.internal",
+        ".creds",
+        ".pem",
+        ".nk"
+      ]) {
+        expect(json).not.to.include(leak);
+      }
+    });
+  });
 });
