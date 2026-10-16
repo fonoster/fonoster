@@ -73,6 +73,46 @@ describe("@identity[workspace/updateWorkspace]", function () {
     expect(response).to.deep.equal({ ref: TEST_UUID });
   });
 
+  it("should not update a workspace the caller is not a member of", async function () {
+    // Arrange
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const call = {
+      metadata,
+      request: {
+        ref: TEST_UUID,
+        name: "Renamed by an outsider"
+      }
+    };
+
+    const update = sandbox.stub().resolves({ ref: TEST_UUID });
+    const prisma = {
+      workspace: {
+        update,
+        findUnique: sandbox.stub().resolves({ ownerRef: "someone-else" })
+      },
+      workspaceMember: {
+        findFirst: sandbox.stub().resolves(null)
+      }
+    } as unknown as Prisma;
+
+    const { createUpdateWorkspace } = await import(
+      "../../src/workspaces/createUpdateWorkspace"
+    );
+
+    // Act
+    const callback = sandbox.stub();
+    await createUpdateWorkspace(prisma)(call, callback);
+
+    // Assert
+    expect(update).to.not.have.been.called;
+    expect(callback).to.have.been.calledOnceWith({
+      code: grpc.status.PERMISSION_DENIED,
+      message: "User is not a member of the workspace"
+    });
+  });
+
   it("should throw an error if the user does not exist", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
