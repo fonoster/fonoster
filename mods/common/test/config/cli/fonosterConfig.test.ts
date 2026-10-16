@@ -32,7 +32,8 @@ import { join } from "path";
 import { expect } from "chai";
 import { parse } from "yaml";
 import { suggestKey } from "../../../src/config/configHints";
-import { readEnvFile } from "../../../src/config/cli/envFile";
+import { expandEnv, readEnvFile } from "../../../src/config/cli/envFile";
+import { interpolateEnv } from "../../../src/config/interpolateEnv";
 import { main } from "../../../src/config/cli/main";
 import {
   deepMerge,
@@ -131,19 +132,20 @@ describe("@common[config/cli] fonoster-config", function () {
         "config/fonoster.yaml",
         "config/gateway.yaml",
         "config/autopilot.yaml",
+        "config/medianode.yaml",
         "config/routr-edgeport.yaml",
-        "config/region-hub.conf",
         "config/keys/private.pem",
         "config/keys/public.pem",
-        "config/keys/records.pem",
-        "config/keys/region-operator.key",
-        "config/keys/region-signing.pem",
-        "config/keys/region-hub/operator.seed",
-        "config/keys/region-hub/account.seed",
-        "config/keys/region-hub/control-plane.creds",
-        "config/keys/region-hub/system.creds"
+        "config/keys/records.pem"
       ])
         expect(existsSync(join(dir, f)), f).to.equal(true);
+      // The region hub is opt-in (init --regions).
+      for (const f of [
+        "config/region-hub.conf",
+        "config/keys/region-operator.key",
+        "config/keys/region-signing.pem"
+      ])
+        expect(existsSync(join(dir, f)), f).to.equal(false);
       // The examples stay for reference.
       expect(existsSync(join(dir, "config/fonoster.example.yaml"))).to.equal(
         true
@@ -161,7 +163,6 @@ describe("@common[config/cli] fonoster-config", function () {
         "NATS_GATEWAY_PASSWORD",
         "NATS_MEDIANODE_PASSWORD",
         "NATS_ROUTR_PASSWORD",
-        "CLICKHOUSE_PASSWORD",
         "AUTOPILOT_SIGNING_SECRET",
         "MEDIANODE_PASSWORD",
         "OWNER_PASSWORD",
@@ -188,9 +189,6 @@ describe("@common[config/cli] fonoster-config", function () {
       ).to.equal(createPublicKey(rsa).export({ format: "jwk" }).n);
       const ec = createPrivateKey(readFileSync(join(keys, "records.pem")));
       expect(ec.asymmetricKeyDetails?.namedCurve).to.equal("prime256v1");
-      expect(
-        readFileSync(join(dir, "config/region-hub.conf"), "utf8")
-      ).to.match(/^operator: /m);
     });
 
     it("writes .env for the owner only and keys the containers read world-readable", async function () {
@@ -202,72 +200,113 @@ describe("@common[config/cli] fonoster-config", function () {
         "config/fonoster.yaml",
         "config/gateway.yaml",
         "config/keys/private.pem",
-        "config/keys/records.pem",
-        "config/keys/region-hub/operator.seed"
+        "config/keys/records.pem"
       ])
         expect(mode(join(dir, f)), f).to.equal(0o644);
     });
 
-    it("fills the service config from .env, with no placeholders left", async function () {
+    it("keeps secrets in .env: service files hold placeholders, Routr's gets values", async function () {
       const dir = unpack();
       await init(dir);
-      const env = readEnvFile(join(dir, ".env"));
+      const env = Object.fromEntries(readEnvFile(join(dir, ".env")));
       const fonoster = yamlOf(dir, "fonoster.yaml");
       expect(fonoster.database.url).to.equal(
-        `postgresql://postgres:${env.get("POSTGRES_PASSWORD")}@postgres:5432/fonoster`
+        "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
       );
-      expect(fonoster.encryption.key).to.equal(env.get("ENCRYPTION_KEY"));
-      expect(fonoster.identity.owner.password).to.equal(
-        env.get("OWNER_PASSWORD")
+      expect(fonoster.encryption.key).to.equal("${ENCRYPTION_KEY}");
+      expect(yamlOf(dir, "gateway.yaml").encryption.key).to.equal(
+        "${ENCRYPTION_KEY}"
       );
-      expect(fonoster.appUrl).to.equal("http://192.0.2.10:8449");
+      expect(yamlOf(dir, "autopilot.yaml").encryption.key).to.equal(
+        "${ENCRYPTION_KEY}"
+      );
+      // What the services resolve, from the environment Compose passes (.env).
+      const resolved = interpolateEnv(
+        fonoster,
+        expandEnv(new Map(Object.entries(env)))
+      );
+      expect(resolved.database.url).to.equal(
+        `postgresql://postgres:${env.POSTGRES_PASSWORD}@postgres:5432/fonoster`
+      );
+      expect(resolved.appUrl).to.equal("http://192.0.2.10:8449");
+      expect(resolved.regions.public[0].endpoints.sip[0]).to.deep.equal({
+        host: "192.0.2.10",
+        port: "5060",
+        transport: "udp"
+      });
       expect(fonoster.catalog).to.deep.equal({
         file: "/etc/fonoster/catalog.yaml"
       });
-      expect(fonoster.regions.public[0].endpoints.sip[0]).to.deep.equal({
-        host: "192.0.2.10",
-        port: 5060,
-        transport: "udp"
-      });
-      expect(fonoster.regions.public[0].endpoints.rtpPorts).to.deep.equal({
-        min: 10000,
-        max: 10999
-      });
-      // Regions and analytics are opt-in profiles.
+      // No private-region settings or ClickHouse by default.
       expect(fonoster.regions.hub).to.equal(undefined);
+      expect(fonoster.regions.operatorKey).to.equal(undefined);
       expect(yamlOf(dir, "gateway.yaml").callRecord.analytics).to.equal(
         undefined
       );
+      // Routr can't resolve placeholders: its file gets the values (no secrets in it).
       expect(
         yamlOf(dir, "routr-edgeport.yaml").spec.transport[0].port
       ).to.equal(5060);
-      for (const f of ["fonoster.yaml", "gateway.yaml", "autopilot.yaml"]) {
-        const text = readFileSync(join(dir, "config", f), "utf8")
-          .split("\n")
-          .filter((l) => !l.trimStart().startsWith("#"))
-          .join("\n");
-        expect(text, f).to.not.contain("${");
+      const secrets = Object.entries(env).filter(
+        ([k, v]) => /(_PASSWORD|_SECRET|_KEY)$/.test(k) && v.length > 8
+      );
+      expect(secrets.length).to.be.greaterThan(8);
+      for (const f of [
+        "fonoster.yaml",
+        "gateway.yaml",
+        "autopilot.yaml",
+        "medianode.yaml",
+        "routr-edgeport.yaml"
+      ]) {
+        const text = readFileSync(join(dir, "config", f), "utf8");
+        for (const [name, value] of secrets)
+          expect(text, `${f} holds ${name}`).to.not.contain(value);
       }
     });
 
-    it("adds the hub and analytics settings when their profiles are on", async function () {
+    it("generates the region hub with --regions and prints what to add", async function () {
       const dir = unpack();
-      await init(dir);
-      const envFile = join(dir, ".env");
-      writeFileSync(
-        envFile,
-        readFileSync(envFile, "utf8").replace(
-          /^COMPOSE_PROFILES=.*$/m,
-          "COMPOSE_PROFILES=regions,analytics"
-        )
+      const run = await cli([
+        "init",
+        "--dir",
+        dir,
+        "--host-ip",
+        "192.0.2.10",
+        "--regions"
+      ]);
+      expect(run.code, run.err).to.equal(0);
+      for (const f of [
+        "config/region-hub.conf",
+        "config/keys/region-operator.key",
+        "config/keys/region-signing.pem",
+        "config/keys/region-hub/operator.seed",
+        "config/keys/region-hub/account.seed",
+        "config/keys/region-hub/control-plane.creds",
+        "config/keys/region-hub/system.creds"
+      ]) {
+        expect(existsSync(join(dir, f)), f).to.equal(true);
+        expect(mode(join(dir, f)), f).to.equal(0o644);
+      }
+      const conf = readFileSync(join(dir, "config/region-hub.conf"), "utf8");
+      expect(conf).to.match(/^operator: /m);
+      // TLS on the leaf listener.
+      expect(conf).to.contain('cert_file: "/etc/nats/tls/leaf.crt"');
+      expect(run.out).to.contain("nats-regions:");
+      expect(run.out).to.contain("compose.override.yaml");
+      expect(run.out).to.contain('leafUrl: "tls://${HOST_IP}:7422"');
+      expect(run.out).to.contain(
+        "credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds"
       );
-      expect((await init(dir)).code).to.equal(0);
-      const regions = yamlOf(dir, "fonoster.yaml").regions;
-      expect(regions.hub.url).to.equal("nats://nats-regions:4222");
-      expect(regions.leafUrl).to.equal("nats://192.0.2.10:7422");
-      expect(yamlOf(dir, "gateway.yaml").callRecord.analytics).to.deep.equal({
-        clickhouse: { url: "http://clickhouse:8123", database: "fonoster" }
-      });
+      // A second run keeps the hub byte for byte.
+      const before = readFileSync(
+        join(dir, "config/keys/region-hub/account.seed")
+      );
+      expect((await cli(["init", "--dir", dir, "--regions"])).code).to.equal(0);
+      expect(
+        readFileSync(join(dir, "config/keys/region-hub/account.seed")).equals(
+          before
+        )
+      ).to.equal(true);
     });
 
     it("advertises the --host-ip address instead of the detected one", async function () {
@@ -283,7 +322,8 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(readEnvFile(join(dir, ".env")).get("HOST_IP")).to.equal(
         "203.0.113.10"
       );
-      const fonoster = yamlOf(dir, "fonoster.yaml");
+      const env = expandEnv(readEnvFile(join(dir, ".env")));
+      const fonoster = interpolateEnv(yamlOf(dir, "fonoster.yaml"), env);
       expect(
         fonoster.regions.public[0].endpoints.signalingAddresses
       ).to.deep.equal(["203.0.113.10"]);
@@ -327,10 +367,7 @@ describe("@common[config/cli] fonoster-config", function () {
         ".env",
         "config/keys/private.pem",
         "config/keys/public.pem",
-        "config/keys/records.pem",
-        "config/keys/region-operator.key",
-        "config/keys/region-hub/account.seed",
-        "config/region-hub.conf"
+        "config/keys/records.pem"
       ];
       const before = files.map((f) => readFileSync(join(dir, f)));
       const run = await init(dir, "198.51.100.7");
@@ -343,9 +380,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(
         yamlOf(dir, "routr-edgeport.yaml").spec.transport[0].port
       ).to.equal(5080);
-      expect(yamlOf(dir, "fonoster.yaml").appUrl).to.equal(
-        "http://192.0.2.10:8449"
-      );
+      expect(readEnvFile(envFile).get("HOST_IP")).to.equal("192.0.2.10");
     });
 
     it("generates only a secret a newer bundle adds and appends it", async function () {
@@ -464,26 +499,25 @@ describe("@common[config/cli] fonoster-config", function () {
       const dir = unpack();
       await init(dir);
       const env = readEnvFile(join(dir, ".env"));
-      // The operator key reference (a container path) reads from config/keys.
       expect((await cli(["check", "--dir", dir])).code).to.equal(0);
       const file = join(dir, "config/gateway.yaml");
       writeFileSync(
         file,
         readFileSync(file, "utf8")
           .replace(
-            `password: "${env.get("NATS_GATEWAY_PASSWORD")}"`,
+            'password: "${NATS_GATEWAY_PASSWORD}"',
             'password: "secret://env/NATS_GATEWAY_PASSWORD"'
           )
           .replace(
-            "encryptionKeyEnv: APISERVER_ENCRYPTION_KEY",
-            'encryptionKeyEnv: "secret://vault/x"'
+            'encryption: { key: "${ENCRYPTION_KEY}" }',
+            'encryption: { key: "secret://vault/x" }'
           ) +
           'extra: "secret://env/NOT_IN_ENV"\nother: "secret://file/opt/fonoster/keys/missing.key"\n'
       );
       const run = await cli(["check", "--dir", dir]);
       expect(run.code).to.equal(1);
       expect(run.err).to.contain(
-        "database.encryptionKeyEnv: unsupported reference secret://vault/x"
+        "encryption.key: unsupported reference secret://vault/x"
       );
       expect(run.err).to.contain(
         "extra: secret://env/NOT_IN_ENV: environment variable NOT_IN_ENV is not set"
@@ -494,6 +528,26 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(run.err).to.not.contain("nats.password");
       for (const value of env.values())
         if (value.length > 12) expect(run.err + run.out).to.not.contain(value);
+    });
+
+    it("resolves placeholders from .env and names an unset one with its file and key", async function () {
+      const dir = unpack();
+      await init(dir);
+      await exportConfigSchemas(join(dir, "config", "schemas"));
+      const envFile = join(dir, ".env");
+      writeFileSync(
+        envFile,
+        readFileSync(envFile, "utf8").replace(
+          /^ENCRYPTION_KEY=.*$/m,
+          "ENCRYPTION_KEY="
+        )
+      );
+      const run = await cli(["check", "--dir", dir]);
+      expect(run.code).to.equal(1);
+      for (const f of ["fonoster", "gateway", "autopilot"])
+        expect(run.err).to.contain(
+          `config/${f}.yaml: encryption.key: \${ENCRYPTION_KEY} not set in .env`
+        );
     });
 
     it("exits non-zero before init", async function () {
@@ -520,17 +574,11 @@ describe("@common[config/cli] fonoster-config", function () {
       }
     });
 
-    it("keeps conditional lines by profile or variable and copies comments", function () {
-      const t =
-        "# ${NOT_SUBSTITUTED}\n#@if profile p\nx: 1\n#@end\n#@if FLAG\ny: 2\n#@end\n";
-      expect(renderTemplate(t, { COMPOSE_PROFILES: "a, p" })).to.equal(
-        "# ${NOT_SUBSTITUTED}\nx: 1\n"
-      );
-      expect(renderTemplate(t, { FLAG: "true" })).to.equal(
-        "# ${NOT_SUBSTITUTED}\ny: 2\n"
-      );
-      expect(renderTemplate(t, { FLAG: "false" })).to.equal(
-        "# ${NOT_SUBSTITUTED}\n"
+    it("keeps placeholders, or substitutes them for another container's file", function () {
+      const t = "# ${NOT_CHECKED}\na: ${SET}\nb: ${UNSET:-x}\n";
+      expect(renderTemplate(t, { SET: "v" })).to.equal(t);
+      expect(renderTemplate(t, { SET: "v" }, "t", true)).to.equal(
+        "# ${NOT_CHECKED}\na: v\nb: x\n"
       );
     });
 
@@ -568,7 +616,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(gw.providers.deepgram).to.deep.equal({
         adapter: "fake",
         capabilities: ["tts", "stt"],
-        tts: { url: "http://fakes:7001" }
+        tts: { url: "http://fakes:${FAKE_PORT}" }
       });
       expect(gw.providers.elevenlabs.adapter).to.equal("elevenlabs");
     });
@@ -584,13 +632,17 @@ describe("@common[config/cli] fonoster-config", function () {
       await init(dir);
       const out = mkdtempSync(join(tmpdir(), "rendered-"));
       const env = Object.fromEntries(readEnvFile(join(dir, ".env")));
-      env.PUBLIC_URL = "http://localhost:16449";
+      env.SIP_PORT = "16060";
       expect(
         renderConfigDir({ configDir: join(dir, "config"), outDir: out, env })
       ).to.include("gateway.yaml");
       expect(
         parse(readFileSync(join(out, "fonoster.yaml"), "utf8")).appUrl
-      ).to.equal("http://localhost:16449");
+      ).to.equal("${PUBLIC_URL}");
+      expect(
+        parse(readFileSync(join(out, "routr-edgeport.yaml"), "utf8")).spec
+          .transport[0].port
+      ).to.equal(16060);
     });
   });
 
@@ -617,6 +669,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "info",
         "check",
         "--host-ip",
+        "--regions",
         "docker compose up -d"
       ])
         expect(help.out).to.contain(c);

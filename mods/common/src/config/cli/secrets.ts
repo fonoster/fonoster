@@ -90,8 +90,7 @@ function once(path: string, make: () => string | Buffer, created: string[]) {
 
 /**
  * The keys of an install, each generated only when its file is missing (config/keys):
- * Identity's RS256 pair, the call-record ES256 key, the region operator key, and the region hub
- * (signing key, operator and account seeds, credentials, config/region-hub.conf).
+ * Identity's RS256 pair and the call-record ES256 key. The region hub's are `ensureRegionKeys`.
  */
 export function ensureKeys(configDir: string): string[] {
   const keys = join(configDir, "keys");
@@ -122,6 +121,24 @@ export function ensureKeys(configDir: string): string[] {
       }),
     created
   );
+  return created;
+}
+
+/** Where the region hub's leaf listener finds its TLS pair (inside the nats-regions container). */
+export const LEAF_TLS = {
+  certFile: "/etc/nats/tls/leaf.crt",
+  keyFile: "/etc/nats/tls/leaf.key"
+};
+
+/**
+ * The keys of a control plane that private regions join (`init --regions`), each generated only
+ * when its file is missing: the region operator key (admin API), the region-signing key, and the
+ * region hub (operator and account seeds, credentials, config/region-hub.conf with TLS on the leaf
+ * listener).
+ */
+export function ensureRegionKeys(configDir: string): string[] {
+  const keys = join(configDir, "keys");
+  const created: string[] = [];
   once(join(keys, "region-operator.key"), () => hex(24), created);
   once(
     join(keys, "region-signing.pem"),
@@ -134,7 +151,7 @@ export function ensureKeys(configDir: string): string[] {
   );
   const conf = join(configDir, "region-hub.conf");
   if (!existsSync(conf)) {
-    const hub = generateRegionHub({});
+    const hub = generateRegionHub({ leafTls: LEAF_TLS });
     const dir = join(keys, "region-hub");
     const files: Record<string, string> = {
       "operator.seed": hub.operatorSeed,

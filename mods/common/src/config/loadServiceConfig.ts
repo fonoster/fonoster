@@ -39,13 +39,14 @@ type LoadServiceConfigOptions<S extends ZodTypeAny> = {
   schema: S;
   /** Defaults to `process.argv`; `--config <path>` picks the file. */
   argv?: string[];
-  /** Only used to resolve `${VAR}` at `interpolatePaths`. Defaults to `process.env`. */
+  /** Only used to resolve `${VAR}` placeholders. Defaults to `process.env`. */
   env?: Env;
   /** Directories searched when `--config` is absent. */
   searchDirs?: string[];
   /**
-   * Key paths that may reference `${VAR}` (values shared with containers
-   * configured through `.env`). `${...}` anywhere else is an error.
+   * Key paths that may reference `${VAR}` (values Compose passes from `.env`). `["*"]` allows
+   * every key (the default for Fonoster services, unify-config-placeholders); `${...}` anywhere
+   * else is an error.
    */
   interpolatePaths?: string[];
   /** Old key path → new key path, reported as hints. */

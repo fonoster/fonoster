@@ -61,8 +61,8 @@ function interpolateString(value: string, env: Env): string {
 type InterpolateOptions = {
   /**
    * Key paths where `${VAR}` may appear, e.g. `database.url` or `influxdb.*`
-   * (`*` matches the key and everything below it). When given, `${...}` at any
-   * other path is an error. When omitted, every string is interpolated.
+   * (`*` matches the key and everything below it; `*` alone matches every key). When given,
+   * `${...}` at any other path is an error. When omitted, every string is interpolated.
    */
   allowedPaths?: string[];
 };
@@ -71,10 +71,12 @@ const HAS_REFERENCE = /\$\{[^}]*\}/;
 
 function isAllowed(path: string, allowedPaths: string[]): boolean {
   return allowedPaths.some((pattern) =>
-    pattern.endsWith(".*")
-      ? path === pattern.slice(0, -2) ||
-        path.startsWith(`${pattern.slice(0, -2)}.`)
-      : path === pattern
+    pattern === "*"
+      ? true
+      : pattern.endsWith(".*")
+        ? path === pattern.slice(0, -2) ||
+          path.startsWith(`${pattern.slice(0, -2)}.`)
+        : path === pattern
   );
 }
 

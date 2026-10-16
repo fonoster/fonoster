@@ -27,7 +27,12 @@ import {
   writeWithMode
 } from "./envFile";
 import { renderConfigDir, RenderError } from "./render";
-import { detectHostIp, ensureKeys, generateSecret } from "./secrets";
+import {
+  detectHostIp,
+  ensureKeys,
+  ensureRegionKeys,
+  generateSecret
+} from "./secrets";
 import { Io } from "./types";
 
 export type InitOptions = {
@@ -36,7 +41,43 @@ export type InitOptions = {
   hostIp?: string;
   /** Finds the host address (tests). */
   detectHostIp?: () => Promise<string | undefined>;
+  /** Also generate the region hub's keys (a control plane private regions join). */
+  regions?: boolean;
 };
+
+/** What `init --regions` prints: the compose override and the fonoster.yaml keys to add. */
+export const REGIONS_COMPOSE = `services:
+  # The region hub: NATS in operator mode; private regions link to it over an outbound leaf
+  # node on port 7422 (TLS: put leaf.crt and leaf.key in config/keys/leaf-tls/).
+  nats-regions:
+    image: nats:2.11.8-alpine
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats.conf"]
+    ports:
+      - "7422:7422"
+    volumes:
+      - ./config/region-hub.conf:/etc/nats/nats.conf:ro
+      - ./config/keys/leaf-tls:/etc/nats/tls:ro
+      - nats-regions:/data
+  apiserver:
+    depends_on:
+      nats-regions: { condition: service_started }
+volumes:
+  nats-regions:
+`;
+
+export const REGIONS_CONFIG = `  # Private regions (fonoster-config init --regions).
+  operatorKey: "secret://file/opt/fonoster/keys/region-operator.key"
+  controlPlaneUrl: "\${PUBLIC_URL}"
+  leafUrl: "tls://\${HOST_IP}:7422"
+  signingKey: { file: /opt/fonoster/keys/region-signing.pem }
+  hub:
+    url: "nats://nats-regions:4222"
+    credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds
+    systemCredentialsFile: /opt/fonoster/keys/region-hub/system.creds
+    operatorSeedFile: /opt/fonoster/keys/region-hub/operator.seed
+    accountSeedFile: /opt/fonoster/keys/region-hub/account.seed
+`;
 
 const HOST = /^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$|^[0-9a-fA-F:]+$/;
 
@@ -138,6 +179,7 @@ export async function runInit(options: InitOptions, io: Io): Promise<number> {
   // containers, which run as another user and reach them through their bind mounts.
   chmodSync(configDir, 0o700);
   const keys = ensureKeys(configDir);
+  if (options.regions) keys.push(...ensureRegionKeys(configDir));
 
   const env = expandEnv(envEntries(lines));
   let rendered: string[];
@@ -165,6 +207,34 @@ export async function runInit(options: InitOptions, io: Io): Promise<number> {
   );
   io.out(`config: ${rendered.map((f) => `config/${f}`).join(", ")}`);
   io.out(`host address: ${hostIp}`);
+  if (options.regions) {
+    io.out("");
+    io.out(
+      "Private regions: the region hub's keys are in config/keys (kept on every run). To turn"
+    );
+    io.out("them on:");
+    io.out(
+      "1. Save this as compose.override.yaml next to compose.yaml (Compose reads it too):"
+    );
+    io.out("");
+    REGIONS_COMPOSE.trimEnd()
+      .split("\n")
+      .forEach((l) => io.out(`   ${l}`));
+    io.out("");
+    io.out(
+      "2. Put the leaf listener's TLS pair in config/keys/leaf-tls/ (leaf.crt, leaf.key), for a"
+    );
+    io.out("   name or address private regions reach this machine at.");
+    io.out(
+      "3. Add these keys under `regions:` in config/fonoster.example.yaml, then run init again:"
+    );
+    io.out("");
+    REGIONS_CONFIG.trimEnd()
+      .split("\n")
+      .forEach((l) => io.out(`   ${l}`));
+    io.out("");
+    io.out("4. Open TCP 7422 to the private regions.");
+  }
   io.out("");
   io.out("Next: docker compose up -d");
   io.out(

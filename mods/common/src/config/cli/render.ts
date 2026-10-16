@@ -22,22 +22,22 @@ import { parse, stringify } from "yaml";
 import { writeWithMode } from "./envFile";
 
 /**
- * Renders `config/<name>.example.<ext>` into `config/<name>.<ext>` (self-host bundle, D1):
+ * Renders `config/<name>.example.<ext>` into `config/<name>.<ext>` (self-host bundle, D1).
  *
- *   ${NAME}            the value of NAME (an error when it is unset or empty)
- *   ${NAME:-default}   the value of NAME, or `default`
- *   #@if profile <p>   the lines up to `#@end` are kept only when COMPOSE_PROFILES lists <p>
- *   #@if <NAME>        ... only when NAME is set and not false, 0 or no
+ * A Fonoster service's file (FONOSTER_SERVICE_FILES) is the example as written: `${NAME}` and
+ * `${NAME:-default}` stay placeholders that the service resolves from its container environment,
+ * which Compose fills from .env (unify-config-placeholders), so no secret is written into it.
+ * Another container's file (Routr's EdgePort) gets the values, since that container cannot
+ * resolve them; those hold no secrets. Either way every `${NAME}` without a default must be set,
+ * so a missing value fails at init, not at start.
  *
- * Whole-line comments are copied as they are (they may mention `${NAME}`). An overlay folder
- * (the development stack's; several merge in order) may hold a `<name>.<ext>` YAML that is deep-merged into the result:
- * objects merge, other values replace, and `null` removes a key.
+ * An overlay folder (the development stack's; several merge in order) may hold a
+ * `<name>.<ext>` YAML that is deep-merged into the result: objects merge, other values replace,
+ * and `null` removes a key.
  */
 export type Env = Record<string, string | undefined>;
 
 const REF = /\$\{([A-Za-z_][A-Za-z0-9_]*)(:-([^}]*))?\}/g;
-const IF = /^\s*#@if\s+(.+?)\s*$/;
-const END = /^\s*#@end\s*$/;
 
 export class RenderError extends Error {
   constructor(readonly problems: string[]) {
@@ -45,67 +45,37 @@ export class RenderError extends Error {
   }
 }
 
-function truthy(value: string | undefined) {
-  return (
-    value !== undefined &&
-    value !== "" &&
-    !["false", "0", "no"].includes(value.toLowerCase())
-  );
-}
+/** Config files read by Fonoster's own services: placeholders stay in them. */
+export const FONOSTER_SERVICE_FILES = [
+  "fonoster",
+  "identity",
+  "gateway",
+  "autopilot",
+  "medianode"
+];
 
-export function profilesOf(env: Env): string[] {
-  return (env.COMPOSE_PROFILES ?? "")
-    .split(",")
-    .map((p) => p.trim())
-    .filter(Boolean);
-}
-
-function condition(expr: string, env: Env): boolean {
-  const profile = /^profile\s+([A-Za-z0-9_-]+)$/.exec(expr);
-  if (profile) return profilesOf(env).includes(profile[1]);
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(expr)) return truthy(env[expr]);
-  throw new Error(`unknown condition "${expr}"`);
-}
-
-/** Renders one template. Problems name the file, the line and the variable, never a value. */
-export function renderTemplate(text: string, env: Env, file = "template") {
+/**
+ * Checks one template's placeholders and returns it with them kept (`substitute` false) or
+ * replaced by their values. Problems name the file, the line and the variable, never a value.
+ * Whole-line comments are copied as they are (they may mention `${NAME}`).
+ */
+export function renderTemplate(
+  text: string,
+  env: Env,
+  file = "template",
+  substitute = false
+) {
   const problems: string[] = [];
-  const out: string[] = [];
-  let keep: boolean | undefined;
-  text.split("\n").forEach((line, i) => {
-    const at = `${file}:${i + 1}`;
-    const cond = IF.exec(line);
-    if (cond) {
-      if (keep !== undefined) problems.push(`${at}: #@if inside #@if`);
-      try {
-        keep = condition(cond[1], env);
-      } catch (e) {
-        problems.push(`${at}: ${(e as Error).message}`);
-        keep = false;
-      }
-      return;
-    }
-    if (END.test(line)) {
-      if (keep === undefined) problems.push(`${at}: #@end without #@if`);
-      keep = undefined;
-      return;
-    }
-    if (keep === false) return;
-    if (line.trimStart().startsWith("#")) {
-      out.push(line);
-      return;
-    }
-    out.push(
-      line.replace(REF, (_m, name: string, dflt, fallback: string) => {
-        const v = env[name];
-        if (v !== undefined && v !== "") return v;
-        if (dflt !== undefined) return fallback;
-        problems.push(`${at}: \${${name}} is not set`);
-        return "";
-      })
-    );
+  const out = text.split("\n").map((line, i) => {
+    if (line.trimStart().startsWith("#")) return line;
+    return line.replace(REF, (m, name: string, dflt, fallback: string) => {
+      const v = env[name];
+      if (v !== undefined && v !== "") return substitute ? v : m;
+      if (dflt !== undefined) return substitute ? fallback : m;
+      problems.push(`${file}:${i + 1}: \${${name}} is not set`);
+      return m;
+    });
   });
-  if (keep !== undefined) problems.push(`${file}: #@if without #@end`);
   if (problems.length) throw new RenderError(problems);
   return out.join("\n");
 }
@@ -156,11 +126,15 @@ export function renderConfigDir(options: RenderOptions): string[] {
   const rendered: { name: string; text: string }[] = [];
   for (const example of listExamples(options.configDir)) {
     const name = renderedName(example)!;
+    const substitute = !FONOSTER_SERVICE_FILES.includes(
+      EXAMPLE.exec(example)![1]
+    );
     try {
       let text = renderTemplate(
         readFileSync(join(options.configDir, example), "utf8"),
         options.env,
-        `config/${example}`
+        `config/${example}`,
+        substitute
       );
       const overlays = (options.overlayDirs ?? [])
         .map((d) => join(d, name))
@@ -174,7 +148,8 @@ export function renderConfigDir(options: RenderOptions): string[] {
               renderTemplate(
                 readFileSync(overlay, "utf8"),
                 options.env,
-                overlay
+                overlay,
+                substitute
               )
             ) ?? {}
           );

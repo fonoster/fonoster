@@ -194,6 +194,22 @@ describe("@common[config/loadServiceConfig]", function () {
       ).to.throw(/apiKey: \$\{\.\.\.\} is only allowed for values shared/);
     });
 
+    it("resolves ${VAR} at any key with [\"*\"] (secrets as placeholders)", function () {
+      const path = write(
+        "svc.yaml",
+        'apiKey: "${SECRET}"\nhost: "${HOST:-db}"\n'
+      );
+      const cfg = load(["--config", path], {
+        env: { SECRET: "s" },
+        interpolatePaths: ["*"]
+      });
+      expect(cfg.apiKey).to.equal("s");
+      expect(cfg.host).to.equal("db");
+      expect(() =>
+        load(["--config", path], { env: {}, interpolatePaths: ["*"] })
+      ).to.throw(/apiKey: .*\$\{SECRET\}/);
+    });
+
     it("rejects ${VAR} when no paths are allowed", function () {
       const path = write("svc.yaml", "apiKey: ${SECRET}\n");
       expect(() =>
