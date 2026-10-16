@@ -19,7 +19,7 @@
 import type { Workspace } from "@fonoster/types";
 import { screen, waitFor } from "@testing-library/react";
 import type { ReactElement } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import type { Capabilities } from "~/lib/client";
 import {
   cloudCapabilities,
@@ -41,6 +41,13 @@ import { createMockRegionsApi, privateRegion } from "./mock-api";
  * Private regions are an optional integration (capabilities.regions.private). Without them
  * every region surface is hidden and the regions API is never called; with them nothing changes.
  */
+beforeAll(() => {
+  // Radix Select needs these in jsdom.
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.scrollIntoView ??= () => {};
+});
+
 const me = { sub: "u1", email: "ada@acme.com", accessKeyId: "US1", exp: 0 };
 
 function spiedApi() {
@@ -179,7 +186,9 @@ describe("with private regions", () => {
         path: "/workspaces/new",
         route: "/workspaces/new"
       });
-      expect(await screen.findByLabelText("Region")).toHaveValue("default");
+      const select = await screen.findByLabelText("Region");
+      expect(select).toHaveTextContent("Default");
+      await create.user.click(select);
       expect(
         await screen.findByRole("option", { name: privateRegion().displayName })
       ).toBeInTheDocument();
