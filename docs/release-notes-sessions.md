@@ -5,7 +5,7 @@ incompatible release: there are no compatibility shims.
 
 ## Breaking changes
 
-1. **`voice.proto` is retired.** Voice apps are no longer gRPC servers. The VoiceSessionGateway
+1. **`voice.proto` is retired.** Apps are no longer gRPC servers. The VoiceSessionGateway
    opens one signed WebSocket to your app's URL for every call. Apps that speak `voice.proto`
    directly must move to an SDK or to the [session protocol](./session-protocol.md). An app record
    that only has a gRPC endpoint is not dialed: its calls follow the app's fallback.
@@ -43,7 +43,7 @@ connections that are not signed by the gateway. Rotation is immediate, with no o
   app's decision (`interruptible`).
 - `say()` takes an async iterable, to stream model tokens into one utterance.
 - Cold, warm and `refer` transfers.
-- Twilio Media Streams flavor for Pipecat and similar bots.
+- The Twilio Media Streams protocol (`protocol: twilio`) for Pipecat and similar bots.
 - Listen-only sockets for monitoring.
 
 ## Deployables and operations
@@ -58,8 +58,8 @@ connections that are not signed by the gateway. Rotation is immediate, with no o
 - **Helm** covers the whole platform (`values-cloud.yaml`), with the apiserver's migrations as a
   Job and an optional observability profile; Compose (`ops/rebuild/compose.yaml`) is the other
   official target.
-- **Private regions** are customer-operated cells (decision D9, softened): the customer runs the
-  data plane and upgrades it; the cell links to the control plane only through an outbound NATS
+- **Private regions** are customer-operated (decision D9, softened): the customer runs the
+  data plane and upgrades it; the region links to the control plane only through an outbound NATS
   leaf node ([Running a region](./operators/regions.md)).
 - **Telemetry**: every service exports OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; a call's trace
   runs from the media node through the gateway (a `traceparent` NATS header).

@@ -15,10 +15,10 @@ The gateway dials your app; your app never dials Fonoster. An app is configured 
 | Setting | Meaning |
 | --- | --- |
 | URL | `ws://` or `wss://` address the gateway connects to |
-| Flavor | `native` (this page) or `twilio` (Twilio Media Streams, see below) |
+| Protocol | `fonoster` (this page) or `twilio` (Twilio Media Streams, see below) |
 | Signing secret | Used to sign every connection request |
 | Speech defaults | Default voice and language, as catalog ids |
-| Audio | Native flavor audio format: `pcm16` at 8, 16 or 24 kHz, or `pcmu` at 8 kHz (default `pcm16` at 16 kHz) |
+| Audio | Audio format with the `fonoster` protocol: `pcm16` at 8, 16 or 24 kHz, or `pcmu` at 8 kHz (default `pcm16` at 16 kHz) |
 | Fallback | Another app, or a message spoken before hanging up, used when your app cannot be reached |
 
 ### Verifying the connection
@@ -214,7 +214,7 @@ dials each one when the session starts, signed with the app's secret. Listeners 
 `session.start`, the same events as your app, and the tracks they chose as separate binary frames
 (each with its track id; sides are never mixed). Anything they send gets `error` `read_only`.
 
-## Twilio flavor
+## Twilio protocol
 
 For apps built for Twilio Media Streams (Pipecat's `TwilioFrameSerializer`, for example). The
 gateway speaks the exact Media Streams messages:

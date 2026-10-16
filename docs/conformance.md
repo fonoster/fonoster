@@ -2,7 +2,7 @@
 
 The conformance framework (`openspec/changes/add-conformance-framework`) holds the rebuild to its
 contracts. Scenario files in `mods/conformance/scenarios` script one side of a contract (session
-protocol, Twilio flavor, voice SDK, media-control, Autopilot) and say what the other side must
+protocol, Twilio protocol, voice SDK, media-control, Autopilot) and say what the other side must
 send back. Any implementation, in any language, passes or fails the same files. The format is in
 `mods/conformance/SCENARIOS.md`; the fake providers are in `mods/conformance/PROVIDERS.md`.
 
