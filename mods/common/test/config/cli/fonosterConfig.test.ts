@@ -241,6 +241,18 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(
         yamlOf(dir, "routr-edgeport.yaml").spec.transport[0].port
       ).to.equal(5060);
+      // Browser calls (add-talk-in-browser): SIP over WebSocket behind Envoy's /sip, test tokens
+      // checked with Identity's public key.
+      expect(fonoster.signalingServer).to.equal("ws://192.0.2.10:8449/sip");
+      expect(yamlOf(dir, "routr-edgeport.yaml").spec.transport).to.deep.include(
+        { protocol: "ws", port: 5062 }
+      );
+      expect(yamlOf(dir, "gateway.yaml").testCalls).to.deep.equal({
+        publicKeyFile: "/etc/fonoster/keys/public.pem"
+      });
+      expect(readFileSync(join(dir, "config", "envoy.yaml"), "utf8")).to.match(
+        /prefix: "\/sip"[\s\S]*upgrade_type: websocket/
+      );
       for (const f of ["fonoster.yaml", "gateway.yaml", "autopilot.yaml"]) {
         const text = readFileSync(join(dir, "config", f), "utf8")
           .split("\n")

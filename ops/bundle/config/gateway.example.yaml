@@ -14,6 +14,9 @@ database:
   url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
   encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
 appStore: { source: database, cacheMs: 3000 }
+# Browser calls ("Talk to agent") carry the API server's test token: answered only for apps of the
+# token's workspace (Identity's public key).
+testCalls: { publicKeyFile: /etc/fonoster/keys/public.pem }
 registry: { source: database, refreshMs: 5000 }
 workspaceKeys: { enabled: true, cacheMs: 5000 }
 webhooks: { enabled: true, refreshMs: 5000 }

@@ -332,9 +332,10 @@ describe("create workspace with a region", () => {
     });
 
   it("offers Default and your regions, with one permanence line", async () => {
-    create();
+    const { user } = create();
     const select = await screen.findByLabelText("Region");
-    expect(select).toHaveValue("default");
+    expect(select).toHaveTextContent("Default");
+    await user.click(select);
     expect(
       await screen.findByRole("option", { name: "Acme Dallas" })
     ).toBeEnabled();
@@ -344,7 +345,7 @@ describe("create workspace with a region", () => {
   });
 
   it("disables regions that are waiting or offline", async () => {
-    create(
+    const { user } = create(
       createMockRegionsApi([
         privateRegion({ status: "waiting" }),
         privateRegion({
@@ -355,19 +356,22 @@ describe("create workspace with a region", () => {
         })
       ])
     );
+    await user.click(await screen.findByLabelText("Region"));
     expect(
       await screen.findByRole("option", { name: "Acme Dallas (waiting)" })
-    ).toBeDisabled();
+    ).toHaveAttribute("aria-disabled", "true");
     expect(
       screen.getByRole("option", { name: "Acme Miami (offline)" })
-    ).toBeDisabled();
+    ).toHaveAttribute("aria-disabled", "true");
   });
 
   it("creates the workspace in the picked region id, no confirm step", async () => {
     const { user, api } = create();
     await user.type(await screen.findByLabelText("Name"), "Acme Private");
-    await screen.findByRole("option", { name: "Acme Dallas" });
-    await user.selectOptions(screen.getByLabelText("Region"), "Acme Dallas");
+    await user.click(screen.getByLabelText("Region"));
+    await user.click(
+      await screen.findByRole("option", { name: "Acme Dallas" })
+    );
     await user.click(screen.getByRole("button", { name: "Create" }));
     await waitFor(() =>
       expect(api.state.created).toEqual([
