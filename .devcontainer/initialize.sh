@@ -25,6 +25,16 @@ die() { printf '[dev-config] %s\n' "$*" >&2; exit 1; }
 # Compose reads .devcontainer/.env: the same values as the dev config.
 ln -sfn ../.dev/.env "$ROOT/.devcontainer/.env"
 
+# The workspace image, built here rather than by Compose: Compose 5 builds through Bake, which
+# refuses the Dockerfile the dev-container client writes outside the build context ("additional
+# privileges requested"). Cached after the first build.
+if [ "$MODE" = "host" ]; then
+  command -v docker >/dev/null 2>&1 || die "Docker is required"
+  log "building the workspace image (fonoster-dev-workspace)"
+  docker build -q -t fonoster-dev-workspace "$ROOT/.devcontainer" >/dev/null \
+    || die "could not build .devcontainer/Dockerfile"
+fi
+
 if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ]; then
   log "keeping $DEV (npm run dev:config renders it again)"
   exit 0

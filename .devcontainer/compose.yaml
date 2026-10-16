@@ -18,9 +18,9 @@ networks:
 
 services:
   workspace:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # Built from ./Dockerfile by initialize.sh (before the containers start).
+    image: fonoster-dev-workspace
+    pull_policy: never
     command: sleep infinity
     volumes:
       - ..:/workspaces/fonoster:cached
