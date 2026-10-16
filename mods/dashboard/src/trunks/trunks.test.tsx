@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 import { screen, within } from "@testing-library/react";
+import type { Capabilities } from "~/lib/client";
+import { communityCapabilities, regionsCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { fakeSdk } from "~/numbers/fixtures";
 import { fakeAuth, renderScreen } from "~/test/render";
@@ -30,14 +32,18 @@ beforeAll(() => {
   Element.prototype.scrollIntoView ??= () => {};
 });
 
-function setup(route = "/w/ws1/trunks", data?: Parameters<typeof fakeSdk>[1]) {
+function setup(
+  route = "/w/ws1/trunks",
+  data?: Parameters<typeof fakeSdk>[1],
+  capabilities: Capabilities = regionsCapabilities
+) {
   const sdk = fakeSdk(vi.fn as never, data);
   const auth = fakeAuth({ status: "signedIn", sdk: sdk as never });
   const view = renderScreen(
     <WorkspaceProvider value={testWorkspace}>
       <TrunksScreen />
     </WorkspaceProvider>,
-    { path: "/w/:workspaceRef/trunks/*", route, auth }
+    { path: "/w/:workspaceRef/trunks/*", route, auth, capabilities }
   );
   return { ...view, sdk };
 }
@@ -97,6 +103,17 @@ describe("trunk page", () => {
     expect(await screen.findByTestId("carrier-hint")).toHaveTextContent(
       "Point your carrier at sip.us-east-1.fonoster.com:5060 (UDP); allowlist 198.51.100.1, 198.51.100.2."
     );
+  });
+
+  it("shows no carrier hint (region info) without private regions", async () => {
+    const { sdk } = setup(
+      "/w/ws1/trunks/new",
+      undefined,
+      communityCapabilities
+    );
+    await screen.findByRole("button", { name: /save|create/i });
+    expect(screen.queryByTestId("carrier-hint")).toBeNull();
+    expect(sdk.regions.getRegion).not.toHaveBeenCalled();
   });
 
   it("edits outbound URIs and security, then saves", async () => {

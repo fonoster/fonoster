@@ -30,6 +30,7 @@ import { useAuth } from "~/lib/auth";
 import { errorMessage } from "~/lib/errors";
 import { UserBar } from "./user-bar";
 import { rememberWorkspace, workspacePath } from "./workspace-session";
+import { usePrivateRegions } from "~/lib/capabilities";
 import { useRegionsApi } from "~/regions/api";
 import { RegionPicker } from "~/regions/region-picker";
 import { DEFAULT_REGION_ID } from "~/regions/types";
@@ -61,6 +62,8 @@ export default function CreateWorkspacePage() {
       regionsApi.createWorkspace(input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: WORKSPACES_KEY })
   });
+  // Without private regions there is nothing to pick: the public `default`.
+  const privateRegions = usePrivateRegions();
   const [region, setRegion] = useState(DEFAULT_REGION_ID);
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof schema>>({
@@ -101,7 +104,9 @@ export default function CreateWorkspacePage() {
                 />
               )}
             </Field>
-            <RegionPicker value={region} onChange={setRegion} />
+            {privateRegions && (
+              <RegionPicker value={region} onChange={setRegion} />
+            )}
             <Button
               type="submit"
               className={authButton}

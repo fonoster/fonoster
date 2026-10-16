@@ -24,7 +24,8 @@ export const communityCapabilities: Capabilities = {
   billing: { enabled: false },
   costs: { display: "none" },
   domain: "fonoster.local",
-  appUrl: "http://localhost:3030"
+  appUrl: "http://localhost:3030",
+  regions: { private: false }
 };
 
 /** Fonoster Cloud: GitHub and emailed codes, open sign-up, billing. */
@@ -40,5 +41,12 @@ export const cloudCapabilities: Capabilities = {
   billing: { enabled: true },
   costs: { display: "prices" },
   domain: "fonoster.com",
-  appUrl: "https://app.fonoster.com"
+  appUrl: "https://app.fonoster.com",
+  regions: { private: true }
+};
+
+/** Self-hosted with the region hub added: private regions on, billing off. */
+export const regionsCapabilities: Capabilities = {
+  ...communityCapabilities,
+  regions: { private: true }
 };

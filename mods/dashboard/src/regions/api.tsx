@@ -19,6 +19,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useMemo } from "react";
 import { useSdk } from "~/lib/auth";
+import { usePrivateRegions } from "~/lib/capabilities";
 import { useMaybeWorkspace } from "~/lib/workspace";
 import { createSdkRegionsApi } from "./sdk-api";
 import {
@@ -44,9 +45,12 @@ export const regionKey = (ref: string) => ["region", ref] as const;
 /** The user's regions: the public `default`, then their own. Polled while any is not up. */
 export function useRegions(refetchMs = 30_000) {
   const api = useRegionsApi();
+  // Without private regions the regions API is not mounted: never call it.
+  const enabled = usePrivateRegions();
   return useQuery<Region[]>({
     queryKey: REGIONS_KEY,
     queryFn: () => api.listRegions(),
+    enabled,
     refetchInterval: (q) =>
       q.state.data?.some((r) => r.status === "waiting")
         ? Math.min(refetchMs, 5_000)
@@ -59,10 +63,11 @@ export function useRegions(refetchMs = 30_000) {
 /** One region's detail, polled while it is private. */
 export function useRegionDetail(ref: string | undefined, refetchMs = 30_000) {
   const api = useRegionsApi();
+  const privateRegions = usePrivateRegions();
   return useQuery<RegionDetail>({
     queryKey: regionKey(ref ?? ""),
     queryFn: () => api.getRegion(ref!),
-    enabled: !!ref,
+    enabled: privateRegions && !!ref,
     refetchInterval: (q) =>
       q.state.data?.kind === "public" ? false : refetchMs
   });

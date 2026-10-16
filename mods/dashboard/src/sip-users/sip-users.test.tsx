@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 import { screen, within } from "@testing-library/react";
+import type { Capabilities } from "~/lib/client";
+import { communityCapabilities, regionsCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
@@ -43,7 +45,10 @@ const maria = {
   credentials: { ref: "cr-1", name: "Maria's phone", username: "maria" }
 };
 
-function setup(items: object[] = []) {
+function setup(
+  items: object[] = [],
+  capabilities: Capabilities = regionsCapabilities
+) {
   const agents = {
     listAgents: vi.fn().mockResolvedValue({ items }),
     createAgent: vi.fn().mockResolvedValue({ ref: "ag-new" }),
@@ -74,9 +79,9 @@ function setup(items: object[] = []) {
     <WorkspaceProvider value={testWorkspace}>
       <SipUsersScreen />
     </WorkspaceProvider>,
-    { auth }
+    { auth, capabilities }
   );
-  return { ...view, agents };
+  return { ...view, agents, regions };
 }
 
 describe("SIP users", () => {
@@ -96,6 +101,18 @@ describe("SIP users", () => {
     expect(
       within(phone).getByRole("button", { name: "Copy Server" })
     ).toBeInTheDocument();
+  });
+
+  it("shows no softphone settings (region info) without private regions", async () => {
+    const { user, regions } = setup([], communityCapabilities);
+    await user.click(
+      await screen.findByRole("button", { name: "Add SIP user" })
+    );
+    await screen.findByRole("dialog");
+    expect(
+      screen.queryByRole("region", { name: "Softphone settings" })
+    ).toBeNull();
+    expect(regions.getRegion).not.toHaveBeenCalled();
   });
 
   it("lists SIP users with their SIP address", async () => {

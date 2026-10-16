@@ -19,6 +19,7 @@
 import type { Workspace } from "@fonoster/types";
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { regionsCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { RegionsApiProvider } from "~/regions/api";
 import { createMockRegionsApi } from "~/regions/mock-api";
@@ -68,7 +69,8 @@ function render(
       {
         path: "/w/:workspaceRef/apps/*",
         route,
-        auth: fakeAuth({ status: "signedIn", user: { sub: "u1" } as never })
+        auth: fakeAuth({ status: "signedIn", user: { sub: "u1" } as never }),
+        capabilities: regionsCapabilities
       }
     )
   };

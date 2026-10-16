@@ -18,11 +18,12 @@
  */
 import type { Workspace } from "@fonoster/types";
 import { ChevronRight, Mail, Plus } from "lucide-react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useAuth } from "~/lib/auth";
+import { usePrivateRegions } from "~/lib/capabilities";
 import { errorMessage } from "~/lib/errors";
 import { RegionsSection, useRegions } from "~/regions";
 import { UserBar } from "./user-bar";
@@ -46,10 +47,18 @@ function workspaceInitials(name: string) {
 export default function WorkspacesPage() {
   const { data: workspaces, isPending, error, refetch } = useWorkspaces();
 
+  const privateRegions = usePrivateRegions();
+  const [params] = useSearchParams();
   const { data: regions } = useRegions();
   const hasRegions = regions?.some((r) => r.kind === "private");
 
-  if (workspaces && workspaces.length === 0 && regions && !hasRegions)
+  // Without private regions there is no region drawer: drop a stale ?region= link.
+  if (!privateRegions && params.has("region"))
+    return <Navigate to="/workspaces" replace />;
+
+  // No workspaces and nothing else to show here (no private regions): start the first one.
+  const regionsKnown = !privateRegions || regions !== undefined;
+  if (workspaces && workspaces.length === 0 && regionsKnown && !hasRegions)
     return <Navigate to="/workspaces/new" replace />;
 
   return (

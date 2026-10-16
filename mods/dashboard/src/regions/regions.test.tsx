@@ -21,7 +21,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 import type { Capabilities } from "~/lib/client";
-import { cloudCapabilities } from "~/lib/fixtures";
+import { cloudCapabilities, regionsCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
 import CreateWorkspacePage from "~/workspaces/create-workspace.page";
 import WorkspacesPage from "~/workspaces/landing.page";
@@ -57,6 +57,7 @@ function render(
       </RegionsApiProvider>,
       {
         auth: fakeAuth({ status: "signedIn", user: me as never }),
+        capabilities: regionsCapabilities,
         ...opts
       }
     )

@@ -22,6 +22,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
+import { usePrivateRegions } from "~/lib/capabilities";
 import { errorMessage } from "~/lib/errors";
 import { REGIONS_KEY, useRegions, useRegionsApi } from "./api";
 import { InstallCommand } from "./install-command";
@@ -33,9 +34,13 @@ import type { RegionToken } from "./types";
 /**
  * "Your regions" on the start screen: one compact row per private region (name and status dot).
  * A waiting region shows its install command inline; More opens the details drawer
- * (`?region=<ref>`).
+ * (`?region=<ref>`). Not rendered when the install has no private regions.
  */
 export function RegionsSection() {
+  return usePrivateRegions() ? <PrivateRegionsSection /> : null;
+}
+
+function PrivateRegionsSection() {
   const api = useRegionsApi();
   const queryClient = useQueryClient();
   const { data } = useRegions();

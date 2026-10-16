@@ -80,6 +80,16 @@ export function useCapabilities(): Capabilities {
   return capabilities;
 }
 
+/**
+ * Private regions are an optional integration: on only when the apiserver
+ * reports `regions.private` (hub and signing key configured). The public
+ * region `default` always exists and never shows region UI on its own.
+ * Outside a provider (isolated stories) it is off.
+ */
+export function usePrivateRegions(): boolean {
+  return useContext(CapabilitiesContext)?.regions?.private ?? false;
+}
+
 export function useAuthMethods() {
   const { auth } = useCapabilities();
   const has = (method: AuthMethod) => auth.methods.includes(method);
