@@ -20,7 +20,7 @@ import { BaseApiObject, ListRequest, ListResponse } from "./common";
 import { Flatten } from "./utils";
 
 enum ApplicationType {
-  EXTERNAL = "EXTERNAL",
+  STREAM = "STREAM",
   AUTOPILOT = "AUTOPILOT"
 }
 
@@ -29,7 +29,7 @@ enum ExpectedTextType {
   SIMILAR = "SIMILAR"
 }
 
-/** Speech defaults of a session app; voices and models are catalog ids. */
+/** Speech defaults of an application; voices and models are catalog ids. */
 type SpeechDefaults = {
   voice?: string;
   language?: string;
@@ -52,11 +52,12 @@ type AmdSettings = {
   windowMs?: number;
 };
 
-/** The session app model (voice-session G2). */
+/** The application model (voice-session G2): a stream or an Autopilot agent. */
 type SessionAppFields = {
-  /** ws:// or wss:// URL the gateway dials (Autopilot apps: the hosted Autopilot). */
+  /** ws:// or wss:// URL the gateway dials (Autopilot agents: the hosted Autopilot). */
   url?: string;
-  flavor?: "native" | "twilio";
+  /** The stream's wire protocol (default fonoster). */
+  protocol?: "fonoster" | "twilio";
   speech?: SpeechDefaults;
   audio?: AudioFormat;
   fallbackAppRef?: string;

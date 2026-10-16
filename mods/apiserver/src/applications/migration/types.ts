@@ -30,18 +30,19 @@ export type LegacyApplication = {
   ref: string;
   accessKeyId: string;
   name: string;
-  type: "EXTERNAL" | "AUTOPILOT";
-  /** gRPC `host:port` of a VoiceServer (EXTERNAL); unused for AUTOPILOT. */
+  /** STREAM (EXTERNAL in a JSON export taken before the unify-vocabulary migration) or AUTOPILOT. */
+  type: "STREAM" | "EXTERNAL" | "AUTOPILOT";
+  /** gRPC `host:port` of a VoiceServer (a stream); unused for AUTOPILOT. */
   endpoint: string;
   textToSpeech?: LegacySpeechProduct | null;
   speechToText?: LegacySpeechProduct | null;
   intelligence?: LegacySpeechProduct | null;
 };
 
-export type Flavor = "native" | "twilio";
+export type Protocol = "fonoster" | "twilio";
 
 /**
- * The new app model (voice-session: "An app is a WebSocket URL, a flavor and speech defaults"),
+ * The new app model (voice-session: "An app is a WebSocket URL, a protocol and speech defaults"),
  * the same shape as the gateway's AppConfig.
  */
 export type MigratedApplication = {
@@ -49,7 +50,7 @@ export type MigratedApplication = {
   name: string;
   workspaceRef: string;
   url: string;
-  flavor: Flavor;
+  protocol: Protocol;
   signingSecret: string;
   /** Catalog ids: voice `<provider>/<voice>`, language a BCP-47 tag (or `multi`). */
   speech: { voice: string; language: string };
@@ -67,7 +68,7 @@ export type MigrationOptions = {
   autopilotUrl?: string;
   /** Voice and language when an app has none (catalog ids). */
   defaults: { voice: string; language: string };
-  /** URLs for EXTERNAL apps that moved (keyed by app ref); otherwise ws://<endpoint>. */
+  /** URLs for streams that moved (keyed by app ref); otherwise ws://<endpoint>. */
   urlOverrides?: Record<string, string>;
   /** A fallback message for every migrated app (spoken when the app is unreachable). */
   fallbackMessage?: string;

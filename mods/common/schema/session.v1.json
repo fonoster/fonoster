@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://fonoster.com/schemas/session/v1.json",
   "title": "fonoster.session.v1",
-  "description": "Messages of the Fonoster session protocol, native flavor. Unknown types and fields must be ignored.",
+  "description": "Messages of the Fonoster session protocol (a stream with protocol fonoster). Unknown types and fields must be ignored.",
   "protocol": "fonoster.session.v1",
   "gatewayToApp": {
     "session.start": {

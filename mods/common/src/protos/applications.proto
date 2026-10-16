@@ -59,7 +59,7 @@ message SpeechDefaults {
   string patience = 6;
 }
 
-// Caller and agent audio format for the native flavor
+// Caller and agent audio format for the fonoster protocol
 message AudioFormat {
   // pcm16 or pcmu
   string codec = 1;
@@ -99,9 +99,9 @@ message RotateSigningSecretResponse {
 
 // The type of application
 enum ApplicationType {
-  // Programmable Voice
-  EXTERNAL = 0;
-  // Internal LLM based applications
+  // A stream: your own WebSocket server
+  STREAM = 0;
+  // An Autopilot agent (hosted by Fonoster)
   AUTOPILOT = 1;
 }
 
@@ -134,15 +134,15 @@ message Application {
   int32 created_at = 8;
   // Update time
   int32 updated_at = 9;
-  // Session app: the WebSocket URL the gateway dials
+  // The WebSocket URL the gateway dials
   string url = 10;
-  // Session flavor: native or twilio
-  string flavor = 11;
+  // Stream protocol: fonoster or twilio
+  string protocol = 11;
   // The last characters of the signing secret (the secret is never returned on reads)
   string signing_secret_hint = 12;
   // Speech defaults
   SpeechDefaults speech = 13;
-  // Audio format (native flavor)
+  // Audio format (fonoster protocol)
   AudioFormat audio = 14;
   // App used when this one cannot be reached
   string fallback_app_ref = 15;
@@ -170,13 +170,13 @@ message CreateApplicationRequest {
   ProductContainer speech_to_text = 5;
   // Inference engine
   ProductContainer intelligence = 6;
-  // Session app: the WebSocket URL (Autopilot apps default to the hosted Autopilot)
+  // The WebSocket URL (Autopilot agents default to the hosted Autopilot)
   string url = 7;
-  // native or twilio (default native)
-  string flavor = 8;
+  // fonoster or twilio (default fonoster)
+  string protocol = 8;
   // Speech defaults
   SpeechDefaults speech = 9;
-  // Audio format (native flavor)
+  // Audio format (fonoster protocol)
   AudioFormat audio = 10;
   // App used when this one cannot be reached
   string fallback_app_ref = 11;
@@ -238,13 +238,13 @@ message UpdateApplicationRequest {
   ProductContainer speech_to_text = 6;
   // Intelligence product
   ProductContainer intelligence = 7;
-  // Session app: the WebSocket URL (Autopilot apps default to the hosted Autopilot)
+  // The WebSocket URL (Autopilot agents default to the hosted Autopilot)
   string url = 8;
-  // native or twilio (default native)
-  string flavor = 9;
+  // fonoster or twilio (default fonoster)
+  string protocol = 9;
   // Speech defaults
   SpeechDefaults speech = 10;
-  // Audio format (native flavor)
+  // Audio format (fonoster protocol)
   AudioFormat audio = 11;
   // App used when this one cannot be reached
   string fallback_app_ref = 12;

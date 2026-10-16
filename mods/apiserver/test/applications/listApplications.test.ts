@@ -63,9 +63,8 @@ describe("@applications/listApplications", function () {
       }
     } as unknown as Prisma;
 
-    const { createListApplications } = await import(
-      "../../src/applications/createListApplications"
-    );
+    const { createListApplications } =
+      await import("../../src/applications/createListApplications");
 
     // Act
     const response = await new Promise((resolve, reject) => {
@@ -121,9 +120,8 @@ describe("@applications/listApplications", function () {
       }
     } as unknown as Prisma;
 
-    const { createListApplications } = await import(
-      "../../src/applications/createListApplications"
-    );
+    const { createListApplications } =
+      await import("../../src/applications/createListApplications");
 
     // Act
     const response = await new Promise((resolve, reject) => {
@@ -164,9 +162,8 @@ describe("@applications/listApplications", function () {
       }
     } as unknown as Prisma;
 
-    const { createListApplications } = await import(
-      "../../src/applications/createListApplications"
-    );
+    const { createListApplications } =
+      await import("../../src/applications/createListApplications");
 
     // Act
     const response = await new Promise((resolve, reject) => {

@@ -25,7 +25,7 @@ type PartialApplicationInput = {
   } | null;
 };
 
-/** The assistant (intelligence.config) travels as a protobuf Struct. */
+/** The Autopilot agent (intelligence.config) travels as a protobuf Struct. */
 function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
   return {
     ...request,

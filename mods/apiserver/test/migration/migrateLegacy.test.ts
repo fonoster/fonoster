@@ -61,7 +61,7 @@ const legacyAssistant = (overrides: Record<string, unknown> = {}) => ({
 async function app(
   db: TestDb,
   ref: string,
-  type: "AUTOPILOT" | "EXTERNAL",
+  type: "AUTOPILOT" | "STREAM",
   extra: Record<string, unknown> = {}
 ) {
   await db.prisma.application.create({
@@ -71,7 +71,7 @@ async function app(
       name: ref,
       type,
       endpoint:
-        type === "EXTERNAL" ? "voice.example.com:50061" : "autopilot:50061",
+        type === "STREAM" ? "voice.example.com:50061" : "autopilot:50061",
       ...extra
     }
   });
@@ -119,7 +119,7 @@ describe("@migration: fonoster-migrate-legacy (database)", function () {
         { ref: "tts.polly", name: "Polly", vendor: "AMAZON", type: "TTS" }
       ]
     });
-    await app(db, "ext-1", "EXTERNAL", {
+    await app(db, "ext-1", "STREAM", {
       textToSpeech: {
         create: {
           productRef: "tts.elevenlabs",
@@ -219,7 +219,7 @@ describe("@migration: fonoster-migrate-legacy (database)", function () {
     });
     expect(migratedApp).to.include({
       url: AUTOPILOT_URL,
-      flavor: "native",
+      protocol: "fonoster",
       signingSecret: "hosted-autopilot-secret"
     });
     expect(migratedApp.filters).to.deep.equal([

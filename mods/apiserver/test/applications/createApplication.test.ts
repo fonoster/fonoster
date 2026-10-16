@@ -53,7 +53,7 @@ describe("@applications/createApplication", function () {
       metadata,
       request: {
         name: "My Application",
-        type: ApplicationType.EXTERNAL,
+        type: ApplicationType.STREAM,
         url: "wss://bot.example.com/session"
       }
     };
@@ -80,7 +80,7 @@ describe("@applications/createApplication", function () {
       metadata,
       request: {
         name: "My Application",
-        type: ApplicationType.EXTERNAL,
+        type: ApplicationType.STREAM,
         url: "wss://bot.example.com/session"
       }
     };

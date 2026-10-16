@@ -52,7 +52,7 @@ describe("@apiserver/webhooks fan-out from the bus (database, NATS)", function (
         ref: "app-support",
         accessKeyId: WS,
         name: "Support line",
-        type: "EXTERNAL",
+        type: "STREAM",
         endpoint: "wss://bot.example.com"
       }
     });

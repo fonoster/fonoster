@@ -24,7 +24,7 @@ import {
 
 /**
  * The slice of the Prisma client the adapter uses. Structural on purpose: the new Application
- * columns (url, flavor, signingSecret, speech, fallback) come from another change, so this file
+ * columns (url, protocol, signingSecret, speech, fallback) come from another change, so this file
  * compiles before and after they exist.
  */
 export type PrismaApplicationClient = {
@@ -48,7 +48,7 @@ export type PrismaApplicationClient = {
 
 export const NEW_COLUMNS = [
   "url",
-  "flavor",
+  "protocol",
   "signingSecret",
   "speechVoice",
   "speechLanguage",
@@ -87,7 +87,7 @@ export class PrismaApplicationStore implements ApplicationMigrationStore {
       name: String(row.name),
       workspaceRef: String(row.accessKeyId),
       url: row.url,
-      flavor: (row.flavor as MigratedApplication["flavor"]) ?? "native",
+      protocol: (row.protocol as MigratedApplication["protocol"]) ?? "fonoster",
       signingSecret: String(row.signingSecret ?? ""),
       speech: {
         voice: String(row.speechVoice ?? ""),
@@ -104,7 +104,7 @@ export class PrismaApplicationStore implements ApplicationMigrationStore {
         // The columns of the rebuild_persistence migration (speech_voice, fallback_app_ref, ...).
         data: {
           url: app.url,
-          flavor: app.flavor,
+          protocol: app.protocol,
           signingSecret: app.signingSecret,
           speechVoice: app.speech.voice,
           speechLanguage: app.speech.language,

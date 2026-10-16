@@ -40,7 +40,7 @@ const external: LegacyApplication = {
   ref: "ext-1",
   accessKeyId: "WO00000000000000000000000000000001",
   name: "Support line",
-  type: "EXTERNAL",
+  type: "STREAM",
   endpoint: "voice.example.com:50061",
   textToSpeech: {
     productRef: "tts.elevenlabs",
@@ -68,13 +68,13 @@ const autopilot: LegacyApplication = {
 };
 
 describe("@apiserver[applications/migration]", function () {
-  it("maps an EXTERNAL app: ws URL from the gRPC endpoint, catalog voice, STT language", function () {
+  it("maps a stream: ws URL from the gRPC endpoint, catalog voice, STT language", function () {
     const { app, notices } = convertLegacyApplication(external, OPTIONS);
     expect(app).to.deep.include({
       ref: "ext-1",
       workspaceRef: external.accessKeyId,
       url: "ws://voice.example.com:50061",
-      flavor: "native",
+      protocol: "fonoster",
       speech: { voice: "elevenlabs/rachel", language: "es-419" }
     });
     expect(app!.signingSecret).to.match(/^secret-/);
@@ -85,10 +85,10 @@ describe("@apiserver[applications/migration]", function () {
     expect(text).to.not.include("encrypted-blob");
   });
 
-  it("maps an AUTOPILOT app to the hosted Autopilot with the native flavor", function () {
+  it("maps an AUTOPILOT app to the hosted Autopilot with the fonoster protocol", function () {
     const { app, notices } = convertLegacyApplication(autopilot, OPTIONS);
     expect(app!.url).to.equal("wss://autopilot.fonoster.com/session");
-    expect(app!.flavor).to.equal("native");
+    expect(app!.protocol).to.equal("fonoster");
     // No voice configured: the default; no language: the default.
     expect(app!.speech).to.deep.equal({
       voice: "deepgram/aura-2-thalia-en",
@@ -102,7 +102,7 @@ describe("@apiserver[applications/migration]", function () {
     );
   });
 
-  it("skips AUTOPILOT apps without an Autopilot URL and EXTERNAL apps without an endpoint", function () {
+  it("skips AUTOPILOT apps without an Autopilot URL and streams without an endpoint", function () {
     expect(
       convertLegacyApplication(autopilot, {
         ...OPTIONS,
@@ -164,7 +164,7 @@ describe("@apiserver[applications/migration]", function () {
     expect(g).to.deep.equal({
       ref: "ext-1",
       url: "ws://voice.example.com:50061",
-      flavor: "native",
+      protocol: "fonoster",
       signingSecret: app!.signingSecret,
       workspaceRef: external.accessKeyId,
       speech: { voice: "elevenlabs/rachel", language: "es-419" }
@@ -192,7 +192,7 @@ describe("@apiserver[applications/migration]", function () {
           name: "Support line",
           accessKeyId: "WO1",
           url: "ws://x:1",
-          flavor: "native",
+          protocol: "fonoster",
           signingSecret: "s",
           speechVoice: "elevenlabs/rachel",
           speechLanguage: "es-419",
@@ -240,7 +240,7 @@ describe("@apiserver[applications/migration]", function () {
     const { app } = convertLegacyApplication(legacy, OPTIONS);
     await store.saveMigrated(app!).then(
       () => expect.fail("should throw"),
-      (e: Error) => expect(e.message).to.match(/no url, flavor/)
+      (e: Error) => expect(e.message).to.match(/no url, protocol/)
     );
     expect(updates).to.have.length(1);
   });

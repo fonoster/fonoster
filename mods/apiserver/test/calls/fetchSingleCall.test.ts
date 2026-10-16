@@ -18,7 +18,8 @@
  * limitations under the License.
  */
 import { AmdStatus, CallType, CallStatus } from "@fonoster/types";
-import * as chai from "chai"; import { expect } from "chai";
+import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
@@ -35,9 +36,8 @@ describe("@calls/fetchSingleCall", function () {
 
   it("should filter by the ref tag before pivot and return the call", async function () {
     // Arrange
-    const { createFetchSingleCall } = await import(
-      "../../src/calls/createFetchSingleCall"
-    );
+    const { createFetchSingleCall } =
+      await import("../../src/calls/createFetchSingleCall");
     const accessKeyId = "accessKeyId";
     const ref = "01";
     const item = {
@@ -68,7 +68,7 @@ describe("@calls/fetchSingleCall", function () {
     expect(result).to.deep.equal(item);
 
     const queryStr = collectRows.getCall(0).args[0].toString();
-    expect(queryStr).to.include("from(bucket: \"calls\")");
+    expect(queryStr).to.include('from(bucket: "calls")');
     expect(queryStr).to.include("range(start: -30d)");
     // The ref filter must run before pivot so it can be pushed down.
     const refFilterIndex = queryStr.indexOf(`r.ref == "${ref}"`);
@@ -82,9 +82,8 @@ describe("@calls/fetchSingleCall", function () {
 
   it("should return null when no call matches", async function () {
     // Arrange
-    const { createFetchSingleCall } = await import(
-      "../../src/calls/createFetchSingleCall"
-    );
+    const { createFetchSingleCall } =
+      await import("../../src/calls/createFetchSingleCall");
     const collectRows = sandbox.stub().resolves([]);
     const influxdb = { collectRows } as InfluxDBClient;
 
