@@ -16,4 +16,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module.exports = { extends: ["@commitlint/config-conventional"] };
+// Conventional commits: the type drives .scripts/next-release.sh. Everything else is relaxed:
+// merge commits are skipped, and header length, subject case and body/footer line lengths are
+// not checked (revamp-ci-workflows CI-B3).
+module.exports = {
+  extends: ["@commitlint/config-conventional"],
+  ignores: [(message) => /^Merge /.test(message)],
+  rules: {
+    // The conventional types plus spec (OpenSpec changes).
+    "type-enum": [
+      2,
+      "always",
+      [
+        "build",
+        "chore",
+        "ci",
+        "docs",
+        "feat",
+        "fix",
+        "perf",
+        "refactor",
+        "revert",
+        "spec",
+        "style",
+        "test"
+      ]
+    ],
+    "header-max-length": [0],
+    "subject-case": [0],
+    "body-max-line-length": [0],
+    "footer-max-line-length": [0],
+    "body-leading-blank": [0],
+    "footer-leading-blank": [0]
+  }
+};
