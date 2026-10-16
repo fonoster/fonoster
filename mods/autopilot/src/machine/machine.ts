@@ -34,10 +34,18 @@ const machine = machineSetup.createMachine({
         src: "doGreetUser",
         description: "Answer the call and play the first message",
         input: ({ context }) => ({ context }),
-        onDone: {
-          target: "idle",
-          description: "Transition to idle after the initial greeting."
-        },
+        onDone: [
+          {
+            target: "waitingForSpeechTimeout",
+            guard: "hasSpeechResult",
+            description:
+              "Process the speech captured while the greeting was playing."
+          },
+          {
+            target: "idle",
+            description: "Transition to idle after the initial greeting."
+          }
+        ],
         onError: {
           target: "idle"
         }
@@ -45,7 +53,13 @@ const machine = machineSetup.createMachine({
       on: {
         SPEECH_START: {
           target: "listeningToUser",
-          description: "The user barged in during the greeting."
+          description: "The user barged in during the greeting.",
+          guard: ({ context }) => context.allowUserBargeIn
+        },
+        SPEECH_RESULT: {
+          description:
+            "Keep the speech the user produced while the greeting was playing, without cutting it short.",
+          actions: [{ type: "appendSpeech" }]
         }
       }
     },
@@ -56,6 +70,13 @@ const machine = machineSetup.createMachine({
         SPEECH_START: {
           target: "listeningToUser",
           description: "Event from VAD system."
+        },
+        SPEECH_RESULT: {
+          target: "waitingForSpeechTimeout",
+          description:
+            "Speech that ends right as playback does, so no SPEECH_START is seen here.",
+          actions: [{ type: "appendSpeech" }],
+          reenter: true
         }
       },
       after: {
@@ -83,10 +104,18 @@ const machine = machineSetup.createMachine({
         src: "doAnnounceIdleTimeout",
         description: "Play the idle message",
         input: ({ context }) => ({ context }),
-        onDone: {
-          target: "idle",
-          description: "Re-arm the idle clock once the idle message finishes."
-        },
+        onDone: [
+          {
+            target: "waitingForSpeechTimeout",
+            guard: "hasSpeechResult",
+            description:
+              "Process the speech captured while the idle message was playing."
+          },
+          {
+            target: "idle",
+            description: "Re-arm the idle clock once the idle message finishes."
+          }
+        ],
         onError: {
           target: "idle"
         }
@@ -94,7 +123,13 @@ const machine = machineSetup.createMachine({
       on: {
         SPEECH_START: {
           target: "listeningToUser",
-          description: "The user spoke while the idle message was playing."
+          description: "The user spoke while the idle message was playing.",
+          guard: ({ context }) => context.allowUserBargeIn
+        },
+        SPEECH_RESULT: {
+          description:
+            "Keep the speech the user produced while the idle message was playing, without cutting it short.",
+          actions: [{ type: "appendSpeech" }]
         }
       }
     },
