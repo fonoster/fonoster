@@ -97,3 +97,9 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   the gateway (`denied (workspace)`).
 - Not tried: a real (non-headless) Chrome with a real mic and speakers, Firefox/Safari, and a
   browser on another machine (needs HTTPS: TB-B5).
+
+### TB-B11. Helm keeps its copy of envoy.yaml in sync
+
+- `ops/rebuild/helm/fonoster-rebuild/files/envoy.yaml` must equal `config/envoy.yaml`
+  (deployment conformance test), so it gets the `/sip` route too. The chart has no Routr, so
+  `/sip` answers 503 there; browser calls on Helm wait for Routr in the chart.
