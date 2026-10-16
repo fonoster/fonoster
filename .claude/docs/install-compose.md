@@ -45,6 +45,18 @@ judgement, not page content).
 - `try-the-new-platform.md` calls itself "a local try-out, not a production deployment"
   (dev secrets, printed passwords).
 
+Measured on the new installer (coordinator's clean-folder run, 2026-10-15, macOS, images local):
+- Archive 20 KB; `init` from the npm tarball ~7 s; `docker compose up -d` 8 s; dashboard answers ~2 s later.
+- Image sizes: apiserver 1.32 GB, autopilot 817 MB, gateway 796 MB, dashboard 53 MB, medianode 26 MB
+  (~3 GB of Fonoster images, before third-party ones). Heavy: the three Node images carry the whole
+  monorepo `/work`.
+- Local image build ~3 min with warm layers.
+- Gateway logs a Prisma "table applications does not exist" error on first start (it reads apps before
+  the apiserver's migrations finish), then recovers. Looks alarming in `docker compose logs`.
+- Standard ports collide with any other Fonoster on the same host (here: platform-refresh on 8449/5060);
+  moving them = edit `.env` + re-run `init` (worked). NATS host port 4222 also defaults to a common port.
+- `.env` holds `OWNER_PASSWORD` in plain text (0600).
+
 ## Decision log
 
 - 2026-10-15 — Installer spec written: openspec/changes/add-self-host-installer (curl archive → npx -p @fonoster/common fonoster-config init/info/check → docker compose up -d; keys in dashboard; local build for now).
