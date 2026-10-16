@@ -87,7 +87,11 @@ Community ships with `[password]` and `invite`; Fonoster Cloud uses
 `[github, email_code]` and `open`. Clients read the active settings from the
 API server's public `Capabilities/GetCapabilities` RPC (`client.getCapabilities()`
 in the SDK), which also reports billing, cost display, domain and app URL, and
-never returns secrets. Identity enforces `features.auth` but doesn't report it.
+never returns secrets. `regions.private` is true only when `regions.signingKey`
+and `regions.hub` are both set (the private-regions hub was added); without
+them the dashboard hides every region screen and the regions HTTP API
+(`/api/regions*`, `/api/admin/regions*`, `/.well-known/region-keys.json`) is
+not mounted. Identity enforces `features.auth` but doesn't report it.
 
 Standalone Identity takes the same block at the root of `identity.json`, without
 the `features` wrapper:
