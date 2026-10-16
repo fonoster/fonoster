@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { StreamEvent } from "@fonoster/common";
 import { CallDirection } from "@fonoster/types";
 import { SinonSandbox } from "sinon";
 import { VoiceRequest } from "../src";
@@ -38,8 +39,14 @@ const voiceRequest: VoiceRequest = {
 };
 
 function getVoiceObject(sandbox: SinonSandbox, resultContent: string) {
-  const onStub = sandbox.stub().callsFake((_, cb) => {
-    cb({ content: resultContent });
+  // Only a DATA registration yields a response. Firing the callback for every event
+  // would mean an END or ERROR listener also receives one, which is both unlike the
+  // real stream and the reason a verb that never settled on stream termination went
+  // unnoticed by this suite.
+  const onStub = sandbox.stub().callsFake((event, cb) => {
+    if (event === StreamEvent.DATA) {
+      cb({ content: resultContent });
+    }
   });
 
   return {

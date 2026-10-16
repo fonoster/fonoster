@@ -16,11 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { greetUser } from "./greetUser";
 export { goodbye } from "./goodbye";
 export { announceSystemError } from "./announceSystemError";
 export { interruptPlayback } from "./interruptPlayback";
-export { announceIdleTimeout } from "./announceIdleTimeout";
 export { increaseIdleTimeoutCount } from "./increaseIdleTimeoutCount";
 export { cleanSpeech } from "./cleanSpeech";
 export { appendSpeech } from "./appendSpeech";

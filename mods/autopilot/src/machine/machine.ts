@@ -22,18 +22,31 @@ import { context } from "./context";
 import { machineSetup } from "./setup";
 
 const machine = machineSetup.createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QDMB2BBAkgYgB6wBcBDAsAOiOVICcAKAWXQA0B9AZQFE23MB5AORYARAKoAldABU+-AJTY0WANoAGALqJQABwD2sAJYF9O1JpC5EAWgDMADgDsZFQDYATAFYAnLevuAjPYALIF+ADQgAJ6IHoFkrp5B9s6ezn6pzu7uAL5Z4YqYZFDUYGBGqFDYqhpIILoGRiZmFgh+tn5k1vYp9tauti7Obc7hUQievmQJzm5efq6uvvY5eRgF+hAANmDYbAAKHBwAwgAS7JLoYpJVZnWGxqY1zZ4qjrbuC-Z9gT3O9vYjiHstlckxcnXsKlaXUCrmWIHyZHWWzwhBI5EoNFomCEABkOCxpPQOLwRJJ5AikWBrjVbg0HqBmu5AipJu42t5PM8VNYMgCWtY-O05p4-F5XMyVIF3NY4RTNtt8MRSBQqGA6Ni8QTMESSWSFKtEfKlH5qto9HdGo9ENZArYyAF-P5fra+q4+YKFmQgv13EF-DypbKDRt9IQwKh9OVJDoRLA1Tt9kdTmIuCIcVd1DdzXSmohnLayLZnNZPIFi5zkkE+TyWZz7Ez4ipJX5mTLcvDg6HSBGozG49QUUr0ar1bj8YTiaTyZ2wz2oNHY2rqWb6vdcy1BXa-r5gYFnh56+6VMCvX4VF5uf7Pm2VlgyAB3Ih3coAMR01DYWhKAGMABaSfQAFswB0ABXAgEwOE4zguDNTVqbM1ytFoIQ6ZsgU5BZXC6YZIkQLx3ELIJXBUV0-kCIM70fZ8oDfD8vzAP8AOAsCIL2KDk1TdNlwQ1dLQZKwpUmOxviSFxmUFdw+Q+JxvilWw90WB1KIKaiylo99Px-f8gJA8DBzRFVMUYVh2KTFgAHUsEkLUdSnfUqKfdS6K0xidJY8CeNpJCBI3Wwtw+NJxl+YE3TwhBxRBbxbG8dxpji7xWhUsgtGoHRvzgAxykXagxDAABHUC4AgiATHISMADcdAAa3IBFUvSzLIygHK8sK4qEEq9KSHuKovMQ-jzEQOZ3g6QY-HGc9xjaPkLzIZk+m3ToQiCZKGoy2Aspa-s2qKwhIPMthzkufq+PpIb+R5e1rDsYtRR6SVPD5DCyCdYJnEhSFkgo9t6rSjattagq9rYxNoJTNg0zgrMzvXAIFK9CFBlLcTj2rPd7WvTpOm8Y9SxydtUB0CA4DMfIYYtc7mksQIJhcDxvF8AJgjCcKW08V65Liss5h6bxkqKEp1IpnNkMsX44krEiSxIotBj5TxXGcea-kVyVuXrXxkspEWfIu30QVSNJ4lSYIIWsBWlZVroSNbTXsl+mdu2ahd+11wbmgcFl2Wsc8BWLTJAlm1JC36Y8eWmtlkrU5qXIYpjdNY92qeGiXUiLPoPqVssg-CksOc+EIlfGewz1+B3bwKX8iHKUCtGT9dLBIwi3AFEVSMSMLRj8G72l8A3bTihKfsrlL-qa7KduB4qG+Q0VpTGwUgQyUibtmhxQ6bBSeWlRWlgJoA */
   context,
   id: "fnAI",
   initial: "greeting",
   states: {
     greeting: {
-      always: {
-        target: "idle",
-        description: "Transition to idle after the initial greeting."
+      // The greeting is invoked (not fired-and-forgotten) so the machine only
+      // moves to "idle", and therefore only arms the idle clock, once the
+      // first message has been fully played.
+      invoke: {
+        src: "doGreetUser",
+        description: "Answer the call and play the first message",
+        input: ({ context }) => ({ context }),
+        onDone: {
+          target: "idle",
+          description: "Transition to idle after the initial greeting."
+        },
+        onError: {
+          target: "idle"
+        }
       },
-      entry: {
-        type: "greetUser"
+      on: {
+        SPEECH_START: {
+          target: "listeningToUser",
+          description: "The user barged in during the greeting."
+        }
       }
     },
 
@@ -53,14 +66,36 @@ const machine = machineSetup.createMachine({
             guard: and(["idleTimeoutCountExceedsMax"])
           },
           {
-            target: "idle",
-            actions: [
-              { type: "increaseIdleTimeoutCount" },
-              { type: "announceIdleTimeout" }
-            ],
-            reenter: true
+            target: "announcingIdleTimeout"
           }
         ]
+      }
+    },
+
+    announcingIdleTimeout: {
+      // A dedicated state, with no IDLE_TIMEOUT of its own, so the idle clock
+      // is stopped while the idle message plays. It is re-armed only when the
+      // message finishes and the machine goes back to "idle". This prevents
+      // back-to-back idle announcements (and a premature hangup) when the
+      // idle timeout is short relative to the message duration.
+      entry: [{ type: "increaseIdleTimeoutCount" }],
+      invoke: {
+        src: "doAnnounceIdleTimeout",
+        description: "Play the idle message",
+        input: ({ context }) => ({ context }),
+        onDone: {
+          target: "idle",
+          description: "Re-arm the idle clock once the idle message finishes."
+        },
+        onError: {
+          target: "idle"
+        }
+      },
+      on: {
+        SPEECH_START: {
+          target: "listeningToUser",
+          description: "The user spoke while the idle message was playing."
+        }
       }
     },
 
@@ -83,11 +118,12 @@ const machine = machineSetup.createMachine({
       after: {
         IDLE_TIMEOUT: [
           {
-            target: "idle",
-            actions: [
-              { type: "increaseIdleTimeoutCount" },
-              { type: "announceIdleTimeout" }
-            ]
+            target: "hangup",
+            actions: { type: "goodbye" },
+            guard: and(["idleTimeoutCountExceedsMax"])
+          },
+          {
+            target: "announcingIdleTimeout"
           }
         ]
       }

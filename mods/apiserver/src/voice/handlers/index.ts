@@ -25,6 +25,7 @@ export * from "./createPlayDtmfHandler";
 export * from "./createPlaybackControlHandler";
 export * from "./createRecordHandler";
 export * from "./createSayHandler";
+export * from "./createSetAudioFiltersHandler";
 export * from "./createStreamGatherHandler";
 export * from "./createUnmuteHandler";
 export * from "./dial/createDialHandler";

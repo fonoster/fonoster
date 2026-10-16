@@ -59,7 +59,12 @@ describe("@voice/createSession", function () {
     const onStub = sandbox
       .stub()
       .callsFake((event: StreamEvent, cb: (params) => void) => {
-        cb(callbackResponses[cnt++]);
+        // Only a DATA registration receives a response. A verb also listens for END
+        // and ERROR so it cannot hang when the session dies mid-call; handing those
+        // a verb response would settle the promise down the wrong path.
+        if (event === StreamEvent.DATA) {
+          cb(callbackResponses[cnt++]);
+        }
       });
 
     const voice = {
@@ -85,7 +90,9 @@ describe("@voice/createSession", function () {
     expect(voice.once).to.have.been.calledWith(StreamEvent.DATA, match.func);
     expect(voice.once).to.have.been.calledWith(StreamEvent.END, match.func);
     expect(voice.once).to.have.been.calledTwice;
-    expect(voice.on).to.have.been.calledThrice;
+    // Three verbs, each listening for DATA, END and ERROR so that none of them can
+    // hang if the session terminates before its response arrives.
+    expect(voice.on).to.have.callCount(9);
     expect(voice.write).to.have.been.calledThrice;
     expect(voice.write).to.have.been.calledWith({
       answerRequest: { mediaSessionRef }

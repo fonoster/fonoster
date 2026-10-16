@@ -42,6 +42,8 @@ class Autopilot {
   }
 
   async start() {
+    await this.setupAudioFilters();
+
     const vadParams = this.params.conversationSettings.vad;
     const sileroVad = new SileroVad({
       pathToModel:
@@ -70,6 +72,28 @@ class Autopilot {
   stop() {
     logger.verbose("stopping autopilot");
     this.actor.stop();
+  }
+
+  // Asked for before the audio stream is opened, so voice activity detection
+  // and speech recognition both see filtered audio from the first frame. A
+  // refusal is logged and the call continues unfiltered.
+  private async setupAudioFilters() {
+    const { voice, audioFilters } = this.params;
+
+    if (!audioFilters?.length) {
+      return;
+    }
+
+    try {
+      await voice.setAudioFilters(audioFilters);
+      logger.verbose("audio filters requested", {
+        filters: audioFilters.map((filter) => filter.name)
+      });
+    } catch (err) {
+      logger.warn("could not set audio filters; continuing unfiltered", {
+        error: (err as Error)?.message
+      });
+    }
   }
 
   private async setupVoiceStream() {

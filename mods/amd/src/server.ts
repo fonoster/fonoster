@@ -17,17 +17,12 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { AutopilotContext } from "../types";
+import { startAgiServer } from "./agi/server";
+import { startAudioSocketServer } from "./audiosocket/server";
 
-const logger = getLogger({ service: "autopilot", filePath: __filename });
+const logger = getLogger({ service: "amd", filePath: __filename });
 
-export const announceIdleTimeout = async ({
-  context
-}: {
-  context: AutopilotContext;
-}) => {
-  logger.verbose("called the announceIdleTimeout action", {
-    idleMessage: context.idleMessage
-  });
-  await context.voice.say(context.idleMessage);
-};
+logger.info("starting amd");
+
+startAudioSocketServer();
+startAgiServer();

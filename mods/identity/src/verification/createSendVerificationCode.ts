@@ -23,12 +23,15 @@ import {
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
 import { sendVerificationEmail } from "./sendVerificationEmail";
 import { sendVerificationMessage } from "./sendVerificationMessage";
 import { ContactType, SendVerificationCodeRequest } from "./types";
+
+const logger = getLogger({ service: "identity", filePath: __filename });
 
 function createSendVerificationCode(
   prisma: Prisma,
@@ -54,6 +57,11 @@ function createSendVerificationCode(
       sendVerificationEmail(sendEmail, {
         recipient: request.value,
         verificationCode
+      }).catch((error) => {
+        logger.error("failed to send verification email", {
+          recipient: request.value,
+          error: error instanceof Error ? error.message : error
+        });
       });
     } else {
       await sendVerificationMessage(sendSms, {

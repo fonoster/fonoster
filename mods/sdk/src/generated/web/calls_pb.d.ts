@@ -34,6 +34,21 @@ export class CallDetailRecord extends jspb.Message {
   getDirection(): CallDirection;
   setDirection(value: CallDirection): CallDetailRecord;
 
+  getAmdStatus(): CallDetailRecord.AmdStatus;
+  setAmdStatus(value: CallDetailRecord.AmdStatus): CallDetailRecord;
+
+  getAmdConfidence(): number;
+  setAmdConfidence(value: number): CallDetailRecord;
+
+  getAmdDetector(): string;
+  setAmdDetector(value: string): CallDetailRecord;
+
+  getAmdLatencyMs(): number;
+  setAmdLatencyMs(value: number): CallDetailRecord;
+
+  getAmdCause(): string;
+  setAmdCause(value: string): CallDetailRecord;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CallDetailRecord.AsObject;
   static toObject(includeInstance: boolean, msg: CallDetailRecord): CallDetailRecord.AsObject;
@@ -54,6 +69,20 @@ export namespace CallDetailRecord {
     to: string,
     duration: number,
     direction: CallDirection,
+    amdStatus: CallDetailRecord.AmdStatus,
+    amdConfidence: number,
+    amdDetector: string,
+    amdLatencyMs: number,
+    amdCause: string,
+  }
+
+  export enum AmdStatus { 
+    AMD_STATUS_UNSPECIFIED = 0,
+    HUMAN = 1,
+    MACHINE = 2,
+    VOICEMAIL = 3,
+    IVR = 4,
+    UNKNOWN = 5,
   }
 }
 

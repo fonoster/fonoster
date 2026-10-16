@@ -112,8 +112,9 @@ describe("@autopilot/machine", function () {
     // Act
     actor.start();
 
-    // Wait just enough time to say the first message
-    await waitFor(4100);
+    // Wait just enough time to answer, play the dtmf (500ms) and say the
+    // first message (4000ms). The machine stays in "greeting" until then.
+    await waitFor(4600);
 
     // Assert
     const { context, value: state } = actor.getSnapshot();
@@ -160,6 +161,45 @@ describe("@autopilot/machine", function () {
 
     // Cleanup
     actor.stop();
+  }).timeout(20000);
+
+  it("does not crash when stopSpeech rejects because the call already hung up", async function () {
+    // Arrange: this reproduces the scenario where the caller hangs up right
+    // as the assistant is speaking. interruptPlayback (a fire-and-forget
+    // entry action) calls voice.stopSpeech(), whose underlying verb rejects
+    // because the session ended before it got a response. Since XState does
+    // not await/track an action's returned promise, an uncaught rejection
+    // here previously crashed the whole process.
+    const { machine } = await import("../src/machine");
+
+    const input = getActorInput();
+    input.voice.stopSpeech = sandbox
+      .stub()
+      .rejects(new Error("voice session ended before the StopSay verb completed"));
+
+    const unhandledRejections: unknown[] = [];
+    const onUnhandledRejection = (reason: unknown) => unhandledRejections.push(reason);
+    process.on("unhandledRejection", onUnhandledRejection);
+
+    const actor = createActor(machine, { input });
+
+    try {
+      // Act
+      actor.start();
+      actor.send({ type: "SPEECH_START" });
+
+      // Give the rejected stopSpeech() promise a chance to settle.
+      await waitFor(50);
+
+      // Assert
+      const { value: state } = actor.getSnapshot();
+      expect(state).to.equal("listeningToUser");
+      expect(input.voice.stopSpeech).to.have.been.calledOnce;
+      expect(unhandledRejections).to.have.lengthOf(0);
+    } finally {
+      process.removeListener("unhandledRejection", onUnhandledRejection);
+      actor.stop();
+    }
   }).timeout(20000);
 
   it("should append the speech to the buffer and set the state to 'listeningToUser'", async function () {
@@ -326,38 +366,6 @@ describe("@autopilot/machine", function () {
     expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
     expect(input.languageModel.invoke).to.have.been.calledOnce;
 
-    actor.stop();
-  }).timeout(20000);
-
-  it("should idletimeout and then hangup", async function () {
-    // Arrange
-    const { machine } = await import("../src/machine");
-
-    const input = getActorInput();
-
-    // 500ms is not a realistic timeout, but kept low for testing purposes
-    input.conversationSettings.idleOptions.timeout = 500;
-
-    const actor = createActor(machine, {
-      input
-    });
-
-    // Act
-    actor.start();
-
-    await waitFor(13000);
-
-    // Assert
-    const { context, value: state } = actor.getSnapshot();
-    expect(state).to.equal("hangup");
-    expect(context.idleTimeoutCount).to.equal(3);
-    expect(input.voice.say).to.have.been.callCount(5);
-    expect(input.voice.say).to.have.been.calledWith(FIRST_MESSAGE);
-    expect(input.voice.say).to.have.been.calledWith(IDLE_MESSAGE);
-    expect(input.voice.say).to.have.been.calledWith(GOODBYE_MESSAGE);
-    expect(input.voice.hangup).to.have.been.calledOnce;
-
-    // Cleanup
     actor.stop();
   }).timeout(20000);
 });

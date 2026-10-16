@@ -52,8 +52,8 @@ describe("@voice/verbs/record", function () {
     await record.run(recordRequest);
 
     // Assert
-    expect(voice.removeListener).to.have.been.calledOnce;
-    expect(voice.on).to.have.been.calledOnce;
+    expect(voice.removeListener).to.have.been.calledThrice;
+    expect(voice.on).to.have.been.calledThrice;
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({

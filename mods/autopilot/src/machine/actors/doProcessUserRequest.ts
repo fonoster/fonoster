@@ -30,8 +30,18 @@ export const doProcessUserRequest = fromPromise(
       hasLateSpeech: context.hasLateSpeech
     });
 
-    // Stop any speech that might be playing
-    await context.voice.stopSpeech();
+    // Stop any speech that might be playing. The call may have already hung
+    // up, in which case the underlying verb rejects because it never gets a
+    // response - there's nothing left to interrupt, so we swallow it rather
+    // than let it fail the whole actor.
+    try {
+      await context.voice.stopSpeech();
+    } catch (error) {
+      logger.verbose("stopSpeech failed while processing user request", {
+        mediaSessionRef: context.mediaSessionRef,
+        error
+      });
+    }
 
     const languageModel = context.languageModel;
     const speech = context.speechBuffer.trim();

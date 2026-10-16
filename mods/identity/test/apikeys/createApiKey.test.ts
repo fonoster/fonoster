@@ -40,12 +40,13 @@ describe("@identity[apikeys/createApiKey]", function () {
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
+    const expiresAtSeconds = Math.floor(Date.now() / 1000) + 3600;
     const call = {
       metadata,
       request: {
         workspaceRef: "123",
         role: Role.WORKSPACE_ADMIN,
-        expiresAt: new Date().getMilliseconds()
+        expiresAt: expiresAtSeconds
       }
     };
 
@@ -55,12 +56,13 @@ describe("@identity[apikeys/createApiKey]", function () {
       accessKeySecret: "accessKeySecret"
     };
 
+    const createStub = sandbox.stub().resolves(res);
     const prisma = {
       workspace: {
         findUnique: sandbox.stub().resolves({ ref: "123" })
       },
       apiKey: {
-        create: sandbox.stub().resolves(res)
+        create: createStub
       }
     } as unknown as Prisma;
 
@@ -75,6 +77,11 @@ describe("@identity[apikeys/createApiKey]", function () {
         .has.property("accessKeySecret")
         .to.be.equal("accessKeySecret");
     });
+
+    // expiresAt is wire-format epoch seconds; it must be widened to
+    // milliseconds before being stored as a Date.
+    const storedExpiresAt = createStub.firstCall.args[0].data.expiresAt as Date;
+    expect(storedExpiresAt.getTime()).to.be.equal(expiresAtSeconds * 1000);
   });
 
   it("should throw an error if the ApiKey already exists", async function () {
@@ -86,7 +93,7 @@ describe("@identity[apikeys/createApiKey]", function () {
       request: {
         workspaceRef: "123",
         role: Role.WORKSPACE_ADMIN,
-        expiresAt: new Date().getMilliseconds()
+        expiresAt: Math.floor(Date.now() / 1000) + 3600
       }
     };
 

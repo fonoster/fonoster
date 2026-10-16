@@ -7,10 +7,18 @@ on:
         description: 'Version to use for Docker tags'
         required: false
         type: string
+      ref:
+        description: 'Commit SHA to check out and build (defaults to the triggering commit if omitted)'
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       version:
         description: 'Version to use for Docker tags'
+        required: false
+        type: string
+      ref:
+        description: 'Commit SHA to check out and build (defaults to the triggering commit if omitted)'
         required: false
         type: string
 
@@ -23,6 +31,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Without this, checkout defaults to github.sha (the commit that
+          # triggered the workflow run) rather than the version-bump commit
+          # "npm run release" pushes afterward in the calling workflow's
+          # build job, so the image would build with the pre-bump
+          # package.json versions. See release.yaml's RELEASE_SHA output.
+          ref: ${{ inputs.ref }}
           token: ${{ secrets.GH_PAT }}
 
       - name: Setup Node.js

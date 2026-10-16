@@ -1,0 +1,296 @@
+{
+  "description": "Permanent regression corpus for the AMD classifier. Each entry pins the classifier's ACTUAL output on that file at the time it was added (knownStatus/knownConfidence) — that is what the regression test asserts against, so a future model/pipeline change that silently shifts a result gets caught. groundTruthLabel is this project's best real-world label for the source recording, independent of what the model currently says; where it differs from knownStatus, that's a documented accuracy gap, not a bug in the test. Every clip is at least 5s (most are 8s+); nothing shorter was kept.",
+  "format": "16 kHz, mono, signed 16-bit little-endian PCM, no header (matches ../../amd/fixtures' fixture.pcm convention)",
+  "generatedWith": "ffmpeg -ar 16000 -ac 1 -f s16le, trimmed to the leading portion of each source (see trimmedTo per entry)",
+  "entries": [
+    {
+      "file": "human-1.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "MACHINE",
+      "knownConfidence": 0.5044,
+      "note": "Known accuracy gap: the model reads this real human narration as MACHINE at near-toss-up confidence, likely because Asterisk's demo-congrats is formally scripted, evenly-paced narration rather than spontaneous conversational speech — compare to human-2..human-11 below, which are spontaneous and all classify correctly at high confidence. Kept specifically to track this narration-vs-conversation gap.",
+      "source": {
+        "provider": "Asterisk core-sounds-en (Digium), voiced by Allison Smith",
+        "url": "https://downloads.asterisk.org/pub/telephony/sounds/releases/asterisk-core-sounds-en-wav-1.6.1.tar.gz",
+        "originalFile": "demo-congrats.wav",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "trimmedTo": "first 8s of a 30.3s original"
+      }
+    },
+    {
+      "file": "human-2.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9757,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-3.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9737,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-4.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9898,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-5.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9929,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-6.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9934,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-7.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9928,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-8.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9927,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-9.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9864,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-10.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9921,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "human-11.pcm",
+      "groundTruthLabel": "human",
+      "knownStatus": "HUMAN",
+      "knownConfidence": 0.9589,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "PolyAI/MINDS-14 dataset (en-US split) — real e-banking customer service calls",
+        "url": "https://huggingface.co/datasets/PolyAI/minds14",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "trimmedTo": "first 8s of a ~15-52s original"
+      }
+    },
+    {
+      "file": "voicemail-2.pcm",
+      "groundTruthLabel": "voicemail",
+      "knownStatus": "VOICEMAIL",
+      "knownConfidence": 0.9811,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "Freesound user lyd4tuna",
+        "url": "https://freesound.org/people/lyd4tuna/sounds/453261/",
+        "license": "CC0 1.0 (public domain)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "trimmedTo": "first 8s of a 41.8s original"
+      }
+    },
+    {
+      "file": "voicemail-3.pcm",
+      "groundTruthLabel": "voicemail",
+      "knownStatus": "VOICEMAIL",
+      "knownConfidence": 0.9681,
+      "note": "Confidently correct.",
+      "source": {
+        "provider": "Freesound user Danrules213",
+        "url": "https://freesound.org/people/Danrules213/sounds/341394/",
+        "license": "CC0 1.0 (public domain)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "trimmedTo": "first 8s of a 35.0s original"
+      }
+    },
+    {
+      "file": "voicemail-4.pcm",
+      "groundTruthLabel": "voicemail",
+      "knownStatus": "VOICEMAIL",
+      "knownConfidence": 0.5731,
+      "note": "Correct but marginal confidence — at 5.4s (\"the mailbox is full and cannot receive any messages... goodbye. boop boop boop\") this is short and mostly a stock phrase plus beeps, similar to the low-confidence short clip dropped from this corpus per feedback that anything under 5s isn't useful. Kept (just over the 5s floor) to track this borderline case rather than only keeping easy ones.",
+      "source": {
+        "provider": "Freesound user lyd4tuna",
+        "url": "https://freesound.org/people/lyd4tuna/sounds/453271/",
+        "license": "CC0 1.0 (public domain)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "trimmedTo": "full 5.4s original, untrimmed"
+      }
+    },
+    {
+      "file": "machine-1.pcm",
+      "groundTruthLabel": "answering_machine",
+      "knownStatus": "VOICEMAIL",
+      "knownConfidence": 0.9674,
+      "note": "Confidently classified, but as the sibling label VOICEMAIL rather than ANSWERING_MACHINE — the two are acoustically very similar (both are a played-back greeting) and both collapse to compact mode's MACHINE either way, so this is a minor full-mode label nuance, not a wrong-category miss.",
+      "source": {
+        "provider": "Freesound user DiArchangeli",
+        "url": "https://freesound.org/people/DiArchangeli/sounds/116390/",
+        "license": "CC0 1.0 (public domain)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "trimmedTo": "full 6.8s original, untrimmed"
+      }
+    },
+    {
+      "file": "machine-2.pcm",
+      "groundTruthLabel": "answering_machine",
+      "knownStatus": "IVR",
+      "knownConfidence": 0.5113,
+      "note": "Known accuracy gap: a synthesized personal answering-machine greeting ('Hi, you've reached the Rodriguez family...') misclassified as IVR at near-toss-up confidence. No real personal-greeting recording with a clean license turned up beyond machine-1, so this fills out the category volume; kept specifically to track this synthetic-voice confusion.",
+      "source": {
+        "provider": "Synthesized locally for this project",
+        "tool": "macOS `say -v Samantha`",
+        "script": "Hi, you've reached the Rodriguez family. We can't come to the phone right now. Please leave your name and number after the tone, and we'll call you back.",
+        "license": "N/A — original, project-owned"
+      }
+    },
+    {
+      "file": "machine-3.pcm",
+      "groundTruthLabel": "answering_machine",
+      "knownStatus": "MACHINE",
+      "knownConfidence": 0.5833,
+      "note": "Correct, marginal confidence.",
+      "source": {
+        "provider": "Synthesized locally for this project",
+        "tool": "macOS `say -v Fred`",
+        "script": "You have reached 555 0142. No one is available to take your call. Please leave a detailed message after the beep.",
+        "license": "N/A — original, project-owned"
+      }
+    },
+    {
+      "file": "ivr-1.pcm",
+      "groundTruthLabel": "ivr",
+      "knownStatus": "IVR",
+      "knownConfidence": 0.5183,
+      "note": "Correct but only just above toss-up confidence.",
+      "source": {
+        "provider": "Synthesized locally for this project",
+        "tool": "macOS `say -v Samantha`",
+        "script": "Thank you for calling Fonoster Support. For billing, press 1. For technical support, press 2. To speak with an operator, press 0.",
+        "license": "N/A — original, project-owned"
+      }
+    },
+    {
+      "file": "ivr-2.pcm",
+      "groundTruthLabel": "ivr",
+      "knownStatus": "MACHINE",
+      "knownConfidence": 0.5896,
+      "note": "Known accuracy gap: a longer, more formal bank-style menu script (Fred voice) misclassified as MACHINE. Kept to track whether this Fred-voice/formal-script confusion persists across model updates.",
+      "source": {
+        "provider": "Synthesized locally for this project",
+        "tool": "macOS `say -v Fred`",
+        "script": "Welcome to Fonoster Bank. If you know your party's extension, you may dial it at any time. For account balances, press 1. For recent transactions, press 2. To speak to a representative, press 0.",
+        "license": "N/A — original, project-owned"
+      }
+    },
+    {
+      "file": "ivr-3.pcm",
+      "groundTruthLabel": "ivr",
+      "knownStatus": "IVR",
+      "knownConfidence": 0.8063,
+      "note": "Confidently correct — the best IVR canary in this set.",
+      "source": {
+        "provider": "Synthesized locally for this project",
+        "tool": "macOS `say -v Samantha`",
+        "script": "You have reached the customer service line. Our office hours are 9 a m to 5 p m, Monday through Friday. For billing inquiries, press 1. For technical support, press 2. For all other inquiries, please stay on the line.",
+        "license": "N/A — original, project-owned"
+      }
+    },
+    {
+      "file": "ivr-4.pcm",
+      "groundTruthLabel": "ivr",
+      "knownStatus": "MACHINE",
+      "knownConfidence": 0.5612,
+      "note": "Known accuracy gap: a short menu script (Fred voice) misclassified as MACHINE, same pattern as ivr-2. Kept to track this.",
+      "source": {
+        "provider": "Synthesized locally for this project",
+        "tool": "macOS `say -v Fred`",
+        "script": "Thank you for calling. This call may be recorded for quality purposes. Press 1 for sales. Press 2 for support. Press 9 to repeat this menu.",
+        "license": "N/A — original, project-owned"
+      }
+    }
+  ]
+}

@@ -58,7 +58,7 @@ export default class List extends AuthenticatedCommand<typeof List> {
         { text: application.role, padding: [0, 0, 0, 0], width: 20 },
         {
           text: application.expiresAt
-            ? new Date(application.expiresAt).toISOString()
+            ? new Date(application.expiresAt * 1000).toISOString()
             : "Never",
           padding: [0, 0, 0, 0],
           width: 10

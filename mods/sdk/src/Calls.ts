@@ -28,6 +28,7 @@ import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { DataResponse, FonosterClient } from "./client/types";
 import {
+  CallDetailRecord as CallDetailRecordPB,
   CallDirection,
   Call as CallPB,
   CallStatus,
@@ -153,40 +154,48 @@ class Calls {
 
     const call = client.trackCall(trackCallRequest, this.client.getMetadata());
 
+    // Listeners must be attached synchronously, right after the stream is
+    // created. `statusStreamGenerator` below is an async generator, whose
+    // body (including any call.on(...) registrations placed inside it)
+    // only runs once the caller starts iterating it. If the stream emits
+    // "error" before that first iteration, Node's EventEmitter has no
+    // listener to call and throws, crashing the process instead of
+    // surfacing as a rejected promise the caller can catch.
+    const queue: Array<{ status: number }> = [];
+    let done = false;
+    let streamError: Error | null = null;
+
+    call.on("data", (response: DataResponse) => {
+      const data = response.toObject();
+      queue.push(data as { status: number });
+    });
+
+    call.on("end", () => {
+      done = true;
+    });
+
+    call.on("error", (err: Error) => {
+      streamError = err instanceof Error ? err : new Error(String(err));
+      done = true;
+    });
+
     async function* statusStreamGenerator(): AsyncGenerator<{
       status: DialStatus;
     }> {
-      const queue: Array<{ status: number }> = [];
-      let done = false;
-
-      call.on("data", (response: DataResponse) => {
-        const data = response.toObject();
-        queue.push(data as { status: number });
-      });
-
-      call.on("end", () => {
-        done = true;
-      });
-
-      call.on("error", () => {
-        done = true;
-        throw new Error("An error occurred while tracking the call");
-      });
-
       // eslint-disable-next-line no-loops/no-loops
-      while (!done) {
+      while (!done || queue.length > 0) {
         if (queue.length > 0) {
           const data = queue.shift()!;
-          if (!data) {
-            return;
-          }
-
           yield { status: dialStatusToString(data.status) } as {
             status: DialStatus;
           };
         } else {
           await new Promise<void>((resolve) => setTimeout(resolve, 50));
         }
+      }
+
+      if (streamError) {
+        throw streamError;
       }
     }
 
@@ -225,7 +234,8 @@ class Calls {
       enumMapping: [
         ["type", CallType],
         ["status", CallStatus],
-        ["direction", CallDirection]
+        ["direction", CallDirection],
+        ["amdStatus", CallDetailRecordPB.AmdStatus]
       ]
     });
   }
@@ -265,7 +275,8 @@ class Calls {
       enumMapping: [
         ["type", CallType],
         ["status", CallStatus],
-        ["direction", CallDirection]
+        ["direction", CallDirection],
+        ["amdStatus", CallDetailRecordPB.AmdStatus]
       ],
       repeatableObjectMapping: [["itemsList", CallPB]]
     });

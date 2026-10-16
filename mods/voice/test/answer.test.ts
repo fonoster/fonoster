@@ -44,8 +44,8 @@ describe("@voice/verbs/answer", function () {
     await answer.run();
 
     // Assert
-    expect(voice.removeListener).to.have.been.calledOnce;
-    expect(voice.on).to.have.been.calledOnce;
+    expect(voice.removeListener).to.have.been.calledThrice;
+    expect(voice.on).to.have.been.calledThrice;
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
       answerRequest: { mediaSessionRef }

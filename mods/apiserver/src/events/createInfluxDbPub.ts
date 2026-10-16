@@ -18,6 +18,8 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
+import { amdResultCache } from "./amdResultCache";
+import { createPerCallCache } from "./createPerCallCache";
 
 type InfluxDbPub = {
   url: string;
@@ -42,12 +44,47 @@ function createInfluxDbPub(config) {
   const client = new InfluxDB({ url, token });
   const writeClient = client.getWriteApi(org, bucket, "ns");
 
+  // A call's fields arrive across multiple events over time, but not every
+  // event's payload carries "ref" (e.g. an update with just endedAt/status).
+  // Every point for a call must share the same tag set for pivot to merge
+  // them into one record, so we remember each call's ref and reapply it to
+  // every subsequent write.
+  const refByCallId = createPerCallCache<string>(24 * 60 * 60 * 1000);
+
   return (event) => {
     logger.verbose("writing event to InfluxDB", event);
     const point = new Point(event.name).tag("callId", event.tag);
 
+    const ref = event.data.ref
+      ? String(event.data.ref)
+      : refByCallId.get(event.tag);
+
+    if (ref) {
+      point.tag("ref", ref);
+      refByCallId.set(event.tag, ref);
+
+      // Fold in the Answering Machine Detection verdict (if AMD ran for this
+      // call), but only on the terminal event — the one carrying the hangup
+      // cause as `status`. By then the verdict has long been read off the
+      // channel, and writing it once keeps every earlier point (and raw,
+      // non-pivoted queries) clean.
+      if (event.data.status) {
+        const amd = amdResultCache.get(ref);
+        if (amd) {
+          point
+            .stringField("amdStatus", amd.status)
+            .floatField("amdConfidence", amd.confidence)
+            .stringField("amdDetector", amd.detector)
+            .intField("amdLatencyMs", amd.latencyMs)
+            .stringField("amdCause", amd.cause);
+        }
+      }
+    }
+
     Object.entries(event.data).forEach(([key, value]) => {
-      if (typeof value === "number") {
+      if (key === "ref") {
+        return;
+      } else if (typeof value === "number") {
         point.intField(key, value); // Or floatField for floating-point numbers
       } else if (typeof value === "boolean") {
         point.booleanField(key, value);

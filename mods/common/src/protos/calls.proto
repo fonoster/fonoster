@@ -81,6 +81,29 @@ message CallDetailRecord {
   int32 duration = 9;
   // The call direction
   CallDirection direction = 10;
+
+  // Answering Machine Detection verdict for the call. Mirrors
+  // fonoster.voice.v1beta2.Amd.Status; duplicated here (nested, like
+  // TrackCallResponse.Status below) because calls.proto does not import
+  // voice.proto and a top-level enum's values would collide with CallStatus's.
+  enum AmdStatus {
+    AMD_STATUS_UNSPECIFIED = 0;
+    HUMAN = 1;
+    MACHINE = 2;
+    VOICEMAIL = 3;
+    IVR = 4;
+    UNKNOWN = 5;
+  }
+  // Answering Machine Detection verdict, absent when AMD did not run
+  AmdStatus amd_status = 11;
+  // Confidence for the reported amd_status, 0..1
+  float amd_confidence = 12;
+  // Identifier of the detector that produced the verdict (e.g. "asterisk-amd@1")
+  string amd_detector = 13;
+  // Wall-clock time spent producing the verdict, in milliseconds
+  int32 amd_latency_ms = 14;
+  // Detector-specific cause code (e.g. Asterisk's AMDCAUSE), useful for tuning
+  string amd_cause = 15;
 }
 
 // The request message for Calls.Call

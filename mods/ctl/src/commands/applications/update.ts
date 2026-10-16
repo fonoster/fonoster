@@ -107,7 +107,8 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
             message: "STT Language",
             choices: [
               { name: "English", value: "en-US" },
-              { name: "Spanish", value: "es-ES" }
+              { name: "Spanish", value: "es-ES" },
+              { name: "Multilingual (Nova 3 or Nova 2)", value: "multi" }
             ],
             default: applicationFromDB.speechToText?.config.languageCode
           }),

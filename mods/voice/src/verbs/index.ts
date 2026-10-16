@@ -32,3 +32,4 @@ export * from "./Unmute";
 export * from "./Verb";
 export * from "./validateRequest";
 export * from "./StopSay";
+export * from "./SetAudioFilters";

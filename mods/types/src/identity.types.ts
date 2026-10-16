@@ -76,13 +76,15 @@ type RegenerateApiKeyResponse = {
   accessKeySecret: string;
 };
 
+// expiresAt/createdAt/updatedAt travel over the wire as epoch seconds (the
+// proto fields are int32, which can't hold epoch milliseconds).
 type ApiKey = {
   ref: string;
   accessKeyId: string;
   role: Role;
-  expiresAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  expiresAt?: number;
+  createdAt: number;
+  updatedAt: number;
 };
 
 type SendResetPasswordCodeRequest = {

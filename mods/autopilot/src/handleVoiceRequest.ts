@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import fs from "fs";
-import { StreamEvent } from "@fonoster/common";
+import { AudioFilterConfig, StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { BaseMessage } from "@langchain/core/messages";
@@ -41,6 +41,7 @@ import {
   EventsHook,
   sendConversationEndedEvent
 } from "./sendConversationEndedEvent";
+import { sendConversationStartedEvent } from "./sendConversationStartedEvent";
 import Autopilot, {
   ConversationProvider,
   ConversationSettings,
@@ -60,7 +61,8 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     appRef,
     callRef,
     callDirection,
-    metadata
+    metadata,
+    amd
   } = req;
 
   logger.verbose("voice request", {
@@ -131,12 +133,24 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
 
   try {
     const autopilot = new Autopilot({
+      audioFilters: assistantConfig.audioFilters as AudioFilterConfig[],
       conversationSettings: conversationSettings as ConversationSettings,
       voice: voice as VoiceImpl,
       languageModel: languageModel as LanguageModel
     });
 
     await autopilot.start();
+
+    if (assistantConfig.eventsHook?.url) {
+      await sendConversationStartedEvent(
+        assistantConfig.eventsHook as EventsHook,
+        {
+          appRef,
+          callRef,
+          phone: ingressNumber
+        }
+      );
+    }
 
     res.on(StreamEvent.END, async () => {
       autopilot.stop();
@@ -164,7 +178,8 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
             callRef,
             phone: ingressNumber,
             chatHistory: chatHistory as Record<string, string>[],
-            recordingUrl
+            recordingUrl,
+            amd
           }
         );
       }

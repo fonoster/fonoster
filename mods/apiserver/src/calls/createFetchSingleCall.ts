@@ -32,15 +32,17 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
     accessKeyId: string,
     ref: string
   ): Promise<CallDetailRecord> => {
+    // "ref" is a tag, so this filters before pivot runs and only ever
+    // touches the one matching series instead of every call in the range.
     const query = flux`from(bucket: "${INFLUXDB_CALLS_BUCKET}")
-      |> range(start: -365d)
+      |> range(start: -30d)
+      |> filter(fn: (r) => r._measurement == "${CALL_DETAIL_RECORD_MEASUREMENT}" and r.ref == "${ref}")
       |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with
           duration: int(v: r.endedAt) - int(v: r.startedAt)
         }))
-      |> filter(fn: (r) => r._measurement == "${CALL_DETAIL_RECORD_MEASUREMENT}")
-      |> filter(fn: (r) => r.ref == ${ref} and r.accessKeyId == "${accessKeyId}")
+      |> filter(fn: (r) => r.accessKeyId == "${accessKeyId}")
       |> sort(columns: ["_time"], desc: true)
       |> limit(n: 1)`;
 

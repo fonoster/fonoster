@@ -31,6 +31,7 @@ import {
   createPlayDtmfHandler,
   createPlayHandler,
   createSayHandler,
+  createSetAudioFiltersHandler,
   createStopSayHandler,
   createStreamGatherHandler,
   createStreamHandler,
@@ -92,11 +93,13 @@ class VoiceDispatcher {
     try {
       const vc = await createVoiceClient({ ari, event, channel });
 
-      // Connect to voice server (must await to ensure speechHandler is initialized)
-      await vc.connect();
-
-      voiceClients.set(channel.id, vc);
-
+      // Register the verb handlers BEFORE connecting. Connecting opens the session and
+      // sends the request that starts the voice application, and an application that
+      // replies immediately can have its first verb arrive before this function
+      // resumes. `verbsStream` is a plain EventEmitter, so a verb emitted while no
+      // listener is attached is discarded silently — the application then waits forever
+      // for a response that will never come, and the call hangs with the caller
+      // connected and hearing nothing.
       vc.on(SC.ANSWER_REQUEST, createAnswerHandler(ari, vc).bind(this));
       vc.on(SC.HANGUP_REQUEST, createHangupHandler(ari, vc).bind(this));
       vc.on(SC.MUTE_REQUEST, createMuteHandler(ari, vc).bind(this));
@@ -119,6 +122,15 @@ class VoiceDispatcher {
         vc.stopStreamGather();
       });
       vc.on(SC.START_STREAM_REQUEST, createStreamHandler(vc).bind(this));
+      vc.on(
+        SC.SET_AUDIO_FILTERS_REQUEST,
+        createSetAudioFiltersHandler(vc).bind(this)
+      );
+
+      // Connect to voice server (must await to ensure speechHandler is initialized)
+      await vc.connect();
+
+      voiceClients.set(channel.id, vc);
     } catch (err) {
       logger.error("error handling stasis start", { error: err.message });
     }

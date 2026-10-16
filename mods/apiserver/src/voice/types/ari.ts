@@ -37,7 +37,10 @@ enum ChannelVar {
   APP_ENDPOINT = "APP_ENDPOINT",
   METADATA = "METADATA",
   FROM_EXTERNAL_MEDIA = "FROM_EXTERNAL_MEDIA",
-  CALL_REF = "CALL_REF"
+  CALL_REF = "CALL_REF",
+  // Set by app_amd in the dialplan, not by Fonoster; hence the odd names.
+  AMD_STATUS = "AMDSTATUS",
+  AMD_CAUSE = "AMDCAUSE"
 }
 
 export { AriEvent, ChannelVar };

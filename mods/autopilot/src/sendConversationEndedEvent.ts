@@ -18,6 +18,7 @@
  */
 import {
   AllowedHttpMethod,
+  Amd,
   EventsHookAllowedEvents,
   eventsHookSchema,
   sendHttpRequest
@@ -40,9 +41,13 @@ export async function sendConversationEndedEvent(
     phone: string;
     chatHistory: Record<string, string>[];
     recordingUrl: string;
+    // Answering Machine Detection verdict, absent when AMD did not run for
+    // this call. Forwarded here because the customer's own app never sees
+    // the live CreateSessionRequest for an AUTOPILOT-handled call.
+    amd?: Amd;
   }
 ) {
-  const { chatHistory, phone, appRef, callRef, recordingUrl } = data;
+  const { chatHistory, phone, appRef, callRef, recordingUrl, amd } = data;
 
   if (
     !eventsHook?.events.includes(EventsHookAllowedEvents.CONVERSATION_ENDED) &&
@@ -58,8 +63,16 @@ export async function sendConversationEndedEvent(
     callRef,
     phone,
     chatHistory,
-    ...(recordingUrl && { recordingUrl })
+    ...(recordingUrl && { recordingUrl }),
+    ...(amd && { amd })
   };
+
+  logger.verbose("dispatching conversation.ended webhook", {
+    url: parsedEventsHook.url,
+    eventType: params.eventType,
+    appRef,
+    callRef
+  });
 
   try {
     await sendHttpRequest({
@@ -70,11 +83,13 @@ export async function sendConversationEndedEvent(
       params
     });
   } catch (e) {
-    logger.warn("sending event", {
+    logger.error("failed to send conversation.ended webhook", {
       url: parsedEventsHook.url,
       method: AllowedHttpMethod.POST,
       waitForResponse: false,
-      params
+      appRef,
+      callRef,
+      error: e instanceof Error ? e.message : e
     });
   }
 }

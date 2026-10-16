@@ -201,4 +201,31 @@ Please use the following environment variables to configure the Autopilot:
 
 The Autopilot is still under heavy development. The next steps are to add support for Retrieval-Augmented Generation(RAG), improve the language model integration, and improve the Finite State Machine (FSM) that powers the conversations. If you have any suggestions or feedback, please let us know.
 
+## Audio filters
 
+Background voices reach speech recognition and the voice activity detector, and the assistant
+answers them. An assistant can ask the Media Server to filter the caller's audio first, by adding
+`audioFilters` to its configuration — the same block whether the assistant comes from a file or
+from an Application:
+
+```yaml
+audioFilters:
+  - name: aiCoustics
+    options:
+      enhancementLevel: 0.8 # 0 to 1; higher also suppresses competing voices
+
+conversationSettings:
+  firstMessage: "Hola, ¿en qué puedo ayudarte?"
+  # ...
+```
+
+For an Application, the same block goes inside `intelligence.config`, and is applied with:
+
+```sh
+fonoster applications:create -f app.yaml
+```
+
+Assistant files may be YAML or JSON. Filtering needs the optional `@ai-coustics/aic-sdk` package
+and an `AIC_SDK_LICENSE` key on the apiserver; the key never appears in assistant configuration,
+so these files stay safe to commit. If the filter cannot be applied, the call continues with
+unfiltered audio and the reason is logged.

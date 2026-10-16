@@ -16,27 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
-import { AutopilotContext } from "../types";
+import { z } from "zod";
 
-const logger = getLogger({ service: "autopilot", filePath: __filename });
+// Audio filters run in the Media Server. Options carry tuning values only;
+// credentials live in the Media Server's environment, never in this config,
+// so assistant files stay safe to commit and share.
+const audioFiltersSchema = z
+  .array(
+    z.object({
+      name: z.string().min(1, { message: "An audio filter name is required" }),
+      options: z.record(z.unknown()).optional()
+    })
+  )
+  .default([]);
 
-export const greetUser = async ({
-  context
-}: {
-  context: AutopilotContext;
-}): Promise<void> => {
-  logger.verbose("called the greetUser action", {
-    firstMessage: context.firstMessage
-  });
-
-  await context.voice.answer();
-
-  if (context.initialDtmf) {
-    await context.voice.playDtmf(context.initialDtmf);
-  }
-
-  if (context.firstMessage) {
-    await context.voice.say(context.firstMessage);
-  }
-};
+export { audioFiltersSchema };

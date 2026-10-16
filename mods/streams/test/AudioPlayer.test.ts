@@ -190,4 +190,124 @@ describe("@streams/AudioPlayer", function () {
     expect(writtenData.length).to.equal(dataBeforeStop);
   });
 
+  // 320 bytes of slin (8kHz, 16-bit) is 20ms of audio; the player paces one
+  // slice every 20ms, so N slices take roughly N * 20ms to write.
+  const audio = (slices: number) => Buffer.alloc(slices * 320, 1);
+
+  it("should not resolve playStream until the source ends and all audio is written", async function () {
+    // Arrange: a source that delivers a second chunk only after the first
+    // one has fully drained (what chunked TTS synthesis produces)
+    const source = new Readable({ read() {} });
+    let resolvedAt: number | null = null;
+    const startedAt = Date.now();
+
+    // Act
+    const playback = audioPlayer.playStream(source).then(() => {
+      resolvedAt = Date.now() - startedAt;
+    });
+    source.push(audio(5)); // ~100ms of audio, available immediately
+
+    // The first chunk has drained by now, but the source has not ended
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    expect(resolvedAt).to.equal(null);
+
+    source.push(audio(5)); // ~100ms more
+    source.push(null); // source ends; the second chunk is still unwritten
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(resolvedAt).to.equal(null);
+
+    await playback;
+
+    // Assert: resolved only after the second chunk was written (~350ms+)
+    expect(resolvedAt).to.be.at.least(340);
+    expect(socket.write).to.have.callCount(10);
+  });
+
+  it("should resolve playStream when the source ends with nothing left to write", async function () {
+    // Arrange
+    const source = new Readable({ read() {} });
+
+    // Act
+    const playback = audioPlayer.playStream(source);
+    source.push(audio(2));
+    source.push(null);
+
+    // Assert
+    await expect(playback).to.eventually.be.fulfilled;
+    expect(socket.write).to.have.callCount(2);
+  });
+
+  it("should resolve playStream when the source ends without data", async function () {
+    // Arrange
+    const source = new Readable({ read() {} });
+
+    // Act
+    const playback = audioPlayer.playStream(source);
+    source.push(null);
+
+    // Assert
+    await expect(playback).to.eventually.be.fulfilled;
+    expect(socket.write).to.not.have.been.called;
+  });
+
+  it("should resolve playStream when stop() is called mid-playback", async function () {
+    // Arrange
+    const source = new Readable({ read() {} });
+    const playback = audioPlayer.playStream(source);
+    source.push(audio(50)); // ~1s of audio
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Act
+    audioPlayer.stop();
+
+    // Assert
+    await expect(playback).to.eventually.be.fulfilled;
+    expect((socket.write as sinon.SinonStub).callCount).to.be.below(50);
+  });
+
+  it("should resolve playStream when stop() is called before any data arrives", async function () {
+    // Arrange
+    const source = new Readable({ read() {} });
+    const playback = audioPlayer.playStream(source);
+
+    // Act
+    audioPlayer.stop();
+
+    // Assert
+    await expect(playback).to.eventually.be.fulfilled;
+  });
+
+  it("should resolve the previous playStream when a new one starts", async function () {
+    // Arrange
+    const first = new Readable({ read() {} });
+    const second = new Readable({ read() {} });
+    const firstPlayback = audioPlayer.playStream(first);
+    first.push(audio(50));
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Act
+    const secondPlayback = audioPlayer.playStream(second);
+    second.push(audio(1));
+    second.push(null);
+
+    // Assert
+    await expect(firstPlayback).to.eventually.be.fulfilled;
+    await expect(secondPlayback).to.eventually.be.fulfilled;
+  });
+
+  it("should reject playStream when the source errors", async function () {
+    // Arrange
+    const source = new Readable({ read() {} });
+    const playback = audioPlayer.playStream(source);
+
+    // Act
+    source.emit("error", new Error("synthesis failed"));
+
+    // Assert
+    await expect(playback).to.eventually.be.rejectedWith("synthesis failed");
+  });
+
 });

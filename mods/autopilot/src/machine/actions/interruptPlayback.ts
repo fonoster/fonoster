@@ -29,5 +29,18 @@ export const interruptPlayback = async ({
   logger.verbose("called the interruptPlayback action", {
     mediaSessionRef: context.mediaSessionRef
   });
-  await context.voice.stopSpeech();
+
+  try {
+    await context.voice.stopSpeech();
+  } catch (error) {
+    // The call may have hung up (or the session otherwise ended) right as we
+    // asked it to stop speaking, so the underlying verb never gets a
+    // response and rejects. There's nothing left to interrupt at that point,
+    // so this is expected and must not escape as an unhandled rejection —
+    // this action isn't awaited by the state machine.
+    logger.verbose("stopSpeech failed while interrupting playback", {
+      mediaSessionRef: context.mediaSessionRef,
+      error
+    });
+  }
 };

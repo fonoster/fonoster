@@ -78,7 +78,8 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
             message: "STT Language",
             choices: [
               { name: "English", value: "en-US" },
-              { name: "Spanish", value: "es-ES" }
+              { name: "Spanish", value: "es-ES" },
+              { name: "Multilingual (Nova 3 or Nova 2)", value: "multi" }
             ]
           }),
           model: await select({

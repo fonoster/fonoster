@@ -17,26 +17,33 @@
  * limitations under the License.
  */
 import fs from "fs";
+import path from "path";
 import { assistantSchema } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { load as loadYaml } from "js-yaml";
 import { AssistantConfig } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-function loadAndValidateAssistant(path: string): AssistantConfig {
-  if (!fs.existsSync(path)) {
-    logger.error("assistant file not found", { path });
+function loadAndValidateAssistant(assistantPath: string): AssistantConfig {
+  if (!fs.existsSync(assistantPath)) {
+    logger.error("assistant file not found", { path: assistantPath });
     process.exit(1);
   }
 
   try {
-    const fileContent = fs.readFileSync(path, "utf8");
-    const assistant = JSON.parse(fileContent) as unknown;
+    const fileContent = fs.readFileSync(assistantPath, "utf8");
+    const isYaml = [".yaml", ".yml"].includes(
+      path.extname(assistantPath).toLowerCase()
+    );
+    const assistant = (
+      isYaml ? loadYaml(fileContent) : JSON.parse(fileContent)
+    ) as unknown;
 
     return assistantSchema.parse(assistant);
   } catch (e) {
     logger.error("error parsing or validating assistant file", {
-      path,
+      path: assistantPath,
       error: e
     });
     process.exit(1);

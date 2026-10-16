@@ -50,8 +50,8 @@ describe("@voice/verbs/mute", function () {
     await mute.run(muteRequest);
 
     // Assert
-    expect(voice.removeListener).to.have.been.calledOnce;
-    expect(voice.on).to.have.been.calledOnce;
+    expect(voice.removeListener).to.have.been.calledThrice;
+    expect(voice.on).to.have.been.calledThrice;
     expect(voice.on).to.have.been.calledWith(StreamEvent.DATA, match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({

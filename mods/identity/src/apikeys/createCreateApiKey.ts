@@ -60,7 +60,9 @@ function createCreateApiKey(prisma: Prisma) {
         role,
         accessKeyId: generateAccessKeyId(AccessKeyIdType.API_KEY),
         accessKeySecret: generateAccessKeySecret(),
-        expiresAt: expiresAt ? new Date(expiresAt) : null
+        // expiresAt arrives as epoch seconds (the wire field is int32, which
+        // can't hold epoch milliseconds).
+        expiresAt: expiresAt ? new Date(expiresAt * 1000) : null
       }
     });
 

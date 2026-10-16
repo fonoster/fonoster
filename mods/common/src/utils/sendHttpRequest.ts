@@ -69,7 +69,23 @@ async function sendHttpRequest(request: {
   });
 
   if (!waitForResponse && effectiveMethod === AllowedHttpMethod.POST) {
-    setTimeout(() => fetch(effectiveUrl, options), 0);
+    setTimeout(() => {
+      fetch(effectiveUrl, options)
+        .then((res) => {
+          logger.verbose(
+            `fire-and-forget request to ${effectiveUrl} completed`,
+            {
+              status: res.status,
+              ok: res.ok
+            }
+          );
+        })
+        .catch((error) => {
+          logger.error(`fire-and-forget request to ${effectiveUrl} failed`, {
+            error: error instanceof Error ? error.message : error
+          });
+        });
+    }, 0);
     return { result: "success" };
   } else {
     const response = await fetch(effectiveUrl, options);

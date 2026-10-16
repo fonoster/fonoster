@@ -1,20 +1,8 @@
 node_modules/
 .env*
 !.env.example
-!.env.example.dev
-*.log
-reporting/*
-out/*
-dist
-coverage
-.nyc_output
-.keys
-*.tsbuildinfo
-tsconfig.tsbuildinfo
-integrations.json
-config/assistant*
-!assistant.example.json
-.next
 next-env.d.ts
 .npmrc
 .firecrawl/
+# ai-coustics models downloaded by the filter bench
+/models/

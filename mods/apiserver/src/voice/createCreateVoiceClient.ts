@@ -18,10 +18,13 @@
  */
 import { createGenerateCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { CallDirection } from "@fonoster/types";
 import { Channel, Client, StasisStart } from "ari-client";
 import { v4 as uuidv4 } from "uuid";
 import { identityConfig } from "../core/identityConfig";
+import { amdResultCache } from "../events/amdResultCache";
 import { mapCallDirectionToEnum } from "../events/mapCallDirectionToEnum";
+import { mapAsteriskAmd } from "./amd/mapAsteriskAmd";
 import { VoiceClientImpl } from "./client";
 import { CreateContainer } from "./integrations/types";
 import { ChannelVar, VoiceClient } from "./types";
@@ -64,6 +67,19 @@ function createCreateVoiceClient(createContainer: CreateContainer) {
     const metadataStr =
       (await getChannelVar(ChannelVar.METADATA))?.value ?? "{}";
 
+    const callDirectionEnum = mapCallDirectionToEnum(callDirection);
+
+    // Answering Machine Detection. AMD() runs in the dialplan before Stasis, so
+    // by the time we get here the verdict is already on the channel — undefined
+    // when AMD is off or the media server predates the AMD dialplan. Only
+    // outbound calls are ever classified (an inbound channel has not been
+    // answered when the dialplan runs), so don't pay the lookup on any other
+    // direction: an unset channel variable costs a round-trip that 404s.
+    const amd =
+      callDirectionEnum === CallDirection.TO_PSTN
+        ? mapAsteriskAmd((await getChannelVar(ChannelVar.AMD_STATUS))?.value)
+        : undefined;
+
     const config = {
       appRef,
       mediaSessionRef,
@@ -74,14 +90,25 @@ function createCreateVoiceClient(createContainer: CreateContainer) {
       callerNumber,
       ingressNumber,
       sessionToken,
-      callDirection: mapCallDirectionToEnum(callDirection),
-      metadata: JSON.parse(metadataStr)
+      callDirection: callDirectionEnum,
+      metadata: JSON.parse(metadataStr),
+      ...(amd ? { amd } : {})
     };
+
+    if (amd) {
+      // AMDCAUSE says which threshold fired. It is not part of the session
+      // contract, so it rides to the CDR on its own for offline tuning.
+      amdResultCache.set(callRef, {
+        ...amd,
+        cause: (await getChannelVar(ChannelVar.AMD_CAUSE))?.value ?? ""
+      });
+    }
 
     logger.verbose("creating voice client with config: ", {
       appRef,
       callerNumber,
-      ingressNumber
+      ingressNumber,
+      amdStatus: amd?.status
     });
 
     return new VoiceClientImpl({ ari, config, tts, stt });

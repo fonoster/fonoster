@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  AudioFilterConfig,
   DialOptions,
   GatherOptions,
   GatherResponse,
@@ -49,6 +50,7 @@ import {
   PlayDtmf,
   Record,
   Say,
+  SetAudioFilters,
   StartStream,
   StartStreamGather,
   StopSay,
@@ -423,6 +425,44 @@ class VoiceResponse {
     });
 
     return stream;
+  }
+
+  /**
+   * Sets the audio filters for this session. Filters run in the Media Server,
+   * on the caller's audio, before it reaches speech recognition and the
+   * application's media stream. Call it before answering.
+   *
+   * Sending a new list replaces the previous one; an empty list removes all
+   * filters. If a filter cannot be created — an unknown name, invalid options,
+   * a missing SDK or license — the verb fails and the call continues with
+   * unfiltered audio.
+   *
+   * @param {AudioFilterConfig[]} filters - The filters to run, in order
+   * @return {Promise<void>}
+   * @see aiCoustics
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.setAudioFilters([aiCoustics({ enhancementLevel: 0.8 })]);
+   *   await response.answer();
+   * }
+   */
+  async setAudioFilters(filters: AudioFilterConfig[]): Promise<void> {
+    const result = await new SetAudioFilters(this.request, this.voice).run({
+      mediaSessionRef: this.request.mediaSessionRef,
+      filters: filters.map((filter) => ({
+        name: filter.name,
+        options: struct.encode(
+          (filter.options ?? {}) as Parameters<typeof struct.encode>[0]
+        )
+      })) as unknown as AudioFilterConfig[]
+    });
+
+    // The Media Server applies what it can and keeps the call alive; anything
+    // it refused comes back here so the application can log or react to it.
+    if (result.setAudioFiltersResponse?.error) {
+      throw new Error(result.setAudioFiltersResponse.error);
+    }
   }
 
   /**

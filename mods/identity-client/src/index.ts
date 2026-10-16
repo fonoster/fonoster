@@ -85,6 +85,12 @@ export interface Workspace {
   accessKeyId: string;
   createdAt?: number;
   updatedAt?: number;
+  /** The workspace owner's own profile (never a WorkspaceMember row). */
+  owner?: {
+    ref: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface WorkspaceMember {

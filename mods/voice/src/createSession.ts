@@ -33,7 +33,21 @@ function createSession(handler: VoiceHandler) {
         if (request) {
           mediaSessionRef = request.mediaSessionRef;
           const response = new VoiceResponse(request, voice);
-          await handler(request, response);
+
+          // EventEmitter ignores the promise this callback returns, so an error
+          // escaping the handler becomes an unhandled rejection and, under Node's
+          // default policy, takes the whole voice server down with it. Verbs now
+          // reject when the session ends mid-call, which makes reaching here an
+          // ordinary occurrence rather than a defect in the application.
+          try {
+            await handler(request, response);
+          } catch (e) {
+            logger.warn("voice handler did not complete", {
+              mediaSessionRef,
+              error: e instanceof Error ? e.message : e
+            });
+          }
+
           resolve();
         }
       });

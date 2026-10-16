@@ -48,6 +48,54 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
     });
 
     return new Promise((resolve, reject) => {
+      // Every exit path must remove all three listeners. A verb shares the session
+      // stream with every other verb in the call, so anything left attached
+      // accumulates for the lifetime of the session.
+      const cleanup = () => {
+        voice.removeListener(StreamEvent.DATA, dataListener);
+        voice.removeListener(StreamEvent.END, endListener);
+        voice.removeListener(StreamEvent.ERROR, errorListener);
+      };
+
+      const dataListener = (result: VoiceIn) => {
+        const expectedContent = getExpectedContent(this.constructor.name);
+
+        if (expectedContent !== result.content) {
+          return;
+        }
+
+        logger.verbose(`received ${this.constructor.name} response`, {
+          mediaSessionRef
+        });
+        cleanup();
+        resolve(result);
+      };
+
+      // Without these the promise has exactly one exit: a matching response. When the
+      // session dies first — the caller hangs up mid-verb, or the transport fails —
+      // it is left pending forever, neither resolved nor rejected. The application
+      // then awaits a verb that can never complete and the call is stranded rather
+      // than failed.
+      const endListener = () => {
+        cleanup();
+        reject(
+          new Error(
+            `voice session ended before the ${this.constructor.name} verb completed`
+          )
+        );
+      };
+
+      const errorListener = (error: unknown) => {
+        cleanup();
+        reject(
+          error instanceof Error
+            ? error
+            : new Error(
+                `voice session failed during the ${this.constructor.name} verb: ${error}`
+              )
+        );
+      };
+
       try {
         const fullRequest = {
           ...params,
@@ -56,26 +104,17 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
 
         validateRequest<T>(this.getValidationSchema(), fullRequest);
 
+        // Listen before writing: a response cannot be delivered to a listener that
+        // does not exist yet.
+        voice.on(StreamEvent.DATA, dataListener);
+        voice.on(StreamEvent.END, endListener);
+        voice.on(StreamEvent.ERROR, errorListener);
+
         voice.write({
           [`${toCamelCase(this.constructor.name)}Request`]: fullRequest
         });
-
-        const dataListener = (result: VoiceIn) => {
-          const expectedContent = getExpectedContent(this.constructor.name);
-
-          if (expectedContent !== result.content) {
-            return;
-          }
-
-          logger.verbose(`received ${this.constructor.name} response`, {
-            mediaSessionRef
-          });
-          resolve(result);
-          voice.removeListener(StreamEvent.DATA, dataListener);
-        };
-
-        voice.on(StreamEvent.DATA, dataListener);
       } catch (e) {
+        cleanup();
         reject(e);
       }
     });

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AudioFilterConfig } from "@fonoster/common";
 import { Application } from "@fonoster/types";
 import { AssistantConfig, ConversationSettings } from "./assistants";
 import { LanguageModel } from "./models";
@@ -30,6 +31,8 @@ type AutopilotParams = {
   voice: Voice;
   conversationSettings: ConversationSettings;
   languageModel: LanguageModel;
+  // Filters the Media Server runs on the caller's audio. Empty by default.
+  audioFilters?: AudioFilterConfig[];
 };
 
 type AutopilotApplication = Application & {

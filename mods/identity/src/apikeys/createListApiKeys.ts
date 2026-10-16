@@ -57,9 +57,16 @@ function createListApiKeys(prisma: Prisma) {
       cursor: pageToken ? { ref: pageToken } : undefined
     });
 
+    // The wire fields are int32, so timestamps travel as epoch seconds
+    // rather than the millisecond Date values Prisma returns.
     const items = keys.map((key) => ({
       ...key,
-      role: key.role as Role
+      role: key.role as Role,
+      expiresAt: key.expiresAt
+        ? Math.floor(key.expiresAt.getTime() / 1000)
+        : undefined,
+      createdAt: Math.floor(key.createdAt.getTime() / 1000),
+      updatedAt: Math.floor(key.updatedAt.getTime() / 1000)
     }));
 
     const response: ListApiKeysResponse = {

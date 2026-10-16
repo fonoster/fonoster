@@ -33,6 +33,37 @@ A Voice Application is a server that controls a call's flow. A Voice Application
 - `Record` - It records the voice of the calling party and saves the audio on the Storage sub-system
 - `Mute` - It tells the channel to stop sending media, effectively muting the channel
 - `Unmute` - It tells the channel to allow media flow
+- `SetAudioFilters` - Filters the caller's audio in the Media Server before it reaches speech recognition and your media stream
+
+### Audio filters
+
+Background voices — a television, a radio, someone else in the room — get transcribed too, and
+your application ends up answering them. Ask the Media Server to filter the caller's audio before
+it reaches speech recognition and your media stream:
+
+```typescript
+const { aiCoustics } = require("@fonoster/voice");
+
+new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
+  // Set filters before answering; they apply for the rest of the session
+  await voice.setAudioFilters([aiCoustics({ enhancementLevel: 0.8 })]);
+
+  await voice.answer();
+  // ...
+});
+```
+
+Notes:
+
+- The filter runs in the Media Server, which needs the optional
+  `@ai-coustics/aic-sdk` package and an `AIC_SDK_LICENSE` key
+  ([developers.ai-coustics.com](https://developers.ai-coustics.com)). Credentials never leave the
+  Media Server, so your application never handles them.
+- `enhancementLevel` goes from 0 to 1; higher values also suppress competing speech.
+- If the filter cannot be applied, `setAudioFilters` throws and **the call continues with
+  unfiltered audio**. Catch it if a failure should not interrupt your flow.
+- Filtering adds about 30 ms of delay to the audio your application hears.
+- Sending a new list replaces the previous one, and an empty list removes all filters.
 
 Voice Application Example:
 

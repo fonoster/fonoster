@@ -24,6 +24,7 @@ var global =
 var google_protobuf_struct_pb = require('google-protobuf/google/protobuf/struct_pb.js');
 goog.object.extend(proto, google_protobuf_struct_pb);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallDetailRecord', null, global);
+goog.exportSymbol('proto.fonoster.calls.v1beta2.CallDetailRecord.AmdStatus', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallDirection', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallStatus', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CallType', null, global);
@@ -244,7 +245,12 @@ endedAt: jspb.Message.getFieldWithDefault(msg, 6, 0),
 from: jspb.Message.getFieldWithDefault(msg, 7, ""),
 to: jspb.Message.getFieldWithDefault(msg, 8, ""),
 duration: jspb.Message.getFieldWithDefault(msg, 9, 0),
-direction: jspb.Message.getFieldWithDefault(msg, 10, 0)
+direction: jspb.Message.getFieldWithDefault(msg, 10, 0),
+amdStatus: jspb.Message.getFieldWithDefault(msg, 11, 0),
+amdConfidence: jspb.Message.getFloatingPointFieldWithDefault(msg, 12, 0.0),
+amdDetector: jspb.Message.getFieldWithDefault(msg, 13, ""),
+amdLatencyMs: jspb.Message.getFieldWithDefault(msg, 14, 0),
+amdCause: jspb.Message.getFieldWithDefault(msg, 15, "")
   };
 
   if (includeInstance) {
@@ -320,6 +326,26 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.deserializeBinaryFromReader = func
     case 10:
       var value = /** @type {!proto.fonoster.calls.v1beta2.CallDirection} */ (reader.readEnum());
       msg.setDirection(value);
+      break;
+    case 11:
+      var value = /** @type {!proto.fonoster.calls.v1beta2.CallDetailRecord.AmdStatus} */ (reader.readEnum());
+      msg.setAmdStatus(value);
+      break;
+    case 12:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setAmdConfidence(value);
+      break;
+    case 13:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAmdDetector(value);
+      break;
+    case 14:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setAmdLatencyMs(value);
+      break;
+    case 15:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAmdCause(value);
       break;
     default:
       reader.skipField();
@@ -420,8 +446,55 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.serializeBinaryToWriter = function
       f
     );
   }
+  f = message.getAmdStatus();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      11,
+      f
+    );
+  }
+  f = message.getAmdConfidence();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      12,
+      f
+    );
+  }
+  f = message.getAmdDetector();
+  if (f.length > 0) {
+    writer.writeString(
+      13,
+      f
+    );
+  }
+  f = message.getAmdLatencyMs();
+  if (f !== 0) {
+    writer.writeInt32(
+      14,
+      f
+    );
+  }
+  f = message.getAmdCause();
+  if (f.length > 0) {
+    writer.writeString(
+      15,
+      f
+    );
+  }
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.AmdStatus = {
+  AMD_STATUS_UNSPECIFIED: 0,
+  HUMAN: 1,
+  MACHINE: 2,
+  VOICEMAIL: 3,
+  IVR: 4,
+  UNKNOWN: 5
+};
 
 /**
  * optional string ref = 1;
@@ -600,6 +673,96 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getDirection = function(
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setDirection = function(value) {
   return jspb.Message.setProto3EnumField(this, 10, value);
+};
+
+
+/**
+ * optional AmdStatus amd_status = 11;
+ * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord.AmdStatus}
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getAmdStatus = function() {
+  return /** @type {!proto.fonoster.calls.v1beta2.CallDetailRecord.AmdStatus} */ (jspb.Message.getFieldWithDefault(this, 11, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.calls.v1beta2.CallDetailRecord.AmdStatus} value
+ * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setAmdStatus = function(value) {
+  return jspb.Message.setProto3EnumField(this, 11, value);
+};
+
+
+/**
+ * optional float amd_confidence = 12;
+ * @return {number}
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getAmdConfidence = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 12, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setAmdConfidence = function(value) {
+  return jspb.Message.setProto3FloatField(this, 12, value);
+};
+
+
+/**
+ * optional string amd_detector = 13;
+ * @return {string}
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getAmdDetector = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setAmdDetector = function(value) {
+  return jspb.Message.setProto3StringField(this, 13, value);
+};
+
+
+/**
+ * optional int32 amd_latency_ms = 14;
+ * @return {number}
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getAmdLatencyMs = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 14, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setAmdLatencyMs = function(value) {
+  return jspb.Message.setProto3IntField(this, 14, value);
+};
+
+
+/**
+ * optional string amd_cause = 15;
+ * @return {string}
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getAmdCause = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 15, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setAmdCause = function(value) {
+  return jspb.Message.setProto3StringField(this, 15, value);
 };
 
 

@@ -155,7 +155,8 @@ export const STT_MODELS = [
  */
 export const LANGUAGES = [
   { value: "en-US", label: "English" },
-  { value: "es-ES", label: "Spanish" }
+  { value: "es-ES", label: "Spanish" },
+  { value: "multi", label: "Multilingual (Nova 3 or Nova 2)" }
 ];
 
 export const LANGUAGE_MODEL_PROVIDERS = [

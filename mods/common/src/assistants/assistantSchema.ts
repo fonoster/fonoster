@@ -17,12 +17,16 @@
  * limitations under the License.
  */
 import { z } from "zod";
+import { audioFiltersSchema } from "./audioFiltersSchema";
 import { conversationSettingsSchema } from "./conversationSettingsSchema";
 import { eventsHookSchema } from "./eventsHookSchema";
 import { languageModelConfigSchema } from "./languageModelConfigSchema";
 import { testCasesSchema } from "./testCasesSchema";
 
 const assistantSchema = z.object({
+  // Audio filters the Media Server runs on the caller's audio, before speech
+  // recognition and voice activity detection. Optional; none by default.
+  audioFilters: audioFiltersSchema,
   conversationSettings: conversationSettingsSchema,
   languageModel: languageModelConfigSchema,
   eventsHook: eventsHookSchema.optional(),
