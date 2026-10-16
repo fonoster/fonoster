@@ -35,6 +35,23 @@ that documents them from source:
 
 Commands, flags and config keys come from the code, never from memory.
 
+## Vocabulary (owner decisions, 2026-10-16)
+
+One name per concept on every surface (website, dashboard, docs, SDK, CLI, API). Researched against
+Vapi, Retell, Bland, LiveKit and Pipecat.
+
+| Concept | Name | Notes |
+| --- | --- | --- |
+| Hosted AI product | **Autopilot** | Dashboard section "Autopilot" |
+| One AI item | **agent** ("Autopilot agent") | "New agent". API type `AUTOPILOT`; CLI `--agent` (was `--assistant`) |
+| Your own WebSocket server | **Streams** / a **stream** | Dashboard section "Streams", mirrors Autopilot's layout. API type `STREAM` (was `EXTERNAL`) |
+| Wire protocol of a stream | **protocol**: `fonoster` / `twilio` | Was `flavor: native/twilio`. UI: "Fonoster" / "Twilio-compatible" |
+| Umbrella resource | **Application** | API/SDK/CLI only (`applications:*`); never shown in the dashboard |
+| SIP endpoint (softphone) | **SIP agent** | API/SDK/CLI keep `Agents` (`sipnet:agents:*`); always written "SIP agent" in UI and docs |
+| A person on a transfer | **operator** | Never "agent" |
+| Region | **region** | "cell" is internal only |
+| Number, Workspace, Trunk, Domain | unchanged | |
+
 ## Out of scope: never document
 
 - Internals the reader never touches: database tables and Prisma, NATS subjects, internal service
