@@ -161,32 +161,71 @@ function createInviteUserToWorkspace(
         }
       }
     });
-    if (existingMember && serviceLogin) {
-      if (existingMember.status !== WorkspaceMemberStatus.ACTIVE) {
-        await prisma.workspaceMember.update({
-          where: { ref: existingMember.ref },
-          data: {
-            status: WorkspaceMemberStatus.ACTIVE,
-            updatedAt: new Date()
-          }
-        });
+    // Brand voice logins are often left PENDING after a UI invite or a failed
+    // SES send. Activate them here — do not treat PENDING as "already a member"
+    // and do not attempt a second insert (unique on userRef+workspaceRef).
+    if (existingMember) {
+      if (serviceLogin) {
+        if (existingMember.status !== WorkspaceMemberStatus.ACTIVE) {
+          await prisma.workspaceMember.update({
+            where: { ref: existingMember.ref },
+            data: {
+              status: WorkspaceMemberStatus.ACTIVE,
+              updatedAt: new Date()
+            }
+          });
+          logger.verbose("activated pending brand voice workspace member", {
+            workspaceRef,
+            email,
+            memberRef: existingMember.ref
+          });
+        }
+        return callback(null, { userRef: user.ref, workspaceRef });
       }
-      return callback(null, { userRef: user.ref, workspaceRef });
+      return callback(userIsMemberError);
     }
 
-    const newMember = await prisma.workspaceMember.create({
-      data: {
-        userRef: user.ref,
-        workspaceRef,
-        role,
-        status: serviceLogin
-          ? WorkspaceMemberStatus.ACTIVE
-          : WorkspaceMemberStatus.PENDING
-      },
-      include: {
-        workspace: true
+    let newMember;
+    try {
+      newMember = await prisma.workspaceMember.create({
+        data: {
+          userRef: user.ref,
+          workspaceRef,
+          role,
+          status: serviceLogin
+            ? WorkspaceMemberStatus.ACTIVE
+            : WorkspaceMemberStatus.PENDING
+        },
+        include: {
+          workspace: true
+        }
+      });
+    } catch (error) {
+      // Race: another invite created the row between findUnique and create.
+      if (serviceLogin) {
+        const raced = await prisma.workspaceMember.findUnique({
+          where: {
+            userRef_workspaceRef: {
+              userRef: user.ref,
+              workspaceRef
+            }
+          }
+        });
+        if (raced) {
+          if (raced.status !== WorkspaceMemberStatus.ACTIVE) {
+            await prisma.workspaceMember.update({
+              where: { ref: raced.ref },
+              data: {
+                status: WorkspaceMemberStatus.ACTIVE,
+                updatedAt: new Date()
+              }
+            });
+          }
+          return callback(null, { userRef: user.ref, workspaceRef });
+        }
       }
-    });
+      throw error;
+    }
 
     const inviteeToken = await createGenerateWorkspaceInviteToken(
       identityConfig
