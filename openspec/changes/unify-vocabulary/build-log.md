@@ -40,3 +40,20 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 ### VO-B6. Session protocol error code
 
 - `not_supported_by_flavor` became `not_supported_by_protocol` (nothing emits it yet).
+
+### VO-B7. Leftovers kept on purpose
+
+- `EXTERNAL`, `flavor` and `native` remain only in the code that rejects or maps them (apiserver,
+  CLI, gateway config check, region agent) and in `docs/operators/cutover.md` (legacy rows).
+- `twilio-media-streams-flavor` (VO-B3). "session app" survives in a few internal code comments
+  (module names), not in any user-facing string.
+- The repository's example assistant file still says "live agent" in its transfer message (a
+  fixture a test reads); the Autopilot tool descriptions now say "operator".
+- `docs/operators/rebuild.md` keeps "cell": it is a rebuild process note, not reader docs.
+  Paths and env names (`ops/rebuild/cell`, `cell.env`, NATS subject `cell.workspacekeys.get`) are
+  internal.
+
+### VO-B8. Dashboard folder move landed in the apiserver commit
+
+- The `src/sip-users` → `src/sip-agents` rename was staged when the apiserver commit ran, so
+  `ac2dccd18` carries it (renames only).
