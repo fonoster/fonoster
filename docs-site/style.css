@@ -1,0 +1,92 @@
+/* Fonoster docs: match fonoster.com (site/assets/css/v1.css). Tokens are copied, not imported. */
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap");
+
+:root {
+  --fn-accent: #39e19e;
+  --fn-on-accent: #011900;
+  --fn-accent-text: #008751;
+  --fn-border: #e8e8e8;
+  --fn-hl-border: rgba(0, 0, 0, 0.22);
+  --fn-surface: #f4f4f4;
+  --fn-text-1: #252525;
+  --fn-text-2: #555555;
+  --fn-text-3: #6b6b6b;
+  --fn-mono: "Roboto Mono", ui-monospace, monospace;
+}
+
+:root.dark {
+  --fn-accent-text: #39e19e;
+  --fn-border: #333333;
+  --fn-hl-border: rgba(255, 255, 255, 0.32);
+  --fn-surface: #202020;
+  --fn-text-1: #ffffff;
+  --fn-text-2: #e8e8e8;
+  --fn-text-3: #c2c2c2;
+}
+
+/* Type: semibold headings with the site's tight tracking. */
+#content-area h1,
+#header h1 {
+  font-weight: 600;
+  letter-spacing: -0.031em;
+}
+#content-area h2 {
+  font-weight: 600;
+  letter-spacing: -0.027em;
+}
+#content-area h3 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+#content-area p,
+#content-area li {
+  color: var(--fn-text-2);
+}
+
+/* The eyebrow above the page title reads like the site's mono eyebrow. */
+.eyebrow {
+  font-family: var(--fn-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Code: Roboto Mono, the site's radius and border. */
+code,
+pre,
+kbd {
+  font-family: var(--fn-mono) !important;
+}
+#content-area :not(pre) > code {
+  border: 1px solid var(--fn-border);
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+#content-area .code-block,
+#content-area pre {
+  border-radius: 10px;
+}
+
+/* Cards and callouts: flat surfaces with a hairline border, like the site's panels. */
+#content-area .card,
+#content-area [class*="callout"] {
+  border-radius: 10px;
+}
+#content-area a.card:hover {
+  border-color: var(--fn-hl-border);
+}
+
+/* Navbar button: the site's primary button (accent fill, dark text, 10px radius). */
+#topbar-cta-button a,
+#topbar-cta-button a > span {
+  border-radius: 10px;
+}
+#topbar-cta-button a > span:first-child {
+  background: var(--fn-accent) !important;
+}
+#topbar-cta-button a span,
+#topbar-cta-button a svg {
+  color: var(--fn-on-accent) !important;
+  font-weight: 600;
+}
