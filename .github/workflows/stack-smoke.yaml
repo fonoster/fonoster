@@ -83,6 +83,10 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      # The bundle exports the services' config schemas, which import the built @fonoster packages.
+      - name: Build the packages
+        run: npm run build
+
       - name: Build the images and the archive
         run: ops/release/bundle "$VERSION"
 
