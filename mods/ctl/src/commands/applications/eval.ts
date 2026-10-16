@@ -143,24 +143,33 @@ export default class EvalIntelligence extends AuthenticatedCommand<
     let currentScenarioRef: string | null = null;
     const stepIndexByScenario = new Map<string, number>();
 
-    for await (const event of stream) {
-      if (collectEvents) events.push(event);
+    try {
+      for await (const event of stream) {
+        if (collectEvents) events.push(event);
 
-      if (outputJson) continue;
+        if (outputJson) continue;
 
-      if (event.type === "stepResult") {
-        if (currentScenarioRef !== event.scenarioRef) {
-          currentScenarioRef = event.scenarioRef;
-          printScenarioHeader(event.scenarioRef);
-          stepIndexByScenario.set(event.scenarioRef, 0);
+        if (event.type === "stepResult") {
+          if (currentScenarioRef !== event.scenarioRef) {
+            currentScenarioRef = event.scenarioRef;
+            printScenarioHeader(event.scenarioRef);
+            stepIndexByScenario.set(event.scenarioRef, 0);
+          }
+          const stepIndex = stepIndexByScenario.get(event.scenarioRef) ?? 0;
+          printStepResult(event.scenarioRef, stepIndex, event.stepResult);
+          stepIndexByScenario.set(event.scenarioRef, stepIndex + 1);
+        } else if (event.type === "scenarioSummary") {
+          printScenarioSummary(event.scenarioRef, event.overallPassed);
+        } else if (event.type === "evalError") {
+          printEvalError(event.message);
         }
-        const stepIndex = stepIndexByScenario.get(event.scenarioRef) ?? 0;
-        printStepResult(event.scenarioRef, stepIndex, event.stepResult);
-        stepIndexByScenario.set(event.scenarioRef, stepIndex + 1);
-      } else if (event.type === "scenarioSummary") {
-        printScenarioSummary(event.scenarioRef, event.overallPassed);
-      } else if (event.type === "evalError") {
-        printEvalError(event.message);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (collectEvents) {
+        events.push({ type: "evalError", message });
+      } else {
+        printEvalError(message);
       }
     }
 
