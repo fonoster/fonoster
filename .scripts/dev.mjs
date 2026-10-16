@@ -39,7 +39,14 @@ const MEDIANODE_SRC = join(ROOT, "go", "medianode");
 const MEDIANODE_BIN = join(DEV, "bin", "medianode");
 
 const COLORS = [36, 35, 33, 32, 34, 31];
-const NAMES = ["fakes", "apiserver", "gateway", "autopilot", "medianode", "dashboard"];
+const NAMES = [
+  "fakes",
+  "apiserver",
+  "gateway",
+  "autopilot",
+  "medianode",
+  "dashboard"
+];
 const width = Math.max(...NAMES.map((n) => n.length));
 const children = new Set();
 let stopping = false;
@@ -101,10 +108,7 @@ function stop(child) {
   setTimeout(() => child.exitCode === null && kill("SIGKILL"), 3000).unref();
 }
 
-const tsxWatch = (entry) => [
-  TSX,
-  ["watch", "--clear-screen=false", entry]
-];
+const tsxWatch = (entry) => [TSX, ["watch", "--clear-screen=false", entry]];
 
 // The apiserver applies its migrations and seed with its own entrypoint (as in the container),
 // then serves from source under tsx watch. The entrypoint expects <root>/core and
@@ -121,7 +125,12 @@ function apiserver() {
   run(
     "apiserver",
     TSX,
-    ["mods/apiserver/src/bin/entrypoint.ts", "--migrate-only", "--migrations-root", root],
+    [
+      "mods/apiserver/src/bin/entrypoint.ts",
+      "--migrate-only",
+      "--migrations-root",
+      root
+    ],
     {
       quiet: true,
       onExit: (code) => {
@@ -139,18 +148,26 @@ function apiserver() {
 // The media node: `go build`, then run; rebuilt and restarted when a .go file (or go.mod/go.sum)
 // changes. A failed build keeps the running node.
 function medianode() {
-  const log = (line) => process.stdout.write(`${"medianode".padEnd(width)} | ${line}\n`);
+  const log = (line) =>
+    process.stdout.write(`${"medianode".padEnd(width)} | ${line}\n`);
   let node;
   let timer;
   const build = () => {
     mkdirSync(dirname(MEDIANODE_BIN), { recursive: true });
-    const res = spawnSync("go", ["build", "-o", MEDIANODE_BIN, "./cmd/medianode"], {
-      cwd: MEDIANODE_SRC,
-      env: { ...process.env, GOTOOLCHAIN: "local" },
-      encoding: "utf8"
-    });
+    const res = spawnSync(
+      "go",
+      ["build", "-o", MEDIANODE_BIN, "./cmd/medianode"],
+      {
+        cwd: MEDIANODE_SRC,
+        env: { ...process.env, GOTOOLCHAIN: "local" },
+        encoding: "utf8"
+      }
+    );
     if (res.status !== 0) {
-      (res.stderr || res.error?.message || "go build failed").trim().split("\n").forEach(log);
+      (res.stderr || res.error?.message || "go build failed")
+        .trim()
+        .split("\n")
+        .forEach(log);
       return false;
     }
     return true;
@@ -181,26 +198,36 @@ const COMPONENTS = {
   fakes: () => run("fakes", TSX, ["mods/conformance/src/fakes/serve.ts"]),
   apiserver,
   gateway: () => run("gateway", ...tsxWatch("mods/gateway/src/main.ts")),
-  autopilot: () => run("autopilot", ...tsxWatch("mods/autopilot/src/session/main.ts")),
+  autopilot: () =>
+    run("autopilot", ...tsxWatch("mods/autopilot/src/session/main.ts")),
   medianode,
   // Vite on :3030; Envoy (the bundle's) serves it with the API at PUBLIC_URL.
   dashboard: () =>
-    run("dashboard", "npm", ["run", "dev", "-w", "@fonoster/dashboard", "--", "--host", "0.0.0.0"], {
-      env: { DASHBOARD_API_URL: ENV.PUBLIC_URL }
-    })
+    run(
+      "dashboard",
+      "npm",
+      ["run", "dev", "-w", "@fonoster/dashboard", "--", "--host", "0.0.0.0"],
+      {
+        env: { DASHBOARD_API_URL: ENV.PUBLIC_URL }
+      }
+    )
 };
 
 const wanted = process.argv.slice(2);
 const unknown = wanted.filter((n) => !(n in COMPONENTS));
 if (unknown.length) {
-  console.error(`unknown component ${unknown.join(", ")}; one of ${NAMES.join(", ")}`);
+  console.error(
+    `unknown component ${unknown.join(", ")}; one of ${NAMES.join(", ")}`
+  );
   process.exit(2);
 }
 
 const ENV = devEnv();
 for (const name of wanted.length ? wanted : NAMES) COMPONENTS[name]();
 if (!wanted.length || wanted.includes("dashboard"))
-  process.stdout.write(`\nDashboard: ${ENV.PUBLIC_URL} (sign in: npm run dev:info)\n\n`);
+  process.stdout.write(
+    `\nDashboard: ${ENV.PUBLIC_URL} (sign in: npm run dev:info)\n\n`
+  );
 
 const shutdown = () => {
   if (stopping) return;
