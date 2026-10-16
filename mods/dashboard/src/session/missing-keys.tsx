@@ -102,7 +102,7 @@ export function MissingKeysWarning({ apps }: { apps: SessionApp[] }) {
   if (!missing.length) return null;
   const text =
     apps.length === 1
-      ? `This app needs a key for ${missing[0].ids.join(", ")}.`
+      ? `This stream needs a key for ${missing[0].ids.join(", ")}.`
       : `Missing keys: ${missing.map((m) => `${m.app.name} (${m.ids.join(", ")})`).join(", ")}.`;
   return (
     <Alert variant="warning">

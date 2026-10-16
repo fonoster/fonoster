@@ -139,7 +139,7 @@ export function SecretDrawer({
           <Field
             label="Name"
             error={errors.name?.message}
-            hint="Reference it from agents and voice apps by this name."
+            hint="Reference it from agents and streams by this name."
           >
             {(a11y) => (
               <Input

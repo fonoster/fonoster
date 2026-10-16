@@ -292,7 +292,12 @@ function AgentEditor({
           <Route path="calls" element={<CallsTab numbers={numbers} />} />
           <Route
             path="advanced"
-            element={<AdvancedTab onDelete={() => setDeleting(true)} />}
+            element={
+              <AdvancedTab
+                appRef={app.ref}
+                onDelete={() => setDeleting(true)}
+              />
+            }
           />
           <Route
             path="*"

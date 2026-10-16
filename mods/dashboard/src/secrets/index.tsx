@@ -109,7 +109,7 @@ function WorkspaceSecrets() {
             <EmptyState
               icon={Lock}
               title="No secrets yet"
-              description="Store provider API keys and tokens here, then reference them by name from agents and voice apps."
+              description="Store provider API keys and tokens here, then reference them by name from agents and streams."
               action={add}
             />
           }
@@ -133,7 +133,7 @@ function WorkspaceSecrets() {
           }
         }}
         title={`Delete ${deleting?.name ?? "secret"}?`}
-        description="Agents and voice apps that use it will stop working until you add it again."
+        description="Agents and streams that use it will stop working until you add it again."
         pending={remove.isPending}
         error={remove.error}
         onConfirm={() =>

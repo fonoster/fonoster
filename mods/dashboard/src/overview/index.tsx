@@ -332,7 +332,7 @@ export default function OverviewScreen() {
               <EmptyState
                 icon={PhoneCall}
                 title={`No calls ${RANGE_TITLE[range]}`}
-                description="Point a number at an agent or voice app and its calls show up here."
+                description="Point a number at an agent or stream and its calls show up here."
                 action={
                   <Button asChild variant="outline">
                     <Link to={`/w/${workspace.ref}/numbers`}>

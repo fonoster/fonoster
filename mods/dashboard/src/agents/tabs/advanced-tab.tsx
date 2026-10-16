@@ -16,16 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ComponentProps } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState, type ComponentProps } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "~/components/ui/button";
+import { StreamDrawer } from "~/session/streams";
 import { type AgentValues } from "../agent-form";
 import { useFieldError, type AgentPath } from "../fields";
-import { Panel, SettingRow, ValueBox, ValueInput } from "../parts";
+import { Panel, PanelAction, SettingRow, ValueBox, ValueInput } from "../parts";
 
 // Layout and copy from designs/dashboard.pen "Agent / Detail / Advanced".
 
-export function AdvancedTab({ onDelete }: { onDelete: () => void }) {
+export function AdvancedTab({
+  appRef,
+  onDelete
+}: {
+  appRef: string;
+  onDelete: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const [callHandling, setCallHandling] = useState(false);
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_420px]">
       <div className="flex flex-col gap-5">
@@ -73,6 +83,28 @@ export function AdvancedTab({ onDelete }: { onDelete: () => void }) {
         </Panel>
       </div>
       <div className="flex flex-col gap-5">
+        <Panel
+          title="Call handling"
+          description="Fallback, listeners, recording and answering-machine detection."
+          action={
+            <PanelAction accent onClick={() => setCallHandling(true)}>
+              Edit
+            </PanelAction>
+          }
+        >
+          <StreamDrawer
+            mode="agent"
+            open={callHandling}
+            onOpenChange={setCallHandling}
+            streamRef={appRef}
+            onSaved={() => {
+              setCallHandling(false);
+              void queryClient.invalidateQueries({
+                queryKey: ["applications"]
+              });
+            }}
+          />
+        </Panel>
         <Panel title="Moved out of the agent">
           <p className="font-display text-[12px] text-muted-foreground">
             Turn detection runs in the voice gateway, call events go to

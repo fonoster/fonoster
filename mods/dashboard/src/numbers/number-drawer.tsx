@@ -128,7 +128,7 @@ export function NumberDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, number?.ref]);
 
-  // Apps load after the drawer opens: refine agent vs voice app then.
+  // Apps load after the drawer opens: refine agent vs stream then.
   useEffect(() => {
     if (!open || !number) return;
     const current = form.getValues("route");
@@ -349,7 +349,7 @@ export function NumberDrawer({
             </div>
           )}
           <Alert variant="note">
-            Routing lives on the number. An agent or voice app can answer any
+            Routing lives on the number. An agent or stream can answer any
             number of numbers.
           </Alert>
         </form>

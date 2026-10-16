@@ -43,7 +43,7 @@ export const ROLE_OPTIONS = [
   {
     value: "WORKSPACE_MEMBER",
     label: "Member",
-    description: "Builds and runs agents, voice apps and numbers."
+    description: "Builds and runs agents, streams and numbers."
   },
   {
     value: "WORKSPACE_ADMIN",

@@ -28,7 +28,7 @@ import type {
   WebhookDelivery
 } from "./types";
 
-/** The mock workspace uses one deprecated STT model (the warnings on the Apps page). */
+/** The mock workspace uses one deprecated STT model (the warnings on the Streams page). */
 export const catalogWarnings: CatalogWarning[] = [
   {
     id: "deepgram/nova-2",

@@ -313,6 +313,45 @@ describe("Agent detail", () => {
     ).toBeInTheDocument();
   });
 
+  it("edits the agent's call handling from Advanced (it used to live in Apps)", async () => {
+    const { user, applications } = setup({
+      route: `/w/ws-1/agents/${billingAgent.ref}/advanced`
+    });
+    const panel = await screen.findByRole("region", { name: "Call handling" });
+    await user.click(within(panel).getByRole("button", { name: "Edit" }));
+    const drawer = await screen.findByRole("dialog", {
+      name: "Call handling"
+    });
+    // Only call handling: name, URL, protocol and speech stay on the agent page.
+    await within(drawer).findByLabelText("Fallback message");
+    expect(within(drawer).queryByLabelText("Name")).not.toBeInTheDocument();
+    expect(within(drawer).queryByLabelText("URL")).not.toBeInTheDocument();
+    expect(within(drawer).queryByLabelText("Protocol")).not.toBeInTheDocument();
+    await user.click(
+      within(drawer).getByRole("button", { name: /Add listener/ })
+    );
+    await user.type(
+      within(drawer).getByLabelText("Listener 1 URL"),
+      "wss://monitor.example.com"
+    );
+    await user.click(
+      within(drawer).getByRole("switch", { name: "Detect answering machines" })
+    );
+    await user.click(within(drawer).getByRole("button", { name: "Save" }));
+    await vi.waitFor(() =>
+      expect(applications.updateApplication).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ref: billingAgent.ref,
+          type: "AUTOPILOT",
+          name: billingAgent.name,
+          listeners: [{ url: "wss://monitor.example.com", tracks: "both" }],
+          amd: { enabled: true },
+          intelligence: expect.objectContaining({ config: expect.anything() })
+        })
+      )
+    );
+  });
+
   it("talk drawer lists the agent's numbers to call", async () => {
     const { user } = setup({ route });
     await user.click(
