@@ -106,6 +106,12 @@ services), `npm test -w @fonoster/dashboard`, and `cd go/medianode && go test ./
 `npm run dev:config` renders `.dev/` again after you change a config example or your overrides in
 `.dev/overlay/<service>.yaml`; every secret is kept.
 
+Notes:
+
+- Use a regular clone: in a `git worktree`, `.git` points to a host path the container can't see.
+- `npm ci` and the build rewrite the committed Prisma client in `mods/identity/src/generated` (a
+  Linux engine file appears) and `mods/identity-client/proto`. Don't commit that diff.
+
 ## Sign your Commits
 
 ### DCO
