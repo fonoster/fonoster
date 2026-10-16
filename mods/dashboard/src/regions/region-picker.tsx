@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Select } from "~/components/ui/select";
 import { useRegions } from "./api";
 import { DEFAULT_REGION, isUsable, type RegionStatus } from "./types";
 
@@ -43,19 +44,16 @@ export function RegionPicker({
       >
         Region
       </label>
-      <select
+      <Select
         id="workspace-region"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-control border border-input bg-background px-3 font-display text-sm"
-      >
-        {regions.map((r) => (
-          <option key={r.id} value={r.id} disabled={!isUsable(r)}>
-            {r.displayName}
-            {SUFFIX[r.status] ?? ""}
-          </option>
-        ))}
-      </select>
+        onValueChange={onChange}
+        options={regions.map((r) => ({
+          value: r.id,
+          label: `${r.displayName}${SUFFIX[r.status] ?? ""}`,
+          disabled: !isUsable(r)
+        }))}
+      />
       <p className="font-display text-xs text-muted-foreground">
         You can't change the region later.
       </p>

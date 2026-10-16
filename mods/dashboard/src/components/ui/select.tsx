@@ -25,6 +25,7 @@ export type SelectOption = {
   value: string;
   label: string;
   description?: string;
+  disabled?: boolean;
 };
 
 /** A labelled single choice. `id` and aria props go to the trigger (use with Field). */
@@ -76,7 +77,8 @@ export function Select({
               <SelectPrimitive.Item
                 key={option.value}
                 value={option.value}
-                className="relative flex cursor-pointer select-none flex-col rounded-[6px] py-1.5 pl-2 pr-8 text-sm outline-none data-[highlighted]:bg-accent"
+                disabled={option.disabled}
+                className="relative flex cursor-pointer select-none flex-col rounded-[6px] py-1.5 pl-2 pr-8 text-sm outline-none data-[highlighted]:bg-accent data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
               >
                 <SelectPrimitive.ItemText>
                   {option.label}
