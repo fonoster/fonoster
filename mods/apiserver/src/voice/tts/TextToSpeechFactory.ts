@@ -19,6 +19,7 @@
 import { getLogger } from "@fonoster/logger";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { Azure, ENGINE_NAME as AZURE_ENGINE_NAME } from "./Azure";
+import { ENGINE_NAME as CAMB_AI_ENGINE_NAME, CambAi } from "./CambAi";
 import { Deepgram, ENGINE_NAME as DEEPGRAM_ENGINE_NAME } from "./Deepgram";
 import {
   ENGINE_NAME as ELEVEN_LABS_ENGINE_NAME,
@@ -54,6 +55,7 @@ class TextToSpeechFactory {
 // Register engines
 TextToSpeechFactory.registerEngine(GOOGLE_ENGINE_NAME, Google);
 TextToSpeechFactory.registerEngine(AZURE_ENGINE_NAME, Azure);
+TextToSpeechFactory.registerEngine(CAMB_AI_ENGINE_NAME, CambAi);
 TextToSpeechFactory.registerEngine(DEEPGRAM_ENGINE_NAME, Deepgram);
 TextToSpeechFactory.registerEngine(ELEVEN_LABS_ENGINE_NAME, ElevenLabs);
 

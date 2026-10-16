@@ -50,9 +50,17 @@ type AzureTTSConfig = {
   };
 };
 
+type CambAiTtsConfig = {
+  [key: string]: Record<string, string>;
+  credentials: {
+    apiKey: string;
+  };
+};
+
 export {
   SynthOptions,
   AzureTTSConfig,
+  CambAiTtsConfig,
   DeepgramTtsConfig,
   ElevenLabsTtsConfig,
   GoogleTtsConfig
