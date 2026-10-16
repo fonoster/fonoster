@@ -539,3 +539,17 @@ A separate reviewer read every rebuild spec; the owner ruled on each finding one
   lint checked, deployment suite green).
 - Left as is: the release workflow still seds image tags in the root `compose.yaml`; with the
   include it finds none and reports "already up to date" (the stack builds or takes `RB_TAG`).
+
+## 2026-10-15 (final smoke on the merged tree)
+- SM-1. The gateway image copies and builds `mods/community` (the vendor adapters); without it
+  `npm install --workspace @fonoster/gateway` asks the registry for `@fonoster/community` (404).
+- SM-2. NATS parses a variable's value as config, so a password starting with a digit fails to
+  load (`could not be parsed ... got '2'`). The stack generates `n<hex>` and replaces older
+  digit-leading values; `cell.env.example` and operators/regions.md say to start with a letter.
+- SM-3. The apiserver passed its built nats.js options (`NATS`) to helpers that take a
+  `NatsTarget` (Routr events, call publisher, call records, outbound), which lost the URL and
+  fell back to 127.0.0.1:4222 whenever the config named a user. They now get the setting
+  (`NATS_CONNECTION`). The test suites run against unauthenticated URLs, which hid it.
+- SM-4. `stack up` waits for Routr (the apiserver's media-node peer upsert succeeding) before
+  seeding; Routr migrates its own database first and answered ~25 s after the apiserver.
+- `ops/rebuild/stack smoke` passes: Routr → media node → Autopilot audio heard → record indexed.

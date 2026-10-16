@@ -79,10 +79,15 @@ init_local() {
     chmod 600 "$STACK_ENV"
   fi
   # One NATS user per service (add-platform 4.1); added to stack.env files made before them.
+  # NATS parses a variable's value as config, so a password starting with a digit fails to load:
+  # each starts with a letter, and one generated before this rule is replaced.
   local svc var
   for svc in APISERVER GATEWAY MEDIANODE ROUTR; do
     var="NATS_${svc}_PASSWORD"
-    grep -q "^$var=" "$STACK_ENV" || echo "$var=$(rand)" >> "$STACK_ENV"
+    if grep -q "^$var=[0-9]" "$STACK_ENV"; then
+      sed -i.bak "/^$var=/d" "$STACK_ENV" && rm -f "$STACK_ENV.bak"
+    fi
+    grep -q "^$var=" "$STACK_ENV" || echo "$var=n$(rand)" >> "$STACK_ENV"
   done
   # ClickHouse (profile analytics); added to stack.env files made before it.
   grep -q "^CLICKHOUSE_PASSWORD=" "$STACK_ENV" || echo "CLICKHOUSE_PASSWORD=$(rand)" >> "$STACK_ENV"
@@ -373,9 +378,14 @@ cmd_up() {
   compose up -d --build --remove-orphans
   wait_for "the apiserver (migrations, Identity, seed)" 120 api_ready \
     || { compose logs --tail 40 apiserver; die "apiserver did not start"; }
+  # Routr's API comes up later (it migrates its own database first); seeding needs it. The
+  # apiserver logs the media-node peer once Routr answers.
+  wait_for "Routr" 90 routr_ready || { compose logs --tail 20 routr; die "Routr did not start"; }
   seed_catalog
   cmd_info
 }
+
+routr_ready() { compose logs apiserver 2>/dev/null | grep -q "media-node peer \(created\|already exists\)"; }
 
 # The provider catalog (config/catalog-seed.yaml) into the registry tables, through the
 # fonoster-registry utility in the apiserver image. Idempotent ("no changes" on later runs).

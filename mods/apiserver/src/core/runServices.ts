@@ -40,6 +40,7 @@ import {
   HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
   NATS,
+  NATS_CONNECTION,
   REGIONS,
   SESSION_APPS,
   WEBHOOKS
@@ -118,7 +119,7 @@ async function runServices() {
 
   // Call records (add-call-record): index consumer, retention and the /api/records routes
   const records = await runCallRecords(CALL_RECORDS as CallRecordsConfig, {
-    natsUrl: NATS,
+    natsUrl: NATS_CONNECTION,
     identityPublicKey: IDENTITY_PUBLIC_KEY,
     db: prisma as unknown as RecordsDb,
     relay: { regionOf: regions.regionOf, client: regions.relay },
@@ -145,7 +146,7 @@ async function runServices() {
   }
 
   // CreateCall: places API-originated calls on the media nodes (cleanbreak CB-B2)
-  await runOutboundCalls({ natsUrl: NATS });
+  await runOutboundCalls({ natsUrl: NATS_CONNECTION });
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);

@@ -19,7 +19,7 @@
 import { InfluxDBClient } from "@fonoster/common";
 import { connect } from "nats";
 import { prisma } from "../core/db";
-import { CALL_RECORDS, NATS } from "../envs";
+import { CALL_RECORDS, NATS, NATS_CONNECTION } from "../envs";
 import {
   createFetchCallsFromIndex,
   createFetchSingleCallFromIndex,
@@ -32,7 +32,7 @@ import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
 
 async function buildService(influxdb: InfluxDBClient) {
-  const callPublisher = await createCallPublisher(NATS);
+  const callPublisher = await createCallPublisher(NATS_CONNECTION);
   const nc = await connect({ ...NATS, maxReconnectAttempts: -1 });
 
   return {

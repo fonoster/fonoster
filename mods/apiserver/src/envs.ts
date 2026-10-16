@@ -116,6 +116,9 @@ export const EVALUATIONS = config.evaluations;
 
 export const NATS_URL = config.nats.url;
 
+/** The `nats` setting itself (URL, user, password), for helpers that take a NatsTarget. */
+export const NATS_CONNECTION = config.nats;
+
 /** nats.js connect options: the URL plus the apiserver's NATS user, when set (add-platform 4.1). */
 export const NATS = natsConnectOptions(config.nats);
 

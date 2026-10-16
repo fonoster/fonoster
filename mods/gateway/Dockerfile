@@ -15,6 +15,8 @@ COPY mods/logger ./mods/logger
 COPY mods/common ./mods/common
 COPY mods/callrecord ./mods/callrecord
 COPY mods/identity-client ./mods/identity-client
+# Vendor adapters (@fonoster/community/<vendor>).
+COPY mods/community ./mods/community
 # AMD (add-media-node 4.3, AO-B2): the classifier and its ONNX model run in the gateway.
 COPY mods/streams ./mods/streams
 COPY mods/amd ./mods/amd
@@ -27,7 +29,7 @@ COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
 RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/gateway --ignore-scripts --no-audit --no-fund
 
-RUN for p in types logger common callrecord identity-client streams amd gateway; do \
+RUN for p in types logger common callrecord identity-client community streams amd gateway; do \
       (cd mods/$p && npx tsc -b); \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
@@ -58,6 +60,8 @@ COPY --from=builder --chown=appuser:appuser /work/mods/callrecord/package.json /
 COPY --from=builder --chown=appuser:appuser /work/mods/callrecord/dist /work/mods/callrecord/dist
 # identity-client loads its .proto at runtime, so the package is copied whole.
 COPY --from=builder --chown=appuser:appuser /work/mods/identity-client /work/mods/identity-client
+COPY --from=builder --chown=appuser:appuser /work/mods/community/package.json /work/mods/community/
+COPY --from=builder --chown=appuser:appuser /work/mods/community/dist /work/mods/community/dist
 COPY --from=builder --chown=appuser:appuser /work/mods/streams/package.json /work/mods/streams/
 COPY --from=builder --chown=appuser:appuser /work/mods/streams/dist /work/mods/streams/dist
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/package.json /work/mods/amd/
