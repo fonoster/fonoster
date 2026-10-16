@@ -44,7 +44,7 @@ COPY --from=builder --chown=appuser:appuser /work/package.json ./package.json
 COPY --from=builder --chown=appuser:appuser /work/mods ./mods
 
 USER appuser
-ENV AUTOPILOT_SESSION_CONFIG=/etc/fonoster/autopilot-session.yaml
+# The config file: /config/autopilot.yaml (or --config / AUTOPILOT_SESSION_CONFIG).
 EXPOSE 3000
 
 CMD ["node", "/work/mods/autopilot/dist/session/main.js"]

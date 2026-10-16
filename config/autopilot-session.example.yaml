@@ -19,7 +19,8 @@ credentials:
 # workspace vendor keys from the dashboard: { source: database } (also `registry: { source: database }`).
 # workspaceSecrets: { file: ./workspace-secrets.json }
 # The apiserver's database (for any source: database); the key decrypts vendor keys.
-# database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: CLOAK_ENCRYPTION_KEY }
+# database: { urlEnv: APISERVER_DATABASE_URL }
+# encryption: { key: "${CLOAK_ENCRYPTION_KEY}" }
 # Endpoint overrides by adapter or provider id.
 endpoints:
   ollama: http://ollama:11434

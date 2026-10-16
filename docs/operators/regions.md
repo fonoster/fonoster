@@ -135,7 +135,8 @@ gateway:
     appStore: { source: database }
     registry: { source: database }
     webhooks: { enabled: true }
-    database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
+    database: { urlEnv: APISERVER_DATABASE_URL }
+    encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
 ```
 
 The enroll Job writes the credentials into the `fonoster-region` Secret. Mount that Secret into your

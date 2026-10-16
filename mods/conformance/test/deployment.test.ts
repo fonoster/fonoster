@@ -202,7 +202,10 @@ describe("@conformance/deployment (Helm chart)", function () {
       POD_NAMESPACE: "default",
       // nats.auth (values-cloud): each service's password env from fonoster-nats-users.
       NATS_APISERVER_PASSWORD: "nats-api",
-      NATS_GATEWAY_PASSWORD: "nats-gw"
+      NATS_GATEWAY_PASSWORD: "nats-gw",
+      // The pods' env from the database Secret (gateway and Autopilot `encryption.key`).
+      APISERVER_ENCRYPTION_KEY:
+        "k1.aesgcm256.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
     };
 
     const api = loadServiceConfig({
@@ -232,6 +235,7 @@ describe("@conformance/deployment (Helm chart)", function () {
       expect(gw.rtp?.advertiseHost).to.equal("10.1.2.3");
       expect(gw.database?.url).to.equal("postgresql://u:p@db:5432/fonoster");
       expect(gw.nats).to.include({ user: "gateway", password: "nats-gw" });
+      expect(gw.encryption?.key).to.equal(env.APISERVER_ENCRYPTION_KEY);
       const ap = loadHostedConfig(
         write("fonoster-autopilot", "autopilot-session.yaml")
       );

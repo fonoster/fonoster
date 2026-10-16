@@ -8,8 +8,8 @@ docker compose up -d
 npx -p @fonoster/common fonoster-config info
 ```
 
-1. `init` generates the secrets and keys, detects this machine's address and writes `.env` and
-   `config/*.yaml`. Pass `--host-ip <address>` to set the address yourself. Running it again keeps
+1. `init` generates the secrets and keys, detects this machine's address and writes `.env` (with
+   the secrets) and `config/*.yaml` (which reference them as `${NAME}`). Pass `--host-ip <address>` to set the address yourself. Running it again keeps
    every secret.
 2. `docker compose up -d` starts the voice path, the API, the dashboard and the hosted Autopilot.
 3. `info` prints the dashboard URL, the owner login and the SIP address.

@@ -20,7 +20,6 @@ import { generateKeyPairSync, randomBytes } from "crypto";
 import { createSocket } from "dgram";
 import { existsSync, mkdirSync } from "fs";
 import { dirname, join } from "path";
-import { generateRegionHub } from "../../regions/hub";
 import { writeWithMode } from "./envFile";
 
 const hex = (bytes: number) => randomBytes(bytes).toString("hex");
@@ -90,8 +89,8 @@ function once(path: string, make: () => string | Buffer, created: string[]) {
 
 /**
  * The keys of an install, each generated only when its file is missing (config/keys):
- * Identity's RS256 pair, the call-record ES256 key, the region operator key, and the region hub
- * (signing key, operator and account seeds, credentials, config/region-hub.conf).
+ * Identity's RS256 pair and the call-record ES256 key. Hosting private regions is a manual
+ * addition (fonoster-region-hub-setup in the apiserver image), not part of init.
  */
 export function ensureKeys(configDir: string): string[] {
   const keys = join(configDir, "keys");
@@ -122,33 +121,5 @@ export function ensureKeys(configDir: string): string[] {
       }),
     created
   );
-  once(join(keys, "region-operator.key"), () => hex(24), created);
-  once(
-    join(keys, "region-signing.pem"),
-    () =>
-      generateKeyPairSync("ec", { namedCurve: "P-256" }).privateKey.export({
-        type: "pkcs8",
-        format: "pem"
-      }),
-    created
-  );
-  const conf = join(configDir, "region-hub.conf");
-  if (!existsSync(conf)) {
-    const hub = generateRegionHub({});
-    const dir = join(keys, "region-hub");
-    const files: Record<string, string> = {
-      "operator.seed": hub.operatorSeed,
-      "account.seed": hub.accountSeed,
-      "control-plane.creds": hub.controlPlaneCreds,
-      "system.creds": hub.systemCreds
-    };
-    for (const [name, content] of Object.entries(files)) {
-      mkdirSync(dir, { recursive: true, mode: 0o755 });
-      writeWithMode(join(dir, name), content, CONTAINER_READ);
-      created.push(join(dir, name));
-    }
-    writeWithMode(conf, hub.conf, CONTAINER_READ);
-    created.push(conf);
-  }
   return created;
 }

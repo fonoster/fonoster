@@ -11,7 +11,7 @@ rtp:
   advertiseHost: gateway
 database:
   urlEnv: APISERVER_DATABASE_URL
-  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
+encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
 appStore: { source: database, cacheMs: 5000 }
 registry: { source: database, refreshMs: 30000 }
 webhooks: { enabled: true }

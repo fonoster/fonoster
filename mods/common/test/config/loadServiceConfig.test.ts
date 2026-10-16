@@ -115,9 +115,7 @@ describe("@common[config/loadServiceConfig]", function () {
         "a.jsonc",
         '{\n  // the database host\n  "host": "db",\n  "port": 6000,\n}\n'
       );
-      expect(load(["--config", jsonc])).to.deep.equal(
-        load(["--config", yaml])
-      );
+      expect(load(["--config", jsonc])).to.deep.equal(load(["--config", yaml]));
     });
 
     it("ignores the editor-only $schema key", function () {
@@ -146,7 +144,9 @@ describe("@common[config/loadServiceConfig]", function () {
   describe("validation", function () {
     it("rejects unknown keys with their path", function () {
       const path = write("svc.yaml", "database:\n  uri: x\n");
-      expect(() => load(["--config", path])).to.throw(/database: unknown key "uri"/);
+      expect(() => load(["--config", path])).to.throw(
+        /database: unknown key "uri"/
+      );
     });
 
     it("prefixes schema failures with the file path and key path", function () {
@@ -194,11 +194,27 @@ describe("@common[config/loadServiceConfig]", function () {
       ).to.throw(/apiKey: \$\{\.\.\.\} is only allowed for values shared/);
     });
 
+    it('resolves ${VAR} at any key with ["*"] (secrets as placeholders)', function () {
+      const path = write(
+        "svc.yaml",
+        'apiKey: "${SECRET}"\nhost: "${HOST:-db}"\n'
+      );
+      const cfg = load(["--config", path], {
+        env: { SECRET: "s" },
+        interpolatePaths: ["*"]
+      });
+      expect(cfg.apiKey).to.equal("s");
+      expect(cfg.host).to.equal("db");
+      expect(() =>
+        load(["--config", path], { env: {}, interpolatePaths: ["*"] })
+      ).to.throw(/apiKey: .*\$\{SECRET\}/);
+    });
+
     it("rejects ${VAR} when no paths are allowed", function () {
       const path = write("svc.yaml", "apiKey: ${SECRET}\n");
-      expect(() =>
-        load(["--config", path], { env: { SECRET: "s" } })
-      ).to.throw(/only allowed for values shared/);
+      expect(() => load(["--config", path], { env: { SECRET: "s" } })).to.throw(
+        /only allowed for values shared/
+      );
     });
 
     it("names the variable and path when a shared value is unset", function () {

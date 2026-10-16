@@ -81,7 +81,7 @@ function loadConfigFile(argv: string[] = process.argv) {
     service: "identity",
     schema: identityServiceConfigSchema,
     argv,
-    interpolatePaths: ["database.url"],
+    interpolatePaths: ["*"],
     legacyEnvPrefixes: ["APISERVER_IDENTITY_"]
   });
 

@@ -1,11 +1,13 @@
 # Configuration
 
-Fonoster is three deployables, each configured on its own:
+Each Fonoster service reads one file, mounted at `/config/<name>.yaml` in its container:
 
 | Service | Reads | Notes |
 |---|---|---|
-| API server (with Identity) | `fonoster.yaml` | Everything, secrets included |
-| Autopilot | `autopilot-session.yaml` | One file for every replica |
+| API server (with Identity) | `fonoster.yaml` | Everything; secrets as `${NAME}` placeholders |
+| Voice gateway | `gateway.yaml` | `encryption.key` is the API server's key |
+| Autopilot | `autopilot.yaml` | One file for every replica |
+| Media node | `medianode.yaml` | Flags win over it; `MEDIANODE_*` variables are deprecated |
 | Dashboard | `DASHBOARD_API_URL` | Everything else comes from the API server |
 
 The Compose stack is `ops/bundle/compose.yaml` (with the development layer
@@ -35,19 +37,20 @@ docker compose -f compose.dev.yaml up -d   # developer services; the platform: o
 
 ## How the files work
 
-- **Where they're found.** `--config <path>`, otherwise `/opt/fonoster/<name>.<ext>`,
-  otherwise `./config/<name>.<ext>`.
+- **Where they're found.** `--config <path>`, otherwise `/config/<name>.<ext>`, then
+  `/opt/fonoster/<name>.<ext>` (`/etc/fonoster` for the gateway and Autopilot), then
+  `./config/<name>.<ext>`.
 - **YAML or JSON with comments.** `.yaml`/`.yml` or `.json`/`.jsonc`
   (`config/fonoster.example.jsonc` shows the JSONC form). Two files for the same
   service in one directory stop it at boot.
-- **No environment variables.** The API server and Autopilot read only their file.
-  Secrets are written in the file, so treat it as a secret: `chmod 600`, never
-  committed, mounted from a Secret on Kubernetes.
-- **`${VAR}` for shared values only.** Where `fonoster.yaml` needs a value a
-  third-party container also reads from `.env` (the Postgres user and password,
-  `INFLUXDB_INIT_*`, `MEDIANODE_PASSWORD`) it references the
-  variable, so the value is written once. `${VAR}` anywhere else is an error.
-  Compose passes `.env` to the API server (`env_file`) for this.
+- **No environment variables of their own.** Services read only their file. A value
+  may be a `${VAR}` or `${VAR:-default}` placeholder at any key; it is resolved from
+  the container's environment, which Compose fills from `.env` (`env_file`). Secrets
+  stay in `.env` this way; a service never reads `.env` itself. An unset variable
+  without a default stops the service, naming the variable and the key. Inline
+  secrets and `secret://` references still work (treat such a file as a secret).
+- **Telemetry.** `telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }`
+  in each file; empty is off.
 - **Strict.** An unknown or misspelled key stops the service at boot and names it
   (`smtp: unknown key "hsot"`). Keys that moved say where they went. Old
   `APISERVER_*`/`AUTOPILOT_*` variables still in the environment are ignored,

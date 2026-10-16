@@ -21,6 +21,7 @@ import { join, resolve } from "path";
 import Ajv2020 from "ajv/dist/2020";
 import { parse } from "yaml";
 import { suggestKey } from "../configHints";
+import { interpolateEnv } from "../interpolateEnv";
 import { isSecretRef, resolveSecretRef } from "../resolveSecretRefs";
 import { expandEnv, readEnvFile } from "./envFile";
 import { listExamples, renderedName } from "./render";
@@ -33,7 +34,7 @@ export type CheckOptions = { dir: string };
  * Container paths under which the services mount config/ (compose.yaml): a `secret://file/...`
  * reference to one of them is read from config/ on this machine.
  */
-const MOUNTS = ["/opt/fonoster/", "/etc/fonoster/"];
+const MOUNTS = ["/config/", "/opt/fonoster/", "/etc/fonoster/"];
 
 /** Schema names that validate a config file of another name. */
 const ALIASES: Record<string, string> = {
@@ -42,6 +43,8 @@ const ALIASES: Record<string, string> = {
 };
 
 type Problem = string;
+
+const PLACEHOLDER = /\$\{([A-Za-z_][A-Za-z0-9_]*)(:-[^}]*)?\}/g;
 
 function keyPath(segments: (string | number)[]): string {
   return segments
@@ -69,12 +72,22 @@ function resolveRefs(
   problems: Problem[]
 ): unknown {
   if (typeof input === "string") {
-    const placeholder = /\$\{([A-Za-z_][A-Za-z0-9_]*)/.exec(input);
-    if (placeholder)
-      problems.push(
-        `${keyPath(path)}: \${${placeholder[1]}} was not rendered (run init)`
-      );
-    if (!isSecretRef(input)) return input;
+    const raw: string = input;
+    // ${NAME} placeholders resolve from .env, as Compose passes it to the containers.
+    if (/\$\{[^}]*\}/.test(raw)) {
+      try {
+        input = interpolateEnv(raw, env);
+      } catch {
+        const unset = [...raw.matchAll(PLACEHOLDER)]
+          .filter((m) => (env[m[1]] === undefined || env[m[1]] === "") && !m[2])
+          .map((m) => m[1]);
+        problems.push(
+          `${keyPath(path)}: ${unset.map((n) => `\${${n}}`).join(", ")} not set in .env`
+        );
+        return input;
+      }
+    }
+    if (typeof input !== "string" || !isSecretRef(input)) return input;
     try {
       return resolveSecretRef(input, {
         env,
@@ -135,7 +148,7 @@ function loadSchemas(dir: string): Map<string, object> {
   return schemas;
 }
 
-/** Validates the rendered config/*.yaml against config/schemas/*.json (D5). */
+/** Validates config/*.yaml, placeholders resolved from .env, against config/schemas/*.json (D5). */
 export function runCheck(options: CheckOptions, io: Io): number {
   const dir = resolve(options.dir);
   const envFile = join(dir, ".env");
@@ -178,8 +191,11 @@ export function runCheck(options: CheckOptions, io: Io): number {
     const schema = schemas.get(file.replace(/\.ya?ml$/, ""));
     if (schema) {
       // The exported schemas are draft 2020-12 (toJsonSchema).
+      // coerceTypes: a placeholder is a string after YAML parsing; services accept "5060" for a
+      // port the same way.
       const ajv = new Ajv2020({
         allErrors: true,
+        coerceTypes: true,
         strict: false,
         verbose: true
       });

@@ -20,7 +20,8 @@ import { existsSync } from "fs";
 import { join, resolve } from "path";
 import { CONFIG_EXTENSIONS } from "./parseConfigFile";
 
-const DEFAULT_SEARCH_DIRS = ["/opt/fonoster", "./config"];
+// `/config` is where the bundle mounts each service's file (unify-config-placeholders).
+const DEFAULT_SEARCH_DIRS = ["/config", "/opt/fonoster", "./config"];
 
 type ResolvedConfigFile =
   | { path: string; explicit: boolean }

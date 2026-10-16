@@ -73,7 +73,8 @@ You need:
 
     <Tip>
       To change a port, edit it in `.env` (for example `HTTP_PORT=8449` or `SIP_PORT=5060`) and run
-      `init` again. It keeps every secret and only updates the configuration.
+      `init` again, then `docker compose up -d`. `init` keeps every secret and only updates the
+      configuration.
     </Tip>
   </Step>
 
@@ -90,6 +91,7 @@ You need:
     config/autopilot.yaml: valid
     config/fonoster.yaml: valid
     config/gateway.yaml: valid
+    config/medianode.yaml: valid (no schema; values only)
     config/routr-edgeport.yaml: valid (no schema; values only)
     ```
   </Step>
@@ -124,7 +126,6 @@ You need:
     Owner       admin@fonoster.local / <generated password>
     API         192.0.2.10:8449 (gRPC and gRPC-Web, plain HTTP)
     SIP         192.0.2.10:5060 (UDP and TCP)
-    Profiles    default
     ```
   </Step>
 
@@ -145,7 +146,7 @@ Everything lives in the `fonoster` folder:
 | Path           | What it holds                                                    |
 | -------------- | ---------------------------------------------------------------- |
 | `.env`         | Ports, the host address, the owner's login and every generated secret |
-| `config/`      | Each service's settings, written by `init` from the examples      |
+| `config/`      | Each service's settings, written by `init` from the examples. They name secrets as `${NAME}`, which each container reads from `.env` |
 | `config/keys/` | The signing keys                                                  |
 
 <Warning>

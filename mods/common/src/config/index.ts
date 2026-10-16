@@ -25,5 +25,6 @@ export * from "./parseConfigFile";
 export * from "./resolveConfigFile";
 export * from "./resolveSecretRefs";
 export * from "./strictDeep";
+export * from "./telemetrySchema";
 export * from "./natsConnection";
 export * from "./toJsonSchema";

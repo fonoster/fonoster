@@ -73,7 +73,7 @@ COPY --from=builder --chown=appuser:appuser /work/mods/gateway/dist /work/mods/g
 USER appuser
 
 # One YAML file, no .env (PL5). Mount it here or point GATEWAY_CONFIG elsewhere.
-ENV GATEWAY_CONFIG=/etc/fonoster/gateway.yaml
+# The config file: /config/gateway.yaml, else /etc/fonoster/gateway.yaml (or GATEWAY_CONFIG).
 # Session HTTP endpoint (config http.port); the gateway also needs NATS reachable.
 EXPOSE 8080
 

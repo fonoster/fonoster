@@ -155,7 +155,6 @@ export const gatewayConfigSchema = z.object({
     .object({
       url: z.string().optional(),
       urlEnv: z.string().optional(),
-      encryptionKeyEnv: z.string().optional(),
       clientModule: z.string().optional()
     })
     .optional(),
@@ -230,13 +229,15 @@ export const gatewayConfigSchema = z.object({
             url: z.string(),
             database: z.string().optional(),
             table: z.string().optional(),
-            userEnv: z.string().optional(),
-            passwordEnv: z.string().optional()
+            user: z.string().optional(),
+            password: z.string().optional()
           })
         })
         .optional()
     })
     .optional(),
+  encryption: z.object({ key: z.string() }).optional(),
+  telemetry: z.object({ otlpEndpoint: z.string().optional() }).optional(),
   testCalls: z.object({ publicKeyFile: z.string().optional() }).optional(),
   testMode: z.boolean().optional()
 });

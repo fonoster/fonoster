@@ -16,16 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { initTelemetry, Telemetry } from "@fonoster/common";
+import { initTelemetry, Telemetry, telemetryEnv } from "@fonoster/common";
+import { getConfig } from "../config";
 
 let telemetry: Telemetry | undefined;
 
 /**
  * The apiserver's telemetry (add-platform 2.5): off unless an OTLP endpoint is configured
- * (OTEL_EXPORTER_OTLP_ENDPOINT; the Helm chart sets it), then traces, logs and metrics over
+ * (`telemetry.otlpEndpoint` in fonoster.yaml, else OTEL_EXPORTER_OTLP_ENDPOINT), then traces, logs and metrics over
  * OTLP/HTTP like the other services.
  */
+function configuredTelemetry() {
+  try {
+    return getConfig().telemetry;
+  } catch {
+    // No loadable config (tests, tools): the environment alone decides.
+    return undefined;
+  }
+}
+
 export function apiserverTelemetry(): Telemetry {
-  telemetry ??= initTelemetry("fonoster-apiserver");
+  telemetry ??= initTelemetry(
+    "fonoster-apiserver",
+    undefined,
+    telemetryEnv(configuredTelemetry())
+  );
   return telemetry;
 }

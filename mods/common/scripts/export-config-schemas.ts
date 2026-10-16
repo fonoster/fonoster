@@ -51,7 +51,7 @@ const SERVICES: Record<
       (await import("../../gateway/src/configSchema")).gatewayConfigSchema
   },
   autopilot: {
-    file: "autopilot-session.yaml",
+    file: "autopilot.yaml",
     schema: async () =>
       (await import("../../autopilot/src/session/hosted")).hostedConfigSchema
   }

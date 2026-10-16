@@ -16,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
-import { resolveSecretRefs } from "@fonoster/common";
-import { parse } from "yaml";
+import { loadServiceConfig } from "@fonoster/common";
 import { isAppAudioFormat } from "./audio/pcm";
+import { gatewayConfigSchema } from "./configSchema";
 import { isDetectorChoice } from "./turn/createDetector";
 import type { ObjectStoreConfig } from "@fonoster/callrecord";
 
@@ -141,8 +140,6 @@ export type GatewayConfig = {
     url?: string;
     /** Environment variable holding the URL (default APISERVER_DATABASE_URL). */
     urlEnv?: string;
-    /** Environment variable with the apiserver's encryption key (app signing secrets, webhooks). */
-    encryptionKeyEnv?: string;
     /** A client generated from the apiserver schema (default `@prisma/client`). */
     clientModule?: string;
   };
@@ -230,18 +227,26 @@ export type GatewayConfig = {
     recordUrl?: string;
     /**
      * Analytics (task 6.1, optional): every sealed version's redacted copy is loaded into
-     * ClickHouse. Credentials come from the named environment variables.
+     * ClickHouse (docs-site/self-hosting/send-call-metrics-to-clickhouse).
      */
     analytics?: {
       clickhouse: {
         url: string;
         database?: string;
         table?: string;
-        userEnv?: string;
-        passwordEnv?: string;
+        /** Usually placeholders, e.g. "${CLICKHOUSE_USER}" and "${CLICKHOUSE_PASSWORD}". */
+        user?: string;
+        password?: string;
       };
     };
   };
+  /**
+   * The apiserver's encryption key (fonoster.yaml `encryption.key`): app signing secrets, webhook
+   * secrets and workspace vendor keys are encrypted columns. Usually "${ENCRYPTION_KEY}".
+   */
+  encryption?: { key: string };
+  /** OTLP export (empty = off): `otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"`. */
+  telemetry?: { otlpEndpoint?: string };
   /**
    * Browser test calls (add-talk-in-browser D4): calls with `X-Connect-Token` are answered only
    * when the token verifies with this RS256 public key (Identity's) and names the app's workspace.
@@ -374,19 +379,34 @@ export function validateConfig(config: GatewayConfig): string[] {
   return problems;
 }
 
-/** Loads the gateway's YAML config (one YAML file per service, PL5). */
-export function loadConfig(file: string): GatewayConfig {
-  // secret:// references (D8) resolve before validation; errors name the key, not the value.
-  const config = resolveSecretRefs(
-    parse(fs.readFileSync(file, "utf8")) ?? {}
-  ) as GatewayConfig;
+/** Where the gateway looks for gateway.yaml when no file is named. */
+export const GATEWAY_CONFIG_DIRS = ["/config", "/etc/fonoster", "./config"];
+
+/**
+ * Loads the gateway's config (one file per service, PL5) the apiserver's way: `${VAR}`
+ * placeholders from the container environment, `secret://` references, then strict validation
+ * (unify-config-placeholders). Without `file`, the first of GATEWAY_CONFIG_DIRS holding a
+ * gateway.yaml (or .yml/.json/.jsonc) is used.
+ */
+export function loadConfig(
+  file?: string,
+  env: Record<string, string | undefined> = process.env
+): GatewayConfig {
+  const config = loadServiceConfig({
+    service: "gateway",
+    schema: gatewayConfigSchema,
+    argv: file ? ["--config", file] : [],
+    env,
+    searchDirs: GATEWAY_CONFIG_DIRS,
+    interpolatePaths: ["*"]
+  }) as GatewayConfig;
   const envHost = config.rtp?.advertiseHostEnv;
   if (config.rtp && envHost && !config.rtp.advertiseHost)
     config.rtp.advertiseHost = process.env[envHost] || undefined;
   const problems = validateConfig(config);
   if (problems.length)
     throw new Error(
-      `invalid gateway config ${file}:\n  - ${problems.join("\n  - ")}`
+      `invalid gateway config ${file ?? "gateway.yaml"}:\n  - ${problems.join("\n  - ")}`
     );
   return config;
 }
