@@ -195,7 +195,7 @@ medianode:
 # cell's secrets. Off by default.
 autopilot:
   enabled: false
-  image: { repository: fonoster/autopilot-session, tag: dev, pullPolicy: IfNotPresent }
+  image: { repository: fonoster/autopilot, tag: dev, pullPolicy: IfNotPresent }
   replicas: 1
   # Existing Secret with the signing secret (key `secret`) and, for `source: database`, the
   # database URL and encryption key (keys `url`, `key`).
