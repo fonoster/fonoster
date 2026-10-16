@@ -39,6 +39,8 @@ Diátaxis type: T tutorial, H how-to, R reference, E explanation. ★ = next up.
 |           | Kubernetes with Helm         | H    | `self-hosting/helm`                 |
 |           | Upgrade from 0.27            | H    | `self-hosting/upgrade-from-0-27`    |
 |           | Troubleshooting              | H    | `self-hosting/troubleshooting`      |
+| Integrations | Send call metrics to ClickHouse | H | `self-hosting/send-call-metrics-to-clickhouse` |
+|           | Send telemetry               | H    | `self-hosting/send-telemetry`       |
 | Tooling   | Stack installer              | R    | `self-hosting/tooling/stack`        |
 |           | `fonoster` CLI for operators | R    | `self-hosting/tooling/cli`          |
 |           | Helm chart values            | R    | `self-hosting/tooling/helm-values`  |
@@ -54,6 +56,7 @@ Diátaxis type: T tutorial, H how-to, R reference, E explanation. ★ = next up.
 |         | Operate and monitor          | H    | `private-regions/operate`             |
 |         | Revoke or move a region      | H    | `private-regions/revoke`              |
 |         | Troubleshooting              | H    | `private-regions/troubleshooting`     |
+| Control plane | Host private regions   | H    | `private-regions/host-private-regions` |
 | Tooling | `fonoster-region` CLI        | R    | `private-regions/tooling/cli`         |
 |         | Cell bundle (Compose)        | R    | `private-regions/tooling/cell-bundle` |
 
