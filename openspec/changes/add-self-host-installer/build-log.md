@@ -186,3 +186,29 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   delete. Projects share volumes by name; `ops/rebuild/stack reset` in that worktree clears it.
 - Full suite: 1528 passing, 123 pending, 0 failing; mocha then exits 1 from a native
   `libc++abi ... mutex lock failed` at process exit (not a test failure).
+
+## coordinator
+
+### CO-B1. Local bundle build (task 4.2)
+
+- `ops/release/bundle [version]` builds the five Fonoster images as `fonoster/<svc>:<version>`, stages
+  `ops/bundle`, sets `FONOSTER_VERSION`, exports the config schemas into `config/schemas/`, and
+  writes `dist/release/<version>/fonoster-<version>.tar.gz` (about 20 KB) and
+  `fonoster-common-<version>.tgz` (`npm pack`). The version defaults to `lerna.json` + `-local`.
+  `SKIP_IMAGES=1` skips the images.
+- One tarball is enough for `npx -p`: the CLI imports only `ajv`, `yaml` and `nkeys.js`, so the
+  published 0.27.0 `@fonoster/logger` and `@fonoster/types` it also installs are never loaded.
+  `init` from the tarball in a clean folder took about 7 s.
+
+### CO-B2. `check` used the wrong JSON Schema draft (found at merge)
+
+- The exported schemas declare draft 2020-12, and `check` compiled them with Ajv's draft-07 class,
+  so every check failed with `no schema with key or ref ".../2020-12/schema"`. Each stream's tests
+  used its own fixtures. `check` now uses `ajv/dist/2020`, and a test runs `check` against the real
+  `exportConfigSchemas` output.
+
+### CO-B3. Naming scan (task 4.3)
+
+- The bundle build greps the staged archive for `rebuild` / `RB_` and fails on a hit. `init` output
+  is covered by the CLI tests. `check`, `info` and `--help` output from the tarball was scanned by
+  hand: no hits.

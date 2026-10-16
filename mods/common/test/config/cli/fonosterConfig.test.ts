@@ -43,6 +43,7 @@ import {
 import { encryptionKey, generateSecret } from "../../../src/config/cli/secrets";
 import { runInit } from "../../../src/config/cli/init";
 import { Io } from "../../../src/config/cli/types";
+import { exportConfigSchemas } from "../../../scripts/export-config-schemas";
 
 const BUNDLE = join(__dirname, "../../../../../ops/bundle");
 
@@ -410,6 +411,22 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(run.code, run.err).to.equal(0);
       for (const f of ["fonoster", "gateway", "autopilot", "routr-edgeport"])
         expect(run.out).to.contain(`config/${f}.yaml: valid`);
+    });
+
+    it("validates against the schemas the bundle ships (exportConfigSchemas)", async function () {
+      const dir = unpack();
+      await init(dir);
+      await exportConfigSchemas(join(dir, "config", "schemas"));
+      const ok = await cli(["check", "--dir", dir]);
+      expect(ok.code, ok.err).to.equal(0);
+      expect(ok.out).to.contain("config/gateway.yaml: valid");
+      appendFileSync(
+        join(dir, "config/gateway.yaml"),
+        "turnTakng: { mode: auto }\n"
+      );
+      const bad = await cli(["check", "--dir", dir]);
+      expect(bad.code).to.equal(1);
+      expect(bad.err).to.contain("config/gateway.yaml: turnTakng");
     });
 
     it("names the file and an unknown key, suggests the right one and fails", async function () {

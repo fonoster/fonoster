@@ -18,13 +18,14 @@
  */
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { join, resolve } from "path";
-import Ajv, { ErrorObject } from "ajv";
+import Ajv2020 from "ajv/dist/2020";
 import { parse } from "yaml";
 import { suggestKey } from "../configHints";
 import { isSecretRef, resolveSecretRef } from "../resolveSecretRefs";
 import { expandEnv, readEnvFile } from "./envFile";
 import { listExamples, renderedName } from "./render";
 import { Io } from "./types";
+import type { ErrorObject } from "ajv";
 
 export type CheckOptions = { dir: string };
 
@@ -176,7 +177,12 @@ export function runCheck(options: CheckOptions, io: Io): number {
     const resolved = resolveRefs(data, env, configDir, [], problems);
     const schema = schemas.get(file.replace(/\.ya?ml$/, ""));
     if (schema) {
-      const ajv = new Ajv({ allErrors: true, strict: false, verbose: true });
+      // The exported schemas are draft 2020-12 (toJsonSchema).
+      const ajv = new Ajv2020({
+        allErrors: true,
+        strict: false,
+        verbose: true
+      });
       const validate = ajv.compile(schema);
       if (!validate(resolved))
         for (const error of validate.errors ?? []) {
