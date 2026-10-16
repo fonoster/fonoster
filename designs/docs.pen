@@ -564,6 +564,1312 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "zetxQ",
+      "x": 1700,
+      "y": 0,
+      "name": "Docs / Install with Docker Compose / Banner / Dark",
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 600,
+      "fill": [
+        "$ui:surface-raised",
+        {
+          "type": "image",
+          "enabled": true,
+          "url": "assets/pattern-hero.png",
+          "mode": "cover"
+        }
+      ],
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 2,
+      "gap": 72,
+      "padding": [
+        0,
+        96
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "aNeC1",
+          "name": "Copy",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "f70BTZ",
+              "name": "Eyebrow",
+              "fill": "$ui:text-secondary",
+              "content": "DOCKER COMPOSE",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 20,
+              "fontWeight": "500",
+              "letterSpacing": 2.4
+            },
+            {
+              "type": "text",
+              "id": "K1Q7EV",
+              "name": "Headline",
+              "fill": "$ui:text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "One machine. Every service.",
+              "lineHeight": 1.06,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 68,
+              "fontWeight": "600",
+              "letterSpacing": -2.2
+            },
+            {
+              "type": "text",
+              "id": "bRQi2",
+              "name": "Subhead",
+              "fill": "$ui:text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "The voice path, the API, the dashboard and Autopilot, started with one command.",
+              "lineHeight": 1.4,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 26,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "TRO91",
+          "name": "Terminal",
+          "clip": true,
+          "width": 720,
+          "fill": "$ui:surface-sunken",
+          "cornerRadius": 16,
+          "stroke": "$ui:border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "jIr2i",
+              "name": "Title bar",
+              "width": "fill_container",
+              "stroke": "$ui:border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 10,
+              "padding": [
+                18,
+                24
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "w1RjrL",
+                  "name": "Dot 1",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "Oh7cs",
+                  "name": "Dot 2",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "y4SHL5",
+                  "name": "Dot 3",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "U0OnT",
+                  "name": "Path",
+                  "fill": "$ui:text-muted",
+                  "content": "~/fonoster",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "enI2F",
+              "name": "Lines",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "padding": [
+                28,
+                32,
+                32,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Olna3",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    8,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "AE6p4",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "UVIUv",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "docker compose ps",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "e2nDkm",
+                  "name": "Services",
+                  "width": "fill_container",
+                  "gap": 56,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "fjXi4",
+                      "name": "Column 1",
+                      "layout": "vertical",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "x9b99P",
+                          "name": "apiserver",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "As1RN",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "bSOQw",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "apiserver",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "u9Vxaz",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "OpU1j",
+                          "name": "autopilot",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "DD8Dj",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "a8Dev",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "autopilot",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "oLiul",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "iUn45",
+                          "name": "dashboard",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "G34hP",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "gWQ6g",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "dashboard",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "MHdaR",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "EZqvI",
+                          "name": "envoy",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "ZStIr",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "iQCD1",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "envoy",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "i8lPsD",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "C0MbY",
+                          "name": "gateway",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "IbiID",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "nYzgg",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "gateway",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Ex3mS",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "oefZ4",
+                          "name": "medianode",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "nV7kx",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "mMaqg",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "medianode",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "t16H2",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QPFQu",
+                      "name": "Column 2",
+                      "layout": "vertical",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "QjL2I",
+                          "name": "minio",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "TOzUx",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "vFz4F",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "minio",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "l2vXM",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "EDUkz",
+                          "name": "nats",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "W0APQM",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "FtzWx",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "nats",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "sqxIK",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "kfQxZ",
+                          "name": "postgres",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "GezB0",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "SCoIo",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "postgres",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "ZiQea",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "vCYUM",
+                          "name": "routr",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "y57pE",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "f9jS00",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "routr",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "zZV1D",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "egRoo",
+                          "name": "rtpengine",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "YJexw",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "dUFom",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "rtpengine",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Z33MCN",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "ibh1W",
+      "x": 1700,
+      "y": 700,
+      "name": "Docs / Install with Docker Compose / Banner / Light",
+      "theme": {
+        "ui:mode": "light"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 600,
+      "fill": [
+        "$ui:surface",
+        {
+          "type": "image",
+          "enabled": true,
+          "url": "assets/pattern-hero.png",
+          "mode": "cover"
+        }
+      ],
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 2,
+      "gap": 72,
+      "padding": [
+        0,
+        96
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Xc8to",
+          "name": "Copy",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "AzmdY",
+              "name": "Eyebrow",
+              "fill": "$ui:text-secondary",
+              "content": "DOCKER COMPOSE",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 20,
+              "fontWeight": "500",
+              "letterSpacing": 2.4
+            },
+            {
+              "type": "text",
+              "id": "DRsJ9",
+              "name": "Headline",
+              "fill": "$ui:text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "One machine. Every service.",
+              "lineHeight": 1.06,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 68,
+              "fontWeight": "600",
+              "letterSpacing": -2.2
+            },
+            {
+              "type": "text",
+              "id": "Hvipw",
+              "name": "Subhead",
+              "fill": "$ui:text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "The voice path, the API, the dashboard and Autopilot, started with one command.",
+              "lineHeight": 1.4,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 26,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "g5rbc",
+          "name": "Terminal",
+          "clip": true,
+          "width": 720,
+          "fill": "$ui:surface-sunken",
+          "cornerRadius": 16,
+          "stroke": "$ui:border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "wgg6J",
+              "name": "Title bar",
+              "width": "fill_container",
+              "stroke": "$ui:border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 10,
+              "padding": [
+                18,
+                24
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "KF8l2",
+                  "name": "Dot 1",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "u5yiwa",
+                  "name": "Dot 2",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "LQtp2",
+                  "name": "Dot 3",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "y25LN",
+                  "name": "Path",
+                  "fill": "$ui:text-muted",
+                  "content": "~/fonoster",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "saM6g",
+              "name": "Lines",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "padding": [
+                28,
+                32,
+                32,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "NwtDp",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    8,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "p8M4g",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "U5Kvw",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "docker compose ps",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "QgkCi",
+                  "name": "Services",
+                  "width": "fill_container",
+                  "gap": 56,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "sr4DS",
+                      "name": "Column 1",
+                      "layout": "vertical",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "s4SAFm",
+                          "name": "apiserver",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "Bh10E",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "IVuIC",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "apiserver",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "bWRzg",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "MxUuY",
+                          "name": "autopilot",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "k4wTz",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "FujmK",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "autopilot",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "hAWfe",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Jly6P",
+                          "name": "dashboard",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "KOKuv",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "AK0fU",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "dashboard",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "GmvN0",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "G5RFu",
+                          "name": "envoy",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "bg1CL",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "kjfJ4",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "envoy",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "EAhLu",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sDbQm",
+                          "name": "gateway",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "GgKgm",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "DvFjW",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "gateway",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "D4kMeR",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "PmDDN",
+                          "name": "medianode",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "RscXt",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "tKxkd",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "medianode",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Wbbvw",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "isLl3",
+                      "name": "Column 2",
+                      "layout": "vertical",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "bD51Q",
+                          "name": "minio",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "Z48Rqn",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "OhZHL",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "minio",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "e1VeU5",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "nVHRY",
+                          "name": "nats",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "DsWBL",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "uPpxT",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "nats",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "MdUQy",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "HmxW2",
+                          "name": "postgres",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "vOSb9",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "NJ0fK",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "postgres",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "LPMGD",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "azqWi",
+                          "name": "routr",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "CHnhw",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "Y8dXX",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "routr",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "AQLzf",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "I1O6E",
+                          "name": "rtpengine",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "wL6Ne",
+                              "name": "Status",
+                              "fill": "$ui:accent",
+                              "width": 10,
+                              "height": 10
+                            },
+                            {
+                              "type": "text",
+                              "id": "Zh1dE",
+                              "name": "Name",
+                              "fill": "$ui:text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": 120,
+                              "content": "rtpengine",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "r9MS6u",
+                              "name": "State",
+                              "fill": "$ui:text-muted",
+                              "content": "Up",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 18,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "imports": {
