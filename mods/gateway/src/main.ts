@@ -33,6 +33,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection } from "nats";
 import { AppStore, PrismaAppStore } from "./apps/AppStore";
+import { openUntilReady } from "./apps/openUntilReady";
 import { databaseUrl, GatewayConfig, loadConfig } from "./config";
 import { Gateway } from "./Gateway";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
@@ -188,9 +189,12 @@ async function openDatabase(config: GatewayConfig): Promise<{
     }
   };
   if (config.appStore?.source === "database") {
-    out.apps = await PrismaAppStore.open(prisma, {
-      cacheMs: config.appStore.cacheMs
-    });
+    const cacheMs = config.appStore.cacheMs;
+    out.apps = await openUntilReady(
+      "apps",
+      () => PrismaAppStore.open(prisma, { cacheMs }),
+      logger
+    );
   }
   if (config.workspaceKeys?.enabled) {
     out.workspaceKeys = new RegistryNs.PrismaWorkspaceKeys(prisma, {
@@ -198,7 +202,11 @@ async function openDatabase(config: GatewayConfig): Promise<{
     });
   }
   if (config.registry?.source === "database") {
-    const store = await RegistryNs.PrismaRegistryStore.open(prisma);
+    const store = await openUntilReady(
+      "registry",
+      () => RegistryNs.PrismaRegistryStore.open(prisma),
+      logger
+    );
     timers.push(
       setInterval(
         () =>
@@ -212,9 +220,11 @@ async function openDatabase(config: GatewayConfig): Promise<{
   }
   if (config.webhooks?.enabled && config.webhooks.transport !== "bus") {
     const w = config.webhooks;
-    const store = await Webhooks.PrismaWebhookStore.open(prisma, {
-      adoptOverdue: true
-    });
+    const store = await openUntilReady(
+      "webhooks",
+      () => Webhooks.PrismaWebhookStore.open(prisma, { adoptOverdue: true }),
+      logger
+    );
     hooks = store;
     const dispatcher = new Webhooks.WebhookDispatcher({
       store,
