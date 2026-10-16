@@ -227,7 +227,7 @@ const fonosterConfigSchema = z
     domain: z.string().min(1),
     /** Links in emails. Defaults to https://<domain>. */
     appUrl: z.string().min(1).optional(),
-    /** Browser test calls (WebRTC). Defaults to wss://<domain>:5062. */
+    /** Browser test calls: SIP over WebSocket. Defaults to ws(s)://<appUrl host>/sip. */
     signalingServer: z.string().min(1).optional(),
     server: z
       .object({

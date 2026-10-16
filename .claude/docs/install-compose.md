@@ -60,6 +60,17 @@ Measured on the new installer (coordinator's clean-folder run, 2026-10-15, macOS
   moving them = edit `.env` + re-run `init` (worked). NATS host port 4222 also defaults to a common port.
 - `.env` holds `OWNER_PASSWORD` in plain text (0600).
 
+Owner's run (2026-10-15, macOS, following the page; pre-release files):
+- Step 1: the release URL 404s (v0.30.0 unpublished) — the pre-release path was hidden at the bottom; moved
+  into step 1, then removed again at the owner's request (owner used commands from chat).
+- `$R` / long `npx -p <tgz>` path is error-prone across terminals; an alias helped. Moot once published.
+- `check`: valid, but Ajv printed 6 "unknown format uri/email ignored" lines (noise). FIX NEEDED.
+- `docker compose up`: **project name `fonoster` collides with a legacy install** — reused the legacy
+  `fonoster_db` volume (2025-05), Postgres auth failed, gateway restart-looped. Workaround:
+  COMPOSE_PROJECT_NAME=fonoster-next. FIX NEEDED in the bundle (volume/project name) + a page note.
+- Gateway restarts once at startup (reads apps before apiserver migrations). FIX NEEDED (depends_on).
+- After that: all 11 services up, catalog 37 entries, owner signed in to the dashboard.
+
 ## Decision log
 
 - 2026-10-15 — Page written and wired. Ends signed in to the dashboard; "Make your first call" is the next tutorial (vendor keys → agent → domain/SIP user → trunk/number → softphone). Pre-release accordion to remove at v0.30.0.

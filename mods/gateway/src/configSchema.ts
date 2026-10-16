@@ -238,6 +238,7 @@ export const gatewayConfigSchema = z.object({
     .optional(),
   encryption: z.object({ key: z.string() }).optional(),
   telemetry: z.object({ otlpEndpoint: z.string().optional() }).optional(),
+  testCalls: z.object({ publicKeyFile: z.string().optional() }).optional(),
   testMode: z.boolean().optional()
 });
 

@@ -247,6 +247,11 @@ export type GatewayConfig = {
   encryption?: { key: string };
   /** OTLP export (empty = off): `otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"`. */
   telemetry?: { otlpEndpoint?: string };
+  /**
+   * Browser test calls (add-talk-in-browser D4): calls with `X-Connect-Token` are answered only
+   * when the token verifies with this RS256 public key (Identity's) and names the app's workspace.
+   */
+  testCalls?: { publicKeyFile?: string };
   /** Enables the `fake` adapters (conformance "Implementations ship fake provider adapters"). */
   testMode?: boolean;
 };

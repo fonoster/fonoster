@@ -334,6 +334,8 @@ export class FakeMediaNode extends EventEmitter {
       appRef?: string;
       callRef?: string;
       metadata?: Record<string, unknown>;
+      /** The INVITE's X-* headers (e.g. X-Connect-Token). */
+      headers?: Record<string, string>;
     } = {}
   ) {
     const room = this.createRoom();
@@ -355,7 +357,7 @@ export class FakeMediaNode extends EventEmitter {
       from: call.from ?? "+15550001111",
       to: call.to ?? "+15550002222",
       callerName: "",
-      headers: {},
+      headers: call.headers ?? {},
       metadata: call.metadata ?? {}
     };
     this.events.push({ at: Date.now(), event });

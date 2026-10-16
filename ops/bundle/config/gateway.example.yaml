@@ -18,6 +18,9 @@ encryption: { key: "${ENCRYPTION_KEY}" }
 # OTLP/HTTP export to your collector; empty (the default) is off.
 telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
 appStore: { source: database, cacheMs: 3000 }
+# Browser calls ("Talk to agent") carry the API server's test token: answered only for apps of the
+# token's workspace (Identity's public key).
+testCalls: { publicKeyFile: /etc/fonoster/keys/public.pem }
 registry: { source: database, refreshMs: 5000 }
 workspaceKeys: { enabled: true, cacheMs: 5000 }
 webhooks: { enabled: true, refreshMs: 5000 }

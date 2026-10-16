@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { URL } from "url";
 import { loadServiceConfig, strictDeep } from "@fonoster/common";
 import { IdentityConfig, toIdentityConfig } from "@fonoster/identity";
 import {
@@ -62,9 +63,15 @@ function getAppUrl(config: FonosterConfig = getConfig()) {
   return trimSlash(config.appUrl ?? `https://${config.domain}`);
 }
 
-/** WebRTC signaling server for browser test calls. */
+/**
+ * SIP over WebSocket for browser test calls (add-talk-in-browser D2): `signalingServer`, or
+ * Envoy's `/sip` route on the appUrl origin (http becomes ws, https becomes wss).
+ */
 function getSignalingServer(config: FonosterConfig = getConfig()) {
-  return config.signalingServer ?? `wss://${config.domain}:5062`;
+  if (config.signalingServer) return config.signalingServer;
+  const url = new URL(getAppUrl(config));
+  const scheme = url.protocol === "http:" ? "ws:" : "wss:";
+  return `${scheme}//${url.host}/sip`;
 }
 
 /** Runtime Identity configuration (reads the signing keys once). */
