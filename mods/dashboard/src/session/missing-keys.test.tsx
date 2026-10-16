@@ -25,7 +25,7 @@ import { RegionsApiProvider } from "~/regions/api";
 import { createMockRegionsApi } from "~/regions/mock-api";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
-import { AppsScreen } from ".";
+import { StreamsScreen } from ".";
 import { SessionApiProvider } from "./api";
 import { missingKeys, providersOf } from "./missing-keys";
 import { createMockSessionApi } from "./mock-api";
@@ -62,12 +62,12 @@ function render(
       <RegionsApiProvider value={createMockRegionsApi()}>
         <WorkspaceProvider value={ws}>
           <SessionApiProvider value={api}>
-            <AppsScreen />
+            <StreamsScreen />
           </SessionApiProvider>
         </WorkspaceProvider>
       </RegionsApiProvider>,
       {
-        path: "/w/:workspaceRef/apps/*",
+        path: "/w/:workspaceRef/streams/*",
         route,
         auth: fakeAuth({ status: "signedIn", user: { sub: "u1" } as never }),
         capabilities: regionsCapabilities
@@ -112,8 +112,8 @@ describe("missing provider keys", () => {
     ).toEqual(["openai"]);
   });
 
-  it("warns on the apps list of a private workspace and links to the region", async () => {
-    render("/w/ws-1/apps", {
+  it("warns on the streams list of a private workspace and links to the region", async () => {
+    render("/w/ws-1/streams", {
       ...testWorkspace,
       region: "acme-dallas"
     } as Workspace);
@@ -127,12 +127,19 @@ describe("missing provider keys", () => {
     );
   });
 
-  it("warns on a public workspace's app page and links to Vendor keys", async () => {
+  it("warns in a public workspace's stream drawer and links to Vendor keys", async () => {
     const api = createMockSessionApi();
-    const { ref } = await api.saveApp({ ...app(), ref: "" });
-    render(`/w/ws-1/apps/${ref}`, testWorkspace, api);
+    const { ref } = await api.saveApp({
+      ...app({
+        type: "EXTERNAL",
+        url: "wss://bot.example.com",
+        speech: { voice: "", language: "en-US", sttModel: "openai/whisper" }
+      }),
+      ref: ""
+    });
+    render(`/w/ws-1/streams/${ref}`, testWorkspace, api);
     expect(
-      await screen.findByText(/This app needs a key for openai\./)
+      await screen.findByText(/This stream needs a key for openai\./)
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Add key" })).toHaveAttribute(
       "href",
@@ -141,7 +148,7 @@ describe("missing provider keys", () => {
   });
 
   it("says nothing when every key is there", async () => {
-    render("/w/ws-1/apps");
+    render("/w/ws-1/streams");
     expect(await screen.findByText("Support line")).toBeInTheDocument();
     expect(screen.queryByText(/Missing keys/)).not.toBeInTheDocument();
   });

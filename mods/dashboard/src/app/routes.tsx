@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { Splash } from "~/components/status/splash";
 import { InviteFailedPage, InvitesPage } from "~/auth/invites.page";
 import { PublicOnly, RequireAuth } from "./guards";
@@ -43,6 +43,17 @@ const CreateWorkspace = lazy(
 function screen(path: string, title: string) {
   const Screen = SCREENS[path];
   return Screen ? <Screen /> : <PendingScreen title={title} />;
+}
+
+/** The old /apps and /apps/:ref links: Apps is now Streams. */
+export function AppsRedirect() {
+  const { workspaceRef, "*": rest } = useParams();
+  return (
+    <Navigate
+      to={`/w/${workspaceRef}/streams${rest ? `/${rest}` : ""}`}
+      replace
+    />
+  );
 }
 
 export function AppRoutes() {
@@ -83,6 +94,7 @@ export function AppRoutes() {
                   />
                 )
               )}
+              <Route path="apps/*" element={<AppsRedirect />} />
               <Route path="*" element={<Navigate to="." replace />} />
             </Route>
           </Route>
