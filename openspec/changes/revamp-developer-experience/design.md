@@ -38,8 +38,10 @@ The workspace joins the bundle's network at the media node's fixed address (`<pr
 the aliases `apiserver`, `gateway`, `autopilot`, `medianode`, `dashboard` and `fakes`. The bundle's
 Envoy routes (`apiserver:50051`, `apiserver:9876`, `dashboard:3030`), `apps.autopilotUrl`
 (`ws://autopilot:3000`) and the media node's advertised address work unchanged. The workspace
-mounts `.dev/config` where the bundle's containers find their files (`/config`, `/etc/fonoster`,
-`/opt/fonoster/keys`), so the services find their config and keys with no flags.
+mounts the keys and the provider catalog at the paths the bundle's files name
+(`/opt/fonoster/keys`, `/etc/fonoster/keys`, `/etc/fonoster/catalog.yaml`); the runner passes
+each service its `.dev/config/<service>.yaml` explicitly. The service files are not mounted at
+`/config`, where the media nodes and gateways the tests start would pick them up.
 
 ### D3. Dev config: `fonoster-config init` into `.dev/`, before the containers start
 
@@ -52,7 +54,9 @@ shell and Docker. On the first open it detects the host address and runs the rea
 of `ops/bundle/.env.example` with the dev defaults and of `ops/bundle/config/`), then renders the
 dev layer. Later opens keep `.dev/` as it is. `npm run dev:config` re-runs init and render inside
 the workspace (keeps every secret). `.devcontainer/.env` is a link to `.dev/.env` so Compose reads
-the same values.
+the same values. The script also builds the workspace image (`fonoster-dev-workspace`), which
+Compose then only runs: Compose 5 builds through Bake, which refuses the Dockerfile the
+dev-container client writes outside the build context.
 
 - Alternatives: committed dev secrets (rejected: secrets are generated, never committed); running
   init in post-create (too late for Compose interpolation and for the dependency containers);

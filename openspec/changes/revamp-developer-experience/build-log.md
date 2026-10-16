@@ -41,8 +41,11 @@ Decisions taken while building, for the owner to review. Each can be reversed.
   aliases `apiserver gateway autopilot medianode dashboard fakes`. The bundle's Envoy routes,
   `apps.autopilotUrl`, `routr.apiEndpoint` and the media node's config work unchanged. Only the
   gateway's RTP address is overridden (`.devcontainer/config/gateway.yaml`).
-- `.dev/config` is mounted read-only at `/config`, `/etc/fonoster` and `/opt/fonoster/keys`: the
-  services find their files, keys and catalog at the bundle's paths without flags.
+- Keys and catalog are mounted read-only at the bundle's paths (`/opt/fonoster/keys`,
+  `/etc/fonoster/keys`, `/etc/fonoster/catalog.yaml`); the runner passes `.dev/config/<service>.yaml`
+  explicitly (`--config`, the gateway's first argument, the node's `-config`). First try mounted
+  `.dev/config` at `/config`: the Go media nodes the conformance tests start then loaded the dev
+  `medianode.yaml` and exited (83 failures).
 
 ### DX-B5. Fake providers by default in dev
 
@@ -100,3 +103,27 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 
 - Unchanged; `docs/try-the-new-platform.md`, `compose.yaml` and `docs/operators/rebuild.md` say it
   is not a development path. Suggest renaming it later (e.g. `ops/smoke/stack`) once CI is moved.
+
+### DX-B11. The workspace image is built by initialize.sh
+
+- Compose 5 always builds through Bake, and Bake refuses the `Dockerfile-with-features` the
+  devcontainer CLI (0.80 and 0.89) writes outside the build context ("additional privileges
+  requested: --allow=fs.read=..."); `COMPOSE_BAKE=false` in `.env` is not honored.
+  `initialize.sh` runs `docker build -q -t fonoster-dev-workspace .devcontainer` on every open
+  (cached), and the compose service only names the image (`pull_policy: never`).
+
+### DX-B12. package-lock.json synced with the workspaces
+
+- `npm ci` (post-create) refused the lockfile: `@fonoster/community` and `@fonoster/region-agent`
+  were missing and the voice/Asterisk dependencies were still listed. Regenerated with
+  `npm install --package-lock-only` inside the dev container (npm 10): +112/-1250 lines, no
+  version bumps for kept packages. Shared file: expect a conflict if another stream changed
+  dependencies; re-run the same command after merging. CI uses `npm install` and never noticed.
+
+### DX-B13. Small container fixes
+
+- `libopus-dev` in the image: the media node's Opus codec is cgo (`opus.go`, `cgo && !noopus`).
+- `git config --global --add safe.directory /workspaces/fonoster` in post-create (the checkout
+  is owned by the host user); the dev build uses `go build -buildvcs=false` anyway.
+- The apiserver logs "ignoring 1 legacy environment variable: AUTOPILOT_SIGNING_SECRET" because
+  every process gets all of `.dev/.env`, exactly as the bundle's `env_file` does.

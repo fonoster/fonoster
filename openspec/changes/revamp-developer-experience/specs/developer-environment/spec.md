@@ -69,7 +69,7 @@ change to a component's source MUST restart (or hot-reload) that component only.
 
 #### Scenario: One component alone
 - **WHEN** only `npm run dev:gateway` runs
-- **THEN** the gateway starts with `/config/gateway.yaml` and the secrets from `.dev/.env`
+- **THEN** the gateway starts with `.dev/config/gateway.yaml` and the secrets from `.dev/.env`
 
 ### Requirement: Tests run inside the dev container
 
