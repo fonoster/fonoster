@@ -17,13 +17,17 @@
  * limitations under the License.
  */
 import { TestTokenConfiguration } from "../applications/types";
+import { getConfig } from "../config";
 import { APISERVER_SIGNALING_SERVER } from "../envs";
+
+// Browser test calls reach the media nodes' Peer; the browser names the agent with X-App-Ref
+// (add-talk-in-browser D1).
 
 const testTokenConfig = {
   username: "internal",
   domain: "internal",
   displayName: "Test Call Agent",
-  targetAor: "sip:voice@default",
+  targetAor: getConfig().routr.mediaNodePeer.aor,
   signalingServer: APISERVER_SIGNALING_SERVER
 } as TestTokenConfiguration;
 
