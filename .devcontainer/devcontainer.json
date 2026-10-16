@@ -1,57 +1,42 @@
-// Fonoster dev container. See CONTRIBUTING.md#dev-container.
-// Holds the Node workspace and tooling only; Postgres, NATS, InfluxDB, Routr,
-// RTPEngine, envoy and mailhog run on the host Docker engine from
-// compose.dev.yaml (docker-outside-of-docker).
+// The Fonoster dev container: the only way to develop Fonoster (CONTRIBUTING.md).
+//
+// compose.yaml runs the `workspace` (Node 22, Go, protoc: you run our components here from
+// source with `npm run dev`) and the dependencies from the self-host bundle (Postgres, NATS,
+// Routr, RTPEngine, MinIO, Envoy), which start with the container.
 {
   "name": "Fonoster",
-  "build": { "dockerfile": "Dockerfile" },
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-      "moby": false
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-  // Mount the repo at the same path as on the host. With docker-outside-of-docker
-  // the host daemon resolves compose bind mounts (./.keys, ./etc, ./config, ...),
-  // so container paths must match host paths.
-  "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
-  "workspaceFolder": "${localWorkspaceFolder}",
-  "runArgs": [
-    // The compose services publish their ports on the host. Alias the service
-    // names to the host so config/*.example.yaml (postgres, nats, influxdb, ...)
-    // works unchanged from inside this container.
-    "--add-host=host.docker.internal:host-gateway",
-    "--add-host=postgres:host-gateway",
-    "--add-host=nats:host-gateway",
-    "--add-host=influxdb:host-gateway",
-    "--add-host=routr:host-gateway",
-    "--add-host=envoy:host-gateway",
-    "--add-host=mailhog:host-gateway"
+  "dockerComposeFile": ["compose.yaml"],
+  "service": "workspace",
+  "runServices": [
+    "workspace",
+    "nats",
+    "postgres",
+    "routr",
+    "rtpengine",
+    "minio",
+    "envoy",
+    "nats-test"
   ],
-  // Keep Linux node_modules out of the host checkout (native binaries differ).
-  "mounts": [
-    "source=fonoster-node_modules-${devcontainerId},target=${containerWorkspaceFolder}/node_modules,type=volume"
-  ],
-  // apiserver is published on the host (not just forwarded) so envoy, which
-  // reaches it at DOCKER_HOST_ADDRESS, can call it.
-  "appPort": ["50051:50051"],
-  "forwardPorts": [3030, 6006, 50061, 8449, 8025],
-  "portsAttributes": {
-    "3030": { "label": "dashboard (Vite)" },
-    "6006": { "label": "storybook" },
-    "50051": { "label": "apiserver (gRPC)" },
-    "50061": { "label": "autopilot" },
-    "8449": { "label": "envoy (gRPC-web)" },
-    "8025": { "label": "mailhog" }
-  },
+  "workspaceFolder": "/workspaces/fonoster",
+  // On the host, before the containers exist: the dev config in .dev/ (secrets, keys, service
+  // files), which Compose needs to start the dependencies. Only the first time.
+  "initializeCommand": "sh .devcontainer/initialize.sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "shutdownAction": "stopCompose",
   "remoteUser": "node",
+  // Envoy publishes the dashboard and the API on the host (HTTP_PORT in .dev/.env, 8449 by
+  // default) and Routr publishes SIP (SIP_PORT, 5060): nothing to forward for them.
+  "forwardPorts": [6006],
+  "portsAttributes": {
+    "6006": { "label": "Storybook" }
+  },
   "customizations": {
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "Prisma.prisma",
+        "golang.go",
         "ms-playwright.playwright"
       ]
     }

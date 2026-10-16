@@ -1,0 +1,9 @@
+# Dev layer over .dev/config/gateway.yaml (fonoster-config render --overlay; objects merge, `null`
+# removes a key). Your own overrides: .dev/overlay/gateway.yaml.
+#
+# The gateway runs in the workspace, which has the media node's address.
+rtp: { advertiseHost: "${SUBNET_PREFIX}.42" }
+# Fake TTS and STT (npm run dev:fakes) so calls work without vendor keys.
+testMode: true
+providers:
+  deepgram: { adapter: fake, tts: { url: "http://localhost:7001" }, stt: { url: "ws://localhost:7002" } }

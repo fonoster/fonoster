@@ -8,7 +8,6 @@ on:
       - 'mods/**'
       - 'package.json'
       - 'package-lock.json'
-      - '.env.example.dev'
   workflow_dispatch:
 
 jobs:
@@ -29,8 +28,4 @@ jobs:
         npm run build
 
     - name: Run unit tests
-      run: |
-        # check-preconditions.sh (pretest) requires a .env file to exist.
-        cp .env.example.dev .env
-
-        npm run test
+      run: npm run test

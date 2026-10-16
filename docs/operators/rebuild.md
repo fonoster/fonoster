@@ -47,8 +47,8 @@ development layer on it (builds from source, the `fakes` and `tools` profiles); 
 `docker compose -f ops/bundle/compose.yaml -f ops/rebuild/compose.yaml`, and the root
 `compose.yaml` includes both (give it the stack's env files: `.local/stack.env`, `.local/host.env`,
 `.local/bundle.env`).
-`compose.dev.yaml` is not a deployment: it holds the developer services for running the
-TypeScript services from source.
+Neither is a development setup: contributors use the dev container (CONTRIBUTING.md), which
+takes the dependencies from `ops/bundle/compose.yaml` and runs our services from source.
 
 Compose-level knobs (host ports, tags, ranges) are `${VAR:-default}` values in the file:
 `RB_NATS_PORT`, `RB_SIP_PORT`, `RB_GATEWAY_PORT`, `RB_NODE_*`, `RTPENGINE_PORT_MIN/MAX`, and so on.

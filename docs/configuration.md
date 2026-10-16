@@ -12,9 +12,9 @@ Each Fonoster service reads one file, mounted at `/config/<name>.yaml` in its co
 
 The Compose stack is `ops/bundle/compose.yaml` (with the development layer
 `ops/rebuild/compose.yaml`; the root `compose.yaml` includes both; docs/operators/rebuild.md), and `ops/rebuild/stack up` renders every file
-below for one machine (docs/try-the-new-platform.md). `compose.dev.yaml` holds
-the developer services (Routr, RTPEngine, Postgres, InfluxDB, NATS, Envoy, with
-their environment variables in `.env`) for running the services from source.
+below for one machine (docs/try-the-new-platform.md). In the dev container
+(CONTRIBUTING.md) the same files live in the git-ignored `.dev/config/`, written
+by `fonoster-config init` with the dev layer in `.devcontainer/config/`.
 
 The dashboard is a static app behind nginx. At start-up it writes `/config.js`
 and its Content-Security-Policy from `DASHBOARD_API_URL` (the API's public URL as
@@ -25,15 +25,13 @@ the image, so one image serves Community and Cloud.
 ## Quick start
 
 ```bash
-cp .env.example .env                                   # third-party containers; set the host IP and DASHBOARD_API_URL
-cp config/fonoster.example.yaml config/fonoster.yaml   # API server
-cp config/autopilot-session.example.yaml config/autopilot-session.yaml # Autopilot
-mkdir -p config/keys                                   # signing keys for tokens
-openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:2048 -out config/keys/private.pem
-openssl rsa -in config/keys/private.pem -pubout -out config/keys/public.pem
-chmod 600 config/fonoster.yaml config/autopilot-session.yaml
-docker compose -f compose.dev.yaml up -d   # developer services; the platform: ops/rebuild/stack up
+npx -p @fonoster/common fonoster-config init   # in the bundle folder: .env (secrets), config/*.yaml, keys
+npx -p @fonoster/common fonoster-config check  # validate before starting
+docker compose up -d
 ```
+
+Developing Fonoster: open the repository in its dev container, which does the
+same into `.dev/`, then `npm run dev` (CONTRIBUTING.md).
 
 ## How the files work
 
@@ -79,8 +77,7 @@ features:
 - **`github`**: needs `identity.oauth2.github`. Uses the account's primary
   verified email. Register `<appUrl>/oauth/github/callback` as the OAuth app's
   callback URL. For local and end-to-end testing without a real OAuth app, run
-  the fake GitHub (`node .scripts/fake-github.mjs`, or
-  `docker compose --profile fake-github up fake-github`) and point
+  the fake GitHub (`node .scripts/fake-github.mjs` in the dev container) and point
   `identity.oauth2.github.url` and `apiUrl` at `http://localhost:3999`.
 - **`signup: open`** lets people create their own account (password sign-up,
   or on first email-code/GitHub sign-in). With `invite`, only invited users and

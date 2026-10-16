@@ -90,11 +90,14 @@ static_resources:
                           timeout: 0s
                           max_stream_duration:
                             grpc_timeout_header_max: 0s
+                      # The dashboard; the WebSocket upgrade is for Vite's HMR in the dev container.
                       - match:
                           prefix: "/"
                         route:
                           cluster: dashboard-cluster
                           timeout: 0s
+                          upgrade_configs:
+                            - upgrade_type: websocket
                     cors:
                       allow_origin_string_match:
                         - prefix: "*"

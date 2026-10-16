@@ -16,8 +16,7 @@
     "build": "tsc -b tsconfig.json",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
     "generate:readme": "node ../../.scripts/gen-readme.cjs",
-    "start:hosted": "node dist/session/main.js",
-    "start:dev": "nodemon --exec tsx --watch src src/session/main.ts"
+    "start:hosted": "node dist/session/main.js"
   },
   "files": [
     "dist"

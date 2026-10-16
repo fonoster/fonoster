@@ -59,7 +59,8 @@ cd ../.. && npx mocha --exit --timeout 30000 \
 
 ### Real stack
 
-Real SIP calls need Routr and the whole platform up (see `compose.dev.yaml`). The caller bot
+Real SIP calls need Routr and the whole platform up (the dev container's `npm run dev`, or
+`ops/rebuild/stack up`). The caller bot
 (`go/medianode/cmd/sipcaller`) places the calls; the nightly end-to-end suite is still to be wired
 (conformance tasks 2.5 and 3.11). Until then, run the Go node against the gateway with
 `mods/gateway/test/gonode.test.ts`, which is the closest automated check.
