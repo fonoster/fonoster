@@ -71,6 +71,8 @@ export type RegionsRuntime = {
   relay?: RelayClient;
   signer?: RegionSigner;
   publicRegions: PublicRegion[];
+  /** Private regions are on (signing key + hub); otherwise `routers` is empty. */
+  privateRegions: boolean;
   routers: { path: string; router: Router }[];
   /** A workspace's synced config changed (numbers, apps, Routr resources, webhooks, policy). */
   onConfigChange(accessKeyId: string): void;
@@ -180,6 +182,12 @@ export async function runRegions(
   }
 
   const publicRegions = config.public;
+  // Private regions are an optional integration (the same condition as the
+  // regions.private capability): without the signing key and the hub, the
+  // regions HTTP API is not mounted at all, so its paths 404 like any unknown
+  // path. Workspace placement on the configured public regions (the hooks)
+  // does not use these routes and keeps working.
+  const privateRegions = Boolean(signer && nc);
   const router = createRegionsRouter({
     service,
     configSync,
@@ -195,8 +203,16 @@ export async function runRegions(
       .join(
         ", "
       )} (always offered; an enrolled public region with the same id replaces it once published and connected); enrolled regions ${
-      signer && nc ? "on" : "off (needs regions.signingKey and regions.hub)"
-    }; admin API ${config.operatorKey ? "on" : "off (no regions.operatorKey)"}`
+      privateRegions
+        ? "on"
+        : "off, regions HTTP API not mounted (needs regions.signingKey and regions.hub)"
+    }; admin API ${
+      !privateRegions
+        ? "off (no region hub)"
+        : config.operatorKey
+          ? "on"
+          : "off (no regions.operatorKey)"
+    }`
   );
 
   return {
@@ -205,7 +221,8 @@ export async function runRegions(
     relay,
     signer,
     publicRegions,
-    routers: [{ path: "/", router }],
+    privateRegions,
+    routers: privateRegions ? [{ path: "/", router }] : [],
     onConfigChange: (accessKeyId) => configSync?.onChange(accessKeyId),
     async regionOf(accessKeyId) {
       return (await service.regionOfWorkspace(accessKeyId))?.ref;
