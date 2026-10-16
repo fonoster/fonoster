@@ -25,6 +25,10 @@ CONF="$LOCAL/config"
 STACK_ENV="$LOCAL/stack.env"
 HOST_ENV="$LOCAL/host.env"
 SEED_FILE="$LOCAL/seed.json"
+BUNDLE="$ROOT/ops/bundle"
+BUNDLE_ENV="$LOCAL/bundle.env"
+OVERLAY="$LOCAL/overlay"
+CONFIG_CLI_DIR="$ROOT/mods/common/dist/config/cli"
 
 log() { printf '\033[1m[stack]\033[0m %s\n' "$*" >&2; }
 die() { printf '\033[31m[stack] %s\033[0m\n' "$*" >&2; exit 1; }
@@ -49,11 +53,16 @@ load_env() {
   set +a
 }
 
+profiles() { echo "${RB_PROFILES:-fakes,tools,regions}"; }
+
+# The bundle's compose file (ops/bundle, the one Compose source) with this stack's override.
 compose() {
   load_env
-  local args=(--project-directory "$HERE" -f "$HERE/compose.yaml" --env-file "$STACK_ENV")
+  local args=(--project-directory "$HERE" -f "$BUNDLE/compose.yaml" -f "$HERE/compose.yaml"
+    --env-file "$STACK_ENV")
   [ -f "$HOST_ENV" ] && args+=(--env-file "$HOST_ENV")
-  COMPOSE_PROFILES="${RB_PROFILES:-autopilot,fakes,tools,regions}" docker compose "${args[@]}" "$@"
+  [ -f "$BUNDLE_ENV" ] && args+=(--env-file "$BUNDLE_ENV")
+  COMPOSE_PROFILES="$(profiles)" docker compose "${args[@]}" "$@"
 }
 
 # ---- one-time setup: env file with secrets, keys ----
@@ -160,160 +169,65 @@ render_configs() {
     echo "RB_PUBLIC_API_URL=http://localhost:$RB_API_PORT"
   } > "$HOST_ENV"
 
+  # The bundle's Compose and config names (ops/bundle/.env.example) from the stack's: the base
+  # compose file and the config examples read only these.
+  {
+    echo "# Rendered by ops/rebuild/stack up: ops/bundle names from stack.env and host.env."
+    echo "FONOSTER_VERSION=${RB_TAG:-dev}"
+    echo "CONFIG_DIR=$RB_CONFIG_DIR"
+    echo "COMPOSE_PROFILES=$(profiles)"
+    echo "HOST_IP=$host_ip"
+    echo "SUBNET_PREFIX=$net"
+    echo "HTTP_PORT=$RB_API_PORT"
+    echo "PUBLIC_URL=http://localhost:$RB_API_PORT"
+    echo "SIP_PORT=$RB_SIP_PORT"
+    echo "RTPENGINE_PORT_MIN=$RTPENGINE_PORT_MIN"
+    echo "RTPENGINE_PORT_MAX=$RTPENGINE_PORT_MAX"
+    echo "MEDIANODE_RTP_PORT_MIN=$RB_NODE_RTP_MIN"
+    echo "MEDIANODE_RTP_PORT_MAX=$RB_NODE_RTP_MAX"
+    echo "MINIO_PORT=$RB_MINIO_PORT"
+    echo "MINIO_CONSOLE_PORT=$RB_MINIO_CONSOLE_PORT"
+    echo "NATS_PORT=$RB_NATS_PORT"
+    echo "LEAF_PORT=${RB_LEAF_PORT:-7422}"
+    echo "GRAFANA_PORT=$RB_GRAFANA_PORT"
+    echo "OTLP_HTTP_PORT=$RB_OTLP_HTTP_PORT"
+    echo "CLICKHOUSE_PORT=$RB_CLICKHOUSE_PORT"
+    echo "ENCRYPTION_KEY=$RB_ENCRYPTION_KEY"
+    echo "MEDIANODE_PASSWORD=$RB_NODE_PASSWORD"
+    echo "OWNER_EMAIL=$RB_ADMIN_EMAIL"
+    echo "OWNER_PASSWORD=$RB_ADMIN_PASSWORD"
+  } > "$BUNDLE_ENV"
+  chmod 600 "$BUNDLE_ENV"
 
-  # Routr's EdgePort: SIP on the published port, inside the container too.
-  cat > "$CONF/routr-edgeport.yaml" <<EOF
-kind: EdgePort
-apiVersion: v2beta1
-ref: default
-metadata:
-  region: default
-spec:
-  unknownMethodAction: Discard
-  processor:
-    addr: localhost:51901
-  securityContext:
-    client:
-      protocols: [SSLv3, TLSv1.2]
-      authType: DisabledAll
-    keyStorePassword: changeme
-    trustStorePassword: changeme
-    keyStore: "/etc/routr/certs/signaling.p12"
-    trustStore: "/etc/routr/certs/signaling.p12"
-    keyStoreType: pkcs12
-  methods: [REGISTER, MESSAGE, INVITE, ACK, BYE, CANCEL]
-  transport:
-    - protocol: tcp
-      port: $RB_SIP_INTERNAL_PORT
-    - protocol: udp
-      port: $RB_SIP_INTERNAL_PORT
-EOF
-
-  local db="postgresql://postgres:$POSTGRES_PASSWORD@postgres:5432"
-  local s3_store="{ s3: { bucket: records, endpoint: \"http://minio:9000\", region: us-east-1, forcePathStyle: true, credentials: { accessKeyId: \"$MINIO_ROOT_USER\", secretAccessKey: \"$MINIO_ROOT_PASSWORD\" } } }"
-
-  # The apiserver with its embedded Identity (config/fonoster.example.yaml documents every key).
-  cat > "$CONF/fonoster.yaml" <<EOF
-# Rendered by ops/rebuild/stack up. Local only: holds secrets.
-domain: fonoster.local
-appUrl: http://localhost:$RB_API_PORT
-server: { bindAddr: 0.0.0.0:50051, httpBridgePort: 9876, host: apiserver }
-logs: { level: info, format: text, transport: console }
-database: { url: "$db/fonoster" }
-encryption: { key: "$RB_ENCRYPTION_KEY" }
-authz: { enabled: false }
-features:
-  auth: { methods: [password], signup: invite }
-  billing: { enabled: false }
-  costs: { display: usage }
-# Numbers of apps route to the media nodes' Peer, created at start with this password.
-routr:
-  apiEndpoint: routr:51907
-  mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: "$RB_NODE_PASSWORD" }
-nats: { url: "nats://nats:4222", user: apiserver, password: "secret://env/NATS_APISERVER_PASSWORD" }
-# Autopilot apps point at the hosted Autopilot and share its signing secret (FN-B1).
-apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: "$AUTOPILOT_SIGNING_SECRET" }
-# Required by the schema; unused with callRecords.listCallsFromIndex.
-influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
-callRecords:
-  enabled: true
-  listCallsFromIndex: true
-  stores: [ $s3_store ]
-identity:
-  database: { url: "$db/fnidentity" }
-  audience: api
-  keys: { privateKeyPath: /opt/fonoster/keys/private.pem, publicKeyPath: /opt/fonoster/keys/public.pem }
-  tokens: { accessTokenExpiresIn: 15m, idTokenExpiresIn: 15m, refreshTokenExpiresIn: 24h }
-  security: { contactVerificationRequired: false, twoFactorAuthenticationRequired: false }
-  invites: { expiration: 1d }
-  owner: { name: Admin, email: "$RB_ADMIN_EMAIL", password: "$RB_ADMIN_PASSWORD" }
-EOF
-  # The local public region and its connection details (contract §3a): Routr's published SIP
-  # port and RTPEngine's range on this machine's address. Its id is always `default` (PR-17); it
-  # is the configured fallback (always offered) until an enrolled public region replaces it.
   # The operator key (PR-19) authorizes the region admin API (fonoster-regions create|list|…).
   if [ ! -f "$CONF/keys/region-operator.key" ]; then
     mkdir -p "$CONF/keys"
     printf '%s' "$(openssl rand -hex 24)" > "$CONF/keys/region-operator.key"
   fi
   chmod 644 "$CONF/keys/region-operator.key"
-  cat >> "$CONF/fonoster.yaml" <<EOF
-regions:
-  operatorKey: "secret://file/opt/fonoster/keys/region-operator.key"
-  public:
-    - id: default
-      name: "Local (this machine)"
-      default: true
-      endpoints:
-        sip:
-          - { host: "$host_ip", port: $RB_SIP_PORT, transport: udp }
-          - { host: "$host_ip", port: $RB_SIP_PORT, transport: tcp }
-        signalingAddresses: ["$host_ip"]
-        mediaAddresses: ["$host_ip"]
-        rtpPorts: { min: $RTPENGINE_PORT_MIN, max: $RTPENGINE_PORT_MAX }
-EOF
-  # Private regions (add-private-regions): cells link to the region hub (nats-regions) over a
-  # plain leaf node on this machine; enrollment goes through Envoy's /api.
-  if [ -f "$CONF/region-hub.conf" ]; then
-    cat >> "$CONF/fonoster.yaml" <<EOF
-  controlPlaneUrl: "http://$host_ip:$RB_API_PORT"
-  leafUrl: "nats://$host_ip:${RB_LEAF_PORT:-7422}"
-  allowInsecureLeaf: true
-  signingKey: { file: /opt/fonoster/keys/region-signing.pem }
-  hub:
-    url: "nats://nats-regions:4222"
-    credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds
-    systemCredentialsFile: /opt/fonoster/keys/region-hub/system.creds
-    operatorSeedFile: /opt/fonoster/keys/region-hub/operator.seed
-    accountSeedFile: /opt/fonoster/keys/region-hub/account.seed
-EOF
-  fi
+
+  # The bundle's config folder (static files and examples), then the stack's own layer: fake
+  # providers or vendor keys (overlays deep-merged into the rendered YAML; ops/bundle has neither).
+  cp -R "$BUNDLE/config/." "$CONF/"
+  rm -rf "$OVERLAY" && mkdir -p "$OVERLAY"
 
   # Speech providers: the vendor when its key is present, else the fake (fakes service).
-  local providers=""
-  if [ -n "${DEEPGRAM_API_KEY:-}" ]; then
-    providers+="  deepgram: { adapter: deepgram, capabilities: [tts, stt], credential: { env: DEEPGRAM_API_KEY } }"$'\n'
-  else
-    providers+="  deepgram: { adapter: fake, capabilities: [tts, stt], tts: { url: \"http://fakes:7001\" }, stt: { url: \"ws://fakes:7002\" } }"$'\n'
-  fi
-  if [ -n "${ELEVENLABS_API_KEY:-}" ]; then
-    providers+="  elevenlabs: { adapter: elevenlabs, capabilities: [tts], credential: { env: ELEVENLABS_API_KEY } }"$'\n'
-  fi
-  cat > "$CONF/gateway.yaml" <<EOF
-# Rendered by ops/rebuild/stack up. Local only.
-nats: { url: "nats://nats:4222", user: gateway, password: "secret://env/NATS_GATEWAY_PASSWORD" }
-rtp: { host: 0.0.0.0, advertiseHost: "$net.43" }
-# Fake adapters are allowed (test mode) so the stack runs without vendor keys.
-testMode: true
-providers:
-$providers
-stt: { provider: deepgram }
-# Apps, the catalog (seeded from catalog-seed.yaml at \`up\`), workspace vendor keys and
-# webhooks: the control-plane database (the apiserver's).
-database:
-  url: "$db/fonoster"
-  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
-appStore: { source: database, cacheMs: 3000 }
-registry: { source: database, refreshMs: 5000 }
-workspaceKeys: { enabled: true, cacheMs: 5000 }
-webhooks: { enabled: true, refreshMs: 5000 }
-callRecord:
-  dir: /tmp/fonoster-records
-  region: local
-  signingKey: { kid: local-1, privateKeyFile: /etc/fonoster/keys/records.pem }
-  store: $s3_store
-  recording: off
-EOF
-  # Profile analytics: every sealed record's metrics go to ClickHouse (LO-B6).
-  if [[ ",${RB_PROFILES:-autopilot,fakes,tools,regions}," == *",analytics,"* ]]; then
-    cat >> "$CONF/gateway.yaml" <<EOF
-  analytics:
-    clickhouse: { url: "http://clickhouse:8123", database: fonoster }
-EOF
-  fi
+  {
+    echo "# Fake adapters are allowed (test mode) so the stack runs without vendor keys."
+    echo "testMode: true"
+    echo "providers:"
+    if [ -n "${DEEPGRAM_API_KEY:-}" ]; then
+      echo "  deepgram: { credential: { env: DEEPGRAM_API_KEY } }"
+    else
+      echo "  deepgram: { adapter: fake, tts: { url: \"http://fakes:7001\" }, stt: { url: \"ws://fakes:7002\" } }"
+    fi
+    if [ -n "${ELEVENLABS_API_KEY:-}" ]; then
+      echo "  elevenlabs: { credential: { env: ELEVENLABS_API_KEY } }"
+    fi
+  } > "$OVERLAY/gateway.yaml"
 
-  # The hosted Autopilot: assistants, the catalog and workspace vendor keys from the database. A
-  # language-model provider without a platform key answers through the fake LLM (same ids).
+  # The hosted Autopilot: a language-model provider without a platform key answers through the
+  # fake LLM (same ids).
   local creds="" endpoints="" llm=""
   if [ -n "${GROQ_API_KEY:-}" ]; then
     llm+="groq "; creds+="  groq-default: { env: GROQ_API_KEY }"$'\n'
@@ -326,24 +240,20 @@ EOF
     creds+="  openai-default: { value: fake }"$'\n'; endpoints+="  openai: \"http://fakes:7003\""$'\n'
   fi
   [ -n "$endpoints" ] || endpoints="  {}"
-  cat > "$CONF/autopilot-session.yaml" <<EOF
-# Rendered by ops/rebuild/stack up. Local only.
-host: 0.0.0.0
-port: 3000
-signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
-assistants: { source: database, cacheMs: 3000 }
-registry: { source: database, refreshMs: 5000 }
-workspaceSecrets: { source: database }
-database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
-# Platform keys by the catalog's credentialRef (the fake LLM takes any).
-credentials:
-$creds
-endpoints:
-$endpoints
-EOF
-  chmod 600 "$CONF/fonoster.yaml" "$CONF/gateway.yaml"
+  printf 'credentials:\n%sendpoints:\n%s\n' "$creds" "$endpoints" > "$OVERLAY/autopilot.yaml"
+  # Your own overrides of the rendered configs, kept across runs: .local/overlay.local/<file>.yaml
+  # (merged after the stack's).
+  local mine=()
+  [ -d "$LOCAL/overlay.local" ] && mine=(--overlay "$LOCAL/overlay.local")
+
+  # The same renderer `fonoster-config init` uses (mods/common: fonoster-config render).
+  [ -f "$CONFIG_CLI_DIR/index.js" ] \
+    || die "build @fonoster/common first: (cd mods/common && npx tsc -b && cp -a src/protos dist)"
+  node "$CONFIG_CLI_DIR/index.js" render --config-dir "$CONF" \
+    --env-file "$STACK_ENV" --env-file "$HOST_ENV" --env-file "$BUNDLE_ENV" \
+    --overlay "$OVERLAY" ${mine[@]+"${mine[@]}"} >/dev/null || die "could not render the configs"
   # Containers read these as another user (local only).
-  chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot-session.yaml" \
+  chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot.yaml" \
     "$CONF/routr-edgeport.yaml"
   local speech="${DEEPGRAM_API_KEY:+deepgram }${ELEVENLABS_API_KEY:+elevenlabs }"
   log "host address $host_ip; speech: ${speech:-fake }llm: ${llm:-fake }app defaults: $(default_voice), $(default_model)"
@@ -452,12 +362,12 @@ cmd_call() {
   number="$(seed_get number.telUrl)"; number="${number#tel:}"
   trunk="$(seed_get trunk.inboundUri)"
   wait_for "the caller bot" 30 curl -sf "$caller/calls"
-  log "calling $number through Routr ($RB_NET.40:$RB_SIP_INTERNAL_PORT, request host $trunk)"
+  log "calling $number through Routr ($RB_NET.40:$RB_SIP_PORT, request host $trunk)"
   # Routr answers 480 until the media node has registered (every 15 s): retry for a minute.
   local res state tries=0
   while :; do
     res="$(curl -sS -X POST "$caller/calls" -H 'content-type: application/json' \
-      -d "{\"Target\":\"$RB_NET.40:$RB_SIP_INTERNAL_PORT\",\"RequestHost\":\"$trunk\",\"To\":\"$number\",\"From\":\"+15550001111\"}")"
+      -d "{\"Target\":\"$RB_NET.40:$RB_SIP_PORT\",\"RequestHost\":\"$trunk\",\"To\":\"$number\",\"From\":\"+15550001111\"}")"
     CALL_ID="$(printf '%s' "$res" | json_get id 2>/dev/null || true)"
     [ -n "$CALL_ID" ] || die "the caller bot could not place the call: $res"
     sleep 3
@@ -482,7 +392,7 @@ cmd_ask() {
   local number
   number="$(seed_get number.telUrl)"; number="${number#tel:}"
   wait_for "the caller bot" 30 curl -sf "http://localhost:$RB_CALLER_PORT/calls"
-  RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_INTERNAL_PORT" \
+  RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_PORT" \
     RB_REQUEST_HOST="$(seed_get trunk.inboundUri)" RB_TO="$number" \
     RB_QUESTION="${RB_QUESTION:-$ROOT/mods/gateway/scripts/fixtures/question-fonoster.wav}" \
     RB_OUT="${RB_OUT:-$LOCAL/ask}" node "$HERE/ask.cjs"

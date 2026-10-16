@@ -30,20 +30,22 @@ configured with flags or `MEDIANODE_*` environment variables (a Go binary with n
 ## Start
 
 To try everything on one machine (generated configs and secrets, seed, smoke test), use
-`ops/rebuild/stack up` instead: see `docs/try-the-new-platform.md`. For your own deployment, fill
-`ops/rebuild/config/` (`fonoster.yaml`, `gateway.yaml`, `autopilot-session.yaml`,
-`routr-edgeport.yaml`, and `keys/` with Identity's RSA pair and the
-call-record ES256 key) or point `RB_CONFIG_DIR` at another directory. Load the provider catalog
-into the registry tables once the apiserver has migrated:
-`fonoster-registry apply -f ops/rebuild/config/catalog-seed.yaml --store database`.
+`ops/rebuild/stack up` instead: see `docs/try-the-new-platform.md`. For your own deployment, use
+the self-host bundle (`ops/bundle/`, `ops/bundle/README.md`): `fonoster-config init` (in
+`@fonoster/common`) generates the secrets and keys and renders `config/*.yaml` from
+`config/*.example.yaml`, and `fonoster-config check` validates them.
 
 ```sh
-docker compose -f ops/rebuild/compose.yaml up -d --build            # core
-docker compose -f ops/rebuild/compose.yaml --profile autopilot up -d # + Autopilot sessions
+cd ops/bundle   # or the unpacked release archive
+npx -p @fonoster/common fonoster-config init
+docker compose up -d                                  # core, dashboard and hosted Autopilot
 ```
 
-The root `compose.yaml` includes this file, so `docker compose up` from the repository root runs
-the same stack (give it the same environment, e.g. `--env-file ops/rebuild/.local/stack.env`).
+`ops/bundle/compose.yaml` is the one Compose source. `ops/rebuild/compose.yaml` is the
+development layer on it (builds from source, the `fakes` and `tools` profiles); the stack runs
+`docker compose -f ops/bundle/compose.yaml -f ops/rebuild/compose.yaml`, and the root
+`compose.yaml` includes both (give it the stack's env files: `.local/stack.env`, `.local/host.env`,
+`.local/bundle.env`).
 `compose.dev.yaml` is not a deployment: it holds the developer services for running the
 TypeScript services from source.
 
@@ -165,7 +167,8 @@ callRecord:
 ```
 
 ```sh
-CLICKHOUSE_PASSWORD=... docker compose -f ops/rebuild/compose.yaml --profile analytics up -d
+# COMPOSE_PROFILES=analytics in .env, then fonoster-config init (adds the key)
+docker compose --profile analytics up -d
 ```
 
 With the local stack, add `analytics` to `RB_PROFILES` (`ops/rebuild/stack` then adds the key and
@@ -189,8 +192,8 @@ Tempo (`{ span.fonoster.call_ref = "<ref>" }`) and Loki (structured metadata `fo
 Default profile:
 
 ```sh
-OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318 \
-  docker compose -f ops/rebuild/compose.yaml --profile observability up -d
+# OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318 in the bundle's .env
+docker compose --profile observability up -d
 ```
 
 Grafana is on `RB_GRAFANA_PORT` (3000) with Tempo, Loki and Prometheus provisioned. To use your own

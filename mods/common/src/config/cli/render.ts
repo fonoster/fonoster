@@ -30,7 +30,7 @@ import { writeWithMode } from "./envFile";
  *   #@if <NAME>        ... only when NAME is set and not false, 0 or no
  *
  * Whole-line comments are copied as they are (they may mention `${NAME}`). An overlay folder
- * (the development stack's) may hold a `<name>.<ext>` YAML that is deep-merged into the result:
+ * (the development stack's; several merge in order) may hold a `<name>.<ext>` YAML that is deep-merged into the result:
  * objects merge, other values replace, and `null` removes a key.
  */
 export type Env = Record<string, string | undefined>;
@@ -143,7 +143,8 @@ export type RenderOptions = {
   /** Where rendered files go (default configDir). */
   outDir?: string;
   env: Env;
-  overlayDir?: string;
+  /** Overlay folders, merged in order. */
+  overlayDirs?: string[];
   /** File mode of rendered files (default 0644). */
   mode?: number;
 };
@@ -161,16 +162,23 @@ export function renderConfigDir(options: RenderOptions): string[] {
         options.env,
         `config/${example}`
       );
-      const overlay = options.overlayDir && join(options.overlayDir, name);
-      if (overlay && existsSync(overlay)) {
-        const extra = renderTemplate(
-          readFileSync(overlay, "utf8"),
-          options.env,
-          overlay
-        );
-        text = stringify(deepMerge(parse(text) ?? {}, parse(extra) ?? {}), {
-          lineWidth: 0
-        });
+      const overlays = (options.overlayDirs ?? [])
+        .map((d) => join(d, name))
+        .filter((f) => existsSync(f));
+      if (overlays.length) {
+        let merged: unknown = parse(text) ?? {};
+        for (const overlay of overlays)
+          merged = deepMerge(
+            merged,
+            parse(
+              renderTemplate(
+                readFileSync(overlay, "utf8"),
+                options.env,
+                overlay
+              )
+            ) ?? {}
+          );
+        text = stringify(merged, { lineWidth: 0 });
       }
       rendered.push({ name, text });
     } catch (e) {

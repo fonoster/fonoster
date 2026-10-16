@@ -93,9 +93,7 @@ function runRender(args: Parsed, dir: string, io: Io): number {
     const files = renderConfigDir({
       configDir,
       env: expandEnv(entries),
-      overlayDir: args.flags.overlay
-        ? resolve(String(args.flags.overlay))
-        : undefined
+      overlayDirs: (args.lists.overlay ?? []).map((d) => resolve(d))
     });
     io.out(`rendered ${files.join(", ")}`);
     return 0;
