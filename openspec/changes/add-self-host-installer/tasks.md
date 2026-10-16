@@ -9,7 +9,7 @@
 - [x] 2.1 `ops/bundle/compose.yaml`: images only (`fonoster/<svc>:${FONOSTER_VERSION}`), default + `observability`, `analytics`, `regions` profiles, standard ports from `.env`, no fakes/caller bot
 - [x] 2.2 `ops/bundle/config/*.example.*` with `${NAME}` placeholders for every file `render_configs` writes today, plus `catalog.yaml` and `envoy.yaml`
 - [x] 2.3 `ops/bundle/.env.example` (Compose-level values only) and `ops/bundle/README.md` (three commands + docs link)
-- [ ] 2.4 Turn `ops/rebuild/compose.yaml` into an override (build sections, fakes, tools, 16000-range ports); `ops/rebuild/stack` renders from `ops/bundle/config` examples and runs both files; `stack smoke` passes
+- [x] 2.4 Turn `ops/rebuild/compose.yaml` into an override (build sections, fakes, tools, 16000-range ports); `ops/rebuild/stack` renders from `ops/bundle/config` examples and runs both files; `stack smoke` passes
 
 ## 3. fonoster-config utility
 

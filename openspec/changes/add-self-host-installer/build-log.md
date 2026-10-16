@@ -109,3 +109,12 @@
 - The apiserver in this branch rejects `catalog:` (1.2 is another stream). The smoke run used
   `.local/overlay.local/fonoster.yaml` with `catalog: null` (local, not committed); after the merge
   the example's key works as is. `seed_catalog` is untouched.
+
+### CL-B13. Smoke result
+
+- `ops/rebuild/stack smoke` passed (16000-range ports, call answered, 6 s of audio, record indexed).
+  It ran as project `rb-installer-cli-stack`: the `rb-stack_db` volume left by another worktree's
+  stack holds a different Postgres password (P1000), and other streams' volumes are not mine to
+  delete. Projects share volumes by name; `ops/rebuild/stack reset` in that worktree clears it.
+- Full suite: 1528 passing, 123 pending, 0 failing; mocha then exits 1 from a native
+  `libc++abi ... mutex lock failed` at process exit (not a test failure).
