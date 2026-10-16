@@ -45,10 +45,10 @@ export async function openUntilReady<T>(
     options.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
   const now = options.now ?? Date.now;
   const start = now();
-  for (let attempt = 1; ; attempt++) {
+  const attempt = async (n: number): Promise<T> => {
     try {
       const value = await open();
-      if (attempt > 1) logger.info(`${what} loaded (attempt ${attempt})`);
+      if (n > 1) logger.info(`${what} loaded (attempt ${n})`);
       return value;
     } catch (e) {
       if (now() - start + retryMs > timeoutMs) throw e;
@@ -57,6 +57,8 @@ export async function openUntilReady<T>(
         `${what} not ready yet, retrying in ${retryMs / 1000}s (the API server may still be applying migrations): ${reason}`
       );
       await sleep(retryMs);
+      return attempt(n + 1);
     }
-  }
+  };
+  return attempt(1);
 }
