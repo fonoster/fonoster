@@ -30,9 +30,9 @@ const sandbox = createSandbox();
 const app = {
   ref: "app-1",
   name: "Bot",
-  type: "EXTERNAL",
+  type: "STREAM",
   url: "wss://bot.example.com/session",
-  flavor: "twilio",
+  protocol: "twilio",
   speech: {
     voice: "elevenlabs/rachel",
     language: "en-US",
@@ -107,18 +107,42 @@ describe("@ctl[applications]", function () {
     expect(create).to.not.have.been.called;
   });
 
-  it("rejects an unknown flavor", async function () {
+  it("rejects an unknown protocol", async function () {
     const { error } = await runCommand([
       "applications:create",
       "--name",
       "Bot",
       "--url",
       "wss://x.example.com",
-      "--flavor",
+      "--protocol",
       "plivo"
     ]);
 
-    expect(error?.message).to.match(/Expected --flavor=plivo/);
+    expect(error?.message).to.match(/Expected --protocol=plivo/);
+  });
+
+  it("names the new flag when an old one is used", async function () {
+    const old = await runCommand([
+      "applications:create",
+      "--name",
+      "Bot",
+      "--url",
+      "wss://x.example.com",
+      "--flavor",
+      "native"
+    ]);
+    expect(old.error?.message).to.match(/--flavor was renamed to --protocol/);
+
+    const assistant = await runCommand([
+      "applications:create",
+      "--name",
+      "Bot",
+      "--assistant",
+      "agent.yaml"
+    ]);
+    expect(assistant.error?.message).to.match(
+      /--assistant was renamed to --agent/
+    );
   });
 
   it("updates an app from its current state", async function () {
@@ -139,7 +163,7 @@ describe("@ctl[applications]", function () {
     expect(update.firstCall.args[0]).to.include({
       ref: "app-1",
       name: "Bot",
-      flavor: "twilio",
+      protocol: "twilio",
       recording: "off"
     });
     expect(stdout).to.contain("Application updated: app-1");
@@ -198,7 +222,7 @@ describe("@ctl[applications]", function () {
     expect(stdout).to.contain("…wxyz");
   });
 
-  it("lists apps with kind, flavor, voice and url", async function () {
+  it("lists apps with kind, protocol, voice and url", async function () {
     sandbox
       .stub(SDK.Applications.prototype, "listApplications")
       .resolves({ items: [app] as never, nextPageToken: "" });
@@ -206,7 +230,7 @@ describe("@ctl[applications]", function () {
     const { stdout } = await runCommand(["applications:list"]);
 
     expect(stdout).to.contain("app-1");
-    expect(stdout).to.contain("External");
+    expect(stdout).to.contain("Stream");
     expect(stdout).to.contain("elevenlabs/rachel");
   });
 

@@ -42,9 +42,9 @@ export function formatApplication(app: Application): string {
     "------------------",
     `NAME: \t${app.name}`,
     `REF: \t${app.ref}`,
-    `KIND: \t${app.type === "AUTOPILOT" ? "Autopilot" : "External"}`,
+    `KIND: \t${app.type === "AUTOPILOT" ? "Autopilot agent" : "Stream"}`,
     `URL: \t${or(app.url || app.endpoint)}`,
-    `FLAVOR: \t${or(app.flavor, "native")}`,
+    `PROTOCOL: \t${or(app.protocol, "fonoster")}`,
     ...(app.type === "AUTOPILOT"
       ? [`MODEL: \t${or(assistant?.languageModel?.model)}`]
       : []),

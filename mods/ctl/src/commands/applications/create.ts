@@ -28,8 +28,8 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     "add a new Application to the active Workspace";
   static override readonly examples = [
     "<%= config.bin %> <%= command.id %> --name Bot --url wss://bot.example.com/session",
-    "<%= config.bin %> <%= command.id %> --name Bot --url wss://bot.example.com/media --flavor twilio",
-    "<%= config.bin %> <%= command.id %> --name Receptionist --assistant assistant.yaml --voice deepgram/aura-2-thalia-en",
+    "<%= config.bin %> <%= command.id %> --name Bot --url wss://bot.example.com/media --protocol twilio",
+    "<%= config.bin %> <%= command.id %> --name Receptionist --agent agent.yaml --voice deepgram/aura-2-thalia-en",
     "<%= config.bin %> <%= command.id %> --from-file app.yaml",
     "<%= config.bin %> <%= command.id %>   # asks for the basics"
   ];
@@ -78,17 +78,17 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     const kind = await select({
       message: "Kind",
       choices: [
-        { name: "Your app (WebSocket URL)", value: "external" },
+        { name: "Stream (your WebSocket server)", value: "stream" },
         {
-          name: "Autopilot (hosted, with an assistant file)",
+          name: "Autopilot agent (hosted, with an agent file)",
           value: "autopilot"
         }
       ]
     });
     const answers: Record<string, string> = { name };
     if (kind === "autopilot") {
-      answers.assistant = await input({
-        message: "Assistant file (YAML or JSON)",
+      answers.agent = await input({
+        message: "Agent file (YAML or JSON)",
         required: true
       });
     } else {
@@ -96,11 +96,11 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
         message: "URL (ws:// or wss://)",
         required: true
       });
-      answers.flavor = await select({
-        message: "Flavor",
+      answers.protocol = await select({
+        message: "Protocol",
         choices: [
-          { name: "Native", value: "native" },
-          { name: "Twilio Media Streams", value: "twilio" }
+          { name: "Fonoster", value: "fonoster" },
+          { name: "Twilio-compatible (Media Streams)", value: "twilio" }
         ]
       });
     }

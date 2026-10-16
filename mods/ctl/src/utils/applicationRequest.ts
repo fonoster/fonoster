@@ -25,13 +25,16 @@ import {
 } from "@fonoster/types";
 import { load } from "js-yaml";
 
-// The session app model (voice-session G2): a WebSocket URL + flavor + speech defaults, or an
-// Autopilot app (our hosted Autopilot + an assistant). The control plane replaces the whole app
+// The application model (voice-session G2): a stream (a WebSocket URL + protocol + speech
+// defaults), or an Autopilot agent (our hosted Autopilot + an agent file). The control plane replaces the whole app
 // on update, so updates start from the current app and apply the changes (CLI-B1).
 
 type ApplicationFlags = {
   name?: string;
   url?: string;
+  protocol?: string;
+  agent?: string;
+  /** Renamed flags (0.30): rejected with a clear error. */
   flavor?: string;
   assistant?: string;
   voice?: string;
@@ -107,7 +110,7 @@ function applicationToRequest(app: Application): AppRequest {
   const request: AppRequest = {
     name: app.name,
     type: app.type,
-    flavor: (app.flavor || undefined) as AppRequest["flavor"],
+    protocol: (app.protocol || undefined) as AppRequest["protocol"],
     speech: compact({ ...(app.speech ?? {}) }),
     audio: app.audio?.codec ? app.audio : undefined,
     fallbackAppRef: app.fallbackAppRef || undefined,
@@ -118,7 +121,7 @@ function applicationToRequest(app: Application): AppRequest {
       ? compact({ enabled: true, windowMs: app.amd.windowMs })
       : undefined
   };
-  // Autopilot apps follow the operator's hosted Autopilot URL; only external apps carry theirs.
+  // Autopilot apps follow the operator's hosted Autopilot URL; only streams carry theirs.
   if (app.type !== "AUTOPILOT") request.url = app.url || app.endpoint;
   const config = app.intelligence?.config;
   if (app.type === "AUTOPILOT" && config && Object.keys(config).length) {
@@ -127,8 +130,14 @@ function applicationToRequest(app: Application): AppRequest {
   return compact(request as unknown as Record<string, unknown>) as AppRequest;
 }
 
-/** A file in the new app model; `assistant` (inline) makes it an Autopilot app. */
+/** A file in the new app model; `assistant` (inline) makes it an Autopilot agent. */
 function fileToRequest(raw: Record<string, unknown>): AppRequest {
+  if (raw.flavor !== undefined)
+    throw new Error(
+      "`flavor` was renamed to `protocol` (fonoster or twilio; native is now fonoster)"
+    );
+  if (raw.type === "EXTERNAL")
+    throw new Error("type EXTERNAL was renamed to STREAM");
   const { assistant, ...rest } = raw as Record<string, unknown> & {
     assistant?: Record<string, unknown>;
   };
@@ -139,7 +148,7 @@ function fileToRequest(raw: Record<string, unknown>): AppRequest {
     request.type = "AUTOPILOT" as AppRequest["type"];
     request.intelligence = intelligenceFor(assistant);
   }
-  // Never send a model key that sits in an assistant file; keys live in the vendor keys.
+  // Never send a model key that sits in an agent file; keys live in the vendor keys.
   const lm = (
     request.intelligence?.config as
       | { languageModel?: Record<string, unknown> }
@@ -159,15 +168,21 @@ function applyFlags(base: AppRequest, flags: ApplicationFlags): AppRequest {
     listeners: [...(base.listeners ?? [])]
   };
 
+  if (flags.assistant !== undefined)
+    throw new Error("--assistant was renamed to --agent");
+  if (flags.flavor !== undefined)
+    throw new Error(
+      "--flavor was renamed to --protocol (fonoster or twilio; native is now fonoster)"
+    );
   if (flags.name !== undefined) request.name = flags.name;
-  if (flags.assistant) {
-    const assistant = readConfigFile(flags.assistant);
+  if (flags.agent) {
+    const assistant = readConfigFile(flags.agent);
     request.type = "AUTOPILOT" as AppRequest["type"];
     request.intelligence = fileToRequest({ assistant }).intelligence;
   }
   if (flags.url !== undefined) request.url = flags.url;
-  if (flags.flavor !== undefined)
-    request.flavor = flags.flavor as AppRequest["flavor"];
+  if (flags.protocol !== undefined)
+    request.protocol = flags.protocol as AppRequest["protocol"];
 
   const speech = request.speech!;
   if (flags.voice !== undefined) speech.voice = flags.voice;
@@ -210,7 +225,7 @@ function applyFlags(base: AppRequest, flags: ApplicationFlags): AppRequest {
     request.amd = windowMs ? { enabled: true, windowMs } : { enabled: true };
   }
 
-  if (!request.type) request.type = "EXTERNAL" as AppRequest["type"];
+  if (!request.type) request.type = "STREAM" as AppRequest["type"];
   return request;
 }
 
@@ -219,9 +234,9 @@ function checkRequest(request: AppRequest) {
   if (!request.name) throw new Error("a name is required (--name)");
   if (request.type === "AUTOPILOT") {
     if (!request.intelligence?.config)
-      throw new Error("an Autopilot app needs an assistant (--assistant)");
-    if (request.flavor && request.flavor !== "native")
-      throw new Error("Autopilot apps use the native flavor");
+      throw new Error("an Autopilot agent needs an agent file (--agent)");
+    if (request.protocol && request.protocol !== "fonoster")
+      throw new Error("Autopilot agents use the fonoster protocol");
   } else if (!request.url) {
     throw new Error("a url is required (--url ws:// or wss://)");
   }

@@ -10,7 +10,7 @@ Command-Line for Fonoster
 
 Use this tool to manage your Fonoster resources from the command line. With this tool, you can create, update, and delete resources like Applications, Numbers, SIP Agents, and more.
 
-On the new platform: `applications:*` manage session apps (WebSocket URL, flavor, speech defaults as catalog ids, listeners, recording, fallback) and Autopilot apps (`--assistant`); `webhooks:*` manage workspace webhooks and their delivery log; `records:*` search call records and download recordings and vCons; `providers:*` list the provider catalog and manage the workspace's vendor keys. See [Try the new platform](../../docs/try-the-new-platform.md#from-the-terminal).
+On the new platform: `applications:*` manage streams (your WebSocket server: URL, protocol, speech defaults as catalog ids, listeners, recording, fallback) and Autopilot agents (`--agent`); `webhooks:*` manage workspace webhooks and their delivery log; `records:*` search call records and download recordings and vCons; `providers:*` list the provider catalog and manage the workspace's vendor keys. See [Try the new platform](../../docs/try-the-new-platform.md#from-the-terminal).
 
 > When connecting to your own instance of Fonoster, remember to use your endpoint when login in. Also, remember to use the `--insecure` flag when connecting to a server with no TLS.
 
@@ -203,27 +203,27 @@ add a new Application to the active Workspace
 
 ```
 USAGE
-  $ fonoster applications:create [-i] [-f <value>] [-n <value>] [-u <value>] [--flavor native|twilio] [-a <value>]
+  $ fonoster applications:create [-i] [-f <value>] [-n <value>] [-u <value>] [--protocol fonoster|twilio] [-a <value>]
     [--voice <value>] [--language <value>] [--stt-model <value>] [--tts-model <value>] [--silence-timeout <value>]
     [--patience low|normal|high] [--audio-codec pcm16|pcmu] [--audio-rate <value>] [--fallback-app <value>]
     [--fallback-message <value>] [-l <value>...] [--clear-listeners] [--recording off|on|consent]
 
 FLAGS
-  -a, --assistant=<value>         a YAML or JSON assistant file; makes it an Autopilot app (hosted by Fonoster)
+  -a, --agent=<value>             a YAML or JSON agent file; makes it an Autopilot agent (hosted by Fonoster)
   -f, --from-file=<value>         a YAML or JSON file with the Application (an `assistant` key makes it an Autopilot
-                                  app)
+                                  agent)
   -i, --insecure                  allow connections to a server with no TLS
   -l, --listener=<value>...       a listen-only socket: <wss-url>[,inbound|outbound|both] (repeatable, at most 4)
   -n, --name=<value>              the Application name
-  -u, --url=<value>               the app's WebSocket URL (ws:// or wss://)
-      --audio-codec=<option>      audio frames for native apps
+  -u, --url=<value>               the stream's WebSocket URL (ws:// or wss://)
+      --audio-codec=<option>      audio frames for fonoster-protocol streams
                                   <options: pcm16|pcmu>
-      --audio-rate=<value>        audio sample rate for native apps: 8000, 16000 or 24000 (pcmu is 8000 only)
+      --audio-rate=<value>        audio sample rate for fonoster-protocol streams: 8000, 16000 or 24000 (pcmu is 8000 only)
       --clear-listeners           remove the current listeners (update; combine with --listener to replace)
       --fallback-app=<value>      the Application to hand the call to when this app fails
       --fallback-message=<value>  what the caller hears when the app fails and no fallback app answers
-      --flavor=<option>           the session protocol the app speaks
-                                  <options: native|twilio>
+      --protocol=<option>         the protocol the stream speaks
+                                  <options: fonoster|twilio>
       --language=<value>          speech language (e.g. en-US)
       --patience=<option>         how long to wait before taking the turn
                                   <options: low|normal|high>
@@ -240,9 +240,9 @@ DESCRIPTION
 EXAMPLES
   $ fonoster applications:create --name Bot --url wss://bot.example.com/session
 
-  $ fonoster applications:create --name Bot --url wss://bot.example.com/media --flavor twilio
+  $ fonoster applications:create --name Bot --url wss://bot.example.com/media --protocol twilio
 
-  $ fonoster applications:create --name Receptionist --assistant assistant.yaml --voice deepgram/aura-2-thalia-en
+  $ fonoster applications:create --name Receptionist --agent agent.yaml --voice deepgram/aura-2-thalia-en
 
   $ fonoster applications:create --from-file app.yaml
 
@@ -276,7 +276,7 @@ _See code: [dist/commands/applications/delete.js](https://github.com/fonoster/fo
 
 ## `fonoster applications:eval`
 
-experimental command to test an Autopilot application
+experimental command to test an Autopilot agent
 
 ```
 USAGE
@@ -290,16 +290,16 @@ FLAGS
       --output-file=<value>  write JSON summary to this file (with pretty: also show streamed output)
 
 DESCRIPTION
-  experimental command to test an Autopilot application
+  experimental command to test an Autopilot agent
 
 EXAMPLES
-  $ fonoster applications:eval -f assistant.json
+  $ fonoster applications:eval -f agent.json
 
-  $ fonoster applications:eval -f assistant.yaml
+  $ fonoster applications:eval -f agent.yaml
 
-  $ fonoster applications:eval -f assistant.yaml -o json
+  $ fonoster applications:eval -f agent.yaml -o json
 
-  $ fonoster applications:eval -f assistant.yaml -o json --output-file results.json
+  $ fonoster applications:eval -f agent.yaml -o json --output-file results.json
 ```
 
 _See code: [dist/commands/applications/eval.js](https://github.com/fonoster/fonoster/blob/v0.27.0/dist/commands/applications/eval.js)_
@@ -377,7 +377,7 @@ modify an Application (only the fields you pass change)
 
 ```
 USAGE
-  $ fonoster applications:update [REF] [-i] [-f <value>] [-n <value>] [-u <value>] [--flavor native|twilio] [-a <value>]
+  $ fonoster applications:update [REF] [-i] [-f <value>] [-n <value>] [-u <value>] [--protocol fonoster|twilio] [-a <value>]
     [--voice <value>] [--language <value>] [--stt-model <value>] [--tts-model <value>] [--silence-timeout <value>]
     [--patience low|normal|high] [--audio-codec pcm16|pcmu] [--audio-rate <value>] [--fallback-app <value>]
     [--fallback-message <value>] [-l <value>...] [--clear-listeners] [--recording off|on|consent]
@@ -386,21 +386,21 @@ ARGUMENTS
   [REF]  the Application to update (optional when `ref` is set in --from-file)
 
 FLAGS
-  -a, --assistant=<value>         a YAML or JSON assistant file; makes it an Autopilot app (hosted by Fonoster)
+  -a, --agent=<value>             a YAML or JSON agent file; makes it an Autopilot agent (hosted by Fonoster)
   -f, --from-file=<value>         a YAML or JSON file with the Application (an `assistant` key makes it an Autopilot
-                                  app)
+                                  agent)
   -i, --insecure                  allow connections to a server with no TLS
   -l, --listener=<value>...       a listen-only socket: <wss-url>[,inbound|outbound|both] (repeatable, at most 4)
   -n, --name=<value>              the Application name
-  -u, --url=<value>               the app's WebSocket URL (ws:// or wss://)
-      --audio-codec=<option>      audio frames for native apps
+  -u, --url=<value>               the stream's WebSocket URL (ws:// or wss://)
+      --audio-codec=<option>      audio frames for fonoster-protocol streams
                                   <options: pcm16|pcmu>
-      --audio-rate=<value>        audio sample rate for native apps: 8000, 16000 or 24000 (pcmu is 8000 only)
+      --audio-rate=<value>        audio sample rate for fonoster-protocol streams: 8000, 16000 or 24000 (pcmu is 8000 only)
       --clear-listeners           remove the current listeners (update; combine with --listener to replace)
       --fallback-app=<value>      the Application to hand the call to when this app fails
       --fallback-message=<value>  what the caller hears when the app fails and no fallback app answers
-      --flavor=<option>           the session protocol the app speaks
-                                  <options: native|twilio>
+      --protocol=<option>         the protocol the stream speaks
+                                  <options: fonoster|twilio>
       --language=<value>          speech language (e.g. en-US)
       --patience=<option>         how long to wait before taking the turn
                                   <options: low|normal|high>
@@ -417,7 +417,7 @@ DESCRIPTION
 EXAMPLES
   $ fonoster applications:update <ref> --voice elevenlabs/rachel --patience high
 
-  $ fonoster applications:update <ref> --assistant assistant.yaml
+  $ fonoster applications:update <ref> --agent agent.yaml
 
   $ fonoster applications:update <ref> --clear-listeners --listener wss://rec.example.com/ws,inbound
 
