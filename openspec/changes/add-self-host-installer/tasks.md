@@ -1,7 +1,7 @@
 ## 1. Shared code moves
 
 - [ ] 1.1 Move `generateRegionHub` and its NATS JWT helpers from `mods/apiserver/src/regions/` to `mods/common/src/regions/hub/`; apiserver imports from `@fonoster/common`; `mods/apiserver/test/regions` passes unchanged
-- [ ] 1.2 Apiserver applies the catalog file named in `catalog.file` on every start (add/update, never delete); tests for first boot and restart-no-change
+- [x] 1.2 Apiserver applies the catalog file named in `catalog.file` on every start (add/update, never delete); tests for first boot and restart-no-change
 - [ ] 1.3 Remove `seed_catalog` from `ops/rebuild/stack`; `stack smoke` still passes
 
 ## 2. Bundle source
@@ -20,7 +20,7 @@
 
 ## 4. Local bundle build
 
-- [ ] 4.1 Export each service's config schema to JSON Schema (apiserver, identity, gateway, autopilot) as a build step
+- [x] 4.1 Export each service's config schema to JSON Schema (apiserver, identity, gateway, autopilot) as a build step
 - [ ] 4.2 `ops/release/bundle [version]`: build images tagged `fonoster/<svc>:<version>`, render the archive, `npm pack` `@fonoster/common`, write `dist/release/<version>/`
 - [ ] 4.3 Scan test: archive files and `init`/`info`/`check` output contain no `rebuild` or `RB_`
 

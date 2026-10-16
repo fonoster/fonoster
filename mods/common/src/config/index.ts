@@ -26,3 +26,4 @@ export * from "./resolveConfigFile";
 export * from "./resolveSecretRefs";
 export * from "./strictDeep";
 export * from "./natsConnection";
+export * from "./toJsonSchema";
