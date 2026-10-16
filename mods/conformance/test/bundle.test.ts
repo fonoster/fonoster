@@ -55,6 +55,8 @@ type Service = {
   env_file?: unknown;
   volumes?: string[];
   environment?: Record<string, string>;
+  depends_on?: Record<string, { condition: string }>;
+  healthcheck?: { test: string[] };
 };
 
 function filesUnder(dir: string): string[] {
@@ -136,6 +138,31 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       // Settings come from the file, not from per-service variables.
       expect(s.environment, svc).to.equal(undefined);
     }
+  });
+
+  it("never reuses a legacy install's volumes (same project name, fonoster)", function () {
+    // The root compose.yaml of Fonoster 0.27 and older named its volumes db and influxdb.
+    const legacy = ["db", "influxdb"];
+    const names = Object.keys(compose.volumes as Record<string, unknown>);
+    expect(names).to.not.be.empty;
+    for (const name of names) expect(legacy, name).to.not.include(name);
+    for (const [svc, s] of Object.entries(services))
+      for (const v of s.volumes ?? []) {
+        const source = v.split(":")[0];
+        expect(legacy, `${svc}: ${v}`).to.not.include(source);
+      }
+  });
+
+  it("starts the gateway and Autopilot after the API server is migrated and serving", function () {
+    expect(services.apiserver.healthcheck?.test).to.deep.equal([
+      "CMD",
+      "node",
+      "/work/mods/apiserver/dist/bin/healthcheck.js"
+    ]);
+    for (const svc of ["gateway", "autopilot"])
+      expect(services[svc].depends_on?.apiserver, svc).to.deep.equal({
+        condition: "service_healthy"
+      });
   });
 
   it("never says rebuild or RB_", function () {
