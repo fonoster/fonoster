@@ -14,8 +14,8 @@
 #   docker compose --env-file ops/rebuild/.local/stack.env --env-file ops/rebuild/.local/host.env \
 #     --env-file ops/rebuild/.local/bundle.env up -d
 #
-# Self-hosting without a checkout: ops/bundle/README.md. Developer services for running the
-# TypeScript services from source: compose.dev.yaml.
+# Self-hosting without a checkout: ops/bundle/README.md. Developing Fonoster: the dev container
+# (.devcontainer/, CONTRIBUTING.md); this file is the smoke/CI harness, not a development path.
 include:
   - path: [ops/bundle/compose.yaml, ops/rebuild/compose.yaml]
     project_directory: ops/rebuild

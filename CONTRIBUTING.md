@@ -6,7 +6,6 @@
   * [Ask for Help](#ask-for-help)
   * [Pull Request Lifecycle](#pull-request-lifecycle)
   * [Development Environment Setup](#development-environment-setup)
-    * [Dev Container](#dev-container)
   * [Sign your Commits](#sign-your-commits)
   * [Pull Request Checklist](#pull-request-checklist)
 
@@ -80,32 +79,32 @@ Depending on the project's roadmap and priorities, you might also be asked to:
 
 ## Development Environment Setup
 
-See our [Development environment setup](https://github.com/fonoster/fonoster/tree/main/docs/self-hosting) guide to get started locally.
+The [dev container](https://containers.dev) is the only way to develop Fonoster. You need Docker
+and VS Code with the Dev Containers extension (or a Codespace, or the
+[devcontainer CLI](https://github.com/devcontainers/cli)). Nothing else goes on your machine.
 
-### Dev Container
-
-The repo ships a [dev container](https://containers.dev) (`.devcontainer/`) with Node 20, git, the GitHub CLI, `protoc`, the OpenSpec CLI, and Playwright Chromium. Open the repo in VS Code and choose **Reopen in Container**, start a GitHub Codespace, or use the CLI:
-
-```bash
-npx @devcontainers/cli up --workspace-folder .
-npx @devcontainers/cli exec --workspace-folder . bash
-```
-
-On first start it runs `npm ci`, copies `.env.example.dev` to `.env` and `config/*.example.yaml` to `config/*.yaml` (only if they're missing), generates `.keys/`, and installs Chromium for Playwright.
-
-The container holds the Node workspace and tooling only. Postgres, NATS, InfluxDB, Routr, RTPEngine, envoy and mailhog keep running on your host's Docker engine. The container talks to that engine through the mounted Docker socket, so from inside it you can run:
+1. Clone the repository (a regular clone, not a `git worktree`) and choose **Reopen in Container**
+   (CLI: `npx @devcontainers/cli up --workspace-folder .`).
+2. The first time, it writes the dev config to `.dev/` (secrets, keys and service files from
+   `fonoster-config init`; git-ignored), starts the dependencies (Postgres, NATS, Routr,
+   RTPEngine, MinIO, Envoy) and then installs and builds everything. It ends by printing the
+   dashboard URL and the owner login.
+3. In the container's terminal, start our components from source:
 
 ```bash
-npm run start:services   # docker compose -f compose.dev.yaml up ...
+npm run dev            # all of them, with prefixed logs
+npm run dev:gateway    # or one: dev:apiserver, dev:gateway, dev:autopilot, dev:medianode, dev:dashboard, dev:fakes
 ```
 
-The repo is mounted at the same path as on your host, so the bind mounts in the compose files (`./.keys`, `./etc`, `./config`) resolve correctly on the host's Docker engine. Those services publish their ports on the host. Inside the container, `postgres`, `nats`, `influxdb`, `routr`, `envoy` and `mailhog` resolve to the host, so the example configs work as they are. The apiserver's port 50051 is published on the host, which lets envoy reach it at `DOCKER_HOST_ADDRESS`. Ports 3030 (dashboard), 6006 (Storybook), 50061 (autopilot), 8449 (envoy) and 8025 (mailhog) are forwarded.
+Each one reloads when you save its source (the media node is rebuilt). Open the dashboard at
+`http://localhost:8449` and sign in with the login `npm run dev:info` prints. Calls use fake
+speech and language-model providers, so no vendor keys are needed.
 
-Notes:
+Run the tests in the same terminal: `npm test` (its NATS and database are the dev container's test
+services), `npm test -w @fonoster/dashboard`, and `cd go/medianode && go test ./...`.
 
-- `node_modules` at the root lives in a Docker volume, so the Linux build never overwrites your host's install. Per-package `mods/*/node_modules` folders are still shared with the host checkout.
-- Run the dev container from a regular clone, not a `git worktree`. In a worktree, `.git` points to a host path that doesn't exist inside the container, so git and the husky hooks fail.
-- Running `npm ci` or `npm install` inside the container regenerates the committed Prisma client in `mods/identity/src/generated` for Linux. That adds a `libquery_engine-linux-*.so.node` file and rewrites paths in `index.js`, `edge.js` and `wasm.js`. Don't commit that diff. The same thing already happens on any host other than the one that last generated the client.
+`npm run dev:config` renders `.dev/` again after you change a config example or your overrides in
+`.dev/overlay/<service>.yaml`; every secret is kept.
 
 ## Sign your Commits
 

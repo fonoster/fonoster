@@ -65,7 +65,6 @@ jobs:
         CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
         LOGS_LEVEL: none
       run: |
-        cp .env.example.dev .env
         npx mocha --exit --timeout 30000 \
           'mods/gateway/test/conformance.test.ts' \
           'mods/gateway/test/integration.test.ts' \
@@ -123,7 +122,6 @@ jobs:
       run: |
         npm install
         npm run build
-        cp .env.example.dev .env
         python -m pip install -r python/pipecat-golden/requirements.txt
 
     - name: Timing (T1)

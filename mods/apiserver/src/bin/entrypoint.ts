@@ -32,7 +32,7 @@
  */
 import { spawnSync } from "child_process";
 import { createConnection } from "net";
-import { join } from "path";
+import { extname, join } from "path";
 import { getConfig, getIdentityConfig } from "../config";
 
 const argv = process.argv;
@@ -151,10 +151,15 @@ async function main() {
     }
   );
 
+  // From source (the dev container runs this file with tsx) the seed is a .ts file and needs
+  // the same loader flags; in the image, dist/core/seed.js and no flags.
   run(
     "seed",
     process.execPath,
-    [join(__dirname, "..", "core", "seed.js")],
+    [
+      ...process.execArgv,
+      join(__dirname, "..", "core", `seed${extname(__filename)}`)
+    ],
     process.cwd(),
     {
       APISERVER_DATABASE_URL: config.database.url

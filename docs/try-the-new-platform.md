@@ -1,5 +1,8 @@
 # Try the new platform on your machine
 
+> To develop Fonoster, use the dev container instead (CONTRIBUTING.md). This stack runs every
+> component as a container; it is what `ops/rebuild/stack smoke` and CI use.
+
 One command starts the whole rebuilt Fonoster on your laptop: the control plane (API server with
 Identity, dashboard) and the new voice path (Routr, Go media node, VoiceSessionGateway, hosted
 Autopilot), with call records in MinIO. Another seeds a demo workspace with an Autopilot app you
