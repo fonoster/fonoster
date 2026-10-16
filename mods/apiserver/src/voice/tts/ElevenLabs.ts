@@ -48,7 +48,8 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   ): { ref: string; stream: Readable } {
     this.logSynthesisRequest(text, options);
 
-    const { voice, model } = this.engineConfig.config;
+    const { model } = this.engineConfig.config;
+    const voice = this.resolveVoice(options, this.engineConfig.config.voice);
     const ref = this.createMediaReference();
 
     const stream = createChunkedSynthesisStream(text, async (chunkText) => {

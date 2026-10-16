@@ -25,6 +25,8 @@ type SayRequest = VerbRequest & {
 };
 
 type SayOptions = {
+  // Overrides the application's configured TTS voice for this request only
+  voice?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 };

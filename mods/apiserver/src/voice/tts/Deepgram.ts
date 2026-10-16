@@ -48,7 +48,11 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   ): { ref: string; stream: Readable } {
     this.logSynthesisRequest(text, options);
 
-    const { voice } = this.engineConfig.config;
+    const voice = this.resolveVoice(
+      options,
+      this.engineConfig.config.voice,
+      DeepgramVoice
+    );
     const ref = this.createMediaReference();
     const selectedVoice =
       (voice as DeepgramVoice) || DeepgramVoice.AURA_ASTERIA_EN;
