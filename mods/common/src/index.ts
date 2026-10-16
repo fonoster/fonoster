@@ -41,3 +41,4 @@ export * as CellSecrets from "./cellsecrets";
 export * from "./telemetry";
 export * from "./net";
 export * as Sessions from "./sessions";
+export * as RegionHub from "./regions/hub";

@@ -28,6 +28,7 @@
     "@grpc/grpc-js": "~1.10.11",
     "@grpc/proto-loader": "^0.7.15",
     "@influxdata/influxdb-client": "^1.35.0",
+    "ajv": "^8.17.1",
     "dotenv": "^16.6.1",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",
@@ -35,6 +36,7 @@
     "jsonc-parser": "^3.2.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
+    "nkeys.js": "^1.1.0",
     "nodemailer": "^6.10.1",
     "pb-util": "^1.0.3",
     "twilio": "^5.11.1",
@@ -62,6 +64,7 @@
   },
   "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
   "bin": {
-    "fonoster-registry": "dist/registry/cli.js"
+    "fonoster-registry": "dist/registry/cli.js",
+    "fonoster-config": "dist/config/cli/index.js"
   }
 }

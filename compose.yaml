@@ -1,18 +1,21 @@
-# Fonoster on Docker Compose: the platform stack in ops/rebuild/compose.yaml (NATS with JetStream,
+# Fonoster on Docker Compose: the self-host bundle (ops/bundle/compose.yaml: NATS with JetStream,
 # Postgres, Routr, RTPEngine, the Go media node, the VoiceSessionGateway, MinIO, the apiserver,
-# Envoy, the dashboard; profiles autopilot, fakes, tools, regions, observability, analytics).
+# Envoy, the dashboard, the hosted Autopilot; profiles regions, observability, analytics) with the
+# development layer (ops/rebuild/compose.yaml: builds from source, profiles fakes and tools).
 # Asterisk and InfluxDB are gone.
 #
-# The easy way, which generates configs, keys and secrets and runs that file:
+# The easy way, which generates configs, keys and secrets and runs both files:
 #
 #   ops/rebuild/stack up                       # docs/try-the-new-platform.md
 #
 # Running this file directly needs the same inputs the stack generates (operator guide:
 # docs/operators/rebuild.md):
 #
-#   docker compose --env-file ops/rebuild/.local/stack.env --profile autopilot up -d
+#   docker compose --env-file ops/rebuild/.local/stack.env --env-file ops/rebuild/.local/host.env \
+#     --env-file ops/rebuild/.local/bundle.env up -d
 #
-# Developer services for running the TypeScript services from source: compose.dev.yaml.
+# Self-hosting without a checkout: ops/bundle/README.md. Developer services for running the
+# TypeScript services from source: compose.dev.yaml.
 include:
-  - path: ops/rebuild/compose.yaml
+  - path: [ops/bundle/compose.yaml, ops/rebuild/compose.yaml]
     project_directory: ops/rebuild

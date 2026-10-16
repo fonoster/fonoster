@@ -1,0 +1,37 @@
+# The voice gateway. `fonoster-config init` writes config/gateway.yaml from this file, filling
+# each ${NAME} from .env.
+nats: { url: "nats://nats:4222", user: gateway, password: "${NATS_GATEWAY_PASSWORD}" }
+# The RTP leg to the media node, on the gateway's fixed address.
+rtp: { host: 0.0.0.0, advertiseHost: "${SUBNET_PREFIX}.43" }
+# Speech vendors. No platform keys: each workspace adds its own in the dashboard (workspaceKeys).
+# For a platform key every workspace shares, add `credential: { value: "<key>" }`.
+providers:
+  deepgram: { adapter: deepgram, capabilities: [tts, stt] }
+  elevenlabs: { adapter: elevenlabs, capabilities: [tts] }
+stt: { provider: deepgram }
+# Apps, the catalog, workspace vendor keys and webhooks: the API server's database.
+database:
+  url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
+  encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
+appStore: { source: database, cacheMs: 3000 }
+registry: { source: database, refreshMs: 5000 }
+workspaceKeys: { enabled: true, cacheMs: 5000 }
+webhooks: { enabled: true, refreshMs: 5000 }
+callRecord:
+  dir: /tmp/fonoster-records
+  region: local
+  signingKey: { kid: local-1, privateKeyFile: /etc/fonoster/keys/records.pem }
+  store:
+    s3:
+      bucket: records
+      endpoint: "http://minio:9000"
+      region: us-east-1
+      forcePathStyle: true
+      credentials: { accessKeyId: "${MINIO_ROOT_USER}", secretAccessKey: "${MINIO_ROOT_PASSWORD}" }
+  recording: off
+  # Every sealed record's metrics go to ClickHouse (profile analytics: COMPOSE_PROFILES=analytics
+  # in .env, then run init again).
+  #@if profile analytics
+  analytics:
+    clickhouse: { url: "http://clickhouse:8123", database: fonoster }
+  #@end

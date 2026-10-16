@@ -1,5 +1,6 @@
 # Defaults for the local rebuild stack (`ops/rebuild/stack`). Copied once into
-# ops/rebuild/.local/stack.env, which you may edit; secrets are generated there, never here.
+# ops/rebuild/.local/stack.env, which you may edit; secrets are generated there, never here. The
+# stack maps these to the bundle's names (ops/bundle/.env.example) in .local/bundle.env.
 #
 # Host ports live in 16000-16999 so the stack runs next to a legacy Fonoster stack (5060-5063,
 # 8449, 50051, 4222, 5432, 8080, ...).
@@ -14,7 +15,6 @@ RB_API_PORT=16449
 # Routr SIP (UDP and TCP). Routr also listens on this port inside its container, so the port
 # in Via and Record-Route is the one softphones reach.
 RB_SIP_PORT=16060
-RB_SIP_INTERNAL_PORT=16060
 RB_NATS_PORT=16222
 RB_GATEWAY_PORT=16808
 RB_MINIO_PORT=16900
@@ -22,7 +22,7 @@ RB_MINIO_CONSOLE_PORT=16901
 RB_GRAFANA_PORT=16300
 RB_OTLP_HTTP_PORT=16318
 RB_CALLER_PORT=16080
-# ClickHouse's HTTP interface (profile analytics: RB_PROFILES=autopilot,fakes,tools,regions,analytics).
+# ClickHouse's HTTP interface (profile analytics: RB_PROFILES=fakes,tools,regions,analytics).
 RB_CLICKHOUSE_PORT=16123
 # RTPEngine (carrier and softphone media) and the media node's RTP range.
 RTPENGINE_PORT_MIN=16100

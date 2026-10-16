@@ -8,8 +8,8 @@ Fonoster is three deployables, each configured on its own:
 | Autopilot | `autopilot-session.yaml` | One file for every replica |
 | Dashboard | `DASHBOARD_API_URL` | Everything else comes from the API server |
 
-The Compose stack is `ops/rebuild/compose.yaml` (the root `compose.yaml` includes
-it; docs/operators/rebuild.md), and `ops/rebuild/stack up` renders every file
+The Compose stack is `ops/bundle/compose.yaml` (with the development layer
+`ops/rebuild/compose.yaml`; the root `compose.yaml` includes both; docs/operators/rebuild.md), and `ops/rebuild/stack up` renders every file
 below for one machine (docs/try-the-new-platform.md). `compose.dev.yaml` holds
 the developer services (Routr, RTPEngine, Postgres, InfluxDB, NATS, Envoy, with
 their environment variables in `.env`) for running the services from source.

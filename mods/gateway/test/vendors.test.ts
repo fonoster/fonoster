@@ -451,6 +451,15 @@ describe("@gateway vendor adapters", function () {
       providers: { dg: { adapter: "deepgram", capabilities: ["stt"] } }
     });
     expect(missing.join()).to.contain("no credential");
+    // With workspace keys, a provider needs no platform key (self-host install, no vendor keys).
+    expect(
+      validateConfig({
+        ...base,
+        database: { url: "postgresql://x" },
+        workspaceKeys: { enabled: true },
+        providers: { dg: { adapter: "deepgram", capabilities: ["stt"] } }
+      })
+    ).to.deep.equal([]);
     process.env.TEST_DG_KEY = "k";
     expect(
       validateConfig({
