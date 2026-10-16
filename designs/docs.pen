@@ -1870,6 +1870,760 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "JbV94",
+      "x": 3400,
+      "y": 0,
+      "name": "Docs / Hacking Fonoster / Banner / Dark",
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 600,
+      "fill": [
+        "$ui:surface-raised",
+        {
+          "type": "image",
+          "enabled": true,
+          "url": "assets/pattern-hero.png",
+          "mode": "cover"
+        }
+      ],
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 2,
+      "gap": 72,
+      "padding": [
+        0,
+        96
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "KwI1h",
+          "name": "Copy",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "xTdJO",
+              "name": "Eyebrow",
+              "fill": "$ui:text-secondary",
+              "content": "HACKING FONOSTER",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 20,
+              "fontWeight": "500",
+              "letterSpacing": 2.4
+            },
+            {
+              "type": "text",
+              "id": "stSwo",
+              "name": "Headline",
+              "fill": "$ui:text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Fonoster, from source.",
+              "lineHeight": 1.06,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 68,
+              "fontWeight": "600",
+              "letterSpacing": -2.2
+            },
+            {
+              "type": "text",
+              "id": "C2mDc",
+              "name": "Subhead",
+              "fill": "$ui:text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Open the dev container. Every component reloads as you save.",
+              "lineHeight": 1.4,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 26,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "x7KuUs",
+          "name": "Terminal",
+          "clip": true,
+          "width": 720,
+          "fill": "$ui:surface-sunken",
+          "cornerRadius": 16,
+          "stroke": "$ui:border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "lh6gm",
+              "name": "Title bar",
+              "width": "fill_container",
+              "stroke": "$ui:border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 10,
+              "padding": [
+                18,
+                24
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "p1OXDj",
+                  "name": "Dot 1",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "Dxp0G",
+                  "name": "Dot 2",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "IhHyk",
+                  "name": "Dot 3",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "mANB2",
+                  "name": "Path",
+                  "fill": "$ui:text-muted",
+                  "content": "~/fonoster",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "oP0Cp",
+              "name": "Lines",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "padding": [
+                28,
+                32,
+                32,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "f6dQ9",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    6,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bBden",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "YvY8M",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "npm run dev",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "msj2J",
+                  "name": "Log apiserver",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "q1Vb7E",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[apiserver]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "tNn4W",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "migrations applied, listening",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "m9E57n",
+                  "name": "Log gateway",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "s4crpH",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[gateway]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ohRRh",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "ready",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "nhnLA",
+                  "name": "Log autopilot",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ShbVu",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[autopilot]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "FekHn",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "ready",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "x1VzQ7",
+                  "name": "Log medianode",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "CxyDF",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[medianode]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "A3Ndw",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "built, listening",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "nZqWp",
+                  "name": "Log dashboard",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "X8svQ",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[dashboard]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "CKPnb",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "Vite ready",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fbPR5",
+                  "name": "Log gateway",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QApPg",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[gateway]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Rcu5m",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "reloaded (Call.ts)",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "bmkIB",
+      "x": 3400,
+      "y": 700,
+      "name": "Docs / Hacking Fonoster / Banner / Light",
+      "theme": {
+        "ui:mode": "light"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 600,
+      "fill": [
+        "$ui:surface",
+        {
+          "type": "image",
+          "enabled": true,
+          "url": "assets/pattern-hero.png",
+          "mode": "cover"
+        }
+      ],
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 2,
+      "gap": 72,
+      "padding": [
+        0,
+        96
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Zgg5c",
+          "name": "Copy",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "CyOdJ",
+              "name": "Eyebrow",
+              "fill": "$ui:text-secondary",
+              "content": "HACKING FONOSTER",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 20,
+              "fontWeight": "500",
+              "letterSpacing": 2.4
+            },
+            {
+              "type": "text",
+              "id": "BtMCS",
+              "name": "Headline",
+              "fill": "$ui:text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Fonoster, from source.",
+              "lineHeight": 1.06,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 68,
+              "fontWeight": "600",
+              "letterSpacing": -2.2
+            },
+            {
+              "type": "text",
+              "id": "vIo3Q",
+              "name": "Subhead",
+              "fill": "$ui:text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Open the dev container. Every component reloads as you save.",
+              "lineHeight": 1.4,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 26,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "xZyz9",
+          "name": "Terminal",
+          "clip": true,
+          "width": 720,
+          "fill": "$ui:surface-sunken",
+          "cornerRadius": 16,
+          "stroke": "$ui:border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "xFg8w",
+              "name": "Title bar",
+              "width": "fill_container",
+              "stroke": "$ui:border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 10,
+              "padding": [
+                18,
+                24
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "i9B3c9",
+                  "name": "Dot 1",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "NnD0j",
+                  "name": "Dot 2",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "rrisc",
+                  "name": "Dot 3",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "tKnbz",
+                  "name": "Path",
+                  "fill": "$ui:text-muted",
+                  "content": "~/fonoster",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "j2ZoF",
+              "name": "Lines",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "padding": [
+                28,
+                32,
+                32,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "RReFh",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    6,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "hLshI",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XT77g",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "npm run dev",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "sNjHY",
+                  "name": "Log apiserver",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Vhq2X",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[apiserver]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "FY2rJ",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "migrations applied, listening",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dupxp",
+                  "name": "Log gateway",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KJJ8F",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[gateway]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "uH2NQ",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "ready",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "llnc4",
+                  "name": "Log autopilot",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "CYNUE",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[autopilot]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "jb878",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "ready",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "k0AwW",
+                  "name": "Log medianode",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "j4VJJf",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[medianode]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "hv6Bn",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "built, listening",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qJPzv",
+                  "name": "Log dashboard",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UAJ5U",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[dashboard]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Ml5x5",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "Vite ready",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ta4EP",
+                  "name": "Log gateway",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Ru77Q",
+                      "name": "Prefix",
+                      "fill": "$ui:text-muted",
+                      "textGrowth": "fixed-width",
+                      "width": 150,
+                      "content": "[gateway]",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lnFej",
+                      "name": "Message",
+                      "fill": "$ui:text-secondary",
+                      "content": "reloaded (Call.ts)",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 19,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "imports": {

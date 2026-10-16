@@ -7,3 +7,4 @@ One row per asset.
 | ----- | ---- | ------------ | ---- | ----- |
 | `self-hosting/banner-dark.png`, `banner-light.png` | `self-hosting/overview` | `designs/docs.pen` → "Docs / Self-hosting / Banner / Dark" (XzPmi), "… / Light" (xB0Kp) | 1600 × 600 (wide-flow preset, exported at 1×) | Build note: `images/self-hosting/banner.md` |
 | `install-compose/banner-dark.png`, `banner-light.png` | `self-hosting/install-compose` | `designs/docs.pen` → "Docs / Install with Docker Compose / Banner / Dark" (zetxQ), "… / Light" (ibh1W) | 1600 × 600 (wide-flow preset, exported at 1×) | Build note: `images/install-compose/banner.md` |
+| `run-from-source/banner-dark.png`, `banner-light.png` | `hacking/run-from-source` | `designs/docs.pen` → "Docs / Hacking Fonoster / Banner / Dark" (JbV94), "… / Light" (bmkIB) | 1600 × 600 (wide-flow preset, exported at 1×) | Build note: `images/run-from-source/banner.md` |
