@@ -58,7 +58,7 @@ async function withAgent() {
     name: "Receptionist agent",
     type: "AUTOPILOT",
     url: "",
-    flavor: "native",
+    protocol: "fonoster",
     speech: { voice: "", language: "" },
     audio: "pcm16-16000",
     fallback: {},
@@ -80,7 +80,7 @@ describe("streams", () => {
     expect(screen.getByText("Fonoster")).toBeInTheDocument();
     expect(screen.getByText("Twilio-compatible")).toBeInTheDocument();
     expect(screen.queryByText("twilio")).not.toBeInTheDocument();
-    expect(screen.queryByText("native")).not.toBeInTheDocument();
+    expect(screen.queryByText("fonoster")).not.toBeInTheDocument();
   });
 
   it("warns about deprecated catalog items and names the streams that use them", async () => {
@@ -133,9 +133,9 @@ describe("streams", () => {
     expect(await screen.findByText(/shown once/)).toBeInTheDocument();
     const saved = (await api.listApps()).find((a) => a.name === "Bot");
     expect(saved).toMatchObject({
-      type: "EXTERNAL",
+      type: "STREAM",
       url: "wss://bot.example.com",
-      flavor: "native",
+      protocol: "fonoster",
       amd: true
     });
   });
@@ -171,7 +171,7 @@ describe("streams", () => {
     );
     expect(await api.getApp("pipecat-bot")).toMatchObject({
       name: "Pipecat bot v2",
-      flavor: "twilio"
+      protocol: "twilio"
     });
     expect(await screen.findByText("Pipecat bot v2")).toBeInTheDocument();
   });

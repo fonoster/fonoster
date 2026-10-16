@@ -21,8 +21,8 @@
  * the SDK adapter (./sdk-api.ts) against the apiserver, and by an in-memory mock (./mock-api.ts)
  * for tests and stories.
  */
-export type Flavor = "native" | "twilio";
-export type AppType = "EXTERNAL" | "AUTOPILOT";
+export type Protocol = "fonoster" | "twilio";
+export type AppType = "STREAM" | "AUTOPILOT";
 export type AudioCodec =
   | "pcm16-8000"
   | "pcm16-16000"
@@ -40,7 +40,7 @@ export type SessionApp = {
   type: AppType;
   /** ws:// or wss:// address the gateway dials (Autopilot apps: the hosted Autopilot). */
   url: string;
-  flavor: Flavor;
+  protocol: Protocol;
   /** Only returned when created or rotated; never on reads. */
   signingSecret?: string;
   signingSecretHint: string;
@@ -51,7 +51,7 @@ export type SessionApp = {
     sttModel?: string;
     patience?: Patience;
   };
-  /** Native flavor only. */
+  /** Fonoster protocol only. */
   audio: AudioCodec;
   fallback: { appRef?: string; message?: string };
   listeners: { url: string; tracks: ListenerTrack }[];

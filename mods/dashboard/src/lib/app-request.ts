@@ -42,7 +42,7 @@ export function applicationToRequest(
     name: app.name,
     type: app.type,
     url: set(app.url),
-    flavor: set(app.flavor),
+    protocol: set(app.protocol),
     speech: {
       voice: set(speech.voice),
       language: set(speech.language),

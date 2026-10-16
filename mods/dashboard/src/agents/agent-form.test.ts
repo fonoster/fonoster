@@ -76,7 +76,7 @@ describe("agent payload", () => {
     const saved = {
       ...billingAgent,
       url: "wss://autopilot.example.com",
-      flavor: "native",
+      protocol: "fonoster",
       speech: {
         ...billingAgent.speech,
         ttsModel: "deepgram/aura-2",
@@ -96,7 +96,7 @@ describe("agent payload", () => {
       ref: saved.ref,
       name: "Renamed",
       url: "wss://autopilot.example.com",
-      flavor: "native",
+      protocol: "fonoster",
       audio: { codec: "pcmu", rate: 8000 },
       fallbackAppRef: "app-fallback",
       fallbackMessage: "One moment",

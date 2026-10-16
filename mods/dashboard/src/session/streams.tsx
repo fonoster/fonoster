@@ -53,7 +53,7 @@ import type {
   Catalog,
   CatalogEntry,
   CatalogWarning,
-  Flavor,
+  Protocol,
   ListenerTrack,
   Patience,
   RecordingPolicy,
@@ -64,13 +64,13 @@ import type {
 // Autopilot. Agents (AUTOPILOT) live under Agents; their call handling (fallback,
 // listeners, recording, AMD) opens this drawer in "agent" mode from the agent page.
 
-/** Readable names for the session protocol flavors. */
-export const PROTOCOL_LABELS: Record<Flavor, string> = {
-  native: "Fonoster",
+/** Readable names for the stream protocols. */
+export const PROTOCOL_LABELS: Record<Protocol, string> = {
+  fonoster: "Fonoster",
   twilio: "Twilio-compatible"
 };
 const PROTOCOLS = [
-  { value: "native", label: "Fonoster (session protocol)" },
+  { value: "fonoster", label: "Fonoster (session protocol)" },
   {
     value: "twilio",
     label: "Twilio-compatible (Media Streams: Pipecat and others)"
@@ -213,8 +213,8 @@ export function StreamsList() {
       header: "Protocol",
       className: "w-40",
       cell: (a) => (
-        <Badge variant={a.flavor === "native" ? "success" : "neutral"}>
-          {PROTOCOL_LABELS[a.flavor]}
+        <Badge variant={a.protocol === "fonoster" ? "success" : "neutral"}>
+          {PROTOCOL_LABELS[a.protocol]}
         </Badge>
       )
     },
@@ -325,9 +325,9 @@ export function StreamsList() {
 const blank: Draft = {
   ref: "",
   name: "",
-  type: "EXTERNAL",
+  type: "STREAM",
   url: "",
-  flavor: "native",
+  protocol: "fonoster",
   signingSecretHint: "",
   speech: { voice: "", language: "", sttModel: "", patience: "" },
   audio: "pcm16-16000",
@@ -654,13 +654,13 @@ function StreamForm({
             {(p) => (
               <Select
                 {...p}
-                value={app.flavor}
+                value={app.protocol}
                 options={PROTOCOLS}
-                onValueChange={(v) => set("flavor", v as Flavor)}
+                onValueChange={(v) => set("protocol", v as Protocol)}
               />
             )}
           </Field>
-          {app.flavor === "native" && (
+          {app.protocol === "fonoster" && (
             <Field label="Audio format">
               {(p) => (
                 <Select

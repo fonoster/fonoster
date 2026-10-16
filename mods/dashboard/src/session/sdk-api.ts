@@ -61,9 +61,9 @@ export function toSessionApp(app: Application): SessionApp {
   return {
     ref: app.ref,
     name: app.name,
-    type: String(app.type) === "AUTOPILOT" ? "AUTOPILOT" : "EXTERNAL",
+    type: String(app.type) === "AUTOPILOT" ? "AUTOPILOT" : "STREAM",
     url: app.url ?? "",
-    flavor: app.flavor === "twilio" ? "twilio" : "native",
+    protocol: app.protocol === "twilio" ? "twilio" : "fonoster",
     signingSecretHint: app.signingSecretHint ?? "",
     speech: {
       voice: str(speech.voice),
@@ -99,7 +99,7 @@ export function toRequest(
     // @fonoster/types is CommonJS: no runtime enum imports in the browser.
     type: app.type as CreateApplicationRequest["type"],
     url: app.url.trim() || undefined,
-    flavor: autopilot ? "native" : app.flavor,
+    protocol: autopilot ? "fonoster" : app.protocol,
     speech: {
       voice: app.speech.voice || undefined,
       language: app.speech.language || undefined,
@@ -107,7 +107,7 @@ export function toRequest(
       patience: app.speech.patience || undefined
     },
     audio:
-      app.flavor === "native"
+      app.protocol === "fonoster"
         ? { codec: codec as "pcm16" | "pcmu", rate: Number(rate) }
         : undefined,
     fallbackAppRef: app.fallback.appRef || undefined,

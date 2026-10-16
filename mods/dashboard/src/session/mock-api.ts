@@ -143,9 +143,9 @@ const seedApps = (): SessionApp[] => [
   {
     ref: "support-line",
     name: "Support line",
-    type: "EXTERNAL",
+    type: "STREAM",
     url: "wss://bot.example.com/agent",
-    flavor: "native",
+    protocol: "fonoster",
     signingSecretHint: "…a91c",
     speech: { voice: "elevenlabs/rachel", language: "en-US" },
     audio: "pcm16-16000",
@@ -156,9 +156,9 @@ const seedApps = (): SessionApp[] => [
   {
     ref: "pipecat-bot",
     name: "Pipecat bot",
-    type: "EXTERNAL",
+    type: "STREAM",
     url: "wss://pipecat.example.com/ws",
-    flavor: "twilio",
+    protocol: "twilio",
     signingSecretHint: "…77e0",
     speech: { voice: "elevenlabs/adam", language: "multi" },
     audio: "pcmu-8000",
