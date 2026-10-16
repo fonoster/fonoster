@@ -105,15 +105,25 @@ describe("trunk page", () => {
     );
   });
 
-  it("shows no carrier hint (region info) without private regions", async () => {
+  it("takes the carrier hint from the deployment's capabilities without private regions", async () => {
     const { sdk } = setup(
       "/w/ws1/trunks/new",
       undefined,
       communityCapabilities
     );
+    expect(await screen.findByTestId("carrier-hint")).toHaveTextContent(
+      "Point your carrier at 192.0.2.10:5060 (UDP); allowlist 192.0.2.10."
+    );
+    expect(sdk.regions.getRegion).not.toHaveBeenCalled();
+  });
+
+  it("shows no carrier hint when the deployment lists no SIP address", async () => {
+    setup("/w/ws1/trunks/new", undefined, {
+      ...communityCapabilities,
+      connection: { sip: [], signalingAddresses: [], mediaAddresses: [] }
+    });
     await screen.findByRole("button", { name: /save|create/i });
     expect(screen.queryByTestId("carrier-hint")).toBeNull();
-    expect(sdk.regions.getRegion).not.toHaveBeenCalled();
   });
 
   it("edits outbound URIs and security, then saves", async () => {

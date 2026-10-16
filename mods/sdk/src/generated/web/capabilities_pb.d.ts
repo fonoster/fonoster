@@ -109,6 +109,92 @@ export namespace RegionsCapabilities {
   }
 }
 
+export class SipEndpoint extends jspb.Message {
+  getHost(): string;
+  setHost(value: string): SipEndpoint;
+
+  getPort(): number;
+  setPort(value: number): SipEndpoint;
+
+  getTransport(): string;
+  setTransport(value: string): SipEndpoint;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SipEndpoint.AsObject;
+  static toObject(includeInstance: boolean, msg: SipEndpoint): SipEndpoint.AsObject;
+  static serializeBinaryToWriter(message: SipEndpoint, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SipEndpoint;
+  static deserializeBinaryFromReader(message: SipEndpoint, reader: jspb.BinaryReader): SipEndpoint;
+}
+
+export namespace SipEndpoint {
+  export type AsObject = {
+    host: string,
+    port: number,
+    transport: string,
+  }
+}
+
+export class PortRange extends jspb.Message {
+  getMin(): number;
+  setMin(value: number): PortRange;
+
+  getMax(): number;
+  setMax(value: number): PortRange;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PortRange.AsObject;
+  static toObject(includeInstance: boolean, msg: PortRange): PortRange.AsObject;
+  static serializeBinaryToWriter(message: PortRange, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PortRange;
+  static deserializeBinaryFromReader(message: PortRange, reader: jspb.BinaryReader): PortRange;
+}
+
+export namespace PortRange {
+  export type AsObject = {
+    min: number,
+    max: number,
+  }
+}
+
+export class ConnectionCapabilities extends jspb.Message {
+  getSipList(): Array<SipEndpoint>;
+  setSipList(value: Array<SipEndpoint>): ConnectionCapabilities;
+  clearSipList(): ConnectionCapabilities;
+  addSip(value?: SipEndpoint, index?: number): SipEndpoint;
+
+  getSignalingAddressesList(): Array<string>;
+  setSignalingAddressesList(value: Array<string>): ConnectionCapabilities;
+  clearSignalingAddressesList(): ConnectionCapabilities;
+  addSignalingAddresses(value: string, index?: number): ConnectionCapabilities;
+
+  getMediaAddressesList(): Array<string>;
+  setMediaAddressesList(value: Array<string>): ConnectionCapabilities;
+  clearMediaAddressesList(): ConnectionCapabilities;
+  addMediaAddresses(value: string, index?: number): ConnectionCapabilities;
+
+  getRtpPorts(): PortRange | undefined;
+  setRtpPorts(value?: PortRange): ConnectionCapabilities;
+  hasRtpPorts(): boolean;
+  clearRtpPorts(): ConnectionCapabilities;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ConnectionCapabilities.AsObject;
+  static toObject(includeInstance: boolean, msg: ConnectionCapabilities): ConnectionCapabilities.AsObject;
+  static serializeBinaryToWriter(message: ConnectionCapabilities, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ConnectionCapabilities;
+  static deserializeBinaryFromReader(message: ConnectionCapabilities, reader: jspb.BinaryReader): ConnectionCapabilities;
+}
+
+export namespace ConnectionCapabilities {
+  export type AsObject = {
+    sipList: Array<SipEndpoint.AsObject>,
+    signalingAddressesList: Array<string>,
+    mediaAddressesList: Array<string>,
+    rtpPorts?: PortRange.AsObject,
+  }
+}
+
 export class GetCapabilitiesResponse extends jspb.Message {
   getAuth(): AuthCapabilities | undefined;
   setAuth(value?: AuthCapabilities): GetCapabilitiesResponse;
@@ -136,6 +222,11 @@ export class GetCapabilitiesResponse extends jspb.Message {
   hasRegions(): boolean;
   clearRegions(): GetCapabilitiesResponse;
 
+  getConnection(): ConnectionCapabilities | undefined;
+  setConnection(value?: ConnectionCapabilities): GetCapabilitiesResponse;
+  hasConnection(): boolean;
+  clearConnection(): GetCapabilitiesResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetCapabilitiesResponse.AsObject;
   static toObject(includeInstance: boolean, msg: GetCapabilitiesResponse): GetCapabilitiesResponse.AsObject;
@@ -152,6 +243,7 @@ export namespace GetCapabilitiesResponse {
     domain: string,
     appUrl: string,
     regions?: RegionsCapabilities.AsObject,
+    connection?: ConnectionCapabilities.AsObject,
   }
 }
 

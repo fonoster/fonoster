@@ -40,7 +40,7 @@ services:
     volumes:
       - ${CONFIG_DIR:-./config}/nats.conf:/etc/nats/nats.conf:ro
       - ${CONFIG_DIR:-./config}/nats-permissions:/etc/nats/nats-permissions:ro
-      - nats:/data
+      - nats-data:/data
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
       interval: 5s
@@ -58,7 +58,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
       POSTGRES_DB: routr
     volumes:
-      - db:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ${CONFIG_DIR:-./config}/postgres-init.sql:/docker-entrypoint-initdb.d/10-fonoster.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d routr"]
@@ -143,7 +143,8 @@ services:
     restart: unless-stopped
     depends_on:
       nats: { condition: service_healthy }
-      apiserver: { condition: service_started }
+      # Healthy = migrated and serving: the gateway reads the apps tables at start.
+      apiserver: { condition: service_healthy }
     env_file: ${FONOSTER_ENV_FILE:-.env}
     volumes:
       - ${CONFIG_DIR:-./config}/gateway.yaml:/config/gateway.yaml:ro
@@ -158,7 +159,7 @@ services:
     image: fonoster/autopilot:${FONOSTER_VERSION:?set FONOSTER_VERSION}
     restart: unless-stopped
     depends_on:
-      apiserver: { condition: service_started }
+      apiserver: { condition: service_healthy }
     env_file: ${FONOSTER_ENV_FILE:-.env}
     volumes:
       - ${CONFIG_DIR:-./config}/autopilot.yaml:/config/autopilot.yaml:ro
@@ -178,7 +179,7 @@ services:
       - "${MINIO_BIND:-127.0.0.1}:${MINIO_PORT:-9000}:9000"
       - "${MINIO_BIND:-127.0.0.1}:${MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
-      - minio:/bitnami/minio/data
+      - minio-data:/bitnami/minio/data
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://127.0.0.1:9000/minio/health/live"]
       interval: 5s
@@ -203,6 +204,14 @@ services:
     expose:
       - 50051
       - 9876
+    # Passes once the gRPC health check answers SERVING: the server binds only after the
+    # migrations are applied. The first start (empty database) takes the longest.
+    healthcheck:
+      test: ["CMD", "node", "/work/mods/apiserver/dist/bin/healthcheck.js"]
+      interval: 5s
+      timeout: 5s
+      start_period: 120s
+      retries: 30
 
   # gRPC, gRPC-Web, /api and the dashboard on one port (config/envoy.yaml).
   envoy:
@@ -224,7 +233,9 @@ services:
     expose:
       - 3030
 
+# Named apart from Fonoster 0.27 and older (db, influxdb): with the same project name, Compose
+# would mount a legacy install's database (fonoster_db) and its old password.
 volumes:
-  db:
-  nats:
-  minio:
+  postgres-data:
+  nats-data:
+  minio-data:

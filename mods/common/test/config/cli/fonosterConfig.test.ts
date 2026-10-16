@@ -431,6 +431,29 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(bad.err).to.contain("config/gateway.yaml: turnTakng");
     });
 
+    it("prints no Ajv format warnings (formats are documentation only)", async function () {
+      const dir = unpack();
+      await init(dir);
+      await exportConfigSchemas(join(dir, "config", "schemas"));
+      const printed: string[] = [];
+      const saved = {
+        warn: console.warn,
+        log: console.log,
+        error: console.error
+      };
+      for (const k of ["warn", "log", "error"] as const)
+        console[k] = (...a: unknown[]) => printed.push(a.join(" "));
+      let run: Run;
+      try {
+        run = await cli(["check", "--dir", dir]);
+      } finally {
+        Object.assign(console, saved);
+      }
+      expect(run.code, run.err).to.equal(0);
+      for (const text of [run.out, run.err, ...printed])
+        expect(text).to.not.contain("unknown format");
+    });
+
     it("names the file and an unknown key, suggests the right one and fails", async function () {
       const dir = unpack();
       await init(dir);

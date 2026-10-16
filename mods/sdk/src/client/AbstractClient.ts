@@ -69,7 +69,40 @@ type Capabilities = {
    * exists and is not a reason to show region features.
    */
   regions: { private: boolean };
+  /**
+   * Where carriers and softphones reach this deployment (its default public
+   * region): SIP endpoints, addresses to allowlist and the RTP port range.
+   * Empty lists when the operator listed none or the server is older.
+   */
+  connection: ConnectionDetails;
 };
+
+type SipTransport = "udp" | "tcp" | "tls" | "ws" | "wss";
+
+type ConnectionDetails = {
+  sip: { host: string; port: number; transport: SipTransport }[];
+  signalingAddresses: string[];
+  mediaAddresses: string[];
+  rtpPorts?: { min: number; max: number };
+};
+
+/** The Capabilities response's connection details as plain values. */
+function toConnectionDetails(
+  response: GetCapabilitiesResponsePB
+): ConnectionDetails {
+  const c = response.getConnection();
+  const ports = c?.getRtpPorts();
+  return {
+    sip: (c?.getSipList() ?? []).map((s) => ({
+      host: s.getHost(),
+      port: s.getPort(),
+      transport: s.getTransport() as SipTransport
+    })),
+    signalingAddresses: c?.getSignalingAddressesList() ?? [],
+    mediaAddresses: c?.getMediaAddressesList() ?? [],
+    rtpPorts: ports ? { min: ports.getMin(), max: ports.getMax() } : undefined
+  };
+}
 
 abstract class AbstractClient implements FonosterClient {
   protected accessKeyId: string;
@@ -253,7 +286,8 @@ abstract class AbstractClient implements FonosterClient {
             appUrl: response.getAppUrl(),
             regions: {
               private: response.getRegions()?.getPrivate() ?? false
-            }
+            },
+            connection: toConnectionDetails(response)
           });
         }
       );
@@ -353,4 +387,10 @@ abstract class AbstractClient implements FonosterClient {
   abstract getHttpUrl(): string;
 }
 
-export { AbstractClient, AuthMethod, Capabilities };
+export {
+  AbstractClient,
+  AuthMethod,
+  Capabilities,
+  ConnectionDetails,
+  toConnectionDetails
+};
