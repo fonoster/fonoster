@@ -24,9 +24,9 @@ import {
 import { CallDirection } from "@fonoster/types";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ToolCall } from "@langchain/core/messages/tool";
+import { z } from "zod";
 import { KnowledgeBase } from "../knowledge";
 import { Tool } from "../tools/types";
-import { z } from "zod";
 
 /** The language model vendors the LangChain models (used by the evaluations only) implement. */
 type LlmProvider = "openai" | "groq" | "ollama" | "google" | "anthropic";

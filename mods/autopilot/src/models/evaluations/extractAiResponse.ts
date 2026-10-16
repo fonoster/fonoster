@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { InvocationResult, EvalAssistant } from "../types";
+import { EvalAssistant, InvocationResult } from "../types";
 
 /**
  * Maps language model invocation result to the text that should be compared
