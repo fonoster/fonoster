@@ -2,7 +2,7 @@
 
 The media node replaces Asterisk: SIP legs from Routr become **rooms** that mix audio for their
 participants (mix-minus), driven by the VoiceSessionGateway over **media-control** on NATS. Specs:
-`openspec/changes/add-media-node` (media-node and media-control), decisions in its `build-log.md`.
+`openspec/changes/archive/2026-10-17-add-media-node` (media-node and media-control), decisions in its `build-log.md`.
 
 ## What this version does
 

@@ -2,7 +2,7 @@
 
 This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/helm/fonoster-rebuild`
 (Helm): the VoiceSessionGateway, the Go media node, and the services around them. It follows
-`openspec/changes/add-platform`.
+`openspec/changes/archive/2026-10-17-add-platform`.
 
 ## What runs
 

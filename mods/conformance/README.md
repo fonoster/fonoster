@@ -1,6 +1,6 @@
 # @fonoster/conformance
 
-The conformance harness for the Fonoster rebuild contracts (`openspec/changes/add-conformance-framework`).
+The conformance harness for the Fonoster rebuild contracts (`openspec/changes/archive/2026-10-17-add-conformance-framework`).
 Suites talk to an implementation only through its public contract, so a rewrite in any language
 passes or fails the same suite unchanged.
 

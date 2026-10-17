@@ -1,7 +1,7 @@
 # Fonoster on Docker Compose: the self-host bundle (ops/bundle/compose.yaml: NATS with JetStream,
 # Postgres, Routr, RTPEngine, the Go media node, the VoiceSessionGateway, MinIO, the apiserver,
-# Envoy, the dashboard, the hosted Autopilot; profiles regions, observability, analytics) with the
-# development layer (ops/rebuild/compose.yaml: builds from source, profiles fakes and tools).
+# Envoy, the dashboard, the hosted Autopilot; no profiles) with the development layer
+# (ops/rebuild/compose.yaml: builds from source, profiles regions, fakes and tools).
 # Asterisk and InfluxDB are gone.
 #
 # The easy way, which generates configs, keys and secrets and runs both files:

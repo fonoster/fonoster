@@ -18,7 +18,7 @@
  */
 import type { RegionEndpoints } from "./endpoints";
 
-/** Wire names of the private region contract (openspec/changes/add-private-regions/contract.md). */
+/** Wire names of the private region contract (openspec/changes/archive/2026-10-17-add-private-regions/contract.md). */
 export const REGION_AUDIENCE = "fonoster.region.v1";
 
 export const PRIVATE_REGION = "private";
