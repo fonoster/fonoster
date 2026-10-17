@@ -25,7 +25,7 @@
     "@fonoster/common": "^0.27.0",
     "@fonoster/logger": "^0.27.0",
     "@prisma/client": "^6.19.1",
-    "@routr/sdk": "^2.13.20",
+    "@routr/sdk": "^2.15.2",
     "nats": "^2.25.0",
     "prisma-field-encryption": "^1.6.0",
     "yaml": "^2.9.0",
