@@ -43,7 +43,15 @@ export const APP_URL = getAppUrl(config);
 
 export const CALLS_CREATE_SUBJECT = "calls.create";
 
-export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
+/**
+ * A call's status events, keyed by the call (TrackCall on any replica subscribes to them all):
+ * TRYING and FAILED from the control plane that places the call, and the media node's
+ * call.progress, call.answered and room.ended for the call's room.
+ */
+export const callEventsSubject = (ref: string) => `calls.${ref}.events`;
+
+/** Every call's status events (TrackCall's subscription). */
+export const CALL_EVENTS_WILDCARD = "calls.*.events";
 
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = config.encryption.key;

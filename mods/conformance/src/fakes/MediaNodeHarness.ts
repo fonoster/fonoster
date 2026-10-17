@@ -56,6 +56,7 @@ export class MediaNodeHarness implements Harness {
       ...(media.heartbeatMs !== undefined
         ? { heartbeatMs: media.heartbeatMs }
         : {}),
+      ...(media.maxRooms !== undefined ? { maxRooms: media.maxRooms } : {}),
       claimTimeoutMs: 200
     });
     this.claimCalls = media.claimCalls !== false;
