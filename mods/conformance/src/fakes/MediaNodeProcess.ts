@@ -19,6 +19,7 @@
 import { ChildProcess, execFileSync, spawn } from "child_process";
 import * as dgram from "dgram";
 import * as fs from "fs";
+import * as net from "net";
 import * as os from "os";
 import * as path from "path";
 import * as readline from "readline";
@@ -82,12 +83,24 @@ export type BotCallStatus = {
   spokeUntilMs?: number;
 };
 
-async function freeUdpPort(): Promise<number> {
-  const s = dgram.createSocket("udp4");
-  await new Promise<void>((r) => s.bind(0, "127.0.0.1", r));
-  const port = s.address().port;
+async function freeTcpPort(): Promise<number> {
+  const s = net.createServer();
+  await new Promise<void>((r) => s.listen(0, "127.0.0.1", r));
+  const port = (s.address() as net.AddressInfo).port;
   await new Promise<void>((r) => s.close(() => r()));
   return port;
+}
+
+/** A port free for both UDP and TCP: the node listens for SIP on both. */
+async function freeSipPort(): Promise<number> {
+  const port = await freeTcpPort();
+  const udp = dgram.createSocket("udp4");
+  const bound = await new Promise<boolean>((r) => {
+    udp.once("error", () => r(false));
+    udp.bind(port, "127.0.0.1", () => r(true));
+  });
+  await new Promise<void>((r) => udp.close(() => r()));
+  return bound ? port : freeSipPort();
 }
 
 /** Spawns a process and resolves with the first stdout line that matches. */
@@ -138,14 +151,25 @@ export class MediaNodeProcess {
   constructor(private readonly bins: MediaNodeBinaries) {}
 
   async start() {
-    this.sipPort = await freeUdpPort();
     // The bot first: it is also the callee the node dials (Routr's place in production).
     const bot = await startProcess(this.bins.sipcaller, [], /^listening /);
     this.bot = bot.child;
     this.botUrl = `http://${bot.line.split(" ")[1]}`;
     const { address } = await this.api<{ address: string }>("/sip");
-    this.debugPort = await freeUdpPort();
-    this.node = (
+    // A probed port can be taken again before the node binds it; the node then exits before
+    // reporting ready, so start it again on fresh ports.
+    const startNode = (attempt: number): Promise<ChildProcess> =>
+      this.startNode(address).catch((err) =>
+        attempt < 3 ? startNode(attempt + 1) : Promise.reject(err)
+      );
+    this.node = await startNode(1);
+  }
+
+  private async startNode(outboundProxy: string): Promise<ChildProcess> {
+    this.sipPort = await freeSipPort();
+    // The debug endpoint is HTTP, so it needs a free TCP port.
+    this.debugPort = await freeTcpPort();
+    return (
       await startProcess(
         this.bins.medianode,
         [
@@ -164,7 +188,7 @@ export class MediaNodeProcess {
           "-heartbeat",
           `${this.heartbeatMs}ms`,
           "-outbound-proxy",
-          address,
+          outboundProxy,
           "-debug",
           `127.0.0.1:${this.debugPort}`
         ],

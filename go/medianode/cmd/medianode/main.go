@@ -242,7 +242,13 @@ func main() {
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(n.Stats())
 		})
-		go func() { _ = http.ListenAndServe(*debugAddr, mux) }()
+		// Bind before printing "ready", so a client that waits for it can reach the endpoint.
+		debugListener, err := net.Listen("tcp", *debugAddr)
+		if err != nil {
+			logger.Error("debug listen", "addr", *debugAddr, "err", err)
+			os.Exit(1)
+		}
+		go func() { _ = http.Serve(debugListener, mux) }()
 	}
 	fmt.Printf("medianode %s ready sip=%s\n", *nodeID, *sipListen)
 
