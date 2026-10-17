@@ -5,6 +5,8 @@
 #   ops/rebuild/stack seed      workspace, API key, softphone agent, Autopilot app, number
 #   ops/rebuild/stack info      URLs and the local credentials
 #   ops/rebuild/stack smoke     up + seed + one call through Routr to the app + checks + down
+#   ops/rebuild/stack e2e       up + seed + a scripted conversation (greeting, one turn, hang-up)
+#                               + a sealed, verified call record + down (the nightly e2e call)
 #   ops/rebuild/stack call      place one test call with the caller bot (stack must be up)
 #   ops/rebuild/stack ask       call, say a recorded question, report the turn latency
 #                               (RB_QUESTION=<16 kHz WAV>, RB_TURNS, RB_TRANSCRIBE=1 transcribes)
@@ -442,6 +444,28 @@ cmd_smoke() {
   log "smoke test passed"
 }
 
+# The nightly end-to-end call (conformance "End-to-end caller bot"): ops/rebuild/e2e.cjs.
+cmd_e2e() {
+  RB_SMOKE_KEEP="${RB_KEEP:-}"
+  trap 'status=$?; if [ "$status" != 0 ]; then compose ps -a >&2 || true; compose logs --no-color --tail 60 apiserver gateway autopilot medianode routr >&2 || true; fi; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
+  cmd_up
+  cmd_seed
+  # The gateway and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.
+  sleep 4
+  load_env
+  local number
+  number="$(seed_get number.telUrl)"; number="${number#tel:}"
+  wait_for "the caller bot" 30 curl -sf "http://localhost:$RB_CALLER_PORT/calls"
+  (cd "$ROOT" && RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_PORT" \
+    RB_REQUEST_HOST="$(seed_get trunk.inboundUri)" RB_TO="$number" \
+    RB_QUESTION="${RB_QUESTION:-$ROOT/mods/gateway/scripts/fixtures/question-fonoster.wav}" \
+    RB_API_HTTP="http://localhost:$RB_API_PORT" RB_API_ENDPOINT="localhost:$RB_API_PORT" \
+    RB_WORKSPACE="$(seed_get workspace.accessKeyId)" RB_APP_REF="$(seed_get app.ref)" \
+    RB_RECORDS_KEY="$CONF/keys/records.pem" RB_OUT="${RB_OUT:-$LOCAL/e2e}" \
+    node "$HERE/e2e.cjs")
+  log "end-to-end call passed"
+}
+
 cmd_down() { [ -f "$STACK_ENV" ] && compose down --remove-orphans; }
 
 cmd_reset() {
@@ -461,11 +485,12 @@ case "${1:-}" in
     check_call && log "call ok"
     ;;
   smoke) cmd_smoke ;;
+  e2e) cmd_e2e ;;
   ask) cmd_ask ;;
   logs) shift; compose logs -f --tail 100 "$@" ;;
   ps) compose ps ;;
   down) cmd_down ;;
   reset) cmd_reset ;;
   compose) shift; compose "$@" ;;
-  *) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

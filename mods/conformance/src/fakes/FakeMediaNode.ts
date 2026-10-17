@@ -177,6 +177,8 @@ class ForkRtp {
 
 class SessionRtp {
   readonly received: ReceivedPacket[] = [];
+  /** When each audible caller packet left for the gateway (pass bar T1, caller audio to STT). */
+  readonly sentAudible: number[] = [];
   /** Listener forks of the caller's track (what this sends) and of the session's (what it gets). */
   readonly callerForks: ForkRtp[] = [];
   readonly sessionForks: ForkRtp[] = [];
@@ -240,6 +242,7 @@ class SessionRtp {
     header.writeUInt32BE(this.ssrc >>> 0, 8);
     this.seq = (this.seq + 1) & 0xffff;
     this.timestamp = (this.timestamp + samples) >>> 0;
+    if (isAudible(payload, this.format)) this.sentAudible.push(Date.now());
     this.socket.send(
       Buffer.concat([header, payload]),
       this.remote.port,
@@ -669,6 +672,14 @@ export class FakeMediaNode extends EventEmitter {
         .filter((p) => p.at >= since && p.audible)
         .reduce((sum, p) => sum + p.ms, 0)
     );
+  }
+
+  /** When the first audible caller packet at or after `since` was sent, if one was. */
+  firstCallerAudibleSentAt(since: number): number | undefined {
+    const sent = this.sessions
+      .flatMap((s) => s.sentAudible)
+      .filter((at) => at >= since);
+    return sent.length ? Math.min(...sent) : undefined;
   }
 
   /** ms between `since` and the last audible packet after it (0 if none arrived). */

@@ -51,6 +51,8 @@ const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
 // Node features not built yet, and assertions only the fake node can make.
 const NOT_YET: Record<string, string> = {
+  "caller-audio-to-stt":
+    "times the caller's packets from the fake node's send log (the real node keeps none)",
   "media-timeout-ends-session":
     "drop is a fake-node action (the real timeout is 30 s)",
   "outbound-answered":
