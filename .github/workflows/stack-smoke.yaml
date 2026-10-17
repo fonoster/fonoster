@@ -4,6 +4,10 @@ name: stack smoke
 #   compose       build the bundle images and the install archive (ops/release/bundle), install it
 #                 the way a self-hoster does and wait for a healthy apiserver and the dashboard
 #                 (ops/release/smoke)
+#   e2e           nightly (and on demand): build the stack from source, seed it and place one real
+#                 call through Routr to the hosted Autopilot app with the fake providers; checks the
+#                 greeting, one conversation turn, the hang-up and a sealed, verified call record
+#                 (ops/rebuild/stack e2e; conformance "End-to-end caller bot")
 #   helm          lint and render the chart with each values file, validate with kubeconform
 #   devcontainer  build the dev container's image (when .devcontainer/ changes, and nightly)
 
@@ -95,6 +99,44 @@ jobs:
           SMOKE_PORT_BASE: "18000"
           SMOKE_TIMEOUT: "900"
         run: ops/release/smoke "$VERSION"
+
+  e2e:
+    name: end-to-end call (nightly)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      # The fake providers and the caller bot; no regions.
+      RB_PROFILES: fakes,tools
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      # The seed and the check use @fonoster/sdk and @fonoster/callrecord from this checkout.
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build the packages
+        run: npm run build
+
+      - name: Build, seed and call
+        env:
+          RB_OUT: ${{ runner.temp }}/e2e
+        run: ops/rebuild/stack e2e
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: ${{ runner.temp }}/e2e
+          if-no-files-found: ignore
 
   helm:
     name: helm chart
