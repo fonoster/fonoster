@@ -313,6 +313,18 @@ call. It SHALL accept `dtmf.send` (`id`, `digits`), `transfer` (`id`, `to`, opti
 optional `mode`), `transfer.complete` (`id`), `hold` (`id`, optional `music`) and `resume` (`id`)
 and pass them to the media node.
 
+A `transfer`'s `to` SHALL be an E.164 number, a SIP user, a `tel:` URI or a `sip:`/`sips:` URI
+without parameters, and its `headers` SHALL be at most 16 custom `X-` headers (name `X-` and up to 64
+letters, digits or dashes; value a string of at most 256 characters without control characters).
+The headers the platform routes by (`X-App-Ref`, `X-Call-Ref`, `X-Call-Direction`,
+`X-Dod-Number`, `X-Dod-Privacy`, `X-Access-Key-Id`, `X-Is-Api-Originated-Type`, `X-Connect-Token`
+and Routr's own `X-Edgeport-Ref`, `X-Gateway-Auth`, `X-Request-Uri`, `X-Session-Count`) are
+reserved, in any case. A transfer that breaks these rules SHALL be refused with `error`
+`bad_message` (`relatesTo` the transfer) and nothing is sent to the media node. The gateway SHALL
+add `X-Dod-Number` (the ingress number of an inbound call, the `from` of an outbound one) and
+`X-Access-Key-Id` (the app's workspace) itself, so a transfer to the PSTN leaves by the call's own
+workspace's trunk.
+
 `transfer.mode` SHALL be `cold` (the default), `warm` or `refer`:
 
 - `cold`: the media node dials `to` into the caller's room. When the new party answers, the app's
@@ -348,6 +360,15 @@ and pass them to the media node.
 - **THEN** the app receives `session.end` with `reason: "transfer"`
 - **AND** the media node no longer carries the call
 - **AND** the call record notes that recording ended at the transfer
+
+#### Scenario: Transfer with a reserved header
+- **WHEN** the app sends `transfer` `{id: "t4", to: "+15551234567", headers: {"X-Dod-Number": "+15550009999"}}`
+- **THEN** the app receives `error` with `code: "bad_message"` and `relatesTo: "t4"`
+- **AND** the media node receives no `transfer`
+
+#### Scenario: Transfer headers
+- **WHEN** an inbound call to `+15550002222` in workspace `W1` is transferred with `headers: {"X-Customer-Id": "c-42"}`
+- **THEN** the media node's `transfer` carries `X-Customer-Id: c-42`, `X-Dod-Number: +15550002222` and `X-Access-Key-Id: W1`
 
 #### Scenario: Failed transfer
 - **WHEN** the transfer target cannot be reached

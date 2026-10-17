@@ -467,6 +467,70 @@ describe("@gateway integration", function () {
     });
   }
 
+  for (const [name, transfer] of [
+    [
+      "a reserved header",
+      { to: "+15551234567", headers: { "X-Dod-Number": "+15550009999" } }
+    ],
+    [
+      "another workspace's key",
+      { to: "+15551234567", headers: { "x-access-key-id": "W2" } }
+    ],
+    [
+      "an app ref header",
+      { to: "+15551234567", headers: { "X-App-Ref": "theirs" } }
+    ],
+    [
+      "CR/LF in a header",
+      { to: "+15551234567", headers: { "X-Note": "a\r\nVia: x" } }
+    ],
+    [
+      "a non-X header",
+      { to: "+15551234567", headers: { Contact: "<sip:x@y>" } }
+    ],
+    ["CR/LF in the target", { to: "+1555\r\nVia: x" }],
+    ["URI delimiters in the target", { to: "sip:a@b;transport=tcp" }]
+  ] as const) {
+    it(`refuses a transfer with ${name} and sends nothing to the node (H11)`, async function () {
+      await start([app("ivr", harness.app.url, { workspaceRef: "W1" })]);
+      harness.mediaNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      peer.sendJson({ type: "transfer", id: "t1", ...transfer });
+      const error = await waitFor(() =>
+        json(peer).find((m) => m.type === "error")
+      );
+      expect(error).to.include({ code: "bad_message", relatesTo: "t1" });
+      await sleep(100);
+      expect(commands()).to.not.include("transfer");
+      expect(json(peer).some((m) => m.type === "session.end")).to.equal(false);
+    });
+  }
+
+  it("transfers with the app's custom headers and the call's own number and workspace (H11)", async function () {
+    await start([app("ivr", harness.app.url, { workspaceRef: "W1" })]);
+    harness.mediaNode.offerCall({ from: "+15550001111", to: "+15550002222" });
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({
+      type: "transfer",
+      id: "t1",
+      to: "+15551234567",
+      headers: { "X-Customer-Id": "c-42" }
+    });
+    const transfer = await waitFor(() =>
+      harness.mediaNode.commands
+        .map((c) => c.command)
+        .find((c) => c.type === "transfer")
+    );
+    expect(transfer).to.include({ to: "+15551234567" });
+    expect(transfer.headers).to.deep.equal({
+      "X-Customer-Id": "c-42",
+      "X-Dod-Number": "+15550002222",
+      "X-Access-Key-Id": "W1"
+    });
+  });
+
   it("refuses oversized handoff payloads and keeps the session", async function () {
     await start([
       app("ivr", harness.app.url, { workspaceRef: "W1" }),

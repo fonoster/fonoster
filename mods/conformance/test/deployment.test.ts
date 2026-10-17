@@ -134,6 +134,40 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(find(objs, "StatefulSet", "fonoster-nats")).to.not.exist;
   });
 
+  it("media nodes accept INVITEs only from trusted sources by default and refuse to render open (H9)", function () {
+    const envOf = (objs: K8sObject[]) => {
+      const node = find(objs, "StatefulSet", "fonoster-medianode");
+      const spec = node?.spec as {
+        template: {
+          spec: { containers: { env: { name: string; value?: string }[] }[] };
+        };
+      };
+      return spec.template.spec.containers[0].env;
+    };
+    const trusted = envOf(render()).find(
+      (e) => e.name === "MEDIANODE_TRUSTED_SOURCES"
+    );
+    expect(trusted?.value, "a default trusted-sources list").to.be.a("string")
+      .and.not.be.empty;
+    expect(trusted?.value).to.not.contain("0.0.0.0/0");
+    expect(() =>
+      execFileSync(
+        "helm",
+        ["template", "fonoster", CHART, "--set=medianode.trustedSources="],
+        { stdio: "pipe" }
+      )
+    ).to.throw(/trustedSources is empty/);
+    const open = envOf(
+      render(
+        "--set=medianode.trustedSources=",
+        "--set=medianode.allowAnySource=true"
+      )
+    );
+    expect(open.some((e) => e.name === "MEDIANODE_TRUSTED_SOURCES")).to.equal(
+      false
+    );
+  });
+
   it("renders every deployable of the cloud install, with a migrations Job", function () {
     const objs = render("values-cloud.yaml");
     [

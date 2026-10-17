@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import SDK from "@routr/sdk";
+import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
 import { ClientOptions } from "../types";
 import {
   createTrunk,
@@ -28,6 +29,7 @@ import {
 
 function buildService(clientOptions: ClientOptions) {
   const client = new SDK.Trunks(clientOptions);
+  const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
   return {
     definition: {
@@ -37,8 +39,8 @@ function buildService(clientOptions: ClientOptions) {
       proto: "trunks.proto"
     },
     handlers: {
-      createTrunk: createTrunk(client),
-      updateTrunk: updateTrunk(client),
+      createTrunk: createTrunk(client, checkRefs),
+      updateTrunk: updateTrunk(client, checkRefs),
       getTrunk: getTrunk(client),
       listTrunks: listTrunks(client),
       deleteTrunk: deleteTrunk(client)

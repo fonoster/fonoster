@@ -29,6 +29,8 @@ import { TEST_TOKEN, TEST_UUID } from "../utils";
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
+// The caller's workspace owns every `from` (the C2 ownership check passes).
+const ownNumber = async () => true;
 
 describe("@calls/createCall", function () {
   afterEach(function () {
@@ -68,7 +70,7 @@ describe("@calls/createCall", function () {
     } as unknown as Prisma;
 
     // Act
-    await createCall(applications, publisher)(call, sandbox.stub());
+    await createCall(applications, publisher, ownNumber)(call, sandbox.stub());
 
     // Assert
     expect(publisher.publishCall).to.have.been.calledOnce;
@@ -97,7 +99,7 @@ describe("@calls/createCall", function () {
     } as unknown as Prisma;
     const callback = sandbox.stub();
 
-    await createCall(applications, publisher)(
+    await createCall(applications, publisher, ownNumber)(
       {
         metadata,
         request: { from: "+1234567890", to: "+1234567891", appRef: TEST_UUID }
@@ -129,7 +131,7 @@ describe("@calls/createCall", function () {
     } as unknown as Prisma;
     const callback = sandbox.stub();
 
-    await createCall(applications, publisher)(
+    await createCall(applications, publisher, ownNumber)(
       {
         metadata,
         request: { from: "+1234567890", to: "+1234567891", appRef: TEST_UUID }
@@ -140,5 +142,122 @@ describe("@calls/createCall", function () {
     expect(callback.firstCall.args[0]).to.include({
       code: status.UNAVAILABLE
     });
+  });
+
+  it("refuses a from that is another workspace's number with PERMISSION_DENIED", async function () {
+    const { createCall } = await import("../../src/calls/createCall");
+    const { createIsWorkspaceNumber } =
+      await import("../../src/calls/createIsWorkspaceNumber");
+    const metadata = new Metadata();
+    metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", "WO00000000000000000000000000000000");
+    const publisher = { publishCall: sandbox.stub() };
+    const applications = {
+      application: { findUnique: sandbox.stub().resolves({ ref: TEST_UUID }) }
+    } as unknown as Prisma;
+    const numbers = {
+      listNumbers: sandbox.stub().resolves({
+        items: [
+          {
+            telUrl: "tel:+15550001111",
+            extended: { accessKeyId: "WOtherworkspace00000000000000000000" }
+          }
+        ],
+        nextPageToken: ""
+      })
+    };
+    const callback = sandbox.stub();
+
+    await createCall(
+      applications,
+      publisher,
+      createIsWorkspaceNumber(numbers)
+    )(
+      {
+        metadata,
+        request: { from: "+15550001111", to: "+15550002222", appRef: TEST_UUID }
+      },
+      callback
+    );
+
+    expect(callback.firstCall.args[0]).to.include({
+      code: status.PERMISSION_DENIED
+    });
+    expect(publisher.publishCall).to.not.have.been.called;
+  });
+
+  it("places the call when from is one of the workspace's numbers", async function () {
+    const { createCall } = await import("../../src/calls/createCall");
+    const { createIsWorkspaceNumber } =
+      await import("../../src/calls/createIsWorkspaceNumber");
+    const accessKeyId = "WO00000000000000000000000000000000";
+    const metadata = new Metadata();
+    metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", accessKeyId);
+    const publisher = { publishCall: sandbox.stub().resolves() };
+    const applications = {
+      application: { findUnique: sandbox.stub().resolves({ ref: TEST_UUID }) }
+    } as unknown as Prisma;
+    // The number is on the second page, after another workspace's numbers.
+    const listNumbers = sandbox.stub();
+    listNumbers.onFirstCall().resolves({
+      items: [
+        {
+          telUrl: "tel:+15550001111",
+          extended: { accessKeyId: "WOtherworkspace00000000000000000000" }
+        }
+      ],
+      nextPageToken: "p2"
+    });
+    listNumbers.onSecondCall().resolves({
+      items: [{ telUrl: "tel:+15550001111", extended: { accessKeyId } }],
+      nextPageToken: ""
+    });
+    const callback = sandbox.stub();
+
+    await createCall(
+      applications,
+      publisher,
+      createIsWorkspaceNumber({ listNumbers })
+    )(
+      {
+        metadata,
+        request: { from: "+15550001111", to: "+15550002222", appRef: TEST_UUID }
+      },
+      callback
+    );
+
+    expect(callback).to.have.been.calledOnce;
+    expect(callback.firstCall.args[0]).to.equal(null);
+    expect(publisher.publishCall).to.have.been.calledWithMatch({
+      from: "+15550001111",
+      accessKeyId
+    });
+  });
+
+  it("refuses a from or to that is not a valid number or SIP target", async function () {
+    const { createCall } = await import("../../src/calls/createCall");
+    const metadata = new Metadata();
+    metadata.set("token", TEST_TOKEN);
+    const publisher = { publishCall: sandbox.stub() };
+    const applications = {
+      application: { findUnique: sandbox.stub().resolves({ ref: TEST_UUID }) }
+    } as unknown as Prisma;
+
+    for (const request of [
+      { from: "+1555\r\nX-Dod-Number: +1", to: "+15550002222" },
+      { from: "+15550001111", to: "+1555\r\nVia: x" }
+    ]) {
+      const callback = sandbox.stub();
+      await createCall(
+        applications,
+        publisher,
+        ownNumber
+      )({ metadata, request: { ...request, appRef: TEST_UUID } }, callback);
+      expect(callback.firstCall.args[0]).to.include({
+        code: status.INVALID_ARGUMENT
+      });
+    }
+    expect(publisher.publishCall).to.not.have.been.called;
   });
 });

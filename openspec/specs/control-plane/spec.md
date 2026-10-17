@@ -51,6 +51,44 @@ it the `media-control` commands that create the room and dial the callee.
 - **WHEN** every media node in the cell is draining or at its limit
 - **THEN** call creation fails with a capacity error and no INVITE is sent
 
+### Requirement: Calls leave only by the workspace's own numbers
+
+CreateCall SHALL accept `from` only as an E.164 number that is one of the caller's workspace's
+Numbers, because `from` travels as `X-Dod-Number` and picks the trunk the call leaves by. `to` SHALL
+be an E.164 number, a SIP user or a `sip:`/`sips:` URI without parameters. A malformed `from` or
+`to` SHALL fail with `INVALID_ARGUMENT`; a `from` that is not one of the workspace's Numbers (another
+workspace's or none) SHALL fail with `PERMISSION_DENIED`, before any media node is asked.
+
+#### Scenario: Another workspace's number
+- **WHEN** workspace A calls CreateCall with `from` set to a Number of workspace B
+- **THEN** the call fails with `PERMISSION_DENIED` and no room is created
+
+#### Scenario: Own number
+- **WHEN** workspace A calls CreateCall with `from` set to one of its Numbers
+- **THEN** the call is placed with that number as `X-Dod-Number`
+
+#### Scenario: Header injection in a party
+- **WHEN** `from` or `to` contains CR or LF
+- **THEN** the call fails with `INVALID_ARGUMENT`
+
+### Requirement: SIP resources reference only their own workspace
+
+Creating or updating an agent, trunk, number or domain SHALL check that every resource it references
+(`domainRef`, `credentialsRef`, `accessControlListRef`, `inboundCredentialsRef`,
+`outboundCredentialsRef`, `trunkRef`, each egress policy's `numberRef`) belongs to the caller's
+workspace. A reference to another workspace's resource SHALL fail with `INVALID_ARGUMENT`, reported
+like a missing one. Reading or updating a number or ACL of another workspace SHALL fail with
+`PERMISSION_DENIED`, as for every other resource. Routr has no notion of workspaces; the apiserver
+enforces this.
+
+#### Scenario: Trunk with another workspace's credentials
+- **WHEN** workspace A creates a trunk whose `outboundCredentialsRef` names workspace B's credentials
+- **THEN** the request fails with `INVALID_ARGUMENT` and Routr is not asked to create it
+
+#### Scenario: Agent in another workspace's domain
+- **WHEN** workspace A creates or updates an agent with `domainRef` naming workspace B's domain
+- **THEN** the request fails with `INVALID_ARGUMENT`
+
 ### Requirement: NATS carries everything internal except audio
 
 Internal commands, events, the session registry and webhook dispatch SHALL use NATS:

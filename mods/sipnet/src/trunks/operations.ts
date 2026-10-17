@@ -25,6 +25,7 @@ import {
   TrunkExtended,
   UpdateTrunkRequest
 } from "@fonoster/types";
+import { CheckRefs, refsChecker, trunkRefs } from "../resources/checkRefs";
 import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
@@ -33,11 +34,12 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Trunk";
 
-function createTrunk(trunks: TrunkApi) {
+function createTrunk(trunks: TrunkApi, checkRefs?: CheckRefs) {
   return createResource<TrunkExtended, CreateTrunkRequestExtended, TrunkApi>(
     trunks,
     RESOURCE,
-    V.createTrunkRequestSchema
+    V.createTrunkRequestSchema,
+    refsChecker(checkRefs, trunkRefs)
   );
 }
 
@@ -68,7 +70,7 @@ export function mergeTrunkUpdate(
   return merged as UpdateTrunkRequest;
 }
 
-function updateTrunk(trunks: TrunkApi) {
+function updateTrunk(trunks: TrunkApi, checkRefs?: CheckRefs) {
   const partial = {
     ...trunks,
     getTrunk: (ref: string) => trunks.getTrunk(ref),
@@ -80,7 +82,8 @@ function updateTrunk(trunks: TrunkApi) {
   return updateResource<TrunkExtended, UpdateTrunkRequest, TrunkApi>(
     partial,
     RESOURCE,
-    V.updateTrunkRequestSchema
+    V.updateTrunkRequestSchema,
+    refsChecker(checkRefs, trunkRefs)
   );
 }
 

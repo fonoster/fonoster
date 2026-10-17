@@ -123,7 +123,10 @@ describe("@sipnet[numbers/engineRouting]", function () {
   it("without routing, create and update use the media-node peer", async function () {
     const { updateNumber } = await import("../src/numbers/updateNumber");
     const numbers = {
-      getNumber: sandbox.stub(),
+      getNumber: sandbox.stub().resolves({
+        ref: "n1",
+        extended: { accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p" }
+      }),
       updateNumber: sandbox.stub().resolves({ ref: "n1" })
     } as unknown as NumbersApi;
     await updateNumber(numbers, sandbox.stub())(
@@ -133,7 +136,8 @@ describe("@sipnet[numbers/engineRouting]", function () {
       } as never,
       sandbox.stub()
     );
-    expect(numbers.getNumber).to.not.have.been.called;
+    // Read once, for the ownership check only (not for routing).
+    expect(numbers.getNumber).to.have.been.calledOnce;
     expect(numbers.updateNumber).to.have.been.calledWithMatch({
       aorLink: ROUTR_DEFAULT_PEER_AOR
     });

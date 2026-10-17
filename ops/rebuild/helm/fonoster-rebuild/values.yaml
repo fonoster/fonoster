@@ -178,8 +178,13 @@ medianode:
     # Name of a Secret with key `password` (the peer password at Routr).
     passwordSecret: medianode-peer
     outboundProxy: routr:5060
-  # IPs, CIDRs or host names allowed to send INVITEs (Routr); empty accepts any source (RV-B7).
-  trustedSources: ""
+  # IPs, CIDRs or host names allowed to send INVITEs: Routr's addresses. The node trusts
+  # X-App-Ref, X-Call-Ref and X-Call-Direction only from these (RV-B7); with hostNetwork, port
+  # 5060 is reachable on the node's address. The default keeps the private ranges only (no
+  # INVITE from the internet); narrow it to Routr's pod CIDR or address. Empty refuses to render
+  # unless allowAnySource is true (development only).
+  trustedSources: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+  allowAnySource: false
   # SIP over TLS toward the edge (add-platform 4.2). `secret` holds tls.crt and tls.key (the
   # node's certificate) and ca.crt (the CA that signs the edge's certificates). mutual: the
   # listener requires a client certificate signed by ca.crt from every connection (Routr's).

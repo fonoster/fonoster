@@ -1,5 +1,8 @@
 {{- if .Values.medianode.enabled }}
 {{- $m := .Values.medianode }}
+{{- if and (not $m.trustedSources) (not $m.allowAnySource) }}
+{{- fail "medianode.trustedSources is empty: set it to Routr's addresses (IPs, CIDRs or host names), or set medianode.allowAnySource=true for development only" }}
+{{- end }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

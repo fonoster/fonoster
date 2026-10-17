@@ -30,6 +30,7 @@ import {
   NumbersApi
 } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { CheckRefs, numberRefs } from "../resources/checkRefs";
 import { convertToRoutrNumber } from "./convertToRoutrNumber";
 import { NumberRouting } from "./engineRouting";
 
@@ -38,7 +39,8 @@ const logger = getLogger({ service: "sipnet", filePath: __filename });
 function createNumber(
   api: NumbersApi,
   checkNumberPreconditions: NumberPreconditionsCheck,
-  routing?: NumberRouting
+  routing?: NumberRouting,
+  checkRefs?: CheckRefs
 ) {
   const fn = async (
     call: { request: CreateNumberRequest },
@@ -52,6 +54,8 @@ function createNumber(
 
     // Validates that the appRef exists in the caller's workspace (RV-B4)
     await checkNumberPreconditions({ ...request, accessKeyId });
+    // ...and the trunk too (H7)
+    await checkRefs?.(accessKeyId, numberRefs(request));
 
     logger.verbose("call to createNumber", { ...request, accessKeyId });
 

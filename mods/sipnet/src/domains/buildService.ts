@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import SDK from "@routr/sdk";
+import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
 import { ClientOptions } from "../types";
 import {
   createDomain,
@@ -28,6 +29,7 @@ import {
 
 function buildService(clientOptions: ClientOptions) {
   const client = new SDK.Domains(clientOptions);
+  const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
   return {
     definition: {
@@ -37,8 +39,8 @@ function buildService(clientOptions: ClientOptions) {
       proto: "domains.proto"
     },
     handlers: {
-      createDomain: createDomain(client),
-      updateDomain: updateDomain(client),
+      createDomain: createDomain(client, checkRefs),
+      updateDomain: updateDomain(client, checkRefs),
       getDomain: getDomain(client),
       listDomains: listDomains(client),
       deleteDomain: deleteDomain(client)

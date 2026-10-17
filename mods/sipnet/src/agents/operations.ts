@@ -25,6 +25,7 @@ import {
   ListAgentsRequest,
   UpdateAgentRequest
 } from "@fonoster/types";
+import { agentRefs, CheckRefs, refsChecker } from "../resources/checkRefs";
 import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
@@ -33,19 +34,21 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Agent";
 
-function createAgent(agents: AgentsApi) {
+function createAgent(agents: AgentsApi, checkRefs?: CheckRefs) {
   return createResource<AgentExtended, CreateAgentRequestExtended, AgentsApi>(
     agents,
     RESOURCE,
-    V.createAgentRequestSchema
+    V.createAgentRequestSchema,
+    refsChecker(checkRefs, agentRefs)
   );
 }
 
-function updateAgent(agents: AgentsApi) {
+function updateAgent(agents: AgentsApi, checkRefs?: CheckRefs) {
   return updateResource<AgentExtended, UpdateAgentRequest, AgentsApi>(
     agents,
     RESOURCE,
-    V.updateAgentRequestSchema
+    V.updateAgentRequestSchema,
+    refsChecker(checkRefs, agentRefs)
   );
 }
 

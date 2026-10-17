@@ -18,6 +18,7 @@
  */
 import { NumberPreconditionsCheck } from "@fonoster/common";
 import SDK from "@routr/sdk";
+import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
 import { ClientOptions } from "../types";
 import { createNumber } from "./createNumber";
 import { NumberRouting } from "./engineRouting";
@@ -33,6 +34,7 @@ function buildService(
   routing?: NumberRouting
 ) {
   const client = new SDK.Numbers(clientOptions);
+  const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
   return {
     definition: {
@@ -42,8 +44,18 @@ function buildService(
       proto: "numbers.proto"
     },
     handlers: {
-      createNumber: createNumber(client, checkNumberPreconditions, routing),
-      updateNumber: updateNumber(client, checkNumberPreconditions, routing),
+      createNumber: createNumber(
+        client,
+        checkNumberPreconditions,
+        routing,
+        checkRefs
+      ),
+      updateNumber: updateNumber(
+        client,
+        checkNumberPreconditions,
+        routing,
+        checkRefs
+      ),
       getNumber: getNumber(client),
       listNumbers: listNumbers(client),
       deleteNumber: deleteNumber(client)

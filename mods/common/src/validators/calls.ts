@@ -19,10 +19,13 @@
 import { CallStatus, CallType } from "@fonoster/types";
 import { z } from "zod";
 import { POSITIVE_INTEGER_MESSAGE, VALID_DATE } from "../messages";
+import { e164Schema, sipTargetSchema } from "./sip";
 
+// `from` is one of the workspace's Numbers (the Calls service checks ownership); it travels as
+// X-Dod-Number and picks the trunk, so it is an E.164 number. `to` is what the media node dials.
 const createCallRequestSchema = z.object({
-  from: z.string(),
-  to: z.string(),
+  from: e164Schema,
+  to: sipTargetSchema,
   appRef: z.string().uuid({ message: "Invalid call reference" }),
   timeout: z
     .number()
