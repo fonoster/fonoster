@@ -22,7 +22,14 @@ import * as net from "net";
 import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
-import { fsStores, RecordStore, signVcon, Vcon } from "@fonoster/callrecord";
+import {
+  fsStores,
+  indexEntry,
+  RecordStore,
+  SealedVersion,
+  signVcon,
+  Vcon
+} from "@fonoster/callrecord";
 import { CellSecrets } from "@fonoster/common";
 import { connect, credsAuthenticator, NatsConnection, StringCodec } from "nats";
 import { generateRegionHub } from "../../apiserver/src/regions";
@@ -61,23 +68,29 @@ import {
 const sc = StringCodec();
 const SECRET_VALUE = "dg-CELL-ONLY-SECRET-VALUE-7f3a";
 const TRANSCRIPT = "the caller's card number is 4111 1111";
-const ALLOWED_INDEX = new Set([
-  // regions: "call ref, app, time, duration, status, cost, size and location", plus the routing
-  // fields every link message carries (type, workspace, region, version).
-  "type",
+// regions / Call content and provider keys never leave the cell: call metadata (the call-record
+// index entry) may cross, exactly these fields; content (recordings, transcripts, messages, keys)
+// may not.
+const ALLOWED_INDEX = [
   "callRef",
   "workspaceRef",
   "appRef",
+  "from",
+  "to",
+  "direction",
+  "status",
+  "endReason",
+  "failureReason",
+  "sipStatus",
   "startedAt",
   "endedAt",
   "durationSeconds",
-  "status",
-  "cost",
-  "size",
-  "location",
   "region",
-  "version"
-]);
+  "location",
+  "version",
+  "size",
+  "parts"
+];
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function until<T>(
@@ -102,7 +115,11 @@ const recordKey = {
 };
 
 /** A sealed record of WS with a recording and a transcript that must never leave the cell. */
-async function sealRecord(store: RecordStore, callRef: string, audio: Buffer) {
+async function sealRecord(
+  store: RecordStore,
+  callRef: string,
+  audio: Buffer
+): Promise<{ sealed: SealedVersion; vcon: Vcon }> {
   const vcon: Vcon = {
     vcon: "0.0.1",
     uuid: callRef,
@@ -117,14 +134,24 @@ async function sealRecord(store: RecordStore, callRef: string, audio: Buffer) {
     ],
     analysis: [],
     attachments: [],
-    fonoster: { workspaceRef: WS, status: "completed" }
+    fonoster: {
+      workspaceRef: WS,
+      appRefs: ["app-1"],
+      direction: "inbound",
+      status: "completed",
+      endReason: "caller_hangup",
+      startedAt: "2026-10-15T10:00:00.000Z",
+      endedAt: "2026-10-15T10:01:35.000Z"
+    }
   };
-  await store.putSealed(callRef, {
+  const sealed: SealedVersion = {
     version: 1,
     signed: signVcon(vcon, recordKey),
     redacted: signVcon(vcon, recordKey),
     parts: [{ name: "recording.wav", mimetype: "audio/wav", data: audio }]
-  });
+  };
+  await store.putSealed(callRef, sealed);
+  return { sealed, vcon };
 }
 
 /** What reached the hub: every message the control plane's side can see. */
@@ -433,34 +460,21 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
       Buffer.from("RIFF-CELL-AUDIO-"),
       randomBytes(200 * 1024)
     ]);
-    await sealRecord(records, "call-1", audio);
-    // The gateway's sealed-record entry, as it publishes it on the cell's bus.
+    const { sealed, vcon } = await sealRecord(records, "call-1", audio);
+    // The gateway's sealed-record entry, built as the gateway builds it and published on the
+    // cell's bus.
     const local = await connect({
       servers: (cellNc as NatsConnection).getServer()
     });
     local.publish(
       "callrecord.sealed",
       sc.encode(
-        JSON.stringify({
-          callRef: "call-1",
-          workspaceRef: WS,
-          appRef: "app-1",
-          from: "+15550001111",
-          to: "+15550002222",
-          direction: "inbound",
-          status: "completed",
-          endReason: "caller_hangup",
-          failureReason: null,
-          sipStatus: null,
-          startedAt: "2026-10-15T10:00:00.000Z",
-          endedAt: "2026-10-15T10:01:35.000Z",
-          durationSeconds: 95,
-          region: regionRef,
-          location: "cell://local",
-          version: 1,
-          size: audio.length,
-          parts: ["recording", "transcript"]
-        })
+        JSON.stringify(
+          indexEntry("call-1", sealed, vcon, {
+            region: regionRef,
+            location: "cell://local"
+          })
+        )
       )
     );
     await local.flush();
@@ -532,14 +546,52 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
     await local.close();
   });
 
-  // regions / Call content and provider keys never leave the cell: only the index (call ref, app,
-  // time, duration, status, cost, size, location) may cross. The cell forwards the gateway's whole
-  // RecordIndexEntry, which also carries the caller and callee numbers, direction, end and failure
-  // reasons, SIP status and part names.
-  it.skip("crosses only the spec's index fields for a sealed call (index entry carries more; see the PR)", function () {
-    const entry = seen.find((m) => m.subject === `region.${regionRef}.index`);
-    const keys = Object.keys(JSON.parse(entry!.text));
-    expect(keys.filter((k) => !ALLOWED_INDEX.has(k))).to.deep.equal([]);
+  it("crosses exactly the call index metadata for a sealed call and nothing of its content", function () {
+    if (!agent) return this.skip();
+    const entries = seen.filter(
+      (m) => m.subject === `region.${regionRef}.index`
+    );
+    expect(entries, "index entries on the link").to.have.length.greaterThan(0);
+    for (const m of entries) {
+      const entry = JSON.parse(m.text) as Record<string, unknown>;
+      // Exactly the allowed metadata: a new field on the index entry fails here until the spec
+      // allows it.
+      expect(Object.keys(entry).sort()).to.deep.equal(
+        [...ALLOWED_INDEX].sort()
+      );
+      for (const v of Object.values(entry))
+        expect(
+          typeof v === "object" && v !== null && !Array.isArray(v),
+          m.text
+        ).to.equal(false);
+    }
+    const call1 = entries
+      .map((m) => JSON.parse(m.text))
+      .find((e) => e.callRef === "call-1");
+    expect(call1).to.include({
+      workspaceRef: WS,
+      appRef: "app-1",
+      from: "+15550001111",
+      to: "+15550002222",
+      direction: "inbound",
+      status: "completed",
+      durationSeconds: 95
+    });
+    expect(call1.parts).to.deep.equal(["recording", "transcript"]);
+    // Nothing on the link carries the call's content: no transcript text, no key value, and
+    // recording bytes (raw or base64) only as replies to a relay request.
+    const marker = Buffer.from("RIFF-CELL-AUDIO-")
+      .toString("base64")
+      .slice(0, 16);
+    const relayReply = new RegExp(`^region\\.${regionRef}\\._INBOX\\.`);
+    for (const m of seen) {
+      expect(m.text, m.subject).to.not.include(TRANSCRIPT);
+      expect(m.text, m.subject).to.not.include(SECRET_VALUE);
+      if (!relayReply.test(m.subject)) {
+        expect(m.text, m.subject).to.not.include("RIFF-CELL-AUDIO-");
+        expect(m.text, m.subject).to.not.include(marker);
+      }
+    }
   });
 
   it("rides out a control-plane outage on the last config and syncs the change made meanwhile", async function () {
