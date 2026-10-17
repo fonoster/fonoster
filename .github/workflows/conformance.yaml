@@ -188,3 +188,44 @@ jobs:
         with:
           name: conformance-reports
           path: reports/
+
+  # The full T2 bar (ten replicas, 1,000 calls) needs about 20 vCPU for the gateways alone, more
+  # than a hosted runner has. This job stays off until the repository variable LOAD_RUNNER names
+  # a bigger runner (a GitHub larger-runner label or a self-hosted label); the nightly job above
+  # keeps running the reduced profiles meanwhile.
+  load-full:
+    name: load (T2), full scale
+    if: vars.LOAD_RUNNER != '' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ${{ vars.LOAD_RUNNER }}
+    timeout-minutes: 60
+    services:
+      nats:
+        image: nats:2.11.8
+        ports:
+          - 4222:4222
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Load (T2), ten replicas at 1,000 calls
+        run: |
+          mkdir -p reports
+          npx tsx mods/gateway/scripts/scale.ts --calls 1000 --seconds 60 --replicas 10 | tee reports/scale-10x1000.json
+
+      - name: Publish reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-load-full
+          path: reports/

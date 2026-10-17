@@ -26,6 +26,9 @@
   `runs-on: { group: <name> }` on the conformance "timing, load, replay" job and the stack-smoke
   "e2e" job; (b) a self-hosted runner labelled `conformance` (`runs-on: [self-hosted, conformance]`);
   (c) stay on ubuntu-latest and keep T2 report-only)
+  (2026-10-17, owner: wait until there is budget. The full-scale job `load-full` in conformance.yaml
+  is set up but off; it runs ten replicas at 1,000 calls once the repository variable `LOAD_RUNNER`
+  names a runner. The reduced nightly profiles keep running on ubuntu-latest meanwhile.)
 
 ## 3. Private regions (from add-private-regions 1.3)
 
