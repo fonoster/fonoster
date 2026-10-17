@@ -53,6 +53,7 @@ type File struct {
 	DrainWait         string `yaml:"drainWait"`
 	MaxDuration       string `yaml:"maxDuration"`
 	MaxParticipants   int    `yaml:"maxParticipants"`
+	MaxRooms          int    `yaml:"maxRooms"`
 	MediaTimeout      string `yaml:"mediaTimeout"`
 	TLS               struct {
 		Listen   string `yaml:"listen"`

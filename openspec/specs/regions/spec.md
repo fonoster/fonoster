@@ -14,7 +14,7 @@ happened.
 #### Scenario: Call data stays in its cell
 - **WHEN** a call runs in cell `eu-1` and its record is sealed
 - **THEN** the recording, transcript and vCon are stored in `eu-1` object storage
-- **AND** the control plane stores only the index entry (call ref, app, time, duration, status, cost, size, location)
+- **AND** the control plane stores only the index entry (call metadata; see "Call content and provider keys never leave the cell")
 
 #### Scenario: Control plane outage
 - **WHEN** the control plane is unreachable for 10 minutes
@@ -56,11 +56,17 @@ TLS. No inbound port on the cell's network SHALL be required for the control pla
 
 ### Requirement: Call content and provider keys never leave the cell
 
-Recordings, transcripts, SIP traces, call records and provider keys of a cell MUST NOT be sent to
-the control plane or to any other cell. Only call metadata (the call-record index: call ref, app,
-time, duration, status, cost, size and location), synced config and health information SHALL
-cross the link. The dashboard SHALL read a private cell's call content through the control plane's relay, never stored centrally (add-private-regions). A private cell SHALL
-answer capability queries (`GetCapabilities`) for its own catalog and keys locally.
+Call content MUST NOT be sent to the control plane or to any other cell: recordings, transcripts,
+conversation text (messages, summaries), SIP traces, the vCon itself and provider keys. Call
+metadata MAY cross the link, as the call-record index entry, and nothing else about a call: call
+ref, workspace, app, from and to numbers, direction, status, end reason, failure reason, SIP status,
+start and end time, duration, region, location, version, size and the names of the parts present
+(`recording`, `transcript`, `messages`). Besides the index, only synced config, health (the
+heartbeat, which names the keys that are set, never their values) and per-workspace usage minutes
+SHALL cross. The one exception is a relayed read: the dashboard SHALL read a private cell's call
+content through the control plane's relay, as replies to a request for one record, never stored
+centrally (add-private-regions). A private cell SHALL answer capability queries
+(`GetCapabilities`) for its own catalog and keys locally.
 
 #### Scenario: Keys stay local
 - **WHEN** a private cell uses its own Deepgram key stored in the cell's secret store
@@ -73,5 +79,10 @@ answer capability queries (`GetCapabilities`) for its own catalog and keys local
 
 #### Scenario: Usage reaches billing
 - **WHEN** a private-cell call ends after 95 seconds
-- **THEN** the control plane receives its index entry with duration 95 s and status, and nothing else about the call
+- **THEN** the control plane receives its index entry with duration 95 s and status, and the cell's usage minutes for the workspace
+
+#### Scenario: Only index fields cross
+- **WHEN** a private-cell call with a recording and a transcript is sealed
+- **THEN** the index entry on the link has only the index entry fields listed above
+- **AND** no message on the link carries the transcript text, the provider key's value or recording bytes, except relay replies to a read of that record
 

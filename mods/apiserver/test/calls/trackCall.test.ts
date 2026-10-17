@@ -22,6 +22,7 @@ import * as chai from "chai";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { NatsConnection } from "nats";
+import * as sinon from "sinon";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 
@@ -119,5 +120,52 @@ describe("@calls/trackCall", function () {
     clock.tick(600);
     expect(call.write).to.have.callCount(3);
     expect(call.end).to.have.been.calledOnce;
+  });
+
+  it("translates the media node's call events on calls.<ref>.events", async function () {
+    const clock = sandbox.useFakeTimers();
+    const { createTrackCall, toTrackMessage } =
+      await import("../../src/calls/createTrackCall");
+    const callRef = "0f6c2a51-7d4e-4b8a-9c3f-2e1d5a6b7c8d";
+    const subject = `calls.${callRef}.events`;
+    const subscription = { callback: sandbox.stub() };
+    const nc = {
+      subscribe: sandbox.stub().returns(subscription)
+    } as unknown as NatsConnection;
+    const trackCall = createTrackCall(nc);
+    expect((nc.subscribe as sinon.SinonStub).firstCall.args[0]).to.equal(
+      "calls.*.events"
+    );
+    const send = (m: Record<string, unknown>) =>
+      subscription.callback(null, { subject, json: () => m });
+
+    const call = {
+      write: sandbox.stub(),
+      end: sandbox.stub(),
+      request: { ref: callRef }
+    };
+    await trackCall(call, () => {});
+    send({ ref: callRef, status: DialStatus.TRYING });
+    send({ type: "call.progress", status: "ringing", roomRef: "r1" });
+    send({ type: "participant.joined", roomRef: "r1" }); // not a call status
+    send({ type: "call.answered", callRef, roomRef: "r1" });
+    send({ type: "room.ended", reason: "callee_hangup", roomRef: "r1" });
+    clock.tick(600);
+    expect(call.write.args.map((a) => a[0])).to.deep.equal([
+      { ref: callRef, status: DialStatus.TRYING },
+      { ref: callRef, status: DialStatus.PROGRESS },
+      { ref: callRef, status: DialStatus.ANSWER }
+    ]);
+    expect(call.end).to.have.been.calledOnce;
+
+    expect(
+      toTrackMessage({ type: "call.progress", status: "busy", callRef })
+    ).to.deep.equal({ ref: callRef, status: DialStatus.BUSY });
+    expect(
+      toTrackMessage({ type: "call.progress", status: "no_answer" }, subject)
+    ).to.deep.equal({ ref: callRef, status: DialStatus.NOANSWER });
+    expect(toTrackMessage({ type: "dtmf", digit: "5" }, subject)).to.equal(
+      undefined
+    );
   });
 });

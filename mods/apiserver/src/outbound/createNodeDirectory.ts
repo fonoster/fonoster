@@ -20,6 +20,8 @@
 export type MediaNodeStatus = {
   nodeId: string;
   rooms: number;
+  /** The node's room limit (media-node "Call and room limits"); unset for nodes that report none. */
+  maxRooms?: number;
   draining: boolean;
   seenAt: number;
 };
@@ -54,22 +56,40 @@ export function createNodeDirectory(
         const known = nodes.get(nodeId);
         // An older registry entry never replaces a fresher heartbeat.
         if (known && known.seenAt > at) return;
+        const maxRooms = Number(event.maxRooms);
         nodes.set(nodeId, {
           nodeId,
           rooms: Number(event.rooms ?? 0),
+          maxRooms:
+            Number.isFinite(maxRooms) && maxRooms > 0 ? maxRooms : undefined,
           draining: event.draining === true,
           seenAt: at
         });
       }
     },
-    /** The least-loaded live node that is not draining, or undefined when there is none. */
-    pick(): string | undefined {
+    /**
+     * The least-loaded eligible node (live, not draining, below its room limit), skipping the
+     * nodes in `exclude` (already tried for this call); undefined when there is none.
+     */
+    pick(exclude: ReadonlySet<string> = new Set()): string | undefined {
       let best: MediaNodeStatus | undefined;
       for (const n of nodes.values()) {
-        if (n.draining || now() - n.seenAt > staleMs) continue;
+        if (exclude.has(n.nodeId) || n.draining) continue;
+        if (now() - n.seenAt > staleMs) continue;
+        if (n.maxRooms !== undefined && n.rooms >= n.maxRooms) continue;
         if (!best || n.rooms < best.rooms) best = n;
       }
       return best?.nodeId;
+    },
+    /**
+     * A node refused a room because it is full or draining: no new call goes to it until its
+     * next heartbeat says otherwise.
+     */
+    refused(nodeId: string, code: string) {
+      const n = nodes.get(nodeId);
+      if (!n) return;
+      if (code === "draining") n.draining = true;
+      else n.maxRooms = Math.min(n.maxRooms ?? n.rooms, n.rooms);
     },
     /** Counts a room placed on a node before its next heartbeat reports it. */
     placed(nodeId: string) {
