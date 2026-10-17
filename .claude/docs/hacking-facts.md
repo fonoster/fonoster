@@ -1,6 +1,6 @@
 # Facts for the Hacking Fonoster pages (revamp-developer-experience, 2026-10-16)
 
-From the rebuild/devx final report (DX-B1…B13 in openspec/changes/revamp-developer-experience/build-log.md).
+From the rebuild/devx final report (DX-B1…B13 in openspec/changes/archive/2026-10-17-revamp-developer-experience/build-log.md).
 Verify against code before drafting with /ps:docs.
 
 - Prerequisites: Docker + VS Code with Dev Containers, or a Codespace, or `npx @devcontainers/cli`.

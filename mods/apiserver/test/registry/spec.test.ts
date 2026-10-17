@@ -44,7 +44,7 @@ import { TEST_TOKEN } from "../utils";
 
 const SPEC = path.join(
   __dirname,
-  "../../../../openspec/changes/add-provider-registry/specs/provider-registry/spec.md"
+  "../../../../openspec/specs/provider-registry/spec.md"
 );
 const ROOT = path.join(__dirname, "../../../..");
 

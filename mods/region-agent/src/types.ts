@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The wire contract with the control plane (openspec/changes/add-private-regions/contract.md,
+// The wire contract with the control plane (openspec/changes/archive/2026-10-17-add-private-regions/contract.md,
 // `fonoster.region.v1`). Additive only: unknown fields and message types are ignored.
 
 export const CONTRACT_VERSION = "fonoster.region.v1";

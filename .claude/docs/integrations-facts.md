@@ -1,7 +1,7 @@
 # Facts for the integration pages (from unify-config-placeholders, 2026-10-16)
 
 Source: rebuild/config-pattern final report (CP-B entries in
-`openspec/changes/unify-config-placeholders/build-log.md`). Verify against code before drafting each
+`openspec/changes/archive/2026-10-17-unify-config-placeholders/build-log.md`). Verify against code before drafting each
 page with /ps:docs.
 
 ## Send call metrics to ClickHouse (`self-hosting/send-call-metrics-to-clickhouse`)

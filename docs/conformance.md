@@ -1,6 +1,6 @@
 # Running the conformance suites
 
-The conformance framework (`openspec/changes/add-conformance-framework`) holds the rebuild to its
+The conformance framework (`openspec/changes/archive/2026-10-17-add-conformance-framework`) holds the rebuild to its
 contracts. Scenario files in `mods/conformance/scenarios` script one side of a contract (session
 protocol, Twilio protocol, voice SDK, media-control, Autopilot) and say what the other side must
 send back. Any implementation, in any language, passes or fails the same files. The format is in

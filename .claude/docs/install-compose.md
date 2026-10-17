@@ -77,6 +77,6 @@ Owner's run (2026-10-15, macOS, following the page; pre-release files):
 
 - 2026-10-15 — Page written and wired. Ends signed in to the dashboard; "Make your first call" is the next tutorial (vendor keys → agent → domain/SIP user → trunk/number → softphone). Pre-release accordion to remove at v0.30.0.
 
-- 2026-10-15 — Installer spec written: openspec/changes/add-self-host-installer (curl archive → npx -p @fonoster/common fonoster-config init/info/check → docker compose up -d; keys in dashboard; local build for now).
+- 2026-10-15 — Installer spec written: openspec/changes/archive/2026-10-17-add-self-host-installer (curl archive → npx -p @fonoster/common fonoster-config init/info/check → docker compose up -d; keys in dashboard; local build for now).
 - 2026-10-15 — Frame approved. Owner chose to fix the installer first (published images + standalone bundle, no clone/Node/"rebuild" name); tutorial teaches that path once it exists.
 - 2026-10-15 — Checkpoint created; framing the page.
