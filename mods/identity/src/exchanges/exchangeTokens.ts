@@ -16,22 +16,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
+import { SIGN_ALGORITHM } from "../constants";
 import { Prisma } from "../db";
 import * as AK from "./payloads/apikeys";
 import * as US from "./payloads/users";
+import { createRefreshTokenStore } from "./refreshTokens";
 import { IdentityConfig } from "./types";
-
-const SIGN_ALGORITHM = "RS256";
 
 // prettier-ignore
 function exchangeTokens(prisma: Prisma, identityConfig: IdentityConfig) {
-  return async (accessKeyId: string) => {
+  const refreshTokens = createRefreshTokenStore(prisma);
+
+  /**
+   * Issues tokens for `accessKeyId`. The refresh token gets a fresh `jti`,
+   * recorded so it can be used once; `familyId` continues a rotation chain
+   * (absent for a new sign-in).
+   */
+  return async (accessKeyId: string, options: { familyId?: string } = {}) => {
     const { privateKey, idTokenExpiresIn, accessTokenExpiresIn, refreshTokenExpiresIn } = identityConfig;
+    const jti = randomUUID();
+    const familyId = options.familyId ?? randomUUID();
 
     const idTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: idTokenExpiresIn } as jwt.SignOptions;
     const accessTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: accessTokenExpiresIn } as jwt.SignOptions;
-    const refreshTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: refreshTokenExpiresIn } as jwt.SignOptions;
+    const refreshTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: refreshTokenExpiresIn, jwtid: jti } as jwt.SignOptions;
 
     let idToken = null;
     let accessToken = null;
@@ -52,6 +62,15 @@ function exchangeTokens(prisma: Prisma, identityConfig: IdentityConfig) {
       accessToken = jwt.sign(accessTokenPayload, privateKey, accessTokenSignOptions);
       refreshToken = jwt.sign(refreshTokenPayload, privateKey, refreshTokenSignOptions);
     }
+
+    const { exp } = jwt.decode(refreshToken) as { exp: number };
+
+    await refreshTokens.record({
+      jti,
+      familyId,
+      accessKeyId,
+      expiresAt: new Date(exp * 1000)
+    });
 
     return {
       idToken,

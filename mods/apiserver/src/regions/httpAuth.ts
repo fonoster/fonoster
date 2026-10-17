@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { decodeToken, isValidToken } from "@fonoster/common";
+import { verifyAccessToken } from "@fonoster/common";
 import { NextFunction, Request, Response } from "express";
 
 export type Caller = { accessKeyId: string; role: string; actor: string };
@@ -44,9 +44,11 @@ export function createHttpAuth(identityPublicKey: string) {
     const accessKeyId = String(
       req.headers["x-accesskey-id"] ?? req.headers["accesskeyid"] ?? ""
     );
-    if (!token || !isValidToken(token, identityPublicKey))
-      return res.status(401).json({ error: "unauthenticated" });
-    const decoded = decodeToken(token) as Decoded;
+    // Access tokens only: id, refresh and invite tokens are refused here.
+    const decoded = verifyAccessToken(token, identityPublicKey) as
+      | Decoded
+      | undefined;
+    if (!decoded) return res.status(401).json({ error: "unauthenticated" });
     const access = decoded.access?.find((a) => a.accessKeyId === accessKeyId);
     if (!accessKeyId || !access)
       return res.status(403).json({ error: "permission_denied" });
@@ -60,9 +62,10 @@ export function createHttpAuth(identityPublicKey: string) {
 }
 
 const userOf = (token: string, identityPublicKey: string) => {
-  if (!token || !isValidToken(token, identityPublicKey)) return undefined;
-  const decoded = decodeToken(token) as Decoded;
-  return decoded.sub ? ({ userRef: decoded.sub } as UserCaller) : undefined;
+  const decoded = verifyAccessToken(token, identityPublicKey) as
+    | Decoded
+    | undefined;
+  return decoded?.sub ? ({ userRef: decoded.sub } as UserCaller) : undefined;
 };
 
 /** A user-level call: a valid Bearer access token; its `sub` is the user (no workspace). */

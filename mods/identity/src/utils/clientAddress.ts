@@ -16,12 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Access, decodeToken, TokenUseEnum } from ".";
+import { Metadata } from "@grpc/grpc-js";
 
-function tokenHasAccessKeyId(token: string, accessKeyId: string) {
-  const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token);
-  const accessKeyIds = decodedToken.access?.map((a: Access) => a.accessKeyId);
-  return accessKeyIds.includes(accessKeyId);
+type CallWithAddress = {
+  metadata?: Metadata;
+  getPeer?: () => string;
+};
+
+/** The caller's address: Envoy's x-forwarded-for when present, else the peer. */
+function clientAddress(call: CallWithAddress): string {
+  const forwarded = call.metadata?.get("x-forwarded-for")?.[0]?.toString();
+  return forwarded?.split(",")[0].trim() || call.getPeer?.() || "unknown";
 }
 
-export { tokenHasAccessKeyId };
+export { CallWithAddress, clientAddress };

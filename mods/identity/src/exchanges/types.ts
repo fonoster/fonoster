@@ -67,6 +67,12 @@ type IdentityConfig = {
   workspaceInviteExpiration: string;
   workspaceInviteUrl: string;
   workspaceInviteFailUrl: string;
+  /**
+   * The page password-reset emails link to (`?token=…` is appended). Built
+   * from configuration, never from the request. Defaults to
+   * `<issuer>/reset-password`.
+   */
+  resetPasswordUrl?: string;
   contactVerificationRequired: boolean;
   twoFactorAuthenticationRequired: boolean;
   /** Absent when outgoing email isn't configured; sending email then fails clearly. */

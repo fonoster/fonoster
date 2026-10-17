@@ -80,11 +80,7 @@ const workspaceResourceAccess = [
   "/fonoster.calls.v1beta2.Calls/ListCalls",
   "/fonoster.calls.v1beta2.Calls/GetCall",
   "/fonoster.calls.v1beta2.Calls/TrackCall",
-  "/fonoster.voice.v1beta2.Voice/CreateSession",
-  "/fonoster.identity.v1beta2.Identity/CreateApiKey",
-  "/fonoster.identity.v1beta2.Identity/DeleteApiKey",
-  "/fonoster.identity.v1beta2.Identity/ListApiKeys",
-  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
+  "/fonoster.voice.v1beta2.Voice/CreateSession"
 ];
 
 const workspaceResourceOwnerOrAdminAccess = [
@@ -94,7 +90,12 @@ const workspaceResourceOwnerOrAdminAccess = [
   "/fonoster.identity.v1beta2.Identity/ListWorkspaceMembers",
   "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
   "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
-  "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation"
+  "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation",
+  // API keys act with WORKSPACE_ADMIN rights, so only owners and admins manage them.
+  "/fonoster.identity.v1beta2.Identity/CreateApiKey",
+  "/fonoster.identity.v1beta2.Identity/DeleteApiKey",
+  "/fonoster.identity.v1beta2.Identity/ListApiKeys",
+  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
 ];
 
 const fullIdentityAccess = [

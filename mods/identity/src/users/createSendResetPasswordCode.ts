@@ -23,27 +23,56 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ContactType, SendResetPasswordCodeRequest } from "@fonoster/types";
+import { status } from "@grpc/grpc-js";
+import { VERIFICATION_CODE_SEND_LIMITS } from "../constants";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { createSendEmail } from "../utils";
+import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
+import { createRateLimiter } from "../utils/rateLimiter";
 import { sendResetPasswordEmail } from "./sendResetPasswordEmail";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
+const tooManyRequests = {
+  code: status.RESOURCE_EXHAUSTED,
+  message: "Too many password reset requests; try again later"
+};
+
+/**
+ * Emails a reset link. The link always points at Identity's configured reset
+ * page (`resetPasswordUrl`); a URL in the request is ignored. Sends are rate
+ * limited per email and per client IP, in this process's memory (each replica
+ * counts on its own).
+ */
 function createSendResetPasswordCode(
   prisma: Prisma,
   identityConfig: IdentityConfig
 ) {
   const generateVerificationCode = createGenerateVerificationCode(prisma);
+  const { perEmail, perIp, windowMs } = VERIFICATION_CODE_SEND_LIMITS;
+  const withinEmailLimit = createRateLimiter({ limit: perEmail, windowMs });
+  const withinIpLimit = createRateLimiter({ limit: perIp, windowMs });
+  const resetPasswordUrl =
+    identityConfig.resetPasswordUrl ??
+    `${identityConfig.issuer.replace(/\/+$/, "")}/reset-password`;
 
   const sendResetPasswordCode = async (
-    call: { request: SendResetPasswordCodeRequest },
+    call: CallWithAddress & { request: SendResetPasswordCodeRequest },
     callback: (error?: GrpcErrorMessage) => void
   ) => {
     const { request } = call;
     const { username } = request;
 
     logger.verbose("call to sendResetPasswordCode", { username });
+
+    // Counted before the lookup, so the answer is the same for unknown emails.
+    if (
+      !withinIpLimit(clientAddress(call)) ||
+      !withinEmailLimit(username.toLowerCase())
+    ) {
+      return callback(tooManyRequests);
+    }
 
     const user = await prisma.user.findUnique({
       where: { email: username }
@@ -68,7 +97,7 @@ function createSendResetPasswordCode(
 
     await sendResetPasswordEmail(createSendEmail(identityConfig), {
       recipient: username,
-      resetPasswordUrl: `${request.resetPasswordUrl}?token=${encodedPayload}`
+      resetPasswordUrl: `${resetPasswordUrl}?token=${encodeURIComponent(encodedPayload)}`
     });
 
     callback(null);

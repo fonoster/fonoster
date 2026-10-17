@@ -21,4 +21,5 @@ export * from "./createExchangeCredentials";
 export * from "./createExchangeOauth2Code";
 export * from "./createExchangeRefreshToken";
 export * from "./createExchangeVerificationCode";
+export * from "./createRevokeToken";
 export * from "./types";

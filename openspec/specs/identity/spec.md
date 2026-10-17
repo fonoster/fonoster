@@ -44,6 +44,12 @@ privilege.
 - **WHEN** a caller invokes a gRPC method not listed in their role's access set
 - **THEN** the call is rejected as not authorized
 
+#### Scenario: Only the role in the target workspace counts
+
+- **WHEN** a user who owns workspace A and is a member of workspace B calls an owner/admin method
+  (e.g. `SetProviderKey`, `InviteUserToWorkspace`) naming B as its `accessKeyId`
+- **THEN** the call is rejected with `PERMISSION_DENIED`, because their role in B is member
+
 ### Requirement: Id, access, and refresh tokens
 
 Upon successful authentication Identity SHALL issue three JSON Web Tokens: an **id** token (identity
@@ -84,16 +90,36 @@ code from an external provider; an existing refresh token; and an API key.
 - **WHEN** a valid refresh token is presented
 - **THEN** a new access token and refresh token are issued
 
+#### Scenario: Only refresh tokens refresh
+
+- **WHEN** `ExchangeRefreshToken` is given an access, id or invite token, or a refresh token from
+  another issuer or audience
+- **THEN** it fails with `UNAUTHENTICATED` and no tokens are issued
+
 ### Requirement: Refresh-token rotation policy
 
-Refresh tokens SHALL be time-based and expire after a configurable lifetime. Identity SHALL provide
-a mechanism to invalidate existing refresh tokens to handle scenarios such as compromised devices or
-accounts.
+Refresh tokens SHALL be time-based and expire after a configurable lifetime. Each refresh token SHALL
+carry a `jti` recorded by Identity and SHALL be usable for one exchange, which issues the next token
+of the same sign-in (family). Reusing a token more than 30 seconds after its first use SHALL revoke
+its family. `RevokeToken` (public: holding the refresh token authorizes it) SHALL revoke the token's
+family, a password reset SHALL revoke all of the user's refresh tokens, and regenerating or deleting
+an API key SHALL revoke the key's. Access tokens already issued stay valid until they expire.
 
 #### Scenario: Refresh token expires
 
 - **WHEN** a refresh token is presented after its configured lifetime
 - **THEN** the exchange is rejected and re-authentication is required
+
+#### Scenario: Reuse revokes the session
+
+- **WHEN** a refresh token that was already exchanged a minute ago is presented again
+- **THEN** the exchange fails with `UNAUTHENTICATED`
+- **AND** the token issued by the first exchange stops working too
+
+#### Scenario: Sign-out
+
+- **WHEN** a client calls `RevokeToken` with its refresh token
+- **THEN** that token and every token rotated from the same sign-in can no longer be exchanged
 
 ### Requirement: Token verification via public key
 
@@ -106,6 +132,13 @@ signature and validate claims including issuer, audience, and expiration.
 - **WHEN** a consumer fetches the public key via `GetPublicKey` and validates a token
 - **THEN** a token with a valid signature and valid issuer, audience, and expiry is accepted
 - **AND** a token failing signature or claim validation is rejected
+
+#### Scenario: Protected methods take access tokens only
+
+- **WHEN** a protected gRPC method or HTTP route receives a refresh, id or invite token, an access
+  token without a well-formed `access` claim, or a token for another issuer or audience
+- **THEN** it is rejected as `UNAUTHENTICATED` (HTTP 401)
+- **AND** an error while checking a token also answers `UNAUTHENTICATED`; the server keeps serving
 
 ### Requirement: Security practices
 
@@ -188,3 +221,43 @@ passwords.
 - WHEN an admin resends an invite to a user who hasn't signed in
 - THEN the email carries a new one-time password, not a stored one
 
+### Requirement: API keys are managed by workspace owners and admins
+
+`CreateApiKey`, `ListApiKeys`, `RegenerateApiKey` and `DeleteApiKey` SHALL require the caller to be
+an owner or admin of the workspace named by the call's `accessKeyId`, and SHALL act only on keys of
+that workspace. API keys act as `WORKSPACE_ADMIN`. A key past its `expiresAt` SHALL NOT exchange or
+refresh.
+
+#### Scenario: A member can't mint keys
+
+- **WHEN** a workspace member calls `CreateApiKey` for that workspace
+- **THEN** the call fails with `PERMISSION_DENIED` and no key is created
+
+#### Scenario: Another workspace's key
+
+- **WHEN** an admin of workspace A calls `DeleteApiKey` or `RegenerateApiKey` with the ref of a key
+  of workspace B
+- **THEN** the call fails with `NOT_FOUND` and the key is unchanged
+
+#### Scenario: Expired key
+
+- **WHEN** `ExchangeApiKey` is called with the right secret for a key whose `expiresAt` has passed
+- **THEN** it fails with `PERMISSION_DENIED` "Invalid credentials"
+
+### Requirement: Password reset links come from configuration
+
+`SendResetPasswordCode` SHALL link to Identity's configured reset page (`<appUrl>/reset-password`)
+and SHALL ignore any URL in the request. `SendResetPasswordCode` (3 per email, 20 per IP per 10
+minutes) and `ResetPassword` (10 per email, 30 per IP per 10 minutes) SHALL be rate limited, with
+`RESOURCE_EXHAUSTED`, counted the same for unknown emails. Limits are kept in each process's
+memory, so with several replicas each enforces its own.
+
+#### Scenario: Requester-supplied URL
+
+- **WHEN** a reset is requested with `resetPasswordUrl` set to another site
+- **THEN** the emailed link points at `<appUrl>/reset-password?token=…`
+
+#### Scenario: Too many requests
+
+- **WHEN** a fourth reset email is requested for the same address within 10 minutes
+- **THEN** the call fails with `RESOURCE_EXHAUSTED` and no email is sent

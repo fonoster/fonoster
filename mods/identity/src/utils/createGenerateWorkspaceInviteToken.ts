@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { TokenUseEnum } from "@fonoster/common";
 import jwt from "jsonwebtoken";
 import { SIGN_ALGORITHM } from "../constants";
 import { IdentityConfig } from "../exchanges/types";
@@ -40,6 +41,8 @@ function createGenerateWorkspaceInviteToken(identityConfig: IdentityConfig) {
       iss: issuer,
       sub: userRef,
       aud: audience,
+      // Its own tokenUse: never accepted as an access or refresh token.
+      tokenUse: TokenUseEnum.INVITE,
       memberRef: memberRef,
       accessKeyId
     };

@@ -26,3 +26,14 @@ export const VERIFICATION_CODE_SEND_LIMITS = {
   perIp: 20,
   windowMs: 10 * 60 * 1000
 };
+/** ResetPassword attempts per email, and per client IP, within the window. */
+export const RESET_PASSWORD_ATTEMPT_LIMITS = {
+  perEmail: 10,
+  perIp: 30,
+  windowMs: 10 * 60 * 1000
+};
+/**
+ * How long a just-used refresh token may be used again (concurrent renewals,
+ * e.g. two browser tabs). Later reuse revokes the token's family.
+ */
+export const REFRESH_TOKEN_REUSE_GRACE_MS = 30 * 1000;

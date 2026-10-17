@@ -24,11 +24,12 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
-import { TEST_TOKEN } from "../utils";
+import { workspaceCallMetadata } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
+const WORKSPACE = "WOworkspace0001";
 
 describe("@identity[apikeys/createApiKey]", function () {
   afterEach(function () {
@@ -37,8 +38,9 @@ describe("@identity[apikeys/createApiKey]", function () {
 
   it("should create a new ApiKey", async function () {
     // Arrange
-    const metadata = new grpc.Metadata();
-    metadata.set("token", TEST_TOKEN);
+    const metadata = workspaceCallMetadata(WORKSPACE, [
+      { accessKeyId: WORKSPACE, role: Role.WORKSPACE_OWNER }
+    ]);
 
     const expiresAtSeconds = Math.floor(Date.now() / 1000) + 3600;
     const call = {
@@ -86,8 +88,9 @@ describe("@identity[apikeys/createApiKey]", function () {
 
   it("should throw an error if the ApiKey already exists", async function () {
     // Arrange
-    const metadata = new grpc.Metadata();
-    metadata.set("token", TEST_TOKEN);
+    const metadata = workspaceCallMetadata(WORKSPACE, [
+      { accessKeyId: WORKSPACE, role: Role.WORKSPACE_OWNER }
+    ]);
     const call = {
       metadata,
       request: {
@@ -116,5 +119,46 @@ describe("@identity[apikeys/createApiKey]", function () {
         message: "The resource already exists"
       });
     });
+  });
+});
+
+describe("@identity[apikeys/createApiKey] roles", function () {
+  afterEach(() => sandbox.restore());
+
+  const attempt = async (metadata: grpc.Metadata) => {
+    const create = sandbox.stub().resolves({ ref: "k" });
+    const prisma = {
+      workspace: { findUnique: sandbox.stub().resolves({ ref: "123" }) },
+      apiKey: { create }
+    } as unknown as Prisma;
+    const { createCreateApiKey } = await import("../../src/apikeys/createCreateApiKey");
+    const error = await new Promise((resolve) =>
+      createCreateApiKey(prisma)(
+        { metadata, request: { role: Role.WORKSPACE_ADMIN } } as never,
+        (e) => resolve(e)
+      )
+    );
+    return { error, create };
+  };
+
+  it("doesn't let a workspace member mint an admin key", async function () {
+    const { error, create } = await attempt(
+      workspaceCallMetadata(WORKSPACE, [
+        { accessKeyId: WORKSPACE, role: Role.WORKSPACE_MEMBER }
+      ])
+    );
+    expect(error).to.include({ code: grpc.status.PERMISSION_DENIED });
+    expect(create.called).to.be.false;
+  });
+
+  it("uses the role in the target workspace, not one held elsewhere", async function () {
+    const { error, create } = await attempt(
+      workspaceCallMetadata(WORKSPACE, [
+        { accessKeyId: "WOotherworkspace", role: Role.WORKSPACE_OWNER },
+        { accessKeyId: WORKSPACE, role: Role.WORKSPACE_MEMBER }
+      ])
+    );
+    expect(error).to.include({ code: grpc.status.PERMISSION_DENIED });
+    expect(create.called).to.be.false;
   });
 });

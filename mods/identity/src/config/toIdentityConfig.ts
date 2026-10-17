@@ -76,6 +76,7 @@ function toIdentityConfig(inputs: IdentityConfigInputs): IdentityConfig {
     workspaceInviteUrl: identity.invites.url ?? `${appUrl}/invites`,
     workspaceInviteFailUrl:
       identity.invites.failUrl ?? `${appUrl}/invites/failed`,
+    resetPasswordUrl: `${appUrl}/reset-password`,
     contactVerificationRequired: identity.security.contactVerificationRequired,
     twoFactorAuthenticationRequired:
       identity.security.twoFactorAuthenticationRequired,
