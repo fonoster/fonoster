@@ -24,6 +24,10 @@
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   "shutdownAction": "stopCompose",
   "remoteUser": "node",
+  // gh, to open pull requests from the container. Log in once with `gh auth login`.
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
   // Envoy publishes the dashboard and the API on the host (HTTP_PORT in .dev/.env, 8449 by
   // default) and Routr publishes SIP (SIP_PORT, 5060): nothing to forward for them.
   "forwardPorts": [6006],
