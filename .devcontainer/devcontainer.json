@@ -30,6 +30,9 @@
   "portsAttributes": {
     "6006": { "label": "Storybook" }
   },
+  // Every other port the components open (Autopilot's WebSocket, the fakes, Vite) is internal:
+  // the editor must not forward it or offer it in a browser.
+  "otherPortsAttributes": { "onAutoForward": "ignore" },
   "customizations": {
     "vscode": {
       "extensions": [
