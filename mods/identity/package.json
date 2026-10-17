@@ -26,7 +26,7 @@
     "@fonoster/common": "^0.27.0",
     "@fonoster/logger": "^0.27.0",
     "@fonoster/types": "^0.27.0",
-    "@grpc/grpc-js": "~1.10.6",
+    "@grpc/grpc-js": "~1.14.6",
     "@prisma/client": "^6.8.2",
     "express": "^5.0.1",
     "grpc-health-check": "^2.0.1",

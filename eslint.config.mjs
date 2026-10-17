@@ -155,6 +155,8 @@ import headerPlugin from 'eslint-plugin-header'; export default [
       'mods/**/*.test.ts',
       'mods/**/*.proto',
       '**/generated/**',
+      // The Prisma client the common tests generate (git-ignored too)
+      'mods/common/test/.prisma-client/**',
       'mods/sdk/public/fonoster.min.js',
       'mods/**/*.integration.ts',
       // TODO: Avoid ignoring this file after we fix the issue addign the headers
