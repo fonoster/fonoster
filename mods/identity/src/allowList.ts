@@ -35,6 +35,8 @@ const identityAllowList = [
   "/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code",
   "/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken",
   "/fonoster.identity.v1beta2.Identity/ExchangeVerificationCode",
+  // Holding the refresh token is what authorizes revoking it (sign-out).
+  "/fonoster.identity.v1beta2.Identity/RevokeToken",
   "/fonoster.identity.v1beta2.Identity/SendVerificationCode",
   "/fonoster.identity.v1beta2.Identity/VerifyCode",
   "/fonoster.identity.v1beta2.Identity/GetPublicKey",

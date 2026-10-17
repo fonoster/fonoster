@@ -59,7 +59,8 @@ async function main() {
 
   const authorization = createAuthInterceptor(
     identityConfig.publicKey,
-    identityAllowList
+    identityAllowList,
+    { issuer: identityConfig.issuer, audience: identityConfig.audience }
   );
   const credentials = await getServerCredentials({});
   const healthImpl = new HealthImplementation(statusMap);

@@ -24,8 +24,9 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ListApiKeysRequest, ListApiKeysResponse, Role } from "@fonoster/types";
-import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { isWorkspaceAdminCall } from "../utils/isWorkspaceAdminCall";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -42,11 +43,25 @@ function createListApiKeys(prisma: Prisma) {
 
     logger.verbose("list keys for workspace", { accessKeyId });
 
+    if (!isWorkspaceAdminCall(call)) {
+      return callback({
+        code: status.PERMISSION_DENIED,
+        message: "Only workspace owners and admins can manage API keys"
+      });
+    }
+
     const workspace = await prisma.workspace.findUnique({
       where: {
         accessKeyId
       }
     });
+
+    if (!workspace) {
+      return callback({
+        code: status.NOT_FOUND,
+        message: "Workspace not found"
+      });
+    }
 
     const keys = await prisma.apiKey.findMany({
       where: {

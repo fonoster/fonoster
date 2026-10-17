@@ -89,7 +89,8 @@ type ApiKey = {
 
 type SendResetPasswordCodeRequest = {
   username: string;
-  resetPasswordUrl: string;
+  /** Deprecated and ignored: Identity links to its configured reset page. */
+  resetPasswordUrl?: string;
 };
 
 type ResetPasswordRequest = {

@@ -23,5 +23,6 @@ export * from "./getAccessKeyIdFromCall";
 export * from "./getTokenFromCall";
 export * from "./hasAccess";
 export * from "./isValidToken";
+export * from "./verifyAccessToken";
 export * from "./types";
 export * from "./roles";

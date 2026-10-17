@@ -21,6 +21,8 @@ public-method allow-list, and SHALL expose a gRPC health service.
 - **WHEN** an allow-listed method (e.g. CreateUser, ExchangeCredentials, GetPublicKey) is called without a token
 - **THEN** the call is processed
 - **AND** a non-allow-listed method called without a valid access token is rejected as unauthenticated
+- **AND** a refresh or id token sent in place of an access token is rejected as unauthenticated, and
+  the service keeps serving
 
 #### Scenario: CreateWorkspace requires an access token
 

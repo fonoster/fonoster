@@ -24,11 +24,12 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
-import { TEST_TOKEN } from "../utils";
+import { workspaceCallMetadata } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
+const WORKSPACE = "WOworkspace0001";
 
 describe("@identity[apikeys/listApiKeys]", function () {
   afterEach(function () {
@@ -37,8 +38,9 @@ describe("@identity[apikeys/listApiKeys]", function () {
 
   it("should return timestamps as epoch seconds", async function () {
     // Arrange
-    const metadata = new grpc.Metadata();
-    metadata.set("token", TEST_TOKEN);
+    const metadata = workspaceCallMetadata(WORKSPACE, [
+      { accessKeyId: WORKSPACE, role: Role.WORKSPACE_OWNER }
+    ]);
 
     const call = {
       metadata,
@@ -81,8 +83,9 @@ describe("@identity[apikeys/listApiKeys]", function () {
 
   it("should omit expiresAt when the key never expires", async function () {
     // Arrange
-    const metadata = new grpc.Metadata();
-    metadata.set("token", TEST_TOKEN);
+    const metadata = workspaceCallMetadata(WORKSPACE, [
+      { accessKeyId: WORKSPACE, role: Role.WORKSPACE_OWNER }
+    ]);
 
     const call = {
       metadata,
@@ -114,5 +117,29 @@ describe("@identity[apikeys/listApiKeys]", function () {
       // Assert
       expect(response.items[0].expiresAt).to.be.undefined;
     });
+  });
+});
+
+describe("@identity[apikeys/listApiKeys] roles", function () {
+  it("refuses a workspace member", async function () {
+    const findMany = createSandbox().stub().resolves([]);
+    const prisma = {
+      workspace: { findUnique: async () => ({ ref: "123" }) },
+      apiKey: { findMany }
+    } as unknown as Prisma;
+    const { createListApiKeys } = await import("../../src/apikeys/createListApiKeys");
+    const metadata = workspaceCallMetadata(WORKSPACE, [
+      { accessKeyId: WORKSPACE, role: Role.WORKSPACE_MEMBER }
+    ]);
+
+    const error = await new Promise((resolve) =>
+      createListApiKeys(prisma)(
+        { metadata, request: { pageSize: 10, pageToken: "" } } as never,
+        (e) => resolve(e)
+      )
+    );
+
+    expect(error).to.include({ code: grpc.status.PERMISSION_DENIED });
+    expect(findMany.called).to.be.false;
   });
 });

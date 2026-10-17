@@ -38,6 +38,8 @@ import {
   CALL_RECORDS,
   DOMAIN,
   HTTP_BRIDGE_PORT,
+  IDENTITY_AUDIENCE,
+  IDENTITY_ISSUER,
   IDENTITY_PUBLIC_KEY,
   NATS,
   NATS_CONNECTION,
@@ -70,7 +72,10 @@ import { createTelemetryInterceptor } from "./telemetryInterceptor";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, allowList);
+const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, allowList, {
+  issuer: IDENTITY_ISSUER,
+  audience: IDENTITY_AUDIENCE
+});
 const checkMethodAuthorized = createCheckMethodAuthorized(
   `${AUTHZ_SERVICE_HOST}:${AUTHZ_SERVICE_PORT}`,
   AUTHZ_SERVICE_METHODS

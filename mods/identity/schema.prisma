@@ -110,6 +110,25 @@ model VerificationCode {
   @@map("verification_codes")
 }
 
+/// One issued refresh token. Each is good for a single exchange (rotation); a
+/// second use of the same token revokes its whole family (reuse detection).
+model RefreshToken {
+  jti         String    @id @db.VarChar(64)
+  /// Every token rotated from the same sign-in shares a family.
+  familyId    String    @map("family_id") @db.VarChar(64)
+  /// The user or API key the token was issued to.
+  accessKeyId String    @map("access_key_id") @db.VarChar(255)
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(3)
+  usedAt      DateTime? @map("used_at") @db.Timestamptz(3)
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  // Indexes and maps
+  @@index([familyId])
+  @@index([accessKeyId])
+  @@map("refresh_tokens")
+}
+
 enum VerificationType {
   EMAIL
   PHONE

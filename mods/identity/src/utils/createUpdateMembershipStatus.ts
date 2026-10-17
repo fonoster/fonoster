@@ -16,9 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { isValidToken } from "@fonoster/common";
+import { TokenUseEnum, verifyToken } from "@fonoster/common";
 import { WorkspaceMemberStatus } from "@fonoster/types";
-import { jwtDecode } from "jwt-decode";
 import { createPrismaClient } from "../db";
 import { IdentityConfig } from "../exchanges";
 
@@ -29,11 +28,22 @@ function createUpdateMembershipStatus(identityConfig: IdentityConfig) {
   );
 
   return async function pdateMembershipStatus(token: string): Promise<void> {
-    if (!isValidToken(token, identityConfig.privateKey)) {
+    const claims = verifyToken(token, identityConfig.privateKey, {
+      issuer: identityConfig.issuer,
+      audience: identityConfig.audience
+    });
+
+    // Invite tokens only (older ones carry no tokenUse); never a session token.
+    if (
+      !claims ||
+      (claims.tokenUse !== undefined &&
+        claims.tokenUse !== TokenUseEnum.INVITE) ||
+      typeof claims.memberRef !== "string"
+    ) {
       throw new Error("Invalid token");
     }
 
-    const { memberRef } = jwtDecode(token) as { memberRef: string };
+    const { memberRef } = claims as { memberRef: string };
 
     await prisma.workspaceMember.update({
       where: {

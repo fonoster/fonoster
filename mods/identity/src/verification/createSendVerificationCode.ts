@@ -23,10 +23,11 @@ import {
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { Metadata, status } from "@grpc/grpc-js";
+import { status } from "@grpc/grpc-js";
 import { VERIFICATION_CODE_SEND_LIMITS } from "../constants";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges";
+import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
 import { createSendEmail } from "../utils/createSendEmail";
 import { createRateLimiter } from "../utils/rateLimiter";
@@ -36,17 +37,9 @@ import { ContactType, SendVerificationCodeRequest } from "./types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type CallWithPeer = {
+type CallWithPeer = CallWithAddress & {
   request: SendVerificationCodeRequest;
-  metadata?: Metadata;
-  getPeer?: () => string;
 };
-
-/** The caller's address: Envoy's x-forwarded-for when present, else the peer. */
-function clientAddress(call: CallWithPeer): string {
-  const forwarded = call.metadata?.get("x-forwarded-for")?.[0]?.toString();
-  return forwarded?.split(",")[0].trim() || call.getPeer?.() || "unknown";
-}
 
 const tooManyRequests = {
   code: status.RESOURCE_EXHAUSTED,

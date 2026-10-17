@@ -19,13 +19,19 @@
 import {
   exchangeRefreshTokenRequestSchema,
   GrpcErrorMessage,
+  TokenUseEnum,
+  verifyToken,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import jwt from "jsonwebtoken";
-import { SIGN_ALGORITHM } from "../constants";
+import { status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import {
+  createGetApiKeyByAccessKeyId,
+  isApiKeyExpired
+} from "../utils/createGetApiKeyByAccessKeyId";
 import { exchangeTokens } from "./exchangeTokens";
+import { createRefreshTokenStore } from "./refreshTokens";
 import {
   ExchangeRefreshTokenRequest,
   ExchangeResponse,
@@ -34,27 +40,89 @@ import {
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
+const invalidRefreshToken = {
+  code: status.UNAUTHENTICATED,
+  message: "Invalid refresh token"
+};
+
+/**
+ * The claims of a refresh token this Identity issued (RS256, its issuer and
+ * audience, `tokenUse: "refresh"`, with a `jti`), or undefined.
+ */
+function verifyRefreshToken(token: string, identityConfig: IdentityConfig) {
+  const claims = verifyToken(token, identityConfig.publicKey, {
+    issuer: identityConfig.issuer,
+    audience: identityConfig.audience
+  });
+
+  if (
+    !claims ||
+    claims.tokenUse !== TokenUseEnum.REFRESH ||
+    typeof claims.jti !== "string" ||
+    typeof claims.accessKeyId !== "string"
+  ) {
+    return undefined;
+  }
+
+  return claims as { jti: string; accessKeyId: string };
+}
+
 function createExchangeRefreshToken(
   prisma: Prisma,
   identityConfig: IdentityConfig
 ) {
+  const refreshTokens = createRefreshTokenStore(prisma);
+  const getApiKey = createGetApiKeyByAccessKeyId(prisma);
+
+  /** The user or API key still exists (and the key hasn't expired). */
+  const principalIsActive = async (accessKeyId: string) => {
+    if (accessKeyId.startsWith("US")) {
+      return (await prisma.user.findFirst({ where: { accessKeyId } })) !== null;
+    }
+    const key = await getApiKey(accessKeyId);
+    return key !== null && !isApiKeyExpired(key);
+  };
+
   const exchangeRefreshToken = async (
     call: { request: ExchangeRefreshTokenRequest },
     callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
-    const { privateKey } = identityConfig;
-    const { request } = call;
-    const { refreshToken: oldRefreshToken } = request;
+    const claims = verifyRefreshToken(
+      call.request.refreshToken,
+      identityConfig
+    );
 
-    const oldRefreshTokenDecoded = jwt.verify(oldRefreshToken, privateKey, {
-      algorithms: [SIGN_ALGORITHM]
-    }) as { accessKeyId: string };
+    if (!claims) {
+      return callback(invalidRefreshToken);
+    }
 
-    const { accessKeyId } = oldRefreshTokenDecoded;
+    const { jti, accessKeyId } = claims;
 
     logger.verbose("call to exchangeRefreshToken", { accessKeyId });
 
-    callback(null, await exchangeTokens(prisma, identityConfig)(accessKeyId));
+    // Single use: a token seen before (or revoked) revokes its whole family.
+    const consumed = await refreshTokens.consume(jti);
+
+    if (consumed.status !== "ok" || consumed.accessKeyId !== accessKeyId) {
+      if (consumed.status === "reused") {
+        logger.warn("refresh token reused; its family is revoked", {
+          accessKeyId
+        });
+      }
+      return callback(invalidRefreshToken);
+    }
+
+    if (!(await principalIsActive(accessKeyId))) {
+      await refreshTokens.revokeFamily(consumed.familyId);
+      return callback(invalidRefreshToken);
+    }
+
+    callback(
+      null,
+      await exchangeTokens(prisma, identityConfig)(accessKeyId, {
+        familyId: consumed.familyId
+      })
+    );
   };
 
   return withErrorHandlingAndValidation(
@@ -63,4 +131,4 @@ function createExchangeRefreshToken(
   );
 }
 
-export { createExchangeRefreshToken };
+export { createExchangeRefreshToken, verifyRefreshToken };
