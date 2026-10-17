@@ -41,6 +41,7 @@ export class ProcessMediaNodeHarness implements Harness {
   async setup(setup: Setup) {
     if (setup.media?.heartbeatMs !== undefined)
       this.media.heartbeatMs = setup.media.heartbeatMs;
+    this.media.maxRooms = setup.media?.maxRooms;
     this.claimCalls = setup.media?.claimCalls !== false;
     this.dialOutcome = setup.media?.dialOutcome;
   }

@@ -139,7 +139,7 @@ scenario rather than ignoring it.
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake media node plays as the caller once the call is answered. |
 | `assistant` | `autopilot` only: the assistant config Autopilot runs for this scenario. |
-| `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
+| `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `maxRooms` (the node's room limit; `room.create` beyond it gets `at_capacity`); `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
 | `catalog` | `voice-session` only: the provider catalog the gateway resolves ids with. The runner registers the `fake` provider, a TTS model and `fake/default`, then each listed voice (`{id, state, replacement}`), deprecating or retiring it as `state` says. |
 
 #Besides the app under test (`app-1`), voice-session runners configure a second app, `app-2`,
