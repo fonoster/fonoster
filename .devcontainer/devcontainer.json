@@ -22,7 +22,9 @@
   // files), which Compose needs to start the dependencies. Only the first time.
   "initializeCommand": "sh .devcontainer/initialize.sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "shutdownAction": "stopCompose",
+  // Closing the editor leaves the containers running, so agents and test runs that use them
+  // (Postgres, NATS) are not cut off. Stop them with `docker compose -p fonoster-dev stop`.
+  "shutdownAction": "none",
   "remoteUser": "node",
   // gh, to open pull requests from the container. Log in once with `gh auth login`.
   "features": {

@@ -30,8 +30,12 @@ go build ./cmd/...
   -sip-advertise 10.0.0.5 -rtp-advertise 10.0.0.5 -registrar routr:5060
 ```
 
-Every flag also reads an environment variable (`MEDIANODE_ID`, `MEDIANODE_NATS_URL`,
-`MEDIANODE_SIP_LISTEN`, `MEDIANODE_REGISTRAR`, ...); see `cmd/medianode/main.go`.
+Every flag has a key in the config file (`-config`, default `/config/medianode.yaml`; see
+`ops/bundle/config/medianode.example.yaml`), and flags win over it. The node reads no
+`MEDIANODE_*` variables: to take a value from the environment, reference it in the file as a
+`${VAR}` placeholder (`nodeId: "${POD_NAME}"`), or as a `secret://env/NAME` reference for the
+passwords and TLS PEM settings. A `MEDIANODE_*` variable the file does not reference is logged
+by name at start as ignored.
 
 ## Test
 

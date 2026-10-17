@@ -91,7 +91,7 @@ autopilot:
     # with fonoster-vendors in autopilot.secretMounts.
     # cellSecrets: null drops the private-cell default (Helm merges maps).
     workspaceSecrets: { source: database, cellSecrets: null }
-    database: { urlEnv: APISERVER_DATABASE_URL }
+    database: { url: "${APISERVER_DATABASE_URL}" }
     encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
 
 gateway:

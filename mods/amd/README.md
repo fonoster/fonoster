@@ -63,6 +63,11 @@ call — apiserver already does this for API-originated calls via
 
 ## Configuration
 
+The sidecar reads these from its container environment only; it never loads a
+`.env` file, in development either. Set them in the container's environment
+(Compose `environment:`, a Kubernetes `env:`), or export them before
+`npm run start:dev`.
+
 | env | default | meaning |
 |---|---|---|
 | `AMD_AGI_PORT` | `4573` | FastAGI listener port |

@@ -23,6 +23,8 @@ spec:
       labels:
         app.kubernetes.io/name: medianode
         app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/medianode-config.yaml") . | sha256sum }}
     spec:
       hostNetwork: {{ $m.hostNetwork }}
       {{- if $m.hostNetwork }}
@@ -37,57 +39,14 @@ spec:
           args:
             - -drain-wait={{ $m.drainGraceSeconds }}s
           env:
-            - name: MEDIANODE_ID
+            # Filled into medianode.yaml's ${VAR} placeholders (medianode-config.yaml).
+            - name: POD_NAME
               valueFrom: { fieldRef: { fieldPath: metadata.name } }
-            - name: MEDIANODE_NATS_URL
-              value: {{ include "fonoster-rebuild.natsUrl" . | quote }}
-            {{- if .Values.nats.auth.enabled }}
-            - { name: MEDIANODE_NATS_USER, value: medianode }
-            {{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" $ "user" "medianode") | nindent 12 }}
-            - { name: MEDIANODE_NATS_PASSWORD, value: "secret://env/NATS_MEDIANODE_PASSWORD" }
-            {{- end }}
-            {{- if $m.tls.enabled }}
-            # SIP over TLS toward the edge; with mutual, Routr must present a certificate signed by
-            # ca.crt (add-platform 4.2). The trusted-source allowlist still applies.
-            - { name: MEDIANODE_TLS_LISTEN, value: {{ $m.tls.listen | quote }} }
-            - { name: MEDIANODE_TLS_CERT, value: /etc/medianode/tls/tls.crt }
-            - { name: MEDIANODE_TLS_KEY, value: /etc/medianode/tls/tls.key }
-            - { name: MEDIANODE_TLS_CA, value: /etc/medianode/tls/ca.crt }
-            {{- if $m.tls.mutual }}
-            - { name: MEDIANODE_TLS_CLIENT_CA, value: /etc/medianode/tls/ca.crt }
-            {{- end }}
-            {{- end }}
-            {{- if $m.trustedSources }}
-            - { name: MEDIANODE_TRUSTED_SOURCES, value: {{ $m.trustedSources | quote }} }
-            {{- end }}
-            - name: MEDIANODE_SIP_LISTEN
-              value: {{ $m.sip.listen | quote }}
-            - name: MEDIANODE_SIP_ADVERTISE
-              {{- if eq $m.sip.advertise "hostIP" }}
+            - name: HOST_IP
               valueFrom: { fieldRef: { fieldPath: status.hostIP } }
-              {{- else }}
-              value: {{ $m.sip.advertise | quote }}
-              {{- end }}
-            - name: MEDIANODE_RTP_ADVERTISE
-              {{- if eq $m.rtp.advertise "hostIP" }}
-              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
-              {{- else }}
-              value: {{ $m.rtp.advertise | quote }}
-              {{- end }}
-            - { name: MEDIANODE_RTP_HOST, value: "0.0.0.0" }
-            - { name: MEDIANODE_RTP_PORT_MIN, value: {{ $m.rtp.portMin | quote }} }
-            - { name: MEDIANODE_RTP_PORT_MAX, value: {{ $m.rtp.portMax | quote }} }
-            - { name: MEDIANODE_REGISTRAR, value: {{ $m.routr.registrar | quote }} }
-            - { name: MEDIANODE_DOMAIN, value: {{ $m.routr.domain | quote }} }
-            - { name: MEDIANODE_OUTBOUND_PROXY, value: {{ $m.routr.outboundProxy | quote }} }
-            - name: MEDIANODE_USERNAME
-              {{- if $m.routr.username }}
-              value: {{ $m.routr.username | quote }}
-              {{- else }}
-              valueFrom: { fieldRef: { fieldPath: metadata.name } }
-              {{- end }}
-            - name: MEDIANODE_PASSWORD
+            - name: ROUTR_PEER_PASSWORD
               valueFrom: { secretKeyRef: { name: {{ $m.routr.passwordSecret | quote }}, key: password, optional: true } }
+            {{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" $ "user" "medianode") | nindent 12 }}
             - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: {{ include "fonoster-rebuild.otlpEndpoint" . | quote }} }
             - { name: OTEL_SERVICE_NAME, value: fonoster-medianode }
           ports:
@@ -96,14 +55,18 @@ spec:
             {{- if $m.tls.enabled }}
             - { name: sip-tls, containerPort: {{ (splitList ":" $m.tls.listen | last) | int }}, protocol: TCP }
             {{- end }}
-          {{- if $m.tls.enabled }}
           volumeMounts:
+            - { name: config, mountPath: /config/medianode.yaml, subPath: medianode.yaml, readOnly: true }
+            {{- if $m.tls.enabled }}
             - { name: tls, mountPath: /etc/medianode/tls, readOnly: true }
-          {{- end }}
+            {{- end }}
           resources:
             {{- toYaml $m.resources | nindent 12 }}
-      {{- if $m.tls.enabled }}
       volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-medianode
+      {{- if $m.tls.enabled }}
         # tls.crt, tls.key (the node's certificate) and ca.crt (the CA of the edge's certificates).
         - name: tls
           secret: { secretName: {{ $m.tls.secret | quote }} }

@@ -29,7 +29,6 @@
     "@grpc/proto-loader": "^0.7.15",
     "@influxdata/influxdb-client": "^1.35.0",
     "ajv": "^8.17.1",
-    "dotenv": "^16.6.1",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",
     "json-schema-to-ts": "^3.1.1",

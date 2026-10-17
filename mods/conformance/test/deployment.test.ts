@@ -55,6 +55,14 @@ function hasHelm() {
   }
 }
 
+/** The media nodes' rendered medianode.yaml. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function medianodeConfig(objs: K8sObject[]): Record<string, any> {
+  return parseAllDocuments(
+    find(objs, "ConfigMap", "fonoster-medianode")!.data!["medianode.yaml"]
+  )[0].toJS();
+}
+
 function render(...valuesFiles: string[]): K8sObject[] {
   const sets = valuesFiles.filter((f) => f.startsWith("--set="));
   valuesFiles = valuesFiles.filter((f) => !f.startsWith("--set="));
@@ -135,21 +143,18 @@ describe("@conformance/deployment (Helm chart)", function () {
   });
 
   it("media nodes accept INVITEs only from trusted sources by default and refuse to render open (H9)", function () {
-    const envOf = (objs: K8sObject[]) => {
-      const node = find(objs, "StatefulSet", "fonoster-medianode");
-      const spec = node?.spec as {
-        template: {
-          spec: { containers: { env: { name: string; value?: string }[] }[] };
-        };
-      };
-      return spec.template.spec.containers[0].env;
+    // The media node's config file, from the chart's ConfigMap.
+    const trustedOf = (objs: K8sObject[]) => {
+      const cm = find(objs, "ConfigMap", "fonoster-medianode");
+      const cfg = parseAllDocuments(cm?.data?.["medianode.yaml"] ?? "")[0]?.toJS() as
+        | { trustedSources?: string[] }
+        | undefined;
+      return cfg?.trustedSources;
     };
-    const trusted = envOf(render()).find(
-      (e) => e.name === "MEDIANODE_TRUSTED_SOURCES"
-    );
-    expect(trusted?.value, "a default trusted-sources list").to.be.a("string")
-      .and.not.be.empty;
-    expect(trusted?.value).to.not.contain("0.0.0.0/0");
+    const trusted = trustedOf(render());
+    expect(trusted, "a default trusted-sources list").to.be.an("array").that
+      .is.not.empty;
+    expect(trusted).to.not.include("0.0.0.0/0");
     expect(() =>
       execFileSync(
         "helm",
@@ -157,15 +162,14 @@ describe("@conformance/deployment (Helm chart)", function () {
         { stdio: "pipe" }
       )
     ).to.throw(/trustedSources is empty/);
-    const open = envOf(
-      render(
-        "--set=medianode.trustedSources=",
-        "--set=medianode.allowAnySource=true"
+    expect(
+      trustedOf(
+        render(
+          "--set=medianode.trustedSources=",
+          "--set=medianode.allowAnySource=true"
+        )
       )
-    );
-    expect(open.some((e) => e.name === "MEDIANODE_TRUSTED_SOURCES")).to.equal(
-      false
-    );
+    ).to.equal(undefined);
   });
 
   it("renders every deployable of the cloud install, with a migrations Job", function () {
@@ -237,9 +241,11 @@ describe("@conformance/deployment (Helm chart)", function () {
       // nats.auth (values-cloud): each service's password env from fonoster-nats-users.
       NATS_APISERVER_PASSWORD: "nats-api",
       NATS_GATEWAY_PASSWORD: "nats-gw",
-      // The pods' env from the database Secret (gateway and Autopilot `encryption.key`).
+      // The pods' env from the database Secret (gateway and Autopilot `encryption.key`,
+      // Autopilot's `database.url` placeholder).
       APISERVER_ENCRYPTION_KEY:
-        "k1.aesgcm256.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        "k1.aesgcm256.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      APISERVER_DATABASE_URL: "postgresql://u:p@db:5432/fonoster"
     };
 
     const api = loadServiceConfig({
@@ -274,6 +280,7 @@ describe("@conformance/deployment (Helm chart)", function () {
         write("fonoster-autopilot", "autopilot-session.yaml")
       );
       expect(ap.port).to.equal(3000);
+      expect(ap.database?.url).to.equal("postgresql://u:p@db:5432/fonoster");
     } finally {
       process.env = saved;
     }
@@ -317,8 +324,13 @@ describe("@conformance/deployment (Helm chart)", function () {
       '"name":"NATS_GATEWAY_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"gateway"}}'
     );
     expect(env("StatefulSet", "fonoster-medianode")).to.contain(
-      '"name":"MEDIANODE_NATS_PASSWORD","value":"secret://env/NATS_MEDIANODE_PASSWORD"'
+      '"name":"NATS_MEDIANODE_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"medianode"}}'
     );
+    expect(medianodeConfig(objs).nats).to.deep.equal({
+      url: "nats://fonoster-nats:4222",
+      user: "medianode",
+      password: "secret://env/NATS_MEDIANODE_PASSWORD"
+    });
     const agent = parseAllDocuments(
       find(objs, "ConfigMap", "fonoster-region-agent")!.data![
         "region-agent.yaml"
@@ -359,23 +371,53 @@ describe("@conformance/deployment (Helm chart)", function () {
   });
 
   it("renders the media nodes' mutual TLS toward the edge (add-platform 4.2)", function () {
-    const node = JSON.stringify(
-      find(
-        render("--set=medianode.tls.enabled=true"),
-        "StatefulSet",
-        "fonoster-medianode"
-      )!.spec
-    );
-    expect(node).to.contain(
-      '"name":"MEDIANODE_TLS_LISTEN","value":"0.0.0.0:5061"'
-    );
-    expect(node).to.contain(
-      '"name":"MEDIANODE_TLS_CLIENT_CA","value":"/etc/medianode/tls/ca.crt"'
-    );
-    expect(node).to.contain('"secretName":"medianode-tls"');
+    const objs = render("--set=medianode.tls.enabled=true");
+    expect(medianodeConfig(objs).tls).to.deep.equal({
+      listen: "0.0.0.0:5061",
+      cert: "/etc/medianode/tls/tls.crt",
+      key: "/etc/medianode/tls/tls.key",
+      ca: "/etc/medianode/tls/ca.crt",
+      clientCa: "/etc/medianode/tls/ca.crt"
+    });
     expect(
-      JSON.stringify(find(render(), "StatefulSet", "fonoster-medianode"))
-    ).to.not.contain("MEDIANODE_TLS");
+      JSON.stringify(find(objs, "StatefulSet", "fonoster-medianode")!.spec)
+    ).to.contain('"secretName":"medianode-tls"');
+    expect(medianodeConfig(render()).tls).to.equal(undefined);
+  });
+
+  // fix-config-and-placement-gaps: the node reads no MEDIANODE_* variables, so the chart passes
+  // everything in medianode.yaml, with the pod's own values as ${VAR} placeholders.
+  it("configures the media nodes through medianode.yaml, not MEDIANODE_* variables", function () {
+    const objs = render("--set=medianode.trustedSources=10.0.0.1");
+    const node = find(objs, "StatefulSet", "fonoster-medianode")!;
+    expect(JSON.stringify(node)).to.not.contain("MEDIANODE_");
+    expect(JSON.stringify(node.spec)).to.contain(
+      '"mountPath":"/config/medianode.yaml","subPath":"medianode.yaml"'
+    );
+    const config = medianodeConfig(objs);
+    expect(config.nodeId).to.equal("${POD_NAME}");
+    expect(config.sip).to.deep.equal({
+      listen: "0.0.0.0:5060",
+      advertise: "${HOST_IP}"
+    });
+    expect(config.rtp).to.deep.equal({
+      host: "0.0.0.0",
+      advertise: "${HOST_IP}",
+      portMin: 30000,
+      portMax: 30199
+    });
+    expect(config.registration).to.deep.equal({
+      registrar: "routr:5060",
+      domain: "nodes.fonoster.local",
+      username: "${POD_NAME}",
+      password: "${ROUTR_PEER_PASSWORD:-}"
+    });
+    expect(config.trustedSources).to.deep.equal(["10.0.0.1"]);
+    // Every placeholder is a variable the pod sets.
+    const env = JSON.stringify(node.spec);
+    ["POD_NAME", "HOST_IP", "ROUTR_PEER_PASSWORD"].forEach((v) =>
+      expect(env, v).to.contain(`"name":"${v}"`)
+    );
   });
 
   it("keeps the chart's copies of the Compose configs in sync", function () {

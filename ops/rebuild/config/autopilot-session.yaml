@@ -9,7 +9,7 @@ signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
 assistants: { source: database }
 registry: { source: database }
 workspaceSecrets: { source: database }
-database: { urlEnv: APISERVER_DATABASE_URL }
+database: { url: "${APISERVER_DATABASE_URL}" }
 encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
 credentials:
   openai-default: { env: OPENAI_API_KEY }

@@ -22,7 +22,7 @@ COPY --from=builder /out/sipcaller /sipcaller
 
 # SIP (UDP and TCP) and the RTP range. The range is whatever the node hands out; publish the same
 # range you configure (see docs/operators/rebuild.md). Config: /config/medianode.yaml (or -config
-# <file>; flags win). MEDIANODE_* variables still work but are deprecated.
+# <file>; flags win). MEDIANODE_* variables are not read: use ${VAR} placeholders in the file.
 EXPOSE 5060/udp 5060/tcp
 
 ENTRYPOINT ["/medianode"]

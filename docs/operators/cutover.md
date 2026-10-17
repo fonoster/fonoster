@@ -26,11 +26,13 @@ to pick the app.
    medianode -node-id node-a -nats nats://nats:4222 \
      -sip 0.0.0.0:5060 -sip-advertise <node IP Routr can reach> \
      -rtp 0.0.0.0 -rtp-advertise <node IP carriers and gateways can reach> \
-     -registrar routr:5060 -username medianode -password "$MEDIANODE_PASSWORD" \
+     -registrar routr:5060 -username medianode -password secret://env/MEDIANODE_PASSWORD \
      -outbound-proxy routr:5060
    ```
 
-   Every flag also reads an environment variable (`MEDIANODE_*`). Check that Routr has a route for
+   Every flag also has a key in `/config/medianode.yaml` (`-config <file>`; see
+   `ops/bundle/config/medianode.example.yaml`); the node reads no `MEDIANODE_*` variables except
+   through a `${VAR}` placeholder or `secret://env/` reference. Check that Routr has a route for
    `sip:medianode@default` for each node. The node logs `register failed` when it cannot
    register.
 3. **Gateway.** Deploy `mods/gateway` on the same NATS. Its `apps:` list comes from the app
