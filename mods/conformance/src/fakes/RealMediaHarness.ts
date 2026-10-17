@@ -78,7 +78,7 @@ export class RealMediaHarness extends FakesHarness {
    */
   async offerCallAndAccept(
     timeoutMs = 5000,
-    options: { codecs?: string[] } = {}
+    options: { codecs?: string[]; callRef?: string } = {}
   ): Promise<Peer> {
     await this.media.start();
     if (this.dialOutcome) await this.media.callee(this.dialOutcome);
@@ -87,7 +87,8 @@ export class RealMediaHarness extends FakesHarness {
       appRef: this.appRef ?? "app-1",
       to: this.call?.to,
       from: this.call?.from,
-      ...(options.codecs ? { codecs: options.codecs } : {})
+      ...(options.codecs ? { codecs: options.codecs } : {}),
+      ...(options.callRef ? { callRef: options.callRef } : {})
     });
     const peer = await this.acceptSession(mark, timeoutMs);
     if (this.reachesNoApp) return peer;
