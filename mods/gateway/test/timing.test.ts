@@ -29,7 +29,7 @@ import {
 import { Gateway } from "../src";
 
 // Pass bar T1 (conformance "Gateway latency pass bar"): the gateway adds at most 50 ms at p95 from
-// speak to first audio, and clear silences the call within 40 ms. Runs only when
+// speak to first audio and from caller audio to STT, and clear silences the call within 40 ms. Runs only when
 // CONFORMANCE_TIMING_RUNS is set (nightly, on a dedicated runner); writes a JSON report to
 // CONFORMANCE_REPORT_DIR when set.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -111,6 +111,22 @@ describe("@gateway timing (T1)", function () {
       0
     );
     expect(r.steps["first-audio"].adjusted!.p95).to.be.at.most(50);
+  });
+
+  it("adds at most 50 ms at p95 from caller audio to STT", async function () {
+    const r = await repeatScenario(
+      scenario("caller-audio-to-stt"),
+      RUNS,
+      makeRun
+    );
+    report("caller-audio-to-stt", r);
+    console.log(
+      JSON.stringify(r.measurements["stt.caller_audio_lag_ms"], null, 2)
+    );
+    expect(r.failures, JSON.stringify(r.failures.slice(0, 3))).to.have.length(
+      0
+    );
+    expect(r.measurements["stt.caller_audio_lag_ms"].p95).to.be.at.most(50);
   });
 
   it("silences the call within 40 ms of clear at p95", async function () {

@@ -22,6 +22,12 @@ public-method allow-list, and SHALL expose a gRPC health service.
 - **THEN** the call is processed
 - **AND** a non-allow-listed method called without a valid access token is rejected as unauthenticated
 
+#### Scenario: CreateWorkspace requires an access token
+
+- **WHEN** CreateWorkspace is called without an access token
+- **THEN** the interceptor rejects it as unauthenticated before the handler runs (it is not allow-listed, because the handler takes the workspace owner from the token)
+- **AND** with a valid user access token the workspace is created, owned by that token's user
+
 #### Scenario: No telephony subsystems are started
 
 - **WHEN** the standalone service runs

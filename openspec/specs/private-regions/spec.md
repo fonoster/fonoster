@@ -146,7 +146,9 @@ call, only for workspaces bound to it, and SHALL NOT cache, store or log them be
 For a workspace on a private region, the dashboard SHALL read recordings, transcripts and vCons
 through the control plane, which SHALL fetch them from the cell over the existing outbound link and
 stream them to the browser without writing them to storage. The control plane SHALL check the
-user's access first; the cell SHALL audit each read.
+user's access first; the cell SHALL audit each read. The control plane SHALL hold only the call's
+metadata (the index entry, as listed in regions); the content SHALL cross the link only as replies
+to a read of one record.
 
 #### Scenario: Listen to a private recording
 - **WHEN** a member opens a call of a private workspace and plays its recording

@@ -168,6 +168,9 @@ jobs:
         run: |
           mkdir -p reports
           npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 60 | tee reports/scale-100.json
+          # A reduced multi-replica profile: the full bar (ten replicas, 1,000 calls) needs about
+          # 20 vCPU for the gateways alone, more than a hosted runner has (harden-conformance 2.2).
+          npx tsx mods/gateway/scripts/scale.ts --calls 200 --seconds 60 --replicas 2 | tee reports/scale-2x200.json
 
       - name: Turn-taking replay (T3)
         run: npx tsx mods/gateway/scripts/replay.ts | tee reports/turn-replay.txt

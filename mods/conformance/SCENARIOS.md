@@ -195,6 +195,8 @@ matcher, compared with what the harness measured.
 | `media.sip` | SIP statuses the caller received, in order (180 for `ring`, 200 for `answer`, refusals such as 404 or 503) |
 | `providers.vendor_calls` | network calls to anything other than the fakes (always expected to be `0`); needs a harness that watches egress, such as a proxy around the implementation |
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
+| `providers.stt.streams` | STT streams opened so far, waiting up to 2 s for the first one (use before caller audio that must reach STT) |
+| `stt.caller_audio_lag_ms` | ms from the first audible caller packet the fake media node sent after the step's anchor to the first audible frame the fake STT received (pass bar T1, caller audio to STT); waits up to 2 s, `null` if none arrived |
 | `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |
 | `record.events.<type>` | the call record's gateway events of that type, e.g. `record.events.turn.label` (needs a harness that can read the record) |
 | `record.messages.<type>` | the call record's entries of that type from any source (app commands, gateway messages, events), each with `source` and `at`, e.g. `record.messages.record.note` |
