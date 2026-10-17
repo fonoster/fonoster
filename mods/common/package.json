@@ -25,7 +25,7 @@
     "@opentelemetry/sdk-trace-node": "^1.30.1",
     "@fonoster/logger": "^0.27.0",
     "@fonoster/types": "^0.27.0",
-    "@grpc/grpc-js": "~1.10.11",
+    "@grpc/grpc-js": "~1.14.6",
     "@grpc/proto-loader": "^0.7.15",
     "@influxdata/influxdb-client": "^1.35.0",
     "ajv": "^8.17.1",
@@ -37,7 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "nkeys.js": "^1.1.0",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^10.1.2",
     "pb-util": "^1.0.3",
     "twilio": "^5.11.1",
     "validator": "^13.12.0",
@@ -59,9 +59,7 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "devDependencies": {
-    "@types/nodemailer": "^6.4.21"
-  },
+  "devDependencies": {},
   "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
   "bin": {
     "fonoster-registry": "dist/registry/cli.js",

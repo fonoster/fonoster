@@ -24,7 +24,7 @@
     "@fonoster/identity": "^0.27.0",
     "@fonoster/logger": "^0.27.0",
     "@fonoster/types": "^0.27.0",
-    "@grpc/grpc-js": "~1.10.6",
+    "@grpc/grpc-js": "~1.14.6",
     "@routr/sdk": "2.13.1",
     "zod": "^3.23.8"
   },
