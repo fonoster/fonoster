@@ -251,6 +251,14 @@ func NewWithOptions(o Options) (*Bot, error) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
 	})
 	go func() { _ = srv.ServeUDP(l) }()
+	// Requests go out from the listening socket (WithClientConnectionAddr): dialing before the
+	// transport layer has registered it makes the client bind the same port again and fail
+	// with "address already in use".
+	for deadline := time.Now().Add(2 * time.Second); time.Now().Before(deadline); time.Sleep(time.Millisecond) {
+		if c, err := ua.TransportLayer().GetConnection("udp", l.LocalAddr().String()); err == nil && c != nil {
+			break
+		}
+	}
 	if o.TLS != nil {
 		tl, err := tls.Listen("tcp4", net.JoinHostPort(host, "0"), o.TLS)
 		if err != nil {
