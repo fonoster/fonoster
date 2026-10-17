@@ -585,7 +585,7 @@ func (u *UA) register(ctx context.Context) error {
 
 func (u *UA) send(ctx context.Context, expires int) error {
 	count := u.node.ActiveRooms()
-	if u.node.Draining() {
+	if u.node.Draining() || u.node.AtCapacity() {
 		count = 1 << 20 // full: Routr stops choosing this node
 	}
 	host, portText, _ := strings.Cut(u.cfg.Registrar, ":")

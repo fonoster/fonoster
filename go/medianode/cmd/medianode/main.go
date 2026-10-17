@@ -118,6 +118,12 @@ func main() {
 	drainWait := flag.Duration("drain-wait", envDuration(fc.DrainWait, "MEDIANODE_DRAIN_WAIT", 10*time.Minute), "longest wait for rooms to end on SIGTERM")
 	maxDuration := flag.Duration("max-duration", envDuration(fc.MaxDuration, "MEDIANODE_MAX_DURATION", 4*time.Hour), "longest call (ended with reason timeout); apps can lower it per call")
 	maxParticipants := flag.Int("max-participants", envInt(fc.MaxParticipants, "MEDIANODE_MAX_PARTICIPANTS", 10), "participants per room (room_full beyond it)")
+	// No MEDIANODE_* variable for this one: new settings come from the file only.
+	maxRoomsDefault := fc.MaxRooms
+	if maxRoomsDefault <= 0 {
+		maxRoomsDefault = node.DefaultMaxRooms
+	}
+	maxRooms := flag.Int("max-rooms", maxRoomsDefault, "rooms the node holds at once; room.create and INVITEs beyond it are refused (at_capacity)")
 	mediaTimeout := flag.Duration("media-timeout", envDuration(fc.MediaTimeout, "MEDIANODE_MEDIA_TIMEOUT", 30*time.Second), "end an answered call with no caller RTP for this long")
 	tlsListen := flag.String("tls", env(fc.TLS.Listen, "MEDIANODE_TLS_LISTEN", ""), "SIP-over-TLS listen address; empty disables TLS")
 	tlsCert := flag.String("tls-cert", env(fc.TLS.Cert, "MEDIANODE_TLS_CERT", ""), "PEM certificate for the TLS listener")
@@ -191,7 +197,7 @@ func main() {
 		}
 	}
 	n := node.New(nc, node.Config{Registry: reg, NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
-		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants,
+		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants, MaxRooms: *maxRooms,
 		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger,
 		AllowedDestinations: allowedDestinations(fc)})
 	// The PEM settings are file paths or secret:// references (edgetls, add-platform 4.2).

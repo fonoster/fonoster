@@ -147,6 +147,7 @@ them one at a time (`gateway.podDisruptionBudget`) and give calls time via
 | --- | --- | --- |
 | Longest call | 4 h | `-max-duration`, `MEDIANODE_MAX_DURATION` (per-app values can be lower) |
 | Participants per room | 10 | `-max-participants`, `MEDIANODE_MAX_PARTICIPANTS` |
+| Rooms per media node | 200 | `-max-rooms`, `maxRooms` in `medianode.yaml` (heartbeats report it; placement skips a full node and `room.create` beyond it gets `at_capacity`) |
 | Silent caller media timeout | 30 s | `-media-timeout`, `MEDIANODE_MEDIA_TIMEOUT` |
 | Heartbeat | 2 s | `-heartbeat` |
 | Call claim by a gateway | 500 ms, one retry, then 503 | fixed by the spec |

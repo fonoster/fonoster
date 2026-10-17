@@ -3,9 +3,11 @@ package node
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -17,6 +19,23 @@ import (
 	"github.com/fonoster/fonoster/go/medianode/internal/netguard"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel/attribute"
+)
+
+// DefaultMaxRooms is the room limit when none is configured (media-node "Capacity bar").
+const DefaultMaxRooms = 200
+
+// CallEventsSubject is where a room created for an API-originated call (room.create with
+// callRef) also publishes its call-status events (call.progress, call.answered, room.ended), so
+// any control-plane replica can serve TrackCall for the call.
+func CallEventsSubject(callRef string) string { return "calls." + callRef + ".events" }
+
+// callEvents are the room events that make up a call's status.
+var callEvents = map[string]bool{"call.progress": true, "call.answered": true, "room.ended": true}
+
+// Errors newRoom returns: the node is draining, or holds MaxRooms rooms.
+var (
+	errDraining   = fmt.Errorf("draining")
+	errAtCapacity = fmt.Errorf("at_capacity")
 )
 
 // IncomingSubject is where calls are offered to the gateway replicas (media-control, "Incoming
@@ -39,6 +58,9 @@ type Config struct {
 	MaxDuration time.Duration
 	// MaxParticipants per room (10).
 	MaxParticipants int
+	// MaxRooms is the most rooms the node holds at once (200, the capacity bar). room.create and
+	// INVITEs beyond it are refused, and heartbeats report it so placement skips a full node.
+	MaxRooms int
 	// RequireEncryption refuses plain RTP on every leg (MN6): SIP legs must offer RTP/SAVP with
 	// an SDES key, and the gateway's rtp blocks must carry srtp.
 	RequireEncryption bool
@@ -81,6 +103,9 @@ func (c *Config) defaults() {
 	}
 	if c.MaxParticipants == 0 {
 		c.MaxParticipants = 10
+	}
+	if c.MaxRooms <= 0 {
+		c.MaxRooms = DefaultMaxRooms
 	}
 	if c.Logger == nil {
 		c.Logger = slog.Default()
@@ -258,6 +283,18 @@ func (n *Node) Stats() Stats {
 	return s
 }
 
+// AtCapacity reports whether the node holds MaxRooms rooms (Routr registration reports it full).
+func (n *Node) AtCapacity() bool {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	return len(n.rooms) >= n.cfg.MaxRooms
+}
+
+// validToken reports whether s can sit in one NATS subject token ("" is fine: no call).
+func validToken(s string) bool {
+	return !strings.ContainsAny(s, ". *>\t\r\n")
+}
+
 // ActiveRooms counts rooms that have not ended.
 func (n *Node) ActiveRooms() int {
 	n.mu.Lock()
@@ -311,7 +348,8 @@ func (n *Node) heartbeats() {
 
 func (n *Node) beat() {
 	n.mu.Lock()
-	ev := Event{"type": "node.heartbeat", "nodeId": n.cfg.NodeID, "rooms": len(n.rooms), "draining": n.draining}
+	ev := Event{"type": "node.heartbeat", "nodeId": n.cfg.NodeID, "rooms": len(n.rooms),
+		"maxRooms": n.cfg.MaxRooms, "draining": n.draining}
 	var refresh []string
 	now := time.Now()
 	if n.cfg.Registry != nil && now.Sub(n.roomsWritten) >= n.cfg.RoomRefresh {
@@ -324,7 +362,7 @@ func (n *Node) beat() {
 	n.publish(fmt.Sprintf("media.%s.heartbeat", n.cfg.NodeID), ev)
 	if reg := n.cfg.Registry; reg != nil {
 		reg.Put("nodes", n.cfg.NodeID, Event{"nodeId": n.cfg.NodeID, "rooms": ev["rooms"],
-			"draining": ev["draining"], "at": now.UTC().Format(time.RFC3339Nano)})
+			"maxRooms": ev["maxRooms"], "draining": ev["draining"], "at": now.UTC().Format(time.RFC3339Nano)})
 		for _, ref := range refresh {
 			n.writeRoom(ref, now)
 		}
@@ -347,6 +385,15 @@ func (n *Node) publish(subject string, ev Event) {
 func (n *Node) emit(roomRef string, ev Event) {
 	ev["roomRef"] = roomRef
 	n.publish(fmt.Sprintf("media.%s.events.%s", n.cfg.NodeID, roomRef), ev)
+	if t, _ := ev["type"].(string); callEvents[t] {
+		if r := n.room(roomRef); r != nil && r.callRef != "" {
+			out := Event{"callRef": r.callRef, "nodeId": n.cfg.NodeID}
+			for k, v := range ev {
+				out[k] = v
+			}
+			n.publish(CallEventsSubject(r.callRef), out)
+		}
+	}
 }
 
 func (n *Node) nextRef(prefix string) string {
@@ -356,15 +403,21 @@ func (n *Node) nextRef(prefix string) string {
 	return fmt.Sprintf("%s-%s-%d-%d", prefix, n.cfg.NodeID, time.Now().UnixNano()%1_000_000, n.seq)
 }
 
-func (n *Node) newRoom() (*Room, error) {
+// newRoom opens a room; callRef ("" for none) is the API-originated call it was created for.
+// The limit check and the insert share one lock, so concurrent room.create commands never take
+// the node past MaxRooms.
+func (n *Node) newRoom(callRef string) (*Room, error) {
+	r := newRoom(n, n.nextRef("room"))
+	r.callRef = callRef
 	n.mu.Lock()
 	if n.draining {
 		n.mu.Unlock()
-		return nil, fmt.Errorf("draining")
+		return nil, errDraining
 	}
-	n.mu.Unlock()
-	r := newRoom(n, n.nextRef("room"))
-	n.mu.Lock()
+	if len(n.rooms) >= n.cfg.MaxRooms {
+		n.mu.Unlock()
+		return nil, errAtCapacity
+	}
 	n.rooms[r.Ref] = r
 	count := len(n.rooms)
 	n.mu.Unlock()
@@ -412,7 +465,7 @@ func (n *Node) Incoming(call IncomingCall) {
 		_ = call.Leg.Reject(488)
 		return
 	}
-	room, err := n.newRoom()
+	room, err := n.newRoom("")
 	if err != nil {
 		_ = call.Leg.Reject(503)
 		return
@@ -535,7 +588,14 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 		return fail("unknown_command", typ)
 	}
 	if typ == "room.create" {
-		r, err := n.newRoom()
+		callRef, _ := cmd["callRef"].(string)
+		if !validToken(callRef) {
+			return fail("bad_message", "callRef must be a single subject token")
+		}
+		r, err := n.newRoom(callRef)
+		if errors.Is(err, errAtCapacity) {
+			return fail("at_capacity", fmt.Sprintf("node %s holds its limit of %d rooms", n.cfg.NodeID, n.cfg.MaxRooms))
+		}
 		if err != nil {
 			return fail("draining", "")
 		}
