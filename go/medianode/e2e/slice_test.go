@@ -39,13 +39,23 @@ type rig struct {
 	tlsAddr string
 }
 
+// freePort returns a port free for both UDP and TCP: the SIP listener binds both.
 func freePort(t *testing.T) int {
-	l, err := net.ListenPacket("udp4", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
+	for range 20 {
+		l, err := net.Listen("tcp4", "127.0.0.1:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		port := l.Addr().(*net.TCPAddr).Port
+		u, err := net.ListenPacket("udp4", fmt.Sprintf("127.0.0.1:%d", port))
+		_ = l.Close()
+		if err == nil {
+			_ = u.Close()
+			return port
+		}
 	}
-	defer l.Close()
-	return l.LocalAddr().(*net.UDPAddr).Port
+	t.Fatal("no port free for both UDP and TCP")
+	return 0
 }
 
 func start(t *testing.T) *rig { return startWith(t, rigOptions{}) }

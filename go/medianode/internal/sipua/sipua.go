@@ -80,6 +80,9 @@ type UA struct {
 	trust       *sourceFilter
 	// udp is the UDP listening socket, bound in New so requests can go out from it.
 	udp net.PacketConn
+	// tcp is the TCP listener on the same address, also bound in New so a taken port fails
+	// startup instead of stopping a node that already reported ready.
+	tcp net.Listener
 }
 
 // New wires a SIP user agent to the node.
@@ -122,10 +125,16 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	// (Docker for Mac, cloud load balancers) as well as without it (CO-B2). With encryption
 	// required there is no plain listener at all (MN6).
 	var udp net.PacketConn
+	var tcp net.Listener
 	clientOpts := []sipgo.ClientOption{sipgo.WithClientHostname(cfg.AdvertiseHost), sipgo.WithClientNAT()}
 	if !cfg.RequireEncryption {
 		udp, err = net.ListenPacket("udp4", cfg.Listen)
 		if err != nil {
+			return nil, err
+		}
+		tcp, err = net.Listen("tcp", cfg.Listen)
+		if err != nil {
+			_ = udp.Close()
 			return nil, err
 		}
 		clientOpts = append(clientOpts, sipgo.WithClientConnectionAddr(udp.LocalAddr().String()))
@@ -149,7 +158,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if trust == nil {
 		cfg.Logger.Warn("no trusted SIP sources configured: INVITEs are accepted from any address")
 	}
-	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp, trust: trust,
+	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp, tcp: tcp, trust: trust,
 		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact),
 		kick: make(chan struct{}, 1), lastReg: -1}
 	srv.OnInvite(u.guard(u.onInvite))
@@ -179,7 +188,7 @@ func (u *UA) Serve(ctx context.Context) error {
 	errs := make(chan error, 3)
 	if !u.cfg.RequireEncryption {
 		go func() { errs <- u.srv.ServeUDP(u.udp) }()
-		go func() { errs <- u.srv.ListenAndServe(ctx, "tcp", u.cfg.Listen) }()
+		go func() { errs <- u.srv.ServeTCP(u.tcp) }()
 	}
 	if u.cfg.TLSListen != "" && u.cfg.TLSConfig != nil {
 		go func() { errs <- u.srv.ListenAndServeTLS(ctx, "tcp", u.cfg.TLSListen, u.cfg.TLSConfig) }()
@@ -200,6 +209,9 @@ func (u *UA) Close() {
 	_ = u.ua.Close()
 	if u.udp != nil {
 		_ = u.udp.Close()
+	}
+	if u.tcp != nil {
+		_ = u.tcp.Close()
 	}
 }
 
