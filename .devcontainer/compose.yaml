@@ -54,6 +54,10 @@ services:
     extends: { file: ../ops/bundle/compose.yaml, service: postgres }
     volumes:
       - ./postgres-test.sql:/docker-entrypoint-initdb.d/20-test.sql:ro
+    # Reachable from the host too, so tests can run outside the workspace container
+    # (PERSISTENCE_TEST_DATABASE_URL=postgresql://postgres:<password>@127.0.0.1:15432/fonoster_test).
+    ports:
+      - "127.0.0.1:15432:5432"
 
   routr:
     extends: { file: ../ops/bundle/compose.yaml, service: routr }
@@ -74,6 +78,9 @@ services:
     image: nats:2.11.8-alpine
     restart: unless-stopped
     command: ["-js", "-m", "8222"]
+    # From the host: CONFORMANCE_NATS_URL=nats://127.0.0.1:14222.
+    ports:
+      - "127.0.0.1:14222:4222"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
       interval: 5s
