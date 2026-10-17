@@ -1,6 +1,32 @@
 ---
 title: "Overview"
-description: "Run Fonoster from source and work on its components."
+description: "What hacking on Fonoster looks like, who this section is for, and where to start."
 ---
 
-This page is a placeholder. It will be written with `/ps:docs`. The planned menu is in `docs-site/MENU.md`.
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/hacking/banner-light.png"
+  alt="Fonoster, from source: a terminal runs npm run dev, and every component reloads as you save."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/hacking/banner-dark.png"
+  alt="Fonoster, from source: a terminal runs npm run dev, and every component reloads as you save."
+/>
+
+This section is for people who change Fonoster itself: fix a bug, add a feature, or work on one of
+its components. To build agents and voice apps on Fonoster, go to the **Docs** tab. To run it on
+your own servers, go to the **Self-hosting** tab.
+
+You develop in the dev container, and only there. The dependencies run as containers, and the API
+server, gateway, Autopilot, media node and dashboard run from your source with reload. Fake speech
+and AI providers stand in for the vendors, so you need no keys to make a call.
+
+<Card
+  title="Run Fonoster from source"
+  icon="code"
+  href="/hacking/run-from-source"
+>
+  Open the dev container, start every component and call an agent from your
+  browser.
+</Card>
