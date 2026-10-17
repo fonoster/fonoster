@@ -1,0 +1,111 @@
+---
+title: "Run Fonoster from source"
+description: "Open the dev container, run every component from source, and call an agent from your browser."
+---
+
+In this tutorial you run Fonoster from source in the dev container. At the end, every component is
+running with reload, you are signed in to the dashboard, and an agent answers a call from your
+browser.
+
+## Before you begin
+
+You need:
+
+- [Docker](https://docs.docker.com/get-docker/).
+- [VS Code](https://code.visualstudio.com/) or [Cursor](https://cursor.com/) with the
+  [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+  extension.
+- `git`.
+
+<Note>
+  The dev container uses port `8449` (dashboard and API) and `5060` (SIP) on
+  your machine. Stop anything else that uses them, such as a Fonoster install.
+</Note>
+
+## Run Fonoster
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone Fonoster into a new folder. `--filter=blob:none` keeps the full history but downloads old
+    file contents only when you need them, which makes the download much smaller:
+
+    ```bash
+    git clone --filter=blob:none https://github.com/fonoster/fonoster.git
+    ```
+
+    Use a regular clone, not a `git worktree`: the container can't see a worktree's `.git`.
+
+  </Step>
+
+  <Step title="Open it in the dev container">
+    Open the folder in your editor and choose **Reopen in Container**. If the prompt doesn't show,
+    run **Dev Containers: Reopen in Container** from the command palette.
+
+    The first time takes about 10 minutes. The editor builds the workspace image, starts Postgres,
+    NATS, Routr, RTPEngine, MinIO and Envoy, installs the packages and builds them. It's done when
+    the setup log prints:
+
+    ```text
+    Fonoster dev container ready. Start everything with:
+
+      npm run dev
+    ```
+
+  </Step>
+
+  <Step title="Start Fonoster">
+    Open a terminal in the editor. It runs inside the container. Start every component:
+
+    ```bash
+    npm run dev
+    ```
+
+    This runs the API server, the gateway, Autopilot, the media node and the dashboard from source.
+    Each one reloads when you save a file. Leave it running.
+
+  </Step>
+
+  <Step title="Sign in to the dashboard">
+    In a second terminal, print the dashboard address and the owner sign-in:
+
+    ```bash
+    npm run dev:info
+    ```
+
+    Open [http://localhost:8449](http://localhost:8449) in your browser and sign in. You land in a
+    default workspace.
+
+  </Step>
+
+  <Step title="Call an agent from your browser">
+    In the dashboard, go to **Agents** and choose **New agent**. Pick a template and choose
+    **Create agent**. On the agent's page, choose **Talk to agent** and allow the microphone.
+
+    <Note>
+      The dev container uses fake speech and AI providers, so you need no vendor keys. You hear a
+      beep, not a voice: each beep is something the agent says. The fake caller says two scripted
+      lines, the agent answers each with "Echo: …", asks "Are you still there?" when nobody
+      talks, and then hangs up.
+    </Note>
+
+    The call connects, you hear the beeps, and the call ends by itself.
+
+  </Step>
+</Steps>
+
+## What you ran
+
+`npm run dev` is the command you run every day. The dependencies start with the container, and your
+code runs on top of them with reload. Your configuration and secrets live in `.dev/`, which git
+ignores.
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/run-from-source/dev-container-light.svg"
+  alt="The dev container. Your editor sends your source into the workspace, where the API server, dashboard, gateway, Autopilot, media node and fakes run with live reload. The browser reaches them through Envoy on port 8449, and a softphone through Routr on SIP port 5060. RTPEngine carries call media to the media node. The workspace stores its state in Postgres, events in NATS and recordings in MinIO."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/run-from-source/dev-container-dark.svg"
+  alt="The dev container. Your editor sends your source into the workspace, where the API server, dashboard, gateway, Autopilot, media node and fakes run with live reload. The browser reaches them through Envoy on port 8449, and a softphone through Routr on SIP port 5060. RTPEngine carries call media to the media node. The workspace stores its state in Postgres, events in NATS and recordings in MinIO."
+/>

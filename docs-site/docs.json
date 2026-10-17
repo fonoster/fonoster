@@ -81,7 +81,8 @@
               {
                 "group": "Start",
                 "pages": [
-                  "hacking/overview"
+                  "hacking/overview",
+                  "hacking/run-from-source"
                 ]
               }
             ]

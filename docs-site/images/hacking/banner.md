@@ -6,5 +6,5 @@
 - **Content:** eyebrow "HACKING FONOSTER", headline "Fonoster, from source.", subhead "Open the dev container.
   Every component reloads as you save.", terminal `npm run dev` with prefixed log lines.
 - **TODO:** the log lines are illustrative; replace them with the real `npm run dev` output from the owner's run.
-- **Export:** `Export([JbV94, bmkIB], "png", docs-site/images/run-from-source, {scale: 1})`, rename to
+- **Export:** `Export([JbV94, bmkIB], "png", docs-site/images/hacking, {scale: 1})`, rename to
   `banner-dark.png` / `banner-light.png`.
