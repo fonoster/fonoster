@@ -8,6 +8,9 @@ on:
   pull_request:
     paths:
       - '.github/workflows/conformance.yaml'
+      - 'mods/apiserver/src/calls/**'
+      - 'mods/apiserver/src/outbound/**'
+      - 'mods/apiserver/test/outbound/**'
       - 'mods/common/**'
       - 'mods/conformance/**'
       - 'mods/gateway/**'
@@ -32,14 +35,17 @@ jobs:
   suites:
     name: session, SDK and Autopilot suites (NATS)
     runs-on: ubuntu-latest
-    services:
-      nats:
-        image: nats:2.11.8
-        ports:
-          - 4222:4222
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # A step, not a service container: services cannot pass -js, and the session registry
+      # (JetStream KV) is part of what these suites check, as in the dev container's nats-test.
+      - name: Start NATS with JetStream
+        run: |
+          docker run -d --name nats -p 4222:4222 -p 8222:8222 nats:2.11.8 -js -m 8222
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8222/healthz && exit 0; sleep 1; done
+          docker logs nats; exit 1
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -76,7 +82,9 @@ jobs:
             'mods/conformance/test/media-control.test.ts' \
             'mods/conformance/test/media-control-go.test.ts' \
             'mods/gateway/test/gonode.test.ts' \
-            'mods/autopilot/test/session/fullstack.test.ts'
+            'mods/autopilot/test/session/fullstack.test.ts' \
+            'mods/apiserver/test/outbound/placeOutboundCall.test.ts' \
+            'mods/apiserver/test/outbound/controlPlane.test.ts'
 
   nightly:
     name: timing (T1), load (T2), replay (T3) and Pipecat

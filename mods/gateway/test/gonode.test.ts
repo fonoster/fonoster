@@ -294,3 +294,105 @@ describe("@gateway SIP codecs through the Go media node", function () {
     });
   }
 });
+
+// NATS carries everything internal except audio (control-plane spec, "No audio on the bus";
+// harden-conformance 1.2): a real call with audio both ways runs through the node while a
+// subscriber on `>` sees every message on the bus. Audio would show up as binary payloads (PCM or
+// RTP is not text) or as one subject at a media frame rate (50/s for 20 ms frames). Every message
+// must be text, and no subject may pass 10/s. The spec's call lasts 60 s; this one carries a few
+// seconds each way, which is enough to see a stream at frame rate.
+describe("@gateway no audio on the bus (Go media node)", function () {
+  this.timeout(30000);
+  let nc: NatsConnection;
+  let bins: MediaNodeBinaries | undefined;
+
+  before(async function () {
+    this.timeout(120000);
+    if (!NATS_URL) return this.skip();
+    bins = buildMediaNode(NATS_URL);
+    if (!bins) return this.skip();
+    nc = await connect({ servers: NATS_URL });
+  });
+
+  after(async () => nc?.close());
+
+  it("no NATS message carries audio while a call has audio both ways", async function () {
+    const bus = await connect({ servers: NATS_URL!, name: "bus-observer" });
+    const text = new TextDecoder("utf-8", { fatal: true });
+    const counts = new Map<string, number>();
+    const binary: string[] = [];
+    const observer = bus.subscribe(">", {
+      callback: (_e, msg) => {
+        counts.set(msg.subject, (counts.get(msg.subject) ?? 0) + 1);
+        if (!msg.data.length) return;
+        try {
+          // eslint-disable-next-line no-control-regex
+          if (/[\x00-\x08]/.test(text.decode(msg.data)))
+            binary.push(msg.subject);
+        } catch {
+          binary.push(msg.subject);
+        }
+      }
+    });
+    await bus.flush();
+    const harness = await new RealMediaHarness(nc, bins!, {
+      vendorCalls: () => 0
+    }).start();
+    const gateway = await new Gateway({
+      config: configFor({ name: "no-audio-on-bus" } as Scenario, harness),
+      nats: nc,
+      record: new MemoryCallRecordSink()
+    }).start();
+    const started = Date.now();
+    try {
+      const peer = await harness.offerCallAndAccept();
+      // Caller to app.
+      const before = peer.frames.items.length;
+      await harness.caller({ audio: { kind: "tone", ms: 3000 } });
+      const loudFrames = () =>
+        peer.frames.items.slice(before).filter((f) => {
+          if (f.kind !== "binary") return false;
+          const b = f.data as Buffer;
+          for (let i = 1; i + 1 < b.length; i += 2)
+            if (Math.abs(b.readInt16LE(i)) > 1000) return true;
+          return false;
+        }).length;
+      const deadline = Date.now() + 8000;
+      while (loudFrames() < 100) {
+        if (Date.now() > deadline) throw new Error("no caller tone");
+        await new Promise((r) => setTimeout(r, 20));
+      }
+      // App to caller.
+      const since = Date.now();
+      peer.sendJson({
+        type: "speak",
+        id: "s1",
+        text: "Hello from the agent, this is a longer sentence.",
+        last: true
+      });
+      while ((await harness.media.status(since)).audibleMsSince < 1000) {
+        if (Date.now() > deadline + 5000)
+          throw new Error("the caller heard nothing");
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      await harness.caller({ hangup: true });
+      await bus.flush();
+
+      const seconds = Math.max(1, (Date.now() - started) / 1000);
+      expect(binary, "binary payloads on the bus").to.deep.equal([]);
+      const busiest = [...counts].sort((x, y) => y[1] - x[1])[0];
+      expect(counts.size, "the observer saw the call's messages").to.be.above(
+        0
+      );
+      expect(
+        busiest[1] / seconds,
+        `${busiest[0]}: ${busiest[1]} messages in ${seconds.toFixed(1)} s`
+      ).to.be.below(10);
+    } finally {
+      observer.unsubscribe();
+      await gateway.stop();
+      await harness.stop();
+      await bus.close();
+    }
+  });
+});
