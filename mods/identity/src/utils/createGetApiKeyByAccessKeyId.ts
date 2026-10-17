@@ -34,4 +34,9 @@ function createGetApiKeyByAccessKeyId(prisma: Prisma) {
   };
 }
 
-export { createGetApiKeyByAccessKeyId };
+/** A key past its `expiresAt` no longer exchanges or refreshes. */
+function isApiKeyExpired(key: { expiresAt?: Date | null }, now = new Date()) {
+  return key.expiresAt ? key.expiresAt.getTime() <= now.getTime() : false;
+}
+
+export { createGetApiKeyByAccessKeyId, isApiKeyExpired };

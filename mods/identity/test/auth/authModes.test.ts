@@ -56,6 +56,12 @@ const tokenUser = (overrides: Record<string, unknown> = {}) => ({
   ...overrides
 });
 
+/** Where issued refresh tokens are recorded (rotation). */
+const refreshTokenStore = () => ({
+  create: sandbox.stub().resolves({}),
+  deleteMany: sandbox.stub().resolves({ count: 0 })
+});
+
 /** Calls a handler and resolves with what it passed to the callback. */
 function invoke(handler: Function, request: unknown) {
   return new Promise<{ error?: unknown; response?: unknown }>((resolve) =>
@@ -88,7 +94,8 @@ describe("@identity[auth modes]", function () {
     it("signs in with a hashed password", async function () {
       const user = tokenUser({ passwordDigest: await hashPassword("pw-123456") });
       const prisma = {
-        user: { findFirst: sandbox.stub().resolves(user) }
+        user: { findFirst: sandbox.stub().resolves(user) },
+        refreshToken: refreshTokenStore()
       } as unknown as Prisma;
 
       const ok = await invoke(
@@ -148,7 +155,8 @@ describe("@identity[auth modes]", function () {
           findFirst: sandbox.stub().resolves(tokenUser({ emailVerified: false })),
           update,
           create: sandbox.stub()
-        }
+        },
+        refreshToken: refreshTokenStore()
       } as unknown as Prisma;
 
       const { error, response } = await invoke(
@@ -168,7 +176,8 @@ describe("@identity[auth modes]", function () {
       const create = sandbox.stub().resolves(tokenUser());
       const prisma = {
         verificationCode: liveCode(),
-        user: { findFirst, create, update: sandbox.stub() }
+        user: { findFirst, create, update: sandbox.stub() },
+        refreshToken: refreshTokenStore()
       } as unknown as Prisma;
 
       const { response } = await invoke(

@@ -24,7 +24,10 @@ import {
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
-import { createGetApiKeyByAccessKeyId } from "../utils/createGetApiKeyByAccessKeyId";
+import {
+  createGetApiKeyByAccessKeyId,
+  isApiKeyExpired
+} from "../utils/createGetApiKeyByAccessKeyId";
 import { exchangeTokens } from "./exchangeTokens";
 import {
   ExchangeApiKeysRequest,
@@ -46,7 +49,12 @@ function createExchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
 
     const key = await createGetApiKeyByAccessKeyId(prisma)(accessKeyId);
 
-    if (key?.accessKeySecret !== accessKeySecret?.trim()) {
+    // An expired key gets the same answer as a wrong secret.
+    if (
+      !key ||
+      key.accessKeySecret !== accessKeySecret?.trim() ||
+      isApiKeyExpired(key)
+    ) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"

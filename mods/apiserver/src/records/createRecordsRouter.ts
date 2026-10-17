@@ -22,7 +22,7 @@ import {
   RecordStore,
   SignedVcon
 } from "@fonoster/callrecord";
-import { decodeToken, isValidToken } from "@fonoster/common";
+import { verifyAccessToken } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { RelayClient } from "../regions/relay";
@@ -83,13 +83,9 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
     const accessKeyId = String(
       req.headers["x-accesskey-id"] ?? req.headers["accesskeyid"] ?? ""
     );
-    if (!token || !isValidToken(token, deps.identityPublicKey))
-      return res.status(401).json({ error: "unauthenticated" });
-    const decoded = decodeToken(token) as {
-      sub?: string;
-      accessKeyId?: string;
-      access?: { accessKeyId: string; role: string }[];
-    };
+    // Access tokens only: id, refresh and invite tokens are refused here.
+    const decoded = verifyAccessToken(token, deps.identityPublicKey);
+    if (!decoded) return res.status(401).json({ error: "unauthenticated" });
     const access = decoded.access?.find((a) => a.accessKeyId === accessKeyId);
     if (!accessKeyId || !access)
       return res.status(403).json({ error: "permission_denied" });

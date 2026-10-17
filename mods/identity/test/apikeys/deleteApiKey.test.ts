@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
@@ -16,52 +16,127 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Role } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
-import * as chai from "chai";
 import { expect } from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
-import sinonChai from "sinon-chai";
+import { createSandbox, SinonStub } from "sinon";
 import { Prisma } from "../../src/db";
-import { TEST_TOKEN } from "../utils";
+import { workspaceCallMetadata } from "../utils";
 
-chai.use(chaiAsPromised);
-chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[apikeys/deleteApiKey]", function () {
-  afterEach(function () {
-    return sandbox.restore();
-  });
+const WORKSPACE_A = "WOworkspaceA001";
+const WORKSPACE_B = "WOworkspaceB001";
 
-  it("should delete an ApiKey", async function () {
-    // Arrange
-    const metadata = new grpc.Metadata();
-    metadata.set("token", TEST_TOKEN);
+/** Calls a handler and resolves with what it passed to the callback. */
+function invoke(handler: Function, call: unknown) {
+  return new Promise<{ error?: unknown; response?: unknown }>((resolve) =>
+    handler(call, (error: unknown, response: unknown) =>
+      resolve({ error, response })
+    )
+  );
+}
 
-    const call = {
-      metadata,
-      request: {
-        ref: "123"
-      }
-    };
+const fakePrisma = (key: unknown) =>
+  ({
+    apiKey: {
+      findFirst: sandbox.stub().resolves(key),
+      delete: sandbox.stub().resolves(key),
+      update: sandbox
+        .stub()
+        .resolves({ ...(key as object), accessKeySecret: "new-secret" })
+    },
+    refreshToken: { updateMany: sandbox.stub().resolves({ count: 0 }) }
+  }) as unknown as Prisma & {
+    apiKey: Record<string, SinonStub>;
+    refreshToken: Record<string, SinonStub>;
+  };
 
-    const res = {
-      ref: "123"
-    };
+const KEY = { ref: "key-1", accessKeyId: "APkey0001" };
 
-    const prisma = {
-      apiKey: {
-        delete: sandbox.stub().resolves(res)
-      }
-    } as unknown as Prisma;
+const handlers = async () => ({
+  delete: (await import("../../src/apikeys/createDeleteApiKey"))
+    .createDeleteApiKey,
+  regenerate: (await import("../../src/apikeys/createRegenerateApiKey"))
+    .createRegenerateApiKey
+});
 
-    const { createDeleteApiKey } = await import("../../src/apikeys/createDeleteApiKey");
+describe("@identity[apikeys/deleteApiKey and regenerateApiKey]", function () {
+  afterEach(() => sandbox.restore());
 
-    // Act
-    await createDeleteApiKey(prisma)(call, (error, response) => {
-      // Assert
-      expect(response).to.have.property("ref", "123");
+  (["delete", "regenerate"] as const).forEach((name) => {
+    describe(name, function () {
+      it("acts on a key of the caller's workspace and ends its sessions", async function () {
+        const prisma = fakePrisma(KEY);
+        const handler = (await handlers())[name](prisma);
+        const metadata = workspaceCallMetadata(WORKSPACE_A, [
+          { accessKeyId: WORKSPACE_A, role: Role.WORKSPACE_ADMIN }
+        ]);
+
+        const { error, response } = await invoke(handler, {
+          metadata,
+          request: { ref: KEY.ref }
+        });
+
+        expect(error).to.be.null;
+        expect(response).to.have.property("ref", KEY.ref);
+        expect(prisma.apiKey.findFirst.firstCall.args[0]).to.deep.equal({
+          where: { ref: KEY.ref, workspace: { accessKeyId: WORKSPACE_A } }
+        });
+        expect(prisma.refreshToken.updateMany.firstCall.args[0].where).to.include({
+          accessKeyId: KEY.accessKeyId
+        });
+      });
+
+      it("answers NOT_FOUND for another workspace's key and changes nothing", async function () {
+        const prisma = fakePrisma(null);
+        const handler = (await handlers())[name](prisma);
+        const metadata = workspaceCallMetadata(WORKSPACE_A, [
+          { accessKeyId: WORKSPACE_A, role: Role.WORKSPACE_OWNER }
+        ]);
+
+        const { error } = await invoke(handler, {
+          metadata,
+          request: { ref: "key-of-workspace-b" }
+        });
+
+        expect(error).to.include({ code: grpc.status.NOT_FOUND });
+        expect(prisma.apiKey.delete.called).to.be.false;
+        expect(prisma.apiKey.update.called).to.be.false;
+      });
+
+      it("refuses a workspace member", async function () {
+        const prisma = fakePrisma(KEY);
+        const handler = (await handlers())[name](prisma);
+        const metadata = workspaceCallMetadata(WORKSPACE_A, [
+          { accessKeyId: WORKSPACE_A, role: Role.WORKSPACE_MEMBER }
+        ]);
+
+        const { error } = await invoke(handler, {
+          metadata,
+          request: { ref: KEY.ref }
+        });
+
+        expect(error).to.include({ code: grpc.status.PERMISSION_DENIED });
+        expect(prisma.apiKey.findFirst.called).to.be.false;
+      });
+
+      it("refuses the owner of A acting in B, where they are a member", async function () {
+        const prisma = fakePrisma(KEY);
+        const handler = (await handlers())[name](prisma);
+        const metadata = workspaceCallMetadata(WORKSPACE_B, [
+          { accessKeyId: WORKSPACE_A, role: Role.WORKSPACE_OWNER },
+          { accessKeyId: WORKSPACE_B, role: Role.WORKSPACE_MEMBER }
+        ]);
+
+        const { error } = await invoke(handler, {
+          metadata,
+          request: { ref: KEY.ref }
+        });
+
+        expect(error).to.include({ code: grpc.status.PERMISSION_DENIED });
+        expect(prisma.apiKey.findFirst.called).to.be.false;
+      });
     });
   });
 });

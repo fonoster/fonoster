@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import { generateKeyPairSync } from "crypto";
+import { createServiceDefinition } from "@fonoster/common";
 import { IdentityClient } from "@fonoster/identity-client";
+import * as grpc from "@grpc/grpc-js";
 import { status } from "@grpc/grpc-js";
 import { expect } from "chai";
 import jwt from "jsonwebtoken";
@@ -27,6 +29,34 @@ import { StandaloneIdentity, startStandaloneIdentity } from "./standalone";
 // (harden-conformance 4.1–4.3). Needs PERSISTENCE_TEST_DATABASE_URL; skipped without one.
 
 const PASSWORD = "s3cret-passw0rd";
+
+/** RevokeToken isn't wrapped by @fonoster/identity-client yet. */
+const revokeToken = (endpoint: string, token: string) => {
+  const Identity = grpc.makeGenericClientConstructor(
+    createServiceDefinition({
+      serviceName: "Identity",
+      pckg: "identity",
+      proto: "identity.proto",
+      version: "v1beta2"
+    }),
+    "",
+    {}
+  );
+  const client = new Identity(endpoint, grpc.credentials.createInsecure()) as unknown as {
+    revokeToken(req: object, cb: (e: grpc.ServiceError | null) => void): void;
+    close(): void;
+  };
+  return new Promise<void>((resolve, reject) =>
+    client.revokeToken({ token }, (error) => {
+      client.close();
+      return error ? reject(error) : resolve();
+    })
+  );
+};
+
+/** The email body with quoted-printable soft breaks and escapes undone. */
+const decoded = (data: string) =>
+  data.replace(/=\r?\n/g, "").replace(/=3D/g, "=");
 
 const rejectsWith = async (call: Promise<unknown>, code: status) => {
   try {
@@ -123,5 +153,146 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     // With the access token Identity issued, the same call goes through.
     const { items } = await client.listWorkspaces(accessToken);
     expect(items).to.be.an("array");
+  });
+
+  it("never accepts a refresh token as an access token, and keeps serving", async function () {
+    const email = "linus@identity.test";
+    await client.createUser({ name: "Linus", email, password: PASSWORD });
+    const { refreshToken, idToken, accessToken } =
+      await client.exchangeCredentials({ username: email, password: PASSWORD });
+
+    await rejectsWith(client.listWorkspaces(refreshToken), status.UNAUTHENTICATED);
+    await rejectsWith(client.listWorkspaces(idToken), status.UNAUTHENTICATED);
+    expect(await identity!.health()).to.equal("SERVING");
+    const { items } = await client.listWorkspaces(accessToken);
+    expect(items).to.be.an("array");
+  });
+
+  it("rotates refresh tokens, detects reuse, and revokes on sign-out", async function () {
+    const email = "edsger@identity.test";
+    await client.createUser({ name: "Edsger", email, password: PASSWORD });
+    const first = await client.exchangeCredentials({
+      username: email,
+      password: PASSWORD
+    });
+
+    // An access token is not a refresh token.
+    await rejectsWith(
+      client.exchangeRefreshToken(first.accessToken),
+      status.UNAUTHENTICATED
+    );
+
+    const second = await client.exchangeRefreshToken(first.refreshToken);
+    const third = await client.exchangeRefreshToken(second.refreshToken);
+
+    // Replaying a used token (after the short grace period) revokes the chain.
+    await identity!.prisma.refreshToken.updateMany({
+      where: { usedAt: { not: null } },
+      data: { usedAt: new Date(Date.now() - 60_000) }
+    });
+    await rejectsWith(
+      client.exchangeRefreshToken(first.refreshToken),
+      status.UNAUTHENTICATED
+    );
+    await rejectsWith(
+      client.exchangeRefreshToken(third.refreshToken),
+      status.UNAUTHENTICATED
+    );
+
+    // A new sign-in, then sign-out with RevokeToken.
+    const session = await client.exchangeCredentials({
+      username: email,
+      password: PASSWORD
+    });
+    await revokeToken(identity!.endpoint, session.refreshToken);
+    await rejectsWith(
+      client.exchangeRefreshToken(session.refreshToken),
+      status.UNAUTHENTICATED
+    );
+  });
+
+  it("scopes API keys to the caller's workspace and enforces their expiry", async function () {
+    const signUp = async (name: string, email: string) => {
+      await client.createUser({ name, email, password: PASSWORD });
+      const { accessToken } = await client.exchangeCredentials({
+        username: email,
+        password: PASSWORD
+      });
+      const { ref } = await client.createWorkspace(`${name}'s`, accessToken);
+      const workspace = await identity!.prisma.workspace.findUnique({
+        where: { ref }
+      });
+      // The new workspace reaches the token on the next sign-in.
+      const fresh = await client.exchangeCredentials({
+        username: email,
+        password: PASSWORD
+      });
+      return { token: fresh.accessToken, workspace: workspace!.accessKeyId };
+    };
+    const alice = await signUp("Alice", "alice@identity.test");
+    const bob = await signUp("Bob", "bob@identity.test");
+
+    const key = await client.createApiKey(
+      { role: "WORKSPACE_ADMIN" } as never,
+      alice.workspace,
+      alice.token
+    );
+
+    // Bob, in his own workspace, can't touch Alice's key by its ref...
+    await rejectsWith(
+      client.regenerateApiKey(key.ref, bob.workspace, bob.token),
+      status.NOT_FOUND
+    );
+    await rejectsWith(
+      client.deleteApiKey(key.ref, bob.workspace, bob.token),
+      status.NOT_FOUND
+    );
+    // ...nor by naming Alice's workspace.
+    await rejectsWith(
+      client.deleteApiKey(key.ref, alice.workspace, bob.token),
+      status.PERMISSION_DENIED
+    );
+    const stored = await identity!.prisma.apiKey.findUnique({
+      where: { ref: key.ref }
+    });
+    expect(stored).to.exist;
+
+    // A key past its expiresAt no longer exchanges.
+    await client.exchangeApiKey(key.accessKeyId, key.accessKeySecret);
+    await identity!.prisma.apiKey.update({
+      where: { ref: key.ref },
+      data: { expiresAt: new Date(Date.now() - 1000) }
+    });
+    await rejectsWith(
+      client.exchangeApiKey(key.accessKeyId, key.accessKeySecret),
+      status.PERMISSION_DENIED
+    );
+  });
+
+  it("links reset emails to the configured page, whatever URL the request names", async function () {
+    const email = "barbara@identity.test";
+    await client.createUser({ name: "Barbara", email, password: PASSWORD });
+
+    await client.sendResetPasswordCode(email, "https://attacker.example/steal");
+
+    const message = identity!.emails.filter((e) => e.to === email).pop();
+    expect(message, "reset email").to.exist;
+    const body = decoded(message!.data);
+    // Handlebars escapes the "=" after token.
+    expect(body).to.include('href="https://identity.test/reset-password?token');
+    expect(body).to.not.include("attacker.example");
+  });
+
+  it("rate limits reset emails per address", async function () {
+    const email = "frances@identity.test";
+    await client.createUser({ name: "Frances", email, password: PASSWORD });
+
+    for (let i = 0; i < 3; i++) {
+      await client.sendResetPasswordCode(email, "");
+    }
+    await rejectsWith(
+      client.sendResetPasswordCode(email, ""),
+      status.RESOURCE_EXHAUSTED
+    );
   });
 });

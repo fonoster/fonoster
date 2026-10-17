@@ -17,31 +17,67 @@
  * limitations under the License.
  */
 import { Role } from "@fonoster/types";
-import { roles } from "./roles";
+import {
+  roles,
+  workspaceResourceAccess,
+  workspaceResourceOwnerOrAdminAccess
+} from "./roles";
 import { Access, RoleType } from "./types";
 
-// This function only checks if the role has access to the grpc method
+/** Methods that act inside one workspace, named by the request's accessKeyId. */
+const isWorkspaceMethod = (method: string) =>
+  workspaceResourceAccess.includes(method) ||
+  workspaceResourceOwnerOrAdminAccess.includes(method);
+
+const roleAllows = (roleName: string, method: string) =>
+  roles.some(
+    (role: RoleType) => role.name === roleName && role.access.includes(method)
+  );
+
+/**
+ * Whether the token's roles allow the gRPC method. For a workspace method only
+ * the caller's role in the target workspace (`targetAccessKeyId`) counts, never
+ * a role held in another workspace; without a matching entry it is refused.
+ * Malformed claims are refused rather than thrown on.
+ */
 function hasAccess(
   decodedToken: {
-    access: Access[];
-    accessKeyId: string;
+    access?: Access[];
+    accessKeyId?: string;
   },
-  method: string
-) {
-  const { access, accessKeyId } = decodedToken;
-  const workspaceRoles = access.map((a: Access) => a.role);
+  method: string,
+  targetAccessKeyId?: string
+): boolean {
+  const access = Array.isArray(decodedToken?.access)
+    ? decodedToken.access.filter(
+        (a) =>
+          a && typeof a.role === "string" && typeof a.accessKeyId === "string"
+      )
+    : [];
+  const accessKeyId =
+    typeof decodedToken?.accessKeyId === "string"
+      ? decodedToken.accessKeyId
+      : "";
+
+  if (isWorkspaceMethod(method)) {
+    if (!targetAccessKeyId) {
+      return false;
+    }
+
+    const entry = access.find((a) => a.accessKeyId === targetAccessKeyId);
+
+    return entry ? roleAllows(entry.role, method) : false;
+  }
+
   // User tokens (accessKeyId "US…") always carry the USER role, so methods
   // about the user themselves (e.g. UpdateUser, CreateWorkspace) keep working
   // once they belong to a workspace. Their workspace roles add to it.
+  const workspaceRoles = access.map((a) => a.role as string);
   const roleList = accessKeyId.startsWith("US")
-    ? [Role.USER, ...workspaceRoles]
+    ? [Role.USER as string, ...workspaceRoles]
     : workspaceRoles;
 
-  return roleList.some((r: string) =>
-    roles.find(
-      (role: RoleType) => role.name === r && role.access.includes(method)
-    )
-  );
+  return roleList.some((r) => roleAllows(r, method));
 }
 
 export { hasAccess };

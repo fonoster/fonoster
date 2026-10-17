@@ -21,7 +21,8 @@ import { Role } from "@fonoster/types";
 enum TokenUseEnum {
   ID = "id",
   ACCESS = "access",
-  REFRESH = "refresh"
+  REFRESH = "refresh",
+  INVITE = "invite"
 }
 
 enum JsonWebErrorEnum {
@@ -67,6 +68,8 @@ type AccessToken = BaseToken & {
 
 type RefreshToken = BaseToken & {
   tokenUse: TokenUseEnum.REFRESH;
+  /** Unique id, tracked by Identity for rotation and revocation. */
+  jti?: string;
 };
 
 type DecodedToken<T extends TokenUseEnum> = T extends TokenUseEnum.ID

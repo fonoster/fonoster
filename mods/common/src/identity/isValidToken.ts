@@ -22,28 +22,69 @@ import { JsonWebErrorEnum } from "./types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-function isValidToken(token: string, secret: string): boolean {
-  try {
-    const decoded = jwt.verify(token, secret) as { exp: number };
-    const currentTime = Math.floor(Date.now() / 1000);
+/** Identity signs every token with RS256; nothing else is accepted. */
+const IDENTITY_SIGN_ALGORITHMS: jwt.Algorithm[] = ["RS256"];
 
-    if (decoded.exp <= currentTime) {
-      logger.verbose("token expired", { exp: decoded.exp, currentTime });
-      return false;
+/** Claims to pin when verifying; each one is checked only when given. */
+type TokenVerifyOptions = {
+  issuer?: string;
+  audience?: string;
+};
+
+/** The verified claims, or undefined when the signature, expiry or claims don't check out. */
+function verifyToken(
+  token: string,
+  secret: string,
+  options: TokenVerifyOptions = {}
+): Record<string, unknown> | undefined {
+  if (!token || typeof token !== "string") {
+    return undefined;
+  }
+
+  try {
+    const decoded = jwt.verify(token, secret, {
+      algorithms: IDENTITY_SIGN_ALGORITHMS,
+      ...(options.issuer ? { issuer: options.issuer } : {}),
+      ...(options.audience ? { audience: options.audience } : {})
+    });
+
+    if (!decoded || typeof decoded !== "object") {
+      return undefined;
     }
 
-    return true;
+    const { exp } = decoded as { exp?: number };
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    if (typeof exp !== "number" || exp <= currentTime) {
+      logger.verbose("token expired or without expiry", { exp, currentTime });
+      return undefined;
+    }
+
+    return decoded as Record<string, unknown>;
   } catch (error) {
     if (error.name === JsonWebErrorEnum.JsonWebTokenError) {
-      logger.verbose("invalid JWT token", { token });
+      logger.verbose("invalid JWT token");
     } else if (error.name === JsonWebErrorEnum.TokenExpiredError) {
-      logger.verbose("token expired", { token });
+      logger.verbose("token expired");
     } else {
       logger.verbose("unexpected JWT error:", error);
     }
 
-    return false;
+    return undefined;
   }
 }
 
-export { isValidToken };
+function isValidToken(
+  token: string,
+  secret: string,
+  options: TokenVerifyOptions = {}
+): boolean {
+  return verifyToken(token, secret, options) !== undefined;
+}
+
+export {
+  IDENTITY_SIGN_ALGORITHMS,
+  isValidToken,
+  TokenVerifyOptions,
+  verifyToken
+};

@@ -16,6 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Metadata } from "@grpc/grpc-js";
+import jwt from "jsonwebtoken";
+
 const TEST_TOKEN =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2Zvbm9zdGVyLmxvY2FsIiwic3ViIjoiNjM1YzBjZDgtODEyNS00ODNkLWI0NjctMDVjNTNjZTJjZDMxIiwiYXVkIjoiYXBpIiwidG9rZW5Vc2UiOiJhY2Nlc3MiLCJhY2Nlc3NLZXlJZCI6IlVTMTR3ajhxNnFsaXJ3MzMxZ2Zzd3VzZmJsaWU2aDc4dXoiLCJhY2Nlc3MiOlt7ImFjY2Vzc0tleUlkIjoiR1JhaG4wMnM4dGdkZmdoejcydmIwZno1MzhxcGI1ejM1cCIsInJvbGUiOiJPV05FUiJ9LHsiYWNjZXNzS2V5SWQiOiJHUmtnYmY4YW1pbnl3dWV2dXBiZHB4bDYzNmtjM2N5YmhvIiwicm9sZSI6Ik9XTkVSIn1dLCJpYXQiOjE3MTQ0MzM3MzZ9.eG6UEe8nBncu1I8TtytG5bModK42JxuSLCK74eLzUb-7MLowza8ZSfoHPHSPu5j1Wy_nj8NWa1u1SvqTfW-8inoL8Y_Mawl_u9zSM09Co85RQOI_bj7huGB7v0UECLfKyd7cAo_9wGB9TDDDX5Qo66bQz49hu_8zed8e6RzJXYRC5-5TBlyYdw3o7yHUXL5t8tFxDhT7U61kg0eVjPPZCAUiyohK74Zxdv1Z9RCfWTt9kUYXReqOUvhAFzL5Um5KwNdRnWwFRz_3-Msui2axAsZ6ztGoAvw_GhdlAminGEq7FILVCh6OHeOESAYo-qreAANmbwfBS8qNsglTiPAUEw";
 
@@ -50,4 +53,23 @@ a3EQQlZeiw2fy4yA6wDeEYqdeBT3MobZonlVwnVc9Xcmgvk2YsfZS1pDrrx7J10V
 vrlevNo+Q3KlffS4aP/dec67
 -----END PRIVATE KEY-----`;
 
-export { TEST_PRIVATE_KEY, TEST_TOKEN, TEST_UUID };
+/**
+ * Call metadata for a workspace call: an access token whose `access` claim
+ * lists the given workspace roles, and `accesskeyid` naming the target.
+ */
+function workspaceCallMetadata(
+  target: string,
+  access: { accessKeyId: string; role: string }[]
+) {
+  const token = jwt.sign(
+    { sub: "user-ref", accessKeyId: "UStestuser", tokenUse: "access", access },
+    TEST_PRIVATE_KEY,
+    { algorithm: "RS256", expiresIn: "5m" }
+  );
+  const metadata = new Metadata();
+  metadata.set("token", token);
+  metadata.set("accesskeyid", target);
+  return metadata;
+}
+
+export { TEST_PRIVATE_KEY, TEST_TOKEN, TEST_UUID, workspaceCallMetadata };

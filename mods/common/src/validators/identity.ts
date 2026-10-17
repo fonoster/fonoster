@@ -76,6 +76,10 @@ const exchangeRefreshTokenRequestSchema = z.object({
   refreshToken: z.string()
 });
 
+const revokeTokenRequestSchema = z.object({
+  token: z.string()
+});
+
 const createUserRequestSchema = z.object({
   name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
   email: z.string().email({ message: EMAIL_MESSAGE }),
@@ -148,7 +152,8 @@ const sendResetPasswordCodeRequestSchema = z.object({
   username: z
     .string()
     .email({ message: "Invalid username. Must be an email address" }),
-  resetPasswordUrl: z.string()
+  /** Ignored: the link is built from Identity's configured reset URL. */
+  resetPasswordUrl: z.string().optional()
 });
 
 const resetPasswordRequestSchema = z.object({
@@ -169,6 +174,7 @@ export {
   inviteUserToWorkspaceRequestSchema,
   removeUserFromWorkspaceRequestSchema,
   resendWorkspaceMembershipInvitationRequestSchema,
+  revokeTokenRequestSchema,
   sendVerificationCodeRequestSchema,
   updateUserRequestSchema,
   updateWorkspaceRequestSchema,

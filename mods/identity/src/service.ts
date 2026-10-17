@@ -44,6 +44,7 @@ import {
   createRemoveUserFromWorkspace,
   createResendWorkspaceMembershipInvitation,
   createResetPassword,
+  createRevokeToken,
   createSendResetPasswordCode,
   createUpdateUser,
   createUpdateWorkspace,
@@ -117,6 +118,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
         prisma,
         identityConfig
       ),
+      revokeToken: createRevokeToken(prisma, identityConfig),
       getPublicKey: createGetPublicKey(identityConfig.publicKey),
       // Placeholders for conditional handlers
       sendVerificationCode: undefined as unknown as ReturnType<

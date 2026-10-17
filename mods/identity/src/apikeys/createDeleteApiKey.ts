@@ -17,17 +17,28 @@
  * limitations under the License.
  */
 import {
+  getAccessKeyIdFromCall,
   GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
+import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { createRefreshTokenStore } from "../exchanges/refreshTokens";
+import { isWorkspaceAdminCall } from "../utils/isWorkspaceAdminCall";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
+const notAdmin = {
+  code: status.PERMISSION_DENIED,
+  message: "Only workspace owners and admins can manage API keys"
+};
+
 function createDeleteApiKey(prisma: Prisma) {
+  const refreshTokens = createRefreshTokenStore(prisma);
+
   const deleteApiKey = async (
     call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
@@ -35,13 +46,32 @@ function createDeleteApiKey(prisma: Prisma) {
     const { request } = call;
     const { ref } = request;
 
-    logger.info("deleting ApiKey", { ref });
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
+
+    logger.info("deleting ApiKey", { ref, accessKeyId });
+
+    if (!isWorkspaceAdminCall(call)) {
+      return callback(notAdmin);
+    }
+
+    // Only a key of the caller's workspace; others look like they don't exist.
+    const key = await prisma.apiKey.findFirst({
+      where: { ref, workspace: { accessKeyId } }
+    });
+
+    if (!key) {
+      return callback({ code: status.NOT_FOUND, message: "ApiKey not found" });
+    }
 
     await prisma.apiKey.delete({
       where: {
-        ref
+        ref: key.ref
       }
     });
+
+    await refreshTokens.revokeAll(key.accessKeyId);
 
     callback(null, { ref });
   };

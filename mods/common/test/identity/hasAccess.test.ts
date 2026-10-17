@@ -43,6 +43,26 @@ describe("@common[identity/hasAccess]", function () {
     expect(hasAccess(member("USabc"), INVITE)).to.be.false;
   });
 
+  it("doesn't throw on a token without an access claim", function () {
+    expect(hasAccess({ accessKeyId: "USabc" } as never, UPDATE_USER)).to.be.true;
+    expect(hasAccess({} as never, UPDATE_USER)).to.be.false;
+    expect(hasAccess(undefined as never, INVITE, "WOxxxxxxxx")).to.be.false;
+  });
+
+  it("checks only the role held in the target workspace", function () {
+    const token = {
+      accessKeyId: "USabc",
+      access: [
+        { accessKeyId: "WOa", role: Role.WORKSPACE_OWNER },
+        { accessKeyId: "WOb", role: Role.WORKSPACE_MEMBER }
+      ]
+    };
+    expect(hasAccess(token, INVITE, "WOa")).to.be.true;
+    expect(hasAccess(token, INVITE, "WOb")).to.be.false;
+    expect(hasAccess(token, INVITE, "WOc")).to.be.false;
+    expect(hasAccess(token, INVITE)).to.be.false;
+  });
+
   it("doesn't give the USER role to non-user tokens", function () {
     expect(hasAccess(member("WOabc"), UPDATE_USER)).to.be.false;
   });
