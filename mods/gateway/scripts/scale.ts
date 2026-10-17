@@ -16,13 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Scale harness (pass bar T2): N concurrent calls through one gateway process.
+// Scale harness (pass bar T2): N concurrent calls through one or more gateway processes.
 //
-//   npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 30 [--nats nats://127.0.0.1:4222]
+//   npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 30 [--replicas 1]
+//     [--nats nats://127.0.0.1:4222]
 //
-// The gateway runs as its own process (its own event loop, like a replica); the fake media node,
-// fake app and fake providers run here. Every call speaks every 3 s. Reported: dropped frames in
-// both directions, speak → output.started latency, and the gateway's CPU and memory.
+// Each gateway runs as its own process (its own event loop, like a replica); the replicas share
+// the calls through the claim on NATS. The fake media node, fake app and fake providers run here.
+// Every call speaks every 3 s. Reported: dropped frames in both directions, speak → output.started
+// latency, and each gateway's CPU and memory.
 import { ChildProcess, execFileSync, spawn } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
@@ -39,6 +41,7 @@ const args = Object.fromEntries(
 );
 const CALLS = Number(args.calls ?? 20);
 const SECONDS = Number(args.seconds ?? 20);
+const REPLICAS = Number(args.replicas ?? 1);
 const NATS_URL = args.nats ?? "nats://127.0.0.1:4222";
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -80,13 +83,15 @@ async function main() {
       }
     })
   );
-  const gateway: ChildProcess = spawn(
-    process.execPath,
-    [path.join(__dirname, "..", "dist", "main.js"), configFile],
-    {
-      env: { ...process.env, LOGS_LEVEL: "error" },
-      stdio: "ignore"
-    }
+  const gateways: ChildProcess[] = Array.from({ length: REPLICAS }, () =>
+    spawn(
+      process.execPath,
+      [path.join(__dirname, "..", "dist", "main.js"), configFile],
+      {
+        env: { ...process.env, LOGS_LEVEL: "error" },
+        stdio: "ignore"
+      }
+    )
   );
   await sleep(1500);
 
@@ -138,8 +143,9 @@ async function main() {
   }
   const rampedAt = Date.now();
 
-  const cpu: number[] = [];
-  const rss: number[] = [];
+  // Per replica: CPU % and RSS MB samples.
+  const cpu: number[][] = gateways.map(() => []);
+  const rss: number[][] = gateways.map(() => []);
   const end = rampedAt + SECONDS * 1000;
   const measureFrom = rampedAt + 2000;
   for (const i of inboundFrames.keys()) inboundFrames[i] = 0;
@@ -151,17 +157,19 @@ async function main() {
       latencies.length = 0;
       measuring = true;
     }
-    const out = execFileSync("ps", [
-      "-o",
-      "%cpu=,rss=",
-      "-p",
-      String(gateway.pid)
-    ])
-      .toString()
-      .trim()
-      .split(/\s+/);
-    cpu.push(Number(out[0]));
-    rss.push(Math.round(Number(out[1]) / 1024));
+    for (const [i, gateway] of gateways.entries()) {
+      const out = execFileSync("ps", [
+        "-o",
+        "%cpu=,rss=",
+        "-p",
+        String(gateway.pid)
+      ])
+        .toString()
+        .trim()
+        .split(/\s+/);
+      cpu[i].push(Number(out[0]));
+      rss[i].push(Math.round(Number(out[1]) / 1024));
+    }
   }
   const measuredSeconds = (Date.now() - measureFrom) / 1000;
 
@@ -175,6 +183,7 @@ async function main() {
 
   const report = {
     calls: CALLS,
+    replicas: REPLICAS,
     connected,
     rampSeconds: (rampedAt - start) / 1000,
     measuredSeconds: Math.round(measuredSeconds),
@@ -189,14 +198,14 @@ async function main() {
       ratio: +(inbound / expectedInbound).toFixed(4)
     },
     speakToStartedMs: latencies.length ? distribution(latencies) : null,
-    gatewayCpuPercent: distribution(cpu),
-    gatewayRssMb: distribution(rss),
+    gatewayCpuPercent: cpu.map((samples) => distribution(samples)),
+    gatewayRssMb: rss.map((samples) => distribution(samples)),
     host: `${os.cpus()[0].model} x${os.cpus().length}, node ${process.version}`
   };
   console.log(JSON.stringify(report, null, 2));
 
   for (const s of sessions) s.close();
-  gateway.kill("SIGTERM");
+  for (const gateway of gateways) gateway.kill("SIGTERM");
   await harness.stop();
   await nc.close();
   process.exit(0);

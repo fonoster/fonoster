@@ -41,7 +41,7 @@ updates its Routr resources by name each time.
 | Container | What | Host ports |
 | --- | --- | --- |
 | `rb-cutover-routr-postgres` | Postgres 16 with a `routr` database | none |
-| `rb-cutover-routr` | `fonoster/routr-one:2.15.2`, `START_INTERNAL_DB=false` | 15560 SIP (UDP, TCP), 15551 API, 15552 location |
+| `rb-cutover-routr` | `fonoster/routr-one:2.15.3`, `START_INTERNAL_DB=false` | 15560 SIP (UDP, TCP), 15551 API, 15552 location |
 
 Notes:
 

@@ -19,7 +19,7 @@
 import * as http from "http";
 import { URL } from "url";
 import WebSocket from "ws";
-import { durationMs, parseFormat } from "../../audio/codecs";
+import { durationMs, isAudible, parseFormat } from "../../audio/codecs";
 import { FakeProvider } from "./FakeProvider";
 import { ProviderLedger } from "./ProviderLedger";
 
@@ -57,11 +57,21 @@ export class FakeStt extends FakeProvider {
     audioMs: number;
     hints?: string[];
     model?: string;
+    /** When each audible audio frame arrived (pass bar T1, caller audio to STT). */
+    audibleAt: number[];
   }[] = [];
   private wss?: WebSocket.Server;
 
   constructor(ledger?: ProviderLedger) {
     super("stt", ledger);
+  }
+
+  /** When the first audible frame at or after `since` arrived on any stream, if one did. */
+  firstAudibleAt(since: number): number | undefined {
+    const at = this.streams
+      .flatMap((s) => s.audibleAt)
+      .filter((t) => t >= since);
+    return at.length ? Math.min(...at) : undefined;
   }
 
   protected onServer(server: http.Server) {
@@ -97,7 +107,8 @@ export class FakeStt extends FakeProvider {
       language: params.get("language") ?? "en-US",
       audioMs: 0,
       hints: undefined as string[] | undefined,
-      model: params.get("model") ?? undefined
+      model: params.get("model") ?? undefined,
+      audibleAt: [] as number[]
     };
     this.streams.push(stream);
 
@@ -140,6 +151,7 @@ export class FakeStt extends FakeProvider {
       const binary = isBinary ?? typeof raw !== "string";
       if (binary) {
         stream.audioMs += durationMs((raw as Buffer).length, format);
+        if (isAudible(raw as Buffer, format)) stream.audibleAt.push(Date.now());
         if (!silent) emitDue();
         return;
       }
