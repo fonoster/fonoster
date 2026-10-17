@@ -34,6 +34,32 @@ incompatible release: there are no compatibility shims.
 Also required: a **signing secret**. The SDK servers refuse to start without one and refuse
 connections that are not signed by the gateway. Rotation is immediate, with no overlap window.
 
+## Configuration: no environment fallbacks
+
+Each Fonoster service reads its values from its config file only; a value comes from the
+environment only where the file references it as `${VAR}` or `secret://env/VAR`
+(fix-config-and-placement-gaps). Three fallbacks are gone:
+
+1. **No `.env` in development.** `@fonoster/common` and `@fonoster/amd` no longer load the
+   repository's `.env` when `NODE_ENV=development`, and `@fonoster/common` no longer reads
+   `APISERVER_ROOT_DOMAIN` / `ROOT_DOMAIN` (the apiserver sets the root domain from
+   `fonoster.yaml`'s `domain`). In the dev container `npm run dev` passes `.dev/.env` to each
+   process, as Compose does; set anything else in the service's config file under `.dev/config/`.
+   The AMD sidecar's `AMD_*` settings come from its container environment.
+2. **Autopilot: `database.urlEnv` and the `APISERVER_DATABASE_URL` fallback are removed.**
+   Autopilot used `APISERVER_DATABASE_URL` when its `database` section had no `url`. Write the
+   URL in the file, as a placeholder if it lives in the environment:
+   `database: { url: "${APISERVER_DATABASE_URL}" }`. `database.urlEnv` is refused at start with
+   that hint, and a `database` section without `url` is refused too.
+3. **Media node: `MEDIANODE_*` variables are no longer read.** Every setting is a key in
+   `medianode.yaml` (`/config/medianode.yaml`, or `-config <file>`) or a flag; flags still win.
+   To keep a value in the environment, reference it in the file (`nodeId: "${MEDIANODE_ID}"`,
+   `registration: { password: "${MEDIANODE_PASSWORD}" }`) or pass it as
+   `secret://env/NAME` for the passwords and TLS PEM settings. At start the node logs, by name
+   only, every `MEDIANODE_*` variable that the file and flags do not reference. The Helm chart
+   now renders `medianode.yaml` as a ConfigMap (the `medianode.*` values are unchanged) and the
+   cell's Compose file mounts `ops/rebuild/cell/config/medianode.yaml`.
+
 ## New
 
 - A **Python SDK**, `fonoster-voice`, with the same methods, events, errors and `gather` rules as

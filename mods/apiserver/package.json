@@ -36,7 +36,6 @@
     "@prisma/client": "^6.19.1",
     "@routr/common": "^2.15.2",
     "@routr/sdk": "^2.15.2",
-    "dotenv": "^16.6.1",
     "express": "^5.0.1",
     "grpc-health-check": "^2.0.1",
     "jsonwebtoken": "^9.0.2",

@@ -16,26 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { join } from "path";
-import dotenv from "dotenv";
-
-if (process.env.NODE_ENV === "development") {
-  dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
-}
-
-const e = process.env;
-
-let rootDomain = e.APISERVER_ROOT_DOMAIN || e.ROOT_DOMAIN || "fonoster.local";
-
 /**
  * Root SIP domain that workspace domains must end with. The API server sets it
- * from fonoster.yaml's `domain` at boot; other consumers keep the env default.
+ * from fonoster.yaml's `domain` at boot (setRootDomain); nothing reads it from
+ * the environment or a .env file (fix-config-and-placement-gaps).
  */
+let rootDomain = "fonoster.local";
+
 export const setRootDomain = (domain: string) => {
   rootDomain = domain;
 };
 
 export const getRootDomain = () => rootDomain;
-
-/** @deprecated read getRootDomain() so a value set at boot is honoured. */
-export const ROOT_DOMAIN = rootDomain;
