@@ -16,7 +16,7 @@ services:
       retries: 30
 
   routr:
-    image: fonoster/routr-one:2.15.1
+    image: fonoster/routr-one:2.15.2
     container_name: rb-cutover-routr
     depends_on:
       postgres:
