@@ -11,6 +11,10 @@ on:
       - 'mods/apiserver/src/calls/**'
       - 'mods/apiserver/src/outbound/**'
       - 'mods/apiserver/test/outbound/**'
+      - 'mods/apiserver/src/regions/**'
+      - 'mods/apiserver/src/records/**'
+      - 'mods/apiserver/test/regions/**'
+      - 'mods/region-agent/**'
       - 'mods/common/**'
       - 'mods/conformance/**'
       - 'mods/gateway/**'
@@ -35,6 +39,19 @@ jobs:
   suites:
     name: session, SDK and Autopilot suites (NATS)
     runs-on: ubuntu-latest
+    # The region suites keep their control plane's state in throwaway databases on this server.
+    services:
+      postgres:
+        image: postgres:16.10-alpine3.22
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -87,6 +104,25 @@ jobs:
             'mods/autopilot/test/session/fullstack.test.ts' \
             'mods/apiserver/test/outbound/placeOutboundCall.test.ts' \
             'mods/apiserver/test/outbound/controlPlane.test.ts'
+
+      # The regions suite runs its own region hub and cell (nats-server, TLS leaf link).
+      - name: Install nats-server
+        run: |
+          curl -fsSL https://github.com/nats-io/nats-server/releases/download/v2.11.8/nats-server-v2.11.8-linux-amd64.tar.gz \
+            | tar -xz -C "$RUNNER_TEMP"
+          echo "NATS_SERVER_BIN=$RUNNER_TEMP/nats-server-v2.11.8-linux-amd64/nats-server" >> "$GITHUB_ENV"
+
+      - name: Run the region suites
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+          LOGS_LEVEL: none
+        run: |
+          npx mocha --exit --timeout 120000 \
+            'mods/conformance/test/regions.test.ts' \
+            'mods/conformance/test/regionsScenarios.test.ts' \
+            'mods/apiserver/test/regions/regions.test.ts' \
+            'mods/region-agent/test/cell.test.ts'
 
   nightly:
     name: timing (T1), load (T2), replay (T3) and Pipecat

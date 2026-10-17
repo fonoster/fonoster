@@ -1,0 +1,33 @@
+format: fonoster.scenario.v1
+name: enrollment
+contract: regions
+role: region-cell
+spec: "Enrollment uses a one-time token and issues the cell its own credentials / Successful enrollment"
+description: >
+  A cell presents its unused one-time token and gets credentials scoped to its region's subjects,
+  its first config snapshot, and the region becomes connected once it reports.
+ignore: [region.endpoints.request, region.secrets.needed]
+steps:
+  - control: { op: enroll }
+  - expect:
+      type: region.enrollment
+      status: 200
+      regionRef: "${region}"
+      kind: private
+      subjects: { $re: "^region\\.rg_[a-z0-9]+\\.>$" }
+      credentials: { $contains: "BEGIN NATS USER JWT" }
+      workspaceRefs: { $includes: ["${workspace}"] }
+  - send: { subject: config.request, request: true, type: region.config.request, haveVersion: 0 }
+  - expect: { type: region.config, full: true, configVersion: 1 }
+  - send:
+      subject: heartbeat
+      type: region.heartbeat
+      regionRef: "${region}"
+      version: "0.27.0"
+      components: { mediaNodes: 1, gateways: 1, autopilot: true }
+      activeCalls: 0
+      secretsSet: []
+      configVersion: 1
+      at: "2026-10-17T00:00:00.000Z"
+  - wait: { ms: 500 }
+  - assert: { regionStatus: connected }

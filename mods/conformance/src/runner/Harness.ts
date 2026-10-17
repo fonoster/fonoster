@@ -16,7 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallerAction, Providers, Setup } from "../scenario/types";
+import {
+  CallerAction,
+  ControlAction,
+  Providers,
+  Setup
+} from "../scenario/types";
 
 /**
  * What a runner needs from the fakes around the implementation under test. Every member is
@@ -40,6 +45,8 @@ export interface Harness {
   measure?(name: string, since: number): Promise<unknown> | unknown;
   /** Acts as the caller (`caller` steps): keypresses, speech, hangup. */
   caller?(action: CallerAction): Promise<void> | void;
+  /** Acts on the implementation's management side (`control` steps), e.g. enroll a region. */
+  control?(action: ControlAction): Promise<void> | void;
   /** Extra variables available to every scenario, such as `media` (base URL of test media). */
   vars?(): Record<string, unknown>;
 }

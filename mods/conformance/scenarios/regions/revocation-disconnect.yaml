@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: revocation-disconnect
+contract: regions
+role: region-cell
+spec: "Re-issuing a token or disconnecting revokes the cell / Disconnect"
+description: >
+  The owner disconnects the region: the cell's credentials are revoked at once, the cell is told,
+  and the region shows waiting.
+ignore: [region.endpoints.request, region.secrets.needed]
+steps:
+  - control: { op: enroll }
+  - expect: { type: region.enrollment, status: 200 }
+  - control: { op: disconnect }
+  - expect: { type: region.revoked, reason: disconnected }
+  - assert: { regionStatus: waiting, liveCredentials: 0 }

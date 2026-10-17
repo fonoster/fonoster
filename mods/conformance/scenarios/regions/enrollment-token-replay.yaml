@@ -1,0 +1,14 @@
+format: fonoster.scenario.v1
+name: enrollment-token-replay
+contract: regions
+role: region-cell
+spec: "Enrollment uses a one-time token and issues the cell its own credentials / Token replay"
+description: >
+  A second cell presenting a used token is refused with token_used, and the first cell keeps its
+  credentials.
+steps:
+  - control: { op: enroll }
+  - expect: { type: region.enrollment, status: 200, regionRef: "${region}" }
+  - control: { op: enroll }
+  - expect: { type: region.enrollment, status: 409, error: token_used }
+  - assert: { liveCredentials: 1 }

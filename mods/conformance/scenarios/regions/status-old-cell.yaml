@@ -1,0 +1,38 @@
+format: fonoster.scenario.v1
+name: status-old-cell
+contract: regions
+role: region-cell
+spec: "Region status and supported versions / Old cell"
+description: >
+  A cell two minor releases behind reports in: the region shows unsupported with the required
+  version and config sync pauses; reporting a supported version resumes it.
+ignore: [region.endpoints.request, region.secrets.needed, region.config]
+steps:
+  - control: { op: enroll }
+  - expect: { type: region.enrollment, status: 200 }
+  - send:
+      subject: heartbeat
+      type: region.heartbeat
+      regionRef: "${region}"
+      version: "0.25.1"
+      components: { mediaNodes: 1, gateways: 1, autopilot: true }
+      activeCalls: 0
+      secretsSet: []
+      configVersion: 0
+      at: "2026-10-17T00:00:00.000Z"
+  - wait: { ms: 500 }
+  - assert: { regionStatus: unsupported }
+  - send: { subject: config.request, request: true, type: region.config.request, haveVersion: 0 }
+  - expect: { type: region.config.paused, requiredVersion: "0.26.0", reason: { $re: ".+" } }
+  - send:
+      subject: heartbeat
+      type: region.heartbeat
+      regionRef: "${region}"
+      version: "0.27.0"
+      components: { mediaNodes: 1, gateways: 1, autopilot: true }
+      activeCalls: 0
+      secretsSet: []
+      configVersion: 0
+      at: "2026-10-17T00:00:01.000Z"
+  - wait: { ms: 500 }
+  - assert: { regionStatus: connected }

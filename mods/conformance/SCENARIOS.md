@@ -20,6 +20,7 @@ scenarios/
   media-control/                  # runner plays the gateway against a media node (fake or Go) over NATS
   autopilot/                      # runner plays the gateway, Autopilot (with setup.assistant) is under test
   turn-taking/                    # runner plays the app, the gateway's turn-taking is under test
+  regions/                        # runner plays a region's cell, the control plane is under test
   audio/                          # recorded caller audio (raw PCM16LE mono 16 kHz)
 ```
 
@@ -31,8 +32,8 @@ The file name is the scenario `name` plus `.yaml`. A scenario belongs to exactly
 | --- | --- | --- |
 | `format` | yes | Always `fonoster.scenario.v1`. A breaking change to this format gets a new value. |
 | `name` | yes | Kebab-case, equal to the file name. |
-| `contract` | yes | `voice-session`, `twilio-media-streams-flavor`, `voice-sdk`, `media-control` or `autopilot`. |
-| `role` | yes | The side the runner plays: `app`, `gateway` or `media-control-client`. |
+| `contract` | yes | `voice-session`, `twilio-media-streams-flavor`, `voice-sdk`, `media-control`, `autopilot`, `turn-taking` or `regions`. |
+| `role` | yes | The side the runner plays: `app`, `gateway`, `media-control-client` or `region-cell`. |
 | `spec` | no | The requirement and scenario this file proves: `"Requirement / Scenario"`. |
 | `description` | no | Free text. |
 | `fixture` | `voice-sdk` | The fixture app the SDK runner starts (see Fixtures). |
@@ -58,6 +59,7 @@ Each step has exactly one action key.
 | `inject: {tts|stt|llm: {…}}` | Change a fake provider's behaviour from this point on. |
 | `assert: {name: value}` | Evaluate named harness assertions (see Assertions). |
 | `close: {code, reason}` | Close the socket from the runner's side. |
+| `control: {op, …}` | The harness acts on the implementation under test's management side. `regions`: `enroll` (`token`: `issued` (default), `reissued`, `expired` or `invalid`; the answer arrives as a `region.enrollment` frame with the HTTP `status`, and on success the runner's cell link opens), `reissue`, `disconnect`, and `relay` (`callRef`: a member reads that call's recording through the control plane; the answer arrives as a `relay.result` frame). |
 | `caller: {dtmf | hangup | audio | drop | nodeCrash}` | The fake media node acts as the caller: presses keys (`dtmf: "12#"`), hangs up (`hangup: true`) or speaks (`audio`, same shape as `send_audio`, replacing any caller audio still pending). `drop: {reason, sipStatus?}` makes the node end the room with a media-control reason; `nodeCrash: true` kills the node (no heartbeats, replies or events). |
 
 With the `twilio` protocol, `send_audio` sends μ-law 8 kHz `media` events (base64 payloads) using the
@@ -166,6 +168,17 @@ INVITE from Routr would. Replies and events travel on different subjects, so do 
 relative order. Against the fake node `caller` steps drive the fake; against a real node the
 harness drives a SIP caller bot.
 
+## regions scenarios
+
+With `role: region-cell` the runner plays a region's cell against the control plane. Everything the
+control plane sends on the cell's link (`region.<ref>.config`, `revoked`, `secrets.needed`,
+`endpoints.request`, `relay`) arrives as a frame. A `send` frame names its subject relative to
+`region.<ref>.` and is published, or sent as a request with `request: true` (the reply, or
+`no_reply` after 3 s, arrives as a frame); `respond: true` answers the latest relay request instead.
+The link opens after a successful `control: {op: enroll}`. `${region}` is the region's ref and
+`${workspace}` the workspace it serves. The control plane's link messages and the harness's HTTP
+results travel separately, so expect only orders the contract guarantees.
+
 ## Assertions
 
 `assert` names checks that a harness evaluates against its fakes. Measurements that refer to a
@@ -191,6 +204,8 @@ matcher, compared with what the harness measured.
 | `other_app.messages` | every JSON message `app-2` received (fallback, handoff target or listener) |
 | `other_app.audio_tracks` | the distinct track ids (first byte) of the binary frames `app-2` received, sorted |
 | `providers.tts.voices` | the voice each fake TTS request named, in order |
+| `regionStatus` | `regions`: the region's status as its owner sees it (`waiting`, `connected`, `degraded`, `offline`, `unsupported`) |
+| `liveCredentials`, `revokedCredentials` | `regions`: how many of the region's issued credentials are live or revoked |
 | `tools.calls` | names of the fake tools called (`${media}/tool/hours` answers `{"open":"9"}`, `${media}/tool/error` fails) |
 
 A runner that does not know an assertion name fails the step; it never passes it silently.

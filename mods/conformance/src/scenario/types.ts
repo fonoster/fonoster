@@ -27,9 +27,10 @@ export type Contract =
   | "voice-sdk"
   | "media-control"
   | "autopilot"
-  | "turn-taking";
+  | "turn-taking"
+  | "regions";
 
-export type Role = "app" | "gateway" | "media-control-client";
+export type Role = "app" | "gateway" | "media-control-client" | "region-cell";
 
 export type ProviderFailure =
   | "provider_unavailable"
@@ -115,6 +116,9 @@ export type CallerAction = {
   call?: { from?: string; to?: string; appRef?: string; callRef?: string };
 };
 
+/** `control` steps: the harness acts on the implementation's management side (regions). */
+export type ControlAction = { op: string } & Record<string, unknown>;
+
 export type Timing = {
   within_ms?: number;
   budget_ms?: number;
@@ -137,6 +141,7 @@ export type Step = Timing & {
   assert?: Record<string, unknown>;
   close?: { code?: number; reason?: string };
   caller?: CallerAction;
+  control?: ControlAction;
   next?: true;
 };
 
@@ -168,7 +173,8 @@ export const STEP_ACTIONS = [
   "inject",
   "assert",
   "close",
-  "caller"
+  "caller",
+  "control"
 ] as const;
 
 export type StepAction = (typeof STEP_ACTIONS)[number];

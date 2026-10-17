@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+name: relay-region-offline
+contract: regions
+role: region-cell
+spec: "Private call content is relayed, never stored centrally / Region offline"
+description: >
+  The cell does not answer the relay: the member gets region_offline instead of the content.
+steps:
+  - control: { op: enroll }
+  - expect: { type: region.enrollment, status: 200 }
+  - control: { op: relay, callRef: call-2 }
+  - expect: { type: region.relay, callRef: call-2 }
+  - expect: { type: relay.result, status: 503, error: region_offline }
