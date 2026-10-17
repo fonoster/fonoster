@@ -1,7 +1,7 @@
 ## 1. Platform suites (from add-platform 1.1–1.5)
 
-- [ ] 1.1 Control plane: stateless replicas, cross-replica call control, replica loss, least-loaded placement, no-capacity error
-- [ ] 1.2 Bus: registry survival and no audio on NATS (queue-group single claim and NATS permissions are already covered)
+- [x] 1.1 Control plane: stateless replicas, cross-replica call control, replica loss, least-loaded placement, no-capacity error (`mods/apiserver/test/outbound/controlPlane.test.ts`; cross-replica control is TrackCall, since the management API has no hangup; the at-limit case is pending until fix-config-and-placement-gaps 1.1)
+- [x] 1.2 Bus: registry survival and no audio on NATS (queue-group single claim and NATS permissions are already covered) (registry: `controlPlane.test.ts`; no audio: `mods/gateway/test/gonode.test.ts`)
 - [ ] 1.3 Observability: OTLP from every service, `fonoster.call_ref` on every call signal, default profile end to end
 - [ ] 1.4 Deployment: nightly e2e on Compose and Helm, release gate, `.env` ignored, `secret://` resolution
 - [ ] 1.5 Regions: cell registration with token, outbound-only leaf link with TLS, data and keys stay in the cell, control-plane outage behavior
