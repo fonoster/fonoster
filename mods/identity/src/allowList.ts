@@ -21,12 +21,15 @@
  * gRPC methods reachable without an access token. This is the single source of
  * truth for Identity's public methods, shared by the standalone Identity service
  * and the apiserver monolith (which appends its own non-identity entries).
+ *
+ * CreateWorkspace is deliberately absent: its handler takes the owner from the
+ * caller's access token, so a tokenless call must stop at the interceptor
+ * (UNAUTHENTICATED) rather than reach it.
  */
 const identityAllowList = [
   "/grpc.health.v1.Health/Check",
   "/fonoster.identity.v1beta2.Identity/CreateUser",
   "/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code",
-  "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
   "/fonoster.identity.v1beta2.Identity/ExchangeApiKey",
   "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",
   "/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code",

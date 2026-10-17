@@ -45,10 +45,22 @@ type GetCallRequest = {
 };
 
 type CallPublisher = {
+  /** Resolves once a media node has accepted the call; rejects with a CallPlacementError. */
   publishCall: (
     event: CreateCallRequest & { ref: string; accessKeyId: string }
-  ) => void;
+  ) => Promise<void> | void;
 };
+
+/** Why CreateCall could not place a call: `no_capacity`, `unavailable` or a node's code. */
+class CallPlacementError extends Error {
+  constructor(
+    readonly code: string,
+    message: string
+  ) {
+    super(message);
+    this.name = "CallPlacementError";
+  }
+}
 
 type TrackCallResponse = {
   ref: string;
@@ -67,6 +79,7 @@ type TrackCallSubscriber = {
 };
 
 export {
+  CallPlacementError,
   CallPublisher,
   CallStream,
   CreateCallRequest,

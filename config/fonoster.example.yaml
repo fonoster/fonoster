@@ -34,7 +34,7 @@ database:
 
 encryption:
   # Encrypts stored credentials. Development key: generate your own with
-  # `npx @47ng/cloak generate` (format k1.aesgcm256.<base64>).
+  # `npx @47ng/cloak generate` (format k1.aesgcm256.<base64url>).
   key: k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=
 
 # Outgoing email (invites, verification codes, password resets). Leave out to

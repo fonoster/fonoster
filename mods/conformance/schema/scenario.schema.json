@@ -201,6 +201,11 @@
               "type": "integer",
               "minimum": 0
             },
+            "maxRooms": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The media node's room limit; room.create beyond it is refused with at_capacity"
+            },
             "claimCalls": {
               "type": "boolean",
               "description": "media-control: whether the runner claims call.incoming (default true)"

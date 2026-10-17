@@ -20,13 +20,14 @@ import { natsConnectOptions, NatsTarget, Sessions } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec } from "nats";
 import {
+  callEventsSubject,
   CALLS_CREATE_SUBJECT,
-  CALLS_TRACK_CALL_SUBJECT,
   DEFAULT_NATS_QUEUE_GROUP
 } from "../envs";
 import { createNodeDirectory } from "./createNodeDirectory";
 import {
   OutboundCallRequest,
+  PlacementError,
   placeOutboundCall,
   Requester
 } from "./placeOutboundCall";
@@ -44,70 +45,30 @@ export function natsRequester(nc: NatsConnection): Requester {
   };
 }
 
-/** media-control `call.progress` statuses → the Calls API's DialStatus names. */
-const PROGRESS: Record<string, string> = {
-  ringing: "PROGRESS",
-  busy: "BUSY",
-  no_answer: "NOANSWER",
-  failed: "FAILED"
-};
-
-/** How long a room is watched at most (a room.ended normally stops it much sooner). */
-const MAX_WATCH_MS = 4 * 60 * 60 * 1000;
-
 /**
- * Status events of an API-originated call for TrackCall (the SDK's createCall statusStream), now
- * that Asterisk is gone: TRYING when placement starts, then the room's events from the media node
- * (`call.progress` → PROGRESS/BUSY/NOANSWER/FAILED, `call.answered` → ANSWER), and a final
- * message when the room ends so the stream closes.
+ * The control plane's part of a call's status events for TrackCall: TRYING when placement starts
+ * and FAILED when it fails. Everything after the room exists (PROGRESS, ANSWER, BUSY, the final
+ * room.ended) comes from the media node on the same per-call subject, so the statuses keep
+ * flowing to every replica's TrackCall even if this replica dies.
  */
 export function callTracker(nc: NatsConnection, ref: string) {
   const publish = (body: Record<string, unknown>) =>
-    nc.publish(CALLS_TRACK_CALL_SUBJECT, sc.encode(JSON.stringify(body)));
-  let stop: (() => void) | undefined;
+    nc.publish(callEventsSubject(ref), sc.encode(JSON.stringify(body)));
   publish({ ref, status: "TRYING" });
   return {
-    onRoom(nodeId: string, roomRef: string) {
-      const sub = nc.subscribe(`media.${nodeId}.events.${roomRef}`, {
-        callback: (err, msg) => {
-          if (err) return;
-          let event: Record<string, unknown>;
-          try {
-            event = JSON.parse(sc.decode(msg.data));
-          } catch {
-            return;
-          }
-          if (event.type === "call.progress") {
-            const status = PROGRESS[String(event.status)] ?? "FAILED";
-            publish({ ref, status });
-            if (status !== "PROGRESS") stop?.();
-          } else if (event.type === "call.answered") {
-            publish({ ref, status: "ANSWER" });
-          } else if (event.type === "room.ended") {
-            publish({ ref, final: true });
-            stop?.();
-          }
-        }
-      });
-      const timer = setTimeout(() => stop?.(), MAX_WATCH_MS);
-      timer.unref?.();
-      stop = () => {
-        clearTimeout(timer);
-        sub.unsubscribe();
-        stop = undefined;
-      };
-    },
     failed() {
       publish({ ref, status: "FAILED" });
-      stop?.();
     }
   };
 }
 
 /**
- * Serves `calls.create` (published by CreateCall) by placing each call on the media nodes. Takes
- * over from the Asterisk originate the apiserver used before the rebuild (cleanbreak CB-B2).
- * Returns a stop function.
+ * Serves `calls.create` (a request from CreateCall) by placing each call on the media nodes.
+ * Takes over from the Asterisk originate the apiserver used before the rebuild (cleanbreak
+ * CB-B2). The reply comes as soon as a node has accepted the call's room (`{type: "ack", ref,
+ * nodeId}`), or with `{type: "error", code, message}` when no node took it (`no_capacity`), so
+ * CreateCall fails at once instead of TrackCall reporting FAILED later. Failures after the room
+ * exists (no gateway, dial refused) are reported to TrackCall as FAILED. Returns a stop function.
  */
 export async function runOutboundCalls(config: {
   natsUrl?: NatsTarget;
@@ -172,14 +133,27 @@ export async function runOutboundCalls(config: {
         ref: call.ref,
         appRef: call.appRef
       });
+      // One reply per request (a plain publish, from an older CreateCall, gets none).
+      let replied = !msg.reply;
+      const reply = (body: Record<string, unknown>) => {
+        if (replied) return;
+        replied = true;
+        msg.respond(sc.encode(JSON.stringify(body)));
+      };
       const tracker = callTracker(nc, call.ref);
       placeOutboundCall(request, nodes, call, {
-        onRoom: (nodeId, roomRef) => tracker.onRoom(nodeId, roomRef)
+        onRoom: (nodeId) => reply({ type: "ack", ref: call.ref, nodeId })
       }).then(
         (placed) =>
           logger.verbose("outbound call placed", { ref: call.ref, ...placed }),
-        (e) => {
+        (e: Error) => {
           tracker.failed();
+          reply({
+            type: "error",
+            ref: call.ref,
+            code: e instanceof PlacementError ? e.code : "error",
+            message: e.message
+          });
           logger.error(`outbound call ${call.ref} not placed: ${e.message}`);
         }
       );

@@ -41,6 +41,15 @@ export const GATEWAY_OUTBOUND_SUBJECT = "gateway.outbound";
 
 const REPLY_TIMEOUT_MS = 2000;
 
+/** Nodes tried for one call before it fails with no_capacity. */
+export const MAX_PLACEMENT_ATTEMPTS = 3;
+
+/** The PlacementError code for "no node took the call" (CreateCall's RESOURCE_EXHAUSTED). */
+export const NO_CAPACITY = "no_capacity";
+
+/** room.create refusals that send the call to the next node. */
+const TRY_NEXT = new Set(["at_capacity", "draining"]);
+
 export class PlacementError extends Error {
   constructor(
     readonly code: string,
@@ -53,9 +62,11 @@ export class PlacementError extends Error {
 
 /**
  * Places an API-originated call (CreateCall) on the media nodes, replacing Asterisk's originate:
- * `room.create` on the least-loaded node, `gateway.outbound` so a gateway opens the app session
- * on `call.answered`, then `participant.dial` through Routr with the headers Routr routes
- * API-originated calls by (X-Dod-Number picks the trunk).
+ * `room.create` on the least-loaded eligible node (the next one, up to MAX_PLACEMENT_ATTEMPTS
+ * nodes, when a node is full, draining or silent), `gateway.outbound` so a gateway opens the app
+ * session on `call.answered`, then `participant.dial` through Routr with the headers Routr
+ * routes API-originated calls by (X-Dod-Number picks the trunk). The room carries the call's
+ * ref, so the node also publishes the call's status events on `calls.<ref>.events` (TrackCall).
  */
 export async function placeOutboundCall(
   request: Requester,
@@ -66,16 +77,12 @@ export async function placeOutboundCall(
     onRoom?: (nodeId: string, roomRef: string) => void;
   } = {}
 ): Promise<{ nodeId: string; roomRef: string }> {
-  const nodeId = nodes.pick();
-  if (!nodeId) {
-    throw new PlacementError(
-      "no_media_node",
-      "no live media node to place the call on"
+  const command = async (nodeId: string, body: Record<string, unknown>) => {
+    const reply = await request(
+      `media.${nodeId}.commands`,
+      body,
+      REPLY_TIMEOUT_MS
     );
-  }
-  const commands = `media.${nodeId}.commands`;
-  const command = async (body: Record<string, unknown>) => {
-    const reply = await request(commands, body, REPLY_TIMEOUT_MS);
     if (reply.type !== "ack") {
       throw new PlacementError(
         String(reply.code ?? "error"),
@@ -85,14 +92,46 @@ export async function placeOutboundCall(
     return reply;
   };
 
-  const room = await command({ type: "room.create", id: `${call.ref}:room` });
-  const roomRef = String(room.roomRef ?? "");
+  // room.create on the least-loaded eligible node; a full, draining or silent node sends the
+  // call to the next one.
+  const tried = new Set<string>();
+  let placedOn: { nodeId: string; roomRef: string } | undefined;
+  while (!placedOn && tried.size < MAX_PLACEMENT_ATTEMPTS) {
+    const candidate = nodes.pick(tried);
+    if (!candidate) break;
+    tried.add(candidate);
+    try {
+      const room = await command(candidate, {
+        type: "room.create",
+        id: `${call.ref}:room`,
+        callRef: call.ref
+      });
+      placedOn = { nodeId: candidate, roomRef: String(room.roomRef ?? "") };
+    } catch (e) {
+      if (e instanceof PlacementError) {
+        if (!TRY_NEXT.has(e.code)) throw e;
+        nodes.refused(candidate, e.code);
+      }
+      // Otherwise no reply in time: the node is gone or stuck; try the next one.
+    }
+  }
+  if (!placedOn) {
+    throw new PlacementError(
+      NO_CAPACITY,
+      tried.size === 0
+        ? "no media node has room for the call"
+        : `no media node took the call (tried ${[...tried].join(", ")})`
+    );
+  }
+  const { nodeId, roomRef } = placedOn;
   nodes.placed(nodeId);
   hooks.onRoom?.(nodeId, roomRef);
   const endRoom = () =>
-    command({ type: "room.end", id: `${call.ref}:end`, roomRef }).catch(
-      () => undefined
-    );
+    command(nodeId, {
+      type: "room.end",
+      id: `${call.ref}:end`,
+      roomRef
+    }).catch(() => undefined);
 
   let claimed: Record<string, unknown>;
   try {
@@ -125,7 +164,7 @@ export async function placeOutboundCall(
   }
 
   try {
-    await command({
+    await command(nodeId, {
       type: "participant.dial",
       id: `${call.ref}:dial`,
       roomRef,

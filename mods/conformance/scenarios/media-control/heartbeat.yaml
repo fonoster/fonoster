@@ -5,5 +5,5 @@ name: heartbeat
 spec: "Nodes report liveness / Heartbeats while alive"
 description: A live node publishes node.heartbeat at least every 2 s.
 steps:
-  - expect: { type: node.heartbeat, rooms: { $gte: 0 }, draining: false }
+  - expect: { type: node.heartbeat, rooms: { $gte: 0 }, maxRooms: { $gte: 1 }, draining: false }
     within_ms: 2500

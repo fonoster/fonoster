@@ -144,6 +144,8 @@ async function stopProcess(p: ChildProcess) {
 export class MediaNodeProcess {
   readonly nodeId = `go-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
   heartbeatMs = 2000;
+  /** The node's room limit (-max-rooms); unset keeps the node's default. */
+  maxRooms?: number;
   /** Extra environment for the node (e.g. OTEL_EXPORTER_OTLP_ENDPOINT). */
   env?: Record<string, string | undefined>;
   private node?: ChildProcess;
@@ -196,7 +198,10 @@ export class MediaNodeProcess {
           "-outbound-proxy",
           outboundProxy,
           "-debug",
-          `127.0.0.1:${this.debugPort}`
+          `127.0.0.1:${this.debugPort}`,
+          ...(this.maxRooms !== undefined
+            ? ["-max-rooms", String(this.maxRooms)]
+            : [])
         ],
         /ready/,
         this.env

@@ -69,6 +69,7 @@ export class RealMediaHarness extends FakesHarness {
     this.callerAudio = setup.callerAudio;
     if (setup.media?.heartbeatMs !== undefined)
       this.media.heartbeatMs = setup.media.heartbeatMs;
+    this.media.maxRooms = setup.media?.maxRooms;
     await super.setup({ ...setup, callerAudio: undefined, media: undefined });
   }
 

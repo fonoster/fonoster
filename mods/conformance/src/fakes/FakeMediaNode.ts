@@ -100,7 +100,12 @@ export type FakeMediaNodeOptions = {
   claimTimeoutMs?: number;
   /** Heartbeat period once attached to NATS (default 2000 ms; 0 disables). */
   heartbeatMs?: number;
+  /** Rooms the node holds at once; room.create beyond it gets at_capacity (default 200). */
+  maxRooms?: number;
 };
+
+/** The room events that make up a call's status, also published on `calls.<callRef>.events`. */
+const CALL_EVENTS = new Set(["call.progress", "call.answered", "room.ended"]);
 
 type Track = {
   trackId: number;
@@ -118,6 +123,8 @@ type Participant = {
 
 type Room = {
   roomRef: string;
+  /** The API-originated call the room was created for (room.create callRef). */
+  callRef?: string;
   participants: Map<string, Participant>;
   ended: boolean;
   held: boolean;
@@ -317,7 +324,8 @@ export class FakeMediaNode extends EventEmitter {
       this.publishStatus({
         type: "node.heartbeat",
         nodeId: this.nodeId,
-        rooms: [...this.rooms.values()].filter((r) => !r.ended).length,
+        rooms: this.activeRooms(),
+        maxRooms: this.maxRooms(),
         draining: false
       });
     beat();
@@ -498,7 +506,15 @@ export class FakeMediaNode extends EventEmitter {
       return error("unknown_command");
 
     if (command.type === "room.create") {
-      return ack({ roomRef: this.createRoom().roomRef });
+      const callRef =
+        typeof command.callRef === "string" && command.callRef !== ""
+          ? command.callRef
+          : undefined;
+      if (callRef && /[.*>\s]/.test(callRef)) return error("bad_message");
+      if (this.activeRooms() >= this.maxRooms()) return error("at_capacity");
+      const room = this.createRoom();
+      room.callRef = callRef;
+      return ack({ roomRef: room.roomRef });
     }
 
     const room = this.rooms.get(String(command.roomRef ?? this.lastRoomRef()));
@@ -654,6 +670,12 @@ export class FakeMediaNode extends EventEmitter {
         `${events}.${event.roomRef}`,
         sc.encode(JSON.stringify(event))
       );
+      const callRef = this.rooms.get(String(event.roomRef))?.callRef;
+      if (callRef && CALL_EVENTS.has(event.type))
+        nc.publish(
+          `calls.${callRef}.events`,
+          sc.encode(JSON.stringify({ ...event, callRef, nodeId: this.nodeId }))
+        );
     });
     return { commands, events };
   }
@@ -717,6 +739,14 @@ export class FakeMediaNode extends EventEmitter {
   private lastRoomRef(): string {
     const refs = [...this.rooms.keys()];
     return refs[refs.length - 1];
+  }
+
+  private activeRooms(): number {
+    return [...this.rooms.values()].filter((r) => !r.ended).length;
+  }
+
+  private maxRooms(): number {
+    return this.options.maxRooms ?? 200;
   }
 
   private createRoom(): Room {
