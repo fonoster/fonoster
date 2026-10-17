@@ -109,6 +109,9 @@ type Room struct {
 	created time.Time
 	// maxDuration is the node's limit, or an app's lower one.
 	maxDuration time.Duration
+	// callRef is the API-originated call the room was created for (room.create callRef); its
+	// call-status events also go to CallEventsSubject. Set before the room is shared.
+	callRef string
 
 	mu           sync.Mutex
 	participants map[string]*Participant

@@ -53,15 +53,9 @@ type StandaloneIdentity = {
   stop(): Promise<void>;
 };
 
-/**
- * A field-encryption key both the config schema (base64) and cloak (base64url) accept: one whose
- * base64 has no `+` or `/`.
- */
+/** A field-encryption key in cloak's format: base64url of 32 random bytes. */
 function encryptionKey() {
-  for (;;) {
-    const key = randomBytes(32).toString("base64");
-    if (!/[+/]/.test(key)) return `k1.aesgcm256.${key}`;
-  }
+  return `k1.aesgcm256.${randomBytes(32).toString("base64url")}=`;
 }
 
 const freePort = () =>

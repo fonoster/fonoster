@@ -21,6 +21,8 @@ import { expect } from "chai";
 import { connect, NatsConnection, StringCodec } from "nats";
 import {
   createNodeDirectory,
+  MAX_PLACEMENT_ATTEMPTS,
+  NO_CAPACITY,
   OutboundCallRequest,
   placeOutboundCall,
   Requester,
@@ -39,15 +41,28 @@ const CALL: OutboundCallRequest = {
 
 type Sent = { subject: string; body: Record<string, unknown> };
 
-/** A requester standing in for one media node and the gateways. */
+/**
+ * A requester standing in for the media nodes and the gateways. `roomCreate` answers room.create
+ * per node: an error code, or "timeout" (no reply).
+ */
 function fakeRequester(
-  replies: { gateway?: Record<string, unknown>; failOn?: string } = {}
+  replies: {
+    gateway?: Record<string, unknown>;
+    failOn?: string;
+    roomCreate?: Record<string, string>;
+  } = {}
 ) {
   const sent: Sent[] = [];
   const request: Requester = async (subject, body) => {
     sent.push({ subject, body });
     if (subject === "gateway.outbound")
       return replies.gateway ?? { type: "ack" };
+    const nodeId = subject.split(".")[1];
+    const refusal = replies.roomCreate?.[nodeId];
+    if (body.type === "room.create" && refusal === "timeout")
+      throw new Error("TIMEOUT");
+    if (body.type === "room.create" && refusal)
+      return { type: "error", id: body.id, code: refusal };
     if (body.type === replies.failOn)
       return { type: "error", id: body.id, code: "sip_error" };
     if (body.type === "room.create")
@@ -89,6 +104,25 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
     expect(nodes.pick()).to.equal(undefined);
   });
 
+  it("skips nodes at their room limit and the ones already tried", function () {
+    const nodes = createNodeDirectory();
+    nodes.note({ type: "node.heartbeat", nodeId: "a", rooms: 5, maxRooms: 5 });
+    nodes.note({ type: "node.heartbeat", nodeId: "b", rooms: 8, maxRooms: 20 });
+    nodes.note({ type: "node.heartbeat", nodeId: "c", rooms: 9 }); // no limit reported
+    expect(nodes.pick()).to.equal("b");
+    expect(nodes.pick(new Set(["b"]))).to.equal("c");
+    expect(nodes.pick(new Set(["b", "c"]))).to.equal(undefined);
+
+    // b refuses a room (full since its heartbeat): skipped until it reports room again.
+    nodes.refused("b", "at_capacity");
+    expect(nodes.pick()).to.equal("c");
+    nodes.note({ type: "node.heartbeat", nodeId: "b", rooms: 7, maxRooms: 20 });
+    expect(nodes.pick()).to.equal("b");
+    nodes.refused("b", "draining");
+    expect(nodes.list().find((n) => n.nodeId === "b")?.draining).to.equal(true);
+    expect(nodes.pick()).to.equal("c");
+  });
+
   it("takes registry entries at the time they were written", function () {
     let now = 1000;
     const nodes = createNodeDirectory({ staleMs: 100, now: () => now });
@@ -118,6 +152,8 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
       ["gateway.outbound", undefined],
       ["media.n1.commands", "participant.dial"]
     ]);
+    // The room carries the call, so the node publishes its events on calls.<ref>.events.
+    expect(sent[0].body).to.include({ type: "room.create", callRef: "call-1" });
     expect(sent[1].body).to.deep.equal({
       nodeId: "n1",
       roomRef: "room-1",
@@ -140,13 +176,64 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     });
   });
 
-  it("fails without a live media node", async function () {
+  it("fails with no_capacity without a live media node", async function () {
     const { sent, request } = fakeRequester();
     await placeOutboundCall(request, createNodeDirectory(), CALL).then(
       () => expect.fail("placed"),
-      (e) => expect(e.code).to.equal("no_media_node")
+      (e) => expect(e.code).to.equal(NO_CAPACITY)
     );
     expect(sent).to.have.length(0);
+  });
+
+  it("tries the next node when one is full, draining or silent, up to three nodes", async function () {
+    const nodes = () =>
+      liveNodes(
+        { nodeId: "n1", rooms: 0 },
+        { nodeId: "n2", rooms: 1 },
+        { nodeId: "n3", rooms: 2 },
+        { nodeId: "n4", rooms: 3 }
+      );
+    const roomCreates = (sent: Sent[]) =>
+      sent.filter((s) => s.body.type === "room.create").map((s) => s.subject);
+
+    const placed = fakeRequester({
+      roomCreate: { n1: "at_capacity", n2: "timeout" }
+    });
+    expect(
+      await placeOutboundCall(placed.request, nodes(), CALL)
+    ).to.deep.equal({ nodeId: "n3", roomRef: "room-1" });
+    expect(roomCreates(placed.sent)).to.deep.equal([
+      "media.n1.commands",
+      "media.n2.commands",
+      "media.n3.commands"
+    ]);
+
+    const refused = fakeRequester({
+      roomCreate: { n1: "at_capacity", n2: "draining", n3: "at_capacity" }
+    });
+    await placeOutboundCall(refused.request, nodes(), CALL).then(
+      () => expect.fail("placed"),
+      (e) => expect(e.code).to.equal(NO_CAPACITY)
+    );
+    expect(roomCreates(refused.sent)).to.have.length(MAX_PLACEMENT_ATTEMPTS);
+    expect(
+      refused.sent.some((s) => s.body.type === "participant.dial")
+    ).to.equal(false);
+  });
+
+  it("does not retry a room.create refused for another reason", async function () {
+    const { sent, request } = fakeRequester({
+      roomCreate: { n1: "bad_message" }
+    });
+    await placeOutboundCall(
+      request,
+      liveNodes({ nodeId: "n1", rooms: 0 }, { nodeId: "n2", rooms: 1 }),
+      CALL
+    ).then(
+      () => expect.fail("placed"),
+      (e) => expect(e.code).to.equal("bad_message")
+    );
+    expect(sent).to.have.length(1);
   });
 
   it("ends the room when no gateway takes the call or the dial is refused", async function () {
@@ -217,7 +304,6 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS", function () {
         sc.encode(JSON.stringify({ type: "node.heartbeat", nodeId, rooms: 0 }))
       );
       await nc.flush();
-      await new Promise((r) => setTimeout(r, 50));
       nc.publish("calls.create", sc.encode(JSON.stringify(CALL)));
       const deadline = Date.now() + 3000;
       while (seen.length < 3 && Date.now() < deadline)
@@ -233,29 +319,21 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS", function () {
       gateway.unsubscribe();
     }
   });
-  it("publishes the call's status for TrackCall from the room's events", async function () {
-    if (!NATS_URL) return this.skip();
-    const nc = await connect({ servers: NATS_URL });
+  it("answers CreateCall once the room exists and publishes TRYING on the call's subject", async function () {
     const nodeId = `n-${Date.now()}`;
-    const roomRef = `r-${Date.now()}`;
+    const ref = `call-ack-${Date.now()}`;
     const statuses: Record<string, unknown>[] = [];
-    const track = nc.subscribe("calls.track", {
+    const track = nc.subscribe(`calls.${ref}.events`, {
       callback: (_e, msg) => statuses.push(JSON.parse(sc.decode(msg.data)))
     });
+    const created: Record<string, unknown>[] = [];
     const node = nc.subscribe(`media.${nodeId}.commands`, {
       callback: (_e, msg) => {
         const cmd = JSON.parse(sc.decode(msg.data));
+        if (cmd.type === "room.create") created.push(cmd);
         msg.respond(
-          sc.encode(JSON.stringify({ type: "ack", id: cmd.id, roomRef }))
+          sc.encode(JSON.stringify({ type: "ack", id: cmd.id, roomRef: "r-1" }))
         );
-        if (cmd.type !== "participant.dial") return;
-        const events = `media.${nodeId}.events.${roomRef}`;
-        for (const ev of [
-          { type: "call.progress", status: "ringing" },
-          { type: "call.answered", participantRef: "p-1" },
-          { type: "room.ended", reason: "callee_hangup" }
-        ])
-          nc.publish(events, sc.encode(JSON.stringify({ ...ev, roomRef })));
       }
     });
     const gateway = nc.subscribe("gateway.outbound", {
@@ -267,29 +345,67 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS", function () {
     try {
       nc.publish(
         `media.${nodeId}.heartbeat`,
-        sc.encode(JSON.stringify({ type: "node.heartbeat", nodeId, rooms: 0 }))
+        sc.encode(
+          JSON.stringify({
+            type: "node.heartbeat",
+            nodeId,
+            rooms: 0,
+            maxRooms: 5
+          })
+        )
       );
       await nc.flush();
-      await new Promise((r) => setTimeout(r, 50));
-      nc.publish(
+      const reply = await nc.request(
         "calls.create",
-        sc.encode(JSON.stringify({ ...CALL, ref: "call-track" }))
+        sc.encode(JSON.stringify({ ...CALL, ref })),
+        { timeout: 5000 }
       );
-      const deadline = Date.now() + 3000;
-      while (statuses.length < 4 && Date.now() < deadline)
-        await new Promise((r) => setTimeout(r, 20));
-      expect(statuses).to.deep.equal([
-        { ref: "call-track", status: "TRYING" },
-        { ref: "call-track", status: "PROGRESS" },
-        { ref: "call-track", status: "ANSWER" },
-        { ref: "call-track", final: true }
-      ]);
+      expect(JSON.parse(sc.decode(reply.data))).to.deep.equal({
+        type: "ack",
+        ref,
+        nodeId
+      });
+      expect(created[0]).to.include({ callRef: ref });
+      await nc.flush();
+      expect(statuses).to.deep.equal([{ ref, status: "TRYING" }]);
     } finally {
       await stop();
       track.unsubscribe();
       node.unsubscribe();
       gateway.unsubscribe();
-      await nc.close();
+    }
+  });
+
+  it("answers CreateCall with no_capacity when no node takes the call", async function () {
+    const ref = `call-none-${Date.now()}`;
+    const statuses: Record<string, unknown>[] = [];
+    const track = nc.subscribe(`calls.${ref}.events`, {
+      callback: (_e, msg) => statuses.push(JSON.parse(sc.decode(msg.data)))
+    });
+    // An empty registry bucket: no node from elsewhere on this server is offered.
+    const bucket = `test_none_${Date.now()}`;
+    const stop = await runOutboundCalls({ nc, sessionsBucket: bucket });
+    try {
+      const reply = await nc.request(
+        "calls.create",
+        sc.encode(JSON.stringify({ ...CALL, ref })),
+        { timeout: 5000 }
+      );
+      expect(JSON.parse(sc.decode(reply.data))).to.include({
+        type: "error",
+        ref,
+        code: NO_CAPACITY
+      });
+      await nc.flush();
+      expect(statuses).to.deep.equal([
+        { ref, status: "TRYING" },
+        { ref, status: "FAILED" }
+      ]);
+    } finally {
+      await stop();
+      track.unsubscribe();
+      const jsm = await nc.jetstreamManager().catch(() => undefined);
+      await jsm?.streams.delete(`KV_${bucket}`).catch(() => undefined);
     }
   });
 });

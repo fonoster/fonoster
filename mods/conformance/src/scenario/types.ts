@@ -92,6 +92,8 @@ export type Setup = {
     dialOutcome?: "answered" | "busy" | "no_answer" | "failed";
     appRef?: string;
     heartbeatMs?: number;
+    /** media-control: the node's room limit (room.create beyond it gets at_capacity). */
+    maxRooms?: number;
     /** media-control: whether the runner claims call.incoming (default true). */
     claimCalls?: boolean;
   };

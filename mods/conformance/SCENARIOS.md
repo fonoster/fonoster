@@ -139,7 +139,7 @@ scenario rather than ignoring it.
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake media node plays as the caller once the call is answered. |
 | `assistant` | `autopilot` only: the assistant config Autopilot runs for this scenario. |
-| `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
+| `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `maxRooms` (the node's room limit; `room.create` beyond it gets `at_capacity`); `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
 | `catalog` | `voice-session` only: the provider catalog the gateway resolves ids with. The runner registers the `fake` provider, a TTS model and `fake/default`, then each listed voice (`{id, state, replacement}`), deprecating or retiring it as `state` says. |
 
 #Besides the app under test (`app-1`), voice-session runners configure a second app, `app-2`,
@@ -195,6 +195,8 @@ matcher, compared with what the harness measured.
 | `media.sip` | SIP statuses the caller received, in order (180 for `ring`, 200 for `answer`, refusals such as 404 or 503) |
 | `providers.vendor_calls` | network calls to anything other than the fakes (always expected to be `0`); needs a harness that watches egress, such as a proxy around the implementation |
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
+| `providers.stt.streams` | STT streams opened so far, waiting up to 2 s for the first one (use before caller audio that must reach STT) |
+| `stt.caller_audio_lag_ms` | ms from the first audible caller packet the fake media node sent after the step's anchor to the first audible frame the fake STT received (pass bar T1, caller audio to STT); waits up to 2 s, `null` if none arrived |
 | `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |
 | `record.events.<type>` | the call record's gateway events of that type, e.g. `record.events.turn.label` (needs a harness that can read the record) |
 | `record.messages.<type>` | the call record's entries of that type from any source (app commands, gateway messages, events), each with `source` and `at`, e.g. `record.messages.record.note` |

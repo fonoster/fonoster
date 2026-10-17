@@ -8,10 +8,24 @@
 
 ## 2. Conformance (from add-conformance-framework)
 
-- [ ] 2.1 T1: measure caller audio to STT (speak-to-first-audio and clear are measured)
+- [x] 2.1 T1: measure caller audio to STT (speak-to-first-audio and clear are measured)
+  (scenario `caller-audio-to-stt` + measurement `stt.caller_audio_lag_ms`: first audible caller packet
+  sent by the fake node → first audible frame at the fake STT; nightly in the T1 suite at 200 runs;
+  locally p50 0 ms, p95 1 ms over 30 runs)
 - [ ] 2.2 T2: ten replicas at 1,000 calls (one process is measured)
-- [ ] 2.3 Nightly end-to-end call through Routr to an Autopilot app with a sealed call record
+  (partial: `scale.ts --replicas N` runs N gateway processes sharing calls through the claim; nightly
+  adds a 2 × 200 profile, report only. The full bar needs about 20 vCPU for the gateways plus a load
+  generator split from the fakes; a hosted runner has 4. T2 is reported, not asserted: locally 1 × 100
+  delivered 99% of frames, so "zero dropped frames" is not met by the harness today)
+- [x] 2.3 Nightly end-to-end call through Routr to an Autopilot app with a sealed call record
+  (`ops/rebuild/stack e2e` + `ops/rebuild/e2e.cjs`, job "end-to-end call (nightly)" in
+  stack-smoke.yaml: greeting heard, one turn (caller speaks, agent replies), hang-up, record indexed
+  as completed and its JWS verified against the region's records key)
 - [ ] 2.4 Dedicated runners for the nightly end-to-end and load suites
+  (owner decision, costs money: (a) GitHub larger runners, e.g. a 16-core Linux runner group, then
+  `runs-on: { group: <name> }` on the conformance "timing, load, replay" job and the stack-smoke
+  "e2e" job; (b) a self-hosted runner labelled `conformance` (`runs-on: [self-hosted, conformance]`);
+  (c) stay on ubuntu-latest and keep T2 report-only)
 
 ## 3. Private regions (from add-private-regions 1.3)
 

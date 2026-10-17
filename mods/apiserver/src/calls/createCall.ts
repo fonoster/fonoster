@@ -24,12 +24,12 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateCallRequest } from "@fonoster/types";
-import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { struct } from "pb-util";
 import { v4 as uuidv4 } from "uuid";
 import { Prisma } from "../core/db";
 import { notFoundError } from "../core/notFoundError";
-import { CallPublisher } from "./types";
+import { CallPlacementError, CallPublisher } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -59,15 +59,33 @@ function createCall(prisma: Prisma, publisher: CallPublisher) {
       throw notFoundError(`Application with ref ${appRef} not found`);
     }
 
-    publisher.publishCall({
-      ref,
-      from,
-      to,
-      appRef,
-      accessKeyId,
-      timeout: timeout || 30,
-      metadata: effectiveMetadata
-    });
+    // Placement answers once a media node has accepted the call, so a call with no capacity
+    // fails here (RESOURCE_EXHAUSTED) instead of TrackCall reporting FAILED later.
+    try {
+      await publisher.publishCall({
+        ref,
+        from,
+        to,
+        appRef,
+        accessKeyId,
+        timeout: timeout || 30,
+        metadata: effectiveMetadata
+      });
+    } catch (e) {
+      if (!(e instanceof CallPlacementError)) throw e;
+      logger.warn("call not placed", { ref, code: e.code, message: e.message });
+      callback({
+        code:
+          e.code === "no_capacity"
+            ? status.RESOURCE_EXHAUSTED
+            : status.UNAVAILABLE,
+        message:
+          e.code === "no_capacity"
+            ? `No capacity to place the call: ${e.message}`
+            : `The call could not be placed: ${e.message}`
+      });
+      return;
+    }
 
     callback(null, { ref });
   };

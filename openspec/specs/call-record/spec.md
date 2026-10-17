@@ -101,8 +101,10 @@ deletion removed its contents.
 
 A record and its files SHALL be stored in the object storage of the region or cell where the call
 happened, unless the workspace has configured its own S3-compatible bucket, in which case they SHALL
-be stored there. The control plane SHALL store only an index entry: call id, workspace, time, size,
-location and current version.
+be stored there. The control plane SHALL store only an index entry, which is call metadata and
+never content: call id, workspace, app, from and to numbers, direction, status, end and failure
+reasons, SIP status, start and end time, duration, region, location, current version, size and the
+names of the parts present. Recordings, transcripts and messages SHALL stay in that storage.
 
 #### Scenario: Private region keeps its data
 

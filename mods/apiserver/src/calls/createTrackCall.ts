@@ -24,7 +24,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
 import { NatsConnection } from "nats";
-import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
+import { CALL_EVENTS_WILDCARD } from "../envs";
 import { CallStream, TrackCallResponse } from "./types";
 
 const FINAL_STATUSES = [
@@ -44,16 +44,57 @@ type TrackMessage = Partial<TrackCallResponse> & {
   final?: boolean;
 };
 
+/** media-control `call.progress` statuses → the Calls API's DialStatus names. */
+const PROGRESS: Record<string, DialStatus> = {
+  ringing: DialStatus.PROGRESS,
+  busy: DialStatus.BUSY,
+  no_answer: DialStatus.NOANSWER,
+  failed: DialStatus.FAILED
+};
+
 /**
- * TrackCall: status updates of an API-originated call (`calls.track`, published by the outbound
- * placement from the media node's room events). The SDK subscribes right after CreateCall
+ * One message on `calls.<ref>.events` as a TrackCall message: the control plane's `{ref,
+ * status}` as is, and the media node's call.progress, call.answered and room.ended translated.
+ * Undefined for anything else.
+ */
+function toTrackMessage(
+  event: Record<string, unknown>,
+  subject = ""
+): TrackMessage | undefined {
+  const fromSubject = subject.split(".")[1];
+  const ref = String(event.ref ?? event.callRef ?? fromSubject ?? "");
+  if (!ref) return undefined;
+  switch (event.type) {
+    case "call.progress":
+      return {
+        ref,
+        status: PROGRESS[String(event.status)] ?? DialStatus.FAILED
+      };
+    case "call.answered":
+      return { ref, status: DialStatus.ANSWER };
+    case "room.ended":
+      return { ref, final: true };
+    case undefined:
+      return event.status !== undefined || event.final === true
+        ? ({ ...event, ref } as TrackMessage)
+        : undefined;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * TrackCall: status updates of an API-originated call, from the call's own subject
+ * `calls.<ref>.events`. The replica that placed the call publishes TRYING (and FAILED), and the
+ * media node publishes the room's call events there, so any replica serves TrackCall for any
+ * call, even after the placing replica is gone. The SDK subscribes right after CreateCall
  * returns, and the first statuses can come before that, so messages for calls nobody tracks yet
  * are kept for a while and replayed.
  */
 function createTrackCall(nc: NatsConnection) {
   const trackingCallsMap = new Map<string, CallStream>();
   const early = new Map<string, { at: number; messages: TrackMessage[] }>();
-  const subscription = nc.subscribe(CALLS_TRACK_CALL_SUBJECT);
+  const subscription = nc.subscribe(CALL_EVENTS_WILDCARD);
 
   /** Writes one message; returns true when the stream is done. */
   const deliver = (stream: CallStream, message: TrackMessage) => {
@@ -72,7 +113,16 @@ function createTrackCall(nc: NatsConnection) {
       return;
     }
 
-    const message = msg?.json() as TrackMessage;
+    let message: TrackMessage | undefined;
+    try {
+      message = toTrackMessage(
+        msg?.json() as Record<string, unknown>,
+        msg?.subject
+      );
+    } catch {
+      return; // not JSON
+    }
+    if (!message) return;
     const { ref, status } = message;
 
     logger.verbose("call to subscription.callback", { ref, status });
@@ -109,4 +159,4 @@ function createTrackCall(nc: NatsConnection) {
   return withErrorHandlingAndValidation(trackCall, V.baseApiObjectSchema);
 }
 
-export { createTrackCall };
+export { createTrackCall, toTrackMessage };

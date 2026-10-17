@@ -24,12 +24,9 @@ import { writeWithMode } from "./envFile";
 
 const hex = (bytes: number) => randomBytes(bytes).toString("hex");
 
-/** A 32-byte key in base64 without + or / (valid for Cloak and the API server's check). */
+/** A Cloak key (`npx @47ng/cloak generate` format): base64url of 32 random bytes. */
 export function encryptionKey(): string {
-  for (;;) {
-    const k = randomBytes(32).toString("base64");
-    if (!/[+/]/.test(k)) return `k1.aesgcm256.${k}`;
-  }
+  return `k1.aesgcm256.${randomBytes(32).toString("base64url")}=`;
 }
 
 /**
