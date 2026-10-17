@@ -44,6 +44,13 @@ export const telemetry: Telemetry = {
   shutdown: () => impl.shutdown()
 };
 
+/** Flushes and stops telemetry; the handle is a no-op until `startTelemetry` runs again. */
+export async function stopTelemetry() {
+  const stopping = impl;
+  impl = initTelemetry("fonoster-gateway", undefined, {});
+  await stopping.shutdown();
+}
+
 /** Starts telemetry with the config's endpoint, once the config is loaded. */
 export function startTelemetry(config: TelemetryConfig) {
   if (!config?.otlpEndpoint?.trim() || impl.enabled) return;

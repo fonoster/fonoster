@@ -107,10 +107,14 @@ async function freeSipPort(): Promise<number> {
 function startProcess(
   bin: string,
   args: string[],
-  ready: RegExp
+  ready: RegExp,
+  env?: Record<string, string | undefined>
 ): Promise<{ child: ChildProcess; line: string }> {
   return new Promise((resolve, reject) => {
-    const child = spawn(bin, args, { stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(bin, args, {
+      stdio: ["ignore", "pipe", "pipe"],
+      env: env && { ...process.env, ...env }
+    });
     const lines = readline.createInterface({ input: child.stdout! });
     const timer = setTimeout(() => {
       child.kill("SIGKILL");
@@ -140,6 +144,8 @@ async function stopProcess(p: ChildProcess) {
 export class MediaNodeProcess {
   readonly nodeId = `go-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
   heartbeatMs = 2000;
+  /** Extra environment for the node (e.g. OTEL_EXPORTER_OTLP_ENDPOINT). */
+  env?: Record<string, string | undefined>;
   private node?: ChildProcess;
   private bot?: ChildProcess;
   private botUrl = "";
@@ -192,7 +198,8 @@ export class MediaNodeProcess {
           "-debug",
           `127.0.0.1:${this.debugPort}`
         ],
-        /ready/
+        /ready/,
+        this.env
       )
     ).child;
   }
@@ -214,6 +221,23 @@ export class MediaNodeProcess {
 
   async stop() {
     await Promise.all([this.node, this.bot].map((p) => p && stopProcess(p)));
+  }
+
+  /**
+   * Stops the node the way an orchestrator does (SIGTERM: drain, unregister, flush telemetry) and
+   * waits for it to exit; a second SIGTERM stops a drain that still has rooms, and SIGKILL follows
+   * if it hangs.
+   */
+  async shutdown(timeoutMs = 10000) {
+    const p = this.node;
+    if (!p || p.exitCode !== null || p.signalCode !== null) return;
+    const exited = new Promise((r) => p.once("exit", r));
+    p.kill("SIGTERM");
+    const again = setTimeout(() => p.kill("SIGTERM"), timeoutMs / 2);
+    const kill = setTimeout(() => p.kill("SIGKILL"), timeoutMs);
+    await exited;
+    clearTimeout(again);
+    clearTimeout(kill);
   }
 
   /** Kills the node without warning (no heartbeats, replies or BYEs). */

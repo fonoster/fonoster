@@ -40,3 +40,4 @@ export * from "./runner/NatsMediaControlPeer";
 export * from "./fakes/ProcessMediaNodeHarness";
 export * from "./fakes/MediaNodeProcess";
 export * from "./fakes/RealMediaHarness";
+export * from "./fakes/OtlpCollector";

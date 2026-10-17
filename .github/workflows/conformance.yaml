@@ -82,6 +82,8 @@ jobs:
             'mods/conformance/test/media-control.test.ts' \
             'mods/conformance/test/media-control-go.test.ts' \
             'mods/gateway/test/gonode.test.ts' \
+            'mods/gateway/test/observability.test.ts' \
+            'mods/conformance/test/medianode-secrets.test.ts' \
             'mods/autopilot/test/session/fullstack.test.ts' \
             'mods/apiserver/test/outbound/placeOutboundCall.test.ts' \
             'mods/apiserver/test/outbound/controlPlane.test.ts'
