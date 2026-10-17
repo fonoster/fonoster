@@ -197,7 +197,7 @@ export function initTelemetry(
                 spans: spans.map((s) => ({
                   traceId: s.spanContext().traceId,
                   spanId: s.spanContext().spanId,
-                  parentSpanId: s.parentSpanId || undefined,
+                  parentSpanId: s.parentSpanContext?.spanId || undefined,
                   name: s.name,
                   kind: 1 + (s.kind ?? 0),
                   startTimeUnixNano: hrToNano(s.startTime),
@@ -223,7 +223,7 @@ export function initTelemetry(
     shutdown: async () => undefined
   };
   const provider = new nodeSdk.NodeTracerProvider({
-    resource: new resources.Resource(resourceAttrs),
+    resource: resources.resourceFromAttributes(resourceAttrs),
     spanProcessors: [new base.BatchSpanProcessor(exporter)]
   });
   provider.register();
