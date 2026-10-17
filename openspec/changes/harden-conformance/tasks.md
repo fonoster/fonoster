@@ -19,12 +19,12 @@
 
 ## 4. Standalone Identity (from identity-standalone-service 6.1–6.3)
 
-- [ ] 4.1 The service starts, serves `fonoster.identity.v1beta2` on the configured port and reports healthy
-- [ ] 4.2 Allow-listed methods work without a token; other methods require a valid access token
-- [ ] 4.3 A fresh database is provisioned by the entrypoint, and sign-up → login → create-workspace succeeds
+- [x] 4.1 The service starts, serves `fonoster.identity.v1beta2` on the configured port and reports healthy
+- [x] 4.2 Allow-listed methods work without a token; other methods require a valid access token
+- [x] 4.3 A fresh database is provisioned by the entrypoint, and sign-up → login → create-workspace succeeds
 
 ## 5. Identity client (from identity-client 3.1–3.3)
 
-- [ ] 5.1 End-to-end: the client drives a standalone Identity service through sign-up → login → create/rename workspace → invite with per-request tokens
-- [ ] 5.2 Installing `@fonoster/identity-client` pulls neither Prisma nor any server or telephony runtime
-- [ ] 5.3 The client's proto matches `mods/common`'s canonical `identity.proto` in CI
+- [x] 5.1 End-to-end: the client drives a standalone Identity service through sign-up → login → create/rename workspace → invite with per-request tokens
+- [x] 5.2 Installing `@fonoster/identity-client` pulls neither Prisma nor any server or telephony runtime
+- [x] 5.3 The client's proto matches `mods/common`'s canonical `identity.proto` in CI
