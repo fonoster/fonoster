@@ -39,12 +39,9 @@ log() { printf '\033[1m[stack]\033[0m %s\n' "$*" >&2; }
 die() { printf '\033[31m[stack] %s\033[0m\n' "$*" >&2; exit 1; }
 rand() { openssl rand -hex "${1:-16}"; }
 # A 32-byte key in base64 without + or / (valid for both Cloak and the apiserver's check).
+# base64url of 32 random bytes, the format `npx @47ng/cloak generate` prints.
 cloak_key() {
-  local k
-  while :; do
-    k="$(openssl rand -base64 32)"
-    case "$k" in *+* | */*) ;; *) echo "$k"; return ;; esac
-  done
+  openssl rand -base64 32 | tr '+/' '-_'
 }
 
 load_env() {

@@ -76,7 +76,7 @@ function fakeSecretsDir() {
     "fonoster-db": {
       url: "postgresql://u:p@db:5432/fonoster",
       identityUrl: "postgresql://u:p@db:5432/fnidentity",
-      key: `k1.aesgcm256.${randomBytes(32).toString("base64")}`
+      key: `k1.aesgcm256.${randomBytes(32).toString("base64url")}=`
     },
     "fonoster-apiserver": { ownerPassword: "owner-pass" },
     "fonoster-autopilot": { secret: "ap-secret" },
