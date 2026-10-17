@@ -172,10 +172,10 @@ describe("@common[config/cli] fonoster-config", function () {
       for (const svc of ["APISERVER", "GATEWAY", "MEDIANODE", "ROUTR"])
         expect(env.get(`NATS_${svc}_PASSWORD`)).to.match(/^[a-z][0-9a-f]+$/);
       expect(env.get("ENCRYPTION_KEY")).to.match(
-        /^k1\.aesgcm256\.[A-Za-z0-9=]+$/
+        /^k1\.aesgcm256\.[A-Za-z0-9_-]{43}=$/
       );
       expect(
-        Buffer.from(env.get("ENCRYPTION_KEY")!.slice(13), "base64")
+        Buffer.from(env.get("ENCRYPTION_KEY")!.slice(13), "base64url")
       ).to.have.length(32);
       expect(env.get("HOST_IP")).to.equal("192.0.2.10");
 
@@ -648,7 +648,8 @@ describe("@common[config/cli] fonoster-config", function () {
     it("generates secrets only for secret names", function () {
       expect(generateSecret("SIP_PORT")).to.equal(undefined);
       expect(generateSecret("FOO_PASSWORD")).to.match(/^s[0-9a-f]{32}$/);
-      for (let i = 0; i < 50; i++) expect(encryptionKey()).to.not.match(/[+/]/);
+      for (let i = 0; i < 50; i++)
+        expect(encryptionKey()).to.match(/^k1\.aesgcm256\.[A-Za-z0-9_-]{43}=$/);
     });
 
     it("prints help and rejects unknown commands and options", async function () {

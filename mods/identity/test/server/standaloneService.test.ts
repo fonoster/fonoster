@@ -105,6 +105,11 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
 
     // Not allow-listed: no token, or one signed by another key, is unauthenticated.
     await rejectsWith(client.listWorkspaces(""), status.UNAUTHENTICATED);
+    // CreateWorkspace takes its owner from the token, so it isn't allow-listed.
+    await rejectsWith(
+      client.createWorkspace("No owner", ""),
+      status.UNAUTHENTICATED
+    );
     const { privateKey: otherKey } = generateKeyPairSync("rsa", {
       modulusLength: 2048,
       privateKeyEncoding: { type: "pkcs8", format: "pem" },

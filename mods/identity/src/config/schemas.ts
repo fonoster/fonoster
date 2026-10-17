@@ -45,15 +45,18 @@ const keysSchema = z
 
 /**
  * Key for the encrypted database fields (prisma-field-encryption / cloak):
- * `k1.aesgcm256.<base64 of 32 bytes>`. Generate one with
- * `npx @47ng/cloak generate`.
+ * `k1.aesgcm256.<base64url of 32 bytes>`. Generate one with
+ * `npx @47ng/cloak generate`. The pattern is cloak's own `cloakKeyRegex`
+ * (@47ng/cloak 1.x): base64url (`-` and `_`, never `+` or `/`), 43 characters,
+ * optional `=` padding. A key that fails it would crash at startup with
+ * "Unknown key format", so it is rejected here instead.
  */
-const encryptionKeySchema = z
-  .string()
-  .regex(/^k1\.aesgcm256\.[A-Za-z0-9+/]{43}=$/, {
-    message:
-      'must look like "k1.aesgcm256.<base64>"; generate one with `npx @47ng/cloak generate`'
-  });
+const CLOAK_KEY_REGEX = /^k1\.aesgcm256\.[A-Za-z0-9_-]{43}=?$/;
+
+const encryptionKeySchema = z.string().regex(CLOAK_KEY_REGEX, {
+  message:
+    'must look like "k1.aesgcm256.<43 base64url characters>" (A-Z a-z 0-9 - _, no + or /); generate one with `npx @47ng/cloak generate`'
+});
 
 /** Outgoing email. Optional: without it, anything that sends email fails clearly. */
 const smtpSchema = z.object({
