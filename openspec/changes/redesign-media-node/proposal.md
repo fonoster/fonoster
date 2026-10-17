@@ -59,20 +59,19 @@ package of the same name:
 
 | Candidate | Why | Conflict check |
 | --- | --- | --- |
-| **Tutti** | Italian for "all together": the moment every voice in the score plays at once, which is exactly what a mixer does. Two syllables, easy to say in any language, sits next to Routr and Fonoster's Romance-language root (fono). | No audio, telephony, npm or Go project of that name found; tutti.ch is a Swiss classifieds site, unrelated. |
+| Tutti | Italian for "all together": the moment every voice in the score plays at once, which is exactly what a mixer does. Two syllables, easy to say in any language, sits next to Routr and Fonoster's Romance-language root (fono). | No audio, telephony, npm or Go project of that name found; tutti.ch is a Swiss classifieds site, unrelated. |
 | Mixr | The obvious sibling of Routr (verb, dropped vowel). Says what it does. | `chris-mclennan/mixr` (a small Rust tool) and the defunct Microsoft "Mixer" streaming brand plus `@mixer/*` npm packages; reads as a label more than a name. |
 | Chorus | Many voices as one; memorable. | Crowded: Chorus.ai (ZoomInfo), Kodi's Chorus web UI, a Nostr relay named chorus, a VST effect. |
 | Timbre | The quality that makes a voice recognisable; audio-native. | npm `timbre` (archived JS audio library) and a Rust crate `timbre`; the npm name is taken. |
 | Mezzo | "Middle" in Italian: the thing in the middle of every call; mezzo-soprano gives it a voice. | Only a desktop music player of that name; no telephony or package conflict found. |
 | Rondo | A musical form whose theme keeps returning; short and warm. | No conflict found, but the meaning is loose for a mixer. |
 | Tessera | One tile of a mosaic: each node is a tile, many tiles make the picture. | No conflict found; less voice-related than the others. |
-| Roomr | Rooms are the core concept; Routr pattern. | Near-collisions (Roomler, roomor) and it sounds like "rumor". |
+| **Roomr** | Rooms are the core concept, and it follows the Routr pattern: Routr routes calls, Roomr hosts the rooms they meet in. | Near-collisions (Roomler, roomor) and it sounds like "rumor". |
 
-**Recommendation: Tutti.** It is the only candidate whose meaning is precisely the product (every
-voice together), it has no software conflict, and "Routr routes, Tutti mixes" explains the
-platform in four words. This change uses Tutti as the proposed product name in prose; the
-capability folders stay `media-node` and `media-control` and nothing in code is renamed until the
-name is approved.
+**Chosen: Roomr** (repository `fonoster/roomr`). The room is the node's central idea, and the name
+sits beside Routr as a pair: "Routr routes, Roomr hosts the room." The near-collisions found are
+small and unrelated to telephony. This change uses Roomr as the product name in prose; the
+capability folders stay `media-node` and `media-control` and nothing in code is renamed yet.
 
 ## Capabilities
 

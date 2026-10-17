@@ -15,7 +15,7 @@ least-loaded non-draining node from heartbeats and `placeOutboundCall` sends `ro
 `gateway.outbound` and `participant.dial` with `X-DOD-Number`. Most of the audio path survives
 unchanged; what changes is signaling, control and configuration.
 
-Proposed product name: **Tutti** (see proposal.md, "Naming"). This document says "the node".
+Product name: **Roomr** (see proposal.md, "Naming"). This document says "the node".
 
 ## Goals / Non-Goals
 
