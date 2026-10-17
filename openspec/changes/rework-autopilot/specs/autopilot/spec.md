@@ -177,6 +177,12 @@ and end the call after the configured maximum number of idle announcements.
 - **WHEN** Autopilot is speaking for longer than the idle timeout
 - **THEN** no idle message is sent until speech ends and the timeout elapses again
 
+#### Scenario: A turn with no words is not an answer
+
+- **WHEN** a turn ends with no words (line noise, an abandoned start) after an idle message
+- **THEN** Autopilot sends no reply, keeps its idle count, and still says goodbye and hangs up on
+  the next idle timeout
+
 ### Requirement: Optional filler while thinking
 
 When the assistant config sets a filler, Autopilot SHALL play it with `play` while it prepares a

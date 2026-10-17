@@ -84,9 +84,11 @@ export function createAutopilotHandler(options: AutopilotOptions) {
       deliver({ type: "TURN_LIKELY_ENDED", text: e.text })
     );
     session.on("turn.resumed", () => deliver({ type: "TURN_RESUMED" }));
-    session.on("turn.ended", (e) =>
-      deliver({ type: "TURN_ENDED", text: e.text })
-    );
+    // A turn with no words (line noise, an abandoned start) is not an answer: no reply, and the
+    // idle count is kept, so a silent call still ends.
+    session.on("turn.ended", (e) => {
+      if (e.text.trim()) deliver({ type: "TURN_ENDED", text: e.text });
+    });
     session.on("turn.backchannel", () => deliver({ type: "TURN_BACKCHANNEL" }));
     const ended = new Promise<void>((resolve) =>
       session.on("end", () => {

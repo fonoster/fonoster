@@ -1,0 +1,44 @@
+format: fonoster.scenario.v1
+name: idle-ignores-empty-turn
+contract: autopilot
+role: gateway
+spec: "Idle handling / A turn with no words is not an answer"
+setup:
+  assistant:
+    conversationSettings:
+      { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong.", idleOptions: { message: "Are you still there?", timeout: 300, maxTimeoutCount: 2 } }
+    languageModel: { model: fake/llm }
+steps:
+  - send:
+      type: session.start
+      protocol: fonoster.session.v1
+      sessionRef: sess-1
+      callRef: call-1
+      appRef: app-1
+      direction: inbound
+      from: "+15550001111"
+      to: "+15550002222"
+      metadata: {}
+      handoff: null
+      audio: { codec: pcm16, rate: 16000 }
+      tracks:
+        - { id: 1, side: inbound, kind: audio, codec: pcm16 }
+        - { id: 2, side: outbound, kind: audio, codec: pcm16 }
+      speech: { voice: fonoster/default, language: en-US }
+  - expect: { type: speak, text: "Are you still there?" }
+    capture: { iid: id }
+    within_ms: 1000
+  - send: { type: output.started, id: "${iid}" }
+  - send: { type: output.done, id: "${iid}" }
+  # Line noise starts a turn that ends with no words: no reply, and the idle count is kept.
+  - send: { type: turn.user_started }
+  - send: { type: turn.ended, text: "", language: en-US, confidence: 0, durationMs: 400, abandoned: true }
+  - expect_none: { type: speak, text: "Echo: " }
+    for_ms: 150
+  - expect: { type: speak, text: "Goodbye!" }
+    capture: { gid: id }
+    within_ms: 1000
+  - send: { type: output.started, id: "${gid}" }
+  - send: { type: output.done, id: "${gid}" }
+  - expect: { type: hangup }
+    within_ms: 1000
