@@ -213,6 +213,13 @@ class Run {
           throw new StepFailure("the harness cannot act as the caller");
         }
         return this.options.harness.caller(step.caller!);
+      case "control":
+        if (!this.options.harness?.control) {
+          throw new StepFailure("the harness has no control side");
+        }
+        return this.options.harness.control(
+          interpolate(step.control!, this.vars)
+        );
     }
   }
 

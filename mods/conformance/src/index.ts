@@ -41,3 +41,4 @@ export * from "./fakes/ProcessMediaNodeHarness";
 export * from "./fakes/MediaNodeProcess";
 export * from "./fakes/RealMediaHarness";
 export * from "./fakes/OtlpCollector";
+export * from "./runner/NatsRegionCellPeer";

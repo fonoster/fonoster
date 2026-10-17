@@ -4,7 +4,7 @@
 - [x] 1.2 Bus: registry survival and no audio on NATS (queue-group single claim and NATS permissions are already covered) (registry: `controlPlane.test.ts`; no audio: `mods/gateway/test/gonode.test.ts`)
 - [x] 1.3 Observability: OTLP from every service, `fonoster.call_ref` on every call signal, default profile end to end (gateway and media node on one real call: `mods/gateway/test/observability.test.ts`; apiserver: `mods/apiserver/test/core/telemetryInterceptor.test.ts`, with apiserver OTLP logs and call-ref spans pending as gaps; the Compose default profile is not testable because the bundle has no observability profile, see the spec mismatch in the PR; Helm's profile is checked by `deployment.test.ts`)
 - [x] 1.4 Deployment: nightly e2e on Compose and Helm, release gate, `.env` ignored, `secret://` resolution (`mods/conformance/test/deploymentRules.test.ts`: release gate, nothing published on merge, nightly Compose install and Helm lint/render, .env ignored outside development (the development case is pending on fix-config-and-placement-gaps), secret:// env/file/k8s through the gateway loader; `mods/conformance/test/medianode-secrets.test.ts`: the started Go node; chart configs with mounted Secrets stay in `deployment.test.ts`)
-- [ ] 1.5 Regions: cell registration with token, outbound-only leaf link with TLS, data and keys stay in the cell, control-plane outage behavior
+- [x] 1.5 Regions: cell registration with token, outbound-only leaf link with TLS, data and keys stay in the cell, control-plane outage behavior (`mods/conformance/test/regions.test.ts`: the real control plane, a real region hub and a real cell over a TLS leaf link. Pending: "only the spec's index fields cross", because the cell forwards the gateway's whole index entry, which also has caller and callee numbers, direction, end and failure reasons, SIP status and parts)
 
 ## 2. Conformance (from add-conformance-framework)
 
@@ -15,7 +15,7 @@
 
 ## 3. Private regions (from add-private-regions 1.3)
 
-- [ ] 3.1 Conformance scenarios for enrollment, revocation, relay and status (behavior is unit-tested)
+- [x] 3.1 Conformance scenarios for enrollment, revocation, relay and status (`scenarios/regions`, contract `regions`, role `region-cell`, run by `mods/conformance/test/regionsScenarios.test.ts`. "Offline after missed heartbeats" is not a scenario: it needs 2 minutes of silence)
 
 ## 4. Standalone Identity (from identity-standalone-service 6.1–6.3)
 

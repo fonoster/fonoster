@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+name: revocation-reenroll
+contract: regions
+role: region-cell
+spec: "Re-issuing a token or disconnecting revokes the cell / Re-enroll after losing the cell"
+description: >
+  The owner re-issues a token and a new cell enrolls with it: the old cell is told it is revoked and
+  only the new credentials stay live.
+steps:
+  - control: { op: enroll }
+  - expect: { type: region.enrollment, status: 200 }
+  - control: { op: reissue }
+  - control: { op: enroll, token: reissued }
+  - expect: { type: region.revoked, reason: { $re: ".+" } }
+  - assert: { liveCredentials: 1, revokedCredentials: 1 }

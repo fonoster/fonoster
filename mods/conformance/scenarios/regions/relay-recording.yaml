@@ -1,0 +1,25 @@
+format: fonoster.scenario.v1
+name: relay-recording
+contract: regions
+role: region-cell
+spec: "Private call content is relayed, never stored centrally / Listen to a private recording"
+description: >
+  A member plays a private call's recording: the control plane asks the cell over its link, naming
+  the user and the workspace, and streams the cell's chunks to the browser in order.
+ignore: [region.endpoints.request, region.secrets.needed]
+steps:
+  - control: { op: enroll }
+  - expect: { type: region.enrollment, status: 200 }
+  - control: { op: relay, callRef: call-1 }
+  - expect:
+      type: region.relay
+      op: record.part
+      callRef: call-1
+      part: recording
+      workspaceRef: "${workspace}"
+      userRef: { $re: ".+" }
+    capture: { relayId: id }
+  # Out of order on purpose: the control plane reorders by seq.
+  - send: { respond: true, type: region.relay.chunk, id: "${relayId}", seq: 1, last: true, contentType: audio/x-wav, data: "LWF1ZGlv" }
+  - send: { respond: true, type: region.relay.chunk, id: "${relayId}", seq: 0, last: false, contentType: audio/x-wav, data: "UklGRg==" }
+  - expect: { type: relay.result, status: 200, contentType: audio/x-wav, body: "RIFF-audio" }

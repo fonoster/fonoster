@@ -28,14 +28,16 @@
         "voice-sdk",
         "media-control",
         "autopilot",
-        "turn-taking"
+        "turn-taking",
+        "regions"
       ]
     },
     "role": {
       "enum": [
         "app",
         "gateway",
-        "media-control-client"
+        "media-control-client",
+        "region-cell"
       ],
       "description": "The side the runner plays. The implementation under test is the other side."
     },
@@ -446,6 +448,14 @@
             }
           }
         },
+        "control": {
+          "type": "object",
+          "required": ["op"],
+          "description": "The harness acts on the implementation under test through its management side (regions: enroll, reissue, disconnect, relay)",
+          "properties": {
+            "op": { "type": "string", "pattern": "^[a-z]+(-[a-z]+)*$" }
+          }
+        },
         "next": {
           "const": true,
           "description": "expect only: the match must be the next unconsumed JSON frame (no skipping)"
@@ -507,6 +517,11 @@
         {
           "required": [
             "caller"
+          ]
+        },
+        {
+          "required": [
+            "control"
           ]
         }
       ]

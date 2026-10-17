@@ -1,0 +1,10 @@
+format: fonoster.scenario.v1
+name: enrollment-expired-token
+contract: regions
+role: region-cell
+spec: "Enrollment uses a one-time token and issues the cell its own credentials / Expired token"
+description: A token issued more than 24 hours earlier is refused with token_expired.
+steps:
+  - control: { op: enroll, token: expired }
+  - expect: { type: region.enrollment, status: 410, error: token_expired }
+  - assert: { liveCredentials: 0 }
