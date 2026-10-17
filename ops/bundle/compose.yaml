@@ -67,7 +67,7 @@ services:
       retries: 10
 
   routr:
-    image: fonoster/routr-one:2.15.1
+    image: fonoster/routr-one:2.15.2
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
