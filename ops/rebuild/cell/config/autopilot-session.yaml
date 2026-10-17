@@ -8,5 +8,5 @@ workspaceSecrets:
   cellSecrets:
     file: /var/lib/fonoster-secrets/secrets.enc
     keyEnv: FONOSTER_REGION_SECRETS_KEY
-database: { urlEnv: APISERVER_DATABASE_URL }
+database: { url: "${APISERVER_DATABASE_URL}" }
 encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }

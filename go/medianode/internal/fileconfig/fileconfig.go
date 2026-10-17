@@ -20,8 +20,8 @@ import (
 // DefaultPath is where the bundle mounts the file.
 const DefaultPath = "/config/medianode.yaml"
 
-// File is medianode.yaml. Every key is optional; flags win over it, and it wins over the
-// deprecated MEDIANODE_* variables.
+// File is medianode.yaml. Every key is optional; flags win over it. MEDIANODE_* variables are not
+// read; reference one as a ${VAR} placeholder to use it.
 type File struct {
 	NodeID string `yaml:"nodeId"`
 	NATS   struct {

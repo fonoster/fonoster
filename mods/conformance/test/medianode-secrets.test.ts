@@ -151,4 +151,43 @@ describe("@conformance[deployment] secret:// in the started media node", functio
     expect(result.output).to.contain("secret://env/TEST_UNSET_NATS_PASSWORD");
     expect(result.output).to.not.contain("s3cr3t-value");
   });
+
+  // fix-config-and-placement-gaps: MEDIANODE_* variables are no longer a fallback for the file.
+  it("ignores MEDIANODE_* variables the file does not reference, naming them", async function () {
+    const file = path.join(dir, "no-env.yaml");
+    const sip = await freePort();
+    const closed = await freePort();
+    const write = (nodeId: string) =>
+      fs.writeFileSync(
+        file,
+        [
+          nodeId,
+          `nats: { url: "nats://127.0.0.1:${closed}" }`,
+          `sip: { listen: "127.0.0.1:${sip}", advertise: 127.0.0.1 }`,
+          "rtp: { host: 127.0.0.1, advertise: 127.0.0.1 }",
+          'registration: { password: "${MEDIANODE_PASSWORD:-}" }',
+          ""
+        ].join("\n")
+      );
+    const env = {
+      MEDIANODE_ID: "id-from-env",
+      MEDIANODE_PASSWORD: "referenced-secret",
+      MEDIANODE_MAX_PARTICIPANTS: "99"
+    };
+    write("");
+    const ignored = await runNode(bins!, file, env);
+    expect(ignored.code).to.equal(1);
+    expect(ignored.output).to.not.contain('"nodeId":"id-from-env"');
+    expect(ignored.output).to.match(
+      /no longer read.*"variables":"MEDIANODE_ID,MEDIANODE_MAX_PARTICIPANTS"/
+    );
+    expect(ignored.output).to.not.contain("referenced-secret");
+    // Referenced as a placeholder, the same variable is read.
+    write('nodeId: "${MEDIANODE_ID}"');
+    const referenced = await runNode(bins!, file, env);
+    expect(referenced.output).to.contain('"nodeId":"id-from-env"');
+    expect(referenced.output).to.match(
+      /"variables":"MEDIANODE_MAX_PARTICIPANTS"/
+    );
+  });
 });

@@ -25,8 +25,9 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 Each Fonoster service reads exactly one YAML file (mounted at `/config/<service>.yaml`) and never a
 `.env` file; secrets in it are `${NAME}` placeholders the container's environment fills (Compose
 passes `.env` with `env_file`). The media node reads `/config/medianode.yaml` (or `-config <file>`;
-see `ops/bundle/config/medianode.example.yaml`); flags win over it, and the `MEDIANODE_*`
-variables below still work as a deprecated fallback that logs a warning.
+see `ops/bundle/config/medianode.example.yaml`); flags win over it. It reads no `MEDIANODE_*`
+variables: a value from the environment goes in the file as a `${NAME}` placeholder, and a
+`MEDIANODE_*` variable the file does not reference is logged by name as ignored.
 
 ## Start
 
@@ -63,7 +64,7 @@ Set `COMPOSE_PROJECT_NAME` to run several stacks on one host.
 | 5060 | UDP/TCP | Routr | Carrier-facing SIP. |
 | 5060 | UDP/TCP | Media node | Internal SIP from Routr; do not expose to the internet. |
 | 10000-10100 | UDP | RTPEngine | Carrier-facing media (`RTPENGINE_PORT_MIN/MAX`). Size to your concurrent calls. |
-| 30000-30199 | UDP | Media node RTP | `MEDIANODE_RTP_PORT_MIN/MAX`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
+| 30000-30199 | UDP | Media node RTP | `rtp.portMin/portMax` in `medianode.yaml`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
 | 8080 | TCP | Gateway | Twilio-compatible Calls endpoint when `http` is set in `gateway.yaml`. |
 
 ### RTP ranges
@@ -71,22 +72,22 @@ Set `COMPOSE_PROJECT_NAME` to run several stacks on one host.
 The media node binds RTP sockets only inside `[rtp-port-min, rtp-port-max]` when both are set
 (unset means any ephemeral port, fine for tests only). When the range is exhausted the node refuses
 new legs rather than overrun it. Size the range at roughly two ports per concurrent call, then
-publish the same range on the container, pod (host network) or firewall. `MEDIANODE_RTP_ADVERTISE`
+publish the same range on the container, pod (host network) or firewall. `rtp.advertise`
 is the address that goes into SDP; it must be reachable from Routr and RTPEngine. Behind NAT, set
 it to the reachable address; on Kubernetes the chart defaults to the node's host IP.
 
 ## Encryption and mutual TLS toward the edge
 
-`MEDIANODE_REQUIRE_ENCRYPTION=true` makes the node serve SIP over TLS only and require SRTP on every
-leg (MN6); the TLS listener is `MEDIANODE_TLS_LISTEN` with `MEDIANODE_TLS_CERT` and
-`MEDIANODE_TLS_KEY`, and `MEDIANODE_TLS_CA` verifies Routr when the node dials or registers over TLS.
+`requireEncryption: true` in `medianode.yaml` makes the node serve SIP over TLS only and require
+SRTP on every leg (MN6); the TLS listener is `tls.listen` with `tls.cert` and `tls.key`, and
+`tls.ca` verifies Routr when the node dials or registers over TLS.
 
-**Mutual TLS** (add-platform 4.2): set `MEDIANODE_TLS_CLIENT_CA` to the CA that signs Routr's
+**Mutual TLS** (add-platform 4.2): set `tls.clientCa` to the CA that signs Routr's
 certificate and the TLS listener requires a client certificate signed by it from every connection
 (`RequireAndVerifyClientCert`); anything else fails the handshake before a SIP message is read. With
 a CA set, the node also presents its own certificate when it connects to Routr over TLS, so Routr
 can verify the node. Every PEM setting is a file path or a `secret://` reference whose value is the
-PEM. `MEDIANODE_TRUSTED_SOURCES` (RV-B7) stays on as an extra check. Off by default locally; the
+PEM. `trustedSources` (RV-B7) stays on as an extra check. Off by default locally; the
 chart's `medianode.tls` (`enabled`, `listen`, `secret` with `tls.crt`/`tls.key`/`ca.crt`, `mutual`)
 wires it on Kubernetes. Routr's side (a client certificate on its TLS transport) is Routr's config.
 
@@ -108,8 +109,7 @@ unchanged.
   `cell.env`; the chart from the Secret `nats.auth.secret` (keys `apiserver`, `gateway`,
   `medianode`, `routr`, `region-agent`).
 - **Service config**: `nats: { url, user, password }` in fonoster.yaml, gateway.yaml and
-  region-agent.yaml, with `password: secret://env/NATS_<SERVICE>_PASSWORD`; the media node takes
-  `MEDIANODE_NATS_USER` and `MEDIANODE_NATS_PASSWORD` (a `secret://` reference is fine). Routr's
+  region-agent.yaml and medianode.yaml, with `password: secret://env/NATS_<SERVICE>_PASSWORD`. Routr's
   user goes in its URL (`nats://routr:<password>@nats:4222`), so use hex passwords.
 - **Not covered yet**: every service may subscribe to `_INBOX.>` (replies), so a compromised
   service could read other services' replies; per-service inbox prefixes would close that.
@@ -124,13 +124,13 @@ Entries are leases: the bucket keeps a value 15 s after its last write, owners r
 2 to 5 s and delete them on a clean exit, so a crashed owner's entries expire on their own. The
 apiserver reads `nodes.` at start and follows it, so a restarted replica places outbound calls at
 once (it still listens to heartbeats). Without JetStream every service logs a warning and runs on
-heartbeats only; `MEDIANODE_SESSION_REGISTRY=false` turns the node's writes off.
+heartbeats only; `sessionRegistry: false` in `medianode.yaml` turns the node's writes off.
 
 ## Drain and rollout
 
 `SIGTERM` puts the node in drain: it reports itself full (no new rooms; the gateways stop placing
 calls on it), keeps existing rooms, and exits when the last room ends or `drain-wait` elapses
-(default 10 min, `MEDIANODE_DRAIN_WAIT` or `-drain-wait`), ending whatever is left. The container
+(default 10 min, `drainWait` or `-drain-wait`), ending whatever is left. The container
 runtime must wait at least that long:
 
 - Compose: `stop_grace_period` (`RB_DRAIN_GRACE`, default `10m`).
@@ -143,11 +143,11 @@ them one at a time (`gateway.podDisruptionBudget`) and give calls time via
 
 ## Limits
 
-| Setting | Default | Flag / env |
+| Setting | Default | Flag / `medianode.yaml` |
 | --- | --- | --- |
-| Longest call | 4 h | `-max-duration`, `MEDIANODE_MAX_DURATION` (per-app values can be lower) |
-| Participants per room | 10 | `-max-participants`, `MEDIANODE_MAX_PARTICIPANTS` |
-| Silent caller media timeout | 30 s | `-media-timeout`, `MEDIANODE_MEDIA_TIMEOUT` |
+| Longest call | 4 h | `-max-duration`, `maxDuration` (per-app values can be lower) |
+| Participants per room | 10 | `-max-participants`, `maxParticipants` |
+| Silent caller media timeout | 30 s | `-media-timeout`, `mediaTimeout` |
 | Heartbeat | 2 s | `-heartbeat` |
 | Call claim by a gateway | 500 ms, one retry, then 503 | fixed by the spec |
 

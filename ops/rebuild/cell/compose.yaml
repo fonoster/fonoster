@@ -117,26 +117,16 @@ services:
       nats: { condition: service_healthy }
     environment:
       <<: *otel
+      # The ${NAME}s in config/medianode.yaml.
       MEDIANODE_ID: ${RB_NODE_ID:-node-a}
-      MEDIANODE_NATS_URL: nats://nats:4222
-      MEDIANODE_NATS_USER: medianode
-      MEDIANODE_NATS_PASSWORD: secret://env/NATS_MEDIANODE_PASSWORD
       NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD}
-      MEDIANODE_SIP_LISTEN: 0.0.0.0:5060
-      MEDIANODE_SIP_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.17}.42}
-      MEDIANODE_RTP_HOST: 0.0.0.0
-      MEDIANODE_RTP_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.17}.42}
+      MEDIANODE_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.17}.42}
       MEDIANODE_RTP_PORT_MIN: ${RB_NODE_RTP_MIN:-30000}
       MEDIANODE_RTP_PORT_MAX: ${RB_NODE_RTP_MAX:-30199}
-      # The peer the region agent creates in this cell's Routr.
-      MEDIANODE_REGISTRAR: routr:5060
-      MEDIANODE_DOMAIN: default
-      MEDIANODE_USERNAME: medianode
       MEDIANODE_PASSWORD: ${RB_NODE_PASSWORD:?set RB_NODE_PASSWORD}
-      MEDIANODE_TRANSPORT: udp
-      MEDIANODE_REGISTER_EVERY: 15s
-      MEDIANODE_OUTBOUND_PROXY: routr:5060
-      MEDIANODE_TRUSTED_SOURCES: ${RB_NET:-10.216.17}.40
+      MEDIANODE_TRUSTED_SOURCE: ${RB_NET:-10.216.17}.40
+    volumes:
+      - ./config/medianode.yaml:/config/medianode.yaml:ro
     ports:
       - "${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}:${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}/udp"
     networks:

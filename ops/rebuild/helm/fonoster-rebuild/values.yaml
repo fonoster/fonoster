@@ -208,7 +208,7 @@ autopilot:
     assistants: { source: database }
     registry: { source: database }
     workspaceSecrets: { cellSecrets: { dir: /var/lib/fonoster-secrets } }
-    database: { urlEnv: APISERVER_DATABASE_URL }
+    database: { url: "${APISERVER_DATABASE_URL}" }
     encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
   # Secrets mounted for secret://k8s/<name>#<key> references in config.
   secretMounts: []
