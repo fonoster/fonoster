@@ -7,7 +7,7 @@ Each Fonoster service reads one file, mounted at `/config/<name>.yaml` in its co
 | API server (with Identity) | `fonoster.yaml` | Everything; secrets as `${NAME}` placeholders |
 | Voice gateway | `gateway.yaml` | `encryption.key` is the API server's key |
 | Autopilot | `autopilot.yaml` | One file for every replica |
-| Media node | `medianode.yaml` | Flags win over it; `MEDIANODE_*` variables are deprecated |
+| Media node | `medianode.yaml` | Flags win over it; `MEDIANODE_*` variables are not read |
 | Dashboard | `DASHBOARD_API_URL` | Everything else comes from the API server |
 
 The Compose stack is `ops/bundle/compose.yaml` (with the development layer
@@ -158,6 +158,26 @@ Variables not listed here (`ROUTR_*`, `RTPENGINE_*`, `POSTGRES_*`,
 The previous Autopilot engine and its `autopilot.yaml` are gone. The hosted engine reads
 `autopilot-session.yaml` (see `config/autopilot-session.example.yaml` and
 [docs/autopilot.md](./autopilot.md)); none of the `AUTOPILOT_*` variables carry over.
+Autopilot no longer falls back to `APISERVER_DATABASE_URL` and `database.urlEnv` is gone: write
+`database: { url: "${APISERVER_DATABASE_URL}" }`.
+
+### Media node → `medianode.yaml`
+
+The media node reads no `MEDIANODE_*` variables. Each one is a key (see
+`ops/bundle/config/medianode.example.yaml`); reference the variable as `${NAME}` to keep the value
+in the environment.
+
+| Variable | Key |
+|---|---|
+| `MEDIANODE_ID` | `nodeId` |
+| `MEDIANODE_NATS_URL / _NATS_USER / _NATS_PASSWORD` | `nats.url / user / password` |
+| `MEDIANODE_SIP_LISTEN / _SIP_ADVERTISE` | `sip.listen / advertise` |
+| `MEDIANODE_RTP_HOST / _RTP_ADVERTISE / _RTP_PORT_MIN / _RTP_PORT_MAX` | `rtp.host / advertise / portMin / portMax` |
+| `MEDIANODE_REGISTRAR / _DOMAIN / _USERNAME / _PASSWORD / _TRANSPORT / _REGISTER_EVERY` | `registration.registrar / domain / username / password / transport / every` |
+| `MEDIANODE_OUTBOUND_PROXY / _OUTBOUND_TRANSPORT` | `outboundProxy / outboundTransport` |
+| `MEDIANODE_TLS_LISTEN / _TLS_CERT / _TLS_KEY / _TLS_CA / _TLS_CLIENT_CA` | `tls.listen / cert / key / ca / clientCa` |
+| `MEDIANODE_DEBUG_ADDR / _DRAIN_WAIT / _MAX_DURATION / _MAX_PARTICIPANTS / _MEDIA_TIMEOUT` | `debugAddr / drainWait / maxDuration / maxParticipants / mediaTimeout` |
+| `MEDIANODE_SESSION_REGISTRY / _REQUIRE_ENCRYPTION / _TRUSTED_SOURCES` | `sessionRegistry / requireEncryption / trustedSources (a list)` |
 
 ### Easy to get wrong
 

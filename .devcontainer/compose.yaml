@@ -21,6 +21,9 @@ services:
     # Built from ./Dockerfile by initialize.sh (before the containers start).
     image: fonoster-dev-workspace
     pull_policy: never
+    # A real PID 1 (tini) reaps exited processes. Without it, `sleep infinity` is PID 1 and
+    # zombies from test runs and `docker exec` sessions pile up for the container's lifetime.
+    init: true
     command: sleep infinity
     volumes:
       - ..:/workspaces/fonoster:cached

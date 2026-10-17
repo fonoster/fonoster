@@ -145,21 +145,26 @@ function runNode(script: string, cwd: string, env: NodeJS.ProcessEnv) {
 describe("@conformance[deployment] no .env, secret:// references", function () {
   this.timeout(60000);
 
-  // The only source files that read a .env themselves. Both load the repository's .env in
-  // development only; fix-config-and-placement-gaps tracks removing them.
-  it("reads no .env file in any Fonoster service except the known development loaders", function () {
-    const out = execFileSync(
-      "git",
-      ["grep", "-l", "dotenv", "--", "mods/*/src/**", "go/**"],
-      { cwd: ROOT, encoding: "utf8" }
-    )
-      .trim()
-      .split("\n")
-      .filter((f) => f && !f.startsWith("mods/dashboard/"));
-    expect(out.sort()).to.deep.equal([
-      "mods/amd/src/envs.ts",
-      "mods/common/src/envs.ts"
-    ]);
+  // No Fonoster service loads a .env itself, in development either
+  // (fix-config-and-placement-gaps removed the last two loaders, in mods/common and mods/amd).
+  it("reads no .env file in any Fonoster service", function () {
+    let out = "";
+    try {
+      out = execFileSync(
+        "git",
+        ["grep", "-l", "dotenv", "--", "mods/*/src/**", "go/**"],
+        { cwd: ROOT, encoding: "utf8" }
+      );
+    } catch (e) {
+      // git grep exits 1 when nothing matches.
+      if ((e as { status?: number }).status !== 1) throw e;
+    }
+    expect(
+      out
+        .trim()
+        .split("\n")
+        .filter((f) => f && !f.startsWith("mods/dashboard/"))
+    ).to.deep.equal([]);
   });
 
   it("uses the YAML value when a .env in the working directory sets it differently", function () {
@@ -193,9 +198,28 @@ describe("@conformance[deployment] no .env, secret:// references", function () {
     ]);
   });
 
-  // mods/common/src/envs.ts loads the repository's .env when NODE_ENV=development
-  // (fix-config-and-placement-gaps).
-  it("ignores a .env in development too");
+  // mods/common and mods/amd used to load the repository's .env when NODE_ENV=development.
+  it("ignores a .env in development too", function () {
+    const dotenv = path.join(ROOT, ".env");
+    // Never overwrite a developer's own file.
+    if (fs.existsSync(dotenv)) return this.skip();
+    fs.writeFileSync(
+      dotenv,
+      "APISERVER_ROOT_DOMAIN=from-dotenv.example\nROOT_DOMAIN=from-dotenv.example\nAMD_PROBE_MS=1234\nNATS_GATEWAY_PASSWORD=from-dotenv\n"
+    );
+    try {
+      const common = path.join(ROOT, "mods", "common", "src", "envs.ts");
+      const amd = path.join(ROOT, "mods", "amd", "src", "envs.ts");
+      const out = runNode(
+        `const c = require(${JSON.stringify(common)}); const a = require(${JSON.stringify(amd)}); console.log(JSON.stringify([c.getRootDomain(), a.PROBE_MS, process.env.NATS_GATEWAY_PASSWORD ?? null]))`,
+        ROOT,
+        { NODE_ENV: "development" }
+      );
+      expect(JSON.parse(out)).to.deep.equal(["fonoster.local", 3000, null]);
+    } finally {
+      fs.rmSync(dotenv, { force: true });
+    }
+  });
 
   it("resolves secret://env, secret://file and secret://k8s in the gateway's config", function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "secret-refs-"));

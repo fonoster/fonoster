@@ -113,11 +113,13 @@ export const hostedConfigSchema = z
           .strict()
       ])
       .optional(),
-    /** The control-plane database (the apiserver's), for any `source: database`. */
+    /**
+     * The control-plane database (the apiserver's), for any `source: database`. The URL comes
+     * from this file only, usually as a placeholder: `url: "${APISERVER_DATABASE_URL}"`.
+     */
     database: z
       .object({
-        url: z.string().optional(),
-        urlEnv: z.string().default("APISERVER_DATABASE_URL"),
+        url: z.string().min(1),
         /** A client generated from the apiserver schema (default `@prisma/client`). */
         clientModule: z.string().optional()
       })
@@ -184,7 +186,11 @@ export function loadHostedConfig(
     schema: hostedConfigSchema,
     argv: ["--config", file],
     env,
-    interpolatePaths: ["*"]
+    interpolatePaths: ["*"],
+    // The URL no longer falls back to APISERVER_DATABASE_URL (fix-config-and-placement-gaps).
+    movedKeys: {
+      "database.urlEnv": 'database.url ("${APISERVER_DATABASE_URL}")'
+    }
   });
   const dir = path.dirname(file);
   const rel = (p: string) => (path.isAbsolute(p) ? p : path.join(dir, p));
@@ -377,10 +383,8 @@ function defaultKnowledgeBase(params: Record<string, unknown>) {
 /** Opens the control-plane database named in the config (once). */
 function databaseOf(config: HostedConfig) {
   const d = config.database!;
-  const url = d.url ?? process.env[d.urlEnv];
-  if (!url) throw new Error(`database: set url or ${d.urlEnv}`);
   return Registry.openPrismaClient({
-    url,
+    url: d.url,
     encryptionKey: config.encryption?.key,
     clientModule: d.clientModule
   });

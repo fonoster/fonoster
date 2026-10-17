@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"flag"
@@ -12,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -28,53 +30,52 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// legacyEnv lists the deprecated MEDIANODE_* variables that supplied a value (logged once).
-var legacyEnv []string
+// The helpers below give a flag its default: the config file's value, else def. Flags still win
+// over both. The node reads no MEDIANODE_* variables (fix-config-and-placement-gaps); a value
+// from the environment must be written in the file as a ${VAR} placeholder.
 
-// env is a setting's default: the config file's value, else the deprecated MEDIANODE_* variable,
-// else def. Flags still win over both.
-func env(file, name, def string) string {
+func or(file, def string) string {
 	if file != "" {
 		return file
 	}
-	if v := os.Getenv(name); v != "" {
-		legacyEnv = append(legacyEnv, name)
-		return v
-	}
 	return def
 }
 
-func envInt(file int, name string, def int) int {
+func orInt(file, def int) int {
 	if file != 0 {
 		return file
 	}
-	if v, err := strconv.Atoi(os.Getenv(name)); err == nil {
-		legacyEnv = append(legacyEnv, name)
-		return v
-	}
 	return def
 }
 
-func envDuration(file, name string, def time.Duration) time.Duration {
+func orDuration(file string, def time.Duration) time.Duration {
 	if d, err := time.ParseDuration(file); err == nil {
 		return d
 	}
-	if d, err := time.ParseDuration(os.Getenv(name)); err == nil {
-		legacyEnv = append(legacyEnv, name)
-		return d
+	return def
+}
+
+func orBool(file *bool, def bool) bool {
+	if file != nil {
+		return *file
 	}
 	return def
 }
 
-func envBool(file *bool, name string, def bool) bool {
-	if file != nil {
-		return *file
+// ignoredEnv lists the MEDIANODE_* variables in environ that refs (the config file and the
+// command line) reference neither as a ${VAR} placeholder nor as secret://env/VAR: values an older
+// deployment still sets but the node no longer reads.
+func ignoredEnv(environ []string, refs []byte) []string {
+	var names []string
+	for _, kv := range environ {
+		name, _, _ := strings.Cut(kv, "=")
+		if strings.HasPrefix(name, "MEDIANODE_") && !bytes.Contains(refs, []byte("${"+name)) &&
+			!bytes.Contains(refs, []byte(secretref.Prefix+"env/"+name)) {
+			names = append(names, name)
+		}
 	}
-	if v := os.Getenv(name); v != "" {
-		legacyEnv = append(legacyEnv, name)
-		return v == "true"
-	}
-	return def
+	sort.Strings(names)
+	return names
 }
 
 // loadFile reads -config, else /config/medianode.yaml when it exists (unify-config-placeholders).
@@ -98,45 +99,44 @@ func main() {
 	hostname, _ := os.Hostname()
 	fc, configPath := loadFile()
 	flag.String("config", fileconfig.DefaultPath, "the config file (YAML or JSON; ${VAR} placeholders from the environment)")
-	nodeID := flag.String("node-id", env(fc.NodeID, "MEDIANODE_ID", hostname), "node id used in media-control subjects")
-	natsURL := flag.String("nats", env(fc.NATS.URL, "MEDIANODE_NATS_URL", nats.DefaultURL), "NATS URL")
-	sipListen := flag.String("sip", env(fc.SIP.Listen, "MEDIANODE_SIP_LISTEN", "0.0.0.0:5060"), "SIP listen address (UDP and TCP)")
-	sipAdvertise := flag.String("sip-advertise", env(fc.SIP.Advertise, "MEDIANODE_SIP_ADVERTISE", "127.0.0.1"), "host in Contact headers")
-	rtpHost := flag.String("rtp", env(fc.RTP.Host, "MEDIANODE_RTP_HOST", "0.0.0.0"), "address RTP sockets bind to")
-	rtpAdvertise := flag.String("rtp-advertise", env(fc.RTP.Advertise, "MEDIANODE_RTP_ADVERTISE", "127.0.0.1"), "address in SDP and rtp blocks")
-	rtpMin := flag.Int("rtp-port-min", envInt(fc.RTP.PortMin, "MEDIANODE_RTP_PORT_MIN", 0), "lowest RTP port (0 with -rtp-port-max 0: any port)")
-	rtpMax := flag.Int("rtp-port-max", envInt(fc.RTP.PortMax, "MEDIANODE_RTP_PORT_MAX", 0), "highest RTP port; publish exactly [min,max]/udp")
-	registrar := flag.String("registrar", env(fc.Registration.Registrar, "MEDIANODE_REGISTRAR", ""), "Routr host:port; empty disables REGISTER")
-	domain := flag.String("domain", env(fc.Registration.Domain, "MEDIANODE_DOMAIN", ""), "registration domain")
-	username := flag.String("username", env(fc.Registration.Username, "MEDIANODE_USERNAME", "medianode"), "peer username at Routr")
-	password := flag.String("password", env(fc.Registration.Password, "MEDIANODE_PASSWORD", ""), "peer password at Routr")
-	outbound := flag.String("outbound-proxy", env(fc.OutboundProxy, "MEDIANODE_OUTBOUND_PROXY", ""), "host:port outbound INVITEs go to (Routr); empty disables dial and transfers")
-	transport := flag.String("transport", env(fc.Registration.Transport, "MEDIANODE_TRANSPORT", "udp"), "REGISTER transport (udp or tcp)")
+	nodeID := flag.String("node-id", or(fc.NodeID, hostname), "node id used in media-control subjects")
+	natsURL := flag.String("nats", or(fc.NATS.URL, nats.DefaultURL), "NATS URL")
+	sipListen := flag.String("sip", or(fc.SIP.Listen, "0.0.0.0:5060"), "SIP listen address (UDP and TCP)")
+	sipAdvertise := flag.String("sip-advertise", or(fc.SIP.Advertise, "127.0.0.1"), "host in Contact headers")
+	rtpHost := flag.String("rtp", or(fc.RTP.Host, "0.0.0.0"), "address RTP sockets bind to")
+	rtpAdvertise := flag.String("rtp-advertise", or(fc.RTP.Advertise, "127.0.0.1"), "address in SDP and rtp blocks")
+	rtpMin := flag.Int("rtp-port-min", orInt(fc.RTP.PortMin, 0), "lowest RTP port (0 with -rtp-port-max 0: any port)")
+	rtpMax := flag.Int("rtp-port-max", orInt(fc.RTP.PortMax, 0), "highest RTP port; publish exactly [min,max]/udp")
+	registrar := flag.String("registrar", or(fc.Registration.Registrar, ""), "Routr host:port; empty disables REGISTER")
+	domain := flag.String("domain", or(fc.Registration.Domain, ""), "registration domain")
+	username := flag.String("username", or(fc.Registration.Username, "medianode"), "peer username at Routr")
+	password := flag.String("password", or(fc.Registration.Password, ""), "peer password at Routr")
+	outbound := flag.String("outbound-proxy", or(fc.OutboundProxy, ""), "host:port outbound INVITEs go to (Routr); empty disables dial and transfers")
+	transport := flag.String("transport", or(fc.Registration.Transport, "udp"), "REGISTER transport (udp or tcp)")
 	heartbeat := flag.Duration("heartbeat", 2*time.Second, "node.heartbeat period")
-	registerEvery := flag.Duration("register-every", envDuration(fc.Registration.Every, "MEDIANODE_REGISTER_EVERY", 15*time.Second), "REGISTER interval (Expires is twice this); load changes of 5+ rooms re-register at once")
-	debugAddr := flag.String("debug", env(fc.DebugAddr, "MEDIANODE_DEBUG_ADDR", ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
-	drainWait := flag.Duration("drain-wait", envDuration(fc.DrainWait, "MEDIANODE_DRAIN_WAIT", 10*time.Minute), "longest wait for rooms to end on SIGTERM")
-	maxDuration := flag.Duration("max-duration", envDuration(fc.MaxDuration, "MEDIANODE_MAX_DURATION", 4*time.Hour), "longest call (ended with reason timeout); apps can lower it per call")
-	maxParticipants := flag.Int("max-participants", envInt(fc.MaxParticipants, "MEDIANODE_MAX_PARTICIPANTS", 10), "participants per room (room_full beyond it)")
-	// No MEDIANODE_* variable for this one: new settings come from the file only.
+	registerEvery := flag.Duration("register-every", orDuration(fc.Registration.Every, 15*time.Second), "REGISTER interval (Expires is twice this); load changes of 5+ rooms re-register at once")
+	debugAddr := flag.String("debug", or(fc.DebugAddr, ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
+	drainWait := flag.Duration("drain-wait", orDuration(fc.DrainWait, 10*time.Minute), "longest wait for rooms to end on SIGTERM")
+	maxDuration := flag.Duration("max-duration", orDuration(fc.MaxDuration, 4*time.Hour), "longest call (ended with reason timeout); apps can lower it per call")
+	maxParticipants := flag.Int("max-participants", orInt(fc.MaxParticipants, 10), "participants per room (room_full beyond it)")
 	maxRoomsDefault := fc.MaxRooms
 	if maxRoomsDefault <= 0 {
 		maxRoomsDefault = node.DefaultMaxRooms
 	}
 	maxRooms := flag.Int("max-rooms", maxRoomsDefault, "rooms the node holds at once; room.create and INVITEs beyond it are refused (at_capacity)")
-	mediaTimeout := flag.Duration("media-timeout", envDuration(fc.MediaTimeout, "MEDIANODE_MEDIA_TIMEOUT", 30*time.Second), "end an answered call with no caller RTP for this long")
-	tlsListen := flag.String("tls", env(fc.TLS.Listen, "MEDIANODE_TLS_LISTEN", ""), "SIP-over-TLS listen address; empty disables TLS")
-	tlsCert := flag.String("tls-cert", env(fc.TLS.Cert, "MEDIANODE_TLS_CERT", ""), "PEM certificate for the TLS listener")
-	tlsKey := flag.String("tls-key", env(fc.TLS.Key, "MEDIANODE_TLS_KEY", ""), "PEM key for the TLS listener")
-	tlsCA := flag.String("tls-ca", env(fc.TLS.CA, "MEDIANODE_TLS_CA", ""), "PEM CA that signs the edge's certificate (dialing and registering over TLS)")
-	tlsClientCA := flag.String("tls-client-ca", env(fc.TLS.ClientCA, "MEDIANODE_TLS_CLIENT_CA", ""), "PEM CA for mutual TLS: the TLS listener requires a client certificate it signed (the edge's); empty: no client certificates")
-	sessionRegistry := flag.Bool("session-registry", envBool(fc.SessionRegistry, "MEDIANODE_SESSION_REGISTRY", true), "write nodes.<id> and rooms.<ref> to the session registry (JetStream KV); off or unavailable keeps heartbeats only")
-	natsUser := flag.String("nats-user", env(fc.NATS.User, "MEDIANODE_NATS_USER", ""), "NATS user (per-service users, add-platform 4.1); empty connects without one")
-	natsPassword := flag.String("nats-password", env(fc.NATS.Password, "MEDIANODE_NATS_PASSWORD", ""), "NATS password (or a secret:// reference)")
-	requireEnc := flag.Bool("require-encryption", envBool(fc.RequireEncryption, "MEDIANODE_REQUIRE_ENCRYPTION", false), "SIP over TLS only and SRTP on every leg (MN6)")
+	mediaTimeout := flag.Duration("media-timeout", orDuration(fc.MediaTimeout, 30*time.Second), "end an answered call with no caller RTP for this long")
+	tlsListen := flag.String("tls", or(fc.TLS.Listen, ""), "SIP-over-TLS listen address; empty disables TLS")
+	tlsCert := flag.String("tls-cert", or(fc.TLS.Cert, ""), "PEM certificate for the TLS listener")
+	tlsKey := flag.String("tls-key", or(fc.TLS.Key, ""), "PEM key for the TLS listener")
+	tlsCA := flag.String("tls-ca", or(fc.TLS.CA, ""), "PEM CA that signs the edge's certificate (dialing and registering over TLS)")
+	tlsClientCA := flag.String("tls-client-ca", or(fc.TLS.ClientCA, ""), "PEM CA for mutual TLS: the TLS listener requires a client certificate it signed (the edge's); empty: no client certificates")
+	sessionRegistry := flag.Bool("session-registry", orBool(fc.SessionRegistry, true), "write nodes.<id> and rooms.<ref> to the session registry (JetStream KV); off or unavailable keeps heartbeats only")
+	natsUser := flag.String("nats-user", or(fc.NATS.User, ""), "NATS user (per-service users, add-platform 4.1); empty connects without one")
+	natsPassword := flag.String("nats-password", or(fc.NATS.Password, ""), "NATS password (or a secret:// reference)")
+	requireEnc := flag.Bool("require-encryption", orBool(fc.RequireEncryption, false), "SIP over TLS only and SRTP on every leg (MN6)")
 	reregisterDelta := flag.Int("reregister-delta", 5, "re-register at once when the room count moves by this much")
-	outboundTransport := flag.String("outbound-transport", env(fc.OutboundTransport, "MEDIANODE_OUTBOUND_TRANSPORT", "udp"), "transport to the outbound proxy (udp, tcp, tls)")
-	trustedSources := flag.String("trusted-sources", env(strings.Join(fc.TrustedSources, ","), "MEDIANODE_TRUSTED_SOURCES", ""), "comma-separated IPs, CIDRs or host names allowed to send INVITEs (the edge, Routr); empty accepts any source")
+	outboundTransport := flag.String("outbound-transport", or(fc.OutboundTransport, "udp"), "transport to the outbound proxy (udp, tcp, tls)")
+	trustedSources := flag.String("trusted-sources", or(strings.Join(fc.TrustedSources, ","), ""), "comma-separated IPs, CIDRs or host names allowed to send INVITEs (the edge, Routr); empty accepts any source")
 	flag.Parse()
 	if *rtpMax != 0 {
 		if *rtpMin <= 0 || *rtpMin > *rtpMax {
@@ -158,11 +158,15 @@ func main() {
 	}
 	defer func() { _ = shutdownOtel(context.Background()) }()
 	logger := slog.New(telemetry.Tee(slog.NewJSONHandler(os.Stderr, nil), otelLogs)).With("nodeId", *nodeID)
+	refs := []byte(strings.Join(os.Args[1:], " "))
 	if configPath != "" {
 		logger.Info("loaded config", "path", configPath)
+		text, _ := os.ReadFile(configPath)
+		refs = append(refs, text...)
 	}
-	if len(legacyEnv) > 0 {
-		logger.Warn("deprecated MEDIANODE_* variables used; move them to "+fileconfig.DefaultPath, "variables", strings.Join(legacyEnv, ","))
+	if ignored := ignoredEnv(os.Environ(), refs); len(ignored) > 0 {
+		// Names only, never values.
+		logger.Warn("MEDIANODE_* variables are no longer read; set the values in "+fileconfig.DefaultPath+" or as flags", "variables", strings.Join(ignored, ","))
 	}
 	natsOpts := []nats.Option{nats.Name("medianode-" + *nodeID)}
 	if *natsUser != "" {

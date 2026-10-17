@@ -1,0 +1,22 @@
+# medianode.yaml: the cell's media node (one YAML, flags win; it reads no MEDIANODE_* variables of
+# its own). Each ${NAME} is filled from the container environment compose.yaml sets.
+nodeId: "${MEDIANODE_ID:-node-a}"
+nats: { url: "nats://nats:4222", user: medianode, password: "secret://env/NATS_MEDIANODE_PASSWORD" }
+sip: { listen: "0.0.0.0:5060", advertise: "${MEDIANODE_ADVERTISE}" }
+rtp:
+  host: 0.0.0.0
+  advertise: "${MEDIANODE_ADVERTISE}"
+  portMin: "${MEDIANODE_RTP_PORT_MIN}"
+  portMax: "${MEDIANODE_RTP_PORT_MAX}"
+# The peer the region agent creates in this cell's Routr.
+registration:
+  registrar: routr:5060
+  domain: default
+  username: medianode
+  password: "${MEDIANODE_PASSWORD}"
+  transport: udp
+  every: 15s
+outboundProxy: routr:5060
+# INVITEs only from the cell's Routr.
+trustedSources: ["${MEDIANODE_TRUSTED_SOURCE}"]
+telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }

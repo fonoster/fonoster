@@ -16,13 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { join } from "path";
-import dotenv from "dotenv";
-
-if (process.env.NODE_ENV === "development") {
-  dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
-}
-
+// The sidecar's settings come from its container environment (AMD_*), which
+// the deployment sets. It never loads a .env file, not even in development
+// (fix-config-and-placement-gaps).
 const e = process.env;
 
 // A malformed AMD_* number must not silently break the probe (NaN

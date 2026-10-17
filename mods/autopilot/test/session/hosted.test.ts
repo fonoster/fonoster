@@ -511,6 +511,34 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
       cacheMs: 5000
     });
   });
+
+  it("reads the database URL from the file only, never APISERVER_DATABASE_URL by itself", function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ap-db-url-"));
+    const file = path.join(dir, "autopilot.yaml");
+    const base =
+      "signingSecret: { value: s }\nassistants: { source: database }\nregistry: { file: r.json }\n";
+    const env = { APISERVER_DATABASE_URL: "postgres://from-env/fonoster" };
+    // No url: the variable is not a fallback.
+    fs.writeFileSync(file, base + "database: {}\n");
+    expect(() => loadHostedConfig(file, env)).to.throw(/database\.url/);
+    // The old key names the new one.
+    fs.writeFileSync(
+      file,
+      base + "database: { urlEnv: APISERVER_DATABASE_URL }\n"
+    );
+    expect(() => loadHostedConfig(file, env)).to.throw(
+      /"database\.urlEnv" moved to "database\.url/
+    );
+    // A placeholder in the file still reads it.
+    fs.writeFileSync(
+      file,
+      base + 'database: { url: "${APISERVER_DATABASE_URL}" }\n'
+    );
+    expect(loadHostedConfig(file, env).database!.url).to.equal(
+      "postgres://from-env/fonoster"
+    );
+    expect(() => loadHostedConfig(file, {})).to.throw(/APISERVER_DATABASE_URL/);
+  });
 });
 
 describe("@autopilot/session cell secrets (add-private-regions PR-9)", function () {
