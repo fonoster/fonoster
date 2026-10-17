@@ -73,6 +73,20 @@ jobs:
     needs: changes
     if: needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    # The database tests (standalone Identity, persistence) make their own throwaway databases
+    # on this server, as they do on the dev container's (PERSISTENCE_TEST_DATABASE_URL).
+    services:
+      postgres:
+        image: postgres:16.10-alpine3.22
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,6 +104,8 @@ jobs:
 
       # Everything that needs no NATS; the NATS suites are in conformance.yaml.
       - name: Unit tests
+        env:
+          PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
         run: npm test
 
   go:
