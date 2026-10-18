@@ -148,7 +148,13 @@ through the control plane, which SHALL fetch them from the cell over the existin
 stream them to the browser without writing them to storage. The control plane SHALL check the
 user's access first; the cell SHALL audit each read. The control plane SHALL hold only the call's
 metadata (the index entry, as listed in regions); the content SHALL cross the link only as replies
-to a read of one record.
+to a read of one record. At most 8 reads SHALL be relayed from one region at once across every
+control-plane replica (the slots are leases in the database); more answer HTTP 429.
+
+#### Scenario: Relay limit across replicas
+- **WHEN** three control-plane replicas get 24 concurrent downloads from one region
+- **THEN** at most 8 are relayed and the rest answer `rate_limited`; a slot of a replica that died
+  frees itself when its lease runs out
 
 #### Scenario: Listen to a private recording
 - **WHEN** a member opens a call of a private workspace and plays its recording
@@ -186,6 +192,11 @@ workspace missing from a snapshot SHALL be removed from the region.
 #### Scenario: App change reaches the cell
 - **WHEN** a member edits an app of a private workspace
 - **THEN** the cell receives the change within 10 seconds while connected, or on reconnect otherwise
+
+#### Scenario: Replica dies inside the debounce window
+- **WHEN** the replica that took a config change is killed before its debounced publish
+- **THEN** the change is already marked on the region row, and another replica publishes a higher
+  `configVersion` carrying it within 10 seconds
 
 #### Scenario: Workspace deleted
 - **WHEN** the owner deletes "Acme Labs" from region `acme-hq`

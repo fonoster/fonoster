@@ -84,6 +84,20 @@ failed. Every retry of an event MUST carry the same `id`.
 - **AND** the delivery is marked successful after the third attempt
 - **AND** the gaps between attempts grow
 
+#### Scenario: A replica dies holding an event
+
+- **WHEN** the control-plane replica that took an event from `webhooks.events` dies before storing
+  its deliveries
+- **THEN** another replica gets the event (a JetStream durable consumer acknowledged only after the
+  deliveries are stored) and each subscribed endpoint receives it once (a delivery's id derives
+  from the event and the endpoint, so a redelivered event makes no second delivery)
+
+#### Scenario: A new endpoint counts at once
+
+- **WHEN** an endpoint is created through one replica and an event for its workspace is fanned out
+  by another within 1 second
+- **THEN** the endpoint receives it; an endpoint deleted a moment earlier does not
+
 #### Scenario: Endpoint stays down
 
 - **WHEN** an endpoint fails every attempt until the retry period ends

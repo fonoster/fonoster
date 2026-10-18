@@ -249,13 +249,19 @@ refresh.
 `SendResetPasswordCode` SHALL link to Identity's configured reset page (`<appUrl>/reset-password`)
 and SHALL ignore any URL in the request. `SendResetPasswordCode` (3 per email, 20 per IP per 10
 minutes) and `ResetPassword` (10 per email, 30 per IP per 10 minutes) SHALL be rate limited, with
-`RESOURCE_EXHAUSTED`, counted the same for unknown emails. Limits are kept in each process's
-memory, so with several replicas each enforces its own.
+`RESOURCE_EXHAUSTED`, counted the same for unknown emails. Limits (these and the verification-code
+sends) SHALL be counted in the Identity database, so they hold across replicas and restarts.
 
 #### Scenario: Requester-supplied URL
 
 - **WHEN** a reset is requested with `resetPasswordUrl` set to another site
 - **THEN** the emailed link points at `<appUrl>/reset-password?token=…`
+
+#### Scenario: Limits across replicas
+
+- **WHEN** reset emails for one address are requested round robin from two replicas, one of which
+  restarts
+- **THEN** the fourth request within 10 minutes fails with `RESOURCE_EXHAUSTED`
 
 #### Scenario: Too many requests
 

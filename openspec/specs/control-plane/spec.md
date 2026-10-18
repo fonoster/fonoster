@@ -105,6 +105,13 @@ over NATS.
 - **THEN** each event is processed by exactly one replica
 - **AND** exactly one `call.ended` webhook is attempted per subscribed workspace
 
+#### Scenario: One CDR series per call
+
+- **WHEN** three apiserver replicas consume Routr's `routr.call.*` events (queue group
+  `apiserver-cdr`) for one SIP-originated call, and the replicas restart mid-call
+- **THEN** the call has exactly one CDR series with one ref: a SIP call's ref derives from Routr's
+  call id, and an API call's ref is kept per call id in the KV bucket `fonoster_call_refs` (24 h)
+
 #### Scenario: Registry survives a replica restart
 - **WHEN** an apiserver replica restarts during 50 active calls
 - **THEN** all 50 entries are still present in the session registry with their node and room refs
