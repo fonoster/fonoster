@@ -194,6 +194,12 @@ roomr:
     # Name of a Secret with key `password` (the peer password at Routr).
     passwordSecret: roomr-peer
     outboundProxy: routr:5060
+  # Roomr (gRPC): the apiserver places outbound calls on <sip.advertise>:<port> (CreateCall).
+  # Plaintext; keep the port reachable from the apiserver only.
+  controlPort: 50061
+  # The header that carries a call's ref: Routr's X-Call-Ref names inbound calls, and the
+  # apiserver sends it on the calls it places.
+  callRefHeader: X-Call-Ref
   # IPs, CIDRs or host names allowed to send INVITEs: Routr's addresses. The node trusts
   # X-App-Ref, X-Call-Ref and X-Call-Direction only from these (RV-B7); with hostNetwork, port
   # 5060 is reachable on the node's address. The default keeps the private ranges only (no

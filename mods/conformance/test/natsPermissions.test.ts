@@ -263,10 +263,6 @@ describe("@conformance/nats permissions (per-service users)", function () {
       }
     );
     expect(sc.decode(reply.data)).to.equal('{"type":"ack"}');
-    // ...and the control plane too (outbound placement).
-    await api.request(`media.${nodeId}.commands`, sc.encode("{}"), {
-      timeout: 2000
-    });
     cmds.unsubscribe();
     // call.incoming: the node asks, a gateway claims.
     const claims = gw.subscribe("gateway.incoming", {
@@ -323,7 +319,9 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(node, gw, "callrecord.local.maintenance")).to.equal(
       false
     );
-    // Media-control commands come from gateways and the control plane, never Routr or a node.
+    // Media-control commands come from gateways only: never Routr, a node or the control plane
+    // (it places calls with Roomr over gRPC).
+    expect(await delivered(api, node, "media.n1.commands")).to.equal(false);
     expect(await delivered(routr, node, "media.n1.commands")).to.equal(false);
     expect(await delivered(node, node, "media.n2.commands")).to.equal(false);
     // Routr's events are Routr's.
@@ -364,14 +362,21 @@ describe("@conformance/nats permissions (per-service users)", function () {
       expect(answered).to.equal('{"secret":"reply"}');
       expect(heard).to.equal(false);
     }
-    // ...and the control plane's replies stay its own too.
-    const gwHeard = await overheard(
-      gw,
-      ["_INBOX.>", `${natsInboxPrefix("apiserver")}.>`],
-      () => api.request("media.n9.commands", sc.encode("{}"), { timeout: 2000 })
-    );
-    expect(gwHeard).to.equal(false);
     cmds.unsubscribe();
+    // ...and the control plane's replies stay its own too (the gateway's claim of an outbound
+    // call, overheard by a node).
+    const claims = gw.subscribe("gateway.outbound", {
+      queue: "gateway-outbound",
+      callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
+    });
+    await gw.flush();
+    const nodeHeard = await overheard(
+      otherNode,
+      ["_INBOX.>", `${natsInboxPrefix("apiserver")}.>`],
+      () => api.request("gateway.outbound", sc.encode("{}"), { timeout: 2000 })
+    );
+    expect(nodeHeard).to.equal(false);
+    claims.unsubscribe();
   });
 
   it("refuses replies to a client that keeps the shared _INBOX prefix", async function () {
@@ -422,6 +427,9 @@ describe("@conformance/nats permissions (per-service users)", function () {
     // The gateway writes calls.* and gateways.*.
     await gwKv.put("calls.c1", sc.encode('{"callRef":"c1"}'));
     await gwKv.put("gateways.g1", sc.encode('{"gatewayRef":"g1"}'));
+    // The control plane writes placements.* (outbound calls being placed) and deletes them.
+    await apiKv.put("placements.p1", sc.encode('{"callRef":"p1"}'));
+    await apiKv.delete("placements.p1");
     // Everything else is refused.
     const refused = async (kv: typeof nodeKv, key: string) => {
       const ok = await kv.put(key, sc.encode("{}"), { timeout: 1000 }).then(
@@ -434,6 +442,8 @@ describe("@conformance/nats permissions (per-service users)", function () {
     await refused(gwKv, "nodes.forged");
     await refused(nodeKv, "calls.forged");
     await refused(apiKv, "calls.forged");
+    await refused(gwKv, "placements.forged");
+    await refused(nodeKv, "placements.forged");
     expect(await Sessions.getSession(apiKv, "nodes", "forged")).to.equal(
       undefined
     );

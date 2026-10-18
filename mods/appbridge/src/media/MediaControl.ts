@@ -117,9 +117,15 @@ export class NatsMediaControl implements MediaControl {
   ): Promise<MediaReply> {
     let reply: MediaReply;
     try {
+      // The gateway names itself on every command: the node ends the room if this gateway
+      // goes away (media-node "Rooms without an owner end"), also for calls placed over Roomr,
+      // whose CreateCall names no gateway.
+      const body = this.options.gatewayRef
+        ? { ...command, gatewayRef: this.options.gatewayRef }
+        : command;
       const msg = await this.nc.request(
         `media.${nodeId}.commands`,
-        sc.encode(JSON.stringify(command)),
+        sc.encode(JSON.stringify(body)),
         {
           timeout: this.options.timeoutMs ?? REPLY_TIMEOUT_MS,
           ...(traceparent ? { headers: traceHeaders(traceparent) } : {})

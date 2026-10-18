@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { Sessions } from "@fonoster/common";
+import { FakeRoomr, FakeRoomrOptions } from "@fonoster/conformance";
 import { Metadata, status } from "@grpc/grpc-js";
 import { expect } from "chai";
 import { randomUUID } from "crypto";
@@ -30,7 +31,8 @@ import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 // The apiserver as a stateless control plane (control-plane spec; harden-conformance 1.1, 1.2):
 // several replicas on one NATS, each running the outbound placement (`calls.create`, one queue
-// group) and TrackCall. Media nodes and gateways are stand-ins on NATS. Needs
+// group) and TrackCall. Media nodes are fake Roomr servers (gRPC, heartbeats and call events on
+// NATS) and gateways are stand-ins on NATS. Needs
 // CONFORMANCE_NATS_URL; the registry cases also need JetStream (CONFORMANCE_JETSTREAM_URL, or the
 // same server started with -js).
 const URL =
@@ -54,134 +56,6 @@ const callFor = (ref: string) => ({
   appRef: "app-1",
   accessKeyId: "WO00000000000000000000000000000000"
 });
-
-type Command = {
-  type: string;
-  id: string;
-  roomRef?: string;
-  callRef?: string;
-  reply: string;
-};
-
-/**
- * A media node on NATS: acks every command, answers each dial (`call.ringing`, then
- * `call.answered`) and heartbeats its room count and limit. Like the real node, a room created
- * for a call (`callRef`) publishes the call's events on `roomr.events.<callRef>` (with node_ref
- * and seq), and `room.create` beyond `maxRooms` is refused with `at_capacity`. `reply` tells which replica sent
- * a command. `reportedRooms` makes the heartbeat lie (a node that filled up since its last beat);
- * calls in `holdAnswer` only ring until `answer(callRef)`.
- */
-function fakeNode(
-  nc: NatsConnection,
-  nodeId: string,
-  options: {
-    rooms?: number;
-    maxRooms?: number;
-    reportedRooms?: number;
-    draining?: boolean;
-    holdAnswer?: Set<string>;
-  } = {}
-) {
-  const commands: Command[] = [];
-  let rooms = options.rooms ?? 0;
-  const callOf = new Map<string, string>(); // roomRef → callRef
-  const seq = new Map<string, number>(); // callRef → last seq
-  const emit = (roomRef: string, event: Record<string, unknown>) => {
-    const callRef = callOf.get(roomRef);
-    if (!callRef) return;
-    const next = (seq.get(callRef) ?? 0) + 1;
-    seq.set(callRef, next);
-    nc.publish(
-      `roomr.events.${callRef}`,
-      encode({
-        ...event,
-        call_ref: callRef,
-        room_ref: roomRef,
-        node_ref: nodeId,
-        seq: next,
-        labels: {}
-      })
-    );
-  };
-  const sub = nc.subscribe(`media.${nodeId}.commands`, {
-    callback: (_e, msg) => {
-      const cmd = decode(msg.data);
-      commands.push({ ...cmd, reply: msg.reply ?? "" });
-      if (cmd.type === "room.create") {
-        if (options.maxRooms !== undefined && rooms >= options.maxRooms) {
-          msg.respond(
-            encode({
-              type: "error",
-              id: cmd.id,
-              code: "at_capacity",
-              message: `${nodeId} is full`
-            })
-          );
-          return;
-        }
-        rooms += 1;
-        const roomRef = `${nodeId}-room-${rooms}`;
-        if (cmd.callRef) callOf.set(roomRef, cmd.callRef);
-        msg.respond(encode({ type: "ack", id: cmd.id, roomRef }));
-        emit(roomRef, { type: "call.started", direction: "outbound" });
-        return;
-      }
-      msg.respond(encode({ type: "ack", id: cmd.id }));
-      if (cmd.type === "participant.dial") {
-        emit(cmd.roomRef, { type: "call.ringing" });
-        if (!options.holdAnswer?.has(callOf.get(cmd.roomRef) ?? ""))
-          emit(cmd.roomRef, { type: "call.answered", participant_ref: "p-1" });
-      }
-    }
-  });
-  const heartbeat = () =>
-    nc.publish(
-      `roomr.nodes.${nodeId}.heartbeat`,
-      encode({
-        type: "node.heartbeat",
-        node_ref: nodeId,
-        rooms: options.reportedRooms ?? rooms,
-        ...(options.maxRooms !== undefined
-          ? { max_rooms: options.maxRooms }
-          : {}),
-        draining: options.draining === true
-      })
-    );
-  heartbeat();
-  const timer = setInterval(heartbeat, 500);
-  const roomOf = (callRef: string) =>
-    [...callOf.entries()].find(([, c]) => c === callRef)?.[0] ?? "";
-  return {
-    nodeId,
-    commands,
-    of: (type: string) => commands.filter((c) => c.type === type),
-    roomOf,
-    hangUp: (roomRef: string) =>
-      emit(roomRef, {
-        type: "call.ended",
-        cause: "callee_hangup",
-        answered: true
-      }),
-    answer: (callRef: string) =>
-      emit(roomOf(callRef), { type: "call.answered", participant_ref: "p-1" }),
-    down() {
-      clearInterval(timer);
-      nc.publish(
-        `roomr.nodes.${nodeId}.heartbeat`,
-        encode({ type: "node.down", node_ref: nodeId })
-      );
-    },
-    stop() {
-      clearInterval(timer);
-      sub.unsubscribe();
-    },
-    /** Dies without a word: no node.down, no room.ended, no more heartbeats. */
-    kill() {
-      clearInterval(timer);
-      sub.unsubscribe();
-    }
-  };
-}
 
 /** The gateways' queue group: takes every `gateway.outbound`. */
 function fakeGateways(nc: NatsConnection) {
@@ -207,7 +81,11 @@ async function startReplica(
   const stopPlacing =
     options.place === false
       ? undefined
-      : await runOutboundCalls({ nc, sessionsBucket: options.sessionsBucket });
+      : await runOutboundCalls({
+          nc,
+          sessionsBucket: options.sessionsBucket,
+          outbound: { proxy: "routr:5060" }
+        });
   const trackCall = createTrackCall(nc);
   return {
     name,
@@ -322,8 +200,9 @@ describe("@apiserver[control plane] stateless replicas", function () {
     return started;
   };
 
-  const node = (nodeId: string, options?: Parameters<typeof fakeNode>[2]) => {
-    const n = fakeNode(client, nodeId, options);
+  const node = async (nodeRef: string, options: FakeRoomrOptions = {}) => {
+    const n = new FakeRoomr({ nc: client, nodeRef, ...options });
+    await n.start();
     cleanup.push(() => n.stop());
     return n;
   };
@@ -345,7 +224,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
 
   it("any replica serves any request: a call placed by A is tracked through B", async function () {
     const [, b] = await replicas(["a"], ["b", { place: false }]);
-    const n = node(`n-${randomUUID()}`);
+    const n = await node(`n-${randomUUID()}`);
     gateways();
     await settle();
 
@@ -353,23 +232,30 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const stream = b.track(ref);
     expect(await requestCall(client, ref)).to.include({
       type: "ack",
-      nodeId: n.nodeId
+      nodeId: n.nodeRef
     });
 
     await until(() => stream.statuses.includes("ANSWER"), 5000, "ANSWER");
     expect(stream.statuses).to.deep.equal(["TRYING", "PROGRESS", "ANSWER"]);
-    // Placed by A (B does not place): the node's commands came from A's inbox.
-    expect(n.of("room.create")[0].reply).to.match(/^_INBOX_a\./);
+    // Placed by A (B does not place), over gRPC: CreateCall reached the node.
+    expect(n.of("CreateCall")).to.have.length(1);
 
-    n.hangUp(n.of("participant.dial")[0].roomRef!);
+    n.hangUp(ref);
     await until(() => stream.ended, 3000, "the stream to end");
   });
 
   it("losing a replica: no active call ends, the others serve every request", async function () {
-    const [a, b, c] = await replicas(["a"], ["b"], ["c"]);
+    // A places; B and C only track. A is killed with calls up; D, started after, places more.
+    const [a, b, c] = await replicas(
+      ["a"],
+      ["b", { place: false }],
+      ["c", { place: false }]
+    );
     // The first call only rings until the test answers it, after its placer is gone.
     const refs = Array.from({ length: 9 }, () => randomUUID());
-    const n = node(`n-${randomUUID()}`, { holdAnswer: new Set([refs[0]]) });
+    const n = await node(`n-${randomUUID()}`, {
+      callee: (ref) => (ref === refs[0] ? "ring" : "answer")
+    });
     gateways();
     await settle();
 
@@ -381,35 +267,34 @@ describe("@apiserver[control plane] stateless replicas", function () {
       refs.map((ref) => requestCall(client, ref))
     );
     expect(replies.every((r) => r.type === "ack")).to.equal(true);
-    await until(() => n.of("participant.dial").length === 9, 5000, "9 dials");
-    expect(n.of("room.create")).to.have.length(9);
+    expect(n.of("CreateCall")).to.have.length(9);
+    expect(n.of("CreateRoom")).to.have.length(9);
     for (const s of firstStreams.values())
       await until(() => s.statuses.includes("PROGRESS"), 3000, "PROGRESS");
 
-    // Kill the replica that placed the first call while the calls are up.
-    const placer = [a, b, c].find((r) =>
-      n
-        .of("room.create")
-        .find((cmd) => cmd.callRef === refs[0])!
-        .reply.startsWith(`_INBOX_${r.name}.`)
-    )!;
-    await placer.kill();
-    const survivors = [a, b, c].filter((r) => r !== placer);
+    // Kill the replica that placed the calls while they are up.
+    await a.kill();
+    const survivors = [b, c];
 
     // The first call's next statuses still reach TrackCall on the surviving replicas: they come
     // from the node on the call's own subject, not from the replica that placed it.
     n.answer(refs[0]);
-    n.hangUp(n.roomOf(refs[0]));
+    n.hangUp(refs[0]);
     for (const r of survivors) {
       const s = firstStreams.get(r)!;
       await until(() => s.ended, 3000, `${r.name}'s stream to end`);
       expect(s.statuses).to.deep.equal(["TRYING", "PROGRESS", "ANSWER"]);
     }
 
-    // No call ended: nothing asked the node to end a room.
-    expect(n.of("room.end")).to.have.length(0);
+    // No call ended: nothing asked the node to end a call or a room.
+    expect(n.of("EndRoom")).to.have.length(0);
+    expect(n.of("EndCall")).to.have.length(0);
 
-    // The survivors place and track new calls.
+    // Another replica places, and the survivors track, new calls.
+    const [d] = await replicas(["d"]);
+    live = [b, c, d];
+    // D has not seen the node yet: its next heartbeat (every 500 ms).
+    await new Promise((r) => setTimeout(r, 700));
     const more = Array.from({ length: 6 }, () => randomUUID());
     const streams = more.map((ref) => survivors[0].track(ref));
     const moreReplies = await Promise.all(
@@ -421,17 +306,14 @@ describe("@apiserver[control plane] stateless replicas", function () {
       5000,
       "every new call answered"
     );
-    const newRooms = n.of("room.create").slice(9);
-    expect(newRooms).to.have.length(6);
-    for (const cmd of newRooms)
-      expect(cmd.reply.startsWith(`_INBOX_${placer.name}.`)).to.equal(false);
-    expect(n.of("room.end")).to.have.length(0);
+    expect(n.of("CreateCall")).to.have.length(15);
+    expect(n.of("EndRoom")).to.have.length(0);
   });
 
   it("losing a media node: TrackCall ends with FAILED on every replica", async function () {
     const [a, b] = await replicas(["a"], ["b", { place: false }]);
     const ref = randomUUID();
-    const n = node(`n-${randomUUID()}`, { holdAnswer: new Set([ref]) });
+    const n = await node(`n-${randomUUID()}`, { callee: "ring" });
     gateways();
     await settle();
 
@@ -443,7 +325,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     for (const s of streams)
       await until(() => s.statuses.includes("ANSWER"), 3000, "ANSWER");
 
-    // The node is killed mid-call: no room.ended and no node.down ever come.
+    // The node is killed mid-call: no call.ended and no node.down ever come.
     n.kill();
     for (const s of streams) {
       await until(() => s.ended, 9000, "the stream to end");
@@ -459,31 +341,31 @@ describe("@apiserver[control plane] stateless replicas", function () {
   it("places a call on the least-loaded node that is not draining (heartbeats)", async function () {
     await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
-    const busy = node(`a-${tag}`, { rooms: 40 });
-    const idle = node(`b-${tag}`, { rooms: 12 });
-    const draining = node(`c-${tag}`, { rooms: 3, draining: true });
+    const busy = await node(`a-${tag}`, { rooms: 40 });
+    const idle = await node(`b-${tag}`, { rooms: 12 });
+    const draining = await node(`c-${tag}`, { rooms: 3, draining: true });
     gateways();
     await settle();
 
     expect(await requestCall(client, randomUUID())).to.include({
-      nodeId: idle.nodeId
+      nodeId: idle.nodeRef
     });
-    await until(() => idle.of("participant.dial").length === 1, 5000, "dial");
-    expect(idle.of("room.create")).to.have.length(1);
-    expect(busy.commands).to.have.length(0);
-    expect(draining.commands).to.have.length(0);
+    expect(idle.of("CreateCall")).to.have.length(1);
+    expect(idle.of("CreateRoom")).to.have.length(1);
+    expect(busy.requests).to.have.length(0);
+    expect(draining.requests).to.have.length(0);
   });
 
   it("no capacity: with every node draining, gone or at its limit, CreateCall fails at once with RESOURCE_EXHAUSTED and no INVITE is sent", async function () {
     const [a] = await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
-    const d1 = node(`d1-${tag}`, { draining: true });
-    const d2 = node(`d2-${tag}`, { rooms: 2, draining: true });
-    const full = node(`f-${tag}`, { rooms: 4, maxRooms: 4 });
-    const gone = node(`g-${tag}`);
+    const d1 = await node(`d1-${tag}`, { draining: true });
+    const d2 = await node(`d2-${tag}`, { rooms: 2, draining: true });
+    const full = await node(`f-${tag}`, { rooms: 4, maxRooms: 4 });
+    const gone = await node(`g-${tag}`);
     gateways();
     await settle();
-    gone.down();
+    await gone.down();
     await settle();
 
     // The placement's reply to CreateCall.
@@ -503,60 +385,104 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(created.ref).to.equal(undefined);
     expect(Date.now() - started).to.be.below(2000);
 
-    for (const n of [d1, d2, full, gone]) {
-      expect(n.of("room.create")).to.have.length(0);
-      expect(n.of("participant.dial")).to.have.length(0);
-    }
+    for (const n of [d1, d2, full, gone]) expect(n.requests).to.have.length(0);
   });
 
   it("no capacity: a node at its session limit gets no new call", async function () {
     await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
     // A has fewer sessions but is at its limit; B has more and is below its limit.
-    const atLimit = node(`a-${tag}`, { rooms: 5, maxRooms: 5 });
-    const below = node(`b-${tag}`, { rooms: 8, maxRooms: 20 });
+    const atLimit = await node(`a-${tag}`, { rooms: 5, maxRooms: 5 });
+    const below = await node(`b-${tag}`, { rooms: 8, maxRooms: 20 });
     gateways();
     await settle();
 
     expect(await requestCall(client, randomUUID())).to.include({
       type: "ack",
-      nodeId: below.nodeId
+      nodeId: below.nodeRef
     });
-    expect(below.of("room.create")).to.have.length(1);
-    expect(atLimit.commands).to.have.length(0);
+    expect(below.of("CreateCall")).to.have.length(1);
+    expect(atLimit.requests).to.have.length(0);
   });
 
   it("a node that refuses the room (full since its last heartbeat) sends the call to the next one", async function () {
     await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
-    // Its heartbeat says 0 rooms, but it is full: room.create gets at_capacity.
-    const stale = node(`a-${tag}`, {
+    // Its heartbeat says 0 rooms, but it is full: CreateRoom gets RESOURCE_EXHAUSTED.
+    const stale = await node(`a-${tag}`, {
       rooms: 10,
       reportedRooms: 0,
       maxRooms: 10
     });
-    const next = node(`b-${tag}`, { rooms: 3, maxRooms: 10 });
+    const next = await node(`b-${tag}`, { rooms: 3, maxRooms: 10 });
     gateways();
     await settle();
 
     expect(await requestCall(client, randomUUID())).to.include({
       type: "ack",
-      nodeId: next.nodeId
+      nodeId: next.nodeRef
     });
-    await until(() => next.of("participant.dial").length === 1, 3000, "dial");
-    expect(stale.of("room.create")).to.have.length(1);
-    expect(stale.of("participant.dial")).to.have.length(0);
+    expect(next.of("CreateCall")).to.have.length(1);
+    expect(stale.of("CreateRoom")).to.have.length(1);
+    expect(stale.of("CreateCall")).to.have.length(0);
+  });
+
+  it("two controllers picking the same full node both move on, and each call is placed once", async function () {
+    const [a, b] = await replicas(["a"], ["b"]);
+    const tag = randomUUID().slice(0, 8);
+    // Both replicas see the same idle-looking node first; it holds one more room only.
+    const tight = await node(`a-${tag}`, {
+      rooms: 9,
+      reportedRooms: 0,
+      maxRooms: 10
+    });
+    const next = await node(`b-${tag}`, { rooms: 5, maxRooms: 100 });
+    gateways();
+    await settle();
+
+    const replies = await Promise.all(
+      [a, b]
+        .flatMap(() => [randomUUID(), randomUUID()])
+        .map((ref) => requestCall(client, ref))
+    );
+    expect(replies.every((r) => r.type === "ack")).to.equal(true);
+    expect(
+      tight.of("CreateCall").length + next.of("CreateCall").length
+    ).to.equal(4);
+    expect(tight.of("CreateCall").length).to.be.at.most(1);
+  });
+
+  it("a timeout is retried on the same node, never on another (the INVITE may be out)", async function () {
+    await replicas(["a"]);
+    const tag = randomUUID().slice(0, 8);
+    const slow = await node(`a-${tag}`, { rooms: 0 });
+    const other = await node(`b-${tag}`, { rooms: 5 });
+    gateways();
+    await settle();
+
+    // The first CreateCall answers after the 2 s deadline; the retry finds the call (dedupe).
+    slow.stallNext("CreateCall", 2500);
+    const ref = randomUUID();
+    expect(await requestCall(client, ref)).to.include({
+      type: "ack",
+      nodeId: slow.nodeRef
+    });
+    expect(slow.of("CreateCall")).to.have.length(2);
+    expect(slow.calls.size).to.equal(1);
+    expect(other.requests).to.have.length(0);
   });
 
   it("no capacity: after three nodes refuse, CreateCall fails and no fourth node is tried", async function () {
     await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
-    const refusing = [0, 1, 2, 3].map((i) =>
-      node(`r${i}-${tag}`, {
-        rooms: 10 + i,
-        reportedRooms: i,
-        maxRooms: 10 + i
-      })
+    const refusing = await Promise.all(
+      [0, 1, 2, 3].map((i) =>
+        node(`r${i}-${tag}`, {
+          rooms: 10 + i,
+          reportedRooms: i,
+          maxRooms: 10 + i
+        })
+      )
     );
     gateways();
     await settle();
@@ -564,11 +490,10 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const created = await createCallRpc(client);
     expect(created.error?.code).to.equal(status.RESOURCE_EXHAUSTED);
     // The three least-loaded (by their heartbeats) were tried, once each; the fourth was not.
-    expect(refusing.map((n) => n.of("room.create").length)).to.deep.equal([
+    expect(refusing.map((n) => n.of("CreateRoom").length)).to.deep.equal([
       1, 1, 1, 0
     ]);
-    for (const n of refusing)
-      expect(n.of("participant.dial")).to.have.length(0);
+    for (const n of refusing) expect(n.of("CreateCall")).to.have.length(0);
   });
 });
 
@@ -602,7 +527,13 @@ describe("@apiserver[control plane] session registry", function () {
     const nodeId = `n-${randomUUID()}`;
     // What the node and the gateway keep in the registry while 50 calls are up.
     const owners = new Sessions.SessionLeases(kv, { refreshMs: 1000 });
-    await owners.set("nodes", nodeId, { node_ref: nodeId, rooms: 50 });
+    const n = new FakeRoomr({ nc: client, nodeRef: nodeId, rooms: 50 });
+    await n.start();
+    await owners.set("nodes", nodeId, {
+      node_ref: nodeId,
+      rooms: 50,
+      control_addr: n.controlAddr
+    });
     const calls = Array.from({ length: 50 }, (_, i) => ({
       callRef: randomUUID(),
       gatewayRef: "gw-1",
@@ -617,7 +548,6 @@ describe("@apiserver[control plane] session registry", function () {
       });
       await owners.set("calls", call.callRef, call);
     }
-    const n = fakeNode(client, nodeId, { rooms: 50 });
     const g = fakeGateways(client);
     try {
       const first = await startReplica("a", { sessionsBucket: bucket });
@@ -636,12 +566,12 @@ describe("@apiserver[control plane] session registry", function () {
         const stream = restarted.track(ref);
         expect(await requestCall(client, ref)).to.include({ type: "ack" });
         await until(() => stream.statuses.includes("ANSWER"), 5000, "ANSWER");
-        expect(n.of("room.end")).to.have.length(0);
+        expect(n.of("EndRoom")).to.have.length(0);
       } finally {
         await restarted.stop();
       }
     } finally {
-      n.stop();
+      await n.stop();
       g.unsubscribe();
       await owners.close();
     }

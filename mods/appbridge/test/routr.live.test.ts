@@ -200,6 +200,8 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
         "127.0.0.1",
         "-outbound-proxy",
         ROUTR_SIP,
+        "-call-ref-header",
+        "X-Call-Ref",
         "-config",
         nodeConfig()
       ],

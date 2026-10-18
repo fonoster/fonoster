@@ -99,7 +99,11 @@ describe("@calls/createCall", function () {
     } as unknown as Prisma;
     const callback = sandbox.stub();
 
-    await createCall(applications, publisher, ownNumber)(
+    await createCall(
+      applications,
+      publisher,
+      ownNumber
+    )(
       {
         metadata,
         request: { from: "+1234567890", to: "+1234567891", appRef: TEST_UUID }
@@ -131,7 +135,11 @@ describe("@calls/createCall", function () {
     } as unknown as Prisma;
     const callback = sandbox.stub();
 
-    await createCall(applications, publisher, ownNumber)(
+    await createCall(
+      applications,
+      publisher,
+      ownNumber
+    )(
       {
         metadata,
         request: { from: "+1234567890", to: "+1234567891", appRef: TEST_UUID }
@@ -142,6 +150,39 @@ describe("@calls/createCall", function () {
     expect(callback.firstCall.args[0]).to.include({
       code: status.UNAVAILABLE
     });
+  });
+
+  it("passes the node's INVALID_ARGUMENT and ALREADY_EXISTS through", async function () {
+    const { createCall } = await import("../../src/calls/createCall");
+    const { CallPlacementError } = await import("../../src/calls/types");
+    for (const [code, want] of [
+      ["invalid_argument", status.INVALID_ARGUMENT],
+      ["already_exists", status.ALREADY_EXISTS]
+    ] as const) {
+      const metadata = new Metadata();
+      metadata.set("token", TEST_TOKEN);
+      const publisher = {
+        publishCall: sandbox.stub().rejects(new CallPlacementError(code, code))
+      };
+      const applications = {
+        application: {
+          findUnique: sandbox.stub().resolves({ ref: TEST_UUID })
+        }
+      } as unknown as Prisma;
+      const callback = sandbox.stub();
+      await createCall(
+        applications,
+        publisher,
+        ownNumber
+      )(
+        {
+          metadata,
+          request: { from: "+1234567890", to: "+1234567891", appRef: TEST_UUID }
+        },
+        callback
+      );
+      expect(callback.firstCall.args[0]).to.include({ code: want });
+    }
   });
 
   it("refuses a from that is another workspace's number with PERMISSION_DENIED", async function () {

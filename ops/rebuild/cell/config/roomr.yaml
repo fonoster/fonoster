@@ -13,6 +13,8 @@ sip:
       expires: 30s
       auth: { username: medianode, password: "${ROOMR_PASSWORD}" }
       headers: { X-Session-Count: "{sessions}" }
+  # Routr's X-Call-Ref names inbound calls; the control plane sends it on dialed calls too.
+  callRefHeader: X-Call-Ref
 rtp:
   host: 0.0.0.0
   advertise: "${ROOMR_ADVERTISE}"

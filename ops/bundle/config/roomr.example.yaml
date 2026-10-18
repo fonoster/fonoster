@@ -15,12 +15,17 @@ sip:
       expires: 30s
       auth: { username: medianode, password: "${ROOMR_PASSWORD}" }
       headers: { X-Session-Count: "{sessions}" }
+  # Routr's X-Call-Ref names inbound calls; the API server sends it on dialed calls too.
+  callRefHeader: X-Call-Ref
 rtp:
   host: 0.0.0.0
   advertise: "${SUBNET_PREFIX}.42"
   portMin: "${ROOMR_RTP_PORT_MIN}"
   portMax: "${ROOMR_RTP_PORT_MAX}"
 outboundProxy: "routr:${SIP_PORT}"
+# Roomr (gRPC): the API server places outbound calls here (CreateCall). Plaintext; the port is
+# reachable only on the bundle's network.
+control: { grpc: { listen: "0.0.0.0:50061", advertise: "${SUBNET_PREFIX}.42:50061" } }
 debugAddr: "0.0.0.0:8099"
 # INVITEs (and their X-App-Ref/X-Call-Ref headers) only from Routr.
 trustedSources: ["${SUBNET_PREFIX}.40"]

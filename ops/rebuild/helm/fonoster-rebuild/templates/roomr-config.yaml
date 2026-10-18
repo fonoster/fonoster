@@ -13,6 +13,7 @@ roomr.sip.registrations replaces it with the registrars you list ([] sends no RE
 {{- $user := $m.routr.username | default "${POD_NAME}" }}
 {{- $auth := dict "username" $user "password" "${ROUTR_PEER_PASSWORD:-}" }}
 {{- $sip := dict "listen" $m.sip.listen "advertise" $sipAdvertise }}
+{{- if $m.callRefHeader }}{{- $_ := set $sip "callRefHeader" $m.callRefHeader }}{{- end }}
 {{- if kindIs "slice" $m.sip.registrations }}
 {{- $_ := set $sip "registrations" $m.sip.registrations }}
 {{- else if $m.routr.registrar }}
@@ -21,6 +22,8 @@ roomr.sip.registrations replaces it with the registrars you list ([] sends no RE
 {{- $_ := set $cfg "sip" $sip }}
 {{- $_ := set $cfg "rtp" (dict "host" "0.0.0.0" "advertise" $rtpAdvertise "portMin" ($m.rtp.portMin | int) "portMax" ($m.rtp.portMax | int)) }}
 {{- $_ := set $cfg "outboundProxy" $m.routr.outboundProxy }}
+{{- /* Roomr for the apiserver; the node advertises it on sip.advertise's host. */}}
+{{- $_ := set $cfg "control" (dict "grpc" (dict "listen" (printf "0.0.0.0:%d" ($m.controlPort | int)))) }}
 {{- if $m.tls.enabled }}
 {{- /* SIP over TLS toward the edge; with mutual, Routr must present a certificate signed by ca.crt
 (add-platform 4.2). The trusted-source allowlist still applies. */}}

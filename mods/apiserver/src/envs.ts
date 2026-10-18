@@ -154,6 +154,9 @@ export const ROUTR_API_ENDPOINT = config.routr.apiEndpoint;
 // The media-node peer every app-linked number points at (add-media-node 4.1)
 export const ROUTR_MEDIA_NODE_PEER = config.routr.mediaNodePeer;
 
+/** Routr's SIP address: API-originated calls are dialed through it (Roomr CreateCall). */
+export const ROUTR_SIP_PROXY = config.routr.sipProxy;
+
 // SMTP configurations (optional; email features fail clearly without it)
 export const SMTP_AUTH_PASS = config.smtp?.password;
 

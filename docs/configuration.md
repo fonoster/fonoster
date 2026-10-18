@@ -149,6 +149,7 @@ Variables not listed here (`ROUTR_*`, `RTPENGINE_*`, `POSTGRES_*`,
 | `APISERVER_AUTHZ_SERVICE_ENABLED / _HOST / _PORT / _METHODS` | `authz.enabled / host / port / methods (a list)` |
 | `APISERVER_ROUTR_API_ENDPOINT` | `routr.apiEndpoint` |
 | (new) | `routr.mediaNodePeer.aor / name / username / password` (the peer every app-linked number points at; created only with a password, reference `${ROOMR_PASSWORD}`) |
+| (new) | `routr.sipProxy` (Routr's SIP address, default `routr:5060`: API-originated calls are dialed through it as the media-node peer) |
 | `APISERVER_ASTERISK_*`, `APISERVER_AMD_*`, `APISERVER_ROUTR_DEFAULT_PEER_*`, `AIC_SDK_LICENSE` | Removed with Asterisk (`mediaService`, `amd`, `routr.defaultPeer`, `routr.engines` and `audioFilters` are unknown keys now) |
 | `APISERVER_NATS_URL` | `nats.url` |
 | `APISERVER_INFLUXDB_URL` | `influxdb.url` |
@@ -188,6 +189,7 @@ in the environment.
 | `ROOMR_RTP_HOST / _RTP_ADVERTISE / _RTP_PORT_MIN / _RTP_PORT_MAX` | `rtp.host / advertise / portMin / portMax` |
 | `ROOMR_REGISTRAR / _DOMAIN / _USERNAME / _PASSWORD / _TRANSPORT / _REGISTER_EVERY` | `sip.registrations[]`: `registrar` (`;transport=` for tcp/tls), `aor` (`sip:<username>@<domain>`), `auth.username / auth.password`, `expires` (twice the old interval), `headers: { X-Session-Count: "{sessions}" }` (the old `registration` block and flags are removed) |
 | `ROOMR_OUTBOUND_PROXY / _OUTBOUND_TRANSPORT` | `outboundProxy / outboundTransport` |
+| (new) | `sip.callRefHeader` (the header carrying a call's ref, `X-Call-Ref` with Routr) and `control.grpc.listen / advertise` (Roomr for the apiserver's outbound calls, port 50061) |
 | `ROOMR_TLS_LISTEN / _TLS_CERT / _TLS_KEY / _TLS_CA / _TLS_CLIENT_CA` | `tls.listen / cert / key / ca / clientCa` |
 | `ROOMR_DEBUG_ADDR / _DRAIN_WAIT / _MAX_DURATION / _MAX_PARTICIPANTS / _MEDIA_TIMEOUT` | `debugAddr / drainWait / maxDuration / maxParticipants / mediaTimeout` |
 | `ROOMR_SESSION_REGISTRY / _REQUIRE_ENCRYPTION / _TRUSTED_SOURCES` | `sessionRegistry / requireEncryption / trustedSources (a list)` |

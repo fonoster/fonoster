@@ -164,10 +164,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     ).to.throw(/trustedSources is empty/);
     expect(
       trustedOf(
-        render(
-          "--set=roomr.trustedSources=",
-          "--set=roomr.allowAnySource=true"
-        )
+        render("--set=roomr.trustedSources=", "--set=roomr.allowAnySource=true")
       )
     ).to.equal(undefined);
   });
@@ -330,17 +327,15 @@ describe("@conformance/deployment (Helm chart)", function () {
   it("gives every service its NATS user and the chart's NATS the users (nats.auth)", function () {
     const objs = render("values-cloud.yaml", "--set=regionAgent.enabled=true");
     const conf = find(objs, "ConfigMap", "fonoster-nats")!.data!;
-    ["apiserver", "gateway", "roomr", "routr", "region-agent"].forEach(
-      (u) => {
-        expect(conf["nats.conf"]).to.contain(`{ user: ${u}, password: $NATS_`);
-        expect(conf[`permissions-${u}.conf`], u).to.equal(
-          fs.readFileSync(
-            path.join(ROOT, "ops/rebuild/config/nats-permissions", `${u}.conf`),
-            "utf8"
-          )
-        );
-      }
-    );
+    ["apiserver", "gateway", "roomr", "routr", "region-agent"].forEach((u) => {
+      expect(conf["nats.conf"]).to.contain(`{ user: ${u}, password: $NATS_`);
+      expect(conf[`permissions-${u}.conf`], u).to.equal(
+        fs.readFileSync(
+          path.join(ROOT, "ops/rebuild/config/nats-permissions", `${u}.conf`),
+          "utf8"
+        )
+      );
+    });
     const env = (kind: string, name: string) =>
       JSON.stringify(find(objs, kind, name)!.spec);
     expect(env("StatefulSet", "fonoster-nats")).to.contain(
@@ -471,11 +466,16 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(config.sip).to.deep.equal({
       listen: "0.0.0.0:5060",
       advertise: "${HOST_IP}",
+      // Routr's X-Call-Ref names inbound calls (decision 7).
+      callRefHeader: "X-Call-Ref",
       registrations: [
         {
           registrar: "routr:5060",
           aor: "sip:${POD_NAME}@nodes.fonoster.local",
-          auth: { username: "${POD_NAME}", password: "${ROUTR_PEER_PASSWORD:-}" },
+          auth: {
+            username: "${POD_NAME}",
+            password: "${ROUTR_PEER_PASSWORD:-}"
+          },
           expires: "30s",
           headers: { "X-Session-Count": "{sessions}" }
         }
@@ -489,6 +489,8 @@ describe("@conformance/deployment (Helm chart)", function () {
     });
     expect(config.registration).to.equal(undefined);
     expect(config.outboundProxy).to.equal("routr:5060");
+    // Roomr (gRPC) for the apiserver's CreateCall, advertised on sip.advertise's host.
+    expect(config.control).to.deep.equal({ grpc: { listen: "0.0.0.0:50061" } });
     expect(config.trustedSources).to.deep.equal(["10.0.0.1"]);
     // Every placeholder is a variable the pod sets.
     const env = JSON.stringify(node.spec);

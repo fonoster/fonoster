@@ -26,6 +26,8 @@ export type MediaNodeStatus = {
   /** The node's region; unset for nodes that report none. */
   region?: string;
   draining: boolean;
+  /** Where the node serves Roomr (the heartbeat's control_addr); unset: no calls placed on it. */
+  controlAddr?: string;
   seenAt: number;
 };
 
@@ -89,6 +91,10 @@ export function createNodeDirectory(
               ? event.region
               : undefined,
           draining: event.draining === true,
+          controlAddr:
+            typeof event.control_addr === "string" && event.control_addr
+              ? event.control_addr
+              : undefined,
           seenAt: at
         });
       }
@@ -96,7 +102,7 @@ export function createNodeDirectory(
     },
     /**
      * The eligible node with the most room to spare (control-plane): live, not draining, below
-     * its room limit and, when the call names a region, in that region; scored
+     * its room limit, with a control address and, when the call names a region, in that region; scored
      * `1 - rooms / max_rooms`, highest wins. Skips the nodes in `exclude` (already tried for
      * this call); undefined when there is none.
      */
@@ -106,7 +112,7 @@ export function createNodeDirectory(
     ): string | undefined {
       let best: { node: MediaNodeStatus; score: number } | undefined;
       for (const n of nodes.values()) {
-        if (exclude.has(n.nodeId) || n.draining) continue;
+        if (exclude.has(n.nodeId) || n.draining || !n.controlAddr) continue;
         if (now() - n.seenAt > staleMs) continue;
         if (region && n.region !== region) continue;
         const limit = n.maxRooms ?? DEFAULT_MAX_ROOMS;
@@ -125,6 +131,10 @@ export function createNodeDirectory(
       if (!n) return;
       if (code === "draining") n.draining = true;
       else n.maxRooms = Math.min(n.maxRooms ?? n.rooms, n.rooms);
+    },
+    /** The node's Roomr address (control_addr), if known. */
+    addressOf(nodeId: string): string | undefined {
+      return nodes.get(nodeId)?.controlAddr;
     },
     /** Counts a room placed on a node before its next heartbeat reports it. */
     placed(nodeId: string) {

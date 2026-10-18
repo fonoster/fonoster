@@ -52,6 +52,7 @@ spec:
           ports:
             - { name: sip-udp, containerPort: 5060, protocol: UDP }
             - { name: sip-tcp, containerPort: 5060, protocol: TCP }
+            - { name: control, containerPort: {{ $m.controlPort | int }}, protocol: TCP }
             {{- if $m.tls.enabled }}
             - { name: sip-tls, containerPort: {{ (splitList ":" $m.tls.listen | last) | int }}, protocol: TCP }
             {{- end }}
