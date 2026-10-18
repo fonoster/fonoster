@@ -26,7 +26,7 @@ import {
   runScenario
 } from "../src";
 
-// The same media-control scenarios against the Go media node (go/medianode), with real SIP and
+// The same media-control scenarios against the Go media node (go/roomr), with real SIP and
 // RTP from the caller bot. Needs NATS (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 

@@ -13,7 +13,7 @@ nats:
   resources: {}
   # One NATS user per service, limited to its subjects (add-platform 4.1; the permissions are
   # files/nats-permissions/, copies of ops/rebuild/config/nats-permissions/). `secret` holds one
-  # password per user: keys apiserver, gateway, medianode, routr, region-agent (those you run).
+  # password per user: keys apiserver, gateway, roomr, routr, region-agent (those you run).
   # Services read theirs through secret://env/NATS_<USER>_PASSWORD. With nats.deploy the chart's
   # NATS gets the users; with your own NATS, give it the same users and permission files. Routr
   # connects as `routr` with the password in its NATS URL (hex passwords only). On by default:
@@ -163,9 +163,9 @@ appbridge:
   resources: {}
   podDisruptionBudget: { minAvailable: 1 }
 
-medianode:
+roomr:
   enabled: true
-  image: { repository: fonoster/medianode, tag: dev, pullPolicy: IfNotPresent }
+  image: { repository: fonoster/roomr, tag: dev, pullPolicy: IfNotPresent }
   # Each pod is one node; its id is the pod name.
   replicas: 2
   # Drain grace = the node's drain wait (maxWait): SIGTERM stops new rooms, existing ones may end
@@ -181,7 +181,7 @@ medianode:
   sip:
     listen: 0.0.0.0:5060
     advertise: hostIP
-    # Unset: one registration to medianode.routr.registrar with X-Session-Count. A list replaces
+    # Unset: one registration to roomr.routr.registrar with X-Session-Count. A list replaces
     # it (each entry: registrar, aor, expires, auth {username, password}, headers templating
     # "{sessions}"); [] sends no REGISTER.
     # registrations: []
@@ -192,7 +192,7 @@ medianode:
     domain: nodes.fonoster.local
     username: ""          # empty: the pod name
     # Name of a Secret with key `password` (the peer password at Routr).
-    passwordSecret: medianode-peer
+    passwordSecret: roomr-peer
     outboundProxy: routr:5060
   # IPs, CIDRs or host names allowed to send INVITEs: Routr's addresses. The node trusts
   # X-App-Ref, X-Call-Ref and X-Call-Direction only from these (RV-B7); with hostNetwork, port
@@ -207,7 +207,7 @@ medianode:
   tls:
     enabled: false
     listen: 0.0.0.0:5061
-    secret: medianode-tls
+    secret: roomr-tls
     mutual: true
   resources: {}
 

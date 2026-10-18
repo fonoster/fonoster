@@ -54,8 +54,8 @@ describe("@region-agent endpoints", function () {
       },
       {
         EXTERNAL_ADDRS: "203.0.113.10",
-        MEDIANODE_RTP_PORT_MIN: "30000",
-        MEDIANODE_RTP_PORT_MAX: "30199"
+        ROOMR_RTP_PORT_MIN: "30000",
+        ROOMR_RTP_PORT_MAX: "30199"
       }
     )!;
     expect(e.sip).to.deep.equal([

@@ -94,7 +94,7 @@ init_local() {
   # NATS parses a variable's value as config, so a password starting with a digit fails to load:
   # each starts with a letter, and one generated before this rule is replaced.
   local svc var
-  for svc in APISERVER GATEWAY MEDIANODE ROUTR; do
+  for svc in APISERVER GATEWAY ROOMR ROUTR; do
     var="NATS_${svc}_PASSWORD"
     if grep -q "^$var=[0-9]" "$STACK_ENV"; then
       sed -i.bak "/^$var=/d" "$STACK_ENV" && rm -f "$STACK_ENV.bak"
@@ -183,14 +183,14 @@ render_configs() {
     echo "SIP_PORT=$RB_SIP_PORT"
     echo "RTPENGINE_PORT_MIN=$RTPENGINE_PORT_MIN"
     echo "RTPENGINE_PORT_MAX=$RTPENGINE_PORT_MAX"
-    echo "MEDIANODE_RTP_PORT_MIN=$RB_NODE_RTP_MIN"
-    echo "MEDIANODE_RTP_PORT_MAX=$RB_NODE_RTP_MAX"
+    echo "ROOMR_RTP_PORT_MIN=$RB_NODE_RTP_MIN"
+    echo "ROOMR_RTP_PORT_MAX=$RB_NODE_RTP_MAX"
     echo "MINIO_PORT=$RB_MINIO_PORT"
     echo "MINIO_CONSOLE_PORT=$RB_MINIO_CONSOLE_PORT"
     echo "NATS_PORT=$RB_NATS_PORT"
     echo "LEAF_PORT=${RB_LEAF_PORT:-7422}"
     echo "ENCRYPTION_KEY=$RB_ENCRYPTION_KEY"
-    echo "MEDIANODE_PASSWORD=$RB_NODE_PASSWORD"
+    echo "ROOMR_PASSWORD=$RB_NODE_PASSWORD"
     echo "OWNER_EMAIL=$RB_ADMIN_EMAIL"
     echo "OWNER_PASSWORD=$RB_ADMIN_PASSWORD"
   } > "$BUNDLE_ENV"
@@ -281,7 +281,7 @@ YAML
     --overlay "$OVERLAY" ${mine[@]+"${mine[@]}"} >/dev/null || die "could not render the configs"
   # Containers read these as another user (local only).
   chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot.yaml" \
-    "$CONF/medianode.yaml" "$CONF/routr-edgeport.yaml"
+    "$CONF/roomr.yaml" "$CONF/routr-edgeport.yaml"
   local speech="${DEEPGRAM_API_KEY:+deepgram }${ELEVENLABS_API_KEY:+elevenlabs }"
   log "host address $host_ip; speech: ${speech:-fake }llm: ${llm:-fake }app defaults: $(default_voice), $(default_model)"
 }
@@ -444,7 +444,7 @@ cmd_smoke() {
 # The nightly end-to-end call (conformance "End-to-end caller bot"): ops/rebuild/e2e.cjs.
 cmd_e2e() {
   RB_SMOKE_KEEP="${RB_KEEP:-}"
-  trap 'status=$?; if [ "$status" != 0 ]; then compose ps -a >&2 || true; compose logs --no-color --tail 60 apiserver appbridge autopilot medianode routr >&2 || true; fi; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
+  trap 'status=$?; if [ "$status" != 0 ]; then compose ps -a >&2 || true; compose logs --no-color --tail 60 apiserver appbridge autopilot roomr routr >&2 || true; fi; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
   cmd_up
   cmd_seed
   # The gateway and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.

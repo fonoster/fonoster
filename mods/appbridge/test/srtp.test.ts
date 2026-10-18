@@ -119,7 +119,7 @@ describe("@gateway SRTP leg against the Go media node", function () {
     const sip = await free();
     const tlsPort = await free();
     node = spawn(
-      bins.medianode,
+      bins.roomr,
       [
         "-node-id",
         nodeId,
@@ -145,7 +145,7 @@ describe("@gateway SRTP leg against the Go media node", function () {
     await new Promise<void>((resolve, reject) => {
       const lines = readline.createInterface({ input: node!.stdout! });
       lines.on("line", (l) => l.includes("ready") && resolve());
-      node!.on("exit", (code) => reject(new Error(`medianode exited ${code}`)));
+      node!.on("exit", (code) => reject(new Error(`roomr exited ${code}`)));
     });
     nc = await connect({ servers: NATS_URL });
   });

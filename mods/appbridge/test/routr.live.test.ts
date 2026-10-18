@@ -51,7 +51,7 @@ const SECRET = "routr-live-secret";
 const ROUTING: MediaNodeRouting = {
   aor: "sip:medianode@rig.local",
   username: "medianode",
-  password: "rig-medianode-pass",
+  password: "rig-roomr-pass",
   inboundUri: "trunk.rig.local",
   number: "+17853178070",
   appRef: "app-rig"
@@ -64,7 +64,7 @@ const ROUTING: MediaNodeRouting = {
  */
 function nodeConfig(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "routr-live-"));
-  const file = path.join(dir, "medianode.yaml");
+  const file = path.join(dir, "roomr.yaml");
   fs.writeFileSync(
     file,
     [
@@ -184,7 +184,7 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
 
     nodePort = await freeUdpPort();
     const node = await start(
-      bins.medianode,
+      bins.roomr,
       [
         "-node-id",
         `routr-live-${Date.now()}`,

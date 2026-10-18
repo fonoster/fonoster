@@ -33,7 +33,7 @@ import type { KV, KvEntry, NatsConnection } from "nats";
  *
  * Entries are leases: the bucket keeps a value for SESSIONS_TTL_MS after its last write, owners
  * rewrite theirs every SESSIONS_REFRESH_MS, and a crashed owner's entries expire on their own. The
- * Go node uses the same bucket, TTL and key rules (go/medianode/internal/registry).
+ * Go node uses the same bucket, TTL and key rules (go/roomr/internal/registry).
  */
 export const SESSIONS_BUCKET = "fonoster_sessions";
 export const SESSIONS_TTL_MS = 15_000;

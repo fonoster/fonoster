@@ -62,12 +62,10 @@ export function resolveEndpoints(
   const media =
     override.mediaAddresses ??
     list(
-      env.RTPENGINE_PUBLIC_IP ??
-        env.MEDIANODE_RTP_ADVERTISE ??
-        env.EXTERNAL_ADDRS
+      env.RTPENGINE_PUBLIC_IP ?? env.ROOMR_RTP_ADVERTISE ?? env.EXTERNAL_ADDRS
     );
-  const min = Number(env.RTPENGINE_PORT_MIN ?? env.MEDIANODE_RTP_PORT_MIN);
-  const max = Number(env.RTPENGINE_PORT_MAX ?? env.MEDIANODE_RTP_PORT_MAX);
+  const min = Number(env.RTPENGINE_PORT_MIN ?? env.ROOMR_RTP_PORT_MIN);
+  const max = Number(env.RTPENGINE_PORT_MAX ?? env.ROOMR_RTP_PORT_MAX);
   const rtpPorts =
     override.rtpPorts ??
     (Number.isInteger(min) && Number.isInteger(max) && min > 0 && max >= min

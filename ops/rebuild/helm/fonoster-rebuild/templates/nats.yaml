@@ -7,7 +7,7 @@
 {{- $users := list }}
 {{- if .Values.apiserver.enabled }}{{- $users = append $users "apiserver" }}{{- end }}
 {{- if .Values.appbridge.enabled }}{{- $users = append $users "gateway" }}{{- end }}
-{{- if .Values.medianode.enabled }}{{- $users = append $users "medianode" }}{{- end }}
+{{- if .Values.roomr.enabled }}{{- $users = append $users "roomr" }}{{- end }}
 {{- $users = append $users "routr" }}
 {{- if .Values.regionAgent.enabled }}{{- $users = append $users "region-agent" }}{{- end }}
 # The platform's NATS (JetStream for the session registry KV). Single node: enough to try the

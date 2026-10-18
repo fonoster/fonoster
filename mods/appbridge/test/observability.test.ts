@@ -99,7 +99,7 @@ describe("@gateway OpenTelemetry signals from one real call (Go media node)", fu
       await harness.media.shutdown();
 
       const gw = "fonoster-gateway";
-      const node = "fonoster-medianode";
+      const node = "fonoster-roomr";
       await collector.until(
         () =>
           collector.has(gw, "traces", CALL_REF_ATTR, callRef) &&

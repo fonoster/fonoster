@@ -1,0 +1,74 @@
+{{- if .Values.roomr.enabled }}
+{{- $m := .Values.roomr }}
+{{- if and (not $m.trustedSources) (not $m.allowAnySource) }}
+{{- fail "roomr.trustedSources is empty: set it to Routr's addresses (IPs, CIDRs or host names), or set roomr.allowAnySource=true for development only" }}
+{{- end }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-roomr
+  labels:
+    app.kubernetes.io/name: roomr
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ .Release.Name }}-roomr
+  replicas: {{ $m.replicas }}
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: roomr
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: roomr
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/roomr-config.yaml") . | sha256sum }}
+    spec:
+      hostNetwork: {{ $m.hostNetwork }}
+      {{- if $m.hostNetwork }}
+      dnsPolicy: ClusterFirstWithHostNet
+      {{- end }}
+      # Drain grace = maxWait: the node drains for this long after SIGTERM, plus a little slack.
+      terminationGracePeriodSeconds: {{ add $m.drainGraceSeconds 15 }}
+      containers:
+        - name: roomr
+          image: "{{ $m.image.repository }}:{{ $m.image.tag }}"
+          imagePullPolicy: {{ $m.image.pullPolicy }}
+          args:
+            - -drain-wait={{ $m.drainGraceSeconds }}s
+          env:
+            # Filled into roomr.yaml's ${VAR} placeholders (roomr-config.yaml).
+            - name: POD_NAME
+              valueFrom: { fieldRef: { fieldPath: metadata.name } }
+            - name: HOST_IP
+              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+            - name: ROUTR_PEER_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ $m.routr.passwordSecret | quote }}, key: password, optional: true } }
+            {{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" $ "user" "roomr") | nindent 12 }}
+            - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: {{ include "fonoster-rebuild.otlpEndpoint" . | quote }} }
+            - { name: OTEL_SERVICE_NAME, value: fonoster-roomr }
+          ports:
+            - { name: sip-udp, containerPort: 5060, protocol: UDP }
+            - { name: sip-tcp, containerPort: 5060, protocol: TCP }
+            {{- if $m.tls.enabled }}
+            - { name: sip-tls, containerPort: {{ (splitList ":" $m.tls.listen | last) | int }}, protocol: TCP }
+            {{- end }}
+          volumeMounts:
+            - { name: config, mountPath: /config/roomr.yaml, subPath: roomr.yaml, readOnly: true }
+            {{- if $m.tls.enabled }}
+            - { name: tls, mountPath: /etc/roomr/tls, readOnly: true }
+            {{- end }}
+          resources:
+            {{- toYaml $m.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-roomr
+      {{- if $m.tls.enabled }}
+        # tls.crt, tls.key (the node's certificate) and ca.crt (the CA of the edge's certificates).
+        - name: tls
+          secret: { secretName: {{ $m.tls.secret | quote }} }
+      {{- end }}
+{{- end }}

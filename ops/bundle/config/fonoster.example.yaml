@@ -22,7 +22,7 @@ features:
 # Numbers of apps route to the media nodes' Peer, created at start with this password.
 routr:
   apiEndpoint: routr:51907
-  mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: "${MEDIANODE_PASSWORD}" }
+  mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: "${ROOMR_PASSWORD}" }
 nats: { url: "nats://nats:4222", user: apiserver, password: "${NATS_APISERVER_PASSWORD}" }
 # Autopilot apps point at the hosted Autopilot and share its signing secret.
 apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: "${AUTOPILOT_SIGNING_SECRET}" }

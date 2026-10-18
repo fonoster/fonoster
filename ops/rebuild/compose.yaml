@@ -16,10 +16,10 @@
 #   Profiles added: `fakes` (fake TTS/STT/LLM, no vendor keys), `tools` (the SIP caller bot),
 #   `regions` (the region hub).
 services:
-  medianode:
+  roomr:
     build:
-      context: ../../go/medianode
-    image: ${RB_REGISTRY:-fonoster}/medianode:${RB_TAG:-dev}
+      context: ../../go/roomr
+    image: ${RB_REGISTRY:-fonoster}/roomr:${RB_TAG:-dev}
 
   appbridge:
     build:
@@ -92,12 +92,12 @@ services:
       - 7002
       - 7003
 
-  # ---- profile `tools`: the SIP caller bot (go/medianode/cmd/sipcaller), HTTP on RB_CALLER_PORT ----
+  # ---- profile `tools`: the SIP caller bot (go/roomr/cmd/sipcaller), HTTP on RB_CALLER_PORT ----
   sipcaller:
     profiles: ["tools"]
     build:
-      context: ../../go/medianode
-    image: ${RB_REGISTRY:-fonoster}/medianode:${RB_TAG:-dev}
+      context: ../../go/roomr
+    image: ${RB_REGISTRY:-fonoster}/roomr:${RB_TAG:-dev}
     entrypoint: ["/sipcaller"]
     command: ["-listen", "0.0.0.0:8080", "-host", "${SUBNET_PREFIX}.44"]
     restart: unless-stopped

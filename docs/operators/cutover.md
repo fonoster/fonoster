@@ -20,13 +20,13 @@ to pick the app.
    apiserver then creates the Peer at start: AOR `sip:medianode@default`, username `medianode`,
    `LEAST_SESSIONS`, any number of contacts. To create it by hand, see
    `mods/appbridge/test/routr/provision.ts`.
-2. **Media nodes.** Run `go/medianode` (`cmd/medianode`) on each node:
+2. **Media nodes.** Run `go/roomr` (`cmd/roomr`) on each node:
 
    ```sh
-   medianode -node-id node-a -nats nats://nats:4222 \
+   roomr -node-id node-a -nats nats://nats:4222 \
      -sip 0.0.0.0:5060 -sip-advertise <node IP Routr can reach> \
      -rtp 0.0.0.0 -rtp-advertise <node IP carriers and gateways can reach> \
-     -outbound-proxy routr:5060 -config /config/medianode.yaml
+     -outbound-proxy routr:5060 -config /config/roomr.yaml
    ```
 
    with the registration in the file (the node registers nowhere unless told to):
@@ -36,12 +36,12 @@ to pick the app.
      registrations:
        - registrar: routr:5060
          aor: sip:medianode@default
-         auth: { username: medianode, password: secret://env/MEDIANODE_PASSWORD }
+         auth: { username: medianode, password: secret://env/ROOMR_PASSWORD }
          headers: { X-Session-Count: "{sessions}" }
    ```
 
-   Every flag also has a key in `/config/medianode.yaml` (`-config <file>`; see
-   `ops/bundle/config/medianode.example.yaml`); the node reads no `MEDIANODE_*` variables except
+   Every flag also has a key in `/config/roomr.yaml` (`-config <file>`; see
+   `ops/bundle/config/roomr.example.yaml`); the node reads no `ROOMR_*` variables except
    through a `${VAR}` placeholder or `secret://env/` reference. Check that Routr has a route for
    `sip:medianode@default` for each node. The node logs `register failed` when it cannot
    register.

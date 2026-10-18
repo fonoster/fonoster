@@ -1,7 +1,7 @@
 ## RENAMED Requirements
 
 - FROM: `### Requirement: Commands go down, audio and call events come up`
-- TO: `### Requirement: MediaControl is a gRPC service with three nouns`
+- TO: `### Requirement: Roomr is a gRPC service with three nouns`
 
 - FROM: `### Requirement: The session participant carries the gateway's audio`
 - TO: `### Requirement: The app leg carries the app's audio`
@@ -19,9 +19,9 @@
 
 ### Requirement: media-control runs over NATS request and reply
 
-**Reason**: Commands move to gRPC: `MediaControl` for the controller and one control stream per
+**Reason**: Commands move to gRPC: `Roomr` for the controller and one control stream per
 call for the app. NATS keeps capacity reports and events only.
-**Migration**: Replace `media.<nodeId>.commands` requests with `MediaControl` RPCs at the node's
+**Migration**: Replace `media.<nodeId>.commands` requests with `Roomr` RPCs at the node's
 `control_addr`; subscribe to `roomr.events.<call_ref>` instead of `media.<nodeId>.events.<roomRef>`.
 
 ### Requirement: Add a participant is the one primitive
@@ -47,9 +47,9 @@ events are keyed by call with sequence numbers, so no replica needs to own a cal
 
 ## MODIFIED Requirements
 
-### Requirement: MediaControl is a gRPC service with three nouns
+### Requirement: Roomr is a gRPC service with three nouns
 
-`MediaControl` SHALL be a gRPC service (`roomr.v1.MediaControl`) served at the node's advertised
+`Roomr` SHALL be a gRPC service (`roomr.v1.Roomr`) served at the node's advertised
 control address, with three nouns, `Room`, `Call` and `Participant`, and these RPCs: `CreateCall`,
 `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record` and `SendDtmf`. A `Call`
 SHALL be a SIP leg with a lifecycle (`RINGING`, `ANSWERED`, `ENDED`) that always belongs to a room;
@@ -237,7 +237,9 @@ own end reasons instead of assuming `caller_hangup`.
 Each node SHALL publish a heartbeat on `roomr.nodes.<node_ref>.heartbeat` every 2 seconds with
 `node_ref`, `control_addr`, `sip_addr`, `rtp_ports`, `rooms`, `participants`, `max_rooms`,
 `cpu_idle` (0 to 1), `codecs`, `draining`, `version` and `region`. A node stopping on purpose SHALL
-publish `node.down` `{ node_ref }` after its last room ends. A controller SHALL treat a node whose
+publish `node.down` `{ node_ref }` on the same subject, `roomr.nodes.<node_ref>.heartbeat`, with
+`type: "node.down"` (heartbeats carry `type: "node.heartbeat"`), after its last room ends. A
+controller SHALL treat a node whose
 last heartbeat is older than 6 seconds as down and SHALL not place calls on it.
 
 #### Scenario: Heartbeat content
@@ -250,7 +252,7 @@ last heartbeat is older than 6 seconds as down and SHALL not place calls on it.
 
 #### Scenario: Clean shutdown
 - **WHEN** a draining node's last room ends
-- **THEN** it publishes `node.down` and controllers stop expecting heartbeats from it
+- **THEN** it publishes `{ type: "node.down", node_ref }` on `roomr.nodes.<node_ref>.heartbeat` and controllers stop expecting heartbeats from it
 
 ### Requirement: Hold silences the app and plays hold audio
 

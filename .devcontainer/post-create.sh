@@ -11,7 +11,7 @@ git config --global --add safe.directory /workspaces/fonoster
 # then every package's build: the services import each other's dist.
 npm ci --no-audit --no-fund
 npm run build
-(cd go/medianode && go mod download)
+(cd go/roomr && go mod download)
 
 # The dev config (.dev/), rendered again with the CLI just built; every secret is kept.
 npm run dev:config

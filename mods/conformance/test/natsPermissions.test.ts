@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 // NATS users and subject permissions (add-platform 4.1, build log HD-B1): runs the checked-in
-// ops/rebuild/config/nats.conf (main stack: apiserver, gateway, medianode, routr) and
-// ops/rebuild/cell/config/nats.conf (a cell: gateway, medianode, routr, region-agent) in Docker
+// ops/rebuild/config/nats.conf (main stack: apiserver, gateway, roomr, routr) and
+// ops/rebuild/cell/config/nats.conf (a cell: gateway, roomr, routr, region-agent) in Docker
 // and proves each service reaches its own subjects and nothing else. Opt-in (starts containers):
 //
 //   NATS_ACL_TEST=docker [NATS_ACL_CONTAINER_PREFIX=fonoster-acl] [NATS_ACL_PORT=31400] npm test
@@ -210,18 +210,18 @@ describe("@conformance/nats permissions (per-service users)", function () {
     main = startServer("main", PORT, mainDir, [
       "apiserver",
       "gateway",
-      "medianode",
+      "roomr",
       "routr"
     ]);
     cell = startServer("cell", PORT + 1, cellDir, [
       "gateway",
-      "medianode",
+      "roomr",
       "routr",
       "region-agent"
     ]);
     api = await as(main, "apiserver");
     gw = await as(main, "gateway");
-    node = await as(main, "medianode");
+    node = await as(main, "roomr");
     routr = await as(main, "routr");
     conns.push(api, gw, node, routr);
   });
@@ -350,7 +350,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     });
     await node.flush();
     // Another service, a second media node and Routr try every inbox they could read.
-    const otherNode = await as(main!, "medianode");
+    const otherNode = await as(main!, "roomr");
     conns.push(otherNode);
     const inboxes = ["_INBOX.>", `${natsInboxPrefix("gateway")}.>`];
     for (const eavesdropper of [api, otherNode, routr]) {
@@ -502,7 +502,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
   it("limits a cell's region agent to region.> and its local subjects", async function () {
     const agent = await as(cell!, "region-agent");
     const cgw = await as(cell!, "gateway");
-    const cnode = await as(cell!, "medianode");
+    const cnode = await as(cell!, "roomr");
     conns.push(agent, cgw, cnode);
     // Bring-your-own key requests: the gateway asks, the agent answers.
     const keys = agent.subscribe("cell.workspacekeys.get", {

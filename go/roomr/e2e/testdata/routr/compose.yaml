@@ -1,0 +1,34 @@
+name: rb-roomr
+services:
+  edgeport:
+    image: fonoster/routr-edgeport:latest
+    container_name: rb-roomr-edgeport
+    ports:
+      - 15360:15360
+      - 15360:15360/udp
+    volumes:
+      - ./edgeport.yaml:/etc/routr/edgeport.yaml
+  dispatcher:
+    image: fonoster/routr-dispatcher:latest
+    container_name: rb-roomr-dispatcher
+    volumes:
+      - ./dispatcher.yaml:/etc/routr/dispatcher.yaml
+  location:
+    image: fonoster/routr-location:latest
+    container_name: rb-roomr-location
+    environment:
+      LOGS_LEVEL: verbose
+    volumes:
+      - ./location.yaml:/etc/routr/location.yaml
+  connect:
+    image: fonoster/routr-connect:latest
+    container_name: rb-roomr-connect
+    environment:
+      LOGS_LEVEL: verbose
+      LOCATION_ADDR: location:51902
+      API_ADDR: apiserver:51907
+  apiserver:
+    image: fonoster/routr-simpledata:latest
+    container_name: rb-roomr-simpledata
+    volumes:
+      - ./resources:/etc/routr/resources

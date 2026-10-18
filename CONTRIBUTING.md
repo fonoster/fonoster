@@ -93,7 +93,7 @@ and VS Code with the Dev Containers extension (or a Codespace, or the
 
 ```bash
 npm run dev            # all of them, with prefixed logs
-npm run dev:appbridge    # or one: dev:apiserver, dev:appbridge, dev:autopilot, dev:medianode, dev:dashboard, dev:fakes
+npm run dev:appbridge    # or one: dev:apiserver, dev:appbridge, dev:autopilot, dev:roomr, dev:dashboard, dev:fakes
 ```
 
 Each one reloads when you save its source (the media node is rebuilt). Open the dashboard at
@@ -101,7 +101,7 @@ Each one reloads when you save its source (the media node is rebuilt). Open the 
 speech and language-model providers, so no vendor keys are needed.
 
 Run the tests in the same terminal: `npm test` (its NATS and database are the dev container's test
-services), `npm test -w @fonoster/dashboard`, and `cd go/medianode && go test ./...`.
+services), `npm test -w @fonoster/dashboard`, and `cd go/roomr && go test ./...`.
 
 `npm run dev:config` renders `.dev/` again after you change a config example or your overrides in
 `.dev/overlay/<service>.yaml`; every secret is kept.

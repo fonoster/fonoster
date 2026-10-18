@@ -67,7 +67,7 @@ You need:
     ```text
     .env written (10 secrets generated)
     keys: 3 files created in config/keys
-    config: config/autopilot.yaml, config/fonoster.yaml, config/gateway.yaml, config/medianode.yaml, config/routr-edgeport.yaml
+    config: config/autopilot.yaml, config/fonoster.yaml, config/gateway.yaml, config/roomr.yaml, config/routr-edgeport.yaml
     host address: 192.0.2.10
 
     Next: docker compose up -d
@@ -98,7 +98,7 @@ You need:
     config/autopilot.yaml: valid
     config/fonoster.yaml: valid
     config/gateway.yaml: valid
-    config/medianode.yaml: valid (no schema; values only)
+    config/roomr.yaml: valid (no schema; values only)
     config/routr-edgeport.yaml: valid (no schema; values only)
     ```
   </Step>
@@ -117,7 +117,7 @@ You need:
     docker compose ps
     ```
 
-    You see `apiserver`, `autopilot`, `dashboard`, `envoy`, `appbridge`, `medianode`, `minio`, `nats`,
+    You see `apiserver`, `autopilot`, `dashboard`, `envoy`, `appbridge`, `roomr`, `minio`, `nats`,
     `postgres`, `routr` and `rtpengine`, each `Up`.
   </Step>
 

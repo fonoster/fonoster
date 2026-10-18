@@ -73,7 +73,7 @@ routr:
   mediaNodePeer:
     aor: sip:medianode@default
     username: medianode
-    password: ${MEDIANODE_PASSWORD}             # the apiserver creates the peer when set
+    password: ${ROOMR_PASSWORD}             # the apiserver creates the peer when set
 
 nats:
   url: nats://nats:4222

@@ -41,9 +41,9 @@
 - [ ] 6.2 Retire `gateway.incoming` and `gateway.outbound` and the claim logic in `Call.ts`
 - [ ] 6.3 Test: 100 calls through the Service land on more than one gateway pod; audio flows under the shipped NetworkPolicy
 
-## 7. MediaControl over gRPC (M)
+## 7. Roomr over gRPC (M)
 
-- [ ] 7.1 `roomr.v1.MediaControl` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`; typed gRPC status codes
+- [ ] 7.1 `roomr.v1.Roomr` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`; typed gRPC status codes
 - [ ] 7.2 `CreateCall`: idempotent `call_ref`, dial through `to.proxy` with `to.headers` and `to.auth`, `room_ref` join-or-create, `session` override, `ring_timeout_s`, `max_duration_s`, labels
 - [x] 7.3 `Join` with `listen` for listen-only per-track RTP destinations (recording, AMD); `Leave`
 - [ ] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
@@ -82,13 +82,13 @@
 
 ## 13. Conformance
 
-- [ ] 13.1 Fake session endpoint (gRPC `Session` server) and fake controller (MediaControl client) in `mods/conformance`
-- [ ] 13.2 Rewrite the `kind: media-control` scenario files for MediaControl and the control stream; run them against the fake node and the Go node
+- [ ] 13.1 Fake session endpoint (gRPC `Session` server) and fake controller (Roomr client) in `mods/conformance`
+- [ ] 13.2 Rewrite the `kind: media-control` scenario files for Roomr and the control stream; run them against the fake node and the Go node
 - [ ] 13.3 Mix-minus checker extended to RTP and WebRTC participants and to passthrough rooms
 - [x] 13.4 Fake registrar records header templates per REGISTER
 - [ ] 13.5 Re-run the 200-room load bar on 2 vCPU with the control stream in place; Opus run reported separately
 
 ## 14. Docs and cleanup
 
-- [ ] 14.1 Update `go/medianode/README.md`, `openspec/rebuild.md` (media node line) and the operator docs for the new config keys and ports
+- [ ] 14.1 Update `go/roomr/README.md`, `openspec/rebuild.md` (media node line) and the operator docs for the new config keys and ports
 - [ ] 14.2 Remove the NATS offer path and flag once measurements pass; release note for the retired subjects

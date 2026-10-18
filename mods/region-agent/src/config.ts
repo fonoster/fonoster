@@ -107,7 +107,7 @@ export const agentConfigSchema = z
     /**
      * The cell's public connection details (task 3.6). Unset fields come from the environment the
      * cell's services use (EXTERNAL_ADDRS, ROUTR_SIP_PORT/RB_SIP_PORT, ROUTR_SIP_TRANSPORTS,
-     * RTPENGINE_PUBLIC_IP, RTPENGINE_PORT_MIN/MAX, MEDIANODE_RTP_*).
+     * RTPENGINE_PUBLIC_IP, RTPENGINE_PORT_MIN/MAX, ROOMR_RTP_*).
      */
     endpoints: z
       .object({

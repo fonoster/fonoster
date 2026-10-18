@@ -28,10 +28,10 @@ page with /ps:docs.
 ## Send telemetry (`self-hosting/send-telemetry`)
 
 - `telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }` in fonoster, gateway, autopilot and
-  medianode YAML; empty = off. OTEL_* env still works as a fallback.
+  roomr YAML; empty = off. OTEL_* env still works as a fallback.
 - apiserver: `apiserver.grpc` spans, `grpc.requests`, `records.indexed`.
-- gateway: `gateway.call` and `medianode.command` spans, `calls.active`, `calls.total`.
-- autopilot: `sessions.total`. medianode: `rooms.active`, `draining`, `calls.incoming`, logs.
+- gateway: `gateway.call` and `roomr.command` spans, `calls.active`, `calls.total`.
+- autopilot: `sessions.total`. roomr: `rooms.active`, `draining`, `calls.incoming`, logs.
 - Every signal carries `fonoster.call_ref`.
 
 ## Host private regions (`private-regions/host-private-regions`) — all manual

@@ -23,7 +23,7 @@ requirements and supersedes the current `media-node` and `media-control` specs.
   `Answer` (inbound) or `Ready` (outbound) carrying its own RTP endpoint. Commands and events travel
   on that stream; audio is RTP pod to pod. If the stream breaks the node hangs up. This replaces
   the NATS offer and claim.
-- **MediaControl over gRPC.** Three nouns (Room, Call, Participant) and nine RPCs: `CreateCall`,
+- **Roomr over gRPC.** Three nouns (Room, Call, Participant) and nine RPCs: `CreateCall`,
   `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`. `CreateCall`
   creates a room or joins `room_ref`; there is no `AnswerCall`, inbound calls are answered by the
   app on its stream. `RESOURCE_EXHAUSTED` at the node's limit. The NATS command subjects are
@@ -71,7 +71,11 @@ package of the same name:
 **Chosen: Roomr** (repository `fonoster/roomr`). The room is the node's central idea, and the name
 sits beside Routr as a pair: "Routr routes, Roomr hosts the room." The near-collisions found are
 small and unrelated to telephony. This change uses Roomr as the product name in prose; the
-capability folders stay `media-node` and `media-control` and nothing in code is renamed yet.
+capability folders stay `media-node` and `media-control`. In code and deployment the node is
+`roomr`: the gRPC service `roomr.v1.Roomr`, the Go module `go/roomr`, the image `fonoster/roomr`,
+the config file `roomr.yaml`, the `ROOMR_*` variables and the NATS user `roomr`. Its SIP identity
+at Routr (the Peer `sip:medianode@<domain>`, username `medianode`) is unchanged, since numbers
+already point at it.
 
 ## Capabilities
 
@@ -84,7 +88,7 @@ capability folders stay `media-node` and `media-control` and nothing in code is 
   and narrowed to speech and SIP capture because `Record` is now an operation. Added: passthrough,
   WebRTC participants, room header, room token, isolation, port ranges.
 - `media-control`: the NATS command contract is replaced by gRPC. Renamed and modified: the
-  command list (now the MediaControl RPC list), the app leg and its RTP negotiation (now on the
+  command list (now the Roomr RPC list), the app leg and its RTP negotiation (now on the
   control stream), outbound placement (now `CreateCall`), liveness (now capacity). Removed: NATS
   request and reply, "add a participant is the one primitive", the gateway claim, replica
   ownership of outbound calls. Added: the control stream, room and participant RPCs, operations,
@@ -97,14 +101,16 @@ capability folders stay `media-node` and `media-control` and nothing in code is 
 - `deployment`: the chart allows pod-to-pod RTP and exposes the gateway's session endpoint.
 - `talk-in-browser`: browser media terminates on the node once WebRTC lands; RTPEngine is no
   longer in the path.
-- `conformance`: a media node suite covering MediaControl, the control stream and the mixer.
+- `conformance`: a media node suite covering Roomr, the control stream and the mixer.
+- `developer-environment`, `service-config`: the node is named Roomr: its source is `go/roomr`, its
+  dev script `dev:roomr`, its config file `roomr` and its variables `ROOMR_*`.
 
 Requirements that stay as they are: `media-node` "DTMF is detected three ways" and "Capacity
 bar"; `media-control` "Participants and tracks are kind-neutral".
 
 ## Impact
 
-- `go/medianode`: new gRPC server (MediaControl) and client (control stream), configuration
+- `go/roomr`: new gRPC server (Roomr) and client (control stream), configuration
   schema (`sip.registrations`, `sip.roomHeader`, `session.endpoint`), heartbeat fields, event
   keying, Opus-first SDP, passthrough, WebRTC transport, removal of the NATS command and offer
   paths.

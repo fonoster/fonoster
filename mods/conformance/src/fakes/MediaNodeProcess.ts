@@ -25,43 +25,43 @@ import * as path from "path";
 import * as readline from "readline";
 
 /** The Go media node's source, relative to this package. */
-export const MEDIANODE_DIR = path.join(
+export const ROOMR_DIR = path.join(
   __dirname,
   "..",
   "..",
   "..",
   "..",
   "go",
-  "medianode"
+  "roomr"
 );
 
-/** Builds medianode and sipcaller into a temp dir; undefined when there is no Go toolchain. */
+/** Builds roomr and sipcaller into a temp dir; undefined when there is no Go toolchain. */
 export function buildMediaNode(natsUrl: string): MediaNodeBinaries | undefined {
   try {
     execFileSync("go", ["version"], { stdio: "ignore" });
   } catch {
     return undefined;
   }
-  const bin = fs.mkdtempSync(path.join(os.tmpdir(), "medianode-"));
+  const bin = fs.mkdtempSync(path.join(os.tmpdir(), "roomr-"));
   execFileSync("go", ["build", "-o", bin + path.sep, "./cmd/..."], {
-    cwd: MEDIANODE_DIR,
+    cwd: ROOMR_DIR,
     env: { ...process.env, GOTOOLCHAIN: process.env.GOTOOLCHAIN ?? "local" },
     stdio: "inherit"
   });
   return {
     natsUrl,
-    medianode: path.join(bin, "medianode"),
+    roomr: path.join(bin, "roomr"),
     sipcaller: path.join(bin, "sipcaller")
   };
 }
 
-// A real media node process (go/medianode) and the SIP caller bot (sipcaller) that calls it.
+// A real media node process (go/roomr) and the SIP caller bot (sipcaller) that calls it.
 // Harnesses use it to run scenarios over real SIP and RTP.
 
 export type MediaNodeBinaries = {
   natsUrl: string;
-  /** Paths of the built `medianode` and `sipcaller` binaries. */
-  medianode: string;
+  /** Paths of the built `roomr` and `sipcaller` binaries. */
+  roomr: string;
   sipcaller: string;
 };
 
@@ -179,7 +179,7 @@ export class MediaNodeProcess {
     this.debugPort = await freeTcpPort();
     return (
       await startProcess(
-        this.bins.medianode,
+        this.bins.roomr,
         [
           "-node-id",
           this.nodeId,

@@ -12,7 +12,7 @@ with their evidence. Every open item has an **Owner:** note with what to do and 
 - [ ] NATS permissions block TrackCall. The API server subscribes to `calls.*.events`
   (`mods/apiserver/src/calls/createTrackCall.ts:143`) and publishes there
   (`outbound/runOutboundCalls.ts:57`); the media node publishes there too
-  (`go/medianode/internal/node/node.go:408`). Neither `apiserver.conf` nor `medianode.conf` in
+  (`go/roomr/internal/node/node.go:408`). Neither `apiserver.conf` nor `roomr.conf` in
   `ops/bundle/config/nats-permissions` (and the `ops/rebuild` and Helm copies) allows it. A fresh
   bundle install logs `PERMISSIONS_VIOLATION ... subscription calls.*.events` at apiserver start, so
   outbound-call status tracking gets no events. Inbound calls are not affected (the e2e call
@@ -46,7 +46,7 @@ with their evidence. Every open item has an **Owner:** note with what to do and 
     uncompressed); the page's "about 6 GB" holds. The pull wasn't timed because every image was
     already cached.
   - Doc errors fixed in `install-compose.mdx`: `init`'s output (10 secrets, not 11; 3 key files,
-    not 10; `medianode.yaml` was missing from the list; the `Then:` line), `info`'s `Files`
+    not 10; `roomr.yaml` was missing from the list; the `Then:` line), `info`'s `Files`
     block, and `compose.tls.yaml` and the schemas in the folder list. A Tip for a second install
     on the same machine (project name and subnet) was added. Also fixed: the
     `fonoster-config init --regions` comment in `ops/bundle/config/fonoster.example.yaml` (no
@@ -147,8 +147,8 @@ with their evidence. Every open item has an **Owner:** note with what to do and 
   - **Owner:** re-enable `release.yaml` (Actions → the workflow → Enable) and make sure the npm
     and Docker Hub secrets are set. Run it for 0.30.0, then check that the archive URL in
     `install-compose.mdx` resolves, that `npx -p @fonoster/common fonoster-config --help` works,
-    and that `fonoster/{apiserver,gateway,autopilot,medianode,dashboard}:0.30.0` exist (gateway
-    and medianode have never been published). ~1 h with watching.
+    and that `fonoster/{apiserver,gateway,autopilot,roomr,dashboard}:0.30.0` exist (gateway
+    and roomr have never been published). ~1 h with watching.
 - [x] How-tos for ClickHouse, telemetry and hosting private regions (listed in `docs-site/MENU.md`, pages missing) (unify-config-placeholders 5.2)
   - `docs-site/self-hosting/send-call-metrics-to-clickhouse.mdx`,
     `docs-site/self-hosting/send-telemetry.mdx` and

@@ -1,7 +1,7 @@
 {
   "$comment": "The Fonoster images, built by ops/release/bundle (bundle: true) and published by .github/workflows/images.yaml (all). Paths are relative to the repository root.",
   "images": [
-    { "name": "medianode", "context": "go/medianode", "dockerfile": "go/medianode/Dockerfile", "bundle": true },
+    { "name": "roomr", "context": "go/roomr", "dockerfile": "go/roomr/Dockerfile", "bundle": true },
     { "name": "appbridge", "context": ".", "dockerfile": "mods/appbridge/Dockerfile", "bundle": true },
     { "name": "autopilot", "context": ".", "dockerfile": "mods/autopilot/Dockerfile", "bundle": true },
     { "name": "apiserver", "context": ".", "dockerfile": "ops/rebuild/docker/apiserver.Dockerfile", "bundle": true },

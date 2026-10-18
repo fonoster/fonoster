@@ -55,7 +55,7 @@ accepts or none is eligible.
 Internal events, capacity reports, the session registry and webhook dispatch SHALL use NATS: media
 node heartbeats and call events as published messages (media-control), events on JetStream with
 queue groups, the session registry as a JetStream KV bucket, and webhook dispatch as a JetStream
-consumer. Media commands SHALL NOT travel over NATS: the control plane calls `MediaControl` over
+consumer. Media commands SHALL NOT travel over NATS: the control plane calls `Roomr` over
 gRPC and the gateway speaks the per-call control stream. Call audio MUST NOT travel over NATS.
 
 #### Scenario: Events processed once
@@ -74,3 +74,35 @@ gRPC and the gateway speaks the per-call control stream. Call audio MUST NOT tra
 #### Scenario: No audio on the bus
 - **WHEN** a call runs for one minute
 - **THEN** no NATS message carries audio samples
+
+### Requirement: The apiserver is a stateless control plane
+
+The apiserver SHALL run as N interchangeable replicas that hold no per-call state. It SHALL serve
+the management gRPC API with the same services and messages as today, Identity,
+`GetCapabilities`, call creation and workspace webhook dispatch. It MUST NOT connect to Asterisk
+ARI, terminate AudioSocket or carry call audio. A call's status events SHALL travel on NATS
+subjects keyed by the call, published by the components that observe them: the replica placing
+the call publishes `TRYING` and placement failures on `calls.<callRef>.events`, and the media node
+publishes the call's events (`call.ringing`, `call.answered`, `call.ended`) on
+`roomr.events.<call_ref>` (media-control "Events on NATS are keyed by call with sequence numbers
+and labels"), so `TrackCall` on any replica follows any call.
+
+#### Scenario: Any replica serves any request
+- **WHEN** a call is created through replica A and `TrackCall` for it is opened through replica B
+- **THEN** replica B streams the call's statuses from `calls.<callRef>.events` and `roomr.events.<call_ref>` until the call ends
+
+#### Scenario: Management API unchanged
+- **WHEN** an existing SDK client lists numbers, creates an app and creates a call
+- **THEN** every request succeeds with the same request and response messages as before the rebuild
+
+#### Scenario: Losing a replica
+- **WHEN** one of three apiserver replicas is killed during active calls
+- **THEN** no active call ends and the remaining replicas serve every management request
+
+#### Scenario: TrackCall always ends
+- **WHEN** a TrackCall stream is open and its client goes away, a second TrackCall opens for the same call, the call's media node misses 3 heartbeats (or says `node.down`), no node takes the call within 30 s, or no final status comes within the maximum call duration
+- **THEN** the replica forgets the first case's stream, serves both streams in the second, and ends the stream with `FAILED` in the others
+
+#### Scenario: Call status survives the placing replica
+- **WHEN** the replica that placed a call is killed while the call rings, and `TrackCall` for the call runs on another replica
+- **THEN** that `TrackCall` still receives `ANSWER` when the callee answers, and ends when the node publishes `call.ended` on `roomr.events.<call_ref>`

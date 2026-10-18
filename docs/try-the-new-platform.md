@@ -285,6 +285,6 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
 - **`up` waits for the apiserver forever.** `ops/rebuild/stack logs apiserver`. A port collision
   shows up as a Compose error instead: edit the port in `ops/rebuild/.local/stack.env`.
 - **Calls fail with 480 at Routr.** The media node is not registered yet: Routr takes about a
-  minute to start, and the node registers every 15 s (`ops/rebuild/stack logs medianode`).
+  minute to start, and the node registers every 15 s (`ops/rebuild/stack logs roomr`).
 - **`seed` waits.** Routr-backed resources (domains, numbers) answer errors until Routr is up; the
   seed retries for about a minute and a half.

@@ -120,7 +120,7 @@ jobs:
           - 4222:4222
     defaults:
       run:
-        working-directory: go/medianode
+        working-directory: go/roomr
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -128,11 +128,11 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go/medianode/go.mod
-          cache-dependency-path: go/medianode/go.sum
+          go-version-file: go/roomr/go.mod
+          cache-dependency-path: go/roomr/go.sum
 
       # The Opus codec is cgo (internal/audio/opus.go); the shipped image links libopus statically
-      # (go/medianode/Dockerfile). Tests run with cgo (the race detector needs it), so Opus is in.
+      # (go/roomr/Dockerfile). Tests run with cgo (the race detector needs it), so Opus is in.
       - name: Install libopus
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
 

@@ -5,7 +5,7 @@ https://claude.ai/code/artifact/2e54576e-d7d4-42af-ae84-5c249b6eb88c) and the de
 with the owner that day. Where the document still shows an open alternative, the agreed decision
 is recorded here and the alternative is listed under "Alternatives rejected".
 
-What exists today (`go/medianode`, `mods/apiserver/src/outbound`, `mods/appbridge`): the node
+What exists today (`go/roomr`, `mods/apiserver/src/outbound`, `mods/appbridge`): the node
 registers to Routr with `X-Session-Count`, reads `X-App-Ref`/`X-Call-Ref`/`X-Call-Direction` from
 the INVITE, offers each call on `gateway.incoming` and waits 500 ms (twice) for a claim, serves
 commands on `media.<nodeId>.commands`, publishes events on `media.<nodeId>.events.<roomRef>` and a
@@ -31,7 +31,7 @@ another app pod.
 ## Architecture
 
 ```
-                 SIP (UDP/TCP/TLS/WSS)           MediaControl (gRPC)
+                 SIP (UDP/TCP/TLS/WSS)           Roomr (gRPC)
   SIP proxy / registrar  <────────────>  NODE  <─────────────────  Controller
   (optional, configured)                  │ │                        (in Fonoster: apiserver)
                                           │ │  NATS: heartbeat + events (never audio, never offers)
@@ -45,7 +45,7 @@ another app pod.
 ```
 
 The node has four edges and all of them are generic: SIP to whatever proxy and registrars its
-configuration names; WebRTC to browsers; MediaControl for one controller; and, per call, a control
+configuration names; WebRTC to browsers; Roomr for one controller; and, per call, a control
 stream to the session endpoint plus RTP straight to the app pod that answered. NATS carries only
 capacity reports and events. In Fonoster the proxy is Routr, the controller is the apiserver and
 the session endpoint is the gateway's Kubernetes Service; the node knows none of them by name.
@@ -115,11 +115,11 @@ from the current `media-control` requirements because the gateway uses them toda
 transferring, recording and AMD listeners). This is an addition to the sketch, not a change to
 any agreed decision.
 
-### MediaControl
+### Roomr
 
 ```protobuf
 package roomr.v1;
-service MediaControl {
+service Roomr {
   rpc CreateCall(CreateCallRequest) returns (Call);   // dial out; room created or room_ref joined
   rpc EndCall(EndCallRequest) returns (Empty);        // any call, inbound or outbound
   rpc CreateRoom(CreateRoomRequest) returns (Room);   // rooms that do not start from a call
@@ -223,7 +223,7 @@ path, confirming CPU and RTP jitter match today's numbers.
 - **A single `AddParticipant` that dials when given a SIP URI**: hides the call's lifecycle
   (ringing, busy, timeout) behind a join, gives inbound calls no matching verb, and makes room
   creation a side effect of joining.
-- **`AnswerCall` on MediaControl**: would let the controller and the app race to answer; the app
+- **`AnswerCall` on Roomr**: would let the controller and the app race to answer; the app
   on its stream is the only one who can answer or reject.
 - **Reconnecting a call to another app pod when its pod dies**: left open in the document's
   scalability table, decided as "hang up" (simpler, and the app's state is gone anyway).
@@ -238,7 +238,7 @@ Kept out of the node's own capabilities on purpose:
 | Generic in the node | Fonoster |
 | --- | --- |
 | SIP proxy / registrar | Routr; `sip.registrations[].headers` carries `X-Session-Count: "{sessions}"` for `least-sessions` |
-| Controller (MediaControl client) | apiserver (`mods/apiserver/src/outbound`) |
+| Controller (Roomr client) | apiserver (`mods/apiserver/src/outbound`) |
 | Session endpoint | the gateway's Kubernetes Service; the gateway serves `Session.Connect` |
 | Pass-through headers (inbound `Start.headers`) | `X-App-Ref`, `X-Call-Ref`, `X-Call-Direction`, `X-Connect-Token` read by the gateway |
 | Pass-through headers (`CreateCall.to.headers`) | `X-DOD-Number` and whatever Routr routes on |

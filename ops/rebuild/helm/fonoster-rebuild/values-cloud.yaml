@@ -13,10 +13,10 @@
 #   fonoster-identity-keys private.pem, public.pem      (Identity's RSA pair)
 #   fonoster-apiserver     ownerPassword
 #   fonoster-autopilot     secret                       (Autopilot apps' signing secret)
-#   medianode-peer         password                     (the media nodes' Routr peer)
+#   roomr-peer         password                     (the media nodes' Routr peer)
 #   fonoster-records-key   records.pem                  (EC P-256 key that signs call records)
 #   fonoster-vendors       deepgram                     (platform Deepgram key: TTS and STT)
-#   fonoster-nats-users    apiserver, gateway, medianode, routr   (NATS passwords, hex; Routr's
+#   fonoster-nats-users    apiserver, gateway, roomr, routr   (NATS passwords, hex; Routr's
 #                          NATS URL is nats://routr:<routr password>@fonoster-nats:4222)
 
 nats:
@@ -32,7 +32,7 @@ minio:
 
 apiserver:
   enabled: true
-  secretMounts: [fonoster-db, fonoster-apiserver, fonoster-autopilot, medianode-peer, fonoster-minio]
+  secretMounts: [fonoster-db, fonoster-apiserver, fonoster-autopilot, roomr-peer, fonoster-minio]
   config:
     domain: fonoster.local
     server: { bindAddr: 0.0.0.0:50051, httpBridgePort: 9876, host: "{{ .Release.Name }}-apiserver" }
@@ -46,7 +46,7 @@ apiserver:
       mediaNodePeer:
         aor: "sip:medianode@default"
         username: medianode
-        password: "secret://k8s/medianode-peer#password"
+        password: "secret://k8s/roomr-peer#password"
     apps:
       autopilotUrl: "ws://{{ .Release.Name }}-autopilot:3000"
       autopilotSigningSecret: "secret://k8s/fonoster-autopilot#secret"
@@ -127,10 +127,10 @@ appbridge:
             secretAccessKey: "secret://k8s/fonoster-minio#rootPassword"
       recording: "off"
 
-medianode:
+roomr:
   routr:
     registrar: routr:5060
     domain: default
     username: medianode
     outboundProxy: routr:5060
-    passwordSecret: medianode-peer
+    passwordSecret: roomr-peer

@@ -44,10 +44,10 @@ services:
       PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster_test
     networks:
       default:
-        # The media node's fixed address (the bundle's medianode.yaml advertises it; Routr trusts
+        # The media node's fixed address (the bundle's roomr.yaml advertises it; Routr trusts
         # INVITEs from it) and the names the bundle's Envoy and configs use for our services.
         ipv4_address: ${SUBNET_PREFIX}.42
-        aliases: [apiserver, gateway, autopilot, medianode, dashboard, fakes]
+        aliases: [apiserver, gateway, autopilot, roomr, dashboard, fakes]
 
   nats:
     extends: { file: ../ops/bundle/compose.yaml, service: nats }
