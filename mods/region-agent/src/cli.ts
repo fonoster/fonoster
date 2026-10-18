@@ -30,6 +30,7 @@ import {
   KubeIdentityStore,
   loadIdentity
 } from "./enroll";
+import { hubNextSteps, initHub } from "./hub";
 import { KubeSecrets } from "./kube";
 import { runAgent } from "./run";
 
@@ -52,6 +53,14 @@ Cloud side (public regions; needs the operator key)
   revoke <id>               Withdraw a public region and revoke its cell's credentials
       --api <url>             the control plane API ($FONOSTER_API_URL, default ${DEFAULT_API_URL})
       --operator-key <key>    the operator key ($FONOSTER_OPERATOR_KEY; prefer the variable)
+
+Control plane side (the region hub; run once, safe to repeat)
+  hub init [<dir>]          Generate the hub's NATS config, operator/account seeds, control plane
+                            credentials and the region-signing key in <dir> (default ./config), all 0600;
+                            existing files are kept. Prints the next steps
+      --leaf-tls-cert <f>     the leaf listener's certificate, as the hub's NATS server sees it
+      --leaf-tls-key <f>      its key (TLS is required unless --allow-no-tls, for local stacks)
+      --leaf-port <n>         the leaf port (default 7422)
 
 Region side (on the region's machine)
   enroll <token>            Exchange a one-time enrollment token for this cell's credentials
@@ -83,7 +92,7 @@ export function parseArgs(argv: string[]): Args {
     }
     const [k, v] = a.slice(2).split("=", 2);
     if (v !== undefined) out.flags[k] = v;
-    else if (["allow-insecure", "help", "json"].includes(k))
+    else if (["allow-insecure", "allow-no-tls", "help", "json"].includes(k))
       out.flags[k] = true;
     else out.flags[k] = argv[++i] ?? "";
   }
@@ -209,6 +218,26 @@ export async function main(argv: string[], out = process.stdout) {
   const print = (s: string) => out.write(s + "\n");
   if (!cmd || a.flags.help) return print(USAGE);
   if (await cloud(a, print)) return;
+
+  if (cmd === "hub") {
+    if (sub !== "init") throw new Error(`usage: ${COMMAND} hub init [<dir>]`);
+    const target = arg ?? flag(a, "dir") ?? "./config";
+    const cert = flag(a, "leaf-tls-cert");
+    const key = flag(a, "leaf-tls-key");
+    const leafPort = flag(a, "leaf-port");
+    const result = initHub(target, {
+      leafTls:
+        cert || key ? { certFile: cert ?? "", keyFile: key ?? "" } : undefined,
+      allowNoTls: Boolean(a.flags["allow-no-tls"]),
+      leafPort: leafPort ? Number(leafPort) : undefined
+    });
+    result.created.forEach((f) => print(`created ${path.join(target, f)}`));
+    result.kept.forEach((f) =>
+      print(`kept    ${path.join(target, f)} (already there)`)
+    );
+    print(hubNextSteps(target, leafPort ? Number(leafPort) : undefined));
+    return;
+  }
 
   if (cmd === "enroll") {
     const token = sub ?? process.env.FONOSTER_REGION_TOKEN;

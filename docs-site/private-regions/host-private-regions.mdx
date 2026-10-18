@@ -40,6 +40,19 @@ All commands run in your `fonoster` folder.
     `config/keys/region-signing.pem` and four files in `config/keys/region-hub/`. Running it again
     leaves existing files alone.
 
+    With the `fonoster-region` CLI (the region agent image or package) the same step is one command,
+    `fonoster-region hub init`. It writes the same files, all readable only by you (`0600`), keeps
+    any that already exist, and prints the next steps:
+
+    ```bash
+    fonoster-region hub init ./config \
+      --leaf-tls-cert /etc/nats/tls/fullchain.pem --leaf-tls-key /etc/nats/tls/privkey.pem
+    ```
+
+    The leaf port needs TLS, so the command asks for the certificate and key as the hub's NATS server
+    will see them. For a local stack only, pass `--allow-no-tls` instead; `--leaf-port` changes the
+    default `7422`.
+
     The API server runs as another user, so let it read the new keys:
 
     ```bash

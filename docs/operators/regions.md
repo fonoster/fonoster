@@ -200,6 +200,20 @@ Enrollment, credentials and secrets survive upgrades (they live in the `region` 
 - **Versions**: keep the region within the current or previous minor release. Outside that window the
   region shows **Needs upgrade** and config sync pauses; calls keep running.
 
+## Setting up the region hub (control plane)
+
+`fonoster-region hub init [<dir>] --leaf-tls-cert <file> --leaf-tls-key <file>` generates, once, what
+the control plane's region hub needs (also available as `fonoster-region-hub-setup` in the API
+server image): `region-hub.conf` (NATS in operator mode with a leaf listener on 7422),
+`keys/region-hub/{operator.seed,account.seed,control-plane.creds,system.creds}` and
+`keys/region-signing.pem` (the ES256 key that signs enrollment tokens). Every file is `0600`; files
+that already exist are kept, so the command is safe to run again. The leaf listener needs TLS, so the
+certificate and key are required (as paths the hub's NATS server sees); `--allow-no-tls` is for local
+stacks only and `--leaf-port` changes the port. The command prints the next steps: run NATS with the
+config, point the API server's `regions` config (`signingKey`, `leafUrl`, `hub`) at the files, or with
+Helm put them in `natsRegions.configSecret`, `apiserver.regionHubSecret` and `apiserver.keysSecret`.
+Keep `keys/region-hub/` secret: the seeds mint credentials for any region.
+
 ## Public regions (operators)
 
 Public regions are created on the cloud side with the operator key (the API server's
