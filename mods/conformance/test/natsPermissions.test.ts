@@ -284,8 +284,15 @@ describe("@conformance/nats permissions (per-service users)", function () {
     );
     expect(await delivered(gw, api, "callrecord.sealed")).to.equal(true);
     expect(await delivered(gw, api, "registry.used")).to.equal(true);
-    expect(await delivered(node, api, "webhooks.events")).to.equal(true);
+    // A node reports unclaimed calls on its own subject; the control plane makes the webhook.
+    expect(
+      await delivered(node, api, `media.${nodeId}.events.call-failed`)
+    ).to.equal(true);
+    expect(await delivered(gw, api, "webhooks.events")).to.equal(true);
     expect(await delivered(api, api, "calls.create")).to.equal(true);
+    // TrackCall: the placing replica and the node report a call's status per ref.
+    expect(await delivered(api, api, "calls.r1.events")).to.equal(true);
+    expect(await delivered(node, api, "calls.r1.events")).to.equal(true);
     expect(await delivered(routr, api, "routr.call.started")).to.equal(true);
     expect(await delivered(api, gw, "callrecord.local.maintenance")).to.equal(
       true
@@ -301,6 +308,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     // Calls are created by the control plane only.
     expect(await delivered(gw, api, "calls.create")).to.equal(false);
     expect(await delivered(node, api, "calls.create")).to.equal(false);
+    expect(await delivered(gw, api, "calls.r1.events")).to.equal(false);
     // Record maintenance is asked by the control plane only.
     expect(await delivered(node, gw, "callrecord.local.maintenance")).to.equal(
       false
@@ -312,6 +320,8 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(gw, api, "routr.call.started")).to.equal(false);
     // Catalog use comes from gateways.
     expect(await delivered(node, api, "registry.used")).to.equal(false);
+    // A node cannot speak for a workspace on the webhook bus (M6).
+    expect(await delivered(node, api, "webhooks.events")).to.equal(false);
   });
 
   it("refuses subscriptions outside a service's subjects", async function () {

@@ -46,7 +46,14 @@ const IDENTITY_PUBLIC = rsa.publicKey
   .export({ type: "spki", format: "pem" })
   .toString();
 
-function token(role: string, accessKeyId = "ws-1") {
+// The records API takes tokens from this issuer, for this audience only (M5).
+const TOKEN_OPTIONS = { issuer: "https://id.test", audience: "api" };
+
+function token(
+  role: string,
+  accessKeyId = "ws-1",
+  options: jwt.SignOptions = {}
+) {
   return jwt.sign(
     {
       sub: `user-${role}`,
@@ -55,7 +62,13 @@ function token(role: string, accessKeyId = "ws-1") {
       access: [{ accessKeyId, role }]
     },
     rsa.privateKey.export({ type: "pkcs8", format: "pem" }).toString(),
-    { algorithm: "RS256", expiresIn: 300 }
+    {
+      algorithm: "RS256",
+      expiresIn: 300,
+      issuer: TOKEN_OPTIONS.issuer,
+      audience: TOKEN_OPTIONS.audience,
+      ...options
+    }
   );
 }
 
@@ -217,6 +230,7 @@ describe("@apiserver call records", function () {
       createRecordsRouter({
         db: mem.db,
         identityPublicKey: IDENTITY_PUBLIC,
+        identityTokenOptions: TOKEN_OPTIONS,
         stores: (location) =>
           location === stores.store.location ? stores.store : undefined,
         maintenance
@@ -254,6 +268,22 @@ describe("@apiserver call records", function () {
       },
       body: JSON.stringify(body)
     });
+
+  it("refuses tokens from another issuer or for another audience (M5)", async function () {
+    const as = (bearer: string) =>
+      fetch(base, {
+        headers: { authorization: `Bearer ${bearer}`, "x-accesskey-id": "ws-1" }
+      }).then((r) => r.status);
+    expect(await as(token("WORKSPACE_ADMIN"))).to.equal(200);
+    expect(
+      await as(
+        token("WORKSPACE_ADMIN", "ws-1", { issuer: "https://other.test" })
+      )
+    ).to.equal(401);
+    expect(
+      await as(token("WORKSPACE_ADMIN", "ws-1", { audience: "other" }))
+    ).to.equal(401);
+  });
 
   it("indexes sealed records and keeps the highest version", async function () {
     const row = mem.records.get("call-card")!;

@@ -13,7 +13,7 @@ Verify against code before drafting with /ps:docs.
   plus nats-test and a fonoster_test DB. The workspace takes the media node's fixed address and the service
   names, so bundle Envoy routes and configs work unchanged. Fake speech/LLM providers on by default.
 - Commands: `dev` (all, prefixed logs) · `dev:apiserver` (migrations + seed once, then tsx watch) ·
-  `dev:gateway`, `dev:autopilot` (tsx watch) · `dev:medianode` (go build + restart on .go change; a failed build
+  `dev:appbridge`, `dev:autopilot` (tsx watch) · `dev:medianode` (go build + restart on .go change; a failed build
   keeps the running node) · `dev:dashboard` (Vite :3030) · `dev:fakes` (fake TTS/STT/LLM :7001–7003) ·
   `dev:config` (re-render .dev/, keeps secrets) · `dev:info` (URL + owner login).
 - Host ports: dashboard + API http://localhost:8449; SIP 5060; RTP 10000–10999; MinIO 9000/9001 and NATS 4222 on

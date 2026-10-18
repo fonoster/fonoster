@@ -5,9 +5,9 @@
 # (https://docs.fonoster.com/self-hosting/install-compose).
 domain: fonoster.local
 appUrl: ${PUBLIC_URL}
-# Browser calls ("Talk to agent"): SIP over WebSocket through Envoy's /sip. Browsers allow the
-# microphone only on HTTPS or http://localhost, so without TLS open the dashboard on localhost.
-signalingServer: "ws://${HOST_IP}:${HTTP_PORT}/sip"
+# Browser calls ("Talk to agent") use SIP over WebSocket through Envoy's /sip on appUrl's origin:
+# ws:// for http://, wss:// for https:// (compose.tls.yaml). Browsers allow the microphone only on
+# HTTPS or http://localhost, so without TLS open the dashboard on localhost.
 server: { bindAddr: 0.0.0.0:50051, httpBridgePort: 9876, host: apiserver }
 logs: { level: info, format: text, transport: console }
 # OTLP/HTTP export to your collector; empty (the default) is off.
@@ -49,7 +49,8 @@ identity:
   invites: { expiration: 1d }
   owner: { name: Admin, email: "${OWNER_EMAIL}", password: "${OWNER_PASSWORD}" }
 # This machine as the public region `default`: Routr's SIP port and RTPEngine's range on the host
-# address. Private regions join through the region hub: `fonoster-config init --regions`.
+# address. Private regions join through a region hub you add yourself:
+# https://docs.fonoster.com/private-regions/host-private-regions
 regions:
   public:
     - id: default

@@ -22,7 +22,7 @@ on:
       - 'mods/region-agent/**'
       - 'mods/common/**'
       - 'mods/conformance/**'
-      - 'mods/gateway/**'
+      - 'mods/appbridge/**'
       - 'mods/voice/**'
       - 'mods/autopilot/**'
       - 'mods/callrecord/**'
@@ -97,14 +97,14 @@ jobs:
           LOGS_LEVEL: none
         run: |
           npx mocha --exit --timeout 30000 \
-            'mods/gateway/test/conformance.test.ts' \
-            'mods/gateway/test/integration.test.ts' \
-            'mods/gateway/test/crash.test.ts' \
+            'mods/appbridge/test/conformance.test.ts' \
+            'mods/appbridge/test/integration.test.ts' \
+            'mods/appbridge/test/crash.test.ts' \
             'mods/conformance/test/nats.test.ts' \
             'mods/conformance/test/media-control.test.ts' \
             'mods/conformance/test/media-control-go.test.ts' \
-            'mods/gateway/test/gonode.test.ts' \
-            'mods/gateway/test/observability.test.ts' \
+            'mods/appbridge/test/gonode.test.ts' \
+            'mods/appbridge/test/observability.test.ts' \
             'mods/conformance/test/medianode-secrets.test.ts' \
             'mods/autopilot/test/session/fullstack.test.ts' \
             'mods/apiserver/test/outbound/placeOutboundCall.test.ts' \
@@ -171,25 +171,27 @@ jobs:
           CONFORMANCE_TIMING_RUNS: "200"
           CONFORMANCE_REPORT_DIR: reports
           LOGS_LEVEL: none
-        run: npx mocha --timeout 0 'mods/gateway/test/timing.test.ts'
+        run: npx mocha --timeout 0 'mods/appbridge/test/timing.test.ts'
 
       - name: Load (T2)
         run: |
           mkdir -p reports
-          npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 60 | tee reports/scale-100.json
+          npx tsx mods/appbridge/scripts/scale.ts --calls 100 --seconds 60 | tee reports/scale-100.json
           # A reduced multi-replica profile: the full bar (ten replicas, 1,000 calls) needs about
           # 20 vCPU for the gateways alone, more than a hosted runner has (harden-conformance 2.2).
-          npx tsx mods/gateway/scripts/scale.ts --calls 200 --seconds 60 --replicas 2 | tee reports/scale-2x200.json
+          # The fakes run in their own worker processes (one per 100 calls, about as much CPU as
+          # the gateways they load); a report "warning" means a worker lagged and measured itself.
+          npx tsx mods/appbridge/scripts/scale.ts --calls 200 --seconds 60 --replicas 2 | tee reports/scale-2x200.json
 
       - name: Turn-taking replay (T3)
-        run: npx tsx mods/gateway/scripts/replay.ts | tee reports/turn-replay.txt
+        run: npx tsx mods/appbridge/scripts/replay.ts | tee reports/turn-replay.txt
 
       - name: Pipecat golden test
         env:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
           PIPECAT_PYTHON: python
           LOGS_LEVEL: none
-        run: npx mocha --timeout 60000 'mods/gateway/test/pipecat.test.ts'
+        run: npx mocha --timeout 60000 'mods/appbridge/test/pipecat.test.ts'
 
       - name: Publish reports
         if: always()
@@ -230,7 +232,7 @@ jobs:
       - name: Load (T2), ten replicas at 1,000 calls
         run: |
           mkdir -p reports
-          npx tsx mods/gateway/scripts/scale.ts --calls 1000 --seconds 60 --replicas 10 | tee reports/scale-10x1000.json
+          npx tsx mods/appbridge/scripts/scale.ts --calls 1000 --seconds 60 --replicas 10 | tee reports/scale-10x1000.json
 
       - name: Publish reports
         if: always()

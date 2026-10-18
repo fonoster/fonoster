@@ -1,11 +1,8 @@
 {
-  "node-option": [
-    "import=tsx"
-  ],
-  "ignore": [
-    "**/node_modules/**"
-  ],
+  "node-option": ["import=tsx"],
+  "ignore": ["**/node_modules/**"],
   "require": [
-    "mods/apiserver/test/setupConfig.ts"
+    "mods/apiserver/test/setupConfig.ts",
+    "mods/conformance/test/natsBusLock.ts"
   ]
 }

@@ -1,0 +1,22 @@
+{{- if .Values.appbridge.enabled }}
+{{- $cfg := tpl (toYaml .Values.appbridge.config) . | fromYaml }}
+{{- $_ := set $cfg "nats" (merge (default (dict) $cfg.nats) (include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "gateway") | fromYaml)) }}
+{{- if .Values.regionAgent.enabled }}
+{{- /* A cell: provider keys from the mounted cell secrets; in a public region the workspace's own
+key first, fetched from the cloud per call (add-private-regions 5.9). */}}
+{{- $cell := dict "dir" "/var/lib/fonoster-secrets" }}
+{{- if .Values.regionAgent.workspaceKeysFromCloud }}{{- $_ := set $cell "workspaceKeysFromCloud" true }}{{- end }}
+{{- $_ := set $cfg "cellSecrets" (merge (default (dict) $cfg.cellSecrets) $cell) }}
+{{- end }}
+{{- /* The media node sends RTP to this pod's IP unless rtp.advertiseHost is set. */}}
+{{- $_ := set $cfg "rtp" (merge (default (dict) $cfg.rtp) (dict "host" "0.0.0.0" "advertiseHostEnv" "POD_IP")) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-appbridge
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  gateway.yaml: |
+    {{- toYaml $cfg | nindent 4 }}
+{{- end }}

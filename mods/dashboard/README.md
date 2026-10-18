@@ -28,5 +28,11 @@ nginx serves `dist/`. At start-up `nginx/40-fonoster-config.sh` writes
 docker run -p 3030:3030 -e DASHBOARD_API_URL=https://api.example.com fonoster/dashboard
 ```
 
-The session lives in `localStorage` (`fonoster.session`); the CSP allows scripts
-from the dashboard's own origin only.
+No token is stored in the browser (security review M4). The access and id tokens
+live in memory; the refresh token sits in an httpOnly, `SameSite=Strict` cookie
+that the apiserver sets on `/api/session` (Envoy routes `/api` on the
+dashboard's origin, so no CORS change is needed). A reload restores the session
+through `POST /api/session/refresh`; signing out calls `/api/session/logout`,
+which revokes the sign-in. Serve the dashboard behind the same Envoy as the API:
+on another origin (a dev server without Envoy), sessions stay in memory and end
+on reload. The CSP allows scripts from the dashboard's own origin only.

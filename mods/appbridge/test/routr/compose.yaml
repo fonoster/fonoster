@@ -1,0 +1,43 @@
+# Throwaway Routr + Postgres for the live Routr test (routr.live.test.ts). Not for production.
+# Usage: ./rig.sh up | down | logs   (see docs/operators/routr-live-test.md)
+name: rb-cutover-routr
+services:
+  postgres:
+    image: postgres:16.10-alpine3.22
+    container_name: rb-cutover-routr-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: routr
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d routr"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  routr:
+    image: fonoster/routr-one:2.15.4
+    container_name: rb-cutover-routr
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # External database: the image's start command runs `npx prisma@6.12.0 migrate deploy`
+      # against it (the internal-database path stalls, MN-B8).
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/routr
+      START_INTERNAL_DB: "false"
+      # What Routr writes in Via / Record-Route toward the host (Docker for Mac): the host reaches
+      # the container on 127.0.0.1:15560 through the port mapping.
+      EXTERNAL_ADDRS: 127.0.0.1
+      LOGS_LEVEL: verbose
+      LOGS_FORMAT: json
+      # Our EdgePort config (SIP on 15560); mounted aside so the image's sed -i leaves it alone.
+      CONFIG_PATH: /etc/routr/rig/edgeport.yaml
+    ports:
+      - "15560:15560/udp"
+      - "15560:15560/tcp"
+      - "15551:51907"
+      # Location service: the test reads the media node's route (and its session count) here.
+      - "15552:51902"
+    volumes:
+      - ./edgeport.yaml:/etc/routr/rig/edgeport.yaml:ro

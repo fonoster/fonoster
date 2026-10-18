@@ -247,6 +247,15 @@ export class IdentityClient {
   }
 
   /**
+   * Sign-out: revokes `refreshToken` and every token rotated from the same
+   * sign-in, so it can no longer be exchanged. Access tokens already issued
+   * stay valid until they expire.
+   */
+  async revokeToken(refreshToken: string): Promise<void> {
+    await this.unary("revokeToken", { token: refreshToken });
+  }
+
+  /**
    * Exchange a workspace API key (accessKeyId + accessKeySecret) for tokens.
    * Intended for unattended, server-to-server integrations that cannot perform
    * an interactive credentials login.

@@ -57,6 +57,11 @@ import {
   withConfigChangeHook
 } from "../regions";
 import {
+  createSessionRouter,
+  identityFromHandlers,
+  SESSION_PATH
+} from "../session";
+import {
   runWebhookFanout,
   WebhookFanoutConfig
 } from "../webhooks/runWebhookFanout";
@@ -130,14 +135,27 @@ async function runServices() {
   const records = await runCallRecords(CALL_RECORDS as CallRecordsConfig, {
     natsUrl: NATS_CONNECTION,
     identityPublicKey: IDENTITY_PUBLIC_KEY,
+    identityTokenOptions: {
+      issuer: IDENTITY_ISSUER,
+      audience: IDENTITY_AUDIENCE
+    },
     db: prisma as unknown as RecordsDb,
     relay: { regionOf: regions.regionOf, client: regions.relay },
     onConfigChange: regions.onConfigChange
   });
 
+  // The dashboard's cookie session (M4): refresh token in an httpOnly cookie on its origin
+  const session = {
+    path: SESSION_PATH,
+    router: createSessionRouter({
+      identity: identityFromHandlers(handlers),
+      secureCookie: APP_URL.startsWith("https:")
+    })
+  };
+
   httpBridge(identityConfig, {
     port: HTTP_BRIDGE_PORT,
-    routers: [...records.routers, ...regions.routers]
+    routers: [...records.routers, ...regions.routers, session]
   });
 
   // Bus consumers: webhook fan-out (LO-B1) and the gateways' catalog use (LO-B11)

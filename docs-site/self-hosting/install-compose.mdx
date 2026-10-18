@@ -50,8 +50,8 @@ You need:
     cd fonoster
     ```
 
-    The folder holds `compose.yaml`, `.env.example`, a `config` folder with one example per
-    service, and a `README.md`.
+    The folder holds `compose.yaml`, `compose.tls.yaml` (for HTTPS, below), `.env.example`, a
+    `config` folder with one example per service and their schemas, and a `README.md`.
   </Step>
 
   <Step title="Generate the configuration">
@@ -65,12 +65,13 @@ You need:
     It prints what it wrote:
 
     ```text
-    .env written (11 secrets generated)
-    keys: 10 files created in config/keys
-    config: config/autopilot.yaml, config/fonoster.yaml, config/gateway.yaml, config/routr-edgeport.yaml
+    .env written (10 secrets generated)
+    keys: 3 files created in config/keys
+    config: config/autopilot.yaml, config/fonoster.yaml, config/gateway.yaml, config/medianode.yaml, config/routr-edgeport.yaml
     host address: 192.0.2.10
 
     Next: docker compose up -d
+    Then: npx -p @fonoster/common fonoster-config info (dashboard URL and owner login)
     ```
 
     The host address is the one softphones, carriers and browsers use to reach this machine. To use a
@@ -79,7 +80,8 @@ You need:
     <Tip>
       To change a port, edit it in `.env` (for example `HTTP_PORT=8449` or `SIP_PORT=5060`) and run
       `init` again, then `docker compose up -d`. `init` keeps every secret and only updates the
-      configuration.
+      configuration. To run a second install on the same machine, also give it its own
+      `COMPOSE_PROJECT_NAME` and `SUBNET_PREFIX`, and move every port in the note above.
     </Tip>
   </Step>
 
@@ -115,7 +117,7 @@ You need:
     docker compose ps
     ```
 
-    You see `apiserver`, `autopilot`, `dashboard`, `envoy`, `gateway`, `medianode`, `minio`, `nats`,
+    You see `apiserver`, `autopilot`, `dashboard`, `envoy`, `appbridge`, `medianode`, `minio`, `nats`,
     `postgres`, `routr` and `rtpengine`, each `Up`.
   </Step>
 
@@ -131,6 +133,10 @@ You need:
     Owner       admin@fonoster.local / <generated password>
     API         192.0.2.10:8449 (gRPC and gRPC-Web, plain HTTP)
     SIP         192.0.2.10:5060 (UDP and TCP)
+
+    Files       /home/you/fonoster/.env   Compose settings and the generated secrets (back it up)
+                /home/you/fonoster/config/   service settings (from config/*.example.*)
+                /home/you/fonoster/config/keys/   signing keys
     ```
   </Step>
 
@@ -158,6 +164,96 @@ Everything lives in the `fonoster` folder:
   Back up `.env`. Its encryption key protects the vendor keys you store, and they can't be recovered
   without it.
 </Warning>
+
+## Serve over HTTPS
+
+By default the dashboard and API use plain HTTP on port `8449`, on every interface. That's fine on
+a trusted network. On the internet, passwords, API keys and tokens would cross it in clear text, so
+`init` and `check` print a warning when `PUBLIC_URL` is `http://` on an address that isn't
+loopback or private. Turn on HTTPS in one of two ways.
+
+### Envoy with your certificate
+
+You need a domain name that points to this machine, and a certificate and private key for it in
+PEM files.
+
+<Steps>
+  <Step title="Get a certificate">
+    With [Let's Encrypt](https://letsencrypt.org/), get one with `certbot` while ports `80` and
+    `443` are still free:
+
+    ```bash
+    sudo certbot certonly --standalone -d voice.example.com
+    ```
+
+    It writes `fullchain.pem` and `privkey.pem` in `/etc/letsencrypt/live/voice.example.com/`.
+    Any CA works: use your own files instead.
+  </Step>
+
+  <Step title="Turn on HTTPS in .env">
+    Uncomment and fill these lines in `.env`, and set `PUBLIC_URL` to the certificate's domain:
+
+    ```bash
+    COMPOSE_FILE=compose.yaml:compose.tls.yaml
+    PUBLIC_URL=https://voice.example.com
+    TLS_CERT=/etc/letsencrypt/live/voice.example.com/fullchain.pem
+    TLS_KEY=/etc/letsencrypt/live/voice.example.com/privkey.pem
+    ```
+
+    `COMPOSE_FILE` adds `compose.tls.yaml`, which mounts the two files read-only into Envoy.
+  </Step>
+
+  <Step title="Apply it">
+    Write the configuration again and recreate the services:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config init
+    docker compose up -d
+    ```
+
+    `init` warns if a file is missing or `PUBLIC_URL` isn't `https://`. Envoy now serves HTTPS on
+    port `443` and redirects port `80` to it. Port `8449` is no longer published. Browser calls
+    switch to `wss://voice.example.com/sip` on their own.
+  </Step>
+</Steps>
+
+Envoy reads the certificate when its container is created. After a renewal, recreate it. Because
+Envoy holds port `80`, stop it while `certbot` renews:
+
+```bash
+sudo certbot renew \
+  --pre-hook "cd /path/to/fonoster && docker compose stop envoy" \
+  --post-hook "cd /path/to/fonoster && docker compose up -d --force-recreate envoy"
+```
+
+### A reverse proxy in front
+
+If you already run a proxy that terminates TLS (Caddy, nginx, Traefik, a cloud load balancer),
+keep Envoy on plain HTTP and publish it on this machine only:
+
+```bash
+HTTP_BIND=127.0.0.1
+PUBLIC_URL=https://voice.example.com
+```
+
+Run `init` and `docker compose up -d`, then point the proxy at `127.0.0.1:8449`. The proxy must
+forward gRPC (HTTP/2) and WebSocket upgrades on `/sip`.
+
+### SIP over TLS
+
+SIP stays on UDP and TCP `5060`. To also accept SIP over TLS on `5061`, convert your certificate
+into a PKCS#12 keystore for Routr:
+
+```bash
+mkdir -p config/tls
+openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem \
+  -out config/tls/signaling.p12 -passout pass:<password>
+```
+
+Then uncomment the `routr` lines in `compose.tls.yaml` and the `tls` transport in
+`config/routr-edgeport.example.yaml`, set its `keyStorePassword` and `trustStorePassword` to
+`<password>`, and run `init` and `docker compose up -d`. Carriers and softphones then use
+`transport=tls` on port `5061`. Call media (RTP) isn't encrypted by this.
 
 ## Next steps
 

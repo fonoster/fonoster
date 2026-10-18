@@ -43,5 +43,5 @@ by name at start as ignored.
   (a SIP caller bot calls the node; the test plays the gateway).
 - `mods/conformance/test/media-control-go.test.ts`: the media-control scenario files against this
   node, with the caller bot (`cmd/sipcaller`, an HTTP-driven SIP UA) as the caller.
-- `mods/gateway/test/gonode.test.ts`: the voice-session suite through gateway → this node → caller
+- `mods/appbridge/test/gonode.test.ts`: the voice-session suite through gateway → this node → caller
   bot, over real SIP and RTP.

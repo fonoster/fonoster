@@ -248,7 +248,7 @@ ElevenLabs voice. The answers were on topic.
 
 ```sh
 ops/rebuild/stack ps                 # containers
-ops/rebuild/stack logs gateway       # follow one service (or all: no argument)
+ops/rebuild/stack logs appbridge     # follow one service (or all: no argument)
 ops/rebuild/stack down               # stop; data stays in the volumes
 ops/rebuild/stack reset              # stop and delete volumes and ops/rebuild/.local
 ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP=1 keeps it up)

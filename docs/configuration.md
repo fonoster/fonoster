@@ -33,6 +33,17 @@ docker compose up -d
 Developing Fonoster: open the repository in its dev container, which does the
 same into `.dev/`, then `npm run dev` (CONTRIBUTING.md).
 
+**HTTPS (Compose).** Envoy serves plain HTTP on `HTTP_PORT` by default. Setting
+`COMPOSE_FILE=compose.yaml:compose.tls.yaml`, `TLS_CERT` and `TLS_KEY` (PEM files on
+the host, mounted read-only) and `PUBLIC_URL=https://<domain>` in `.env` switches it
+to `config/envoy-tls.yaml`: HTTPS on 443, a redirect on 80, and 8449 unpublished.
+`HTTP_BIND=127.0.0.1` instead keeps plain HTTP on the host for a TLS proxy in front.
+Browser calls follow `appUrl` (`ws://` or `wss://…/sip`). `init` and `check` warn
+when `PUBLIC_URL` is `http://` on a non-private address or the HTTPS setup is
+incomplete. SIP over TLS (Routr on 5061) is documented, commented out, in
+`compose.tls.yaml` and `routr-edgeport.example.yaml`
+(docs-site/self-hosting/install-compose.mdx).
+
 ## How the files work
 
 - **Where they're found.** `--config <path>`, otherwise `/config/<name>.<ext>`, then
@@ -221,6 +232,14 @@ in the environment.
   re-stored as scrypt digests and the reversible copies are cleared. Take a
   database snapshot before upgrading. Self-service sign-up (`CreateUser`) now
   requires `features.auth.signup: open`.
+- **Dashboard sessions use a cookie.** The dashboard no longer keeps tokens in
+  `localStorage`: the refresh token lives in an httpOnly, `SameSite=Strict`
+  cookie the API server sets on `/api/session` (served through Envoy's existing
+  `/api` route, on the dashboard's origin; no CORS change). The cookie is
+  `Secure` when `appUrl` is https, so a plain-http deployment still works but
+  should move to TLS. Serve the dashboard and the API from the same origin, or
+  dashboard sessions end on every reload. A session an older dashboard stored
+  is moved into the cookie on first load; if that fails, users sign in once more.
 - **Verification codes are single use**, expire after 5 minutes, and stop
   working after 5 wrong guesses or when a newer code is sent.
 - **The apiserver image** starts through `dist/bin/entrypoint.js`, which waits for

@@ -175,6 +175,7 @@ AmdResult = TypedDict(
         "confidence": float,
         "detector": str,
         "audioMs": float,
+        "speechOnsetMs": NotRequired[float],
         "reason": NotRequired[str],
     },
 )

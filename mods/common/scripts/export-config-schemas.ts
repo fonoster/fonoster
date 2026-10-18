@@ -48,7 +48,7 @@ const SERVICES: Record<
   gateway: {
     file: "gateway.yaml",
     schema: async () =>
-      (await import("../../gateway/src/configSchema")).gatewayConfigSchema
+      (await import("../../appbridge/src/configSchema")).gatewayConfigSchema
   },
   autopilot: {
     file: "autopilot.yaml",

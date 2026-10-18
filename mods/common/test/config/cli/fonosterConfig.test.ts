@@ -43,6 +43,10 @@ import {
 } from "../../../src/config/cli/render";
 import { encryptionKey, generateSecret } from "../../../src/config/cli/secrets";
 import { runInit } from "../../../src/config/cli/init";
+import {
+  exposureWarnings,
+  isLocalHost
+} from "../../../src/config/cli/exposure";
 import { Io } from "../../../src/config/cli/types";
 import { exportConfigSchemas } from "../../../scripts/export-config-schemas";
 
@@ -247,9 +251,10 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(
         yamlOf(dir, "routr-edgeport.yaml").spec.transport[0].port
       ).to.equal(5060);
-      // Browser calls (add-talk-in-browser): SIP over WebSocket behind Envoy's /sip, test tokens
-      // checked with Identity's public key.
-      expect(resolved.signalingServer).to.equal("ws://192.0.2.10:8449/sip");
+      // Browser calls (add-talk-in-browser): SIP over WebSocket behind Envoy's /sip, on appUrl's
+      // origin (no signalingServer: ws:// or wss:// follows PUBLIC_URL), test tokens checked with
+      // Identity's public key.
+      expect(resolved.signalingServer).to.equal(undefined);
       expect(yamlOf(dir, "routr-edgeport.yaml").spec.transport).to.deep.include(
         { protocol: "ws", port: 5062 }
       );
@@ -378,6 +383,119 @@ describe("@common[config/cli] fonoster-config", function () {
       const check = await cli(["check", "--dir", dir]);
       for (const text of [run.out, run.err, info.out, check.out, check.err])
         expect(text).to.not.match(/rebuild|RB_/i);
+    });
+  });
+
+  describe("HTTPS (M10)", function () {
+    /** A certificate and key path that exist (contents don't matter to the warnings). */
+    function certFiles(dir: string) {
+      const cert = join(dir, "fullchain.pem");
+      const key = join(dir, "privkey.pem");
+      writeFileSync(cert, "cert");
+      writeFileSync(key, "key");
+      return { cert, key };
+    }
+
+    it("warns when PUBLIC_URL is plain HTTP on an address others may reach", async function () {
+      const dir = unpack();
+      const run = await init(dir, "203.0.113.10");
+      expect(run.code, run.err).to.equal(0);
+      expect(run.err).to.contain(
+        "warning: PUBLIC_URL is http://203.0.113.10:8449: the dashboard and API"
+      );
+      expect(run.err).to.contain("compose.tls.yaml");
+      const check = await cli(["check", "--dir", dir]);
+      expect(check.code, check.err).to.equal(0);
+      expect(check.err).to.contain("warning: PUBLIC_URL is http://");
+    });
+
+    it("says nothing for a local or private address, or an https:// PUBLIC_URL", async function () {
+      for (const host of ["10.1.2.3", "192.168.1.20", "127.0.0.1"]) {
+        const run = await init(unpack(), host);
+        expect(run.code, run.err).to.equal(0);
+        expect(run.err, host).to.not.contain("warning");
+      }
+      // A TLS proxy in front (HTTP_BIND=127.0.0.1), Envoy on plain HTTP behind it.
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      appendFileSync(
+        join(dir, ".env"),
+        "HTTP_BIND=127.0.0.1\nPUBLIC_URL=https://voice.example.com\n"
+      );
+      const run = await init(dir);
+      expect(run.err).to.not.contain("warning");
+    });
+
+    it("accepts a complete HTTPS setup and prints the HTTPS address", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const { cert, key } = certFiles(dir);
+      appendFileSync(
+        join(dir, ".env"),
+        [
+          "COMPOSE_FILE=compose.yaml:compose.tls.yaml",
+          "PUBLIC_URL=https://voice.example.com",
+          `TLS_CERT=${cert}`,
+          `TLS_KEY=${key}`,
+          ""
+        ].join("\n")
+      );
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      expect(run.err).to.not.contain("warning");
+      const info = await cli(["info", "--dir", dir]);
+      expect(info.out).to.contain("Dashboard   https://voice.example.com");
+      expect(info.out).to.contain(
+        "voice.example.com:443 (gRPC and gRPC-Web, TLS)"
+      );
+      expect(info.out).to.not.contain("plain HTTP");
+    });
+
+    it("warns about an incomplete HTTPS setup without failing", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      appendFileSync(
+        join(dir, ".env"),
+        "COMPOSE_FILE=compose.yaml:compose.tls.yaml\nTLS_CERT=missing/fullchain.pem\n"
+      );
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      expect(run.err).to.contain("TLS_CERT: missing/fullchain.pem not found");
+      expect(run.err).to.contain("TLS_KEY is not set");
+      expect(run.err).to.contain("PUBLIC_URL is http://");
+
+      // A certificate without compose.tls.yaml does nothing.
+      expect(
+        exposureWarnings(
+          { PUBLIC_URL: "http://localhost:8449", TLS_CERT: "x" },
+          dir
+        )
+      ).to.deep.equal([
+        "TLS_CERT/TLS_KEY are set but COMPOSE_FILE does not name compose.tls.yaml: Envoy still serves plain HTTP"
+      ]);
+    });
+
+    it("treats loopback, private and .local hosts as local", function () {
+      for (const h of [
+        "localhost",
+        "app.localhost",
+        "fonoster.local",
+        "127.0.0.1",
+        "10.0.0.1",
+        "172.20.0.1",
+        "192.168.0.10",
+        "::1",
+        "[fd00::1]"
+      ])
+        expect(isLocalHost(h), h).to.equal(true);
+      for (const h of [
+        "203.0.113.10",
+        "8.8.8.8",
+        "172.32.0.1",
+        "voice.example.com",
+        "2001:db8::1"
+      ])
+        expect(isLocalHost(h), h).to.equal(false);
     });
   });
 

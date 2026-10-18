@@ -137,3 +137,37 @@ func TestUnheardGatewayKeepsItsRooms(t *testing.T) {
 		t.Fatal("a room of a gateway never heard was ended")
 	}
 }
+
+// The gateway that acked an outbound call dies while it rings (in-memory state audit, test 5):
+// participant.dial named it as owner, so once its heartbeats stop the node ends the room, also
+// after the callee answers into it, instead of leaving the callee in dead air.
+func TestOutboundRoomEndsWhenItsGatewayDiesWhileRinging(t *testing.T) {
+	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.OwnerTimeout = 800 * time.Millisecond }})
+	gatewayRef := fmt.Sprintf("gw-out-%d", time.Now().UnixNano())
+	// The gateway is alive when it takes the call, then is killed: one heartbeat, no more.
+	_ = r.nc.Publish(node.GatewayHeartbeatSubject, []byte(`{"type":"gateway.heartbeat","gatewayRef":"`+gatewayRef+`","calls":0}`))
+	_ = r.nc.Flush()
+	r.callee.Callee("answer", 300*time.Millisecond) // answers after the gateway is gone
+	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
+	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room,
+		"to": "+15551234567", "gatewayRef": gatewayRef})
+	r.waitEvent(typed("call.answered", "id", "d1"), 3*time.Second)
+	ended := r.waitEvent(typed("room.ended", "roomRef", room), 4*time.Second)
+	if ended["reason"] != node.ReasonNodeError {
+		t.Fatalf("room.ended %v", ended)
+	}
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		calls := r.callee.Calls()
+		if len(calls) == 1 && calls[0].State == "ended" {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("the callee's call did not end: %+v", calls)
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	if n := r.node.ActiveRooms(); n != 0 {
+		t.Fatalf("rooms %d", n)
+	}
+}

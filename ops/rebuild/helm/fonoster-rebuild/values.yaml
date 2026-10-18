@@ -134,9 +134,9 @@ minio:
 
 # ---- data plane ----
 
-gateway:
+appbridge:
   enabled: true
-  image: { repository: fonoster/gateway, tag: dev, pullPolicy: IfNotPresent }
+  image: { repository: fonoster/appbridge, tag: dev, pullPolicy: IfNotPresent }
   replicas: 2
   # In-flight sessions are not moved between replicas; give calls time to finish on rollout.
   terminationGracePeriodSeconds: 30
@@ -156,6 +156,10 @@ gateway:
   # CLICKHOUSE_PASSWORD, for config callRecord.analytics.clickhouse: { url } (an external
   # ClickHouse; the chart runs none). Empty: no analytics credentials.
   analyticsSecret: ""
+  # The volume mounted at config callRecord.dir (call records being written), when it is set. An
+  # emptyDir keeps them across container restarts (crash, OOM kill) but not when the pod is
+  # deleted; calls in flight are sealed on a graceful stop (terminationGracePeriodSeconds).
+  recordsVolume: { emptyDir: {} }
   resources: {}
   podDisruptionBudget: { minAvailable: 1 }
 

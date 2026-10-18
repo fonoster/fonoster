@@ -30,16 +30,31 @@ export type MediaNodeStatus = {
 export const NODE_STALE_MS = 6000;
 
 /**
+ * A node silent this long is forgotten. A crashed or replaced node sends no `node.down` and its
+ * registry lease expires without a delete event, so silence is the only sign it is gone.
+ */
+export const NODE_FORGET_MS = 60_000;
+
+/**
  * The media nodes this replica knows, for placing outbound calls (add-media-node 3.3): fed by the
  * session registry's `nodes.` entries (JetStream KV, 3.2; read in full at start, so a restarted
  * replica places calls at once) and by `node.heartbeat` / `node.down` events.
  */
 export function createNodeDirectory(
-  options: { staleMs?: number; now?: () => number } = {}
+  options: { staleMs?: number; forgetMs?: number; now?: () => number } = {}
 ) {
   const staleMs = options.staleMs ?? NODE_STALE_MS;
+  const forgetMs = Math.max(options.forgetMs ?? NODE_FORGET_MS, staleMs);
   const now = options.now ?? Date.now;
   const nodes = new Map<string, MediaNodeStatus>();
+  let sweptAt = now();
+  /** Drops the nodes silent for `forgetMs` (at most once per `staleMs`). */
+  const forget = () => {
+    const t = now();
+    if (t - sweptAt < staleMs) return;
+    sweptAt = t;
+    for (const [id, n] of nodes) if (t - n.seenAt > forgetMs) nodes.delete(id);
+  };
 
   return {
     /**
@@ -66,6 +81,7 @@ export function createNodeDirectory(
           seenAt: at
         });
       }
+      forget();
     },
     /**
      * The least-loaded eligible node (live, not draining, below its room limit), skipping the

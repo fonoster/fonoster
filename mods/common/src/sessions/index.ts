@@ -24,8 +24,12 @@ import type { KV, KvEntry, NatsConnection } from "nats";
  *
  *   nodes.<nodeId>        media node: { nodeId, rooms, draining, at }      (written by the node)
  *   rooms.<roomRef>       media node: { roomRef, nodeId, at }              (written by the node)
- *   calls.<callRef>       gateway:    { callRef, gatewayRef, nodeId, roomRef, appRef, at }
+ *   calls.<callRef>       gateway:    { callRef, gatewayRef, nodeId, roomRef, direction, at }
+ *                                     + once answered: { appRef, from, to, startedAt }
  *   gateways.<gatewayRef> gateway:    { gatewayRef, calls, at }
+ *
+ * The control plane reads `calls` and `gateways`: a call whose entry and whose gateway's entry
+ * both stop being rewritten lost its gateway mid-call, and gets `call.ended` (`appbridge-lost`).
  *
  * Entries are leases: the bucket keeps a value for SESSIONS_TTL_MS after its last write, owners
  * rewrite theirs every SESSIONS_REFRESH_MS, and a crashed owner's entries expire on their own. The
@@ -120,6 +124,11 @@ export class SessionLeases {
     const key = sessionKey(kind, id);
     this.entries.delete(key);
     return this.write(key);
+  }
+
+  /** Reads any owner's entry from the bucket (undefined when absent or expired). */
+  get(kind: SessionKind, id: string) {
+    return getSession(this.kv, kind, id);
   }
 
   /** Rewrites every live entry (called on a timer). */

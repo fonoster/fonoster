@@ -25,7 +25,7 @@ import { fsStores } from "@fonoster/callrecord";
 import { CellSecrets } from "@fonoster/common";
 import { connect, NatsConnection, StringCodec } from "nats";
 import { createTestDb, TestDb } from "../../common/test/persistence/testDb";
-import { PrismaAppStore } from "../../gateway/src/apps/AppStore";
+import { PrismaAppStore } from "../../appbridge/src/apps/AppStore";
 import {
   DatabaseApplier,
   DirIdentityStore,

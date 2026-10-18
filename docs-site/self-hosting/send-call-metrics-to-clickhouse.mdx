@@ -1,0 +1,131 @@
+---
+title: "Send call metrics to ClickHouse"
+description: "Load one row of metrics per call into your own ClickHouse, for dashboards and reports."
+---
+
+When a call ends, the voice gateway seals its call record. With analytics on, it also writes one
+row of metrics for that call to your ClickHouse. Fonoster doesn't run ClickHouse for you: bring
+your own server or a ClickHouse Cloud service.
+
+## Before you begin
+
+You need:
+
+- Fonoster installed with Docker Compose. See [Install with Docker Compose](/self-hosting/install-compose).
+- A ClickHouse server the gateway container can reach over HTTP or HTTPS (port `8123` or `8443`).
+  `localhost` inside the container is the container itself, not your machine.
+- A ClickHouse user that can run `CREATE DATABASE`, `CREATE TABLE`, `INSERT`, `DELETE` and
+  `SELECT` on the database you pick.
+
+## Turn on analytics
+
+<Steps>
+  <Step title="Add the ClickHouse login to .env">
+    In your `fonoster` folder, add the user and password to `.env`:
+
+    ```bash
+    CLICKHOUSE_USER=fonoster
+    CLICKHOUSE_PASSWORD=<password>
+    ```
+
+    Compose passes these two values to the gateway container only. Add them before the next step:
+    `init` stops if `config/gateway.example.yaml` names a value that `.env` doesn't set.
+  </Step>
+
+  <Step title="Uncomment the analytics block">
+    Open `config/gateway.example.yaml`. Under `callRecord`, uncomment `analytics` and set the URL of
+    your ClickHouse HTTP interface:
+
+    ```yaml
+    callRecord:
+      # ...keep the lines above as they are
+      analytics:
+        clickhouse:
+          url: "https://clickhouse.example.com:8443"
+          database: fonoster
+          user: "${CLICKHOUSE_USER}"
+          password: "${CLICKHOUSE_PASSWORD}"
+    ```
+
+    | Key        | Default        | What it is |
+    | ---------- | -------------- | ---------- |
+    | `url`      | (required)     | ClickHouse's HTTP interface |
+    | `database` | `fonoster`     | Created if missing |
+    | `table`    | `call_metrics` | Created if missing |
+    | `user`     | none           | Sent as the ClickHouse user |
+    | `password` | none           | Sent as the ClickHouse password |
+
+    Edit the example, not `config/gateway.yaml`: `init` writes that file again from the example.
+  </Step>
+
+  <Step title="Write the config and restart the gateway">
+    Write `config/gateway.yaml`, check it, and recreate the gateway:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config init
+    npx -p @fonoster/common fonoster-config check
+    docker compose up -d --force-recreate appbridge
+    ```
+  </Step>
+</Steps>
+
+You don't create the table yourself. The first time the gateway writes a row, it creates the
+database and this table:
+
+```sql
+CREATE TABLE IF NOT EXISTS fonoster.call_metrics (
+  call_ref String,
+  workspace_ref Nullable(String),
+  app_ref Nullable(String),
+  status LowCardinality(String),
+  started_at DateTime64(3, 'UTC'),
+  duration_seconds UInt32,
+  caller_turns UInt32,
+  agent_turns UInt32,
+  interruptions UInt32,
+  false_cutoffs UInt32,
+  has_recording UInt8,
+  loaded_at DateTime64(3, 'UTC')
+) ENGINE = ReplacingMergeTree(loaded_at)
+ORDER BY call_ref
+```
+
+There is one row per call. When a record changes, its row is replaced (the newest `loaded_at`
+wins). When a call is erased, its row is deleted. The metrics come from the redacted copy of the
+record, so no transcript text reaches ClickHouse.
+
+## Check that rows arrive
+
+Make a call and hang up. Then, in ClickHouse, list the latest calls. `FINAL` returns one row per
+call:
+
+```sql
+SELECT call_ref, status, started_at, duration_seconds, caller_turns, agent_turns
+FROM fonoster.call_metrics FINAL
+ORDER BY started_at DESC
+LIMIT 10
+```
+
+If no row shows up, look for the gateway's warning. A failed load never affects the call or its
+record:
+
+```bash
+docker compose logs appbridge | grep "analytics load"
+```
+
+## Load calls made before analytics was on
+
+The gateway only loads records it seals after you turn analytics on. To fill the table from every
+record already stored, run `analytics rebuild` inside the gateway container. It empties the table
+first, then loads each sealed record from the bundle's MinIO bucket:
+
+```bash
+docker compose exec appbridge sh -c '
+  printf "%s" "{\"s3\":{\"bucket\":\"records\",\"endpoint\":\"http://minio:9000\",\"region\":\"us-east-1\",\"forcePathStyle\":true,\"credentials\":{\"accessKeyId\":\"$MINIO_ROOT_USER\",\"secretAccessKey\":\"$MINIO_ROOT_PASSWORD\"}}}" > /tmp/store.json
+  node /work/mods/callrecord/dist/cli.js analytics rebuild --store-config /tmp/store.json \
+    --clickhouse-url https://clickhouse.example.com:8443 --clickhouse-database fonoster'
+```
+
+It prints `rebuilt fonoster.call_metrics from <n> records`. Add `--keep` to add rows without
+emptying the table first. The ClickHouse login comes from the container's `CLICKHOUSE_USER` and
+`CLICKHOUSE_PASSWORD`, never from the command line.

@@ -126,6 +126,13 @@ frame sent to the media node, and at most 50 ms from caller audio arriving to it
 - **AND** 200 `speak` commands are timed
 - **THEN** the p95 of (first audio frame time − `speak` time − 200 ms) is at most 50 ms
 
+#### Scenario: Caller audio to STT
+
+- **WHEN** the app has started listening and the caller starts speaking
+- **AND** 200 calls are timed
+- **THEN** the p95 of (first audible frame at the fake STT − first audible caller packet sent by the
+  fake media node) is at most 50 ms
+
 #### Scenario: Clear
 
 - **WHEN** audio is playing and the app sends `clear`
@@ -237,7 +244,7 @@ copy.
 
 ### Requirement: CI cadence
 
-Fake-based suites SHALL run on every pull request. Load suites SHALL run nightly.
+Fake-based suites SHALL run on every pull request. End-to-end and load suites SHALL run nightly.
 A failing suite MUST block the merge of a pull request that affects its contract.
 
 #### Scenario: Pull request touching the gateway
@@ -269,4 +276,15 @@ at Fonoster.
 - **WHEN** the Pipecat bot ends its pipeline with `auto_hang_up` enabled and `base_url` set to Fonoster
 - **THEN** the gateway receives the hang-up request and ends the call
 - **AND** the call record shows `session.end` with `reason: app_hangup`
+
+### Requirement: End-to-end caller bot
+
+An end-to-end suite SHALL place real SIP calls through Routr to an Autopilot app using a caller
+bot, and MUST run on every nightly build.
+
+#### Scenario: Nightly call
+
+- **WHEN** the nightly build runs
+- **THEN** the caller bot completes a scripted conversation with the Autopilot
+- **AND** a sealed call record exists for that call
 

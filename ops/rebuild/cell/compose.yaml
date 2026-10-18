@@ -69,7 +69,7 @@ services:
       retries: 10
 
   routr:
-    image: fonoster/routr-one:2.15.3
+    image: fonoster/routr-one:2.15.4
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
@@ -133,11 +133,11 @@ services:
       default:
         ipv4_address: ${RB_NET:-10.216.17}.42
 
-  gateway:
+  appbridge:
     build:
       context: ../../..
-      dockerfile: mods/gateway/Dockerfile
-    image: ${RB_REGISTRY:-fonoster}/gateway:${RB_TAG:-dev}
+      dockerfile: mods/appbridge/Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/appbridge:${RB_TAG:-dev}
     restart: unless-stopped
     depends_on:
       nats: { condition: service_healthy }
@@ -152,6 +152,8 @@ services:
       - ./config/gateway.yaml:/etc/fonoster/gateway.yaml:ro
       - ${CELL_KEYS_DIR:-./.local/keys}:/etc/fonoster/keys:ro
       - secrets:/var/lib/fonoster-secrets:ro
+      # Call records in flight (config/gateway.yaml callRecord.dir), kept across recreation.
+      - records:/var/lib/fonoster/records
     networks:
       default:
         ipv4_address: ${RB_NET:-10.216.17}.43
@@ -232,3 +234,5 @@ volumes:
   region:
   # The cell's encrypted secret store.
   secrets:
+  # The gateway's call records in flight.
+  records:

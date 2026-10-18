@@ -224,13 +224,3 @@ export function providerLabel(
 ): string {
   return options.find((o) => o.value === value)?.label ?? value;
 }
-
-/** Known audio filters (voice/src/filters.ts). */
-export const AUDIO_FILTERS = [
-  {
-    name: "aiCoustics",
-    label: "aiCoustics",
-    description:
-      "Keeps the main speaker, suppresses noise and background voices"
-  }
-];

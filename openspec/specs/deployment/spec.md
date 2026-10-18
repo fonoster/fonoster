@@ -61,6 +61,10 @@ themselves. Third-party containers keep their own configuration.
 - **WHEN** a `.env` file in the working directory sets a value that the service's YAML sets differently
 - **THEN** the service uses the YAML value
 
+#### Scenario: Development mode reads no .env either
+- **WHEN** a service starts with `NODE_ENV=development` and a `.env` file exists in the repository
+- **THEN** the service does not load it
+
 ### Requirement: Each NATS user reads only its own replies
 
 Where NATS has per-service users (Compose, cell and Helm), each user SHALL be allowed to subscribe
@@ -88,7 +92,6 @@ addresses, so it can run on container platforms other than the official targets.
 - **WHEN** an operator runs the gateway image with `docker run`, its config file mounted and NATS reachable
 - **THEN** the gateway starts, registers its health and accepts sessions
 
-
 ### Requirement: Deployments are closed by default
 
 The Helm chart SHALL enable NATS users (`nats.auth.enabled: true`) by default and SHALL refuse to
@@ -98,12 +101,29 @@ origin with CORS: only the origins the deployment lists (Compose `CORS_ALLOWED_O
 NATS user SHALL only write its session-registry entries (no gets, consumers or consumer deletes).
 No signing or encryption key SHALL be committed; Identity SHALL refuse to start with a key that was
 once published in the repository, or with the example's placeholder encryption key. The media
-node's builder image SHALL be pinned to a patched Go release by digest.
+node's builder image SHALL be pinned to a patched Go release by digest. The Compose bundle SHALL
+offer HTTPS without editing its files: `.env` adding `compose.tls.yaml` to `COMPOSE_FILE`, with
+`TLS_CERT` and `TLS_KEY`, SHALL make Envoy serve TLS on 443 with those files (mounted read-only),
+redirect 80 to HTTPS and stop publishing the plain HTTP port; without it the default install is
+unchanged. `fonoster-config init` and `check` SHALL warn when `PUBLIC_URL` is `http://` on a host
+that is not loopback or private, or when the HTTPS setup is incomplete.
 
 #### Scenario: Helm install without NATS users
 - **WHEN** the chart is rendered with `nats.auth.enabled=false` and no `allowUnauthenticated`
 - **THEN** rendering fails with a message naming `nats.auth.allowUnauthenticated`
 
+#### Scenario: Compose bundle over HTTPS
+- **WHEN** `.env` has `COMPOSE_FILE=compose.yaml:compose.tls.yaml`, `TLS_CERT`, `TLS_KEY` and
+  `PUBLIC_URL=https://voice.example.com`
+- **THEN** Envoy listens with TLS on 443 using those files, answers 80 with a redirect to HTTPS,
+  8449 is not published, and browser calls use `wss://voice.example.com/sip`
+
+#### Scenario: Plain HTTP on a public address
+- **WHEN** `fonoster-config init` runs with `PUBLIC_URL=http://203.0.113.10:8449`
+- **THEN** it succeeds and warns that the dashboard and API go over plain HTTP, naming how to turn
+  on HTTPS
+
 #### Scenario: A copied development key
 - **WHEN** Identity starts with the signing key formerly at `config/keys/private.pem`
 - **THEN** it refuses to start and says to generate a key
+

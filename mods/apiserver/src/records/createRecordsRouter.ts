@@ -22,9 +22,10 @@ import {
   RecordStore,
   SignedVcon
 } from "@fonoster/callrecord";
-import { verifyAccessToken } from "@fonoster/common";
+import { TokenVerifyOptions } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import express, { NextFunction, Request, Response, Router } from "express";
+import express, { Request, Response, Router } from "express";
+import { Caller, createHttpAuth } from "../regions/httpAuth";
 import { RelayClient } from "../regions/relay";
 import { relayToResponse } from "../regions/relayHttp";
 import { createSearchRecords } from "./createSearchRecords";
@@ -36,12 +37,12 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 /** Roles that may read unredacted originals and delete or erase records (V5, V3). */
 export const UNREDACTED_ROLES = ["WORKSPACE_OWNER", "WORKSPACE_ADMIN"];
 
-type Caller = { accessKeyId: string; role: string; actor: string };
-
 export type RecordsRouterDeps = {
   db: RecordsDb;
   /** Verifies access tokens (the same key the gRPC interceptor uses). */
   identityPublicKey: string;
+  /** The token's issuer and audience must match these too (M5, like /api/regions). */
+  identityTokenOptions?: TokenVerifyOptions;
   stores: (location: string) => RecordStore | undefined;
   maintenance: MaintenanceClient;
   /**
@@ -77,25 +78,12 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
   const search = createSearchRecords(deps.db);
   const maintain = createRecordMaintenance(deps.db, deps.maintenance);
 
-  const auth = (req: Request, res: Response, next: NextFunction) => {
-    const header = req.headers.authorization ?? "";
-    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-    const accessKeyId = String(
-      req.headers["x-accesskey-id"] ?? req.headers["accesskeyid"] ?? ""
-    );
-    // Access tokens only: id, refresh and invite tokens are refused here.
-    const decoded = verifyAccessToken(token, deps.identityPublicKey);
-    if (!decoded) return res.status(401).json({ error: "unauthenticated" });
-    const access = decoded.access?.find((a) => a.accessKeyId === accessKeyId);
-    if (!accessKeyId || !access)
-      return res.status(403).json({ error: "permission_denied" });
-    res.locals.caller = {
-      accessKeyId,
-      role: access.role,
-      actor: decoded.sub ?? decoded.accessKeyId ?? "unknown"
-    } as Caller;
-    next();
-  };
+  // Access tokens only (id, refresh and invite tokens are refused), from the configured issuer
+  // and for the configured audience; the same middleware guards /api/regions.
+  const auth = createHttpAuth(
+    deps.identityPublicKey,
+    deps.identityTokenOptions ?? {}
+  );
   const caller = (res: Response) => res.locals.caller as Caller;
   const privileged = (res: Response) =>
     UNREDACTED_ROLES.includes(caller(res).role);

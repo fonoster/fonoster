@@ -24,6 +24,7 @@ import { suggestKey } from "../configHints";
 import { interpolateEnv } from "../interpolateEnv";
 import { isSecretRef, resolveSecretRef } from "../resolveSecretRefs";
 import { expandEnv, readEnvFile } from "./envFile";
+import { exposureWarnings } from "./exposure";
 import { listExamples, renderedName } from "./render";
 import { Io } from "./types";
 import type { ErrorObject } from "ajv";
@@ -214,6 +215,7 @@ export function runCheck(options: CheckOptions, io: Io): number {
     } else
       io.out(`${label}: valid${schema ? "" : " (no schema; values only)"}`);
   }
+  exposureWarnings(env, dir).forEach((w) => io.err(`warning: ${w}`));
   if (failed) {
     io.err(`${failed} file${failed > 1 ? "s" : ""} with problems`);
     return 1;

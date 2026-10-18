@@ -68,7 +68,7 @@ services:
       retries: 10
 
   routr:
-    image: fonoster/routr-one:2.15.3
+    image: fonoster/routr-one:2.15.4
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
@@ -148,8 +148,8 @@ services:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.42
 
   # The voice gateway: config/gateway.yaml.
-  gateway:
-    image: fonoster/gateway:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+  appbridge:
+    image: fonoster/appbridge:${FONOSTER_VERSION:?set FONOSTER_VERSION}
     restart: unless-stopped
     depends_on:
       nats: { condition: service_healthy }
@@ -172,6 +172,9 @@ services:
       # Identity's private key, which only the API server holds.
       - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/fonoster/keys/public.pem:ro
       - ${CONFIG_DIR:-./config}/keys/records.pem:/etc/fonoster/keys/records.pem:ro
+      # Call records in flight (config/gateway.yaml callRecord.dir): kept when the container is
+      # recreated (upgrade, crash), so they are still sealed.
+      - gateway-records:/var/lib/fonoster/records
     networks:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.43
@@ -229,7 +232,6 @@ services:
       AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run fonoster-config init}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
       HOST_IP: ${HOST_IP:?run fonoster-config init}
-      HTTP_PORT: ${HTTP_PORT:-8449}
       MEDIANODE_PASSWORD: ${MEDIANODE_PASSWORD:?run fonoster-config init}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
@@ -266,8 +268,10 @@ services:
       apiserver: { condition: service_started }
     volumes:
       - ${CONFIG_DIR:-./config}/envoy.yaml:/etc/envoy/envoy.yaml:ro
+    # Plain HTTP on every interface by default; HTTP_BIND=127.0.0.1 keeps it on this machine (a
+    # reverse proxy in front terminates TLS). compose.tls.yaml serves HTTPS on 443 instead.
     ports:
-      - "${HTTP_PORT:-8449}:8449"
+      - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-8449}:8449"
     environment:
       # Other browser origins that may call the API (comma-separated, e.g.
       # https://app.example.com); the dashboard is same-origin and needs none. Empty: none.
@@ -298,3 +302,4 @@ volumes:
   postgres-data:
   nats-data:
   minio-data:
+  gateway-records:

@@ -56,8 +56,14 @@ export const storage = {
   }
 };
 
+/*
+ * Nothing token-like is stored (M4): the session lives in memory and in an
+ * httpOnly cookie. Older dashboards stored it under this key; the dashboard
+ * removes it on load.
+ */
+export const LEGACY_SESSION_KEY = "fonoster.session";
+
 export const STORAGE_KEYS = {
-  session: "fonoster.session",
   workspace: "fonoster.workspace",
   nav: "fonoster.nav",
   theme: "fonoster.theme"

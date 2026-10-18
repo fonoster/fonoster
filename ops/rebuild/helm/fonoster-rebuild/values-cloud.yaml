@@ -96,7 +96,7 @@ autopilot:
     database: { url: "${APISERVER_DATABASE_URL}" }
     encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
 
-gateway:
+appbridge:
   secretMounts: [fonoster-db, fonoster-minio, fonoster-records-key, fonoster-vendors]
   databaseSecret: fonoster-db
   config:
@@ -114,7 +114,7 @@ gateway:
     workspaceKeys: { enabled: true }
     webhooks: { enabled: true }
     callRecord:
-      dir: /tmp/fonoster-records
+      dir: /var/lib/fonoster/records
       region: default
       signingKey: { kid: k1, privateKeyFile: /var/run/fonoster/secrets/fonoster-records-key/records.pem }
       store:

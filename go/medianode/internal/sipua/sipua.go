@@ -613,10 +613,17 @@ func (u *UA) send(ctx context.Context, expires int) error {
 	if err != nil {
 		return err
 	}
+	// sipgo can end a canceled transaction with neither a response nor an error.
+	if res == nil {
+		return fmt.Errorf("REGISTER got no response")
+	}
 	if res.StatusCode == 401 || res.StatusCode == 407 {
 		res, err = u.client.DoDigestAuth(cctx, req, res, sipgo.DigestAuth{Username: user, Password: u.cfg.Password})
 		if err != nil {
 			return err
+		}
+		if res == nil {
+			return fmt.Errorf("REGISTER got no response")
 		}
 	}
 	if res.StatusCode != 200 {

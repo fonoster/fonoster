@@ -25,7 +25,7 @@ import { parse } from "yaml";
 import { z } from "zod";
 import { fonosterConfigSchema } from "../../../apiserver/src/config/schema";
 import { hostedConfigSchema } from "../../../autopilot/src/session/hosted";
-import { gatewayConfigSchema } from "../../../gateway/src/configSchema";
+import { gatewayConfigSchema } from "../../../appbridge/src/configSchema";
 import { identityServiceConfigSchema } from "../../../identity/src/server/config";
 import { exportConfigSchemas } from "../../scripts/export-config-schemas";
 import { strictDeep, toJsonSchema } from "../../src/config";

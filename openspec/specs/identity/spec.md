@@ -121,6 +121,39 @@ an API key SHALL revoke the key's. Access tokens already issued stay valid until
 - **WHEN** a client calls `RevokeToken` with its refresh token
 - **THEN** that token and every token rotated from the same sign-in can no longer be exchanged
 
+### Requirement: Dashboard cookie session
+
+The apiserver SHALL serve, on its HTTP port behind Envoy's `/api` route (the dashboard's origin, so
+no CORS is involved), a cookie session for the dashboard (security review M4). `POST /api/session`
+with `{refreshToken}` SHALL rotate that token through `ExchangeRefreshToken` and set the new one in
+a cookie that is `HttpOnly`, `SameSite=Strict`, `Path=/api/session`, `Secure` when the app URL is
+https, and lives as long as the refresh token. `POST /api/session/refresh` SHALL rotate the cookie's
+token the same way. Both SHALL answer `{accessToken, idToken, expiresAt}` and never the refresh
+token. `POST /api/session/logout` SHALL revoke the cookie's token family (`RevokeToken`) and clear
+the cookie. Every request SHALL carry an `X-Requested-With` header (CSRF), or get 403. SDK and API
+clients keep exchanging refresh tokens over gRPC.
+
+#### Scenario: Refresh rotates the cookie
+
+- **WHEN** the dashboard posts to `/api/session/refresh` with a valid cookie
+- **THEN** it receives new access and id tokens and the cookie holds the next refresh token
+- **AND** the previous value can no longer be exchanged
+
+#### Scenario: No session
+
+- **WHEN** `/api/session/refresh` is called without the cookie, or Identity refuses its token
+- **THEN** the answer is 401 (and a refused cookie is cleared)
+
+#### Scenario: Logout revokes
+
+- **WHEN** the dashboard posts to `/api/session/logout`
+- **THEN** the cookie's sign-in is revoked and the cookie is cleared
+
+#### Scenario: Cross-site request
+
+- **WHEN** a request to `/api/session` lacks the `X-Requested-With` header
+- **THEN** it is refused with 403 and the cookie is neither used nor changed
+
 ### Requirement: Token verification via public key
 
 Identity SHALL sign JWTs with RS256 and SHALL expose the verification public key through the
@@ -274,7 +307,8 @@ sends) SHALL be counted in the Identity database, so they hold across replicas a
 2FA code or email code) per email and per client IP. After 10 failures for an email, or 50 from
 an IP, within 15 minutes, sign-in for that email (or from that IP) SHALL fail with
 `RESOURCE_EXHAUSTED` for 15 minutes, even with the right password, without checking it. Successful
-sign-ins SHALL NOT count. Counts are kept in each process's memory, like the other limits.
+sign-ins SHALL NOT count. These counts are kept in each process's memory, so each replica
+enforces its own limit (unlike the reset and verification-code limits, which are in the database).
 
 #### Scenario: Guessing a password
 
@@ -283,10 +317,10 @@ sign-ins SHALL NOT count. Counts are kept in each process's memory, like the oth
 
 ### Requirement: An unverified account belongs to whoever proves its email
 
-When someone signs in with an emailed code (`ExchangeVerificationCode`) or GitHub
+Identity SHALL mark the email verified, clear the account's password and revoke all of its
+refresh tokens when someone signs in with an emailed code (`ExchangeVerificationCode`) or GitHub
 (`ExchangeOauth2Code`, by a verified GitHub email) to an existing account whose email was never
-verified, Identity SHALL mark the email verified, clear the account's password and revoke all of
-its refresh tokens: whoever set that password may not own the address. `VerifyCode` with an email
+verified: whoever set that password may not own the address. `VerifyCode` with an email
 code SHALL verify only the account whose email received the code.
 
 #### Scenario: Someone signed up with another person's email
