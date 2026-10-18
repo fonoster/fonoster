@@ -10,9 +10,10 @@ Filtering is fail-open. If a filter cannot be created, cannot start or fails mid
 keeps going with unfiltered audio and the call record gets a `filter.failed` event with the reason
 (`mods/appbridge/src/session/Call.ts`, `startFilters`; `mods/appbridge/src/filters/createAudioFilterChain.ts`).
 
-> **Status for this release: not usable from the published gateway image.** See "Known gaps"
-> below. Every app that lists `aiCoustics` today gets unfiltered audio and a `filter.failed`
-> event.
+> **Status for 0.30.0: hidden.** The SDK is not in the published appbridge image, so the gateway
+> registers `aiCoustics` only where `@ai-coustics/aic-sdk` is installed. Elsewhere it is not
+> listed, and an app that names it gets unfiltered audio and a `filter.failed` event (unknown
+> filter). See "Known gaps" below.
 
 ## What an app may set
 

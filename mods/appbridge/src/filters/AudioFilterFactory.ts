@@ -126,12 +126,25 @@ class AudioFilterFactory {
   }
 }
 
-AudioFilterFactory.registerFilter(AI_COUSTICS_NAME, {
-  description:
-    "ai-coustics speech enhancement: keeps the primary speaker, suppressing noise and competing voices",
-  optionsSchema: aiCousticsOptionsSchema,
-  publicOptionsSchema: aiCousticsPublicOptionsSchema,
-  create: (options) => createAiCousticsFilter(options)
-});
+// Offered only where the vendor SDK is installed (it is not in the published image yet,
+// docs/operators/audio-filters.md); elsewhere an app naming it fails open as an unknown filter.
+const hasAiCousticsSdk = (() => {
+  try {
+    require.resolve("@ai-coustics/aic-sdk");
+    return true;
+  } catch {
+    return false;
+  }
+})();
+
+if (hasAiCousticsSdk) {
+  AudioFilterFactory.registerFilter(AI_COUSTICS_NAME, {
+    description:
+      "ai-coustics speech enhancement: keeps the primary speaker, suppressing noise and competing voices",
+    optionsSchema: aiCousticsOptionsSchema,
+    publicOptionsSchema: aiCousticsPublicOptionsSchema,
+    create: (options) => createAiCousticsFilter(options)
+  });
+}
 
 export { AudioFilterFactory, audioFiltersConfigSchema };
