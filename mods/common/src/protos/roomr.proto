@@ -1,0 +1,178 @@
+// Roomr: the media node's control service for its controller.
+// Spec: openspec/changes/redesign-media-node/specs/media-control ("Roomr is a gRPC service with
+// three nouns"). Messages only grow: add fields, never renumber or reuse them, and receivers
+// ignore fields they do not know.
+//
+// Regenerate the Go code with go/roomr/api/generate.sh.
+syntax = "proto3";
+
+package roomr.v1;
+
+option go_package = "github.com/fonoster/fonoster/go/roomr/api/roomr/v1;roomrv1";
+
+service Roomr {
+  // Dial out. The room is created, or room_ref is joined (created when it does not exist yet).
+  rpc CreateCall(CreateCallRequest) returns (Call);
+  // End any call, inbound or outbound (CANCEL while ringing, BYE once answered).
+  rpc EndCall(EndCallRequest) returns (Empty);
+  // Rooms that do not start from a call.
+  rpc CreateRoom(CreateRoomRequest) returns (Room);
+  // End every call and participant in the room.
+  rpc EndRoom(EndRoomRequest) returns (Empty);
+  // Add an RTP participant, a listen-only participant or (not yet) a WebRTC participant.
+  rpc Join(JoinRequest) returns (Participant);
+  // Remove a participant (cause "removed").
+  rpc Leave(LeaveRequest) returns (Empty);
+  // Play a file into a call, a participant or a whole room; completion is operation.done.
+  rpc Play(PlayRequest) returns (Operation);
+  // Record to a destination; completion is operation.done.
+  rpc Record(RecordRequest) returns (Operation);
+  // Send RFC 4733 events on a SIP leg.
+  rpc SendDtmf(SendDtmfRequest) returns (Empty);
+}
+
+message Empty {}
+
+// Digest credentials for the INVITE's 401/407 challenge.
+message SipAuth {
+  string username = 1;
+  string password = 2;
+}
+
+// Where and how to dial.
+message SipTarget {
+  // Request-URI, for example "sip:+15551234567@carrier".
+  string uri = 1;
+  // Where the INVITE is sent ("sip:proxy:5060", "sip:proxy:5061;transport=tls" or "proxy:5060");
+  // empty sends it to the Request-URI's host.
+  string proxy = 2;
+  // Added to the INVITE untouched. Core SIP headers (Via, From, To, Call-ID, CSeq, Contact, ...)
+  // cannot be set here.
+  map<string, string> headers = 3;
+  SipAuth auth = 4;
+}
+
+message CreateCallRequest {
+  // Chosen by the caller; repeating it returns the existing Call and sends no second INVITE.
+  string call_ref = 1;
+  SipTarget to = 2;
+  // The From user ("+15550001") or a full URI ("sip:+15550001@example.com").
+  string from = 3;
+  // Join this room, or create it with this ref; empty creates a new room.
+  string room_ref = 4;
+  // Session endpoint for the call's control stream (not implemented yet: UNIMPLEMENTED).
+  string session = 5;
+  // How long the callee may ring (default 60 s).
+  uint32 ring_timeout_s = 6;
+  // Echoed in the events the node publishes for this call.
+  map<string, string> labels = 7;
+  // Lowers the node's maximum call duration for this call's room; higher values are ignored.
+  uint32 max_duration_s = 8;
+}
+
+message Call {
+  string call_ref = 1;
+  string room_ref = 2;
+  enum State {
+    RINGING = 0;
+    ANSWERED = 1;
+    ENDED = 2;
+  }
+  State state = 3;
+  // The call's participant in its room, once answered (inbound calls: always).
+  string participant_ref = 4;
+}
+
+message EndCallRequest {
+  string call_ref = 1;
+}
+
+message CreateRoomRequest {
+  // Empty: the node picks one. A ref already in use fails with ALREADY_EXISTS.
+  string room_ref = 1;
+  uint32 max_duration_s = 2;
+}
+
+message Room {
+  string room_ref = 1;
+}
+
+message EndRoomRequest {
+  string room_ref = 1;
+}
+
+// An RTP address. codec is an rtpmap name such as "L16/16000" or "PCMU/8000".
+message MediaEndpoint {
+  string ip = 1;
+  uint32 port = 2;
+  string codec = 3;
+  // SDES key (AES_CM_128_HMAC_SHA1_80, 30 bytes of base64); empty for plain RTP.
+  string srtp_key = 4;
+}
+
+message WebRtcOffer {
+  string sdp = 1;
+}
+
+// One track forwarded, unmixed, to its own RTP destination.
+message ListenTrack {
+  uint32 track_id = 1;
+  MediaEndpoint rtp = 2;
+}
+
+message JoinRequest {
+  string room_ref = 1;
+  oneof endpoint {
+    MediaEndpoint rtp = 2;
+    WebRtcOffer webrtc = 3;
+  }
+  // Listen-only participant: one RTP destination per selected track. Set without an endpoint.
+  repeated ListenTrack listen = 4;
+}
+
+message Participant {
+  string participant_ref = 1;
+  string room_ref = 2;
+  // RTP joins: where the participant sends its audio (the node's side of the leg).
+  MediaEndpoint rtp = 3;
+  // WebRTC joins: the SDP answer.
+  string sdp_answer = 4;
+  uint32 track_id = 5;
+}
+
+message LeaveRequest {
+  string room_ref = 1;
+  string participant_ref = 2;
+}
+
+message PlayRequest {
+  oneof target {
+    string call_ref = 1;
+    string participant_ref = 2;
+    string room_ref = 3;
+  }
+  // http(s) URL of a PCM16 mono WAV at 8 or 16 kHz.
+  string url = 4;
+}
+
+message RecordRequest {
+  oneof target {
+    string call_ref = 1;
+    string participant_ref = 2;
+    string room_ref = 3;
+  }
+  string destination = 4;
+}
+
+message Operation {
+  string operation_ref = 1;
+}
+
+message SendDtmfRequest {
+  oneof target {
+    string call_ref = 1;
+    string participant_ref = 2;
+  }
+  // 0-9, *, #, A-D.
+  string digits = 3;
+}

@@ -27,6 +27,8 @@ import type { KV, KvEntry, NatsConnection } from "nats";
  *   calls.<callRef>       gateway:    { callRef, gatewayRef, nodeId, roomRef, direction, at }
  *                                     + once answered: { appRef, from, to, startedAt }
  *   gateways.<gatewayRef> gateway:    { gatewayRef, calls, at }
+ *   placements.<callRef>  apiserver:  { callRef, nodeRef, controlAddr, roomRef?, at }
+ *                                     while an outbound call is being placed (CreateCall)
  *
  * The control plane reads `calls` and `gateways`: a call whose entry and whose gateway's entry
  * both stop being rewritten lost its gateway mid-call, and gets `call.ended` (`appbridge-lost`).
@@ -39,7 +41,12 @@ export const SESSIONS_BUCKET = "fonoster_sessions";
 export const SESSIONS_TTL_MS = 15_000;
 export const SESSIONS_REFRESH_MS = 5_000;
 
-export type SessionKind = "nodes" | "rooms" | "calls" | "gateways";
+export type SessionKind =
+  | "nodes"
+  | "rooms"
+  | "calls"
+  | "gateways"
+  | "placements";
 
 /** `<kind>.<id>` with characters KV keys do not allow replaced by `_`. */
 export const sessionKey = (kind: SessionKind, id: string) =>

@@ -153,6 +153,10 @@ export class MediaNodeProcess {
   private botUrl = "";
   private sipPort = 0;
   private debugPort = 0;
+  /** Where the node serves Roomr (gRPC). */
+  controlAddr = "";
+  /** The bot's SIP address: the node's outbound proxy, and the proxy CreateCall may name. */
+  botSipAddress = "";
   /** The bot's current call. */
   callId?: string;
 
@@ -164,6 +168,7 @@ export class MediaNodeProcess {
     this.bot = bot.child;
     this.botUrl = `http://${bot.line.split(" ")[1]}`;
     const { address } = await this.api<{ address: string }>("/sip");
+    this.botSipAddress = address;
     // A probed port can be taken again before the node binds it; the node then exits before
     // reporting ready, so start it again on fresh ports.
     const startNode = (attempt: number): Promise<ChildProcess> =>
@@ -175,8 +180,9 @@ export class MediaNodeProcess {
 
   private async startNode(outboundProxy: string): Promise<ChildProcess> {
     this.sipPort = await freeSipPort();
-    // The debug endpoint is HTTP, so it needs a free TCP port.
+    // The debug endpoint is HTTP, so it needs a free TCP port; so does Roomr (gRPC).
     this.debugPort = await freeTcpPort();
+    this.controlAddr = `127.0.0.1:${await freeTcpPort()}`;
     return (
       await startProcess(
         this.bins.roomr,
@@ -199,6 +205,11 @@ export class MediaNodeProcess {
           outboundProxy,
           "-debug",
           `127.0.0.1:${this.debugPort}`,
+          "-control-grpc",
+          this.controlAddr,
+          // The deployments' call-ref header: the bot's X-Call-Ref names inbound calls.
+          "-call-ref-header",
+          "X-Call-Ref",
           ...(this.maxRooms !== undefined
             ? ["-max-rooms", String(this.maxRooms)]
             : [])
@@ -207,6 +218,32 @@ export class MediaNodeProcess {
         this.env
       )
     ).child;
+  }
+
+  /**
+   * How the bot answers what the node dials, by its own mode names ("answer", "busy",
+   * "no_answer" rings forever, "unavailable", "decline"); with auth it challenges each INVITE.
+   */
+  async calleeMode(
+    mode: string,
+    auth?: { username: string; password: string }
+  ) {
+    const res = await fetch(`${this.botUrl}/callee`, {
+      method: "POST",
+      body: JSON.stringify({ mode, afterMs: 20, ...auth })
+    });
+    if (!res.ok) throw new Error(`caller bot /callee: ${res.status}`);
+  }
+
+  /** Every call the bot placed or received, and how many INVITEs it challenged. */
+  botCalls() {
+    return this.api<{
+      calls: (BotCallStatus & {
+        headers?: Record<string, string>;
+        requestUri?: string;
+      })[];
+      challenged: number;
+    }>("/calls");
   }
 
   /** How the bot answers what the node dials (media-control dialOutcome). */
