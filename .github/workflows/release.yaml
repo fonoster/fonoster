@@ -139,6 +139,10 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      # The archive script loads @fonoster/common, so build it (and what it needs) first.
+      - name: Build the packages the archive needs
+        run: NX_DAEMON=false npx nx run @fonoster/common:build
+
       - name: Build the archive
         run: SKIP_IMAGES=1 ops/release/bundle "$VERSION"
 
