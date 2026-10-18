@@ -13,9 +13,18 @@ name: release
 #   6. publish: the draft becomes the published release.
 #
 # compose.yaml is never edited: the archive's .env.example carries FONOSTER_VERSION.
+#
+# A run that failed partway (some npm packages out) is finished with `resume`: it publishes the
+# versions npm still lacks, then runs steps 3 to 6 for the version already tagged on main. It
+# refuses to run when new releasable commits would cut another version.
 
 on:
   workflow_dispatch:
+    inputs:
+      resume:
+        description: "Finish the version already tagged on main (publish what npm lacks, then images, archive, approval)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -56,8 +65,14 @@ jobs:
           echo "Next release: $release"
           echo "release=$release" >> "$GITHUB_OUTPUT"
 
+      - name: Refuse to resume over a new release
+        if: inputs.resume && steps.next.outputs.release != 'none'
+        run: |
+          echo "::error::resume finishes the version already tagged, but the commits since the tag would cut ${{ steps.next.outputs.release }}. Run without resume."
+          exit 1
+
       - name: Install dependencies and build
-        if: steps.next.outputs.release != 'none'
+        if: steps.next.outputs.release != 'none' || inputs.resume
         run: |
           npm install --no-audit --no-fund
           npm run build
@@ -83,7 +98,7 @@ jobs:
 
       - name: Released version and commit
         id: version
-        if: steps.next.outputs.release != 'none'
+        if: steps.next.outputs.release != 'none' || inputs.resume
         run: |
           echo "version=$(node -p "require('./lerna.json').version")" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -91,7 +106,7 @@ jobs:
   images:
     name: images
     needs: npm
-    if: needs.npm.outputs.release != 'none'
+    if: needs.npm.outputs.version != ''
     uses: ./.github/workflows/images.yaml
     with:
       version: ${{ needs.npm.outputs.version }}
@@ -102,7 +117,7 @@ jobs:
   bundle:
     name: install archive and draft release
     needs: npm
-    if: needs.npm.outputs.release != 'none'
+    if: needs.npm.outputs.version != ''
     runs-on: ubuntu-latest
     permissions:
       contents: write
