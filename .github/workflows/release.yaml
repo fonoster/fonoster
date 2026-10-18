@@ -75,7 +75,11 @@ jobs:
       # Runs on every release run, even with no new commits: publishes any version already in
       # package.json that npm doesn't have yet (a run that failed partway). Does nothing otherwise.
       - name: Publish versions missing from npm
-        run: npx lerna publish from-package --yes --dist-tag latest
+        run: |
+          # The normal publish leaves gitHead edits in package.json files; from-package refuses a
+          # dirty tree, and those edits are not meant to be committed.
+          git checkout -- .
+          npx lerna publish from-package --yes --dist-tag latest
 
       - name: Released version and commit
         id: version
