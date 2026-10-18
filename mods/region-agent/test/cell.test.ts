@@ -187,9 +187,13 @@ describe("@region-agent private cell against a fake control plane", function () 
     await agent.start();
     const beatNode = () =>
       nc.publish(
-        "media.node-a.heartbeat",
+        "roomr.nodes.node-a.heartbeat",
         sc.encode(
-          JSON.stringify({ type: "node.heartbeat", nodeId: "node-a", rooms: 2 })
+          JSON.stringify({
+            type: "node.heartbeat",
+            node_ref: "node-a",
+            rooms: 2
+          })
         )
       );
     const beatGateway = () =>

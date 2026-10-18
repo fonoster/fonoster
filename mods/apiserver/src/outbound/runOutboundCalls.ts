@@ -22,7 +22,8 @@ import { connect, NatsConnection, StringCodec } from "nats";
 import {
   callEventsSubject,
   CALLS_CREATE_SUBJECT,
-  DEFAULT_NATS_QUEUE_GROUP
+  DEFAULT_NATS_QUEUE_GROUP,
+  NODE_HEARTBEAT_WILDCARD
 } from "../envs";
 import { createNodeDirectory } from "./createNodeDirectory";
 import {
@@ -47,10 +48,10 @@ export function natsRequester(nc: NatsConnection): Requester {
 
 /**
  * The control plane's part of a call's status events for TrackCall: TRYING when placement starts,
- * `{ref, nodeId}` once a node holds the call's room (TrackCall then follows that node's
- * heartbeats), and FAILED when placement fails. Everything after the room exists (PROGRESS, ANSWER, BUSY, the final
- * room.ended) comes from the media node on the same per-call subject, so the statuses keep
- * flowing to every replica's TrackCall even if this replica dies.
+ * `{ref, node_ref}` once a node holds the call's room (TrackCall then follows that node's
+ * heartbeats), and FAILED when placement fails. Everything after that (call.ringing,
+ * call.answered, call.ended) comes from the media node on `roomr.events.<ref>`, so the statuses
+ * keep flowing to every replica's TrackCall even if this replica dies.
  */
 export function callTracker(nc: NatsConnection, ref: string) {
   const publish = (body: Record<string, unknown>) =>
@@ -58,7 +59,7 @@ export function callTracker(nc: NatsConnection, ref: string) {
   publish({ ref, status: "TRYING" });
   return {
     placed(nodeId: string) {
-      publish({ ref, nodeId });
+      publish({ ref, node_ref: nodeId });
     },
     failed() {
       publish({ ref, status: "FAILED" });
@@ -101,8 +102,8 @@ export async function runOutboundCalls(config: {
     stopWatch = await Sessions.watchSessions(kv, "nodes", (e) =>
       nodes.note(
         e.value
-          ? { nodeId: e.id, ...e.value, type: "node.heartbeat" }
-          : { type: "node.down", nodeId: e.id },
+          ? { ...e.value, node_ref: e.id, type: "node.heartbeat" }
+          : { type: "node.down", node_ref: e.id },
         e.writtenAt.getTime()
       )
     );
@@ -112,7 +113,7 @@ export async function runOutboundCalls(config: {
     );
   }
 
-  const status = nc.subscribe("media.*.heartbeat", {
+  const status = nc.subscribe(NODE_HEARTBEAT_WILDCARD, {
     callback: (err, msg) => {
       if (err) return;
       try {

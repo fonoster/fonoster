@@ -52,7 +52,7 @@ export class NatsMediaControlPeer implements Peer {
       this.nc.subscribe(`media.${nodeId}.events.*`, {
         callback: (err, msg) => !err && push(JSON.parse(sc.decode(msg.data)))
       }),
-      this.nc.subscribe(`media.${nodeId}.heartbeat`, {
+      this.nc.subscribe(`roomr.nodes.${nodeId}.heartbeat`, {
         callback: (err, msg) => !err && push(JSON.parse(sc.decode(msg.data)))
       })
     );

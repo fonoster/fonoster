@@ -343,9 +343,13 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
     const beats = cellNc;
     componentBeats = setInterval(() => {
       beats.publish(
-        "media.node-a.heartbeat",
+        "roomr.nodes.node-a.heartbeat",
         sc.encode(
-          JSON.stringify({ type: "node.heartbeat", nodeId: "node-a", rooms: 1 })
+          JSON.stringify({
+            type: "node.heartbeat",
+            node_ref: "node-a",
+            rooms: 1
+          })
         )
       );
       beats.publish(

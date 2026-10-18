@@ -16,7 +16,7 @@ import (
 // frees a place.
 func TestRoomLimitRefusesRoomCreate(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxRooms = 2 }})
-	hb, _ := r.nc.SubscribeSync("media." + r.node.ID() + ".heartbeat")
+	hb, _ := r.nc.SubscribeSync(node.HeartbeatSubject(r.node.ID()))
 	defer hb.Unsubscribe()
 
 	first := r.command(map[string]any{"type": "room.create", "id": "c1"})
@@ -37,11 +37,11 @@ func TestRoomLimitRefusesRoomCreate(t *testing.T) {
 	for {
 		msg, err := hb.NextMsg(time.Until(deadline))
 		if err != nil {
-			t.Fatal("no heartbeat with rooms 2 and maxRooms 2")
+			t.Fatal("no heartbeat with rooms 2 and max_rooms 2")
 		}
 		var ev map[string]any
 		_ = json.Unmarshal(msg.Data, &ev)
-		if ev["rooms"] == float64(2) && ev["maxRooms"] == float64(2) {
+		if ev["rooms"] == float64(2) && ev["max_rooms"] == float64(2) {
 			break
 		}
 	}
@@ -107,8 +107,8 @@ func TestRoomLimitRefusesInvite(t *testing.T) {
 	}
 }
 
-// A room created for an API-originated call (room.create callRef) also publishes its call-status
-// events on calls.<callRef>.events, so any control-plane replica can serve TrackCall.
+// A room created for an API-originated call (room.create callRef) publishes the call's events on
+// roomr.events.<callRef> with contiguous seq, so any control-plane replica can serve TrackCall.
 func TestCallEventsOnTheCallSubject(t *testing.T) {
 	r := start(t)
 	callRef := "call-" + r.node.ID()
@@ -127,12 +127,15 @@ func TestCallEventsOnTheCallSubject(t *testing.T) {
 
 	room := r.command(map[string]any{"type": "room.create", "id": "c1", "callRef": callRef})["roomRef"].(string)
 	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+15551234567"})
+	seq := 0.0
 	next := func(want string) map[string]any {
 		t.Helper()
 		select {
 		case ev := <-events:
-			if ev["type"] != want || ev["callRef"] != callRef || ev["roomRef"] != room || ev["nodeId"] != r.node.ID() {
-				t.Fatalf("got %v, want %s for %s", ev, want, callRef)
+			seq++
+			if ev["type"] != want || ev["call_ref"] != callRef || ev["room_ref"] != room || ev["node_ref"] != r.node.ID() ||
+				ev["seq"] != seq {
+				t.Fatalf("got %v, want %s #%v for %s", ev, want, seq, callRef)
 			}
 			return ev
 		case <-time.After(3 * time.Second):
@@ -140,13 +143,15 @@ func TestCallEventsOnTheCallSubject(t *testing.T) {
 			return nil
 		}
 	}
-	if ev := next("call.progress"); ev["status"] != "ringing" {
-		t.Fatalf("progress %v", ev)
-	}
+	next("call.started")
+	next("call.ringing")
 	next("call.answered")
-	// participant.joined, dtmf and the like stay on the room's subject only.
+	next("participant.joined")
+	// dtmf and the like stay on the room's subject only; ending the room ends the call.
 	r.command(map[string]any{"type": "room.end", "id": "e1", "roomRef": room})
-	next("room.ended")
+	if ev := next("call.ended"); ev["cause"] != node.ReasonRemoved || ev["answered"] != true {
+		t.Fatalf("call.ended %v", ev)
+	}
 	select {
 	case ev := <-events:
 		t.Fatalf("unexpected event on the call subject: %v", ev)

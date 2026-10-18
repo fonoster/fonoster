@@ -13,7 +13,8 @@ import (
 
 // Rooms without an owner end (media-node "Rooms without an owner end"): a room nobody joins and
 // nobody dials into, and a room whose gateway stopped its heartbeats, are ended with node_error,
-// free their slot, and report room.ended (also on calls.<callRef>.events, so TrackCall ends).
+// free their slot, and report room.ended (and call.ended on roomr.events.<callRef>, so TrackCall
+// ends).
 
 func callEvents(t *testing.T, nc *nats.Conn, callRef string) chan map[string]any {
 	t.Helper()
@@ -48,13 +49,15 @@ func TestEmptyRoomEnds(t *testing.T) {
 	if ended["reason"] != node.ReasonNodeError {
 		t.Fatalf("room.ended %v", ended)
 	}
-	select {
-	case ev := <-events:
-		if ev["type"] != "room.ended" {
-			t.Fatalf("call subject got %v", ev)
+	for _, want := range []string{"call.started", "call.ended"} {
+		select {
+		case ev := <-events:
+			if ev["type"] != want || (want == "call.ended" && ev["cause"] != node.ReasonNodeError) {
+				t.Fatalf("call subject got %v, want %s", ev, want)
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatalf("no %s on the call subject", want)
 		}
-	case <-time.After(2 * time.Second):
-		t.Fatal("no room.ended on the call subject")
 	}
 	// The slot is free again.
 	if n := r.node.ActiveRooms(); n != 0 {

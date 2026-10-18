@@ -297,6 +297,7 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 	n.ctl.putLocked(e)
 	info := e.info
 	n.ctl.mu.Unlock()
+	n.openCall(req.CallRef, r.Ref, "", req.Labels, Event{"direction": "outbound", "from": req.From, "to": req.To.URI})
 	r.setMaxDuration(maxDurationCmd(req.MaxDuration))
 	go n.runCall(ctx, cancel, r, owned, e, req, dialer)
 	return info, nil

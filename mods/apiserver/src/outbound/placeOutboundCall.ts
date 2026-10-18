@@ -27,6 +27,8 @@ export type OutboundCallRequest = {
   accessKeyId: string;
   timeout?: number;
   metadata?: Record<string, unknown>;
+  /** The call's region: only nodes whose heartbeat names it are eligible (unset: any node). */
+  region?: string;
 };
 
 /** The slice of a NATS connection placement needs: JSON request and reply. */
@@ -62,11 +64,11 @@ export class PlacementError extends Error {
 
 /**
  * Places an API-originated call (CreateCall) on the media nodes, replacing Asterisk's originate:
- * `room.create` on the least-loaded eligible node (the next one, up to MAX_PLACEMENT_ATTEMPTS
+ * `room.create` on the highest-scoring eligible node (the next one, up to MAX_PLACEMENT_ATTEMPTS
  * nodes, when a node is full, draining or silent), `gateway.outbound` so a gateway opens the app
  * session on `call.answered`, then `participant.dial` through Routr with the headers Routr
  * routes API-originated calls by (X-Dod-Number picks the trunk). The room carries the call's
- * ref, so the node also publishes the call's status events on `calls.<ref>.events` (TrackCall).
+ * ref, so the node also publishes the call's events on `roomr.events.<ref>` (TrackCall).
  */
 export async function placeOutboundCall(
   request: Requester,
@@ -92,12 +94,12 @@ export async function placeOutboundCall(
     return reply;
   };
 
-  // room.create on the least-loaded eligible node; a full, draining or silent node sends the
+  // room.create on the highest-scoring eligible node; a full, draining or silent node sends the
   // call to the next one.
   const tried = new Set<string>();
   let placedOn: { nodeId: string; roomRef: string } | undefined;
   while (!placedOn && tried.size < MAX_PLACEMENT_ATTEMPTS) {
-    const candidate = nodes.pick(tried);
+    const candidate = nodes.pick(tried, call.region);
     if (!candidate) break;
     tried.add(candidate);
     try {

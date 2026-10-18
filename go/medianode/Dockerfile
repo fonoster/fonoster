@@ -44,13 +44,15 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
+# The version heartbeats report (media-control "Heartbeat").
+ARG VERSION=dev
 # Fully static binaries: libopus.a and libc linked in; netgo and osusergo keep glibc's NSS
 # (resolver, user lookups) out, so the result runs on distroless/static.
 RUN set -eux; \
   export CGO_ENABLED=1 GOOS=linux GOARCH="$TARGETARCH" CC="$(cat /cc)" \
     CGO_CFLAGS="-I/opt/opus/include" CGO_LDFLAGS="-L/opt/opus/lib"; \
   flags='-s -w -linkmode external -extldflags "-static"'; \
-  go build -trimpath -tags netgo,osusergo -ldflags="$flags" -o /out/medianode ./cmd/medianode; \
+  go build -trimpath -tags netgo,osusergo -ldflags="$flags -X main.version=$VERSION" -o /out/medianode ./cmd/medianode; \
   go build -trimpath -tags netgo,osusergo -ldflags="$flags" -o /out/sipcaller ./cmd/sipcaller
 
 ##

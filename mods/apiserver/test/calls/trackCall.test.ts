@@ -123,12 +123,12 @@ describe("@calls/trackCall", function () {
     expect(call.end).to.have.been.calledOnce;
   });
 
-  it("translates the media node's call events on calls.<ref>.events", async function () {
+  it("translates the media node's call events on roomr.events.<ref>", async function () {
     const clock = sandbox.useFakeTimers();
     const { createTrackCall, toTrackMessage } =
       await import("../../src/calls/createTrackCall");
     const callRef = "0f6c2a51-7d4e-4b8a-9c3f-2e1d5a6b7c8d";
-    const subject = `calls.${callRef}.events`;
+    const subject = `roomr.events.${callRef}`;
     const subscription = { callback: sandbox.stub() };
     const nc = {
       subscribe: sandbox.stub().returns(subscription)
@@ -136,6 +136,9 @@ describe("@calls/trackCall", function () {
     const trackCall = createTrackCall(nc);
     expect((nc.subscribe as sinon.SinonStub).firstCall.args[0]).to.equal(
       "calls.*.events"
+    );
+    expect((nc.subscribe as sinon.SinonStub).secondCall.args[0]).to.equal(
+      "roomr.events.*"
     );
     const send = (m: Record<string, unknown>) =>
       subscription.callback(null, { subject, json: () => m });
@@ -147,10 +150,20 @@ describe("@calls/trackCall", function () {
     };
     await trackCall(call, () => {});
     send({ ref: callRef, status: DialStatus.TRYING });
-    send({ type: "call.progress", status: "ringing", roomRef: "r1" });
-    send({ type: "participant.joined", roomRef: "r1" }); // not a call status
-    send({ type: "call.answered", callRef, roomRef: "r1" });
-    send({ type: "room.ended", reason: "callee_hangup", roomRef: "r1" });
+    const ev = (type: string, seq: number, extra = {}) => ({
+      type,
+      call_ref: callRef,
+      room_ref: "r1",
+      node_ref: "n1",
+      seq,
+      labels: {},
+      ...extra
+    });
+    send(ev("call.started", 1));
+    send(ev("call.ringing", 2));
+    send(ev("call.answered", 3));
+    send(ev("participant.joined", 4)); // not a call status
+    send(ev("call.ended", 5, { cause: "callee_hangup", answered: true }));
     clock.tick(600);
     expect(call.write.args.map((a) => a[0])).to.deep.equal([
       { ref: callRef, status: DialStatus.TRYING },
@@ -159,12 +172,24 @@ describe("@calls/trackCall", function () {
     ]);
     expect(call.end).to.have.been.calledOnce;
 
+    const ended = (cause: string) => ({
+      type: "call.ended",
+      cause,
+      answered: false
+    });
     expect(
-      toTrackMessage({ type: "call.progress", status: "busy", callRef })
-    ).to.deep.equal({ ref: callRef, status: DialStatus.BUSY });
-    expect(
-      toTrackMessage({ type: "call.progress", status: "no_answer" }, subject)
-    ).to.deep.equal({ ref: callRef, status: DialStatus.NOANSWER });
+      toTrackMessage({ ...ended("busy"), call_ref: callRef, sip_status: 486 })
+    ).to.deep.equal({ ref: callRef, status: DialStatus.BUSY, final: true });
+    expect(toTrackMessage(ended("no_answer"), subject)).to.deep.equal({
+      ref: callRef,
+      status: DialStatus.NOANSWER,
+      final: true
+    });
+    expect(toTrackMessage(ended("rejected"), subject)).to.deep.equal({
+      ref: callRef,
+      status: DialStatus.FAILED,
+      final: true
+    });
     expect(toTrackMessage({ type: "dtmf", digit: "5" }, subject)).to.equal(
       undefined
     );
@@ -203,6 +228,8 @@ describe("@calls/trackCall", function () {
       });
     };
     const events = (ref: string) => `calls.${ref}.events`;
+    const media = (ref: string) => `roomr.events.${ref}`;
+    const heartbeats = "roomr.nodes.n.heartbeat";
 
     it("forgets streams whose client went away (x1000)", async function () {
       sandbox.useFakeTimers();
@@ -236,8 +263,17 @@ describe("@calls/trackCall", function () {
       const second = fakeStream(ref);
       h.trackCall(second as never);
       // The second gets the replay; both get what follows; both end on the final.
-      send(events(ref), { type: "call.answered", callRef: ref, nodeId: "n1" });
-      send(events(ref), { type: "room.ended", callRef: ref, nodeId: "n1" });
+      send(media(ref), {
+        type: "call.answered",
+        call_ref: ref,
+        node_ref: "n1"
+      });
+      send(media(ref), {
+        type: "call.ended",
+        call_ref: ref,
+        node_ref: "n1",
+        answered: true
+      });
       clock.tick(600);
       for (const s of [first, second]) {
         expect(s.write.args.map((a) => a[0].status)).to.deep.equal([
@@ -259,11 +295,15 @@ describe("@calls/trackCall", function () {
       const ref = "down-ref";
       const s = fakeStream(ref);
       h.trackCall(s as never);
-      send(events(ref), { ref, nodeId: "n1" }); // the placing replica: the room is on n1
-      send(events(ref), { type: "call.answered", callRef: ref, nodeId: "n1" });
-      send("media.*.heartbeat", { type: "node.down", nodeId: "n2" });
+      send(events(ref), { ref, node_ref: "n1" }); // the placing replica: the room is on n1
+      send(media(ref), {
+        type: "call.answered",
+        call_ref: ref,
+        node_ref: "n1"
+      });
+      send(heartbeats, { type: "node.down", node_ref: "n2" });
       expect(s.end).to.not.have.been.called;
-      send("media.*.heartbeat", { type: "node.down", nodeId: "n1" });
+      send(heartbeats, { type: "node.down", node_ref: "n1" });
       expect(s.write.lastCall.args[0]).to.deep.equal({
         ref,
         status: DialStatus.FAILED
@@ -282,9 +322,13 @@ describe("@calls/trackCall", function () {
       const ref = "silent-ref";
       const s = fakeStream(ref);
       h.trackCall(s as never);
-      send(events(ref), { type: "call.answered", callRef: ref, nodeId: "n1" });
+      send(media(ref), {
+        type: "call.answered",
+        call_ref: ref,
+        node_ref: "n1"
+      });
       for (let i = 0; i < 10; i++) {
-        send("media.*.heartbeat", { type: "node.heartbeat", nodeId: "n1" });
+        send(heartbeats, { type: "node.heartbeat", node_ref: "n1" });
         clock.tick(2000);
       }
       expect(s.end).to.not.have.been.called; // a live node keeps the stream open
@@ -305,10 +349,10 @@ describe("@calls/trackCall", function () {
       h.trackCall(lost as never);
       const long = fakeStream("long-ref");
       h.trackCall(long as never);
-      send(events("long-ref"), { ref: "long-ref", nodeId: "n1" });
+      send(events("long-ref"), { ref: "long-ref", node_ref: "n1" });
       const beat = (ms: number) => {
         for (let t = 0; t < ms; t += 2000) {
-          send("media.*.heartbeat", { type: "node.heartbeat", nodeId: "n1" });
+          send(heartbeats, { type: "node.heartbeat", node_ref: "n1" });
           clock.tick(2000);
         }
       };

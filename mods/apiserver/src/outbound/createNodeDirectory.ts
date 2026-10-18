@@ -18,13 +18,19 @@
  */
 /** One media node as its heartbeats describe it (media-control, node.heartbeat). */
 export type MediaNodeStatus = {
+  /** The heartbeat's node_ref. */
   nodeId: string;
   rooms: number;
-  /** The node's room limit (media-node "Call and room limits"); unset for nodes that report none. */
+  /** The node's room limit (max_rooms); unset for nodes that report none. */
   maxRooms?: number;
+  /** The node's region; unset for nodes that report none. */
+  region?: string;
   draining: boolean;
   seenAt: number;
 };
+
+/** The room limit assumed for a node that reports none (the media node's default). */
+export const DEFAULT_MAX_ROOMS = 200;
 
 /** Heartbeats are every 2 s; a node silent for three of them is not offered new calls. */
 export const NODE_STALE_MS = 6000;
@@ -38,7 +44,8 @@ export const NODE_FORGET_MS = 60_000;
 /**
  * The media nodes this replica knows, for placing outbound calls (add-media-node 3.3): fed by the
  * session registry's `nodes.` entries (JetStream KV, 3.2; read in full at start, so a restarted
- * replica places calls at once) and by `node.heartbeat` / `node.down` events.
+ * replica places calls at once) and by `node.heartbeat` / `node.down` events on
+ * `roomr.nodes.<node_ref>.heartbeat`.
  */
 export function createNodeDirectory(
   options: { staleMs?: number; forgetMs?: number; now?: () => number } = {}
@@ -62,7 +69,7 @@ export function createNodeDirectory(
      * registry entries read after the fact (default now).
      */
     note(event: Record<string, unknown>, seenAt?: number) {
-      const nodeId = typeof event.nodeId === "string" ? event.nodeId : "";
+      const nodeId = typeof event.node_ref === "string" ? event.node_ref : "";
       if (!nodeId) return;
       if (event.type === "node.down") {
         nodes.delete(nodeId);
@@ -71,12 +78,16 @@ export function createNodeDirectory(
         const known = nodes.get(nodeId);
         // An older registry entry never replaces a fresher heartbeat.
         if (known && known.seenAt > at) return;
-        const maxRooms = Number(event.maxRooms);
+        const maxRooms = Number(event.max_rooms);
         nodes.set(nodeId, {
           nodeId,
           rooms: Number(event.rooms ?? 0),
           maxRooms:
             Number.isFinite(maxRooms) && maxRooms > 0 ? maxRooms : undefined,
+          region:
+            typeof event.region === "string" && event.region
+              ? event.region
+              : undefined,
           draining: event.draining === true,
           seenAt: at
         });
@@ -84,18 +95,26 @@ export function createNodeDirectory(
       forget();
     },
     /**
-     * The least-loaded eligible node (live, not draining, below its room limit), skipping the
-     * nodes in `exclude` (already tried for this call); undefined when there is none.
+     * The eligible node with the most room to spare (control-plane): live, not draining, below
+     * its room limit and, when the call names a region, in that region; scored
+     * `1 - rooms / max_rooms`, highest wins. Skips the nodes in `exclude` (already tried for
+     * this call); undefined when there is none.
      */
-    pick(exclude: ReadonlySet<string> = new Set()): string | undefined {
-      let best: MediaNodeStatus | undefined;
+    pick(
+      exclude: ReadonlySet<string> = new Set(),
+      region?: string
+    ): string | undefined {
+      let best: { node: MediaNodeStatus; score: number } | undefined;
       for (const n of nodes.values()) {
         if (exclude.has(n.nodeId) || n.draining) continue;
         if (now() - n.seenAt > staleMs) continue;
-        if (n.maxRooms !== undefined && n.rooms >= n.maxRooms) continue;
-        if (!best || n.rooms < best.rooms) best = n;
+        if (region && n.region !== region) continue;
+        const limit = n.maxRooms ?? DEFAULT_MAX_ROOMS;
+        if (n.rooms >= limit) continue;
+        const score = 1 - n.rooms / limit;
+        if (!best || score > best.score) best = { node: n, score };
       }
-      return best?.nodeId;
+      return best?.node.nodeId;
     },
     /**
      * A node refused a room because it is full or draining: no new call goes to it until its

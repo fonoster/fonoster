@@ -116,7 +116,7 @@ describe("@conformance/FakeMediaNode over NATS", function () {
     node = new FakeMediaNode({ nodeId: `beat-${Date.now()}`, heartbeatMs: 30 });
     const sc = StringCodec();
     const seen: Record<string, unknown>[] = [];
-    const sub = nc.subscribe(`media.${node.nodeId}.heartbeat`, {
+    const sub = nc.subscribe(`roomr.nodes.${node.nodeId}.heartbeat`, {
       callback: (_e, m) => seen.push(JSON.parse(sc.decode(m.data)))
     });
     await nc.flush();
@@ -129,7 +129,7 @@ describe("@conformance/FakeMediaNode over NATS", function () {
     expect(seen.filter((e) => e.type === "node.heartbeat").length).to.be.gte(2);
     expect(seen[seen.length - 1]).to.deep.equal({
       type: "node.down",
-      nodeId: node.nodeId
+      node_ref: node.nodeId
     });
   });
 });

@@ -83,11 +83,11 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
   it("picks the least-loaded live node that is not draining", function () {
     let now = 0;
     const nodes = createNodeDirectory({ staleMs: 100, now: () => now });
-    nodes.note({ type: "node.heartbeat", nodeId: "a", rooms: 3 });
-    nodes.note({ type: "node.heartbeat", nodeId: "b", rooms: 1 });
+    nodes.note({ type: "node.heartbeat", node_ref: "a", rooms: 3 });
+    nodes.note({ type: "node.heartbeat", node_ref: "b", rooms: 1 });
     nodes.note({
       type: "node.heartbeat",
-      nodeId: "c",
+      node_ref: "c",
       rooms: 0,
       draining: true
     });
@@ -98,7 +98,7 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
     nodes.placed("b");
     expect(nodes.pick()).to.equal("a");
 
-    nodes.note({ type: "node.down", nodeId: "a" });
+    nodes.note({ type: "node.down", node_ref: "a" });
     expect(nodes.pick()).to.equal("b");
 
     now = 200;
@@ -107,9 +107,24 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
 
   it("skips nodes at their room limit and the ones already tried", function () {
     const nodes = createNodeDirectory();
-    nodes.note({ type: "node.heartbeat", nodeId: "a", rooms: 5, maxRooms: 5 });
-    nodes.note({ type: "node.heartbeat", nodeId: "b", rooms: 8, maxRooms: 20 });
-    nodes.note({ type: "node.heartbeat", nodeId: "c", rooms: 9 }); // no limit reported
+    nodes.note({
+      type: "node.heartbeat",
+      node_ref: "a",
+      rooms: 5,
+      max_rooms: 5
+    });
+    nodes.note({
+      type: "node.heartbeat",
+      node_ref: "b",
+      rooms: 8,
+      max_rooms: 20
+    });
+    nodes.note({
+      type: "node.heartbeat",
+      node_ref: "c",
+      rooms: 9,
+      max_rooms: 10
+    });
     expect(nodes.pick()).to.equal("b");
     expect(nodes.pick(new Set(["b"]))).to.equal("c");
     expect(nodes.pick(new Set(["b", "c"]))).to.equal(undefined);
@@ -117,22 +132,51 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
     // b refuses a room (full since its heartbeat): skipped until it reports room again.
     nodes.refused("b", "at_capacity");
     expect(nodes.pick()).to.equal("c");
-    nodes.note({ type: "node.heartbeat", nodeId: "b", rooms: 7, maxRooms: 20 });
+    nodes.note({
+      type: "node.heartbeat",
+      node_ref: "b",
+      rooms: 7,
+      max_rooms: 20
+    });
     expect(nodes.pick()).to.equal("b");
     nodes.refused("b", "draining");
     expect(nodes.list().find((n) => n.nodeId === "b")?.draining).to.equal(true);
     expect(nodes.pick()).to.equal("c");
   });
 
+  it("scores nodes 1 - rooms / max_rooms and keeps to the call's region", function () {
+    const nodes = createNodeDirectory();
+    const beat = (node_ref: string, rooms: number, extra = {}) =>
+      nodes.note({
+        type: "node.heartbeat",
+        node_ref,
+        rooms,
+        max_rooms: 200,
+        ...extra
+      });
+    // control-plane "Least-loaded node chosen": A 40 of 200, B 12 of 200, C draining with 3.
+    beat("A", 40, { region: "us-east" });
+    beat("B", 12, { region: "eu-west" });
+    beat("C", 3, { draining: true, region: "us-east" });
+    expect(nodes.pick()).to.equal("B");
+    // A higher limit wins over fewer rooms: 30 of 1000 scores above 12 of 200.
+    beat("D", 30, { max_rooms: 1000, region: "us-east" });
+    expect(nodes.pick()).to.equal("D");
+    // In the call's region only.
+    expect(nodes.pick(new Set(["D"]), "us-east")).to.equal("A");
+    expect(nodes.pick(new Set(), "eu-west")).to.equal("B");
+    expect(nodes.pick(new Set(), "ap-south")).to.equal(undefined);
+  });
+
   it("takes registry entries at the time they were written", function () {
     let now = 1000;
     const nodes = createNodeDirectory({ staleMs: 100, now: () => now });
     // Written long ago (a crashed node whose lease has not run out): not offered.
-    nodes.note({ type: "node.heartbeat", nodeId: "old", rooms: 0 }, 500);
+    nodes.note({ type: "node.heartbeat", node_ref: "old", rooms: 0 }, 500);
     expect(nodes.pick()).to.equal(undefined);
-    nodes.note({ type: "node.heartbeat", nodeId: "a", rooms: 2 });
+    nodes.note({ type: "node.heartbeat", node_ref: "a", rooms: 2 });
     // An older entry read late never replaces a fresher heartbeat.
-    nodes.note({ type: "node.heartbeat", nodeId: "a", rooms: 9 }, 950);
+    nodes.note({ type: "node.heartbeat", node_ref: "a", rooms: 9 }, 950);
     expect(nodes.list().find((n) => n.nodeId === "a")?.rooms).to.equal(2);
     now = 1050;
     expect(nodes.pick()).to.equal("a");
@@ -143,18 +187,18 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
     // tells it apart (in-memory state audit, test 19).
     let now = 0;
     const nodes = createNodeDirectory({ now: () => now });
-    nodes.note({ type: "node.heartbeat", nodeId: "steady", rooms: 40 });
+    nodes.note({ type: "node.heartbeat", node_ref: "steady", rooms: 40 });
     for (let i = 0; i < 50; i++) {
       const id = `node-${i}`;
       // Each node lives 20 s (heartbeats every 2 s), then a new id takes its place.
       for (let t = 0; t < 20_000; t += 2000) {
         now += 2000;
-        nodes.note({ type: "node.heartbeat", nodeId: id, rooms: 0 });
-        nodes.note({ type: "node.heartbeat", nodeId: "steady", rooms: 40 });
+        nodes.note({ type: "node.heartbeat", node_ref: id, rooms: 0 });
+        nodes.note({ type: "node.heartbeat", node_ref: "steady", rooms: 40 });
       }
       // The dead ones are idle (rooms 0) and would win on load: they must never be picked.
       now += NODE_STALE_MS + 1;
-      nodes.note({ type: "node.heartbeat", nodeId: "steady", rooms: 40 });
+      nodes.note({ type: "node.heartbeat", node_ref: "steady", rooms: 40 });
       expect(nodes.pick()).to.equal("steady");
     }
     expect(nodes.list().length).to.be.at.most(5);
@@ -167,7 +211,7 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     const { sent, request } = fakeRequester();
     const placed = await placeOutboundCall(
       request,
-      liveNodes({ nodeId: "n1", rooms: 0 }),
+      liveNodes({ node_ref: "n1", rooms: 0 }),
       CALL
     );
     expect(placed).to.deep.equal({ nodeId: "n1", roomRef: "room-1" });
@@ -176,7 +220,7 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
       ["gateway.outbound", undefined],
       ["media.n1.commands", "participant.dial"]
     ]);
-    // The room carries the call, so the node publishes its events on calls.<ref>.events.
+    // The room carries the call, so the node publishes its events on roomr.events.<ref>.
     expect(sent[0].body).to.include({ type: "room.create", callRef: "call-1" });
     expect(sent[1].body).to.deep.equal({
       nodeId: "n1",
@@ -212,10 +256,10 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
   it("tries the next node when one is full, draining or silent, up to three nodes", async function () {
     const nodes = () =>
       liveNodes(
-        { nodeId: "n1", rooms: 0 },
-        { nodeId: "n2", rooms: 1 },
-        { nodeId: "n3", rooms: 2 },
-        { nodeId: "n4", rooms: 3 }
+        { node_ref: "n1", rooms: 0 },
+        { node_ref: "n2", rooms: 1 },
+        { node_ref: "n3", rooms: 2 },
+        { node_ref: "n4", rooms: 3 }
       );
     const roomCreates = (sent: Sent[]) =>
       sent.filter((s) => s.body.type === "room.create").map((s) => s.subject);
@@ -253,7 +297,7 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     });
     await placeOutboundCall(
       request,
-      liveNodes({ nodeId: "n1", rooms: 0 }),
+      liveNodes({ node_ref: "n1", rooms: 0 }),
       CALL
     );
     expect(sent[2].body).to.include({
@@ -268,7 +312,7 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     });
     await placeOutboundCall(
       request,
-      liveNodes({ nodeId: "n1", rooms: 0 }, { nodeId: "n2", rooms: 1 }),
+      liveNodes({ node_ref: "n1", rooms: 0 }, { node_ref: "n2", rooms: 1 }),
       CALL
     ).then(
       () => expect.fail("placed"),
@@ -283,7 +327,7 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     });
     await placeOutboundCall(
       refused.request,
-      liveNodes({ nodeId: "n1" }),
+      liveNodes({ node_ref: "n1" }),
       CALL
     ).then(
       () => expect.fail("placed"),
@@ -297,7 +341,7 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     const failed = fakeRequester({ failOn: "participant.dial" });
     await placeOutboundCall(
       failed.request,
-      liveNodes({ nodeId: "n1" }),
+      liveNodes({ node_ref: "n1" }),
       CALL
     ).then(
       () => expect.fail("placed"),
@@ -341,8 +385,10 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS", function () {
     const stop = await runOutboundCalls({ nc });
     try {
       nc.publish(
-        `media.${nodeId}.heartbeat`,
-        sc.encode(JSON.stringify({ type: "node.heartbeat", nodeId, rooms: 0 }))
+        `roomr.nodes.${nodeId}.heartbeat`,
+        sc.encode(
+          JSON.stringify({ type: "node.heartbeat", node_ref: nodeId, rooms: 0 })
+        )
       );
       await nc.flush();
       nc.publish("calls.create", sc.encode(JSON.stringify(CALL)));
@@ -385,13 +431,13 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS", function () {
     const stop = await runOutboundCalls({ nc });
     try {
       nc.publish(
-        `media.${nodeId}.heartbeat`,
+        `roomr.nodes.${nodeId}.heartbeat`,
         sc.encode(
           JSON.stringify({
             type: "node.heartbeat",
-            nodeId,
+            node_ref: nodeId,
             rooms: 0,
-            maxRooms: 5
+            max_rooms: 5
           })
         )
       );
@@ -411,7 +457,7 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS", function () {
       // TRYING, then the room's node (TrackCall follows its heartbeats).
       expect(statuses).to.deep.equal([
         { ref, status: "TRYING" },
-        { ref, nodeId }
+        { ref, node_ref: nodeId }
       ]);
     } finally {
       await stop();
@@ -487,10 +533,10 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
     const idle = `idle-${Date.now()}`;
     const draining = `drain-${Date.now()}`;
     const leases = new Sessions.SessionLeases(kv);
-    await leases.set("nodes", busy, { nodeId: busy, rooms: 40 });
-    await leases.set("nodes", idle, { nodeId: idle, rooms: 12 });
+    await leases.set("nodes", busy, { node_ref: busy, rooms: 40 });
+    await leases.set("nodes", idle, { node_ref: idle, rooms: 12 });
     await leases.set("nodes", draining, {
-      nodeId: draining,
+      node_ref: draining,
       rooms: 3,
       draining: true
     });

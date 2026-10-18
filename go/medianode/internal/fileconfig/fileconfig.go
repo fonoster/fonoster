@@ -64,7 +64,10 @@ type File struct {
 	Control struct {
 		GRPC struct {
 			Listen string `yaml:"listen"`
-			TLS    struct {
+			// Advertise is the host:port controllers dial (the heartbeat's control_addr);
+			// empty: the listen port on sip.advertise's host.
+			Advertise string `yaml:"advertise"`
+			TLS       struct {
 				Cert     string `yaml:"cert"`     // file path or secret:// reference
 				Key      string `yaml:"key"`      // file path or secret:// reference
 				ClientCA string `yaml:"clientCa"` // set: mutual TLS, client certificates required
@@ -77,7 +80,10 @@ type File struct {
 	AllowedDestinations []string `yaml:"allowedDestinations"`
 	// Codecs are the SIP-leg codecs in preference order (default opus, G722, PCMU, PCMA); leave
 	// opus out to disable it.
-	Codecs    []string `yaml:"codecs"`
+	Codecs []string `yaml:"codecs"`
+	// Region is the node's region in its heartbeat; controllers place a call only on nodes in
+	// the call's region.
+	Region    string `yaml:"region"`
 	Telemetry struct {
 		OTLPEndpoint string `yaml:"otlpEndpoint"`
 	} `yaml:"telemetry"`

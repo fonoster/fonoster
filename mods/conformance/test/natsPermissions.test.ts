@@ -276,9 +276,15 @@ describe("@conformance/nats permissions (per-service users)", function () {
     await gw.flush();
     await node.request("gateway.incoming", sc.encode("{}"), { timeout: 2000 });
     claims.unsubscribe();
-    expect(await delivered(node, api, `media.${nodeId}.heartbeat`)).to.equal(
-      true
-    );
+    expect(
+      await delivered(node, api, `roomr.nodes.${nodeId}.heartbeat`)
+    ).to.equal(true);
+    expect(
+      await delivered(node, gw, `roomr.nodes.${nodeId}.heartbeat`)
+    ).to.equal(true);
+    // Events keyed by call and by room, for any controller replica.
+    expect(await delivered(node, api, "roomr.events.c1")).to.equal(true);
+    expect(await delivered(node, api, "roomr.events.room.r1")).to.equal(true);
     expect(await delivered(node, gw, `media.${nodeId}.events.r1`)).to.equal(
       true
     );
@@ -290,9 +296,8 @@ describe("@conformance/nats permissions (per-service users)", function () {
     ).to.equal(true);
     expect(await delivered(gw, api, "webhooks.events")).to.equal(true);
     expect(await delivered(api, api, "calls.create")).to.equal(true);
-    // TrackCall: the placing replica and the node report a call's status per ref.
+    // TrackCall: the placing replica reports its part of a call's status per ref.
     expect(await delivered(api, api, "calls.r1.events")).to.equal(true);
-    expect(await delivered(node, api, "calls.r1.events")).to.equal(true);
     expect(await delivered(routr, api, "routr.call.started")).to.equal(true);
     expect(await delivered(api, gw, "callrecord.local.maintenance")).to.equal(
       true
@@ -301,7 +306,11 @@ describe("@conformance/nats permissions (per-service users)", function () {
 
   it("refuses publishing outside a service's subjects", async function () {
     // Nobody but the node speaks for a node; nobody but a gateway files index entries.
-    expect(await delivered(gw, api, "media.n1.heartbeat")).to.equal(false);
+    expect(await delivered(gw, api, "roomr.nodes.n1.heartbeat")).to.equal(
+      false
+    );
+    expect(await delivered(gw, api, "roomr.events.c1")).to.equal(false);
+    expect(await delivered(api, api, "roomr.events.c1")).to.equal(false);
     expect(await delivered(api, gw, "media.n1.events.r1")).to.equal(false);
     expect(await delivered(node, api, "callrecord.sealed")).to.equal(false);
     expect(await delivered(routr, api, "callrecord.sealed")).to.equal(false);
@@ -309,6 +318,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(gw, api, "calls.create")).to.equal(false);
     expect(await delivered(node, api, "calls.create")).to.equal(false);
     expect(await delivered(gw, api, "calls.r1.events")).to.equal(false);
+    expect(await delivered(node, api, "calls.r1.events")).to.equal(false);
     // Record maintenance is asked by the control plane only.
     expect(await delivered(node, gw, "callrecord.local.maintenance")).to.equal(
       false
@@ -514,7 +524,9 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(heard).to.equal(false);
     keys.unsubscribe();
     expect(await delivered(cgw, agent, "callrecord.sealed")).to.equal(true);
-    expect(await delivered(cnode, agent, "media.n1.heartbeat")).to.equal(true);
+    expect(await delivered(cnode, agent, "roomr.nodes.n1.heartbeat")).to.equal(
+      true
+    );
     expect(await delivered(agent, agent, "region.r1.heartbeat")).to.equal(true);
     // The agent drives nothing in the cell.
     expect(await delivered(agent, cnode, "media.n1.commands")).to.equal(false);

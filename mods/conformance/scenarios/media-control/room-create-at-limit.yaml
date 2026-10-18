@@ -13,5 +13,5 @@ steps:
   - send: { type: room.create, id: c2 }
   - expect: { type: error, id: c2, code: at_capacity }
     within_ms: 2000
-  - expect: { type: node.heartbeat, rooms: 1, maxRooms: 1 }
+  - expect: { type: node.heartbeat, rooms: 1, max_rooms: 1 }
     within_ms: 1000

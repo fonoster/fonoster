@@ -82,8 +82,9 @@ export interface MediaControl {
 
 /** Subject media nodes send `call.incoming` requests to. */
 export const INCOMING_SUBJECT = "gateway.incoming";
-/** Every node's heartbeat subject. */
-export const heartbeatSubject = (nodeId: string) => `media.${nodeId}.heartbeat`;
+/** A node's heartbeat and node.down subject (media-control "Nodes report capacity and liveness"). */
+export const heartbeatSubject = (nodeRef: string) =>
+  `roomr.nodes.${nodeRef}.heartbeat`;
 
 const sc = StringCodec();
 

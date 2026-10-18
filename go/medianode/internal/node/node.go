@@ -24,14 +24,6 @@ import (
 // DefaultMaxRooms is the room limit when none is configured (media-node "Capacity bar").
 const DefaultMaxRooms = 200
 
-// CallEventsSubject is where a room created for an API-originated call (room.create with
-// callRef) also publishes its call-status events (call.progress, call.answered, room.ended), so
-// any control-plane replica can serve TrackCall for the call.
-func CallEventsSubject(callRef string) string { return "calls." + callRef + ".events" }
-
-// callEvents are the room events that make up a call's status.
-var callEvents = map[string]bool{"call.progress": true, "call.answered": true, "room.ended": true}
-
 // IncomingSubject is where calls are offered to the gateway replicas (media-control, "Incoming
 // calls are claimed by exactly one gateway replica").
 const IncomingSubject = "gateway.incoming"
@@ -77,6 +69,11 @@ type Config struct {
 	// and how it picks among a caller's offer. Empty: audio.PhoneCodecs (opus/48000/2, G.722,
 	// PCMU, PCMA; Opus only when built with libopus). Leave Opus out to disable it.
 	Codecs []string
+	// Heartbeat facts for controllers (media-control "Heartbeat"): the MediaControl address they
+	// dial, the SIP address, the RTP port range ([0, 0]: any), the node's version and region.
+	ControlAddr, SIPAddr string
+	RTPPorts             [2]int
+	Version, Region      string
 }
 
 // Registry is the slice of the session registry the node writes (registry.KV fits).
@@ -146,6 +143,9 @@ type Node struct {
 	gateways     gatewayWatch
 	// ctl is MediaControl's call table (control.go).
 	ctl callTable
+	// events are the per-call event streams (callevents.go).
+	events eventStreams
+	cpu    cpuSampler
 
 	// Counters for the load harness (GET /stats on the debug endpoint).
 	framesMixed, lateTicks, missedTicks, dtmfReported atomic.Uint64
@@ -341,7 +341,7 @@ func (n *Node) Shutdown() {
 	for _, s := range n.subs {
 		_ = s.Unsubscribe()
 	}
-	n.publish(fmt.Sprintf("media.%s.heartbeat", n.cfg.NodeID), Event{"type": "node.down", "nodeId": n.cfg.NodeID})
+	n.publish(HeartbeatSubject(n.cfg.NodeID), Event{"type": "node.down", "node_ref": n.cfg.NodeID})
 	_ = n.nc.Flush()
 	if reg := n.cfg.Registry; reg != nil {
 		reg.Delete("nodes", n.cfg.NodeID)
@@ -363,10 +363,30 @@ func (n *Node) heartbeats() {
 	}
 }
 
+// HeartbeatSubject is where node nodeRef publishes its heartbeat every 2 s and node.down on a
+// clean exit (media-control "Nodes report capacity and liveness").
+func HeartbeatSubject(nodeRef string) string { return "roomr.nodes." + nodeRef + ".heartbeat" }
+
+// heartbeat is node.heartbeat with media-control's fields; type tells it from node.down on the
+// same subject.
+func (n *Node) heartbeat(rooms, participants int, draining bool) Event {
+	ev := Event{"type": "node.heartbeat", "node_ref": n.cfg.NodeID, "rooms": rooms,
+		"participants": participants, "max_rooms": n.cfg.MaxRooms, "cpu_idle": n.cpu.sample(),
+		"codecs": n.cfg.Codecs, "draining": draining, "version": n.cfg.Version, "region": n.cfg.Region,
+		"control_addr": n.cfg.ControlAddr, "sip_addr": n.cfg.SIPAddr}
+	if p := n.cfg.RTPPorts; p[1] != 0 {
+		ev["rtp_ports"] = Event{"min": p[0], "max": p[1]}
+	}
+	return ev
+}
+
 func (n *Node) beat() {
 	n.mu.Lock()
-	ev := Event{"type": "node.heartbeat", "nodeId": n.cfg.NodeID, "rooms": len(n.rooms),
-		"maxRooms": n.cfg.MaxRooms, "draining": n.draining}
+	rooms := make([]*Room, 0, len(n.rooms))
+	for _, r := range n.rooms {
+		rooms = append(rooms, r)
+	}
+	draining := n.draining
 	var refresh []string
 	now := time.Now()
 	if n.cfg.Registry != nil && now.Sub(n.roomsWritten) >= n.cfg.RoomRefresh {
@@ -376,10 +396,22 @@ func (n *Node) beat() {
 		}
 	}
 	n.mu.Unlock()
-	n.publish(fmt.Sprintf("media.%s.heartbeat", n.cfg.NodeID), ev)
+	participants := 0
+	for _, r := range rooms {
+		r.mu.Lock()
+		participants += len(r.participants)
+		r.mu.Unlock()
+	}
+	ev := n.heartbeat(len(rooms), participants, draining)
+	n.publish(HeartbeatSubject(n.cfg.NodeID), ev)
 	if reg := n.cfg.Registry; reg != nil {
-		reg.Put("nodes", n.cfg.NodeID, Event{"nodeId": n.cfg.NodeID, "rooms": ev["rooms"],
-			"maxRooms": ev["maxRooms"], "draining": ev["draining"], "at": now.UTC().Format(time.RFC3339Nano)})
+		entry := Event{"at": now.UTC().Format(time.RFC3339Nano)}
+		for k, v := range ev {
+			if k != "type" && k != "cpu_idle" {
+				entry[k] = v
+			}
+		}
+		reg.Put("nodes", n.cfg.NodeID, entry)
 		for _, ref := range refresh {
 			n.writeRoom(ref, now)
 		}
@@ -402,15 +434,8 @@ func (n *Node) publish(subject string, ev Event) {
 func (n *Node) emit(roomRef string, ev Event) {
 	ev["roomRef"] = roomRef
 	n.publish(fmt.Sprintf("media.%s.events.%s", n.cfg.NodeID, roomRef), ev)
-	if t, _ := ev["type"].(string); callEvents[t] {
-		if r := n.room(roomRef); r != nil && r.callRef != "" {
-			out := Event{"callRef": r.callRef, "nodeId": n.cfg.NodeID}
-			for k, v := range ev {
-				out[k] = v
-			}
-			n.publish(CallEventsSubject(r.callRef), out)
-		}
-	}
+	// The same event keyed by call, on roomr.events.<call_ref> (callevents.go).
+	n.forward(roomRef, ev)
 }
 
 func (n *Node) nextRef(prefix string) string {
@@ -510,6 +535,8 @@ func (n *Node) Incoming(call IncomingCall) {
 		call.OnRoom(room.Ref)
 	}
 	n.trackInbound(call.CallRef, room.Ref, caller.Ref)
+	n.openCall(call.CallRef, room.Ref, caller.Ref, nil, Event{"direction": orDefault(call.Direction, "inbound"),
+		"from": call.From, "to": call.To, "participant_ref": caller.Ref})
 	if n.Draining() {
 		// Drain began while the room was set up.
 		_ = call.Leg.Reject(503)
@@ -632,6 +659,7 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 			return fail("draining", "")
 		}
 		r.setMaxDuration(cmd)
+		n.openCall(callRef, r.Ref, "", nil, Event{"direction": "outbound"})
 		return ack(Command{"roomRef": r.Ref})
 	}
 	roomRef, _ := cmd["roomRef"].(string)
@@ -646,12 +674,14 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 		if err := r.ring(); err != nil {
 			return fail("sip_error", err.Error())
 		}
+		n.callerEvent(r, "call.ringing")
 		return ack(nil)
 	case "answer":
 		r.setMaxDuration(cmd)
 		if err := r.answer(); err != nil {
 			return fail("sip_error", err.Error())
 		}
+		n.callerEvent(r, "call.answered")
 		return ack(nil)
 	case "participant.add":
 		return r.addSession(cmd, ack, fail)

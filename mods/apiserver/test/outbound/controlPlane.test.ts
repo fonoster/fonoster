@@ -64,10 +64,10 @@ type Command = {
 };
 
 /**
- * A media node on NATS: acks every command, answers each dial (`call.progress` ringing, then
+ * A media node on NATS: acks every command, answers each dial (`call.ringing`, then
  * `call.answered`) and heartbeats its room count and limit. Like the real node, a room created
- * for a call (`callRef`) also publishes its call events on `calls.<callRef>.events`, and
- * `room.create` beyond `maxRooms` is refused with `at_capacity`. `reply` tells which replica sent
+ * for a call (`callRef`) publishes the call's events on `roomr.events.<callRef>` (with node_ref
+ * and seq), and `room.create` beyond `maxRooms` is refused with `at_capacity`. `reply` tells which replica sent
  * a command. `reportedRooms` makes the heartbeat lie (a node that filled up since its last beat);
  * calls in `holdAnswer` only ring until `answer(callRef)`.
  */
@@ -85,15 +85,23 @@ function fakeNode(
   const commands: Command[] = [];
   let rooms = options.rooms ?? 0;
   const callOf = new Map<string, string>(); // roomRef → callRef
+  const seq = new Map<string, number>(); // callRef → last seq
   const emit = (roomRef: string, event: Record<string, unknown>) => {
-    const body = { ...event, roomRef };
-    nc.publish(`media.${nodeId}.events.${roomRef}`, encode(body));
     const callRef = callOf.get(roomRef);
-    if (callRef)
-      nc.publish(
-        `calls.${callRef}.events`,
-        encode({ ...body, callRef, nodeId })
-      );
+    if (!callRef) return;
+    const next = (seq.get(callRef) ?? 0) + 1;
+    seq.set(callRef, next);
+    nc.publish(
+      `roomr.events.${callRef}`,
+      encode({
+        ...event,
+        call_ref: callRef,
+        room_ref: roomRef,
+        node_ref: nodeId,
+        seq: next,
+        labels: {}
+      })
+    );
   };
   const sub = nc.subscribe(`media.${nodeId}.commands`, {
     callback: (_e, msg) => {
@@ -115,25 +123,26 @@ function fakeNode(
         const roomRef = `${nodeId}-room-${rooms}`;
         if (cmd.callRef) callOf.set(roomRef, cmd.callRef);
         msg.respond(encode({ type: "ack", id: cmd.id, roomRef }));
+        emit(roomRef, { type: "call.started", direction: "outbound" });
         return;
       }
       msg.respond(encode({ type: "ack", id: cmd.id }));
       if (cmd.type === "participant.dial") {
-        emit(cmd.roomRef, { type: "call.progress", status: "ringing" });
+        emit(cmd.roomRef, { type: "call.ringing" });
         if (!options.holdAnswer?.has(callOf.get(cmd.roomRef) ?? ""))
-          emit(cmd.roomRef, { type: "call.answered", participantRef: "p-1" });
+          emit(cmd.roomRef, { type: "call.answered", participant_ref: "p-1" });
       }
     }
   });
   const heartbeat = () =>
     nc.publish(
-      `media.${nodeId}.heartbeat`,
+      `roomr.nodes.${nodeId}.heartbeat`,
       encode({
         type: "node.heartbeat",
-        nodeId,
+        node_ref: nodeId,
         rooms: options.reportedRooms ?? rooms,
         ...(options.maxRooms !== undefined
-          ? { maxRooms: options.maxRooms }
+          ? { max_rooms: options.maxRooms }
           : {}),
         draining: options.draining === true
       })
@@ -148,14 +157,18 @@ function fakeNode(
     of: (type: string) => commands.filter((c) => c.type === type),
     roomOf,
     hangUp: (roomRef: string) =>
-      emit(roomRef, { type: "room.ended", reason: "callee_hangup" }),
+      emit(roomRef, {
+        type: "call.ended",
+        cause: "callee_hangup",
+        answered: true
+      }),
     answer: (callRef: string) =>
-      emit(roomOf(callRef), { type: "call.answered", participantRef: "p-1" }),
+      emit(roomOf(callRef), { type: "call.answered", participant_ref: "p-1" }),
     down() {
       clearInterval(timer);
       nc.publish(
-        `media.${nodeId}.heartbeat`,
-        encode({ type: "node.down", nodeId })
+        `roomr.nodes.${nodeId}.heartbeat`,
+        encode({ type: "node.down", node_ref: nodeId })
       );
     },
     stop() {
@@ -589,7 +602,7 @@ describe("@apiserver[control plane] session registry", function () {
     const nodeId = `n-${randomUUID()}`;
     // What the node and the gateway keep in the registry while 50 calls are up.
     const owners = new Sessions.SessionLeases(kv, { refreshMs: 1000 });
-    await owners.set("nodes", nodeId, { nodeId, rooms: 50 });
+    await owners.set("nodes", nodeId, { node_ref: nodeId, rooms: 50 });
     const calls = Array.from({ length: 50 }, (_, i) => ({
       callRef: randomUUID(),
       gatewayRef: "gw-1",

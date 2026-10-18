@@ -44,17 +44,26 @@ export const APP_URL = getAppUrl(config);
 export const CALLS_CREATE_SUBJECT = "calls.create";
 
 /**
- * A call's status events, keyed by the call (TrackCall on any replica subscribes to them all):
- * TRYING and FAILED from the control plane that places the call, and the media node's
- * call.progress, call.answered and room.ended for the call's room.
+ * The control plane's own status of a call it places (TRYING, the node that took it, FAILED),
+ * keyed by the call, so TrackCall on any replica sees it.
  */
 export const callEventsSubject = (ref: string) => `calls.${ref}.events`;
 
-/** Every call's status events (TrackCall's subscription). */
+/** Every call's control-plane status (TrackCall's subscription). */
 export const CALL_EVENTS_WILDCARD = "calls.*.events";
 
+/**
+ * A call's events from its media node (media-control "Events on NATS are keyed by call"):
+ * call.started, call.ringing, call.answered, call.ended and the call's participant and operation
+ * events, each with node_ref, seq and labels.
+ */
+export const mediaCallEventsSubject = (ref: string) => `roomr.events.${ref}`;
+
+/** Every call's media events (TrackCall's subscription; room events are roomr.events.room.*). */
+export const MEDIA_CALL_EVENTS_WILDCARD = "roomr.events.*";
+
 /** Every media node's heartbeat and node.down (TrackCall ends the calls of a lost node). */
-export const NODE_HEARTBEAT_WILDCARD = "media.*.heartbeat";
+export const NODE_HEARTBEAT_WILDCARD = "roomr.nodes.*.heartbeat";
 
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = config.encryption.key;

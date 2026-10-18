@@ -412,7 +412,7 @@ func TestNodeHangupAndRejection(t *testing.T) {
 
 func TestHeartbeats(t *testing.T) {
 	r := start(t)
-	sub, _ := r.nc.SubscribeSync("media." + r.node.ID() + ".heartbeat")
+	sub, _ := r.nc.SubscribeSync(node.HeartbeatSubject(r.node.ID()))
 	defer sub.Unsubscribe()
 	msg, err := sub.NextMsg(time.Second)
 	if err != nil {

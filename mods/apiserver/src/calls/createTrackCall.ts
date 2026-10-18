@@ -24,7 +24,11 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
 import { NatsConnection } from "nats";
-import { CALL_EVENTS_WILDCARD, NODE_HEARTBEAT_WILDCARD } from "../envs";
+import {
+  CALL_EVENTS_WILDCARD,
+  MEDIA_CALL_EVENTS_WILDCARD,
+  NODE_HEARTBEAT_WILDCARD
+} from "../envs";
 import { CallStream, TrackCallResponse } from "./types";
 
 const FINAL_STATUSES = [
@@ -58,49 +62,60 @@ type TrackMessage = Partial<TrackCallResponse> & {
   ref: string;
   /** The call is over (the room ended): close the stream. */
   final?: boolean;
-  /** The media node that holds the call's room, when the message says. */
-  nodeId?: string;
+  /** The media node that holds the call, when the message says. */
+  nodeRef?: string;
 };
 
-/** media-control `call.progress` statuses → the Calls API's DialStatus names. */
-const PROGRESS: Record<string, DialStatus> = {
-  ringing: DialStatus.PROGRESS,
+/** call.ended causes of an unanswered call → the Calls API's DialStatus names (else FAILED). */
+const UNANSWERED: Record<string, DialStatus> = {
   busy: DialStatus.BUSY,
-  no_answer: DialStatus.NOANSWER,
-  failed: DialStatus.FAILED
+  no_answer: DialStatus.NOANSWER
 };
 
 /**
- * One message on `calls.<ref>.events` as a TrackCall message: the control plane's `{ref,
- * status}` as is, and the media node's call.progress, call.answered and room.ended translated.
- * Undefined for anything else.
+ * One message as a TrackCall message: the control plane's `{ref, status}` (on
+ * `calls.<ref>.events`) as is, and the media node's call.ringing, call.answered and call.ended
+ * (on `roomr.events.<call_ref>`) translated. Undefined for anything else (receivers ignore
+ * unknown event types).
  */
 function toTrackMessage(
   event: Record<string, unknown>,
   subject = ""
 ): TrackMessage | undefined {
-  const fromSubject = subject.split(".")[1];
-  const ref = String(event.ref ?? event.callRef ?? fromSubject ?? "");
+  const tokens = subject.split(".");
+  const fromSubject = tokens[0] === "roomr" ? tokens[2] : tokens[1];
+  const ref = String(event.ref ?? event.call_ref ?? fromSubject ?? "");
   if (!ref) return undefined;
   const node =
-    typeof event.nodeId === "string" && event.nodeId
-      ? { nodeId: event.nodeId }
+    typeof event.node_ref === "string" && event.node_ref
+      ? { nodeRef: event.node_ref }
       : {};
   switch (event.type) {
-    case "call.progress":
-      return {
-        ref,
-        status: PROGRESS[String(event.status)] ?? DialStatus.FAILED,
-        ...node
-      };
+    case "call.started":
+      return node.nodeRef ? { ref, ...node } : undefined;
+    case "call.ringing":
+      return { ref, status: DialStatus.PROGRESS, ...node };
     case "call.answered":
       return { ref, status: DialStatus.ANSWER, ...node };
-    case "room.ended":
-      return { ref, final: true, ...node };
+    case "call.ended":
+      // An answered call just ends; an unanswered one ends with its dial status.
+      return event.answered === true
+        ? { ref, final: true, ...node }
+        : {
+            ref,
+            status: UNANSWERED[String(event.cause)] ?? DialStatus.FAILED,
+            final: true,
+            ...node
+          };
     case undefined:
-      // The control plane's {ref, status}, {ref, final} and {ref, nodeId} (the room exists).
-      return event.status !== undefined || event.final === true || node.nodeId
-        ? ({ ...event, ref } as TrackMessage)
+      // The control plane's {ref, status}, {ref, final} and {ref, node_ref} (a node took it).
+      return event.status !== undefined || event.final === true || node.nodeRef
+        ? ({
+            ref,
+            ...(event.status !== undefined ? { status: event.status } : {}),
+            ...(event.final === true ? { final: true } : {}),
+            ...node
+          } as TrackMessage)
         : undefined;
     default:
       return undefined;
@@ -112,15 +127,15 @@ type Tracked = {
   ref: string;
   stream: CallStream;
   startedAt: number;
-  /** The media node holding the call's room, and when this stream learned it. */
-  nodeId?: string;
+  /** The media node holding the call, and when this stream learned it. */
+  nodeRef?: string;
   nodeAt?: number;
 };
 
 /**
- * TrackCall: status updates of an API-originated call, from the call's own subject
- * `calls.<ref>.events`. The replica that placed the call publishes TRYING (and FAILED), and the
- * media node publishes the room's call events there, so any replica serves TrackCall for any
+ * TrackCall: status updates of an API-originated call, from the call's own subjects. The replica
+ * that placed the call publishes TRYING (and FAILED) on `calls.<ref>.events`, and the media node
+ * publishes the call's events on `roomr.events.<ref>`, so any replica serves TrackCall for any
  * call, even after the placing replica is gone. The SDK subscribes right after CreateCall
  * returns, and the first statuses can come before that, so each call's messages are kept for a
  * while and replayed (also to a second TrackCall for the same call).
@@ -141,6 +156,7 @@ function createTrackCallHandler(
   /** Last heartbeat per media node. */
   const beats = new Map<string, number>();
   const subscription = nc.subscribe(CALL_EVENTS_WILDCARD);
+  const mediaEvents = nc.subscribe(MEDIA_CALL_EVENTS_WILDCARD);
 
   const untrack = (t: Tracked) => {
     const set = tracked.get(t.ref);
@@ -164,8 +180,8 @@ function createTrackCallHandler(
   /** Writes one message; returns true when the stream is done. */
   const deliver = (t: Tracked, message: TrackMessage) => {
     const { ref, status } = message;
-    if (message.nodeId && message.nodeId !== t.nodeId) {
-      t.nodeId = message.nodeId;
+    if (message.nodeRef && message.nodeRef !== t.nodeRef) {
+      t.nodeRef = message.nodeRef;
       t.nodeAt = now();
     }
     if (status) t.stream.write({ ref, status });
@@ -178,7 +194,10 @@ function createTrackCallHandler(
     return done;
   };
 
-  subscription.callback = (err, msg) => {
+  const onEvent = (
+    err: unknown,
+    msg?: { json: () => unknown; subject: string }
+  ) => {
     // We can't do much more than log the error
     if (err) {
       logger.error("call to subscription.callback", { err });
@@ -205,6 +224,8 @@ function createTrackCallHandler(
 
     for (const t of [...(tracked.get(ref) ?? [])]) deliver(t, message);
   };
+  subscription.callback = onEvent;
+  mediaEvents.callback = onEvent;
 
   const onHeartbeat = (err: unknown, msg?: { json: () => unknown }) => {
     if (err) return;
@@ -214,14 +235,14 @@ function createTrackCallHandler(
     } catch {
       return;
     }
-    const nodeId = typeof event?.nodeId === "string" ? event.nodeId : "";
-    if (!nodeId) return;
-    if (event.type === "node.heartbeat") beats.set(nodeId, now());
+    const nodeRef = typeof event?.node_ref === "string" ? event.node_ref : "";
+    if (!nodeRef) return;
+    if (event.type === "node.heartbeat") beats.set(nodeRef, now());
     else if (event.type === "node.down") {
-      beats.delete(nodeId);
+      beats.delete(nodeRef);
       for (const set of [...tracked.values()])
         for (const t of [...set])
-          if (t.nodeId === nodeId) fail(t, `media node ${nodeId} is down`);
+          if (t.nodeRef === nodeRef) fail(t, `media node ${nodeRef} is down`);
     }
   };
 
@@ -235,19 +256,19 @@ function createTrackCallHandler(
       if (at - kept.at <= KEEP_MS) break;
       recent.delete(ref);
     }
-    for (const [nodeId, seen] of beats)
-      if (at - seen > KEEP_MS) beats.delete(nodeId);
+    for (const [nodeRef, seen] of beats)
+      if (at - seen > KEEP_MS) beats.delete(nodeRef);
     for (const set of [...tracked.values()])
       for (const t of [...set]) {
         if (at - t.startedAt > o.maxMs) {
           fail(t, "no final status in time");
-        } else if (!t.nodeId) {
+        } else if (!t.nodeRef) {
           if (at - t.startedAt > o.noNodeMs)
             fail(t, "no media node took the call");
         } else {
-          const seen = Math.max(beats.get(t.nodeId) ?? 0, t.nodeAt ?? 0);
+          const seen = Math.max(beats.get(t.nodeRef) ?? 0, t.nodeAt ?? 0);
           if (at - seen > o.nodeStaleMs)
-            fail(t, `media node ${t.nodeId} missed its heartbeats`);
+            fail(t, `media node ${t.nodeRef} missed its heartbeats`);
         }
       }
   };
@@ -280,6 +301,7 @@ function createTrackCallHandler(
     stop() {
       clearInterval(timer);
       subscription.unsubscribe?.();
+      mediaEvents.unsubscribe?.();
       heartbeats.unsubscribe?.();
     }
   };

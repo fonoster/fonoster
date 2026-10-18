@@ -36,6 +36,18 @@ import (
 // over both. The node reads no MEDIANODE_* variables (fix-config-and-placement-gaps); a value
 // from the environment must be written in the file as a ${VAR} placeholder.
 
+// version is the build's version (-ldflags "-X main.version=..."), reported in heartbeats.
+var version = "dev"
+
+// advertised is listen's port on host ("" when listen is empty or has no port).
+func advertised(listen, host string) string {
+	_, port, err := net.SplitHostPort(listen)
+	if listen == "" || err != nil || port == "" {
+		return ""
+	}
+	return net.JoinHostPort(host, port)
+}
+
 func or(file, def string) string {
 	if file != "" {
 		return file
@@ -140,6 +152,8 @@ func main() {
 	grpcKey := flag.String("control-grpc-key", or(fc.Control.GRPC.TLS.Key, ""), "PEM key for the MediaControl listener (file or secret://)")
 	grpcClientCA := flag.String("control-grpc-client-ca", or(fc.Control.GRPC.TLS.ClientCA, ""), "PEM CA for mutual TLS on the MediaControl listener: controllers must present a certificate it signed")
 	codecList := flag.String("codecs", or(strings.Join(fc.Codecs, ","), ""), "SIP-leg codecs in preference order (default opus,G722,PCMU,PCMA); leave opus out to disable it")
+	region := flag.String("region", or(fc.Region, ""), "the node's region in its heartbeat (controllers place calls in the call's region)")
+	grpcAdvertise := flag.String("control-grpc-advertise", or(fc.Control.GRPC.Advertise, ""), "host:port controllers dial for MediaControl (heartbeat control_addr); empty: the listen port on -sip-advertise's host")
 	flag.Parse()
 	if *rtpMax != 0 {
 		if *rtpMin <= 0 || *rtpMin > *rtpMax {
@@ -215,7 +229,9 @@ func main() {
 		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants, MaxRooms: *maxRooms,
 		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger,
 		EmptyRoomTimeout: *emptyRoomTimeout, OwnerTimeout: *ownerTimeout,
-		AllowedDestinations: allowedDestinations(fc), Codecs: codecs})
+		AllowedDestinations: allowedDestinations(fc), Codecs: codecs,
+		Version: version, Region: *region, RTPPorts: [2]int{*rtpMin, *rtpMax},
+		SIPAddr: advertised(*sipListen, *sipAdvertise), ControlAddr: or(*grpcAdvertise, advertised(*grpcListen, *sipAdvertise))})
 	// The PEM settings are file paths or secret:// references (edgetls, add-platform 4.2).
 	edge, err := edgetls.Build(edgetls.Options{Cert: *tlsCert, Key: *tlsKey, CA: *tlsCA, ClientCA: *tlsClientCA})
 	if err != nil {

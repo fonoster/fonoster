@@ -16,16 +16,16 @@
 
 ## 3. Capacity in the heartbeat (S)
 
-- [ ] 3.1 Add `max_rooms`, `cpu_idle`, `version`, `region`, `control_addr`, `sip_addr`, `rtp_ports`, `participants` and `codecs` to the heartbeat
+- [x] 3.1 Add `max_rooms`, `cpu_idle`, `version`, `region`, `control_addr`, `sip_addr`, `rtp_ports`, `participants` and `codecs` to the heartbeat
 - [x] 3.2 Refuse at the limit: `503` for inbound INVITEs, `RESOURCE_EXHAUSTED` for `CreateCall`; `UNAVAILABLE` while draining
 - [ ] 3.3 Controller: score `1 - rooms / max_rooms` over eligible nodes (fresh, not draining, below limit, in region); retry up to 3 nodes; synchronous capacity error (`createNodeDirectory`, `placeOutboundCall`)
 - [ ] 3.4 Test: a node at its limit is skipped; two controllers picking the same node resolve by refusal and retry; every node refusing fails the API call at once
 
 ## 4. Events keyed by call (S)
 
-- [ ] 4.1 Publish events on `roomr.events.<call_ref>` and `roomr.events.room.<room_ref>` with `node_ref`, per-call `seq` and `labels`
-- [ ] 4.2 `call.started`, `call.ringing`, `call.answered`, `call.ended` (SIP status + cause), `operation.done`, `room.ended`, `participant.joined`, `participant.left`
-- [ ] 4.3 Test: a second controller replica follows a call it did not place; `seq` is contiguous per call; labels from `CreateCall` are echoed
+- [x] 4.1 Publish events on `roomr.events.<call_ref>` and `roomr.events.room.<room_ref>` with `node_ref`, per-call `seq` and `labels`
+- [x] 4.2 `call.started`, `call.ringing`, `call.answered`, `call.ended` (SIP status + cause), `operation.done`, `room.ended`, `participant.joined`, `participant.left`
+- [x] 4.3 Test: a second controller replica follows a call it did not place; `seq` is contiguous per call; labels from `CreateCall` are echoed
 
 ## 5. Control stream (M)
 
