@@ -46,8 +46,9 @@ export function natsRequester(nc: NatsConnection): Requester {
 }
 
 /**
- * The control plane's part of a call's status events for TrackCall: TRYING when placement starts
- * and FAILED when it fails. Everything after the room exists (PROGRESS, ANSWER, BUSY, the final
+ * The control plane's part of a call's status events for TrackCall: TRYING when placement starts,
+ * `{ref, nodeId}` once a node holds the call's room (TrackCall then follows that node's
+ * heartbeats), and FAILED when placement fails. Everything after the room exists (PROGRESS, ANSWER, BUSY, the final
  * room.ended) comes from the media node on the same per-call subject, so the statuses keep
  * flowing to every replica's TrackCall even if this replica dies.
  */
@@ -56,6 +57,9 @@ export function callTracker(nc: NatsConnection, ref: string) {
     nc.publish(callEventsSubject(ref), sc.encode(JSON.stringify(body)));
   publish({ ref, status: "TRYING" });
   return {
+    placed(nodeId: string) {
+      publish({ ref, nodeId });
+    },
     failed() {
       publish({ ref, status: "FAILED" });
     }
@@ -142,7 +146,10 @@ export async function runOutboundCalls(config: {
       };
       const tracker = callTracker(nc, call.ref);
       placeOutboundCall(request, nodes, call, {
-        onRoom: (nodeId) => reply({ type: "ack", ref: call.ref, nodeId })
+        onRoom: (nodeId) => {
+          tracker.placed(nodeId);
+          reply({ type: "ack", ref: call.ref, nodeId });
+        }
       }).then(
         (placed) =>
           logger.verbose("outbound call placed", { ref: call.ref, ...placed }),

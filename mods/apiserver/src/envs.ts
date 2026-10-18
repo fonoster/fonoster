@@ -53,6 +53,9 @@ export const callEventsSubject = (ref: string) => `calls.${ref}.events`;
 /** Every call's status events (TrackCall's subscription). */
 export const CALL_EVENTS_WILDCARD = "calls.*.events";
 
+/** Every media node's heartbeat and node.down (TrackCall ends the calls of a lost node). */
+export const NODE_HEARTBEAT_WILDCARD = "media.*.heartbeat";
+
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = config.encryption.key;
 

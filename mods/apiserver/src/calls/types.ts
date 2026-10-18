@@ -70,6 +70,8 @@ type TrackCallResponse = {
 type CallStream = {
   write: (data: TrackCallResponse | GrpcErrorMessage) => void;
   end: () => void;
+  /** The gRPC stream's events ("cancelled" when the client goes away). */
+  on?: (event: string, listener: (...args: unknown[]) => void) => void;
 };
 
 type TrackCallSubscriber = {

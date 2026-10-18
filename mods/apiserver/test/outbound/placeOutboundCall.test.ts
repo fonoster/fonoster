@@ -367,7 +367,11 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS", function () {
       });
       expect(created[0]).to.include({ callRef: ref });
       await nc.flush();
-      expect(statuses).to.deep.equal([{ ref, status: "TRYING" }]);
+      // TRYING, then the room's node (TrackCall follows its heartbeats).
+      expect(statuses).to.deep.equal([
+        { ref, status: "TRYING" },
+        { ref, nodeId }
+      ]);
     } finally {
       await stop();
       track.unsubscribe();
