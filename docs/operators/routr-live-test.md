@@ -26,7 +26,7 @@ You need Docker, Go 1.25, and a NATS server for media-control. Use your own NATS
 another gateway on the same NATS would claim the call.
 
 ```sh
-mods/gateway/test/routr/rig.sh up        # Postgres + Routr 2.15.1; about a minute the first time
+mods/gateway/test/routr/rig.sh up        # Postgres + Routr 2.15.4; about a minute the first time
 CONFORMANCE_NATS_URL=nats://127.0.0.1:4235 mods/gateway/test/routr/rig.sh test
 mods/gateway/test/routr/rig.sh down      # removes the containers and the database
 ```
@@ -41,7 +41,7 @@ updates its Routr resources by name each time.
 | Container | What | Host ports |
 | --- | --- | --- |
 | `rb-cutover-routr-postgres` | Postgres 16 with a `routr` database | none |
-| `rb-cutover-routr` | `fonoster/routr-one:2.15.3`, `START_INTERNAL_DB=false` | 15560 SIP (UDP, TCP), 15551 API, 15552 location |
+| `rb-cutover-routr` | `fonoster/routr-one:2.15.4`, `START_INTERNAL_DB=false` | 15560 SIP (UDP, TCP), 15551 API, 15552 location |
 
 Notes:
 
