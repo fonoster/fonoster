@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/voice",
-  "version": "0.27.0",
+  "version": "0.30.0",
   "description": "Session SDK for Fonoster voice applications",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -18,8 +18,8 @@
     "generate:readme": "node ../../.scripts/gen-readme.cjs"
   },
   "dependencies": {
-    "@fonoster/common": "^0.27.0",
-    "@fonoster/logger": "^0.27.0",
+    "@fonoster/common": "^0.30.0",
+    "@fonoster/logger": "^0.30.0",
     "ws": "^8.18.0"
   },
   "files": [
@@ -39,6 +39,6 @@
   },
   "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
   "devDependencies": {
-    "@fonoster/conformance": "^0.27.0"
+    "@fonoster/conformance": "^0.30.0"
   }
 }
