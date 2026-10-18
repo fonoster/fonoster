@@ -5,7 +5,7 @@ package audio
 /*
 #cgo darwin CFLAGS: -I/opt/homebrew/include -I/usr/local/include
 #cgo darwin LDFLAGS: -L/opt/homebrew/lib -L/usr/local/lib -lopus
-#cgo linux LDFLAGS: -lopus
+#cgo linux LDFLAGS: -lopus -lm
 #include <opus/opus.h>
 
 static int fo_set_bitrate(OpusEncoder *e, int b) { return opus_encoder_ctl(e, OPUS_SET_BITRATE(b)); }

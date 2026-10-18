@@ -1,6 +1,9 @@
 package sdp
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 const offer = "v=0\r\no=- 1 1 IN IP4 10.0.0.9\r\ns=-\r\nc=IN IP4 10.0.0.9\r\nt=0 0\r\n" +
 	"m=audio 4000 RTP/AVP 9 0 101\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-16\r\n"
@@ -46,5 +49,47 @@ func TestOpusAndCryptoRoundTrip(t *testing.T) {
 	}
 	if pt, name, ok := m.Choose("G722/8000", "opus/48000"); !ok || pt != 111 || name != "opus/48000" {
 		t.Fatalf("chose %d %s", pt, name)
+	}
+}
+
+// An Opus-capable peer's offer (PCMU listed first) and a G.711-only trunk's offer, answered with
+// the node's order: Opus whenever offered, PCMU from the trunk.
+func TestChoosePreferredTakesTheNodesOrder(t *testing.T) {
+	node := []string{"opus/48000", "G722/8000", "PCMU/8000", "PCMA/8000"}
+	opusPeer, err := Parse([]byte("v=0\r\nc=IN IP4 10.0.0.2\r\nm=audio 4000 RTP/AVP 0 8 96 101\r\n" +
+		"a=rtpmap:96 OPUS/48000/2\r\na=fmtp:96 useinbandfec=1; maxplaybackrate=48000\r\n" +
+		"a=rtpmap:101 telephone-event/8000\r\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pt, name, ok := opusPeer.ChoosePreferred(node...); !ok || pt != 96 || name != "opus/48000" {
+		t.Fatalf("Opus peer: chose %d %s %v", pt, name, ok)
+	}
+	if pt, _, _ := opusPeer.Choose(node...); pt != 0 {
+		t.Fatalf("Choose keeps the remote's order, got %d", pt)
+	}
+	if got := opusPeer.Fmtp[96]; got != "useinbandfec=1; maxplaybackrate=48000" {
+		t.Fatalf("fmtp %q", got)
+	}
+	trunk, _ := Parse([]byte("v=0\r\nc=IN IP4 10.0.0.3\r\nm=audio 4002 RTP/AVP 8 0\r\n"))
+	if pt, name, ok := trunk.ChoosePreferred(node...); !ok || pt != 0 || name != "PCMU/8000" {
+		t.Fatalf("G.711 trunk: chose %d %s %v", pt, name, ok)
+	}
+	if _, _, ok := trunk.ChoosePreferred("opus/48000"); ok {
+		t.Fatal("Opus-only node accepted a G.711 offer")
+	}
+}
+
+func TestOpusIsWrittenPerRFC7587(t *testing.T) {
+	body := string(WriteDescription(Description{Host: "10.0.0.1", Port: 6000, DTMF: 101,
+		Codecs: []Codec{{111, "opus/48000"}, {9, "G722/8000"}, {0, "PCMU/8000"}, {8, "PCMA/8000"}}}))
+	for _, line := range []string{
+		"m=audio 6000 RTP/AVP 111 9 0 8 101\r\n",
+		"a=rtpmap:111 opus/48000/2\r\n",
+		"a=fmtp:111 maxplaybackrate=16000;sprop-maxcapturerate=16000;useinbandfec=1\r\n",
+	} {
+		if !strings.Contains(body, line) {
+			t.Errorf("offer lacks %q:\n%s", line, body)
+		}
 	}
 }

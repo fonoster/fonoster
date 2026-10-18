@@ -73,6 +73,10 @@ type Config struct {
 	// OwnerTimeout ends a room whose gateway, once heard, sent no gateway.heartbeat for this
 	// long (20 s, four missed beats; negative disables).
 	OwnerTimeout time.Duration
+	// Codecs are the SIP-leg codecs in the node's order of preference: what its INVITEs offer,
+	// and how it picks among a caller's offer. Empty: audio.PhoneCodecs (opus/48000/2, G.722,
+	// PCMU, PCMA; Opus only when built with libopus). Leave Opus out to disable it.
+	Codecs []string
 }
 
 // Registry is the slice of the session registry the node writes (registry.KV fits).
@@ -106,6 +110,9 @@ func (c *Config) defaults() {
 	}
 	if c.MaxRooms <= 0 {
 		c.MaxRooms = DefaultMaxRooms
+	}
+	if len(c.Codecs) == 0 {
+		c.Codecs = audio.PhoneCodecs()
 	}
 	if c.Logger == nil {
 		c.Logger = slog.Default()
@@ -479,7 +486,7 @@ func (n *Node) room(ref string) *Room {
 func (n *Node) Incoming(call IncomingCall) {
 	ctx, endSpan := telemetry.StartCall(context.Background(), "medianode.call.incoming", call.CallRef)
 	defer endSpan()
-	if _, _, ok := call.Media.Choose(audio.PhoneCodecs()...); !ok {
+	if _, _, ok := call.Media.ChoosePreferred(n.cfg.Codecs...); !ok {
 		_ = call.Leg.Reject(488)
 		return
 	}

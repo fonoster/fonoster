@@ -80,7 +80,10 @@ type File struct {
 	RequireEncryption   *bool    `yaml:"requireEncryption"`
 	TrustedSources      []string `yaml:"trustedSources"`
 	AllowedDestinations []string `yaml:"allowedDestinations"`
-	Telemetry           struct {
+	// Codecs are the SIP-leg codecs in preference order (default opus, G722, PCMU, PCMA); leave
+	// opus out to disable it.
+	Codecs    []string `yaml:"codecs"`
+	Telemetry struct {
 		OTLPEndpoint string `yaml:"otlpEndpoint"`
 	} `yaml:"telemetry"`
 }

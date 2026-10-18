@@ -64,7 +64,7 @@ func (m *meter) hear(f audio.Frame) {
 		return
 	}
 	m.audible++
-	for _, freq := range []float64{600, 1000, 440} {
+	for _, freq := range []float64{600, 1000, 440, 6000} {
 		if toneRatio(f, freq) > 0.2 {
 			m.freqs[freq]++
 		}

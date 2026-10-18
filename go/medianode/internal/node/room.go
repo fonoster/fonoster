@@ -362,7 +362,7 @@ func (r *Room) prepareSRTP(p *Participant, m sdp.Media) int {
 }
 
 func (r *Room) addPhone(call IncomingCall) (*Participant, int, error) {
-	pt, codecName, ok := call.Media.Choose(audio.PhoneCodecs()...)
+	pt, codecName, ok := call.Media.ChoosePreferred(r.node.cfg.Codecs...)
 	if !ok {
 		return nil, 488, fmt.Errorf("no common codec")
 	}

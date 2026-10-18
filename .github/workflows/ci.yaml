@@ -131,7 +131,8 @@ jobs:
           go-version-file: go/medianode/go.mod
           cache-dependency-path: go/medianode/go.sum
 
-      # The Opus codec is cgo (internal/audio/opus.go).
+      # The Opus codec is cgo (internal/audio/opus.go); the shipped image links libopus statically
+      # (go/medianode/Dockerfile). Tests run with cgo (the race detector needs it), so Opus is in.
       - name: Install libopus
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
 
@@ -142,6 +143,8 @@ jobs:
         run: |
           test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
           go vet ./...
+          # The no-libopus fallback (opus_none.go) still builds.
+          CGO_ENABLED=0 go build ./...
           # Packages one at a time: several bind random local ports and collide when run in parallel.
           go test -race -p 1 ./...
 

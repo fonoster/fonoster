@@ -4,6 +4,7 @@ package audio
 
 import (
 	"encoding/binary"
+	"fmt"
 	"strings"
 )
 
@@ -76,8 +77,7 @@ type Concealer interface {
 	Conceal() Frame
 }
 
-// Canonical SDP names (rtpmap without channels) of the codecs SIP legs can use, in the node's
-// order of preference for its own offers.
+// Canonical SDP names (rtpmap without channels) of the codecs SIP legs can use.
 const (
 	NamePCMU = "PCMU/8000"
 	NamePCMA = "PCMA/8000"
@@ -86,13 +86,49 @@ const (
 	NameL16  = "L16/16000"
 )
 
-// PhoneCodecs lists the SIP-leg codecs this build supports (Opus only when built with libopus).
+// OfferOrder is the node's preference on SIP legs (redesign-media-node, "Supported codecs"):
+// Opus, G.722, PCMU, PCMA. Opus is written as opus/48000/2 in SDP (RFC 7587).
+var OfferOrder = []string{NameOpus, NameG722, NamePCMU, NamePCMA}
+
+// PhoneCodecs lists the SIP-leg codecs this build supports, in OfferOrder (Opus only when built
+// with libopus).
 func PhoneCodecs() []string {
-	out := []string{NamePCMU, NamePCMA, NameG722}
-	if OpusAvailable {
-		out = append(out, NameOpus)
+	out := []string{}
+	for _, name := range OfferOrder {
+		if name != NameOpus || OpusAvailable {
+			out = append(out, name)
+		}
 	}
 	return out
+}
+
+// ParseCodecList canonicalizes a configured SIP codec list ("opus", "G722/8000", "pcmu", ...),
+// keeping its order and dropping duplicates. Empty means PhoneCodecs. Unknown names, L16 (not a
+// SIP-leg codec) and Opus in a build without libopus are errors.
+func ParseCodecList(names []string) ([]string, error) {
+	out := []string{}
+	seen := map[string]bool{}
+	for _, raw := range names {
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		name := canonical(raw)
+		switch {
+		case name == "" || name == NameL16:
+			return nil, fmt.Errorf("unsupported SIP codec %q (use opus, G722, PCMU or PCMA)", raw)
+		case name == NameOpus && !OpusAvailable:
+			return nil, fmt.Errorf("codec %q: this build has no libopus (built without cgo)", raw)
+		}
+		if !seen[name] {
+			seen[name] = true
+			out = append(out, name)
+		}
+	}
+	if len(out) == 0 {
+		return PhoneCodecs(), nil
+	}
+	return out, nil
 }
 
 // StaticPayloadType returns the RFC 3551 static payload type of a codec, or -1 for dynamic ones.

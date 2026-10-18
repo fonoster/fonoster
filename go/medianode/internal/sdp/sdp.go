@@ -16,6 +16,8 @@ type Media struct {
 	// PayloadTypes in offer order; Codecs maps them to "NAME/RATE".
 	PayloadTypes []int
 	Codecs       map[int]string
+	// Fmtp holds each payload type's a=fmtp parameters as written ("useinbandfec=1;...").
+	Fmtp map[int]string
 	// DTMF is the telephone-event payload type, or -1.
 	DTMF int
 	// Secure is true for an RTP/SAVP stream; Crypto lists its SDES keys (RFC 4568).
@@ -32,7 +34,7 @@ type Crypto struct {
 
 // Parse reads the first audio stream.
 func Parse(body []byte) (Media, error) {
-	m := Media{Codecs: map[int]string{}, DTMF: -1}
+	m := Media{Codecs: map[int]string{}, Fmtp: map[int]string{}, DTMF: -1}
 	session := ""
 	inAudio := false
 	for _, raw := range strings.Split(string(body), "\n") {
@@ -73,6 +75,13 @@ func Parse(body []byte) (Media, error) {
 				key = key[:i] // lifetime and MKI are not used
 			}
 			m.Crypto = append(m.Crypto, Crypto{Tag: tag, Suite: parts[1], Key: key})
+		case inAudio && strings.HasPrefix(line, "a=fmtp:"):
+			rest := strings.TrimPrefix(line, "a=fmtp:")
+			if i := strings.IndexByte(rest, ' '); i > 0 {
+				if pt, err := strconv.Atoi(rest[:i]); err == nil {
+					m.Fmtp[pt] = strings.TrimSpace(rest[i+1:])
+				}
+			}
 		case inAudio && strings.HasPrefix(line, "a=rtpmap:"):
 			rest := strings.TrimPrefix(line, "a=rtpmap:")
 			parts := strings.Fields(rest)
@@ -115,7 +124,8 @@ func Parse(body []byte) (Media, error) {
 	return m, nil
 }
 
-// Choose returns the first offered payload type whose codec is in supported.
+// Choose returns the first offered payload type whose codec is in supported: the remote's order
+// wins. Use it on answers (the answerer has already picked) and where the peer's preference rules.
 func (m Media) Choose(supported ...string) (int, string, bool) {
 	for _, pt := range m.PayloadTypes {
 		name := m.Codecs[pt]
@@ -127,6 +137,25 @@ func (m Media) Choose(supported ...string) (int, string, bool) {
 	}
 	return 0, "", false
 }
+
+// ChoosePreferred returns the payload type of the first codec in supported (the node's order)
+// that the remote offered, so an offer of PCMU and Opus is answered with Opus whatever its order
+// (redesign-media-node, "Opus preferred when the peer accepts it"; RFC 3264 lets the answerer pick
+// any offered codec).
+func (m Media) ChoosePreferred(supported ...string) (int, string, bool) {
+	for _, s := range supported {
+		for _, pt := range m.PayloadTypes {
+			if strings.EqualFold(m.Codecs[pt], s) {
+				return pt, s, true
+			}
+		}
+	}
+	return 0, "", false
+}
+
+// OpusFmtp is the node's a=fmtp for Opus (RFC 7587): in-band FEC on, and the node mixes at
+// 16 kHz, so it neither needs more than wideband from the peer nor sends more.
+const OpusFmtp = "maxplaybackrate=16000;sprop-maxcapturerate=16000;useinbandfec=1"
 
 // Codec is one payload type and its rtpmap name ("PCMU/8000", "opus/48000").
 type Codec struct {
@@ -179,7 +208,7 @@ func WriteDescription(d Description) []byte {
 		}
 		lines = append(lines, fmt.Sprintf("a=rtpmap:%d %s", c.PT, name))
 		if strings.HasPrefix(strings.ToLower(name), "opus/") {
-			lines = append(lines, fmt.Sprintf("a=fmtp:%d useinbandfec=1", c.PT))
+			lines = append(lines, fmt.Sprintf("a=fmtp:%d %s", c.PT, OpusFmtp))
 		}
 	}
 	if d.DTMF >= 0 {

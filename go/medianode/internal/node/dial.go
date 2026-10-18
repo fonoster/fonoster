@@ -53,7 +53,7 @@ func (r *Room) dialLeg(dial dialFunc, onRinging func()) (*Participant, error) {
 		return nil, err
 	}
 	offer := sdp.Description{Host: r.node.cfg.AdvertiseHost, Port: ep.Port(), DTMF: 101}
-	for _, name := range audio.PhoneCodecs() {
+	for _, name := range r.node.cfg.Codecs {
 		pt := audio.StaticPayloadType(name)
 		if pt < 0 {
 			pt = 111
@@ -82,7 +82,7 @@ func (r *Room) dialLeg(dial dialFunc, onRinging func()) (*Participant, error) {
 		ep.Close()
 		return nil, err
 	}
-	pt, codecName, ok := media.Choose(audio.PhoneCodecs()...)
+	pt, codecName, ok := media.Choose(r.node.cfg.Codecs...)
 	if !ok {
 		_ = leg.Bye()
 		ep.Close()

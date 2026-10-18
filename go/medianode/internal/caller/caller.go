@@ -46,11 +46,21 @@ type Bot struct {
 	// How the bot answers INVITEs it receives (as the callee of a dial or transfer).
 	answerMode  string // answer (default), busy, no_answer, decline
 	answerAfter time.Duration
-	refers      []string
+	// answerCodecs, when set, are the only codecs the bot accepts as a callee (a G.711-only trunk).
+	answerCodecs []string
+	refers       []string
 	// authUser and authPass, when set, make the bot challenge INVITEs (RequireAuth).
 	authUser, authPass string
 	// challenged counts the INVITEs the bot answered with 401.
 	challenged int
+}
+
+// AnswerCodecs limits the codecs the bot accepts as a callee (e.g. PCMU only, like a G.711
+// trunk); none restores every codec this build supports. It still takes the offer's order.
+func (b *Bot) AnswerCodecs(names ...string) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.answerCodecs = names
 }
 
 // Callee sets how the bot answers INVITEs: "answer", "busy", "no_answer" (rings forever),
@@ -719,7 +729,13 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		_ = dlg.Respond(500, "Server Error", nil)
 		return
 	}
-	pt, codecName, ok := offer.Choose(audio.PhoneCodecs()...)
+	b.mu.Lock()
+	accept := b.answerCodecs
+	b.mu.Unlock()
+	if len(accept) == 0 {
+		accept = audio.PhoneCodecs()
+	}
+	pt, codecName, ok := offer.Choose(accept...)
 	if !ok {
 		ep.Close()
 		_ = dlg.Respond(488, "Not Acceptable Here", nil)

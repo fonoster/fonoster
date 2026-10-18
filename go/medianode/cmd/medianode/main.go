@@ -19,6 +19,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fonoster/fonoster/go/medianode/internal/audio"
 	"github.com/fonoster/fonoster/go/medianode/internal/control"
 	"github.com/fonoster/fonoster/go/medianode/internal/edgetls"
 	"github.com/fonoster/fonoster/go/medianode/internal/fileconfig"
@@ -144,6 +145,7 @@ func main() {
 	grpcCert := flag.String("control-grpc-cert", or(fc.Control.GRPC.TLS.Cert, ""), "PEM certificate for the MediaControl listener (file or secret://); empty: plaintext")
 	grpcKey := flag.String("control-grpc-key", or(fc.Control.GRPC.TLS.Key, ""), "PEM key for the MediaControl listener (file or secret://)")
 	grpcClientCA := flag.String("control-grpc-client-ca", or(fc.Control.GRPC.TLS.ClientCA, ""), "PEM CA for mutual TLS on the MediaControl listener: controllers must present a certificate it signed")
+	codecList := flag.String("codecs", or(strings.Join(fc.Codecs, ","), ""), "SIP-leg codecs in preference order (default opus,G722,PCMU,PCMA); leave opus out to disable it")
 	flag.Parse()
 	if *rtpMax != 0 {
 		if *rtpMin <= 0 || *rtpMin > *rtpMax {
@@ -165,6 +167,12 @@ func main() {
 	}
 	defer func() { _ = shutdownOtel(context.Background()) }()
 	logger := slog.New(telemetry.Tee(slog.NewJSONHandler(os.Stderr, nil), otelLogs)).With("nodeId", *nodeID)
+	codecs, err := audio.ParseCodecList(strings.Split(*codecList, ","))
+	if err != nil {
+		logger.Error("codecs", "err", err)
+		os.Exit(1)
+	}
+	logger.Info("sip codecs", "offer", strings.Join(codecs, ","), "opus", audio.OpusAvailable)
 	refs := []byte(strings.Join(os.Args[1:], " "))
 	if configPath != "" {
 		logger.Info("loaded config", "path", configPath)
@@ -213,7 +221,7 @@ func main() {
 		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants, MaxRooms: *maxRooms,
 		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger,
 		EmptyRoomTimeout: *emptyRoomTimeout, OwnerTimeout: *ownerTimeout,
-		AllowedDestinations: allowedDestinations(fc)})
+		AllowedDestinations: allowedDestinations(fc), Codecs: codecs})
 	// The PEM settings are file paths or secret:// references (edgetls, add-platform 4.2).
 	edge, err := edgetls.Build(edgetls.Options{Cert: *tlsCert, Key: *tlsKey, CA: *tlsCA, ClientCA: *tlsClientCA})
 	if err != nil {

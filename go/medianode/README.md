@@ -19,7 +19,8 @@ participants (mix-minus), driven by the VoiceSessionGateway over **media-control
 | `participant.dial` and cold, warm and refer transfers through an outbound proxy (`-outbound-proxy`, Routr in production) | done |
 | Debug endpoint (`-debug host:port`, `GET /rooms`) for tests and operators | done |
 | `listener.attach` / `listener.detach`: one unmixed RTP stream per selected track | done |
-| PCMA/G.722/Opus, SIP INFO and in-band DTMF, SRTP, jitter buffer | next slices |
+| PCMU, PCMA, G.722 and Opus on SIP legs, offered Opus first (see Codecs) | done |
+| SIP INFO and in-band DTMF, SRTP, jitter buffer | done |
 | MediaControl over gRPC (Roomr), next to the NATS commands; off by default | first slice (see below) |
 
 ## Run
@@ -37,6 +38,38 @@ Every flag has a key in the config file (`-config`, default `/config/medianode.y
 `${VAR}` placeholder (`nodeId: "${POD_NAME}"`), or as a `secret://env/NAME` reference for the
 passwords and TLS PEM settings. A `MEDIANODE_*` variable the file does not reference is logged
 by name at start as ignored.
+
+## Codecs
+
+SIP legs use `opus/48000/2`, `G722/8000`, `PCMU/8000` and `PCMA/8000`, in that order of
+preference (Roomr, `redesign-media-node` "Supported codecs"):
+
+- **Outbound INVITEs** (`participant.dial`, transfers, `CreateCall`) offer them in that order,
+  Opus as dynamic payload type 111 with
+  `a=fmtp:111 maxplaybackrate=16000;sprop-maxcapturerate=16000;useinbandfec=1` (RFC 7587); the
+  callee's pick wins.
+- **Inbound offers** are answered with the node's first choice among what the caller offered, so a
+  caller offering PCMU and Opus (in any order) gets Opus; a G.711-only trunk gets PCMU (or PCMA if
+  that is all it offers). No common codec: `488 Not Acceptable Here`.
+- The room mixes at 16 kHz. Opus runs at 16 kHz inside libopus (wideband, mono, 24 kb/s, in-band
+  FEC, complexity 5) on its 48 kHz RTP clock (960 ticks per 20 ms); a peer encoding at 48 kHz is
+  decoded to 16 kHz by libopus, and peers hear wideband audio, not full-band.
+- The list is configurable: `codecs: [G722, PCMU, PCMA]` in `medianode.yaml`, or
+  `-codecs PCMU,PCMA`. Leaving Opus out disables it. Unknown names fail at start-up.
+
+Opus is cgo (libopus). The image (`Dockerfile`) builds libopus 1.5.2 from source (checksum
+pinned, without the 1.5 neural extras: deep PLC, DRED and OSCE) and links it and libc statically
+(`-tags netgo,osusergo`), so the binaries still run on `distroless/static`; the Go build is
+cross-compiled for linux/amd64 and linux/arm64 on the build platform, not under QEMU. That costs
+about 2-2.6 MB of image (amd64 28.0 to 30.6 MB, arm64 26.4 to 28.4 MB). Built with
+`CGO_ENABLED=0` (or `-tags noopus`) the node has no Opus and offers G.722, PCMU, PCMA; the start-up
+log line `sip codecs` says which (`"opus": true`). Locally, install libopus (`apt install
+libopus-dev`, `brew install opus`).
+
+Opus costs roughly 2.2x PCMU per call: 50 rooms (one SIP leg plus one L16 session participant
+each) took about 55-61% of a core with Opus, 25-29% with PCMU and 30-34% with G.722, measured
+with `cmd/loadgen` on an arm64 dev container (Apple silicon, shared and busy; not production
+hardware). Size SIP capacity for the Opus share you expect.
 
 ## MediaControl over gRPC (Roomr)
 
