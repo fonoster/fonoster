@@ -114,10 +114,20 @@ export function AuthProvider({
   }, [client]);
 
   // An expired session keeps the current path so sign-in can return to it.
+  // Signing out revokes the refresh token on the server (best effort, never
+  // awaited): the SDK revokes the one it holds; a session restored while the
+  // API was unreachable is only in storage, so that one is revoked directly.
   const signOut = useCallback(
     (options?: { expired?: boolean }) => {
       const path = here.current;
-      client.logout();
+      const stored = storage.getJson<Session>(STORAGE_KEYS.session);
+      if (
+        !options?.expired &&
+        !client.getRefreshToken() &&
+        stored?.refreshToken
+      )
+        void client.revokeToken(stored.refreshToken).catch(() => undefined);
+      void client.logout();
       storage.remove(STORAGE_KEYS.session);
       storage.remove(STORAGE_KEYS.workspace);
       client.setAccessKeyId("");

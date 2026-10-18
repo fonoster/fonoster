@@ -172,6 +172,9 @@ services:
       # Identity's private key, which only the API server holds.
       - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/fonoster/keys/public.pem:ro
       - ${CONFIG_DIR:-./config}/keys/records.pem:/etc/fonoster/keys/records.pem:ro
+      # Call records in flight (config/gateway.yaml callRecord.dir): kept when the container is
+      # recreated (upgrade, crash), so they are still sealed.
+      - gateway-records:/var/lib/fonoster/records
     networks:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.43
@@ -298,3 +301,4 @@ volumes:
   postgres-data:
   nats-data:
   minio-data:
+  gateway-records:

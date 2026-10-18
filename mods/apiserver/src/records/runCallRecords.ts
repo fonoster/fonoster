@@ -45,6 +45,7 @@ export async function runCallRecords(
   deps: {
     natsUrl: NatsTarget;
     identityPublicKey: string;
+    identityTokenOptions?: RecordsRouterDeps["identityTokenOptions"];
     db: RecordsDb;
     relay?: RecordsRouterDeps["relay"];
     onConfigChange?: (accessKeyId: string) => void;
@@ -72,6 +73,7 @@ export async function runCallRecords(
   const router = createRecordsRouter({
     db: deps.db,
     identityPublicKey: deps.identityPublicKey,
+    identityTokenOptions: deps.identityTokenOptions,
     stores: createStoreResolver(config.stores),
     maintenance,
     relay: deps.relay,

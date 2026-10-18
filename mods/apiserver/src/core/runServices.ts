@@ -130,6 +130,10 @@ async function runServices() {
   const records = await runCallRecords(CALL_RECORDS as CallRecordsConfig, {
     natsUrl: NATS_CONNECTION,
     identityPublicKey: IDENTITY_PUBLIC_KEY,
+    identityTokenOptions: {
+      issuer: IDENTITY_ISSUER,
+      audience: IDENTITY_AUDIENCE
+    },
     db: prisma as unknown as RecordsDb,
     relay: { regionOf: regions.regionOf, client: regions.relay },
     onConfigChange: regions.onConfigChange

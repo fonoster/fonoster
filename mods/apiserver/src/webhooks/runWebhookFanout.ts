@@ -46,7 +46,8 @@ export type WebhookFanoutDb = any;
 /**
  * Event fan-out from the bus (add-workspace-webhooks 2.2, build log LO-B1, ST-2): consumes
  * `webhooks.events` through a JetStream durable consumer (one replica per event), fills in the
- * workspace from the app when a producer did not know it, reloads that workspace's endpoints,
+ * workspace from the app when a producer did not know it (and takes media nodes' call.failed
+ * reports from their own subject), reloads that workspace's endpoints,
  * stores one delivery per subscribed endpoint and only then acknowledges the event, attempts the
  * new deliveries at once, and keeps retrying due deliveries (including ones adopted from replicas
  * that died). An event redelivered after a replica died finds the deliveries it already made
@@ -89,16 +90,33 @@ export async function runWebhookFanout(
     apps.set(appRef, { at: Date.now(), workspace: app?.accessKeyId });
     return app?.accessKeyId ?? undefined;
   };
-  /** One bus event: resolves when its deliveries are stored (then the event is acknowledged). */
-  const intake = async (data: Uint8Array) => {
-    const event = Webhooks.parseBusEvent(data);
-    if (!event) return;
+  /** One event: resolves when its deliveries are stored. */
+  const intakeEvent = async (event: Webhooks.WebhookEvent) => {
     const resolved = await Webhooks.resolveWorkspace(event, workspaceOfApp);
     if (!resolved) return;
     await store.refreshEndpoints(resolved.workspaceRef);
     const created = await store.insertDeliveries(dispatcher.plan(resolved));
     if (created.length) void runDue();
   };
+  /** One bus event: resolves when its deliveries are stored (then the event is acknowledged). */
+  const intake = async (data: Uint8Array) => {
+    const event = Webhooks.parseBusEvent(data);
+    if (event) await intakeEvent(event);
+  };
+  // Media nodes report calls no gateway claimed on their own subject (they may not publish
+  // webhooks.events, M6); only a well-formed call.failed is accepted, its workspace from the app.
+  // One replica per report (queue group); a repeated report has the same event id.
+  const nodeReports = deps.nc.subscribe(Webhooks.NODE_CALL_FAILED_SUBJECT, {
+    queue: "apiserver-node-call-failed",
+    callback: (err, msg) => {
+      if (err) return;
+      const event = Webhooks.nodeCallFailedEvent(msg.subject, msg.data);
+      if (!event) return;
+      intakeEvent(event).catch((e) =>
+        logger.warn(`node call.failed fan-out failed: ${(e as Error).message}`)
+      );
+    }
+  });
   let unsubscribe: () => Promise<void> | void;
   try {
     unsubscribe = await consumeDurable(
@@ -144,6 +162,7 @@ export async function runWebhookFanout(
   return {
     runDue,
     async stop() {
+      nodeReports.unsubscribe();
       await unsubscribe();
       timers.forEach(clearInterval);
       await running;

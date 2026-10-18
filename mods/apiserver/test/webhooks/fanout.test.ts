@@ -114,22 +114,27 @@ describe("@apiserver/webhooks fan-out from the bus (database, NATS)", function (
     ]);
   });
 
-  it("fills in the workspace from the app for a media node's call.failed", async function () {
-    const event = Webhooks.callFailed("", {
-      callRef: "c2",
-      appRef: "app-support",
-      from: "+15550001111",
-      to: "+15550002222",
-      direction: "inbound",
-      reason: "node_error"
-    });
-    Webhooks.busWebhookPublisher(producer)(event);
+  it("turns a media node's call.failed report into the app's workspace event (M6)", async function () {
+    // The node reports on its own subject; a workspace it names is ignored.
+    producer.publish(
+      "media.n1.events.call-failed",
+      new TextEncoder().encode(
+        JSON.stringify({
+          type: "call.failed",
+          nodeId: "n1",
+          callRef: "c2",
+          appRef: "app-support",
+          from: "+15550001111",
+          to: "+15550002222",
+          direction: "inbound",
+          reason: "node_error",
+          workspaceRef: "WSvictim"
+        })
+      )
+    );
     await waitFor(2);
     const got = receiver.received[1]?.json;
-    expect(got).to.deep.include({
-      id: event.id,
-      type: "call.failed",
-      workspaceRef: WS
-    });
+    expect(got).to.deep.include({ type: "call.failed", workspaceRef: WS });
+    expect(got?.data).to.deep.include({ callRef: "c2", reason: "node_error" });
   });
 });

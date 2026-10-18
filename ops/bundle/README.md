@@ -17,4 +17,9 @@ npx -p @fonoster/common fonoster-config info
 Run `npx -p @fonoster/common fonoster-config check` to validate `config/` before starting.
 Vendor keys (Deepgram, ElevenLabs, OpenAI, Groq...) are added per workspace in the dashboard.
 
+Call records being written live in the `gateway-records` volume (`callRecord.dir` in
+`config/gateway.yaml`, `/var/lib/fonoster/records`), so recreating the gateway container (an
+upgrade, a crash) does not lose the calls in flight. A `config/gateway.yaml` from an older release
+may still say `/tmp/fonoster-records`: change it to `/var/lib/fonoster/records`.
+
 Full guide: https://docs.fonoster.com/self-hosting/install-compose

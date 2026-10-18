@@ -25,7 +25,9 @@ registry: { source: database, refreshMs: 5000 }
 workspaceKeys: { enabled: true, cacheMs: 5000 }
 webhooks: { enabled: true, refreshMs: 5000 }
 callRecord:
-  dir: /tmp/fonoster-records
+  # Records being written, sealed into the store when the call ends. The bundle keeps this folder
+  # in the gateway-records volume, so a recreated gateway container seals the calls in flight.
+  dir: /var/lib/fonoster/records
   region: local
   signingKey: { kid: local-1, privateKeyFile: /etc/fonoster/keys/records.pem }
   store:

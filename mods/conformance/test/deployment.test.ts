@@ -416,6 +416,28 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(gatewayConfig().cellSecrets).to.equal(undefined);
   });
 
+  it("mounts a volume at the gateway's call-record dir, not under /tmp", function () {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pod = (objs: K8sObject[]): any =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (find(objs, "Deployment", "fonoster-gateway") as any).spec.template.spec;
+    const cloud = render("values-cloud.yaml");
+    const dir = parseAllDocuments(
+      find(cloud, "ConfigMap", "fonoster-gateway")!.data!["gateway.yaml"]
+    )[0].toJS().callRecord.dir;
+    expect(dir).to.equal("/var/lib/fonoster/records");
+    const spec = pod(cloud);
+    expect(spec.containers[0].volumeMounts).to.deep.include({
+      name: "records",
+      mountPath: dir
+    });
+    expect(spec.volumes).to.deep.include({ name: "records", emptyDir: {} });
+    // Without call records, no records volume.
+    expect(
+      pod(render()).volumes.map((v: { name: string }) => v.name)
+    ).to.not.include("records");
+  });
+
   it("renders the media nodes' mutual TLS toward the edge (add-platform 4.2)", function () {
     const objs = render("--set=medianode.tls.enabled=true");
     expect(medianodeConfig(objs).tls).to.deep.equal({

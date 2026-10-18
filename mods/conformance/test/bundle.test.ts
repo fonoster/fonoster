@@ -181,6 +181,20 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     ]);
   });
 
+  it("keeps the gateway's call records in flight in a named volume at callRecord.dir", function () {
+    const { dir, env } = install();
+    const recordsDir = loadGatewayConfig(path.join(dir, "gateway.yaml"), env)
+      .callRecord?.dir;
+    expect(recordsDir).to.equal("/var/lib/fonoster/records");
+    // Not under /tmp, and not lost when the container is recreated.
+    expect(services.gateway.volumes).to.include(
+      `gateway-records:${recordsDir}`
+    );
+    expect(Object.keys(compose.volumes as object)).to.include(
+      "gateway-records"
+    );
+  });
+
   it("never reuses a legacy install's volumes (same project name, fonoster)", function () {
     // The root compose.yaml of Fonoster 0.27 and older named its volumes db and influxdb.
     const legacy = ["db", "influxdb"];

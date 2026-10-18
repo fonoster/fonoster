@@ -1,4 +1,5 @@
 {{- if .Values.gateway.enabled }}
+{{- $recordsDir := dig "callRecord" "dir" "" (.Values.gateway.config | default dict) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -53,6 +54,10 @@ spec:
             # A private cell's provider keys (config cellSecrets.dir: /var/lib/fonoster-secrets).
             - { name: cell-secrets, mountPath: /var/lib/fonoster-secrets, readOnly: true }
             {{- end }}
+            {{- with $recordsDir }}
+            # Call records being written (config callRecord.dir).
+            - { name: records, mountPath: {{ . | quote }} }
+            {{- end }}
           resources:
             {{- toYaml .Values.gateway.resources | nindent 12 }}
       volumes:
@@ -63,6 +68,10 @@ spec:
         {{- if .Values.regionAgent.enabled }}
         - name: cell-secrets
           secret: { secretName: {{ .Values.regionAgent.secretsSecret | quote }}, optional: true }
+        {{- end }}
+        {{- if $recordsDir }}
+        - name: records
+          {{- toYaml .Values.gateway.recordsVolume | nindent 10 }}
         {{- end }}
 ---
 apiVersion: v1
