@@ -19,7 +19,8 @@
 import { RECORD_SEALED_SUBJECT } from "@fonoster/callrecord";
 import { CALL_REF_ATTR, TRACEPARENT_HEADER } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { NatsConnection, StringCodec } from "nats";
+import { MsgHdrs, NatsConnection, StringCodec } from "nats";
+import { consumeDurable } from "../core/durableConsumer";
 import { apiserverTelemetry } from "../core/telemetry";
 import { RecordIndexEntry, RecordsDb } from "./types";
 
@@ -85,41 +86,74 @@ export function createIndexRecord(db: RecordsDb) {
   };
 }
 
-/** Consumes the gateways' index entries (one apiserver replica per entry). */
-export function subscribeRecordIndex(nc: NatsConnection, db: RecordsDb) {
+/** The work queue that captures the gateways' index entries and its durable consumer (ST-2). */
+export const RECORD_INDEX_STREAM = "FONOSTER_RECORD_INDEX";
+export const RECORD_INDEX_DURABLE = "apiserver-call-records";
+
+/**
+ * Consumes the gateways' index entries (one apiserver replica per entry) through a JetStream
+ * durable consumer: an entry is acknowledged once indexed, so one taken by a replica that dies is
+ * indexed by another (indexing is an idempotent upsert). Without JetStream (or the permission),
+ * a core NATS queue group, as before.
+ */
+export async function subscribeRecordIndex(
+  nc: NatsConnection,
+  db: RecordsDb,
+  options: { ackWaitMs?: number } = {}
+): Promise<() => Promise<void> | void> {
   const index = createIndexRecord(db);
-  const sub = nc.subscribe(RECORD_SEALED_SUBJECT, {
-    queue: "apiserver-call-records",
-    callback: (err, msg) => {
-      if (err) return;
-      let entry: RecordIndexEntry;
-      try {
-        entry = JSON.parse(sc.decode(msg.data));
-      } catch {
-        return;
-      }
-      // One span per entry, in the gateway's trace when it sent a traceparent header.
-      const telemetry = apiserverTelemetry();
-      const span = telemetry.startSpan(
-        "apiserver.records.index",
-        { [CALL_REF_ATTR]: entry.callRef ?? "" },
-        msg.headers?.get(TRACEPARENT_HEADER) || undefined
-      );
-      index(entry)
-        .then((done) => {
-          telemetry.count("fonoster.apiserver.records.indexed", 1, {
-            outcome: done ? "indexed" : "skipped"
-          });
-          span.end();
-        })
-        .catch((e) => {
-          telemetry.count("fonoster.apiserver.records.indexed", 1, {
-            outcome: "error"
-          });
-          span.end(undefined, e.message);
-          logger.error(`could not index ${entry.callRef}: ${e.message}`);
-        });
+  const handle = async (data: Uint8Array, headers?: MsgHdrs) => {
+    let entry: RecordIndexEntry;
+    try {
+      entry = JSON.parse(sc.decode(data));
+    } catch {
+      return;
     }
-  });
-  return () => sub.unsubscribe();
+    // One span per entry, in the gateway's trace when it sent a traceparent header.
+    const telemetry = apiserverTelemetry();
+    const span = telemetry.startSpan(
+      "apiserver.records.index",
+      { [CALL_REF_ATTR]: entry.callRef ?? "" },
+      headers?.get(TRACEPARENT_HEADER) || undefined
+    );
+    try {
+      const done = await index(entry);
+      telemetry.count("fonoster.apiserver.records.indexed", 1, {
+        outcome: done ? "indexed" : "skipped"
+      });
+      span.end();
+    } catch (e) {
+      telemetry.count("fonoster.apiserver.records.indexed", 1, {
+        outcome: "error"
+      });
+      span.end(undefined, (e as Error).message);
+      logger.error(`could not index ${entry.callRef}: ${(e as Error).message}`);
+      throw e;
+    }
+  };
+  try {
+    return await consumeDurable(
+      nc,
+      {
+        stream: RECORD_INDEX_STREAM,
+        subject: RECORD_SEALED_SUBJECT,
+        durable: RECORD_INDEX_DURABLE,
+        ackWaitMs: options.ackWaitMs,
+        maxDeliver: 20
+      },
+      handle
+    );
+  } catch (e) {
+    logger.warn(
+      `call records: JetStream consumer unavailable (${(e as Error).message}); falling back to a core NATS queue group`
+    );
+    const sub = nc.subscribe(RECORD_SEALED_SUBJECT, {
+      queue: "apiserver-call-records",
+      callback: (err, msg) => {
+        if (err) return;
+        handle(msg.data, msg.headers).catch(() => undefined);
+      }
+    });
+    return () => sub.unsubscribe();
+  }
 }

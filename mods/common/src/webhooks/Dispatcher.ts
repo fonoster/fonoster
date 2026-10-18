@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { randomBytes, randomUUID } from "crypto";
+import { createHash, randomBytes, randomUUID } from "crypto";
 import { URL } from "url";
 import { assertPublicUrlShape, safeFetch } from "../net";
 import {
@@ -87,6 +87,18 @@ export class MemoryWebhookStore implements WebhookStore {
 }
 
 export class WebhookError extends Error {}
+
+/**
+ * The id of an event's delivery to one endpoint. It depends only on the two, so the same event
+ * fanned out again (a bus message redelivered after a replica died, or published twice) finds
+ * the delivery it already made instead of making a second one (ST-2).
+ */
+export function deliveryId(eventId: string, endpointId: string): string {
+  const h = createHash("sha256")
+    .update(`${eventId}\0${endpointId}`)
+    .digest("hex");
+  return `whd_${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}`;
+}
 
 export type DispatcherOptions = {
   store: WebhookStore;
@@ -184,23 +196,28 @@ export class WebhookDispatcher {
     return secret;
   }
 
-  /** Fans an event out to every endpoint of its workspace subscribed to its type. */
-  publish(event: WebhookEvent): Delivery[] {
+  /** The deliveries an event makes, one per subscribed endpoint of its workspace (not stored). */
+  plan(event: WebhookEvent): Delivery[] {
     return this.options.store
       .endpoints(event.workspaceRef)
       .filter((e) => e.events.includes(event.type))
-      .map((e) => {
-        const d: Delivery = {
-          id: `whd_${randomUUID()}`,
+      .map(
+        (e): Delivery => ({
+          id: deliveryId(event.id, e.id),
           endpointId: e.id,
           event,
           status: "pending",
           attempts: 0,
           nextAttemptAt: this.now()
-        };
-        this.options.store.putDelivery(d);
-        return d;
-      });
+        })
+      );
+  }
+
+  /** Fans an event out to every endpoint of its workspace subscribed to its type. */
+  publish(event: WebhookEvent): Delivery[] {
+    const deliveries = this.plan(event);
+    deliveries.forEach((d) => this.options.store.putDelivery(d));
+    return deliveries;
   }
 
   /** Attempts every pending delivery that is due; returns how many were attempted. */

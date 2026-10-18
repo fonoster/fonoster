@@ -55,7 +55,7 @@ export async function runCallRecords(
     ...natsConnectOptions(deps.natsUrl),
     maxReconnectAttempts: -1
   });
-  subscribeRecordIndex(nc, deps.db);
+  await subscribeRecordIndex(nc, deps.db);
   const maintenance = natsMaintenanceClient(nc, config.maintenanceTimeoutMs);
   const retention = setInterval(
     () =>
