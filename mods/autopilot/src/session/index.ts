@@ -25,5 +25,6 @@ export * from "./knowledge";
 export * from "./llm";
 export * from "./machine";
 export * from "./sentences";
+export * from "./telemetry";
 export * from "./think";
 export * from "./tools";
