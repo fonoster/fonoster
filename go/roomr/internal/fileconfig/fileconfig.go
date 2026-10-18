@@ -39,7 +39,10 @@ type File struct {
 		// empty: none.
 		CallRefHeader string `yaml:"callRefHeader"`
 	} `yaml:"sip"`
-	RTP struct {
+	// CallDedupeWindow is how long a CreateCall call_ref is remembered after its call ended
+	// (default 10m).
+	CallDedupeWindow string `yaml:"callDedupeWindow"`
+	RTP              struct {
 		Host      string `yaml:"host"`
 		Advertise string `yaml:"advertise"`
 		PortMin   int    `yaml:"portMin"`

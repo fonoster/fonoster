@@ -73,6 +73,9 @@ type Config struct {
 	// none). An inbound INVITE's value becomes the call_ref when well formed (else the node picks
 	// one); a CreateCall's to.headers value is accepted as its call_ref.
 	CallRefHeader string
+	// CallDedupeWindow is how long a call_ref is remembered after its call ended, so a repeated
+	// CreateCall returns the call instead of dialing again (10 min).
+	CallDedupeWindow time.Duration
 	// Heartbeat facts for controllers (media-control "Heartbeat"): the Roomr address they
 	// dial, the SIP address, the RTP port range ([0, 0]: any), the node's version and region.
 	ControlAddr, SIPAddr string
@@ -127,6 +130,9 @@ func (c *Config) defaults() {
 	if c.OwnerTimeout == 0 {
 		c.OwnerTimeout = 20 * time.Second
 	}
+	if c.CallDedupeWindow <= 0 {
+		c.CallDedupeWindow = DefaultCallDedupeWindow
+	}
 }
 
 // Node owns rooms and serves media-control over NATS.
@@ -165,7 +171,7 @@ func New(nc *nats.Conn, cfg Config) *Node {
 	cfg.defaults()
 	guard := netguard.New(cfg.AllowedDestinations)
 	return &Node{cfg: cfg, nc: nc, rooms: map[string]*Room{}, stop: make(chan struct{}),
-		guard: guard, music: guard.Client(10 * time.Second)}
+		guard: guard, music: guard.Client(10 * time.Second), ctl: callTable{window: cfg.CallDedupeWindow}}
 }
 
 // SetDialer gives the node a way to place outbound legs (participant.dial, transfers).

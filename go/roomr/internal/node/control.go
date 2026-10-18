@@ -120,9 +120,8 @@ type callEntry struct {
 	endedAt time.Time
 }
 
-// endedCallTTL is the dedupe window: how long an ended call is remembered, so a repeated
-// CreateCall with its call_ref returns it instead of dialing again.
-const endedCallTTL = 5 * time.Minute
+// DefaultCallDedupeWindow is how long an ended call is remembered by default (Config).
+const DefaultCallDedupeWindow = 10 * time.Minute
 
 // headerValue looks a header up by name, ignoring case (SIP header names are case-insensitive).
 func headerValue(headers map[string]string, name string) (string, bool) {
@@ -173,6 +172,13 @@ type callTable struct {
 	mu     sync.Mutex
 	calls  map[string]*callEntry
 	dialer TargetDialer
+	// window is the dedupe window (Config.CallDedupeWindow).
+	window time.Duration
+}
+
+// expired reports whether an ended call is past the dedupe window.
+func (t *callTable) expired(e *callEntry, now time.Time) bool {
+	return !e.endedAt.IsZero() && now.Sub(e.endedAt) > t.window
 }
 
 func (t *callTable) putLocked(e *callEntry) {
@@ -181,17 +187,27 @@ func (t *callTable) putLocked(e *callEntry) {
 	}
 	now := time.Now()
 	for ref, old := range t.calls {
-		if !old.endedAt.IsZero() && now.Sub(old.endedAt) > endedCallTTL {
+		if t.expired(old, now) {
 			delete(t.calls, ref)
 		}
 	}
 	t.calls[e.info.CallRef] = e
 }
 
+// lookupLocked is the call with ref, unless it ended longer ago than the dedupe window.
+func (t *callTable) lookupLocked(ref string) *callEntry {
+	e := t.calls[ref]
+	if e != nil && t.expired(e, time.Now()) {
+		delete(t.calls, ref)
+		return nil
+	}
+	return e
+}
+
 func (t *callTable) get(ref string) *callEntry {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	return t.calls[ref]
+	return t.lookupLocked(ref)
 }
 
 func (t *callTable) endLocked(e *callEntry) {
@@ -302,7 +318,7 @@ func (n *Node) EndRoom(ref string) error {
 // the Call ringing; progress and the answer are published as events, as for participant.dial.
 // The configured call-ref header in req.To.Headers names the call when call_ref is empty (both
 // set and different: bad_message). A repeated call_ref returns the call it names (ended calls
-// for endedCallTTL), or call_exists when the request differs.
+// for the dedupe window), or call_exists when the request differs.
 func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 	if err := req.To.check(); err != nil {
 		return CallInfo{}, err
@@ -320,7 +336,7 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 		req.CallRef = n.nextRef("call")
 	}
 	n.ctl.mu.Lock()
-	if e := n.ctl.calls[req.CallRef]; e != nil {
+	if e := n.ctl.lookupLocked(req.CallRef); e != nil {
 		n.ctl.mu.Unlock()
 		if e.inbound || !sameCall(e.req, req) {
 			return CallInfo{}, errorf(CodeCallExists, "call %s exists with other parameters", req.CallRef)

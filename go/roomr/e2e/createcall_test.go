@@ -235,3 +235,26 @@ func TestCreateCallHeadersByteForByte(t *testing.T) {
 		t.Fatalf("INVITE X- headers = %v, want exactly the two given", st.Headers)
 	}
 }
+
+// TestCreateCallDedupeWindowEnds: once the dedupe window has passed since the call ended, its
+// call_ref is free again and a CreateCall with it dials anew.
+func TestCreateCallDedupeWindowEnds(t *testing.T) {
+	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.CallDedupeWindow = 300 * time.Millisecond }})
+	_, mc := r.withControl(nil)
+	r.callee.Callee("busy", 0)
+	ref := fmt.Sprintf("window-%d", time.Now().UnixNano())
+	req := &roomrv1.CreateCallRequest{CallRef: ref,
+		To: &roomrv1.SipTarget{Uri: "sip:+1555@carrier.invalid", Proxy: r.callee.Address()}}
+	if _, err := mc.CreateCall(rpcCtx(t), req); err != nil {
+		t.Fatal(err)
+	}
+	r.waitEvent(typed("call.progress", "callRef", ref, "cause", "busy"), 3*time.Second)
+	if again, err := mc.CreateCall(rpcCtx(t), req); err != nil || again.State != roomrv1.Call_ENDED {
+		t.Fatalf("within the window = %v %v", again, err)
+	}
+	time.Sleep(500 * time.Millisecond)
+	fresh, err := mc.CreateCall(rpcCtx(t), req)
+	if err != nil || fresh.State != roomrv1.Call_RINGING {
+		t.Fatalf("after the window = %v %v", fresh, err)
+	}
+}
