@@ -210,8 +210,11 @@ Every call-scoped span, log record and metric carries `fonoster.call_ref`. To fo
 Tempo (`{ span.fonoster.call_ref = "<ref>" }`) and Loki (structured metadata `fonoster_call_ref`).
 
 Neither the bundle nor the local stack runs a collector: set `OTEL_EXPORTER_OTLP_ENDPOINT` in
-`.env` to yours (e.g. `http://collector.example.com:4318`) and recreate the containers. With Helm,
-set `otel.endpoint`.
+`.env` to yours (e.g. `http://collector.example.com:4318`) and recreate the containers. For a hosted
+collector that needs an auth header, also set `OTEL_EXPORTER_OTLP_HEADERS` (and, if needed,
+`OTEL_EXPORTER_OTLP_PROTOCOL`) in `.env`; Compose passes both to every service that gets the
+endpoint. With Helm, set `otel.endpoint` and `otel.headers`, or `otel.headersSecret.name`/`key` to
+read the headers from a Secret.
 
 Metrics: `fonoster.gateway.calls.active`, `fonoster.gateway.calls.total`,
 `fonoster.roomr.rooms.active`, `fonoster.roomr.calls.incoming`,

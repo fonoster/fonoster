@@ -1,0 +1,48 @@
+name: provider-health
+
+# Daily snapshot of third-party runway (credits, balances, spend). Phase 1 of the provider health
+# spike: collect only, no alerting. Snapshots are kept as run artifacts for 90 days and echoed to the
+# job summary. Needs the repository secrets listed in ops/health/collect.mjs; missing ones are skipped.
+
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    name: collect provider health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+
+      - name: Collect
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
+          OPENAI_ADMIN_KEY: ${{ secrets.OPENAI_ADMIN_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          mkdir -p reports
+          node ops/health/collect.mjs | tee reports/provider-health.json
+          { echo '```json'; cat reports/provider-health.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-health-${{ github.run_id }}
+          path: reports/
+          retention-days: 90
+          if-no-files-found: ignore

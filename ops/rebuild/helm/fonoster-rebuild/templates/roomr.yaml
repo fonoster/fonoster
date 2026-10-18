@@ -46,6 +46,7 @@ spec:
             {{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" $ "user" "roomr") | nindent 12 }}
             - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: {{ include "fonoster-rebuild.otlpEndpoint" . | quote }} }
             - { name: OTEL_SERVICE_NAME, value: fonoster-roomr }
+            {{- include "fonoster-rebuild.otlpExtraEnv" . | nindent 12 }}
           ports:
             - { name: sip-udp, containerPort: 5060, protocol: UDP }
             - { name: sip-tcp, containerPort: 5060, protocol: TCP }
