@@ -104,6 +104,7 @@ export type RegionRow = {
   secretsSet: string[];
   reportedConfig: number;
   configVersion: number;
+  configChangedAt?: Date | null;
   lastHeartbeatAt: Date | null;
   enrolledAt: Date | null;
   endpoints?: unknown;

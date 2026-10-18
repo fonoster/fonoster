@@ -18,6 +18,7 @@
  */
 import { randomUUID } from "crypto";
 import { NatsConnection, StringCodec, Subscription } from "nats";
+import { memoryRelaySlots, RelaySlots } from "./relaySlots";
 import { subjects } from "./types";
 
 const sc = StringCodec();
@@ -71,9 +72,14 @@ export function createRelayClient(
     maxBytes?: number;
     /** Relays in flight per region; more answer `rate_limited` (HTTP 429). */
     maxConcurrent?: number;
+    /**
+     * Where the relays in flight are counted: the database in production, so the limit is per
+     * region across every replica (ST-4); this process's memory by default.
+     */
+    slots?: RelaySlots;
   } = {}
 ) {
-  const inFlight = new Map<string, number>();
+  const slots = options.slots ?? memoryRelaySlots();
   const maxConcurrent = options.maxConcurrent ?? 8;
   const firstTimeout = options.firstChunkTimeoutMs ?? 5000;
   const idleTimeout = options.idleTimeoutMs ?? 10000;
@@ -82,13 +88,12 @@ export function createRelayClient(
   return {
     /** Opens a relay; resolves once the first chunk is in (so the HTTP status is known). */
     async open(regionRef: string, request: RelayRequest) {
-      const busy = inFlight.get(regionRef) ?? 0;
-      if (busy >= maxConcurrent)
+      const release = await slots.acquire(regionRef, maxConcurrent);
+      if (!release)
         throw new RelayError(
           "rate_limited",
           "too many downloads from this region at once"
         );
-      inFlight.set(regionRef, busy + 1);
       const id = randomUUID();
       const inbox = `${subjects(regionRef).inbox}.${id}`;
       const sub: Subscription = nc.subscribe(inbox);
@@ -145,15 +150,10 @@ export function createRelayClient(
           if (queued) settle(queued);
           else waiter = settle;
         });
-      let released = false;
       const close = () => {
         done = true;
         sub.unsubscribe();
-        if (released) return;
-        released = true;
-        const n = (inFlight.get(regionRef) ?? 1) - 1;
-        if (n > 0) inFlight.set(regionRef, n);
-        else inFlight.delete(regionRef);
+        release();
       };
 
       nc.publish(

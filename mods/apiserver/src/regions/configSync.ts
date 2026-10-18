@@ -158,11 +158,19 @@ export function createConfigSync(deps: {
   sources: SnapshotSources;
   publish: LinkPublisher;
   debounceMs?: number;
+  /**
+   * How often this replica looks for changes whose debounced publish never happened (the replica
+   * that took the change died inside the window, ST-3). 0 turns the sweep off.
+   */
+  sweepMs?: number;
   /** The cloud's SIP root domain (workspace domains end with it). */
   rootDomain?: () => string;
 }) {
   const { db, service, sources, publish } = deps;
   const timers = new Map<string, ReturnType<typeof setTimeout>>();
+  const debounceMs = deps.debounceMs ?? 500;
+  // A change still marked this long after it was made lost its publish.
+  const staleMs = Math.max(2_000, debounceMs * 4);
   const rootDomain = () => deps.rootDomain?.() ?? "";
 
   const workspaceKinds = async (accessKeyId: string) => {
@@ -266,20 +274,71 @@ export function createConfigSync(deps: {
   /** Builds and publishes a new version; returns it, or undefined when paused or not enrolled. */
   const publishNow = async (row: RegionRow) => {
     if (row.state !== "enrolled" || paused(row)) return undefined;
+    const startedAt = new Date();
     const updated: RegionRow = await db.region.update({
       where: { ref: row.ref },
       data: { configVersion: { increment: 1 } }
     });
     const m = await message(row, updated.configVersion);
     publish(subjects(row.ref).config, m);
+    // Published: clear the mark, unless a change came in after this snapshot was started.
+    await db.region.updateMany({
+      where: { ref: row.ref, configChangedAt: { lte: startedAt } },
+      data: { configChangedAt: null }
+    });
     await publishSecretsNeeded(row);
     return m;
   };
+
+  /**
+   * Records the change in the database before debouncing its publish, so a replica that dies
+   * inside the window does not lose it: `sweep()` on any replica publishes it (ST-3).
+   */
+  const markChanged = async (load: () => Promise<RegionRow | undefined>) => {
+    const row = await load();
+    if (!row) return;
+    await db.region.updateMany({
+      where: { ref: row.ref, configChangedAt: null },
+      data: { configChangedAt: new Date() }
+    });
+  };
+
+  /** Publishes regions whose change was marked but not published in time. */
+  const sweep = async (now = Date.now()) => {
+    const rows: RegionRow[] = await db.region.findMany({
+      where: {
+        configChangedAt: { lt: new Date(now - staleMs) },
+        deletedAt: null
+      }
+    });
+    const published: string[] = [];
+    for (const row of rows) {
+      if (row.state !== "enrolled" || paused(row)) continue;
+      await publishNow(row);
+      published.push(row.ref);
+    }
+    return published;
+  };
+
+  const sweeper =
+    deps.sweepMs === 0
+      ? undefined
+      : setInterval(
+          () =>
+            void sweep().catch((e) =>
+              logger.warn(`config sync sweep failed: ${e.message}`)
+            ),
+          deps.sweepMs ?? 5_000
+        );
+  sweeper?.unref?.();
 
   const schedule = (
     key: string,
     load: () => Promise<RegionRow | undefined>
   ) => {
+    const marked = markChanged(load).catch((e) =>
+      logger.error(`config sync could not mark ${key}: ${e.message}`)
+    );
     clearTimeout(timers.get(key));
     const timer = setTimeout(() => {
       timers.delete(key);
@@ -288,27 +347,32 @@ export function createConfigSync(deps: {
         .catch((e) =>
           logger.error(`config sync for ${key} failed: ${e.message}`)
         );
-    }, deps.debounceMs ?? 500);
+    }, debounceMs);
     timer.unref?.();
     timers.set(key, timer);
+    return marked;
   };
 
   return {
     snapshot,
     secretsNeeded,
     publishNow,
+    sweep,
 
-    /** A workspace's config changed: publish its region soon (several changes make one version). */
+    /**
+     * A workspace's config changed: mark its region changed now and publish it soon (several
+     * changes make one version). Resolves once the mark is stored.
+     */
     onChange(accessKeyId: string) {
       // Debounced per workspace; the region is resolved when the timer fires.
-      schedule(`ws:${accessKeyId}`, () =>
+      return schedule(`ws:${accessKeyId}`, () =>
         service.regionOfWorkspace(accessKeyId)
       );
     },
 
     /** A workspace joined or left a region (created or deleted): publish that region soon. */
     onRegionChange(regionKeyValue: string) {
-      schedule(`rg:${regionKeyValue}`, () =>
+      return schedule(`rg:${regionKeyValue}`, () =>
         service.regionByKey(regionKeyValue)
       );
     },
@@ -347,6 +411,7 @@ export function createConfigSync(deps: {
     },
 
     stop() {
+      if (sweeper) clearInterval(sweeper);
       for (const t of timers.values()) clearTimeout(t);
       timers.clear();
     }

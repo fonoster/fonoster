@@ -37,6 +37,7 @@ import { createTestDb, TestDb } from "../../../common/test/persistence/testDb";
 import { createRecordsRouter } from "../../src/records";
 import {
   ConfigKinds,
+  createConfigSync,
   createRegionSigner,
   endpointsHash,
   generateRegionHub,
@@ -254,6 +255,7 @@ describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function (
   let hubDir: string | undefined;
   let hubUrl: string = NATS_URL ?? "";
   const pushed: Record<string, number>[] = [];
+  let sources: SnapshotSources;
   const cells: FakeCell[] = [];
   const hooks = createWorkspaceRegionHooks([
     {
@@ -353,7 +355,7 @@ describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function (
       };
     }
 
-    const sources: SnapshotSources = {
+    sources = {
       apps: async () => ({ apps: kinds.apps, assistants: kinds.assistants }),
       numbers: async () => kinds.numbers,
       routr: async () => kinds.routr,
@@ -927,6 +929,36 @@ describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function (
     expect(cell.configs.length).to.equal(n);
     cell.heartbeat({ configVersion: 4 });
     await until(async () => (await current()).status === "connected");
+  });
+
+  it("publishes a change whose replica died inside the debounce window (ST-3)", async function () {
+    const before = cell.configs.length;
+    const row = await runtime.service.regionOfWorkspace(WS);
+    // Replica A takes the change and dies before its debounced publish fires.
+    const replicaA = createConfigSync({
+      db: db!.prisma,
+      service: runtime.service,
+      sources,
+      publish: () => undefined,
+      debounceMs: 60_000,
+      sweepMs: 0
+    });
+    kinds.apps = [...kinds.apps, { ref: "app-3", name: "Night shift" }];
+    await replicaA.onChange(WS);
+    replicaA.stop();
+    const marked = await runtime.service.byRef(row!.ref);
+    expect(marked!.configChangedAt).to.be.instanceOf(Date);
+    // Another replica's sweep publishes it, with a higher version, within 10 s.
+    const msg = await until(() => cell.configs[before], 10_000);
+    expect(msg.configVersion).to.be.greaterThan(row!.configVersion);
+    expect(
+      (msg.workspaces as Record<string, { kinds: ConfigKinds }>)[
+        WS
+      ].kinds.apps.map((a) => a.ref)
+    ).to.include("app-3");
+    const cleared = await runtime.service.byRef(row!.ref);
+    expect(cleared!.configChangedAt).to.equal(null);
+    cell.heartbeat({ configVersion: msg.configVersion as number });
   });
 
   it("ingests index entries and usage only for workspaces the region serves", async function () {

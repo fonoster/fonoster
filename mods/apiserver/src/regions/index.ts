@@ -25,6 +25,7 @@ export * from "./link";
 export * from "./natsAuth";
 export * from "./natsJwt";
 export * from "./relay";
+export * from "./relaySlots";
 export * from "./relayHttp";
 export * from "./runRegions";
 export * from "./service";
