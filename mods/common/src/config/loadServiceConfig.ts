@@ -19,7 +19,7 @@
 import { existsSync, readFileSync } from "fs";
 import { getLogger } from "@fonoster/logger";
 import { z, ZodError, ZodTypeAny } from "zod";
-import { findLegacyEnv, findMovedKeys, MovedKeys } from "./configHints";
+import { findMovedKeys, MovedKeys } from "./configHints";
 import { interpolateEnv } from "./interpolateEnv";
 import { parseConfigFile } from "./parseConfigFile";
 import { resolveConfigFile } from "./resolveConfigFile";
@@ -51,8 +51,6 @@ type LoadServiceConfigOptions<S extends ZodTypeAny> = {
   interpolatePaths?: string[];
   /** Old key path → new key path, reported as hints. */
   movedKeys?: MovedKeys;
-  /** Env var prefixes of the old env-based config, reported as a warning. */
-  legacyEnvPrefixes?: string[];
 };
 
 /**
@@ -94,13 +92,6 @@ function loadServiceConfig<S extends ZodTypeAny>(
   const fileBase = options.fileBase ?? service;
   const argv = options.argv ?? process.argv;
   const env = options.env ?? process.env;
-
-  const legacy = findLegacyEnv(options.legacyEnvPrefixes ?? [], env);
-  if (legacy.length > 0) {
-    logger.warn(
-      `ignoring ${legacy.length} legacy environment variable(s); ${service} now reads its config file only: ${legacy.join(", ")}`
-    );
-  }
 
   const resolved = resolveConfigFile(fileBase, argv, options.searchDirs);
   const where = resolved.path ?? "(built-in defaults)";

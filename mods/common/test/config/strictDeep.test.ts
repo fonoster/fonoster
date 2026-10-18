@@ -21,7 +21,7 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { expect } from "chai";
 import { z } from "zod";
-import { findLegacyEnv, getIntegrationsFromFile, strictDeep } from "../../src";
+import { getIntegrationsFromFile, strictDeep } from "../../src";
 
 describe("@common[config/strictDeep]", function () {
   it("rejects unknown keys through defaults, optionals and arrays", function () {
@@ -65,18 +65,6 @@ describe("@common[config/strictDeep]", function () {
 
     expect(schema.safeParse({ credentials: { apiKey: "x", any: 1 } }).success)
       .to.be.true;
-  });
-});
-
-describe("@common[config/findLegacyEnv]", function () {
-  it("returns only matching names, sorted, never values", function () {
-    const names = findLegacyEnv(["APISERVER_", "AUTOPILOT_"], {
-      AUTOPILOT_LOGS_LEVEL: "info",
-      APISERVER_SMTP_HOST: "smtp",
-      POSTGRES_PASSWORD: "secret"
-    });
-
-    expect(names).to.deep.equal(["APISERVER_SMTP_HOST", "AUTOPILOT_LOGS_LEVEL"]);
   });
 });
 

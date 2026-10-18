@@ -48,16 +48,6 @@ function findMovedKeys(raw: unknown, movedKeys: MovedKeys): string[] {
     .map(([from, to]) => `"${from}" moved to "${to}"`);
 }
 
-/**
- * Names of environment variables that look like the old env-based config for
- * this service. Values are never returned, so they can be logged safely.
- */
-function findLegacyEnv(prefixes: string[], env: Env = process.env): string[] {
-  return Object.keys(env)
-    .filter((name) => prefixes.some((prefix) => name.startsWith(prefix)))
-    .sort();
-}
-
 /** Edit distance between two strings (insertions, deletions, substitutions). */
 function levenshtein(a: string, b: string): number {
   let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
@@ -89,4 +79,4 @@ function suggestKey(unknown: string, known: string[]): string | undefined {
   return best?.key;
 }
 
-export { findMovedKeys, findLegacyEnv, levenshtein, suggestKey, MovedKeys };
+export { findMovedKeys, levenshtein, suggestKey, MovedKeys };
