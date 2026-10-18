@@ -125,6 +125,7 @@ type Room struct {
 	listeners    map[string][]fork
 	// stats of participants that already left (the node's totals include them).
 	goneStats jitter.Stats
+	orphan    orphanState
 }
 
 // fork sends one participant's track, unmixed, to a listener's RTP destination.
@@ -252,8 +253,9 @@ func (r *Room) detachListener(ref string) bool {
 }
 
 func newRoom(n *Node, ref string) *Room {
-	return &Room{Ref: ref, node: n, created: time.Now(), maxDuration: n.cfg.MaxDuration,
-		participants: map[string]*Participant{}, done: make(chan struct{})}
+	now := time.Now()
+	return &Room{Ref: ref, node: n, created: now, maxDuration: n.cfg.MaxDuration,
+		participants: map[string]*Participant{}, done: make(chan struct{}), orphan: orphanState{idleSince: now}}
 }
 
 // errRoomFull is the 11th participant (MN11).
@@ -773,6 +775,11 @@ func (r *Room) checkLimits() {
 	r.mu.Unlock()
 	if time.Since(r.created) > limit {
 		r.hangupAll(ReasonMaxDuration, 0, "")
+		return
+	}
+	if why := r.orphaned(); why != "" {
+		r.node.cfg.Logger.Warn("ending a room without an owner", "room", r.Ref, "why", why)
+		r.hangupAll(ReasonNodeError, 0, "")
 		return
 	}
 	c := r.caller()

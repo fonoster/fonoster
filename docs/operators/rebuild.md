@@ -149,6 +149,8 @@ them one at a time (`gateway.podDisruptionBudget`) and give calls time via
 | Participants per room | 10 | `-max-participants`, `maxParticipants` |
 | Rooms per media node | 200 | `-max-rooms`, `maxRooms` (heartbeats report it; placement skips a full node and `room.create` beyond it gets `at_capacity`) |
 | Silent caller media timeout | 30 s | `-media-timeout`, `mediaTimeout` |
+| Room with nobody in it (its placer is gone) | 30 s | `-empty-room-timeout`, `emptyRoomTimeout` (negative: never) |
+| Room whose gateway stopped its heartbeats | 20 s | `-owner-timeout`, `ownerTimeout` (needs the node to receive `gateway.heartbeat`; negative: never) |
 | Heartbeat | 2 s | `-heartbeat` |
 | Call claim by a gateway | 500 ms, one retry, then 503 | fixed by the spec |
 

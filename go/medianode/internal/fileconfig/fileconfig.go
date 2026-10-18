@@ -55,6 +55,8 @@ type File struct {
 	MaxParticipants   int    `yaml:"maxParticipants"`
 	MaxRooms          int    `yaml:"maxRooms"`
 	MediaTimeout      string `yaml:"mediaTimeout"`
+	EmptyRoomTimeout  string `yaml:"emptyRoomTimeout"`
+	OwnerTimeout      string `yaml:"ownerTimeout"`
 	TLS               struct {
 		Listen   string `yaml:"listen"`
 		Cert     string `yaml:"cert"`

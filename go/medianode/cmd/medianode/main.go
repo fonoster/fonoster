@@ -125,6 +125,8 @@ func main() {
 	}
 	maxRooms := flag.Int("max-rooms", maxRoomsDefault, "rooms the node holds at once; room.create and INVITEs beyond it are refused (at_capacity)")
 	mediaTimeout := flag.Duration("media-timeout", orDuration(fc.MediaTimeout, 30*time.Second), "end an answered call with no caller RTP for this long")
+	emptyRoomTimeout := flag.Duration("empty-room-timeout", orDuration(fc.EmptyRoomTimeout, 30*time.Second), "end a room with no participant and no dial in progress for this long (negative: never)")
+	ownerTimeout := flag.Duration("owner-timeout", orDuration(fc.OwnerTimeout, 20*time.Second), "end a room whose gateway sent no gateway.heartbeat for this long (negative: never)")
 	tlsListen := flag.String("tls", or(fc.TLS.Listen, ""), "SIP-over-TLS listen address; empty disables TLS")
 	tlsCert := flag.String("tls-cert", or(fc.TLS.Cert, ""), "PEM certificate for the TLS listener")
 	tlsKey := flag.String("tls-key", or(fc.TLS.Key, ""), "PEM key for the TLS listener")
@@ -203,6 +205,7 @@ func main() {
 	n := node.New(nc, node.Config{Registry: reg, NodeID: *nodeID, RTPHost: *rtpHost, AdvertiseHost: *rtpAdvertise,
 		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants, MaxRooms: *maxRooms,
 		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger,
+		EmptyRoomTimeout: *emptyRoomTimeout, OwnerTimeout: *ownerTimeout,
 		AllowedDestinations: allowedDestinations(fc)})
 	// The PEM settings are file paths or secret:// references (edgetls, add-platform 4.2).
 	edge, err := edgetls.Build(edgetls.Options{Cert: *tlsCert, Key: *tlsKey, CA: *tlsCA, ClientCA: *tlsClientCA})
