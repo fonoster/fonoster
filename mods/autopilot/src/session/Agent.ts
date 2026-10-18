@@ -16,12 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CALL_REF_ATTR } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { SessionEndedError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
 import { SessionAssistant } from "./config";
 import { KNOWLEDGE_TIMEOUT_MS, KnowledgePort } from "./knowledge";
 import { sentences } from "./sentences";
+import { telemetry } from "./telemetry";
 import { ChatMessage, Think, ThinkChunk, ToolCall, ToolSpec } from "./think";
 import { ToolPort } from "./tools";
 import type { Session } from "@fonoster/voice";
@@ -222,10 +224,7 @@ export class Agent {
         ...this.messages(prepared.context),
         { role: "user" as const, content: text }
       ];
-      await this.pump(
-        this.think.stream(messages, this.toolSpecs(), abort.signal),
-        chunks
-      );
+      await this.pump(this.traced(messages, abort.signal), chunks);
     })();
   }
 
@@ -268,7 +267,30 @@ export class Agent {
     return run;
   }
 
+  /** One turn (STT final, LLM, TTS) as an autopilot.turn span. */
   private async respond(
+    text: string,
+    abort: AbortController,
+    previous?: Promise<void>
+  ) {
+    const callRef = this.session.callRef;
+    const span = telemetry.startSpan(
+      "autopilot.turn",
+      { [CALL_REF_ATTR]: callRef },
+      telemetry.traceparent(callRef)
+    );
+    try {
+      await this.respondTurn(text, abort, previous);
+      span.end({ "turn.cancelled": abort.signal.aborted });
+    } catch (e) {
+      span.end({}, (e as Error).message);
+      throw e;
+    } finally {
+      telemetry.count("fonoster.autopilot.turns", 1);
+    }
+  }
+
+  private async respondTurn(
     text: string,
     abort: AbortController,
     previous?: Promise<void>
@@ -555,11 +577,48 @@ export class Agent {
     context: ChatMessage[] = []
   ): AsyncQueue<ThinkChunk> {
     const chunks = new AsyncQueue<ThinkChunk>();
-    void this.pump(
-      this.think.stream(this.messages(context), this.toolSpecs(), signal),
-      chunks
-    );
+    void this.pump(this.traced(this.messages(context), signal), chunks);
     return chunks;
+  }
+
+  /** think.stream inside an autopilot.llm.request span, with request and latency metrics. */
+  private async *traced(
+    messages: ChatMessage[],
+    signal: AbortSignal
+  ): AsyncGenerator<ThinkChunk> {
+    const callRef = this.session.callRef;
+    const span = telemetry.startSpan(
+      "autopilot.llm.request",
+      { [CALL_REF_ATTR]: callRef, "llm.messages": messages.length },
+      telemetry.traceparent(callRef)
+    );
+    const started = Date.now();
+    let first: number | undefined;
+    let failure: string | undefined;
+    try {
+      for await (const chunk of this.think.stream(
+        messages,
+        this.toolSpecs(),
+        signal
+      )) {
+        first ??= Date.now() - started;
+        yield chunk;
+      }
+    } catch (e) {
+      failure = (e as Error).message;
+      throw e;
+    } finally {
+      telemetry.count("fonoster.autopilot.llm.requests", 1);
+      if (first !== undefined)
+        telemetry.count("fonoster.autopilot.llm.latency_ms", first);
+      span.end(
+        {
+          "llm.first_chunk_ms": first ?? -1,
+          "llm.cancelled": signal.aborted
+        },
+        failure
+      );
+    }
   }
 
   private takePrepared(text: string): Prepared | undefined {

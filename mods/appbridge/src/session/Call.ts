@@ -777,6 +777,9 @@ export class AppSession {
       to: info.to,
       metadata: info.metadata,
       handoff: this.handoffPayload,
+      ...(telemetry.traceparent(info.callRef)
+        ? { traceparent: telemetry.traceparent(info.callRef) }
+        : {}),
       audio,
       tracks: [
         { id: 1, side: "inbound", kind: "audio", codec: audio.codec },

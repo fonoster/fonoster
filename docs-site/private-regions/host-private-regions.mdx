@@ -40,6 +40,19 @@ All commands run in your `fonoster` folder.
     `config/keys/region-signing.pem` and four files in `config/keys/region-hub/`. Running it again
     leaves existing files alone.
 
+    With the `fonoster-region` CLI (the region agent image or package) the same step is one command,
+    `fonoster-region hub init`. It writes the same files, all readable only by you (`0600`), keeps
+    any that already exist, and prints the next steps:
+
+    ```bash
+    fonoster-region hub init ./config \
+      --leaf-tls-cert /etc/nats/tls/fullchain.pem --leaf-tls-key /etc/nats/tls/privkey.pem
+    ```
+
+    The leaf port needs TLS, so the command asks for the certificate and key as the hub's NATS server
+    will see them. For a local stack only, pass `--allow-no-tls` instead; `--leaf-port` changes the
+    default `7422`.
+
     The API server runs as another user, so let it read the new keys:
 
     ```bash
@@ -50,6 +63,7 @@ All commands run in your `fonoster` folder.
       The files in `config/keys/region-hub/` can create credentials for any region. Back them up
       with `.env` and keep them private.
     </Warning>
+
   </Step>
 
   <Step title="Create an operator key">
@@ -61,6 +75,7 @@ All commands run in your `fonoster` folder.
     ```
 
     You can skip it: private regions work without it, and the admin API stays off.
+
   </Step>
 
   <Step title="Run the hub">
@@ -97,6 +112,7 @@ All commands run in your `fonoster` folder.
     ```bash
     COMPOSE_FILE=compose.yaml:compose.tls.yaml:compose.regions.yaml
     ```
+
   </Step>
 
   <Step title="Connect the API server to the hub">
@@ -126,6 +142,7 @@ All commands run in your `fonoster` folder.
     | `operatorKey` | Turns the region admin API on. Leave it out if you skipped the operator key |
 
     Edit the example, not `config/fonoster.yaml`: `init` writes that file again from the example.
+
   </Step>
 
   <Step title="Write the config and restart">
@@ -136,6 +153,7 @@ All commands run in your `fonoster` folder.
     npx -p @fonoster/common fonoster-config check
     docker compose up -d --force-recreate apiserver
     ```
+
   </Step>
 </Steps>
 

@@ -15,6 +15,8 @@ name: ${COMPOSE_PROJECT_NAME:-fonoster-cell}
 
 x-otel: &otel
   OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+  OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+  OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
 
 # The cell's database (the apiserver schema; the agent migrates it) and the secret-store key.
 x-cell-db: &cell-db

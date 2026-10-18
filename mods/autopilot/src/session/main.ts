@@ -19,17 +19,14 @@
 // Autopilot's entry point (rework-autopilot task 4.3; the only engine since cleanbreak CB-B5):
 //
 //   node dist/session/main.js --config /config/autopilot.yaml
-import {
-  initTelemetry,
-  logUnhandledRejections,
-  telemetryEnv
-} from "@fonoster/common";
+import { logUnhandledRejections } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   findHostedConfig,
   loadHostedConfig,
   startHostedAutopilot
 } from "./hosted";
+import { startTelemetry } from "./telemetry";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 logUnhandledRejections(logger);
@@ -49,7 +46,7 @@ if (!file) {
 const config = loadHostedConfig(file);
 
 // Off unless an OTLP endpoint is configured (telemetry.otlpEndpoint or OTEL_EXPORTER_OTLP_*).
-initTelemetry("fonoster-autopilot", undefined, telemetryEnv(config.telemetry));
+startTelemetry(config.telemetry);
 
 startHostedAutopilot(config).catch((e: Error) => {
   logger.error(`hosted autopilot failed to start: ${e.message}`);

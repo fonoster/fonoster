@@ -90,6 +90,8 @@ export class Session {
   readonly from: string;
   readonly to: string;
   readonly metadata: Record<string, unknown>;
+  /** The W3C traceparent of the call's span (session.start `traceparent`), when sent. */
+  readonly traceparent?: string;
   /** The payload of the handoff that started this session (session.start `handoff`), or null. */
   readonly handoffPayload: Record<string, unknown> | null;
   readonly speech: SessionStart["speech"];
@@ -135,6 +137,7 @@ export class Session {
     this.from = start.from;
     this.to = start.to;
     this.metadata = (start.metadata ?? {}) as Record<string, unknown>;
+    this.traceparent = start.traceparent;
     this.handoffPayload = (start.handoff ?? null) as Record<
       string,
       unknown

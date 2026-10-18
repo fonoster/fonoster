@@ -200,7 +200,7 @@ render_configs() {
     cat "$STACK_ENV" "$HOST_ENV" "$BUNDLE_ENV"
     local k
     for k in DEEPGRAM_API_KEY ELEVENLABS_API_KEY GROQ_API_KEY OPENAI_API_KEY \
-      OTEL_EXPORTER_OTLP_ENDPOINT; do
+      OTEL_EXPORTER_OTLP_ENDPOINT OTEL_EXPORTER_OTLP_HEADERS OTEL_EXPORTER_OTLP_PROTOCOL; do
       [ -n "${!k:-}" ] && echo "$k=${!k}"
     done
   } > "$SERVICES_ENV"

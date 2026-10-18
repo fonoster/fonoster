@@ -29,12 +29,31 @@ http://{{ .Release.Name }}-otel-collector:4318
 {{- end }}
 
 {{/*
+OTLP headers and protocol for a hosted collector (otel.headers, or otel.headersSecret to read them
+from a Secret), as env entries. Takes the root context; renders nothing when none is set.
+*/}}
+{{- define "fonoster-rebuild.otlpExtraEnv" -}}
+{{- if .Values.otel.headersSecret.name }}
+- name: OTEL_EXPORTER_OTLP_HEADERS
+  valueFrom: { secretKeyRef: { name: {{ .Values.otel.headersSecret.name | quote }}, key: {{ .Values.otel.headersSecret.key | default "headers" | quote }} } }
+{{- else if .Values.otel.headers }}
+- name: OTEL_EXPORTER_OTLP_HEADERS
+  value: {{ .Values.otel.headers | quote }}
+{{- end }}
+{{- if .Values.otel.protocol }}
+- name: OTEL_EXPORTER_OTLP_PROTOCOL
+  value: {{ .Values.otel.protocol | quote }}
+{{- end }}
+{{- end }}
+
+{{/*
 Env every Fonoster service gets: OTLP endpoint and service name, and what `secret://k8s/...`
 references need (the pod's namespace and where Secrets are mounted). (dict "root" $ "service" "x")
 */}}
 {{- define "fonoster-rebuild.commonEnv" -}}
 - name: OTEL_EXPORTER_OTLP_ENDPOINT
   value: {{ include "fonoster-rebuild.otlpEndpoint" .root | quote }}
+{{- include "fonoster-rebuild.otlpExtraEnv" .root }}
 - name: OTEL_SERVICE_NAME
   value: {{ printf "fonoster-%s" .service | quote }}
 - name: POD_NAMESPACE
